@@ -88,9 +88,14 @@ the CONSUMER layer is not installed. A product that serves an artifact it cannot
 generate is not standalone however complete its serving half is: the user who
 installs it alone gets a reader with nothing to read. Where the generator lives
 today in the consumer because it was written against the publisher's corpus, the
-neutral product SHALL grow its OWN generator over the adapter interface it
-already declares, and the consumer SHALL KEEP its governed generator and hand it
-in through that same seam. A generator that carries the publisher's governance
+neutral product SHALL grow its OWN generator over the corpus interface it already
+declares, and the consumer SHALL KEEP its governed generator and contribute it
+through a DECLARED GENERATOR SEAM. That seam is distinct from the corpus-read
+interface and SHALL BE DECLARED BY THIS ARC, naming the operation it hands over,
+the registration point, and what a conformant implementation must satisfy — a
+closed corpus-read interface carries no generator handoff, and "the same seam"
+SHALL NOT be asserted of an interface whose members do not include one, because
+two incompatible implementations could then both claim conformance. A generator that carries the publisher's governance
 vocabulary, or that imports the publisher's own check families, SHALL NOT BE
 RELOCATED into the neutral product: relocating it trades one wrong-way dependency
 for a deeper one, and the neutral core ends up importing the very tooling
@@ -115,7 +120,7 @@ refusal and leaves the product with nothing to read.
 
 #### Scenario: The consumer's generator carries the publisher's vocabulary
 - **WHEN** the generator that exists is written against the publisher's corpus — its governance nouns in its paths, and the publisher's check families among its imports
-- **THEN** it is NOT relocated into the neutral product; the neutral product grows its own projection over its declared adapter interface, and the consumer injects its governed generator through the same seam
+- **THEN** it is NOT relocated into the neutral product; the neutral product grows its own projection over its declared corpus interface, and the consumer contributes its governed generator through a generator seam this arc declares
 - **AND** the neutral product's projection is judged by what it can read alone, not by what the consumer's can read
 
 ### Requirement: A deferred reach into the publisher or the consumer resolves through the declared seam

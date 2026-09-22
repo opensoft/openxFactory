@@ -157,9 +157,12 @@ is NOT closed is two other things, and this packet is about them:
    implementation — does not exist yet and is BUILD-arc work."*
 
 **Both legs' required checks are green, and that is the problem.** openDox-code's
-`validate.yml` runs 37 of its 63 test files and clears its floor with zero margin
-(`1114/1111/3`); openXdox-code runs 16 of 85 and clears `539/533/6`, also with
-zero margin. Run whole with `python -m pytest -q`, openDox-code produces **1,298
+`validate.yml` names **37 of its 63 test files** and clears its floor with zero
+margin (`1114/1111/3`); openXdox-code names **20 of 85** and clears `539/533/6`,
+also with zero margin. Both figures were re-measured for this packet at
+openDox-code `f8a1eced` and openXdox-code `ab04453` by extracting the `run:`
+blocks that invoke pytest and stripping shell comments — the method, and why an
+earlier reading said 31 of 53, are in `design.md`. Run whole with `python -m pytest -q`, openDox-code produces **1,298
 errors and zero passed** and openXdox-code **1,089 errors and zero passed**, 57 of
 its 85 files failing collection.
 And every one of openXdox's six skips carries the same reason — *"doc_health

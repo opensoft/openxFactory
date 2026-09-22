@@ -120,9 +120,26 @@ Zero passed. Every one of the 1,298 is a SETUP error rather than a collection
 error, over 44 files, and one autouse fixture does it —
 `tests/session_fixtures.py:413`, whose body is `from opendox import cli as
 cli_mod`. CI is green anyway, because `validate.yml` runs three `--noconftest`
-steps over **31 of the repository's 53 test modules** (30 + 1 + 6, reproducing
-the pinned `MIN_SELECTED: 1114 / MIN_PASSED: 1111 / EXPECT_SKIPPED: 3` exactly);
-**22 test modules are collected by no required command at all**. A green required
+steps over a NAMED FILE LIST. **Re-measured for this packet at openDox-code
+`f8a1eced`, by extracting the `run:` blocks that invoke pytest and stripping
+shell comments** — an earlier reading of 31 of 53 counted only the three
+`--noconftest` blocks over `tests/`, and a regex over the whole workflow
+over-counted to 47 by matching comments:
+
+```
+run: blocks invoking pytest: 4
+  block 1: files= 30  --noconftest=True
+  block 2: files=  1  --noconftest=True
+  block 3: files=  6  --noconftest=True
+  block 4: files=  2  --noconftest=False
+DISTINCT test modules actually named: 37
+tree: tests/test_*.py = 53, tests_runtime/test_*.py = 10, TOTAL = 63
+```
+
+**So the figure this packet uses everywhere is 37 of 63**, and the three
+`--noconftest` blocks reproduce the pinned `MIN_SELECTED: 1114 /
+MIN_PASSED: 1111 / EXPECT_SKIPPED: 3` exactly. **26 test modules are named by no
+pytest step at all.** A green required
 check is not evidence that the product imports, and requirement 2's second
 scenario exists to say so.
 

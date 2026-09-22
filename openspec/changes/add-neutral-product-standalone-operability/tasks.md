@@ -89,8 +89,12 @@ mention in the package is prose.
   package in a checkout with no sibling installed, failing with the name of the
   first module that still needs one.
 - [ ] 2.5 Remove `validate.yml`'s three `--noconftest` steps and their enumerated
-  file lists; the suite collects whole. Today they run **31 of 53** test modules
-  and 22 are collected by no required command. The autouse fixture that produces
+  file lists; the suite collects whole. Measured at `f8a1eced` by extracting the
+  `run:` blocks that invoke pytest: **four blocks name 37 distinct test modules of
+  the 63 in the tree** (`tests/` 53 + `tests_runtime/` 10), three of them under
+  `--noconftest`; **26 modules are named by no pytest step at all**. This is the
+  figure the whole packet uses — an earlier reading of "31 of 53" counted only the
+  `--noconftest` blocks over `tests/`. The autouse fixture that produces
   the 1,298 setup errors is `tests/session_fixtures.py:413`, whose body is
   `from opendox import cli as cli_mod`.
 - [ ] 2.6 Correct openDox-code's `README.md:39-42`, which still gives the
@@ -177,10 +181,22 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   *"keep those six words"*, same comment). **No word is re-authored and no
   workflow is designed.** `src/opendox/display_profile.py` is unchanged by this
   group.
-- [ ] 5.4 openXdox KEEPS `generator.py`, `snapshot.py`, `snapshot_registry.py`,
-  `completeness.py` and `corpus_root.py`, and hands its governed generator in
-  through the SAME seam. The publisher's corpus is projected exactly as today and
-  the consumer loses no capability — requirement 4's third scenario is the check.
+- [ ] 5.4 **DECLARE THE GENERATOR SEAM — it does not exist and `CorpusAdapter` is
+  not it.** `src/opendox/corpus_adapter.py`'s Protocol is CLOSED at six members
+  (`resolve`, `list_documents`, `read`, `classify`, `check`, `write_back`) and its
+  own docstring says *"Six methods. Nothing else, ever"* — none of them is a
+  generator handoff, so "contribute it through the same seam" would name nothing
+  and let two incompatible implementations both claim conformance. This box
+  declares the seam: the operation handed over, the registration point (beside
+  `domain_profile.register()`, which is the shape the product already uses), and
+  the conformance a contributed generator must satisfy. `consumer_reach.py` says
+  the corresponding injection *"does not exist yet and is BUILD-arc work"* — this
+  is that work.
+- [ ] 5.4a openXdox KEEPS `generator.py`, `snapshot.py`, `snapshot_registry.py`,
+  `completeness.py` and `corpus_root.py`, and contributes its governed generator
+  through the seam 5.4 declares. The publisher's corpus is projected exactly as
+  today and the consumer loses no capability — requirement 4's third scenario is
+  the check.
 - [ ] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
   projection replaces them; the import-time column stays at zero.
 - [ ] 5.6 **Do NOT author the view-wiring slice here.** It is CLAIMED and IN
@@ -195,11 +211,24 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   — over a fixture directory of plain `.md` documents carrying none of
   openxFactory's governance vocabulary):
 
-      opendox --repo-root tests/fixtures/plain-documents generate --output /tmp/snap.json
-      python -c "import json;d=json.load(open('/tmp/snap.json'));print(len(d['documents']))"
+      set -euo pipefail
+      # NOT the console script: 10.1 packages that later, and this list is
+      # dependency-ordered. At group 5's boundary the module is importable
+      # (group 2) and that is what this falsifier uses.
+      python -m opendox.cli --repo-root tests/fixtures/plain-documents generate --output /tmp/snap.json
+      python -c "
+      import json,sys
+      d=json.load(open('/tmp/snap.json'))
+      assert d['documents'], 'snapshot is empty'
+      blob=json.dumps(d).lower()
+      assert not any(w in blob for w in ('openspec','proposal.md','ratified')), 'publisher noun leaked'
+      print('documents:', len(d['documents']))"
 
-  A snapshot is written, its document count is non-zero, and
-  `grep -iE 'openspec|proposal[.]md|ratified' /tmp/snap.json` finds nothing.
+  Under `set -euo pipefail` the sequence exits non-zero on any step; the
+  assertions are IN the command rather than in prose, so the check is
+  machine-detectable. (`python -m opendox.cli` requires `cli.py` to expose a
+  `__main__` entry or the box uses `python -c "from opendox.cli import main; main([...])"` —
+  10.1 later packages the same callable as the console script.)
 
 ## Group 6 — Requirement 6 / G5: a health check over openDox's own documents (openDox-code)
 
@@ -248,9 +277,21 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 
   **The default direction, and the one this task recommends:** openDox's
   validator validates openDox's OWN document kinds — its spec leg's **three** —
-  which openDox-code reads from its own assembly root's `spec/` submodule, the
-  path `AGENTS-shape.md` already defines (*"A contract the code READS but does
-  not OWN lives in the SPEC leg"*, with the root exporting `CONTRACTS_DIR`). The
+  which are openDox's own spec leg's. **How they reach the code leg is the part
+  requirement 7 constrains and this box must settle, because the two obvious
+  answers contradict each other.** `AGENTS-shape.md` puts a contract the code
+  READS but does not OWN in the SPEC leg, reached from the assembly root with
+  `CONTRACTS_DIR` — but `docs/project-repo-schema.md:54-58` puts the assembly and
+  the code leg in DIFFERENT repositories, so an assembly-root read cannot satisfy
+  requirement 7's one-checkout rule in a code-leg-only checkout. **The resolution
+  this box takes: the INSTALLED product is the checkout requirement 7 means.** The
+  three schemas ship as PACKAGE DATA of the openDox distribution, so
+  `pip install openDox-code` puts them on disk beside the validator and the
+  assembly root remains their source of truth for editing. The falsifications
+  below therefore run against an INSTALLED product, not a bare clone. If that
+  packaging is refused, the alternative is to run the validator from the assembly
+  root and amend requirement 7's scenario to say so — recorded here so the choice
+  is visible rather than discovered at implementation. The
   openXdox-spec three belong to the CONSUMER's validator and openDox never needs
   them. Only if a measured openDox verb genuinely needs one of openxFactory's
   four does it arrive as the DIGEST-PINNED VENDORED COPY `neutral-product-pin`
@@ -288,13 +329,18 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   this packet adds none — so it is exercised through `--strict`, which also makes
   a validator that could not RUN fatal instead of a warning:
 
-      opendox --repo-root tests/fixtures/plain-documents --strict generate --output /tmp/ok.json;  echo "rc=$?"
-      opendox --repo-root tests/fixtures/malformed       --strict generate --output /tmp/bad.json; echo "rc=$?"
+      set -euo pipefail
+      python -m opendox.cli --repo-root tests/fixtures/plain-documents --strict generate --output /tmp/ok.json
+      if python -m opendox.cli --repo-root tests/fixtures/malformed --strict generate --output /tmp/bad.json 2>/tmp/err; then
+        echo "FAIL: a malformed corpus validated"; exit 1
+      fi
+      grep -qv "No such file or directory" /tmp/err   # the refusal must name a RULE, not a missing path
 
-  The first is `rc=0`; the second is non-zero and names the rule it broke.
-  **Neither may fail on an unresolvable schema path** — today that is exactly how
-  it fails, because `--strict` makes "the validator is unreachable" fatal and the
-  validator is unreachable.
+  The first exits 0; the second exits NON-ZERO and the sequence asserts that
+  rather than printing it, so a validator returning zero on a malformed corpus
+  fails the check. **Neither may fail on an unresolvable schema path** — today
+  that is exactly how it fails, because `--strict` makes "the validator is
+  unreachable" fatal and the validator is unreachable.
 
 ## Group 8 — Requirement 8 / G7: openDox-spec governs openDox (openDox-spec) — BLOCKED
 
@@ -368,11 +414,14 @@ packet's interim arrangement ends.**
   anything.
 - [ ] **FALSIFIED BY** (each leg's own checkout, no sibling installed):
 
-      python -m pytest -q          # NOT --noconftest, NOT a file list
+      set -euo pipefail
+      python -m pytest -q                                   # NOT --noconftest, NOT a file list
+      test "$(grep -c -- --noconftest .github/workflows/validate.yml)" -eq 0
 
-  Exits 0 in both legs with zero errors, and
-  `grep -c noconftest .github/workflows/validate.yml` returns 0 in both. Today
-  openDox-code gives 1,298 errors / 0 passed and openXdox-code 1,089 / 0.
+  Both statements must succeed: `set -e` propagates a failing suite (a passing
+  `grep` after a failing `pytest` must not make the sequence exit zero), and the
+  `test` asserts the exclusion count is ZERO rather than leaving it to a reader.
+  Today openDox-code gives 1,298 errors / 0 passed and openXdox-code 1,089 / 0.
 
 ## Group 10 — Requirement 10 / G9, G10: one entry point (openDox-code + openDox root)
 
@@ -426,16 +475,26 @@ packet's interim arrangement ends.**
   sibling installed — the server is started in the BACKGROUND with a readiness
   wait so the sequence runs to completion unattended):
 
+      set -euo pipefail
       python -m venv .venv && . .venv/bin/activate && pip install .
-      python -c "import openxdox" 2>&1 | grep -q ModuleNotFoundError   # prove the sibling is absent
-      opendox --help                                                   # the console script MUST exist
-      opendox --repo-root tests/fixtures/plain-documents generate-and-open --no-open --port 8080 & SERVER=$!
-      for i in $(seq 1 30); do curl -sf http://127.0.0.1:8080/ >/dev/null && break; sleep 1; done
-      curl -sf http://127.0.0.1:8080/ | head -c 200
-      kill $SERVER
+      if python -c "import openxdox" 2>/dev/null; then echo "FAIL: sibling present"; exit 1; fi
+      opendox --help >/dev/null                       # the console script MUST exist
+      opendox --repo-root tests/fixtures/plain-documents generate-and-open --no-open --port 8080 &
+      SERVER=$!
+      trap 'kill "$SERVER" 2>/dev/null || true' EXIT   # cleanup cannot mask the verdict
+      ready=0
+      for _ in $(seq 1 30); do
+        if curl -sf http://127.0.0.1:8080/ >/dev/null; then ready=1; break; fi
+        sleep 1
+      done
+      test "$ready" -eq 1                              # a server that never started FAILS here
+      body=$(curl -sf http://127.0.0.1:8080/)          # no pipeline: curl's status is the status
+      printf '%s' "$body" | grep -qi '<html'           # and it is really the bundle
 
-  `opendox --help` exits 0, the readiness loop succeeds within 30s, and the
-  `curl` returns the web bundle's HTML. Today `opendox` does not exist as a
+  `opendox --help` exits 0, the readiness loop must SUCCEED within 30s or `test`
+  fails the sequence, and the fetched body must really be HTML — the earlier form
+  of this box could pass with a server that never started, because `kill` masked
+  the preceding status and `curl | head` hid a failed fetch. Today `opendox` does not exist as a
   console script, there is no `__main__.py`, and nothing serves `web/` — the
   runtime's `app.py` mounts no `StaticFiles` and declares only `/livez`,
   `/readyz` and `/api/v1`.
@@ -517,6 +576,7 @@ that does not name a platform.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, `gh` NOT installed —
   `command -v gh` must be empty, which is the student's machine):
 
+      set -euo pipefail
       git init /tmp/plain && git -C /tmp/plain commit -q --allow-empty -m seed
       git init --bare /tmp/remote && git -C /tmp/plain remote add origin /tmp/remote
       # submit a session on the plain repository with a remote attached:
