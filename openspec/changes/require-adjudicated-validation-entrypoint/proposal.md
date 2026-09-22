@@ -99,10 +99,17 @@ closes.
 **ONE `## ADDED` requirement in `neutral-product-pin`. No existing requirement is
 modified, no code moves, and the disposition mechanism is not touched.**
 
-A gate step, task box, checklist item or evidence record asserting CORPUS-WIDE
-OpenSpec validation SHALL name the consuming repository's `consumer_entrypoint:`
-invocation and SHALL NOT name the raw command. Around that, four statements the
-rule needs in order not to be read wider or narrower than it is:
+A gate step, task box, checklist item, runbook step, review record, agent
+instruction or other evidence record asserting CORPUS-WIDE OpenSpec validation
+SHALL name the consuming repository's `consumer_entrypoint:` invocation **in its
+DEFAULT, PINNED-ARTIFACT form**, and SHALL NOT name the raw command — nor any
+mode of that entrypoint which resolves the tool from `PATH` or reads a foreign
+pin. *(The flag qualification is Copilot `r4073721220`'s: naming the wrapper
+while selecting its PATH mode would satisfy the letter of the rule and none of
+its point, since that mode verifies no artifact provenance and a required check
+is already forbidden to use it. **The flags are part of the name.**)* Around
+that, five statements the rule needs in order not to be read wider or narrower
+than it is:
 
 1. **The obligation is on the ASSERTION, not only on the run.** The capability
    already obliges the RUN to go through the entrypoint. A repository whose CI
@@ -116,17 +123,28 @@ rule needs in order not to be read wider or narrower than it is:
    run could not be reconciled against the dispositions "at all", which
    contradicted that ratified sentence. Caught by Copilot `r4073184083`; the
    restriction is now scoped to staleness, which is what canon restricts.)*
-3. **Ratified and archived text is not edited by this requirement.** An archived
+3. **The unsatisfiability is qualified, because a STALE disposition inverts it.**
+   A box naming the raw command is unsatisfiable only while a ratified
+   disposition stands against a finding the tool STILL REPORTS. Once it goes
+   stale the verdicts swap — the raw command exits 0 having seen nothing, while
+   the entrypoint REFUSES `pin-disposition-stale` — and the box becomes
+   satisfiable and **wrong**, which is worse. Same defect, reported the other way
+   up. *(Copilot `r4073721379`.)*
+4. **Ratified and archived text is not edited by this requirement.** An archived
    record is frozen and a ratified clause is amended only by its own instrument.
    The remedy for an existing box is the one its own packet provides — the
    reserved `[~]` marker naming the live disposition — and this requirement
    governs what is written NEXT.
-4. **The staleness property is why naming the entrypoint is safe.** It is
+5. **The staleness property is why naming the entrypoint is safe.** It is
    carried as a scenario, deferring to the requirement that already owns it
    rather than re-legislating: a finding no in-scope disposition covers FAILS,
    and **a disposition matched by no finding in a whole-corpus scan REFUSES the
-   run as `pin-disposition-stale`**. The adjudicated verdict is strictly more
-   informative than the raw one and never more permissive.
+   run as `pin-disposition-stale`**. The adjudicated verdict is strictly MORE
+   INFORMATIVE than the raw one, and more permissive in **exactly one respect and
+   no other** — the findings this corpus has itself named, cited and ratified
+   against, which is the purpose of the mechanism and not a leak in it. *(An
+   earlier draft said "never more permissive", which contradicted this packet's
+   own central measurement. Copilot `r4073721340`.)*
 
 ## Which capability owns this, decided by reading
 

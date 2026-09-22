@@ -12,8 +12,11 @@ ASSERTION must name it too. Under `release-realization` an empty code surface
 archives ON LANDING plus this task list rather than on merged-plus-green
 realization evidence.
 
-**NOTHING IS TICKED THAT DID NOT LAND.** § 1 is OPEN: the ruling settled a box,
-not this packet. § 4 (archive) stays entirely open.
+**NOTHING IS TICKED THAT DID NOT LAND.** **§ 1 IS COMPLETE**: ratification was
+given 2026-09-22, and the word that settled the BOX (`5778397686`) and the word
+that ratified this PACKET (`5779511063`) are two separate acts, both Brett
+Heap's. **§ 4 (archive) stays entirely open**: ratification authorizes
+realization and does not perform it.
 
 ## 1. Ratification — GIVEN 2026-09-22, at head `c36ff08c`
 

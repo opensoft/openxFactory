@@ -545,9 +545,11 @@ Active changes:
   modified and the disposition mechanism is not touched.** A gate step, task
   box, checklist item, runbook step, review record, agent instruction or other
   evidence record asserting CORPUS-WIDE OpenSpec
-  validation SHALL name the repository's `consumer_entrypoint:` invocation —
-  `scripts/validate-openspec-cli-pin.py --all` — and SHALL NOT name the raw
-  `openspec validate --all --strict`. **The two commands are not two routes to
+  validation SHALL name the repository's `consumer_entrypoint:` invocation **in
+  its DEFAULT, PINNED-ARTIFACT form** — `scripts/validate-openspec-cli-pin.py
+  --all` — and SHALL NOT name the raw `openspec validate --all --strict`, nor
+  any mode of that entrypoint resolving the tool from `PATH` or reading a
+  foreign pin (**the flags are part of the name**). **The two commands are not two routes to
   one verdict**, and the packet's own head measures it: same tree, same finding,
   `108 passed / 1 failed (109 items)` both ways, **exit 0** through the
   entrypoint (which reconciles the finding against the pin's ratified

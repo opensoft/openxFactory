@@ -23,7 +23,17 @@ leans on it.
 ## ADDED Requirements
 
 ### Requirement: A claim of corpus-wide OpenSpec validation names the adjudicated entrypoint, never the raw tool
-A GATE STEP, TASK BOX, CHECKLIST ITEM, RUNBOOK STEP, REVIEW RECORD, AGENT INSTRUCTION OR OTHER EVIDENCE RECORD that asserts CORPUS-WIDE OpenSpec validation SHALL name the consuming repository's `consumer_entrypoint:` invocation — for `openxFactory`, `scripts/validate-openspec-cli-pin.py --all` — and SHALL NOT name the raw `openspec validate --all --strict`.
+A GATE STEP, TASK BOX, CHECKLIST ITEM, RUNBOOK STEP, REVIEW RECORD, AGENT INSTRUCTION OR OTHER EVIDENCE RECORD that asserts CORPUS-WIDE OpenSpec validation SHALL name the consuming repository's `consumer_entrypoint:` invocation IN ITS DEFAULT, PINNED-ARTIFACT FORM — for `openxFactory`, `scripts/validate-openspec-cli-pin.py --all` — and SHALL NOT name the raw `openspec validate --all --strict`, nor any mode of that entrypoint which resolves the tool from `PATH` or reads a pin other than the consuming repository's own.
+
+NAMING THE WRAPPER IS NOT ITSELF THE GUARANTEE, AND THE FLAGS ARE PART OF THE
+NAME. The entrypoint offers a PATH mode for local iteration, which the
+requirement governing it already forbids a required check to use and which
+verifies no artifact provenance; it also accepts a pin path. A record that named
+the wrapper while selecting either would satisfy the letter of this rule and
+none of its point, because the property being asserted is that a VERIFIED
+ARTIFACT adjudicated against THIS repository's dispositions. So what must be
+named is the DEFAULT, PINNED-ARTIFACT invocation, and a mode that resolves the
+tool from `PATH` or reads a foreign pin is outside it.
 
 THE TWO COMMANDS ARE NOT TWO ROUTES TO ONE VERDICT, and this is the whole
 reason. The pinned CLI is a FOREIGN JUDGMENT about a LOCAL corpus. Where the two
@@ -36,8 +46,14 @@ weaker form of the repository's verdict but a DIFFERENT ONE, taken by a reader
 the repository has not authorized to take it.
 
 A BOX THAT NAMES THE RAW COMMAND IS UNSATISFIABLE BY CONSTRUCTION FOR AS LONG AS
-ANY RATIFIED DISPOSITION STANDS, and that is a defect in the box and not in the
-corpus. Read literally it demands a green exit the adjudicated gate does not
+A RATIFIED DISPOSITION STANDS AGAINST A FINDING THE TOOL STILL REPORTS, and that
+is a defect in the box and not in the corpus. The qualification is exact rather
+than decorative: once such a disposition goes STALE — the finding no longer
+occurring — the two verdicts INVERT, the raw command exiting 0 because it sees
+nothing while the entrypoint REFUSES `pin-disposition-stale` until the spent
+exception is removed. A box naming the raw command is then satisfiable and WRONG
+rather than unsatisfiable, which is worse, and it is the same defect: the record
+names a reader whose verdict is not the repository's. Read literally it demands a green exit the adjudicated gate does not
 owe; the only edit that would produce one is to revert the ratified decision the
 disposition protects. So the box asks for an act the corpus forbids, while the
 repository's actual gate is green — and a reader who trusts the box concludes
@@ -81,6 +97,16 @@ governs what is WRITTEN NEXT.
 - **WHEN** it is objected that naming the entrypoint substitutes a suppressor for a check
 - **THEN** the objection is answered by the entrypoint's own refusals: a finding no in-scope disposition covers FAILS the run, and a disposition matched by no finding in a whole-corpus scan REFUSES it as stale
 - **AND** those are the standing properties of *A dispositioned finding is cited, upgrade-coupled, and refused when stale* rather than new tolerances, so the adjudicated verdict is strictly MORE INFORMATIVE than the raw one, and more permissive in EXACTLY ONE respect and no other — the findings this corpus has itself NAMED, CITED AND RATIFIED against, which is the whole purpose of the mechanism and not a leak in it
+
+#### Scenario: A record names the wrapper but selects an unpinned mode
+- **WHEN** a gate step or record names the entrypoint while selecting its PATH mode, or a pin other than the consuming repository's own
+- **THEN** the obligation is unmet, the named wrapper having verified no artifact provenance and the asserted property being that a VERIFIED artifact adjudicated against THIS repository's dispositions
+- **AND** naming the wrapper is not the guarantee; the default, pinned-artifact invocation is
+
+#### Scenario: The disposition a box's red depended on goes stale
+- **WHEN** a ratified disposition stops matching any finding, so the pinned tool no longer reports it
+- **THEN** the two verdicts INVERT — the raw command exits 0 having seen nothing, while the entrypoint REFUSES `pin-disposition-stale` until the spent exception is removed
+- **AND** a box naming the raw command is then satisfiable and WRONG rather than unsatisfiable, which is the same defect reported the other way up
 
 #### Scenario: A record names the validation of one change
 - **WHEN** an evidence line records that a single named change validated strictly

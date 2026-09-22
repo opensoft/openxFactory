@@ -108,4 +108,9 @@ commitment.
 - **It does not edit § 8.9, or any ratified or archived text.** That box took its
   own packet's `[~]` contingency under `5778397686`. This requirement governs
   what is written next, and says so in its own body.
-- **It ratifies nothing.** `tasks.md` § 1 is open.
+- **It does not ARCHIVE, and archiving is the act that would promote it.**
+  `tasks.md` § 4 is entirely open and promotion is a separate word.
+  *(This line read "It ratifies nothing; `tasks.md` § 1 is open" until
+  ratification was given on 2026-09-22 — true when written, and corrected rather
+  than left to contradict the `Ratified by:` header four lines above it. Caught
+  by Copilot `r4073798745`.)*
