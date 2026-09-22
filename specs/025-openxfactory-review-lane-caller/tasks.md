@@ -285,9 +285,10 @@
       discharged once and re-incurred once, which is worth knowing before
       anybody prices it as never-yet-attempted.
 
-      **UPDATE 2026-09-22 — the D2 obligation has been discharged and
-      re-incurred TWICE MORE since the paragraph above, this row missed both,
-      and it is caught up here in one append rather than three.** This box was
+      **UPDATE 2026-09-22 — since the paragraph above the D2 obligation has
+      been discharged TWICE MORE and re-incurred ONCE MORE, this row recorded
+      none of the three movements, and all three are caught up here in one
+      append rather than three.** This box was
       last written on 2026-09-02 (`47f90080`). Measured rather than remembered:
       `git log -- specs/025-openxfactory-review-lane-caller/tasks.md` records no
       commit after that one, so neither lockstep transition that followed wrote

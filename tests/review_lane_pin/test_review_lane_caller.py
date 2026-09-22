@@ -621,8 +621,8 @@ class TheRealFiles(unittest.TestCase):
         advance — only at a recorded re-point ceremony — so an advance between
         ceremonies necessarily re-diverges the pair, and the assertion below
         moves with `lockstep.status` in the same commit, as every prior
-        transition did. THE CURRENT CONTRACT IS `diverged`; re-converging is an
-        act in another repository and is not taken here.
+        transition did. THE CONTRACT AT THAT MEASUREMENT WAS `diverged`;
+        re-converging was an act in another repository and was not taken there.
 
         CONVERGED AGAIN 2026-09-21, at the FOURTH re-point ceremony, which is
         that act in the other repository: `opensoft/xFactory` PR #475 (merge

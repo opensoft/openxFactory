@@ -914,9 +914,15 @@ lockstep:
     the ratifier's act, not this diff's; it is named here so the next reader
     finds the contradiction already seen.
 
-    CONVERGED AGAIN, 2026-09-21, AT THE FOURTH RE-POINT CEREMONY — and this is
-    the first convergence this field has recorded that closes a re-divergence
-    this repository itself caused. `opensoft/xFactory` PR #475, merge commit
+    CONVERGED AGAIN, 2026-09-21, AT THE FOURTH RE-POINT CEREMONY, closing the
+    2026-09-18 re-divergence recorded directly above — the one this field
+    called the first it had ever had to record as caused by a ROUTINE advance
+    rather than by a deliberate act. (It is NOT the first convergence closing a
+    re-divergence this repository caused: the 2026-09-10 flip above closed the
+    2026-09-01 one, which the (b′) activation caused here by hand. What is
+    first about this one is stated two paragraphs down, and it is about the
+    ORDER the two repositories moved in, not about who caused the gap.)
+    `opensoft/xFactory` PR #475, merge commit
     `c88d1fdd`, landed 2026-09-21T21:55:36Z on the explicit ceremony word of
     Brett Heap that day ("(a) for all four, (i) for the tag, keep going", item
     2; openxFactory #656 comment `5767804734`, CLAIMED there), advancing
@@ -927,6 +933,19 @@ lockstep:
     (merge `38f826c2`, 2026-09-18), so the aggregation moved TO this file rather
     than this file moving to it — which is what makes the act the DISCHARGE of
     the obligation below rather than one more advance underneath it.
+
+    AND THAT ORDER IS WHAT IS ACTUALLY FIRST HERE, stated precisely because the
+    paragraph above declines the broader claim. Every earlier convergence was a
+    PAIRED WINDOW: at the third, `opensoft/xFactory` PR #423 merged
+    2026-09-10T19:15:29Z and this file's own `core_commit` followed the same
+    evening at PR #922 (merge `6f95ff57`, 21:55:20Z), the two halves of one
+    ruled pairing (OQ-1 option C, "paired with openxFactory's five-site
+    advance"). This time the two moves are THREE DAYS APART and were not a
+    pairing at all: `core_commit` was advanced on 2026-09-18 by an hourly lane
+    that proposes such advances on its own, and the ceremony three days later
+    caught the aggregation up to where this file had been sitting since. That
+    is the first time the aggregation has converged onto a commit this file was
+    ALREADY pinned to, rather than the two moving together by arrangement.
 
     MEASURED AT THIS EDIT, not carried from the ceremony's own record: on
     `opensoft/xFactory` `main` — re-read at `cfe27de3`, TWO COMMITS PAST the
