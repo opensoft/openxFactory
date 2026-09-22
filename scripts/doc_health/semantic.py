@@ -360,6 +360,7 @@ def prepare_bundle(repo_paths: dict, docs, as_of: date,
     and the promoted specs (contradiction grounding). The bundle is fully
     self-contained so the worker host needs no repository access at all."""
     from . import corpus as corpus_mod
+    require_budget(input_budget_bytes)
     inventory = inventory if inventory is not None else build_inventory(docs)
     if inventory != build_inventory(docs):
         raise ValueError(
@@ -538,6 +539,21 @@ def _priced_document_order(priced: tuple[dict, int]) -> tuple[str, str]:
     return (document["repo"], document["path"])
 
 
+def require_budget(budget_bytes: int) -> int:
+    """Refuse a non-positive budget, wherever it entered.
+
+    `pack_within_budget` validates too, but it is not always REACHED: a run
+    whose corpus is empty returns before any packing, and a catalog bundle
+    with no shards writes no prompt at all. A bad `--worker-input-budget-bytes`
+    must fail on those paths as loudly as on the others, not be discovered
+    the first night the corpus is non-empty (Copilot, PR #1137)."""
+    if isinstance(budget_bytes, bool) or not isinstance(budget_bytes, int) \
+            or budget_bytes < 1:
+        raise ValueError(
+            f"input budget must be positive: {budget_bytes!r}")
+    return budget_bytes
+
+
 def _pack_first_fit(candidates: list[tuple[dict, int]], capacity: int):
     """First fit, in the order given, WHOLE DOCUMENTS ONLY.
 
@@ -578,8 +594,7 @@ def pack_within_budget(contract_text: str, corpus_documents: list[dict],
     record; `stats["deferred"]` names every document held back, because a
     document dropped without a record is indistinguishable from a document
     with nothing wrong with it."""
-    if budget_bytes < 1:
-        raise ValueError(f"input budget must be positive: {budget_bytes!r}")
+    require_budget(budget_bytes)
     if not 0.0 <= grounding_share <= 1.0:
         raise ValueError(
             f"grounding share must be within [0, 1]: {grounding_share!r}")
@@ -724,6 +739,7 @@ def run_sweep(repo_paths: dict, docs, as_of: date, agg_root,
               ) -> tuple[list[Finding], SweepMeta]:
     """Orchestrate one sweep. Deterministic except for `invoke`; any
     analysis failure yields zero findings and a recorded skip reason."""
+    require_budget(input_budget_bytes)
     inventory = inventory if inventory is not None else build_inventory(docs)
     if inventory != build_inventory(docs):
         raise ValueError(

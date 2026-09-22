@@ -85,7 +85,7 @@ from . import inventory as inv_mod
 # analysis child run the SAME CLI against the SAME model on the same host,
 # so their input ceiling is one fact about the fleet, not two -- a second
 # copy here would be a second thing to forget to move.
-from .semantic import DEFAULT_INPUT_BUDGET_BYTES
+from .semantic import DEFAULT_INPUT_BUDGET_BYTES, require_budget
 
 # Watchdog reasons (data-model.md "Watchdog reason"): the auditable string
 # explaining why a dispatched child's result was or wasn't collected.
@@ -469,12 +469,14 @@ def _write_shard_bundle(out_dir, allowed_output_root, shards, prompt_text,
                         prompt_version, taxonomy, model, as_of, docs,
                         input_budget_bytes: int = DEFAULT_INPUT_BUDGET_BYTES
                         ) -> None:
+    # noqa: D401 -- see the module docstring for the bundle's contract.
     """Write the cataloger child's self-contained bundle: prompt, output
     schema, and one file per shard (job envelope + corpus excerpts for
     exactly that shard's already-protected-filtered selections) — mirrors
     `semantic.prepare_bundle`'s self-containment (module docstring: "the
     bundle is fully self-contained so the worker host needs no repository
     access at all")."""
+    require_budget(input_budget_bytes)
     write = _bundle_writer(out_dir, allowed_output_root)
     write(Path("prompt.md"), prompt_text)
     schema = {
@@ -501,10 +503,20 @@ def _write_shard_bundle(out_dir, allowed_output_root, shards, prompt_text,
         write(Path("shards") / f"{shard.shard_id}.json",
               json.dumps({"job": job, "documents": documents},
                         indent=1, sort_keys=True) + "\n")
-        shard_ids.append(shard.shard_id)
         shard_input_bytes[shard.shard_id] = len(shard_analysis_input(
             prompt_text, {"job": job, "documents": documents}
         ).encode("utf-8"))
+        if shard_input_bytes[shard.shard_id] <= input_budget_bytes:
+            shard_ids.append(shard.shard_id)
+    # A SHARD MEASURED OVER THE BUDGET IS NEVER DISPATCHED. Its file still
+    # ships (the bundle stays a complete record of what was sharded) but it
+    # is absent from `shards.json`, which is the ONLY list the child reads,
+    # so the lane classifies the next shard that fits instead of spending
+    # the night on a call the model would refuse. Dispatching it and
+    # letting the child refuse would be conformant and useless: the same
+    # shard is selected again tomorrow. Shard IDENTITY is untouched --
+    # `build_shards` is not involved -- so the catalog's carry-forward is
+    # untouched (Copilot, PR #1137).
     write(Path("shards.json"),
           json.dumps(shard_ids, indent=1, sort_keys=True) + "\n")
     # The budget travels WITH the bundle (same contract as the semantic
@@ -529,7 +541,9 @@ def prepare_catalog_bundle(repo_paths: dict, docs, as_of, catalog_root,
                            allowed_output_root,
                            baseline_mode: bool = False,
                            scope: str | None = None,
-                           shard_budget: int = DEFAULT_SHARD_BUDGET) -> dict:
+                           shard_budget: int = DEFAULT_SHARD_BUDGET,
+                           input_budget_bytes: int =
+                           DEFAULT_INPUT_BUDGET_BYTES) -> dict:
     """Prepare-phase primitive (`--catalog-prepare DIR`).
 
     Non-baseline path (feature task T006):
@@ -588,7 +602,8 @@ def prepare_catalog_bundle(repo_paths: dict, docs, as_of, catalog_root,
         taxonomy = _effective_taxonomy(repo_paths, inventory)
         prompt_version, prompt_text = cataloger.load_prompt_contract()
         _write_shard_bundle(out_dir, allowed_output_root, [], prompt_text,
-                            prompt_version, taxonomy, model, as_of, docs)
+                            prompt_version, taxonomy, model, as_of, docs,
+                            input_budget_bytes=input_budget_bytes)
         return {
             "as_of": as_of.isoformat(),
             "scope": scope,
@@ -616,7 +631,8 @@ def prepare_catalog_bundle(repo_paths: dict, docs, as_of, catalog_root,
 
     _write_shard_bundle(
         out_dir, allowed_output_root, state["shards"], state["prompt_text"],
-        state["prompt_version"], state["taxonomy"], model, as_of, docs)
+        state["prompt_version"], state["taxonomy"], model, as_of, docs,
+        input_budget_bytes=input_budget_bytes)
 
     return {
         "as_of": as_of.isoformat(),

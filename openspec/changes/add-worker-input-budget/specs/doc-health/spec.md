@@ -35,8 +35,16 @@ document payload together, because that whole text is what the model
 receives — derived from the pinned model's context window with headroom
 reserved for the worker's own output and the invoking tool's fixed
 overhead. The budget SHALL travel with the dispatched bundle so the worker
-enforces the same number the orchestrator packed against, rather than a
+enforces the same number the orchestrator recorded, rather than a
 duplicated constant that can drift.
+
+Two assembly shapes exist and the obligation differs between them. Where
+the ORCHESTRATOR assembles the prompt, it SHALL pack within the budget and
+defer what does not fit. Where the WORKER assembles the prompt from a
+dispatchable unit the orchestrator prepared, the orchestrator SHALL measure
+each unit's assembled size, record it, and SHALL NOT dispatch a unit it has
+measured over the budget — dispatching one and letting the worker refuse is
+conformant but useless, because the same unit is selected again next run.
 
 Packing SHALL be deterministic: the same corpus and the same budget always
 produce the same prompt and the same held-back set. Documents SHALL be
@@ -53,6 +61,11 @@ that no population can be starved to nothing by another.
 - **WHEN** one document's own size exceeds the input budget
 - **THEN** that document MUST be deferred entire and recorded, and MUST NOT be sent in truncated or partial form
 - **AND** the documents ordered after it MUST still be sent where they fit, one oversized document never starving the rest of the run
+
+#### Scenario: A dispatchable unit measures over the budget
+- **WHEN** the orchestrator measures a unit the worker would assemble and finds it over the input budget
+- **THEN** that unit MUST NOT be dispatched, and the run MUST record it as measured over the budget
+- **AND** the lane MUST proceed with the units that fit rather than spend the run on a call the model would refuse
 
 #### Scenario: A worker receives an input over the budget
 - **WHEN** a bounded worker's assembled input exceeds the budget recorded in its bundle

@@ -446,8 +446,8 @@ def test_the_runner_builds_that_exclusion_from_the_deferred_set():
 
 
 def test_an_explicit_non_positive_budget_is_not_folded_into_the_default():
-    """`--semantic-input-budget-bytes 0` must REACH `pack_within_budget`'s
-    validation rather than be silently replaced by the default.
+    """`--worker-input-budget-bytes 0` must REACH the validation rather
+    than be silently replaced by the default.
 
     `args.semantic_input_budget_bytes or DEFAULT` would fold an explicit `0`
     or a negative straight back into the default, so an operator who typed a
@@ -470,7 +470,7 @@ def test_an_explicit_non_positive_budget_is_not_folded_into_the_default():
         and isinstance(node.test, ast.Compare)
         and isinstance(node.test.ops[0], ast.Is)
         and isinstance(node.test.left, ast.Attribute)
-        and node.test.left.attr == "semantic_input_budget_bytes"
+        and node.test.left.attr == "worker_input_budget_bytes"
     ]
     assert len(guarded) == 1, (
         "the default must be resolved exactly once, and only for `is None`")
@@ -478,3 +478,66 @@ def test_an_explicit_non_positive_budget_is_not_folded_into_the_default():
     for bad in (0, -1):
         with pytest.raises(ValueError, match="input budget must be positive"):
             semantic.pack_within_budget(CONTRACT, [], [], budget_bytes=bad)
+
+
+def test_a_bad_budget_fails_even_when_the_corpus_is_empty(tmp_path):
+    """`pack_within_budget` validates, but an empty corpus returns BEFORE
+    any packing, so the validation has to sit earlier or a bad
+    `--worker-input-budget-bytes` is discovered the first night the corpus
+    is non-empty (Copilot, PR #1137)."""
+    (tmp_path / "alpha").mkdir()
+    docs = [Doc("alpha", "docs/a.md", "body", "draft")]
+    previous = semantic.build_inventory(docs)          # nothing changed
+    for bad in (0, -1, True, "1900000"):
+        with pytest.raises(ValueError, match="input budget must be positive"):
+            semantic.run_sweep({"alpha": tmp_path / "alpha"}, docs, AS_OF,
+                               None, previous, invoke=lambda p, m: "[]",
+                               input_budget_bytes=bad)
+        with pytest.raises(ValueError, match="input budget must be positive"):
+            semantic.prepare_bundle({"alpha": tmp_path / "alpha"}, docs,
+                                    AS_OF, previous, tmp_path / "b",
+                                    allowed_output_root=tmp_path,
+                                    input_budget_bytes=bad)
+
+
+def test_a_shard_measured_over_the_budget_is_never_dispatched(tmp_path):
+    """The cataloger's prompt is assembled by the CHILD, so the parent
+    cannot pack it -- but it can measure it, and a unit it has measured
+    over the budget must not be dispatched. Dispatching it and letting the
+    child refuse is conformant and useless: the same shard is selected
+    again next run (Copilot, PR #1137)."""
+    from doc_health import cataloger
+
+    out = tmp_path / "catalog-bundle"
+    selections = [
+        cataloger.Selection(repo="alpha", path=f"docs/{i:03d}.md",
+                            content_hash=f"{i:064d}", reason="new",
+                            entry={"repo": "alpha",
+                                   "path": f"docs/{i:03d}.md",
+                                   "handling": None})
+        for i in range(4)]
+    # shard 0000 is small, shard 0001 is not
+    bodies = ["tiny", "tiny", "X" * 40_000, "X" * 40_000]
+    docs = [Doc("alpha", f"docs/{i:03d}.md", bodies[i], "draft")
+            for i in range(4)]
+    shards = cataloger.build_shards(selections, budget=2)
+    catalog_dispatch._write_shard_bundle(
+        out, tmp_path, shards, "PROMPT", 3, {"digest": "0" * 64},
+        "claude-sonnet-5", AS_OF, docs, input_budget_bytes=20_000)
+    dispatched = json.loads((out / "shards.json").read_text(encoding="utf-8"))
+    meta = json.loads((out / "meta.json").read_text(encoding="utf-8"))
+    assert len(meta["shard_input_bytes"]) == 2, "both shards were measured"
+    assert len(meta["shards_over_budget"]) == 1
+    assert len(dispatched) == 1, "the oversized shard must not be dispatched"
+    assert dispatched[0] not in meta["shards_over_budget"]
+    # the oversized shard's FILE still ships: the bundle stays a complete
+    # record of what was sharded, it is only absent from the dispatch list
+    for shard_id in meta["shard_input_bytes"]:
+        assert (out / "shards" / f"{shard_id}.json").is_file()
+
+
+def test_the_catalog_bundle_refuses_a_non_positive_budget(tmp_path):
+    with pytest.raises(ValueError, match="input budget must be positive"):
+        catalog_dispatch._write_shard_bundle(
+            tmp_path / "b", tmp_path, [], "PROMPT", 3, {"digest": "0" * 64},
+            "claude-sonnet-5", AS_OF, [], input_budget_bytes=0)
