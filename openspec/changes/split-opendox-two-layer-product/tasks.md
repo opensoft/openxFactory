@@ -2609,9 +2609,17 @@ the bookkeeping that ticks this group.
   **(2) The landing FORM is a SQUASH**, measured — the commit carries **ONE
   parent** and its subject ends in the `(#1134)` suffix GitHub's squash writes —
   not the two-parent MERGE COMMIT the two assembly-root pin landings took.
-  **(3) The head that landed is `a28d68a6`, not the `ca2c8a82` recorded above**:
-  the pull request moved after this box measured it, which is exactly why the
-  record above names a head AND a measuring time rather than "the current head".
+  **(3) The head this box measured, `ca2c8a82`, is NOT the head that was
+  squashed**: the pull request advanced to **`a28d68a6`** before it landed. **And
+  `a28d68a6` is the SOURCE REF, not a commit on `main`** — what landed on `main`
+  is the squash `aaddda66` recorded above, and the two must never be read as one
+  (a Copilot finding on this amendment's own pull request, `r4067741174`, and it
+  is right: an earlier round of this paragraph wrote *"the head that landed"*,
+  which conflates the branch tip with the landed commit and is precisely how a
+  ledger comes to cite a non-`main` sha as an archive landing). **A head is a
+  MOVING reference until a landing fixes a different sha**, which is why the
+  in-flight record above names a head AND the time it was measured rather than
+  "the current head".
   **ONE NARRATIVE DEFECT IN THAT PULL REQUEST'S OWN BODY IS REGISTERED AND NOT
   FIXED** — it is another actor's text and no sha turns on it: the body says the
   openXdox target is *"one commit past `xdox-v1.0`"*, and **measured it is TWO**
