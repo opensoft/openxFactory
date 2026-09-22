@@ -428,7 +428,7 @@ meanings is a reader the capability has failed.
 The word taken is **SUBMISSION**, and it is not a euphemism:
 
 - it is the **fifth of the six ruled words** `NEUTRAL_DISPLAY` carries
-  (`sources → groups → candidates → selections → submissions → completions`), so
+  (`sources → groups → candidates → selections → submissions → completed`), so
   the arc names the step after the stage the product already says it reaches,
   rather than importing a new noun;
 - it says what the act IS on a plain repository — the work is submitted somewhere
@@ -436,7 +436,8 @@ The word taken is **SUBMISSION**, and it is not a euphemism:
   taken) and "pull request" (platform-shaped) both do;
 - and it stays accurate under the ruled answer: one SUBMITS work somewhere, and
   who may then land it is settled by who governs the repository. A word
-  that implied the work had landed would prejudge the open item.
+  that implied the work had landed would prejudge the landing rule, which
+  requirement 11 settles separately and in its own words.
 
 Rejected: `publish` (collides, as the ruling notes), `propose` (collides with
 OpenSpec's proposal noun, which this corpus uses constantly), `share` (says
@@ -797,11 +798,11 @@ where its vocabulary belongs. It is (b)'s shape without (b)'s duplication
 complaint, because openXdox's generator is not a second copy of openDox's — the
 two read different corpora by construction.
 
-### The constraint that comes with it
+### The constraint that comes with it — and its correction
 
 **RULED, same comment, decision 2, verbatim: "keep those six words".**
 `NEUTRAL_DISPLAY` in `src/opendox/display_profile.py` stands unchanged —
-**`sources → groups → candidates → selections → submissions → completions`** —
+**`sources → groups → candidates → selections → submissions → completed`** —
 ratified as the standalone product's own vocabulary. The neutral projection
 renders these and no others; this arc designs no new workflow and re-authors no
 word. `display_profile.py:72-80` already argues why they are the right ones: a
@@ -809,10 +810,44 @@ shell rendering them is *"VISIBLY not rendering a domain's"*, and a student who
 installs openDox alone *"gets a working funnel"*. Requirement 3's fourth scenario
 carries this as a general rule so a future neutral product inherits it.
 
-### The sibling slice, in flight — do not duplicate it
+**An earlier draft of this packet spelled the sixth word `completions`, and it
+was wrong.** RULED 2026-09-22T21:42:16Z
+([`5784654370`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784654370), verbatim *"2, keep completed"*): the sixth
+stage's role key is `completion` and its declared short label is
+**`completed`**, exactly as `NEUTRAL_DISPLAY["stages"]["completion"]["short"]`
+declares it. Measured at openDox-code `3c3a9e31`, the six declared `short`
+values read `sources, groups, candidates, selections, submissions, completed`.
+The misspelling came from the module DOCSTRING — `display_profile.py:77` still
+narrates `completions` — which this packet quoted instead of the declaration it
+documents. The docstring is being aligned by openDox-code#36; no declared value,
+class name or test pin moves.
+
+**And the governed host keeps its own word through the facet, not by renaming
+the neutral one.** RULED 2026-09-22T21:44:49Z
+([`5784683830`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784683830), verbatim *"1, keep completed and overlay
+implemented"*): openXdox declares a PARTIAL `DISPLAY` facet that labels the
+`completion` stage **"implemented"** — the word the governed lifecycle already
+uses — and openDox fills every other role and field from `NEUTRAL_DISPLAY`
+(`normalize_display`: *"PARTIAL IS LEGAL, AND IT IS THE POINT"*). It is **the
+estate's first `DISPLAY` facet**: `host_display`'s own docstring records that no
+profile declares one yet. Engineering users see "implemented"; every other host,
+and a standalone install, sees "completed". Checked against the code at
+`3c3a9e31` before it was written down: `normalize_display({"stages":
+{"completion": {"short": "implemented"}}})` returns `short: implemented` and
+leaves the other five stages byte-identical to the neutral ones — and leaves the
+same entry's `label` at `completed`, so the facet must word `label` as well as
+`short` if the stage is to read "implemented" everywhere it is named. That is
+requirement 3's composition point doing exactly what it exists for, and task
+5.3a carries it.
+
+### The sibling slice, LANDED — do not duplicate it
 
 **RULED, same comment, decision 3, verbatim: "wire the views and land it"**, and
-CLAIMED in the same comment on `opensoft/openDox-code` by actor `viewwire`: the
+CLAIMED in the same comment on `opensoft/openDox-code` by actor `viewwire` —
+**since LANDED as openDox-code#35 → `3c3a9e31`** (2026-09-22T21:39:18Z), which
+touched only `src/opendox/web/` and tests, so no Python line this packet cites
+moved (re-checked: `serve.py:199`, `:206`, `:766` and `:931-933` read as quoted,
+and openDox-code still names 37 of its 63 test files). The slice: the
 hardcoded governance spellings in `src/opendox/web/views/` become role lookups
 through the display facet, and `views/lens.js` joins it. Measured in that claim:
 six of seven views already import `views/display.js` but still carry literal

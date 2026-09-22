@@ -417,13 +417,14 @@ it raises, reachable from the surface the human is already working in AND from
 the command line with the same actions, reading the findings from the product's
 own store and presenting them BASELINE-RELATIVE so that new findings come first
 and persistent ones stay quiet. Detection without resolution is a list that grows.
-Findings SHALL be resolved in THREE DECLARED CLASSES: MECHANICAL findings the
-product can repair itself — a link whose target moved, front matter derivable
-from the adapter, a stage that disagrees with the document's location; ASSISTED
-findings where the product PROPOSES a repair a human then edits, with any
-model-written proposal offered ONLY where a model is configured; and HUMAN-ONLY
-findings where the product SHOWS THE EVIDENCE and the human repairs, removes, or
-records an exception.
+Findings SHALL be resolved in THREE DECLARED RESOLUTION CLASSES, named
+`auto-fix`, `assisted` and `human-only` and spelled so on every surface and in
+every pack: AUTO-FIX for the mechanical findings the product can repair itself —
+a link whose target moved, front matter derivable from the adapter, a stage that
+disagrees with the document's location; ASSISTED for findings where the product
+PROPOSES a repair a human then edits, with any model-written proposal offered
+ONLY where a model is configured; and HUMAN-ONLY for findings where the product
+SHOWS THE EVIDENCE and the human repairs, removes, or records an exception.
 
 EVERY REPAIR, OF EVERY CLASS, SHALL BE WRITTEN AS A DRAFT ON A BRANCH AND NEVER
 ONTO THE DEFAULT BRANCH, and SHALL REACH THE DEFAULT BRANCH ONLY THROUGH THIS
@@ -441,15 +442,15 @@ draft so a human reviews them together.
 
 #### Scenario: A mechanical finding is repaired
 - **WHEN** a finding is mechanical — a moved link target, derivable front matter, a stage that disagrees with the document's location
-- **THEN** the product writes the repair itself, as a DRAFT ON A BRANCH, and never onto the default branch
+- **THEN** it is in the `auto-fix` class, and the product writes the repair itself, as a DRAFT ON A BRANCH, and never onto the default branch
 
 #### Scenario: A repair needs judgement
 - **WHEN** a finding is a near-duplicate or an empty stub
-- **THEN** the product PROPOSES a repair the human edits in the draft, and offers a model-written proposal only where a model is configured
+- **THEN** it is in the `assisted` class: the product PROPOSES a repair the human edits in the draft, and offers a model-written proposal only where a model is configured
 
 #### Scenario: A finding is not the product's to repair
 - **WHEN** a finding requires a decision the product cannot make
-- **THEN** it SHOWS THE EVIDENCE and the human repairs, removes, or records an exception — the product proposes nothing it cannot justify
+- **THEN** it is in the `human-only` class: the product SHOWS THE EVIDENCE and the human repairs, removes, or records an exception — the product proposes nothing it cannot justify
 
 #### Scenario: A one-line fix is applied automatically
 - **WHEN** any repair, however small, would reach the default branch without an explicit human act

@@ -571,9 +571,13 @@ Active changes:
   `generator.py:66-68` imports openxFactory's `doc_health`, so relocating it was
   never lawful under `corpus-adapter-seam` whatever its path literals said. Two
   constraints arrive with the ruling: `NEUTRAL_DISPLAY`'s six words stand
-  unchanged (*"keep those six words"*), and the view-wiring slice is CLAIMED and
-  IN FLIGHT on openDox-code under actor `viewwire` and is deliberately NOT owed
-  here. **A SECOND RULING forty minutes later** (`#656` comment
+  unchanged (*"keep those six words"*) — the sixth spelled **`completed`**, as
+  declared, by a later ruling (`#656` comment `5784654370`, *"2, keep
+  completed"*) that corrected this packet's earlier `completions`, with openXdox
+  overlaying "implemented" through the estate's first partial `DISPLAY` facet
+  (`5784683830`, *"1, keep completed and overlay implemented"*) — and the
+  view-wiring slice, claimed under actor `viewwire`, LANDED as openDox-code#35 →
+  `3c3a9e31` and is deliberately NOT owed here. **A SECOND RULING forty minutes later** (`#656` comment
   [`5783934499`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5783934499),
   *"add a neutral publish step to the build arc"*) adds requirement 11, the
   NEUTRAL SUBMISSION STEP: RULING C3 makes a standalone openDox a plain local git

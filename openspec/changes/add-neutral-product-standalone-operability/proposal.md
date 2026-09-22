@@ -399,7 +399,8 @@ holds no document and stays disposable, because results are recomputable from gi
 
 **The fix loop (requirements 14 and 15).** Detection without resolution is a list
 that grows. A Health view with **CLI parity**, three resolution classes
-(mechanical / assisted / human-only), and **every repair written as a draft on a
+(`auto-fix` for the mechanical findings, `assisted`, `human-only` — the ruled
+spellings, one per class everywhere), and **every repair written as a draft on a
 branch that reaches the default branch only through the landing rule above** —
 **nothing auto-merges, not even a one-line fix**, with batching as the pressure
 valve. The applier is genuinely new: openxFactory CLASSIFIES findings
@@ -441,7 +442,10 @@ SAME additive migration as the results table so it is not migrated twice.
   follow-on with its own claim. Until it lands, requirement 1 keeps them with
   openxFactory.
 - **Each DomainxFactory's own pack** — that domain's own work.
-- **The view-wiring slice** — claimed and in flight under actor `viewwire`.
+- **The view-wiring slice** — claimed by actor `viewwire` and LANDED as
+  openDox-code#35 → `3c3a9e31`.
+- **The `display_profile.py` docstring alignment to `completed`** — in flight as
+  openDox-code#36, prose only.
 
 ## What openxFactory keeps, and why this is not a land-grab
 
@@ -528,14 +532,22 @@ proposals:
 
 - **"keep those six words."** `NEUTRAL_DISPLAY` in
   `src/opendox/display_profile.py` stands unchanged — *sources → groups →
-  candidates → selections → submissions → completions* — ratified as the
+  candidates → selections → submissions → completed* — ratified as the
   standalone product's own vocabulary. This arc designs no workflow and
   re-authors no word; requirement 3's fourth scenario carries the rule
-  neutrally.
-- **"wire the views and land it."** The view-wiring slice is CLAIMED and IN
-  FLIGHT on openDox-code under actor `viewwire`. **This packet does not own it
-  and does not list it as owed work** — it is referenced so group 10 is not
-  authored twice. The ruling is explicit: *"The generator itself (decision 1) is
+  neutrally. **The sixth word is `completed`, not `completions`**: RULED
+  ([`5784654370`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784654370), *"2, keep completed"*), correcting this
+  packet's earlier spelling, which had quoted the module's docstring rather than
+  its declaration. **And the governed host keeps "implemented" through a
+  facet**: RULED ([`5784683830`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784683830), *"1, keep completed and
+  overlay implemented"*) — openXdox declares a PARTIAL `DISPLAY` facet labelling
+  the `completion` stage "implemented", openDox fills everything else from
+  `NEUTRAL_DISPLAY`, and it is the estate's first `DISPLAY` facet (task 5.3a;
+  `design.md` § R-G3).
+- **"wire the views and land it."** The view-wiring slice was CLAIMED on
+  openDox-code under actor `viewwire` and has since LANDED as openDox-code#35 →
+  `3c3a9e31`. **This packet does not own it and does not list it as owed work** —
+  it is referenced so group 10 is not authored twice. The ruling is explicit: *"The generator itself (decision 1) is
   NOT in this claim — it is the BUILD-arc proposal's subject."*
 
 ## A second ruling, forty minutes later: the neutral submission step
@@ -615,8 +627,11 @@ is struck and the other fifteen stand.
 - **Blocked on a ruling:** nothing. Requirement 4's mechanism was RULED on
   2026-09-22 (`#656` `5783335210`) and the requirement is written to it. Every
   requirement is actionable on ratification.
-- **In flight elsewhere, deliberately not owned here:** the view-wiring slice on
-  openDox-code, claimed by actor `viewwire` in the same ruling comment.
+- **Landed or in flight elsewhere, deliberately not owned here:** the
+  view-wiring slice on openDox-code, claimed by actor `viewwire` in the same
+  ruling comment and LANDED as openDox-code#35 → `3c3a9e31`; and the
+  `display_profile.py` docstring alignment to `completed`, in flight as
+  openDox-code#36.
 - **One constraint the realization must respect, found by measurement:** the
   entry point requirement 10 asks for CANNOT be an assembly-root `Makefile`
   target. `openDox/Makefile` carries a row in `contracts/shape-pin.yaml` and

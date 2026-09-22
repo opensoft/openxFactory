@@ -69,11 +69,17 @@ origin:
     option (`src/openxdox/generator.py:66-68` imports openxFactory's
     `doc_health`, which the packet had not measured). Two constraints arrive
     with the ruling and are carried as constraints, not proposals:
-    `NEUTRAL_DISPLAY`'s six words stand unchanged, and the view-wiring slice
-    is claimed and in flight under actor `viewwire` and is NOT owed by this
-    packet. `kind` and `id` do not move, and NO APPROVAL PAIR IS ADDED: a
-    ruling on ONE QUESTION INSIDE the packet is not ratification OF the packet
-    - the three lifecycle documents still carry `Status: draft` and
+    `NEUTRAL_DISPLAY`'s six words stand unchanged - sources, groups,
+    candidates, selections, submissions, completed; the sixth spelled as
+    DECLARED by RULING 5784654370 ("2, keep completed"), which corrected this
+    packet's earlier `completions`, and RULING 5784683830 ("1, keep completed
+    and overlay implemented") adds openXdox's PARTIAL DISPLAY facet labelling
+    the completion stage "implemented", the estate's first - and the
+    view-wiring slice, claimed under actor `viewwire`, which LANDED as
+    openDox-code#35 at 3c3a9e31 and is NOT owed by this packet. `kind` and
+    `id` do not move, and NO APPROVAL PAIR IS ADDED: rulings on questions
+    INSIDE the packet are not ratification OF the packet - the three
+    lifecycle documents still carry `Status: draft` and
     `approved_by`/`approved_on` remain absent.
   proposed_by: >-
     Lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`),
@@ -91,7 +97,7 @@ origin:
     rather than openDox-spec, with the exit condition written into requirement
     8's third scenario so the arrangement is self-limiting), D5 (a default
     domain profile for openDox's OWN domain does not re-own the composition
-    point the carve deleted) and Q-G3's recommendation (c), whose own
-    refutation condition is stated in `design.md` and is the FIRST task of
-    group 5, before any code moves.
+    point the carve deleted) and R-G3, where Brett Heap's ruling superseded
+    this packet's recommendation (c) and the packet records the measurement
+    that made the ruling the better answer.
   proposed_on: 2026-09-22

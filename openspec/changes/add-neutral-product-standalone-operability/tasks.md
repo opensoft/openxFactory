@@ -29,6 +29,16 @@ therefore acceptance tests for surface the realization must add, not re-runs of
 surface that exists, and no box in 14 or 15 may be closed by a command whose verb
 its own group did not first declare.
 
+**Fixture corpora are DIRECTORIES in the code leg's checkout, never
+repositories**, and none exists today — `git ls-tree` over openDox-code's
+`tests/fixtures/` at `3c3a9e31` lists four files, none of them a corpus. Each is
+shipped by the first group that needs it (5.0, 7.0, 14.9, 15.6a). **Every
+falsification that needs a repository COPIES its fixture into a fresh `git init`
+first**, so no command below can create a branch or a commit inside the checkout
+it is testing, and a git adapter pointed at a fixture reads that fixture rather
+than the enclosing repository. Each block carries its own three setup lines and
+its own commit identity, so every group runs from a fresh shell on its own.
+
 House rule: OpenSpec ratifies, Speckit builds. No group below is started before
 ratification, no group is started without its own claim on
 `opensoft/openxFactory#656` per lane-collision-protocol Rule 1, and this change
@@ -184,6 +194,11 @@ nobody is doing — and its decisive finding is recorded instead: `generator.py`
 imports `doc_health` at `:66-68`, so relocating it was never lawful under
 `corpus-adapter-seam` whatever its literals said.
 
+- [ ] 5.0 **Ship `tests/fixtures/plain-documents`** — first needed here, and
+  Groups 7 and 13 read it too: a handful of `.md` documents spread across the six
+  neutral stages, carrying NONE of openxFactory's governance vocabulary (no
+  `openspec`, no `proposal.md`, no `ratified`), which is what lets the assertion
+  below mean something.
 - [ ] 5.1 Write openDox's SMALL NEUTRAL PROJECTION over the `CorpusAdapter`
   protocol already declared at `src/opendox/corpus_adapter.py` (a
   `@runtime_checkable` `Protocol`, six closed members: `resolve`,
@@ -194,10 +209,44 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   C3's plain local git repository) as the conformant implementation, so the
   projection has a real corpus to read with nothing else installed.
 - [ ] 5.3 Render `NEUTRAL_DISPLAY`'s SIX WORDS and no others — `sources`,
-  `groups`, `candidates`, `selections`, `submissions`, `completions` (RULED
-  *"keep those six words"*, same comment). **No word is re-authored and no
-  workflow is designed.** `src/opendox/display_profile.py` is unchanged by this
-  group.
+  `groups`, `candidates`, `selections`, `submissions`, `completed` (RULED
+  *"keep those six words"*, same comment; the sixth is **`completed`** by RULING
+  `5784654370`, *"2, keep completed"*, which corrected this packet's earlier
+  `completions` — the DECLARED value in `display_profile.py`, not the docstring
+  that narrated it). **No word is re-authored and no workflow is designed.**
+  `src/opendox/display_profile.py` is unchanged by this group.
+- [ ] 5.3a **openXdox declares the estate's FIRST `DISPLAY` facet — partial, one
+  stage** (openXdox-code; RULED `5784683830`, *"1, keep completed and overlay
+  implemented"*). On the profile openXdox contributes —
+  `src/openxdox/domain_profile.py:317`'s `DomainProfile`, which openxFactory's
+  `scripts/opendox_host.py` composite inherits — declare `DISPLAY` labelling the
+  `completion` stage **"implemented"**, the governed lifecycle's own word, in its
+  `short` AND its `label` field (measured: a facet giving `short` alone leaves
+  `label` at `completed`), and NOTHING ELSE — openDox fills every other role and
+  field from `NEUTRAL_DISPLAY`. The neutral word does not move. Claim it on
+  `#656` before starting, like every group here.
+- [ ] **FALSIFIED BY** (openXdox-code checkout with openDox installed):
+
+      set -euo pipefail
+      python3 - <<'PY'
+      from opendox.display_profile import STAGE_ROLES, host_display, normalize_display
+      from openxdox.domain_profile import DomainProfile
+      facet = host_display(DomainProfile)                   # None today: no profile declares one
+      assert facet is not None, "openXdox declares no DISPLAY facet"
+      merged, neutral = normalize_display(facet), normalize_display(None)
+      done = merged["stages"]["completion"]
+      assert done["short"] == "implemented" and done["label"] == "implemented", done
+      assert neutral["stages"]["completion"]["short"] == "completed"   # the neutral word stands
+      for role in (r for r in STAGE_ROLES if r != "completion"):
+          assert merged["stages"][role] == neutral["stages"][role], f"{role} was overlaid too"
+      PY
+
+  Three things, each an assertion: the governed host sees "implemented" wherever
+  the stage is named; a host with no facet — and a standalone install — sees
+  "completed"; and the facet is PARTIAL, the other five stages byte-identical to
+  the neutral ones, so an overlay cannot quietly grow into a second vocabulary.
+  The same calls were run against openDox-code `3c3a9e31` with a stand-in profile
+  before this box was written, and behave as asserted.
 - [ ] 5.4 **DECLARE THE GENERATOR SEAM — it does not exist and `CorpusAdapter` is
   not it.** `src/opendox/corpus_adapter.py`'s Protocol is CLOSED at six members
   (`resolve`, `list_documents`, `read`, `classify`, `check`, `write_back`) and its
@@ -216,12 +265,14 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   the check.
 - [ ] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
   projection replaces them; the import-time column stays at zero.
-- [ ] 5.6 **Do NOT author the view-wiring slice here.** It is CLAIMED and IN
-  FLIGHT on openDox-code under actor `viewwire` (RULED *"wire the views and land
-  it"*, same comment), which converts the hardcoded `stage-brainstorm` /
-  `stage-staged` / `stage-realized` spellings in `src/opendox/web/views/` to role
-  lookups and joins `lens.js` to the display facet. Coordinate; do not duplicate.
-  The ruling is explicit that the generator is not in that claim.
+- [x] 5.6 **Do NOT author the view-wiring slice here** — and it can no longer be
+  duplicated: it was CLAIMED on openDox-code under actor `viewwire` (RULED *"wire
+  the views and land it"*, same comment) and LANDED as **openDox-code#35 →
+  `3c3a9e31`** (2026-09-22T21:39:18Z), converting the hardcoded
+  `stage-brainstorm` / `stage-staged` / `stage-realized` spellings in
+  `src/opendox/web/views/` to role lookups and joining `lens.js` to the display
+  facet. Ticked on that landing, which is the evidence; nothing in this arc
+  re-does it. The ruling is explicit that the generator is not in that claim.
 - [ ] **FALSIFIED BY** (openDox-code checkout, `pip uninstall -y openxdox` so that
   `python -c "import openxdox"` raises, AND `python -c "import doc_health"` raises
   too — the neutral projection must reach neither the consumer nor the publisher
@@ -232,7 +283,10 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       # NOT the console script: 10.1 packages that later, and this list is
       # dependency-ordered. At group 5's boundary the module is importable
       # (group 2) and that is what this falsifier uses.
-      python -m opendox.cli --repo-root tests/fixtures/plain-documents generate --output /tmp/snap.json
+      export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
+      R=$(mktemp -d)/plain-documents && cp -r tests/fixtures/plain-documents "$R"   # 5.0's fixture, as a FRESH repository
+      git -C "$R" init -q && git -C "$R" add -A && git -C "$R" commit -qm fixture
+      python -m opendox.cli --repo-root "$R" generate --output /tmp/snap.json
       python -c "
       import json,sys
       d=json.load(open('/tmp/snap.json'))
@@ -270,13 +324,29 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   it something to call.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling):
 
-      python -c "from opendox import workbench; print(workbench.run_scoped_doc_health('.', ['README.md'])['status'])"
+      set -euo pipefail
+      python3 - <<'PY'
+      from opendox import workbench
+      r = workbench.run_scoped_doc_health(".", ["README.md"])
+      assert isinstance(r, workbench.ActionResult), type(r)
+      assert r.status == "completed", f"the check did not run: status={r.status!r} detail={r.detail!r}"
+      assert isinstance(r.findings, list) and r.reference, f"no result shape: {r!r}"
+      PY
 
-  Prints a real status. Today it prints `not-available` with
+  The call returns an `ActionResult` DATACLASS (`workbench.py:1339`) whose
+  `status` is one of `completed | not-available | skipped`, so the assertion is on
+  the one value that means the check RAN — not merely on the call returning. The
+  earlier form of this command printed the status and exited 0 whatever it was,
+  and it subscripted the result (`['status']`), which a dataclass refuses with a
+  `TypeError`: it could neither fail for the right reason nor pass. Today the
+  assertion fails on `status='not-available'`, with
   `detail = doc-health machinery unavailable: No module named 'doc_health'`.
 
 ## Group 7 — Requirement 7 / G6: a validator openDox can run (openDox-code)
 
+- [ ] 7.0 **Ship `tests/fixtures/malformed`**: 5.0's `plain-documents` with
+  EXACTLY ONE rule violation the validator must name — so the falsification below
+  can tell "refused for that rule" from "refused for anything".
 - [ ] 7.1 **NARROW THE INPUT SET FIRST, then acquire what remains.** The existing
   validator's `SCHEMA_FILENAMES` names **ten** schemas and they have three
   different owners, so "give openDox the whole set" is the wrong shape:
@@ -351,8 +421,13 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 
       set -euo pipefail
       python -m venv /tmp/v7 && . /tmp/v7/bin/activate && pip install .   # PACKAGE DATA on disk (7.1)
-      python -m opendox.cli --repo-root tests/fixtures/plain-documents --strict generate --output /tmp/ok.json
-      if python -m opendox.cli --repo-root tests/fixtures/malformed --strict generate --output /tmp/bad.json 2>/tmp/err; then
+      export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
+      OK=$(mktemp -d)/plain-documents && cp -r tests/fixtures/plain-documents "$OK"
+      git -C "$OK" init -q && git -C "$OK" add -A && git -C "$OK" commit -qm fixture
+      BAD=$(mktemp -d)/malformed && cp -r tests/fixtures/malformed "$BAD"
+      git -C "$BAD" init -q && git -C "$BAD" add -A && git -C "$BAD" commit -qm fixture
+      python -m opendox.cli --repo-root "$OK" --strict generate --output /tmp/ok.json
+      if python -m opendox.cli --repo-root "$BAD" --strict generate --output /tmp/bad.json 2>/tmp/err; then
         echo "FAIL: a malformed corpus validated"; exit 1
       fi
       ! grep -q "No such file or directory" /tmp/err  # the refusal must name a RULE, not a missing path
@@ -546,11 +621,28 @@ packet's interim arrangement ends.**
   not the arc. Defining the base any earlier makes the command self-failing,
   because this packet necessarily edits the ledger it would then flag:
 
-      git diff --name-only <this-packet's-merge-commit>..<arc-tip>         -- scripts/ contracts/ tests/ ideation/ docs/ openspec/specs/         ':(exclude)tests/sequenced_after/corpus-ledger.yaml'
+      set -euo pipefail
+      git diff --name-only <this-packet's-merge-commit>..<arc-tip> \
+        -- scripts/ contracts/ tests/ ideation/ docs/ openspec/specs/ \
+        ':(exclude)tests/sequenced_after/corpus-ledger.yaml' > /tmp/arc-paths.txt
+      python3 - /tmp/arc-paths.txt <<'PY'
+      import sys
+      ALLOWED = {"docs/opendox-carve-manifest.yaml",
+                 "openspec/specs/neutral-product-standalone-operability/spec.md"}
+      touched = [l.strip() for l in open(sys.argv[1]) if l.strip()]
+      breach = [p for p in touched if p not in ALLOWED]
+      if breach:
+          sys.exit("FAIL: the arc touched paths requirement 1 keeps:\n  " + "\n  ".join(breach))
+      print(f"requirement 1 holds: {len(touched)} path(s) changed, all on the allow-list")
+      PY
 
-  Every path it prints is either `docs/opendox-carve-manifest.yaml` or
-  `openspec/specs/neutral-product-standalone-operability/spec.md`. Any other path
-  is a breach of requirement 1 and must be reverted or declared. The ledger is
+  **The allow-list is ENFORCED, not described.** Every path the diff prints must
+  be `docs/opendox-carve-manifest.yaml` or
+  `openspec/specs/neutral-product-standalone-operability/spec.md`; any other path
+  exits non-zero and names itself, and is a breach of requirement 1 to be reverted
+  or declared. The diff is captured to a file first, so a failing `git diff` fails
+  under `set -e` instead of handing the check an empty list that would read as
+  a pass. The ledger is
   excluded by name because it is machine-seeded bookkeeping every filing owes and
   carries no behaviour; if it ever moves for another reason, that shows up in the
   seeder's own `--ledger-diff` gate instead.
@@ -639,6 +731,7 @@ that does not name a platform.
   machine):
 
       set -euo pipefail
+      export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
       rm -rf /tmp/plain /tmp/remote
       git init -q /tmp/plain && git -C /tmp/plain commit -q --allow-empty -m seed
       git -C /tmp/plain branch sess-1                       # the SESSION BRANCH must exist to be pushed
@@ -679,10 +772,22 @@ that does not name a platform.
   error is not `NoSubmissionTarget` and propagates — which is exactly the pair
   scenario 3 forbids.
 
-  **And the three guardrails are asserted here too, now that 12.6 is RULED**: a
-  merge with no human act refuses; a merge meeting a conflict SHOWS it rather than
-  resolving it; and a completed merge leaves a COMMIT that `git revert` undoes.
-  Each is one test, and none of the three may be reachable through configuration.
+  **And the three guardrails are asserted, now that 12.6 is RULED — by NAME**, so
+  a missing test FAILS the command rather than being quietly absent from it. 12.6
+  owes these four tests, and pytest exits non-zero (`ERROR: not found`) for any
+  node that does not exist, so today the command fails:
+
+      python -m pytest -q \
+        "tests/test_landing_guardrails.py::test_land_requires_an_explicit_human_act" \
+        "tests/test_landing_guardrails.py::test_land_shows_a_conflict_and_does_not_resolve_it" \
+        "tests/test_landing_guardrails.py::test_a_landed_merge_is_a_commit_that_git_revert_undoes" \
+        "tests/test_landing_guardrails.py::test_no_configuration_enables_automatic_landing"
+
+  The fourth is the "none configurable" clause made testable: it walks the
+  product's configuration surface and fails if any key can switch a guardrail
+  off. Naming test nodes in an ACCEPTANCE command is not the defect Group 9
+  removes from `validate.yml` — CI must run the whole suite, and this command runs
+  four named proofs in addition to it.
 
   Today none of this is reachable: the only implementation is `GhPullRequests`,
   which shells `["gh", "pr", ...]` (`:367`) against `_GITHUB_HOST = "github.com"`
@@ -726,21 +831,24 @@ amendments.
       # the install is group 10's, unchanged — one entry point, one command:
       python -m venv /tmp/v13 && . /tmp/v13/bin/activate && pip install .
       unset OPENDOX_DATABASE_URL OPENDOX_OIDC_ISSUER      # a machine with NEITHER
+      export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
+      R=$(mktemp -d)/plain-documents && cp -r tests/fixtures/plain-documents "$R"   # this group's OWN corpus, not Group 12's
+      git -C "$R" init -q && git -C "$R" add -A && git -C "$R" commit -qm fixture
       opendox --help >/dev/null
       # LOCAL mode starts, with no broker and no operator-supplied database:
-      OPENDOX_IDENTITY_MODE=local opendox --repo-root /tmp/plain generate-and-open --no-open --port 8080 &
+      OPENDOX_IDENTITY_MODE=local opendox --repo-root "$R" generate-and-open --no-open --port 8080 &
       SERVER=$!; trap 'kill "$SERVER" 2>/dev/null || true' EXIT
       ready=0; for _ in $(seq 1 30); do curl -sf http://127.0.0.1:8080/ >/dev/null && { ready=1; break; }; sleep 1; done
       test "$ready" -eq 1
       kill "$SERVER"; wait "$SERVER" 2>/dev/null || true
       # and a HOSTED install with no issuer REFUSES — by the SAME server path, and
       # the refusal must NAME THE SETTING, or an unrelated error would pass here:
-      if OPENDOX_IDENTITY_MODE=hosted opendox --repo-root /tmp/plain generate-and-open --no-open --port 8081 2>/tmp/hosted.err; then
+      if OPENDOX_IDENTITY_MODE=hosted opendox --repo-root "$R" generate-and-open --no-open --port 8081 2>/tmp/hosted.err; then
         echo "FAIL: hosted install started with no issuer"; exit 1
       fi
       grep -q "OPENDOX_OIDC_ISSUER" /tmp/hosted.err       # the reason, not merely a non-zero exit
       # and the DEFAULT is hosted, so an install that configures nothing refuses too:
-      if opendox --repo-root /tmp/plain generate-and-open --no-open --port 8082 >/dev/null 2>&1; then
+      if opendox --repo-root "$R" generate-and-open --no-open --port 8082 >/dev/null 2>&1; then
         echo "FAIL: an unconfigured install fell into local mode"; exit 1
       fi
 
@@ -799,10 +907,15 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
 
   They are NEW surface — `cli.py` declares none of them today (10.1's table is the
   surface that exists) — and 14.6's applier is what `health fix` invokes.
-- [ ] 14.6 **The three resolution classes.** AUTO-FIX (moved link target,
-  derivable front matter, stage/location mismatch) written by the product;
-  ASSISTED (near-duplicates, empty stubs) proposed for the human to edit, model-
-  written only where a model is configured; HUMAN-ONLY, evidence shown.
+- [ ] 14.6 **The three resolution classes, spelled `auto-fix`, `assisted` and
+  `human-only` — exactly as RULED (`5784247356`) and exactly as requirement 14
+  declares them, in the store, the CLI, the view and the pack contract (15.2)
+  alike**, because a pack must return an ENGINE-declared class and two spellings
+  of one class are two classes. `auto-fix` for the mechanical findings (moved link
+  target, derivable front matter, stage/location mismatch), written by the
+  product; `assisted` (near-duplicates, empty stubs), proposed for the human to
+  edit, model-written only where a model is configured; `human-only`, evidence
+  shown.
   **THE APPLIER IS NEW WORK** — openxFactory CLASSIFIES
   (`scripts/doc_health/__init__.py:17-18`, `AUTO_FIXABLE`/`CONTESTED`) and
   `grep -rln 'def apply_fix|def autofix|def fix('` over `scripts/doc_health/`
@@ -819,11 +932,18 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   health/dispositions.yaml entry re-opens"* the finding. An exception is a
   judgement that exists nowhere else; the store is disposable, so an exception
   stored there is a judgement scheduled for deletion.
-- [ ] **FALSIFIED BY** (openDox-code, installed, over a fixture corpus with a
+- [ ] 14.9 **Ship `tests/fixtures/health-corpus`**: a small corpus with ONE
+  known broken internal link (finding `broken-link`, class `auto-fix`) and ONE
+  finding the fixture will accept (`accepted-finding`), and nothing else a
+  neutral family would flag — so every assertion below is about a finding the
+  fixture put there on purpose.
+- [ ] **FALSIFIED BY** (openDox-code, installed, over 14.9's fixture corpus with a
   known broken link and a known accepted finding):
 
       set -euo pipefail
-      C=tests/fixtures/health-corpus
+      export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
+      C=$(mktemp -d)/health-corpus && cp -r tests/fixtures/health-corpus "$C"   # a FRESH repository: fix branches and commits land HERE
+      git -C "$C" init -q && git -C "$C" add -A && git -C "$C" commit -qm fixture
       opendox --repo-root $C health run
       opendox --repo-root $C health list > /tmp/h1.txt
       grep -q 'broken-link' /tmp/h1.txt
@@ -873,7 +993,8 @@ to #1144"*. `design.md` § D12.
   it without importing this product's tooling).
 - [ ] 15.2 A pack DECLARES check families: id, version, and which documents each
   applies to. It RETURNS findings in the neutral shape — severity, resolution
-  class (auto-fix / assisted / human-only), evidence — and MAY return proposed
+  class (`auto-fix` / `assisted` / `human-only`, 14.6's spellings and no
+  other), evidence — and MAY return proposed
   fixes AS PATCHES ONLY.
 - [ ] 15.3 A pack's labels resolve through the DISPLAY FACET
   (`src/opendox/display_profile.py`), never spelled into the neutral surface —
@@ -889,16 +1010,17 @@ to #1144"*. `design.md` § D12.
 - [ ] 15.6 **A PACK THAT CRASHES OR TIMES OUT IS A FINDING AGAINST THAT PACK**,
   and the other packs still run. Give it a time budget: `health run --timeout
   SECONDS` (14.5), default declared by this box, applied PER PACK and enforced by
-  the engine rather than by the caller — a pack cannot opt out of it.
+  the engine rather than by the caller — a pack cannot opt out of it. A health
+  check whose failure mode is silence is worse than one that reports itself
+  broken — the doc-health nightly failed silently every night from 2026-08-30 and
+  nobody saw it.
 - [ ] 15.6a **SHIP THE TWO FIXTURE PACKS the falsification needs**, under
   `tests/fixtures/packs/`, registered the way 15.1's contract says packs are
-  registered (declare that registration here if 15.1 leaves it open): 
+  registered (declare that registration here if 15.1 leaves it open):
   `fixture-crashing-pack`, which raises on its first family, and
   `fixture-slow-pack`, which sleeps past any timeout. They are test fixtures of
   the engine, not shipped packs, and they exist so 15.6 is falsifiable rather
-  than asserted. A health check whose
-  failure mode is silence is worse than one that reports itself broken — the
-  doc-health nightly failed silently every night from 2026-08-30 and nobody saw it.
+  than asserted.
 - [ ] 15.7 **PACK ID AND PACK VERSION ON EVERY FINDING, in the SAME additive
   migration as the results table** (group 14.1 — `0003_`, since `0002_` is the
   ledger), so the table is not migrated twice.
@@ -906,7 +1028,9 @@ to #1144"*. `design.md` § D12.
   and a deliberately slow one registered beside the neutral checks):
 
       set -euo pipefail
-      C=tests/fixtures/health-corpus
+      export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
+      C=$(mktemp -d)/health-corpus && cp -r tests/fixtures/health-corpus "$C"
+      git -C "$C" init -q && git -C "$C" add -A && git -C "$C" commit -qm fixture
       # the two fixture packs of 15.6a are registered; the run is itself bounded,
       # so a hang is a FAILED FALSIFICATION and never a hung falsifier:
       timeout 120 opendox --repo-root $C health run --timeout 5
@@ -924,6 +1048,12 @@ to #1144"*. `design.md` § D12.
       assert all(x.get('pack_id') and x.get('pack_version') for x in f), 'a finding has no provenance'
       print('packs attributed:', sorted(ids))
       PY
+      # and 15.5's REFUSALS, each a NAMED test — a missing node fails the command:
+      python -m pytest -q \
+        "tests/test_check_packs.py::test_a_pack_that_writes_commits_or_merges_is_refused" \
+        "tests/test_check_packs.py::test_an_unpinned_pack_is_refused" \
+        "tests/test_check_packs.py::test_a_pack_returning_an_undeclared_class_is_refused" \
+        "tests/test_check_packs.py::test_a_pack_declaring_its_own_baseline_or_landing_rule_is_refused"
 
   Every finding carries a pack id and version, **BOTH** broken packs appear as
   findings rather than as a stack trace and a hang, and the run completes. The
