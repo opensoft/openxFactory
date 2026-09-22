@@ -2616,7 +2616,14 @@ the bookkeeping that ticks this group.
   than any one of those three answers. The pin files are not wrong to carry what a
   ruling told them to carry; what would be wrong is a ledger recording a ruling as
   agreeing with a requirement it has not been measured against.)*
-  **EXECUTION IN TWO HALVES, AND THE SECOND IS OWED**: the `openxFactory` half
+  **EXECUTION IN TWO HALVES, AND THE SECOND IS OWED** *(SUPERSEDED 2026-09-22
+  01:33:20Z — BOTH halves have since landed, and the discharge is recorded above
+  and at § 4.2: `openXdox` **`#16` → `7194c06c`**. The plan below is kept in the
+  present tense of its own act, which is this packet's rule for a superseded
+  reading, and it is MARKED here so that no reader meets it as live — a Copilot
+  finding on this amendment's own pull request, `r4067822689`, and it is right:
+  round 6's fold created this contradiction inside one box and the fix belongs in
+  the same round the fold did)*: the `openxFactory` half
   rides in the STEP 2 pull request itself, so the file carrying the superseded
   sentence carries its amendment in the same landing; the **openXdox half** —
   § 4.2's `openXdox/contracts/opendox-pin.yaml`, which carries the un-amended
