@@ -2049,6 +2049,18 @@ the bookkeeping that ticks this group.
   amendment the `openxFactory` side takes inside STEP 2's pull request is owed
   here, in a small follow-up by the same actor after STEP 3, registered on
   `5768144952`.
+  **THAT OBLIGATION IS DISCHARGED — recorded by AMENDMENT #11 at its own round 6,
+  2026-09-22.** `opensoft/openXdox` **`#16` →
+  `7194c06ca456d1675e32e890b4acf640b14bfc60`**, `mergedAt` **01:33:20Z**, a SQUASH
+  (ONE parent), ONE file: this box's `contracts/opendox-pin.yaml`. **Verified in
+  the landed bytes, not in the title** — the file cites the ruling `5768144952`
+  twice and **no longer contains** the trigger sentence *"that artifact then moves
+  into a `files:` list here"*; `commit:` still reads `dc7aa08f`, so the header
+  moved and the referent did not.
+  *(Registered as owed at 00:45Z and discharged at 01:33Z — forty-eight minutes,
+  inside a single amendment. The obligation is recorded here anyway, with the
+  discharge beneath it, because a ledger that records only what is still
+  outstanding cannot be used to check what was.)*
   *(Named at the box that owns the FILE rather than left in the ruling's own
   comment, because an obligation recorded only where it was ruled is an obligation
   the file's next reader never meets. The ruling states the gap in its own words —
@@ -2540,6 +2552,23 @@ the bookkeeping that ticks this group.
   against three candidate heads, § 4.5a against an abbreviated command, and
   §§ 3.8/4.6 against a live read of a tag ref — each time by refusing to record
   anything but a landed sha as landed.)*
+  **AND BOTH HALVES HAVE NOW LANDED, WITHIN THE HOUR — so the paragraph above is
+  SUPERSEDED, and it is KEPT with its clock, which is what a position written at
+  00:45Z and overtaken at 01:33Z is for.** The `openxFactory` half landed inside
+  STEP 2 (`#1134` → `aaddda66`, 01:12:58Z), and the **openXdox half landed as its
+  own follow-up**: `opensoft/openXdox` **`#16` →
+  `7194c06ca456d1675e32e890b4acf640b14bfc60`**, `mergedAt`
+  **2026-09-22T01:33:20Z**, a SQUASH (ONE parent), ONE file —
+  `contracts/opendox-pin.yaml` — *"Amend contracts/opendox-pin.yaml: the
+  `files:`/`pinned_by_commit_only:` revisit is due, resolved NOT owed"*.
+  **MEASURED IN THE LANDED BYTES RATHER THAN TAKEN FROM THE TITLE**: that file
+  cites `5768144952` **twice**, and the trigger sentence *"that artifact then
+  moves into a `files:` list here"* **no longer occurs in it at all** — so the
+  amendment is in the bytes and not only in the commit message. Its `commit:`
+  still reads `dc7aa08f`, so the act touched the HEADER and not the referent.
+  **SO THE RULING IS NOW THE FILES, ON BOTH SIDES.** What remains open at this box
+  is the one thing a landing cannot settle: the tension with the ratified
+  SOURCE-TREE clause recorded above, which is a RULING NEEDED and not an execution.
   *(Two recorded readings in this family disagreed — the header's trigger sentence
   and the one-link-up digest reasoning — and a ruling that leaves both in the tree
   leaves the next reader to pick one. That is why the amendment is written into
@@ -5540,6 +5569,37 @@ realization evidence, never on landing. Each line is its own evidence.
   because step 3 is the act that restores the parity this box checks, and a box
   that reports another repository's state owes that state a fresh reading at every
   round it survives.)*
+  **AND STEP 3 HAS LANDED — THE FORCED ORDER AT `#656` `5767733963` IS COMPLETE.**
+  `opensoft/xFactory` **`#478` → `1385f380117f54f1e266e239a9e467e730ce3f29`**,
+  `mergedAt` **2026-09-22T01:33:07Z**, a **MERGE COMMIT** (two parents),
+  *"Sync submodule pointers: openxFactory `80c68da6` → `aaddda66`, plus the
+  deferred legs openDox → `dc7aa08f` / openXdox → `646f1dc0`, with the clearing
+  PIN"*.
+  **THE THREE POINTERS ARE READ AT THAT COMMIT RATHER THAN FROM ITS TITLE**:
+  `openxFactory` → **`aaddda66…`**, `openDox` → **`dc7aa08f…`**, `openXdox` →
+  **`646f1dc0…`**. So the equality THIS BOX'S OWN LINE checks — the aggregation
+  ROOT gitlink, `openxFactory`'s NESTED gitlink and `openxFactory`'s pin-file
+  `commit:` read at the pinned gitlink, all naming one commit — holds again for
+  BOTH legs. STEP 1 broke it by design and STEP 3 restores it, which is what makes
+  the order forced rather than preferred.
+  **FOUR FILES, AND THAT IS NOT A BREACH OF `#474`'s TWO-FILE INVARIANT — IT IS A
+  DIFFERENT SYNC.** `#474` was the openxFactory-POINTER sync, whose invariant is
+  that gitlink plus `.github/clearing/openxfactory/PIN.yaml`; this is the
+  **THREE-POINTER** sync, so its shape is three gitlinks plus that same clearing
+  PIN. Both of `#474`'s files move here too, for `#474`'s own reason: the nightly
+  runs its scripts from the `openxFactory` gitlink.
+  **THE WHOLE FORCED ORDER IN ONE LINE, so no later reader has to assemble it**:
+  STEP 1 `openXdox` **`#15` → `646f1dc0`** (2026-09-21T21:51:39Z) · STEP 2
+  `openxFactory` **`#1134` → `aaddda66`** (01:12:58Z) · STEP 3 `xFactory`
+  **`#478` → `1385f380`** (01:33:07Z).
+  *(A clock correction owed to the reports, on this lane's standing rule, and the
+  PATTERN is worth more than the four figures: `#1134` was handed as 01:13:04Z and
+  measures 01:12:58Z; `openDox-code` `#34` as 01:07:26Z and measures 01:07:19Z;
+  `#478` as 01:33:14Z and measures 01:33:07Z; `openXdox` `#16` as 01:33:28Z and
+  measures 01:33:20Z. **Four reports, every one six to eight seconds fast** — that
+  is a systematic offset in whatever field the reports read, not four slips, and
+  it changes no gate. This packet names the FIELD beside every clock precisely so
+  an offset like this is visible instead of invisible.)*
   *(THREE STATUS HEADERS WERE RE-SCOPED 2026-09-21 AT COPILOT'S FINDING, and the
   mechanism is the one this packet has already documented three times: the CLAIM
   sat on one line and its DATE on the CONTINUATION line, so *"the box does NOT
