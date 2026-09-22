@@ -743,69 +743,6 @@ Active changes:
   archives on merged-plus-green realization evidence and not on landing, and
   #1074 closes THERE.
 
-- [add-citation-remainder-report](openspec/changes/add-citation-remainder-report/proposal.md)
-  — filed 2026-09-16, lane `openxfactory-1` (display `openXfactory-1`),
-  **`Status: ratified`** — **RATIFIED 2026-09-17 at 12:12Z by Brett Heap
-  (openxFactory operator authority), verbatim *"ratify #1069"***, recorded at
-  [#1069](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714138459).
-  **THE WORD IS BARE**: it ratifies the PACKET and names no option
-  individually, so each of the seven declared veto points stands at the option
-  the packet encodes — the RECOMMENDED one in all seven. Answers openxFactory
-  [#1053](https://github.com/opensoft/openxFactory/issues/1053), the successor
-  `add-declared-former-id` `tasks.md` § 6.1 owed and that packet's archive act
-  filed as a ROUTING RECORD. **THE RESOLUTION RULE LANDED AND THE REPORT OF WHAT
-  IT STILL CANNOT RESOLVE DID NOT**: `scripts/packet_reference.py` states in its
-  own docstring that it *"is a library and has no CLI"*, and its one consumer,
-  `validate-pin-registrations.py`'s `check_citations`, resolves ONE field of
-  registered pins rather than the corpus. **RE-MEASURED AT `b1df95ee`, NOT
-  QUOTED** — **2,973** tracked ENTRIES in scope of the 5,466 tracked, four of
-  them submodule gitlinks skipped as non-files, so **2,969** FILES are read and
-  tokenized; **586** distinct
-  `openspec/changes/…` tokens, which divide exactly and are printed so they
-  reconcile: **498** RESOLVED (76 of them RELOCATED, the rule working), **74**
-  DANGLING(identity-half), **7** DANGLING(file-half), **0** AMBIGUOUS and **7**
-  NOT_A_PACKET_REFERENCE — `498 + 74 + 7 + 0 + 7 = 586`. The **inclusive
-  remainder is 81 tokens** (the DANGLING and AMBIGUOUS ones; the resolver's
-  fifth answer is counted beside it, never inside it), carried by 65 citing
-  files and collapsing onto **53 distinct remainder identities** — 48 of them
-  the identity-half tokens, 5 the file-half tokens, with no identity in both.
-  **AND THE DEEP RE-MEASUREMENT IS COMMITTED AS EVIDENCE**
-  (`evidence/measurement-b1df95ee.md`, by a sibling writer at the same head):
-  INCLUSIVE **78**, THIS-TREE-ONLY **57**, TRUE
-  in-tree by manual read **39**, `AMBIGUOUS` **0** — and the METHODOLOGY IS
-  PROVED NOT TO BE THE VARIABLE, the same instrument reproducing **all twelve**
-  of #1053's published figures exactly against a control clone at `8944758c`,
-  so every delta is corpus movement (the whole −2 is PR #1064's archive of
-  `add-declared-former-id`). **ALL 57 ARE CLASSIFIED, none `unclassified`.**
-  Three honest readings of one corpus give **78, 81 and 86**, differing only in
-  whether trailing punctuation is stripped before dedup and whether
-  `NOT_A_PACKET_REFERENCE` sits inside the raw-absent population — which is the
-  whole argument for stating the recipe in the requirement. The packet authors
-  under #1053's RECOMMENDED option **(b)** — a report CLI outside doc-health —
-  and SIZES option (a), the twenty-fourth doc-health family, from the promoted
-  text rather than estimating it: a `## MODIFIED` block restating the whole
-  *"twenty-three check families"* enumeration, a `families.py` registry edit, a
-  numeral, and a severity decision doc-health's own advisory-launch rule says
-  must *"follow a measurement of the population the gate would red rather than
-  precede it"*. **FIVE `## ADDED` REQUIREMENTS IN A NEW CAPABILITY**
-  `specs/packet-citation-report/` — the remainder is reported by token AND by
-  identity; the population and token grammar are stated so a figure reproduces;
-  a suspected cross-repository citation is FLAGGED and never dropped; the report
-  classifies only what it can decide mechanically and leaves the rest
-  `unclassified`; and it is advisory, exiting 0 whatever it finds with no
-  `--fail-on` — a non-zero exit means the report could not run, never that it
-  found something. No `## MODIFIED` block, so `sequenced_after: []` is the POSITIVE
-  root claim and no promoted byte moves. **SEVEN DECISIONS ARE PUT FOR A WORD**,
-  each with its RECOMMENDED option first and the alternatives costed —
-  `design.md` D1 the HOME, D2 the SURFACE (a sibling script, so the library's
-  contract stays a library's), D3 the RECIPE, D4 the CLASSES, D5 the NIGHTLY
-  WIRING (artifact-only, because `health/` is INSIDE the measured population and
-  carries 0 citation tokens today, so a committed report would be counted by the
-  next run), D6 what STABLE means before (a) is takeable, D7 the SCOPE FENCES.
-  `code_surface` is non-empty and NOTHING OF IT MOVES HERE — no script, no
-  workflow, no test — so the archive is a separate act on merged-plus-green
-  realization evidence and a separate word, and #1053 closes THERE. Filing PR
-  [#1069](https://github.com/opensoft/openxFactory/pull/1069).
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
   `openXfactory-4-openDox_extraction`), `Status: draft`. **Takes the FIRST HALF of
@@ -3279,6 +3216,102 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-citation-remainder-report](openspec/changes/archive/2026-09-21-add-citation-remainder-report/proposal.md)
+  — **ARCHIVED 2026-09-21** by
+  [PR #1133](https://github.com/opensoft/openxFactory/pull/1133), lane
+  `openxfactory-1` (display `openXfactory-1`), on Brett Heap's **SEPARATE
+  ARCHIVE WORD** — verbatim *"archive it"*, 2026-09-21T20:28:20Z, first-hand in
+  session to the lane, recorded at
+  [#1053 comment 5767056479](https://github.com/opensoft/openxFactory/issues/1053#issuecomment-5767056479)
+  — a different word from the ratification of 2026-09-17T12:12:06Z
+  (*"ratify #1069"*, PR
+  [#1069](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714138459)
+  → `ef2b8734`) and from every realization merge, exactly as `tasks.md` § 3.4
+  requires. **`code_surface: openxFactory` IS NON-EMPTY**, so this archive rests
+  on MERGED-PLUS-GREEN REALIZATION EVIDENCE and never on landing or on
+  ratification. **THE THREE REALIZATION MERGES, AND THE PIN-SYNC THAT MAKES THEM
+  RUN:** PR [#1100](https://github.com/opensoft/openxFactory/pull/1100) →
+  `83166366d499d58b5e8801e0bb17e346c73fc8e6` (R1 — `scripts/report-citation-remainder.py`
+  and `tests/citation_remainder/`, the report CLI D2 recommends and the library
+  contract it leaves intact), PR
+  [#1111](https://github.com/opensoft/openxFactory/pull/1111) →
+  `89d7975d9e042ae6987131633bc0dd91226ea6f2` (R2 — the two artifact-only steps in
+  `.github/workflows/doc-health-reusable.yml`'s `finalize` job and the wiring test
+  that pins them), and PR
+  [#1126](https://github.com/opensoft/openxFactory/pull/1126) →
+  `93a5ce2b50924e0bda75ab94b2b42e1339c7b8da` (R3 —
+  `evidence/first-report-89d7975d.md`, the first reading the shipped report
+  produced, and § 2.3's tick); with opensoft/xFactory PR
+  [#467](https://github.com/opensoft/xFactory/pull/467) →
+  `d9a0c2b6e4fa82911af443d463cb167e35797bac` advancing the aggregation's
+  `openxFactory` gitlink to `89d7975d`, without which the wired step would have
+  run a script the checkout did not carry.
+  **THE GREEN RUN, WITH THE CANCELLATION NAMED RATHER THAN GLOSSED.**
+  `pytest-suite`'s concurrency group cancels the previous `main` run on each
+  landing, and the run started on R3's own merge `93a5ce2b`
+  ([35650930794](https://github.com/opensoft/openxFactory/actions/runs/35650930794))
+  was CANCELLED at 2026-09-21T20:34:12Z when PR #1121 merged nine minutes later.
+  **TWO GREEN PROOFS STAND IN ITS PLACE.** `main`'s own next decided run
+  [35651829217](https://github.com/opensoft/openxFactory/actions/runs/35651829217)
+  at `80c68da6081282225b54cfdb06b99bc93129d3cf`, which has `93a5ce2b` as its
+  FIRST PARENT — `selected=8697 passed=8691 skipped=6 failures=0 errors=0`; and
+  #1126's own pre-merge run
+  [35418896466](https://github.com/opensoft/openxFactory/actions/runs/35418896466)
+  at `ef2baffb`, whose tree is MEASURED EQUAL to the merge commit's (both
+  `63f22e16dfee4fac809fcd300aecb3ad485f9f49`) —
+  `selected=8686 passed=8680 skipped=6 failures=0 errors=0`. The merge-base
+  reading at `b0329d65` was the same 8,686, and the +11 between them is PR
+  #1121's `tests/doc-health/test_regression_issue_body_cap.py`, not this
+  packet's: R3 added no test.
+  **AND THE NIGHTLY ACTUALLY RAN**, which a merged workflow file is not evidence
+  of: `opensoft/xFactory` `doc-health-nightly` produced
+  `citation-remainder-2026-09-19` (run 35415908738),
+  `citation-remainder-2026-09-20` (35484284057) and
+  `citation-remainder-2026-09-21` (35554784920), 10,682 bytes each, **committing
+  nothing into the corpus** — D5's artifact-only wiring proved by runs rather
+  than by YAML. This packet adds NO required status check, so no operator console
+  act is owed at this archive.
+  **THE PROMOTION, MEASURED BYTE-FOR-BYTE:** five `## ADDED` requirements and
+  **72 scenarios** reach canon under the NEW capability
+  **[`packet-citation-report`](openspec/specs/packet-citation-report/spec.md)** —
+  the CLI's own totals read `+ 5, ~ 0, - 0, → 0`, capability directories go
+  **63 → 64**, and canon's diff is a PURE INSERTION. Each block is byte-identical
+  between the archived delta and canon: *The citation remainder is reported*
+  7,242 bytes sha256 `1c5e137d4e868ba8…`; *The reported population is derived
+  from a stated recipe* 25,420 bytes `0e0c3c74cc9b38ea…`; *A suspected
+  cross-repository citation is flagged and never dropped* 18,559 bytes
+  `9664605ce5a00c67…`; *The report classifies only what it can decide
+  mechanically* 17,197 bytes `dbf5ff75d1b5d7a8…`; *The citation remainder report
+  is advisory and gates nothing* 1,921 bytes `8e26620145af8f5f…` — 70,339 bytes
+  carried in all. **IT REMOVES NOTHING**: the delta is all-`ADDED` over a
+  directory that did not exist, so no promoted byte moves, `sequenced_after:`
+  stays the POSITIVE root claim `[]`, and no `Modified over` or `Removed from
+  canon by` marker is owed. The pinned CLI's `TBD - created by archiving change`
+  Purpose placeholder is replaced with the capability's own purpose, drawn from
+  the packet's text; it stood in 1 of 64 canon specs and now in none.
+  **ORIGIN RETAINED** — the archive tool's own line, *"declaration unchanged
+  since the ratifying commit `96f66fe9f148`"*. The packet moves as a PURE RENAME,
+  all seven files 0-byte diffs, `Status: ratified` unmoved on `proposal.md`,
+  `design.md` and `tasks.md`.
+  **`tasks.md`'s LAST SIXTEEN BOXES TICK ON THIS ACT**, each with the fact
+  beneath it, in a tick commit that precedes the archive command because the
+  archive tool refuses while any `- [ ]` stands. §§ 1.10–1.16 are the
+  RATIFICATION's own boxes, left standing at the ratifying commit and closed here
+  on that bare word — *"a bare ratifying word takes the RECOMMENDED option at all
+  seven"*, no veto named — and on no new decision; § 2.4 on the pair above;
+  §§ 3.2–3.3 on comments already standing on #1053; § 3.4 on the word and the act;
+  § 3.5 on the closure route; §§ 4.1–4.4 as records of things NOT taken, re-read
+  in this tree rather than carried forward on trust — no twenty-fourth doc-health
+  family (still 23, and D6's `N = 14` trigger is not merely unmet but not yet
+  measurable at three runs), no cross-repository sweep, no citation repaired, and
+  the resolver docstring's own stale `openspec/changes/README.md` example left
+  exactly as it stands. openxFactory
+  [#1053](https://github.com/opensoft/openxFactory/issues/1053) is SHUT on this
+  archive, by the lane's hand after the ARCHIVED record — this pull request
+  carries `Refs` and no closing keyword, the shape PR #1114 set and PR #1100's own
+  mis-link made necessary. Filed by PR
+  [#1069](https://github.com/opensoft/openxFactory/pull/1069) → `ef2b8734`.
 
 - [repromote-engineering-vocabulary](openspec/changes/archive/2026-09-18-repromote-engineering-vocabulary/proposal.md)
   — **ARCHIVED 2026-09-18** by
