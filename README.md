@@ -537,7 +537,7 @@ Active changes:
   Heap's ratification read), as the BUILD ARC the archived
   `split-opendox-two-layer-product` names as its own unclosed residue. **ONE
   `## ADDED` block creating the capability `neutral-product-standalone-operability`
-  — ten requirements, thirty scenarios**, written domain-neutrally (its sibling is
+  — ten requirements, thirty-three scenarios**, written domain-neutrally (its sibling is
   `neutral-product-pin`: that governs openxFactory CONSUMING an external neutral
   product, this governs the product being able to STAND UP without its consumer),
   with openDox as the measured instance and one requirement per gap of the

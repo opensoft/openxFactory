@@ -170,11 +170,18 @@ A neutral product SHALL carry a validator and the schemas that validator reads
 in ONE checkout, so that validating a document requires no second repository on
 disk. A validator whose schemas are split across checkouts is not a validator
 anyone can run: the split is discoverable only by trying it, and the failure it
-produces names a missing path rather than a missing product. Schemas the
-publishing repository OWNS SHALL arrive as the DIGEST-PINNED VENDORED COPY
-`neutral-product-pin` admits — registered as a CONSUMED manifest member, never an
-owned one, naming the publisher contract version it pins — and SHALL NOT be
-reached by a path literal into a sibling checkout. Vendoring is what makes the
+produces names a missing path rather than a missing product. The validator's INPUT SET SHALL BE
+NARROWED TO THE PRODUCT'S OWN DOCUMENT KINDS before any schema is acquired: a
+standalone validator validates what the product itself defines, and a schema
+governing the publisher's or the consumer's artifacts belongs to their
+validators. Only where a schema the publishing repository OWNS is genuinely
+needed by one of the product's own verbs SHALL it arrive as the DIGEST-PINNED
+VENDORED COPY `neutral-product-pin` admits — registered as a CONSUMED manifest
+member, never an owned one, naming the publisher contract version it pins — and
+never by a path literal into a sibling checkout. **That route SHALL NOT reach a
+schema the first requirement of this capability keeps with the publisher**: an
+intent-plane or governance schema is not made portable by vendoring it, and a
+product that appears to need one has an input set it has not yet narrowed. Vendoring is what makes the
 one-checkout rule satisfiable rather than in tension with the pin: the pinned
 bytes are IN the checkout, and the pin is what says which bytes they are.
 
@@ -187,9 +194,14 @@ bytes are IN the checkout, and the pin is what says which bytes they are.
 - **THEN** the validation runs and returns a verdict, rather than failing on an unresolvable schema path
 
 #### Scenario: A publisher-owned schema is needed
-- **WHEN** a validation genuinely needs a schema the publishing repository owns
+- **WHEN** a validation genuinely needs a schema the publishing repository owns, and that schema is not one the first requirement keeps with the publisher
 - **THEN** the schema travels as the DIGEST-PINNED VENDORED COPY `neutral-product-pin` already admits — registered in the product's own manifest as a CONSUMED member, never an owned one, naming the publisher contract version it pins — so that the product's checkout carries what its validator reads
 - **AND** it is never reached by a path literal into a sibling checkout, which is the failure this requirement exists to close
+
+#### Scenario: The validator's input set reaches a schema the publisher keeps
+- **WHEN** a standalone validator's declared input set includes an intent-plane or governance schema the first requirement keeps with the publishing repository
+- **THEN** the input set is narrowed rather than the schema vendored, because vendoring a schema this capability elsewhere refuses to move would satisfy one requirement by breaching another
+- **AND** if the product genuinely cannot validate its own documents without it, that is reported as a finding about the boundary, not resolved by a copy
 
 ### Requirement: An extracted product's own spec instance governs its requirements before the product is called standalone
 Requirements a carve assigns to an extracted product SHALL be re-promoted in

@@ -33,7 +33,7 @@ Baselines, measured on `openxFactory` `main` `4f92d651` before this packet:
   requirement table; the explicit "what openxFactory keeps" section; honest
   `code_surface:` / `target_release:` front-matter.
 - [x] 1.3 Author the `## ADDED Requirements` delta creating
-  `neutral-product-standalone-operability` — 10 requirements, 30 scenarios,
+  `neutral-product-standalone-operability` — 10 requirements, 33 scenarios,
   domain-neutral, openDox as the measured instance.
 - [x] 1.4 Author `design.md`: D1-D8 and **R-G3** — filed as Q-G3, the one question
   put to Brett with three options and a recommendation; RULED the same day and
@@ -255,6 +255,17 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   four does it arrive as the DIGEST-PINNED VENDORED COPY `neutral-product-pin`
   admits — a CONSUMED manifest member, and note that capability admits **ONE**,
   so needing more than one is itself a finding to raise rather than a thing to do.
+- [ ] 7.1b **AND TWO OF THOSE FOUR ARE NOT AVAILABLE BY THAT ROUTE AT ALL.**
+  `gate-intent.schema.yaml` is an INTENT-PLANE schema — the carve manifest lists
+  it among the validator's contract files (`docs/opendox-carve-manifest.yaml:459`)
+  and requirement 1 keeps the intent-plane schemas with openxFactory. Vendoring
+  it would satisfy requirement 7 by breaching requirement 1, which requirement 7's
+  fifth scenario now refuses in terms. The same reasoning covers
+  `ideation-possibles-register.schema.yaml`, filed
+  `stays_openxfactory_adapter` as openxFactory's own candidate register. **If the
+  narrowing in 7.1 is done properly, openDox needs neither**; if an openDox verb
+  appears to need one, raise it as a finding about the boundary rather than
+  copying the schema.
 - [ ] 7.1a Record why the existing script cannot simply be reused: it derives
   `SCHEMAS_DIR` from `__file__` (`validate-ideation-dashboard-contracts.py:114-115`)
   and so looks for a `contracts/schemas/` its own leg does not have — run from
