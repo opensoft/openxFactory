@@ -69,6 +69,16 @@ import sys
 PACKET = pathlib.Path(__file__).resolve().parent.parent
 ROOT = PACKET.parent.parent.parent
 
+#: THE IMMUTABLE BASIS, and it is NOT `openspec/specs/`. Canon is the mutable
+#: current state: the moment this amendment archives, `openspec/specs/` carries
+#: the AMENDED requirements and a script expecting the pre-amendment scenario
+#: counts would fail from inside its own archived packet — a committed proof that
+#: reports FAIL for having succeeded. The reference is therefore the archived
+#: packet that PROMOTED these requirements, whose delta files never move; and the
+#: two were measured byte-identical block for block when this was written, so
+#: nothing is weakened by reading the stable one.
+BASIS = ROOT / "openspec/changes/archive/2026-09-22-split-opendox-two-layer-product/specs"
+
 PAIRS = (
     ("corpus-adapter-seam",
      "The corpus reader is an external pinned product and the dependency points one way", 3),
@@ -136,10 +146,33 @@ def scenario_blocks(text: str, title: str) -> list[str]:
     raise SystemExit(f"requirement not found: {title!r}")
 
 
+def canon_state(capability: str, title: str,
+                basis: list[str], mine: list[str]) -> tuple[bool, str]:
+    """Where live canon stands relative to the basis this block was written over.
+
+    THREE STATES AND ONLY ONE IS A FAILURE. Canon equal to the basis is the
+    review-time state: nothing has moved under this block. Canon equal to THIS
+    BLOCK is the post-archive state: the amendment has been applied and the proof
+    above is historical and still true. Anything else means canon moved and
+    matches neither, which is the one case a reader must be stopped on.
+    """
+    canon_path = ROOT / "openspec/specs" / capability / "spec.md"
+    if not canon_path.is_file():
+        return True, "canon absent (capability not promoted here)"
+    canon = scenario_blocks(read_lf_bytes(canon_path), title)
+    if canon == basis:
+        return True, "canon still states the basis — nothing moved under this block"
+    if canon == mine:
+        return True, ("canon now states THIS BLOCK — the amendment has been "
+                      "applied and the proof above is historical")
+    return False, (f"canon matches NEITHER the basis nor this block "
+                   f"({len(canon)} blocks): something else moved it")
+
+
 def main() -> int:
     failures = 0
     for capability, title, expected in PAIRS:
-        promoted = read_lf_bytes(ROOT / "openspec/specs" / capability / "spec.md")
+        promoted = read_lf_bytes(BASIS / capability / "spec.md")
         delta = read_lf_bytes(PACKET / "specs" / capability / "spec.md")
         carried = scenario_blocks(promoted, title)
         mine = scenario_blocks(delta, title)
@@ -168,11 +201,16 @@ def main() -> int:
                   f"{out_of_order[0]}")
             failures += 1
             continue
+        ok, note = canon_state(capability, title, carried, mine)
+        if not ok:
+            print(f"FAIL {capability}: {note}")
+            failures += 1
+            continue
         print(f"OK {capability}: all {len(carried)} promoted scenario blocks "
               f"carried exactly and in order among the delta's {len(mine)} "
               f"parsed blocks (a block is its heading through its last "
               f"non-blank line; blank lines between blocks are outside every "
-              f"block and are not compared)")
+              f"block and are not compared); {note}")
     return 1 if failures else 0
 
 

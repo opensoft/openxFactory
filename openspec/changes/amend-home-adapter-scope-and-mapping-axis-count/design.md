@@ -81,8 +81,8 @@ Both blocks were built by EXTRACTING the promoted scenarios programmatically
 from `openspec/specs/` rather than by retyping them, and
 `review/verify-carriage.py` re-extracts and compares on demand:
 
-    OK corpus-adapter-seam: all 3 promoted scenario blocks carried exactly and in order among the delta's 6 parsed blocks (a block is its heading through its last non-blank line; blank lines between blocks are outside every block and are not compared)
-    OK domain-mapping-declaration: all 3 promoted scenario blocks carried exactly and in order among the delta's 4 parsed blocks (a block is its heading through its last non-blank line; blank lines between blocks are outside every block and are not compared)
+    OK corpus-adapter-seam: all 3 promoted scenario blocks carried exactly and in order among the delta's 6 parsed blocks (a block is its heading through its last non-blank line; blank lines between blocks are outside every block and are not compared); canon still states the basis — nothing moved under this block
+    OK domain-mapping-declaration: all 3 promoted scenario blocks carried exactly and in order among the delta's 4 parsed blocks (a block is its heading through its last non-blank line; blank lines between blocks are outside every block and are not compared); canon still states the basis — nothing moved under this block
 
 It is committed with the packet rather than run once and reported, so the proof
 survives every later edit — including edits made in response to review.
@@ -243,6 +243,41 @@ clean after each:**
 | two promoted blocks swapped | `FAIL … the promoted scenario blocks are all present but REORDERED; first out of sequence -> #### Scenario: The neutral layer hardcodes a domain's status words` |
 | a blank line inserted INSIDE a block, between a `WHEN` and its `THEN` | `FAIL … 1 promoted scenario block(s) not carried byte-identically` |
 | the blank runs BETWEEN every block doubled | `OK …` — by definition, and the verdict line says which definition |
+
+## D4e — the proof read the MUTABLE canon, so archiving this packet would have broken it
+
+Copilot round 8 found the trap the four earlier fixes had left standing: the
+verifier read `openspec/specs/` — **the current state, which this very amendment
+changes.** The moment it archives, canon carries the amended requirements, the
+script's `PAIRS` still expects three promoted scenarios apiece, and **a committed
+proof reports FAIL from inside its own archived packet for having succeeded.** A
+later reader would have no way to tell a defective packet from an out-of-date
+script.
+
+**THE REFERENCE IS NOW THE IMMUTABLE BASIS**:
+`openspec/changes/archive/2026-09-22-split-opendox-two-layer-product/specs/`, the
+archived packet that PROMOTED these requirements and whose delta files never
+move. Nothing is weakened by the change — the two were measured **byte-identical
+block for block** before the switch.
+
+**AND CANON IS STILL CHECKED, as one of three states rather than as the source:**
+
+| live canon | verdict |
+| --- | --- |
+| equals the basis | pass — *"nothing moved under this block"* (the review-time state) |
+| equals THIS BLOCK | pass — *"the amendment has been applied and the proof above is historical"* (the post-archive state) |
+| matches neither | **FAIL** — *"something else moved it"* |
+
+**All three proved by control, tree restored and re-measured clean after each:**
+applying the block to canon gives the historical-pass note; altering canon by one
+word in a carried scenario gives `FAIL … canon matches NEITHER the basis nor this
+block (6 blocks): something else moved it`; the untouched tree gives the
+review-time pass.
+
+**This is the fifth defect Copilot found in this script and the first that was
+about TIME rather than about bytes.** The earlier four asked whether the
+comparison was exact; this one asked how long the answer stays true — and a proof
+committed inside a packet has to survive its own packet's success.
 
 ## D5 — two stale strings found and deliberately not fixed
 
