@@ -13,8 +13,9 @@ describes what was analyzed.
 
 #### Scenario: A nightly run executes both passes
 - **WHEN** the nightly run completes
-- **THEN** the sweep's corpus is exactly the deterministic pass's inventory for that run
+- **THEN** the sweep's corpus is drawn from exactly the deterministic pass's inventory for that run and from no other snapshot
 - **AND** the final report MUST verify that the prepared inventory matches the immutable checkout before merging worker findings
+- **AND** where the input budget holds documents back, the set SENT to the worker is a subset of that corpus, named as such, the snapshot the two passes share being unaffected
 
 #### Scenario: The deterministic pass fails
 - **WHEN** the deterministic pass fails before emitting an inventory

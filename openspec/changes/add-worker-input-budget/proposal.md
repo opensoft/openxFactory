@@ -143,11 +143,17 @@ Two ratified requirements are reached, and neither can absorb a budget silently.
 **1. Sweep scope is declared to be Hermes-owned policy.** *Hermes-layer sweep
 scope resolution* makes scope "Hermes-owned policy resolved deterministically by
 orchestration", chosen from the ordered set `incremental | full-weekly |
-full-nightly`, and *Sweep sequencing and snapshot consistency* says the sweep's
-corpus "is exactly the deterministic pass's inventory for that run". A byte
-budget narrows the swept set on a SECOND axis that no Hermes layer declares and
-no scope value names. Shipping that without saying so would make the report's
-scope line false.
+full-nightly`, and *Sweep sequencing and snapshot consistency*'s first scenario
+says the sweep's corpus "is exactly the deterministic pass's inventory for that
+run". A byte budget narrows the swept set on a SECOND axis that no Hermes layer
+declares and no scope value names, and a budgeted run therefore CONTRADICTS that
+scenario as promoted. Shipping it without saying so would make the report's
+scope line false. The delta resolves the contradiction rather than living beside
+it: the scenario is restated so the corpus is "drawn from exactly the
+deterministic pass's inventory for that run and from no other snapshot" — which
+is the requirement's real subject, one snapshot shared by both passes — and a
+third bullet states that the set SENT may be a subset of that corpus, named as
+such, with the shared snapshot unaffected.
 
 **2. A deferred document is not a skipped sweep, and the contested-finding rule
 turns on the difference.** *The semantic sweep is unavailable* protects a prior
