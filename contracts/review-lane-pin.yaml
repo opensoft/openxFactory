@@ -1000,7 +1000,21 @@ lockstep:
     still sweeps hourly and can still advance `core_commit` between ceremonies,
     so THIS CONVERGENCE IS FALSIFIABLE BY THIS REPOSITORY'S OWN AUTOMATION
     WITHIN THE HOUR, and the next such advance re-diverges the pair exactly as
-    2026-09-18's did. Narrowing that clause remains the ratifier's act.
+    2026-09-18's did. Narrowing that clause remains the ratifier's act — and
+    the SHAPE of the remedy is recorded here too, so the next reader inherits
+    more than the complaint. `scripts/review_lane_repin.py` writes only
+    regex-anchored pin sites and the string `lockstep` does not occur in it at
+    all, so the lane cannot move this field even in principle. Two forms would
+    discharge that, not exclusive: (a) widen the lane's writable set to this
+    field and its test literal, so an advance that leaves the aggregation
+    behind writes `diverged` in the same proposed diff; or (b) make the
+    CROSS-REPOSITORY fact assertable at all — nothing today reads xFactory's
+    three surfaces and compares them to this value, which is why a false
+    `status` survives in EITHER direction until a human notices, and why
+    2026-09-18's took eleven days. (b) is the better fix, because (a) still
+    leaves this file's truth depending on a lane remembering to write it.
+    Both are OpenSpec-class acts on a realized capability, which is exactly
+    why neither rides here.
   converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml
