@@ -37,7 +37,20 @@ the tension but relocate it — a pinned home adapter would violate this
 requirement's SECOND clause the moment it imported `doc_health`, which is
 precisely where DQ-1 puts it, so the escape this requirement's first clause
 appears to offer is closed by its own second clause and the exception has to be
-stated. The dependency points ONE WAY — a reader depends on the interface it
+stated. THE EXCEPTION REACHES THE ONE-WAY SENTENCE BELOW ON THE SAME TERMS, and
+saying so is not a second exception but the same one applied where it also
+bites: that sentence governs the dependency ACROSS THE SEAM, and a reader inside
+the repository whose corpus it reads is not across the seam from it. The home
+adapter's dependence on `openxFactory`'s own check families is exactly what
+RULING DQ-1 placed it beside them to do — reading the sentence as forbidding it
+its neighbours would forbid the one thing that ruling kept it here for — while
+what the one-way rule actually protects is untouched and still owed OF IT: it
+depends on the pinned interface it implements, and that interface depends on
+nothing of this repository's. What the exception does NOT reach is the
+relocation rule that follows, which is about EXTRACTION and binds the home
+adapter exactly as it binds anything else: if a package here and a package
+leaving here import each other, the shared type moves into a module both depend
+on before either goes. The dependency points ONE WAY — a reader depends on the interface it
 implements, and never on the corpus's own check families — and where two
 packages today import each other, the shared type SHALL be relocated into a
 module BOTH depend on before either is extracted. The measured instance this
@@ -65,6 +78,11 @@ ONE class in ONE module, imported lazily in two places.
 - **WHEN** `openxFactory`'s own adapter over its own corpus — the package RULING DQ-1 keeps beside `doc_health`, authored here and named in no pin — is measured against this requirement
 - **THEN** it is the one named exception and is NOT refused for being neither external nor pinned, and its obligations are read from "openxFactory's own adapter is one implementation and carries no privileged path" and from `openxfactory-engineering-adapter` instead
 - **AND** the exception is not cured by pinning it, because a pinned home adapter importing `doc_health` would then violate this requirement's second clause
+
+#### Scenario: The home adapter imports the corpus's own check families
+- **WHEN** `openxFactory`'s own adapter over its own corpus imports `openxFactory`'s check families — the `doc_health` suite it was placed beside in order to run
+- **THEN** the import is not refused by the one-way rule, because that rule governs the dependency ACROSS the seam and this reader is inside the repository whose corpus it reads
+- **AND** the one-way obligation still owed of it holds and is measurable: it depends on the pinned interface it implements, and that interface depends on nothing of this repository's
 
 #### Scenario: A second in-repository reader claims the exception
 - **WHEN** a corpus reader other than the home adapter RULING DQ-1 keeps is authored inside `openxFactory` rather than pinned as an external product

@@ -105,6 +105,28 @@ them and not in advance. Every box for work this packet will never do carries
 
 ## 5. Registered, not taken
 
+- [~] 5.0 **THE CAPABILITY'S `## Purpose` STILL READS UNCONDITIONALLY AND A DELTA
+  CANNOT REACH IT** (Copilot `r4076010322`). `openspec/specs/corpus-adapter-seam/spec.md`:4-6
+  says *"A corpus reader is an EXTERNAL neutral product consumed under a pin"*,
+  so once this amendment promotes, the capability states an unconditional purpose
+  beside an explicit home-adapter exception. **The finding is right and the
+  instrument is not a delta.** Measured: no active change in the corpus carries a
+  `## Purpose` in a spec delta (`grep -rln "^## Purpose" openspec/changes/*/specs/*/spec.md`
+  returns nothing), because `## ADDED|MODIFIED|REMOVED Requirements` is the whole
+  delta grammar and the promoted `## Purpose` is written BY THE ARCHIVING ACT —
+  `#1139` says so in its own words, *"the only thing this pull request wrote into
+  those two new files is the `## Purpose` the CLI leaves as a `TBD`"*. **So the
+  sentence is written HERE for the archiving actor to carry**, rather than left to
+  be rediscovered: the Purpose's *"A corpus reader is an EXTERNAL neutral product
+  consumed under a pin"* becomes *"A corpus reader `openxFactory` does not itself
+  author is an EXTERNAL neutral product consumed under a pin, and `openxFactory`'s
+  own adapter over its own corpus — the one RULING DQ-1 keeps here — is the single
+  named exception, governed by the fourth requirement and by
+  `openxfactory-engineering-adapter` rather than by the first."* Nothing else in
+  the Purpose moves; its closing sentence about the home adapter being *"ONE
+  IMPLEMENTATION among others with no privileged path"* is unaffected and stays.
+
+
 - [~] 5.1 `contracts/domain-profiles/openxfactory-engineering.yaml`'s `basis:`
   entry cites the delta at its PRE-ARCHIVE path
   (`openspec/changes/split-opendox-two-layer-product/...`), which the 2026-09-22

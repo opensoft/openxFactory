@@ -539,7 +539,7 @@ Active changes:
   merge `e8fde27f`), registered as real by the archiving lane at `#1139` comment
   `5770749761`. The third of that set was ruled separately and landed as `#1140`;
   with this the set of four closes. **TWO `## MODIFIED` requirements in two
-  capabilities, six promoted scenarios carried byte-identically, three added.**
+  capabilities, six promoted scenarios carried byte-identically, four added.**
   (1) `corpus-adapter-seam`'s *"SHALL consume every tool that reads its governed
   corpus as an EXTERNAL NEUTRAL PRODUCT pinned under `neutral-product-pin`"*
   gains a NAMED, BOUNDED exception for the one adapter RULING DQ-1 keeps in this

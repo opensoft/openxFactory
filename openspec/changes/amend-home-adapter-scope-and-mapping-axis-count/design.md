@@ -149,6 +149,43 @@ reader, and the tree was restored and re-measured clean after each.
 a concatenation cannot tell carriage from quotation, and the packet that most
 needed to know the difference had written one.
 
+## D4c — the exception had to reach the ONE-WAY clause too, and that is the same exception
+
+Copilot `r4076010204` found that the first fix relaxed only the external/pinned
+sentence, while the next sentence still read *"a reader depends on the interface
+it implements, and never on the corpus's own check families"* — and the home
+adapter imports `doc_health` at six sites. **So the requirement was still false of
+it, one clause over.** Taken.
+
+**The scope is the SEAM, and that is what makes this one exception rather than
+two.** The one-way rule governs the dependency ACROSS the seam: a reader in
+another repository must not import back into the corpus's tooling, which is the
+extraction hazard the requirement's measured instance is drawn from. A reader
+INSIDE the repository whose corpus it reads is not across the seam from it, and
+its dependence on `doc_health` is precisely what RULING DQ-1 placed it beside
+them to do. Reading the sentence as forbidding the home adapter its neighbours
+would forbid the one thing that ruling kept it here for.
+
+**What is still owed OF the home adapter is stated rather than dropped**, and it
+is the half of the one-way rule that has real content here: it depends on the
+pinned interface it implements, and that interface depends on nothing of this
+repository's. That is measurable today —
+`tests/corpus-adapter/test_interface_closure.py` already holds the interface
+closed against both the reader package and the implementation — and the added
+scenario says so.
+
+**And the exception is bounded once more:** it does NOT reach the relocation rule
+that follows. That rule is about EXTRACTION and binds the home adapter exactly as
+it binds anything else — if a package here and a package leaving here import each
+other, the shared type moves into a module both depend on before either goes.
+Three clauses in one requirement, and the exception reaches two of them by name.
+
+**The promoted one-way sentence is carried VERBATIM.** The scoping is stated in
+the exception paragraph that immediately precedes it and names the clauses it
+reaches, rather than by editing the sentence — so the seam block still removes
+NO promoted body unit, and `verify-carriage.py` still reports all three promoted
+scenarios carried.
+
 ## D5 — two stale strings found and deliberately not fixed
 
 Both were met while measuring and neither is folded in.
