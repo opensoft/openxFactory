@@ -394,7 +394,8 @@ def parse_previous(text: str, *, announce=_announce_unparsed_plan_rows):
 def uncited_resolutions(findings: list[Finding], previous_contested,
                         dispositions,
                         unavailable_families: set[str] | None = None,
-                        unavailable_repos: set[str] | None = None
+                        unavailable_repos: set[str] | None = None,
+                        unavailable_keys: set[tuple] | None = None
                         ) -> list[Finding]:
     """Contested findings from the previous report that vanished without a
     recorded disposition become new error findings (doc-health contract:
@@ -417,6 +418,15 @@ def uncited_resolutions(findings: list[Finding], previous_contested,
     baseline. Callers that cannot determine the baseline's identity (an
     unstamped, pre-#342 report) MUST pass `None` or an empty set here rather
     than guess one, preserving exactly today's behaviour for that case.
+
+    `unavailable_keys` (add-worker-input-budget) is the third and narrowest
+    axis: exact `(family, repo, path)` triples this run could not re-confirm.
+    It exists because the semantic sweep can now succeed PARTIALLY — the
+    input budget holds documents back while the sweep itself runs and returns
+    findings — so the family and repo axes both read as AVAILABLE while some
+    individual documents never reached the model at all. A deferred document
+    is not a swept document, and its prior contested findings must survive
+    the night exactly as an unavailable family's do.
     """
     current = {f.match_key() for f in findings}
     out = []
@@ -424,6 +434,8 @@ def uncited_resolutions(findings: list[Finding], previous_contested,
         if family in (unavailable_families or set()):
             continue
         if repo in (unavailable_repos or set()):
+            continue
+        if (family, repo, path) in (unavailable_keys or set()):
             continue
         if (family, repo, path) in current:
             continue
@@ -540,6 +552,16 @@ def render(run_date: date, findings: list[Finding], skips, preflight_log,
         out.append(f"- scope: {semantic_meta.scope} ({declared})")
         out.append(f"- corpus: {semantic_meta.corpus_size} of "
                    f"{semantic_meta.total_docs} docs")
+        # add-worker-input-budget: what actually reached the worker. A
+        # deferred document is NOT a swept document -- saying so here is
+        # what keeps its prior findings from reading as resolved.
+        out.append(
+            f"- input: {semantic_meta.input_bytes} of "
+            f"{semantic_meta.input_budget_bytes} budgeted bytes, "
+            f"{semantic_meta.docs_included} docs sent, "
+            f"{semantic_meta.docs_deferred} deferred")
+        for repo, path in semantic_meta.deferred:
+            out.append(f"  - deferred (input budget): {repo}/{path}")
         out.append(f"- model: {semantic_meta.model}, prompt contract "
                    f"v{semantic_meta.prompt_version}")
         out.append(f"- job envelope: {semantic_meta.envelope_ref}")

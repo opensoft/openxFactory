@@ -532,6 +532,46 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-worker-input-budget](openspec/changes/add-worker-input-budget/proposal.md)
+  — filed 2026-09-22, lane `openxfactory-1`, `Status: draft`, on Brett Heap's
+  word *"brief a writer to add the input-size guard"* (2026-09-22). **The
+  doc-health nightly's analysis child has failed EVERY night since 2026-08-30
+  except the two 2026-09-02 runs, silently**: `semantic.build_analysis_input`
+  assembled the whole selected corpus plus the whole promoted-spec grounding
+  into one prompt with no size bound, and when that prompt outgrew the model's
+  context window `claude -p --output-format json` wrote `"Prompt is too long"`
+  to STDOUT — which the child redirects into `worker-result.json` and the
+  cleanup step then deletes, leaving `Process completed with exit code 1`
+  against an empty stderr. Size separates the nights with no exception
+  (accepted at 2,524,427 bytes and below, refused at 2,913,875 and above), and
+  the CONTROL is the sibling cataloger child: on 2026-09-11/12/14/15 it ran
+  188–324 s on 82,712 bytes of input, same runner, same token, same flag set,
+  while the analysis child died in 2–4 s. Re-run on 2026-09-22T01:20Z after the
+  Cloud PC account's seat was assigned, the analysis child failed again in
+  three seconds on the same 7,940,307-byte input — the seat was not the
+  discriminator. **ONE `## MODIFIED` and ONE `## ADDED` requirement.** *Sweep
+  sequencing and snapshot consistency* gains the statement that the set SENT
+  may be a subset of the set SELECTED, plus a scenario obliging the report to
+  name every deferred document. *Bounded worker input budget* (ADDED, six
+  scenarios) fixes the budget as a byte cap over the WHOLE assembled prompt,
+  requires it to travel with the dispatched bundle so the worker enforces the
+  number the orchestrator recorded, separates the two assembly shapes (where
+  the ORCHESTRATOR assembles the prompt it packs within the budget; where the
+  WORKER assembles it, the orchestrator measures each dispatchable unit and
+  does not dispatch one it has measured over), requires deterministic packing of
+  WHOLE documents only, gives each population a reserved share so neither check
+  family is starved, obliges a worker handed an over-budget input to refuse
+  before invoking the model rather than emit an empty result, and protects a
+  deferred document's prior findings from reading as resolved. `code_surface:`
+  is non-empty (two packers and their record here; the two child workflows in
+  `opensoft/xFactory`), so the packet archives on merged-plus-green realization
+  evidence and not on landing. **THREE OPEN QUESTIONS, ALL DECLARED:** the
+  grounding share (half, as built — at the 2026-09-21 corpus that sends 93 of
+  311 documents), the fact that this packet CAPS AND RECORDS rather than
+  carrying deferrals over (no sweep cursor exists, and the committed inventory
+  baseline advances unconditionally), and the live HTTP 403 org-entitlement
+  block no code here addresses.
+
 - [add-estate-repository-inventory](openspec/changes/add-estate-repository-inventory/proposal.md)
   filed 2026-09-18, lane `openxfactory-5` (display `openXfactory-5`),
   **`Status: ratified`** — **RATIFIED 2026-09-18 at approximately 12:55Z by
