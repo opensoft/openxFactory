@@ -1302,6 +1302,25 @@ the bookkeeping that ticks this group.
   condition. **Neither
   moves this box, which ticked on `#26`'s landing**; they are recorded here so
   the register stays where the instrument is.
+  **THAT ARC HAS NOW LANDED TWICE, AND NEITHER LANDING MOVES THIS BOX — recorded
+  by AMENDMENT #11, 2026-09-22.** `opensoft/openDox-code` **`#33` →
+  `1d4ac83c63246f0b96f8b7b61b2ef4cd6e6183f1`** (`mergedAt` 2026-09-19T02:29:06Z),
+  *"§ 3.7 residue: an ignore rule cannot shorten the corpus, and the collection pin
+  gets a test"*; and its own successor **`#34` →
+  `f8a1eced43c55dadf2572b8b267a524ed5ba6182`** (`mergedAt`
+  **2026-09-22T01:07:19Z**, a SQUASH — ONE parent), *"openDox-code#33 residue:
+  clause (d)'s untested refusals, the fixture-identity marker, `--force`'s success
+  path, and a magic-looking key"*. Recorded at `#656` `5769796478`.
+  **THE TRIPLE MOVED WITH THEM AND IS MEASURED, NOT TAKEN FROM THE REPORT** —
+  `1114 / 1111 / 3` at `.github/workflows/validate.yml`:**2128**, with
+  `MIN_SELECTED` and `MIN_PASSED` at **:2136-2137** — where `#33` read
+  `1109 / 1106 / 3` and the root-pinned `d816cf06` reads `1099 / 1096 / 3`.
+  **WHY NEITHER TOUCHES ANY OBLIGATION, VERIFIED RATHER THAN ASSERTED**: the
+  `openDox` ASSEMBLY ROOT still pins its `code` leg at **`d816cf06`**, and
+  `f8a1eced` is **ahead_by 2, behind_by 0** of that pin — so BOTH landings sit
+  OUTSIDE what the root names, and nothing any box in this packet reads has moved.
+  *(A clock correction owed to the report, on this lane's standing rule: `#34` was
+  handed as 01:07:26Z; the two fields that exist both read **01:07:19Z**.)*
   *(The superseded reading follows, kept because it records why the box was held
   at all.)*
   **PRIOR STATUS — LANDING WORD GIVEN, BUT #26 HAS NOT LANDED, AND THE BOX STAYS
@@ -2576,6 +2595,30 @@ the bookkeeping that ticks this group.
   of putting it there.
   **The merge sha is amendment #12's to record.** This box records the act, its
   object and its head, and does not record a landing that has not happened.
+  **AND IT LANDED WHILE THIS AMENDMENT WAS STILL OPEN, SO THE TWO SENTENCES ABOVE
+  ARE SUPERSEDED AND ARE KEPT WITH THEIR CLOCK** — measured at 00:36Z, landed
+  thirty-six minutes later. `openxFactory` **`#1134` →
+  `aaddda666165655a60abc1720f271e2e967e3bdc`**, `mergedAt`
+  **2026-09-22T01:12:58Z**: the same six files, and the two gitlinks land at
+  **`dc7aa08f`** and **`646f1dc0`** exactly. It is `main` as this is written.
+  **THREE FIGURES ARE CORRECTED AGAINST THE REPORT THIS BOX WAS HANDED, because
+  this lane measures handed figures rather than transcribing them.** **(1) The
+  clock**: `mergedAt` **01:12:58Z** and the commit's own committer date
+  **01:12:57Z** — not the 01:13:04Z reported. The seconds change no gate; **the
+  FIELD does**, which is why this packet names the field beside every clock.
+  **(2) The landing FORM is a SQUASH**, measured — the commit carries **ONE
+  parent** and its subject ends in the `(#1134)` suffix GitHub's squash writes —
+  not the two-parent MERGE COMMIT the two assembly-root pin landings took.
+  **(3) The head that landed is `a28d68a6`, not the `ca2c8a82` recorded above**:
+  the pull request moved after this box measured it, which is exactly why the
+  record above names a head AND a measuring time rather than "the current head".
+  **ONE NARRATIVE DEFECT IN THAT PULL REQUEST'S OWN BODY IS REGISTERED AND NOT
+  FIXED** — it is another actor's text and no sha turns on it: the body says the
+  openXdox target is *"one commit past `xdox-v1.0`"*, and **measured it is TWO**
+  (`2073e3a9` → `6df0a030` → `646f1dc0`). **It is the IDENTICAL off-by-one this
+  amendment corrected at § 8.7**, reached independently on the other side of the
+  same landing — which is the argument for recording defect CLASSES and not only
+  defects. Registered for that actor's next act on that repository.
 - [x] 5.2a `[oxF]` **The FIFTEEN engineering-vocabulary requirements are
   re-promoted HERE (RULING DQ-1), not shed.** They leave the capability
   `ideation-dashboard` and land in `openxFactory`'s own corpus under the § 2.2a
@@ -5468,6 +5511,14 @@ realization evidence, never on landing. Each line is its own evidence.
   2026-09-22T00:40Z, where the five open pull requests are `#396`, `#160`, `#22`,
   `#21` and `#5`, none of them a pointer sync. It follows step 2 by the parity
   test's own order, and amendment #12 records it.
+  **RE-MEASURED AT 01:17Z, AFTER STEP 2 LANDED — STILL NOT OPENED.** `opensoft/
+  xFactory` now carries **six** open pull requests; the one that is new is `#477`,
+  *"docs: the MIGRATION_PIN ceremony history goes to FOUR (6.1/6.2 after `#475`)"*
+  — the follow-up DOCS pull request § 5.6 already registered against the ceremony,
+  **not** the three-pointer sync. *(Re-measured rather than carried forward,
+  because step 3 is the act that restores the parity this box checks, and a box
+  that reports another repository's state owes that state a fresh reading at every
+  round it survives.)*
   *(THREE STATUS HEADERS WERE RE-SCOPED 2026-09-21 AT COPILOT'S FINDING, and the
   mechanism is the one this packet has already documented three times: the CLAIM
   sat on one line and its DATE on the CONTINUATION line, so *"the box does NOT
