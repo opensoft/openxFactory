@@ -53,7 +53,9 @@ import signal
 import subprocess
 import sys
 import tarfile
+import tempfile
 import time
+import types
 from pathlib import Path
 
 import pytest
@@ -122,6 +124,34 @@ def _json_run(*args: str) -> dict:
     done = _run("--json", *args)
     assert done.stdout, f"no stdout; stderr was: {done.stderr}"
     return json.loads(done.stdout)
+
+
+def _fake_reach(seen: dict[str, str | None] | None = None):
+    """A stand-in for `carved_reach` that reaches no leg and, if asked,
+    records `sys.pycache_prefix` at each call `post_stack()` makes into it.
+
+    The real reach sets the same prefix itself, so a probe that used it could
+    not say WHICH of the two had done it — and the order is the whole
+    guarantee here. This one sets nothing."""
+    log = {} if seen is None else seen
+
+    def require() -> None:
+        log["at_require"] = sys.pycache_prefix
+
+    def install() -> None:
+        log["at_install"] = sys.pycache_prefix
+
+    def module(row: str):
+        log.setdefault("at_module", sys.pycache_prefix)
+        return types.ModuleType(row.replace("/", ".").removesuffix(".py"))
+
+    fake = types.ModuleType("carved_reach")
+    fake.CarveReachUnavailable = type(
+        "CarveReachUnavailable", (Exception,), {})
+    fake.require = require
+    fake.install = install
+    fake.module = module
+    return fake
 
 
 def _copy(base: Path, into: Path, name: str) -> Path:
@@ -1463,7 +1493,15 @@ def test_a_tree_read_that_failed_does_not_become_a_post_shed_verdict(
     first version treated it as: a tree read that FAILED may be an incomplete
     object store rather than a shed renderer, so the post-shed DIAGNOSIS must
     go with the wording — it ends "the objects are not the problem", which is
-    exactly what an unanswered read cannot establish (Copilot, PR #1115)."""
+    exactly what an unanswered read cannot establish (Copilot, PR #1115).
+
+    AND THE OPENING CLAUSE HAD THE SAME DEFECT AS THE DIAGNOSIS, which is the
+    registered half (Copilot at `50a3e574`, suppressed; remedy spelled out in
+    `#1115` comment `5736824535`). `matched none of A or B` asserts that
+    NEITHER matched, and `_absence()` returning `None` is precisely the state
+    in which this runner cannot know that — `git archive` fails as soon as ONE
+    pathspec matches nothing. The refusal that exists so as not to overclaim
+    must not open by overclaiming."""
     repo = tmp_path / "repo"
     _seed(repo)
     commit = MODULE._git(repo, "rev-parse", "HEAD").stdout.strip()
@@ -1482,6 +1520,9 @@ def test_a_tree_read_that_failed_does_not_become_a_post_shed_verdict(
     assert "does NOT claim the ref is post-shed" in detail
     assert "the objects are not the problem" not in detail
     assert "ls-tree" in detail
+    assert "matched none of" not in detail, detail
+    assert "did not match at least one of" in detail, detail
+    assert " and ".join(MODULE.ARCHIVE_PATHS) in detail, detail
 
 
 def test_an_unreadable_head_tree_does_not_veto_a_staged_pin(tmp_path,
@@ -1699,9 +1740,13 @@ def test_the_sweep_sees_an_edit_that_status_reports_as_clean(tmp_path):
 
 
 def test_the_sweep_does_not_refuse_on_what_the_leg_itself_ignores(tmp_path):
-    """The measured reason `--ignored` was rejected: this runner's OWN
-    imports write `__pycache__` into the legs (3 and 4 entries, measured), so
-    a sweep counting ignored files refuses on every run after the first."""
+    """The measured reason a WHOLE-LEG `--ignored` read was rejected: it
+    counts ignored files that cannot reach an import at all, and a required
+    gate refusing for a state that cannot change its result is a false
+    refusal. The scope is the import surface; an ignored file outside it is
+    not dirt. (Until this act the reason was also that this runner's own
+    imports wrote `__pycache__` into the legs — 3 and 4 entries, measured.
+    `sys.pycache_prefix` ended that, and the scope is what still stands.)"""
     leg = tmp_path / "leg"
     _seed(leg)
     (leg / ".gitignore").write_text("__pycache__/\n", encoding="utf-8")
@@ -1714,15 +1759,26 @@ def test_the_sweep_does_not_refuse_on_what_the_leg_itself_ignores(tmp_path):
     assert MODULE.worktree_dirt(leg) == []
 
 
-def test_an_ignored_python_file_under_src_is_dirt_and_bytecode_is_not(
+def test_an_ignored_module_under_src_is_dirt_and_an_unreachable_cache_is_not(
         tmp_path):
-    """`--exclude-standard` drops EVERY ignored path, and an ignored `.py`
-    under `src` is still perfectly importable — it can shadow a module or be
+    """WHAT THE SWEEP PASSES OVER IS WHAT IT HAS ESTABLISHED IT CANNOT REACH,
+    and everything else under the import surface is dirt.
+
+    `--exclude-standard` drops EVERY ignored path, and an ignored `.py` under
+    `src` is still perfectly importable — it can shadow a module or be
     imported outright — so excluding the whole class let a leg render bytes
-    that are in no commit while the verdict named one (Copilot, PR #1115).
-    The allowlist is exactly the bytecode this runner's own imports create:
-    measured, the two code legs carry 45 and 21 ignored files under `src`
-    and every one of them is a `__pycache__` `.pyc`."""
+    that are in no commit while the verdict named one (Copilot, PR #1115). A
+    sourceless `src/shadow.pyc`, sitting where `shadow.py` would sit, is an
+    ordinary import candidate too, and `sys.pycache_prefix` does NOT make it
+    unreachable — the prefix moves CACHE lookups, not the module search path.
+    Both are dirt.
+
+    `src/__pycache__/m.cpython-312.pyc` is not, and the reason is no longer
+    "this runner wrote it" — that was trust by PROVENANCE and it is what
+    `r4049745762` broke. With the prefix set this process consults no
+    `__pycache__` beside a source, so those bytes cannot execute in this run
+    whoever wrote them; the next test asserts that reachability directly
+    rather than assuming it."""
     leg = tmp_path / "leg"
     _seed(leg)
     (leg / "src").mkdir()
@@ -1733,40 +1789,405 @@ def test_an_ignored_python_file_under_src_is_dirt_and_bytecode_is_not(
     assert MODULE._git(leg, "commit", "-qm", "src").returncode == 0
     (leg / "src" / "__pycache__").mkdir()
     (leg / "src" / "__pycache__" / "m.cpython-312.pyc").write_bytes(b"\x00")
-    assert MODULE.worktree_dirt(leg) == [], "the runner's own bytecode is dirt"
+    assert MODULE.worktree_dirt(leg) == [], "the unreachable cache refused"
 
+    (leg / "src" / "shadow.pyc").write_bytes(b"\x00")
     (leg / "src" / "local_override.py").write_text("x = 2\n",
                                                    encoding="utf-8")
     blind = MODULE._git(leg, "status", "--porcelain")
-    assert blind.stdout.strip() == "", "git reported the ignored file"
+    assert blind.stdout.strip() == "", "git reported the ignored files"
     dirt = MODULE.worktree_dirt(leg)
-    assert dirt, "the ignored file was not reported at all"
-    assert any(row.startswith("!!") for row in dirt), dirt
+    assert all(row.startswith("!!") for row in dirt), dirt
+    assert not any("m.cpython-312.pyc" in row for row in dirt), dirt
+    assert any("shadow.pyc" in row for row in dirt), dirt
     assert any("local_override" in row for row in dirt), dirt
     advice = MODULE._clean_advice(dirt, leg)
     assert "clean -fdX" in advice
 
 
-def test_a_sourceless_pyc_beside_the_modules_is_not_allowlisted(tmp_path):
-    """The allowlist is `__pycache__/<name>.pyc` and NOT every `.pyc`: a
-    sourceless `src/foo.pyc`, sitting where `foo.py` would sit, is an
-    ordinary import candidate, so allowlisting the extension anywhere would
-    have admitted a module this runner did not check (Copilot, PR #1115;
-    SonarCloud `python:S5850` on the same unparenthesised alternation, which
-    is what that rule usually means)."""
+def test_a_cache_a_sibling_suite_wrote_does_not_refuse_the_run(tmp_path):
+    """THE GATE'S OWN CASE, and the one that ended the attempt to retire the
+    pass-over. `pytest-suite` at `e85d15384` failed 23 tests on
+    `opendox/__pycache__/{__init__,corpus_adapter}.cpython-312.pyc`, written
+    by `scripts/corpus_adapter_openxfactory/` — a SECOND reach that puts
+    `openDox/code/src` on `sys.path` itself and never mentions
+    `carved_reach` (RULED OQ-Q, `#872`). The bytes cannot reach this run, so
+    refusing on them is a FALSE refusal, and the enumeration of importers is
+    not closable by inspection."""
     leg = tmp_path / "leg"
     _seed(leg)
-    (leg / "src").mkdir()
-    (leg / "src" / "m.py").write_text("x = 1\n", encoding="utf-8")
-    (leg / ".gitignore").write_text("*.pyc\n__pycache__/\n", encoding="utf-8")
-    assert MODULE._git(leg, "add", "src/m.py", ".gitignore").returncode == 0
+    (leg / "src" / "opendox").mkdir(parents=True)
+    (leg / "src" / "opendox" / "__init__.py").write_text("", encoding="utf-8")
+    (leg / ".gitignore").write_text("__pycache__/\n", encoding="utf-8")
+    assert MODULE._git(leg, "add", "-A").returncode == 0
     assert MODULE._git(leg, "commit", "-qm", "src").returncode == 0
-    (leg / "src" / "__pycache__").mkdir()
-    (leg / "src" / "__pycache__" / "m.cpython-312.pyc").write_bytes(b"\x00")
+    cache = leg / "src" / "opendox" / "__pycache__"
+    cache.mkdir()
+    for name in ("__init__", "corpus_adapter"):
+        (cache / f"{name}.cpython-312.pyc").write_bytes(b"\x00")
     assert MODULE.worktree_dirt(leg) == []
-    (leg / "src" / "shadow.pyc").write_bytes(b"\x00")
-    dirt = MODULE.worktree_dirt(leg)
-    assert any("shadow.pyc" in row for row in dirt), dirt
+
+
+def test_the_bytecode_cache_is_out_of_the_legs_before_either_is_imported(
+        monkeypatch):
+    """THE ORDER IS THE GUARANTEE, so the order is what is asserted.
+
+    `sys.pycache_prefix` set AFTER a leg module has been imported closes
+    nothing — the crafted cache has already been read and executed by then
+    (Copilot, PR #1115, discussion `r4049745762`). A fake reach records the
+    prefix at each of the three calls `post_stack()` makes into it, and the
+    first of them, `require()`, happens before any file in a leg has been
+    opened. The fake is also what makes this a test of the ORDER rather than
+    of the outcome: the real reach sets the same prefix itself, so a run with
+    the real one cannot tell which of the two did it.
+    """
+    seen: dict[str, str | None] = {}
+    monkeypatch.setitem(sys.modules, "carved_reach", _fake_reach(seen))
+    monkeypatch.setattr(sys, "pycache_prefix", None)
+
+    MODULE.post_stack(register_profile=False)
+
+    assert seen["at_require"] == str(MODULE.BYTECODE_HOME)
+    assert seen["at_install"] == str(MODULE.BYTECODE_HOME)
+    assert seen["at_module"] == str(MODULE.BYTECODE_HOME)
+    for leg in MODULE.IMPORTED_LEGS:
+        assert (MODULE.ROOT / leg) not in Path(seen["at_require"]).parents
+
+
+def test_a_prefix_the_process_chose_outside_the_pins_is_left_alone(
+        monkeypatch):
+    """`PYTHONPYCACHEPREFIX`, or a host that has set one: a prefix that
+    satisfies the requirement is kept, because overriding a deliberate choice
+    that costs nothing is the more surprising act."""
+    chosen = "/a/prefix/a/host/chose/for/itself"
+    monkeypatch.setitem(sys.modules, "carved_reach", _fake_reach())
+    monkeypatch.setattr(sys, "pycache_prefix", chosen)
+    MODULE.post_stack(register_profile=False)
+    assert sys.pycache_prefix == chosen
+
+
+@pytest.mark.parametrize("spelling", ["mount", "code", "src", "relative",
+                                      "symlink", "root"])
+def test_a_host_prefix_inside_a_pin_is_replaced_rather_than_kept(
+        spelling, monkeypatch, tmp_path):
+    """KEEPING EVERY NON-`None` PREFIX WAS THE HOLE (Copilot, PR #1132), and
+    it was worse than it looks in two ways this test covers.
+
+    A prefix at a LEG ROOT puts the cache INSIDE the pin and OUTSIDE the
+    `src` the cleanliness sweep scans, so a crafted cache there is invisible
+    to the one check that would have reported it; and even a prefix under
+    `src` is read during `post_stack()`, which imports the legs BEFORE
+    `verify_pins()` sweeps anything — so the refusal would arrive after the
+    crafted cache had executed. A RELATIVE prefix is in the same class
+    because CPython resolves it at write time against a working directory
+    this runner does not control, and a SYMLINK into a leg is the same
+    placement under another name.
+
+    `/` IS THE ONE THAT LOOKS SAFE AND IS NOT (Copilot, PR #1132 round 4):
+    in prefix mode CPython appends the SOURCE'S OWN absolute directory to
+    the prefix and drops the `__pycache__` component, so the filesystem root
+    maps a leg module straight back beside its own source. Measured — with
+    `PYTHONPYCACHEPREFIX=/`,
+    `cache_from_source(<leg>/src/openxdox/generator.py)` is
+    `<leg>/src/openxdox/generator.cpython-312.pyc`."""
+    mount = MODULE.pinned_mounts()[0]
+    chosen = {"mount": str(mount),
+              "code": str(mount / "code"),
+              "src": str(mount / "code" / "src"),
+              "relative": ".pycache",
+              "symlink": str(tmp_path / "link"),
+              "root": "/"}[spelling]
+    if spelling == "symlink":
+        Path(chosen).symlink_to(mount, target_is_directory=True)
+    monkeypatch.setitem(sys.modules, "carved_reach", _fake_reach())
+    monkeypatch.setattr(sys, "pycache_prefix", chosen)
+    assert MODULE.inside_a_pinned_mount(chosen), chosen
+    MODULE.post_stack(register_profile=False)
+    assert sys.pycache_prefix == str(MODULE.BYTECODE_HOME)
+
+
+def test_a_cache_home_that_is_a_symlink_into_a_pin_is_not_used_either(
+        monkeypatch, tmp_path):
+    """THE FALLBACK IS HELD TO THE RULE IT ENFORCES (Copilot, PR #1132 round
+    2). `BYTECODE_HOME` is a PATH, not a guarantee: a pre-existing
+    `<repo>/.pycache` that is a SYMLINK into a pinned mount places the cache
+    exactly where this function exists to keep it out of, and the check that
+    would have said so — which resolves links — was asked about a host's
+    prefix and never about the fallback. A directory just created by this
+    process is the last resort rather than a refusal, because it cannot hold
+    a crafted cache to read, and because a required gate must not be takeable
+    down by a stray symlink in somebody's checkout."""
+    link = tmp_path / "pycache-link"
+    link.symlink_to(MODULE.pinned_mounts()[0] / "code",
+                    target_is_directory=True)
+    monkeypatch.setattr(MODULE, "BYTECODE_HOME", link)
+    monkeypatch.setattr(sys, "pycache_prefix", None)
+    MODULE.bytecode_out_of_the_legs()
+    assert sys.pycache_prefix != str(link)
+    assert not MODULE.inside_a_pinned_mount(sys.pycache_prefix)
+    assert Path(sys.pycache_prefix).is_dir()
+
+
+def test_the_reach_does_not_use_a_symlinked_cache_home_either(tmp_path):
+    """The same hole one file over, where every importer but this runner
+    arrives — probed in a fresh interpreter, since `BYTECODE_HOME` is a
+    module global and `install()` mutates the process."""
+    import carved_reach
+
+    link = tmp_path / "pycache-link"
+    link.symlink_to(REPO_ROOT / "openDox", target_is_directory=True)
+    scripts = str(REPO_ROOT / "scripts")
+    program = (f"import sys; sys.path.insert(0, {scripts!r})\n"
+               "import pathlib, carved_reach\n"
+               f"carved_reach.BYTECODE_HOME = pathlib.Path({str(link)!r})\n"
+               "carved_reach.install()\n"
+               "print(sys.pycache_prefix)\n")
+    environment = dict(os.environ)
+    environment.pop("PYTHONPYCACHEPREFIX", None)
+    done = subprocess.run([sys.executable, "-c", program], env=environment,
+                          capture_output=True, text=True, check=False,
+                          cwd=str(REPO_ROOT))
+    assert done.returncode == 0, done.stderr
+    landed = done.stdout.strip()
+    assert landed != str(link)
+    assert not carved_reach._inside_a_pinned_mount(landed), landed
+    assert Path(landed).is_dir()
+
+
+def _symlink_loop(at: Path) -> Path:
+    """A cyclic symlink: `a -> b -> a`. MEASURED on CPython 3.12.3,
+    `Path(a).resolve()` raises `RuntimeError: Symlink loop from …` — with
+    `strict=False` as well as `strict=True`, which is the half that surprises
+    (`os.path.realpath()` swallows it and returns the path)."""
+    first, second = at / "loop-a", at / "loop-b"
+    first.symlink_to(second)
+    second.symlink_to(first)
+    return first
+
+
+def test_a_prefix_whose_path_cannot_be_resolved_is_replaced_not_raised_on(
+        monkeypatch, tmp_path):
+    """A CYCLIC PREFIX MUST NOT TAKE THE GATE DOWN (Copilot, PR #1132 round
+    3). The round before promised that a stray symlink would not become an
+    ImportError in every conftest in this repository, and then asked
+    `Path.resolve()` for an answer it raises on. A path that cannot be shown
+    to be OUTSIDE every pinned mount is treated as inside — fail safe — so
+    the cache lands in the freshly created directory instead."""
+    loop = _symlink_loop(tmp_path)
+    assert MODULE.inside_a_pinned_mount(str(loop)), "the loop resolved?"
+    monkeypatch.setitem(sys.modules, "carved_reach", _fake_reach())
+    monkeypatch.setattr(sys, "pycache_prefix", str(loop))
+    MODULE.post_stack(register_profile=False)
+    assert sys.pycache_prefix != str(loop)
+    assert Path(sys.pycache_prefix).is_dir()
+
+
+def test_a_cache_home_that_cannot_be_resolved_is_not_used_either(
+        monkeypatch, tmp_path):
+    """The same question asked of the FALLBACK, which is the one that has to
+    survive: `BYTECODE_HOME` itself cyclic, with no prefix chosen."""
+    loop = _symlink_loop(tmp_path)
+    monkeypatch.setattr(MODULE, "BYTECODE_HOME", loop)
+    monkeypatch.setattr(sys, "pycache_prefix", None)
+    MODULE.bytecode_out_of_the_legs()
+    assert sys.pycache_prefix != str(loop)
+    assert not MODULE.inside_a_pinned_mount(sys.pycache_prefix)
+    assert Path(sys.pycache_prefix).is_dir()
+
+
+def test_the_reach_survives_a_cyclic_prefix_rather_than_raising(tmp_path):
+    """And one file over, where it would have raised inside `install()` — in
+    a fresh interpreter, because that is where every other importer in this
+    repository arrives and where the crash would have landed."""
+    import carved_reach
+
+    loop = _symlink_loop(tmp_path)
+    scripts = str(REPO_ROOT / "scripts")
+    program = (f"import sys; sys.path.insert(0, {scripts!r})\n"
+               "import carved_reach\n"
+               "carved_reach.install()\n"
+               "print(sys.pycache_prefix)\n")
+    environment = dict(os.environ)
+    environment["PYTHONPYCACHEPREFIX"] = str(loop)
+    done = subprocess.run([sys.executable, "-c", program], env=environment,
+                          capture_output=True, text=True, check=False,
+                          cwd=str(REPO_ROOT))
+    assert done.returncode == 0, done.stderr
+    assert "RuntimeError" not in done.stderr, done.stderr
+    assert done.stdout.strip() == str(carved_reach.BYTECODE_HOME)
+
+
+def test_a_tmpdir_inside_a_pin_does_not_capture_the_fallback(
+        monkeypatch, tmp_path):
+    """`mkdtemp()` HONOURS `TMPDIR` (Copilot, PR #1132 round 6), so an
+    inherited temp directory inside a pinned mount would have put the last
+    resort in the pin — unchecked, since the fallback was created and then
+    assigned. The parent is chosen before anything is written: the temp
+    directory when it is outside every mount, and otherwise the repository
+    root, which CONTAINS the mounts and therefore cannot be inside one.
+
+    `tempfile.tempdir` and not `TMPDIR`, and the difference is measured:
+    `gettempdir()` MEMOISES into `tempfile.tempdir` the first time anything
+    in the process calls it, so setting the environment variable afterwards
+    changes nothing — a probe written that way passes against code that
+    never looked."""
+    inside = MODULE.pinned_mounts()[0] / "code" / "src"
+    monkeypatch.setattr(tempfile, "tempdir", str(inside))
+    monkeypatch.setattr(MODULE, "BYTECODE_HOME",
+                        MODULE.pinned_mounts()[0] / ".pycache")
+    monkeypatch.setattr(sys, "pycache_prefix", None)
+    MODULE.bytecode_out_of_the_legs()
+    landed = Path(sys.pycache_prefix)
+    assert not MODULE.inside_a_pinned_mount(str(landed)), landed
+    assert landed.is_dir()
+    assert landed.parent == MODULE.ROOT, landed
+    shutil.rmtree(landed, ignore_errors=True)
+
+
+def test_the_guarantee_names_the_importers_it_actually_covers():
+    """A DOCSTRING THAT SAID `every route this repository has into the legs`
+    was FALSE, and this act had already measured it false (Copilot, PR #1132
+    round 6). `scripts/corpus_adapter_openxfactory/` puts `openDox/code/src`
+    on `sys.path` itself and imports `opendox.corpus_adapter` without going
+    through `carved_reach` at all (RULED OQ-Q, `#872`) — which is exactly
+    why the sweep passes over unreachable bytecode rather than counting on
+    the legs being empty. The claim is narrowed to what it can support, and
+    this test fails if the measurement it rests on ever stops being true."""
+    import carved_reach
+
+    adapter = (REPO_ROOT / "scripts" / "corpus_adapter_openxfactory"
+               / "adapter.py")
+    source = adapter.read_text(encoding="utf-8")
+    assert "openDox" in source and '"code" / "src"' in source, (
+        "the direct reach this docstring is narrowed for has moved")
+    assert "carved_reach" not in source, (
+        "the direct importer now goes through the reach — widen the claim")
+    doc = carved_reach._bytecode_out_of_the_legs.__doc__
+    assert "every route this repository has into the legs" not in doc
+    assert "THROUGH THIS MODULE" in doc
+
+
+def test_the_pins_and_the_mounts_a_cache_is_kept_out_of_are_the_same_set():
+    """The runner DERIVES its mount set from `LEG_GITLINKS`; the reach spells
+    its two out, because `openXdox`'s root is not a `MOUNTS` key. This holds
+    the second to the first — and both to every mount the reach declares — so
+    a leg added to one cannot quietly leave the other."""
+    import carved_reach
+
+    assert set(MODULE.pinned_mounts()) == set(carved_reach._PINNED_MOUNTS)
+    for mount in carved_reach.MOUNTS.values():
+        assert any(mount.resolve().is_relative_to(root.resolve())
+                   for root in carved_reach._PINNED_MOUNTS), mount
+    for leg in MODULE.IMPORTED_LEGS:
+        assert MODULE.inside_a_pinned_mount(str(MODULE.ROOT / leg))
+    assert MODULE.inside_a_pinned_mount("/"), "the root maps back into a pin"
+    assert carved_reach._inside_a_pinned_mount("/")
+    assert not MODULE.inside_a_pinned_mount(str(MODULE.BYTECODE_HOME))
+    assert not carved_reach._inside_a_pinned_mount(
+        str(carved_reach.BYTECODE_HOME))
+
+
+def test_a_run_writes_no_bytecode_into_either_pinned_leg():
+    """What the retired allowlist used to paper over, measured END TO END: a
+    real run leaves both pinned trees exactly as it found them.
+
+    Before this act the assertion was FALSE — the post side is composed IN
+    THIS PROCESS and importing it wrote a `__pycache__` into the very tree
+    the next check asserts is clean (8 `.pyc` files from one run, measured).
+    What the run found is what it leaves: whatever a sibling suite may
+    already have put there, this one ADDS nothing, which is the claim this
+    runner can actually make about itself."""
+    legs = [MODULE.ROOT / leg / "src" for leg in MODULE.IMPORTED_LEGS]
+
+    def bytecode() -> dict[str, list[str]]:
+        return {str(leg): sorted(
+            str(found.relative_to(leg)) for found in leg.rglob("*")
+            if found.suffix == ".pyc" or found.name == "__pycache__")
+            for leg in legs}
+
+    before = bytecode()
+    done = _run()
+    assert done.returncode == 0, done.stderr
+    assert bytecode() == before
+
+
+def test_a_leg_module_is_never_cached_beside_its_source():
+    """The exposure, stated the way CPython states it — AND the assertion the
+    sweep's one pass-over rests on. `cache_from_source()` is where the
+    interpreter looks for, and writes, a module's compiled bytecode, and for
+    a module in a pinned leg it is no longer inside that leg. A cache the
+    interpreter does not read is a cache nobody can craft into this process:
+    that is why `worktree_dirt()` may pass over a `__pycache__` `.pyc`
+    without trusting it, and why the remedy is the prefix and not
+    `sys.dont_write_bytecode` (which stops the writing and leaves the
+    reading)."""
+    import carved_reach
+
+    carved_reach.install()
+    assert sys.pycache_prefix, "the reach left this process with no prefix"
+    leg = MODULE.ROOT / MODULE.IMPORTED_LEGS[1] / "src"
+    sources = sorted(leg.rglob("*.py"))
+    assert sources, f"no module under {leg} to ask about"
+    cache = Path(importlib.util.cache_from_source(str(sources[0])))
+    assert leg not in cache.parents, cache
+    assert "__pycache__" not in cache.parts, cache
+
+
+def test_the_runner_and_the_reach_send_bytecode_to_the_same_place():
+    """ONE decision, two spellings. This file sets the prefix before it is
+    able to import the module that holds the constant — that is what makes it
+    a guarantee rather than a hope — so the value is restated here, and held
+    to the reach's by this assertion rather than by anyone remembering."""
+    import carved_reach
+
+    assert MODULE.BYTECODE_HOME == carved_reach.BYTECODE_HOME
+    assert MODULE.BYTECODE_HOME != MODULE.ROOT
+    for leg in MODULE.IMPORTED_LEGS:
+        assert MODULE.BYTECODE_HOME != MODULE.ROOT / leg
+        assert (MODULE.ROOT / leg) not in MODULE.BYTECODE_HOME.parents
+
+
+def test_the_reach_takes_every_importers_bytecode_out_of_the_legs(tmp_path):
+    """THE RUNNER IS NOT THE ONLY IMPORTER, which is why the prefix is set in
+    `carved_reach.install()` as well as in `post_stack()`.
+
+    Measured before this act: `tests/ideation-dashboard/test_lens.py` on its
+    own left 46 `.pyc` files under the two `src/` roots, and that directory
+    sorts BEFORE this one in the single `pytest tests/` process the required
+    gate runs — so retiring the allowlist in the runner alone would have made
+    every end-to-end run in that gate refuse on bytecode a sibling suite
+    wrote. Two probes, each a fresh interpreter over this repository's own
+    tree: one that has chosen no prefix, which must land on the reach's own,
+    and one that has, which must be left with it."""
+    import carved_reach
+
+    scripts = str(REPO_ROOT / "scripts")
+    program = (f"import sys; sys.path.insert(0, {scripts!r})\n"
+               "import carved_reach\n"
+               "carved_reach.install()\n"
+               "print(sys.pycache_prefix)\n")
+
+    def probe(prefix: str | None) -> str:
+        environment = dict(os.environ)
+        environment.pop("PYTHONPYCACHEPREFIX", None)
+        if prefix is not None:
+            environment["PYTHONPYCACHEPREFIX"] = prefix
+        done = subprocess.run([sys.executable, "-c", program],
+                              env=environment, capture_output=True,
+                              text=True, check=False, cwd=str(REPO_ROOT))
+        assert done.returncode == 0, done.stderr
+        return done.stdout.strip()
+
+    assert probe(None) == str(carved_reach.BYTECODE_HOME)
+    chosen = tmp_path / "chosen-by-the-host"
+    assert probe(str(chosen)) == str(chosen)
+    # AND A HOST PREFIX INSIDE A PIN IS REPLACED THERE TOO (Copilot, PR
+    # #1132) — the reach is where every importer but this runner arrives, so
+    # the check cannot live only in `post_stack()`.
+    assert probe(str(REPO_ROOT / "openXdox")) == str(
+        carved_reach.BYTECODE_HOME)
+    assert probe(".pycache") == str(carved_reach.BYTECODE_HOME)
+    assert probe("/") == str(carved_reach.BYTECODE_HOME)
 
 
 def test_the_refusal_names_which_archive_path_the_tree_lacks(tmp_path):
