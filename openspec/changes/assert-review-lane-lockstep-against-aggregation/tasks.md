@@ -88,8 +88,13 @@ this packet's archive until merged PLUS green realization evidence.
   obtains the aggregation's surfaces beside the source repository it already
   reads, and hands the values on as inputs, so the advance the lane proposes
   carries the measurement with it.
-- [ ] 5.1a **THE PULL-REQUEST-SIDE HOST, AND IT IS A SECOND WORKFLOW** (Copilot
-  `r4075976980`). Measured: `review-lane-repin.yml`'s `on:` keys are exactly
+- [ ] 5.1a **THE PULL-REQUEST-SIDE HOST, AND IT IS A SECOND WORKFLOW THAT TAKES
+  ITS OWN READING** (Copilot `r4075976980`, `r4076152645`). It is a SEPARATE
+  WORKFLOW RUN and therefore cannot consume the scheduled run's step outputs, so
+  it performs the same cross-repository read itself and passes the values to the
+  same pure comparison; § 5.1's read serves the advance the lane proposes and
+  nothing else. Two reads of one fact by two runs is the cost of the split, and
+  it is cheaper than a shared artifact whose staleness would need its own rule. Measured: `review-lane-repin.yml`'s `on:` keys are exactly
   `['schedule', 'repository_dispatch', 'workflow_dispatch']` — the only
   `pull_request` string in that file is a comment at `:672`, which is why a
   line-oriented grep for it answers misleadingly. So § 5.1 alone leaves the
@@ -100,6 +105,37 @@ this packet's archive until merged PLUS green realization evidence.
   `openreposhape-pin-gate.yml`), each a required check — so the realization adds
   one, and `review-lane-repin.yml` does NOT gain a `pull_request` trigger, which
   would fire the advance logic on every pull request in the repository.
+- [ ] 5.1c **THE ACCESS PATH, AND WITHOUT IT THE WHOLE PACKET IS INERT** (Copilot
+  `r4076152594`). Measured: `opensoft/xFactory` is **PRIVATE**
+  (`gh api repos/opensoft/xFactory --jq .visibility` -> `private`; an
+  unauthenticated `raw.githubusercontent` read of a surface returns **404**), and
+  `contracts/review-lane-repin-binding.template.yaml` declares
+  `source_repository: codeXfactory/codexFactory` with `grants: [contents:read]`
+  and nothing for the aggregation. **So on today's credentials the check would
+  answer UNDETERMINED on every run** — a check that never concludes, which the
+  requirement now forbids as a standing state. The realization declares a
+  READ-ONLY binding for `opensoft/xFactory` in the same shape as the existing
+  source-repository grant — `grants: [contents:read]`,
+  `never_grants: [contents:write, actions:write, pull-requests:write]` — which is
+  also what keeps the family's own rule intact: *"neither repository's lane may
+  reach into the other's"*. The aggregation is READ and never written, by this
+  packet or by its realization.
+- [ ] 5.1d **A READ FAILURE IS AN INPUT, NEVER A FATAL STEP** (Copilot
+  `r4076152544`). The advance workflow treats a non-404 API failure as step-fatal,
+  so an auth error, a rate limit or a transport failure would abort before the
+  pure comparison ever runs — and the UNDETERMINED scenario would be unreachable
+  by the only route that reaches it. The realization makes every read outcome,
+  including its failures, an INPUT to the comparison naming what could not be
+  read, and a workflow-level test exercises that path.
+- [ ] 5.1e **THE NEUTRAL CONCLUSION NEEDS A REPRESENTATION** (Copilot
+  `r4076152473`). A GitHub Actions step exits 0 or non-zero, which is a green
+  pass or a red failure and nothing else, so *"NEUTRAL, visible, not reported as
+  a pass"* has no expression by exit code alone. The realization publishes the
+  conclusion through the check-run API — conclusion `neutral`, with the state and
+  the values read in its output — and a test asserts the published conclusion for
+  each of the four outcomes rather than the process exit code, **because the
+  contract this packet adds degrades silently to a green pass if nobody checks
+  which of the two it published.**
 - [ ] 5.1b The wiring is TESTED and not assumed: a test reads the new gate's
   `on:` keys and its job id, and a test reads `review-lane-repin.yml`'s `on:`
   keys and requires `pull_request` to be ABSENT from them — the negative control
@@ -114,8 +150,11 @@ this packet's archive until merged PLUS green realization evidence.
   agreeing**, so the check is proved to accept a correct declaration and not only
   to refuse a wrong one. **Each written to FAIL against the pre-fix reader and
   pass after**, so the regression is proved rather than asserted.
-- [ ] 5.4 ONE real observation of the check running against a proposed advance,
-  which is the half that cannot be manufactured.
+- [ ] 5.4 ONE real observation of the check running against a proposed advance
+  **and CONCLUDING** — `converged`, `diverged` or a named contradiction, and NOT
+  UNDETERMINED. That is the half that cannot be manufactured, and the conclusion
+  is part of it: an observation of the check answering UNDETERMINED proves the
+  access is missing, not that the check works.
 
 ## 6. Registered, not taken
 

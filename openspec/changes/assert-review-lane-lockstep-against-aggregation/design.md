@@ -192,6 +192,81 @@ the aggregation; turning either into a red build here would make the check a
 liability its owners would route around, which is how a governance check stops
 being run.
 
+## D9 — the outcomes are ORDERED, because two of them overlapped
+
+Copilot `r4076152698` found that the stale-`converged` scenario's WHEN was true
+*whenever at least one surface does not name the new commit* — **including when
+the surfaces disagree with each other**, which the INCONSISTENT scenario then
+requires to be NEUTRAL. **The same inputs demanded both FAIL and NEUTRAL.** That
+is not a wording problem; it is a requirement no implementation could satisfy.
+
+Fixed by stating the order in the body — UNREADABLE, then DISAGREEING, then the
+comparison, then the declared state, each reached only where every earlier one
+does not hold — and by qualifying both comparison scenarios' WHEN with *the
+aggregation's surfaces agreeing with each other, and read*. Exactly one outcome
+holds for any input, and no implementation has to arbitrate.
+
+**The defect was introduced by my own D8 fix**, which gave each outcome a
+conclusion without noticing that two outcomes could be reached by one input. A
+requirement gains a contradiction the moment its cases stop being disjoint, and
+adding conclusions is exactly when that happens.
+
+## D10 — the access path, and why its absence would have made the packet inert
+
+Copilot `r4076152594` asked where the second cross-repository read gets its
+credentials. **Measured, and it is the most consequential finding on this
+packet:**
+
+    $ gh api repos/opensoft/xFactory --jq .visibility
+    private
+    $ curl -s -o /dev/null -w "%{http_code}" https://raw.githubusercontent.com/opensoft/xFactory/main/tests/test_merge_master_workflows.py
+    404
+
+and `contracts/review-lane-repin-binding.template.yaml` declares
+`source_repository: codeXfactory/codexFactory` with `grants: [contents:read]` and
+nothing at all for the aggregation. **So on today's credentials the check would
+answer UNDETERMINED on every run** — and a check that never concludes looks
+exactly like a check that is working, which is the failure this packet exists to
+end rather than to reproduce in a new place.
+
+Three things follow, and all three are now written down. The realization declares
+a READ-ONLY binding for `opensoft/xFactory` in the same shape as the existing
+grant, keeping the family's own rule (*"neither repository's lane may reach into
+the other's"*) by carrying the same `never_grants:` set. The requirement forbids
+UNDETERMINED as a STANDING state: where the check cannot read the aggregation on
+every run, the defect is its own access and is reported as that, not as a
+property of the measurement. And § 5.4's realization evidence is no longer *one
+observation of the check running* but **one observation of it CONCLUDING** —
+because an observation of UNDETERMINED proves the access is missing, not that the
+check works.
+
+## D11 — the neutral conclusion needs a representation, and the PR host needs its own reading
+
+Two more from the same round, both about the gap between what the requirement
+says and what a workflow can express.
+
+**`r4076152473` — a step exits 0 or non-zero, which is a green pass or a red
+failure and nothing else.** *"NEUTRAL, visible, not reported as a pass"* has no
+expression by exit code. So the realization publishes through the check-run API
+with conclusion `neutral` and the values in its output, and the test asserts the
+PUBLISHED CONCLUSION for each outcome rather than the process exit code —
+**because this contract degrades silently to a green pass if nobody checks which
+of the two was published.**
+
+**`r4076152645` — the pull-request host is a separate workflow run** and cannot
+consume the scheduled run's step outputs, so § 5.1a takes its own reading and
+passes it to the same pure comparison. Two reads of one fact by two runs is the
+cost of the split in D7, and it is cheaper than a shared artifact whose staleness
+would need a rule of its own — which would be this packet's own subject,
+recursively.
+
+**`r4076152544` — a read failure must be an INPUT, never a fatal step.** The
+advance workflow treats a non-404 API failure as step-fatal, so an auth error, a
+rate limit or a transport failure would abort before the comparison ran, and the
+UNDETERMINED scenario would be unreachable by the only route that reaches it. The
+realization makes every read outcome, failures included, an input naming what
+could not be read.
+
 ## D5 — what the check compares, and why it is values rather than authorship
 
 The comparison is `core_commit` against the commit the aggregation's JUDGING

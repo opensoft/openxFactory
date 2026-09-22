@@ -53,6 +53,19 @@ as UNDETERMINED and name what it could not read; it SHALL NOT resolve to either
 state, and it SHALL NOT read its own silence as confirmation of the declared one.
 An unaskable question is never an implicit pass.
 
+THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the aggregation
+UNREADABLE first; then its surfaces DISAGREEING with each other; then the
+comparison of the agreed commit against `core_commit`; then the declared state
+against that comparison. A later outcome is reached only where every earlier one
+does not hold, so no input can require two conclusions and no implementation has
+to arbitrate between them.
+
+UNDETERMINED SHALL NOT BE A STANDING STATE. Where the check cannot read the
+aggregation on EVERY run, the defect is the check's own access and SHALL be
+reported as that rather than as a property of the measurement — a check that
+answers UNDETERMINED forever is indistinguishable from one that is working, which
+is the failure this requirement exists to end rather than to reproduce.
+
 EACH OUTCOME SHALL CARRY A CONCLUSION AND NOT ONLY A NAME, because a state a
 check computes and does not publish is a state nobody acts on. A declaration the
 measurement CONTRADICTS SHALL fail the check and name both values: that is this
@@ -74,12 +87,12 @@ satisfy nothing: the fact being asserted is about another repository, and a valu
 compared only to itself is a tautology.
 
 #### Scenario: A routine advance leaves the declared state behind
-- **WHEN** an automated pin advance moves `core_commit` to a commit the aggregation's judging surfaces do not name, and the declared lockstep state still reads `converged`
+- **WHEN** an automated pin advance moves `core_commit` to a commit that the aggregation's surfaces — agreeing with each other, and read — do not name, and the declared lockstep state still reads `converged`
 - **THEN** the check reports the contradiction on the advance's own pull request, naming both values and the surfaces it read them from
 - **AND** the report does not depend on the advancing lane having remembered to write the field, because the check reads the other repository rather than the lane's intent
 
 #### Scenario: The advance lands on the commit the aggregation already pins
-- **WHEN** an advance moves `core_commit` to exactly the commit the aggregation's judging surfaces already name, and the declared state reads `diverged`
+- **WHEN** an advance moves `core_commit` to exactly the commit the aggregation's surfaces — agreeing with each other, and read — already name, and the declared state reads `diverged`
 - **THEN** the check reports that contradiction too, because the obligation is that the declaration be TRUE and not that it be pessimistic
 
 #### Scenario: The aggregation's own surfaces disagree with each other
