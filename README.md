@@ -533,8 +533,10 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [require-adjudicated-validation-entrypoint](openspec/changes/require-adjudicated-validation-entrypoint/proposal.md)
-  — filed 2026-09-22, lane `openxfactory-4`, `Status: draft`, on the measurement
-  Brett Heap accepted and ruled on the same day (`opensoft/openxFactory#656`
+  — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-22,
+  Brett Heap, *"ratify #1140 and #1141"*, `#656` comment `5779511063`, at head
+  `c36ff08c` — the head the word named and the head the packet stood at), on the
+  measurement Brett Heap accepted and ruled on the same day (`opensoft/openxFactory#656`
   comments
   [`5778300335`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5778300335)
   and

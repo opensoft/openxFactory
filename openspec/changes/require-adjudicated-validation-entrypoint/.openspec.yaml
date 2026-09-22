@@ -80,6 +80,28 @@ origin:
     would not retire this requirement). Each is separable and each carries its
     own veto cost.
   proposed_on: 2026-09-22
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-09-22T15:45:54Z,
+    interactive in the lane session, verbatim: "ratify #1140 and #1141",
+    recorded at `opensoft/openxFactory` issue #656 comment 5779511063. Record:
+    review/ratification-2026-09-22.md.
+    WHAT THE WORD RATIFIES HERE IS THE GENERAL RULE STATED FROM A PARTICULAR
+    RULING, which is the only thing this packet adds and the reason it needed a
+    word of its own. 5778300335 is the accepted read-only MEASUREMENT; 5778397686
+    RULED the PARTICULAR box ("§ 8.9 clause (2) READS LITERALLY; the tick becomes
+    [~]"). That ruling disposed of ONE box, and nothing in the corpus forbade the
+    next box being written the same way.
+    THE HEAD DID NOT MOVE between the word and the record: `c36ff08c` is both the
+    head the word names and the head this packet stood at when it was given, and
+    the ratification front-matter, the record and the README status line are the
+    first changes after it — none of them requirement text. The sibling #1140 is
+    NOT in that position and says so in its own record; the two are separate acts
+    and this one inherits nothing from that.
+    NO COUNCIL SITTING WAS HELD AND NONE WAS OWED: no convening packet, no
+    ballot, no seat returns, no council review. A single ADDED requirement with
+    `code_surface: none`, ratified by the repository owner's direct word in
+    session.
+  approved_on: 2026-09-22
 related:
   - openxFactory:issue:656                                  # THE MEASUREMENT (comment 5778300335, accepted) and THE RULING (5778397686, "§ 8.9 clause (2) READS LITERALLY; the tick becomes [~]")
   - openxFactory:change:split-opendox-two-layer-product     # THE WORKED EXAMPLE. Its § 8.9 clause (2) named the raw command and took the reserved `[~]` marker. Its bytes are NOT edited by this packet

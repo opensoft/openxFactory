@@ -1,6 +1,7 @@
 # Design: require-adjudicated-validation-entrypoint
 
-Status: draft
+Status: ratified
+Ratified by: require-adjudicated-validation-entrypoint — 2026-09-22, Brett Heap, "ratify #1140 and #1141" at head `c36ff08c` (record `review/ratification-2026-09-22.md`)
 Kind: design
 
 The ruling disposed of one box. These are the decisions this packet reaches in

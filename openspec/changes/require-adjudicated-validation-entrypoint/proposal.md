@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: require-adjudicated-validation-entrypoint
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-22 by Brett Heap (openxFactory operator authority) — in-session, verbatim *"ratify #1140 and #1141"*, at head `c36ff08c`; record at review/ratification-2026-09-22.md
 Kind: proposal
 Proposed: 2026-09-22, in lane `openxfactory-4` (display
 `openXfactory-4-openDox_extraction`), on the measurement Brett Heap accepted and
@@ -24,9 +25,19 @@ packet writes that rule down.
 **THE DECISION IS BRETT HEAP'S AND THE ENCODING IS THIS LANE'S.** The ruling
 settled that a task box naming the raw command means the raw command, and that
 such a box cannot be ticked while a ratified disposition stands. This packet adds
-no judgment to that; it states the general rule the particular ruling implies. It
-is `Status: draft` because the word that settled the box is not the word that
-ratifies this packet.
+no judgment to that; it states the general rule the particular ruling implies.
+The word that SETTLED THE BOX (`5778397686`) and the word that RATIFIES THIS
+PACKET (`5779511063`, 2026-09-22T15:45:54Z, verbatim *"ratify #1140 and #1141"*)
+are two separate acts, and both are Brett Heap's.
+
+**THE RATIFIED BASELINE IS `c36ff08c`, AND IT IS THE HEAD THE WORD NAMED.** No
+commit moved this packet between the word and this record: the ratification
+front-matter, the record at `review/ratification-2026-09-22.md` and the README
+status line are the first changes after it, and none of them is requirement text.
+*(The sibling `#1140` is NOT in that position and says so in its own record —
+its head moved one second before the word, normatively, and re-ratification is
+registered there as owed. The two packets are separate acts and this one inherits
+nothing from that.)*
 
 ## Why
 

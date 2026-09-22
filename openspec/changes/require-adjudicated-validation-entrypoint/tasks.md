@@ -1,6 +1,7 @@
 # Tasks: require-adjudicated-validation-entrypoint
 
-Status: draft
+Status: ratified
+Ratified by: require-adjudicated-validation-entrypoint — 2026-09-22, Brett Heap, "ratify #1140 and #1141" at head `c36ff08c` (record `review/ratification-2026-09-22.md`)
 Kind: tasks
 
 `code_surface: none`, `target_release: implemented`. **There is no realization
@@ -14,16 +15,22 @@ realization evidence.
 **NOTHING IS TICKED THAT DID NOT LAND.** § 1 is OPEN: the ruling settled a box,
 not this packet. § 4 (archive) stays entirely open.
 
-## 1. Ratification — OWED, and NOT taken by the authoring lane
+## 1. Ratification — GIVEN 2026-09-22, at head `c36ff08c`
 
-- [ ] 1.1 **RATIFY THE PACKET.** The MEASUREMENT is accepted (`#656`
-      `5778300335`) and the particular box is RULED (`5778397686`, Brett Heap,
-      2026-09-22T14:33:02Z, by multi-choice: *§ 8.9 clause (2) READS LITERALLY;
-      the tick becomes `[~]`*). What is not yet given is the word that ratifies
-      the GENERAL rule this packet states from that particular. Record it at
-      `review/ratification-<date>.md` and flip `Status:` in `proposal.md`,
-      `design.md` and this file in one commit.
-- [ ] 1.2 **THE DECISIONS BEYOND THE RULED WORD, declared for a veto.** `design.md`
+- [x] 1.1 **RATIFIED 2026-09-22 by Brett Heap** (openxFactory operator
+      authority), interactive in the lane session, verbatim **"ratify #1140 and
+      #1141"**, at **2026-09-22T15:45:54Z**, recorded at `#656` comment
+      `5779511063`. The MEASUREMENT was accepted at `5778300335` and the
+      PARTICULAR box was ruled at `5778397686`; **this word ratifies the GENERAL
+      rule this packet states from that particular**, which is a separate act and
+      Brett Heap's, not this lane's. Record:
+      `review/ratification-2026-09-22.md`. `Status:` moved in `proposal.md`,
+      `design.md` and this file in one commit. **The word named head `c36ff08c`
+      and no commit moved this packet between the word and the record.**
+      **Ratification authorizes realization and does not perform it**: nothing is
+      promoted until the archive, § 4.
+- [x] 1.2 **THE DECISIONS BEYOND THE RULED WORD WERE CARRIED BESIDE THE WORD,
+      declared for a veto and not vetoed.** `design.md`
       D1 (the rule reaches the ASSERTION and not only the run — with the test of
       the contrary reading written out), D2 (`## ADDED` rather than a `##
       MODIFIED` fold into the PATH requirement), D3 (staleness carried as a
