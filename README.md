@@ -537,7 +537,7 @@ Active changes:
   ruling of the same day (`opensoft/openxFactory#656` comment
   [`5777949892`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5777949892),
   by multi-choice, verbatim *"(b) — AMEND THE CLAUSE"*). **ONE `## MODIFIED`
-  requirement, one added paragraph, three added scenarios.** The SOURCE-TREE
+  requirement, one added paragraph, five added scenarios.** The SOURCE-TREE
   clause of *An external neutral product is pinned by commit and digest, never
   by tag* is amended to admit a whole-tree `sorted-ls-tree-r-v1` digest as an
   EQUIVALENT discharge of the per-file `sha256` / `pinned_by_commit_only:`
@@ -550,9 +550,12 @@ Active changes:
   equivalence reaches WHICH FORM the digest obligation takes and never WHETHER
   digests are owed, the two forms are ALTERNATIVES so such a pin carries NEITHER
   list (matching the guard at `scripts/doc_health/pin_shapes.py`:763-775, which
-  already refuses a record carrying both), **the equivalence does not reach a pin
-  the runtime-deployment clause governs**, and a pin recording NEITHER form has
-  discharged nothing. Raised by Copilot
+  already refuses a record carrying both),
+  **the equivalence reaches a source-tree pin whether or not its product is a
+  runtime** (an exclusion would make `contracts/opendox-pin.yaml` itself
+  non-conformant — it carries a `migration:` block AND a whole-tree digest —
+  while every obligation the runtime-deployment clause imposes stays owed in
+  full), and a pin recording NEITHER form has discharged nothing. Raised by Copilot
   `r4067623184` on the `#1139` archive pre-stage and verified by the lane's
   bookkeeper: the pin-shape ruling `5768144952` (*"(b) for the pin shape, keep
   going"*) had settled what `contracts/opendox-pin.yaml` and

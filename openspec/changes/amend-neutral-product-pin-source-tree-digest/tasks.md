@@ -40,7 +40,7 @@ that second act is Brett Heap's. § 4 (archive) stays entirely open.
 ## 2. The delta — LANDED IN THIS PULL REQUEST
 
 - [x] 2.1 **ONE `## MODIFIED` BLOCK, on *An external neutral product is pinned
-      by commit and digest, never by tag*.** One amendment paragraph and three
+      by commit and digest, never by tag*.** One amendment paragraph and FIVE
       scenarios added; **not one character of any unit the requirement already
       carries is edited**, which is what the `modified-block-currency` carriage
       arm reads rather than what this line claims.

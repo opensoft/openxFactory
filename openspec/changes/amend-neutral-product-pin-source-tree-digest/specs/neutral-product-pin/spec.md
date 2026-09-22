@@ -83,15 +83,24 @@ REMAINS OWED where no whole-tree digest is recorded: this admits a second form
 and retires neither the first nor any pin that carries it. WHERE THE EQUIVALENCE
 DOES NOT REACH, written here so it cannot be read wider than it is: it is a
 statement about WHICH FORM the digest obligation takes and never about WHETHER
-digests are owed, so it authorizes skipping no digest anywhere. AND IT DOES NOT
-REACH A PIN THE RUNTIME-DEPLOYMENT CLAUSE BELOW GOVERNS: for a product carrying
-a database schema and ordered migrations that clause stands UNMODIFIED, its
-trusted referent unchanged and its refusal to read a deployment declaration as
-permission to skip the digests unweakened, and whether a whole-tree digest may
-discharge the per-file obligation THERE is a question this amendment leaves
-unopened rather than answers by implication. A pin that records NEITHER a
-per-file list NOR a whole-tree digest over the commit's tree has discharged
-nothing.
+digests are owed, so it authorizes skipping no digest anywhere. THE
+RUNTIME-DEPLOYMENT CLAUSE BELOW IS UNTOUCHED, AND UNTOUCHED MEANS ITS OWN
+OBLIGATIONS STAND IN FULL: a pin whose product carries a database schema and
+ordered migrations still declares the migration range, the reversibility and the
+runbook, and its prohibition — that a deployment declaration SHALL NOT be read as
+permission to skip the digests — is preserved exactly. **THE EQUIVALENCE REACHES
+A SOURCE-TREE PIN WHETHER OR NOT ITS PRODUCT IS A RUNTIME**, because it speaks to
+a DIFFERENT obligation: that clause governs what a bump must DECLARE and this one
+governs which FORM the completeness obligation takes. Where the clause names
+"commit and per-file `sha256`" it names the referent a FILE-READ pin carries; a
+whole-tree pin's referent is its commit and its tree digest, which is not less
+verified and not less trusted. Reading the clause instead to EXCLUDE runtime
+products from this equivalence would make `contracts/opendox-pin.yaml`
+non-conformant — it carries a `migration:` block AND a whole-tree digest with no
+per-file list, and RULED 5768144952 settled that this is the shape it keeps — so
+the exclusion is refused as the reading that breaks the very pin the amendment
+was ruled for. A pin that records NEITHER a per-file list NOR a whole-tree digest
+over the commit's tree has discharged nothing.
 
 **Modified by `split-opendox-two-layer-product`:** **WHERE THE PINNED PRODUCT IS
 A RUNTIME, THE PIN SHALL DECLARE THAT ITS CONSUMPTION IS A DEPLOYMENT AND NAME
@@ -187,10 +196,11 @@ promoted and the declaration is the record of why.
 - **WHEN** a pin names a commit and carries no per-file `sha256` list, no `pinned_by_commit_only:` and no whole-tree digest over that commit's tree
 - **THEN** it is refused, the equivalence admitting a second way to DISCHARGE the obligation and never a way to leave it undischarged
 
-#### Scenario: A runtime product's pin is offered the equivalence
-- **WHEN** the pinned product carries a database schema and ordered migrations, so the runtime-deployment clause governs its pin
-- **THEN** the equivalence does not reach it, that clause standing unmodified with its trusted referent unchanged
-- **AND** whether a whole-tree digest may discharge the per-file obligation there is left unopened, an amendment scoped to one clause not answering for another by implication
+#### Scenario: A runtime product's pin carries a whole-tree digest
+- **WHEN** the pinned product carries a database schema and ordered migrations, so the runtime-deployment clause governs its pin, and the pin records a whole-tree digest over the commit's tree and no per-file list
+- **THEN** the completeness obligation is discharged by that digest, the equivalence reaching a source-tree pin whether or not its product is a runtime
+- **AND** every obligation that clause imposes is still owed in full — the migration range, the reversibility and the runbook — because it governs what a bump must DECLARE while this equivalence governs which FORM the completeness obligation takes
+- **AND** a reading that excluded such a pin from the equivalence is refused, since it would make a pin carrying both a migration declaration and a whole-tree digest non-conformant
 
 #### Scenario: The equivalence is cited as permission to skip a digest
 - **WHEN** a pin, a consumer or a runbook cites the whole-tree equivalence to justify verifying no digest at all, or to narrow the runtime-deployment clause's refusal

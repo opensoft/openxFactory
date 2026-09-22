@@ -58,16 +58,40 @@ the trusted referent. That phrase is carried WITHOUT EDIT: correcting it to name
 the admitted second form would be a normative change to a clause the ruling did
 not reach, in a packet commissioned to amend a different clause.
 
-**But leaving the phrase alone was not enough, and Copilot `r4073177274` was
-right about why.** The first draft granted the equivalence to any source-tree
-pin — which includes a runtime product pinned as a source tree — and then said
-the runtime clause was "untouched". Those two statements CONTRADICT each other
-rather than compose: a rule that reaches a pin cannot leave the clause governing
-that pin untouched. The amendment now EXCLUDES runtime-clause-governed pins from
-its scope outright, with its own scenario, so the clause is untouched in fact and
-not merely in assertion. **Whether a whole-tree digest may discharge the
-obligation there is left UNOPENED**, which is a different thing from left
-ambiguous: it is a question for the act that first has such a product.
+**THIS CLAUSE TOOK TWO REVIEW ROUNDS AND THE SECOND OVERTURNED THE FIRST. Both
+are recorded, because the discarded reading is the instructive one.**
+
+*Round 1 (Copilot `r4073177274`).* The first draft granted the equivalence to any
+source-tree pin and separately asserted the runtime clause was "untouched", with
+nothing reconciling the two. That was a real defect: an assertion is not a scope.
+The round-1 repair EXCLUDED runtime-clause-governed pins from the equivalence.
+
+*Round 2 (Copilot `r4073495698`) — and the exclusion was wrong.* Measured:
+`contracts/opendox-pin.yaml`:190 carries a real `migration:` block
+(`range: "0001..0002"`, `reversible: false`, a named runbook) **and** a whole-tree
+`digests.tree_sha256` with no per-file list. So the runtime clause GOVERNS that
+pin, and an exclusion would have made **the very pin this amendment was ruled
+for** non-conformant — the exact opposite of RULED `5768144952`, which settled
+that this is the shape it keeps. A reading that breaks the pin the ruling was
+about is refused by that fact alone.
+
+**The resolution, which is the reading that was available all along.** The two
+clauses govern DIFFERENT obligations. The runtime clause governs what a bump must
+DECLARE — the migration range, the reversibility, the runbook — and this
+equivalence governs which FORM the completeness obligation takes. So the
+equivalence reaches a source-tree pin whether or not its product is a runtime,
+and every obligation that clause imposes stays owed in full, its prohibition on
+reading a deployment declaration as permission to skip the digests preserved
+exactly. Where it names "commit and per-file `sha256`" it names the referent a
+FILE-READ pin carries; a whole-tree pin's referent is its commit and its tree
+digest, **which is not less verified and not less trusted**. That is a reading of
+the clause under the amended definition of "the digests", not a weakening of it:
+nothing it forbids becomes permitted, and nothing it requires becomes optional.
+
+**What "do not touch the runtime clause" meant, stated so the next reader does
+not repeat round 1.** It meant do not weaken the deployment obligation. It did
+NOT mean carve runtime products out of the equivalence — and conflating those two
+is what produced a repair that broke a live pin.
 
 **Veto cost:** two sentences and one scenario, and an equivalence whose edges a
 later reader has to infer.
