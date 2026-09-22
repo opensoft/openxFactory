@@ -14,9 +14,13 @@ every later edit to the packet.
 Exit 0 and one line per capability, or exit 1 naming the first scenario that
 does not match. Run from the openxFactory root.
 
-TWO THINGS THIS SCRIPT DOES THE LONG WAY, BOTH ON COPILOT FINDINGS AGAINST ITS
-FIRST DRAFT (`r4075847837`, `r4075847914` on `opensoft/openxFactory#1143`), and
-both because a carriage proof that is approximately right proves nothing.
+FOUR THINGS THIS SCRIPT DOES THE LONG WAY, EVERY ONE ON A COPILOT FINDING
+AGAINST AN EARLIER DRAFT OF IT, ACROSS THREE ROUNDS ON `opensoft/openxFactory#1143`
+(`r4075847837` and `r4075847914` against the first draft; the terminator finding
+of round 5, and the ordering gap found while fixing it) — and every one for the
+same reason: **a carriage proof that is approximately right proves nothing.**
+Items (1) and (2) are what the first draft got wrong about WHAT IT READ; items
+(3) and (4) are what the next drafts got wrong about WHAT IT COMPARED.
 
 (1) IT READS BYTES AND REFUSES A CARRIAGE RETURN, rather than reading text.
 `Path.read_text()` applies universal-newline conversion before any comparison
