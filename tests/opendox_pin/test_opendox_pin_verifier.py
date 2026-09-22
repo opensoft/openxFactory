@@ -528,15 +528,41 @@ def test_the_migration_block_is_present_and_lockstep_with_openxdox() -> None:
     at all) is a follow-up once `neutral-product-pin`'s spec pins the key
     names; this test only proves the shape is not silently deletable.
     """
+    def _assert_migration_shape(block, where: str) -> None:
+        """Types and non-emptiness, not merely "is not the sentinel".
+
+        `verify()` never reads `migration` at all, so THIS TEST IS THE ONLY
+        GATE the block has (Copilot review of #1134). Checking only that a
+        value differs from `not_yet_deployed` would let a populated but
+        malformed one through while every check stayed green: the STRING
+        `'false'` for the boolean, or an empty/blank/non-string `range` or
+        `runbook`. That is the same failure class the sentinel was replaced
+        to end -- a field that reads as a statement while asserting nothing.
+        Future bumps keep their freedom: the VALUES are unconstrained here,
+        only their types and non-emptiness are.
+        """
+        assert isinstance(block, dict), f"{where}: migration must be a mapping"
+        assert {"range", "reversible", "runbook"} <= set(block), (
+            f"{where}: the three RULED ASK-1 keys must not be silently "
+            "deletable")
+        for key in ("range", "runbook"):
+            value = block[key]
+            assert isinstance(value, str), (
+                f"{where}: {key} must be a string, not {type(value).__name__}")
+            assert value.strip(), f"{where}: {key} must not be empty or blank"
+            assert value.strip() != "not_yet_deployed", (
+                f"{where}: the sentinel was FILLED when this pin crossed "
+                "openDox's first real migration; a value back at the sentinel "
+                "is a regression, not a restoration")
+        assert isinstance(block["reversible"], bool), (
+            f"{where}: reversible must be a YAML boolean, never the string "
+            "'false' -- a quoted 'false' is truthy to every reader that does "
+            "not compare it literally")
+
     pin_text = PIN_PATH.read_text(encoding="utf-8")
     pin = yaml.safe_load(pin_text)
     migration = pin["migration"]
-    for key in ("range", "reversible", "runbook"):
-        assert key in migration, f"the {key} key must not be silently deletable"
-        assert migration[key] != "not_yet_deployed", (
-            "the sentinel was FILLED when the pin crossed openDox's first real "
-            "migration; a value that has gone back to the sentinel is a "
-            "regression, not a restoration")
+    _assert_migration_shape(migration, "the root pin")
     assert "ASK-1" in pin_text
 
     openxdox_oid, source = MODULE._recorded_gitlink(REPO_ROOT, "openXdox")
@@ -546,8 +572,7 @@ def test_the_migration_block_is_present_and_lockstep_with_openxdox() -> None:
                f"{openxdox_oid}:contracts/opendox-pin.yaml").stdout
     derived = yaml.safe_load(blob)
     derived_migration = derived["migration"]
-    for key in ("range", "reversible", "runbook"):
-        assert key in derived_migration
+    _assert_migration_shape(derived_migration, "openXdox's derived copy")
     assert migration == derived_migration, (
         "the two direct pins of the same product must render the IDENTICAL "
         "migration block, so neither reads as a claim the other is silent on")
