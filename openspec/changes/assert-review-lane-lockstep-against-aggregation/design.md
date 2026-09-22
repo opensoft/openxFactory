@@ -157,7 +157,7 @@ the repository. § 5.1b makes that a TESTED negative control rather than a
 convention — a test requires `pull_request` to be ABSENT from the advance lane's
 triggers.
 
-## D8 — each outcome carries a CONCLUSION, and only one of the four fails
+## D8 — each outcome carries a CONCLUSION, and two of the five fail
 
 Copilot's *previously missed* item on this round found that the requirement
 defined an UNDETERMINED semantic state and never said what the CHECK concludes,
@@ -173,7 +173,10 @@ missing half of D2.**
 | aggregation unreadable (UNDETERMINED) | **NEUTRAL**, visible | another repository's availability, and D4's whole point |
 | declared state agrees | pass | |
 
-**A NEUTRAL conclusion is not a pass and silence does not stand in for it.** A
+**A NEUTRAL conclusion is not a pass and silence does not stand in for it.**
+(The table gained its fifth row and its second FAIL at round 6, when D14a
+closed the absent-or-foreign declared state; the heading is counted here
+rather than left to drift again.) A
 state a check computes and does not publish is a state nobody acts on, which is
 the same defect as a declaration nobody measures — this packet would be an odd
 place to reintroduce it.
@@ -399,6 +402,32 @@ fix that closed D14a's gap.
 That is both the ordering the scenarios require and the honest engineering order:
 **a check does not go asking another repository a question in order to report a
 defect in its own file.**
+
+## D14c — `pull_request_target` made the gate read the WRONG PIN, and that is the cost of D14 paid in full
+
+The round-8 *previously missed* item is the one that would have made this packet
+decorative. **Under `pull_request_target` the workflow runs from the BASE**, so a
+gate that parses the checked-out `contracts/review-lane-pin.yaml` reads the
+commit ALREADY IN PLACE rather than the one being proposed. Measured against the
+live reproduction this packet cites throughout: for `#1138` that is base
+`b21f0100` compared to the aggregation's `b21f0100` — **a pass, while the advance
+proposes `491fc54d` and is never seen.**
+
+**The gate would have been green on exactly the act it exists to judge.**
+
+This is D14's cost, and it is worth naming as such rather than as an oversight:
+choosing the safe trigger moved the workflow's own code to the base, and the pin
+came with it. The remedy keeps the safety and pays the cost explicitly — the gate
+**fetches the candidate pin as INERT BYTES at the verified `head.sha`** (a file
+read over the API, not a checkout and not an execution), **parses it with base
+code**, and **re-reads `head.sha` after the fetch** so a force-push between the
+two is refused rather than reported.
+
+**The distinction that makes `pull_request_target` usable rather than merely
+safe** is exactly this one: head CODE is never run, head DATA may be read as
+bytes. The estate's own rule says the first half — *"rules must come from the
+base branch"* — and this packet needed the second half stated to be correct at
+all.
 
 ## D15 — the neutral conclusion needs a WRITE path, and it is a different token from the read
 

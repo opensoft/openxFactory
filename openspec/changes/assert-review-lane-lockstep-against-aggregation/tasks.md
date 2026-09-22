@@ -179,6 +179,22 @@ this packet's archive until merged PLUS green realization evidence.
   non-allowlisted head are both reported OUT OF SCOPE rather than UNDETERMINED:
   *not applicable* and *could not measure* are different answers, and this
   packet's whole subject is not conflating them.
+- [ ] 5.1i **THE GATE READS THE CANDIDATE PIN, NOT THE BASE'S — AND THIS IS THE
+  DEFECT `pull_request_target` INTRODUCED** (Copilot's *previously missed* item,
+  round 8). Under `pull_request_target` the workflow runs from the BASE, so a
+  gate that parses the checked-out `contracts/review-lane-pin.yaml` reads the
+  commit ALREADY IN PLACE. Measured against the live reproduction: for `#1138`
+  that is base `b21f0100` compared to the aggregation's `b21f0100` — **PASS,
+  while the advance it exists to judge proposes `491fc54d` and is never seen.**
+  The gate would have been decorative in exactly the case it was built for.
+  The gate therefore FETCHES the candidate `contracts/review-lane-pin.yaml` as
+  **INERT BYTES at the verified `head.sha`** — a file read over the API, not a
+  checkout and not an execution — **parses it with BASE code**, and **re-reads
+  `head.sha` after the fetch**, refusing where a force-push moved the ref between
+  the two. The base-branch rule is kept exactly: no head CODE runs, and reading
+  head DATA as bytes is what makes `pull_request_target` usable rather than
+  merely safe. An end-to-end test drives a candidate whose pin differs from the
+  base's and asserts the verdict names the CANDIDATE commit.
 - [ ] 5.1h **THE NEUTRAL CONCLUSION NEEDS A WRITE PATH, AND IT IS A DIFFERENT
   TOKEN FROM THE READ** (Copilot's *previously missed* item, round 5). § 5.1e
   publishes through the check-run API and § 5.1c's aggregation binding grants

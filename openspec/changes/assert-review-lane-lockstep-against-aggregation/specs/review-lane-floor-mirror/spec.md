@@ -70,6 +70,15 @@ the measurement contradicts — because both are this repository's own file fail
 to say something true, and the remedy for both is one edit to the field. Without
 that clause the ordering below has an input it does not reach.
 
+THE PIN THE CHECK READS IS THE ONE THE ACT PROPOSES, NOT THE ONE ALREADY IN
+PLACE. Where the check runs over a proposed advance, it SHALL take
+`core_commit` from the CANDIDATE state of the pin at the head that advance
+proposes — read as INERT BYTES at a verified head commit, never by executing
+anything from that head — and SHALL re-verify that commit after the read so a
+ref moved underneath it is refused rather than reported. A check that read the
+pin from the base it runs on would compare the commit ALREADY in place against
+the aggregation, pass, and never see the advance it exists to judge.
+
 THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the DECLARED STATE
 OUTSIDE ITS VOCABULARY first — this repository's own file, readable without
 touching anything else, and a defect that makes every later question moot; then
