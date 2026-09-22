@@ -285,6 +285,66 @@
       discharged once and re-incurred once, which is worth knowing before
       anybody prices it as never-yet-attempted.
 
+      **UPDATE 2026-09-22 — the D2 obligation has been discharged and
+      re-incurred TWICE MORE since the paragraph above, this row missed both,
+      and it is caught up here in one append rather than three.** This box was
+      last written on 2026-09-02 (`47f90080`). Measured rather than remembered:
+      `git log -- specs/025-openxfactory-review-lane-caller/tasks.md` records no
+      commit after that one, so neither lockstep transition that followed wrote
+      here — `d8bdc58a` (converge, 2026-09-10) and `7fd8fa5f` (re-diverge,
+      2026-09-18) each moved `contracts/review-lane-pin.yaml` and its test
+      literal and stopped there. The ledger was two transitions stale; recording
+      that is part of catching it up.
+
+      1. **CONVERGED 2026-09-10, at the THIRD re-point ceremony.**
+         `opensoft/xFactory` PR #423 (merge `67c0b159`) moved both judging
+         surfaces and the `MIGRATION_PIN` constant to `1f131a23`, the commit
+         `core_commit` had named since PR #922 — codexFactory's
+         `repoint-aggregation-migration-pin`, OQ-1 ruled C by Brett Heap. D2
+         discharged for the second time.
+
+      2. **RE-DIVERGED 2026-09-18, BY A ROUTINE ADVANCE RATHER THAN A
+         CEREMONY** — a way of losing convergence this row had never had to
+         record. This repository's own hourly `review-lane-repin` lane proposed
+         PR #1122 (merge `38f826c2`), advancing `core_commit` `1f131a23` ->
+         `b21f0100` after codexFactory's floor-regeneration lane acted on
+         openxFactory #1103's archive. `MIGRATION_PIN` does not move on a
+         routine advance, so the pair diverged without anybody deciding to
+         diverge it.
+
+      3. **CONVERGED AGAIN 2026-09-21, at the FOURTH re-point ceremony — and
+         this time the aggregation moved TO this repository.**
+         `opensoft/xFactory` PR #475 (merge `c88d1fdd`, 2026-09-21T21:55:36Z,
+         sole commit `96d0b91b`) advanced `MIGRATION_PIN` `1f131a23` ->
+         `b21f0100` at its three surfaces on Brett Heap's explicit ceremony word
+         (#656 comment `5767804734`). The target was the commit `core_commit`
+         already named, so the ceremony DISCHARGED this obligation rather than
+         re-negotiating it. Gates G1-G4 are in `96d0b91b`'s commit message; the
+         G5 after-check PASSED (#475 comment `5769610282`) — three post-landing
+         runs at the new pin, all `success`, the same candidate object, and a
+         canonical decision hash identical to the pre-act baseline. MEASURED at
+         this edit on xFactory `main` `cfe27de3`, two commits past that merge so
+         that a routine pointer sync has already run and left them alone: all
+         three surfaces read `b21f0100`, matching `core_commit` on openxFactory
+         `main` `6b298a1e`.
+
+      **AND THE BOX STILL STAYS UNTICKED, for a reason different from every
+      earlier one.** Its own criterion — "BOTH halves true at once" — is, for
+      the first time, satisfied: the 6.2-consumption half landed with #439, and
+      the D2 half is the fourth ceremony above. What withholds the tick is no
+      longer a missing act but the DURABILITY a tick would assert. Since
+      `mirror-floor-regeneration-automation` was realized, the hourly
+      `review-lane-repin` lane can advance `core_commit` between ceremonies with
+      auto-merge armed — item 2 above is precisely that happening — so
+      convergence is a state this repository's own automation can falsify within
+      the hour, while a ticked box claims a standing one. The LIVE state is
+      declared in `contracts/review-lane-pin.yaml`'s `lockstep.status`, which is
+      where a reader should look and which this pull request moves to
+      `converged`; this row carries the history and stays open, in the same
+      idiom as 6.3's "STAYS UNTICKED, and the reason has changed". Ticking it —
+      or narrowing the `obligation:` clause that still assumes only ceremonies
+      advance this pin — is the ratifier's act, not this diff's.
+
 
 ## Evidence (recorded 2026-08-27)
 

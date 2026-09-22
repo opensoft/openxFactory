@@ -623,10 +623,22 @@ class TheRealFiles(unittest.TestCase):
         moves with `lockstep.status` in the same commit, as every prior
         transition did. THE CURRENT CONTRACT IS `diverged`; re-converging is an
         act in another repository and is not taken here.
+
+        CONVERGED AGAIN 2026-09-21, at the FOURTH re-point ceremony, which is
+        that act in the other repository: `opensoft/xFactory` PR #475 (merge
+        `c88d1fdd`) moved both judging surfaces and the `MIGRATION_PIN`
+        constant `1f131a23` -> `b21f0100`, the commit this repository's
+        `core_commit` has named since PR #1122. MEASURED at this edit on
+        xFactory `main` `cfe27de3`, two commits past that merge: all three read
+        `b21f0100`. The ceremony's G5 after-check passed (#475 comment
+        `5769610282`) — three post-landing runs at the new pin, same candidate,
+        identical canonical decision hash as the pre-act baseline — so the
+        literal below moves with `lockstep.status` in the same commit, as every
+        prior transition did.
         """
         pin = yaml.safe_load(self.pin_text)
         lockstep = pin.get("lockstep") or {}
-        self.assertEqual(lockstep.get("status"), "diverged")
+        self.assertEqual(lockstep.get("status"), "converged")
         self.assertTrue(str(lockstep.get("reason") or "").strip(),
                         "the lockstep state must state WHY")
         self.assertTrue(str(lockstep.get("obligation") or "").strip(),
