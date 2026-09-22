@@ -881,7 +881,18 @@ def index_reproduces_at(repo, pin: str, *, rev: str = "HEAD",
     from . import pin_class
 
     root = Path(repo)
-    committed = pin_class.committed_text(root, rev, index_rel)
+    try:
+        committed = pin_class.committed_text(root, rev, index_rel)
+    except pin_class.GitUnavailable as exc:
+        # `committed_text` RAISES rather than reading an unaskable git as an
+        # absent path (PR #1142), and this probe's documented "could not
+        # answer" shape is `(None, reason)` — the same one the `git archive`
+        # bound below already returns. So the unavailable read is MAPPED to it
+        # rather than crashing a probe whose contract is a verdict, and the
+        # reason distinguishes "not committed" from "could not be read"
+        # (Copilot, PR #1142).
+        return None, (f"{index_rel} could not be read at {rev} in {root}: "
+                      f"{exc}")
     if committed is None:
         return None, f"{index_rel} is not committed at {rev} in {root}"
     index = yaml.safe_load(committed)
@@ -939,10 +950,24 @@ def _committed_status(repo, rev: str, path: str) -> str | None:
     """The lifecycle `Status:` a committed artifact carries, or None.
 
     Read from committed state, and read at all because the REPAIR ROUTE turns on
-    it: a `record` is repaired by retention and never by an edit."""
+    it: a `record` is repaired by retention and never by an edit.
+
+    AN UNREADABLE STATUS ANSWERS None, THE SAME AS AN ABSENT ONE, and the
+    conflation is acceptable HERE and nowhere else in this change (Copilot,
+    PR #1142). `committed_text` raises on an unaskable git since PR #1142, and
+    the ONE caller of this function reaches it only for a pin ALREADY judged a
+    defect, to choose which repair route to PRINT. The verdict is settled before
+    this runs and is not moved by the answer; the cost of `None` is a
+    default-route hint instead of a tailored one, against the cost of crashing
+    a probe whose contract is a verdict. Where an unavailable read would change
+    a VERDICT — `is_truncated`, `reachable_from_main`, `committed_text` itself,
+    `retention_holder` — it does not answer, it refuses."""
     from . import pin_class
 
-    text = pin_class.committed_text(repo, rev, path)
+    try:
+        text = pin_class.committed_text(repo, rev, path)
+    except pin_class.GitUnavailable:
+        return None
     if text is None:
         return None
     for line in text.splitlines()[:40]:

@@ -2388,3 +2388,39 @@ def test_the_report_models_an_unobservable_truncation(tmp_path):
     import typing
     hints = typing.get_type_hints(pc.PinClassReport)
     assert hints["truncated"] == (bool | None), hints["truncated"]
+
+
+def test_the_readiness_probes_map_an_unavailable_read_to_their_own_skip(
+        tmp_path, monkeypatch):
+    """`committed_text` raising must not crash a probe whose contract is a verdict.
+
+    `committed_text` raises `GitUnavailable` rather than reading an unaskable
+    git as an absent path (PR #1142). Two readiness surfaces call it outside any
+    handler — `index_reproduces_at`, before its own `git archive` try block, and
+    `_committed_status`, reached from `verify_pin_reachability` — so before this
+    a timeout there took down a probe that documents a NOT-ASKED outcome
+    (Copilot, PR #1142).
+
+    Each is mapped to the shape it already had: `(None, reason)` for the
+    reproduction probe, with the reason distinguishing "could not be read" from
+    "is not committed"; and `None` for the status hint, which the ONE caller
+    uses only to choose a repair route to PRINT for a pin already judged a
+    defect."""
+    from doc_health import ideation_readiness as ir
+
+    def _raises(repo, rev, path):
+        raise pc.GitUnavailable(
+            f"cannot read {rev}:{path} in {repo}: could not be performed")
+
+    monkeypatch.setattr(pc, "committed_text", _raises)
+
+    ok, reason = ir.index_reproduces_at(
+        tmp_path, "deadbeef", rev="HEAD",
+        index_rel="ideation/cross-reference.yaml")
+    assert ok is None, "an unavailable read is the probe's NOT-ASKED outcome"
+    assert "could not be read" in reason, reason
+    assert "is not committed" not in reason, (
+        "an unaskable read must not be reported as an absent file: "
+        f"{reason}")
+
+    assert ir._committed_status(tmp_path, "HEAD", "some/path.md") is None
