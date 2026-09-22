@@ -27,7 +27,7 @@ this change.
 - [x] 1.1 `proposal.md` with the measured evidence table, the budget
   arithmetic, and the normative-versus-detail finding.
 - [x] 1.2 `specs/doc-health/spec.md` — one MODIFIED requirement (one added
-  scenario) and one ADDED requirement (five scenarios).
+  scenarios) and one ADDED requirement (six scenarios).
 - [x] 1.3 `tasks.md` (this file).
 - [x] 1.4 README "OpenSpec Records" entry.
 

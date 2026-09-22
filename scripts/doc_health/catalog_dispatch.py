@@ -468,7 +468,7 @@ def shard_analysis_input(prompt_text: str, shard_payload: dict) -> str:
 def _write_shard_bundle(out_dir, allowed_output_root, shards, prompt_text,
                         prompt_version, taxonomy, model, as_of, docs,
                         input_budget_bytes: int = DEFAULT_INPUT_BUDGET_BYTES
-                        ) -> None:
+                        ) -> list[str]:
     """Write the cataloger child's self-contained bundle: prompt, output
     schema, and one file per shard (job envelope + corpus excerpts for
     exactly that shard's already-protected-filtered selections) — mirrors
@@ -541,6 +541,12 @@ def _write_shard_bundle(out_dir, allowed_output_root, shards, prompt_text,
                       "shard_input_bytes": shard_input_bytes,
                       "shards_over_budget": over},
                      indent=1, sort_keys=True) + "\n")
+    # The DISPATCHABLE ids, so the caller's telemetry counts what the child
+    # will actually classify rather than what was sharded. Those differ
+    # exactly when a shard measured over the budget is held back, and a
+    # count that hid the difference would report a night's work that never
+    # happened (Copilot, PR #1137).
+    return shard_ids
 
 
 def prepare_catalog_bundle(repo_paths: dict, docs, as_of, catalog_root,
@@ -608,13 +614,15 @@ def prepare_catalog_bundle(repo_paths: dict, docs, as_of, catalog_root,
             shard_budget)
         taxonomy = _effective_taxonomy(repo_paths, inventory)
         prompt_version, prompt_text = cataloger.load_prompt_contract()
-        _write_shard_bundle(out_dir, allowed_output_root, [], prompt_text,
-                            prompt_version, taxonomy, model, as_of, docs,
-                            input_budget_bytes=input_budget_bytes)
+        dispatchable = _write_shard_bundle(
+            out_dir, allowed_output_root, [], prompt_text,
+            prompt_version, taxonomy, model, as_of, docs,
+            input_budget_bytes=input_budget_bytes)
         return {
             "as_of": as_of.isoformat(),
             "scope": scope,
             "shard_count": 0,
+            "dispatchable_shard_count": len(dispatchable),
             "selection_count": 0,
             "total_docs": len(inventory),
             # No carry-forward is computed in baseline mode (module
@@ -636,7 +644,7 @@ def prepare_catalog_bundle(repo_paths: dict, docs, as_of, catalog_root,
     state = _recompute(repo_paths, inventory, catalog_root, scope,
                        shard_budget)
 
-    _write_shard_bundle(
+    dispatchable = _write_shard_bundle(
         out_dir, allowed_output_root, state["shards"], state["prompt_text"],
         state["prompt_version"], state["taxonomy"], model, as_of, docs,
         input_budget_bytes=input_budget_bytes)
@@ -645,6 +653,9 @@ def prepare_catalog_bundle(repo_paths: dict, docs, as_of, catalog_root,
         "as_of": as_of.isoformat(),
         "scope": scope,
         "shard_count": len(state["shards"]),
+        # Built versus DISPATCHABLE: equal unless a shard measured over the
+        # input budget was held back (`_write_shard_bundle`).
+        "dispatchable_shard_count": len(dispatchable),
         "selection_count": len(state["selections"]),
         "total_docs": len(inventory),
         "cataloged": sum(1 for e in state["base_entries"]

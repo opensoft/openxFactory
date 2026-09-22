@@ -552,10 +552,13 @@ Active changes:
   discriminator. **ONE `## MODIFIED` and ONE `## ADDED` requirement.** *Sweep
   sequencing and snapshot consistency* gains the statement that the set SENT
   may be a subset of the set SELECTED, plus a scenario obliging the report to
-  name every deferred document. *Bounded worker input budget* (ADDED, five
+  name every deferred document. *Bounded worker input budget* (ADDED, six
   scenarios) fixes the budget as a byte cap over the WHOLE assembled prompt,
   requires it to travel with the dispatched bundle so the worker enforces the
-  number the orchestrator packed against, requires deterministic packing of
+  number the orchestrator recorded, separates the two assembly shapes (where
+  the ORCHESTRATOR assembles the prompt it packs within the budget; where the
+  WORKER assembles it, the orchestrator measures each dispatchable unit and
+  does not dispatch one it has measured over), requires deterministic packing of
   WHOLE documents only, gives each population a reserved share so neither check
   family is starved, obliges a worker handed an over-budget input to refuse
   before invoking the model rather than emit an empty result, and protects a

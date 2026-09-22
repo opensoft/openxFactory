@@ -554,3 +554,15 @@ def test_a_share_that_reserves_nothing_for_a_population_is_refused(share):
     with pytest.raises(ValueError, match="strictly between 0 and 1"):
         semantic.pack_within_budget(CONTRACT, [], [], grounding_share=share)
     assert 0.0 < semantic.GROUNDING_BUDGET_SHARE < 1.0
+
+
+def test_the_bundle_reports_what_will_be_dispatched_not_what_was_sharded(
+        tmp_path):
+    """`shard_count` counts shards BUILT. Once a shard measured over the
+    budget is held back the two differ, and telemetry that hid the
+    difference would report a night's work that never happened (Copilot,
+    PR #1137)."""
+    ids = catalog_dispatch._write_shard_bundle(
+        tmp_path / "b", tmp_path, [], "PROMPT", 3, {"digest": "0" * 64},
+        "claude-sonnet-5", AS_OF, [])
+    assert ids == [], "the writer returns the DISPATCHABLE ids"

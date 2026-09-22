@@ -501,6 +501,7 @@ def main(argv=None) -> int:
             input_budget_bytes=args.worker_input_budget_bytes)
         print(f"catalog bundle written: {args.catalog_prepare} "
               f"({meta['shard_count']} shard(s), "
+              f"{meta['dispatchable_shard_count']} dispatchable, "
               f"{meta['selection_count']} selected)")
         return 0
 
