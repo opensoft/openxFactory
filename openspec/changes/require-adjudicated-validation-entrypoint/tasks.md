@@ -79,12 +79,19 @@ realization and does not perform it.
 ## 3. The measurement — TAKEN, at this packet's own head
 
 - [x] 3.1 **BOTH COMMANDS RUN OVER ONE TREE, and the verdicts are opposite.**
-      `python3 scripts/validate-openspec-cli-pin.py --all --no-cache` →
-      `Totals: 108 passed, 1 failed (109 items)`, the 1 finding DISPOSITIONED
+      `python3 scripts/validate-openspec-cli-pin.py --all` →
+      `Totals: 110 passed, 1 failed (111 items)`, the 1 finding DISPOSITIONED
       and printed by name with its citation and granting authority, **exit 0**.
       `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` → the same totals
       and the same finding, **exit 1**. The finding is `add-chain-attestation`,
       `ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'`.
+      **RE-TAKEN AT THE MERGED HEAD `925d146b`.** At the ratification baseline
+      `c36ff08c` the same two runs read `108 passed, 1 failed (109 items)`; the
+      item count rose only because `origin/main`'s corpus grew between the
+      filing and the merge-from-main that `#1140`'s landing required. **Both
+      exits are unchanged, and the exits are what this box asserts** — a box
+      that recorded the superseded totals would claim evidence this head does
+      not produce (Copilot, PR #1141).
 - [x] 3.2 **THE RAW RUN WAS NOT EVEN AT THE PINNED VERSION.** `openspec
       --version` on `PATH` at this workstation reads **1.13.1**; the pin is
       **1.12.0** (`contracts/openspec-cli-pin.yaml`:318). Recorded because it is

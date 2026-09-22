@@ -43,12 +43,16 @@ nothing from that.)*
 
 **Two commands over one tree return opposite verdicts, and only one of them is
 this repository's.** Measured at this packet's own head, both run against the
-same corpus:
+same corpus. **RE-TAKEN AT THE MERGED HEAD `925d146b`** after `#1140` landed as
+`e90997bc`; the ratification-baseline figures at `c36ff08c` were
+`108 passed / 1 failed (109 items)`, and the item count rose only because
+`origin/main`'s corpus grew between the filing and the merge. **The verdicts did
+not move, and the verdicts are the claim.**
 
 | command | version that answered | verdict | exit |
 | --- | --- | --- | ---: |
-| `python3 scripts/validate-openspec-cli-pin.py --all --no-cache` — the pin's `consumer_entrypoint:` | `@fission-ai/openspec@1.12.0`, **verified against its recorded content address** | `Totals: 108 passed, 1 failed (109 items)`, **the 1 finding DISPOSITIONED and printed by name with its citation and granting authority** | **0** |
-| `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — the raw tool | **1.13.1** on `PATH` — **not the pinned version at all** | `Totals: 108 passed, 1 failed (109 items)` | **1** |
+| `python3 scripts/validate-openspec-cli-pin.py --all` — the pin's `consumer_entrypoint:` | `@fission-ai/openspec@1.12.0`, **verified against its recorded content address** | `Totals: 110 passed, 1 failed (111 items)`, **the 1 finding DISPOSITIONED and printed by name with its citation and granting authority** | **0** |
+| `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — the raw tool | **1.13.1** on `PATH` — **not the pinned version at all** | `Totals: 110 passed, 1 failed (111 items)` | **1** |
 
 **Same tree. Same finding. Opposite exit.** The finding is
 `add-chain-attestation` / `signed-execution-chain/spec.md`, carrying

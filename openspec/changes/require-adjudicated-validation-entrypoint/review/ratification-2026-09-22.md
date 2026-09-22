@@ -115,7 +115,8 @@ itself made false.
 ## 5. What was measured, and by which reader
 
 **The measurement IS the packet**, so it is recorded here in full. Both commands
-over one tree, at this packet's own head:
+over one tree, **as they read AT THE RATIFIED HEAD `c36ff08c`** — the figures
+this record freezes, and it does not update them:
 
 | command | version that answered | verdict | exit |
 | --- | --- | --- | ---: |
@@ -125,6 +126,16 @@ over one tree, at this packet's own head:
 **Same tree. Same finding. Opposite exit.** The finding is
 `add-chain-attestation`, carrying `ratified_by: 'Brett Heap, 2026-09-05, "take
 exit 2"'`. **It is inherited and is not this packet's.**
+
+**A LATER RE-TAKE DOES NOT AMEND THIS TABLE, and this is the reason it names a
+head.** After `#1140` landed as `e90997bc`, this branch took the merge-from-main
+that the shared README Records block required, and the same two commands at the
+merged head `925d146b` read `110 passed, 1 failed (111 items)` — **the same
+single finding and the same opposite exits**, with the item count higher only
+because `origin/main`'s corpus grew in between. The figures above are what the
+ratifying word was given and they stay as given; the RUNNING measurement lives
+in the pull request and in `tasks.md` § 3.1, which is the same division `#1140`
+adopted after a frozen tally went stale there (Copilot, PR #1141).
 
 Also green at the ratified head: the pinned entrypoint over this change alone
 (`1 passed, 0 failed`); `validate-code-surface.py`, `validate-target-release.py`

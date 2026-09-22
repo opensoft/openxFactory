@@ -5,11 +5,14 @@ origin:
   id: openxFactory:adhoc:2026-09-22-require-adjudicated-validation-entrypoint
   reason: >-
     TWO COMMANDS OVER ONE TREE RETURN OPPOSITE VERDICTS, AND ONLY ONE OF THEM IS
-    THIS REPOSITORY'S. Measured at this packet's own head:
-    `python3 scripts/validate-openspec-cli-pin.py --all --no-cache` — the
+    THIS REPOSITORY'S. Measured at this packet's own head, re-taken at the
+    merged head 925d146b (108 passed / 1 failed / 109 items at the ratification
+    baseline c36ff08c; the item count tracks main's corpus size and the exits
+    did not move):
+    `python3 scripts/validate-openspec-cli-pin.py --all` — the
     `consumer_entrypoint:` the pin names — runs the artifact at
     `@fission-ai/openspec@1.12.0` verified against its recorded content address,
-    reads `Totals: 108 passed, 1 failed (109 items)`, reconciles the one finding
+    reads `Totals: 110 passed, 1 failed (111 items)`, reconciles the one finding
     against `contracts/openspec-cli-pin.yaml` `dispositions:`, prints it by name
     with its citation and granting authority, and EXITS 0.
     `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — the raw tool — reads

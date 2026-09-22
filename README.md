@@ -598,7 +598,10 @@ Active changes:
   any mode of that entrypoint resolving the tool from `PATH` or reading a
   foreign pin (**the flags are part of the name**). **The two commands are not two routes to
   one verdict**, and the packet's own head measures it: same tree, same finding,
-  `108 passed / 1 failed (109 items)` both ways, **exit 0** through the
+  `110 passed / 1 failed (111 items)` both ways at the merged head `925d146b`
+  (`108 / 1 / 109` at the ratification baseline `c36ff08c` — **the item count
+  tracks the size of `main`'s corpus and the VERDICTS are what this packet
+  claims**), **exit 0** through the
   entrypoint (which reconciles the finding against the pin's ratified
   `dispositions:` and names it with its citation and granting authority) against
   **exit 1** raw — the raw tool having no access to the pin, and at this
