@@ -404,9 +404,10 @@ def test_the_declared_unrecoverable_loss_is_still_unrecoverable():
     of letting a stale exemption stand. The governance act it names is still
     owed and is deliberately not performed by code."""
     repo = Path(REPO_ROOT)
-    if pc.resolve_main(repo) is None:
-        pytest.skip(f"{repo} resolves no `main`; reachability is a fact about "
-                    "the clone here")
+    resolved, why = pc.resolve_main(repo)
+    if resolved is None:
+        pytest.skip(f"{repo} resolves no `main` ({why}); reachability is a fact "
+                    "about the clone here")
     assert pc.KNOWN_LOSSES, "the register is the mechanism; an empty one is fine"
     for loss in pc.KNOWN_LOSSES:
         assert pc.FULL_SHA_RE.match(loss.pin)
@@ -985,7 +986,7 @@ def test_a_main_less_clone_is_inconclusive_and_a_main_ed_one_is_historical_or_pa
     old = _commit(repo, "corpus, on a branch that is not main")
     _write(repo, GATE_INTENT_REL, _gate_intent(old))
     _commit(repo, "an intent citing the corpus commit")
-    assert pc.resolve_main(repo) is None
+    assert pc.resolve_main(repo)[0] is None
     assert _git(repo, "remote").stdout.strip() == ""
 
     # 1. no `main` in this clone at all.
@@ -1262,8 +1263,9 @@ def test_every_current_member_of_the_declared_class_is_carried_somewhere():
     row still has no committed instance. This is the test that fails the day a
     generator is retired or a future member arrives."""
     repo = Path(REPO_ROOT)
-    if pc.resolve_main(repo) is None:
-        pytest.skip(f"{repo} resolves no `main`")
+    resolved, why = pc.resolve_main(repo)
+    if resolved is None:
+        pytest.skip(f"{repo} resolves no `main` ({why})")
     report = pc.verify(repo)
     assert report.vanished == (), (
         "declared CURRENT member(s) match no committed artifact: "
@@ -1420,12 +1422,21 @@ def test_the_two_prose_members_are_lifted_out_of_prose():
 
 def _real_report():
     repo = Path(REPO_ROOT)
-    if pc.resolve_main(repo) is None:
+    resolved, why = pc.resolve_main(repo)
+    if resolved is None:
         pytest.skip(f"{repo} resolves no `main` "
-                    f"({', '.join(pc.MAIN_REF_ORDER)}); reachability is a fact "
-                    "about the clone here, not about any artifact")
+                    f"({', '.join(pc.MAIN_REF_ORDER)}): {why}; reachability is a "
+                    "fact about the clone here, not about any artifact")
     truncated, observed = pc.is_truncated(repo)
-    if truncated:
+    # `is not False` RATHER THAN A TRUTH TEST, because `is_truncated` answers
+    # THREE states since PR #1142 and `None` — the observation could not be
+    # MADE — is falsey. A truth test here would fall through to `verify()` and
+    # assert `report.clean`, which deliberately EXCLUDES `inconclusive`, so an
+    # unobservable truncation could let this proof pass over unanswered results
+    # whenever the remaining pins happened to be reachable (Copilot, PR #1142).
+    # A question that could not be asked skips for the same reason a truncated
+    # clone does: neither is a fact about an artifact.
+    if truncated is not False:
         pytest.skip(f"{repo} cannot answer the question: {observed}")
     report = pc.verify(repo)
     # The retention half of the ref set is a REMOTE read, so a machine with no
@@ -1459,8 +1470,9 @@ def test_this_repository_resolves_the_main_half_of_the_ref_set():
     `refs/remotes/origin/*`, so the first spelling is present in CI; a plain
     `git clone` provides it too."""
     repo = Path(REPO_ROOT)
-    resolved = pc.resolve_main(repo)
+    resolved, why = pc.resolve_main(repo)
     assert resolved is not None, (
+        f"{why}. "
         f"{repo} resolves none of {pc.MAIN_REF_ORDER}, so the branch half of "
         "the ref set cannot be consulted and every reachability proof in this "
         "module degrades to a skip. Fetch `main`, or fix the checkout that "
@@ -1469,6 +1481,9 @@ def test_this_repository_resolves_the_main_half_of_the_ref_set():
     assert ref in pc.MAIN_REF_ORDER
     assert pc.FULL_SHA_RE.match(sha)
     truncated, observed = pc.is_truncated(repo)
+    if truncated is None:
+        pytest.skip(f"{repo}'s truncation could not be OBSERVED, so this "
+                    f"precondition is unanswered rather than met: {observed}")
     if truncated:
         pytest.skip(f"{repo} is genuinely truncated, which is a fact about the "
                     f"clone rather than a configuration defect: {observed}")
@@ -1487,8 +1502,10 @@ def test_this_repository_can_consult_the_retention_namespace():
     SKIPPED where it used to report the pins conforming has lost a proof, and
     losing proofs silently is the defect this whole packet descends from."""
     repo = Path(REPO_ROOT)
-    if pc.resolve_main(repo) is None:
-        pytest.skip(f"{repo} resolves no `main`; see the precondition above")
+    resolved, why = pc.resolve_main(repo)
+    if resolved is None:
+        pytest.skip(f"{repo} resolves no `main` ({why}); see the precondition "
+                    "above")
     found, detail = pc.remote_retention_refs(repo)
     assert found is not None, (
         f"the retention half of the ref set is unreachable from {repo}: "
@@ -1535,11 +1552,14 @@ def test_every_declared_repo_local_pin_in_this_repository_resolves():
         assert pc.path_matches(result.site.path, member.paths)
         assert pc.path_matches(result.site.path,
                                ("ideation/dashboard/intents/**",))
-        assert not pc.reachable_from_main(repo, result.site.pin,
-                                          report.main_ref), (
+        assert pc.reachable_from_main(repo, result.site.pin,
+                                      report.main_ref) is False, (
             "a historical pin main DOES reach is reported PASS, so a "
             "HISTORICAL verdict on a reachable revision means the branch that "
-            "makes the free observation stopped running")
+            "makes the free observation stopped running — and `is False` "
+            "rather than `not`, because `not None` is true and would let an "
+            "ancestry read that never happened satisfy the very assertion "
+            "written to prove one did (Copilot, PR #1142)")
 
     retained = [r for r in report.results if r.verdict == pc.PASS
                 and "retained" in r.how]
@@ -1548,10 +1568,12 @@ def test_every_declared_repo_local_pin_in_this_repository_resolves():
         f"found {len(retained)}: {[r.site.pin for r in retained]}")
     for result in retained:
         assert pc.retention_ref(result.site.pin) in result.how
-        assert not pc.reachable_from_main(repo, result.site.pin,
-                                          report.main_ref), (
+        assert pc.reachable_from_main(repo, result.site.pin,
+                                      report.main_ref) is False, (
             "a retained pin that main ALSO reaches proves nothing about the "
-            "namespace")
+            "namespace — and an UNASKED ancestry proves nothing either, so "
+            "this demands the observation `False` and not merely a falsy "
+            "`None` (Copilot, PR #1142)")
 
 
 def test_every_committed_commit_shaped_value_that_resolves_is_covered():
@@ -1781,10 +1803,12 @@ def test_the_fabricated_prefix_would_have_resolved_and_is_still_refused(
     repo, real, digest = digest_under_a_pin_key_repo(tmp_path)
     # the collision is REAL in this fixture rather than assumed
     assert digest.startswith(real)
-    main_ref, _ = pc.resolve_main(repo)
-    assert pc.reachable_from_main(repo, real, main_ref), (
+    (main_ref, _), _why = pc.resolve_main(repo)
+    assert pc.reachable_from_main(repo, real, main_ref) is True, (
         "the fixture's prefix must name a REACHABLE commit or this test is "
-        "measuring the harmless failure instead of the dangerous one")
+        "measuring the harmless failure instead of the dangerous one; `is "
+        "True` keeps an unaskable `None` failing here rather than being read "
+        "as the answer it is not")
 
     report = _verify(repo)
     assert [r.verdict for r in report.results] == []
@@ -1984,3 +2008,584 @@ def test_the_real_corpus_carries_nothing_the_boundary_reclassifies():
         "character pin; now each is an undeclared non-commit value, which is "
         "the honest reading and a real finding to resolve:\n  "
         + "\n  ".join(offenders))
+
+
+# =========================================================================
+# #1128 — the git subprocess bound, and what a timed-out read answers
+#
+# `pin_class._git` and `ideation_readiness.index_reproduces_at`'s `git archive`
+# were the last two unbounded git call sites in `scripts/doc_health/` after
+# #1098/PR #1102 bound `corpus.RealGit`'s pair. Neither carried a `timeout=`
+# and `_git` carried no `try`/`except` AT ALL, so a wedged git — a promisor
+# remote that will not answer, an `ls-remote` against an unreachable host —
+# never returned control to the reachability check at all. That sits on the
+# REQUIRED `pytest-suite` gate, because this very module calls
+# `ir.verify_pin_reachability(REPO_ROOT)` against the live checkout.
+#
+# Every test below asserts the BOUND rather than elapsed time: a shim that
+# sleeps proves only that the shim exited. The bound is read off the call, and
+# the failure it produces is compared to the failure an unrunnable git ALREADY
+# produced, which is the whole claim — a hang becomes the outcome each caller
+# already handles, and nothing new was invented for it.
+# =========================================================================
+
+def _raise_timeout(argv, **kwargs):
+    """Stand in for a git that never returns, at the bound the caller set."""
+    raise subprocess.TimeoutExpired(cmd=list(argv),
+                                    timeout=kwargs.get("timeout"))
+
+
+def test_git_binds_the_timeout_and_answers_the_failed_read_shape(tmp_path,
+                                                                 monkeypatch):
+    """`_git` carries the 30s bound its four siblings carry, and a timeout
+    comes back as the `CompletedProcess` with a non-zero `returncode` that a
+    git which SAID NO already returns — the only "failed" shape this module
+    has, and the one all nine call sites read (`.returncode`, `.stdout`,
+    `.stderr`). `None` would be the wrong answer: nothing here checks for it."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)          # built with the REAL git
+    calls = []
+
+    def never_returns(argv, **kwargs):
+        calls.append((list(argv), dict(kwargs)))
+        return _raise_timeout(argv, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", never_returns)
+    got = pc._git(repo, "rev-parse", "HEAD")
+
+    assert calls, "`_git` must still reach subprocess.run"
+    assert calls[0][1].get("timeout") == 30, (
+        "the call must bind the same 30s every sibling git reader binds "
+        "(carved_reach._git_run, hermes_runtime_validation content, "
+        f"corpus.RealGit); saw {calls[0][1].get('timeout')!r}")
+    assert calls[0][1]["timeout"] == pc._GIT_TIMEOUT_SECONDS, (
+        "the bound must be the module's declared constant, so a reader who "
+        "moves it moves the call with it")
+    assert isinstance(got, subprocess.CompletedProcess), (
+        "a timed-out read must answer the same TYPE a finished one does; "
+        "every caller reads attributes off it")
+    assert got.returncode == 1, (
+        "a timed-out read must be a FAILED read — a zero here would be the "
+        "silent success this bound exists to prevent")
+    assert got.stdout == ""
+    assert "could not be performed" in got.stderr, got.stderr
+    assert "rev-parse" in got.stderr, (
+        "the reason must name the command that could not be performed, since "
+        "that is where every caller that reports one reads it")
+
+
+def test_a_timed_out_git_is_the_same_failure_an_unrunnable_git_already_gave(
+        tmp_path, monkeypatch):
+    """The translation is only honest if the CALLERS are unchanged, so it is
+    checked at the caller: `verify()`'s FIRST act is `_git(repo, "rev-parse",
+    rev)` and a non-zero return there raises `GitUnavailable` — "never silently
+    a pass". A hang could never deliver that. Both routes into the new `except`
+    are compared against each other: a git that will not RETURN and a git that
+    will not RUN now answer identically, which is the property #1098 measured
+    as missing here."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+
+    monkeypatch.setattr(subprocess, "run", _raise_timeout)
+    with pytest.raises(pc.GitUnavailable) as timed_out:
+        pc.verify(repo, allow_remote=False)
+    monkeypatch.undo()
+
+    empty_bin = tmp_path / "empty-bin"
+    empty_bin.mkdir()
+    monkeypatch.setenv("PATH", str(empty_bin))       # a REAL unrunnable git
+    unreadable = pc._git(repo, "rev-parse", "HEAD")
+    with pytest.raises(pc.GitUnavailable) as never_ran:
+        pc.verify(repo, allow_remote=False)
+
+    assert unreadable.returncode == 1, (
+        "the missing-binary half of #1098's two-part gap: `_git` caught "
+        "nothing at all, so this used to raise FileNotFoundError out of "
+        "whatever read was in progress")
+    assert str(timed_out.value).startswith("cannot resolve"), timed_out.value
+    assert str(never_ran.value).startswith("cannot resolve"), never_ran.value
+    assert type(timed_out.value) is type(never_ran.value), (
+        "a hang and an unrunnable git must reach the SAME typed failure; a "
+        "new exception type here would be a new thing for callers to handle")
+
+
+def test_the_lower_readers_degrade_rather_than_raise_through_a_timeout(
+        tmp_path, monkeypatch):
+    """The other reads reached through `_git` answer rather than raise, exactly
+    as they do today when git exits non-zero. This pins that the bound did not
+    quietly introduce an exception on paths whose contract is a value:
+    `remote_retention_refs` does not change shape, and — as the one that
+    REPORTS its reason — carries the timeout through to its detail.
+    `resolve_main` now reports one too, for the reason its own docstring
+    gives.
+
+    TWO OF THEM NOW ANSWER A THIRD STATE, AND THAT REVERSES A SCOPING DECISION
+    THIS TEST USED TO PIN. Until Copilot's review of PR #1142 this test asserted
+    `is_truncated(...) -> False` and `reachable_from_main(...) -> False` under a
+    timeout, on the ground that a third state "would change a caller contract
+    this fix is not allowed to move". The review measured what that costs and
+    the cost is not payable: `--is-ancestor` reports "not an ancestor" by
+    EXITING NON-ZERO, so a timed-out probe became a confident `False` and
+    `verify()` published it as **HISTORICAL or ORPHAN** — a pin declared
+    unreached by `main` on a question nobody got to ask. `is_truncated` was
+    worse in kind, returning the sentence "`--is-shallow-repository` is false
+    for <repo> and it declares no promisor remote", which asserts two
+    observations that were never made under a docstring whose first line
+    promises "OBSERVED not conjectured".
+
+    **The bound introduced that path, so the bound owns it.** Both now answer
+    `None` for "could not be asked", which is the distinction this module
+    already keeps everywhere else — `remote_retention_refs` refuses to collapse
+    an unaskable namespace into an empty one, and `verify()` already renders
+    `could not be performed` as INCONCLUSIVE for the retention read.
+    """
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    monkeypatch.setattr(subprocess, "run", _raise_timeout)
+
+    truncated, observed = pc.is_truncated(repo)
+    assert truncated is None, (
+        "an unmade observation must not be reported as the observation "
+        "`False`, whose detail string names two probes that never ran")
+    assert "could not be observed" in observed, observed
+    main, why = pc.resolve_main(repo)
+    assert main is None, (
+        "a `main` cannot be resolved by a git that cannot be run")
+    assert "could not be consulted" in why, why
+    assert pc.reachable_from_main(repo, "deadbeef", "refs/heads/main") is None, (
+        "an ancestry question that could not be PUT is not the answer 'not an "
+        "ancestor'; `--is-ancestor` spells that answer with the same non-zero "
+        "exit a timeout now produces")
+    index, detail = pc.remote_retention_refs(repo)
+    assert index is None, (
+        "an unaskable namespace must stay None — an empty dict would be "
+        "indistinguishable from an empty namespace, which is the distinction "
+        "this reader's own docstring exists to keep")
+    assert "could not be performed" in detail, detail
+
+
+def test_an_unaskable_ancestry_is_INCONCLUSIVE_and_never_orphan_or_historical(
+        tmp_path, monkeypatch):
+    """`verify()` reports the scenario Copilot named on PR #1142, end to end.
+
+    The hot path raises `GitUnavailable` when the FIRST `rev-parse` cannot be
+    performed, so a blanket timeout never reaches the ancestry read at all —
+    which is why the defect needed a test that lets the opening probe succeed
+    and fails only the probe after it. That is this test: real git answers
+    everything except `merge-base --is-ancestor`, which is made unaskable.
+
+    Without the fix the run reports the pin **ORPHAN or HISTORICAL** — a
+    verdict about ancestry, published from a question that was never put. With
+    it the site is INCONCLUSIVE and the reason says so, which is what this
+    module does everywhere else an answer is unavailable."""
+    repo, orphan, _ = orphaned_pin_repo(tmp_path)
+    real_git = pc._git
+
+    def _ancestry_is_unaskable(target, *args, **kwargs):
+        if args[:2] == ("merge-base", "--is-ancestor"):
+            argv = ["git", "-C", str(target), *args]
+            return pc._Unavailable(
+                args=argv, returncode=1, stdout="",
+                stderr=f"`{' '.join(argv)}` could not be performed: timed out")
+        return real_git(target, *args, **kwargs)
+
+    monkeypatch.setattr(pc, "_git", _ancestry_is_unaskable)
+    report = pc.verify(repo, allow_remote=False)
+
+    for result in report.results:
+        assert result.verdict != pc.ORPHAN, (
+            "an unaskable ancestry must never be published as ORPHAN: "
+            f"{result.how}")
+        assert result.verdict != pc.HISTORICAL, (
+            "an unaskable ancestry must never be published as HISTORICAL: "
+            f"{result.how}")
+    inconclusive = [r for r in report.results if r.verdict == pc.INCONCLUSIVE]
+    assert inconclusive, "the unaskable ancestry must surface as INCONCLUSIVE"
+    assert any("could not be consulted" in r.how for r in inconclusive), (
+        "the reason must say the question was not answerable rather than "
+        f"answered: {[r.how for r in inconclusive]}")
+
+
+def test_a_check_true_caller_is_raised_at_rather_than_handed_a_failure(
+        tmp_path, monkeypatch):
+    """`_git(..., check=True)` means "raise on failure", so that caller never
+    reads the returncode — handing it a synthesized non-zero `CompletedProcess`
+    would be precisely the silent success the bound exists to prevent. No
+    caller passes `check=` today (measured across `scripts/` and `tests/` for
+    #1128); this keeps the parameter's declared contract for the first one
+    that does."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    monkeypatch.setattr(subprocess, "run", _raise_timeout)
+
+    with pytest.raises(subprocess.TimeoutExpired):
+        pc._git(repo, "rev-parse", "HEAD", check=True)
+
+
+def test_the_reproduction_archive_is_NOT_ASKED_rather_than_a_hang(tmp_path,
+                                                                  monkeypatch):
+    """#1128's third site, the one #1098's own 2026-09-17 sweep of this package
+    did not name: `index_reproduces_at`'s `git archive`, which runs as part of
+    the pin-reproduction check after a clean reachability pass. Bounded, a
+    reconstruction that will not return answers the same `(None, "NOT ASKED
+    rather than answered")` the non-zero branch beside it already answers —
+    NEVER False, which would blame the committed body for a question nobody
+    could put (see `test_reproduction_that_cannot_be_asked_is_neither_pass_nor
+    _fail`, the same distinction against a genuinely absent commit)."""
+    repo = _init(tmp_path / "index-repo")
+    _write(repo, "ideation/brainstorm/one.md", "# one\n\nStatus: brainstorm\n")
+    pin = _commit(repo, "corpus")
+    _write(repo, "ideation/cross-reference.yaml", yaml.safe_dump(
+        {"schema_version": 1, "kind": "ideation-cross-reference",
+         "generation": {"source_revision": pin}, "topic_entries": []},
+        sort_keys=False))
+    _commit(repo, "index pinning the corpus commit")
+
+    real_run, archives = subprocess.run, []
+
+    def archive_never_returns(argv, **kwargs):
+        # ONLY the reconstruction is wedged; every other read this function
+        # makes (`committed_text`, itself a `_git`) runs for real, so the test
+        # reaches the archive the way production does rather than by faking
+        # its way past the reads before it.
+        if "archive" in list(argv):
+            archives.append((list(argv), dict(kwargs)))
+            return _raise_timeout(argv, **kwargs)
+        return real_run(argv, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", archive_never_returns)
+    ok, detail = ir.index_reproduces_at(repo, pin)
+
+    assert archives, "the reconstruction must still be attempted"
+    assert archives[0][1].get("timeout") == 30, (
+        f"the `git archive` must bind the same 30s; saw "
+        f"{archives[0][1].get('timeout')!r}")
+    assert archives[0][1]["timeout"] == ir._GIT_TIMEOUT_SECONDS
+    assert ok is None, (
+        f"a reconstruction that could not be performed is NOT ASKED, neither "
+        f"pass nor fail; got {ok!r} — {detail}")
+    assert "NOT ASKED rather than answered" in detail, detail
+    assert "timed out after 30s" in detail, detail
+
+
+# -------------------------------------------------------------------------
+# OSError coverage beside the timeout coverage (Copilot, PR #1142)
+#
+# #1098 measured the gap as TWO-part: no `timeout=` AND no `try`/`except` at
+# all. The tests above pin the timeout half at each site; these pin the other
+# half on its own, so a later edit that narrowed the `except` back to
+# `TimeoutExpired` alone would go red rather than pass quietly on the strength
+# of the timeout tests.
+# -------------------------------------------------------------------------
+
+def test_a_git_that_cannot_run_answers_the_same_failed_read_shape(tmp_path,
+                                                                  monkeypatch):
+    """A REAL unrunnable git — an emptied `PATH`, nothing exec'able called
+    `git` — must come back as the same `CompletedProcess` a timed-out one
+    does. Before #1128 this raised `FileNotFoundError` out of whichever
+    reachability read was in progress."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    empty_bin = tmp_path / "empty-bin-shape"
+    empty_bin.mkdir()
+    monkeypatch.setenv("PATH", str(empty_bin))
+
+    got = pc._git(repo, "rev-parse", "HEAD")
+
+    assert isinstance(got, subprocess.CompletedProcess)
+    assert got.returncode == 1
+    assert got.stdout == ""
+    assert "could not be performed" in got.stderr, got.stderr
+    assert "rev-parse" in got.stderr
+
+
+def test_a_reconstruction_that_cannot_run_git_is_NOT_ASKED(tmp_path,
+                                                           monkeypatch):
+    """The third site's OSError arm. An emptied `PATH` cannot be used here —
+    the reads BEFORE the archive are `_git` calls too, so the function would
+    answer "not committed" and never reach the reconstruction — so only the
+    archive's spawn fails, which is also the honest shape of the real hazard
+    (a `git` that is there but cannot be exec'd for this one call)."""
+    repo = _init(tmp_path / "unrunnable-archive")
+    _write(repo, "ideation/brainstorm/one.md", "# one\n\nStatus: brainstorm\n")
+    pin = _commit(repo, "corpus")
+    _write(repo, "ideation/cross-reference.yaml", yaml.safe_dump(
+        {"schema_version": 1, "kind": "ideation-cross-reference",
+         "generation": {"source_revision": pin}, "topic_entries": []},
+        sort_keys=False))
+    _commit(repo, "index pinning the corpus commit")
+
+    real_run = subprocess.run
+
+    def archive_cannot_run(argv, **kwargs):
+        if "archive" in list(argv):
+            raise PermissionError(13, "Permission denied")
+        return real_run(argv, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", archive_cannot_run)
+    ok, detail = ir.index_reproduces_at(repo, pin)
+
+    assert ok is None, (
+        f"a reconstruction that could not be SPAWNED is NOT ASKED, exactly as "
+        f"one that timed out is; got {ok!r} — {detail}")
+    assert "NOT ASKED rather than answered" in detail, detail
+    assert "git could not be run" in detail, detail
+    assert "Permission denied" in detail, detail
+
+def test_an_unavailable_show_raises_rather_than_reading_as_an_absent_path(
+        tmp_path, monkeypatch):
+    """`committed_text` must not turn an unaskable read into "not committed".
+
+    `git show` reports "no such path in that revision" by exiting NON-ZERO,
+    which is the same shape the bound produces — so mapping every non-zero to
+    `None` let a fired bound silently DROP pin sites from the sweep and made
+    `index_reproduces_at` report a committed index as uncommitted. Both are
+    false negatives that look exactly like a clean answer (Copilot, PR #1142).
+
+    `GitUnavailable` is this module's own instrument for it, and
+    `list_committed` already raises it for the identical condition, so this
+    pins that the two readers now agree."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    real_git = pc._git
+
+    def _show_is_unaskable(target, *args, **kwargs):
+        if args[:1] == ("show",):
+            argv = ["git", "-C", str(target), *args]
+            return pc._Unavailable(
+                args=argv, returncode=1, stdout="",
+                stderr=f"`{' '.join(argv)}` could not be performed: timed out")
+        return real_git(target, *args, **kwargs)
+
+    monkeypatch.setattr(pc, "_git", _show_is_unaskable)
+    with pytest.raises(pc.GitUnavailable) as raised:
+        pc.committed_text(repo, "HEAD", "README.md")
+    assert "could not be performed" in str(raised.value), raised.value
+
+    # A path that genuinely is not committed still answers None, unchanged.
+    monkeypatch.setattr(pc, "_git", real_git)
+    assert pc.committed_text(repo, "HEAD", "no/such/path.yaml") is None
+
+
+def test_an_unavailable_local_retention_read_is_not_an_absent_ref(
+        tmp_path, monkeypatch):
+    """`retention_holder` must not read an unaskable LOCAL probe as "no ref".
+
+    `rev-parse --verify --quiet` reports absence by exiting non-zero, the same
+    shape an unaskable git returns, so falling through consulted the remote and
+    — where the namespace legitimately does not advertise the pin — published
+    ORPHAN on the strength of a local read that never happened (Copilot,
+    PR #1142).
+
+    The detail must reach `verify()`'s own `could not be performed` branch, so
+    this asserts the string that branch matches rather than merely that the
+    answer is None."""
+    repo, orphan, _ = orphaned_pin_repo(tmp_path)
+    real_git = pc._git
+
+    def _local_rev_parse_is_unaskable(target, *args, **kwargs):
+        if args[:1] == ("rev-parse",) and "refs/retention/pins/" in " ".join(
+                str(a) for a in args):
+            argv = ["git", "-C", str(target), *args]
+            return pc._Unavailable(
+                args=argv, returncode=1, stdout="",
+                stderr=f"`{' '.join(argv)}` could not be performed: timed out")
+        return real_git(target, *args, **kwargs)
+
+    monkeypatch.setattr(pc, "_git", _local_rev_parse_is_unaskable)
+    where, detail = pc.retention_holder(repo, orphan, allow_remote=False)
+    assert where is None
+    assert "could not be consulted" in detail, detail
+    assert "could not be performed" in detail, (
+        "the detail must carry the phrase `verify()` matches to render this "
+        f"INCONCLUSIVE rather than ORPHAN: {detail}")
+
+
+def test_the_report_models_an_unobservable_truncation(tmp_path):
+    """`PinClassReport.truncated` accepts the third state `verify()` can assign.
+
+    Annotated `bool` while `verify()` assigned `None` into it, the dataclass
+    was an API that lied about itself (Copilot, PR #1142). This pins the
+    annotation alongside the behaviour so the two cannot drift."""
+    import typing
+    hints = typing.get_type_hints(pc.PinClassReport)
+    assert hints["truncated"] == (bool | None), hints["truncated"]
+
+
+def test_the_readiness_probes_map_an_unavailable_read_to_their_own_skip(
+        tmp_path, monkeypatch):
+    """`committed_text` raising must not crash a probe whose contract is a verdict.
+
+    `committed_text` raises `GitUnavailable` rather than reading an unaskable
+    git as an absent path (PR #1142). Two readiness surfaces call it outside any
+    handler — `index_reproduces_at`, before its own `git archive` try block, and
+    `_committed_status`, reached from `verify_pin_reachability` — so before this
+    a timeout there took down a probe that documents a NOT-ASKED outcome
+    (Copilot, PR #1142).
+
+    Each is mapped to the shape it already had: `(None, reason)` for the
+    reproduction probe, with the reason distinguishing "could not be read" from
+    "is not committed"; and `None` for the status hint, which the ONE caller
+    uses only to choose a repair route to PRINT for a pin already judged a
+    defect."""
+    from doc_health import ideation_readiness as ir
+
+    def _raises(repo, rev, path):
+        raise pc.GitUnavailable(
+            f"cannot read {rev}:{path} in {repo}: could not be performed")
+
+    monkeypatch.setattr(pc, "committed_text", _raises)
+
+    ok, reason = ir.index_reproduces_at(
+        tmp_path, "deadbeef", rev="HEAD",
+        index_rel="ideation/cross-reference.yaml")
+    assert ok is None, "an unavailable read is the probe's NOT-ASKED outcome"
+    assert "could not be read" in reason, reason
+    assert "is not committed" not in reason, (
+        "an unaskable read must not be reported as an absent file: "
+        f"{reason}")
+
+    assert ir._committed_status(tmp_path, "HEAD", "some/path.md") is None
+
+
+def test_an_unreadable_origin_main_does_not_promote_the_local_branch(
+        tmp_path, monkeypatch):
+    """THE AUTHORITATIVE REF FAILING IS NOT THE LOCAL REF WINNING.
+
+    `MAIN_REF_ORDER` is a FALLBACK for a clone that has no
+    `refs/remotes/origin/main`, and `--verify --quiet` spells "not there" with
+    the same non-zero exit an unaskable git now returns. So a bounded probe
+    that fired on the authoritative ref used to fall straight through to
+    `refs/heads/main` and hand the whole run an authority nobody asked for: a
+    local branch that may sit behind origin, against which `verify()` then
+    published every reachability verdict in the report. A pin that IS an
+    ancestor of `origin/main` but not yet of a stale local `main` comes back
+    ORPHAN or HISTORICAL from that — a confident finding manufactured out of a
+    question that timed out (Copilot, PR #1142).
+
+    THE FIXTURE MAKES THE WRONG ANSWER AVAILABLE, which is the only way to
+    prove the right one is chosen. `refs/heads/main` here is REAL and READABLE:
+    `_raise_timeout` is armed for the origin spelling ALONE, so a reader that
+    fell through would succeed, return `("refs/heads/main", <sha>)`, and pass
+    any test that only asserted "no crash". The module-wide timeout test cannot
+    catch this because it stops every probe, which is exactly the case the old
+    loop happened to get right.
+
+    The detail is asserted as well as the value: reporting this as "no `main`
+    in this clone" would trade one unmade observation for another, and
+    `verify()` prints the string it is handed."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    local = _git(repo, "rev-parse", "--verify", "--quiet", "refs/heads/main")
+    assert local.returncode == 0 and local.stdout.strip(), (
+        "the fixture must OFFER the fallback for this test to prove it is not "
+        "taken")
+
+    real_run = subprocess.run
+
+    def origin_never_returns(argv, **kwargs):
+        if "refs/remotes/origin/main" in list(argv):
+            return _raise_timeout(argv, **kwargs)
+        return real_run(argv, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", origin_never_returns)
+
+    main, why = pc.resolve_main(repo)
+    assert main is None, (
+        "the authoritative ref could not be READ, so the branch half of the "
+        f"ref set is unknown — not {main!r}, which is the stale local branch "
+        "answering a question that was put to origin")
+    assert "refs/remotes/origin/main" in why, why
+    assert "could not be consulted" in why, why
+    assert "no `main` in this clone" not in why, (
+        "an unreadable ref must not be reported as an absent one; this clone's "
+        f"`main` may be sitting right there, unread: {why}")
+
+
+def test_a_clone_with_no_origin_main_still_falls_back_to_the_local_branch(
+        tmp_path):
+    """The fallback the ORDER exists for still works, unchanged.
+
+    The fix above narrows `resolve_main` to stop on an UNAVAILABLE probe, and a
+    narrowing that also broke the absent-ref case would have swapped one defect
+    for another. This fixture has no remote at all, so the origin spelling is
+    genuinely absent — non-zero for a reason git can answer — and the local
+    branch is still resolved, still named in the detail."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    assert _git(repo, "remote").stdout.strip() == "", (
+        "no remote, so `refs/remotes/origin/main` is absent rather than "
+        "unreadable — which is the whole distinction under test")
+
+    main, why = pc.resolve_main(repo)
+    assert main is not None, "an ABSENT origin ref must still fall back"
+    ref, sha = main
+    assert ref == "refs/heads/main", ref
+    assert sha == _git(repo, "rev-parse",
+                       "refs/heads/main").stdout.strip(), sha
+    assert "refs/heads/main" in why, why
+
+
+def test_a_bound_that_fires_AFTER_the_opening_probes_is_a_skip_not_a_crash(
+        tmp_path, monkeypatch):
+    """THE INITIAL PROBE SUCCEEDING PROTECTS NOTHING (Copilot, PR #1142).
+
+    `verify()` raises `GitUnavailable` from its OPENING `rev-parse` and from
+    every later inventory read — `committed_paths` on `main` already, and
+    `committed_text` since this branch widened it. `verify_pin_reachability`
+    caught neither, so a bound that fires on the twentieth `git show` of a sweep
+    escaped as a crash and took down whatever surface called in — a pytest run,
+    a preflight pass, a nightly — **at the moment a SKIP was owed and
+    available**. Both branches of that are asserted here, because the whole
+    point of the finding is that the two are reached differently.
+
+    THE FIXTURE LETS THE OPENING PROBES SUCCEED. `_raise_timeout` is armed for
+    `ls-tree` ALONE — the inventory read, which `verify()` performs only after
+    `rev-parse` and `is_truncated` have already answered with real git. A test
+    that stopped every probe would exercise the opening raise instead, which is
+    the path that was never in doubt.
+
+    SKIP AND NOT FAIL: every FAIL this function returns names a defect in an
+    ARTIFACT and a repair route for it, and there is neither here — only a
+    question that could not be put. The report is None because the inventory
+    never completed, and an empty one would render as a clean sweep of zero
+    sites: the silent pass this branch exists to prevent."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    from doc_health import ideation_readiness as ir
+
+    real_run = subprocess.run
+    seen = []
+
+    def inventory_never_returns(argv, **kwargs):
+        argv = list(argv)
+        seen.append(argv)
+        if "ls-tree" in argv:
+            return _raise_timeout(argv, **kwargs)
+        return real_run(argv, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", inventory_never_returns)
+
+    verdict, reason, report = ir.verify_pin_reachability(repo,
+                                                         allow_remote=False)
+
+    assert any("rev-parse" in a for a in seen), (
+        "the opening probe must have RUN and SUCCEEDED, or this test is "
+        "measuring the crash path that was never in doubt")
+    assert verdict == ir.PIN_PROBE_SKIP, (
+        f"an unconsultable repository is this probe's own SKIP, not {verdict}: "
+        "a FAIL would name an artifact defect and offer a repair route, and "
+        "there is no artifact defect here")
+    assert report is None, (
+        "the inventory never completed, so there is no report; a fabricated "
+        "empty one renders as a clean sweep of zero sites")
+    assert "NOT ANSWERABLE" in reason, reason
+    assert "could not be consulted" in reason, reason
+
+
+def test_that_same_surface_still_answers_normally_when_git_works(tmp_path):
+    """The narrowing above must not have swallowed a real verdict.
+
+    The same fixture, with no probe interfered with at all, still reaches a
+    genuine classification and a genuine report — so the new `except` catches
+    the unconsultable repository and nothing else."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    from doc_health import ideation_readiness as ir
+
+    verdict, reason, report = ir.verify_pin_reachability(repo,
+                                                         allow_remote=False)
+    assert report is not None, "a consultable repository still yields a report"
+    assert verdict in (ir.PIN_PROBE_PASS, ir.PIN_PROBE_FAIL,
+                       ir.PIN_PROBE_SKIP), verdict
+    assert "could not be consulted" not in reason, reason
