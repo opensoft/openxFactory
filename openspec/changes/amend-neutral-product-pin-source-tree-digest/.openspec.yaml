@@ -69,6 +69,34 @@ origin:
     OUTCOME rather than over canon, so it is correct whichever archives first).
     Each is separable and each carries its own veto cost.
   proposed_on: 2026-09-22
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-09-22T15:45:54Z,
+    interactive in the lane session, verbatim: "ratify #1140 and #1141",
+    recorded at `opensoft/openxFactory` issue #656 comment 5779511063. Record:
+    review/ratification-2026-09-22.md.
+    THE WORD RATIFIES TWO PACKETS IN ONE UTTERANCE AND DECIDES NOTHING ABOUT
+    THEIR CONTENT, which two earlier rulings had already decided — 5777949892
+    ("(b) - AMEND THE CLAUSE"), which commissioned this packet and named its
+    form, and 5768144952 ("(b) for the pin shape, keep going"), which settled
+    what the pin files carry. This packet settles only the normative text.
+    THE RATIFIED BASELINE IS HEAD `ca47e2cb` AND THE CURRENT HEAD IS NOT,
+    which is disclosed rather than smoothed. `9f82caeb` was committed at
+    2026-09-22T15:45:53Z — ONE SECOND before the word — and pushed around it, so
+    it was in flight at ratification and cannot have been read. It is not
+    cosmetic: it REVERSES the runtime exclusion `ca47e2cb` carried, on Copilot
+    r4073495698's measurement that the exclusion would have made
+    `contracts/opendox-pin.yaml` non-conformant (a `migration:` block at :190 AND
+    a whole-tree digest with no per-file list) — the opposite of what 5768144952
+    settled. The correction runs in the ratified direction, but it is requirement
+    text moved after a ratify word, and the estate admits only NON-NORMATIVE
+    folding after the word. RE-RATIFICATION AT `9f82caeb` IS REGISTERED AS OWED
+    at tasks.md § 1.3 and in the ratification record § 3, and no line here claims
+    the word covered text it could not have.
+    NO COUNCIL SITTING WAS HELD AND NONE WAS OWED: no convening packet, no
+    ballot, no seat returns, no council review. A single-requirement wording
+    amendment with `code_surface: none`, commissioned by a ruling that already
+    named its form, ratified by the repository owner's direct word in session.
+  approved_on: 2026-09-22
 related:
   - openxFactory:change:split-opendox-two-layer-product     # ACTIVE. Holds a `## MODIFIED` block on this same requirement, ratified 2026-09-05; this block is written over its OUTCOME and carries its runtime clause and both its scenarios. Declared by `sequenced_after:`
   - openxFactory:issue:656                                  # THE RULING, comment 5777949892 ("(b) - AMEND THE CLAUSE"), and the pin-shape ruling 5768144952 it reconciles the text to

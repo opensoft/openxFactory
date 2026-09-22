@@ -6,7 +6,8 @@ sequenced_after: [split-opendox-two-layer-product]
 
 # Proposal: amend-neutral-product-pin-source-tree-digest
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-22 by Brett Heap (openxFactory operator authority) — in-session, verbatim *"ratify #1140 and #1141"*, at head `ca47e2cb`; record at review/ratification-2026-09-22.md
 Kind: proposal
 Proposed: 2026-09-22, in lane `openxfactory-4` (display
 `openXfactory-4-openDox_extraction`), on Brett Heap's ruling of the same day —
@@ -23,9 +24,22 @@ ruling `5768144952` sits against the ratified source-tree clause of
 5768144952, this ruling, and Copilot `r4067623184`."*
 
 **THE DECISION IS BRETT HEAP'S AND THE ENCODING IS THIS LANE'S.** This packet
-makes no judgment the ruling did not make. It is `Status: draft` because the word
-that commissioned the amendment is not the word that ratifies the packet, and
-that second act is not the authoring lane's to take.
+makes no judgment the ruling did not make. The word that COMMISSIONED the
+amendment (`5777949892`) and the word that RATIFIES this packet
+(`5779511063`, 2026-09-22T15:45:54Z, verbatim *"ratify #1140 and #1141"*) are two
+separate acts, and both are Brett Heap's.
+
+**THE RATIFIED BASELINE IS `ca47e2cb` AND THE HEAD IS NOT, WHICH IS DISCLOSED
+RATHER THAN SMOOTHED.** `9f82caeb` was committed at **15:45:53Z**, ONE SECOND
+before the word, and pushed around it — so it was in flight at the moment of
+ratification and Brett Heap cannot have read it. **It changed NORMATIVE text**:
+it reversed the runtime exclusion that `ca47e2cb` carried, on a measurement
+showing that exclusion would have made `contracts/opendox-pin.yaml` itself
+non-conformant. The change is a correction in the ratified direction and not a
+new decision — but it is requirement text, and requirement text moved after a
+ratify word is not the authoring lane's to absorb. **RE-RATIFICATION AT
+`9f82caeb` IS REGISTERED AS OWED** at `tasks.md` § 1.3 and in the ratification
+record § 3.
 
 ## Why
 

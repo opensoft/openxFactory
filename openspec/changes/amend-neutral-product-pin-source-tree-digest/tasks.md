@@ -1,6 +1,7 @@
 # Tasks: amend-neutral-product-pin-source-tree-digest
 
-Status: draft
+Status: ratified
+Ratified by: amend-neutral-product-pin-source-tree-digest — 2026-09-22, Brett Heap, "ratify #1140 and #1141" at head `ca47e2cb` (record `review/ratification-2026-09-22.md`)
 Kind: tasks
 
 `code_surface: none`, `target_release: implemented`. **There is no realization
@@ -17,16 +18,20 @@ request or a measurement recorded verbatim in its body. § 1 is OPEN: the word
 that commissioned this amendment is not the word that ratifies the packet, and
 that second act is Brett Heap's. § 4 (archive) stays entirely open.
 
-## 1. Ratification — OWED, and NOT taken by the authoring lane
+## 1. Ratification — GIVEN 2026-09-22, at head `ca47e2cb`
 
-- [ ] 1.1 **RATIFY THE PACKET.** The CONTENT is already ruled — Brett Heap,
-      2026-09-22T14:04:00Z, `#656` comment `5777949892`, by multi-choice,
-      verbatim **"(b) — AMEND THE CLAUSE."** — and this packet encodes that
-      ruling and reaches no judgment beyond it. What is NOT yet given is the
-      word that ratifies THIS packet's text, which is a separate act on a
-      separate reading. Record it at `review/ratification-<date>.md` and flip
-      `Status:` in `proposal.md`, `design.md` and this file in one commit.
-- [ ] 1.2 **THE ONE DECISION BEYOND THE RULED WORD, declared for a veto.** The
+- [x] 1.1 **RATIFIED 2026-09-22 by Brett Heap** (openxFactory operator
+      authority), interactive in the lane session, verbatim **"ratify #1140 and
+      #1141"**, at **2026-09-22T15:45:54Z**, recorded at `#656` comment
+      `5779511063`. The CONTENT was already ruled — `5777949892`, **"(b) — AMEND
+      THE CLAUSE"** — and this packet encodes that ruling and reaches no judgment
+      beyond it; **the ratifying word is a second, separate act and it is Brett
+      Heap's, not this lane's.** Record: `review/ratification-2026-09-22.md`.
+      `Status:` moved in `proposal.md`, `design.md` and this file in one commit.
+      **Ratification authorizes realization and does not perform it**: nothing is
+      promoted until the archive, § 4.
+- [x] 1.2 **THE DECISIONS BEYOND THE RULED WORD WERE CARRIED BESIDE THE WORD,
+      declared for a veto and not vetoed.** The
       ruling fixes the OUTCOME (a whole-tree digest is an equivalent discharge)
       and names its ground (the reasoning already in the requirement). It does
       not fix the BOUNDARY sentences, and `design.md` D2 and D3 carry them: D2
@@ -36,6 +41,25 @@ that second act is Brett Heap's. § 4 (archive) stays entirely open.
       FORM and never WHETHER, and that the runtime-deployment clause is
       untouched. Both are separable and the cost of vetoing either is written
       into D2 and D3 themselves.
+
+- [ ] 1.3 **RE-RATIFICATION AT `9f82caeb` IS OWED, AND THIS BOX IS THE ASK.**
+      **RULING NEEDED (Brett Heap).** The word named head `ca47e2cb`.
+      `9f82caeb` was committed at **15:45:53Z — one second before the word** —
+      and pushed around it, so it was in flight at the moment of ratification and
+      **cannot have been read**. It is not cosmetic: it REVERSES the runtime
+      exclusion `ca47e2cb` carried, on Copilot `r4073495698`'s measurement that
+      the exclusion would have made `contracts/opendox-pin.yaml` — a `migration:`
+      block at :190 AND a whole-tree digest with no per-file list —
+      **non-conformant**, which is the opposite of what RULED `5768144952`
+      settled. **The correction runs in the ratified direction, but it is
+      requirement text moved after a ratify word**, and the estate's rule admits
+      only NON-NORMATIVE folding after the word. So it is raised rather than
+      absorbed. **(a)** re-ratify at `9f82caeb` — REC, the text is more correct
+      than the ratified baseline and its defect is measured; **(b)** revert to
+      `ca47e2cb`'s exclusion and land the ratified text as it stood, accepting
+      that `contracts/opendox-pin.yaml` reads non-conformant against it;
+      **(c)** something else. On the word, add a `Re-ratified:` line beside the
+      `Ratified:` one in all three files, as `add-chain-attestation` carries.
 
 ## 2. The delta — LANDED IN THIS PULL REQUEST
 

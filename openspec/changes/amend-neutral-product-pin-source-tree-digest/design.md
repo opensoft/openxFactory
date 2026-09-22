@@ -1,6 +1,7 @@
 # Design: amend-neutral-product-pin-source-tree-digest
 
-Status: draft
+Status: ratified
+Ratified by: amend-neutral-product-pin-source-tree-digest — 2026-09-22, Brett Heap, "ratify #1140 and #1141" at head `ca47e2cb` (record `review/ratification-2026-09-22.md`)
 Kind: design
 
 The ruling fixes the OUTCOME and its GROUND. It does not fix the sentences, and

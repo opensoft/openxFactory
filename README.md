@@ -533,7 +533,11 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [amend-neutral-product-pin-source-tree-digest](openspec/changes/amend-neutral-product-pin-source-tree-digest/proposal.md)
-  — filed 2026-09-22, lane `openxfactory-4`, `Status: draft`, on Brett Heap's
+  — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-22,
+  Brett Heap, *"ratify #1140 and #1141"*, `#656` comment `5779511063`, at head
+  `ca47e2cb`; **re-ratification at `9f82caeb` is registered as owed** — that
+  commit landed one second before the word and moved requirement text, see
+  `tasks.md` § 1.3), on Brett Heap's
   ruling of the same day (`opensoft/openxFactory#656` comment
   [`5777949892`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5777949892),
   by multi-choice, verbatim *"(b) — AMEND THE CLAUSE"*). **ONE `## MODIFIED`
