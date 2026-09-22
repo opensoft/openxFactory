@@ -540,9 +540,12 @@ Active changes:
   — sixteen requirements, sixty-seven scenarios**, written domain-neutrally (its sibling is
   `neutral-product-pin`: that governs openxFactory CONSUMING an external neutral
   product, this governs the product being able to STAND UP without its consumer),
-  with openDox as the measured instance and one requirement per gap of the
-  2026-09-22 feature/gap sweep, each separately satisfiable and each falsifiable
-  by a command named in `tasks.md`. Requirement 1 states what openxFactory KEEPS
+  with openDox as the measured instance. **Requirements 1-10 are one per gap of
+  the 2026-09-22 feature/gap sweep (G1-G10); requirements 11-16 are the later
+  rulings** of 2026-09-22 — the neutral submission step, the standalone install's
+  datastore and local identity mode, the health fix loop with its exception rule,
+  and the check-pack interface. Each is separately satisfiable and each is
+  falsifiable by a command named in `tasks.md`. Requirement 1 states what openxFactory KEEPS
   as a refusal — the corpus, the OpenSpec instance, every doc-health check family,
   the adapter column, the intent-plane schemas and the integration tests — because
   the arc reverses a DIRECTION and relocates no boundary. **`code_surface:`

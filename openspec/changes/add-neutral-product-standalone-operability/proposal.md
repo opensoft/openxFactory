@@ -599,7 +599,7 @@ One smaller item remains for the ratification read, and it is not a ruling
 request: `design.md` § D5 records that requirement 3 revisits the **premise** of
 RULED ASK-2 — not its reasoning, since an EMPTY default stays refused. If ASK-2
 is read as foreclosing a default profile for openDox's own domain, requirement 3
-is struck and the other ten stand.
+is struck and the other fifteen stand.
 
 
 ## Impact

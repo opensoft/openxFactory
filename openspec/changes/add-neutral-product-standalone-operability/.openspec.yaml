@@ -38,18 +38,23 @@ origin:
     WHAT THE PACKET PROPOSES. ONE `## ADDED Requirements` block creating the
     capability `neutral-product-standalone-operability` - sixteen requirements,
     sixty-seven scenarios, written domain-neutrally with openDox as the measured
-    instance, one per gap of the 2026-09-22 feature/gap sweep (G1-G10), each
-    separately satisfiable and each falsifiable by a command named in
-    `tasks.md`.
+    instance. REQUIREMENTS 1-10 ARE ONE PER GAP of the 2026-09-22 feature/gap
+    sweep (G1-G10); REQUIREMENTS 11-16 ARE THE LATER RULINGS of 2026-09-22 - the
+    neutral submission step, the standalone install's datastore and its local
+    identity mode, the health fix loop with its exception rule, and the
+    check-pack interface. Each is separately satisfiable and each is falsifiable
+    by a command named in `tasks.md`.
     WHAT IT DOES NOT PROPOSE. No code byte. No rewrite of the document
     surface. No doc-health check family moves, no corpus document moves, no
     `openspec/specs/` capability is modified or removed, and no pin, gitlink,
     contract bundle or release tag moves. It does not re-promote openDox's 71
     requirements - that is openDox-spec's act, carried here as a BLOCKED task.
-    And it does NOT decide where the snapshot generator lives - `design.md`
-    Q-G3 puts that to Brett as a named question with three options, the
-    measured cost of each and a recommendation, and requirement 4 is written
-    to the OUTCOME so it is satisfied by whichever mechanism is ruled.
+    Where the snapshot generator lives was RULED by Brett Heap on 2026-09-22
+    (`#656` comment `5783335210`, "yes, openDox gets its own neutral
+    generator") and `design.md` R-G3 records the ruling together with this
+    packet's superseded recommendation and the measurement that made the
+    ruling the better answer; requirement 4 is written to the OUTCOME, so it
+    names no mechanism and is satisfied by the ruled one.
     FILING IS NOT RATIFYING. All three lifecycle documents carry `Status:
     draft`, no approval pair is declared, and nothing here admits text to
     canon.

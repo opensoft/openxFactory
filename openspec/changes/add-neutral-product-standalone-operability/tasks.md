@@ -3,14 +3,31 @@
 Status: draft
 
 Dependency-ordered. **Group 1 is the authoring THIS change performs and it
-touches no code.** Groups 2-15 are the post-ratification realization, one group
-per requirement, each in the repository named in its heading and each carrying
-the FALSIFICATION COMMAND that closes it — an exact invocation with its checkout
-preconditions and its expected result, so the archive gate's evidence under
-`release-realization` is a command re-run and quoted rather than a description
-believed. Every command names a verb `src/opendox/cli.py` already declares — the
-arc packages and unblocks that surface, it does not invent one — and task 10.1
-carries the verb table the commands are written against.
+touches no code.** Groups 2-15 are the post-ratification realization, each in the
+repository named in its heading and each carrying the FALSIFICATION COMMAND that
+closes it — an exact invocation with its checkout preconditions and its expected
+result, so the archive gate's evidence under `release-realization` is a command
+re-run and quoted rather than a description believed.
+
+**Groups 2-12 and 15 take one requirement each; TWO groups take more than one,**
+because their requirements are satisfied by one act and splitting them would
+produce boxes that cannot be closed independently: **Group 13** takes
+requirements 12 and 13 (the install brings its datastore AND its identity mode —
+one install story), and **Group 14** takes requirements 6, 14 and 15 (the store
+that holds a finding, the loop that fixes it, and the exception that suppresses
+it — one schema and one loop). Requirement 6 is therefore reached TWICE, by
+Group 6 for the check itself and by Group 14 for where its results live, which is
+the amendment the ruling of 2026-09-22 made to it. The requirement-to-group map is
+the group headings, read as written; nothing below claims a bijection.
+
+**Two classes of verb appear in the commands, and the difference matters.** Groups
+2-13 name only verbs `src/opendox/cli.py` ALREADY DECLARES — the arc packages and
+unblocks that surface, it does not invent one — and task 10.1 carries the verb
+table those commands are written against. Groups 14 and 15 name the `health`
+verbs this arc CREATES (task 14.6 declares them); their falsifications are
+therefore acceptance tests for surface the realization must add, not re-runs of
+surface that exists, and no box in 14 or 15 may be closed by a command whose verb
+its own group did not first declare.
 
 House rule: OpenSpec ratifies, Speckit builds. No group below is started before
 ratification, no group is started without its own claim on
@@ -324,12 +341,16 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   CHECKOUT** — which is exactly the "reaching into a host tree instead of an
   injected adapter" class this arc exists to close, appearing a second time.
   Claim them here or hand them on by name; do not leave them unowned again.
-- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling). Validation is the
+- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, **INSTALLED into a
+  fresh venv**, because 7.1 settles that the three schemas travel as PACKAGE
+  DATA and a bare clone therefore cannot exercise the packaged set this box is
+  about). Validation is the
   POST-RENDER step inside the generate verbs — there is no `validate` verb and
   this packet adds none — so it is exercised through `--strict`, which also makes
   a validator that could not RUN fatal instead of a warning:
 
       set -euo pipefail
+      python -m venv /tmp/v7 && . /tmp/v7/bin/activate && pip install .   # PACKAGE DATA on disk (7.1)
       python -m opendox.cli --repo-root tests/fixtures/plain-documents --strict generate --output /tmp/ok.json
       if python -m opendox.cli --repo-root tests/fixtures/malformed --strict generate --output /tmp/bad.json 2>/tmp/err; then
         echo "FAIL: a malformed corpus validated"; exit 1
@@ -549,12 +570,28 @@ implementation. What is missing is a NEUTRAL implementation and a default bindin
 that does not name a platform.
 
 - [ ] 12.1 Reshape the protocol around the neutral ACT rather than the platform's
-  artifact. `push(branch)` is already git-neutral and stays; `open_or_update` and
-  `find_open` return a `PullRequest` carrying `url` / `number` / `state`, and
-  `number` is a hosting platform's concept. Whatever the neutral return becomes,
-  it must be expressible by a plain push.
-- [ ] 12.2 Ship the NEUTRAL DEFAULT: on a plain git repository with a remote
-  attached, push the session branch to it and report where the work went. The
+  artifact. `push(branch)` is already git-neutral in its ARGUMENT and stays;
+  `open_or_update` and `find_open` return a `PullRequest` carrying `url` /
+  `number` / `state`, and `number` is a hosting platform's concept. Whatever the
+  neutral return becomes, it must be expressible by a plain push.
+- [ ] 12.1a **WIDEN `push`'s RETURN, because requirement 11's second scenario is
+  not otherwise observable.** Today `push(self, branch: str) -> None`
+  (`session_pr.py:103`), and a `None` cannot *"report where the work went"*. It
+  returns a `Submission` record naming the DESTINATION THE WORK REACHED —
+  `remote`, `ref`, and the remote's `url` as git resolves it — so scenario 2 is
+  asserted rather than inferred from a side effect, and so scenario 3's refusal is
+  distinguishable from a silent success by its RETURN and not only by its logs.
+  **This adds no operation**, so `FR-030`'s *"three operations, and the absence of
+  every other one"* (`session_pr.py:99-101`) is untouched: the count is the
+  invariant, not the return type. `FakePullRequests` and `GhPullRequests` widen
+  with it, and the existing tests that ignore the return keep passing.
+- [ ] 12.2 Ship the NEUTRAL DEFAULT **as a named class in `opendox.session_pr`,
+  `LocalGitSubmissions`, constructed exactly as `GhPullRequests` is —
+  `LocalGitSubmissions(Path(checkout_root))`, one positional argument
+  (`serve.py:933`) — so the binding in 12.4 is a name swap and not a signature
+  change.** On a plain git repository with a remote attached, it pushes the
+  session branch to it and returns the 12.1a `Submission` reporting where the work
+  went. The
   runtime already models the remote — `runtime/repository_act.py:1131`'s
   `attach_remote(..., executable="git")` takes ANY git remote and writes no
   object, *"which is what makes the eventual move a push, not a migration"*.
@@ -592,24 +629,40 @@ that does not name a platform.
   above answers them. The GOVERNED host's implementation still declares no merge
   and openxFactory's flow is still unchanged (12.5) — that half was never in
   question.
-- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, `gh` NOT installed —
-  `command -v gh` must be empty, which is the student's machine):
+- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, **INSTALLED** —
+  `python -m venv /tmp/v12 && . /tmp/v12/bin/activate && pip install .` — and
+  `gh` NOT installed: `command -v gh` must be empty, which is the student's
+  machine):
 
       set -euo pipefail
       rm -rf /tmp/plain /tmp/remote
       git init -q /tmp/plain && git -C /tmp/plain commit -q --allow-empty -m seed
       git -C /tmp/plain branch sess-1                       # the SESSION BRANCH must exist to be pushed
       git init -q --bare /tmp/remote && git -C /tmp/plain remote add origin /tmp/remote
-      # submit a session on the plain repository with a remote attached:
-      python -c "from opendox import session_pr; session_pr.default_submitter('/tmp/plain').push('sess-1')"
-      git -C /tmp/remote rev-parse --verify sess-1          # the branch ARRIVED
+      # the NEUTRAL DEFAULT 12.2 names, constructed as GhPullRequests is (serve.py:933):
+      python - <<'PY'
+      from pathlib import Path
+      from opendox import session_pr
+      port = session_pr.LocalGitSubmissions(Path("/tmp/plain"))
+      assert isinstance(port, session_pr.PullRequestPort), "the neutral default is not a PullRequestPort"
+      r = port.push("sess-1")                               # 12.1a: returns a Submission, never None
+      assert r is not None and r.ref.endswith("sess-1"), f"push reported no destination: {r!r}"
+      assert "/tmp/remote" in r.url, f"the report does not name WHERE the work went: {r!r}"
+      PY
+      git -C /tmp/remote rev-parse --verify sess-1          # and the branch ARRIVED
 
-  The push succeeds and the bare remote carries `sess-1` — `rev-parse --verify`
-  exits non-zero if it does not, and `set -e` fails the sequence. Then, with the
-  remote removed (`git -C /tmp/plain remote remove origin`), the same call reports
-  plainly that there is no submission target and does not raise an opaque error. **No assertion about landing operations belongs
-  in this falsification while 12.6 is open** — asserting the absence would encode
-  reading (a), and asserting its presence would encode reading (b).
+  Two things are asserted, not one: the branch arrived (`rev-parse --verify` exits
+  non-zero if it did not, and `set -e` fails the sequence) **and the call REPORTED
+  where it went**, which is requirement 11's second scenario and which a
+  `None`-returning `push` could not have satisfied however well the push worked.
+  Then, with the remote removed (`git -C /tmp/plain remote remove origin`), the
+  same call refuses with the reason named — scenario 3 — rather than raising an
+  opaque error or returning a `Submission` it did not achieve.
+
+  **And the three guardrails are asserted here too, now that 12.6 is RULED**: a
+  merge with no human act refuses; a merge meeting a conflict SHOWS it rather than
+  resolving it; and a completed merge leaves a COMMIT that `git revert` undoes.
+  Each is one test, and none of the three may be reachable through configuration.
 
   Today none of this is reachable: the only implementation is `GhPullRequests`,
   which shells `["gh", "pr", ...]` (`:367`) against `_GITHUB_HOST = "github.com"`

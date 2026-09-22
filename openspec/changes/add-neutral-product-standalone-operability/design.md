@@ -71,7 +71,7 @@ under which it can.
 
 ## D3 — Why the gaps are REQUIREMENTS and not merely tasks
 
-A gap list is an actor's inventory; it expires when the actor stops. Ten
+A gap list is an actor's inventory; it expires when the actor stops. Sixteen
 requirements with sixty-seven scenarios are a standing property of any neutral
 product this repository pins, and they outlive the arc. The concrete openDox
 work is in `tasks.md`, one box per requirement, each naming the falsification
@@ -82,8 +82,8 @@ The requirements are written DOMAIN-NEUTRALLY and openDox is the measured
 instance, which is the house form: `corpus-adapter-seam`'s own first requirement
 carries *"The measured instance this rule is written from: twelve of
 `scripts/ideation_dashboard/`'s forty-eight modules carry twenty-three
-`scripts/doc_health/` imports…"*. Nothing in the ten names openDox, so a future
-neutral product is bound without an amendment.
+`scripts/doc_health/` imports…"*. Nothing in the sixteen names openDox, so a
+future neutral product is bound without an amendment.
 
 ## D4 — G1's remedy is the carve's own design, not new design
 
@@ -440,10 +440,13 @@ Requirement 5 is about reaches that resolve through a declared seam. This is the
 WRITE path leaving the repository, it has its own constitutional invariant that
 neither of those carries, and it is separately satisfiable: openDox could
 generate its own snapshot and still have no way to submit, or submit and still
-serve nothing. The other ten requirements were already "ordered and separately
-satisfiable"; folding this into one of them would break that and hide the open
-merge question inside a requirement about something else. It shares requirement 4's
-INJECTION SEAM, and says so rather than restating it.
+serve nothing. The other fifteen requirements were already "ordered and separately
+satisfiable"; folding this into one of them would break that and bury the landing
+rule — since RULED, requirement 11's three guardrails — inside a requirement about
+something else. It is contributed through the SAME PATTERN as requirement 4's
+generator and through a DIFFERENT registration point: `pull_request_factory`
+(`serve.py:766`) already exists and requirement 11 repoints its unset default,
+while the generator seam does not exist yet and task 5.4 declares it.
 
 ## D10 — RULED: the standalone install's shape (four decisions, two of which AMEND founding rulings)
 
