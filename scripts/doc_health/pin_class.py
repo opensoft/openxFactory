@@ -1885,6 +1885,17 @@ def retention_holder(repo, pin: str, *, remote: str = "origin",
     neither and this function does its own single-ref lookup."""
     ref = retention_ref(pin)
     local = _git(repo, "rev-parse", "--verify", "--quiet", ref)
+    if unavailable(local):
+        # NOT "no local ref". `--verify --quiet` reports absence by exiting
+        # non-zero, the same shape an unaskable git returns, so falling through
+        # here would consult the remote and — if the namespace legitimately
+        # does not advertise this pin — publish ORPHAN on the strength of a
+        # local read that never happened. `verify()` renders this detail as
+        # INCONCLUSIVE through its own `could not be performed` branch, which
+        # is the answer this condition already has everywhere else in the
+        # module (Copilot, PR #1142).
+        return None, (f"the local {ref} could not be consulted: "
+                      f"{local.stderr.strip()}")
     if local.returncode == 0 and local.stdout.strip():
         if local.stdout.strip() == pin:
             return "local", f"local {ref}"
@@ -1937,7 +1948,26 @@ def committed_paths(repo, rev: str = "HEAD") -> list[str]:
 
 
 def committed_text(repo, rev: str, path: str) -> str | None:
+    """The blob at `<rev>:<path>`, or None where the path is not committed there.
+
+    AN UNAVAILABLE READ RAISES RATHER THAN READING AS ABSENT (Copilot,
+    PR #1142). `git show` reports "no such path in that revision" by exiting
+    NON-ZERO, which is the same shape a timed-out or unspawnable git produces —
+    so mapping every non-zero to `None` would let a fired bound SILENTLY DROP
+    pin sites from the sweep and make `index_reproduces_at` report that a
+    committed index is not committed. Both are false negatives that look exactly
+    like a clean answer.
+
+    `GitUnavailable` is this module's own instrument for it — "The repository
+    could not be asked. Never silently a pass." — and `list_committed` already
+    raises it for the identical condition one call earlier in the same walk, so
+    a caller that can survive an unaskable repository already handles this type
+    and one that cannot is stopped rather than misled. The eleven callers keep
+    their `str | None` contract unchanged for every answer git actually gives."""
     shown = _git(repo, "show", f"{rev}:{path}")
+    if unavailable(shown):
+        raise GitUnavailable(
+            f"cannot read {rev}:{path} in {repo}: {shown.stderr.strip()}")
     return shown.stdout if shown.returncode == 0 else None
 
 
@@ -2401,7 +2431,11 @@ class PinClassReport:
     rev: str
     main_ref: str | None
     main_sha: str | None
-    truncated: bool
+    #: None where the clone's truncation could not be OBSERVED — `is_truncated`
+    #: answers a third state since PR #1142, and a field annotated `bool` while
+    #: `verify()` assigns `None` into it is an API that lies about itself
+    #: (Copilot). `truncation` carries the reason in every case.
+    truncated: bool | None
     truncation: str
     results: tuple[PinResult, ...]
     uncovered: tuple[PinSite, ...]

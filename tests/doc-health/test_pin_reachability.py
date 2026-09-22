@@ -2299,3 +2299,81 @@ def test_a_reconstruction_that_cannot_run_git_is_NOT_ASKED(tmp_path,
     assert "NOT ASKED rather than answered" in detail, detail
     assert "git could not be run" in detail, detail
     assert "Permission denied" in detail, detail
+
+def test_an_unavailable_show_raises_rather_than_reading_as_an_absent_path(
+        tmp_path, monkeypatch):
+    """`committed_text` must not turn an unaskable read into "not committed".
+
+    `git show` reports "no such path in that revision" by exiting NON-ZERO,
+    which is the same shape the bound produces — so mapping every non-zero to
+    `None` let a fired bound silently DROP pin sites from the sweep and made
+    `index_reproduces_at` report a committed index as uncommitted. Both are
+    false negatives that look exactly like a clean answer (Copilot, PR #1142).
+
+    `GitUnavailable` is this module's own instrument for it, and
+    `list_committed` already raises it for the identical condition, so this
+    pins that the two readers now agree."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    real_git = pc._git
+
+    def _show_is_unaskable(target, *args, **kwargs):
+        if args[:1] == ("show",):
+            argv = ["git", "-C", str(target), *args]
+            return pc._Unavailable(
+                args=argv, returncode=1, stdout="",
+                stderr=f"`{' '.join(argv)}` could not be performed: timed out")
+        return real_git(target, *args, **kwargs)
+
+    monkeypatch.setattr(pc, "_git", _show_is_unaskable)
+    with pytest.raises(pc.GitUnavailable) as raised:
+        pc.committed_text(repo, "HEAD", "README.md")
+    assert "could not be performed" in str(raised.value), raised.value
+
+    # A path that genuinely is not committed still answers None, unchanged.
+    monkeypatch.setattr(pc, "_git", real_git)
+    assert pc.committed_text(repo, "HEAD", "no/such/path.yaml") is None
+
+
+def test_an_unavailable_local_retention_read_is_not_an_absent_ref(
+        tmp_path, monkeypatch):
+    """`retention_holder` must not read an unaskable LOCAL probe as "no ref".
+
+    `rev-parse --verify --quiet` reports absence by exiting non-zero, the same
+    shape an unaskable git returns, so falling through consulted the remote and
+    — where the namespace legitimately does not advertise the pin — published
+    ORPHAN on the strength of a local read that never happened (Copilot,
+    PR #1142).
+
+    The detail must reach `verify()`'s own `could not be performed` branch, so
+    this asserts the string that branch matches rather than merely that the
+    answer is None."""
+    repo, orphan, _ = orphaned_pin_repo(tmp_path)
+    real_git = pc._git
+
+    def _local_rev_parse_is_unaskable(target, *args, **kwargs):
+        if args[:1] == ("rev-parse",) and "refs/retention/pins/" in " ".join(
+                str(a) for a in args):
+            argv = ["git", "-C", str(target), *args]
+            return pc._Unavailable(
+                args=argv, returncode=1, stdout="",
+                stderr=f"`{' '.join(argv)}` could not be performed: timed out")
+        return real_git(target, *args, **kwargs)
+
+    monkeypatch.setattr(pc, "_git", _local_rev_parse_is_unaskable)
+    where, detail = pc.retention_holder(repo, orphan, allow_remote=False)
+    assert where is None
+    assert "could not be consulted" in detail, detail
+    assert "could not be performed" in detail, (
+        "the detail must carry the phrase `verify()` matches to render this "
+        f"INCONCLUSIVE rather than ORPHAN: {detail}")
+
+
+def test_the_report_models_an_unobservable_truncation(tmp_path):
+    """`PinClassReport.truncated` accepts the third state `verify()` can assign.
+
+    Annotated `bool` while `verify()` assigned `None` into it, the dataclass
+    was an API that lied about itself (Copilot, PR #1142). This pins the
+    annotation alongside the behaviour so the two cannot drift."""
+    import typing
+    hints = typing.get_type_hints(pc.PinClassReport)
+    assert hints["truncated"] == (bool | None), hints["truncated"]
