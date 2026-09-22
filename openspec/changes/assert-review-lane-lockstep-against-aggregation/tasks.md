@@ -175,7 +175,20 @@ this packet's archive until merged PLUS green realization evidence.
   the check reads two repositories over the API and needs no candidate code at
   all — and a **head-ref allowlist** (`bot/review-lane-repin`) plus the
   same-repository condition as defence in depth, with a test that a
-  same-repository NON-BOT pull request is skipped. A fork event and a
+  same-repository NON-BOT pull request is skipped.
+  **AND THE ALLOWLIST IS A TRIPLE, NOT A HEAD REF** (Copilot `r4076740158`): a
+  head ref alone is a predicate anyone who can create or update that branch can
+  satisfy, so the same writer could open a DIFFERENT pull request under the
+  allowlisted name and run the base workflow with the token; and an unfiltered
+  base would expose the same path on any branch. The estate already states the
+  shape — `.github/merge-approval-envelope.yml`:70-74 requires `expected_author`,
+  `expected_head_ref` AND `expected_base_ref` together, held by
+  `tests/review_lane_pin/test_review_lane_caller.py`:780-789, whose own words
+  call the exact head ref *"half of the fork defence"* — **half, which is the
+  point**. The gate's condition is therefore the same triple: the advance lane's
+  bot as author, the exact head ref, and `main` as base, each an exact value and
+  none a pattern, with a test per predicate driving a pull request that satisfies
+  the other two and fails this one. A fork event and a
   non-allowlisted head are both reported OUT OF SCOPE rather than UNDETERMINED:
   *not applicable* and *could not measure* are different answers, and this
   packet's whole subject is not conflating them.

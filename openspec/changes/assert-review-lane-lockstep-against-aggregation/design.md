@@ -429,6 +429,28 @@ bytes. The estate's own rule says the first half — *"rules must come from the
 base branch"* — and this packet needed the second half stated to be correct at
 all.
 
+## D14d — the allowlist is a TRIPLE, because a head ref is a predicate its author controls
+
+Copilot `r4076740158`, the last refinement of D14's chain. A head-ref allowlist
+is satisfied by anyone who can create or update that branch — so **the same
+writer could open a different pull request under the allowlisted name and run the
+base workflow with the aggregation token**; and an unfiltered base would expose
+the same path on any branch, not only `main`.
+
+**The estate already states the shape and this packet simply adopts it.**
+`.github/merge-approval-envelope.yml`:70-74 requires `expected_author`,
+`expected_head_ref` AND `expected_base_ref` together, held by
+`tests/review_lane_pin/test_review_lane_caller.py`:780-789 — whose own words call
+the exact head ref *"half of the fork defence"*. **Half.** The gate's condition is
+the same triple, each an exact value and none a pattern, with a test per predicate
+driving a pull request that satisfies the other two and fails this one.
+
+**That is the fourth time on this packet that the estate had already worked out
+what I was deriving** — after the trigger, the no-head-checkout rule and the
+never-passed token statement. The pattern is now the packet's own advice to its
+realizer: before reasoning about a governance mechanism here, read what this
+repository's tests already refuse.
+
 ## D15 — the neutral conclusion needs a WRITE path, and it is a different token from the read
 
 Copilot's second *previously missed* item: § 5.1e publishes through the check-run
