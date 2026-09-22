@@ -36,9 +36,9 @@ Kind: tasks
   THREE promoted scenarios carried byte-identically, THREE added: the home
   adapter measured against the external-product rule, the home adapter importing
   the corpus's own check families, and a second in-repository reader refused the
-  exception. **The third was added by Copilot round 2 (`r4076010204`) and this
-  count went stale for one round, which round 3 (`r4076105337`) then caught —
-  reading the README's correct `four added` against this box's stale `two`.** Six
+  exception. **The third was added on Copilot `r4076010204` and this count went
+  stale for one review, which the next (`r4076105337`) then caught — reading the
+  README's correct `four added` against this box's stale `two`.** Six
   scenarios in the block; `verify-carriage.py` reports the same number.
 - [x] 2.2 `specs/domain-mapping-declaration/spec.md` — ONE `## MODIFIED`
   requirement. `exactly five axes` becomes `exactly six`, the sixth named as the
@@ -88,9 +88,14 @@ Kind: tasks
 ## 4. Gate
 
 - [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate amend-home-adapter-scope-and-mapping-axis-count --strict`.
-- [x] 4.2 `python3 review/verify-carriage.py` — re-extracts both promoted
-  requirements' scenarios from `openspec/specs/` and compares them to the
-  blocks. Committed with the packet so the proof survives later edits.
+- [x] 4.2 `python3 review/verify-carriage.py` — re-extracts both requirements'
+  promoted scenarios from the IMMUTABLE BASIS, the promoting deltas archived
+  under `openspec/changes/archive/2026-09-22-split-opendox-two-layer-product/specs/`,
+  and compares them to the blocks exactly and in order; it reads `openspec/specs/`
+  only for the currency check, which passes while canon states that basis or
+  this block and fails when canon states neither or is absent (`design.md` D4e).
+  Committed with the packet so the proof survives later edits and its own
+  archive.
 - [x] 4.3 `validate-code-surface.py`, `validate-target-release.py`,
   `validate-sequenced-after.py`.
 - [ ] 4.4 Required checks green at the head, Copilot review at the exact head

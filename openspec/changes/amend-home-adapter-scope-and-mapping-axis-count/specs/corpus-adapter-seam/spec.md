@@ -3,9 +3,12 @@
 **ONE `## MODIFIED` REQUIREMENT, AND THE BLOCK CARRIES EVERY SCENARIO THE
 PROMOTED REQUIREMENT HAS.** A `## MODIFIED` block REPLACES the requirement it
 names, so all THREE promoted scenarios are carried below BYTE-IDENTICALLY —
-extracted from `openspec/specs/corpus-adapter-seam/spec.md` by script rather
-than retyped, and re-compared against that file at `tasks.md` § 4.2 — and THREE
-are added: the home adapter measured against the external-product rule, the home
+extracted by script rather than retyped, and re-compared at `tasks.md` § 4.2
+against the IMMUTABLE BASIS, the promoting delta archived at
+`openspec/changes/archive/2026-09-22-split-opendox-two-layer-product/specs/corpus-adapter-seam/spec.md`,
+and not against `openspec/specs/corpus-adapter-seam/spec.md`, which this block
+rewrites when it archives and which the proof reads only to confirm it still
+states that basis or this block — and THREE are added: the home adapter measured against the external-product rule, the home
 adapter importing the corpus's own check families, and a second in-repository
 reader refused the exception. No active change carries a delta on this capability (checked by
 enumerating `openspec/changes/*/specs/` on `main` `4f92d651`), so there is no

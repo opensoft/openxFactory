@@ -1,26 +1,41 @@
 #!/usr/bin/env python3
 """Re-prove that this packet's two `## MODIFIED` blocks carry EVERY scenario the
-promoted requirements have, byte for byte.
+promoted requirements have, exactly and in order, and that live canon has not
+moved under them.
 
 A `## MODIFIED Requirements` block REPLACES the requirement it names, so a
 scenario retyped with one character changed, or silently dropped, is a
 requirement quietly narrowed at promotion. The blocks were built by extracting
-the promoted scenarios programmatically rather than by retyping them; this
-script re-extracts from `openspec/specs/` and compares, so the proof survives
-every later edit to the packet.
+the promoted scenarios programmatically rather than by retyping them. THIS
+SCRIPT RE-EXTRACTS THEM FROM THE IMMUTABLE BASIS, NOT FROM `openspec/specs/`:
+`BASIS` below is the archived packet that PROMOTED both requirements,
+`openspec/changes/archive/2026-09-22-split-opendox-two-layer-product/specs/`,
+whose files never move, while `openspec/specs/` is the mutable current state
+this very amendment rewrites when it archives. Live canon is read for ONE thing,
+the currency check in `canon_state`, which passes only while canon states either
+that basis or this packet's block. So the proof survives every later edit to the
+packet, and the packet's own archive.
 
     python3 openspec/changes/amend-home-adapter-scope-and-mapping-axis-count/review/verify-carriage.py
 
-Exit 0 and one line per capability, or exit 1 naming the first scenario that
-does not match. Run from the openxFactory root.
+That is the path while the change is active; once it archives, the same file
+sits under `openspec/changes/archive/<date>-amend-home-adapter-scope-and-mapping-axis-count/review/`.
+The root is found by marker from the script's own location, so the working
+directory does not change what it reads.
 
-FOUR THINGS THIS SCRIPT DOES THE LONG WAY, EVERY ONE ON A COPILOT FINDING
-AGAINST AN EARLIER DRAFT OF IT, ACROSS THREE ROUNDS ON `opensoft/openxFactory#1143`
-(`r4075847837` and `r4075847914` against the first draft; the terminator finding
-of round 5, and the ordering gap found while fixing it) — and every one for the
-same reason: **a carriage proof that is approximately right proves nothing.**
-Items (1) and (2) are what the first draft got wrong about WHAT IT READ; items
-(3) and (4) are what the next drafts got wrong about WHAT IT COMPARED.
+Exit 0 with one `OK` line per capability. Exit 1 with one `FAIL` line for each
+capability that fails — a promoted scenario count other than the one `PAIRS`
+expects, the first promoted scenario not carried exactly, the first carried out
+of order, or a canon state that must stop a reader — or at once, with the
+reason, when an input is missing, carries a carriage return, or lacks the
+requirement it must hold.
+
+SEVEN THINGS THIS SCRIPT DOES THE LONG WAY, and every one for the same reason:
+**a carriage proof that is approximately right proves nothing.** Each was forced
+by a defect in an earlier draft of it. Every one but (4) was found by Copilot
+review on `opensoft/openxFactory#1143`; (4) was found by the author while fixing
+(3). The record, with the control that proved each, is `design.md` D4b and D4d
+through D4f.
 
 (1) IT READS BYTES AND REFUSES A CARRIAGE RETURN, rather than reading text.
 `Path.read_text()` applies universal-newline conversion before any comparison
@@ -42,7 +57,7 @@ requirement title, and every promoted block must appear among the DELTA's
 parsed blocks.
 
 (3) IT SAYS WHAT A BLOCK IS, AND STOPS CLAIMING MORE THAN IT COMPARES
-(`r4076204332`'s successor finding on `opensoft/openxFactory#1143`). The earlier
+(Copilot `r4076352166` on `opensoft/openxFactory#1143`). The earlier
 drafts said BYTE-FOR-BYTE while `rstrip("\n")` normalized each block's trailing
 newlines, so a change in the number of blank lines between blocks passed as
 identical and the claim was wider than the comparison. **THE CANONICAL BLOCK IS
@@ -59,6 +74,22 @@ claim and the comparison are the same sentence.
 carried every promoted scenario in a different sequence — a reordering of the
 requirement that no reader asked for and this script was meant to catch. The
 promoted blocks must appear among the delta's in their PROMOTED ORDER.
+
+(5) IT READS THE IMMUTABLE BASIS, NOT CANON (Copilot `r4076557378`). An earlier
+draft re-extracted from `openspec/specs/`, which this amendment rewrites when it
+archives: it would then have found six and four scenarios where `PAIRS` expects
+three, and reported FAIL from inside its own archived packet for having
+succeeded. See `BASIS`.
+
+(6) IT CHECKS CANON AGAINST FOUR STATES, OVER THE WHOLE REQUIREMENT (Copilot
+`r4076675504`, and the item review `5284063015` listed as previously missed).
+Canon ABSENT is a failure, not a pass; and the comparison covers the normative
+body as well as the scenarios, because a body-only edit is exactly the kind that
+could move canon unseen. See `canon_state` and `requirement_section`.
+
+(7) IT FINDS THE ROOT BY MARKER, NOT BY DEPTH (Copilot `r4076754060`). Archiving
+moves this file one directory deeper, where a `parent.parent.parent` root would
+resolve to `<repo>/openspec`. See `_repo_root`.
 """
 from __future__ import annotations
 

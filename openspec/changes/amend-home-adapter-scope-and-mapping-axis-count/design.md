@@ -78,8 +78,11 @@ dropped or retyped with one character changed is a requirement quietly narrowed
 at promotion, and it is invisible in review because the block reads complete.
 
 Both blocks were built by EXTRACTING the promoted scenarios programmatically
-from `openspec/specs/` rather than by retyping them, and
-`review/verify-carriage.py` re-extracts and compares on demand:
+rather than by retyping them, and `review/verify-carriage.py` re-extracts them on
+demand from the IMMUTABLE BASIS — the promoting deltas archived under
+`openspec/changes/archive/2026-09-22-split-opendox-two-layer-product/specs/`, not
+the mutable `openspec/specs/`, which is read only for the separate currency
+check (D4e) — and compares:
 
     OK corpus-adapter-seam: all 3 promoted scenario blocks carried exactly and in order among the delta's 6 parsed blocks (a block is its heading through its last non-blank line; blank lines between blocks are outside every block and are not compared); canon still states the basis, body and scenarios both — nothing moved under this block
     OK domain-mapping-declaration: all 3 promoted scenario blocks carried exactly and in order among the delta's 4 parsed blocks (a block is its heading through its last non-blank line; blank lines between blocks are outside every block and are not compared); canon still states the basis, body and scenarios both — nothing moved under this block
@@ -88,11 +91,11 @@ It is committed with the packet rather than run once and reported, so the proof
 survives every later edit — including edits made in response to review.
 
 **AND THE TRANSCRIPT ABOVE IS THE ONE THING HERE THAT CAN GO STALE, WHICH IT DID
-— TWICE OVER, IN ONE LINE.** The first drafting froze the round-1 script's output;
-round 1's own fix then changed the wording (*"block carries N in total"* became
-*"among the delta's N parsed blocks"*) and round 2's fix changed the number (five
-to six, when the check-families scenario landed), and neither edit came back for
-it. Copilot `r4076204332` read the frozen line against the delta below it and
+— TWICE OVER, IN ONE LINE.** The first drafting froze the first script's output;
+the fix for `r4075847914` then changed the wording (*"block carries N in total"*
+became *"among the delta's N parsed blocks"*) and the fix for `r4076010204`
+changed the number (five to six, when the check-families scenario landed), and
+neither edit came back for it. Copilot `r4076204332` read the frozen line against the delta below it and
 caught the disagreement. **The transcript is now regenerated from the script
 rather than retyped**, and a reader who doubts it runs the one command above —
 which is the only form of this evidence that cannot drift, and the reason the
@@ -214,10 +217,11 @@ scenarios carried.
 
 ## D4d — the proof claimed more than it compared, and now says exactly what it compares
 
-Copilot's *previously missed* item on round 5 found that `rstrip("\n")` normalized
+Copilot's *previously missed* item in review `5283520140`, raised inline one
+review later as `r4076352166`, found that `rstrip("\n")` normalized
 each block's trailing newlines while the script and this design said BYTE FOR
 BYTE, so a change in the number of blank lines between blocks passed as
-identical. **The same class as round 1's `read_text()` finding, twice removed: a
+identical. **The same class as `r4075847837`'s `read_text()` finding, twice removed: a
 proof that quietly normalizes is a proof of something narrower than its own
 sentence.** Taken.
 
@@ -230,7 +234,8 @@ parser does not read them, and a check that reddened on a cosmetic reflow is one
 nobody runs. The verdict line now carries the definition, so the claim and the
 comparison are the same sentence.
 
-**AND A SECOND GAP WENT WITH IT, FOUND WHILE FIXING THE FIRST.** The comparison
+**AND A SECOND GAP WENT WITH IT, FOUND WHILE FIXING THE FIRST — by me, and
+raised by no review.** The comparison
 was `block not in mine` — set MEMBERSHIP — so a delta carrying every promoted
 scenario **in a different sequence** would have passed. The promoted blocks must
 now appear in the delta in their PROMOTED ORDER.
@@ -246,7 +251,7 @@ clean after each:**
 
 ## D4e — the proof read the MUTABLE canon, so archiving this packet would have broken it
 
-Copilot round 8 found the trap the four earlier fixes had left standing: the
+Copilot `r4076557378` found the trap the four earlier fixes had left standing: the
 verifier read `openspec/specs/` — **the current state, which this very amendment
 changes.** The moment it archives, canon carries the amended requirements, the
 script's `PAIRS` still expects three promoted scenarios apiece, and **a committed
@@ -260,7 +265,7 @@ archived packet that PROMOTED these requirements and whose delta files never
 move. Nothing is weakened by the change — the two were measured **byte-identical
 block for block** before the switch.
 
-**AND CANON IS STILL CHECKED, as one of three states rather than as the source:**
+**AND CANON IS STILL CHECKED — against FOUR states, and not as the source:**
 
 | live canon | verdict |
 | --- | --- |
@@ -269,7 +274,8 @@ block for block** before the switch.
 | matches neither | **FAIL** — *"something else moved it"* |
 | **absent** | **FAIL** — *"the capability the basis promoted is gone"* |
 
-**A FOURTH state was hiding inside the third and it was a PASS:** an absent
+**A FOURTH state was hiding inside the third and it was a PASS** (Copilot
+`r4076675504`, two reviews later): an absent
 canon file returned "not promoted here" and was let through. `BASIS` is the
 archived packet that ALREADY promoted both capabilities, so canon existed when
 this was written and its absence means the capability was DELETED rather than
@@ -277,14 +283,18 @@ amended — the failure mode this corpus has actually met, and one a carriage pr
 that shrugged at it would wave past. It is now a FAIL naming the missing path,
 proved by hiding the file.
 
-**All four proved by control, tree restored and re-measured clean after each:**
-applying the block to canon gives the historical-pass note; altering canon by one
-word in a carried scenario gives `FAIL … canon matches NEITHER the basis nor this
-block (6 blocks): something else moved it`; the untouched tree gives the
-review-time pass.
+**All four proved by control, tree restored and re-measured clean after each,
+and re-run against the current script for this record:** applying the block to
+canon gives the historical-pass note; altering canon by one word in a carried
+scenario gives `FAIL corpus-adapter-seam: canon matches NEITHER the basis nor
+this block over the requirement's full text: something else moved it` (the
+wording since D4f widened the comparison to the whole requirement); hiding the
+file gives `FAIL … canon absent at …: the capability the basis promoted is
+gone`; the untouched tree gives the review-time pass.
 
-**This is the fifth defect Copilot found in this script and the first that was
-about TIME rather than about bytes.** The earlier four asked whether the
+**This is the fifth defect found in this script — the fourth found by review,
+D4d's ordering gap having been mine — and the first that was about TIME rather
+than about bytes.** The earlier four asked whether the
 comparison was exact; this one asked how long the answer stays true — and a proof
 committed inside a packet has to survive its own packet's success.
 
@@ -318,12 +328,33 @@ body word changed in canon with every scenario untouched gives `FAIL … canon
 matches NEITHER the basis nor this block over the requirement's full text`; the
 packet copied one directory deeper runs clean.
 
-**Seven defects have now been found in this script by review and none by me.**
-They fall into three kinds — what it read (bytes, canon), what it compared
-(quotation, order, blanks, body) and how long the answer stays true (archive
-depth, canon drift) — and the third kind is the one first-principles authoring
-never reaches, because it is a question about the future rather than about the
-text.
+**Eight defects have now been found in this script: seven by review, and one —
+D4d's ordering gap — by me, while fixing a review finding.** An earlier drafting
+of this sentence said *"by review and none by me"*; the review record raises no
+ordering finding, so it was false, and D4g says how it was caught. They fall
+into three kinds — what it READ (bytes), what it COMPARED (quotation, blanks,
+order, body) and how long the answer STAYS TRUE (mutable canon, deleted canon,
+archive depth) — and the third kind is the one first-principles authoring never
+reaches, because it is a question about the future rather than about the text.
+
+## D4g — the prose that describes the proof went stale when the proof moved
+
+Review `5284160984` listed five places, D4 among them, that still named
+`openspec/specs/` as the proof's source after D4e moved it to the immutable
+basis, and four came back as threads (`r4076906608`, `r4076906654`,
+`r4076906698`, `r4076906734`). All five taken. **The class is D4's stale
+transcript one level up:** a fix that changes WHAT a proof reads leaves behind
+every sentence that SAYS what it reads, and nothing re-derives a sentence.
+
+**So the sweep was made by search, not by memory.** Every sentence in the packet
+and the pull-request body that says what the script reads, compares, reports or
+has been through was re-read against the code and the review record. Beyond the
+five, it found the module docstring still announcing FOUR controls where the
+script carries seven; D4e's table introduced as *"three states"* over four rows,
+and quoting a FAIL message the script no longer prints; *round* numbers that,
+past the first, matched neither the count of reviews nor the count of heads, now
+replaced by finding ids a reader can check; and **one false sentence of mine**,
+D4f's *"none by me"*, corrected above.
 
 ## D5 — two stale strings found and deliberately not fixed
 
