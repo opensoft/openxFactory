@@ -106,13 +106,19 @@ scenarios. No unit the requirement already carries is edited.**
    owed. An enumeration remains lawful and remains OWED where no whole-tree
    digest is recorded — this admits a second form and retires neither the first
    nor any pin carrying it (`contracts/openxwallet-pin.yaml`'s eight `files:`
-   digests are untouched and stay conformant). **And it does not reach a pin the
-   runtime-deployment clause governs**: for a product carrying a schema and
-   ordered migrations that clause stands unmodified, its trusted referent
-   unchanged, and whether a whole-tree digest may discharge the obligation THERE
-   is left unopened rather than answered by implication. *(Raised by Copilot
-   `r4073177274`, which was right that saying the clause is "untouched" did not
-   settle whether the new scope reached the pins it governs. It now does not.)*
+   digests are untouched and stay conformant). **The runtime-deployment clause is
+   untouched, and untouched means its obligations stand in full**: a runtime
+   product's pin still declares the migration range, the reversibility and the
+   runbook, and its prohibition on reading a deployment declaration as permission
+   to skip the digests is preserved exactly — while **the equivalence DOES reach
+   a source-tree pin whether or not its product is a runtime**, because that
+   clause governs what a bump must DECLARE and this one governs which FORM the
+   completeness obligation takes. *(TAKEN TWICE. Copilot `r4073177274` was right
+   that asserting the clause was "untouched" did not settle the scope; the
+   round-1 repair EXCLUDED runtime pins, and `r4073495698` then measured that
+   `contracts/opendox-pin.yaml`:190 carries a `migration:` block AND a whole-tree
+   digest — so the exclusion would have made the very pin this amendment was
+   ruled for non-conformant. `design.md` D3 carries both rounds.)*
    A pin recording NEITHER form has discharged nothing.
 4. **Five scenarios** — the conformant whole-tree pin; the pin carrying BOTH
    forms, refused; the pin recording neither, refused; **the runtime product's
