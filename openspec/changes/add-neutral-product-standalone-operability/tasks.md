@@ -193,6 +193,14 @@ mention in the package is prose.
 - [ ] 7.2 openDox-code has **no `scripts/` directory at all** and one console
   script. Whatever validator it gains is new surface at the code leg, not a
   relocated one.
+- [ ] 7.3 **Three carve-broken defects in `openxdox/snapshot.py` are unclaimed
+  and belong to this box**, registered by the archived packet's § 5.5 residue and
+  owed to *"a follow-up act with its own claim"* that nobody holds: `SCHEMAS_DIR`
+  resolves to an absent directory; `VALIDATOR_RELPATH` names a path openxFactory
+  shed; and **`find_validator`'s parent walk ADOPTS AN ENCLOSING PRE-SHED
+  CHECKOUT** — which is exactly the "reaching into a host tree instead of an
+  injected adapter" class this arc exists to close, appearing a second time.
+  Claim them here or hand them on by name; do not leave them unowned again.
 - [ ] **FALSIFIED BY:** validating a document in an openDox-only checkout returns
   a verdict rather than failing on an unresolvable schema path.
 
@@ -258,7 +266,12 @@ Not this packet's act, and named so the dependency is explicit.
 
 - [ ] 10.1 A `[project.scripts]` entry point for the DOCUMENT surface. Today the
   only console script is `opendox-runtime = "opendox.runtime.cli:main"` — a
-  subsystem, not the product.
+  subsystem, not the product — and there is no `__main__.py` anywhere under
+  `src/`. **RULED Q-R4 already places this work in THIS act** (`#656` comment
+  `5701772032`, Brett Heap, 2026-09-16, recorded at `runtime/cli.py:40-46`): *"the
+  verbs are wired into `opendox.cli` in the BUILD-arc act that repairs
+  `opendox.serve`, and `opendox-runtime` is the spelling until then."* So 10.1
+  follows group 2 and discharges Q-R4's condition.
 - [ ] 10.2 The web bundle is served by that entry point and is reachable in a
   browser from an openDox-only install. openDox-code carries **42** web files,
   self-contained by declaration (`src/opendox/web/index.html`: *"All assets are

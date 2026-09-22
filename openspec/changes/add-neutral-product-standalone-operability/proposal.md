@@ -1,6 +1,6 @@
 ---
-code_surface: openxFactory, openDox-code, openXdox-code and the openDox assembly root — THIS PACKET AUTHORS NO CODE BYTE, and it declares a real one. Landing here is corpus text only: this packet's five files (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml` and ONE `## ADDED` spec delta), one README *Active changes* bullet, and the machine-seeded per-change row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes. The REALIZATION the requirements specify runs post-ratification, in three repositories, and each arm is a named task with its own claim: in `opensoft/openDox-code`, the removal of the two module-level `ideation_dashboard` imports at `src/opendox/serve.py:199,206` and their replacement by the route-extension seam the carve's `design.md` already specifies, a default domain profile so `build_parser()`/`build_server()` start with no host, the resolution of `src/opendox/authoring.py:318`'s `corpus_adapter_openxfactory` reach through the registered adapter, a document validator and a health check over its own documents, a `[project.scripts]` entry point for the document surface, and the removal of its `validate.yml` exclusions; in `opensoft/openXdox-code`, the consumer half of whichever G3 mechanism is ruled plus the `OPENDOX_BACK_IMPORTS` ratchet driven down as each reach closes; in `opensoft/openDox` (the assembly root), one documented start target; and in `openxFactory`, NOTHING BUT the carve-manifest annotations that record each closed reach — no check family, no schema, no corpus document and no `scripts/` module moves, per this packet's first requirement. NOT THIS CHANGE'S SURFACE, and named so no reader infers it: the re-promotion of the 71 requirements the carve's map assigns to openDox is openDox-spec's own act and is tracked as a BLOCKED task here, not authored here; the document surface is NOT rewritten, re-architected or re-scoped; and no pin, gitlink, contract bundle or release tag moves.
-target_release: implementation_pending — the requirements land now and realization runs post-ratification, on the main lines of the four repositories named above, because this packet's whole content is a DIRECTION to reverse and a product entry point to declare, neither of which ratification performs. The archive gate is merged-plus-green realization evidence per `release-realization`: for each requirement, the falsification command named in its `tasks.md` box, run in a checkout holding only the repository under test, quoted with its output. No contract bundle is cut, no bundle number is allocated or reserved, and no release tag is owed — this packet moves no contract byte.
+code_surface: openxFactory, openDox-code, openXdox-code and openDox — (openDox is the assembly root; its leg repositories are named separately because each carries its own arm of the realization.) THIS PACKET AUTHORS NO CODE BYTE, and it declares a real one. Landing here is corpus text only: this packet's five files (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml` and ONE `## ADDED` spec delta), one README *Active changes* bullet, and the machine-seeded per-change row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes. The REALIZATION the requirements specify runs post-ratification, in three repositories, and each arm is a named task with its own claim: in `opensoft/openDox-code`, the removal of the two module-level `ideation_dashboard` imports at `src/opendox/serve.py:199,206` and their replacement by the route-extension seam the carve's `design.md` already specifies, a default domain profile so `build_parser()`/`build_server()` start with no host, the resolution of `src/opendox/authoring.py:318`'s `corpus_adapter_openxfactory` reach through the registered adapter, a document validator and a health check over its own documents, a `[project.scripts]` entry point for the document surface, and the removal of its `validate.yml` exclusions; in `opensoft/openXdox-code`, the consumer half of whichever G3 mechanism is ruled plus the `OPENDOX_BACK_IMPORTS` ratchet driven down as each reach closes; in `opensoft/openDox` (the assembly root), one documented start target; and in `openxFactory`, NOTHING BUT the carve-manifest annotations that record each closed reach — no check family, no schema, no corpus document and no `scripts/` module moves, per this packet's first requirement. NOT THIS CHANGE'S SURFACE, and named so no reader infers it: the re-promotion of the 71 requirements the carve's map assigns to openDox is openDox-spec's own act and is tracked as a BLOCKED task here, not authored here; the document surface is NOT rewritten, re-architected or re-scoped; and no pin, gitlink, contract bundle or release tag moves.
+target_release: implemented — the affected repositories' main lines (openxFactory, openDox-code, openXdox-code, openDox). `implementation_pending` was the honest-looking word and it is NOT in the ratified vocabulary, which admits `implemented`, a release this estate defines, or `deferred-allocation`; the deferral this packet needs is carried by the CODE SURFACE, not by this token. Under `release-realization`'s archive gate a change with a NON-EMPTY code surface "SHALL NOT archive until realization evidence exists: its code merged on the implemented target through the owning domain's engineering gates, and — where the surface is runnable — a green run of that surface", so this packet stays ACTIVE as approved-but-unrealized intent until the arc is built. The evidence is per requirement: the falsification command named in that requirement's `tasks.md` box, run in a checkout holding only the repository under test, quoted with its output. No contract bundle is cut, no bundle number is allocated or reserved, and no release tag is owed — this packet moves no contract byte.
 sequenced_after: []
 ---
 
@@ -41,6 +41,21 @@ and what it is:
 > a new repo, and make some specs, we have no good place to store my projects. I
 > think we need to make this an app that installs and is hosted with a db. we
 > should have users and projects and can expand the feature set."
+
+Six hours later, **DIRECTION Q5** (`#656` comment `5542993375`,
+2026-09-04T15:48Z) gave the standalone test in the owner's own words — and it is
+the sentence this packet exists to satisfy:
+
+> "we want to make openDox useful on its own, it shoudl be able to still manage
+> docs and do brainstorming and connect to notebook lm. it is domain neutral and
+> external from openXfactory. … a student could use openDox or a lab assistant.
+> so we want that to still be useful on its own"
+
+Q5's first layer reads it back as a test a module can be held to: *"openDox must
+be useful alone to a student or a lab assistant … would someone with no notion
+of factories, gates or tenants use it?"* Brett said the same thing again on
+2026-09-06, captured in openXdox-spec PR #3's brainstorm set: *"openDox support a
+complete standalone editing and collaboration workflow -yes."*
 
 **Half of that is built and works. The other half does not import.** openDox-code
 is two products in one repository, and they are in opposite states. Both facts
@@ -207,6 +222,31 @@ does not have is a single promoted requirement, and that is what decides this:
    `dispositions:`. The corpus grammar this packet is validated under is
    adjudicated in openxFactory alone.
 
+**The strongest argument AGAINST this placement, and the answer to it.**
+`docs/opendox-cutover-runbook.md:2027-2031` records **RULED OQ-N**, which names a
+BUILD arc and puts it elsewhere:
+
+> "the CARVE arc is § 3.2–3.4, § 3.7's arrival and § 3.8's `carved_from`
+> bookkeeping; the BUILD arc (§ 3.5's FastAPI + Postgres runtime, § 3.6's
+> repository-creation act) follows, **as openDox-code's own changes under
+> openDox-spec's own OpenSpec instance.**"
+
+Read it precisely and it does not reach this packet. OQ-N names the arc by its
+two boxes — § 3.5 and § 3.6 — and **that arc is finished**: § 3.5 landed as
+openDox-code `#25` → `aca94ecb` and § 3.6 as `#26` → `4f8ae01e`, both on
+2026-09-18, both as openDox-code's own changes exactly as OQ-N directed. The
+runtime it built is the half of openDox that works. **This packet is a different
+arc under the same word** — the dependency inversion and the standalone entry
+point, spanning four repositories and modifying requirements promoted in
+openxFactory's corpus. That the word "BUILD arc" names two things is itself a
+finding, recorded here and in `design.md` § D2 so the next reader is not caught
+by it.
+
+OQ-N's direction is nonetheless honoured, twice over: the code it governs is
+authored in the legs' own repositories, as `tasks.md` groups 2–10 say in terms;
+and requirement 8's third scenario hands governance of openDox back to
+openDox-spec the moment that instance can hold it.
+
 **And the emptiness is not benign — it has already stalled openDox-spec's own
 backlog.** Three of its four active changes carry `## MODIFIED Requirements`
 blocks against `ideation-dashboard`, a spec that does not exist in that
@@ -315,8 +355,11 @@ the other side like an extraction, and this one is not.
   executable code counts, exactly ONE of `scripts/doc_health/`'s 37 Python
   modules is free of openxFactory/OpenSpec identifiers — `lines.py`, 133 lines of
   31,437, or 0.4%. About 13 mix a reusable mechanism with hard-coded corpus
-  identifiers and about 23 are corpus operations by subject. **There is no
-  extractable generic doc-health core.** Requirement 6 is therefore satisfied by
+  identifiers and about 23 are corpus operations by subject. At the granularity
+  that actually matters — the 23 registered check families, each a
+  `fam_<id>(ctx)` entry in `families.FAMILIES` — the tally is **0 pure TOOL, 6
+  BOTH, 17 CORPUS-OPS: there is no pure-tooling check family at all.** **There is
+  no extractable generic doc-health core.** Requirement 6 is therefore satisfied by
   openDox growing its own check over its own declaration, which is new neutral
   code, not a relocated family — and requirement 1 states that as a refusal
   rather than a promise.

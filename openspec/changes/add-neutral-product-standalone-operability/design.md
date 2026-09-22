@@ -48,6 +48,19 @@ matters: a broken instance would be a defect to fix in openDox-spec, whereas an
 empty one is a governance state the carve produced deliberately and has not yet
 left.
 
+**"The BUILD arc" names two different things, and this packet is the second.**
+RULED OQ-N (`docs/opendox-cutover-runbook.md:2027-2031`) puts "the BUILD arc
+(§ 3.5's FastAPI + Postgres runtime, § 3.6's repository-creation act)" in
+openDox-spec's instance — and that arc is DONE, landed as openDox-code `#25` →
+`aca94ecb` and `#26` → `4f8ae01e` on 2026-09-18, in openDox-code exactly as OQ-N
+directed. The OTHER thing the same words name is the one
+`src/opendox/consumer_reach.py` files as *"BUILD-arc work"* that *"does not exist
+yet"* — the dependency inversion — and it is this packet's subject. The two are
+cited by the same section numbers (§ 3.5 / § 3.6) throughout the tree, which is
+why `conftest.py:34-39`, `pyproject.toml:150-154`, `runtime/cli.py:34`,
+`docs/runtime.md:88` and `README.md:39` all say "the BUILD arc" and do not all
+mean the same act. Recording the collision is part of this packet's work.
+
 **The arrangement is designed to end.** Requirement 8's third scenario is the
 exit: *"WHEN the extracted product's instance has promoted the requirements the
 map assigned it → THEN subsequent work scoped to that product is authored in its
@@ -261,7 +274,12 @@ code leg | the implementation and its tests"*. And `README.md`, `AGENTS.md`,
 to edit. So:
 
 - the entry point is a `[project.scripts]` console script at **openDox-code**,
-  beside the existing `opendox-runtime`;
+  beside the existing `opendox-runtime` — and **this is already ruled**, not this
+  packet's preference. `runtime/cli.py:40-46` records RULED Q-R4 (`#656` comment
+  `5701772032`, Brett Heap, 2026-09-16, by interactive multi-choice): *"the verbs
+  are wired into `opendox.cli` in the BUILD-arc act that repairs `opendox.serve`,
+  and `opendox-runtime` is the spelling until then."* This packet IS the act that
+  repairs `opendox.serve`, so Q-R4's condition is met here;
 - the assembly root **documents** it in `README.md` and points at it;
 - the root `Makefile` is not touched.
 
@@ -289,9 +307,39 @@ openXdox-code: `generator.py` (974 lines, `generate_snapshot`), `snapshot.py`
 `completeness.py` (548) and `corpus_root.py` (101) — **3,164 lines over five
 modules**, reached back from openDox late-bound through `consumer_reach.py`.
 
-It is there by ruling, not by accident. **RULING C2** refuses placing
-openxFactory's vocabulary in the neutral layer; the promoted
-`domain-mapping-declaration` spec states the refusal and its reason:
+**It is there by a ratified DESIGN READING, not by a ruling that names it — and
+that distinction is why this is a question rather than an amendment.** DIRECTION
+Q5 says so itself, in its own last paragraph:
+
+> "The per-module assignment is therefore design work under this test, carried by
+> the brainstorm set and the staging topic, **not ruled here module by module**."
+
+The generator's home was then settled as design, in three places that agree: the
+carve proposal's `code_surface` (*"the domain-mapping core PARAMETERIZED by a
+domain profile (RULING C2): the corpus-adapter IMPLEMENTATION and projection
+mechanism (`corpus_root`, `generator`, `snapshot`, `snapshot_registry`,
+`register`, `completeness`, `round_trip`)"*), the carve `design.md`'s module
+assignment, and the 102-row per-requirement map, where all 8 requirements of the
+*projection and snapshot* cluster read as openXdox. **So the thing that would
+move is a design reading inside a ratified map, not a ruling's text** — and no
+option below rewrites RULING C2's words.
+
+What C2 DOES bind is the vocabulary, and it binds it in both directions.
+**RULING C2** (`#656` comment `5544370242`, 2026-09-04T17:47Z), verbatim:
+
+> "**openXdox is the domain-mapping core, parameterized.** It holds what every
+> domain factory shares — typed artifact kinds, a governed lifecycle engine
+> (statuses, gates, roles, evidence) and the dispatch/apply lane —
+> **parameterized by a domain profile that a descendant supplies.** Engineering
+> vocabulary ("requirement", "OpenSpec change", the doc-health check families)
+> belongs to the engineering descendant `codexDox`, or stays in openxFactory as
+> its own adapter over the corpus-adapter interface; a clinician using `MedxDox`
+> never sees the word "requirement"."
+
+Note what that sentence already says: the core is **parameterized by a domain
+profile**. Option (c) below is not an invention — it is C2's own construction,
+applied one layer up. And the promoted `domain-mapping-declaration` spec states
+the refusal and its reason:
 
 > "**WHEN** `openxFactory`'s nine-word `Status:` taxonomy, its change/spec/delta
 > nouns or its doc-health families are placed in the neutral layer rather than in
@@ -327,11 +375,11 @@ refuses and Q5 was given to prevent.
 openDox generates immediately and the arc closes fastest. But openxFactory's
 artifact model — `openspec/changes/`, `proposal.md`, `tasks.md`,
 `.openspec.yaml`, `ideation/staging/` — lands in the neutral core, which is
-precisely the placement RULING C2 refuses. It requires AMENDING C2 and accepting
-Q5's named failure: MedxDox and codexDox inherit a core that speaks
-openxFactory's nouns, and each forks it. **Cost: low engineering, high
-governance — a ratified ruling is amended and the descendant story is the one Q5
-exists to prevent.**
+precisely the placement RULING C2 refuses. It does not rewrite C2's TEXT — nothing does — but it
+contradicts C2's PRINCIPLE and accepts Q5's named failure: MedxDox and codexDox
+inherit a core that speaks openxFactory's nouns, and each forks it. **Cost: low
+engineering, high governance — a ratified principle is set aside and the
+descendant story becomes the one Q5 exists to prevent.**
 
 **(b) Build the protocol injection: openDox declares a generator protocol,
 openXdox implements it.**
@@ -353,8 +401,12 @@ KINDS and LIFECYCLE axes; openXdox supplies openxFactory's declaration and keeps
 its corpus adapter; openDox ships a declaration for its own domain — documents
 and ideas — and generates over it with no consumer installed.
 
-This is not a new mechanism. It is the mechanism `domain-mapping-declaration`
-was promoted to provide, in its own words: *"the neutral layer SHALL be
+This is not a new mechanism. **RULING C2's own sentence describes it** — *"the
+domain-mapping core, parameterized … parameterized by a domain profile that a
+descendant supplies"* — and option (c) applies that construction one layer up, so
+that the NEUTRAL core is parameterized too and openXdox supplies openxFactory's
+declaration as a descendant supplies its profile. It is also the mechanism
+`domain-mapping-declaration` was promoted to provide, in its own words: *"the neutral layer SHALL be
 parameterized by it rather than shipping any one domain's words"*, with the five
 axes named — artifact kinds, lifecycle vocabulary, acts and gates, evidence
 classes, promoting authorities. A generator's `proposal.md` / `tasks.md` /
