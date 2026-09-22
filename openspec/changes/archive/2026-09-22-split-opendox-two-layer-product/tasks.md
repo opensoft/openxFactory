@@ -5710,7 +5710,82 @@ realization evidence, never on landing. Each line is its own evidence.
   rather than quietly re-stated, since a total that moves and a result that does
   not is exactly the distinction this line needs to make.)*
   `#656` records: CLAIM `5690461589`; evidence `5690559647`.
-- [x] 8.9 `python3 -m pytest tests/doc-health tests/sequenced_after -q` green,
+- [~] 8.9 **DEFERRED 2026-09-22, AT THE ARCHIVE — OPEN, OWNED, AND NOT CLAIMED.**
+  **Owner: this lane, with clause (2)'s blocker owned by lane `openxfactory-1` for
+  `add-chain-attestation` (`#656` comment `5767267092`) and, behind it, by
+  whichever act retires the ratified disposition at
+  `contracts/openspec-cli-pin.yaml`:489-510.**
+  **RULED — 2026-09-22T14:33:02Z by Brett Heap, interactive, by multi-choice
+  (`#656` comment `5778397686`), over the holder's read-only measurement at
+  `#656` comment `5778300335`: CLAUSE (2) READS LITERALLY.** It names the RAW
+  command `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`, and that
+  command **exits 1**. So this box does not tick, and it takes the reserved
+  `[~]` — the same form §§ 5.6 and 8.4 take, and **the contingency this packet's
+  own archive amendment named in advance** rather than one invented at the gate.
+  **ONLY CLAUSE (2) DEFERS. CLAUSES (1) AND (3) ARE DISCHARGED AND THEIR MEASURED
+  RECORDS STAND BELOW, UNCHANGED** — the pytest pair, identical BEFORE and AFTER,
+  and the doc-health BASE→HEAD record in both scopes with every finding that
+  entered, left or changed severity named. **A box that defers on one clause does
+  not erase the two it met**, and the marker is a statement about the box rather
+  than about each of its clauses.
+  **WHY THE RAW COMMAND CANNOT BE GREEN TODAY — NAMED IN THE BOX, so the next
+  reader meets the REASON and not the red.** Its one failure is
+  `change/add-chain-attestation`, ANOTHER change's MODIFIED block, and that
+  finding carries a **LIVE, CITED, BRETT-RATIFIED disposition** at
+  `contracts/openspec-cli-pin.yaml`:**489-510** — the `finding:` quoted verbatim
+  from the tool's own JSON report, `ratified_by: 'Brett Heap, 2026-09-05, "take
+  exit 2"'` (**:505**), and `retires_when:` **`add-chain-attestation` archives**,
+  which that entry itself records **cannot be soon** and is therefore
+  *"expected to be long-lived"* (**:506-510**).
+  **THE ROW EXISTS BECAUSE THE PINNED CLI IS MARKER-BLIND TO THIS CORPUS'S OWN
+  PROMOTED GRAMMAR.** The scenario the tool reports as dropped is **RENAMED AND
+  RE-CONDITIONED, not dropped**, and the rename is declared in the block itself
+  with the reserved ``**Merged into `<title>` by <change-id> (<date>):**``
+  marker — **promoted canon** at `openspec/specs/doc-health/spec.md`:**1770-1777**,
+  the requirement's two written forms, the `Merged into` one at **:1772**, which
+  is the citation the ratified row itself gives (`cited_to`, `:501`).
+  `@fission-ai/openspec@1.12.0` compares scenario TITLE SETS and cannot read that
+  declaration, and the CLI is **CONSUMED, never vendored or patched**. Restoring
+  the old title to satisfy the tool would reinstate the very permission council
+  **LA-A1** was raised to close — so the red is not a defect to repair but a
+  grammar the tool cannot see.
+  **SO THE DEFERRAL IS JOINT UNSATISFIABILITY — THE SAME SHAPE RULED R-B NAMED AT
+  §§ 5.6 AND 8.4**, arrived at from the other direction: the clause requires a raw
+  tool green, the corpus requires a grammar that tool cannot read, and a ratified
+  row records the collision. **The clause cannot be discharged while that row
+  stands**, and the row retires on an event no act of this packet's controls.
+  **WHAT IS DELIBERATELY NOT CLAIMED HERE.** The corpus's ENFORCED corpus-wide
+  gate is `openspec-cli-pin-gate`, whose sole step is
+  `python3 scripts/validate-openspec-cli-pin.py --all --no-cache` — the consumer
+  entrypoint that runs strict validation through the pinned CLI and reconciles its
+  JSON against those `dispositions:`, refusing separately as `pin-disposition-stale`
+  when a row matches nothing. **That gate is green, and was green throughout —
+  RE-MEASURED HERE rather than taken from the report that carried it**: run at
+  this pull request's own head it **exits 0**, over the SAME 107-passed /
+  1-failed of 108, and it says in terms what it is doing —
+  *"DISPOSITIONED FINDINGS in openxFactory (1 applied) — this run is NOT a clean
+  tree"*, then *"every target validated --strict with 0 UNDISPOSITIONED failures.
+  THIS IS NOT A CLEAN TREE: 1 finding(s) are ACCEPTED EXCEPTIONS, named above"*,
+  printing `accepted by: Brett Heap, 2026-09-05, "take exit 2"` beside the
+  finding. **The two commands disagree about nothing**: one counts FAILURES and
+  the other counts UNDISPOSITIONED failures, and clause (2) names the first.
+  It is on the record as a MEASUREMENT (`5778300335`, re-derived here) and **NOT
+  as a discharge**,
+  because reading clause (2) as *"the corpus's validation gate is green"* is a
+  reading of RATIFIED TEXT, and the ruling took the literal one instead.
+  *(Both readings are written here for the same reason this packet keeps every
+  superseded reading: the one that was REJECTED is what makes the one that was
+  taken legible, and a later reader who finds the gate green needs to know that
+  this was seen, put, and decided against.)*
+  **WHICH CONTINGENCY WAS TAKEN, AND BY WHOM — this box's own text required the
+  archiving act to say so, and this is the saying.** The **`[~]` DEFERRED
+  contingency**, re-cut by the **bookkeeper**, the only actor that may edit this
+  file, after the **rehome-lander** measured the AFTER as **exit 1** and refused
+  to fill a red under a tick. **Nothing false is claimed and no ratified text is
+  edited.**
+  **THE BOX'S RATIFIED TEXT AND ITS WHOLE STATUS CHAIN FOLLOW UNCHANGED**, on this
+  packet's no-deletion rule: what this re-cut moves is the marker and the opening.
+  `python3 -m pytest tests/doc-health tests/sequenced_after -q` green,
   `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health
   run whose severity counts move by the amount **the archive pull request RECORDS
   AND EXPLAINS**.
@@ -6067,10 +6142,15 @@ realization evidence, never on landing. Each line is its own evidence.
   self-gate run sees NONE of them — `promotion_fidelity.py`:736-740. A BEFORE run
   in one scope and an AFTER run in the other would manufacture a delta out of
   nothing but the flag.)*
-  **TICKED AT THE ARCHIVE, 2026-09-22, BY THE ARCHIVE AMENDMENT — on the archive
-  pull request's OWN BASE→HEAD pair, which is the form this box's own text fixes
-  and NOT a pair chosen after seeing the run.** Three clauses, three evidence
-  lines, each measured by the archiving act at the tree it names:
+  **MEASURED AT THE ARCHIVE, 2026-09-22 — on the archive pull request's OWN
+  BASE→HEAD pair, which is the form this box's own text fixes and NOT a pair
+  chosen after seeing the run.** Three clauses, three evidence lines, each
+  measured by the archiving act at the tree it names:
+  *(This header read "TICKED AT THE ARCHIVE … BY THE ARCHIVE AMENDMENT" until the
+  RULING at `#656` `5778397686`. **Not one measurement below moved** — only the
+  word that claimed a discharge did. Clauses (1) and (3) ARE discharged by these
+  records; clause (2) is not, and the marker at the head of this box is now
+  `[~]`.)*
   **(1) `python3 -m pytest tests/doc-health tests/sequenced_after -q`** —
   **BEFORE at the base `cd246a01` and AFTER at this pull request's head are
   IDENTICAL — `1 failed, 2185 passed, 8 skipped` — so the archive adds ZERO test
@@ -6110,6 +6190,13 @@ realization evidence, never on landing. Each line is its own evidence.
   `67 [x] / 0 [ ] / 5 [~] of 72`. The rehome-lander does not flip a marker it
   does not own, and states the condition here rather than filling a red under a
   tick and saying nothing.
+  **AND THAT IS WHAT HAPPENED — the condition FIRED and the re-cut is made.**
+  `add-chain-attestation` was not folded, Brett Heap ruled the clause LITERAL
+  (`#656` `5778397686`), and the bookkeeper re-cut this box to `[~]`; (xi) now
+  reads `67 [x] / 0 [ ] / 5 [~] of 72`. *(Marked here rather than left standing as
+  a future condition beneath its own resolution — the defect this packet caught
+  twice at §§ 5.1 and 4.2 and wrote a rule about: a fold that resolves a condition
+  must mark every paragraph that schedules it, in the same act as the fold.)*
   **(3) the doc-health BEFORE→AFTER record, per family and per severity with
   `info` included, and a named reason for every finding that ENTERED, LEFT or
   CHANGED SEVERITY** — **BASELINE FIXED AND PUBLISHED BEFORE THE AFTER RUN** (`brett-wip`
@@ -6169,14 +6256,34 @@ realization evidence, never on landing. Each line is its own evidence.
   **If the measured AFTER is not exit 0, this box does NOT tick**: it takes the
   same reserved `[~]` and DEFERRED sentence §§ 5.6 and 8.4 take, and the
   archiving act records which of the two it took and why.
+  **THE CONDITION FIRED AND THE CONTINGENCY IS TAKEN — RULED `5778397686`,
+  2026-09-22.** The AFTER is **exit 1** (107 passed, 1 failed of 108 at this
+  pull request's head; 106 of 107 at its base `cd246a01`), the failure is
+  `add-chain-attestation`'s, and the box's head carries the `[~]`, the `Owner:`
+  line and the WHY. **The clause this paragraph wrote is the clause that decided
+  it** — which is the whole point of fixing a form before knowing the numbers.
   *(Written INTO the box rather than only into the archive pull request, because a
   tick whose condition is stated somewhere else is a tick a later reader cannot
   check — which is the defect R-6 already corrected once in this box.)*
   **(xi) THE FILE'S OWN FINAL COUNT, so the next reader need not recount 72
-  boxes**: after this amendment the ledger reads **68 `[x]` / 0 `[ ]` / 4 `[~]`
-  of 72** — §§ **5.6, 7.3, 7.4 and 8.4** hold the reserved DEFERRED marker and
+  boxes**: the ledger reads **67 `[x]` / 0 `[ ]` / 5 `[~]` of 72** — §§ **5.6,
+  7.3, 7.4, 8.4 and 8.9** hold the reserved DEFERRED marker and
   **no column-0 `- [ ]` remains**, which is the condition
   `scripts/proposal-support.py` refuses an archive on. Row (ix) above is KEPT as
   the dated measurement it is — seven such lines at the pre-stage — and is not
   renumbered: a figure bound to a moment is evidence, and this row is the same
   count taken at a later one.
+  **THIS ROW WAS RE-CUT FROM `68 / 0 / 4` ON RULED `5778397686`, AND THE
+  CONTINGENCY IT RECORDS IS THE ONE § 8.9 TOOK**: clause (2) reads literally, the
+  raw `openspec validate --all --strict` exits 1 on another change's finding held
+  by a live Brett-ratified disposition, and § 8.9 therefore joins §§ 5.6 and 8.4
+  in the reserved DEFERRED form instead of ticking. **The fifth `[~]` is the
+  archive amendment's own named contingency, exercised — not a marker invented at
+  the gate**, and the count moves by one box in one direction: a tick that was
+  never earned becomes a deferral that says who owns it.
+  *(Five deferrals and no ticked falsehood is the shape this packet argued for
+  from § 5.6 onward. `scripts/proposal-support.py` refuses on `^- \[ \]` at
+  column zero and on nothing else, so the archive is admitted by the SAME rule
+  under either count — which is precisely why the choice between `[x]` and `[~]`
+  had to be decided on truth rather than on whether it would let the packet
+  through.)*
