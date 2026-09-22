@@ -99,8 +99,12 @@ rule needs in order not to be read wider or narrower than it is:
    a correct gate and an undischargeable record of it.
 2. **A narrowed claim is not reached.** A record naming the validation of ONE
    change says something about that change; only a whole-corpus claim asserts
-   the adjudicated verdict, and only a whole-corpus run can be reconciled
-   against the dispositions at all.
+   the adjudicated verdict. A narrowed run **still applies** the dispositions it
+   matches — canon says so at `openspec/specs/neutral-product-pin/spec.md`:602-604
+   — and what it cannot do is decide STALENESS. *(An earlier draft said such a
+   run could not be reconciled against the dispositions "at all", which
+   contradicted that ratified sentence. Caught by Copilot `r4073184083`; the
+   restriction is now scoped to staleness, which is what canon restricts.)*
 3. **Ratified and archived text is not edited by this requirement.** An archived
    record is frozen and a ratified clause is amended only by its own instrument.
    The remedy for an existing box is the one its own packet provides — the

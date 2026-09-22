@@ -23,7 +23,7 @@ leans on it.
 ## ADDED Requirements
 
 ### Requirement: A claim of corpus-wide OpenSpec validation names the adjudicated entrypoint, never the raw tool
-A GATE STEP, TASK BOX, CHECKLIST ITEM OR EVIDENCE RECORD that asserts CORPUS-WIDE OpenSpec validation SHALL name the consuming repository's `consumer_entrypoint:` invocation — for `openxFactory`, `scripts/validate-openspec-cli-pin.py --all` — and SHALL NOT name the raw `openspec validate --all --strict`.
+A GATE STEP, TASK BOX, CHECKLIST ITEM, RUNBOOK STEP, REVIEW RECORD, AGENT INSTRUCTION OR OTHER EVIDENCE RECORD that asserts CORPUS-WIDE OpenSpec validation SHALL name the consuming repository's `consumer_entrypoint:` invocation — for `openxFactory`, `scripts/validate-openspec-cli-pin.py --all` — and SHALL NOT name the raw `openspec validate --all --strict`.
 
 THE TWO COMMANDS ARE NOT TWO ROUTES TO ONE VERDICT, and this is the whole
 reason. The pinned CLI is a FOREIGN JUDGMENT about a LOCAL corpus. Where the two
@@ -54,8 +54,11 @@ the raw command, has a correct gate and an undischargeable record of it.
 A NARROWED CLAIM IS NOT A CORPUS-WIDE ONE and is not reached by this
 requirement. A record naming the validation of ONE change states something about
 that change; only a claim about the WHOLE corpus asserts the adjudicated gate's
-verdict, and only a whole-corpus run can be reconciled against the dispositions
-at all.
+verdict. A narrowed run STILL APPLIES the dispositions it matches — the
+requirement that governs them says so — and what it cannot do is decide
+STALENESS, because "this finding no longer occurs" is a claim about the whole
+corpus. Its green is therefore evidence about the items it opened and never an
+audit of the list.
 
 WHERE A LITERAL RAW INVOCATION IS ALREADY WRITTEN INTO RATIFIED OR ARCHIVED TEXT
 IT IS NOT EDITED BY THIS REQUIREMENT. An archived packet's record is frozen and a
@@ -77,7 +80,7 @@ governs what is WRITTEN NEXT.
 #### Scenario: A reader asks whether naming the wrapper lowers the bar
 - **WHEN** it is objected that naming the entrypoint substitutes a suppressor for a check
 - **THEN** the objection is answered by the entrypoint's own refusals: a finding no in-scope disposition covers FAILS the run, and a disposition matched by no finding in a whole-corpus scan REFUSES it as stale
-- **AND** those are the standing properties of *A dispositioned finding is cited, upgrade-coupled, and refused when stale* rather than new tolerances, so the adjudicated verdict is strictly more informative than the raw one and never more permissive
+- **AND** those are the standing properties of *A dispositioned finding is cited, upgrade-coupled, and refused when stale* rather than new tolerances, so the adjudicated verdict is strictly MORE INFORMATIVE than the raw one, and more permissive in EXACTLY ONE respect and no other — the findings this corpus has itself NAMED, CITED AND RATIFIED against, which is the whole purpose of the mechanism and not a leak in it
 
 #### Scenario: A record names the validation of one change
 - **WHEN** an evidence line records that a single named change validated strictly

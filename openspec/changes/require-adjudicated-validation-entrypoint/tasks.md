@@ -80,22 +80,31 @@ not this packet. § 4 (archive) stays entirely open.
       ambient `openspec archive` — which is this requirement's own doctrine
       applied to its own promotion.
 
-## 5. Residue — named, not swept
+## 5. Residue — named, not swept, and carrying the reserved DEFERRED marker
 
-- [ ] 5.1 **NO CHECKER IS PROPOSED, AND THE MEASUREMENT THAT WOULD JUSTIFY ONE IS
+**WHY `[~]` AND NOT `- [ ]`.** Every item here is work this packet will NEVER do,
+so a literal `- [ ]` would be a box that can only ever be ticked falsely — and
+`archive_change()` refuses an archive on any literal `- [ ]` anywhere in this
+file (`scripts/proposal-support.py`:4633, `re.search(r"^- \[ \]", ...)` →
+`"change has incomplete tasks"`). The reserved DEFERRED marker is the house form
+for exactly this, and it is the same contingency RULED `5778397686` put § 8.9
+into. **§§ 1 and 4 keep `- [ ]` deliberately**: those WILL be ticked, by the
+ratifying and archiving acts. *(Raised by Copilot `r4073184032`.)*
+
+- [~] 5.1 **NO CHECKER IS PROPOSED, AND THE MEASUREMENT THAT WOULD JUSTIFY ONE IS
       NOT TAKEN** (`design.md` D4). A successor that wants a
       `scripts/validate-*.py` sibling owes two readings first: how many live,
       non-archived assertions the rule reaches, and whether a mechanical reader
       can tell an ASSERTION of a green corpus from a CITATION of this defect —
       this packet's own files contain the raw command as quoted text, and so
       would every future record about it.
-- [ ] 5.2 **THE EXISTING OCCURRENCES ARE NOT SWEPT.** Non-archived task boxes,
+- [~] 5.2 **THE EXISTING OCCURRENCES ARE NOT SWEPT.** Non-archived task boxes,
       plans, quickstarts and evidence lines elsewhere in the corpus name the raw
       command. Archived records are frozen and ratified text is amended only by
       its own instrument, so this packet edits none of them and the requirement
       says so in its own body. Whether any LIVE box needs the same `[~]` remedy
       § 8.9 took is a reading for the packet that owns it.
-- [ ] 5.3 **THE UPSTREAM FIX IS REGISTERED, NEVER PROPOSED** (`design.md` D5).
+- [~] 5.3 **THE UPSTREAM FIX IS REGISTERED, NEVER PROPOSED** (`design.md` D5).
       The CLI is consumed and never vendored (`package:
       "@fission-ai/openspec"`, `source_repository: Fission-AI/OpenSpec`); the
       pin is `1.12.0` and `1.13.1` is published upstream. A bump is a

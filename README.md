@@ -541,7 +541,8 @@ Active changes:
   [`5778397686`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5778397686)).
   **ONE `## ADDED` requirement, five scenarios; no existing requirement is
   modified and the disposition mechanism is not touched.** A gate step, task
-  box, checklist item or evidence record asserting CORPUS-WIDE OpenSpec
+  box, checklist item, runbook step, review record, agent instruction or other
+  evidence record asserting CORPUS-WIDE OpenSpec
   validation SHALL name the repository's `consumer_entrypoint:` invocation —
   `scripts/validate-openspec-cli-pin.py --all` — and SHALL NOT name the raw
   `openspec validate --all --strict`. **The two commands are not two routes to
