@@ -1,0 +1,229 @@
+# Tasks: add-neutral-product-standalone-operability
+
+Status: draft
+
+Dependency-ordered. **Group 1 is the authoring THIS change performs and it
+touches no code.** Groups 2-11 are the post-ratification realization, one group
+per requirement, each in the repository named in its heading and each carrying
+the FALSIFICATION COMMAND that closes it — the command is the archive gate's
+evidence under `release-realization`, run in a checkout holding only the
+repository under test and quoted with its output.
+
+House rule: OpenSpec ratifies, Speckit builds. No group below is started before
+ratification, no group is started without its own claim on
+`opensoft/openxFactory#656` per lane-collision-protocol Rule 1, and this change
+merges nothing anywhere.
+
+Baselines, measured on `openxFactory` `main` `4f92d651` before this packet:
+`OPENSPEC_TELEMETRY=0 openspec validate --all --strict` -> `Totals: 109 passed,
+1 failed (110 items)`; `python3 scripts/validate-openspec-cli-pin.py --all
+--no-cache` -> exit 0, `0 UNDISPOSITIONED failures`, 1 accepted exception
+(`add-chain-attestation`, ratified disposition). This packet must add +1 item,
++1 passed and ZERO new failures.
+
+## Group 1 — Authoring (THIS change; no code byte)
+
+- [x] 1.1 Author `.openspec.yaml` — ad-hoc origin, the drafting-provenance shape
+  with NO approval pair (`add-drafted-proposal-origin`), naming the archived
+  packet's unclosed residue as the origin.
+- [x] 1.2 Author `proposal.md`: the owner's goal in his own words from `#656`;
+  the two-products measurement; the repository-choice FINDING; the G-to-
+  requirement table; the explicit "what openxFactory keeps" section; honest
+  `code_surface:` / `target_release:` front-matter.
+- [x] 1.3 Author the `## ADDED Requirements` delta creating
+  `neutral-product-standalone-operability` — 10 requirements, 30 scenarios,
+  domain-neutral, openDox as the measured instance.
+- [x] 1.4 Author `design.md`: D1-D7 and **Q-G3**, the one question put to Brett
+  with three options, the measured cost of each and a recommendation.
+- [ ] 1.5 `OPENSPEC_TELEMETRY=0 openspec validate add-neutral-product-standalone-operability --strict`
+  and `--all --strict` pass with no NEW failure against the baseline above.
+- [ ] 1.6 `python3 scripts/proposal-support.py . verify add-neutral-product-standalone-operability`
+  passes; the `tests/sequenced_after/corpus-ledger.yaml` row is machine-seeded
+  (`scripts/validate-sequenced-after.py --seed-ledger --moved-by … --moved-on …`),
+  and the README "OpenSpec Records" *Active changes* bullet is added.
+- [ ] 1.7 **RULING Q-G3.** Human-gated, Brett Heap. `design.md` § Q-G3 carries the
+  three options and the recommendation (c). Nothing in group 5 starts until it is
+  answered; every other group is actionable without it.
+- [ ] 1.8 On ratification: `Status: ratified` + `Ratified by:` on all three
+  lifecycle documents; `## Ratification record` in `proposal.md`; the approval
+  pair ADDED beside the fixed origin in `.openspec.yaml`, never substituted.
+
+## Group 2 — Requirement 2 / G1: imports with no consumer, publisher or host (openDox-code)
+
+The highest-leverage box: TWO import statements, 1,232 of 1,298 measured errors
+at `f8a1ece`, zero passed. An AST census of `src/` finds exactly two import-time
+reaches (`serve.py:199`, `serve.py:206`) and two deferred ones; every other
+mention in the package is prose.
+
+- [ ] 2.1 Remove the module-level `from ideation_dashboard import
+  serve_openxfactory_lanes` (`src/opendox/serve.py:199`) and the
+  `from ideation_dashboard.serve_openxfactory_lanes import (…)` re-export block
+  (`:206`). The five names (`ACTIONS_APPLY_REGISTER_EDITS_ROUTE`,
+  `ACTIONS_DTN_SEED_ROUTE`, `ACTIONS_REFRESH_ROUTE`,
+  `ACTIONS_STAGING_SEED_ROUTE`, `COMMITTED_INTENTS_ROUTE`) belong to
+  openxFactory's lanes surface, filed `stays_openxfactory_adapter`. All five are
+  plain route strings (`"/committed-intents.json"`, `"/actions/refresh"`,
+  `"/actions/apply-register-edits"`, `"/actions/dtn-seed"`,
+  `"/actions/staging-seed"`).
+- [ ] 2.1a **DO NOT VENDOR the module.**
+  `scripts/ideation_dashboard/serve_openxfactory_lanes.py` itself imports
+  `from openxdox import snapshot_registry` (`:70`) and
+  `from openxdox.serve_projection import hosted_ref_refused` (`:77`), so copying
+  it into openDox re-creates the consumer dependency BUILD slice 2b removed.
+- [ ] 2.2 Contribute those routes through the EXISTING seam —
+  `serve.build_server(route_extensions=)` / `route_extension.RouteBinding` — from
+  openxFactory's side, per the carve `design.md`'s own specification. No new
+  mechanism is designed here.
+- [ ] 2.3 Sweep every remaining module-level reach: grep `src/` for
+  `ideation_dashboard`, `corpus_adapter_openxfactory`, `doc_health` and
+  `openxdox` at import position, and close or defer each with a recorded reason.
+- [ ] 2.4 Add a test in openDox-code's own suite that imports EVERY module of the
+  package in a checkout with no sibling installed, failing with the name of the
+  first module that still needs one.
+- [ ] 2.5 Remove `validate.yml`'s three `--noconftest` steps and their enumerated
+  file lists; the suite collects whole. Today they run **31 of 53** test modules
+  and 22 are collected by no required command. The autouse fixture that produces
+  the 1,298 setup errors is `tests/session_fixtures.py:413`, whose body is
+  `from opendox import cli as cli_mod`.
+- [ ] 2.6 Correct openDox-code's `README.md:39-42`, which still gives the
+  narrowing's reason as *"Until the BUILD arc … inverts the openDox → openXdox
+  dependency"*. That dependency IS inverted at import time; the live cause is
+  `ideation_dashboard`.
+- [ ] **FALSIFIED BY:** in a checkout of openDox-code alone,
+  `python -c "import opendox.serve"`, `python -c "import opendox.cli"` and
+  `python -c "import opendox.notebook_action"` each exit 0. Today all three raise
+  `ModuleNotFoundError: No module named 'ideation_dashboard'`.
+
+## Group 3 — Requirement 3 / G2: a default domain profile (openDox-code)
+
+- [ ] 3.0 **RATIFICATION READ FIRST.** Requirement 3 revisits the PREMISE of RULED
+  ASK-2 option (2) (`#656` comment `5628886636`) — not its reasoning. An EMPTY
+  default stays refused; what changes is the refusal text's premise that *"openDox
+  … ships no profile of its own"*. If the ratification read takes ASK-2 to
+  foreclose this, requirement 3 is struck and the other nine stand. See
+  `design.md` § D5.
+- [ ] 3.1 Ship a default profile for openDox's OWN domain — documents and ideas —
+  carrying none of openxFactory's status taxonomy or change/spec/delta nouns
+  (RULING C2, DIRECTION Q5). Note the standalone problem this closes: the only
+  host that exists, openxFactory's `scripts/opendox_host.py`, builds a composite
+  whose base class is `openxdox.domain_profile.DomainProfile`, so today's only
+  real profile needs BOTH siblings present.
+- [ ] 3.2 `build_parser()` and `build_server()` fall back to it when no host has
+  called `domain_profile.register()`, and a registered profile still replaces it.
+  `profile_proxy.py`'s refusal is kept for the case it was written for — an
+  ambiguous registration — and is NOT weakened into an empty tuple.
+- [ ] 3.3 Record in the carve manifest that the `deleted_at_carve` row for
+  `profile_openxfactory.py` is UNCHANGED by this: openxFactory's profile stays
+  deleted from the core and `scripts/opendox_host.py` remains openxFactory's host.
+- [ ] **FALSIFIED BY:** in a checkout of openDox-code alone, building the parser
+  and the server in a process where nothing has registered a profile succeeds,
+  and registering one still overrides it.
+
+## Group 4 — Requirement 5 / G4: the deferred reach resolves through the seam (openDox-code)
+
+- [ ] 4.1 Replace `src/opendox/authoring.py:318`'s
+  `from corpus_adapter_openxfactory import home_corpus` with a resolution of the
+  REGISTERED corpus adapter through openDox's own `corpus_adapter` seam.
+- [ ] 4.2 Where no adapter is registered, refuse naming the seam and the remedy —
+  never a `ModuleNotFoundError` raised from inside a function.
+- [ ] 4.3 Sweep the nineteen deferred reaches the ratchet declares today
+  (`branch_session.py` 7, `serve_workbench.py` 7, `serve.py` 2,
+  `serve_project.py` 2, `cli.py` 1) and classify each: resolvable through a
+  declared seam, or genuinely owed to the consumer and therefore staying
+  late-bound with its reason. The import-time column is already `0` — do not
+  re-do it.
+- [ ] **FALSIFIED BY:** calling openDox's authoring verb in a checkout with no
+  `corpus_adapter_openxfactory` on the path returns a result through a registered
+  adapter, or refuses naming the seam. Today `import opendox.authoring` exits 0
+  and the failure waits for the call.
+
+## Group 5 — Requirement 4 / G3: openDox generates its own snapshot (BLOCKED on ruling 1.7)
+
+- [ ] 5.1 **AUDIT FIRST, BEFORE ANY CODE MOVES.** Classify each corpus-shaped site
+  in `generator.py` (974), `snapshot.py` (223), `snapshot_registry.py` (1,318),
+  `completeness.py` (548) and `corpus_root.py` (101) as (i) a PATH literal
+  re-expressible as a declared artifact kind, or (ii) reasoning about what an
+  openxFactory artifact MEANS. Record the count of each. `design.md` § Q-G3 names
+  this as the finding that would overturn the recommendation.
+- [ ] 5.2 Realize the mechanism Brett rules — (a) move as-is, (b) protocol
+  injection, or (c) move parameterized by a domain mapping declaration.
+- [ ] 5.3 Whichever is ruled: openXdox keeps its corpus adapter and its
+  declaration, and continues contributing its routes and subcommands through the
+  existing seams. The consumer loses no capability.
+- [ ] **FALSIFIED BY:** in a checkout of openDox-code alone, pointed at a
+  directory of plain documents carrying none of openxFactory's governance
+  vocabulary, a snapshot is generated and names no openxFactory noun.
+
+## Group 6 — Requirement 6 / G5: a health check over openDox's own documents (openDox-code)
+
+- [ ] 6.1 Confirm by measurement which of openxFactory's doc-health modules are
+  generic traversal and which are corpus operations, and relocate the generic
+  part into a module both sides depend on BEFORE either side moves —
+  `corpus-adapter-seam`'s relocation rule applied inside a module.
+- [ ] 6.2 openDox carries a health check over its own documents, reading its own
+  declaration. **No openxFactory check family moves** (requirement 1).
+- [ ] **FALSIFIED BY:** running openDox's health check over a directory of its own
+  documents in an openDox-only checkout produces a report.
+
+## Group 7 — Requirement 7 / G6: a validator openDox can run (openDox-code)
+
+- [ ] 7.1 Resolve the three-way schema split so one checkout carries the set
+  openDox's validator reads; schemas openxFactory OWNS arrive by the declared pin
+  and are read from the pinned checkout, never by a sibling path literal.
+- [ ] **FALSIFIED BY:** validating a document in an openDox-only checkout returns
+  a verdict rather than failing on an unresolvable schema path.
+
+## Group 8 — Requirement 8 / G7: openDox-spec governs openDox (openDox-spec) — BLOCKED
+
+Not this packet's act, and named so the dependency is explicit.
+
+- [ ] 8.1 openDox-spec promotes the requirements the carve's ratified
+  per-requirement map assigns to openDox (the map's split: **71 openDox / 16
+  openXdox / 15 openxFactory**; the 16 were carried into openXdox by the carve's
+  § 6.1 and § 6.5 closures, and the 15 were re-promoted here by
+  `repromote-engineering-vocabulary` under RULING DQ-1 — only openDox's 71 have
+  no home).
+- [ ] 8.2 On that landing, requirement 8's third scenario fires and work scoped to
+  openDox is authored in openDox-spec. This packet's interim arrangement ends.
+- [ ] **FALSIFIED BY:** `OPENSPEC_TELEMETRY=0 openspec list --specs` in openDox-spec
+  returns the promoted set. Today it returns `No specs found.`
+
+## Group 9 — Requirement 9 / G8: each leg's suite green alone (both legs)
+
+- [ ] 9.1 openDox-code's required check runs the whole suite, no `--noconftest`,
+  no file list (follows group 2).
+- [ ] 9.2 openXdox-code the same, with `OPENDOX_BACK_IMPORTS` lowered as each
+  deferred reach closes. The import-time column is ALREADY zero and stays there.
+- [ ] 9.2a **Add the missing instrument.** No gate watches the openDox →
+  openxFactory direction — the ratchet measures openDox → openXdox only, which is
+  how two import-time reaches into the publisher survived a completed inversion
+  under a green check. Requirement 2's third scenario is that instrument.
+- [ ] 9.3 Behaviours needing both legs become declared INTEGRATION tests naming
+  the pin they compose at, rather than being dropped from both suites — including
+  the assembled `--help` tree neither leg produces alone.
+- [ ] **FALSIFIED BY:** each leg's full suite runs green in its own checkout with
+  no sibling present, and the exclusion list in each `validate.yml` is empty.
+
+## Group 10 — Requirement 10 / G9, G10: one entry point (openDox-code + openDox root)
+
+- [ ] 10.1 A `[project.scripts]` entry point for the DOCUMENT surface. Today the
+  only console script is `opendox-runtime = "opendox.runtime.cli:main"` — a
+  subsystem, not the product.
+- [ ] 10.2 The web bundle is served by that entry point and is reachable in a
+  browser from an openDox-only install.
+- [ ] 10.3 The assembly root gains ONE documented start target; its bootstrap,
+  validate and pin targets stay what they are and are not offered as the entry
+  point.
+- [ ] **FALSIFIED BY:** a reader installs openDox alone, runs the single command
+  its README documents, and reaches the running product in a browser.
+
+## Group 11 — Requirement 1: the guard holds (openxFactory)
+
+- [ ] 11.1 At the close of the arc, a diff of openxFactory across every group
+  shows: no `scripts/doc_health/` family moved, no `openspec/specs/` capability
+  removed, no corpus document moved, no intent-plane schema moved, and no
+  integration test moved. The only openxFactory edits are carve-manifest row
+  annotations recording each closed reach.
+- [ ] **FALSIFIED BY:** `git diff <arc-base>..<arc-tip>` over `openxFactory`
+  touches nothing outside `docs/opendox-carve-manifest.yaml`, `openspec/` records
+  and this packet.

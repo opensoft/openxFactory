@@ -1,0 +1,75 @@
+schema: spec-driven
+created: 2026-09-22
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-22-add-neutral-product-standalone-operability
+  reason: >-
+    THE ORIGIN IS THE ARCHIVED PACKET'S OWN UNCLOSED RESIDUE, plus the owner's
+    question of 2026-09-22. `split-opendox-two-layer-product` archived
+    2026-09-22 (#1139 -> `e8fde27f`) at 67 [x] / 0 [ ] / 5 [~] of 72, and its
+    own `tasks.md` records what did not close: the governance ledger closed
+    and the DEPENDENCY INVERSION did not. openDox-code's
+    `src/opendox/consumer_reach.py` names the remedy in the tree - "the
+    injection that would make this reach disappear does not exist yet and is
+    BUILD-arc work". This packet is that arc's opening and nothing else.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`. The organized source is the
+    RESIDUE of a ratified, archived packet plus rulings on an issue - the
+    founding ruling on `#656` (Brett Heap, 2026-09-04), RULING C2, DIRECTION
+    Q5, RULING DQ-1 (`#656` comment `5547049745`) and RULING OQ-B - not an
+    `ideation/staging/` topic folder. No staging topic holds this subject, and
+    declaring one would name a source that does not resolve.
+    WHY IT IS FILED HERE AND NOT IN openDox-spec, WHICH IS ITSELF A FINDING.
+    openDox-spec's instance is OPERABLE - `openspec validate --all --strict`
+    exits 0 there over four changes - so the brief's default did not fire and
+    the choice needed an argument. It is EMPTY: `openspec/specs/` is a
+    `.gitkeep`, `openspec/changes/archive/` is a `.gitkeep`, and `openspec
+    list --specs` answers "No specs found." The CLI refuses what this arc
+    needs on openDox-spec's own changes already - "target spec does not exist;
+    only ADDED requirements are allowed for new specs. MODIFIED and RENAMED
+    operations require an existing spec." The requirements this arc discharges
+    against (`corpus-adapter-seam`, `domain-mapping-declaration`,
+    `release-realization`) are promoted HERE; the artifacts it binds
+    (`ideation_dashboard`, `corpus_adapter_openxfactory`,
+    `scripts/opendox_host.py`, `docs/opendox-carve-manifest.yaml`) are
+    openxFactory's; and openDox-spec's own `openspec/project.md` limits it to
+    "this leg's scope only". That openDox cannot yet govern its own BUILD arc
+    is carried as requirement 8, whose third scenario ENDS this arrangement
+    once openDox-spec promotes its assigned 71.
+    WHAT THE PACKET PROPOSES. ONE `## ADDED Requirements` block creating the
+    capability `neutral-product-standalone-operability` - ten requirements,
+    thirty scenarios, written domain-neutrally with openDox as the measured
+    instance, one per gap of the 2026-09-22 feature/gap sweep (G1-G10), each
+    separately satisfiable and each falsifiable by a command named in
+    `tasks.md`.
+    WHAT IT DOES NOT PROPOSE. No code byte. No rewrite of the document
+    surface. No doc-health check family moves, no corpus document moves, no
+    `openspec/specs/` capability is modified or removed, and no pin, gitlink,
+    contract bundle or release tag moves. It does not re-promote openDox's 71
+    requirements - that is openDox-spec's act, carried here as a BLOCKED task.
+    And it does NOT decide where the snapshot generator lives - `design.md`
+    Q-G3 puts that to Brett as a named question with three options, the
+    measured cost of each and a recommendation, and requirement 4 is written
+    to the OUTCOME so it is satisfied by whichever mechanism is ruled.
+    FILING IS NOT RATIFYING. All three lifecycle documents carry `Status:
+    draft`, no approval pair is declared, and nothing here admits text to
+    canon.
+  proposed_by: >-
+    Lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`),
+    session `faabad8b`, actor `buildarc`, on the holder's brief of 2026-09-22
+    directing ONE proposal that opens the BUILD arc, as a DRAFT pull request
+    for Brett Heap's ratification. The actor changed no code in any repository
+    and landed nothing.
+    NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED. `approved_by` and
+    `approved_on` are ABSENT, which is the lawful unapproved shape
+    `add-drafted-proposal-origin` admits - drafting provenance, no approval -
+    and the three lifecycle documents carry `Status: draft` to match.
+    THE DECISIONS MOST WORTH A VETO are D1 (a NEW capability rather than a
+    MODIFIED `corpus-adapter-seam`, because the seam already forbids the reach
+    and what is missing is the positive property), D2 (filing in openxFactory
+    rather than openDox-spec, with the exit condition written into requirement
+    8's third scenario so the arrangement is self-limiting), D5 (a default
+    domain profile for openDox's OWN domain does not re-own the composition
+    point the carve deleted) and Q-G3's recommendation (c), whose own
+    refutation condition is stated in `design.md` and is the FIRST task of
+    group 5, before any code moves.
+  proposed_on: 2026-09-22
