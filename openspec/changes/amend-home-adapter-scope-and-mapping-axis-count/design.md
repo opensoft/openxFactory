@@ -168,11 +168,26 @@ would forbid the one thing that ruling kept it here for.
 
 **What is still owed OF the home adapter is stated rather than dropped**, and it
 is the half of the one-way rule that has real content here: it depends on the
-pinned interface it implements, and that interface depends on nothing of this
-repository's. That is measurable today —
-`tests/corpus-adapter/test_interface_closure.py` already holds the interface
-closed against both the reader package and the implementation — and the added
-scenario says so.
+interface it implements, and that interface depends on nothing of this
+repository's. **That is measured today, and by a test that names requirement 1
+itself.** `tests/corpus-adapter/test_no_privileged_route.py`:155,
+`test_the_interface_imports_neither_reader_package_nor_the_implementation`, scans
+`scripts/corpus_adapter.py` — the in-tree interface module, provisional under
+RULING Q4 and carried to openDox with the carve — and refuses any import of
+`doc_health`, `ideation_dashboard` or the implementation package, with the
+assertion message *"an implementation depends on the interface, never the reverse
+(requirement 1)"*. The adapter's own side is the mirror of it: all five of its
+interface imports name the PINNED leg, `from opendox.corpus_adapter import …`
+(`adapter.py:75`, `check.py:54`, `classify.py:51`, `home.py:72`, `shape.py:44`).
+The added scenario states what those two facts already hold.
+
+*(A correction folded in before this reached anyone downstream: the first
+drafting of this paragraph, and my reply on the thread, cited
+`test_interface_closure.py`. That file tests a different property — that the
+interface is CLOSED at six operations and the home adapter offers no seventh,
+which is requirement 4's second scenario. The direction test is the one named
+above, and it is the stronger citation, because it names requirement 1 in its own
+failure message.)*
 
 **And the exception is bounded once more:** it does NOT reach the relocation rule
 that follows. That rule is about EXTRACTION and binds the home adapter exactly as
