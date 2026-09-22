@@ -323,7 +323,19 @@ def bytecode_out_of_the_legs() -> None:
     # stray symlink in somebody's checkout.
     home = str(BYTECODE_HOME)
     if inside_a_pinned_mount(home):
-        home = tempfile.mkdtemp(prefix="openxfactory-bytecode-")
+        # AND THE FRESH DIRECTORY IS CREATED SOMEWHERE THIS RUN HAS CHECKED
+        # (Copilot, PR #1132 round 6). `mkdtemp()` honours `TMPDIR`, so an
+        # inherited temp directory inside — or symlinked into — a pinned
+        # mount would put the last resort in the pin, unchecked. The PARENT
+        # is chosen first and only then written in: the temp directory when
+        # it is outside every mount, and otherwise the repository root,
+        # which CONTAINS the mounts and so cannot be inside one. A child
+        # `mkdtemp()` creates there is a real directory and not a symlink,
+        # so a parent that resolves outside the pins has children that do.
+        parent = tempfile.gettempdir()
+        if inside_a_pinned_mount(parent):
+            parent = str(ROOT)
+        home = tempfile.mkdtemp(prefix="openxfactory-bytecode-", dir=parent)
     sys.pycache_prefix = home
 
 #: How many lines of the unified diff a `equivalence-digests-differ` prints

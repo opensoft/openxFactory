@@ -404,8 +404,18 @@ def _bytecode_out_of_the_legs() -> None:
     precedent one file over: an ambient variable that would weaken a guarantee
     is overridden, not made into a required gate's refusal.
 
-    Idempotent, and called from `install()`, which `module()` calls in turn,
-    so every route this repository has into the legs passes through it.
+    Idempotent, and called from `install()`, which `module()` calls in turn
+    — so every route THROUGH THIS MODULE passes through it, which is not the
+    same as every route into a leg and must not be written as though it
+    were (Copilot, PR #1132 round 6, on a sentence that said the second).
+    MEASURED, by this act, and it is why the snapshot-equivalence sweep
+    still passes over unreachable bytecode rather than counting on emptiness:
+    `scripts/corpus_adapter_openxfactory/` puts `openDox/code/src` on
+    `sys.path` itself and imports `opendox.corpus_adapter` without coming
+    through here at all (RULED OQ-Q, `#872`). What this function guarantees
+    is that no importer REACHING THROUGH `carved_reach` reads or writes
+    bytecode inside a pinned mount; a direct importer is registered for a
+    successor act, not silently covered by this docstring.
     """
     chosen = sys.pycache_prefix
     if chosen is not None and not _inside_a_pinned_mount(chosen):
@@ -420,7 +430,19 @@ def _bytecode_out_of_the_legs() -> None:
     # symlink in one checkout must not become an ImportError in all of them.
     home = str(BYTECODE_HOME)
     if _inside_a_pinned_mount(home):
-        home = tempfile.mkdtemp(prefix="openxfactory-bytecode-")
+        # AND THE FRESH DIRECTORY IS CREATED SOMEWHERE THIS RUN HAS CHECKED
+        # (Copilot, PR #1132 round 6). `mkdtemp()` honours `TMPDIR`, so an
+        # inherited temp directory inside — or symlinked into — a pinned
+        # mount would put the last resort in the pin, unchecked. The PARENT
+        # is chosen first and only then written in: the temp directory when
+        # it is outside every mount, and otherwise the repository root,
+        # which CONTAINS the mounts and so cannot be inside one. A child
+        # `mkdtemp()` creates there is a real directory and not a symlink,
+        # so a parent that resolves outside the pins has children that do.
+        parent = tempfile.gettempdir()
+        if _inside_a_pinned_mount(parent):
+            parent = str(REPO_ROOT)
+        home = tempfile.mkdtemp(prefix="openxfactory-bytecode-", dir=parent)
     sys.pycache_prefix = home
 
 

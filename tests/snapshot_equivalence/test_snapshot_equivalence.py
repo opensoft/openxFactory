@@ -53,6 +53,7 @@ import signal
 import subprocess
 import sys
 import tarfile
+import tempfile
 import time
 import types
 from pathlib import Path
@@ -2014,6 +2015,56 @@ def test_the_reach_survives_a_cyclic_prefix_rather_than_raising(tmp_path):
     assert done.returncode == 0, done.stderr
     assert "RuntimeError" not in done.stderr, done.stderr
     assert done.stdout.strip() == str(carved_reach.BYTECODE_HOME)
+
+
+def test_a_tmpdir_inside_a_pin_does_not_capture_the_fallback(
+        monkeypatch, tmp_path):
+    """`mkdtemp()` HONOURS `TMPDIR` (Copilot, PR #1132 round 6), so an
+    inherited temp directory inside a pinned mount would have put the last
+    resort in the pin — unchecked, since the fallback was created and then
+    assigned. The parent is chosen before anything is written: the temp
+    directory when it is outside every mount, and otherwise the repository
+    root, which CONTAINS the mounts and therefore cannot be inside one.
+
+    `tempfile.tempdir` and not `TMPDIR`, and the difference is measured:
+    `gettempdir()` MEMOISES into `tempfile.tempdir` the first time anything
+    in the process calls it, so setting the environment variable afterwards
+    changes nothing — a probe written that way passes against code that
+    never looked."""
+    inside = MODULE.pinned_mounts()[0] / "code" / "src"
+    monkeypatch.setattr(tempfile, "tempdir", str(inside))
+    monkeypatch.setattr(MODULE, "BYTECODE_HOME",
+                        MODULE.pinned_mounts()[0] / ".pycache")
+    monkeypatch.setattr(sys, "pycache_prefix", None)
+    MODULE.bytecode_out_of_the_legs()
+    landed = Path(sys.pycache_prefix)
+    assert not MODULE.inside_a_pinned_mount(str(landed)), landed
+    assert landed.is_dir()
+    assert landed.parent == MODULE.ROOT, landed
+    shutil.rmtree(landed, ignore_errors=True)
+
+
+def test_the_guarantee_names_the_importers_it_actually_covers():
+    """A DOCSTRING THAT SAID `every route this repository has into the legs`
+    was FALSE, and this act had already measured it false (Copilot, PR #1132
+    round 6). `scripts/corpus_adapter_openxfactory/` puts `openDox/code/src`
+    on `sys.path` itself and imports `opendox.corpus_adapter` without going
+    through `carved_reach` at all (RULED OQ-Q, `#872`) — which is exactly
+    why the sweep passes over unreachable bytecode rather than counting on
+    the legs being empty. The claim is narrowed to what it can support, and
+    this test fails if the measurement it rests on ever stops being true."""
+    import carved_reach
+
+    adapter = (REPO_ROOT / "scripts" / "corpus_adapter_openxfactory"
+               / "adapter.py")
+    source = adapter.read_text(encoding="utf-8")
+    assert "openDox" in source and '"code" / "src"' in source, (
+        "the direct reach this docstring is narrowed for has moved")
+    assert "carved_reach" not in source, (
+        "the direct importer now goes through the reach — widen the claim")
+    doc = carved_reach._bytecode_out_of_the_legs.__doc__
+    assert "every route this repository has into the legs" not in doc
+    assert "THROUGH THIS MODULE" in doc
 
 
 def test_the_pins_and_the_mounts_a_cache_is_kept_out_of_are_the_same_set():
