@@ -1,0 +1,73 @@
+schema: spec-driven
+created: 2026-09-22
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-22-assert-review-lane-lockstep-against-aggregation
+  reason: >-
+    A DECLARED CROSS-REPOSITORY FACT THAT NOTHING MEASURES, IN A FILE THIS
+    REPOSITORY'S OWN HOURLY LANE MAY ADVANCE. `contracts/review-lane-pin.yaml`
+    declares at `lockstep.status` whether this repository's pinned decision core
+    and the aggregation's `MIGRATION_PIN` name one commit. Copilot raised it on
+    `#1136` (finding `r4067694104`, review `5273295522`), the lane VERIFIED the
+    premise and DECLINED the remedy as outside that pull request's mandate
+    (`r4067703286`), and the flip's own appended `reason:` paragraph recorded the
+    remedy's SHAPE as option (b) — "make the CROSS-REPOSITORY fact assertable at
+    all — nothing today reads xFactory's three surfaces and compares them to this
+    value … (b) is the better fix, because (a) still leaves this file's truth
+    depending on a lane remembering to write it. Both are OpenSpec-class acts on
+    a realized capability, which is exactly why neither rides here."
+    THE HAZARD IS MEASURED AND IT IS LIVE. On `main` `2e222d98`: `WRITABLE_PATHS`
+    is four files and within the pin file the lane rewrites only regex-anchored
+    sites (`core_commit`, `floor_snapshot.sha256`, `floor_snapshot.entry_count`);
+    the string `lockstep` occurs ZERO times in `scripts/review_lane_repin.py`;
+    and `opensoft/xFactory`, `MIGRATION_PIN` and `council-convening` together
+    return ZERO HITS across `scripts/review_lane_repin.py` and
+    `.github/workflows/review-lane-repin.yml`. The guarding test asserts the
+    field against a LITERAL in the test file, so it compares this repository's
+    value to this repository's own constant and can never see the other
+    repository. It last went false on 2026-09-18 for 34 minutes 6 seconds
+    (`#1122` -> `38f826c2` 20:53:37-04:00, repaired by `#1123` -> `8184d74a`
+    21:27:43-04:00, both first-parent on main) — bounded by a human happening to
+    watch, and by nothing else. AND `#1138` IS OPEN RIGHT NOW, not a draft, with
+    platform auto-merge armed, proposing `core_commit` `b21f0100` -> `491fc54d`
+    in a four-file diff whose lockstep/converged/diverged line count is ZERO.
+    WHY THE ASSERTION RATHER THAN A WIDENED WRITE, AND IT IS A MEASUREMENT.
+    The lane has no reading of the aggregation, so under shape (a) it could only
+    write `diverged` by INFERENCE from "MIGRATION_PIN does not move on a routine
+    advance" — an inference this estate has already falsified: at the fourth
+    ceremony (xFactory `#475` -> `c88d1fdd`) the aggregation converged ONTO a
+    commit this file had been pinned to for three days, so an advance landing
+    where the aggregation already is leaves the pair CONVERGED. The capability
+    has already ruled on this, one requirement over: "an UNATTENDED author must
+    prove the lockstep by measurement rather than assert it."
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was grepped on 2026-09-22 for `lockstep`,
+    `review-lane-pin` and `repin`. Two files match and NEITHER proposes this
+    rule: `ideation/staging/INDEX.md` is the topic inventory, and
+    `ideation/staging/wallet-carried-work-authority/` is about wallet-carried
+    review authority. The organized source is the Copilot finding, the lane's
+    registration of it, and the remedy shape the ceremony actor recorded in the
+    pin file.
+  proposed_by: >-
+    Lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), actor
+    `successor2`. NOTHING HERE IS RATIFIED BY THE AUTHORING LANE; it goes to
+    Brett Heap for his word. THE DECISIONS THIS PACKET REACHES ARE DECLARED FOR A
+    VETO in `design.md`: D1 (shape (b), the assertion, rather than shape (a), the
+    widened write — decided by the measurement that the lane has no reading of
+    the aggregation, so (a) would install an assertion inside a capability that
+    forbids one), D2 (the check runs at every proposed advance and its pull
+    request, rather than as a nightly or a scheduled sweep, so the report lands
+    in the same pull request that falsifies the claim), D3 (`## ADDED` and no
+    `## MODIFIED`, because the hazard is in the GAP between the automated advance
+    and a field no requirement obliges anyone to measure, not in any promoted
+    requirement's text), and D4 (an unreadable aggregation is UNDETERMINED and
+    never a pass, following this estate's own fail-closed doctrine rather than
+    reddening a gate on another repository's availability). Each is separable and
+    each carries its own veto cost.
+  proposed_on: 2026-09-22
+related:
+  - openxFactory:pr:1136                                    # The lockstep flip (merge 7c49825e) whose Copilot finding r4067694104 this encodes, and whose reason: paragraph recorded the remedy shape as option (b)
+  - openxFactory:pr:1138                                    # OPEN, auto-merge armed, proposing core_commit b21f0100 -> 491fc54d with zero lockstep lines in its diff. The live reproduction, not a hypothetical
+  - openxFactory:pr:1122                                    # The 2026-09-18 routine advance (merge 38f826c2) that last made the declaration false, repaired by hand 34 minutes later at #1123 -> 8184d74a
+  - openxFactory:change:mirror-floor-regeneration-automation # ARCHIVED 2026-09-10. Realized the repin lane this requirement is written over; declared by sequenced_after:
+  - xFactory:pr:475                                         # The fourth re-point ceremony, merge c88d1fdd, whose G5 after-check at comment 5769610282 is the behavioural evidence converged rests on

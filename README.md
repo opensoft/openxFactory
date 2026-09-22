@@ -532,6 +532,40 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [assert-review-lane-lockstep-against-aggregation](openspec/changes/assert-review-lane-lockstep-against-aggregation/proposal.md)
+  — filed 2026-09-22, lane `openxfactory-4`, **`Status: draft`**, on Copilot
+  finding `r4067694104` (review `5273295522`) against `#1136`, the lockstep flip
+  at the fourth re-point ceremony (merge `7c49825e`). The lane VERIFIED that
+  finding and DECLINED the remedy as outside that pull request's mandate
+  (`r4067703286`), and the flip's own appended `reason:` paragraph recorded the
+  remedy's shape as option **(b)** — *"make the CROSS-REPOSITORY fact assertable
+  at all … (b) is the better fix, because (a) still leaves this file's truth
+  depending on a lane remembering to write it"*. **ONE `## ADDED` requirement,
+  four scenarios, no `## MODIFIED` block.** `contracts/review-lane-pin.yaml`
+  DECLARES at `lockstep.status` whether this repository's pinned decision core
+  and the aggregation's `MIGRATION_PIN` name one commit, and nothing measures the
+  claim: `WRITABLE_PATHS` is four files, the lane rewrites only regex-anchored
+  sites within the pin, the string `lockstep` occurs ZERO times in
+  `scripts/review_lane_repin.py`, and `opensoft/xFactory`, `MIGRATION_PIN` and
+  `council-convening` together return ZERO hits across the driver and its
+  workflow — while the guarding test asserts the field against a LITERAL in the
+  test file, comparing this repository's value to its own constant. It last went
+  false on 2026-09-18 for **34 minutes 6 seconds** (`#1122` → `38f826c2`,
+  repaired at `#1123` → `8184d74a`), bounded by a human happening to watch; and
+  `#1138` is OPEN with auto-merge armed proposing `core_commit`
+  `b21f0100` → `491fc54d` in a diff whose lockstep line count is ZERO. The
+  requirement makes the state MEASURED rather than declared, at every proposed
+  advance, symmetric in both directions, with an unreadable aggregation reported
+  UNDETERMINED and never as a pass. **Shape (b) and not (a), by measurement**:
+  the lane has no reading of the aggregation, so it could only write `diverged`
+  by inference — an inference the fourth ceremony already falsified, since the
+  aggregation converged ONTO a commit this file had held for three days — and the
+  capability itself already holds that *"an UNATTENDED author must prove the
+  lockstep by measurement rather than assert it"*. The disposition mechanism is
+  untouched, the pin file is not hand-patched, `WRITABLE_PATHS` gains no member
+  and no act in `opensoft/xFactory` is proposed. `code_surface: openxFactory`, so
+  it archives on merged **plus** green realization evidence. **NOT RATIFIED BY
+  THE AUTHORING LANE.**
 - [amend-neutral-product-pin-source-tree-digest](openspec/changes/amend-neutral-product-pin-source-tree-digest/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-22,
   Brett Heap, *"ratify #1140 and #1141"*, `#656` comment `5779511063`, at head

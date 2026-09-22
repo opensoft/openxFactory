@@ -1,0 +1,115 @@
+# Tasks: assert-review-lane-lockstep-against-aggregation
+
+Status: draft
+Kind: tasks
+
+## 1. Ratification
+
+- [ ] 1.1 Brett Heap's word on the requirement. **THE QUESTION IS WHICH SHAPE,
+  NOT WHETHER** — the premise was verified by the lane on `#1136` and the pin
+  file's own `reason:` paragraph records both remedies. This packet takes (b),
+  the assertion, on the measurement at `design.md` D1: the lane has no reading of
+  the aggregation, so under (a) it could only write `diverged` by inference, and
+  that inference is already falsified by the fourth ceremony. (a) remains
+  available and is not forbidden by this requirement.
+- [ ] 1.2 On the word: `Status: ratified` + `Ratified:` in `proposal.md`,
+  `Ratified by:` in `design.md` and this file, the `approved_by`/`approved_on`
+  pair in `.openspec.yaml` (`scripts/doc_health/proposal_origin.py` REQUIRES the
+  pair the moment the status claims approval), a record under `review/`, and the
+  README Records row moved with it.
+
+## 2. The delta
+
+- [x] 2.1 `specs/review-lane-floor-mirror/spec.md` — ONE `## ADDED` requirement,
+  four scenarios. The declared cross-repository lockstep state is MEASURED
+  against the aggregation's own surfaces; the check runs at least at every
+  proposed advance and its pull request; the read lives in the workflow and the
+  comparison is a pure function; the check is SYMMETRIC; an unreadable
+  aggregation is UNDETERMINED and never a pass; the declaration is not removed
+  but becomes the subject of the measurement.
+- [x] 2.2 No `## MODIFIED` block and no pairing marker — `design.md` D3. Three
+  active changes carry deltas on this capability and none names this requirement
+  or is named by it.
+
+## 3. Measurement (each re-runnable, each taken on `main` `2e222d98`)
+
+- [x] 3.1 `contracts/review-lane-pin.yaml`:714 declares `status: converged`;
+  `core_commit`:60 is `b21f0100…`.
+- [x] 3.2 `opensoft/xFactory` `main`: `merge-master-approval.yml`:152,
+  `council-convening-lane.yml`:308 and `tests/test_merge_master_workflows.py`'s
+  `MIGRATION_PIN`:72 all three return `b21f0100…`. Four sites, one commit — the
+  declaration is TRUE today.
+- [x] 3.3 `WRITABLE_PATHS` (`review_lane_repin.py`:196-197) is four files; within
+  the pin file the lane rewrites only the regex-anchored `core_commit`,
+  `floor_snapshot.sha256` and `floor_snapshot.entry_count`.
+- [x] 3.4 `grep -c lockstep scripts/review_lane_repin.py` -> **0**.
+- [x] 3.5 `grep -nE "opensoft/xFactory|MIGRATION_PIN|council-convening"
+  scripts/review_lane_repin.py .github/workflows/review-lane-repin.yml` -> **no
+  output**, and `MIGRATION_PIN` appears in no file under `scripts/` or
+  `.github/workflows/`. **BEWARE THE SUBSTRING**: a bare `grep -c xFactory` on
+  those two files answers 13 and 32, and every hit is `openxFactory`. The
+  measurement above is the one that means anything.
+- [x] 3.6 The guarding test asserts the field against a LITERAL in the test file
+  (`test_the_pin_records_its_lockstep_state_with_the_aggregation_pin`), so it
+  compares this repository's value to this repository's own constant.
+- [x] 3.7 The 2026-09-18 false-`converged` window: `#1122` -> `38f826c2`
+  (2026-09-18T20:53:37-04:00) to `#1123` -> `8184d74a` (21:27:43-04:00) =
+  **34 minutes 6 seconds**, both first-parent on `main`.
+- [x] 3.8 THE LIVE REPRODUCTION: `#1138` OPEN, not a draft, auto-merge armed,
+  `core_commit` `b21f0100` -> `491fc54d`, four files, and
+  `git diff main...bot/review-lane-repin | grep -cE "^[-+].*(lockstep|converged|diverged)"`
+  -> **0**.
+
+## 4. Gate
+
+- [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate assert-review-lane-lockstep-against-aggregation --strict`.
+- [x] 4.2 `validate-code-surface.py`, `validate-target-release.py`,
+  `validate-sequenced-after.py`.
+- [ ] 4.3 Required checks green at the head, Copilot review at the exact head
+  read for its "Suppressed comments" block, every thread resolved.
+- [ ] 4.4 The ledger row seeded with `--moved-by` once the pull request has a
+  number.
+
+## 5. Realization, and it is NOT taken by this packet
+
+The code surface is declared, not written. `release-realization` therefore holds
+this packet's archive until merged PLUS green realization evidence.
+
+- [ ] 5.1 The workflow read: `.github/workflows/review-lane-repin.yml` obtains
+  the aggregation's three surfaces beside the source repository it already reads,
+  and hands the values on as inputs.
+- [ ] 5.2 The comparison: `scripts/review_lane_repin.py` gains a pure function
+  over the declared state, `core_commit` and the surfaces' values, reaching no
+  network, returning the four outcomes the scenarios name.
+- [ ] 5.3 The proof: `tests/review_lane_pin/` gains a fixture for each — stale
+  `converged`, stale `diverged`, unreadable aggregation, pure-function
+  reproduction. **Each written to FAIL against the pre-fix reader and pass after**,
+  so the regression is proved rather than asserted.
+- [ ] 5.4 ONE real observation of the check running against a proposed advance,
+  which is the half that cannot be manufactured.
+
+## 6. Registered, not taken
+
+- [~] 6.1 The `obligation:` field's clause *"Advance this pin only at such a
+  ceremony"* is still in tension with the hourly lane, and the pin file says so:
+  *"Narrowing that clause is the ratifier's act, not this diff's."* **Still true,
+  and a DIFFERENT act.** This packet makes the state measurable, which is what
+  lets that clause be narrowed on evidence rather than on argument. Not narrowed
+  here.
+- [~] 6.2 `converged_with:` names TWO surfaces and gains no third entry for the
+  `MIGRATION_PIN` constant. The check reads all three (`design.md` D5), but
+  promoting the constant to a converged-with member is the pin owner's call and
+  the field has been through three cycles without it.
+- [~] 6.3 The pin file's `reason:` narrative says a false status *"survives in
+  EITHER direction until a human notices, and why 2026-09-18's took eleven
+  days."* **This packet does not repeat that figure and does not correct it.**
+  Measured here, the false-`converged` window on 2026-09-18 was 34 minutes 6
+  seconds (§ 3.7); the eleven days is the interval between the 2026-09-10 and
+  2026-09-21 convergences, which is a different quantity. The field is append-only
+  and its dated paragraphs are records; correcting one is neither this packet's
+  act nor its subject. Registered so the next reader of that sentence finds the
+  arithmetic already done.
+- [~] 6.4 `#1138` is not this packet's to land, hold or amend. It is cited as the
+  live reproduction and nothing here asks for an act on it.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
