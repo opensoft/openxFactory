@@ -149,4 +149,11 @@ gate. It is re-runnable from the front matter's own commands.
   `5273796676` registered three; `5777949892` answers the `neutral-product-pin`
   per-file one. `corpus-adapter-seam` and `domain-mapping-declaration` stay as
   ratified, registered for a successor.
-- **It ratifies nothing.** `tasks.md` § 1 is open.
+- **It does not ARCHIVE, and archiving is the act that would promote it.**
+  `tasks.md` § 4 is entirely open and promotion is a separate word.
+  *(This line read "It ratifies nothing; `tasks.md` § 1 is open" until
+  ratification was given on 2026-09-22 — true when written, and corrected rather
+  than left to contradict the `Ratified by:` header four lines above it. Caught
+  by Copilot `r4073798745` against the sibling packet and applied here for the
+  same reason. **§ 1.3 is still open, but as an ASK** — re-ratification at the
+  current head — not as an unperformed ratification.)*

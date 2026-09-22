@@ -14,9 +14,13 @@ list rather than on merged-plus-green realization evidence. **The "realization"
 of a wording amendment IS its promotion at archive.**
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box is a diff in this pull
-request or a measurement recorded verbatim in its body. § 1 is OPEN: the word
-that commissioned this amendment is not the word that ratifies the packet, and
-that second act is Brett Heap's. § 4 (archive) stays entirely open.
+request or a measurement recorded verbatim in its body. **§ 1 IS COMPLETE**:
+ratification was given 2026-09-22 and the word that commissioned this amendment
+(`5777949892`) and the word that ratified the packet (`5779511063`) are two
+separate acts, both Brett Heap's. **§ 1.3 REMAINS OPEN AND IS AN ASK, NOT AN
+OMISSION** — the ratified baseline `ca47e2cb` is not the current head, and
+re-ratification is registered as owed. **§ 4 (archive) stays entirely open**:
+ratification authorizes realization and does not perform it.
 
 ## 1. Ratification — GIVEN 2026-09-22, at head `ca47e2cb`
 
