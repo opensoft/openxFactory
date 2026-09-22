@@ -2,7 +2,7 @@
 
 Status: draft
 
-This document carries the decisions behind the eleven requirements, the ONE
+This document carries the decisions behind the sixteen requirements, the ONE
 question this packet refuses to decide, and the measurements each rests on.
 Every measurement is a command a reader can re-run; where a number is quoted,
 the command that produced it is beside it.
@@ -31,7 +31,7 @@ The id was chosen to be READ correctly by someone who has not read this packet:
 ids, and "standalone operability" names the property without naming openDox, so
 that openXwallet and any future neutral product inherit it. Rejected: `add-opendox-build-arc`
 (names an actor's work plan, not a property, and dies when the arc closes),
-`invert-opendox-consumer-dependency` (names one of eleven requirements),
+`invert-opendox-consumer-dependency` (names one of sixteen requirements),
 `add-standalone-product-contract` ("contract" is already overloaded in this
 corpus by `contracts/`).
 
@@ -72,7 +72,7 @@ under which it can.
 ## D3 — Why the gaps are REQUIREMENTS and not merely tasks
 
 A gap list is an actor's inventory; it expires when the actor stops. Ten
-requirements with thirty-seven scenarios are a standing property of any neutral
+requirements with sixty-seven scenarios are a standing property of any neutral
 product this repository pins, and they outlive the arc. The concrete openDox
 work is in `tasks.md`, one box per requirement, each naming the falsification
 command — so the requirement states the property, the task states the act, and
@@ -362,19 +362,31 @@ So the arc does not invent a seam here any more than it did for the generator. I
 supplies the missing NEUTRAL IMPLEMENTATION and stops the default binding naming
 a platform.
 
-### The invariant — WITHDRAWN FROM THE DELTA, PENDING THE OPERATOR
+### The invariant — RULED 2026-09-22T21:06:01Z, and deliberately REVERSED in part
 
 An earlier draft of requirement 11 carried the absence below as binding text and
-refused any merging implementation in a fifth scenario. **Both were removed
-before this packet was pushed**, on Brett Heap's question of 2026-09-22: *"if we
-are going to have openDox be standalone, then it will need to merge documents."*
-The requirement is now explicitly silent on landing authority, the two readings
-are set out in `proposal.md` § "OPEN — MERGE AUTHORITY IN A STANDALONE INSTALL",
-and **this packet records no recommendation between them** — it is the operator's
-to decide.
+refused any merging implementation in a scenario. It was withdrawn while the
+question was open, and **RULED on 2026-09-22T21:06:01Z** (`#656` comment
+[`5784155201`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784155201),
+verbatim *"bundled postgres, local identity yes, merge yes, health in db"*):
+**merge authority follows whoever governs the repository.** The hold is released
+and requirement 11 now carries the rule and its three guardrails.
 
-The reason the absence is worth this care, and the text it is stated in
-(`session_pr.py:17-23`):
+**What the ruling keeps and what it drops, stated precisely.** The absence was
+never really about merging; it was SEPARATION OF DUTIES. That reading is kept
+wherever a governance exists outside the tool — a governed host RESERVES landing
+and routes it to that governance's own instrument, so openxFactory's flow is
+untouched. What is dropped is the LETTER of the prohibition exactly where the
+user IS the governance: forbidding a standalone owner to merge their own
+repository protects nobody from anybody, and the student the founding ruling
+describes would be left unable to finish their own work. The purpose survives —
+**no tool merging behind its governance's back** — and the three guardrails are
+what carry it once the absolute form is gone: explicit and human, conflicts
+shown, and a merge that is a commit and therefore revertible. Each is its own
+scenario, in EVERY mode, and none is configurable.
+
+The text the absence is stated in, kept here because the guardrails are what now
+does its work (`session_pr.py:17-23`):
 
 > "**The absence is the enforcement.** There is deliberately no `merge`,
 > `approve`, `review`, `self_review`, `bypass_protection`, `enable_auto_merge`,
@@ -384,12 +396,13 @@ The reason the absence is worth this care, and the text it is stated in
 > The merge is the Merge Master's action under the EXISTING ritual, enforced
 > outside this dashboard by branch protection."
 
-Generalizing a surface is exactly when a constitutional absence gets lost — which
-is why it is recorded here as an OPEN ITEM rather than quietly dropped. The
-question is whether the absence is CONSTITUTIONAL (true of the product) or
-CONTEXTUAL (true of a governed install that does not own the branch). Requirement
-11 is drafted so either answer encodes afterwards without reopening it, and the
-requirement must not be read as having settled the matter by omission.
+The question the ruling answered was whether that absence is CONSTITUTIONAL (true
+of the product) or CONTEXTUAL (true of a governed install that does not own the
+branch). **It is contextual**, and the guardrails are the constitutional part.
+That is why requirement 11 does not say "openDox may merge" but *"landing
+authority follows whoever governs the repository, and the product SHALL ASK the
+repository rather than hard-coding either answer"* — hard-coding "always" would
+be the same mistake as hard-coding "never", one governance further along.
 
 ### The name, chosen deliberately
 
@@ -411,8 +424,8 @@ The word taken is **SUBMISSION**, and it is not a euphemism:
 - it says what the act IS on a plain repository — the work is submitted somewhere
   — without claiming what the destination does with it, which "publish" (already
   taken) and "pull request" (platform-shaped) both do;
-- and it stays accurate under BOTH readings of the open merge question: one
-  SUBMITS work somewhere, which says nothing about who may then land it. A word
+- and it stays accurate under the ruled answer: one SUBMITS work somewhere, and
+  who may then land it is settled by who governs the repository. A word
   that implied the work had landed would prejudge the open item.
 
 Rejected: `publish` (collides, as the ruling notes), `propose` (collides with
@@ -431,6 +444,220 @@ serve nothing. The other ten requirements were already "ordered and separately
 satisfiable"; folding this into one of them would break that and hide the open
 merge question inside a requirement about something else. It shares requirement 4's
 INJECTION SEAM, and says so rather than restating it.
+
+## D10 — RULED: the standalone install's shape (four decisions, two of which AMEND founding rulings)
+
+**RULED by Brett Heap, `#656` comment
+[`5784155201`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784155201),
+2026-09-22T21:06:01Z, verbatim: "bundled postgres, local identity yes, merge yes,
+health in db".** Two of the four AMEND founding rulings, and that is recorded
+here rather than left for someone to discover.
+
+### D10.1 — Bundled Postgres, one dialect. Consistent with Q2; no amendment.
+
+Measured: `pyproject.toml:134` pins `psycopg[binary,pool]>=3.2`,
+`deploy/compose/docker-compose.yaml:25` is already `image: postgres:16`, the
+runtime refuses to start without `OPENDOX_DATABASE_URL`, and it keeps TWO DSNs —
+`OPENDOX_MIGRATION_DATABASE_URL` for migrating and `OPENDOX_DATABASE_URL` for
+serving, with `config.py` refusing to default one from the other (*"Silently
+falling back to `OPENDOX_DATABASE_URL`"* is named as the thing not to do).
+`grep -rli sqlite src/ migrations/` returns nothing.
+
+The standalone install BRINGS the database rather than asking for one, and **no
+SQLite dialect is added**. The reasoning is worth keeping: a second dialect
+doubles every migration and every schema test forever, for a database that under
+RULING Q1 holds no document. Bundling buys the same convenience once. Requirement
+12's third scenario keeps the two DSNs from collapsing — a single-user install is
+not a reason to serve from the migrating credential.
+
+### D10.2 — A named local identity mode. THIS AMENDS RULING Q2.
+
+**Q2 fixed OIDC through the Keycloak broker, and the code enforces it:**
+`src/opendox/runtime/config.py:89-92` declares `OPENDOX_OIDC_ISSUER` REQUIRED —
+*"the Keycloak broker's issuer, pinned: a token from any other issuer is refused
+rather than trusted (RULING Q2)"*. A single user installing openDox for their own
+documents cannot run a Keycloak.
+
+The amendment is narrow and its narrowness is the point: a LOCAL SINGLE-USER MODE
+needs no broker; the HOSTED MULTI-USER MODE keeps OIDC and the pinned issuer
+exactly as today. **The mode must be selected explicitly and must not be
+reachable by omission** — requirement 13's second scenario makes an unset issuer
+in a hosted install a REFUSAL, not a downgrade. That scenario is the whole
+safety of the amendment: a mode you can enter by forgetting to configure
+something is not a mode, it is an unauthenticated multi-user install wearing the
+word "local".
+
+### D10.3 — Merge: see § D9, which the ruling released and rewrote.
+
+### D10.4 — Health results in the database. THIS AMENDS RULING Q1's CLOSED LIST.
+
+`migrations/0001_identity_and_coordination.sql:14` states: *"the table list below
+IS the ruling's own list, and it is CLOSED"* — `users`, `memberships`,
+`projects`, `project_repositories`, `sessions`, `drafts` — and
+`tests_runtime/test_schema_shape.py:77` refuses a seventh with *"RULING Q1 names
+six things the database owns; a seventh table is a claim about that boundary and
+has to be made in the open."*
+
+Health results become that seventh thing, and **the file itself names the only
+lawful path** (`:22-28`): `0001` is applied verbatim behind a fail-closed
+`CANONICAL_MIGRATION_SHA256`, so *"Changing the schema is therefore an ADDITIVE
+`0002_…`/`0003_…` file, never an edit here"*.
+
+**TWO CORRECTIONS TO THE INSTRUCTION, measured here, so the realization does not
+trip on them:**
+
+1. **It is `0003_`, not `0002_`.** `migrations/0002_migration_state.sql` ALREADY
+   EXISTS — it declares the `opendox_schema_migrations` ledger. The next additive
+   file is `0003_`.
+2. **The closure test is scoped to the CANONICAL migration, and there is already
+   a precedent for an additive table that does not disturb it.**
+   `test_the_canonical_schema_declares_exactly_rulings_six_tables` reads
+   `_declared_tables()` over `0001` only, which is why `0002`'s ledger table did
+   not trip it (the test file notes at `:179` that it is *"bootstrapped by the
+   runner and declared additively in 0002"*). So the closure test moves in the
+   same change **only if the health table is declared a DOMAIN table** — one that
+   enters `identity.TABLES`, which
+   `test_the_store_declares_exactly_the_tables_the_ruling_names` separately holds
+   to the ruling's six. If instead it is install-owned like the ledger, the
+   precedent already exists and no closure text changes. **The realization must
+   DECLARE which of the two it is and say why**, because that choice is the
+   boundary claim the test exists to force into the open — and requirement 6's
+   third new scenario is written to either answer.
+
+**Q1's principle is untouched, and that is why the amendment is lawful rather
+than merely permitted:** the database still holds NO DOCUMENT and stays
+DISPOSABLE relative to the corpus, because health results are recomputable from
+git. Requirement 6 says so directly, and requirement 15 protects the one thing
+that is NOT recomputable.
+
+### D10.5 — The neutral health check's families
+
+Recorded as ruled: broken internal links, documents nothing links to,
+near-duplicates, missing neutral front matter from the adapter's fields, a
+declared stage that disagrees with where the document sits among the six ruled
+words, and stale or empty stubs. On demand from the dashboard and the command
+line, optionally on commit; reported where the human is working rather than filed
+into an external tracker; baseline-relative; model-assisted checks only where a
+model is configured. **openxFactory's 23 governance check families stay with
+openxFactory**, which requirement 1 already states as a refusal.
+
+## D11 — RULED: the fix loop, and the one thing that must not live in the database
+
+**RULED by Brett Heap, `#656` comment
+[`5784247356`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784247356),
+2026-09-22T21:12:34Z, verbatim: "1, add the fix loop to #1144"**, extending the
+four decisions above. Requirements 14 and 15.
+
+**The applier is genuinely new work, and the ruling measured that before ruling
+it.** openxFactory's checker CLASSIFIES findings — `scripts/doc_health/__init__.py:17-18`
+is `AUTO_FIXABLE = "auto-fixable"` and `CONTESTED = "contested"` — and
+`grep -rln "def apply_fix\|def autofix\|def fix("` over `scripts/doc_health/`
+returns NOTHING. Nothing in this estate applies a fix today. So requirement 14 is
+not a generalization of an existing applier; it is the first one, and it is
+openDox's rather than openxFactory's because openxFactory's findings are
+governance findings whose repair is a governed act.
+
+**Why the fix loop is two requirements and not one.** Requirement 14 is the LOOP
+— where the human acts, the three resolution classes, and the rule that every
+repair is a draft on a branch that lands only through the landing rule. Requirement
+15 is the EXCEPTION, and it is separate because it is the only part that
+contradicts D10.4: everything else about health belongs in the disposable store,
+and an exception must not. Folding it into 14 would bury a rule that reverses the
+one immediately above it.
+
+**The distinction requirement 15 turns on.** A finding is DERIVED and recomputable
+from the documents; an exception is a JUDGEMENT that exists nowhere else. The
+database is disposable by Q1, so an exception stored there is *"a judgement
+scheduled for deletion"* — and its finding would silently come back on the next
+reset, which is the worst failure mode available: a decision that was made,
+recorded, and then quietly unmade by an operational act. The committed
+exceptions file follows the pattern of openxFactory's `health/dispositions.yaml`,
+whose own semantics already match: `scripts/doc_health/families.py:370` reads
+*"removing its health/dispositions.yaml entry re-opens"* the finding — which is
+requirement 15's third scenario, in the estate's own words.
+
+**Nothing auto-merges, and that is stated at its sharpest for the smallest case.**
+The guardrails from § D9 apply to every repair of every class. Requirement 14's
+fifth scenario refuses an automatic landing *"however small"*, with the reason:
+a fix small enough to seem safe is exactly the one that gets applied unread. The
+batching allowance is the pressure valve — many repairs, ONE draft, ONE human
+review — so that "never automatic" does not become "never practical".
+
+## D12 — RULED: the check-pack interface, and the layering it makes possible
+
+**RULED by Brett Heap, `#656` comment
+[`5784295745`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784295745),
+2026-09-22T21:16:17Z, verbatim: "1, add the pack interface to #1144"**, extending
+`5784155201` and `5784247356`. Requirement 16.
+
+### The layering this exists for
+
+- **openDox** ships the NEUTRAL checks (§ D10.5's families) and they are ALWAYS
+  ON. They are the ones that treat a document as a document.
+- **openXdox** ships the xFactory GOVERNANCE pack — openxFactory's 23 families.
+  This is what finally gives those families a home that is neither "stay in
+  openxFactory forever" nor "move into the neutral core", which requirement 1 and
+  RULING C2 both forbid.
+- **Each DomainxFactory** ships its own pack, pinned in its `stack.yaml`, so
+  MedxDox's clinical checks and codexDox's engineering checks are additions
+  rather than forks.
+
+That is the same shape RULING C2 gave the domain-mapping core — *"parameterized
+by a domain profile that a descendant supplies"* — applied to checks instead of
+vocabulary, and it is why the pack contract lives in openDox on the
+`corpus_adapter` Protocol pattern rather than being invented somewhere new.
+
+### Why the engine/pack split falls where it does
+
+A pack supplies WHAT IS CHECKED. The engine owns WHAT THE USER RELIES ON: the
+resolution surface and its CLI parity, scheduling, the baseline, storage
+(results derived, exceptions committed), and the fix loop with its landing rule.
+
+The hard line is the one requirement 16 states as a refusal: **a pack cannot
+redefine the resolution classes, the baseline rules, or who may land work.** Those
+three are exactly the guarantees §§ D9–D11 spent their arguments on. If a pack
+could vary them, every one of those guarantees would become conditional on which
+packs an install happens to carry — and a user could not reason about their own
+tool without auditing its plugins. The guardrails follow from the same principle:
+**a pack reads and returns; only the engine writes.** A pack that writes has
+escaped the draft-on-a-branch rule, the explicit-human-act rule and the
+revertible-commit rule in one step.
+
+Two more, each measured against a failure this estate has already had. **A pack is
+pinned by commit and digest** — the `neutral-product-pin` discipline, because an
+unpinned pack silently changes what a corpus is judged against, which is the same
+hazard as an unpinned validator. And **a pack that crashes or times out becomes a
+finding against that pack** rather than taking the run down: the doc-health
+nightly's analysis child failed silently every night from 2026-08-30 (openxFactory
+`add-worker-input-budget`'s own origin note), and a health check whose failure
+mode is silence is worse than one that reports itself broken.
+
+### The pack id and version go in NOW, and why that is a schema decision
+
+Requirement 16 puts a PACK ID and PACK VERSION on every finding, and the ruling is
+explicit that this lands in **the same additive migration as the results table**
+so the table is not migrated twice. Beyond avoiding a second migration it earns
+its place three ways: a finding can be ATTRIBUTED to the pack that raised it; a
+pack can be UPGRADED without its history becoming ambiguous; and the BASELINE can
+tell a genuinely new finding from one that merely arrived with a new pack version
+— which is the case that would otherwise make every pack upgrade look like a
+regression.
+
+**The migration number, restated because the instruction said `0002`:** that file
+exists already (`migrations/0002_migration_state.sql`, the
+`opendox_schema_migrations` ledger), so the additive file is **`0003_`**, and the
+pack columns go in THAT one beside the results table. The instruction's substance
+— one migration, not two — is honoured exactly; only the number moves. See
+§ D10.4 for the measurement.
+
+### Scope, stated so nobody builds the wrong half here
+
+**IN this packet:** the interface, its guardrails, and the pack id/version on
+every finding. **NOT in this packet, and named in the proposal's follow-ons:**
+porting openxFactory's 23 families into the openXdox governance pack is an
+openXdox FOLLOW-ON with its own claim, and each domain's pack is that domain's
+own work. This packet authors neither, and requirement 1 still keeps the 23
+families with openxFactory until that follow-on lands.
 
 ## R-G3 — RULED: openDox gets its own neutral generator
 

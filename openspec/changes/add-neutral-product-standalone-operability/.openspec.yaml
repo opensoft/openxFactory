@@ -36,8 +36,8 @@ origin:
     is carried as requirement 8, whose third scenario ENDS this arrangement
     once openDox-spec promotes its assigned 71.
     WHAT THE PACKET PROPOSES. ONE `## ADDED Requirements` block creating the
-    capability `neutral-product-standalone-operability` - eleven requirements,
-    thirty-seven scenarios, written domain-neutrally with openDox as the measured
+    capability `neutral-product-standalone-operability` - sixteen requirements,
+    sixty-seven scenarios, written domain-neutrally with openDox as the measured
     instance, one per gap of the 2026-09-22 feature/gap sweep (G1-G10), each
     separately satisfiable and each falsifiable by a command named in
     `tasks.md`.

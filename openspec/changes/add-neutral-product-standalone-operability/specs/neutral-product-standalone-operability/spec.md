@@ -158,6 +158,18 @@ wrapped around corpus-specific classification — the generic part SHALL BE
 SEPARATED BEFORE EITHER SIDE MOVES, which is `corpus-adapter-seam`'s relocation
 rule applied inside a module rather than between two packages.
 
+The results that check produces are DERIVED DATA and SHALL NOT BE COMMITTED INTO
+THE CORPUS THEY DESCRIBE: they live in the product's own disposable store, are
+recomputable from the documents at any time, and their loss SHALL cost a
+recomputation rather than a document. The check SHALL read documents AS DOCUMENTS
+— broken internal links, documents nothing links to, near-duplicates, missing
+neutral front matter, a declared stage that disagrees with where the document
+sits, and stale or empty stubs — SHALL be BASELINE-RELATIVE so that new findings
+get attention while persistent ones stay quiet and an uncited disappearance is
+re-raised, SHALL report where the human is already working rather than by filing
+into an external tracker, and SHALL run any model-assisted check ONLY where a
+model is configured.
+
 #### Scenario: A module mixes generic traversal with corpus-specific classification
 - **WHEN** a check module carries both a generic document traversal and classification against one corpus's governance vocabulary
 - **THEN** the generic part is relocated into a module both sides depend on before either side moves, and the whole module does not travel
@@ -165,6 +177,18 @@ rule applied inside a module rather than between two packages.
 #### Scenario: The document product can report on nothing
 - **WHEN** a product delivered as document-management tooling has no health check it can run over its own documents
 - **THEN** the tooling is reported as undelivered, because a document product that cannot report on its own documents has not shipped the thing it is named for
+
+#### Scenario: Health results are written into the corpus
+- **WHEN** a product's health results are committed into the repository whose documents they describe
+- **THEN** the write is refused: results are DERIVED DATA, recomputable from the corpus, and committing them makes the corpus carry its own opinion of itself
+
+#### Scenario: Health results need somewhere to live
+- **WHEN** a product that keeps a datastore computes health results
+- **THEN** they live in that DISPOSABLE store rather than in the corpus, and losing the store costs a recomputation and no document
+
+#### Scenario: A closed schema must gain a table
+- **WHEN** derived results require a table a ratified CLOSED list does not name
+- **THEN** it arrives as an ADDITIVE migration that never edits the canonical one, and the declaration that closes the list moves in the SAME change, so the boundary is re-drawn in the open rather than widened quietly
 
 #### Scenario: A family reads the publisher's status taxonomy
 - **WHEN** a check family reads the publishing repository's `Status:` taxonomy or its change/spec/delta nouns
@@ -291,13 +315,17 @@ silent failure, never a reported success it did not achieve. A governed host
 contributes its own implementation through the SAME injection seam the product's
 other contributed implementations use, so the host's existing flow is unchanged.
 
-THIS REQUIREMENT IS DELIBERATELY SILENT ON WHO MAY LAND SUBMITTED WORK. Whether a
-neutral product may itself merge, and whether that answer differs between a
-governed install and a standalone owner who owns the repository, is an OPEN
-QUESTION recorded in this change's proposal and reserved to the operator. Nothing
-here grants a merge capability and nothing here forbids one; a submission
-implementation's landing authority is settled by that answer and not by this
-text.
+LANDING AUTHORITY FOLLOWS WHOEVER GOVERNS THE REPOSITORY, and the neutral product
+SHALL ASK the repository rather than hard-coding either answer. Where a
+GOVERNANCE EXISTS OUTSIDE THE TOOL, the governed host RESERVES landing and routes
+it to that governance's own instrument, so separation of duties is unchanged;
+where the OWNER IS THE GOVERNANCE, the product MAY land, because a rule that
+forbids it protects nobody from anybody. THREE GUARDRAILS HOLD IN EVERY MODE and
+are not configurable: a merge SHALL BE AN EXPLICIT HUMAN ACT and never automatic;
+a CONFLICT SHALL BE SHOWN to the human and never silently resolved; and a merge
+SHALL BE A COMMIT, so that it can be reverted. Together they keep the purpose the
+absolute prohibition served — no tool merging behind its governance's back —
+while dropping its letter exactly where the user IS the governance.
 
 #### Scenario: The only submission implementation shells out to one platform
 - **WHEN** a neutral product's only implementation of its submission protocol invokes one hosting platform's command-line tool, defaulting to that platform's host
@@ -311,7 +339,198 @@ text.
 - **WHEN** a session is submitted on a repository with no remote attached
 - **THEN** the product reports plainly that there is nowhere to submit, rather than failing opaquely or reporting a success it did not achieve
 
+#### Scenario: A governance exists outside the tool
+- **WHEN** the product runs in an install whose repository is governed by an authority outside the product
+- **THEN** the governed host RESERVES landing and routes it to that governance's own instrument, and the product itself lands nothing
+
+#### Scenario: The owner is the governance
+- **WHEN** the product runs standalone on a repository its own user owns, with no outside governance to defer to
+- **THEN** the product may land the work, because the prohibition existed to protect a governance that is not present
+
+#### Scenario: A merge is attempted without a human
+- **WHEN** any code path would land work without an explicit human act
+- **THEN** it is refused in EVERY mode, because "explicit and human" is a guardrail and not a setting
+
+#### Scenario: A merge meets a conflict
+- **WHEN** landing meets a conflict
+- **THEN** the conflict is SHOWN to the human and never silently resolved, in every mode
+
+#### Scenario: A landed merge must be undoable
+- **WHEN** work is landed
+- **THEN** it lands AS A COMMIT, so that it can be reverted by the ordinary means, in every mode
+
 #### Scenario: A governed host contributes its own submission implementation
 - **WHEN** a governed host needs its own platform flow
 - **THEN** it registers its implementation through the same injection seam the product's other contributed implementations use, and the host's existing flow is unchanged
 
+
+### Requirement: A standalone install brings its own datastore, and the product keeps one dialect
+A neutral product that requires a datastore SHALL SHIP THAT DATASTORE WITH ITS
+STANDALONE INSTALL, so that a user installs the product and not a database, and
+SHALL KEEP EXACTLY ONE DIALECT. A second dialect added for the convenience of a
+local install is refused: it doubles every migration and every schema test
+forever, in exchange for a convenience the install can provide by bundling. Where
+the product separates a PRIVILEGED connection from a LEAST-PRIVILEGED one, both
+SHALL SURVIVE the bundling — a single-user install is not a reason to serve from
+the migrating credential — and neither SHALL be defaulted from the other, because
+a silent fallback grants the serving path the schema authority the split exists
+to withhold.
+
+#### Scenario: A local install asks the user to provide a database
+- **WHEN** a standalone install requires the user to obtain, install or configure a database before the product will start
+- **THEN** it is reported as an incomplete install, because the product was promised as the thing that installs
+
+#### Scenario: A second dialect is proposed for local convenience
+- **WHEN** an embedded or file-backed dialect is proposed so that the local install can avoid the bundled one
+- **THEN** it is refused, and the bundling is done instead: one dialect is what keeps one migration set honest
+
+#### Scenario: The privileged and serving connections are collapsed
+- **WHEN** a single-user install serves from the migrating connection, or defaults one connection setting from the other
+- **THEN** it is refused, because the split withholds schema authority from the serving path and a silent fallback hands it back
+
+### Requirement: A standalone install has a named local identity mode, and a hosted install cannot fall into it
+A neutral product whose hosted mode authenticates through an external identity
+broker SHALL OFFER A NAMED LOCAL SINGLE-USER MODE that requires no broker, and
+the HOSTED MULTI-USER MODE SHALL KEEP its broker and its pinned issuer unchanged.
+The local mode SHALL BE SELECTED EXPLICITLY and SHALL NOT BE REACHABLE BY
+OMISSION: a hosted install whose issuer setting is absent SHALL REFUSE TO START,
+naming the setting, rather than degrading into single-user operation. A mode that
+can be entered by forgetting to configure something is not a mode, it is a
+failure that looks like a feature — and the failure it looks like is an
+unauthenticated multi-user install.
+
+#### Scenario: A student installs the product alone
+- **WHEN** a single user installs the product for their own use and selects the local mode
+- **THEN** it starts and is usable with no identity broker to run, configure or reach
+
+#### Scenario: A hosted install is missing its issuer
+- **WHEN** an install declared as hosted starts with no issuer configured
+- **THEN** it REFUSES and names the missing setting, and does NOT fall back to local single-user operation
+
+#### Scenario: The hosted mode's broker is unchanged
+- **WHEN** the hosted multi-user mode runs
+- **THEN** it authenticates through the same broker against the same pinned issuer as before, and a token from any other issuer is refused exactly as it is today
+
+### Requirement: A health finding carries a resolution path, and every fix lands through the landing rule
+A neutral product's health check SHALL offer a RESOLUTION PATH for every finding
+it raises, reachable from the surface the human is already working in AND from
+the command line with the same actions, reading the findings from the product's
+own store and presenting them BASELINE-RELATIVE so that new findings come first
+and persistent ones stay quiet. Detection without resolution is a list that grows.
+Findings SHALL be resolved in THREE DECLARED CLASSES: MECHANICAL findings the
+product can repair itself — a link whose target moved, front matter derivable
+from the adapter, a stage that disagrees with the document's location; ASSISTED
+findings where the product PROPOSES a repair a human then edits, with any
+model-written proposal offered ONLY where a model is configured; and HUMAN-ONLY
+findings where the product SHOWS THE EVIDENCE and the human repairs, removes, or
+records an exception.
+
+EVERY REPAIR, OF EVERY CLASS, SHALL BE WRITTEN AS A DRAFT ON A BRANCH AND NEVER
+ONTO THE DEFAULT BRANCH, and SHALL REACH THE DEFAULT BRANCH ONLY THROUGH THIS
+CAPABILITY'S LANDING RULE — so a standalone owner lands it in the product, a
+governed repository receives the governance's own instrument instead, and in
+every mode the landing is an explicit human act, conflicts are shown, and the
+result is a revertible commit. **NOTHING SHALL LAND AUTOMATICALLY, not even a
+one-line mechanical repair**: a fix small enough to seem safe is exactly the one
+that gets applied without being read. Several repairs MAY be batched into one
+draft so a human reviews them together.
+
+#### Scenario: A finding has no resolution path
+- **WHEN** a health check reports a finding a human cannot act on from the surface that reported it
+- **THEN** it is reported as detection without resolution, because a list that only grows is not a health check
+
+#### Scenario: A mechanical finding is repaired
+- **WHEN** a finding is mechanical — a moved link target, derivable front matter, a stage that disagrees with the document's location
+- **THEN** the product writes the repair itself, as a DRAFT ON A BRANCH, and never onto the default branch
+
+#### Scenario: A repair needs judgement
+- **WHEN** a finding is a near-duplicate or an empty stub
+- **THEN** the product PROPOSES a repair the human edits in the draft, and offers a model-written proposal only where a model is configured
+
+#### Scenario: A finding is not the product's to repair
+- **WHEN** a finding requires a decision the product cannot make
+- **THEN** it SHOWS THE EVIDENCE and the human repairs, removes, or records an exception — the product proposes nothing it cannot justify
+
+#### Scenario: A one-line fix is applied automatically
+- **WHEN** any repair, however small, would reach the default branch without an explicit human act
+- **THEN** it is refused, because the guardrails hold for every landing and a fix small enough to seem safe is the one that gets applied unread
+
+#### Scenario: Several repairs are reviewed together
+- **WHEN** many findings are repaired in one sitting
+- **THEN** they MAY be batched into a single draft for one review, and the batch lands under the same rule a single repair would
+
+#### Scenario: The command line and the view disagree
+- **WHEN** a resolution action exists in the product's own view but not from the command line
+- **THEN** the gap is reported, because an install without a browser is the standalone install this capability exists to serve
+
+### Requirement: An exception is a human decision and lives in the corpus, never in the derived store
+A neutral product SHALL RECORD AN EXCEPTION — a human's decision that a finding
+is accepted, not a defect — IN THE CORPUS, as a committed artifact, and SHALL NOT
+keep it in the disposable store where the findings themselves live. The two are
+different in kind: a finding is DERIVED and recomputable, while an exception is a
+JUDGEMENT that exists nowhere else and can be recovered from nothing. A store
+that may be discarded and rebuilt from the documents MUST NOT be the only home of
+a decision the documents do not contain. An exception SHALL therefore SURVIVE A
+RESET of the store, SHALL be readable and reviewable as an ordinary change to the
+corpus, and SHALL cite what it is accepting, so that removing it re-opens the
+finding it was suppressing.
+
+#### Scenario: The derived store is reset
+- **WHEN** the product's store is discarded and rebuilt from the corpus
+- **THEN** every recorded exception still holds and its finding is NOT re-raised, because the exception was never in the store
+
+#### Scenario: An exception is stored beside the findings
+- **WHEN** an exception is written into the disposable store rather than committed to the corpus
+- **THEN** it is refused, because the store is disposable by design and a judgement stored there is a judgement scheduled for deletion
+
+#### Scenario: An exception is withdrawn
+- **WHEN** a committed exception is removed
+- **THEN** the finding it suppressed is raised again on the next run, so that suppression is a live claim rather than a permanent silence
+
+### Requirement: Health checks extend through pinned packs, and the engine owns what must not vary
+A neutral product's health check SHALL be EXTENSIBLE THROUGH CHECK PACKS declared
+against a neutral contract the product itself owns, on the same pattern as its
+corpus interface, so that a domain adds its own checks without forking the
+product. A PACK SUPPLIES: check families, each with an id, a version and the
+documents it applies to; findings in the NEUTRAL SHAPE, carrying a severity, a
+resolution class and its evidence; optionally PROPOSED FIXES AS PATCHES; and its
+own labels, resolved through the display facet rather than spelled in the
+product's surface.
+
+THE ENGINE OWNS, IDENTICALLY FOR EVERY PACK: the resolution surface and its
+command-line parity; scheduling; the baseline logic; storage — results in the
+derived store and exceptions in the corpus; and the fix loop with its landing
+rule. **A PACK SHALL NOT REDEFINE THE RESOLUTION CLASSES, THE BASELINE RULES, OR
+WHO MAY LAND WORK.** Those are the properties a user relies on being the same
+whatever checks are installed, and a pack that could vary them would make every
+guarantee in this capability conditional on which packs a given install happens
+to carry.
+
+EVERY FINDING SHALL CARRY THE ID AND THE VERSION OF THE PACK THAT RAISED IT, so
+that a finding can be attributed, a pack can be upgraded without its history
+becoming ambiguous, and a baseline can tell a genuinely new finding from one that
+arrived with a new pack version.
+
+#### Scenario: A pack writes to the tree
+- **WHEN** a pack writes, commits or merges anything rather than returning findings and patches
+- **THEN** it is refused, because only the engine's fix loop writes, and a pack that writes has escaped every guardrail the loop carries
+
+#### Scenario: A pack is consumed without a pin
+- **WHEN** a pack is installed without being pinned by commit and digest
+- **THEN** it is refused, because an unpinned pack silently changes what a corpus is judged against
+
+#### Scenario: A pack crashes or hangs
+- **WHEN** a pack raises, or exceeds its time budget
+- **THEN** the failure is reported AS A FINDING AGAINST THAT PACK and the other packs still run, because one broken pack must not take the health check down
+
+#### Scenario: A pack tries to define its own resolution class
+- **WHEN** a pack returns a finding in a class the engine does not declare, or declares its own baseline or landing rule
+- **THEN** it is refused, because those are the properties that must not vary between installs
+
+#### Scenario: A finding arrives with no provenance
+- **WHEN** a finding is stored without the id and version of the pack that raised it
+- **THEN** it is refused, because an unattributable finding cannot be upgraded, disputed, or told apart from a new pack's first run
+
+#### Scenario: A pack's labels are spelled in the product's surface
+- **WHEN** a pack's finding titles or family names are rendered as the pack spells them
+- **THEN** they are resolved through the display facet instead, so a domain's words stay the domain's and the neutral surface keeps its own

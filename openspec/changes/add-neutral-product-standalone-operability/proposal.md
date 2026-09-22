@@ -319,7 +319,7 @@ name entirely. The correction is task 9.1's, not this packet's.
 ## What Changes
 
 ONE `## ADDED Requirements` block creating the capability
-`neutral-product-standalone-operability` — eleven requirements, thirty-seven scenarios.
+`neutral-product-standalone-operability` — sixteen requirements, sixty-seven scenarios.
 The capability is the sibling of `neutral-product-pin`: that one governs
 openxFactory CONSUMING an external neutral product; this one governs the product
 being able to STAND UP without its consumer. It is written domain-neutrally and
@@ -343,6 +343,11 @@ separately satisfiable and each falsifiable by a command named in `tasks.md`:
 | 9 | Each repository of a split product runs its own suite to green in its own checkout | G8 | each leg's suite, no exclusions, no sibling |
 | 10 | A neutral product declares one entry point that starts the whole product | G9, G10 | install, run the one documented command, reach the browser surface |
 | 11 | A session's work leaves the local repository through a declared submission protocol with a neutral default **(RULED)** | — | submit a session on a plain git repo with `gh` not installed |
+| 12 | A standalone install brings its own datastore, and the product keeps one dialect **(RULED)** | — | install on a machine with no database and start |
+| 13 | A standalone install has a named local identity mode, and a hosted install cannot fall into it **(RULED)** | — | start local with no broker; start hosted with no issuer and get a refusal |
+| 14 | A health finding carries a resolution path, and every fix lands through the landing rule **(RULED)** | — | repair a finding; the default branch must not move |
+| 15 | An exception is a human decision and lives in the corpus, never in the derived store **(RULED)** | — | reset the store; the exception still holds |
+| 16 | Health checks extend through pinned packs, and the engine owns what must not vary **(RULED)** | — | run with a crashing pack registered; the others still report |
 
 **What this packet deliberately does NOT propose.** It is not a rewrite. The
 document surface is not re-architected, its routes are not re-scoped and its
@@ -353,6 +358,89 @@ re-promote the 71 requirements the carve's map assigns to openDox; that is
 openDox-spec's own act and is carried here as a BLOCKED task with its
 precondition named. It moves no pin, no gitlink, no contract bundle and no
 release tag.
+
+## Three more rulings, the same evening — and two of them amend founding rulings
+
+**RULED** [`5784155201`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784155201)
+(2026-09-22T21:06:01Z, *"bundled postgres, local identity yes, merge yes, health
+in db"*) and [`5784247356`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784247356)
+(21:12:34Z, *"1, add the fix loop to #1144"*). Full measurements in `design.md`
+§§ D10–D11.
+
+**Bundled Postgres, one dialect (requirement 12).** The standalone install brings
+its own database so a user installs the product and not a database. **No SQLite
+dialect** — a second dialect doubles every migration and every schema test
+forever, for a store that under RULING Q1 holds no document; bundling buys the
+same convenience once. The two DSNs survive: a single-user install is not a
+reason to serve from the migrating credential, and `config.py` already names the
+silent fallback as the thing not to do. *Consistent with Q2; no amendment.*
+
+**A named local identity mode (requirement 13) — AMENDS RULING Q2.** Q2 fixed
+OIDC through the Keycloak broker and `config.py:89-92` enforces it by making the
+issuer REQUIRED. A single user cannot run a Keycloak. The amendment is narrow and
+the narrowness is the point: local single-user needs no broker, hosted
+multi-user is unchanged, and **a hosted install cannot fall into local mode by
+omission** — an unset issuer stays a REFUSAL. That scenario is the whole safety
+of the amendment, because a mode you can enter by forgetting to configure
+something is an unauthenticated multi-user install wearing the word "local".
+
+**Health results in the store (requirement 6, amended) — AMENDS RULING Q1's
+CLOSED TABLE LIST.** `migrations/0001` says the six-table list *"is CLOSED"* and
+`test_schema_shape.py:77` refuses a seventh *"in the open"*. Health results become
+that seventh thing by the only lawful path the file itself names — an ADDITIVE
+migration, never an edit to `0001`, which is applied verbatim behind a
+fail-closed SHA-256. **Two corrections this packet measured:** it is `0003_`, not
+`0002_` (that file exists — the migration ledger), and the closure test is scoped
+to the CANONICAL migration, so it moves only if the health table is declared a
+DOMAIN table; the `0002` ledger is the precedent for the other answer. The
+realization DECLARES which, and why. **Q1's principle is untouched**: the store
+holds no document and stays disposable, because results are recomputable from git.
+
+**The fix loop (requirements 14 and 15).** Detection without resolution is a list
+that grows. A Health view with **CLI parity**, three resolution classes
+(mechanical / assisted / human-only), and **every repair written as a draft on a
+branch that reaches the default branch only through the landing rule above** —
+**nothing auto-merges, not even a one-line fix**, with batching as the pressure
+valve. The applier is genuinely new: openxFactory CLASSIFIES findings
+(`AUTO_FIXABLE`/`CONTESTED`) and `grep` finds no code anywhere in
+`scripts/doc_health/` that applies one.
+
+**And the one thing that must NOT live in the store (requirement 15).** An
+exception is a human judgement that exists nowhere else; a finding is derived and
+recomputable. The store is disposable by Q1, so an exception kept there is a
+judgement scheduled for deletion, and its finding would silently return on the
+next reset. Exceptions are committed to the corpus on the pattern of
+`health/dispositions.yaml`, whose semantics already match —
+`families.py:370` reads *"removing its health/dispositions.yaml entry re-opens"*
+the finding.
+
+**The check-pack interface (requirement 16)** — RULED
+[`5784295745`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784295745)
+(21:16:17Z, *"1, add the pack interface to #1144"*). Health checks become
+extensible: a PACK supplies check families, findings in the neutral shape and
+optional patches, with its labels through the display facet; **the ENGINE owns
+the view and its CLI parity, scheduling, the baseline, storage and the fix loop**,
+and **a pack cannot redefine the resolution classes, the baseline rules, or who
+may land work** — those are the guarantees §§ D9–D11 exist to give, and a pack that
+could vary them would make every one conditional on which plugins an install
+carries. Guardrails: a pack READS and RETURNS, only the engine writes; a pack is
+pinned by commit and digest; and a pack that crashes or times out becomes a
+FINDING AGAINST THAT PACK rather than taking the run down.
+
+**This is what finally gives openxFactory's 23 families a home** that is neither
+"stay in openxFactory forever" nor "move into the neutral core", which requirement
+1 and RULING C2 both forbid: **openXdox ships the xFactory governance pack**, each
+DomainxFactory ships its own pinned in `stack.yaml`, and openDox's neutral checks
+are always on. Every finding carries a PACK ID and PACK VERSION, landing in the
+SAME additive migration as the results table so it is not migrated twice.
+
+### Follow-ons named here and deliberately NOT authored here
+
+- **Porting the 23 families into the openXdox governance pack** — an openXdox
+  follow-on with its own claim. Until it lands, requirement 1 keeps them with
+  openxFactory.
+- **Each DomainxFactory's own pack** — that domain's own work.
+- **The view-wiring slice** — claimed and in flight under actor `viewwire`.
 
 ## What openxFactory keeps, and why this is not a land-grab
 
@@ -479,57 +567,24 @@ and **the hard-wire is the DEFAULT BINDING**, not the protocol — `cli.py:812` 
 missing neutral IMPLEMENTATION and stops the default naming a platform. Same
 shape as requirement 3's missing default profile, one layer over.
 
-### OPEN — MERGE AUTHORITY IN A STANDALONE INSTALL. Not decided here.
+### RULED — merge authority follows whoever governs the repository
 
-**Requirement 11 is deliberately SILENT on who may land submitted work, and that
-silence is the point.** An earlier draft of this requirement carried the
-invariant below as binding text and refused any merging implementation in a
-scenario. **That has been withdrawn from the delta** pending the operator's
-decision, because it may be right for one install and wrong for the other.
+An earlier draft of requirement 11 made the absence of `merge`/`approve`/`review`/
+`bypass` binding and refused a merging implementation. It was withdrawn while the
+question was open and **RULED on 2026-09-22T21:06:01Z** ([`5784155201`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784155201),
+*"merge yes"*).
 
-The invariant, as `session_pr.py:17-23` states it for the GOVERNED context:
+The absence was never about merging; it was **separation of duties**, and that is
+kept wherever a governance exists outside the tool — a governed host RESERVES
+landing and routes it to that governance's instrument, so openxFactory's flow is
+untouched. What is dropped is the LETTER of the prohibition exactly where the
+user IS the governance: forbidding a standalone owner to merge their own
+repository protects nobody from anybody. **Three guardrails hold in every mode
+and none is configurable** — a merge is an explicit HUMAN act, a CONFLICT is
+shown and never silently resolved, and a merge is a COMMIT and therefore
+revertible. They are what carries the purpose once the absolute form is gone:
+*no tool merging behind its governance's back.*
 
-> "**The absence is the enforcement.** There is deliberately no `merge`,
-> `approve`, `review`, `self_review`, `bypass_protection`, `enable_auto_merge`,
-> or any other operation that could land or bless a pull request — not on the
-> protocol, not on the fake, not on the real adapter. A refusal message could be
-> deleted by a later edit; a method that does not exist cannot be called at all.
-> The merge is the Merge Master's action under the EXISTING ritual, enforced
-> outside this dashboard by branch protection."
-
-**The question, raised by Brett Heap on 2026-09-22:** *"if we are going to have
-openDox be standalone, then it will need to merge documents."* The absence was
-designed for a governed factory where landing belongs to the Merge Master on a
-platform, under branch protection this product does not own. A standalone student
-or lab assistant on a plain local repository owns the repository, and there is no
-Merge Master and no branch protection to defer to.
-
-**The two readings, stated so either can be chosen:**
-
-**(a) openDox never merges, in every mode.** The absence is constitutional and
-survives the generalization unchanged: a submitter proposes or pushes, and
-landing is always someone else's act. A standalone owner merges with `git` in
-their own checkout, outside the product, exactly as they would today. Preserves
-the strongest property this surface has — a capability that does not exist cannot
-be reached by a bug, a later edit, or a contributed implementation — and keeps one
-rule for both installs. Costs the standalone user an in-product path to finish
-their own work on their own repository.
-
-**(b) Merge authority belongs to whoever owns the repository.** The absence is
-not constitutional but CONTEXTUAL — it encodes "this install does not own the
-branch" — so the governed host RESERVES landing (its implementation declares no
-merge, and openxFactory's flow is unchanged from today) while a standalone owner
-HOLDS it and openDox's neutral default may land work in a repository the user
-owns. Gives the standalone product the complete workflow the founding ruling
-describes. Costs the absence-as-enforcement property: the capability would then
-exist in the tree and be governed by configuration rather than by non-existence,
-which is a weaker guarantee and needs its own gate.
-
-**This packet records no recommendation between them.** It is the operator's to
-decide, and requirement 11 is written so that either answer can be encoded
-afterwards without reopening the requirement: nothing in it grants a merge
-capability and nothing in it forbids one. **Requirement 11 should not be read as
-having settled this by omission.**
 
 **The name is "submission", not "publish", and the ruling asked for that care.**
 This capability already uses "publisher" for the repository that publishes the
@@ -579,4 +634,4 @@ is struck and the other ten stand.
 
 ## Capabilities
 
-- `neutral-product-standalone-operability` — ADDED, 11 requirements, 37 scenarios.
+- `neutral-product-standalone-operability` — ADDED, 16 requirements, 67 scenarios.

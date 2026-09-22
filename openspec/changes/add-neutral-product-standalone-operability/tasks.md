@@ -3,7 +3,7 @@
 Status: draft
 
 Dependency-ordered. **Group 1 is the authoring THIS change performs and it
-touches no code.** Groups 2-12 are the post-ratification realization, one group
+touches no code.** Groups 2-15 are the post-ratification realization, one group
 per requirement, each in the repository named in its heading and each carrying
 the FALSIFICATION COMMAND that closes it — an exact invocation with its checkout
 preconditions and its expected result, so the archive gate's evidence under
@@ -34,7 +34,7 @@ Baselines, measured on `openxFactory` `main` `4f92d651` before this packet:
   requirement table; the explicit "what openxFactory keeps" section; honest
   `code_surface:` / `target_release:` front-matter.
 - [x] 1.3 Author the `## ADDED Requirements` delta creating
-  `neutral-product-standalone-operability` — 11 requirements, 37 scenarios,
+  `neutral-product-standalone-operability` — 16 requirements, 67 scenarios,
   domain-neutral, openDox as the measured instance.
 - [x] 1.4 Author `design.md`: D1-D8 and **R-G3** — filed as Q-G3, the one question
   put to Brett with three options and a recommendation; RULED the same day and
@@ -559,20 +559,22 @@ that does not name a platform.
 - [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
   registered, openxFactory's GitHub pull-request flow behaves exactly as today.
   This is a generalization, not a replacement, and 12.5 is the box that proves it.
-- [~] 12.6 **MERGE AUTHORITY — BLOCKED ON THE OPERATOR, AND NOT TO BE DECIDED BY
-  THE IMPLEMENTER.** An earlier draft made the absence of `merge`, `approve`,
+- [ ] 12.6 **MERGE AUTHORITY — RULED, HOLD RELEASED.** Brett Heap, `#656` comment
+  `5784155201`, 2026-09-22T21:06:01Z: *"merge yes"* — landing authority follows
+  whoever governs the repository. A GOVERNED host reserves landing and routes it
+  to the governance's own instrument (openxFactory's flow unchanged); a STANDALONE
+  owner IS the governance and openDox may land. **Three guardrails in EVERY mode,
+  none configurable:** explicit human act, conflicts SHOWN, and a merge that is a
+  COMMIT and therefore revertible. Implement all three as tests, not as prose.
+  *(Superseded instruction, kept so the change of direction is legible:)* An earlier draft made the absence of `merge`, `approve`,
   `review`, `self_review`, `bypass_protection` and `enable_auto_merge` binding and
   refused a merging implementation in a scenario; **both were withdrawn from the
   delta** on Brett Heap's question of 2026-09-22 — *"if we are going to have
   openDox be standalone, then it will need to merge documents."* The two readings
-  are in `proposal.md` § "OPEN — MERGE AUTHORITY IN A STANDALONE INSTALL" and the
-  packet recommends neither.
-  **Owner: Brett Heap (operator authority).**
-  **Exit condition: the ruling.** Until it is given, groups 12.1-12.5 proceed and
-  **the implementer ADDS NO landing operation to any implementation** — not
-  because this packet forbids it, but because building one would decide an open
-  question. Whichever way it goes, the GOVERNED host's implementation declares no
-  merge and openxFactory's flow is unchanged (12.5).
+  were set out for the operator and the packet recommended neither; the ruling
+  above answers them. The GOVERNED host's implementation still declares no merge
+  and openxFactory's flow is still unchanged (12.5) — that half was never in
+  question.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, `gh` NOT installed —
   `command -v gh` must be empty, which is the student's machine):
 
@@ -596,3 +598,184 @@ that does not name a platform.
   which shells `["gh", "pr", ...]` (`:367`) against `_GITHUB_HOST = "github.com"`
   (`:233`), so a machine without `gh` and a repository without a GitHub remote
   have no submission path at all.
+
+
+## Group 13 — Requirements 12, 13: the standalone install's shape (RULED, openDox-code)
+
+**RULED** `#656` `5784155201`, 2026-09-22T21:06:01Z: *"bundled postgres, local
+identity yes"*. `design.md` § D10 carries the measurements and the two
+amendments.
+
+- [ ] 13.1 **Bundle Postgres with the standalone install** so a user installs the
+  product and not a database. The pieces exist: `pyproject.toml:134` pins
+  `psycopg[binary,pool]>=3.2` and `deploy/compose/docker-compose.yaml:25` is
+  already `image: postgres:16`. This box makes the LOCAL install bring it.
+- [ ] 13.2 **Add no SQLite dialect**, and record the refusal where a future reader
+  will look for it: a second dialect doubles every migration and every schema test
+  forever, for a database that under RULING Q1 holds no document.
+- [ ] 13.3 **Keep both DSNs.** `OPENDOX_MIGRATION_DATABASE_URL` for migrating and
+  `OPENDOX_DATABASE_URL` for serving, with neither defaulted from the other —
+  `config.py` already names the silent fallback as the thing not to do, and a
+  single-user install is not a reason to serve from the migrating credential.
+- [ ] 13.4 **A NAMED local single-user mode (AMENDS RULING Q2).** `config.py:89-92`
+  makes `OPENDOX_OIDC_ISSUER` required — *"the Keycloak broker's issuer, pinned
+  … (RULING Q2)"*. Add an explicit local mode that needs no broker.
+- [ ] 13.5 **A hosted install SHALL NOT fall into local mode by omission.** An
+  unset issuer in a hosted install stays a REFUSAL naming the setting. This box
+  is the safety of 13.4 and must land with it, not after it.
+- [ ] 13.6 The hosted multi-user mode is UNCHANGED: same broker, same pinned
+  issuer, a token from any other issuer still refused.
+- [ ] **FALSIFIED BY** (a machine with no database and no identity broker):
+
+      set -euo pipefail
+      <the documented standalone install command>
+      opendox --help >/dev/null
+      # local mode starts with no broker reachable:
+      OPENDOX_MODE=local opendox --repo-root /tmp/plain generate-and-open --no-open --port 8080 &
+      SERVER=$!; trap 'kill "$SERVER" 2>/dev/null || true' EXIT
+      ready=0; for _ in $(seq 1 30); do curl -sf http://127.0.0.1:8080/ >/dev/null && { ready=1; break; }; sleep 1; done
+      test "$ready" -eq 1
+      # and a HOSTED install with no issuer REFUSES rather than degrading:
+      if OPENDOX_MODE=hosted opendox --repo-root /tmp/plain generate-and-open --no-serve; then
+        echo "FAIL: hosted install started with no issuer"; exit 1
+      fi
+
+  (`OPENDOX_MODE` is illustrative — 13.4 names the real selector and this box is
+  rewritten to it.) Today neither half is reachable: the runtime refuses without
+  `OPENDOX_DATABASE_URL` and `OPENDOX_OIDC_ISSUER`, and there is no local mode.
+
+## Group 14 — Requirements 6, 14, 15: health in the store, and the fix loop (RULED, openDox-code)
+
+**RULED** `#656` `5784155201` (*"health in db"*) and `5784247356` (*"1, add the
+fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
+
+- [ ] 14.1 **The health table arrives as `0003_`, NOT `0002_`.**
+  `migrations/0002_migration_state.sql` already exists (the
+  `opendox_schema_migrations` ledger). `0001` is applied verbatim behind
+  `CANONICAL_MIGRATION_SHA256` and its own text says *"Changing the schema is
+  therefore an ADDITIVE `0002_…`/`0003_…` file, never an edit here"*.
+- [ ] 14.2 **DECLARE whether the health table is a DOMAIN table or install-owned,
+  and say why.** This is the boundary claim, and the closure test is scoped to
+  the CANONICAL migration only — which is why `0002`'s ledger table did not trip
+  it. If DOMAIN: `identity.TABLES` and
+  `tests_runtime/test_schema_shape.py`'s closure text move in the SAME change. If
+  install-owned: the `0002` precedent already covers it and no closure text moves.
+  **Either way the choice is stated in the open**, which is what
+  `test_..._exactly_rulings_six_tables`'s message demands.
+- [ ] 14.3 The store holds NO DOCUMENT and stays DISPOSABLE (Q1's principle,
+  untouched): results are recomputable from git, so losing the store costs a
+  recomputation.
+- [ ] 14.4 **The neutral families**, as ruled: broken internal links, orphans,
+  near-duplicates, missing neutral front matter from the adapter's fields, a
+  declared stage that disagrees with the document's location among the six ruled
+  words, and stale or empty stubs. On demand from dashboard and CLI, optionally on
+  commit. Baseline-relative. Model-assisted checks only where a model is
+  configured. **openxFactory's 23 governance families stay put** (requirement 1).
+- [ ] 14.5 **The Health view, with CLI PARITY.** Every resolution action available
+  in the view is available from the command line — requirement 14's last scenario
+  exists because a standalone install may have no browser.
+- [ ] 14.6 **The three resolution classes.** AUTO-FIX (moved link target,
+  derivable front matter, stage/location mismatch) written by the product;
+  ASSISTED (near-duplicates, empty stubs) proposed for the human to edit, model-
+  written only where a model is configured; HUMAN-ONLY, evidence shown.
+  **THE APPLIER IS NEW WORK** — openxFactory CLASSIFIES
+  (`scripts/doc_health/__init__.py:17-18`, `AUTO_FIXABLE`/`CONTESTED`) and
+  `grep -rln 'def apply_fix|def autofix|def fix('` over `scripts/doc_health/`
+  returns nothing. Nothing in this estate applies a fix today.
+- [ ] 14.7 **Every repair is a DRAFT ON A BRANCH and lands only through the
+  landing rule** (requirement 11, group 12): standalone owner lands in openDox, a
+  governed repository gets the governance's instrument, and in every mode the
+  landing is an explicit human act with conflicts shown and a revertible commit.
+  **NOTHING auto-merges, not even a one-line fix.** Batching many repairs into ONE
+  draft for ONE review is the pressure valve, and is allowed.
+- [ ] 14.8 **EXCEPTIONS LIVE IN GIT, NOT THE STORE**, on the pattern of
+  openxFactory's `health/dispositions.yaml` — whose semantics already match:
+  `scripts/doc_health/families.py:370` reads *"removing its
+  health/dispositions.yaml entry re-opens"* the finding. An exception is a
+  judgement that exists nowhere else; the store is disposable, so an exception
+  stored there is a judgement scheduled for deletion.
+- [ ] **FALSIFIED BY** (openDox-code, installed, over a fixture corpus with a
+  known broken link and a known accepted finding):
+
+      set -euo pipefail
+      opendox --repo-root tests/fixtures/health-corpus health run
+      opendox --repo-root tests/fixtures/health-corpus health list | grep -q 'broken-link'
+      # a mechanical repair writes a DRAFT ON A BRANCH and never the default branch:
+      before=$(git -C tests/fixtures/health-corpus rev-parse HEAD)
+      opendox --repo-root tests/fixtures/health-corpus health fix --finding broken-link
+      test "$(git -C tests/fixtures/health-corpus rev-parse HEAD)" = "$before"   # default branch UNMOVED
+      git -C tests/fixtures/health-corpus rev-parse --verify --quiet refs/heads/health-fix-broken-link
+      # THE EXCEPTION SURVIVES A RESET OF THE STORE:
+      opendox-runtime runtime reset --confirm yes-drop-the-coordination-database
+      opendox-runtime runtime migrate
+      opendox --repo-root tests/fixtures/health-corpus health run
+      if opendox --repo-root tests/fixtures/health-corpus health list | grep -q 'accepted-finding'; then
+        echo "FAIL: a committed exception was lost with the store"; exit 1
+      fi
+
+  The default branch must not move, the draft branch must exist, and the
+  committed exception must still hold after the store is dropped and rebuilt.
+  (Verb spellings are illustrative; 14.5 names them and this box is rewritten to
+  them.) Today none of it exists: there is no health table, no health verb, and
+  no applier anywhere in the estate.
+
+
+## Group 15 — Requirement 16: the check-pack interface (RULED, openDox-code)
+
+**RULED** `#656` `5784295745`, 2026-09-22T21:16:17Z: *"1, add the pack interface
+to #1144"*. `design.md` § D12.
+
+- [ ] 15.1 Declare the NEUTRAL CHECK-PACK CONTRACT in openDox, on the
+  `src/opendox/corpus_adapter.py` Protocol pattern (a `@runtime_checkable`
+  Protocol with a CLOSED member set, for the reasons that file's own docstring
+  gives: structural conformance lets an implementation authored elsewhere satisfy
+  it without importing this product's tooling).
+- [ ] 15.2 A pack DECLARES check families: id, version, and which documents each
+  applies to. It RETURNS findings in the neutral shape — severity, resolution
+  class (auto-fix / assisted / human-only), evidence — and MAY return proposed
+  fixes AS PATCHES ONLY.
+- [ ] 15.3 A pack's labels resolve through the DISPLAY FACET
+  (`src/opendox/display_profile.py`), never spelled into the neutral surface —
+  the same rule slice S7 applied to the front end, and the reason
+  `NEUTRAL_DISPLAY`'s six words stay openDox's own.
+- [ ] 15.4 **THE ENGINE KEEPS**, identically for every pack: the Health view and
+  its CLI parity, scheduling, the baseline, storage (results in the store,
+  exceptions in git), and the fix loop with its landing rule.
+- [ ] 15.5 **THE REFUSALS**, each as a test and not as prose: a pack that writes,
+  commits or merges; a pack consumed without a commit-and-digest pin; a pack that
+  returns a class the engine does not declare, or declares its own baseline or
+  landing rule.
+- [ ] 15.6 **A PACK THAT CRASHES OR TIMES OUT IS A FINDING AGAINST THAT PACK**,
+  and the other packs still run. Give it a time budget. A health check whose
+  failure mode is silence is worse than one that reports itself broken — the
+  doc-health nightly failed silently every night from 2026-08-30 and nobody saw it.
+- [ ] 15.7 **PACK ID AND PACK VERSION ON EVERY FINDING, in the SAME additive
+  migration as the results table** (group 14.1 — `0003_`, since `0002_` is the
+  ledger), so the table is not migrated twice.
+- [ ] **FALSIFIED BY** (openDox-code, installed, with a deliberately broken pack
+  and a deliberately slow one registered beside the neutral checks):
+
+      set -euo pipefail
+      opendox --repo-root tests/fixtures/health-corpus health run
+      # the neutral checks still produced findings despite a broken pack:
+      opendox --repo-root tests/fixtures/health-corpus health list | grep -q 'broken-link'
+      # and the broken pack is itself a finding, attributed:
+      opendox --repo-root tests/fixtures/health-corpus health list --json \
+        | python -c "
+      import json,sys
+      f=json.load(sys.stdin)
+      assert any(x['pack_id']=='fixture-crashing-pack' for x in f), 'crashing pack not reported'
+      assert all(x.get('pack_id') and x.get('pack_version') for x in f), 'a finding has no provenance'
+      print('packs attributed:', sorted({x['pack_id'] for x in f}))"
+
+  Every finding carries a pack id and version, the crashing pack appears as a
+  finding rather than as a stack trace, and the run completes. Today none of this
+  exists: there is no pack contract, no health run, and no findings store.
+
+## Follow-ons named here and NOT authored here
+
+- [~] F1 **Port openxFactory's 23 governance families into the openXdox pack.**
+  An openXdox FOLLOW-ON with its own claim. Until it lands, requirement 1 keeps
+  those families with openxFactory. **Owner: whoever claims it on `#656`.**
+- [~] F2 **Each DomainxFactory's own pack**, pinned in that domain's `stack.yaml`.
+  That domain's own work. **Owner: each domain.**

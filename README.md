@@ -537,7 +537,7 @@ Active changes:
   Heap's ratification read), as the BUILD ARC the archived
   `split-opendox-two-layer-product` names as its own unclosed residue. **ONE
   `## ADDED` block creating the capability `neutral-product-standalone-operability`
-  — eleven requirements, thirty-seven scenarios**, written domain-neutrally (its sibling is
+  — sixteen requirements, sixty-seven scenarios**, written domain-neutrally (its sibling is
   `neutral-product-pin`: that governs openxFactory CONSUMING an external neutral
   product, this governs the product being able to STAND UP without its consumer),
   with openDox as the measured instance and one requirement per gap of the
@@ -578,12 +578,19 @@ Active changes:
   `github.com`, so the student C3 describes cannot get a session's work out at
   all. Named *submission* — the fifth of the six ruled words — because this
   capability already uses "publisher" for the repository that publishes the
-  corpus. **ONE ITEM IS EXPLICITLY OPEN and the packet recommends nothing on it:**
-  whether a standalone openDox may MERGE. The absence of merge/approve/bypass was
-  designed for a governed install where landing is the Merge Master's act under
-  branch protection; Brett has raised that a standalone owner owns the
-  repository. Both readings are set out in the proposal and requirement 11 is
-  drafted so either encodes afterwards without reopening it.
+  corpus. **THREE FURTHER RULINGS the same evening** settle the
+  standalone install's shape and TWO OF THEM AMEND FOUNDING RULINGS
+  ([`5784155201`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784155201),
+  [`5784247356`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784247356),
+  [`5784295745`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784295745)):
+  bundled Postgres with one dialect; a NAMED local single-user identity mode that
+  a hosted install cannot fall into by omission (**amends RULING Q2**); merge
+  authority following whoever governs the repository, with three guardrails in
+  every mode; document-health results as derived data in the disposable store
+  (**amends RULING Q1's closed six-table list**, by the additive path `0001`'s own
+  text names); the health FIX LOOP with exceptions committed to the corpus rather
+  than the store; and the CHECK-PACK interface, which gives openxFactory's 23
+  governance families a home in an openXdox pack rather than in the neutral core.
 
 - [amend-neutral-product-pin-source-tree-digest](openspec/changes/amend-neutral-product-pin-source-tree-digest/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-22,
