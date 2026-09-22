@@ -484,6 +484,31 @@ _UNITS_CANON_ALREADY_CARRIES = frozenset({
 })
 
 _LEDGER_SUBJECTS = {
+    # ADDED 2026-09-22 BY `add-worker-input-budget` (opensoft/xFactory#479,
+    # PR #1137). ONE uncarried bullet, and it is the packet's whole subject:
+    # canon's *Sweep sequencing and snapshot consistency* says in its first
+    # scenario "**THEN** the sweep's corpus is exactly the deterministic
+    # pass's inventory for that run". A packet that bounds the analysis
+    # worker's input CANNOT restate that sentence without falsifying its own
+    # delta — a budgeted run sends a SUBSET, by construction. So the bullet is
+    # REWRITTEN, not dropped, and its successor says more rather than less:
+    # "drawn from exactly the deterministic pass's inventory for that run and
+    # from no other snapshot", which is the requirement's real subject (ONE
+    # snapshot shared by both passes, the thing the immutable-checkout bullet
+    # beside it protects), plus a THIRD bullet the block adds — "where the
+    # input budget holds documents back, the set SENT to the worker is a
+    # subset of that corpus, named as such, the snapshot the two passes share
+    # being unaffected". Nothing canon obliged is released: the snapshot
+    # invariant survives verbatim in substance, and the narrowing it does make
+    # is the packet's declared normative claim, argued in `proposal.md`
+    # § "Why this is normative and not an implementation detail" and carried
+    # by the block's own added scenario *The input budget holds documents
+    # back*. This arm cannot distinguish a deliberate rewording from drift and
+    # does not claim to; the finding is INFO and it is the audit trail for the
+    # rewording. RETIRES when the packet archives and its block is promoted
+    # onto `openspec/specs/doc-health/spec.md` (its `tasks.md` Group 4).
+    ("add-worker-input-budget", "doc-health",
+     "Sweep sequencing and snapshot consistency"),
     # ADDED 2026-09-01 BY `add-chain-attestation`, TRANCHE TWO of the
     # signed-execution-chain arc, whose proposal merged to `main` via PR #510
     # without this ledger moving with it — which is why every openxFactory pull
