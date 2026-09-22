@@ -81,11 +81,22 @@ Both blocks were built by EXTRACTING the promoted scenarios programmatically
 from `openspec/specs/` rather than by retyping them, and
 `review/verify-carriage.py` re-extracts and compares on demand:
 
-    OK corpus-adapter-seam: all 3 promoted scenarios carried byte-identically; block carries 5 in total
-    OK domain-mapping-declaration: all 3 promoted scenarios carried byte-identically; block carries 4 in total
+    OK corpus-adapter-seam: all 3 promoted scenario blocks carried byte-identically among the delta's 6 parsed blocks
+    OK domain-mapping-declaration: all 3 promoted scenario blocks carried byte-identically among the delta's 4 parsed blocks
 
 It is committed with the packet rather than run once and reported, so the proof
 survives every later edit — including edits made in response to review.
+
+**AND THE TRANSCRIPT ABOVE IS THE ONE THING HERE THAT CAN GO STALE, WHICH IT DID
+— TWICE OVER, IN ONE LINE.** The first drafting froze the round-1 script's output;
+round 1's own fix then changed the wording (*"block carries N in total"* became
+*"among the delta's N parsed blocks"*) and round 2's fix changed the number (five
+to six, when the check-families scenario landed), and neither edit came back for
+it. Copilot `r4076204332` read the frozen line against the delta below it and
+caught the disagreement. **The transcript is now regenerated from the script
+rather than retyped**, and a reader who doubts it runs the one command above —
+which is the only form of this evidence that cannot drift, and the reason the
+script is committed at all.
 
 ## D4a — the one replaced unit is DECLARED, not silently reworded
 
