@@ -1,0 +1,105 @@
+# Tasks: require-adjudicated-validation-entrypoint
+
+Status: draft
+Kind: tasks
+
+`code_surface: none`, `target_release: implemented`. **There is no realization
+group.** The one enforced corpus-wide gate in this repository already names the
+entrypoint (`.github/workflows/openspec-cli-pin-gate.yml`:101), so the rule this
+delta states is already true of the gate; what it adds is that a written
+ASSERTION must name it too. Under `release-realization` an empty code surface
+archives ON LANDING plus this task list rather than on merged-plus-green
+realization evidence.
+
+**NOTHING IS TICKED THAT DID NOT LAND.** § 1 is OPEN: the ruling settled a box,
+not this packet. § 4 (archive) stays entirely open.
+
+## 1. Ratification — OWED, and NOT taken by the authoring lane
+
+- [ ] 1.1 **RATIFY THE PACKET.** The MEASUREMENT is accepted (`#656`
+      `5778300335`) and the particular box is RULED (`5778397686`, Brett Heap,
+      2026-09-22T14:33:02Z, by multi-choice: *§ 8.9 clause (2) READS LITERALLY;
+      the tick becomes `[~]`*). What is not yet given is the word that ratifies
+      the GENERAL rule this packet states from that particular. Record it at
+      `review/ratification-<date>.md` and flip `Status:` in `proposal.md`,
+      `design.md` and this file in one commit.
+- [ ] 1.2 **THE DECISIONS BEYOND THE RULED WORD, declared for a veto.** `design.md`
+      D1 (the rule reaches the ASSERTION and not only the run — with the test of
+      the contrary reading written out), D2 (`## ADDED` rather than a `##
+      MODIFIED` fold into the PATH requirement), D3 (staleness carried as a
+      scenario that defers by name rather than re-legislated), D4 (no checker
+      proposed, and why), D5 (the upstream fix registered, never proposed). Each
+      is separable and each carries its own veto cost.
+
+## 2. The delta — LANDED IN THIS PULL REQUEST
+
+- [x] 2.1 **ONE `## ADDED` REQUIREMENT in `neutral-product-pin`**, five
+      scenarios. **No existing requirement is modified.**
+- [x] 2.2 **THE BOUNDARIES ARE IN THE NORMATIVE TEXT.** The obligation reaches
+      the written assertion as well as the run; a NARROWED claim about one
+      change is explicitly not reached; ratified and archived text is explicitly
+      not edited by the requirement, its remedy being the reserved `[~]` marker
+      its own packet provides.
+- [x] 2.3 **THE STALENESS PROPERTY IS CARRIED BY NAME, NOT RE-LEGISLATED.**
+      Scenario *A reader asks whether naming the wrapper lowers the bar* answers
+      the objection with the entrypoint's own refusals and states in its last
+      bullet that these are the standing properties of *A dispositioned finding
+      is cited, upgrade-coupled, and refused when stale*.
+- [x] 2.4 **README *Active changes* row added** to the **OpenSpec Records**
+      block.
+- [x] 2.5 **The machine-seeded sweep-ledger row** in
+      `tests/sequenced_after/corpus-ledger.yaml`, written by the sanctioned
+      `python3 scripts/validate-sequenced-after.py . --seed-ledger` and by no
+      hand.
+
+## 3. The measurement — TAKEN, at this packet's own head
+
+- [x] 3.1 **BOTH COMMANDS RUN OVER ONE TREE, and the verdicts are opposite.**
+      `python3 scripts/validate-openspec-cli-pin.py --all --no-cache` →
+      `Totals: 108 passed, 1 failed (109 items)`, the 1 finding DISPOSITIONED
+      and printed by name with its citation and granting authority, **exit 0**.
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` → the same totals
+      and the same finding, **exit 1**. The finding is `add-chain-attestation`,
+      `ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'`.
+- [x] 3.2 **THE RAW RUN WAS NOT EVEN AT THE PINNED VERSION.** `openspec
+      --version` on `PATH` at this workstation reads **1.13.1**; the pin is
+      **1.12.0** (`contracts/openspec-cli-pin.yaml`:318). Recorded because it is
+      a SECOND, independent ground on which that verdict is not this
+      repository's — and because it is exactly the failure the existing
+      PATH requirement describes, met in the wild while authoring the packet.
+- [x] 3.3 **THE ENFORCED GATE ALREADY NAMES THE ENTRYPOINT.**
+      `.github/workflows/openspec-cli-pin-gate.yml`:101 is
+      `python3 scripts/validate-openspec-cli-pin.py --all --no-cache`, the
+      workflow's sole step. This is why `code_surface:` is `none`.
+
+## 4. Archive — OPEN
+
+- [ ] 4.1 **ARCHIVE ON A SEPARATE WORD.** Run it through
+      `python3 scripts/proposal-support.py . archive
+      require-adjudicated-validation-entrypoint` in the pinned checkout, never an
+      ambient `openspec archive` — which is this requirement's own doctrine
+      applied to its own promotion.
+
+## 5. Residue — named, not swept
+
+- [ ] 5.1 **NO CHECKER IS PROPOSED, AND THE MEASUREMENT THAT WOULD JUSTIFY ONE IS
+      NOT TAKEN** (`design.md` D4). A successor that wants a
+      `scripts/validate-*.py` sibling owes two readings first: how many live,
+      non-archived assertions the rule reaches, and whether a mechanical reader
+      can tell an ASSERTION of a green corpus from a CITATION of this defect —
+      this packet's own files contain the raw command as quoted text, and so
+      would every future record about it.
+- [ ] 5.2 **THE EXISTING OCCURRENCES ARE NOT SWEPT.** Non-archived task boxes,
+      plans, quickstarts and evidence lines elsewhere in the corpus name the raw
+      command. Archived records are frozen and ratified text is amended only by
+      its own instrument, so this packet edits none of them and the requirement
+      says so in its own body. Whether any LIVE box needs the same `[~]` remedy
+      § 8.9 took is a reading for the packet that owns it.
+- [ ] 5.3 **THE UPSTREAM FIX IS REGISTERED, NEVER PROPOSED** (`design.md` D5).
+      The CLI is consumed and never vendored (`package:
+      "@fission-ai/openspec"`, `source_repository: Fission-AI/OpenSpec`); the
+      pin is `1.12.0` and `1.13.1` is published upstream. A bump is a
+      ratified HUMAN-ONLY act owing target-version evidence and a re-derivation
+      of every disposition in the same change, and whether `1.13.1` reads the
+      marker is UNMEASURED here. **Retiring that class would not retire this
+      requirement** — a second disposition class is live in the pin file today.

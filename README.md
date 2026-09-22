@@ -532,6 +532,46 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [require-adjudicated-validation-entrypoint](openspec/changes/require-adjudicated-validation-entrypoint/proposal.md)
+  — filed 2026-09-22, lane `openxfactory-4`, `Status: draft`, on the measurement
+  Brett Heap accepted and ruled on the same day (`opensoft/openxFactory#656`
+  comments
+  [`5778300335`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5778300335)
+  and
+  [`5778397686`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5778397686)).
+  **ONE `## ADDED` requirement, five scenarios; no existing requirement is
+  modified and the disposition mechanism is not touched.** A gate step, task
+  box, checklist item or evidence record asserting CORPUS-WIDE OpenSpec
+  validation SHALL name the repository's `consumer_entrypoint:` invocation —
+  `scripts/validate-openspec-cli-pin.py --all` — and SHALL NOT name the raw
+  `openspec validate --all --strict`. **The two commands are not two routes to
+  one verdict**, and the packet's own head measures it: same tree, same finding,
+  `108 passed / 1 failed (109 items)` both ways, **exit 0** through the
+  entrypoint (which reconciles the finding against the pin's ratified
+  `dispositions:` and names it with its citation and granting authority) against
+  **exit 1** raw — the raw tool having no access to the pin, and at this
+  workstation not even being the pinned version (`1.13.1` on `PATH` against a
+  pin of `1.12.0`). The cause is promoted canon the CLI cannot read: the
+  reserved ``Merged into`` scenario-rename marker at
+  `openspec/specs/doc-health/spec.md`:1770. The worked example is
+  `split-opendox-two-layer-product` § 8.9 clause (2), which named the raw
+  command, could never be ticked while the ratified `add-chain-attestation`
+  disposition stood, and took the reserved `[~]` DEFERRED marker under RULED
+  `5778397686`. Boundaries are normative text: the obligation reaches the
+  written ASSERTION and not only the run, a NARROWED claim about one change is
+  not reached, and ratified or archived text is not edited by the requirement.
+  Owned by `neutral-product-pin` because the pin, the entrypoint and the
+  dispositions are all its own — **not** `doc-health` (which owns the marker but
+  none of the mechanism) and **not** a new capability (which would split *run
+  through the entrypoint* from *name the entrypoint*). `code_surface:` is `none`
+  and MEASURED — the enforced gate already names the entrypoint at
+  `.github/workflows/openspec-cli-pin-gate.yml`:101 — so the packet archives ON
+  LANDING plus its task list. The upstream CLI fix is REGISTERED as the
+  condition that would retire the finding class, never proposed: the CLI is
+  consumed and never vendored, a bump is a human-only act owing target-version
+  evidence, and a second disposition class is live today, so retiring one class
+  would not retire the requirement.
+
 - [add-worker-input-budget](openspec/changes/add-worker-input-budget/proposal.md)
   — filed 2026-09-22, lane `openxfactory-1`, `Status: draft`, on Brett Heap's
   word *"brief a writer to add the input-size guard"* (2026-09-22). **The
