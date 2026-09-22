@@ -3353,7 +3353,35 @@ the bookkeeping that ticks this group.
   the runner's first run to answer" until #1105 landed and the runner said
   otherwise in terms; corrected on a Copilot finding against head `a406915d`.)*
   CLAIM `5728621421`.
-- [ ] 5.6 `[cxF]` `[oxF]` **DE-FLOOR BEFORE YOU REMOVE — Rule 7 substrate row 1,
+- [~] 5.6 `[cxF]` `[oxF]` **DEFERRED 2026-09-22, AT THE ARCHIVE — OPEN, OWNED, AND
+  NOT CLAIMED.**
+  **Owner: this lane and codexFactory `#232`'s floor.**
+  **THE R-B EXCEPTION IS NAMED HERE SO THE NEXT READER MEETS THE EXCEPTION RATHER
+  THAN THE CONTRADICTION.** RULED **R-B**, `#656` comment `5728607038` (Brett
+  Heap, 2026-09-18, by interactive multi-choice), puts the **ARCHIVE FIRST** —
+  (1) the `openxFactory` archive lands carrying the removal and the ADDs, (2)
+  codexFactory regenerates the floor block at that merge commit, (3)
+  `openxFactory`'s five pin sites move in ONE reviewed diff — because the order
+  this box's own text writes and the machinery that would perform it are
+  **jointly unsatisfiable for a REMOVAL**: codexFactory's
+  `scripts/merge_master/specs_floor_block.py::assert_landed_pin` refuses a block
+  pinned at any `openxFactory` commit not reachable from `main`. RULED **Q-D1
+  (a)** (`#656` comment `5735889836`) then parks Phase 1 on this archive, **so
+  the archive is gated by a box that is gated by the archive**, and the only two
+  forms that break that cycle are this marker and a landing that bypasses the
+  wrapper.
+  **WHY DEFERRAL IS HONEST HERE AND NOT A SHORTCUT**: clauses (2) and (3) are
+  owed FROM the landed merge commit of this very archive — that sha is the value
+  the regeneration takes for `generated_at` — and it does not exist until this
+  packet lands. The marker says the box is OPEN and says who owns it; it does not
+  say the work is done. It takes the reserved `- [~]` rather than `- [x]` because
+  `scripts/proposal-support.py` refuses any packet whose `tasks.md` still matches
+  `^- \[ \]` at column zero, and buying that refusal off with a false tick is the
+  one thing an archive must not do.
+  **THE BOX'S RATIFIED TEXT AND EVERY STATUS IT HAS ACCUMULATED FOLLOW
+  UNCHANGED**, on this packet's no-deletion rule: the archive amendment moves the
+  marker and writes this opening, and it rewrites no record.
+  **DE-FLOOR BEFORE YOU REMOVE — Rule 7 substrate row 1,
   claimed HERE.** `openspec/specs/ideation-dashboard/` is REMOVED and two
   capability directories are ADDED by the archive, and the codexFactory
   review-authority floor is EXACT SET EQUALITY. Order: the codexFactory pull
@@ -4944,7 +4972,26 @@ realization evidence, never on landing. Each line is its own evidence.
   moves every time anybody lands anything. The byte-identity of
   `contract-v4.0.digests.yaml` at the cut and at main's tip (blob `84db9ce6`
   at both) is the same assurance in a form that does not rot.)*
-- [ ] 8.4 The codexFactory floor de-floored BEFORE the removal, in that order, with
+- [~] 8.4 **DEFERRED 2026-09-22, AT THE ARCHIVE — OPEN, OWNED, AND NOT CLAIMED.**
+  **Owner: this lane and codexFactory `#232`'s floor.**
+  **THIS BOX CANNOT TICK ON ITS OWN WORDS, AND THE R-B EXCEPTION IS WHY — NAMED
+  IN THE BOX RATHER THAN LEFT AT § 5.6.** The order this box CHECKS — *"de-floored
+  BEFORE the removal"* — is precisely the order RULED **R-B** (`#656` comment
+  `5728607038`, Brett Heap, 2026-09-18) INVERTED, on the measured ground that the
+  written order and the machinery are jointly unsatisfiable for a REMOVAL:
+  codexFactory's `scripts/merge_master/specs_floor_block.py::assert_landed_pin`
+  refuses a block pinned at any `openxFactory` commit not reachable from `main`.
+  So a tick here would certify an ordering that a ruling forbids, and an
+  unqualified `[ ]` would stop the archive that same ruling requires FIRST. The
+  reserved `[~]` is the only form that states both truths at once.
+  **WHAT REMAINS OWED, AND FROM WHAT**: R-B's clauses (2) and (3) — codexFactory
+  regenerating the floor block at THIS archive's merge commit, then
+  `openxFactory`'s five pin sites moving in ONE reviewed diff — both take that
+  merge sha as their input, so neither can be performed before this landing.
+  Nothing in this deferral relaxes the *"BOTH directions"* the box asks the floor
+  to account for; both are measured below and stay measured.
+  **THE BOX'S RATIFIED TEXT AND ITS FULL STATUS CHAIN FOLLOW UNCHANGED.**
+  The codexFactory floor de-floored BEFORE the removal, in that order, with
   the five openxFactory pin sites moved in ONE reviewed diff. Note the floor must
   account for BOTH directions of this archive: `openspec/specs/ideation-dashboard/`
   removed, and the two new capability directories plus the § 5.2a adapter successor
@@ -5312,7 +5359,7 @@ realization evidence, never on landing. Each line is its own evidence.
   rather than quietly re-stated, since a total that moves and a result that does
   not is exactly the distinction this line needs to make.)*
   `#656` records: CLAIM `5690461589`; evidence `5690559647`.
-- [ ] 8.9 `python3 -m pytest tests/doc-health tests/sequenced_after -q` green,
+- [x] 8.9 `python3 -m pytest tests/doc-health tests/sequenced_after -q` green,
   `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health
   run whose severity counts move by the amount **the archive pull request RECORDS
   AND EXPLAINS**.
@@ -5669,3 +5716,44 @@ realization evidence, never on landing. Each line is its own evidence.
   self-gate run sees NONE of them — `promotion_fidelity.py`:736-740. A BEFORE run
   in one scope and an AFTER run in the other would manufacture a delta out of
   nothing but the flag.)*
+  **TICKED AT THE ARCHIVE, 2026-09-22, BY THE ARCHIVE AMENDMENT — on the archive
+  pull request's OWN BASE→HEAD pair, which is the form this box's own text fixes
+  and NOT a pair chosen after seeing the run.** Three clauses, three evidence
+  lines, each measured by the archiving act at the tree it names:
+  **(1) `python3 -m pytest tests/doc-health tests/sequenced_after -q`** —
+  `<<REHOME: pytest counts>>`.
+  **(2) `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`** —
+  `<<REHOME: strict-validate delta>>`.
+  **(3) the doc-health BEFORE→AFTER record, per family and per severity with
+  `info` included, and a named reason for every finding that ENTERED, LEFT or
+  CHANGED SEVERITY** — `<<REHOME: doc-health deltas per family>>`.
+  **THE BASELINE IS FIXED BEFORE THE RUN AND NAMED AS A SHA** — the archive pull
+  request's OWN BASE commit, the last pre-archive `main`, stated together with the
+  doc-health invocation; **the AFTER is bound the same way**, naming that pull
+  request's own HEAD or, once it exists, the resulting merge commit, so the pair
+  is BASE→HEAD of one pull request and neither end can be swapped for a
+  convenient tree. **THE SCOPE IS NAMED FIRST**, because the two scopes do not
+  compare: row (viii) above is this record's BEFORE half and already names its
+  own. A netted total without the vector, or a vector without the findings behind
+  a moved count, does not discharge this line — the box fixed that form before it
+  knew its own numbers, which is what makes these three lines falsifiable.
+  **THIS TICK STANDS ONLY ON AN EXIT-0 AFTER FOR CLAUSE (2), AND THE BOX SAYS SO
+  RATHER THAN LEAVING IT TO BE INFERRED.** Residue (vi) is the reason: that
+  command exits **1** at `main` `6b298a1e` on `add-chain-attestation` — ANOTHER
+  change's MODIFIED block, asked of lane `openxfactory-1` by name at `#656`
+  comment `5767267092` — and § 8.4 registers that the archive's own AFTER adds the
+  two newly promoted specs until real `## Purpose` text replaces the CLI's `TBD`.
+  **If the measured AFTER is not exit 0, this box does NOT tick**: it takes the
+  same reserved `[~]` and DEFERRED sentence §§ 5.6 and 8.4 take, and the
+  archiving act records which of the two it took and why.
+  *(Written INTO the box rather than only into the archive pull request, because a
+  tick whose condition is stated somewhere else is a tick a later reader cannot
+  check — which is the defect R-6 already corrected once in this box.)*
+  **(xi) THE FILE'S OWN FINAL COUNT, so the next reader need not recount 72
+  boxes**: after this amendment the ledger reads **68 `[x]` / 0 `[ ]` / 4 `[~]`
+  of 72** — §§ **5.6, 7.3, 7.4 and 8.4** hold the reserved DEFERRED marker and
+  **no column-0 `- [ ]` remains**, which is the condition
+  `scripts/proposal-support.py` refuses an archive on. Row (ix) above is KEPT as
+  the dated measurement it is — seven such lines at the pre-stage — and is not
+  renumbered: a figure bound to a moment is evidence, and this row is the same
+  count taken at a later one.
