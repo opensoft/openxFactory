@@ -202,6 +202,7 @@ rows:
   amend-absent-changelog-is-an-answer: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#767", moved_on: "2026-09-07"}
   amend-chain-anchoring-readiness-and-durability: {state: archived, class: sole, declares: [add-chain-anchoring], depth: 1, prose: false, moved_by: "#670", moved_on: "2026-09-05"}
   amend-code-surface-grammar-comma-and: {state: active, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1108", moved_on: "2026-09-18"}
+  amend-home-adapter-scope-and-mapping-axis-count: {state: active, class: co-modifier, declares: [split-opendox-two-layer-product], depth: 1, prose: false, moved_by: "#1143", moved_on: "2026-09-22"}
   amend-kill-switch-to-declared-test-companion: {state: active, class: co-modifier, declares: [extend-merge-master-envelope-to-floor-bot-lanes], depth: 3, prose: false, moved_by: "#959", moved_on: "2026-09-11"}
   amend-marker-declaring-nothing: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#926", moved_on: "2026-09-10"}
   amend-marker-defect-reporting: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#862", moved_on: "2026-09-09"}
@@ -281,6 +282,7 @@ rows:
   repoint-chain-anchoring-medxchain-citation: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#998", moved_on: "2026-09-12"}
   report-stale-grandfather-dispositions: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1015", moved_on: "2026-09-12"}
   repromote-engineering-vocabulary: {state: archived, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1103", moved_on: "2026-09-18"}
+  require-adjudicated-validation-entrypoint: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1141", moved_on: "2026-09-22"}
   restructure-factory-repo-boundaries: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   retire-doxbench-chat-turn-v1: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#1066", moved_on: "2026-09-16"}
   retire-hermes-flat-keys-and-openworkflow-tokens: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}

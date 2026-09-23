@@ -600,6 +600,38 @@ Active changes:
   than the store; and the CHECK-PACK interface, which gives openxFactory's 23
   governance families a home in an openXdox pack rather than in the neutral core.
 
+- [amend-home-adapter-scope-and-mapping-axis-count](openspec/changes/amend-home-adapter-scope-and-mapping-axis-count/proposal.md)
+  — filed 2026-09-22, lane `openxfactory-4`, **`Status: draft`**, on the TWO
+  REMAINING ratified-text findings of Copilot review `5273796676` on
+  `opensoft/openxFactory#1139` (the archive of `split-opendox-two-layer-product`,
+  merge `e8fde27f`), registered as real by the archiving lane at `#1139` comment
+  `5770749761`. The third of that set was ruled separately and landed as `#1140`;
+  with this the set of four closes. **TWO `## MODIFIED` requirements in two
+  capabilities, six promoted scenarios carried byte-identically, four added.**
+  (1) `corpus-adapter-seam`'s *"SHALL consume every tool that reads its governed
+  corpus as an EXTERNAL NEUTRAL PRODUCT pinned under `neutral-product-pin`"*
+  gains a NAMED, BOUNDED exception for the one adapter RULING DQ-1 keeps in this
+  repository, whose obligations requirement 4 and `openxfactory-engineering-adapter`
+  already carry — measured: `scripts/corpus_adapter_openxfactory/` is in tree, in
+  no pin, and imports `doc_health` at six sites and `ideation_dashboard` at two,
+  so it satisfies neither of the requirement's two clauses and the escape the
+  first appears to offer is closed by the second. The exception is ONE NAMED
+  IMPLEMENTATION and not a general carve-out, with a scenario refusing a second
+  in-repository reader, because a general one would make the requirement's own
+  vendoring scenario unreachable. (2) `domain-mapping-declaration`'s *"exactly
+  five axes"* becomes SIX, the sixth being the DERIVED-MODEL BOUNDARY the same
+  spec's third requirement already mandates for every derived-model family —
+  measured: the estate's one realized declaration,
+  `contracts/domain-profiles/openxfactory-engineering.yaml`, already carries
+  `truth_store:` as a top-level key beside the five, under its own `AXIS 1`..`AXIS 5`
+  banners and under none of its own, and `DomainProfile` carries it as its own
+  field, so the amendment states the count the corpus already keeps and settles
+  which of the finding's two readings — forbidden sixth axis, or nested data —
+  is right. `code_surface: none`, MEASURED: every reference to
+  `corpus-adapter-seam` in running code names requirement 3 or 4, not one names
+  requirement 1, and nothing anywhere counts axes. **NOT RATIFIED BY THE
+  AUTHORING LANE** — both amendments are requirement text after a ratify word and
+  go to Brett Heap, per the 2026-09-01 precedent.
 - [amend-neutral-product-pin-source-tree-digest](openspec/changes/amend-neutral-product-pin-source-tree-digest/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-22,
   Brett Heap, *"ratify #1140 and #1141"*, `#656` comment `5779511063`, at head
@@ -646,6 +678,54 @@ Active changes:
   already in the admitted shape — so the packet archives ON LANDING plus its
   task list rather than on realization evidence, and a pin conformant before it
   lands is conformant after it.
+
+- [require-adjudicated-validation-entrypoint](openspec/changes/require-adjudicated-validation-entrypoint/proposal.md)
+  — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-22,
+  Brett Heap, *"ratify #1140 and #1141"*, `#656` comment `5779511063`, at head
+  `c36ff08c` — the head the word named and the head the packet stood at), on the
+  measurement Brett Heap accepted and ruled on the same day (`opensoft/openxFactory#656`
+  comments
+  [`5778300335`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5778300335)
+  and
+  [`5778397686`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5778397686)).
+  **ONE `## ADDED` requirement, SEVEN scenarios; no existing requirement is
+  modified and the disposition mechanism is not touched.** A gate step, task
+  box, checklist item, runbook step, review record, agent instruction or other
+  evidence record asserting CORPUS-WIDE OpenSpec
+  validation SHALL name the repository's `consumer_entrypoint:` invocation **in
+  its DEFAULT, PINNED-ARTIFACT form** — `scripts/validate-openspec-cli-pin.py
+  --all` — and SHALL NOT name the raw `openspec validate --all --strict`, nor
+  any mode of that entrypoint resolving the tool from `PATH` or reading a
+  foreign pin (**the flags are part of the name**). **The two commands are not two routes to
+  one verdict**, and the packet's own head measures it: same tree, same finding,
+  `110 passed / 1 failed (111 items)` both ways at the merged head `925d146b`
+  (`108 / 1 / 109` at the ratification baseline `c36ff08c` — **the item count
+  tracks the size of `main`'s corpus and the VERDICTS are what this packet
+  claims**), **exit 0** through the
+  entrypoint (which reconciles the finding against the pin's ratified
+  `dispositions:` and names it with its citation and granting authority) against
+  **exit 1** raw — the raw tool having no access to the pin, and at this
+  workstation not even being the pinned version (`1.13.1` on `PATH` against a
+  pin of `1.12.0`). The cause is promoted canon the CLI cannot read: the
+  reserved ``Merged into`` scenario-rename marker at
+  `openspec/specs/doc-health/spec.md`:1772. The worked example is
+  `split-opendox-two-layer-product` § 8.9 clause (2), which named the raw
+  command, could never be ticked while the ratified `add-chain-attestation`
+  disposition stood, and took the reserved `[~]` DEFERRED marker under RULED
+  `5778397686`. Boundaries are normative text: the obligation reaches the
+  written ASSERTION and not only the run, a NARROWED claim about one change is
+  not reached, and ratified or archived text is not edited by the requirement.
+  Owned by `neutral-product-pin` because the pin, the entrypoint and the
+  dispositions are all its own — **not** `doc-health` (which owns the marker but
+  none of the mechanism) and **not** a new capability (which would split *run
+  through the entrypoint* from *name the entrypoint*). `code_surface:` is `none`
+  and MEASURED — the enforced gate already names the entrypoint at
+  `.github/workflows/openspec-cli-pin-gate.yml`:101 — so the packet archives ON
+  LANDING plus its task list. The upstream CLI fix is REGISTERED as the
+  condition that would retire the finding class, never proposed: the CLI is
+  consumed and never vendored, a bump is a human-only act owing target-version
+  evidence, and a second disposition class is live today, so retiring one class
+  would not retire the requirement.
 
 - [add-worker-input-budget](openspec/changes/add-worker-input-budget/proposal.md)
   — filed 2026-09-22, lane `openxfactory-1`, `Status: draft`, on Brett Heap's
