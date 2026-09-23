@@ -460,14 +460,14 @@ branch diff.
       re-run of all five commands at the landing head, not by an argument about
       which files changed since `5e08ff1d`.**
 - [x] 4.4 `pytest-suite` green on the realization pull request at its merge head.
-      **NOTED, 2026-09-23, left `- [ ]` rather than ticked**: `pytest-suite` is
-      GREEN on this pull request's own head `c2d4309b` — run `35896651067`
+      **NOTED, 2026-09-23, insufficient alone to tick this box**: `pytest-suite`
+      is GREEN on this pull request's own head `c2d4309b` — run `35896651067`
       (https://github.com/opensoft/openxFactory/actions/runs/35896651067),
       22m31s — `317 passed` among the other packages this workflow also runs.
       This box's own words ask for green "at its MERGE head", which is main's
       head after the landing squash and not this branch's own pre-merge head;
-      the tick is the archive act's, from main's green run at the landed merge,
-      per the coordinator's standing instruction for this box.
+      the box is ticked below from main's green run at the landed merge, per
+      the coordinator's standing instruction for this box.
       **TICKED AT THE ARCHIVE ACT, 2026-09-23, ON `main`'s OWN RUN AT THE MERGE
       HEAD.** `pytest-suite` is GREEN on `main` at
       `5e122388d489378ea3e768de7f1de678f97e62e6` — run `35907128216`
@@ -575,7 +575,11 @@ branch diff.
       `release-realization` requirement count **19 -> 21** and scenario count
       **105 -> 122** (-11 +11 +8 +9, re-taken with `grep -c` from canon rather
       than copied forward); the other EIGHTEEN requirement blocks are
-      byte-identical before and after, hashed one by one; `--numstat` **+312
+      unmoved as requirement text — SEVENTEEN byte-identical before and
+      after, hashed one by one, and the eighteenth, the former last block
+      *A symlink-loop proof is built at test time and never committed*,
+      gaining exactly one trailing blank separator line now that two blocks
+      follow it where none did before; `--numstat` **+312
       -19**, and `-w` reads the same, so no changed line is whitespace-only.
       THE CLI DID NOT DIVERGE FROM THE DELTA and no block was corrected by hand.
       **ONE CONSEQUENCE OF "THE DELTA AS WRITTEN" IS STATED RATHER THAN LEFT TO

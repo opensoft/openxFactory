@@ -3149,8 +3149,12 @@ Archived changes:
   ONE `## MODIFIED` block and TWO `## ADDED` requirements, TWENTY-EIGHT
   scenarios, onto `openspec/specs/release-realization/spec.md` (`--numstat`
   **+312 −19**, and `−w` reads the same; requirement count **19 → 21**,
-  scenarios **105 → 122**, the other eighteen requirement blocks
-  byte-identical): *Code-surface declaration grammar is gated* (eleven
+  scenarios **105 → 122**, the other eighteen requirement blocks unmoved as
+  requirement text — seventeen byte-identical, the eighteenth (the former
+  last block, *A symlink-loop proof is built at test time and never
+  committed*) gaining exactly one trailing blank separator line now that
+  two blocks follow it where none did before): *Code-surface declaration
+  grammar is gated* (eleven
   scenarios, **15,971 bytes / 207 lines**, sha256 `2b9a75d6bf836c8e…` on the
   archived delta AND canon), *The estate's repositories are enumerated in a
   governed inventory* (eight, **12,297 bytes / 160 lines**, sha256
