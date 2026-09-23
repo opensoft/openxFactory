@@ -215,6 +215,12 @@ word.
 FAILS-THEN-PASSES obligation: every test is written to FAIL against the tree
 without its arm, and is shown failing before it is shown passing.
 
+Record note 2026-09-23 (landing prep, PR #1119): this sentence describes the
+CODE SURFACE. The landing-prep tick commit moves this tasks.md file itself, the
+packet's lifecycle record, exactly as PR #1107 did for its packet; the
+code-surface diff stays five files, and tasks.md is the sixth file in the
+branch diff.
+
 - [x] 3.1 `scripts/estate-repository-inventory.yaml` (NEW): the 33 candidate rows
       of `design.md` D0.2, `schema_version` and `kind` at the head (CLAUDE.md
       rule 4), a header stating why the file is not under `contracts/` and what a
@@ -372,6 +378,10 @@ without its arm, and is shown failing before it is shown passing.
       `scripts/validate-estate-inventory.py` and
       `tests/estate_inventory/test_estate_inventory.py` — five files, nothing
       else, both at the original delivery and at every round since.
+      Precisely: exactly five code-surface files (plus this tasks.md record,
+      ticked at landing prep) — the code-surface diff has not grown a sixth
+      member; `tasks.md` becomes the branch's sixth changed file only as the
+      packet's own lifecycle record, per the § 3 boundary note above.
 
 ## 4. Verification (OPEN; taken at the realization head)
 
@@ -413,6 +423,42 @@ without its arm, and is shown failing before it is shown passing.
       governance-class settlement itself (pins vs. authors, per repository) is a
       fact of those repositories' own trees and does not move with the corpus
       count.
+      **RE-MEASURED AGAIN, THE FULL FIVE-COMMAND SEQUENCE ACTUALLY RE-RUN — not
+      reasoned from an unchanged-files argument — at `2858747b` on 2026-09-23,
+      SUPERSEDING the PR body's round-7 note that this sequence was still owed
+      at landing prep:** (1) re-measured at `2858747b` on 2026-09-23: `gh api
+      repos/opensoft/xFactory/contents/.gitmodules -q .content | base64 -d |
+      grep -oP 'github\.com[:/]\K[^ ]+' | sed 's/\.git$//' | sort` → 23
+      addresses, set difference against the inventory's 23 `carrier:
+      opensoft/xFactory` gitlink rows EMPTY both ways, matching `5e08ff1d`; (2)
+      re-measured at `2858747b` on 2026-09-23: the same scan over the 25
+      governed non-root rows the live inventory's own governance column now
+      names → 12 nested gitlinks in 7 carriers (openxFactory 4, MedxEHR 2,
+      LedgerxFactory 2, MedxFactory 1, MedxChart 1, MedxPractice 1,
+      LedgerxAvatar 1), the identical distribution `5e08ff1d` recorded; (3)
+      re-measured at `2858747b` on 2026-09-23: `grep -rn
+      'source_repository\|^repository:' contracts/*.yaml` → 8 hits (7
+      declaration lines, one the empty
+      `review-lane-repin-binding.template.yaml` stub, one commented in
+      `review-lane-floor-snapshot.yaml`), 6 distinct repositories, unchanged;
+      (4) re-measured at `2858747b` on 2026-09-23: `grep -rhoP
+      'uses:\s*\K[A-Za-z0-9._-]+/[A-Za-z0-9._-]+' .github/workflows/ | sort -u`
+      plus `grep -rln 'codeXfactory/codexFactory' .github/workflows/` →
+      `actions/*` and `codeXfactory/codexFactory`, ONE estate repository across
+      the same four files (`doc-health-reusable.yml`,
+      `merge-master-approval.yml`, `pytest-suite.yml`,
+      `review-lane-repin.yml`), unchanged; (5) re-measured at `2858747b` on
+      2026-09-23: `python3 scripts/validate-code-surface.py .` → exit 0, `46
+      active proposals, 46 declaring — 9 \`none\`, 30 a repository list, 7
+      named by the register, 0 outside the grammar`, archive `180 proposals,
+      134 declaring, 4 outside the grammar`, `membership: 30 readable heads
+      naming 6 distinct identifiers — 6 carried, 0 refused`, the same six
+      identifiers as before (`openxFactory`, `xFactory`, `openAvatar`,
+      `opensoft/LedgerxWallet`, `opensoft/Keycloak-Install`,
+      `opensoft/OpenXPKI-Install`), matching the round 5-7 re-confirmation
+      already cited at § 3.4. **NO ROW MOVED — confirmed this time by direct
+      re-run of all five commands at the landing head, not by an argument about
+      which files changed since `5e08ff1d`.**
 - [ ] 4.4 `pytest-suite` green on the realization pull request at its merge head.
       **NOTED, 2026-09-23, left `- [ ]` rather than ticked**: `pytest-suite` is
       GREEN on this pull request's own head `c2d4309b` — run `35896651067`
