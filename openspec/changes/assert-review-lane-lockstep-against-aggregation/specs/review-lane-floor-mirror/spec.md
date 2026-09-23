@@ -54,7 +54,8 @@ state, and it SHALL NOT read its own silence as confirmation of the declared one
 An unaskable question is never an implicit pass. A SURFACE IS READ ONLY AS A
 COMMIT: each surface's value SHALL be forty lowercase hexadecimal characters, the
 grammar the pin's own `core_commit` obeys, and a surface whose value is not SHALL
-count as UNREADABLE, named with the value it carried — so surfaces that AGREE on
+count as UNREADABLE, named with the value extracted from its fixed location and
+never the file around it — so surfaces that AGREE on
 something that names no commit, an empty string among them, conclude nothing,
 rather than reaching a comparison that a declared `diverged` would pass merely
 because two strings differ.
@@ -84,6 +85,16 @@ anything from that head — and SHALL re-verify that commit after the read so a
 ref moved underneath it is refused rather than reported. A check that read the
 pin from the base it runs on would compare the commit ALREADY in place against
 the aggregation, pass, and never see the advance it exists to judge.
+
+WHAT IS READ IN THE AGGREGATION IS DECIDED BY THE BASE, NEVER BY THE CANDIDATE.
+The candidate's bytes are data to be JUDGED and never an instruction about what
+to READ: the check SHALL take from the candidate only the values under judgment,
+`core_commit` and the declared state, and SHALL take the aggregation and the path
+of every surface in it from the base branch — the base's `converged_with:`
+members and the check's own fixed location for the aggregation's constant —
+never resolving a path from the candidate head. A candidate that could choose
+what is read could turn the credential for a private repository on any file in
+it, and have that file's contents named back as the value a surface carried.
 
 THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the DECLARED STATE
 OUTSIDE ITS VOCABULARY first — this repository's own file, readable without

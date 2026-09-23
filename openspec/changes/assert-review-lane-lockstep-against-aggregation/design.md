@@ -313,6 +313,13 @@ or read. And the run is created with `head_sha` set to the VERIFIED candidate
 the BASE branch's last commit, and would hang the verdict on a commit the advance
 does not propose.
 
+**`r4077837539` — and so the advance side publishes nothing.** It records the
+measured values and the outcome in the pull-request body the lane already
+writes, and the conclusion for that advance is the gate's, on the same head: the
+lane's App-token push starts the gate's `pull_request_target` run (measured on
+`#1138`). A second check run for one fact on one commit would be the second
+identity the paragraph above forbids.
+
 ## D12 — the surfaces are read at ONE resolved commit, or the check measures read timing
 
 Copilot's *previously missed* item on round 5: reading the three files
@@ -476,6 +483,16 @@ bytes. The estate's own rule says the first half — *"rules must come from the
 base branch"* — and this packet needed the second half stated to be correct at
 all.
 
+**And head data is JUDGED, never FOLLOWED** (Copilot `r4077898334`). The
+candidate's `converged_with:` is head-controlled; if it chose the paths the gate
+reads in the private aggregation, a candidate could turn the xFactory token on
+any file there, and D16's rule of naming a non-commit surface by its value would
+print that file's contents into the verdict. So the read plan is the base's —
+the base's `converged_with:` and the gate's own fixed location for the
+aggregation's constant — and the candidate supplies only the values under
+judgment, `core_commit` and the declared state. The value named for a surface is
+the field extracted from its fixed location, never the file around it.
+
 ## D14d — the allowlist is a TRIPLE, because a head ref is a predicate its author controls
 
 Copilot `r4076740158`, the last refinement of D14's chain. A head-ref allowlist
@@ -507,8 +524,13 @@ repository grants `checks: write` today** (`merge-master-approval.yml`:453 grant
 be visible as `neutral` — the contract would degrade to exactly the silent green
 pass D11 was written to prevent, by a different route.
 
-The gate's own job grants least-privilege `checks: write` in its `permissions:`
-block. **The aggregation read token stays read-only and gains nothing**: the
+The gate's own job declares exactly the three `GITHUB_TOKEN` scopes its steps
+use — `contents: read`, `pull-requests: read` and `checks: write` — because a
+declared `permissions:` block sets every undeclared scope to `none`
+(`merge-master-approval.yml`:448-449). The first draft of this decision granted
+`checks: write` alone, which would have left the gate unable to fetch the
+candidate pin or re-read its head (Copilot `r4077837498`). **The aggregation
+read token stays read-only and gains nothing**: the
 thing being written is a check run in THIS repository and the thing being read is
 ANOTHER repository, and keeping those two privileges in different places is the
 same separation the binding's `never_grants:` set exists to state.
@@ -526,7 +548,8 @@ quietly returns for all three at once.
 **Each surface is now read only as a commit** — forty lowercase hexadecimal
 characters, the grammar `core_commit` already obeys (`SHA40_RE`,
 `scripts/review_lane_repin.py`:114) — and a surface outside it counts as
-UNREADABLE, named with the value it carried. The input lands in an outcome that
+UNREADABLE, named with the field extracted from its fixed, base-owned location,
+never the file around it (D14c). The input lands in an outcome that
 already exists, NEUTRAL, so the outcomes stay five and the order stays as D9
 states it.
 

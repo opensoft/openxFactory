@@ -96,7 +96,19 @@ this packet's archive until merged PLUS green realization evidence.
   Value fixtures alone cannot catch a reader that takes each file from `main`
   independently — and that reader manufactures INCONSISTENT the moment a re-point
   lands between two calls, which is the one outcome nobody can check against
-  anything.
+  anything. **ITS VERDICT IS RECORDED, AND THE GATE CARRIES ITS CONCLUSION**
+  (Copilot `r4077837539`). The advance side publishes no check run of its own and
+  gains no `checks: write`. It records the measured values, the resolved
+  aggregation commit and the outcome in the pull-request body the lane already
+  composes (`--body-out`, `review-lane-repin.yml`:597; `gh pr edit` /
+  `gh pr create --body-file`, `:840-861`), and the CONCLUSION for that advance is
+  the gate's, on the same head: the lane pushes with its App token, and an
+  App-token push starts `pull_request_target` runs — measured on `#1138`, whose
+  head carries a `merge-master-approval` run with event `pull_request_target`
+  triggered by `openxfactory[bot]`. A second check run for one fact on one commit
+  would be a second identity for one verdict, which § 5.1e forbids. Tests: the
+  lane's body carries the verdict, and the gate's `pull_request_target` trigger
+  covers `opened`, `synchronize` and `reopened`.
 - [ ] 5.1a **THE PULL-REQUEST-SIDE HOST, AND IT IS A SECOND WORKFLOW THAT TAKES
   ITS OWN READING** (Copilot `r4075976980`, `r4076152645`). It is a SEPARATE
   WORKFLOW RUN and therefore cannot consume the scheduled run's step outputs, so
@@ -131,7 +143,12 @@ this packet's archive until merged PLUS green realization evidence.
   `never_grants: [contents:write, actions:write, pull-requests:write]` — which is
   also what keeps the family's own rule intact: *"neither repository's lane may
   reach into the other's"*. The aggregation is READ and never written, by this
-  packet or by its realization.
+  packet or by its realization. **AND A MINT TO USE IT** (Copilot
+  `r4077898366`): `review-lane-repin.yml` mints two tokens today, the codexFactory
+  read and its own write (`:276-311`), so it gains a THIRD — `owner: opensoft`,
+  `repositories: xFactory`, `permission-contents: read` — held by a test in the
+  same shape as the other two. A grant with no mint leaves the advance-side read
+  UNDETERMINED on every run.
   **AND BOTH RUNS NEED THE READ, NOT ONE** (Copilot `r4076254027`). § 5.1a's
   pull-request gate is a SEPARATE WORKFLOW RUN: it cannot reuse the advance lane's
   minted App token any more than it can reuse its step outputs, and the ambient
@@ -220,18 +237,32 @@ this packet's archive until merged PLUS green realization evidence.
   the two. The base-branch rule is kept exactly: no head CODE runs, and reading
   head DATA as bytes is what makes `pull_request_target` usable rather than
   merely safe. An end-to-end test drives a candidate whose pin differs from the
-  base's and asserts the verdict names the CANDIDATE commit.
+  base's and asserts the verdict names the CANDIDATE commit. **AND THE CANDIDATE
+  IS JUDGED, NEVER FOLLOWED** (Copilot `r4077898334`): the gate takes from the
+  candidate only `core_commit` and the declared state, and takes every path it
+  reads in the aggregation from the BASE's `converged_with:` and its own fixed
+  location for `MIGRATION_PIN` — because a candidate whose `converged_with:` chose
+  the paths could turn the xFactory token on any file there and have its contents
+  printed back as a surface's value. A test drives a candidate whose
+  `converged_with:` names another path and asserts that no path from the
+  candidate is read.
 - [ ] 5.1h **THE NEUTRAL CONCLUSION NEEDS A WRITE PATH, AND IT IS A DIFFERENT
   TOKEN FROM THE READ** (Copilot's *previously missed* item, round 5). § 5.1e
   publishes through the check-run API and § 5.1c's aggregation binding grants
   `contents:read` only — measured, no workflow in this repository grants
   `checks: write` today (`merge-master-approval.yml`:453 grants `checks: read`)
   — so the publish would 403 and INCONSISTENT/UNDETERMINED could never be
-  visible as `neutral`. The gate's OWN job grants least-privilege `checks: write`
-  in its `permissions:` block; **the aggregation read token stays read-only and
-  gains nothing**, because the thing being written is a check run in this
-  repository and the thing being read is another repository. A test exercises the
-  published check-run path.
+  visible as `neutral`. **The gate's OWN job declares exactly the three
+  `GITHUB_TOKEN` scopes its steps use** (Copilot `r4077837498`):
+  `contents: read` for the base checkout and the candidate pin fetched as bytes,
+  `pull-requests: read` for re-reading `head.sha` and the triple's author and
+  refs, and `checks: write` for the verdict — because a declared `permissions:`
+  block sets every undeclared scope to `none` (`merge-master-approval.yml`:448-449),
+  so `checks: write` alone would leave the gate unable to reach the comparison.
+  **The aggregation read token stays read-only and gains nothing**, because the
+  thing being written is a check run in this repository and the thing being read
+  is another repository. Tests: the job's block is exactly those three, and the
+  published check-run path is exercised.
 - [ ] 5.1d **A READ FAILURE IS AN INPUT, NEVER A FATAL STEP** (Copilot
   `r4076152544`). The advance workflow treats a non-404 API failure as step-fatal,
   so an auth error, a rate limit or a transport failure would abort before the
