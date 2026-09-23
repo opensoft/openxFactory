@@ -807,8 +807,9 @@ require.
 - **Outside both releases:** Group 8, openDox-spec's re-promotion, which is
   openDox-spec's own act and carries `[~]`.
 - **Follow-ons outside both releases:** the xFactory check pack in openXdox,
-  openxFactory's 23 families (F1); the wording overlays (F3); and the
-  direct-arrow revisit after phase 1 (F4).
+  openxFactory's 23 families (F1); the wording overlays (F3), two of which have
+  since landed, as openxFactory#1146 and #1148; and the direct-arrow revisit
+  after phase 1 (F4).
 
 ### One change, and what archives it
 
@@ -904,6 +905,41 @@ record already carries.
 Both are realization decisions inside requirement 17's text, and task 16.3
 names them rather than making them. Whichever answer is taken, no raw key enters
 the configuration, and the pull request that takes it says which it took.
+
+## D15 — RULED: the code surface names the assembly roots, until the inventory can name a leg
+
+**RULED** by Brett Heap, `#656` comment
+[`5804191141`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5804191141)
+(2026-09-23T22:45:13Z), verbatim *"1, name the roots and file the follow-up"*,
+which supersedes `5802995365`. **This section is a note, not a requirement.** It
+explains a declaration and changes no property.
+
+- **Why the head names the roots.** Since #1119 → `5e122388`,
+  `release-realization`'s membership arm refuses a `code_surface:` identifier
+  that `scripts/estate-repository-inventory.yaml` does not carry. The inventory
+  carries the assembly roots `opensoft/openDox` and `opensoft/openXdox`, both
+  `pinned`, and neither of their code legs, and none of its five admission kinds
+  can admit a leg today:
+  - `workflow` evidence is read from `uses:` and `with.repository:` only, while
+    openxFactory's workflows reach the legs through `git submodule update` in
+    `run:` lines;
+  - openxFactory never pins a leg (RULING OQ-2);
+  - a `gitlink` admission needs a `governed` carrier, and both roots are
+    `pinned`;
+  - `change` needs a ratified change that creates the repository, and the
+    carving change is archived.
+- **Where the code lands.** The code the two roots stand for is written in their
+  legs, `opensoft/openDox-code` and `opensoft/openXdox-code`, as `tasks.md` names
+  them group by group. openxFactory's own arm, its host wiring, is named in the
+  head directly. A leg's code reaches openxFactory only through the roots' pins:
+  its root's `code` pin carries the leg's landing, and openxFactory's pin on the
+  root carries the root's. That is the route openXdox-code#26 and #27 took on
+  2026-09-23: openXdox#17 → `cd2596a2` and #18 → `2f3f857d`, then
+  openxFactory#1146 → `d52b4199` and #1148 → `f1c690b8`. Task 9.5 lists the pins
+  on both routes, and 11.1's guard admits openxFactory's pin pair on each root.
+- **Re-pointing.** #1150 asks the inventory to record a code leg nested under a
+  pinned assembly root. Once it lands, the head re-points at the legs. Until
+  then, each root stands for its code leg.
 
 ## R-G3 — RULED: openDox gets its own neutral generator
 
@@ -1071,7 +1107,10 @@ same entry's `label` at `completed`, so the facet must word `label` as well as
 `short` if the stage is to read "implemented" everywhere it is named. That is
 requirement 3's composition point doing exactly what it exists for, and task
 5.3a carries it. It LANDED as openXdox-code#26 → `195276b7`, declared as a
-module value rather than on `DomainProfile`, for the reason 5.3a records.
+module value rather than on `DomainProfile`, for the reason 5.3a records. A later
+ruling widened the same entry, RULED `5801057769` (*"yes, overlay implemented
+items too"*): openXdox-code#27 → `626f2c8d` adds its item nouns, "implemented
+item" and "implemented items", and every other stage stays neutral.
 
 ### The sibling slice, LANDED — do not duplicate it
 

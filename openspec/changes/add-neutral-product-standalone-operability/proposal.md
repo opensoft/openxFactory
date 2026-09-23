@@ -1,6 +1,6 @@
 ---
-code_surface: openxFactory, openDox-code and openXdox-code — (the three repositories whose RUNTIME artifacts the realization changes, which is what `release-realization` means by a code surface. The two code legs carry the bulk. openxFactory is a code surface for its HOST WIRING: `scripts/opendox_host.py` and the profile it registers, `scripts/profile_openxfactory.py`, hand the product through its declared seams what the product used to reach by name (tasks 4.1 and 4.3; the lanes routes of task 2.2 already travel that way), beside the carve-manifest annotations of task 11.1. The assembly root `opensoft/openDox` gains README documentation of the entry point only, so it is affected but is not a code surface.) THIS PACKET AUTHORS NO CODE BYTE, and it declares a real one. Landing here is corpus text only: this packet's five files (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml` and ONE `## ADDED` spec delta), one README *Active changes* bullet, and the machine-seeded per-change row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes. The REALIZATION the requirements specify runs post-ratification in FOUR repositories — the three code surfaces, plus the assembly root for documentation only — and each arm is a named task with its own claim: in `opensoft/openDox-code`, the removal of the two module-level `ideation_dashboard` imports at `src/opendox/serve.py:199,206` and their replacement by the route-extension seam the carve's `design.md` already specifies, a default domain profile so `build_parser()`/`build_server()` start with no host, the resolution of `src/opendox/authoring.py:318`'s `corpus_adapter_openxfactory` reach through the registered adapter, a document validator and a health check over its own documents, a `[project.scripts]` entry point for the document surface, THE NEUTRAL SUBMISSION DEFAULT that lets a plain git repository get a session's work out (RULED `5783934499`), chat's model configuration — any OpenAI-compatible endpoint by URL, model name and credential reference, with a clear no-model-configured state (RULED `5800995035`) — and the removal of its `validate.yml` exclusions; in `opensoft/openXdox-code`, the consumer half of the RULED G3 shape — openXdox keeps its governed generator and injects it through openDox's declared seam (`#656` `5783335210`) — plus the `OPENDOX_BACK_IMPORTS` ratchet driven down as each reach closes; in `opensoft/openDox` (the assembly root), README documentation of that entry point, because its `Makefile` is shape-pinned (task 10.3); and in `openxFactory`, the host wiring named above, the openDox pin pair it needs (task 9.5), and the carve-manifest annotations that record each closed reach, and nothing else — no check family, no schema, no corpus document and no `scripts/` module moves, per this packet's first requirement. NOT THIS CHANGE'S SURFACE, and named so no reader infers it: the re-promotion of the 71 requirements the carve's map assigns to openDox is openDox-spec's own act and is tracked as a BLOCKED task here, not authored here; the document surface is NOT rewritten, re-architected or re-scoped; and THIS PACKET moves no pin, gitlink, contract bundle or release tag. The realization advances the pins that compose the legs, each by its owning repository's ordinary pin-sync act in the landing that needs it (task 9.5), and it cuts no bundle and owes no tag.
-target_release: implemented — the affected repositories' main lines (openxFactory, openDox-code, openXdox-code, openDox). `implementation_pending` was the honest-looking word and it is NOT in the ratified vocabulary, which admits `implemented`, a release this estate defines, or `deferred-allocation`; the deferral this packet needs is carried by the CODE SURFACE, not by this token. Under `release-realization`'s archive gate a change with a NON-EMPTY code surface "SHALL NOT archive until realization evidence exists: its code merged on the implemented target through the owning domain's engineering gates, and — where the surface is runnable — a green run of that surface", so, ONCE RATIFIED, this packet stays ACTIVE as approved-but-unrealized intent until the arc is built — BOTH of its releases, since the change archives only on merged, green realization evidence for release 1 AND release 2 (RULED `5800995035`); the two releases are sequencing inside this one change, not release identifiers, and this token names neither. Until then it is `Status: draft` and approves nothing. The evidence is per requirement: the falsification command named in that requirement's `tasks.md` box, run in a checkout holding only the repository under test, quoted with its output. No contract bundle is cut, no bundle number is allocated or reserved, and no release tag is owed — this packet moves no contract byte.
+code_surface: openxFactory, opensoft/openDox and opensoft/openXdox — (named as RULED `5804191141`, "1, name the roots and file the follow-up": openxFactory, whose own RUNTIME artifacts the realization changes, and the two assembly roots, each of which composes its code leg through its `code` pin and so stands for the runtime artifacts the realization changes there. The realization's code is WRITTEN in those legs, `opensoft/openDox-code` and `opensoft/openXdox-code`, and it reaches openxFactory only through the roots' pins, the route openXdox#17/#18 → openxFactory#1146/#1148 took. The head names the roots because the estate inventory carries them and not their legs, and it re-points at the legs once #1150 lets the inventory record a code leg nested under a pinned root (`design.md` § D15). openxFactory is a code surface for its HOST WIRING: `scripts/opendox_host.py` and the profile it registers, `scripts/profile_openxfactory.py`, hand the product through its declared seams what the product used to reach by name (tasks 4.1 and 4.3; the lanes routes of task 2.2 already travel that way), beside the carve-manifest annotations of task 11.1.) THIS PACKET AUTHORS NO CODE BYTE, and it declares a real one. Landing here is corpus text only: this packet's five files (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml` and ONE `## ADDED` spec delta), one README *Active changes* bullet, and the machine-seeded per-change row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes. The REALIZATION the requirements specify runs post-ratification in FIVE repositories — the two code legs, where the code is written; the two assembly roots, whose pins carry it and which the code surface names; and openxFactory — and each arm is a named task with its own claim: in `opensoft/openDox-code`, the removal of the two module-level `ideation_dashboard` imports at `src/opendox/serve.py:199,206` and their replacement by the route-extension seam the carve's `design.md` already specifies, a default domain profile so `build_parser()`/`build_server()` start with no host, the resolution of `src/opendox/authoring.py:318`'s `corpus_adapter_openxfactory` reach through the registered adapter, a document validator and a health check over its own documents, a `[project.scripts]` entry point for the document surface, THE NEUTRAL SUBMISSION DEFAULT that lets a plain git repository get a session's work out (RULED `5783934499`), chat's model configuration — any OpenAI-compatible endpoint by URL, model name and credential reference, with a clear no-model-configured state (RULED `5800995035`) — and the removal of its `validate.yml` exclusions; in `opensoft/openXdox-code`, the consumer half of the RULED G3 shape — openXdox keeps its governed generator and injects it through openDox's declared seam (`#656` `5783335210`) — plus the `OPENDOX_BACK_IMPORTS` ratchet driven down as each reach closes; in `opensoft/openDox` (the assembly root), README documentation of that entry point, because its `Makefile` is shape-pinned (task 10.3), and its `code` pin advancing onto the realized leg (task 9.5); in `opensoft/openXdox` (the assembly root), its `code` pin advancing the same way (task 9.5); and in `openxFactory`, the host wiring named above, the pins on the two roots it needs (task 9.5), and the carve-manifest annotations that record each closed reach, and nothing else — no check family, no schema, no corpus document and no `scripts/` module moves, per this packet's first requirement. NOT THIS CHANGE'S SURFACE, and named so no reader infers it: the re-promotion of the 71 requirements the carve's map assigns to openDox is openDox-spec's own act and is tracked as a BLOCKED task here, not authored here; the document surface is NOT rewritten, re-architected or re-scoped; and THIS PACKET moves no pin, gitlink, contract bundle or release tag. The realization advances the pins that compose the legs, each by its owning repository's ordinary pin-sync act in the landing that needs it (task 9.5), and it cuts no bundle and owes no tag.
+target_release: implemented — the affected repositories' main lines (openxFactory, openDox-code, openXdox-code, openDox, openXdox). `implementation_pending` was the honest-looking word and it is NOT in the ratified vocabulary, which admits `implemented`, a release this estate defines, or `deferred-allocation`; the deferral this packet needs is carried by the CODE SURFACE, not by this token. Under `release-realization`'s archive gate a change with a NON-EMPTY code surface "SHALL NOT archive until realization evidence exists: its code merged on the implemented target through the owning domain's engineering gates, and — where the surface is runnable — a green run of that surface", so, ONCE RATIFIED, this packet stays ACTIVE as approved-but-unrealized intent until the arc is built — BOTH of its releases, since the change archives only on merged, green realization evidence for release 1 AND release 2 (RULED `5800995035`); the two releases are sequencing inside this one change, not release identifiers, and this token names neither. Until then it is `Status: draft` and approves nothing. The evidence is per requirement: the falsification command named in that requirement's `tasks.md` box, run in a checkout holding only the repository under test, quoted with its output. No contract bundle is cut, no bundle number is allocated or reserved, and no release tag is owed — this packet moves no contract byte.
 sequenced_after: []
 ---
 
@@ -224,7 +224,7 @@ does not have is a single promoted requirement, and that is what decides this:
    change filed in openDox-spec cannot bind openxFactory.
 4. **openDox-spec's own charter forbids it.** Its `openspec/project.md`: *"Proposals,
    specs and changes in this instance describe **this leg's** scope only."* A
-   dependency inversion spanning four repositories is not this leg's scope only.
+   dependency inversion spanning five repositories is not this leg's scope only.
 5. **The front-matter grammar this packet must carry exists only here.**
    `code_surface:` and `target_release:` are `release-realization`'s, and that
    capability is promoted in openxFactory.
@@ -249,7 +249,7 @@ openDox-code `#25` → `aca94ecb` and § 3.6 as `#26` → `4f8ae01e`, both on
 2026-09-18, both as openDox-code's own changes exactly as OQ-N directed. The
 runtime it built is the half of openDox that works. **This packet is a different
 arc under the same word** — the dependency inversion and the standalone entry
-point, spanning four repositories and modifying requirements promoted in
+point, spanning five repositories and modifying requirements promoted in
 openxFactory's corpus. That the word "BUILD arc" names two things is itself a
 finding, recorded here and in `design.md` § D2 so the next reader is not caught
 by it.
@@ -464,9 +464,10 @@ SAME additive migration as the results table so it is not migrated twice.
   openDox-code#35 → `3c3a9e31`.
 - **The `display_profile.py` docstring alignment to `completed`** — LANDED as
   openDox-code#36 → `1e4a57fb`, prose only.
-- **The wording overlays** (F3). The first LANDED as openxFactory#1146 →
-  `d52b4199`, which serves openXdox's "implemented"; any further host overlay of
-  the neutral words stays a follow-on.
+- **The wording overlays** (F3). Two have LANDED: openxFactory#1146 →
+  `d52b4199` serves openXdox's stage word "implemented", and #1148 → `f1c690b8`
+  its item nouns, "implemented item(s)" (RULED `5801057769`). Any further host
+  overlay of the neutral words stays a follow-on.
 - **The direct-arrow revisit after phase 1** (F4), under the rulings of
   2026-09-23 below.
 
@@ -523,9 +524,11 @@ wiring**: openxFactory's host, `scripts/opendox_host.py`, and the profile it
 registers, `scripts/profile_openxfactory.py`, hand the product through its
 declared seams what the product used to reach by name (tasks 4.1 and 4.3). The
 lanes routes already travel that way (`scripts/profile_openxfactory.py:101-105`,
-task 2.2). **The pin**: openxFactory's `openDox` gitlink and
-`contracts/opendox-pin.yaml` advance together, so that the host wiring calls
-seams that exist (task 9.5). No family, no schema and no corpus document moves.
+task 2.2). **The pins**: openxFactory's `openDox` gitlink and
+`contracts/opendox-pin.yaml` advance together, and so do its `openXdox` gitlink
+and `contracts/openxdox-pin.yaml`, so that the host wiring calls seams that exist
+and the legs' code reaches this repository through the roots (task 9.5). No
+family, no schema and no corpus document moves.
 
 ## The question this packet asked, and the ruling that answered it
 
@@ -580,7 +583,8 @@ proposals:
   overlay implemented"*) — openXdox declares a PARTIAL `DISPLAY` facet labelling
   the `completion` stage "implemented", openDox fills everything else from
   `NEUTRAL_DISPLAY`, and it is the estate's first `DISPLAY` facet (task 5.3a,
-  LANDED as openXdox-code#26 → `195276b7`; `design.md` § R-G3).
+  LANDED as openXdox-code#26 → `195276b7`, its item nouns added by #27 →
+  `626f2c8d` on RULED `5801057769`; `design.md` § R-G3).
 - **"wire the views and land it."** The view-wiring slice was CLAIMED on
   openDox-code under actor `viewwire` and has since LANDED as openDox-code#35 →
   `3c3a9e31`. **This packet does not own it and does not list it as owed work** —
@@ -700,12 +704,15 @@ is struck and the other sixteen stand.
   MODIFIES nothing. REMOVES nothing.
 - **Affected repositories at realization:** `opensoft/openDox-code` (the bulk),
   `opensoft/openXdox-code` (the consumer half of G3 and the back-import ratchet),
-  `opensoft/openDox` (README documentation of the entry point, task 10.3), and
+  the assembly roots `opensoft/openDox` (README documentation of the entry point,
+  task 10.3, and its `code` pin) and `opensoft/openXdox` (its `code` pin), and
   `openxFactory` (its host wiring in `scripts/opendox_host.py` and
-  `scripts/profile_openxfactory.py`, its openDox pin pair, and the manifest
-  annotations). The assembly
-  root is the one that changes no runtime artifact, so it is the one outside the
-  code surface.
+  `scripts/profile_openxfactory.py`, its pins on the two roots, and the manifest
+  annotations). **The code surface names the roots, not the legs** (RULED
+  `5804191141`): the estate inventory carries the roots and not their legs, a
+  leg's code reaches openxFactory only through the roots' pins (its root's
+  `code` pin, then openxFactory's pin on that root), and the head re-points at
+  the legs once #1150 lands (`design.md` § D15).
 - **Affected code at ratification:** none. This packet authors no code byte.
 - **Blocked on a ruling:** nothing. Requirement 4's mechanism was RULED on
   2026-09-22 (`#656` `5783335210`) and the requirement is written to it. Every
@@ -716,7 +723,7 @@ is struck and the other sixteen stand.
   `display_profile.py` docstring alignment to `completed`, LANDED as
   openDox-code#36 → `1e4a57fb`; and openXdox's partial `DISPLAY` facet, task
   5.3a, LANDED as openXdox-code#26 → `195276b7`, and served pages show it since
-  openxFactory#1146 → `d52b4199`.
+  openxFactory#1146 → `d52b4199`, with the item nouns since #1148 → `f1c690b8`.
 - **One constraint the realization must respect, found by measurement:** the
   entry point requirement 10 asks for CANNOT be an assembly-root `Makefile`
   target. `openDox/Makefile` carries a row in `contracts/shape-pin.yaml` and

@@ -500,7 +500,12 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   Being earlier than the arc, the landing carries no 11.0 trailer; the box
   closes when the falsifier is run against the realized openDox. It reaches a
   served page since openxFactory#1146 → `d52b4199`, which composes it into this
-  repository's profile facet; further overlays are F3, outside both releases.
+  repository's profile facet. **A later ruling widened the same entry**: RULED
+  `5801057769` (2026-09-23, *"yes, overlay implemented items too"*), and
+  openXdox-code#27 → `626f2c8d` adds its item nouns, `one` and `many`
+  ("implemented item", "implemented items"), served since openxFactory#1148 →
+  `f1c690b8` (F3). The facet now words four fields of that one entry and still no
+  other stage, which is what the falsifier below asserts.
 - [ ] **FALSIFIED BY** (openXdox-code checkout with openDox installed):
 
       set -euo pipefail
@@ -527,7 +532,8 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   sees "completed"; and the facet is PARTIAL, the other five stages
   byte-identical to the neutral ones, so an overlay cannot quietly grow into a
   second vocabulary. Run as written against openXdox-code `195276b7` with
-  openDox-code `1e4a57fb` installed over it, it passes. The earlier form, which
+  openDox-code `1e4a57fb` installed over it, it passes, and it passes against
+  `626f2c8d` as well. The earlier form, which
   read `host_display(DomainProfile)`, answers `None` against the same trees.
 - [ ] 5.4 **DECLARE THE GENERATOR SEAM — it does not exist and `CorpusAdapter` is
   not it.** `src/opendox/corpus_adapter.py`'s Protocol is CLOSED at six members
@@ -927,12 +933,20 @@ packet's interim arrangement ends.**
   - The openXdox root's `contracts/opendox-pin.yaml`, and openxFactory's
     `contracts/opendox-pin.yaml` with its `openDox` gitlink, name the openDox
     root at `dc7aa08f`.
+  - The openXdox root's `code` gitlink and `contracts/code-pin.yaml` name
+    openXdox-code `626f2c8d`, and openxFactory's `contracts/openxdox-pin.yaml`
+    with its `openXdox` gitlink names the openXdox root at `2f3f857d`. That is the
+    route openXdox#17/#18 → openxFactory#1146/#1148 took, and it is how a leg's
+    code reaches the roots the code surface names (`design.md` § D15).
   Each advances in the landing that needs the arc's code. openXdox-code's moves
   first, because 9.3's integration run means nothing at a pin that predates the
-  arc. openxFactory's moves before the host wiring of 4.1 and 4.3 can call a seam
-  that exists. Its gitlink and pin file move in ONE commit, which
-  `scripts/verify-opendox-pin.py` checks. Every one is an ancestor move, not a
-  fork, and none cuts a contract bundle or owes a release tag.
+  arc. openxFactory's pins move before the host wiring of 4.1 and 4.3 can call a
+  seam that exists. Each of openxFactory's two pairs — the `openDox` gitlink with
+  `contracts/opendox-pin.yaml`, and the `openXdox` gitlink with
+  `contracts/openxdox-pin.yaml` — moves in ONE commit, which
+  `scripts/verify-opendox-pin.py` and `scripts/verify-openxdox-pin.py` check.
+  Every one is an ancestor move, not a fork, and none cuts a contract bundle or
+  owes a release tag.
 - [ ] **FALSIFIED BY** (each leg's own checkout, no sibling installed):
 
       set -euo pipefail
@@ -1087,7 +1101,7 @@ packet's interim arrangement ends.**
 ## Group 11 — Requirement 1: the guard holds (openxFactory)
 
 - [ ] 11.0 **Every commit this arc lands, in EVERY repository it touches —
-  openxFactory, openDox-code, openXdox-code and openDox — carries the trailer
+  openxFactory, openDox-code, openXdox-code, openDox and openXdox — carries the trailer
   `Arc: neutral-product-standalone-operability`**, checked at each PR's review
   like the `Lane:` line. The falsifiers in 5.4a and 12.5 read it in
   openXdox-code, and they assert the set is NON-EMPTY there, because the arc must
@@ -1113,8 +1127,9 @@ packet's interim arrangement ends.**
   none or extended, never rewritten, so the manifest's closed grammar does not
   widen to hold them. Second, the HOST WIRING of 4.1 and 4.3, in
   `scripts/opendox_host.py` and `scripts/profile_openxfactory.py`, with its tests
-  under `tests/domain_profile/`. Third, the openDox PIN PAIR of 9.5: the
-  `openDox` gitlink and `contracts/opendox-pin.yaml`.
+  under `tests/domain_profile/`. Third, the PIN PAIRS of 9.5, one per assembly
+  root: the `openDox` gitlink with `contracts/opendox-pin.yaml`, and the
+  `openXdox` gitlink with `contracts/openxdox-pin.yaml`.
 - [ ] **FALSIFIED BY** (openxFactory checkout, at the close of the arc).
   **`PACKET_MERGE` is THIS PACKET'S OWN MERGE COMMIT, not a pre-authoring
   commit.** The guard measures what the ARC does to openxFactory. The packet's
@@ -1142,7 +1157,8 @@ packet's interim arrangement ends.**
       MANIFEST = "docs/opendox-carve-manifest.yaml"
       HOST = {"scripts/opendox_host.py", "scripts/profile_openxfactory.py"}   # 11.1's host wiring
       HOST_TESTS = "tests/domain_profile/"
-      PIN_PAIR = {"openDox", "contracts/opendox-pin.yaml"}                    # 9.5, one commit
+      PIN_PAIRS = {"openDox", "contracts/opendox-pin.yaml",                  # 9.5, each pair in one commit
+                   "openXdox", "contracts/openxdox-pin.yaml"}
       def manifest_at(rev):
           out = subprocess.run(["git", "show", f"{rev}:{MANIFEST}"], check=True, capture_output=True, text=True).stdout
           return yaml.safe_load(out)
@@ -1158,7 +1174,7 @@ packet's interim arrangement ends.**
       for c, s, p in (l.rstrip("\n").split("\t") for l in open(sys.argv[1]) if l.strip()):
           if s not in ("A", "M"):                       # requirement 1's third scenario: a far side is never deleted
               breach.append(f"{c[:12]}: {'deleted' if s == 'D' else 'changed the type of'} {p}")
-          elif p in HOST or p.startswith(HOST_TESTS) or p in PIN_PAIR:
+          elif p in HOST or p.startswith(HOST_TESTS) or p in PIN_PAIRS:
               continue                                  # a declared surface of the arc (11.1)
           elif p != MANIFEST:
               breach.append(f"{c[:12]}: touched {p}")
@@ -1197,9 +1213,11 @@ packet's interim arrangement ends.**
 
   Every path must be one of 11.1's three declared surfaces: the host wiring
   (`scripts/opendox_host.py`, `scripts/profile_openxfactory.py`, and tests under
-  `tests/domain_profile/`), the openDox pin pair (the `openDox` gitlink and
-  `contracts/opendox-pin.yaml`, which `scripts/verify-opendox-pin.py` holds
-  together), or `docs/opendox-carve-manifest.yaml`. The manifest is then
+  `tests/domain_profile/`), the two pin pairs (the `openDox` gitlink with
+  `contracts/opendox-pin.yaml`, and the `openXdox` gitlink with
+  `contracts/openxdox-pin.yaml`, which `scripts/verify-opendox-pin.py` and
+  `scripts/verify-openxdox-pin.py` hold together), or
+  `docs/opendox-carve-manifest.yaml`. The manifest is then
   compared by CONTENT against `main` before the landing. With every `edits[].note`
   removed, the two documents must be EQUAL. No row is added, removed or
   reordered, and no disposition, destination, line list or digest moves. A note
@@ -1234,7 +1252,12 @@ packet's interim arrangement ends.**
   landing that deletes a host-wiring file, one that renames it, one that deletes
   a host test and one that deletes the pin file. The content check's refusals of
   a rewritten note and of a changed digest were run the same way, and were re-run
-  with the deletion rule in place.
+  with the deletion rule in place. With both pin pairs declared, the scratch
+  repository carries the `openDox`, `openXdox` and one undeclared gitlink as real
+  gitlinks. The guard passed landings that move each pair in one commit, and it
+  refused one that deletes `contracts/openxdox-pin.yaml`, one that deletes the
+  `openXdox` gitlink and one that moves the undeclared gitlink. The guard before
+  the openXdox pair was declared refused the openXdox pair's move.
 
 ## Group 12 — Requirement 11: the neutral submission step (RULED, openDox-code)
 
@@ -2383,15 +2406,18 @@ and redesigns none of them.
 - [~] F2 **Each DomainxFactory's own pack**, pinned in that domain's `stack.yaml`.
   That domain's own work. **Owner: each domain.**
 - [~] F3 **The wording overlays** (RULED `5799646419`, a follow-on outside both
-  releases). The first one has LANDED: openXdox's partial `DISPLAY` facet (5.3a,
-  openXdox-code#26 → `195276b7`) reaches a served page since openxFactory#1146 →
-  `d52b4199` (2026-09-23T19:40:56Z), whose `scripts/profile_openxfactory.py`
-  composes openXdox's `DISPLAY["stages"]` by copy, so the governed host serves
-  "implemented". It left the stage's item nouns (`one`, `many`: "completed
-  item", "completed items") and every other station neutral, and any further
-  host overlay of the neutral words stays a follow-on. Each lands as its own act
-  and not as an arc landing: it carries no `Arc:` trailer, so 11.1's guard does
-  not read it, and the test such an overlay edits,
+  releases). Two have LANDED, both on 2026-09-23 and both on the one stage
+  entry openXdox's partial `DISPLAY` facet words, `completion`.
+  openxFactory#1146 → `d52b4199` (19:40:56Z) composes openXdox's
+  `DISPLAY["stages"]` by copy into `scripts/profile_openxfactory.py`, so the
+  governed host serves the stage word "implemented" (5.3a's facet,
+  openXdox-code#26 → `195276b7`, through openXdox#17). openxFactory#1148 →
+  `f1c690b8` (20:57:10Z) serves the same entry's item nouns, "implemented item"
+  and "implemented items" (RULED `5801057769`, openXdox-code#27 → `626f2c8d`,
+  through openXdox#18). Every other station stays neutral, and any further host
+  overlay of the neutral words stays a follow-on. Each lands as its own act and
+  not as an arc landing: it carries no `Arc:` trailer, so 11.1's guard does not
+  read it, and the test such an overlay edits,
   `tests/test_engineering_profile_display_facet.py`, is not one of 11.1's
   declared surfaces. **Owner: the lane that claims it on `#656`.**
 - [~] F4 **The direct-arrow revisit, after phase 1** (RULED `5799494355`, *"keep
