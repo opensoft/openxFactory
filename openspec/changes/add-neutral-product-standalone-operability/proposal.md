@@ -574,7 +574,7 @@ proposals:
   `src/opendox/display_profile.py` stands unchanged — *sources → groups →
   candidates → selections → submissions → completed* — ratified as the
   standalone product's own vocabulary. This arc designs no workflow and
-  re-authors no word; requirement 3's fourth scenario carries the rule
+  re-authors no word; requirement 3's third scenario carries the rule
   neutrally. **The sixth word is `completed`, not `completions`**: RULED
   ([`5784654370`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784654370), *"2, keep completed"*), correcting this
   packet's earlier spelling, which had quoted the module's docstring rather than

@@ -1083,7 +1083,7 @@ ratified as the standalone product's own vocabulary. The neutral projection
 renders these and no others; this arc designs no new workflow and re-authors no
 word. `display_profile.py:72-80` already argues why they are the right ones: a
 shell rendering them is *"VISIBLY not rendering a domain's"*, and a student who
-installs openDox alone *"gets a working funnel"*. Requirement 3's fourth scenario
+installs openDox alone *"gets a working funnel"*. Requirement 3's third scenario
 carries this as a general rule so a future neutral product inherits it.
 
 **An earlier draft of this packet spelled the sixth word `completions`, and it

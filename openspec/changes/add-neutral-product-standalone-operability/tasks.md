@@ -1285,10 +1285,14 @@ that does not name a platform.
   operations, and the absence of every other one"* (`session_pr.py:99-101`). It
   remains the governed host's platform protocol, used by `gate open-pr`, and
   `FakePullRequests` and every existing test keep their meaning.
-- [ ] 12.1a **`Submission` is the report requirement 11's second scenario needs.**
+- [ ] 12.1a **`Submission` is the report requirement 11's third scenario needs.**
   It names the DESTINATION THE WORK REACHED: `remote`, `ref`, and the remote's
-  `url` as git resolves it. Scenario 2 is then asserted rather than inferred from
-  a side effect, and scenario 3's refusal is distinguishable from a silent success
+  `url` as git resolves it, WITH ANY CREDENTIAL IT CARRIES REDACTED. A git remote
+  may embed userinfo (`https://user:<token>@host/…`) or a token in its query
+  string, and the verb prints this report (12.4a), so the report names where the
+  work went and never what the remote holds. The same holds for a refused or
+  failed push's message. Scenario 3 is then asserted rather than inferred from a
+  side effect, and scenario 4's refusal is distinguishable from a silent success
   by what `submit` returns, not only by its logs.
 - [ ] 12.2 Ship the NEUTRAL DEFAULT **as a named class in `opendox.session_pr`,
   `LocalGitSubmissions`, implementing `SubmissionPort` and constructed exactly as
@@ -1519,6 +1523,8 @@ that does not name a platform.
       PY
       # the SERVER's unset default binds the same class — a named test, so its absence fails:
       python -m pytest -q "tests/test_submission_default.py::test_server_unset_submission_factory_binds_the_neutral_default"
+      # a credential in the remote's URL never reaches the report, the output or a refusal (12.1a):
+      python -m pytest -q "tests/test_submission_default.py::test_a_credential_in_the_remote_url_never_reaches_the_report"
       # the ROUTE is a session verb, gated as the governed one is (12.4a) — each refusal a NAMED test:
       python -m pytest -q \
         "tests/test_submit_route.py::test_submit_route_is_refused_off_loopback" \
@@ -1526,7 +1532,7 @@ that does not name a platform.
         "tests/test_submit_route.py::test_submit_route_is_refused_without_the_console_token" \
         "tests/test_submit_route.py::test_submit_route_is_refused_from_a_foreign_origin" \
         "tests/test_submit_route.py::test_submit_route_takes_no_repository_from_the_request"
-      # and the NO-REMOTE case, through the same verb (scenario 3):
+      # and the NO-REMOTE case, through the same verb (scenario 4):
       git -C "$W/plain" remote remove origin
       rc=0; opendox submit --repo-root "$W/plain" --branch sess-1 > "$W/none.out" 2>&1 || rc=$?
       test "$rc" -ne 0                                      # refused, never a reported success
@@ -1540,12 +1546,17 @@ that does not name a platform.
   has a named test, because a hand-built class passing proves nothing about what
   the product binds when nothing is injected. On the remote path two things are
   asserted: the branch arrived, and the verb REPORTED where it went. That second
-  assertion is requirement 11's second scenario, and a `None`-returning `push`
+  assertion is requirement 11's third scenario, and a `None`-returning `push`
   could not satisfy it however well the push worked. The no-remote path fails in
-  BOTH wrong directions scenario 3 forbids. A silent success exits 0 and fails
+  BOTH wrong directions scenario 4 forbids. A silent success exits 0 and fails
   `test`. An opaque error leaves a traceback, and the traceback check refuses it.
   Each of the five route tests also asserts that the remote is unchanged, so a
-  refusal that pushed anyway fails.
+  refusal that pushed anyway fails. The redaction is a named test too, because
+  the bare local remote this block pushes to carries no credential and so cannot
+  show a leak. The test configures a remote whose URL carries both a userinfo
+  credential and a query-string token. It asserts that neither secret appears in
+  `Submission.url`, in the verb's printed report, or in the message of a refused
+  or failed push, and that the report still names the remote's host and path.
 
   **And the three guardrails are asserted, now that 12.6 is RULED — by NAME**, so
   a missing test FAILS the command rather than being quietly absent from it. 12.6
