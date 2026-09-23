@@ -599,13 +599,17 @@ Active changes:
   MEMBERSHIP` is unconditional in its own words, so an ADDED-only delta would
   leave canon carrying two requirements that cannot both be obeyed. **THE
   BLOCK IS ORDERED, NOT SOLE**: `amend-code-surface-grammar-comma-and` is now
-  an ARCHIVED writer of the same requirement key, promoted by PR #1112 — the
-  `sequenced_after` declaration STANDS AS HISTORY, since resolution consults
-  the active and archived corpora both, so `sequenced_after: []` is still no
-  longer a root claim — the corpus ledger carries this packet as class
-  `co-modifier`, depth 1, declaring `amend-code-surface-grammar-comma-and`.
-  THE ORDERING WAS SATISFIED: promotion order was #1108 then #1101, **with
-  #1108 itself untouched**.
+  an ARCHIVED writer of the same requirement key, promoted by PR #1112 — its
+  own `sequenced_after: []` STILL STANDS AS A POSITIVE ROOT CLAIM, the ledger
+  retaining `declares: []`, `depth: 0` for it UNCHANGED by the archive, the
+  substrate defining an explicit empty declaration that way regardless of who
+  else later writes the same key. WHAT THE CO-MODIFIER STATUS CHANGES IS NOT
+  THE CLAIM BUT WHETHER A CONSUMER MAY ACCEPT IT UNCROSSED: this packet's own
+  declaration — class `co-modifier`, depth 1, declaring
+  `amend-code-surface-grammar-comma-and` — is the cross-check that
+  CONTRADICTS reading that root claim as free-standing, and no consumer may
+  accept it without performing that cross-check. THE ORDERING WAS SATISFIED:
+  promotion order was #1108 then #1101, **with #1108 itself untouched**.
   The `modified-block-currency` family still reports no NEW finding, but
   because the declared ordering resolves the pair: this block is measured
   against #1108's block rather than against canon, and the family's
