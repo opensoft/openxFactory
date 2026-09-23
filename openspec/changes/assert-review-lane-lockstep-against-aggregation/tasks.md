@@ -21,7 +21,7 @@ Kind: tasks
 ## 2. The delta
 
 - [x] 2.1 `specs/review-lane-floor-mirror/spec.md` — ONE `## ADDED` requirement,
-  SIX scenarios — an absent or foreign declared state, a stale `converged`, a
+  SIX scenarios — an absent or foreign declaration, a stale `converged`, a
   stale `diverged`, surfaces disagreeing with each other, an unreadable
   aggregation, and the pure-function reproduction. The declared cross-repository lockstep state is MEASURED
   against the aggregation's own surfaces; the check runs at least at every
@@ -258,7 +258,8 @@ this packet's archive until merged PLUS green realization evidence.
   `head.sha` alone, passed through `env:` and never interpolated into a `run:`
   script; the candidate fetched from THIS repository at that `head.sha`, never
   from the head repository the event names, and parsed as inert data, judged and
-  never followed (§ 5.1i); the read plan the base's; the aggregation token
+  never followed (§ 5.1i); the read plan fixed in the gate's own code (§ 5.1i);
+  the aggregation token
   read-only and scoped to `xFactory`; and every value the verdict names drawn
   from its grammar or its vocabulary, a value outside them — the candidate's or a
   surface's — named only as an inert, length-bounded code span, its line breaks
@@ -274,11 +275,12 @@ this packet's archive until merged PLUS green realization evidence.
   named as one inert span of bounded length.
   **AND THE TOKEN IS MINTED ONLY FOR A PULL REQUEST THAT MOVES A JUDGED VALUE**
   (Copilot `r4078308120`). The filter fires on any edit to the pin file, while
-  the check judges two values in it, `core_commit` and the declared state. So
-  before minting, the gate compares the candidate's two values, parsed from its
-  inert bytes, with the base's. Where neither moved, as with an edit to `reason:`
-  alone, it mints nothing, reads nothing in the aggregation, and publishes the
-  verdict as `skipped`, naming both values unchanged; the verdict's name is then
+  the check judges three things in it: `core_commit`, the declared state and the
+  surfaces `converged_with:` declares. So before minting, the gate compares the
+  candidate's three, parsed from its inert bytes, with the base's. Where none
+  moved, as with an edit to `reason:` alone, it mints nothing, reads nothing in
+  the aggregation, and publishes the verdict as `skipped`, naming the values
+  unchanged; the verdict's name is then
   present on every pull request the filter admits, and § 6.5's approver is never
   left waiting on it. The DECLARED STATE is in the condition, and not only
   `core_commit`, because a pull request that moves only the declaration is
@@ -286,8 +288,9 @@ this packet's archive until merged PLUS green realization evidence.
   `core_commit`. A candidate whose values cannot be read counts as moving them,
   so an unreadable candidate is judged and never skipped. Tests: a candidate
   changing only `reason:` mints nothing, reads nothing and publishes `skipped`;
-  a candidate changing only the declared state, and one changing only
-  `core_commit`, each draw a verdict; and an unparseable candidate draws one.
+  a candidate changing only the declared state, one changing only
+  `core_commit`, and one changing only `converged_with:` (§ 5.1i) each draw a
+  verdict; and an unparseable candidate draws one.
 - [ ] 5.1i **THE GATE READS THE CANDIDATE PIN, NOT THE BASE'S — AND THIS IS THE
   DEFECT `pull_request_target` INTRODUCED** (Copilot's *previously missed* item,
   round 8). Under `pull_request_target` the workflow runs from the BASE, so a
@@ -309,13 +312,24 @@ this packet's archive until merged PLUS green realization evidence.
   for it, the push that moved the ref starting a run of its own (Copilot
   `r4078098168`). **AND THE CANDIDATE
   IS JUDGED, NEVER FOLLOWED** (Copilot `r4077898334`): the gate takes from the
-  candidate only `core_commit` and the declared state, and takes every path it
-  reads in the aggregation from the BASE's `converged_with:` and its own fixed
-  location for `MIGRATION_PIN` — because a candidate whose `converged_with:` chose
-  the paths could turn the xFactory token on any file there and have its contents
-  printed back as a surface's value. A test drives a candidate whose
-  `converged_with:` names another path and asserts that no path from the
-  candidate is read.
+  candidate only the values under judgment, and takes every path it reads in the
+  aggregation from a READ PLAN FIXED IN ITS OWN CODE — because a candidate whose
+  `converged_with:` chose the paths could turn the xFactory token on any file
+  there and have its contents printed back as a surface's value. **AND THE BASE
+  IS DATA TOO** (Copilot `r4078365046`; `design.md` D19): the base's pin file is
+  only the candidate an earlier pull request proposed, and the pin's own test
+  checks nothing of `converged_with:` but its length
+  (`tests/review_lane_pin/test_review_lane_caller.py`:648-649), so a pull request
+  changing only that list could have installed any xFactory path for every later
+  run to read. The plan is therefore the gate's code: the two workflows
+  `converged_with:` names today (`contracts/review-lane-pin.yaml`:1019-1020), each
+  read at the `ref:` of its step that checks out `codeXfactory/codexFactory`, and
+  the `MIGRATION_PIN` assignment. The pin's `converged_with:`, at the base and at
+  the candidate, is JUDGED against it and never followed: a FAIL naming both sets
+  where they differ, before anything is read. Tests: a candidate whose
+  `converged_with:` names another path, and a BASE whose `converged_with:` does,
+  each FAIL naming both sets with no read made in the aggregation, and neither
+  path is ever requested.
 - [ ] 5.1h **THE NEUTRAL CONCLUSION NEEDS A WRITE PATH, AND IT IS A DIFFERENT
   TOKEN FROM THE READ** (Copilot's *previously missed* item, round 5). § 5.1e
   publishes through the check-run API and § 5.1c's aggregation binding grants
@@ -381,11 +395,13 @@ this packet's archive until merged PLUS green realization evidence.
   ABSENT from them — the negative control that keeps the advance lane out of the
   pull-request path.
 - [ ] 5.2 The comparison: `scripts/review_lane_repin.py` gains a pure function
-  over the declared state, `core_commit` and the surfaces' values, reaching no
+  over the declared state, `converged_with:` against the read plan, `core_commit`
+  and the surfaces' values, reaching no
   network, returning the five outcomes the scenarios name.
 - [ ] 5.3 The proof: `tests/review_lane_pin/` gains a fixture for each of the
-  SIX scenarios — an ABSENT or foreign declared state (the FAIL-without-comparison
-  case), a stale `converged`, a stale `diverged`, surfaces disagreeing with each
+  SIX scenarios — an ABSENT or foreign declaration, a `converged_with:` other
+  than the read plan's at the base or the candidate among them (the
+  FAIL-without-comparison case), a stale `converged`, a stale `diverged`, surfaces disagreeing with each
   other, an unreadable aggregation — including surfaces that AGREE on a value that
   is not a commit, the empty string among them (`design.md` D16) — and the
   pure-function reproduction — **plus

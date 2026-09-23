@@ -172,7 +172,7 @@ missing half of D2.**
 
 | outcome | conclusion | why |
 | --- | --- | --- |
-| declared state ABSENT or outside its vocabulary | **FAIL**, naming the value found | added at round 6; see D14a. Checked FIRST, before the aggregation is read |
+| declaration ABSENT or outside its vocabulary — a foreign declared state, or a `converged_with:` other than the read plan (D19) | **FAIL**, naming the value found | added at round 6; see D14a. Checked FIRST, before the aggregation is read |
 | declared state CONTRADICTED by the measurement | **FAIL**, naming both values | this repository's own contract file states something false about another repository; the remedy is one edit to the field |
 | surfaces disagree with each other (INCONSISTENT) | **NEUTRAL**, visible | another repository's defect, and not this repository's claim to answer |
 | aggregation unreadable (UNDETERMINED) | **NEUTRAL**, visible | another repository's availability, and D4's whole point |
@@ -214,9 +214,9 @@ Fixed by stating the order in the body, each outcome reached only where every
 earlier one does not hold, and by qualifying both comparison scenarios' WHEN with
 *the aggregation's surfaces agreeing with each other, and read*. Exactly one
 outcome holds for any input, and no implementation has to arbitrate. **THE ORDER
-AS IT NOW STANDS**, after D14b moved the vocabulary check to the front and D16
-folded a non-commit surface into UNREADABLE: the declared state OUTSIDE ITS
-VOCABULARY; then the aggregation UNREADABLE; then its surfaces DISAGREEING; then
+AS IT NOW STANDS**, after D14b moved the vocabulary check to the front, D16
+folded a non-commit surface into UNREADABLE and D19 folded a foreign
+`converged_with:` into the first: the declaration OUTSIDE ITS VOCABULARY; then the aggregation UNREADABLE; then its surfaces DISAGREEING; then
 the comparison of the agreed commit against `core_commit`, and the declared state
 against that comparison. This paragraph first recorded the order this section
 fixed — UNREADABLE, DISAGREEING, comparison, declared state — and it stood after
@@ -463,6 +463,10 @@ fix that closed D14a's gap.
 > question moot; then the aggregation UNREADABLE; then its surfaces DISAGREEING;
 > then the comparison.
 
+(That was the spec's text at this round. D19 later widened the first outcome to
+the whole DECLARATION, so a `converged_with:` other than the read plan is in it
+too; D9 carries the order as it now stands.)
+
 That is both the ordering the scenarios require and the honest engineering order:
 **a check does not go asking another repository a question in order to report a
 defect in its own file.**
@@ -500,7 +504,9 @@ any file there, and D16's rule of naming a non-commit surface by its value would
 print that file's contents into the verdict. So the read plan is the base's —
 the base's `converged_with:` and the gate's own fixed location for the
 aggregation's constant — and the candidate supplies only the values under
-judgment, `core_commit` and the declared state. The value named for a surface is
+judgment, `core_commit` and the declared state. (**Superseded in part by D19**:
+the base's pin file is data too, so the plan is now fixed in the gate's own code
+and `converged_with:` is judged against it rather than followed.) The value named for a surface is
 the field extracted from its fixed location, never the file around it.
 
 ## D14d — the allowlist is a TRIPLE, because a head ref is a predicate its author controls
@@ -566,8 +572,8 @@ quietly returns for all three at once.
 **Each surface is now read only as a commit** — forty lowercase hexadecimal
 characters, the grammar `core_commit` already obeys (`SHA40_RE`,
 `scripts/review_lane_repin.py`:114) — and a surface outside it counts as
-UNREADABLE, named with the field extracted from its fixed, base-owned location,
-never the file around it (D14c). The input lands in an outcome that
+UNREADABLE, named with the field extracted from its fixed location in the gate's
+read plan, never the file around it (D14c, D19). The input lands in an outcome that
 already exists, NEUTRAL, so the outcomes stay five and the order stays as D9
 states it.
 
@@ -611,8 +617,8 @@ never interpolated into a script; the candidate is fetched from THIS repository
 at that `head.sha` — a fork's head commit is readable here through its pull
 request, as every pull request's head is published here as `refs/pull/<n>/head`
 — and never from the head repository the event names, then parsed as inert data
-and judged, never followed (D14c); the read plan is the base's, so no candidate
-chooses what is read; the aggregation token is read-only and scoped to one
+and judged, never followed (D14c); the read plan is fixed in the gate's own code
+(D19), so no pull request chooses what is read; the aggregation token is read-only and scoped to one
 repository; and every value the verdict names comes from a grammar or a
 vocabulary, a value outside them — the candidate's or a surface's — named only as
 an inert, length-bounded code span whose line breaks and backticks are replaced,
@@ -685,6 +691,35 @@ check run under it — a declared `name:` is what a job's check run carries when
 one is set — and a required check or § 6.5's approver would then read that job
 instead of the verdict. § 5.1e's test asserts the wider rule, and § 5.1f's test holds the
 binding, the workflow and the names together.
+
+## D19 — the read plan is FIXED IN CODE, because the base is data too
+
+Copilot `r4078365046`. D14c took the read plan from the base so that no candidate
+could choose what the xFactory token reads, but the base's pin file is only the
+candidate an earlier pull request proposed. The pin's own test checks nothing of
+`converged_with:` but its length
+(`tests/review_lane_pin/test_review_lane_caller.py`:648-649), and D17's skip rule
+would have let a pull request that changed only `converged_with:` land unjudged.
+That pull request could have installed any `opensoft/xFactory` path for every
+later run to read with the private token.
+
+**So the plan is the gate's CODE, not the pin file's data.** It names the two
+judging workflows `converged_with:` names today —
+`opensoft/xFactory .github/workflows/merge-master-approval.yml` and
+`opensoft/xFactory .github/workflows/council-convening-lane.yml`
+(`contracts/review-lane-pin.yaml`:1019-1020) — each read at the `ref:` of its step
+that checks out `codeXfactory/codexFactory`, and the `MIGRATION_PIN` assignment
+in `tests/test_merge_master_workflows.py`. The pin's `converged_with:`, at the
+base and at the candidate, is JUDGED against that plan and never followed. Where
+it names any other set, the check FAILS naming both, before anything is read, in
+the class of a declared state outside its vocabulary, so the outcomes stay five.
+And `converged_with:` joins the values whose movement keeps a pull request from
+being skipped (D17).
+
+**A pull request that moves the plan and `converged_with:` together fails its own
+gate**, because the base's code judges it. That is the base-code rule's ordinary
+cost. The verdict names both sets, so a reviewer sees exactly what moved, and the
+next run, from the new base, agrees.
 
 ## D5 — what the check compares, and why it is values rather than authorship
 

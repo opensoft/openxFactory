@@ -636,7 +636,7 @@ Active changes:
   remedy's shape as option **(b)** — *"make the CROSS-REPOSITORY fact assertable
   at all … (b) is the better fix, because (a) still leaves this file's truth
   depending on a lane remembering to write it"*. **ONE `## ADDED` requirement,
-  SIX scenarios — an absent or foreign declared state, a stale `converged`, a
+  SIX scenarios — an absent or foreign declaration, a stale `converged`, a
   stale `diverged`, surfaces disagreeing with each other, an unreadable
   aggregation, and the pure-function reproduction — no `## MODIFIED` block.**
   `contracts/review-lane-pin.yaml`
@@ -657,7 +657,7 @@ Active changes:
   SET that must agree before either state is concluded (disagreement reported
   INCONSISTENT) and an unreadable aggregation reported UNDETERMINED and never as
   a pass. **Each outcome carries a CONCLUSION and two fail**, both about this
-  repository's own file: a declared state outside its vocabulary, and a
+  repository's own file: a declaration outside its vocabulary, and a
   declaration the measurement CONTRADICTS, which is that file stating something
   false; INCONSISTENT and UNDETERMINED each conclude
   NEUTRAL and visible, because neither is this repository's claim to answer and

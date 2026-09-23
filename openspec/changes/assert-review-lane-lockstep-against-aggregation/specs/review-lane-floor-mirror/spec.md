@@ -82,7 +82,12 @@ words the field carries; where it is ABSENT, or carries any other value, the
 check SHALL FAIL naming the value it found, in the same class as a declaration
 the measurement contradicts — because both are this repository's own file failing
 to say something true, and the remedy for both is one edit to the field. Without
-that clause the ordering below has an input it does not reach.
+that clause the ordering below has an input it does not reach. SO IS THE SET OF
+SURFACES THE PIN DECLARES: where the pin's `converged_with:`, at the base or at
+the candidate, names any set other than the check's own read plan, the check
+SHALL FAIL naming the set it found and the plan's, in that same class, because a
+pin declaring surfaces the check does not read is the same file failing to say
+something true.
 
 THE PIN THE CHECK READS IS THE ONE THE ACT PROPOSES, NOT THE ONE ALREADY IN
 PLACE. Where the check runs over a proposed advance, it SHALL take
@@ -93,22 +98,27 @@ ref moved underneath it is refused rather than reported. A check that read the
 pin from the base it runs on would compare the commit ALREADY in place against
 the aggregation, pass, and never see the advance it exists to judge.
 
-WHAT IS READ IN THE AGGREGATION IS DECIDED BY THE BASE, NEVER BY THE CANDIDATE.
-The candidate's bytes are data to be JUDGED and never an instruction about what
-to READ: the check SHALL take from the candidate only the values under judgment,
-`core_commit` and the declared state, and SHALL take the aggregation and the path
-of every surface in it from the base branch — the base's `converged_with:`
-members, each read at the `ref:` of its step that checks out the pin's own
-`repository:`, parsed as YAML and never matched as text, and the aggregation's
-constant read at its `MIGRATION_PIN` assignment in
-`tests/test_merge_master_workflows.py` — never resolving a path from the
-candidate head. A candidate that could choose
-what is read could turn the credential for a private repository on any file in
-it, and have that file's contents named back as the value a surface carried.
+WHAT IS READ IN THE AGGREGATION IS DECIDED BY THE CHECK'S OWN CODE, NEVER BY THE
+PIN FILE. The candidate's bytes are data to be JUDGED and never an instruction
+about what to READ, and so are the base's, because the base's pin file is only a
+candidate an earlier pull request proposed: the check SHALL take from the pin
+only the values under judgment — `core_commit`, the declared state and the
+surfaces `converged_with:` declares — and SHALL take the aggregation and the path
+of every surface in it from a READ PLAN FIXED IN ITS OWN CODE — each of the
+aggregation's judging workflows read at the `ref:` of its step that checks out
+the decision core's repository, `codeXfactory/codexFactory`, parsed as YAML and
+never matched as text, and the aggregation's constant read at its `MIGRATION_PIN`
+assignment in `tests/test_merge_master_workflows.py` — never resolving a path
+from the pin file, at the candidate head or at the base. A check that could be
+told what to read, by the pull request it judges or by one merged before it,
+could turn the credential for a private repository on any file in it, and have
+that file's contents named back as the value a surface carried.
 
-THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the DECLARED STATE
-OUTSIDE ITS VOCABULARY first — this repository's own file, readable without
-touching anything else, and a defect that makes every later question moot; then
+THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the DECLARATION
+OUTSIDE ITS VOCABULARY first — a declared state that is not one of its two words,
+or a `converged_with:` naming a set other than the check's read plan: this
+repository's own file, readable without touching anything else, and a defect that
+makes every later question moot; then
 the aggregation UNREADABLE, a surface whose value is not a commit included; then
 its surfaces DISAGREEING with each other; then the comparison of the agreed commit
 against `core_commit` and the declared state against that comparison. A later
@@ -149,10 +159,10 @@ compared only to itself is a tautology.
 - **THEN** the check reports the contradiction on the advance's own pull request, naming both values and the surfaces it read them from
 - **AND** the report does not depend on the advancing lane having remembered to write the field, because the check reads the other repository rather than the lane's intent
 
-#### Scenario: The declared state is absent or outside its vocabulary
-- **WHEN** the pin's declared lockstep state is absent, or carries a value that is neither of the two words the field admits
-- **THEN** the check FAILS and names the value it found, in the same class as a declaration the measurement contradicts
-- **AND** it does not fall through to a comparison, because there is nothing to compare
+#### Scenario: The declaration is absent or outside its vocabulary
+- **WHEN** the pin's declared lockstep state is absent, or carries a value that is neither of the two words the field admits, or its `converged_with:`, at the base or at the candidate, names a set other than the check's own read plan
+- **THEN** the check FAILS and names the value or set it found, and for `converged_with:` the plan's set beside it, in the same class as a declaration the measurement contradicts
+- **AND** it reads nothing in the aggregation and does not fall through to a comparison, because there is nothing to compare
 
 #### Scenario: The advance lands on the commit the aggregation already pins
 - **WHEN** an advance moves `core_commit` to exactly the commit the aggregation's surfaces — agreeing with each other, and read — already name, and the declared state reads `diverged`
