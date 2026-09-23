@@ -29,9 +29,12 @@ the group headings, read as written; nothing below claims a bijection.
    box: `submit` (12.4a), `land` (12.6a), and `health run|list|fix|accept`
    (14.5). A falsification that uses one is an acceptance test for surface the
    realization must add, not a re-run of surface that exists.
-3. **Prerequisites by name.** A group MAY use a verb an EARLIER group declares,
-   and says so. Group 15 runs Group 14's `health run` and `health list`, so
-   Group 15 cannot close before 14.5 lands.
+3. **Prerequisites by name.** A group MAY use a verb, or a surface, that an
+   EARLIER group declares, and it says so. Group 15 runs Group 14's `health run`
+   and `health list`, so Group 15 cannot close before 14.5 lands. Groups 14 and
+   15 store their results in Group 13's bundled datastore, and each falsifier
+   selects it with `OPENDOX_INSTALL_MODE=local` in a fresh `OPENDOX_STATE_DIR`.
+   12.5 needs Group 9, because the whole suite must first be runnable.
 
 **The rule:** no box closes on a command whose verb is neither in 10.1's table
 nor declared by its own group or by an earlier one it names.
@@ -73,7 +76,7 @@ Baselines, measured on `openxFactory` `main` `4f92d651` before this packet:
   requirement table; the explicit "what openxFactory keeps" section; honest
   `code_surface:` / `target_release:` front-matter.
 - [x] 1.3 Author the `## ADDED Requirements` delta creating
-  `neutral-product-standalone-operability` — 16 requirements, 68 scenarios,
+  `neutral-product-standalone-operability` — 16 requirements, 69 scenarios,
   domain-neutral, openDox as the measured instance.
 - [x] 1.4 Author `design.md`: D1-D8 and **R-G3** — filed as Q-G3, the one question
   put to Brett with three options and a recommendation; RULED the same day and
@@ -724,29 +727,28 @@ and `find_open`, and `FakePullRequests` (`:116`) is already a second
 implementation. What is missing is a NEUTRAL implementation and a default binding
 that does not name a platform.
 
-- [ ] 12.1 Reshape the protocol around the neutral ACT rather than the platform's
-  artifact. `push(branch)` is already git-neutral in its ARGUMENT and stays;
-  `open_or_update` and `find_open` return a `PullRequest` carrying `url` /
-  `number` / `state`, and `number` is a hosting platform's concept. Whatever the
-  neutral return becomes, it must be expressible by a plain push.
-- [ ] 12.1a **WIDEN `push`'s RETURN, because requirement 11's second scenario is
-  not otherwise observable.** Today `push(self, branch: str) -> None`
-  (`session_pr.py:103`), and a `None` cannot *"report where the work went"*. It
-  returns a `Submission` record naming the DESTINATION THE WORK REACHED —
-  `remote`, `ref`, and the remote's `url` as git resolves it — so scenario 2 is
-  asserted rather than inferred from a side effect, and so scenario 3's refusal is
-  distinguishable from a silent success by its RETURN and not only by its logs.
-  **This adds no operation**, so `FR-030`'s *"three operations, and the absence of
-  every other one"* (`session_pr.py:99-101`) is untouched: the count is the
-  invariant, not the return type. `FakePullRequests` and `GhPullRequests` widen
-  with it, and the existing tests that ignore the return keep passing.
+- [ ] 12.1 **SPLIT THE PROTOCOL; do not bend the platform's one.**
+  `PullRequestPort`'s `open_or_update` and `find_open` return a `PullRequest`
+  carrying `url`, `number` and `state`. A plain push can implement neither
+  operation nor produce that record, so a neutral class that claimed to be a
+  `PullRequestPort` would be lying about two-thirds of its interface. The neutral
+  act therefore gets its OWN protocol: `session_pr.SubmissionPort`, a
+  `@runtime_checkable` `Protocol` with ONE operation, `submit(branch) ->
+  Submission`. **`PullRequestPort` is UNCHANGED**: its three operations, its
+  `push(self, branch: str) -> None` (`session_pr.py:103`), and FR-030's *"three
+  operations, and the absence of every other one"* (`session_pr.py:99-101`). It
+  remains the governed host's platform protocol, used by `gate open-pr`, and
+  `FakePullRequests` and every existing test keep their meaning.
+- [ ] 12.1a **`Submission` is the report requirement 11's second scenario needs.**
+  It names the DESTINATION THE WORK REACHED: `remote`, `ref`, and the remote's
+  `url` as git resolves it. Scenario 2 is then asserted rather than inferred from
+  a side effect, and scenario 3's refusal is distinguishable from a silent success
+  by what `submit` returns, not only by its logs.
 - [ ] 12.2 Ship the NEUTRAL DEFAULT **as a named class in `opendox.session_pr`,
-  `LocalGitSubmissions`, constructed exactly as `GhPullRequests` is —
-  `LocalGitSubmissions(Path(checkout_root))`, one positional argument
-  (`serve.py:933`) — so the binding in 12.4 is a name swap and not a signature
-  change.** On a plain git repository with a remote attached, it pushes the
-  session branch to it and returns the 12.1a `Submission` reporting where the work
-  went. The
+  `LocalGitSubmissions`, implementing `SubmissionPort` and constructed exactly as
+  `GhPullRequests` is — `LocalGitSubmissions(Path(checkout_root))`, one positional
+  argument (`serve.py:934`).** On a plain git repository with a remote attached,
+  `submit` pushes the session branch there and returns the 12.1a `Submission`. The
   runtime already models the remote — `runtime/repository_act.py:1131`'s
   `attach_remote(..., executable="git")` takes ANY git remote and writes no
   object, *"which is what makes the eventual move a push, not a migration"*.
@@ -757,8 +759,19 @@ that does not name a platform.
   message names what is missing** — named here so the falsification can catch that
   type and nothing else, which is what separates "refused for the right reason"
   from "raised something".
-- [ ] 12.4 Stop the DEFAULT BINDING naming a platform. `cli.py:812-814` and
-  `serve.py:933-934` import and construct `GhPullRequests` by name and `serve.py:1507` records
+- [ ] 12.4 **The product's OWN submission binding names no platform.** It is a
+  NEW pair of bindings for `SubmissionPort`: `submission_factory` beside
+  `pull_request_factory` (`serve.py:766`), and `_submission_port` beside
+  `_pull_request_port` (`cli.py:800`). Each defaults, when nothing is injected, to
+  `LocalGitSubmissions`. A governed host MAY contribute its own `SubmissionPort`
+  through them, for example one that pushes and then opens its pull request. The
+  existing `PullRequestPort` bindings keep serving the governed verb they serve
+  today. `cli.py:812-814` and `serve.py:933-934` still import and construct
+  `GhPullRequests`, but only openXdox's `gate open-pr` reaches them (12.4a), so
+  after this box no path of the product's own names a platform. *(An earlier
+  draft of this box repointed `pull_request_factory` itself. That would have
+  bound a push-only class to a protocol whose other two operations it cannot
+  perform.)* `serve.py:1507` records
   that an unset injection *"builds the real `GhPullRequests`"*. The unset default
   becomes the neutral implementation; `GhPullRequests` becomes ONE contributed
   implementation. **NAME THE SUBMISSION REGISTRATION POINT, and keep it SEPARATE
@@ -784,12 +797,46 @@ that does not name a platform.
   student can reach. This box adds the neutral verb and route in openDox's OWN
   surface, not under `gate`: CLI `submit --repo-root <repo> --branch
   <session-branch>` and route `POST /actions/session/submit`. Their engine
-  obtains its port through the two default bindings 12.4 repoints, and returns and
-  prints the 12.1a `Submission`. openXdox's `gate open-pr` is UNTOUCHED by this
+  obtains its `SubmissionPort` through the bindings 12.4 declares, then returns
+  and prints the 12.1a `Submission`. openXdox's `gate open-pr` is UNTOUCHED by this
   box; 12.5 proves it.
 - [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
   registered, openxFactory's GitHub pull-request flow behaves exactly as today.
   This is a generalization, not a replacement, and 12.5 is the box that proves it.
+  **Measured: nothing proves it today.** The suites that drive `gate open-pr`
+  through the registered host path with `FakePullRequests` are
+  `test_session_verbs.py`, `test_session_lifecycle.py`, `test_session_gates.py`,
+  `test_branch_session.py` and `test_session_records.py` in openXdox-code. None of
+  them is among the 16 test files openXdox-code's `validate.yml` runs at
+  `ab04453d`, so the governed flow has no running regression check at all. This
+  box's acceptance runs them, and needs Group 9 by name, since the whole suite
+  must first be runnable.
+- [ ] **FALSIFIED BY** (openXdox-code checkout with the realized openDox installed
+  and Group 9 landed; openXdox's registered host path, `FakePullRequests`
+  injected, so no network is reached):
+
+      set -euo pipefail
+      GOVERNED="tests/test_session_verbs.py tests/test_session_lifecycle.py tests/test_session_gates.py tests/test_branch_session.py tests/test_session_records.py"
+      for f in $GOVERNED; do test -f "$f"; done             # each proof still exists under its name
+      for f in $GOVERNED; do python -m pytest -q "$f"; done # the governed flow, through gate open-pr, green
+      # ...and not by editing those proofs: no commit of THIS arc (11.0's trailer) touches them
+      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' <arc-base>..HEAD > /tmp/x-arc.txt
+      : > /tmp/x-paths.txt
+      while read -r c; do
+        git diff --name-only "$c^1" "$c" >> /tmp/x-paths.txt
+      done < /tmp/x-arc.txt
+      python3 - /tmp/x-paths.txt $GOVERNED <<'PY'
+      import sys
+      touched = {l.strip() for l in open(sys.argv[1]) if l.strip()}
+      edited = sorted(touched & set(sys.argv[2:]))
+      if edited:
+          sys.exit("FAIL: the arc edited the governed flow's own proofs: " + ", ".join(edited))
+      PY
+
+  The suites must pass AND must be unedited by the arc, because a regression
+  proof the change under test may rewrite proves nothing. `GOVERNED` is expanded
+  by the `for` loops one file at a time, so the command behaves the same under
+  bash and zsh, which does not word-split a variable.
 - [ ] 12.6 **MERGE AUTHORITY — RULED, HOLD RELEASED.** Brett Heap, `#656` comment
   `5784155201`, 2026-09-22T21:06:01Z: *"merge yes"* — landing authority follows
   whoever governs the repository. A GOVERNED host reserves landing and routes it
@@ -834,6 +881,9 @@ that does not name a platform.
   machine):
 
       set -euo pipefail
+      if command -v gh >/dev/null 2>&1; then                # the precondition, ASSERTED: the student's machine
+        echo "FAIL: gh is installed; this acceptance must run without it"; exit 1
+      fi
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
       rm -rf /tmp/plain /tmp/remote
       git init -q /tmp/plain
@@ -849,14 +899,15 @@ that does not name a platform.
       python3 - <<'PY'
       from pathlib import Path
       from opendox import cli, session_pr
-      port = cli._pull_request_port(Path("/tmp/plain"))     # the CLI's default, no injection
-      assert isinstance(port, session_pr.LocalGitSubmissions), f"the default still names a platform: {type(port)}"
-      assert isinstance(port, session_pr.PullRequestPort)
-      r = port.push("sess-1")                               # idempotent: already there
+      port = cli._submission_port(Path("/tmp/plain"))       # the CLI's default (12.4), no injection
+      assert isinstance(port, session_pr.LocalGitSubmissions), f"the default names a platform: {type(port)}"
+      assert isinstance(port, session_pr.SubmissionPort)
+      assert not isinstance(port, session_pr.PullRequestPort), "a push-only class claims the platform protocol"
+      r = port.submit("sess-1")                             # idempotent: already there
       assert r is not None and r.ref.endswith("sess-1") and "/tmp/remote" in r.url, r
       PY
       # the SERVER's unset default binds the same class — a named test, so its absence fails:
-      python -m pytest -q "tests/test_submission_default.py::test_server_unset_factory_binds_the_neutral_default"
+      python -m pytest -q "tests/test_submission_default.py::test_server_unset_submission_factory_binds_the_neutral_default"
       # and the NO-REMOTE case, through the same verb (scenario 3):
       git -C /tmp/plain remote remove origin
       rc=0; opendox submit --repo-root /tmp/plain --branch sess-1 > /tmp/none.out 2>&1 || rc=$?
@@ -950,7 +1001,15 @@ amendments.
   standalone install" and one deliberate choice should decide both. It is named
   here so the falsification below is executable, and so the default is the SAFE
   one: an install that sets nothing is hosted, and a hosted install with no
-  issuer refuses (13.5). It is UNSET, not `local`, that must be safe. *(An earlier
+  issuer refuses (13.5). It is UNSET, not `local`, that must be safe. **And local
+  mode binds LOOPBACK ONLY.** `generate-and-open` accepts `--host` (10.1), and
+  local mode has no broker, so a local install bound to `0.0.0.0` would be an
+  unauthenticated multi-user service wearing the word "local". A non-loopback
+  `--host` under `local` is REFUSED, naming the loopback rule, and there is NO
+  opt-in: an install that must be reachable from another machine is a hosted
+  install with a broker. The server already treats a loopback bind as the
+  precondition of its `session` capability (`serve.py:915`); this makes the same
+  judgement at the mode's own boundary. *(An earlier
   draft called it `OPENDOX_IDENTITY_MODE`. Once it also chose the datastore, that
   name described half of what it selects.)*
 - [ ] 13.5 **A hosted install SHALL NOT fall into local mode by omission.** An
@@ -993,6 +1052,12 @@ amendments.
           assert got.startswith(state + os.sep), f"{key} {got!r} is not under the install's state dir {state!r}"
       PY
       kill "$SERVER"; wait "$SERVER" 2>/dev/null || true
+      # LOCAL mode REFUSES a non-loopback bind, BOUNDED, naming the rule (13.4):
+      rc=0
+      OPENDOX_INSTALL_MODE=local timeout 30 opendox generate-and-open --repo-root "$R" --repository fixture --no-open --host 0.0.0.0 --port 8083 >/dev/null 2>/tmp/bind.err || rc=$?
+      test "$rc" -ne 0                                      # refused, never started
+      test "$rc" -ne 124                                    # and not merely killed by the bound
+      grep -qi "loopback" /tmp/bind.err
       # ONE DIALECT, and the two connections NOT COLLAPSED (13.2, 13.3), asked of the
       # loader directly, with every other setting well-formed so the DSN is the only fault:
       python3 - <<'PY'
@@ -1095,7 +1160,12 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   today (10.1).
 
   They are NEW surface — `cli.py` declares none of them today (10.1's table is the
-  surface that exists) — and 14.6's applier is what `health fix` invokes.
+  surface that exists) — and 14.6's applier is what `health fix` invokes. **The
+  view's actions are published as DATA, so parity is a comparison and not a
+  promise.** The `/capabilities` payload's health block lists every resolution
+  action the Health view offers. The view is served by the entry point (10.2).
+  Three named tests compare the two surfaces: the view is served, every view
+  action has a CLI verb, and every CLI verb is offered by the view.
 - [ ] 14.6 **The three resolution classes, spelled `auto-fix`, `assisted` and
   `human-only` — exactly as RULED (`5784247356`) and exactly as requirement 14
   declares them, in the store, the CLI, the view and the pack contract (15.2)
@@ -1130,6 +1200,8 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   known broken link and a known accepted finding):
 
       set -euo pipefail
+      export OPENDOX_INSTALL_MODE=local                     # the store is Group 13's bundle: a prerequisite by name
+      export OPENDOX_STATE_DIR=$(mktemp -d)
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
       C=$(mktemp -d)/health-corpus
       cp -r tests/fixtures/health-corpus "$C"   # a FRESH repository: fix branches and commits land HERE
@@ -1159,6 +1231,11 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
       opendox health list --repo-root $C > /tmp/h3.txt      # a FAILING list now fails the sequence
       grep -q 'broken-link' /tmp/h3.txt                     # the run really did produce findings
       ! grep -q 'accepted-finding' /tmp/h3.txt              # and the exception still holds
+      # CLI PARITY with the view, compared rather than promised (14.5):
+      python -m pytest -q \
+        "tests/test_health_parity.py::test_the_health_view_is_served" \
+        "tests/test_health_parity.py::test_every_view_action_has_a_cli_verb" \
+        "tests/test_health_parity.py::test_every_cli_verb_is_offered_by_the_view
 
   Four things are proved in order, and the order is the point: the exception is
   written TO GIT (`git status --porcelain` must show the file, NEW or modified —
@@ -1246,6 +1323,8 @@ to #1144"*. `design.md` § D12.
   the neutral checks):
 
       set -euo pipefail
+      export OPENDOX_INSTALL_MODE=local                     # the store is Group 13's bundle: a prerequisite by name
+      export OPENDOX_STATE_DIR=$(mktemp -d)
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
       C=$(mktemp -d)/pack-corpus
       cp -r tests/fixtures/pack-corpus "$C"   # packs + manifest travel inside

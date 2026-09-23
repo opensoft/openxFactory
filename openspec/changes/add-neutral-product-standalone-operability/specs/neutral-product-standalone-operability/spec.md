@@ -415,6 +415,10 @@ unauthenticated multi-user install.
 - **WHEN** an install declared as hosted starts with no issuer configured
 - **THEN** it REFUSES and names the missing setting, and does NOT fall back to local single-user operation
 
+#### Scenario: A local install is bound beyond loopback
+- **WHEN** a standalone install in its local identity mode is asked to listen on an address other than loopback
+- **THEN** it is refused, with no opt-in, because a local mode without a broker that other machines can reach is an unauthenticated multi-user install under another name
+
 #### Scenario: The hosted mode's broker is unchanged
 - **WHEN** the hosted multi-user mode runs
 - **THEN** it authenticates through the same broker against the same pinned issuer as before, and a token from any other issuer is refused exactly as it is today

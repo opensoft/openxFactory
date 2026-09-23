@@ -537,14 +537,15 @@ Active changes:
   Heap's ratification read), as the BUILD ARC the archived
   `split-opendox-two-layer-product` names as its own unclosed residue. **ONE
   `## ADDED` block creating the capability `neutral-product-standalone-operability`
-  — sixteen requirements, sixty-eight scenarios**, written domain-neutrally (its sibling is
+  — sixteen requirements, sixty-nine scenarios**, written domain-neutrally (its sibling is
   `neutral-product-pin`: that governs openxFactory CONSUMING an external neutral
   product, this governs the product being able to STAND UP without its consumer),
-  with openDox as the measured instance. **Requirements 1-10 are one per gap of
-  the 2026-09-22 feature/gap sweep (G1-G10); requirements 11-16 are the later
-  rulings** of 2026-09-22 — the neutral submission step, the standalone install's
-  datastore and local identity mode, the health fix loop with its exception rule,
-  and the check-pack interface. Each is separately satisfiable and each is
+  with openDox as the measured instance. **Against the 2026-09-22 feature/gap
+  sweep, requirement 1 is the guard and answers no gap, requirements 2-9 answer
+  G1-G8, and requirement 10 answers both G9 and G10; requirements 11-16 are the
+  later rulings** of 2026-09-22 — the neutral submission step, the standalone
+  install's datastore and local identity mode, the health fix loop with its
+  exception rule, and the check-pack interface. Each is separately satisfiable and each is
   falsifiable by a command named in `tasks.md`. Requirement 1 states what openxFactory KEEPS
   as a refusal — the corpus, the OpenSpec instance, every doc-health check family,
   the adapter column, the intent-plane schemas and the integration tests — because

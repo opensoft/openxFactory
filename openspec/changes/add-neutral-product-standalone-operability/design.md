@@ -72,7 +72,7 @@ under which it can.
 ## D3 — Why the gaps are REQUIREMENTS and not merely tasks
 
 A gap list is an actor's inventory; it expires when the actor stops. Sixteen
-requirements with sixty-eight scenarios are a standing property of any neutral
+requirements with sixty-nine scenarios are a standing property of any neutral
 product this repository pins, and they outlive the arc. The concrete openDox
 work is in `tasks.md`, one box per requirement, each naming the falsification
 command — so the requirement states the property, the task states the act, and

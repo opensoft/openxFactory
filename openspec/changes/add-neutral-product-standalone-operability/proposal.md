@@ -324,7 +324,7 @@ name entirely. The correction is task 9.1's, not this packet's.
 ## What Changes
 
 ONE `## ADDED Requirements` block creating the capability
-`neutral-product-standalone-operability` — sixteen requirements, sixty-eight scenarios.
+`neutral-product-standalone-operability` — sixteen requirements, sixty-nine scenarios.
 The capability is the sibling of `neutral-product-pin`: that one governs
 openxFactory CONSUMING an external neutral product; this one governs the product
 being able to STAND UP without its consumer. It is written domain-neutrally and
@@ -332,12 +332,14 @@ applies to every neutral product openxFactory pins; openDox is the measured
 instance it is written from, exactly as `corpus-adapter-seam` is written from
 its own measured instance.
 
-The requirements, in the order of the gap sweep that measured them, each
-separately satisfiable and each falsifiable by a command named in `tasks.md`:
+The requirements, with the gap each answers — requirement 1 is the guard and
+answers no gap, requirements 2-9 answer G1-G8, requirement 10 answers both G9 and
+G10, and requirements 11-16 are the rulings of 2026-09-22 — each separately
+satisfiable and each falsifiable by a command named in `tasks.md`:
 
 | # | Requirement | Gap | Falsified by running |
 |---|---|---|---|
-| 1 | Making a neutral product standalone moves no corpus, no governance instance and no check family | — | the guard: a diff of `openxFactory/scripts/` and `openspec/` across the arc |
+| 1 | Making a neutral product standalone moves no corpus, no governance instance and no check family | — | the guard: every commit carrying the arc's trailer, diffed across the whole repository against an allow-list |
 | 2 | A neutral product imports with no consumer, no publisher and no host present | G1 | `python -c "import opendox.serve"` in an openDox-only checkout |
 | 3 | A neutral product ships a default profile for its own domain, and the composition point stays open | G2 | `opendox --help` with no host registered |
 | 4 | A neutral product produces its own primary artifact with no consumer installed **(RULED)** | G3 | generate a snapshot with `openxdox` absent |
@@ -654,4 +656,4 @@ is struck and the other fifteen stand.
 
 ## Capabilities
 
-- `neutral-product-standalone-operability` — ADDED, 16 requirements, 68 scenarios.
+- `neutral-product-standalone-operability` — ADDED, 16 requirements, 69 scenarios.
