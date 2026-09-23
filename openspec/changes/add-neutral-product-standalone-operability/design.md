@@ -72,7 +72,7 @@ under which it can.
 ## D3 — Why the gaps are REQUIREMENTS and not merely tasks
 
 A gap list is an actor's inventory; it expires when the actor stops. Sixteen
-requirements with seventy scenarios are a standing property of any neutral
+requirements with seventy-one scenarios are a standing property of any neutral
 product this repository pins, and they outlive the arc. The concrete openDox
 work is in `tasks.md`, one box per requirement, each naming the falsification
 command — so the requirement states the property, the task states the act, and
@@ -643,6 +643,12 @@ the user's, has no network, and holds the pack's whole process tree. An earlier
 draft of this packet relied on `chmod -R a-w` and a working directory. A process
 running as the same user can undo the first and ignore the second, so that was a
 convention, not a boundary. Where no such sandbox exists, packs do not run.
+**What a pack RETURNS is data, and the engine validates it.** The sandbox contains
+the pack while it runs, and it cannot contain what the engine later does with a
+returned patch. So the engine refuses, before any branch exists, a patch that
+edits anything but its own finding's document, leaves the corpus, enters the
+repository's metadata, passes through a symbolic link, creates, deletes, renames
+or re-modes a file, or exceeds the engine's size bound (task 15.2a).
 
 Two more, each measured against a failure this estate has already had. **A pack is
 pinned by commit and digest** — the `neutral-product-pin` discipline, because an
@@ -664,7 +670,10 @@ its place three ways: a finding can be ATTRIBUTED to the pack that raised it; a
 pack can be UPGRADED without its history becoming ambiguous; and the BASELINE can
 tell a genuinely new finding from one that merely arrived with a new pack version
 — which is the case that would otherwise make every pack upgrade look like a
-regression.
+regression. **Both are stamped by the ENGINE from the pack's manifest entry**,
+never read from what the pack returns. A pack therefore cannot attribute its
+findings to another pack, and a refusal raised before a pack ever runs is still
+attributable (task 15.7).
 
 **The migration number, restated because the instruction said `0002`:** that file
 exists already (`migrations/0002_migration_state.sql`, the

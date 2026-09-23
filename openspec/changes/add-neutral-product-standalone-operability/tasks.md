@@ -87,7 +87,7 @@ re-measures the same delta rather than trusting either row.
   requirement table; the explicit "what openxFactory keeps" section; honest
   `code_surface:` / `target_release:` front-matter.
 - [x] 1.3 Author the `## ADDED Requirements` delta creating
-  `neutral-product-standalone-operability` — 16 requirements, 70 scenarios,
+  `neutral-product-standalone-operability` — 16 requirements, 71 scenarios,
   domain-neutral, openDox as the measured instance.
 - [x] 1.4 Author `design.md`: D1-D8 and **R-G3** — filed as Q-G3, the one question
   put to Brett with three options and a recommendation; RULED the same day and
@@ -593,7 +593,8 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       RULE=$(cat tests/fixtures/malformed/EXPECTED_RULE)
       test -n "$RULE"
       grep -qF -- "$RULE" /tmp/err                          # refused for THE rule the fixture breaks
-      ! grep -q "No such file or directory" /tmp/err        # and not for a missing path
+      rc=0; grep -q "No such file or directory" /tmp/err || rc=$?
+      test "$rc" -eq 1                                      # ABSENT: not refused for a missing path
 
   The first exits 0; the second exits NON-ZERO and the sequence asserts that
   rather than printing it, so a validator returning zero on a malformed corpus
@@ -785,8 +786,8 @@ packet's interim arrangement ends.**
         sleep 1
       done
       test "$ready" -eq 1                              # a server that never started FAILS here
-      body=$(curl -sf http://127.0.0.1:8080/)          # no pipeline: curl's status is the status
-      printf '%s' "$body" | grep -qi '<html'           # and it is really the bundle
+      curl -sf http://127.0.0.1:8080/ > /tmp/bundle.html   # no pipeline: curl's status is the status
+      grep -qi '<html' /tmp/bundle.html                # and it is really the bundle
 
   `opendox --help` exits 0, the readiness loop must SUCCEED within 30s or `test`
   fails the sequence, and the fetched body must really be HTML — the earlier form
@@ -812,15 +813,19 @@ packet's interim arrangement ends.**
 - [ ] 11.1 At the close of the arc, a diff of openxFactory across every group
   shows: no `scripts/doc_health/` family moved, no `openspec/specs/` capability
   removed, no corpus document moved, no intent-plane schema moved, and no
-  integration test moved. The only openxFactory edits are carve-manifest row
-  annotations recording each closed reach.
+  integration test moved. The only openxFactory edits are carve-manifest
+  ANNOTATIONS recording each closed reach. Each is prose in the `note` that an
+  `edits[]` entry already admits (`scripts/validate-carve-manifest.py:689`,
+  `EDIT_KEYS`), added where there was none or extended, never rewritten, so the
+  manifest's closed grammar does not widen to hold them.
 - [ ] **FALSIFIED BY** (openxFactory checkout, at the close of the arc).
-  **`<arc-base>` is THIS PACKET'S OWN MERGE COMMIT, not a pre-authoring commit** —
-  the guard measures what the ARC does to openxFactory, and the packet's own
-  filing artifacts (the `openspec/changes/` directory, the README bullet and the
-  machine-seeded `tests/sequenced_after/corpus-ledger.yaml` row) are the FILING,
-  not the arc. Defining the base any earlier makes the command self-failing,
-  because this packet necessarily edits the ledger it would then flag:
+  **`PACKET_MERGE` is THIS PACKET'S OWN MERGE COMMIT, not a pre-authoring
+  commit.** The guard measures what the ARC does to openxFactory. The packet's
+  own filing artifacts are the FILING, not the arc: the `openspec/changes/`
+  directory, the README bullet and the machine-seeded
+  `tests/sequenced_after/corpus-ledger.yaml` row. Defining the base any earlier
+  makes the command self-failing, because this packet necessarily edits the
+  ledger it would then flag:
 
       set -euo pipefail
       # THE ARC'S OWN COMMITS (11.0), not everything that reached main meanwhile:
@@ -829,37 +834,87 @@ packet's interim arrangement ends.**
       git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' \
         "$PACKET_MERGE..$ARC_TIP" > /tmp/arc-commits.txt
       test -s /tmp/arc-commits.txt                          # 11.1's annotations exist, so an empty list measured nothing
-      : > /tmp/arc-paths.txt
-      while read -r c; do                                   # each commit against its FIRST parent, WHOLE repository
-        git diff --name-only "$c^1" "$c" >> /tmp/arc-paths.txt
+      : > /tmp/arc-changes.tsv
+      while read -r c; do                                   # WHOLE repository, no pathspec
+        git rev-list --parents -n 1 "$c" > /tmp/arc-parents.txt
+        if [ "$(wc -w < /tmp/arc-parents.txt)" -gt 2 ]; then
+          kind=MERGE                                        # only what the merge ITSELF introduced (-c), never main's content
+          git diff-tree -r -c --no-commit-id --name-only "$c" > /tmp/arc-one.txt
+        else
+          kind=COMMIT                                       # an ordinary commit against its parent
+          git diff --name-only "$c^1" "$c" > /tmp/arc-one.txt
+        fi
+        while read -r p; do printf '%s\t%s\t%s\n' "$kind" "$c" "$p" >> /tmp/arc-changes.tsv; done < /tmp/arc-one.txt
       done < /tmp/arc-commits.txt
-      python3 - /tmp/arc-paths.txt <<'PY'
-      import sys
-      ALLOWED = {"docs/opendox-carve-manifest.yaml",
-                 "openspec/specs/neutral-product-standalone-operability/spec.md"}
-      EXCLUDED = {"tests/sequenced_after/corpus-ledger.yaml"}   # machine-seeded bookkeeping
-      touched = sorted({l.strip() for l in open(sys.argv[1]) if l.strip()} - EXCLUDED)
-      breach = [p for p in touched if p not in ALLOWED]
+      python3 - /tmp/arc-changes.tsv <<'PY'
+      import copy, subprocess, sys, yaml
+      MANIFEST = "docs/opendox-carve-manifest.yaml"
+      def manifest_at(rev):
+          out = subprocess.run(["git", "show", f"{rev}:{MANIFEST}"], check=True, capture_output=True, text=True).stdout
+          return yaml.safe_load(out)
+      def notes(doc):
+          return [[e.get("note") for e in (row.get("edits") or [])] for row in doc["rows"]]
+      def without_notes(doc):
+          doc = copy.deepcopy(doc)
+          for row in doc["rows"]:
+              for e in row.get("edits") or []:
+                  e.pop("note", None)
+          return doc
+      breach, annotated = [], 0
+      for kind, c, p in (l.rstrip("\n").split("\t") for l in open(sys.argv[1]) if l.strip()):
+          if kind == "MERGE":
+              breach.append(f"{c[:12]}: a merge introduced {p} itself; land it as an ordinary commit")
+          elif p != MANIFEST:
+              breach.append(f"{c[:12]}: touched {p}")
+          else:
+              before, after = manifest_at(f"{c}^1"), manifest_at(c)
+              if without_notes(before) != without_notes(after):
+                  breach.append(f"{c[:12]}: changed the manifest beyond an edit's note (a row, a field, a digest)")
+                  continue
+              for old_row, new_row in zip(notes(before), notes(after)):
+                  for old, new in zip(old_row, new_row):
+                      if old != new:
+                          annotated += 1
+                          if old is not None and not (new or "").startswith(old):
+                              breach.append(f"{c[:12]}: rewrote an existing note instead of extending it")
       if breach:
-          sys.exit("FAIL: the arc touched paths requirement 1 keeps:\n  " + "\n  ".join(breach))
-      print(f"requirement 1 holds: {len(touched)} path(s) across the arc's commits, all allowed")
+          sys.exit("FAIL: the arc changed what requirement 1 keeps:\n  " + "\n  ".join(breach))
+      print(f"requirement 1 holds: {annotated} note(s) annotated, nothing else touched")
       PY
 
-  **The allow-list is ENFORCED over the WHOLE repository, and only over the arc.**
-  There is no pathspec, so a change to `README.md`, `.github/`, `pyproject.toml`
-  or any other root path is seen. The commits measured are the ones carrying 11.0's
-  trailer, each diffed against its first parent, so another lane's landing in the
-  same window is not mistaken for the arc's. Every path must be
-  `docs/opendox-carve-manifest.yaml` or
-  `openspec/specs/neutral-product-standalone-operability/spec.md`; any other path
-  exits non-zero, names itself, and is a breach of requirement 1 to be reverted
-  or declared. Every intermediate list is captured to a file first, so a failing
-  `git` fails under `set -e` instead of handing the check an empty list that would
-  read as a pass. The ledger is excluded by name because it is machine-seeded
-  bookkeeping that every filing owes and that carries no behaviour; if it ever
-  moves for another reason, the seeder's own `--ledger-diff` gate shows it. The
-  archive act that closes this change is the FILING's bookkeeping, like this
-  packet's own merge, and is outside `<arc-tip>`.
+  **The guard reads CONTENT, not only names. It covers the WHOLE repository, and
+  only the arc.** There is no pathspec, so a change to `README.md`, `.github/`,
+  `pyproject.toml` or any other root path is seen. The commits measured are the
+  ones carrying 11.0's trailer, so another lane's landing in the same window is
+  not mistaken for the arc's. An ordinary commit is diffed against its parent. A
+  merge is charged only with what it introduced against EVERY parent (`git
+  diff-tree -c`). Merging `main` into an arc branch is therefore not charged with
+  `main`'s content, and a merge that introduces a change of its own is refused,
+  because an edit hidden in a merge is the one a reviewer does not read.
+
+  Every path must be `docs/opendox-carve-manifest.yaml`, and the manifest is then
+  compared by CONTENT against the commit's parent. With every `edits[].note`
+  removed, the two documents must be EQUAL. No row is added, removed or
+  reordered, and no disposition, destination, line list or digest moves. A note
+  that already existed may only be EXTENDED, so an annotation cannot erase the
+  record it annotates.
+
+  **Nothing is exempt.** The ledger row this packet seeds landed with the filing,
+  before `PACKET_MERGE`. An arc commit that touches
+  `tests/sequenced_after/corpus-ledger.yaml` is therefore a breach like any other.
+  So is one that touches a promoted spec: the archive act that promotes this
+  capability is the FILING's bookkeeping, like this packet's own merge, and lies
+  outside `ARC_TIP`.
+
+  Every intermediate list is captured to a file first, so a failing `git` fails
+  under `set -e` instead of handing the check an empty list that would read as a
+  pass. The parse needs PyYAML, which `scripts/validate-carve-manifest.py` itself
+  imports.
+
+  The guard was run before this box was written, against a scratch repository
+  carrying the real manifest. It passed an added note, an extended note, and a
+  clean merge of `main`. It refused a rewritten note, a changed digest, a ledger
+  edit, and a merge carrying an edit of its own.
 
 ## Group 12 — Requirement 11: the neutral submission step (RULED, openDox-code)
 
@@ -948,6 +1003,28 @@ that does not name a platform.
   obtains its `SubmissionPort` through the bindings 12.4 declares, then returns
   and prints the 12.1a `Submission`. openXdox's `gate open-pr` is UNTOUCHED by this
   box; 12.5 proves it.
+
+  **The route is a SESSION VERB, gated exactly as the governed one is.**
+  Measured at openXdox-code `195276b7`: `_handle_gate_action`
+  (`src/openxdox/serve_gate.py:68`) refuses, in this order and before any body
+  byte is read, a request off loopback (`:73`), a request without the capability
+  or a resolved actor (`:78`), and, for a session-bearing verb such as `open-pr`
+  (`gate_routes.py:111`), a request that `_not_the_human_console()` (`:105`) finds
+  is not the console. The submit route takes the same three clauses in the same
+  order, from openDox's own `serve.py` at `1e4a57fb`. The first two are the
+  `session` capability, which `compute_capabilities` grants only to a loopback
+  bind with a real checkout and a RESOLVED HUMAN ACTOR (`:498`, `:504`). The third
+  is the human-console test (`:1224`): the per-serve token, a trusted loopback
+  `Host`, a JSON submission, and no foreign `Origin` or `Referer`. **It takes NO
+  repository from the request.** It submits a branch of the checkout
+  `build_server` was started on, as `gate open-pr` passes
+  `checkout_root=Path(self.checkout_root)` (`serve_gate.py:158`), so no caller can
+  name another checkout. The hosted plane is the multi-user one, and it carries
+  no `session` capability, so the route refuses there before anything else. That
+  is deliberate: a push spends the invoking user's own git credentials, and a
+  personal credential is what `compute_capabilities`' own docstring says a hosted
+  plane must never hold (FR-034, D22). The CLI verb runs as that user, in that
+  user's checkout.
 - [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
   registered, openxFactory's GitHub pull-request flow behaves exactly as today.
   This is a generalization, not a replacement, and 12.5 is the box that proves it.
@@ -1096,12 +1173,20 @@ that does not name a platform.
       PY
       # the SERVER's unset default binds the same class — a named test, so its absence fails:
       python -m pytest -q "tests/test_submission_default.py::test_server_unset_submission_factory_binds_the_neutral_default"
+      # the ROUTE is a session verb, gated as the governed one is (12.4a) — each refusal a NAMED test:
+      python -m pytest -q \
+        "tests/test_submit_route.py::test_submit_route_is_refused_off_loopback" \
+        "tests/test_submit_route.py::test_submit_route_is_refused_without_a_resolved_actor" \
+        "tests/test_submit_route.py::test_submit_route_is_refused_without_the_console_token" \
+        "tests/test_submit_route.py::test_submit_route_is_refused_from_a_foreign_origin" \
+        "tests/test_submit_route.py::test_submit_route_takes_no_repository_from_the_request"
       # and the NO-REMOTE case, through the same verb (scenario 3):
       git -C /tmp/plain remote remove origin
       rc=0; opendox submit --repo-root /tmp/plain --branch sess-1 > /tmp/none.out 2>&1 || rc=$?
       test "$rc" -ne 0                                      # refused, never a reported success
       grep -qi "remote" /tmp/none.out                       # naming what is missing
-      ! grep -q "Traceback" /tmp/none.out                   # plainly, not an opaque error
+      rc=0; grep -q "Traceback" /tmp/none.out || rc=$?
+      test "$rc" -eq 1                                      # ABSENT: plainly refused, not an opaque error
 
   **The acceptance runs the product's own verb, not a class it constructs by
   hand**, so it exercises the default binding a student's install really uses.
@@ -1112,7 +1197,9 @@ that does not name a platform.
   assertion is requirement 11's second scenario, and a `None`-returning `push`
   could not satisfy it however well the push worked. The no-remote path fails in
   BOTH wrong directions scenario 3 forbids. A silent success exits 0 and fails
-  `test`. An opaque error leaves a traceback and fails the last line.
+  `test`. An opaque error leaves a traceback, and the traceback check refuses it.
+  Each of the five route tests also asserts that the remote is unchanged, so a
+  refusal that pushed anyway fails.
 
   **And the three guardrails are asserted, now that 12.6 is RULED — by NAME**, so
   a missing test FAILS the command rather than being quietly absent from it. 12.6
@@ -1504,14 +1591,16 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
       git -C $C commit -qm "accept fixture finding"
       opendox health run --repo-root $C
       opendox health list --repo-root $C > /tmp/h2.txt
-      ! grep -q 'accepted-finding' /tmp/h2.txt              # suppressed BEFORE the reset
+      rc=0; grep -q 'accepted-finding' /tmp/h2.txt || rc=$?
+      test "$rc" -eq 1                                      # ABSENT: suppressed BEFORE the reset
       # ...and it survives the store being dropped and rebuilt:
       opendox-runtime runtime reset --confirm yes-drop-the-coordination-database
       opendox-runtime runtime migrate
       opendox health run --repo-root $C
       opendox health list --repo-root $C > /tmp/h3.txt      # a FAILING list now fails the sequence
       grep -q 'broken-link' /tmp/h3.txt                     # the run really did produce findings
-      ! grep -q 'accepted-finding' /tmp/h3.txt              # and the exception still holds
+      rc=0; grep -q 'accepted-finding' /tmp/h3.txt || rc=$?
+      test "$rc" -eq 1                                      # ABSENT: the exception still holds
       # CLI PARITY with the view, compared rather than promised (14.5):
       python -m pytest -q \
         "tests/test_health_parity.py::test_the_health_view_is_served" \
@@ -1528,7 +1617,11 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   listing is captured to a file first and grepped second**, so a `health list`
   that exits non-zero fails under `set -e` instead of being read as the desired
   absence — which is exactly what the earlier `if … | grep -q` form would have
-  done. The default branch must not move and the draft branch must exist.
+  done. **An ABSENCE is asserted as grep's exit status 1 exactly, never as
+  `! grep`.** Under `set -e` a `!`-inverted command never stops the sequence, so
+  a `! grep -q` that is not the last line passes whatever it finds, and status 2
+  (a grep that could not read its file) is not an absence either. The default
+  branch must not move and the draft branch must exist.
 
   Today none of it exists: there is no health table, no health verb, and no
   applier anywhere in the estate.
@@ -1548,7 +1641,11 @@ to #1144"*. `design.md` § D12.
   manifest.** The engine loads packs ONLY from `health/packs.yaml` in the corpus.
   It is committed beside `health/dispositions.yaml` for the same reason: which
   checks judge a corpus is a human decision about that corpus, not derived data.
-  Each entry carries `id`, `source` and `digest`. The digest is the source-tree
+  Each entry carries `id`, `version`, `source` and `digest`. The `version` is the
+  one every finding the pack raises is attributed to (15.7), so a new pack
+  version is a committed decision about the corpus like any other. A pack whose
+  own declaration (15.2) names another version, or none, is REFUSED as a finding
+  against its entry. The digest is the source-tree
   digest `neutral-product-pin` already defines, and it is REQUIRED for every
   source. **`commit` depends on where the source lives.** A git-URL source MUST
   carry it. A corpus-relative source MUST NOT: its referent is the corpus commit
@@ -1587,11 +1684,31 @@ to #1144"*. `design.md` § D12.
   on the platform, packs do not run**, and `health run` reports that as a
   finding against the install rather than running packs unsandboxed. Other
   platforms need their own kernel-enforced equivalent before packs run there.
-- [ ] 15.2 A pack DECLARES check families: id, version, and which documents each
+- [ ] 15.2 A pack DECLARES its own version, which must equal its manifest entry's
+  (15.1a), and its check families: id, version, and which documents each
   applies to. It RETURNS findings in the neutral shape — severity, resolution
   class (`auto-fix` / `assisted` / `human-only`, 14.6's spellings and no
   other), evidence — and MAY return proposed
   fixes AS PATCHES ONLY.
+- [ ] 15.2a **THE ENGINE VALIDATES EVERY PATCH BEFORE ANY BRANCH EXISTS.** The
+  sandbox (15.1b) contains the pack while it runs. It cannot contain what the
+  engine does next with a returned patch, and `health fix` is the engine
+  writing. So the engine checks each patch itself, as a unified diff, before
+  14.6's applier touches a branch. A patch is REFUSED when any of these holds:
+  it edits a path other than the `path` its own finding names (a finding that
+  names no document carries no patch); it names an absolute path, a path with a
+  `..` component, or a path with a `.git` component in any letter case; its
+  target is a symbolic link in the corpus or lies below one; it creates,
+  deletes, renames, copies or re-modes a file, or is a binary patch, which the
+  engine recognizes by the headers `new file mode`, `deleted file mode`,
+  `rename from`, `copy from`, `old mode` and `GIT binary patch`; or it is larger
+  than the engine's bound, 65,536 bytes by default (the order of the server's own
+  `_MAX_BODY_BYTES`), which is declared here and never read from the pack. Each
+  refusal is a finding against the pack that proposed it, whose `evidence` names
+  the refused finding (`refused_patch`) and the check it failed (`reason`), and a
+  refused patch creates NO branch. Only a patch that passes every check reaches
+  `git apply --check` against the draft branch's base, and a patch that applies
+  is still a draft on a branch (14.7).
 - [ ] 15.3 A pack's labels resolve through the DISPLAY FACET
   (`src/opendox/display_profile.py`), never spelled into the neutral surface —
   the same rule slice S7 applied to the front end, and the reason
@@ -1604,11 +1721,14 @@ to #1144"*. `design.md` § D12.
   surfaces as the pack failing is a finding); a pack consumed without its pin (15.1a: commit and digest, or
   digest alone for a pack the corpus carries); a pack that
   returns a class the engine does not declare, or declares its own baseline or
-  landing rule.
+  landing rule; a patch beyond its own finding's document (15.2a); and a declared
+  version that disagrees with the pack's manifest entry (15.1a).
 - [ ] 15.6 **A PACK THAT CRASHES OR TIMES OUT IS A FINDING AGAINST THAT PACK**,
   and the other packs still run. Give it a time budget: `health run --timeout
   SECONDS` (14.5), default declared by this box, applied PER PACK and enforced by
-  the engine rather than by the caller — a pack cannot opt out of it. A health
+  the engine rather than by the caller — a pack cannot opt out of it. So is a
+  pack whose output the engine cannot parse as the neutral shape: none of that
+  output is stored, and the finding says why. A health
   check whose failure mode is silence is worse than one that reports itself
   broken — the doc-health nightly failed silently every night from 2026-08-30 and
   nobody saw it.
@@ -1626,8 +1746,15 @@ to #1144"*. `design.md` § D12.
   engine sets in its own environment before spawning, and walks `/proc/self/fd`
   for a CANARY descriptor the engine holds open. It reports which attempts succeeded,
   and the answer must be none. `fixture-forking-pack` forks a child that sleeps
-  past the budget. A
-  `health/packs.yaml` registers all five through 15.1a's manifest by corpus-relative
+  past the budget. Three more test what a pack RETURNS.
+  `fixture-garbage-pack` writes bytes that are not the neutral shape to stdout and
+  exits 0. `fixture-anonymous-pack` declares no version, while its manifest entry
+  names one. `fixture-patching-pack` returns six findings, each naming its own
+  document and carrying a patch: `patch-ok`, a valid edit of that document, and
+  one of each kind 15.2a refuses — `patch-other-document`, `patch-traversal` (a
+  `..` path), `patch-git-metadata` (`.git/config`), `patch-rename` and
+  `patch-oversized`. A
+  `health/packs.yaml` registers all eight through 15.1a's manifest by corpus-relative
   `source`, pinned by digest and carrying NO `commit`, as 15.1a requires of a
   source the corpus itself versions. Because packs and manifest travel INSIDE the corpus,
   copying the fixture into a fresh repository carries a valid registration with
@@ -1637,10 +1764,16 @@ to #1144"*. `design.md` § D12.
   falsifiable rather than asserted.
 - [ ] 15.7 **PACK ID AND PACK VERSION ON EVERY FINDING, in the SAME additive
   migration as the results table** (group 14.1 — `0003_`, since `0002_` is the
-  ledger), so the table is not migrated twice.
+  ledger), so the table is not migrated twice. **The ENGINE stamps both, and the
+  pack is not asked.** `pack_id` and `pack_version` are the manifest entry's that
+  launched the run (15.1a), never values read from the findings the pack
+  returns, so a pack cannot attribute its findings to another pack, and a
+  refusal raised before a pack ever runs still carries its entry's id and
+  version. Both columns are `NOT NULL` in `0003_`, so no path can store a
+  finding without them: requirement 16's provenance scenario, enforced at the
+  store and not only in the engine.
 - [ ] **FALSIFIED BY** (openDox-code, installed, over 15.6a's `pack-corpus`, whose
-  manifest registers a deliberately crashing, a deliberately slow and a
-  deliberately writing pack beside the neutral checks):
+  manifest registers its eight fixture packs beside the neutral checks):
 
       set -euo pipefail
       python -m venv --clear /tmp/v15                       # a FRESH environment: nothing already installed stands in
@@ -1655,7 +1788,7 @@ to #1144"*. `design.md` § D12.
       git -C "$C" add -A
       git -C "$C" commit -qm fixture
       FIXTURE_HEAD=$(git -C "$C" rev-parse HEAD)
-      # the three fixture packs of 15.6a are registered; the run is itself bounded,
+      # the eight fixture packs of 15.6a are registered; the run is itself bounded,
       # so a hang is a FAILED FALSIFICATION and never a hung falsifier:
       timeout 120 opendox health run --repo-root $C --timeout 5
       # the WRITING pack reached only its isolated copy (15.1b): the user's tree is untouched
@@ -1666,7 +1799,7 @@ to #1144"*. `design.md` § D12.
       # the neutral checks still produced findings despite a crashing pack:
       opendox health list --repo-root $C > /tmp/p1.txt
       grep -q 'broken-link' /tmp/p1.txt
-      # and ALL THREE misbehaving packs are themselves findings, attributed:
+      # and EVERY pack that misbehaves in the run is itself a finding, attributed:
       opendox health list --repo-root $C --json > /tmp/p1.json
       python3 - /tmp/p1.json <<'PY'
       import json, sys
@@ -1675,10 +1808,32 @@ to #1144"*. `design.md` § D12.
       assert 'fixture-crashing-pack' in ids, 'crashing pack not reported'
       assert 'fixture-slow-pack' in ids, 'timed-out pack not reported'
       assert 'fixture-writing-pack' in ids, "a writing pack's failed write was not reported (it lets the refusal propagate)"
+      assert 'fixture-garbage-pack' in ids, 'unparseable pack output was not reported'
+      assert 'fixture-anonymous-pack' in ids, 'a pack declaring no version was not refused as a finding'
       escaped = [x for x in f if x['pack_id'] == 'fixture-escaping-pack' and x.get('evidence', {}).get('succeeded')]
       assert not escaped, f"a pack got out of its sandbox: {escaped}"
       assert all(x.get('pack_id') and x.get('pack_version') for x in f), 'a finding has no provenance'
       print('packs attributed:', sorted(ids))
+      PY
+      # what a pack RETURNS is checked before any branch exists (15.2a):
+      for f in patch-other-document patch-traversal patch-git-metadata patch-rename patch-oversized; do
+        rc=0
+        opendox health fix --repo-root "$C" --finding "$f" > /tmp/pf.out 2>&1 || rc=$?
+        test "$rc" -ne 0                                    # refused...
+        test -z "$(git -C "$C" branch --list "health-fix-$f")"   # ...and no branch exists for it
+      done
+      opendox health fix --repo-root "$C" --finding patch-ok
+      git -C "$C" rev-parse --verify --quiet refs/heads/health-fix-patch-ok   # the valid patch IS a draft
+      test "$(git -C "$C" rev-parse HEAD)" = "$FIXTURE_HEAD" # and the default branch never moved
+      opendox health list --repo-root "$C" --json > /tmp/p1b.json
+      python3 - /tmp/p1b.json <<'PY'
+      import json, sys
+      f = json.load(open(sys.argv[1]))
+      refused = {x['evidence'].get('refused_patch') for x in f
+                 if x['pack_id'] == 'fixture-patching-pack' and isinstance(x.get('evidence'), dict)}
+      want = {'patch-other-document', 'patch-traversal', 'patch-git-metadata', 'patch-rename', 'patch-oversized'}
+      assert want <= refused, f'a refused patch is not a finding against its pack: {sorted(want - refused)}'
+      assert 'patch-ok' not in refused, 'the valid patch was refused'
       PY
       # a pack whose source no longer matches its PIN is refused, AS A FINDING (15.1a):
       echo "# tampered after pinning" >> "$C/packs/fixture-slow-pack/__init__.py"
@@ -1690,6 +1845,7 @@ to #1144"*. `design.md` § D12.
       f = json.load(open(sys.argv[1]))
       hit = [x for x in f if x['pack_id'] == 'fixture-slow-pack' and 'digest' in json.dumps(x.get('evidence', '')).lower()]
       assert hit, 'a tampered pack ran, or was skipped silently, instead of being refused as a finding'
+      assert all(x.get('pack_id') and x.get('pack_version') for x in f), 'a refusal has no provenance'
       PY
       # and 15.5's REFUSALS, each a NAMED test — a missing node fails the command:
       python -m pytest -q \
@@ -1704,13 +1860,26 @@ to #1144"*. `design.md` § D12.
         "tests/test_check_packs.py::test_no_sandbox_on_the_platform_means_no_packs_run" \
         "tests/test_check_packs.py::test_an_unpinned_pack_is_refused" \
         "tests/test_check_packs.py::test_a_pack_returning_an_undeclared_class_is_refused" \
-        "tests/test_check_packs.py::test_a_pack_declaring_its_own_baseline_or_landing_rule_is_refused"
+        "tests/test_check_packs.py::test_a_pack_declaring_its_own_baseline_or_landing_rule_is_refused" \
+        "tests/test_check_packs.py::test_unparseable_pack_output_is_a_finding_against_the_pack" \
+        "tests/test_check_packs.py::test_a_declared_version_that_disagrees_with_the_manifest_is_refused" \
+        "tests/test_check_packs.py::test_provenance_is_stamped_from_the_manifest_not_the_pack" \
+        "tests/test_check_packs.py::test_the_store_refuses_a_finding_without_provenance" \
+        "tests/test_check_packs.py::test_a_patch_may_edit_only_its_own_findings_document" \
+        "tests/test_check_packs.py::test_a_patch_outside_the_corpus_or_into_repository_metadata_is_refused" \
+        "tests/test_check_packs.py::test_a_patch_through_a_symlink_is_refused" \
+        "tests/test_check_packs.py::test_a_patch_that_creates_deletes_renames_or_remodes_is_refused" \
+        "tests/test_check_packs.py::test_a_patch_over_the_size_bound_is_refused" \
+        "tests/test_check_packs.py::test_a_refused_patch_creates_no_branch"
 
-  Every finding carries a pack id and version. **All three** misbehaving packs
-  appear as findings, rather than as a stack trace, a hang, or an edit to the
-  user's tree, and the run completes. The writing pack is checked where it runs:
-  straight after the run, the checkout must be clean and still at the fixture's
-  own commit. An in-process pack would already have moved it. The
+  Every finding carries a pack id and version, the refusals included. **Every
+  pack that misbehaves in the run** — crashing, slow, writing, unparseable and
+  unversioned — appears as a finding, rather than as a stack trace, a hang, or an
+  edit to the user's tree, and the run completes. Each of the five refused patches
+  leaves no branch and a finding that names it, and the one valid patch is a draft
+  on a branch while the default branch stays at the fixture's own commit. The
+  writing pack is checked where it runs: straight after the run, the checkout
+  must be clean and still at the fixture's own commit. An in-process pack would already have moved it. The
   outer `timeout 120` is the difference between a falsifier that FAILS on a
   runaway pack and one that HANGS on it: without it, the very defect 15.6 exists
   to prevent would take the acceptance command down with it, and the box would

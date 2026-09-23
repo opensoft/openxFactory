@@ -541,6 +541,19 @@ engine does not claim to have seen the attempt. Checking the real tree after an
 in-process pack had run would be too late: the user's data would already have
 moved.
 
+A PROPOSED FIX IS DATA, AND THE ENGINE SHALL VALIDATE IT BEFORE ANY BRANCH
+EXISTS. The sandbox contains what a pack does while it runs. It cannot contain
+what the engine later does with what the pack returned, so the engine checks
+every patch itself. A patch SHALL edit only the document its own finding names,
+and a finding that names no document carries no patch. It SHALL NOT name a path
+outside the corpus, a path under the repository's own metadata, or a path
+reached through a symbolic link. It SHALL NOT create, delete, rename or change
+the mode of a file, and it SHALL NOT exceed a size bound that the engine sets and
+no pack can raise. A patch that fails any of these is REFUSED before any branch
+is created, and the refusal is a finding against the pack that proposed it. A
+patch that passes is still only a draft, and it reaches the default branch only
+through the landing rule.
+
 EVERY FINDING SHALL CARRY THE ID AND THE VERSION OF THE PACK THAT RAISED IT, so
 that a finding can be attributed, a pack can be upgraded without its history
 becoming ambiguous, and a baseline can tell a genuinely new finding from one that
@@ -557,6 +570,10 @@ arrived with a new pack version.
 #### Scenario: A pack tries to leave its sandbox
 - **WHEN** a pack restores write permission on its copy, follows a symbolic link out of it, opens a network connection, or reads a path of the user's outside the copy
 - **THEN** each attempt fails at the operating system's boundary, which is the guarantee, because an isolation the pack can undo is not isolation; an attempt that surfaces as the pack failing is also reported as a finding against it, and one the pack swallows is still contained
+
+#### Scenario: A pack proposes a patch beyond its finding
+- **WHEN** a pack's proposed fix edits a document other than the one its finding names, names a path outside the corpus or under the repository's own metadata, reaches a path through a symbolic link, creates, deletes, renames or re-modes a file, or exceeds the engine's size bound
+- **THEN** the engine refuses it before any branch exists, and the refusal is a finding against that pack, because the sandbox contains what a pack does, not what the engine does with what the pack returns
 
 #### Scenario: A pack crashes or hangs
 - **WHEN** a pack raises, or exceeds its time budget
