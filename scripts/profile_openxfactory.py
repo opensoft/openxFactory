@@ -73,7 +73,8 @@ artifacts read off the SAME registered profile through its own public accessors
 `profile.lifecycle_for(...).by_role`). The stage words are copied from
 openXdox's own `DISPLAY` (`openxdox.view_extensions`) by `_openxdox_stages()`,
 because the xFactory host's overlay of openDox's `completion` stage is
-declared there (RULED `#656` comment `5784683830`) and must have one source.
+declared there (RULED `#656` comments `5784683830` and `5801057769`) and must
+have one source.
 `_display_facet()`'s own docstring states which roles are deliberately left
 undeclared and why.
 """
@@ -197,8 +198,13 @@ def _openxdox_stages() -> dict[str, dict[str, Any]]:
     `5784654370` ("2, keep completed"): openDox's sixth neutral stage keeps the
     role `completion` and the word `completed`, and the xFactory host overlays
     its own word on it. The xFactory host is openXdox, and openXdox-code #26
-    (`195276b7`) declares that overlay as `openxdox.view_extensions.DISPLAY`, a
-    partial facet of one stage entry and two fields (`short`, `label`).
+    (`195276b7`) declared that overlay as `openxdox.view_extensions.DISPLAY`, a
+    partial facet of one stage entry and two fields (`short`, `label`). RULED
+    `5801057769` (2026-09-23, verbatim "yes, overlay implemented items too")
+    extends it to the same stage's item nouns, and openXdox-code #27
+    (`626f2c8d`) adds `one` and `many` to that entry: one stage entry, four
+    fields. This function did not change for it, because it copies whatever
+    that entry holds.
 
     WHY IT IS COPIED HERE AT ALL. openDox reads the REGISTERED profile, never
     openXdox's module, and in this assembly the registered profile's `DISPLAY`
@@ -238,7 +244,8 @@ def _openxdox_stages() -> dict[str, dict[str, Any]]:
       role to a mapping of fields, REFUSES the same way. That is
       `display_profile`'s own stance on a declaration it cannot read.
     * `DISPLAY` WELL-FORMED BUT OVERLAYING LESS (no `stages`, no `completion`
-      entry, or only one of `short` and `label`) IS FOLLOWED, not refused. It
+      entry, only one of `short` and `label`, or #26's names without #27's
+      item nouns) IS FOLLOWED, not refused. It
       is openXdox's own declaration, and openDox's schema holds a partial or
       empty facet legal ("PARTIAL IS LEGAL, AND IT IS THE POINT"). Refusing it
       here would make this composer a second authority on what openXdox may
@@ -352,11 +359,13 @@ def _display_facet(profile: Any) -> dict[str, Any]:
     invented here)". Brett Heap answered that question for ONE station: RULED
     `#656` comment `5784654370` ("2, keep completed") keeps openDox's neutral
     `completed`, and `5784683830` ("1, keep completed and overlay implemented")
-    has the xFactory host overlay its own word on it. The overlay is declared
-    in openXdox, not here, so this facet COPIES that one stage entry
-    (`_openxdox_stages()`) and declares no stage word of its own. The other
-    five stations stay openDox's neutral words, because the ruling overlays
-    one entry and openDox "fills everything else from `NEUTRAL_DISPLAY`".
+    has the xFactory host overlay its own word on it. `5801057769` ("yes,
+    overlay implemented items too") extends that overlay to the same station's
+    item nouns. The overlay is declared in openXdox, not here, so this facet
+    COPIES that one stage entry (`_openxdox_stages()`) and declares no stage
+    word of its own. The other five stations stay openDox's neutral words,
+    because both rulings overlay one entry and openDox "fills everything else
+    from `NEUTRAL_DISPLAY`".
     """
     def statuses_for(kind: str, roles: tuple[str, ...]) -> dict[str, str]:
         return {role: profile.status(role, kind=kind) for role in roles}
