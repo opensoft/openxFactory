@@ -853,63 +853,6 @@ Active changes:
   `scripts/code_surface.py`'s own `parse_head` docstring restates the same three
   separators at `:447-448` (§ 5.1, ticking at the archive by naming a
   successor).
-- [harden-path-escape-helpers-against-symlink-loops](openspec/changes/harden-path-escape-helpers-against-symlink-loops/proposal.md)
-  filed 2026-09-17, lane `openxfactory-5` (display `openXfactory-5`),
-  **`Status: ratified`** (2026-09-18, approximately 09:55Z, Brett Heap,
-  openxFactory repository owner, given in the lane's terminal as a
-  multiple-choice answer, verbatim ***"Ratify; land when green"***) — record
-  [`review/ratification-2026-09-18.md`](openspec/changes/harden-path-escape-helpers-against-symlink-loops/review/ratification-2026-09-18.md).
-  **THE WORD NAMES NO ALTERNATIVE LETTER, SO OQ-1 = (a), THE RECOMMENDED
-  OPTION, AND THE DELTA MOVED NOT ONE BYTE** (`.openspec.yaml` now carries
-  `approved_by`/`approved_on` ADDED BESIDE the unmoved drafting pair). Answers
-  openxFactory
-  [#1074](https://github.com/opensoft/openxFactory/issues/1074), the finding this
-  lane filed on 2026-09-16 at the landing of PR #1029 and CLAIMED before
-  authoring.
-  **TWO `## ADDED` REQUIREMENTS, TEN SCENARIOS, OVER `release-realization`**:
-  *A containment guard answers every resolution failure and raises none* (six
-  scenarios) and *A symlink-loop proof is built at test time and never committed*
-  (four). NO `## MODIFIED` BLOCK, so no promoted byte is edited, no marker is
-  owed and no modified-block-currency row is opened; both titles were checked
-  against `openspec/specs/`, every active delta and the archive and appear
-  nowhere else, so `sequenced_after: []` is a corroborated root claim.
-  **THE MEASURED GAP.** `pathlib.Path.resolve(strict=True)` signals a symlink
-  loop as a `RuntimeError`, which is a subclass of neither `OSError` nor
-  `ValueError`, on the interpreter the required check pins
-  (`.github/workflows/pytest-suite.yml:556`, `python-version: "3.12"`; measuring
-  shell `Python 3.12.3`), at the candidate's leaf and at any parent component
-  alike. Four path-containment guards in three modules absorb only `OSError`
-  (one absorbs `OSError` and `ValueError`), and THREE OF THE FOUR END IN A
-  TRACEBACK where their own docstrings promise a DROP: `scripts/code_surface.py:777`
-  (`_unescaped`), `scripts/target_release.py:630` (`_unescaped`) and
-  `scripts/proposal-support.py:347` (`_contained`). The FOURTH,
-  `scripts/target_release.py:394` (`_registry_present`), carries the same narrow
-  clause but is fronted by an `is_dir()` pre-check that no measured tree state
-  gets past, which is the correction recorded below.
-  Driven end to end on a minimal tree carrying a committed-shape loop,
-  `scripts/validate-code-surface.py` and `scripts/validate-target-release.py`
-  both end in a traceback, and so do `former_identity_claimants` and
-  `declared_former_ids_in_tree`, the two public readers the archive gate's
-  former-identity arm is built on.
-  **ONE DELIBERATE ACT ACROSS ALL THREE MODULES, WHICH IS WHY IT IS A PACKET.**
-  `code_surface._unescaped`'s docstring names `target_release._unescaped` as "the
-  exact shape this mirrors" and that module's `_unescaped` names
-  `_registry_present`'s test as the one it generalizes, so correcting one module
-  alone would falsify a written claim of identity; and two of the three modules
-  are the realized surface of an archived packet and of the governed OpenSpec
-  wrapper. This is the disposition PR #1029 recorded rather than taking the
-  rider (comment 5703004913).
-  **#1074'S OWN TEXT IS CORRECTED BY THIS PACKET'S MEASUREMENT**: the issue says
-  `_registry_present` is exposed when the repository root sits behind a loop, and
-  it is not, `is_dir()` answering `False` rather than raising so the function
-  returns at `target_release.py:390`. No tree state reaches that guard's clause;
-  `design.md` D3 gives the three reasons it is widened anyway.
-  **NOTHING MOVES IN THIS PULL REQUEST**: no byte of any script, no test, no
-  workflow, no contract member, no file under `openspec/specs/`, and no symlink
-  is added to the tracked tree. `code_surface:` is non-empty, so the packet
-  archives on merged-plus-green realization evidence and not on landing, and
-  #1074 closes THERE.
-
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
   `openXfactory-4-openDox_extraction`), `Status: draft`. **Takes the FIRST HALF of
@@ -3258,6 +3201,72 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [harden-path-escape-helpers-against-symlink-loops](openspec/changes/archive/2026-09-18-harden-path-escape-helpers-against-symlink-loops/proposal.md)
+  — **ARCHIVED 2026-09-18** by
+  [PR #1116](https://github.com/opensoft/openxFactory/pull/1116),
+  filed 2026-09-17 by lane `openxfactory-5` (display `openXfactory-5`) in answer
+  to openxFactory
+  [#1074](https://github.com/opensoft/openxFactory/issues/1074),
+  **RATIFIED 2026-09-18 at approximately 09:55Z by Brett Heap** (openxFactory
+  repository owner), verbatim ***"Ratify; land when green"*** — given in the
+  lane's terminal as a multiple-choice answer, so NO GITHUB COMMENT CARRIES THE
+  WORD and the record
+  [`review/ratification-2026-09-18.md`](openspec/changes/archive/2026-09-18-harden-path-escape-helpers-against-symlink-loops/review/ratification-2026-09-18.md)
+  is how it survives; ratifying commit `ebcdbc0c20eb`.
+  **`code_surface: openxFactory` IS NON-EMPTY, so under `release-realization`
+  this packet archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE and on a
+  SEPARATE ARCHIVE WORD — never on landing and never on ratification.** Both
+  evidence halves, cited rather than asserted: the packet landed as PR
+  [#1083](https://github.com/opensoft/openxFactory/pull/1083) →
+  `ebcdbc0c20eb7368582d4bb8103001ab48316542` (2026-09-18T14:03:33Z); § 3's
+  REALIZATION landed as PR
+  [#1107](https://github.com/opensoft/openxFactory/pull/1107) →
+  `c22c4fc355898d4e57eb1159f47d756b30875b66` (17:06:27Z, from head `bc9ebf95`,
+  15 SUCCESS / 1 SKIPPED, `pytest-suite` run `35362604810` green); and
+  `pytest-suite` decided **SUCCESS on `main`** at
+  `049d54a9e4d51fe2e1c0a8c97c1e22c5d2f3e694`, run
+  [`35372664200`](https://github.com/opensoft/openxFactory/actions/runs/35372664200)
+  (17:09:27Z), a tree that **CONTAINS** the realization merge —
+  `compare/c22c4fc3...049d54a9` → `ahead`, each leg of
+  `ebcdbc0c` → `c22c4fc3` → `049d54a9` checked with
+  `git merge-base --is-ancestor`.
+  **THE ARCHIVE WAS PERFORMED THROUGH THE GOVERNED WRAPPER AND NEVER A BARE
+  `openspec archive`** (`tasks.md` § 5.2 forbids the bare invocation):
+  `TZ=UTC python3 scripts/proposal-support.py . archive harden-path-escape-helpers-against-symlink-loops --yes`,
+  exit 0 — *"ORIGIN RETAINED … (declaration unchanged since the ratifying commit
+  ebcdbc0c20eb)"*, *"Applying changes to
+  openspec/specs/release-realization/spec.md: + 2 added"*, *"Totals: + 2, ~ 0,
+  - 0, → 0"*, *"archived as
+  '2026-09-18-harden-path-escape-helpers-against-symlink-loops'"*, over the
+  content-addressed `@fission-ai/openspec@1.12.0` pin and not the 1.13.1 on
+  `PATH`.
+  **THE PROMOTION, MEASURED BYTE FOR BYTE ON BOTH SIDES AND NOT EYEBALLED.**
+  TWO `## ADDED` requirements, TEN scenarios, onto
+  `openspec/specs/release-realization/spec.md` (`--numstat` **+130 −0**, and
+  `−w` reads the same `130 0`, so no changed line is whitespace-only;
+  capability requirement count **17 → 19**): *A containment guard answers every
+  resolution failure and raises none* (six scenarios, **6,049 bytes / 82
+  lines**, sha256 `e12a9d9d54f64ac0c97d9c808f03df64583943f2d75760f0d3cb723ff33ffc7a`
+  on archived delta AND canon) and *A symlink-loop proof is built at test time
+  and never committed* (four scenarios, **3,198 bytes / 46 lines**, sha256
+  `f98402134c0b7eb855d30c57792f8219ea4f17a5e1ade176df0381194b19d625` on both);
+  each block extracted programmatically by heading from either side and
+  `diff`ed to zero lines. **NO `## MODIFIED` BLOCK**, so no promoted byte is
+  edited or removed, no `Removed from canon by` / `Modified over` /
+  `Merged into` marker is owed, no modified-block-currency row is opened, and
+  `sequenced_after: []` stands as the corroborated root claim it was filed as.
+  **THE SIX PACKET FILES MOVE AS `R100` PURE RENAMES AT ZERO CHANGED LINES**
+  — `.openspec.yaml`, `design.md`, `proposal.md`,
+  `specs/release-realization/spec.md`, `review/ratification-2026-09-18.md` and
+  the new `review/verification-2026-09-18-post-merge.md` — except `tasks.md`,
+  whose only change is § 4.4's and § 5's ticks, written in the commit BEFORE
+  the move because `archive_change()` refuses any literal `- [ ]` line and has
+  no bypass flag. § 6's three `- [~]` boxes stay `- [~]`: they document
+  successors and refused-not-owed work, not incomplete work.
+  **#1074 CLOSES AT THIS ARCHIVE'S LANDING AND AT NO EARLIER ACT** — `tasks.md`
+  § 5.3 requires the closing keyword in the ARCHIVE pull request's body and in
+  no commit message on this branch or the realization branch, and a
+  case-insensitive grep over both branches' commit messages returns 0 matches.
 - [split-opendox-two-layer-product](openspec/changes/archive/2026-09-22-split-opendox-two-layer-product/proposal.md)
   — **ARCHIVED 2026-09-22** by
   [PR #1139](https://github.com/opensoft/openxFactory/pull/1139), lane
