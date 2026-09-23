@@ -3095,7 +3095,7 @@ Archived changes:
 
 - [add-estate-repository-inventory](openspec/changes/archive/2026-09-23-add-estate-repository-inventory/proposal.md)
   — **ARCHIVED 2026-09-23** by
-  [PR #ARCHIVE-PR-NUMBER-PENDING](https://github.com/opensoft/openxFactory/pull/ARCHIVE-PR-NUMBER-PENDING),
+  [PR #1149](https://github.com/opensoft/openxFactory/pull/1149),
   filed 2026-09-18 by lane `openxfactory-5` (display `openXfactory-5`) in answer
   to openxFactory
   [#1087](https://github.com/opensoft/openxFactory/issues/1087),
