@@ -212,6 +212,132 @@ OBJECT_ID = re.compile(r"[0-9a-fA-F]{40}|[0-9a-fA-F]{64}")
 #: so a digest measured here is the digest that suite measures.
 REPOSITORY_NAME = "fixture-repo"
 
+#: WHERE THIS RUN'S COMPILED BYTECODE GOES — and the whole of the point is
+#: where it does NOT go. `carved_reach.BYTECODE_HOME`'s value, RESTATED here
+#: rather than imported: it is set before `carved_reach` is imported (that is
+#: what makes it a guarantee), so a constant read out of a module this file
+#: has not loaded yet would be an egg asking for its chicken. The suite holds
+#: the two spellings together, so they cannot drift apart silently.
+BYTECODE_HOME = ROOT / ".pycache"
+
+
+def pinned_mounts() -> tuple[Path, ...]:
+    """The mounted submodules a bytecode cache must never land INSIDE.
+
+    DERIVED from `LEG_GITLINKS`'s own root entries, so it cannot fall out of
+    step with the pins this runner verifies, and every nested mount (`code`,
+    `spec`) is at or under one of them.
+    """
+    return tuple(ROOT / path for parent, path in LEG_GITLINKS
+                 if parent == ".")
+
+
+def _resolved(path: Path) -> Path | None:
+    """`path.resolve()`, or `None` when the filesystem will not answer.
+
+    MEASURED on this repository's own interpreter, CPython 3.12.3:
+    `Path.resolve()` raises `RuntimeError: Symlink loop from …` on a cyclic
+    link, with `strict=False` as well as `strict=True` — `os.path.realpath()`
+    swallows it and `resolve()` does not (Copilot, PR #1132 round 3). A
+    cyclic `<repo>/.pycache`, or a cyclic `PYTHONPYCACHEPREFIX`, would
+    therefore have raised out of `post_stack()` — in every conftest in this
+    repository — which is precisely the failure the fallback exists to avoid.
+
+    `None` FAILS SAFE at the one caller: a path that cannot be shown to be
+    outside every pinned mount is treated as inside, so the cache goes to the
+    freshly created directory rather than to a path nothing could resolve.
+    """
+    try:
+        return path.resolve()
+    except (OSError, RuntimeError, ValueError):
+        return None
+
+
+def inside_a_pinned_mount(prefix: str) -> bool:
+    """Whether a bytecode prefix would put the cache INSIDE a pinned mount.
+
+    A RELATIVE prefix counts as inside, and that is not pedantry: CPython
+    joins the prefix with the SOURCE FILE'S OWN directory at write time, and
+    a relative head is then resolved against whatever the working directory
+    is — so where it lands is not knowable here, and a guarantee that cannot
+    be checked is not a guarantee. Symlinks are resolved on both sides,
+    because a link into a leg is the same placement under another name.
+    """
+    candidate = Path(prefix)
+    if not candidate.is_absolute():
+        return True
+    resolved = _resolved(candidate)
+    if resolved is None:
+        return True
+    for mount in pinned_mounts():
+        target = _resolved(mount)
+        if target is None or resolved.is_relative_to(target):
+            return True
+        # AND WHERE THE BYTES WOULD ACTUALLY LAND, WHICH IS NOT THE PREFIX
+        # ITSELF (Copilot, PR #1132 round 4). In prefix mode CPython does not
+        # put the cache AT the prefix: `cache_from_source()` builds the
+        # directory as `_path_join(sys.pycache_prefix, head.lstrip(
+        # path_separators))` — the source's own absolute directory appended
+        # to the prefix — and drops the `__pycache__` component entirely. So
+        # the filesystem ROOT maps a leg module straight back BESIDE ITS OWN
+        # SOURCE, inside the pin. MEASURED: with `PYTHONPYCACHEPREFIX=/`,
+        # `cache_from_source(<leg>/src/openxdox/generator.py)` is
+        # `<leg>/src/openxdox/generator.cpython-312.pyc`. A predicate about
+        # where a prefix IS cannot answer that; this one asks where the
+        # bytes GO, so the root is refused as the case it is rather than as
+        # a special one.
+        mapped = _resolved(resolved / str(target).lstrip("/"))
+        if mapped is None or mapped.is_relative_to(target):
+            return True
+    return False
+
+
+def bytecode_out_of_the_legs() -> None:
+    """`sys.pycache_prefix`, pointed anywhere but inside a pinned mount.
+
+    A prefix the process already chose is KEPT — `PYTHONPYCACHEPREFIX`, or a
+    host that has set its own — UNLESS it resolves inside a pin, in which
+    case it defeats the very thing it is being kept for. "Any prefix at all
+    satisfies this, and one pointed into a leg would be caught by the sweep"
+    was the first rule here and BOTH HALVES WERE WRONG (Copilot, PR #1132):
+    a prefix at a LEG ROOT puts the cache inside the pin and OUTSIDE the
+    `src` the sweep scans, and even a prefix under `src` is read during
+    `post_stack()` — before `verify_pins()` sweeps anything — so the refusal
+    would arrive after the crafted cache had already executed. Replacing
+    rather than refusing is `GIT_ATTR_NOSYSTEM`'s precedent in this same
+    file: an ambient variable that would weaken a guarantee is overridden,
+    not turned into a required gate's refusal.
+    """
+    chosen = sys.pycache_prefix
+    if chosen is not None and not inside_a_pinned_mount(chosen):
+        return
+    # AND THE FALLBACK IS HELD TO THE SAME RULE IT ENFORCES (Copilot, PR
+    # #1132 round 2). `BYTECODE_HOME` is a PATH, not a guarantee: a
+    # pre-existing `<repo>/.pycache` that is a SYMLINK into a pinned mount
+    # would place the cache exactly where this function exists to keep it
+    # out of, and `inside_a_pinned_mount()` resolves links — so it answers
+    # for the fallback as readily as for a host's choice, and was simply
+    # never asked. A directory this process has just created cannot hold a
+    # crafted cache to read, which is why `mkdtemp()` is the last resort
+    # rather than a refusal: a required gate must not be takeable down by a
+    # stray symlink in somebody's checkout.
+    home = str(BYTECODE_HOME)
+    if inside_a_pinned_mount(home):
+        # AND THE FRESH DIRECTORY IS CREATED SOMEWHERE THIS RUN HAS CHECKED
+        # (Copilot, PR #1132 round 6). `mkdtemp()` honours `TMPDIR`, so an
+        # inherited temp directory inside — or symlinked into — a pinned
+        # mount would put the last resort in the pin, unchecked. The PARENT
+        # is chosen first and only then written in: the temp directory when
+        # it is outside every mount, and otherwise the repository root,
+        # which CONTAINS the mounts and so cannot be inside one. A child
+        # `mkdtemp()` creates there is a real directory and not a symlink,
+        # so a parent that resolves outside the pins has children that do.
+        parent = tempfile.gettempdir()
+        if inside_a_pinned_mount(parent):
+            parent = str(ROOT)
+        home = tempfile.mkdtemp(prefix="openxfactory-bytecode-", dir=parent)
+    sys.pycache_prefix = home
+
 #: How many lines of the unified diff a `equivalence-digests-differ` prints
 #: before it truncates. A refusal that is a wall of JSON is a refusal nobody
 #: reads; `--json` then carries the WHOLE DIFF (and the digests and byte
@@ -598,13 +724,22 @@ def extract_pre_tree(pre_commit: str, repo: Path, into: Path,
             # OF THEM (Copilot, PR #1115). The first wording said the tree
             # carried NEITHER archive path, which is only true when both are
             # absent — a tree that shed one of them would have been described
-            # inaccurately in the refusal that names it.
+            # inaccurately in the refusal that names it. THE SAME OVERCLAIM
+            # SURVIVED ONE LAYER DOWN, in the branch below that exists
+            # because `_absence()` could not answer (Copilot, PR #1115 at
+            # `50a3e574`, suppressed; registered with its remedy in comment
+            # `5736824535` and taken here). `matched none of A or B` asserts
+            # that NEITHER matched — the one thing an unreadable tree cannot
+            # establish, and the opposite of what the next sentence of that
+            # same refusal says. `git archive` fails as soon as ONE pathspec
+            # matches nothing, so what the failure supports is that at least
+            # one of them did not match, and that is now what it says.
             absence = _absence(repo, pre_commit)
             if absence is None:
                 raise EquivalenceRefusal(
                     "equivalence-pre-tree-unrenderable",
-                    f"`git archive {pre_commit}` ({pre_ref}) matched none of "
-                    + " or ".join(ARCHIVE_PATHS)
+                    f"`git archive {pre_commit}` ({pre_ref}) did not match "
+                    "at least one of " + " and ".join(ARCHIVE_PATHS)
                     + f": {stderr or '(no error output)'}. This runner then "
                     "could not read that commit's tree to say WHICH of them "
                     "is missing, so it does NOT claim the ref is post-shed: "
@@ -839,6 +974,29 @@ def post_stack(register_profile: bool = True):
     # half of the run this file does not issue the git commands for. It
     # outlives the call, which is what a process-wide guarantee means.
     os.environ["GIT_NO_LAZY_FETCH"] = "1"
+    # AND THE BYTECODE CACHE LEAVES THE LEGS BEFORE ANYTHING IN THEM IS
+    # IMPORTED (Copilot, PR #1115, discussion `r4049745762`; registered for
+    # this act in `#1115` comment `5736824535`). CPython validates a cached
+    # `.pyc` against the mtime and size recorded in its HEADER, so a crafted
+    # cache whose header still matches the tracked source is loaded and
+    # EXECUTED — and the legs are imported here, before `verify_pins()` has
+    # swept anything, so that bytecode would have rendered the post side
+    # while the verdict named a commit it did not come from. The sweep could
+    # not have caught it either: the class was ALLOWLISTED, by pathname,
+    # precisely because this runner's own imports created it.
+    # `sys.pycache_prefix` removes the condition rather than policing it —
+    # CPython then neither READS nor writes a `__pycache__` inside a leg —
+    # and with nothing written there the allowlist is retired (see
+    # `worktree_dirt()`). `sys.dont_write_bytecode` is NOT the remedy: it
+    # stops the writing and leaves the reading, which is the half the finding
+    # is about.
+    # SET HERE AND NOT ONLY IN `carved_reach.install()`, for the reason the
+    # paragraph above sets `GIT_NO_LAZY_FETCH` here: a guarantee this
+    # runner's verdict rests on is made BY this runner, on the process,
+    # before the shared reader is imported, rather than inherited from it.
+    # `bytecode_out_of_the_legs()` keeps a prefix the host chose UNLESS it
+    # resolves inside a pinned mount, which is the case that would defeat it.
+    bytecode_out_of_the_legs()
     import carved_reach
     try:
         carved_reach.require()
@@ -1365,19 +1523,51 @@ def recorded_gitlink(parent: Path, path: str,
 IMPORTED_LEGS: tuple[str, ...] = ("openDox/code", "openXdox/code")
 
 
-#: The ONE ignored class the sweep passes over: CPython's compiled bytecode,
-#: which this runner CREATES by importing the legs, so counting it would make
-#: every run after the first refuse. Measured at the two code legs: 45 and 21
-#: ignored files under `src`, all of them this.
+#: THE ONE IGNORED CLASS THE SWEEP PASSES OVER — and what it rests on is no
+#: longer WHO WROTE IT. The old rule was "the bytecode this runner's own
+#: imports create", which is trust by PROVENANCE, unverifiable from a
+#: pathname, and it is the door Copilot opened on PR #1115
+#: (`r4049745762`): CPython validates a cached `.pyc` against the mtime and
+#: size in its header, so a crafted cache still matching the tracked source
+#: is loaded and EXECUTED, and an allowlist keyed on a directory name cannot
+#: tell the two apart. `sys.pycache_prefix` (`post_stack()` above, and
+#: `carved_reach.install()` one file over) closes that by removing the
+#: CONDITION: this process consults no `__pycache__` beside any source at
+#: all, so a `.pyc` there cannot execute in this run whoever wrote it. What
+#: is passed over is therefore a class this file has established is
+#: UNREACHABLE, not a class it trusts — the rule it has already applied
+#: three times to scope (the spec mounts, the flag scan, the untracked
+#: read): a state that cannot change this run's result must not refuse it.
+#: `test_a_leg_module_is_never_cached_beside_its_source` asserts the
+#: reachability this rests on, through `importlib.util.cache_from_source()`
+#: on a real leg module.
+#:
+#: RETIRING IT ALTOGETHER WAS TRIED IN THIS ACT, AND THE GATE ANSWERED. The
+#: registered premise was that once the runner stops writing bytecode into
+#: the legs there is nothing left to pass over. It is false, MEASURED TWICE:
+#: one sibling suite (`tests/ideation-dashboard/test_lens.py`) leaves 46
+#: `.pyc` files under the two `src/` roots, which fixing
+#: `carved_reach.install()` answered; and `pytest-suite` at `e85d15384` then
+#: failed 23 tests on `opendox/__pycache__/{__init__,corpus_adapter}.
+#: cpython-312.pyc`, written through a SECOND and independent reach —
+#: `scripts/corpus_adapter_openxfactory/` puts `openDox/code/src` on
+#: `sys.path` itself and never mentions `carved_reach` (RULED OQ-Q, `#872`).
+#: The enumeration of importers is not closable by inspection: any consumer,
+#: any future script, a developer running the leg's own suite inside the
+#: leg. Betting a REQUIRED gate on "nothing anywhere ever writes a `.pyc`
+#: into a pinned checkout" bets it on something this repository cannot
+#: promise — and the refusal it produces is FALSE, because with the prefix
+#: set those bytes cannot reach this run.
 #:
 #: EXACTLY `__pycache__/<name>.pyc`, AND THE ALTERNATION THAT WAS HERE FIRST
-#: WAS A HOLE (Copilot, PR #1115; SonarCloud `python:S5850` on the same line,
-#: which is what an unparenthesised top-level `|` usually means). `\.pyc$`
-#: alone allowlisted a `.pyc` ANYWHERE under the import surface, and a
-#: sourceless `src/foo.pyc` sitting where `foo.py` would sit is a perfectly
-#: ordinary import candidate — so the allowlist for the one artifact this
-#: runner creates would have admitted a module it did not.
-_GENERATED_BYTECODE = re.compile(r"(?:^|/)__pycache__/[^/]+\.pyc$")
+#: WAS A HOLE (Copilot, PR #1115; SonarCloud `python:S5850` on the same
+#: line, which is what an unparenthesised top-level `|` usually means).
+#: `\.pyc$` alone passed over a `.pyc` ANYWHERE under the import surface,
+#: and a sourceless `src/foo.pyc` sitting where `foo.py` would sit is a
+#: perfectly ordinary import candidate that the prefix does NOT make
+#: unreachable — `sys.pycache_prefix` moves CACHE lookups, not the module
+#: search path. That one stays dirt, and is tested as such.
+_UNREACHABLE_BYTECODE = re.compile(r"(?:^|/)__pycache__/[^/]+\.pyc$")
 
 
 def worktree_dirt(leg: Path) -> list[str] | None:
@@ -1389,20 +1579,27 @@ def worktree_dirt(leg: Path) -> list[str] | None:
     in this file: a query that went unanswered must never stand in for the
     tree's own answer.
 
-    THREE READS, NOT ONE `status` (Copilot, PR #1105 round 6, registered in
-    the form that works). `--ignored` was the proposed remedy and it is
-    unusable here: measured, it reports 3 and 4 `__pycache__` entries in the
-    two code legs — ignored by each leg's own `.gitignore` and written by
-    THIS RUNNER'S own imports — so a gate using it refuses on every run after
-    the first. What is asked instead is exactly what matters:
+    FOUR READS, NOT ONE `status` (Copilot, PR #1105 round 6, registered in
+    the form that works). A whole-leg `status --ignored` was the proposed
+    remedy and it is still not what is asked: it reports every ignored file
+    in the leg, most of which cannot reach an import at all, and a required
+    gate that refuses on those refuses for a state that cannot change its
+    result. What is asked is scoped to the import surface, and passes over
+    exactly one class within it — compiled bytecode in a `__pycache__`,
+    which `sys.pycache_prefix` has made unreachable to this process:
 
     * `git diff --name-only HEAD -- src` — tracked edits, staged or not,
       under the import surface (the registered `--quiet` spelling is the same
       query; the names are taken because the refusal prints them). A leg
       with no `src` is diffed whole: there is no narrower surface to scope
       to, and scoping to a path that is not there would measure nothing.
+    * `git ls-files --others --ignored --exclude-standard -- src` — the
+      IGNORED files under the import surface, because an ignored `.py` there
+      is as importable as a tracked one, and so is a sourceless `.pyc` at a
+      module's own path. Asked only when there is a `src` to scope to, for
+      the reason above.
     * `git ls-files --others --exclude-standard` — untracked files that are
-      NOT ignored, which is the half `--ignored` drowned.
+      NOT ignored, which is the half a leg's `.gitignore` hides.
     * `git ls-files -v`, for the flags — a lowercase tag is
       `assume-unchanged` and `S` is `skip-worktree`. Both make git report a
       modified file as clean, so a leg carrying either can be edited with
@@ -1412,23 +1609,24 @@ def worktree_dirt(leg: Path) -> list[str] | None:
     scope = ["--", "src"] if (leg / "src").is_dir() else []
     rows: list[str] = []
     if scope:
-        # AND THE IGNORED FILES UNDER THE IMPORT SURFACE, MINUS THE ONE CLASS
-        # THIS RUNNER MAKES ITSELF (Copilot, PR #1115). `--exclude-standard`
-        # drops EVERY ignored path, and an ignored `.py` under `src` is still
-        # perfectly importable — it can shadow a module or be imported
-        # outright — so excluding the whole class let a leg render bytes that
-        # are in no commit while the verdict named one. The allowlist is
-        # exactly CPython's compiled bytecode, which this runner's own
-        # imports create: measured, the two code legs carry 45 and 21 ignored
-        # files under `src` and EVERY ONE of them is a `__pycache__` `.pyc`.
-        # Scoped to the import surface, because that is where an ignored file
-        # can change what renders; a leg with no `src` has no such surface.
+        # AND THE IGNORED FILES UNDER THE IMPORT SURFACE, MINUS THE ONE
+        # CLASS THIS PROCESS CANNOT REACH (Copilot, PR #1115).
+        # `--exclude-standard` drops EVERY ignored path, and an ignored `.py`
+        # under `src` is still perfectly importable — it can shadow a module
+        # or be imported outright — so excluding the whole class let a leg
+        # render bytes that are in no commit while the verdict named one.
+        # What is passed over is `__pycache__/<name>.pyc` and nothing else,
+        # and NOT because this runner wrote it: with `sys.pycache_prefix`
+        # set, CPython consults no `__pycache__` beside a source, so those
+        # bytes cannot execute in this run whoever wrote them. Scoped to the
+        # import surface, because that is where an ignored file can change
+        # what renders; a leg with no `src` has no such surface.
         ignored = _names(leg, "!! ", "ls-files", "--others", "--ignored",
                          "--exclude-standard", *scope)
         if ignored is None:
             return None
         rows += [row for row in ignored
-                 if not _GENERATED_BYTECODE.search(row[3:])]
+                 if not _UNREACHABLE_BYTECODE.search(row[3:])]
     # EVERY READ TAKES THE SAME SCOPE (Copilot, PR #1115 — the third place
     # this inconsistency was found, after the flag scan and the spec
     # mounts). An untracked `docs/NOTE.md` cannot be imported through
@@ -1549,9 +1747,11 @@ def unmaterialized_legs() -> list[str]:
     RUN BEFORE `post_stack()`, and that is the whole point (Copilot, PR #1105
     round 6). Composing the stack is how this file learns almost everything,
     but it is not free and it is not read-only: `import carved_reach` installs
-    a meta-path finder, `install()` mutates the import system for the rest of
-    the process, and importing out of a leg writes `__pycache__` INTO the leg
-    whose cleanliness the next check is about to assert. Doing all of that to
+    a meta-path finder and `install()` mutates the import system — the path,
+    the finders, and the process's bytecode cache location — for the rest of
+    the process. (Until this act it also WROTE `__pycache__` into the leg
+    whose cleanliness the next check asserts; `sys.pycache_prefix` ended
+    that, and the ordering stands on the rest.) Doing all of that to
     discover that a submodule directory is empty is work with side effects
     performed to reach a worse message — `carved_reach`'s own refusal names a
     module, and what an operator with an uninitialized checkout needs named is
@@ -1831,10 +2031,12 @@ def main(argv: list[str] | None = None) -> int:
         # THE FILESYSTEM PROBE COMES FIRST OF ALL, and this comment used to
         # say `post_stack()` did (Copilot, PR #1115 — it was the opposite of
         # the implemented, tested order). Composing imports the legs, which
-        # installs a meta-path finder and writes `__pycache__` INTO the tree
-        # whose cleanliness the next check asserts; discovering an empty
-        # submodule directory that way costs those side effects and answers
-        # in terms of a module name rather than of the checkout. NOTHING IS
+        # installs a meta-path finder and mutates the import system for the
+        # rest of the process (and, until this act took the bytecode cache
+        # out of the legs, wrote `__pycache__` into the tree whose
+        # cleanliness the next check asserts); discovering an empty submodule
+        # directory that way costs those side effects and answers in terms of
+        # a module name rather than of the checkout. NOTHING IS
         # CLAIMED BETWEEN ANY OF THEM: the modules are imported here and not
         # rendered until after the pins are verified, so a leg off its pin
         # refuses before any digest exists to report.

@@ -15,7 +15,9 @@ as an empty boundary. openxFactory's own consumption of an external
 neutral product is deliberately outside this boundary, because
 openxFactory is the neutral layer and not a domain, and sits with
 `neutral-product-pin` instead.
+
 ## Requirements
+
 ### Requirement: A domain consumes a neutral product through a descendant repository
 A DomainxFactory SHALL consume a neutral `open*` product through a
 `<Domainx><Product>` DESCENDANT repository and SHALL NOT integrate that product's
@@ -74,6 +76,21 @@ corpus or validator — pin and profile, NEVER fork, in DTN-022's own words that
 Anything the profile cannot express SHALL be an UPSTREAM change in the product
 repository, released and re-pinned, rather than a local edit.
 
+**WHERE THE PINNED PRODUCT CARRIES A DATABASE SCHEMA, THE MIGRATION SET IS
+PINNED CONTENT AND THE DESCENDANT SHALL NOT ADD TO IT, EDIT IT OR REORDER IT.**
+A descendant of a runtime product SHALL express every domain-specific field
+through an EXTENSION POINT THE NEUTRAL SCHEMA DECLARES — a reserved extension
+column or document whose shape the neutral product owns — and a domain field
+that the declared extension point cannot express SHALL be an upstream schema
+change in the product, released as a new ordered migration and re-pinned, exactly
+as a contract change is. A descendant that ships a migration of its own is a
+FORK OF THE SCHEMA, and it is the harder fork to detect because a database
+diverges silently and only at the next upgrade: the pin's digests catch an edited
+file, and nothing catches an extra `ALTER TABLE` that has already run. The
+descendant MAY carry deploy configuration for the migration RUN — when it
+executes, against which instance, under whose credential — because that is
+deploy configuration, which this requirement has always permitted.
+
 #### Scenario: The profile cannot express what the domain needs
 - **WHEN** a domain needs behaviour its profile shape cannot express
 - **THEN** the work is an upstream change in the neutral product repository followed by a release and a re-pin, and never a local edit of pinned content
@@ -85,6 +102,11 @@ repository, released and re-pinned, rather than a local edit.
 #### Scenario: A descendant adds a domain validator
 - **WHEN** a descendant adds a validator that checks its own profile artifacts against the pinned product's schemas
 - **THEN** that is permitted, because it interprets the product rather than re-authoring it
+
+#### Scenario: A descendant of a runtime product needs a domain field the neutral schema does not carry
+- **WHEN** a descendant of a product with a database schema needs a column, table or document shape the pinned migration set does not declare
+- **THEN** it is expressed through the extension point the neutral schema declares, or the work is an upstream schema change released as a new ordered migration and re-pinned
+- **AND** a migration authored in the descendant is refused as a fork of the schema, whether or not it has already been applied to a live instance
 
 ### Requirement: A descendant is placed at a ratified placement
 A descendant SHALL be aggregated at one of exactly two placements, each with a
@@ -132,6 +154,27 @@ created LAZILY and CONSUMER-GATED, so that an empty boundary is never stood up a
 precedent. Until that first artifact exists the descendant's NAME MAY be
 registered in the naming record while no repository is created.
 
+**WHERE THE PRODUCT IS A RUNTIME, THE DESCENDANT IS ALSO THE DEPLOYMENT UNIT FOR
+ONE TENANT, AND A TENANT INSTALL IS A PROFILE ARTIFACT.** RULING Q3
+(`opensoft/openxFactory` issue #656, 2026-09-04T15:32Z) is that every domain
+install brings its own descendant instance and its own database inside the
+tenant, in BOTH operating cases — whether the operator hosts it or the tenant
+does — and no cross-tenant data ever shares a store. A domain that has committed
+to standing an instance up for a tenant therefore HAS its first profile artifact:
+the tenant's own instance declaration. The laziness rule is not weakened by this
+and its direction is unchanged — a descendant with neither a profile artifact NOR
+a committed tenant install is still not created, and its name is still registered
+in the naming record instead. What this clause settles is which fact discharges
+the gate for a runtime product, so that a ruling commissioning a consumer and a
+standard describing today's state stop appearing to disagree.
+
+**A DESCENDANT THAT IS A DEPLOYMENT UNIT COSTS PER TENANT AND THE COST IS
+DECLARED, NOT DISCOVERED.** A descendant of a runtime product SHALL declare, at
+creation, the per-tenant operating obligations its instances carry — at least the
+migration run per release, the backup and restore policy, and the credential set
+— because N instances is N of each, and a boundary that is a deployment unit
+without a declared operating cost is an empty boundary with a bill attached.
+
 #### Scenario: A domain has no profile artifact yet
 - **WHEN** a domain holds no artifact of the product's profile kind
 - **THEN** its descendant repository is NOT created, and only the name is registered
@@ -144,3 +187,11 @@ registered in the naming record while no repository is created.
 - **WHEN** a descendant repository exists carrying no profile artifact of the product
 - **THEN** it is an empty boundary, and it is reported rather than cited as precedent for creating more
 
+#### Scenario: A domain commits to a tenant install of a runtime product
+- **WHEN** a DomainxFactory install stands up an instance of a runtime neutral product for a tenant
+- **THEN** the tenant's instance declaration IS the domain's first profile artifact, the descendant is created, and the declaration lives in it
+- **AND** a domain with neither a profile artifact nor a committed tenant install still gets a registered NAME and no repository
+
+#### Scenario: A runtime descendant is created without declaring its operating cost
+- **WHEN** a descendant of a product carrying a database schema is created with no declared per-tenant migration, backup-and-restore and credential obligations
+- **THEN** the creation is refused, because a per-tenant deployment unit whose operating cost is undeclared is discovered one tenant at a time

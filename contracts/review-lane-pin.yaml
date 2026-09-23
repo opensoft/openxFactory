@@ -711,7 +711,7 @@ floor_snapshot:
 # openxFactory's and codexFactory's — but the obligation below is why the state
 # is written down as diverged rather than left to be inferred.
 lockstep:
-  status: diverged
+  status: converged
   reason: >-
     Diverged FURTHER on 2026-09-04 by this advance — the FOURTH of the day —
     having first diverged on 2026-09-01 and diverged further on 2026-09-03 and
@@ -913,6 +913,108 @@ lockstep:
     clause describes a world with no repin lane in it. Narrowing that clause is
     the ratifier's act, not this diff's; it is named here so the next reader
     finds the contradiction already seen.
+
+    CONVERGED AGAIN, 2026-09-21, AT THE FOURTH RE-POINT CEREMONY, closing the
+    2026-09-18 re-divergence recorded directly above — the one this field
+    called the first it had ever had to record as caused by a ROUTINE advance
+    rather than by a deliberate act. (It is NOT the first convergence closing a
+    re-divergence this repository caused: the 2026-09-10 flip above closed the
+    2026-09-01 one, which the (b′) activation caused here by hand. What is
+    first about this one is stated in the paragraph directly below, and it is
+    about the ORDER the two repositories moved in, not about who caused the
+    gap.)
+    `opensoft/xFactory` PR #475, merge commit
+    `c88d1fdd`, landed 2026-09-21T21:55:36Z on the explicit ceremony word of
+    Brett Heap that day ("(a) for all four, (i) for the tag, keep going", item
+    2; openxFactory #656 comment `5767804734`, CLAIMED there), advancing
+    `MIGRATION_PIN` `1f131a23` -> `b21f0100` at its three surfaces in ONE commit
+    (`96d0b91b`, 3 files / 3 insertions / 3 deletions), the same three-mover
+    shape all three prior exercises used. THE TARGET WAS NOT CHOSEN AT THAT
+    CEREMONY: it is the commit `core_commit` above has named since PR #1122
+    (merge `38f826c2`, 2026-09-18), so the aggregation moved TO this file rather
+    than this file moving to it — which is what makes the act the DISCHARGE of
+    the obligation below rather than one more advance underneath it.
+
+    AND THAT ORDER IS WHAT IS ACTUALLY FIRST HERE, stated precisely because the
+    paragraph above declines the broader claim. Every earlier convergence was a
+    PAIRED WINDOW: at the third, `opensoft/xFactory` PR #423 merged
+    2026-09-10T19:15:29Z and this file's own `core_commit` followed the same
+    evening at PR #922 (merge `6f95ff57`, 21:55:20Z), the two halves of one
+    ruled pairing (OQ-1 option C, "paired with openxFactory's five-site
+    advance"). This time the two moves are THREE DAYS APART and were not a
+    pairing at all: `core_commit` was advanced on 2026-09-18 by an hourly lane
+    that proposes such advances on its own, and the ceremony three days later
+    caught the aggregation up to where this file had been sitting since. That
+    is the first time the aggregation has converged onto a commit this file was
+    ALREADY pinned to, rather than the two moving together by arrangement.
+
+    MEASURED AT THIS EDIT, not carried from the ceremony's own record: on
+    `opensoft/xFactory` `main` — re-read at `cfe27de3`, TWO COMMITS PAST the
+    ceremony merge, so the reading survives a routine submodule-pointer sync
+    (PR #476) instead of resting on the merge commit alone —
+    `merge-master-approval.yml` line 152, `council-convening-lane.yml` line 308
+    and `tests/test_merge_master_workflows.py`'s `MIGRATION_PIN` constant line
+    66 all three return `b21f0100…` verbatim (written short here on purpose,
+    this file's own guard `test_the_pin_carries_exactly_one_commit_shaped_value`
+    permitting exactly ONE 40-hex token, and that one is `core_commit`), and
+    `core_commit` above, on openxFactory `main` `6b298a1e`, returns the same
+    value. Four sites, one commit. That a ROUTINE sync ran between the ceremony
+    and this reading and left all three alone is itself the aggregation's
+    working rule 2 holding: `MIGRATION_PIN` moves at a ceremony and at nothing
+    else.
+
+    THE CEREMONY'S AFTER-CHECK PASSED, which is what makes `converged` a claim
+    about behaviour rather than only about text. Gates G1-G4 are recorded in
+    `96d0b91b`'s own commit message; G5 — the live lane re-proved AT THE NEW
+    PIN — is recorded at `opensoft/xFactory` #475 comment `5769610282`: three
+    post-landing runs (`35660330263`, `35660933433`, `35661430301`) each
+    concluded `success` with `b21f0100` read out of its own checkout log and
+    ZERO occurrences of the superseded pin, each judging the SAME candidate
+    object as the pre-act baseline run `35658107765`, and each emitting a
+    decision whose canonical sha256 is identical to that baseline's. The pin
+    moved and the verdict did not, which is the only sense in which advancing a
+    decision core is safe.
+
+    `status` MOVES TO `converged` HERE, in the same commit as
+    `tests/review_lane_pin/test_review_lane_caller.py`'s
+    `test_the_pin_records_its_lockstep_state_with_the_aggregation_pin` literal —
+    the act every prior transition performed (PR #483 / `d118bc79`, PR #569 /
+    `47f90080`, the 2026-09-10 flip, the 2026-09-18 re-divergence above), never
+    the data alone.
+
+    THREE THINGS THIS PARAGRAPH DELIBERATELY DOES NOT DO, named here rather
+    than left for the next reader to discover. (1) The header comment standing
+    above `lockstep:` still narrates the 2026-09-01/09-04 forced divergence and
+    still ends "written down as diverged". It is a DATED measurement and it is
+    left exactly as written, the way the 2026-09-10 convergence left it:
+    rewriting a dated measurement is how a record stops being one, and THIS
+    FIELD, not that comment, is where the live state is declared. (2)
+    `converged_with:` below still names TWO surfaces and gains no third entry
+    for the `MIGRATION_PIN` constant. Those two are the JUDGING surfaces — the
+    places a core is actually checked out and run — while the constant is the
+    aggregation's own test holding them identical to each other; it is named in
+    the measurement above without being promoted to a converged-with member, as
+    it has been through both prior cycles. (3) The `obligation:` tension
+    recorded at the re-divergence above is NOT resolved by this convergence and
+    is if anything sharpened by it: `.github/workflows/review-lane-repin.yml`
+    still sweeps hourly and can still advance `core_commit` between ceremonies,
+    so THIS CONVERGENCE IS FALSIFIABLE BY THIS REPOSITORY'S OWN AUTOMATION
+    WITHIN THE HOUR, and the next such advance re-diverges the pair exactly as
+    2026-09-18's did. Narrowing that clause remains the ratifier's act — and
+    the SHAPE of the remedy is recorded here too, so the next reader inherits
+    more than the complaint. `scripts/review_lane_repin.py` writes only
+    regex-anchored pin sites and the string `lockstep` does not occur in it at
+    all, so the lane cannot move this field even in principle. Two forms would
+    discharge that, not exclusive: (a) widen the lane's writable set to this
+    field and its test literal, so an advance that leaves the aggregation
+    behind writes `diverged` in the same proposed diff; or (b) make the
+    CROSS-REPOSITORY fact assertable at all — nothing today reads xFactory's
+    three surfaces and compares them to this value, which is why a false
+    `status` survives in EITHER direction until a human notices, and why
+    2026-09-18's took eleven days. (b) is the better fix, because (a) still
+    leaves this file's truth depending on a lane remembering to write it.
+    Both are OpenSpec-class acts on a realized capability, which is exactly
+    why neither rides here.
   converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml

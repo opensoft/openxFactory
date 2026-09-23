@@ -64,6 +64,38 @@ pin of this kind SHALL record every field the consumer's verifier checks —
 including any secondary address the registry publishes — so that no declared
 field goes unverified.
 
+**Modified by `split-opendox-two-layer-product`:** **WHERE THE PINNED PRODUCT IS
+A RUNTIME, THE PIN SHALL DECLARE THAT ITS CONSUMPTION IS A DEPLOYMENT AND NAME
+THE OPERATION A BUMP REQUIRES.** A pin whose
+product carries a database schema and ordered migrations SHALL declare the
+migration RANGE the bump crosses, whether the bump is reversible, and the runbook
+that performs it — beside the commit and the digests, in the pin file, not only in
+a runbook nobody reads at bump time. A pin bump for such a product is an
+OPERATION against every running instance and not an edit of a file, so a
+repository that moves the pin and merges has NOT completed the consumption: the
+instances are still running the previous commit until the operation runs, and a
+pin the fleet has not reached is a declared fact that is not yet true. The
+declaration SHALL NOT be read as permission to skip the digests — commit and
+per-file `sha256` remain the trusted referent exactly as for a file-read pin, and
+the deployment declaration is what the digests are consumed BY. It reaches a
+different medium from the published-artifact clause above and narrows none of
+it: an artifact-digest pin whose product is also a runtime owes both.
+
+**Modified over `add-openspec-cli-pin`'s modification by
+split-opendox-two-layer-product (2026-09-05):** — the basis MODIFIES this
+requirement rather than ADDING it, was ratified 2026-09-04 and landed as
+`opensoft/openxFactory#667`; this packet ratified later, 2026-09-05T01:38Z, and
+Brett Heap ruled *"declare and land"* at 2026-09-05T12:49Z on
+`opensoft/openxFactory` issue #656. This block is therefore written over the
+basis's OUTCOME and not over canon: all 26 of its units are carried — the
+published-artifact clause, the enumeration clause and both of its scenarios
+included — and the runtime-deployment clause above with the two scenarios at the
+end are this packet's own additions on top, marked in place. The ordering the
+`modified-block-currency` family reads is the reference to
+`add-openspec-cli-pin` in this packet's `proposal.md`; this paragraph is the
+per-requirement record of that declaration and is NOT the reserved pairing
+marker, whose form is reserved for a basis that ADDS an unpromoted requirement.
+
 #### Scenario: A pin declares a tag and no commit
 - **WHEN** a pin file names a release tag but no commit
 - **THEN** the pin is refused, because a tag can be moved and a commit cannot
@@ -85,6 +117,15 @@ field goes unverified.
 #### Scenario: A published-artifact pin records only a version
 - **WHEN** such a pin names a version, a dist-tag or a range and records no digest over the artifact
 - **THEN** it is refused on the same ground a tag-only pin is refused, a name whose stability is a registry's policy not being the thing that is trusted
+
+#### Scenario: A pin bump crosses a migration
+- **WHEN** the pinned commit of a product carrying a database schema moves across one or more ordered migrations
+- **THEN** the pin declares the migration range, the bump's reversibility and the runbook that performs it
+- **AND** the bump is not complete when the pin file merges; it is complete when the operation has run on every instance the pin governs
+
+#### Scenario: A runtime product's pin declares no operation
+- **WHEN** a pin for a product with a schema records a commit and digests and says nothing about the migration its bump crosses
+- **THEN** the pin is incomplete, because the consumer cannot tell an edit from an outage from the file it is asked to trust
 
 ### Requirement: An unanswerable pin question refuses, and the refusal names its remedy
 A consumer of a pinned neutral product SHALL FAIL CLOSED: an uninitialized
@@ -118,6 +159,18 @@ consumer repository silently reads whichever checkout it meets first — the
 aggregation root or the nested one — and only the nested one is governed by
 `contracts/<product>-pin.yaml`.
 
+**A PIN CHAIN IS RESOLVED ONE HOP AT A TIME, AND ONLY THE DIRECT UPSTREAM IS
+DECLARED.** Where a neutral product itself pins a second neutral product, each
+level SHALL declare ITS OWN DIRECT UPSTREAM by commit and digest and SHALL NOT
+re-declare a transitive upstream's commit: the transitive commit is READ from the
+intermediate's own pin, at the commit this level pins, and it is a DERIVED fact.
+A consumer that needs the transitive commit SHALL resolve it through the chain and
+MAY record it as a derived value clearly marked as derived, never as a second
+authority. Two levels each free to declare the same product's commit reproduces,
+one level up, the defect the reachable-checkouts rule exists to end — two answers
+to "which bytes are pinned" is no answer, whether the two answers come from two
+checkouts or from two pin files.
+
 #### Scenario: Two checkouts are reachable from one consumer
 - **WHEN** a walk-up resolver in a consumer repository can reach both the aggregation's root checkout of the product and `openxFactory`'s nested checkout
 - **THEN** it resolves the NESTED checkout, because that is the one the consuming repository's pin governs
@@ -130,6 +183,15 @@ aggregation root or the nested one — and only the nested one is governed by
 #### Scenario: A resolver's candidate order is unstated
 - **WHEN** a consumer resolves the product without a declared candidate order
 - **THEN** the ambiguity is a defect, and the order is fixed nested-first in the consuming repository
+
+#### Scenario: A consumer needs a product it reaches only through an intermediate
+- **WHEN** a repository pins product B, and product B pins product A, and the repository needs A's commit
+- **THEN** it resolves A's commit from B's own pin at the commit it pins of B, and records it only as a derived value
+- **AND** a second declaration of A's commit at the consuming level is refused, because the chain then has two authorities for one answer
+
+#### Scenario: An intermediate's pin and a consumer's re-declaration disagree
+- **WHEN** a consumer has re-declared a transitive upstream's commit and it differs from the commit the intermediate's own pin records
+- **THEN** the disagreement is refused rather than resolved in either direction, on the same reasoning as the two-gitlink case
 
 ### Requirement: A required check runs the pinned tool, at the pinned digest
 A REQUIRED check that enforces a pinned product's rules SHALL invoke the PINNED

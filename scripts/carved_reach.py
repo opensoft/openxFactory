@@ -96,6 +96,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -138,6 +139,48 @@ LEG_TESTS: tuple[Path, ...] = (
 )
 
 SCRIPTS_DIR = REPO_ROOT / "scripts"
+
+#: WHERE CPython KEEPS THE COMPILED BYTECODE for everything imported after the
+#: legs go on the path — and the requirement is about where it does NOT go.
+#: `install()` makes two PINNED submodule checkouts importable, and CPython's
+#: default cache location is a `__pycache__` INSIDE the directory the module
+#: was read from, so the first import out of a leg writes into a tree this
+#: repository pins by commit (46 `.pyc` files under the two `src/` roots from
+#: a single test module, measured). Two consequences, and the second is the
+#: one that made this a finding:
+#:
+#:   * a consumer that has to establish that a leg IS the commit it is pinned
+#:     at — `scripts/verify-snapshot-equivalence.py`'s cleanliness sweep —
+#:     was left passing over a class of file its own imports created; and
+#:   * CPython VALIDATES a cached `.pyc` against the mtime and size recorded
+#:     in its header, so a crafted cache whose header still matches the
+#:     tracked source is loaded and EXECUTED. That is bytes in no commit
+#:     running out of a tree every pin check calls clean (Copilot,
+#:     openxFactory PR #1115, discussion `r4049745762`).
+#:
+#: `sys.pycache_prefix` closes both at once: with it set CPython neither READS
+#: nor writes a `__pycache__` beside the source. `sys.dont_write_bytecode` is
+#: NOT the remedy and was not proposed as one — it stops the writing and
+#: leaves the READING, which is the half the finding is about.
+#:
+#: INSIDE THE CHECKOUT, deliberately. The threat model this closes needs a
+#: writer in the working tree, and such a writer could edit THIS FILE — so a
+#: cache under the repository root is no weaker than the code that reads it,
+#: while a fixed path under a shared `/tmp` would be a directory another user
+#: can create first and fill with exactly the crafted caches above. The root
+#: `.gitignore` already ignores `*.py[cod]`, so every file written here is
+#: ignored and `git status` is unchanged (measured); nothing needs adding to
+#: it. If the directory cannot be written, CPython silently skips caching —
+#: the failure mode is a slower import and never a broken one.
+BYTECODE_HOME = REPO_ROOT / ".pycache"
+
+#: The mounted submodules a bytecode cache must never land INSIDE. The two
+#: assembly roots, because every mount in `MOUNTS` is at or under one of them
+#: — and `openXdox`'s own root is not a `MOUNTS` key (no manifest row arrives
+#: there), so a set derived from `MOUNTS` alone would miss it. openxFactory's
+#: suite holds this tuple to `MOUNTS` rather than anyone remembering.
+_PINNED_MOUNTS: tuple[Path, ...] = (REPO_ROOT / "openDox",
+                                    REPO_ROOT / "openXdox")
 
 INIT_COMMAND = "git submodule update --init --recursive openDox openXdox"
 
@@ -284,6 +327,125 @@ def _require(gitlink: str, leg: str, src: Path, package: str) -> None:
         f"repository root.")
 
 
+def _resolved(path: Path) -> Path | None:
+    """`path.resolve()`, or `None` when the filesystem will not answer.
+
+    MEASURED on this repository's own interpreter, CPython 3.12.3:
+    `Path.resolve()` raises `RuntimeError: Symlink loop from …` on a cyclic
+    link, with `strict=False` as well as `strict=True` — `os.path.realpath()`
+    swallows it and `resolve()` does not (Copilot, PR #1132 round 3). A
+    cyclic `<repo>/.pycache`, or a cyclic `PYTHONPYCACHEPREFIX`, would
+    therefore have raised out of `install()` — in every conftest in this
+    repository — which is precisely the failure the fallback exists to avoid.
+
+    `None` FAILS SAFE at the one caller: a path that cannot be shown to be
+    outside every pinned mount is treated as inside, so the cache goes to the
+    freshly created directory rather than to a path nothing could resolve.
+    """
+    try:
+        return path.resolve()
+    except (OSError, RuntimeError, ValueError):
+        return None
+
+
+def _inside_a_pinned_mount(prefix: str) -> bool:
+    """Whether a bytecode prefix would put the cache INSIDE a pinned mount.
+
+    A RELATIVE prefix counts as inside, and that is not pedantry: CPython
+    joins the prefix with the SOURCE FILE'S OWN directory at write time, and a
+    relative head is resolved against whatever the working directory is then —
+    so where it lands is not knowable here, and a guarantee that cannot be
+    checked is not a guarantee. Symlinks are resolved on both sides, because a
+    link into a leg is the same placement under another name.
+    """
+    candidate = Path(prefix)
+    if not candidate.is_absolute():
+        return True
+    resolved = _resolved(candidate)
+    if resolved is None:
+        return True
+    for mount in _PINNED_MOUNTS:
+        target = _resolved(mount)
+        if target is None or resolved.is_relative_to(target):
+            return True
+        # AND WHERE THE BYTES WOULD ACTUALLY LAND, WHICH IS NOT THE PREFIX
+        # ITSELF (Copilot, PR #1132 round 4). In prefix mode CPython does not
+        # put the cache AT the prefix: `cache_from_source()` builds the
+        # directory as `_path_join(sys.pycache_prefix, head.lstrip(
+        # path_separators))` — the source's own absolute directory appended
+        # to the prefix — and drops the `__pycache__` component entirely. So
+        # the filesystem ROOT maps a leg module straight back BESIDE ITS OWN
+        # SOURCE, inside the pin. MEASURED: with `PYTHONPYCACHEPREFIX=/`,
+        # `cache_from_source(<leg>/src/openxdox/generator.py)` is
+        # `<leg>/src/openxdox/generator.cpython-312.pyc`. A predicate about
+        # where a prefix IS cannot answer that; this one asks where the
+        # bytes GO, so the root is refused as the case it is rather than as
+        # a special one.
+        mapped = _resolved(resolved / str(target).lstrip("/"))
+        if mapped is None or mapped.is_relative_to(target):
+            return True
+    return False
+
+
+def _bytecode_out_of_the_legs() -> None:
+    """Send CPython's bytecode cache to `BYTECODE_HOME`, BEFORE either leg is
+    importable — the one line that keeps this repository from writing into a
+    tree it pins, and from executing a `.pyc` it has not read.
+
+    A PREFIX THE PROCESS ALREADY CHOSE IS KEPT — `PYTHONPYCACHEPREFIX`, or a
+    host that has set its own — UNLESS it resolves inside a pinned mount, in
+    which case it defeats the very thing it is being kept for and is replaced.
+    "Any prefix at all satisfies this" was the first rule here and it was
+    wrong (Copilot, openxFactory PR #1132): a prefix at a LEG ROOT puts the
+    cache inside the pin AND outside the `src` the cleanliness sweep scans, so
+    a crafted cache there is both read — before `verify_pins()` runs, since the
+    legs are imported first — and invisible to the check that would have
+    reported it. Replacing rather than refusing is `GIT_ATTR_NOSYSTEM`'s
+    precedent one file over: an ambient variable that would weaken a guarantee
+    is overridden, not made into a required gate's refusal.
+
+    Idempotent, and called from `install()`, which `module()` calls in turn
+    — so every route THROUGH THIS MODULE passes through it, which is not the
+    same as every route into a leg and must not be written as though it
+    were (Copilot, PR #1132 round 6, on a sentence that said the second).
+    MEASURED, by this act, and it is why the snapshot-equivalence sweep
+    still passes over unreachable bytecode rather than counting on emptiness:
+    `scripts/corpus_adapter_openxfactory/` puts `openDox/code/src` on
+    `sys.path` itself and imports `opendox.corpus_adapter` without coming
+    through here at all (RULED OQ-Q, `#872`). What this function guarantees
+    is that no importer REACHING THROUGH `carved_reach` reads or writes
+    bytecode inside a pinned mount; a direct importer is registered for a
+    successor act, not silently covered by this docstring.
+    """
+    chosen = sys.pycache_prefix
+    if chosen is not None and not _inside_a_pinned_mount(chosen):
+        return
+    # AND THE FALLBACK IS HELD TO THE SAME RULE IT ENFORCES (Copilot,
+    # openxFactory PR #1132 round 2): `BYTECODE_HOME` is a PATH, and a
+    # pre-existing `<repo>/.pycache` that is a SYMLINK into a pinned mount
+    # would put the cache exactly where this function exists to keep it out
+    # of. A directory this process has just created cannot hold a crafted
+    # cache to read, so `mkdtemp()` is the last resort rather than a raise:
+    # `install()` runs in every conftest in this repository, and a stray
+    # symlink in one checkout must not become an ImportError in all of them.
+    home = str(BYTECODE_HOME)
+    if _inside_a_pinned_mount(home):
+        # AND THE FRESH DIRECTORY IS CREATED SOMEWHERE THIS RUN HAS CHECKED
+        # (Copilot, PR #1132 round 6). `mkdtemp()` honours `TMPDIR`, so an
+        # inherited temp directory inside — or symlinked into — a pinned
+        # mount would put the last resort in the pin, unchecked. The PARENT
+        # is chosen first and only then written in: the temp directory when
+        # it is outside every mount, and otherwise the repository root,
+        # which CONTAINS the mounts and so cannot be inside one. A child
+        # `mkdtemp()` creates there is a real directory and not a symlink,
+        # so a parent that resolves outside the pins has children that do.
+        parent = tempfile.gettempdir()
+        if _inside_a_pinned_mount(parent):
+            parent = str(REPO_ROOT)
+        home = tempfile.mkdtemp(prefix="openxfactory-bytecode-", dir=parent)
+    sys.pycache_prefix = home
+
+
 def install(*, tests: bool = False) -> None:
     """Put both pinned legs' `src/` — and this repository's `scripts/` — on the
     path, or arrange for the carved NAMES to refuse when a leg is missing.
@@ -304,6 +466,7 @@ def install(*, tests: bool = False) -> None:
     `opendox_host.register_openxfactory()`, and the assembly points are named
     in that function's own docstring.
     """
+    _bytecode_out_of_the_legs()
     missing = []
     for gitlink, leg, src, package in LEGS:
         try:
