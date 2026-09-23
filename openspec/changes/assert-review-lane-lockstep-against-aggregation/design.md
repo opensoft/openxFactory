@@ -235,7 +235,8 @@ earlier one does not hold, and by qualifying both comparison scenarios' WHEN wit
 *the aggregation's surfaces read, and agreeing with each other on one commit of forty lowercase hexadecimal characters* — the commit clause added by review
 `5286144492`'s *previously missed* item, so that surfaces agreeing on a value that
 is not a commit cannot satisfy a comparison scenario's own WHEN (D16). Exactly one
-outcome holds for any input, and no implementation has to arbitrate. **THE ORDER
+outcome holds for any input a run judges (a run that finds its head moved judges
+nothing, D21), and no implementation has to arbitrate. **THE ORDER
 AS IT NOW STANDS**, after D14b moved the vocabulary check to the front, D16
 folded a non-commit surface into UNREADABLE and a non-commit `core_commit` into
 the first, D19 folded a foreign `converged_with:` into the first too, the
@@ -911,6 +912,22 @@ it is the ACCESS outcome or UNDETERMINED, reached first. A moved head is not an
 outcome at all. The scenario that states both is new, and makes eight; the five
 places that list the scenarios moved with it: `tasks.md` § 2.1 and § 5.3, the
 `code_surface` and `target_release` clauses, and the README row.
+
+**The next review, `5294266328` at `b0f02bd9`, found three more.** One held, one
+was already answered by the text and is now made plain, and one was measured
+stale:
+
+- `r4085195340` held. The order's *"exactly one holds for any input"* was left
+  unscoped beside the moved-head rule, which judges nothing. It now reads *"for
+  any input a run judges"*, which is every input but a head found moved.
+- `r4085195422` asked what a 404 from the head's lookup concludes. The partition
+  already named it: *"a 404 for the repository or the pull request itself"* is the
+  check's own ACCESS. But nothing said that the head is looked up by reading the
+  pull request, so the requirement now says so and separates that 404 from the
+  pin's absence and from a moved head, and `tasks.md` § 5.1d lists its fixture.
+- `r4085195461` found this pull request's description still counting seven
+  scenarios. That was the description as the review's run began, at 17:08:42Z;
+  it was corrected at 17:10:30Z and has counted eight since.
 
 ## D5 — what the check compares, and why it is values rather than authorship
 

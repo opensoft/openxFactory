@@ -420,7 +420,7 @@ this packet's archive until merged PLUS green realization evidence.
   by the only route that reaches it. The realization makes every read outcome,
   including its failures, an INPUT to the comparison naming what could not be
   read, and a workflow-level test exercises that path. **AND THE CHECK'S OWN
-  ACCESS IS NOT A READ FAILURE** (review `5286349291`'s *previously missed*
+  ACCESS FAILING IS NEVER UNDETERMINED** (review `5286349291`'s *previously missed*
   item): the binding unresolved, the mint refused, or the aggregation repository
   itself refused to the gate's token (a 401, or a 403 or 404 that is not a
   rate-limit response) is the requirement's ACCESS outcome and FAILS, naming it,
@@ -445,9 +445,11 @@ this packet's archive until merged PLUS green realization evidence.
   that turns the job red. Tests: an invalid candidate, each access failure and a
   transient read failure each still create their `failure` or `neutral`
   verdict; each access failure concludes `failure` and each transient failure
-  `neutral`; the pin's fetch answering 404, 403, 422, 500 and a rate limit, and
-  the head's read timing out before the fetch and immediately before
-  publication, each conclude as the partition says, a failure before the pin is
+  `neutral`; the pin's fetch answering 404, 403, 422, 500 and a rate limit, the
+  head's lookup answering 404 before the fetch and immediately before
+  publication, which concludes as the check's own access and never as the pin's
+  absence or a moved head (Copilot `r4085195422`), and the head's read timing out
+  at either point, each conclude as the partition says, a failure before the pin is
   in hand minting no token and reading nothing in the aggregation; and a refused
   publication turns the job red.
 - [ ] 5.1e **THE NEUTRAL CONCLUSION NEEDS A REPRESENTATION** (Copilot

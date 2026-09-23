@@ -161,8 +161,9 @@ told what to read, by the pull request it judges or by one merged before it,
 could turn the credential for a private repository on any file in it, and have
 that file's contents named back as the value a surface carried.
 
-THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the CANDIDATE
-UNREAD first — a read of this repository, for the pull request's head or for the
+THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT A RUN JUDGES, which
+is every input but a head found moved, whose run judges nothing and publishes
+nothing (above): the CANDIDATE UNREAD first — a read of this repository, for the pull request's head or for the
 pin, failing for any reason but the pin's absence, which is the check's own
 ACCESS failing or UNDETERMINED by the classes below — because nothing can be
 judged that the check does not hold, the candidate's bytes at the commit that is
@@ -187,8 +188,10 @@ CLASS, the binding and the mint the aggregation's reads need among them. A
 TRANSIENT failure — a server error, a rate limit, or no response at all, a
 timeout or a transport failure — is UNDETERMINED. A 404 for a branch, a commit or
 a file is ABSENCE: the pin's, at the verified commit, is the declaration ABSENT,
-and anything the plan names absent from the aggregation leaves it UNREADABLE.
-EVERY OTHER FAILURE is the check's own ACCESS failing — its binding unresolved,
+and anything the plan names absent from the aggregation leaves it UNREADABLE. THE
+HEAD IS LOOKED UP BY READING THE PULL REQUEST, so a 404 for that read, before the
+pin or before publication, is neither an absence nor a moved head: it falls in
+the class that follows. EVERY OTHER FAILURE is the check's own ACCESS failing — its binding unresolved,
 its mint refused, or a repository refusing its request, a 401, a 403 that is not
 a rate-limit response and a 404 for the repository or the pull request itself
 among them — which is the check's own defect on the run where it happens, and
@@ -246,7 +249,7 @@ compared only to itself is a tautology.
 - **AND** the disagreement is the aggregation's own at that commit, not an artefact of reading its surfaces one at a time while a re-point landed between the reads
 
 #### Scenario: The check's own access fails
-- **WHEN** the check's own access fails — its binding unresolved, its mint refused, or either repository refusing its request (a 401, a 403 that is not a rate-limit response, a 404 for the repository or the pull request itself, or any other failure that is neither transient nor an absence)
+- **WHEN** the check's own access fails — its binding unresolved, its mint refused, or either repository refusing its request (a 401, a 403 that is not a rate-limit response, a 404 for the repository or for the pull request whose head it looks up, or any other failure that is neither transient nor an absence)
 - **THEN** the check FAILS and names the access failure, rather than reporting UNDETERMINED
 - **AND** it concludes neither `converged` nor `diverged`, whatever it had read before the failure, because the defect is this repository's own, its configuration or its code, and an UNDETERMINED for it would stand on every run
 
