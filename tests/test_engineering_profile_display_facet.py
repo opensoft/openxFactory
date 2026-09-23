@@ -643,3 +643,29 @@ def test_a_missing_openxdox_display_refuses_rather_than_serving_absent(
     assert not isinstance(caught.value, AttributeError)
     with pytest.raises(RuntimeError, match="declares no DISPLAY"):
         display_profile.host_display(proxy)
+
+
+#: The malformed shapes, one per level of the structure `_openxdox_stages()`
+#: reads: the facet itself, its `stages` section, and a stage entry.
+_MALFORMED = {
+    "display-is-not-a-mapping": ["stages"],
+    "display-is-a-string": "stages",
+    "stages-is-not-a-mapping": {"stages": ["completion"]},
+    "a-stage-entry-is-not-a-mapping": {"stages": {"completion": _RULED_WORD}},
+}
+
+
+@pytest.mark.parametrize("shape", list(_MALFORMED))
+def test_a_malformed_openxdox_display_refuses_at_every_level(monkeypatch, shape):
+    """MUTATION: openXdox's `DISPLAY` present but MALFORMED, at each of the
+    three levels the composer reads (Copilot `r4086188263`: the refusal had no
+    test, so removing it would have passed the suite). Each shape REFUSES, and
+    with `RuntimeError`, never `AttributeError`, so neither the proxy nor
+    `host_display()`'s 3-argument `getattr` can absorb it into a silent
+    "no facet declared"."""
+    monkeypatch.setattr(view_extensions, "DISPLAY", _MALFORMED[shape])
+    with pytest.raises(RuntimeError, match="must be a mapping of stage") as caught:
+        profile_openxfactory.DISPLAY
+    assert not isinstance(caught.value, AttributeError)
+    with pytest.raises(RuntimeError, match="must be a mapping of stage"):
+        display_profile.host_display(proxy)
