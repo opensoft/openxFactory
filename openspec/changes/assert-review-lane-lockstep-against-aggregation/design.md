@@ -172,7 +172,7 @@ missing half of D2.**
 
 | outcome | conclusion | why |
 | --- | --- | --- |
-| declaration ABSENT or outside its vocabulary — a foreign declared state, an unparseable candidate, or a `converged_with:` other than the read plan (D17, D19) | **FAIL**, naming the value found | added at round 6; see D14a. Checked FIRST, before the aggregation is read |
+| declaration ABSENT or outside its vocabulary — a foreign declared state, a `core_commit` that is not a commit, an unparseable candidate, or a `converged_with:` other than the read plan's workflow members (D16, D17, D19) | **FAIL**, naming the value found | added at round 6; see D14a. Checked FIRST, before the aggregation is read |
 | declared state CONTRADICTED by the measurement | **FAIL**, naming both values | this repository's own contract file states something false about another repository; the remedy is one edit to the field |
 | surfaces disagree with each other (INCONSISTENT) | **NEUTRAL**, visible | another repository's defect, and not this repository's claim to answer |
 | aggregation unreadable (UNDETERMINED) | **NEUTRAL**, visible | another repository's availability, and D4's whole point |
@@ -217,8 +217,9 @@ earlier one does not hold, and by qualifying both comparison scenarios' WHEN wit
 is not a commit cannot satisfy a comparison scenario's own WHEN (D16). Exactly one
 outcome holds for any input, and no implementation has to arbitrate. **THE ORDER
 AS IT NOW STANDS**, after D14b moved the vocabulary check to the front, D16
-folded a non-commit surface into UNREADABLE and D19 folded a foreign
-`converged_with:` into the first: the declaration OUTSIDE ITS VOCABULARY; then the aggregation UNREADABLE; then its surfaces DISAGREEING; then
+folded a non-commit surface into UNREADABLE and a non-commit `core_commit` into
+the first, and D19 folded a foreign `converged_with:` into the first too: the
+declaration OUTSIDE ITS VOCABULARY; then the aggregation UNREADABLE; then its surfaces DISAGREEING; then
 the comparison of the agreed commit against `core_commit`, and the declared state
 against that comparison. This paragraph first recorded the order this section
 fixed — UNREADABLE, DISAGREEING, comparison, declared state — and it stood after
@@ -466,9 +467,10 @@ fix that closed D14a's gap.
 > question moot; then the aggregation UNREADABLE; then its surfaces DISAGREEING;
 > then the comparison.
 
-(That was the spec's text at this round. D19 later widened the first outcome to
-the whole DECLARATION, so a `converged_with:` other than the read plan is in it
-too; D9 carries the order as it now stands.)
+(That was the spec's text at this round. D16 and D19 later widened the first
+outcome to the whole DECLARATION, so a `core_commit` that is not a commit and a
+`converged_with:` other than the read plan's workflow members are in it too; D9
+carries the order as it now stands.)
 
 That is both the ordering the scenarios require and the honest engineering order:
 **a check does not go asking another repository a question in order to report a
@@ -509,7 +511,7 @@ the base's `converged_with:` and the gate's own fixed location for the
 aggregation's constant — and the candidate supplies only the values under
 judgment, `core_commit` and the declared state. (**Superseded in part by D19**:
 the base's pin file is data too, so the plan is now fixed in the gate's own code
-and `converged_with:` is judged against it rather than followed.) The value named for a surface is
+and `converged_with:` is judged against its workflow members rather than followed.) The value named for a surface is
 the field extracted from its fixed location, never the file around it.
 
 ## D14d — the allowlist is a TRIPLE, because a head ref is a predicate its author controls
@@ -581,12 +583,18 @@ file around it (D14c, D19, D20). The input lands in an outcome that
 already exists, NEUTRAL, so the outcomes stay five and the order stays as D9
 states it.
 
-**`core_commit` itself is not re-validated by this requirement, deliberately.**
-Its grammar is already enforced on every candidate:
-`tests/review_lane_pin/test_review_lane_caller.py`:180 and :296 refuse a pin that
-does not declare exactly one readable 40-hex `core_commit`, in the suite that
-runs on the advance's own pull request. A malformed one cannot land, and restating
-the rule here would put one obligation in two places.
+**`core_commit` is validated too, REVERSING this section's first answer** (Copilot
+`r4078528147`). This section first left the candidate's `core_commit` to
+`tests/review_lane_pin/test_review_lane_caller.py`:180 and :296, which refuse a
+pin that does not declare exactly one readable 40-hex `core_commit`, in the suite
+that runs on the pull request. That keeps a malformed commit from LANDING, but not
+this gate from publishing a false `success` first: a `core_commit` that is not a
+commit, declared `diverged`, differs from any commit the surfaces agree on, so an
+inequality reports agreement. The verdict is the gate's own claim, so the gate
+validates its own input: a candidate `core_commit` outside the grammar FAILS in
+the first outcome, with nothing read in the aggregation. The two rules are not
+one rule stated twice: the suite's refuses a pin that cannot land, and this one
+refuses a verdict that would be false.
 
 ## D17 — the allowlist is REMOVED, because the capability already forbids it
 
@@ -657,9 +665,10 @@ than 3,000 files, and it is registered at `tasks.md` § 6.6.
 `r4078308120`). The filter fires on any edit to the pin file, but the check
 judges three things in it: `core_commit`, the declared state and the surfaces
 `converged_with:` declares. **The candidate's declaration is validated FIRST**
-(Copilot `r4078425707`): a declared state outside its two words, a
-`converged_with:` other than the read plan (D19), or a candidate that cannot be
-parsed at all (Copilot `r4078425733`) FAILS before anything is minted or read.
+(Copilot `r4078425707`): a declared state outside its two words, a `core_commit`
+that is not a commit (D16), a `converged_with:` other than the read plan's
+workflow members (D19), or a candidate that cannot be parsed at all (Copilot
+`r4078425733`) FAILS before anything is minted or read.
 Only then does the gate compare the candidate's three values with the base's, and
 where none moved it mints nothing, reads nothing and publishes `skipped`, so the
 verdict is never absent from a pull request the filter admits. A skip therefore
@@ -715,14 +724,16 @@ would have let a pull request that changed only `converged_with:` land unjudged.
 That pull request could have installed any `opensoft/xFactory` path for every
 later run to read with the private token.
 
-**So the plan is the gate's CODE, not the pin file's data.** It names the two
-judging workflows `converged_with:` names today —
+**So the plan is the gate's CODE, not the pin file's data.** It has two WORKFLOW
+MEMBERS, the judging workflows `converged_with:` names today —
 `opensoft/xFactory .github/workflows/merge-master-approval.yml` and
 `opensoft/xFactory .github/workflows/council-convening-lane.yml`
 (`contracts/review-lane-pin.yaml`:1019-1020) — each read at the `ref:` of its step
-that checks out `codeXfactory/codexFactory`, and the `MIGRATION_PIN` assignment
-in `tests/test_merge_master_workflows.py`. The candidate's `converged_with:` is
-JUDGED against that plan and never followed. Where it names any other set, the
+that checks out `codeXfactory/codexFactory`; and one ADDITIONAL fixed read, the
+`MIGRATION_PIN` assignment in `tests/test_merge_master_workflows.py`, which is not
+and never becomes a `converged_with:` member (`tasks.md` § 6.2; Copilot
+`r4078528181`). The candidate's `converged_with:` is JUDGED against the plan's
+workflow members and never followed. Where it names any other set, the
 check FAILS naming both, before anything is read, in the class of a declared
 state outside its vocabulary, so the outcomes stay five. The base is not judged
 separately: a candidate inherits the base's list unless it changes it, so a

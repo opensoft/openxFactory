@@ -281,8 +281,10 @@ this packet's archive until merged PLUS green realization evidence.
   VALIDATED FIRST, AND ONLY A VALID ONE MAY BE SKIPPED** (Copilot
   `r4078425707`): the gate parses the candidate from its inert bytes and applies
   the requirement's first outcome before anything else — a declared state absent
-  or outside its two words, or a `converged_with:` other than the read plan
-  (§ 5.1i), FAILS with no token minted and nothing read. **A candidate that
+  or outside its two words, a `core_commit` that is not forty lowercase
+  hexadecimal characters (Copilot `r4078528147`), or a `converged_with:` other
+  than the read plan's two workflow members (§ 5.1i), FAILS with no token minted
+  and nothing read. **A candidate that
   cannot be parsed is that outcome too** (Copilot `r4078425733`): it declares
   nothing, so it counts as ABSENT and FAILS, the parse error named as an inert,
   length-bounded span. Only a valid candidate is compared with the base's three
@@ -291,7 +293,7 @@ this packet's archive until merged PLUS green realization evidence.
   `skipped`, naming the values unchanged. A skip therefore needs a valid
   candidate EQUAL to its base, which leaves no invalid declaration unjudged at
   either end, and the verdict's name is present on every pull request the filter
-  admits, so § 6.5's approver is never left waiting on it. The DECLARED STATE is
+  admits, so § 6.5's approver always finds a verdict to read. The DECLARED STATE is
   in the comparison, and not only `core_commit`, because a pull request that
   moves only the declaration is exactly one the measurement exists to check:
   `#1123` moved `status` and not `core_commit`. Tests: a candidate changing only
@@ -300,8 +302,10 @@ this packet's archive until merged PLUS green realization evidence.
   `converged_with:`, is outside its vocabulary FAILS instead, because the
   candidate inherits it; a candidate changing only the declared state, one
   changing only `core_commit`, and one changing only `converged_with:` each draw
-  a verdict; and an unparseable candidate FAILS with a bounded message, no mint
-  and no read in the aggregation.
+  a verdict; an unparseable candidate FAILS with a bounded message, no mint
+  and no read in the aggregation; and a candidate whose `core_commit` is not a
+  commit, declared `diverged`, FAILS rather than agreeing, because an inequality
+  against any agreed commit would otherwise report it as agreeing.
 - [ ] 5.1i **THE GATE READS THE CANDIDATE PIN, NOT THE BASE'S — AND THIS IS THE
   DEFECT `pull_request_target` INTRODUCED** (Copilot's *previously missed* item,
   round 8). Under `pull_request_target` the workflow runs from the BASE, so a
@@ -332,19 +336,23 @@ this packet's archive until merged PLUS green realization evidence.
   checks nothing of `converged_with:` but its length
   (`tests/review_lane_pin/test_review_lane_caller.py`:648-649), so a pull request
   changing only that list could have installed any xFactory path for every later
-  run to read. The plan is therefore the gate's code: the two workflows
-  `converged_with:` names today (`contracts/review-lane-pin.yaml`:1019-1020), each
-  read at the `ref:` of its step that checks out `codeXfactory/codexFactory`, and
-  the `MIGRATION_PIN` assignment. The candidate's `converged_with:` is JUDGED
-  against it and never followed: a FAIL naming both sets where they differ,
+  run to read. The plan is therefore the gate's code: two WORKFLOW MEMBERS, the
+  workflows `converged_with:` names today (`contracts/review-lane-pin.yaml`:1019-1020),
+  each read at the `ref:` of its step that checks out `codeXfactory/codexFactory`;
+  and one ADDITIONAL fixed read, the `MIGRATION_PIN` assignment, which is never a
+  `converged_with:` member (§ 6.2; Copilot `r4078528244`). The candidate's
+  `converged_with:` is JUDGED against the plan's two workflow members and never
+  followed: a FAIL naming both sets where they differ,
   before anything is read. The base is not judged separately, because a
   candidate inherits the base's list unless it changes it: a base's defect FAILS
   every candidate that carries it, and a candidate that repairs it is judged on
   what it proposes. Tests: a candidate whose `converged_with:` names another
   path, and a candidate that inherits such a list from its base, each FAIL
   naming both sets with no read made in the aggregation, and neither path is
-  ever requested; and a candidate that repairs its base's list draws a verdict on
-  the repaired list. **AND A PRIVATE VALUE IS NEVER PUBLISHED** (Copilot
+  ever requested; a candidate that repairs its base's list draws a verdict on
+  the repaired list; and the current pin's two-entry `converged_with:` passes the
+  judgment — the positive case — while a list that adds the constant as a third
+  member FAILS. **AND A PRIVATE VALUE IS NEVER PUBLISHED** (Copilot
   `r4078468841`; `design.md` D20): a surface value that is not a commit is
   named only by its classification — absent, empty or not a commit — in the
   verdict and in the run log alike, both public on this repository. Test: a
@@ -379,8 +387,8 @@ this packet's archive until merged PLUS green realization evidence.
   a pass"* has no expression by exit code alone. The realization publishes the
   conclusion through the check-run API, EVERY OUTCOME MAPPED and none left to the
   exit code (Copilot `r4078058050`): `failure` for a declaration outside its
-  vocabulary — an unparseable candidate and a foreign `converged_with:` among
-  them — and for a declaration the measurement contradicts, `neutral` for
+  vocabulary — an unparseable candidate, a non-commit `core_commit` and a
+  foreign `converged_with:` among them — and for a declaration the measurement contradicts, `neutral` for
   INCONSISTENT and for UNDETERMINED, and `success` for a declaration the
   measurement agrees with — each with the state and the values read in its
   output, a surface's as its commit or, where it is not one, only as its
@@ -425,13 +433,13 @@ this packet's archive until merged PLUS green realization evidence.
   ABSENT from them — the negative control that keeps the advance lane out of the
   pull-request path.
 - [ ] 5.2 The comparison: `scripts/review_lane_repin.py` gains a pure function
-  over the declared state, `converged_with:` against the read plan, `core_commit`
+  over the declared state, `converged_with:` against the plan's workflow members, `core_commit`
   and the surfaces' values, reaching no
   network, returning the five outcomes the scenarios name.
 - [ ] 5.3 The proof: `tests/review_lane_pin/` gains a fixture for each of the
-  SIX scenarios — an ABSENT or foreign declaration, an unparseable candidate and
-  a candidate `converged_with:` other than the read plan's among them (the
-  FAIL-without-comparison case), a stale `converged`, a stale `diverged`, surfaces disagreeing with each
+  SIX scenarios — an ABSENT or foreign declaration, an unparseable candidate, a
+  non-commit `core_commit` and a candidate `converged_with:` other than the read
+  plan's workflow members among them (the FAIL-without-comparison case), a stale `converged`, a stale `diverged`, surfaces disagreeing with each
   other, an unreadable aggregation — including surfaces that AGREE on a value that
   is not a commit, the empty string among them (`design.md` D16) — and the
   pure-function reproduction — **plus
@@ -480,10 +488,15 @@ this packet's archive until merged PLUS green realization evidence.
   yet. The active `admit-review-lane-repin-to-merge-approval-envelope` and
   `extend-merge-master-envelope-to-floor-bot-lanes` would create one.
   **Registered for their realization:** an approver that admits a pin-changing
-  pull request must not approve it until this gate's verdict for that head,
-  found by its declared name, `review-lane-lockstep-verdict` (§ 5.1e), is published, and must not approve over a
-  `failure`; with a test that runs the approver ahead of the verdict and asserts
-  that it waits. Requiring the verdict by that name in a ruleset is the other
+  pull request approves it ONLY where the latest verdict named
+  `review-lane-lockstep-verdict` (§ 5.1e) on the VERIFIED head is `success`
+  (Copilot `r4078528254`). `neutral`, `skipped`, `failure`, a verdict for
+  another head and no verdict at all each PARK the approval: the requirement
+  says a NEUTRAL conclusion is not a pass, and the envelope's own rule already
+  parks every non-excluded check run whose latest completed run is not `success`
+  (`.github/merge-approval-envelope.yml`:118-127). Tests: one that runs the
+  approver ahead of the verdict and asserts that it waits, and one per
+  non-`success` conclusion asserting that it parks. Requiring the verdict by that name in a ruleset is the other
   route, and a ruleset act this packet does not take.
 - [~] 6.6 **A PATH FILTER HAS A PLATFORM LIMIT, AND IT IS THE ONE GAP THE EXACT
   FILTER LEAVES.** GitHub's workflow-syntax reference, under

@@ -88,9 +88,14 @@ the measurement contradicts — because both are this repository's own file fail
 to say something true, and the remedy for both is one edit to the field. Without
 that clause the ordering below has an input it does not reach. SO IS THE SET OF
 SURFACES THE PIN DECLARES: where the candidate's `converged_with:` names any set
-other than the check's own read plan, the check SHALL FAIL naming the set it found
-and the plan's, in that same class, because a pin declaring surfaces the check
-does not read is the same file failing to say something true. A candidate that
+other than the WORKFLOW MEMBERS of the check's own read plan, the check SHALL FAIL
+naming the set it found and those members, in that same class, because a pin
+declaring surfaces the check does not read is the same file failing to say
+something true. AND SO IS THE COMMIT THE CANDIDATE PROPOSES: a candidate
+`core_commit` that is not forty lowercase hexadecimal characters SHALL FAIL in
+that same class, naming the value found, inert and length-bounded — otherwise an
+inequality against the aggregation's commit would report a declared `diverged`
+as agreeing with a value that names no commit. A candidate that
 cannot be parsed declares nothing, and SHALL count as ABSENT, the parse error
 named as the value found, inert and length-bounded. A base's defect reaches the
 verdict through every candidate that inherits it, and a candidate that repairs it
@@ -111,11 +116,13 @@ about what to READ, and so are the base's, because the base's pin file is only a
 candidate an earlier pull request proposed: the check SHALL take from the pin
 only the values under judgment — `core_commit`, the declared state and the
 surfaces `converged_with:` declares — and SHALL take the aggregation and the path
-of every surface in it from a READ PLAN FIXED IN ITS OWN CODE — each of the
-aggregation's judging workflows read at the `ref:` of its step that checks out
-the decision core's repository, `codeXfactory/codexFactory`, parsed as YAML and
-never matched as text, and the aggregation's constant read at its `MIGRATION_PIN`
-assignment in `tests/test_merge_master_workflows.py` — never resolving a path
+of every surface in it from a READ PLAN FIXED IN ITS OWN CODE — its WORKFLOW
+MEMBERS, the aggregation's judging workflows, each read at the `ref:` of its step
+that checks out the decision core's repository, `codeXfactory/codexFactory`,
+parsed as YAML and never matched as text, and one ADDITIONAL fixed read, the
+aggregation's constant at its `MIGRATION_PIN` assignment in
+`tests/test_merge_master_workflows.py`, which is never a `converged_with:`
+member — never resolving a path
 from the pin file, at the candidate head or at the base. A check that could be
 told what to read, by the pull request it judges or by one merged before it,
 could turn the credential for a private repository on any file in it, and have
@@ -123,8 +130,9 @@ that file's contents named back as the value a surface carried.
 
 THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the DECLARATION
 OUTSIDE ITS VOCABULARY first — a declared state absent or not one of its two
-words, an unparseable candidate among the absent, or a `converged_with:` naming a
-set other than the check's read plan: this
+words, an unparseable candidate among the absent, a candidate `core_commit` that
+is not a commit, or a `converged_with:` naming other than the read plan's
+workflow members: this
 repository's own file, readable without touching anything else, and a defect that
 makes every later question moot; then
 the aggregation UNREADABLE, a surface whose value is not a commit included; then
@@ -168,8 +176,8 @@ compared only to itself is a tautology.
 - **AND** the report does not depend on the advancing lane having remembered to write the field, because the check reads the other repository rather than the lane's intent
 
 #### Scenario: The declaration is absent or outside its vocabulary
-- **WHEN** the pin's declared lockstep state is absent, or carries a value that is neither of the two words the field admits, or the candidate's `converged_with:` names a set other than the check's own read plan, or the candidate cannot be parsed at all
-- **THEN** the check FAILS and names the value, set or parse error it found, inert and length-bounded, and for `converged_with:` the plan's set beside it, in the same class as a declaration the measurement contradicts
+- **WHEN** the pin's declared lockstep state is absent, or carries a value that is neither of the two words the field admits, or the candidate's `core_commit` is not forty lowercase hexadecimal characters, or its `converged_with:` names a set other than the workflow members of the check's own read plan, or the candidate cannot be parsed at all
+- **THEN** the check FAILS and names the value, set or parse error it found, inert and length-bounded, and for `converged_with:` the plan's workflow members beside it, in the same class as a declaration the measurement contradicts
 - **AND** it reads nothing in the aggregation and does not fall through to a comparison, because there is nothing to compare
 
 #### Scenario: The advance lands on the commit the aggregation already pins
