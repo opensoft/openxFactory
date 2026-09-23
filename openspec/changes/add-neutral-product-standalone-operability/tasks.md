@@ -59,12 +59,23 @@ ratification, no group is started without its own claim on
 `opensoft/openxFactory#656` per lane-collision-protocol Rule 1, and this change
 merges nothing anywhere.
 
-Baselines, measured on `openxFactory` `main` `4f92d651` before this packet:
-`OPENSPEC_TELEMETRY=0 openspec validate --all --strict` -> `Totals: 109 passed,
-1 failed (110 items)`; `python3 scripts/validate-openspec-cli-pin.py --all
---no-cache` -> exit 0, `0 UNDISPOSITIONED failures`, 1 accepted exception
-(`add-chain-attestation`, ratified disposition). This packet must add +1 item,
-+1 passed and ZERO new failures.
+Baselines. The invariant is a DELTA, not a count: against the `main` it lands on,
+this packet adds **+1 item and +1 passed, with ZERO new failures**, under
+`OPENSPEC_TELEMETRY=0 openspec validate --all --strict`, and the pinned gate
+`python3 scripts/validate-openspec-cli-pin.py --all --no-cache` exits 0 with
+`0 UNDISPOSITIONED failures` and its one accepted exception
+(`add-chain-attestation`, ratified disposition). Absolute counts move whenever
+another change lands, so each record below is paired with the `main` it was
+measured on:
+
+| measured on `main` | `main` alone | with this packet | delta |
+|---|---|---|---|
+| `4f92d651` (filing, 2026-09-22) | 109 passed / 1 failed of 110 | 110 / 1 of 111 | +1 item, +1 passed, 0 new failures |
+| `a151e462` (after merging #1141 and #1143) | 111 / 1 of 112 | 112 / 1 of 113 | +1 item, +1 passed, 0 new failures |
+
+**The gate that matters is the one run at landing, against the `main` of that
+moment.** The PR description publishes the latest row, and the archive gate
+re-measures the same delta rather than trusting either row.
 
 ## Group 1 — Authoring (THIS change; no code byte)
 
@@ -354,6 +365,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       ls tests/test_generator.py tests/test_snapshot*.py tests/test_session_snapshot.py > /tmp/gen-suites.txt
       while read -r f; do python -m pytest -q "$f"; done < /tmp/gen-suites.txt
       git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' <arc-base>..HEAD > /tmp/x-arc.txt
+      test -s /tmp/x-arc.txt                                # 11.0: the arc DID land here (5.3a at least), so empty means a dropped trailer
       : > /tmp/x-paths.txt
       while read -r c; do
         git diff --name-only "$c^1" "$c" >> /tmp/x-paths.txt
@@ -785,9 +797,13 @@ packet's interim arrangement ends.**
 
 ## Group 11 — Requirement 1: the guard holds (openxFactory)
 
-- [ ] 11.0 **Every commit this arc lands in openxFactory carries the trailer
+- [ ] 11.0 **Every commit this arc lands, in EVERY repository it touches —
+  openxFactory, openDox-code, openXdox-code and openDox — carries the trailer
   `Arc: neutral-product-standalone-operability`**, checked at each PR's review
-  like the `Lane:` line. That trailer is how the guard below finds THE ARC'S OWN
+  like the `Lane:` line. The falsifiers in 5.4a and 12.5 read it in
+  openXdox-code, and they assert the set is NON-EMPTY there, because the arc must
+  land at least 5.3a's facet in that repository. An empty set would mean the
+  trailer was dropped, not that nothing was edited. That trailer is how the guard below finds THE ARC'S OWN
   commits. The alternative, diffing `main` between two commits, measures
   everything that reached `main` in between, and in a shared repository that is
   every other lane's work. Such a guard would flag unrelated landings, or, with a
@@ -956,6 +972,7 @@ that does not name a platform.
       while read -r f; do python -m pytest -q "$f"; done < /tmp/governed.txt
       # ...and not by editing those proofs: no commit of THIS arc (11.0's trailer) touches them
       git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' <arc-base>..HEAD > /tmp/x-arc.txt
+      test -s /tmp/x-arc.txt                                # 11.0: the arc DID land here (5.3a at least), so empty means a dropped trailer
       : > /tmp/x-paths.txt
       while read -r c; do
         git diff --name-only "$c^1" "$c" >> /tmp/x-paths.txt
@@ -999,10 +1016,19 @@ that does not name a platform.
   implementation still declares no merge. Landing is a SEPARATE protocol,
   `session_pr.LandingPort`, with ONE operation, `land(branch, *, confirmation) ->
   Landed`. A GOVERNANCE QUERY decides whether it is bound at all:
-  `session_pr.repository_governance(checkout_root)` answers `standalone` (the
-  owner is the governance) or `governed` (a governance exists outside the tool,
-  as the registered host profile declares). Under `governed` no `LandingPort` is
-  bound, and a land request is routed to the host's own instrument. Under
+  `session_pr.repository_governance(checkout_root)` answers `standalone`,
+  `governed` or `unknown`, and **it FAILS CLOSED**. `standalone` requires TWO
+  things at once. The install must be the explicit local one
+  (`OPENDOX_INSTALL_MODE=local`, 13.4). The repository must carry a COMMITTED
+  declaration, `.opendox/governance.yaml` with `governance: standalone`. Because
+  that declaration is itself a committed file, changing it is a landing like any
+  other: in a governed repository it passes through that governance. `governed`
+  is what a registered host profile declares, or what the committed declaration
+  says. Everything else is `unknown`: no declaration, a host profile that fails
+  to load, or a declaration that disagrees with the install mode. `unknown` is
+  treated as governed-without-an-instrument, so NO lander is bound and `land`
+  refuses, naming what is missing. A land request under `governed` is routed to
+  the host's own instrument. Under
   `standalone` the neutral lander is bound through `landing_factory`, declared
   beside `pull_request_factory` (`serve.py:766`): the same pattern with its own
   registration point, like every seam in this packet. **The three guardrails are
@@ -1078,7 +1104,7 @@ that does not name a platform.
 
   **And the three guardrails are asserted, now that 12.6 is RULED — by NAME**, so
   a missing test FAILS the command rather than being quietly absent from it. 12.6
-  owes these nine tests, and pytest exits non-zero (`ERROR: not found`) for any
+  owes these eleven tests, and pytest exits non-zero (`ERROR: not found`) for any
   node that does not exist, so today the command fails:
 
       python -m pytest -q \
@@ -1087,6 +1113,8 @@ that does not name a platform.
         "tests/test_landing_guardrails.py::test_a_landed_merge_is_a_commit_that_git_revert_undoes" \
         "tests/test_landing_guardrails.py::test_no_configuration_enables_automatic_landing" \
         "tests/test_landing_guardrails.py::test_a_governed_repository_binds_no_lander" \
+        "tests/test_landing_guardrails.py::test_an_unknown_governance_binds_no_lander" \
+        "tests/test_landing_guardrails.py::test_a_host_profile_that_fails_to_load_binds_no_lander" \
         "tests/test_landing_guardrails.py::test_a_directly_constructed_confirmation_is_refused" \
         "tests/test_landing_guardrails.py::test_a_confirmation_for_another_branch_or_head_is_refused" \
         "tests/test_landing_guardrails.py::test_a_spent_confirmation_is_refused" \
@@ -1099,13 +1127,15 @@ that does not name a platform.
   then reverts with `-m 1`, and expects the tree restored. The fourth walks the
   configuration surface and fails if any key can switch a guardrail off: the
   "none configurable" clause made testable. The fifth registers a governed host
-  and expects NO `LandingPort` bound. The last four test the capability itself.
+  and expects NO `LandingPort` bound. The sixth and seventh prove the query FAILS
+  CLOSED: with no committed declaration, or with a host profile that fails to
+  load, no lander is bound. The last four test the capability itself.
   A token built directly is refused. So is one minted for another branch or
   another head, and so is one presented a second time. A static check proves
   that no module outside the `land` prompt and the view's confirm route calls an
   issuer. Naming test nodes in an ACCEPTANCE command is not the defect Group 9
   removes from `validate.yml` — CI must run the whole suite, and this command runs
-  nine named proofs in addition to it.
+  eleven named proofs in addition to it.
 
   Today none of this is reachable: the only implementation is `GhPullRequests`,
   which shells `["gh", "pr", ...]` (`:367`) against `_GITHUB_HOST = "github.com"`
@@ -1170,6 +1200,15 @@ amendments.
   judgement at the mode's own boundary. *(An earlier
   draft called it `OPENDOX_IDENTITY_MODE`. Once it also chose the datastore, that
   name described half of what it selects.)*
+- [ ] 13.4a **The serving process reports its own install shape.** The entry
+  point's served `/capabilities` payload (the same crossing `display_manifest`
+  already publishes, `display_profile.py:670`) gains an `install` block. It holds
+  `mode` and `database_bundle` (`data_dir`, `socket_dir`), read from the
+  settings THAT PROCESS loaded. Requirement 10's one entry point is what makes
+  this possible: the document surface and the runtime are one served product, so
+  the process a user reaches is the process whose configuration is reported. A
+  status probe from a second process could be right about the settings while the
+  server ignored them.
 - [ ] 13.5 **A hosted install SHALL NOT fall into local mode by omission.** An
   unset issuer in a hosted install stays a REFUSAL naming the setting. This box
   is the safety of 13.4 and must land with it, not after it.
@@ -1196,6 +1235,18 @@ amendments.
       SERVER=$!; trap 'kill "$SERVER" 2>/dev/null || true' EXIT
       ready=0; for _ in $(seq 1 30); do curl -sf http://127.0.0.1:8080/ >/dev/null && { ready=1; break; }; sleep 1; done
       test "$ready" -eq 1
+      # the SERVING process reports its OWN mode and datastore, so the claim is about the server
+      # the user reached on :8080 and not about a second process that read the same settings:
+      curl -sf http://127.0.0.1:8080/capabilities > /tmp/caps.json
+      python3 - /tmp/caps.json <<'PY'
+      import json, os, sys
+      inst = json.load(open(sys.argv[1])).get("install") or {}
+      assert inst.get("mode") == "local", f"the server on :8080 is not in local mode: {inst}"
+      state = os.path.realpath(os.environ["OPENDOX_STATE_DIR"])
+      for key in ("data_dir", "socket_dir"):
+          got = os.path.realpath((inst.get("database_bundle") or {}).get(key, ""))
+          assert got.startswith(state + os.sep), f"the served process uses {key} {got!r}, not the bundle under {state!r}"
+      PY
       # ...and what it answered from is the BUNDLED datastore, migrated (requirement 12):
       OPENDOX_INSTALL_MODE=local opendox-runtime runtime status --probe-timeout 10 > /tmp/status.json
       python3 - /tmp/status.json <<'PY'
@@ -1482,7 +1533,14 @@ to #1144"*. `design.md` § D12.
   `--die-with-parent`, `--new-session`, `--ro-bind <copy> /corpus`,
   `--ro-bind <pack> /pack`, read-only binds of only the interpreter paths the
   pack's runtime needs, a private `--tmpfs /tmp`, and nothing of `$HOME` or of
-  the checkout. The pack's only output is findings and patches on stdout, in the
+  the checkout. **The process state is cleared as well as the filesystem.** A
+  namespace hides paths, but it does not hide what the pack inherits.
+  `--clearenv` is followed by `--setenv` of an explicit allowlist (`PATH`,
+  `LANG`, `PYTHONNOUSERSITE=1` and nothing else), so no token, DSN or credential
+  in the engine's environment reaches the pack. The engine spawns the sandbox
+  with `close_fds=True` and passes exactly stdin from `/dev/null` and the two
+  output pipes, so no database connection, socket or open file of the engine's
+  is readable through `/proc/self/fd`. The pack's only output is findings and patches on stdout, in the
   neutral shape. **The time budget is enforced on the TREE, not the process.**
   Under `--unshare-pid` the pack runs in its own PID namespace, so ending the
   sandbox's init on timeout ends every descendant the pack forked, and none
@@ -1520,9 +1578,11 @@ to #1144"*. `design.md` § D12.
   first family, `fixture-slow-pack` sleeps past any timeout, and
   `fixture-writing-pack` tries to write, commit and merge in the tree it is given
   before returning. Two more test the SANDBOX rather than the contract.
-  `fixture-escaping-pack` tries each escape in turn: restoring write permission
-  and writing, following a symlink planted to point out of its copy, opening a
-  network connection, and reading `$HOME`. It reports which attempts succeeded,
+  `fixture-escaping-pack` tries each escape in turn. It restores write
+  permission and writes, follows a symlink planted to point out of its copy,
+  opens a network connection, reads `$HOME`, looks for a CANARY variable the
+  engine sets in its own environment before spawning, and walks `/proc/self/fd`
+  for a CANARY descriptor the engine holds open. It reports which attempts succeeded,
   and the answer must be none. `fixture-forking-pack` forks a child that sleeps
   past the budget. A
   `health/packs.yaml` registers all five through 15.1a's manifest by corpus-relative
@@ -1596,6 +1656,8 @@ to #1144"*. `design.md` § D12.
         "tests/test_check_packs.py::test_a_pack_cannot_follow_a_symlink_out_of_its_copy" \
         "tests/test_check_packs.py::test_a_pack_has_no_network" \
         "tests/test_check_packs.py::test_a_pack_cannot_read_the_users_home" \
+        "tests/test_check_packs.py::test_a_pack_sees_no_inherited_environment" \
+        "tests/test_check_packs.py::test_a_pack_inherits_no_open_descriptor" \
         "tests/test_check_packs.py::test_no_descendant_of_a_pack_outlives_its_budget" \
         "tests/test_check_packs.py::test_no_sandbox_on_the_platform_means_no_packs_run" \
         "tests/test_check_packs.py::test_an_unpinned_pack_is_refused" \
