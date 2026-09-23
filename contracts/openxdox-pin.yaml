@@ -106,7 +106,7 @@ submodule_path: openXdox
 # names both legs. Exactly 40 hex characters. NEVER a leg: `openXdox-code` and
 # `openXdox-spec` are the assembly root's own job to pin, and openxFactory
 # never pins or mounts a leg (split-opendox-two-layer-product task 5.1).
-commit: "8fdbff5db694286129b58a4f8c6dc65f35139827"
+commit: "cd2596a254cc47d6bc5ef638cc91dbedc5184728"
 revision_kind: commit
 
 digest_algorithm: sha256
