@@ -777,10 +777,19 @@ Active changes:
   CONTRADICTS reading that root claim as free-standing, and no consumer may
   accept it without performing that cross-check. THE ORDERING WAS SATISFIED:
   promotion order was #1108 then #1101, **with #1108 itself untouched**.
-  The `modified-block-currency` family still reports no NEW finding, but
-  because the declared ordering resolves the pair: this block is measured
-  against #1108's block rather than against canon, and the family's
-  resolution-ordering arm returns to the empty set it already states.
+  **AFTER THE ARCHIVE, THE MEASUREMENT BASIS MOVES FROM THE ORDERING ARM TO
+  THE CARRIAGE ARM.** With `amend-code-surface-grammar-comma-and` archived,
+  the ordering arm no longer finds two ACTIVE writers to pair — its
+  resolution-ordering arm still returns the empty set it already states —
+  so this block is now measured by the CARRIAGE arm directly against CANON
+  instead of against #1108's block, and THE FAMILY REPORTS ONE EXPECTED
+  FINDING RATHER THAN NONE: one of the block's 66 body units and scenario
+  bullets, the `**AMENDED BY**` paragraph whose wording this pull request's
+  own round-3 Copilot fix (`35afdc3f`) changed in canon after this block was
+  written, reads uncarried. Named as a carriage-ledger subject by this pull
+  request (`tests/doc-health/test_modified_block_currency_self_gate.py`
+  `_LEDGER_SUBJECTS`), retiring when this packet itself archives and its
+  block is promoted.
   **THE MEASURED GAP.** `scripts/code_surface.py` judges a repository
   identifier's SHAPE and never its MEMBERSHIP, so `openxFactorie` passes and so
   does a repository that is no part of this estate. The class is standing, not
