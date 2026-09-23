@@ -397,5 +397,3 @@ Both were met while measuring and neither is folded in.
    and as a record of that packet it is accurate and stays. Registered at
    `tasks.md` § 5.2 so a reader who takes it for a live capability description
    finds the question already asked.
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)

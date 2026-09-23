@@ -201,7 +201,7 @@ rows:
   align-status-reader-to-real-lines: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   amend-absent-changelog-is-an-answer: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#767", moved_on: "2026-09-07"}
   amend-chain-anchoring-readiness-and-durability: {state: archived, class: sole, declares: [add-chain-anchoring], depth: 1, prose: false, moved_by: "#670", moved_on: "2026-09-05"}
-  amend-code-surface-grammar-comma-and: {state: active, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1108", moved_on: "2026-09-18"}
+  amend-code-surface-grammar-comma-and: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1112", moved_on: "2026-09-18"}
   amend-home-adapter-scope-and-mapping-axis-count: {state: active, class: co-modifier, declares: [split-opendox-two-layer-product], depth: 1, prose: false, moved_by: "#1143", moved_on: "2026-09-22"}
   amend-kill-switch-to-declared-test-companion: {state: active, class: co-modifier, declares: [extend-merge-master-envelope-to-floor-bot-lanes], depth: 3, prose: false, moved_by: "#959", moved_on: "2026-09-11"}
   amend-marker-declaring-nothing: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#926", moved_on: "2026-09-10"}
@@ -219,6 +219,7 @@ rows:
   amend-repo-boundary-governance-scope-first-line: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#958", moved_on: "2026-09-11"}
   amend-unreadable-read-sibling-scenarios: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#703", moved_on: "2026-09-05"}
   apply-branch-sessions-deltas: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  assert-review-lane-lockstep-against-aggregation: {state: active, class: sole, declares: [mirror-floor-regeneration-automation], depth: 2, prose: false, moved_by: "#1145", moved_on: "2026-09-22"}
   bump-openspec-cli-pin-to-1.12: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#847", moved_on: "2026-09-09"}
   clarify-avatar-revocation-client-enforced: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   clean-doc-health-floor: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -252,7 +253,7 @@ rows:
   govern-openspec-corpus-membership: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   govern-sibling-added-modified-deltas: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   harden-ideation-readiness-check: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  harden-path-escape-helpers-against-symlink-loops: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1083", moved_on: "2026-09-17"}
+  harden-path-escape-helpers-against-symlink-loops: {state: archived, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1116", moved_on: "2026-09-18"}
   honour-grandfather-dispositions-in-ratified-provenance: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#969", moved_on: "2026-09-11"}
   implement-avatar-client-lab: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   implement-avatar-reference-runtime: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}

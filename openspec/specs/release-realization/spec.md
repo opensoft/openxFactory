@@ -1014,12 +1014,28 @@ it belongs to the declaration that created the collision.
 ### Requirement: Code-surface declaration grammar is gated
 An ACTIVE change proposal's `code_surface:` declaration SHALL open with a
 DECLARED HEAD the ratified grammar admits — EITHER the single token `none`, OR a
-list of one or more REPOSITORY IDENTIFIERS separated by a comma, by ` and `, or
-by ` + `, the two being EXCLUSIVE alternatives and never mixed — and a
-house validator SHALL REFUSE any active declaration whose head it cannot read,
-naming the proposal's path and the text the declaration carries. A declaration
-whose repositories cannot be told from its explanation is a declaration no
-reader can act on, which is what the corpus shows.
+list of one or more REPOSITORY IDENTIFIERS separated by a comma, by `, and `, by
+` and `, or by ` + `, THOSE TWO HEAD FORMS being EXCLUSIVE alternatives and
+never mixed — and a house validator SHALL REFUSE any active declaration whose
+head it cannot read, naming the proposal's path and the text the declaration
+carries. A declaration whose repositories cannot be told from its explanation is
+a declaration no reader can act on, which is what the corpus shows.
+
+`, and ` IS ONE SEPARATOR AND SHALL BE READ AHEAD OF THE BARE COMMA, which is
+the whole of what distinguishes it from the other three. A list spelled out the
+way English spells one out — `openxFactory, openXwallet, and codexFactory` —
+SHALL be read as THREE identifiers, the comma and the conjunction after it
+consumed TOGETHER as one separator. THE ORDER BUYS THAT READING, AND WHAT IT
+BUYS IS A READING RATHER THAN A PREFERENCE BETWEEN TWO: `and` is itself a name
+the identifier grammar admits, so a bare comma taken at that position makes the
+CONJUNCTION a member of the list in its own right, and the identifier that
+actually follows it is then left with no separator and no gloss opener before
+it — a head running into prose, which is REFUSED. Trying the longer separator
+first is therefore what makes a spelled-out list READABLE AT ALL, and not what
+settles which of two readings it gets. THE FOUR SEPARATORS ARE ALTERNATIVES
+WITHIN ONE LIST AND ARE NOT EXCLUSIVE OF EACH OTHER — one head MAY separate its
+members by more than one of them, which is what a three-item list in ordinary
+prose does, and nothing in a mixed-separator head makes a reader guess.
 
 THE DECLARATION IS A HEAD FOLLOWED BY AN OPTIONAL PROSE GLOSS, and the gate
 SHALL judge the HEAD and never the gloss. That is the corpus's own form rather
@@ -1029,9 +1045,21 @@ every declaration that explains itself. The gloss SHALL be introduced by a GLOSS
 OPENER, and the opener set SHALL be the set the corpus already uses rather than
 one the gate prefers: an em dash, an en dash, an opening parenthesis, a full
 stop, a colon, or a semicolon. A head that runs into ordinary prose with no
-opener — a possessive, an apposition, or a sentence continued by `, and …` — is
-REFUSED, because there is then no point in the string at which the declaration
-stops and the explanation starts, and every reader must guess a different one.
+opener — a possessive, an apposition, or a sentence continued by `, and …` whose
+continuation the identifier grammar cannot read — is REFUSED, because there is
+then no point in the string at which the declaration stops and the explanation
+starts, and every reader must guess a different one.
+
+THE `, and …` CASE IS THE ONE THE SEPARATOR ABOVE NARROWS, AND THE NARROWING IS
+STATED HERE RATHER THAN LEFT TO BE FOUND. Where the words after `, and ` are
+themselves a REPOSITORY IDENTIFIER followed by a gloss opener or by the end of
+the declaration, they are ADMITTED as a further member of the list, that being
+exactly the spelled-out form the separator exists to read. Where they are not —
+an ordinary sentence, which is what an explanation is — the REFUSAL STANDS and
+names the point at which reading stopped. The two cases are told apart by the
+identifier grammar and by nothing else, no reader weighing whether a word looks
+like a repository; and the remedy is unchanged and is the author's, a gloss
+opener written before the explanation begins.
 
 A REPOSITORY IDENTIFIER IS EITHER A BARE REPOSITORY NAME OR AN `<owner>/<name>`
 ADDRESS, and BOTH SHALL BE ADMITTED because the corpus carries both. The gate
@@ -1086,6 +1114,38 @@ report it, and SHALL refuse nothing there. A gate that demanded an edit nobody
 may make would be a standing finding with no remedy, which is the defect this
 estate disposes of rather than creates.
 
+**AMENDED BY `amend-code-surface-grammar-comma-and` (2026-09-18).** MOST
+paragraphs and scenarios of this block are promoted canon's own bytes,
+UNCHANGED. THREE units are CORRECTED IN PLACE for what `scripts/code_surface.py`
+made untrue on the day the gate landed: the opening sentence's list of
+separators, the sentence that refused a head continued by `, and …` flatly,
+and the WHEN bullet of *An active proposal declares several repositories*.
+TWO explanatory paragraphs and ONE scenario — the two clarifications and the
+Oxford-comma scenario, both named below — are ADDED BY THIS AMENDMENT and are
+NOT canon's prior bytes. `_SEPARATOR_RE` has admitted a FOURTH
+alternative since the module was written — `, and `, tried FIRST, ahead of the
+bare comma — and the promoted text named three, so a declaration spelled out
+with an Oxford comma passed a gate canon said would refuse it. THIS BLOCK MOVES
+NO BEHAVIOUR: not one character of `scripts/code_surface.py` changes with it, no
+declaration that passes today is refused after it and none that is refused today
+passes, and the repository set derived from any head in the corpus is
+identical before and after. TWO CLARIFICATIONS RIDE THE CORRECTION AND BOTH
+DESCRIBE THE SAME READER: the exclusivity clause of the opening sentence is said
+of THE TWO HEAD FORMS rather than of the separators it now follows four of —
+which is the antecedent the originating packet's own design record names,
+"EITHER the single token none, OR a list … the two being EXCLUSIVE alternatives
+and never mixed" — and the separators are stated to be alternatives WITHIN one
+list, which is what the reader has always done and what the promoted text left a
+reader of a four-item list to guess at. NOTHING ELSE MOVES: the sentinel rule,
+the identifier shape, the gloss-opener set, the repeated-header refusal, the
+block-scalar refusal, the absence default and the archived-record rule are
+carried unchanged, and no scenario is removed or retitled. ONE SCENARIO IS
+ADDED, beside *An active proposal declares several repositories* rather than at
+the end of the block, because it is that scenario's own case at the grain the
+correction moves and a reader looking for the list grammar finds them together.
+
+**Removed from canon by amend-code-surface-grammar-comma-and (2026-09-18):** ``An ACTIVE change proposal's `code_surface:` declaration SHALL open with a DECLARED HEAD the ratified grammar admits — EITHER the single token `none`, OR a list of one or more REPOSITORY IDENTIFIERS separated by a comma, by ` and `, or by ` + `, the two being EXCLUSIVE alternatives and never mixed — and a house validator SHALL REFUSE any active declaration whose head it cannot read, naming the proposal's path and the text the declaration carries.``; ``A head that runs into ordinary prose with no opener — a possessive, an apposition, or a sentence continued by `, and …` — is REFUSED, because there is then no point in the string at which the declaration stops and the explanation starts, and every reader must guess a different one.``; `` **WHEN** an active change declares two or more repository identifiers separated by a comma, by ` and `, or by ` + ` `` — the module has read a fourth separator since the gate landed, so the first of these three units names three where the reader admits four, and the second states as a flat refusal a case the reader decides by whether the words after the conjunction are themselves a readable identifier. The third is the same three-separator list in the scenario that exercises it. Each is REPLACED in place rather than dropped: the sentences above state the four separators, the order that makes the longest one win, and the narrow case the fourth one admits. This reason carries no code span, so the marker names exactly the three units listed before the separator.
+
 #### Scenario: An active proposal's head runs into prose
 - **WHEN** an active change's `proposal.md` declares a `code_surface:` whose head is followed by ordinary prose with no gloss opener — a possessive, an apposition, or a sentence continued by `, and …` — and the register does not name it
 - **THEN** the validator MUST fail, naming the proposal's path and the declaration text it carries
@@ -1100,9 +1160,15 @@ estate disposes of rather than creates.
 - **THEN** the validator passes, and the declared repository set is that one identifier
 
 #### Scenario: An active proposal declares several repositories
-- **WHEN** an active change declares two or more repository identifiers separated by a comma, by ` and `, or by ` + `
+- **WHEN** an active change declares two or more repository identifiers separated by a comma, by `, and `, by ` and `, or by ` + `
 - **THEN** the validator passes and the declared repository set is every identifier in the head
 - **AND** an identifier spelled as an `<owner>/<name>` address is admitted on the same terms as a bare repository name, both spellings being ones the corpus carries
+
+#### Scenario: A declaration spells its list out with an Oxford comma
+- **WHEN** an active change's head separates the last two of three repository identifiers by `, and ` — `openxFactory, openXwallet, and codexFactory`
+- **THEN** the validator passes and the declared repository set is the THREE identifiers, the comma and the conjunction having been consumed as ONE separator
+- **AND** the conjunction MUST NOT be taken as a member of the list in its own right — which is what the bare comma alone would make of it, `and` being a name the identifier grammar admits, leaving `codexFactory` with no separator and no gloss opener before it and the whole declaration REFUSED as a head running into prose — the longer separator being tried before the bare comma at each position
+- **AND** a head that separates its members by more than one of the admitted separators is admitted on the same terms, the separators being alternatives within one list rather than exclusive of each other
 
 #### Scenario: A head mixes none with a repository identifier
 - **WHEN** an active change's head carries both the token `none` and a repository identifier, in either order — `none, openxFactory` or `openxFactory and none`
@@ -1257,3 +1323,133 @@ what makes that visible at all.
 - **WHEN** a proposal declaring an unreadable head lands on the main line after this packet's register was written and before the gate itself lands
 - **THEN** the register MUST be re-measured at the head the gate lands on, and the new carrier disposed of there
 - **AND** a register carried unchanged from the drafting tree MUST NOT be treated as evidence about the landing tree
+
+### Requirement: A containment guard answers every resolution failure and raises none
+A PATH-CONTAINMENT GUARD in this capability's own tooling SHALL ANSWER ITS CALLER
+FOR EVERY FAILURE OF THE PATH RESOLUTION IT PERFORMS, AND SHALL RAISE NONE: a
+resolution that fails SHALL produce the guard's own negative answer (the dropped
+candidate, the absent registry, the uncontained path) rather than an exception
+its caller cannot tell apart from a defect in the tool. A guard that answers some
+resolution failures and raises on others does not have the contract its callers
+were written against; it has that contract for the failures its author happened
+to enumerate.
+
+A PATH-CONTAINMENT GUARD IS ANY FUNCTION THIS CAPABILITY'S TOOLING USES TO DECIDE
+WHETHER A CANDIDATE PATH IS REALLY INSIDE THE SCANNED TREE, and the decision is
+taken by RESOLVING the candidate and the root and comparing them. The definition
+is by ROLE and not by name: it reaches a guard called `_unescaped`, one called
+`_contained`, one called `_registry_present`, and any later one, because what
+makes the obligation apply is that a caller is relying on an answer.
+
+THE SET OF FAILURES THE GUARD MUST ABSORB IS THE INTERPRETER'S, NOT THE SET ITS
+AUTHOR NAMED. A guard SHALL be written against what the resolution it calls can
+actually raise on the interpreter the gates run on, and that set SHALL be
+MEASURED rather than assumed from the operation's name. On the interpreter this
+repository's required test suite pins, `Path.resolve(strict=True)` signals a
+symlink loop as a `RuntimeError` and NOT as an `OSError`; `RuntimeError` is a
+subclass of neither `OSError` nor `ValueError`, so a clause naming only those is
+open at exactly that failure. The loop may stand at the candidate's LEAF or at
+ANY PARENT COMPONENT of it, including the scanned root itself, and the obligation
+reaches every position equally, because the caller's need for an answer does not
+depend on which component failed.
+
+A CATCH ALREADY WIDER THAN THIS OBLIGATION SHALL BE RETAINED AND NEVER NARROWED
+TO MATCH IT. Where a guard also absorbs a failure of a DIFFERENT operation it
+performs (the relative-path computation that decides containment raises a
+`ValueError` of its own when the candidate lies outside the root), that catch
+answers a different question and stands. This requirement widens a guard's
+failure set and never trims it.
+
+A CROSS-MODULE CLAIM OF IDENTITY BETWEEN TWO GUARDS IS PART OF THE OBLIGATION AND
+SHALL BE KEPT TRUE BY THE SAME ACT THAT WIDENS EITHER. Where one guard's own
+documentation names another as the shape it mirrors, or as the test it
+generalizes, the two SHALL be widened together in ONE act. Widening one alone
+leaves a documented claim of identity that is false, which misleads the next
+reader more than no claim would: the claim is what tells that reader they need
+only understand one of the two.
+
+A GUARD'S DOCUMENTATION SHALL NAME THE FAILURES IT ABSORBS. Prose that promises a
+candidate is DROPPED, or that a registry is ABSENT, without naming what makes
+that answer possible, is the prose that produced this defect: every reviewer read
+the promise and none read the clause. Naming the set costs one line and is what
+makes a narrowing visible in a diff.
+
+THE OBLIGATION IS ABOUT THE ANSWER AND NOT ABOUT ANY PARTICULAR SPELLING OF THE
+GUARD. An exception clause listing the measured set is the shape this estate's
+guards use today; a resolution that cannot raise at all would satisfy this
+requirement equally. What is forbidden is a guard whose caller can be handed an
+exception where the guard's own contract promised an answer.
+
+#### Scenario: A symlink loop stands at a candidate's leaf
+- **WHEN** a containment guard is asked about a candidate whose final component is a symlink that resolves back into its own chain
+- **THEN** the guard MUST return its negative answer, the candidate being dropped, absent or uncontained as that guard's contract states
+- **AND** it MUST NOT raise, whatever exception type the interpreter uses to signal the loop
+
+#### Scenario: A symlink loop stands in a parent component
+- **WHEN** the candidate's own final component is an ordinary name but a DIRECTORY above it, at any depth between it and the scanned root, is a symlink that resolves back into its own chain
+- **THEN** the guard MUST return its negative answer exactly as it does for the leaf case
+- **AND** the position of the failing component MUST NOT change the answer, ordinariness being a property of the one component it is asserted of
+
+#### Scenario: The scanned root is itself reached through a loop
+- **WHEN** the root the guard resolves the candidate against is itself behind a symlink loop, so resolving the root fails rather than resolving the candidate
+- **THEN** the guard MUST still answer, because a caller that cannot resolve its own root has a tree it cannot judge and not a defect to report
+
+#### Scenario: A guard absorbs a second failure of its own
+- **WHEN** a guard additionally computes a path relative to the root, and that computation raises for a candidate that lies outside it
+- **THEN** that catch MUST be retained beside the resolution failures, this obligation widening a guard's failure set and never trimming it
+
+#### Scenario: One guard is widened and the guard it names as its mirror is not
+- **WHEN** a guard whose documentation names a second guard as the exact shape it mirrors, or as the test it generalizes, is corrected alone
+- **THEN** that act MUST be refused as incomplete, because it leaves a documented claim of identity false
+- **AND** the correction MUST reach every guard the claim binds together, in one act
+
+#### Scenario: A guard promises a drop its clause does not deliver
+- **WHEN** a guard's documentation states that a failing path is dropped rather than reported, and its clause absorbs only part of the failure set the measured interpreter produces
+- **THEN** the documentation MUST be read as stating the obligation and the clause as failing it, the remedy being to widen the clause and to name the set in the prose
+
+### Requirement: A symlink-loop proof is built at test time and never committed
+A TEST PROVING A CONTAINMENT GUARD'S ANSWER FOR A SYMLINK LOOP SHALL BUILD THAT
+LOOP AT TEST TIME, under the test's own temporary directory, and this repository
+SHALL NOT carry a committed symlink loop anywhere in its tree. The fixture is
+evidence for ONE guard; a committed one is a hazard to every reader of the tree.
+
+A COMMITTED LOOP IS TRACKED AS ORDINARY GIT OBJECTS AND REACHES EVERY RECURSIVE
+READER THIS ESTATE RUNS, not only the guard under test: the corpus scans, the
+document-health families, the archive gate, the notebook projection and the
+packaging tools all walk this tree, and each would meet a path that cannot be
+resolved. A fixture that reds tools unrelated to the defect it proves is not
+evidence; it is a second defect, introduced to demonstrate the first.
+
+THE PROOF SHALL FAIL AGAINST THE UNFIXED GUARD AND PASS AGAINST THE FIXED ONE,
+and that pair SHALL be recorded rather than asserted. A test written after a fix,
+which passes on both sides of it, proves that the fixed code works and says
+nothing about whether the defect was real; this estate's standard for a
+correction is the pair of runs.
+
+WHERE A GUARD CANNOT BE REACHED BY ANY TREE STATE, ITS PROOF SHALL SAY SO AND
+SHALL PROVE THE CLAUSE INSTEAD. A guard fronted by a pre-check that absorbs the
+same failure earlier may be unreachable through a real tree while its own clause
+is still narrower than the measured failure set. Such a guard SHALL still be
+widened, both because a pre-check and a resolution are two separate reads of a
+tree that can change between them and because a reader of the module sees the
+clause and not the pre-check; and its proof SHALL be declared for what it is, a
+test of the clause and not of a reachable tree state, rather than dressed as a
+tree the estate cannot actually build.
+
+#### Scenario: A guard's answer for a symlink loop is proved
+- **WHEN** a test asserts that a containment guard returns its negative answer for a loop
+- **THEN** it MUST build the loop under its own temporary directory at test time
+- **AND** no symlink participating in that loop may be added to this repository's tracked tree
+
+#### Scenario: A loop is offered as a committed fixture
+- **WHEN** a change proposes to commit a symlink loop as a test fixture
+- **THEN** it MUST be refused, the loop reaching every recursive reader of the tree and not only the guard it was written for
+
+#### Scenario: A proof passes against the unfixed guard
+- **WHEN** a test written to prove a widened guard also passes against that guard before the widening
+- **THEN** it MUST NOT be accepted as the proof, and the failing run against the unfixed guard MUST be recorded beside the passing one
+
+#### Scenario: A guard is unreachable through any tree state
+- **WHEN** a guard's own pre-check absorbs the failure before the resolution it guards is reached, so no buildable tree drives it to its clause
+- **THEN** the guard MUST still be widened, the pre-check and the resolution being two reads of a tree that can change between them
+- **AND** its proof MUST be declared as a test of the clause rather than presented as a reachable tree state

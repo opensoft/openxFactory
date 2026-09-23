@@ -67,14 +67,21 @@ reads it through `opendox.display_profile.host_display()` for the
 `serve.build_server()`, so it answers no `_LateProfile.READERS` entry those two
 composition points consult — a third kind of reader, named in
 `opendox_host.FACETS`'s own comment. `_display_facet()` below is the
-projection: every word in it reads off the SAME registered profile through its
-own public accessors (`profile.status`, `profile.act`, `profile.artifact_kind`,
-`profile.lifecycle_for(...).by_role`) rather than being retyped, and its own
-docstring states which roles are deliberately left undeclared and why.
+projection, and no word in it is retyped. The statuses, areas, acts and
+artifacts read off the SAME registered profile through its own public accessors
+(`profile.status`, `profile.act`, `profile.artifact_kind`,
+`profile.lifecycle_for(...).by_role`). The stage words are copied from
+openXdox's own `DISPLAY` (`openxdox.view_extensions`) by `_openxdox_stages()`,
+because the xFactory host's overlay of openDox's `completion` stage is
+declared there (RULED `#656` comments `5784683830` and `5801057769`) and must
+have one source.
+`_display_facet()`'s own docstring states which roles are deliberately left
+undeclared and why.
 """
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 # ABSOLUTE, and from the leg each column actually lives at now — see the module
@@ -183,6 +190,96 @@ def _area_label(profile: Any, role: str) -> str:
     return matches[0].label
 
 
+def _openxdox_stages() -> dict[str, dict[str, Any]]:
+    """The `stages` section of openXdox's own `DISPLAY`, COPIED, never restated.
+
+    RULED by Brett Heap at `opensoft/openxFactory#656` comment `5784683830`
+    (2026-09-22, verbatim "1, keep completed and overlay implemented"), after
+    `5784654370` ("2, keep completed"): openDox's sixth neutral stage keeps the
+    role `completion` and the word `completed`, and the xFactory host overlays
+    its own word on it. The xFactory host is openXdox, and openXdox-code #26
+    (`195276b7`) declared that overlay as `openxdox.view_extensions.DISPLAY`, a
+    partial facet of one stage entry and two fields (`short`, `label`). RULED
+    `5801057769` (2026-09-23, verbatim "yes, overlay implemented items too")
+    extends it to the same stage's item nouns, and openXdox-code #27
+    (`626f2c8d`) adds `one` and `many` to that entry: one stage entry, four
+    fields. This function did not change for it, because it copies whatever
+    that entry holds.
+
+    WHY IT IS COPIED HERE AT ALL. openDox reads the REGISTERED profile, never
+    openXdox's module, and in this assembly the registered profile's `DISPLAY`
+    is this module's facet (`opendox_host.FACETS`). An overlay that stayed in
+    openXdox would never reach a served page. It is COPIED rather than typed so
+    the word has ONE source: a pin that moves openXdox's value moves the served
+    word with it, and `tests/test_engineering_profile_display_facet.py` fails
+    when the value is dropped instead of letting the page fall back to
+    openDox's neutral word unnoticed.
+
+    ONLY `stages` IS COMPOSED. openXdox's facet declares no other section, and
+    this facet already answers `statuses`, `areas`, `acts` and `artifacts` from
+    the registered profile. A section openXdox adds later is a composition
+    decision for this file, so the test suite asserts the section set and
+    surfaces the change at the pin bump that carries it. This function does not
+    merge it silently.
+
+    COPIED TWO LEVELS DEEP, because the facet is rebuilt on every access (see
+    `__getattr__`). Handing out openXdox's own module-level mappings would let
+    a reader that mutates the facet it was given rewrite openXdox's declaration
+    for the rest of the process.
+
+    THREE CASES, AND TWO OF THEM REFUSE AT RUN TIME.
+
+    * `DISPLAY` ABSENT from `openxdox.view_extensions`, which is what a pin
+      naming a code leg older than #26 looks like, REFUSES with
+      `RuntimeError` and never `AttributeError`, and the exception type is
+      load-bearing. `opendox.display_profile.host_display()` reads this facet
+      through a 3-argument `getattr(profile, "DISPLAY", None)`, and the lazy
+      proxy re-raises an `AttributeError` as `ProfileFacetMissing`, itself an
+      `AttributeError`, which that `getattr` absorbs as "no facet declared".
+      An `AttributeError` here would therefore serve the WHOLE facet as
+      absent (statuses, areas, acts and artifacts with it), a far larger loss
+      than the stage words, with nothing reporting why. A `RuntimeError`
+      passes through both and fails `serve.build_server()` closed.
+    * `DISPLAY` MALFORMED, meaning not a mapping whose `stages` maps each stage
+      role to a mapping of fields, REFUSES the same way. That is
+      `display_profile`'s own stance on a declaration it cannot read.
+    * `DISPLAY` WELL-FORMED BUT OVERLAYING LESS (no `stages`, no `completion`
+      entry, only one of `short` and `label`, or #26's names without #27's
+      item nouns) IS FOLLOWED, not refused. It
+      is openXdox's own declaration, and openDox's schema holds a partial or
+      empty facet legal ("PARTIAL IS LEGAL, AND IT IS THE POINT"). Refusing it
+      here would make this composer a second authority on what openXdox may
+      declare, and would write the ruling's shape into production code. The
+      RULED word is held at the GATE instead:
+      `tests/test_engineering_profile_display_facet.py` asserts what the
+      served page shows, so a pin bump that carries such a leg fails the
+      required `pytest-suite` and cannot land. openXdox-code #26 draws the
+      same line on its own side. In its `tests/test_gate_loop_views.py`,
+      `test_dropping_the_facet_fails_the_overlay` serves a dropped facet as
+      `absent` with openDox's own word, "which is exactly what the two
+      predicates the positive tests use must refuse".
+    """
+    from openxdox import view_extensions
+
+    declared = getattr(view_extensions, "DISPLAY", None)
+    if declared is None:
+        raise RuntimeError(
+            "openxdox.view_extensions declares no DISPLAY at the pinned openXdox "
+            "code leg, so openxFactory's DISPLAY facet has no stage words to "
+            "compose. openXdox-code #26 (195276b7) introduced it under RULED "
+            "opensoft/openxFactory#656 comment 5784683830. A pin naming a code "
+            "leg without it is the defect: see contracts/openxdox-pin.yaml and "
+            "openXdox/contracts/code-pin.yaml.")
+    stages = declared.get("stages", {}) if isinstance(declared, Mapping) else None
+    if not isinstance(stages, Mapping) or not all(
+            isinstance(entry, Mapping) for entry in stages.values()):
+        raise RuntimeError(
+            f"openxdox.view_extensions.DISPLAY is {declared!r}; openxFactory "
+            "composes its `stages` section, which must be a mapping of stage "
+            "role to a mapping of fields (opendox.display_profile's own shape).")
+    return {role: dict(entry) for role, entry in stages.items()}
+
+
 def _display_facet(profile: Any) -> dict[str, Any]:
     """openxFactory's real `DISPLAY` facet — every word derived, none retyped.
 
@@ -201,12 +298,15 @@ def _display_facet(profile: Any) -> dict[str, Any]:
     Until that bump it could not — the pin named a leg (`a99eba03`, BUILD slice
     1b, and later `05bbde80`) in which the module did not exist — so this
     docstring used to read "NOT YET PINNED" and the test checked a vendored
-    copy of the schema instead. Every value below reads off THIS SAME `profile`
-    through its own public accessors (`profile.status(role, kind=kind)`,
-    `profile.act(id).id`, `profile.artifact_kind(id).label`,
+    copy of the schema instead. Every value below EXCEPT THE STAGE WORDS reads
+    off THIS SAME `profile` through its own public accessors
+    (`profile.status(role, kind=kind)`, `profile.act(id).id`,
+    `profile.artifact_kind(id).label`,
     `profile.lifecycle_for(kind).by_role(role)`), so a renamed status or act id
     fails this derivation instead of silently drifting from what this facet
-    declares.
+    declares. The stage words are derived too, from a different declaration:
+    `_openxdox_stages()` copies them from openXdox's own `DISPLAY`, where the
+    xFactory host's overlay lives, so they also have one source.
 
     NO TWO ROLES SHARE ONE WORD WITHIN A SINGLE VOCABULARY — checked by
     `tests/test_engineering_profile_display_facet.py`, not by this function,
@@ -246,19 +346,35 @@ def _display_facet(profile: Any) -> dict[str, Any]:
       preference: the exact regression `display_profile.py`'s own module
       docstring warns a NEUTRAL FALLBACK could cause, self-inflicted instead
       by a host override that has nothing real to say.
-    * `stages`, `values`, `sections` — no established single-word vocabulary
-      yet exists for the six pipeline stations distinct from the artifact-kind
-      labels already used elsewhere (an open naming question, left to a future
-      slice rather than invented here); the snapshot's own enum spellings and
-      the staging template's heading order were spot-checked against this
-      profile's real words (`register-possible`'s four states; the headings in
+    * `values`, `sections` — the snapshot's own enum spellings and the staging
+      template's heading order were spot-checked against this profile's real
+      words (`register-possible`'s four states; the headings in
       `ideation/staging/*/*.md`) and already agree with openDox's neutral
       defaults, so there is nothing to override.
+
+    `stages` WAS ON THAT LIST AND HAS LEFT IT, BY RULING RATHER THAN BY CHOICE
+    HERE. The bullet it shared with `values` and `sections` gave the reason
+    "no established single-word vocabulary yet exists for the six pipeline
+    stations ... (an open naming question, left to a future slice rather than
+    invented here)". Brett Heap answered that question for ONE station: RULED
+    `#656` comment `5784654370` ("2, keep completed") keeps openDox's neutral
+    `completed`, and `5784683830` ("1, keep completed and overlay implemented")
+    has the xFactory host overlay its own word on it. `5801057769` ("yes,
+    overlay implemented items too") extends that overlay to the same station's
+    item nouns. The overlay is declared in openXdox, not here, so this facet
+    COPIES that one stage entry (`_openxdox_stages()`) and declares no stage
+    word of its own. The other five stations stay openDox's neutral words,
+    because both rulings overlay one entry and openDox "fills everything else
+    from `NEUTRAL_DISPLAY`".
     """
     def statuses_for(kind: str, roles: tuple[str, ...]) -> dict[str, str]:
         return {role: profile.status(role, kind=kind) for role in roles}
 
     return {
+        # Copied from openXdox's own `DISPLAY`, never typed here; see
+        # `_openxdox_stages()` and the "`stages` WAS ON THAT LIST" paragraph
+        # above.
+        "stages": _openxdox_stages(),
         "statuses": {
             "document": statuses_for("governance-document", _DOCUMENT_STATUS_ROLES),
             "change": statuses_for("openspec-change", _CHANGE_STATUS_ROLES),
@@ -326,7 +442,10 @@ def __getattr__(name: str):
     fresh projection every access costs one registry read and a handful of
     dict builds, matches this function's existing stance on
     `SUBCOMMAND_EXTENSIONS`, and can never answer with a profile a host has
-    since swapped.
+    since swapped. It also reads `openxdox.view_extensions.DISPLAY` for the
+    stage words (`_openxdox_stages()`). That module imports only the standard
+    library and `openxdox.web_assets`, which imports only the standard library
+    too, so the read adds no dependency to a hosted server's import chain.
     """
     if name == "DISPLAY":
         from openxdox import domain_profile as engine

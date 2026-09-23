@@ -743,6 +743,52 @@ Active changes:
   evidence, and a second disposition class is live today, so retiring one class
   would not retire the requirement.
 
+- [assert-review-lane-lockstep-against-aggregation](openspec/changes/assert-review-lane-lockstep-against-aggregation/proposal.md)
+  — filed 2026-09-22, lane `openxfactory-4`, **`Status: draft`**, on Copilot
+  finding `r4067694104` (review `5273295522`) against `#1136`, the lockstep flip
+  at the fourth re-point ceremony (merge `7c49825e`). The lane VERIFIED that
+  finding and DECLINED the remedy as outside that pull request's mandate
+  (`r4067703286`), and the flip's own appended `reason:` paragraph recorded the
+  remedy's shape as option **(b)** — *"make the CROSS-REPOSITORY fact assertable
+  at all … (b) is the better fix, because (a) still leaves this file's truth
+  depending on a lane remembering to write it"*. **ONE `## ADDED` requirement,
+  EIGHT scenarios — an absent or foreign declaration, a stale `converged`, a
+  stale `diverged`, surfaces disagreeing with each other, the check's own access
+  failing, an unreadable aggregation, a candidate unread or its head moved, and
+  the pure-function reproduction — no `## MODIFIED` block.**
+  `contracts/review-lane-pin.yaml`
+  DECLARES at `lockstep.status` whether this repository's pinned decision core
+  and the aggregation's `MIGRATION_PIN` name one commit, and nothing measures the
+  claim: `WRITABLE_PATHS` is four files, the lane rewrites only regex-anchored
+  sites within the pin, the string `lockstep` occurs ZERO times in
+  `scripts/review_lane_repin.py`, and `opensoft/xFactory`, `MIGRATION_PIN` and
+  `council-convening` together return ZERO hits across the driver and its
+  workflow — while the guarding test asserts the field against a LITERAL in the
+  test file, comparing this repository's value to its own constant. It last went
+  false on 2026-09-18 for **34 minutes 6 seconds** (`#1122` → `38f826c2`,
+  repaired at `#1123` → `8184d74a`), bounded by a human happening to watch; and
+  `#1138` is OPEN with auto-merge armed proposing `core_commit`
+  `b21f0100` → `491fc54d` in a diff whose lockstep line count is ZERO. The
+  requirement makes the state MEASURED rather than declared, at every proposed
+  advance, symmetric in both directions, with the aggregation's surfaces read as a
+  SET that must agree before either state is concluded (disagreement reported
+  INCONSISTENT) and an unreadable aggregation reported UNDETERMINED and never as
+  a pass. **Each outcome carries a CONCLUSION and three fail**, all this
+  repository's own defects: a declaration outside its vocabulary, the check's
+  own access failing, and a declaration the measurement CONTRADICTS, which is
+  that file stating something false; INCONSISTENT and UNDETERMINED each conclude
+  NEUTRAL and visible, because neither is this repository's claim to answer and
+  turning an outage, another repository's or the host's, into a red build here is
+  how a governance check stops being run. **Shape (b) and not (a), by measurement**:
+  the lane has no reading of the aggregation, so it could only write `diverged`
+  by inference — an inference the fourth ceremony already falsified, since the
+  aggregation converged ONTO a commit this file had held for three days — and the
+  capability itself already holds that *"an UNATTENDED author must prove the
+  lockstep by measurement rather than assert it"*. The disposition mechanism is
+  untouched, the pin file is not hand-patched, `WRITABLE_PATHS` gains no member
+  and no act in `opensoft/xFactory` is proposed. `code_surface: openxFactory`, so
+  it archives on merged **plus** green realization evidence. **NOT RATIFIED BY
+  THE AUTHORING LANE.**
 - [add-worker-input-budget](openspec/changes/add-worker-input-budget/proposal.md)
   — filed 2026-09-22, lane `openxfactory-1`, `Status: draft`, on Brett Heap's
   word *"brief a writer to add the input-size guard"* (2026-09-22). **The
@@ -834,9 +880,10 @@ Active changes:
   SCENARIOS (11 + 8 + 9), OVER `release-realization`**: the MODIFIED block is
   WRITTEN OVER `amend-code-surface-grammar-comma-and`'S OUTCOME AND NOT OVER
   CANON — that packet (openxFactory #1092, PR #1108, ratified 2026-09-18,
-  landed `60d281a8`) is an ACTIVE RATIFIED writer of the SAME requirement key,
-  so on the ruling *"#1101 declares #1108 and folds its text"* this packet
-  declares `sequenced_after: [amend-code-surface-grammar-comma-and]` and
+  landed `60d281a8`) is now an ARCHIVED writer of the SAME requirement key,
+  promoted by PR #1112, so on the ruling *"#1101 declares #1108 and folds
+  its text"* this packet declares
+  `sequenced_after: [amend-code-surface-grammar-comma-and]` and
   reproduces #1108's ratified wording byte-for-byte (the four separators
   including `, and `, the comma-first paragraph, its `**AMENDED BY**` note and
   its added Oxford-comma scenario), with only this packet's own
@@ -848,15 +895,31 @@ Active changes:
   block is OWED rather than preferred: the promoted `SHALL NOT judge its
   MEMBERSHIP` is unconditional in its own words, so an ADDED-only delta would
   leave canon carrying two requirements that cannot both be obeyed. **THE
-  BLOCK IS ORDERED, NOT SOLE**: `amend-code-surface-grammar-comma-and` is an
-  ACTIVE writer of the same requirement key, so `sequenced_after: []` is no
-  longer a root claim — the corpus ledger carries this packet as class
-  `co-modifier`, depth 1, declaring `amend-code-surface-grammar-comma-and`,
-  and promotion order is #1108 then #1101, **with #1108 itself untouched**.
-  The `modified-block-currency` family still reports no NEW finding, but
-  because the declared ordering resolves the pair: this block is measured
-  against #1108's block rather than against canon, and the family's
-  resolution-ordering arm returns to the empty set it already states.
+  BLOCK IS ORDERED, NOT SOLE**: `amend-code-surface-grammar-comma-and` is now
+  an ARCHIVED writer of the same requirement key, promoted by PR #1112 — its
+  own `sequenced_after: []` STILL STANDS AS A POSITIVE ROOT CLAIM, the ledger
+  retaining `declares: []`, `depth: 0` for it UNCHANGED by the archive, the
+  substrate defining an explicit empty declaration that way regardless of who
+  else later writes the same key. WHAT THE CO-MODIFIER STATUS CHANGES IS NOT
+  THE CLAIM BUT WHETHER A CONSUMER MAY ACCEPT IT UNCROSSED: this packet's own
+  declaration — class `co-modifier`, depth 1, declaring
+  `amend-code-surface-grammar-comma-and` — is the cross-check that
+  CONTRADICTS reading that root claim as free-standing, and no consumer may
+  accept it without performing that cross-check. THE ORDERING WAS SATISFIED:
+  promotion order was #1108 then #1101, **with #1108 itself untouched**.
+  **AFTER THE ARCHIVE, THE MEASUREMENT BASIS MOVES FROM THE ORDERING ARM TO
+  THE CARRIAGE ARM.** With `amend-code-surface-grammar-comma-and` archived,
+  the ordering arm no longer finds two ACTIVE writers to pair — its
+  resolution-ordering arm still returns the empty set it already states —
+  so this block is now measured by the CARRIAGE arm directly against CANON
+  instead of against #1108's block, and THE FAMILY REPORTS ONE EXPECTED
+  FINDING RATHER THAN NONE: one of the block's 66 body units and scenario
+  bullets, the `**AMENDED BY**` paragraph whose wording this pull request's
+  own round-3 Copilot fix (`35afdc3f`) changed in canon after this block was
+  written, reads uncarried. Named as a carriage-ledger subject by this pull
+  request (`tests/doc-health/test_modified_block_currency_self_gate.py`
+  `_LEDGER_SUBJECTS`), retiring when this packet itself archives and its
+  block is promoted.
   **THE MEASURED GAP.** `scripts/code_surface.py` judges a repository
   identifier's SHAPE and never its MEMBERSHIP, so `openxFactorie` passes and so
   does a repository that is no part of this estate. The class is standing, not
@@ -891,109 +954,6 @@ Active changes:
   realization (`tasks.md` § 3) is a LATER pull request, which the word now
   authorizes to be authored; the archive is a separate act on a separate word
   and on merged-plus-green evidence, where #1087 closes.
-
-- [amend-code-surface-grammar-comma-and](openspec/changes/amend-code-surface-grammar-comma-and/proposal.md)
-  — filed 2026-09-18, lane `openxfactory-5` (display `openXfactory-5`),
-  **`Status: ratified` FROM ITS FIRST COMMIT** — **RULED 2026-09-18 at ~09:55Z
-  by Brett Heap** (openxFactory operator authority), verbatim ***"Amend the text
-  to admit ', and '"***, a TERMINAL MULTIPLE-CHOICE answer over the two shapes
-  openxFactory [#1092](https://github.com/opensoft/openxFactory/issues/1092)
-  put, recorded as a `RULED` line at 2026-09-18T10:15:10Z in the LANE REGISTER,
-  which is a SEPARATE REPOSITORY and not a path in this one —
-  [`opensoft/brett-wip@055bea8b:lanes/log/openXfactory-5.md`](https://github.com/opensoft/brett-wip/blob/055bea8b215ad8b46d83cbf1e366c93c23b08897/lanes/log/openXfactory-5.md#L107), line 107 — record
-  [`review/ratification-2026-09-18.md`](openspec/changes/amend-code-surface-grammar-comma-and/review/ratification-2026-09-18.md).
-  **THE WORD REACHED THE CONTENT BEFORE THE PACKET EXISTED**, so there is no
-  drafting phase and no later approval to add: `.openspec.yaml` carries
-  `proposed_by` and `approved_by` written in one act. **PROMOTED CANON NAMES
-  THREE LIST SEPARATORS AND THE READER IT GOVERNS ADMITS FOUR.**
-  `openspec/specs/release-realization/spec.md:1017-1018`, inside *Code-surface
-  declaration grammar is gated*, admits a head separated "by a comma, by
-  ` and `, or by ` + `" and the scenario at `:1103` repeats the three, while
-  `scripts/code_surface.py:152-157` carries `, and ` as a FOURTH alternative
-  tried FIRST — so an Oxford-comma list (`openxFactory, openXwallet, and
-  codexFactory`) parses as THREE identifiers at a gate whose ratified text,
-  naming only the bare comma there, would have its conjunction read as a member
-  in its own right and the declaration REFUSED at the member after it. The bench
-  already agrees with the module and not with canon:
-  `test_every_ratified_list_separator_is_admitted`
-  (`tests/code_surface/test_code_surface_gate.py:157-160`) parametrizes five
-  spellings, `", and "` among them. **ONE `## MODIFIED` REQUIREMENT: THREE UNITS
-  REPLACED IN PLACE UNDER ONE `Removed from canon` MARKER, TWO BODY PARAGRAPHS
-  AND ONE SCENARIO ADDED** (*A declaration spells its list out with an Oxford
-  comma*), every other unit carried byte-faithfully BY CONSTRUCTION — the block
-  was sliced out of canon and each replacement applied as an exact
-  single-occurrence substitution. **THE READER STAYS AS REALIZED**: option (b)
-  of #1092, narrowing `_SEPARATOR_RE` to the ratified three, was declined by the
-  ruling, and no commit of this packet edits `scripts/code_surface.py` —
-  `code_surface: none`, `target_release: implemented`, `sequenced_after: []` as
-  the positive root claim (no active change writes this requirement key). **TWO
-  DECLARED VETO POINTS**, both measured against the module and both separable:
-  `design.md` **D2**, the exclusivity clause's antecedent said of THOSE TWO HEAD
-  FORMS rather than of a list that now has four items (veto cost: four words),
-  and **D3**, the statement that the separators are alternatives WITHIN one list
-  a head may mix (veto cost: one sentence and one bullet). **NOTHING IS PROMOTED
-  AT THIS LANDING** — `tasks.md` § 4 stays open, the archive is a separate act
-  on a separate word, and #1092 closes there. Residue named and not taken:
-  `scripts/code_surface.py`'s own `parse_head` docstring restates the same three
-  separators at `:447-448` (§ 5.1, ticking at the archive by naming a
-  successor).
-- [harden-path-escape-helpers-against-symlink-loops](openspec/changes/harden-path-escape-helpers-against-symlink-loops/proposal.md)
-  filed 2026-09-17, lane `openxfactory-5` (display `openXfactory-5`),
-  **`Status: ratified`** (2026-09-18, approximately 09:55Z, Brett Heap,
-  openxFactory repository owner, given in the lane's terminal as a
-  multiple-choice answer, verbatim ***"Ratify; land when green"***) — record
-  [`review/ratification-2026-09-18.md`](openspec/changes/harden-path-escape-helpers-against-symlink-loops/review/ratification-2026-09-18.md).
-  **THE WORD NAMES NO ALTERNATIVE LETTER, SO OQ-1 = (a), THE RECOMMENDED
-  OPTION, AND THE DELTA MOVED NOT ONE BYTE** (`.openspec.yaml` now carries
-  `approved_by`/`approved_on` ADDED BESIDE the unmoved drafting pair). Answers
-  openxFactory
-  [#1074](https://github.com/opensoft/openxFactory/issues/1074), the finding this
-  lane filed on 2026-09-16 at the landing of PR #1029 and CLAIMED before
-  authoring.
-  **TWO `## ADDED` REQUIREMENTS, TEN SCENARIOS, OVER `release-realization`**:
-  *A containment guard answers every resolution failure and raises none* (six
-  scenarios) and *A symlink-loop proof is built at test time and never committed*
-  (four). NO `## MODIFIED` BLOCK, so no promoted byte is edited, no marker is
-  owed and no modified-block-currency row is opened; both titles were checked
-  against `openspec/specs/`, every active delta and the archive and appear
-  nowhere else, so `sequenced_after: []` is a corroborated root claim.
-  **THE MEASURED GAP.** `pathlib.Path.resolve(strict=True)` signals a symlink
-  loop as a `RuntimeError`, which is a subclass of neither `OSError` nor
-  `ValueError`, on the interpreter the required check pins
-  (`.github/workflows/pytest-suite.yml:556`, `python-version: "3.12"`; measuring
-  shell `Python 3.12.3`), at the candidate's leaf and at any parent component
-  alike. Four path-containment guards in three modules absorb only `OSError`
-  (one absorbs `OSError` and `ValueError`), and THREE OF THE FOUR END IN A
-  TRACEBACK where their own docstrings promise a DROP: `scripts/code_surface.py:777`
-  (`_unescaped`), `scripts/target_release.py:630` (`_unescaped`) and
-  `scripts/proposal-support.py:347` (`_contained`). The FOURTH,
-  `scripts/target_release.py:394` (`_registry_present`), carries the same narrow
-  clause but is fronted by an `is_dir()` pre-check that no measured tree state
-  gets past, which is the correction recorded below.
-  Driven end to end on a minimal tree carrying a committed-shape loop,
-  `scripts/validate-code-surface.py` and `scripts/validate-target-release.py`
-  both end in a traceback, and so do `former_identity_claimants` and
-  `declared_former_ids_in_tree`, the two public readers the archive gate's
-  former-identity arm is built on.
-  **ONE DELIBERATE ACT ACROSS ALL THREE MODULES, WHICH IS WHY IT IS A PACKET.**
-  `code_surface._unescaped`'s docstring names `target_release._unescaped` as "the
-  exact shape this mirrors" and that module's `_unescaped` names
-  `_registry_present`'s test as the one it generalizes, so correcting one module
-  alone would falsify a written claim of identity; and two of the three modules
-  are the realized surface of an archived packet and of the governed OpenSpec
-  wrapper. This is the disposition PR #1029 recorded rather than taking the
-  rider (comment 5703004913).
-  **#1074'S OWN TEXT IS CORRECTED BY THIS PACKET'S MEASUREMENT**: the issue says
-  `_registry_present` is exposed when the repository root sits behind a loop, and
-  it is not, `is_dir()` answering `False` rather than raising so the function
-  returns at `target_release.py:390`. No tree state reaches that guard's clause;
-  `design.md` D3 gives the three reasons it is widened anyway.
-  **NOTHING MOVES IN THIS PULL REQUEST**: no byte of any script, no test, no
-  workflow, no contract member, no file under `openspec/specs/`, and no symlink
-  is added to the tracked tree. `code_surface:` is non-empty, so the packet
-  archives on merged-plus-green realization evidence and not on landing, and
-  #1074 closes THERE.
-
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
   `openXfactory-4-openDox_extraction`), `Status: draft`. **Takes the FIRST HALF of
@@ -3342,6 +3302,128 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [amend-code-surface-grammar-comma-and](openspec/changes/archive/2026-09-18-amend-code-surface-grammar-comma-and/proposal.md)
+  — **ARCHIVED 2026-09-18** by
+  [PR #1112](https://github.com/opensoft/openxFactory/pull/1112), lane
+  `openxfactory-5` (display `openXfactory-5`). **`code_surface: none`**, so
+  under `release-realization` this packet archives ON LANDING PLUS ITS OWN TASK
+  LIST and not on merged-plus-green realization evidence: the ratification
+  landed as PR [#1108](https://github.com/opensoft/openxFactory/pull/1108) →
+  `60d281a86031ce875e24ef23d0df39a3ef60f4a2` on 2026-09-18, and no realization
+  evidence is owed because there is nothing to realize — the delta is
+  requirement prose and the behaviour it states has been
+  `scripts/code_surface.py`'s real behaviour since the module was written.
+  **THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD**, and at the moment this
+  entry was written that word had NOT been given: the pull request was prepared
+  as a DRAFT and HELD for Brett Heap's archive word, to be landed by MERGE
+  COMMIT (never a squash, which would re-date the archive directory's adding
+  commit and red `archive-date-vs-commit`). The RATIFICATION word is a different
+  one and is quoted in the packet: 2026-09-18 at ~09:55Z, Brett Heap
+  (openxFactory operator authority), verbatim ***"Amend the text to admit
+  ', and '"***, a TERMINAL MULTIPLE-CHOICE answer over the two shapes
+  openxFactory [#1092](https://github.com/opensoft/openxFactory/issues/1092)
+  put, record
+  [`review/ratification-2026-09-18.md`](openspec/changes/archive/2026-09-18-amend-code-surface-grammar-comma-and/review/ratification-2026-09-18.md).
+  **THE PROMOTION, MEASURED RATHER THAN EYEBALLED:** the one `## MODIFIED` block
+  is BYTE-IDENTICAL to canon after the archive — `release-realization`
+  *Code-surface declaration grammar is gated*, **15,441 bytes, 181 lines,
+  sha256 `5729577a1d65d17e9d3f…`** on both sides, canon `--numstat` **+73 −10**
+  with `-w` reading the same, and FIVE of the six packet files pure renames at
+  `R100`, 0 changed lines each — `tasks.md` is the exception, not a pure
+  rename (`R059`, `--numstat` **+149 −4**), its own recording moving as later
+  commits ticked task markers and added this archive's measurements, § 4.2's
+  correction and the Copilot round-1 disposition among them.
+  **ORIGIN RETAINED** — the wrapper's own line, *"declaration unchanged since
+  the ratifying commit `60d281a86031`"*, that being the only commit ever to
+  touch this packet's `.openspec.yaml`. **WHAT IS NOW CANON:** the declared head
+  is a list separated by a comma, by `, and `, by ` and ` or by ` + ` — FOUR
+  separators where the promoted text named three — the `, and ` read AHEAD of
+  the bare comma so a spelled-out list is consumed as one separator instead of
+  having its conjunction taken as a member in its own right; the exclusivity
+  clause is said of THOSE TWO HEAD FORMS (`none`, or a list) rather than of the
+  separators; the separators are alternatives WITHIN one list and a head may mix
+  them; the flat refusal of a head continued by `, and …` is narrowed to the
+  case where what follows is not itself a readable identifier; and one scenario
+  is added, *A declaration spells its list out with an Oxford comma*. **NO
+  BEHAVIOUR MOVES**: not one character of `scripts/code_surface.py` changes,
+  every PER-DECLARATION VERDICT and every DERIVED REPOSITORY SET is identical
+  before and after, and `CLOSED_REGISTER` does not move. The validator's CORPUS
+  TOTALS do move, and they move because the packet changed corpus rather than
+  because any declaration was judged differently: active `48 → 47` (`none`
+  heads `7 → 6`), archive read `173 → 174` (declaring `127 → 128`) — one packet
+  in each column, which is this archive and nothing else. **RESIDUE, NAMED AND STILL OWED:** `tasks.md`
+  § 5.1 carries the house's reserved DEFERRED marker `- [~]` — `parse_head`'s
+  docstring (`scripts/code_surface.py:447-449`) and the comment over
+  `_SEPARATOR_RE` (`:148-151`) restate the same three separators, correcting
+  either would give the packet a code surface, no successor issue exists and
+  this archive files none.
+
+- [harden-path-escape-helpers-against-symlink-loops](openspec/changes/archive/2026-09-18-harden-path-escape-helpers-against-symlink-loops/proposal.md)
+  — **ARCHIVED 2026-09-18** by
+  [PR #1116](https://github.com/opensoft/openxFactory/pull/1116),
+  filed 2026-09-17 by lane `openxfactory-5` (display `openXfactory-5`) in answer
+  to openxFactory
+  [#1074](https://github.com/opensoft/openxFactory/issues/1074),
+  **RATIFIED 2026-09-18 at approximately 09:55Z by Brett Heap** (openxFactory
+  repository owner), verbatim ***"Ratify; land when green"*** — given in the
+  lane's terminal as a multiple-choice answer, so NO GITHUB COMMENT CARRIES THE
+  WORD and the record
+  [`review/ratification-2026-09-18.md`](openspec/changes/archive/2026-09-18-harden-path-escape-helpers-against-symlink-loops/review/ratification-2026-09-18.md)
+  is how it survives; ratifying commit `ebcdbc0c20eb`.
+  **`code_surface: openxFactory` IS NON-EMPTY, so under `release-realization`
+  this packet archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE and on a
+  SEPARATE ARCHIVE WORD — never on landing and never on ratification.** Both
+  evidence halves, cited rather than asserted: the packet landed as PR
+  [#1083](https://github.com/opensoft/openxFactory/pull/1083) →
+  `ebcdbc0c20eb7368582d4bb8103001ab48316542` (2026-09-18T14:03:33Z); § 3's
+  REALIZATION landed as PR
+  [#1107](https://github.com/opensoft/openxFactory/pull/1107) →
+  `c22c4fc355898d4e57eb1159f47d756b30875b66` (17:06:27Z, from head `bc9ebf95`,
+  15 SUCCESS / 1 SKIPPED, `pytest-suite` run `35362604810` green); and
+  `pytest-suite` decided **SUCCESS on `main`** at
+  `049d54a9e4d51fe2e1c0a8c97c1e22c5d2f3e694`, run
+  [`35372664200`](https://github.com/opensoft/openxFactory/actions/runs/35372664200)
+  (17:09:27Z), a tree that **CONTAINS** the realization merge —
+  `compare/c22c4fc3...049d54a9` → `ahead`, each leg of
+  `ebcdbc0c` → `c22c4fc3` → `049d54a9` checked with
+  `git merge-base --is-ancestor`.
+  **THE ARCHIVE WAS PERFORMED THROUGH THE GOVERNED WRAPPER AND NEVER A BARE
+  `openspec archive`** (`tasks.md` § 5.2 forbids the bare invocation):
+  `TZ=UTC python3 scripts/proposal-support.py . archive harden-path-escape-helpers-against-symlink-loops --yes`,
+  exit 0 — *"ORIGIN RETAINED … (declaration unchanged since the ratifying commit
+  ebcdbc0c20eb)"*, *"Applying changes to
+  openspec/specs/release-realization/spec.md: + 2 added"*, *"Totals: + 2, ~ 0,
+  - 0, → 0"*, *"archived as
+  '2026-09-18-harden-path-escape-helpers-against-symlink-loops'"*, over the
+  content-addressed `@fission-ai/openspec@1.12.0` pin and not the 1.13.1 on
+  `PATH`.
+  **THE PROMOTION, MEASURED BYTE FOR BYTE ON BOTH SIDES AND NOT EYEBALLED.**
+  TWO `## ADDED` requirements, TEN scenarios, onto
+  `openspec/specs/release-realization/spec.md` (`--numstat` **+130 −0**, and
+  `−w` reads the same `130 0`, so no changed line is whitespace-only;
+  capability requirement count **17 → 19**): *A containment guard answers every
+  resolution failure and raises none* (six scenarios, **6,049 bytes / 82
+  lines**, sha256 `e12a9d9d54f64ac0c97d9c808f03df64583943f2d75760f0d3cb723ff33ffc7a`
+  on archived delta AND canon) and *A symlink-loop proof is built at test time
+  and never committed* (four scenarios, **3,198 bytes / 46 lines**, sha256
+  `f98402134c0b7eb855d30c57792f8219ea4f17a5e1ade176df0381194b19d625` on both);
+  each block extracted programmatically by heading from either side and
+  `diff`ed to zero lines. **NO `## MODIFIED` BLOCK**, so no promoted byte is
+  edited or removed, no `Removed from canon by` / `Modified over` /
+  `Merged into` marker is owed, no modified-block-currency row is opened, and
+  `sequenced_after: []` stands as the corroborated root claim it was filed as.
+  **THE SIX PACKET FILES MOVE AS `R100` PURE RENAMES AT ZERO CHANGED LINES**
+  — `.openspec.yaml`, `design.md`, `proposal.md`,
+  `specs/release-realization/spec.md`, `review/ratification-2026-09-18.md` and
+  the new `review/verification-2026-09-18-post-merge.md` — except `tasks.md`,
+  whose only change is § 4.4's and § 5's ticks, written in the commit BEFORE
+  the move because `archive_change()` refuses any literal `- [ ]` line and has
+  no bypass flag. § 6's three `- [~]` boxes stay `- [~]`: they document
+  successors and refused-not-owed work, not incomplete work.
+  **#1074 CLOSES AT THIS ARCHIVE'S LANDING AND AT NO EARLIER ACT** — `tasks.md`
+  § 5.3 requires the closing keyword in the ARCHIVE pull request's body and in
+  no commit message on this branch or the realization branch, and a
+  case-insensitive grep over both branches' commit messages returns 0 matches.
 - [split-opendox-two-layer-product](openspec/changes/archive/2026-09-22-split-opendox-two-layer-product/proposal.md)
   — **ARCHIVED 2026-09-22** by
   [PR #1139](https://github.com/opensoft/openxFactory/pull/1139), lane

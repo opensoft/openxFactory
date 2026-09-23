@@ -22,7 +22,7 @@ own dashboard out of it:
   2. Every `areas` / `artifacts` prefix the facet declares ends in `/`
      (`display_profile._corpus_prefix`'s own refusal, added on Copilot review
      of #21 itself).
-  3. Every status / area / role word the facet declares equals what the
+  3. Every status / area / act word the facet declares equals what the
      REGISTERED PROFILE's own public accessors say — never retyped, so a
      renamed status or act id in
      `contracts/domain-profiles/openxfactory-engineering.yaml` fails these
@@ -250,7 +250,7 @@ def test_the_packet_order_matches_display_profiles_own_stated_answer():
 
 
 # --------------------------------------------------------------------------
-# 4. deliberate omissions (tokens, stages, values, sections, the wider areas)
+# 4. deliberate omissions (tokens, values, sections, the wider areas; stages: 8)
 # --------------------------------------------------------------------------
 
 def test_sections_this_facet_deliberately_does_not_declare():
@@ -268,7 +268,7 @@ def test_sections_this_facet_deliberately_does_not_declare():
     """
     facet = profile_openxfactory.DISPLAY
     assert "tokens" not in facet
-    assert "stages" not in facet
+    assert set(facet["stages"]) == {"completion"}  # the five others: section 8
     assert "values" not in facet
     assert "sections" not in facet
     assert "proposed" not in facet["areas"]
@@ -402,3 +402,294 @@ def test_display_and_route_extensions_ride_the_identical_registered_object():
     assert (opendox_registry.name_of(before)
             == opendox_registry.name_of(after_display)
             == "openxfactory-engineering")
+
+
+# --------------------------------------------------------------------------
+# 8. openDox's `completion` stage renders "implemented", its items render
+# "implemented item(s)", and the words come FROM openXdox (RULED
+# `opensoft/openxFactory#656` comment `5784683830`, Brett Heap, 2026-09-22,
+# verbatim "1, keep completed and overlay implemented"; and comment
+# `5801057769`, Brett Heap, 2026-09-23, verbatim "yes, overlay implemented
+# items too")
+#
+# openDox reads the REGISTERED profile, whose `DISPLAY` is
+# `profile_openxfactory.DISPLAY`, and never openXdox's module. So the overlay
+# openXdox declares (`openxdox.view_extensions.DISPLAY`: the stage's names from
+# openXdox-code #26, `195276b7`, and its item nouns from #27, `626f2c8d`)
+# reaches a served page only through this repository's facet, which copies it
+# in (`profile_openxfactory._openxdox_stages`) rather than restating it. This
+# section holds four things: the words a SERVED page shows, the five stations
+# that stay neutral, the single source of the words, and what happens when
+# openXdox's value is dropped. A dropped value must FAIL these assertions,
+# never pass them on openDox's neutral `completed` / `completed item`.
+#
+# Placed after section 7 rather than beside section 4 on purpose: an OpenSpec
+# change on `main` cites this file by line (`amend-home-adapter-scope-and-
+# mapping-axis-count`, proposal.md, `:300-303`), so every edit above those
+# lines keeps the line count unchanged.
+# --------------------------------------------------------------------------
+
+import ast  # noqa: E402
+import http.client  # noqa: E402
+import json  # noqa: E402
+import threading  # noqa: E402
+
+import carved_reach  # noqa: E402
+from opendox import display_profile  # noqa: E402
+from opendox import serve as serve_mod  # noqa: E402
+from openxdox import view_extensions  # noqa: E402
+
+#: The ruled words, spelled once here as the EXPECTED values of the assertions
+#: below: the stage's two names (the first ruling) and its two item nouns (the
+#: second). They are what a served page must show, not a second source of the
+#: words: `test_the_composition_restates_no_stage_word` holds that the files
+#: that compose the facet never spell any of them as a value.
+_RULED_WORD = "implemented"
+_RULED_ITEM = "implemented item"
+_RULED_ITEMS = "implemented items"
+
+#: The five stations the ruling leaves neutral, derived from openDox's own
+#: spine (`display_profile.STAGE_ROLES`) rather than listed by hand.
+_NEUTRAL_STAGE_ROLES = tuple(
+    role for role in display_profile.STAGE_ROLES if role != "completion")
+
+
+def _completion_renders_the_ruled_words(stages) -> bool:
+    """THE POSITIVE PREDICATE, shared by the served-page test and the drop
+    tests, so the drop tests prove that the very check the positive tests make
+    refuses a dropped overlay. `short` AND `label`, because they are the
+    stage's two rendered names (openXdox-code #26: `views/lineage.js` titles a
+    tile with `label` and captions the same tile with `short`); a page
+    overlaying only one would show the stage under both words at once. `one`
+    AND `many`, because they are its two item nouns (openXdox-code #27: `one`
+    renders in the wheel's two completion sentences), and a `one` without its
+    `many` would spell the same items two ways."""
+    entry = stages["completion"]
+    return (entry["short"] == _RULED_WORD and entry["label"] == _RULED_WORD
+            and entry["one"] == _RULED_ITEM and entry["many"] == _RULED_ITEMS)
+
+
+def _assert_the_other_stages_and_fields_stay_neutral(stages) -> None:
+    neutral = display_profile.NEUTRAL_DISPLAY["stages"]
+    assert len(_NEUTRAL_STAGE_ROLES) == 5, _NEUTRAL_STAGE_ROLES
+    for role in _NEUTRAL_STAGE_ROLES:
+        assert stages[role] == neutral[role], (
+            f"stages.{role} is {stages[role]!r}; the ruling overlays the "
+            f"completion stage only, so {role!r} must stay openDox's neutral "
+            f"{neutral[role]!r}")
+    assert stages["completion"]["gate"] == neutral["completion"]["gate"], (
+        f"stages.completion.gate is {stages['completion']['gate']!r}; the "
+        "rulings overlay the stage's names and item nouns, so its gate stays "
+        "openDox's")
+
+
+def _served_capabilities(tmp_path):
+    """GET /capabilities from a REAL openDox server, built the way this
+    assembly builds one. `tests/conftest.py` has already made the ONE
+    registration, so `build_server()` reads `ROUTE_EXTENSIONS` and `DISPLAY`
+    through the same lazy proxy a production process does. The asset root is
+    derived from the carve manifest's row for `index.html`, as
+    `tests/ideation-dashboard/conftest.py::dashboard_web_root` derives it."""
+    web = carved_reach.source("scripts/ideation_dashboard/web/index.html").parent
+    checkout = tmp_path / "openx"
+    (checkout / "ideation").mkdir(parents=True)
+    snapshot = tmp_path / "snapshot.json"
+    snapshot.write_text(json.dumps({"generation": {}}), encoding="utf-8")
+    httpd = serve_mod.build_server(web, snapshot, checkout, host="127.0.0.1")
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    try:
+        host, port = httpd.server_address[:2]
+        conn = http.client.HTTPConnection(host, port, timeout=10)
+        try:
+            conn.request("GET", "/capabilities")
+            response = conn.getresponse()
+            status, body = response.status, response.read()
+        finally:
+            conn.close()
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+        thread.join(timeout=2)
+    assert status == 200, status
+    return json.loads(body.decode("utf-8"))
+
+
+def test_the_served_page_shows_implemented_for_the_completion_stage(tmp_path):
+    """THE RULING, AS A SERVED PAGE READS IT. The `display` block of
+    `/capabilities` is what every class-C view in openDox's shell resolves its
+    stage words from, so this is the page's own reading of the stage, taken
+    from a running server rather than from a replay of its statement."""
+    display = _served_capabilities(tmp_path)["display"]
+    assert display["host_facet"] == "declared"
+    assert display["host_profile"] == "openxfactory-engineering"
+    assert display["stage_order"] == list(display_profile.STAGE_ROLES)
+    assert _completion_renders_the_ruled_words(display["stages"]), (
+        f"the served completion stage is {display['stages']['completion']!r}; "
+        f"RULED 5784683830 overlays {_RULED_WORD!r} on its names and RULED "
+        f"5801057769 {_RULED_ITEM!r} / {_RULED_ITEMS!r} on its item nouns, "
+        "for the xFactory host, from openxdox.view_extensions.DISPLAY")
+    _assert_the_other_stages_and_fields_stay_neutral(display["stages"])
+
+
+def test_the_normalized_facet_renders_implemented_and_five_neutral_stages():
+    """The same property through `normalize_display` directly, the merge the
+    served block is built from. And no two stations share a rendered word
+    after the overlay, so a view that maps a word back to its stage still
+    can."""
+    merged = display_profile.normalize_display(profile_openxfactory.DISPLAY)
+    assert _completion_renders_the_ruled_words(merged["stages"])
+    _assert_the_other_stages_and_fields_stay_neutral(merged["stages"])
+    for field in ("one", "many", "short", "label"):
+        words = [merged["stages"][role][field]
+                 for role in display_profile.STAGE_ROLES]
+        assert len(set(words)) == len(words), (field, words)
+
+
+def test_the_stage_words_are_openxdoxs_own_copied_not_restated():
+    """ONE SOURCE. The facet's `stages` equal openXdox's declaration exactly,
+    and they are a COPY at both levels, so a reader that mutates the facet it
+    was handed cannot rewrite openXdox's module-level declaration."""
+    facet = profile_openxfactory.DISPLAY
+    assert facet["stages"] == view_extensions.DISPLAY["stages"]
+    assert facet["stages"] is not view_extensions.DISPLAY["stages"]
+    for role, entry in facet["stages"].items():
+        assert entry is not view_extensions.DISPLAY["stages"][role], role
+
+
+def test_stages_is_the_one_section_openxdox_declares_and_the_one_composed():
+    """`_openxdox_stages()` composes openXdox's `stages` and nothing else,
+    because this facet answers every other section from the registered
+    profile. So a section openXdox adds later is a decision for
+    `scripts/profile_openxfactory.py`, and it surfaces HERE, at the pin bump
+    that carries it, rather than being merged or dropped silently."""
+    assert set(view_extensions.DISPLAY) == {"stages"}, (
+        f"openxdox.view_extensions.DISPLAY now declares "
+        f"{sorted(view_extensions.DISPLAY)}; openxFactory composes only "
+        "`stages` from it. Decide whether this facet composes the new "
+        "section, in scripts/profile_openxfactory.py::_openxdox_stages, and "
+        "update this test with the reason.")
+
+
+def test_the_composition_restates_no_stage_word():
+    """No ruled word may be spelled as a VALUE in the files that compose the
+    facet, or it would have two sources, and a pin that dropped openXdox's
+    would leave this repository's copy serving on. Docstrings and comments may
+    name them; no other string constant may be one. The words checked are the
+    ruled ones AND every word openXdox's own `stages` declares, so a word
+    openXdox adds at a later pin is covered without editing this test."""
+    words = {_RULED_WORD, _RULED_ITEM, _RULED_ITEMS} | {
+        word.strip().casefold()
+        for entry in view_extensions.DISPLAY["stages"].values()
+        for word in entry.values() if isinstance(word, str)}
+    for rel in ("scripts/profile_openxfactory.py", "scripts/opendox_host.py"):
+        source = (opendox_host.REPO_ROOT / rel).read_text(encoding="utf-8")
+        tree = ast.parse(source)
+        docstrings = set()
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef,
+                                 ast.AsyncFunctionDef)):
+                first = node.body[0] if node.body else None
+                if (isinstance(first, ast.Expr)
+                        and isinstance(first.value, ast.Constant)
+                        and isinstance(first.value.value, str)):
+                    docstrings.add(id(first.value))
+        spelled = [node.lineno for node in ast.walk(tree)
+                   if isinstance(node, ast.Constant)
+                   and isinstance(node.value, str)
+                   and id(node) not in docstrings
+                   and node.value.strip().casefold() in words]
+        assert not spelled, (
+            f"{rel} spells a ruled stage word ({sorted(words)}) as a value at "
+            f"lines {spelled}; the words belong to "
+            "openxdox.view_extensions.DISPLAY alone")
+
+
+#: The well-formed openXdox declarations that overlay LESS than the ruling:
+#: each is legal to openDox's schema, so the composer follows it, and each
+#: must fail the positive predicate the served-page test uses.
+_SHORTFALLS = {
+    "openxdox-declares-no-stages": {},
+    "openxdox-declares-an-empty-stages-mapping": {"stages": {}},
+    "openxdox-overlays-short-only": {
+        "stages": {"completion": {"short": _RULED_WORD}}},
+    "openxdox-overlays-the-names-without-the-item-nouns": {
+        "stages": {"completion": {"short": _RULED_WORD, "label": _RULED_WORD}}},
+}
+
+
+@pytest.mark.parametrize("drop", [*_SHORTFALLS, "the-composition-drops-them"])
+def test_a_dropped_or_partial_overlay_fails_the_positive_predicate(
+        monkeypatch, drop):
+    """MUTATION: openXdox's value dropped or cut short, either upstream (its
+    `DISPLAY` carries no `stages`, an empty `stages`, `short` alone, or #26's
+    two names without #27's item nouns, which is what a pin still naming
+    openXdox-code `195276b7` serves) or here (the composition stops copying
+    them).
+
+    THE COMPOSER FOLLOWS these at run time, by design. Each is a well-formed
+    declaration that openDox's schema holds legal, and
+    `profile_openxfactory._openxdox_stages`'s docstring ("THREE CASES") says
+    why run time does not second-guess openXdox. The refusal happens at the
+    GATE. The page falls back to openDox's neutral word, and the predicate
+    that `test_the_served_page_shows_implemented_for_the_completion_stage`
+    uses refuses that state, so a pin bump that carries such a leg fails the
+    required suite and cannot land."""
+    if drop in _SHORTFALLS:
+        monkeypatch.setattr(view_extensions, "DISPLAY", _SHORTFALLS[drop])
+    else:
+        monkeypatch.setattr(profile_openxfactory, "_openxdox_stages",
+                            lambda: {})
+    merged = display_profile.normalize_display(profile_openxfactory.DISPLAY)
+    neutral = display_profile.NEUTRAL_DISPLAY["stages"]["completion"]
+    fallen_back = [field for field in ("one", "many", "short", "label")
+                   if merged["stages"]["completion"][field] == neutral[field]]
+    assert fallen_back, merged["stages"]["completion"]
+    assert not _completion_renders_the_ruled_words(merged["stages"])
+
+
+def test_a_missing_openxdox_display_refuses_rather_than_serving_absent(
+        monkeypatch):
+    """MUTATION: openXdox's `DISPLAY` gone altogether, which is what a pin
+    naming a code leg older than openXdox-code #26 looks like.
+
+    `host_display()` reads the facet through a 3-argument `getattr(..., None)`,
+    and the lazy proxy re-raises an `AttributeError` as `ProfileFacetMissing`,
+    itself an `AttributeError`, so that `getattr` absorbs it as "no facet
+    declared". Were this refusal an `AttributeError`, the WHOLE facet
+    (statuses, areas, acts and artifacts too) would be served as absent, and
+    the page would come up in openDox's neutral words with nothing reporting
+    why. It is a `RuntimeError`, so it passes through the proxy and the
+    reader and reaches the server build as a refusal."""
+    monkeypatch.delattr(view_extensions, "DISPLAY")
+    with pytest.raises(RuntimeError, match="declares no DISPLAY") as caught:
+        profile_openxfactory.DISPLAY
+    assert not isinstance(caught.value, AttributeError)
+    with pytest.raises(RuntimeError, match="declares no DISPLAY"):
+        display_profile.host_display(proxy)
+
+
+#: The malformed shapes, one per level of the structure `_openxdox_stages()`
+#: reads: the facet itself, its `stages` section, and a stage entry.
+_MALFORMED = {
+    "display-is-not-a-mapping": ["stages"],
+    "display-is-a-string": "stages",
+    "stages-is-not-a-mapping": {"stages": ["completion"]},
+    "a-stage-entry-is-not-a-mapping": {"stages": {"completion": _RULED_WORD}},
+}
+
+
+@pytest.mark.parametrize("shape", list(_MALFORMED))
+def test_a_malformed_openxdox_display_refuses_at_every_level(monkeypatch, shape):
+    """MUTATION: openXdox's `DISPLAY` present but MALFORMED, at each of the
+    three levels the composer reads (Copilot `r4086188263`: the refusal had no
+    test, so removing it would have passed the suite). Each shape REFUSES, and
+    with `RuntimeError`, never `AttributeError`, so neither the proxy nor
+    `host_display()`'s 3-argument `getattr` can absorb it into a silent
+    "no facet declared"."""
+    monkeypatch.setattr(view_extensions, "DISPLAY", _MALFORMED[shape])
+    with pytest.raises(RuntimeError, match="must be a mapping of stage") as caught:
+        profile_openxfactory.DISPLAY
+    assert not isinstance(caught.value, AttributeError)
+    with pytest.raises(RuntimeError, match="must be a mapping of stage"):
+        display_profile.host_display(proxy)

@@ -1,0 +1,271 @@
+# review-lane-floor-mirror Specification
+
+ONE `## ADDED` requirement. **No `## MODIFIED` block, and that is a decision
+rather than an omission** (`design.md` D3): three active changes carry deltas on
+this capability — `amend-mirror-floor-regeneration-merge-authority` (a
+`## MODIFIED` block on *An automated pin advance only ever proposes*),
+`admit-review-lane-repin-to-merge-approval-envelope` and
+`extend-merge-master-envelope-to-floor-bot-lanes` (four and three `## ADDED`
+requirements) — and none of them names the requirement below or is named by it.
+The hazard this closes is not in any promoted requirement's text; it is in the
+GAP between the pin advance this capability automates and a field of the pin
+file that no requirement has ever obliged anyone to measure. Adding the
+obligation collides with nothing and rewords nothing.
+
+## ADDED Requirements
+
+### Requirement: The pin's cross-repository lockstep state is measured against the aggregation's own surfaces, never declared alone
+The pin's declared CROSS-REPOSITORY LOCKSTEP STATE SHALL be MEASURED against the
+aggregation's own pin surfaces rather than standing on a declaration alone: a
+check SHALL compare the declared state to the commit those surfaces name, and
+SHALL REPORT a declared state the comparison contradicts.
+
+WHAT IS COMPARED is values and not authorship: the pin's `core_commit` against
+the commit the aggregation's surfaces name, `converged` meaning equal and
+`diverged` meaning unequal. THE AGGREGATION'S SURFACES ARE READ AS A SET AND
+SHALL AGREE WITH EACH OTHER BEFORE EITHER STATE IS CONCLUDED — the pin's own
+`converged_with:` members, which are the read plan's workflow members, and the
+aggregation's constant that holds them identical, `MIGRATION_PIN`, — and where they DISAGREE the check SHALL report INCONSISTENT, name
+each surface by a digest of the commit it carried, and conclude NEITHER `converged` NOR
+`diverged`. A check permitted to pick one surface would be choosing its own
+answer, and an aggregation whose own surfaces disagree is a fact about that
+repository that this measurement is the first thing positioned to see. WHEN IT
+RUNS is at least every proposed advance of `core_commit` and the pull request
+that carries it, so a declaration an advance falsifies is reported in the SAME
+pull request that falsifies it rather than whenever a human next happens to read
+the field. THE ONE EXCEPTION IS THE HOST'S OWN: where the host does not start a
+path-filtered workflow because it cannot see the whole diff — GitHub does not for
+a pull request of more than 3,000 changed files whose matching file is not among
+the first 3,000 — the check does not run on that pull request, and the gap is
+stated here so that this clause is never read as closing it. WHAT IT OBSERVES IS
+THIS REPOSITORY'S SIDE OF THE PAIR: a move the
+aggregation makes alone, its `MIGRATION_PIN` re-pointed at a ceremony, can
+falsify the declaration with no pull request here, and the check reports that at
+the next pull request that changes the pin; the ceremony's own pull request here,
+the one that moves `lockstep.status`, is such a pull request. Observing the
+aggregation's side as it moves would take an act in the aggregation or a
+schedule, and this requirement takes neither. IT JUDGES EVERY SUCH PULL REQUEST ALIKE: no condition of the check SHALL
+branch on the pull request's author, its branch or its automated origin, because
+this capability's *An automated pin advance is judged by the freshness checks that
+already exist, with no exemption* forbids exactly that to every check that judges
+a pin advance, and a hand-authored advance leaves the declaration as false as an
+automated one.
+
+WHERE THE READ LIVES AND WHERE THE JUDGMENT LIVES follows this capability's own
+split and SHALL NOT be drawn elsewhere: the cross-repository read is performed
+where this capability already performs cross-repository reads — the workflow,
+which resolves the other repository over the API, visible in the run log and
+re-runnable by a reviewer with the same call — and the COMPARISON is a function
+over supplied values that touches no network, so every verdict is a unit test
+with a fixture rather than a workflow that has to be fired to be believed.
+
+THE CHECK IS SYMMETRIC. A declared `converged` the measurement contradicts and a
+declared `diverged` the measurement contradicts SHALL be reported alike, because
+the field is a point-in-time claim about a mutable pair and either value can be
+the false one.
+
+WHERE THE AGGREGATION'S SURFACES CANNOT BE READ, for a reason outside the check's
+own access, OR THE CANDIDATE CANNOT, for a transient failure of a read of this
+repository, for the pull request's head or for the pin, the check SHALL report
+the state as UNDETERMINED and name what it could not read; it SHALL NOT resolve to either
+state, and it SHALL NOT read its own silence as confirmation of the declared one.
+An unaskable question is never an implicit pass. A SURFACE IS READ ONLY AS A
+COMMIT: each surface's value SHALL be forty lowercase hexadecimal characters, the
+grammar the pin's own `core_commit` obeys, and a surface whose value is not SHALL
+count as UNREADABLE, named by a CLASSIFICATION of what its fixed location held —
+absent, empty, or not a commit — and NEVER by that value or the file around it,
+in the verdict or in the run log: the aggregation is private while both of those
+are public, and a value that is not a commit is exactly the one nobody has vetted
+for publication. THROUGHOUT THIS REQUIREMENT A VALUE IS A COMMIT WHEN IT HAS THAT
+GRAMMAR, and the check SHALL NOT ask whether a commit of that name exists: what it
+compares is values, and asking would take a read of `codeXfactory/codexFactory`,
+a repository the check's one mint does not reach. AND NO SURFACE'S VALUE IS
+PUBLISHED AS IT IS, a commit included, because the grammar proves a shape and not
+what the value is: a surface that has it is named by its relation to `core_commit`, equal or not, and a digest of its value; only the
+commit the check resolves the aggregation's branch to, which the API returns as a
+commit, is named as it is. A reviewer with access to the aggregation reproduces
+every value with the same call. So surfaces that AGREE on
+something that names no commit, an empty string among them, conclude nothing,
+rather than reaching a comparison that a declared `diverged` would pass merely
+because two strings differ.
+
+THE SURFACES ARE READ AT ONE RESOLVED COMMIT OF THE AGGREGATION AND NOT
+INDEPENDENTLY FROM A MOVING REF. The check SHALL resolve the aggregation's
+DEFAULT BRANCH at run time, from the repository itself and never from an event
+payload, a pull-request head, a tag or any reference a caller supplies; SHALL
+resolve that branch to a single commit first; SHALL read every surface AT THAT
+COMMIT; and SHALL name the branch and the commit with its verdict. Reading the surfaces one at a time from
+a branch lets a re-point land between the reads and returns a MIXED set — which
+the check would then report as INCONSISTENT, a state that never existed in the
+repository it was reading. A measurement taken across a moving ref measures READ
+TIMING, not the aggregation.
+
+THE DECLARED STATE IS A CLOSED VOCABULARY AND AN UNREADABLE DECLARATION IS THE
+REPOSITORY'S OWN DEFECT. The declared lockstep state SHALL be one of the two
+words the field carries; where it is ABSENT, or carries any other value, the
+check SHALL FAIL naming the value it found, in the same class as a declaration
+the measurement contradicts, the value named inert and length-bounded — because
+both are this repository's own file failing to say something true, and the remedy for both is one edit to the field. Without
+that clause the ordering below has an input it does not reach. SO IS THE SET OF
+SURFACES THE PIN DECLARES: where the candidate's `converged_with:` names any set
+other than the WORKFLOW MEMBERS of the check's own read plan, the check SHALL FAIL
+naming the set it found and those members, in that same class, because a pin
+declaring surfaces the check does not read is the same file failing to say
+something true. AND SO IS THE COMMIT THE CANDIDATE PROPOSES: a candidate
+`core_commit` that is not forty lowercase hexadecimal characters SHALL FAIL in
+that same class, naming the value found, inert and length-bounded — otherwise an
+inequality against the aggregation's commit would report a declared `diverged`
+as agreeing with a value that names no commit. A candidate that
+cannot be parsed declares nothing, and SHALL count as ABSENT, the parse error
+named as the value found, inert and length-bounded. A base's defect reaches the
+verdict through every candidate that inherits it, and a candidate that repairs it
+is judged on what it proposes.
+
+THE PIN THE CHECK READS IS THE ONE THE ACT PROPOSES, NOT THE ONE ALREADY IN
+PLACE, AND IT IS PARSED STRICTLY. The check SHALL parse a pin only under a byte
+ceiling fixed in its own code, as ONE document with no duplicate key, alias,
+merge key or tag, so that the check and a reviewer reading the same bytes cannot
+see different values; a pin the strict parse refuses cannot be parsed, and counts
+as ABSENT. Where the check runs over a proposed advance, it SHALL take
+`core_commit` from the CANDIDATE state of the pin at the head that advance
+proposes — read as INERT BYTES at a VERIFIED head commit, never by executing
+anything from that head. THE RUN JUDGES ONE COMMIT, the head the event named,
+and that commit is VERIFIED where this repository's own API names it as the pull
+request's head: the check SHALL read that head before it reads the pin, and
+again after every other read, immediately before it publishes. A pin absent at
+the verified commit declares nothing, and counts as ABSENT. WHERE A READ FINDS
+ANOTHER HEAD, the run SHALL publish NO verdict and read nothing further, whatever
+its other reads found — the ONE run that publishes none, and not one of the
+outcomes below — because the push that moved the head starts a run of its own
+for the commit the pull request now has, wherever that commit still changes the
+pin, and a verdict on a commit the pull request no longer has judges nothing the
+pull request proposes. A check that read the pin from the base it runs on would
+compare the commit ALREADY in place against the aggregation, pass, and never see
+the advance it exists to judge.
+
+WHAT IS READ IN THE AGGREGATION IS DECIDED BY THE CHECK'S OWN CODE, NEVER BY THE
+PIN FILE. The candidate's bytes are data to be JUDGED and never an instruction
+about what to READ, and so are the base's, because the base's pin file is only a
+candidate an earlier pull request proposed: the check SHALL take from the pin
+only the values under judgment — `core_commit`, the declared state and the
+surfaces `converged_with:` declares — and SHALL take the aggregation and the path
+of every surface in it from a READ PLAN FIXED IN ITS OWN CODE — its WORKFLOW
+MEMBERS, the aggregation's judging workflows, each read at the `ref:` of its step
+that checks out the decision core's repository, `codeXfactory/codexFactory`,
+parsed as YAML and never matched as text, and one ADDITIONAL fixed read, the
+aggregation's constant at its `MIGRATION_PIN` assignment in
+`tests/test_merge_master_workflows.py`, which is never a `converged_with:`
+member — never resolving a path
+from the pin file, at the candidate head or at the base. A check that could be
+told what to read, by the pull request it judges or by one merged before it,
+could turn the credential for a private repository on any file in it, and have
+that file's contents named back as the value a surface carried.
+
+THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT A RUN JUDGES, which
+is every input but a head found moved, whose run judges nothing and publishes
+nothing (above): the CANDIDATE UNREAD first — a read of this repository, for the pull request's head or for the
+pin, failing for any reason but the pin's absence, which is the check's own
+ACCESS failing or UNDETERMINED by the classes below — because nothing can be
+judged that the check does not hold, the candidate's bytes at the commit that is
+the pull request's head; then the DECLARATION OUTSIDE ITS VOCABULARY — a declared
+state absent or not one of its two words, the pin absent at the verified commit
+and an unparseable candidate among the absent, a candidate `core_commit` that is
+not a commit, or a `converged_with:` naming other than the read plan's workflow
+members: this repository's own file, readable without touching anything else, and
+a defect that makes every later question moot; then the check's own ACCESS to the
+aggregation FAILING; then the aggregation UNREADABLE, a surface whose value is not a commit included; then
+its surfaces DISAGREEING with each other; then the comparison of the agreed commit
+against `core_commit` and the declared state against that comparison. A later
+outcome is reached only where every earlier one does not hold, so no input can
+require two conclusions and no implementation has to arbitrate between them. THE
+VOCABULARY IS VALIDATED BEFORE THE AGGREGATION IS READ, which is both the ordering
+the scenarios require and the honest engineering order: a check does not go
+asking another repository a question in order to report a defect in its own file.
+
+UNDETERMINED SHALL NOT BE A STANDING STATE, AND THE CHECK'S OWN ACCESS IS NEVER
+UNDETERMINED. EVERY FAILURE TO READ, OF EITHER REPOSITORY, FALLS INTO EXACTLY ONE
+CLASS, the binding and the mint the aggregation's reads need among them. A
+TRANSIENT failure — a server error, a rate limit, or no response at all, a
+timeout or a transport failure — is UNDETERMINED. A 404 for a branch, a commit or
+a file is ABSENCE: the pin's, at the verified commit, is the declaration ABSENT,
+and anything the plan names absent from the aggregation leaves it UNREADABLE. THE
+HEAD IS LOOKED UP BY READING THE PULL REQUEST, so a 404 for that read, before the
+pin or before publication, is neither an absence nor a moved head: it falls in
+the class that follows. EVERY OTHER FAILURE is the check's own ACCESS failing — its binding unresolved,
+its mint refused, or a repository refusing its request, a 401, a 403 that is not
+a rate-limit response and a 404 for the repository or the pull request itself
+among them — which is the check's own defect on the run where it happens, and
+SHALL conclude FAIL, naming it: a response nobody anticipated is the one likeliest
+to recur on every run. A check that answered UNDETERMINED
+for its own access would answer it on every run, indistinguishable from one that
+is working, which is the failure this requirement exists to end rather than to
+reproduce.
+
+EACH OUTCOME SHALL CARRY A CONCLUSION AND NOT ONLY A NAME, because a state a
+check computes and does not publish is a state nobody acts on. A declaration the
+measurement CONTRADICTS SHALL fail the check and name `core_commit`, the declared
+state and the digest of the commit the surfaces agree on: that is this
+repository's own contract file stating something false about another repository,
+and the remedy is one edit to the field. An ACCESS failure SHALL fail it too,
+naming the failure, because that is this repository's own configuration or code
+and the remedy is to repair it, not to wait. UNDETERMINED and INCONSISTENT SHALL
+each conclude NEUTRAL — visible, naming the state and what was read, and NOT
+failing — because neither is this repository's claim to answer: an unreachable
+aggregation is another repository's availability, a candidate the host did not
+serve is the host's, and an aggregation whose own surfaces disagree is another
+repository's defect, and turning any of them into this repository's red build
+would make the check a liability its owners would route around. A NEUTRAL conclusion SHALL NOT be reported as a pass, and silence SHALL
+NOT stand in for it. SO EVERY OUTCOME HAS ITS CONCLUSION: the declaration outside
+its vocabulary, the check's own access failing and a contradicted declaration
+each FAIL; INCONSISTENT and UNDETERMINED each conclude NEUTRAL; and a declaration
+the measurement AGREES with SHALL PASS, naming what was read, the only outcome
+that does.
+
+THE DECLARATION IS NOT REMOVED BY THIS RULE. The pin file stays the place the
+state is declared and the place its dated reasoning is kept; what changes is that
+the declaration becomes the SUBJECT of a measurement rather than its only
+evidence. A check that could be satisfied by reading the pin file alone would
+satisfy nothing: the fact being asserted is about another repository, and a value
+compared only to itself is a tautology.
+
+#### Scenario: A routine advance leaves the declared state behind
+- **WHEN** an automated pin advance moves `core_commit` to a commit that the aggregation's surfaces — read, and agreeing with each other on one commit of forty lowercase hexadecimal characters — do not name, and the declared lockstep state still reads `converged`
+- **THEN** the check reports the contradiction on the advance's own pull request, naming `core_commit`, the digest of the commit the surfaces agree on, and the surfaces it read
+- **AND** the report does not depend on the advancing lane having remembered to write the field, because the check reads the other repository rather than the lane's intent
+
+#### Scenario: The declaration is absent or outside its vocabulary
+- **WHEN** the pin's declared lockstep state is absent, or carries a value that is neither of the two words the field admits, or the candidate's `core_commit` is not forty lowercase hexadecimal characters, or its `converged_with:` names a set other than the workflow members of the check's own read plan, or the candidate cannot be parsed at all, or the pin itself is absent at the verified head commit
+- **THEN** the check FAILS and names the value, set or parse error it found, inert and length-bounded, or the pin's absence, and for `converged_with:` the plan's workflow members beside it, in the same class as a declaration the measurement contradicts
+- **AND** it reads nothing in the aggregation and does not fall through to a comparison, because there is nothing to compare
+
+#### Scenario: The advance lands on the commit the aggregation already pins
+- **WHEN** an advance moves `core_commit` to exactly the commit the aggregation's surfaces — read, and agreeing with each other on one commit of forty lowercase hexadecimal characters — already name, and the declared state reads `diverged`
+- **THEN** the check reports that contradiction too, because the obligation is that the declaration be TRUE and not that it be pessimistic
+
+#### Scenario: The aggregation's own surfaces disagree with each other
+- **WHEN** the aggregation's surfaces, read at ONE resolved commit of it and each carrying a commit of forty lowercase hexadecimal characters, do not all carry the same commit
+- **THEN** the check reports INCONSISTENT and names each surface by a digest of the commit it carried
+- **AND** it concludes neither `converged` nor `diverged`, because a check permitted to pick one surface would be choosing its own answer
+- **AND** the disagreement is the aggregation's own at that commit, not an artefact of reading its surfaces one at a time while a re-point landed between the reads
+
+#### Scenario: The check's own access fails
+- **WHEN** the check's own access fails — its binding unresolved, its mint refused, or either repository refusing its request (a 401, a 403 that is not a rate-limit response, a 404 for the repository or for the pull request whose head it looks up, or any other failure that is neither transient nor an absence)
+- **THEN** the check FAILS and names the access failure, rather than reporting UNDETERMINED
+- **AND** it concludes neither `converged` nor `diverged`, whatever it had read before the failure, because the defect is this repository's own, its configuration or its code, and an UNDETERMINED for it would stand on every run
+
+#### Scenario: The aggregation's surfaces cannot be read
+- **WHEN** the check cannot obtain the aggregation's judging surfaces for a reason outside its own access — its default branch or a surface absent, a server error, a rate limit, a timeout or a transport failure — or a surface it obtains carries a value that is not forty lowercase hexadecimal characters
+- **THEN** it reports the lockstep state as UNDETERMINED and names each surface it could not read, with the classification of what it carried — absent, empty or not a commit — and never that value itself
+- **AND** it concludes neither `converged` nor `diverged`, and does not report the declared value as confirmed
+- **AND** the check's own conclusion is NEUTRAL and visible rather than failing, because another repository's availability is not this repository's build, and rather than passing, because silence is not a measurement
+
+#### Scenario: The candidate cannot be read, or its head moves under the read
+- **WHEN** a read the check makes of this repository — the pull request's head, before the pin is read or immediately before publication, or the pin at the verified commit — fails transiently, with a server error, a rate limit, a timeout or a transport failure, or a read of the pull request's head names a commit other than the one the event named
+- **THEN** a read that failed concludes NEUTRAL as UNDETERMINED, naming the read of this repository that failed, and neither `converged` nor `diverged`, whatever else was read
+- **AND** where it failed before the pin was in hand, the check mints no token and reads nothing in the aggregation, because nothing is judged that the check does not hold
+- **AND** a head found moved publishes NO verdict, whatever the other reads found, because the push that moved it starts the run that judges the commit the pull request now has
+
+#### Scenario: The verdict is reproduced without firing the lane
+- **WHEN** a reviewer is given the function's whole input — the candidate's read result (its declaration as parsed — its declared state, `core_commit` and `converged_with:` — or its parse refusal, the pin's absence, or the class of a read of this repository that failed), the read plan's workflow members, and the aggregation's read result (the access outcome, the resolved aggregation commit, and each surface's value or the failure that kept it unread)
+- **THEN** the same verdict follows from those values alone, because the comparison is a function over them and reaches no network
+- **AND** each refusal and each report is exercised by a unit test with a fixture rather than by dispatching the workflow

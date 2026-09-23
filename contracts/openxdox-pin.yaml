@@ -66,7 +66,7 @@ kind: pinned_contract_manifest
 # is corrected rather than left standing.
 #
 # Phase 6 HAPPENED. `xdox-v1.0` was cut and published on 2026-09-21 (tag
-# evidence `#656` comment 5767450638), and this re-pin advances the gitlink
+# evidence `#656` comment 5767450638), and #1134's re-pin advanced the gitlink
 # from `88a1047e` to `646f1dc0`, one commit PAST that tag. At `646f1dc0`
 # openXdox's own `contracts/manifest.yaml` carries
 # `contract_bundle_version: xdox-v1.0` and FIVE `entries:` --
@@ -106,7 +106,7 @@ submodule_path: openXdox
 # names both legs. Exactly 40 hex characters. NEVER a leg: `openXdox-code` and
 # `openXdox-spec` are the assembly root's own job to pin, and openxFactory
 # never pins or mounts a leg (split-opendox-two-layer-product task 5.1).
-commit: "646f1dc04194a711d0d7178a03b1cf4442405d88"
+commit: "2f3f857daccce6ade3a15e0f3d0e926f9ff7c925"
 revision_kind: commit
 
 digest_algorithm: sha256
@@ -124,7 +124,7 @@ digest_algorithm: sha256
 # cover a three-repository product without mounting the other two.
 digest_definition: sorted-ls-tree-r-v1
 digests:
-  tree_sha256: "47f5018469b0f061b4a062f327f9a0e8a65360d6c725feca0d88909c5db6b246"
+  tree_sha256: "149dc2cd6701abbacb635718713b01cb172e6eadb2f6a29607212016aa23d1c5"
 
 # The BYTE-IDENTITY REFERENT, and record 2 of the three RULED OQ-I requires
 # (Brett Heap, #656, 2026-09-09; `docs/opendox-cutover-runbook.md` § 1). In the
