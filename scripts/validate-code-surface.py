@@ -226,6 +226,12 @@ class MembershipReport:
     not_rechecked: int
     inventory_rows: int
     archived_unknown: int
+    #: MALFORMED rows of `contracts/policies/repository-identity.yaml`'s
+    #: `transfers:` list — `ei.load_transfers`'s own refusals, carried through
+    #: rather than silently dropped. Plain strings and not `MembershipFinding`:
+    #: a malformed transfer row is not about a proposal's declaration, so it has
+    #: no `change`/`path`/`identifier` to carry in that shape.
+    transfer_findings: tuple[str, ...]
 
 
 def _membership(repo_root: Path, inventory: ei.Inventory,
@@ -245,7 +251,7 @@ def _membership(repo_root: Path, inventory: ei.Inventory,
     empty set — an arm that invented one would authorize on text no reader can
     parse.
     """
-    transfers = ei.load_transfers(repo_root)
+    transfers, transfer_findings = ei.load_transfers(repo_root)
     covered = {(entry["change"], entry["declaration"]) for entry in register}
 
     findings: list[MembershipFinding] = []
@@ -351,6 +357,7 @@ def _membership(repo_root: Path, inventory: ei.Inventory,
         not_rechecked=not_rechecked,
         inventory_rows=len(inventory.rows),
         archived_unknown=archived_unknown,
+        transfer_findings=transfer_findings,
     )
 
 
@@ -399,7 +406,8 @@ def _report_membership(membership: MembershipReport) -> None:
         f"({membership.inventory_rows} rows), "
         f"{len(membership.findings)} refused, "
         f"{len(membership.former)} at a former address (reported), "
-        f"{membership.registered_unjudged} registered and not judged.")
+        f"{membership.registered_unjudged} registered and not judged, "
+        f"{len(membership.transfer_findings)} transfer-map rows malformed.")
     print(
         f"  inventory rows: {len(membership.stale_rows)} whose in-tree "
         f"evidence this tree no longer carries, {membership.not_rechecked} "
@@ -582,7 +590,7 @@ def main(argv: list[str] | None = None) -> int:
         membership = MembershipReport(
             heads=0, identifiers=0, carried=0, registered_unjudged=0,
             findings=(), former=(), stale_rows=(), not_rechecked=0,
-            inventory_rows=0, archived_unknown=0)
+            inventory_rows=0, archived_unknown=0, transfer_findings=())
 
     if membership.former:
         print("membership: a declared head names a FORMER address "
@@ -610,6 +618,12 @@ def main(argv: list[str] | None = None) -> int:
               "pull request that made it stale. An identifier the inventory "
               "does not carry FAILS; a row nothing names REPORTS.")
 
+    if membership.transfer_findings:
+        print("membership validation FAILED — the transfer map carries a "
+              "MALFORMED row:")
+        for finding in membership.transfer_findings:
+            print(f"  - {finding}")
+
     if membership.findings:
         print("membership validation FAILED:")
         for finding in membership.findings:
@@ -620,7 +634,7 @@ def main(argv: list[str] | None = None) -> int:
         for finding in report.findings:
             print(f"  - {finding.path}: {finding.detail}")
 
-    if report.findings or membership.findings:
+    if report.findings or membership.findings or membership.transfer_findings:
         return 1
 
     if report.stale or membership.stale_rows:

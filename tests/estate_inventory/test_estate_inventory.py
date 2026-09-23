@@ -33,6 +33,7 @@ membership block to assert on. The realization pull request records both runs.
 """
 from __future__ import annotations
 
+import datetime
 import importlib.util
 import subprocess
 import sys
@@ -603,7 +604,7 @@ def test_a_tree_at_the_carriers_FORMER_address_VERIFIES_through_the_map(
     """
     _transfer_map(tmp_path, [{"former": "opensoft/codexFactory",
                               "current": "codeXfactory/codexFactory",
-                              "transferred_on": "2026-09-09",
+                              "transferred_on": datetime.date(2026, 9, 9),
                               "transfer_state": "complete"}])
     former = _worktree(tmp_path, "git@github.com:opensoft/codexFactory.git",
                        submodules=["opensoft/Nested"])
@@ -649,7 +650,7 @@ def test_the_inventory_carrying_a_FORMER_address_reports_the_current_one(
     """
     _transfer_map(tmp_path, [{"former": "opensoft/codexFactory",
                               "current": "codeXfactory/codexFactory",
-                              "transferred_on": "2026-09-09",
+                              "transferred_on": datetime.date(2026, 9, 9),
                               "transfer_state": "complete"}])
     path = _inventory(tmp_path, [
         _row("opensoft/codexFactory", name="codexFactory"),
@@ -864,7 +865,7 @@ def test_a_head_naming_a_FORMER_address_is_REPORTED_and_never_refused(tmp_path):
     """
     _transfer_map(tmp_path, [{"former": "opensoft/codexFactory",
                               "current": "codeXfactory/codexFactory",
-                              "transferred_on": "2026-09-09",
+                              "transferred_on": datetime.date(2026, 9, 9),
                               "transfer_state": "complete"}])
     _proposal(tmp_path, "a-change", "code_surface: opensoft/codexFactory\n")
     path = _inventory(tmp_path, [
@@ -1180,7 +1181,8 @@ def test_every_live_declared_identifier_is_CARRIED_by_the_inventory():
     inventory does not carry."""
     cs_module = _load("code_surface", ROOT / "scripts" / "code_surface.py")
     inventory = ei.load_inventory(INVENTORY)
-    transfers = ei.load_transfers(ROOT)
+    transfers, transfer_findings = ei.load_transfers(ROOT)
+    assert transfer_findings == (), transfer_findings
     register = {(e["change"], e["declaration"])
                 for e in cs_module.load_register()}
     unresolved = []
@@ -1886,4 +1888,106 @@ def test_the_live_codexFactory_workflow_admission_survives_a_115KB_file(
     assert resolution.resolved is True
     verdicts = [v for v in ei.evidence_verdicts(inventory, ROOT)
                if v.row is resolution.row and v.admission.kind == ei.WORKFLOW]
+    assert [v.verdict for v in verdicts] == [ei.NAMED]
+
+
+# ==============================================================================
+# THE FIFTH REVIEW ROUND OF PR #1119: the transfer map's own complete-row
+# contract, and the job-level reusable-workflow site
+# ==============================================================================
+
+
+def test_a_MALFORMED_transfer_row_is_refused_and_reported_not_resolved(
+        tmp_path):
+    """`field_rules.transfer_state` carries the map's own MUST: "`pending`
+    while `transferred_on` is `null`; `complete` once it is set. The two
+    fields move together and a reader MUST treat any disagreement between
+    them as a malformed row." A first cut of `load_transfers` checked only
+    `transfer_state == "complete"` and never looked at `transferred_on` at
+    all — so a row edited to add `transfer_state: complete` with
+    `transferred_on` left `null` (or any non-date value) resolved as an
+    authoritative identity change on the strength of two string fields alone,
+    which is exactly the bypass of the membership arm's fail-closed path
+    Copilot's review named.
+    """
+    # `transfer_state: complete` with `transferred_on: null` — the shape named.
+    _transfer_map(tmp_path, [{"former": "opensoft/Bogus",
+                              "current": "opensoft/Real",
+                              "transferred_on": None,
+                              "transfer_state": "complete"}])
+    transfers, findings = ei.load_transfers(tmp_path)
+    assert transfers == {}
+    assert len(findings) == 1
+    assert "transfer_state: complete" in findings[0]
+    assert "transferred_on" in findings[0]
+
+    # AND THE RESOLVER DOES NOT ADMIT THE FORMER SPELLING: the malformed row
+    # never entered the map, so `opensoft/Bogus` resolves to NOTHING rather
+    # than to `opensoft/Real`.
+    path = _inventory(tmp_path, [_row("opensoft/Real")])
+    resolution = ei.resolve(ei.load_inventory(path), "opensoft/Bogus",
+                            transfers)
+    assert resolution.resolved is False
+
+    # `transfer_state: complete` with `transferred_on` a STRING, not a date —
+    # the same disagreement, a different wrong type.
+    _transfer_map(tmp_path, [{"former": "opensoft/Bogus",
+                              "current": "opensoft/Real",
+                              "transferred_on": "not-a-date",
+                              "transfer_state": "complete"}])
+    transfers, findings = ei.load_transfers(tmp_path)
+    assert transfers == {}
+    assert len(findings) == 1
+
+    # `transfer_state` itself outside the closed pair.
+    _transfer_map(tmp_path, [{"former": "opensoft/Bogus",
+                              "current": "opensoft/Real",
+                              "transferred_on": None,
+                              "transfer_state": "in-progress"}])
+    transfers, findings = ei.load_transfers(tmp_path)
+    assert transfers == {}
+    assert len(findings) == 1
+    assert "neither `pending` nor `complete`" in findings[0]
+
+    # AND THE LAWFUL SHAPE STILL RESOLVES, so the guard refuses the malformed
+    # row and nothing else.
+    _transfer_map(tmp_path, [{"former": "opensoft/Bogus",
+                              "current": "opensoft/Real",
+                              "transferred_on": datetime.date(2026, 9, 9),
+                              "transfer_state": "complete"}])
+    transfers, findings = ei.load_transfers(tmp_path)
+    assert transfers == {"opensoft/Bogus": "opensoft/Real"}
+    assert findings == ()
+
+
+def test_a_reusable_workflow_called_at_JOB_LEVEL_names_its_repository(
+        tmp_path):
+    """GitHub Actions calls a reusable workflow two ways: a STEP's `uses:`
+    inside an ordinary job, or the JOB ITSELF written as `jobs.<job_id>.uses:`
+    — which is how a caller dispatches to an entire reusable workflow with NO
+    `steps:` of its own (the called workflow's steps run in its place). A
+    first cut of `_workflow_names_repository` only ever looked inside
+    `steps[*]`, so a workflow admission whose real site is a job-level `uses:`
+    read GONE even though the file's own structural field names the
+    repository plainly.
+    """
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True, exist_ok=True)
+    (workflows / "job-level.yml").write_text(
+        "name: job-level\n"
+        "on: push\n"
+        "jobs:\n"
+        "  call-it:\n"
+        "    uses: codeXfactory/codexFactory/.github/workflows/x.yml@deadbeef\n"
+        "    secrets: inherit\n",
+        encoding="utf-8")
+
+    path = _inventory(tmp_path, [
+        _row("codeXfactory/codexFactory", governance="governed",
+             admitted_by=[{"kind": "workflow",
+                          "path": ".github/workflows/job-level.yml"}]),
+    ])
+    verdicts = [v for v in
+               ei.evidence_verdicts(ei.load_inventory(path), tmp_path)
+               if v.row.repository == "codeXfactory/codexFactory"]
     assert [v.verdict for v in verdicts] == [ei.NAMED]

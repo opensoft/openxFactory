@@ -151,7 +151,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  - {exc}")
         return 2
 
-    transfers = ei.load_transfers(repo_root)
+    transfers, transfer_findings = ei.load_transfers(repo_root)
     verdicts = ei.evidence_verdicts(inventory, repo_root)
 
     # --- the supplied trees, VERIFIED BEFORE THEY ARE READ --------------------
@@ -294,7 +294,13 @@ def main(argv: list[str] | None = None) -> int:
         print("  the remedy is to correct the evidence or to remove the row, "
               "never to widen what counts as evidence.")
 
-    if gone or provisional_archived:
+    if transfer_findings:
+        print("estate inventory validation FAILED — the transfer map carries "
+              "a MALFORMED row:")
+        for finding in transfer_findings:
+            print(f"  - {finding}")
+
+    if gone or provisional_archived or transfer_findings:
         return 1
 
     print("estate inventory validation passed "

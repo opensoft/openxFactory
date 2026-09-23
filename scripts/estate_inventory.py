@@ -103,6 +103,7 @@ Deterministic: text/YAML reads only, no model calls, no writes, no network.
 
 from __future__ import annotations
 
+import datetime
 import os
 import re
 import subprocess
@@ -477,8 +478,9 @@ def _unescaped(repo_root: Path, relative: Path) -> Path | None:
 # --- the transfer map ---------------------------------------------------------
 
 
-def load_transfers(repo_root: Path) -> dict[str, str]:
-    """`{former address: current address}` for the COMPLETE transfers only.
+def load_transfers(repo_root: Path) -> tuple[dict[str, str], tuple[str, ...]]:
+    """`{former address: current address}` for the COMPLETE transfers only, and
+    the MALFORMED rows this pass refused rather than silently dropping.
 
     THE PENDING ROWS ARE DROPPED AND THAT IS THE MAP'S OWN INSTRUCTION, not a
     strictness invented here. `pending_row_rule` reads: "A row whose
@@ -489,6 +491,27 @@ def load_transfers(repo_root: Path) -> dict[str, str]:
     reference: a head being resolved now, a row being judged now, a working tree
     being verified now.
 
+    A ROW CLAIMING `transfer_state: complete` IS HELD TO THE POLICY'S OWN SHAPE
+    BEFORE IT BECOMES A RESOLUTION, and not to its two most convenient fields
+    alone. `field_rules.transfer_state` states the one MUST this file's own
+    header carries: "The two fields move together and a reader MUST treat any
+    disagreement between them as a malformed row" — `transferred_on` a real
+    date once `transfer_state` is `complete`, `null` while it is `pending`. A
+    first cut of this reader checked only `transfer_state == "complete"` and
+    never looked at `transferred_on` at all, so a row edited to add
+    `transfer_state: complete` — with `transferred_on` left `null`, or absent,
+    or any non-date value — resolved as an authoritative identity change on the
+    strength of two string fields, bypassing the membership arm's fail-closed
+    path on an edit this policy's own text already calls malformed.
+    `former`/`current` are held to the same `<owner>/<name>` shape every other
+    address in this module is, for the same reason: a value that is not that
+    shape is not a resolvable identity, however trustworthy the row otherwise
+    reads. A row that looks like an attempted transfer (`former`/`current` both
+    strings) but fails this shape is REFUSED and reported rather than silently
+    dropped alongside the ordinary, lawful `pending` rows — the failure mode
+    Copilot's review named is exactly a malformed row treated as if it had
+    passed, so this pass tells the two apart and names which one a row was.
+
     AN ABSENT OR UNREADABLE MAP IS AN EMPTY ONE AND NOT A REFUSAL. The map is a
     contract member this packet READS and does not own; a tree that carries no
     transfers has taken none, and a reader that refused to run without it would
@@ -498,28 +521,58 @@ def load_transfers(repo_root: Path) -> dict[str, str]:
     """
     path = _unescaped(repo_root, TRANSFER_MAP)
     if path is None or not path.is_file():
-        return {}
+        return {}, ()
     try:
         raw = path.read_text(encoding="utf-8")
         doc = fm.strict_load(raw, what=str(TRANSFER_MAP))
     except (OSError, UnicodeDecodeError, fm.StrictFrontMatterError):
-        return {}
+        return {}, ()
     if not isinstance(doc, dict):
-        return {}
+        return {}, ()
     transfers = doc.get("transfers")
     if not isinstance(transfers, list):
-        return {}
+        return {}, ()
     resolved: dict[str, str] = {}
-    for entry in transfers:
+    malformed: list[str] = []
+    for position, entry in enumerate(transfers, start=1):
         if not isinstance(entry, dict):
             continue
         former, current = entry.get("former"), entry.get("current")
         if not isinstance(former, str) or not isinstance(current, str):
+            continue  # not shaped like an attempted transfer at all
+        site = f"{TRANSFER_MAP} row {position} ({former} -> {current})"
+        state = entry.get("transfer_state")
+        transferred_on = entry.get("transferred_on")
+        if state not in ("pending", "complete"):
+            malformed.append(
+                f"{site} declares `transfer_state: {state!r}`, which is "
+                "neither `pending` nor `complete`; refused rather than "
+                "resolved")
             continue
-        if entry.get("transfer_state") != "complete":
-            continue  # pending_row_rule: not a resolution instruction
+        if state == "pending":
+            if transferred_on is not None:
+                malformed.append(
+                    f"{site} declares `transfer_state: pending` and a "
+                    f"non-null `transferred_on` ({transferred_on!r}); the two "
+                    "fields disagree, which `field_rules.transfer_state` "
+                    "calls malformed, so the row is refused rather than "
+                    "resolved")
+            continue  # pending_row_rule: not a resolution instruction either way
+        # state == "complete"
+        if not isinstance(transferred_on, datetime.date):
+            malformed.append(
+                f"{site} declares `transfer_state: complete` but "
+                f"`transferred_on` is {transferred_on!r}, not a date; the two "
+                "fields disagree, which `field_rules.transfer_state` calls "
+                "malformed, so the row is refused rather than resolved")
+            continue
+        if ADDRESS_RE.match(former) is None or ADDRESS_RE.match(current) is None:
+            malformed.append(
+                f"{site} — at least one of `former`/`current` is not an "
+                "`<owner>/<name>` address; refused rather than resolved")
+            continue
         resolved[former] = current
-    return resolved
+    return resolved, tuple(malformed)
 
 
 # --- the inventory ------------------------------------------------------------
@@ -972,16 +1025,22 @@ def _workflow_names_repository(document: object, repository: str) -> bool:
     """Whether a PARSED workflow document's own structural sites name
     `repository`.
 
-    TWO SITES, and no third: a step's `uses:` (a reusable workflow or action
-    pinned AT this repository) and a step's `with.repository:` (an
+    THREE SITES, and no fourth. A step's `uses:` (a reusable workflow or
+    action pinned AT this repository) and a step's `with.repository:` (an
     `actions/checkout`-shaped input naming which repository to check out —
     `.github/workflows/merge-master-approval.yml`'s own site for row 3's
-    admission). Every OTHER string in the document — a comment, a `run:`
-    script line, an `echo`, an `::error::` message — is prose ABOUT the
-    repository and not the workflow's own claim to dispatch into it, and is
-    not consulted; `merge-master-approval.yml` names
-    `codeXfactory/codexFactory` in exactly that prose form more than a dozen
-    times beside the one structural site.
+    admission) are the two a step carries. THE THIRD IS AT THE JOB ITSELF:
+    `jobs.<job_id>.uses` is how GitHub Actions calls a REUSABLE WORKFLOW at
+    job granularity rather than inside a step — a job written this way has NO
+    `steps:` at all (the called workflow's own steps run in its place), so a
+    reader that only ever looked inside `steps[*]` would report a workflow
+    admission GONE for a job written in exactly this shape, on a file whose
+    structural `uses:` names the repository plainly. Every OTHER string in the
+    document — a comment, a `run:` script line, an `echo`, an `::error::`
+    message — is prose ABOUT the repository and not the workflow's own claim
+    to dispatch into it, and is not consulted; `merge-master-approval.yml`
+    names `codeXfactory/codexFactory` in exactly that prose form more than a
+    dozen times beside its one (step-level) structural site.
     """
     if not isinstance(document, dict):
         return False
@@ -991,6 +1050,9 @@ def _workflow_names_repository(document: object, repository: str) -> bool:
     for job in jobs.values():
         if not isinstance(job, dict):
             continue
+        job_uses = job.get("uses")
+        if isinstance(job_uses, str) and _uses_repository(job_uses) == repository:
+            return True
         steps = job.get("steps")
         if not isinstance(steps, list):
             continue
