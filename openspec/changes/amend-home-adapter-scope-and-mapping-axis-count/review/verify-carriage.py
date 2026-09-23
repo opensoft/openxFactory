@@ -26,9 +26,9 @@ directory does not change what it reads.
 Exit 0 with one `OK` line per capability. Exit 1 with one `FAIL` line for each
 capability that fails — a promoted scenario count other than the one `PAIRS`
 expects, the first promoted scenario not carried exactly, the first carried out
-of order, or a canon state that must stop a reader — or at once, with the
-reason, when an input is missing, carries a carriage return, or lacks the
-requirement it must hold.
+of order, or a canon state that must stop a reader — or at once, with a message
+naming the path and the reason, when an input is missing, is not valid UTF-8,
+carries a carriage return, or lacks the requirement it must hold.
 
 SEVEN THINGS THIS SCRIPT DOES THE LONG WAY, and every one for the same reason:
 **a carriage proof that is approximately right proves nothing.** Each was forced
@@ -37,7 +37,9 @@ review on `opensoft/openxFactory#1143`; (4) was found by the author while fixing
 (3). The record, with the control that proved each, is `design.md` D4b and D4d
 through D4f.
 
-(1) IT READS BYTES AND REFUSES A CARRIAGE RETURN, rather than reading text.
+(1) IT READS BYTES AND REFUSES A CARRIAGE RETURN, rather than reading text —
+and it refuses a missing file or invalid UTF-8 by name as well, rather than
+raising (Copilot `r4077737673`, against the docstring's own promise).
 `Path.read_text()` applies universal-newline conversion before any comparison
 runs, so a promoted scenario whose line endings changed to CRLF would compare
 EQUAL to a delta carrying LF — the script would report a byte-for-byte match
@@ -142,19 +144,32 @@ PAIRS = (
 
 
 def read_lf_bytes(path: pathlib.Path) -> str:
-    """The file's bytes, decoded strictly, with a carriage return REFUSED.
+    """The file's bytes, decoded strictly, with a carriage return REFUSED — and a
+    missing file or invalid UTF-8 refused BY NAME, never raised as a traceback.
 
     Never `read_text()`: its universal-newline conversion would make a CRLF file
     compare equal to an LF one and turn this script's own claim into a
-    tautology.
+    tautology. And never a bare `read_bytes()`: the module docstring promises
+    that an unreadable input exits at once WITH THE REASON (Copilot
+    `r4077737673`), and a `FileNotFoundError` traceback is the reason buried in
+    a stack rather than stated.
     """
+    if not path.is_file():
+        raise SystemExit(
+            f"{path}: not found. This proof reads it and it is missing — "
+            f"reported by name rather than raised")
     raw = path.read_bytes()
     if b"\r" in raw:
         raise SystemExit(
             f"{path}: contains a carriage return. This corpus writes LF, and a "
             f"byte-for-byte comparison across mixed line endings is not one — "
             f"reported rather than normalized away")
-    return raw.decode("utf-8")
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise SystemExit(
+            f"{path}: not valid UTF-8 ({error.reason} at byte {error.start}) — "
+            f"reported by name rather than raised") from None
 
 
 def requirement_section(text: str, title: str) -> str:

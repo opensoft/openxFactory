@@ -344,11 +344,11 @@ body word changed in canon with every scenario untouched gives `FAIL … canon
 matches NEITHER the basis nor this block over the requirement's full text`; the
 packet copied one directory deeper runs clean.
 
-**Eight defects have now been found in this script: seven by review, and one —
+**Nine defects have now been found in this script: eight by review, and one —
 D4d's ordering gap — by me, while fixing a review finding.** An earlier drafting
 of this sentence said *"by review and none by me"*; the review record raises no
 ordering finding, so it was false, and D4g says how it was caught. They fall
-into three kinds — what it READ (bytes), what it COMPARED (quotation, blanks,
+into three kinds — what it READ (bytes; a missing input, D4g), what it COMPARED (quotation, blanks,
 order, body) and how long the answer STAYS TRUE (mutable canon, deleted canon,
 archive depth) — and the third kind is the one first-principles authoring never
 reaches, because it is a question about the future rather than about the text.
@@ -371,6 +371,13 @@ and quoting a FAIL message the script no longer prints; *round* numbers that,
 past the first, matched neither the count of reviews nor the count of heads, now
 replaced by finding ids a reader can check; and **one false sentence of mine**,
 D4f's *"none by me"*, corrected above.
+
+**And the rewritten docstring promised one thing the code did not do** (Copilot
+`r4077737673`, the review after): it said an input that is missing exits at once
+with the reason, while `read_lf_bytes` called `read_bytes()` unchecked, so a
+missing basis or delta raised a `FileNotFoundError` traceback. The code now
+matches the sentence — a missing file and invalid UTF-8 are refused by name, as a
+carriage return already was — which is the ninth defect D4f counts.
 
 ## D5 — two stale strings found and deliberately not fixed
 
