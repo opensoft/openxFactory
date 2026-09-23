@@ -532,6 +532,38 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-home-adapter-scope-and-mapping-axis-count](openspec/changes/amend-home-adapter-scope-and-mapping-axis-count/proposal.md)
+  — filed 2026-09-22, lane `openxfactory-4`, **`Status: draft`**, on the TWO
+  REMAINING ratified-text findings of Copilot review `5273796676` on
+  `opensoft/openxFactory#1139` (the archive of `split-opendox-two-layer-product`,
+  merge `e8fde27f`), registered as real by the archiving lane at `#1139` comment
+  `5770749761`. The third of that set was ruled separately and landed as `#1140`;
+  with this the set of four closes. **TWO `## MODIFIED` requirements in two
+  capabilities, six promoted scenarios carried byte-identically, four added.**
+  (1) `corpus-adapter-seam`'s *"SHALL consume every tool that reads its governed
+  corpus as an EXTERNAL NEUTRAL PRODUCT pinned under `neutral-product-pin`"*
+  gains a NAMED, BOUNDED exception for the one adapter RULING DQ-1 keeps in this
+  repository, whose obligations requirement 4 and `openxfactory-engineering-adapter`
+  already carry — measured: `scripts/corpus_adapter_openxfactory/` is in tree, in
+  no pin, and imports `doc_health` at six sites and `ideation_dashboard` at two,
+  so it satisfies neither of the requirement's two clauses and the escape the
+  first appears to offer is closed by the second. The exception is ONE NAMED
+  IMPLEMENTATION and not a general carve-out, with a scenario refusing a second
+  in-repository reader, because a general one would make the requirement's own
+  vendoring scenario unreachable. (2) `domain-mapping-declaration`'s *"exactly
+  five axes"* becomes SIX, the sixth being the DERIVED-MODEL BOUNDARY the same
+  spec's third requirement already mandates for every derived-model family —
+  measured: the estate's one realized declaration,
+  `contracts/domain-profiles/openxfactory-engineering.yaml`, already carries
+  `truth_store:` as a top-level key beside the five, under its own `AXIS 1`..`AXIS 5`
+  banners and under none of its own, and `DomainProfile` carries it as its own
+  field, so the amendment states the count the corpus already keeps and settles
+  which of the finding's two readings — forbidden sixth axis, or nested data —
+  is right. `code_surface: none`, MEASURED: every reference to
+  `corpus-adapter-seam` in running code names requirement 3 or 4, not one names
+  requirement 1, and nothing anywhere counts axes. **NOT RATIFIED BY THE
+  AUTHORING LANE** — both amendments are requirement text after a ratify word and
+  go to Brett Heap, per the 2026-09-01 precedent.
 - [amend-neutral-product-pin-source-tree-digest](openspec/changes/amend-neutral-product-pin-source-tree-digest/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-22,
   Brett Heap, *"ratify #1140 and #1141"*, `#656` comment `5779511063`, at head
