@@ -20,14 +20,21 @@ Group 6 for the check itself and by Group 14 for where its results live, which i
 the amendment the ruling of 2026-09-22 made to it. The requirement-to-group map is
 the group headings, read as written; nothing below claims a bijection.
 
-**Two classes of verb appear in the commands, and the difference matters.** Groups
-2-13 name only verbs `src/opendox/cli.py` ALREADY DECLARES — the arc packages and
-unblocks that surface, it does not invent one — and task 10.1 carries the verb
-table those commands are written against. Groups 14 and 15 name the `health`
-verbs this arc CREATES (task 14.6 declares them); their falsifications are
-therefore acceptance tests for surface the realization must add, not re-runs of
-surface that exists, and no box in 14 or 15 may be closed by a command whose verb
-its own group did not first declare.
+**Three classes of verb appear in the commands, and the difference matters.**
+
+1. **Verbs that EXIST today**: `generate`, `generate-and-open`, `create` and
+   `edit`, in the exact shapes task 10.1's table records against the parser. The
+   arc packages and unblocks them; it does not change them.
+2. **Verbs this arc CREATES**, each declared by name and shape in ONE numbered
+   box: `submit` (12.4a), `land` (12.6a), and `health run|list|fix|accept`
+   (14.5). A falsification that uses one is an acceptance test for surface the
+   realization must add, not a re-run of surface that exists.
+3. **Prerequisites by name.** A group MAY use a verb an EARLIER group declares,
+   and says so. Group 15 runs Group 14's `health run` and `health list`, so
+   Group 15 cannot close before 14.5 lands.
+
+**The rule:** no box closes on a command whose verb is neither in 10.1's table
+nor declared by its own group or by an earlier one it names.
 
 **Fixture corpora are DIRECTORIES in the code leg's checkout, never
 repositories**, and none exists today — `git ls-tree` over openDox-code's
@@ -38,6 +45,11 @@ first**, so no command below can create a branch or a commit inside the checkout
 it is testing, and a git adapter pointed at a fixture reads that fixture rather
 than the enclosing repository. Each block carries its own three setup lines and
 its own commit identity, so every group runs from a fresh shell on its own.
+**Setup steps are ONE COMMAND PER LINE, never chained with `&&`.** Under
+`set -e` a failure anywhere but the LAST command of an `&&` list does not stop
+the shell. A failed `git init` or `python -m venv` would therefore be skipped
+silently, and the acceptance would go on to run against a directory that is
+not a repository, or against whatever `opendox` is already on the PATH.
 
 House rule: OpenSpec ratifies, Speckit builds. No group below is started before
 ratification, no group is started without its own claim on
@@ -284,8 +296,11 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       # dependency-ordered. At group 5's boundary the module is importable
       # (group 2) and that is what this falsifier uses.
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
-      R=$(mktemp -d)/plain-documents && cp -r tests/fixtures/plain-documents "$R"   # 5.0's fixture, as a FRESH repository
-      git -C "$R" init -q && git -C "$R" add -A && git -C "$R" commit -qm fixture
+      R=$(mktemp -d)/plain-documents
+      cp -r tests/fixtures/plain-documents "$R"   # 5.0's fixture, as a FRESH repository
+      git -C "$R" init -q
+      git -C "$R" add -A
+      git -C "$R" commit -qm fixture
       python -m opendox.cli generate --repo-root "$R" --repository fixture --output /tmp/snap.json
       python -c "
       import json,sys
@@ -422,12 +437,20 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   a validator that could not RUN fatal instead of a warning:
 
       set -euo pipefail
-      python -m venv /tmp/v7 && . /tmp/v7/bin/activate && pip install .   # PACKAGE DATA on disk (7.1)
+      python -m venv /tmp/v7
+      . /tmp/v7/bin/activate
+      pip install .   # PACKAGE DATA on disk (7.1)
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
-      OK=$(mktemp -d)/plain-documents && cp -r tests/fixtures/plain-documents "$OK"
-      git -C "$OK" init -q && git -C "$OK" add -A && git -C "$OK" commit -qm fixture
-      BAD=$(mktemp -d)/malformed && cp -r tests/fixtures/malformed "$BAD"
-      git -C "$BAD" init -q && git -C "$BAD" add -A && git -C "$BAD" commit -qm fixture
+      OK=$(mktemp -d)/plain-documents
+      cp -r tests/fixtures/plain-documents "$OK"
+      git -C "$OK" init -q
+      git -C "$OK" add -A
+      git -C "$OK" commit -qm fixture
+      BAD=$(mktemp -d)/malformed
+      cp -r tests/fixtures/malformed "$BAD"
+      git -C "$BAD" init -q
+      git -C "$BAD" add -A
+      git -C "$BAD" commit -qm fixture
       python -m opendox.cli generate --repo-root "$OK" --repository fixture --strict --output /tmp/ok.json
       if python -m opendox.cli generate --repo-root "$BAD" --repository fixture --strict --output /tmp/bad.json 2>/tmp/err; then
         echo "FAIL: a malformed corpus validated"; exit 1
@@ -597,12 +620,17 @@ packet's interim arrangement ends.**
   wait so the sequence runs to completion unattended):
 
       set -euo pipefail
-      python -m venv .venv && . .venv/bin/activate && pip install .
+      python -m venv .venv
+      . .venv/bin/activate
+      pip install .
       if python -c "import openxdox" 2>/dev/null; then echo "FAIL: sibling present"; exit 1; fi
       opendox --help >/dev/null                       # the console script MUST exist
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
-      R=$(mktemp -d)/plain-documents && cp -r tests/fixtures/plain-documents "$R"   # a FRESH repository (preamble)
-      git -C "$R" init -q && git -C "$R" add -A && git -C "$R" commit -qm fixture
+      R=$(mktemp -d)/plain-documents
+      cp -r tests/fixtures/plain-documents "$R"   # a FRESH repository (preamble)
+      git -C "$R" init -q
+      git -C "$R" add -A
+      git -C "$R" commit -qm fixture
       opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8080 &
       SERVER=$!
       trap 'kill "$SERVER" 2>/dev/null || true' EXIT   # cleanup cannot mask the verdict
@@ -625,6 +653,13 @@ packet's interim arrangement ends.**
 
 ## Group 11 — Requirement 1: the guard holds (openxFactory)
 
+- [ ] 11.0 **Every commit this arc lands in openxFactory carries the trailer
+  `Arc: neutral-product-standalone-operability`**, checked at each PR's review
+  like the `Lane:` line. That trailer is how the guard below finds THE ARC'S OWN
+  commits. The alternative, diffing `main` between two commits, measures
+  everything that reached `main` in between, and in a shared repository that is
+  every other lane's work. Such a guard would flag unrelated landings, or, with a
+  pathspec narrow enough to avoid them, miss the arc's own edits outside it.
 - [ ] 11.1 At the close of the arc, a diff of openxFactory across every group
   shows: no `scripts/doc_health/` family moved, no `openspec/specs/` capability
   removed, no corpus document moved, no intent-plane schema moved, and no
@@ -639,30 +674,41 @@ packet's interim arrangement ends.**
   because this packet necessarily edits the ledger it would then flag:
 
       set -euo pipefail
-      git diff --name-only <this-packet's-merge-commit>..<arc-tip> \
-        -- scripts/ contracts/ tests/ ideation/ docs/ openspec/specs/ \
-        ':(exclude)tests/sequenced_after/corpus-ledger.yaml' > /tmp/arc-paths.txt
+      # THE ARC'S OWN COMMITS (11.0), not everything that reached main meanwhile:
+      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' \
+        <this-packet's-merge-commit>..<arc-tip> > /tmp/arc-commits.txt
+      test -s /tmp/arc-commits.txt                          # 11.1's annotations exist, so an empty list measured nothing
+      : > /tmp/arc-paths.txt
+      while read -r c; do                                   # each commit against its FIRST parent, WHOLE repository
+        git diff --name-only "$c^1" "$c" >> /tmp/arc-paths.txt
+      done < /tmp/arc-commits.txt
       python3 - /tmp/arc-paths.txt <<'PY'
       import sys
       ALLOWED = {"docs/opendox-carve-manifest.yaml",
                  "openspec/specs/neutral-product-standalone-operability/spec.md"}
-      touched = [l.strip() for l in open(sys.argv[1]) if l.strip()]
+      EXCLUDED = {"tests/sequenced_after/corpus-ledger.yaml"}   # machine-seeded bookkeeping
+      touched = sorted({l.strip() for l in open(sys.argv[1]) if l.strip()} - EXCLUDED)
       breach = [p for p in touched if p not in ALLOWED]
       if breach:
           sys.exit("FAIL: the arc touched paths requirement 1 keeps:\n  " + "\n  ".join(breach))
-      print(f"requirement 1 holds: {len(touched)} path(s) changed, all on the allow-list")
+      print(f"requirement 1 holds: {len(touched)} path(s) across the arc's commits, all allowed")
       PY
 
-  **The allow-list is ENFORCED, not described.** Every path the diff prints must
-  be `docs/opendox-carve-manifest.yaml` or
+  **The allow-list is ENFORCED over the WHOLE repository, and only over the arc.**
+  There is no pathspec, so a change to `README.md`, `.github/`, `pyproject.toml`
+  or any other root path is seen. The commits measured are the ones carrying 11.0's
+  trailer, each diffed against its first parent, so another lane's landing in the
+  same window is not mistaken for the arc's. Every path must be
+  `docs/opendox-carve-manifest.yaml` or
   `openspec/specs/neutral-product-standalone-operability/spec.md`; any other path
-  exits non-zero and names itself, and is a breach of requirement 1 to be reverted
-  or declared. The diff is captured to a file first, so a failing `git diff` fails
-  under `set -e` instead of handing the check an empty list that would read as
-  a pass. The ledger is
-  excluded by name because it is machine-seeded bookkeeping every filing owes and
-  carries no behaviour; if it ever moves for another reason, that shows up in the
-  seeder's own `--ledger-diff` gate instead.
+  exits non-zero, names itself, and is a breach of requirement 1 to be reverted
+  or declared. Every intermediate list is captured to a file first, so a failing
+  `git` fails under `set -e` instead of handing the check an empty list that would
+  read as a pass. The ledger is excluded by name because it is machine-seeded
+  bookkeeping that every filing owes and that carries no behaviour; if it ever
+  moves for another reason, the seeder's own `--ledger-diff` gate shows it. The
+  archive act that closes this change is the FILING's bookkeeping, like this
+  packet's own merge, and is outside `<arc-tip>`.
 
 ## Group 12 — Requirement 11: the neutral submission step (RULED, openDox-code)
 
@@ -790,9 +836,11 @@ that does not name a platform.
       set -euo pipefail
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
       rm -rf /tmp/plain /tmp/remote
-      git init -q /tmp/plain && git -C /tmp/plain commit -q --allow-empty -m seed
+      git init -q /tmp/plain
+      git -C /tmp/plain commit -q --allow-empty -m seed
       git -C /tmp/plain branch sess-1                       # the SESSION BRANCH must exist to be pushed
-      git init -q --bare /tmp/remote && git -C /tmp/plain remote add origin /tmp/remote
+      git init -q --bare /tmp/remote
+      git -C /tmp/plain remote add origin /tmp/remote
       # submit through the PRODUCT'S OWN VERB (12.4a), so the REAL default binding runs:
       opendox submit --repo-root /tmp/plain --branch sess-1 > /tmp/submit.out
       git -C /tmp/remote rev-parse --verify sess-1          # the branch ARRIVED
@@ -865,9 +913,17 @@ amendments.
 - [ ] 13.1 **Bundle Postgres with the standalone install** so a user installs the
   product and not a database. The pieces exist: `pyproject.toml:134` pins
   `psycopg[binary,pool]>=3.2` and `deploy/compose/docker-compose.yaml:25` is
-  already `image: postgres:16`. This box makes the LOCAL install bring it: with
-  `OPENDOX_INSTALL_MODE=local` (13.4) the product starts its bundled database and
-  supplies BOTH DSNs itself. With `hosted` or unset, a missing
+  already `image: postgres:16`. But `psycopg` is a CLIENT and `pip install` starts
+  no container, so neither piece brings a server by itself. This box makes the
+  LOCAL install bring one: with `OPENDOX_INSTALL_MODE=local` (13.4) the product
+  starts a PostgreSQL SERVER shipped inside the install and supplies BOTH DSNs
+  itself. **The server's IDENTITY is fixed here; its packaging is the
+  realization's choice.** The data directory and the Unix socket live under the
+  install's own state directory, `OPENDOX_STATE_DIR`, which defaults to a
+  per-user directory the install owns. The server listens on that socket and on
+  NO TCP port, so no pre-existing service can stand in for it. `runtime status`
+  reports a `database_bundle` block naming `data_dir` and `socket_dir`, and the
+  acceptance below checks the DSN against that block. With `hosted` or unset, a missing
   `OPENDOX_DATABASE_URL` stays the refusal `config.py:13` already makes, so a
   hosted install can no more fall into a private local database than into local
   identity.
@@ -906,11 +962,17 @@ amendments.
 
       set -euo pipefail
       # the install is group 10's, unchanged — one entry point, one command:
-      python -m venv /tmp/v13 && . /tmp/v13/bin/activate && pip install .
+      python -m venv /tmp/v13
+      . /tmp/v13/bin/activate
+      pip install .
       unset OPENDOX_DATABASE_URL OPENDOX_MIGRATION_DATABASE_URL OPENDOX_OIDC_ISSUER OPENDOX_INSTALL_MODE   # NONE of them set
+      export OPENDOX_STATE_DIR=$(mktemp -d)                 # a state directory NOTHING else has touched
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
-      R=$(mktemp -d)/plain-documents && cp -r tests/fixtures/plain-documents "$R"   # this group's OWN corpus, not Group 12's
-      git -C "$R" init -q && git -C "$R" add -A && git -C "$R" commit -qm fixture
+      R=$(mktemp -d)/plain-documents
+      cp -r tests/fixtures/plain-documents "$R"   # this group's OWN corpus, not Group 12's
+      git -C "$R" init -q
+      git -C "$R" add -A
+      git -C "$R" commit -qm fixture
       opendox --help >/dev/null
       # LOCAL mode starts, with no broker and no operator-supplied database:
       OPENDOX_INSTALL_MODE=local opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8080 &
@@ -920,10 +982,15 @@ amendments.
       # ...and what it answered from is the BUNDLED datastore, migrated (requirement 12):
       OPENDOX_INSTALL_MODE=local opendox-runtime runtime status --probe-timeout 10 > /tmp/status.json
       python3 - /tmp/status.json <<'PY'
-      import json, sys
+      import json, os, sys
       s = json.load(open(sys.argv[1]))
       assert s.get("database") == "reachable", f"no bundled database answered: {s}"
       assert s.get("applied_migrations") and not s.get("pending_migrations"), f"not migrated: {s}"
+      state = os.path.realpath(os.environ["OPENDOX_STATE_DIR"])
+      bundle = s.get("database_bundle") or {}
+      for key in ("data_dir", "socket_dir"):                 # the server that answered is the INSTALL'S OWN
+          got = os.path.realpath(bundle.get(key, ""))
+          assert got.startswith(state + os.sep), f"{key} {got!r} is not under the install's state dir {state!r}"
       PY
       kill "$SERVER"; wait "$SERVER" 2>/dev/null || true
       # ONE DIALECT, and the two connections NOT COLLAPSED (13.2, 13.3), asked of the
@@ -948,18 +1015,24 @@ amendments.
       export OPENDOX_DATABASE_URL=postgresql://serve@127.0.0.1:1/opendox OPENDOX_MIGRATION_DATABASE_URL=postgresql://migrate@127.0.0.1:1/opendox OPENDOX_OIDC_AUDIENCE=fixture
       # a HOSTED install with no issuer REFUSES — same server path, BOUNDED, naming the setting:
       rc=0; OPENDOX_INSTALL_MODE=hosted timeout 30 opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8081 >/dev/null 2>/tmp/hosted.err || rc=$?
-      test "$rc" -ne 0 && test "$rc" -ne 124              # refused: neither started, nor killed by the bound
+      test "$rc" -ne 0
+      test "$rc" -ne 124   # refused: neither started, nor killed by the bound
       grep -q "OPENDOX_OIDC_ISSUER" /tmp/hosted.err
       # and the DEFAULT is hosted: the same install with the selector UNSET refuses identically:
       rc=0; timeout 30 opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8082 >/dev/null 2>/tmp/default.err || rc=$?
-      test "$rc" -ne 0 && test "$rc" -ne 124
+      test "$rc" -ne 0
+      test "$rc" -ne 124
       grep -q "OPENDOX_OIDC_ISSUER" /tmp/default.err
 
   **Six assertions. The last four are the safety, and the last two are bounded.**
   The local probe proves the install starts with no broker and no
   operator-supplied database. `runtime status` then proves the datastore it
   answered from is the bundled one, reachable and migrated; it reports JSON with
-  `database` and `pending_migrations` keys (`runtime/cli.py:621`). The dialect
+  `database` and `pending_migrations` keys (`runtime/cli.py:621`). **The identity
+  is checked, not assumed.** Its data directory and socket must both lie under a
+  state directory created empty for this run, and the bundled server has no TCP
+  port. So a PostgreSQL that happened to be running on the machine cannot pass
+  this check in the bundle's place. The dialect
   and collapse checks go to `load_settings(env)` directly (`config.py:1391`
   takes the mapping). Every other setting is supplied well-formed, so each
   refusal must be about the DSN it names: an implementation that used SQLite, or
@@ -1058,8 +1131,11 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
 
       set -euo pipefail
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
-      C=$(mktemp -d)/health-corpus && cp -r tests/fixtures/health-corpus "$C"   # a FRESH repository: fix branches and commits land HERE
-      git -C "$C" init -q && git -C "$C" add -A && git -C "$C" commit -qm fixture
+      C=$(mktemp -d)/health-corpus
+      cp -r tests/fixtures/health-corpus "$C"   # a FRESH repository: fix branches and commits land HERE
+      git -C "$C" init -q
+      git -C "$C" add -A
+      git -C "$C" commit -qm fixture
       opendox health run --repo-root $C
       opendox health list --repo-root $C > /tmp/h1.txt
       grep -q 'broken-link' /tmp/h1.txt
@@ -1071,7 +1147,8 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
       # THE EXCEPTION IS PROVED TO EXIST BEFORE THE RESET, not merely absent after:
       opendox health accept --repo-root $C --finding accepted-finding --reason "fixture"
       test -n "$(git -C $C status --porcelain -- health/dispositions.yaml)" || { echo "FAIL: accept wrote nothing to git"; exit 1; }
-      git -C $C add health/dispositions.yaml && git -C $C commit -qm "accept fixture finding"
+      git -C $C add health/dispositions.yaml
+      git -C $C commit -qm "accept fixture finding"
       opendox health run --repo-root $C
       opendox health list --repo-root $C > /tmp/h2.txt
       ! grep -q 'accepted-finding' /tmp/h2.txt              # suppressed BEFORE the reset
@@ -1113,10 +1190,16 @@ to #1144"*. `design.md` § D12.
   manifest.** The engine loads packs ONLY from `health/packs.yaml` in the corpus.
   It is committed beside `health/dispositions.yaml` for the same reason: which
   checks judge a corpus is a human decision about that corpus, not derived data.
-  Each entry carries `id`, `source` (a corpus-relative path or a git URL),
-  `commit` and `digest`. The digest is the source-tree digest `neutral-product-pin`
-  already defines. The engine verifies commit AND digest before importing a
-  single line of the pack. **No entry-point scanning and no import-path
+  Each entry carries `id`, `source` and `digest`. The digest is the source-tree
+  digest `neutral-product-pin` already defines, and it is REQUIRED for every
+  source. **`commit` depends on where the source lives.** A git-URL source MUST
+  carry it. A corpus-relative source MUST NOT: its referent is the corpus commit
+  that carries both the manifest and the source, because the two are committed
+  together, so the corpus's own history pins the pack and the digest proves its
+  bytes. A corpus-relative entry that DOES carry a `commit` is refused, because it
+  would name a commit the corpus cannot check; copying the corpus into a fresh
+  repository, as every acceptance here does, would orphan it. The engine
+  verifies the pin before importing a single line of the pack. **No entry-point scanning and no import-path
   discovery**: a pack that is installed but not listed does not run. A listed pack
   whose source no longer matches its digest is REFUSED, and the refusal is a
   FINDING against that pack carrying the expected and actual digests. The pack is
@@ -1148,7 +1231,8 @@ to #1144"*. `design.md` § D12.
   the two fixture packs under `packs/`. `fixture-crashing-pack` raises on its
   first family and `fixture-slow-pack` sleeps past any timeout. A
   `health/packs.yaml` registers both through 15.1a's manifest by corpus-relative
-  `source`, pinned by digest. Because packs and manifest travel INSIDE the corpus,
+  `source`, pinned by digest and carrying NO `commit`, as 15.1a requires of a
+  source the corpus itself versions. Because packs and manifest travel INSIDE the corpus,
   copying the fixture into a fresh repository carries a valid registration with
   it, and the acceptance loads the packs through the product's real path rather
   than an in-process fake. A test keeps the fixture digests current. These are
@@ -1163,8 +1247,11 @@ to #1144"*. `design.md` § D12.
 
       set -euo pipefail
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
-      C=$(mktemp -d)/pack-corpus && cp -r tests/fixtures/pack-corpus "$C"   # packs + manifest travel inside
-      git -C "$C" init -q && git -C "$C" add -A && git -C "$C" commit -qm fixture
+      C=$(mktemp -d)/pack-corpus
+      cp -r tests/fixtures/pack-corpus "$C"   # packs + manifest travel inside
+      git -C "$C" init -q
+      git -C "$C" add -A
+      git -C "$C" commit -qm fixture
       # the two fixture packs of 15.6a are registered; the run is itself bounded,
       # so a hang is a FAILED FALSIFICATION and never a hung falsifier:
       timeout 120 opendox health run --repo-root $C --timeout 5
