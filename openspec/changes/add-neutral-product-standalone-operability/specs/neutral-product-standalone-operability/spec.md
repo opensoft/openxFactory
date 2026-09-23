@@ -188,7 +188,7 @@ model is configured.
 
 #### Scenario: A closed schema must gain a table
 - **WHEN** derived results require a table a ratified CLOSED list does not name
-- **THEN** it arrives as an ADDITIVE migration that never edits the canonical one, and the declaration that closes the list moves in the SAME change, so the boundary is re-drawn in the open rather than widened quietly
+- **THEN** it arrives as an ADDITIVE migration that never edits the canonical one, and the change DECLARES whether the table joins the closed list or is install-owned beside it; where it joins, the declaration that closes the list moves in the SAME change, so the boundary is re-drawn in the open rather than widened quietly, and where it does not, the change says why
 
 #### Scenario: A family reads the publisher's status taxonomy
 - **WHEN** a check family reads the publishing repository's `Status:` taxonomy or its change/spec/delta nouns
@@ -521,9 +521,13 @@ to carry.
 
 A PACK IS ARBITRARY CODE, so "only the engine writes" SHALL be enforced by where
 the pack runs, not by what its interface declares. A pack SHALL RUN IN A
-SEPARATE PROCESS INSIDE AN OPERATING-SYSTEM-ENFORCED SANDBOX. The only
-filesystem visible inside it is a READ-ONLY MOUNT of an isolated copy of the
-corpus that the engine prepares for that run, plus the pack's own pinned code. It
+SEPARATE PROCESS INSIDE AN OPERATING-SYSTEM-ENFORCED SANDBOX. NOTHING OF THE
+USER'S IS VISIBLE INSIDE IT except a READ-ONLY MOUNT of an isolated copy of the
+corpus that the engine prepares for that run. Beside that copy it sees only what
+running the pack needs: the pack's own pinned code, the interpreter and the
+libraries its runtime reads, mounted read-only, a private scratch space that is
+discarded with the sandbox, and the sandbox's OWN process and device
+pseudo-filesystems, never the host's. It
 has NO NETWORK, NO OTHER PATH of the user's is reachable, and the pack's WHOLE
 PROCESS TREE lives inside it, so ending the sandbox ends every descendant. The
 pack SHALL NEVER be handed the checkout itself. File permissions and a

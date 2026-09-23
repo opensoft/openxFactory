@@ -1874,8 +1874,12 @@ to #1144"*. `design.md` § D12.
   `--unshare-all` (network, PID, IPC, UTS and user namespaces),
   `--die-with-parent`, `--new-session`, `--ro-bind <copy> /corpus`,
   `--ro-bind <pack> /pack`, read-only binds of only the interpreter paths the
-  pack's runtime needs, a private `--tmpfs /tmp`, and nothing of `$HOME` or of
-  the checkout. **The process state is cleared as well as the filesystem.** A
+  pack's runtime needs, a private `--tmpfs /tmp`, the sandbox's OWN `--proc
+  /proc` and a minimal `--dev /dev`, and nothing of `$HOME` or of the checkout.
+  The procfs is the one of the sandbox's own PID namespace, so `/proc/self/fd`
+  shows the pack's descriptors and no one else's. That is what gives the
+  escaping fixture's descriptor hunt (15.6a) something real to search, and
+  requirement 16 names exactly these as the runtime support a pack may see. **The process state is cleared as well as the filesystem.** A
   namespace hides paths, but it does not hide what the pack inherits.
   `--clearenv` is followed by `--setenv` of an explicit allowlist (`PATH`,
   `LANG`, `PYTHONNOUSERSITE=1` and nothing else), so no token, DSN or credential
