@@ -909,13 +909,25 @@ that cannot change its result. The sweep matters because the post side is
 imported off the WORKING TREE, and an uncommitted edit under a leg renders
 bytes that are not the pinned commit's while every sha comparison still
 passes. The sweep is
-three reads and not a `git status`: the tracked diff and the ignored files
-under the import surface, the untracked files, and an `ls-files -v` scan for
+four reads and not a `git status`: the tracked diff under the import surface,
+the ignored files under it, the untracked files, and an `ls-files -v` scan for
 the `assume-unchanged` / `skip-worktree` flags that make git report an edited
-file as CLEAN. Seven named refusal codes and one blanket, **exit 0 or 2 and
-never 1**, in § 2.1's idiom. The evidence line also carries the SUPERPROJECT's own revision
-and dirt state, which no gitlink pins: `carved_reach.py`, `opendox_host.py`
-and the profile are read out of this checkout, so two runs can differ by them
+file as CLEAN. The ignored read passes over exactly ONE class and trusts
+nothing: an ignored `.py` under `src` is as importable as a tracked one, and
+so is a sourceless `src/shadow.pyc` sitting where `shadow.py` would sit, but
+compiled bytecode in a `__pycache__` is UNREACHABLE to the run — because
+`sys.pycache_prefix` is set before either leg is imported, by the runner and
+by `scripts/carved_reach.py`'s `install()`, so CPython consults no
+`__pycache__` beside a source and writes none into a pinned tree. That matters
+twice over: a crafted cache whose header still matches the tracked source
+would otherwise be EXECUTED by the run whose claim is that this tree IS that
+commit, and the pass-over is no longer "the files this runner wrote" — a
+provenance a pathname cannot establish — but a class the run has established
+it cannot read. Seven named refusal codes and one blanket,
+**exit 0 or 2 and never 1**, in § 2.1's idiom. The evidence line also carries
+the SUPERPROJECT's own revision and dirt state, which no gitlink pins:
+`carved_reach.py`, `opendox_host.py` and the profile are read out of this
+checkout, so two runs can differ by them
 alone while every pinned leg matches.
 
 **Driven by `tests/snapshot_equivalence/`** inside the required `pytest-suite`

@@ -229,7 +229,6 @@ CLOSED_REGISTER = (
     ("declare-client-standing-policy-contract", "contract-v<next"),
     ("add-roster-directory-admission-surface", "implementation_pending"),
     ("qualify-avatar-live-voice", "implementation_pending"),
-    ("split-opendox-two-layer-product", "implementation_pending"),
     ("implement-keycloak-install-repo", "repository-bootstrap"),
     ("implement-openxpki-install-repo", "repository-bootstrap"),
     ("admit-review-lane-repin-to-merge-approval-envelope", "a"),

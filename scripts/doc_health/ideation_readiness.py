@@ -778,12 +778,46 @@ def verify_pin_reachability(repo=None, *, rev: str = "HEAD",
     consulted and, for a defect, the repair route the artifact's own class
     allows: retention for immutable evidence, reproduction for a regenerable
     projection. Naming the route at the moment the finding fires is how the
-    landing obligation is discoverable where it binds."""
+    landing obligation is discoverable where it binds.
+
+    `report` IS None IN EXACTLY ONE CASE — an unconsultable repository — and
+    that is the only shape a caller has to allow for beyond the three verdicts.
+    See the SKIP below."""
     from . import pin_class
 
     root = Path(repo or Path(__file__).resolve().parents[2])
-    report = pin_class.verify(root, rev=rev, remote=remote,
-                              allow_remote=allow_remote)
+    try:
+        report = pin_class.verify(root, rev=rev, remote=remote,
+                                  allow_remote=allow_remote)
+    except pin_class.GitUnavailable as exc:
+        # AN UNCONSULTABLE REPOSITORY IS THIS PROBE'S OWN SKIP, NEVER A CRASH
+        # (Copilot, PR #1142). `verify()` raises `GitUnavailable` from its
+        # OPENING `rev-parse` and from every later inventory read —
+        # `committed_paths` on `main` already, and `committed_text` since this
+        # branch — so the initial probe succeeding protects nothing: a bound
+        # that fires on the twentieth `git show` of the sweep reaches here just
+        # as the first one does. Uncaught, it takes down whatever surface
+        # called in — a pytest run, a preflight pass, a nightly — at the moment
+        # a SKIP was owed and available.
+        #
+        # SKIP AND NOT FAIL, deliberately. Every FAIL this function returns
+        # names a defect IN AN ARTIFACT and a repair route for it; there is no
+        # artifact defect here and no route to offer, only a question that
+        # could not be put. That is the distinction `report.inconclusive`
+        # already draws one branch below, reached there by sites that answered
+        # INCONCLUSIVE individually and reached here when the inventory itself
+        # could not be read — so the two arrive at the SAME verdict, which is
+        # what makes this the existing answer rather than a new one.
+        #
+        # THE REPORT IS None BECAUSE THERE IS NO REPORT: the inventory never
+        # completed. A fabricated empty one would render as a clean sweep of
+        # zero sites, which is the silent pass this whole branch exists to
+        # prevent.
+        return (PIN_PROBE_SKIP,
+                f"DERIVATION-PIN REACHABILITY NOT ANSWERABLE here: the "
+                f"repository could not be consulted, so no site was "
+                f"classified. Observed, not conjectured: {exc}",
+                None)
     rendered = pin_class.render(report)
 
     if not report.clean:
@@ -846,6 +880,14 @@ def cluster_skeleton(entry: dict) -> dict:
     }
 
 
+# The same 30 s bound `corpus.RealGit` (#1098/PR #1102), `pin_class._git`
+# (#1128), `carved_reach._git_run` (#1048 round 5) and
+# `hermes_runtime_validation/content.py`'s `_git` bind. Declared beside its one
+# call site, as `corpus.py` declares its own, so a test can turn it down and
+# prove the BOUND fired (#1128).
+_GIT_TIMEOUT_SECONDS = 30
+
+
 def index_reproduces_at(repo, pin: str, *, rev: str = "HEAD",
                         index_rel: str = "ideation/cross-reference.yaml"):
     """Does the index committed at `rev` REPRODUCE from the corpus at `pin`?
@@ -873,7 +915,18 @@ def index_reproduces_at(repo, pin: str, *, rev: str = "HEAD",
     from . import pin_class
 
     root = Path(repo)
-    committed = pin_class.committed_text(root, rev, index_rel)
+    try:
+        committed = pin_class.committed_text(root, rev, index_rel)
+    except pin_class.GitUnavailable as exc:
+        # `committed_text` RAISES rather than reading an unaskable git as an
+        # absent path (PR #1142), and this probe's documented "could not
+        # answer" shape is `(None, reason)` — the same one the `git archive`
+        # bound below already returns. So the unavailable read is MAPPED to it
+        # rather than crashing a probe whose contract is a verdict, and the
+        # reason distinguishes "not committed" from "could not be read"
+        # (Copilot, PR #1142).
+        return None, (f"{index_rel} could not be read at {rev} in {root}: "
+                      f"{exc}")
     if committed is None:
         return None, f"{index_rel} is not committed at {rev} in {root}"
     index = yaml.safe_load(committed)
@@ -881,9 +934,28 @@ def index_reproduces_at(repo, pin: str, *, rev: str = "HEAD",
     if not isinstance(entries, list):
         return None, f"{index_rel} at {rev} carries no topic_entries list"
 
-    archived = subprocess.run(
-        ["git", "-C", str(root), "archive", pin, "ideation"],
-        capture_output=True)
+    try:
+        archived = subprocess.run(
+            ["git", "-C", str(root), "archive", pin, "ideation"],
+            capture_output=True, timeout=_GIT_TIMEOUT_SECONDS)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        # #1128: the third unbounded git call in this package. A reconstruction
+        # that hangs — a promisor remote that will not answer for the pin, a
+        # wedged `git archive` — used to block the reproduction check (and
+        # `verify_pin_reachability`, which runs it after a clean reachability
+        # pass) rather than return. Bounded, it answers the SAME
+        # `(None, "NOT ASKED rather than answered")` the non-zero branch below
+        # already answers, which is this function's documented third outcome:
+        # "the question could not be asked". NOT False — False here would blame
+        # the committed body for a question nobody could put, which is the very
+        # distinction the docstring and `test_reproduction_that_cannot_be_asked
+        # _is_neither_pass_nor_fail` exist to keep.
+        detail = (f"`git archive` timed out after {_GIT_TIMEOUT_SECONDS}s"
+                  if isinstance(exc, subprocess.TimeoutExpired)
+                  else f"git could not be run: {exc}")
+        return None, (f"the corpus at {pin} could not be reconstructed, so "
+                      f"reproduction was NOT ASKED rather than answered: "
+                      f"{detail}")
     if archived.returncode != 0:
         detail = (archived.stderr.decode("utf-8", "replace").strip()
                   or f"git archive exited {archived.returncode}")
@@ -912,10 +984,24 @@ def _committed_status(repo, rev: str, path: str) -> str | None:
     """The lifecycle `Status:` a committed artifact carries, or None.
 
     Read from committed state, and read at all because the REPAIR ROUTE turns on
-    it: a `record` is repaired by retention and never by an edit."""
+    it: a `record` is repaired by retention and never by an edit.
+
+    AN UNREADABLE STATUS ANSWERS None, THE SAME AS AN ABSENT ONE, and the
+    conflation is acceptable HERE and nowhere else in this change (Copilot,
+    PR #1142). `committed_text` raises on an unaskable git since PR #1142, and
+    the ONE caller of this function reaches it only for a pin ALREADY judged a
+    defect, to choose which repair route to PRINT. The verdict is settled before
+    this runs and is not moved by the answer; the cost of `None` is a
+    default-route hint instead of a tailored one, against the cost of crashing
+    a probe whose contract is a verdict. Where an unavailable read would change
+    a VERDICT — `is_truncated`, `reachable_from_main`, `committed_text` itself,
+    `retention_holder` — it does not answer, it refuses."""
     from . import pin_class
 
-    text = pin_class.committed_text(repo, rev, path)
+    try:
+        text = pin_class.committed_text(repo, rev, path)
+    except pin_class.GitUnavailable:
+        return None
     if text is None:
         return None
     for line in text.splitlines()[:40]:
