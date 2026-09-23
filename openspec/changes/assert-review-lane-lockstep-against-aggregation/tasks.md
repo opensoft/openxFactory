@@ -279,9 +279,13 @@ this packet's archive until merged PLUS green realization evidence.
   `r4076152473`). A GitHub Actions step exits 0 or non-zero, which is a green
   pass or a red failure and nothing else, so *"NEUTRAL, visible, not reported as
   a pass"* has no expression by exit code alone. The realization publishes the
-  conclusion through the check-run API — conclusion `neutral`, with the state and
-  the values read in its output — and a test asserts the published conclusion for
-  each of the five outcomes rather than the process exit code, **because the
+  conclusion through the check-run API, EVERY OUTCOME MAPPED and none left to the
+  exit code (Copilot `r4078058050`): `failure` for a declared state outside its
+  vocabulary and for a declaration the measurement contradicts, `neutral` for
+  INCONSISTENT and for UNDETERMINED, and `success` for a declaration the
+  measurement agrees with — each with the state and the values read in its
+  output. A test asserts the published conclusion for each of the five outcomes,
+  against that mapping, rather than the process exit code, **because the
   contract this packet adds degrades silently to a green pass if nobody checks
   which of the two it published.** **AND THE PUBLISHED RUN IS THE GATE'S ONLY
   IDENTITY, ATTACHED TO THE CANDIDATE** (Copilot `r4076902144`, `r4077054569`;

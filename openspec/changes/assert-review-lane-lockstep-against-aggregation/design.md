@@ -265,9 +265,12 @@ says and what a workflow can express.
 
 **`r4076152473` — a step exits 0 or non-zero, which is a green pass or a red
 failure and nothing else.** *"NEUTRAL, visible, not reported as a pass"* has no
-expression by exit code. So the realization publishes through the check-run API
-with conclusion `neutral` and the values in its output, and the test asserts the
-PUBLISHED CONCLUSION for each outcome rather than the process exit code —
+expression by exit code. So the realization publishes through the check-run API,
+and every outcome is mapped rather than only the neutral ones (Copilot
+`r4078058050`): `failure` for the two FAIL outcomes, `neutral` for INCONSISTENT
+and UNDETERMINED, `success` for agreement, the values read in its output each
+time. The test asserts the PUBLISHED CONCLUSION for each outcome against that
+mapping rather than the process exit code —
 **because this contract degrades silently to a green pass if nobody checks which
 of the two was published.**
 
