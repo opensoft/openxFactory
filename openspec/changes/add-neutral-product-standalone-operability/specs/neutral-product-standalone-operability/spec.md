@@ -557,7 +557,11 @@ through the landing rule.
 EVERY FINDING SHALL CARRY THE ID AND THE VERSION OF THE PACK THAT RAISED IT, so
 that a finding can be attributed, a pack can be upgraded without its history
 becoming ambiguous, and a baseline can tell a genuinely new finding from one that
-arrived with a new pack version.
+arrived with a new pack version. THE PRODUCT'S OWN CHECKS ARE ATTRIBUTED BY THE
+SAME RULE: a finding the product's built-in checks raise carries the product's own
+id and its installed version, as the one pack no manifest lists, and no pack
+SHALL claim that id. Every finding in the store is then attributable, whichever
+code raised it.
 
 #### Scenario: A pack writes to the tree
 - **WHEN** a pack writes, commits or merges anything rather than returning findings and patches

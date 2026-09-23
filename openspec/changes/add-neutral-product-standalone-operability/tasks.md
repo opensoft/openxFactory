@@ -53,6 +53,14 @@ its own commit identity, so every group runs from a fresh shell on its own.
 the shell. A failed `git init` or `python -m venv` would therefore be skipped
 silently, and the acceptance would go on to run against a directory that is
 not a repository, or against whatever `opendox` is already on the PATH.
+**Scratch space is resolved at run time, never named.** Each block that needs
+scratch space starts with `W=$(mktemp -d)` and keeps every venv, capture file
+and throwaway repository under `$W`. No committed command therefore names a
+host-absolute path (the constitution's Principle IV), and two runs cannot
+collide. The kernel's own interfaces are named as interfaces: `/dev/null`,
+`/dev/tty` and `/proc` are the same on every Linux host and describe no host's
+layout, and neither does the `--tmpfs /tmp` that bwrap mounts INSIDE a pack's
+sandbox (15.1b).
 
 House rule: OpenSpec ratifies, Speckit builds. No group below is started before
 ratification, no group is started without its own claim on
@@ -159,8 +167,9 @@ mention in the package is prose.
   reach into a sibling and not a missing third-party package):
 
       set -euo pipefail
-      python -m venv /tmp/v2
-      . /tmp/v2/bin/activate
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv "$W/v2"
+      . "$W/v2/bin/activate"
       pip install ".[runtime,test]"
       for sibling in openxdox ideation_dashboard doc_health corpus_adapter_openxfactory; do
         if python -c "import $sibling" 2>/dev/null; then echo "FAIL: $sibling is importable"; exit 1; fi
@@ -213,8 +222,9 @@ mention in the package is prose.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling):
 
       set -euo pipefail
-      python -m venv --clear /tmp/v3                       # a FRESH environment: nothing already installed stands in
-      . /tmp/v3/bin/activate
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv --clear "$W/v3"                       # a FRESH environment: nothing already installed stands in
+      . "$W/v3/bin/activate"
       pip install ".[test]"
       python -c "from opendox.cli import build_parser; build_parser(); print('OK')"
       python -c "from opendox import domain_profile as d; print('OK', d.name_of(d.current()))"
@@ -232,39 +242,108 @@ mention in the package is prose.
 
 - [ ] 4.1 Replace `src/opendox/authoring.py:318`'s
   `from corpus_adapter_openxfactory import home_corpus` with a resolution of the
-  REGISTERED corpus adapter through openDox's own `corpus_adapter` seam.
-- [ ] 4.2 Where no adapter is registered, refuse naming the seam and the remedy —
-  never a `ModuleNotFoundError` raised from inside a function.
-- [ ] 4.3 Sweep the nineteen deferred reaches the ratchet declares today
-  (`branch_session.py` 7, `serve_workbench.py` 7, `serve.py` 2,
-  `serve_project.py` 2, `cli.py` 1) and classify each: resolvable through a
-  declared seam, or genuinely owed to the consumer and therefore staying
-  late-bound with its reason. The import-time column is already `0` — do not
-  re-do it.
+  REGISTERED home corpus through openDox's own `corpus_adapter` seam. The
+  registration point is declared here, beside `domain_profile.register()`:
+  `corpus_adapter.register_home(factory)`, where `factory` has `home_corpus`'s
+  own shape (`adapter, ref = factory(root)`, as `authoring.py:324` calls it), and
+  `corpus_adapter.home()` returns what was registered. openxFactory's host
+  registers `corpus_adapter_openxfactory.home_corpus` at start, as it registers
+  its profile.
+- [ ] 4.2 Where nothing is registered, `corpus_adapter.home()` raises the
+  interface's ONE exception, `CorpusRefused` (`corpus_adapter.py:164`), with a
+  NEW refusal kind, `ADAPTER_NOT_REGISTERED`, added to `REFUSAL_KINDS` (`:135`).
+  Its `subject` names the seam (`opendox.corpus_adapter`) and its `detail` names
+  the remedy (`corpus_adapter.register_home(...)`). It is never a
+  `ModuleNotFoundError` raised from inside a function, and never any other
+  exception.
+- [ ] 4.3 **Route EVERY deferred reach through a seam the product declares. None
+  stays late-bound by name.** Requirement 5 admits no exception for a reach
+  "owed to the consumer": a reach that names a consumer or publisher package by
+  module name is exactly what keeps the product from standing alone. Measured at
+  openDox-code `1e4a57fb` by the scan below, there are **27** deferred reaches.
+  **19** go into openXdox, and they are the ratchet's (`branch_session.py` 7,
+  `serve_workbench.py` 7, `serve.py` 2, `serve_project.py` 2, `cli.py` 1). **8**
+  go into openxFactory, and no ratchet counts them: `authoring.py:318` (4.1);
+  `doc_health` at `workbench.py:746` and `:1407-1409`, and at `serve.py:713`;
+  and `ideation_dashboard` at `doxbench_packet.py:177` and `serve_wire.py:1369`.
+  Each resolves through an existing seam (the `corpus_adapter` Protocol, the
+  domain-profile registry, the route and subcommand extension points, 12.4's
+  submission bindings) or through one declared for it, as 5.4 declares the
+  generator's. With nothing registered, a verb refuses naming its seam and its
+  remedy, which is 4.2's discipline. `workbench.py`'s four are the reaches
+  `run_scoped_doc_health` makes (6.2). Once routed here, they refuse until Group
+  6 registers openDox's own check. `consumer_reach.py` is the late stand-in whose
+  own text calls this injection BUILD-arc work, and it is retired with its last
+  name. openXdox-code's ratchet (`OPENDOX_BACK_IMPORTS`) is tightened to `(0, 0)`
+  in the same landing. The import-time column is already `0` for the consumer,
+  and the two import-time reaches into the publisher (`serve.py:199`, `:206`) are
+  Group 2's.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, no
   `corpus_adapter_openxfactory` importable):
 
       set -euo pipefail
-      python -m venv --clear /tmp/v4                       # a FRESH environment: nothing already installed stands in
-      . /tmp/v4/bin/activate
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv --clear "$W/v4"                       # a FRESH environment: nothing already installed stands in
+      . "$W/v4/bin/activate"
       pip install ".[test]"
       if python -c "import corpus_adapter_openxfactory" 2>/dev/null; then echo "FAIL: the publisher's adapter is importable"; exit 1; fi
       python3 - <<'PY'
       import opendox.authoring as a
-      try:
-          fields = a.required_header_fields()
-          assert isinstance(fields, tuple) and fields, f"no fields: {fields!r}"
+      from opendox import corpus_adapter as ca
+      try:                                                  # NOTHING is registered in this process (4.2)
+          got = a.required_header_fields()
       except ModuleNotFoundError as e:
           raise SystemExit(f"FAIL: the deferred reach still imports a publisher module: {e}")
-      except Exception as e:                                # only openDox's OWN named refusal is acceptable
-          assert type(e).__module__.startswith("opendox"), f"refused by a foreign exception: {type(e)!r}"
+      except ca.CorpusRefused as e:                         # the interface's ONE exception, and nothing else
+          r = e.refusal
+          assert r.kind == ca.ADAPTER_NOT_REGISTERED, f"refused for another reason: {r.kind!r}"
+          assert "corpus_adapter" in r.subject, f"the refusal does not name the seam: {r.subject!r}"
+          assert "register_home" in r.detail, f"the refusal does not name the remedy: {r.detail!r}"
+      else:
+          raise SystemExit(f"FAIL: nothing is registered, yet the verb answered {got!r}")
+      PY
+      # ...a REGISTERED adapter answers through the seam, not through a name (4.1):
+      python -m pytest -q "tests/test_authoring_seam.py::test_required_header_fields_come_from_the_registered_adapter"
+      # ...and NO deferred reach anywhere in the package names the consumer or the publisher (4.3):
+      if [ -e src/opendox/consumer_reach.py ]; then echo "FAIL: the late stand-in consumer_reach.py survives"; exit 1; fi
+      python3 - src/opendox <<'PY'
+      import ast, pathlib, sys
+      FOREIGN = ("openxdox", "ideation_dashboard", "corpus_adapter_openxfactory", "doc_health")
+      def named(node):
+          if isinstance(node, ast.Import):
+              return [a.name for a in node.names]
+          if isinstance(node, ast.ImportFrom):
+              return [node.module] if node.level == 0 and node.module else []
+          if isinstance(node, ast.Call) and node.args and isinstance(node.args[0], ast.Constant) \
+                  and getattr(node.func, "attr", getattr(node.func, "id", "")) in ("import_module", "__import__"):
+              return [node.args[0].value] if isinstance(node.args[0].value, str) else []
+          return []
+      def deferred(tree):                                   # every reach written INSIDE a function body
+          for fn in (n for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))):
+              for node in ast.walk(fn):
+                  yield from ((node.lineno, name) for name in named(node))
+      hits = sorted({f"{p}:{line}: {name}"
+                     for p in pathlib.Path(sys.argv[1]).rglob("*.py")
+                     for line, name in deferred(ast.parse(p.read_text(), str(p)))
+                     if any(name == f or name.startswith(f + ".") for f in FOREIGN)})
+      assert not hits, f"{len(hits)} deferred reach(es) still name the consumer or the publisher:\n  " + "\n  ".join(hits)
+      print("no deferred reach names the consumer or the publisher")
       PY
 
-  Either the fields come back through the registered adapter, or openDox's own
-  named refusal is raised, and the block accepts exactly those two outcomes. It
-  MUST NOT raise `ModuleNotFoundError`. Today it raises
-  `ModuleNotFoundError: No module named 'corpus_adapter_openxfactory'` while
-  `python -c "import opendox.authoring"` exits 0.
+  **With nothing registered, the block accepts exactly ONE outcome**:
+  `CorpusRefused` of kind `ADAPTER_NOT_REGISTERED`, naming the seam and the
+  remedy. Any other exception fails it, an unrelated `TypeError` included, and so
+  does an answer. The named test then registers a stand-in adapter and requires
+  the fields to be the ones that adapter declares, so the answer is proved to
+  come through the registry and not through a name. **The scan reads the whole
+  package**, not the ratchet's five modules. It is a static reading of every
+  import and every `import_module`/`__import__` call with a literal name, written
+  inside a function body, and it needs no sibling installed to find one. Run
+  against `1e4a57fb` before this box was written, it names the 27 reaches above
+  and exits non-zero. Retiring `consumer_reach.py` closes the one dynamic path the
+  scan cannot read, a name held in a variable. Today `required_header_fields()`
+  raises `ModuleNotFoundError: No module named 'corpus_adapter_openxfactory'`
+  while `python -c "import opendox.authoring"` exits 0.
 
 ## Group 5 — Requirement 4 / G3: openDox's own neutral projection (RULED, openDox-code)
 
@@ -312,9 +391,10 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 - [ ] **FALSIFIED BY** (openXdox-code checkout with openDox installed):
 
       set -euo pipefail
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
       : "${OPENDOX_CODE:?set OPENDOX_CODE to an openDox-code checkout at the tip of the arc}"
-      python -m venv --clear /tmp/v5a
-      . /tmp/v5a/bin/activate
+      python -m venv --clear "$W/v5a"
+      . "$W/v5a/bin/activate"
       pip install ".[test]"
       pip install --force-reinstall --no-deps "$OPENDOX_CODE"   # the REALIZED openDox wins over any pinned one
       python3 - <<'PY'
@@ -357,21 +437,22 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   arc did not edit them.
 
       set -euo pipefail
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
       : "${OPENDOX_CODE:?set OPENDOX_CODE to an openDox-code checkout at the tip of the arc}"
-      python -m venv --clear /tmp/v5b
-      . /tmp/v5b/bin/activate
+      python -m venv --clear "$W/v5b"
+      . "$W/v5b/bin/activate"
       pip install ".[test]"
       pip install --force-reinstall --no-deps "$OPENDOX_CODE"   # the REALIZED openDox wins over any pinned one
-      ls tests/test_generator.py tests/test_snapshot*.py tests/test_session_snapshot.py > /tmp/gen-suites.txt
-      while read -r f; do python -m pytest -q "$f"; done < /tmp/gen-suites.txt
+      ls tests/test_generator.py tests/test_snapshot*.py tests/test_session_snapshot.py > "$W/gen-suites.txt"
+      while read -r f; do python -m pytest -q "$f"; done < "$W/gen-suites.txt"
       : "${ARC_BASE:?set ARC_BASE to the commit of this repository before the first landing of the arc here}"
-      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' "$ARC_BASE..HEAD" > /tmp/x-arc.txt
-      test -s /tmp/x-arc.txt                                # 11.0: the arc DID land here (5.3a at least), so empty means a dropped trailer
-      : > /tmp/x-paths.txt
+      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' "$ARC_BASE..HEAD" > "$W/x-arc.txt"
+      test -s "$W/x-arc.txt"                                # 11.0: the arc DID land here (5.3a at least), so empty means a dropped trailer
+      : > "$W/x-paths.txt"
       while read -r c; do
-        git diff --name-only "$c^1" "$c" >> /tmp/x-paths.txt
-      done < /tmp/x-arc.txt
-      python3 - /tmp/x-paths.txt /tmp/gen-suites.txt <<'PY'
+        git diff --name-only "$c^1" "$c" >> "$W/x-paths.txt"
+      done < "$W/x-arc.txt"
+      python3 - "$W/x-paths.txt" "$W/gen-suites.txt" <<'PY'
       import sys
       touched = {l.strip() for l in open(sys.argv[1]) if l.strip()}
       suites = {l.strip() for l in open(sys.argv[2]) if l.strip()}
@@ -404,8 +485,9 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   openxFactory's governance vocabulary):
 
       set -euo pipefail
-      python -m venv --clear /tmp/v5                       # a FRESH environment: nothing already installed stands in
-      . /tmp/v5/bin/activate
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv --clear "$W/v5"                       # a FRESH environment: nothing already installed stands in
+      . "$W/v5/bin/activate"
       pip install ".[test]"
       for sibling in openxdox doc_health; do                # a FRESH environment makes them absent; ASSERT it
         if python -c "import $sibling" 2>/dev/null; then echo "FAIL: $sibling is importable"; exit 1; fi
@@ -419,8 +501,8 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       git -C "$R" init -q
       git -C "$R" add -A
       git -C "$R" commit -qm fixture
-      python -m opendox.cli generate --repo-root "$R" --repository fixture --output /tmp/snap.json
-      python3 - /tmp/snap.json <<'PY'
+      python -m opendox.cli generate --repo-root "$R" --repository fixture --output "$W/snap.json"
+      python3 - "$W/snap.json" <<'PY'
       import json, re, sys
       d = json.load(open(sys.argv[1]))
       assert d["documents"], "snapshot is empty"
@@ -471,8 +553,9 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling):
 
       set -euo pipefail
-      python -m venv --clear /tmp/v6                       # a FRESH environment: nothing already installed stands in
-      . /tmp/v6/bin/activate
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv --clear "$W/v6"                       # a FRESH environment: nothing already installed stands in
+      . "$W/v6/bin/activate"
       pip install ".[test]"
       python3 - <<'PY'
       from opendox import workbench
@@ -572,8 +655,9 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   a validator that could not RUN fatal instead of a warning:
 
       set -euo pipefail
-      python -m venv /tmp/v7
-      . /tmp/v7/bin/activate
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv "$W/v7"
+      . "$W/v7/bin/activate"
       pip install .   # PACKAGE DATA on disk (7.1)
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
       OK=$(mktemp -d)/plain-documents
@@ -586,14 +670,14 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       git -C "$BAD" init -q
       git -C "$BAD" add -A
       git -C "$BAD" commit -qm fixture
-      python -m opendox.cli generate --repo-root "$OK" --repository fixture --strict --output /tmp/ok.json
-      if python -m opendox.cli generate --repo-root "$BAD" --repository fixture --strict --output /tmp/bad.json 2>/tmp/err; then
+      python -m opendox.cli generate --repo-root "$OK" --repository fixture --strict --output "$W/ok.json"
+      if python -m opendox.cli generate --repo-root "$BAD" --repository fixture --strict --output "$W/bad.json" 2>"$W/err"; then
         echo "FAIL: a malformed corpus validated"; exit 1
       fi
       RULE=$(cat tests/fixtures/malformed/EXPECTED_RULE)
       test -n "$RULE"
-      grep -qF -- "$RULE" /tmp/err                          # refused for THE rule the fixture breaks
-      rc=0; grep -q "No such file or directory" /tmp/err || rc=$?
+      grep -qF -- "$RULE" "$W/err"                          # refused for THE rule the fixture breaks
+      rc=0; grep -q "No such file or directory" "$W/err" || rc=$?
       test "$rc" -eq 1                                      # ABSENT: not refused for a missing path
 
   The first exits 0; the second exits NON-ZERO and the sequence asserts that
@@ -681,8 +765,9 @@ packet's interim arrangement ends.**
 - [ ] **FALSIFIED BY** (each leg's own checkout, no sibling installed):
 
       set -euo pipefail
-      python -m venv --clear /tmp/v9                       # a FRESH environment: nothing already installed stands in
-      . /tmp/v9/bin/activate
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv --clear "$W/v9"                       # a FRESH environment: nothing already installed stands in
+      . "$W/v9/bin/activate"
       pip install ".[test]"
       python -m pytest -q                                   # NOT --noconftest, NOT a file list
       test "$(grep -c -- --noconftest .github/workflows/validate.yml)" -eq 0
@@ -766,6 +851,7 @@ packet's interim arrangement ends.**
   wait so the sequence runs to completion unattended):
 
       set -euo pipefail
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
       python -m venv .venv
       . .venv/bin/activate
       pip install .
@@ -786,8 +872,8 @@ packet's interim arrangement ends.**
         sleep 1
       done
       test "$ready" -eq 1                              # a server that never started FAILS here
-      curl -sf http://127.0.0.1:8080/ > /tmp/bundle.html   # no pipeline: curl's status is the status
-      grep -qi '<html' /tmp/bundle.html                # and it is really the bundle
+      curl -sf http://127.0.0.1:8080/ > "$W/bundle.html"   # no pipeline: curl's status is the status
+      grep -qi '<html' "$W/bundle.html"                # and it is really the bundle
 
   `opendox --help` exits 0, the readiness loop must SUCCEED within 30s or `test`
   fails the sequence, and the fetched body must really be HTML — the earlier form
@@ -828,25 +914,26 @@ packet's interim arrangement ends.**
   ledger it would then flag:
 
       set -euo pipefail
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
       # THE ARC'S OWN COMMITS (11.0), not everything that reached main meanwhile:
       : "${PACKET_MERGE:?set PACKET_MERGE to the merge commit of this packet on main}"
       : "${ARC_TIP:?set ARC_TIP to the last realization commit before the archive act}"
       git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' \
-        "$PACKET_MERGE..$ARC_TIP" > /tmp/arc-commits.txt
-      test -s /tmp/arc-commits.txt                          # 11.1's annotations exist, so an empty list measured nothing
-      : > /tmp/arc-changes.tsv
+        "$PACKET_MERGE..$ARC_TIP" > "$W/arc-commits.txt"
+      test -s "$W/arc-commits.txt"                          # 11.1's annotations exist, so an empty list measured nothing
+      : > "$W/arc-changes.tsv"
       while read -r c; do                                   # WHOLE repository, no pathspec
-        git rev-list --parents -n 1 "$c" > /tmp/arc-parents.txt
-        if [ "$(wc -w < /tmp/arc-parents.txt)" -gt 2 ]; then
+        git rev-list --parents -n 1 "$c" > "$W/arc-parents.txt"
+        if [ "$(wc -w < "$W/arc-parents.txt")" -gt 2 ]; then
           kind=MERGE                                        # only what the merge ITSELF introduced (-c), never main's content
-          git diff-tree -r -c --no-commit-id --name-only "$c" > /tmp/arc-one.txt
+          git diff-tree -r -c --no-commit-id --name-only "$c" > "$W/arc-one.txt"
         else
           kind=COMMIT                                       # an ordinary commit against its parent
-          git diff --name-only "$c^1" "$c" > /tmp/arc-one.txt
+          git diff --name-only "$c^1" "$c" > "$W/arc-one.txt"
         fi
-        while read -r p; do printf '%s\t%s\t%s\n' "$kind" "$c" "$p" >> /tmp/arc-changes.tsv; done < /tmp/arc-one.txt
-      done < /tmp/arc-commits.txt
-      python3 - /tmp/arc-changes.tsv <<'PY'
+        while read -r p; do printf '%s\t%s\t%s\n' "$kind" "$c" "$p" >> "$W/arc-changes.tsv"; done < "$W/arc-one.txt"
+      done < "$W/arc-commits.txt"
+      python3 - "$W/arc-changes.tsv" <<'PY'
       import copy, subprocess, sys, yaml
       MANIFEST = "docs/opendox-carve-manifest.yaml"
       def manifest_at(rev):
@@ -1041,24 +1128,25 @@ that does not name a platform.
   injected, so no network is reached):
 
       set -euo pipefail
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
       : "${OPENDOX_CODE:?set OPENDOX_CODE to an openDox-code checkout at the tip of the arc}"
-      python -m venv --clear /tmp/v12b
-      . /tmp/v12b/bin/activate
+      python -m venv --clear "$W/v12b"
+      . "$W/v12b/bin/activate"
       pip install ".[test]"
       pip install --force-reinstall --no-deps "$OPENDOX_CODE"   # the REALIZED openDox wins over any pinned one
       # the WHOLE governed set, computed: every suite that drives open-pr or injects the fake
-      git grep -l -e 'open-pr' -e 'open_pr' -e 'FakePullRequests' -- 'tests/test_*.py' > /tmp/governed.txt
-      test "$(wc -l < /tmp/governed.txt)" -ge 16            # 16 at ab04453d; fewer means a proof vanished
-      while read -r f; do python -m pytest -q "$f"; done < /tmp/governed.txt
+      git grep -l -e 'open-pr' -e 'open_pr' -e 'FakePullRequests' -- 'tests/test_*.py' > "$W/governed.txt"
+      test "$(wc -l < "$W/governed.txt")" -ge 16            # 16 at ab04453d; fewer means a proof vanished
+      while read -r f; do python -m pytest -q "$f"; done < "$W/governed.txt"
       # ...and not by editing those proofs: no commit of THIS arc (11.0's trailer) touches them
       : "${ARC_BASE:?set ARC_BASE to the commit of this repository before the first landing of the arc here}"
-      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' "$ARC_BASE..HEAD" > /tmp/x-arc.txt
-      test -s /tmp/x-arc.txt                                # 11.0: the arc DID land here (5.3a at least), so empty means a dropped trailer
-      : > /tmp/x-paths.txt
+      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' "$ARC_BASE..HEAD" > "$W/x-arc.txt"
+      test -s "$W/x-arc.txt"                                # 11.0: the arc DID land here (5.3a at least), so empty means a dropped trailer
+      : > "$W/x-paths.txt"
       while read -r c; do
-        git diff --name-only "$c^1" "$c" >> /tmp/x-paths.txt
-      done < /tmp/x-arc.txt
-      python3 - /tmp/x-paths.txt /tmp/governed.txt <<'PY'
+        git diff --name-only "$c^1" "$c" >> "$W/x-paths.txt"
+      done < "$W/x-arc.txt"
+      python3 - "$W/x-paths.txt" "$W/governed.txt" <<'PY'
       import sys
       touched = {l.strip() for l in open(sys.argv[1]) if l.strip()}
       edited = sorted(touched & {l.strip() for l in open(sys.argv[2]) if l.strip()})
@@ -1143,33 +1231,35 @@ that does not name a platform.
   below, and `gh` NOT installed, which is the student's machine):
 
       set -euo pipefail
-      python -m venv --clear /tmp/v12                       # a FRESH environment: nothing already installed stands in
-      . /tmp/v12/bin/activate
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv --clear "$W/v12"                       # a FRESH environment: nothing already installed stands in
+      . "$W/v12/bin/activate"
       pip install ".[test]"
       if command -v gh >/dev/null 2>&1; then                # the precondition, ASSERTED: the student's machine
         echo "FAIL: gh is installed; this acceptance must run without it"; exit 1
       fi
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
-      rm -rf /tmp/plain /tmp/remote
-      git init -q /tmp/plain
-      git -C /tmp/plain commit -q --allow-empty -m seed
-      git -C /tmp/plain branch sess-1                       # the SESSION BRANCH must exist to be pushed
-      git init -q --bare /tmp/remote
-      git -C /tmp/plain remote add origin /tmp/remote
+      git init -q "$W/plain"
+      git -C "$W/plain" commit -q --allow-empty -m seed
+      git -C "$W/plain" branch sess-1                       # the SESSION BRANCH must exist to be pushed
+      git init -q --bare "$W/remote"
+      git -C "$W/plain" remote add origin "$W/remote"
       # submit through the PRODUCT'S OWN VERB (12.4a), so the REAL default binding runs:
-      opendox submit --repo-root /tmp/plain --branch sess-1 > /tmp/submit.out
-      git -C /tmp/remote rev-parse --verify sess-1          # the branch ARRIVED
-      grep -q "/tmp/remote" /tmp/submit.out                 # and the verb REPORTED where it went (12.1a)
+      opendox submit --repo-root "$W/plain" --branch sess-1 > "$W/submit.out"
+      git -C "$W/remote" rev-parse --verify sess-1          # the branch ARRIVED
+      grep -qF -- "$W/remote" "$W/submit.out"               # and the verb REPORTED where it went (12.1a)
       # ...and the binding that verb used is the NEUTRAL one, returning a Submission:
-      python3 - <<'PY'
+      python3 - "$W" <<'PY'
+      import sys
       from pathlib import Path
       from opendox import cli, session_pr
-      port = cli._submission_port(Path("/tmp/plain"))       # the CLI's default (12.4), no injection
+      W = Path(sys.argv[1])
+      port = cli._submission_port(W / "plain")              # the CLI's default (12.4), no injection
       assert isinstance(port, session_pr.LocalGitSubmissions), f"the default names a platform: {type(port)}"
       assert isinstance(port, session_pr.SubmissionPort)
       assert not isinstance(port, session_pr.PullRequestPort), "a push-only class claims the platform protocol"
       r = port.submit("sess-1")                             # idempotent: already there
-      assert r is not None and r.ref.endswith("sess-1") and "/tmp/remote" in r.url, r
+      assert r is not None and r.ref.endswith("sess-1") and str(W / "remote") in r.url, r
       PY
       # the SERVER's unset default binds the same class — a named test, so its absence fails:
       python -m pytest -q "tests/test_submission_default.py::test_server_unset_submission_factory_binds_the_neutral_default"
@@ -1181,11 +1271,11 @@ that does not name a platform.
         "tests/test_submit_route.py::test_submit_route_is_refused_from_a_foreign_origin" \
         "tests/test_submit_route.py::test_submit_route_takes_no_repository_from_the_request"
       # and the NO-REMOTE case, through the same verb (scenario 3):
-      git -C /tmp/plain remote remove origin
-      rc=0; opendox submit --repo-root /tmp/plain --branch sess-1 > /tmp/none.out 2>&1 || rc=$?
+      git -C "$W/plain" remote remove origin
+      rc=0; opendox submit --repo-root "$W/plain" --branch sess-1 > "$W/none.out" 2>&1 || rc=$?
       test "$rc" -ne 0                                      # refused, never a reported success
-      grep -qi "remote" /tmp/none.out                       # naming what is missing
-      rc=0; grep -q "Traceback" /tmp/none.out || rc=$?
+      grep -qi "remote" "$W/none.out"                       # naming what is missing
+      rc=0; grep -q "Traceback" "$W/none.out" || rc=$?
       test "$rc" -eq 1                                      # ABSENT: plainly refused, not an opaque error
 
   **The acceptance runs the product's own verb, not a class it constructs by
@@ -1325,9 +1415,10 @@ amendments.
 - [ ] **FALSIFIED BY** (a machine with no database and no identity broker):
 
       set -euo pipefail
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
       # the install is group 10's, unchanged — one entry point, one command:
-      python -m venv /tmp/v13
-      . /tmp/v13/bin/activate
+      python -m venv "$W/v13"
+      . "$W/v13/bin/activate"
       pip install .
       unset OPENDOX_DATABASE_URL OPENDOX_MIGRATION_DATABASE_URL OPENDOX_OIDC_ISSUER OPENDOX_INSTALL_MODE   # NONE of them set
       export OPENDOX_STATE_DIR=$(mktemp -d)                 # a state directory NOTHING else has touched
@@ -1345,8 +1436,8 @@ amendments.
       test "$ready" -eq 1
       # the SERVING process reports its OWN mode and datastore, so the claim is about the server
       # the user reached on :8080 and not about a second process that read the same settings:
-      curl -sf http://127.0.0.1:8080/capabilities > /tmp/caps.json
-      python3 - /tmp/caps.json <<'PY'
+      curl -sf http://127.0.0.1:8080/capabilities > "$W/caps.json"
+      python3 - "$W/caps.json" <<'PY'
       import json, os, sys
       inst = json.load(open(sys.argv[1])).get("install") or {}
       assert inst.get("mode") == "local", f"the server on :8080 is not in local mode: {inst}"
@@ -1356,7 +1447,7 @@ amendments.
           assert got.startswith(state + os.sep), f"the served process uses {key} {got!r}, not the bundle under {state!r}"
       PY
       # and the bundled server has NO TCP listener, checked at the OS and not by self-report:
-      python3 - /tmp/caps.json <<'PY'
+      python3 - "$W/caps.json" <<'PY'
       import json, os, re, sys
       pid = ((json.load(open(sys.argv[1])).get("install") or {}).get("database_bundle") or {}).get("pid")
       assert isinstance(pid, int), f"the bundle reports no server pid: {pid!r}"
@@ -1374,8 +1465,8 @@ amendments.
       assert not listening, f"the bundled server listens on TCP: {listening}"
       PY
       # ...and what it answered from is the BUNDLED datastore, migrated (requirement 12):
-      OPENDOX_INSTALL_MODE=local opendox-runtime runtime status --probe-timeout 10 > /tmp/status.json
-      python3 - /tmp/status.json <<'PY'
+      OPENDOX_INSTALL_MODE=local opendox-runtime runtime status --probe-timeout 10 > "$W/status.json"
+      python3 - "$W/status.json" <<'PY'
       import json, os, sys
       s = json.load(open(sys.argv[1]))
       assert s.get("database") == "reachable", f"no bundled database answered: {s}"
@@ -1389,10 +1480,10 @@ amendments.
       kill "$SERVER"; wait "$SERVER" 2>/dev/null || true
       # LOCAL mode REFUSES a non-loopback bind, BOUNDED, naming the rule (13.4):
       rc=0
-      OPENDOX_INSTALL_MODE=local timeout 30 opendox generate-and-open --repo-root "$R" --repository fixture --no-open --host 0.0.0.0 --port 8083 >/dev/null 2>/tmp/bind.err || rc=$?
+      OPENDOX_INSTALL_MODE=local timeout 30 opendox generate-and-open --repo-root "$R" --repository fixture --no-open --host 0.0.0.0 --port 8083 >/dev/null 2>"$W/bind.err" || rc=$?
       test "$rc" -ne 0                                      # refused, never started
       test "$rc" -ne 124                                    # and not merely killed by the bound
-      grep -qi "loopback" /tmp/bind.err
+      grep -qi "loopback" "$W/bind.err"
       # ONE DIALECT, and the two connections NOT COLLAPSED (13.2, 13.3), asked of the
       # loader directly, with every other setting well-formed so the DSN is the only fault:
       python3 - <<'PY'
@@ -1405,7 +1496,7 @@ amendments.
           except ConfigurationError as e:
               return str(e)
           raise AssertionError(f"accepted: {dsns}")
-      m = refusal(OPENDOX_DATABASE_URL="sqlite:////tmp/x.db", OPENDOX_MIGRATION_DATABASE_URL="sqlite:////tmp/x.db")
+      m = refusal(OPENDOX_DATABASE_URL="sqlite:///x.db", OPENDOX_MIGRATION_DATABASE_URL="sqlite:///x.db")
       assert "postgres" in m.lower(), f"a second dialect was refused for the wrong reason: {m}"
       one = "postgresql://one@127.0.0.1/opendox"
       m = refusal(OPENDOX_DATABASE_URL=one, OPENDOX_MIGRATION_DATABASE_URL=one)
@@ -1414,15 +1505,15 @@ amendments.
       # every setting a HOSTED install needs EXCEPT the issuer, so the issuer is the only fault:
       export OPENDOX_DATABASE_URL=postgresql://serve@127.0.0.1:1/opendox OPENDOX_MIGRATION_DATABASE_URL=postgresql://migrate@127.0.0.1:1/opendox OPENDOX_OIDC_AUDIENCE=fixture
       # a HOSTED install with no issuer REFUSES — same server path, BOUNDED, naming the setting:
-      rc=0; OPENDOX_INSTALL_MODE=hosted timeout 30 opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8081 >/dev/null 2>/tmp/hosted.err || rc=$?
+      rc=0; OPENDOX_INSTALL_MODE=hosted timeout 30 opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8081 >/dev/null 2>"$W/hosted.err" || rc=$?
       test "$rc" -ne 0
       test "$rc" -ne 124   # refused: neither started, nor killed by the bound
-      grep -q "OPENDOX_OIDC_ISSUER" /tmp/hosted.err
+      grep -q "OPENDOX_OIDC_ISSUER" "$W/hosted.err"
       # and the DEFAULT is hosted: the same install with the selector UNSET refuses identically:
-      rc=0; timeout 30 opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8082 >/dev/null 2>/tmp/default.err || rc=$?
+      rc=0; timeout 30 opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8082 >/dev/null 2>"$W/default.err" || rc=$?
       test "$rc" -ne 0
       test "$rc" -ne 124
-      grep -q "OPENDOX_OIDC_ISSUER" /tmp/default.err
+      grep -q "OPENDOX_OIDC_ISSUER" "$W/default.err"
 
   **Six assertions. The last four are the safety, and the last two are bounded.**
   The local probe proves the install starts with no broker and no
@@ -1541,8 +1632,9 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   known broken link and a known accepted finding):
 
       set -euo pipefail
-      python -m venv --clear /tmp/v14                       # a FRESH environment: nothing already installed stands in
-      . /tmp/v14/bin/activate
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv --clear "$W/v14"                       # a FRESH environment: nothing already installed stands in
+      . "$W/v14/bin/activate"
       pip install ".[test]"
       export OPENDOX_INSTALL_MODE=local                     # the store is Group 13's bundle: a prerequisite by name
       export OPENDOX_STATE_DIR=$(mktemp -d)
@@ -1553,12 +1645,12 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
       git -C "$C" add -A
       git -C "$C" commit -qm fixture
       opendox health run --repo-root $C
-      opendox health list --repo-root $C > /tmp/h1.txt
-      grep -q 'broken-link' /tmp/h1.txt
+      opendox health list --repo-root $C > "$W/h1.txt"
+      grep -q 'broken-link' "$W/h1.txt"
       # a mechanical repair writes a DRAFT ON A BRANCH and never the default branch:
       before=$(git -C $C rev-parse HEAD)
-      opendox health list --repo-root $C --json > /tmp/h1.json
-      python3 - /tmp/h1.json <<'PY'
+      opendox health list --repo-root $C --json > "$W/h1.json"
+      python3 - "$W/h1.json" "$W/paths.tsv" <<'PY'
       import json, sys
       want = {"broken-link": "auto-fix", "derivable-front-matter": "auto-fix", "stage-location-mismatch": "auto-fix",
               "near-duplicate": "assisted", "human-only-finding": "human-only"}
@@ -1566,7 +1658,7 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
       got = {x["id"]: x["resolution_class"] for x in found}
       wrong = {k: (v, got.get(k)) for k, v in want.items() if got.get(k) != v}
       assert not wrong, f"a finding is missing or carries the wrong class: {wrong}"
-      with open("/tmp/paths.tsv", "w") as out:              # each finding's own document, for the loop below
+      with open(sys.argv[2], "w") as out:                   # each finding's own document, for the loop below
           for x in found:
               out.write(f"{x['id']}\t{x['path']}\n")
       PY
@@ -1574,14 +1666,14 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
         opendox health fix --repo-root $C --finding "$f"    # EVERY auto-fix kind, and the assisted proposal
         test "$(git -C $C rev-parse HEAD)" = "$before"      # default branch UNMOVED, every time
         git -C $C rev-parse --verify --quiet "refs/heads/health-fix-$f"
-        git -C $C diff --name-only "$before" "health-fix-$f" > "/tmp/fix-$f.txt"
-        test -s "/tmp/fix-$f.txt"                           # the branch CARRIES a change, not merely a ref
-        P=$(awk -F '\t' -v id="$f" '$1 == id { print $2 }' /tmp/paths.tsv)
+        git -C $C diff --name-only "$before" "health-fix-$f" > "$W/fix-$f.txt"
+        test -s "$W/fix-$f.txt"                           # the branch CARRIES a change, not merely a ref
+        P=$(awk -F '\t' -v id="$f" '$1 == id { print $2 }' "$W/paths.tsv")
         test -n "$P"
-        grep -qxF -- "$P" "/tmp/fix-$f.txt"                 # and the change is to the finding's OWN document
+        grep -qxF -- "$P" "$W/fix-$f.txt"                 # and the change is to the finding's OWN document
       done
       rc=0
-      opendox health fix --repo-root $C --finding human-only-finding > /tmp/ho.out 2>&1 || rc=$?
+      opendox health fix --repo-root $C --finding human-only-finding > "$W/ho.out" 2>&1 || rc=$?
       test "$rc" -ne 0                                      # human-only: the product proposes nothing it cannot justify
       test -z "$(git -C $C branch --list 'health-fix-human-only-finding')"
       # THE EXCEPTION IS PROVED TO EXIST BEFORE THE RESET, not merely absent after:
@@ -1590,16 +1682,16 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
       git -C $C add health/dispositions.yaml
       git -C $C commit -qm "accept fixture finding"
       opendox health run --repo-root $C
-      opendox health list --repo-root $C > /tmp/h2.txt
-      rc=0; grep -q 'accepted-finding' /tmp/h2.txt || rc=$?
+      opendox health list --repo-root $C > "$W/h2.txt"
+      rc=0; grep -q 'accepted-finding' "$W/h2.txt" || rc=$?
       test "$rc" -eq 1                                      # ABSENT: suppressed BEFORE the reset
       # ...and it survives the store being dropped and rebuilt:
       opendox-runtime runtime reset --confirm yes-drop-the-coordination-database
       opendox-runtime runtime migrate
       opendox health run --repo-root $C
-      opendox health list --repo-root $C > /tmp/h3.txt      # a FAILING list now fails the sequence
-      grep -q 'broken-link' /tmp/h3.txt                     # the run really did produce findings
-      rc=0; grep -q 'accepted-finding' /tmp/h3.txt || rc=$?
+      opendox health list --repo-root $C > "$W/h3.txt"      # a FAILING list now fails the sequence
+      grep -q 'broken-link' "$W/h3.txt"                     # the run really did produce findings
+      rc=0; grep -q 'accepted-finding' "$W/h3.txt" || rc=$?
       test "$rc" -eq 1                                      # ABSENT: the exception still holds
       # CLI PARITY with the view, compared rather than promised (14.5):
       python -m pytest -q \
@@ -1645,7 +1737,8 @@ to #1144"*. `design.md` § D12.
   one every finding the pack raises is attributed to (15.7), so a new pack
   version is a committed decision about the corpus like any other. A pack whose
   own declaration (15.2) names another version, or none, is REFUSED as a finding
-  against its entry. The digest is the source-tree
+  against its entry, and so is an entry whose `id` is the product's own,
+  `opendox` (15.7). The digest is the source-tree
   digest `neutral-product-pin` already defines, and it is REQUIRED for every
   source. **`commit` depends on where the source lives.** A git-URL source MUST
   carry it. A corpus-relative source MUST NOT: its referent is the corpus commit
@@ -1771,13 +1864,19 @@ to #1144"*. `design.md` § D12.
   refusal raised before a pack ever runs still carries its entry's id and
   version. Both columns are `NOT NULL` in `0003_`, so no path can store a
   finding without them: requirement 16's provenance scenario, enforced at the
-  store and not only in the engine.
+  store and not only in the engine. **The product's own checks are the one pack
+  no manifest lists.** A finding a neutral family (14.4) raises carries
+  `pack_id` `opendox`, the distribution name `pyproject.toml` declares, and
+  `pack_version` the installed version,
+  `importlib.metadata.version("opendox")`. 15.1a refuses a manifest entry whose
+  `id` is `opendox`, so no pack can pass as the product.
 - [ ] **FALSIFIED BY** (openDox-code, installed, over 15.6a's `pack-corpus`, whose
   manifest registers its eight fixture packs beside the neutral checks):
 
       set -euo pipefail
-      python -m venv --clear /tmp/v15                       # a FRESH environment: nothing already installed stands in
-      . /tmp/v15/bin/activate
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv --clear "$W/v15"                       # a FRESH environment: nothing already installed stands in
+      . "$W/v15/bin/activate"
       pip install ".[test]"
       export OPENDOX_INSTALL_MODE=local                     # the store is Group 13's bundle: a prerequisite by name
       export OPENDOX_STATE_DIR=$(mktemp -d)
@@ -1797,11 +1896,11 @@ to #1144"*. `design.md` § D12.
       # the FORKING pack left no descendant past its budget: the sandbox ended the whole tree
       test "$(ps -eo args | grep -c '[f]ixture-forking-pack' || true)" -eq 0
       # the neutral checks still produced findings despite a crashing pack:
-      opendox health list --repo-root $C > /tmp/p1.txt
-      grep -q 'broken-link' /tmp/p1.txt
+      opendox health list --repo-root $C > "$W/p1.txt"
+      grep -q 'broken-link' "$W/p1.txt"
       # and EVERY pack that misbehaves in the run is itself a finding, attributed:
-      opendox health list --repo-root $C --json > /tmp/p1.json
-      python3 - /tmp/p1.json <<'PY'
+      opendox health list --repo-root $C --json > "$W/p1.json"
+      python3 - "$W/p1.json" <<'PY'
       import json, sys
       f = json.load(open(sys.argv[1]))
       ids = {x['pack_id'] for x in f}
@@ -1813,20 +1912,22 @@ to #1144"*. `design.md` § D12.
       escaped = [x for x in f if x['pack_id'] == 'fixture-escaping-pack' and x.get('evidence', {}).get('succeeded')]
       assert not escaped, f"a pack got out of its sandbox: {escaped}"
       assert all(x.get('pack_id') and x.get('pack_version') for x in f), 'a finding has no provenance'
+      builtin = {x['pack_id'] for x in f if x['id'] == 'broken-link'}
+      assert builtin == {'opendox'}, f"a built-in finding is not attributed to the product itself: {builtin}"
       print('packs attributed:', sorted(ids))
       PY
       # what a pack RETURNS is checked before any branch exists (15.2a):
       for f in patch-other-document patch-traversal patch-git-metadata patch-rename patch-oversized; do
         rc=0
-        opendox health fix --repo-root "$C" --finding "$f" > /tmp/pf.out 2>&1 || rc=$?
+        opendox health fix --repo-root "$C" --finding "$f" > "$W/pf.out" 2>&1 || rc=$?
         test "$rc" -ne 0                                    # refused...
         test -z "$(git -C "$C" branch --list "health-fix-$f")"   # ...and no branch exists for it
       done
       opendox health fix --repo-root "$C" --finding patch-ok
       git -C "$C" rev-parse --verify --quiet refs/heads/health-fix-patch-ok   # the valid patch IS a draft
       test "$(git -C "$C" rev-parse HEAD)" = "$FIXTURE_HEAD" # and the default branch never moved
-      opendox health list --repo-root "$C" --json > /tmp/p1b.json
-      python3 - /tmp/p1b.json <<'PY'
+      opendox health list --repo-root "$C" --json > "$W/p1b.json"
+      python3 - "$W/p1b.json" <<'PY'
       import json, sys
       f = json.load(open(sys.argv[1]))
       refused = {x['evidence'].get('refused_patch') for x in f
@@ -1839,8 +1940,8 @@ to #1144"*. `design.md` § D12.
       echo "# tampered after pinning" >> "$C/packs/fixture-slow-pack/__init__.py"
       git -C "$C" commit -qam "tamper with a pinned pack"
       timeout 120 opendox health run --repo-root $C --timeout 5
-      opendox health list --repo-root $C --json > /tmp/p2.json
-      python3 - /tmp/p2.json <<'PY'
+      opendox health list --repo-root $C --json > "$W/p2.json"
+      python3 - "$W/p2.json" <<'PY'
       import json, sys
       f = json.load(open(sys.argv[1]))
       hit = [x for x in f if x['pack_id'] == 'fixture-slow-pack' and 'digest' in json.dumps(x.get('evidence', '')).lower()]
@@ -1865,6 +1966,8 @@ to #1144"*. `design.md` § D12.
         "tests/test_check_packs.py::test_a_declared_version_that_disagrees_with_the_manifest_is_refused" \
         "tests/test_check_packs.py::test_provenance_is_stamped_from_the_manifest_not_the_pack" \
         "tests/test_check_packs.py::test_the_store_refuses_a_finding_without_provenance" \
+        "tests/test_check_packs.py::test_a_builtin_finding_carries_the_products_own_id_and_version" \
+        "tests/test_check_packs.py::test_a_manifest_entry_claiming_the_products_id_is_refused" \
         "tests/test_check_packs.py::test_a_patch_may_edit_only_its_own_findings_document" \
         "tests/test_check_packs.py::test_a_patch_outside_the_corpus_or_into_repository_metadata_is_refused" \
         "tests/test_check_packs.py::test_a_patch_through_a_symlink_is_refused" \
@@ -1872,7 +1975,9 @@ to #1144"*. `design.md` § D12.
         "tests/test_check_packs.py::test_a_patch_over_the_size_bound_is_refused" \
         "tests/test_check_packs.py::test_a_refused_patch_creates_no_branch"
 
-  Every finding carries a pack id and version, the refusals included. **Every
+  Every finding carries a pack id and version, the refusals and the product's
+  own findings included (a neutral `broken-link` is attributed to `opendox`
+  itself). **Every
   pack that misbehaves in the run** — crashing, slow, writing, unparseable and
   unversioned — appears as a finding, rather than as a stack trace, a hang, or an
   edit to the user's tree, and the run completes. Each of the five refused patches

@@ -145,12 +145,15 @@ OPENDOX_BACK_IMPORTS: dict[str, tuple[int, int]] = {
 Thirteen import-time reaches became **zero**; nineteen deferred ones remain. What
 is NOT closed is two other things, and this packet is about them:
 
-1. **The reach into the PUBLISHER.** `ideation_dashboard` and
-   `corpus_adapter_openxfactory` are openxFactory's, not openXdox's. No ratchet
-   counts them and no gate measures them, which is how they survived a completed
-   consumer inversion.
-2. **The nineteen deferred reaches into the consumer**, which are lawful as
-   late-bound calls and are exactly what makes openDox unable to stand alone.
+1. **The reach into the PUBLISHER.** `ideation_dashboard`,
+   `corpus_adapter_openxfactory` and `doc_health` are openxFactory's, not
+   openXdox's. No ratchet counts them and no gate measures them, which is how
+   they survived a completed consumer inversion: two at import time and eight
+   deferred, by a static scan at openDox-code `1e4a57fb` (task 4.3).
+2. **The nineteen deferred reaches into the consumer.** The carve's rule made
+   them lawful as late-bound calls, and they are exactly what makes openDox
+   unable to stand alone, which is why requirement 5 routes every one of them
+   through a declared seam.
    `src/opendox/consumer_reach.py` says so in its own refusal text — *"THE REMEDY
    IS TO INSTALL openXdox — and only that, today … The injection that would make
    this reach disappear — openDox naming a protocol and being handed an

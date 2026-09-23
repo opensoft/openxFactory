@@ -273,7 +273,11 @@ Two consequences this packet is built on:
    openDox → openXdox only. That is precisely how two import-time reaches into
    openxFactory survived a completed inversion with a green gate over them, and
    requirement 2's third scenario — a test that imports every module with NO
-   sibling installed — is the instrument that would have caught them.
+   sibling installed — is the instrument that would have caught them. Eight
+   DEFERRED reaches into openxFactory survived the same way, invisible to an
+   import test by construction. Task 4.3's static scan is the instrument for
+   those, and at openDox-code `1e4a57fb` it finds 27 deferred reaches in all:
+   the ratchet's 19 into openXdox, and those eight.
 
 `consumer_reach.py` states the position this packet changes, in its own words:
 
@@ -673,7 +677,9 @@ tell a genuinely new finding from one that merely arrived with a new pack versio
 regression. **Both are stamped by the ENGINE from the pack's manifest entry**,
 never read from what the pack returns. A pack therefore cannot attribute its
 findings to another pack, and a refusal raised before a pack ever runs is still
-attributable (task 15.7).
+attributable (task 15.7). **The neutral checks openDox ships are attributed by
+the same rule**: they carry the product's own id and installed version, as the
+one pack no manifest lists, and no manifest entry may claim that id.
 
 **The migration number, restated because the instruction said `0002`:** that file
 exists already (`migrations/0002_migration_state.sql`, the
