@@ -530,10 +530,16 @@ pack SHALL NEVER be handed the checkout itself. File permissions and a
 working-directory convention are not isolation, because a process running as
 the same user can change the first and ignore the second. Where the platform
 offers no such sandbox, packs SHALL NOT RUN, and the install says why, rather
-than running them unsandboxed. A pack that attempts to write therefore reaches
-nothing the user owns, and the engine reports the attempt as a finding against
-that pack. Checking the real tree after an in-process pack had run would be too
-late: the user's data would already have moved.
+than running them unsandboxed. **The guarantee is CONTAINMENT**: a pack that
+attempts to write, connect or read outside its copy reaches nothing the user
+owns, whatever the pack then does with the refusal. **Reporting is limited to
+what the boundary can observe**, and the capability does not promise more. A
+pack that exits abnormally, overruns its budget, or returns output the engine
+cannot parse is reported as a finding against that pack. A pack that catches the
+operating system's refusal and says nothing has still been contained, and the
+engine does not claim to have seen the attempt. Checking the real tree after an
+in-process pack had run would be too late: the user's data would already have
+moved.
 
 EVERY FINDING SHALL CARRY THE ID AND THE VERSION OF THE PACK THAT RAISED IT, so
 that a finding can be attributed, a pack can be upgraded without its history
@@ -542,7 +548,7 @@ arrived with a new pack version.
 
 #### Scenario: A pack writes to the tree
 - **WHEN** a pack writes, commits or merges anything rather than returning findings and patches
-- **THEN** the write reaches only the isolated copy the pack was given, never the checkout, and the attempt is reported as a finding against that pack, because only the engine's fix loop writes and a pack that could write would escape every guardrail the loop carries
+- **THEN** the write cannot reach the checkout, because the copy the pack was given is mounted read-only and nothing else of the user's is visible to it; where the refusal surfaces as the pack failing, that failure is reported as a finding against the pack. Only the engine's fix loop writes, and a pack that could write would escape every guardrail the loop carries
 
 #### Scenario: A pack is consumed without a pin
 - **WHEN** a pack is installed without its pin — a commit and a digest for a pack sourced from outside the corpus, or a digest for a pack the corpus itself carries, whose commit is the corpus commit that carries both it and the manifest naming it
@@ -550,7 +556,7 @@ arrived with a new pack version.
 
 #### Scenario: A pack tries to leave its sandbox
 - **WHEN** a pack restores write permission on its copy, follows a symbolic link out of it, opens a network connection, or reads a path of the user's outside the copy
-- **THEN** each attempt fails at the operating system's boundary and is reported as a finding against that pack, because an isolation the pack can undo is not isolation
+- **THEN** each attempt fails at the operating system's boundary, which is the guarantee, because an isolation the pack can undo is not isolation; an attempt that surfaces as the pack failing is also reported as a finding against it, and one the pack swallows is still contained
 
 #### Scenario: A pack crashes or hangs
 - **WHEN** a pack raises, or exceeds its time budget

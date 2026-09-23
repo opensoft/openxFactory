@@ -312,7 +312,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 - [ ] **FALSIFIED BY** (openXdox-code checkout with openDox installed):
 
       set -euo pipefail
-      : "${OPENDOX_CODE:?set OPENDOX_CODE to an openDox-code checkout at the arc's tip}"
+      : "${OPENDOX_CODE:?set OPENDOX_CODE to an openDox-code checkout at the tip of the arc}"
       python -m venv --clear /tmp/v5a
       . /tmp/v5a/bin/activate
       pip install ".[test]"
@@ -357,14 +357,15 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   arc did not edit them.
 
       set -euo pipefail
-      : "${OPENDOX_CODE:?set OPENDOX_CODE to an openDox-code checkout at the arc's tip}"
+      : "${OPENDOX_CODE:?set OPENDOX_CODE to an openDox-code checkout at the tip of the arc}"
       python -m venv --clear /tmp/v5b
       . /tmp/v5b/bin/activate
       pip install ".[test]"
       pip install --force-reinstall --no-deps "$OPENDOX_CODE"   # the REALIZED openDox wins over any pinned one
       ls tests/test_generator.py tests/test_snapshot*.py tests/test_session_snapshot.py > /tmp/gen-suites.txt
       while read -r f; do python -m pytest -q "$f"; done < /tmp/gen-suites.txt
-      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' <arc-base>..HEAD > /tmp/x-arc.txt
+      : "${ARC_BASE:?set ARC_BASE to the commit of this repository before the first landing of the arc here}"
+      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' "$ARC_BASE..HEAD" > /tmp/x-arc.txt
       test -s /tmp/x-arc.txt                                # 11.0: the arc DID land here (5.3a at least), so empty means a dropped trailer
       : > /tmp/x-paths.txt
       while read -r c; do
@@ -823,8 +824,10 @@ packet's interim arrangement ends.**
 
       set -euo pipefail
       # THE ARC'S OWN COMMITS (11.0), not everything that reached main meanwhile:
+      : "${PACKET_MERGE:?set PACKET_MERGE to the merge commit of this packet on main}"
+      : "${ARC_TIP:?set ARC_TIP to the last realization commit before the archive act}"
       git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' \
-        <this-packet's-merge-commit>..<arc-tip> > /tmp/arc-commits.txt
+        "$PACKET_MERGE..$ARC_TIP" > /tmp/arc-commits.txt
       test -s /tmp/arc-commits.txt                          # 11.1's annotations exist, so an empty list measured nothing
       : > /tmp/arc-paths.txt
       while read -r c; do                                   # each commit against its FIRST parent, WHOLE repository
@@ -961,7 +964,7 @@ that does not name a platform.
   injected, so no network is reached):
 
       set -euo pipefail
-      : "${OPENDOX_CODE:?set OPENDOX_CODE to an openDox-code checkout at the arc's tip}"
+      : "${OPENDOX_CODE:?set OPENDOX_CODE to an openDox-code checkout at the tip of the arc}"
       python -m venv --clear /tmp/v12b
       . /tmp/v12b/bin/activate
       pip install ".[test]"
@@ -971,7 +974,8 @@ that does not name a platform.
       test "$(wc -l < /tmp/governed.txt)" -ge 16            # 16 at ab04453d; fewer means a proof vanished
       while read -r f; do python -m pytest -q "$f"; done < /tmp/governed.txt
       # ...and not by editing those proofs: no commit of THIS arc (11.0's trailer) touches them
-      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' <arc-base>..HEAD > /tmp/x-arc.txt
+      : "${ARC_BASE:?set ARC_BASE to the commit of this repository before the first landing of the arc here}"
+      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' "$ARC_BASE..HEAD" > /tmp/x-arc.txt
       test -s /tmp/x-arc.txt                                # 11.0: the arc DID land here (5.3a at least), so empty means a dropped trailer
       : > /tmp/x-paths.txt
       while read -r c; do
@@ -1020,8 +1024,16 @@ that does not name a platform.
   `governed` or `unknown`, and **it FAILS CLOSED**. `standalone` requires TWO
   things at once. The install must be the explicit local one
   (`OPENDOX_INSTALL_MODE=local`, 13.4). The repository must carry a COMMITTED
-  declaration, `.opendox/governance.yaml` with `governance: standalone`. Because
-  that declaration is itself a committed file, changing it is a landing like any
+  declaration, `.opendox/governance.yaml` with `governance: standalone`, **read
+  from the tip of the DEFAULT BRANCH at the moment of landing**
+  (`git show <default-branch>:.opendox/governance.yaml`). It is never read from the
+  branch being landed or from the working tree. A branch cannot decide its own
+  landing: a session branch that ADDS a standalone declaration to a repository
+  whose default branch has none is still `unknown` and is refused. Precedence runs
+  one way. A registered host profile that declares an instrument makes the
+  repository `governed` whatever any file says. The default branch's declaration
+  decides only in the absence of such a host. A branch's contents never decide.
+  Because the declaration is a committed file, changing it is a landing like any
   other: in a governed repository it passes through that governance. `governed`
   is what a registered host profile declares, or what the committed declaration
   says. Everything else is `unknown`: no declaration, a host profile that fails
@@ -1104,7 +1116,7 @@ that does not name a platform.
 
   **And the three guardrails are asserted, now that 12.6 is RULED — by NAME**, so
   a missing test FAILS the command rather than being quietly absent from it. 12.6
-  owes these eleven tests, and pytest exits non-zero (`ERROR: not found`) for any
+  owes these thirteen tests, and pytest exits non-zero (`ERROR: not found`) for any
   node that does not exist, so today the command fails:
 
       python -m pytest -q \
@@ -1115,6 +1127,8 @@ that does not name a platform.
         "tests/test_landing_guardrails.py::test_a_governed_repository_binds_no_lander" \
         "tests/test_landing_guardrails.py::test_an_unknown_governance_binds_no_lander" \
         "tests/test_landing_guardrails.py::test_a_host_profile_that_fails_to_load_binds_no_lander" \
+        "tests/test_landing_guardrails.py::test_a_branch_cannot_declare_its_own_governance" \
+        "tests/test_landing_guardrails.py::test_a_registered_host_outranks_any_declaration" \
         "tests/test_landing_guardrails.py::test_a_directly_constructed_confirmation_is_refused" \
         "tests/test_landing_guardrails.py::test_a_confirmation_for_another_branch_or_head_is_refused" \
         "tests/test_landing_guardrails.py::test_a_spent_confirmation_is_refused" \
@@ -1129,13 +1143,16 @@ that does not name a platform.
   "none configurable" clause made testable. The fifth registers a governed host
   and expects NO `LandingPort` bound. The sixth and seventh prove the query FAILS
   CLOSED: with no committed declaration, or with a host profile that fails to
-  load, no lander is bound. The last four test the capability itself.
+  load, no lander is bound. The eighth lands a branch that ADDS a standalone
+  declaration to a repository whose default branch has none, and expects a
+  refusal. The ninth registers a governing host beside a standalone declaration,
+  and expects the host to win. The last four test the capability itself.
   A token built directly is refused. So is one minted for another branch or
   another head, and so is one presented a second time. A static check proves
   that no module outside the `land` prompt and the view's confirm route calls an
   issuer. Naming test nodes in an ACCEPTANCE command is not the defect Group 9
   removes from `validate.yml` — CI must run the whole suite, and this command runs
-  eleven named proofs in addition to it.
+  thirteen named proofs in addition to it.
 
   Today none of this is reachable: the only implementation is `GhPullRequests`,
   which shells `["gh", "pr", ...]` (`:367`) against `_GITHUB_HOST = "github.com"`
@@ -1161,8 +1178,12 @@ amendments.
   install's own state directory, `OPENDOX_STATE_DIR`, which defaults to a
   per-user directory the install owns. The server listens on that socket and on
   NO TCP port, so no pre-existing service can stand in for it. `runtime status`
-  reports a `database_bundle` block naming `data_dir` and `socket_dir`, and the
-  acceptance below checks the DSN against that block. With `hosted` or unset, a missing
+  and the served `install` block (13.4a) report a `database_bundle` block naming
+  `data_dir`, `socket_dir` and the server's `pid`. The acceptance checks the
+  directories against the fresh state directory, and checks the "no TCP port"
+  invariant at the OPERATING SYSTEM rather than by the bundle's own report: no
+  socket the server process holds may appear in LISTEN state in
+  `/proc/net/tcp` or `/proc/net/tcp6`. With `hosted` or unset, a missing
   `OPENDOX_DATABASE_URL` stays the refusal `config.py:13` already makes, so a
   hosted install can no more fall into a private local database than into local
   identity.
@@ -1203,7 +1224,7 @@ amendments.
 - [ ] 13.4a **The serving process reports its own install shape.** The entry
   point's served `/capabilities` payload (the same crossing `display_manifest`
   already publishes, `display_profile.py:670`) gains an `install` block. It holds
-  `mode` and `database_bundle` (`data_dir`, `socket_dir`), read from the
+  `mode` and `database_bundle` (`data_dir`, `socket_dir`, `pid`), read from the
   settings THAT PROCESS loaded. Requirement 10's one entry point is what makes
   this possible: the document surface and the runtime are one served product, so
   the process a user reaches is the process whose configuration is reported. A
@@ -1246,6 +1267,24 @@ amendments.
       for key in ("data_dir", "socket_dir"):
           got = os.path.realpath((inst.get("database_bundle") or {}).get(key, ""))
           assert got.startswith(state + os.sep), f"the served process uses {key} {got!r}, not the bundle under {state!r}"
+      PY
+      # and the bundled server has NO TCP listener, checked at the OS and not by self-report:
+      python3 - /tmp/caps.json <<'PY'
+      import json, os, re, sys
+      pid = ((json.load(open(sys.argv[1])).get("install") or {}).get("database_bundle") or {}).get("pid")
+      assert isinstance(pid, int), f"the bundle reports no server pid: {pid!r}"
+      inodes = set()
+      for fd in os.listdir(f"/proc/{pid}/fd"):
+          try:
+              m = re.match(r"socket:\[(\d+)\]", os.readlink(f"/proc/{pid}/fd/{fd}"))
+          except OSError:
+              continue
+          if m:
+              inodes.add(m.group(1))
+      listening = [(tbl, row.split()[1]) for tbl in ("/proc/net/tcp", "/proc/net/tcp6")
+                   for row in open(tbl).read().splitlines()[1:]
+                   if row.split()[3] == "0A" and row.split()[9] in inodes]   # 0A = TCP LISTEN
+      assert not listening, f"the bundled server listens on TCP: {listening}"
       PY
       # ...and what it answered from is the BUNDLED datastore, migrated (requirement 12):
       OPENDOX_INSTALL_MODE=local opendox-runtime runtime status --probe-timeout 10 > /tmp/status.json
@@ -1561,8 +1600,8 @@ to #1144"*. `design.md` § D12.
   its CLI parity, scheduling, the baseline, storage (results in the store,
   exceptions in git), and the fix loop with its landing rule.
 - [ ] 15.5 **THE REFUSALS**, each as a test and not as prose: a pack that writes,
-  commits or merges (15.1b: it reaches only its copy, and the attempt is a
-  finding); a pack consumed without its pin (15.1a: commit and digest, or
+  commits or merges (15.1b: it cannot reach the checkout, and a refusal that
+  surfaces as the pack failing is a finding); a pack consumed without its pin (15.1a: commit and digest, or
   digest alone for a pack the corpus carries); a pack that
   returns a class the engine does not declare, or declares its own baseline or
   landing rule.
@@ -1576,8 +1615,11 @@ to #1144"*. `design.md` § D12.
 - [ ] 15.6a **SHIP `tests/fixtures/pack-corpus`**: 14.9's `health-corpus` plus
   three fixture packs under `packs/`. `fixture-crashing-pack` raises on its
   first family, `fixture-slow-pack` sleeps past any timeout, and
-  `fixture-writing-pack` tries to write, commit and merge in the tree it is given
-  before returning. Two more test the SANDBOX rather than the contract.
+  `fixture-writing-pack` tries to write, commit and merge in the tree it is given,
+  and lets the operating system's refusal PROPAGATE, so that the failure is
+  observable and the acceptance can require it to be reported. (A pack that
+  swallowed the refusal would still be contained, and 15.1b does not promise to
+  see it.) Two more test the SANDBOX rather than the contract.
   `fixture-escaping-pack` tries each escape in turn. It restores write
   permission and writes, follows a symlink planted to point out of its copy,
   opens a network connection, reads `$HOME`, looks for a CANARY variable the
@@ -1632,7 +1674,7 @@ to #1144"*. `design.md` § D12.
       ids = {x['pack_id'] for x in f}
       assert 'fixture-crashing-pack' in ids, 'crashing pack not reported'
       assert 'fixture-slow-pack' in ids, 'timed-out pack not reported'
-      assert 'fixture-writing-pack' in ids, "a writing pack's attempt was not reported"
+      assert 'fixture-writing-pack' in ids, "a writing pack's failed write was not reported (it lets the refusal propagate)"
       escaped = [x for x in f if x['pack_id'] == 'fixture-escaping-pack' and x.get('evidence', {}).get('succeeded')]
       assert not escaped, f"a pack got out of its sandbox: {escaped}"
       assert all(x.get('pack_id') and x.get('pack_version') for x in f), 'a finding has no provenance'
