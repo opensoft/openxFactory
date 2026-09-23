@@ -268,7 +268,9 @@ failure and nothing else.** *"NEUTRAL, visible, not reported as a pass"* has no
 expression by exit code. So the realization publishes through the check-run API,
 and every outcome is mapped rather than only the neutral ones (Copilot
 `r4078058050`): `failure` for the two FAIL outcomes, `neutral` for INCONSISTENT
-and UNDETERMINED, `success` for agreement, the values read in its output each
+and UNDETERMINED, `success` for agreement — and `skipped`, outside the five
+because nothing is compared, for a pin change that moves neither judged value
+(D17) — the values read in its output each
 time. The test asserts the PUBLISHED CONCLUSION for each outcome against that
 mapping rather than the process exit code —
 **because this contract degrades silently to a green pass if nobody checks which
@@ -639,6 +641,17 @@ the aggregation token and every other pull request; a broader one would mint the
 token and publish the aggregation's commits on pull requests that do not touch
 the pin. The one gap an exact filter leaves is the platform's own, a diff of more
 than 3,000 files, and it is registered at `tasks.md` § 6.6.
+
+**And the token is minted only when a judged value moves** (Copilot
+`r4078308120`). The filter fires on any edit to the pin file, but the check
+judges two values in it. Before minting, the gate compares the candidate's
+`core_commit` and declared state with the base's. Where neither moved, it mints
+nothing, reads nothing and publishes `skipped`, so the verdict is never absent
+from a pull request the filter admits. The finding proposed `core_commit` alone
+as the condition, and that would have skipped the pull requests that move only
+the declaration, which are half of what this check exists to judge. `#1123` was
+one: it moved `status: converged` to `status: diverged` and left `core_commit`
+where it was. A candidate whose values cannot be read is judged, never skipped.
 
 ## D18 — the gate's identity is chosen ONCE, and every part of the packet uses it
 

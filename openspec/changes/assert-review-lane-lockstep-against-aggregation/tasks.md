@@ -272,6 +272,22 @@ this packet's archive until merged PLUS green realization evidence.
   repository; no `run:` step interpolates an event field; and a declared state
   and a `core_commit` each carrying a backtick, a line break and a link are each
   named as one inert span of bounded length.
+  **AND THE TOKEN IS MINTED ONLY FOR A PULL REQUEST THAT MOVES A JUDGED VALUE**
+  (Copilot `r4078308120`). The filter fires on any edit to the pin file, while
+  the check judges two values in it, `core_commit` and the declared state. So
+  before minting, the gate compares the candidate's two values, parsed from its
+  inert bytes, with the base's. Where neither moved, as with an edit to `reason:`
+  alone, it mints nothing, reads nothing in the aggregation, and publishes the
+  verdict as `skipped`, naming both values unchanged; the verdict's name is then
+  present on every pull request the filter admits, and § 6.5's approver is never
+  left waiting on it. The DECLARED STATE is in the condition, and not only
+  `core_commit`, because a pull request that moves only the declaration is
+  exactly one the measurement exists to check: `#1123` moved `status` and not
+  `core_commit`. A candidate whose values cannot be read counts as moving them,
+  so an unreadable candidate is judged and never skipped. Tests: a candidate
+  changing only `reason:` mints nothing, reads nothing and publishes `skipped`;
+  a candidate changing only the declared state, and one changing only
+  `core_commit`, each draw a verdict; and an unparseable candidate draws one.
 - [ ] 5.1i **THE GATE READS THE CANDIDATE PIN, NOT THE BASE'S — AND THIS IS THE
   DEFECT `pull_request_target` INTRODUCED** (Copilot's *previously missed* item,
   round 8). Under `pull_request_target` the workflow runs from the BASE, so a
@@ -332,8 +348,10 @@ this packet's archive until merged PLUS green realization evidence.
   vocabulary and for a declaration the measurement contradicts, `neutral` for
   INCONSISTENT and for UNDETERMINED, and `success` for a declaration the
   measurement agrees with — each with the state and the values read in its
-  output. A test asserts the published conclusion for each of the five outcomes,
-  against that mapping, rather than the process exit code, **because the
+  output; and, outside the five because nothing is compared, `skipped` for a
+  pin change that moves neither judged value (§ 5.1g). A test asserts the
+  published conclusion for each of the five outcomes and for that case, against
+  that mapping, rather than the process exit code, **because the
   contract this packet adds degrades silently to a green pass if nobody checks
   which of the two it published.** **AND THE PUBLISHED RUN IS THE GATE'S ONLY
   IDENTITY, ATTACHED TO THE CANDIDATE** (Copilot `r4076902144`, `r4077054569`;
