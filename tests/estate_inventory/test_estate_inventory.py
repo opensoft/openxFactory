@@ -2028,3 +2028,135 @@ def test_a_PIN_admission_on_a_GOVERNED_row_is_refused(tmp_path):
                  admitted_by=[{"kind": "pin", "path": "contracts/x-pin.yaml"}]),
         ], name=f"lawful-{governance}.yaml")
         assert len(ei.load_inventory(lawful).rows) == 1
+
+
+# ==============================================================================
+# THE SEVENTH REVIEW ROUND OF PR #1119: the transfer-record loader's three
+# remaining edges — an unparseable date, a subclass that slips an `isinstance`
+# check, and two complete rows that disagree with each other
+# ==============================================================================
+
+
+def test_an_IMPOSSIBLE_calendar_date_in_transferred_on_is_a_finding_not_an_exception(
+        tmp_path):
+    """PyYAML's timestamp constructor raises a bare `ValueError` — not
+    `yaml.YAMLError`, which `fm.strict_load`'s existing guards already catch
+    — on a scalar that LOOKS like a date but names a day the calendar does
+    not have. `2026-02-30` is exactly that: February never reaches the 30th.
+    A first cut of `load_transfers` caught `OSError`, `UnicodeDecodeError`
+    and `fm.StrictFrontMatterError` around the parse but not `ValueError`, so
+    this one class of malformed content crashed the whole reader — an
+    uncaught exception out of a function every caller in this module treats
+    as returning, never raising — instead of being reported as a finding the
+    way every OTHER malformed row in this map is.
+    """
+    folder = tmp_path / "contracts" / "policies"
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / "repository-identity.yaml"
+    path.write_text(
+        "schema_version: 1\n"
+        "kind: repository_identity\n"
+        "transfers:\n"
+        "  - former: opensoft/Bogus\n"
+        "    current: opensoft/Real\n"
+        "    transfer_state: complete\n"
+        "    transferred_on: 2026-02-30\n",
+        encoding="utf-8")
+    transfers, findings = ei.load_transfers(tmp_path)
+    assert transfers == {}
+    assert len(findings) == 1
+    assert "could not be parsed" in findings[0]
+
+    # AND A LAWFUL FILE BESIDE IT IS UNAFFECTED — the guard is scoped to the
+    # unparseable file, not to every call this process ever makes.
+    _transfer_map(tmp_path, [{"former": "opensoft/Bogus",
+                              "current": "opensoft/Real",
+                              "transferred_on": datetime.date(2026, 9, 9),
+                              "transfer_state": "complete"}])
+    transfers, findings = ei.load_transfers(tmp_path)
+    assert transfers == {"opensoft/Bogus": "opensoft/Real"}
+    assert findings == ()
+
+
+def test_a_TIMESTAMP_transferred_on_is_refused_not_accepted_as_a_plain_date(
+        tmp_path):
+    """`datetime.datetime` SUBCLASSES `datetime.date`, so
+    `isinstance(v, datetime.date)` accepts a timestamp exactly as readily as
+    a plain date. `field_rules.transfer_state` means the bare `YYYY-MM-DD`
+    scalar a real row carries — which PyYAML parses to `datetime.date` — and
+    never a scalar with a time-of-day component. A first cut of the
+    `complete`-row check used `isinstance` alone, so a `transferred_on`
+    written as an ISO timestamp would have resolved as if it were the plain
+    date `field_rules.transfer_state` requires.
+    """
+    folder = tmp_path / "contracts" / "policies"
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / "repository-identity.yaml"
+    path.write_text(
+        "schema_version: 1\n"
+        "kind: repository_identity\n"
+        "transfers:\n"
+        "  - former: opensoft/Bogus\n"
+        "    current: opensoft/Real\n"
+        "    transfer_state: complete\n"
+        "    transferred_on: 2026-09-09T00:00:00\n",
+        encoding="utf-8")
+    transfers, findings = ei.load_transfers(tmp_path)
+    assert transfers == {}
+    assert len(findings) == 1
+    assert "not a plain date" in findings[0]
+
+    # AND THE PLAIN DATE THAT SAME SCALAR WOULD NAME STILL RESOLVES.
+    _transfer_map(tmp_path, [{"former": "opensoft/Bogus",
+                              "current": "opensoft/Real",
+                              "transferred_on": datetime.date(2026, 9, 9),
+                              "transfer_state": "complete"}])
+    transfers, findings = ei.load_transfers(tmp_path)
+    assert transfers == {"opensoft/Bogus": "opensoft/Real"}
+    assert findings == ()
+
+
+def test_a_DUPLICATE_former_across_two_COMPLETE_rows_refuses_the_whole_file(
+        tmp_path):
+    """Two rows both `transfer_state: complete` naming the same `former`
+    address do not fail any PER-ROW shape check — each is individually
+    well-formed — so a first cut of the loop let `resolved[former] = current`
+    silently OVERWRITE: whichever row the loop reached LAST won, with no
+    finding raised at all. A map caught disagreeing with itself about where
+    one address went cannot be trusted for any OTHER `former` it names
+    either, so this refuses resolution for the WHOLE FILE — not merely the
+    colliding pair — and names both rows.
+    """
+    _transfer_map(tmp_path, [
+        {"former": "opensoft/Bogus", "current": "opensoft/First",
+         "transferred_on": datetime.date(2026, 9, 1),
+         "transfer_state": "complete"},
+        {"former": "opensoft/Elsewhere", "current": "opensoft/Other",
+         "transferred_on": datetime.date(2026, 9, 2),
+         "transfer_state": "complete"},
+        {"former": "opensoft/Bogus", "current": "opensoft/Second",
+         "transferred_on": datetime.date(2026, 9, 3),
+         "transfer_state": "complete"},
+    ])
+    transfers, findings = ei.load_transfers(tmp_path)
+    # THE WHOLE FILE IS REFUSED — including the unrelated, individually
+    # lawful `opensoft/Elsewhere` row, not merely the colliding pair.
+    assert transfers == {}
+    assert len(findings) == 1
+    assert "opensoft/Bogus" in findings[0]
+    assert "row 1" in findings[0]
+    assert "row 3" in findings[0]
+
+    # AND WITH THE COLLISION REMOVED, BOTH SURVIVING ROWS RESOLVE.
+    _transfer_map(tmp_path, [
+        {"former": "opensoft/Bogus", "current": "opensoft/First",
+         "transferred_on": datetime.date(2026, 9, 1),
+         "transfer_state": "complete"},
+        {"former": "opensoft/Elsewhere", "current": "opensoft/Other",
+         "transferred_on": datetime.date(2026, 9, 2),
+         "transfer_state": "complete"},
+    ])
+    transfers, findings = ei.load_transfers(tmp_path)
+    assert transfers == {"opensoft/Bogus": "opensoft/First",
+                         "opensoft/Elsewhere": "opensoft/Other"}
+    assert findings == ()

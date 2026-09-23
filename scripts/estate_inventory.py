@@ -527,13 +527,26 @@ def load_transfers(repo_root: Path) -> tuple[dict[str, str], tuple[str, ...]]:
         doc = fm.strict_load(raw, what=str(TRANSFER_MAP))
     except (OSError, UnicodeDecodeError, fm.StrictFrontMatterError):
         return {}, ()
+    except ValueError as exc:
+        # PyYAML's own timestamp constructor raises bare `ValueError` — not
+        # `yaml.YAMLError` — on a scalar that LOOKS like a date but names a
+        # day the calendar does not have (`2026-02-30`: "day is out of range
+        # for month"). That is readable-but-malformed CONTENT, not an
+        # unreadable file, so unlike the three guards above it is a finding
+        # and not a silent empty map: the file exists and was meant to say
+        # something, and this pass could not tell what. The parse fails
+        # before any row is reached, so the whole file — not one row — is
+        # what gets refused and reported.
+        return {}, (f"{TRANSFER_MAP} could not be parsed: {exc}",)
     if not isinstance(doc, dict):
         return {}, ()
     transfers = doc.get("transfers")
     if not isinstance(transfers, list):
         return {}, ()
     resolved: dict[str, str] = {}
+    resolved_at: dict[str, int] = {}
     malformed: list[str] = []
+    duplicate_former = False
     for position, entry in enumerate(transfers, start=1):
         if not isinstance(entry, dict):
             continue
@@ -559,19 +572,48 @@ def load_transfers(repo_root: Path) -> tuple[dict[str, str], tuple[str, ...]]:
                     "resolved")
             continue  # pending_row_rule: not a resolution instruction either way
         # state == "complete"
-        if not isinstance(transferred_on, datetime.date):
+        if type(transferred_on) is not datetime.date:
+            # `isinstance` alone is not enough: `datetime.datetime` SUBCLASSES
+            # `datetime.date`, so a timestamp (a date WITH a time-of-day
+            # component — never what a bare `YYYY-MM-DD` scalar parses to)
+            # would pass an `isinstance` check here and resolve as if it were
+            # the plain date `field_rules.transfer_state` requires.
             malformed.append(
                 f"{site} declares `transfer_state: complete` but "
-                f"`transferred_on` is {transferred_on!r}, not a date; the two "
-                "fields disagree, which `field_rules.transfer_state` calls "
-                "malformed, so the row is refused rather than resolved")
+                f"`transferred_on` is {transferred_on!r} "
+                f"({type(transferred_on).__name__}), not a plain date; the "
+                "two fields disagree, which `field_rules.transfer_state` "
+                "calls malformed, so the row is refused rather than "
+                "resolved")
             continue
         if ADDRESS_RE.match(former) is None or ADDRESS_RE.match(current) is None:
             malformed.append(
                 f"{site} — at least one of `former`/`current` is not an "
                 "`<owner>/<name>` address; refused rather than resolved")
             continue
+        if former in resolved_at:
+            # Two COMPLETE rows naming the same `former` is not one malformed
+            # row — each row can be individually well-shaped — it is the map
+            # disagreeing with itself about where one address went, which is
+            # worse than a single bad row: it is silent ambiguity about which
+            # resolution is authoritative. A first cut let the second row
+            # overwrite the first in `resolved` with no finding at all. This
+            # pass names both rows and refuses the WHOLE FILE'S resolution
+            # (not merely the duplicate pair), because a map caught
+            # contradicting itself once cannot be trusted for any OTHER
+            # `former` it also names.
+            duplicate_former = True
+            malformed.append(
+                f"{site} declares `former: {former}`, which {TRANSFER_MAP} "
+                f"row {resolved_at[former]} also declares `transfer_state: "
+                "complete` for; two complete rows naming the same `former` "
+                "address is refused for the whole file rather than resolved "
+                "by whichever row this loop reached last")
+            continue
         resolved[former] = current
+        resolved_at[former] = position
+    if duplicate_former:
+        return {}, tuple(malformed)
     return resolved, tuple(malformed)
 
 
