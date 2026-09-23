@@ -273,7 +273,8 @@ and every outcome is mapped rather than only the neutral ones (Copilot
 and UNDETERMINED, `success` for agreement — and `skipped`, outside the five
 because nothing is compared, for a pin change that moves neither judged value
 (D17) — the values read in its output each
-time. The test asserts the PUBLISHED CONCLUSION for each outcome against that
+time, a surface's as its commit or, where it is not one, only as its
+classification (D20). The test asserts the PUBLISHED CONCLUSION for each outcome against that
 mapping rather than the process exit code —
 **because this contract degrades silently to a green pass if nobody checks which
 of the two was published.**
@@ -574,8 +575,9 @@ quietly returns for all three at once.
 **Each surface is now read only as a commit** — forty lowercase hexadecimal
 characters, the grammar `core_commit` already obeys (`SHA40_RE`,
 `scripts/review_lane_repin.py`:114) — and a surface outside it counts as
-UNREADABLE, named with the field extracted from its fixed location in the gate's
-read plan, never the file around it (D14c, D19). The input lands in an outcome that
+UNREADABLE, named by the CLASSIFICATION of what its fixed location in the gate's
+read plan held — absent, empty or not a commit — and never by that value or the
+file around it (D14c, D19, D20). The input lands in an outcome that
 already exists, NEUTRAL, so the outcomes stay five and the order stays as D9
 states it.
 
@@ -622,11 +624,12 @@ request, as every pull request's head is published here as `refs/pull/<n>/head`
 and judged, never followed (D14c); the read plan is fixed in the gate's own code
 (D19), so no pull request chooses what is read; the aggregation token is read-only and scoped to one
 repository; and every value the verdict names comes from a grammar or a
-vocabulary, a value outside them — the candidate's or a surface's — named only as
-an inert, length-bounded code span whose line breaks and backticks are replaced,
-so it can neither end the span nor carry a file out. **What such a run publishes
+vocabulary. A CANDIDATE value outside them, which is public already, is named only
+as an inert, length-bounded code span whose line breaks and backticks are
+replaced, so it cannot end the span; a SURFACE value outside them, which is
+private, is never named at all, only classified (D20). **What such a run publishes
 is what the bot's own pull requests publish**: the aggregation's default branch,
-its resolved commit and the surfaces' values, on this public repository, beside a
+its resolved commit and the surfaces' commits, on this public repository, beside a
 pin file that already publishes a private repository's commit as `core_commit`.
 An outside author chooses when it is published, and nothing about what is read.
 
@@ -732,6 +735,33 @@ being skipped (D17).
 gate**, because the base's code judges it. That is the base-code rule's ordinary
 cost. The verdict names both sets, so a reviewer sees exactly what moved, and the
 next run, from the new base, agrees.
+
+## D20 — a value read from the private aggregation is published as a commit or not at all
+
+Copilot `r4078468841`. The fixed plan (D19) stops a pull request choosing WHAT is
+read, but not what is PUBLISHED. The requirement named a non-commit surface by its
+value, and this gate runs on a public repository, for any pull request, with a
+verdict and a run log that are both public. A selector changed or compromised in
+the private aggregation could carry a credential, and bounding its length or
+replacing its delimiters would still publish it.
+
+**So a surface's value is published only when it is a commit** — forty lowercase
+hexadecimal characters, of the repository whose commits the pin file already
+publishes as `core_commit` — and otherwise only as its CLASSIFICATION: absent,
+empty, or not a commit. A reviewer with access to the aggregation reproduces the
+value with the same call the run made. **The candidate's own values are
+different**: the candidate is the pull request's own public content, so a
+candidate value outside its grammar is still named, inert and length-bounded, as
+§ 5.1g says.
+
+**And overlapping runs are serialized** (Copilot `r4078468867`). One pull request
+can start several runs — `opened`, `synchronize`, `reopened`, a re-run — and each
+reads mutable aggregation state, so an older run finishing late could publish the
+latest verdict under the declared name. The gate takes the answer
+`merge-master-approval.yml`:427-434 gives for its own verdict, a per-pull-request
+`concurrency:` group with `cancel-in-progress: true`, *"a superseded run's verdict
+is stale by definition"*. It also re-reads `head.sha` once more immediately before
+publishing, so a run whose head is no longer the pull request's publishes nothing.
 
 ## D5 — what the check compares, and why it is values rather than authorship
 

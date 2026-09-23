@@ -261,9 +261,10 @@ this packet's archive until merged PLUS green realization evidence.
   never followed (§ 5.1i); the read plan fixed in the gate's own code (§ 5.1i);
   the aggregation token
   read-only and scoped to `xFactory`; and every value the verdict names drawn
-  from its grammar or its vocabulary, a value outside them — the candidate's or a
-  surface's — named only as an inert, length-bounded code span, its line breaks
-  and backticks replaced. `design.md` D17 records the reversal and what a fork's
+  from its grammar or its vocabulary — a CANDIDATE value outside them, public
+  already, named only as an inert, length-bounded code span, its line breaks and
+  backticks replaced, and a SURFACE value outside them, private, never named at
+  all but only classified (§ 5.1i; `design.md` D20). `design.md` D17 records the reversal and what a fork's
   run can publish. Tests: the trigger's `paths:` filter is EXACTLY
   `[contracts/review-lane-pin.yaml]` — one entry, no glob, and no
   `paths-ignore:` — and the trigger carries no condition on author, head ref,
@@ -343,7 +344,12 @@ this packet's archive until merged PLUS green realization evidence.
   path, and a candidate that inherits such a list from its base, each FAIL
   naming both sets with no read made in the aggregation, and neither path is
   ever requested; and a candidate that repairs its base's list draws a verdict on
-  the repaired list.
+  the repaired list. **AND A PRIVATE VALUE IS NEVER PUBLISHED** (Copilot
+  `r4078468841`; `design.md` D20): a surface value that is not a commit is
+  named only by its classification — absent, empty or not a commit — in the
+  verdict and in the run log alike, both public on this repository. Test: a
+  fixture whose surface carries a credential-shaped string publishes `not a
+  commit`, and the string appears in neither the verdict nor the log.
 - [ ] 5.1h **THE NEUTRAL CONCLUSION NEEDS A WRITE PATH, AND IT IS A DIFFERENT
   TOKEN FROM THE READ** (Copilot's *previously missed* item, round 5). § 5.1e
   publishes through the check-run API and § 5.1c's aggregation binding grants
@@ -377,7 +383,8 @@ this packet's archive until merged PLUS green realization evidence.
   them — and for a declaration the measurement contradicts, `neutral` for
   INCONSISTENT and for UNDETERMINED, and `success` for a declaration the
   measurement agrees with — each with the state and the values read in its
-  output; and, outside the five because nothing is compared, `skipped` for a
+  output, a surface's as its commit or, where it is not one, only as its
+  classification (§ 5.1i); and, outside the five because nothing is compared, `skipped` for a
   pin change that moves neither judged value (§ 5.1g). A test asserts the
   published conclusion for each of the five outcomes and for that case, against
   that mapping, rather than the process exit code, **because the
@@ -398,7 +405,15 @@ this packet's archive until merged PLUS green realization evidence.
   commit. Tests assert the create call's `head_sha` is the verified candidate
   head, and that the verdict's name is `review-lane-lockstep-verdict` and matches
   no job id and no job `name:` in any workflow here (review `5285930613`'s *previously missed*
-  item; `design.md` D18).
+  item; `design.md` D18). **AND OVERLAPPING RUNS ARE SERIALIZED** (Copilot
+  `r4078468867`; `design.md` D20): the workflow declares a per-pull-request
+  `concurrency:` group, `review-lane-lockstep-gate-` followed by the pull
+  request's number, with `cancel-in-progress: true`, as
+  `merge-master-approval.yml`:427-434 does for its own verdict; and the verdict
+  is published only after a final re-read of `head.sha`, so an older run can
+  neither outlive a newer one nor publish for a head the pull request no longer
+  has. Tests: the block's group key and its cancellation, and a run whose head
+  moved before publication publishes nothing.
 - [ ] 5.1b The wiring is TESTED and not assumed, ON THE GATE ITSELF (Copilot
   `r4076845535`). `test_the_head_executing_trigger_is_absent` reads
   `merge-master-approval.yml` and nothing else (`CALLER`,

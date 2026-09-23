@@ -26,7 +26,7 @@ the commit the aggregation's surfaces name, `converged` meaning equal and
 SHALL AGREE WITH EACH OTHER BEFORE EITHER STATE IS CONCLUDED — the pin's own
 `converged_with:` members and the aggregation's constant that holds them
 identical, `MIGRATION_PIN`, — and where they DISAGREE the check SHALL report INCONSISTENT, name
-each surface with the value it carried, and conclude NEITHER `converged` NOR
+each surface with the commit it carried, and conclude NEITHER `converged` NOR
 `diverged`. A check permitted to pick one surface would be choosing its own
 answer, and an aggregation whose own surfaces disagree is a fact about that
 repository that this measurement is the first thing positioned to see. WHEN IT
@@ -59,8 +59,12 @@ state, and it SHALL NOT read its own silence as confirmation of the declared one
 An unaskable question is never an implicit pass. A SURFACE IS READ ONLY AS A
 COMMIT: each surface's value SHALL be forty lowercase hexadecimal characters, the
 grammar the pin's own `core_commit` obeys, and a surface whose value is not SHALL
-count as UNREADABLE, named with the value extracted from its fixed location and
-never the file around it — so surfaces that AGREE on
+count as UNREADABLE, named by a CLASSIFICATION of what its fixed location held —
+absent, empty, or not a commit — and NEVER by that value or the file around it,
+in the verdict or in the run log: the aggregation is private while both of those
+are public, and a value that is not a commit is exactly the one nobody has vetted
+for publication. A reviewer with access to the aggregation reproduces the value
+with the same call. So surfaces that AGREE on
 something that names no commit, an empty string among them, conclude nothing,
 rather than reaching a comparison that a declared `diverged` would pass merely
 because two strings differ.
@@ -173,14 +177,14 @@ compared only to itself is a tautology.
 - **THEN** the check reports that contradiction too, because the obligation is that the declaration be TRUE and not that it be pessimistic
 
 #### Scenario: The aggregation's own surfaces disagree with each other
-- **WHEN** the aggregation's surfaces, read at ONE resolved commit of it, do not all carry the same commit
-- **THEN** the check reports INCONSISTENT and names each surface with the value it carried
+- **WHEN** the aggregation's surfaces, read at ONE resolved commit of it and each carrying a commit of forty lowercase hexadecimal characters, do not all carry the same commit
+- **THEN** the check reports INCONSISTENT and names each surface with the commit it carried
 - **AND** it concludes neither `converged` nor `diverged`, because a check permitted to pick one surface would be choosing its own answer
 - **AND** the disagreement is the aggregation's own at that commit, not an artefact of reading its surfaces one at a time while a re-point landed between the reads
 
 #### Scenario: The aggregation's surfaces cannot be read
 - **WHEN** the check cannot obtain the aggregation's judging surfaces, or a surface it obtains carries a value that is not forty lowercase hexadecimal characters
-- **THEN** it reports the lockstep state as UNDETERMINED and names each surface it could not read, with the value it carried where it carried one
+- **THEN** it reports the lockstep state as UNDETERMINED and names each surface it could not read, with the classification of what it carried — absent, empty or not a commit — and never that value itself
 - **AND** it concludes neither `converged` nor `diverged`, and does not report the declared value as confirmed
 - **AND** the check's own conclusion is NEUTRAL and visible rather than failing, because another repository's availability is not this repository's build, and rather than passing, because silence is not a measurement
 
