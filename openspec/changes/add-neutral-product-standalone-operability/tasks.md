@@ -750,6 +750,12 @@ packet's interim arrangement ends.**
   the 31-entry assembled `--help` tree the carve manifest records as one
   *"which after the carve neither leg produces alone"*
   (`docs/opendox-carve-manifest.yaml:3088`). Nothing anywhere reproduces it today.
+  **They live in openXdox-code's `tests/integration/`**, because that
+  repository's `pyproject.toml` is where the composition is declared: its one
+  `opendox` dependency is pinned by full commit (`opendox @
+  git+https://github.com/opensoft/openDox-code@5c137a90…`, measured at
+  `195276b7`). They sit inside the whole suite that 9.2's required check runs, so
+  CI runs them without a file list.
 - [ ] 9.4 **Restore the margin, and stop the skips carrying the gap.** Both legs
   pass their floors with ZERO margin (openDox `1114/1111/3`, openXdox
   `539/533/6`), and every one of openXdox's six skips carries the same reason —
@@ -785,6 +791,36 @@ packet's interim arrangement ends.**
   `grep` after a failing `pytest` must not make the sequence exit zero), and the
   `test` asserts the exclusion count is ZERO rather than leaving it to a reader.
   Today openDox-code gives 1,298 errors / 0 passed and openXdox-code 1,089 / 0.
+- [ ] **FALSIFIED BY** (9.3, and requirement 9's third scenario: an openXdox-code
+  checkout, the composition's declared home, with openDox arriving ONLY through
+  the pin):
+
+      set -euo pipefail
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv --clear "$W/v9i"                      # a FRESH environment: nothing already installed stands in
+      . "$W/v9i/bin/activate"
+      pip install ".[test]"                                 # openDox arrives at the pin pyproject.toml declares
+      python3 - <<'PY'
+      import importlib.metadata as md, json, pathlib, re, tomllib
+      deps = tomllib.loads(pathlib.Path("pyproject.toml").read_text())["project"]["dependencies"]
+      pins = [d for d in deps if re.match(r"opendox\s*@", d)]
+      assert len(pins) == 1 and re.search(r"@[0-9a-f]{40}$", pins[0]), f"the composition names no full-commit pin: {pins}"
+      got = json.loads(md.distribution("opendox").read_text("direct_url.json") or "{}").get("vcs_info", {}).get("commit_id")
+      assert got == pins[0].rsplit("@", 1)[1], f"the installed openDox is {got!r}, not the pinned commit"
+      PY
+      ls tests/integration/test_*.py > "$W/integration.txt"  # a DECLARED integration suite exists
+      while read -r f; do python -m pytest -q "$f"; done < "$W/integration.txt"
+      python -m pytest -q "tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_31_entry_tree_the_manifest_records"
+
+  **The two legs' isolation runs above, and the leg-alone falsifiers of Groups 10,
+  12, 14 and 15, are requirement 9's FIRST half.** This command is its third
+  scenario: the assembled surface is exercised as well. It proves three things.
+  The composition names a full-commit pin. The openDox actually installed is the
+  pinned one, read from the `direct_url.json` that pip records for a VCS install
+  rather than assumed. And a declared integration suite exists, runs green, and
+  carries the named proof of the one surface neither leg produces alone. `ls`
+  exits non-zero when `tests/integration/` holds no test, so an absent suite
+  FAILS the command rather than passing it vacuously.
 
 ## Group 10 — Requirement 10 / G9, G10: one entry point (openDox-code + openDox root)
 
@@ -852,8 +888,8 @@ packet's interim arrangement ends.**
 
       set -euo pipefail
       W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
-      python -m venv .venv
-      . .venv/bin/activate
+      python -m venv --clear "$W/v10"                      # a FRESH environment: nothing already installed stands in
+      . "$W/v10/bin/activate"
       pip install .
       if python -c "import openxdox" 2>/dev/null; then echo "FAIL: sibling present"; exit 1; fi
       opendox --help >/dev/null                       # the console script MUST exist
