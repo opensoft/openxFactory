@@ -151,5 +151,3 @@ the corpus already carries. All three promoted scenarios are carried unedited.
   doctrine-only packet a code surface for a stale citation the archive left, not
   this amendment; the second is a README narrative line about what the archived
   packet promoted. Both are registered at `tasks.md` § 5.
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
