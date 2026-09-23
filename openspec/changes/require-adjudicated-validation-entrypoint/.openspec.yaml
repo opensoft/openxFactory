@@ -1,0 +1,114 @@
+schema: spec-driven
+created: 2026-09-22
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-22-require-adjudicated-validation-entrypoint
+  reason: >-
+    TWO COMMANDS OVER ONE TREE RETURN OPPOSITE VERDICTS, AND ONLY ONE OF THEM IS
+    THIS REPOSITORY'S. Measured at this packet's own head, re-taken at the
+    merged head 925d146b (108 passed / 1 failed / 109 items at the ratification
+    baseline c36ff08c; the item count tracks main's corpus size and the exits
+    did not move):
+    `python3 scripts/validate-openspec-cli-pin.py --all` — the
+    `consumer_entrypoint:` the pin names — runs the artifact at
+    `@fission-ai/openspec@1.12.0` verified against its recorded content address,
+    reads `Totals: 110 passed, 1 failed (111 items)`, reconciles the one finding
+    against `contracts/openspec-cli-pin.yaml` `dispositions:`, prints it by name
+    with its citation and granting authority, and EXITS 0.
+    `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — the raw tool — reads
+    the same totals and the same finding and EXITS 1, at 1.13.1 on PATH against a
+    pin of 1.12.0. Same tree, same finding, opposite exit.
+    THE CAUSE IS PROMOTED CANON THE TOOL CANNOT READ. This corpus's reserved
+    scenario-rename marker is canon at `openspec/specs/doc-health/spec.md`:1772
+    (the `Merged into` bullet; :1770 is the sibling `Removed from canon` bullet),
+    and `openspec/changes/prepare-openspec-1-12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md`
+    § "The two refusals" states the defect plainly: "1.12.0's scenario-currency
+    check is marker-blind. It compares scenario title sets and cannot read the
+    declaration this corpus requires." The only edit satisfying the tool would
+    restore a scenario title whose restoration reinstates the very permission
+    council LA-A1 was raised to close, so the finding is DISPOSITIONED with a
+    citation — `ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'` — and
+    recorded there as expected to be long-lived. The raw tool has no access to
+    the pin, does not know the disposition exists, and cannot reach that verdict:
+    its red is a DIFFERENT reader answering a question the repository did not ask
+    it.
+    THE WORKED EXAMPLE, AND WHAT IT COST. `split-opendox-two-layer-product` § 8.9
+    clause (2) named the raw command. Read literally — which is how Brett Heap
+    ruled it reads, `opensoft/openxFactory#656` comment 5778397686,
+    2026-09-22T14:33:02Z, by multi-choice — that box can never be ticked while
+    the ratified disposition stands, while the adjudicated gate was SUCCESS on
+    every pull request throughout. The box took the reserved `[~]` DEFERRED
+    marker naming the live disposition as its reason.
+    THAT RULING DISPOSED OF ONE BOX; THE DEFECT IS A CLASS. Nothing in the corpus
+    forbids the next box being written the same way, and the same box written
+    tomorrow would cost the same again. This packet writes the rule down.
+    NOTHING HERE TOUCHES THE DISPOSITION MECHANISM, AND THAT IS DELIBERATE. It
+    works — a finding no in-scope disposition covers FAILS the run, and a
+    disposition matched by no finding in a whole-corpus scan REFUSES it as
+    `pin-disposition-stale` — so the requirement LEANS ON it rather than
+    altering it. `scripts/validate-openspec-cli-pin.py`, its `reconcile()` and
+    `contracts/openspec-cli-pin.yaml` are not edited.
+    NOTHING HERE IS A CODE DECISION EITHER. The one enforced corpus-wide gate in
+    this repository ALREADY names the entrypoint:
+    `.github/workflows/openspec-cli-pin-gate.yml`:101 is
+    `python3 scripts/validate-openspec-cli-pin.py --all --no-cache`, the
+    workflow's sole step. What the delta adds is that a written ASSERTION must
+    name it too.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and grepped on 2026-09-22 for
+    `consumer_entrypoint` and `validate-openspec-cli-pin`: no topic folder and no
+    INDEX row proposes a rule about what a validation claim must name. The three
+    topics that mention `neutral-product-pin` are about the wallet's consumption,
+    the openDox carve and wallet authority. `kind: staged` would claim a staging
+    source that does not resolve. The organized source is the measurement at
+    `#656` comment 5778300335 and the ruling at 5778397686.
+  proposed_by: >-
+    Lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), turning
+    the particular ruling into the general rule it implies and adding no judgment
+    to it. THE DECISIONS THIS PACKET REACHES ARE DECLARED FOR A VETO in
+    `design.md`: D1 (the rule reaches the written ASSERTION and not only the run
+    — with the contrary reading, that the existing PATH requirement already
+    covers this, written out and tested rather than waved away), D2 (`## ADDED`
+    rather than a `## MODIFIED` fold into that neighbour, which would put its
+    every unit into a currency relationship with canon), D3 (the staleness
+    property carried as a SCENARIO that defers by name to the requirement already
+    owning it, rather than duplicating canon inside one spec file), D4 (no
+    checker proposed, because the measurement that would justify one — whether a
+    mechanical reader can tell an ASSERTION of a green corpus from a CITATION of
+    this defect — has not been taken, and this packet's own files contain the raw
+    command as quoted text), and D5 (the upstream CLI fix REGISTERED as the
+    condition that would retire the finding class, never proposed: the CLI is
+    consumed and never vendored, a bump is a ratified human-only act owing
+    target-version evidence and a re-derivation of every disposition, and a
+    SECOND disposition class is live in the pin file today, so retiring one class
+    would not retire this requirement). Each is separable and each carries its
+    own veto cost.
+  proposed_on: 2026-09-22
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-09-22T15:45:54Z,
+    interactive in the lane session, verbatim: "ratify #1140 and #1141",
+    recorded at `opensoft/openxFactory` issue #656 comment 5779511063. Record:
+    review/ratification-2026-09-22.md.
+    WHAT THE WORD RATIFIES HERE IS THE GENERAL RULE STATED FROM A PARTICULAR
+    RULING, which is the only thing this packet adds and the reason it needed a
+    word of its own. 5778300335 is the accepted read-only MEASUREMENT; 5778397686
+    RULED the PARTICULAR box ("§ 8.9 clause (2) READS LITERALLY; the tick becomes
+    [~]"). That ruling disposed of ONE box, and nothing in the corpus forbade the
+    next box being written the same way.
+    THE HEAD DID NOT MOVE between the word and the record: `c36ff08c` is both the
+    head the word names and the head this packet stood at when it was given, and
+    the ratification front-matter, the record and the README status line are the
+    first changes after it — none of them requirement text. The sibling #1140 is
+    NOT in that position and says so in its own record; the two are separate acts
+    and this one inherits nothing from that.
+    NO COUNCIL SITTING WAS HELD AND NONE WAS OWED: no convening packet, no
+    ballot, no seat returns, no council review. A single ADDED requirement with
+    `code_surface: none`, ratified by the repository owner's direct word in
+    session.
+  approved_on: 2026-09-22
+related:
+  - openxFactory:issue:656                                  # THE MEASUREMENT (comment 5778300335, accepted) and THE RULING (5778397686, "§ 8.9 clause (2) READS LITERALLY; the tick becomes [~]")
+  - openxFactory:change:split-opendox-two-layer-product     # THE WORKED EXAMPLE. Its § 8.9 clause (2) named the raw command and took the reserved `[~]` marker. Its bytes are NOT edited by this packet
+  - openxFactory:change:add-chain-attestation               # ACTIVE. The change the live openxFactory disposition is granted for; its `retires_when:` is this change's archive, recorded as expected to be long-lived
+  - openxFactory:change:prepare-openspec-1-12-readiness     # Its evidence record states the marker-blindness defect that makes the disposition necessary
+  - openxFactory:change:amend-neutral-product-pin-source-tree-digest  # SIBLING, filed the same day by the same lane against the same capability. Different requirement, no delta overlap; both touch the README Records block and the sweep ledger and so conflict on landing

@@ -29,11 +29,14 @@ kind: pinned_contract_manifest
 # WHY THERE IS NO `files:` AND NO `pinned_by_commit_only:`, unlike
 # `contracts/openxwallet-pin.yaml`. Three reasons, and none of them is economy:
 #
-#   1. openXdox's own `contracts/manifest.yaml` declares
+#   1. openXdox's own `contracts/manifest.yaml` declared
 #      `contract_bundle_version: none` and `entries: []`. `neutral-product-pin`
 #      keys the per-file obligation to "every artifact the product's own
-#      manifest digests per file", and that set is EMPTY. The list has no
+#      manifest digests per file", and that set was EMPTY. The list had no
 #      members to carry rather than members left out.
+#      AMENDED 2026-09-21 — NO LONGER TRUE at the commit this pin now names
+#      (see THE BUNDLE EXISTS NOW, below); reason 1 is kept as the reading that
+#      held until `646f1dc0`, and reason 2 is now the operative one.
 #   2. The whole-tree digest discharges the completeness obligation those two
 #      lists exist to serve, and discharges it MORE STRONGLY. The capability's
 #      own words for the published-artifact medium reach a whole-tree digest
@@ -55,6 +58,36 @@ kind: pinned_contract_manifest
 # Heap's own act. A label recorded before the thing it labels exists would be a
 # claim, not a label, so the key is ABSENT rather than present-and-empty.
 #
+# THE BUNDLE EXISTS NOW, AND THE KEY IS STILL ABSENT — FOR A DIFFERENT REASON.
+# AMENDED 2026-09-21, on RULED 5768144952 (Brett Heap, `opensoft/openxFactory`
+# #656, "(b) for the pin shape, keep going"), which decided this question for
+# the SIBLING `contracts/opendox-pin.yaml` and governs here for the same
+# reasons. Raised by Copilot's review of #1134; the contradiction was real and
+# is corrected rather than left standing.
+#
+# Phase 6 HAPPENED. `xdox-v1.0` was cut and published on 2026-09-21 (tag
+# evidence `#656` comment 5767450638), and this re-pin advances the gitlink
+# from `88a1047e` to `646f1dc0`, one commit PAST that tag. At `646f1dc0`
+# openXdox's own `contracts/manifest.yaml` carries
+# `contract_bundle_version: xdox-v1.0` and FIVE `entries:` --
+# `gate-action-record`, `ideation-dashboard-snapshot`,
+# `ideation-dashboard-snapshot-index`, `domain-profile` and
+# `domain-profile-example`. So both sentences above have expired: the bundle is
+# cut, and the set reason 1 calls EMPTY is not empty.
+#
+# WHY THE KEY STAYS ABSENT ANYWAY. The original reason -- "a label recorded
+# before the thing it labels exists would be a claim, not a label" -- is spent.
+# The reason now is reason 2 plus OFFLINE LAW below: the whole-tree
+# `sorted-ls-tree-r-v1` digest already addresses every byte of the commit this
+# pin names, INCLUDING that manifest, so a `contract_bundle_tag:` here would
+# restate in a weaker form what the digest already fixes -- and, because the
+# verifier "never reads openXdox's own `contracts/manifest.yaml`", it would be
+# an assertion no gate in this repository could check, free to drift the moment
+# the pin moves. `files:` and `pinned_by_commit_only:` stay absent on exactly
+# the reasoning RULED 5768144952 confirmed for the openDox pin. Should the key
+# ever be wanted, it is one additive line beside a digest that already proves
+# it -- registered here, not owed.
+#
 # OFFLINE LAW. The verifier reads this file, the gitlink, and the submodule's
 # own object store. It never reads the network, never reads an upstream tree,
 # and never reads openXdox's own `contracts/manifest.yaml`. A gate that reaches
@@ -73,7 +106,7 @@ submodule_path: openXdox
 # names both legs. Exactly 40 hex characters. NEVER a leg: `openXdox-code` and
 # `openXdox-spec` are the assembly root's own job to pin, and openxFactory
 # never pins or mounts a leg (split-opendox-two-layer-product task 5.1).
-commit: "88a1047e43c180d41b9ee16ae48688bed7ee5415"
+commit: "646f1dc04194a711d0d7178a03b1cf4442405d88"
 revision_kind: commit
 
 digest_algorithm: sha256
@@ -91,7 +124,7 @@ digest_algorithm: sha256
 # cover a three-repository product without mounting the other two.
 digest_definition: sorted-ls-tree-r-v1
 digests:
-  tree_sha256: "cdbe7573f48635f8ed1062c1a7f453d7b0dd282e302994acb63a13799358ca4b"
+  tree_sha256: "47f5018469b0f061b4a062f327f9a0e8a65360d6c725feca0d88909c5db6b246"
 
 # The BYTE-IDENTITY REFERENT, and record 2 of the three RULED OQ-I requires
 # (Brett Heap, #656, 2026-09-09; `docs/opendox-cutover-runbook.md` § 1). In the

@@ -279,6 +279,11 @@ def run_suite(ctx, only_family: str | None, skip: set[str]) -> RunResult:
 
 
 def main(argv=None) -> int:
+    # Lazily, under its own name: `semantic` is bound as a LOCAL further
+    # down this same function (`from . import semantic`), so reading the
+    # module here under that name would be an unbound local. Only the
+    # budget default is needed at parser-build time.
+    from .semantic import DEFAULT_INPUT_BUDGET_BYTES as _INPUT_BUDGET_DEFAULT
     ap = argparse.ArgumentParser(prog="doc-health")
     scope = ap.add_mutually_exclusive_group(required=True)
     scope.add_argument("--repo-root", help="aggregation checkout")
@@ -338,6 +343,22 @@ def main(argv=None) -> int:
     ap.add_argument("--semantic-unavailable-reason",
                     help="auditable reason a dispatched findings artifact "
                          "is unavailable")
+    # ONE flag for EVERY bounded worker lane, because the ceiling is one
+    # fact about the fleet: the semantic and cataloger children run the
+    # same CLI against the same model on the same host. The older
+    # `--semantic-input-budget-bytes` spelling is kept as an alias so no
+    # caller breaks (Copilot, PR #1137).
+    ap.add_argument("--worker-input-budget-bytes",
+                    "--semantic-input-budget-bytes", type=int,
+                    dest="worker_input_budget_bytes",
+                    default=None, metavar="N",
+                    help="byte cap on the assembled prompt of EVERY bounded "
+                         "worker lane (default %d). Documents that do not "
+                         "fit are deferred WHOLE and named in the report and "
+                         "in the bundle's meta.json; nothing is ever "
+                         "truncated mid-document, and a catalog shard "
+                         "measured over the cap is never dispatched."
+                         % _INPUT_BUDGET_DEFAULT)
     ap.add_argument("--semantic-claude-bin", default="claude",
                     help=argparse.SUPPRESS)  # testability: fake worker binary
     ap.add_argument("--catalog-prepare", metavar="DIR",
@@ -417,6 +438,13 @@ def main(argv=None) -> int:
                          "baseline; records a new baseline marker when "
                          "the sweep queue drains)")
     args = ap.parse_args(argv)
+    # Resolve the budget default EXACTLY ONCE, and only for an absent
+    # flag. `or` would be wrong here: it folds an explicit `0` or a
+    # negative back into the default, so an operator who typed a bad
+    # cap would silently get the good one and `pack_within_budget`'s
+    # validation would never be reached (Copilot, PR #1137).
+    if args.worker_input_budget_bytes is None:
+        args.worker_input_budget_bytes = _INPUT_BUDGET_DEFAULT
 
     ctx = build_context(args)
 
@@ -437,9 +465,12 @@ def main(argv=None) -> int:
             ctx.repo_paths, ctx.docs, ctx.as_of, prev_inv,
             bundle_out,
             model=args.semantic_model or _semantic.DEFAULT_MODEL,
-            inventory=inventory, allowed_output_root=bundle_root)
+            inventory=inventory, allowed_output_root=bundle_root,
+            input_budget_bytes=args.worker_input_budget_bytes)
         print(f"sweep bundle written: {args.semantic_prepare} "
-              f"({meta['corpus_size']} docs; {meta['scope']})")
+              f"({meta['corpus_size']} docs; {meta['scope']}; "
+              f"{meta['input_bytes']} of {meta['input_budget_bytes']} "
+              f"budgeted bytes, {meta['docs_deferred']} deferred)")
         return 0
 
     if args.catalog_prepare:
@@ -466,9 +497,11 @@ def main(argv=None) -> int:
             ctx.repo_paths, ctx.docs, ctx.as_of, catalog_root, bundle_out,
             args.catalog_model or _catalog_dispatch.DEFAULT_MODEL,
             cat_inv, allowed_output_root=bundle_root,
-            baseline_mode=baseline_mode, scope=args.catalog_scope)
+            baseline_mode=baseline_mode, scope=args.catalog_scope,
+            input_budget_bytes=args.worker_input_budget_bytes)
         print(f"catalog bundle written: {args.catalog_prepare} "
               f"({meta['shard_count']} shard(s), "
+              f"{meta['dispatchable_shard_count']} dispatchable, "
               f"{meta['selection_count']} selected)")
         return 0
 
@@ -572,7 +605,8 @@ def main(argv=None) -> int:
 
         sem_findings, semantic_meta = semantic.run_sweep(
             ctx.repo_paths, ctx.docs, ctx.as_of, ctx.agg_root, prev_inv,
-            model=model, invoke=_invoke, inventory=inventory)
+            model=model, invoke=_invoke, inventory=inventory,
+            input_budget_bytes=args.worker_input_budget_bytes)
         result.findings.extend(sem_findings)
         result.findings.sort(key=Finding.sort_key)
 
@@ -810,6 +844,22 @@ def main(argv=None) -> int:
         unavailable_families.update(set(FAMILIES) - {args.family})
     if semantic_meta is not None and semantic_meta.skipped_reason:
         unavailable_families.update(semantic.SEMANTIC_FAMILY_IDS)
+    # A DEFERRED DOCUMENT IS NOT A SWEPT DOCUMENT (add-worker-input-budget).
+    # The family-level exclusion above only fires when the whole sweep was
+    # SKIPPED; a successful PARTIAL pack leaves `skipped_reason` empty while
+    # some documents never reached the model at all. Their prior contested
+    # findings cannot be re-confirmed or refuted by this run, so their
+    # absence from `result.findings` must not read as "resolved" — exactly
+    # the rule `unavailable_families` and `unavailable_repos` already encode,
+    # one axis further in, at the PATH. Without this the first budgeted night
+    # manufactures an uncited-resolution ERROR per deferred document that
+    # carried a semantic finding (Copilot, PR #1137).
+    unavailable_keys = set()
+    if semantic_meta is not None:
+        unavailable_keys.update(
+            (family, repo, path)
+            for family in semantic.SEMANTIC_FAMILY_IDS
+            for repo, path in semantic_meta.deferred)
     # The ideation-readiness lane's `contested` findings are folded into the
     # ranked plan AFTER this render (report.insert_readiness_section, from the
     # readiness merge step), so they are NEVER in `result.findings` at this
@@ -832,7 +882,8 @@ def main(argv=None) -> int:
     result.findings += report.uncited_resolutions(
         result.findings, previous_contested, dispositions,
         unavailable_families=unavailable_families,
-        unavailable_repos=unavailable_repos)
+        unavailable_repos=unavailable_repos,
+        unavailable_keys=unavailable_keys)
     new = report.regressions(result.findings, previous_keys)
 
     spec_words = 0
