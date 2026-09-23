@@ -215,7 +215,7 @@ word.
 FAILS-THEN-PASSES obligation: every test is written to FAIL against the tree
 without its arm, and is shown failing before it is shown passing.
 
-- [ ] 3.1 `scripts/estate-repository-inventory.yaml` (NEW): the 33 candidate rows
+- [x] 3.1 `scripts/estate-repository-inventory.yaml` (NEW): the 33 candidate rows
       of `design.md` D0.2, `schema_version` and `kind` at the head (CLAUDE.md
       rule 4), a header stating why the file is not under `contracts/` and what a
       row means, and per row `repository:`, `name:`, `role:`, `governance:`,
@@ -227,7 +227,16 @@ without its arm, and is shown failing before it is shown passing.
       written because `create-ledgerxwallet-overlay-boundary` is ratified and
       creates the repository, and omitting it would refuse that packet's lawful
       declaration at the membership arm.
-- [ ] 3.2 `scripts/estate_inventory.py` (NEW): the reader and the row-level judge,
+      **DONE, commit `eee585c3` (PR #1119).** Amended twice on the SAME ratified
+      shape, both disclosed rather than silent: row 3 (`codeXfactory/codexFactory`)
+      dropped its unlawful `pin` admission at `728b8770` (Brett Heap's ruling,
+      verbatim "Drop the pin admission on row 3", RULED at `opensoft/brett-wip`
+      `lanes/log/openXfactory-5.md`, matching the same-word amendment landed into
+      `design.md` D0.2 on `main` by PR #1130 `0f23341f`); the header's nested-gitlinks
+      re-measurement note was corrected from "11 in 6" to "12 in 7" at `5e08ff1d`
+      (round 4). Unchanged since (`git diff 5e08ff1d..c2d4309b --stat -- scripts/estate-repository-inventory.yaml`
+      is empty).
+- [x] 3.2 `scripts/estate_inventory.py` (NEW): the reader and the row-level judge,
       in the shape `scripts/code_surface.py` uses: read through the shipped
       strict loader, no second parser, no path reached through a symlink at leaf
       or ancestor, deterministic, no network. Public: load the inventory, resolve
@@ -245,7 +254,31 @@ without its arm, and is shown failing before it is shown passing.
       unverified rather than raising, so § 3.3 can report an unverified tree as
       NOT RE-CHECKED instead of failing the run (ruling "Bind the carrier
       identity", § 1.5 (a)).
-- [ ] 3.3 `scripts/validate-estate-inventory.py` (NEW): the house validator CLI in
+      **DONE, commit `92bb8eb7` (PR #1119), hardened across seven Copilot review
+      rounds — each fix disclosed with its own fails-then-passes case in the PR
+      body, none changing this task's own shape:** a sanitized git environment for
+      the carrier read (`b747daad`, `247ca3dc` — `GIT_CONFIG` added to
+      `_SCRUBBED_GIT_ENVIRONMENT`, measured inert on this git and scrubbed anyway);
+      the WORK-TREE ROOT bound rather than any path git will answer for, refusing a
+      bare repository or an imprecise subdirectory (`b747daad`); a `gitlink`
+      carrier required to resolve to a `governed` row (round 1); a `root` row
+      required to declare `governance: governed` (`247ca3dc`); a `pin` admission on
+      a `governance: governed` row refused at load (`b626316b`, round 6 — the same
+      defect class the row-3 ruling closed on one row, generalized to every row);
+      `pin`/`workflow` admissions named by their STRUCTURAL field only, never by
+      prose elsewhere in the file (`a961d92c`, round 4), extended to the JOB-LEVEL
+      `jobs.<job_id>.uses:` reusable-workflow site (`81a01b3c`, round 5);
+      `load_transfers` holding a `complete` row to its own field-agreement shape —
+      `transferred_on` a real date (`type(...) is datetime.date` exactly, not
+      `isinstance`, which a `datetime.datetime` subclass would pass — round 7,
+      `c2d4309b`), both addresses `<owner>/<name>`-shaped, PyYAML's `ValueError` on
+      an impossible calendar date caught and reported as a finding rather than
+      raised (round 7, `c2d4309b`), and two `complete` rows naming the same
+      `former` refusing the whole file rather than silently overwriting (round 7,
+      `c2d4309b`). `python3 -m pytest tests/estate_inventory tests/code_surface
+      tests/scope_globs -q` — 317 passed at `c2d4309b` (52 at `729448f2`, the
+      original § 3.5 delivery).
+- [x] 3.3 `scripts/validate-estate-inventory.py` (NEW): the house validator CLI in
       the shape every other `scripts/validate-*.py` uses. The DEFAULT run judges
       the inventory file's SHAPE and its in-tree evidence and makes no network
       call: refuses a duplicate bare name, a row whose in-tree `admitted_by:`
@@ -264,7 +297,14 @@ without its arm, and is shown failing before it is shown passing.
       actually is (ruling "Bind the carrier identity", § 1.5 (a); a path is an
       assertion and not an identity). No mode fetches a tree: the input is a path
       a caller already has.
-- [ ] 3.4 ONE MEMBERSHIP ARM added to `scripts/validate-code-surface.py`, so the
+      **DONE, commit `ed6160c7` (PR #1119).** Extended at `81a01b3c` (round 5) to
+      thread `load_transfers`'s second return value (`transfer_findings`) through
+      to a FAILED report block and the exit-code check, so a malformed transfer
+      row is fail-closed here too, not only at the membership arm. `python3
+      scripts/validate-estate-inventory.py .` — exit 0 at `c2d4309b`; `33
+      repositories — 26 governed, 6 pinned, 1 external; 1 provisional`, `8 named, 0
+      gone`, `30 NOT RE-CHECKED` (no tree supplied).
+- [x] 3.4 ONE MEMBERSHIP ARM added to `scripts/validate-code-surface.py`, so the
       grammar scan and the membership scan report in one run. FAILS CLOSED on an
       identifier no row carries; REFUSES an `external` row naming the class;
       REPORTS a former address with the current one; does NOT judge a REGISTERED
@@ -278,7 +318,16 @@ without its arm, and is shown failing before it is shown passing.
       "MAY becomes MUST", § 1.5 (c)). The arm takes no tree argument and makes no
       network call, so the required check's verdict is the same on every
       machine.
-- [ ] 3.5 `tests/estate_inventory/` (NEW): one case per scenario class of both
+      **DONE, commit `82ae4f1a` (PR #1119).** Extended at `81a01b3c` (round 5) the
+      same way as § 3.3: `MembershipReport` gains `transfer_findings`, both its
+      real and its `membership is None` fallback construction, the summary line,
+      a FAILED block, and the exit-code check. `python3
+      scripts/validate-code-surface.py .` — exit 0 at `c2d4309b`; `46 active
+      proposals, 46 declaring — 9 \`none\`, 30 a repository list, 7 named by the
+      register, 0 outside the grammar`; `membership: 30 readable heads naming 6
+      distinct identifiers — 6 carried, 0 refused, 0 at a former address
+      (reported), 7 registered and not judged, 0 transfer-map rows malformed`.
+- [x] 3.5 `tests/estate_inventory/` (NEW): one case per scenario class of both
       ADDED requirements and of the MODIFIED paragraph, each FAILING against the
       tree without § 3.1–§ 3.4 and passing with them, plus a LIVE-CORPUS case that
       reds `pytest-suite` when a declaration names a repository no row carries.
@@ -289,27 +338,90 @@ without its arm, and is shown failing before it is shown passing.
       VERIFIES); and an inventory missing the `change`-admitted row for a ratified
       repository-creating change fails § 3.1's own shape check rather than being
       excused by the membership arm.
-- [ ] 3.6 **NO OTHER FILE MOVES.** `scripts/code_surface.py`'s grammar,
+      **DONE, commit `729448f2` (PR #1119), 52 cases, one per scenario class of
+      both ADDED requirements and the MODIFIED paragraph plus the two rulings'
+      cases (§ 1.5's `gitlink`-at-a-different-repository and
+      missing-`change`-row cases) — full list in the PR body's § 3.5 section and
+      in the file itself. GROWN by every review round since, each new case named
+      in the PR body's per-round table and every one shown failing against the
+      pre-fix reader before the fix that closes it: round 1 (ten cases, `277c028e`);
+      round 2, the carrier read (two cases, `b747daad`); round 3, `GIT_CONFIG` and
+      the `root` governance check (two cases, `247ca3dc`); the row-3 ruling (one
+      case, `728b8770`); round 4, structural-field-only reading and the 115KB
+      workflow file (three cases, `a961d92c`); round 5, the transfer-row shape and
+      the job-level `uses:` site (two cases, `81a01b3c`); round 6, `pin` on a
+      `governed` row (one case, `b626316b`); round 7, the impossible date, the
+      timestamp subclass, and the duplicate `former` (three cases, `c2d4309b`).
+      `python3 -m pytest tests/estate_inventory -q` — **64 passed** at `c2d4309b`,
+      measured directly rather than summed from the per-round additions above
+      (which do not net to this figure one for one — later rounds' fixture
+      changes and the file's own reorganization move individual case counts
+      within a function as well as adding whole new ones; the per-round table in
+      the PR body names every added or changed case by its actual test id). The
+      LIVE-CORPUS case this section also owes is
+      `test_every_live_declared_identifier_is_CARRIED_by_the_inventory`, in this
+      same 64.
+- [x] 3.6 **NO OTHER FILE MOVES.** `scripts/code_surface.py`'s grammar,
       `scripts/scope_globs.py`'s derivation, the closed register, every existing
       test, every workflow, every contract member and every promoted byte are
       untouched. Verified in the realization pull request by its own diff.
+      **HELD, first taken at commit `8407e157`, RE-VERIFIED at `c2d4309b` across
+      seven review rounds of further commits to the same five files**: `git diff
+      origin/main..c2d4309b --stat` names exactly `scripts/estate-repository-inventory.yaml`,
+      `scripts/estate_inventory.py`, `scripts/validate-code-surface.py`,
+      `scripts/validate-estate-inventory.py` and
+      `tests/estate_inventory/test_estate_inventory.py` — five files, nothing
+      else, both at the original delivery and at every round since.
 
 ## 4. Verification (OPEN; taken at the realization head)
 
-- [ ] 4.1 `python3 -m pytest tests/estate_inventory tests/code_surface tests/scope_globs -q`
+- [x] 4.1 `python3 -m pytest tests/estate_inventory tests/code_surface tests/scope_globs -q`
       green, with the fails-then-passes evidence for § 3.5 pasted in the
       realization pull request body.
-- [ ] 4.2 `python3 scripts/validate-estate-inventory.py .` and
+      **GREEN at `c2d4309b`: `317 passed in 26.09s`.** The fails-then-passes
+      evidence for every § 3.5 case, across all seven review rounds and the
+      original 52, is in the PR body (a dedicated section per round, each
+      reverting the reader to its pre-fix parent commit, showing the genuine
+      failure, then restoring the fix).
+- [x] 4.2 `python3 scripts/validate-estate-inventory.py .` and
       `python3 scripts/validate-code-surface.py .` both exit 0, the second now
       reporting the membership counts beside the grammar counts.
-- [ ] 4.3 The 33 rows RE-MEASURED at the realization head rather than carried from
+      **GREEN at `c2d4309b`, both exit 0** — transcripts and counts under §§ 3.3
+      and 3.4 above (`0 transfer-map rows malformed` in the second, a field round
+      5 added and round 7 exercised further).
+- [x] 4.3 The 33 rows RE-MEASURED at the realization head rather than carried from
       this drafting, by the FIVE D0.1 commands, with any row that moved DISCLOSED
       at this box. The corpus moves between drafting and landing; the register's
       own requirement says so and this packet is bound by it. The re-measurement
       also settles the governance class of rows 28-33, which D0.2 states only as
       far as the openxFactory sites reach: whether the NESTING repository pins
       rather than authors any of the six is a fact in that repository's tree.
+      **RE-MEASURED, full five-command sequence taken at `5e08ff1d` (round 4;
+      transcripts and the two disclosed figure-moves — 12 nested gitlinks in 7
+      repositories where D0.1 measured 11 in 6, and the corpus's ordinary drift —
+      are in the PR body's § 4.3 section). NO ROW MOVED. Unchanged since:
+      `scripts/estate-repository-inventory.yaml` carries no byte of diff between
+      `5e08ff1d` and `c2d4309b` (§ 3.1 above), and rounds 5-7 touched neither the
+      `.gitmodules` sites, the `contracts/` pins, nor the workflow `uses:` sites
+      commands 1-4 read. Command 5 (the declared population, through the shipped
+      reader) DOES move on its own — the corpus is read live, not frozen — and
+      was RE-CONFIRMED FRESH at `c2d4309b` in this same pull request's final body
+      update: still the same six distinct identifiers (`openxFactory`,
+      `xFactory`, `openAvatar`, `opensoft/LedgerxWallet`,
+      `opensoft/Keycloak-Install`, `opensoft/OpenXPKI-Install`), all six still
+      resolving, zero refused, governance class of rows 28-33 unchanged. The
+      governance-class settlement itself (pins vs. authors, per repository) is a
+      fact of those repositories' own trees and does not move with the corpus
+      count.
 - [ ] 4.4 `pytest-suite` green on the realization pull request at its merge head.
+      **NOTED, 2026-09-23, left `- [ ]` rather than ticked**: `pytest-suite` is
+      GREEN on this pull request's own head `c2d4309b` — run `35896651067`
+      (https://github.com/opensoft/openxFactory/actions/runs/35896651067),
+      22m31s — `317 passed` among the other packages this workflow also runs.
+      This box's own words ask for green "at its MERGE head", which is main's
+      head after the landing squash and not this branch's own pre-merge head;
+      the tick is the archive act's, from main's green run at the landed merge,
+      per the coordinator's standing instruction for this box.
 
 ## 5. Archive (OPEN; a separate act on a separate word)
 
