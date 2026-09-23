@@ -142,7 +142,14 @@ mention in the package is prose.
 - [ ] 2.2 Contribute those routes through the EXISTING seam —
   `serve.build_server(route_extensions=)` / `route_extension.RouteBinding` — from
   openxFactory's side, per the carve `design.md`'s own specification. No new
-  mechanism is designed here.
+  mechanism is designed here. **Measured: openxFactory's half already exists.**
+  `scripts/profile_openxfactory.py:101-105` puts
+  `serve_openxfactory_lanes.LaneRoutesExtension()` (`:456`) in the
+  `ROUTE_EXTENSIONS` tuple that `build_server` reads on every start, and the five
+  names are that module's own constants (`ACTIONS_REFRESH_ROUTE` at `:93`). What
+  remains is openDox-code's half: 2.1's removal, with every openDox-side reader of
+  the five re-exported names moved to the lanes column's own spelling or to a
+  neutral one.
 - [ ] 2.3 Sweep every remaining module-level reach: grep `src/` for
   `ideation_dashboard`, `corpus_adapter_openxfactory`, `doc_health` and
   `openxdox` at import position, and close or defer each with a recorded reason.
@@ -574,7 +581,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   assertion fails on `status='not-available'`, with
   `detail = doc-health machinery unavailable: No module named 'doc_health'`.
 
-## Group 7 — Requirement 7 / G6: a validator openDox can run (openDox-code)
+## Group 7 — Requirement 7 / G6: a validator openDox can run (openDox-code; 7.3 in openXdox-code)
 
 - [ ] 7.0 **Ship `tests/fixtures/malformed`**: 5.0's `plain-documents` with
   EXACTLY ONE rule violation the validator must name, so the falsification below
@@ -638,14 +645,54 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 - [ ] 7.2 openDox-code has **no `scripts/` directory at all** and one console
   script. Whatever validator it gains is new surface at the code leg, not a
   relocated one.
-- [ ] 7.3 **Three carve-broken defects in `openxdox/snapshot.py` are unclaimed
-  and belong to this box**, registered by the archived packet's § 5.5 residue and
-  owed to *"a follow-up act with its own claim"* that nobody holds: `SCHEMAS_DIR`
-  resolves to an absent directory; `VALIDATOR_RELPATH` names a path openxFactory
-  shed; and **`find_validator`'s parent walk ADOPTS AN ENCLOSING PRE-SHED
-  CHECKOUT** — which is exactly the "reaching into a host tree instead of an
-  injected adapter" class this arc exists to close, appearing a second time.
-  Claim them here or hand them on by name; do not leave them unowned again.
+- [ ] 7.3 **THE CONSUMER'S HALF, in openXdox-code — not openDox-code.** Three
+  carve-broken defects sit in the validator lookup openXdox KEEPS with
+  `snapshot.py` (design R-G3). They were registered by the archived packet's
+  § 5.5 residue and owed to *"a follow-up act with its own claim"* that nobody
+  holds. Measured at openXdox-code `195276b7`:
+  - `VALIDATOR_RELPATH` (`src/openxdox/snapshot.py:29`) names
+    `openxFactory/scripts/validate-ideation-dashboard-contracts.py`, a path in
+    the PUBLISHER's tree that openxFactory shed (`cc4ae9d3`), although
+    openXdox-code carries its own `scripts/validate-ideation-dashboard-contracts.py`.
+  - **`find_validator` (`:61`) walks up from the working directory until it
+    finds one, so it ADOPTS AN ENCLOSING CHECKOUT.** That is the "reaching into a
+    host tree instead of an injected adapter" class this arc exists to close,
+    appearing a second time.
+  - The validator it would find derives `SCHEMAS_DIR` from its own `__file__`,
+    which 7.1a shows resolving to a directory that is absent.
+  The fix is the consumer's, as 7.1a says of its schema set. openXdox's validator
+  and its three schemas (7.1's openXdox-spec three) are located through the
+  INSTALLED openXdox distribution, and no parent walk remains. This box is
+  claimed as its own openXdox-code act on `#656`, like every group here, so it is
+  not left unowned again.
+- [ ] **FALSIFIED BY** (7.3; an openXdox-code checkout, installed into a fresh
+  venv, running the lookup from inside a planted PRE-SHED tree):
+
+      set -euo pipefail
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv --clear "$W/v7x"                      # a FRESH environment: nothing already installed stands in
+      . "$W/v7x/bin/activate"
+      pip install ".[test]"
+      mkdir -p "$W/preshed/openxFactory/scripts" "$W/preshed/work"
+      printf 'raise SystemExit(0)\n' > "$W/preshed/openxFactory/scripts/validate-ideation-dashboard-contracts.py"
+      python3 - "$W/preshed" <<'PY'
+      import sys
+      from pathlib import Path
+      from openxdox import snapshot
+      planted = Path(sys.argv[1]).resolve()
+      found = snapshot.find_validator(planted / "work")     # the lookup starts INSIDE the planted tree
+      assert found is not None, "the consumer found no validator of its own"
+      assert planted not in Path(found).resolve().parents, f"it adopted the enclosing tree's validator: {found}"
+      PY
+      python -m pytest -q \
+        "tests/test_snapshot.py::test_the_validator_is_the_installed_consumers_own" \
+        "tests/test_validate_ideation_dashboard_contracts.py::test_every_schema_the_consumer_validates_is_on_disk"
+
+  The planted tree is exactly the shape the parent walk adopts today: an
+  `openxFactory/scripts/validate-ideation-dashboard-contracts.py` above the
+  working directory, which exits 0 whatever it is given. The assertion is on
+  WHERE the validator came from, so a lookup that still walks up fails even when
+  the planted script would have "passed" every snapshot.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, **INSTALLED into a
   fresh venv**, because 7.1 settles that the three schemas travel as PACKAGE
   DATA and a bare clone therefore cannot exercise the packaged set this box is
@@ -686,7 +733,8 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   A validator that failed for a missing schema, a generic error, or with empty
   stderr would not produce it, so the positive `grep -qF` is what proves the
   intended rule ran. The negative line only closes the one failure this box
-  measured today. The last line is a NEGATIVE `grep` — `! grep -q` — not
+  measured today. The last check is a NEGATIVE one, asserted as grep's exit
+  status 1 exactly: not `! grep -q`, which `set -e` never stops on, and not
   `grep -qv`, which would have succeeded on any single non-matching line and so
   passed a mixed "missing schema AND rule error" stderr. **Neither may fail on an unresolvable schema path** — today
   that is exactly how it fails, because `--strict` makes "the validator is
@@ -763,11 +811,22 @@ packet's interim arrangement ends.**
   for real once that lands"*. Two of openDox's three are the mirror image. **The
   whole-product assertions are precisely the ones that skip**, which is why both
   legs report green while neither product runs.
-- [ ] 9.5 Note for whoever takes this box: openXdox pins openDox at `5c137a90`,
-  nine commits behind openDox-code `main`, and the openDox root's gitlink and
-  `contracts/code-pin.yaml` name `d816cf06`, two behind. Both are ancestors —
-  nothing is forked — but the pins move before the integration run means
-  anything.
+- [ ] 9.5 **The pins that compose the legs advance with the arc, each by its
+  owner's ordinary pin-sync act.** This packet moves none of them, and the
+  realization cannot be exercised without moving them. Measured on 2026-09-23:
+  - openXdox-code's `pyproject.toml` pins openDox-code at `5c137a90`, nine
+    commits behind `main`.
+  - The openDox root's `code` gitlink and `contracts/code-pin.yaml` name
+    `d816cf06`.
+  - The openXdox root's `contracts/opendox-pin.yaml`, and openxFactory's
+    `contracts/opendox-pin.yaml` with its `openDox` gitlink, name the openDox
+    root at `dc7aa08f`.
+  Each advances in the landing that needs the arc's code. openXdox-code's moves
+  first, because 9.3's integration run means nothing at a pin that predates the
+  arc. openxFactory's moves before the host wiring of 4.1 and 4.3 can call a seam
+  that exists. Its gitlink and pin file move in ONE commit, which
+  `scripts/verify-opendox-pin.py` checks. Every one is an ancestor move, not a
+  fork, and none cuts a contract bundle or owes a release tag.
 - [ ] **FALSIFIED BY** (each leg's own checkout, no sibling installed):
 
       set -euo pipefail
@@ -935,11 +994,15 @@ packet's interim arrangement ends.**
 - [ ] 11.1 At the close of the arc, a diff of openxFactory across every group
   shows: no `scripts/doc_health/` family moved, no `openspec/specs/` capability
   removed, no corpus document moved, no intent-plane schema moved, and no
-  integration test moved. The only openxFactory edits are carve-manifest
-  ANNOTATIONS recording each closed reach. Each is prose in the `note` that an
-  `edits[]` entry already admits (`scripts/validate-carve-manifest.py:689`,
-  `EDIT_KEYS`), added where there was none or extended, never rewritten, so the
-  manifest's closed grammar does not widen to hold them.
+  integration test moved. openxFactory's edits are exactly three kinds, and none
+  moves anything. First, carve-manifest ANNOTATIONS recording each closed reach.
+  Each is prose in the `note` that an `edits[]` entry already admits
+  (`scripts/validate-carve-manifest.py:689`, `EDIT_KEYS`), added where there was
+  none or extended, never rewritten, so the manifest's closed grammar does not
+  widen to hold them. Second, the HOST WIRING of 4.1 and 4.3, in
+  `scripts/opendox_host.py` and `scripts/profile_openxfactory.py`, with its tests
+  under `tests/domain_profile/`. Third, the openDox PIN PAIR of 9.5: the
+  `openDox` gitlink and `contracts/opendox-pin.yaml`.
 - [ ] **FALSIFIED BY** (openxFactory checkout, at the close of the arc).
   **`PACKET_MERGE` is THIS PACKET'S OWN MERGE COMMIT, not a pre-authoring
   commit.** The guard measures what the ARC does to openxFactory. The packet's
@@ -972,6 +1035,9 @@ packet's interim arrangement ends.**
       python3 - "$W/arc-changes.tsv" <<'PY'
       import copy, subprocess, sys, yaml
       MANIFEST = "docs/opendox-carve-manifest.yaml"
+      HOST = {"scripts/opendox_host.py", "scripts/profile_openxfactory.py"}   # 11.1's host wiring
+      HOST_TESTS = "tests/domain_profile/"
+      PIN_PAIR = {"openDox", "contracts/opendox-pin.yaml"}                    # 9.5, one commit
       def manifest_at(rev):
           out = subprocess.run(["git", "show", f"{rev}:{MANIFEST}"], check=True, capture_output=True, text=True).stdout
           return yaml.safe_load(out)
@@ -987,6 +1053,8 @@ packet's interim arrangement ends.**
       for kind, c, p in (l.rstrip("\n").split("\t") for l in open(sys.argv[1]) if l.strip()):
           if kind == "MERGE":
               breach.append(f"{c[:12]}: a merge introduced {p} itself; land it as an ordinary commit")
+          elif p in HOST or p.startswith(HOST_TESTS) or p in PIN_PAIR:
+              continue                                  # a declared surface of the arc (11.1)
           elif p != MANIFEST:
               breach.append(f"{c[:12]}: touched {p}")
           else:
@@ -1002,7 +1070,7 @@ packet's interim arrangement ends.**
                               breach.append(f"{c[:12]}: rewrote an existing note instead of extending it")
       if breach:
           sys.exit("FAIL: the arc changed what requirement 1 keeps:\n  " + "\n  ".join(breach))
-      print(f"requirement 1 holds: {annotated} note(s) annotated, nothing else touched")
+      print(f"requirement 1 holds: {annotated} note(s) annotated, every other path a declared surface (11.1)")
       PY
 
   **The guard reads CONTENT, not only names. It covers the WHOLE repository, and
@@ -1015,7 +1083,11 @@ packet's interim arrangement ends.**
   `main`'s content, and a merge that introduces a change of its own is refused,
   because an edit hidden in a merge is the one a reviewer does not read.
 
-  Every path must be `docs/opendox-carve-manifest.yaml`, and the manifest is then
+  Every path must be one of 11.1's three declared surfaces: the host wiring
+  (`scripts/opendox_host.py`, `scripts/profile_openxfactory.py`, and tests under
+  `tests/domain_profile/`), the openDox pin pair (the `openDox` gitlink and
+  `contracts/opendox-pin.yaml`, which `scripts/verify-opendox-pin.py` holds
+  together), or `docs/opendox-carve-manifest.yaml`. The manifest is then
   compared by CONTENT against the commit's parent. With every `edits[].note`
   removed, the two documents must be EQUAL. No row is added, removed or
   reordered, and no disposition, destination, line list or digest moves. A note

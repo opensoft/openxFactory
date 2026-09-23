@@ -48,9 +48,11 @@ origin:
     by a command named in `tasks.md`.
     WHAT IT DOES NOT PROPOSE. No code byte. No rewrite of the document
     surface. No doc-health check family moves, no corpus document moves, no
-    `openspec/specs/` capability is modified or removed, and no pin, gitlink,
-    contract bundle or release tag moves. It does not re-promote openDox's 71
-    requirements - that is openDox-spec's act, carried here as a BLOCKED task.
+    `openspec/specs/` capability is modified or removed, and this packet moves
+    no pin, gitlink, contract bundle or release tag (the realization advances
+    the composing pins by each owner's pin-sync act, task 9.5). It does not
+    re-promote openDox's 71 requirements - that is openDox-spec's act, carried
+    here as a BLOCKED task.
     Where the snapshot generator lives was RULED by Brett Heap on 2026-09-22
     (`#656` comment `5783335210`, "yes, openDox gets its own neutral
     generator") and `design.md` R-G3 records the ruling together with this
