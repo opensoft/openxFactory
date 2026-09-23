@@ -276,21 +276,31 @@ this packet's archive until merged PLUS green realization evidence.
   **AND THE TOKEN IS MINTED ONLY FOR A PULL REQUEST THAT MOVES A JUDGED VALUE**
   (Copilot `r4078308120`). The filter fires on any edit to the pin file, while
   the check judges three things in it: `core_commit`, the declared state and the
-  surfaces `converged_with:` declares. So before minting, the gate compares the
-  candidate's three, parsed from its inert bytes, with the base's. Where none
-  moved, as with an edit to `reason:` alone, it mints nothing, reads nothing in
-  the aggregation, and publishes the verdict as `skipped`, naming the values
-  unchanged; the verdict's name is then
-  present on every pull request the filter admits, and § 6.5's approver is never
-  left waiting on it. The DECLARED STATE is in the condition, and not only
-  `core_commit`, because a pull request that moves only the declaration is
-  exactly one the measurement exists to check: `#1123` moved `status` and not
-  `core_commit`. A candidate whose values cannot be read counts as moving them,
-  so an unreadable candidate is judged and never skipped. Tests: a candidate
-  changing only `reason:` mints nothing, reads nothing and publishes `skipped`;
-  a candidate changing only the declared state, one changing only
-  `core_commit`, and one changing only `converged_with:` (§ 5.1i) each draw a
-  verdict; and an unparseable candidate draws one.
+  surfaces `converged_with:` declares. **THE CANDIDATE'S DECLARATION IS
+  VALIDATED FIRST, AND ONLY A VALID ONE MAY BE SKIPPED** (Copilot
+  `r4078425707`): the gate parses the candidate from its inert bytes and applies
+  the requirement's first outcome before anything else — a declared state absent
+  or outside its two words, or a `converged_with:` other than the read plan
+  (§ 5.1i), FAILS with no token minted and nothing read. **A candidate that
+  cannot be parsed is that outcome too** (Copilot `r4078425733`): it declares
+  nothing, so it counts as ABSENT and FAILS, the parse error named as an inert,
+  length-bounded span. Only a valid candidate is compared with the base's three
+  values; where none moved, as with an edit to `reason:` alone, the gate mints
+  nothing, reads nothing in the aggregation, and publishes the verdict as
+  `skipped`, naming the values unchanged. A skip therefore needs a valid
+  candidate EQUAL to its base, which leaves no invalid declaration unjudged at
+  either end, and the verdict's name is present on every pull request the filter
+  admits, so § 6.5's approver is never left waiting on it. The DECLARED STATE is
+  in the comparison, and not only `core_commit`, because a pull request that
+  moves only the declaration is exactly one the measurement exists to check:
+  `#1123` moved `status` and not `core_commit`. Tests: a candidate changing only
+  `reason:` over a valid base mints nothing, reads nothing and publishes
+  `skipped`; the same edit over a base whose declared state, or whose
+  `converged_with:`, is outside its vocabulary FAILS instead, because the
+  candidate inherits it; a candidate changing only the declared state, one
+  changing only `core_commit`, and one changing only `converged_with:` each draw
+  a verdict; and an unparseable candidate FAILS with a bounded message, no mint
+  and no read in the aggregation.
 - [ ] 5.1i **THE GATE READS THE CANDIDATE PIN, NOT THE BASE'S — AND THIS IS THE
   DEFECT `pull_request_target` INTRODUCED** (Copilot's *previously missed* item,
   round 8). Under `pull_request_target` the workflow runs from the BASE, so a
@@ -324,12 +334,16 @@ this packet's archive until merged PLUS green realization evidence.
   run to read. The plan is therefore the gate's code: the two workflows
   `converged_with:` names today (`contracts/review-lane-pin.yaml`:1019-1020), each
   read at the `ref:` of its step that checks out `codeXfactory/codexFactory`, and
-  the `MIGRATION_PIN` assignment. The pin's `converged_with:`, at the base and at
-  the candidate, is JUDGED against it and never followed: a FAIL naming both sets
-  where they differ, before anything is read. Tests: a candidate whose
-  `converged_with:` names another path, and a BASE whose `converged_with:` does,
-  each FAIL naming both sets with no read made in the aggregation, and neither
-  path is ever requested.
+  the `MIGRATION_PIN` assignment. The candidate's `converged_with:` is JUDGED
+  against it and never followed: a FAIL naming both sets where they differ,
+  before anything is read. The base is not judged separately, because a
+  candidate inherits the base's list unless it changes it: a base's defect FAILS
+  every candidate that carries it, and a candidate that repairs it is judged on
+  what it proposes. Tests: a candidate whose `converged_with:` names another
+  path, and a candidate that inherits such a list from its base, each FAIL
+  naming both sets with no read made in the aggregation, and neither path is
+  ever requested; and a candidate that repairs its base's list draws a verdict on
+  the repaired list.
 - [ ] 5.1h **THE NEUTRAL CONCLUSION NEEDS A WRITE PATH, AND IT IS A DIFFERENT
   TOKEN FROM THE READ** (Copilot's *previously missed* item, round 5). § 5.1e
   publishes through the check-run API and § 5.1c's aggregation binding grants
@@ -358,8 +372,9 @@ this packet's archive until merged PLUS green realization evidence.
   pass or a red failure and nothing else, so *"NEUTRAL, visible, not reported as
   a pass"* has no expression by exit code alone. The realization publishes the
   conclusion through the check-run API, EVERY OUTCOME MAPPED and none left to the
-  exit code (Copilot `r4078058050`): `failure` for a declared state outside its
-  vocabulary and for a declaration the measurement contradicts, `neutral` for
+  exit code (Copilot `r4078058050`): `failure` for a declaration outside its
+  vocabulary — an unparseable candidate and a foreign `converged_with:` among
+  them — and for a declaration the measurement contradicts, `neutral` for
   INCONSISTENT and for UNDETERMINED, and `success` for a declaration the
   measurement agrees with — each with the state and the values read in its
   output; and, outside the five because nothing is compared, `skipped` for a
@@ -399,8 +414,8 @@ this packet's archive until merged PLUS green realization evidence.
   and the surfaces' values, reaching no
   network, returning the five outcomes the scenarios name.
 - [ ] 5.3 The proof: `tests/review_lane_pin/` gains a fixture for each of the
-  SIX scenarios — an ABSENT or foreign declaration, a `converged_with:` other
-  than the read plan's at the base or the candidate among them (the
+  SIX scenarios — an ABSENT or foreign declaration, an unparseable candidate and
+  a candidate `converged_with:` other than the read plan's among them (the
   FAIL-without-comparison case), a stale `converged`, a stale `diverged`, surfaces disagreeing with each
   other, an unreadable aggregation — including surfaces that AGREE on a value that
   is not a commit, the empty string among them (`design.md` D16) — and the

@@ -83,11 +83,14 @@ check SHALL FAIL naming the value it found, in the same class as a declaration
 the measurement contradicts — because both are this repository's own file failing
 to say something true, and the remedy for both is one edit to the field. Without
 that clause the ordering below has an input it does not reach. SO IS THE SET OF
-SURFACES THE PIN DECLARES: where the pin's `converged_with:`, at the base or at
-the candidate, names any set other than the check's own read plan, the check
-SHALL FAIL naming the set it found and the plan's, in that same class, because a
-pin declaring surfaces the check does not read is the same file failing to say
-something true.
+SURFACES THE PIN DECLARES: where the candidate's `converged_with:` names any set
+other than the check's own read plan, the check SHALL FAIL naming the set it found
+and the plan's, in that same class, because a pin declaring surfaces the check
+does not read is the same file failing to say something true. A candidate that
+cannot be parsed declares nothing, and SHALL count as ABSENT, the parse error
+named as the value found, inert and length-bounded. A base's defect reaches the
+verdict through every candidate that inherits it, and a candidate that repairs it
+is judged on what it proposes.
 
 THE PIN THE CHECK READS IS THE ONE THE ACT PROPOSES, NOT THE ONE ALREADY IN
 PLACE. Where the check runs over a proposed advance, it SHALL take
@@ -115,8 +118,9 @@ could turn the credential for a private repository on any file in it, and have
 that file's contents named back as the value a surface carried.
 
 THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the DECLARATION
-OUTSIDE ITS VOCABULARY first — a declared state that is not one of its two words,
-or a `converged_with:` naming a set other than the check's read plan: this
+OUTSIDE ITS VOCABULARY first — a declared state absent or not one of its two
+words, an unparseable candidate among the absent, or a `converged_with:` naming a
+set other than the check's read plan: this
 repository's own file, readable without touching anything else, and a defect that
 makes every later question moot; then
 the aggregation UNREADABLE, a surface whose value is not a commit included; then
@@ -155,17 +159,17 @@ satisfy nothing: the fact being asserted is about another repository, and a valu
 compared only to itself is a tautology.
 
 #### Scenario: A routine advance leaves the declared state behind
-- **WHEN** an automated pin advance moves `core_commit` to a commit that the aggregation's surfaces — agreeing with each other, and read — do not name, and the declared lockstep state still reads `converged`
+- **WHEN** an automated pin advance moves `core_commit` to a commit that the aggregation's surfaces — read, and agreeing with each other on one commit of forty lowercase hexadecimal characters — do not name, and the declared lockstep state still reads `converged`
 - **THEN** the check reports the contradiction on the advance's own pull request, naming both values and the surfaces it read them from
 - **AND** the report does not depend on the advancing lane having remembered to write the field, because the check reads the other repository rather than the lane's intent
 
 #### Scenario: The declaration is absent or outside its vocabulary
-- **WHEN** the pin's declared lockstep state is absent, or carries a value that is neither of the two words the field admits, or its `converged_with:`, at the base or at the candidate, names a set other than the check's own read plan
-- **THEN** the check FAILS and names the value or set it found, and for `converged_with:` the plan's set beside it, in the same class as a declaration the measurement contradicts
+- **WHEN** the pin's declared lockstep state is absent, or carries a value that is neither of the two words the field admits, or the candidate's `converged_with:` names a set other than the check's own read plan, or the candidate cannot be parsed at all
+- **THEN** the check FAILS and names the value, set or parse error it found, inert and length-bounded, and for `converged_with:` the plan's set beside it, in the same class as a declaration the measurement contradicts
 - **AND** it reads nothing in the aggregation and does not fall through to a comparison, because there is nothing to compare
 
 #### Scenario: The advance lands on the commit the aggregation already pins
-- **WHEN** an advance moves `core_commit` to exactly the commit the aggregation's surfaces — agreeing with each other, and read — already name, and the declared state reads `diverged`
+- **WHEN** an advance moves `core_commit` to exactly the commit the aggregation's surfaces — read, and agreeing with each other on one commit of forty lowercase hexadecimal characters — already name, and the declared state reads `diverged`
 - **THEN** the check reports that contradiction too, because the obligation is that the declaration be TRUE and not that it be pessimistic
 
 #### Scenario: The aggregation's own surfaces disagree with each other

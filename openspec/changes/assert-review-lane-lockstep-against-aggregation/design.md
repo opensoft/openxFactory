@@ -172,7 +172,7 @@ missing half of D2.**
 
 | outcome | conclusion | why |
 | --- | --- | --- |
-| declaration ABSENT or outside its vocabulary — a foreign declared state, or a `converged_with:` other than the read plan (D19) | **FAIL**, naming the value found | added at round 6; see D14a. Checked FIRST, before the aggregation is read |
+| declaration ABSENT or outside its vocabulary — a foreign declared state, an unparseable candidate, or a `converged_with:` other than the read plan (D17, D19) | **FAIL**, naming the value found | added at round 6; see D14a. Checked FIRST, before the aggregation is read |
 | declared state CONTRADICTED by the measurement | **FAIL**, naming both values | this repository's own contract file states something false about another repository; the remedy is one edit to the field |
 | surfaces disagree with each other (INCONSISTENT) | **NEUTRAL**, visible | another repository's defect, and not this repository's claim to answer |
 | aggregation unreadable (UNDETERMINED) | **NEUTRAL**, visible | another repository's availability, and D4's whole point |
@@ -212,7 +212,9 @@ is not a wording problem; it is a requirement no implementation could satisfy.
 
 Fixed by stating the order in the body, each outcome reached only where every
 earlier one does not hold, and by qualifying both comparison scenarios' WHEN with
-*the aggregation's surfaces agreeing with each other, and read*. Exactly one
+*the aggregation's surfaces read, and agreeing with each other on one commit of forty lowercase hexadecimal characters* — the commit clause added by review
+`5286144492`'s *previously missed* item, so that surfaces agreeing on a value that
+is not a commit cannot satisfy a comparison scenario's own WHEN (D16). Exactly one
 outcome holds for any input, and no implementation has to arbitrate. **THE ORDER
 AS IT NOW STANDS**, after D14b moved the vocabulary check to the front, D16
 folded a non-commit surface into UNREADABLE and D19 folded a foreign
@@ -650,14 +652,21 @@ than 3,000 files, and it is registered at `tasks.md` § 6.6.
 
 **And the token is minted only when a judged value moves** (Copilot
 `r4078308120`). The filter fires on any edit to the pin file, but the check
-judges two values in it. Before minting, the gate compares the candidate's
-`core_commit` and declared state with the base's. Where neither moved, it mints
-nothing, reads nothing and publishes `skipped`, so the verdict is never absent
-from a pull request the filter admits. The finding proposed `core_commit` alone
-as the condition, and that would have skipped the pull requests that move only
-the declaration, which are half of what this check exists to judge. `#1123` was
-one: it moved `status: converged` to `status: diverged` and left `core_commit`
-where it was. A candidate whose values cannot be read is judged, never skipped.
+judges three things in it: `core_commit`, the declared state and the surfaces
+`converged_with:` declares. **The candidate's declaration is validated FIRST**
+(Copilot `r4078425707`): a declared state outside its two words, a
+`converged_with:` other than the read plan (D19), or a candidate that cannot be
+parsed at all (Copilot `r4078425733`) FAILS before anything is minted or read.
+Only then does the gate compare the candidate's three values with the base's, and
+where none moved it mints nothing, reads nothing and publishes `skipped`, so the
+verdict is never absent from a pull request the filter admits. A skip therefore
+needs a valid candidate EQUAL to its base, which leaves no invalid declaration
+unjudged at either end: a base's defect reaches the verdict through every
+candidate that inherits it. The first of these findings proposed `core_commit`
+alone as the condition, and that would have skipped the pull requests that move
+only the declaration, which are half of what this check exists to judge. `#1123`
+was one: it moved `status: converged` to `status: diverged` and left
+`core_commit` where it was.
 
 ## D18 — the gate's identity is chosen ONCE, and every part of the packet uses it
 
@@ -709,10 +718,13 @@ judging workflows `converged_with:` names today —
 `opensoft/xFactory .github/workflows/council-convening-lane.yml`
 (`contracts/review-lane-pin.yaml`:1019-1020) — each read at the `ref:` of its step
 that checks out `codeXfactory/codexFactory`, and the `MIGRATION_PIN` assignment
-in `tests/test_merge_master_workflows.py`. The pin's `converged_with:`, at the
-base and at the candidate, is JUDGED against that plan and never followed. Where
-it names any other set, the check FAILS naming both, before anything is read, in
-the class of a declared state outside its vocabulary, so the outcomes stay five.
+in `tests/test_merge_master_workflows.py`. The candidate's `converged_with:` is
+JUDGED against that plan and never followed. Where it names any other set, the
+check FAILS naming both, before anything is read, in the class of a declared
+state outside its vocabulary, so the outcomes stay five. The base is not judged
+separately: a candidate inherits the base's list unless it changes it, so a
+base's defect FAILS every candidate that carries it, and a candidate that repairs
+it is judged on what it proposes rather than failed for what it replaces.
 And `converged_with:` joins the values whose movement keeps a pull request from
 being skipped (D17).
 
