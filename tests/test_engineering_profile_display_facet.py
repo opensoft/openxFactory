@@ -587,21 +587,40 @@ def test_the_composition_restates_no_stage_word():
             "word belongs to openxdox.view_extensions.DISPLAY alone")
 
 
-@pytest.mark.parametrize("drop", ["openxdox-declares-no-stages",
-                                  "the-composition-drops-them"])
-def test_a_dropped_overlay_fails_the_positive_predicate(monkeypatch, drop):
-    """MUTATION: openXdox's value dropped, either upstream (its `DISPLAY`
-    stops carrying `stages`) or here (the composition stops copying them).
-    Either way the page falls back to openDox's neutral `completed`, and the
-    positive predicate the served-page test uses refuses that state."""
-    if drop == "openxdox-declares-no-stages":
-        monkeypatch.setattr(view_extensions, "DISPLAY", {})
+#: The well-formed openXdox declarations that overlay LESS than the ruling:
+#: each is legal to openDox's schema, so the composer follows it, and each
+#: must fail the positive predicate the served-page test uses.
+_SHORTFALLS = {
+    "openxdox-declares-no-stages": {},
+    "openxdox-declares-an-empty-stages-mapping": {"stages": {}},
+    "openxdox-overlays-short-only": {
+        "stages": {"completion": {"short": _RULED_WORD}}},
+}
+
+
+@pytest.mark.parametrize("drop", [*_SHORTFALLS, "the-composition-drops-them"])
+def test_a_dropped_or_partial_overlay_fails_the_positive_predicate(
+        monkeypatch, drop):
+    """MUTATION: openXdox's value dropped or cut short, either upstream (its
+    `DISPLAY` carries no `stages`, an empty `stages`, or `short` alone) or
+    here (the composition stops copying them).
+
+    THE COMPOSER FOLLOWS these at run time, by design. Each is a well-formed
+    declaration that openDox's schema holds legal, and
+    `profile_openxfactory._openxdox_stages`'s docstring ("THREE CASES") says
+    why run time does not second-guess openXdox. The refusal happens at the
+    GATE. The page falls back to openDox's neutral word, and the predicate
+    that `test_the_served_page_shows_implemented_for_the_completion_stage`
+    uses refuses that state, so a pin bump that carries such a leg fails the
+    required suite and cannot land."""
+    if drop in _SHORTFALLS:
+        monkeypatch.setattr(view_extensions, "DISPLAY", _SHORTFALLS[drop])
     else:
         monkeypatch.setattr(profile_openxfactory, "_openxdox_stages",
                             lambda: {})
     merged = display_profile.normalize_display(profile_openxfactory.DISPLAY)
     neutral = display_profile.NEUTRAL_DISPLAY["stages"]["completion"]
-    assert merged["stages"]["completion"] == neutral
+    assert merged["stages"]["completion"]["label"] == neutral["label"]
     assert not _completion_renders_the_ruled_word(merged["stages"])
 
 

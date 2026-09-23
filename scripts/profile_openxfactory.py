@@ -221,15 +221,36 @@ def _openxdox_stages() -> dict[str, dict[str, Any]]:
     a reader that mutates the facet it was given rewrite openXdox's declaration
     for the rest of the process.
 
-    REFUSES WITH `RuntimeError`, NEVER `AttributeError`, and that choice is
-    load-bearing. `opendox.display_profile.host_display()` reads this facet
-    through a 3-argument `getattr(profile, "DISPLAY", None)`, which absorbs an
-    `AttributeError` raised anywhere beneath it as "no facet declared". A
-    missing openXdox value surfacing as `AttributeError` would therefore serve
-    the WHOLE facet as absent, statuses, areas, acts and artifacts with it,
-    rather than refusing. A `RuntimeError` reaches `serve.build_server()` and
-    fails it closed, which is `display_profile`'s own stance on a declaration
-    it cannot read.
+    THREE CASES, AND TWO OF THEM REFUSE AT RUN TIME.
+
+    * `DISPLAY` ABSENT from `openxdox.view_extensions`, which is what a pin
+      naming a code leg older than #26 looks like, REFUSES with
+      `RuntimeError` and never `AttributeError`, and the exception type is
+      load-bearing. `opendox.display_profile.host_display()` reads this facet
+      through a 3-argument `getattr(profile, "DISPLAY", None)`, and the lazy
+      proxy re-raises an `AttributeError` as `ProfileFacetMissing`, itself an
+      `AttributeError`, which that `getattr` absorbs as "no facet declared".
+      An `AttributeError` here would therefore serve the WHOLE facet as
+      absent (statuses, areas, acts and artifacts with it), a far larger loss
+      than the stage words, with nothing reporting why. A `RuntimeError`
+      passes through both and fails `serve.build_server()` closed.
+    * `DISPLAY` MALFORMED, meaning not a mapping whose `stages` maps each stage
+      role to a mapping of fields, REFUSES the same way. That is
+      `display_profile`'s own stance on a declaration it cannot read.
+    * `DISPLAY` WELL-FORMED BUT OVERLAYING LESS (no `stages`, no `completion`
+      entry, or only one of `short` and `label`) IS FOLLOWED, not refused. It
+      is openXdox's own declaration, and openDox's schema holds a partial or
+      empty facet legal ("PARTIAL IS LEGAL, AND IT IS THE POINT"). Refusing it
+      here would make this composer a second authority on what openXdox may
+      declare, and would write the ruling's shape into production code. The
+      RULED word is held at the GATE instead:
+      `tests/test_engineering_profile_display_facet.py` asserts what the
+      served page shows, so a pin bump that carries such a leg fails the
+      required `pytest-suite` and cannot land. openXdox-code #26 draws the
+      same line on its own side. In its `tests/test_gate_loop_views.py`,
+      `test_dropping_the_facet_fails_the_overlay` serves a dropped facet as
+      `absent` with openDox's own word, "which is exactly what the two
+      predicates the positive tests use must refuse".
     """
     from openxdox import view_extensions
 
