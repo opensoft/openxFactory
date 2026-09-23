@@ -51,7 +51,13 @@ the false one.
 WHERE THE AGGREGATION'S SURFACES CANNOT BE READ the check SHALL report the state
 as UNDETERMINED and name what it could not read; it SHALL NOT resolve to either
 state, and it SHALL NOT read its own silence as confirmation of the declared one.
-An unaskable question is never an implicit pass.
+An unaskable question is never an implicit pass. A SURFACE IS READ ONLY AS A
+COMMIT: each surface's value SHALL be forty lowercase hexadecimal characters, the
+grammar the pin's own `core_commit` obeys, and a surface whose value is not SHALL
+count as UNREADABLE, named with the value it carried — so surfaces that AGREE on
+something that names no commit, an empty string among them, conclude nothing,
+rather than reaching a comparison that a declared `diverged` would pass merely
+because two strings differ.
 
 THE SURFACES ARE READ AT ONE RESOLVED COMMIT OF THE AGGREGATION AND NOT
 INDEPENDENTLY FROM A MOVING REF. The check SHALL resolve the aggregation's
@@ -82,14 +88,14 @@ the aggregation, pass, and never see the advance it exists to judge.
 THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the DECLARED STATE
 OUTSIDE ITS VOCABULARY first — this repository's own file, readable without
 touching anything else, and a defect that makes every later question moot; then
-the aggregation UNREADABLE; then its surfaces DISAGREEING with each other; then
-the comparison of the agreed commit against `core_commit` and the declared state
-against that comparison. A later outcome is reached only where every earlier one
-does not hold, so no input can require two conclusions and no implementation has
-to arbitrate between them. THE VOCABULARY IS VALIDATED BEFORE ANYTHING IS READ,
-which is both the ordering the scenarios require and the honest engineering
-order: a check does not go asking another repository a question in order to
-report a defect in its own file.
+the aggregation UNREADABLE, a surface whose value is not a commit included; then
+its surfaces DISAGREEING with each other; then the comparison of the agreed commit
+against `core_commit` and the declared state against that comparison. A later
+outcome is reached only where every earlier one does not hold, so no input can
+require two conclusions and no implementation has to arbitrate between them. THE
+VOCABULARY IS VALIDATED BEFORE THE AGGREGATION IS READ, which is both the ordering
+the scenarios require and the honest engineering order: a check does not go
+asking another repository a question in order to report a defect in its own file.
 
 UNDETERMINED SHALL NOT BE A STANDING STATE. Where the check cannot read the
 aggregation on EVERY run, the defect is the check's own access and SHALL be
@@ -138,8 +144,8 @@ compared only to itself is a tautology.
 - **AND** the disagreement is the aggregation's own at that commit, not an artefact of reading its surfaces one at a time while a re-point landed between the reads
 
 #### Scenario: The aggregation's surfaces cannot be read
-- **WHEN** the check cannot obtain the aggregation's judging surfaces
-- **THEN** it reports the lockstep state as UNDETERMINED and names each surface it could not read
+- **WHEN** the check cannot obtain the aggregation's judging surfaces, or a surface it obtains carries a value that is not forty lowercase hexadecimal characters
+- **THEN** it reports the lockstep state as UNDETERMINED and names each surface it could not read, with the value it carried where it carried one
 - **AND** it concludes neither `converged` nor `diverged`, and does not report the declared value as confirmed
 - **AND** the check's own conclusion is NEUTRAL and visible rather than failing, because another repository's availability is not this repository's build, and rather than passing, because silence is not a measurement
 

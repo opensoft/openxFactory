@@ -147,10 +147,15 @@ on it. (The only `pull_request` string in that file is a comment at `:672`, whic
 is why a line-oriented grep for it answers misleadingly; the measurement above is
 the parsed `on:` mapping.) Taken.
 
-**The realization adds a `pull_request`-triggered gate of its own**, on the
-estate's existing pattern — `openspec-cli-pin-gate.yml` and
-`openreposhape-pin-gate.yml` are each their own `pull_request` workflow and each
-a required check. **`review-lane-repin.yml` deliberately does NOT gain a
+**The realization adds a gate of its own**, on the estate's existing pattern of a
+pin gate that is its own workflow — `openspec-cli-pin-gate.yml` and
+`openreposhape-pin-gate.yml` — **but not on their trigger.** Those two run on
+`pull_request` because neither holds a secret (zero `secrets.` references in
+either); this gate holds a credential that reads a private repository, so D14
+puts it on `pull_request_target` and it never runs on `pull_request`. (This
+paragraph first said *"a `pull_request`-triggered gate"*, written before D14
+reversed the trigger; Copilot `r4076845460` and `r4076990021` found the phrase
+still standing elsewhere, and it stood here too.) **`review-lane-repin.yml` deliberately does NOT gain a
 `pull_request` trigger**: that workflow's whole shape is *propose an advance*,
 and a pull-request trigger would fire the advance logic on every pull request in
 the repository. § 5.1b makes that a TESTED negative control rather than a
@@ -159,7 +164,7 @@ triggers.
 
 ## D8 — each outcome carries a CONCLUSION, and two of the five fail
 
-Copilot's *previously missed* item on this round found that the requirement
+Copilot's *previously missed* item in review `5283291040` found that the requirement
 defined an UNDETERMINED semantic state and never said what the CHECK concludes,
 leaving an implementation free to fail the gate on an xFactory outage — which D4
 rejects — or to pass without a visible neutral result. **Taken, and it forced the
@@ -167,7 +172,7 @@ missing half of D2.**
 
 | outcome | conclusion | why |
 | --- | --- | --- |
-| declared state ABSENT or outside its vocabulary | **FAIL**, naming the value found | added at round 6; see D14a. Checked FIRST, before anything is read |
+| declared state ABSENT or outside its vocabulary | **FAIL**, naming the value found | added at round 6; see D14a. Checked FIRST, before the aggregation is read |
 | declared state CONTRADICTED by the measurement | **FAIL**, naming both values | this repository's own contract file states something false about another repository; the remedy is one edit to the field |
 | surfaces disagree with each other (INCONSISTENT) | **NEUTRAL**, visible | another repository's defect, and not this repository's claim to answer |
 | aggregation unreadable (UNDETERMINED) | **NEUTRAL**, visible | another repository's availability, and D4's whole point |
@@ -190,9 +195,10 @@ about it** — a field asserting `converged` while the measurement says otherwis
 The advance stays lawful; only the sentence claiming something untrue is refused,
 and fixing it is one edit rather than an act in another repository.
 
-**And the asymmetry is deliberate.** The one outcome that fails is the only one
-whose subject is THIS repository's own file. The two neutral ones are facts about
-the aggregation; turning either into a red build here would make the check a
+**And the asymmetry is deliberate.** The two outcomes that fail are the only two
+whose subject is THIS repository's own file — a declared state outside its
+vocabulary, and one the measurement contradicts. The two neutral ones are facts
+about the aggregation; turning either into a red build here would make the check a
 liability its owners would route around, which is how a governance check stops
 being run.
 
@@ -204,11 +210,19 @@ the surfaces disagree with each other**, which the INCONSISTENT scenario then
 requires to be NEUTRAL. **The same inputs demanded both FAIL and NEUTRAL.** That
 is not a wording problem; it is a requirement no implementation could satisfy.
 
-Fixed by stating the order in the body — UNREADABLE, then DISAGREEING, then the
-comparison, then the declared state, each reached only where every earlier one
-does not hold — and by qualifying both comparison scenarios' WHEN with *the
-aggregation's surfaces agreeing with each other, and read*. Exactly one outcome
-holds for any input, and no implementation has to arbitrate.
+Fixed by stating the order in the body, each outcome reached only where every
+earlier one does not hold, and by qualifying both comparison scenarios' WHEN with
+*the aggregation's surfaces agreeing with each other, and read*. Exactly one
+outcome holds for any input, and no implementation has to arbitrate. **THE ORDER
+AS IT NOW STANDS**, after D14b moved the vocabulary check to the front and D16
+folded a non-commit surface into UNREADABLE: the declared state OUTSIDE ITS
+VOCABULARY; then the aggregation UNREADABLE; then its surfaces DISAGREEING; then
+the comparison of the agreed commit against `core_commit`, and the declared state
+against that comparison. This paragraph first recorded the order this section
+fixed — UNREADABLE, DISAGREEING, comparison, declared state — and it stood after
+D14b had superseded it (review `5284046970`'s *previously missed* item, then
+Copilot `r4076845591`), which would have let an implementation read the other
+repository before rejecting a malformed local declaration.
 
 **The defect was introduced by my own D8 fix**, which gave each outcome a
 conclusion without noticing that two outcomes could be reached by one input. A
@@ -262,11 +276,11 @@ written for the repin identity alone would leave the pull-request gate
 UNDETERMINED on every run — D10's defect, reappearing one workflow over, because
 a separate run cannot reuse a minted App token any more than it can reuse step
 outputs, and the ambient `GITHUB_TOKEN` cannot read a private repository at all.
-The gate mints its own token from the SAME App under the SAME read-only scope,
-the binding names both consumers, and a test asserts the PULL-REQUEST SIDE's read
-succeeds rather than only the advance side's. **The two runs share an identity
-and a scope; they share no token and no outputs** — D7's split restated where it
-costs something.
+The gate mints its own token from the SAME App under a binding of its OWN (D13),
+and a test asserts the PULL-REQUEST SIDE's read succeeds rather than only the
+advance side's. **The two runs share an App identity and nothing else — no
+token, no outputs, no privilege set** — D7's split restated where it costs
+something.
 
 **`r4076152645` — the pull-request host is a separate workflow run** and cannot
 consume the scheduled run's step outputs, so § 5.1a takes its own reading and
@@ -281,6 +295,23 @@ rate limit or a transport failure would abort before the comparison ran, and the
 UNDETERMINED scenario would be unreachable by the only route that reaches it. The
 realization makes every read outcome, failures included, an input naming what
 could not be read.
+
+**`r4076902144` and `r4077054569` — and the published run is the gate's ONLY
+identity, hung on the CANDIDATE.** Publishing a check run does not change the
+job's own. GitHub names a job's check-run after its job id, which this repository
+already treats as load-bearing (`merge-master-approval.yml`:457, *"JOB ID IS
+LOAD-BEARING"*), and a `pull_request_target` run's job check lands on the pull
+request's HEAD. Measured on this packet's own pull request: run `35788224200`
+(`merge-master-approval`, event `pull_request_target`) carries `head_sha`
+`918e30e3`, the head and not the base `2e222d98`, and its job check-run concluded
+`success` on that commit. **So a gate job that exits 0 after publishing `neutral`
+leaves a GREEN check on the very commit it judged.** Two rules close it. The
+verdict check-run carries a declared name that matches NO job id in the workflow,
+and that name, never a job id, is the gate's identity wherever a check is required
+or read. And the run is created with `head_sha` set to the VERIFIED candidate
+`head.sha` of D14c, never `github.sha` — which in a `pull_request_target` run is
+the BASE branch's last commit, and would hang the verdict on a commit the advance
+does not propose.
 
 ## D12 — the surfaces are read at ONE resolved commit, or the check measures read timing
 
@@ -298,7 +329,7 @@ this packet that failure would be particularly cruel: the one outcome it would
 manufacture, INCONSISTENT, is the outcome nobody can check against anything,
 because it says the other repository disagrees with itself.
 
-## D13 — the binding's second consumer is a second ENTRY, and the never-passed statement is HONOURED rather than amended
+## D13 — the gate's credential is a binding of its OWN, and the never-passed statement is HONOURED rather than amended
 
 Copilot `r4076368784` measured what round 4's fix had waved at:
 `contracts/review-lane-repin-binding.template.yaml` is structurally
@@ -308,12 +339,27 @@ a statement that the minted token is *"never passed to a second workflow"*
 (`:190`). *"Names both consumers"* without saying HOW would let an implementation
 add the privilege under a contract that still denies it.
 
-**The representation is a SECOND CONSUMER ENTRY with its own `holder_ref` and its
-own mint**, `resolved_by` widened to name both workflows by id — and the
-never-passed statement **carried unchanged, because nothing is passed.** Each
-workflow mints its own token from the same App under the same read-only scope.
-The existing sentence is not an obstacle the design works around; it is the
-design, and the second consumer is built to satisfy it.
+**The first answer here was a SECOND CONSUMER ENTRY under that binding, and it was
+wrong one level down** (Copilot `r4076990082`). The template's `privileges:`
+(`:109`) and `resolution.scoped_to` (`:180`) sit at the BINDING's top level, not
+under a consumer, and its `floored_repository` entry grants `contents:write`,
+`pull-requests:write` and `workflows:write` (`:154`) — so a gate seated as a
+second consumer would mint with the advance lane's write authority over this
+repository, in a job that exists only to READ another repository and publish a
+check.
+
+**So the gate gets a binding of its own, in the same template shape**:
+`privileges:` naming only the aggregation, `grants: [contents:read]` with the
+family's `never_grants:`; `resolution.scoped_to: [xFactory]`; `resolved_by`
+naming the gate's workflow alone; and ONE mint requesting exactly
+`owner: opensoft`, `repositories: xFactory` and `permission-contents: read`. That
+is the estate's own per-mint down-scoping — `review-lane-repin.yml`:276-284
+already mints its codexFactory read that way, beside a separate write mint for
+its own repository — held by a test in the shape of
+`test_the_token_is_scoped_to_the_bindings_two_repositories`. The never-passed
+statement is **carried unchanged on both, because nothing is passed**: each
+workflow mints its own token under its own binding. The existing sentence is not
+an obstacle the design works around; it is the design.
 
 ## D14 — `pull_request_target`, and THIS DECISION REVERSES ITSELF ON THE ESTATE'S OWN RUNNING TEST
 
@@ -343,9 +389,10 @@ cannot rewrite it; **no checkout of `github.event.pull_request.head`**, mirrorin
 `test_no_checkout_takes_the_pull_request_head` (*"rules must come from the base
 branch"*) — and that costs nothing here, because the check reads two repositories
 over the API and needs no candidate code at all, which is exactly the "safe
-base-code/API design" the first finding asked for; plus a **head-ref allowlist**
-(`bot/review-lane-repin`) and the same-repository condition as defence in depth,
-with a test that a same-repository NON-BOT pull request is skipped.
+base-code/API design" the first finding asked for; plus an **allowlist** — a head
+ref here (`bot/review-lane-repin`), refined at D14d to the author / head-ref /
+base-ref triple — and the same-repository condition as defence in depth, with a
+test that a same-repository NON-BOT pull request is skipped.
 
 **A fork event and a non-allowlisted head are both OUT OF SCOPE, not
 UNDETERMINED** — *not applicable* and *could not measure* are different answers,
@@ -465,6 +512,30 @@ block. **The aggregation read token stays read-only and gains nothing**: the
 thing being written is a check run in THIS repository and the thing being read is
 ANOTHER repository, and keeping those two privileges in different places is the
 same separation the binding's `never_grants:` set exists to state.
+
+## D16 — a surface is read only as a commit, or agreement on garbage passes
+
+Copilot `r4076989950` found the input the ordering still did not reach: a
+READABLE aggregation whose surfaces all AGREE on a value that names no commit.
+That is neither UNREADABLE nor INCONSISTENT, so it reached the comparison — and a
+declared `diverged` would then PASS, merely because `core_commit` differs from the
+string the surfaces agreed on. The realistic form is not a typo in the
+aggregation; it is an EMPTY STRING, which is exactly what a reader that failed
+quietly returns for all three at once.
+
+**Each surface is now read only as a commit** — forty lowercase hexadecimal
+characters, the grammar `core_commit` already obeys (`SHA40_RE`,
+`scripts/review_lane_repin.py`:114) — and a surface outside it counts as
+UNREADABLE, named with the value it carried. The input lands in an outcome that
+already exists, NEUTRAL, so the outcomes stay five and the order stays as D9
+states it.
+
+**`core_commit` itself is not re-validated by this requirement, deliberately.**
+Its grammar is already enforced on every candidate:
+`tests/review_lane_pin/test_review_lane_caller.py`:180 and :296 refuse a pin that
+does not declare exactly one readable 40-hex `core_commit`, in the suite that
+runs on the advance's own pull request. A malformed one cannot land, and restating
+the rule here would put one obligation in two places.
 
 ## D5 — what the check compares, and why it is values rather than authorship
 

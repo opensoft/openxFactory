@@ -561,9 +561,10 @@ Active changes:
   advance, symmetric in both directions, with the aggregation's surfaces read as a
   SET that must agree before either state is concluded (disagreement reported
   INCONSISTENT) and an unreadable aggregation reported UNDETERMINED and never as
-  a pass. **Each outcome carries a CONCLUSION and only one fails:** a declaration
-  the measurement CONTRADICTS fails the check, because that is this repository's
-  own file stating something false; INCONSISTENT and UNDETERMINED each conclude
+  a pass. **Each outcome carries a CONCLUSION and two fail**, both about this
+  repository's own file: a declared state outside its vocabulary, and a
+  declaration the measurement CONTRADICTS, which is that file stating something
+  false; INCONSISTENT and UNDETERMINED each conclude
   NEUTRAL and visible, because neither is this repository's claim to answer and
   turning another repository's outage into a red build here is how a governance
   check stops being run. **Shape (b) and not (a), by measurement**:

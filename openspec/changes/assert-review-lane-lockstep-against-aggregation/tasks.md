@@ -110,10 +110,13 @@ this packet's archive until merged PLUS green realization evidence.
   requirement's *"and the pull request that carries it"* clause unrealized: the
   lane's own advance could open a pull request with no check running ON that
   pull request. The estate's own pattern answers it — a pin gate is its OWN
-  `pull_request`-triggered workflow (`openspec-cli-pin-gate.yml`,
-  `openreposhape-pin-gate.yml`), each a required check — so the realization adds
-  one, and `review-lane-repin.yml` does NOT gain a `pull_request` trigger, which
-  would fire the advance logic on every pull request in the repository.
+  workflow (`openspec-cli-pin-gate.yml`, `openreposhape-pin-gate.yml`) — so the
+  realization adds one. **Its trigger is not theirs** (Copilot `r4076990021`):
+  those two run on `pull_request` because neither holds a secret (zero `secrets.`
+  references in either), while this gate holds a credential that reads a PRIVATE
+  repository, so it runs on `pull_request_target` and never on `pull_request`
+  (§ 5.1g). And `review-lane-repin.yml` does NOT gain a `pull_request` trigger,
+  which would fire the advance logic on every pull request in the repository.
 - [ ] 5.1c **THE ACCESS PATH, AND WITHOUT IT THE WHOLE PACKET IS INERT** (Copilot
   `r4076152594`). Measured: `opensoft/xFactory` is **PRIVATE**
   (`gh api repos/opensoft/xFactory --jq .visibility` -> `private`; an
@@ -129,7 +132,7 @@ this packet's archive until merged PLUS green realization evidence.
   also what keeps the family's own rule intact: *"neither repository's lane may
   reach into the other's"*. The aggregation is READ and never written, by this
   packet or by its realization.
-  **AND THE BINDING COVERS BOTH RUNS, NOT ONE** (Copilot `r4076254027`). § 5.1a's
+  **AND BOTH RUNS NEED THE READ, NOT ONE** (Copilot `r4076254027`). § 5.1a's
   pull-request gate is a SEPARATE WORKFLOW RUN: it cannot reuse the advance lane's
   minted App token any more than it can reuse its step outputs, and the ambient
   `GITHUB_TOKEN` cannot read a private `opensoft/xFactory` at all — so a binding
@@ -137,24 +140,34 @@ this packet's archive until merged PLUS green realization evidence.
   on every run, which is the very defect this box exists to close, one workflow
   over. The gate therefore mints its OWN token from the same App
   (`actions/create-github-app-token`, as `review-lane-repin.yml` already does at
-  `:278` and `:303`) under the same read-only scope, the binding NAMES BOTH
-  CONSUMERS, and a test asserts THE PULL-REQUEST SIDE's read succeeds rather than
-  only the advance side's. **The two runs share an identity and a scope; they
-  share no token and no outputs.**
-- [ ] 5.1f **THE BINDING IS STRUCTURALLY SINGLE-CONSUMER AND THE SECOND
-  CONSUMER IS A SECOND ENTRY, NOT A SHARED TOKEN** (Copilot `r4076368784`).
-  Measured: `contracts/review-lane-repin-binding.template.yaml` carries
+  `:278` and `:303`) under a binding of its OWN (§ 5.1f), and a test asserts THE
+  PULL-REQUEST SIDE's read succeeds rather than only the advance side's. **The
+  two runs share an App identity and nothing else: no token, no outputs and no
+  privilege set.**
+- [ ] 5.1f **THE GATE'S CREDENTIAL IS A BINDING OF ITS OWN, NOT A SECOND CONSUMER
+  UNDER THE ADVANCE LANE'S — REVISING THIS PACKET'S OWN EARLIER SHAPE** (Copilot
+  `r4076368784`, then `r4076990082`). Measured:
+  `contracts/review-lane-repin-binding.template.yaml` carries
   `consumer.holder_ref: "openxfactory:workflow:review-lane-repin"` (`:100`),
   `resolution.resolved_by: review_lane_repin_workflow_only` (`:167`) and a
   statement that the minted token is *"never passed to a second workflow"*
-  (`:190`). Saying the binding "names both consumers" without saying HOW would
-  let an implementation add the privilege under a contract that still denies it.
-  **The representation is a SECOND CONSUMER ENTRY with its own `holder_ref`
-  (`openxfactory:workflow:<the gate>`) and its own mint**, `resolved_by` widened
-  to name both workflows by id, and the never-passed statement **carried
-  UNCHANGED** — because nothing is passed: each workflow mints its own token from
-  the same App under the same read-only scope. The statement is honoured by the
-  design rather than amended around. Its tests move with it.
+  (`:190`) — and, the part the earlier shape missed, its `privileges:` (`:109`)
+  and `resolution.scoped_to` (`:180`) sit at the BINDING's top level, with
+  `floored_repository` granting `contents:write`, `pull-requests:write` and
+  `workflows:write` (`:154`). **So a second consumer entry would mint with the
+  advance lane's write authority over this repository.** The gate gets its OWN
+  binding template in the same shape: `privileges:` naming only the aggregation,
+  `grants: [contents:read]` with the family's `never_grants:`;
+  `resolution.scoped_to: [xFactory]`; `resolved_by` naming the gate's workflow id
+  alone; and ONE mint step requesting exactly `owner: opensoft`,
+  `repositories: xFactory` and `permission-contents: read` — the estate's own
+  per-mint down-scoping, as `review-lane-repin.yml`:276-284 mints its source read.
+  The never-passed statement holds on both bindings, because nothing is passed.
+  **Tests:** the gate's binding and its mint name only `xFactory` and only
+  `contents: read`, in the shape of
+  `test_the_token_is_scoped_to_the_bindings_two_repositories`
+  (`tests/review_lane_pin/test_repin_lane.py`:2371); and the advance lane's
+  binding keeps its existing grants, gaining only § 5.1c's aggregation read.
 - [ ] 5.1g **THE GATE USES `pull_request_target`, NEVER `pull_request`, AND
   TAKES NO HEAD CHECKOUT — REVERSING THIS PACKET'S OWN EARLIER DECISION**
   (Copilot `r4076368722`, then `r4076474882`). The earlier draft refused
@@ -173,7 +186,7 @@ this packet's archive until merged PLUS green realization evidence.
   cannot rewrite it), **no checkout of `github.event.pull_request.head`** —
   mirroring `test_no_checkout_takes_the_pull_request_head`, and easy here because
   the check reads two repositories over the API and needs no candidate code at
-  all — and a **head-ref allowlist** (`bot/review-lane-repin`) plus the
+  all — and an **allowlist**, refined below from a head ref to a triple, plus the
   same-repository condition as defence in depth, with a test that a
   same-repository NON-BOT pull request is skipped.
   **AND THE ALLOWLIST IS A TRIPLE, NOT A HEAD REF** (Copilot `r4076740158`): a
@@ -234,18 +247,39 @@ this packet's archive until merged PLUS green realization evidence.
   the values read in its output — and a test asserts the published conclusion for
   each of the five outcomes rather than the process exit code, **because the
   contract this packet adds degrades silently to a green pass if nobody checks
-  which of the two it published.**
-- [ ] 5.1b The wiring is TESTED and not assumed: a test reads the new gate's
-  `on:` keys and its job id, and a test reads `review-lane-repin.yml`'s `on:`
-  keys and requires `pull_request` to be ABSENT from them — the negative control
-  that keeps the advance lane out of the pull-request path.
+  which of the two it published.** **AND THE PUBLISHED RUN IS THE GATE'S ONLY
+  IDENTITY, ATTACHED TO THE CANDIDATE** (Copilot `r4076902144`, `r4077054569`;
+  `design.md` D11). A published check run does not change the job's own, which
+  GitHub names after the job id and which a `pull_request_target` run lands on
+  the pull request's HEAD — measured, run `35788224200` on this packet's own pull
+  request carries `head_sha` `918e30e3` with its job check `success` there — so a
+  job that exits 0 after publishing `neutral` would leave a GREEN check on the
+  commit being judged. The verdict check-run therefore carries a declared name
+  that matches NO job id in the workflow, and that name, never a job id, is the
+  gate's identity wherever a check is required or read; and it is created with
+  `head_sha` set to the VERIFIED candidate `head.sha` of § 5.1i, never
+  `github.sha`, which in a `pull_request_target` run is the base branch's last
+  commit. Tests assert the create call's `head_sha` is the verified candidate
+  head, and that the verdict's name matches no job id.
+- [ ] 5.1b The wiring is TESTED and not assumed, ON THE GATE ITSELF (Copilot
+  `r4076845535`). `test_the_head_executing_trigger_is_absent` reads
+  `merge-master-approval.yml` and nothing else (`CALLER`,
+  `tests/review_lane_pin/test_review_lane_caller.py`:85), so it cannot catch a
+  regression in a new workflow. A test therefore reads the new gate's `on:` keys
+  and requires `pull_request_target` PRESENT and `pull_request` ABSENT, and
+  requires that no step check out `github.event.pull_request.head`; and a test
+  reads `review-lane-repin.yml`'s `on:` keys and requires `pull_request` to be
+  ABSENT from them — the negative control that keeps the advance lane out of the
+  pull-request path.
 - [ ] 5.2 The comparison: `scripts/review_lane_repin.py` gains a pure function
   over the declared state, `core_commit` and the surfaces' values, reaching no
   network, returning the five outcomes the scenarios name.
 - [ ] 5.3 The proof: `tests/review_lane_pin/` gains a fixture for each of the
   SIX scenarios — an ABSENT or foreign declared state (the FAIL-without-comparison
   case), a stale `converged`, a stale `diverged`, surfaces disagreeing with each
-  other, an unreadable aggregation, and the pure-function reproduction — **plus
+  other, an unreadable aggregation — including surfaces that AGREE on a value that
+  is not a commit, the empty string among them (`design.md` D16) — and the
+  pure-function reproduction — **plus
   the POSITIVE case, a true `converged` and a true `diverged` each reported as
   agreeing**, so the check is proved to accept a correct declaration and not only
   to refuse a wrong one. **Each written to FAIL against the pre-fix reader and
