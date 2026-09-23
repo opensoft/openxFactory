@@ -261,9 +261,11 @@ packet:**
 
 and `contracts/review-lane-repin-binding.template.yaml` declares
 `source_repository: codeXfactory/codexFactory` with `grants: [contents:read]` and
-nothing at all for the aggregation. **So on today's credentials the check would
-answer UNDETERMINED on every run** — and a check that never concludes looks
-exactly like a check that is working, which is the failure this packet exists to
+nothing at all for the aggregation. **So on today's credentials the check could
+never conclude** — it answered UNDETERMINED on every run as the requirement then
+stood, and since review `5286349291` it would end every run in its ACCESS FAIL
+instead — and a check that never concludes looks exactly like a check that is
+working, which is the failure this packet exists to
 end rather than to reproduce in a new place.
 
 Three things follow, and all three are now written down. The realization declares
@@ -297,8 +299,8 @@ mapping rather than the process exit code —
 of the two was published.**
 
 **`r4076254027` — and the same separateness reaches the CREDENTIALS.** A binding
-written for the repin identity alone would leave the pull-request gate
-UNDETERMINED on every run — D10's defect, reappearing one workflow over, because
+written for the repin identity alone would leave the pull-request gate failing
+on its own access on every run — D10's defect, reappearing one workflow over, because
 a separate run cannot reuse a minted App token any more than it can reuse step
 outputs, and the ambient `GITHUB_TOKEN` cannot read a private repository at all.
 The gate mints its own token from the SAME App under a binding of its OWN (D13),

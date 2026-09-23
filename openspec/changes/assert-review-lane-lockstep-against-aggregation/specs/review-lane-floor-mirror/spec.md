@@ -33,7 +33,12 @@ repository that this measurement is the first thing positioned to see. WHEN IT
 RUNS is at least every proposed advance of `core_commit` and the pull request
 that carries it, so a declaration an advance falsifies is reported in the SAME
 pull request that falsifies it rather than whenever a human next happens to read
-the field. WHAT IT OBSERVES IS THIS REPOSITORY'S SIDE OF THE PAIR: a move the
+the field. THE ONE EXCEPTION IS THE HOST'S OWN: where the host does not start a
+path-filtered workflow because it cannot see the whole diff — GitHub does not for
+a pull request of more than 3,000 changed files whose matching file is not among
+the first 3,000 — the check does not run on that pull request, and the gap is
+stated here so that this clause is never read as closing it. WHAT IT OBSERVES IS
+THIS REPOSITORY'S SIDE OF THE PAIR: a move the
 aggregation makes alone, its `MIGRATION_PIN` re-pointed at a ceremony, can
 falsify the declaration with no pull request here, and the check reports that at
 the next pull request that changes the pin; the ceremony's own pull request here,

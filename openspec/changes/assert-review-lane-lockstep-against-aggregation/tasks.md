@@ -158,20 +158,30 @@ this packet's archive until merged PLUS green realization evidence.
   unauthenticated `raw.githubusercontent` read of a surface returns **404**), and
   `contracts/review-lane-repin-binding.template.yaml` declares
   `source_repository: codeXfactory/codexFactory` with `grants: [contents:read]`
-  and nothing for the aggregation. **So on today's credentials the check would
-  answer UNDETERMINED on every run** — a check that never concludes, which the
-  requirement now forbids as a standing state. The realization declares a
+  and nothing for the aggregation. **So on today's credentials the check could
+  never conclude.** This box first said it would answer UNDETERMINED on every
+  run; since review `5286349291`, every run would instead end in the
+  requirement's ACCESS failure (§ 5.1d), a FAIL precisely so that a missing grant
+  cannot stand as a quiet NEUTRAL. The realization declares a
   READ-ONLY binding for `opensoft/xFactory` in the same shape as the existing
   source-repository grant — `grants: [contents:read]`,
   `never_grants: [contents:write, actions:write, pull-requests:write]` — which is
   also what keeps the family's own rule intact: *"neither repository's lane may
-  reach into the other's"*. The aggregation is READ and never written, by this
+  reach into the other's"*. **AND THE INSTALLATION MUST GRANT IT** (Copilot
+  `r4078926291`): a binding template and a mint step declare the grant, and
+  neither provisions it. The App's installation on `opensoft` must include
+  `xFactory` with `contents: read` before either run can conclude. That is an act
+  in the App's installation settings, performed by an organization owner, and it
+  is the realization's FIRST prerequisite. Its evidence is the first successful
+  mint of the aggregation token, recorded by run id beside § 5.4's observation.
+  Until then every run ends in the requirement's ACCESS failure (§ 5.1d), which
+  is how a missing grant shows itself. The aggregation is READ and never written, by this
   packet or by its realization. **AND A MINT TO USE IT** (Copilot
   `r4077898366`): `review-lane-repin.yml` mints two tokens today, the codexFactory
   read and its own write (`:276-311`), so it gains a THIRD — `owner: opensoft`,
   `repositories: xFactory`, `permission-contents: read` — held by a test in the
   same shape as the other two. A grant with no mint leaves the advance-side read
-  UNDETERMINED on every run. **And the tests and declarations that fix the lane
+  failing on its own access on every run. **And the tests and declarations that fix the lane
   at two move with it, in the same realization** (Copilot `r4078098133`):
   `test_the_token_is_scoped_to_the_bindings_two_repositories` asserts exactly two
   mints and derives the declared set from the keys `source_repository` and
@@ -185,9 +195,9 @@ this packet's archive until merged PLUS green realization evidence.
   pull-request gate is a SEPARATE WORKFLOW RUN: it cannot reuse the advance lane's
   minted App token any more than it can reuse its step outputs, and the ambient
   `GITHUB_TOKEN` cannot read a private `opensoft/xFactory` at all — so a binding
-  written for the repin identity alone would leave the PR-side check UNDETERMINED
-  on every run, which is the very defect this box exists to close, one workflow
-  over. The gate therefore mints its OWN token from the same App
+  written for the repin identity alone would leave the PR-side check failing on
+  its own access on every run, which is the very defect this box exists to
+  close, one workflow over. The gate therefore mints its OWN token from the same App
   (`actions/create-github-app-token`, as `review-lane-repin.yml` already does at
   `:278` and `:303`) under a binding of its OWN (§ 5.1f), and a test asserts THE
   PULL-REQUEST SIDE's read succeeds rather than only the advance side's. **The
@@ -565,7 +575,12 @@ this packet's archive until merged PLUS green realization evidence.
   3,000 files and the files the workflow filter matches are not in the first
   3,000 returned by the filter, the workflow will **not** run."* A pull request
   that large which also changed the pin would draw no verdict. That is the platform's limit, not a condition this packet adds, and it
-  is registered here rather than engineered around.
+  is registered here rather than engineered around. The requirement itself now
+  states the exception (Copilot `r4078926263`), so its *"at least every proposed
+  advance"* is never read as closing the gap. Closing it would take an
+  unconditional trigger that compares the pin's bytes at the head and at the
+  merge base before minting, which is a different design and the ratifier's to
+  choose.
 - [~] 6.7 **THE AGGREGATION'S SIDE IS OBSERVED ONLY THROUGH THIS REPOSITORY'S
   PULL REQUESTS** (Copilot `r4078648320`; `design.md` D2). A `MIGRATION_PIN`
   re-point in `opensoft/xFactory` can falsify the declaration with no pull
