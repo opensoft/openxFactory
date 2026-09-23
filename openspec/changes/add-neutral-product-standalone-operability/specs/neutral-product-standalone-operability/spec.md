@@ -521,12 +521,19 @@ to carry.
 
 A PACK IS ARBITRARY CODE, so "only the engine writes" SHALL be enforced by where
 the pack runs, not by what its interface declares. A pack SHALL RUN IN A
-SEPARATE PROCESS against an ISOLATED, READ-ONLY COPY of the corpus that the
-engine prepares for that run, and it SHALL NEVER be handed the checkout itself.
-A pack that attempts to write therefore reaches nothing the user owns, and the
-engine, finding the attempt on the copy, reports it as a finding against that
-pack. Checking the real tree after an in-process pack had run would be too late:
-the user's data would already have moved.
+SEPARATE PROCESS INSIDE AN OPERATING-SYSTEM-ENFORCED SANDBOX. The only
+filesystem visible inside it is a READ-ONLY MOUNT of an isolated copy of the
+corpus that the engine prepares for that run, plus the pack's own pinned code. It
+has NO NETWORK, NO OTHER PATH of the user's is reachable, and the pack's WHOLE
+PROCESS TREE lives inside it, so ending the sandbox ends every descendant. The
+pack SHALL NEVER be handed the checkout itself. File permissions and a
+working-directory convention are not isolation, because a process running as
+the same user can change the first and ignore the second. Where the platform
+offers no such sandbox, packs SHALL NOT RUN, and the install says why, rather
+than running them unsandboxed. A pack that attempts to write therefore reaches
+nothing the user owns, and the engine reports the attempt as a finding against
+that pack. Checking the real tree after an in-process pack had run would be too
+late: the user's data would already have moved.
 
 EVERY FINDING SHALL CARRY THE ID AND THE VERSION OF THE PACK THAT RAISED IT, so
 that a finding can be attributed, a pack can be upgraded without its history
@@ -540,6 +547,10 @@ arrived with a new pack version.
 #### Scenario: A pack is consumed without a pin
 - **WHEN** a pack is installed without its pin — a commit and a digest for a pack sourced from outside the corpus, or a digest for a pack the corpus itself carries, whose commit is the corpus commit that carries both it and the manifest naming it
 - **THEN** it is refused, because an unpinned pack silently changes what a corpus is judged against
+
+#### Scenario: A pack tries to leave its sandbox
+- **WHEN** a pack restores write permission on its copy, follows a symbolic link out of it, opens a network connection, or reads a path of the user's outside the copy
+- **THEN** each attempt fails at the operating system's boundary and is reported as a finding against that pack, because an isolation the pack can undo is not isolation
 
 #### Scenario: A pack crashes or hangs
 - **WHEN** a pack raises, or exceeds its time budget

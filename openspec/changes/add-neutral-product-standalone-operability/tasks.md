@@ -76,7 +76,7 @@ Baselines, measured on `openxFactory` `main` `4f92d651` before this packet:
   requirement table; the explicit "what openxFactory keeps" section; honest
   `code_surface:` / `target_release:` front-matter.
 - [x] 1.3 Author the `## ADDED Requirements` delta creating
-  `neutral-product-standalone-operability` — 16 requirements, 69 scenarios,
+  `neutral-product-standalone-operability` — 16 requirements, 70 scenarios,
   domain-neutral, openDox as the measured instance.
 - [x] 1.4 Author `design.md`: D1-D8 and **R-G3** — filed as Q-G3, the one question
   put to Brett with three options and a recommendation; RULED the same day and
@@ -199,14 +199,23 @@ mention in the package is prose.
 - [ ] 3.3 Record in the carve manifest that the `deleted_at_carve` row for
   `profile_openxfactory.py` is UNCHANGED by this: openxFactory's profile stays
   deleted from the core and `scripts/opendox_host.py` remains openxFactory's host.
-- [ ] **FALSIFIED BY** (openDox-code checkout, `pip install -e .`, no sibling):
+- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling):
 
+      set -euo pipefail
+      python -m venv --clear /tmp/v3                       # a FRESH environment: nothing already installed stands in
+      . /tmp/v3/bin/activate
+      pip install ".[test]"
       python -c "from opendox.cli import build_parser; build_parser(); print('OK')"
-      python -c "from opendox.serve import build_server; build_server(); print('OK')"
+      python -c "from opendox import domain_profile as d; print('OK', d.name_of(d.current()))"
+      python -m pytest -q tests/test_profile_registration.py   # a REGISTERED profile still replaces the default
 
-  Both print `OK`. Today both raise `domain_profile.ProfileNotRegistered`. Then
-  `pytest tests/test_profile_registration.py` proves a registered profile still
-  replaces the default.
+  Both lines print `OK`, the second with the default profile's name. Today both
+  raise `domain_profile.ProfileNotRegistered` (`domain_profile.py:220`). The
+  second line asks `domain_profile.current()`, the call every consumer of the
+  profile makes. An earlier draft called `build_server()` with no arguments, but
+  it takes three required positional ones (`web_dir`, `snapshot_path`,
+  `checkout_root`), so that line would have failed with a `TypeError` whatever
+  the profile did.
 
 ## Group 4 — Requirement 5 / G4: the deferred reach resolves through the seam (openDox-code)
 
@@ -224,10 +233,25 @@ mention in the package is prose.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, no
   `corpus_adapter_openxfactory` importable):
 
-      python -c "import opendox.authoring as a; a.required_header_fields()"
+      set -euo pipefail
+      python -m venv --clear /tmp/v4                       # a FRESH environment: nothing already installed stands in
+      . /tmp/v4/bin/activate
+      pip install ".[test]"
+      if python -c "import corpus_adapter_openxfactory" 2>/dev/null; then echo "FAIL: the publisher's adapter is importable"; exit 1; fi
+      python3 - <<'PY'
+      import opendox.authoring as a
+      try:
+          fields = a.required_header_fields()
+          assert isinstance(fields, tuple) and fields, f"no fields: {fields!r}"
+      except ModuleNotFoundError as e:
+          raise SystemExit(f"FAIL: the deferred reach still imports a publisher module: {e}")
+      except Exception as e:                                # only openDox's OWN named refusal is acceptable
+          assert type(e).__module__.startswith("opendox"), f"refused by a foreign exception: {type(e)!r}"
+      PY
 
-  Returns the fields through the registered adapter, or raises openDox's own named
-  refusal. It MUST NOT raise `ModuleNotFoundError`. Today it raises
+  Either the fields come back through the registered adapter, or openDox's own
+  named refusal is raised, and the block accepts exactly those two outcomes. It
+  MUST NOT raise `ModuleNotFoundError`. Today it raises
   `ModuleNotFoundError: No module named 'corpus_adapter_openxfactory'` while
   `python -c "import opendox.authoring"` exits 0.
 
@@ -277,6 +301,11 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 - [ ] **FALSIFIED BY** (openXdox-code checkout with openDox installed):
 
       set -euo pipefail
+      : "${OPENDOX_CODE:?set OPENDOX_CODE to an openDox-code checkout at the arc's tip}"
+      python -m venv --clear /tmp/v5a
+      . /tmp/v5a/bin/activate
+      pip install ".[test]"
+      pip install --force-reinstall --no-deps "$OPENDOX_CODE"   # the REALIZED openDox wins over any pinned one
       python3 - <<'PY'
       from opendox.display_profile import STAGE_ROLES, host_display, normalize_display
       from openxdox.domain_profile import DomainProfile
@@ -317,6 +346,11 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   arc did not edit them.
 
       set -euo pipefail
+      : "${OPENDOX_CODE:?set OPENDOX_CODE to an openDox-code checkout at the arc's tip}"
+      python -m venv --clear /tmp/v5b
+      . /tmp/v5b/bin/activate
+      pip install ".[test]"
+      pip install --force-reinstall --no-deps "$OPENDOX_CODE"   # the REALIZED openDox wins over any pinned one
       ls tests/test_generator.py tests/test_snapshot*.py tests/test_session_snapshot.py > /tmp/gen-suites.txt
       while read -r f; do python -m pytest -q "$f"; done < /tmp/gen-suites.txt
       git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' <arc-base>..HEAD > /tmp/x-arc.txt
@@ -357,6 +391,12 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   openxFactory's governance vocabulary):
 
       set -euo pipefail
+      python -m venv --clear /tmp/v5                       # a FRESH environment: nothing already installed stands in
+      . /tmp/v5/bin/activate
+      pip install ".[test]"
+      for sibling in openxdox doc_health; do                # a FRESH environment makes them absent; ASSERT it
+        if python -c "import $sibling" 2>/dev/null; then echo "FAIL: $sibling is importable"; exit 1; fi
+      done
       # NOT the console script: 10.1 packages that later, and this list is
       # dependency-ordered. At group 5's boundary the module is importable
       # (group 2) and that is what this falsifier uses.
@@ -418,6 +458,9 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling):
 
       set -euo pipefail
+      python -m venv --clear /tmp/v6                       # a FRESH environment: nothing already installed stands in
+      . /tmp/v6/bin/activate
+      pip install ".[test]"
       python3 - <<'PY'
       from opendox import workbench
       r = workbench.run_scoped_doc_health(".", ["README.md"])
@@ -438,8 +481,11 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 ## Group 7 — Requirement 7 / G6: a validator openDox can run (openDox-code)
 
 - [ ] 7.0 **Ship `tests/fixtures/malformed`**: 5.0's `plain-documents` with
-  EXACTLY ONE rule violation the validator must name — so the falsification below
-  can tell "refused for that rule" from "refused for anything".
+  EXACTLY ONE rule violation the validator must name, so the falsification below
+  can tell "refused for that rule" from "refused for anything". The fixture
+  carries a file `EXPECTED_RULE` holding the IDENTIFIER the validator reports for
+  that violation, so the acceptance asserts the rule itself and not a wording it
+  guesses at.
 - [ ] 7.1 **NARROW THE INPUT SET FIRST, then acquire what remains.** The existing
   validator's `SCHEMA_FILENAMES` names **ten** schemas and they have three
   different owners, so "give openDox the whole set" is the wrong shape:
@@ -531,11 +577,18 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       if python -m opendox.cli generate --repo-root "$BAD" --repository fixture --strict --output /tmp/bad.json 2>/tmp/err; then
         echo "FAIL: a malformed corpus validated"; exit 1
       fi
-      ! grep -q "No such file or directory" /tmp/err  # the refusal must name a RULE, not a missing path
+      RULE=$(cat tests/fixtures/malformed/EXPECTED_RULE)
+      test -n "$RULE"
+      grep -qF -- "$RULE" /tmp/err                          # refused for THE rule the fixture breaks
+      ! grep -q "No such file or directory" /tmp/err        # and not for a missing path
 
   The first exits 0; the second exits NON-ZERO and the sequence asserts that
   rather than printing it, so a validator returning zero on a malformed corpus
-  fails the check. The last line is a NEGATIVE `grep` — `! grep -q` — not
+  fails the check. **The refusal must carry the fixture's own rule identifier.**
+  A validator that failed for a missing schema, a generic error, or with empty
+  stderr would not produce it, so the positive `grep -qF` is what proves the
+  intended rule ran. The negative line only closes the one failure this box
+  measured today. The last line is a NEGATIVE `grep` — `! grep -q` — not
   `grep -qv`, which would have succeeded on any single non-matching line and so
   passed a mixed "missing schema AND rule error" stderr. **Neither may fail on an unresolvable schema path** — today
   that is exactly how it fails, because `--strict` makes "the validator is
@@ -614,6 +667,9 @@ packet's interim arrangement ends.**
 - [ ] **FALSIFIED BY** (each leg's own checkout, no sibling installed):
 
       set -euo pipefail
+      python -m venv --clear /tmp/v9                       # a FRESH environment: nothing already installed stands in
+      . /tmp/v9/bin/activate
+      pip install ".[test]"
       python -m pytest -q                                   # NOT --noconftest, NOT a file list
       test "$(grep -c -- --noconftest .github/workflows/validate.yml)" -eq 0
       # AND no pytest step enumerates a subset: a named file list with no
@@ -889,6 +945,11 @@ that does not name a platform.
   injected, so no network is reached):
 
       set -euo pipefail
+      : "${OPENDOX_CODE:?set OPENDOX_CODE to an openDox-code checkout at the arc's tip}"
+      python -m venv --clear /tmp/v12b
+      . /tmp/v12b/bin/activate
+      pip install ".[test]"
+      pip install --force-reinstall --no-deps "$OPENDOX_CODE"   # the REALIZED openDox wins over any pinned one
       # the WHOLE governed set, computed: every suite that drives open-pr or injects the fake
       git grep -l -e 'open-pr' -e 'open_pr' -e 'FakePullRequests' -- 'tests/test_*.py' > /tmp/governed.txt
       test "$(wc -l < /tmp/governed.txt)" -ge 16            # 16 at ab04453d; fewer means a proof vanished
@@ -963,12 +1024,13 @@ that does not name a platform.
   `--no-ff` MERGE COMMIT whose sha `Landed` returns, so `git revert -m 1 <sha>`
   undoes it. The CLI verb is `land --repo-root <repo> --branch
   <session-branch>`, interactive by construction.
-- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, **INSTALLED** —
-  `python -m venv /tmp/v12 && . /tmp/v12/bin/activate && pip install .` — and
-  `gh` NOT installed: `command -v gh` must be empty, which is the student's
-  machine):
+- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, installed IN the block
+  below, and `gh` NOT installed, which is the student's machine):
 
       set -euo pipefail
+      python -m venv --clear /tmp/v12                       # a FRESH environment: nothing already installed stands in
+      . /tmp/v12/bin/activate
+      pip install ".[test]"
       if command -v gh >/dev/null 2>&1; then                # the precondition, ASSERTED: the student's machine
         echo "FAIL: gh is installed; this acceptance must run without it"; exit 1
       fi
@@ -1255,6 +1317,10 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   Options FOLLOW the verb, exactly as they do for every verb `cli.py` declares
   today (10.1).
 
+  `health list --json` emits one object per finding, with `id`,
+  `resolution_class`, `path` (the document the finding is about), `severity`,
+  `evidence`, `pack_id` and `pack_version`. That is the shape the acceptances in
+  Groups 14 and 15 read, declared here so they read a contract and not a guess.
   They are NEW surface — `cli.py` declares none of them today (10.1's table is the
   surface that exists) — and 14.6's applier is what `health fix` invokes. **The
   view's actions are published as DATA, so parity is a comparison and not a
@@ -1298,6 +1364,9 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   known broken link and a known accepted finding):
 
       set -euo pipefail
+      python -m venv --clear /tmp/v14                       # a FRESH environment: nothing already installed stands in
+      . /tmp/v14/bin/activate
+      pip install ".[test]"
       export OPENDOX_INSTALL_MODE=local                     # the store is Group 13's bundle: a prerequisite by name
       export OPENDOX_STATE_DIR=$(mktemp -d)
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
@@ -1316,14 +1385,23 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
       import json, sys
       want = {"broken-link": "auto-fix", "derivable-front-matter": "auto-fix", "stage-location-mismatch": "auto-fix",
               "near-duplicate": "assisted", "human-only-finding": "human-only"}
-      got = {x["id"]: x["resolution_class"] for x in json.load(open(sys.argv[1]))}
+      found = json.load(open(sys.argv[1]))
+      got = {x["id"]: x["resolution_class"] for x in found}
       wrong = {k: (v, got.get(k)) for k, v in want.items() if got.get(k) != v}
       assert not wrong, f"a finding is missing or carries the wrong class: {wrong}"
+      with open("/tmp/paths.tsv", "w") as out:              # each finding's own document, for the loop below
+          for x in found:
+              out.write(f"{x['id']}\t{x['path']}\n")
       PY
       for f in broken-link derivable-front-matter stage-location-mismatch near-duplicate; do
         opendox health fix --repo-root $C --finding "$f"    # EVERY auto-fix kind, and the assisted proposal
         test "$(git -C $C rev-parse HEAD)" = "$before"      # default branch UNMOVED, every time
         git -C $C rev-parse --verify --quiet "refs/heads/health-fix-$f"
+        git -C $C diff --name-only "$before" "health-fix-$f" > "/tmp/fix-$f.txt"
+        test -s "/tmp/fix-$f.txt"                           # the branch CARRIES a change, not merely a ref
+        P=$(awk -F '\t' -v id="$f" '$1 == id { print $2 }' /tmp/paths.tsv)
+        test -n "$P"
+        grep -qxF -- "$P" "/tmp/fix-$f.txt"                 # and the change is to the finding's OWN document
       done
       rc=0
       opendox health fix --repo-root $C --finding human-only-finding > /tmp/ho.out 2>&1 || rc=$?
@@ -1394,16 +1472,24 @@ to #1144"*. `design.md` § D12.
   whose source no longer matches its digest is REFUSED, and the refusal is a
   FINDING against that pack carrying the expected and actual digests. The pack is
   never skipped silently.
-- [ ] 15.1b **RUN EVERY PACK OUT OF PROCESS, against an isolated READ-ONLY copy.**
-  For each run the engine exports the corpus commit into a directory it owns and
-  makes read-only (`git archive <commit> | tar -x`, then `chmod -R a-w`). It starts
-  the pack in a SUBPROCESS whose working directory is that copy, whose environment
-  carries no path to the checkout, and whose only output is findings and patches
-  on stdout in the neutral shape. The checkout is never passed, opened or named.
-  An in-process pack could edit, commit or merge the real tree before any check
-  ran. Out of process, the worst a pack can do is fail to write to a directory
-  that is thrown away. The same boundary makes 15.6's time budget ENFORCEABLE: an
-  overrunning subprocess is killed, not merely waited on.
+- [ ] 15.1b **RUN EVERY PACK IN AN OS-ENFORCED SANDBOX, never by convention.**
+  For each run the engine exports the corpus commit into a directory it owns
+  (`git archive <commit> | tar -x`). It then starts the pack inside a sandbox that
+  the KERNEL enforces. `chmod -R a-w` and a working directory are not a sandbox,
+  because the pack runs as the same user and can undo the first and ignore the
+  second. The reference realization on Linux is `bwrap` (bubblewrap):
+  `--unshare-all` (network, PID, IPC, UTS and user namespaces),
+  `--die-with-parent`, `--new-session`, `--ro-bind <copy> /corpus`,
+  `--ro-bind <pack> /pack`, read-only binds of only the interpreter paths the
+  pack's runtime needs, a private `--tmpfs /tmp`, and nothing of `$HOME` or of
+  the checkout. The pack's only output is findings and patches on stdout, in the
+  neutral shape. **The time budget is enforced on the TREE, not the process.**
+  Under `--unshare-pid` the pack runs in its own PID namespace, so ending the
+  sandbox's init on timeout ends every descendant the pack forked, and none
+  outlives the finding that records the timeout. **Where no such sandbox exists
+  on the platform, packs do not run**, and `health run` reports that as a
+  finding against the install rather than running packs unsandboxed. Other
+  platforms need their own kernel-enforced equivalent before packs run there.
 - [ ] 15.2 A pack DECLARES check families: id, version, and which documents each
   applies to. It RETURNS findings in the neutral shape — severity, resolution
   class (`auto-fix` / `assisted` / `human-only`, 14.6's spellings and no
@@ -1433,8 +1519,13 @@ to #1144"*. `design.md` § D12.
   three fixture packs under `packs/`. `fixture-crashing-pack` raises on its
   first family, `fixture-slow-pack` sleeps past any timeout, and
   `fixture-writing-pack` tries to write, commit and merge in the tree it is given
-  before returning. A
-  `health/packs.yaml` registers all three through 15.1a's manifest by corpus-relative
+  before returning. Two more test the SANDBOX rather than the contract.
+  `fixture-escaping-pack` tries each escape in turn: restoring write permission
+  and writing, following a symlink planted to point out of its copy, opening a
+  network connection, and reading `$HOME`. It reports which attempts succeeded,
+  and the answer must be none. `fixture-forking-pack` forks a child that sleeps
+  past the budget. A
+  `health/packs.yaml` registers all five through 15.1a's manifest by corpus-relative
   `source`, pinned by digest and carrying NO `commit`, as 15.1a requires of a
   source the corpus itself versions. Because packs and manifest travel INSIDE the corpus,
   copying the fixture into a fresh repository carries a valid registration with
@@ -1450,6 +1541,9 @@ to #1144"*. `design.md` § D12.
   deliberately writing pack beside the neutral checks):
 
       set -euo pipefail
+      python -m venv --clear /tmp/v15                       # a FRESH environment: nothing already installed stands in
+      . /tmp/v15/bin/activate
+      pip install ".[test]"
       export OPENDOX_INSTALL_MODE=local                     # the store is Group 13's bundle: a prerequisite by name
       export OPENDOX_STATE_DIR=$(mktemp -d)
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
@@ -1465,6 +1559,8 @@ to #1144"*. `design.md` § D12.
       # the WRITING pack reached only its isolated copy (15.1b): the user's tree is untouched
       test -z "$(git -C "$C" status --porcelain)"           # nothing in the checkout moved
       test "$(git -C "$C" rev-parse HEAD)" = "$FIXTURE_HEAD" # and no commit landed on it
+      # the FORKING pack left no descendant past its budget: the sandbox ended the whole tree
+      test "$(ps -eo args | grep -c '[f]ixture-forking-pack' || true)" -eq 0
       # the neutral checks still produced findings despite a crashing pack:
       opendox health list --repo-root $C > /tmp/p1.txt
       grep -q 'broken-link' /tmp/p1.txt
@@ -1477,6 +1573,8 @@ to #1144"*. `design.md` § D12.
       assert 'fixture-crashing-pack' in ids, 'crashing pack not reported'
       assert 'fixture-slow-pack' in ids, 'timed-out pack not reported'
       assert 'fixture-writing-pack' in ids, "a writing pack's attempt was not reported"
+      escaped = [x for x in f if x['pack_id'] == 'fixture-escaping-pack' and x.get('evidence', {}).get('succeeded')]
+      assert not escaped, f"a pack got out of its sandbox: {escaped}"
       assert all(x.get('pack_id') and x.get('pack_version') for x in f), 'a finding has no provenance'
       print('packs attributed:', sorted(ids))
       PY
@@ -1494,6 +1592,12 @@ to #1144"*. `design.md` § D12.
       # and 15.5's REFUSALS, each a NAMED test — a missing node fails the command:
       python -m pytest -q \
         "tests/test_check_packs.py::test_a_pack_that_writes_reaches_only_its_isolated_copy" \
+        "tests/test_check_packs.py::test_a_pack_cannot_restore_write_permission_on_its_copy" \
+        "tests/test_check_packs.py::test_a_pack_cannot_follow_a_symlink_out_of_its_copy" \
+        "tests/test_check_packs.py::test_a_pack_has_no_network" \
+        "tests/test_check_packs.py::test_a_pack_cannot_read_the_users_home" \
+        "tests/test_check_packs.py::test_no_descendant_of_a_pack_outlives_its_budget" \
+        "tests/test_check_packs.py::test_no_sandbox_on_the_platform_means_no_packs_run" \
         "tests/test_check_packs.py::test_an_unpinned_pack_is_refused" \
         "tests/test_check_packs.py::test_a_pack_returning_an_undeclared_class_is_refused" \
         "tests/test_check_packs.py::test_a_pack_declaring_its_own_baseline_or_landing_rule_is_refused"

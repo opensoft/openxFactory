@@ -324,7 +324,7 @@ name entirely. The correction is task 9.1's, not this packet's.
 ## What Changes
 
 ONE `## ADDED Requirements` block creating the capability
-`neutral-product-standalone-operability` — sixteen requirements, sixty-nine scenarios.
+`neutral-product-standalone-operability` — sixteen requirements, seventy scenarios.
 The capability is the sibling of `neutral-product-pin`: that one governs
 openxFactory CONSUMING an external neutral product; this one governs the product
 being able to STAND UP without its consumer. It is written domain-neutrally and
@@ -431,7 +431,9 @@ the view and its CLI parity, scheduling, the baseline, storage and the fix loop*
 and **a pack cannot redefine the resolution classes, the baseline rules, or who
 may land work** — those are the guarantees §§ D9–D11 exist to give, and a pack that
 could vary them would make every one conditional on which plugins an install
-carries. Guardrails: a pack READS and RETURNS, only the engine writes; a pack is
+carries. Guardrails: a pack READS and RETURNS inside an OS-enforced sandbox (a
+read-only mount of an isolated copy, no network, its whole process tree ended
+with the sandbox), so only the engine writes; a pack is
 pinned by commit and digest (for a pack the corpus itself carries, the commit is
 the corpus commit that carries it); and a pack that crashes or times out becomes a
 FINDING AGAINST THAT PACK rather than taking the run down.
@@ -657,4 +659,4 @@ is struck and the other fifteen stand.
 
 ## Capabilities
 
-- `neutral-product-standalone-operability` — ADDED, 16 requirements, 69 scenarios.
+- `neutral-product-standalone-operability` — ADDED, 16 requirements, 70 scenarios.

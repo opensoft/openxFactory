@@ -72,7 +72,7 @@ under which it can.
 ## D3 — Why the gaps are REQUIREMENTS and not merely tasks
 
 A gap list is an actor's inventory; it expires when the actor stops. Sixteen
-requirements with sixty-nine scenarios are a standing property of any neutral
+requirements with seventy scenarios are a standing property of any neutral
 product this repository pins, and they outlive the arc. The concrete openDox
 work is in `tasks.md`, one box per requirement, each naming the falsification
 command — so the requirement states the property, the task states the act, and
@@ -635,7 +635,14 @@ packs an install happens to carry — and a user could not reason about their ow
 tool without auditing its plugins. The guardrails follow from the same principle:
 **a pack reads and returns; only the engine writes.** A pack that writes has
 escaped the draft-on-a-branch rule, the explicit-human-act rule and the
-revertible-commit rule in one step.
+revertible-commit rule in one step. **And because a pack is arbitrary code, that
+rule is enforced by the KERNEL, not by the pack's interface.** Each pack runs in an
+OS-enforced sandbox (task 15.1b; `bwrap` is the reference on Linux). The sandbox
+exposes a read-only mount of an isolated copy of the corpus and nothing else of
+the user's, has no network, and holds the pack's whole process tree. An earlier
+draft of this packet relied on `chmod -R a-w` and a working directory. A process
+running as the same user can undo the first and ignore the second, so that was a
+convention, not a boundary. Where no such sandbox exists, packs do not run.
 
 Two more, each measured against a failure this estate has already had. **A pack is
 pinned by commit and digest** — the `neutral-product-pin` discipline, because an
