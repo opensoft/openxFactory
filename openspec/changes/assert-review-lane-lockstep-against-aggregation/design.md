@@ -288,9 +288,8 @@ failure and nothing else.** *"NEUTRAL, visible, not reported as a pass"* has no
 expression by exit code. So the realization publishes through the check-run API,
 and every outcome is mapped rather than only the neutral ones (Copilot
 `r4078058050`): `failure` for the three FAIL outcomes, `neutral` for INCONSISTENT
-and UNDETERMINED, `success` for agreement — and `skipped`, outside the six
-because nothing is compared, for a pin change that moves neither judged value
-(D17) — the values read in its output each
+and UNDETERMINED, `success` for agreement, and no conclusion outside those (D17) —
+the values read in its output each
 time, a surface's only as its classification, its relation to `core_commit` and a
 digest (D20). The test asserts the PUBLISHED CONCLUSION for each outcome against that
 mapping rather than the process exit code —
@@ -708,24 +707,25 @@ token and publish the aggregation's commits on pull requests that do not touch
 the pin. The one gap an exact filter leaves is the platform's own, a diff of more
 than 3,000 files, and it is registered at `tasks.md` § 6.6.
 
-**And the token is minted only when a judged value moves** (Copilot
-`r4078308120`). The filter fires on any edit to the pin file, but the check
-judges three things in it: `core_commit`, the declared state and the surfaces
-`converged_with:` declares. **The candidate's declaration is validated FIRST**
-(Copilot `r4078425707`): a declared state outside its two words, a `core_commit`
-that is not a commit (D16), a `converged_with:` other than the read plan's
-workflow members (D19), or a candidate that cannot be parsed at all (Copilot
-`r4078425733`) FAILS before anything is minted or read.
-Only then does the gate compare the candidate's three values with the base's, and
-where none moved it mints nothing, reads nothing and publishes `skipped`, so the
-verdict is never absent from a pull request the filter admits. A skip therefore
-needs a valid candidate EQUAL to its base, which leaves no invalid declaration
-unjudged at either end: a base's defect reaches the verdict through every
-candidate that inherits it. The first of these findings proposed `core_commit`
-alone as the condition, and that would have skipped the pull requests that move
-only the declaration, which are half of what this check exists to judge. `#1123`
-was one: it moved `status: converged` to `status: diverged` and left
-`core_commit` where it was.
+**And every admitted pull request is judged, its declaration FIRST** (Copilot
+`r4078425707`, `r4078883755`). The candidate's declaration is validated before
+anything else: a declared state outside its two words, a `core_commit` that is
+not a commit (D16), a `converged_with:` other than the read plan's workflow
+members (D19), or a candidate that cannot be parsed at all (Copilot
+`r4078425733`) FAILS before anything is minted or read. Every valid candidate is
+then judged through the remaining outcomes, a `reason:`-only edit included.
+
+**A skip was tried and is withdrawn.** Copilot `r4078308120` asked that the token
+not be minted for an edit that moves no judged value, and a `skipped` conclusion
+answered it. `r4078883755` then found that the requirement's outcomes are
+ordered, with exactly one holding for any input, so a `skipped` beside them was a
+bypass the requirement does not authorize. The exposure the first finding named
+is now closed where it lives rather than by skipping: a run reads only the plan
+fixed in its code (D19) and publishes no aggregation value as it is (D20). The
+first finding had also proposed `core_commit` alone as its condition, which would
+have skipped the pull requests that move only the declaration, half of what this
+check judges; `#1123` was one, moving `status: converged` to `status: diverged`
+and leaving `core_commit` where it was.
 
 ## D18 — the gate's identity is chosen ONCE, and every part of the packet uses it
 
@@ -766,8 +766,8 @@ Copilot `r4078365046`. D14c took the read plan from the base so that no candidat
 could choose what the xFactory token reads, but the base's pin file is only the
 candidate an earlier pull request proposed. The pin's own test checks nothing of
 `converged_with:` but its length
-(`tests/review_lane_pin/test_review_lane_caller.py`:648-649), and D17's skip rule
-would have let a pull request that changed only `converged_with:` land unjudged.
+(`tests/review_lane_pin/test_review_lane_caller.py`:648-649), and D17's skip rule,
+since withdrawn, would have let a pull request that changed only `converged_with:` land unjudged.
 That pull request could have installed any `opensoft/xFactory` path for every
 later run to read with the private token.
 
@@ -786,8 +786,6 @@ state outside its vocabulary, so no outcome is added. The base is not judged
 separately: a candidate inherits the base's list unless it changes it, so a
 base's defect FAILS every candidate that carries it, and a candidate that repairs
 it is judged on what it proposes rather than failed for what it replaces.
-And `converged_with:` joins the values whose movement keeps a pull request from
-being skipped (D17).
 
 **A pull request that moves the plan and `converged_with:` together fails its own
 gate**, because the base's code judges it. That is the base-code rule's ordinary
@@ -829,7 +827,11 @@ latest verdict under the declared name. The gate takes the answer
 `merge-master-approval.yml`:427-434 gives for its own verdict, a per-pull-request
 `concurrency:` group with `cancel-in-progress: true`, *"a superseded run's verdict
 is stale by definition"*. It also re-reads `head.sha` once more immediately before
-publishing, so a run whose head is no longer the pull request's publishes nothing.
+publishing. Neither is atomic with the check-run creation (Copilot
+`r4078883704`), so the guarantee is the one that holds without atomicity: the
+verdict is attached to the one commit it verified and binds nothing else, and
+every consumer reads it only on the pull request's current head (`tasks.md`
+§ 6.5).
 
 ## D5 — what the check compares, and why it is values rather than authorship
 

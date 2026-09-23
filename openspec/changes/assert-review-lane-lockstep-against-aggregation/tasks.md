@@ -287,39 +287,38 @@ this packet's archive until merged PLUS green realization evidence.
   `test_untrusted_workflow_inputs_are_not_interpolated_into_bash`; and a declared state
   and a `core_commit` each carrying a backtick, a line break and a link are each
   named as one inert span of bounded length.
-  **AND THE TOKEN IS MINTED ONLY FOR A PULL REQUEST THAT MOVES A JUDGED VALUE**
-  (Copilot `r4078308120`). The filter fires on any edit to the pin file, while
-  the check judges three things in it: `core_commit`, the declared state and the
-  surfaces `converged_with:` declares. **THE CANDIDATE'S DECLARATION IS
-  VALIDATED FIRST, AND ONLY A VALID ONE MAY BE SKIPPED** (Copilot
-  `r4078425707`): the gate parses the candidate from its inert bytes and applies
-  the requirement's first outcome before anything else — a declared state absent
-  or outside its two words, a `core_commit` that is not forty lowercase
-  hexadecimal characters (Copilot `r4078528147`), or a `converged_with:` other
-  than the read plan's two workflow members (§ 5.1i), FAILS with no token minted
-  and nothing read. **A candidate that
-  cannot be parsed is that outcome too** (Copilot `r4078425733`): it declares
-  nothing, so it counts as ABSENT and FAILS, the parse error named as an inert,
-  length-bounded span. Only a valid candidate is compared with the base's three
-  values, and a base that cannot be parsed counts as differing, so its candidate
-  is judged; where none moved, as with an edit to `reason:` alone, the gate mints
-  nothing, reads nothing in the aggregation, and publishes the verdict as
-  `skipped`, naming the values unchanged. A skip therefore needs a valid
-  candidate EQUAL to its base, which leaves no invalid declaration unjudged at
-  either end, and the verdict's name is present on every pull request the filter
-  admits, so § 6.5's approver always finds a verdict to read. The DECLARED STATE is
-  in the comparison, and not only `core_commit`, because a pull request that
-  moves only the declaration is exactly one the measurement exists to check:
-  `#1123` moved `status` and not `core_commit`. Tests: a candidate changing only
-  `reason:` over a valid base mints nothing, reads nothing and publishes
-  `skipped`; the same edit over a base whose declared state, or whose
-  `converged_with:`, is outside its vocabulary FAILS instead, because the
-  candidate inherits it; a candidate changing only the declared state, one
-  changing only `core_commit`, and one changing only `converged_with:` each draw
-  a verdict; an unparseable candidate FAILS with a bounded message, no mint
-  and no read in the aggregation; and a candidate whose `core_commit` is not a
-  commit, declared `diverged`, FAILS rather than agreeing, because an inequality
-  against any agreed commit would otherwise report it as agreeing.
+  **THE CANDIDATE'S DECLARATION IS VALIDATED FIRST, AND THEN EVERY ADMITTED PULL
+  REQUEST IS JUDGED** (Copilot `r4078425707`, `r4078883755`): the gate parses
+  the candidate from its inert bytes and applies the requirement's first outcome
+  before anything else — a declared state absent or outside its two words, a
+  `core_commit` that is not forty lowercase hexadecimal characters (Copilot
+  `r4078528147`), or a `converged_with:` other than the read plan's two workflow
+  members (§ 5.1i), FAILS with no token minted and nothing read. **A candidate
+  that cannot be parsed is that outcome too** (Copilot `r4078425733`): it
+  declares nothing, so it counts as ABSENT and FAILS, the parse error named as
+  an inert, length-bounded span. Every valid candidate the filter admits is then
+  judged through the requirement's remaining outcomes, a `reason:`-only edit
+  included, and none is skipped. **A SKIP WAS TRIED AND IS WITHDRAWN**: Copilot
+  `r4078308120` asked that the token not be minted for an edit that moves no
+  judged value, and this box answered with a `skipped` conclusion; `r4078883755`
+  then found that the requirement's outcomes are ordered, exactly one holding for
+  any input, so a `skipped` beside them is a bypass the requirement does not
+  authorize. The exposure the first finding named is closed where it lives
+  instead: a run reads only the plan fixed in the gate's code (§ 5.1i) and
+  publishes no aggregation value as it is (§ 5.1i; `design.md` D20), so judging a
+  `reason:`-only edit mints a read-only token and publishes only classifications,
+  relations and digests. The DECLARED STATE is judged on every admitted pull
+  request, and a pull request that moves only the declaration is exactly one the
+  measurement exists to check: `#1123` moved `status` and not `core_commit`.
+  Tests: a `reason:`-only candidate draws a verdict from the full order; the same
+  edit over a base whose declared state, or whose `converged_with:`, is outside
+  its vocabulary FAILS, because the candidate inherits it; a candidate changing
+  only the declared state, one changing only `core_commit`, and one changing only
+  `converged_with:` each draw a verdict; an unparseable candidate FAILS with a
+  bounded message, no mint and no read in the aggregation; and a candidate whose
+  `core_commit` is not a commit, declared `diverged`, FAILS rather than agreeing,
+  because an inequality against any agreed commit would otherwise report it as
+  agreeing.
 - [ ] 5.1i **THE GATE READS THE CANDIDATE PIN, NOT THE BASE'S — AND THIS IS THE
   DEFECT `pull_request_target` INTRODUCED** (Copilot's *previously missed* item,
   round 8). Under `pull_request_target` the workflow runs from the BASE, so a
@@ -433,9 +432,9 @@ this packet's archive until merged PLUS green realization evidence.
   INCONSISTENT and for UNDETERMINED, and `success` for a declaration the
   measurement agrees with — each with the state and the values read in its
   output, a surface's only as its classification, its relation to
-  `core_commit` and a digest (§ 5.1i); and, outside the six because nothing is compared, `skipped` for a
-  pin change that moves no judged value (§ 5.1g). A test asserts the
-  published conclusion for each of the six outcomes and for that case, against
+  `core_commit` and a digest (§ 5.1i); and no conclusion outside those six, the
+  skip once proposed having been withdrawn (§ 5.1g). A test asserts the
+  published conclusion for each of the six outcomes, against
   that mapping, rather than the process exit code, **because the
   contract this packet adds degrades silently to a green pass if nobody checks
   which of the two it published.** **AND THE PUBLISHED RUN IS THE GATE'S ONLY
@@ -459,10 +458,17 @@ this packet's archive until merged PLUS green realization evidence.
   `concurrency:` group, `review-lane-lockstep-gate-` followed by the pull
   request's number, with `cancel-in-progress: true`, as
   `merge-master-approval.yml`:427-434 does for its own verdict; and the verdict
-  is published only after a final re-read of `head.sha`, so an older run can
-  neither outlive a newer one nor publish for a head the pull request no longer
-  has. Tests: the block's group key and its cancellation, and a run whose head
-  moved before publication publishes nothing.
+  is published only after a final re-read of `head.sha`. Neither is atomic with
+  the check-run creation (Copilot `r4078883704`): cancellation is asynchronous,
+  and a force-push can land between the last read and the create. So the
+  guarantee is stated where it holds without atomicity: a verdict is attached to
+  the ONE commit it verified, never to the pull request, so a late verdict on a
+  commit the pull request no longer has is a true statement about that commit
+  and binds nothing; and every consumer reads the verdict only on the pull
+  request's CURRENT head (§ 6.5). Tests: the block's group key and its
+  cancellation; a run whose head moved before publication publishes nothing; and
+  a verdict created for an older head is not the one a consumer reads for the
+  current head.
 - [ ] 5.1b The wiring is TESTED and not assumed, ON THE GATE ITSELF (Copilot
   `r4076845535`). `test_the_head_executing_trigger_is_absent` reads
   `merge-master-approval.yml` and nothing else (`CALLER`,
@@ -474,9 +480,14 @@ this packet's archive until merged PLUS green realization evidence.
   ABSENT from them — the negative control that keeps the advance lane out of the
   pull-request path.
 - [ ] 5.2 The comparison: `scripts/review_lane_repin.py` gains a pure function
-  over the declared state, `converged_with:` against the plan's workflow members, `core_commit`
-  and the surfaces' values, reaching no
-  network, returning the six outcomes the scenarios name.
+  over the candidate's parse result — its declared state, `core_commit` and
+  `converged_with:`, or the parse refusal — the plan's workflow members, and a
+  structured READ RESULT: the access outcome (granted, or which access failure),
+  the resolved aggregation branch and commit, and for each surface either its
+  value or the transient failure that kept it unread (review `5286688301`'s
+  *previously missed* item). It reaches no network and returns the six outcomes
+  the scenarios name, in the requirement's order, each with the values its
+  verdict publishes.
 - [ ] 5.3 The proof: `tests/review_lane_pin/` gains a fixture for each of the
   SEVEN scenarios — an ABSENT or foreign declaration, an unparseable candidate, a
   non-commit `core_commit` and a candidate `converged_with:` other than the read
@@ -488,7 +499,14 @@ this packet's archive until merged PLUS green realization evidence.
   the POSITIVE case, a true `converged` and a true `diverged` each reported as
   agreeing**, so the check is proved to accept a correct declaration and not only
   to refuse a wrong one. **Each written to FAIL against the pre-fix reader and
-  pass after**, so the regression is proved rather than asserted.
+  pass after**, so the regression is proved rather than asserted. **AND THE
+  LIVE LITERAL IS RETIRED** (Copilot `r4078883732`):
+  `tests/review_lane_pin/test_review_lane_caller.py`:641 asserts
+  `lockstep.status == "converged"`, the literal § 3.6 names as this repository's
+  value compared with its own constant. Once the measurement exists it owns the
+  cross-repository truth, so that assertion becomes closed-vocabulary validation
+  (the field is one of its two words), and the status stops needing its test
+  literal moved beside it by hand, as `#1123` and `#1136` each had to.
 - [ ] 5.4 ONE real observation of the check running against a proposed advance
   **and CONCLUDING** — `converged`, `diverged` or a named contradiction, and NOT
   UNDETERMINED. That is the half that cannot be manufactured, and the conclusion
@@ -532,7 +550,7 @@ this packet's archive until merged PLUS green realization evidence.
   **Registered for their realization:** an approver that admits a pin-changing
   pull request approves it ONLY where the latest verdict named
   `review-lane-lockstep-verdict` (§ 5.1e) on the VERIFIED head is `success`
-  (Copilot `r4078528254`). `neutral`, `skipped`, `failure`, a verdict for
+  (Copilot `r4078528254`). `neutral`, `failure`, a verdict for
   another head and no verdict at all each PARK the approval: the requirement
   says a NEUTRAL conclusion is not a pass, and the envelope's own rule already
   parks every non-excluded check run whose latest completed run is not `success`
