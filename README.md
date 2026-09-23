@@ -636,10 +636,10 @@ Active changes:
   remedy's shape as option **(b)** — *"make the CROSS-REPOSITORY fact assertable
   at all … (b) is the better fix, because (a) still leaves this file's truth
   depending on a lane remembering to write it"*. **ONE `## ADDED` requirement,
-  SEVEN scenarios — an absent or foreign declaration, a stale `converged`, a
+  EIGHT scenarios — an absent or foreign declaration, a stale `converged`, a
   stale `diverged`, surfaces disagreeing with each other, the check's own access
-  failing, an unreadable aggregation, and the pure-function reproduction — no
-  `## MODIFIED` block.**
+  failing, an unreadable aggregation, a candidate unread or its head moved, and
+  the pure-function reproduction — no `## MODIFIED` block.**
   `contracts/review-lane-pin.yaml`
   DECLARES at `lockstep.status` whether this repository's pinned decision core
   and the aggregation's `MIGRATION_PIN` name one commit, and nothing measures the
@@ -662,8 +662,8 @@ Active changes:
   own access failing, and a declaration the measurement CONTRADICTS, which is
   that file stating something false; INCONSISTENT and UNDETERMINED each conclude
   NEUTRAL and visible, because neither is this repository's claim to answer and
-  turning another repository's outage into a red build here is how a governance
-  check stops being run. **Shape (b) and not (a), by measurement**:
+  turning an outage, another repository's or the host's, into a red build here is
+  how a governance check stops being run. **Shape (b) and not (a), by measurement**:
   the lane has no reading of the aggregation, so it could only write `diverged`
   by inference — an inference the fourth ceremony already falsified, since the
   aggregation converged ONTO a commit this file had held for three days — and the

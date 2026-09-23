@@ -21,9 +21,10 @@ Kind: tasks
 ## 2. The delta
 
 - [x] 2.1 `specs/review-lane-floor-mirror/spec.md` — ONE `## ADDED` requirement,
-  SEVEN scenarios — an absent or foreign declaration, a stale `converged`, a
+  EIGHT scenarios — an absent or foreign declaration, a stale `converged`, a
   stale `diverged`, surfaces disagreeing with each other, the check's own access
-  failing, an unreadable aggregation, and the pure-function reproduction. The declared cross-repository lockstep state is MEASURED
+  failing, an unreadable aggregation, a candidate unread or its head moved, and
+  the pure-function reproduction. The declared cross-repository lockstep state is MEASURED
   against the aggregation's own surfaces; the check runs at least at every
   proposed advance and its pull request; the read lives in the workflow and the
   comparison is a pure function; the check is SYMMETRIC; an unreadable
@@ -297,10 +298,13 @@ this packet's archive until merged PLUS green realization evidence.
   `test_untrusted_workflow_inputs_are_not_interpolated_into_bash`; and a declared state
   and a `core_commit` each carrying a backtick, a line break and a link are each
   named as one inert span of bounded length.
-  **THE CANDIDATE'S DECLARATION IS VALIDATED FIRST, AND THEN EVERY ADMITTED PULL
-  REQUEST IS JUDGED** (Copilot `r4078425707`, `r4078883755`): the gate parses
-  the candidate from its inert bytes and applies the requirement's first outcome
-  before anything else — a declared state absent or outside its two words, a
+  **THE CANDIDATE'S DECLARATION IS VALIDATED FIRST, ONCE IT IS IN HAND, AND THEN
+  EVERY ADMITTED PULL REQUEST IS JUDGED** (Copilot `r4078425707`, `r4078883755`):
+  the gate parses the candidate from its inert bytes, once its reads of this
+  repository have them in hand (a failure of those reads being the requirement's
+  first outcome, § 5.1d), and applies the declaration outcome before anything
+  else — a declared state absent or outside its two words, the pin absent at the
+  verified commit, a
   `core_commit` that is not forty lowercase hexadecimal characters (Copilot
   `r4078528147`), or a `converged_with:` other than the read plan's two workflow
   members (§ 5.1i), FAILS with no token minted and nothing read. **A candidate
@@ -344,8 +348,9 @@ this packet's archive until merged PLUS green realization evidence.
   gate's code, 1 MiB against the pin's measured 70,039 bytes, as exactly one YAML
   document with no duplicate key, alias, merge key or tag, each refusal being
   the unparseable candidate of § 5.1g, ABSENT and FAILING — and **re-reads
-  `head.sha` after the fetch**, refusing where a force-push moved the ref between
-  the two. The base-branch rule is kept exactly: no head CODE runs, and reading
+  `head.sha` after the fetch**, the last read immediately before publication,
+  publishing NO verdict where a read finds the head moved and taking a failed
+  read by the partition of § 5.1d (Copilot `r4084891099`; `design.md` D21). The base-branch rule is kept exactly: no head CODE runs, and reading
   head DATA as bytes is what makes `pull_request_target` usable rather than
   merely safe. An end-to-end test drives a candidate whose pin differs from the
   base's and asserts the verdict names the CANDIDATE commit, and a second drives
@@ -420,7 +425,18 @@ this packet's archive until merged PLUS green realization evidence.
   itself refused to the gate's token (a 401, or a 403 or 404 that is not a
   rate-limit response) is the requirement's ACCESS outcome and FAILS, naming it,
   while a surface missing at the resolved commit, a server error, a timeout or a
-  rate limit stays UNDETERMINED. **AND EVERY OUTCOME IS DATA TO ONE PUBLISHER**
+  rate limit stays UNDETERMINED. **AND ONE PARTITION COVERS EVERY READ, THE
+  CANDIDATE'S INCLUDED** (Copilot `r4084891099`; `design.md` D21): the reads of
+  THIS repository — the pull request's head, before the pin's read and again
+  immediately before publication, and the pin at the verified commit — are
+  inputs too, and every failure to read, of either repository, falls into
+  exactly one class. A transient failure — a server error, a rate limit, a
+  timeout or a transport failure — is UNDETERMINED and `neutral`, naming the
+  read that failed. A 404 for a branch, a commit or a file is ABSENCE, the pin's
+  FAILING as an absent declaration and a surface's leaving the aggregation
+  UNREADABLE. Every other failure, a 422 and a 403 on a surface's read among
+  them, is the check's own ACCESS failing and FAILS. A read that finds the head
+  moved publishes nothing (§ 5.1i). **AND EVERY OUTCOME IS DATA TO ONE PUBLISHER**
   (Copilot `r4078594297`; `design.md` D11): validation, the access check, the
   reads and the comparison each RETURN an outcome and none exits non-zero; one
   publisher runs last and always; and the job's exit code reports only whether
@@ -429,17 +445,23 @@ this packet's archive until merged PLUS green realization evidence.
   that turns the job red. Tests: an invalid candidate, each access failure and a
   transient read failure each still create their `failure` or `neutral`
   verdict; each access failure concludes `failure` and each transient failure
-  `neutral`; and a refused publication turns the job red.
+  `neutral`; the pin's fetch answering 404, 403, 422, 500 and a rate limit, and
+  the head's read timing out before the fetch and immediately before
+  publication, each conclude as the partition says, a failure before the pin is
+  in hand minting no token and reading nothing in the aggregation; and a refused
+  publication turns the job red.
 - [ ] 5.1e **THE NEUTRAL CONCLUSION NEEDS A REPRESENTATION** (Copilot
   `r4076152473`). A GitHub Actions step exits 0 or non-zero, which is a green
   pass or a red failure and nothing else, so *"NEUTRAL, visible, not reported as
   a pass"* has no expression by exit code alone. The realization publishes the
   conclusion through the check-run API, EVERY OUTCOME MAPPED and none left to the
   exit code (Copilot `r4078058050`): `failure` for a declaration outside its
-  vocabulary — an unparseable candidate, a non-commit `core_commit` and a
-  foreign `converged_with:` among them — for the check's own access failing
-  (§ 5.1d), and for a declaration the measurement contradicts, `neutral` for
-  INCONSISTENT and for UNDETERMINED, and `success` for a declaration the
+  vocabulary — an unparseable candidate, the pin absent at the verified commit,
+  a non-commit `core_commit` and a foreign `converged_with:` among them — for
+  the check's own access failing on either repository (§ 5.1d), and for a
+  declaration the measurement contradicts, `neutral` for INCONSISTENT and for
+  UNDETERMINED, a transient failure of a read of this repository among the
+  latter, and `success` for a declaration the
   measurement agrees with — each with the state and the values read in its
   output, a surface's only as its classification, its relation to
   `core_commit` and a digest (§ 5.1i); and no conclusion outside those six, the
@@ -458,10 +480,11 @@ this packet's archive until merged PLUS green realization evidence.
   `review-lane-lockstep-verdict`, that matches NO job id in any workflow under
   `.github/workflows/`, and that name, never a job id, is the gate's identity
   wherever a check is required or read; and it is created with
-  `head_sha` set to the VERIFIED candidate `head.sha` of § 5.1i, never
+  `head_sha` set to the candidate `head.sha` the event named, the ONE commit the
+  run judges and verifies (§ 5.1i), never
   `github.sha`, which in a `pull_request_target` run is the base branch's last
-  commit. Tests assert the create call's `head_sha` is the verified candidate
-  head, and that the verdict's name is `review-lane-lockstep-verdict` and matches
+  commit. Tests assert the create call's `head_sha` is that candidate head, and
+  that the verdict's name is `review-lane-lockstep-verdict` and matches
   no job id and no job `name:` in any workflow here (review `5285930613`'s *previously missed*
   item; `design.md` D18). **AND OVERLAPPING RUNS ARE SERIALIZED** (Copilot
   `r4078468867`; `design.md` D20): the workflow declares a per-pull-request
@@ -472,7 +495,7 @@ this packet's archive until merged PLUS green realization evidence.
   the check-run creation (Copilot `r4078883704`): cancellation is asynchronous,
   and a force-push can land between the last read and the create. So the
   guarantee is stated where it holds without atomicity: a verdict is attached to
-  the ONE commit it verified, never to the pull request, so a late verdict on a
+  the ONE commit the run judges, never to the pull request, so a late verdict on a
   commit the pull request no longer has is a true statement about that commit
   and binds nothing; and every consumer reads the verdict only on the pull
   request's CURRENT head (§ 6.5). Tests: the block's group key and its
@@ -490,22 +513,31 @@ this packet's archive until merged PLUS green realization evidence.
   ABSENT from them — the negative control that keeps the advance lane out of the
   pull-request path.
 - [ ] 5.2 The comparison: `scripts/review_lane_repin.py` gains a pure function
-  over the candidate's parse result — its declared state, `core_commit` and
-  `converged_with:`, or the parse refusal — the plan's workflow members, and a
+  over the candidate's READ RESULT — its declared state, `core_commit` and
+  `converged_with:` as parsed, or the parse refusal, the pin's absence at the
+  verified commit, or the class of a read of this repository that failed
+  (Copilot `r4084891099`) — the plan's workflow members, and the aggregation's
   structured READ RESULT: the access outcome (granted, or which access failure),
   the resolved aggregation branch and commit, and for each surface either its
-  value or the transient failure that kept it unread (review `5286688301`'s
+  value or the failure that kept it unread, by its class (review `5286688301`'s
   *previously missed* item). It reaches no network and returns the six outcomes
   the scenarios name, in the requirement's order, each with the values its
-  verdict publishes.
+  verdict publishes. A head found moved is not among its inputs, because that
+  run publishes nothing (§ 5.1i).
 - [ ] 5.3 The proof: `tests/review_lane_pin/` gains a fixture for each of the
-  SEVEN scenarios — an ABSENT or foreign declaration, an unparseable candidate, a
+  EIGHT scenarios — an ABSENT or foreign declaration, an unparseable candidate, a
+  pin absent at the verified commit, a
   non-commit `core_commit` and a candidate `converged_with:` other than the read
   plan's workflow members among them (the FAIL-without-comparison case), a stale `converged`, a stale `diverged`, surfaces disagreeing with each
-  other, the check's own access failing — its binding, its mint, and the
-  aggregation refusing its token, each a fixture — an unreadable aggregation —
+  other, the check's own access failing — its binding, its mint, the
+  aggregation refusing its token, this repository refusing its own, and a
+  response that is neither transient nor an absence, each a fixture — an
+  unreadable aggregation —
   including surfaces that AGREE on a value that is not a commit, the empty string
-  among them (`design.md` D16) — and the pure-function reproduction — **plus
+  among them (`design.md` D16) — a candidate unread or its head moved — a read of
+  this repository failing transiently before the pin is in hand and immediately
+  before publication, and a head found moved, each a fixture (`design.md` D21) —
+  and the pure-function reproduction — **plus
   the POSITIVE case, a true `converged` and a true `diverged` each reported as
   agreeing**, so the check is proved to accept a correct declaration and not only
   to refuse a wrong one. **Each written to FAIL against the pre-fix reader and

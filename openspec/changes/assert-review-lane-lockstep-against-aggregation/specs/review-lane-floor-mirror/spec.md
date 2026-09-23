@@ -65,8 +65,9 @@ the field is a point-in-time claim about a mutable pair and either value can be
 the false one.
 
 WHERE THE AGGREGATION'S SURFACES CANNOT BE READ, for a reason outside the check's
-own access, the check SHALL report the state as UNDETERMINED and name what it
-could not read; it SHALL NOT resolve to either
+own access, OR THE CANDIDATE CANNOT, for a transient failure of a read of this
+repository, for the pull request's head or for the pin, the check SHALL report
+the state as UNDETERMINED and name what it could not read; it SHALL NOT resolve to either
 state, and it SHALL NOT read its own silence as confirmation of the declared one.
 An unaskable question is never an implicit pass. A SURFACE IS READ ONLY AS A
 COMMIT: each surface's value SHALL be forty lowercase hexadecimal characters, the
@@ -75,9 +76,12 @@ count as UNREADABLE, named by a CLASSIFICATION of what its fixed location held �
 absent, empty, or not a commit — and NEVER by that value or the file around it,
 in the verdict or in the run log: the aggregation is private while both of those
 are public, and a value that is not a commit is exactly the one nobody has vetted
-for publication. AND NO SURFACE'S VALUE IS PUBLISHED AS IT IS, a commit's grammar
-included, because the grammar proves forty hexadecimal characters and not a
-commit: a surface that has it is named by its relation to `core_commit`, equal or not, and a digest of its value; only the
+for publication. THROUGHOUT THIS REQUIREMENT A VALUE IS A COMMIT WHEN IT HAS THAT
+GRAMMAR, and the check SHALL NOT ask whether a commit of that name exists: what it
+compares is values, and asking would take a read of `codeXfactory/codexFactory`,
+a repository the check's one mint does not reach. AND NO SURFACE'S VALUE IS
+PUBLISHED AS IT IS, a commit included, because the grammar proves a shape and not
+what the value is: a surface that has it is named by its relation to `core_commit`, equal or not, and a digest of its value; only the
 commit the check resolves the aggregation's branch to, which the API returns as a
 commit, is named as it is. A reviewer with access to the aggregation reproduces
 every value with the same call. So surfaces that AGREE on
@@ -124,11 +128,20 @@ merge key or tag, so that the check and a reviewer reading the same bytes cannot
 see different values; a pin the strict parse refuses cannot be parsed, and counts
 as ABSENT. Where the check runs over a proposed advance, it SHALL take
 `core_commit` from the CANDIDATE state of the pin at the head that advance
-proposes — read as INERT BYTES at a verified head commit, never by executing
-anything from that head — and SHALL re-verify that commit after the read so a
-ref moved underneath it is refused rather than reported. A check that read the
-pin from the base it runs on would compare the commit ALREADY in place against
-the aggregation, pass, and never see the advance it exists to judge.
+proposes — read as INERT BYTES at a VERIFIED head commit, never by executing
+anything from that head. THE RUN JUDGES ONE COMMIT, the head the event named,
+and that commit is VERIFIED where this repository's own API names it as the pull
+request's head: the check SHALL read that head before it reads the pin, and
+again after every other read, immediately before it publishes. A pin absent at
+the verified commit declares nothing, and counts as ABSENT. WHERE A READ FINDS
+ANOTHER HEAD, the run SHALL publish NO verdict and read nothing further, whatever
+its other reads found — the ONE run that publishes none, and not one of the
+outcomes below — because the push that moved the head starts a run of its own
+for the commit the pull request now has, wherever that commit still changes the
+pin, and a verdict on a commit the pull request no longer has judges nothing the
+pull request proposes. A check that read the pin from the base it runs on would
+compare the commit ALREADY in place against the aggregation, pass, and never see
+the advance it exists to judge.
 
 WHAT IS READ IN THE AGGREGATION IS DECIDED BY THE CHECK'S OWN CODE, NEVER BY THE
 PIN FILE. The candidate's bytes are data to be JUDGED and never an instruction
@@ -148,14 +161,18 @@ told what to read, by the pull request it judges or by one merged before it,
 could turn the credential for a private repository on any file in it, and have
 that file's contents named back as the value a surface carried.
 
-THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the DECLARATION
-OUTSIDE ITS VOCABULARY first — a declared state absent or not one of its two
-words, an unparseable candidate among the absent, a candidate `core_commit` that
-is not a commit, or a `converged_with:` naming other than the read plan's
-workflow members: this
-repository's own file, readable without touching anything else, and a defect that
-makes every later question moot; then the check's own ACCESS FAILING; then
-the aggregation UNREADABLE, a surface whose value is not a commit included; then
+THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the CANDIDATE
+UNREAD first — a read of this repository, for the pull request's head or for the
+pin, failing for any reason but the pin's absence, which is the check's own
+ACCESS failing or UNDETERMINED by the classes below — because nothing can be
+judged that the check does not hold, the candidate's bytes at the commit that is
+the pull request's head; then the DECLARATION OUTSIDE ITS VOCABULARY — a declared
+state absent or not one of its two words, the pin absent at the verified commit
+and an unparseable candidate among the absent, a candidate `core_commit` that is
+not a commit, or a `converged_with:` naming other than the read plan's workflow
+members: this repository's own file, readable without touching anything else, and
+a defect that makes every later question moot; then the check's own ACCESS to the
+aggregation FAILING; then the aggregation UNREADABLE, a surface whose value is not a commit included; then
 its surfaces DISAGREEING with each other; then the comparison of the agreed commit
 against `core_commit` and the declared state against that comparison. A later
 outcome is reached only where every earlier one does not hold, so no input can
@@ -165,10 +182,18 @@ the scenarios require and the honest engineering order: a check does not go
 asking another repository a question in order to report a defect in its own file.
 
 UNDETERMINED SHALL NOT BE A STANDING STATE, AND THE CHECK'S OWN ACCESS IS NEVER
-UNDETERMINED. An ACCESS failure — its binding unresolved, its mint refused, or the aggregation repository itself refused to the token it minted (a 401, or a 403 or 404 that is not a rate-limit response) — is the check's own defect on
-the run where it happens, and SHALL conclude FAIL, naming it; only a failure
-outside that access — a surface missing at the resolved commit, a server error,
-a timeout or a rate limit — is UNDETERMINED. A check that answered UNDETERMINED
+UNDETERMINED. EVERY FAILURE TO READ, OF EITHER REPOSITORY, FALLS INTO EXACTLY ONE
+CLASS, the binding and the mint the aggregation's reads need among them. A
+TRANSIENT failure — a server error, a rate limit, or no response at all, a
+timeout or a transport failure — is UNDETERMINED. A 404 for a branch, a commit or
+a file is ABSENCE: the pin's, at the verified commit, is the declaration ABSENT,
+and anything the plan names absent from the aggregation leaves it UNREADABLE.
+EVERY OTHER FAILURE is the check's own ACCESS failing — its binding unresolved,
+its mint refused, or a repository refusing its request, a 401, a 403 that is not
+a rate-limit response and a 404 for the repository or the pull request itself
+among them — which is the check's own defect on the run where it happens, and
+SHALL conclude FAIL, naming it: a response nobody anticipated is the one likeliest
+to recur on every run. A check that answered UNDETERMINED
 for its own access would answer it on every run, indistinguishable from one that
 is working, which is the failure this requirement exists to end rather than to
 reproduce.
@@ -179,14 +204,14 @@ measurement CONTRADICTS SHALL fail the check and name `core_commit`, the declare
 state and the digest of the commit the surfaces agree on: that is this
 repository's own contract file stating something false about another repository,
 and the remedy is one edit to the field. An ACCESS failure SHALL fail it too,
-naming the failure, because that is this repository's own configuration and the
-remedy is to repair it, not to wait. UNDETERMINED and INCONSISTENT SHALL
+naming the failure, because that is this repository's own configuration or code
+and the remedy is to repair it, not to wait. UNDETERMINED and INCONSISTENT SHALL
 each conclude NEUTRAL — visible, naming the state and what was read, and NOT
 failing — because neither is this repository's claim to answer: an unreachable
-aggregation is another repository's availability and an aggregation whose own
-surfaces disagree is another repository's defect, and turning either into this
-repository's red build would make the check a liability its owners would route
-around. A NEUTRAL conclusion SHALL NOT be reported as a pass, and silence SHALL
+aggregation is another repository's availability, a candidate the host did not
+serve is the host's, and an aggregation whose own surfaces disagree is another
+repository's defect, and turning any of them into this repository's red build
+would make the check a liability its owners would route around. A NEUTRAL conclusion SHALL NOT be reported as a pass, and silence SHALL
 NOT stand in for it. SO EVERY OUTCOME HAS ITS CONCLUSION: the declaration outside
 its vocabulary, the check's own access failing and a contradicted declaration
 each FAIL; INCONSISTENT and UNDETERMINED each conclude NEUTRAL; and a declaration
@@ -206,8 +231,8 @@ compared only to itself is a tautology.
 - **AND** the report does not depend on the advancing lane having remembered to write the field, because the check reads the other repository rather than the lane's intent
 
 #### Scenario: The declaration is absent or outside its vocabulary
-- **WHEN** the pin's declared lockstep state is absent, or carries a value that is neither of the two words the field admits, or the candidate's `core_commit` is not forty lowercase hexadecimal characters, or its `converged_with:` names a set other than the workflow members of the check's own read plan, or the candidate cannot be parsed at all
-- **THEN** the check FAILS and names the value, set or parse error it found, inert and length-bounded, and for `converged_with:` the plan's workflow members beside it, in the same class as a declaration the measurement contradicts
+- **WHEN** the pin's declared lockstep state is absent, or carries a value that is neither of the two words the field admits, or the candidate's `core_commit` is not forty lowercase hexadecimal characters, or its `converged_with:` names a set other than the workflow members of the check's own read plan, or the candidate cannot be parsed at all, or the pin itself is absent at the verified head commit
+- **THEN** the check FAILS and names the value, set or parse error it found, inert and length-bounded, or the pin's absence, and for `converged_with:` the plan's workflow members beside it, in the same class as a declaration the measurement contradicts
 - **AND** it reads nothing in the aggregation and does not fall through to a comparison, because there is nothing to compare
 
 #### Scenario: The advance lands on the commit the aggregation already pins
@@ -221,17 +246,23 @@ compared only to itself is a tautology.
 - **AND** the disagreement is the aggregation's own at that commit, not an artefact of reading its surfaces one at a time while a re-point landed between the reads
 
 #### Scenario: The check's own access fails
-- **WHEN** the check's access to the aggregation fails — its binding unresolved, its mint refused, or the aggregation repository itself refused to the token it minted (a 401, or a 403 or 404 that is not a rate-limit response)
+- **WHEN** the check's own access fails — its binding unresolved, its mint refused, or either repository refusing its request (a 401, a 403 that is not a rate-limit response, a 404 for the repository or the pull request itself, or any other failure that is neither transient nor an absence)
 - **THEN** the check FAILS and names the access failure, rather than reporting UNDETERMINED
-- **AND** it reads no surface and concludes neither `converged` nor `diverged`, because the defect is this repository's own configuration, and an UNDETERMINED for it would stand on every run
+- **AND** it concludes neither `converged` nor `diverged`, whatever it had read before the failure, because the defect is this repository's own, its configuration or its code, and an UNDETERMINED for it would stand on every run
 
 #### Scenario: The aggregation's surfaces cannot be read
-- **WHEN** the check cannot obtain the aggregation's judging surfaces for a reason outside its own access — a surface missing at the resolved commit, a server error, a timeout or a rate limit — or a surface it obtains carries a value that is not forty lowercase hexadecimal characters
+- **WHEN** the check cannot obtain the aggregation's judging surfaces for a reason outside its own access — its default branch or a surface absent, a server error, a rate limit, a timeout or a transport failure — or a surface it obtains carries a value that is not forty lowercase hexadecimal characters
 - **THEN** it reports the lockstep state as UNDETERMINED and names each surface it could not read, with the classification of what it carried — absent, empty or not a commit — and never that value itself
 - **AND** it concludes neither `converged` nor `diverged`, and does not report the declared value as confirmed
 - **AND** the check's own conclusion is NEUTRAL and visible rather than failing, because another repository's availability is not this repository's build, and rather than passing, because silence is not a measurement
 
+#### Scenario: The candidate cannot be read, or its head moves under the read
+- **WHEN** a read the check makes of this repository — the pull request's head, before the pin is read or immediately before publication, or the pin at the verified commit — fails transiently, with a server error, a rate limit, a timeout or a transport failure, or a read of the pull request's head names a commit other than the one the event named
+- **THEN** a read that failed concludes NEUTRAL as UNDETERMINED, naming the read of this repository that failed, and neither `converged` nor `diverged`, whatever else was read
+- **AND** where it failed before the pin was in hand, the check mints no token and reads nothing in the aggregation, because nothing is judged that the check does not hold
+- **AND** a head found moved publishes NO verdict, whatever the other reads found, because the push that moved it starts the run that judges the commit the pull request now has
+
 #### Scenario: The verdict is reproduced without firing the lane
-- **WHEN** a reviewer is given the function's whole input — the candidate's declaration as parsed (its declared state, `core_commit` and `converged_with:`, or its parse refusal), the read plan's workflow members, and the read result (the access outcome, the resolved aggregation commit, and each surface's value or the failure that kept it unread)
+- **WHEN** a reviewer is given the function's whole input — the candidate's read result (its declaration as parsed — its declared state, `core_commit` and `converged_with:` — or its parse refusal, the pin's absence, or the class of a read of this repository that failed), the read plan's workflow members, and the aggregation's read result (the access outcome, the resolved aggregation commit, and each surface's value or the failure that kept it unread)
 - **THEN** the same verdict follows from those values alone, because the comparison is a function over them and reaches no network
 - **AND** each refusal and each report is exercised by a unit test with a fixture rather than by dispatching the workflow

@@ -185,18 +185,19 @@ missing half of D2.**
 
 | outcome | conclusion | why |
 | --- | --- | --- |
-| declaration ABSENT or outside its vocabulary — a foreign declared state, a `core_commit` that is not a commit, an unparseable candidate, or a `converged_with:` other than the read plan's workflow members (D16, D17, D19) | **FAIL**, naming the value found | added at round 6; see D14a. Checked FIRST, before the aggregation is read |
+| declaration ABSENT or outside its vocabulary — a foreign declared state, a `core_commit` that is not a commit, an unparseable candidate, the pin absent at the verified commit, or a `converged_with:` other than the read plan's workflow members (D16, D17, D19, D21) | **FAIL**, naming the value found or the pin's absence | added at round 6; see D14a. Checked before the aggregation is read, once the candidate is in hand (D21) |
 | declared state CONTRADICTED by the measurement | **FAIL**, naming `core_commit` and the agreed commit's digest | this repository's own contract file states something false about another repository; the remedy is one edit to the field |
-| the check's own ACCESS fails — binding, mint, or the aggregation refusing its token | **FAIL**, naming the failure | this repository's own configuration; the per-run form of the standing-state rule (review `5286349291`'s *previously missed* item) |
+| the check's own ACCESS fails — binding, mint, either repository refusing its request, or any failure to read that is neither transient nor an absence (D21) | **FAIL**, naming the failure | this repository's own configuration or code; the per-run form of the standing-state rule (review `5286349291`'s *previously missed* item) |
 | surfaces disagree with each other (INCONSISTENT) | **NEUTRAL**, visible | another repository's defect, and not this repository's claim to answer |
-| aggregation unreadable (UNDETERMINED) | **NEUTRAL**, visible | another repository's availability, and D4's whole point |
+| aggregation unreadable, or a read of the candidate failing transiently (UNDETERMINED; D21) | **NEUTRAL**, visible | another repository's availability, or the host's, and D4's whole point |
 | declared state agrees | pass | |
 
 **A NEUTRAL conclusion is not a pass and silence does not stand in for it.**
 (The table gained its fifth row and its second FAIL at round 6, when D14a
 closed the absent-or-foreign declared state, and its sixth row and third FAIL
 when review `5286349291` found that the standing-state rule had no conclusion;
-the heading is counted here rather than left to drift again.) A
+the heading is counted here rather than left to drift again. D21 widened three
+rows and added none.) A
 state a check computes and does not publish is a state nobody acts on, which is
 the same defect as a declaration nobody measures — this packet would be an odd
 place to reintroduce it.
@@ -210,12 +211,16 @@ about it** — a field asserting `converged` while the measurement says otherwis
 The advance stays lawful; only the sentence claiming something untrue is refused,
 and fixing it is one edit rather than an act in another repository.
 
-**And the asymmetry is deliberate.** The two outcomes that fail are the only two
-whose subject is THIS repository's own file — a declared state outside its
-vocabulary, and one the measurement contradicts. The two neutral ones are facts
-about the aggregation; turning either into a red build here would make the check a
-liability its owners would route around, which is how a governance check stops
-being run.
+**And the asymmetry is deliberate.** The three outcomes that fail are the three
+whose subject is THIS repository's own — its file, in a declared state outside
+its vocabulary and in one the measurement contradicts, and its configuration or
+code, in the check's own access failing. (This paragraph said *two* until review
+`5293871865`, one outcome behind the table above it.) The two neutral ones are
+not this repository's claims: an aggregation whose surfaces disagree, and a
+reading that could not be taken — a surface absent or not a commit, or a read
+that the aggregation or the host did not answer; turning either into a red build
+here would make the check a liability its owners would route around, which is how
+a governance check stops being run.
 
 ## D9 — the outcomes are ORDERED, because two of them overlapped
 
@@ -233,9 +238,11 @@ is not a commit cannot satisfy a comparison scenario's own WHEN (D16). Exactly o
 outcome holds for any input, and no implementation has to arbitrate. **THE ORDER
 AS IT NOW STANDS**, after D14b moved the vocabulary check to the front, D16
 folded a non-commit surface into UNREADABLE and a non-commit `core_commit` into
-the first, D19 folded a foreign `converged_with:` into the first too, and the
-standing-state rule gained its own outcome: the declaration OUTSIDE ITS
-VOCABULARY; then the check's own ACCESS FAILING; then the aggregation UNREADABLE; then its surfaces DISAGREEING; then
+the first, D19 folded a foreign `converged_with:` into the first too, the
+standing-state rule gained its own outcome, and D21 put the candidate's own read
+in front of them all: the CANDIDATE UNREAD; then the declaration OUTSIDE ITS
+VOCABULARY; then the check's own ACCESS to the aggregation FAILING; then the
+aggregation UNREADABLE; then its surfaces DISAGREEING; then
 the comparison of the agreed commit against `core_commit`, and the declared state
 against that comparison. This paragraph first recorded the order this section
 fixed — UNREADABLE, DISAGREEING, comparison, declared state — and it stood after
@@ -329,7 +336,7 @@ the requirement asks for would never be created. So validation, the access
 check, the reads and the comparison each RETURN an outcome, and one publisher
 runs last and always. The job's own exit code then reports only whether that
 publisher did what its input required: publish the verdict, or, for a head that
-moved (D14c), publish nothing. Publication failing is the one thing that turns
+moved (D14c, D21), publish nothing. Publication failing is the one thing that turns
 the job red, so a missing verdict is itself visible.
 
 **`r4076902144` and `r4077054569` — and the published run is the gate's ONLY
@@ -344,8 +351,9 @@ request's HEAD. Measured on this packet's own pull request: run `35788224200`
 leaves a GREEN check on the very commit it judged.** Two rules close it. The
 verdict check-run carries a declared name, `review-lane-lockstep-verdict` (D18),
 that matches NO job id in any workflow here, and that name, never a job id, is the
-gate's identity wherever a check is required or read. And the run is created with `head_sha` set to the VERIFIED candidate
-`head.sha` of D14c, never `github.sha` — which in a `pull_request_target` run is
+gate's identity wherever a check is required or read. And the run is created with `head_sha` set to the candidate
+`head.sha` the event named, the ONE commit the run judges and verifies (D14c,
+D21), never `github.sha` — which in a `pull_request_target` run is
 the BASE branch's last commit, and would hang the verdict on a commit the advance
 does not propose.
 
@@ -487,7 +495,8 @@ was swept the way that one ended up being swept: case-insensitively, across
 inventory now also NAMES the six rather than only counting them, which is the
 durable half of the fix. (Seven since review `5286349291` added the check's own
 access failing. The four inventories moved again, and the `target_release`
-clause was again the one left behind, until Copilot `r4078648354`.)
+clause was again the one left behind, until Copilot `r4078648354`. Eight since
+review `5293871865` added the candidate unread or its head moved, D21.)
 
 **The fifth finding was real and structural.** `r4076557241`: the ordering in D9
 put the comparison before the declared state, while D14a's scenario requires an
@@ -505,8 +514,9 @@ fix that closed D14a's gap.
 
 (That was the spec's text at this round. D16 and D19 later widened the first
 outcome to the whole DECLARATION, so a `core_commit` that is not a commit and a
-`converged_with:` other than the read plan's workflow members are in it too; D9
-carries the order as it now stands.)
+`converged_with:` other than the read plan's workflow members are in it too; D21
+put the candidate's own read in front of it; D9 carries the order as it now
+stands.)
 
 That is both the ordering the scenarios require and the honest engineering order:
 **a check does not go asking another repository a question in order to report a
@@ -530,7 +540,8 @@ came with it. The remedy keeps the safety and pays the cost explicitly — the g
 **fetches the candidate pin as INERT BYTES at the verified `head.sha`** (a file
 read over the API, not a checkout and not an execution), **parses it with base
 code**, and **re-reads `head.sha` after the fetch** so a force-push between the
-two is refused rather than reported.
+two is refused rather than reported — a refusal that publishes NO verdict, which
+the requirement itself now says (D21).
 
 **And the parse is STRICT** (Copilot `r4078835237`). The bytes are the fork's to
 choose, so "parses it with base code" is not a parser. The gate applies a byte
@@ -637,7 +648,7 @@ this gate from publishing a false `success` first: a `core_commit` that is not a
 commit, declared `diverged`, differs from any commit the surfaces agree on, so an
 inequality reports agreement. The verdict is the gate's own claim, so the gate
 validates its own input: a candidate `core_commit` outside the grammar FAILS in
-the first outcome, with nothing read in the aggregation. The two rules are not
+the declaration outcome, with nothing read in the aggregation. The two rules are not
 one rule stated twice: the suite's refuses a pin that cannot land, and this one
 refuses a verdict that would be false.
 
@@ -711,7 +722,7 @@ than 3,000 files, and it is registered at `tasks.md` § 6.6.
 
 **And every admitted pull request is judged, its declaration FIRST** (Copilot
 `r4078425707`, `r4078883755`). The candidate's declaration is validated before
-anything else: a declared state outside its two words, a `core_commit` that is
+anything else, once the candidate is in hand (D21): a declared state outside its two words, a `core_commit` that is
 not a commit (D16), a `converged_with:` other than the read plan's workflow
 members (D19), or a candidate that cannot be parsed at all (Copilot
 `r4078425733`) FAILS before anything is minted or read. Every valid candidate is
@@ -831,9 +842,75 @@ latest verdict under the declared name. The gate takes the answer
 is stale by definition"*. It also re-reads `head.sha` once more immediately before
 publishing. Neither is atomic with the check-run creation (Copilot
 `r4078883704`), so the guarantee is the one that holds without atomicity: the
-verdict is attached to the one commit it verified and binds nothing else, and
+verdict is attached to the one commit the run judges and binds nothing else, and
 every consumer reads it only on the pull request's current head (`tasks.md`
 § 6.5).
+
+## D21 — the candidate's own reads fail in the classes the aggregation's do, and a run whose head moved publishes nothing
+
+Copilot `r4084891099` (review `5293871865`, at `d6787530`) found that the
+requirement fetched the candidate at the proposed head and never said what a
+failure of that fetch, or of the head's own lookup, concludes. **True, and it
+made the requirement's own claim false.** The outcomes were ordered, *"exactly
+one"* holding *"for any input"*, but the first of them, the declaration,
+presupposes the candidate's bytes in hand, and every read failure the requirement
+classified was a read of the AGGREGATION. A 404, a server error, a timeout or a
+rate limit on this repository's own API reached no outcome at all, so an
+implementation could abort before the always-run publisher or pick a conclusion of
+its own. The same review's summary line named three neighbouring themes, and each
+held when measured against the text:
+
+- **Outcome ordering.** The order began at the declaration. It now begins at the
+  CANDIDATE UNREAD, because nothing can be judged that the check does not hold.
+- **Candidate and surface read failures.** The classes were stated for the
+  aggregation alone, and even there they did not partition: a 422 fell under
+  neither the ACCESS list nor the UNDETERMINED list, and a 403 on a surface's
+  read, rather than on the repository's, fell under either, depending on how
+  *"the aggregation repository itself"* was read. The requirement now states ONE
+  partition for every failure to read, of either repository. A TRANSIENT failure
+  — a server error, a rate limit, a timeout or a transport failure — is
+  UNDETERMINED. A 404 for a branch, a commit or a file is ABSENCE: the pin's, at
+  the verified commit, is the declaration ABSENT, and anything the plan names
+  absent from the aggregation leaves it UNREADABLE. Every other failure is the
+  check's own ACCESS failing, which FAILS. The residual class is ACCESS and not
+  UNDETERMINED on purpose: a response nobody anticipated is the likeliest to recur
+  on every run, and UNDETERMINED on every run is the standing state the
+  requirement forbids.
+- **Commit validation semantics.** *"Verified"* was used and never defined, and
+  *"refused rather than reported"* had no conclusion. The run judges ONE commit,
+  the head the event named, and that commit is VERIFIED where this repository's
+  own API names it as the pull request's head, read before the pin and again
+  after every other read, immediately before publication. A read that finds
+  ANOTHER head publishes NO verdict. That is the one run that publishes none, and
+  it is now stated in the requirement rather than only in D11 and `tasks.md`
+  § 5.1d and § 5.1i, where it already stood: the push that moved the head starts
+  the run that judges the commit the pull request now has. And *"is a commit"* is
+  now defined once, as the grammar. The check never asks whether a commit of that
+  name exists, which D20 already said and the requirement did not.
+
+**The pin's absence concludes FAIL.** A pull request that deletes
+`contracts/review-lane-pin.yaml` matches the `paths:` filter, and the fetch at its
+head answers 404. That is this repository's own file saying nothing, the same
+class as a declared state that is absent, and the remedy (keep the pin, or retire
+the gate in the same change) is this repository's to take. UNDETERMINED would
+have let a deletion pass as another repository's availability.
+
+**A candidate the host did not serve concludes NEUTRAL, not FAIL.** The
+requirement's split is by whose claim is in question: this repository's file and
+its configuration or code FAIL, and what is no claim at all concludes NEUTRAL. A
+502 from the host is not a claim of this repository's, and turning it red would
+teach the check's owners to re-run it until it passes, which is how a gate stops
+being read. It is visible, it is not a pass, and the approver `tasks.md` § 6.5
+registers parks on it. **That holds at the last read too**: a head read that
+fails immediately before publication concludes UNDETERMINED even where everything
+else was read, because the run then cannot say that the commit it judged is still
+the pull request's head, and a re-run answers it.
+
+**Six outcomes, eight scenarios.** The candidate unread is not a seventh outcome:
+it is the ACCESS outcome or UNDETERMINED, reached first. A moved head is not an
+outcome at all. The scenario that states both is new, and makes eight; the five
+places that list the scenarios moved with it: `tasks.md` § 2.1 and § 5.3, the
+`code_surface` and `target_release` clauses, and the README row.
 
 ## D5 — what the check compares, and why it is values rather than authorship
 
