@@ -529,7 +529,7 @@ arrived with a new pack version.
 - **THEN** it is refused, because only the engine's fix loop writes, and a pack that writes has escaped every guardrail the loop carries
 
 #### Scenario: A pack is consumed without a pin
-- **WHEN** a pack is installed without being pinned by commit and digest
+- **WHEN** a pack is installed without its pin — a commit and a digest for a pack sourced from outside the corpus, or a digest for a pack the corpus itself carries, whose commit is the corpus commit that carries both it and the manifest naming it
 - **THEN** it is refused, because an unpinned pack silently changes what a corpus is judged against
 
 #### Scenario: A pack crashes or hangs

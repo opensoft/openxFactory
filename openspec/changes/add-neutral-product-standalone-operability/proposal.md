@@ -432,7 +432,8 @@ and **a pack cannot redefine the resolution classes, the baseline rules, or who
 may land work** — those are the guarantees §§ D9–D11 exist to give, and a pack that
 could vary them would make every one conditional on which plugins an install
 carries. Guardrails: a pack READS and RETURNS, only the engine writes; a pack is
-pinned by commit and digest; and a pack that crashes or times out becomes a
+pinned by commit and digest (for a pack the corpus itself carries, the commit is
+the corpus commit that carries it); and a pack that crashes or times out becomes a
 FINDING AGAINST THAT PACK rather than taking the run down.
 
 **This is what finally gives openxFactory's 23 families a home** that is neither

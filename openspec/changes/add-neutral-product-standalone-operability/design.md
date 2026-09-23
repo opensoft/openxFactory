@@ -640,7 +640,9 @@ revertible-commit rule in one step.
 Two more, each measured against a failure this estate has already had. **A pack is
 pinned by commit and digest** — the `neutral-product-pin` discipline, because an
 unpinned pack silently changes what a corpus is judged against, which is the same
-hazard as an unpinned validator. And **a pack that crashes or times out becomes a
+hazard as an unpinned validator. For a pack the corpus itself carries, the commit
+is the corpus commit that carries both the pack and its manifest entry, so the
+digest is the only field that entry needs (task 15.1a). And **a pack that crashes or times out becomes a
 finding against that pack** rather than taking the run down: the doc-health
 nightly's analysis child failed silently every night from 2026-08-30 (openxFactory
 `add-worker-input-budget`'s own origin note), and a health check whose failure

@@ -928,7 +928,7 @@ that does not name a platform.
 
   **And the three guardrails are asserted, now that 12.6 is RULED — by NAME**, so
   a missing test FAILS the command rather than being quietly absent from it. 12.6
-  owes these four tests, and pytest exits non-zero (`ERROR: not found`) for any
+  owes these five tests, and pytest exits non-zero (`ERROR: not found`) for any
   node that does not exist, so today the command fails:
 
       python -m pytest -q \
@@ -947,7 +947,7 @@ that does not name a platform.
   "none configurable" clause made testable. The fifth registers a governed host
   and expects NO `LandingPort` bound. Naming test nodes in an ACCEPTANCE command is not the defect Group 9
   removes from `validate.yml` — CI must run the whole suite, and this command runs
-  four named proofs in addition to it.
+  five named proofs in addition to it.
 
   Today none of this is reachable: the only implementation is `GhPullRequests`,
   which shells `["gh", "pr", ...]` (`:367`) against `_GITHUB_HOST = "github.com"`
@@ -1235,7 +1235,7 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
       python -m pytest -q \
         "tests/test_health_parity.py::test_the_health_view_is_served" \
         "tests/test_health_parity.py::test_every_view_action_has_a_cli_verb" \
-        "tests/test_health_parity.py::test_every_cli_verb_is_offered_by_the_view
+        "tests/test_health_parity.py::test_every_cli_verb_is_offered_by_the_view"
 
   Four things are proved in order, and the order is the point: the exception is
   written TO GIT (`git status --porcelain` must show the file, NEW or modified —
@@ -1294,7 +1294,8 @@ to #1144"*. `design.md` § D12.
   its CLI parity, scheduling, the baseline, storage (results in the store,
   exceptions in git), and the fix loop with its landing rule.
 - [ ] 15.5 **THE REFUSALS**, each as a test and not as prose: a pack that writes,
-  commits or merges; a pack consumed without a commit-and-digest pin; a pack that
+  commits or merges; a pack consumed without its pin (15.1a: commit and digest, or
+  digest alone for a pack the corpus carries); a pack that
   returns a class the engine does not declare, or declares its own baseline or
   landing rule.
 - [ ] 15.6 **A PACK THAT CRASHES OR TIMES OUT IS A FINDING AGAINST THAT PACK**,
