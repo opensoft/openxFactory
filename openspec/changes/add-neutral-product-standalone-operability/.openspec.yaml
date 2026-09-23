@@ -37,7 +37,7 @@ origin:
     once openDox-spec promotes its assigned 71.
     WHAT THE PACKET PROPOSES. ONE `## ADDED Requirements` block creating the
     capability `neutral-product-standalone-operability` - sixteen requirements,
-    sixty-seven scenarios, written domain-neutrally with openDox as the measured
+    sixty-eight scenarios, written domain-neutrally with openDox as the measured
     instance. REQUIREMENTS 1-10 ARE ONE PER GAP of the 2026-09-22 feature/gap
     sweep (G1-G10); REQUIREMENTS 11-16 ARE THE LATER RULINGS of 2026-09-22 - the
     neutral submission step, the standalone install's datastore and its local

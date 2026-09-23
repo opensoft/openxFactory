@@ -61,7 +61,7 @@ Baselines, measured on `openxFactory` `main` `4f92d651` before this packet:
   requirement table; the explicit "what openxFactory keeps" section; honest
   `code_surface:` / `target_release:` front-matter.
 - [x] 1.3 Author the `## ADDED Requirements` delta creating
-  `neutral-product-standalone-operability` — 16 requirements, 67 scenarios,
+  `neutral-product-standalone-operability` — 16 requirements, 68 scenarios,
   domain-neutral, openDox as the measured instance.
 - [x] 1.4 Author `design.md`: D1-D8 and **R-G3** — filed as Q-G3, the one question
   put to Brett with three options and a recommendation; RULED the same day and
@@ -286,7 +286,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
       R=$(mktemp -d)/plain-documents && cp -r tests/fixtures/plain-documents "$R"   # 5.0's fixture, as a FRESH repository
       git -C "$R" init -q && git -C "$R" add -A && git -C "$R" commit -qm fixture
-      python -m opendox.cli --repo-root "$R" generate --output /tmp/snap.json
+      python -m opendox.cli generate --repo-root "$R" --repository fixture --output /tmp/snap.json
       python -c "
       import json,sys
       d=json.load(open('/tmp/snap.json'))
@@ -297,9 +297,11 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 
   Under `set -euo pipefail` the sequence exits non-zero on any step; the
   assertions are IN the command rather than in prose, so the check is
-  machine-detectable. (`python -m opendox.cli` requires `cli.py` to expose a
-  `__main__` entry or the box uses `python -c "from opendox.cli import main; main([...])"` —
-  10.1 later packages the same callable as the console script.)
+  machine-detectable. `python -m opendox.cli` is an entry point that EXISTS:
+  `cli.py:30-58` runs under `__main__` and hands over to the package copy's
+  `main()`, so this command reaches `cmd_generate` exactly as the console script
+  10.1 later packages will. Every option follows the verb, as 10.1's table records
+  against the parser.
 
 ## Group 6 — Requirement 6 / G5: a health check over openDox's own documents (openDox-code)
 
@@ -426,8 +428,8 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       git -C "$OK" init -q && git -C "$OK" add -A && git -C "$OK" commit -qm fixture
       BAD=$(mktemp -d)/malformed && cp -r tests/fixtures/malformed "$BAD"
       git -C "$BAD" init -q && git -C "$BAD" add -A && git -C "$BAD" commit -qm fixture
-      python -m opendox.cli --repo-root "$OK" --strict generate --output /tmp/ok.json
-      if python -m opendox.cli --repo-root "$BAD" --strict generate --output /tmp/bad.json 2>/tmp/err; then
+      python -m opendox.cli generate --repo-root "$OK" --repository fixture --strict --output /tmp/ok.json
+      if python -m opendox.cli generate --repo-root "$BAD" --repository fixture --strict --output /tmp/bad.json 2>/tmp/err; then
         echo "FAIL: a malformed corpus validated"; exit 1
       fi
       ! grep -q "No such file or directory" /tmp/err  # the refusal must name a RULE, not a missing path
@@ -543,10 +545,22 @@ packet's interim arrangement ends.**
 
   | verb | shape, as `cli.py` declares it today |
   |---|---|
-  | `generate` | `--repo-root <corpus> generate --output <path>` (`:880-881`) |
-  | `generate-and-open` | `--repo-root <corpus> generate-and-open [--run-dir P] [--host H] [--port N] [--no-open] [--no-serve]` (`:885-`) |
-  | `create`, `edit` | scaffold a header-compliant doc; select-to-edit (`:911`, `:927`) |
-  | shared | `--repo-root`, `--strict`, `--no-validate`, `--project`, `--possibles` (`:840-849`) |
+  | `generate` | `generate --repo-root <corpus> --repository <id> --output <path>` (`:880-883`) |
+  | `generate-and-open` | `generate-and-open --repo-root <corpus> --repository <id> [--run-dir P] [--host H] [--port N] [--no-open] [--no-serve]` (`:885-909`) |
+  | `create`, `edit` | `create --repo-root <repo> --title … --summary … --topics … --repository-context …`; `edit --repo-root <repo> <path>` (`:911`, `:927`) |
+  | every generation verb | `--repo-root` AND `--repository` are REQUIRED; `--strict`, `--no-validate`, `--source-revision`, `--generated-at`, `--project-register`, `--possibles` are accepted — declared ONCE, in `_add_generate_args` (`:822-849`) |
+
+  **Every option FOLLOWS its verb.** The parser (`build_parser`, `:852`) declares
+  NO top-level option at all — `--repo-root`, `--repository` and `--strict` are
+  SUBCOMMAND arguments — so `opendox --repo-root X generate …` is refused by
+  argparse before any code of this product runs. An earlier draft of this table
+  put them before the verb and every acceptance command below inherited that; the
+  table and the commands were corrected together, against the parser itself.
+  `--repository` is the snapshot's canonical repository id, and the commands pass
+  `fixture`. `python -m opendox.cli` is a real entry point today:
+  `cli.py:30-58` runs under `__main__` and HANDS OVER to the package copy's
+  `main()` before the rest of the file executes, so the commands of Groups 5 and 7
+  need no console script and no hedge.
 
   **There is no `serve` verb and no `validate` verb**, and this packet does not
   add either: serving is `generate-and-open`, and validation is a POST-RENDER
@@ -586,7 +600,10 @@ packet's interim arrangement ends.**
       python -m venv .venv && . .venv/bin/activate && pip install .
       if python -c "import openxdox" 2>/dev/null; then echo "FAIL: sibling present"; exit 1; fi
       opendox --help >/dev/null                       # the console script MUST exist
-      opendox --repo-root tests/fixtures/plain-documents generate-and-open --no-open --port 8080 &
+      export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
+      R=$(mktemp -d)/plain-documents && cp -r tests/fixtures/plain-documents "$R"   # a FRESH repository (preamble)
+      git -C "$R" init -q && git -C "$R" add -A && git -C "$R" commit -qm fixture
+      opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8080 &
       SERVER=$!
       trap 'kill "$SERVER" 2>/dev/null || true' EXIT   # cleanup cannot mask the verdict
       ready=0
@@ -694,8 +711,8 @@ that does not name a platform.
   message names what is missing** — named here so the falsification can catch that
   type and nothing else, which is what separates "refused for the right reason"
   from "raised something".
-- [ ] 12.4 Stop the DEFAULT BINDING naming a platform. `cli.py:812` and
-  `serve.py:933` construct `GhPullRequests` by name and `serve.py:1507` records
+- [ ] 12.4 Stop the DEFAULT BINDING naming a platform. `cli.py:812-814` and
+  `serve.py:933-934` import and construct `GhPullRequests` by name and `serve.py:1507` records
   that an unset injection *"builds the real `GhPullRequests`"*. The unset default
   becomes the neutral implementation; `GhPullRequests` becomes ONE contributed
   implementation. **NAME THE SUBMISSION REGISTRATION POINT, and keep it SEPARATE
@@ -706,6 +723,24 @@ that does not name a platform.
   generator seam that task 5.4 declares is a DIFFERENT interface that does not
   exist yet; the two are contributed through the same PATTERN, not through the
   same registration point, and conflating them would make neither implementable.
+- [ ] 12.4a **GIVE openDox ITS OWN SUBMIT ACT — today it has none, whatever port
+  is bound.** Measured at openDox-code `3c3a9e31` and openXdox-code `ab04453d`:
+  the ACT of submitting is openXdox's. The CLI verb is `gate open-pr`
+  (`src/openxdox/cli_gate.py:634`, `cmd_gate_open_pr`), the engine is
+  `execute_open_pr` (`src/openxdox/gate_routes.py:2417`), and the route is
+  `POST /actions/gate/open-pr` — all in the governance column. openDox owns the
+  port (`session_pr.py`), branch sessions, and both default bindings, and NEITHER
+  binding has a caller in openDox: `cli.py:800`'s `_pull_request_port` is reached
+  only from openXdox's `cmd_gate_open_pr` (`cli_gate.py:674`), and
+  `serve.py:911`'s `_session_pull_requests` only from the gate route. **So a
+  standalone openDox cannot submit at all, `gh` or no `gh`**, and repointing a
+  default (12.4) that nothing in the product calls would change nothing a
+  student can reach. This box adds the neutral verb and route in openDox's OWN
+  surface, not under `gate`: CLI `submit --repo-root <repo> --branch
+  <session-branch>` and route `POST /actions/session/submit`. Their engine
+  obtains its port through the two default bindings 12.4 repoints, and returns and
+  prints the 12.1a `Submission`. openXdox's `gate open-pr` is UNTOUCHED by this
+  box; 12.5 proves it.
 - [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
   registered, openxFactory's GitHub pull-request flow behaves exactly as today.
   This is a generalization, not a replacement, and 12.5 is the box that proves it.
@@ -725,6 +760,28 @@ that does not name a platform.
   above answers them. The GOVERNED host's implementation still declares no merge
   and openxFactory's flow is still unchanged (12.5) — that half was never in
   question.
+- [ ] 12.6a **DECLARE THE LANDING SEAM. The guardrail tests need something to
+  exercise, and today nothing in openDox lands.** The submission port KEEPS its
+  three operations. FR-030's *"the absence of every other one"*
+  (`session_pr.py:99-101`) stays true of `PullRequestPort`, and a governed host's
+  implementation still declares no merge. Landing is a SEPARATE protocol,
+  `session_pr.LandingPort`, with ONE operation, `land(branch, *, confirmation) ->
+  Landed`. A GOVERNANCE QUERY decides whether it is bound at all:
+  `session_pr.repository_governance(checkout_root)` answers `standalone` (the
+  owner is the governance) or `governed` (a governance exists outside the tool,
+  as the registered host profile declares). Under `governed` no `LandingPort` is
+  bound, and a land request is routed to the host's own instrument. Under
+  `standalone` the neutral lander is bound through `landing_factory`, declared
+  beside `pull_request_factory` (`serve.py:766`): the same pattern with its own
+  registration point, like every seam in this packet. **The three guardrails are
+  the operation's CONTRACT, not its options.** `confirmation` can be built only
+  from an interactive human act (a TTY prompt where the human types the branch
+  name back, or the view's confirm control), never from configuration, a flag,
+  or a non-interactive stdin. A conflict raises `MergeConflict` carrying the
+  conflicting paths and leaves the default branch where it was. A landing is a
+  `--no-ff` MERGE COMMIT whose sha `Landed` returns, so `git revert -m 1 <sha>`
+  undoes it. The CLI verb is `land --repo-root <repo> --branch
+  <session-branch>`, interactive by construction.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, **INSTALLED** —
   `python -m venv /tmp/v12 && . /tmp/v12/bin/activate && pip install .` — and
   `gh` NOT installed: `command -v gh` must be empty, which is the student's
@@ -736,41 +793,39 @@ that does not name a platform.
       git init -q /tmp/plain && git -C /tmp/plain commit -q --allow-empty -m seed
       git -C /tmp/plain branch sess-1                       # the SESSION BRANCH must exist to be pushed
       git init -q --bare /tmp/remote && git -C /tmp/plain remote add origin /tmp/remote
-      # the NEUTRAL DEFAULT 12.2 names, constructed as GhPullRequests is (serve.py:933):
-      python - <<'PY'
+      # submit through the PRODUCT'S OWN VERB (12.4a), so the REAL default binding runs:
+      opendox submit --repo-root /tmp/plain --branch sess-1 > /tmp/submit.out
+      git -C /tmp/remote rev-parse --verify sess-1          # the branch ARRIVED
+      grep -q "/tmp/remote" /tmp/submit.out                 # and the verb REPORTED where it went (12.1a)
+      # ...and the binding that verb used is the NEUTRAL one, returning a Submission:
+      python3 - <<'PY'
       from pathlib import Path
-      from opendox import session_pr
-      port = session_pr.LocalGitSubmissions(Path("/tmp/plain"))
-      assert isinstance(port, session_pr.PullRequestPort), "the neutral default is not a PullRequestPort"
-      r = port.push("sess-1")                               # 12.1a: returns a Submission, never None
-      assert r is not None and r.ref.endswith("sess-1"), f"push reported no destination: {r!r}"
-      assert "/tmp/remote" in r.url, f"the report does not name WHERE the work went: {r!r}"
+      from opendox import cli, session_pr
+      port = cli._pull_request_port(Path("/tmp/plain"))     # the CLI's default, no injection
+      assert isinstance(port, session_pr.LocalGitSubmissions), f"the default still names a platform: {type(port)}"
+      assert isinstance(port, session_pr.PullRequestPort)
+      r = port.push("sess-1")                               # idempotent: already there
+      assert r is not None and r.ref.endswith("sess-1") and "/tmp/remote" in r.url, r
       PY
-      git -C /tmp/remote rev-parse --verify sess-1          # and the branch ARRIVED
-
-  and then the NO-REMOTE case, which is scenario 3 and is executed, not described:
-
+      # the SERVER's unset default binds the same class — a named test, so its absence fails:
+      python -m pytest -q "tests/test_submission_default.py::test_server_unset_factory_binds_the_neutral_default"
+      # and the NO-REMOTE case, through the same verb (scenario 3):
       git -C /tmp/plain remote remove origin
-      python - <<'PY'
-      from pathlib import Path
-      from opendox import session_pr
-      port = session_pr.LocalGitSubmissions(Path("/tmp/plain"))
-      try:
-          r = port.push("sess-1")
-      except session_pr.NoSubmissionTarget as e:          # 12.3 names this refusal
-          assert "remote" in str(e).lower(), f"the refusal does not name what is missing: {e}"
-      else:
-          raise AssertionError(f"a repository with no remote reported a submission: {r!r}")
-      PY
+      rc=0; opendox submit --repo-root /tmp/plain --branch sess-1 > /tmp/none.out 2>&1 || rc=$?
+      test "$rc" -ne 0                                      # refused, never a reported success
+      grep -qi "remote" /tmp/none.out                       # naming what is missing
+      ! grep -q "Traceback" /tmp/none.out                   # plainly, not an opaque error
 
-  Two things are asserted on the remote path, not one: the branch arrived
-  (`rev-parse --verify` exits non-zero if it did not, and `set -e` fails the
-  sequence) **and the call REPORTED where it went**, which is requirement 11's
-  second scenario and which a `None`-returning `push` could not have satisfied
-  however well the push worked. And the no-remote path fails the sequence in BOTH
-  wrong directions — a silent success reaches the `else` and raises; an opaque
-  error is not `NoSubmissionTarget` and propagates — which is exactly the pair
-  scenario 3 forbids.
+  **The acceptance runs the product's own verb, not a class it constructs by
+  hand**, so it exercises the default binding a student's install really uses.
+  The CLI binding is also asserted to BE the neutral class. The server binding
+  has a named test, because a hand-built class passing proves nothing about what
+  the product binds when nothing is injected. On the remote path two things are
+  asserted: the branch arrived, and the verb REPORTED where it went. That second
+  assertion is requirement 11's second scenario, and a `None`-returning `push`
+  could not satisfy it however well the push worked. The no-remote path fails in
+  BOTH wrong directions scenario 3 forbids. A silent success exits 0 and fails
+  `test`. An opaque error leaves a traceback and fails the last line.
 
   **And the three guardrails are asserted, now that 12.6 is RULED — by NAME**, so
   a missing test FAILS the command rather than being quietly absent from it. 12.6
@@ -781,11 +836,17 @@ that does not name a platform.
         "tests/test_landing_guardrails.py::test_land_requires_an_explicit_human_act" \
         "tests/test_landing_guardrails.py::test_land_shows_a_conflict_and_does_not_resolve_it" \
         "tests/test_landing_guardrails.py::test_a_landed_merge_is_a_commit_that_git_revert_undoes" \
-        "tests/test_landing_guardrails.py::test_no_configuration_enables_automatic_landing"
+        "tests/test_landing_guardrails.py::test_no_configuration_enables_automatic_landing" \
+        "tests/test_landing_guardrails.py::test_a_governed_repository_binds_no_lander"
 
-  The fourth is the "none configurable" clause made testable: it walks the
-  product's configuration surface and fails if any key can switch a guardrail
-  off. Naming test nodes in an ACCEPTANCE command is not the defect Group 9
+  Each node exercises 12.6a's seam. The first builds a `confirmation` every way
+  that is not a human act (a flag, a config key, a non-TTY stdin) and expects
+  every one refused. The second lands a branch that conflicts and expects
+  `MergeConflict` with the paths and an unmoved default branch. The third lands,
+  then reverts with `-m 1`, and expects the tree restored. The fourth walks the
+  configuration surface and fails if any key can switch a guardrail off: the
+  "none configurable" clause made testable. The fifth registers a governed host
+  and expects NO `LandingPort` bound. Naming test nodes in an ACCEPTANCE command is not the defect Group 9
   removes from `validate.yml` — CI must run the whole suite, and this command runs
   four named proofs in addition to it.
 
@@ -804,22 +865,38 @@ amendments.
 - [ ] 13.1 **Bundle Postgres with the standalone install** so a user installs the
   product and not a database. The pieces exist: `pyproject.toml:134` pins
   `psycopg[binary,pool]>=3.2` and `deploy/compose/docker-compose.yaml:25` is
-  already `image: postgres:16`. This box makes the LOCAL install bring it.
+  already `image: postgres:16`. This box makes the LOCAL install bring it: with
+  `OPENDOX_INSTALL_MODE=local` (13.4) the product starts its bundled database and
+  supplies BOTH DSNs itself. With `hosted` or unset, a missing
+  `OPENDOX_DATABASE_URL` stays the refusal `config.py:13` already makes, so a
+  hosted install can no more fall into a private local database than into local
+  identity.
 - [ ] 13.2 **Add no SQLite dialect**, and record the refusal where a future reader
   will look for it: a second dialect doubles every migration and every schema test
-  forever, for a database that under RULING Q1 holds no document.
+  forever, for a database that under RULING Q1 holds no document. **A non-PostgreSQL
+  DSN is REFUSED by `load_settings`, and the refusal names the one dialect kept.**
 - [ ] 13.3 **Keep both DSNs.** `OPENDOX_MIGRATION_DATABASE_URL` for migrating and
   `OPENDOX_DATABASE_URL` for serving, with neither defaulted from the other —
   `config.py` already names the silent fallback as the thing not to do, and a
   single-user install is not a reason to serve from the migrating credential.
+  **One credential given in both settings is REFUSED by `load_settings`, naming
+  `OPENDOX_MIGRATION_DATABASE_URL`.** Today `load_settings` refuses only two DSNs
+  that select different schemas (`_refuse_two_dsns_that_select_different_schemas`,
+  `config.py:1291`, called at `:1411`), and it reads the migration DSN as
+  OPTIONAL (`:1417`), so the collapse is not refused yet.
 - [ ] 13.4 **A NAMED local single-user mode (AMENDS RULING Q2).** `config.py:89-92`
   makes `OPENDOX_OIDC_ISSUER` required — *"the Keycloak broker's issuer, pinned
   … (RULING Q2)"*. Add an explicit local mode that needs no broker. **The selector
-  is `OPENDOX_IDENTITY_MODE`, values `local` and `hosted`, read in
-  `runtime/config.py` beside `OPENDOX_OIDC_ISSUER` and defaulting to `hosted`** —
-  named here so the falsification below is executable and so the default is the
-  SAFE one: an install that sets nothing is hosted, and a hosted install with no
-  issuer refuses (13.5). It is UNSET, not `local`, that must be safe.
+  is `OPENDOX_INSTALL_MODE`, values `local` and `hosted`, read in
+  `runtime/config.py` beside `OPENDOX_OIDC_ISSUER` and defaulting to `hosted`.**
+  It selects the whole install shape at once, the identity mode here and the
+  datastore source in 13.1, because requirements 12 and 13 both describe "the
+  standalone install" and one deliberate choice should decide both. It is named
+  here so the falsification below is executable, and so the default is the SAFE
+  one: an install that sets nothing is hosted, and a hosted install with no
+  issuer refuses (13.5). It is UNSET, not `local`, that must be safe. *(An earlier
+  draft called it `OPENDOX_IDENTITY_MODE`. Once it also chose the datastore, that
+  name described half of what it selects.)*
 - [ ] 13.5 **A hosted install SHALL NOT fall into local mode by omission.** An
   unset issuer in a hosted install stays a REFUSAL naming the setting. This box
   is the safety of 13.4 and must land with it, not after it.
@@ -830,39 +907,75 @@ amendments.
       set -euo pipefail
       # the install is group 10's, unchanged — one entry point, one command:
       python -m venv /tmp/v13 && . /tmp/v13/bin/activate && pip install .
-      unset OPENDOX_DATABASE_URL OPENDOX_OIDC_ISSUER      # a machine with NEITHER
+      unset OPENDOX_DATABASE_URL OPENDOX_MIGRATION_DATABASE_URL OPENDOX_OIDC_ISSUER OPENDOX_INSTALL_MODE   # NONE of them set
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
       R=$(mktemp -d)/plain-documents && cp -r tests/fixtures/plain-documents "$R"   # this group's OWN corpus, not Group 12's
       git -C "$R" init -q && git -C "$R" add -A && git -C "$R" commit -qm fixture
       opendox --help >/dev/null
       # LOCAL mode starts, with no broker and no operator-supplied database:
-      OPENDOX_IDENTITY_MODE=local opendox --repo-root "$R" generate-and-open --no-open --port 8080 &
+      OPENDOX_INSTALL_MODE=local opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8080 &
       SERVER=$!; trap 'kill "$SERVER" 2>/dev/null || true' EXIT
       ready=0; for _ in $(seq 1 30); do curl -sf http://127.0.0.1:8080/ >/dev/null && { ready=1; break; }; sleep 1; done
       test "$ready" -eq 1
+      # ...and what it answered from is the BUNDLED datastore, migrated (requirement 12):
+      OPENDOX_INSTALL_MODE=local opendox-runtime runtime status --probe-timeout 10 > /tmp/status.json
+      python3 - /tmp/status.json <<'PY'
+      import json, sys
+      s = json.load(open(sys.argv[1]))
+      assert s.get("database") == "reachable", f"no bundled database answered: {s}"
+      assert s.get("applied_migrations") and not s.get("pending_migrations"), f"not migrated: {s}"
+      PY
       kill "$SERVER"; wait "$SERVER" 2>/dev/null || true
-      # and a HOSTED install with no issuer REFUSES — by the SAME server path, and
-      # the refusal must NAME THE SETTING, or an unrelated error would pass here:
-      if OPENDOX_IDENTITY_MODE=hosted opendox --repo-root "$R" generate-and-open --no-open --port 8081 2>/tmp/hosted.err; then
-        echo "FAIL: hosted install started with no issuer"; exit 1
-      fi
-      grep -q "OPENDOX_OIDC_ISSUER" /tmp/hosted.err       # the reason, not merely a non-zero exit
-      # and the DEFAULT is hosted, so an install that configures nothing refuses too:
-      if opendox --repo-root "$R" generate-and-open --no-open --port 8082 >/dev/null 2>&1; then
-        echo "FAIL: an unconfigured install fell into local mode"; exit 1
-      fi
+      # ONE DIALECT, and the two connections NOT COLLAPSED (13.2, 13.3), asked of the
+      # loader directly, with every other setting well-formed so the DSN is the only fault:
+      python3 - <<'PY'
+      from opendox.runtime.config import ConfigurationError, load_settings
+      OK = {"OPENDOX_OIDC_ISSUER": "https://issuer.example.invalid/realms/fixture",
+            "OPENDOX_OIDC_AUDIENCE": "fixture"}
+      def refusal(**dsns):
+          try:
+              load_settings({**OK, **dsns})
+          except ConfigurationError as e:
+              return str(e)
+          raise AssertionError(f"accepted: {dsns}")
+      m = refusal(OPENDOX_DATABASE_URL="sqlite:////tmp/x.db", OPENDOX_MIGRATION_DATABASE_URL="sqlite:////tmp/x.db")
+      assert "postgres" in m.lower(), f"a second dialect was refused for the wrong reason: {m}"
+      one = "postgresql://one@127.0.0.1/opendox"
+      m = refusal(OPENDOX_DATABASE_URL=one, OPENDOX_MIGRATION_DATABASE_URL=one)
+      assert "OPENDOX_MIGRATION_DATABASE_URL" in m, f"a collapsed pair was refused for the wrong reason: {m}"
+      PY
+      # every setting a HOSTED install needs EXCEPT the issuer, so the issuer is the only fault:
+      export OPENDOX_DATABASE_URL=postgresql://serve@127.0.0.1:1/opendox OPENDOX_MIGRATION_DATABASE_URL=postgresql://migrate@127.0.0.1:1/opendox OPENDOX_OIDC_AUDIENCE=fixture
+      # a HOSTED install with no issuer REFUSES — same server path, BOUNDED, naming the setting:
+      rc=0; OPENDOX_INSTALL_MODE=hosted timeout 30 opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8081 >/dev/null 2>/tmp/hosted.err || rc=$?
+      test "$rc" -ne 0 && test "$rc" -ne 124              # refused: neither started, nor killed by the bound
+      grep -q "OPENDOX_OIDC_ISSUER" /tmp/hosted.err
+      # and the DEFAULT is hosted: the same install with the selector UNSET refuses identically:
+      rc=0; timeout 30 opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8082 >/dev/null 2>/tmp/default.err || rc=$?
+      test "$rc" -ne 0 && test "$rc" -ne 124
+      grep -q "OPENDOX_OIDC_ISSUER" /tmp/default.err
 
-  **Three assertions, and the second and third are the safety.** The hosted probe
-  takes the SAME `generate-and-open` server path the local probe takes — not
-  `--no-serve`, which can return before configuration is read — and it is not
-  satisfied by a non-zero exit: `grep -q OPENDOX_OIDC_ISSUER` requires the refusal
-  to name the missing setting, so an unrelated generation failure cannot pass it.
-  The third proves the DEFAULT: with `OPENDOX_IDENTITY_MODE` unset the install
-  must refuse exactly as the hosted one does, because 13.5's whole point is that a
-  mode is entered deliberately and never by omission.
+  **Six assertions. The last four are the safety, and the last two are bounded.**
+  The local probe proves the install starts with no broker and no
+  operator-supplied database. `runtime status` then proves the datastore it
+  answered from is the bundled one, reachable and migrated; it reports JSON with
+  `database` and `pending_migrations` keys (`runtime/cli.py:621`). The dialect
+  and collapse checks go to `load_settings(env)` directly (`config.py:1391`
+  takes the mapping). Every other setting is supplied well-formed, so each
+  refusal must be about the DSN it names: an implementation that used SQLite, or
+  served from one credential, fails here and not somewhere unrelated. The two
+  negative probes take the SAME `generate-and-open` path the local probe takes,
+  under `timeout 30`. A regression that silently STARTS a hosted server would
+  otherwise block the command forever; with the bound it exits 124, and `test`
+  rejects 124 as firmly as 0. Each probe must also NAME `OPENDOX_OIDC_ISSUER`. Both
+  probes run with every setting a hosted install needs except the issuer, so the
+  only difference between them is the selector, and the last probe proves the
+  unset DEFAULT refuses exactly as `hosted` does.
 
-  Today none of it is reachable: the runtime refuses without
-  `OPENDOX_DATABASE_URL` and `OPENDOX_OIDC_ISSUER`, and there is no local mode.
+  Today none of it is reachable. The runtime refuses without
+  `OPENDOX_DATABASE_URL` and `OPENDOX_OIDC_ISSUER`, there is no local mode, and
+  `load_settings` accepts a collapsed DSN pair (the migration DSN is optional
+  there).
 
 ## Group 14 — Requirements 6, 14, 15: health in the store, and the fix loop (RULED, openDox-code)
 
@@ -900,10 +1013,13 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
 
   | verb | shape |
   |---|---|
-  | `health run` | `--repo-root <corpus> health run [--pack ID] [--timeout SECONDS]` |
-  | `health list` | `--repo-root <corpus> health list [--json]` |
-  | `health fix` | `--repo-root <corpus> health fix --finding ID [--batch]` |
-  | `health accept` | `--repo-root <corpus> health accept --finding ID --reason TEXT` |
+  | `health run` | `health run --repo-root <corpus> [--pack ID] [--timeout SECONDS]` |
+  | `health list` | `health list --repo-root <corpus> [--json]` |
+  | `health fix` | `health fix --repo-root <corpus> --finding ID [--batch]` |
+  | `health accept` | `health accept --repo-root <corpus> --finding ID --reason TEXT` |
+
+  Options FOLLOW the verb, exactly as they do for every verb `cli.py` declares
+  today (10.1).
 
   They are NEW surface — `cli.py` declares none of them today (10.1's table is the
   surface that exists) — and 14.6's applier is what `health fix` invokes.
@@ -944,31 +1060,33 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
       C=$(mktemp -d)/health-corpus && cp -r tests/fixtures/health-corpus "$C"   # a FRESH repository: fix branches and commits land HERE
       git -C "$C" init -q && git -C "$C" add -A && git -C "$C" commit -qm fixture
-      opendox --repo-root $C health run
-      opendox --repo-root $C health list > /tmp/h1.txt
+      opendox health run --repo-root $C
+      opendox health list --repo-root $C > /tmp/h1.txt
       grep -q 'broken-link' /tmp/h1.txt
       # a mechanical repair writes a DRAFT ON A BRANCH and never the default branch:
       before=$(git -C $C rev-parse HEAD)
-      opendox --repo-root $C health fix --finding broken-link
+      opendox health fix --repo-root $C --finding broken-link
       test "$(git -C $C rev-parse HEAD)" = "$before"        # default branch UNMOVED
       git -C $C rev-parse --verify --quiet refs/heads/health-fix-broken-link
       # THE EXCEPTION IS PROVED TO EXIST BEFORE THE RESET, not merely absent after:
-      opendox --repo-root $C health accept --finding accepted-finding --reason "fixture"
-      git -C $C diff --quiet -- health/dispositions.yaml && { echo "FAIL: accept wrote nothing to git"; exit 1; }
+      opendox health accept --repo-root $C --finding accepted-finding --reason "fixture"
+      test -n "$(git -C $C status --porcelain -- health/dispositions.yaml)" || { echo "FAIL: accept wrote nothing to git"; exit 1; }
       git -C $C add health/dispositions.yaml && git -C $C commit -qm "accept fixture finding"
-      opendox --repo-root $C health run
-      opendox --repo-root $C health list > /tmp/h2.txt
+      opendox health run --repo-root $C
+      opendox health list --repo-root $C > /tmp/h2.txt
       ! grep -q 'accepted-finding' /tmp/h2.txt              # suppressed BEFORE the reset
       # ...and it survives the store being dropped and rebuilt:
       opendox-runtime runtime reset --confirm yes-drop-the-coordination-database
       opendox-runtime runtime migrate
-      opendox --repo-root $C health run
-      opendox --repo-root $C health list > /tmp/h3.txt      # a FAILING list now fails the sequence
+      opendox health run --repo-root $C
+      opendox health list --repo-root $C > /tmp/h3.txt      # a FAILING list now fails the sequence
       grep -q 'broken-link' /tmp/h3.txt                     # the run really did produce findings
       ! grep -q 'accepted-finding' /tmp/h3.txt              # and the exception still holds
 
   Four things are proved in order, and the order is the point: the exception is
-  written TO GIT (a `git diff --quiet` that finds no change fails the sequence),
+  written TO GIT (`git status --porcelain` must show the file, NEW or modified —
+  `git diff` alone misses an untracked first write and would have failed a correct
+  implementation),
   it suppresses the finding BEFORE the reset, the post-reset run really produced
   findings (`broken-link` is present, so an empty listing cannot masquerade as
   suppression), and only then is `accepted-finding` asserted absent. **Every
@@ -991,6 +1109,18 @@ to #1144"*. `design.md` § D12.
   Protocol with a CLOSED member set, for the reasons that file's own docstring
   gives: structural conformance lets an implementation authored elsewhere satisfy
   it without importing this product's tooling).
+- [ ] 15.1a **DECLARE HOW A PACK IS FOUND AND PINNED, in one committed
+  manifest.** The engine loads packs ONLY from `health/packs.yaml` in the corpus.
+  It is committed beside `health/dispositions.yaml` for the same reason: which
+  checks judge a corpus is a human decision about that corpus, not derived data.
+  Each entry carries `id`, `source` (a corpus-relative path or a git URL),
+  `commit` and `digest`. The digest is the source-tree digest `neutral-product-pin`
+  already defines. The engine verifies commit AND digest before importing a
+  single line of the pack. **No entry-point scanning and no import-path
+  discovery**: a pack that is installed but not listed does not run. A listed pack
+  whose source no longer matches its digest is REFUSED, and the refusal is a
+  FINDING against that pack carrying the expected and actual digests. The pack is
+  never skipped silently.
 - [ ] 15.2 A pack DECLARES check families: id, version, and which documents each
   applies to. It RETURNS findings in the neutral shape — severity, resolution
   class (`auto-fix` / `assisted` / `human-only`, 14.6's spellings and no
@@ -1014,31 +1144,35 @@ to #1144"*. `design.md` § D12.
   check whose failure mode is silence is worse than one that reports itself
   broken — the doc-health nightly failed silently every night from 2026-08-30 and
   nobody saw it.
-- [ ] 15.6a **SHIP THE TWO FIXTURE PACKS the falsification needs**, under
-  `tests/fixtures/packs/`, registered the way 15.1's contract says packs are
-  registered (declare that registration here if 15.1 leaves it open):
-  `fixture-crashing-pack`, which raises on its first family, and
-  `fixture-slow-pack`, which sleeps past any timeout. They are test fixtures of
-  the engine, not shipped packs, and they exist so 15.6 is falsifiable rather
-  than asserted.
+- [ ] 15.6a **SHIP `tests/fixtures/pack-corpus`**: 14.9's `health-corpus` plus
+  the two fixture packs under `packs/`. `fixture-crashing-pack` raises on its
+  first family and `fixture-slow-pack` sleeps past any timeout. A
+  `health/packs.yaml` registers both through 15.1a's manifest by corpus-relative
+  `source`, pinned by digest. Because packs and manifest travel INSIDE the corpus,
+  copying the fixture into a fresh repository carries a valid registration with
+  it, and the acceptance loads the packs through the product's real path rather
+  than an in-process fake. A test keeps the fixture digests current. These are
+  fixtures of the engine, not shipped packs, and they exist so 15.6 and 15.1a are
+  falsifiable rather than asserted.
 - [ ] 15.7 **PACK ID AND PACK VERSION ON EVERY FINDING, in the SAME additive
   migration as the results table** (group 14.1 — `0003_`, since `0002_` is the
   ledger), so the table is not migrated twice.
-- [ ] **FALSIFIED BY** (openDox-code, installed, with a deliberately broken pack
-  and a deliberately slow one registered beside the neutral checks):
+- [ ] **FALSIFIED BY** (openDox-code, installed, over 15.6a's `pack-corpus`, whose
+  manifest registers a deliberately broken pack and a deliberately slow one beside
+  the neutral checks):
 
       set -euo pipefail
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
-      C=$(mktemp -d)/health-corpus && cp -r tests/fixtures/health-corpus "$C"
+      C=$(mktemp -d)/pack-corpus && cp -r tests/fixtures/pack-corpus "$C"   # packs + manifest travel inside
       git -C "$C" init -q && git -C "$C" add -A && git -C "$C" commit -qm fixture
       # the two fixture packs of 15.6a are registered; the run is itself bounded,
       # so a hang is a FAILED FALSIFICATION and never a hung falsifier:
-      timeout 120 opendox --repo-root $C health run --timeout 5
+      timeout 120 opendox health run --repo-root $C --timeout 5
       # the neutral checks still produced findings despite a crashing pack:
-      opendox --repo-root $C health list > /tmp/p1.txt
+      opendox health list --repo-root $C > /tmp/p1.txt
       grep -q 'broken-link' /tmp/p1.txt
       # and BOTH broken packs are themselves findings, attributed:
-      opendox --repo-root $C health list --json > /tmp/p1.json
+      opendox health list --repo-root $C --json > /tmp/p1.json
       python3 - /tmp/p1.json <<'PY'
       import json, sys
       f = json.load(open(sys.argv[1]))
@@ -1047,6 +1181,17 @@ to #1144"*. `design.md` § D12.
       assert 'fixture-slow-pack' in ids, 'timed-out pack not reported'
       assert all(x.get('pack_id') and x.get('pack_version') for x in f), 'a finding has no provenance'
       print('packs attributed:', sorted(ids))
+      PY
+      # a pack whose source no longer matches its PIN is refused, AS A FINDING (15.1a):
+      echo "# tampered after pinning" >> "$C/packs/fixture-slow-pack/__init__.py"
+      git -C "$C" commit -qam "tamper with a pinned pack"
+      timeout 120 opendox health run --repo-root $C --timeout 5
+      opendox health list --repo-root $C --json > /tmp/p2.json
+      python3 - /tmp/p2.json <<'PY'
+      import json, sys
+      f = json.load(open(sys.argv[1]))
+      hit = [x for x in f if x['pack_id'] == 'fixture-slow-pack' and 'digest' in json.dumps(x.get('evidence', '')).lower()]
+      assert hit, 'a tampered pack ran, or was skipped silently, instead of being refused as a finding'
       PY
       # and 15.5's REFUSALS, each a NAMED test — a missing node fails the command:
       python -m pytest -q \

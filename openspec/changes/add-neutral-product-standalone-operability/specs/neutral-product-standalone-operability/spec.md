@@ -311,9 +311,13 @@ no submission path at all for the plain local repository its own install story
 describes. The protocol governs how work LEAVES the local repository; what may
 then be done with it is settled elsewhere. The neutral default SHALL push the session branch to the attached
 remote where one exists, and where none exists SHALL SAY SO PLAINLY — never a
-silent failure, never a reported success it did not achieve. A governed host
-contributes its own implementation through the SAME injection seam the product's
-other contributed implementations use, so the host's existing flow is unchanged.
+silent failure, never a reported success it did not achieve. The ACT of submitting
+— the verb and the route a human uses — SHALL belong to the neutral product
+itself, because a submission step reachable only through a consumer's contributed
+surface is no step at all for a standalone install. A governed host contributes
+its own implementation through the injection point the product declares for that
+protocol — the same one the product's other implementations of it are contributed
+through — so the host's existing flow is unchanged.
 
 LANDING AUTHORITY FOLLOWS WHOEVER GOVERNS THE REPOSITORY, and the neutral product
 SHALL ASK the repository rather than hard-coding either answer. Where a
@@ -330,6 +334,10 @@ while dropping its letter exactly where the user IS the governance.
 #### Scenario: The only submission implementation shells out to one platform
 - **WHEN** a neutral product's only implementation of its submission protocol invokes one hosting platform's command-line tool, defaulting to that platform's host
 - **THEN** it is reported as having no submission path for a plain local repository, which is the install its own ruling describes
+
+#### Scenario: The act of submitting lives only in a consumer's surface
+- **WHEN** the only verb or route that submits a session is one a consumer contributes, so the neutral product's own surface cannot submit even with a neutral implementation bound
+- **THEN** it is reported as having no submission step of its own, because a standalone install carries no consumer and a default that nothing in the product calls reaches no one
 
 #### Scenario: A session is submitted on a plain repository with a remote
 - **WHEN** a session is submitted on a plain git repository that has a remote attached

@@ -297,12 +297,16 @@ it proposes work someone has done. Measured, not assumed:
   `cli.build_parser(subcommand_extensions=)`, with `serve_gate.routes()`,
   `serve_projection.routes()` and `cli_gate.GateSubcommands.register()` on the
   consumer side. Requirement 2's remedy uses them.
-- **The generator's seam is already declared on BOTH sides, which is why the
-  ruled path is small.** `src/opendox/corpus_adapter.py` is a
-  `@runtime_checkable` `Protocol` with six closed members, and
-  `src/opendox/runtime/local_git_adapter.py` (2,796 lines, RULING C3's plain
-  local git repository) is a conformant implementation openDox already ships.
-  Requirement 4 asks for the projection that uses them, not for either of them.
+- **The CORPUS interface is already declared on both sides; the GENERATOR
+  handoff is not, and it is new work.** `src/opendox/corpus_adapter.py` is a
+  `@runtime_checkable` `Protocol` with six closed members through which a
+  projection READS a corpus, and `src/opendox/runtime/local_git_adapter.py`
+  (2,796 lines, RULING C3's plain local git repository) is a conformant
+  implementation openDox already ships — which is why the ruled projection is
+  small. **Neither of them is a generator seam**: `CorpusAdapter` is closed at six
+  members and none of them hands a generator over, so task 5.4 declares that seam
+  as new work (`design.md` § R-G3). Requirement 4 asks for the projection that
+  reads through the corpus interface, not for either of them.
 - **A neutral, profile-parameterized corpus reader already exists** at
   openXdox-code `src/openxdox/domain_corpus_adapter.py`, answering the
   conformance corpus 17 of 17 (`#23` → `3ee8cd39`). It is at the consumer leg, so
@@ -320,7 +324,7 @@ name entirely. The correction is task 9.1's, not this packet's.
 ## What Changes
 
 ONE `## ADDED Requirements` block creating the capability
-`neutral-product-standalone-operability` — sixteen requirements, sixty-seven scenarios.
+`neutral-product-standalone-operability` — sixteen requirements, sixty-eight scenarios.
 The capability is the sibling of `neutral-product-pin`: that one governs
 openxFactory CONSUMING an external neutral product; this one governs the product
 being able to STAND UP without its consumer. It is written domain-neutrally and
@@ -650,4 +654,4 @@ is struck and the other fifteen stand.
 
 ## Capabilities
 
-- `neutral-product-standalone-operability` — ADDED, 16 requirements, 67 scenarios.
+- `neutral-product-standalone-operability` — ADDED, 16 requirements, 68 scenarios.
