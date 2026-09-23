@@ -157,5 +157,3 @@ them and not in advance. Every box for work this packet will never do carries
   Nothing there becomes false when this lands — it never claimed the adapter was
   pinned — so no delta on it is owed. Registered because the next author of that
   capability should know the seam's requirement 1 now names it.
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
