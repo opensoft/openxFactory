@@ -920,14 +920,22 @@ explains a declaration and changes no property.
   carries the assembly roots `opensoft/openDox` and `opensoft/openXdox`, both
   `pinned`, and neither of their code legs, and none of its five admission kinds
   can admit a leg today:
-  - `workflow` evidence is read from `uses:` and `with.repository:` only, while
-    openxFactory's workflows reach the legs through `git submodule update` in
-    `run:` lines;
-  - openxFactory never pins a leg (RULING OQ-2);
-  - a `gitlink` admission needs a `governed` carrier, and both roots are
-    `pinned`;
-  - `change` needs a ratified change that creates the repository, and the
-    carving change is archived.
+  - `workflow` evidence is read at three structural sites only, a job's or a
+    step's `uses:` and a step's `with.repository:`, and never from a `run:` line
+    (`scripts/estate_inventory.py`, `_workflow_names_repository`). openxFactory's
+    workflows reach the legs only in `run:` lines, through `git submodule update
+    --init --recursive` on the two roots (`pytest-suite.yml:425`,
+    `openxdox-consumer-gate.yml:239`), which reaches each leg as its root's
+    nested `code` submodule.
+  - `pin`: openxFactory never pins a leg, by OQ-2 as the ruling puts it, and
+    both pin files say so (`contracts/opendox-pin.yaml:114-117`,
+    `contracts/openxdox-pin.yaml:106-108`, on the carving change's task 5.1).
+  - `gitlink`: a leg's gitlink is carried by its root's `.gitmodules`, and the
+    kind admits only a `governed` carrier, while both roots are `pinned`.
+  - `change`: the kind admits only an ACTIVE, ratified change whose realization
+    creates the repository, and the carving change is archived
+    (`archive/2026-09-22-split-opendox-two-layer-product`).
+  - `root` admits the aggregation repository alone.
 - **Where the code lands.** The code the two roots stand for is written in their
   legs, `opensoft/openDox-code` and `opensoft/openXdox-code`, as `tasks.md` names
   them group by group. openxFactory's own arm, its host wiring, is named in the
