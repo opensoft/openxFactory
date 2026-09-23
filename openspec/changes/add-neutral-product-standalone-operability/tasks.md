@@ -359,9 +359,13 @@ mention in the package is prose.
   `doc_health` at `workbench.py:746` and `:1407-1409`, and at `serve.py:713`;
   and `ideation_dashboard` at `doxbench_packet.py:177` and `serve_wire.py:1369`.
   Each resolves through an existing seam (the `corpus_adapter` Protocol, the
-  domain-profile registry, the route and subcommand extension points, 12.4's
-  submission bindings) or through one declared for it, as 5.4 declares the
-  generator's. With nothing registered, a verb refuses naming its seam and its
+  domain-profile registry, the route and subcommand extension points) or through
+  one declared for it, as 5.4 declares the generator's. None of the twenty-seven
+  reaches the submission surface. Their targets are the home corpus,
+  `doc_health`, two `ideation_dashboard` names, and openXdox's generator,
+  snapshot registry, cross-reference register, kickoff, corpus root, gate console
+  and routes, and doxBench scope, so none waits on Group 12's bindings, which are
+  release 2's. With nothing registered, a verb refuses naming its seam and its
   remedy, which is 4.2's discipline. `workbench.py`'s four are the reaches
   `run_scoped_doc_health` makes (6.2). Once routed here, they refuse until Group
   6 registers openDox's own check. `consumer_reach.py` is the late stand-in whose
