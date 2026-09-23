@@ -309,9 +309,9 @@ request's HEAD. Measured on this packet's own pull request: run `35788224200`
 `918e30e3`, the head and not the base `2e222d98`, and its job check-run concluded
 `success` on that commit. **So a gate job that exits 0 after publishing `neutral`
 leaves a GREEN check on the very commit it judged.** Two rules close it. The
-verdict check-run carries a declared name that matches NO job id in the workflow,
-and that name, never a job id, is the gate's identity wherever a check is required
-or read. And the run is created with `head_sha` set to the VERIFIED candidate
+verdict check-run carries a declared name, `review-lane-lockstep-verdict` (D18),
+that matches NO job id in any workflow here, and that name, never a job id, is the
+gate's identity wherever a check is required or read. And the run is created with `head_sha` set to the VERIFIED candidate
 `head.sha` of D14c, never `github.sha` — which in a `pull_request_target` run is
 the BASE branch's last commit, and would hang the verdict on a commit the advance
 does not propose.
@@ -367,7 +367,8 @@ check.
 **So the gate gets a binding of its own, in the same template shape**:
 `privileges:` naming only the aggregation, `grants: [contents:read]` with the
 family's `never_grants:`; `resolution.scoped_to: [xFactory]`; `resolved_by`
-naming the gate's workflow alone; and ONE mint requesting exactly
+naming the gate's workflow alone (D18 names the binding, the workflow and the
+consumer); and ONE mint requesting exactly
 `owner: opensoft`, `repositories: xFactory` and `permission-contents: read`. That
 is the estate's own per-mint down-scoping — `review-lane-repin.yml`:276-284
 already mints its codexFactory read that way, beside a separate write mint for
@@ -631,6 +632,46 @@ D14's same-repository condition would have run the head's copy of a
 secret-bearing workflow, and D14d's triple would have exempted every
 hand-authored advance. Both times the estate had already written the rule: once
 as a test, once as a requirement in this very capability.
+
+**And the `paths:` filter is EXACTLY `contracts/review-lane-pin.yaml`** (Copilot
+`r4078252960`). With the allowlist gone, the filter is the only boundary between
+the aggregation token and every other pull request; a broader one would mint the
+token and publish the aggregation's commits on pull requests that do not touch
+the pin. The one gap an exact filter leaves is the platform's own, a diff of more
+than 3,000 files, and it is registered at `tasks.md` § 6.6.
+
+## D18 — the gate's identity is chosen ONCE, and every part of the packet uses it
+
+Review `5285930613`'s *previously missed* item: the binding's `resolved_by`, the
+mint, the trigger tests, the publisher and § 6.5's lookup all address the gate,
+and nothing named it. An implementation could have built a gate those parts did
+not agree on. So the packet names it here, once:
+
+| part | name |
+| --- | --- |
+| workflow | `.github/workflows/review-lane-lockstep-gate.yml` |
+| its one job id, and so its own check-run's name | `review-lane-lockstep-gate` |
+| the verdict check-run, the gate's identity wherever a check is required or read | `review-lane-lockstep-verdict` |
+| binding template | `contracts/review-lane-lockstep-gate-binding.template.yaml` |
+| `consumer.holder_ref` | `"openxfactory:workflow:review-lane-lockstep-gate"` |
+| `consumer.fetch_identity` | `"github-actions:openxfactory:review-lane-lockstep-gate"` |
+| `resolution.resolved_by` | `review_lane_lockstep_gate_workflow_only` |
+
+Each follows the advance lane's own naming — `review-lane-repin.yml`, job
+`review-lane-repin`, `holder_ref: "openxfactory:workflow:review-lane-repin"`
+(`contracts/review-lane-repin-binding.template.yaml`:100), `resolved_by:
+review_lane_repin_workflow_only` (`:167`) — and none collides with anything that
+exists. Measured: no file under `.github/workflows/` or `contracts/` carries
+`lockstep` in its name, no job declares a `name:`, so each job's check run is named
+after its id, and none of the fifteen job ids across the fourteen workflows is
+either name above.
+
+**The verdict's name matches no job id in ANY workflow, not only its own, and no
+job's `name:` either.** A job elsewhere with the verdict's name would publish a
+check run under it — a declared `name:` is what a job's check run carries when
+one is set — and a required check or § 6.5's approver would then read that job
+instead of the verdict. § 5.1e's test asserts the wider rule, and § 5.1f's test holds the
+binding, the workflow and the names together.
 
 ## D5 — what the check compares, and why it is values rather than authorship
 

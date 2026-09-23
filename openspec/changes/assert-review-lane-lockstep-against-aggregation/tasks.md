@@ -136,7 +136,9 @@ this packet's archive until merged PLUS green realization evidence.
   lane's own advance could open a pull request with no check running ON that
   pull request. The estate's own pattern answers it — a pin gate is its OWN
   workflow (`openspec-cli-pin-gate.yml`, `openreposhape-pin-gate.yml`) — so the
-  realization adds one. **Its trigger is not theirs** (Copilot `r4076990021`):
+  realization adds one, `.github/workflows/review-lane-lockstep-gate.yml`, whose
+  one job is `review-lane-lockstep-gate` (`design.md` D18 names the gate's whole
+  identity once). **Its trigger is not theirs** (Copilot `r4076990021`):
   those two run on `pull_request` because neither holds a secret (zero `secrets.`
   references in either), while this gate holds a credential that reads a PRIVATE
   repository, so it runs on `pull_request_target` and never on `pull_request`
@@ -195,18 +197,27 @@ this packet's archive until merged PLUS green realization evidence.
   `floored_repository` granting `contents:write`, `pull-requests:write` and
   `workflows:write` (`:154`). **So a second consumer entry would mint with the
   advance lane's write authority over this repository.** The gate gets its OWN
-  binding template in the same shape: `privileges:` naming only the aggregation,
-  `grants: [contents:read]` with the family's `never_grants:`;
-  `resolution.scoped_to: [xFactory]`; `resolved_by` naming the gate's workflow id
-  alone; and ONE mint step requesting exactly `owner: opensoft`,
+  binding template, `contracts/review-lane-lockstep-gate-binding.template.yaml`,
+  in the same shape: `consumer.holder_ref:
+  "openxfactory:workflow:review-lane-lockstep-gate"` and `consumer.fetch_identity:
+  "github-actions:openxfactory:review-lane-lockstep-gate"`; `privileges:` naming
+  only the aggregation, `grants: [contents:read]` with the family's
+  `never_grants:`; `resolution.scoped_to: [xFactory]`;
+  `resolution.resolved_by: review_lane_lockstep_gate_workflow_only`, its statement
+  naming `.github/workflows/review-lane-lockstep-gate.yml` alone; and ONE mint
+  step requesting exactly `owner: opensoft`,
   `repositories: xFactory` and `permission-contents: read` — the estate's own
   per-mint down-scoping, as `review-lane-repin.yml`:276-284 mints its source read.
   The never-passed statement holds on both bindings, because nothing is passed.
   **Tests:** the gate's binding and its mint name only `xFactory` and only
   `contents: read`, in the shape of
   `test_the_token_is_scoped_to_the_bindings_two_repositories`
-  (`tests/review_lane_pin/test_repin_lane.py`:2371); and the advance lane's
-  binding keeps its existing grants, gaining only § 5.1c's aggregation read.
+  (`tests/review_lane_pin/test_repin_lane.py`:2371); the advance lane's
+  binding keeps its existing grants, gaining only § 5.1c's aggregation read; and
+  a test holds the gate's identity together — the binding's `holder_ref` and
+  `resolved_by` statement name the gate's workflow, that workflow's one job id
+  and its published check-run name are the ones `design.md` D18 names, and the
+  mint step lives in that job.
 - [ ] 5.1g **THE GATE USES `pull_request_target`, NEVER `pull_request`, AND
   TAKES NO HEAD CHECKOUT — REVERSING THIS PACKET'S OWN EARLIER DECISION**
   (Copilot `r4076368722`, then `r4076474882`). The earlier draft refused
@@ -237,7 +248,11 @@ this packet's archive until merged PLUS green realization evidence.
   requests is that shape exactly: a hand-authored advance would leave
   `lockstep.status` as false and draw no verdict. So the gate runs for EVERY pull
   request that changes `contracts/review-lane-pin.yaml` — a `paths:` filter,
-  keyed on what the pull request changes and never on who opened it — and its
+  keyed on what the pull request changes and never on who opened it, and
+  EXACTLY that one path (Copilot `r4078252960`): with the allowlist gone the
+  filter is the only boundary between the aggregation token and every other pull
+  request, and a broader one would mint that token and publish the aggregation's
+  commits on pull requests that do not touch the pin — and its
   safety rests on the properties that do not depend on the author: base code
   only; no head checkout; the event read for the pull request's number and
   `head.sha` alone, passed through `env:` and never interpolated into a `run:`
@@ -248,8 +263,10 @@ this packet's archive until merged PLUS green realization evidence.
   from its grammar or its vocabulary, a value outside them — the candidate's or a
   surface's — named only as an inert, length-bounded code span, its line breaks
   and backticks replaced. `design.md` D17 records the reversal and what a fork's
-  run can publish. Tests: the trigger carries the `paths:` filter and no
-  condition on author, head ref, base ref or head repository; a hand-authored
+  run can publish. Tests: the trigger's `paths:` filter is EXACTLY
+  `[contracts/review-lane-pin.yaml]` — one entry, no glob, and no
+  `paths-ignore:` — and the trigger carries no condition on author, head ref,
+  base ref or head repository; a hand-authored
   pull request that changes `core_commit` draws a verdict, and so does one whose
   event names a fork as the head repository, with no request made to that
   repository; no `run:` step interpolates an event field; and a declared state
@@ -325,19 +342,22 @@ this packet's archive until merged PLUS green realization evidence.
   the pull request's HEAD — measured, run `35788224200` on this packet's own pull
   request carries `head_sha` `918e30e3` with its job check `success` there — so a
   job that exits 0 after publishing `neutral` would leave a GREEN check on the
-  commit being judged. The verdict check-run therefore carries a declared name
-  that matches NO job id in the workflow, and that name, never a job id, is the
-  gate's identity wherever a check is required or read; and it is created with
+  commit being judged. The verdict check-run therefore carries a declared name,
+  `review-lane-lockstep-verdict`, that matches NO job id in any workflow under
+  `.github/workflows/`, and that name, never a job id, is the gate's identity
+  wherever a check is required or read; and it is created with
   `head_sha` set to the VERIFIED candidate `head.sha` of § 5.1i, never
   `github.sha`, which in a `pull_request_target` run is the base branch's last
   commit. Tests assert the create call's `head_sha` is the verified candidate
-  head, and that the verdict's name matches no job id.
+  head, and that the verdict's name is `review-lane-lockstep-verdict` and matches
+  no job id and no job `name:` in any workflow here (review `5285930613`'s *previously missed*
+  item; `design.md` D18).
 - [ ] 5.1b The wiring is TESTED and not assumed, ON THE GATE ITSELF (Copilot
   `r4076845535`). `test_the_head_executing_trigger_is_absent` reads
   `merge-master-approval.yml` and nothing else (`CALLER`,
   `tests/review_lane_pin/test_review_lane_caller.py`:85), so it cannot catch a
-  regression in a new workflow. A test therefore reads the new gate's `on:` keys
-  and requires `pull_request_target` PRESENT and `pull_request` ABSENT, and
+  regression in a new workflow. A test therefore reads
+  `.github/workflows/review-lane-lockstep-gate.yml`'s `on:` keys and requires `pull_request_target` PRESENT and `pull_request` ABSENT, and
   requires that no step check out `github.event.pull_request.head`; and a test
   reads `review-lane-repin.yml`'s `on:` keys and requires `pull_request` to be
   ABSENT from them — the negative control that keeps the advance lane out of the
@@ -397,7 +417,15 @@ this packet's archive until merged PLUS green realization evidence.
   `extend-merge-master-envelope-to-floor-bot-lanes` would create one.
   **Registered for their realization:** an approver that admits a pin-changing
   pull request must not approve it until this gate's verdict for that head,
-  found by its declared name (§ 5.1e), is published, and must not approve over a
+  found by its declared name, `review-lane-lockstep-verdict` (§ 5.1e), is published, and must not approve over a
   `failure`; with a test that runs the approver ahead of the verdict and asserts
   that it waits. Requiring the verdict by that name in a ruleset is the other
   route, and a ruleset act this packet does not take.
+- [~] 6.6 **A PATH FILTER HAS A PLATFORM LIMIT, AND IT IS THE ONE GAP THE EXACT
+  FILTER LEAVES.** GitHub's workflow-syntax reference, under
+  `on.<push|pull_request|pull_request_target>.<paths|paths-ignore>` → *Git diff
+  comparisons*, states it verbatim: *"If the generated diff contains more than
+  3,000 files and the files the workflow filter matches are not in the first
+  3,000 returned by the filter, the workflow will **not** run."* A pull request
+  that large which also changed the pin would draw no verdict. That is the platform's limit, not a condition this packet adds, and it
+  is registered here rather than engineered around.
