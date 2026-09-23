@@ -97,7 +97,15 @@ this packet's archive until merged PLUS green realization evidence.
   `r4078009970`) — and a workflow-level test captures that resolved sha, asserts
   EVERY surface read names it, asserts the verdict names it and the branch, and
   asserts that no step takes the branch or the commit from an event payload or a
-  workflow input.
+  workflow input. **And each value is read at its selector** (review
+  `5285753827`'s *previously missed* item): the `ref:` of each `converged_with:`
+  workflow's step that checks out `codeXfactory/codexFactory`, parsed as YAML,
+  and the `MIGRATION_PIN` assignment in `tests/test_merge_master_workflows.py`.
+  Measured on `opensoft/xFactory` `main` `6e52e98e`, each of the three files
+  carries exactly ONE 40-hex literal today (`:152`, `:308`, `:72`), so a
+  file-wide match would happen to work until a comment carried a second; a
+  fixture with a decoy 40-hex literal in a comment of each file asserts it is
+  never the one read.
   Value fixtures alone cannot catch a reader that takes each file from `main`
   independently — and that reader manufactures INCONSISTENT the moment a re-point
   lands between two calls, which is the one outcome nobody can check against
@@ -153,7 +161,16 @@ this packet's archive until merged PLUS green realization evidence.
   read and its own write (`:276-311`), so it gains a THIRD — `owner: opensoft`,
   `repositories: xFactory`, `permission-contents: read` — held by a test in the
   same shape as the other two. A grant with no mint leaves the advance-side read
-  UNDETERMINED on every run.
+  UNDETERMINED on every run. **And the tests and declarations that fix the lane
+  at two move with it, in the same realization** (Copilot `r4078098133`):
+  `test_the_token_is_scoped_to_the_bindings_two_repositories` asserts exactly two
+  mints and derives the declared set from the keys `source_repository` and
+  `floored_repository` (`tests/review_lane_pin/test_repin_lane.py`:2384, :2393);
+  `test_each_mint_requests_exactly_its_repository_grants` indexes the same two
+  keys (`:2409`); and the workflow's own comment reads *"TWO TOKENS, ONE PER
+  REPOSITORY THE BINDING NAMES"* (`review-lane-repin.yml`:244). Each becomes
+  three, the aggregation's key beside the other two, and none is loosened to a
+  count that no longer means anything.
   **AND BOTH RUNS NEED THE READ, NOT ONE** (Copilot `r4076254027`). § 5.1a's
   pull-request gate is a SEPARATE WORKFLOW RUN: it cannot reuse the advance lane's
   minted App token any more than it can reuse its step outputs, and the ambient
@@ -208,7 +225,8 @@ this packet's archive until merged PLUS green realization evidence.
   cannot rewrite it), **no checkout of `github.event.pull_request.head`** —
   mirroring `test_no_checkout_takes_the_pull_request_head`, and easy here because
   the check reads two repositories over the API and needs no candidate code at
-  all — and an **allowlist**, refined below from a head ref to a triple, plus the
+  all — and an **allowlist** (`bot/review-lane-repin`), refined below from a head
+  ref to a triple, plus the
   same-repository condition as defence in depth, with a test that a
   same-repository NON-BOT pull request is skipped.
   **AND THE ALLOWLIST IS A TRIPLE, NOT A HEAD REF** (Copilot `r4076740158`): a
@@ -220,10 +238,14 @@ this packet's archive until merged PLUS green realization evidence.
   `expected_head_ref` AND `expected_base_ref` together, held by
   `tests/review_lane_pin/test_review_lane_caller.py`:780-789, whose own words
   call the exact head ref *"half of the fork defence"* — **half, which is the
-  point**. The gate's condition is therefore the same triple: the advance lane's
-  bot as author, the exact head ref, and `main` as base, each an exact value and
-  none a pattern, with a test per predicate driving a pull request that satisfies
-  the other two and fails this one. A fork event and a
+  point**. The gate's condition is therefore the same SHAPE, with THIS lane's
+  literals (Copilot `r4078098160`): author `openxfactory[bot]` (the author of
+  `#1138`), head ref `bot/review-lane-repin` (`BOT_BRANCH`,
+  `scripts/review_lane_repin.py`:553) and base `main` — each an exact value and
+  none a pattern. The envelope's own values, and the caller test's `ENROLLED_*`
+  literals (`test_review_lane_caller.py`:124-127), are another lane's
+  (`intents/rolling`) and are NOT these. A test per predicate drives a pull
+  request that satisfies the other two and fails this one. A fork event and a
   non-allowlisted head are both reported OUT OF SCOPE rather than UNDETERMINED:
   *not applicable* and *could not measure* are different answers, and this
   packet's whole subject is not conflating them.
@@ -242,7 +264,11 @@ this packet's archive until merged PLUS green realization evidence.
   the two. The base-branch rule is kept exactly: no head CODE runs, and reading
   head DATA as bytes is what makes `pull_request_target` usable rather than
   merely safe. An end-to-end test drives a candidate whose pin differs from the
-  base's and asserts the verdict names the CANDIDATE commit. **AND THE CANDIDATE
+  base's and asserts the verdict names the CANDIDATE commit, and a second drives
+  the two `head.sha` reads to DIFFER — an API sequence answering one sha before
+  the fetch and another after — and asserts the refusal: no verdict is published
+  for it, the push that moved the ref starting a run of its own (Copilot
+  `r4078098168`). **AND THE CANDIDATE
   IS JUDGED, NEVER FOLLOWED** (Copilot `r4077898334`): the gate takes from the
   candidate only `core_commit` and the declared state, and takes every path it
   reads in the aggregation from the BASE's `converged_with:` and its own fixed

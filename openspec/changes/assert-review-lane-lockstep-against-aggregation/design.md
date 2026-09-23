@@ -516,7 +516,12 @@ the same path on any branch, not only `main`.
 `tests/review_lane_pin/test_review_lane_caller.py`:780-789 — whose own words call
 the exact head ref *"half of the fork defence"*. **Half.** The gate's condition is
 the same triple, each an exact value and none a pattern, with a test per predicate
-driving a pull request that satisfies the other two and fails this one.
+driving a pull request that satisfies the other two and fails this one. **The
+SHAPE is the envelope's and the VALUES are this lane's** (Copilot
+`r4078098160`): author `openxfactory[bot]`, head ref `bot/review-lane-repin`
+(`BOT_BRANCH`, `scripts/review_lane_repin.py`:553), base `main`. The envelope's
+own `expected_head_ref` is `intents/rolling`, another lane's, and copying it
+would open the gate to the wrong pull request.
 
 **That is the fourth time on this packet that the estate had already worked out
 what I was deriving** — after the trigger, the no-head-checkout rule and the
@@ -586,5 +591,13 @@ each other. This packet does not promote the constant to a converged-with member
 without it — but the check reads all three, because a constant that disagreed
 with the two workflows it guards is a fact worth reporting even though it is the
 aggregation's own to repair.
+
+**Each of the three is read at a named selector, not found by a pattern** (review
+`5285753827`'s *previously missed* item): the `ref:` of each workflow's step
+that checks out the pin's own `repository:`, parsed as YAML, and the
+`MIGRATION_PIN` assignment in `tests/test_merge_master_workflows.py`. Measured on
+`opensoft/xFactory` `main` `6e52e98e`, each file carries exactly one 40-hex
+literal today, at `:152`, `:308` and `:72` — so a file-wide match would happen to
+work, and would stop working silently the day a comment carried a second.
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)

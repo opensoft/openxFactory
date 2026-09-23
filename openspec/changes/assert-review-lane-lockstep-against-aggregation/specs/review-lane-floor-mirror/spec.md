@@ -25,7 +25,7 @@ the commit the aggregation's surfaces name, `converged` meaning equal and
 `diverged` meaning unequal. THE AGGREGATION'S SURFACES ARE READ AS A SET AND
 SHALL AGREE WITH EACH OTHER BEFORE EITHER STATE IS CONCLUDED — the pin's own
 `converged_with:` members and the aggregation's constant that holds them
-identical — and where they DISAGREE the check SHALL report INCONSISTENT, name
+identical, `MIGRATION_PIN`, — and where they DISAGREE the check SHALL report INCONSISTENT, name
 each surface with the value it carried, and conclude NEITHER `converged` NOR
 `diverged`. A check permitted to pick one surface would be choosing its own
 answer, and an aggregation whose own surfaces disagree is a fact about that
@@ -93,8 +93,11 @@ The candidate's bytes are data to be JUDGED and never an instruction about what
 to READ: the check SHALL take from the candidate only the values under judgment,
 `core_commit` and the declared state, and SHALL take the aggregation and the path
 of every surface in it from the base branch — the base's `converged_with:`
-members and the check's own fixed location for the aggregation's constant —
-never resolving a path from the candidate head. A candidate that could choose
+members, each read at the `ref:` of its step that checks out the pin's own
+`repository:`, parsed as YAML and never matched as text, and the aggregation's
+constant read at its `MIGRATION_PIN` assignment in
+`tests/test_merge_master_workflows.py` — never resolving a path from the
+candidate head. A candidate that could choose
 what is read could turn the credential for a private repository on any file in
 it, and have that file's contents named back as the value a surface carried.
 
