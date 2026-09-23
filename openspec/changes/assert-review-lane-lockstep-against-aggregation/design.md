@@ -330,7 +330,13 @@ REQUIREMENT rather than the task list, because it is about what is measured
 rather than how.
 
 The check resolves the aggregation's branch to a single commit FIRST, reads every
-surface at that commit, and names the commit with its verdict. **A measurement
+surface at that commit, and names the commit with its verdict. **And WHICH branch
+is not the caller's to say** (Copilot `r4078009970`): it is the repository's own
+DEFAULT BRANCH, resolved at run time the way this lane already resolves its
+source (`review-lane-repin.yml`:433-459, under the capability's rule that the
+verification *"SHALL NOT be inferred from an event payload, a pull-request head,
+a tag, or any reference supplied by a caller"*). A snapshot of the wrong branch
+is internally consistent and still measures the wrong aggregation. **A measurement
 taken across a moving ref measures read timing, not the aggregation** — and for
 this packet that failure would be particularly cruel: the one outcome it would
 manufacture, INCONSISTENT, is the outcome nobody can check against anything,

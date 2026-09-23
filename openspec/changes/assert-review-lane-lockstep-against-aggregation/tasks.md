@@ -90,9 +90,14 @@ this packet's archive until merged PLUS green realization evidence.
   obtains the aggregation's surfaces beside the source repository it already
   reads, and hands the values on as inputs, so the advance the lane proposes
   carries the measurement with it. **THE RESOLVED SHA IS WIRED AND THE WIRING IS
-  TESTED** (Copilot `r4076474933`): the workflow resolves the aggregation's
-  branch to one commit FIRST, and a workflow-level test captures that resolved
-  sha, asserts EVERY surface read names it, and asserts the verdict names it too.
+  TESTED** (Copilot `r4076474933`): the workflow resolves `opensoft/xFactory`'s
+  DEFAULT BRANCH at run time and that branch to one commit FIRST — as
+  `review-lane-repin.yml`:433-459 already resolves its source's, and never from
+  an event payload, a pull-request head, a tag or a caller-supplied ref (Copilot
+  `r4078009970`) — and a workflow-level test captures that resolved sha, asserts
+  EVERY surface read names it, asserts the verdict names it and the branch, and
+  asserts that no step takes the branch or the commit from an event payload or a
+  workflow input.
   Value fixtures alone cannot catch a reader that takes each file from `main`
   independently — and that reader manufactures INCONSISTENT the moment a re-point
   lands between two calls, which is the one outcome nobody can check against

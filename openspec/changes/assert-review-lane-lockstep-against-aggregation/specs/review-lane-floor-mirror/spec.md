@@ -62,8 +62,10 @@ because two strings differ.
 
 THE SURFACES ARE READ AT ONE RESOLVED COMMIT OF THE AGGREGATION AND NOT
 INDEPENDENTLY FROM A MOVING REF. The check SHALL resolve the aggregation's
-branch to a single commit first and read every surface AT THAT COMMIT, and
-SHALL name that commit with its verdict. Reading the surfaces one at a time from
+DEFAULT BRANCH at run time, from the repository itself and never from an event
+payload, a pull-request head, a tag or any reference a caller supplies; SHALL
+resolve that branch to a single commit first; SHALL read every surface AT THAT
+COMMIT; and SHALL name the branch and the commit with its verdict. Reading the surfaces one at a time from
 a branch lets a re-point land between the reads and returns a MIXED set — which
 the check would then report as INCONSISTENT, a state that never existed in the
 repository it was reading. A measurement taken across a moving ref measures READ
