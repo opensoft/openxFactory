@@ -453,10 +453,10 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       ls tests/test_generator.py tests/test_snapshot*.py tests/test_session_snapshot.py > "$W/gen-suites.txt"
       while read -r f; do python -m pytest -q "$f"; done < "$W/gen-suites.txt"
       : "${ARC_BASE:?set ARC_BASE to the commit of this repository before the first landing of the arc here}"
-      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' "$ARC_BASE..HEAD" > "$W/x-arc.txt"
+      git log --first-parent --format=%H --grep='^Arc: neutral-product-standalone-operability$' "$ARC_BASE..HEAD" > "$W/x-arc.txt"   # LANDINGS (11.0)
       test -s "$W/x-arc.txt"                                # 11.0: the arc DID land here (5.3a at least), so empty means a dropped trailer
       : > "$W/x-paths.txt"
-      while read -r c; do
+      while read -r c; do                                   # each landing against main before it
         git diff --name-only "$c^1" "$c" >> "$W/x-paths.txt"
       done < "$W/x-arc.txt"
       python3 - "$W/x-paths.txt" "$W/gen-suites.txt" <<'PY'
@@ -986,8 +986,12 @@ packet's interim arrangement ends.**
   like the `Lane:` line. The falsifiers in 5.4a and 12.5 read it in
   openXdox-code, and they assert the set is NON-EMPTY there, because the arc must
   land at least 5.3a's facet in that repository. An empty set would mean the
-  trailer was dropped, not that nothing was edited. That trailer is how the guard below finds THE ARC'S OWN
-  commits. The alternative, diffing `main` between two commits, measures
+  trailer was dropped, not that nothing was edited. **Every LANDING carries it
+  too**: a squash commit because the PR body does, and a merge commit because
+  the lander writes it into the merge message. The three guards measure each
+  landing on `main` against `main` before it, so the landing is the commit that
+  must name the arc. That trailer is how the guard below finds THE ARC'S OWN
+  landings. The alternative, diffing `main` between two commits, measures
   everything that reached `main` in between, and in a shared repository that is
   every other lane's work. Such a guard would flag unrelated landings, or, with a
   pathspec narrow enough to avoid them, miss the arc's own edits outside it.
@@ -1014,23 +1018,16 @@ packet's interim arrangement ends.**
 
       set -euo pipefail
       W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
-      # THE ARC'S OWN COMMITS (11.0), not everything that reached main meanwhile:
+      # THE ARC'S OWN LANDINGS (11.0), not everything that reached main meanwhile:
       : "${PACKET_MERGE:?set PACKET_MERGE to the merge commit of this packet on main}"
       : "${ARC_TIP:?set ARC_TIP to the last realization commit before the archive act}"
-      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' \
-        "$PACKET_MERGE..$ARC_TIP" > "$W/arc-commits.txt"
+      git log --first-parent --format=%H --grep='^Arc: neutral-product-standalone-operability$' \
+        "$PACKET_MERGE..$ARC_TIP" > "$W/arc-commits.txt"       # the arc's LANDINGS on main (11.0)
       test -s "$W/arc-commits.txt"                          # 11.1's annotations exist, so an empty list measured nothing
       : > "$W/arc-changes.tsv"
-      while read -r c; do                                   # WHOLE repository, no pathspec
-        git rev-list --parents -n 1 "$c" > "$W/arc-parents.txt"
-        if [ "$(wc -w < "$W/arc-parents.txt")" -gt 2 ]; then
-          kind=MERGE                                        # only what the merge ITSELF introduced (-c), never main's content
-          git diff-tree -r -c --no-commit-id --name-only "$c" > "$W/arc-one.txt"
-        else
-          kind=COMMIT                                       # an ordinary commit against its parent
-          git diff --name-only "$c^1" "$c" > "$W/arc-one.txt"
-        fi
-        while read -r p; do printf '%s\t%s\t%s\n' "$kind" "$c" "$p" >> "$W/arc-changes.tsv"; done < "$W/arc-one.txt"
+      while read -r c; do                                   # each landing against main before it: WHOLE repository, no pathspec
+        git diff --name-only "$c^1" "$c" > "$W/arc-one.txt"
+        while read -r p; do printf '%s\t%s\n' "$c" "$p" >> "$W/arc-changes.tsv"; done < "$W/arc-one.txt"
       done < "$W/arc-commits.txt"
       python3 - "$W/arc-changes.tsv" <<'PY'
       import copy, subprocess, sys, yaml
@@ -1050,10 +1047,8 @@ packet's interim arrangement ends.**
                   e.pop("note", None)
           return doc
       breach, annotated = [], 0
-      for kind, c, p in (l.rstrip("\n").split("\t") for l in open(sys.argv[1]) if l.strip()):
-          if kind == "MERGE":
-              breach.append(f"{c[:12]}: a merge introduced {p} itself; land it as an ordinary commit")
-          elif p in HOST or p.startswith(HOST_TESTS) or p in PIN_PAIR:
+      for c, p in (l.rstrip("\n").split("\t") for l in open(sys.argv[1]) if l.strip()):
+          if p in HOST or p.startswith(HOST_TESTS) or p in PIN_PAIR:
               continue                                  # a declared surface of the arc (11.1)
           elif p != MANIFEST:
               breach.append(f"{c[:12]}: touched {p}")
@@ -1076,26 +1071,33 @@ packet's interim arrangement ends.**
   **The guard reads CONTENT, not only names. It covers the WHOLE repository, and
   only the arc.** There is no pathspec, so a change to `README.md`, `.github/`,
   `pyproject.toml` or any other root path is seen. The commits measured are the
-  ones carrying 11.0's trailer, so another lane's landing in the same window is
-  not mistaken for the arc's. An ordinary commit is diffed against its parent. A
-  merge is charged only with what it introduced against EVERY parent (`git
-  diff-tree -c`). Merging `main` into an arc branch is therefore not charged with
-  `main`'s content, and a merge that introduces a change of its own is refused,
-  because an edit hidden in a merge is the one a reviewer does not read.
+  arc's LANDINGS: the commits on `main`'s first-parent line that carry 11.0's
+  trailer. Another lane's landing in the same window is therefore not mistaken
+  for the arc's. **Each landing is diffed against `main` before it**, so what is
+  measured is the whole of what that landing brought, whatever its shape. A
+  squash commit's diff is its PR. A merge landing's diff against its first
+  parent is the PR's net change, and that includes every commit on the branch,
+  an untrailered one included, and any change the merge made itself. That is
+  why the guard walks landings and not branch commits. A branch commit that
+  forgot the trailer would be skipped by a commit walk. A combined diff (`git
+  diff-tree -c`) of the merge that lands it would then omit the change too,
+  because the result matches one parent. Merges of `main` into an arc branch
+  never appear here at all, because they are not on `main`'s first-parent line,
+  so no other lane's content is charged to the arc.
 
   Every path must be one of 11.1's three declared surfaces: the host wiring
   (`scripts/opendox_host.py`, `scripts/profile_openxfactory.py`, and tests under
   `tests/domain_profile/`), the openDox pin pair (the `openDox` gitlink and
   `contracts/opendox-pin.yaml`, which `scripts/verify-opendox-pin.py` holds
   together), or `docs/opendox-carve-manifest.yaml`. The manifest is then
-  compared by CONTENT against the commit's parent. With every `edits[].note`
+  compared by CONTENT against `main` before the landing. With every `edits[].note`
   removed, the two documents must be EQUAL. No row is added, removed or
   reordered, and no disposition, destination, line list or digest moves. A note
   that already existed may only be EXTENDED, so an annotation cannot erase the
   record it annotates.
 
   **Nothing is exempt.** The ledger row this packet seeds landed with the filing,
-  before `PACKET_MERGE`. An arc commit that touches
+  before `PACKET_MERGE`. An arc landing that touches
   `tests/sequenced_after/corpus-ledger.yaml` is therefore a breach like any other.
   So is one that touches a promoted spec: the archive act that promotes this
   capability is the FILING's bookkeeping, like this packet's own merge, and lies
@@ -1106,10 +1108,13 @@ packet's interim arrangement ends.**
   pass. The parse needs PyYAML, which `scripts/validate-carve-manifest.py` itself
   imports.
 
-  The guard was run before this box was written, against a scratch repository
-  carrying the real manifest. It passed an added note, an extended note, and a
-  clean merge of `main`. It refused a rewritten note, a changed digest, a ledger
-  edit, and a merge carrying an edit of its own.
+  The guard was run as committed against a scratch repository carrying the real
+  manifest. It passed a squash landing of host wiring and a note, another lane's
+  untrailered landings, a merge of `main` into an arc branch, and a trailered
+  merge landing. It refused an untrailered edit to a check family hidden inside
+  a trailered merge landing, and a ledger edit. The content check's refusals of
+  a rewritten note and of a changed digest were run the same way when it was
+  written.
 
 ## Group 12 — Requirement 11: the neutral submission step (RULED, openDox-code)
 
@@ -1246,12 +1251,12 @@ that does not name a platform.
       git grep -l -e 'open-pr' -e 'open_pr' -e 'FakePullRequests' -- 'tests/test_*.py' > "$W/governed.txt"
       test "$(wc -l < "$W/governed.txt")" -ge 16            # 16 at ab04453d; fewer means a proof vanished
       while read -r f; do python -m pytest -q "$f"; done < "$W/governed.txt"
-      # ...and not by editing those proofs: no commit of THIS arc (11.0's trailer) touches them
+      # ...and not by editing those proofs: no landing of THIS arc (11.0's trailer) touches them
       : "${ARC_BASE:?set ARC_BASE to the commit of this repository before the first landing of the arc here}"
-      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' "$ARC_BASE..HEAD" > "$W/x-arc.txt"
+      git log --first-parent --format=%H --grep='^Arc: neutral-product-standalone-operability$' "$ARC_BASE..HEAD" > "$W/x-arc.txt"   # LANDINGS (11.0)
       test -s "$W/x-arc.txt"                                # 11.0: the arc DID land here (5.3a at least), so empty means a dropped trailer
       : > "$W/x-paths.txt"
-      while read -r c; do
+      while read -r c; do                                   # each landing against main before it
         git diff --name-only "$c^1" "$c" >> "$W/x-paths.txt"
       done < "$W/x-arc.txt"
       python3 - "$W/x-paths.txt" "$W/governed.txt" <<'PY'

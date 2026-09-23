@@ -554,9 +554,9 @@ Active changes:
   (openxFactory for its host wiring and its openDox pin; the assembly root gains
   README documentation only, and is not a code surface) — the requirements land now,
   the realization runs post-ratification, and this packet authors no code byte,
-  so it stays ACTIVE as
-  approved-but-unrealized intent until `release-realization`'s archive gate is
-  met by merged-plus-green evidence per requirement. Two
+  so once RATIFIED it stays ACTIVE as approved-but-unrealized intent until
+  `release-realization`'s archive gate is met by merged-plus-green evidence per
+  requirement; until then it is a draft and approves nothing. Two
   findings are recorded rather than assumed: the packet is filed HERE and not in
   openDox-spec because that instance, while operable, has promoted nothing and
   the CLI refuses MODIFIED deltas against specs that exist nowhere (requirement
