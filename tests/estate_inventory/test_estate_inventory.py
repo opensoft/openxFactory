@@ -1776,7 +1776,7 @@ def test_a_PIN_admission_is_named_by_its_STRUCTURAL_field_and_not_by_prose(
         encoding="utf-8")
 
     prose_only = _inventory(tmp_path, [
-        _row("codeXfactory/codexFactory", governance="governed",
+        _row("codeXfactory/codexFactory", governance="pinned",
              admitted_by=[{"kind": "pin", "path": "contracts/cli-pin.yaml"}]),
     ], name="prose-only.yaml")
     verdicts = [v for v in
@@ -1991,3 +1991,40 @@ def test_a_reusable_workflow_called_at_JOB_LEVEL_names_its_repository(
                ei.evidence_verdicts(ei.load_inventory(path), tmp_path)
                if v.row.repository == "codeXfactory/codexFactory"]
     assert [v.verdict for v in verdicts] == [ei.NAMED]
+
+
+# ==============================================================================
+# THE SIXTH REVIEW ROUND OF PR #1119: the pin kind's second clause, at load
+# ==============================================================================
+
+
+def test_a_PIN_admission_on_a_GOVERNED_row_is_refused(tmp_path):
+    """The promoted spec's own words: "`pin`: an openxFactory file under
+    `contracts/` names the repository as the source of a commit-and-digest
+    pin. This is openxFactory's act, for a product PINNED rather than
+    governed." The post-pass bound `root` and `gitlink` but skipped every
+    `pin` admission without checking this second clause — exactly the shape
+    row 3 (`codeXfactory/codexFactory`) carried until Brett Heap ruled it out
+    ("Drop the pin admission on row 3"): `governance: governed` AND admitted
+    by a `pin`. Unchecked, a malformed inventory could reintroduce that same
+    mismatch on any row, and the membership arm would accept it — it refuses
+    only `governance: external`.
+    """
+    pinned_on_governed = _inventory(tmp_path, [
+        _row("opensoft/Something", governance="governed",
+             admitted_by=[{"kind": "pin", "path": "contracts/x-pin.yaml"}]),
+    ], name="bad.yaml")
+    with pytest.raises(ei.EstateInventoryError) as refusal:
+        ei.load_inventory(pinned_on_governed)
+    assert "governance: governed" in str(refusal.value)
+    assert "admitted by a `pin`" in str(refusal.value)
+
+    # AND THE TWO LAWFUL CLASSES STILL LOAD — `pinned` and `external`, the
+    # only two classes any real `pin`-admitted row in this estate carries
+    # (rows 12-14, 16 `pinned`; row 26 `external`).
+    for governance in ("pinned", "external"):
+        lawful = _inventory(tmp_path, [
+            _row("opensoft/Something", governance=governance,
+                 admitted_by=[{"kind": "pin", "path": "contracts/x-pin.yaml"}]),
+        ], name=f"lawful-{governance}.yaml")
+        assert len(ei.load_inventory(lawful).rows) == 1

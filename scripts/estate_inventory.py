@@ -879,6 +879,32 @@ def load_inventory(path: Path = INVENTORY_PATH) -> Inventory:
                         "`governance:`, or its `admitted_by:` if `root` does "
                         "not belong on it")
                 continue
+            if admission.kind == PIN and row.governance == "governed":
+                # THE KIND'S SECOND CLAUSE, AND THE ONE THE POST-PASS DID NOT
+                # CHECK: "an openxFactory file under `contracts/` names the
+                # repository as the source of a commit-and-digest pin … for a
+                # product PINNED rather than governed" (the promoted spec's own
+                # words). Every OTHER `pin`-admitted row in this estate is
+                # `pinned` or `external` — never `governed` — and row 3
+                # (`codeXfactory/codexFactory`) carried exactly this mismatch
+                # until Brett Heap ruled it out, verbatim "Drop the pin
+                # admission on row 3": `governed` and `pin`-admitted at once.
+                # Unchecked, a malformed inventory could reintroduce that same
+                # shape on any governed row, and the membership arm would
+                # accept it — it refuses only `governance: external`, so a
+                # `governed` row that also happened to declare a `pin` would
+                # resolve and pass membership on a kind that was never lawful
+                # evidence for it.
+                raise EstateInventoryError(
+                    f"row {row.position} ({row.repository}) declares "
+                    f"`governance: governed` and is admitted by a `pin` "
+                    f"({admission.path}). `pin` is openxFactory's act "
+                    "\"for a product PINNED rather than governed\" — a "
+                    "`governed` row is one this estate authors directly, so "
+                    "its own tree is the estate's act of admission and a "
+                    "`contracts/` pin is never that row's evidence. Drop the "
+                    "`pin` admission, or change this row's `governance:` if "
+                    "it is not actually governed")
             if admission.kind != GITLINK:
                 continue
             assert admission.carrier is not None
