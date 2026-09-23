@@ -659,6 +659,52 @@ Active changes:
   evidence, and a second disposition class is live today, so retiring one class
   would not retire the requirement.
 
+- [assert-review-lane-lockstep-against-aggregation](openspec/changes/assert-review-lane-lockstep-against-aggregation/proposal.md)
+  — filed 2026-09-22, lane `openxfactory-4`, **`Status: draft`**, on Copilot
+  finding `r4067694104` (review `5273295522`) against `#1136`, the lockstep flip
+  at the fourth re-point ceremony (merge `7c49825e`). The lane VERIFIED that
+  finding and DECLINED the remedy as outside that pull request's mandate
+  (`r4067703286`), and the flip's own appended `reason:` paragraph recorded the
+  remedy's shape as option **(b)** — *"make the CROSS-REPOSITORY fact assertable
+  at all … (b) is the better fix, because (a) still leaves this file's truth
+  depending on a lane remembering to write it"*. **ONE `## ADDED` requirement,
+  EIGHT scenarios — an absent or foreign declaration, a stale `converged`, a
+  stale `diverged`, surfaces disagreeing with each other, the check's own access
+  failing, an unreadable aggregation, a candidate unread or its head moved, and
+  the pure-function reproduction — no `## MODIFIED` block.**
+  `contracts/review-lane-pin.yaml`
+  DECLARES at `lockstep.status` whether this repository's pinned decision core
+  and the aggregation's `MIGRATION_PIN` name one commit, and nothing measures the
+  claim: `WRITABLE_PATHS` is four files, the lane rewrites only regex-anchored
+  sites within the pin, the string `lockstep` occurs ZERO times in
+  `scripts/review_lane_repin.py`, and `opensoft/xFactory`, `MIGRATION_PIN` and
+  `council-convening` together return ZERO hits across the driver and its
+  workflow — while the guarding test asserts the field against a LITERAL in the
+  test file, comparing this repository's value to its own constant. It last went
+  false on 2026-09-18 for **34 minutes 6 seconds** (`#1122` → `38f826c2`,
+  repaired at `#1123` → `8184d74a`), bounded by a human happening to watch; and
+  `#1138` is OPEN with auto-merge armed proposing `core_commit`
+  `b21f0100` → `491fc54d` in a diff whose lockstep line count is ZERO. The
+  requirement makes the state MEASURED rather than declared, at every proposed
+  advance, symmetric in both directions, with the aggregation's surfaces read as a
+  SET that must agree before either state is concluded (disagreement reported
+  INCONSISTENT) and an unreadable aggregation reported UNDETERMINED and never as
+  a pass. **Each outcome carries a CONCLUSION and three fail**, all this
+  repository's own defects: a declaration outside its vocabulary, the check's
+  own access failing, and a declaration the measurement CONTRADICTS, which is
+  that file stating something false; INCONSISTENT and UNDETERMINED each conclude
+  NEUTRAL and visible, because neither is this repository's claim to answer and
+  turning an outage, another repository's or the host's, into a red build here is
+  how a governance check stops being run. **Shape (b) and not (a), by measurement**:
+  the lane has no reading of the aggregation, so it could only write `diverged`
+  by inference — an inference the fourth ceremony already falsified, since the
+  aggregation converged ONTO a commit this file had held for three days — and the
+  capability itself already holds that *"an UNATTENDED author must prove the
+  lockstep by measurement rather than assert it"*. The disposition mechanism is
+  untouched, the pin file is not hand-patched, `WRITABLE_PATHS` gains no member
+  and no act in `opensoft/xFactory` is proposed. `code_surface: openxFactory`, so
+  it archives on merged **plus** green realization evidence. **NOT RATIFIED BY
+  THE AUTHORING LANE.**
 - [add-worker-input-budget](openspec/changes/add-worker-input-budget/proposal.md)
   — filed 2026-09-22, lane `openxfactory-1`, `Status: draft`, on Brett Heap's
   word *"brief a writer to add the input-size guard"* (2026-09-22). **The
