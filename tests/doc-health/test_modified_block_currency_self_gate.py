@@ -1245,6 +1245,39 @@ _LEDGER_SUBJECTS = {
     # block were that same amendment, and promotion is what discharges them.
     # Re-measured over this tree: the family reports neither this subject nor
     # any unnamed one.
+
+    # ADDED 2026-09-21, WHEN PR #1112'S ROUND-3 COPILOT FIX corrected canon's
+    # `**AMENDED BY**` provenance sentence over this SAME requirement
+    # (`openspec/specs/release-realization/spec.md`, commit `35afdc3f`) to
+    # name what the amendment ADDED rather than implying every paragraph is
+    # canon's own bytes. `add-estate-repository-inventory` (ratified
+    # 2026-09-18, still active) declares `sequenced_after:
+    # [amend-code-surface-grammar-comma-and]` over this SAME requirement key
+    # (corpus ledger: class `co-modifier`, depth 1) and its own `## MODIFIED`
+    # block was written to reproduce `amend-code-surface-grammar-comma-and`'s
+    # ratified wording byte-for-byte, INCLUDING the pre-round-3 `**AMENDED
+    # BY**` paragraph — a faithful carriage of what it was ratified against.
+    # BEFORE `amend-code-surface-grammar-comma-and` archived (this same pull
+    # request, #1112), the ordering arm measured this block against THAT
+    # packet's ACTIVE block, not against canon, so the pre-round-3 match was
+    # exact and this arm reported nothing. Once the archive landed, the
+    # ordering arm no longer finds two ACTIVE writers to pair —
+    # `add-estate-repository-inventory` is now the SOLE remaining active
+    # writer of this requirement key — so the CARRIAGE arm measures its block
+    # directly against CANON, where the round-3 fix now reads differently.
+    # THE ONE UNCARRIED BODY UNIT IS EXACTLY THAT PARAGRAPH (re-measured:
+    # `python3 scripts/doc-health.py --single-repo . --family
+    # modified-block-currency` — 1 of 66 body units and scenario bullets,
+    # the `**AMENDED BY**` paragraph, and nothing else). Expected editorial
+    # drift over a declared, ordered delta whose basis just archived, not a
+    # regression: `add-estate-repository-inventory` neither wrote nor
+    # promised this sentence's exact wording, only #1108's ratified outcome,
+    # which it still carries unchanged. Retires when
+    # `add-estate-repository-inventory` itself archives and its block is
+    # promoted — or sooner, if it is amended first to carry the corrected
+    # sentence, retiring it the same way any other in-flight correction does.
+    ("add-estate-repository-inventory", "release-realization",
+     "Code-surface declaration grammar is gated"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -2175,6 +2208,26 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     paragraph above was measured on a tree that did not hold this retirement,
     and stands as the reading of the head it names.
 
+    THIRTEEN SINCE 2026-09-21, WHEN THIS PACKET'S OWN ROUND-3 COPILOT FIX
+    (commit `35afdc3f`) corrected canon's `**AMENDED BY**` provenance
+    sentence over `release-realization`'s *Code-surface declaration grammar
+    is gated* — the very requirement `amend-code-surface-grammar-comma-and`
+    archived onto two paragraphs above. `add-estate-repository-inventory`
+    declares `sequenced_after: [amend-code-surface-grammar-comma-and]` over
+    that SAME requirement key and its own `## MODIFIED` block reproduces
+    that packet's ratified wording byte-for-byte, including the pre-round-3
+    `**AMENDED BY**` paragraph. Before the archive, the ordering arm measured
+    this block against `amend-code-surface-grammar-comma-and`'s ACTIVE block
+    and reported nothing; once the archive landed, that packet stopped being
+    an active writer, so `add-estate-repository-inventory` — now the SOLE
+    remaining active writer of this requirement key — is measured directly
+    against CANON instead, where the round-3 fix now reads. One row opens,
+    not a regression: `add-estate-repository-inventory` carries #1108's
+    ratified outcome unchanged, and canon is what moved. `len(_LEDGER_SUBJECTS)`
+    MEASURED AT THIS HEAD reads THIRTEEN — 14 literal entries, 13 unique, the
+    same pre-existing `add-chain-attestation` duplicate collapsing as it
+    always has.
+
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
     which is the defect this family exists to catch. Asserted loosely in the one
@@ -2322,7 +2375,20 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "non-empty code_surface requires (PR #1094 -> 8f93cbc0), and the one "
         "row its own ratifier's partition amendment had opened over this VERY "
         "requirement retired with it, its block promoted byte-identical into "
-        "canon)",
+        "canon; 13 SINCE 2026-09-21, when this packet's own round-3 Copilot "
+        "fix (commit 35afdc3f) corrected canon's AMENDED BY provenance "
+        "sentence over release-realization's Code-surface declaration "
+        "grammar is gated — the same requirement amend-code-surface-grammar-"
+        "comma-and archived onto — and add-estate-repository-inventory, "
+        "declaring sequenced_after: [amend-code-surface-grammar-comma-and] "
+        "over that same key and carrying that packet's ratified wording "
+        "byte-for-byte including the pre-round-3 AMENDED BY paragraph, "
+        "became the sole remaining active writer once the archive retired "
+        "the ordering arm's pairing, so the carriage arm now measures its "
+        "block against canon directly, where the round-3 fix reads "
+        "differently; one row opens, not a regression, and it retires when "
+        "add-estate-repository-inventory itself archives and its block is "
+        "promoted)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
