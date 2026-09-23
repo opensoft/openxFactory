@@ -529,3 +529,12 @@ this packet's archive until merged PLUS green realization evidence.
   3,000 returned by the filter, the workflow will **not** run."* A pull request
   that large which also changed the pin would draw no verdict. That is the platform's limit, not a condition this packet adds, and it
   is registered here rather than engineered around.
+- [~] 6.7 **THE AGGREGATION'S SIDE IS OBSERVED ONLY THROUGH THIS REPOSITORY'S
+  PULL REQUESTS** (Copilot `r4078648320`; `design.md` D2). A `MIGRATION_PIN`
+  re-point in `opensoft/xFactory` can falsify the declaration with no pull
+  request here, and the check reports it at the next pull request that changes
+  the pin. The ceremony's own pull request here is among them, as `#1136` was. A
+  trigger that observed the aggregation as it moves is a different act. A
+  dispatch from the ceremony would be an act in `opensoft/xFactory`, which this
+  packet does not propose, and a scheduled measurement of `main` is the schedule
+  D2 declines as the mechanism. Registered for the ratifier.

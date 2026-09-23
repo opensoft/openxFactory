@@ -33,7 +33,13 @@ repository that this measurement is the first thing positioned to see. WHEN IT
 RUNS is at least every proposed advance of `core_commit` and the pull request
 that carries it, so a declaration an advance falsifies is reported in the SAME
 pull request that falsifies it rather than whenever a human next happens to read
-the field. IT JUDGES EVERY SUCH PULL REQUEST ALIKE: no condition of the check SHALL
+the field. WHAT IT OBSERVES IS THIS REPOSITORY'S SIDE OF THE PAIR: a move the
+aggregation makes alone, its `MIGRATION_PIN` re-pointed at a ceremony, can
+falsify the declaration with no pull request here, and the check reports that at
+the next pull request that changes the pin; the ceremony's own pull request here,
+the one that moves `lockstep.status`, is such a pull request. Observing the
+aggregation's side as it moves would take an act in the aggregation or a
+schedule, and this requirement takes neither. IT JUDGES EVERY SUCH PULL REQUEST ALIKE: no condition of the check SHALL
 branch on the pull request's author, its branch or its automated origin, because
 this capability's *An automated pin advance is judged by the freshness checks that
 already exist, with no exemption* forbids exactly that to every check that judges

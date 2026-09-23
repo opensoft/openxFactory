@@ -64,8 +64,9 @@ what a human already does. The hazard is specifically that **a routine advance
 falsifies the claim and nothing notices**, so the requirement puts the check at
 least on every proposed advance of `core_commit` and on the pull request carrying
 it. That way the contradiction is reported in the SAME pull request that creates
-it, to the reviewer who is already looking at that diff, before the platform
-auto-merge that lane arms can land it unattended.
+it, to the reviewer who is already looking at that diff. It does not by itself
+stop the auto-merge that lane arms: the verdict is not a required check, and
+requiring it is a ruleset act this packet does not take (`tasks.md` § 6.5).
 
 **A gate that BLOCKS the advance was considered and is deliberately not
 required.** Divergence is a lawful state — the pin file has carried it, with
@@ -73,6 +74,18 @@ reasons, through four cycles — and a check that refused every advance leaving 
 aggregation behind would refuse the ordinary case the estate designed for. The
 obligation is to REPORT a declaration the measurement contradicts, not to forbid
 the state it reports.
+
+**What the check observes is this repository's side of the pair** (Copilot
+`r4078648320`). An aggregation that moves alone — `MIGRATION_PIN` re-pointed at a
+ceremony — can falsify the declaration with no pull request here. The check
+reports that at the next pull request that changes the pin, and the ceremony's
+own pull request here is one: `#1136`, the fourth ceremony's lockstep flip,
+changed `contracts/review-lane-pin.yaml` (author `brettheap`, merge `7c49825e`).
+Observing the aggregation as it moves would take either a dispatch from the
+aggregation, which is an act in `opensoft/xFactory` this packet does not propose,
+or a schedule, which the paragraph above declines as the mechanism. The
+requirement now says which side it observes rather than implying both, and the
+gap is registered at `tasks.md` § 6.7.
 
 ## D3 — `## ADDED` and no `## MODIFIED`, which is a decision
 
@@ -471,7 +484,9 @@ packet on this lane spent four review rounds on exactly that class, so this one
 was swept the way that one ended up being swept: case-insensitively, across
 `.md`, `.yaml` and `.py`, over every number-word adjacent to a counted noun. Every
 inventory now also NAMES the six rather than only counting them, which is the
-durable half of the fix.
+durable half of the fix. (Seven since review `5286349291` added the check's own
+access failing. The four inventories moved again, and the `target_release`
+clause was again the one left behind, until Copilot `r4078648354`.)
 
 **The fifth finding was real and structural.** `r4076557241`: the ordering in D9
 put the comparison before the declared state, while D14a's scenario requires an
