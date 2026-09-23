@@ -143,9 +143,39 @@ mention in the package is prose.
   narrowing's reason as *"Until the BUILD arc … inverts the openDox → openXdox
   dependency"*. That dependency IS inverted at import time; the live cause is
   `ideation_dashboard`.
-- [ ] **FALSIFIED BY:** in a checkout of openDox-code alone,
-  `python -c "import opendox.serve"`, `python -c "import opendox.cli"` and
-  `python -c "import opendox.notebook_action"` each exit 0. Today all three raise
+- [ ] **FALSIFIED BY** (a checkout of openDox-code alone, installed WITH every
+  extra it declares — `.[runtime,test]` — so that any `ImportError` left is a
+  reach into a sibling and not a missing third-party package):
+
+      set -euo pipefail
+      python -m venv /tmp/v2
+      . /tmp/v2/bin/activate
+      pip install ".[runtime,test]"
+      for sibling in openxdox ideation_dashboard doc_health corpus_adapter_openxfactory; do
+        if python -c "import $sibling" 2>/dev/null; then echo "FAIL: $sibling is importable"; exit 1; fi
+      done
+      # EVERY module of the package, generated, not a hand-picked three:
+      python3 - <<'PY'
+      import importlib, pkgutil, sys, opendox
+      failed = []
+      for m in pkgutil.walk_packages(opendox.__path__, "opendox."):
+          try:
+              importlib.import_module(m.name)
+          except Exception as e:                            # noqa: BLE001 - every failure is a finding here
+              failed.append(f"{m.name}: {type(e).__name__}: {e}")
+      if failed:
+          sys.exit("FAIL: modules that still need a sibling:\n  " + "\n  ".join(failed))
+      print("every module of opendox imports with no sibling")
+      PY
+      # ...and 2.4's own test, by name, so the suite keeps the sweep after the arc:
+      python -m pytest -q "tests/test_imports_standalone.py::test_every_module_imports_with_no_sibling"
+
+  **The sweep is generated, not listed.** `pkgutil.walk_packages` visits every
+  module the package has: 57 `.py` files under `src/opendox/` at `3c3a9e31`. A
+  module added later is covered without editing this command, and a fourth
+  module keeping an import-time reach cannot pass beside three that were fixed.
+  The absence of each sibling is ASSERTED first. Today the sweep fails on
+  `opendox.serve`, `opendox.cli` and `opendox.notebook_action` at least, each with
   `ModuleNotFoundError: No module named 'ideation_dashboard'`.
 
 ## Group 3 — Requirement 3 / G2: a default domain profile (openDox-code)
@@ -211,9 +241,13 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 
 - [ ] 5.0 **Ship `tests/fixtures/plain-documents`** — first needed here, and
   Groups 7 and 13 read it too: a handful of `.md` documents spread across the six
-  neutral stages, carrying NONE of openxFactory's governance vocabulary (no
-  `openspec`, no `proposal.md`, no `ratified`), which is what lets the assertion
-  below mean something.
+  neutral stages, carrying NONE of openxFactory's governance vocabulary, which is
+  what lets the assertion below mean something. That vocabulary is DECLARED data,
+  not a hand-picked sample. It is the eight document-lifecycle `Status:` words
+  (`brainstorm`, `staged`, `draft`, `ratified`, `standard`, `superseded`,
+  `retired`, `record`) and the change/spec/delta nouns (`openspec`,
+  `proposal.md`, `tasks.md`, `design.md`, `ADDED Requirements`, `MODIFIED
+  Requirements`). A test keeps the fixture free of all of them.
 - [ ] 5.1 Write openDox's SMALL NEUTRAL PROJECTION over the `CorpusAdapter`
   protocol already declared at `src/opendox/corpus_adapter.py` (a
   `@runtime_checkable` `Protocol`, six closed members: `resolve`,
@@ -278,6 +312,34 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   through the seam 5.4 declares. The publisher's corpus is projected exactly as
   today and the consumer loses no capability — requirement 4's third scenario is
   the check.
+- [ ] **FALSIFIED BY** (5.4a; an openXdox-code checkout with the realized openDox
+  installed and Group 9 landed): the governed projection's own suites pass, and the
+  arc did not edit them.
+
+      set -euo pipefail
+      ls tests/test_generator.py tests/test_snapshot*.py tests/test_session_snapshot.py > /tmp/gen-suites.txt
+      while read -r f; do python -m pytest -q "$f"; done < /tmp/gen-suites.txt
+      git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' <arc-base>..HEAD > /tmp/x-arc.txt
+      : > /tmp/x-paths.txt
+      while read -r c; do
+        git diff --name-only "$c^1" "$c" >> /tmp/x-paths.txt
+      done < /tmp/x-arc.txt
+      python3 - /tmp/x-paths.txt /tmp/gen-suites.txt <<'PY'
+      import sys
+      touched = {l.strip() for l in open(sys.argv[1]) if l.strip()}
+      suites = {l.strip() for l in open(sys.argv[2]) if l.strip()}
+      edited = sorted(touched & suites)
+      if edited:
+          sys.exit("FAIL: the arc edited the governed projection's own proofs: " + ", ".join(edited))
+      PY
+
+  Requirement 4's third scenario says the consumer loses no capability, and these
+  are the suites that already pin the governed snapshot, including its
+  determinism. Six exist at `ab04453d`: `test_generator.py`, `test_snapshot.py`,
+  `test_snapshot_determinism.py`, `test_snapshot_registry.py`,
+  `test_snapshot_validation_launch.py` and `test_session_snapshot.py`. The set is
+  taken by glob rather than typed out, and a suite the arc rewrote would prove
+  nothing, so edits to them are refused through 11.0's trailer.
 - [ ] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
   projection replaces them; the import-time column stays at zero.
 - [x] 5.6 **Do NOT author the view-wiring slice here** — and it can no longer be
@@ -305,13 +367,24 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       git -C "$R" add -A
       git -C "$R" commit -qm fixture
       python -m opendox.cli generate --repo-root "$R" --repository fixture --output /tmp/snap.json
-      python -c "
-      import json,sys
-      d=json.load(open('/tmp/snap.json'))
-      assert d['documents'], 'snapshot is empty'
-      blob=json.dumps(d).lower()
-      assert not any(w in blob for w in ('openspec','proposal.md','ratified')), 'publisher noun leaked'
-      print('documents:', len(d['documents']))"
+      python3 - /tmp/snap.json <<'PY'
+      import json, re, sys
+      d = json.load(open(sys.argv[1]))
+      assert d["documents"], "snapshot is empty"
+      WORDS = ["brainstorm", "staged", "draft", "ratified", "standard", "superseded", "retired", "record",
+               "openspec", "proposal.md", "tasks.md", "design.md", "added requirements", "modified requirements"]
+      pat = re.compile(r"\b(" + "|".join(re.escape(w) for w in WORDS) + r")\b")
+      def values(o):                                        # string VALUES only: keys are the product's own structure
+          if isinstance(o, dict):
+              for v in o.values(): yield from values(v)
+          elif isinstance(o, list):
+              for v in o: yield from values(v)
+          elif isinstance(o, str):
+              yield o
+      leaks = sorted({m.group(1) for v in values(d) for m in pat.finditer(v.lower())})
+      assert not leaks, f"openxFactory's vocabulary leaked into the neutral projection: {leaks}"
+      print("documents:", len(d["documents"]))
+      PY
 
   Under `set -euo pipefail` the sequence exits non-zero on any step; the
   assertions are IN the command rather than in prose, so the check is
@@ -803,12 +876,12 @@ that does not name a platform.
 - [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
   registered, openxFactory's GitHub pull-request flow behaves exactly as today.
   This is a generalization, not a replacement, and 12.5 is the box that proves it.
-  **Measured: nothing proves it today.** The suites that drive `gate open-pr`
-  through the registered host path with `FakePullRequests` are
-  `test_session_verbs.py`, `test_session_lifecycle.py`, `test_session_gates.py`,
-  `test_branch_session.py` and `test_session_records.py` in openXdox-code. None of
-  them is among the 16 test files openXdox-code's `validate.yml` runs at
-  `ab04453d`, so the governed flow has no running regression check at all. This
+  **Measured: nothing proves it today.** Sixteen openXdox-code test files drive
+  `gate open-pr` through the registered host path or inject `FakePullRequests`
+  (`git grep -l` at `ab04453d`), `test_session_verbs.py`,
+  `test_session_lifecycle.py` and `test_branch_session.py` among them. **None of
+  the sixteen is among the 16 test files openXdox-code's `validate.yml` runs**,
+  so the governed flow has no running regression check at all. This
   box's acceptance runs them, and needs Group 9 by name, since the whole suite
   must first be runnable.
 - [ ] **FALSIFIED BY** (openXdox-code checkout with the realized openDox installed
@@ -816,27 +889,32 @@ that does not name a platform.
   injected, so no network is reached):
 
       set -euo pipefail
-      GOVERNED="tests/test_session_verbs.py tests/test_session_lifecycle.py tests/test_session_gates.py tests/test_branch_session.py tests/test_session_records.py"
-      for f in $GOVERNED; do test -f "$f"; done             # each proof still exists under its name
-      for f in $GOVERNED; do python -m pytest -q "$f"; done # the governed flow, through gate open-pr, green
+      # the WHOLE governed set, computed: every suite that drives open-pr or injects the fake
+      git grep -l -e 'open-pr' -e 'open_pr' -e 'FakePullRequests' -- 'tests/test_*.py' > /tmp/governed.txt
+      test "$(wc -l < /tmp/governed.txt)" -ge 16            # 16 at ab04453d; fewer means a proof vanished
+      while read -r f; do python -m pytest -q "$f"; done < /tmp/governed.txt
       # ...and not by editing those proofs: no commit of THIS arc (11.0's trailer) touches them
       git log --format=%H --grep='^Arc: neutral-product-standalone-operability$' <arc-base>..HEAD > /tmp/x-arc.txt
       : > /tmp/x-paths.txt
       while read -r c; do
         git diff --name-only "$c^1" "$c" >> /tmp/x-paths.txt
       done < /tmp/x-arc.txt
-      python3 - /tmp/x-paths.txt $GOVERNED <<'PY'
+      python3 - /tmp/x-paths.txt /tmp/governed.txt <<'PY'
       import sys
       touched = {l.strip() for l in open(sys.argv[1]) if l.strip()}
-      edited = sorted(touched & set(sys.argv[2:]))
+      edited = sorted(touched & {l.strip() for l in open(sys.argv[2]) if l.strip()})
       if edited:
           sys.exit("FAIL: the arc edited the governed flow's own proofs: " + ", ".join(edited))
       PY
 
   The suites must pass AND must be unedited by the arc, because a regression
-  proof the change under test may rewrite proves nothing. `GOVERNED` is expanded
-  by the `for` loops one file at a time, so the command behaves the same under
-  bash and zsh, which does not word-split a variable.
+  proof the change under test may rewrite proves nothing. **The set is computed,
+  not typed.** Every openXdox test file that drives `open-pr` or injects
+  `FakePullRequests` is included: 16 at `ab04453d`, where an earlier draft of
+  this box listed five of them. The floor of 16 catches a proof that disappears.
+  Files are read from a list one per line, so the command behaves the same under
+  bash and zsh, which does not word-split a variable. The measurement behind 12.5
+  stands: none of the 16 is among the files openXdox's `validate.yml` runs.
 - [ ] 12.6 **MERGE AUTHORITY — RULED, HOLD RELEASED.** Brett Heap, `#656` comment
   `5784155201`, 2026-09-22T21:06:01Z: *"merge yes"* — landing authority follows
   whoever governs the repository. A GOVERNED host reserves landing and routes it
@@ -867,10 +945,20 @@ that does not name a platform.
   `standalone` the neutral lander is bound through `landing_factory`, declared
   beside `pull_request_factory` (`serve.py:766`): the same pattern with its own
   registration point, like every seam in this packet. **The three guardrails are
-  the operation's CONTRACT, not its options.** `confirmation` can be built only
-  from an interactive human act (a TTY prompt where the human types the branch
-  name back, or the view's confirm control), never from configuration, a flag,
-  or a non-interactive stdin. A conflict raises `MergeConflict` carrying the
+  the operation's CONTRACT, not its options.** `confirmation` is a CAPABILITY,
+  not a value a caller builds. It is an opaque, single-use token that only two
+  issuers mint. One is the `land` verb's prompt, which reads the typed branch
+  name from the CONTROLLING TERMINAL (`/dev/tty`, never stdin) and refuses when
+  there is none. The other is the view's confirm control, which receives a nonce
+  the loopback server issued for that branch. Each token is bound to the branch
+  AND its head sha, and it is spent on use. `land` verifies all of it: a token
+  constructed directly, minted for another branch or another head, or presented
+  twice is refused, as is a `land` whose stdin is not a terminal. **Its limit is
+  stated rather than hidden.** An in-process boundary cannot stop code the user
+  runs on purpose. What it stops is the PRODUCT's own paths (the fix loop,
+  scheduling, automation), because none of them can reach an issuer, and a test
+  asserts that no module outside the two interactive layers calls one. Packs run
+  out of process (15.1b), so they cannot reach one either. A conflict raises `MergeConflict` carrying the
   conflicting paths and leaves the default branch where it was. A landing is a
   `--no-ff` MERGE COMMIT whose sha `Landed` returns, so `git revert -m 1 <sha>`
   undoes it. The CLI verb is `land --repo-root <repo> --branch
@@ -928,7 +1016,7 @@ that does not name a platform.
 
   **And the three guardrails are asserted, now that 12.6 is RULED — by NAME**, so
   a missing test FAILS the command rather than being quietly absent from it. 12.6
-  owes these five tests, and pytest exits non-zero (`ERROR: not found`) for any
+  owes these nine tests, and pytest exits non-zero (`ERROR: not found`) for any
   node that does not exist, so today the command fails:
 
       python -m pytest -q \
@@ -936,7 +1024,11 @@ that does not name a platform.
         "tests/test_landing_guardrails.py::test_land_shows_a_conflict_and_does_not_resolve_it" \
         "tests/test_landing_guardrails.py::test_a_landed_merge_is_a_commit_that_git_revert_undoes" \
         "tests/test_landing_guardrails.py::test_no_configuration_enables_automatic_landing" \
-        "tests/test_landing_guardrails.py::test_a_governed_repository_binds_no_lander"
+        "tests/test_landing_guardrails.py::test_a_governed_repository_binds_no_lander" \
+        "tests/test_landing_guardrails.py::test_a_directly_constructed_confirmation_is_refused" \
+        "tests/test_landing_guardrails.py::test_a_confirmation_for_another_branch_or_head_is_refused" \
+        "tests/test_landing_guardrails.py::test_a_spent_confirmation_is_refused" \
+        "tests/test_landing_guardrails.py::test_only_the_interactive_layers_call_an_issuer"
 
   Each node exercises 12.6a's seam. The first builds a `confirmation` every way
   that is not a human act (a flag, a config key, a non-TTY stdin) and expects
@@ -945,9 +1037,13 @@ that does not name a platform.
   then reverts with `-m 1`, and expects the tree restored. The fourth walks the
   configuration surface and fails if any key can switch a guardrail off: the
   "none configurable" clause made testable. The fifth registers a governed host
-  and expects NO `LandingPort` bound. Naming test nodes in an ACCEPTANCE command is not the defect Group 9
+  and expects NO `LandingPort` bound. The last four test the capability itself.
+  A token built directly is refused. So is one minted for another branch or
+  another head, and so is one presented a second time. A static check proves
+  that no module outside the `land` prompt and the view's confirm route calls an
+  issuer. Naming test nodes in an ACCEPTANCE command is not the defect Group 9
   removes from `validate.yml` — CI must run the whole suite, and this command runs
-  five named proofs in addition to it.
+  nine named proofs in addition to it.
 
   Today none of this is reachable: the only implementation is `GhPullRequests`,
   which shells `["gh", "pr", ...]` (`:367`) against `_GITHUB_HOST = "github.com"`
@@ -1191,11 +1287,13 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   health/dispositions.yaml entry re-opens"* the finding. An exception is a
   judgement that exists nowhere else; the store is disposable, so an exception
   stored there is a judgement scheduled for deletion.
-- [ ] 14.9 **Ship `tests/fixtures/health-corpus`**: a small corpus with ONE
-  known broken internal link (finding `broken-link`, class `auto-fix`) and ONE
-  finding the fixture will accept (`accepted-finding`), and nothing else a
-  neutral family would flag — so every assertion below is about a finding the
-  fixture put there on purpose.
+- [ ] 14.9 **Ship `tests/fixtures/health-corpus`**: a small corpus carrying ONE
+  finding of EVERY kind requirement 14 names, and nothing else a neutral family
+  would flag, so that every assertion below is about a finding the fixture put
+  there on purpose. For `auto-fix`, one of each mechanical kind: `broken-link` (a
+  moved link target), `derivable-front-matter`, and `stage-location-mismatch`.
+  For `assisted`, `near-duplicate`. For `human-only`, `human-only-finding`. Plus
+  the one it will accept, `accepted-finding`.
 - [ ] **FALSIFIED BY** (openDox-code, installed, over 14.9's fixture corpus with a
   known broken link and a known accepted finding):
 
@@ -1213,9 +1311,24 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
       grep -q 'broken-link' /tmp/h1.txt
       # a mechanical repair writes a DRAFT ON A BRANCH and never the default branch:
       before=$(git -C $C rev-parse HEAD)
-      opendox health fix --repo-root $C --finding broken-link
-      test "$(git -C $C rev-parse HEAD)" = "$before"        # default branch UNMOVED
-      git -C $C rev-parse --verify --quiet refs/heads/health-fix-broken-link
+      opendox health list --repo-root $C --json > /tmp/h1.json
+      python3 - /tmp/h1.json <<'PY'
+      import json, sys
+      want = {"broken-link": "auto-fix", "derivable-front-matter": "auto-fix", "stage-location-mismatch": "auto-fix",
+              "near-duplicate": "assisted", "human-only-finding": "human-only"}
+      got = {x["id"]: x["resolution_class"] for x in json.load(open(sys.argv[1]))}
+      wrong = {k: (v, got.get(k)) for k, v in want.items() if got.get(k) != v}
+      assert not wrong, f"a finding is missing or carries the wrong class: {wrong}"
+      PY
+      for f in broken-link derivable-front-matter stage-location-mismatch near-duplicate; do
+        opendox health fix --repo-root $C --finding "$f"    # EVERY auto-fix kind, and the assisted proposal
+        test "$(git -C $C rev-parse HEAD)" = "$before"      # default branch UNMOVED, every time
+        git -C $C rev-parse --verify --quiet "refs/heads/health-fix-$f"
+      done
+      rc=0
+      opendox health fix --repo-root $C --finding human-only-finding > /tmp/ho.out 2>&1 || rc=$?
+      test "$rc" -ne 0                                      # human-only: the product proposes nothing it cannot justify
+      test -z "$(git -C $C branch --list 'health-fix-human-only-finding')"
       # THE EXCEPTION IS PROVED TO EXIST BEFORE THE RESET, not merely absent after:
       opendox health accept --repo-root $C --finding accepted-finding --reason "fixture"
       test -n "$(git -C $C status --porcelain -- health/dispositions.yaml)" || { echo "FAIL: accept wrote nothing to git"; exit 1; }
@@ -1281,6 +1394,16 @@ to #1144"*. `design.md` § D12.
   whose source no longer matches its digest is REFUSED, and the refusal is a
   FINDING against that pack carrying the expected and actual digests. The pack is
   never skipped silently.
+- [ ] 15.1b **RUN EVERY PACK OUT OF PROCESS, against an isolated READ-ONLY copy.**
+  For each run the engine exports the corpus commit into a directory it owns and
+  makes read-only (`git archive <commit> | tar -x`, then `chmod -R a-w`). It starts
+  the pack in a SUBPROCESS whose working directory is that copy, whose environment
+  carries no path to the checkout, and whose only output is findings and patches
+  on stdout in the neutral shape. The checkout is never passed, opened or named.
+  An in-process pack could edit, commit or merge the real tree before any check
+  ran. Out of process, the worst a pack can do is fail to write to a directory
+  that is thrown away. The same boundary makes 15.6's time budget ENFORCEABLE: an
+  overrunning subprocess is killed, not merely waited on.
 - [ ] 15.2 A pack DECLARES check families: id, version, and which documents each
   applies to. It RETURNS findings in the neutral shape — severity, resolution
   class (`auto-fix` / `assisted` / `human-only`, 14.6's spellings and no
@@ -1294,7 +1417,8 @@ to #1144"*. `design.md` § D12.
   its CLI parity, scheduling, the baseline, storage (results in the store,
   exceptions in git), and the fix loop with its landing rule.
 - [ ] 15.5 **THE REFUSALS**, each as a test and not as prose: a pack that writes,
-  commits or merges; a pack consumed without its pin (15.1a: commit and digest, or
+  commits or merges (15.1b: it reaches only its copy, and the attempt is a
+  finding); a pack consumed without its pin (15.1a: commit and digest, or
   digest alone for a pack the corpus carries); a pack that
   returns a class the engine does not declare, or declares its own baseline or
   landing rule.
@@ -1306,9 +1430,11 @@ to #1144"*. `design.md` § D12.
   broken — the doc-health nightly failed silently every night from 2026-08-30 and
   nobody saw it.
 - [ ] 15.6a **SHIP `tests/fixtures/pack-corpus`**: 14.9's `health-corpus` plus
-  the two fixture packs under `packs/`. `fixture-crashing-pack` raises on its
-  first family and `fixture-slow-pack` sleeps past any timeout. A
-  `health/packs.yaml` registers both through 15.1a's manifest by corpus-relative
+  three fixture packs under `packs/`. `fixture-crashing-pack` raises on its
+  first family, `fixture-slow-pack` sleeps past any timeout, and
+  `fixture-writing-pack` tries to write, commit and merge in the tree it is given
+  before returning. A
+  `health/packs.yaml` registers all three through 15.1a's manifest by corpus-relative
   `source`, pinned by digest and carrying NO `commit`, as 15.1a requires of a
   source the corpus itself versions. Because packs and manifest travel INSIDE the corpus,
   copying the fixture into a fresh repository carries a valid registration with
@@ -1320,8 +1446,8 @@ to #1144"*. `design.md` § D12.
   migration as the results table** (group 14.1 — `0003_`, since `0002_` is the
   ledger), so the table is not migrated twice.
 - [ ] **FALSIFIED BY** (openDox-code, installed, over 15.6a's `pack-corpus`, whose
-  manifest registers a deliberately broken pack and a deliberately slow one beside
-  the neutral checks):
+  manifest registers a deliberately crashing, a deliberately slow and a
+  deliberately writing pack beside the neutral checks):
 
       set -euo pipefail
       export OPENDOX_INSTALL_MODE=local                     # the store is Group 13's bundle: a prerequisite by name
@@ -1332,13 +1458,17 @@ to #1144"*. `design.md` § D12.
       git -C "$C" init -q
       git -C "$C" add -A
       git -C "$C" commit -qm fixture
-      # the two fixture packs of 15.6a are registered; the run is itself bounded,
+      FIXTURE_HEAD=$(git -C "$C" rev-parse HEAD)
+      # the three fixture packs of 15.6a are registered; the run is itself bounded,
       # so a hang is a FAILED FALSIFICATION and never a hung falsifier:
       timeout 120 opendox health run --repo-root $C --timeout 5
+      # the WRITING pack reached only its isolated copy (15.1b): the user's tree is untouched
+      test -z "$(git -C "$C" status --porcelain)"           # nothing in the checkout moved
+      test "$(git -C "$C" rev-parse HEAD)" = "$FIXTURE_HEAD" # and no commit landed on it
       # the neutral checks still produced findings despite a crashing pack:
       opendox health list --repo-root $C > /tmp/p1.txt
       grep -q 'broken-link' /tmp/p1.txt
-      # and BOTH broken packs are themselves findings, attributed:
+      # and ALL THREE misbehaving packs are themselves findings, attributed:
       opendox health list --repo-root $C --json > /tmp/p1.json
       python3 - /tmp/p1.json <<'PY'
       import json, sys
@@ -1346,6 +1476,7 @@ to #1144"*. `design.md` § D12.
       ids = {x['pack_id'] for x in f}
       assert 'fixture-crashing-pack' in ids, 'crashing pack not reported'
       assert 'fixture-slow-pack' in ids, 'timed-out pack not reported'
+      assert 'fixture-writing-pack' in ids, "a writing pack's attempt was not reported"
       assert all(x.get('pack_id') and x.get('pack_version') for x in f), 'a finding has no provenance'
       print('packs attributed:', sorted(ids))
       PY
@@ -1362,13 +1493,16 @@ to #1144"*. `design.md` § D12.
       PY
       # and 15.5's REFUSALS, each a NAMED test — a missing node fails the command:
       python -m pytest -q \
-        "tests/test_check_packs.py::test_a_pack_that_writes_commits_or_merges_is_refused" \
+        "tests/test_check_packs.py::test_a_pack_that_writes_reaches_only_its_isolated_copy" \
         "tests/test_check_packs.py::test_an_unpinned_pack_is_refused" \
         "tests/test_check_packs.py::test_a_pack_returning_an_undeclared_class_is_refused" \
         "tests/test_check_packs.py::test_a_pack_declaring_its_own_baseline_or_landing_rule_is_refused"
 
-  Every finding carries a pack id and version, **BOTH** broken packs appear as
-  findings rather than as a stack trace and a hang, and the run completes. The
+  Every finding carries a pack id and version. **All three** misbehaving packs
+  appear as findings, rather than as a stack trace, a hang, or an edit to the
+  user's tree, and the run completes. The writing pack is checked where it runs:
+  straight after the run, the checkout must be clean and still at the fixture's
+  own commit. An in-process pack would already have moved it. The
   outer `timeout 120` is the difference between a falsifier that FAILS on a
   runaway pack and one that HANGS on it: without it, the very defect 15.6 exists
   to prevent would take the acceptance command down with it, and the box would

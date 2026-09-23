@@ -519,6 +519,15 @@ whatever checks are installed, and a pack that could vary them would make every
 guarantee in this capability conditional on which packs a given install happens
 to carry.
 
+A PACK IS ARBITRARY CODE, so "only the engine writes" SHALL be enforced by where
+the pack runs, not by what its interface declares. A pack SHALL RUN IN A
+SEPARATE PROCESS against an ISOLATED, READ-ONLY COPY of the corpus that the
+engine prepares for that run, and it SHALL NEVER be handed the checkout itself.
+A pack that attempts to write therefore reaches nothing the user owns, and the
+engine, finding the attempt on the copy, reports it as a finding against that
+pack. Checking the real tree after an in-process pack had run would be too late:
+the user's data would already have moved.
+
 EVERY FINDING SHALL CARRY THE ID AND THE VERSION OF THE PACK THAT RAISED IT, so
 that a finding can be attributed, a pack can be upgraded without its history
 becoming ambiguous, and a baseline can tell a genuinely new finding from one that
@@ -526,7 +535,7 @@ arrived with a new pack version.
 
 #### Scenario: A pack writes to the tree
 - **WHEN** a pack writes, commits or merges anything rather than returning findings and patches
-- **THEN** it is refused, because only the engine's fix loop writes, and a pack that writes has escaped every guardrail the loop carries
+- **THEN** the write reaches only the isolated copy the pack was given, never the checkout, and the attempt is reported as a finding against that pack, because only the engine's fix loop writes and a pack that could write would escape every guardrail the loop carries
 
 #### Scenario: A pack is consumed without a pin
 - **WHEN** a pack is installed without its pin — a commit and a digest for a pack sourced from outside the corpus, or a digest for a pack the corpus itself carries, whose commit is the corpus commit that carries both it and the manifest naming it
