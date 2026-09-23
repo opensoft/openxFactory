@@ -36,15 +36,16 @@ origin:
     is carried as requirement 8, whose third scenario ENDS this arrangement
     once openDox-spec promotes its assigned 71.
     WHAT THE PACKET PROPOSES. ONE `## ADDED Requirements` block creating the
-    capability `neutral-product-standalone-operability` - sixteen requirements,
-    seventy-one scenarios, written domain-neutrally with openDox as the measured
+    capability `neutral-product-standalone-operability` - seventeen requirements,
+    seventy-five scenarios, written domain-neutrally with openDox as the measured
     instance. AGAINST THE 2026-09-22 FEATURE/GAP SWEEP, requirement 1 is the
     guard and answers no gap, requirements 2-9 answer G1-G8, and requirement
     10 answers both G9 and G10; REQUIREMENTS 11-16 ARE THE LATER RULINGS of
     2026-09-22 - the
     neutral submission step, the standalone install's datastore and its local
     identity mode, the health fix loop with its exception rule, and the
-    check-pack interface. Each is separately satisfiable and each is falsifiable
+    check-pack interface; REQUIREMENT 17 IS THE RULING OF 2026-09-23 on chat's
+    model configuration. Each is separately satisfiable and each is falsifiable
     by a command named in `tasks.md`.
     WHAT IT DOES NOT PROPOSE. No code byte. No rewrite of the document
     surface. No doc-health check family moves, no corpus document moves, no
@@ -85,6 +86,17 @@ origin:
     INSIDE the packet are not ratification OF the packet - the three
     lifecycle documents still carry `Status: draft` and
     `approved_by`/`approved_on` remain absent.
+    ON 2026-09-23, ADDED BESIDE THE ABOVE AND NOT SUBSTITUTED FOR IT. Three
+    rulings on `#656`: 5799494355 ("keep the direct arrow, revisit after phase
+    1") leaves RULING OQ-2's pin chain as it is; 5799646419 ("a, phases 1-3 as
+    the first release") sequences the arc as two releases inside this one
+    change; and 5800995035 ("the four 1144 questions, go with recomendations")
+    keeps requirement 1 as written and corrects the first ruling's phase-1
+    wording, holds the archive until BOTH releases have merged, green
+    realization evidence, adds requirement 17 for chat's model configuration,
+    and names release 1 standalone operation rather than a declared standalone
+    product. `kind` and `id` do not move and NO APPROVAL PAIR IS ADDED: the
+    three lifecycle documents still carry `Status: draft`.
   proposed_by: >-
     Lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`),
     session `faabad8b`, actor `buildarc`, on the holder's brief of 2026-09-22

@@ -598,3 +598,35 @@ code raised it.
 #### Scenario: A pack's labels are spelled in the product's surface
 - **WHEN** a pack's finding titles or family names are rendered as the pack spells them
 - **THEN** they are resolved through the display facet instead, so a domain's words stay the domain's and the neutral surface keeps its own
+
+### Requirement: A neutral product's chat reaches any OpenAI-compatible endpoint by reference, and the product works fully with no model configured
+A neutral product that offers model-assisted chat SHALL reach ANY endpoint that
+speaks the OpenAI-compatible chat protocol — a hosted API and a server on the
+user's own machine alike — configured by AN ENDPOINT URL, A MODEL NAME AND A
+CREDENTIAL REFERENCE, and SHALL NEVER hold a raw key in that configuration. The
+reference is resolved when a call is made, so the key itself is at rest nowhere
+the product writes, and an endpoint that takes no credential says so EXPLICITLY
+rather than by a field left out. With NO MODEL CONFIGURED, the chat surface SHALL
+show a clear "no model configured" state BEFORE any turn is attempted, naming how
+to configure one, and every other surface of the product SHALL keep working: a
+model is an addition to a document tool, not a condition of it. Exactly ONE NAMED
+MODULE SHALL contact a model provider, and it alone SHALL hold a provider
+endpoint, a provider SDK or a credential in flight; a new request grammar joins
+that module and widens no other.
+
+#### Scenario: A hosted API or a local server is configured
+- **WHEN** a user configures an endpoint that speaks the OpenAI-compatible chat protocol by its URL, a model name and a credential reference, whether it is a hosted API or a server on their own machine
+- **THEN** chat turns go to that endpoint in that protocol's grammar, naming that model, and the credential is resolved from the reference for the call rather than read from the configuration
+
+#### Scenario: A raw key is offered as configuration
+- **WHEN** a model configuration carries a key or a token itself, in a field of its own or inside the endpoint URL, rather than a reference to one
+- **THEN** it is refused when it is declared and nothing is stored, because a configuration that is safe to read and to commit has no place a secret can occupy
+
+#### Scenario: No model is configured
+- **WHEN** the product starts with no model configured
+- **THEN** the chat surface shows a clear "no model configured" state before any turn is attempted, naming how to configure one
+- **AND** every other surface of the product works exactly as it does with a model configured
+
+#### Scenario: A second module reaches a provider
+- **WHEN** a module other than the one named contacts a model provider, or holds a provider endpoint, a provider SDK or a credential in flight, a new request grammar included
+- **THEN** the product's own boundary test fails naming that module, and the grammar belongs in the named module instead

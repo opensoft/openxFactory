@@ -537,7 +537,7 @@ Active changes:
   Heap's ratification read), as the BUILD ARC the archived
   `split-opendox-two-layer-product` names as its own unclosed residue. **ONE
   `## ADDED` block creating the capability `neutral-product-standalone-operability`
-  — sixteen requirements, seventy-one scenarios**, written domain-neutrally (its sibling is
+  — seventeen requirements, seventy-five scenarios**, written domain-neutrally (its sibling is
   `neutral-product-pin`: that governs openxFactory CONSUMING an external neutral
   product, this governs the product being able to STAND UP without its consumer),
   with openDox as the measured instance. **Against the 2026-09-22 feature/gap
@@ -545,7 +545,8 @@ Active changes:
   G1-G8, and requirement 10 answers both G9 and G10; requirements 11-16 are the
   later rulings** of 2026-09-22 — the neutral submission step, the standalone
   install's datastore and local identity mode, the health fix loop with its
-  exception rule, and the check-pack interface. Each is separately satisfiable and each is
+  exception rule, and the check-pack interface — and requirement 17, chat's model
+  configuration, is a ruling of 2026-09-23. Each is separately satisfiable and each is
   falsifiable by a command named in `tasks.md`. Requirement 1 states what openxFactory KEEPS
   as a refusal — the corpus, the OpenSpec instance, every doc-health check family,
   the adapter column, the intent-plane schemas and the integration tests — because
@@ -601,6 +602,17 @@ Active changes:
   text names); the health FIX LOOP with exceptions committed to the corpus rather
   than the store; and the CHECK-PACK interface, which gives openxFactory's 23
   governance families a home in an openXdox pack rather than in the neutral core.
+  **THREE RULINGS of 2026-09-23**
+  ([`5799494355`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5799494355),
+  [`5799646419`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5799646419),
+  [`5800995035`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5800995035))
+  keep the direct openxFactory → openDox arrow until after phase 1, keep
+  requirement 1 as written, and SEQUENCE the arc as two releases inside this one
+  change: release 1, *standalone operation* (phases 1-3: the reach-back cut,
+  openDox's own generator, and the install, with chat's model configuration as
+  requirement 17), and release 2 (phases 4-5: submission and merge, then the
+  health engine). It archives only when BOTH have merged, green realization
+  evidence.
 
 - [amend-home-adapter-scope-and-mapping-axis-count](openspec/changes/amend-home-adapter-scope-and-mapping-axis-count/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: draft`**, on the TWO

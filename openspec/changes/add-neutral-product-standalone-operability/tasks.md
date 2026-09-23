@@ -2,14 +2,17 @@
 
 Status: draft
 
-Dependency-ordered. **Group 1 is the authoring THIS change performs and it
-touches no code.** Groups 2-15 are the post-ratification realization, each in the
-repository named in its heading and each carrying the FALSIFICATION COMMAND that
-closes it — an exact invocation with its checkout preconditions and its expected
-result, so the archive gate's evidence under `release-realization` is a command
-re-run and quoted rather than a description believed.
+**Group 1 is the authoring THIS change performs and it touches no code.**
+Groups 2-16 are the post-ratification realization, each in the repository named
+in its heading and each carrying the FALSIFICATION COMMAND that closes it — an
+exact invocation with its checkout preconditions and its expected result, so the
+archive gate's evidence under `release-realization` is a command re-run and
+quoted rather than a description believed. **The groups keep the numbers they
+were filed under, because every falsifier and every review thread cites them.
+The ORDER they are built in is the release map below** (RULED `5799646419`, as
+corrected by `5800995035`).
 
-**Groups 2-12 and 15 take one requirement each; TWO groups take more than one,**
+**Groups 2-12, 15 and 16 take one requirement each; TWO groups take more than one,**
 because their requirements are satisfied by one act and splitting them would
 produce boxes that cannot be closed independently: **Group 13** takes
 requirements 12 and 13 (the install brings its datastore AND its identity mode —
@@ -29,8 +32,9 @@ the group headings, read as written; nothing below claims a bijection.
    box: `submit` (12.4a), `land` (12.6a), and `health run|list|fix|accept`
    (14.5). A falsification that uses one is an acceptance test for surface the
    realization must add, not a re-run of surface that exists.
-3. **Prerequisites by name.** A group MAY use a verb, or a surface, that an
-   EARLIER group declares, and it says so. Group 15 runs Group 14's `health run`
+3. **Prerequisites by name.** A group MAY use a verb, or a surface, that a group
+   BUILT EARLIER declares (the release map below gives the order), and it says so.
+   Group 15 runs Group 14's `health run`
    and `health list`, so Group 15 cannot close before 14.5 lands. Groups 14 and
    15 store their results in Group 13's bundled datastore, and each falsifier
    selects it with `OPENDOX_INSTALL_MODE=local` in a fresh `OPENDOX_STATE_DIR`.
@@ -85,6 +89,62 @@ measured on:
 moment.** The PR description publishes the latest row, and the archive gate
 re-measures the same delta rather than trusting either row.
 
+## The release map — two releases, five phases, one change (RULED)
+
+**RULED** by Brett Heap, `#656` comment `5799646419` (2026-09-23T17:30:26Z),
+*"a, phases 1-3 as the first release"*, and comment `5800995035` (18:56:33Z),
+*"the four 1144 questions, go with recomendations"*, which answered the four
+questions this packet raised against the first ruling's phase-1 wording.
+`design.md` § D13 carries the reasoning. **The map orders the build. It changes
+no requirement and no scenario.**
+
+| release | phase | what it delivers | groups and boxes |
+|---|---|---|---|
+| 1 — standalone operation | 1, it runs | the reach-back cut (G1, G4), a neutral default host profile, openDox's own default corpus adapter registered at startup, each leg green alone, the console script | Group 2; Group 3; 4.1, 4.1a, 4.2 and 4.3's eight reaches into openxFactory; Group 9 but 9.5; 10.1 |
+| 1 | 2, it is useful alone | openDox's own neutral generator over the six words, and its own validator | Group 5; Group 7 |
+| 1 | 3, it installs | bundled Postgres, the local identity mode, the served and documented bundle, chat's model configuration | Group 13; 10.2, 10.3 and Group 10's falsifier; Group 16 |
+| 2 — the document tool and self-maintenance | 4 | local merge and the governed pull-request path, the neutral submission step, one interface for both | Group 12 |
+| 2 | 5 | the health engine: the additive `0003_` migration, the neutral checks, the Health view and CLI, the fix loop, exceptions in git, the check-pack interface | Group 6; Group 14; Group 15 |
+| every phase | — | the guard, and the pins | Group 11; 9.5 |
+| outside both | — | openDox-spec's re-promotion, and the follow-ons | Group 8; F1-F4 |
+
+**Release 1 is STANDALONE OPERATION, not a declared standalone product.**
+Requirement 8 keeps that declaration for when openDox-spec has promoted the
+requirements the carve assigned it, which is Group 8, outside both releases.
+
+**Phase 1 moves nothing out of openxFactory.** Its lane actions and its host
+wiring stay where requirement 1 keeps them, and 11.1's guard stands with its
+declared surfaces as written (`5800995035`, answer 1, which corrects the first
+ruling's phase-1 wording).
+
+**4.3's nineteen reaches into openXdox are routed within release 1**, each no
+later than the phase whose surface calls it: the generator's and the snapshot
+registry's with 5.4's seam in phase 2, and `serve_workbench.py`'s seven — the
+doxBench thread, chat, abstract and model-approval handlers — by phase 3, where
+Group 16's chat must answer with no consumer installed. Group 4's falsifier reads
+the whole package, so it closes with the last of them. This placement is the
+packet's reading of "standalone operation", not a ruling: a verb that fails on a
+missing consumer module in front of a user is not standalone operation.
+
+**Group 10's one falsifier closes in phase 3**, because it serves 10.2's bundle
+over 5.0's fixture. 10.1's own proof in phase 1 is that falsifier's first
+assertion, `opendox --help`.
+
+**Release 2's rulings are SEQUENCED, not deferred, reopened or weakened.** The
+rulings recorded for phases 4 and 5 — `5783934499` (the neutral submission step),
+`5784155201` (merge authority, and health in the store; its install half is phase
+3's), `5784247356` (the fix loop) and `5784295745` (the check-pack interface) —
+stand exactly as encoded. Requirements 6, 11, 14, 15 and 16 are this change's as
+written.
+
+**One change, and its archive needs BOTH releases.** `release-realization` admits
+ONE `target_release:` per proposal, so "release 1" and "release 2" are sequencing
+inside this change and not release identifiers, and `target_release: implemented`
+does not move. The change archives only on merged, green realization evidence for
+release 1 AND release 2 (`5800995035`, answer 2), so landing release 1 archives
+nothing and promotes nothing. Splitting release 2 into its own change stays open
+for later.
+
 ## Group 1 — Authoring (THIS change; no code byte)
 
 - [x] 1.1 Author `.openspec.yaml` — ad-hoc origin, the drafting-provenance shape
@@ -95,7 +155,7 @@ re-measures the same delta rather than trusting either row.
   requirement table; the explicit "what openxFactory keeps" section; honest
   `code_surface:` / `target_release:` front-matter.
 - [x] 1.3 Author the `## ADDED Requirements` delta creating
-  `neutral-product-standalone-operability` — 16 requirements, 71 scenarios,
+  `neutral-product-standalone-operability` — 17 requirements, 75 scenarios,
   domain-neutral, openDox as the measured instance.
 - [x] 1.4 Author `design.md`: D1-D8 and **R-G3** — filed as Q-G3, the one question
   put to Brett with three options and a recommendation; RULED the same day and
@@ -116,6 +176,16 @@ re-measures the same delta rather than trusting either row.
 - [ ] 1.8 On ratification: `Status: ratified` + `Ratified by:` on all three
   lifecycle documents; `## Ratification record` in `proposal.md`; the approval
   pair ADDED beside the fixed origin in `.openspec.yaml`, never substituted.
+- [x] 1.9 **THE RULINGS OF 2026-09-23 — GIVEN AND ENCODED.** `5799494355`
+  (*"keep the direct arrow, revisit after phase 1"*): RULING OQ-2's pin chain is
+  unchanged, carried as a non-normative note in `design.md` § D13 and as
+  follow-on F4. `5799646419` (*"a, phases 1-3 as the first release"*): the
+  release map above. `5800995035` (*"the four 1144 questions, go with
+  recomendations"*): requirement 1 kept and the first ruling's phase-1 wording
+  corrected; one change, whose archive needs both releases' evidence;
+  requirement 17 and Group 16 for chat's model configuration; release 1 named
+  standalone operation. Requirement 17 is ADDED, and no requirement or scenario
+  that was already here changed.
 
 ## Group 2 — Requirement 2 / G1: imports with no consumer, publisher or host (openDox-code)
 
@@ -211,7 +281,7 @@ mention in the package is prose.
   ASK-2 option (2) (`#656` comment `5628886636`) — not its reasoning. An EMPTY
   default stays refused; what changes is the refusal text's premise that *"openDox
   … ships no profile of its own"*. If the ratification read takes ASK-2 to
-  foreclose this, requirement 3 is struck and the other **fifteen** stand. See
+  foreclose this, requirement 3 is struck and the other **sixteen** stand. See
   `design.md` § D5.
 - [ ] 3.1 Ship a default profile for openDox's OWN domain — documents and ideas —
   carrying none of openxFactory's status taxonomy or change/spec/delta nouns
@@ -223,9 +293,13 @@ mention in the package is prose.
   called `domain_profile.register()`, and a registered profile still replaces it.
   `profile_proxy.py`'s refusal is kept for the case it was written for — an
   ambiguous registration — and is NOT weakened into an empty tuple.
-- [ ] 3.3 Record in the carve manifest that the `deleted_at_carve` row for
-  `profile_openxfactory.py` is UNCHANGED by this: openxFactory's profile stays
-  deleted from the core and `scripts/opendox_host.py` remains openxFactory's host.
+- [ ] 3.3 Leave the carve manifest's `deleted_at_carve` row for
+  `scripts/ideation_dashboard/profile_openxfactory.py` BYTE-IDENTICAL:
+  openxFactory's profile stays deleted from the core and `scripts/opendox_host.py`
+  remains openxFactory's host. The row is `not_moved` and carries no `edits[]`
+  entry, so 11.1's guard admits no note on it; an earlier form of this box, which
+  asked for the fact to be recorded in the manifest, would have failed that
+  guard. The record is this box and requirement 3's own text.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling):
 
       set -euo pipefail
@@ -256,6 +330,17 @@ mention in the package is prose.
   `corpus_adapter.home()` returns what was registered. openxFactory's host
   registers `corpus_adapter_openxfactory.home_corpus` at start, as it registers
   its profile.
+- [ ] 4.1a **openDox's OWN default corpus adapter, registered at startup**
+  (RULED `5800995035`, answer 1). Where no host has called `register_home`,
+  `build_parser()` and `build_server()` register a factory of `home_corpus`'s
+  shape over the conformant implementation openDox already ships,
+  `LocalGitCorpus` (`src/opendox/runtime/local_git_adapter.py`, RULING C3's plain
+  local git repository), exactly as Group 3's default profile stands in for an
+  unregistered host, and a host that registers its own replaces it. A process in
+  which no entry point was built and nothing registered anything — an import, a
+  test, a library caller — still refuses with 4.2's `ADAPTER_NOT_REGISTERED`, so
+  the default is a registration the entry point makes and never a fallback
+  inside the seam.
 - [ ] 4.2 Where nothing is registered, `corpus_adapter.home()` raises the
   interface's ONE exception, `CorpusRefused` (`corpus_adapter.py:164`), with a
   NEW refusal kind, `ADAPTER_NOT_REGISTERED`, added to `REFUSAL_KINDS` (`:135`).
@@ -284,7 +369,10 @@ mention in the package is prose.
   name. openXdox-code's ratchet (`OPENDOX_BACK_IMPORTS`) is tightened to `(0, 0)`
   in the same landing. The import-time column is already `0` for the consumer,
   and the two import-time reaches into the publisher (`serve.py:199`, `:206`) are
-  Group 2's.
+  Group 2's. **Phase placement (the release map above):** the eight reaches into
+  openxFactory are phase 1's reach-back cut; the nineteen into openXdox are
+  routed within release 1, each no later than the phase whose surface calls it,
+  and this box closes with the last of them.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, no
   `corpus_adapter_openxfactory` importable):
 
@@ -311,6 +399,8 @@ mention in the package is prose.
       PY
       # ...a REGISTERED adapter answers through the seam, not through a name (4.1):
       python -m pytest -q "tests/test_authoring_seam.py::test_required_header_fields_come_from_the_registered_adapter"
+      # ...and an ENTRY POINT registers openDox's own LocalGitCorpus where no host has (4.1a):
+      python -m pytest -q "tests/test_authoring_seam.py::test_an_entry_point_registers_the_local_git_corpus_when_no_host_has"
       # ...and NO deferred reach anywhere in the package names the consumer or the publisher (4.3):
       if [ -e src/opendox/consumer_reach.py ]; then echo "FAIL: the late stand-in consumer_reach.py survives"; exit 1; fi
       python3 - src/opendox <<'PY'
@@ -342,7 +432,10 @@ mention in the package is prose.
   remedy. Any other exception fails it, an unrelated `TypeError` included, and so
   does an answer. The named test then registers a stand-in adapter and requires
   the fields to be the ones that adapter declares, so the answer is proved to
-  come through the registry and not through a name. **The scan reads the whole
+  come through the registry and not through a name. The second named test
+  builds the parser with no host registered and requires the home corpus to be
+  openDox's own `LocalGitCorpus`, so 4.1a's default is a registration an entry
+  point makes. **The scan reads the whole
   package**, not the ratchet's five modules. It is a static reading of every
   import and every `import_module`/`__import__` call with a literal name, written
   inside a function body, and it needs no sibling installed to find one. Run
@@ -387,14 +480,21 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   `src/opendox/display_profile.py` is unchanged by this group.
 - [ ] 5.3a **openXdox declares the estate's FIRST `DISPLAY` facet — partial, one
   stage** (openXdox-code; RULED `5784683830`, *"1, keep completed and overlay
-  implemented"*). On the profile openXdox contributes —
-  `src/openxdox/domain_profile.py:317`'s `DomainProfile`, which openxFactory's
-  `scripts/opendox_host.py` composite inherits — declare `DISPLAY` labelling the
-  `completion` stage **"implemented"**, the governed lifecycle's own word, in its
-  `short` AND its `label` field (measured: a facet giving `short` alone leaves
-  `label` at `completed`), and NOTHING ELSE — openDox fills every other role and
-  field from `NEUTRAL_DISPLAY`. The neutral word does not move. Claim it on
-  `#656` before starting, like every group here.
+  implemented"*): the `completion` stage labelled **"implemented"**, the
+  governed lifecycle's own word, in its `short` AND its `label` field (measured:
+  a facet giving `short` alone leaves `label` at `completed`), and NOTHING ELSE —
+  openDox fills every other role and field from `NEUTRAL_DISPLAY`. The neutral
+  word does not move. **It LANDED before the arc, and not where this box first
+  put it.** openXdox-code#26 → `195276b7` (2026-09-23T01:03:07Z) declares it as a
+  MODULE VALUE, `src/openxdox/view_extensions.py`'s `DISPLAY`, and NOT on
+  `src/openxdox/domain_profile.py`'s `DomainProfile`. openxFactory's composite
+  host (`scripts/opendox_host.py`) forwards a facet only when attribute lookup
+  fails, and its `build_profile()` refuses a facet named like a profile field,
+  so a `DISPLAY` on the dataclass would never be forwarded and would stop that
+  composite being built. The falsifier below reads the facet where it landed.
+  Being earlier than the arc, the landing carries no 11.0 trailer; the box
+  closes when the falsifier is run against the realized openDox. Making the
+  facet REACH a served page is the assembly's act, F3, outside both releases.
 - [ ] **FALSIFIED BY** (openXdox-code checkout with openDox installed):
 
       set -euo pipefail
@@ -405,10 +505,9 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       pip install ".[test]"
       pip install --force-reinstall --no-deps "$OPENDOX_CODE"   # the REALIZED openDox wins over any pinned one
       python3 - <<'PY'
-      from opendox.display_profile import STAGE_ROLES, host_display, normalize_display
-      from openxdox.domain_profile import DomainProfile
-      facet = host_display(DomainProfile)                   # None today: no profile declares one
-      assert facet is not None, "openXdox declares no DISPLAY facet"
+      from opendox.display_profile import STAGE_ROLES, normalize_display
+      from openxdox.view_extensions import DISPLAY as facet  # a MODULE value (#26), never a DomainProfile field
+      assert facet, "openXdox declares no DISPLAY facet"
       merged, neutral = normalize_display(facet), normalize_display(None)
       done = merged["stages"]["completion"]
       assert done["short"] == "implemented" and done["label"] == "implemented", done
@@ -417,12 +516,13 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
           assert merged["stages"][role] == neutral["stages"][role], f"{role} was overlaid too"
       PY
 
-  Three things, each an assertion: the governed host sees "implemented" wherever
-  the stage is named; a host with no facet — and a standalone install — sees
-  "completed"; and the facet is PARTIAL, the other five stages byte-identical to
-  the neutral ones, so an overlay cannot quietly grow into a second vocabulary.
-  The same calls were run against openDox-code `3c3a9e31` with a stand-in profile
-  before this box was written, and behave as asserted.
+  Three things, each an assertion: the facet names the stage "implemented" in
+  both of its rendered names; a host with no facet — and a standalone install —
+  sees "completed"; and the facet is PARTIAL, the other five stages
+  byte-identical to the neutral ones, so an overlay cannot quietly grow into a
+  second vocabulary. Run as written against openXdox-code `195276b7` with
+  openDox-code `1e4a57fb` installed over it, it passes. The earlier form, which
+  read `host_display(DomainProfile)`, answers `None` against the same trees.
 - [ ] 5.4 **DECLARE THE GENERATOR SEAM — it does not exist and `CorpusAdapter` is
   not it.** `src/opendox/corpus_adapter.py`'s Protocol is CLOSED at six members
   (`resolve`, `list_documents`, `read`, `classify`, `check`, `write_back`) and its
@@ -454,7 +554,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       while read -r f; do python -m pytest -q "$f"; done < "$W/gen-suites.txt"
       : "${ARC_BASE:?set ARC_BASE to the commit of this repository before the first landing of the arc here}"
       git log --first-parent --format=%H --grep='^Arc: neutral-product-standalone-operability$' "$ARC_BASE..HEAD" > "$W/x-arc.txt"   # LANDINGS (11.0)
-      test -s "$W/x-arc.txt"                                # 11.0: the arc DID land here (5.3a at least), so empty means a dropped trailer
+      test -s "$W/x-arc.txt"                                # 11.0: the arc DID land here (9.2 at least), so empty means a dropped trailer
       : > "$W/x-paths.txt"
       while read -r c; do                                   # each landing against main before it
         git diff --name-only "$c^1" "$c" >> "$W/x-paths.txt"
@@ -499,9 +599,9 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       for sibling in openxdox doc_health; do                # a FRESH environment makes them absent; ASSERT it
         if python -c "import $sibling" 2>/dev/null; then echo "FAIL: $sibling is importable"; exit 1; fi
       done
-      # NOT the console script: 10.1 packages that later, and this list is
-      # dependency-ordered. At group 5's boundary the module is importable
-      # (group 2) and that is what this falsifier uses.
+      # the MODULE, not the console script, so this proof does not depend on
+      # 10.1's packaging line: the module is importable once group 2 lands, and
+      # that is what this falsifier uses.
       export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
       R=$(mktemp -d)/plain-documents
       cp -r tests/fixtures/plain-documents "$R"   # 5.0's fixture, as a FRESH repository
@@ -532,8 +632,8 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   assertions are IN the command rather than in prose, so the check is
   machine-detectable. `python -m opendox.cli` is an entry point that EXISTS:
   `cli.py:30-58` runs under `__main__` and hands over to the package copy's
-  `main()`, so this command reaches `cmd_generate` exactly as the console script
-  10.1 later packages will. Every option follows the verb, as 10.1's table records
+  `main()`, so this command reaches `cmd_generate` exactly as 10.1's console
+  script does. Every option follows the verb, as 10.1's table records
   against the parser.
 
 ## Group 6 — Requirement 6 / G5: a health check over openDox's own documents (openDox-code)
@@ -985,7 +1085,9 @@ packet's interim arrangement ends.**
   `Arc: neutral-product-standalone-operability`**, checked at each PR's review
   like the `Lane:` line. The falsifiers in 5.4a and 12.5 read it in
   openXdox-code, and they assert the set is NON-EMPTY there, because the arc must
-  land at least 5.3a's facet in that repository. An empty set would mean the
+  land at least 9.2's whole-suite check and 5.4a's generator contribution in that
+  repository; 5.3a's facet landed before the arc, as openXdox-code#26. An empty
+  set would mean the
   trailer was dropped, not that nothing was edited. **Every LANDING carries it
   too**: a squash commit because the PR body does, and a merge commit because
   the lander writes it into the merge message. The three guards measure each
@@ -1026,8 +1128,8 @@ packet's interim arrangement ends.**
       test -s "$W/arc-commits.txt"                          # 11.1's annotations exist, so an empty list measured nothing
       : > "$W/arc-changes.tsv"
       while read -r c; do                                   # each landing against main before it: WHOLE repository, no pathspec
-        git diff --name-only "$c^1" "$c" > "$W/arc-one.txt"
-        while read -r p; do printf '%s\t%s\n' "$c" "$p" >> "$W/arc-changes.tsv"; done < "$W/arc-one.txt"
+        git diff --no-renames --name-status "$c^1" "$c" > "$W/arc-one.txt"   # a rename reads as a deletion plus an addition
+        while IFS=$'\t' read -r s p; do printf '%s\t%s\t%s\n' "$c" "$s" "$p" >> "$W/arc-changes.tsv"; done < "$W/arc-one.txt"
       done < "$W/arc-commits.txt"
       python3 - "$W/arc-changes.tsv" <<'PY'
       import copy, subprocess, sys, yaml
@@ -1047,8 +1149,10 @@ packet's interim arrangement ends.**
                   e.pop("note", None)
           return doc
       breach, annotated = [], 0
-      for c, p in (l.rstrip("\n").split("\t") for l in open(sys.argv[1]) if l.strip()):
-          if p in HOST or p.startswith(HOST_TESTS) or p in PIN_PAIR:
+      for c, s, p in (l.rstrip("\n").split("\t") for l in open(sys.argv[1]) if l.strip()):
+          if s not in ("A", "M"):                       # requirement 1's third scenario: a far side is never deleted
+              breach.append(f"{c[:12]}: {'deleted' if s == 'D' else 'changed the type of'} {p}")
+          elif p in HOST or p.startswith(HOST_TESTS) or p in PIN_PAIR:
               continue                                  # a declared surface of the arc (11.1)
           elif p != MANIFEST:
               breach.append(f"{c[:12]}: touched {p}")
@@ -1096,6 +1200,14 @@ packet's interim arrangement ends.**
   that already existed may only be EXTENDED, so an annotation cannot erase the
   record it annotates.
 
+  **A declared surface may be EDITED and never REMOVED.** Each landing is read
+  with `--name-status --no-renames`, so a rename reads as a deletion plus an
+  addition, and a deletion or a change of file type is a breach whatever the
+  path, a host-wiring file or a pin file included. Requirement 1's third
+  scenario refuses closing a reach by deleting the far side, and a host deleted
+  instead of rewired is exactly that; an allow-list that let a declared path be
+  deleted would admit it.
+
   **Nothing is exempt.** The ledger row this packet seeds landed with the filing,
   before `PACKET_MERGE`. An arc landing that touches
   `tests/sequenced_after/corpus-ledger.yaml` is therefore a breach like any other.
@@ -1112,9 +1224,11 @@ packet's interim arrangement ends.**
   manifest. It passed a squash landing of host wiring and a note, another lane's
   untrailered landings, a merge of `main` into an arc branch, and a trailered
   merge landing. It refused an untrailered edit to a check family hidden inside
-  a trailered merge landing, and a ledger edit. The content check's refusals of
-  a rewritten note and of a changed digest were run the same way when it was
-  written.
+  a trailered merge landing, a ledger edit, and — since the deletion rule — a
+  landing that deletes a host-wiring file, one that renames it, one that deletes
+  a host test and one that deletes the pin file. The content check's refusals of
+  a rewritten note and of a changed digest were run the same way, and were re-run
+  with the deletion rule in place.
 
 ## Group 12 — Requirement 11: the neutral submission step (RULED, openDox-code)
 
@@ -1254,7 +1368,7 @@ that does not name a platform.
       # ...and not by editing those proofs: no landing of THIS arc (11.0's trailer) touches them
       : "${ARC_BASE:?set ARC_BASE to the commit of this repository before the first landing of the arc here}"
       git log --first-parent --format=%H --grep='^Arc: neutral-product-standalone-operability$' "$ARC_BASE..HEAD" > "$W/x-arc.txt"   # LANDINGS (11.0)
-      test -s "$W/x-arc.txt"                                # 11.0: the arc DID land here (5.3a at least), so empty means a dropped trailer
+      test -s "$W/x-arc.txt"                                # 11.0: the arc DID land here (9.2 at least), so empty means a dropped trailer
       : > "$W/x-paths.txt"
       while read -r c; do                                   # each landing against main before it
         git diff --name-only "$c^1" "$c" >> "$W/x-paths.txt"
@@ -2112,6 +2226,149 @@ to #1144"*. `design.md` § D12.
   Today none of this exists: there is no pack contract, no health run, and no
   findings store.
 
+## Group 16 — Requirement 17: chat's model configuration (RULED, openDox-code)
+
+**RULED** `#656` `5800995035`, 2026-09-23T18:56:33Z, answer 3: any
+OpenAI-compatible endpoint, configured as a URL, a model name and a credential
+reference and never a raw key, covering hosted APIs and local servers; a clear
+"no model configured" state, with the rest of openDox working; and
+`doxbench_provider.py` remains the only module that may contact a provider.
+Phase 3 of release 1. `design.md` § D14 carries the measurements.
+
+**What exists and is kept, measured at `1e4a57fb`.** The record that holds a
+model provider already has no secret in it: `src/opendox/doxbench_binding.py`'s
+`ModelProviderBinding` is frozen and slotted, with nine fields, `credential_ref`
+being the reference a broker resolves, and a record naming an unknown key is
+refused (`:316`). The operator door exists (`model-binding
+list|add|edit|remove|set-credential`, `src/opendox/cli_model_binding.py`), and
+so does the console's intake flow (`doxbench_intake`). This group builds on them
+and redesigns none of them.
+
+- [ ] 16.1 **The OpenAI-compatible grammar joins as a SECOND DIALECT.**
+  `DIALECTS` is closed at one member today, `xfactory-prompt-v1`
+  (`doxbench_binding.py:109-110`): a POST of `{"model", "prompt"}` answered by
+  `{"assistant_prose"}` (`doxbench_provider.py:622-624`), which no
+  OpenAI-compatible server speaks. The record's own docstring names the lawful
+  widening — *"A second member joins here and an arm joins beside the first in
+  `doxbench_provider`; the check is never loosened"* — and this box is exactly
+  that: a member `openai-chat-v1`, the chat-completions request (`model`,
+  `messages`) and its answer (`choices[0].message.content`), spoken by an arm in
+  `doxbench_provider.py` alone. An unknown dialect is still refused when it is
+  declared.
+- [ ] 16.2 **A MODEL NAME the provider receives.** The record has no model
+  field. The catalog handle is the binding's `id`, and `_post_to_provider`
+  (`doxbench_provider.py:633`) sends that handle as the request's `model`, so no
+  provider model can be named today. The record gains `model`, sent as the
+  request's model and set by `model-binding add|edit --model`. The field list
+  grows from nine to ten, and still no field can hold a secret.
+- [ ] 16.3 **The credential stays a REFERENCE, and a raw key is refused when it
+  is declared.** Measured: the record checks the endpoint's scheme and nothing
+  else (`ENDPOINT_SCHEMES`, `:116`), so `https://user:<key>@…` and
+  `…?api_key=<key>` are both ACCEPTED today, into a file the module calls safe to
+  commit, while an extra `api_key` field is refused. The product already has the
+  detector: `runtime/local_git_adapter.py:1146`'s `carries_a_credential` flags
+  both URLs and passes a clean one, and the record uses it. An endpoint that
+  takes no credential, the usual local server, declares that explicitly and
+  never by a field left out. **Named here, decided by the realization:** what
+  resolves a reference in a standalone install. Every record today names a broker
+  program (`broker_argv`, required), and the one broker that exists,
+  openProfiler's `openprofiler-broker`, is a separate product (`design.md`
+  § D14).
+- [ ] 16.4 **"No model configured" is a STATE, shown before any turn.**
+  Measured: with no binding, `declared_model_port_factory(...)()` resolves the
+  harness declaration, and its catalog offers `omp-local`, "Local harness model",
+  as AVAILABLE with no `omp` on the PATH (`doxbench_install.py:106`). The entry
+  turns unavailable only after the bridge finds its child dead or unstartable, so
+  an install with no model reads as one with a model until a turn fails. The
+  views already carry a no-model posture (`web/views/doxbench-chat.js:272`,
+  `web/views/staging-workbench.js:286`); what is missing is a catalog that lets
+  them reach it. With no model configured, the catalog offers no available entry,
+  the chat surface shows "no model configured" and how to configure one, and a
+  turn is refused `model_capability_unavailable` before any process is spawned or
+  any endpoint is contacted. The harness route is not removed: an install whose
+  harness is present still declares it.
+- [ ] 16.5 **Every other surface works with no model.** Documents, generation,
+  the views, sessions and saving answer exactly as they do with a model
+  configured, and nothing waits on, retries or reports a model. Group 10's
+  falsifier already runs the whole product from a fresh install with no model
+  configured; this box's named test keeps the property named.
+- [ ] 16.6 **The boundary stays ONE module wide, and its instrument RUNS.** The
+  property holds at `1e4a57fb`: an AST scan of `src/opendox/` finds three modules
+  that touch a network client, and only `doxbench_provider.py` reaches a model
+  provider (`runtime/oidc.py` fetches the identity broker's keys with `httpx`,
+  and `session_git.py` calls only `socket.gethostname()`). The instrument does
+  not hold. `tests/test_provider_boundary.py` is a standing red that no required
+  check runs (`validate.yml:361-370` records it), and under `--noconftest` at
+  `1e4a57fb` it fails 12 of 28, for three stale reasons. It still reads
+  `snapshot_registry.py`, which the carve sent to openXdox. It pins by filename
+  seven per-module scan suites this checkout does not carry: five went to
+  openXdox-code with the carve, and two stayed in openxFactory. And its package
+  sweep now reaches the runtime subpackage, where `runtime/app.py` and
+  `runtime/oidc.py` carry `Authorization` and `Bearer ` for the identity broker
+  and `runtime/config.py:282-285` names `access_token` among its secret
+  parameter keys. Group 9 makes the whole suite green, so the file is repaired in
+  phase 1, and this box keeps it green as 16.1's dialect joins the one module.
+- [ ] **FALSIFIED BY** (an openDox-code checkout alone, fresh venv, no sibling
+  and no harness installed):
+
+      set -euo pipefail
+      W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
+      python -m venv --clear "$W/v16"                      # a FRESH environment: nothing already installed stands in
+      . "$W/v16/bin/activate"
+      pip install ".[test]"
+      for sibling in openxdox ideation_dashboard; do        # chat is judged with no consumer and no publisher
+        if python -c "import $sibling" 2>/dev/null; then echo "FAIL: $sibling is importable"; exit 1; fi
+      done
+      if command -v omp >/dev/null 2>&1; then echo "FAIL: a harness is installed, so no-model is not what this measures"; exit 1; fi
+      # the boundary is ONE module wide, and its instrument passes WHOLE (16.6):
+      python -m pytest -q tests/test_provider_boundary.py
+      # the OpenAI-compatible dialect and the model name are declared (16.1, 16.2), and a raw key is refused (16.3):
+      python3 - <<'PY'
+      from opendox import doxbench_binding as b
+      assert "openai-chat-v1" in b.DIALECTS, f"no OpenAI-compatible dialect: {b.DIALECTS}"
+      assert "model" in b.BINDING_FIELDS, f"the record names no model: {b.BINDING_FIELDS}"
+      rec = {f: "stand-in" for f in b.BINDING_FIELDS}
+      rec.update(auth_kind=b.AUTH_KINDS[0], dialect="openai-chat-v1", endpoint="http://127.0.0.1:9/v1/chat/completions")
+      if "broker_argv" in rec:
+          rec["broker_argv"] = ["stand-in-broker"]
+      b.ModelProviderBinding.from_record(rec)               # the control: a clean record is accepted
+      for bad in (dict(rec, endpoint="https://user:sk-stand-in@api.example.invalid/v1"),
+                  dict(rec, endpoint="https://api.example.invalid/v1?api_key=sk-stand-in"),
+                  dict(rec, api_key="sk-stand-in")):
+          try:
+              b.ModelProviderBinding.from_record(bad)
+          except b.BindingRefused:
+              continue
+          raise SystemExit(f"FAIL: a raw key was accepted in {[k for k in bad if bad.get(k) != rec.get(k)]}")
+      print("dialect and model declared; a raw key is refused in a field and in the URL")
+      PY
+      # NO MODEL CONFIGURED is a state the catalog reports before any turn (16.4):
+      python3 - "$W" <<'PY'
+      import pathlib, sys
+      from opendox import doxbench_install as inst
+      root = pathlib.Path(sys.argv[1]) / "no-model"
+      root.mkdir()
+      port = inst.declared_model_port_factory(root / "sessions", checkout_root=root)()
+      offered = [e.model_id for e in port.catalog().available_entries()]
+      assert not offered, f"no model is configured, yet the catalog offers {offered}"
+      print("no model configured: the catalog offers nothing")
+      PY
+      # ...a turn reaches a stand-in OpenAI-compatible server on loopback, and every other surface answers with none (16.1-16.5):
+      python -m pytest -q tests/test_chat_model_configuration.py
+
+  **Today it fails at its first assertion**, because `DIALECTS` holds only
+  `xfactory-prompt-v1`. Run against `1e4a57fb` with today's dialect in place of
+  the new one, the URL half fails too, since both keyed URLs are accepted, and the
+  no-model block fails with `['omp-local']`. `tests/test_provider_boundary.py`
+  fails 12 of 28 under `--noconftest` and errors whole under the root conftest.
+  The named file is the acceptance suite the realization adds: a stand-in
+  chat-completions server on loopback that records each request, so a turn is
+  proved to reach it in that grammar and naming the configured model, and the
+  no-model assertions over the views and every non-chat route. `omp` is
+  `doxbench_bridge.HARNESS_COMMAND`, and the check on it is a precondition: a
+  machine with the harness installed has a model, and would measure something
+  else.
+
 ## Follow-ons named here and NOT authored here
 
 - [~] F1 **Port openxFactory's 23 governance families into the openXdox pack.**
@@ -2119,3 +2376,21 @@ to #1144"*. `design.md` § D12.
   those families with openxFactory. **Owner: whoever claims it on `#656`.**
 - [~] F2 **Each DomainxFactory's own pack**, pinned in that domain's `stack.yaml`.
   That domain's own work. **Owner: each domain.**
+- [~] F3 **The wording overlays** (RULED `5799646419`, a follow-on outside both
+  releases). openXdox's partial `DISPLAY` facet (5.3a, landed as
+  openXdox-code#26 → `195276b7`) reaches a served page only when the assembly's
+  profile takes its `stages`. openxFactory's `scripts/profile_openxfactory.py`
+  declares a facet of its own that deliberately carries no `stages`, and
+  `tests/test_engineering_profile_display_facet.py:271` asserts the absence;
+  openXdox records the act as owed rather than reaching for it. That act, and any
+  further host overlay of the neutral words, lands as its own act and not as an
+  arc landing: it carries no `Arc:` trailer, so 11.1's guard does not read it,
+  and the test it edits is not one of 11.1's declared surfaces. **Owner: the lane
+  that claims it on `#656`.**
+- [~] F4 **The direct-arrow revisit, after phase 1** (RULED `5799494355`, *"keep
+  the direct arrow, revisit after phase 1"*, its trigger amended by
+  `5800995035`). When phase 1 has landed, the holder re-measures openxFactory's
+  direct `opendox` imports and brings Brett the question whether openxFactory
+  routes through openXdox only, retiring its second pin and the lockstep
+  `scripts/verify-opendox-pin.py` holds. `design.md` § D13 carries the note and
+  the baseline it is measured against. **Owner: the holder.**

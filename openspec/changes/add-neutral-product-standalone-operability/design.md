@@ -2,7 +2,7 @@
 
 Status: draft
 
-This document carries the decisions behind the sixteen requirements, the ONE
+This document carries the decisions behind the seventeen requirements, the ONE
 question this packet refuses to decide, and the measurements each rests on.
 Every measurement is a command a reader can re-run; where a number is quoted,
 the command that produced it is beside it.
@@ -31,7 +31,7 @@ The id was chosen to be READ correctly by someone who has not read this packet:
 ids, and "standalone operability" names the property without naming openDox, so
 that openXwallet and any future neutral product inherit it. Rejected: `add-opendox-build-arc`
 (names an actor's work plan, not a property, and dies when the arc closes),
-`invert-opendox-consumer-dependency` (names one of sixteen requirements),
+`invert-opendox-consumer-dependency` (names one of seventeen requirements),
 `add-standalone-product-contract` ("contract" is already overloaded in this
 corpus by `contracts/`).
 
@@ -71,8 +71,8 @@ under which it can.
 
 ## D3 — Why the gaps are REQUIREMENTS and not merely tasks
 
-A gap list is an actor's inventory; it expires when the actor stops. Sixteen
-requirements with seventy-one scenarios are a standing property of any neutral
+A gap list is an actor's inventory; it expires when the actor stops. Seventeen
+requirements with seventy-five scenarios are a standing property of any neutral
 product this repository pins, and they outlive the arc. The concrete openDox
 work is in `tasks.md`, one box per requirement, each naming the falsification
 command — so the requirement states the property, the task states the act, and
@@ -82,7 +82,7 @@ The requirements are written DOMAIN-NEUTRALLY and openDox is the measured
 instance, which is the house form: `corpus-adapter-seam`'s own first requirement
 carries *"The measured instance this rule is written from: twelve of
 `scripts/ideation_dashboard/`'s forty-eight modules carry twenty-three
-`scripts/doc_health/` imports…"*. Nothing in the sixteen names openDox, so a
+`scripts/doc_health/` imports…"*. Nothing in the seventeen names openDox, so a
 future neutral product is bound without an amendment.
 
 ## D4 — G1's remedy is the carve's own design, not new design
@@ -198,7 +198,7 @@ own words, *"openDox is the NEUTRAL product and ships no profile of its own"*.
 This packet proposes that it should ship one FOR ITS OWN DOMAIN, which is a
 different question from the one ASK-2 answered, and ratifying this packet is the
 act that settles it. **If the ratification read takes ASK-2 to foreclose the
-question, requirement 3 is the one to strike**, and the other fifteen stand
+question, requirement 3 is the one to strike**, and the other sixteen stand
 without it — openDox would then need a host shipped somewhere, and that is the same gap
 under another name.
 
@@ -455,7 +455,7 @@ Requirement 5 is about reaches that resolve through a declared seam. This is the
 WRITE path leaving the repository, it has its own constitutional invariant that
 neither of those carries, and it is separately satisfiable: openDox could
 generate its own snapshot and still have no way to submit, or submit and still
-serve nothing. The other fifteen requirements were already "ordered and separately
+serve nothing. The other requirements were already "ordered and separately
 satisfiable"; folding this into one of them would break that and bury the landing
 rule — since RULED, requirement 11's three guardrails — inside a requirement about
 something else. It is contributed through the SAME PATTERN as requirement 4's
@@ -697,6 +697,214 @@ openXdox FOLLOW-ON with its own claim, and each domain's pack is that domain's
 own work. This packet authors neither, and requirement 1 still keeps the 23
 families with openxFactory until that follow-on lands.
 
+## D13 — RULED: two releases, five phases, one change
+
+**RULED** by Brett Heap on `#656`: comment
+[`5799646419`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5799646419)
+(2026-09-23T17:30:26Z), verbatim *"a, phases 1-3 as the first release"*, and
+comment [`5800995035`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5800995035)
+(18:56:33Z), verbatim *"the four 1144 questions, go with recomendations"*, which
+answered the four questions this packet raised when it measured the first
+ruling's phase-1 wording against requirement 1. The arc is built in five phases
+grouped into two releases. **The sequencing changes no requirement and no
+scenario**: the release map at the head of `tasks.md` orders the realization
+and adds no property.
+
+### Release 1 — standalone operation
+
+**Named "standalone operation" on purpose, and not "standalone openDox"**
+(`5800995035`, answer 4). Requirement 8 says a product is not DECLARED
+standalone before its own spec instance promotes the requirements the carve
+assigned it, and that re-promotion is openDox-spec's act (Group 8, outside both
+releases). Release 1 delivers the operation: openDox runs, is useful and
+installs with no consumer, no publisher and no host present. The declaration
+stays where requirement 8 puts it.
+
+- **Phase 1, it runs.** The reach-back cut: G1, `serve.py` → `ideation_dashboard`
+  (Group 2), and G4, `authoring.py` → `corpus_adapter_openxfactory` (4.1, 4.2
+  and 4.3's eight reaches into openxFactory). A neutral default host profile
+  (Group 3). openDox's OWN default corpus adapter, registered at startup (4.1a);
+  with nothing registered, a verb still refuses naming its seam, as requirement
+  5 and 4.2 require. Each leg's whole suite green alone (Group 9), and the
+  console script (10.1).
+- **Phase 2, it is useful alone.** openDox's own neutral generator over the six
+  words `sources → groups → candidates → selections → submissions → completed`,
+  so a plain git repository produces a snapshot (Group 5), and its own validator
+  (Group 7).
+- **Phase 3, it installs.** Bundled Postgres and the named local single-user
+  identity mode (Group 13), the web bundle served and documented (10.2, 10.3),
+  and chat's model configuration with a clear "no model configured" state
+  (requirement 17, Group 16; § D14).
+
+**What phase 1 does NOT do, corrected by `5800995035` answer 1: it moves none
+of openxFactory's lane actions or host wiring.** The first ruling's phase-1 text
+said phase 1 would *"move openxFactory's lane actions and host wiring into
+openXdox"*. That wording was the holder's, and it conflicts with requirement 1
+(*"SHALL NOT move … its adapter column"*), with the carve manifest's
+`stays_openxfactory_adapter` rows for `serve_openxfactory_lanes.py`,
+`nightly_lane.py`, `intent_apply_lane.py` and `lens_submission.py`, and with
+11.1's guard. Run over the paths such a move touches, the guard exits 1 and
+names five of them. Brett kept requirement 1 (option A). The lane actions and
+the host wiring stay in openxFactory, and the guard's declared surfaces stand as
+written.
+
+**A note, not a requirement: the direct arrow stays** (RULED `5799494355`,
+2026-09-23T17:21:32Z, verbatim *"keep the direct arrow, revisit after phase 1"*;
+its trigger amended by `5800995035` answer 1).
+
+- **What phase 1 removes** is the openDox → openxFactory reach-backs:
+  `serve.py` → `ideation_dashboard` and `authoring.py` →
+  `corpus_adapter_openxfactory`. Those are the arrows that stop openDox
+  standing alone.
+- **What stays** is openxFactory's own direct use of openDox. It is a legitimate
+  host use of openDox's seams: the corpus adapter implements `CorpusAdapter`,
+  and the host registers its profile and its routes through the extension
+  points. RULING OQ-2's pin chain is unchanged: openXdox pins openDox, and
+  openxFactory pins BOTH openXdox and openDox, with the lockstep held by
+  `scripts/verify-opendox-pin.py`.
+- **After phase 1**, the holder re-measures openxFactory's direct openDox imports
+  and brings the arrow question back to Brett: whether openxFactory routes
+  through openXdox only, retiring the second pin and the lockstep. That is
+  follow-on F4. The condition `5799494355` first attached — ask only if what
+  remains is the adapter and a parity check — is dropped by `5800995035`,
+  because with the lane actions and the host wiring staying in openxFactory it
+  could never be met.
+- **The baseline, measured by AST parse on openxFactory main `9f357e95`**, as
+  corrected in `5800995035`: 8 non-test modules import `opendox` — the five of
+  `scripts/corpus_adapter_openxfactory/`, `scripts/opendox_host.py`,
+  `scripts/ideation-dashboard-serve.py` and
+  `scripts/ideation_dashboard/lens_submission.py`. 6 import `openxdox` —
+  `scripts/carved_reach.py`, `scripts/opendox_host.py`,
+  `scripts/profile_openxfactory.py`, and three `scripts/ideation_dashboard/`
+  modules (`nightly_lane.py`, `intent_apply_lane.py`,
+  `serve_openxfactory_lanes.py`). A text search counts three more importers of
+  `opendox`, and they import openxFactory's own `opendox_host` instead.
+
+### Release 2 — the document tool and self-maintenance
+
+- **Phase 4.** Local merge and the governed pull-request path, the neutral
+  submission step, and submission behind one interface (Group 12).
+- **Phase 5.** The health engine: the additive migration, the neutral checks,
+  the Health view and CLI, the fix loop, exceptions in git and the check-pack
+  interface (Groups 6, 14 and 15). The migration is `0003_`: the ruling's text
+  says `0002`, and openDox-code already carries
+  `migrations/0002_migration_state.sql`, so it is the same additive migration
+  one number on (`5800995035`; § D10.4).
+
+**Release 2's rulings are SEQUENCED, not deferred, reopened or weakened.** Every
+ruling recorded for phases 4 and 5 stands exactly as encoded: `5783934499` (the
+neutral submission step), `5784155201` (merge authority and health in the store;
+its install half is phase 3's), `5784247356` (the fix loop) and `5784295745`
+(the check-pack interface). Requirements 6, 11, 14, 15 and 16 are this change's
+as written. The sequencing changes when they are built, never what they
+require.
+
+### Every phase, and outside both
+
+- **Every phase:** Group 11, the guard, which walks every arc landing whatever
+  phase it belongs to, and 9.5, the pins, each advanced in the landing that needs
+  it.
+- **Outside both releases:** Group 8, openDox-spec's re-promotion, which is
+  openDox-spec's own act and carries `[~]`.
+- **Follow-ons outside both releases:** the xFactory check pack in openXdox,
+  openxFactory's 23 families (F1); the wording overlays (F3); and the
+  direct-arrow revisit after phase 1 (F4).
+
+### One change, and what archives it
+
+**`release-realization` admits ONE `target_release:` per proposal**, and its
+vocabulary requirement refuses a second declaration. So the two releases are
+SEQUENCING INSIDE THIS CHANGE and not two release identifiers:
+`target_release: implemented` is unchanged, and "release 1" and "release 2" name
+no release in the estate's registry. **The change archives only on merged, green
+realization evidence for BOTH releases** (`5800995035`, answer 2). Landing
+release 1 archives nothing and promotes nothing, so until release 2 is realized
+the promoted `openspec/specs/` carries none of these seventeen requirements,
+including the ones release 1 already satisfies. That is the cost of one change,
+stated here rather than discovered later: a reader of the promoted corpus does
+not see standalone operation until the whole arc is built. **Splitting release 2
+into its own change stays open for later.** It was not chosen now, and nothing
+here forecloses it.
+
+## D14 — RULED: chat's model configuration (requirement 17)
+
+**RULED** by Brett Heap, `#656` comment `5800995035`, answer 3: any
+OpenAI-compatible endpoint, configured as a URL, a model name and a CREDENTIAL
+REFERENCE and never a raw key, covering hosted APIs and local servers; with no
+model configured, chat shows a clear "no model configured" state and the rest of
+openDox works; and `doxbench_provider.py` remains the only module that may
+contact a provider. It lands as a NEW requirement because the packet did not
+cover chat's configuration at all, and it is phase 3 of release 1. A product that
+installs but whose chat cannot be pointed at a model is not standalone
+operation. Group 16 carries the tasks.
+
+### What already exists, and is kept
+
+Measured at openDox-code `1e4a57fb`. The product already holds a model provider
+WITHOUT a secret. `src/opendox/doxbench_binding.py`'s `ModelProviderBinding` is
+a frozen, slotted record of nine fields, among them `credential_ref`, the
+reference a credential broker resolves. No field of it can hold a key, and a
+record naming an unknown key is refused (`:316`). There is an operator door
+(`model-binding list|add|edit|remove|set-credential`,
+`src/opendox/cli_model_binding.py`), an intake flow in the console
+(`doxbench_intake`, from the archived `add-doxchat-model-intake`), and exactly
+one module that contacts a provider, `doxbench_provider.py`, which names itself
+in `PROVIDER_CLIENT_MODULE` (`:107`). Requirement 17 builds on all of it and
+redesigns none of it. The credential reference the ruling names is the one the
+record already carries.
+
+### What is missing, measured
+
+1. **No OpenAI-compatible grammar.** The dialect vocabulary is closed at one
+   member, `xfactory-prompt-v1` (`doxbench_binding.py:109-110`): a POST of
+   `{"model", "prompt"}` answered by `{"assistant_prose"}`
+   (`doxbench_provider.py:622-624`), which no OpenAI-compatible server speaks.
+   The record's own docstring names the lawful widening, *"A second member joins
+   here and an arm joins beside the first in `doxbench_provider`; the check is
+   never loosened"*, and that is task 16.1.
+2. **No model name.** The record has no model field. The catalog handle is the
+   binding's `id`, and `_post_to_provider` (`doxbench_provider.py:633`) sends that
+   handle as the request's `model`, so no provider model can be named (16.2).
+3. **A raw key can ride the endpoint URL.** The record checks the endpoint's
+   scheme and nothing else (`ENDPOINT_SCHEMES`, `:116`). Measured:
+   `https://user:<key>@…` and `…?api_key=<key>` are both ACCEPTED, into a file
+   the module calls safe to commit, while an extra `api_key` field is refused.
+   The product already has the detector it needs:
+   `runtime/local_git_adapter.py:1146`'s `carries_a_credential` flags both URLs
+   and passes a clean one (16.3).
+4. **"No model configured" is not a state.** With no binding, the product
+   resolves the harness declaration, whose one entry is declared AVAILABLE up
+   front. Run with no `omp` on the PATH,
+   `declared_model_port_factory(...)().catalog().available_entries()` answers
+   `omp-local`, "Local harness model", and the entry turns unavailable only after
+   the bridge finds its child dead or unstartable. The views already have a
+   no-model posture (`web/views/doxbench-chat.js:272`,
+   `web/views/staging-workbench.js:286`), but the catalog never lets them reach
+   it before a turn fails (16.4).
+5. **The boundary's instrument is a standing red.** The property holds. An AST
+   scan of `src/opendox/` finds three modules that touch a network client, and
+   only `doxbench_provider.py` reaches a model provider: `runtime/oidc.py`
+   fetches the identity broker's keys with `httpx`, and `session_git.py` calls
+   `socket.gethostname()`. But `tests/test_provider_boundary.py` fails 12 of 28
+   under `--noconftest` and is named by no required check; `validate.yml:361-370`
+   records it as a standing red (16.6).
+
+### Two points the ruling does not settle, and this packet does not decide
+
+- **What resolves a credential reference in a standalone install.** Every record
+  today names a broker program (`broker_argv`, required), and the one broker
+  that exists is openProfiler's `openprofiler-broker`, a separate product. A
+  user who must install a second product before chat can reach a hosted API has
+  a heavier install than requirement 17's first scenario suggests.
+- **How an endpoint that takes no credential is declared.** The usual local
+  server takes none, and the record requires an authentication kind of `api_key`
+  or `oauth` and a broker. Requirement 17 says only that the absence is declared
+  explicitly and never by a field left out.
+
+Both are realization decisions inside requirement 17's text, and task 16.3
+names them rather than making them. Whichever answer is taken, no raw key enters
+the configuration, and the pull request that takes it says which it took.
+
 ## R-G3 — RULED: openDox gets its own neutral generator
 
 **This section asked a question until 2026-09-22T20:08:59Z. It now records an
@@ -843,8 +1051,8 @@ declares it. Measured at openDox-code `3c3a9e31`, the six declared `short`
 values read `sources, groups, candidates, selections, submissions, completed`.
 The misspelling came from the module DOCSTRING — `display_profile.py:77` still
 narrates `completions` — which this packet quoted instead of the declaration it
-documents. The docstring is being aligned by openDox-code#36; no declared value,
-class name or test pin moves.
+documents. The docstring was aligned by openDox-code#36 → `1e4a57fb`; no
+declared value, class name or test pin moved.
 
 **And the governed host keeps its own word through the facet, not by renaming
 the neutral one.** RULED 2026-09-22T21:44:49Z
@@ -862,7 +1070,8 @@ leaves the other five stages byte-identical to the neutral ones — and leaves t
 same entry's `label` at `completed`, so the facet must word `label` as well as
 `short` if the stage is to read "implemented" everywhere it is named. That is
 requirement 3's composition point doing exactly what it exists for, and task
-5.3a carries it.
+5.3a carries it. It LANDED as openXdox-code#26 → `195276b7`, declared as a
+module value rather than on `DomainProfile`, for the reason 5.3a records.
 
 ### The sibling slice, LANDED — do not duplicate it
 
