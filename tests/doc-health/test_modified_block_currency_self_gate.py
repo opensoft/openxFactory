@@ -1276,8 +1276,27 @@ _LEDGER_SUBJECTS = {
     # `add-estate-repository-inventory` itself archives and its block is
     # promoted — or sooner, if it is amended first to carry the corrected
     # sentence, retiring it the same way any other in-flight correction does.
-    ("add-estate-repository-inventory", "release-realization",
-     "Code-surface declaration grammar is gated"),
+    # RETIRED 2026-09-23: the ONE row `add-estate-repository-inventory`
+    # opened on 2026-09-21 (the block immediately above, over
+    # release-realization *Code-surface declaration grammar is gated*) retired
+    # ON ITS OWN STATED CONDITION — "Retires when
+    # `add-estate-repository-inventory` itself archives and its block is
+    # promoted". That packet ARCHIVED on Brett Heap's separate archive word,
+    # verbatim "archive it when the draft is up" (RULED in `opensoft/brett-wip`
+    # `lanes/log/openXfactory-5.md` at 2026-09-23T21:04:55Z against
+    # openxFactory #1087), held behind the merged-plus-green realization
+    # evidence its non-empty `code_surface:` requires — PR #1119 →
+    # `5e122388d489378ea3e768de7f1de678f97e62e6`, merged 2026-09-23T19:06:49Z,
+    # with `pytest-suite` green on `main` at that very commit (run
+    # 35907128216). Its `## MODIFIED` block was promoted BYTE-IDENTICAL into
+    # canon (15,971 bytes, sha256 `2b9a75d6bf836c8e…` on BOTH sides; the
+    # requirement's scenarios 11 → 11), which is exactly the condition the
+    # row's own comment named. What the promotion carried is #1108's RATIFIED
+    # `**AMENDED BY**` paragraph, byte-for-byte, so canon now states the
+    # wording the block was ratified with: the one unit this arm reported as
+    # uncarried against the ACTIVE block is discharged by canon moving to the
+    # block, not the block to canon. Re-measured over this tree: the family
+    # reports neither this subject nor any unnamed one.
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -2228,6 +2247,22 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     same pre-existing `add-chain-attestation` duplicate collapsing as it
     always has.
 
+    THIRTEEN AT THIS HEAD, 2026-09-23 — RE-MEASURED, NOT SUBTRACTED.
+    `add-estate-repository-inventory` (openxFactory #1087) ARCHIVED on Brett
+    Heap's separate archive word, held behind the merged-plus-green
+    realization evidence its non-empty `code_surface:` requires (PR #1119 →
+    `5e122388`, merged 2026-09-23T19:06:49Z, `main` green at that commit),
+    and the one row it opened on 2026-09-21 retired with it, its block
+    promoted BYTE-IDENTICAL into canon (15,971 bytes, sha256
+    `2b9a75d6bf836c8e…` on both sides). That is a DISCHARGE and not a
+    departure. The paragraph above read THIRTEEN on 2026-09-21, on a tree that
+    did not yet hold `add-worker-input-budget`'s row (opened 2026-09-22 by PR
+    #1137, which took the measured population to FOURTEEN — 15 literal
+    entries, 14 unique — without restating it here); this retirement takes it
+    back to THIRTEEN. `len(_LEDGER_SUBJECTS)` MEASURED AT THIS HEAD reads
+    THIRTEEN — 14 literal entries, 13 unique, the same pre-existing
+    `add-chain-attestation` duplicate collapsing as it always has.
+
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
     which is the defect this family exists to catch. Asserted loosely in the one
@@ -2388,7 +2423,15 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "block against canon directly, where the round-3 fix reads "
         "differently; one row opens, not a regression, and it retires when "
         "add-estate-repository-inventory itself archives and its block is "
-        "promoted)",
+        "promoted; 14 SINCE 2026-09-22, when add-worker-input-budget (PR "
+        "#1137) opened ONE row over doc-health's Sweep sequencing and "
+        "snapshot consistency; AND 13 ON 2026-09-23, when "
+        "add-estate-repository-inventory ITSELF ARCHIVED on Brett Heap's "
+        "separate archive word 'archive it when the draft is up', held behind "
+        "the merged-plus-green realization evidence its non-empty "
+        "code_surface requires (PR #1119 -> 5e122388, main green at that "
+        "commit), and its one row retired with it, its block promoted "
+        "byte-identical into canon)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
