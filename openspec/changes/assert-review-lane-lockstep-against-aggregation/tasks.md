@@ -225,30 +225,36 @@ this packet's archive until merged PLUS green realization evidence.
   cannot rewrite it), **no checkout of `github.event.pull_request.head`** —
   mirroring `test_no_checkout_takes_the_pull_request_head`, and easy here because
   the check reads two repositories over the API and needs no candidate code at
-  all — and an **allowlist** (`bot/review-lane-repin`), refined below from a head
-  ref to a triple, plus the
-  same-repository condition as defence in depth, with a test that a
-  same-repository NON-BOT pull request is skipped.
-  **AND THE ALLOWLIST IS A TRIPLE, NOT A HEAD REF** (Copilot `r4076740158`): a
-  head ref alone is a predicate anyone who can create or update that branch can
-  satisfy, so the same writer could open a DIFFERENT pull request under the
-  allowlisted name and run the base workflow with the token; and an unfiltered
-  base would expose the same path on any branch. The estate already states the
-  shape — `.github/merge-approval-envelope.yml`:70-74 requires `expected_author`,
-  `expected_head_ref` AND `expected_base_ref` together, held by
-  `tests/review_lane_pin/test_review_lane_caller.py`:780-789, whose own words
-  call the exact head ref *"half of the fork defence"* — **half, which is the
-  point**. The gate's condition is therefore the same SHAPE, with THIS lane's
-  literals (Copilot `r4078098160`): author `openxfactory[bot]` (the author of
-  `#1138`), head ref `bot/review-lane-repin` (`BOT_BRANCH`,
-  `scripts/review_lane_repin.py`:553) and base `main` — each an exact value and
-  none a pattern. The envelope's own values, and the caller test's `ENROLLED_*`
-  literals (`test_review_lane_caller.py`:124-127), are another lane's
-  (`intents/rolling`) and are NOT these. A test per predicate drives a pull
-  request that satisfies the other two and fails this one. A fork event and a
-  non-allowlisted head are both reported OUT OF SCOPE rather than UNDETERMINED:
-  *not applicable* and *could not measure* are different answers, and this
-  packet's whole subject is not conflating them.
+  all — and **NO author, branch or origin predicate at all** (Copilot
+  `r4078145229`, and review `5285808064`'s *previously missed* item),
+  **REVERSING the allowlist this box carried through two refinements**
+  (`r4076740158`'s triple, `r4078098160`'s literals). This capability's promoted
+  *An automated pin advance is judged by the freshness checks that already exist,
+  with no exemption* (`openspec/specs/review-lane-floor-mirror/spec.md`:314-328)
+  forbids every check that judges a pin advance to branch on the pull request's
+  author, branch or automated origin — *"an exemption of that shape is a defect
+  rather than a policy"* — and an allowlist admitting only the bot's pull
+  requests is that shape exactly: a hand-authored advance would leave
+  `lockstep.status` as false and draw no verdict. So the gate runs for EVERY pull
+  request that changes `contracts/review-lane-pin.yaml` — a `paths:` filter,
+  keyed on what the pull request changes and never on who opened it — and its
+  safety rests on the properties that do not depend on the author: base code
+  only; no head checkout; the event read for the pull request's number and
+  `head.sha` alone, passed through `env:` and never interpolated into a `run:`
+  script; the candidate fetched from THIS repository at that `head.sha`, never
+  from the head repository the event names, and parsed as inert data, judged and
+  never followed (§ 5.1i); the read plan the base's; the aggregation token
+  read-only and scoped to `xFactory`; and every value the verdict names drawn
+  from its grammar or its vocabulary, a value outside them — the candidate's or a
+  surface's — named only as an inert, length-bounded code span, its line breaks
+  and backticks replaced. `design.md` D17 records the reversal and what a fork's
+  run can publish. Tests: the trigger carries the `paths:` filter and no
+  condition on author, head ref, base ref or head repository; a hand-authored
+  pull request that changes `core_commit` draws a verdict, and so does one whose
+  event names a fork as the head repository, with no request made to that
+  repository; no `run:` step interpolates an event field; and a declared state
+  and a `core_commit` each carrying a backtick, a line break and a link are each
+  named as one inert span of bounded length.
 - [ ] 5.1i **THE GATE READS THE CANDIDATE PIN, NOT THE BASE'S — AND THIS IS THE
   DEFECT `pull_request_target` INTRODUCED** (Copilot's *previously missed* item,
   round 8). Under `pull_request_target` the workflow runs from the BASE, so a
@@ -286,8 +292,7 @@ this packet's archive until merged PLUS green realization evidence.
   visible as `neutral`. **The gate's OWN job declares exactly the three
   `GITHUB_TOKEN` scopes its steps use** (Copilot `r4077837498`):
   `contents: read` for the base checkout and the candidate pin fetched as bytes,
-  `pull-requests: read` for re-reading `head.sha` and the triple's author and
-  refs, and `checks: write` for the verdict — because a declared `permissions:`
+  `pull-requests: read` for re-reading `head.sha`, and `checks: write` for the verdict — because a declared `permissions:`
   block sets every undeclared scope to `none` (`merge-master-approval.yml`:448-449),
   so `checks: write` alone would leave the gate unable to reach the comparison.
   **The aggregation read token stays read-only and gains nothing**, because the
@@ -379,5 +384,20 @@ this packet's archive until merged PLUS green realization evidence.
   arithmetic already done.
 - [~] 6.4 `#1138` is not this packet's to land, hold or amend. It is cited as the
   live reproduction and nothing here asks for an act on it.
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+- [~] 6.5 **AN AUTOMATED APPROVER MUST WAIT FOR THE VERDICT, AND THAT OBLIGATION
+  BELONGS TO THE CHANGES THAT WOULD ADMIT THIS LANE** (Copilot `r4078145216`). A
+  verdict published by a parallel `pull_request_target` run is not seen by an
+  approver that read the head's checks before it existed. Measured, no such
+  approver judges a pin-changing pull request today:
+  `.github/merge-approval-envelope.yml` admits one candidate,
+  `intent-rolling-custody` (`expected_head_ref: intents/rolling`, `:73`), whose
+  admitted paths are `ideation/dashboard/intents/**` and
+  `ideation/dashboard/gate-records/**` (`:115-116`), so there is no race to test
+  yet. The active `admit-review-lane-repin-to-merge-approval-envelope` and
+  `extend-merge-master-envelope-to-floor-bot-lanes` would create one.
+  **Registered for their realization:** an approver that admits a pin-changing
+  pull request must not approve it until this gate's verdict for that head,
+  found by its declared name (§ 5.1e), is published, and must not approve over a
+  `failure`; with a test that runs the approver ahead of the verdict and asserts
+  that it waits. Requiring the verdict by that name in a ruleset is the other
+  route, and a ruleset act this packet does not take.

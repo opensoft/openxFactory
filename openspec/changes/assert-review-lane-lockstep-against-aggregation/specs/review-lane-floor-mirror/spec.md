@@ -33,7 +33,12 @@ repository that this measurement is the first thing positioned to see. WHEN IT
 RUNS is at least every proposed advance of `core_commit` and the pull request
 that carries it, so a declaration an advance falsifies is reported in the SAME
 pull request that falsifies it rather than whenever a human next happens to read
-the field.
+the field. IT JUDGES EVERY SUCH PULL REQUEST ALIKE: no condition of the check SHALL
+branch on the pull request's author, its branch or its automated origin, because
+this capability's *An automated pin advance is judged by the freshness checks that
+already exist, with no exemption* forbids exactly that to every check that judges
+a pin advance, and a hand-authored advance leaves the declaration as false as an
+automated one.
 
 WHERE THE READ LIVES AND WHERE THE JUDGMENT LIVES follows this capability's own
 split and SHALL NOT be drawn elsewhere: the cross-repository read is performed

@@ -407,13 +407,11 @@ branch"*) — and that costs nothing here, because the check reads two repositor
 over the API and needs no candidate code at all, which is exactly the "safe
 base-code/API design" the first finding asked for; plus an **allowlist** — a head
 ref here (`bot/review-lane-repin`), refined at D14d to the author / head-ref /
-base-ref triple — and the same-repository condition as defence in depth, with a
-test that a same-repository NON-BOT pull request is skipped.
-
-**A fork event and a non-allowlisted head are both OUT OF SCOPE, not
-UNDETERMINED** — *not applicable* and *could not measure* are different answers,
-and this packet's entire subject is a corpus that had stopped distinguishing a
-claim from a measurement.
+base-ref triple — and the same-repository condition as defence in depth, with
+fork events and non-allowlisted heads reported OUT OF SCOPE. **Both the allowlist
+and the scope are REMOVED at D17**, because this capability forbids exactly that
+exemption to every check that judges a pin advance; this paragraph is kept as the
+record of what D17 reverses.
 
 **The lesson is the one this packet keeps relearning about itself.** I refused
 `pull_request_target` by reasoning from its general hazard without checking
@@ -504,6 +502,9 @@ the field extracted from its fixed location, never the file around it.
 
 ## D14d — the allowlist is a TRIPLE, because a head ref is a predicate its author controls
 
+**SUPERSEDED BY D17**, which removes the allowlist this section refines; kept as
+the record of the reasoning D17 reverses.
+
 Copilot `r4076740158`, the last refinement of D14's chain. A head-ref allowlist
 is satisfied by anyone who can create or update that branch — so **the same
 writer could open a different pull request under the allowlisted name and run the
@@ -574,6 +575,63 @@ does not declare exactly one readable 40-hex `core_commit`, in the suite that
 runs on the advance's own pull request. A malformed one cannot land, and restating
 the rule here would put one obligation in two places.
 
+## D17 — the allowlist is REMOVED, because the capability already forbids it
+
+Copilot `r4078145229`, and review `5285808064`'s *previously missed* item, from
+two sides. The requirement runs the check on EVERY proposed advance and the pull
+request that carries it, while D14 and D14d scoped the gate to the bot's pull
+requests alone — and this capability's promoted *An automated pin advance is
+judged by the freshness checks that already exist, with no exemption*
+(`openspec/specs/review-lane-floor-mirror/spec.md`:314-328) forbids exactly that:
+*"none of them branches on the pull request's author, branch name or automated
+origin … an exemption of that shape is a defect rather than a policy"*. A
+hand-authored advance leaves `lockstep.status` as false as an automated one —
+`#1123`, the 2026-09-18 repair, was itself a hand-authored pull request changing
+this very file (author `brettheap`, head `chore/review-lane-lockstep-residue-b21f0100`)
+— and it would have drawn no verdict.
+
+**Scoping the requirement to the automated lane instead would breach the same
+rule from the other side**, which asks for the automated advance to be judged
+*"at exactly the strictness they judge a hand-authored one"*. So the gate judges
+every pull request that changes the pin, keyed on WHAT it changes — a `paths:`
+filter — and never on who opened it.
+
+**The allowlist was defence in depth, and the depth now sits where it holds for
+anyone — which had to be checked rather than assumed, because removing it admits
+pull requests from forks.** This repository is public and both repositories the
+gate reads about are private (measured: `private: true` for `opensoft/xFactory`
+and for `codeXfactory/codexFactory`), so anyone who can open a pull request here
+may now start a run that holds the aggregation token. What that run can do does
+not depend on who started it: base code runs; no head is checked out; the event
+supplies only the pull request's number and `head.sha`, through `env:`, and is
+never interpolated into a script; the candidate is fetched from THIS repository
+at that `head.sha` — a fork's head commit is readable here through its pull
+request, as every pull request's head is published here as `refs/pull/<n>/head`
+— and never from the head repository the event names, then parsed as inert data
+and judged, never followed (D14c); the read plan is the base's, so no candidate
+chooses what is read; the aggregation token is read-only and scoped to one
+repository; and every value the verdict names comes from a grammar or a
+vocabulary, a value outside them — the candidate's or a surface's — named only as
+an inert, length-bounded code span whose line breaks and backticks are replaced,
+so it can neither end the span nor carry a file out. **What such a run publishes
+is what the bot's own pull requests publish**: the aggregation's default branch,
+its resolved commit and the surfaces' values, on this public repository, beside a
+pin file that already publishes a private repository's commit as `core_commit`.
+An outside author chooses when it is published, and nothing about what is read.
+
+**The race with an automated approver is real, but not yet present** (Copilot
+`r4078145216`). No approver admits a pin-changing pull request today — the
+envelope's one candidate, `intent-rolling-custody`, admits only
+`ideation/dashboard/intents/**` and `ideation/dashboard/gate-records/**` — and the
+two active changes that would admit this lane inherit the obligation to wait for
+the verdict, registered at `tasks.md` § 6.5.
+
+**This is the second time on this packet that a defence I added was the defect.**
+D14's same-repository condition would have run the head's copy of a
+secret-bearing workflow, and D14d's triple would have exempted every
+hand-authored advance. Both times the estate had already written the rule: once
+as a test, once as a requirement in this very capability.
+
 ## D5 — what the check compares, and why it is values rather than authorship
 
 The comparison is `core_commit` against the commit the aggregation's JUDGING
@@ -599,5 +657,3 @@ that checks out the pin's own `repository:`, parsed as YAML, and the
 `opensoft/xFactory` `main` `6e52e98e`, each file carries exactly one 40-hex
 literal today, at `:152`, `:308` and `:72` — so a file-wide match would happen to
 work, and would stop working silently the day a comment carried a second.
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
