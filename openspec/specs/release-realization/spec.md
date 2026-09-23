@@ -1014,12 +1014,28 @@ it belongs to the declaration that created the collision.
 ### Requirement: Code-surface declaration grammar is gated
 An ACTIVE change proposal's `code_surface:` declaration SHALL open with a
 DECLARED HEAD the ratified grammar admits — EITHER the single token `none`, OR a
-list of one or more REPOSITORY IDENTIFIERS separated by a comma, by ` and `, or
-by ` + `, the two being EXCLUSIVE alternatives and never mixed — and a
-house validator SHALL REFUSE any active declaration whose head it cannot read,
-naming the proposal's path and the text the declaration carries. A declaration
-whose repositories cannot be told from its explanation is a declaration no
-reader can act on, which is what the corpus shows.
+list of one or more REPOSITORY IDENTIFIERS separated by a comma, by `, and `, by
+` and `, or by ` + `, THOSE TWO HEAD FORMS being EXCLUSIVE alternatives and
+never mixed — and a house validator SHALL REFUSE any active declaration whose
+head it cannot read, naming the proposal's path and the text the declaration
+carries. A declaration whose repositories cannot be told from its explanation is
+a declaration no reader can act on, which is what the corpus shows.
+
+`, and ` IS ONE SEPARATOR AND SHALL BE READ AHEAD OF THE BARE COMMA, which is
+the whole of what distinguishes it from the other three. A list spelled out the
+way English spells one out — `openxFactory, openXwallet, and codexFactory` —
+SHALL be read as THREE identifiers, the comma and the conjunction after it
+consumed TOGETHER as one separator. THE ORDER BUYS THAT READING, AND WHAT IT
+BUYS IS A READING RATHER THAN A PREFERENCE BETWEEN TWO: `and` is itself a name
+the identifier grammar admits, so a bare comma taken at that position makes the
+CONJUNCTION a member of the list in its own right, and the identifier that
+actually follows it is then left with no separator and no gloss opener before
+it — a head running into prose, which is REFUSED. Trying the longer separator
+first is therefore what makes a spelled-out list READABLE AT ALL, and not what
+settles which of two readings it gets. THE FOUR SEPARATORS ARE ALTERNATIVES
+WITHIN ONE LIST AND ARE NOT EXCLUSIVE OF EACH OTHER — one head MAY separate its
+members by more than one of them, which is what a three-item list in ordinary
+prose does, and nothing in a mixed-separator head makes a reader guess.
 
 THE DECLARATION IS A HEAD FOLLOWED BY AN OPTIONAL PROSE GLOSS, and the gate
 SHALL judge the HEAD and never the gloss. That is the corpus's own form rather
@@ -1029,9 +1045,21 @@ every declaration that explains itself. The gloss SHALL be introduced by a GLOSS
 OPENER, and the opener set SHALL be the set the corpus already uses rather than
 one the gate prefers: an em dash, an en dash, an opening parenthesis, a full
 stop, a colon, or a semicolon. A head that runs into ordinary prose with no
-opener — a possessive, an apposition, or a sentence continued by `, and …` — is
-REFUSED, because there is then no point in the string at which the declaration
-stops and the explanation starts, and every reader must guess a different one.
+opener — a possessive, an apposition, or a sentence continued by `, and …` whose
+continuation the identifier grammar cannot read — is REFUSED, because there is
+then no point in the string at which the declaration stops and the explanation
+starts, and every reader must guess a different one.
+
+THE `, and …` CASE IS THE ONE THE SEPARATOR ABOVE NARROWS, AND THE NARROWING IS
+STATED HERE RATHER THAN LEFT TO BE FOUND. Where the words after `, and ` are
+themselves a REPOSITORY IDENTIFIER followed by a gloss opener or by the end of
+the declaration, they are ADMITTED as a further member of the list, that being
+exactly the spelled-out form the separator exists to read. Where they are not —
+an ordinary sentence, which is what an explanation is — the REFUSAL STANDS and
+names the point at which reading stopped. The two cases are told apart by the
+identifier grammar and by nothing else, no reader weighing whether a word looks
+like a repository; and the remedy is unchanged and is the author's, a gloss
+opener written before the explanation begins.
 
 A REPOSITORY IDENTIFIER IS EITHER A BARE REPOSITORY NAME OR AN `<owner>/<name>`
 ADDRESS, and BOTH SHALL BE ADMITTED because the corpus carries both. The gate
@@ -1086,6 +1114,38 @@ report it, and SHALL refuse nothing there. A gate that demanded an edit nobody
 may make would be a standing finding with no remedy, which is the defect this
 estate disposes of rather than creates.
 
+**AMENDED BY `amend-code-surface-grammar-comma-and` (2026-09-18).** MOST
+paragraphs and scenarios of this block are promoted canon's own bytes,
+UNCHANGED. THREE units are CORRECTED IN PLACE for what `scripts/code_surface.py`
+made untrue on the day the gate landed: the opening sentence's list of
+separators, the sentence that refused a head continued by `, and …` flatly,
+and the WHEN bullet of *An active proposal declares several repositories*.
+TWO explanatory paragraphs and ONE scenario — the two clarifications and the
+Oxford-comma scenario, both named below — are ADDED BY THIS AMENDMENT and are
+NOT canon's prior bytes. `_SEPARATOR_RE` has admitted a FOURTH
+alternative since the module was written — `, and `, tried FIRST, ahead of the
+bare comma — and the promoted text named three, so a declaration spelled out
+with an Oxford comma passed a gate canon said would refuse it. THIS BLOCK MOVES
+NO BEHAVIOUR: not one character of `scripts/code_surface.py` changes with it, no
+declaration that passes today is refused after it and none that is refused today
+passes, and the repository set derived from any head in the corpus is
+identical before and after. TWO CLARIFICATIONS RIDE THE CORRECTION AND BOTH
+DESCRIBE THE SAME READER: the exclusivity clause of the opening sentence is said
+of THE TWO HEAD FORMS rather than of the separators it now follows four of —
+which is the antecedent the originating packet's own design record names,
+"EITHER the single token none, OR a list … the two being EXCLUSIVE alternatives
+and never mixed" — and the separators are stated to be alternatives WITHIN one
+list, which is what the reader has always done and what the promoted text left a
+reader of a four-item list to guess at. NOTHING ELSE MOVES: the sentinel rule,
+the identifier shape, the gloss-opener set, the repeated-header refusal, the
+block-scalar refusal, the absence default and the archived-record rule are
+carried unchanged, and no scenario is removed or retitled. ONE SCENARIO IS
+ADDED, beside *An active proposal declares several repositories* rather than at
+the end of the block, because it is that scenario's own case at the grain the
+correction moves and a reader looking for the list grammar finds them together.
+
+**Removed from canon by amend-code-surface-grammar-comma-and (2026-09-18):** ``An ACTIVE change proposal's `code_surface:` declaration SHALL open with a DECLARED HEAD the ratified grammar admits — EITHER the single token `none`, OR a list of one or more REPOSITORY IDENTIFIERS separated by a comma, by ` and `, or by ` + `, the two being EXCLUSIVE alternatives and never mixed — and a house validator SHALL REFUSE any active declaration whose head it cannot read, naming the proposal's path and the text the declaration carries.``; ``A head that runs into ordinary prose with no opener — a possessive, an apposition, or a sentence continued by `, and …` — is REFUSED, because there is then no point in the string at which the declaration stops and the explanation starts, and every reader must guess a different one.``; `` **WHEN** an active change declares two or more repository identifiers separated by a comma, by ` and `, or by ` + ` `` — the module has read a fourth separator since the gate landed, so the first of these three units names three where the reader admits four, and the second states as a flat refusal a case the reader decides by whether the words after the conjunction are themselves a readable identifier. The third is the same three-separator list in the scenario that exercises it. Each is REPLACED in place rather than dropped: the sentences above state the four separators, the order that makes the longest one win, and the narrow case the fourth one admits. This reason carries no code span, so the marker names exactly the three units listed before the separator.
+
 #### Scenario: An active proposal's head runs into prose
 - **WHEN** an active change's `proposal.md` declares a `code_surface:` whose head is followed by ordinary prose with no gloss opener — a possessive, an apposition, or a sentence continued by `, and …` — and the register does not name it
 - **THEN** the validator MUST fail, naming the proposal's path and the declaration text it carries
@@ -1100,9 +1160,15 @@ estate disposes of rather than creates.
 - **THEN** the validator passes, and the declared repository set is that one identifier
 
 #### Scenario: An active proposal declares several repositories
-- **WHEN** an active change declares two or more repository identifiers separated by a comma, by ` and `, or by ` + `
+- **WHEN** an active change declares two or more repository identifiers separated by a comma, by `, and `, by ` and `, or by ` + `
 - **THEN** the validator passes and the declared repository set is every identifier in the head
 - **AND** an identifier spelled as an `<owner>/<name>` address is admitted on the same terms as a bare repository name, both spellings being ones the corpus carries
+
+#### Scenario: A declaration spells its list out with an Oxford comma
+- **WHEN** an active change's head separates the last two of three repository identifiers by `, and ` — `openxFactory, openXwallet, and codexFactory`
+- **THEN** the validator passes and the declared repository set is the THREE identifiers, the comma and the conjunction having been consumed as ONE separator
+- **AND** the conjunction MUST NOT be taken as a member of the list in its own right — which is what the bare comma alone would make of it, `and` being a name the identifier grammar admits, leaving `codexFactory` with no separator and no gloss opener before it and the whole declaration REFUSED as a head running into prose — the longer separator being tried before the bare comma at each position
+- **AND** a head that separates its members by more than one of the admitted separators is admitted on the same terms, the separators being alternatives within one list rather than exclusive of each other
 
 #### Scenario: A head mixes none with a repository identifier
 - **WHEN** an active change's head carries both the token `none` and a repository identifier, in either order — `none, openxFactory` or `openxFactory and none`
