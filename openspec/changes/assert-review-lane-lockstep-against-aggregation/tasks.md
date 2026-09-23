@@ -532,7 +532,8 @@ this packet's archive until merged PLUS green realization evidence.
   lets that clause be narrowed on evidence rather than on argument. Not narrowed
   here.
 - [~] 6.2 `converged_with:` names TWO surfaces and gains no third entry for the
-  `MIGRATION_PIN` constant. The check reads all three (`design.md` D5), but
+  `MIGRATION_PIN` constant. The check's read plan reads all three (`design.md`
+  D5, D19) and judges `converged_with:` against its two workflow members, but
   promoting the constant to a converged-with member is the pin owner's call and
   the field has been through three cycles without it.
 - [~] 6.3 The pin file's `reason:` narrative says a false status *"survives in

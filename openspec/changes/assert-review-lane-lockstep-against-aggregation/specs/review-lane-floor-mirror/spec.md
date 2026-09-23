@@ -187,7 +187,11 @@ aggregation is another repository's availability and an aggregation whose own
 surfaces disagree is another repository's defect, and turning either into this
 repository's red build would make the check a liability its owners would route
 around. A NEUTRAL conclusion SHALL NOT be reported as a pass, and silence SHALL
-NOT stand in for it.
+NOT stand in for it. SO EVERY OUTCOME HAS ITS CONCLUSION: the declaration outside
+its vocabulary, the check's own access failing and a contradicted declaration
+each FAIL; INCONSISTENT and UNDETERMINED each conclude NEUTRAL; and a declaration
+the measurement AGREES with SHALL PASS, naming what was read, the only outcome
+that does.
 
 THE DECLARATION IS NOT REMOVED BY THIS RULE. The pin file stays the place the
 state is declared and the place its dated reasoning is kept; what changes is that
@@ -228,6 +232,6 @@ compared only to itself is a tautology.
 - **AND** the check's own conclusion is NEUTRAL and visible rather than failing, because another repository's availability is not this repository's build, and rather than passing, because silence is not a measurement
 
 #### Scenario: The verdict is reproduced without firing the lane
-- **WHEN** a reviewer is given the commit the pin declares, the commits the aggregation's surfaces name and the declared state
+- **WHEN** a reviewer is given the function's whole input — the candidate's declaration as parsed (its declared state, `core_commit` and `converged_with:`, or its parse refusal), the read plan's workflow members, and the read result (the access outcome, the resolved aggregation commit, and each surface's value or the failure that kept it unread)
 - **THEN** the same verdict follows from those values alone, because the comparison is a function over them and reaches no network
 - **AND** each refusal and each report is exercised by a unit test with a fixture rather than by dispatching the workflow

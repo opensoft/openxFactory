@@ -844,8 +844,9 @@ Those are questions about provenance and the pin file already records them at
 length; the check answers one question — **are the two commits the same** — and
 reports the declaration against it.
 
-**The `converged_with:` list is the check's own subject list and it names TWO
-surfaces**, the places a core is actually checked out and run, while
+**The check's read plan, fixed in its code, has as its two WORKFLOW MEMBERS the
+TWO surfaces `converged_with:` declares** (D19), the places a core is actually
+checked out and run, while
 `MIGRATION_PIN` is the aggregation's test constant holding those two identical to
 each other. This packet does not promote the constant to a converged-with member
 — that is the pin owner's call and the field has been through three cycles
@@ -855,7 +856,8 @@ aggregation's own to repair.
 
 **Each of the three is read at a named selector, not found by a pattern** (review
 `5285753827`'s *previously missed* item): the `ref:` of each workflow's step
-that checks out the pin's own `repository:`, parsed as YAML, and the
+that checks out the decision core's repository, `codeXfactory/codexFactory`,
+parsed as YAML, and the
 `MIGRATION_PIN` assignment in `tests/test_merge_master_workflows.py`. Measured on
 `opensoft/xFactory` `main` `6e52e98e`, each file carries exactly one 40-hex
 literal today, at `:152`, `:308` and `:72` — so a file-wide match would happen to
