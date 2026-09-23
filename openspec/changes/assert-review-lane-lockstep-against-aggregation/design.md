@@ -131,7 +131,7 @@ so the measurement was not deterministic.** Taken.
 
 The requirement now reads the surfaces AS A SET, requires them to agree before
 either state is concluded, and gives disagreement its own outcome — INCONSISTENT,
-with each surface named and its value quoted, concluding neither `converged` nor
+with each surface named and its value digested (D20), concluding neither `converged` nor
 `diverged`. **A check permitted to pick one surface is choosing its own answer**,
 which is the same defect in miniature as the declaration this packet exists to
 stop trusting.
@@ -186,7 +186,7 @@ missing half of D2.**
 | outcome | conclusion | why |
 | --- | --- | --- |
 | declaration ABSENT or outside its vocabulary — a foreign declared state, a `core_commit` that is not a commit, an unparseable candidate, or a `converged_with:` other than the read plan's workflow members (D16, D17, D19) | **FAIL**, naming the value found | added at round 6; see D14a. Checked FIRST, before the aggregation is read |
-| declared state CONTRADICTED by the measurement | **FAIL**, naming both values | this repository's own contract file states something false about another repository; the remedy is one edit to the field |
+| declared state CONTRADICTED by the measurement | **FAIL**, naming `core_commit` and the agreed commit's digest | this repository's own contract file states something false about another repository; the remedy is one edit to the field |
 | the check's own ACCESS fails — binding, mint, or the aggregation refusing its token | **FAIL**, naming the failure | this repository's own configuration; the per-run form of the standing-state rule (review `5286349291`'s *previously missed* item) |
 | surfaces disagree with each other (INCONSISTENT) | **NEUTRAL**, visible | another repository's defect, and not this repository's claim to answer |
 | aggregation unreadable (UNDETERMINED) | **NEUTRAL**, visible | another repository's availability, and D4's whole point |
@@ -291,8 +291,8 @@ and every outcome is mapped rather than only the neutral ones (Copilot
 and UNDETERMINED, `success` for agreement — and `skipped`, outside the six
 because nothing is compared, for a pin change that moves neither judged value
 (D17) — the values read in its output each
-time, a surface's as its commit or, where it is not one, only as its
-classification (D20). The test asserts the PUBLISHED CONCLUSION for each outcome against that
+time, a surface's only as its classification, its relation to `core_commit` and a
+digest (D20). The test asserts the PUBLISHED CONCLUSION for each outcome against that
 mapping rather than the process exit code —
 **because this contract degrades silently to a green pass if nobody checks which
 of the two was published.**
@@ -349,8 +349,8 @@ the BASE branch's last commit, and would hang the verdict on a commit the advanc
 does not propose.
 
 **`r4077837539` — and so the advance side publishes nothing.** It records the
-measured values and the outcome in the pull-request body the lane already
-writes, and the conclusion for that advance is the gate's, on the same head: the
+measured values, in the form the gate publishes them (D20), and the outcome in
+the pull-request body the lane already writes, and the conclusion for that advance is the gate's, on the same head: the
 lane's App-token push starts the gate's `pull_request_target` run (measured on
 `#1138`). A second check run for one fact on one commit would be the second
 identity the paragraph above forbids. **The body's record is HISTORICAL, and says
@@ -531,6 +531,15 @@ read over the API, not a checkout and not an execution), **parses it with base
 code**, and **re-reads `head.sha` after the fetch** so a force-push between the
 two is refused rather than reported.
 
+**And the parse is STRICT** (Copilot `r4078835237`). The bytes are the fork's to
+choose, so "parses it with base code" is not a parser. The gate applies a byte
+ceiling fixed in its own code before parsing — 1 MiB, against the pin's measured
+70,039 bytes — and then accepts exactly ONE YAML document with no duplicate key,
+alias, merge key or tag. A duplicate `core_commit` is the case that matters most:
+a reader taking the last value and a reviewer reading the first would see
+different pins in the same bytes. Each refusal is the candidate that cannot be
+parsed (D17): ABSENT, and FAILING, with nothing read in the aggregation.
+
 **The distinction that makes `pull_request_target` usable rather than merely
 safe** is exactly this one: head CODE is never run, head DATA may be read as
 bytes. The estate's own rule says the first half — *"rules must come from the
@@ -659,8 +668,10 @@ gate reads about are private (measured: `private: true` for `opensoft/xFactory`
 and for `codeXfactory/codexFactory`), so anyone who can open a pull request here
 may now start a run that holds the aggregation token. What that run can do does
 not depend on who started it: base code runs; no head is checked out; the event
-supplies only the pull request's number and `head.sha`, through `env:`, and is
-never interpolated into a script; the candidate is fetched from THIS repository
+supplies only the pull request's number and `head.sha`, and nothing derived from
+the event or the candidate — a step output, a parsed field, a parse error —
+reaches a script except through `env:` or a file, never through a `${{ }}`
+expression (Copilot `r4078835258`); the candidate is fetched from THIS repository
 at that `head.sha` — a fork's head commit is readable here through its pull
 request, as every pull request's head is published here as `refs/pull/<n>/head`
 — and never from the head repository the event names, then parsed as inert data
@@ -669,10 +680,11 @@ and judged, never followed (D14c); the read plan is fixed in the gate's own code
 repository; and every value the verdict names comes from a grammar or a
 vocabulary. A CANDIDATE value outside them, which is public already, is named only
 as an inert, length-bounded code span whose line breaks and backticks are
-replaced, so it cannot end the span; a SURFACE value outside them, which is
-private, is never named at all, only classified (D20). **What such a run publishes
-is what the bot's own pull requests publish**: the aggregation's default branch,
-its resolved commit and the surfaces' commits, on this public repository, beside a
+replaced, so it cannot end the span; a SURFACE value, which is private, is never
+named at all, only classified, related to `core_commit` and digested (D20).
+**What such a run publishes is what the bot's own pull requests publish**: the
+aggregation's default branch, its resolved commit and each surface's
+classification, relation and digest, on this public repository, beside a
 pin file that already publishes a private repository's commit as `core_commit`.
 An outside author chooses when it is published, and nothing about what is read.
 
@@ -791,11 +803,21 @@ verdict and a run log that are both public. A selector changed or compromised in
 the private aggregation could carry a credential, and bounding its length or
 replacing its delimiters would still publish it.
 
-**So a surface's value is published only when it is a commit** — forty lowercase
-hexadecimal characters, of the repository whose commits the pin file already
-publishes as `core_commit` — and otherwise only as its CLASSIFICATION: absent,
-empty, or not a commit. A reviewer with access to the aggregation reproduces the
-value with the same call the run made. **The candidate's own values are
+**So no surface's value is published as it is** — not even one with a commit's
+grammar, because forty lowercase hexadecimal characters prove the shape and not
+a commit (Copilot `r4078835190`): a legacy personal access token, for one, was
+forty hexadecimal characters. A surface outside the grammar is published only as
+its CLASSIFICATION: absent, empty, or not a commit. A surface inside it is
+published as its relation to `core_commit` — equal or not — and a digest, the
+first twelve hexadecimal characters of the SHA-256 of its value. Where it equals
+`core_commit` the relation says so, and nothing is disclosed that this
+repository does not publish itself. The one aggregation value named as it is, is
+the commit the check resolves the default branch to, which the API returns as a
+commit rather than as a field that merely looks like one. Verifying that a
+surface's value is a real commit would need a read of `codeXfactory/codexFactory`,
+a second repository the gate's one mint deliberately does not reach (D13). A
+reviewer with access to the aggregation reproduces every value with the same call
+the run made, and its digest with one hash. **The candidate's own values are
 different**: the candidate is the pull request's own public content, so a
 candidate value outside its grammar is still named, inert and length-bounded, as
 § 5.1g says.

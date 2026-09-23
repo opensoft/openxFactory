@@ -111,8 +111,10 @@ this packet's archive until merged PLUS green realization evidence.
   lands between two calls, which is the one outcome nobody can check against
   anything. **ITS VERDICT IS RECORDED, AND THE GATE CARRIES ITS CONCLUSION**
   (Copilot `r4077837539`). The advance side publishes no check run of its own and
-  gains no `checks: write`. It records the measured values, the resolved
-  aggregation commit and the outcome in the pull-request body the lane already
+  gains no `checks: write`. It records the measured values — each surface by its
+  classification, relation to `core_commit` and digest, as the gate publishes
+  them (§ 5.1i) — the resolved aggregation commit and the outcome in the
+  pull-request body the lane already
   composes (`--body-out`, `review-lane-repin.yml`:597; `gh pr edit` /
   `gh pr create --body-file`, `:840-861`), and the CONCLUSION for that advance is
   the gate's, on the same head: the lane pushes with its App token, and an
@@ -261,23 +263,28 @@ this packet's archive until merged PLUS green realization evidence.
   commits on pull requests that do not touch the pin — and its
   safety rests on the properties that do not depend on the author: base code
   only; no head checkout; the event read for the pull request's number and
-  `head.sha` alone, passed through `env:` and never interpolated into a `run:`
-  script; the candidate fetched from THIS repository at that `head.sha`, never
+  `head.sha` alone; every value derived from the event or from the candidate — a
+  step output, a parsed field, a parse error — reaching a `run:` script only
+  through `env:` or a file, quoted where the script uses it, and never through a
+  `${{ }}` expression (Copilot `r4078835258`); the candidate fetched from THIS repository at that `head.sha`, never
   from the head repository the event names, and parsed as inert data, judged and
   never followed (§ 5.1i); the read plan fixed in the gate's own code (§ 5.1i);
   the aggregation token
   read-only and scoped to `xFactory`; and every value the verdict names drawn
   from its grammar or its vocabulary — a CANDIDATE value outside them, public
   already, named only as an inert, length-bounded code span, its line breaks and
-  backticks replaced, and a SURFACE value outside them, private, never named at
-  all but only classified (§ 5.1i; `design.md` D20). `design.md` D17 records the reversal and what a fork's
+  backticks replaced, and a SURFACE value, private, never named at all but only
+  classified, related to `core_commit` and digested (§ 5.1i; `design.md` D20). `design.md` D17 records the reversal and what a fork's
   run can publish. Tests: the trigger's `paths:` filter is EXACTLY
   `[contracts/review-lane-pin.yaml]` — one entry, no glob, and no
   `paths-ignore:` — and the trigger carries no condition on author, head ref,
   base ref or head repository; a hand-authored
   pull request that changes `core_commit` draws a verdict, and so does one whose
   event names a fork as the head repository, with no request made to that
-  repository; no `run:` step interpolates an event field; and a declared state
+  repository; no `run:` script contains a `${{ }}` expression over the event
+  or over a step output, each such value reaching it through `env:`, in the
+  shape of `tests/doc-health/test_workflow_contract.py`:20's
+  `test_untrusted_workflow_inputs_are_not_interpolated_into_bash`; and a declared state
   and a `core_commit` each carrying a backtick, a line break and a link are each
   named as one inert span of bounded length.
   **AND THE TOKEN IS MINTED ONLY FOR A PULL REQUEST THAT MOVES A JUDGED VALUE**
@@ -294,7 +301,8 @@ this packet's archive until merged PLUS green realization evidence.
   cannot be parsed is that outcome too** (Copilot `r4078425733`): it declares
   nothing, so it counts as ABSENT and FAILS, the parse error named as an inert,
   length-bounded span. Only a valid candidate is compared with the base's three
-  values; where none moved, as with an edit to `reason:` alone, the gate mints
+  values, and a base that cannot be parsed counts as differing, so its candidate
+  is judged; where none moved, as with an edit to `reason:` alone, the gate mints
   nothing, reads nothing in the aggregation, and publishes the verdict as
   `skipped`, naming the values unchanged. A skip therefore needs a valid
   candidate EQUAL to its base, which leaves no invalid declaration unjudged at
@@ -322,7 +330,11 @@ this packet's archive until merged PLUS green realization evidence.
   The gate would have been decorative in exactly the case it was built for.
   The gate therefore FETCHES the candidate `contracts/review-lane-pin.yaml` as
   **INERT BYTES at the verified `head.sha`** — a file read over the API, not a
-  checkout and not an execution — **parses it with BASE code**, and **re-reads
+  checkout and not an execution — **parses it with BASE code, STRICTLY**
+  (Copilot `r4078835237`; `design.md` D14c): under a byte ceiling fixed in the
+  gate's code, 1 MiB against the pin's measured 70,039 bytes, as exactly one YAML
+  document with no duplicate key, alias, merge key or tag, each refusal being
+  the unparseable candidate of § 5.1g, ABSENT and FAILING — and **re-reads
   `head.sha` after the fetch**, refusing where a force-push moved the ref between
   the two. The base-branch rule is kept exactly: no head CODE runs, and reading
   head DATA as bytes is what makes `pull_request_target` usable rather than
@@ -359,11 +371,18 @@ this packet's archive until merged PLUS green realization evidence.
   the repaired list; and the current pin's two-entry `converged_with:` passes the
   judgment — the positive case — while a list that adds the constant as a third
   member FAILS. **AND A PRIVATE VALUE IS NEVER PUBLISHED** (Copilot
-  `r4078468841`; `design.md` D20): a surface value that is not a commit is
-  named only by its classification — absent, empty or not a commit — in the
-  verdict and in the run log alike, both public on this repository. Test: a
-  fixture whose surface carries a credential-shaped string publishes `not a
-  commit`, and the string appears in neither the verdict nor the log.
+  `r4078468841`, `r4078835190`; `design.md` D20): no surface value is published
+  as it is, in the verdict or in the run log, both public on this repository. A
+  surface outside the commit grammar is named only by its classification —
+  absent, empty or not a commit — and one inside it, which proves the shape and
+  not a commit, only by its relation to `core_commit` and the first twelve
+  hexadecimal characters of the SHA-256 of its value. Tests: a fixture whose
+  surface carries a credential-shaped string publishes `not a commit`; one whose
+  surface carries forty hexadecimal characters that are not `core_commit`
+  publishes `not equal` and the digest; neither string appears in the verdict
+  or the log; and one fixture per strict-parse refusal — oversized, two
+  documents, a duplicate `core_commit`, an alias, a merge key, a tag — FAILS
+  with a bounded message and no read in the aggregation.
 - [ ] 5.1h **THE NEUTRAL CONCLUSION NEEDS A WRITE PATH, AND IT IS A DIFFERENT
   TOKEN FROM THE READ** (Copilot's *previously missed* item, round 5). § 5.1e
   publishes through the check-run API and § 5.1c's aggregation binding grants
@@ -413,8 +432,8 @@ this packet's archive until merged PLUS green realization evidence.
   (§ 5.1d), and for a declaration the measurement contradicts, `neutral` for
   INCONSISTENT and for UNDETERMINED, and `success` for a declaration the
   measurement agrees with — each with the state and the values read in its
-  output, a surface's as its commit or, where it is not one, only as its
-  classification (§ 5.1i); and, outside the six because nothing is compared, `skipped` for a
+  output, a surface's only as its classification, its relation to
+  `core_commit` and a digest (§ 5.1i); and, outside the six because nothing is compared, `skipped` for a
   pin change that moves no judged value (§ 5.1g). A test asserts the
   published conclusion for each of the six outcomes and for that case, against
   that mapping, rather than the process exit code, **because the

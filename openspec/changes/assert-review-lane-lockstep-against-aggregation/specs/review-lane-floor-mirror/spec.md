@@ -26,7 +26,7 @@ the commit the aggregation's surfaces name, `converged` meaning equal and
 SHALL AGREE WITH EACH OTHER BEFORE EITHER STATE IS CONCLUDED — the pin's own
 `converged_with:` members, which are the read plan's workflow members, and the
 aggregation's constant that holds them identical, `MIGRATION_PIN`, — and where they DISAGREE the check SHALL report INCONSISTENT, name
-each surface with the commit it carried, and conclude NEITHER `converged` NOR
+each surface by a digest of the commit it carried, and conclude NEITHER `converged` NOR
 `diverged`. A check permitted to pick one surface would be choosing its own
 answer, and an aggregation whose own surfaces disagree is a fact about that
 repository that this measurement is the first thing positioned to see. WHEN IT
@@ -70,8 +70,12 @@ count as UNREADABLE, named by a CLASSIFICATION of what its fixed location held �
 absent, empty, or not a commit — and NEVER by that value or the file around it,
 in the verdict or in the run log: the aggregation is private while both of those
 are public, and a value that is not a commit is exactly the one nobody has vetted
-for publication. A reviewer with access to the aggregation reproduces the value
-with the same call. So surfaces that AGREE on
+for publication. AND NO SURFACE'S VALUE IS PUBLISHED AS IT IS, a commit's grammar
+included, because the grammar proves forty hexadecimal characters and not a
+commit: a surface that has it is named by its relation to `core_commit`, equal or not, and a digest of its value; only the
+commit the check resolves the aggregation's branch to, which the API returns as a
+commit, is named as it is. A reviewer with access to the aggregation reproduces
+every value with the same call. So surfaces that AGREE on
 something that names no commit, an empty string among them, conclude nothing,
 rather than reaching a comparison that a declared `diverged` would pass merely
 because two strings differ.
@@ -109,7 +113,11 @@ verdict through every candidate that inherits it, and a candidate that repairs i
 is judged on what it proposes.
 
 THE PIN THE CHECK READS IS THE ONE THE ACT PROPOSES, NOT THE ONE ALREADY IN
-PLACE. Where the check runs over a proposed advance, it SHALL take
+PLACE, AND IT IS PARSED STRICTLY. The check SHALL parse a pin only under a byte
+ceiling fixed in its own code, as ONE document with no duplicate key, alias,
+merge key or tag, so that the check and a reviewer reading the same bytes cannot
+see different values; a pin the strict parse refuses cannot be parsed, and counts
+as ABSENT. Where the check runs over a proposed advance, it SHALL take
 `core_commit` from the CANDIDATE state of the pin at the head that advance
 proposes — read as INERT BYTES at a verified head commit, never by executing
 anything from that head — and SHALL re-verify that commit after the read so a
@@ -162,7 +170,8 @@ reproduce.
 
 EACH OUTCOME SHALL CARRY A CONCLUSION AND NOT ONLY A NAME, because a state a
 check computes and does not publish is a state nobody acts on. A declaration the
-measurement CONTRADICTS SHALL fail the check and name both values: that is this
+measurement CONTRADICTS SHALL fail the check and name `core_commit`, the declared
+state and the digest of the commit the surfaces agree on: that is this
 repository's own contract file stating something false about another repository,
 and the remedy is one edit to the field. An ACCESS failure SHALL fail it too,
 naming the failure, because that is this repository's own configuration and the
@@ -184,7 +193,7 @@ compared only to itself is a tautology.
 
 #### Scenario: A routine advance leaves the declared state behind
 - **WHEN** an automated pin advance moves `core_commit` to a commit that the aggregation's surfaces — read, and agreeing with each other on one commit of forty lowercase hexadecimal characters — do not name, and the declared lockstep state still reads `converged`
-- **THEN** the check reports the contradiction on the advance's own pull request, naming both values and the surfaces it read them from
+- **THEN** the check reports the contradiction on the advance's own pull request, naming `core_commit`, the digest of the commit the surfaces agree on, and the surfaces it read
 - **AND** the report does not depend on the advancing lane having remembered to write the field, because the check reads the other repository rather than the lane's intent
 
 #### Scenario: The declaration is absent or outside its vocabulary
@@ -198,7 +207,7 @@ compared only to itself is a tautology.
 
 #### Scenario: The aggregation's own surfaces disagree with each other
 - **WHEN** the aggregation's surfaces, read at ONE resolved commit of it and each carrying a commit of forty lowercase hexadecimal characters, do not all carry the same commit
-- **THEN** the check reports INCONSISTENT and names each surface with the commit it carried
+- **THEN** the check reports INCONSISTENT and names each surface by a digest of the commit it carried
 - **AND** it concludes neither `converged` nor `diverged`, because a check permitted to pick one surface would be choosing its own answer
 - **AND** the disagreement is the aggregation's own at that commit, not an artefact of reading its surfaces one at a time while a re-point landed between the reads
 
