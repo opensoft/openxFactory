@@ -464,8 +464,9 @@ SAME additive migration as the results table so it is not migrated twice.
   openDox-code#35 → `3c3a9e31`.
 - **The `display_profile.py` docstring alignment to `completed`** — LANDED as
   openDox-code#36 → `1e4a57fb`, prose only.
-- **The wording overlays** — making openXdox's `DISPLAY` facet reach a served
-  page, which is the assembly's act (F3).
+- **The wording overlays** (F3). The first LANDED as openxFactory#1146 →
+  `d52b4199`, which serves openXdox's "implemented"; any further host overlay of
+  the neutral words stays a follow-on.
 - **The direct-arrow revisit after phase 1** (F4), under the rulings of
   2026-09-23 below.
 
@@ -714,7 +715,8 @@ is struck and the other sixteen stand.
   ruling comment and LANDED as openDox-code#35 → `3c3a9e31`; the
   `display_profile.py` docstring alignment to `completed`, LANDED as
   openDox-code#36 → `1e4a57fb`; and openXdox's partial `DISPLAY` facet, task
-  5.3a, LANDED as openXdox-code#26 → `195276b7`.
+  5.3a, LANDED as openXdox-code#26 → `195276b7`, and served pages show it since
+  openxFactory#1146 → `d52b4199`.
 - **One constraint the realization must respect, found by measurement:** the
   entry point requirement 10 asks for CANNOT be an assembly-root `Makefile`
   target. `openDox/Makefile` carries a row in `contracts/shape-pin.yaml` and

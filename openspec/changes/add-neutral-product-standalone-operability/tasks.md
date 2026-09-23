@@ -84,6 +84,7 @@ measured on:
 |---|---|---|---|
 | `4f92d651` (filing, 2026-09-22) | 109 passed / 1 failed of 110 | 110 / 1 of 111 | +1 item, +1 passed, 0 new failures |
 | `a151e462` (after merging #1141 and #1143) | 111 / 1 of 112 | 112 / 1 of 113 | +1 item, +1 passed, 0 new failures |
+| `d52b4199` (after #1116, #1145, #1112, #1119, #1147 and #1146) | 110 / 1 of 111 | 111 / 1 of 112 | +1 item, +1 passed, 0 new failures |
 
 **The gate that matters is the one run at landing, against the `main` of that
 moment.** The PR description publishes the latest row, and the archive gate
@@ -497,8 +498,9 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   so a `DISPLAY` on the dataclass would never be forwarded and would stop that
   composite being built. The falsifier below reads the facet where it landed.
   Being earlier than the arc, the landing carries no 11.0 trailer; the box
-  closes when the falsifier is run against the realized openDox. Making the
-  facet REACH a served page is the assembly's act, F3, outside both releases.
+  closes when the falsifier is run against the realized openDox. It reaches a
+  served page since openxFactory#1146 → `d52b4199`, which composes it into this
+  repository's profile facet; further overlays are F3, outside both releases.
 - [ ] **FALSIFIED BY** (openXdox-code checkout with openDox installed):
 
       set -euo pipefail
@@ -2381,16 +2383,17 @@ and redesigns none of them.
 - [~] F2 **Each DomainxFactory's own pack**, pinned in that domain's `stack.yaml`.
   That domain's own work. **Owner: each domain.**
 - [~] F3 **The wording overlays** (RULED `5799646419`, a follow-on outside both
-  releases). openXdox's partial `DISPLAY` facet (5.3a, landed as
-  openXdox-code#26 → `195276b7`) reaches a served page only when the assembly's
-  profile takes its `stages`. openxFactory's `scripts/profile_openxfactory.py`
-  declares a facet of its own that deliberately carries no `stages`, and
-  `tests/test_engineering_profile_display_facet.py:271` asserts the absence;
-  openXdox records the act as owed rather than reaching for it. That act, and any
-  further host overlay of the neutral words, lands as its own act and not as an
-  arc landing: it carries no `Arc:` trailer, so 11.1's guard does not read it,
-  and the test it edits is not one of 11.1's declared surfaces. **Owner: the lane
-  that claims it on `#656`.**
+  releases). The first one has LANDED: openXdox's partial `DISPLAY` facet (5.3a,
+  openXdox-code#26 → `195276b7`) reaches a served page since openxFactory#1146 →
+  `d52b4199` (2026-09-23T19:40:56Z), whose `scripts/profile_openxfactory.py`
+  composes openXdox's `DISPLAY["stages"]` by copy, so the governed host serves
+  "implemented". It left the stage's item nouns (`one`, `many`: "completed
+  item", "completed items") and every other station neutral, and any further
+  host overlay of the neutral words stays a follow-on. Each lands as its own act
+  and not as an arc landing: it carries no `Arc:` trailer, so 11.1's guard does
+  not read it, and the test such an overlay edits,
+  `tests/test_engineering_profile_display_facet.py`, is not one of 11.1's
+  declared surfaces. **Owner: the lane that claims it on `#656`.**
 - [~] F4 **The direct-arrow revisit, after phase 1** (RULED `5799494355`, *"keep
   the direct arrow, revisit after phase 1"*, its trigger amended by
   `5800995035`). When phase 1 has landed, the holder re-measures openxFactory's
