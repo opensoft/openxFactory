@@ -550,9 +550,11 @@ Active changes:
   as a refusal — the corpus, the OpenSpec instance, every doc-health check family,
   the adapter column, the intent-plane schemas and the integration tests — because
   the arc reverses a DIRECTION and relocates no boundary. **`code_surface:`
-  openxFactory, openDox-code, openXdox-code and openDox; `target_release:
-  implemented`** — the requirements land now, the realization runs
-  post-ratification, and this packet authors no code byte, so it stays ACTIVE as
+  openDox-code and openXdox-code; `target_release: implemented`** (the two code
+  legs: the assembly root gains README documentation and openxFactory manifest
+  annotations, and neither is a runtime artifact) — the requirements land now,
+  the realization runs post-ratification, and this packet authors no code byte,
+  so it stays ACTIVE as
   approved-but-unrealized intent until `release-realization`'s archive gate is
   met by merged-plus-green evidence per requirement. Two
   findings are recorded rather than assumed: the packet is filed HERE and not in
