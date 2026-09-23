@@ -162,7 +162,7 @@ the repository. § 5.1b makes that a TESTED negative control rather than a
 convention — a test requires `pull_request` to be ABSENT from the advance lane's
 triggers.
 
-## D8 — each outcome carries a CONCLUSION, and two of the five fail
+## D8 — each outcome carries a CONCLUSION, and three of the six fail
 
 Copilot's *previously missed* item in review `5283291040` found that the requirement
 defined an UNDETERMINED semantic state and never said what the CHECK concludes,
@@ -174,14 +174,16 @@ missing half of D2.**
 | --- | --- | --- |
 | declaration ABSENT or outside its vocabulary — a foreign declared state, a `core_commit` that is not a commit, an unparseable candidate, or a `converged_with:` other than the read plan's workflow members (D16, D17, D19) | **FAIL**, naming the value found | added at round 6; see D14a. Checked FIRST, before the aggregation is read |
 | declared state CONTRADICTED by the measurement | **FAIL**, naming both values | this repository's own contract file states something false about another repository; the remedy is one edit to the field |
+| the check's own ACCESS fails — binding, mint, or the aggregation refusing its token | **FAIL**, naming the failure | this repository's own configuration; the per-run form of the standing-state rule (review `5286349291`'s *previously missed* item) |
 | surfaces disagree with each other (INCONSISTENT) | **NEUTRAL**, visible | another repository's defect, and not this repository's claim to answer |
 | aggregation unreadable (UNDETERMINED) | **NEUTRAL**, visible | another repository's availability, and D4's whole point |
 | declared state agrees | pass | |
 
 **A NEUTRAL conclusion is not a pass and silence does not stand in for it.**
 (The table gained its fifth row and its second FAIL at round 6, when D14a
-closed the absent-or-foreign declared state; the heading is counted here
-rather than left to drift again.) A
+closed the absent-or-foreign declared state, and its sixth row and third FAIL
+when review `5286349291` found that the standing-state rule had no conclusion;
+the heading is counted here rather than left to drift again.) A
 state a check computes and does not publish is a state nobody acts on, which is
 the same defect as a declaration nobody measures — this packet would be an odd
 place to reintroduce it.
@@ -218,8 +220,9 @@ is not a commit cannot satisfy a comparison scenario's own WHEN (D16). Exactly o
 outcome holds for any input, and no implementation has to arbitrate. **THE ORDER
 AS IT NOW STANDS**, after D14b moved the vocabulary check to the front, D16
 folded a non-commit surface into UNREADABLE and a non-commit `core_commit` into
-the first, and D19 folded a foreign `converged_with:` into the first too: the
-declaration OUTSIDE ITS VOCABULARY; then the aggregation UNREADABLE; then its surfaces DISAGREEING; then
+the first, D19 folded a foreign `converged_with:` into the first too, and the
+standing-state rule gained its own outcome: the declaration OUTSIDE ITS
+VOCABULARY; then the check's own ACCESS FAILING; then the aggregation UNREADABLE; then its surfaces DISAGREEING; then
 the comparison of the agreed commit against `core_commit`, and the declared state
 against that comparison. This paragraph first recorded the order this section
 fixed — UNREADABLE, DISAGREEING, comparison, declared state — and it stood after
@@ -254,9 +257,10 @@ Three things follow, and all three are now written down. The realization declare
 a READ-ONLY binding for `opensoft/xFactory` in the same shape as the existing
 grant, keeping the family's own rule (*"neither repository's lane may reach into
 the other's"*) by carrying the same `never_grants:` set. The requirement forbids
-UNDETERMINED as a STANDING state: where the check cannot read the aggregation on
-every run, the defect is its own access and is reported as that, not as a
-property of the measurement. And § 5.4's realization evidence is no longer *one
+UNDETERMINED as a STANDING state: the check's own access failing is reported as
+that, not as a property of the measurement — and, since review `5286349291`'s
+*previously missed* item, it has a per-run conclusion of its own, FAIL, so it
+cannot stand as a permanent NEUTRAL (D8). And § 5.4's realization evidence is no longer *one
 observation of the check running* but **one observation of it CONCLUDING** —
 because an observation of UNDETERMINED proves the access is missing, not that the
 check works.
@@ -270,8 +274,8 @@ says and what a workflow can express.
 failure and nothing else.** *"NEUTRAL, visible, not reported as a pass"* has no
 expression by exit code. So the realization publishes through the check-run API,
 and every outcome is mapped rather than only the neutral ones (Copilot
-`r4078058050`): `failure` for the two FAIL outcomes, `neutral` for INCONSISTENT
-and UNDETERMINED, `success` for agreement — and `skipped`, outside the five
+`r4078058050`): `failure` for the three FAIL outcomes, `neutral` for INCONSISTENT
+and UNDETERMINED, `success` for agreement — and `skipped`, outside the six
 because nothing is compared, for a pin change that moves neither judged value
 (D17) — the values read in its output each
 time, a surface's as its commit or, where it is not one, only as its
@@ -305,6 +309,15 @@ UNDETERMINED scenario would be unreachable by the only route that reaches it. Th
 realization makes every read outcome, failures included, an input naming what
 could not be read.
 
+**`r4078594297` — and so is every other outcome.** A validation step that FAILED
+by exiting non-zero would stop the job before the publisher, and the `failure`
+the requirement asks for would never be created. So validation, the access
+check, the reads and the comparison each RETURN an outcome, and one publisher
+runs last and always. The job's own exit code then reports only whether that
+publisher did what its input required: publish the verdict, or, for a head that
+moved (D14c), publish nothing. Publication failing is the one thing that turns
+the job red, so a missing verdict is itself visible.
+
 **`r4076902144` and `r4077054569` — and the published run is the gate's ONLY
 identity, hung on the CANDIDATE.** Publishing a check run does not change the
 job's own. GitHub names a job's check-run after its job id, which this repository
@@ -327,7 +340,14 @@ measured values and the outcome in the pull-request body the lane already
 writes, and the conclusion for that advance is the gate's, on the same head: the
 lane's App-token push starts the gate's `pull_request_target` run (measured on
 `#1138`). A second check run for one fact on one commit would be the second
-identity the paragraph above forbids.
+identity the paragraph above forbids. **The body's record is HISTORICAL, and says
+so** (Copilot `r4078594266`). The two runs read mutable aggregation state at
+different times, so a re-point landing between them can give them different
+resolved commits and different outcomes. The body therefore records the lane's
+reading as a reading AT the commit it resolved, and names the gate's verdict on
+the head as the only authoritative conclusion. Where the two differ, each names
+the commit it read, so the difference reads as the aggregation having moved, not
+as a contradiction.
 
 ## D12 — the surfaces are read at ONE resolved commit, or the check measures read timing
 
@@ -580,7 +600,7 @@ characters, the grammar `core_commit` already obeys (`SHA40_RE`,
 UNREADABLE, named by the CLASSIFICATION of what its fixed location in the gate's
 read plan held — absent, empty or not a commit — and never by that value or the
 file around it (D14c, D19, D20). The input lands in an outcome that
-already exists, NEUTRAL, so the outcomes stay five and the order stays as D9
+already exists, NEUTRAL, so no outcome is added and the order stays as D9
 states it.
 
 **`core_commit` is validated too, REVERSING this section's first answer** (Copilot
@@ -735,7 +755,7 @@ and never becomes a `converged_with:` member (`tasks.md` § 6.2; Copilot
 `r4078528181`). The candidate's `converged_with:` is JUDGED against the plan's
 workflow members and never followed. Where it names any other set, the
 check FAILS naming both, before anything is read, in the class of a declared
-state outside its vocabulary, so the outcomes stay five. The base is not judged
+state outside its vocabulary, so no outcome is added. The base is not judged
 separately: a candidate inherits the base's list unless it changes it, so a
 base's defect FAILS every candidate that carries it, and a candidate that repairs
 it is judged on what it proposes rather than failed for what it replaces.

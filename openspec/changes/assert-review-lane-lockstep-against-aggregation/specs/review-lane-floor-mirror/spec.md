@@ -24,8 +24,8 @@ WHAT IS COMPARED is values and not authorship: the pin's `core_commit` against
 the commit the aggregation's surfaces name, `converged` meaning equal and
 `diverged` meaning unequal. THE AGGREGATION'S SURFACES ARE READ AS A SET AND
 SHALL AGREE WITH EACH OTHER BEFORE EITHER STATE IS CONCLUDED — the pin's own
-`converged_with:` members and the aggregation's constant that holds them
-identical, `MIGRATION_PIN`, — and where they DISAGREE the check SHALL report INCONSISTENT, name
+`converged_with:` members, which are the read plan's workflow members, and the
+aggregation's constant that holds them identical, `MIGRATION_PIN`, — and where they DISAGREE the check SHALL report INCONSISTENT, name
 each surface with the commit it carried, and conclude NEITHER `converged` NOR
 `diverged`. A check permitted to pick one surface would be choosing its own
 answer, and an aggregation whose own surfaces disagree is a fact about that
@@ -53,8 +53,9 @@ declared `diverged` the measurement contradicts SHALL be reported alike, because
 the field is a point-in-time claim about a mutable pair and either value can be
 the false one.
 
-WHERE THE AGGREGATION'S SURFACES CANNOT BE READ the check SHALL report the state
-as UNDETERMINED and name what it could not read; it SHALL NOT resolve to either
+WHERE THE AGGREGATION'S SURFACES CANNOT BE READ, for a reason outside the check's
+own access, the check SHALL report the state as UNDETERMINED and name what it
+could not read; it SHALL NOT resolve to either
 state, and it SHALL NOT read its own silence as confirmation of the declared one.
 An unaskable question is never an implicit pass. A SURFACE IS READ ONLY AS A
 COMMIT: each surface's value SHALL be forty lowercase hexadecimal characters, the
@@ -84,8 +85,8 @@ THE DECLARED STATE IS A CLOSED VOCABULARY AND AN UNREADABLE DECLARATION IS THE
 REPOSITORY'S OWN DEFECT. The declared lockstep state SHALL be one of the two
 words the field carries; where it is ABSENT, or carries any other value, the
 check SHALL FAIL naming the value it found, in the same class as a declaration
-the measurement contradicts — because both are this repository's own file failing
-to say something true, and the remedy for both is one edit to the field. Without
+the measurement contradicts, the value named inert and length-bounded — because
+both are this repository's own file failing to say something true, and the remedy for both is one edit to the field. Without
 that clause the ordering below has an input it does not reach. SO IS THE SET OF
 SURFACES THE PIN DECLARES: where the candidate's `converged_with:` names any set
 other than the WORKFLOW MEMBERS of the check's own read plan, the check SHALL FAIL
@@ -134,7 +135,7 @@ words, an unparseable candidate among the absent, a candidate `core_commit` that
 is not a commit, or a `converged_with:` naming other than the read plan's
 workflow members: this
 repository's own file, readable without touching anything else, and a defect that
-makes every later question moot; then
+makes every later question moot; then the check's own ACCESS FAILING; then
 the aggregation UNREADABLE, a surface whose value is not a commit included; then
 its surfaces DISAGREEING with each other; then the comparison of the agreed commit
 against `core_commit` and the declared state against that comparison. A later
@@ -144,17 +145,22 @@ VOCABULARY IS VALIDATED BEFORE THE AGGREGATION IS READ, which is both the orderi
 the scenarios require and the honest engineering order: a check does not go
 asking another repository a question in order to report a defect in its own file.
 
-UNDETERMINED SHALL NOT BE A STANDING STATE. Where the check cannot read the
-aggregation on EVERY run, the defect is the check's own access and SHALL be
-reported as that rather than as a property of the measurement — a check that
-answers UNDETERMINED forever is indistinguishable from one that is working, which
-is the failure this requirement exists to end rather than to reproduce.
+UNDETERMINED SHALL NOT BE A STANDING STATE, AND THE CHECK'S OWN ACCESS IS NEVER
+UNDETERMINED. An ACCESS failure — its binding unresolved, its mint refused, or the aggregation repository itself refused to the token it minted (a 401, or a 403 or 404 that is not a rate-limit response) — is the check's own defect on
+the run where it happens, and SHALL conclude FAIL, naming it; only a failure
+outside that access — a surface missing at the resolved commit, a server error,
+a timeout or a rate limit — is UNDETERMINED. A check that answered UNDETERMINED
+for its own access would answer it on every run, indistinguishable from one that
+is working, which is the failure this requirement exists to end rather than to
+reproduce.
 
 EACH OUTCOME SHALL CARRY A CONCLUSION AND NOT ONLY A NAME, because a state a
 check computes and does not publish is a state nobody acts on. A declaration the
 measurement CONTRADICTS SHALL fail the check and name both values: that is this
 repository's own contract file stating something false about another repository,
-and the remedy is one edit to the field. UNDETERMINED and INCONSISTENT SHALL
+and the remedy is one edit to the field. An ACCESS failure SHALL fail it too,
+naming the failure, because that is this repository's own configuration and the
+remedy is to repair it, not to wait. UNDETERMINED and INCONSISTENT SHALL
 each conclude NEUTRAL — visible, naming the state and what was read, and NOT
 failing — because neither is this repository's claim to answer: an unreachable
 aggregation is another repository's availability and an aggregation whose own
@@ -190,8 +196,13 @@ compared only to itself is a tautology.
 - **AND** it concludes neither `converged` nor `diverged`, because a check permitted to pick one surface would be choosing its own answer
 - **AND** the disagreement is the aggregation's own at that commit, not an artefact of reading its surfaces one at a time while a re-point landed between the reads
 
+#### Scenario: The check's own access fails
+- **WHEN** the check's access to the aggregation fails — its binding unresolved, its mint refused, or the aggregation repository itself refused to the token it minted (a 401, or a 403 or 404 that is not a rate-limit response)
+- **THEN** the check FAILS and names the access failure, rather than reporting UNDETERMINED
+- **AND** it reads no surface and concludes neither `converged` nor `diverged`, because the defect is this repository's own configuration, and an UNDETERMINED for it would stand on every run
+
 #### Scenario: The aggregation's surfaces cannot be read
-- **WHEN** the check cannot obtain the aggregation's judging surfaces, or a surface it obtains carries a value that is not forty lowercase hexadecimal characters
+- **WHEN** the check cannot obtain the aggregation's judging surfaces for a reason outside its own access — a surface missing at the resolved commit, a server error, a timeout or a rate limit — or a surface it obtains carries a value that is not forty lowercase hexadecimal characters
 - **THEN** it reports the lockstep state as UNDETERMINED and names each surface it could not read, with the classification of what it carried — absent, empty or not a commit — and never that value itself
 - **AND** it concludes neither `converged` nor `diverged`, and does not report the declared value as confirmed
 - **AND** the check's own conclusion is NEUTRAL and visible rather than failing, because another repository's availability is not this repository's build, and rather than passing, because silence is not a measurement

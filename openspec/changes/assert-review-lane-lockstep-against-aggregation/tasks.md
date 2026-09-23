@@ -21,9 +21,9 @@ Kind: tasks
 ## 2. The delta
 
 - [x] 2.1 `specs/review-lane-floor-mirror/spec.md` — ONE `## ADDED` requirement,
-  SIX scenarios — an absent or foreign declaration, a stale `converged`, a
-  stale `diverged`, surfaces disagreeing with each other, an unreadable
-  aggregation, and the pure-function reproduction. The declared cross-repository lockstep state is MEASURED
+  SEVEN scenarios — an absent or foreign declaration, a stale `converged`, a
+  stale `diverged`, surfaces disagreeing with each other, the check's own access
+  failing, an unreadable aggregation, and the pure-function reproduction. The declared cross-repository lockstep state is MEASURED
   against the aggregation's own surfaces; the check runs at least at every
   proposed advance and its pull request; the read lives in the workflow and the
   comparison is a pure function; the check is SYMMETRIC; an unreadable
@@ -119,9 +119,15 @@ this packet's archive until merged PLUS green realization evidence.
   App-token push starts `pull_request_target` runs — measured on `#1138`, whose
   head carries a `merge-master-approval` run with event `pull_request_target`
   triggered by `openxfactory[bot]`. A second check run for one fact on one commit
-  would be a second identity for one verdict, which § 5.1e forbids. Tests: the
-  lane's body carries the verdict, and the gate's `pull_request_target` trigger
-  covers `opened`, `synchronize` and `reopened`.
+  would be a second identity for one verdict, which § 5.1e forbids. **THE
+  BODY'S RECORD IS HISTORICAL, AND SAYS SO** (Copilot `r4078594266`; `design.md`
+  D11): the two runs read mutable aggregation state at different times, so the
+  body records the lane's reading as a reading AT the aggregation commit it
+  resolved, and names the gate's `review-lane-lockstep-verdict` on the head as
+  the only authoritative conclusion; where the two differ, each names the commit
+  it read. Tests: the lane's body carries its reading with the resolved commit
+  and that label, and the gate's `pull_request_target` trigger covers `opened`,
+  `synchronize` and `reopened`.
 - [ ] 5.1a **THE PULL-REQUEST-SIDE HOST, AND IT IS A SECOND WORKFLOW THAT TAKES
   ITS OWN READING** (Copilot `r4075976980`, `r4076152645`). It is a SEPARATE
   WORKFLOW RUN and therefore cannot consume the scheduled run's step outputs, so
@@ -380,7 +386,22 @@ this packet's archive until merged PLUS green realization evidence.
   pure comparison ever runs — and the UNDETERMINED scenario would be unreachable
   by the only route that reaches it. The realization makes every read outcome,
   including its failures, an INPUT to the comparison naming what could not be
-  read, and a workflow-level test exercises that path.
+  read, and a workflow-level test exercises that path. **AND THE CHECK'S OWN
+  ACCESS IS NOT A READ FAILURE** (review `5286349291`'s *previously missed*
+  item): the binding unresolved, the mint refused, or the aggregation repository
+  itself refused to the gate's token (a 401, or a 403 or 404 that is not a
+  rate-limit response) is the requirement's ACCESS outcome and FAILS, naming it,
+  while a surface missing at the resolved commit, a server error, a timeout or a
+  rate limit stays UNDETERMINED. **AND EVERY OUTCOME IS DATA TO ONE PUBLISHER**
+  (Copilot `r4078594297`; `design.md` D11): validation, the access check, the
+  reads and the comparison each RETURN an outcome and none exits non-zero; one
+  publisher runs last and always; and the job's exit code reports only whether
+  it did what its input required — published the verdict, or, for a head that
+  moved (§ 5.1i), published nothing — so publication failing is the one thing
+  that turns the job red. Tests: an invalid candidate, each access failure and a
+  transient read failure each still create their `failure` or `neutral`
+  verdict; each access failure concludes `failure` and each transient failure
+  `neutral`; and a refused publication turns the job red.
 - [ ] 5.1e **THE NEUTRAL CONCLUSION NEEDS A REPRESENTATION** (Copilot
   `r4076152473`). A GitHub Actions step exits 0 or non-zero, which is a green
   pass or a red failure and nothing else, so *"NEUTRAL, visible, not reported as
@@ -388,13 +409,14 @@ this packet's archive until merged PLUS green realization evidence.
   conclusion through the check-run API, EVERY OUTCOME MAPPED and none left to the
   exit code (Copilot `r4078058050`): `failure` for a declaration outside its
   vocabulary — an unparseable candidate, a non-commit `core_commit` and a
-  foreign `converged_with:` among them — and for a declaration the measurement contradicts, `neutral` for
+  foreign `converged_with:` among them — for the check's own access failing
+  (§ 5.1d), and for a declaration the measurement contradicts, `neutral` for
   INCONSISTENT and for UNDETERMINED, and `success` for a declaration the
   measurement agrees with — each with the state and the values read in its
   output, a surface's as its commit or, where it is not one, only as its
-  classification (§ 5.1i); and, outside the five because nothing is compared, `skipped` for a
-  pin change that moves neither judged value (§ 5.1g). A test asserts the
-  published conclusion for each of the five outcomes and for that case, against
+  classification (§ 5.1i); and, outside the six because nothing is compared, `skipped` for a
+  pin change that moves no judged value (§ 5.1g). A test asserts the
+  published conclusion for each of the six outcomes and for that case, against
   that mapping, rather than the process exit code, **because the
   contract this packet adds degrades silently to a green pass if nobody checks
   which of the two it published.** **AND THE PUBLISHED RUN IS THE GATE'S ONLY
@@ -435,14 +457,15 @@ this packet's archive until merged PLUS green realization evidence.
 - [ ] 5.2 The comparison: `scripts/review_lane_repin.py` gains a pure function
   over the declared state, `converged_with:` against the plan's workflow members, `core_commit`
   and the surfaces' values, reaching no
-  network, returning the five outcomes the scenarios name.
+  network, returning the six outcomes the scenarios name.
 - [ ] 5.3 The proof: `tests/review_lane_pin/` gains a fixture for each of the
-  SIX scenarios — an ABSENT or foreign declaration, an unparseable candidate, a
+  SEVEN scenarios — an ABSENT or foreign declaration, an unparseable candidate, a
   non-commit `core_commit` and a candidate `converged_with:` other than the read
   plan's workflow members among them (the FAIL-without-comparison case), a stale `converged`, a stale `diverged`, surfaces disagreeing with each
-  other, an unreadable aggregation — including surfaces that AGREE on a value that
-  is not a commit, the empty string among them (`design.md` D16) — and the
-  pure-function reproduction — **plus
+  other, the check's own access failing — its binding, its mint, and the
+  aggregation refusing its token, each a fixture — an unreadable aggregation —
+  including surfaces that AGREE on a value that is not a commit, the empty string
+  among them (`design.md` D16) — and the pure-function reproduction — **plus
   the POSITIVE case, a true `converged` and a true `diverged` each reported as
   agreeing**, so the check is proved to accept a correct declaration and not only
   to refuse a wrong one. **Each written to FAIL against the pre-fix reader and

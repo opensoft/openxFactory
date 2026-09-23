@@ -636,9 +636,10 @@ Active changes:
   remedy's shape as option **(b)** — *"make the CROSS-REPOSITORY fact assertable
   at all … (b) is the better fix, because (a) still leaves this file's truth
   depending on a lane remembering to write it"*. **ONE `## ADDED` requirement,
-  SIX scenarios — an absent or foreign declaration, a stale `converged`, a
-  stale `diverged`, surfaces disagreeing with each other, an unreadable
-  aggregation, and the pure-function reproduction — no `## MODIFIED` block.**
+  SEVEN scenarios — an absent or foreign declaration, a stale `converged`, a
+  stale `diverged`, surfaces disagreeing with each other, the check's own access
+  failing, an unreadable aggregation, and the pure-function reproduction — no
+  `## MODIFIED` block.**
   `contracts/review-lane-pin.yaml`
   DECLARES at `lockstep.status` whether this repository's pinned decision core
   and the aggregation's `MIGRATION_PIN` name one commit, and nothing measures the
@@ -656,10 +657,10 @@ Active changes:
   advance, symmetric in both directions, with the aggregation's surfaces read as a
   SET that must agree before either state is concluded (disagreement reported
   INCONSISTENT) and an unreadable aggregation reported UNDETERMINED and never as
-  a pass. **Each outcome carries a CONCLUSION and two fail**, both about this
-  repository's own file: a declaration outside its vocabulary, and a
-  declaration the measurement CONTRADICTS, which is that file stating something
-  false; INCONSISTENT and UNDETERMINED each conclude
+  a pass. **Each outcome carries a CONCLUSION and three fail**, all this
+  repository's own defects: a declaration outside its vocabulary, the check's
+  own access failing, and a declaration the measurement CONTRADICTS, which is
+  that file stating something false; INCONSISTENT and UNDETERMINED each conclude
   NEUTRAL and visible, because neither is this repository's claim to answer and
   turning another repository's outage into a red build here is how a governance
   check stops being run. **Shape (b) and not (a), by measurement**:
