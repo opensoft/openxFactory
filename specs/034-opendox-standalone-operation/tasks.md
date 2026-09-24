@@ -426,7 +426,7 @@ script exists. openxFactory is unchanged in behaviour.
   - **Falsifier**: `make pins` in the openDox root.
   - **After**: T022, T032, T037, T038 (every phase-1 openDox-code landing).
 
-### openXdox-code: green alone
+### openXdox-code: green alone, less the declared `doc_health` exclusion
 
 - [ ] T040 [US1] [oXc] **Move the pin; clear the residue.**
   - Move `pyproject.toml`'s `opendox @` to the phase-1 openDox-code commit
@@ -1094,7 +1094,7 @@ landed, except where a row says otherwise.
 | P1-G whole suite in CI | G3, after P1-F | T035, T036, T037, T031 | oDc | `conftest.py`; `pyproject.toml` (`testpaths`); `.github/workflows/validate.yml` (a PostgreSQL service in `validate`); `README.md`; the seven ignored modules | P1-F | F9.1 (openDox-code), both assertions, with the database DSN exported | Opus |
 | P1-R openDox root pin | G4 | T039 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-1 openDox-code slice landed (T022, T032, T037, T038) | `make pins` | Sonnet |
 | P1-I openXdox pin and residue | G5 | T040 | oXc | `pyproject.toml` (the `opendox @` pin, `rfc3339-validator`); a local helper for the three `test_gate_routes` importers; `tests/fixtures/base-repo` | P1-R | no `test_gate_routes` collection error; `test_snapshot_validation_launch` finds its fixture | Sonnet |
-| P1-J openXdox green alone | G5, after P1-I | T041, T042, T043, T044 | oXc | the declared exclusion file and `conftest.py`; `tests/integration/` (new, with `test_assembled_surface.py` and P1-G's relocated modules); `.github/workflows/validate.yml` | P1-I, P1-G; T007 batch B lands once T041 names its file | F9.1 (openXdox-code, as amended by batch B), F9.2 | Opus |
+| P1-J openXdox green alone, less the declared exclusion | G5, after P1-I | T041, T042, T043, T044 | oXc | the declared exclusion file and `conftest.py`; `tests/integration/` (new, with `test_assembled_surface.py` and P1-G's relocated modules); `.github/workflows/validate.yml` | P1-I, P1-G; T007 batch B lands once T041 names its file | F9.1 (openXdox-code, as amended by batch B), F9.2 | Opus |
 | P1-K pins and host wiring | G6 | T045, T046, T047 | oX, oxF | openXdox root: `code`, `contracts/code-pin.yaml`, `contracts/opendox-pin.yaml`. openxFactory: both pin pairs, plus `scripts/opendox_host.py`, `scripts/profile_openxfactory.py`, `tests/domain_profile/` and `tests/ideation-dashboard/test_extension_point_parity.py` | P1-R, P1-J; T007 batch A (F11.1 names the parity test) | `make pins` in the openXdox root; `verify-opendox-pin.py`, `verify-openxdox-pin.py`; openxFactory `pytest-suite` | Opus |
 | P1-L read-only checks | G6, after P1-K | T017, T093 | oxF | `evidence/` only | P1-K | interim F11.1, as widened by batch A, prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T049 | — | none (a verifier) | P1-K, P1-L; T007 batches A and B; RN-1 ruled | F2.1; F3.1 as amended; F9.1 in both legs; F9.2; `opendox --help`; F4.1's scan | Opus (verifier) |

@@ -133,8 +133,10 @@ ticked it.
 A developer who has only openDox-code checks it out and installs it with its
 declared extras. Every module imports. The command-line parser builds on
 openDox's own default profile. The entry point registers openDox's own default
-corpus adapter. Each leg's suite runs whole and green in its own checkout. The
-`opendox` console script exists.
+corpus adapter. Each leg's suite runs green in its own checkout. openDox-code's
+runs whole. openXdox-code's runs whole less a declared `doc_health` exclusion,
+which is reported as an open extraction (R1Q6 (d)). The `opendox` console
+script exists.
 
 **Why this priority**: nothing else in the release can be exercised until the
 product imports and its suite runs. Today openDox-code's suite gives 0 passed
@@ -191,7 +193,8 @@ governed corpus is projected exactly as it is today.
 generate is not standalone (requirement 4, first scenario).
 
 **Independent Test**: at the phase-2 tip, F5.3, F7.2, F5.1 (5.3a re-run),
-F5.2 (5.4a) and F7.1 (7.3) all pass.
+F5.2 (5.4a) and F7.1 (7.3) all pass. F5.2 is run as T007's batch C amends it
+and as R1Q23 decides.
 
 **Acceptance Scenarios**:
 
@@ -348,11 +351,23 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   schema is vendored. openXdox's validator lookup SHALL resolve through its
   installed distribution, with no parent walk (R1Q12, R1Q14).
 - **FR-006** (requirement 9; 9.1–9.5; F9.1, F9.2): each leg's required check
-  SHALL run its whole suite green in its own checkout. Behaviour that needs
-  both legs SHALL be declared integration tests at the declared composition.
-  The margins SHALL be restored, with no skip carrying the gap. The pins SHALL
-  advance by their owners' ordinary pin-sync acts (R1Q6 (d), R1Q7 (a), R1Q8
-  (a)).
+  SHALL run its whole suite green in its own checkout. Where a check runs less
+  than the whole suite, it SHALL declare the exclusion with its count and its
+  reason, and report it as an open extraction (requirement 9, first scenario).
+  - **openDox-code**: the whole suite, `tests_runtime/` included, run against
+    the required job's database (R1Q8 (a)). No exclusion is declared.
+  - **openXdox-code, for release 1**: the whole suite less the declared
+    `doc_health` exclusion (R1Q6 (d); F9.1 as amended by T007 batch B). The
+    exclusion stays an OPEN EXTRACTION until the direction arc (T008) lands.
+    It is reported as open, and never as closed, including at the archive.
+  - Behaviour that needs both legs SHALL be declared integration tests at the
+    declared composition.
+  - The margins SHALL be restored, with no skip carrying the gap. A skip that
+    defers `doc_health` becomes part of the declared exclusion instead (T044).
+  - The pins SHALL advance by their owners' ordinary pin-sync acts (R1Q7 (a)).
+
+  FR-006 is met for release 1 when both legs' checks pass as above. Requirement
+  9 is fully met only once the exclusion is empty.
 - **FR-007** (requirement 10; 10.1–10.3; F10.1): openDox SHALL declare one
   console script, `opendox`, that serves the whole browser surface from an
   openDox-only install. The openDox root's README SHALL document the single
@@ -412,17 +427,20 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 
 - **SC-001** (phase 1 exit): at the phase-1 tip, F2.1, F3.1, F9.1 (in both
   legs) and F9.2 exit 0, each as amended where T007 records an amendment, and
-  `opendox --help` exits 0. RN-1 is ruled, and T016 matches the ruling. openDox-code's suite
-  goes from 0 passed today to whole and green. openXdox-code's goes from 57
-  collection errors to whole and green less its declared `doc_health`
-  exclusion (R1Q6 (d)).
-- **SC-002** (phase 2 exit): F5.1, F5.2, F5.3, F7.1 and F7.2 exit 0.
+  `opendox --help` exits 0. RN-1 is ruled, and T016 matches the ruling.
+  - openDox-code's suite goes from 0 passed today to whole and green.
+  - openXdox-code's goes from 57 collection errors to green over the whole
+    suite less its declared `doc_health` exclusion (R1Q6 (d)). The exclusion
+    is reported as an open extraction, as FR-006 says.
+- **SC-002** (phase 2 exit): F5.1, F5.2, F5.3, F7.1 and F7.2 exit 0, with F5.2
+  as T007's batch C amends it and as R1Q23 decides.
 - **SC-003** (phase 3 exit): F4.1, F10.1, F13.1 and F16.1 exit 0, and the F4.1
   scan prints `no deferred reach names the consumer or the publisher`.
 - **SC-004**: AT-R1 passes, and its evidence is recorded in this feature's
   `evidence/` directory.
 - **SC-005**: after each phase's openxFactory landings, an interim F11.1 run
-  (`PACKET_MERGE=94b6f7f1`) prints `requirement 1 holds`.
+  (`PACKET_MERGE=94b6f7f1`), with the guard as widened by T007's batch A,
+  prints `requirement 1 holds`.
 - **SC-006**: at release-1 close, 65 of release 1's 69 boxes are ticked, each
   with its evidence:
   - 63 by T097;

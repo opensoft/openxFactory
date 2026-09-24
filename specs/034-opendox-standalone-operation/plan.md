@@ -12,8 +12,11 @@ Release 1 makes openDox run, be useful, and install with nothing else present.
 It is built in three phases, following #1144's RULED release map:
 
 - **Phase 1** cuts the reach-back and makes both legs' suites green alone:
-  Groups 2, 3 and 9 (except 9.5), boxes 4.1, 4.1a and 4.2, 4.3's eight reaches
-  into openxFactory, and 10.1.
+  Groups 2, 3 and 9 (except 9.5, and 9.2's ratchet, which reaches `(0, 0)` in
+  phase 3), boxes 4.1, 4.1a and 4.2, 4.3's eight reaches into openxFactory,
+  and 10.1. openDox-code's suite runs whole. openXdox-code's
+  runs whole less the declared `doc_health` exclusion (R1Q6 (d)), which stays
+  an open extraction.
 - **Phase 2** gives openDox its own neutral generator and its own validator:
   Groups 5 and 7, and 4.3's generator and snapshot-registry reaches.
 - **Phase 3** makes it install: Group 13, boxes 10.2, 10.3 and F10.1, Group 16,
@@ -55,7 +58,8 @@ packaging is decided by R1Q16.
 **Storage**: the corpus is a plain git repository, read through
 `LocalGitCorpus`. A bundled PostgreSQL 16 holds the runtime's datastore
 (13.1). No document is stored in the database (RULING Q1).
-**Testing**: each leg's own pytest suite, run whole (Group 9); openXdox-code's
+**Testing**: each leg's own pytest suite, run whole (Group 9), less
+openXdox-code's declared `doc_health` exclusion (R1Q6 (d)); openXdox-code's
 `tests/integration/` (9.3); openxFactory's `pytest-suite` at every pin advance;
 #1144's falsifiers, re-run and quoted; and AT-R1's Playwright half, run on the
 host with `tests/smoke_signals.py`'s oracle.
@@ -162,9 +166,9 @@ this worktree, which holds the plan only.
 | phase | boxes that CLOSE in it | exit (all quoted in the phase checkpoint task) |
 |---|---|---|
 | 0 | 3.0 (ratification) | answers applied; analyze clean |
-| 1 | 2.1, 2.1a, 2.2, 2.3, 2.4, 2.5, 2.6, F2.1; 3.1, 3.2, 3.3, F3.1; 4.1, 4.1a, 4.2; 9.1, 9.2, 9.2a, 9.3, 9.4, F9.1, F9.2; 10.1 | F2.1, F3.1, F9.1 (both legs), F9.2, `opendox --help` |
+| 1 | 2.1, 2.1a, 2.2, 2.3, 2.4, 2.5, 2.6, F2.1; 3.1, 3.2, 3.3, F3.1; 4.1, 4.1a, 4.2; 9.1, 9.2a, 9.3, 9.4, F9.1, F9.2; 10.1 | F2.1, F3.1, F9.1 (both legs), F9.2, `opendox --help` |
 | 2 | 5.0, 5.1, 5.2, 5.3, 5.3a, F5.1, 5.4, 5.4a, F5.2, 5.5, F5.3; 7.0, 7.1, 7.1a, 7.1b, 7.2, 7.3, F7.1, F7.2 | F5.1, F5.2, F5.3, F7.1, F7.2; standalone `generate-and-open` serves |
-| 3 | 4.3, F4.1; 10.2, 10.2a, 10.3, F10.1; 13.1–13.6, 13.4a, F13.1; 16.1–16.6, F16.1 | F4.1, F10.1, F13.1, F16.1, AT-R1 |
+| 3 | 4.3, F4.1; 9.2 (its whole-suite check lands in phase 1, and its ratchet reaches `(0, 0)` at T086); 10.2, 10.2a, 10.3, F10.1; 13.1–13.6, 13.4a, F13.1; 16.1–16.6, F16.1 | F4.1, F10.1, F13.1, F16.1, AT-R1 |
 | every phase, ticked at ARC close | 9.5, 11.0, 11.1, F11.1 | interim F11.1 after each phase |
 | already `[x]` | 5.6 | — |
 
