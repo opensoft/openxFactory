@@ -254,11 +254,12 @@ script exists. openxFactory is unchanged in behaviour.
   landing, confirm that the carve manifest's `deleted_at_carve` row for
   `scripts/ideation_dashboard/profile_openxfactory.py` is byte-identical. F11.1's
   content check already refuses any row change, so the interim F11.1 runs are
-  the evidence: T018, T065 and T098.
+  the evidence: T018, T065 and T098. The first is phase 1's, after T047.
+  Phases 2 and 3 repeat the check through T065 and T098, after their own
+  consumer pins, and T097 ticks 3.3 on all three.
   - **Realizes**: 3.3.
   - **Falsifier**: F11.1 (interim: T018, T065, T098).
-  - **After**: T047, which is phase 1's openxFactory landing. It is re-run
-    after T064 and T094.
+  - **After**: T047, which is phase 1's openxFactory landing.
 
 ### Lane C: the home-corpus seam
 
@@ -555,7 +556,7 @@ script exists. openxFactory is unchanged in behaviour.
   Tick nothing; T097 ticks.
   - **Ruling needed**: RN-1. Requirement 3 is not reported as realized until
     RN-1 is ruled and T016 matches the ruling.
-  - **After**: T047, T018, T007 (batches A and B), and RN-1 ruled.
+  - **After**: T047, T017, T018, T007 (batches A and B), and RN-1 ruled.
 
 ---
 
@@ -920,7 +921,7 @@ no-model state. `consumer_reach.py` is gone.
   - **After**: T094.
 - [ ] T089 **Phase 3 checkpoint.** Run and quote F4.1, F10.1, F13.1 and F16.1,
   then T098's interim F11.1 output.
-  - **After**: T094, T098.
+  - **After**: T094, T098, T076 (so every phase-3 task is done).
 
 ---
 
@@ -1005,7 +1006,8 @@ no-model state. `consumer_reach.py` is gone.
     assertion.
   - **Blocked by**: R1Q10, R1Q12 (the catalog's validators, T085), R1Q15,
     R1Q16.
-  - **After**: T089.
+  - **After**: T089, T076 (the root README's one documented command, which the
+    harness runs).
 - [ ] T096 [US3] **AT-R1, the browser half, on the host.** Drive the same
   install with Playwright (quickstart.md § 3). The verdict comes from
   openDox-code's `tests/smoke_signals.py` oracle:
@@ -1102,8 +1104,8 @@ Every release-1 box, with the task that closes it:
   T073 for `serve.py`. In parallel: Group 16's binding slice (T078 → T079 →
   T080), T085 → T081, T075 → T077, and T088. Then T082, which comes after
   T081, T084 and T085, and T083. Then T087 (the phase-3 openDox root pin) →
-  T086 → T094 → T098 → T089, and T087 → T076.
-- **Acceptance**: T095 → T096 → T097.
+  T086 → T094 → T098 → T089, and T087 → T076 → T089.
+- **Acceptance**: T095 (after T089 and T076) → T096 → T097.
 
 ### Parallel slices, summarised
 

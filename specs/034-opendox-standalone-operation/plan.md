@@ -198,7 +198,7 @@ T001–T008 (holder: claims, ARC_BASE, round 1a, re-measure, analyze, #1144 amen
           [oD]   T039 root pin (T090 steps 1–2)  after T022, T032, T037, T038
           [oXc]  T040 (pin, residue) → T041 (declared exclusion) → T042 (9.3) → T043 → T044
           [oX]→[oxF]  T047 consumer pins (steps 5–6) after T039, T044, T007 batch A; carries T045 + T046
-          T047 → T018 (interim F11.1) → checkpoint T049 (after T007 batches A, B, and RN-1);  holder T048
+          T047 → T017 (3.3) and T018 (interim F11.1) → checkpoint T049 (after T007 batches A, B, and RN-1);  holder T048
  PHASE 2 (PROVISIONAL)  T009 (phase 2's round: answers, re-plan, analyze) first
           [oDc]  T050 → T051  ∥  T052  ∥  T057   (∥ T053 [oDs] if R1Q11 (a))
                  T054 (projection) → T055 (sources, 4.3 part) → T056 → T058 (validator)
@@ -211,8 +211,8 @@ T001–T008 (holder: claims, ARC_BASE, round 1a, re-measure, analyze, #1144 amen
                  4.3 end: T084 (after T073)          T075 → T077;  T082, T083, T088
           [oD]   T087 root pin → T076 (README), once the command has its final form (R1Q15)
           [oXc]  T086 (columns, ratchet (0,0)) at the pin T087 carries
-          [oX]→[oxF]  T094 consumer pins + host wiring → T098 (interim F11.1) → checkpoint T089
- ACCEPTANCE      T095 (HTTP, CI)  →  T096 (browser)  →  T097 (bookkeeping, Rule 6)
+          [oX]→[oxF]  T094 consumer pins + host wiring → T098 (interim F11.1) → checkpoint T089 (after T076)
+ ACCEPTANCE      T095 (HTTP, CI; after T089 and T076)  →  T096 (browser)  →  T097 (bookkeeping, Rule 6)
  EVERY PHASE     T090 pins · T091 trailer · T092 notes · T093 interim F11.1 (run as T018, T065, T098)
 ```
 
