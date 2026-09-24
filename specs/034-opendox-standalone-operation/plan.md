@@ -33,10 +33,12 @@ were put to Brett as `R1Q1`–`R1Q22`, and one answer raised `R1Q23`.
   accounting, and for the questions that planning them raised. The questions
   still open (R1Q10–R1Q19, R1Q21, R1Q23) belong to them, and they are drafted
   on the recommended options, each conditional step naming its question.
-  Before any task of phase 2 or phase 3 starts, three things happen:
-  1. T004 encodes that phase's answers.
-  2. This plan and `tasks.md` are re-planned for that phase.
-  3. T006 re-runs `/speckit-analyze`, and it finds nothing CRITICAL.
+  Each phase opens with its own round task, T009 for phase 2 and T069 for
+  phase 3. No other task of the phase starts before that task has done three
+  things:
+  1. encoded that phase's answers;
+  2. re-planned the phase, in this plan and in `tasks.md`;
+  3. re-run `/speckit-analyze`, finding nothing CRITICAL.
 
 So the constitution's workflow gate, *"material ambiguities MUST be resolved
 before planning"*, holds for everything this plan authorizes, which is phase
@@ -60,7 +62,8 @@ host with `tests/smoke_signals.py`'s oracle.
 **Target Platform**: a single-user Linux or macOS machine for the local install,
 and the existing AKS hosted mode, which must be unchanged.
 **Project Type**: a split product across five repositories: two code legs, two
-assembly roots, and the governing aggregation child.
+assembly roots, and the governing aggregation child. openDox-spec becomes a
+sixth only if T053 applies (R1Q11 (a) or R1Q12 (b)).
 **Performance Goals**: none are new. The readiness loops in F10.1 and F13.1
 allow 30 seconds.
 **Constraints**:
@@ -84,10 +87,10 @@ Round 1a is this revision.*
 | II. OpenSpec before implementation | PASS | Everything here realizes the RATIFIED #1144 (`5815412869`). An answer that amends a #1144 falsifier or task line is recorded there on Brett's word (T007). One that would change requirement or scenario text goes back to him first (RN-1). Speckit owns the tasks; #1144's `tasks.md` is ticked, and never duplicated (T097). |
 | III. Document lifecycle | PASS | The feature files carry Speckit's own `Status: Draft`. #1144 is `Status: ratified`, with its record landed as #1151 → `cd494e4c`. |
 | IV. Schema and artifact discipline | PASS | No committed file names a host path: every command resolves its scratch space with `W=$(mktemp -d)`. No credential is stored: 16.3 refuses raw keys. |
-| V. Validation gates | PASS for this PR | `openspec validate --all --strict` is run from the worktree root before the push (this feature adds no OpenSpec change). Implementation evidence is falsifier output, quoted. |
+| V. Validation gates | PASS for this PR, against `main`'s recorded baseline | This PR touches no `openspec/` path. `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` gives `110 passed, 1 failed` on this branch, exactly as on `main` at `cd494e4c`. The one failure is `add-chain-attestation`'s "omits scenario(s)" finding. It is an accepted disposition in `contracts/openspec-cli-pin.yaml` (`ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'`), and it retires when that change archives. This PR cannot move it. The gate the repository enforces, `scripts/validate-openspec-cli-pin.py --all` (the `openspec-cli-pin` check), exits 0 with `0 UNDISPOSITIONED failures`. No other `scripts/validate-*.py` reads `specs/`, and every check on the PR is green. Implementation evidence will be falsifier output, quoted. |
 | VI. Versioned releases | WATCH | 9.5 says *"none cuts a contract bundle"*. R1Q11 (a) would add an openDox-spec schema, which is probably a `dox-v1.1` minor at the openDox root; if so, that release follows the root's own four-value rule. |
 | VII. Fail-closed authority | PASS | Every seam refuses naming itself when nothing is registered (4.2's discipline). The hosted mode refuses without an issuer. An unknown dialect is refused. |
-| Workflow: *"material ambiguities MUST be resolved before planning"* | **PASS for phase 1; phases 2–3 PROVISIONAL** | This plan authorizes only phase 1 for implementation, and every material ambiguity in phase 1 is resolved (`5817152735`). Phases 2–3 are a provisional outline that authorizes nothing. Each is planned for implementation only after T004 encodes its answers, the phase is re-planned, and T006 re-runs analyze. A task blocked by an open R1Q never starts (FR-012). See Complexity Tracking. |
+| Workflow: *"material ambiguities MUST be resolved before planning"* | **PASS for phase 1; phases 2–3 PROVISIONAL** | This plan authorizes only phase 1 for implementation, and every material ambiguity in phase 1 is resolved (`5817152735`). Phases 2–3 are a provisional outline that authorizes nothing. Each is planned for implementation only by its round task (T009, T069), which encodes its answers, re-plans it and re-runs analyze. A task blocked by an open R1Q never starts (FR-012). See Complexity Tracking. |
 
 ## Project Structure
 
@@ -105,10 +108,10 @@ specs/034-opendox-standalone-operation/
     └── requirements.md     # the spec-quality checklist
 ```
 
-`evidence/` is created by the first task that records evidence (T003). It is
-not created empty.
+`evidence/` is created by the first task that records evidence: T003, T005 or
+T006, in phase 0. It is not created empty.
 
-### Source code: the five repositories release 1 lands in
+### Source code: the five repositories release 1 lands in (six if T053 applies)
 
 ```text
 opensoft/openDox-code            [oDc]   the product; most of the work
@@ -176,7 +179,7 @@ it"*), `serve.py:629` is routed in phase 2 along with the snapshot source.
 ## Dependency graph
 
 ```text
-T001–T008 (holder: claims, ARC_BASE, answers, analyze, #1144 amendments, the direction arc)
+T001–T008 (holder: claims, ARC_BASE, round 1a, re-measure, analyze, #1144 amendments, the direction arc)
                               │
  PHASE 1  [oDc]  A: T010→T011→T012 (serve.py)     B: T015→T016 (profile)
                  C: T020→T021→T022 (adapter)      D: T025, T026, T027 (seams)
@@ -186,16 +189,16 @@ T001–T008 (holder: claims, ARC_BASE, answers, analyze, #1144 amendments, the d
                  T038 (10.1, Q-R4)  after B and T022
           [oD]   T039 root pin (T090 steps 1–2)  after T022, T032, T037, T038
           [oXc]  T040 (pin, residue) → T041 (declared exclusion) → T042 (9.3) → T043 → T044
-          [oX]→[oxF]  T047 consumer pins (steps 5–6), carrying T045 + T046 host wiring
+          [oX]→[oxF]  T047 consumer pins (steps 5–6) after T039, T044, T007 batch A; carries T045 + T046
           checkpoint T049 (after T007 batches A, B, and RN-1);  holder T048 (F4 re-measure)
- PHASE 2 (PROVISIONAL)
+ PHASE 2 (PROVISIONAL)  T009 (phase 2's round: answers, re-plan, analyze) first
           [oDc]  T050 → T051  ∥  T052  ∥  T057   (∥ T053 [oDs] if R1Q11 (a))
                  T054 (projection) → T055 (sources, 4.3 part) → T056 → T058 (validator)
           [oD]   T062 root pin  after T054–T058
-          [oXc]  T059 (5.4a) after T052, T055, T062;  T060 (5.3a re-run) after T054
+          [oXc]  T059 (5.4a) after T052, T055, T062, T007 batch C;  T060 (5.3a re-run) after T054
                  T061 (7.3) after C3's PR 2 lands
           [oX]→[oxF]  T064 consumer pins;  checkpoint T063 (after T007 batch C)
- PHASE 3 (PROVISIONAL)
+ PHASE 3 (PROVISIONAL)  T069 (phase 3's round: answers, re-plan, analyze) first
           [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080;  T085 → T081
                  4.3 end: T084 (after T073)          T075 → T077;  T082, T083, T088
           [oD]   T087 root pin → T076 (README), once the command has its final form (R1Q15)
@@ -209,11 +212,13 @@ T001–T008 (holder: claims, ARC_BASE, answers, analyze, #1144 amendments, the d
 
 Writers run in parallel when they share no file. Five surfaces are
 SINGLE-WRITER: at most one open slice may edit each, and a slice that needs one
-rebases onto the previous slice's landing before it opens.
+rebases onto the previous slice's landing before it opens. The phase-2 and
+phase-3 entries are provisional: T009 and T069 re-derive them from the file
+lists of the re-planned tasks.
 
 | single-writer file | slices, in order |
 |---|---|
-| `src/opendox/serve.py` | T011 → T012 → (T016, T022 one-line entry-point calls) → T055 → T073 → T084 |
+| `src/opendox/serve.py` | T010 (`build_server`'s bases) → T011 → T012 → (T016, T022 one-line entry-point calls) → T055 → T073 → T084 |
 | `src/opendox/cli.py` | T016/T022 entry-point registration → T038 → T055 → T084 |
 | openXdox-code `tests/test_dependency_direction.py` (the ratchet) | T040 → T059 → T086 |
 | openDox root `code` gitlink, `contracts/code-pin.yaml`, workflow `@sha` | one commit per phase (T039, T062, T087), each after that phase's last openDox-code landing |
@@ -268,10 +273,11 @@ procedure for steps 5 and 6 once it lands. Until then, #1146 and #1148 are the
 shape to follow.
 
 **Merge method.** Every one of these repositories allows merge, squash and
-rebase. Land by **squash or merge commit, never rebase**. That way each landing
-is ONE first-parent commit, which is what 5.4a's, 12.5's and 11.1's guards
-diff against its parent. A merge landing writes the `Arc:` trailer into the
-merge message (11.0).
+rebase, and so does openDox-spec; the product repositories each require only
+`validate` on `main`. Land by **squash or merge commit, never rebase**. That
+way each landing is ONE first-parent commit, which is what 5.4a's, 12.5's and
+11.1's guards diff against its parent. A merge landing writes the `Arc:`
+trailer into the merge message (11.0).
 
 ## The trailer, the guard and Rule 6
 

@@ -8,7 +8,7 @@ holds the boxes and every falsifier.
 
 ## Format
 
-`- [ ] T### [P?] [US#] [repo] Title`, followed by up to six lines:
+`- [ ] T### [P?] [US#] [repo] Title`, followed by up to seven lines:
 
 - **Realizes**: the #1144 boxes the task closes, or advances when marked
   "(part)".
@@ -24,6 +24,8 @@ holds the boxes and every falsifier.
   answer implies. It goes back to Brett Heap (plan.md § "Ruling needed"), and
   it holds only the part of the task it names.
 - **After**: tasks that must land first.
+- **Lands with**: a task whose change rides in the same PR. Neither task waits
+  for the other, so neither names the other on its `After:` line.
 
 A task with no `[P]` either shares a file with a neighbour or depends on one.
 
@@ -48,21 +50,23 @@ with `-R` in every `gh` call.
 ## What can start
 
 Brett Heap answered the eleven questions that blocked phase 1 (`#656`, comment
-`5817152735`, verbatim *"(a) on all eleven, (d) on R1Q6"*). This revision
-encodes them, so **no phase-1 task is blocked by an open question**. Each
-phase-1 task starts once T006 has found no CRITICAL issue and its slice has
-been claimed (T002). Phase 1's CLOSE (T049) also waits on RN-1, a ruling on
-a scenario's text (plan.md § "Ruling needed"). **T020** and **T030** never
-needed an answer. **T030** is
-authored with T011 and lands with it, because it fails until 2.1 lands.
+`5817152735`, verbatim *"(a) on all eleven, (d) on R1Q6"*). T004 encoded them
+in this revision, so **no phase-1 task is blocked by an open question**.
 
-The holder tasks **T002**, **T003**, **T005**, **T006** (its round-1a run),
-**T007** and **T008** can start now.
+- **The holder starts now**: T002, T003, T005, T008, and T007's batches A and C.
+  T007's batch B waits on T041, T006 follows T003 and T005, and T004 is
+  done.
+- **Each phase-1 task** starts once T006 has found no CRITICAL issue and its
+  slice has been claimed (T002). **T020** and **T030** never needed an answer.
+  **T030** lands with T011, because it fails until 2.1 lands.
+- **Phase 1's CLOSE** (T049) also waits on RN-1, a ruling on a scenario's text
+  (plan.md § "Ruling needed").
 
 **Phases 2 and 3 are PROVISIONAL.** They are an outline and authorize no
-implementation. They wait on R1Q10–R1Q19 and R1Q23, which stay OPEN. Before
-any of their tasks starts, T004 encodes the phase's answers, the phase is
-re-planned, and T006 re-runs analyze (plan.md § Summary).
+implementation. They wait on R1Q10–R1Q19 and R1Q23, which stay OPEN. Each
+opens with its own round task: T009 for phase 2 and T069 for phase 3. That task
+encodes the phase's answers, re-plans the phase, and re-runs analyze before
+any other task of the phase starts (plan.md § Summary).
 
 ---
 
@@ -80,32 +84,36 @@ re-planned, and T006 re-runs analyze (plan.md § Summary).
   - `git ls-remote --heads origin | grep <slug>`.
 
   Lane 4's C3 and C4 are live objects (plan.md § "In-flight overlaps").
-- [ ] T003 **ARC_BASE.** Record, per repository, the `main` commit before the
-  arc's first landing there: openDox-code, openXdox-code, openDox, openXdox and
-  openxFactory. For openxFactory's guard, `PACKET_MERGE` is `94b6f7f1` (11.1).
-  Record them in `evidence/arc-base.md`, with no `Arc:` trailer.
+- [ ] T003 **ARC_BASE.** Record, per repository, a `main` commit at or before
+  the arc's first landing there: openDox-code, openXdox-code, openDox, openXdox
+  and openxFactory, and openDox-spec if T053 applies. Any commit at or before
+  that landing serves, because the guards read only trailered landings. So it
+  is recorded now, before phase 1 starts. For openxFactory's guard,
+  `PACKET_MERGE` is `94b6f7f1` (11.1). Record them in `evidence/arc-base.md`,
+  with no `Arc:` trailer.
   - **Ruled**: R1Q20 (a), `5817152735`.
-- [ ] T004 **Apply the answers, round by round.**
-  - Encode each R1Q answer into `spec.md` § Clarifications and
-    `clarify-questions.md`, in the commit that records it.
-  - Hand every answer that amends a #1144 falsifier or task line to T007.
-  - Bring any answer that would change a requirement's or a scenario's text
-    back to Brett as RULING NEEDED (plan.md § "Ruling needed").
-  - Re-plan the phase the answers belong to, in `plan.md` and in this file.
-    Phases 2 and 3 are provisional until then.
+- [x] T004 **Round 1a: encode the eleven phase-1 answers.** DONE in this
+  revision. The answers of `5817152735` (R1Q1–R1Q9, R1Q20, R1Q22) are in
+  `spec.md` § Clarifications, in `clarify-questions.md`, and in this file as
+  `Ruled:` lines.
+  - Every answer that amends a #1144 falsifier or task line is handed to T007.
+  - The one scenario text an answer touches is RULING NEEDED RN-1 (plan.md
+    § "Ruling needed").
+  - Phase 1 is re-planned on the answers.
 
-  **Round 1a is DONE in this revision**: the eleven answers of `5817152735`
-  (R1Q1–R1Q9, R1Q20, R1Q22). The box stays open for R1Q10–R1Q19, R1Q21 and
-  R1Q23.
+  The later rounds are T009 (phase 2) and T069 (phase 3).
 - [ ] T005 **Re-measure.** Re-run research R1–R15 at the then-current `main`s,
-  using the persisted tools. Record the drift from the 2026-09-24 figures
-  (R13 already shows one pin drifting).
-- [ ] T006 **Analyze, once per round.** Run `/speckit-analyze` over spec, plan
-  and tasks after each round of answers is encoded. No CRITICAL finding may
-  stand before a realization task of that round's phases starts (the
-  constitution's workflow gate). Round 1a's run gates phase 1. Each
-  provisional phase gets its own run after its re-plan.
-  - **After**: T004 (the round's encoding).
+  using the persisted tools. Record the drift from the 2026-09-24 figures in
+  `evidence/remeasure-<date>.md`, with no trailer (R13 already shows one pin
+  drifting). A figure that moved re-plans the slice it feeds, before T006.
+- [ ] T006 **Analyze round 1a.** Run `/speckit-analyze` over spec, plan and
+  tasks. No CRITICAL finding may stand before any phase-1 task starts (the
+  constitution's workflow gate). Record its verdict in
+  `evidence/analyze-round-1a.md`, with no trailer.
+  - T003, T005 and T006 can land their evidence together, in one bookkeeping
+    PR. It touches only this feature's directory, so it needs no Rule 6
+    window.
+  - **After**: T003, T004, T005.
 - [ ] T007 [oxF] **Record the ruled amendments in #1144's `tasks.md`, and one
   addendum in its `design.md`.** The answers of `5817152735` amend falsifiers,
   task lines and one design note (§ D4). They amend no requirement and no
@@ -131,6 +139,8 @@ re-planned, and T006 re-runs analyze (plan.md § Summary).
     carries out.
   - **Ruled**: R1Q1, R1Q2, R1Q3, R1Q5, R1Q6, R1Q7, R1Q9, R1Q20 and R1Q22,
     `5817152735`.
+  - **After**: batch A and batch C wait on nothing. Batch B waits on T041,
+    which names the exclusion file.
 - [ ] T008 **Raise the `doc_health` direction arc (R1Q6 (d)).** R1Q6 (d)
   makes the direction question its own arc: openXdox-code's modules import
   openxFactory's `doc_health`, and openxFactory packages nothing (research
@@ -139,6 +149,17 @@ re-planned, and T006 re-runs analyze (plan.md § Summary).
   holder files it as a staging topic or a proposal, which cites `5817152735`
   and names that deadline.
   - **Ruled**: R1Q6 (d), `5817152735`.
+- [ ] T009 **Phase 2's round.** Run it once Brett has answered phase 2's
+  questions. No task of phase 2 starts before it is done.
+  - Encode the answers in `spec.md` § Clarifications and
+    `clarify-questions.md`.
+  - Hand every #1144 falsifier or task-line amendment to a T007 batch. Bring
+    any requirement or scenario text back as RULING NEEDED.
+  - Re-plan phase 2 in `plan.md` and in this file, and lift its PROVISIONAL
+    marker.
+  - Run `/speckit-analyze`, and find nothing CRITICAL.
+  - **Blocked by**: R1Q10, R1Q11, R1Q12, R1Q13, R1Q14, R1Q23.
+  - **After**: T004.
 
 ---
 
@@ -277,7 +298,7 @@ script exists. openxFactory is unchanged in behaviour.
   - **Falsifier**: F4.1's scan; a session-notebook membership test.
   - **Ruled**: R1Q9 (a), R1Q22 (a).
   - **After**: T020.
-- [ ] T026 [P] [US1] [oDc] **`workbench.py:1407-1409`** (`run_scoped_doc_health`).
+- [ ] T026 [US1] [oDc] **`workbench.py:1407-1409`** (`run_scoped_doc_health`).
   Route it through a declared health-check seam that, with nothing registered,
   returns `status = not-available` and names the seam. It stays that way until
   Group 6 (release 2) registers openDox's own check.
@@ -302,19 +323,19 @@ script exists. openxFactory is unchanged in behaviour.
 - [ ] T030 [P] [US1] [oDc] **2.4: the import-every-module test.**
   `tests/test_imports_standalone.py::test_every_module_imports_with_no_sibling`
   walks the package with `pkgutil`. It fails naming the first module that needs
-  a sibling, and it first asserts the siblings are absent. It is authored now
-  and lands with T011.
+  a sibling, and it first asserts the siblings are absent.
   - **Realizes**: 2.4; 9.2a (the instrument; T036 makes a required check run
     it).
   - **Falsifier**: F2.1's last line.
-  - **After**: T006. It lands in T011's PR.
+  - **After**: T006.
+  - **Lands with**: T011, in T011's PR, because it fails until 2.1 lands.
 - [ ] T031 [US1] [oDc] **2.6: `README.md:39-42`.** State the live cause
   (`ideation_dashboard`, not the openDox → openXdox inversion). Once the
-  narrowing ends, rewrite the paragraph. It co-lands in T036's PR; neither
-  task waits for the other.
+  narrowing ends, rewrite the paragraph.
   - **Realizes**: 2.6.
   - **Falsifier**: review.
   - **After**: T035.
+  - **Lands with**: T036, in T036's PR.
 
 ### Join: the sweep, the suite, the console script
 
@@ -530,8 +551,8 @@ script exists. openxFactory is unchanged in behaviour.
 ## Phase 2: useful alone (US2 and US4)
 
 **PROVISIONAL.** This phase is an outline and authorizes no implementation.
-It is re-planned, and re-analyzed (T006), once T004 has encoded its answers:
-R1Q10–R1Q14 and R1Q23.
+T009 re-plans and re-analyzes it once its answers are in: R1Q10–R1Q14 and
+R1Q23. Every phase-2 task comes after T009.
 
 **Goal**: with no consumer installed, openDox generates its own neutral
 snapshot from a plain repository, serves it standalone, and validates it
@@ -548,7 +569,7 @@ against schemas that are on disk. The governed projection is unchanged.
   - **Realizes**: 5.0.
   - **Falsifier**: the vocabulary test; used by F5.3, F7.2, F10.1 and F13.1.
   - **Blocked by**: R1Q11, R1Q13.
-  - **After**: T049.
+  - **After**: T049, T009.
 - [ ] T051 [US2] [oDc] **7.0: `tests/fixtures/malformed`.** Exactly one
   rule violation of the snapshot contract R1Q12 selects, and an
   `EXPECTED_RULE` file holding that rule's identifier.
@@ -564,15 +585,19 @@ against schemas that are on disk. The governed projection is unchanged.
   - **Realizes**: 5.4.
   - **Falsifier**: seam tests; F5.2 through T059.
   - **Blocked by**: R1Q11 (the conformance clause only).
-  - **After**: T049.
+  - **After**: T049, T009.
 - [ ] T053 [P] [US2] [oDs] [oD] **The neutral snapshot contract. CONDITIONAL:
   only on R1Q11 (a) or R1Q12 (b).** The schema lands in openDox-spec, then the
   openDox root's spec pin moves, then the bundle is cut if Brett's answer
   requires it (a `dox-v1.x` minor under the root's four-value rule).
+  - openDox-spec then becomes a sixth repository of the arc. Its landings
+    carry the `Arc:` and `Lane:` trailers and land by squash or merge, like
+    every realization landing (T091). It allows all three methods and
+    requires only `validate`. T003 records its ARC_BASE.
   - **Realizes**: 5.1 and 7.1 (their contract).
   - **Falsifier**: the root's `make validate`.
   - **Blocked by**: R1Q11, R1Q12.
-  - **After**: T004, T049.
+  - **After**: T049, T009.
 - [ ] T054 [US2] [oDc] **5.1–5.3: openDox's small neutral projection** over
   `CorpusAdapter`. It is bound to `LocalGitCorpus` (5.2) and renders the six
   words only (5.3), with `display_profile.py` unchanged unless R1Q11 amends
@@ -615,7 +640,7 @@ against schemas that are on disk. The governed projection is unchanged.
   - **Falsifier**: F7.2's schema half.
   - **Blocked by**: R1Q12.
   - **Ruled**: R1Q22 (a).
-  - **After**: T049.
+  - **After**: T049, T009.
 - [ ] T058 [US2] [oDc] **The post-render validator in the generate verbs.**
   `--strict` makes a validator that cannot run fatal, and `--no-validate`
   skips validation.
@@ -649,8 +674,8 @@ against schemas that are on disk. The governed projection is unchanged.
   - **Realizes**: 7.3.
   - **Falsifier**: F7.1, including its two named tests.
   - **Blocked by**: R1Q14.
-  - **After**: T049, and C3's openXdox-code PR (PR 2, openXdox-code#28) has
-    landed.
+  - **After**: T049, T009, and C3's openXdox-code PR (PR 2,
+    openXdox-code#28) has landed.
 - [ ] T062 [US4] [oD] **Phase 2's openDox root pin** (T090 steps 1–2).
   - **Realizes**: 9.5 (part).
   - **Falsifier**: `make pins` in the openDox root.
@@ -673,14 +698,22 @@ against schemas that are on disk. The governed projection is unchanged.
 ## Phase 3: it installs (US3 and US4)
 
 **PROVISIONAL.** This phase is an outline and authorizes no implementation.
-It is re-planned, and re-analyzed (T006), once T004 has encoded its answers:
-R1Q10, R1Q12 and R1Q15–R1Q19.
+T069 re-plans and re-analyzes it once its answers are in: R1Q10, R1Q12 and
+R1Q15–R1Q19. Every phase-3 task comes after T069.
 
 **Goal**: one documented command installs and starts the whole product, with
 its bundled datastore, the local mode, the served bundle, and chat with a clear
 no-model state. `consumer_reach.py` is gone.
 
 **Independent test**: T089, then T095 and T096.
+
+- [ ] T069 **Phase 3's round.** T009's steps for phase 3: encode the answers,
+  hand amendments to a T007 batch, bring any requirement or scenario text back
+  as RULING NEEDED, re-plan phase 3 and lift its PROVISIONAL marker, and run
+  `/speckit-analyze`, finding nothing CRITICAL. No task of phase 3 starts
+  before it is done.
+  - **Blocked by**: R1Q10, R1Q12, R1Q15, R1Q16, R1Q17, R1Q18, R1Q19.
+  - **After**: T009.
 
 ### Group 13: the install's shape (`runtime/`)
 
@@ -690,7 +723,7 @@ no-model state. `consumer_reach.py` is gone.
   migration DSN stops being optional.
   - **Realizes**: 13.2, 13.3.
   - **Falsifier**: F13.1's `load_settings` block.
-  - **After**: T063.
+  - **After**: T063, T069.
 - [ ] T070 [US3] [oDc] **13.4, 13.5 and 13.6: `OPENDOX_INSTALL_MODE`.**
   - `local` or `hosted`, defaulting to `hosted`, and read beside
     `OPENDOX_OIDC_ISSUER`.
@@ -733,7 +766,7 @@ no-model state. `consumer_reach.py` is gone.
   is not owed (10.2a is a declaration, recorded in the PR).
   - **Realizes**: 10.2, 10.2a.
   - **Falsifier**: F10.1's fetch.
-  - **After**: T056, T038, T063.
+  - **After**: T056, T038, T063, T069.
 - [ ] T076 [US3] [oD] **10.3: the openDox root's `README.md` documents the one
   command.** No `Makefile` target is added, since it has a shape-pin row.
   - **Realizes**: 10.3.
@@ -756,7 +789,7 @@ no-model state. `consumer_reach.py` is gone.
   - **Falsifier**: F16.1's dialect assertion.
   - **Ruled**: R1Q22 (a). `doxbench_binding.py` is a `moved_verbatim` row,
     and editing it needs no declared-edit act.
-  - **After**: T063.
+  - **After**: T063, T069.
 - [ ] T079 [US3] [oDc] **16.2: a `model` field**, sent as the request's model
   and set by `model-binding add|edit --model`. The record grows from nine
   fields to ten, and none of them can hold a secret.
@@ -822,14 +855,14 @@ no-model state. `consumer_reach.py` is gone.
   - **Realizes**: 4.3 (part), 16.4 (part).
   - **Falsifier**: the served catalog route answers, with no available entry.
   - **Blocked by**: R1Q10, R1Q12.
-  - **After**: T057, T063.
+  - **After**: T057, T063, T069.
 - [ ] T088 [US3] [oDc] **The lens's two seed actions**, handled as R1Q19
   decides. Recommended: offered only where a binding answers them.
   - **Realizes**: none of the 69; this is the precondition for AT-R1 step 6.
   - **Falsifier**: AT-R1 step 6.
   - **Blocked by**: R1Q19.
   - **Ruled**: R1Q22 (a).
-  - **After**: T063.
+  - **After**: T063, T069.
 - [ ] T087 [US4] [oD] **Phase 3's openDox root pin** (T090 steps 1–2).
   - **Realizes**: 9.5 (part).
   - **Falsifier**: `make pins` in the openDox root.
@@ -882,9 +915,11 @@ no-model state. `consumer_reach.py` is gone.
   Follow C4's runbook once it lands. Every one of these is an ancestor move,
   cutting no bundle unless T053 applies.
   - **Realizes**: 9.5, which is ticked at ARC close.
-- [ ] T091 **The trailer (11.0).** Every realization commit and every landing,
-  in all five repositories, carries `Arc: neutral-product-standalone-operability`
-  as well as `Lane: openxfactory-4`. A merge landing writes the trailer into
+- [ ] T091 **The trailer (11.0).** Every realization commit and every landing
+  carries `Arc: neutral-product-standalone-operability` as well as `Lane:
+  openxfactory-4`. That holds in every repository the arc touches: the five,
+  and openDox-spec too when T053 applies. 11.0's own words are *"in EVERY
+  repository it touches"*. A merge landing writes the trailer into
   the merge message. Land by squash or merge, never rebase. Bookkeeping
   carries NO trailer: this feature's files, #1144's ticks, evidence notes and
   amendments (T007), and interim guard output (R1Q20 (a)).
@@ -1002,10 +1037,13 @@ Every release-1 box, with the task that closes it:
 
 ## Dependencies and execution order
 
-- **Phase 0** gates everything. T004 must apply the answers a task's
-  `Blocked by` line names before that task starts, and T006 must report no
-  CRITICAL finding for the round. T007's batches land before the checkpoints
-  that run the amended falsifiers (T049, T063).
+- **Phase 0** gates phase 1. T003, T004 (done) and T005 come before T006, and
+  T006's round-1a analyze comes before every phase-1 task. T007's batches land
+  before the tasks that run the amended falsifiers: batch A before T047, both
+  A and B before T049, and C before T059.
+- **The provisional phases** each open with a round task, T009 for phase 2 and
+  T069 for phase 3. It encodes the phase's answers, re-plans the phase and
+  re-runs analyze before any other task of that phase starts.
 - **Phase 1**: lanes A–E run in parallel, subject to plan.md's single-writer
   table for `serve.py` and `cli.py`. They join at T032 and then run
   T034 → T035 → T036 → T037. T031 co-lands in T036's PR. T039 then pins
@@ -1014,11 +1052,11 @@ Every release-1 box, with the task that closes it:
   the consumer pins after T039, T044 and T007's batch A, and openxFactory's
   host wiring (T045, T046) lands inside T047's openxFactory PR. T017 and T093
   run after T047. T049 closes the phase once RN-1 is ruled.
-- **Phase 2**: T050 → T051 ∥ T052 ∥ T057 (∥ T053), then T054 → T055 → T056
-  → T058; T062 (the phase-2 openDox root pin) after T054–T058; T059 after
+- **Phase 2**: T009, then T050 → T051 ∥ T052 ∥ T057 (∥ T053), then T054 →
+  T055 → T056 → T058; T062 (the phase-2 openDox root pin) after T054–T058; T059 after
   T052, T055, T062 and T007's batch C; T060 after T054; T061 after T049 and
   C3; T064 after T059–T062; T063 after T064.
-- **Phase 3**: Group 13 (T071 → T070 → T072 → T073 → T074), with T084 after
+- **Phase 3**: T069, then Group 13 (T071 → T070 → T072 → T073 → T074), with T084 after
   T073 for `serve.py`. In parallel: Group 16's binding slice (T078 → T079 →
   T080), T085 → T081, T075 → T077, and T088. Then T082, which comes after
   T081, T084 and T085, and T083. Then T087 (the phase-3 openDox root pin) →

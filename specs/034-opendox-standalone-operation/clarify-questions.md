@@ -31,8 +31,9 @@ re-runnable from [`research.md`](./research.md), which gives the command beside
 it. Task ids (`T0nn`) are [`tasks.md`](./tasks.md)'s.
 
 **How to answer.** One line per question is enough, e.g. `R1Q15 b`. An answer is
-written inline under its question and encoded into `spec.md` in the same commit
-(T004).
+written inline under its question and encoded into `spec.md` in the same commit.
+T004 did that for round 1a. T009 does it for phase 2's questions, and T069 for
+phase 3's.
 - An answer that changes a falsifier or a task line of #1144's `tasks.md` is
   recorded there by T007, on your word, under a Rule 6 window.
 - An answer that would change a requirement's text or a scenario is put to
@@ -44,14 +45,15 @@ written inline under its question and encoded into `spec.md` in the same commit
 | phase | cannot start or close without |
 |---|---|
 | 1, it runs | no open question: R1Q1–R1Q9 and R1Q22 are answered (`5817152735`). T006's round-1a analyze and each slice's claim gate its start, and RN-1 gates its close |
-| 2, useful alone | R1Q11, R1Q12, R1Q13 (the projection and the validator); R1Q10 (serving it); R1Q14 (7.3); R1Q23 (F5.2's four `doc_health` suites) |
-| 3, it installs | R1Q15, R1Q16 (the install); R1Q10, R1Q12 (chat standalone); R1Q17, R1Q18 (16.3); R1Q19 (the lens in the acceptance) |
+| 2, useful alone | R1Q11, R1Q12, R1Q13 (the projection and the validator); R1Q10 (serving it); R1Q14 (7.3); R1Q23 (F5.2's four `doc_health` suites). T009 encodes them and re-plans the phase |
+| 3, it installs | R1Q15, R1Q16 (the install); R1Q10, R1Q12 (chat standalone); R1Q17, R1Q18 (16.3); R1Q19 (the lens in the acceptance). T069 encodes them and re-plans the phase |
 | every landing | nothing open. R1Q20 and R1Q22 are answered |
 | process only | R1Q21 |
 
-**What can start now**: every phase-1 task, after T006 and its slice's claim
-(T002); and the holder tasks T002, T003, T005, T006 (its round-1a run), T007
-and T008 (see `tasks.md` § "What can start").
+**What can start now**: the holder tasks T002, T003, T005 and T008, and T007's
+batches A and C. T006 follows T003 and T005, and T007's batch B follows T041.
+Every phase-1 task follows T006 and its slice's claim (T002). See `tasks.md`
+§ "What can start".
 
 ---
 
@@ -345,7 +347,7 @@ unchanged (openxFactory's adapter or host wiring supplies the governed-roots +
 
 ---
 
-## R1Q10 — Which consumer mechanisms get an openDox-owned default, so the wheel, lens and chat work with nothing else installed? *(blocks T055, T081, T082, T084, T085, T095; phases 2–3)* — **OPEN**
+## R1Q10 — Which consumer mechanisms get an openDox-owned default, so the wheel, lens and chat work with nothing else installed? *(blocks T009, T055, T069, T081, T082, T084, T085, T095; phases 2–3)* — **OPEN**
 
 **Measured.** Beyond 4.3's 27 literal reaches, openDox reads 11 `consumer_reach`
 names at **65 use sites**, and 4.3's falsifier deletes `consumer_reach.py`
@@ -396,7 +398,7 @@ configured"*.
 
 ---
 
-## R1Q11 — The snapshot contract requires the very words Group 5's falsifier forbids *(blocks T050, T052, T053, T054, T058; phase 2)* — **OPEN**
+## R1Q11 — The snapshot contract requires the very words Group 5's falsifier forbids *(blocks T009, T050, T052, T053, T054, T058; phase 2)* — **OPEN**
 
 **Measured.** openXdox-spec `contracts/schemas/ideation-dashboard-snapshot.schema.yaml`
 REQUIRES `documents[].stage` (`required: [id, path, stage]`) and restricts it to
@@ -436,7 +438,7 @@ passes F5.3 fails F7.2. As written, neither can pass beside the other.
 
 ---
 
-## R1Q12 — Which snapshot schema does openDox's validator own, and how does a spec-leg schema reach the code leg's package? *(blocks T051, T053, T057, T058, T081, T085, T095; phases 2–3)* — **OPEN**
+## R1Q12 — Which snapshot schema does openDox's validator own, and how does a spec-leg schema reach the code leg's package? *(blocks T009, T051, T053, T057, T058, T069, T081, T085, T095; phases 2–3)* — **OPEN**
 
 **Measured.** The post-render validator's subject is the rendered snapshot
 (`ideation-dashboard-snapshot`), whose schema lives in openXdox-spec. openDox-spec's
@@ -468,7 +470,7 @@ them."* F7.2 validates a snapshot and asserts the malformed fixture's
 
 ---
 
-## R1Q13 — How does a plain document land in one of the six stations, and what front matter is neutral? *(blocks T050, T054, T096; phase 2 and the acceptance)* — **OPEN**
+## R1Q13 — How does a plain document land in one of the six stations, and what front matter is neutral? *(blocks T009, T050, T054, T096; phase 2 and the acceptance)* — **OPEN**
 
 **Measured.** The six stations read six different snapshot sections, declared in
 `web/views/display.js:139-144`: sources ← `documents`, groups ← `clusters`,
@@ -499,7 +501,7 @@ fixture yields at least one group, so AT-R1 can open the chat pane.
 
 ---
 
-## R1Q14 — 7.3's falsifier and lane 4's ruled C3 act disagree about `find_validator` *(blocks T061; phase 2)* — **OPEN**
+## R1Q14 — 7.3's falsifier and lane 4's ruled C3 act disagree about `find_validator` *(blocks T009, T061; phase 2)* — **OPEN**
 
 **Measured.** C3 (claimed on `#656` `5815613524`, ruled (a) in `5815412869`) makes
 openXdox's `find_validator` answer `None` from a start outside the product
@@ -516,7 +518,7 @@ installed distribution's validator, and C3's test is revised in 7.3's landing.
 
 ---
 
-## R1Q15 — With nothing configured, does `opendox generate-and-open` serve (Group 10) or refuse (Group 13)? *(blocks T070, T074, T076, T077, T095; phase 3 and the acceptance)* — **OPEN**
+## R1Q15 — With nothing configured, does `opendox generate-and-open` serve (Group 10) or refuse (Group 13)? *(blocks T069, T070, T074, T076, T077, T095; phase 3 and the acceptance)* — **OPEN**
 
 **Measured.** F10.1 runs
 `opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8080`
@@ -549,7 +551,7 @@ command must carry the mode.
 
 ---
 
-## R1Q16 — "One served product": process shape, what the document surface needs the datastore for, and what `pip install` brings *(blocks T070, T072, T073, T074, T095; phase 3)* — **OPEN**
+## R1Q16 — "One served product": process shape, what the document surface needs the datastore for, and what `pip install` brings *(blocks T069, T070, T072, T073, T074, T095; phase 3)* — **OPEN**
 
 **Measured.** The document surface never imports the runtime: outside
 `src/opendox/runtime/`, only `conformance_corpus.py` touches it, and only
@@ -578,7 +580,7 @@ reports it; (ii) yes; (iii) an `opendox[local]` extra; (iv) yes.
 
 ---
 
-## R1Q17 — What resolves a credential reference in a standalone install? *(blocks T080; phase 3 — #1144 leaves this to the realization)* — **OPEN**
+## R1Q17 — What resolves a credential reference in a standalone install? *(blocks T069, T080; phase 3 — #1144 leaves this to the realization)* — **OPEN**
 
 **Measured.** Every binding record names a broker program (`broker_argv`,
 required, `src/opendox/doxbench_binding.py:138`); the one broker that exists is
@@ -595,7 +597,7 @@ credential-free local endpoints only; hosted APIs need the broker.
 
 ---
 
-## R1Q18 — How does an endpoint that takes no credential say so? *(blocks T080; phase 3 — also left to the realization)* — **OPEN**
+## R1Q18 — How does an endpoint that takes no credential say so? *(blocks T069, T080; phase 3 — also left to the realization)* — **OPEN**
 
 **Measured.** `AUTH_KINDS` is `(api_key, oauth)` (`doxbench_binding.py:93`) and
 `broker_argv` is a required field (`:129-139`). Requirement 17 says only that the
@@ -608,7 +610,7 @@ absence is declared explicitly, never by a field left out.
 
 ---
 
-## R1Q19 — The lens's two openxFactory seed actions, in a standalone install *(blocks T088, T096; the acceptance)* — **OPEN**
+## R1Q19 — The lens's two openxFactory seed actions, in a standalone install *(blocks T069, T088, T096; the acceptance)* — **OPEN**
 
 **Measured.** `web/views/lens.js:57,61` post to `/actions/dtn-seed` and
 `/actions/staging-seed`, which only openxFactory's lanes answer. The web census
@@ -691,7 +693,7 @@ manifest only by adding or extending an existing `edits[].note` — it refuses
 
 ---
 
-## R1Q23 — R1Q6 (d) leaves four of 5.4a's six generator suites unable to run where F5.2 runs them *(blocks T059, T063; phase 2)* — **OPEN**
+## R1Q23 — R1Q6 (d) leaves four of 5.4a's six generator suites unable to run where F5.2 runs them *(blocks T009, T059, T063; phase 2)* — **OPEN**
 
 **Raised by** the answer to R1Q6 (`5817152735`), on 2026-09-24, and asked here
 rather than assumed.

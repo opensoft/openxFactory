@@ -72,25 +72,41 @@ done
 
 ## 3. The one documented command, then the HTTP half (T095)
 
-Run this once with `R="$A"` and once with `R="$B"`.
+Run §§ 3–5 once with `R="$A"`, then again with `R="$B"`. Each pass starts its
+own server and stops it in § 5.
 
 ```sh
 R="$A"
+PORT=8080
+python3 - "$PORT" <<'PY'
+import socket, sys
+port = int(sys.argv[1])
+for host in ("127.0.0.1", "::1"):
+    try:
+        s = socket.create_connection((host, port), timeout=1)
+    except OSError:
+        continue
+    s.close()
+    raise SystemExit(f"FAIL: something already listens on {host}:{port}, so a ready answer would not come from this run")
+print(f"port {port} is free")
+PY
 # CONDITIONAL (R1Q15): the recommended answer (b) selects local mode explicitly, shown here as --local.
-opendox generate-and-open --local --repo-root "$R" --repository fixture --no-open --port 8080 &
+opendox generate-and-open --local --repo-root "$R" --repository fixture --no-open --port "$PORT" &
 SERVER=$!
 trap 'kill "$SERVER" 2>/dev/null || true' EXIT
 ready=0
 for _ in $(seq 1 30); do
-  if curl -sf http://127.0.0.1:8080/ >/dev/null; then ready=1; break; fi
+  kill -0 "$SERVER" 2>/dev/null || { echo "FAIL: the launched server exited before it answered"; exit 1; }
+  if curl -sf "http://127.0.0.1:$PORT/" >/dev/null; then ready=1; break; fi
   sleep 1
 done
 test "$ready" -eq 1
-curl -sf http://127.0.0.1:8080/ > "$W/index.html"
+kill -0 "$SERVER"                                     # the port was free before launch, so this process is the one answering
+curl -sf "http://127.0.0.1:$PORT/" > "$W/index.html"
 grep -qi '<html' "$W/index.html"
-curl -sf http://127.0.0.1:8080/snapshot.json > "$W/snap.json"
-curl -sf http://127.0.0.1:8080/capabilities > "$W/caps.json"
-curl -sf http://127.0.0.1:8080/workbench/model-catalog > "$W/catalog.json"
+curl -sf "http://127.0.0.1:$PORT/snapshot.json" > "$W/snap.json"
+curl -sf "http://127.0.0.1:$PORT/capabilities" > "$W/caps.json"
+curl -sf "http://127.0.0.1:$PORT/workbench/model-catalog" > "$W/catalog.json"
 python3 - "$W/snap.json" "$W/caps.json" "$W/catalog.json" <<'PY'
 import json, sys
 snap, caps, cat = (json.load(open(p)) for p in sys.argv[1:4])
@@ -116,7 +132,7 @@ openDox-code's `tests/smoke_signals.py`: every console error and every failed
 request must be DECLARED, and `pageerror` cannot be declared at all. With the
 server from § 3 running, in this order:
 
-1. Load `http://127.0.0.1:8080/`, and collect `console`, `pageerror` and
+1. Load `http://127.0.0.1:$PORT/`, and collect `console`, `pageerror` and
    `requestfailed` from the first byte onwards.
 2. **Wheel.** Click `#tab-wheel`. It must render a tile for every station
    that the snapshot fills.
@@ -138,5 +154,10 @@ trailer (R1Q20 (a), ruled in `5817152735`).
 
 ## 5. Tear down
 
-`kill "$SERVER"`. The bundled datastore stops with the entry point (R1Q16
-(iv)). `rm -rf "$W" "$OPENDOX_STATE_DIR"`.
+```sh
+kill "$SERVER"
+wait "$SERVER" 2>/dev/null || true                    # the port is free again before the next pass
+```
+
+The bundled datastore stops with the entry point (R1Q16 (iv)). After the second
+pass, with `R="$B"`, remove the scratch space: `rm -rf "$W" "$OPENDOX_STATE_DIR"`.

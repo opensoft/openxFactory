@@ -39,7 +39,8 @@ the change's own repository (lifecycle step 3). openDox-spec cannot govern this
 work yet: requirement 8's interim arrangement applies, because openDox-spec has
 promoted none of the 71 requirements the carve assigned it (#1144 Group 8). The
 IMPLEMENTATION lands in five repositories, each by that repository's own pull
-request: openDox-code, openXdox-code, openDox, openXdox and openxFactory.
+request: openDox-code, openXdox-code, openDox, openXdox and openxFactory. A
+sixth, openDox-spec, joins only if T053 applies.
 
 ## Clarifications
 
@@ -115,8 +116,9 @@ amendment there as bookkeeping, and the realization carries it out
 edits no file of #1144.
 
 **Still OPEN** (phases 2–3, and process): R1Q10–R1Q19, R1Q21, and R1Q23. Every
-task one of them blocks carries `Blocked by: R1Qn` in [`tasks.md`](./tasks.md),
-and none of those tasks may start until T004 has encoded the answer here.
+task one of them blocks carries `Blocked by: R1Qn` in [`tasks.md`](./tasks.md).
+None of those tasks may start until its phase's round task has encoded the
+answer here: T009 for phase 2, T069 for phase 3.
 
 One box needs no question. **3.0** ("RATIFICATION READ FIRST") is discharged by
 the ratification word itself. `5815412869` ratified the change and struck no
@@ -480,12 +482,12 @@ oracle's own header records.
   release 1 archives and promotes nothing.
 - The eleven answers of `5817152735` are applied in this revision, so phase 1
   is planned on its answers.
-- The open questions (R1Q10–R1Q19, R1Q21, R1Q23) are applied by T004 before
-  any task they block.
+- The open questions (R1Q10–R1Q19, R1Q21, R1Q23) are applied by each
+  provisional phase's round task (T009, T069) before any task they block.
 - Phases 2 and 3 are PROVISIONAL. They are drafted on the recommended
   options, and each conditional step names its question. They authorize no
-  implementation until they are re-planned on their answers and T006 has
-  re-run.
+  implementation until their round task has re-planned them on their answers
+  and re-run analyze.
 - Lane 4's own acts C1, C3 and C4 (`#656` `5815604830`, `5815613524`,
   `5815620605`) are in flight, and this feature neither duplicates nor
   pre-empts them.
