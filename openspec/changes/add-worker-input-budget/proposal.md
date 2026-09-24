@@ -219,9 +219,9 @@ delta closes that hole explicitly.
     night's.
   - **Lane recommendation (not a ruling):** keep 0.5 — each 0.1 of share only
     moves about 190,000 bytes of capacity between the populations (3 to 10
-    changed documents one way, 7 to 12 specs the other), while what the sweep
-    misses at every share — openxFactory, at most 2 of its 109 changed
-    documents and 14 of its 66 specs sent — is set by the `(repo, path)`
+    changed documents one way, 7 to 12 specs the other), while how much of
+    openxFactory the sweep reaches at any share — at most 2 of its 109
+    changed documents and 14 of its 66 specs — is set by the `(repo, path)`
     packing order, which no share repairs.
 - **OQ-2 — deferral does not carry over, and this packet does not make it.** The
   incremental scope is a content-hash diff against the last committed
@@ -251,11 +251,14 @@ delta closes that hole explicitly.
     commit), never a field of `health/inventory/<date>.json` — `finalize`
     emits that file UNCONDITIONALLY from the full current inventory every
     night, so a cursor folded into it would be erased by the next emit.
-- **OQ-3 — RESOLVED 2026-09-23.** Filed as *"a live blocker this packet does
-  not address"*: since 2026-09-16 the runner's CLI received HTTP 403 *"Your
-  organization has disabled Claude subscription access for Claude Code"* on
-  every invocation, which no code change reaches (the 2026-09-22 nightly then
-  ran clean and the refusal recurred on 2026-09-23, opensoft/xFactory#491).
+- **OQ-3 — RESOLVED 2026-09-23.** Filed on 2026-09-22 as *"a live blocker
+  this packet does not address"*: from 2026-09-16 through 2026-09-21 the
+  runner's CLI had received HTTP 403 *"Your organization has disabled Claude
+  subscription access for Claude Code"* on every invocation (readiness: 12 of
+  12 clusters errored each of those nights, 0 of 12 on 2026-09-15), which no
+  code change reaches. The 2026-09-22 nightly, run after the filing, drew no
+  403 (its readiness, derive-possibles and cataloger children all answered);
+  the refusal recurred on 2026-09-23 (opensoft/xFactory#491).
   The administrative act was taken on 2026-09-23: Brett Heap re-enabled
   Claude Code access via subscription in the Anthropic Console — the remedy
   that issue #491 names as its option 1 — and reported, verbatim, *"the HTTP
