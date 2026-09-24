@@ -104,9 +104,14 @@ and must never grow one. The lockstep in § 4 belongs to the OTHER verifier.
 Run every step in ONE shell, with `NEW_SHA` set as a real variable to the new
 openXdox assembly-root commit, all 40 hex characters. Every command below reads
 `"$NEW_SHA"`. None of them takes a hand-typed sha, and the Python steps refuse a
-value that is not 40 lowercase hex. A step that fails prints `REFUSE` and
-returns non-zero. Stop there: nothing later assumes a step that did not print its
-OK:
+value that is not 40 lowercase hex. A command that cannot do its job prints a
+line starting `REFUSE` and returns non-zero, and prints nothing that could pass
+for a result. That includes a `git` call that fails, which is caught and never
+left as a bare traceback. Stop there: nothing later assumes a step that did not
+print its result.
+
+§ 4's comparison has one more non-zero outcome, `DIFFERENT`. That is a result,
+not a failure: it sends you down § 4's lockstep path.
 
 ```sh
 NEW_SHA=0123456789abcdef0123456789abcdef01234567   # a placeholder: replace it
@@ -151,7 +156,8 @@ NEW_SHA=0123456789abcdef0123456789abcdef01234567   # a placeholder: replace it
    verifier's code. `test_the_shipped_digest_is_recomputed_by_an_independent_implementation`
    rests on the same principle. The command FAILS CLOSED:
    - a `NEW_SHA` that is not 40 lowercase hex is refused;
-   - a `git ls-tree` that fails raises (`check=True`) and prints no digest;
+   - a `git ls-tree` that fails, or a `git` that cannot run, is refused with
+     git's own error, and no digest is printed;
    - an empty listing is refused.
 
    The obvious `git ls-tree … | python3 -c …` pipe is not safe. When `ls-tree`
@@ -165,9 +171,15 @@ NEW_SHA=0123456789abcdef0123456789abcdef01234567   # a placeholder: replace it
    sha = sys.argv[1]
    if not re.fullmatch(r"[0-9a-f]{40}", sha):
        sys.exit(f"REFUSE: NEW_SHA {sha!r} is not 40 lowercase hex")
-   out = subprocess.run(["git", "-C", "openXdox", "ls-tree", "-r", "-z", sha],
-                        check=True, capture_output=True).stdout
-   records = sorted(r for r in out.split(b"\0") if r)
+   try:
+       run = subprocess.run(["git", "-C", "openXdox", "ls-tree", "-r", "-z", sha],
+                            capture_output=True)
+   except OSError as exc:
+       sys.exit(f"REFUSE: git could not run: {exc}")
+   if run.returncode != 0:
+       sys.exit(f"REFUSE: git ls-tree {sha} failed: "
+                f"{run.stderr.decode('utf-8', 'replace').strip()}")
+   records = sorted(r for r in run.stdout.split(b"\0") if r)
    if not records:
        sys.exit(f"REFUSE: openXdox@{sha} lists no tree records")
    print(hashlib.sha256(b"".join(r + b"\n" for r in records)).hexdigest())
@@ -239,22 +251,38 @@ sibling's file.** If openXdox's derived openDox reading changed between the old
 commit and `NEW_SHA`, the refusal fires as soon as the new gitlink is recorded.
 Compare the two before staging. The command below FAILS CLOSED:
 - a malformed `NEW_SHA` is refused;
-- a `git show` that fails raises;
+- a `git show` that fails is refused with git's own error;
+- a pin file that cannot be read, or that has no `commit:`, is refused;
+- a `commit:` on EITHER side that is not 40 lowercase hex is refused. Two
+  malformed values that happen to be equal must not read as lockstep;
 - a disagreement exits 1 with `DIFFERENT`.
 
 ```sh
 python3 - "$NEW_SHA" <<'PY'
 import re, subprocess, sys
 import yaml
+HEX40 = re.compile(r"[0-9a-f]{40}")
 sha = sys.argv[1]
-if not re.fullmatch(r"[0-9a-f]{40}", sha):
+if not HEX40.fullmatch(sha):
     sys.exit(f"REFUSE: NEW_SHA {sha!r} is not 40 lowercase hex")
-blob = subprocess.run(
-    ["git", "-C", "openXdox", "show", f"{sha}:contracts/opendox-pin.yaml"],
-    check=True, capture_output=True, text=True).stdout
-derived = yaml.safe_load(blob)["commit"]
-with open("contracts/opendox-pin.yaml", encoding="utf-8") as fh:
-    own = yaml.safe_load(fh)["commit"]
+try:
+    show = subprocess.run(
+        ["git", "-C", "openXdox", "show", f"{sha}:contracts/opendox-pin.yaml"],
+        capture_output=True, text=True)
+except OSError as exc:
+    sys.exit(f"REFUSE: git could not run: {exc}")
+if show.returncode != 0:
+    sys.exit(f"REFUSE: git show {sha}:contracts/opendox-pin.yaml failed: "
+             f"{show.stderr.strip()}")
+try:
+    derived = yaml.safe_load(show.stdout)["commit"]
+    with open("contracts/opendox-pin.yaml", encoding="utf-8") as fh:
+        own = yaml.safe_load(fh)["commit"]
+except (OSError, yaml.YAMLError, KeyError, TypeError) as exc:
+    sys.exit(f"REFUSE: an opendox pin could not be read: {exc!r}")
+for side, value in (("openXdox's derived", derived), ("this repository's", own)):
+    if not (isinstance(value, str) and HEX40.fullmatch(value)):
+        sys.exit(f"REFUSE: {side} opendox-pin commit {value!r} is not 40 lowercase hex")
 print(f"openXdox@{sha[:8]} derives openDox {derived}; this repository pins {own}")
 if derived != own:
     sys.exit("DIFFERENT: the openDox side moves in the SAME commit")
@@ -332,15 +360,20 @@ runbook: "opensoft/openDox-code docs/runtime.md sections 5-6, …"
 `contracts/openxdox-pin.yaml` carries NO `migration:` field.
 
 The check below is run with the cwd in each repository and the commit as its
-argument. It FAILS CLOSED: a failing `ls-tree` raises and exits 1, and is never
-read as "0 paths". That is not true of the obvious `git ls-tree … | grep -i
-migrat`, which reports no hit either way.
+argument. It FAILS CLOSED: a failing `ls-tree` prints `REFUSE` with git's own
+error and exits 1, and is never read as "0 paths". That is not true of the
+obvious `git ls-tree … | grep -i migrat`, which reports no hit either way.
 
 ```sh
 python3 -c 'import subprocess, sys
-names = subprocess.run(["git", "ls-tree", "-r", "--name-only", sys.argv[1]],
-                       check=True, capture_output=True, text=True).stdout.splitlines()
-hits = [n for n in names if "migrat" in n.lower()]
+try:
+    run = subprocess.run(["git", "ls-tree", "-r", "--name-only", sys.argv[1]],
+                         capture_output=True, text=True)
+except OSError as exc:
+    sys.exit(f"REFUSE: git could not run: {exc}")
+if run.returncode != 0:
+    sys.exit(f"REFUSE: git ls-tree {sys.argv[1]} failed: {run.stderr.strip()}")
+hits = [n for n in run.stdout.splitlines() if "migrat" in n.lower()]
 for n in hits:
     print(n)
 print(f"{len(hits)} path(s) containing migrat")' <full 40-hex commit>
