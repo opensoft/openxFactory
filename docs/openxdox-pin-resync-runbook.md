@@ -49,15 +49,29 @@ procedure for every advance after that.
 
 `scripts/verify-openxdox-pin.py` is the pin's own `verify_pin:`, and
 `.github/workflows/openxdox-consumer-gate.yml` runs it on every pull request.
+That check is required on `main`: ruleset 23554310 names
+`openxdox-consumer-gate`.
 Its `verify()` raises `PinRefusal` on the FIRST failure and never continues past
 it. The order matters: a digest recomputed over the wrong revision would report
 drift when the real defect is a stale checkout.
 
-- **The pin must be readable** (`load_pin`). An absent file, a parse failure, a
-  missing PyYAML, a `digest_algorithm` other than `sha256` or a
-  `digest_definition` other than `sorted-ls-tree-r-v1` is `pin-unreadable`. That
-  is an environment failure rather than a finding, so it sits outside the
-  five-code vocabulary. It still exits 2.
+- **PyYAML must import, before any check runs.** A missing PyYAML is NOT
+  `pin-unreadable`. The import guard at module load prints one line and exits 2:
+  `ERROR PyYAML is required to read contracts/openxdox-pin.yaml`.
+  That happens before `verify()` is called, so no `PinRefusal` is raised, and it
+  prints no code and no REMEDIATION trailer. Install PyYAML from
+  `requirements/hermes-runtime-contracts.lock`, as the consumer gate does.
+- **The pin must be readable** (`load_pin`, then the field readers). Each of
+  these is `pin-unreadable`:
+  - an absent file, a parse failure, or a pin that is not a mapping;
+  - no usable `submodule_path`;
+  - a `digest_algorithm` other than `sha256`, or a `digest_definition` other
+    than `sorted-ls-tree-r-v1`;
+  - a `digests` that is not a mapping;
+  - later, at check 4, a `git ls-tree` that fails.
+
+  That is an environment failure rather than a finding, so it sits outside the
+  five-code vocabulary. It still exits 2, with the trailer.
 - **The shape guards run before any comparison.** `_pinned_commit` refuses
   `openxdox-pin-tag-only` unless `revision_kind: commit` and `commit` is exactly
   40 hex. A tag, a branch or an abbreviated oid is not a compatibility pin.
@@ -76,8 +90,9 @@ drift when the real defect is a stale checkout.
 
 Success prints one line, `OK openxdox-pin verified: openXdox@<commit>, gitlink
 read from <HEAD|index>, sorted-ls-tree-r-v1 tree digest recomputed (<digest>)`,
-and exits 0. Every refusal prints the reason and the REMEDIATION trailer to
-stderr and exits 2. There is no exit 1.
+and exits 0. Every refusal prints `REFUSE <code>: <detail>` and the REMEDIATION
+trailer to stderr and exits 2. The import guard's `ERROR` line is the one exit 2
+that carries no trailer. There is no exit 1.
 
 The verifier reads the pin, the gitlink and the submodule's object store, and
 nothing else: never the network, never openXdox's own `contracts/manifest.yaml`,
@@ -86,7 +101,14 @@ and must never grow one. The lockstep in § 4 belongs to the OTHER verifier.
 
 ## 3. The advance, step by step
 
-Write the new openXdox assembly-root commit as `NEW_SHA`.
+Run every step in ONE shell, with `NEW_SHA` set as a real variable to the new
+openXdox assembly-root commit, all 40 hex characters. Every command below reads
+`"$NEW_SHA"`. None of them takes a hand-typed sha, and the two Python steps
+refuse a value that is not 40 lowercase hex:
+
+```sh
+NEW_SHA=0123456789abcdef0123456789abcdef01234567   # a placeholder: replace it
+```
 
 1. **Confirm the upstream is landed.** `NEW_SHA` must be on
    `opensoft/openXdox` `main`. When the bump carries a change to a leg, the
@@ -107,23 +129,41 @@ Write the new openXdox assembly-root commit as `NEW_SHA`.
    ```sh
    git submodule update --init openXdox openDox
    git -C openXdox fetch origin
-   git -C openXdox checkout --detach NEW_SHA
-   git -C openXdox rev-parse HEAD        # must print NEW_SHA
+   git -C openXdox checkout --detach "$NEW_SHA"
+   [ "$(git -C openXdox rev-parse HEAD)" = "$NEW_SHA" ] || echo "REFUSE: openXdox is not at NEW_SHA" >&2
    ```
 
 4. **Recompute the digest with a second implementation**, independent of the
    verifier's code. `test_the_shipped_digest_is_recomputed_by_an_independent_implementation`
-   rests on the same principle:
+   rests on the same principle. The command FAILS CLOSED:
+   - a `NEW_SHA` that is not 40 lowercase hex is refused;
+   - a `git ls-tree` that fails raises (`check=True`) and prints no digest;
+   - an empty listing is refused.
+
+   The obvious `git ls-tree … | python3 -c …` pipe is not safe. When `ls-tree`
+   fails, it hashes the empty input and exits 0 with
+   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`, which
+   looks like a real digest.
 
    ```sh
-   git -C openXdox ls-tree -r -z NEW_SHA | python3 -c 'import sys, hashlib
-   records = sorted(r for r in sys.stdin.buffer.read().split(b"\0") if r)
-   print(hashlib.sha256(b"".join(r + b"\n" for r in records)).hexdigest())'
+   python3 - "$NEW_SHA" <<'PY'
+   import hashlib, re, subprocess, sys
+   sha = sys.argv[1]
+   if not re.fullmatch(r"[0-9a-f]{40}", sha):
+       sys.exit(f"REFUSE: NEW_SHA {sha!r} is not 40 lowercase hex")
+   out = subprocess.run(["git", "-C", "openXdox", "ls-tree", "-r", "-z", sha],
+                        check=True, capture_output=True).stdout
+   records = sorted(r for r in out.split(b"\0") if r)
+   if not records:
+       sys.exit(f"REFUSE: openXdox@{sha} lists no tree records")
+   print(hashlib.sha256(b"".join(r + b"\n" for r in records)).hexdigest())
+   PY
    ```
 
-   At `2f3f857d` (the pin on 2026-09-24) this prints
+   With `NEW_SHA` at `2f3f857d` (the pin on 2026-09-24), this prints
    `149dc2cd6701abbacb635718713b01cb172e6eadb2f6a29607212016aa23d1c5`, the
-   recorded value.
+   recorded value, and exits 0. Given an unknown commit, or an abbreviated one,
+   it exits 1 and prints no digest.
 5. **Edit `contracts/openxdox-pin.yaml`: `commit:` and `digests.tree_sha256:`
    only.**
    - Grep the file for the OLD sha first. A header sentence that names it is
@@ -136,22 +176,37 @@ Write the new openXdox assembly-root commit as `NEW_SHA`.
    - `scripts/verify-openxdox-pin.py` is cited by line the same way, from the
      same promoted spec and from `scripts/doc_health/pin_shapes.py`, so a bump
      that also edits the verifier keeps its line numbers too.
-6. **Stage the gitlink deliberately**, with explicit paths, never `git add -A`:
+6. **Check the lockstep consequence (§ 4) before staging.** It decides whether
+   the openDox side moves in the same commit.
+7. **Stage deliberately**, with explicit paths, never `git add -A`. When § 4
+   reported DIFFERENT and the openDox side has been moved, stage its pair too:
 
    ```sh
    git add openXdox contracts/openxdox-pin.yaml
-   git diff --cached --stat               # exactly the paths you mean
-   python3 scripts/verify-openxdox-pin.py # "gitlink read from index"
+   # ONLY when section 4 reported DIFFERENT, after moving the openDox side:
+   #   git add openDox contracts/opendox-pin.yaml
+   git diff --cached --stat                # exactly the paths you mean
+   python3 scripts/verify-openxdox-pin.py  # "gitlink read from index"
+   python3 scripts/verify-opendox-pin.py   # its check 5 reads the STAGED openXdox gitlink
    ```
 
-   `git add openXdox` is the act that records the new `160000` gitlink. It is
-   also the act to AVOID after an ordinary `git merge`, where it would stage
-   whatever the submodule happens to be checked out at.
-7. **Check the lockstep consequence (§ 4) before committing.**
-8. **Commit the gitlink and the pin file in ONE commit**, with explicit
-   pathspecs. The consumer code the bump makes due goes in the same pull request
-   (#1146 and #1148 each carried `scripts/profile_openxfactory.py` and its test).
-   Then run § 5.
+   `git add openXdox` is the act that records the new `160000` gitlink, and
+   `git add openDox` records openDox's the same way. Stage each one only while
+   its submodule is checked out at the commit its pin file names.
+
+   The same two acts are the ones to AVOID after an ordinary `git merge`. There,
+   each would stage whatever its submodule happens to be checked out at.
+
+   Run BOTH verifiers even when only this pin moved. The openDox verifier's
+   check 5 reads openXdox's derived pin through the openXdox gitlink, from the
+   index when it is staged, so moving this pin alone can still redden it.
+8. **Commit what you staged in ONE commit**, with explicit pathspecs:
+   - always the `openXdox` gitlink and `contracts/openxdox-pin.yaml`;
+   - also `openDox` and `contracts/opendox-pin.yaml`, when § 4 moved them.
+
+   The consumer code the bump makes due goes in the same pull request. #1146 and
+   #1148 each carried `scripts/profile_openxfactory.py` and its test. Then run
+   § 5.
 
 ## 4. The one cross-file consequence: openDox's lockstep check
 
@@ -166,12 +221,36 @@ disagree, it refuses `opendox-pin-lockstep-mismatch`.
 **So advancing THIS pin can break the SIBLING pin's check without touching the
 sibling's file.** If openXdox's derived openDox reading changed between the old
 commit and `NEW_SHA`, the refusal fires as soon as the new gitlink is recorded.
-Compare the two before committing:
+Compare the two before staging. The command below FAILS CLOSED:
+- a malformed `NEW_SHA` is refused;
+- a `git show` that fails raises;
+- a disagreement exits 1 with `DIFFERENT`.
 
 ```sh
-git -C openXdox show NEW_SHA:contracts/opendox-pin.yaml | grep '^commit:'
-grep '^commit:' contracts/opendox-pin.yaml
+python3 - "$NEW_SHA" <<'PY'
+import re, subprocess, sys
+import yaml
+sha = sys.argv[1]
+if not re.fullmatch(r"[0-9a-f]{40}", sha):
+    sys.exit(f"REFUSE: NEW_SHA {sha!r} is not 40 lowercase hex")
+blob = subprocess.run(
+    ["git", "-C", "openXdox", "show", f"{sha}:contracts/opendox-pin.yaml"],
+    check=True, capture_output=True, text=True).stdout
+derived = yaml.safe_load(blob)["commit"]
+with open("contracts/opendox-pin.yaml", encoding="utf-8") as fh:
+    own = yaml.safe_load(fh)["commit"]
+print(f"openXdox@{sha[:8]} derives openDox {derived}; this repository pins {own}")
+if derived != own:
+    sys.exit("DIFFERENT: the openDox side moves in the SAME commit")
+PY
 ```
+
+Measured results:
+
+| `NEW_SHA` | derived openDox | exit | output |
+| --- | --- | ---: | --- |
+| `2f3f857d` | `dc7aa08f…`, equal to this repository's pin | 0 | one line |
+| `88a1047e` | `c4c5014d…` | 1 | `DIFFERENT` |
 
 If they differ, the openDox side moves in the SAME commit. That means the
 `openDox` gitlink, `contracts/opendox-pin.yaml` `commit:` and `tree_sha256`, and
@@ -215,8 +294,9 @@ openxFactory validator(s) not reachable"). The cause is that
 `EXPECT_SKIPPED: 0` while CI, which checks out to `openxFactory/`, is green.
 Measured the same day.
 
-Every refusal either verifier prints ends with a REMEDIATION trailer. This
-pin's trailer names this document.
+Every `REFUSE` line either verifier prints ends with a REMEDIATION trailer. This
+pin's trailer names this document. The exception is each verifier's PyYAML
+import guard: it prints an `ERROR` line with no trailer (§ 2).
 
 ## 6. The migration triple
 
@@ -255,6 +335,22 @@ header records exactly that before/after measurement at its `dc7aa08f` bump.
   commit, beside the consumer code the bump made due.
 - Neither one touched `contracts/opendox-pin.yaml`, because the derived openDox
   reading held at `dc7aa08f` (§ 4).
+- **#1084** ("Pin lockstep #3") is the case § 4 reports as DIFFERENT:
+  - it moved openXdox `a6500141` → `88a1047e`, whose own pin derives openDox
+    `c4c5014d`;
+  - so the same commit also moved the `openDox` gitlink `3819625e` → `c4c5014d`
+    and `contracts/opendox-pin.yaml`;
+  - it carried `scripts/profile_openxfactory.py` and two test files beside them.
+
+  The § 3 step 4 command reproduces the `tree_sha256` this pin recorded for each
+  of the four openXdox commits named above:
+
+  | openXdox commit | recorded `tree_sha256` |
+  | --- | --- |
+  | `646f1dc0` | `47f50184…` |
+  | `cd2596a2` | `eb367f68…` |
+  | `2f3f857d` | `149dc2cd…` |
+  | `88a1047e` | `cdbe7573…` |
 
 ## 8. The rule in one sentence
 

@@ -149,6 +149,6 @@ carve_commit: "b075fd91dc8fced8e1373825ba80220c33536bae"
 resync_runbook: "docs/openxdox-pin-resync-runbook.md"
 
 # NAMED here so the pin is running code rather than an obligation stated in
-# prose, matching the sibling pins' own `verify_pin:` key. The required
-# `openxdox-consumer-gate` check runs it on every pull request (task 5.3, #1059).
+# prose, matching the sibling pins' own `verify_pin:` key. It runs on every PR
+# in `openxdox-consumer-gate` (task 5.3, #1059), required by ruleset 23554310.
 verify_pin: scripts/verify-openxdox-pin.py

@@ -856,8 +856,8 @@ def test_a_working_tree_deletion_is_deliberately_not_drift(
     `pin-member-missing` does catch a working-tree deletion.
 
     Asserted rather than argued because the module docstring once claimed the
-    opposite. Whether the consumer gate wired in task 5.3 (Phase 5) also needs a
-    dirty-checkout refusal is that task's call; this test is the input to it,
+    opposite. Task 5.3's consumer gate (#1059) carries no dirty-checkout
+    refusal, so whether one is needed stays open; this test is the input to it,
     and it will fail loudly the day someone changes the answer.
     """
     scratch = _scratch(tmp_path)
