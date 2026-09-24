@@ -463,6 +463,7 @@ them."* F7.2 validates a snapshot and asserts the malformed fixture's
   that schema's rules. The same copies serve T085's chat validators.
 - (b) Re-home `ideation-dashboard-snapshot` (and `-index`) from openXdox-spec to
   openDox-spec; openXdox then consumes it from openDox, the lawful direction.
+  openXdox-spec then joins the arc as a seventh repository (T053).
 - (c) Drop post-render snapshot validation from openDox's generate verbs; openDox
   validates only its own three kinds, and F7.2 is amended to validate a workbench
   manifest.

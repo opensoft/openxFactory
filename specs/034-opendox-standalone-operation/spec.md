@@ -41,7 +41,8 @@ work yet: requirement 8's interim arrangement applies, because openDox-spec has
 promoted none of the 71 requirements the carve assigned it (#1144 Group 8). The
 IMPLEMENTATION lands in five repositories, each by that repository's own pull
 request: openDox-code, openXdox-code, openDox, openXdox and openxFactory. A
-sixth, openDox-spec, joins only if T053 applies.
+sixth, openDox-spec, joins only if T053 applies, and a seventh, openXdox-spec,
+only under R1Q12 (b), which re-homes its snapshot schemas.
 
 ## Clarifications
 

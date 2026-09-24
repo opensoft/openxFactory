@@ -130,7 +130,7 @@ specs/034-opendox-standalone-operation/
 `evidence/` is created by the first task that records evidence: T003, T005 or
 T006, in phase 0. It is not created empty.
 
-### Source code: the five repositories release 1 lands in (six if T053 applies)
+### Source code: the five repositories release 1 lands in (six if T053 applies, seven under R1Q12 (b))
 
 ```text
 opensoft/openDox-code            [oDc]   the product; most of the work
@@ -168,6 +168,7 @@ opensoft/openxFactory            [oxF]   host wiring + pin pairs + notes (11.1),
   openDox + contracts/opendox-pin.yaml; openXdox + contracts/openxdox-pin.yaml
   docs/opendox-carve-manifest.yaml (edits[].note only)
 opensoft/openDox-spec            [oDs]   ONLY if R1Q11 (a) or R1Q12 (b): the neutral snapshot schema
+opensoft/openXdox-spec           [oXs]   ONLY under R1Q12 (b): retires its copy of the re-homed snapshot schemas
 ```
 
 **Structure Decision.** ONE Speckit feature for release 1, with release 2 as
