@@ -312,18 +312,43 @@ Two workflows read this pin on every pull request. Run what they run, with the
 same flags. `-m "not postgres"` is part of every pytest line below; without it
 the selection, and so the floors, are not the gate's.
 
+**First, set up what both workflows set up.** Each one runs Python 3.12 and
+Node 22 and installs the hash-pinned lock before any gate step runs. `pytest`
+and PyYAML come from that lock. Without `node` on PATH, the DOM and JS probes in
+`tests/ideation-dashboard/test_lens.py` SKIP, and the ideation suite's exact-0
+skip floor fails. The chain below builds a virtual environment outside the
+checkout and stops at the first link that fails. The last link, `node
+--version`, is the check that a `node` is there:
+
+```sh
+GATES_VENV="$(mktemp -d)/venv" &&
+  python3.12 -m venv "$GATES_VENV" &&
+  . "$GATES_VENV/bin/activate" &&
+  python3 -m pip install --require-hashes --only-binary :all: \
+    -r requirements/hermes-runtime-contracts.lock &&
+  node --version
+```
+
+That is the consumer gate's install line. `pytest-suite` installs the same lock
+without `--only-binary :all:`. The consumer gate's comment on that step records
+that the flag changes what KIND of artifact may install, not the set: on Python
+3.12 the lock resolves 17 packages, all 17 of them wheels.
+
 **`.github/workflows/openxdox-consumer-gate.yml`**, the required
 `openxdox-consumer-gate`. It initializes RECURSIVELY, unlike the verifiers' own
 remediation, because `tests/ideation-dashboard` reaches the legs through
 `scripts/carved_reach.py`:
 
 ```sh
-git submodule update --init --recursive openDox openXdox
-python3 scripts/verify-openxdox-pin.py
-python3 scripts/verify-opendox-pin.py
-python3 -m pytest tests/opendox_pin tests/openxdox_pin -q -m "not postgres" --junitxml=pin-suites-report.xml
-python3 -m pytest tests/ideation-dashboard -q -m "not postgres" --junitxml=consumer-suite-report.xml
+git submodule update --init --recursive openDox openXdox &&
+  python3 scripts/verify-openxdox-pin.py &&
+  python3 scripts/verify-opendox-pin.py &&
+  python3 -m pytest tests/opendox_pin tests/openxdox_pin -q -m "not postgres" --junitxml=pin-suites-report.xml &&
+  python3 -m pytest tests/ideation-dashboard -q -m "not postgres" --junitxml=consumer-suite-report.xml
 ```
+
+It is one `&&` chain because the gate stops the same way: no step of the job
+runs after a step that failed.
 
 - **The pin suites.** Floors: 105 selected, 105 passed, exactly 0 skipped. Four
   named verdicts must each be `passed`:
@@ -340,16 +365,23 @@ and it checks out the pinned decision core, `codeXfactory/codexFactory` at
 `b21f010013fa51960c77377a8582943435b6db32`:
 
 ```sh
-git submodule update --init openXwallet
-git submodule update --init --recursive openXdox openDox
-PINNED_CORE_CHECKOUT="${CORE_CHECKOUT:?set CORE_CHECKOUT to your codexFactory checkout at b21f0100}" \
-  python3 -m pytest tests/ -q -m "not postgres" --junitxml=pytest-report.xml
+: "${CORE_CHECKOUT:?set CORE_CHECKOUT to your codexFactory checkout at b21f0100}" &&
+  git submodule update --init openXwallet &&
+  git submodule update --init --recursive openXdox openDox &&
+  OPENSPEC="$(python3 scripts/install-pinned-openspec-cli.py)" &&
+  PATH="$(dirname "$OPENSPEC"):$PATH" PINNED_CORE_CHECKOUT="$CORE_CHECKOUT" \
+    python3 -m pytest tests/ -q -m "not postgres" --junitxml=pytest-report.xml
 ```
 
 - **`CORE_CHECKOUT` is yours to supply:** your checkout of
-  `codeXfactory/codexFactory` at that commit. Left unset or empty, the line
-  above stops before pytest runs. CI supplies
+  `codeXfactory/codexFactory` at that commit. The chain checks it first, so
+  an unset or empty `CORE_CHECKOUT` stops it before anything runs. CI supplies
   `${{ github.workspace }}/.merge-master-core`.
+- **The pinned OpenSpec CLI.** `scripts/install-pinned-openspec-cli.py`
+  installs it outside the checkout, verified against its pin, and prints the
+  executable's path. It needs the `node` set up above. Without `openspec` on
+  PATH, the three `tests/proposal-support/test_proposal_support.py` tests that
+  need it SKIP.
 - **Floors:** 7050 selected, 7044 passed, exactly 6 skipped.
 - **Named verdicts:** the freshness verifier and the vector replay
   (`tests.review_lane_pin.test_floor_snapshot`) must each be `passed`.
