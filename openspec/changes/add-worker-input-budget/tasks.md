@@ -17,9 +17,9 @@ this change.
 - [ ] 0.2 Confirm **OQ-2**: this packet caps and records; it does NOT carry
   deferred documents over to the next night, because no sweep cursor exists
   and the committed inventory baseline advances unconditionally. A real
-  carry-over is a separate packet. Measured 2026-09-24 (the baseline has
-  held at 2026-09-04 while the rolling report pull request is open), with a
-  lane recommendation that is not a ruling: `proposal.md` OQ-2.
+  carry-over is a separate packet. Measured 2026-09-24 (the committed
+  baseline has held at 2026-09-04, no nightly report having landed since),
+  with a lane recommendation that is not a ruling: `proposal.md` OQ-2.
 - [x] 0.3 Note **OQ-3**: the HTTP 403 org-entitlement block (filed as live
   since 2026-09-16) is not addressed by any code here and needed an
   administrative act. **RESOLVED 2026-09-23** by that act — Brett Heap's

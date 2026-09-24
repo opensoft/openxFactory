@@ -199,7 +199,7 @@ delta closes that hole explicitly.
     bytes at the packer's `document_cost` — then packed by
     `pack_within_budget` at each share:
 
-    | share | bytes sent | sent / deferred | changed docs sent / deferred | promoted specs sent / deferred | openxFactory sent: changed docs of 109, specs of 66 | codexFactory sent: changed docs of 31, specs of 13 |
+    | grounding share | bytes sent | sent / deferred | changed docs sent / deferred | promoted specs sent / deferred | openxFactory sent: changed docs of 109, specs of 66 | codexFactory sent: changed docs of 31, specs of 13 |
     | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
     | 0.3 | 1,899,164 | 90 / 233 | 53 / 143 | 37 / 90 | 1, 0 | 0, 0 |
     | 0.4 | 1,899,413 | 94 / 229 | 50 / 146 | 44 / 83 | 1, 1 | 0, 0 |
@@ -207,19 +207,21 @@ delta closes that hole explicitly.
     | 0.6 | 1,899,594 | 96 / 227 | 33 / 163 | 63 / 64 | 1, 3 | 0, 12 |
     | 0.7 | 1,899,953 | 104 / 219 | 29 / 167 | 75 / 52 | 2, 14 | 0, 13 |
 
-    The weekly full sweep over the same inventory (a Sunday `as_of`: 738
-    governed documents costing 9,416,787 bytes, the same 127 specs) sends, at
-    0.3 / 0.4 / 0.5 / 0.6 / 0.7, 202 / 184 / 183 / 181 / 182 documents — 165 /
-    140 / 127 / 118 / 107 governed documents and 37 / 44 / 56 / 63 / 75 specs
-    — and of openxFactory's 397 governed documents 0 / 1 / 0 / 0 / 0. The
-    method reproduces production: at 0.5 the repack rebuilds each nightly
-    bundle's `analysis-input.txt` byte for byte and its `meta.json` budget
-    record field for field, and the current inventory's 0.5 prompt is
-    byte-identical to the 2026-09-24 night's.
-  - **Lane recommendation (not a ruling):** keep 0.5 — each 0.1 of share moves
-    about 190,000 bytes, 3 to 12 documents, from one population to the other,
-    while what the sweep misses at every share (openxFactory: at most 2 of 109
-    changed documents and 14 of 66 specs sent) is set by the `(repo, path)`
+    The weekly full sweep over the same inventory (the same prepare path with
+    a Sunday `--as-of 2026-09-27`: 738 governed documents costing 9,416,787
+    bytes, the same 127 specs) sends, at 0.3 / 0.4 / 0.5 / 0.6 / 0.7, 202 /
+    184 / 183 / 181 / 182 documents — 165 / 140 / 127 / 118 / 107 governed
+    documents and 37 / 44 / 56 / 63 / 75 specs — and of openxFactory's 397
+    governed documents 0 / 1 / 0 / 0 / 0. The method reproduces production:
+    at 0.5 the repack rebuilds each nightly bundle's `analysis-input.txt` byte
+    for byte and its `meta.json` budget record field for field, and the
+    current inventory's 0.5 prompt is byte-identical to the 2026-09-24
+    night's.
+  - **Lane recommendation (not a ruling):** keep 0.5 — each 0.1 of share only
+    moves about 190,000 bytes of capacity between the populations (3 to 10
+    changed documents one way, 7 to 12 specs the other), while what the sweep
+    misses at every share — openxFactory, at most 2 of its 109 changed
+    documents and 14 of its 66 specs sent — is set by the `(repo, path)`
     packing order, which no share repairs.
 - **OQ-2 — deferral does not carry over, and this packet does not make it.** The
   incremental scope is a content-hash diff against the last committed
@@ -232,13 +234,14 @@ delta closes that hole explicitly.
   carry-over needs its own state and its own packet.
   - **Measured 2026-09-24.** The committed baseline has not in fact advanced
     since 2026-09-04: the aggregation's `main` carries `health/inventory/`
-    through `2026-09-04.json`, because the nightly's rolling report pull
-    request, opensoft/xFactory#396 (`doc-health/nightly`), has been open since
-    2026-09-10, and both nights' selections reproduce exactly against that
-    file (193 of 736 on 2026-09-23, 196 of 738 on 2026-09-24). A deferred
-    document is therefore re-selected today — and deferred again, the packing
-    order being deterministic: 219 documents (151 changed, 68 promoted specs)
-    were deferred on both nights.
+    only through `2026-09-04.json` — no nightly report has landed since
+    opensoft/xFactory#235 that day, and the rolling report pull request that
+    would land one, opensoft/xFactory#396 (`doc-health/nightly`), has been
+    open since 2026-09-10 — and both nights' selections reproduce exactly
+    against that file (193 of 736 on 2026-09-23, 196 of 738 on 2026-09-24). A
+    deferred changed document is therefore re-selected today — and deferred
+    again, the packing order being deterministic: 219 documents (151 changed
+    documents, 68 promoted specs) were deferred on both nights.
   - **Lane recommendation (not a ruling):** accept cap-and-record for this
     packet, and carry deferrals over in a separate packet staged first as
     `ideation/staging/doc-health-sweep-carry-over/` (not created here). Its
@@ -253,11 +256,11 @@ delta closes that hole explicitly.
   organization has disabled Claude subscription access for Claude Code"* on
   every invocation, which no code change reaches (the 2026-09-22 nightly then
   ran clean and the refusal recurred on 2026-09-23, opensoft/xFactory#491).
-  The administrative act was taken on 2026-09-23: Brett Heap reported the
-  Console-side remedy #491 names as its option 1 — re-enabling Claude Code
-  access via subscription — done, in his words *"the HTTP 403: 'Your
-  organization has disabled Claude subscription access for Claude Code.'
-  error was fixed. it runs now"* (recorded verbatim on #491 at 16:34:40Z); no
+  The administrative act was taken on 2026-09-23: Brett Heap re-enabled
+  Claude Code access via subscription in the Anthropic Console — the remedy
+  that issue #491 names as its option 1 — and reported, verbatim, *"the HTTP
+  403: 'Your organization has disabled Claude subscription access for Claude
+  Code.' error was fixed. it runs now"* (recorded on #491 at 16:34:40Z); no
   repository change was made. Verified the same hour: the analysis child
   re-dispatched against nightly parent run 35810840997 — opensoft/xFactory
   Actions run 35889825278, correlation `semantic-35810840997-2` — passed the
@@ -269,8 +272,9 @@ delta closes that hole explicitly.
   35947804907, conclusion `success`) is the first full night under the
   restored access: all four model children succeeded with model output —
   analysis 35948587830 (guard passed at 1,899,236 bytes; 5 findings),
-  cataloger 35948591376, readiness 35949701420 (12 of 12 clusters, no error
-  entry) and derive-possibles 35950836940 (10 of 10). A recurrence can no
-  longer pass as a green night: opensoft/xFactory#499 (merge `4feb0db3`,
-  2026-09-23T22:52:54Z, for #492) fails the readiness and derive-possibles
-  children closed with a degraded artifact on any 401/403 refusal.
+  cataloger 35948591376 (21 catalog entries), readiness 35949701420 (12 of 12
+  clusters, no error entry) and derive-possibles 35950836940 (10 of 10). A
+  recurrence can no longer hide in a green child: opensoft/xFactory#499
+  (merge `4feb0db3`, 2026-09-23T22:52:54Z, for #492) fails the readiness and
+  derive-possibles children closed with a degraded artifact on any 401/403
+  refusal, as the analysis and cataloger children already fail on one.
