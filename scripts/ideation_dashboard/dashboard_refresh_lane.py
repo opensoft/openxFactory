@@ -952,6 +952,16 @@ SEAL_VALIDATOR_RELPATH = f"{SEAL_VALIDATOR_ROOT}/{VALIDATOR_SCRIPT_PATH}"
 # Without the snapshot schema: rc 2. With no schemas: rc 2.
 VALIDATOR_PROBE = {"kind": "ideation-dashboard-snapshot"}
 
+# What a 2.x seal's intake requires of the unit beyond its script. First, the
+# schema the child validates against, by the name the product's own validator
+# asks for it; a test drops exactly this name and has the product refuse,
+# naming it. Second, the outcomes of the parent's one run that mean the copy
+# RAN to a verdict: the product's `snapshot.VALIDATED` and
+# `snapshot.NOT_CONFORMANT`, which a test holds equal. Both are spelled here
+# because this module must import without the carve legs on disk.
+VALIDATOR_SNAPSHOT_SCHEMA = "ideation-dashboard-snapshot.schema.yaml"
+VALIDATOR_VERDICT_OUTCOMES = ("validated", "not-conformant")
+
 # The manifest field whose value the child passes to `generate --generated-at`.
 # NOT a wall clock: `generation.generated_at` is defined as the source
 # revision's committer date (cli.py `--generated-at`, generator
@@ -1535,8 +1545,10 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
                 recipe_revision: str | None = None) -> list[str]:
     """The REFERENCE implementation of the child's intake check: manifest
     present and well-formed, every indexed path present with the recorded
-    sha256, the tree digest recomputing, and the recorded revisions matching
-    the parent decision the child was dispatched with.
+    sha256, the tree digest recomputing, the recorded revisions matching the
+    parent decision the child was dispatched with, and the sealed validator
+    unit whole. A whole unit means its script, its schemas, and a recorded run
+    that reached a verdict.
 
     Returns the problems, empty when the seal verifies. It is a list rather
     than an exception because the child must report ALL of what is wrong before
@@ -1622,6 +1634,36 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
         problems.append(
             f"the seal does not carry {SEAL_VALIDATOR_RELPATH} — strict "
             "validation could not run")
+    # THE UNIT, NOT ONLY ITS SCRIPT (Copilot review of #1162). The script by
+    # itself validates nothing. Without its schemas it exits 2 before it reads
+    # a snapshot, which is the #179 trap in the unit's shape. So the intake
+    # also requires the schemas to be indexed, the recorded count to equal the
+    # indexed count, the snapshot schema to be among them, and the parent's
+    # one recorded run to have reached a verdict.
+    schemas_prefix = f"{SEAL_VALIDATOR_ROOT}/{VALIDATOR_SCHEMAS_PATH}/"
+    indexed_schemas = sum(1 for relpath in files
+                          if relpath.startswith(schemas_prefix))
+    if not indexed_schemas:
+        problems.append(
+            f"the seal indexes no schema under {schemas_prefix} — strict "
+            "validation could not run")
+    schema_count = manifest.get("validator_schema_count")
+    if isinstance(schema_count, bool) or schema_count != indexed_schemas:
+        problems.append(
+            f"validator_schema_count is {schema_count!r}, but the seal "
+            f"indexes {indexed_schemas} schema(s) under {schemas_prefix}")
+    if schemas_prefix + VALIDATOR_SNAPSHOT_SCHEMA not in files:
+        problems.append(
+            f"the seal does not carry {schemas_prefix}"
+            f"{VALIDATOR_SNAPSHOT_SCHEMA}, the schema the child validates "
+            "against")
+    probe = manifest.get("validator_probe")
+    if not (isinstance(probe, dict)
+            and probe.get("kind") == VALIDATOR_PROBE["kind"]
+            and probe.get("outcome") in VALIDATOR_VERDICT_OUTCOMES):
+        problems.append(
+            f"validator_probe is {probe!r} — the manifest does not record "
+            "that the sealed validator ran to a verdict")
     # Null only for a unit with no product tree; anything else it records must
     # be a full revision, which the seal refuses to write otherwise.
     validator_revision = manifest.get("validator_revision")

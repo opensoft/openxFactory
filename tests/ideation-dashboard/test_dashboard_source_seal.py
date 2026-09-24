@@ -139,7 +139,7 @@ def _decision(corpus_revision: str, **kw) -> dict:
     return payload
 
 
-STUB_SCHEMA = "ideation-dashboard-snapshot.schema.yaml"
+STUB_SCHEMA = lane.VALIDATOR_SNAPSHOT_SCHEMA
 
 
 def _stub_validator(where: Path) -> "lane.PinnedValidator":
@@ -219,6 +219,9 @@ def test_the_sealed_validator_path_is_the_products_own():
         f"{lane.SEAL_VALIDATOR_ROOT}/{lane.VALIDATOR_SCRIPT_PATH}")
     assert lane.SEAL_VALIDATOR_ROOT not in (
         lane.SEAL_CORPUS_RELPATH, lane.SEAL_RECIPE_RELPATH.split("/", 1)[0])
+    # The run outcomes the intake accepts are the product's own two verdicts.
+    assert lane.VALIDATOR_VERDICT_OUTCOMES == (snapshot_mod.VALIDATED,
+                                               snapshot_mod.NOT_CONFORMANT)
 
 
 def test_the_decision_scope_does_not_follow_the_validator():
@@ -384,8 +387,8 @@ def _unit_without(where: Path, *, drop: str | None, keep_schemas: bool) -> Path:
 
 @pytest.mark.parametrize("drop, keep_schemas, said", [
     (None, False, "carries none of the family's"),
-    ("ideation-dashboard-snapshot.schema.yaml", True,
-     "ideation-dashboard-snapshot.schema.yaml is not carried under"),
+    (lane.VALIDATOR_SNAPSHOT_SCHEMA, True,
+     f"{lane.VALIDATOR_SNAPSHOT_SCHEMA} is not carried under"),
 ], ids=["the-code-legs-own-copy-with-no-schemas", "every-schema-but-the-snapshots"])
 def test_a_sealed_validator_that_cannot_run_is_refused(corpus, tmp_path, drop,
                                                        keep_schemas, said):
@@ -1024,18 +1027,87 @@ def test_verify_refuses_the_1x_layout_that_sealed_the_validator_in_the_corpus(
     shutil.rmtree(seal / lane.SEAL_VALIDATOR_ROOT)
     manifest["files"] = lane.seal_file_index(seal)
     manifest["tree_digest"] = lane.tree_digest(manifest["files"])
-    del manifest["validator_relpath"]
+    for field in ("validator_relpath", "validator_revision",
+                  "validator_schema_count", "validator_probe"):
+        del manifest[field]                         # 2.x-only fields
     manifest["schema_version"] = "1.0.0"
     (seal / lane.SEAL_MANIFEST_NAME).write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    problems = lane.verify_seal(seal)
-    assert len(problems) == 3, problems
-    assert any("schema_version '1.0.0'" in problem for problem in problems)
-    assert any(problem.startswith("validator_relpath is None")
-               for problem in problems)
-    assert any(lane.SEAL_VALIDATOR_RELPATH in problem and "could not run" in problem
-               for problem in problems)
+    schemas = f"{lane.SEAL_VALIDATOR_ROOT}/{lane.VALIDATOR_SCHEMAS_PATH}/"
+    assert lane.verify_seal(seal) == [
+        "manifest schema_version '1.0.0' is not readable by this reader "
+        f"({lane.SEAL_SCHEMA_VERSION})",
+        f"validator_relpath is None, expected {lane.SEAL_VALIDATOR_RELPATH!r}",
+        f"the seal does not carry {lane.SEAL_VALIDATOR_RELPATH} — strict "
+        "validation could not run",
+        f"the seal indexes no schema under {schemas} — strict validation "
+        "could not run",
+        f"validator_schema_count is None, but the seal indexes 0 schema(s) "
+        f"under {schemas}",
+        f"the seal does not carry {schemas}{lane.VALIDATOR_SNAPSHOT_SCHEMA}, "
+        "the schema the child validates against",
+        "validator_probe is None — the manifest does not record that the "
+        "sealed validator ran to a verdict",
+    ]
     assert lane.SEAL_SCHEMA_VERSION.split(".", 1)[0] == "2"
+
+
+def _rewrite_coherently(seal: Path, manifest: dict) -> None:
+    """Rewrite `manifest.json` after a tamper, with the files index and the
+    tree digest recomputed, so the only thing wrong is what the tamper did."""
+    manifest["files"] = lane.seal_file_index(seal)
+    manifest["tree_digest"] = lane.tree_digest(manifest["files"])
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+@pytest.mark.parametrize("tamper", ["schemas-removed", "count-disagrees",
+                                    "snapshot-schema-renamed",
+                                    "probe-unavailable"])
+def test_verify_refuses_a_validator_unit_that_is_not_whole(corpus, tmp_path,
+                                                           tamper):
+    """The intake requires the UNIT, not only its script (Copilot review of
+    #1162). The script alone exits 2 before it reads a snapshot. Each tamper is
+    made COHERENT, with the index and the tree digest recomputed, so a digest
+    check alone would pass it. The problems asserted are exactly what the
+    tamper did."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    assert lane.verify_seal(seal) == []
+    schemas_dir = seal / lane.SEAL_VALIDATOR_ROOT / lane.VALIDATOR_SCHEMAS_PATH
+    if tamper == "schemas-removed":
+        shutil.rmtree(schemas_dir)
+    elif tamper == "count-disagrees":
+        manifest["validator_schema_count"] = 5
+    elif tamper == "snapshot-schema-renamed":
+        (schemas_dir / lane.VALIDATOR_SNAPSHOT_SCHEMA).rename(
+            schemas_dir / "some-other.schema.yaml")
+    else:
+        manifest["validator_probe"] = dict(
+            manifest["validator_probe"],
+            outcome=snapshot_mod.VALIDATOR_UNAVAILABLE)
+    _rewrite_coherently(seal, manifest)
+    schemas = f"{lane.SEAL_VALIDATOR_ROOT}/{lane.VALIDATOR_SCHEMAS_PATH}/"
+    no_snapshot_schema = (
+        f"the seal does not carry {schemas}{lane.VALIDATOR_SNAPSHOT_SCHEMA}, "
+        "the schema the child validates against")
+    expected = {
+        "schemas-removed": [
+            f"the seal indexes no schema under {schemas} — strict validation "
+            "could not run",
+            f"validator_schema_count is 1, but the seal indexes 0 schema(s) "
+            f"under {schemas}",
+            no_snapshot_schema],
+        "count-disagrees": [
+            f"validator_schema_count is 5, but the seal indexes 1 schema(s) "
+            f"under {schemas}"],
+        "snapshot-schema-renamed": [no_snapshot_schema],
+        "probe-unavailable": [
+            f"validator_probe is {manifest['validator_probe']!r} — the "
+            "manifest does not record that the sealed validator ran to a "
+            "verdict"],
+    }[tamper]
+    assert lane.verify_seal(seal) == expected
 
 
 def test_verify_refuses_a_validator_revision_that_is_not_a_full_revision(
