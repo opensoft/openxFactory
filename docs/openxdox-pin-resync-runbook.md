@@ -89,8 +89,9 @@ drift when the real defect is a stale checkout.
   bytewise, each record followed by `\n`. `openxdox-pin-digest-mismatch`.
 
 Success prints one line, `OK openxdox-pin verified: openXdox@<commit>, gitlink
-read from <HEAD|index>, sorted-ls-tree-r-v1 tree digest recomputed (<digest>)`,
-and exits 0. Every refusal prints `REFUSE <code>: <detail>` and the REMEDIATION
+read from <source>, sorted-ls-tree-r-v1 tree digest recomputed (<digest>)`, and
+exits 0. `<source>` is `HEAD`, or `the index (staged, not yet committed)` when
+the gitlink is staged. Every refusal prints `REFUSE <code>: <detail>` and the REMEDIATION
 trailer to stderr and exits 2. The import guard's `ERROR` line is the one exit 2
 that carries no trailer. There is no exit 1.
 
@@ -113,8 +114,15 @@ print its result.
 § 4's comparison has one more non-zero outcome, `DIFFERENT`. That is a result,
 not a failure: it sends you down § 4's lockstep path.
 
+No block in this runbook carries a `#` comment, so each one pastes into zsh as
+well as bash. Interactive zsh does not treat `#` as a comment unless
+`INTERACTIVE_COMMENTS` is set. Without it, a trailing comment becomes arguments,
+and an assignment followed by one never sets its variable.
+
+The value below is a placeholder, not a commit. Replace it with the real one:
+
 ```sh
-NEW_SHA=0123456789abcdef0123456789abcdef01234567   # a placeholder: replace it
+NEW_SHA=0123456789abcdef0123456789abcdef01234567
 ```
 
 1. **Confirm the upstream is landed.** `NEW_SHA` must be on
@@ -206,17 +214,24 @@ NEW_SHA=0123456789abcdef0123456789abcdef01234567   # a placeholder: replace it
      that also edits the verifier keeps its line numbers too.
 6. **Check the lockstep consequence (§ 4) before staging.** It decides whether
    the openDox side moves in the same commit.
-7. **Stage deliberately**, with explicit paths, never `git add -A`. When § 4
-   reported DIFFERENT and the openDox side has been moved, stage its pair too:
+7. **Stage deliberately**, with explicit paths, never `git add -A`. ONLY when
+   § 4 reported DIFFERENT, and after the openDox side has been moved, first
+   stage its pair with `git add openDox contracts/opendox-pin.yaml`. Then run
+   this chain. It stops at the first link that fails, and then prints
+   `REFUSE` and returns non-zero:
 
    ```sh
-   git add openXdox contracts/openxdox-pin.yaml
-   # ONLY when section 4 reported DIFFERENT, after moving the openDox side:
-   #   git add openDox contracts/opendox-pin.yaml
-   git diff --cached --stat                # exactly the paths you mean
-   python3 scripts/verify-openxdox-pin.py  # "gitlink read from index"
-   python3 scripts/verify-opendox-pin.py   # its check 5 reads the STAGED openXdox gitlink
+   git add openXdox contracts/openxdox-pin.yaml &&
+     git diff --cached --stat &&
+     python3 scripts/verify-openxdox-pin.py &&
+     python3 scripts/verify-opendox-pin.py ||
+     { echo "REFUSE: staging or a pin verifier failed; stop here" >&2; false; }
    ```
+
+   `git diff --cached --stat` must list exactly the paths you mean. The openXdox
+   verifier then reports `gitlink read from the index (staged, not yet
+   committed)`. The openDox verifier's check 5 reads that STAGED openXdox
+   gitlink.
 
    `git add openXdox` is the act that records the new `160000` gitlink, and
    `git add openDox` records openDox's the same way. Stage each one only while
