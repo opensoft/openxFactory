@@ -136,19 +136,19 @@ digests:
 # beside it and never the referent.
 carve_commit: "b075fd91dc8fced8e1373825ba80220c33536bae"
 
-# openXdox carries NO `docs/pin-resync-runbook.md` of its own — unlike
-# openXwallet, whose pin names one. Its `## The lockstep invariant` section is
-# the procedure that exists and is what openXdox's OWN leg pins point at
-# (`contracts/code-pin.yaml`, `contracts/spec-pin.yaml`, both
-# `README.md#the-lockstep-invariant`), reached here through the mount exactly
-# as the wallet pin reaches `openXwallet/docs/pin-resync-runbook.md`. The
-# CARVE-time procedure — how this pin came to exist at all — is
-# `docs/opendox-cutover-runbook.md` § 7. A resync runbook written for THIS
-# consumption is owed and does not yet exist; naming a document that does not
-# exist would be worse than naming the gap.
-resync_runbook: "openXdox/README.md#the-lockstep-invariant"
+# The resync runbook for THIS consumption: `docs/openxdox-pin-resync-runbook.md`,
+# openxFactory's own procedure for every advance of this pin (authored on RULED
+# 5815412869, `#656`, 2026-09-24). Until it existed, this key named openXdox's
+# `README.md#the-lockstep-invariant` as a stand-in, because openXdox carries no
+# `docs/pin-resync-runbook.md` of its own, unlike openXwallet. That section is
+# still the procedure openXdox's OWN leg pins point at (`contracts/code-pin.yaml`,
+# `contracts/spec-pin.yaml`). The CARVE-time procedure, how this pin came to
+# exist at all, is `docs/opendox-cutover-runbook.md` § 7. The runbook covers
+# every advance after it, including the lockstep consequence an advance can
+# raise on the sibling `contracts/opendox-pin.yaml`.
+resync_runbook: "docs/openxdox-pin-resync-runbook.md"
 
 # NAMED here so the pin is running code rather than an obligation stated in
-# prose, matching the sibling pins' own `verify_pin:` key. Not yet wired into
-# any required check: a consumer gate that runs it is task 5.3, Phase 5.
+# prose, matching the sibling pins' own `verify_pin:` key. It runs on every PR
+# in `openxdox-consumer-gate` (task 5.3, #1059), required by ruleset 23554310.
 verify_pin: scripts/verify-openxdox-pin.py
