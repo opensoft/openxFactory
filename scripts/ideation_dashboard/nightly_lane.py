@@ -162,6 +162,34 @@ def _detail_lines(result, cap: int = 50) -> list[str]:
     return lines[:cap]
 
 
+def _pinned_validator() -> Path | None:
+    """The default pinned validator: the openxdox product's OWN, made runnable.
+
+    ASKED FROM THE MODULE, NEVER FROM THE AGGREGATION ROOT. This lane used to
+    ask `snapshot.find_validator(agg_root)`, which walked up for
+    `openxFactory/scripts/validate-ideation-dashboard-contracts.py`. The § 5.2
+    shed (`cc4ae9d3`) deleted that file from this repository, so the walk
+    already found nothing. From openXdox-code `e28930bf` on
+    (split-opendox-two-layer-product § 8.9 residue (iii)), the locator also
+    CONFINES: any start outside the product's own tree answers None. Called with
+    no start, it answers the validator that ships beside the generator which
+    rendered the snapshot, at the leg openxFactory pins.
+
+    FOUND IS NOT RUNNABLE. Run in place from the code leg, the script reads no
+    `contracts/` of its own and exits 2 before reading the snapshot, which
+    `validate_snapshot` reports as could-not-run. So it is composed with the
+    schemas the shed split from it by
+    `doxbench_contracts._composed_validator`, as
+    `delegated_semantic_validation` and the suite's `_shed_validator` already
+    do. The composer returns any other path unchanged.
+    """
+    found = snapshot_mod.find_validator()
+    if found is None:
+        return None
+    from ideation_dashboard import doxbench_contracts
+    return doxbench_contracts._composed_validator(found)
+
+
 def _write_status(boundary: OutputBoundary, out_dir: Path, payload: dict) -> Path | None:
     """Write the lane-status artifact. Its own failure must never take the
     lane down (the log line still reports the outcome)."""
@@ -258,10 +286,14 @@ def run_lane(
                         excluded_documents=excluded)
         snapshot_mod.write_snapshot(snap, candidate, boundary)
 
-        pinned = validator or snapshot_mod.find_validator(agg_root)
+        pinned = validator or _pinned_validator()
         if pinned is None:
-            return _skip("pinned openxFactory validator not found "
-                         f"({snapshot_mod.VALIDATOR_RELPATH} under {agg_root})", rev)
+            root = snapshot_mod.product_root()
+            where = (f"{root / snapshot_mod.VALIDATOR_RELPATH} does not exist"
+                     if root is not None else
+                     "openxdox is not running from a source checkout, so it "
+                     "ships no validator")
+            return _skip(f"pinned openxdox validator not found ({where})", rev)
         result = snapshot_mod.validate_snapshot(candidate, validator=pinned,
                                                 strict=strict)
         if not result.available:
@@ -642,9 +674,9 @@ def main(argv: list[str] | None = None) -> None:
                     help="pin the source_revision anchor "
                          "(default: the pinned checkout's HEAD sha)")
     ap.add_argument("--validator", default=None,
-                    help="pinned validator path (default: discovered as "
-                         f"{snapshot_mod.VALIDATOR_RELPATH} under the "
-                         "aggregation root)")
+                    help="pinned validator path (default: the pinned openxdox "
+                         f"product's own {snapshot_mod.VALIDATOR_RELPATH}, "
+                         "composed with its schemas)")
     ap.add_argument("--strict", action="store_true",
                     help="treat validator warnings as rejection")
     ap.add_argument("--repositories", default=None,
