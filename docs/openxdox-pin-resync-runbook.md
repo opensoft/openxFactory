@@ -308,21 +308,49 @@ openDox `dc7aa08f`, which equals openxFactory's own pin. That is why #1146 and
 
 ## 5. The gates to run before opening the pull request
 
-Two workflows read this pin on every pull request.
+Two workflows read this pin on every pull request. Run what they run, with the
+same flags. `-m "not postgres"` is part of every pytest line below; without it
+the selection, and so the floors, are not the gate's.
 
-- `.github/workflows/openxdox-consumer-gate.yml` does four things:
-  - it runs `git submodule update --init --recursive openDox openXdox`. This is
-    RECURSIVE, unlike the verifiers' own remediation, because
-    `tests/ideation-dashboard` reaches the legs through `scripts/carved_reach.py`;
-  - it runs both verifiers;
-  - it runs `pytest tests/opendox_pin tests/openxdox_pin`, whose floors are 105
-    selected, 105 passed and 0 skipped, plus four named verdicts, among them
-    `test_ruling_q7_two_direct_upstreams_in_lockstep` and
-    `test_the_real_pin_is_in_lockstep_with_openxdox_own_derived_reading`;
-  - it runs `pytest tests/ideation-dashboard`, whose floors are 1137, 1137 and 0.
-- `.github/workflows/pytest-suite.yml` runs the whole suite with `openXdox` and
-  `openDox` initialized recursively. Its floors are 7050 selected, 7044 passed
-  and exactly 6 skipped.
+**`.github/workflows/openxdox-consumer-gate.yml`**, the required
+`openxdox-consumer-gate`. It initializes RECURSIVELY, unlike the verifiers' own
+remediation, because `tests/ideation-dashboard` reaches the legs through
+`scripts/carved_reach.py`:
+
+```sh
+git submodule update --init --recursive openDox openXdox
+python3 scripts/verify-openxdox-pin.py
+python3 scripts/verify-opendox-pin.py
+python3 -m pytest tests/opendox_pin tests/openxdox_pin -q -m "not postgres" --junitxml=pin-suites-report.xml
+python3 -m pytest tests/ideation-dashboard -q -m "not postgres" --junitxml=consumer-suite-report.xml
+```
+
+- **The pin suites.** Floors: 105 selected, 105 passed, exactly 0 skipped. Four
+  named verdicts must each be `passed`:
+  - `tests.opendox_pin.test_opendox_pin_verifier::test_the_shipped_digest_is_recomputed_by_an_independent_implementation`
+  - `tests.opendox_pin.test_opendox_pin_verifier::test_the_real_pin_is_in_lockstep_with_openxdox_own_derived_reading`
+  - `tests.openxdox_pin.test_openxdox_pin_verifier::test_the_shipped_digest_is_recomputed_by_an_independent_implementation`
+  - `tests.openxdox_pin.test_openxdox_pin_verifier::test_ruling_q7_two_direct_upstreams_in_lockstep`
+- **The ideation suite.** Floors: 1137, 1137, exactly 0 skipped. One named
+  verdict: `tests.ideation-dashboard.test_lens::test_recipe_request_carries_recipe_and_reasoned_overrides`.
+
+**`.github/workflows/pytest-suite.yml`**, the required `pytest-suite`. It installs
+the pinned lock and the pinned OpenSpec CLI (`scripts/install-pinned-openspec-cli.py`),
+and it checks out the pinned decision core, `codeXfactory/codexFactory` at
+`b21f010013fa51960c77377a8582943435b6db32`:
+
+```sh
+git submodule update --init openXwallet
+git submodule update --init --recursive openXdox openDox
+PINNED_CORE_CHECKOUT=/absolute/path/to/that/codexFactory/checkout \
+  python3 -m pytest tests/ -q -m "not postgres" --junitxml=pytest-report.xml
+```
+
+- **Floors:** 7050 selected, 7044 passed, exactly 6 skipped.
+- **Named verdicts:** the freshness verifier and the vector replay
+  (`tests.review_lane_pin.test_floor_snapshot`) must each be `passed`.
+- **Without `PINNED_CORE_CHECKOUT`** both of those skip. That breaks the skipped
+  count and the named verdicts locally. It is not a finding about the pin.
 
 Measured at openxFactory `main` `dd2466ad`, 2026-09-24, in a checkout whose
 directory is named `openxFactory`:
@@ -359,10 +387,11 @@ runbook: "opensoft/openDox-code docs/runtime.md sections 5-6, …"
 
 `contracts/openxdox-pin.yaml` carries NO `migration:` field.
 
-The check below is run with the cwd in each repository and the commit as its
-argument. It FAILS CLOSED: a failing `ls-tree` prints `REFUSE` with git's own
-error and exits 1, and is never read as "0 paths". That is not true of the
-obvious `git ls-tree … | grep -i migrat`, which reports no hit either way.
+The check below is run with the cwd in a checkout of each repository, and with
+`COMMIT` set to that repository's full 40-hex commit. It FAILS CLOSED: a failing
+`ls-tree` prints `REFUSE` with git's own error and exits 1, and is never read as
+"0 paths". That is not true of the obvious `git ls-tree … | grep -i migrat`,
+which reports no hit either way.
 
 ```sh
 python3 -c 'import subprocess, sys
@@ -376,7 +405,7 @@ if run.returncode != 0:
 hits = [n for n in run.stdout.splitlines() if "migrat" in n.lower()]
 for n in hits:
     print(n)
-print(f"{len(hits)} path(s) containing migrat")' <full 40-hex commit>
+print(f"{len(hits)} path(s) containing migrat")' "$COMMIT"
 ```
 
 On 2026-09-24 it prints `0 path(s) containing migrat` for each of openXdox
@@ -420,7 +449,8 @@ own header records exactly that before/after measurement at its `dc7aa08f` bump.
 ## 8. The rule in one sentence
 
 **Three things name one commit and move in one commit**: the `openXdox`
-gitlink, and this pin's `commit:` and `digests.tree_sha256`. Add openDox's
+gitlink, and this pin's `commit:` and `digests.tree_sha256`. Any prose line of
+the pin that names the old sha moves with them (§ 3 step 5). Add openDox's
 gitlink and `contracts/opendox-pin.yaml` to that same commit whenever the
 advance changes what `openXdox/contracts/opendox-pin.yaml` derives.
 `scripts/verify-openxdox-pin.py` holds the first invariant.
