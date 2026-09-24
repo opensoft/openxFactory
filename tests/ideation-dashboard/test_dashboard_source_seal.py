@@ -433,6 +433,41 @@ def test_a_unit_entry_that_is_not_a_regular_file_is_refused_by_name(
     assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
 
 
+@pytest.mark.parametrize("answer", ["git-fails", "not-a-full-revision"])
+def test_a_product_revision_that_cannot_be_read_refuses_the_seal(
+        corpus, tmp_path, answer):
+    """The manifest promises WHICH product revision the sealed validator came
+    from. A unit resolved from a product tree whose HEAD cannot be read as a
+    full revision is refused. It is never sealed with a null revision (Copilot
+    review of #1162). Only a unit with no product tree at all records none,
+    which is what the stub unit seals. The runner answers the one product
+    read here, so no real tree has to be broken to ask it."""
+    stub = _stub_validator(tmp_path / "unit")
+    product = tmp_path / "product"
+    product.mkdir()
+    pinned = lane.PinnedValidator(runnable=stub.runnable, product_root=product)
+    asked = ("git", "-C", str(product), "rev-parse", "HEAD")
+
+    def runner(argv, **kw):
+        if tuple(str(a) for a in argv) == asked:
+            if answer == "git-fails":
+                return lane.CommandResult(asked, 128, "",
+                                          "fatal: not a git repository")
+            return lane.CommandResult(asked, 0, "abc1234\n", "")
+        return lane.subprocess_runner(argv, **kw)
+
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal", runner=runner,
+              resolve_validator=lambda: pinned)
+    reason = str(refused.value)
+    assert reason.startswith("could not resolve the pinned product's revision "
+                             f"at {product} to a commit")
+    assert ("(read nothing)" if answer == "git-fails"
+            else "(read 'abc1234')") in reason
+    assert "provenance would go unrecorded" in reason
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+
+
 def test_the_one_run_is_of_the_sealed_copy_over_the_probe(corpus, tmp_path,
                                                           monkeypatch):
     """What the parent runs is the SEALED copy, from inside the seal. It is not
@@ -1001,6 +1036,24 @@ def test_verify_refuses_the_1x_layout_that_sealed_the_validator_in_the_corpus(
     assert any(lane.SEAL_VALIDATOR_RELPATH in problem and "could not run" in problem
                for problem in problems)
     assert lane.SEAL_SCHEMA_VERSION.split(".", 1)[0] == "2"
+
+
+def test_verify_refuses_a_validator_revision_that_is_not_a_full_revision(
+        corpus, tmp_path):
+    """Null is what a unit with no product tree records, and it verifies. A
+    revision that IS recorded must be a full one. The seal refuses to write
+    anything else, so a manifest carrying anything else was not written by
+    it."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    assert manifest["validator_revision"] is None
+    assert lane.verify_seal(seal) == []
+    manifest["validator_revision"] = "abc1234"
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    assert lane.verify_seal(seal) == [
+        "validator_revision is 'abc1234', expected a full commit revision or "
+        "null"]
 
 
 # ---------------------------------------------------------------------------

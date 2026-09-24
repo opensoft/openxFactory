@@ -1257,8 +1257,9 @@ def _validator_said(result) -> str:
 def seal_validator(seal_root, pinned: PinnedValidator, *,
                    runner=subprocess_runner) -> dict:
     """Copy the pinned validator's composed unit into the seal, then RUN the
-    sealed copy once. It returns the manifest's validator fields and raises
-    `SealRefused` when the sealed copy cannot run.
+    sealed copy once. It returns the manifest's validator fields. It raises
+    `SealRefused` when the product's revision cannot be read, when the unit
+    cannot be copied whole, or when the sealed copy cannot run.
 
     REGULAR FILES ONLY. The composed unit is a script COPY beside schema LINKS
     to the pinned bytes. `upload-artifact@v4` preserves no symlink, and
@@ -1276,6 +1277,22 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
     thing it reads: the probe's own verdict is a finding by construction, and
     it is never a verdict on the corpus. The probe lives in a scratch directory
     outside the seal, so nothing it touches is sealed."""
+    # WHICH PRODUCT REVISION the copy comes from, read FIRST. A unit resolved
+    # from a product source tree records that tree's HEAD. A HEAD that cannot
+    # be read as a full revision REFUSES the seal, because the manifest
+    # promises that provenance and a null would silently drop it. Only a unit
+    # with no product tree at all (an injected stand-in) records none.
+    revision = None
+    if pinned.product_root is not None:
+        head = (git_head_revision(pinned.product_root, runner=runner)
+                or "").strip().lower()
+        if not _FULL_REVISION_RE.match(head):
+            read = repr(head) if head else "nothing"
+            raise SealRefused(
+                "could not resolve the pinned product's revision at "
+                f"{pinned.product_root} to a commit (read {read}) — the sealed "
+                "validator's provenance would go unrecorded")
+        revision = head
     root = Path(seal_root) / SEAL_VALIDATOR_ROOT
     script = root / VALIDATOR_SCRIPT_PATH
     script.parent.mkdir(parents=True)
@@ -1314,11 +1331,6 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
             "the sealed validator could NOT RUN, so the child's --strict "
             f"could not run it either: {result.unavailable_reason}"
             + (f" — it said: {said}" if said else ""))
-    revision = None
-    if pinned.product_root is not None:
-        head = (git_head_revision(pinned.product_root, runner=runner)
-                or "").strip().lower()
-        revision = head if _FULL_REVISION_RE.match(head) else None
     return {
         "validator_relpath": SEAL_VALIDATOR_RELPATH,
         "validator_revision": revision,
@@ -1356,7 +1368,8 @@ def seal_source(
         BEFORE the corpus is archived, since the corpus no longer supplies it;
       * an archive whose own recorded commit is not `source_head` seals
         nothing;
-      * a sealed validator that cannot RUN seals nothing;
+      * a validator whose product revision cannot be read, whose unit cannot
+        be copied whole, or whose sealed copy cannot RUN seals nothing;
       * a recipe that cannot be read seals nothing.
     Only a seal that passed all six gets a `manifest.json`, and the manifest's
     presence is therefore the artifact's own statement that the parent stands
@@ -1609,6 +1622,15 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
         problems.append(
             f"the seal does not carry {SEAL_VALIDATOR_RELPATH} — strict "
             "validation could not run")
+    # Null only for a unit with no product tree; anything else it records must
+    # be a full revision, which the seal refuses to write otherwise.
+    validator_revision = manifest.get("validator_revision")
+    if validator_revision is not None and not (
+            isinstance(validator_revision, str)
+            and _FULL_REVISION_RE.match(validator_revision)):
+        problems.append(
+            f"validator_revision is {validator_revision!r}, expected a full "
+            "commit revision or null")
     if manifest.get("recipe_relpath") not in files:
         problems.append("the seal does not carry the build recipe")
     return problems
