@@ -3,7 +3,8 @@
 **Feature Branch**: `034-opendox-standalone-operation`
 **Created**: 2026-09-24
 **Status**: Draft (planning). 11 of the 23 clarify questions are answered,
-including every question phase 1 needed; 12 are open for phases 2–3.
+including every question phase 1 needed. 12 are open, and phases 2–3 are
+PROVISIONAL until they are answered.
 **Realizes**: RELEASE 1, "standalone operation", phases 1–3, of the
 openxFactory OpenSpec change `add-neutral-product-standalone-operability`
 (#1144, landed `94b6f7f1`). The phases follow that change's RULED release map
@@ -295,7 +296,11 @@ suite pass.
 - The plain repository yields no grouping, candidate or selection tile, so the
   chat pane cannot be opened at all (R1Q13).
 - The served model-catalog route validates against openxFactory's
-  `doxbench_contracts`, so it fails closed without them (R1Q10, R1Q12).
+  `doxbench_contracts` until T085 lands, so it fails closed without them
+  today (research R15). T027's seam then makes it fail closed naming itself
+  when nothing is registered. From T085 on, a standalone install validates
+  with openDox's own packaged validators, and the route answers (R1Q10,
+  R1Q12).
 - Lane 4's in-flight C3 edits 7.3's file and moves openxFactory's openXdox pin,
   and C4 writes the openXdox pin runbook. Both must be sequenced around, never
   duplicated (plan.md § "In-flight overlaps").
@@ -472,10 +477,13 @@ oracle's own header records.
   archive needs BOTH releases' evidence (`5800995035` answer 2), so landing
   release 1 archives and promotes nothing.
 - The eleven answers of `5817152735` are applied in this revision, so phase 1
-  is planned on its answers. The open questions (R1Q10–R1Q19, R1Q21, R1Q23) are
-  applied by T004 before any task they block. Phases 2 and 3 stay written
-  CONDITIONALLY on the recommended options, and each conditional step names its
-  question.
+  is planned on its answers.
+- The open questions (R1Q10–R1Q19, R1Q21, R1Q23) are applied by T004 before
+  any task they block.
+- Phases 2 and 3 are PROVISIONAL. They are drafted on the recommended
+  options, and each conditional step names its question. They authorize no
+  implementation until they are re-planned on their answers and T006 has
+  re-run.
 - Lane 4's own acts C1, C3 and C4 (`#656` `5815604830`, `5815613524`,
   `5815620605`) are in flight, and this feature neither duplicates nor
   pre-empts them.

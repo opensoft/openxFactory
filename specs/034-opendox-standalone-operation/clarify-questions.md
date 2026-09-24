@@ -18,7 +18,8 @@ code.
 - **OPEN** (R1Q10–R1Q19 and R1Q21, which bear on phases 2–3 and on process).
   Also **R1Q23**, which R1Q6's answer raises for phase 2. Where one of these
   carries a recommendation, it is a recommendation only. Every task it blocks
-  names it on a `Blocked by:` line.
+  names it on a `Blocked by:` line. Until they are answered, phases 2 and 3 are
+  PROVISIONAL in the plan and authorize no implementation.
 
 **Naming.** These are `R1Q1`…`R1Q23`. A bare `Q<n>` in this estate already names
 one of #1144's own rulings (RULING Q1, RULING Q2, Q-R4, DIRECTION Q5), so this
@@ -435,7 +436,7 @@ passes F5.3 fails F7.2. As written, neither can pass beside the other.
 
 ---
 
-## R1Q12 — Which snapshot schema does openDox's validator own, and how does a spec-leg schema reach the code leg's package? *(blocks T051, T053, T057, T058, T085, T095; phases 2–3)* — **OPEN**
+## R1Q12 — Which snapshot schema does openDox's validator own, and how does a spec-leg schema reach the code leg's package? *(blocks T051, T053, T057, T058, T081, T085, T095; phases 2–3)* — **OPEN**
 
 **Measured.** The post-render validator's subject is the rendered snapshot
 (`ideation-dashboard-snapshot`), whose schema lives in openXdox-spec. openDox-spec's

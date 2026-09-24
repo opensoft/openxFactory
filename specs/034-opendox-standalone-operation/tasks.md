@@ -55,7 +55,12 @@ been claimed (T002). **T020** and **T030** never needed an answer. **T030** is
 authored with T011 and lands with it, because it fails until 2.1 lands.
 
 The holder tasks **T002**, **T003**, **T005**, **T006** (its round-1a run),
-**T007** and **T008** can start now. Phases 2 and 3 still wait on R1Q10–R1Q19 and R1Q23, which stay OPEN.
+**T007** and **T008** can start now.
+
+**Phases 2 and 3 are PROVISIONAL.** They are an outline and authorize no
+implementation. They wait on R1Q10–R1Q19 and R1Q23, which stay OPEN. Before
+any of their tasks starts, T004 encodes the phase's answers, the phase is
+re-planned, and T006 re-runs analyze (plan.md § Summary).
 
 ---
 
@@ -84,7 +89,8 @@ The holder tasks **T002**, **T003**, **T005**, **T006** (its round-1a run),
   - Hand every answer that amends a #1144 falsifier or task line to T007.
   - Bring any answer that would change a requirement's or a scenario's text
     back to Brett as RULING NEEDED (plan.md § "Ruling needed").
-  - Re-plan `plan.md` and this file on the answers.
+  - Re-plan the phase the answers belong to, in `plan.md` and in this file.
+    Phases 2 and 3 are provisional until then.
 
   **Round 1a is DONE in this revision**: the eleven answers of `5817152735`
   (R1Q1–R1Q9, R1Q20, R1Q22). The box stays open for R1Q10–R1Q19, R1Q21 and
@@ -95,7 +101,8 @@ The holder tasks **T002**, **T003**, **T005**, **T006** (its round-1a run),
 - [ ] T006 **Analyze, once per round.** Run `/speckit-analyze` over spec, plan
   and tasks after each round of answers is encoded. No CRITICAL finding may
   stand before a realization task of that round's phases starts (the
-  constitution's workflow gate). Round 1a's run gates phase 1.
+  constitution's workflow gate). Round 1a's run gates phase 1. Each
+  provisional phase gets its own run after its re-plan.
   - **After**: T004 (the round's encoding).
 - [ ] T007 [oxF] **Record the ruled amendments in #1144's `tasks.md`, and one
   addendum in its `design.md`.** The answers of `5817152735` amend falsifiers,
@@ -210,13 +217,14 @@ script exists. openxFactory is unchanged in behaviour.
     scenario with (ii). It holds nothing in T016, because the after-build
     refusal is existing behaviour.
   - **After**: T015, T012 (Lane A's last `serve.py` edit).
-- [ ] T017 [P] [US4] [oxF] **3.3, read-only.** At every openxFactory arc
+- [ ] T017 [US4] [oxF] **3.3, read-only.** At every openxFactory arc
   landing, confirm that the carve manifest's `deleted_at_carve` row for
   `scripts/ideation_dashboard/profile_openxfactory.py` is byte-identical. F11.1's
   content check already refuses any row change, so T093's run is the evidence.
   - **Realizes**: 3.3.
   - **Falsifier**: F11.1 (interim, T093).
-  - **After**: —.
+  - **After**: T047, which is phase 1's openxFactory landing. It is re-run
+    after T064 and T094.
 
 ### Lane C: the home-corpus seam
 
@@ -507,6 +515,10 @@ script exists. openxFactory is unchanged in behaviour.
 
 ## Phase 2: useful alone (US2 and US4)
 
+**PROVISIONAL.** This phase is an outline and authorizes no implementation.
+It is re-planned, and re-analyzed (T006), once T004 has encoded its answers:
+R1Q10–R1Q14 and R1Q23.
+
 **Goal**: with no consumer installed, openDox generates its own neutral
 snapshot from a plain repository, serves it standalone, and validates it
 against schemas that are on disk. The governed projection is unchanged.
@@ -645,6 +657,10 @@ against schemas that are on disk. The governed projection is unchanged.
 
 ## Phase 3: it installs (US3 and US4)
 
+**PROVISIONAL.** This phase is an outline and authorizes no implementation.
+It is re-planned, and re-analyzed (T006), once T004 has encoded its answers:
+R1Q10, R1Q12 and R1Q15–R1Q19.
+
 **Goal**: one documented command installs and starts the whole product, with
 its bundled datastore, the local mode, the served bundle, and chat with a clear
 no-model state. `consumer_reach.py` is gone.
@@ -741,19 +757,20 @@ no-model state. `consumer_reach.py` is gone.
   - **Blocked by**: R1Q17, R1Q18.
   - **Ruled**: R1Q22 (a).
   - **After**: T079.
-- [ ] T081 [P] [US3] [oDc] **16.4: "no model configured" is a state.**
+- [ ] T081 [US3] [oDc] **16.4: "no model configured" is a state.**
   - With no binding and no harness, the catalog offers no available entry.
   - The chat rail shows "no model configured" AND how to configure one, before
     any turn. Today's copy (research R15) does not name how.
   - A turn is refused `model_capability_unavailable` before any spawn or
     contact.
   - The harness route stays, for an install where it is present.
-  - The SERVED catalog route answers standalone; that needs T085.
+  - The SERVED catalog route answers standalone. That needs T085's
+    validators, so T081 lands after T085.
   - **Realizes**: 16.4.
   - **Falsifier**: F16.1's catalog block; `tests/test_chat_model_configuration.py`.
-  - **Blocked by**: R1Q10.
+  - **Blocked by**: R1Q10; R1Q12, for the served route (through T085).
   - **Ruled**: R1Q22 (a).
-  - **After**: T063.
+  - **After**: T063, T085.
 - [ ] T082 [US3] [oDc] **16.5: every other surface works with no model.** The
   named test covers documents, generation, the views, sessions and saving.
   - **Realizes**: 16.5.
@@ -870,6 +887,8 @@ no-model state. `consumer_reach.py` is gone.
   no trailer.
   - **Realizes**: F11.1, which is ticked at ARC close.
   - **Ruled**: R1Q2 (a), R1Q20 (a).
+  - **After**: each phase's openxFactory landing, with one run after each:
+    T047, T064 and T094.
 
 ---
 
@@ -982,19 +1001,20 @@ Every release-1 box, with the task that closes it:
   T062 (the phase-2 openDox root pin) after T054–T058; T059 after T052, T055
   and T062; T060 after T054; T061 after C3; T064 after T059–T062; T063 after
   T064.
-- **Phase 3**: Group 13 (T071 → T070 → T072 → T073 → T074) ∥ Group 16's
-  binding slice (T078 → T079 → T080) ∥ T081 ∥ T084 → T085 ∥ T075 → T077; then
-  T082 and T083; then T087 (the phase-3 openDox root pin) → T086 → T094 →
-  T089.
+- **Phase 3**: Group 13 (T071 → T070 → T072 → T073 → T074), with T084 after
+  T073 for `serve.py`. In parallel: Group 16's binding slice (T078 → T079 →
+  T080), T085 → T081, T075 → T077, and T088. Then T082, which comes after
+  T081, T084 and T085, and T083. Then T087 (the phase-3 openDox root pin) →
+  T086 → T094 → T089.
 - **Acceptance**: T095 → T096 → T097.
 
 ### Parallel slices, summarised
 
 | phase | runs in parallel | is serialized |
 |---|---|---|
-| 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 ∥ T017 | `serve.py` and `cli.py` writers; T032 → T037; T039 (root pin) → openXdox (T040–T044) → T047 |
+| 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; T032 → T037; T039 (root pin) → openXdox (T040–T044) → T047 → T017, T093 |
 | 2 | T050 ∥ T052 ∥ T057 (∥ T053) | T054 → T055 → T056 → T058; T062 → T059 → T064; ratchet writers |
-| 3 | Group 13 ∥ 16.1–16.3 ∥ 16.4 ∥ 4.3's end (T084–T085) ∥ T075 | `serve.py` (T073 before T084); `doxbench_binding.py` (T078 → T080); T087 → T086 → T094 |
+| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T075 ∥ T088 | `serve.py` (T073 before T084); `doxbench_binding.py` (T078 → T080); T085 → T081; T087 → T086 → T094 |
 
 ## Phase 1 writer slices (for the fan-out)
 

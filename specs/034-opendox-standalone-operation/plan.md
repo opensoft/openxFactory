@@ -28,12 +28,19 @@ were put to Brett as `R1Q1`–`R1Q22`, and one answer raised `R1Q23`.
   needed (`#656`, `5817152735`: *"(a) on all eleven, (d) on R1Q6"*). See
   § "Ruled answers", which also records the one scenario text they touch
   (RN-1).
-- **Phases 2 and 3 stay CONDITIONAL.** The questions still open (R1Q10–R1Q19,
-  R1Q21, R1Q23) are planned on their recommended options, and each
-  conditional step names its question.
+- **Phases 2 and 3 are PROVISIONAL, and they authorize no implementation.**
+  They are an outline, kept for sequencing, for the release-wide box
+  accounting, and for the questions that planning them raised. The questions
+  still open (R1Q10–R1Q19, R1Q21, R1Q23) belong to them, and they are drafted
+  on the recommended options, each conditional step naming its question.
+  Before any task of phase 2 or phase 3 starts, three things happen:
+  1. T004 encodes that phase's answers.
+  2. This plan and `tasks.md` are re-planned for that phase.
+  3. T006 re-runs `/speckit-analyze`, and it finds nothing CRITICAL.
 
-T004 re-plans on each round of answers, and T006 (`/speckit-analyze`) gates
-each round's implementation.
+So the constitution's workflow gate, *"material ambiguities MUST be resolved
+before planning"*, holds for everything this plan authorizes, which is phase
+1.
 
 ## Technical Context
 
@@ -80,7 +87,7 @@ Round 1a is this revision.*
 | V. Validation gates | PASS for this PR | `openspec validate --all --strict` is run from the worktree root before the push (this feature adds no OpenSpec change). Implementation evidence is falsifier output, quoted. |
 | VI. Versioned releases | WATCH | 9.5 says *"none cuts a contract bundle"*. R1Q11 (a) would add an openDox-spec schema, which is probably a `dox-v1.1` minor at the openDox root; if so, that release follows the root's own four-value rule. |
 | VII. Fail-closed authority | PASS | Every seam refuses naming itself when nothing is registered (4.2's discipline). The hosted mode refuses without an issuer. An unknown dialect is refused. |
-| Workflow: *"material ambiguities MUST be resolved before planning"* | **DEVIATION, recorded; RESOLVED for phase 1** | The brief asked for the plan before the answers, and forbade resolving ambiguities by assumption. Phase 1's eleven questions are now answered (`5817152735`). Phases 2–3 stay conditional: a task blocked by an open R1Q may not start, T004 re-plans on each round, and T006 gates each round. See Complexity Tracking. |
+| Workflow: *"material ambiguities MUST be resolved before planning"* | **PASS for phase 1; phases 2–3 PROVISIONAL** | This plan authorizes only phase 1 for implementation, and every material ambiguity in phase 1 is resolved (`5817152735`). Phases 2–3 are a provisional outline that authorizes nothing. Each is planned for implementation only after T004 encodes its answers, the phase is re-planned, and T006 re-runs analyze. A task blocked by an open R1Q never starts (FR-012). See Complexity Tracking. |
 
 ## Project Structure
 
@@ -176,23 +183,25 @@ T001–T008 (holder: claims, ARC_BASE, answers, analyze, #1144 amendments, the d
                  E: T030 (the import test; lands with T011)
                         └───────── join ─────────┘
                  T032 (2.3 sweep) → T034 (repair 9 files) → T035 → T036 (+ T031) → T037
-                 T038 (10.1, Q-R4)  after B
+                 T038 (10.1, Q-R4)  after B and T022
           [oD]   T039 root pin (T090 steps 1–2)  after T022, T032, T037, T038
           [oXc]  T040 (pin, residue) → T041 (declared exclusion) → T042 (9.3) → T043 → T044
           [oX]→[oxF]  T047 consumer pins (steps 5–6), carrying T045 + T046 host wiring
           checkpoint T049 (after T007 batches A, B);  holder T048 (F4 re-measure)
- PHASE 2  [oDc]  T050 → T051  ∥  T052  ∥  T057   (∥ T053 [oDs] if R1Q11 (a))
+ PHASE 2 (PROVISIONAL)
+          [oDc]  T050 → T051  ∥  T052  ∥  T057   (∥ T053 [oDs] if R1Q11 (a))
                  T054 (projection) → T055 (sources, 4.3 part) → T056 → T058 (validator)
           [oD]   T062 root pin  after T054–T058
           [oXc]  T059 (5.4a) after T052, T055, T062;  T060 (5.3a re-run) after T054
                  T061 (7.3) after C3's PR 2 lands
           [oX]→[oxF]  T064 consumer pins;  checkpoint T063 (after T007 batch C)
- PHASE 3  [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080 ∥ T081
-                 4.3 end: T084 → T085                T075 → T077;  T082, T083, T088
+ PHASE 3 (PROVISIONAL)
+          [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080;  T085 → T081
+                 4.3 end: T084 (after T073)          T075 → T077;  T082, T083, T088
           [oD]   T087 root pin, then T076 (README) after the command's final form (R1Q15)
           [oXc]  T086 (columns, ratchet (0,0)) at the pin T087 carries
           [oX]→[oxF]  T094 consumer pins + host wiring;  checkpoint T089
- ACCEPTANCE      T095 (HTTP, CI) ∥ T096 (browser)  →  T097 (bookkeeping, Rule 6)
+ ACCEPTANCE      T095 (HTTP, CI)  →  T096 (browser)  →  T097 (bookkeeping, Rule 6)
  EVERY PHASE     T090 pins · T091 trailer · T092 notes · T093 interim F11.1
 ```
 
@@ -218,8 +227,9 @@ rebases onto the previous slice's landing before it opens.
   (T052), the validator input set (T057) and the neutral schema (T053), if
   R1Q11 (a) is chosen.
 - **Phase 3 parallel lanes**: Group 13 (T070–T074), the Group 16 binding
-  (T078–T080), the no-model state (T081), the retirement of the late reaches
-  (T084–T086), and entry-point serving (T075).
+  (T078–T080), the doxBench defaults and then the no-model state (T085 →
+  T081), the retirement of the late reaches (T084, after T073; then T086), and
+  entry-point serving (T075).
 
 ## Pins and landing order (9.5): one openDox-code commit per phase, everywhere
 
@@ -375,6 +385,6 @@ session's scratch space. That persistence is recorded in the PR body.
 
 | deviation | why it is needed | the simpler alternative, and why it was rejected |
 |---|---|---|
-| Planning with material ambiguities open (constitution workflow: *"resolved before planning"*). There were 22; 12 remain for phases 2–3 after `5817152735` | The brief asked for the plan before the answers, and forbade resolving by assumption. Phase 1's eleven are now answered. | Waiting for every answer before planning would serialize the holder's time behind the questions. The conditional plan names every assumption, T004 re-plans on each round, and T006 gates each round. |
+| Keeping phases 2–3 in this feature as a PROVISIONAL outline while 12 questions are open. The constitution's workflow asks that material ambiguities be *"resolved before planning"* | The box accounting, the pin chain and the single-writer order span all three phases, and planning them is what found the questions. The outline authorizes no implementation, so the gate holds for everything the plan authorizes (phase 1). | Dropping phases 2–3 from this feature now would lose the release-wide accounting. They can still move to their own feature when they are re-planned, which is R1Q21's pattern. |
 | A handler-contribution mechanism (R1Q1 (a), ruled), which is new mechanism against design.md § D4 | The existing seam provably cannot carry a mixin's methods (`route_extension.py:60`). T007 batch A records D4's addendum. | Keeping a forwarding stand-in (R1Q1 (c)) is the pattern 4.3 retires. |
 | A second pin chain step inside each phase (openXdox-code's pyproject pin brought to the root's commit) | Without it, openxFactory and openXdox-code test different openDox bytes (research R13). | Leaving the pins divergent means 9.3's integration run measures a composition nobody ships. |

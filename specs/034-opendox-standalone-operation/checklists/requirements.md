@@ -23,6 +23,8 @@ before implementation starts.
       questions phase 1 needed are answered (`#656` `5817152735`) and encoded
       in spec.md § Clarifications. Twelve remain open for phases 2–3:
       R1Q10–R1Q19, R1Q21 and R1Q23. T004 encodes them as they are answered.
+      Until then, phases 2–3 are PROVISIONAL and authorize no
+      implementation.
 - [x] Every requirement can be tested. Each FR cites #1144's own falsifier.
 - [x] The success criteria can be measured: every one is a falsifier's exit
       status, or AT-R1's.
