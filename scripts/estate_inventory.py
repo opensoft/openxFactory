@@ -307,17 +307,19 @@ COMMIT_RE = re.compile(r"^[0-9a-fA-F]{40}$")
 #: no `protocol.*.allow` config beside it — so a list naming none refuses every
 #: transport even where the repository's own config allows them all, and a
 #: lazy fetch from a partial clone's promisor remote FAILS instead of reaching
-#: the network. MEASURED (`admit-code-leg-under-pinned-root`'s `design.md` D0.6,
-#: and again on this branch's git, `2.43.0-1ubuntu7.3`): `fatal: transport
-#: 'file' not allowed`, exit 128, and the blob still absent after. `none` names
-#: no transport git carries and no remote helper this estate installs.
+#: the network. MEASURED on the Ubuntu `1:2.43.0-1ubuntu7.3` build of git
+#: (`admit-code-leg-under-pinned-root`'s `design.md` D0.6, and again on this
+#: branch): `fatal: transport 'file' not allowed`, exit 128, and the blob still
+#: absent after, on a clone whose own config allows every transport as on one
+#: that does not. `none` names no transport git carries and no remote helper
+#: this estate installs. THIS IS THE GUARD RELIED ON.
 #:
-#: `GIT_NO_LAZY_FETCH=1` RIDES BESIDE IT AND IS NOT THE GUARD. A git that
-#: honours it declines the lazy fetch before any transport is consulted, and one
-#: that predates it ignores it: this branch's git HONOURS it (`warning: lazy
-#: fetching disabled`, exit 128, the blob still absent), where that D0.6
-#: recorded a 2.43.0 that fetched anyway. The allow-list is the refusal every
-#: git this estate runs honours, so it is the one the tests prove holds ALONE.
+#: `GIT_NO_LAZY_FETCH=1` RIDES BESIDE IT AND IS A BUILD-DEPENDENT EXTRA, NOT THE
+#: GUARD. On that same build it ALSO refuses the fetch (`warning: lazy fetching
+#: disabled`, exit 128, the blob still absent), but whether a git honours it
+#: depends on the build — one that predates the variable ignores it — so
+#: nothing here rests on it, and the tests prove the allow-list holds ALONE,
+#: with `GIT_NO_LAZY_FETCH` removed.
 _NO_TRANSPORT = "none"
 
 #: THE MODES A COMMIT'S `.gitmodules` ENTRY MAY CARRY TO BE READ: a regular file.
