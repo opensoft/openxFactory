@@ -553,7 +553,9 @@ script exists. openxFactory is unchanged in behaviour.
   floors T043 re-pinned. Each of the six skips defers *"`doc_health`
   reachability"*. Each one either asserts for real, or its file joins T041's
   declared exclusion with that reason (R1Q6 (d)). No skip is left carrying the
-  gap.
+  gap. A file that joins the exclusion here lowers the collected counts, so
+  T044 first re-pins T043's floors over the new whole suite less the
+  exclusion, and then restores the margin.
   - **Realizes**: 9.4 (part).
   - **Falsifier**: the triple.
   - **Ruled**: R1Q6 (d).
