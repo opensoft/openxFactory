@@ -3612,11 +3612,12 @@ def test_the_real_repository_answers_at_the_ruled_path() -> None:
 #
 # WHY THE WHOLE WINDOW IS HERE AND NOT A SAMPLE. The aggregate assertion —
 # `(2366, 176)` AS SLICE S7 LANDED IT, which is the figure § 3 of the test
-# below pins as `1584 + 782`, and `(2717, 176)` today, the figure
+# below pins as `1584 + 782`, and `(2743, 177)` today, the figure
 # `test_the_real_manifest_carries_the_ruled_q_l7_amendment` asserts after S8's
 # forty, the pre-existing `openxdox_code` annotation's forty-eight, the
-# retirement act's hundred and sixty-seven, RULED Q7's eighty-nine and this
-# residue's seven — would still pass if any of these 782 lines had landed on the
+# retirement act's hundred and sixty-seven, RULED Q7's eighty-nine, this
+# residue's seven and the § 8.9 residue's twenty-six — would still pass if any
+# of these 782 lines had landed on the
 # wrong row, under the wrong class, or as a different set summing to the same
 # total — which is the reason every slice since ASK-7 has pinned its own window
 # by row and class. S7 edits 33 rows where S5 edited 11, so the pins are a TABLE
@@ -4173,7 +4174,18 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # never its source, which is the rule the Q7 paragraph above states for
     # its own figures and the rule the manifest header's movement paragraph
     # states for all of them.
-    assert (lines, carrying) == (2717, 176), (lines, carrying)
+    #
+    # AND THEN THE § 8.9 RESIDUE ANNOTATION (the archived
+    # `split-opendox-two-layer-product`, RULED Q-P3 (a), `#656` comment
+    # `5728856581`) moves BOTH figures, the first act since slice S7 to move
+    # `carrying`: 26 `path constants` lines over two `openxdox_code` rows —
+    # 16 on `scripts/ideation_dashboard/snapshot.py`, which CONVERTS
+    # `moved_verbatim` -> declared and so becomes a carrier, and 10 on
+    # `scripts/validate-ideation-dashboard-contracts.py`, a carrier since the
+    # carve. 2717 + 26 = 2743 on 176 + 1 = 177 rows, SUMMED over the document
+    # like every figure above; its window is pinned by row, class and line in
+    # `test_the_real_manifest_carries_the_snapshot_validator_residue_declared_edits`.
+    assert (lines, carrying) == (2743, 177), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -4181,7 +4193,8 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # THE ASK-7 WINDOW'S OWN FOUR LINES, PINNED BY ROW AND CLASS (Copilot
     # review, PR #995) — the aggregate above, `(1422, 158)` on the day this pin
     # was written, `(1761, 159)` at the RULED Q-L7 (a) amendment,
-    # `(2621, 176)` before RULED Q7's CSS extraction and `(2717, 176)` today,
+    # `(2621, 176)` before RULED Q7's CSS extraction, `(2717, 176)` before the
+    # § 8.9 residue annotation and `(2743, 177)` today,
     # would still pass if these four had
     # landed on the wrong rows, under the wrong class, or as a different four
     # line numbers that happened to sum to the same total. The dated figures are
@@ -4203,9 +4216,10 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # THE § 3.4 SLICE-S8 ANNOTATION'S OWN FOURTEEN ENTRIES, PINNED BY ROW,
     # CLASS AND EXACT LINES — on the same reasoning as the ASK-7 and S3 pins:
     # the aggregate (`(2406, 176)` AS SLICE S8 LANDED IT — `2366 + 40`, the
-    # sum stated four hunks above — and `(2717, 176)` today, after the
+    # sum stated four hunks above — and `(2743, 177)` today, after the
     # pre-existing `openxdox_code` annotation, the retirement act, RULED Q7's
-    # CSS extraction and the § 3.4 SLICE-S7 RESIDUE) would still pass if these
+    # CSS extraction, the § 3.4 SLICE-S7 RESIDUE and the § 8.9 RESIDUE) would
+    # still pass if these
     # forty lines had
     # landed on the wrong rows, under the wrong class, or as a different forty
     # that summed the same. Every one is `path constants` (a path literal
@@ -4556,11 +4570,12 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
 
     `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above asserts the
     AGGREGATE — `(2366, 176)` AS THIS WINDOW LANDED IT, which is exactly what
-    § 3 below pins as `1584 + 782` and `159 + 17`, and `(2717, 176)` today,
+    § 3 below pins as `1584 + 782` and `159 + 17`, and `(2743, 177)` today,
     after slice S8's forty, the pre-existing `openxdox_code` annotation's
     forty-eight, the retirement act's hundred and sixty-seven, RULED Q7's
-    eighty-nine and the § 3.4 SLICE-S7 RESIDUE's seven (the last of those
-    appending to four of these very rows). This docstring has been caught
+    eighty-nine, the § 3.4 SLICE-S7 RESIDUE's seven (appending to four of
+    these very rows) and the § 8.9 RESIDUE's twenty-six. This docstring has
+    been caught
     carrying a stale or wrong figure THREE times — twice by Copilot's review of
     the Q7 act and once by its review of the residue act, which found `2454`
     called this window's landing state when 2454 is a total S8 and the
@@ -5370,7 +5385,8 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
     The manifest's 1422 line numbers AT THAT RULING — 1761 at the RULED
-    Q-L7 (a) amendment, 2621 before RULED Q7's CSS extraction, 2717 today, and
+    Q-L7 (a) amendment, 2621 before RULED Q7's CSS extraction, 2717 before the
+    § 8.9 residue annotation, 2743 today, and
     every
     one of them still in this numbering — were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
@@ -5759,10 +5775,11 @@ def test_the_real_manifest_carries_the_q7_css_extraction_declared_edits() -> Non
     """RULED Q7's window against the LANDED manifest, row by row.
 
     `test_the_real_manifest_carries_the_ruled_q_l7_amendment` asserts the
-    AGGREGATE — `(2717, 176)` today and `(2710, 176)` when this window landed,
+    AGGREGATE — `(2743, 177)` today and `(2710, 176)` when this window landed,
     which is this act's own delta and a figure a later act cannot move (the
-    § 3.4 SLICE-S7 RESIDUE's seven lines moved the current one, and the residue
-    window's hard-coded base is that same 2710) — and that pair would stay
+    § 3.4 SLICE-S7 RESIDUE's seven lines and then the § 8.9 RESIDUE's
+    twenty-six moved the current one, and the S7 residue window's hard-coded
+    base is that same 2710) — and that pair would stay
     green if these 89 lines
     had landed on the wrong row, under the wrong one of RULING OQ-1's three
     classes, or as a different set summing to the same total — which is why
@@ -5856,15 +5873,20 @@ def test_the_real_manifest_carries_the_q7_css_extraction_declared_edits() -> Non
     assert hashlib.sha256(
         "\n".join(f"{path}\t{kind}" for path, kind in dispositions)
         .encode("utf-8")).hexdigest() == (
-        "2c48fa07d2ebcf7125cd16a8fdac198e4c01554ae4fdde36a3a1211aa431c2c6"), (
+        "4c4aecf15a2511a6b7e0a733eabbdccc02e747a720875a8d40218aadfafb565f"), (
         "a row's disposition moved. RULED Q7's CSS extraction converts nothing "
         "(Q7_CONVERTED is empty), so either this act changed one it did not "
         "mean to, or a later act converted a row and owes this pin an update "
         "beside its own conversion record")
+    # THE PIN HAS MOVED ONCE SINCE THIS ACT, BESIDE ITS CONVERSION RECORD, which
+    # is the update the message above asks for: the § 8.9 residue annotation
+    # converted `scripts/ideation_dashboard/snapshot.py`
+    # (`SNAPSHOT_VALIDATOR_RESIDUE_CONVERTED`, pinned by its own window test),
+    # taking the digest from `2c48fa07…` and the counts from 143/175 to 142/176.
     assert doc["rows"] and sum(
-        1 for row in doc["rows"] if row["disposition"] == "moved_verbatim") == 143
+        1 for row in doc["rows"] if row["disposition"] == "moved_verbatim") == 142
     assert sum(1 for row in doc["rows"]
-               if row["disposition"] == "moved_with_declared_edit") == 175
+               if row["disposition"] == "moved_with_declared_edit") == 176
 
     # THE WINDOW'S OWN TOTALS, summed rather than transcribed — the figures the
     # runbook's § 2 paragraph and this pull request's body both state. `lines`
@@ -5912,3 +5934,76 @@ def test_the_real_manifest_carries_the_q7_css_extraction_declared_edits() -> Non
     # was merged in; the window did not, which is the distinction this pin and
     # the aggregate one are split over.
     assert lines + 2621 == 2710
+
+
+# § 8.9 RESIDUE (i)-(iii) of the archived `split-opendox-two-layer-product`
+# (`tasks.md` amendment #6 on RULED Q-P3 (a), `#656` comment `5728856581`; the
+# box DEFERRED at the archive, `5778397686`; the FORM is RULED Q-L1's,
+# `5628560136`): the snapshot validator's three carve defects, taken at
+# `openxdox_code` by opensoft/openXdox-code `fix/snapshot-validator-carve-residue`.
+# Line numbers are the CARVE COMMIT's, computed with the arrival verifier's own
+# algorithm against the leg's head.
+SNAPSHOT_VALIDATOR_RESIDUE_WINDOW: dict[str, list[tuple[str, list[int]]]] = {
+    "scripts/ideation_dashboard/snapshot.py": [
+        ("path constants", [13, 24, 29, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
+                            133, 163, 167]),
+    ],
+    "scripts/validate-ideation-dashboard-contracts.py": [
+        ("path constants", [14, 15, 16, 94, 224, 225, 226, 230, 237, 1822]),
+    ],
+}
+
+#: The ONE row this act converts `moved_verbatim` -> declared: the snapshot
+#: module carried no `edits:` at all, and a conversion is the one change that
+#: moves BOTH disposition counts and the carrier count at once.
+SNAPSHOT_VALIDATOR_RESIDUE_CONVERTED = ["scripts/ideation_dashboard/snapshot.py"]
+
+#: The two suites the act CREATES at the leg, admitted by name (RULED OQ-C).
+SNAPSHOT_VALIDATOR_RESIDUE_ADMITTED = ["tests/test_snapshot_validator_home.py",
+                                       "tests/test_validator_schema_home.py"]
+
+
+def test_the_real_manifest_carries_the_snapshot_validator_residue_declared_edits() -> None:
+    """§ 8.9 residue (i)-(iii)'s window against the LANDED manifest, row by row.
+
+    The aggregate pin asserts `(2743, 177)`; that pair would stay green if these
+    26 lines had landed on the wrong row, under the wrong one of RULING OQ-1's
+    three classes, or as a different set summing to the same total — which is
+    why every act since ASK-7 pins its own window."""
+    _, doc = the_landed_manifest()
+    rows = {row["source_path"]: row for row in doc["rows"]}
+    for source_path, entries in SNAPSHOT_VALIDATOR_RESIDUE_WINDOW.items():
+        row = rows[source_path]
+        assert row["destination"] == "openxdox_code", row
+        assert row["disposition"] == "moved_with_declared_edit", row
+        landed = [(edit["class"], edit["lines"]) for edit in row["edits"]]
+        # A CONTIGUOUS RUN OCCURRING EXACTLY ONCE, and LAST: the order the
+        # document is appended in.
+        runs = [i for i in range(len(landed) - len(entries) + 1)
+                if landed[i:i + len(entries)] == entries]
+        assert len(runs) == 1, (source_path, landed, entries)
+        assert runs[0] == len(landed) - len(entries), (source_path, landed)
+        flat = [number for edit in row["edits"] for number in edit["lines"]]
+        assert len(set(flat)) == len(flat), (source_path, sorted(
+            number for number in flat if flat.count(number) > 1))
+    # THE CONVERSION, named: this act's entry is the snapshot row's ONLY one, so
+    # the row carried no `edits:` before it; the validator row keeps the carve's
+    # own `:114-116` entry ahead of this act's.
+    converted = rows[SNAPSHOT_VALIDATOR_RESIDUE_CONVERTED[0]]
+    assert [(edit["class"], edit["lines"]) for edit in converted["edits"]] == \
+        SNAPSHOT_VALIDATOR_RESIDUE_WINDOW[SNAPSHOT_VALIDATOR_RESIDUE_CONVERTED[0]]
+    validator_row = rows["scripts/validate-ideation-dashboard-contracts.py"]
+    assert validator_row["edits"][0]["lines"] == [114, 115, 116, 909, 1800]
+    # THE ADMISSIONS the two created suites need at the leg.
+    admissions = yaml.safe_load((REPO_ROOT / "docs" / "opendox-carve-admissions.yaml")
+                                .read_text(encoding="utf-8"))
+    created = {entry["path"] for entry in
+               admissions["destinations"]["openxdox_code"]["created"]}
+    missing = set(SNAPSHOT_VALIDATOR_RESIDUE_ADMITTED) - created
+    assert not missing, missing
+    # 2717 + 26 = 2743 on 176 + 1 = 177 rows — THE AGGREGATE AS THIS ACT LANDS
+    # IT, a delta against the document the act found.
+    lines = sum(len(numbers) for entries in SNAPSHOT_VALIDATOR_RESIDUE_WINDOW.values()
+                for _class, numbers in entries)
+    assert lines == 26 and 2717 + lines == 2743, lines
+    assert 176 + len(SNAPSHOT_VALIDATOR_RESIDUE_CONVERTED) == 177

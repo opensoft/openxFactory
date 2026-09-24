@@ -274,6 +274,12 @@ destinations:
       - path: tests/test_role_authority_projection_seam.py
         reason: "added by openXdox-code #10 (4.5 slice 1)"
         since: "4f98e77c7985f786af2ec295c38b6b06a7f5fce6"
+      - path: tests/test_snapshot_validator_home.py
+        reason: "added by opensoft/openXdox-code `fix/snapshot-validator-carve-residue` (split-opendox-two-layer-product § 8.9 residue (ii) and (iii), RULED Q-P3 (a), `#656` comment `5728856581`) — the suite that pins the snapshot validator to the product's own tree: `VALIDATOR_RELPATH` names the file this leg carries, and an enclosing pre-shed checkout, a pre-shed corpus, the cwd and an installed copy are never adopted; this admission lands first per Q-L1"
+        since: "45825ff7e0dda642bd2c2faf65aad2f30cf04421"
+      - path: tests/test_validator_schema_home.py
+        reason: "added by opensoft/openXdox-code `fix/snapshot-validator-carve-residue` (split-opendox-two-layer-product § 8.9 residue (i), RULED Q-P3 (a), `#656` comment `5728856581`) — the suite that pins the validator's schema home: its own tree's `contracts/` when it carries one, otherwise the directory `CONTRACTS_DIR` names (the channel `AGENTS-shape.md` declares), never an enclosing directory by position, and a kind the resolved directory does not carry is refused by name (exit 2); this admission lands first per Q-L1"
+        since: "45825ff7e0dda642bd2c2faf65aad2f30cf04421"
   openxdox_spec:
     created:
       - path: contracts/schemas/domain-profile.example.yaml
