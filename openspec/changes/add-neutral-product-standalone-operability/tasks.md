@@ -175,13 +175,16 @@ for later.
   § R-G3 records the options as they were put, what was ruled, and the CORRECTION
   to this packet's own pricing of option (a) — `generator.py:66-68` imports
   `doc_health`, which this packet had not measured when it recommended (c).
-- [x] 1.8 On ratification: `Status: ratified` + `Ratified by:` on all three
-  lifecycle documents; `## Ratification record` in `proposal.md`; the approval
-  pair ADDED beside the fixed origin in `.openspec.yaml`, never substituted.
+- [x] 1.8 On ratification: `Status: ratified` + one sanctioned ratification
+  citation on all three lifecycle documents (`Ratified:` on `proposal.md`,
+  `Ratified by:` on `design.md` and `tasks.md`); `## Ratification record` in
+  `proposal.md`; the approval pair ADDED beside the fixed origin in
+  `.openspec.yaml`, never substituted. *(As filed, this box named `Ratified by:`
+  on all three. `document-lifecycle` sanctions both spellings, one citation per
+  document, and the split below is the one the lane's #1140 and #1141 carried.)*
   **Done on the word of 2026-09-24** (`#656` comment `5815412869`):
-  - `Status: ratified` on all three lifecycle documents. The citation is
-    `Ratified:` on `proposal.md` and `Ratified by:` on `design.md` and
-    `tasks.md`, the split the lane's #1140 and #1141 carried.
+  - `Status: ratified` and one citation on each of the three lifecycle
+    documents, split as the heading above says.
   - `## Ratification record` in `proposal.md`.
   - The approval pair ADDED under `origin:` after `proposed_on`. `kind`, `id`,
     `reason`, `proposed_by` and `proposed_on` do not move.
