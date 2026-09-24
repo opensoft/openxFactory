@@ -342,15 +342,22 @@ and it checks out the pinned decision core, `codeXfactory/codexFactory` at
 ```sh
 git submodule update --init openXwallet
 git submodule update --init --recursive openXdox openDox
-PINNED_CORE_CHECKOUT=/absolute/path/to/that/codexFactory/checkout \
+PINNED_CORE_CHECKOUT="${CORE_CHECKOUT:?set CORE_CHECKOUT to your codexFactory checkout at b21f0100}" \
   python3 -m pytest tests/ -q -m "not postgres" --junitxml=pytest-report.xml
 ```
 
+- **`CORE_CHECKOUT` is yours to supply:** your checkout of
+  `codeXfactory/codexFactory` at that commit. Left unset or empty, the line
+  above stops before pytest runs. CI supplies
+  `${{ github.workspace }}/.merge-master-core`.
 - **Floors:** 7050 selected, 7044 passed, exactly 6 skipped.
 - **Named verdicts:** the freshness verifier and the vector replay
   (`tests.review_lane_pin.test_floor_snapshot`) must each be `passed`.
-- **Without `PINNED_CORE_CHECKOUT`** both of those skip. That breaks the skipped
-  count and the named verdicts locally. It is not a finding about the pin.
+- **Without a pinned core** both of those skip. The test looks for one at
+  `PINNED_CORE_CHECKOUT` when that is set. Otherwise it looks for
+  `.merge-master-core` inside this checkout or beside it. The skips break the
+  skipped count and the named verdicts locally. They are not a finding about
+  the pin.
 
 Measured at openxFactory `main` `dd2466ad`, 2026-09-24, in a checkout whose
 directory is named `openxFactory`:
@@ -388,20 +395,25 @@ runbook: "opensoft/openDox-code docs/runtime.md sections 5-6, …"
 `contracts/openxdox-pin.yaml` carries NO `migration:` field.
 
 The check below is run with the cwd in a checkout of each repository, and with
-`COMMIT` set to that repository's full 40-hex commit. It FAILS CLOSED: a failing
-`ls-tree` prints `REFUSE` with git's own error and exits 1, and is never read as
-"0 paths". That is not true of the obvious `git ls-tree … | grep -i migrat`,
-which reports no hit either way.
+`COMMIT` set to that repository's full 40-hex commit. It FAILS CLOSED, printing
+`REFUSE` and exiting 1 in two cases. The first is a `COMMIT` that is not 40
+lowercase hex characters, as `git rev-parse` prints them; that includes an unset
+one. It is refused before git runs. The second is a failing `ls-tree`, refused
+with git's own error. Neither is ever read as "0 paths". That is not true of the
+obvious `git ls-tree … | grep -i migrat`, which reports no hit either way.
 
 ```sh
-python3 -c 'import subprocess, sys
+python3 -c 'import re, subprocess, sys
+commit = sys.argv[1]
+if not re.fullmatch(r"[0-9a-f]{40}", commit):
+    sys.exit(f"REFUSE: COMMIT is not a full 40-hex commit: {commit!r}")
 try:
-    run = subprocess.run(["git", "ls-tree", "-r", "--name-only", sys.argv[1]],
+    run = subprocess.run(["git", "ls-tree", "-r", "--name-only", commit],
                          capture_output=True, text=True)
 except OSError as exc:
     sys.exit(f"REFUSE: git could not run: {exc}")
 if run.returncode != 0:
-    sys.exit(f"REFUSE: git ls-tree {sys.argv[1]} failed: {run.stderr.strip()}")
+    sys.exit(f"REFUSE: git ls-tree {commit} failed: {run.stderr.strip()}")
 hits = [n for n in run.stdout.splitlines() if "migrat" in n.lower()]
 for n in hits:
     print(n)
