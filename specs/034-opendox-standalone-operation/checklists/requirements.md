@@ -42,9 +42,12 @@ before implementation starts.
 - [x] Every release-1 box maps to a task (tasks.md § "Box accounting":
       69 = 63 + 1 + 1 + 4).
 - [x] Every realization task names a repository, a falsifier, any question
-      that blocks it, and the rulings it carries out. Holder and checkpoint
-      tasks name the evidence they record, or the falsifiers they run,
-      instead.
+      that blocks it, and the rulings it carries out. A task that runs a
+      falsifier (T074, T077, T093) names that falsifier as its own. The
+      every-phase procedures (T090, T091) name every repository they touch,
+      and AT-R1's halves (T095, T096) name the repository their harness or
+      evidence lands in. Phase 0's holder tasks and the three checkpoints name
+      the evidence they record, or the falsifiers they run, instead.
 - [x] Parallel slices, and files limited to a single writer, are declared
       (plan.md; tasks.md § "Phase 1 writer slices").
 - [ ] `/speckit-analyze` has reported no CRITICAL finding. **Pending:**

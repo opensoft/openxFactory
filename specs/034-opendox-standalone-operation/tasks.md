@@ -779,6 +779,8 @@ no-model state. `consumer_reach.py` is gone.
   - **After**: T072, T055 (`serve.py`'s single-writer order).
 - [ ] T074 [US3] [oDc] **Run F13.1**, as amended per R1Q15 and R1Q16.
   - **Realizes**: F13.1.
+  - **Falsifier**: F13.1 itself, as amended. This task is that run, quoted in
+    its PR.
   - **Blocked by**: R1Q15, R1Q16.
   - **After**: T073.
 
@@ -799,6 +801,8 @@ no-model state. `consumer_reach.py` is gone.
     pins).
 - [ ] T077 [US3] [oDc] **Run F10.1**, as amended per R1Q15.
   - **Realizes**: F10.1.
+  - **Falsifier**: F10.1 itself, as amended. This task is that run, quoted in
+    its PR.
   - **Blocked by**: R1Q15.
   - **After**: T075, T070.
 
@@ -852,6 +856,7 @@ no-model state. `consumer_reach.py` is gone.
 - [ ] T083 [US3] [oDc] **16.6, then F16.1.** `tests/test_provider_boundary.py`
   stays green as 16.1 joins the one module. Then run F16.1 whole.
   - **Realizes**: 16.6, F16.1.
+  - **Falsifier**: `tests/test_provider_boundary.py` for 16.6, then F16.1 whole.
   - **After**: T080, T081, T082.
 
 ### 4.3's last reaches, and the consumer's columns
@@ -927,9 +932,10 @@ no-model state. `consumer_reach.py` is gone.
 
 ## Every phase
 
-- [ ] T090 [US4] **The pin procedure (9.5)**, run once per phase: T039 then
-  T047 (phase 1), T062 then T064 (phase 2), T087 then T094 (phase 3). The
-  openDox-root step always precedes the consumer's. The order is:
+- [ ] T090 [US4] [oD] [oXc] [oX] [oxF] **The pin procedure (9.5)**, run once
+  per phase: T039 then T047 (phase 1), T062 then T064 (phase 2), T087 then T094
+  (phase 3). The openDox-root step always precedes the consumer's. The order
+  is:
   1. openDox-code lands.
   2. The openDox root moves its gitlink, `contracts/code-pin.yaml` and every
      workflow `@<sha>` in ONE commit (`make pins`).
@@ -944,21 +950,31 @@ no-model state. `consumer_reach.py` is gone.
   Follow C4's runbook once it lands. Every one of these is an ancestor move,
   cutting no bundle unless T053 applies.
   - **Realizes**: 9.5, which is ticked at ARC close.
-- [ ] T091 **The trailer (11.0).** Every realization commit and every landing
-  carries `Arc: neutral-product-standalone-operability` as well as `Lane:
-  openxfactory-4`. That holds in every repository the arc touches: the five,
+  - **Falsifier**: `make pins` in the openDox root (step 2) and in the openXdox
+    root (step 5), and openxFactory's `scripts/verify-opendox-pin.py` and
+    `scripts/verify-openxdox-pin.py` (step 6).
+- [ ] T091 [oDc] [oXc] [oD] [oX] [oxF] **The trailer (11.0).** Every
+  realization commit and every landing carries `Arc:
+  neutral-product-standalone-operability` as well as `Lane: openxfactory-4`.
+  That holds in every repository the arc touches: the five,
   and openDox-spec too when T053 applies. 11.0's own words are *"in EVERY
   repository it touches"*. A merge landing writes the trailer into
   the merge message. Land by squash or merge, never rebase. Bookkeeping
   carries NO trailer: this feature's files, #1144's ticks, evidence notes and
   amendments (T007), and interim guard output (R1Q20 (a)).
   - **Realizes**: 11.0, which is ticked at ARC close.
+  - **Falsifier**: each PR's review, as for the `Lane:` line (11.0). F11.1
+    finds the arc's landings by the trailer, and the falsifiers of 5.4a and
+    12.5 assert that the set is non-empty in openXdox-code.
   - **Ruled**: R1Q20 (a).
 - [ ] T092 [oxF] **11.1's notes.** One `edits[].note` per closed reach, added
   where an existing `edits[]` entry has none, or extended, and never rewritten.
   No row, field or digest changes. The manifest records the carve as it
   arrived, so an arc edit to a carved file needs nothing more (R1Q22 (a)).
   - **Realizes**: 11.1, which is ticked at ARC close.
+  - **Falsifier**: F11.1's manifest check, which refuses a rewritten note and
+    any row, field or digest change. Each interim run (T018, T065, T098)
+    applies it.
   - **Ruled**: R1Q22 (a).
 - [ ] T093 [oxF] **The interim F11.1 procedure, and F11.1 at the arc's
   close.** Run F11.1 with `PACKET_MERGE=94b6f7f1` and `ARC_TIP` set to the last
@@ -968,6 +984,7 @@ no-model state. `consumer_reach.py` is gone.
   and T098 (phase 3), each with its own `After:` line. It runs once more at the
   arc's close, after release 2, where the box is ticked.
   - **Realizes**: F11.1, which is ticked at ARC close.
+  - **Falsifier**: F11.1 itself, which must print `requirement 1 holds`.
   - **Ruled**: R1Q2 (a), R1Q20 (a).
 
 ---
@@ -1008,8 +1025,8 @@ no-model state. `consumer_reach.py` is gone.
     R1Q16.
   - **After**: T089, T076 (the root README's one documented command, which the
     harness runs).
-- [ ] T096 [US3] **AT-R1, the browser half, on the host.** Drive the same
-  install with Playwright (quickstart.md § 3). The verdict comes from
+- [ ] T096 [US3] [oxF] **AT-R1, the browser half, on the host.** Drive the
+  same install with Playwright (quickstart.md § 3). The verdict comes from
   openDox-code's `tests/smoke_signals.py` oracle:
   - the wheel renders the fixture's tiles;
   - the lens renders the radar with the documents as dots, and its seed
@@ -1019,8 +1036,11 @@ no-model state. `consumer_reach.py` is gone.
   - a turn is refused `model_capability_unavailable`;
   - there is zero `pageerror`, and nothing undeclared.
 
-  Record the evidence in `evidence/at-r1/`, with no trailer.
+  Record the evidence in openxFactory, in this feature's `evidence/at-r1/`, with
+  no trailer.
   - **Realizes**: FR-011 (browser half).
+  - **Falsifier**: the oracle's verdict, which must pass: zero `pageerror`, and
+    nothing undeclared.
   - **Blocked by**: R1Q13, R1Q19.
   - **Ruled**: R1Q20 (a).
   - **After**: T095.
