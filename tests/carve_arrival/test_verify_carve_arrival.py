@@ -5193,7 +5193,8 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     `created:` sets. The seeding commit (openxFactory PR #979, `972b484a`) is
     the seed and takes no ordinal. Measured that way the landed sequence is
     PR #984, #1002, #1001, #1009, #1010, #1023, #1030, #1025, #1067, #1068,
-    #1085 and THIS act — twelve amendments, ten of which bump `opendox_code`.
+    #1085, #1091 and #1153 — thirteen amendments, ten of which bump
+    `opendox_code`.
     AN ORDINAL IS NOT A POSITION IN THIS FILE and never was: the assertion
     blocks below run in the order the reading needs, so an ordinal is read off
     the document's history and never off a neighbouring block. Three
@@ -5452,6 +5453,38 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
             == seed["tests/test_domain_corpus_adapter.py"]["since"]), (
         "openXdox-code#23's two corpus-adapter tests were introduced by one "
         "commit and no longer declare the same `since`")
+    # THE THIRTEENTH BUMP: the § 8.9 SNAPSHOT-VALIDATOR RESIDUE's two created
+    # `openxdox_code` suites. The residue is the archived
+    # `split-opendox-two-layer-product`'s (RULED Q-P3 (a), `#656` comment
+    # `5728856581`); the act was RULED at `5815412869` and claimed at
+    # `5815613524`. Admitted on the Q-L1 footing: the leg PR,
+    # opensoft/openXdox-code#28, pairs with this annotation PR and lands after
+    # it. Pinned by PATH AND `since` (Copilot review of openxFactory#1153),
+    # because the generic shape checks below would pass a dropped, swapped or
+    # re-provenanced entry. Both name the leg PR's first commit, which a later
+    # review round on that PR does not move.
+    SNAPSHOT_VALIDATOR_RESIDUE_SINCE = "45825ff7e0dda642bd2c2faf65aad2f30cf04421"
+    for path in ("tests/test_snapshot_validator_home.py",
+                 "tests/test_validator_schema_home.py"):
+        assert path in seed, (
+            f"{path} is one of the § 8.9 residue act's two created suites "
+            "(`#656` comment `5815613524`) and is no longer declared for "
+            "openxdox_code")
+        assert seed[path]["since"] == SNAPSHOT_VALIDATOR_RESIDUE_SINCE, (
+            f"{path} declares since={seed[path]['since']!r}; the act introduced "
+            f"it at {SNAPSHOT_VALIDATOR_RESIDUE_SINCE}, and an admission whose "
+            "`since` is not the introducing commit is not a falsifiable claim")
+    # TWO, COUNTED IN THE COMMITTED FILE AT EVERY DESTINATION, on the RULED Q7
+    # block's reasoning below: a third admission riding in on this act's commit
+    # fails.
+    residue_committed = {(destination, entry["path"])
+                         for destination, entries in admissions.items()
+                         for entry in (entries or [])
+                         if entry["since"] == SNAPSHOT_VALIDATOR_RESIDUE_SINCE}
+    assert residue_committed == {
+        ("openxdox_code", "tests/test_snapshot_validator_home.py"),
+        ("openxdox_code", "tests/test_validator_schema_home.py"),
+    }, sorted(residue_committed)
     # RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4 slice S2):
     # `opendox_code`'s own three new files, admitted the GOVERNED way per
     # Q-L1 (the leg PR pairs with this annotation PR, which lands first) —

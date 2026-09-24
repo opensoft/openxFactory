@@ -5962,6 +5962,10 @@ SNAPSHOT_VALIDATOR_RESIDUE_CONVERTED = ["scripts/ideation_dashboard/snapshot.py"
 SNAPSHOT_VALIDATOR_RESIDUE_ADMITTED = ["tests/test_snapshot_validator_home.py",
                                        "tests/test_validator_schema_home.py"]
 
+#: Both suites' INTRODUCING commit at the leg: the leg PR's first commit, which
+#: a later review round on that PR does not move.
+SNAPSHOT_VALIDATOR_RESIDUE_SINCE = "45825ff7e0dda642bd2c2faf65aad2f30cf04421"
+
 
 def test_the_real_manifest_carries_the_snapshot_validator_residue_declared_edits() -> None:
     """§ 8.9 residue (i)-(iii)'s window against the LANDED manifest, row by row.
@@ -5994,13 +5998,15 @@ def test_the_real_manifest_carries_the_snapshot_validator_residue_declared_edits
         SNAPSHOT_VALIDATOR_RESIDUE_WINDOW[SNAPSHOT_VALIDATOR_RESIDUE_CONVERTED[0]]
     validator_row = rows["scripts/validate-ideation-dashboard-contracts.py"]
     assert validator_row["edits"][0]["lines"] == [114, 115, 116, 909, 1800]
-    # THE ADMISSIONS the two created suites need at the leg.
+    # THE ADMISSIONS the two created suites need at the leg, each pinned to its
+    # introducing commit and not merely present (Copilot review of openxFactory
+    # #1153): a wrong leg tip or a swapped provenance must fail here.
     admissions = yaml.safe_load((REPO_ROOT / "docs" / "opendox-carve-admissions.yaml")
                                 .read_text(encoding="utf-8"))
-    created = {entry["path"] for entry in
+    created = {entry["path"]: entry["since"] for entry in
                admissions["destinations"]["openxdox_code"]["created"]}
-    missing = set(SNAPSHOT_VALIDATOR_RESIDUE_ADMITTED) - created
-    assert not missing, missing
+    assert {path: created.get(path) for path in SNAPSHOT_VALIDATOR_RESIDUE_ADMITTED} == \
+        dict.fromkeys(SNAPSHOT_VALIDATOR_RESIDUE_ADMITTED, SNAPSHOT_VALIDATOR_RESIDUE_SINCE)
     # 2717 + 26 = 2743 on 176 + 1 = 177 rows — THE AGGREGATE AS THIS ACT LANDS
     # IT, a delta against the document the act found.
     lines = sum(len(numbers) for entries in SNAPSHOT_VALIDATOR_RESIDUE_WINDOW.values()
