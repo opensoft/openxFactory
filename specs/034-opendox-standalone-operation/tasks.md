@@ -395,14 +395,16 @@ script exists. openxFactory is unchanged in behaviour.
       `doc_health` cannot run there in release 1, because F9.2 runs every file
       in `tests/integration/`. It goes into T041's declared exclusion, with its
       reason, instead (R1Q6 (d)).
-  - This PR's body lists each removed module with its destination. T042 lands
-    exactly that list, and T049 checks that every listed module is in
-    openXdox-code, so none is dropped from both suites (requirement 9, second
-    scenario).
   - `test_session_harness.py` runs a script only openxFactory has. It is
-    either rewritten, or moves to openxFactory as a NAMED composition test
-    (R1Q2 (a)). In the second case, its path joins F11.1's named set through a
-    T007 batch first.
+    either rewritten, or removed here and moved to openxFactory as a NAMED
+    composition test (R1Q2 (a)). In the second case, a T007 batch adds its
+    path to F11.1's named set first, and it lands in T047's openxFactory PR.
+  - This PR's body lists each removed module with its destination:
+    openXdox-code's `tests/integration/` (T042), openXdox-code's declared
+    exclusion (T041), or openxFactory (T047). Each destination task lands
+    exactly its part of that list, and T049 checks that every listed module
+    arrived where the list sends it, so none is dropped from both suites
+    (requirement 9, second scenario).
   - **Realizes**: 9.1 (part), 9.3 (part).
   - **Falsifier**: F9.1 (openDox-code).
   - **Ruled**: R1Q2 (a), R1Q6 (d), R1Q22 (a). All seven are carved rows.
@@ -582,8 +584,9 @@ script exists. openxFactory is unchanged in behaviour.
 - [ ] T047 [US4] [oX] [oxF] **Phase 1's consumer pins and host wiring** (T090
   steps 5–6). The openXdox root moves to T044's commit and to T039's root
   commit. openxFactory then moves both pin pairs in ONE PR, which also carries
-  T045 and T046. C3's openXdox pin bump landed as #1157 → `1edbb3dd`, so T047
-  starts from that pin.
+  T045 and T046, and `test_session_harness.py` if T035 moved it here as a named
+  composition test. C3's openXdox pin bump landed as #1157 → `1edbb3dd`, so
+  T047 starts from that pin.
   - **Realizes**: 9.5 (part).
   - **Falsifier**: `make pins` in the openXdox root; `verify-opendox-pin.py` and
     `verify-openxdox-pin.py`; `pytest-suite`.
@@ -605,8 +608,10 @@ script exists. openxFactory is unchanged in behaviour.
     with the database DSN exported), and F9.2;
   - `opendox --help`;
   - F4.1's scan, which must list only `openxdox` targets;
-  - every module T035 removed, found in openXdox-code's `tests/integration/`
-    or in its declared exclusion;
+  - every module T035 removed, found where T035's list sends it:
+    openXdox-code's `tests/integration/` or its declared exclusion, or, for
+    `test_session_harness.py`, openxFactory, with its path in F11.1's named
+    set;
   - T018's interim F11.1 output.
 
   Tick nothing; T097 ticks.
@@ -1237,7 +1242,7 @@ landed, except where a row says otherwise.
 | P1-R openDox root pin | G4 | T039 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-1 openDox-code slice landed (T022, T032, T037, T038) | `make pins` | Sonnet |
 | P1-I openXdox pin and residue | G5 | T040 | oXc | `pyproject.toml` (the `opendox @` pin, `rfc3339-validator`); a local helper for the three `test_gate_routes` importers; `tests/fixtures/base-repo` | P1-R | no `test_gate_routes` collection error; `test_snapshot_validation_launch` finds its fixture | Sonnet |
 | P1-J openXdox green alone, less the declared exclusion | G5, after P1-I | T041, T042, T043, T044 | oXc | the declared exclusion file and `conftest.py`; `tests/integration/` (new, with `test_assembled_surface.py` and P1-G's relocated modules); `.github/workflows/validate.yml` | P1-I, P1-G; T007 batch B lands once T041 names its file | F9.1 (openXdox-code, as amended by batch B), F9.2 | Opus |
-| P1-K pins and host wiring | G6 | T045, T046, T047 | oX, oxF | openXdox root: `code`, `contracts/code-pin.yaml`, `contracts/opendox-pin.yaml`. openxFactory: both pin pairs, plus `scripts/opendox_host.py`, `scripts/profile_openxfactory.py`, `tests/domain_profile/`, `tests/ideation-dashboard/test_extension_point_parity.py` and `tests/ideation-dashboard/test_serve_column_split.py` | P1-R, P1-J; T007 batch A (F11.1 names both composition tests) | `make pins` in the openXdox root; `verify-opendox-pin.py`, `verify-openxdox-pin.py`; openxFactory `pytest-suite` | Opus |
+| P1-K pins and host wiring | G6 | T045, T046, T047 | oX, oxF | openXdox root: `code`, `contracts/code-pin.yaml`, `contracts/opendox-pin.yaml`. openxFactory: both pin pairs, plus `scripts/opendox_host.py`, `scripts/profile_openxfactory.py`, `tests/domain_profile/`, `tests/ideation-dashboard/test_extension_point_parity.py` and `tests/ideation-dashboard/test_serve_column_split.py` (and `test_session_harness.py`, if T035 moves it here) | P1-R, P1-J; T007 batch A (F11.1 names both composition tests) | `make pins` in the openXdox root; `verify-opendox-pin.py`, `verify-openxdox-pin.py`; openxFactory `pytest-suite` | Opus |
 | P1-L read-only checks | G6, after P1-K | T017, T018 | oxF | `evidence/` only | P1-K | interim F11.1 (T018, by T093's procedure), as widened by batch A, prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T049 | — | none (a verifier) | P1-K, P1-L; T007 batches A and B; RN-1 ruled | F2.1; F3.1 as amended; F9.1 in both legs; F9.2; `opendox --help`; F4.1's scan | Opus (verifier) |
 
