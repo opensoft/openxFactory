@@ -533,8 +533,12 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-neutral-product-standalone-operability](openspec/changes/add-neutral-product-standalone-operability/proposal.md)
-  — filed 2026-09-22, lane `openxfactory-4`, **`Status: draft`** (awaiting Brett
-  Heap's ratification read), as the BUILD ARC the archived
+  — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-24,
+  Brett Heap, *"ratify #1144, land the follow-ons, (a) on C1–C5"*, `#656` comment
+  `5815412869`, over PR #1144's final head `19237b91` as landed at `94b6f7f1`; the
+  word authorizes realization of release 1 and performs none of it; record
+  [`review/ratification-2026-09-24.md`](openspec/changes/add-neutral-product-standalone-operability/review/ratification-2026-09-24.md)),
+  as the BUILD ARC the archived
   `split-opendox-two-layer-product` names as its own unclosed residue. **ONE
   `## ADDED` block creating the capability `neutral-product-standalone-operability`
   — seventeen requirements, seventy-five scenarios**, written domain-neutrally (its sibling is
@@ -557,9 +561,9 @@ Active changes:
   whose landings reach openxFactory through the roots' pins, until #1150 lets the
   estate inventory name a leg — RULED `5804191141`) — the requirements land now,
   the realization runs post-ratification, and this packet authors no code byte,
-  so once RATIFIED it stays ACTIVE as approved-but-unrealized intent until
+  so, RATIFIED, it stays ACTIVE as approved-but-unrealized intent until
   `release-realization`'s archive gate is met by merged-plus-green evidence per
-  requirement; until then it is a draft and approves nothing. Two
+  requirement. Two
   findings are recorded rather than assumed: the packet is filed HERE and not in
   openDox-spec because that instance, while operable, has promoted nothing and
   the CLI refuses MODIFIED deltas against specs that exist nowhere (requirement

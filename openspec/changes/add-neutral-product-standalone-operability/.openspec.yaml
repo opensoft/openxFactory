@@ -117,3 +117,26 @@ origin:
     this packet's recommendation (c) and the packet records the measurement
     that made the ruling the better answer.
   proposed_on: 2026-09-22
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-09-24T13:51:09Z,
+    interactive in the lane session, verbatim: "ratify #1144, land the
+    follow-ons, (a) on C1–C5", recorded at `opensoft/openxFactory` issue #656
+    comment 5815412869. Record: review/ratification-2026-09-24.md.
+    THE RATIFIED TEXT IS PR #1144's FINAL HEAD `19237b91`, which landed as
+    squash commit `94b6f7f1` with an identical tree, and the packet did not
+    move between that landing and the word. The word strikes nothing: all
+    seventeen requirements and seventy-five scenarios stand, requirement 3
+    included, which answers the one question the packet reserved for the
+    ratification read (`design.md` section D5, `tasks.md` 3.0).
+    WHAT THE WORD AUTHORIZES, per the ruling record: the realization of
+    release 1 (phases 1-3), and none of it happens by the word itself. The
+    ruling record names release 1 alone. The word authorizes no archive: the
+    change archives only on merged, green realization evidence for BOTH
+    releases (RULED 5800995035). The same comment's other items (the archive
+    follow-ons, the banked helper items C1-C5, and C6, which stays open) are
+    not this packet's ratification.
+    THE APPROVAL IS ADDED BESIDE THE DRAFTING PROVENANCE, NEVER SUBSTITUTED
+    FOR IT (`tasks.md` 1.8). The statements above that no approval pair is
+    declared were true at filing and are superseded by this pair; `kind`,
+    `id`, `reason`, `proposed_by` and `proposed_on` do not move.
+  approved_on: 2026-09-24

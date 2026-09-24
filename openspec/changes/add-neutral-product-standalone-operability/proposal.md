@@ -1,12 +1,13 @@
 ---
 code_surface: openxFactory, opensoft/openDox and opensoft/openXdox — (named as RULED `5804191141`, "1, name the roots and file the follow-up": openxFactory, whose own RUNTIME artifacts the realization changes, and the two assembly roots, each of which composes its code leg through its `code` pin and so stands for the runtime artifacts the realization changes there. The realization's code is WRITTEN in those legs, `opensoft/openDox-code` and `opensoft/openXdox-code`, and it reaches openxFactory only through the roots' pins, the route openXdox#17/#18 → openxFactory#1146/#1148 took. The head names the roots because the estate inventory carries them and not their legs, and it re-points at the legs once #1150 lets the inventory record a code leg nested under a pinned root (`design.md` § D15). openxFactory is a code surface for its HOST WIRING: `scripts/opendox_host.py` and the profile it registers, `scripts/profile_openxfactory.py`, hand the product through its declared seams what the product used to reach by name (tasks 4.1 and 4.3; the lanes routes of task 2.2 already travel that way), beside the carve-manifest annotations of task 11.1.) THIS PACKET AUTHORS NO CODE BYTE, and it declares a real one. Landing here is corpus text only: this packet's five files (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml` and ONE `## ADDED` spec delta), one README *Active changes* bullet, and the machine-seeded per-change row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes. The REALIZATION the requirements specify runs post-ratification in FIVE repositories — the two code legs, where the code is written; the two assembly roots, whose pins carry it and which the code surface names; and openxFactory — and each arm is a named task with its own claim: in `opensoft/openDox-code`, the removal of the two module-level `ideation_dashboard` imports at `src/opendox/serve.py:199,206` and their replacement by the route-extension seam the carve's `design.md` already specifies, a default domain profile so `build_parser()`/`build_server()` start with no host, the resolution of `src/opendox/authoring.py:318`'s `corpus_adapter_openxfactory` reach through the registered adapter, a document validator and a health check over its own documents, a `[project.scripts]` entry point for the document surface, THE NEUTRAL SUBMISSION DEFAULT that lets a plain git repository get a session's work out (RULED `5783934499`), chat's model configuration — any OpenAI-compatible endpoint by URL, model name and credential reference, with a clear no-model-configured state (RULED `5800995035`) — and the removal of its `validate.yml` exclusions; in `opensoft/openXdox-code`, the consumer half of the RULED G3 shape — openXdox keeps its governed generator and injects it through openDox's declared seam (`#656` `5783335210`) — plus the `OPENDOX_BACK_IMPORTS` ratchet driven down as each reach closes; in `opensoft/openDox` (the assembly root), README documentation of that entry point, because its `Makefile` is shape-pinned (task 10.3), and its `code` pin advancing onto the realized leg (task 9.5); in `opensoft/openXdox` (the assembly root), its `code` pin advancing the same way (task 9.5); and in `openxFactory`, the host wiring named above, the pins on the two roots it needs (task 9.5), and the carve-manifest annotations that record each closed reach, and nothing else — no check family, no schema, no corpus document and no `scripts/` module moves, per this packet's first requirement. NOT THIS CHANGE'S SURFACE, and named so no reader infers it: the re-promotion of the 71 requirements the carve's map assigns to openDox is openDox-spec's own act and is tracked as a BLOCKED task here, not authored here; the document surface is NOT rewritten, re-architected or re-scoped; and THIS PACKET moves no pin, gitlink, contract bundle or release tag. The realization advances the pins that compose the legs, each by its owning repository's ordinary pin-sync act in the landing that needs it (task 9.5), and it cuts no bundle and owes no tag.
-target_release: implemented — the affected repositories' main lines (openxFactory, openDox-code, openXdox-code, openDox, openXdox). `implementation_pending` was the honest-looking word and it is NOT in the ratified vocabulary, which admits `implemented`, a release this estate defines, or `deferred-allocation`; the deferral this packet needs is carried by the CODE SURFACE, not by this token. Under `release-realization`'s archive gate a change with a NON-EMPTY code surface "SHALL NOT archive until realization evidence exists: its code merged on the implemented target through the owning domain's engineering gates, and — where the surface is runnable — a green run of that surface", so, ONCE RATIFIED, this packet stays ACTIVE as approved-but-unrealized intent until the arc is built — BOTH of its releases, since the change archives only on merged, green realization evidence for release 1 AND release 2 (RULED `5800995035`); the two releases are sequencing inside this one change, not release identifiers, and this token names neither. Until then it is `Status: draft` and approves nothing. The evidence is per requirement: the falsification command named in that requirement's `tasks.md` box, run in a checkout holding only the repository under test, quoted with its output. No contract bundle is cut, no bundle number is allocated or reserved, and no release tag is owed — this packet moves no contract byte.
+target_release: implemented — the affected repositories' main lines (openxFactory, openDox-code, openXdox-code, openDox, openXdox). `implementation_pending` was the honest-looking word and it is NOT in the ratified vocabulary, which admits `implemented`, a release this estate defines, or `deferred-allocation`; the deferral this packet needs is carried by the CODE SURFACE, not by this token. Under `release-realization`'s archive gate a change with a NON-EMPTY code surface "SHALL NOT archive until realization evidence exists: its code merged on the implemented target through the owning domain's engineering gates, and — where the surface is runnable — a green run of that surface", so, ONCE RATIFIED, this packet stays ACTIVE as approved-but-unrealized intent until the arc is built — BOTH of its releases, since the change archives only on merged, green realization evidence for release 1 AND release 2 (RULED `5800995035`); the two releases are sequencing inside this one change, not release identifiers, and this token names neither. Before its ratification it was `Status: draft` and approved nothing; it was RATIFIED on 2026-09-24 (`#656` comment `5815412869`). The evidence is per requirement: the falsification command named in that requirement's `tasks.md` box, run in a checkout holding only the repository under test, quoted with its output. No contract bundle is cut, no bundle number is allocated or reserved, and no release tag is owed — this packet moves no contract byte.
 sequenced_after: []
 ---
 
 # Proposal: add-neutral-product-standalone-operability
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-24 by Brett Heap (openxFactory operator authority) — in-session, verbatim *"ratify #1144, land the follow-ons, (a) on C1–C5"*, `#656` comment `5815412869`, over PR #1144's final head `19237b91` as landed at `94b6f7f1`; the word authorizes realization of release 1 and performs none of it; record at review/ratification-2026-09-24.md
 Authored: 2026-09-22, in lane `openxfactory-4` (display
 `openXfactory-4-openDox_extraction`), actor `buildarc`, as the BUILD ARC the
 archived packet `split-opendox-two-layer-product` names as its own unclosed
@@ -23,9 +24,43 @@ Brett as a named question rather than decided here — and it was RULED the same
 day, so `design.md` § R-G3 now records a decision, the options as they were put,
 and a correction to this packet's own analysis of them.
 
+**RATIFIED ON 2026-09-24. The next paragraph is kept verbatim as the filing's
+record.** Its negations were true at filing and are superseded by the ratification
+cited above. The three lifecycle documents now carry `Status: ratified`, and
+`.openspec.yaml` carries the approval pair beside the drafting provenance, which
+does not move. The requirements are now approved intent. They reach canon only at
+the archive, which needs merged, green realization evidence for both releases.
+
 FILING IS NOT RATIFYING. All three lifecycle documents carry `Status: draft`,
 `.openspec.yaml` declares drafting provenance with NO approval pair, and nothing
 here admits text to canon. Ratification is a separate act on Brett Heap's word.
+
+## Ratification record
+
+**RATIFIED** by Brett Heap, 2026-09-24T13:51:09Z, interactive in the lane
+session, verbatim *"ratify #1144, land the follow-ons, (a) on C1–C5"*, recorded
+at `opensoft/openxFactory` [#656](https://github.com/opensoft/openxFactory/issues/656) comment
+[`5815412869`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5815412869).
+The full record is
+[`review/ratification-2026-09-24.md`](review/ratification-2026-09-24.md).
+
+- **What is ratified.** The packet's text at PR #1144's final head `19237b91`,
+  which landed as squash commit `94b6f7f1` with an identical tree: all seventeen
+  requirements and seventy-five scenarios. The word strikes nothing, so
+  requirement 3 stands, which answers the one question this packet reserved for
+  the ratification read (below).
+- **What it authorizes.** The realization of **release 1**, phases 1-3, as the
+  ruling record states. Nothing is realized by the word itself. The ruling record
+  names release 1 alone and does not name release 2's realization (phases 4-5),
+  whose rulings stay sequenced after release 1.
+- **What it does not do.** It archives nothing and promotes nothing. The change
+  archives only on merged, green realization evidence for BOTH releases
+  (`5800995035`). No code byte, pin, gitlink, contract bundle or release tag
+  moves, and `code_surface:`, `target_release:` and `sequenced_after:` stand as
+  landed.
+- **Not this record's subject.** The same comment rules the archive follow-ons
+  (its item 2) and the banked helper items C1–C5 (item 3), and it leaves C6 open
+  (item 4). Those are other acts.
 
 ## Why
 
@@ -653,7 +688,9 @@ One smaller item remains for the ratification read, and it is not a ruling
 request: `design.md` § D5 records that requirement 3 revisits the **premise** of
 RULED ASK-2 — not its reasoning, since an EMPTY default stays refused. If ASK-2
 is read as foreclosing a default profile for openDox's own domain, requirement 3
-is struck and the other sixteen stand.
+is struck and the other sixteen stand. **Read at ratification, 2026-09-24:** the
+word ratifies the packet whole and strikes nothing, so requirement 3 stands with
+the other sixteen (`review/ratification-2026-09-24.md` § 2).
 
 
 ## Two releases, one change — three rulings of 2026-09-23
