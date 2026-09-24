@@ -3,15 +3,16 @@ consumes (openxFactory `add-nightly-dashboard-refresh`, re-realization S2).
 
 What each block here pins.
 
-  * THE SEAL SET IS NOT THE DECISION SET. `snapshot.find_validator` walks UP
-    for `openxFactory/scripts/validate-ideation-dashboard-contracts.py`, a
-    TOP-LEVEL `scripts/*.py` that `CORPUS_BAKED_PATHS` does not name; the
-    sparse-cone checkout the pre-seal child used carried it only as a side
-    effect of cone mode. So the seal set adds it and the DECISION set must not
-    follow, or `_same_scope` fires `REASON_SCOPE_CHANGED` against every
-    recorded pin. Both halves are asserted, and the layout is proven by
-    running the real `find_validator` over a real sealed tree rather than by
-    restating the path.
+  * THE SEAL SET IS NOT THE DECISION SET. The seal adds
+    `scripts/validate-ideation-dashboard-contracts.py`, a TOP-LEVEL
+    `scripts/*.py` that `CORPUS_BAKED_PATHS` does not name; the sparse-cone
+    checkout the pre-seal child used carried it only as a side effect of cone
+    mode. The DECISION set must not follow, or `_same_scope` fires
+    `REASON_SCOPE_CHANGED` against every recorded pin. Both halves are
+    asserted. The seal set was chosen when `snapshot.find_validator` walked UP
+    to that file. Since openXdox-code `e28930bf` the locator CONFINES to the
+    product's own tree instead, so the real `find_validator`, run over a real
+    sealed tree, is proven never to adopt the sealed copy.
   * THE REVISION IS PROVEN, NOT ASSERTED. `git archive` records the commit it
     was made from in a global extended pax header; the seal refuses unless
     that header equals the `source_head` it is about to record. After this
@@ -188,20 +189,36 @@ def test_the_decision_scope_does_not_follow_the_seal_scope():
     assert widened.reason == lane.REASON_SCOPE_CHANGED    # the cost, measured
 
 
-def test_the_sealed_layout_is_the_one_find_validator_walks_up_to(corpus, tmp_path):
-    """Proven by running the REAL locator over a REAL sealed tree, from the
-    directory the child hands `--repo-root`, rather than by restating a path:
-    that walk is what PR #179 broke, and a path assertion would not have
-    caught it."""
+def test_the_confined_locator_never_adopts_the_sealed_validator(corpus, tmp_path):
+    """THE WALK THIS TEST ONCE PROVED IS GONE, ON PURPOSE. Since openXdox-code
+    `e28930bf` (split-opendox-two-layer-product § 8.9 residue (iii)),
+    `snapshot.find_validator` answers only for the product's OWN validator. It
+    CONFINES instead of walking up: a start outside the product's tree answers
+    None. So the sealed copy is never adopted from where it sits, even from the
+    directory the child hands `--repo-root`. A caller that means it passes it
+    explicitly (`validate_snapshot(..., validator=...)`), and that channel is
+    proven here too. As before, this runs the REAL locator over a REAL sealed
+    tree rather than restating a path. The refresh lane's own seal-set
+    rationale (`dashboard_refresh_lane.py`, THE PARENT SEAL) still describes
+    the walk; it is left for that lane.
+    """
     seal = tmp_path / "seal"
     _seal(corpus, seal)
-    found = snapshot_mod.find_validator(seal / lane.SEAL_CORPUS_RELPATH)
-    assert found is not None
-    assert found == seal / lane.SEAL_CORPUS_RELPATH / lane.VALIDATOR_SEAL_PATH
-    # And with the validator removed the locator finds nothing — i.e. the file
-    # is load-bearing rather than incidental.
-    found.unlink()
-    assert snapshot_mod.find_validator(seal / lane.SEAL_CORPUS_RELPATH) is None
+    corpus_root = seal / lane.SEAL_CORPUS_RELPATH
+    sealed = corpus_root / lane.VALIDATOR_SEAL_PATH
+    # The seal still carries the file where the child's verify step looks.
+    assert sealed.is_file()
+    assert snapshot_mod.find_validator(corpus_root) is None
+    assert snapshot_mod.find_validator(sealed.parent) is None
+    own = snapshot_mod.find_validator()
+    assert own is None or not own.resolve().is_relative_to(seal.resolve())
+    # Passed explicitly, the sealed copy is the one that runs. The fixture's
+    # stub prints `ok` and exits 0, whatever it is handed.
+    probe = tmp_path / "probe.json"
+    probe.write_text("{}\n", encoding="utf-8")
+    result = snapshot_mod.validate_snapshot(probe, validator=sealed)
+    assert result.outcome == snapshot_mod.VALIDATED
+    assert result.validator == sealed
 
 
 def test_a_seal_missing_the_validator_is_refused_at_the_seal(corpus, tmp_path):
