@@ -2012,9 +2012,9 @@ def test_an_EXPLICIT_moved_on_that_AGREES_with_every_directory_is_ACCEPTED(
 
 def test_an_UNMOVED_archived_row_is_NOT_RESTAMPED_by_the_new_rule(tmp_path):
     """The seeder's oldest promise still holds: a row that did not move keeps
-    the provenance it carried. A seeder that rewrote the 124 archived rows
+    the provenance it carried. A seeder that rewrote the 129 archived rows
     whose date is later than their directory would make every re-seed a
-    124-row diff — and those rows are not defects: they record later moves,
+    129-row diff — and those rows are not defects: they record later moves,
     which is what `release-realization` says `moved_on` means."""
     _change(tmp_path, "add-old", archived="2026-08-01")
     path = _ledger(tmp_path, [_row("add-old", state="archived", moved_by="#1",
@@ -2046,7 +2046,7 @@ def test_a_LATER_moved_on_is_NOT_a_finding_by_default(tmp_path):
 
     `release-realization` defines `moved_on` as the date the ROW last moved, so
     an archived change whose reading is moved by a later pull request carries a
-    later date. 124 of this corpus's 143 archived rows do. Reporting them would
+    later date. 129 of this corpus's 183 archived rows do. Reporting them would
     call a correct ledger stale."""
     _change(tmp_path, "add-old", archived="2026-08-01")
     _ledger(tmp_path, [_row("add-old", state="archived", moved_on="2026-09-03")])
@@ -2105,7 +2105,7 @@ def test_a_CONSISTENT_corpus_is_SILENT_and_says_the_arm_PASSED(tmp_path):
 
 def test_STRICT_ARCHIVE_DATES_asks_for_the_STRONGER_reading(tmp_path):
     """The reading issue #790 proposed, kept and made OPT-IN rather than
-    dropped: an archived row's moved_on IS its archive date. 124 live rows do
+    dropped: an archived row's moved_on IS its archive date. 129 live rows do
     not satisfy it and are not defects, which is why it is not the default."""
     _change(tmp_path, "add-old", archived="2026-08-01")
     _ledger(tmp_path, [_row("add-old", state="archived", moved_on="2026-09-03")])

@@ -851,9 +851,10 @@ moved_paths:
 # that derivation rather than its source. THE IN-REPOSITORY AUTHORITY for every
 # one of them is `tests/carve_manifest/test_carve_manifest.py::test_the_real_
 # manifest_carries_the_ruled_q_l7_amendment`, which re-derives the line and
-# carrier totals from these rows and asserts `(2717, 176)` — `(2710, 176)`
+# carrier totals from these rows and asserts `(2743, 177)` — `(2710, 176)`
 # when this paragraph was written, moved by the § 3.4 SLICE-S7 RESIDUE
-# annotation's seven lines below, which is what "summed over the MERGED
+# annotation's seven lines below and then by the § 8.9 RESIDUE annotation's
+# twenty-six and its one conversion, which is what "summed over the MERGED
 # document at every merge" means and why the delta above stays this act's
 # own — and
 # `tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_
@@ -1011,6 +1012,42 @@ moved_paths:
 # `_check_declared_lines`) against the leg's head, so a line slice S7 or S8
 # already declared is not re-declared here.
 # Realized at opensoft/openDox-code `build/s7-residue-leaf-facet`.
+#
+# THE § 8.9 RESIDUE ANNOTATION (the archived `split-opendox-two-layer-product`,
+# `tasks.md` amendment #6 on RULED Q-P3 (a), `#656` comment `5728856581`; the
+# box DEFERRED at the archive, `5778397686`; the FORM is the Q-L1 form ruled at
+# `5628560136`; the CLASS is RULING OQ-1's `path constants`). The snapshot
+# VALIDATOR the carve broke three ways, booked there as residue owed to a
+# follow-up act with its own claim: (i) the validator's `SCHEMAS_DIR` resolved
+# to a directory `openxdox_code` does not have — its own `:114-116` entry
+# declared the rewrite and it was never applied, the arrived blob being
+# byte-identical to the carve blob; (ii) `snapshot.py`'s `VALIDATOR_RELPATH`
+# named the path this repository shed at `cc4ae9d3`; (iii) `find_validator`'s
+# parent walk adopted any enclosing pre-shed checkout — a reader adopting its
+# enclosing tree.
+#
+# MEASURED, NOT INFERRED. `scripts/verify-carve-arrival.py --destination
+# openxdox_code --phase B` against the leg head that applies this window, with
+# the leg's six declared replicas, REFUSES `arrival-digest-mismatch` at
+# `src/openxdox/snapshot.py` against the manifest this act found (the row was
+# `moved_verbatim`), and answers `OK … 87 declared-edit row(s) within their
+# lines … 34 declared admission(s) used` against this one. The line numbers
+# below are the CARVE COMMIT's, computed with the verifier's own algorithm
+# (`carve_lines.text_records` + `difflib` opcodes, `_check_declared_lines`).
+#
+# THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on the
+# discipline the paragraphs above each state: rows unchanged; `not_moved`
+# unchanged; ONE disposition conversion — `scripts/ideation_dashboard/
+# snapshot.py`, `moved_verbatim` -> `moved_with_declared_edit`, the one change
+# that moves both disposition counts and the carrier count at once; declared
+# lines +26 (`path constants` +26, `import rewrites` +0, `adapter calls` +0)
+# over two rows; rows carrying `edits:` +1; replicas unchanged; `re_destined`
+# unchanged at 4. Two created suites are admitted at `openxdox_code`. The one
+# place the running absolutes are summed and pinned is
+# `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`,
+# and this act's own window is pinned by
+# `test_the_real_manifest_carries_the_snapshot_validator_residue_declared_edits`.
+# Realized at opensoft/openXdox-code `fix/snapshot-validator-carve-residue`.
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -2398,11 +2435,15 @@ rows:
     destination: opendox_code
     destination_path: src/opendox/session_pr.py
   - source_path: scripts/ideation_dashboard/snapshot.py
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "06380ef6696dbf7f94f3230895884d1b26976eaa5d642c267240118c779aa02e"
     destination: openxdox_code
     destination_path: src/openxdox/snapshot.py
+    edits:
+      - class: path constants
+        lines: [13, 24, 29, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 133, 163, 167]
+        note: "§ 8.9 RESIDUE (ii) AND (iii) of the archived `split-opendox-two-layer-product` (tasks.md amendment #6, RULED Q-P3 (a), `#656` comment `5728856581`; the box DEFERRED at the archive, `5778397686`): the declared-edit window for the follow-up act that residue is owed to, in RULED Q-L1's form (`#656` comment `5628560136`, binding clause `5642758731`). THE VALIDATOR'S HOME, NOT A WALK. :29 `VALIDATOR_RELPATH` named `openxFactory/scripts/validate-ideation-dashboard-contracts.py`, a path this repository SHED at `cc4ae9d3`; it becomes `scripts/validate-ideation-dashboard-contracts.py` relative to the product's own root, which is where this manifest's own row for that script places it (`openxdox_code`). :62-69 were `find_validator`'s walk over every parent of its `start` (or of the cwd), which ADOPTED any enclosing checkout still carrying a pre-shed copy; the body becomes fixed `parents[2]` arithmetic on the module's own path confirmed by an explicit marker (the `src/openxdox/` layout and a `pyproject.toml` naming `openxdox`), and a `start` outside the product answers None, so nothing above the product's root is ever consulted. The class's own cited example is `gate_console.py:567`'s `parents[2]` arithmetic. `product_root()` is INSERTED beside :61 and the not-found reason beside :70; :24 anchors the one stdlib import the marker reads (`tomllib`). :163 stops passing the snapshot's own directory as a search root; :133 and :167 are the not-found wording, which named an openxFactory checkout as the thing sought; :13 is the module docstring's `the pinned openxFactory validator`, a location the destination does not have, filed `path constants` on the stale-citation reading the Q-L1 annotations took."
   - source_path: scripts/ideation_dashboard/snapshot_registry.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2967,6 +3008,9 @@ rows:
       - class: path constants
         lines: [114, 115, 116, 909, 1800]
         note: "the strict validator spans BOTH legs' schema families (snapshot and gate-action at openXdox; workbench, chat-turn and model-catalog at openDox) plus the registers that stay; RULED OQ-G's principle sends a subject that crosses the columns to openXdox, the leg that pins openDox, and the paths it resolves are rewritten there. The statements are :114 (the __file__-derived repository root), :115 SCHEMAS_DIR and :116 EXAMPLES_DIR, plus the two repo-relative prefix filters naming the same directories in the tree walks (:909, :1800). Verifier round 1 corrected an earlier `import rewrites` entry citing :1, the shebang: measured at the carve commit this file imports no dashboard module at all — every import is stdlib or third-party and survives the move — so the edit it needs is package-internal asset paths, not import rewrites"
+      - class: path constants
+        lines: [14, 15, 16, 94, 224, 225, 226, 230, 237, 1822]
+        note: "§ 8.9 RESIDUE (i) of the archived `split-opendox-two-layer-product` (tasks.md amendment #6, RULED Q-P3 (a), `#656` comment `5728856581`; the box DEFERRED at the archive, `5778397686`), in RULED Q-L1's form (`#656` comment `5628560136`, binding clause `5642758731`). The entry above declared :114-116 for this rewrite and it was never applied: the arrived blob is byte-identical to the carve blob, so `SCHEMAS_DIR` stayed `ROOT / contracts / schemas`, a directory the leg does not have, and the validator could run from nowhere. :115-116 now resolve the contracts directory: the script's own tree first (the pre-shed layout, and this repository's `doxbench_contracts._composed_validator` farm, unchanged), otherwise the directory `CONTRACTS_DIR` names, the channel the openXdox assembly root's `AGENTS-shape.md` declares for a contract the code leg READS but does not OWN (the tooling `takes CONTRACTS_DIR from the environment ... rather than each script guessing at ../`); nothing above the leg's own root is read by position, which is residue (iii)'s class. :94 anchors the one stdlib import that reads it (`os`). THE LINES THIS ENTRY ADDS: since the carve the ten family schemas are split three ways (snapshot, index and gate-action at openXdox-spec; workbench, chat-turn and model-catalog at openDox-spec; possibles-register, project-register, gate-intent and demotion-receipt HERE), so no single directory closes it. :224-226 and :230 make the registry read the schemas the resolved directory CARRIES, the check INSERTED beside :237 refuses an instance of any other kind BY NAME (harness exit 2, never a pass), and :1822 is the default mode's refusal, which now names the channel; :14-16 are the module docstring's `all loaded` claim. Filed `path constants` as the reading of WHICH schema paths the registry reads; the three classes (RULED OQ-1) have no closer spelling, and this note records that rather than hiding it."
   - source_path: scripts/wire_messages.py
     disposition: not_moved
     reason: replicated_at_destination
