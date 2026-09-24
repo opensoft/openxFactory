@@ -138,7 +138,9 @@ NEW_SHA=0123456789abcdef0123456789abcdef01234567
    landed `626f2c8d` before it landed.
 2. **Work in a fresh full clone whose directory is named `openxFactory`**, on a
    new branch off `origin/main`. The directory name is not cosmetic: see the
-   last point of § 5.
+   last point of § 5. Set up its environment FIRST, with § 5's first block.
+   § 4's comparison and both verifiers import PyYAML, and it comes from that
+   block's lock.
 3. **Move the submodule to `NEW_SHA`, checking step 1 as it goes.** The block
    is ONE `&&` chain, and it FAILS CLOSED. It prints its `OK` line only when
    every link succeeded:
@@ -265,6 +267,7 @@ disagree, it refuses `opendox-pin-lockstep-mismatch`.
 sibling's file.** If openXdox's derived openDox reading changed between the old
 commit and `NEW_SHA`, the refusal fires as soon as the new gitlink is recorded.
 Compare the two before staging. The command below FAILS CLOSED:
+- a missing PyYAML is refused, naming the setup block;
 - a malformed `NEW_SHA` is refused;
 - a `git show` that fails is refused with git's own error;
 - a pin file that cannot be read, or that has no `commit:`, is refused;
@@ -275,7 +278,10 @@ Compare the two before staging. The command below FAILS CLOSED:
 ```sh
 python3 - "$NEW_SHA" <<'PY'
 import re, subprocess, sys
-import yaml
+try:
+    import yaml
+except ImportError:
+    sys.exit("REFUSE: PyYAML is not installed; run the setup block in section 5 first")
 HEX40 = re.compile(r"[0-9a-f]{40}")
 sha = sys.argv[1]
 if not HEX40.fullmatch(sha):
@@ -380,7 +386,24 @@ and it checks out the pinned decision core, `codeXfactory/codexFactory` at
 `b21f010013fa51960c77377a8582943435b6db32`:
 
 ```sh
-: "${CORE_CHECKOUT:?set CORE_CHECKOUT to your codexFactory checkout at b21f0100}" &&
+: "${CORE_CHECKOUT:?set CORE_CHECKOUT to your checkout of the pinned codexFactory core}" &&
+  python3 -c 'import subprocess, sys
+try:
+    import yaml
+except ImportError:
+    sys.exit("REFUSE: PyYAML is not installed; run the setup block above first")
+core = sys.argv[1]
+try:
+    with open("contracts/review-lane-pin.yaml", encoding="utf-8") as fh:
+        pinned = yaml.safe_load(fh)["core_commit"]
+    head = subprocess.run(["git", "-C", core, "rev-parse", "HEAD"],
+                          capture_output=True, text=True)
+except (OSError, yaml.YAMLError, KeyError, TypeError) as exc:
+    sys.exit(f"REFUSE: the pinned core could not be checked: {exc!r}")
+if head.returncode != 0 or head.stdout.strip() != pinned:
+    sys.exit(f"REFUSE: {core} is not the pinned core {pinned}: "
+             f"{head.stdout.strip() or head.stderr.strip()}")
+print(f"OK: {core} is the pinned core {pinned}")' "$CORE_CHECKOUT" &&
   git submodule update --init openXwallet &&
   git submodule update --init --recursive openXdox openDox &&
   OPENSPEC="$(python3 scripts/install-pinned-openspec-cli.py)" &&
@@ -389,9 +412,15 @@ and it checks out the pinned decision core, `codeXfactory/codexFactory` at
 ```
 
 - **`CORE_CHECKOUT` is yours to supply:** your checkout of
-  `codeXfactory/codexFactory` at that commit. The chain checks it first, so
-  an unset or empty `CORE_CHECKOUT` stops it before anything runs. CI supplies
-  `${{ github.workspace }}/.merge-master-core`.
+  `codeXfactory/codexFactory` at that commit. CI supplies
+  `${{ github.workspace }}/.merge-master-core`. The chain checks it before
+  anything else runs, in two links:
+  - an unset or empty `CORE_CHECKOUT` stops it;
+  - so does a checkout whose `HEAD` is not `contracts/review-lane-pin.yaml`'s
+    `core_commit`, printing `REFUSE`. That is the commit `pytest-suite.yml`
+    checks out, and `test_the_required_suite_checks_out_the_pinned_core` holds
+    the two equal. The freshness verifier only compares one file's bytes, so
+    a core at another commit could otherwise pass for the pinned one.
 - **The pinned OpenSpec CLI.** `scripts/install-pinned-openspec-cli.py`
   installs it outside the checkout, verified against its pin, and prints the
   executable's path. It needs the `node` set up above. Without `openspec` on
@@ -441,41 +470,68 @@ runbook: "opensoft/openDox-code docs/runtime.md sections 5-6, …"
 
 `contracts/openxdox-pin.yaml` carries NO `migration:` field.
 
-The check below is run with the cwd in a checkout of each repository, and with
-`COMMIT` set to that repository's full 40-hex commit. It FAILS CLOSED, printing
-`REFUSE` and exiting 1 in two cases. The first is a `COMMIT` that is not 40
-lowercase hex characters, as `git rev-parse` prints them; that includes an unset
-one. It is refused before git runs. The second is a failing `ls-tree`, refused
-with git's own error. Neither is ever read as "0 paths". That is not true of the
-obvious `git ls-tree … | grep -i migrat`, which reports no hit either way.
+Whether a bump CROSSES a migration is a question about the RANGE it moves
+over, not about one commit. The check below compares two commits. Run it with
+the cwd in a checkout of each repository, and with `OLD_COMMIT` and
+`NEW_COMMIT` set to that repository's full 40-hex commits before and after the
+bump:
+- for openXdox itself, the pin's old `commit:` and `NEW_SHA`;
+- for each leg, its gitlink at those two root commits. With the old root
+  commit in `OLD_ROOT`, `git -C openXdox rev-parse "${OLD_ROOT}:code"` and
+  `git -C openXdox rev-parse "${NEW_SHA}:code"` print the `code` leg's pair,
+  and `spec` works the same way. The braces matter: in zsh, `"$OLD_ROOT:code"`
+  reads `:c` as a modifier.
+
+It prints each migration path the range adds, changes, deletes or renames, and
+then two counts. The bump crosses a migration exactly when the first count is
+not 0. It FAILS CLOSED, printing `REFUSE` and exiting 1, in two cases. The first
+is a commit that is not 40 lowercase hex characters, as `git rev-parse` prints
+them; that includes an unset one. It is refused before git runs. The second is a
+failing `git` call, refused with git's own error. Neither is ever read as
+"0 paths". That is not true of the obvious `git diff … | grep -i migrat`, which
+reports no hit either way.
 
 ```sh
 python3 -c 'import re, subprocess, sys
-commit = sys.argv[1]
-if not re.fullmatch(r"[0-9a-f]{40}", commit):
-    sys.exit(f"REFUSE: COMMIT is not a full 40-hex commit: {commit!r}")
-try:
-    run = subprocess.run(["git", "ls-tree", "-r", "--name-only", commit],
-                         capture_output=True, text=True)
-except OSError as exc:
-    sys.exit(f"REFUSE: git could not run: {exc}")
-if run.returncode != 0:
-    sys.exit(f"REFUSE: git ls-tree {commit} failed: {run.stderr.strip()}")
-hits = [n for n in run.stdout.splitlines() if "migrat" in n.lower()]
-for n in hits:
-    print(n)
-print(f"{len(hits)} path(s) containing migrat")' "$COMMIT"
+old, new = sys.argv[1], sys.argv[2]
+for name, value in (("OLD_COMMIT", old), ("NEW_COMMIT", new)):
+    if not re.fullmatch(r"[0-9a-f]{40}", value):
+        sys.exit(f"REFUSE: {name} is not a full 40-hex commit: {value!r}")
+def git(*argv):
+    try:
+        done = subprocess.run(["git", *argv], capture_output=True, text=True)
+    except OSError as exc:
+        sys.exit(f"REFUSE: git could not run: {exc}")
+    if done.returncode != 0:
+        sys.exit(f"REFUSE: git {argv[0]} failed: {done.stderr.strip()}")
+    return done.stdout.splitlines()
+changed = [line for line in git("diff", "--name-status", old, new)
+           if "migrat" in line.lower()]
+present = [name for name in git("ls-tree", "-r", "--name-only", new)
+           if "migrat" in name.lower()]
+for line in changed:
+    print(line)
+print(f"{len(changed)} migration path(s) changed from OLD_COMMIT to NEW_COMMIT; "
+      f"{len(present)} present at NEW_COMMIT")' "$OLD_COMMIT" "$NEW_COMMIT"
 ```
 
-On 2026-09-24 it prints `0 path(s) containing migrat` for each of openXdox
-`2f3f857d`, openXdox-code `626f2c8d` and openXdox-spec `f088b097`. So this pin
-has nothing to declare yet. The same check does find paths where they exist. At
-openDox-code it lists `migrations/0001_identity_and_coordination.sql` among its
-hits.
+Measured on 2026-09-24, over the advance to openXdox `069fe471`:
+
+| repository | `OLD_COMMIT` → `NEW_COMMIT` | changed | present at `NEW_COMMIT` |
+| --- | --- | ---: | ---: |
+| openXdox | `2f3f857d` → `069fe471` | 0 | 0 |
+| openXdox-code | `626f2c8d` → `e28930bf` | 0 | 0 |
+| openXdox-spec | `f088b097` → `f088b097` | 0 | 0 |
+
+So this pin has nothing to declare yet. The same check does find migrations
+where a range crosses them. Over openDox-code `52b237e8` → `aca94ecb` it lists
+six added paths, `migrations/0001_identity_and_coordination.sql` and
+`migrations/0002_migration_state.sql` among them.
 
 **UNCONFIRMED:** whether the first advance that DOES cross an openXdox migration
 is expected to ADD the field here, filled on the sibling's pattern. The trigger
-to watch for is this check reporting a hit for the first time. The openDox pin's
+to watch for is this check reporting a changed migration path for the first
+time. The openDox pin's
 own header records exactly that before/after measurement at its `dc7aa08f` bump.
 
 ## 7. Worked examples
