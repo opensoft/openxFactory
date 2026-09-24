@@ -1,6 +1,7 @@
 # Tasks: add-neutral-product-standalone-operability
 
-Status: draft
+Status: ratified
+Ratified by: add-neutral-product-standalone-operability — 2026-09-24, Brett Heap, "ratify #1144, land the follow-ons, (a) on C1–C5" (`#656` comment `5815412869`), over PR #1144's final head `19237b91` as landed at `94b6f7f1` (record `review/ratification-2026-09-24.md`)
 
 **Group 1 is the authoring THIS change performs and it touches no code.**
 Groups 2-16 are the post-ratification realization, each in the repository named
@@ -174,9 +175,17 @@ for later.
   § R-G3 records the options as they were put, what was ruled, and the CORRECTION
   to this packet's own pricing of option (a) — `generator.py:66-68` imports
   `doc_health`, which this packet had not measured when it recommended (c).
-- [ ] 1.8 On ratification: `Status: ratified` + `Ratified by:` on all three
+- [x] 1.8 On ratification: `Status: ratified` + `Ratified by:` on all three
   lifecycle documents; `## Ratification record` in `proposal.md`; the approval
   pair ADDED beside the fixed origin in `.openspec.yaml`, never substituted.
+  **Done on the word of 2026-09-24** (`#656` comment `5815412869`):
+  - `Status: ratified` on all three lifecycle documents. The citation is
+    `Ratified:` on `proposal.md` and `Ratified by:` on `design.md` and
+    `tasks.md`, the split the lane's #1140 and #1141 carried.
+  - `## Ratification record` in `proposal.md`.
+  - The approval pair ADDED under `origin:` after `proposed_on`. `kind`, `id`,
+    `reason`, `proposed_by` and `proposed_on` do not move.
+  - The record, `review/ratification-2026-09-24.md`.
 - [x] 1.9 **THE RULINGS OF 2026-09-23 — GIVEN AND ENCODED.** `5799494355`
   (*"keep the direct arrow, revisit after phase 1"*): RULING OQ-2's pin chain is
   unchanged, carried as a non-normative note in `design.md` § D13 and as
@@ -278,12 +287,14 @@ mention in the package is prose.
 
 ## Group 3 — Requirement 3 / G2: a default domain profile (openDox-code)
 
-- [ ] 3.0 **RATIFICATION READ FIRST.** Requirement 3 revisits the PREMISE of RULED
+- [x] 3.0 **RATIFICATION READ FIRST.** Requirement 3 revisits the PREMISE of RULED
   ASK-2 option (2) (`#656` comment `5628886636`) — not its reasoning. An EMPTY
   default stays refused; what changes is the refusal text's premise that *"openDox
   … ships no profile of its own"*. If the ratification read takes ASK-2 to
   foreclose this, requirement 3 is struck and the other **sixteen** stand. See
-  `design.md` § D5.
+  `design.md` § D5. **Read at ratification, 2026-09-24** (`5815412869`): the word
+  ratifies the packet whole and strikes nothing, so requirement 3 stands and the
+  other sixteen with it (`review/ratification-2026-09-24.md` § 2).
 - [ ] 3.1 Ship a default profile for openDox's OWN domain — documents and ideas —
   carrying none of openxFactory's status taxonomy or change/spec/delta nouns
   (RULING C2, DIRECTION Q5). Note the standalone problem this closes: the only

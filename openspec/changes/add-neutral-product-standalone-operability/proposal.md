@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: add-neutral-product-standalone-operability
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-24 by Brett Heap (openxFactory operator authority) — in-session, verbatim *"ratify #1144, land the follow-ons, (a) on C1–C5"*, `#656` comment `5815412869`, over PR #1144's final head `19237b91` as landed at `94b6f7f1`; the word authorizes realization of release 1 and performs none of it; record at review/ratification-2026-09-24.md
 Authored: 2026-09-22, in lane `openxfactory-4` (display
 `openXfactory-4-openDox_extraction`), actor `buildarc`, as the BUILD ARC the
 archived packet `split-opendox-two-layer-product` names as its own unclosed
@@ -23,9 +24,43 @@ Brett as a named question rather than decided here — and it was RULED the same
 day, so `design.md` § R-G3 now records a decision, the options as they were put,
 and a correction to this packet's own analysis of them.
 
+**RATIFIED ON 2026-09-24. The next paragraph is kept verbatim as the filing's
+record.** Its negations were true at filing and are superseded by the ratification
+cited above. The three lifecycle documents now carry `Status: ratified`, and
+`.openspec.yaml` carries the approval pair beside the drafting provenance, which
+does not move. The requirements are now approved intent. They reach canon only at
+the archive, which needs merged, green realization evidence for both releases.
+
 FILING IS NOT RATIFYING. All three lifecycle documents carry `Status: draft`,
 `.openspec.yaml` declares drafting provenance with NO approval pair, and nothing
 here admits text to canon. Ratification is a separate act on Brett Heap's word.
+
+## Ratification record
+
+**RATIFIED** by Brett Heap, 2026-09-24T13:51:09Z, interactive in the lane
+session, verbatim *"ratify #1144, land the follow-ons, (a) on C1–C5"*, recorded
+at `opensoft/openxFactory` [#656](https://github.com/opensoft/openxFactory/issues/656) comment
+[`5815412869`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5815412869).
+The full record is
+[`review/ratification-2026-09-24.md`](review/ratification-2026-09-24.md).
+
+- **What is ratified.** The packet's text at PR #1144's final head `19237b91`,
+  which landed as squash commit `94b6f7f1` with an identical tree: all seventeen
+  requirements and seventy-five scenarios. The word strikes nothing, so
+  requirement 3 stands, which answers the one question this packet reserved for
+  the ratification read (below).
+- **What it authorizes.** The realization of **release 1**, phases 1-3, as the
+  ruling record states. Nothing is realized by the word itself. The ruling record
+  names release 1 alone and does not name release 2's realization (phases 4-5),
+  whose rulings stay sequenced after release 1.
+- **What it does not do.** It archives nothing and promotes nothing. The change
+  archives only on merged, green realization evidence for BOTH releases
+  (`5800995035`). No code byte, pin, gitlink, contract bundle or release tag
+  moves, and `code_surface:`, `target_release:` and `sequenced_after:` stand as
+  landed.
+- **Not this record's subject.** The same comment rules the archive follow-ons
+  (its item 2) and the banked helper items C1–C5 (item 3), and it leaves C6 open
+  (item 4). Those are other acts.
 
 ## Why
 
@@ -653,7 +688,9 @@ One smaller item remains for the ratification read, and it is not a ruling
 request: `design.md` § D5 records that requirement 3 revisits the **premise** of
 RULED ASK-2 — not its reasoning, since an EMPTY default stays refused. If ASK-2
 is read as foreclosing a default profile for openDox's own domain, requirement 3
-is struck and the other sixteen stand.
+is struck and the other sixteen stand. **Read at ratification, 2026-09-24:** the
+word ratifies the packet whole and strikes nothing, so requirement 3 stands with
+the other sixteen (`review/ratification-2026-09-24.md` § 2).
 
 
 ## Two releases, one change — three rulings of 2026-09-23
