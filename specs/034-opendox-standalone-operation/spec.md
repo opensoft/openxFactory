@@ -77,7 +77,7 @@ R1Q6"*.
   registration replaces the default until a parser or server is built from
   it, and is refused after that. That conflicts with the TEXT of requirement
   3's fourth scenario, so it is RULING NEEDED RN-1 (plan.md § "Ruling
-  needed").
+  needed"). RN-1 holds phase 1's close (T049), but not T016's landing.
 - Q: R1Q4. What does the default profile contribute, given that an empty
   default stays refused? → A: (a). openDox's own verbs and routes: the runtime
   verbs now, and release 2's `submit`, `land` and `health` later. Its
@@ -322,8 +322,9 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 - **FR-002** (requirement 3; 3.0–3.3; F3.1): openDox SHALL ship a default
   profile for its own domain that carries no publisher vocabulary. Entry points
   SHALL build on it when no host has registered, and a registered profile
-  SHALL replace it. Both defaults are entry-point registrations (R1Q3 (a);
-  the after-build case is RN-1). An EMPTY default stays refused: the default
+  SHALL replace it. Both defaults are entry-point registrations (R1Q3 (a)).
+  The after-build case is RN-1, and FR-002 is not reported as realized until
+  RN-1 is ruled. An EMPTY default stays refused: the default
   contributes openDox's own verbs (R1Q4 (a), R1Q5 (a)). The carve manifest's
   `deleted_at_carve` row SHALL stay byte-identical.
 - **FR-003** (requirement 5; 4.1, 4.1a, 4.2, 4.3; F4.1): every deferred reach
@@ -408,7 +409,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 ### Measurable Outcomes
 
 - **SC-001** (phase 1 exit): at the phase-1 tip, F2.1, F3.1, F9.1 (in both
-  legs) and F9.2 exit 0, and `opendox --help` exits 0. openDox-code's suite
+  legs) and F9.2 exit 0, each as amended where T007 records an amendment, and
+  `opendox --help` exits 0. RN-1 is ruled, and T016 matches the ruling. openDox-code's suite
   goes from 0 passed today to whole and green. openXdox-code's goes from 57
   collection errors to whole and green less its declared `doc_health`
   exclusion (R1Q6 (d)).

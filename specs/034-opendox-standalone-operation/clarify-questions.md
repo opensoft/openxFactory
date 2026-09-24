@@ -43,7 +43,7 @@ written inline under its question and encoded into `spec.md` in the same commit
 
 | phase | cannot start or close without |
 |---|---|
-| 1, it runs | nothing open. R1Q1–R1Q9 and R1Q22 are answered (`5817152735`); T006's round-1a analyze and each slice's claim remain |
+| 1, it runs | no open question: R1Q1–R1Q9 and R1Q22 are answered (`5817152735`). T006's round-1a analyze and each slice's claim gate its start, and RN-1 gates its close |
 | 2, useful alone | R1Q11, R1Q12, R1Q13 (the projection and the validator); R1Q10 (serving it); R1Q14 (7.3); R1Q23 (F5.2's four `doc_health` suites) |
 | 3, it installs | R1Q15, R1Q16 (the install); R1Q10, R1Q12 (chat standalone); R1Q17, R1Q18 (16.3); R1Q19 (the lens in the acceptance) |
 | every landing | nothing open. R1Q20 and R1Q22 are answered |
@@ -178,7 +178,7 @@ from the default (RULED ASK-4 Q5's reason)? Recommended: replace while nothing
 has been built; refuse once a parser or server was built from the default.
 
 **Recommendation.** (a), with (i) as proposed and (ii) as recommended.
-**ANSWER: (a)**, with (i) and (ii), RULED in `5817152735`. T007 batch A amends F3.1 line 2 and 3.2's wording. (ii) conflicts with the TEXT of requirement 3's fourth scenario, which replaces the default unconditionally. That text change is **RULING NEEDED RN-1** (plan.md § "Ruling needed"). It holds no task, because the after-build refusal is today's `AlreadyRegistered`.
+**ANSWER: (a)**, with (i) and (ii), RULED in `5817152735`. T007 batch A amends F3.1 line 2 and 3.2's wording. (ii) conflicts with the TEXT of requirement 3's fourth scenario, which replaces the default unconditionally. That text change is **RULING NEEDED RN-1** (plan.md § "Ruling needed"). It holds phase 1's close (T049), not T016's landing, because the after-build refusal is today's `AlreadyRegistered`.
 
 ---
 

@@ -26,8 +26,8 @@ were put to Brett as `R1Q1`–`R1Q22`, and one answer raised `R1Q23`.
 
 - **Phase 1 is planned on answers.** Brett ruled all eleven questions it
   needed (`#656`, `5817152735`: *"(a) on all eleven, (d) on R1Q6"*). See
-  § "Ruled answers", which also records the one scenario text they touch
-  (RN-1).
+  § "Ruled answers". It also records the one scenario text they touch, RN-1,
+  which holds phase 1's close but none of its work.
 - **Phases 2 and 3 are PROVISIONAL, and they authorize no implementation.**
   They are an outline, kept for sequencing, for the release-wide box
   accounting, and for the questions that planning them raised. The questions
@@ -187,7 +187,7 @@ T001–T008 (holder: claims, ARC_BASE, answers, analyze, #1144 amendments, the d
           [oD]   T039 root pin (T090 steps 1–2)  after T022, T032, T037, T038
           [oXc]  T040 (pin, residue) → T041 (declared exclusion) → T042 (9.3) → T043 → T044
           [oX]→[oxF]  T047 consumer pins (steps 5–6), carrying T045 + T046 host wiring
-          checkpoint T049 (after T007 batches A, B);  holder T048 (F4 re-measure)
+          checkpoint T049 (after T007 batches A, B, and RN-1);  holder T048 (F4 re-measure)
  PHASE 2 (PROVISIONAL)
           [oDc]  T050 → T051  ∥  T052  ∥  T057   (∥ T053 [oDs] if R1Q11 (a))
                  T054 (projection) → T055 (sources, 4.3 part) → T056 → T058 (validator)
@@ -198,7 +198,7 @@ T001–T008 (holder: claims, ARC_BASE, answers, analyze, #1144 amendments, the d
  PHASE 3 (PROVISIONAL)
           [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080;  T085 → T081
                  4.3 end: T084 (after T073)          T075 → T077;  T082, T083, T088
-          [oD]   T087 root pin, then T076 (README) after the command's final form (R1Q15)
+          [oD]   T087 root pin → T076 (README), once the command has its final form (R1Q15)
           [oXc]  T086 (columns, ratchet (0,0)) at the pin T087 carries
           [oX]→[oxF]  T094 consumer pins + host wiring;  checkpoint T089
  ACCEPTANCE      T095 (HTTP, CI)  →  T096 (browser)  →  T097 (bookkeeping, Rule 6)
@@ -351,8 +351,11 @@ hold as written.
   never fires. No text changes, but the default is then privileged after a
   build, against the scenario's own words.
 
-RN-1 holds no task. After a build, T016 leaves today's `AlreadyRegistered`
-refusal in place, and that refusal is (ii). Only (b) would make T016 do more.
+RN-1 holds phase 1's CLOSE, not its work. T016 lands on the ruled (ii),
+because after a build it leaves today's `AlreadyRegistered` refusal in place,
+and that refusal is (ii). The checkpoint T049 does not report requirement 3 as
+realized until RN-1 is ruled and T016 matches the ruling. Only (b) would make
+T016 do more.
 
 **Not a ruling: a watch item for the archive.** Under R1Q6 (d), requirement 9
 is met for openXdox-code by its first scenario: a declared exclusion, with its
