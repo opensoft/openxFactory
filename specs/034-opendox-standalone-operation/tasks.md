@@ -1040,7 +1040,9 @@ no-model state. `consumer_reach.py` is gone.
   - there is zero `pageerror`, and nothing undeclared.
 
   Record the evidence in openxFactory, in this feature's `evidence/at-r1/`, with
-  no trailer.
+  no trailer: this run's oracle verdict, and the URL and verdict of T095's
+  `acceptance` job at the same openDox-code commit. Together they are SC-004's
+  evidence for both halves.
   - **Realizes**: FR-011 (browser half).
   - **Falsifier**: the oracle's verdict, which must pass: zero `pageerror`, and
     nothing undeclared.

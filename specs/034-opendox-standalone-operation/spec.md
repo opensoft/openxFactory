@@ -2,9 +2,10 @@
 
 **Feature Branch**: `034-opendox-standalone-operation`
 **Created**: 2026-09-24
-**Status**: Draft (planning). 11 of the 23 clarify questions are answered,
-including every question phase 1 needed. 12 are open, and phases 2–3 are
-PROVISIONAL until they are answered.
+**Status**: Draft
+**Clarifications**: 11 of the 23 clarify questions are answered, including
+every question phase 1 needed. 12 are open, and phases 2–3 are PROVISIONAL
+until they are answered.
 **Realizes**: RELEASE 1, "standalone operation", phases 1–3, of the
 openxFactory OpenSpec change `add-neutral-product-standalone-operability`
 (#1144, landed `94b6f7f1`). The phases follow that change's RULED release map

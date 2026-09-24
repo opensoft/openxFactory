@@ -128,7 +128,7 @@ behind in a test; none is a product defect:
 
 ## R4 — openDox-code's CI runs 41 of 63 modules; 22 are run by nothing
 
-`cd "$W/openDox-code" && python3 "$W/tools/ci_coverage.py"` printed:
+`cd "$W/openDox-code" && "$W/od/bin/python" "$W/tools/ci_coverage.py"` printed:
 
 - The tree has 63 modules: 53 under `tests/` and 10 under `tests_runtime/`.
 - The `validate` job names 37 modules. It is the only check a PR is required
@@ -161,7 +161,7 @@ The packet counted 26. It had not credited the `runtime` job with running
 
 ## R5 — The 27 deferred reaches, with the functions that make them
 
-`cd "$W/openDox-code" && python3 "$W/tools/scan_deferred_reaches.py" src/opendox`
+`cd "$W/openDox-code" && "$W/od/bin/python" "$W/tools/scan_deferred_reaches.py" src/opendox`
 runs #1144's own F4.1 scan, extended to print the innermost function around
 each reach. It printed `27 deferred reaches`:
 
@@ -201,7 +201,7 @@ snapshot-source default in phase 2 (R7). The release map's own rule sets this:
 
 ## R6 — `consumer_reach`: 11 names at 65 use sites
 
-`cd "$W/openDox-code" && python3 "$W/tools/census_consumer_reach.py"` counts
+`cd "$W/openDox-code" && "$W/od/bin/python" "$W/tools/census_consumer_reach.py"` counts
 every read of a `consumer_reach` name outside `consumer_reach.py` itself: an
 attribute read, or a load of an alias bound by `from … import` or by
 `X = consumer_reach.Y`. It printed `total sites: 65`:
@@ -274,7 +274,7 @@ prints each import that names `runtime`:
 
 ```sh
 cd "$W/openDox-code"
-python3 - <<'PY'
+"$W/od/bin/python" - <<'PY'
 import ast, pathlib
 root = pathlib.Path("src/opendox")
 for p in sorted(root.rglob("*.py")):
@@ -296,7 +296,7 @@ and `/api/v1`, and `pyproject.toml:96-139` keeps its five packages in a separate
 
 ## R10 — openXdox-code: 16 of 85 test files in CI, 57 that fail collection
 
-- `cd "$W/openXdox-code" && python3 "$W/tools/ci_coverage.py" tests` reports
+- `cd "$W/openXdox-code" && "$W/ox/bin/python" "$W/tools/ci_coverage.py" tests` reports
   85 modules, of which `validate` names 16. `--noconftest` appears on 8 lines.
   The floors are `MIN_SELECTED 564`, `MIN_PASSED 558` and `EXPECT_SKIPPED 6`;
   the packet recorded `539/533/6` before #26 and #27 raised them.
