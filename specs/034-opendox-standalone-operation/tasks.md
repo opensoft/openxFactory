@@ -970,12 +970,14 @@ no-model state. `consumer_reach.py` is gone.
   - **Ruled**: R1Q20 (a).
 - [ ] T092 [oxF] **11.1's notes.** One `edits[].note` per closed reach, added
   where an existing `edits[]` entry has none, or extended, and never rewritten.
-  No row, field or digest changes. The manifest records the carve as it
-  arrived, so an arc edit to a carved file needs nothing more (R1Q22 (a)).
+  The note is the only field that changes: with every `edits[].note` removed,
+  the manifest is unchanged, so no row, other field or digest moves. The
+  manifest records the carve as it arrived, so an arc edit to a carved file
+  needs nothing more (R1Q22 (a)).
   - **Realizes**: 11.1, which is ticked at ARC close.
-  - **Falsifier**: F11.1's manifest check, which refuses a rewritten note and
-    any row, field or digest change. Each interim run (T018, T065, T098)
-    applies it.
+  - **Falsifier**: F11.1's manifest check. With every `edits[].note` removed,
+    the two documents must be equal, and a note that already existed may only
+    be extended. Each interim run (T018, T065, T098) applies it.
   - **Ruled**: R1Q22 (a).
 - [ ] T093 [oxF] **The interim F11.1 procedure, and F11.1 at the arc's
   close.** Run F11.1 with `PACKET_MERGE=94b6f7f1` and `ARC_TIP` set to the last

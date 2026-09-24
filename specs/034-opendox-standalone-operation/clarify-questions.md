@@ -677,7 +677,7 @@ openDox-code SOURCE files, and also R3's nine red tests and six of the seven
 source files are `moved_verbatim` rows with no `edits[]` entry: `doxbench_binding.py` (16.1–16.3) and, likely,
 `web/views/doxbench-chat.js` (16.4). 11.1's guard lets an arc landing change the
 manifest only by adding or extending an existing `edits[].note` — it refuses
-*"a row, a field, a digest"* and any disposition move.
+any other change (*"a row, a field, a digest"*) and any disposition move.
 
 **Options.**
 - (a) No: the manifest records the carve as it ARRIVED; post-arrival development

@@ -26,12 +26,17 @@ before implementation starts.
       encode them as they are answered.
       Until then, phases 2–3 are PROVISIONAL and authorize no
       implementation.
-- [x] Every requirement can be tested. Each FR cites #1144's own falsifier.
-- [x] The success criteria can be measured: every one is a falsifier's exit
-      status, or AT-R1's.
+- [x] Every requirement can be tested. FR-001 to FR-010 each cite #1144's own
+      falsifier. FR-011 is tested by AT-R1 (T095, T096), and FR-012 by each
+      PR's review against its task's lines and its quoted falsifier output.
+- [x] The success criteria can be measured. SC-001 to SC-005 are falsifier
+      exit statuses, or AT-R1's verdict. SC-006 is a box count
+      (`box_census.py`), and SC-007 is the state of openxFactory's required
+      checks.
 - [x] The acceptance test is defined term by term (spec.md § AT-R1), and its
       procedure is written (`quickstart.md`).
-- [x] The edge cases are listed, each tied to its question.
+- [x] The edge cases are listed, each tied to the question, box or in-flight
+      act that governs it.
 - [x] The scope is bounded: release 2, Group 8 and F1–F4 are out, and the box
       accounting sums to 124.
 - [x] Dependencies and assumptions are named: the 1.8 ratification record
