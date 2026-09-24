@@ -2297,6 +2297,25 @@ def _missing_objects(tree: Path) -> set[str]:
             if line.startswith("?")}
 
 
+def _run_inventory_traced(root: Path, inventory: Path, trace: Path,
+                          *extra: str):
+    """`_run_inventory`, with every `git` the validator starts TRACED to
+    `trace`: what the validator ASKED git, whatever its report prints.
+
+    `GIT_TRACE` naming an absolute path makes each git process append the argv
+    it ran, and the module's sanitized environment passes it through — it
+    scrubs the variables that MOVE a repository, not the one that reports on
+    one. A case reading the trace asserts a read it EXPECTS as well as the one
+    it forbids, so a trace that recorded nothing cannot pass for a read that
+    was never made.
+    """
+    return subprocess.run(
+        [sys.executable, str(INVENTORY_VALIDATOR), str(root),
+         "--inventory", str(inventory), *extra],
+        capture_output=True, text=True,
+        env={**os.environ, "GIT_TRACE": str(trace)})
+
+
 def test_a_code_leg_carried_by_a_PIN_ADMITTED_PINNED_root_LOADS(tmp_path):
     """Scenario *A code leg is nested under a pinned assembly root*.
 
@@ -2595,28 +2614,45 @@ def test_a_pinned_carriers_tree_that_does_NOT_VERIFY_is_NOT_RECHECKED(tmp_path):
     report naming the carrier expected and what the tree is; and the SAME tree,
     once its origin says it is the carrier, NAMES the leg at that commit, so
     the refusal is the binding's and not the read's.
+
+    AND THE PINNED-COMMIT READ IS NOT ATTEMPTED, which the report alone cannot
+    show: a realization could read the impostor's object store and simply not
+    print what it found. So the validator's own `git` calls are traced. The
+    unverified run's trace holds the binding's reads — it was recording — and
+    no object read at all, and nothing naming the pinned commit; the verified
+    run's trace holds `cat-file -t` of exactly that commit.
     """
     impostor = _worktree(tmp_path, "git@github.com:opensoft/Innocent.git",
                          name="impostor")
     pinned = _commit_gitmodules(impostor, [_LEG], "the commit the pin names")
     _pin_file(tmp_path, pinned)
     inventory = _inventory(tmp_path, [_pinned_root_row(), _leg_row()])
-    result = _run_inventory(tmp_path, inventory,
-                            "--estate-tree", f"{_PINNED_ROOT}={impostor}")
+    trace = tmp_path / "unverified.trace"
+    result = _run_inventory_traced(
+        tmp_path, inventory, trace,
+        "--estate-tree", f"{_PINNED_ROOT}={impostor}")
     assert result.returncode == 0, result.stdout
     assert "0 named in a VERIFIED supplied tree" in result.stdout
     assert "0 absent from one" in result.stdout
     assert "1 NOT RE-CHECKED" in result.stdout
     assert f"is a checkout of opensoft/Innocent, not of {_PINNED_ROOT}" \
         in result.stdout
-    assert pinned not in result.stdout  # the pinned commit was never read
+    assert pinned not in result.stdout  # the pinned commit is not reported
+    asked = trace.read_text(encoding="utf-8")
+    assert "remote get-url origin" in asked, asked  # the binding WAS read
+    assert pinned not in asked, asked  # and the pinned commit was NOT
+    assert "cat-file" not in asked and "ls-tree" not in asked, asked
 
     _git_out(impostor, "remote", "set-url", "origin", _ROOT_ORIGIN)
-    result = _run_inventory(tmp_path, inventory,
-                            "--estate-tree", f"{_PINNED_ROOT}={impostor}")
+    trace = tmp_path / "verified.trace"
+    result = _run_inventory_traced(
+        tmp_path, inventory, trace,
+        "--estate-tree", f"{_PINNED_ROOT}={impostor}")
     assert result.returncode == 0, result.stdout
     assert "1 named in a VERIFIED supplied tree" in result.stdout
     assert pinned in result.stdout
+    asked = trace.read_text(encoding="utf-8")
+    assert f"cat-file -t {pinned}" in asked, asked  # the same trace sees it
 
 
 def test_the_live_inventory_carries_the_FOUR_legs_of_the_two_pinned_roots():
