@@ -282,7 +282,8 @@ T093's procedure. F5.2 and 9.3's integration suite pass.
 2. **Given** every arc landing on openxFactory `main` since `94b6f7f1`, **When**
    F11.1 runs, **Then** each path touched is one of 11.1's surfaces, as
    widened to named composition tests by R1Q2 (a). The manifest differs only
-   by extended notes (requirement 1; R1Q20 (a), R1Q22 (a)).
+   in `edits[].note` values, each added where an entry had none or extended,
+   and none rewritten (requirement 1; R1Q20 (a), R1Q22 (a)).
 
 ---
 

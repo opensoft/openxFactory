@@ -101,7 +101,7 @@ Round 1a is this revision.*
 | III. Document lifecycle | PASS | The feature files carry Speckit's own `Status: Draft`. #1144 is `Status: ratified`, with its record landed as #1151 → `cd494e4c`. |
 | IV. Schema and artifact discipline | PASS | No committed file names a host path: every command resolves its scratch space with `W=$(mktemp -d)`. No credential is stored: 16.3 refuses raw keys. **The README document index** links all seven of this feature's documents, in one entry in its Documentation section, beside the openDox carve documents. The entry sits outside the OpenSpec Records block, so it needs no Rule 6 window. None of the 31 earlier feature directories under `specs/` on `main` (`1d14fee6`) is indexed there, so this entry is the first of its kind. |
 | V. Validation gates | PASS for this PR, against `main`'s recorded baseline | This PR touches no `openspec/` path. `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` gives `110 passed, 1 failed` on this branch, exactly as on `main` at `cd494e4c`. The one failure is `add-chain-attestation`'s "omits scenario(s)" finding. It is an accepted disposition in `contracts/openspec-cli-pin.yaml` (`ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'`), and it retires when that change archives. This PR cannot move it. The gate the repository enforces, `scripts/validate-openspec-cli-pin.py --all` (the `openspec-cli-pin` check), exits 0 with `0 UNDISPOSITIONED failures`. No other `scripts/validate-*.py` reads `specs/`, and every check on the PR is green. Implementation evidence will be falsifier output, quoted. |
-| VI. Versioned releases | WATCH | 9.5 says *"none cuts a contract bundle"*. R1Q11 (a) would add an openDox-spec schema, which is probably a `dox-v1.1` minor at the openDox root; if so, that release follows the root's own four-value rule. |
+| VI. Versioned releases | WATCH | 9.5 says *"none cuts a contract bundle"*. R1Q11 (a) or R1Q12 (b) would add an openDox-spec schema (T053), which is probably a `dox-v1.1` minor at the openDox root; if so, that release follows the root's own four-value rule. |
 | VII. Fail-closed authority | PASS | Every seam refuses naming itself when nothing is registered (4.2's discipline). The hosted mode refuses without an issuer. An unknown dialect is refused. |
 | Workflow: *"material ambiguities MUST be resolved before planning"* | **PASS for phase 1; phases 2–3 PROVISIONAL** | This plan authorizes only phase 1 for implementation, and every material ambiguity in phase 1 is resolved (`5817152735`). Phases 2–3 are a provisional outline that authorizes nothing. Each is planned for implementation only by its round task (T009, T069), which encodes its answers, re-plans it and re-runs analyze. A task blocked by an open R1Q never starts (FR-012). See Complexity Tracking. |
 
@@ -205,7 +205,7 @@ T001–T008 (holder: claims, ARC_BASE, round 1a, re-measure, analyze, #1144 amen
           [oX]→[oxF]  T047 consumer pins (steps 5–6) after T039, T044, T007 batch A; carries T045 + T046
           T047 → T017 (3.3) and T018 (interim F11.1) → checkpoint T049 (after T007 batches A, B, and RN-1);  holder T048
  PHASE 2 (PROVISIONAL)  T009 (phase 2's round: answers, re-plan, analyze) first
-          [oDc]  T050 → T051  ∥  T052  ∥  T057   (∥ T053 [oDs] if R1Q11 (a))
+          [oDc]  T050 → T051  ∥  T052  ∥  T057   (∥ T053 [oDs] if R1Q11 (a) or R1Q12 (b))
                  T054 (projection) → T055 (sources, 4.3 part) → T056 → T058 (validator)
           [oD]   T062 root pin  after T054–T058
           [oXc]  T059 (5.4a) after T052, T055, T062, T007 batch C;  T060 (5.3a re-run) after T054
@@ -243,7 +243,7 @@ lists of the re-planned tasks.
   answered (d), so openXdox-code's T041 waits only on T006 and T040.
 - **Phase 2 parallel lanes**: the fixtures (T050, then T051), the generator seam
   (T052), the validator input set (T057) and the neutral schema (T053), if
-  R1Q11 (a) is chosen.
+  R1Q11 (a) or R1Q12 (b) is chosen.
 - **Phase 3 parallel lanes**: Group 13 (T070–T074), the Group 16 binding
   (T078–T080), the doxBench defaults and then the no-model state (T085 →
   T081), the retirement of the late reaches (T084, after T073; then T086), and
