@@ -1619,11 +1619,20 @@ def _git(tree: Path, *arguments: str) -> str | None:
     unbounded one would hang a required check instead of reporting. With every
     transport refused (`_sanitized_git_environment`) a promisor fetch FAILS at
     once rather than blocking; the bound stays for the store that hangs anyway.
+
+    THE OUTPUT IS DECODED AS UTF-8, STRICTLY, AND NEVER BY THE LOCALE. The
+    working-tree `.gitmodules` read (`gitmodules_addresses`) decodes the file
+    as UTF-8, so the object-store read of the same file at a pinned commit
+    (`_gitmodules_at`) decodes it the same way. Decoded by the locale, a
+    `.gitmodules` carrying one non-ASCII byte failed to decode under a
+    non-UTF-8 locale, and the leg was reported NOT RE-CHECKED as though the
+    store could not produce the blob (raised by Copilot's review of #1163).
+    Output that is not UTF-8 is still a failure, and so a `None`.
     """
     try:
         result = subprocess.run(
             ["git", "--no-replace-objects", "-C", str(tree), *arguments],
-            capture_output=True, text=True, timeout=30, check=False,
+            capture_output=True, encoding="utf-8", timeout=30, check=False,
             env=_sanitized_git_environment())
     except (OSError, ValueError, subprocess.SubprocessError):
         return None
