@@ -65,7 +65,8 @@ openXdox-code's declared `doc_health` exclusion (R1Q6 (d)); openXdox-code's
 openDox-code's own `acceptance` job, which has no database service (T095). Its
 Playwright half runs on the host with `tests/smoke_signals.py`'s oracle (T096).
 Neither half is a member of a leg's pytest suite: each installs the product and
-drives it from outside. So openDox-code's `testpaths` and F9.1 are unchanged.
+drives it from outside. So neither half changes openDox-code's `testpaths`,
+which T036 sets in phase 1, or F9.1.
 **Target Platform**: a single-user Linux or macOS machine for the local install,
 and the existing AKS hosted mode, which must be unchanged.
 **Project Type**: a split product across five repositories: two code legs, two

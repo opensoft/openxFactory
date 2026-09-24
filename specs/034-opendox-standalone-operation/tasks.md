@@ -631,7 +631,8 @@ against schemas that are on disk. The governed projection is unchanged.
   - **Falsifier**: F4.1's scan, down by these reaches.
   - **Blocked by**: R1Q10.
   - **Ruled**: R1Q22 (a).
-  - **After**: T054.
+  - **After**: T054, T022 and T038 (`serve.py`'s and `cli.py`'s single-writer
+    order).
 - [ ] T056 [US2] [oDc] **The standalone generate path, end to end.**
   `python -m opendox.cli generate` and `generate-and-open --no-open` run on
   the fixture with neither sibling importable, and the server STARTS (the limit
@@ -672,7 +673,8 @@ against schemas that are on disk. The governed projection is unchanged.
   - **Blocked by**: R1Q23. Four of the six suites fail on `doc_health`
     (research R11), and the ruled exclusion leaves that reach in place.
   - **Ruled**: R1Q6 (d), R1Q7 (a).
-  - **After**: T052, T055, T062, T007 (batch C).
+  - **After**: T052, T055, T062, T007 (batch C), T040 (the ratchet's
+    single-writer order).
 - [ ] T060 [US4] [oXc] **5.3a: re-run F5.1 against the realized openDox.** The
   facet landed before the arc (#26 and #27), so no code change is expected.
   - **Realizes**: 5.3a, F5.1.
@@ -690,14 +692,16 @@ against schemas that are on disk. The governed projection is unchanged.
 - [ ] T062 [US4] [oD] **Phase 2's openDox root pin** (T090 steps 1–2).
   - **Realizes**: 9.5 (part).
   - **Falsifier**: `make pins` in the openDox root.
-  - **After**: T054–T058 (every phase-2 openDox-code landing).
+  - **After**: T054–T058 (every phase-2 openDox-code landing), T039 (the root
+    pin's single-writer order).
 - [ ] T064 [US4] [oX] [oxF] **Phase 2's consumer pins** (T090 steps 5–6). Host
   wiring is needed only if openxFactory's composite has to register a generator
   contribution. It composes openXdox's profile, so none is expected; confirm
   that by `pytest-suite`.
   - **Realizes**: 9.5 (part).
   - **Falsifier**: as T047's.
-  - **After**: T059, T060, T061, T062.
+  - **After**: T059, T060, T061, T062, T047 (the pin pairs' single-writer
+    order).
 - [ ] T065 [US4] [oxF] **Phase 2's interim F11.1**, by T093's procedure, with
   `ARC_TIP` at T064's landing. Record the output in
   `evidence/f11.1-phase2.txt`, with no trailer.
@@ -771,7 +775,7 @@ no-model state. `consumer_reach.py` is gone.
   - **Falsifier**: F13.1's `caps.json` block.
   - **Blocked by**: R1Q16.
   - **Ruled**: R1Q22 (a).
-  - **After**: T072.
+  - **After**: T072, T055 (`serve.py`'s single-writer order).
 - [ ] T074 [US3] [oDc] **Run F13.1**, as amended per R1Q15 and R1Q16.
   - **Realizes**: F13.1.
   - **Blocked by**: R1Q15, R1Q16.
@@ -885,7 +889,7 @@ no-model state. `consumer_reach.py` is gone.
   - **Realizes**: 9.5 (part).
   - **Falsifier**: `make pins` in the openDox root.
   - **After**: T074, T077, T083, T084, T085, T088 (every phase-3 openDox-code
-    landing).
+    landing), T062 (the root pin's single-writer order).
 - [ ] T086 [US4] [oXc] **openXdox contributes its columns.** It contributes the
   gate and projection mixins, `doxbench_scope` and its gate primitives through
   the seams. `OPENDOX_BACK_IMPORTS` becomes `(0, 0)` in the SAME landing that
@@ -898,7 +902,7 @@ no-model state. `consumer_reach.py` is gone.
   - **Falsifier**: `tests/test_dependency_direction.py`; F9.1 (openXdox-code,
     as amended by T007 batch B).
   - **Ruled**: R1Q1 (a), R1Q7 (a).
-  - **After**: T084, T087.
+  - **After**: T084, T087, T059 (the ratchet's single-writer order).
 - [ ] T094 [US4] [oX] [oxF] **Phase 3's consumer pins and host wiring** (T090
   steps 5–6). openxFactory's PR carries whatever host wiring the retired
   columns need. That includes the parity test's MRO assertion, updated again
@@ -907,7 +911,7 @@ no-model state. `consumer_reach.py` is gone.
   - **Realizes**: 9.5 (part).
   - **Falsifier**: as T047's.
   - **Ruled**: R1Q2 (a).
-  - **After**: T086, T087.
+  - **After**: T086, T087, T064 (the pin pairs' single-writer order).
 - [ ] T098 [US4] [oxF] **Phase 3's interim F11.1**, by T093's procedure, with
   `ARC_TIP` at T094's landing. Record the output in
   `evidence/f11.1-phase3.txt`, with no trailer.
@@ -977,8 +981,9 @@ no-model state. `consumer_reach.py` is gone.
     precondition.
   - The harness is not a pytest module, and it sits outside `tests/` and
     `tests_runtime/`. Like the browser half (T096), it installs the product and
-    drives it from outside. So `testpaths`, F9.1, and FR-006's "no exclusion"
-    for openDox-code are all unchanged.
+    drives it from outside. So the harness changes neither `testpaths`, which
+    T036 sets in phase 1, nor F9.1, and FR-006's "no exclusion" for
+    openDox-code still holds.
   - Making `acceptance` a required check is a ruleset change for the
     repository's owner.
 
