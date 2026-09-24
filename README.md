@@ -826,15 +826,15 @@ Active changes:
   deferred document's prior findings from reading as resolved. `code_surface:`
   is non-empty (two packers and their record here; the two child workflows in
   `opensoft/xFactory`), so the packet archives on merged-plus-green realization
-  evidence and not on landing. **THREE OPEN QUESTIONS, ALL DECLARED; TWO
-  STILL PUT FOR RULING:** the grounding share (half, as built — at the
-  2026-09-21 corpus that sends 93 of 311 documents; measured at five shares on
-  2026-09-24, with a lane recommendation that is not a ruling), the fact that
-  this packet CAPS AND RECORDS rather than carrying deferrals over (no sweep
-  cursor exists, and the inventory baseline is emitted unconditionally), and —
+  evidence and not on landing. **THREE QUESTIONS DECLARED, TWO STILL OPEN FOR
+  RULING:** the grounding share (half, as built — at the 2026-09-21 corpus
+  that sends 93 of 311 documents; measured at five shares on 2026-09-24, with
+  a lane recommendation that is not a ruling) and the fact that this packet
+  CAPS AND RECORDS rather than carrying deferrals over (no sweep cursor
+  exists, and the inventory baseline is emitted unconditionally) are open;
+  the third, the HTTP 403 org-entitlement block no code here addresses, is
   RESOLVED 2026-09-23 by Brett Heap's administrative act, verified the same
-  hour and by the 2026-09-24 nightly — the HTTP 403 org-entitlement block no
-  code here addresses.
+  hour and by the 2026-09-24 nightly.
 
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
