@@ -533,8 +533,12 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-neutral-product-standalone-operability](openspec/changes/add-neutral-product-standalone-operability/proposal.md)
-  — filed 2026-09-22, lane `openxfactory-4`, **`Status: draft`** (awaiting Brett
-  Heap's ratification read), as the BUILD ARC the archived
+  — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-24,
+  Brett Heap, *"ratify #1144, land the follow-ons, (a) on C1–C5"*, `#656` comment
+  `5815412869`, over PR #1144's final head `19237b91` as landed at `94b6f7f1`; the
+  word authorizes realization of release 1 and performs none of it; record
+  [`review/ratification-2026-09-24.md`](openspec/changes/add-neutral-product-standalone-operability/review/ratification-2026-09-24.md)),
+  as the BUILD ARC the archived
   `split-opendox-two-layer-product` names as its own unclosed residue. **ONE
   `## ADDED` block creating the capability `neutral-product-standalone-operability`
   — seventeen requirements, seventy-five scenarios**, written domain-neutrally (its sibling is
@@ -557,9 +561,9 @@ Active changes:
   whose landings reach openxFactory through the roots' pins, until #1150 lets the
   estate inventory name a leg — RULED `5804191141`) — the requirements land now,
   the realization runs post-ratification, and this packet authors no code byte,
-  so once RATIFIED it stays ACTIVE as approved-but-unrealized intent until
+  so, RATIFIED, it stays ACTIVE as approved-but-unrealized intent until
   `release-realization`'s archive gate is met by merged-plus-green evidence per
-  requirement; until then it is a draft and approves nothing. Two
+  requirement. Two
   findings are recorded rather than assumed: the packet is filed HERE and not in
   openDox-spec because that instance, while operable, has promoted nothing and
   the CLI refuses MODIFIED deltas against specs that exist nowhere (requirement
@@ -829,131 +833,6 @@ Active changes:
   baseline advances unconditionally), and the live HTTP 403 org-entitlement
   block no code here addresses.
 
-- [add-estate-repository-inventory](openspec/changes/add-estate-repository-inventory/proposal.md)
-  filed 2026-09-18, lane `openxfactory-5` (display `openXfactory-5`),
-  **`Status: ratified`** — **RATIFIED 2026-09-18 at approximately 12:55Z by
-  Brett Heap (openxFactory operator authority), verbatim *"ratify #1101"***,
-  given in the lane's terminal; NO GITHUB COMMENT CARRIES THE WORD, which the
-  lane recorded as a RULED entry against `opensoft/openxFactory#1101` in
-  `lanes/log/openXfactory-5.md`.
-  **THE WORD IS BARE**: it ratifies the PACKET and names no option
-  individually, so each of the four declared veto points stands at the option
-  the packet encodes — the RECOMMENDED one in all four — and, AT THAT 12:55Z
-  WORD ALONE, the delta's wording stood unchanged. `tasks.md` § 1 is ticked;
-  §§ 3, 4, 5 and 6 stay open.
-  **THREE FURTHER WORDS AT ~15:40Z THE SAME DAY THEN AMENDED THE DELTA**,
-  each a multiple-choice answer over a gap Copilot's review of PR #1101
-  exposed in the already-ratified text, each recorded as its own `RULED`
-  entry in `lanes/log/openXfactory-5.md` and set out in full at
-  [`review/ratification-2026-09-18.md`](openspec/changes/add-estate-repository-inventory/review/ratification-2026-09-18.md)
-  § 3: *"Bind the carrier identity"* (a working tree supplied for a `gitlink`
-  row's re-check MUST verify as the row's named carrier, by origin URL or by
-  `contracts/policies/repository-identity.yaml`, before its `.gitmodules`
-  evidence is trusted, else the row reads NOT RE-CHECKED), *"#1101 declares
-  #1108 and folds its text"* (the `sequenced_after` fold below), and *"MAY
-  becomes MUST"* (the `change`-admitted provisional row is owed, not
-  optional). All three are additionally encoded, in this one commit, as
-  `tasks.md` task 1.5 (§ 1 stays ticked); none touches `openspec/specs/`;
-  all three move only the delta text.
-  **A FIFTH WORD ON 2026-09-21 AT ~20:30Z THEN AMENDED THE DELTA AGAIN**, over
-  a gap Copilot's review of the REALIZATION pull request #1119 (not #1101)
-  named between the ratified `pin` kind and `design.md` D0.2 row 3, recorded
-  as a `RULED` entry in `lanes/log/openXfactory-5.md` and set out in full at
-  [`review/ratification-2026-09-18.md`](openspec/changes/add-estate-repository-inventory/review/ratification-2026-09-18.md)
-  § 7: *"Drop the pin admission on row 3"* — row 3
-  (`codeXfactory/codexFactory`) loses its `pin (review-lane-pin.yaml)`
-  admission and keeps `gitlink (opensoft/xFactory)` and `workflow`, the `pin`
-  kind's own definition UNCHANGED; `contracts/review-lane-pin.yaml` is a
-  COMMIT-ONLY `pinned_workflow` pin of governance code with no digest set,
-  satisfying neither half of the kind's "commit-and-digest pin … for a
-  product PINNED rather than governed" definition. Widening the kind and
-  adding a sixth admission kind were both put and both declined: row 3 is
-  admitted without either. Encoded, in this later and separate pull request,
-  as `design.md` D0.1/D0.2, `.openspec.yaml` `approved_by`, and `tasks.md`
-  § 1.5(d); none touches `openspec/specs/`.
-  Answers openxFactory
-  [#1087](https://github.com/opensoft/openxFactory/issues/1087), the successor
-  `gate-code-surface-declarations` `tasks.md` § 6.1 named and that packet's
-  archive act filed at the landing of PR #1076, CLAIMED by this lane before
-  authoring.
-  **ONE `## MODIFIED` BLOCK AND TWO `## ADDED` REQUIREMENTS, TWENTY-EIGHT
-  SCENARIOS (11 + 8 + 9), OVER `release-realization`**: the MODIFIED block is
-  WRITTEN OVER `amend-code-surface-grammar-comma-and`'S OUTCOME AND NOT OVER
-  CANON — that packet (openxFactory #1092, PR #1108, ratified 2026-09-18,
-  landed `60d281a8`) is now an ARCHIVED writer of the SAME requirement key,
-  promoted by PR #1112, so on the ruling *"#1101 declares #1108 and folds
-  its text"* this packet declares
-  `sequenced_after: [amend-code-surface-grammar-comma-and]` and
-  reproduces #1108's ratified wording byte-for-byte (the four separators
-  including `, and `, the comma-first paragraph, its `**AMENDED BY**` note and
-  its added Oxford-comma scenario), with only this packet's own
-  membership-not-judged paragraph moved against that basis — ELEVEN scenarios,
-  the ten already in the block plus the Oxford-comma scenario folded in from
-  #1108's outcome. The ADDED pair is *The estate's repositories are enumerated
-  in a governed inventory* (eight scenarios) and *A declared repository is
-  judged for membership against the estate inventory* (nine). The MODIFIED
-  block is OWED rather than preferred: the promoted `SHALL NOT judge its
-  MEMBERSHIP` is unconditional in its own words, so an ADDED-only delta would
-  leave canon carrying two requirements that cannot both be obeyed. **THE
-  BLOCK IS ORDERED, NOT SOLE**: `amend-code-surface-grammar-comma-and` is now
-  an ARCHIVED writer of the same requirement key, promoted by PR #1112 — its
-  own `sequenced_after: []` STILL STANDS AS A POSITIVE ROOT CLAIM, the ledger
-  retaining `declares: []`, `depth: 0` for it UNCHANGED by the archive, the
-  substrate defining an explicit empty declaration that way regardless of who
-  else later writes the same key. WHAT THE CO-MODIFIER STATUS CHANGES IS NOT
-  THE CLAIM BUT WHETHER A CONSUMER MAY ACCEPT IT UNCROSSED: this packet's own
-  declaration — class `co-modifier`, depth 1, declaring
-  `amend-code-surface-grammar-comma-and` — is the cross-check that
-  CONTRADICTS reading that root claim as free-standing, and no consumer may
-  accept it without performing that cross-check. THE ORDERING WAS SATISFIED:
-  promotion order was #1108 then #1101, **with #1108 itself untouched**.
-  **AFTER THE ARCHIVE, THE MEASUREMENT BASIS MOVES FROM THE ORDERING ARM TO
-  THE CARRIAGE ARM.** With `amend-code-surface-grammar-comma-and` archived,
-  the ordering arm no longer finds two ACTIVE writers to pair — its
-  resolution-ordering arm still returns the empty set it already states —
-  so this block is now measured by the CARRIAGE arm directly against CANON
-  instead of against #1108's block, and THE FAMILY REPORTS ONE EXPECTED
-  FINDING RATHER THAN NONE: one of the block's 66 body units and scenario
-  bullets, the `**AMENDED BY**` paragraph whose wording this pull request's
-  own round-3 Copilot fix (`35afdc3f`) changed in canon after this block was
-  written, reads uncarried. Named as a carriage-ledger subject by this pull
-  request (`tests/doc-health/test_modified_block_currency_self_gate.py`
-  `_LEDGER_SUBJECTS`), retiring when this packet itself archives and its
-  block is promoted.
-  **THE MEASURED GAP.** `scripts/code_surface.py` judges a repository
-  identifier's SHAPE and never its MEMBERSHIP, so `openxFactorie` passes and so
-  does a repository that is no part of this estate. The class is standing, not
-  hypothetical: `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml`
-  names `opensoft/LegalxFactory`, which the provider answers 404 for and which no
-  gitlink and no pin carries, and two more of its rows name repositories at
-  addresses that live only through a provider redirect, while the estate's
-  transfer map carries ONE row.
-  **THE CANDIDATE INVENTORY, BUILT BEFORE THE DESIGN**, from FIVE naming sites
-  (`design.md` D0.1, `tasks.md` § 2.1): the aggregation repository's
-  `.gitmodules` (23 submodules), this repository's `contracts/*-pin.yaml` (7
-  pins, 6 distinct repositories, 2 of them no submodule), `.github/workflows/`
-  (1, already a submodule), the aggregation root itself (1, which no
-  `.gitmodules` can name), and — ADDED AT THE REVIEW OF PR #1101, which widened
-  `gitlink` to a gitlink in ANY governed estate repository — a GOVERNED
-  DomainxFactory's own `.gitmodules` where the estate NESTED rather than
-  sibling-linked (11 nested gitlinks in 6 repositories, naming 7 no other site
-  names). The first four were taken on `origin/main` `ad089e8a` and the fifth on
-  2026-09-18. **THIRTY-THREE ROWS** (`design.md` D0.2, `tasks.md` § 2.2), the
-  last six of them — `openChart`, `openPractice`, `MedxAvatar`, `LedgerxAvatar`,
-  `MedxEHR-spec`, `MedxEHR-code` — the members the narrow reading missed. A
-  RATIFIED change whose realization creates a repository is NOT a naming site but
-  `change`, the fifth of the five ADMISSION KINDS the delta closes (`gitlink`,
-  `pin`, `workflow`, `root`, `change`), and it is what the widened `gitlink`
-  lets discharge rather than expire. Against those rows, the population read
-  through the SHIPPED reader: 49 active proposals, 49 declaring, 7 `none`, 8
-  named by the closed register, 34 a readable repository list, those 34 heads
-  naming SIX distinct identifiers, **all six carried by the candidate, so
-  the membership arm refuses NOTHING on the day it lands** and the predecessor's
-  stated fatal cost for membership resolution is falsified.
-  **PACKET ONLY.** No script, no inventory and no test is added here. The
-  realization (`tasks.md` § 3) is a LATER pull request, which the word now
-  authorizes to be authored; the archive is a separate act on a separate word
-  and on merged-plus-green evidence, where #1087 closes.
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
   `openXfactory-4-openDox_extraction`), `Status: draft`. **Takes the FIRST HALF of
@@ -3301,6 +3180,94 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-estate-repository-inventory](openspec/changes/archive/2026-09-23-add-estate-repository-inventory/proposal.md)
+  — **ARCHIVED 2026-09-23** by
+  [PR #1149](https://github.com/opensoft/openxFactory/pull/1149),
+  filed 2026-09-18 by lane `openxfactory-5` (display `openXfactory-5`) in answer
+  to openxFactory
+  [#1087](https://github.com/opensoft/openxFactory/issues/1087),
+  **RATIFIED 2026-09-18 at approximately 12:55Z by Brett Heap** (openxFactory
+  repository owner), verbatim ***"ratify #1101"***, and amended by four further
+  words of his — *"Bind the carrier identity"*, *"#1101 declares #1108 and folds
+  its text"* and *"MAY becomes MUST"* the same day, *"Drop the pin admission on
+  row 3"* on 2026-09-21 — all given in the lane's terminal, so NO GITHUB COMMENT
+  CARRIES THEM and the record
+  [`review/ratification-2026-09-18.md`](openspec/changes/archive/2026-09-23-add-estate-repository-inventory/review/ratification-2026-09-18.md)
+  is how they survive; ratifying commit `344ad3c7bc0b`.
+  **`code_surface: openxFactory` IS NON-EMPTY, so under `release-realization`
+  this packet archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE and on a
+  SEPARATE ARCHIVE WORD — never on landing and never on ratification.** The
+  evidence, cited rather than asserted: the packet landed as PR
+  [#1101](https://github.com/opensoft/openxFactory/pull/1101) →
+  `344ad3c7bc0b662a99590c836e4c91edcc77b3cf` (2026-09-18T18:51:59Z) and its
+  row-3 amendment as PR
+  [#1130](https://github.com/opensoft/openxFactory/pull/1130) →
+  `0f23341fcf8c04ea234a57632c5ff321bc47c0f8` (2026-09-21T22:01:50Z); § 3's
+  REALIZATION landed as PR
+  [#1119](https://github.com/opensoft/openxFactory/pull/1119) →
+  `5e122388d489378ea3e768de7f1de678f97e62e6` (2026-09-23T19:06:49Z, by SQUASH
+  from head `5d44003c`, whose `pytest-suite` run `35904638873` is green), on
+  Brett Heap's *"land #1119"*; and `pytest-suite` decided **SUCCESS on `main` at
+  `5e122388` itself**, run
+  [`35907128216`](https://github.com/opensoft/openxFactory/actions/runs/35907128216)
+  (2026-09-23T19:29:29Z). **THE ARCHIVE WORD IS BRETT HEAP'S**, verbatim
+  ***"archive it when the draft is up"*** (2026-09-23, in the lane's terminal;
+  RULED in `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at
+  2026-09-23T21:04:55Z against #1087), and the pull request lands by MERGE
+  COMMIT, never squash, so this directory's date keeps matching its adding
+  commit.
+  **THE ARCHIVE WAS PERFORMED THROUGH THE GOVERNED WRAPPER AND NEVER A BARE
+  `openspec archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive add-estate-repository-inventory --yes`,
+  exit 0 — *"Applying changes to openspec/specs/release-realization/spec.md: +
+  2 added, ~ 1 modified"*, *"Totals: + 2, ~ 1, - 0, → 0"*, *"archived as
+  '2026-09-23-add-estate-repository-inventory'"*, over the content-addressed
+  `@fission-ai/openspec@1.12.0` pin and not the 1.13.1 on `PATH`.
+  **ORIGIN RETAINED THROUGH ONE RECORDED ACCEPTANCE, STATED RATHER THAN LEFT
+  TO BE FOUND**: PR #1130 appended the fifth word to `.openspec.yaml`
+  `approved_by` after the ratifying commit, so the gate refused until the
+  archive act added ONE `accept` entry to `openspec/origin-dispositions.yaml`
+  (`ratified_at` `344ad3c7…`, `mutation_at` `0f23341f…`,
+  `changed_keys: [approved_by]`, owner-attributed to that verbatim word, in
+  the shape of the file's first entry); the wrapper then printed *"ORIGIN
+  RETAINED … (declaration unchanged since the ACCEPTED mutation 0f23341fcf8c
+  …; ratifying commit 344ad3c7bc0b)"*.
+  **THE PROMOTION, MEASURED BYTE FOR BYTE ON BOTH SIDES AND NOT EYEBALLED.**
+  ONE `## MODIFIED` block and TWO `## ADDED` requirements, TWENTY-EIGHT
+  scenarios, onto `openspec/specs/release-realization/spec.md` (`--numstat`
+  **+312 −19**, and `−w` reads the same; requirement count **19 → 21**,
+  scenarios **105 → 122**, the other eighteen requirement blocks unmoved as
+  requirement text — seventeen byte-identical, the eighteenth (the former
+  last block, *A symlink-loop proof is built at test time and never
+  committed*) gaining exactly one trailing blank separator line now that
+  two blocks follow it where none did before): *Code-surface declaration
+  grammar is gated* (eleven
+  scenarios, **15,971 bytes / 207 lines**, sha256 `2b9a75d6bf836c8e…` on the
+  archived delta AND canon), *The estate's repositories are enumerated in a
+  governed inventory* (eight, **12,297 bytes / 160 lines**, sha256
+  `3020c2c916df22bb…` on both) and *A declared repository is judged for
+  membership against the estate inventory* (nine, **7,712 bytes / 108
+  lines**, sha256 `8189458612a21dcb…` on both); each block extracted
+  programmatically by heading from either side, and the CLI diverged from the
+  delta nowhere. **WHAT IS NOW CANON:** the grammar arm judges a declared
+  head's SHAPE and the membership arm its MEMBERSHIP, against the estate
+  inventory `scripts/estate-repository-inventory.yaml` — an identifier no row
+  carries FAILS CLOSED, an `external` row is refused naming its class, a former
+  address is reported with the current one, and a row nothing names is a
+  finding. **ONE CONSEQUENCE OF THE DELTA AS WRITTEN:** the block carries
+  #1108's RATIFIED `**AMENDED BY**` paragraph byte-for-byte, so canon no longer
+  carries the round-3 qualification PR #1112 made to that paragraph
+  (`35afdc3f`); the modified-block-currency carriage row that tracked the
+  difference retires with this archive.
+  **THE SIX PACKET FILES MOVE** — five as `R100` pure renames
+  (`.openspec.yaml`, `design.md`, `proposal.md`,
+  `specs/release-realization/spec.md`, `review/ratification-2026-09-18.md`)
+  and `tasks.md`, whose § 4.4 and § 5 ticks ride the same commit; § 6's five
+  `- [~]` boxes stay `- [~]`, successors named and not work owed.
+  **#1087 IS SHUT BY THIS ARCHIVE'S LANDING AND BY NO EARLIER ACT**: the one
+  closing keyword sits in the archive pull request's body, and no commit
+  message on this branch or on the realization's carries one.
 
 - [amend-code-surface-grammar-comma-and](openspec/changes/archive/2026-09-18-amend-code-surface-grammar-comma-and/proposal.md)
   — **ARCHIVED 2026-09-18** by

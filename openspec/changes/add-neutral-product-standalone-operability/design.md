@@ -1,6 +1,7 @@
 # Design — add-neutral-product-standalone-operability
 
-Status: draft
+Status: ratified
+Ratified by: add-neutral-product-standalone-operability — 2026-09-24, Brett Heap, "ratify #1144, land the follow-ons, (a) on C1–C5" (`#656` comment `5815412869`), over PR #1144's final head `19237b91` as landed at `94b6f7f1` (record `review/ratification-2026-09-24.md`)
 
 This document carries the decisions behind the seventeen requirements, the ONE
 question this packet refuses to decide, and the measurements each rests on.
@@ -200,7 +201,8 @@ different question from the one ASK-2 answered, and ratifying this packet is the
 act that settles it. **If the ratification read takes ASK-2 to foreclose the
 question, requirement 3 is the one to strike**, and the other sixteen stand
 without it — openDox would then need a host shipped somewhere, and that is the same gap
-under another name.
+under another name. **Read at ratification, 2026-09-24 (`5815412869`):** the word
+strikes nothing, so requirement 3 stands.
 
 ## D6 — Why G1 and G4 are separate requirements
 
@@ -1146,4 +1148,5 @@ comes back for its own word."*
 Nothing in requirement 4. The arc's remaining open question is the smaller one
 this packet already flags at § D5: whether requirement 3's default domain profile
 is foreclosed by RULED ASK-2, which answered a different question about an EMPTY
-default. That is a ratification read, not a separate ruling request.
+default. That is a ratification read, not a separate ruling request. It was read at
+ratification on 2026-09-24: the word strikes nothing, so requirement 3 stands.
