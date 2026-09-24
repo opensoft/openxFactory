@@ -39,7 +39,7 @@ Usage:
 
     EQUALITY IS NOT REQUIRED, because `release-realization` defines `moved_on`
     as the date the ROW last moved: an archived row moved later by another
-    change carries a later date, and 124 of this corpus's 143 do, none of them
+    change carries a later date, and 129 of this corpus's 183 do, none of them
     a defect. `--strict-archive-dates` asks for the stronger reading in which
     an archived row's `moved_on` IS its archive date. A missing or unreadable
     ledger is not this arm's finding — `--ledger-diff` owns that class — so the
@@ -399,7 +399,7 @@ def validate_corpus(repo_root: Path, repository: str,
     # IT DOES NOT REQUIRE EQUALITY, and that is a correction taken from review
     # rather than a softening. `release-realization` defines `moved_on` as the
     # date the ROW last moved, so an archived row moved later by another
-    # change legitimately carries a later date — 124 of the 143 do, none of
+    # change legitimately carries a later date — 129 of the 183 do, none of
     # them a defect. Requiring equality by default would report a correct
     # ledger as stale and red the required `pytest-suite` check on rows nobody
     # in flight put there. `--strict-archive-dates` asks for that stronger
@@ -736,7 +736,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--strict-archive-dates", action="store_true",
                         help="ALSO require every archived row's moved_on to "
                              "EQUAL its directory's date, not merely not to "
-                             "predate it (124 rows legitimately carry a later "
+                             "predate it (129 rows legitimately carry a later "
                              "move date, so this is opt-in), AND read the "
                              "`archive-date-vs-commit` arm at `error` "
                              "whatever dial its record carries")
