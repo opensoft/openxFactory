@@ -2655,6 +2655,48 @@ def test_a_pinned_carriers_tree_that_does_NOT_VERIFY_is_NOT_RECHECKED(tmp_path):
     assert f"cat-file -t {pinned}" in asked, asked  # the same trace sees it
 
 
+def test_a_pinned_roots_gitmodules_is_read_as_UTF8_whatever_the_locale(
+        tmp_path):
+    """The object-store read decodes the `.gitmodules` blob as UTF-8, STRICTLY,
+    exactly as the working-tree read (`gitmodules_addresses`) decodes the same
+    file, and never by the locale. Raised by Copilot's review of #1163: decoded
+    by the locale, a `.gitmodules` carrying one non-ASCII byte fails to decode
+    under a non-UTF-8 locale, and the leg is reported NOT RE-CHECKED as though
+    the store could not produce the blob.
+
+    The validator runs under an ASCII locale (`LC_ALL=C`, with locale coercion
+    and Python's UTF-8 mode both off, and only its own stdout kept UTF-8 so the
+    report can print), and the precondition is ASSERTED rather than assumed:
+    the encoding that run decodes by is not UTF-8. The pinned commit's
+    `.gitmodules` names its submodule in UTF-8, and the leg is NAMED.
+    """
+    ascii_locale = {**os.environ, "LC_ALL": "C", "LANG": "C",
+                    "PYTHONUTF8": "0", "PYTHONCOERCECLOCALE": "0",
+                    "PYTHONIOENCODING": "utf-8"}
+    probe = subprocess.run(
+        [sys.executable, "-c", "import locale; print(locale.getencoding())"],
+        capture_output=True, text=True, env=ascii_locale, check=True)
+    assert "utf" not in probe.stdout.lower(), probe.stdout  # not vacuous
+
+    tree = _worktree(tmp_path, _ROOT_ORIGIN, name="root")
+    (tree / ".gitmodules").write_text(
+        '[submodule "c\u00f4de"]\n\tpath = c\u00f4de\n'
+        f"\turl = https://github.com/{_LEG}.git\n", encoding="utf-8")
+    _git_out(tree, "add", ".gitmodules")
+    _git_out(tree, "commit", "-q", "-m", "a .gitmodules naming in UTF-8")
+    pinned = _git_out(tree, "rev-parse", "HEAD").strip()
+    _pin_file(tmp_path, pinned)
+    inventory = _inventory(tmp_path, [_pinned_root_row(), _leg_row()])
+    result = subprocess.run(
+        [sys.executable, str(INVENTORY_VALIDATOR), str(tmp_path),
+         "--inventory", str(inventory),
+         "--estate-tree", f"{_PINNED_ROOT}={tree}"],
+        capture_output=True, encoding="utf-8", env=ascii_locale)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "1 named in a VERIFIED supplied tree" in result.stdout, result.stdout
+    assert "0 NOT RE-CHECKED" in result.stdout, result.stdout
+
+
 def test_the_live_inventory_carries_the_FOUR_legs_of_the_two_pinned_roots():
     """`tasks.md` § 3.3, over the real file: FOUR rows, not two (`design.md`
     D7), because at the commits openxFactory pins both roots name a `spec` leg
