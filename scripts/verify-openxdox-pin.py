@@ -145,8 +145,8 @@ PIN_PATH = ROOT / "contracts" / "openxdox-pin.yaml"
 REMEDIATION = (
     "Remediation: run `git submodule update --init openXdox` (NOT --recursive; "
     "openXdox's own code/spec legs are not consumed here). If the pin itself "
-    "is stale, follow `openXdox/README.md#the-lockstep-invariant` — the "
-    "gitlink and this pin file move in ONE commit."
+    "is stale, follow `docs/openxdox-pin-resync-runbook.md` — the gitlink and "
+    "this pin file move in ONE commit."
 )
 
 # The five refusal codes, in the order they can be reached.

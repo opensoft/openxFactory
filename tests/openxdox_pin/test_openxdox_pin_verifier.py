@@ -334,7 +334,7 @@ def test_the_remediation_trailer_scopes_the_init_and_names_the_procedure(
     assert "git submodule update --init openXdox" in MODULE.REMEDIATION
     assert "NOT --recursive" in MODULE.REMEDIATION
     assert "update --init --recursive" not in MODULE.REMEDIATION
-    assert "openXdox/README.md#the-lockstep-invariant" in MODULE.REMEDIATION
+    assert "docs/openxdox-pin-resync-runbook.md" in MODULE.REMEDIATION
 
 
 def test_the_digest_constants_are_the_family_spelling() -> None:
