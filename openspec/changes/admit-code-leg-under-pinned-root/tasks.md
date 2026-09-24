@@ -77,12 +77,13 @@ a SEPARATE act on a SEPARATE word.
       D0.5): 30 readable heads naming 8 distinct identifiers at `1d14fee6`, 31
       at this branch (the one more being this packet's own `openxFactory`), 8
       carried, 0 refused. No head names a leg yet.
-- [x] 2.6 **THE ONE NEW HAZARD MEASURED** (`design.md` D0.6): on git 2.43.0 an
-      unguarded object-store read in a `blob:none` partial clone fetched the
-      blob from its promisor remote; `GIT_ALLOW_PROTOCOL=none` refused it even
-      where the clone's own config allowed every transport; `GIT_NO_LAZY_FETCH=1`
-      was ignored. So the delta's "no network call" is a realization
-      obligation with a named test (§ 3.1, § 3.4).
+- [x] 2.6 **THE ONE NEW HAZARD MEASURED** (`design.md` D0.6): on the git 2.43.0
+      build measured, an unguarded object-store read in a `blob:none` partial
+      clone fetched the blob from its promisor remote; `GIT_ALLOW_PROTOCOL=none`
+      refused it even where the clone's own config allowed every transport —
+      THIS IS THE GUARD RELIED ON. `GIT_NO_LAZY_FETCH=1` is a build-dependent
+      extra. So the delta's "no network call" is a realization obligation
+      with a named test (§ 3.1, § 3.4).
 - [x] 2.7 **THE ONE-HOP BOUND MEASURED AT ZERO COST**: none of the four legs
       carries a submodule at the commit its root names (`design.md` D0.2).
 - [x] 2.8 **THE DELTA GENERATED FROM CANON'S BYTES, AND ITS CARRIAGE MEASURED.**
@@ -115,9 +116,11 @@ without its arm, and is shown failing before it is shown passing.
       carrier resolves to a `governed` row, OR to a `pinned` row admitted by
       EXACTLY ONE `pin`; an `external` carrier, a `pinned` carrier admitted by
       no `pin`, and a `pinned` carrier admitted by two or more are each REFUSED
-      by name, the refusal saying which condition failed. The one-hop bound
-      needs no check of its own: a row a pinned root admits is `pinned` and not
-      `pin`-admitted, so the widened bound already refuses it as a carrier.
+      by name, the refusal saying which condition failed. THE ONE-HOP BOUND IS
+      CHECKED DIRECTLY: a row already carried by this shape's `gitlink` is
+      refused as a further carrier in its own right, whether or not that row
+      also carries a `pin` of its own — the check is on the hop, not inferred
+      from the pin-admission count above.
       (ii) THE CLASS BOUND (`design.md` D4): a row admitted by a pinned
       carrier's `gitlink` and declaring `governance: governed` is REFUSED at
       load, beside the existing refusal of a `governed` row admitted by a `pin`.

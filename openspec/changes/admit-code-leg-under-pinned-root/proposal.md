@@ -107,8 +107,8 @@ the block is SOLE and `sequenced_after: []` is a corroborated root claim.
    block.
 2. **ADDED paragraph, the carrier bound**: the carrier's row is `pinned` and is
    admitted by EXACTLY ONE `pin`; an `external` repository's `.gitmodules`
-   admits nothing; a `pinned` row not itself admitted by a `pin` carries no
-   gitlink, so the reach is ONE HOP from an openxFactory pin; a row a pinned
+   admits nothing; a row the gitlink admits carries no further row's gitlink of
+   its own, so the reach is ONE HOP from an openxFactory pin; a row a pinned
    root admits declares no `governance: governed`; an inventory outside those
    conditions is REFUSED; nothing pins or mounts a leg.
 3. **ADDED paragraph, the pinned-commit read**: after the unchanged carrier

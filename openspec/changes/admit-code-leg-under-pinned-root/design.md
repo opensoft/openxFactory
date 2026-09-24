@@ -79,6 +79,17 @@ $ for leg in openDox-code@d816cf06 openDox-spec@8fe8c4c7 \
   0  0  0  0
 ```
 
+**RE-MEASURED AFTER MAIN RE-PINNED `openXdox`.** `main` (`1edbb3dd`, #1157,
+already on this branch by Round A's merge) moved `contracts/openxdox-pin.yaml`
+`commit:` and openxFactory's own `openXdox` gitlink together from `2f3f857d`
+to `069fe471`. Re-read at `069fe471`: the same two legs at the same URLs
+(`openXdox-spec` unchanged at `f088b097`, `openXdox-code` now `e28930bf`), the
+new code leg carries 0 gitlinks, and the pin again equals openxFactory's own
+gitlink for the root; `openDox`, `openXwallet` and `openRepoShape` are
+unmoved. So the conclusion above — four legs, one-hop reach empty, every pin
+equal to its gitlink — holds at `main` as merged into this branch. `tasks.md`
+§ 4.3 already owes the re-measure again at the realization head.
+
 ### D0.3 The refusal, reproduced
 
 ```
@@ -136,8 +147,9 @@ corpus on the day it lands.
 Every read the inventory reader makes today is a file read or a git CONFIG read
 (`remote get-url`, `rev-parse`), which never needs an object's content. The
 pinned-commit read of D5 reads a BLOB out of an object store, and a partial
-clone does not have every blob. Measured on git 2.43.0 against a local
-`--filter=blob:none` clone whose pinned commit's `.gitmodules` blob was absent:
+clone does not have every blob. Measured on git 2.43.0 (the Ubuntu package
+`1:2.43.0-1ubuntu7.3` build) against a local `--filter=blob:none` clone whose
+pinned commit's `.gitmodules` blob was absent:
 
 ```
 $ GIT_ALLOW_PROTOCOL=none git show <pinned>:.gitmodules
@@ -154,8 +166,11 @@ $ git config protocol.allow always; git config protocol.file.allow always
 $ GIT_ALLOW_PROTOCOL=none git show <pinned>:.gitmodules
   fatal: transport 'file' not allowed                             exit 128
 $ GIT_NO_LAZY_FETCH=1 git show <pinned>:.gitmodules
-                                                                  exit 0
-  (NOT honoured by git 2.43.0: the read fetched the blob anyway)
+  warning: lazy fetching disabled; some objects may not be available
+  fatal: could not fetch c948daad… from promisor remote           exit 128
+  (the blob stays absent on THIS build: GIT_NO_LAZY_FETCH=1 also refused the
+  fetch here, but it is a BUILD-DEPENDENT extra, not asserted of every git —
+  GIT_ALLOW_PROTOCOL=none above, refused on both clones, is the guard relied on)
 ```
 
 **AN UNGUARDED READ REACHES THE NETWORK ON A PARTIAL CLONE.** The requirement's
@@ -282,11 +297,13 @@ true.
   pinned commit and require the leg at each. *Cost:* two pins of one product is
   the defect `neutral-product-pin`'s chain clause exists to end, and no row
   carries two today. Declined.
-- **ONE HOP.** A `pinned` row not itself admitted by a `pin` carries no
-  gitlink, and every row (a) admits is such a row, so the reach ends one hop
-  from an openxFactory pin. *Alternative:* follow the chain. *Cost:* membership
-  would rest on a walk of trees no openxFactory file names; and D0.2 measures the
-  walk at zero repositories today. Declined.
+- **ONE HOP, CHECKED DIRECTLY.** A row this shape's `gitlink` admits carries no
+  further `gitlink` of its own: the load refuses it AS A CARRIER in its own
+  right, whether or not that row also carries a `pin`, so the reach ends one
+  hop from an openxFactory pin without leaning on the pin-count bound above.
+  *Alternative:* follow the chain. *Cost:* membership would rest on a walk of
+  trees no openxFactory file names; and D0.2 measures the walk at zero
+  repositories today. Declined.
 - **A REFUSAL, NOT A REPORT, outside these conditions** — the same verdict the
   loader already gives a carrier no row names or a non-governed carrier today.
 
@@ -336,11 +353,12 @@ what is read after it changes, and only for a pinned carrier.
    through, so a leg's `https://` URL and a carrier's `git@` origin are read by
    one rule.
 4. **REFUSE EVERY TRANSPORT FOR THAT READ (D0.6).** The environment the read
-   runs in sets `GIT_ALLOW_PROTOCOL` to a value naming no protocol, which git
-   2.43.0 was MEASURED to honour as refusing every transport even where the
-   repository's own config allows them all. `GIT_NO_LAZY_FETCH=1` may be set
-   beside it for gits that honour it, but it is NOT the guard: git 2.43.0 was
-   measured to ignore it and fetch. A tree whose store lacks the blob then
+   runs in sets `GIT_ALLOW_PROTOCOL` to a value naming no protocol — THIS IS
+   THE GUARD RELIED ON, measured (D0.6, the git 2.43.0 build there) to refuse
+   every transport even where the repository's own config allows them all.
+   `GIT_NO_LAZY_FETCH=1` may be set beside it; D0.6 measured it to ALSO refuse
+   the fetch on that build, but whether it does is BUILD-DEPENDENT, so it is
+   not what this design relies on. A tree whose store lacks the blob then
    answers "cannot produce", and the row is NOT RE-CHECKED, never fetched.
    **The realization's test is the D0.6 transcript**: a local `blob:none`
    clone, the read refused, the blob still absent.
@@ -425,7 +443,7 @@ inventory)` or the membership key beside it:
 ```
 $ grep -rln "Requirement: The estate's repositories are enumerated in a governed inventory\|Requirement: A declared repository is judged for membership" \
     openspec/changes --include=spec.md | grep -v /archive/
-  (nothing)
+  (nothing but this packet's own delta)
 ```
 
 Three active changes carry a `release-realization` delta —

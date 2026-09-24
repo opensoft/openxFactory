@@ -534,7 +534,7 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [admit-code-leg-under-pinned-root](openspec/changes/admit-code-leg-under-pinned-root/proposal.md)
-  filed 2026-09-24, lane `openxfactory-5` (display `openXfactory-5`),
+  — filed 2026-09-24, lane `openxfactory-5` (display `openXfactory-5`),
   **`Status: draft`**, its shape RULED and its ratification CONDITIONAL: Brett
   Heap, 2026-09-24, approximately 16:52Z, verbatim *"(a) recommended for both,
   ratify when the draft is green"* (a `RULED` entry against #1150 in
