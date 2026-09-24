@@ -90,7 +90,7 @@ Round 1a is this revision.*
 | I. Contract-first, domain-neutral core | PASS | openxFactory gains only host wiring, pin pairs, notes, and the named composition tests that R1Q2 (a) admits (11.1). No domain vocabulary enters openDox; the default profile's words are `NEUTRAL_DISPLAY`'s (requirement 3, third scenario). |
 | II. OpenSpec before implementation | PASS | Everything here realizes the RATIFIED #1144 (`5815412869`). An answer that amends a #1144 falsifier or task line is recorded there on Brett's word (T007). One that would change requirement or scenario text goes back to him first (RN-1). Speckit owns the tasks; #1144's `tasks.md` is ticked, and never duplicated (T097). |
 | III. Document lifecycle | PASS | The feature files carry Speckit's own `Status: Draft`. #1144 is `Status: ratified`, with its record landed as #1151 → `cd494e4c`. |
-| IV. Schema and artifact discipline | PASS | No committed file names a host path: every command resolves its scratch space with `W=$(mktemp -d)`. No credential is stored: 16.3 refuses raw keys. |
+| IV. Schema and artifact discipline | PASS | No committed file names a host path: every command resolves its scratch space with `W=$(mktemp -d)`. No credential is stored: 16.3 refuses raw keys. **The README document index** is read as it is for every earlier Speckit feature. The README's Documentation section links `docs/` and the promoted `openspec/specs/`, and none of the 31 feature directories under `specs/` on `main` (`1d14fee6`) is linked there. This feature is reached through its governing change instead: the README's OpenSpec Records block lists `add-neutral-product-standalone-operability` and its ratification record. An index line, if the holder wants one, sits in the Documentation section, outside the Rule 6 block. |
 | V. Validation gates | PASS for this PR, against `main`'s recorded baseline | This PR touches no `openspec/` path. `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` gives `110 passed, 1 failed` on this branch, exactly as on `main` at `cd494e4c`. The one failure is `add-chain-attestation`'s "omits scenario(s)" finding. It is an accepted disposition in `contracts/openspec-cli-pin.yaml` (`ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'`), and it retires when that change archives. This PR cannot move it. The gate the repository enforces, `scripts/validate-openspec-cli-pin.py --all` (the `openspec-cli-pin` check), exits 0 with `0 UNDISPOSITIONED failures`. No other `scripts/validate-*.py` reads `specs/`, and every check on the PR is green. Implementation evidence will be falsifier output, quoted. |
 | VI. Versioned releases | WATCH | 9.5 says *"none cuts a contract bundle"*. R1Q11 (a) would add an openDox-spec schema, which is probably a `dox-v1.1` minor at the openDox root; if so, that release follows the root's own four-value rule. |
 | VII. Fail-closed authority | PASS | Every seam refuses naming itself when nothing is registered (4.2's discipline). The hosted mode refuses without an issuer. An unknown dialect is refused. |
@@ -107,7 +107,7 @@ specs/034-opendox-standalone-operation/
 ├── research.md             # every measurement, with its command
 ├── clarify-questions.md    # R1Q1–R1Q23: 11 answered (5817152735), 12 open
 ├── quickstart.md           # AT-R1's procedure
-├── tasks.md                # T001–T097, box accounting (69 of 124)
+├── tasks.md                # T001–T098, box accounting (69 of 124)
 └── checklists/
     └── requirements.md     # the spec-quality checklist
 ```
@@ -194,22 +194,22 @@ T001–T008 (holder: claims, ARC_BASE, round 1a, re-measure, analyze, #1144 amen
           [oD]   T039 root pin (T090 steps 1–2)  after T022, T032, T037, T038
           [oXc]  T040 (pin, residue) → T041 (declared exclusion) → T042 (9.3) → T043 → T044
           [oX]→[oxF]  T047 consumer pins (steps 5–6) after T039, T044, T007 batch A; carries T045 + T046
-          checkpoint T049 (after T007 batches A, B, and RN-1);  holder T048 (F4 re-measure)
+          T047 → T018 (interim F11.1) → checkpoint T049 (after T007 batches A, B, and RN-1);  holder T048
  PHASE 2 (PROVISIONAL)  T009 (phase 2's round: answers, re-plan, analyze) first
           [oDc]  T050 → T051  ∥  T052  ∥  T057   (∥ T053 [oDs] if R1Q11 (a))
                  T054 (projection) → T055 (sources, 4.3 part) → T056 → T058 (validator)
           [oD]   T062 root pin  after T054–T058
           [oXc]  T059 (5.4a) after T052, T055, T062, T007 batch C;  T060 (5.3a re-run) after T054
                  T061 (7.3) after C3's PR 2 lands
-          [oX]→[oxF]  T064 consumer pins;  checkpoint T063 (after T007 batch C)
+          [oX]→[oxF]  T064 consumer pins → T065 (interim F11.1) → checkpoint T063 (after T007 batch C)
  PHASE 3 (PROVISIONAL)  T069 (phase 3's round: answers, re-plan, analyze) first
           [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080;  T085 → T081
                  4.3 end: T084 (after T073)          T075 → T077;  T082, T083, T088
           [oD]   T087 root pin → T076 (README), once the command has its final form (R1Q15)
           [oXc]  T086 (columns, ratchet (0,0)) at the pin T087 carries
-          [oX]→[oxF]  T094 consumer pins + host wiring;  checkpoint T089
+          [oX]→[oxF]  T094 consumer pins + host wiring → T098 (interim F11.1) → checkpoint T089
  ACCEPTANCE      T095 (HTTP, CI)  →  T096 (browser)  →  T097 (bookkeeping, Rule 6)
- EVERY PHASE     T090 pins · T091 trailer · T092 notes · T093 interim F11.1
+ EVERY PHASE     T090 pins · T091 trailer · T092 notes · T093 interim F11.1 (run as T018, T065, T098)
 ```
 
 ## Parallel slices, and the files only one writer may touch at a time

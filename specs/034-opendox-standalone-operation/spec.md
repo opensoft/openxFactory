@@ -270,8 +270,8 @@ regression, not a release.
 
 **Independent Test**: openxFactory's required checks (among them
 `pytest-suite`) stay green at every pin advance. An interim F11.1 run after
-each phase's openxFactory landings exits 0 (T093). F5.2 and 9.3's integration
-suite pass.
+each phase's openxFactory landings exits 0: T018, T065 and T098, each by
+T093's procedure. F5.2 and 9.3's integration suite pass.
 
 **Acceptance Scenarios**:
 

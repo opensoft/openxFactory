@@ -85,10 +85,12 @@ any other task of the phase starts (plan.md § Summary).
 
   Lane 4's C3 and C4 are live objects (plan.md § "In-flight overlaps").
 - [ ] T003 **ARC_BASE.** Record, per repository, a `main` commit at or before
-  the arc's first landing there: openDox-code, openXdox-code, openDox, openXdox
-  and openxFactory, and openDox-spec if T053 applies. Any commit at or before
-  that landing serves, because the guards read only trailered landings. So it
-  is recorded now, before phase 1 starts. For openxFactory's guard,
+  the arc's first landing there: openDox-code, openXdox-code, openDox, openXdox,
+  openxFactory and openDox-spec. openDox-spec's base is recorded
+  unconditionally, so it is already in place if T009 later selects T053. Any
+  commit at or before a repository's first arc landing serves, because the
+  guards read only trailered landings. So it is recorded now, before phase 1
+  starts. For openxFactory's guard,
   `PACKET_MERGE` is `94b6f7f1` (11.1). Record them in `evidence/arc-base.md`,
   with no `Arc:` trailer.
   - **Ruled**: R1Q20 (a), `5817152735`.
@@ -251,9 +253,10 @@ script exists. openxFactory is unchanged in behaviour.
 - [ ] T017 [US4] [oxF] **3.3, read-only.** At every openxFactory arc
   landing, confirm that the carve manifest's `deleted_at_carve` row for
   `scripts/ideation_dashboard/profile_openxfactory.py` is byte-identical. F11.1's
-  content check already refuses any row change, so T093's run is the evidence.
+  content check already refuses any row change, so the interim F11.1 runs are
+  the evidence: T018, T065 and T098.
   - **Realizes**: 3.3.
-  - **Falsifier**: F11.1 (interim, T093).
+  - **Falsifier**: F11.1 (interim: T018, T065, T098).
   - **After**: T047, which is phase 1's openxFactory landing. It is re-run
     after T064 and T094.
 
@@ -529,6 +532,12 @@ script exists. openxFactory is unchanged in behaviour.
   - **Falsifier**: `make pins` in the openXdox root; `verify-opendox-pin.py` and
     `verify-openxdox-pin.py`; `pytest-suite`.
   - **After**: T039, T044, T007 (batch A), with T045 and T046 authored.
+- [ ] T018 [US4] [oxF] **Phase 1's interim F11.1**, by T093's procedure, with
+  `ARC_TIP` at T047's landing. Record the output in
+  `evidence/f11.1-phase1.txt`, with no trailer.
+  - **Falsifier**: F11.1, as widened by T007 batch A, prints `requirement 1
+    holds`.
+  - **After**: T047.
 - [ ] T048 **The F4 re-measure (holder).** After phase 1 lands, re-measure
   openxFactory's direct `opendox` imports and bring Brett the direct-arrow
   question (F4, outside both releases; `5799494355`).
@@ -539,12 +548,12 @@ script exists. openxFactory is unchanged in behaviour.
     with the database DSN exported), and F9.2;
   - `opendox --help`;
   - F4.1's scan, which must list only `openxdox` targets;
-  - T093's phase-1 run of the interim F11.1, made here after T047.
+  - T018's interim F11.1 output.
 
   Tick nothing; T097 ticks.
   - **Ruling needed**: RN-1. Requirement 3 is not reported as realized until
     RN-1 is ruled and T016 matches the ruling.
-  - **After**: T047, T007 (batches A and B), and RN-1 ruled.
+  - **After**: T047, T018, T007 (batches A and B), and RN-1 ruled.
 
 ---
 
@@ -687,11 +696,17 @@ against schemas that are on disk. The governed projection is unchanged.
   - **Realizes**: 9.5 (part).
   - **Falsifier**: as T047's.
   - **After**: T059, T060, T061, T062.
+- [ ] T065 [US4] [oxF] **Phase 2's interim F11.1**, by T093's procedure, with
+  `ARC_TIP` at T064's landing. Record the output in
+  `evidence/f11.1-phase2.txt`, with no trailer.
+  - **Falsifier**: F11.1, as widened by T007 batch A, prints `requirement 1
+    holds`.
+  - **After**: T064.
 - [ ] T063 **Phase 2 checkpoint.** Run and quote F5.1, F5.2 (as amended by
   T007 batch C, and as R1Q23 decides), F5.3, F7.1 and F7.2, then a standalone
-  `generate-and-open` serving the fixture, then T093.
+  `generate-and-open` serving the fixture, then T065's interim F11.1 output.
   - **Blocked by**: R1Q23 (F5.2's four `doc_health` suites).
-  - **After**: T064, T007 (batch C).
+  - **After**: T064, T065, T007 (batch C).
 
 ---
 
@@ -890,9 +905,15 @@ no-model state. `consumer_reach.py` is gone.
   - **Falsifier**: as T047's.
   - **Ruled**: R1Q2 (a).
   - **After**: T086, T087.
-- [ ] T089 **Phase 3 checkpoint.** Run and quote F4.1, F10.1, F13.1 and F16.1,
-  then T093.
+- [ ] T098 [US4] [oxF] **Phase 3's interim F11.1**, by T093's procedure, with
+  `ARC_TIP` at T094's landing. Record the output in
+  `evidence/f11.1-phase3.txt`, with no trailer.
+  - **Falsifier**: F11.1, as widened by T007 batch A, prints `requirement 1
+    holds`.
   - **After**: T094.
+- [ ] T089 **Phase 3 checkpoint.** Run and quote F4.1, F10.1, F13.1 and F16.1,
+  then T098's interim F11.1 output.
+  - **After**: T094, T098.
 
 ---
 
@@ -931,15 +952,15 @@ no-model state. `consumer_reach.py` is gone.
   arrived, so an arc edit to a carved file needs nothing more (R1Q22 (a)).
   - **Realizes**: 11.1, which is ticked at ARC close.
   - **Ruled**: R1Q22 (a).
-- [ ] T093 [oxF] **An interim F11.1** after each phase's openxFactory landings,
-  with `PACKET_MERGE=94b6f7f1` and `ARC_TIP` set to the phase's last arc
-  landing. Use the guard as widened by T007 batch A (R1Q2 (a)'s named
-  composition tests). Record the output in `evidence/f11.1-phase<n>.txt`, with
-  no trailer.
+- [ ] T093 [oxF] **The interim F11.1 procedure, and F11.1 at the arc's
+  close.** Run F11.1 with `PACKET_MERGE=94b6f7f1` and `ARC_TIP` set to the last
+  arc landing measured. Use the guard as widened by T007 batch A (R1Q2 (a)'s
+  named composition tests). Record the output in this feature's `evidence/`,
+  with no trailer. It runs once per phase, as T018 (phase 1), T065 (phase 2)
+  and T098 (phase 3), each with its own `After:` line. It runs once more at the
+  arc's close, after release 2, where the box is ticked.
   - **Realizes**: F11.1, which is ticked at ARC close.
   - **Ruled**: R1Q2 (a), R1Q20 (a).
-  - **After**: each phase's openxFactory landing, with one run after each:
-    T047, T064 and T094.
 
 ---
 
@@ -1050,24 +1071,24 @@ Every release-1 box, with the task that closes it:
   openDox's phase-1 commit in the openDox root, after T022, T032, T037 and
   T038. openXdox-code follows: T040 → T041 → T042 → T043 → T044. T047 moves
   the consumer pins after T039, T044 and T007's batch A, and openxFactory's
-  host wiring (T045, T046) lands inside T047's openxFactory PR. T017 and T093
+  host wiring (T045, T046) lands inside T047's openxFactory PR. T017 and T018
   run after T047. T049 closes the phase once RN-1 is ruled.
 - **Phase 2**: T009, then T050 → T051 ∥ T052 ∥ T057 (∥ T053), then T054 →
   T055 → T056 → T058; T062 (the phase-2 openDox root pin) after T054–T058; T059 after
   T052, T055, T062 and T007's batch C; T060 after T054; T061 after T049 and
-  C3; T064 after T059–T062; T063 after T064.
+  C3; T064 after T059–T062; T065 after T064; T063 after T064 and T065.
 - **Phase 3**: T069, then Group 13 (T071 → T070 → T072 → T073 → T074), with T084 after
   T073 for `serve.py`. In parallel: Group 16's binding slice (T078 → T079 →
   T080), T085 → T081, T075 → T077, and T088. Then T082, which comes after
   T081, T084 and T085, and T083. Then T087 (the phase-3 openDox root pin) →
-  T086 → T094 → T089, and T087 → T076.
+  T086 → T094 → T098 → T089, and T087 → T076.
 - **Acceptance**: T095 → T096 → T097.
 
 ### Parallel slices, summarised
 
 | phase | runs in parallel | is serialized |
 |---|---|---|
-| 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; T032 → T037; T039 (root pin) → openXdox (T040–T044) → T047 → T017, T093 |
+| 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; T032 → T037; T039 (root pin) → openXdox (T040–T044) → T047 → T017, T018 |
 | 2 | T050 ∥ T052 ∥ T057 (∥ T053) | T054 → T055 → T056 → T058; T062 → T059 → T064; ratchet writers |
 | 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T075 ∥ T088 | `serve.py` (T073 before T084); `doxbench_binding.py` (T078 → T080); T085 → T081; T087 → T086 → T094 |
 
@@ -1096,7 +1117,7 @@ landed, except where a row says otherwise.
 | P1-I openXdox pin and residue | G5 | T040 | oXc | `pyproject.toml` (the `opendox @` pin, `rfc3339-validator`); a local helper for the three `test_gate_routes` importers; `tests/fixtures/base-repo` | P1-R | no `test_gate_routes` collection error; `test_snapshot_validation_launch` finds its fixture | Sonnet |
 | P1-J openXdox green alone, less the declared exclusion | G5, after P1-I | T041, T042, T043, T044 | oXc | the declared exclusion file and `conftest.py`; `tests/integration/` (new, with `test_assembled_surface.py` and P1-G's relocated modules); `.github/workflows/validate.yml` | P1-I, P1-G; T007 batch B lands once T041 names its file | F9.1 (openXdox-code, as amended by batch B), F9.2 | Opus |
 | P1-K pins and host wiring | G6 | T045, T046, T047 | oX, oxF | openXdox root: `code`, `contracts/code-pin.yaml`, `contracts/opendox-pin.yaml`. openxFactory: both pin pairs, plus `scripts/opendox_host.py`, `scripts/profile_openxfactory.py`, `tests/domain_profile/` and `tests/ideation-dashboard/test_extension_point_parity.py` | P1-R, P1-J; T007 batch A (F11.1 names the parity test) | `make pins` in the openXdox root; `verify-opendox-pin.py`, `verify-openxdox-pin.py`; openxFactory `pytest-suite` | Opus |
-| P1-L read-only checks | G6, after P1-K | T017, T093 | oxF | `evidence/` only | P1-K | interim F11.1, as widened by batch A, prints `requirement 1 holds` | Sonnet |
+| P1-L read-only checks | G6, after P1-K | T017, T018 | oxF | `evidence/` only | P1-K | interim F11.1 (T018, by T093's procedure), as widened by batch A, prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T049 | — | none (a verifier) | P1-K, P1-L; T007 batches A and B; RN-1 ruled | F2.1; F3.1 as amended; F9.1 in both legs; F9.2; `opendox --help`; F4.1's scan | Opus (verifier) |
 
 **Fan-out order.** Before any slice: T006's round-1a analyze, and the slice's
