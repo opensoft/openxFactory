@@ -11,13 +11,15 @@ What each block here pins.
     takes the openxdox product's own validator, through the snapshot lane's
     own resolver, composed with its schemas. It seals that unit under its own
     `validator/` root and RUNS the sealed copy once before it writes a
-    manifest. A validator that cannot be resolved, or that cannot run, is a
-    refusal that names where it was looked for. Most tests inject a stub
-    unit, as they inject the recipe. The tests that are about the validator
-    use the REAL resolver over the real pinned legs. The DECISION set stays
-    the baked set, and the real `find_validator`, run over a real sealed tree,
-    is proven never to adopt the sealed copy (openXdox-code `e28930bf`
-    confines the locator to the product's own tree).
+    manifest. A validator that cannot be resolved is a refusal that names
+    where it was looked for. A unit that cannot be copied whole, or a copy
+    that cannot run, is a refusal that names what was wrong. Most tests
+    inject a stub unit, as they inject the recipe. The tests that are about
+    the validator use the REAL resolver over the real pinned legs. The
+    DECISION set stays the baked set, and the real `find_validator`, run over
+    a real sealed tree, is proven never to adopt the sealed copy
+    (openXdox-code `e28930bf` confines the locator to the product's own
+    tree).
   * THE REVISION IS PROVEN, NOT ASSERTED. `git archive` records the commit it
     was made from in a global extended pax header; the seal refuses unless
     that header equals the `source_head` it is about to record. After this
@@ -402,6 +404,32 @@ def test_a_sealed_validator_that_cannot_run_is_refused(corpus, tmp_path, drop,
     reason = str(refused.value)
     assert reason.startswith("the sealed validator could NOT RUN")
     assert said in reason
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+
+
+@pytest.mark.parametrize("shape", ["a-dangling-link", "a-directory"])
+def test_a_unit_entry_that_is_not_a_regular_file_is_refused_by_name(
+        corpus, tmp_path, shape):
+    """The seal copies the composed unit's schemas THROUGH their links. An
+    entry it cannot copy as a regular file is refused BY NAME, never skipped.
+    A skipped schema would seal a narrower unit than the one the snapshot lane
+    validates with, and the probe could not see it, because the validator asks
+    for a family schema only when an instance needs one. The stub script here
+    reaches a verdict on anything, so only the copy can refuse."""
+    stub = _stub_validator(tmp_path / "unit")
+    odd = (tmp_path / "unit" / lane.VALIDATOR_SCHEMAS_PATH
+           / "ideation-dashboard-workbench.schema.yaml")
+    if shape == "a-dangling-link":
+        odd.symlink_to(tmp_path / "nowhere.schema.yaml")
+    else:
+        odd.mkdir()
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal", resolve_validator=lambda: stub)
+    reason = str(refused.value)
+    assert reason.startswith("the composed validator unit carries "
+                             "ideation-dashboard-workbench.schema.yaml, which "
+                             "does not resolve to a regular file")
+    assert "narrower unit" in reason
     assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
 
 

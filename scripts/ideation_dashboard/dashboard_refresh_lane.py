@@ -81,8 +81,8 @@ input revisions, a per-file sha256 index and one digest over the whole sealed
 tree. Sealing is MATERIALIZATION, not building: `git archive` of a revision the
 parent already has, one contents read of the single-file recipe, and a copy of
 the pinned openxdox product's own validator composed with its schemas, which
-the parent RUNS once before it seals so the child's `--strict` is known to be
-runnable. See the seal section for why the validator comes from the product
+the parent RUNS once before it seals, so a copy that cannot run never reaches
+the child. See the seal section for why the validator comes from the product
 rather than the corpus, and why the decision's path set does not follow it.
 
 WHAT THIS MODULE DELIBERATELY DOES NOT DO. It opens no pull request and pushes
@@ -860,9 +860,9 @@ class BuildResult:
 # check behind it named a file this repository no longer carries. Two more
 # facts close the old route for good. From openXdox-code `e28930bf` the locator
 # CONFINES to the product's own tree (split-opendox-two-layer-product § 8.9
-# residue (iii)), so it never adopts a copy wherever a seal puts one. And FOUND
-# IS NOT RUNNABLE: at the code leg the script reads no `contracts/` of its own,
-# and exits 2 before it reads a snapshot (#1157).
+# residue (iii)), so it never adopts a copy a seal puts outside that tree. And
+# FOUND IS NOT RUNNABLE: at the code leg the script reads no `contracts/` of
+# its own, and exits 2 before it reads a snapshot (#1157).
 #
 # So the validator is resolved by the SNAPSHOT LANE'S OWN resolver,
 # `nightly_lane._pinned_validator()`: the product's validator, composed with
@@ -871,8 +871,9 @@ class BuildResult:
 # (`scripts/` beside `contracts/schemas/`), where the script's own `parents[1]`
 # is the unit and its schemas resolve. Then the parent RUNS the sealed copy
 # once, through the product's own `snapshot.validate_snapshot`, over a minimal
-# snapshot-kind probe, and refuses unless the validator reached a verdict. That
-# is exactly the condition under which the child's `--strict` can reach one.
+# snapshot-kind probe, and refuses unless the validator reached a verdict. So
+# what the child's `--strict` runs is a byte-for-byte copy of the unit the
+# snapshot lane validates with, and that copy has run once, here, to a verdict.
 # The probe's verdict is not a verdict on the corpus and is never read as one:
 # judging the corpus stays the child's `--strict`.
 #
@@ -939,12 +940,16 @@ SEAL_VALIDATOR_RELPATH = f"{SEAL_VALIDATOR_ROOT}/{VALIDATOR_SCRIPT_PATH}"
 
 # The one instance the parent runs the sealed validator over. It is a
 # snapshot-kind document with nothing else in it. The validator can reach a
-# verdict on it (exit 1, findings) only when it has loaded ITS OWN snapshot
-# schema. It exits 2, a harness failure that `snapshot.validate_snapshot`
-# reports as unavailable, when that schema or every schema is missing. So
-# "available" on this probe means exactly "the child's `--strict` can validate a
-# snapshot with this unit". Measured on the composed unit: rc 1 with 9 schema
-# findings. Without the snapshot schema: rc 2. With no schemas: rc 2.
+# verdict on it (exit 1, findings) only when it launches from the seal, reads
+# the unit's own `contracts/schemas/`, and has loaded the snapshot schema. It
+# exits 2, a harness failure that `snapshot.validate_snapshot` reports as
+# unavailable, when that schema or every schema is missing. "Available" on
+# this probe therefore means the sealed copy RUNS, over the schema the child
+# validates against. That the copy carries the rest of the unit is held by
+# the copy itself (`seal_validator` refuses an entry it cannot copy), not by
+# the probe: the validator asks for another family schema only when an
+# instance needs it. Measured on the composed unit: rc 1 with 9 findings.
+# Without the snapshot schema: rc 2. With no schemas: rc 2.
 VALIDATOR_PROBE = {"kind": "ideation-dashboard-snapshot"}
 
 # The manifest field whose value the child passes to `generate --generated-at`.
@@ -1258,8 +1263,12 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
     REGULAR FILES ONLY. The composed unit is a script COPY beside schema LINKS
     to the pinned bytes. `upload-artifact@v4` preserves no symlink, and
     `seal_file_index` refuses one, so each schema is copied THROUGH its link:
-    the seal holds the pinned bytes, never the link. A link that resolves to
-    nothing is left out. The run below then names the schema it could not find.
+    the seal holds the pinned bytes, never the link. An entry that does not
+    resolve to a regular file (a dangling link, a directory) is REFUSED by
+    name, never skipped. Skipping it would seal a narrower unit than the one
+    the snapshot lane validates with, and the probe below could not see the
+    difference: the validator asks for a family schema only when an instance
+    needs it.
 
     THE RUN IS OF THE SEALED COPY, from inside the seal. It goes through the
     product's own three-outcome `snapshot.validate_snapshot`, which is the call
@@ -1280,9 +1289,14 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
     source = Path(pinned.runnable).parents[1] / VALIDATOR_SCHEMAS_PATH
     if source.is_dir():
         for entry in sorted(source.iterdir(), key=lambda path: path.name):
-            if entry.is_file():        # follows the link to the pinned bytes
-                shutil.copyfile(entry, schemas / entry.name)
-                carried += 1
+            if not entry.is_file():    # follows the link to the pinned bytes
+                raise SealRefused(
+                    f"the composed validator unit carries {entry.name}, which "
+                    f"does not resolve to a regular file ({entry}) — sealing "
+                    "it without that entry would seal a narrower unit than "
+                    "the one the snapshot lane validates with")
+            shutil.copyfile(entry, schemas / entry.name)
+            carried += 1
     try:
         product = _snapshot_lane().snapshot_mod
     except ImportError as exc:
@@ -1392,8 +1406,9 @@ def seal_source(
             "materialized into a fresh tree")
     # THE VALIDATOR IS RESOLVED BEFORE THE CORPUS IS ARCHIVED. It no longer
     # comes out of the corpus, so nothing about it waits for the corpus, and a
-    # parent that cannot resolve it is told so before ~35 MB is archived for
-    # nothing. It is SEALED and RUN below, once the seal tree exists.
+    # parent that cannot resolve it is told so before the whole corpus
+    # (44,492,413 bytes at `1edbb3dd`) is archived for nothing. It is SEALED
+    # and RUN below, once the seal tree exists.
     pinned = (resolve_validator or resolve_pinned_validator)()
     seal_root.mkdir(parents=True, exist_ok=True)
     corpus_root = seal_root / SEAL_CORPUS_RELPATH

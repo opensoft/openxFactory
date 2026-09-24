@@ -3713,8 +3713,8 @@ jobs:
         # The seal carries ONE thing the decision's baked set does not name:
         # the pinned openXdox product's own validator, composed with its
         # schemas under the seal's own `validator/` root. The parent RUNS it
-        # once before it seals, so the child's `--strict` is known to be
-        # runnable. It comes from the product, not the corpus, which stopped
+        # once before it seals, so a copy that cannot run never reaches the
+        # child. It comes from the product, not the corpus, which stopped
         # carrying it at the § 5.2 shed (#1158). The corpus half is exactly
         # the baked set, so the decision's scope does not move. The reason
         # lives in the module, beside the code. This job does not yet mount
