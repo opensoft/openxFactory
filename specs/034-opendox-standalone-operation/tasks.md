@@ -400,7 +400,8 @@ script exists. openxFactory is unchanged in behaviour.
   - **Realizes**: 2.5, 9.1, 9.2a (a required check now runs T030).
   - **Falsifier**: F9.1 (openDox-code), both of its assertions.
   - **Ruled**: R1Q8 (a).
-  - **After**: T035.
+  - **After**: T035, T038 (both edit `pyproject.toml`, and T038's
+    `[project.scripts]` lands first).
 - [ ] T037 [US1] [oDc] **9.4, openDox's half.** Restore the margin over the
   floors. The two skips that mirror openXdox's gap assert for real.
   - **Realizes**: 9.4 (part).
@@ -526,7 +527,7 @@ script exists. openxFactory is unchanged in behaviour.
   - **Realizes**: 4.1 (host half), 4.3 (host half).
   - **Falsifier**: `pytest-suite`; the hosted session notebook is unchanged.
   - **Ruled**: R1Q2 (a), R1Q4 (a), R1Q9 (a).
-  - **After**: T020–T027.
+  - **After**: T020–T022 and T025–T027.
 - [ ] T047 [US4] [oX] [oxF] **Phase 1's consumer pins and host wiring** (T090
   steps 5–6). The openXdox root moves to T044's commit and to T039's root
   commit. openxFactory then moves both pin pairs in ONE PR, which also carries
@@ -1155,7 +1156,7 @@ landed, except where a row says otherwise.
 | P1-D authoring and the default adapter | G2 | T021, T022 | oDc | `src/opendox/authoring.py`; entry registration in `cli.py`/`serve.py`; `tests/test_authoring_seam.py` | P1-C, P1-B | `…::test_an_entry_point_registers_the_local_git_corpus_when_no_host_has`; F4.1's first block | Sonnet |
 | P1-H console script | G2; rebases onto P1-D for `cli.py` | T038 | oDc | `pyproject.toml` `[project.scripts]`; the default profile's `SUBCOMMAND_EXTENSIONS`; `cli.py`; two comments in `src/opendox/runtime/cli.py` | P1-B; P1-D for `cli.py` | `opendox --help` and `opendox runtime --help` exit 0 | Sonnet |
 | P1-F sweep and nine-file repair | G3 | T032, T034 | oDc | the nine files in research R3 and their Node harnesses | P1-A–P1-E landed | the nine files green; F4.1's scan lists only `openxdox` targets | Opus (the `test_consumer_reach`/`test_boundary` re-pins alone would be Sonnet) |
-| P1-G whole suite in CI | G3, after P1-F | T035, T036, T037, T031 | oDc | `conftest.py`; `pyproject.toml` (`testpaths`); `.github/workflows/validate.yml` (a PostgreSQL service in `validate`); `README.md`; the seven ignored modules | P1-F | F9.1 (openDox-code), both assertions, with the database DSN exported | Opus |
+| P1-G whole suite in CI | G3, after P1-F | T035, T036, T037, T031 | oDc | `conftest.py`; `pyproject.toml` (`testpaths`); `.github/workflows/validate.yml` (a PostgreSQL service in `validate`); `README.md`; the seven ignored modules | P1-F; P1-H, since both edit `pyproject.toml` | F9.1 (openDox-code), both assertions, with the database DSN exported | Opus |
 | P1-R openDox root pin | G4 | T039 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-1 openDox-code slice landed (T022, T032, T037, T038) | `make pins` | Sonnet |
 | P1-I openXdox pin and residue | G5 | T040 | oXc | `pyproject.toml` (the `opendox @` pin, `rfc3339-validator`); a local helper for the three `test_gate_routes` importers; `tests/fixtures/base-repo` | P1-R | no `test_gate_routes` collection error; `test_snapshot_validation_launch` finds its fixture | Sonnet |
 | P1-J openXdox green alone, less the declared exclusion | G5, after P1-I | T041, T042, T043, T044 | oXc | the declared exclusion file and `conftest.py`; `tests/integration/` (new, with `test_assembled_surface.py` and P1-G's relocated modules); `.github/workflows/validate.yml` | P1-I, P1-G; T007 batch B lands once T041 names its file | F9.1 (openXdox-code, as amended by batch B), F9.2 | Opus |

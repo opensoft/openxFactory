@@ -67,8 +67,13 @@ Playwright half runs on the host with `tests/smoke_signals.py`'s oracle (T096).
 Neither half is a member of a leg's pytest suite: each installs the product and
 drives it from outside. So neither half changes openDox-code's `testpaths`,
 which T036 sets in phase 1, or F9.1.
-**Target Platform**: a single-user Linux or macOS machine for the local install,
-and the existing AKS hosted mode, which must be unchanged.
+**Target Platform**: a single-user Linux machine for the local install, and the
+existing AKS hosted mode, which must be unchanged. Linux is where #1144's
+falsifiers run. 13.1 checks the "no TCP port" invariant at the operating
+system, in the Linux kernel's socket table, and F13.1 reads it there. macOS is
+not a release-1 target, because no ratified falsifier covers it. Adding it
+would need a Darwin leg for 13.1's check and F13.1, which is an amendment to
+#1144 and so needs a ruling.
 **Project Type**: a split product across five repositories: two code legs, two
 assembly roots, and the governing aggregation child. openDox-spec becomes a
 sixth only if T053 applies (R1Q11 (a) or R1Q12 (b)).
