@@ -372,12 +372,19 @@ Load `docs/opendox-carve-manifest.yaml` with PyYAML and select the rows whose
 | `src/opendox/web/views/lens.js` (per R1Q19) | `moved_with_declared_edit` | 2 (2) | R1Q19 |
 | `src/opendox/notebook_action.py` (if 2.2 touches it) | `moved_verbatim` | 0 | 2.2 |
 
+The carved TESTS count too. Each of R3's nine red files is a
+`moved_with_declared_edit` row with 1–3 `edits[]` entries. So are six of the seven
+modules in `collect_ignore` (R4); the seventh, `test_session_harness.py`, is
+`moved_verbatim`.
+
 Files created at the destination have no row (RULED OQ-C): `consumer_reach.py`,
 `corpus_adapter.py`, `domain_profile.py`, `display_profile.py`,
 `route_extension.py`, `runtime/*.py` and the workflows. No CI job runs
 `scripts/verify-carve-arrival.py` or `scripts/verify-carve-conformance.py`
 against a live destination; their tests use synthetic trees. Together those two
-facts are why R1Q22 is a question about discipline and not about a gate.
+facts are why R1Q22 was a question about discipline and not about a gate.
+Brett answered it (a) in `5817152735`: the manifest records the carve as it
+arrived.
 
 ## R13 — The pins, and how far they have drifted
 

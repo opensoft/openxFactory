@@ -2,7 +2,8 @@
 
 **Feature Branch**: `034-opendox-standalone-operation`
 **Created**: 2026-09-24
-**Status**: Draft (planning; 22 clarify questions open)
+**Status**: Draft (planning). 11 of the 23 clarify questions are answered,
+including every question phase 1 needed; 12 are open for phases 2–3.
 **Realizes**: RELEASE 1, "standalone operation", phases 1–3, of the
 openxFactory OpenSpec change `add-neutral-product-standalone-operability`
 (#1144, landed `94b6f7f1`). The phases follow that change's RULED release map
@@ -19,13 +20,16 @@ C1–C5"*. That comment records *"The ratify word authorizes realization of
 release 1 (phases 1–3). The realization does not happen by the word itself."*
 The ratification record, box 1.8, landed as #1151 → `cd494e4c`
 (2026-09-24T14:54:27Z), under its own Rule 6 window, and ticked 1.8 and 3.0.
+Brett Heap answered the eleven phase-1 clarify questions on `#656`, comment
+`5817152735` (2026-09-24T15:31:46Z), verbatim: *"(a) on all eleven, (d) on
+R1Q6"*.
 
 **THE RATIFIED PACKET IS THE AUTHORITY, NOT THIS FILE.** Every requirement
 below realizes one of #1144's requirements and names it. Nothing here restates,
 narrows or widens the packet. Where this file appears to do so, that is a
 defect in this file, and the packet wins. Where the packet contradicts itself
 or the live code, the contradiction is put to Brett as a question
-([`clarify-questions.md`](./clarify-questions.md), `R1Q1`–`R1Q22`). It is never
+([`clarify-questions.md`](./clarify-questions.md), `R1Q1`–`R1Q23`). It is never
 settled here by assumption.
 
 **Why the feature lives in openxFactory.** The governing change lives here.
@@ -38,14 +42,80 @@ request: openDox-code, openXdox-code, openDox, openXdox and openxFactory.
 
 ## Clarifications
 
-### Session 2026-09-24 (round 1): OPEN
+### Session 2026-09-24
 
-Twenty-two questions are raised in [`clarify-questions.md`](./clarify-questions.md)
-and are awaiting Brett Heap. Each answer is encoded here by T004, in the same
-commit that records it. Until then, every task a question blocks carries
-`Blocked by: R1Qn` in [`tasks.md`](./tasks.md), and none of those tasks may
-start. The questions are named `R1Q<n>` because a bare `Q<n>` already names one
-of #1144's own rulings (RULING Q1, RULING Q2, Q-R4, DIRECTION Q5).
+Round 1 raised 22 questions in [`clarify-questions.md`](./clarify-questions.md),
+and one answer raised a 23rd. They are named `R1Q<n>`, because a bare `Q<n>`
+already names one of #1144's own rulings (RULING Q1, RULING Q2, Q-R4,
+DIRECTION Q5).
+
+Brett Heap answered eleven of them. The ruling was given on `#656`, comment
+`5817152735`, 2026-09-24T15:31:46Z, verbatim: *"(a) on all eleven, (d) on
+R1Q6"*.
+
+- Q: R1Q22. Does the carve's declared-edit discipline govern the arc's edits
+  to carved files? → A: (a), no. The manifest records the carve as it
+  arrived, post-arrival development is ordinary work, and 11.1's notes record
+  only each closed reach.
+- Q: R1Q1. How is the lanes mixin dropped, when a `RouteBinding` can name only
+  a method its handler class already has? → A: (a), a handler-contribution
+  facet. A profile or extension declares the mixin classes holding the methods
+  its bindings name. `build_server` composes them into
+  `BoundDashboardHandler`'s bases, and `resolve_handlers` is unchanged.
+- Q: R1Q2. May an arc landing edit openxFactory's tests that pin openDox's
+  internals, which 11.1's guard forbids? → A: (a). 11.1's declared surfaces are
+  widened to NAMED openxFactory composition tests, which may be edited and are
+  never removed. The first is
+  `tests/ideation-dashboard/test_extension_point_parity.py`.
+- Q: R1Q3. Is the default profile an entry-point registration or a fallback
+  inside `current()`? → A: (a). Both defaults, the profile and the adapter,
+  are registrations an entry point makes, and F3.1 line 2 is amended to ask
+  after `build_parser()`. `ProfileNotRegistered` stays for library callers.
+  (i) 3.2's "ambiguous registration" wording is corrected to the case
+  `profile_proxy.py` was written for, NOTHING REGISTERED. (ii) A host
+  registration replaces the default until a parser or server is built from
+  it, and is refused after that. That conflicts with the TEXT of requirement
+  3's fourth scenario, so it is RULING NEEDED RN-1 (plan.md § "Ruling
+  needed").
+- Q: R1Q4. What does the default profile contribute, given that an empty
+  default stays refused? → A: (a). openDox's own verbs and routes: the runtime
+  verbs now, and release 2's `submit`, `land` and `health` later. Its
+  `DISPLAY` is `NEUTRAL_DISPLAY`. A governed host's own start asserts that its
+  profile is the registered one.
+- Q: R1Q5. Where do the runtime verbs register without breaking the 31-entry
+  golden? → A: (a). Through the default profile's `SUBCOMMAND_EXTENSIONS`
+  (`RuntimeSubcommand`), and `opendox-runtime` stays as an alias. A host that
+  registers its own profile keeps its 31-entry tree.
+- Q: R1Q6. How does openXdox-code run its whole suite green alone while its
+  modules import openxFactory's `doc_health`? → A: (d), for release 1.
+  - The `doc_health`-dependent files are a DECLARED exclusion, with their
+    count and reason (requirement 9, first scenario), and F9.1 is amended for
+    openXdox-code.
+  - The direction question becomes its own arc (T008), decided before 12.5
+    needs the 16 governed suites. Requirement 9 therefore stays an open
+    extraction for openXdox-code until that arc lands.
+  - This answer raises R1Q23 for phase 2.
+- Q: R1Q7. How do the protected suites of 5.4a and 12.5 survive release 1?
+  They already fail, and one introspects a method release 1 moves. → A: (a). A
+  reviewed allow-list admits edits that only RESPELL a reference to a moved
+  seam, with no assertion weakened, and each edit is recorded.
+- Q: R1Q8. Does openDox-code's "whole suite" include `tests_runtime/`? → A:
+  (a), yes. `testpaths` widens to both roots, and the required job gets a
+  PostgreSQL service. F9.1 is unchanged.
+- Q: R1Q9. Does `session_documents` refuse until Group 6? → A: (a), no. It
+  resolves through the registered adapter's `list_documents` in phase 1, and
+  the hosted membership rule is unchanged.
+- Q: R1Q20. Do the arc's bookkeeping commits carry the `Arc:` trailer? → A:
+  (a), no. Only realization landings carry it.
+
+Where an answer amends a falsifier or a task line of #1144, T007 records the
+amendment there as bookkeeping, and the realization carries it out
+([`tasks.md`](./tasks.md) § "Ruled amendments"). The planning PR (#1155)
+edits no file of #1144.
+
+**Still OPEN** (phases 2–3, and process): R1Q10–R1Q19, R1Q21, and R1Q23. Every
+task one of them blocks carries `Blocked by: R1Qn` in [`tasks.md`](./tasks.md),
+and none of those tasks may start until T004 has encoded the answer here.
 
 One box needs no question. **3.0** ("RATIFICATION READ FIRST") is discharged by
 the ratification word itself. `5815412869` ratified the change and struck no
@@ -67,8 +137,9 @@ corpus adapter. Each leg's suite runs whole and green in its own checkout. The
 product imports and its suite runs. Today openDox-code's suite gives 0 passed
 and 1,305 errors (research R2).
 
-**Independent Test**: at the phase-1 tip, F2.1, F3.1 (as amended per R1Q3),
-F9.1 (in both legs), F9.2 and `opendox --help` all pass. So do 4.3's eight
+**Independent Test**: at the phase-1 tip, F2.1, F3.1 (line 2 as amended, R1Q3
+(a)), F9.1 (in both legs; openXdox-code's as amended, R1Q6 (d)), F9.2 and
+`opendox --help` all pass. So do 4.3's eight
 reaches into openxFactory, under F4.1's scan restricted to the publisher's
 packages.
 
@@ -78,15 +149,21 @@ packages.
    **When** every module of `opendox` is imported, **Then** each one imports,
    and 2.4's test names the first module that does not (requirement 2).
 2. **Given** no host has registered a profile, **When** an entry point builds
-   the parser, **Then** it builds on openDox's own default profile. A profile a
-   host registers replaces the default (requirement 3; R1Q3, R1Q4).
+   the parser, **Then** it builds on openDox's own default profile, which the
+   entry point registered. A profile a host registers before anything is built
+   replaces the default (requirement 3; R1Q3 (a), R1Q4 (a); RN-1).
 3. **Given** nothing is registered, **When** a verb needs the home corpus,
    **Then** it refuses with `CorpusRefused` of kind `ADAPTER_NOT_REGISTERED`,
    naming the seam and the remedy. **Given** an entry point was built, **Then**
    the home corpus is openDox's `LocalGitCorpus` (requirement 5).
 4. **Given** each leg's own checkout with no sibling present, **When**
    `python -m pytest -q` runs, **Then** it is green. `validate.yml` names no
-   file list and no `--noconftest` (requirement 9; R1Q6, R1Q8).
+   file list and no `--noconftest` (requirement 9).
+   - openDox-code's whole suite includes `tests_runtime/`, run against the
+     required job's database (R1Q8 (a)).
+   - openXdox-code's is the whole suite less its declared `doc_health`
+     exclusion, which every run reports with its count and its reason (R1Q6
+     (d)).
 5. **Given** openXdox-code with openDox at its pin, **When** the declared
    integration suite runs, **Then** it passes, including the 31-entry assembled
    `--help` tree (requirement 9, third scenario).
@@ -124,7 +201,8 @@ F5.2 (5.4a) and F7.1 (7.3) all pass.
    does not fail on an unresolvable path (requirement 7; R1Q12).
 3. **Given** openXdox installed over the realized openDox, **When** the six
    generator suites run, **Then** they pass, and no arc landing edited them
-   (requirement 4, third scenario; R1Q7).
+   except through R1Q7 (a)'s reviewed allow-list (requirement 4, third
+   scenario; R1Q23 decides where the four `doc_health` suites run).
 4. **Given** openXdox installed in a fresh venv, **When** its validator lookup
    starts inside a planted pre-shed tree, **Then** it resolves the installed
    distribution's own validator (7.3; R1Q14).
@@ -193,18 +271,24 @@ suite pass.
 
 1. **Given** openxFactory at a pin carrying the removal of 2.1, **When** its
    server is built, **Then** its five lane routes are served through the seam
-   (R1Q1, R1Q2).
+   and the handler-contribution facet (R1Q1 (a), R1Q2 (a)).
 2. **Given** every arc landing on openxFactory `main` since `94b6f7f1`, **When**
-   F11.1 runs, **Then** each path touched is one of 11.1's surfaces, and the
-   manifest differs only by extended notes (requirement 1; R1Q20, R1Q22).
+   F11.1 runs, **Then** each path touched is one of 11.1's surfaces, as
+   widened to named composition tests by R1Q2 (a). The manifest differs only
+   by extended notes (requirement 1; R1Q20 (a), R1Q22 (a)).
 
 ---
 
 ### Edge Cases
 
-- A host registers AFTER an entry point registered the default (R1Q3 (ii)).
+- A host registers AFTER an entry point registered the default. It replaces
+  the default until a parser or server is built from it, and is refused
+  `AlreadyRegistered` after that (R1Q3 (ii); RN-1).
 - A governed host FORGETS to register, and gets a working-looking parser
-  without its gate verbs (R1Q4).
+  without its gate verbs. Its own start asserts its registration, so it
+  refuses to start (R1Q4 (a)).
+- A test file in openXdox-code needs `doc_health`. It is listed in the declared
+  exclusion with its reason, and it is never silently skipped (R1Q6 (d)).
 - The install mode is unset (R1Q15), or a local install is asked to bind
   beyond loopback, which is refused with no opt-in (13.4).
 - A raw key appears inside an endpoint URL, not in a field (16.3).
@@ -226,14 +310,17 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 
 - **FR-001** (requirement 2; boxes 2.1–2.6, 9.2a; F2.1): every module of
   openDox SHALL import with no consumer, publisher or host installed. The five
-  lane routes SHALL be contributed through a declared seam (R1Q1). A test in
+  lane routes SHALL be contributed through a declared seam, with their methods
+  through the handler-contribution facet (R1Q1 (a)). A test in
   openDox's own suite SHALL import every module. The openDox → openxFactory
   direction SHALL be watched by a required check.
 - **FR-002** (requirement 3; 3.0–3.3; F3.1): openDox SHALL ship a default
   profile for its own domain that carries no publisher vocabulary. Entry points
   SHALL build on it when no host has registered, and a registered profile
-  SHALL replace it. An EMPTY default stays refused (R1Q3, R1Q4). The carve
-  manifest's `deleted_at_carve` row SHALL stay byte-identical.
+  SHALL replace it. Both defaults are entry-point registrations (R1Q3 (a);
+  the after-build case is RN-1). An EMPTY default stays refused: the default
+  contributes openDox's own verbs (R1Q4 (a), R1Q5 (a)). The carve manifest's
+  `deleted_at_carve` row SHALL stay byte-identical.
 - **FR-003** (requirement 5; 4.1, 4.1a, 4.2, 4.3; F4.1): every deferred reach
   into openxFactory or openXdox SHALL resolve through a seam openDox declares.
   With nothing registered, it SHALL refuse, naming the seam and the remedy. The
@@ -241,12 +328,12 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   `LocalGitCorpus`) unless a host registered its own. `consumer_reach.py` SHALL
   be retired with its last name. Placement: the eight reaches into openxFactory
   in phase 1, and the nineteen into openXdox no later than the phase whose
-  surface calls them (R1Q9, R1Q10).
+  surface calls them (R1Q9 (a); R1Q10, still open).
 - **FR-004** (requirement 4; 5.0–5.6; F5.1, F5.2, F5.3): openDox SHALL generate
   its own neutral snapshot over `CorpusAdapter` and `LocalGitCorpus`,
   rendering the six ruled words. It SHALL declare a generator seam. openXdox
   SHALL keep its governed generator and contribute it through that seam, with
-  its projection unchanged (R1Q11, R1Q13, R1Q7).
+  its projection unchanged (R1Q11, R1Q13 and R1Q23, open; R1Q7 (a)).
 - **FR-005** (requirement 7; 7.0–7.3; F7.1, F7.2): openDox's validator and the
   schemas it reads SHALL be on disk in one installed checkout. The input set is
   narrowed to openDox's own kinds first, and no intent-plane or governance
@@ -256,11 +343,12 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   SHALL run its whole suite green in its own checkout. Behaviour that needs
   both legs SHALL be declared integration tests at the declared composition.
   The margins SHALL be restored, with no skip carrying the gap. The pins SHALL
-  advance by their owners' ordinary pin-sync acts (R1Q6, R1Q7, R1Q8).
+  advance by their owners' ordinary pin-sync acts (R1Q6 (d), R1Q7 (a), R1Q8
+  (a)).
 - **FR-007** (requirement 10; 10.1–10.3; F10.1): openDox SHALL declare one
   console script, `opendox`, that serves the whole browser surface from an
   openDox-only install. The openDox root's README SHALL document the single
-  command, and the root SHALL NOT host it (R1Q5, R1Q15).
+  command, and the root SHALL NOT host it (R1Q5 (a); R1Q15, still open).
 - **FR-008** (requirements 12 and 13; 13.1–13.6; F13.1): the standalone install
   SHALL bring its own PostgreSQL, with one dialect and both DSNs. It SHALL
   offer an explicitly selected local single-user mode, loopback-only and with
@@ -275,8 +363,9 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   R1Q17, R1Q18).
 - **FR-010** (requirement 1; 11.0, 11.1; F11.1): release 1 SHALL move nothing
   out of openxFactory. Every realization landing SHALL carry `Arc:
-  neutral-product-standalone-operability`. openxFactory's arc edits SHALL stay
-  within 11.1's three surfaces (R1Q2, R1Q20, R1Q22).
+  neutral-product-standalone-operability`, and bookkeeping SHALL NOT (R1Q20
+  (a)). openxFactory's arc edits SHALL stay within 11.1's surfaces: its three,
+  plus the named composition tests of R1Q2 (a) (R1Q22 (a)).
 - **FR-011** (acceptance): release 1 SHALL pass AT-R1 (below) before its
   bookkeeping ticks the release-1 boxes.
 - **FR-012** (process): no task SHALL start while a question in its
@@ -286,10 +375,15 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 ### Key Entities
 
 - **Default profile**: openDox's own domain profile (documents and ideas), with
-  `DISPLAY` as `NEUTRAL_DISPLAY`. Its extension contents are set by R1Q4 and
-  R1Q5.
-- **Handler contribution**: whatever R1Q1 selects to let a host's routes name
-  methods that only the host's mixin carries.
+  `DISPLAY` as `NEUTRAL_DISPLAY`, registered by the entry points (R1Q3 (a)). It
+  contributes openDox's own verbs, the runtime verbs through
+  `RuntimeSubcommand` now (R1Q4 (a), R1Q5 (a)).
+- **Handler contribution**: the facet R1Q1 (a) rules. A profile or extension
+  declares the mixin classes whose methods its bindings name, and
+  `build_server` composes them into `BoundDashboardHandler`'s bases.
+- **Declared exclusion**: openXdox-code's committed list of the test files that
+  need openxFactory's `doc_health`, with its count and reason, reported as an
+  open extraction (R1Q6 (d)).
 - **Home-corpus registration**: `corpus_adapter.register_home(factory)` and
   `home()`, plus `ADAPTER_NOT_REGISTERED`.
 - **Generator seam**: the operation handed over, its registration point beside
@@ -310,9 +404,9 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 
 - **SC-001** (phase 1 exit): at the phase-1 tip, F2.1, F3.1, F9.1 (in both
   legs) and F9.2 exit 0, and `opendox --help` exits 0. openDox-code's suite
-  goes from 0 passed today to whole and green, and openXdox-code's from 57
-  collection errors to whole and green (or to the declared exclusion that
-  R1Q6 (d) admits).
+  goes from 0 passed today to whole and green. openXdox-code's goes from 57
+  collection errors to whole and green less its declared `doc_health`
+  exclusion (R1Q6 (d)).
 - **SC-002** (phase 2 exit): F5.1, F5.2, F5.3, F7.1 and F7.2 exit 0.
 - **SC-003** (phase 3 exit): F4.1, F10.1, F13.1 and F16.1 exit 0, and the F4.1
   scan prints `no deferred reach names the consumer or the publisher`.
@@ -320,12 +414,14 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   `evidence/` directory.
 - **SC-005**: after each phase's openxFactory landings, an interim F11.1 run
   (`PACKET_MERGE=94b6f7f1`) prints `requirement 1 holds`.
-- **SC-006**: at release-1 close, 63 of release 1's 69 boxes are ticked, each
-  with its evidence.
-  - 3.0 is ticked by the ratification.
-  - 5.6 was already `[x]`.
-  - 9.5, 11.0, 11.1 and F11.1 are performed, but left open for the arc's close
-    after release 2.
+- **SC-006**: at release-1 close, 65 of release 1's 69 boxes are ticked, each
+  with its evidence:
+  - 63 by T097;
+  - 3.0, by the ratification record (#1151);
+  - 5.6, which was already `[x]`.
+
+  The other four (9.5, 11.0, 11.1 and F11.1) are performed in every phase, but
+  left open for the arc's close after release 2.
 - **SC-007**: openxFactory's required checks are green at every pin advance
   this release makes.
 
@@ -375,9 +471,11 @@ oracle's own header records.
 - Release 2 (Groups 6, 12, 14 and 15), Group 8 and F1–F4 are out of scope. The
   archive needs BOTH releases' evidence (`5800995035` answer 2), so landing
   release 1 archives and promotes nothing.
-- The answers to R1Q1–R1Q22 are applied (T004) before any task they block. The
-  plan and the tasks are written CONDITIONALLY on the recommended options, and
-  each conditional step names its question.
+- The eleven answers of `5817152735` are applied in this revision, so phase 1
+  is planned on its answers. The open questions (R1Q10–R1Q19, R1Q21, R1Q23) are
+  applied by T004 before any task they block. Phases 2 and 3 stay written
+  CONDITIONALLY on the recommended options, and each conditional step names its
+  question.
 - Lane 4's own acts C1, C3 and C4 (`#656` `5815604830`, `5815613524`,
   `5815620605`) are in flight, and this feature neither duplicates nor
   pre-empts them.

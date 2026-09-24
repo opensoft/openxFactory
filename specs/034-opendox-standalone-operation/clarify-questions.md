@@ -4,11 +4,23 @@
 operation", phases 1–3) of the ratified OpenSpec change
 `add-neutral-product-standalone-operability` (#1144).
 **Lane**: `openxfactory-4`. **Raised**: 2026-09-24, while planning, before any
-code. **Status**: OPEN — every question below awaits Brett Heap. Nothing here is
-decided by this feature; where a question carries a recommendation it is a
-recommendation only, and every task it blocks names it.
+code.
 
-**Naming.** These are `R1Q1`…`R1Q22`. A bare `Q<n>` in this estate already names
+**Status: 11 ANSWERED, 12 OPEN.**
+
+- **ANSWERED** (R1Q1–R1Q9, R1Q20, R1Q22: every question phase 1 needed).
+  RULED 2026-09-24T15:31:46Z by Brett Heap, interactive in the lane session,
+  on `#656`, comment `5817152735`, verbatim: *"(a) on all eleven, (d) on
+  R1Q6"*. So each of the eleven is answered (a), except R1Q6, which is
+  answered (d). Every one of them is the option this file recommended. Each is
+  encoded in [`spec.md`](./spec.md) § Clarifications and in
+  [`tasks.md`](./tasks.md), where it shows as a `Ruled:` line.
+- **OPEN** (R1Q10–R1Q19 and R1Q21, which bear on phases 2–3 and on process).
+  Also **R1Q23**, which R1Q6's answer raises for phase 2. Where one of these
+  carries a recommendation, it is a recommendation only. Every task it blocks
+  names it on a `Blocked by:` line.
+
+**Naming.** These are `R1Q1`…`R1Q23`. A bare `Q<n>` in this estate already names
 one of #1144's own rulings (RULING Q1, RULING Q2, Q-R4, DIRECTION Q5), so this
 round never uses one.
 
@@ -17,30 +29,32 @@ round never uses one.
 re-runnable from [`research.md`](./research.md), which gives the command beside
 it. Task ids (`T0nn`) are [`tasks.md`](./tasks.md)'s.
 
-**How to answer.** One line per question is enough, e.g. `R1Q1 a`. An answer is
+**How to answer.** One line per question is enough, e.g. `R1Q15 b`. An answer is
 written inline under its question and encoded into `spec.md` in the same commit
-(T004). An answer that changes a falsifier or a task line of #1144's `tasks.md`
-lands there as an amendment on your word, under a Rule 6 window; one that would
-change a requirement's text or a scenario is put to you as a ruling first and is
-not applied here.
+(T004).
+- An answer that changes a falsifier or a task line of #1144's `tasks.md` is
+  recorded there by T007, on your word, under a Rule 6 window.
+- An answer that would change a requirement's text or a scenario is put to
+  you as RULING NEEDED first, and is not applied here. RN-1 is the one so far
+  (plan.md § "Ruling needed").
 
 **What each phase waits on.**
 
 | phase | cannot start or close without |
 |---|---|
-| 1, it runs | R1Q22 (before the first edit to a carved file); R1Q1 and R1Q2 (the lanes base); R1Q3, R1Q4, R1Q5 (the defaults, the console script); R1Q6, R1Q7, R1Q8 (Group 9 closes); R1Q9 (one reach) |
-| 2, useful alone | R1Q11, R1Q12, R1Q13 (the projection and the validator); R1Q10 (serving it); R1Q14 (7.3); R1Q7 (5.4a) |
+| 1, it runs | nothing open. R1Q1–R1Q9 and R1Q22 are answered (`5817152735`); T006's round-1a analyze and each slice's claim remain |
+| 2, useful alone | R1Q11, R1Q12, R1Q13 (the projection and the validator); R1Q10 (serving it); R1Q14 (7.3); R1Q23 (F5.2's four `doc_health` suites) |
 | 3, it installs | R1Q15, R1Q16 (the install); R1Q10, R1Q12 (chat standalone); R1Q17, R1Q18 (16.3); R1Q19 (the lens in the acceptance) |
-| every landing | R1Q20 (the trailer on bookkeeping), R1Q22 (the carve manifest) |
+| every landing | nothing open. R1Q20 and R1Q22 are answered |
 | process only | R1Q21 |
 
-**Unblocked today**, needing no answer: T002, T003 and T005 (holder; T001 is done), T017 and
-T020; T030 can be authored now and lands with T011 (see `tasks.md`
-§ "Unblocked today").
+**What can start now**: every phase-1 task, after T006 and its slice's claim
+(T002); and the holder tasks T002, T003, T005, T006 (its round-1a run), T007
+and T008 (see `tasks.md` § "What can start").
 
 ---
 
-## R1Q1 — Dropping the lanes mixin needs a mechanism #1144 says it will not design *(blocks T010, T011, T045, T084, T086; phase 1)*
+## R1Q1 — Dropping the lanes mixin needs a mechanism #1144 says it will not design *(governs T007, T010, T011, T045, T084, T086; phases 1 and 3)* — **ANSWERED (a)**
 
 **Measured.** `DashboardHandler` takes `serve_openxfactory_lanes.LaneRoutes` as a
 BASE CLASS (`src/opendox/serve.py:734`), beside `consumer_reach.LateGateRoutes`
@@ -77,11 +91,11 @@ and projection columns when 4.3 retires `consumer_reach.py` (phase 3).
 - (c) openDox keeps a name-forwarding stand-in for the lanes column — the
   `consumer_reach` pattern 4.3 exists to retire.
 
-**Recommendation.** (a). **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a). **ANSWER: (a)**, RULED in `5817152735`. T010 declares the facet. T007 batch A records the addenda to 2.2 and design.md § D4, since D4 said no new mechanism would be designed.
 
 ---
 
-## R1Q2 — 11.1's allow-list forbids editing the openxFactory tests that pin openDox's internals *(blocks T034, T035, T045, T046, T087; phases 1–3)*
+## R1Q2 — 11.1's allow-list forbids editing the openxFactory tests that pin openDox's internals *(governs T007, T034, T035, T045, T046, T093, T094; phases 1–3)* — **ANSWERED (a)**
 
 **Measured.** openxFactory's
 `test_the_mixins_precede_simplehttprequesthandler_in_the_mro`
@@ -115,11 +129,11 @@ openxFactory is also a path outside the surfaces.
   in one landing.
 
 **Recommendation.** (a); (b) works without amending the guard.
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER: (a)**, RULED in `5817152735`. T007 batch A widens 11.1 and F11.1 to NAMED composition tests, starting with `tests/ideation-dashboard/test_extension_point_parity.py`. Any further path (T034, T035) joins the named set in a later batch, before the landing that adds it.
 
 ---
 
-## R1Q3 — Is the default profile registered by the entry point, or a fallback inside `current()`? *(blocks T016, T022; phase 1)*
+## R1Q3 — Is the default profile registered by the entry point, or a fallback inside `current()`? *(governs T007, T016, T022; phase 1)* — **ANSWERED (a)**
 
 **Measured.** Group 3's falsifier line 2 runs
 `python -c "from opendox import domain_profile as d; print('OK', d.name_of(d.current()))"`
@@ -163,11 +177,11 @@ from the default (RULED ASK-4 Q5's reason)? Recommended: replace while nothing
 has been built; refuse once a parser or server was built from the default.
 
 **Recommendation.** (a), with (i) as proposed and (ii) as recommended.
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER: (a)**, with (i) and (ii), RULED in `5817152735`. T007 batch A amends F3.1 line 2 and 3.2's wording. (ii) conflicts with the TEXT of requirement 3's fourth scenario, which replaces the default unconditionally. That text change is **RULING NEEDED RN-1** (plan.md § "Ruling needed"). It holds no task, because the after-build refusal is today's `AlreadyRegistered`.
 
 ---
 
-## R1Q4 — What does the default profile contribute, given that an EMPTY default stays refused? *(blocks T015, T038, T046; phase 1)*
+## R1Q4 — What does the default profile contribute, given that an EMPTY default stays refused? *(governs T015, T038, T046; phase 1)* — **ANSWERED (a)**
 
 **Measured.** A profile's facets are `SUBCOMMAND_EXTENSIONS`, `ROUTE_EXTENSIONS`,
 `cli_gate` and `DISPLAY` (`scripts/opendox_host.py:113`). design.md § D5: *"an
@@ -187,11 +201,11 @@ empty stand-in profile, today's core parser offers five verbs: `create`, `edit`,
   accepted.
 - (c) Something else you name.
 
-**Recommendation.** (a). **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a). **ANSWER: (a)**, RULED in `5817152735`. The default profile contributes openDox's own verbs, the runtime verbs now (T015, T038). The host's own start asserts its registration (T046). No #1144 line changes.
 
 ---
 
-## R1Q5 — RULED Q-R4 wires the runtime verbs into `opendox.cli`; where do they register without breaking the 31-entry golden? *(blocks T038, T042; phase 1)*
+## R1Q5 — RULED Q-R4 wires the runtime verbs into `opendox.cli`; where do they register without breaking the 31-entry golden? *(governs T007, T015, T038, T042; phase 1)* — **ANSWERED (a)**
 
 **Measured.** `src/opendox/runtime/cli.py:39-42` records RULED Q-R4 (`#656`
 comment `5701772032`): *"the verbs are wired into `opendox.cli` in the BUILD-arc
@@ -214,11 +228,11 @@ ruling"*, `:205`), and 9.3 asserts the same tree in openXdox-code.
   word.
 - (c) Keep `opendox-runtime` only, and record that 10.1 does not discharge Q-R4.
 
-**Recommendation.** (a). **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a). **ANSWER: (a)**, RULED in `5817152735`. The verbs arrive through `RuntimeSubcommand` in the default profile's `SUBCOMMAND_EXTENSIONS`, and `opendox-runtime` stays as an alias (T038). Both 31-entry goldens stand (T042). T007 batch A adds 10.1's addendum.
 
 ---
 
-## R1Q6 — openXdox-code cannot run its whole suite green alone while its own modules import openxFactory's `doc_health` *(blocks T035, T041, T043, T044, T059; phases 1–2)*
+## R1Q6 — openXdox-code cannot run its whole suite green alone while its own modules import openxFactory's `doc_health` *(governs T007, T008, T035, T041, T042, T043, T044, T059; phases 1–2)* — **ANSWERED (d)**
 
 **Measured.** Eight openXdox-code modules import `doc_health` (`cli_gate`,
 `completeness`, `corpus_root`, `gate_console`, `gate_routes`, `generator`,
@@ -256,11 +270,11 @@ and its reason"*, reported as an open extraction.
   needs the 16 governed suites to run.
 
 **Recommendation.** (d) for release 1, or (c) now; (a) creates a pin cycle.
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER: (d)**, RULED in `5817152735`. The exclusion is declared with its count and its reason (T041), and T007 batch B amends F9.1 for openXdox-code. T008 raises the direction arc. Two consequences follow. Requirement 9 stays an OPEN EXTRACTION for openXdox-code until that arc lands, and the archive must report it so. Four of 5.4a's six suites also need `doc_health`, which F5.2 does not provide; that raises **R1Q23** (phase 2).
 
 ---
 
-## R1Q7 — The suites 5.4a and 12.5 forbid the arc to edit already fail, and one of them introspects a method release 1 moves *(blocks T043, T059, T086; phases 1–3)*
+## R1Q7 — The suites 5.4a and 12.5 forbid the arc to edit already fail, and one of them introspects a method release 1 moves *(governs T007, T043, T059, T086; phases 1–3)* — **ANSWERED (a)**
 
 **Measured.** 5.4a's falsifier refuses any arc edit to openXdox's six generator
 suites, and 12.5's to the 16 governed-flow suites, counted over EVERY `Arc:`
@@ -286,11 +300,11 @@ imports. Release 1 then removes the base altogether (R1Q1).
 - (c) Fixture and dependency fixes only (added files, no suite edit), and
   `test_branch_session.py` put to you as the one named exception.
 
-**Recommendation.** (a). **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a). **ANSWER: (a)**, RULED in `5817152735`. T007 batch C records the reviewed allow-list in F5.2 and 12.5's falsifier. In release 1, `test_branch_session.py` sits in R1Q6 (d)'s exclusion, because it needs `doc_health`. So its respelling is due when it becomes runnable (T043).
 
 ---
 
-## R1Q8 — Does openDox-code's "whole suite" include `tests_runtime/`? *(blocks T036; phase 1)*
+## R1Q8 — Does openDox-code's "whole suite" include `tests_runtime/`? *(governs T036; phase 1)* — **ANSWERED (a)**
 
 **Measured.** `pyproject.toml:228` sets `testpaths = ["tests"]`, so the Group 9
 falsifier's plain `python -m pytest -q` never collects `tests_runtime/` (10
@@ -306,11 +320,11 @@ one. 22 modules are run by no CI step at all (research R4; the packet said 26).
 - (c) Widen `testpaths`, and database-backed tests skip without a DSN — a skip
   9.4 wants to stop.
 
-**Recommendation.** (a). **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a). **ANSWER: (a)**, RULED in `5817152735`. T036 widens `testpaths` and gives the required `validate` job a PostgreSQL service. F9.1 is unchanged, and its runs export the job's DSN.
 
 ---
 
-## R1Q9 — `session_documents` is a notebook membership rule, not part of `run_scoped_doc_health` *(blocks T025, T046; phase 1)*
+## R1Q9 — `session_documents` is a notebook membership rule, not part of `run_scoped_doc_health` *(governs T007, T025, T046; phase 1)* — **ANSWERED (a)**
 
 **Measured.** 4.3: *"`workbench.py`'s four are the reaches `run_scoped_doc_health`
 makes (6.2). Once routed here, they refuse until Group 6 registers openDox's own
@@ -326,11 +340,11 @@ openxFactory's adapter hosted — and the hosted membership rule is proved
 unchanged (openxFactory's adapter or host wiring supplies the governed-roots +
 `Status:` rule). (b) As written: it refuses until Group 6.
 
-**Recommendation.** (a). **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a). **ANSWER: (a)**, RULED in `5817152735`. T025 does this in phase 1, and T046 keeps the hosted membership rule. T007 batch A corrects 4.3's "four".
 
 ---
 
-## R1Q10 — Which consumer mechanisms get an openDox-owned default, so the wheel, lens and chat work with nothing else installed? *(blocks T055, T081, T082, T084, T085, T095; phases 2–3)*
+## R1Q10 — Which consumer mechanisms get an openDox-owned default, so the wheel, lens and chat work with nothing else installed? *(blocks T055, T081, T082, T084, T085, T095; phases 2–3)* — **OPEN**
 
 **Measured.** Beyond 4.3's 27 literal reaches, openDox reads 11 `consumer_reach`
 names at **65 use sites**, and 4.3's falsifier deletes `consumer_reach.py`
@@ -377,11 +391,11 @@ configured"*.
   standalone; Save, model approval and sessions stay consumer-backed until
   release 2 (amends 16.5).
 
-**Recommendation.** (a). **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a). **ANSWER:** OPEN (phases 2–3); awaiting Brett Heap.
 
 ---
 
-## R1Q11 — The snapshot contract requires the very words Group 5's falsifier forbids *(blocks T050, T052, T053, T054, T058; phase 2)*
+## R1Q11 — The snapshot contract requires the very words Group 5's falsifier forbids *(blocks T050, T052, T053, T054, T058; phase 2)* — **OPEN**
 
 **Measured.** openXdox-spec `contracts/schemas/ideation-dashboard-snapshot.schema.yaml`
 REQUIRES `documents[].stage` (`required: [id, path, stage]`) and restricts it to
@@ -417,11 +431,11 @@ passes F5.3 fails F7.2. As written, neither can pass beside the other.
 - (c) Widen the schema's enums (an openXdox-spec change) to admit neutral values,
   and change `SNAPSHOT_VALUES`' defaults (edits `display_profile.py`, contra 5.3).
 
-**Recommendation.** (a). **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a). **ANSWER:** OPEN (phases 2–3); awaiting Brett Heap.
 
 ---
 
-## R1Q12 — Which snapshot schema does openDox's validator own, and how does a spec-leg schema reach the code leg's package? *(blocks T051, T053, T057, T058, T085; phases 2–3)*
+## R1Q12 — Which snapshot schema does openDox's validator own, and how does a spec-leg schema reach the code leg's package? *(blocks T051, T053, T057, T058, T085; phases 2–3)* — **OPEN**
 
 **Measured.** The post-render validator's subject is the rendered snapshot
 (`ideation-dashboard-snapshot`), whose schema lives in openXdox-spec. openDox-spec's
@@ -449,11 +463,11 @@ them."* F7.2 validates a snapshot and asserts the malformed fixture's
   manifest.
 
 **Recommendation.** (a) if R1Q11 is (a); otherwise (b).
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** OPEN (phases 2–3); awaiting Brett Heap.
 
 ---
 
-## R1Q13 — How does a plain document land in one of the six stations, and what front matter is neutral? *(blocks T050, T054, T096; phase 2 and the acceptance)*
+## R1Q13 — How does a plain document land in one of the six stations, and what front matter is neutral? *(blocks T050, T054, T096; phase 2 and the acceptance)* — **OPEN**
 
 **Measured.** The six stations read six different snapshot sections, declared in
 `web/views/display.js:139-144`: sources ← `documents`, groups ← `clusters`,
@@ -480,11 +494,11 @@ Nothing defines either.
 
 **Recommendation.** (a), with (c) for documents that declare nothing — and the
 fixture yields at least one group, so AT-R1 can open the chat pane.
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** OPEN (phases 2–3); awaiting Brett Heap.
 
 ---
 
-## R1Q14 — 7.3's falsifier and lane 4's ruled C3 act disagree about `find_validator` *(blocks T061; phase 2)*
+## R1Q14 — 7.3's falsifier and lane 4's ruled C3 act disagree about `find_validator` *(blocks T061; phase 2)* — **OPEN**
 
 **Measured.** C3 (claimed on `#656` `5815613524`, ruled (a) in `5815412869`) makes
 openXdox's `find_validator` answer `None` from a start outside the product
@@ -497,11 +511,11 @@ consumer's own validator.
 installed distribution's validator, and C3's test is revised in 7.3's landing.
 (b) C3 governs: 7.3's falsifier is amended to expect `None` outside the product.
 
-**Recommendation.** (a). **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a). **ANSWER:** OPEN (phases 2–3); awaiting Brett Heap.
 
 ---
 
-## R1Q15 — With nothing configured, does `opendox generate-and-open` serve (Group 10) or refuse (Group 13)? *(blocks T070, T074, T076, T077, T095; phase 3 and the acceptance)*
+## R1Q15 — With nothing configured, does `opendox generate-and-open` serve (Group 10) or refuse (Group 13)? *(blocks T070, T074, T076, T077, T095; phase 3 and the acceptance)* — **OPEN**
 
 **Measured.** F10.1 runs
 `opendox generate-and-open --repo-root "$R" --repository fixture --no-open --port 8080`
@@ -530,11 +544,11 @@ command must carry the mode.
   requirement 13's *"SHALL NOT BE REACHABLE BY OMISSION"*, so it amends a
   requirement.
 
-**Recommendation.** (b), with a `--local` flag. **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (b), with a `--local` flag. **ANSWER:** OPEN (phases 2–3); awaiting Brett Heap.
 
 ---
 
-## R1Q16 — "One served product": process shape, what the document surface needs the datastore for, and what `pip install` brings *(blocks T070, T072, T073, T074, T095; phase 3)*
+## R1Q16 — "One served product": process shape, what the document surface needs the datastore for, and what `pip install` brings *(blocks T070, T072, T073, T074, T095; phase 3)* — **OPEN**
 
 **Measured.** The document surface never imports the runtime: outside
 `src/opendox/runtime/`, only `conformance_corpus.py` touches it, and only
@@ -559,11 +573,11 @@ amended? (iv) Does the bundled server stop with the entry point?
 
 **Recommendation.** (i) the document server owns the bundled server as a child and
 reports it; (ii) yes; (iii) an `opendox[local]` extra; (iv) yes.
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** OPEN (phases 2–3); awaiting Brett Heap.
 
 ---
 
-## R1Q17 — What resolves a credential reference in a standalone install? *(blocks T080; phase 3 — #1144 leaves this to the realization)*
+## R1Q17 — What resolves a credential reference in a standalone install? *(blocks T080; phase 3 — #1144 leaves this to the realization)* — **OPEN**
 
 **Measured.** Every binding record names a broker program (`broker_argv`,
 required, `src/opendox/doxbench_binding.py:138`); the one broker that exists is
@@ -576,11 +590,11 @@ at call time inside `doxbench_provider.py` only. (c) Release 1 ships
 credential-free local endpoints only; hosted APIs need the broker.
 
 **Recommendation.** (b). "The realization's choice" is a valid answer.
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** OPEN (phases 2–3); awaiting Brett Heap.
 
 ---
 
-## R1Q18 — How does an endpoint that takes no credential say so? *(blocks T080; phase 3 — also left to the realization)*
+## R1Q18 — How does an endpoint that takes no credential say so? *(blocks T080; phase 3 — also left to the realization)* — **OPEN**
 
 **Measured.** `AUTH_KINDS` is `(api_key, oauth)` (`doxbench_binding.py:93`) and
 `broker_argv` is a required field (`:129-139`). Requirement 17 says only that the
@@ -589,11 +603,11 @@ absence is declared explicitly, never by a field left out.
 **Options.** (a) A third auth kind, `none`, under which `broker_argv` and
 `credential_ref` are forbidden. (b) A sentinel `credential_ref` value.
 
-**Recommendation.** (a). **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a). **ANSWER:** OPEN (phases 2–3); awaiting Brett Heap.
 
 ---
 
-## R1Q19 — The lens's two openxFactory seed actions, in a standalone install *(blocks T088, T096; the acceptance)*
+## R1Q19 — The lens's two openxFactory seed actions, in a standalone install *(blocks T088, T096; the acceptance)* — **OPEN**
 
 **Measured.** `web/views/lens.js:57,61` post to `/actions/dtn-seed` and
 `/actions/staging-seed`, which only openxFactory's lanes answer. The web census
@@ -606,11 +620,11 @@ views/lens.js's two openxFactory-lane routes"*
 extension openxFactory contributes; the `?` row retires. (c) Leave them; they fail
 standalone.
 
-**Recommendation.** (a) now, (b) later. **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a) now, (b) later. **ANSWER:** OPEN (phases 2–3); awaiting Brett Heap.
 
 ---
 
-## R1Q20 — Do the arc's own bookkeeping commits carry the `Arc:` trailer? *(blocks the first bookkeeping landing, T003, and T091, T093, T096, T097)*
+## R1Q20 — Do the arc's own bookkeeping commits carry the `Arc:` trailer? *(governs T003, T007, T091, T093, T096, T097)* — **ANSWERED (a)**
 
 **Measured.** 11.0: *"Every commit this arc lands, in EVERY repository it touches —
 openxFactory, … — carries the trailer"*. 11.1's guard refuses any trailered
@@ -626,11 +640,11 @@ it, and 11.1's surfaces are widened to this feature's directory and the packet's
 `tasks.md`.
 
 **Recommendation.** (a). This planning PR follows (a) already.
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER: (a)**, RULED in `5817152735`. Bookkeeping carries no `Arc:` trailer (T091). T007 batch A adds 11.0's addendum. This PR, T003, T007, T093, T096 and T097 follow it.
 
 ---
 
-## R1Q21 — Release 2: a second Speckit feature, or phases 4–5 appended here? *(process; no release-1 task waits on it)*
+## R1Q21 — Release 2: a second Speckit feature, or phases 4–5 appended here? *(process; no release-1 task waits on it)* — **OPEN**
 
 **Measured.** The global protocol says a change hands off to *"exactly one
 Speckit feature"*; openxFactory's constitution (Principle II) allows *"one or
@@ -641,11 +655,11 @@ features (016, 017, 018, 023, 024) and `add-modified-block-currency-check` by fo
 **Options.** (a) Release 2 is its own feature, planned after release 1 lands.
 (b) 034 grows phases 4–5.
 
-**Recommendation.** (a). **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a). **ANSWER:** OPEN (process; no release-1 task waits on it); awaiting Brett Heap.
 
 ---
 
-## R1Q22 — Does the carve's declared-edit discipline govern the arc's edits to carved files? *(blocks every task that edits a carved file: T010–T012, T016, T021, T022, T025–T027, T038, T055, T057, T073, T078–T081, T084, T088; and T092)*
+## R1Q22 — Does the carve's declared-edit discipline govern the arc's edits to carved files? *(governs T007 and every task that edits a carved file: T010–T012, T016, T021, T022, T025–T027, T034, T035, T038, T055, T057, T073, T078–T081, T084, T088; and T092)* — **ANSWERED (a)**
 
 **Measured.** `src/opendox/runtime/cli.py:17-19`: *"`src/opendox/cli.py` is a
 CARVED file with a row in openxFactory's `docs/opendox-carve-manifest.yaml`, so a
@@ -655,8 +669,9 @@ openxFactory first"*. The manifest records declared-edit windows that added
 `docs/opendox-carve-manifest.yaml:504-521`), and lane 4's C3 does the same today
 for openXdox's `snapshot.py` (`moved_verbatim` → `moved_with_declared_edit`, the
 openxFactory annotation first, RULED Q-XDV3). Release 1 edits at least 12 carved
-openDox-code files (research R12), two of them `moved_verbatim` rows with no
-`edits[]` entry: `doxbench_binding.py` (16.1–16.3) and, likely,
+openDox-code SOURCE files, and also R3's nine red tests and six of the seven
+`collect_ignore` modules, all of them carved rows (research R12). Two of the
+source files are `moved_verbatim` rows with no `edits[]` entry: `doxbench_binding.py` (16.1–16.3) and, likely,
 `web/views/doxbench-chat.js` (16.4). 11.1's guard lets an arc landing change the
 manifest only by adding or extending an existing `edits[].note` — it refuses
 *"a row, a field, a digest"* and any disposition move.
@@ -671,4 +686,44 @@ manifest only by adding or extending an existing `edits[].note` — it refuses
 - (c) Yes, and 11.1's guard is widened so trailered landings may add `edits[]`
   entries.
 
-**Recommendation.** (a). **ANSWER:** _awaiting Brett Heap_
+**Recommendation.** (a). **ANSWER: (a)**, RULED in `5817152735`. No arc edit to a carved file needs a declared-edit act. T038 corrects `runtime/cli.py:17-19`, which said otherwise, and T007 batch A adds 11.1's addendum.
+
+---
+
+## R1Q23 — R1Q6 (d) leaves four of 5.4a's six generator suites unable to run where F5.2 runs them *(blocks T059, T063; phase 2)* — **OPEN**
+
+**Raised by** the answer to R1Q6 (`5817152735`), on 2026-09-24, and asked here
+rather than assumed.
+
+**Measured.** F5.2 runs 5.4a's six generator suites in an openXdox-code
+checkout. It installs `.[test]` and then the realized openDox, and nothing
+else. With Group 2 simulated, four of the six fail on `doc_health`:
+`test_generator`, `test_snapshot_determinism`, `test_snapshot_registry` and
+`test_session_snapshot` (research R11). openXdox's `generator.py` and
+`snapshot_registry.py` import it at module level (`DOC_HEALTH_SURFACE`,
+research R10). R1Q6 (d) makes that reach a DECLARED EXCLUSION for F9.1 and
+moves the direction question into its own arc (T008). It sets that arc's
+deadline at release 2's 12.5. It says nothing of F5.2, which closes in phase
+2, in release 1.
+
+**What #1144 says.** 5.4a: the consumer *"loses no capability — requirement
+4's third scenario is the check"*. F5.2: *"the governed projection's own suites
+pass, and the arc did not edit them."* Requirement 4, third scenario: *"WHEN
+the consumer layer IS installed and points the product at the publisher's
+governed corpus — THEN the projection is unchanged."*
+
+**Options.**
+- (a) F5.2's environment also composes openxFactory at a NAMED commit: its
+  `scripts/` directory, where `doc_health` lives, goes on `PYTHONPATH`, and
+  the run quotes that commit. Only F5.2's environment line is amended. This is
+  the declared-composition pattern of requirement 9's second scenario, and it
+  is the setting requirement 4's third scenario names.
+- (b) Bring T008's direction arc forward. It is decided and realized before
+  phase 2 closes, so `doc_health` reaches openXdox-code however that arc
+  decides, and F5.2 runs as written. That puts a new arc on release 1's
+  critical path.
+- (c) 5.4a and F5.2 stay open at release-1 close and move to the arc's close,
+  like 9.5. Release 1 then records the four suites as the same open
+  extraction.
+
+**Recommendation.** (a). **ANSWER:** OPEN (phase 2); awaiting Brett Heap.

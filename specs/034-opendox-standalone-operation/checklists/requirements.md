@@ -10,7 +10,8 @@ before implementation starts.
 - [x] Every requirement names the #1144 requirement and the boxes it realizes
       (FR-001 to FR-010), so the packet stays the authority.
 - [x] Nothing in spec.md restates, narrows or widens a ratified requirement.
-      Contradictions go to Brett as R1Q1–R1Q22 instead.
+      Contradictions go to Brett as R1Q1–R1Q23 instead. A scenario text that
+      an answer touches goes to him as RULING NEEDED (RN-1, plan.md).
 - [x] The user stories are the release map's three phases, plus the
       invariant (US4).
 - [x] Every mandatory section is complete: user scenarios, requirements,
@@ -18,9 +19,10 @@ before implementation starts.
 
 ## Requirement completeness
 
-- [ ] No `[NEEDS CLARIFICATION]` remains. **Open:** 22 questions are recorded
-      in `clarify-questions.md`, and they await Brett Heap. T004 encodes the
-      answers.
+- [ ] No `[NEEDS CLARIFICATION]` remains. **Partly open.** The eleven
+      questions phase 1 needed are answered (`#656` `5817152735`) and encoded
+      in spec.md § Clarifications. Twelve remain open for phases 2–3:
+      R1Q10–R1Q19, R1Q21 and R1Q23. T004 encodes them as they are answered.
 - [x] Every requirement can be tested. Each FR cites #1144's own falsifier.
 - [x] The success criteria can be measured: every one is a falsifier's exit
       status, or AT-R1's.
@@ -36,17 +38,19 @@ before implementation starts.
 
 - [x] Every release-1 box maps to a task (tasks.md § "Box accounting":
       69 = 63 + 1 + 1 + 4).
-- [x] Every task names a repository, a falsifier, and any question that blocks
-      it.
+- [x] Every realization task names a repository, a falsifier, any question
+      that blocks it, and the rulings it carries out. Holder and checkpoint
+      tasks name the evidence they record, or the falsifiers they run,
+      instead.
 - [x] Parallel slices, and files limited to a single writer, are declared
       (plan.md; tasks.md § "Phase 1 writer slices").
-- [ ] `/speckit-analyze` has reported no CRITICAL finding. **Pending:** T006,
-      after the answers.
+- [ ] `/speckit-analyze` has reported no CRITICAL finding. **Pending:**
+      T006's round-1a run, which gates phase 1.
 
 ## Notes
 
 - The two unchecked items are the constitution's own gates: material
   ambiguities are resolved, and analyze is clean. They are open on purpose.
-  The brief asks for the plan before the answers, and forbids resolving the
-  questions by assumption. plan.md § Complexity Tracking records the
-  deviation.
+  The brief asked for the plan before the answers, and forbade resolving the
+  questions by assumption. Phase 1's questions are now answered, and phases
+  2–3's remain open. plan.md § Complexity Tracking records the deviation.

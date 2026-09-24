@@ -21,11 +21,19 @@ It is built in three phases, following #1144's RULED release map:
 - **Every phase** includes Group 11 (the trailer and the guard) and 9.5 (the
   pins).
 
-The plan is CONDITIONAL. #1144 contains contradictions, both internal and with
-the live code, and they are put to Brett as `R1Q1`–`R1Q22`. Each is planned
-here on its recommended option, and each conditional step names its question.
-T004 re-plans on the answers, and T006 (`/speckit-analyze`) gates
-implementation.
+#1144 contains contradictions, both internal and with the live code. They
+were put to Brett as `R1Q1`–`R1Q22`, and one answer raised `R1Q23`.
+
+- **Phase 1 is planned on answers.** Brett ruled all eleven questions it
+  needed (`#656`, `5817152735`: *"(a) on all eleven, (d) on R1Q6"*). See
+  § "Ruled answers", which also records the one scenario text they touch
+  (RN-1).
+- **Phases 2 and 3 stay CONDITIONAL.** The questions still open (R1Q10–R1Q19,
+  R1Q21, R1Q23) are planned on their recommended options, and each
+  conditional step names its question.
+
+T004 re-plans on each round of answers, and T006 (`/speckit-analyze`) gates
+each round's implementation.
 
 ## Technical Context
 
@@ -60,18 +68,19 @@ accounting"). About 12 carved openDox-code files are edited (research R12), and
 
 ## Constitution Check
 
-*GATE: checked before planning, and re-checked after T004 applies the answers.*
+*GATE: checked before planning, and re-checked after each round of answers.
+Round 1a is this revision.*
 
 | principle | status | how this feature meets it |
 |---|---|---|
-| I. Contract-first, domain-neutral core | PASS | openxFactory gains only host wiring, pin pairs and notes (11.1). No domain vocabulary enters openDox; the default profile's words are `NEUTRAL_DISPLAY`'s (requirement 3, third scenario). |
-| II. OpenSpec before implementation | PASS | Everything here realizes the RATIFIED #1144 (`5815412869`). Any answer that changes #1144's text lands there first, on Brett's word (T004). Speckit owns the tasks; #1144's `tasks.md` is ticked, and never duplicated (T097). |
+| I. Contract-first, domain-neutral core | PASS | openxFactory gains only host wiring, pin pairs, notes, and the named composition tests that R1Q2 (a) admits (11.1). No domain vocabulary enters openDox; the default profile's words are `NEUTRAL_DISPLAY`'s (requirement 3, third scenario). |
+| II. OpenSpec before implementation | PASS | Everything here realizes the RATIFIED #1144 (`5815412869`). An answer that amends a #1144 falsifier or task line is recorded there on Brett's word (T007). One that would change requirement or scenario text goes back to him first (RN-1). Speckit owns the tasks; #1144's `tasks.md` is ticked, and never duplicated (T097). |
 | III. Document lifecycle | PASS | The feature files carry Speckit's own `Status: Draft`. #1144 is `Status: ratified`, with its record landed as #1151 → `cd494e4c`. |
 | IV. Schema and artifact discipline | PASS | No committed file names a host path: every command resolves its scratch space with `W=$(mktemp -d)`. No credential is stored: 16.3 refuses raw keys. |
 | V. Validation gates | PASS for this PR | `openspec validate --all --strict` is run from the worktree root before the push (this feature adds no OpenSpec change). Implementation evidence is falsifier output, quoted. |
 | VI. Versioned releases | WATCH | 9.5 says *"none cuts a contract bundle"*. R1Q11 (a) would add an openDox-spec schema, which is probably a `dox-v1.1` minor at the openDox root; if so, that release follows the root's own four-value rule. |
 | VII. Fail-closed authority | PASS | Every seam refuses naming itself when nothing is registered (4.2's discipline). The hosted mode refuses without an issuer. An unknown dialect is refused. |
-| Workflow: *"material ambiguities MUST be resolved before planning"* | **DEVIATION, recorded** | The brief asks for the plan now and forbids resolving ambiguities by assumption. So the plan is conditional: tasks blocked by an open R1Q may not start, T004 re-plans on the answers, and T006 gates implementation. See Complexity Tracking. |
+| Workflow: *"material ambiguities MUST be resolved before planning"* | **DEVIATION, recorded; RESOLVED for phase 1** | The brief asked for the plan before the answers, and forbade resolving ambiguities by assumption. Phase 1's eleven questions are now answered (`5817152735`). Phases 2–3 stay conditional: a task blocked by an open R1Q may not start, T004 re-plans on each round, and T006 gates each round. See Complexity Tracking. |
 
 ## Project Structure
 
@@ -82,7 +91,7 @@ specs/034-opendox-standalone-operation/
 ├── spec.md                 # user stories, FRs mapped to #1144, AT-R1
 ├── plan.md                 # this file
 ├── research.md             # every measurement, with its command
-├── clarify-questions.md    # R1Q1–R1Q22, awaiting Brett Heap
+├── clarify-questions.md    # R1Q1–R1Q23: 11 answered (5817152735), 12 open
 ├── quickstart.md           # AT-R1's procedure
 ├── tasks.md                # T001–T097, box accounting (69 of 124)
 └── checklists/
@@ -96,7 +105,7 @@ not created empty.
 
 ```text
 opensoft/openDox-code            [oDc]   the product; most of the work
-  src/route_extension.py                  R1Q1's handler contribution (T010)
+  src/route_extension.py                  the handler-contribution facet, R1Q1 (a) (T010)
   src/opendox/serve.py                    2.1/2.2, 4.3, 13.4a — ONE WRITER AT A TIME
   src/opendox/cli.py                      3.2, 4.1a, 4.3 — ONE WRITER AT A TIME
   src/opendox/domain_profile.py, profile_proxy.py, <default profile module>   Group 3
@@ -117,6 +126,7 @@ opensoft/openDox-code            [oDc]   the product; most of the work
 opensoft/openXdox-code           [oXc]   the consumer
   pyproject.toml (opendox pin), tests/test_dependency_direction.py (ratchet)   9.5, 4.3
   src/openxdox/<contributions through the seams>                               5.4a, 4.3
+  <declared doc_health exclusion file>, conftest.py                            9.2, R1Q6 (d)
   src/openxdox/snapshot.py, scripts/validate-ideation-dashboard-contracts.py   7.3 (after C3)
   tests/integration/                                                           9.3
   .github/workflows/validate.yml                                               9.2
@@ -124,6 +134,7 @@ opensoft/openDox                 [oD]    assembly root: code pin; README (10.3)
 opensoft/openXdox                [oX]    assembly root: code pin; contracts/opendox-pin.yaml
 opensoft/openxFactory            [oxF]   host wiring + pin pairs + notes (11.1), and this feature
   scripts/opendox_host.py, scripts/profile_openxfactory.py, tests/domain_profile/
+  tests/ideation-dashboard/test_extension_point_parity.py (a named composition test, R1Q2 (a))
   openDox + contracts/opendox-pin.yaml; openXdox + contracts/openxdox-pin.yaml
   docs/opendox-carve-manifest.yaml (edits[].note only)
 opensoft/openDox-spec            [oDs]   ONLY if R1Q11 (a) or R1Q12 (b): the neutral snapshot schema
@@ -158,47 +169,52 @@ it"*), `serve.py:629` is routed in phase 2 along with the snapshot source.
 ## Dependency graph
 
 ```text
-T001–T006 (holder; answers) ──┬──────────────────────────────────────────────┐
-                              │                                              │
- PHASE 1  [oDc]  A: T010→T011→T012 (serve.py)     B: T015→T016 (profile)      │
-                 C: T020→T021→T022 (adapter)      D: T025, T026, T027 (seams) │
-                 E: T030, T031 (import test, README)                         │
-                        └───────── join ─────────┘                           │
-                 T032 (2.3 sweep) → T034 (repair 9 files) → T035 → T036 → T037
+T001–T008 (holder: claims, ARC_BASE, answers, analyze, #1144 amendments, the direction arc)
+                              │
+ PHASE 1  [oDc]  A: T010→T011→T012 (serve.py)     B: T015→T016 (profile)
+                 C: T020→T021→T022 (adapter)      D: T025, T026, T027 (seams)
+                 E: T030 (the import test; lands with T011)
+                        └───────── join ─────────┘
+                 T032 (2.3 sweep) → T034 (repair 9 files) → T035 → T036 (+ T031) → T037
                  T038 (10.1, Q-R4)  after B
-          [oXc]  T040 (pin, residue) → T041 (doc_health, R1Q6) → T042 (9.3) → T043 → T044
-          [oD]→[oX]→[oxF]  T047 = T090 pin advance, carrying T045 + T046 host wiring
-          checkpoint T049;  holder T048 (F4 re-measure)
+          [oD]   T039 root pin (T090 steps 1–2)  after T022, T032, T037, T038
+          [oXc]  T040 (pin, residue) → T041 (declared exclusion) → T042 (9.3) → T043 → T044
+          [oX]→[oxF]  T047 consumer pins (steps 5–6), carrying T045 + T046 host wiring
+          checkpoint T049 (after T007 batches A, B);  holder T048 (F4 re-measure)
  PHASE 2  [oDc]  T050 ∥ T051 ∥ T052 ∥ T057   (∥ T053 [oDs] if R1Q11 (a))
                  T054 (projection) → T055 (sources, 4.3 part) → T056 → T058 (validator)
-          [oXc]  T059 (5.4a) after T052 + a pin;  T060 (5.3a re-run) after T054
+          [oD]   T062 root pin  after T054–T058
+          [oXc]  T059 (5.4a) after T052, T055, T062;  T060 (5.3a re-run) after T054
                  T061 (7.3) after C3's PR 2 lands
-          pins T062;  checkpoint T063
+          [oX]→[oxF]  T064 consumer pins;  checkpoint T063 (after T007 batch C)
  PHASE 3  [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080 ∥ T081
                  4.3 end: T084 → T085                T075 → T077;  T082, T083, T088
-          [oXc]  T086 (columns, ratchet (0,0)) with the pin that retires consumer_reach
-          [oD]   T076 (README)  after the command's final form (R1Q15)
-          pins T087;  checkpoint T089
+          [oD]   T087 root pin, then T076 (README) after the command's final form (R1Q15)
+          [oXc]  T086 (columns, ratchet (0,0)) at the pin T087 carries
+          [oX]→[oxF]  T094 consumer pins + host wiring;  checkpoint T089
  ACCEPTANCE      T095 (HTTP, CI) ∥ T096 (browser)  →  T097 (bookkeeping, Rule 6)
  EVERY PHASE     T090 pins · T091 trailer · T092 notes · T093 interim F11.1
 ```
 
 ## Parallel slices, and the files only one writer may touch at a time
 
-Writers run in parallel when they share no file. Four files are SINGLE-WRITER:
-at most one open slice may edit each, and a slice that needs one rebases onto
-the previous slice's landing before it opens.
+Writers run in parallel when they share no file. Five surfaces are
+SINGLE-WRITER: at most one open slice may edit each, and a slice that needs one
+rebases onto the previous slice's landing before it opens.
 
 | single-writer file | slices, in order |
 |---|---|
 | `src/opendox/serve.py` | T011 → T012 → (T016, T022 one-line entry-point calls) → T055 → T073 → T084 |
 | `src/opendox/cli.py` | T016/T022 entry-point registration → T038 → T055 → T084 |
 | openXdox-code `tests/test_dependency_direction.py` (the ratchet) | T040 → T059 → T086 |
-| openxFactory pin pairs | one openxFactory PR per phase (T047, T062, T087), each also carrying that phase's host wiring |
+| openDox root `code` gitlink, `contracts/code-pin.yaml`, workflow `@sha` | one commit per phase (T039, T062, T087), each after that phase's last openDox-code landing |
+| openxFactory pin pairs | one openxFactory PR per phase (T047, T064, T094), each also carrying that phase's host wiring |
 
 - **Phase 1 parallel lanes**: A (serve seam), B (profile), C (adapter), D
-  (workbench, serve_wire and doxbench_packet seams) and E (import test and
-  README). openXdox-code's T041 can start as soon as R1Q6 is answered.
+  (workbench, serve_wire and doxbench_packet seams) and E (the import test,
+  which lands with T011; the README fix, T031, lands with T036). R1Q6 is
+  answered (d), so openXdox-code's T041 can be designed now. It lands after
+  T040.
 - **Phase 2 parallel lanes**: the fixtures (T050, T051), the generator seam
   (T052), the validator input set (T057) and the neutral schema (T053), if
   R1Q11 (a) is chosen.
@@ -210,7 +226,9 @@ the previous slice's landing before it opens.
 
 Each phase advances the pins in this order. Every step is its owner's ordinary
 pin-sync act, and each step's PR is opened only after the step before it has
-landed:
+landed. Steps 1–2 are T039, T062 and T087; steps 5–6 are T047, T064 and T094.
+Each of these is a separate task from its phase's openXdox-code work, so no
+task waits on a later step of itself:
 
 1. **openDox-code** lands the phase's slices.
 2. **openDox root**: ONE commit moves the `code` gitlink, `contracts/code-pin.yaml`
@@ -252,15 +270,91 @@ merge message (11.0).
   in every repository, alongside `Lane: openxfactory-4`. Reviews check both
   (11.0).
 - **Bookkeeping** carries NO `Arc:` trailer: this feature's files, #1144's
-  ticks and evidence notes, and interim guard output. That follows R1Q20 (a),
-  which is recommended, and this planning PR already does so. If Brett answers
-  (b), 11.1's surfaces must widen first.
+  ticks, evidence notes and amendments (T007), and interim guard output. That
+  is R1Q20 (a), ruled in `5817152735`, and this planning PR follows it.
 - **The manifest.** An openxFactory arc landing may only add or extend an
-  existing `edits[].note` (11.1). Whether arc edits to carved files need
-  declared-edit windows first is R1Q22. The recommendation is (a): they do not.
-- **Rule 6.** Realization PRs never touch `openspec/changes/`. Only T004's
+  existing `edits[].note` (11.1). The manifest records the carve as it arrived,
+  so no arc edit to a carved file needs a declared-edit act first (R1Q22 (a),
+  ruled).
+- **The named composition tests.** R1Q2 (a) admits an arc landing's edit to a
+  NAMED openxFactory composition test. That covers
+  `tests/ideation-dashboard/test_extension_point_parity.py` first, and any
+  path T034 or T035 adds once a T007 batch names it. F11.1 checks this after
+  T007 batch A has widened it.
+- **Rule 6.** Realization PRs never touch `openspec/changes/`. Only T007's
   amendments and T097's ticks do, and each lands under a `LANDING` / `LANDED`
   window. Closing keywords never appear in a commit message or PR body.
+
+## Ruled answers (`5817152735`)
+
+Brett Heap answered the eleven phase-1 questions on `#656`, comment
+`5817152735` (2026-09-24T15:31:46Z), verbatim: *"(a) on all eleven, (d) on
+R1Q6"*. Phase 1 is therefore planned on its answers, not on recommendations.
+
+| question | answer | what it fixes in this plan |
+|---|---|---|
+| R1Q22 | (a) | No declared-edit act precedes an arc edit to a carved file. T038 corrects `runtime/cli.py:17-19`, which said otherwise. |
+| R1Q1 | (a) | The handler-contribution facet (T010). T011 and T045 use it now, and T084 and T086 in phase 3. |
+| R1Q2 | (a) | 11.1's surfaces gain named composition tests, starting with the parity test (T045, T094). T007 batch A widens F11.1. |
+| R1Q3 | (a), (i), (ii) | Both defaults are entry-point registrations (T016, T022). T007 batch A amends F3.1 line 2 and 3.2. (ii) touches a scenario's text: RN-1. |
+| R1Q4 | (a) | The default contributes openDox's own verbs (T015), and the host asserts its own registration (T046). |
+| R1Q5 | (a) | `RuntimeSubcommand` arrives through `SUBCOMMAND_EXTENSIONS`, with the `opendox-runtime` alias (T038). The 31-entry goldens stand (T042). |
+| R1Q6 | (d) | openXdox-code's declared `doc_health` exclusion (T041, T043, T044). T007 batch B amends F9.1. T008 raises the direction arc. The answer raises R1Q23. |
+| R1Q7 | (a) | The reviewed respelling allow-list (T007 batch C; T043, T059, T086). |
+| R1Q8 | (a) | `tests_runtime/` is part of the whole suite, with a PostgreSQL service in the required job (T036). F9.1 is unchanged. |
+| R1Q9 | (a) | `session_documents` resolves through `list_documents` in phase 1 (T025, T046). |
+| R1Q20 | (a) | Bookkeeping carries no trailer (T091). T007 batch A adds 11.0's addendum. |
+
+**Where the amendments go.** Brett's comment says: *"Where an answer amends a
+ratified falsifier (F3.1, F9.1) or widens the 11.1 guard, that change rides in
+the realization as the answer records it."*
+
+- The planning PR (#1155) edits no file of #1144.
+- T007 records each amendment in #1144's `tasks.md`, in three bookkeeping
+  batches (A, B and C).
+- Each batch lands under a Rule 6 window, with no `Arc:` trailer, before the
+  checkpoint that runs the amended falsifier.
+- `tasks.md` § "Ruled amendments" lists every amended line, the text it takes,
+  and the task that carries it out.
+
+### Ruling needed
+
+Brett's comment keeps the post-word rule: *"any change to requirement or
+scenario TEXT still comes back to Brett as RULING NEEDED."* One answer implies
+such a change.
+
+**RN-1 — requirement 3's fourth scenario, against R1Q3 (ii).** The scenario
+reads: *"WHEN a host, consumer layer or domain descendant registers a profile —
+THEN the registered profile replaces the default for that process, so the
+default is a fallback and never a privileged path."* As ruled, R1Q3 (ii) lets
+a host registration replace the default only until a parser or server is
+built from it. A later one is refused as `AlreadyRegistered`, which is RULED
+ASK-4 Q5's reason. For that later registration, the scenario's THEN does not
+hold as written.
+
+- (a) Amend the scenario's WHEN to *"…registers a profile before the
+  product's parser or server has been built from the default in that
+  process"*. Add a scenario for the refusal after a build. **Recommended.**
+- (b) Keep the scenario as written, and let a registration after a build
+  replace the default too. The parser already built would then keep the old
+  profile, which is the hazard ASK-4 Q5 refused.
+- (c) Read a refused registration as never having happened, so the scenario
+  never fires. No text changes, but the default is then privileged after a
+  build, against the scenario's own words.
+
+RN-1 holds no task. After a build, T016 leaves today's `AlreadyRegistered`
+refusal in place, and that refusal is (ii). Only (b) would make T016 do more.
+
+**Not a ruling: a watch item for the archive.** Under R1Q6 (d), requirement 9
+is met for openXdox-code by its first scenario: a declared exclusion, with its
+count and its reason. That exclusion stays an OPEN EXTRACTION until T008's
+direction arc lands. The archive act must report it as open, and must not
+read it as closed.
+
+**Raised by an answer: R1Q23.** R1Q6 (d) leaves four of 5.4a's six generator
+suites needing `doc_health`. F5.2 closes in phase 2, and it installs nothing
+that provides `doc_health`. R1Q23 asks how F5.2 runs. It blocks T059 and T063,
+not phase 1.
 
 ## In-flight overlaps (lane 4's own acts, 2026-09-24)
 
@@ -282,6 +376,6 @@ session's scratch space. That persistence is recorded in the PR body.
 
 | deviation | why it is needed | the simpler alternative, and why it was rejected |
 |---|---|---|
-| Planning with 22 material ambiguities open (constitution workflow: *"resolved before planning"*) | The brief asks for the plan now, and forbids resolving by assumption. Implementation cannot begin anyway until the ratification record lands and the answers come back. | Waiting for the answers before planning would serialize a day of the holder's time behind the questions. The conditional plan names every assumption, T004 re-plans, and T006 gates implementation. |
-| A handler-contribution mechanism (R1Q1 (a)), which is new mechanism against design.md § D4 | The existing seam provably cannot carry a mixin's methods (`route_extension.py:60`). | Keeping a forwarding stand-in (R1Q1 (c)) is the pattern 4.3 retires. |
+| Planning with material ambiguities open (constitution workflow: *"resolved before planning"*). There were 22; 12 remain for phases 2–3 after `5817152735` | The brief asked for the plan before the answers, and forbade resolving by assumption. Phase 1's eleven are now answered. | Waiting for every answer before planning would serialize the holder's time behind the questions. The conditional plan names every assumption, T004 re-plans on each round, and T006 gates each round. |
+| A handler-contribution mechanism (R1Q1 (a), ruled), which is new mechanism against design.md § D4 | The existing seam provably cannot carry a mixin's methods (`route_extension.py:60`). T007 batch A records D4's addendum. | Keeping a forwarding stand-in (R1Q1 (c)) is the pattern 4.3 retires. |
 | A second pin chain step inside each phase (openXdox-code's pyproject pin brought to the root's commit) | Without it, openxFactory and openXdox-code test different openDox bytes (research R13). | Leaving the pins divergent means 9.3's integration run measures a composition nobody ships. |

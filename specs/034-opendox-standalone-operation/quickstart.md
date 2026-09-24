@@ -112,7 +112,7 @@ server from § 3 running, in this order:
 
 Screenshots of steps 2–4 and the oracle's printed verdict go in
 `specs/034-opendox-standalone-operation/evidence/at-r1/`, with no `Arc:`
-trailer (R1Q20).
+trailer (R1Q20 (a), ruled in `5817152735`).
 
 ## 5. Tear down
 
