@@ -61,8 +61,11 @@ packaging is decided by R1Q16.
 **Testing**: each leg's own pytest suite, run whole (Group 9), less
 openXdox-code's declared `doc_health` exclusion (R1Q6 (d)); openXdox-code's
 `tests/integration/` (9.3); openxFactory's `pytest-suite` at every pin advance;
-#1144's falsifiers, re-run and quoted; and AT-R1's Playwright half, run on the
-host with `tests/smoke_signals.py`'s oracle.
+#1144's falsifiers, re-run and quoted; and AT-R1. Its HTTP half is a harness in
+openDox-code's own `acceptance` job, which has no database service (T095). Its
+Playwright half runs on the host with `tests/smoke_signals.py`'s oracle (T096).
+Neither half is a member of a leg's pytest suite: each installs the product and
+drives it from outside. So openDox-code's `testpaths` and F9.1 are unchanged.
 **Target Platform**: a single-user Linux or macOS machine for the local install,
 and the existing AKS hosted mode, which must be unchanged.
 **Project Type**: a split product across five repositories: two code legs, two
@@ -134,8 +137,8 @@ opensoft/openDox-code            [oDc]   the product; most of the work
   src/opendox/web/views/doxbench-chat.js, lens.js                              16.4, R1Q19
   tests/fixtures/plain-documents/, tests/fixtures/malformed/                   5.0, 7.0
   tests/test_imports_standalone.py, test_authoring_seam.py,
-    test_profile_registration.py, test_chat_model_configuration.py,
-    test_release1_acceptance.py                                                named by the falsifiers
+    test_profile_registration.py, test_chat_model_configuration.py             named by the falsifiers
+  acceptance/at_r1_http.py                                                     T095: a harness in its own job, no database
   conftest.py, pyproject.toml, .github/workflows/validate.yml, README.md       9.1, 10.1, 2.6
 opensoft/openXdox-code           [oXc]   the consumer
   pyproject.toml (opendox pin), tests/test_dependency_direction.py (ratchet)   9.5, 4.3

@@ -392,6 +392,8 @@ script exists. openxFactory is unchanged in behaviour.
     (a)). The separate `runtime` job may then be folded in. F9.1 is unchanged.
     Its runs (here, and in T049) export the database's DSN the way the job
     does, and quote the variables they set.
+  - T095's clean-machine harness is not a test module, so it stays out of this
+    job: it runs in its own job, with no database service.
   - Re-pin the floors to the measured whole-suite counts.
   - T031 lands in the same PR.
   - **Realizes**: 2.5, 9.1, 9.2a (a required check now runs T030).
@@ -758,7 +760,8 @@ no-model state. `consumer_reach.py` is gone.
     `pid`).
   - The packaging follows R1Q16.
   - **Realizes**: 13.1.
-  - **Falsifier**: F13.1's `/proc/net/tcp` and `runtime status` blocks.
+  - **Falsifier**: F13.1's TCP-listener block, which reads the kernel's socket
+    table at run time, and its `runtime status` block.
   - **Blocked by**: R1Q16.
   - **After**: T070.
 - [ ] T073 [US3] [oDc] **13.4a: `/capabilities` gains an `install` block**,
@@ -966,8 +969,20 @@ no-model state. `consumer_reach.py` is gone.
 
 ## Acceptance: AT-R1
 
-- [ ] T095 [US3] [oDc] **AT-R1, the HTTP half, in CI.**
-  `tests/test_release1_acceptance.py` does the following:
+- [ ] T095 [US3] [oDc] **AT-R1, the HTTP half, in CI.** An acceptance harness,
+  `acceptance/at_r1_http.py`, run by its own `acceptance` job in openDox-code's
+  `validate.yml`.
+  - That job has NO database service, because the harness asserts a clean
+    machine. The `validate` job's PostgreSQL service (T036) would break that
+    precondition.
+  - The harness is not a pytest module, and it sits outside `tests/` and
+    `tests_runtime/`. Like the browser half (T096), it installs the product and
+    drives it from outside. So `testpaths`, F9.1, and FR-006's "no exclusion"
+    for openDox-code are all unchanged.
+  - Making `acceptance` a required check is a ruleset change for the
+    repository's owner.
+
+  It does the following:
   - installs openDox alone, as R1Q16 decides, into a fresh venv;
   - ASSERTS that the four siblings, `omp`, a database and a binding are all
     absent;
@@ -981,7 +996,8 @@ no-model state. `consumer_reach.py` is gone.
   - fetches every route the wheel, the lens and the chat rail request on load,
     none of which may answer 5xx.
   - **Realizes**: FR-011 (HTTP half).
-  - **Falsifier**: the test itself.
+  - **Falsifier**: the harness itself, which exits non-zero on the first failed
+    assertion.
   - **Blocked by**: R1Q10, R1Q12 (the catalog's validators, T085), R1Q15,
     R1Q16.
   - **After**: T089.

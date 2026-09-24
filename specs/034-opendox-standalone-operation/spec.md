@@ -488,10 +488,13 @@ chat's 'no model configured' state."* Each term is made checkable below.
    or failed request is declared to `tests/smoke_signals.py`'s oracle, or the
    run fails. No route the three panes request answers 5xx.
 
-The HTTP half (steps 1–4, and the route answers behind steps 5–8) is a CI test
-in openDox-code (T095). The browser half is a Playwright run on the host, with
-its verdict computed by the oracle (T096). CI carries no browser, as the
-oracle's own header records.
+The HTTP half (steps 1–4, and the route answers behind steps 5–8) runs in CI in
+openDox-code (T095). It is a harness in its own `acceptance` job, which has no
+database service, so its clean-machine assertions hold. The browser half is a
+Playwright run on the host, with its verdict computed by the oracle (T096). CI
+carries no browser, as the oracle's own header records. Neither half is a
+member of a leg's pytest suite: each installs the product and drives it from
+outside, so FR-006 is unaffected.
 
 ## Assumptions
 

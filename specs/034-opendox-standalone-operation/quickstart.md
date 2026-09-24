@@ -1,8 +1,8 @@
 # Quickstart: running AT-R1, release 1's acceptance
 
 **Feature**: [`spec.md`](./spec.md) § "AT-R1" defines the test.
-T095 automates the HTTP half as a CI test in openDox-code. T096 runs the
-browser half on the host.
+T095 automates the HTTP half as a harness in openDox-code's own `acceptance`
+CI job, which has no database service. T096 runs the browser half on the host.
 
 The run needs the phase-3 tip of every repository, so every question that
 blocks phases 2 and 3 is answered first. The steps below depend directly on
@@ -24,11 +24,11 @@ python3 -m venv --clear "$W/v"
 . "$W/v/bin/activate"
 pip install "$W/openDox-code"                         # CONDITIONAL (R1Q16): "$W/openDox-code[local]" if an extra is chosen
 for s in openxdox ideation_dashboard doc_health corpus_adapter_openxfactory; do
-  if python -c "import $s" 2>/dev/null; then echo "FAIL: $s is importable"; exit 1; fi
+  if python -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('$s') else 1)"; then echo "FAIL: $s is importable"; exit 1; fi
 done
-if command -v omp >/dev/null 2>&1; then echo "FAIL: a harness is installed, so no-model is not what this measures"; exit 1; fi
+if [ -n "$(command -v omp || true)" ]; then echo "FAIL: a harness is installed, so no-model is not what this measures"; exit 1; fi
 # ASSERTED, not assumed: no identity broker, and no database the user provided.
-if command -v openprofiler-broker >/dev/null 2>&1; then echo "FAIL: an identity broker is installed"; exit 1; fi
+if [ -n "$(command -v openprofiler-broker || true)" ]; then echo "FAIL: an identity broker is installed"; exit 1; fi
 unset OPENDOX_DATABASE_URL OPENDOX_MIGRATION_DATABASE_URL OPENDOX_OIDC_ISSUER OPENDOX_INSTALL_MODE DATABASE_URL PGHOST PGPORT PGDATABASE PGUSER
 python3 - <<'PY'
 import socket
@@ -93,11 +93,11 @@ PY
 # CONDITIONAL (R1Q15): the recommended answer (b) selects local mode explicitly, shown here as --local.
 opendox generate-and-open --local --repo-root "$R" --repository fixture --no-open --port "$PORT" &
 SERVER=$!
-trap 'kill "$SERVER" 2>/dev/null || true' EXIT
+trap 'kill "$SERVER" 2>&- || true' EXIT
 ready=0
 for _ in $(seq 1 30); do
-  kill -0 "$SERVER" 2>/dev/null || { echo "FAIL: the launched server exited before it answered"; exit 1; }
-  if curl -sf "http://127.0.0.1:$PORT/" >/dev/null; then ready=1; break; fi
+  kill -0 "$SERVER" 2>&- || { echo "FAIL: the launched server exited before it answered"; exit 1; }
+  if curl -sf -o "$W/probe.html" "http://127.0.0.1:$PORT/"; then ready=1; break; fi
   sleep 1
 done
 test "$ready" -eq 1
@@ -156,7 +156,7 @@ trailer (R1Q20 (a), ruled in `5817152735`).
 
 ```sh
 kill "$SERVER"
-wait "$SERVER" 2>/dev/null || true                    # the port is free again before the next pass
+wait "$SERVER" 2>&- || true                           # the port is free again before the next pass
 ```
 
 The bundled datastore stops with the entry point (R1Q16 (iv)). After the second
