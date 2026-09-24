@@ -33,11 +33,18 @@ run time and never named:
 ```sh
 set -euo pipefail
 W=$(mktemp -d)
-for r in openDox-code openXdox-code openDox-spec openXdox-spec openDox openXdox openxFactory; do
+while read -r r c; do                                   # every repository at the commit the table names, not today's main
   git clone -q "https://github.com/opensoft/$r" "$W/$r"
-done
-git -C "$W/openDox-code" checkout -q 1e4a57fb
-git -C "$W/openXdox-code" checkout -q 626f2c8d
+  git -C "$W/$r" checkout -q "$c"
+done <<'REPOS'
+openDox-code 1e4a57fb
+openXdox-code 626f2c8d
+openDox-spec 8fe8c4c7
+openXdox-spec f088b097
+openDox 36ded1cd
+openXdox 2f3f857d
+openxFactory dd2466ad
+REPOS
 python3 -m venv "$W/od"                                   # openDox-code alone, every extra it declares
 "$W/od/bin/pip" install -q "$W/openDox-code[runtime,test]"
 python3 -m venv "$W/ox"                                   # openXdox-code; openDox arrives at its pin (5c137a90)

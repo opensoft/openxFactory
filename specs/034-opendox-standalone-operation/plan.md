@@ -181,7 +181,7 @@ T001–T008 (holder: claims, ARC_BASE, answers, analyze, #1144 amendments, the d
           [oXc]  T040 (pin, residue) → T041 (declared exclusion) → T042 (9.3) → T043 → T044
           [oX]→[oxF]  T047 consumer pins (steps 5–6), carrying T045 + T046 host wiring
           checkpoint T049 (after T007 batches A, B);  holder T048 (F4 re-measure)
- PHASE 2  [oDc]  T050 ∥ T051 ∥ T052 ∥ T057   (∥ T053 [oDs] if R1Q11 (a))
+ PHASE 2  [oDc]  T050 → T051  ∥  T052  ∥  T057   (∥ T053 [oDs] if R1Q11 (a))
                  T054 (projection) → T055 (sources, 4.3 part) → T056 → T058 (validator)
           [oD]   T062 root pin  after T054–T058
           [oXc]  T059 (5.4a) after T052, T055, T062;  T060 (5.3a re-run) after T054
@@ -213,9 +213,8 @@ rebases onto the previous slice's landing before it opens.
 - **Phase 1 parallel lanes**: A (serve seam), B (profile), C (adapter), D
   (workbench, serve_wire and doxbench_packet seams) and E (the import test,
   which lands with T011; the README fix, T031, lands with T036). R1Q6 is
-  answered (d), so openXdox-code's T041 can be designed now. It lands after
-  T040.
-- **Phase 2 parallel lanes**: the fixtures (T050, T051), the generator seam
+  answered (d), so openXdox-code's T041 waits only on T006 and T040.
+- **Phase 2 parallel lanes**: the fixtures (T050, then T051), the generator seam
   (T052), the validator input set (T057) and the neutral schema (T053), if
   R1Q11 (a) is chosen.
 - **Phase 3 parallel lanes**: Group 13 (T070–T074), the Group 16 binding
@@ -356,14 +355,14 @@ suites needing `doc_health`. F5.2 closes in phase 2, and it installs nothing
 that provides `doc_health`. R1Q23 asks how F5.2 runs. It blocks T059 and T063,
 not phase 1.
 
-## In-flight overlaps (lane 4's own acts, 2026-09-24)
+## In-flight overlaps (lane 4's own acts, as of 2026-09-24T16:05Z)
 
 | act | touches | release-1 overlap | rule |
 |---|---|---|---|
-| 1.8 ratification record | #1144's three lifecycle docs and `.openspec.yaml` | LANDED as #1151 → `cd494e4c`, ticking 1.8 and 3.0 | T004's amendments build on it |
-| C1 (`5815604830`) | an openxFactory count fix | none | — |
-| C3 (`5815613524`) | openXdox-code `src/openxdox/snapshot.py` and the validator script; openxFactory manifest rows; the openXdox pin | 7.3's files (T061); 9.5's openXdox pin pair (T047) | T061 starts after C3's PR 2 lands and revisits its confinement per R1Q14; T047 rebases onto C3's pin bump |
-| C4 (`5815620605`) | the openXdox-pin resync runbook | 9.5 steps 5 and 6 | follow it once landed |
+| 1.8 ratification record | #1144's three lifecycle docs and `.openspec.yaml` | LANDED as #1151 → `cd494e4c`, ticking 1.8 and 3.0 | T007's amendments build on it |
+| C1 (`5815604830`) | an openxFactory count fix | none; LANDED as #1152 → `9afea8d7` | — |
+| C3 (`5815613524`) | openXdox-code `src/openxdox/snapshot.py` and the validator script; openxFactory manifest rows; the openXdox pin | 7.3's files (T061); 9.5's openXdox pin pair (T047). PR 1, the manifest window, LANDED as #1153 → `1d14fee6`; PR 2 is openXdox-code#28, a draft | T061 starts after C3's PR 2 lands and revisits its confinement per R1Q14; T047 rebases onto C3's pin bump |
+| C4 (`5815620605`) | the openXdox-pin resync runbook | 9.5 steps 5 and 6; #1154, a draft | follow it once landed |
 
 ## Persisted tools
 

@@ -209,7 +209,7 @@ script exists. openxFactory is unchanged in behaviour.
   - **Ruling needed**: RN-1 asks Brett to align requirement 3's fourth
     scenario with (ii). It holds nothing in T016, because the after-build
     refusal is existing behaviour.
-  - **After**: T015, T011.
+  - **After**: T015, T012 (Lane A's last `serve.py` edit).
 - [ ] T017 [P] [US4] [oxF] **3.3, read-only.** At every openxFactory arc
   landing, confirm that the carve manifest's `deleted_at_carve` row for
   `scripts/ideation_dashboard/profile_openxfactory.py` is byte-identical. F11.1's
@@ -249,7 +249,7 @@ script exists. openxFactory is unchanged in behaviour.
 
 ### Lane D: the other openxFactory reaches (`workbench.py`, `serve_wire.py`, `doxbench_packet.py`)
 
-- [ ] T025 [P] [US1] [oDc] **`workbench.py:746`** (`session_documents`), in
+- [ ] T025 [US1] [oDc] **`workbench.py:746`** (`session_documents`), in
   phase 1 (R1Q9 (a)). It resolves through the registered adapter's
   `list_documents`: openDox's `LocalGitCorpus` standalone, and openxFactory's
   adapter when hosted. With nothing registered it refuses, as 4.2 does. The
@@ -375,7 +375,7 @@ script exists. openxFactory is unchanged in behaviour.
   - **Falsifier**: `opendox --help` exits 0 (F10.1's first assertion, which is
     phase 1's proof); `opendox runtime --help` exits 0.
   - **Ruled**: R1Q4 (a), R1Q5 (a), R1Q22 (a).
-  - **After**: T016.
+  - **After**: T016, T022 (`cli.py`'s single-writer order).
 
 ### The openDox root pin (9.5, steps 1–2)
 
@@ -523,7 +523,7 @@ against schemas that are on disk. The governed projection is unchanged.
   - **Falsifier**: the vocabulary test; used by F5.3, F7.2, F10.1 and F13.1.
   - **Blocked by**: R1Q11, R1Q13.
   - **After**: T049.
-- [ ] T051 [P] [US2] [oDc] **7.0: `tests/fixtures/malformed`.** Exactly one
+- [ ] T051 [US2] [oDc] **7.0: `tests/fixtures/malformed`.** Exactly one
   rule violation of the snapshot contract R1Q12 selects, and an
   `EXPECTED_RULE` file holding that rule's identifier.
   - **Realizes**: 7.0.
@@ -623,7 +623,7 @@ against schemas that are on disk. The governed projection is unchanged.
   - **Realizes**: 7.3.
   - **Falsifier**: F7.1, including its two named tests.
   - **Blocked by**: R1Q14.
-  - **After**: C3's openXdox-code PR (PR 2) has landed.
+  - **After**: C3's openXdox-code PR (PR 2, openXdox-code#28) has landed.
 - [ ] T062 [US4] [oD] **Phase 2's openDox root pin** (T090 steps 1–2).
   - **Realizes**: 9.5 (part).
   - **Falsifier**: `make pins` in the openDox root.
@@ -781,7 +781,7 @@ no-model state. `consumer_reach.py` is gone.
     prints `no deferred reach names the consumer or the publisher`.
   - **Blocked by**: R1Q10.
   - **Ruled**: R1Q1 (a), R1Q22 (a).
-  - **After**: T055.
+  - **After**: T055, T073 (`serve.py`'s single-writer order).
 - [ ] T085 [US3] [oDc] **The standalone doxBench defaults for T027's seams.**
   openDox's own validators run over openDox-spec's `xfactory-workbench-chat-turn`
   and `xfactory-workbench-model-catalog` copies (R1Q12). There is no status
@@ -891,7 +891,8 @@ no-model state. `consumer_reach.py` is gone.
     none of which may answer 5xx.
   - **Realizes**: FR-011 (HTTP half).
   - **Falsifier**: the test itself.
-  - **Blocked by**: R1Q10, R1Q15, R1Q16.
+  - **Blocked by**: R1Q10, R1Q12 (the catalog's validators, T085), R1Q15,
+    R1Q16.
   - **After**: T089.
 - [ ] T096 [US3] **AT-R1, the browser half, on the host.** Drive the same
   install with Playwright (quickstart.md § 3). The verdict comes from
@@ -1009,7 +1010,7 @@ landed, except where a row says otherwise.
 | slice | group | tasks | repo | files | depends on | falsifier it must pass | size |
 |---|---|---|---|---|---|---|---|
 | P1-A route seam | G1 | T010, T011 (with T030), T012 | oDc | `src/route_extension.py`; `src/opendox/serve.py`; readers of the five lane names; new `tests/test_route_handler_contribution.py` and `tests/test_imports_standalone.py` | T006 | F2.1 (sweep and named test); the new seam tests | Opus |
-| P1-B default profile | G1 | T015, T016 | oDc | `src/opendox/domain_profile.py`, `profile_proxy.py`, a new default-profile module; one-line entry calls in `cli.py`/`serve.py`; `tests/test_profile_registration.py` and a vocabulary test | T006; lands after P1-A's T011 (the `serve.py` line) | F3.1 with line 2 as amended (T007 batch A) | Opus |
+| P1-B default profile | G1 | T015, T016 | oDc | `src/opendox/domain_profile.py`, `profile_proxy.py`, a new default-profile module; one-line entry calls in `cli.py`/`serve.py`; `tests/test_profile_registration.py` and a vocabulary test | T006; T016 lands after P1-A (T012 is its last `serve.py` edit) | F3.1 with line 2 as amended (T007 batch A) | Opus |
 | P1-C home-corpus seam | G1 | T020 | oDc | `src/opendox/corpus_adapter.py`; `tests/test_authoring_seam.py` | T006 (it never needed an answer) | F4.1's first block; `…::test_required_header_fields_come_from_the_registered_adapter` | Sonnet |
 | P1-E openxFactory reaches | G1; T025 after P1-C | T026, T027, then T025 | oDc | `src/opendox/workbench.py`, `serve_wire.py`, `doxbench_packet.py`, with seam tests | T006; P1-C for T025 | F4.1's scan without `workbench.py:746/1407-1409`, `serve_wire.py:1369` or `doxbench_packet.py:177`; a session-notebook membership test | Opus |
 | P1-D authoring and the default adapter | G2 | T021, T022 | oDc | `src/opendox/authoring.py`; entry registration in `cli.py`/`serve.py`; `tests/test_authoring_seam.py` | P1-C, P1-B | `…::test_an_entry_point_registers_the_local_git_corpus_when_no_host_has`; F4.1's first block | Sonnet |
@@ -1026,8 +1027,8 @@ landed, except where a row says otherwise.
 **Fan-out order.** Before any slice: T006's round-1a analyze, and the slice's
 claim (T002).
 
-1. **G1**: P1-A, P1-B, P1-C and P1-E in parallel. P1-B lands after P1-A's
-   T011, and P1-E's T025 waits for P1-C.
+1. **G1**: P1-A, P1-B, P1-C and P1-E in parallel. P1-B's T016 lands after
+   P1-A, because both write `serve.py`, and P1-E's T025 waits for P1-C.
 2. **G2**: P1-D and P1-H in parallel. P1-H rebases onto P1-D for `cli.py`.
 3. **G3**: P1-F, then P1-G.
 4. **G4**: P1-R, the openDox root pin.

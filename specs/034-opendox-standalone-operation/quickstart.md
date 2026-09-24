@@ -4,9 +4,11 @@
 T095 automates the HTTP half as a CI test in openDox-code. T096 runs the
 browser half on the host.
 
-The run needs the phase-3 tip of every repository and the answers to R1Q10,
-R1Q13, R1Q15, R1Q16 and R1Q19. **Two steps below are conditional**, and each is
-marked with the question it depends on. Use whatever the openDox root's
+The run needs the phase-3 tip of every repository, so every question that
+blocks phases 2 and 3 is answered first. The steps below depend directly on
+R1Q10, R1Q12 (the catalog's validators), R1Q13, R1Q15, R1Q16 and R1Q19. **Two
+steps below are conditional**, and each is marked with the question it depends
+on. Use whatever the openDox root's
 `README.md` documents once 10.3 has landed: that README, not this file, is the
 product's one documented command (requirement 10).
 
@@ -25,9 +27,26 @@ for s in openxdox ideation_dashboard doc_health corpus_adapter_openxfactory; do
   if python -c "import $s" 2>/dev/null; then echo "FAIL: $s is importable"; exit 1; fi
 done
 if command -v omp >/dev/null 2>&1; then echo "FAIL: a harness is installed, so no-model is not what this measures"; exit 1; fi
-unset OPENDOX_DATABASE_URL OPENDOX_MIGRATION_DATABASE_URL OPENDOX_OIDC_ISSUER OPENDOX_INSTALL_MODE
+# ASSERTED, not assumed: no identity broker, and no database the user provided.
+if command -v openprofiler-broker >/dev/null 2>&1; then echo "FAIL: an identity broker is installed"; exit 1; fi
+unset OPENDOX_DATABASE_URL OPENDOX_MIGRATION_DATABASE_URL OPENDOX_OIDC_ISSUER OPENDOX_INSTALL_MODE DATABASE_URL PGHOST PGPORT PGDATABASE PGUSER
+python3 - <<'PY'
+import socket
+for host in ("127.0.0.1", "::1"):
+    try:
+        s = socket.create_connection((host, 5432), timeout=1)
+    except OSError:
+        continue
+    s.close()
+    raise SystemExit(f"FAIL: a database already listens on {host}:5432")
+print("no database listens on the default port")
+PY
 export OPENDOX_STATE_DIR=$(mktemp -d)                 # a state directory nothing else has touched
+test -z "$(ls -A "$OPENDOX_STATE_DIR")"
 ```
+
+T095 makes the same assertions in CI, and step 2 below asserts that neither
+repository holds a model binding.
 
 ## 2. Two plain git repositories
 
@@ -46,6 +65,9 @@ printf '# Meeting notes\n\nWe discussed the roadmap and the budget.\n' > "$B/not
 git -C "$B" init -q
 git -C "$B" add -A
 git -C "$B" commit -qm notes
+for R in "$A" "$B"; do                                # no model binding: doxbench_binding's DEFAULT_BINDINGS_RELPATH is absent
+  if test -e "$R/ideation/dashboard/model-provider-bindings.yaml"; then echo "FAIL: $R holds a model binding"; exit 1; fi
+done
 ```
 
 ## 3. The one documented command, then the HTTP half (T095)

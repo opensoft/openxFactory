@@ -435,7 +435,7 @@ passes F5.3 fails F7.2. As written, neither can pass beside the other.
 
 ---
 
-## R1Q12 — Which snapshot schema does openDox's validator own, and how does a spec-leg schema reach the code leg's package? *(blocks T051, T053, T057, T058, T085; phases 2–3)* — **OPEN**
+## R1Q12 — Which snapshot schema does openDox's validator own, and how does a spec-leg schema reach the code leg's package? *(blocks T051, T053, T057, T058, T085, T095; phases 2–3)* — **OPEN**
 
 **Measured.** The post-render validator's subject is the rendered snapshot
 (`ideation-dashboard-snapshot`), whose schema lives in openXdox-spec. openDox-spec's
