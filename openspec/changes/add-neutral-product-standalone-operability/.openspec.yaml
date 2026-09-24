@@ -1,0 +1,119 @@
+schema: spec-driven
+created: 2026-09-22
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-22-add-neutral-product-standalone-operability
+  reason: >-
+    THE ORIGIN IS THE ARCHIVED PACKET'S OWN UNCLOSED RESIDUE, plus the owner's
+    question of 2026-09-22. `split-opendox-two-layer-product` archived
+    2026-09-22 (#1139 -> `e8fde27f`) at 67 [x] / 0 [ ] / 5 [~] of 72, and its
+    own `tasks.md` records what did not close: the governance ledger closed
+    and the DEPENDENCY INVERSION did not. openDox-code's
+    `src/opendox/consumer_reach.py` names the remedy in the tree - "the
+    injection that would make this reach disappear does not exist yet and is
+    BUILD-arc work". This packet is that arc's opening and nothing else.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`. The organized source is the
+    RESIDUE of a ratified, archived packet plus rulings on an issue - the
+    founding ruling on `#656` (Brett Heap, 2026-09-04), RULING C2, DIRECTION
+    Q5, RULING DQ-1 (`#656` comment `5547049745`) and RULING OQ-B - not an
+    `ideation/staging/` topic folder. No staging topic holds this subject, and
+    declaring one would name a source that does not resolve.
+    WHY IT IS FILED HERE AND NOT IN openDox-spec, WHICH IS ITSELF A FINDING.
+    openDox-spec's instance is OPERABLE - `openspec validate --all --strict`
+    exits 0 there over four changes - so the brief's default did not fire and
+    the choice needed an argument. It is EMPTY: `openspec/specs/` is a
+    `.gitkeep`, `openspec/changes/archive/` is a `.gitkeep`, and `openspec
+    list --specs` answers "No specs found." The CLI refuses what this arc
+    needs on openDox-spec's own changes already - "target spec does not exist;
+    only ADDED requirements are allowed for new specs. MODIFIED and RENAMED
+    operations require an existing spec." The requirements this arc discharges
+    against (`corpus-adapter-seam`, `domain-mapping-declaration`,
+    `release-realization`) are promoted HERE; the artifacts it binds
+    (`ideation_dashboard`, `corpus_adapter_openxfactory`,
+    `scripts/opendox_host.py`, `docs/opendox-carve-manifest.yaml`) are
+    openxFactory's; and openDox-spec's own `openspec/project.md` limits it to
+    "this leg's scope only". That openDox cannot yet govern its own BUILD arc
+    is carried as requirement 8, whose third scenario ENDS this arrangement
+    once openDox-spec promotes its assigned 71.
+    WHAT THE PACKET PROPOSES. ONE `## ADDED Requirements` block creating the
+    capability `neutral-product-standalone-operability` - seventeen requirements,
+    seventy-five scenarios, written domain-neutrally with openDox as the measured
+    instance. AGAINST THE 2026-09-22 FEATURE/GAP SWEEP, requirement 1 is the
+    guard and answers no gap, requirements 2-9 answer G1-G8, and requirement
+    10 answers both G9 and G10; REQUIREMENTS 11-16 ARE THE LATER RULINGS of
+    2026-09-22 - the
+    neutral submission step, the standalone install's datastore and its local
+    identity mode, the health fix loop with its exception rule, and the
+    check-pack interface; REQUIREMENT 17 IS THE RULING OF 2026-09-23 on chat's
+    model configuration. Each is separately satisfiable and each is falsifiable
+    by a command named in `tasks.md`.
+    WHAT IT DOES NOT PROPOSE. No code byte. No rewrite of the document
+    surface. No doc-health check family moves, no corpus document moves, no
+    `openspec/specs/` capability is modified or removed, and this packet moves
+    no pin, gitlink, contract bundle or release tag (the realization advances
+    the composing pins by each owner's pin-sync act, task 9.5). It does not
+    re-promote openDox's 71 requirements - that is openDox-spec's act, carried
+    here as a BLOCKED task.
+    Where the snapshot generator lives was RULED by Brett Heap on 2026-09-22
+    (`#656` comment `5783335210`, "yes, openDox gets its own neutral
+    generator") and `design.md` R-G3 records the ruling together with this
+    packet's superseded recommendation and the measurement that made the
+    ruling the better answer; requirement 4 is written to the OUTCOME, so it
+    names no mechanism and is satisfied by the ruled one.
+    FILING IS NOT RATIFYING. All three lifecycle documents carry `Status:
+    draft`, no approval pair is declared, and nothing here admits text to
+    canon.
+    AFTER FILING, AND ADDED BESIDE THE ABOVE RATHER THAN SUBSTITUTED FOR IT.
+    The text above describes the filing truthfully as of the filing
+    (2026-09-22 ~19:45Z), when the packet put G3 to Brett as an open question.
+    It was RULED at 20:08:59Z the same day - `#656` comment `5783335210`,
+    verbatim "yes, openDox gets its own neutral generator" - so the packet now
+    RECORDS that decision instead of asking it, requirement 4 is written to
+    it, and `design.md` section R-G3 carries the options as they were put, the
+    ruling, and a CORRECTION to this packet's own pricing of the rejected
+    option (`src/openxdox/generator.py:66-68` imports openxFactory's
+    `doc_health`, which the packet had not measured). Two constraints arrive
+    with the ruling and are carried as constraints, not proposals:
+    `NEUTRAL_DISPLAY`'s six words stand unchanged - sources, groups,
+    candidates, selections, submissions, completed; the sixth spelled as
+    DECLARED by RULING 5784654370 ("2, keep completed"), which corrected this
+    packet's earlier `completions`, and RULING 5784683830 ("1, keep completed
+    and overlay implemented") adds openXdox's PARTIAL DISPLAY facet labelling
+    the completion stage "implemented", the estate's first - and the
+    view-wiring slice, claimed under actor `viewwire`, which LANDED as
+    openDox-code#35 at 3c3a9e31 and is NOT owed by this packet. `kind` and
+    `id` do not move, and NO APPROVAL PAIR IS ADDED: rulings on questions
+    INSIDE the packet are not ratification OF the packet - the three
+    lifecycle documents still carry `Status: draft` and
+    `approved_by`/`approved_on` remain absent.
+    ON 2026-09-23, ADDED BESIDE THE ABOVE AND NOT SUBSTITUTED FOR IT. Three
+    rulings on `#656`: 5799494355 ("keep the direct arrow, revisit after phase
+    1") leaves RULING OQ-2's pin chain as it is; 5799646419 ("a, phases 1-3 as
+    the first release") sequences the arc as two releases inside this one
+    change; and 5800995035 ("the four 1144 questions, go with recomendations")
+    keeps requirement 1 as written and corrects the first ruling's phase-1
+    wording, holds the archive until BOTH releases have merged, green
+    realization evidence, adds requirement 17 for chat's model configuration,
+    and names release 1 standalone operation rather than a declared standalone
+    product. `kind` and `id` do not move and NO APPROVAL PAIR IS ADDED: the
+    three lifecycle documents still carry `Status: draft`.
+  proposed_by: >-
+    Lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`),
+    session `faabad8b`, actor `buildarc`, on the holder's brief of 2026-09-22
+    directing ONE proposal that opens the BUILD arc, as a DRAFT pull request
+    for Brett Heap's ratification. The actor changed no code in any repository
+    and landed nothing.
+    NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED. `approved_by` and
+    `approved_on` are ABSENT, which is the lawful unapproved shape
+    `add-drafted-proposal-origin` admits - drafting provenance, no approval -
+    and the three lifecycle documents carry `Status: draft` to match.
+    THE DECISIONS MOST WORTH A VETO are D1 (a NEW capability rather than a
+    MODIFIED `corpus-adapter-seam`, because the seam already forbids the reach
+    and what is missing is the positive property), D2 (filing in openxFactory
+    rather than openDox-spec, with the exit condition written into requirement
+    8's third scenario so the arrangement is self-limiting), D5 (a default
+    domain profile for openDox's OWN domain does not re-own the composition
+    point the carve deleted) and R-G3, where Brett Heap's ruling superseded
+    this packet's recommendation (c) and the packet records the measurement
+    that made the ruling the better answer.
+  proposed_on: 2026-09-22

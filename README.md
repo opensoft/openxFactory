@@ -532,6 +532,90 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-neutral-product-standalone-operability](openspec/changes/add-neutral-product-standalone-operability/proposal.md)
+  — filed 2026-09-22, lane `openxfactory-4`, **`Status: draft`** (awaiting Brett
+  Heap's ratification read), as the BUILD ARC the archived
+  `split-opendox-two-layer-product` names as its own unclosed residue. **ONE
+  `## ADDED` block creating the capability `neutral-product-standalone-operability`
+  — seventeen requirements, seventy-five scenarios**, written domain-neutrally (its sibling is
+  `neutral-product-pin`: that governs openxFactory CONSUMING an external neutral
+  product, this governs the product being able to STAND UP without its consumer),
+  with openDox as the measured instance. **Against the 2026-09-22 feature/gap
+  sweep, requirement 1 is the guard and answers no gap, requirements 2-9 answer
+  G1-G8, and requirement 10 answers both G9 and G10; requirements 11-16 are the
+  later rulings** of 2026-09-22 — the neutral submission step, the standalone
+  install's datastore and local identity mode, the health fix loop with its
+  exception rule, and the check-pack interface — and requirement 17, chat's model
+  configuration, is a ruling of 2026-09-23. Each is separately satisfiable and each is
+  falsifiable by a command named in `tasks.md`. Requirement 1 states what openxFactory KEEPS
+  as a refusal — the corpus, the OpenSpec instance, every doc-health check family,
+  the adapter column, the intent-plane schemas and the integration tests — because
+  the arc reverses a DIRECTION and relocates no boundary. **`code_surface:`
+  openxFactory, opensoft/openDox and opensoft/openXdox; `target_release:
+  implemented`** (openxFactory for its host wiring and its pins; the two assembly
+  roots stand for their code legs, where the realization's code is written and
+  whose landings reach openxFactory through the roots' pins, until #1150 lets the
+  estate inventory name a leg — RULED `5804191141`) — the requirements land now,
+  the realization runs post-ratification, and this packet authors no code byte,
+  so once RATIFIED it stays ACTIVE as approved-but-unrealized intent until
+  `release-realization`'s archive gate is met by merged-plus-green evidence per
+  requirement; until then it is a draft and approves nothing. Two
+  findings are recorded rather than assumed: the packet is filed HERE and not in
+  openDox-spec because that instance, while operable, has promoted nothing and
+  the CLI refuses MODIFIED deltas against specs that exist nowhere (requirement
+  8's third scenario names the condition that ends the arrangement); and the
+  openDox → openXdox inversion is already FINISHED at import time, so what is
+  unclosed is the reach into the PUBLISHER, which no gate watches.
+  **`design.md` § R-G3 records the one question the packet asked and the RULING
+  that answered it** — Brett Heap, 2026-09-22 (`#656` comment
+  [`5783335210`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5783335210)),
+  verbatim *"yes, openDox gets its own neutral generator"*: openDox grows a small
+  neutral projection over the `CorpusAdapter` protocol it already declares, with
+  `runtime/local_git_adapter.py` as the conformant implementation, and openXdox
+  KEEPS its governed generator and injects it through the same seam. The section
+  also records a CORRECTION to this packet's own pricing of the rejected option —
+  `generator.py:66-68` imports openxFactory's `doc_health`, so relocating it was
+  never lawful under `corpus-adapter-seam` whatever its path literals said. Two
+  constraints arrive with the ruling: `NEUTRAL_DISPLAY`'s six words stand
+  unchanged (*"keep those six words"*) — the sixth spelled **`completed`**, as
+  declared, by a later ruling (`#656` comment `5784654370`, *"2, keep
+  completed"*) that corrected this packet's earlier `completions`, with openXdox
+  overlaying "implemented" through the estate's first partial `DISPLAY` facet
+  (`5784683830`, *"1, keep completed and overlay implemented"*) — and the
+  view-wiring slice, claimed under actor `viewwire`, LANDED as openDox-code#35 →
+  `3c3a9e31` and is deliberately NOT owed here. **A SECOND RULING forty minutes later** (`#656` comment
+  [`5783934499`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5783934499),
+  *"add a neutral publish step to the build arc"*) adds requirement 11, the
+  NEUTRAL SUBMISSION STEP: RULING C3 makes a standalone openDox a plain local git
+  repository, but `session_pr.py:297`'s `GhPullRequests` shells `gh` against
+  `github.com`, so the student C3 describes cannot get a session's work out at
+  all. Named *submission* — the fifth of the six ruled words — because this
+  capability already uses "publisher" for the repository that publishes the
+  corpus. **THREE FURTHER RULINGS the same evening** settle the
+  standalone install's shape and TWO OF THEM AMEND FOUNDING RULINGS
+  ([`5784155201`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784155201),
+  [`5784247356`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784247356),
+  [`5784295745`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5784295745)):
+  bundled Postgres with one dialect; a NAMED local single-user identity mode that
+  a hosted install cannot fall into by omission (**amends RULING Q2**); merge
+  authority following whoever governs the repository, with three guardrails in
+  every mode; document-health results as derived data in the disposable store
+  (**amends RULING Q1's closed six-table list**, by the additive path `0001`'s own
+  text names); the health FIX LOOP with exceptions committed to the corpus rather
+  than the store; and the CHECK-PACK interface, which gives openxFactory's 23
+  governance families a home in an openXdox pack rather than in the neutral core.
+  **THREE RULINGS of 2026-09-23**
+  ([`5799494355`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5799494355),
+  [`5799646419`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5799646419),
+  [`5800995035`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5800995035))
+  keep the direct openxFactory → openDox arrow until after phase 1, keep
+  requirement 1 as written, and SEQUENCE the arc as two releases inside this one
+  change: release 1, *standalone operation* (phases 1-3: the reach-back cut,
+  openDox's own generator, and the install, with chat's model configuration as
+  requirement 17), and release 2 (phases 4-5: submission and merge, then the
+  health engine). It archives only when BOTH have merged, green realization
+  evidence.
+
 - [amend-home-adapter-scope-and-mapping-axis-count](openspec/changes/amend-home-adapter-scope-and-mapping-axis-count/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: draft`**, on the TWO
   REMAINING ratified-text findings of Copilot review `5273796676` on
