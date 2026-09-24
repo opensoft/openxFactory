@@ -3,16 +3,23 @@ consumes (openxFactory `add-nightly-dashboard-refresh`, re-realization S2).
 
 What each block here pins.
 
-  * THE SEAL SET IS NOT THE DECISION SET. The seal adds
-    `scripts/validate-ideation-dashboard-contracts.py`, a TOP-LEVEL
-    `scripts/*.py` that `CORPUS_BAKED_PATHS` does not name; the sparse-cone
-    checkout the pre-seal child used carried it only as a side effect of cone
-    mode. The DECISION set must not follow, or `_same_scope` fires
-    `REASON_SCOPE_CHANGED` against every recorded pin. Both halves are
-    asserted. The seal set was chosen when `snapshot.find_validator` walked UP
-    to that file. Since openXdox-code `e28930bf` the locator CONFINES to the
-    product's own tree instead, so the real `find_validator`, run over a real
-    sealed tree, is proven never to adopt the sealed copy.
+  * THE VALIDATOR COMES FROM THE PRODUCT, NOT FROM THE CORPUS (#1158). The
+    corpus these tests seal is shaped like openxFactory since the § 5.2 shed
+    (`cc4ae9d3`): every baked path, and NO
+    `scripts/validate-ideation-dashboard-contracts.py`. The seal used to ask
+    `git archive` for that path, which refused every such corpus. Now it
+    takes the openxdox product's own validator, through the snapshot lane's
+    own resolver, composed with its schemas. It seals that unit under its own
+    `validator/` root and RUNS the sealed copy once before it writes a
+    manifest. A validator that cannot be resolved is a refusal that names
+    where it was looked for. A unit that cannot be copied whole, or a copy
+    that cannot run, is a refusal that names what was wrong. Most tests
+    inject a stub unit, as they inject the recipe. The tests that are about
+    the validator use the REAL resolver over the real pinned legs. The
+    DECISION set stays the baked set, and the real `find_validator`, run over
+    a real sealed tree, is proven never to adopt the sealed copy
+    (openXdox-code `e28930bf` confines the locator to the product's own
+    tree).
   * THE REVISION IS PROVEN, NOT ASSERTED. `git archive` records the commit it
     was made from in a global extended pax header; the seal refuses unless
     that header equals the `source_head` it is about to record. After this
@@ -26,12 +33,15 @@ What each block here pins.
   * EVERY REFUSAL LEAVES NO MANIFEST. A seal the parent could not stand behind
     must not be downloadable, so the refusal paths assert the absence of
     `manifest.json` and not merely a raised exception.
-  * NOTHING HERE BUILDS OR PUSHES. `git` is the only binary the seal speaks;
-    the tests assert that over the recorded argv, and `gh` is unreachable by
-    the suite's own hermeticity guard (the recipe read is injected).
+  * NOTHING HERE BUILDS OR PUSHES. Every shell-out the seal makes through its
+    own runner is `git`, which the tests assert over the recorded argv. The
+    one other act is a single run of the SEALED validator copy, which has its
+    own test. `gh` is unreachable by the suite's own hermeticity guard (the
+    recipe read is injected).
 
 No network: the corpus is a real `git init` under `tmp_path` (git is not a
-guarded binary — `nlm`/`gh`/`omp` are), and the recipe read is always injected.
+guarded binary — `nlm`/`gh`/`omp` are), the recipe read is always injected, and
+the validator unit is injected except where a test says it is the real one.
 """
 
 from __future__ import annotations
@@ -39,6 +49,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import tarfile
 from datetime import datetime
@@ -47,6 +58,7 @@ from pathlib import Path
 import pytest
 
 from ideation_dashboard import dashboard_refresh_lane as lane
+from ideation_dashboard import nightly_lane
 from openxdox import snapshot as snapshot_mod
 from openxdox.generator import is_rfc3339_datetime
 
@@ -97,20 +109,19 @@ def _git(repo: Path, *argv: str) -> str:
 
 @pytest.fixture
 def corpus(tmp_path: Path) -> Path:
-    """A corpus checkout holding every seal path the real one does, one file
-    deep — including the top-level validator the trap is about."""
+    """A corpus checkout shaped like openxFactory since the § 5.2 shed
+    (`cc4ae9d3`): every BAKED path, one file deep, and NOT the top-level
+    `scripts/validate-ideation-dashboard-contracts.py` the shed moved to
+    openXdox-code. Built from `CORPUS_BAKED_PATHS`, never from the seal set, so
+    the fixture cannot quietly re-grow the file the seal must stop asking for.
+    """
     repo = tmp_path / "openxFactory-src"
     repo.mkdir()
     _git(repo, "init", "--quiet", "-b", "main")
-    for relpath in lane.CORPUS_SEAL_PATHS:
+    for relpath in lane.CORPUS_BAKED_PATHS:
         target = repo / relpath
-        if relpath.endswith(".py"):
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text("#!/usr/bin/env python3\nprint('ok')\n",
-                              encoding="utf-8")
-        else:
-            target.mkdir(parents=True, exist_ok=True)
-            (target / "a.md").write_text(f"# {relpath}\n", encoding="utf-8")
+        target.mkdir(parents=True, exist_ok=True)
+        (target / "a.md").write_text(f"# {relpath}\n", encoding="utf-8")
     # A path OUTSIDE the seal set, to prove the seal is bounded.
     (repo / "experiments").mkdir()
     (repo / "experiments" / "huge.bin").write_text("x" * 1024, encoding="utf-8")
@@ -128,15 +139,43 @@ def _decision(corpus_revision: str, **kw) -> dict:
     return payload
 
 
+STUB_SCHEMA = lane.VALIDATOR_SNAPSHOT_SCHEMA
+
+
+def _stub_validator(where: Path) -> "lane.PinnedValidator":
+    """A composed-unit STAND-IN: `scripts/` beside `contracts/schemas/`, the
+    shape `nightly_lane._pinned_validator()` answers. The script prints `ok`
+    and exits 0, whatever it is handed, so it is always "available" and never
+    a verdict on anything. Tests about the seal's own mechanics inject this,
+    as they inject the recipe. Tests about the VALIDATOR use the real one."""
+    script = where / lane.VALIDATOR_SCRIPT_PATH
+    script.parent.mkdir(parents=True, exist_ok=True)
+    script.write_text("#!/usr/bin/env python3\nprint('ok')\n", encoding="utf-8")
+    schemas = where / lane.VALIDATOR_SCHEMAS_PATH
+    schemas.mkdir(parents=True, exist_ok=True)
+    (schemas / STUB_SCHEMA).write_text("{}\n", encoding="utf-8")
+    return lane.PinnedValidator(runnable=script)
+
+
+_STUB = object()   # `_seal`'s default: inject the stub unit
+
+
 def _seal(corpus: Path, seal_dir: Path, *, decision: dict | None = None,
-          recipe: str | None = RECIPE_TEXT, **kw) -> dict:
+          recipe: str | None = RECIPE_TEXT, resolve_validator=_STUB,
+          **kw) -> dict:
+    """`seal_source` over the fixture corpus. `resolve_validator=None` means the
+    REAL resolver, the snapshot lane's own; the default injects the stub unit."""
     head = _git(corpus, "rev-parse", "HEAD")
+    if resolve_validator is _STUB:
+        stub = _stub_validator(Path(seal_dir).parent / "stub-validator")
+        resolve_validator = (lambda: stub)
     return lane.seal_source(
         corpus_checkout=corpus, seal_dir=seal_dir,
         correlation_id=kw.pop("correlation_id", CORRELATION),
         decision=decision if decision is not None else _decision(head),
         corpus_ref=kw.pop("corpus_ref", "HEAD"),
         read_recipe=(lambda: recipe),
+        resolve_validator=resolve_validator,
         **kw)
 
 
@@ -154,24 +193,44 @@ class RecordingRunner:
 
 
 # ---------------------------------------------------------------------------
-# the seal set, and the trap PR #179 already paid for once
+# the seal set, and the validator the product supplies since the shed (#1158)
 # ---------------------------------------------------------------------------
 
-def test_the_seal_set_is_the_baked_set_plus_the_validator_and_nothing_else():
-    added = set(lane.CORPUS_SEAL_PATHS) - set(lane.CORPUS_BAKED_PATHS)
-    assert added == {lane.VALIDATOR_SEAL_PATH}
-    assert set(lane.CORPUS_BAKED_PATHS) <= set(lane.CORPUS_SEAL_PATHS)
+def test_the_corpus_seal_set_is_the_baked_set_and_never_names_the_shed_path():
+    """The corpus half of the seal is EXACTLY the baked set. The one path that
+    used to widen it, `scripts/validate-ideation-dashboard-contracts.py`, left
+    openxFactory at the § 5.2 shed (`cc4ae9d3`), and asking `git archive` for it
+    refused every real corpus: `fatal: pathspec ... did not match any files`,
+    measured at `1edbb3dd` (#1158)."""
+    assert lane.CORPUS_SEAL_PATHS == lane.CORPUS_BAKED_PATHS
+    assert lane.VALIDATOR_SCRIPT_PATH not in lane.CORPUS_SEAL_PATHS
     # Sorted, like the baked tuple, because both are written into records that
     # compare scope for equality and two spellings would read as a change.
     assert list(lane.CORPUS_SEAL_PATHS) == sorted(lane.CORPUS_SEAL_PATHS)
 
 
-def test_the_decision_scope_does_not_follow_the_seal_scope():
-    """Widening `CORPUS_BAKED_PATHS` to the seal set would make `_same_scope`
-    fire `REASON_SCOPE_CHANGED` against every recorded pin and force exactly
-    one rebuild for nothing (design open question 7). So the decision scope is
-    pinned to the baked set here, and the two are proven to differ."""
-    assert lane.VALIDATOR_SEAL_PATH not in lane.CORPUS_BAKED_PATHS
+def test_the_sealed_validator_path_is_the_products_own():
+    """The unit-relative script path is spelled in the module, which has to
+    import without the carve legs on disk. So it is held EQUAL to the product's
+    own `snapshot.VALIDATOR_RELPATH` here rather than trusted to agree, and the
+    unit's root is proven to be neither of the seal's other two roots."""
+    assert lane.VALIDATOR_SCRIPT_PATH == snapshot_mod.VALIDATOR_RELPATH.as_posix()
+    assert lane.SEAL_VALIDATOR_RELPATH == (
+        f"{lane.SEAL_VALIDATOR_ROOT}/{lane.VALIDATOR_SCRIPT_PATH}")
+    assert lane.SEAL_VALIDATOR_ROOT not in (
+        lane.SEAL_CORPUS_RELPATH, lane.SEAL_RECIPE_RELPATH.split("/", 1)[0])
+    # The run outcomes the intake accepts are the product's own two verdicts.
+    assert lane.VALIDATOR_VERDICT_OUTCOMES == (snapshot_mod.VALIDATED,
+                                               snapshot_mod.NOT_CONFORMANT)
+
+
+def test_the_decision_scope_does_not_follow_the_validator():
+    """Adding the validator's path to `CORPUS_BAKED_PATHS` would make
+    `_same_scope` fire `REASON_SCOPE_CHANGED` against every recorded pin and
+    force exactly one rebuild for nothing (design open question 7). So the
+    decision scope is pinned to the baked set here, and the cost of widening it
+    is measured."""
+    assert lane.VALIDATOR_SCRIPT_PATH not in lane.CORPUS_BAKED_PATHS
     assert lane.CORPUS_BAKED_PATHS == (
         "contracts", "docs", "examples", "ideation", "openspec",
         "scripts/doc_health", "scripts/ideation_dashboard", "templates")
@@ -183,10 +242,261 @@ def test_the_decision_scope_does_not_follow_the_seal_scope():
     unchanged = lane.decide_refresh(corpus_revision="a" * 40,
                                    recipe_revision="b" * 40, recorded=recorded)
     assert unchanged.reason == lane.REASON_UNCHANGED
+    widened_scope = tuple(sorted({*lane.CORPUS_BAKED_PATHS,
+                                  lane.VALIDATOR_SCRIPT_PATH}))
     widened = lane.decide_refresh(corpus_revision="a" * 40,
                                   recipe_revision="b" * 40, recorded=recorded,
-                                  corpus_scope=lane.CORPUS_SEAL_PATHS)
+                                  corpus_scope=widened_scope)
     assert widened.reason == lane.REASON_SCOPE_CHANGED    # the cost, measured
+
+
+def test_a_post_shed_corpus_seals_with_the_products_own_validator(corpus, tmp_path):
+    """#1158, THE DEFECT ITSELF. The corpus is shaped like openxFactory since
+    the § 5.2 shed: every baked path, and NO
+    `scripts/validate-ideation-dashboard-contracts.py`. The code this replaces
+    asked `git archive` for that shed path and refused every such corpus, so no
+    real corpus could be sealed. Now it seals. The validator the seal carries
+    is the openxdox product's OWN, resolved by the snapshot lane's own resolver
+    and composed with the schemas the snapshot lane validates with. It has RUN,
+    from the seal, and reached a verdict.
+
+    NO resolver is injected: this is the real resolver over the real pinned
+    legs, which is the point. A stub here could not show that the seal carries
+    the right validator pointed at the right schemas."""
+    shed = Path("scripts") / "validate-ideation-dashboard-contracts.py"
+    assert not (corpus / shed).exists()
+    seal = tmp_path / "seal"
+    head = _git(corpus, "rev-parse", "HEAD")
+    manifest = lane.seal_source(
+        corpus_checkout=corpus, seal_dir=seal, correlation_id=CORRELATION,
+        decision=_decision(head), corpus_ref="HEAD",
+        read_recipe=(lambda: RECIPE_TEXT))
+
+    own = snapshot_mod.find_validator()
+    assert own is not None
+    sealed = seal / lane.SEAL_VALIDATOR_RELPATH
+    assert sealed.read_bytes() == own.read_bytes()        # the product's bytes
+    assert not (seal / lane.SEAL_CORPUS_RELPATH / shed).exists()
+    # The schemas the snapshot lane validates with travel with it, byte for
+    # byte, as regular files: the seal holds the pinned bytes, never a link.
+    farm = nightly_lane._pinned_validator().parents[1] / lane.VALIDATOR_SCHEMAS_PATH
+    carried = seal / lane.SEAL_VALIDATOR_ROOT / lane.VALIDATOR_SCHEMAS_PATH
+    assert sorted(p.name for p in carried.iterdir()) == \
+        sorted(p.name for p in farm.iterdir())
+    for linked in farm.iterdir():
+        copy = carried / linked.name
+        assert not copy.is_symlink()
+        assert copy.read_bytes() == linked.read_bytes(), linked.name
+    assert (carried / "ideation-dashboard-snapshot.schema.yaml").is_file()
+    assert manifest["validator_schema_count"] == len(list(farm.iterdir()))
+    # It RAN, from the seal, and reached a verdict.
+    assert manifest["validator_relpath"] == lane.SEAL_VALIDATOR_RELPATH
+    assert manifest["validator_probe"]["kind"] == lane.VALIDATOR_PROBE["kind"]
+    assert manifest["validator_probe"]["returncode"] in (0, 1)
+    assert manifest["validator_probe"]["outcome"] != \
+        snapshot_mod.VALIDATOR_UNAVAILABLE
+    # And the seal records WHICH product revision the copy came from.
+    assert manifest["validator_revision"] == \
+        _git(snapshot_mod.product_root(), "rev-parse", "HEAD")
+    assert lane.verify_seal(seal, correlation_id=CORRELATION,
+                            corpus_revision=head,
+                            recipe_revision=RECIPE_REV) == []
+
+
+@pytest.mark.parametrize("product_tree", ["without-its-validator",
+                                          "not-a-source-checkout"])
+def test_a_genuinely_missing_validator_still_refuses_naming_where_it_looked(
+        corpus, tmp_path, monkeypatch, product_tree):
+    """FAIL-CLOSED STAYS. The seal refuses, and writes nothing, when the pinned
+    product has no validator to give it. The refusal names the ONE place the
+    default is looked for, the product's own tree, in the snapshot lane's own
+    words (`nightly_lane._pinned_validator_missing`). It never names the
+    corpus, which is no longer searched.
+
+    The product's own locator is REAL here. Only the tree it is confined to is
+    swapped for one that genuinely carries no validator, or for no source tree
+    at all, the installed-wheel case. It is found out BEFORE the corpus is
+    archived, so the seal directory is never even created."""
+    root = None
+    if product_tree == "without-its-validator":
+        root = tmp_path / "openxdox-without-its-validator"
+        root.mkdir()
+    monkeypatch.setattr(nightly_lane.snapshot_mod, "product_root", lambda: root)
+    head = _git(corpus, "rev-parse", "HEAD")
+    with pytest.raises(lane.SealRefused) as refused:
+        lane.seal_source(
+            corpus_checkout=corpus, seal_dir=tmp_path / "seal",
+            correlation_id=CORRELATION, decision=_decision(head),
+            corpus_ref="HEAD", read_recipe=(lambda: RECIPE_TEXT))
+    reason = str(refused.value)
+    assert reason.startswith("the pinned openxdox validator was not found (")
+    assert f"({nightly_lane._pinned_validator_missing()})" in reason
+    if root is not None:
+        assert str(root / "scripts" / "validate-ideation-dashboard-contracts.py") \
+            in reason
+    else:
+        assert "not running from a source checkout" in reason
+    assert "validator would be unreachable" in reason
+    assert str(corpus) not in reason
+    assert not (tmp_path / "seal").exists()
+
+
+def test_unmaterialized_carve_legs_refuse_naming_the_legs(corpus, tmp_path,
+                                                          monkeypatch):
+    """The nightly's finalize job does not mount openxFactory's openXdox and
+    openDox gitlinks today (#1161), and the resolver reads the product through
+    them. `carved_reach` refuses that read BY NAME, and the seal carries the
+    refusal instead of a traceback: it is a SealRefused that names the
+    gitlinks and the command, and nothing is sealed."""
+    import carved_reach
+
+    def unmaterialized():
+        raise carved_reach.CarveReachUnavailable(
+            "openxdox is read from a pinned carve leg, and no leg in this "
+            "checkout carries it: the `openDox` and/or `openXdox` gitlinks are "
+            f"not materialized. Run `{carved_reach.INIT_COMMAND}`")
+
+    monkeypatch.setattr(nightly_lane, "_pinned_validator", unmaterialized)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal", resolve_validator=None)
+    reason = str(refused.value)
+    assert reason.startswith(
+        "the pinned openxdox validator cannot be resolved on this parent "
+        "(CarveReachUnavailable: ")
+    assert "gitlinks are not materialized" in reason
+    assert carved_reach.INIT_COMMAND in reason
+    assert not (tmp_path / "seal").exists()
+
+
+def _unit_without(where: Path, *, drop: str | None, keep_schemas: bool) -> Path:
+    """The product's OWN script in a unit that lacks what it needs: no schemas
+    at all (the code leg's copy exactly as it ships), or every composed schema
+    but one."""
+    script = where / lane.VALIDATOR_SCRIPT_PATH
+    script.parent.mkdir(parents=True)
+    shutil.copyfile(snapshot_mod.find_validator(), script)
+    if keep_schemas:
+        farm = nightly_lane._pinned_validator().parents[1]
+        target = where / lane.VALIDATOR_SCHEMAS_PATH
+        target.mkdir(parents=True)
+        for entry in (farm / lane.VALIDATOR_SCHEMAS_PATH).iterdir():
+            if entry.name != drop:
+                shutil.copyfile(entry, target / entry.name)
+    return script
+
+
+@pytest.mark.parametrize("drop, keep_schemas, said", [
+    (None, False, "carries none of the family's"),
+    (lane.VALIDATOR_SNAPSHOT_SCHEMA, True,
+     f"{lane.VALIDATOR_SNAPSHOT_SCHEMA} is not carried under"),
+], ids=["the-code-legs-own-copy-with-no-schemas", "every-schema-but-the-snapshots"])
+def test_a_sealed_validator_that_cannot_run_is_refused(corpus, tmp_path, drop,
+                                                       keep_schemas, said):
+    """FOUND IS NOT RUNNABLE (#1157), so the seal RUNS what it carries, and a
+    copy that cannot reach a verdict is refused in the validator's own words.
+    Both units carry the product's real script. The first is the code leg's
+    copy exactly as it ships, uncomposed: from the seal it finds no schemas at
+    all. The second lacks only the snapshot schema, the one the child
+    validates against. Either way the refusal says why and leaves no manifest
+    behind."""
+    script = _unit_without(tmp_path / "unit", drop=drop,
+                           keep_schemas=keep_schemas)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal",
+              resolve_validator=lambda: lane.PinnedValidator(runnable=script))
+    reason = str(refused.value)
+    assert reason.startswith("the sealed validator could NOT RUN")
+    assert said in reason
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+
+
+@pytest.mark.parametrize("shape", ["a-dangling-link", "a-directory"])
+def test_a_unit_entry_that_is_not_a_regular_file_is_refused_by_name(
+        corpus, tmp_path, shape):
+    """The seal copies the composed unit's schemas THROUGH their links. An
+    entry it cannot copy as a regular file is refused BY NAME, never skipped.
+    A skipped schema would seal a narrower unit than the one the snapshot lane
+    validates with, and the probe could not see it, because the validator asks
+    for a family schema only when an instance needs one. The stub script here
+    reaches a verdict on anything, so only the copy can refuse."""
+    stub = _stub_validator(tmp_path / "unit")
+    odd = (tmp_path / "unit" / lane.VALIDATOR_SCHEMAS_PATH
+           / "ideation-dashboard-workbench.schema.yaml")
+    if shape == "a-dangling-link":
+        odd.symlink_to(tmp_path / "nowhere.schema.yaml")
+    else:
+        odd.mkdir()
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal", resolve_validator=lambda: stub)
+    reason = str(refused.value)
+    assert reason.startswith("the composed validator unit carries "
+                             "ideation-dashboard-workbench.schema.yaml, which "
+                             "does not resolve to a regular file")
+    assert "narrower unit" in reason
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+
+
+@pytest.mark.parametrize("answer", ["git-fails", "not-a-full-revision"])
+def test_a_product_revision_that_cannot_be_read_refuses_the_seal(
+        corpus, tmp_path, answer):
+    """The manifest promises WHICH product revision the sealed validator came
+    from. A unit resolved from a product tree whose HEAD cannot be read as a
+    full revision is refused. It is never sealed with a null revision (Copilot
+    review of #1162). Only a unit with no product tree at all records none,
+    which is what the stub unit seals. The runner answers the one product
+    read here, so no real tree has to be broken to ask it."""
+    stub = _stub_validator(tmp_path / "unit")
+    product = tmp_path / "product"
+    product.mkdir()
+    pinned = lane.PinnedValidator(runnable=stub.runnable, product_root=product)
+    asked = ("git", "-C", str(product), "rev-parse", "HEAD")
+
+    def runner(argv, **kw):
+        if tuple(str(a) for a in argv) == asked:
+            if answer == "git-fails":
+                return lane.CommandResult(asked, 128, "",
+                                          "fatal: not a git repository")
+            return lane.CommandResult(asked, 0, "abc1234\n", "")
+        return lane.subprocess_runner(argv, **kw)
+
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal", runner=runner,
+              resolve_validator=lambda: pinned)
+    reason = str(refused.value)
+    assert reason.startswith("could not resolve the pinned product's revision "
+                             f"at {product} to a commit")
+    assert ("(read nothing)" if answer == "git-fails"
+            else "(read 'abc1234')") in reason
+    assert "provenance would go unrecorded" in reason
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+
+
+def test_the_one_run_is_of_the_sealed_copy_over_the_probe(corpus, tmp_path,
+                                                          monkeypatch):
+    """What the parent runs is the SEALED copy, from inside the seal. It is not
+    the composed unit it was copied from, because the child will run the copy.
+    It runs exactly once, through the product's own `validate_snapshot`, over
+    `VALIDATOR_PROBE`, and the probe itself is never part of the artifact."""
+    runs: list[dict] = []
+    real = nightly_lane.snapshot_mod.validate_snapshot
+
+    def recording(path, *, validator=None, strict=False, search_from=None):
+        runs.append({"path": Path(path), "validator": Path(validator),
+                     "strict": strict,
+                     "probe": json.loads(Path(path).read_text(encoding="utf-8"))})
+        return real(path, validator=validator, strict=strict,
+                    search_from=search_from)
+
+    monkeypatch.setattr(nightly_lane.snapshot_mod, "validate_snapshot", recording)
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    assert len(runs) == 1
+    (run,) = runs
+    assert run["validator"] == seal / lane.SEAL_VALIDATOR_RELPATH
+    assert run["probe"] == lane.VALIDATOR_PROBE
+    assert run["strict"] is False
+    assert not run["path"].resolve().is_relative_to(seal.resolve())
+    assert not any(key.endswith("validator-probe.json") for key in manifest["files"])
 
 
 def test_the_confined_locator_never_adopts_the_sealed_validator(corpus, tmp_path):
@@ -194,26 +504,25 @@ def test_the_confined_locator_never_adopts_the_sealed_validator(corpus, tmp_path
     `e28930bf` (split-opendox-two-layer-product § 8.9 residue (iii)),
     `snapshot.find_validator` answers only for the product's OWN validator. It
     CONFINES instead of walking up: a start outside the product's tree answers
-    None. So the sealed copy is never adopted from where it sits, even from the
-    directory the child hands `--repo-root`. A caller that means it passes it
-    explicitly (`validate_snapshot(..., validator=...)`), and that channel is
-    proven here too. As before, this runs the REAL locator over a REAL sealed
-    tree rather than restating a path. The refresh lane's own seal-set
-    rationale (`dashboard_refresh_lane.py`, THE PARENT SEAL) still describes
-    the walk; it is left for that lane.
+    None. So the sealed copy is never adopted from where it sits, from the seal
+    root, from the directory the child hands `--repo-root`, or from its own
+    directory. A caller that means it passes it explicitly
+    (`validate_snapshot(..., validator=...)`), and that channel is proven here
+    too. As before, this runs the REAL locator over a REAL sealed tree rather
+    than restating a path. Since #1158 the sealed copy lives under the seal's
+    own `validator/` root, and the refresh lane's seal rationale says so.
     """
     seal = tmp_path / "seal"
     _seal(corpus, seal)
     corpus_root = seal / lane.SEAL_CORPUS_RELPATH
-    sealed = corpus_root / lane.VALIDATOR_SEAL_PATH
-    # The seal still carries the file where the child's verify step looks.
+    sealed = seal / lane.SEAL_VALIDATOR_RELPATH
     assert sealed.is_file()
-    assert snapshot_mod.find_validator(corpus_root) is None
-    assert snapshot_mod.find_validator(sealed.parent) is None
+    for start in (seal, corpus_root, sealed.parent):
+        assert snapshot_mod.find_validator(start) is None, start
     own = snapshot_mod.find_validator()
     assert own is None or not own.resolve().is_relative_to(seal.resolve())
-    # Passed explicitly, the sealed copy is the one that runs. The fixture's
-    # stub prints `ok` and exits 0, whatever it is handed.
+    # Passed explicitly, the sealed copy is the one that runs. The stub unit's
+    # script prints `ok` and exits 0, whatever it is handed.
     probe = tmp_path / "probe.json"
     probe.write_text("{}\n", encoding="utf-8")
     result = snapshot_mod.validate_snapshot(probe, validator=sealed)
@@ -221,22 +530,20 @@ def test_the_confined_locator_never_adopts_the_sealed_validator(corpus, tmp_path
     assert result.validator == sealed
 
 
-def test_a_seal_missing_the_validator_is_refused_at_the_seal(corpus, tmp_path):
-    """Refused HERE, not three steps later at `--strict`: a validation that
-    could not RUN is a strict failure with no finding to read, and the operator
-    would be looking for a corpus defect that does not exist."""
-    with pytest.raises(lane.SealRefused, match="validator would be unreachable"):
-        _seal(corpus, tmp_path / "seal",
-              seal_paths=tuple(lane.CORPUS_BAKED_PATHS))
-    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
-
-
 def test_the_seal_is_bounded_to_the_seal_paths(corpus, tmp_path):
     seal = tmp_path / "seal"
     manifest = _seal(corpus, seal)
     assert not (seal / lane.SEAL_CORPUS_RELPATH / "experiments").exists()
     prefixes = {relpath.split("/", 1)[0] for relpath in manifest["files"]}
-    assert prefixes == {lane.SEAL_CORPUS_RELPATH, "recipe"}
+    assert prefixes == {lane.SEAL_CORPUS_RELPATH, "recipe",
+                        lane.SEAL_VALIDATOR_ROOT}
+    # The validator root holds the script and its schemas, and nothing else.
+    unit = {relpath for relpath in manifest["files"]
+            if relpath.startswith(lane.SEAL_VALIDATOR_ROOT + "/")}
+    schemas = f"{lane.SEAL_VALIDATOR_ROOT}/{lane.VALIDATOR_SCHEMAS_PATH}/"
+    assert lane.SEAL_VALIDATOR_RELPATH in unit
+    assert unit - {lane.SEAL_VALIDATOR_RELPATH} == \
+        {relpath for relpath in unit if relpath.startswith(schemas)}
 
 
 # ---------------------------------------------------------------------------
@@ -263,6 +570,13 @@ def test_the_manifest_carries_every_field_the_child_reads(corpus, tmp_path):
     assert manifest["recipe_path"] == lane.RECIPE_DOCKERFILE_PATH
     assert manifest["recipe_relpath"] == lane.SEAL_RECIPE_RELPATH
     assert manifest["corpus_relpath"] == lane.SEAL_CORPUS_RELPATH
+    assert manifest["validator_relpath"] == lane.SEAL_VALIDATOR_RELPATH
+    assert manifest["validator_relpath"] in manifest["files"]
+    assert manifest["validator_schema_count"] == 1        # the stub unit's one
+    assert manifest["validator_revision"] is None         # the stub has no tree
+    assert manifest["validator_probe"] == {
+        "kind": lane.VALIDATOR_PROBE["kind"],
+        "outcome": snapshot_mod.VALIDATED, "returncode": 0}
     assert manifest["digest_algorithm"] == "sha256"
     assert manifest["decision"]["reason"] == lane.REASON_CORPUS_MOVED
     assert (seal / manifest["recipe_relpath"]).read_text(encoding="utf-8") \
@@ -684,23 +998,152 @@ def test_verify_refuses_a_schema_version_it_cannot_read(corpus, tmp_path):
 def test_verify_refuses_a_seal_without_the_validator_or_the_recipe(corpus, tmp_path):
     seal = tmp_path / "seal"
     manifest = _seal(corpus, seal)
-    validator_key = f"{lane.SEAL_CORPUS_RELPATH}/{lane.VALIDATOR_SEAL_PATH}"
+    validator_key = lane.SEAL_VALIDATOR_RELPATH
     manifest["files"].pop(validator_key)
     manifest["files"].pop(lane.SEAL_RECIPE_RELPATH)
     (seal / lane.SEAL_MANIFEST_NAME).write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     problems = lane.verify_seal(seal)
-    assert any(validator_key in problem for problem in problems)
+    assert any(validator_key in problem and "could not run" in problem
+               for problem in problems)
     assert any("build recipe" in problem for problem in problems)
 
 
+def test_verify_refuses_the_1x_layout_that_sealed_the_validator_in_the_corpus(
+        corpus, tmp_path):
+    """A 1.x seal carried its validator INSIDE the corpus, at
+    `openxFactory/scripts/validate-ideation-dashboard-contracts.py`, and
+    declared no `validator_relpath`. The reference intake reads a 2.x seal
+    only, and says which of the two it was handed: a validator at the old
+    place satisfies nothing, and the old major refuses by name."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    # Rebuilt as a COHERENT 1.x seal: the script moved to the old place, the
+    # `validator/` root gone, the index and the tree digest recomputed. So the
+    # only thing wrong with it is the layout itself.
+    old_place = f"{lane.SEAL_CORPUS_RELPATH}/{lane.VALIDATOR_SCRIPT_PATH}"
+    (seal / old_place).parent.mkdir(parents=True, exist_ok=True)
+    shutil.move(str(seal / lane.SEAL_VALIDATOR_RELPATH), str(seal / old_place))
+    shutil.rmtree(seal / lane.SEAL_VALIDATOR_ROOT)
+    manifest["files"] = lane.seal_file_index(seal)
+    manifest["tree_digest"] = lane.tree_digest(manifest["files"])
+    for field in ("validator_relpath", "validator_revision",
+                  "validator_schema_count", "validator_probe"):
+        del manifest[field]                         # 2.x-only fields
+    manifest["schema_version"] = "1.0.0"
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    schemas = f"{lane.SEAL_VALIDATOR_ROOT}/{lane.VALIDATOR_SCHEMAS_PATH}/"
+    assert lane.verify_seal(seal) == [
+        "manifest schema_version '1.0.0' is not readable by this reader "
+        f"({lane.SEAL_SCHEMA_VERSION})",
+        f"validator_relpath is None, expected {lane.SEAL_VALIDATOR_RELPATH!r}",
+        f"the seal does not carry {lane.SEAL_VALIDATOR_RELPATH} — strict "
+        "validation could not run",
+        f"the seal indexes no schema under {schemas} — strict validation "
+        "could not run",
+        f"validator_schema_count is None, but the seal indexes 0 schema(s) "
+        f"under {schemas}",
+        f"the seal does not carry {schemas}{lane.VALIDATOR_SNAPSHOT_SCHEMA}, "
+        "the schema the child validates against",
+        "validator_probe is None — the manifest does not record that the "
+        "sealed validator ran to a verdict",
+    ]
+    assert lane.SEAL_SCHEMA_VERSION.split(".", 1)[0] == "2"
+
+
+def _rewrite_coherently(seal: Path, manifest: dict) -> None:
+    """Rewrite `manifest.json` after a tamper, with the files index and the
+    tree digest recomputed, so the only thing wrong is what the tamper did."""
+    manifest["files"] = lane.seal_file_index(seal)
+    manifest["tree_digest"] = lane.tree_digest(manifest["files"])
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+@pytest.mark.parametrize("tamper", ["schemas-removed", "count-disagrees",
+                                    "snapshot-schema-renamed",
+                                    "probe-unavailable"])
+def test_verify_refuses_a_validator_unit_that_is_not_whole(corpus, tmp_path,
+                                                           tamper):
+    """The intake requires the UNIT, not only its script (Copilot review of
+    #1162). The script alone exits 2 before it reads a snapshot. Each tamper is
+    made COHERENT, with the index and the tree digest recomputed, so a digest
+    check alone would pass it. The problems asserted are exactly what the
+    tamper did."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    assert lane.verify_seal(seal) == []
+    schemas_dir = seal / lane.SEAL_VALIDATOR_ROOT / lane.VALIDATOR_SCHEMAS_PATH
+    if tamper == "schemas-removed":
+        shutil.rmtree(schemas_dir)
+    elif tamper == "count-disagrees":
+        manifest["validator_schema_count"] = 5
+    elif tamper == "snapshot-schema-renamed":
+        (schemas_dir / lane.VALIDATOR_SNAPSHOT_SCHEMA).rename(
+            schemas_dir / "some-other.schema.yaml")
+    else:
+        manifest["validator_probe"] = dict(
+            manifest["validator_probe"],
+            outcome=snapshot_mod.VALIDATOR_UNAVAILABLE)
+    _rewrite_coherently(seal, manifest)
+    schemas = f"{lane.SEAL_VALIDATOR_ROOT}/{lane.VALIDATOR_SCHEMAS_PATH}/"
+    no_snapshot_schema = (
+        f"the seal does not carry {schemas}{lane.VALIDATOR_SNAPSHOT_SCHEMA}, "
+        "the schema the child validates against")
+    expected = {
+        "schemas-removed": [
+            f"the seal indexes no schema under {schemas} — strict validation "
+            "could not run",
+            f"validator_schema_count is 1, but the seal indexes 0 schema(s) "
+            f"under {schemas}",
+            no_snapshot_schema],
+        "count-disagrees": [
+            f"validator_schema_count is 5, but the seal indexes 1 schema(s) "
+            f"under {schemas}"],
+        "snapshot-schema-renamed": [no_snapshot_schema],
+        "probe-unavailable": [
+            f"validator_probe is {manifest['validator_probe']!r} — the "
+            "manifest does not record that the sealed validator ran to a "
+            "verdict"],
+    }[tamper]
+    assert lane.verify_seal(seal) == expected
+
+
+def test_verify_refuses_a_validator_revision_that_is_not_a_full_revision(
+        corpus, tmp_path):
+    """Null is what a unit with no product tree records, and it verifies. A
+    revision that IS recorded must be a full one. The seal refuses to write
+    anything else, so a manifest carrying anything else was not written by
+    it."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    assert manifest["validator_revision"] is None
+    assert lane.verify_seal(seal) == []
+    manifest["validator_revision"] = "abc1234"
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    assert lane.verify_seal(seal) == [
+        "validator_revision is 'abc1234', expected a full commit revision or "
+        "null"]
+
+
 # ---------------------------------------------------------------------------
-# the seal speaks git, and only git
+# the seal speaks git, and only git, beside one run of the sealed validator
 # ---------------------------------------------------------------------------
 
-def test_the_seal_speaks_only_git_and_never_builds_or_pushes(corpus, tmp_path):
+@pytest.mark.parametrize("resolve_validator", [_STUB, None],
+                         ids=["stub-unit", "the-real-resolver"])
+def test_the_seal_speaks_only_git_and_never_builds_or_pushes(corpus, tmp_path,
+                                                             resolve_validator):
+    """Every shell-out through the seal's runner is `git`: the archive, the two
+    revision reads and, with the real resolver, the product revision the
+    sealed validator came from. The one run of the sealed validator is not a
+    runner call; `test_the_one_run_is_of_the_sealed_copy_over_the_probe` pins
+    it."""
     runner = RecordingRunner()
-    _seal(corpus, tmp_path / "seal", runner=runner)
+    _seal(corpus, tmp_path / "seal", runner=runner,
+          resolve_validator=resolve_validator)
     assert runner.calls, "the seal made no subprocess call at all"
     for argv in runner.calls:
         assert argv[0] == "git", argv
