@@ -459,26 +459,160 @@ branch diff.
       already cited at § 3.4. **NO ROW MOVED — confirmed this time by direct
       re-run of all five commands at the landing head, not by an argument about
       which files changed since `5e08ff1d`.**
-- [ ] 4.4 `pytest-suite` green on the realization pull request at its merge head.
-      **NOTED, 2026-09-23, left `- [ ]` rather than ticked**: `pytest-suite` is
-      GREEN on this pull request's own head `c2d4309b` — run `35896651067`
+- [x] 4.4 `pytest-suite` green on the realization pull request at its merge head.
+      **NOTED, 2026-09-23, insufficient alone to tick this box**: `pytest-suite`
+      is GREEN on this pull request's own head `c2d4309b` — run `35896651067`
       (https://github.com/opensoft/openxFactory/actions/runs/35896651067),
       22m31s — `317 passed` among the other packages this workflow also runs.
       This box's own words ask for green "at its MERGE head", which is main's
       head after the landing squash and not this branch's own pre-merge head;
-      the tick is the archive act's, from main's green run at the landed merge,
-      per the coordinator's standing instruction for this box.
+      the box is ticked below from main's green run at the landed merge, per
+      the coordinator's standing instruction for this box.
+      **TICKED AT THE ARCHIVE ACT, 2026-09-23, ON `main`'s OWN RUN AT THE MERGE
+      HEAD.** `pytest-suite` is GREEN on `main` at
+      `5e122388d489378ea3e768de7f1de678f97e62e6` — run `35907128216`
+      (https://github.com/opensoft/openxFactory/actions/runs/35907128216), event
+      `push`, `completed` / `success`, 2026-09-23T19:06:54Z → 19:29:29Z,
+      re-read with `gh run view 35907128216 --json
+      headSha,conclusion,status,url` rather than carried. **THAT COMMIT IS THE
+      MERGE HEAD ITSELF, NOT A DESCENDANT OF IT**: PR #1119 landed by SQUASH as
+      `5e122388` (`gh pr view 1119 --json mergeCommit` →
+      `5e122388d489…`, merged 2026-09-23T19:06:49Z), so the run decided exactly
+      the tree the landing produced and no containment leg is owed. **THE HEAD
+      THE NOTE ABOVE NAMES IS NOT THE HEAD #1119 MERGED FROM, AND THAT IS
+      CORRECTED HERE RATHER THAN LEFT TO BE FOUND**: `c2d4309b` was followed
+      by two `tasks.md`-only commits, `2858747b` and `5d44003c`, and
+      `5d44003c` is the head the squash took (`gh pr view 1119 --json
+      headRefOid` → `5d44003cc35d…`). `pytest-suite` is green there too — run
+      `35904638873` (https://github.com/opensoft/openxFactory/actions/runs/35904638873),
+      `success`, 2026-09-23T18:45:12Z → 19:03:50Z — beside every other check
+      run at that head (`success`, `Sourcery review` `skipped`). Both readings
+      of "at its merge head" hold, and the tick is taken from `main`'s own
+      run, the stricter of the two.
 
-## 5. Archive (OPEN; a separate act on a separate word)
+## 5. Archive (PERFORMED 2026-09-23 on merged-plus-green evidence, on Brett Heap's archive word)
 
-- [ ] 5.1 **(OPERATOR)** `code_surface` is NON-EMPTY, so under `release-realization`
+- [x] 5.1 **(OPERATOR)** `code_surface` is NON-EMPTY, so under `release-realization`
       this packet archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE and not on
       this landing. The archive is a separate pull request on a separate word.
-- [ ] 5.2 **(OPERATOR)** Promote the `## MODIFIED` block and the two `## ADDED`
+      **THE EVIDENCE IS IN HAND, 2026-09-23, AND EVERY LEG IS CITED RATHER THAN
+      ASSERTED.** (i) THE PACKET landed as PR
+      [#1101](https://github.com/opensoft/openxFactory/pull/1101) →
+      `344ad3c7bc0b662a99590c836e4c91edcc77b3cf` on `main`,
+      2026-09-18T18:51:59Z, on Brett Heap's *"ratify #1101"*, and the row-3
+      amendment as PR [#1130](https://github.com/opensoft/openxFactory/pull/1130)
+      → `0f23341fcf8c04ea234a57632c5ff321bc47c0f8`, 2026-09-21T22:01:50Z, on
+      his *"Drop the pin admission on row 3"*. (ii) **§ 3's REALIZATION**
+      landed as PR [#1119](https://github.com/opensoft/openxFactory/pull/1119)
+      → `5e122388d489378ea3e768de7f1de678f97e62e6` on `main`,
+      2026-09-23T19:06:49Z, by SQUASH from head `5d44003c`, on his *"land
+      #1119"* (RULED in `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at
+      2026-09-23T16:34:17Z). (iii) **THE GREEN HALF AT CANON'S GRAIN**:
+      `pytest-suite` SUCCESS on `main` AT `5e122388` itself, run
+      [`35907128216`](https://github.com/opensoft/openxFactory/actions/runs/35907128216),
+      2026-09-23T19:29:29Z (§ 4.4). `344ad3c7` → `0f23341f` → `5e122388` is
+      an ancestry chain, each leg checked with `git merge-base --is-ancestor`.
+      **THE OPERATOR HALF IS GIVEN, AND IT IS BRETT HEAP'S WORD, NOT THIS
+      LANE'S DECISION**: verbatim *"archive it when the draft is up"*, given in
+      the lane's terminal on 2026-09-23 — before the 20:58:43Z pause and
+      repeated at the 21:03Z resume — and RULED in `opensoft/brett-wip`
+      `lanes/log/openXfactory-5.md` at 2026-09-23T21:04:55Z against openxFactory
+      #1087 (brett-wip commit `837f44cf`; the NOTED correction of that line's
+      clock at 21:05:39Z, commit `3d01aa9b`). The archive pull request is
+      opened as a DRAFT and lands by MERGE COMMIT, never squash, once it is
+      green and Copilot-clean, so this directory's date keeps matching its
+      adding commit.
+- [x] 5.2 **(OPERATOR)** Promote the `## MODIFIED` block and the two `## ADDED`
       requirements onto `openspec/specs/release-realization/spec.md` at that
       archive, and at that archive only.
-- [ ] 5.3 **(OPERATOR)** Close openxFactory #1087 THERE, by a closing keyword
+      **DONE THROUGH THE GOVERNED WRAPPER, NEVER A BARE `openspec archive`**, in
+      the commit that moves this directory:
+      `TZ=UTC python3 scripts/proposal-support.py . archive add-estate-repository-inventory --yes`,
+      exit **0**. Its decisive lines: `ORIGIN RETAINED
+      add-estate-repository-inventory (declaration unchanged since the ACCEPTED
+      mutation 0f23341fcf8c, dispositioned accept by Brett Heap (openxFactory
+      repository owner) on 2026-09-21; ratifying commit 344ad3c7bc0b)`;
+      `Totals: 1 passed, 0 failed (1 items)`; `Task status: Complete`;
+      `Applying changes to openspec/specs/release-realization/spec.md: + 2
+      added, ~ 1 modified`; `Totals: + 2, ~ 1, - 0, -> 0`; `Change
+      'add-estate-repository-inventory' archived as
+      '2026-09-23-add-estate-repository-inventory'`; `OK openspec-cli-pin:
+      @fission-ai/openspec@1.12.0 verified against its content address and
+      every target validated --strict clean`; `NO SUPPORTING DOCS ... (origin
+      retained, nothing to package)`. The CLI is the content-addressed pinned
+      1.12.0 artifact and NOT the 1.13.1 on `PATH`; `--path-mode` was not used;
+      `--date` was not passed, so the wrapper took today in UTC.
+      **THE ARCHIVE DIRECTORY IS
+      `openspec/changes/archive/2026-09-23-add-estate-repository-inventory/`**,
+      named for the UTC day of the wrapper run and of the commit that adds it,
+      which is what `archive-date-vs-commit` measures.
+      **ORIGIN RETAINED THROUGH A RECORDED ACCEPTANCE, WHICH IS STATED HERE
+      RATHER THAN LEFT TO A READER OF THE WRAPPER'S OUTPUT.** Without it the
+      gate REFUSES: the `origin:` block differs from the one at the ratifying
+      commit `344ad3c7` in exactly one key, `approved_by`, to which PR #1130
+      (`0f23341f`) APPENDED the ten-line paragraph recording Brett Heap's fifth
+      word, *"Drop the pin admission on row 3"* — a pure addition, no line of
+      the block moved. RESTORING the ratified bytes would delete that record,
+      so the archive act adds ONE `accept` entry to
+      `openspec/origin-dispositions.yaml`, in the shape of that file's first
+      entry (whose accepted declaration is likewise the ratifier's own later
+      word): both commits in full, `changed_keys: [approved_by]`, the verbatim
+      word and its citations.
+      **THE PROMOTED TEXT IS THE DELTA AS WRITTEN, MEASURED ON BOTH SIDES AND
+      NOT EYEBALLED**, each block extracted programmatically by its
+      `### Requirement:` heading from the archived delta and from canon and
+      hashed. `openspec/specs/release-realization/spec.md` is the ONLY
+      capability this delta touches:
+      the `## MODIFIED` block *Code-surface declaration grammar is gated*
+      REPLACES canon's block — before 15,665 bytes / 184 lines / 11 scenarios
+      (sha256 `e8477c2a5d7e74b0…`), after **15,971 bytes / 207 lines / 11
+      scenarios, sha256 `2b9a75d6bf836c8e…` on BOTH the archived delta and
+      canon**; *The estate's repositories are enumerated in a governed
+      inventory* is ADDED — **8 scenarios, 12,297 bytes / 160 lines, sha256
+      `3020c2c916df22bb…` on both**; *A declared repository is judged for
+      membership against the estate inventory* is ADDED — **9 scenarios, 7,712
+      bytes / 108 lines, sha256 `8189458612a21dcb…` on both**.
+      `release-realization` requirement count **19 -> 21** and scenario count
+      **105 -> 122** (-11 +11 +8 +9, re-taken with `grep -c` from canon rather
+      than copied forward); the other EIGHTEEN requirement blocks are
+      unmoved as requirement text — SEVENTEEN byte-identical before and
+      after, hashed one by one, and the eighteenth, the former last block
+      *A symlink-loop proof is built at test time and never committed*,
+      gaining exactly one trailing blank separator line now that two blocks
+      follow it where none did before; `--numstat` **+312
+      -19**, and `-w` reads the same, so no changed line is whitespace-only.
+      THE CLI DID NOT DIVERGE FROM THE DELTA and no block was corrected by hand.
+      **ONE CONSEQUENCE OF "THE DELTA AS WRITTEN" IS STATED RATHER THAN LEFT TO
+      BE FOUND.** Canon's `**AMENDED BY**` paragraph for
+      `amend-code-surface-grammar-comma-and` was QUALIFIED in canon after this
+      block was ratified (PR #1112's round-3 fix, `35afdc3f`, 2026-09-21); this
+      block carries that paragraph as #1108's RATIFIED delta states it,
+      byte-for-byte, on the ruling *"#1101 declares #1108 and folds its text"*,
+      so the promotion restores the ratified wording and canon no longer
+      carries the round-3 qualification. That paragraph is the one unit the
+      `modified-block-currency` arm reported as uncarried by this ACTIVE block
+      (1 of 66, `info`), and its `_LEDGER_SUBJECTS` row in
+      `tests/doc-health/test_modified_block_currency_self_gate.py` retires at
+      this archive on its own stated condition. Re-applying the qualification
+      would edit ratified text after the word, which is not this act's to do;
+      it is named in the archive pull request for the ratifier.
+- [x] 5.3 **(OPERATOR)** Close openxFactory #1087 THERE, by a closing keyword
       written in the archive pull request and in no commit message on this branch.
+      **THE INSTRUMENT IS PLACED, AND THE TICK RECORDS THE PLACING AND NEVER
+      THAT THE ISSUE IS SHUT.** The closing keyword naming openxFactory #1087 is
+      written as its own line in the BODY of the archive pull request that
+      carries this commit, and in NO other place; #1087 shuts on the MERGE of
+      that pull request — the landing lane's act on Brett Heap's archive word,
+      RULED in `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at
+      2026-09-23T21:04:55Z against #1087 — and at no earlier act. **AND NO
+      COMMIT MESSAGE CARRIES A CLOSING KEYWORD, SCANNED RATHER THAN ASSUMED**:
+      a case-insensitive Python `re` scan for any of `close`, `closes`,
+      `closed`, `fix`, `fixes`, `fixed`, `resolve`, `resolves`, `resolved`
+      followed by an optional colon and an issue reference returns **0**
+      matches over this branch's commit messages, over the 22 commits of the
+      realization pull request #1119, and over its squash commit `5e122388`.
+      Every other issue and pull-request number in those messages and in the
+      archive pull request's body is a `Refs`-style naming and shuts nothing.
 
 ## 6. Measured and NOT taken (OPEN; successors, not work owed)
 

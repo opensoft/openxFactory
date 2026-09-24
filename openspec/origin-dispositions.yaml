@@ -39,3 +39,43 @@ dispositions:
       anyone else; every other origin key (`kind`, `id`, `reason`,
       `proposed_by`, `proposed_on`, `related`) is unmoved, as measured by the
       gate.
+  - change_id: add-estate-repository-inventory
+    ratified_at: 344ad3c7bc0b662a99590c836e4c91edcc77b3cf
+    mutation_at: 0f23341fcf8c04ea234a57632c5ff321bc47c0f8
+    changed_keys: [approved_by]
+    disposition: accept
+    disposed_by: Brett Heap (openxFactory repository owner)
+    disposed_on: "2026-09-21"
+    word: >-
+      "Drop the pin admission on row 3" — Brett Heap's fifth word on this
+      packet, 2026-09-21 at approximately 20:30Z, a MULTIPLE-CHOICE selection
+      in the lane's terminal to lane `openxfactory-5` taking the recommended
+      option, recorded verbatim as the RULED line "Drop the pin admission on
+      row 3 (Brett Heap, 2026-09-21 ~20:30Z, terminal multichoice, recommended
+      option): amend add-estate-repository-inventory design.md D0.2 row 3 to
+      gitlink + workflow only, the pin kind's definition unchanged; encode as
+      a ratified-text amendment PR on the packet on main, then re-class the
+      inventory row in #1119 and resolve its thread".
+    cited_to:
+      - opensoft/brett-wip lanes/log/openXfactory-5.md line 144 — the RULED line for that word, 2026-09-21T20:28:46Z, against opensoft/openxFactory#1087 (brett-wip commit efc84511bab5d70d5545afa490a7dcd265cfae4b)
+      - https://github.com/opensoft/openxFactory/pull/1130 (merge 0f23341fcf8c04ea234a57632c5ff321bc47c0f8) — the ratified-text amendment that encoded the word, appending it to `approved_by`
+      - openspec/changes/archive/2026-09-23-add-estate-repository-inventory/review/ratification-2026-09-18.md § 7 — the full record of the word and of every site it was encoded at, `.openspec.yaml` `approved_by` among them
+      - opensoft/brett-wip lanes/log/openXfactory-5.md line 167 — Brett Heap's archive word "archive it when the draft is up", RULED 2026-09-23T21:04:55Z against opensoft/openxFactory#1087 (brett-wip commit 837f44cf9dd0aa913e48b52bb2f5c097eef396ae), the act under which this entry is written
+    fact: >-
+      The ratifying commit 344ad3c7 (PR #1101's squash landing, the first
+      commit whose `proposal.md` declares `Status: ratified`) carried an
+      `approved_by` recording the first four words of 2026-09-18. The fifth
+      word, three days later, re-ruled ONE row of `design.md` D0.2 and nothing
+      under `openspec/specs/`; PR #1130 (`0f23341f`) encoded it and APPENDED a
+      ten-line paragraph recording that word to `approved_by` — a pure
+      addition, no existing line of the block moved, `approved_on` unmoved.
+      The accepted declaration is therefore the ratifier's own later word,
+      recorded, and not an edit by anyone else; every other origin key
+      (`kind`, `id`, `reason`, `proposed_by`, `proposed_on`, `approved_on`) is
+      unmoved, as measured by the gate. No entry was written at #1130's
+      landing: the archive gate first compared this packet's origin block with
+      its ratifying commit at the archive act on 2026-09-23 and refused, and
+      this entry is written then, in the archive pull request, in the shape of
+      this file's first entry, whose accepted declaration is likewise the
+      ratifier's own later word. RESTORING the ratified bytes instead would
+      delete the only origin-block record of that word.
