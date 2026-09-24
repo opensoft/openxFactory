@@ -1,6 +1,12 @@
 # Design: admit-code-leg-under-pinned-root
 
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-09-24, approximately 16:52Z — verbatim "(a)
+recommended for both, ratify when the draft is green", given in the lane's
+terminal (no GitHub comment carries it; RULED entry against
+`opensoft/openxFactory#1150` in `lanes/log/openXfactory-5.md` at commit
+`536b7ecf`); condition (the draft head green) met at head
+`f9e3d01124ccdc35dc5686b68ea54cfba25aade3`, 2026-09-24 ~20:17Z
 
 For: openxFactory [#1150](https://github.com/opensoft/openxFactory/issues/1150)
 Lane: openxfactory-5 (openXfactory-5)

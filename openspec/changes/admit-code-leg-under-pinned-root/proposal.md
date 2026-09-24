@@ -6,7 +6,15 @@ sequenced_after: []
 
 # Proposal: admit-code-leg-under-pinned-root
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-24, approximately 16:52Z by Brett Heap (openxFactory
+repository owner) — verbatim *"(a) recommended for both, ratify when the
+draft is green"*, given in the lane's terminal to lane `openxfactory-5`
+(session `d7c51922`); no GitHub comment carries the word, which the lane
+recorded as a `RULED` entry against `opensoft/openxFactory#1150` in
+`opensoft/brett-wip` `lanes/log/openXfactory-5.md` at commit `536b7ecf`; the
+condition (the draft head green) was MET at head `f9e3d01124ccdc35dc5686b68ea54cfba25aade3`,
+2026-09-24 ~20:17Z.
 
 Proposed: 2026-09-24, in lane `openxfactory-5` (display `openXfactory-5`),
 session `d7c51922`, in answer to openxFactory
@@ -16,18 +24,28 @@ this lane before authoring (2026-09-24T16:36:12Z). This lane realized the
 inventory the packet widens (#1119 -> `5e122388`) and archived its packet
 (#1149 -> `dd2466ad`).
 
-**A CONDITIONAL RATIFYING WORD HAS BEEN GIVEN, AND ITS CONDITION IS NOT YET
-MET.** Brett Heap (openxFactory repository owner), 2026-09-24, approximately
-16:52Z, verbatim *"(a) recommended for both, ratify when the draft is green"*,
-given in the lane's terminal to lane `openxfactory-5` (session `d7c51922`)
-BEFORE this pull request existed, and recorded as a `RULED` entry against
-`opensoft/openxFactory#1150` in `opensoft/brett-wip` `lanes/log/openXfactory-5.md`
-(commit `536b7ecf`). The word RULES the shape now — option **(a)**,
-`design.md` D1 — and ratifies this packet when its draft head is green; it is
-otherwise bare, so D4 and D6 take their recommended options when it applies.
-Until the condition is met `Status: draft` stands and `tasks.md` § 1 is
-unticked. Nothing is promoted, realized or archived by this filing or by that
-word.
+**RATIFIED 2026-09-24, approximately 16:52Z, by Brett Heap, verbatim "(a)
+recommended for both, ratify when the draft is green"**, given in the lane's
+terminal to lane `openxfactory-5` (session `d7c51922`) BEFORE this pull
+request existed, and recorded as a `RULED` entry against
+`opensoft/openxFactory#1150` in `opensoft/brett-wip`
+`lanes/log/openXfactory-5.md` (commit `536b7ecf`). The word RULES D1 = option
+**(a)** (`design.md` D1) and is otherwise bare, so D4 and D6 take their
+recommended options. **THE CONDITION — the draft head green — WAS MET at
+head `f9e3d01124ccdc35dc5686b68ea54cfba25aade3`, 2026-09-24 ~20:17Z**: every
+check-run `completed` with no failure (14 of 14, including `pytest-suite` run
+36051629236, selected=8862 passed=8856 skipped=6 failures=0 errors=0),
+Copilot's review present at that exact head (submitted 20:01:12Z, 0 new
+findings), and zero unresolved review threads (`tasks.md` § 1.4). **NOTHING
+IS PROMOTED, REALIZED OR ARCHIVED BY THIS FILING OR BY THAT WORD:** no file
+under `openspec/specs/` is edited, the realization (§ 3) is a LATER pull
+request the word now authorizes to be authored, and the archive (§ 5) is a
+separate act on a separate word and on merged-plus-green evidence. No merge
+word is quoted here: the verbatim word is "(a) recommended for both, ratify
+when the draft is green" and nothing further; the register entry's own
+reading of what follows ratification is the LANE'S READING and not more
+words of Brett Heap's, and the merge of this pull request is a separate act
+performed by whoever holds it, never by this lane alone.
 
 Origin: openxFactory
 

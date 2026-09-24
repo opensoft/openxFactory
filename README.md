@@ -535,11 +535,13 @@ Active changes:
 
 - [admit-code-leg-under-pinned-root](openspec/changes/admit-code-leg-under-pinned-root/proposal.md)
   — filed 2026-09-24, lane `openxfactory-5` (display `openXfactory-5`),
-  **`Status: draft`**, its shape RULED and its ratification CONDITIONAL: Brett
-  Heap, 2026-09-24, approximately 16:52Z, verbatim *"(a) recommended for both,
-  ratify when the draft is green"* (a `RULED` entry against #1150 in
-  `opensoft/brett-wip` `lanes/log/openXfactory-5.md`, commit `536b7ecf`);
-  `tasks.md` § 1 stays unticked until that condition is checked at a named head.
+  **`Status: ratified`** (2026-09-24, approximately 16:52Z, Brett Heap,
+  *"(a) recommended for both, ratify when the draft is green"*, a `RULED`
+  entry against #1150 in `opensoft/brett-wip` `lanes/log/openXfactory-5.md`
+  at commit `536b7ecf`; the word names option (a) for D1 and is otherwise
+  bare, so D4 and D6 take their recommended options; CONDITIONAL on the draft
+  head being green, MET at head `f9e3d01124ccdc35dc5686b68ea54cfba25aade3`,
+  2026-09-24 ~20:17Z). `tasks.md` § 1 is ticked.
   Answers openxFactory [#1150](https://github.com/opensoft/openxFactory/issues/1150),
   CLAIMED by this lane before authoring: the estate inventory cannot record a
   code leg nested under a pinned assembly root, so a `code_surface:` cannot name

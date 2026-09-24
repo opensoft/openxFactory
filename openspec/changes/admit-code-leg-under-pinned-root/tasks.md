@@ -1,20 +1,25 @@
 # Tasks: admit-code-leg-under-pinned-root
 
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-09-24, approximately 16:52Z — verbatim "(a)
+recommended for both, ratify when the draft is green", given in the lane's
+terminal (no GitHub comment carries it; RULED entry against
+`opensoft/openxFactory#1150` in `lanes/log/openXfactory-5.md` at commit
+`536b7ecf`); condition (the draft head green) met at head
+`f9e3d01124ccdc35dc5686b68ea54cfba25aade3`, 2026-09-24 ~20:17Z
 
 Lane: openxfactory-5 (openXfactory-5)
 For: openxFactory [#1150](https://github.com/opensoft/openxFactory/issues/1150)
 
 **WHAT IS OPEN AND WHAT IS CLOSED.** § 2 is CLOSED and was done in this pull
-request. § 1 is Brett Heap's: his word of 2026-09-24 RULES D1 and ratifies the
-packet on a condition this draft has not yet met, so § 1 stays unticked until
-that condition is checked at a named head. §§ 3, 4, 5 and 6 stay OPEN. § 3 is a
-LATER pull request, which the ratifying word authorizes to be authored. § 5 is
-a SEPARATE act on a SEPARATE word.
+request. **§ 1 IS NOW CLOSED TOO, by Brett Heap's word of 2026-09-24 and by no
+lane's decision.** §§ 3, 4, 5 and 6 stay OPEN. § 3 is a LATER pull request,
+which that word authorizes to be authored. § 5 is a SEPARATE act on a
+SEPARATE word.
 
 ## 1. Ratification — Brett Heap's and nobody else's
 
-- [ ] 1.1 **(OPERATOR)** Ratify or refuse `proposal.md` § *The decision, put for
+- [x] 1.1 **(OPERATOR)** Ratify or refuse `proposal.md` § *The decision, put for
       a veto*, which puts THREE decisions with the recommendation first:
       **D1** the shape — (a) a `gitlink` whose carrier may be a `pinned` row
       admitted by exactly one `pin`, read at the commit that pin names; against
@@ -25,28 +30,40 @@ a SEPARATE act on a SEPARATE word.
       the enumeration requirement alone (against also modifying the membership
       requirement). A BARE RATIFYING WORD takes the packet as encoded, which is
       the recommendation in all three.
-      **WORD GIVEN, CONDITION NOT YET MET.** Brett Heap, 2026-09-24,
-      approximately 16:52Z, verbatim *"(a) recommended for both, ratify when
-      the draft is green"*, given in the lane's terminal to lane
-      `openxfactory-5` (session `d7c51922`) BEFORE this pull request existed,
-      and recorded as a `RULED` entry against `opensoft/openxFactory#1150` in
-      `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at commit `536b7ecf`.
-      It names option (a) for D1 — encoded now at `design.md` D1 — and is
-      otherwise bare, so D4 and D6 take the recommended option when it applies.
-      Its ratifying clause applies only when § 1.4's condition is met.
-- [ ] 1.2 **(OPERATOR)** The ratifying word authorizes the REALIZATION (§ 3) to be
+      **RATIFIED — Brett Heap, 2026-09-24, approximately 16:52Z, verbatim
+      *"(a) recommended for both, ratify when the draft is green"***, given in
+      the lane's terminal to lane `openxfactory-5` (session `d7c51922`) BEFORE
+      this pull request existed, and recorded as a `RULED` entry against
+      `opensoft/openxFactory#1150` in `opensoft/brett-wip`
+      `lanes/log/openXfactory-5.md` at commit `536b7ecf`. The word RULES D1 =
+      option (a), encoded at `design.md` D1, and is otherwise bare, so D4 and
+      D6 take the recommended option. **THE CONDITION WAS MET** at head
+      `f9e3d01124ccdc35dc5686b68ea54cfba25aade3`, 2026-09-24 ~20:17Z (§ 1.4).
+      **DONE** in this same commit: `proposal.md`, `design.md` and this file
+      take `Status: ratified` with a citation line each, and `.openspec.yaml`
+      gains `approved_by`/`approved_on` ADDED BESIDE the unmoved
+      `proposed_by`/`proposed_on` (drafting provenance untouched).
+- [x] 1.2 **(OPERATOR)** The ratifying word authorizes the REALIZATION (§ 3) to be
       authored as a later pull request. It does not authorize the archive,
       which § 5 governs and which owes its own word on merged-plus-green
       evidence. No merge word is quoted anywhere in this packet: the landing of
       this pull request is a separate act performed by whoever holds it.
-- [ ] 1.3 **(OPERATOR)** If D6 is vetoed toward also modifying the membership
+      **SATISFIED BY THE WORD ITSELF.** The word reaches exactly § 3 (may now
+      be authored, as a later pull request) and not § 5, which stays closed
+      behind merged-plus-green realization evidence and its own word.
+- [x] 1.3 **(OPERATOR)** If D6 is vetoed toward also modifying the membership
       requirement, a second `## MODIFIED` block restating *A declared
       repository is judged for membership against the estate inventory* with
       the third NOT RE-CHECKED case named in its bound sentence and in *An
       inventory row nothing names* is added, and nothing else in the packet
       changes; `design.md` D6 states it so the veto is takeable without a
       re-author.
-- [ ] 1.4 **(OPERATOR — THE CONDITION.)** "When the draft is green" is checked
+      **NOT TRIGGERED.** D6 was not vetoed: the word is otherwise bare and
+      takes the recommended option, so the ONE `## MODIFIED` block over the
+      enumeration requirement alone stands, and no second `## MODIFIED` block
+      over the membership requirement is added. Nothing in the packet moved
+      under this clause.
+- [x] 1.4 **(OPERATOR — THE CONDITION.)** "When the draft is green" is checked
       at a NAMED HEAD of this pull request, not asserted: every check-run on
       that head `completed` with no failure, Copilot's review present AT THAT
       HEAD, and zero unresolved review threads. Only then is the ratification
@@ -54,6 +71,14 @@ a SEPARATE act on a SEPARATE word.
       `design.md` and this file, the approval pair ADDED to `.openspec.yaml`
       beside the unmoved drafting provenance, and the README bullet re-worded —
       naming the head the condition was met at.
+      **MET at head `f9e3d01124ccdc35dc5686b68ea54cfba25aade3`, 2026-09-24
+      ~20:17Z.** All 14 check-runs on that head `completed`/`success`
+      (`pytest-suite` run 36051629236: selected=8862 passed=8856 skipped=6
+      failures=0 errors=0, the last to complete, at 20:16:59Z); Copilot's
+      review present AT THAT HEAD (`copilot-pull-request-reviewer`, submitted
+      20:01:12Z, commit.oid `f9e3d01124ccdc35dc5686b68ea54cfba25aade3`, 0 new
+      findings); zero unresolved review threads (`PRRT_kwDOTAvnrs6lr36I`
+      resolved). The ratification is applied in this same commit.
 
 ## 2. Measurement (CLOSED in this pull request)
 
