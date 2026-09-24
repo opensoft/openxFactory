@@ -2,7 +2,7 @@
 
 **Feature Branch**: `034-opendox-standalone-operation`
 **Created**: 2026-09-24
-**Status**: Draft
+Status: draft
 **Clarifications**: 11 of the 23 clarify questions are answered, including
 every question phase 1 needed. 12 are open, and phases 2–3 are PROVISIONAL
 until they are answered.

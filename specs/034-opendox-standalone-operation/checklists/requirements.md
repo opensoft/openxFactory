@@ -1,5 +1,7 @@
 # Specification Quality Checklist: openDox standalone operation (release 1)
 
+Status: draft
+
 **Purpose**: check that the specification is complete and of good quality
 before implementation starts.
 **Created**: 2026-09-24

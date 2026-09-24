@@ -1,5 +1,7 @@
 # Quickstart: running AT-R1, release 1's acceptance
 
+Status: draft
+
 **Feature**: [`spec.md`](./spec.md) § "AT-R1" defines the test.
 T095 automates the HTTP half as a harness in openDox-code's own `acceptance`
 CI job, which has no database service. T096 runs the browser half on the host.

@@ -1,12 +1,14 @@
 # Clarify questions — 034-opendox-standalone-operation (round 1)
 
+Status: draft
+
 **Feature**: `034-opendox-standalone-operation` — release 1 ("standalone
 operation", phases 1–3) of the ratified OpenSpec change
 `add-neutral-product-standalone-operability` (#1144).
 **Lane**: `openxfactory-4`. **Raised**: 2026-09-24, while planning, before any
 code.
 
-**Status: 11 ANSWERED, 12 OPEN.**
+**Answer state: 11 ANSWERED, 12 OPEN.**
 
 - **ANSWERED** (R1Q1–R1Q9, R1Q20, R1Q22: every question phase 1 needed).
   RULED 2026-09-24T15:31:46Z by Brett Heap, interactive in the lane session,

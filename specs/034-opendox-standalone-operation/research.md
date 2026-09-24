@@ -1,5 +1,7 @@
 # Research: 034-opendox-standalone-operation
 
+Status: draft
+
 **Feature**: [`spec.md`](./spec.md) · **Plan**: [`plan.md`](./plan.md) ·
 **Questions**: [`clarify-questions.md`](./clarify-questions.md)
 

@@ -1,5 +1,7 @@
 # Tasks: openDox standalone operation (release 1)
 
+Status: draft
+
 **Input**: [`spec.md`](./spec.md), [`plan.md`](./plan.md), [`research.md`](./research.md),
 [`clarify-questions.md`](./clarify-questions.md), and #1144's ratified
 `openspec/changes/add-neutral-product-standalone-operability/tasks.md`, which
@@ -385,11 +387,18 @@ script exists. openxFactory is unchanged in behaviour.
     re-derived censuses must match.
 - [ ] T035 [US1] [oDc] **Empty the root `conftest.py`'s `collect_ignore`**
   (seven modules; research R4).
-  - The six that import `openxdox` become openXdox-code `tests/integration/`
-    tests (T042), or are rewritten as neutral tests. A module whose imports
-    reach `doc_health` cannot run there in release 1, and F9.2 runs every file
-    in `tests/integration/`. Such a module is declared in T041's exclusion,
-    with its reason, instead (R1Q6 (d)).
+  - The six that import `openxdox` each leave `collect_ignore` in one of two
+    ways:
+    - rewritten in place as a neutral openDox test that imports no sibling;
+    - or removed from openDox-code in this PR, and re-landed by T042 in
+      openXdox-code's `tests/integration/`. A module whose imports reach
+      `doc_health` cannot run there in release 1, because F9.2 runs every file
+      in `tests/integration/`. It goes into T041's declared exclusion, with its
+      reason, instead (R1Q6 (d)).
+  - This PR's body lists each removed module with its destination. T042 lands
+    exactly that list, and T049 checks that every listed module is in
+    openXdox-code, so none is dropped from both suites (requirement 9, second
+    scenario).
   - `test_session_harness.py` runs a script only openxFactory has. It is
     either rewritten, or moves to openxFactory as a NAMED composition test
     (R1Q2 (a)). In the second case, its path joins F11.1's named set through a
@@ -489,8 +498,9 @@ script exists. openxFactory is unchanged in behaviour.
 - [ ] T042 [US1] [oXc] **9.3: `tests/integration/`.**
   - Add the 31-entry assembled `--help` tree:
     `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_31_entry_tree_the_manifest_records`.
-  - Add those of T035's relocated modules that run without `doc_health`. The
-    others are in T041's declared exclusion (R1Q6 (d)).
+  - Add those of T035's relocated modules that run without `doc_health`,
+    exactly as T035's PR body lists them. The others are in T041's declared
+    exclusion (R1Q6 (d)).
   - Each test names the pin it composes at.
   - The tree stays at 31 entries because a host that registers its own
     profile does not get the default's runtime verbs (R1Q5 (a)).
@@ -595,6 +605,8 @@ script exists. openxFactory is unchanged in behaviour.
     with the database DSN exported), and F9.2;
   - `opendox --help`;
   - F4.1's scan, which must list only `openxdox` targets;
+  - every module T035 removed, found in openXdox-code's `tests/integration/`
+    or in its declared exclusion;
   - T018's interim F11.1 output.
 
   Tick nothing; T097 ticks.
