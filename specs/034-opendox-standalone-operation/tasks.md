@@ -1173,7 +1173,8 @@ Every release-1 box, with the task that closes it:
   T069 for phase 3. It encodes the phase's answers, re-plans the phase and
   re-runs analyze before any other task of that phase starts.
 - **Phase 1**: lanes A–E run in parallel, subject to plan.md's single-writer
-  table for `serve.py` and `cli.py`. They join at T032 and then run
+  table (`serve.py`, `cli.py`, `workbench.py`, `pyproject.toml` and
+  `tests/test_authoring_seam.py` in phase 1). They join at T032 and then run
   T034 → T035 → T036 → T037. T031 co-lands in T036's PR. T039 then pins
   openDox's phase-1 commit in the openDox root, after T022, T032, T037 and
   T038. openXdox-code follows: T040 → T041 → T042 → T043 → T044. T047 moves
@@ -1195,7 +1196,7 @@ Every release-1 box, with the task that closes it:
 
 | phase | runs in parallel | is serialized |
 |---|---|---|
-| 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; T020 → T025 and T026 → T025; T032 → T037; T039 (root pin) → openXdox (T040–T044) → T047 → T017, T018 |
+| 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; `pyproject.toml` (T038 → T036); `tests/test_authoring_seam.py` (T020 → T022); T020 → T025 and T026 → T025; T032 → T037; T039 (root pin) → openXdox (T040–T044) → T047 → T017, T018 |
 | 2 | T050 ∥ T052 ∥ T057 (∥ T053) | T054 → T055 → T056 → T058; T062 → T059 → T064; ratchet writers |
 | 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T075 ∥ T088 | `serve.py` (T073 before T084); `doxbench_binding.py` (T078 → T080); T085 → T081; T087 → T086 → T094 |
 

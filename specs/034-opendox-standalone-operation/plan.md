@@ -200,7 +200,7 @@ it"*), `serve.py:629` is routed in phase 2 along with the snapshot source.
 T001–T008 (holder: claims, ARC_BASE, round 1a, re-measure, analyze, #1144 amendments, the direction arc)
                               │
  PHASE 1  [oDc]  A: T010→T011→T012 (serve.py)     B: T015→T016 (profile)
-                 C: T020→T021→T022 (adapter)      D: T025, T026, T027 (seams)
+                 C: T020→T021→T022 (adapter)      D: T026→T025, T027 (seams; T025 also after T020)
                  E: T030 (the import test; lands with T011)
                         └───────── join ─────────┘
                  T032 (2.3 sweep) → T034 (repair 9 files) → T035 → T036 (+ T031) → T037
@@ -228,7 +228,7 @@ T001–T008 (holder: claims, ARC_BASE, round 1a, re-measure, analyze, #1144 amen
 
 ## Parallel slices, and the files only one writer may touch at a time
 
-Writers run in parallel when they share no file. Five surfaces are
+Writers run in parallel when they share no file. The surfaces below are
 SINGLE-WRITER: at most one open slice may edit each, and a slice that needs one
 rebases onto the previous slice's landing before it opens. The phase-2 and
 phase-3 entries are provisional: T009 and T069 re-derive them from the file
@@ -238,6 +238,9 @@ lists of the re-planned tasks.
 |---|---|
 | `src/opendox/serve.py` | T010 (`build_server`'s bases) → T011 → T012 → (T016, T022 one-line entry-point calls) → T055 → T073 → T084 |
 | `src/opendox/cli.py` | T016/T022 entry-point registration → T038 → T055 → T084 |
+| `src/opendox/workbench.py` | T026 → T025 (both in P1-E) |
+| openDox-code `pyproject.toml` | T038 (`[project.scripts]`) → T036 (`testpaths`, and the `test` extra); T069 re-derives phase 3's packaging edits (R1Q16) |
+| openDox-code `tests/test_authoring_seam.py` | T020 → T022 |
 | openXdox-code `tests/test_dependency_direction.py` (the ratchet) | T040 (it moves the pin and leaves the ratchet unchanged) → T059 → T086 |
 | openDox root `code` gitlink, `contracts/code-pin.yaml`, workflow `@sha` | one commit per phase (T039, T062, T087), each after that phase's last openDox-code landing |
 | openxFactory pin pairs | one openxFactory PR per phase (T047, T064, T094), each also carrying that phase's host wiring |
