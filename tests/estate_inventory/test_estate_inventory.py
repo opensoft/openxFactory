@@ -2194,7 +2194,9 @@ def test_a_DUPLICATE_former_across_two_COMPLETE_rows_refuses_the_whole_file(
 # fails-then-passes obligation. A refusal case would pass on a bare "it
 # raises", because the unwidened loader refuses EVERY pinned carrier — so each
 # one asserts the CONDITION its refusal names, and loads the lawful shape beside
-# it, which is exactly what the unwidened loader cannot do.
+# it, which is exactly what the unwidened loader cannot do. Within this section
+# `design.md` and `tasks.md` are that change's own, not
+# `add-estate-repository-inventory`'s.
 # ==============================================================================
 
 _PINNED_ROOT = "opensoft/openDox"
@@ -2575,6 +2577,46 @@ def test_a_carrier_pin_naming_NO_COMMIT_or_one_the_tree_LACKS_leaves_the_leg_NOT
         assert "1 NOT RE-CHECKED" in result.stdout, result.stdout
         assert _ROOT_PIN in result.stdout, result.stdout
         assert needle in result.stdout, (needle, result.stdout)
+
+
+def test_a_pinned_carriers_tree_that_does_NOT_VERIFY_is_NOT_RECHECKED(tmp_path):
+    """The added paragraph's first step, which the scenario's WHEN presupposes:
+    "the tree supplied for it SHALL FIRST be verified as the carrier on exactly
+    the terms above" — and the carried scenario *A gitlink row is re-checked
+    only against a supplied tree*, taken for the carrier that is newly lawful.
+    Every earlier verification case supplies a GOVERNED carrier, so none of them
+    shows that the pinned read cannot skip the binding.
+
+    CONTENT-ADDRESSING FIXES WHAT A COMMIT SAYS, NOT WHOSE TREE WAS SUPPLIED. A
+    tree whose own origin names another repository is refused as the carrier
+    even while its object store holds the very commit the pin names, whose
+    `.gitmodules` names the leg — a path is an assertion and not an identity
+    ("Bind the carrier identity"). The leg is NOT RE-CHECKED and counted, the
+    report naming the carrier expected and what the tree is; and the SAME tree,
+    once its origin says it is the carrier, NAMES the leg at that commit, so
+    the refusal is the binding's and not the read's.
+    """
+    impostor = _worktree(tmp_path, "git@github.com:opensoft/Innocent.git",
+                         name="impostor")
+    pinned = _commit_gitmodules(impostor, [_LEG], "the commit the pin names")
+    _pin_file(tmp_path, pinned)
+    inventory = _inventory(tmp_path, [_pinned_root_row(), _leg_row()])
+    result = _run_inventory(tmp_path, inventory,
+                            "--estate-tree", f"{_PINNED_ROOT}={impostor}")
+    assert result.returncode == 0, result.stdout
+    assert "0 named in a VERIFIED supplied tree" in result.stdout
+    assert "0 absent from one" in result.stdout
+    assert "1 NOT RE-CHECKED" in result.stdout
+    assert f"is a checkout of opensoft/Innocent, not of {_PINNED_ROOT}" \
+        in result.stdout
+    assert pinned not in result.stdout  # the pinned commit was never read
+
+    _git_out(impostor, "remote", "set-url", "origin", _ROOT_ORIGIN)
+    result = _run_inventory(tmp_path, inventory,
+                            "--estate-tree", f"{_PINNED_ROOT}={impostor}")
+    assert result.returncode == 0, result.stdout
+    assert "1 named in a VERIFIED supplied tree" in result.stdout
+    assert pinned in result.stdout
 
 
 def test_the_live_inventory_carries_the_FOUR_legs_of_the_two_pinned_roots():

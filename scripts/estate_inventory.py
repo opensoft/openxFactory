@@ -61,6 +61,30 @@ tree is UNVERIFIED and the row NOT RE-CHECKED — never verified against a
 stranger. WHETHER THE TRANSFER MAP SHOULD CARRY THE HOST is a question about
 that contract member and is not taken here.
 
+A PINNED ASSEMBLY ROOT CARRIES A `gitlink` TOO, BUT ONLY AS FAR AS openxFactory's
+OWN PIN REACHES (`admit-code-leg-under-pinned-root`, openxFactory #1150, shape
+(a) ruled by Brett Heap 2026-09-24). The governed carrier is unchanged; beside
+it a `pinned` row admitted by EXACTLY ONE `pin` may carry, because there the act
+of admission is openxFactory's pin — a file under `contracts/` fixing the root at
+one commit and one whole-tree digest — and the root's gitlink is the site that
+pin reaches. `load_inventory` refuses every other carrier BY NAME
+(`_pinned_carrier_refusal`): an `external` one, a `pinned` one no pin admits or
+several do, and a row a pinned root itself admits, so the reach ends ONE HOP
+from an openxFactory pin; and a row a pinned root admits may not declare
+`governance: governed`. THE BINDING TO THE PINNED COMMIT IS WHAT MAKES THAT
+SOUND. `pinned_commit` reads the commit from the carrier's one pin in THIS
+checkout, and `gitmodules_addresses_at` reads the root's `.gitmodules` AS OF
+THAT COMMIT out of the supplied tree's own object store — never its working
+files, never another revision — so what decides membership is the tree
+openxFactory chose to consume, and a root's own main line moving changes nothing
+until openxFactory re-pins. AND THAT READ REFUSES EVERY TRANSPORT: an
+object-store read in a partial clone would otherwise fetch a missing blob from
+its promisor remote (that change's `design.md` D0.6), so every `git` this
+module runs is given a protocol allow-list naming none, and a tree that cannot
+answer locally leaves the row NOT RE-CHECKED rather than fetched.
+`carrier_members` puts the two reads together for a verified tree, and reads a
+governed carrier from its working tree exactly as before.
+
 RESOLUTION IS BY THE ROW AND NEVER BY THE PROVIDER. An `<owner>/<name>` head
 resolves against a row's address; a BARE head resolves against a row's unique
 bare name; a FORMER address resolves through the transfer map. None of the three
@@ -98,7 +122,8 @@ the scanned tree; and no path this module opens is reached through a symlink, at
 the leaf or at any ancestor (`load_inventory`, `_has_symlinked_ancestor`,
 `_unescaped`).
 
-Deterministic: text/YAML reads only, no model calls, no writes, no network.
+Deterministic: text/YAML reads and local git reads only, no model calls, no
+writes, no network.
 """
 
 from __future__ import annotations
@@ -268,6 +293,39 @@ _INDEXED_GIT_CONFIG_ENVIRONMENT = re.compile(r"GIT_CONFIG_(?:KEY|VALUE)_[0-9]+")
 #: the submodule URLs a carrier's `.gitmodules` carries.
 _GITMODULES_URL_RE = re.compile(r"^\s*url\s*=\s*(\S+)\s*$")
 
+#: A COMMIT A PIN MAY NAME FOR A PINNED CARRIER TO BE READ AT, AND AN OBJECT ID
+#: THE READ WILL FOLLOW: exactly 40 hex, case-insensitive and lowercased before
+#: use — the shape `scripts/verify-opendox-pin.py::COMMIT_RE` accepts and
+#: nothing looser. An abbreviated oid, a branch or a tag names no revision this
+#: reader may read at without resolving a movable name, which is a network
+#: question, and the one answer it has for that is NOT RE-CHECKED. Applied with
+#: `fullmatch`, because `$` also matches before a trailing newline.
+COMMIT_RE = re.compile(r"^[0-9a-fA-F]{40}$")
+
+#: THE PROTOCOL ALLOW-LIST EVERY `git` THIS MODULE RUNS IS GIVEN: one naming NO
+#: transport. A set `GIT_ALLOW_PROTOCOL` IS the whole allow-list — git consults
+#: no `protocol.*.allow` config beside it — so a list naming none refuses every
+#: transport even where the repository's own config allows them all, and a
+#: lazy fetch from a partial clone's promisor remote FAILS instead of reaching
+#: the network. MEASURED (`admit-code-leg-under-pinned-root`'s `design.md` D0.6,
+#: and again on this branch's git, `2.43.0-1ubuntu7.3`): `fatal: transport
+#: 'file' not allowed`, exit 128, and the blob still absent after. `none` names
+#: no transport git carries and no remote helper this estate installs.
+#:
+#: `GIT_NO_LAZY_FETCH=1` RIDES BESIDE IT AND IS NOT THE GUARD. A git that
+#: honours it declines the lazy fetch before any transport is consulted, and one
+#: that predates it ignores it: this branch's git HONOURS it (`warning: lazy
+#: fetching disabled`, exit 128, the blob still absent), where that D0.6
+#: recorded a 2.43.0 that fetched anyway. The allow-list is the refusal every
+#: git this estate runs honours, so it is the one the tests prove holds ALONE.
+_NO_TRANSPORT = "none"
+
+#: THE MODES A COMMIT'S `.gitmodules` ENTRY MAY CARRY TO BE READ: a regular file.
+#: A SYMLINK (`120000`) is refused, as `gitmodules_addresses` refuses a symlinked
+#: working-tree `.gitmodules` — its blob is a link target and not the carrier's
+#: submodule list — and so is a gitlink or a tree standing at that path.
+_GITMODULES_MODES = ("100644", "100755")
+
 # --- the per-admission verdicts ----------------------------------------------
 #
 # NAMED and GONE are the two answers a run that HAS LOOKED may give. NOT
@@ -403,6 +461,49 @@ class CarrierCheck:
     #: The identity the tree asserts, normalized, or None when none was read.
     observed: str | None
     detail: str
+
+
+@dataclass(frozen=True)
+class PinnedCommit:
+    """The ONE revision a PINNED carrier's evidence is read at, or why there is
+    none. NEVER RAISED, ALWAYS RETURNED (`pinned_commit`).
+
+    A pin that names no commit leaves the row NOT RE-CHECKED rather than failed
+    (the scenario *A pinned root's gitlink is re-checked at its pinned commit*),
+    so the one thing a caller needs back is the commit or the sentence saying
+    why there is none, and a raise would turn a pin written by tag into a
+    stopped run.
+    """
+    #: The carrier row's one `pin` admission's path, as the row records it, or
+    #: None when the row carries no single pin to read from.
+    pin: str | None
+    #: Exactly 40 hex, lowercased, or None when the pin names no commit.
+    commit: str | None
+    detail: str
+
+
+@dataclass(frozen=True)
+class CarrierMembers:
+    """What a supplied tree that VERIFIED as its carrier says that carrier
+    carries, and WHERE it was read (`carrier_members`). NEVER RAISED.
+
+    `addresses` None is NOT an absence: it is a run that could not read the
+    evidence, which the requirement reports NOT RE-CHECKED, counted and neither
+    passed nor failed. An EMPTY tuple is an answer — the carrier's
+    `.gitmodules`, where it was read, names no submodule at all.
+    """
+    carrier: str
+    addresses: tuple[str, ...] | None
+    #: The evidence's site as a finding names it: "its `.gitmodules`" for a
+    #: governed carrier's working tree, and the pinned commit and its pin for a
+    #: pinned one.
+    where: str
+    #: The pinned commit read at, for a pinned carrier whose pin names one.
+    commit: str | None = None
+    #: The pin that commit is read from, for a pinned carrier.
+    pin: str | None = None
+    #: Why `addresses` is None; empty when it is not.
+    detail: str = ""
 
 
 # --- the containment guards, mirrored and not approximated ---------------------
@@ -955,29 +1056,117 @@ def load_inventory(path: Path = INVENTORY_PATH) -> Inventory:
                 raise EstateInventoryError(
                     f"row {row.position} ({row.repository}) is admitted by a "
                     f"gitlink in `{admission.carrier}`, which THIS INVENTORY "
-                    "CARRIES NO ROW FOR. The kind is a GOVERNED ESTATE "
-                    "REPOSITORY's `.gitmodules`, so the carrier is itself a "
-                    "member of the estate and the inventory is where the "
-                    "estate's members are written down; a carrier no row names "
-                    "is a tree this file cannot say the estate has, and a "
-                    "re-check pointed at it would discharge one row on the "
-                    "word of a repository nothing admits. Add the carrier's "
-                    "own row, or record the naming act that really happened")
-            if carrier_row.governance != "governed":
-                raise EstateInventoryError(
-                    f"row {row.position} ({row.repository}) is admitted by a "
-                    f"gitlink in `{admission.carrier}`, whose own row "
-                    f"{carrier_row.position} declares "
-                    f"`governance: {carrier_row.governance}`. THE KIND SAYS "
-                    "GOVERNED and means it: a `pinned` repository is one this "
-                    "estate consumes at a commit and digest and authors none "
-                    "of, and an `external` one is not of this estate at all, "
-                    "so neither performs an ACT OF ADMISSION when its "
-                    "`.gitmodules` happens to name something. Reading their "
-                    "submodule lists as admissions would let a tree nobody "
-                    "here writes decide who is in the estate")
+                    "CARRIES NO ROW FOR. The kind's carrier is a GOVERNED "
+                    "ESTATE REPOSITORY, or a PINNED ROOT openxFactory pins, so "
+                    "the carrier is itself a member of the estate and the "
+                    "inventory is where the estate's members are written down; "
+                    "a carrier no row names is a tree this file cannot say the "
+                    "estate has, and a re-check pointed at it would discharge "
+                    "one row on the word of a repository nothing admits. Add "
+                    "the carrier's own row, or record the naming act that "
+                    "really happened")
+            if carrier_row.governance == "governed":
+                continue  # the estate's own act of admission: the wide case
+            refusal = _pinned_carrier_refusal(row, carrier_row,
+                                              seen_addresses)
+            if refusal is not None:
+                raise EstateInventoryError(refusal)
 
     return Inventory(rows=tuple(rows), path=path)
+
+
+def _pinned_carrier_refusal(row: Row, carrier_row: Row,
+                            by_address: dict[str, Row]) -> str | None:
+    """Why `row`'s `gitlink` in the NON-GOVERNED `carrier_row` is refused, or
+    None when the carrier is a lawful PINNED ROOT and `row` a lawful row of it.
+
+    THE KIND'S SECOND CARRIER, AND EXACTLY AS FAR AS IT REACHES. "A PINNED
+    ASSEMBLY ROOT's `.gitmodules` IS A CARRIER TOO, read AT THE COMMIT
+    openxFactory's own `pin` of that root names: there the act of admission is
+    openxFactory's pin, and the root's gitlink is the site that pin reaches"
+    (`admit-code-leg-under-pinned-root`'s `## MODIFIED` block). The loader's
+    old sentence — "Reading their submodule lists as admissions would let a
+    tree nobody here writes decide who is in the estate" — is ANSWERED rather
+    than overridden: the tree that decides is the one openxFactory CHOSE to
+    consume, at the one commit its pin fixes (that change's `design.md` D2).
+    Every clause below is the narrowest that keeps that true (the same
+    design's D3 and D4), and each refusal names the row, the carrier and the
+    condition, as the scenario *A gitlink names a carrier outside the two
+    lawful forms* requires:
+
+    - `external`: "An `external` repository's `.gitmodules` SHALL admit
+      nothing, whatever openxFactory pins of it."
+    - ONE HOP: "a row a pinned root's gitlink admits MUST NOT itself carry a
+      further row's gitlink". CHECKED DIRECTLY and FIRST, and not left to the
+      pin count below: a leg is ordinarily a `pinned` row no pin admits, which
+      the count refuses too, but the MUST is over EVERY row a pinned root
+      admits — a leg that also carried a pin of its own would pass the count.
+    - EXACTLY ONE `pin`: "the commit that pin names is the one revision the
+      evidence is read at, and two pins of one root would make that revision a
+      pick." No pin names no revision at all.
+    - THE CLASS BOUND: "A row admitted by a pinned root's `gitlink` SHALL NOT
+      declare `governance: governed`" — the `pin` kind's own bound, above,
+      restated for the site a pin reaches.
+    """
+    carrier = carrier_row.repository
+    where = (f"row {row.position} ({row.repository}) is admitted by a gitlink "
+             f"in `{carrier}`, whose own row {carrier_row.position}")
+    if carrier_row.governance == "external":
+        return (
+            f"{where} declares `governance: external`. AN `external` "
+            "REPOSITORY'S `.gitmodules` ADMITS NOTHING, whatever openxFactory "
+            "pins of it: an `external` repository is not of this estate at "
+            "all, so it performs no act of admission when its `.gitmodules` "
+            "happens to name something, and reading its submodule list as one "
+            "would let a tree nobody here writes decide who is in the estate. "
+            "A `gitlink` carrier is a `governed` row, or a `pinned` assembly "
+            "root openxFactory pins exactly once")
+    # `pinned`, the one class left: `GOVERNANCE_CLASSES` is closed at the load.
+    roots = sorted(
+        admission.carrier for admission in carrier_row.admitted_by
+        if admission.kind == GITLINK and admission.carrier is not None
+        and admission.carrier in by_address
+        and by_address[admission.carrier].governance == "pinned")
+    if roots:
+        return (
+            f"{where} is itself admitted by a gitlink in the pinned root "
+            f"`{roots[0]}`. THE REACH ENDS ONE HOP FROM AN openxFactory PIN: "
+            "a row a pinned root's gitlink admits carries no further row's "
+            "gitlink, because openxFactory reaches it only through its pin of "
+            "that root, and following the chain would rest membership on a "
+            "walk of trees no openxFactory file names")
+    pins = [admission.path for admission in carrier_row.admitted_by
+            if admission.kind == PIN and admission.path is not None]
+    if not pins:
+        return (
+            f"{where} declares `governance: pinned` and is admitted by NO "
+            "`pin`. A PINNED ROOT CARRIES A `gitlink` ONLY AS FAR AS "
+            "openxFactory's OWN PIN REACHES: the commit that pin names is the "
+            "one revision the root's `.gitmodules` is read at, and a `pinned` "
+            "row no openxFactory pin fixes names no revision at all, so its "
+            "submodule list would decide membership at whatever its tree "
+            "happens to hold. Record the pin that admits it, or the naming act "
+            "that really happened")
+    if len(pins) > 1:
+        return (
+            f"{where} declares `governance: pinned` and is admitted by "
+            f"{len(pins)} `pin`s ({', '.join(pins)}). A PINNED ROOT'S "
+            "`.gitmodules` IS READ AT THE COMMIT ITS ONE `pin` NAMES: with "
+            f"{len(pins)}, which commit the evidence is read at would be a "
+            "pick, and picking is how an authorization lands in the wrong "
+            "repository")
+    if row.governance == "governed":
+        return (
+            f"row {row.position} ({row.repository}) is admitted by a gitlink "
+            f"in the pinned root `{carrier}` (row {carrier_row.position}) and "
+            "declares `governance: governed`. A ROW A PINNED ROOT'S GITLINK "
+            "ADMITS SHALL NOT DECLARE `governance: governed`: openxFactory "
+            "reaches it only through its pin of the root, at the commit that "
+            "pin fixes, and authors none of it, which is what a `pin`-admitted "
+            "row is too — and a `governed` row admitted by a `pin` is refused "
+            "at this same load. Declare `pinned`, or `external` for a "
+            "repository this estate does not author")
+    return None
 
 
 # --- resolution ---------------------------------------------------------------
@@ -1391,6 +1580,17 @@ def _sanitized_git_environment() -> dict[str, str]:
     read either — nothing this module asks git for needs them, and an ambient
     `remote.origin.url` rewrite or `url.<base>.insteadOf` would otherwise reach
     the one read the carrier binding rests on.
+
+    AND EVERY TRANSPORT IS REFUSED (`_NO_TRANSPORT`), because since
+    `admit-code-leg-under-pinned-root` this module reads OBJECTS and not only
+    config: `gitmodules_addresses_at` reads a pinned root's `.gitmodules` blob
+    out of a supplied tree's object store, and in a partial clone that read
+    would otherwise fetch a missing object from the promisor remote — the
+    network call the requirement forbids ("THE READ SHALL MAKE NO NETWORK
+    CALL"). The refusal is on for EVERY call and not for that read alone: a
+    config read never needs a transport, and a guard that is always on cannot
+    be left off the next call somebody adds. `GIT_NO_LAZY_FETCH` rides beside
+    it for a git that honours it; the allow-list is what holds.
     """
     environment = {
         name: value for name, value in os.environ.items()
@@ -1401,6 +1601,8 @@ def _sanitized_git_environment() -> dict[str, str]:
     environment["GIT_CONFIG_SYSTEM"] = os.devnull
     environment["GIT_CONFIG_NOSYSTEM"] = "1"
     environment["GIT_NO_REPLACE_OBJECTS"] = "1"
+    environment["GIT_ALLOW_PROTOCOL"] = _NO_TRANSPORT
+    environment["GIT_NO_LAZY_FETCH"] = "1"
     return environment
 
 
@@ -1412,7 +1614,9 @@ def _git(tree: Path, *arguments: str) -> str | None:
     estate's own number (`scripts/hermes_runtime_validation/content.py`,
     `scripts/report-citation-remainder.py`): a partial clone, a promisor remote
     or an unhealthy object store can make a read BLOCK rather than fail, and an
-    unbounded one would hang a required check instead of reporting.
+    unbounded one would hang a required check instead of reporting. With every
+    transport refused (`_sanitized_git_environment`) a promisor fetch FAILS at
+    once rather than blocking; the bound stays for the store that hangs anyway.
     """
     try:
         result = subprocess.run(
@@ -1569,6 +1773,19 @@ def gitmodules_addresses(tree: Path) -> tuple[str, ...] | None:
         text = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError, RuntimeError):
         return None
+    return _gitmodules_url_addresses(text)
+
+
+def _gitmodules_url_addresses(text: str) -> tuple[str, ...]:
+    """The repositories a `.gitmodules` TEXT names, in first-seen order.
+
+    ONE PARSE FOR BOTH READS. A carrier's working-tree `.gitmodules`
+    (`gitmodules_addresses`) and a pinned root's `.gitmodules` blob at its
+    pinned commit (`gitmodules_addresses_at`) are read by this one function, so
+    a leg's `https://` URL and a carrier's `git@` origin go through the same
+    `_GITMODULES_URL_RE` and the same `normalize_origin`, and the two reads
+    cannot come to disagree about what one line of the file names.
+    """
     found: list[str] = []
     for line in text.splitlines():
         match = _GITMODULES_URL_RE.match(line)
@@ -1578,3 +1795,226 @@ def gitmodules_addresses(tree: Path) -> tuple[str, ...] | None:
         if address is not None and address not in found:
             found.append(address)
     return tuple(found)
+
+
+# --- the pinned carrier: its commit, and its `.gitmodules` AT that commit -----
+
+
+def pinned_commit(carrier_row: Row, repo_root: Path) -> PinnedCommit:
+    """The commit a PINNED carrier's evidence is read at, from its ONE `pin` in
+    THIS checkout, or the reason there is none. NEVER RAISES.
+
+    "the row's evidence SHALL then be the carrier's `.gitmodules` AS OF THE
+    COMMIT the carrier's `pin` names" (`admit-code-leg-under-pinned-root`). The
+    pin is openxFactory's own file under `contracts/`, so it is read from the
+    tree this run is judging — never from the supplied tree, whose bytes this
+    estate did not write — and through THE HOUSE STRICT LOADER, as the pin's
+    in-tree evidence re-check reads it, so the two reads of one pin cannot
+    disagree about what it says.
+
+    ONE REVISION OR NONE, IN `scripts/verify-opendox-pin.py::_pinned_commit`'S
+    SHAPE AND NOTHING LOOSER: `revision_kind: commit` and a `commit:` of
+    exactly 40 hex, lowercased. A tag, a branch or an abbreviated oid names no
+    revision this reader may read at without resolving a movable name, and
+    resolving one is a network question; so each is a REASON, and the caller's
+    one verdict for it is NOT RE-CHECKED, naming the pin.
+
+    AND THE PIN MUST STILL NAME THE CARRIER. A pin whose source moved to another
+    repository records that repository's commit, not this carrier's; reading
+    the carrier at it would read a revision nobody pinned. The row's in-tree
+    `pin` re-check reports that pin GONE on the same run.
+    """
+    pins = [admission.path for admission in carrier_row.admitted_by
+            if admission.kind == PIN and admission.path is not None]
+    if len(pins) != 1:
+        return PinnedCommit(
+            pin=None, commit=None,
+            detail=f"`{carrier_row.repository}` is admitted by {len(pins)} "
+                   "`pin`s, not exactly one, so no one pin names the commit "
+                   "its `.gitmodules` is read at")
+    pin = pins[0]
+    path = _unescaped(repo_root, Path(pin))
+    if path is None or not path.is_file():
+        return PinnedCommit(
+            pin=pin, commit=None,
+            detail=f"this tree carries no `{pin}` to read "
+                   f"`{carrier_row.repository}`'s pinned commit from")
+    try:
+        document = fm.strict_load(path.read_text(encoding="utf-8"), what=pin)
+    except (OSError, UnicodeDecodeError, fm.StrictFrontMatterError,
+            yaml.YAMLError, ValueError) as exc:
+        return PinnedCommit(
+            pin=pin, commit=None,
+            detail=f"`{pin}` cannot be read through the strict loader "
+                   f"({exc}), so it names no commit to read at")
+    if not _pin_names_repository(document, carrier_row.repository):
+        return PinnedCommit(
+            pin=pin, commit=None,
+            detail=f"`{pin}` no longer names `{carrier_row.repository}` as its "
+                   "source, so the commit it records is not that carrier's")
+    assert isinstance(document, dict)  # `_pin_names_repository` requires it
+    revision_kind = document.get("revision_kind")
+    if revision_kind != "commit":
+        return PinnedCommit(
+            pin=pin, commit=None,
+            detail=f"`{pin}` declares `revision_kind: {revision_kind!r}`, not "
+                   "`commit`, so it names no commit to read "
+                   f"`{carrier_row.repository}`'s `.gitmodules` at; resolving "
+                   "a movable name would be a network read, and this run "
+                   "makes none")
+    commit = document.get("commit")
+    if not isinstance(commit, str) \
+            or COMMIT_RE.fullmatch(commit.strip()) is None:
+        return PinnedCommit(
+            pin=pin, commit=None,
+            detail=f"`{pin}` records `commit: {commit!r}`, which is not "
+                   "exactly 40 hex characters; an abbreviated oid, a branch "
+                   "or a tag names no one revision to read at")
+    commit = commit.strip().lower()
+    return PinnedCommit(pin=pin, commit=commit,
+                        detail=f"`{pin}` names {commit}")
+
+
+def _gitmodules_at(tree: Path,
+                   commit: str) -> tuple[tuple[str, ...] | None, str]:
+    """`(addresses, "")` for the `.gitmodules` `tree`'s object store holds at
+    `commit`, or `(None, why)` when it cannot produce it locally.
+
+    FOUR READS, EACH LOCAL, EACH THROUGH THE SANITIZED, TIME-BOUNDED `_git` —
+    so under the transport refusal a missing object is an ANSWER ("cannot
+    produce") and never a fetch:
+
+    1. `cat-file -t <commit>` — THE OBJECT IS A COMMIT, and not a tag, a tree or
+       a blob that happens to carry the oid the pin wrote; a tag would peel to
+       a commit nobody pinned.
+    2. `ls-tree --full-tree <commit> -- :(literal).gitmodules` — the entry at
+       the ROOT of that commit's tree, root-relative whatever prefix git
+       infers, the path a NAME and never pathspec magic: the idiom
+       `scripts/carved_reach.py::_tree_entry_absent` measured, where exit 0
+       with nothing printed is git's one unambiguous "no such entry".
+    3. THE ENTRY IS A REGULAR FILE (`_GITMODULES_MODES`): a symlink's blob is a
+       link target, not the carrier's submodule list, which is why
+       `gitmodules_addresses` refuses a symlinked working-tree `.gitmodules`.
+    4. `cat-file blob <oid>` — the bytes, exactly as the object store holds
+       them: no textconv, no attributes and no working file.
+
+    A commit whose tree carries NO `.gitmodules` answers `((), "")`: the root
+    names no submodule at the revision openxFactory consumes, so a leg the row
+    claims is ABSENT there, which is a finding and not a silence.
+    """
+    if not isinstance(commit, str) or COMMIT_RE.fullmatch(commit) is None:
+        return None, f"`{commit!r}` is not a 40-hex commit to read at"
+    commit = commit.lower()
+    cannot = ("its object store cannot produce {what} without a network call "
+              "— a partial clone missing the object, a shallow clone, or a "
+              "checkout that never fetched that commit")
+    kind = _git(tree, "cat-file", "-t", commit)
+    if kind is None:
+        return None, cannot.format(what=f"the commit {commit}")
+    if kind.strip() != "commit":
+        return None, (f"its object store holds {commit} as a "
+                      f"`{kind.strip()}`, not a commit")
+    listing = _git(tree, "ls-tree", "-z", "--full-tree", commit, "--",
+                   ":(literal).gitmodules")
+    if listing is None:
+        return None, cannot.format(what=f"the tree of {commit}")
+    records = [record for record in listing.split("\0") if record]
+    if not records:
+        return (), ""  # the commit's tree carries no `.gitmodules`: an answer
+    meta, tab, name = records[0].partition("\t")
+    fields = meta.split(" ")
+    if len(records) != 1 or not tab or name != ".gitmodules" \
+            or len(fields) != 3:
+        return None, (f"`git ls-tree` answered for `.gitmodules` at {commit} "
+                      "in a shape this reader does not take")
+    mode, object_type, oid = fields
+    if mode not in _GITMODULES_MODES or object_type != "blob":
+        return None, (f"at {commit} `.gitmodules` is a `{object_type}` of mode "
+                      f"{mode}, not a regular file, so its object is not the "
+                      "carrier's submodule list")
+    if COMMIT_RE.fullmatch(oid) is None:
+        return None, (f"`git ls-tree` named `.gitmodules` at {commit} by "
+                      f"`{oid}`, which is not a 40-hex object id")
+    blob = _git(tree, "cat-file", "blob", oid)
+    if blob is None:
+        return None, cannot.format(
+            what=f"the `.gitmodules` blob {oid} at {commit}")
+    return _gitmodules_url_addresses(blob), ""
+
+
+def gitmodules_addresses_at(tree: Path, commit: str) -> tuple[str, ...] | None:
+    """The repositories `tree`'s `.gitmodules` names AS OF `commit`, read out of
+    the tree's OWN OBJECT STORE — never its working files, never another
+    revision — or None when the store cannot produce it without the network.
+    NEVER RAISES, AND NEVER FETCHES.
+
+    "the row's evidence SHALL then be the carrier's `.gitmodules` AS OF THE
+    COMMIT the carrier's `pin` names, read out of the supplied tree's own object
+    store — never out of its working files, and never at another revision …
+    THE READ SHALL MAKE NO NETWORK CALL" (`admit-code-leg-under-pinned-root`).
+    The estate already reads a pin this way —
+    `scripts/verify-opendox-pin.py::_openxdox_derived_commit` reads openXdox's
+    own pin "as a git BLOB … never the openXdox working tree" — and this read
+    adds the one guard that sibling does not carry: every transport refused
+    (`_sanitized_git_environment`), because an object-store read in a partial
+    clone would otherwise FETCH the missing blob from its promisor remote
+    (`admit-code-leg-under-pinned-root`'s `design.md` D0.6).
+
+    `None` IS NOT AN ABSENCE. It is a store that could not answer — a partial
+    clone missing the object, a shallow clone, a checkout that never fetched
+    the pinned commit, an object that is not a commit, a `.gitmodules` that is
+    not a regular file — and the one verdict for it is NOT RE-CHECKED. An EMPTY
+    tuple is the answer that the commit's tree names no submodule at all.
+    `_gitmodules_at` carries the reason, for the report.
+    """
+    return _gitmodules_at(tree, commit)[0]
+
+
+def carrier_members(inventory: Inventory, carrier: str, tree: Path,
+                    repo_root: Path) -> CarrierMembers:
+    """What a supplied tree that VERIFIED as `carrier` says the carrier carries,
+    read WHERE THE REQUIREMENT SAYS TO READ IT. NEVER RAISES.
+
+    CALLED ONLY FOR A VERIFIED TREE: `carrier_identity` is the first step for
+    both carriers alike ("the tree supplied for it SHALL first be verified as
+    the carrier on exactly the terms above"), and it is not repeated here.
+
+    A GOVERNED CARRIER IS READ EXACTLY AS BEFORE, from its WORKING TREE
+    (`gitmodules_addresses`): openxFactory consumes no governed carrier at a
+    commit, so there is no revision to bind its evidence to
+    (`admit-code-leg-under-pinned-root`'s `design.md` D9) — and a supplied tree
+    whose carrier has no row at all, which no row's `gitlink` can then name, is
+    read the same way it always was.
+
+    A PINNED CARRIER IS READ AT THE COMMIT ITS PIN NAMES AND AT NO OTHER
+    REVISION: `pinned_commit` from its one pin in this checkout, then
+    `gitmodules_addresses_at` from the supplied tree's own object store. A pin
+    naming no commit, and a store that cannot produce that commit's
+    `.gitmodules` without a network call, each come back with `addresses` None
+    and a detail naming THE PIN AND THE COMMIT, which is what the scenario asks
+    the NOT RE-CHECKED report to name: a run that has looked at the wrong
+    revision has not looked.
+    """
+    row = inventory.by_address.get(carrier)
+    prefix = f"the working tree supplied for {carrier} verified, but "
+    if row is None or row.governance != "pinned":
+        addresses = gitmodules_addresses(tree)
+        return CarrierMembers(
+            carrier=carrier, addresses=addresses, where="its `.gitmodules`",
+            detail="" if addresses is not None
+            else prefix + "its `.gitmodules` could not be read")
+    pinned = pinned_commit(row, repo_root)
+    if pinned.commit is None:
+        return CarrierMembers(
+            carrier=carrier, addresses=None, pin=pinned.pin,
+            where="its `.gitmodules` at the commit its pin names",
+            detail=prefix + pinned.detail)
+    where = (f"its `.gitmodules` AT {pinned.commit}, THE COMMIT "
+             f"`{pinned.pin}` NAMES,")
+    addresses, why = _gitmodules_at(tree, pinned.commit)
+    return CarrierMembers(
+        carrier=carrier, addresses=addresses, where=where,
+        commit=pinned.commit, pin=pinned.pin,
+        detail="" if addresses is not None
+        else (f"{prefix}{why}; the commit is the one `{pinned.pin}` names, "
+              "and every transport is refused, so nothing was fetched"))

@@ -46,6 +46,19 @@ tree actually is. Failing the row on a mismatched tree was retained and DECLINED
 inventory, and it breaks this arm's own rule that a run which has looked in the
 wrong place has not looked.
 
+A PINNED CARRIER IS READ AT THE COMMIT ITS PIN NAMES, AND AT NO OTHER REVISION
+(`admit-code-leg-under-pinned-root`, openxFactory #1150). A `gitlink` may be
+carried by a `pinned` ASSEMBLY ROOT that openxFactory pins exactly once, and for
+such a carrier the supplied tree is verified exactly as above and then read at
+the commit the carrier's `pin` in THIS checkout names, out of the tree's own
+object store — never its working files, and never another revision, because
+openxFactory consumes the root at that commit and at no other. THE READ MAKES NO
+NETWORK CALL: every transport is refused, so a partial clone missing the object
+cannot fetch it. A pin naming no commit, and a tree that cannot produce that
+commit's `.gitmodules` locally, each leave the row NOT RE-CHECKED and COUNTED,
+the report naming the pin and the commit. A GOVERNED carrier is read exactly as
+before, from its working tree: openxFactory consumes none at a commit.
+
 Usage:
     validate-estate-inventory.py [REPO_ROOT] [--estate-tree REPO=PATH ...]
 
@@ -59,9 +72,10 @@ Usage:
             `workflow` or `change` this tree does not carry (or a `pin` whose
             file no longer names the repository), a still-provisional row whose
             change has ARCHIVED, or, where a VERIFIED tree was supplied, a
-            `gitlink` that tree's `.gitmodules` does not carry. The remedy is to
-            correct the evidence or to retire the row, never to widen what
-            counts as evidence.
+            `gitlink` that tree's `.gitmodules` does not carry — for a PINNED
+            carrier, its `.gitmodules` at the commit the carrier's pin names.
+            The remedy is to correct the evidence or to retire the row, never
+            to widen what counts as evidence.
     exit 2  the inventory cannot be USED — it is missing, reached through a
             symlink, refused by the strict loader, or malformed; two rows share
             a bare name, which REFUSES THE FILE rather than picking a row,
@@ -77,7 +91,9 @@ Usage:
         Supply the working tree of a repository that CARRIES a `gitlink`, so
         the rows admitted by a gitlink in REPO are re-checked in PATH. Repeat
         the flag for each carrier. The tree is verified as REPO before it is
-        read; one PATH per REPO.
+        read; one PATH per REPO. Where REPO's row is `pinned`, PATH is read at
+        the commit REPO's pin names, from PATH's own object store, and never
+        at its working files; its checkout may sit at any revision.
 
     --inventory PATH
         Read the inventory from PATH instead of from
@@ -159,13 +175,19 @@ def main(argv: list[str] | None = None) -> int:
     # The verification happens ONCE per carrier and not once per row: a tree is
     # one tree whatever it discharges, and re-reading it per row would let one
     # carrier's identity be answered differently at two rows of the same file.
+    #
+    # AND READ WHERE THE REQUIREMENT SAYS TO READ IT (`ei.carrier_members`): a
+    # governed carrier from its working tree, exactly as before; a PINNED one
+    # at the commit its pin names, out of the tree's own object store, never
+    # its working files, with every transport refused.
     checks: dict[str, ei.CarrierCheck] = {}
-    members: dict[str, tuple[str, ...] | None] = {}
+    members: dict[str, ei.CarrierMembers] = {}
     for carrier, path in trees.items():
         check = ei.carrier_identity(path, carrier, transfers)
         checks[carrier] = check
-        members[carrier] = (
-            ei.gitmodules_addresses(path) if check.verified else None)
+        if check.verified:
+            members[carrier] = ei.carrier_members(inventory, carrier, path,
+                                                  repo_root)
 
     gone: list[ei.EvidenceVerdict] = []
     provisional_archived: list[ei.EvidenceVerdict] = []
@@ -194,20 +216,17 @@ def main(argv: list[str] | None = None) -> int:
         if not check.verified:
             not_rechecked.append((verdict, check.detail))
             continue
-        carried = members.get(carrier)
-        if carried is None:
-            not_rechecked.append((
-                verdict,
-                f"the working tree supplied for {carrier} verified, but its "
-                "`.gitmodules` could not be read"))
+        reading = members[carrier]
+        if reading.addresses is None:
+            not_rechecked.append((verdict, reading.detail))
             continue
-        if verdict.row.repository in carried:
+        if verdict.row.repository in reading.addresses:
             named_gitlinks += 1
         else:
             gone.append(ei.EvidenceVerdict(
                 verdict.row, verdict.admission, ei.GONE,
                 f"the working tree supplied for {carrier} VERIFIED as that "
-                f"carrier and its `.gitmodules` does NOT carry "
+                f"carrier and {reading.where} does NOT carry "
                 f"`{verdict.row.repository}`"))
 
     former_rows = ei.former_address_rows(inventory, transfers)
@@ -249,8 +268,33 @@ def main(argv: list[str] | None = None) -> int:
     print(
         f"  gitlink rows: {len(gitlink_rows)} — {named_gitlinks} named in a "
         f"VERIFIED supplied tree, {len(gitlink_gone)} absent from one, "
-        f"{len(not_rechecked)} NOT RE-CHECKED (no tree supplied, or a tree "
-        f"that does not verify as the carrier the row names).")
+        f"{len(not_rechecked)} NOT RE-CHECKED (no tree supplied, a tree "
+        f"that does not verify as the carrier the row names, or, for a pinned "
+        f"carrier, a pin naming no commit or a tree that cannot produce that "
+        f"commit's `.gitmodules` locally).")
+
+    # WHERE EACH PINNED CARRIER WAS READ, NAMED AND NOT LEFT TO BE INFERRED: the
+    # commit is what the verdict rests on, so a reader of the report must be
+    # able to see which revision was read, and that it was not the working tree.
+    pinned_reads = [members[carrier] for carrier in sorted(members)
+                    if carrier in carriers and members[carrier].pin is not None]
+    if pinned_reads:
+        print("estate inventory: PINNED carriers, each read at the commit its "
+              "pin names and never at its working files:")
+        for reading in pinned_reads:
+            if reading.commit is None:
+                print(f"  - {reading.carrier}: `{reading.pin}` names no commit "
+                      "to read at; its rows are NOT RE-CHECKED.")
+            elif reading.addresses is None:
+                print(f"  - {reading.carrier}: `{reading.pin}` names "
+                      f"{reading.commit}, and the supplied tree could not "
+                      "produce its `.gitmodules` there; its rows are NOT "
+                      "RE-CHECKED, each naming why.")
+            else:
+                carried = ", ".join(reading.addresses) or "no submodule at all"
+                print(f"  - {reading.carrier}: `{reading.pin}` names "
+                      f"{reading.commit}; its `.gitmodules` there names "
+                      f"{carried}.")
 
     if not_rechecked:
         print("estate inventory rows NOT RE-CHECKED "
