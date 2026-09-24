@@ -508,7 +508,11 @@ openXdox's `find_validator` answer `None` from a start outside the product
 (`test_a_start_outside_the_product_is_refused_not_walked`), and the claim says
 realizing 7.3 *"will revisit that confinement and that test"*. 7.3's falsifier
 requires `snapshot.find_validator(planted / "work")` to return the INSTALLED
-consumer's own validator.
+consumer's own validator. It also names
+`tests/test_snapshot.py::test_the_validator_is_the_installed_consumers_own`,
+which does not exist yet. T061 must add it to one of 5.4a's six protected
+suites, and F5.2 refuses that edit, because R1Q7 (a)'s allow-list admits only
+respellings. So an answer here must also say how F5.2 admits it.
 
 **Options.** (a) 7.3 governs: the lookup ignores its start and resolves the
 installed distribution's validator, and C3's test is revised in 7.3's landing.
@@ -551,7 +555,7 @@ command must carry the mode.
 
 ---
 
-## R1Q16 — "One served product": process shape, what the document surface needs the datastore for, and what `pip install` brings *(blocks T069, T070, T072, T073, T074, T095; phase 3)* — **OPEN**
+## R1Q16 — "One served product": process shape, what the document surface needs the datastore for, and what `pip install` brings *(blocks T069, T070, T072, T073, T074, T077, T095; phase 3)* — **OPEN**
 
 **Measured.** The document surface never imports the runtime: outside
 `src/opendox/runtime/`, only `conformance_corpus.py` touches it, and only
@@ -662,7 +666,7 @@ features (016, 017, 018, 023, 024) and `add-modified-block-currency-check` by fo
 
 ---
 
-## R1Q22 — Does the carve's declared-edit discipline govern the arc's edits to carved files? *(governs T007 and every task that edits a carved file: T010–T012, T016, T021, T022, T025–T027, T034, T035, T038, T055, T057, T073, T078–T081, T084, T088; and T092)* — **ANSWERED (a)**
+## R1Q22 — Does the carve's declared-edit discipline govern the arc's edits to carved files? *(governs T007 and every task that edits a carved file: T010–T012, T016, T021, T022, T025–T027, T034, T035, T038, T055, T057, T073, T078–T081, T084, T088; in openXdox-code, T061 and T086; and T092)* — **ANSWERED (a)**
 
 **Measured.** `src/opendox/runtime/cli.py:17-19`: *"`src/opendox/cli.py` is a
 CARVED file with a row in openxFactory's `docs/opendox-carve-manifest.yaml`, so a
@@ -672,8 +676,9 @@ openxFactory first"*. The manifest records declared-edit windows that added
 `docs/opendox-carve-manifest.yaml:504-521`), and lane 4's C3 does the same today
 for openXdox's `snapshot.py` (`moved_verbatim` → `moved_with_declared_edit`, the
 openxFactory annotation first, RULED Q-XDV3). Release 1 edits at least 12 carved
-openDox-code SOURCE files, and also R3's nine red tests and six of the seven
-`collect_ignore` modules, all of them carved rows (research R12). Two of the
+openDox-code SOURCE files, and also eight of R3's nine red tests and six of the
+seven `collect_ignore` modules, all of them carved rows (research R12). In
+openXdox-code, T061 and T086 edit carved rows too. Two of the
 source files are `moved_verbatim` rows with no `edits[]` entry: `doxbench_binding.py` (16.1–16.3) and, likely,
 `web/views/doxbench-chat.js` (16.4). 11.1's guard lets an arc landing change the
 manifest only by adding or extending an existing `edits[].note` — it refuses

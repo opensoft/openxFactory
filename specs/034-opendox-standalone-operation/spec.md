@@ -206,10 +206,11 @@ and as R1Q23 decides.
 2. **Given** the 7.0 malformed fixture, **When** `generate --strict` runs,
    **Then** it exits non-zero, naming the fixture's `EXPECTED_RULE`, and it
    does not fail on an unresolvable path (requirement 7; R1Q12).
-3. **Given** openXdox installed over the realized openDox, **When** the six
-   generator suites run, **Then** they pass, and no arc landing edited them
-   except through R1Q7 (a)'s reviewed allow-list (requirement 4, third
-   scenario; R1Q23 decides where the four `doc_health` suites run).
+3. **Given** openXdox-code installed, with the realized openDox installed over
+   its pinned one, **When** the six generator suites run, **Then** they pass,
+   and no arc landing edited them except through R1Q7 (a)'s reviewed
+   allow-list (requirement 4, third scenario; R1Q23 decides where the four
+   `doc_health` suites run).
 4. **Given** openXdox installed in a fresh venv, **When** its validator lookup
    starts inside a planted pre-shed tree, **Then** it resolves the installed
    distribution's own validator (7.3; R1Q14).
@@ -302,15 +303,15 @@ T093's procedure. F5.2 and 9.3's integration suite pass.
 - A raw key appears inside an endpoint URL, not in a field (16.3).
 - The plain repository yields no grouping, candidate or selection tile, so the
   chat pane cannot be opened at all (R1Q13).
-- The served model-catalog route validates against openxFactory's
-  `doxbench_contracts` until T085 lands, so it fails closed without them
-  today (research R15). T027's seam then makes it fail closed naming itself
-  when nothing is registered. From T085 on, a standalone install validates
-  with openDox's own packaged validators, and the route answers (R1Q10,
-  R1Q12).
-- Lane 4's in-flight C3 edits 7.3's file and moves openxFactory's openXdox pin,
-  and C4 writes the openXdox pin runbook. Both must be sequenced around, never
-  duplicated (plan.md § "In-flight overlaps").
+- The served model-catalog route imports openxFactory's `doxbench_contracts`
+  by name today, so it fails closed without them (research R15). From T027,
+  in phase 1, it resolves its validators through a seam, and fails closed
+  naming that seam when nothing is registered. From T085 on, a standalone
+  install validates with openDox's own packaged validators, and the route
+  answers (R1Q10, R1Q12).
+- Lane 4's C3 edited 7.3's file and moved openxFactory's openXdox pin, and C4
+  wrote the openXdox pin runbook. Both have landed. The arc starts from them
+  and never duplicates them (plan.md § "In-flight overlaps").
 
 ## Requirements *(mandatory)*
 
@@ -365,14 +366,16 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   - Behaviour that needs both legs SHALL be declared integration tests at the
     declared composition.
   - The margins SHALL be restored, with no skip carrying the gap. A skip that
-    defers `doc_health` becomes part of the declared exclusion instead (T044).
-  - The pins SHALL advance by their owners' ordinary pin-sync acts (R1Q7 (a)).
+    still defers `doc_health` becomes part of the declared exclusion instead
+    (T044).
+  - The pins SHALL advance by their owners' ordinary pin-sync acts (9.5).
 
   FR-006 is met for release 1 when both legs' checks pass as above. Requirement
   9 is fully met only once the exclusion is empty.
 - **FR-007** (requirement 10; 10.1–10.3; F10.1): openDox SHALL declare one
-  console script, `opendox`, that serves the whole browser surface from an
-  openDox-only install. The openDox root's README SHALL document the single
+  documented entry point, the `opendox` console script, which serves the whole
+  browser surface from an openDox-only install; `opendox-runtime` stays as an
+  alias (R1Q5 (a)). The openDox root's README SHALL document the single
   command, and the root SHALL NOT host it (R1Q5 (a); R1Q15, still open).
 - **FR-008** (requirements 12 and 13; 13.1–13.6; F13.1): the standalone install
   SHALL bring its own PostgreSQL, with one dialect and both DSNs. It SHALL
@@ -428,8 +431,9 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 ### Measurable Outcomes
 
 - **SC-001** (phase 1 exit): at the phase-1 tip, F2.1, F3.1, F9.1 (in both
-  legs) and F9.2 exit 0, each as amended where T007 records an amendment, and
-  `opendox --help` exits 0. RN-1 is ruled, and T016 matches the ruling.
+  legs) and F9.2 exit 0, each as amended where T007 records an amendment,
+  `opendox --help` exits 0, and F4.1's scan lists only `openxdox` targets.
+  RN-1 is ruled, and T016 matches the ruling.
   - openDox-code's suite goes from 0 passed today to whole and green.
   - openXdox-code's goes from 57 collection errors to green over the whole
     suite less its declared `doc_health` exclusion (R1Q6 (d)). The exclusion
@@ -494,9 +498,9 @@ The HTTP half (steps 1–4, and the route answers behind steps 5–8) runs in CI
 openDox-code (T095). It is a harness in its own `acceptance` job, which has no
 database service, so its clean-machine assertions hold. The browser half is a
 Playwright run on the host, with its verdict computed by the oracle (T096). CI
-carries no browser, as the oracle's own header records. Neither half is a
-member of a leg's pytest suite: each installs the product and drives it from
-outside, so FR-006 is unaffected.
+carries no browser: the oracle's own header records that *"CI has no `node`"*.
+Neither half is a member of a leg's pytest suite: each installs the product and
+drives it from outside, so FR-006 is unaffected.
 
 ## Assumptions
 
@@ -505,12 +509,13 @@ outside, so FR-006 is unaffected.
   release 1 archives and promotes nothing.
 - The eleven answers of `5817152735` are applied in this revision, so phase 1
   is planned on its answers.
-- The open questions (R1Q10–R1Q19, R1Q21, R1Q23) are applied by each
+- The open phase questions (R1Q10–R1Q19, R1Q23) are applied by each
   provisional phase's round task (T009, T069) before any task they block.
+  R1Q21 is a process question, and no release-1 task waits on it.
 - Phases 2 and 3 are PROVISIONAL. They are drafted on the recommended
   options, and each conditional step names its question. They authorize no
   implementation until their round task has re-planned them on their answers
   and re-run analyze.
 - Lane 4's own acts C1, C3 and C4 (`#656` `5815604830`, `5815613524`,
-  `5815620605`) are in flight, and this feature neither duplicates nor
-  pre-empts them.
+  `5815620605`) have all landed (#1152, #1153, openXdox-code#28, #1157 and
+  #1154). This feature starts from them and duplicates none of them.

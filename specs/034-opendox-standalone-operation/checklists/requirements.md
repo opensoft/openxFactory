@@ -21,18 +21,18 @@ before implementation starts.
 
 - [ ] No `[NEEDS CLARIFICATION]` remains. **Partly open.** The eleven
       questions phase 1 needed are answered (`#656` `5817152735`) and encoded
-      in spec.md § Clarifications. Twelve remain open for phases 2–3:
-      R1Q10–R1Q19, R1Q21 and R1Q23. T009 (phase 2) and T069 (phase 3)
-      encode them as they are answered.
+      in spec.md § Clarifications. Twelve remain open: R1Q10–R1Q19 and
+      R1Q23 for phases 2–3, which T009 (phase 2) and T069 (phase 3) encode
+      as they are answered, and R1Q21, on process.
       Until then, phases 2–3 are PROVISIONAL and authorize no
       implementation.
 - [x] Every requirement can be tested. FR-001 to FR-010 each cite #1144's own
       falsifier. FR-011 is tested by AT-R1 (T095, T096), and FR-012 by each
       PR's review against its task's lines and its quoted falsifier output.
 - [x] The success criteria can be measured. SC-001 to SC-005 are falsifier
-      exit statuses, or AT-R1's verdict. SC-006 is a box count
-      (`box_census.py`), and SC-007 is the state of openxFactory's required
-      checks.
+      exit statuses, or AT-R1's verdict, and SC-001 also needs RN-1 ruled.
+      SC-006 is a box count (`box_census.py`), and SC-007 is the state of
+      openxFactory's required checks.
 - [x] The acceptance test is defined term by term (spec.md § AT-R1), and its
       procedure is written (`quickstart.md`).
 - [x] The edge cases are listed, each tied to the question, box or in-flight

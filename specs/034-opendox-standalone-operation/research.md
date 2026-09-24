@@ -79,6 +79,7 @@ Run from OUTSIDE the checkout, so that its `src/` is not on the path:
 
 ```sh
 cd "$W"
+"$W/od/bin/python" -c "import importlib.util as u, sys; sys.exit(any(u.find_spec(m) for m in ('openxdox', 'ideation_dashboard', 'doc_health', 'corpus_adapter_openxfactory')))"
 "$W/od/bin/python" - <<'PY'
 import importlib, pkgutil, opendox
 ok, failed = 0, []
@@ -95,7 +96,8 @@ It printed `imported 53 of 56`. The three failures are `opendox.cli`,
 `opendox.notebook_action` and `opendox.serve`, each with
 `ModuleNotFoundError: No module named 'ideation_dashboard'`. `openxdox`,
 `ideation_dashboard`, `doc_health` and `corpus_adapter_openxfactory` are all
-absent from that environment, which was checked before the sweep ran.
+absent from that environment: the block's first line exits non-zero if any of
+them can be found.
 
 ## R2 — openDox-code's plain suite: 0 passed
 
@@ -357,9 +359,10 @@ times on `doc_health`. With Group 2 simulated, 19 fail on `doc_health`.
 ## R12 — The carved files release 1 edits, and their manifest rows
 
 Load `docs/opendox-carve-manifest.yaml` with PyYAML and select the rows whose
-`destination_path` ends with each file. The 456 rows carry the fields
+`destination_path` ends with each file. 318 of the 456 rows carry the fields
 `destination`, `destination_path`, `disposition`, `git_mode`, `sha256`,
-`source_path`, plus `edits` where there are any.
+`source_path`, plus `edits` where there are any. The other 138 carry `reason`
+and `evidence` instead.
 
 | openDox-code file | disposition | `edits[]` (with a note) | release-1 box |
 |---|---|---|---|
@@ -379,10 +382,11 @@ Load `docs/opendox-carve-manifest.yaml` with PyYAML and select the rows whose
 | `src/opendox/web/views/lens.js` (per R1Q19) | `moved_with_declared_edit` | 2 (2) | R1Q19 |
 | `src/opendox/notebook_action.py` (if 2.2 touches it) | `moved_verbatim` | 0 | 2.2 |
 
-The carved TESTS count too. Each of R3's nine red files is a
-`moved_with_declared_edit` row with 1–3 `edits[]` entries. So are six of the seven
-modules in `collect_ignore` (R4); the seventh, `test_session_harness.py`, is
-`moved_verbatim`.
+The carved TESTS count too. Eight of R3's nine red files are
+`moved_with_declared_edit` rows with 1–3 `edits[]` entries. The ninth,
+`test_consumer_reach.py`, was created at the destination and has no row. Six of
+the seven modules in `collect_ignore` (R4) are `moved_with_declared_edit` rows
+as well; the seventh, `test_session_harness.py`, is `moved_verbatim`.
 
 Files created at the destination have no row (RULED OQ-C): `consumer_reach.py`,
 `corpus_adapter.py`, `domain_profile.py`, `display_profile.py`,
@@ -403,7 +407,7 @@ arrived.
 | openDox root at `dc7aa08f`: its `code` | `d816cf06` | `git -C openDox ls-tree dc7aa08f code` |
 | openXdox root `code` gitlink, `contracts/code-pin.yaml` | `626f2c8d` | as above |
 | openXdox root `contracts/opendox-pin.yaml` | `dc7aa08f` (the openDox ROOT) | as above |
-| openXdox-code `pyproject.toml` `opendox @ …` | `5c137a90`; 11 commits behind openDox-code `main`, whereas the packet measured 9 the day before | `git rev-list --count 5c137a90..origin/main` |
+| openXdox-code `pyproject.toml` `opendox @ …` | `5c137a90`; 11 commits behind openDox-code `main`, whereas the packet measured 9 the day before | `git -C "$W/openDox-code" rev-list --count 5c137a90..1e4a57fb` |
 
 `5c137a90` is an ancestor of `d816cf06`. On openDox-code, openXdox-code, openDox
 and openXdox alike, the `main` ruleset's required status checks are `validate`
@@ -449,9 +453,9 @@ on `latent`/`picked`/`rejected`/`superseded`.
 
 ## R16 — Non-normative corrections to #1144, found while measuring
 
-None of these changes a requirement, a scenario or a ruling. Each is offered to
-the holder as a fold-in for the ratification record's non-normative addendum or
-for T097's evidence notes.
+None of these changes a requirement, a scenario or a ruling. The ratification
+record has landed (#1151), so each is offered to the holder for T097's
+evidence notes.
 
 1. **2.5.** *"26 modules are named by no pytest step at all"*: the number
    reached by no CI step is **22**, because the `runtime` job runs

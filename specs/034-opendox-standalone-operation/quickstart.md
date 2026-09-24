@@ -4,11 +4,12 @@
 T095 automates the HTTP half as a harness in openDox-code's own `acceptance`
 CI job, which has no database service. T096 runs the browser half on the host.
 
-The run needs the phase-3 tip of every repository, so every question that
-blocks phases 2 and 3 is answered first. The steps below depend directly on
-R1Q10, R1Q12 (the catalog's validators), R1Q13, R1Q15, R1Q16 and R1Q19. **Two
-steps below are conditional**, and each is marked with the question it depends
-on. Use whatever the openDox root's
+The run installs openDox-code at its phase-3 tip, so every question that blocks
+phases 2 and 3 is answered first. The steps below depend directly on R1Q10,
+R1Q12 (the catalog's validators), R1Q13, R1Q15, R1Q16 and R1Q19. **Four places
+below are conditional**, and each names the question it depends on: the
+install line (R1Q16), the `--local` flag (R1Q15), the lens's seed actions
+(R1Q19) and the datastore's stop (R1Q16 (iv)). Use whatever the openDox root's
 `README.md` documents once 10.3 has landed: that README, not this file, is the
 product's one documented command (requirement 10).
 
@@ -55,6 +56,8 @@ export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid GIT_COMM
 A=$(mktemp -d)/plain-documents                        # (a) 5.0's fixture
 cp -r "$W/openDox-code/tests/fixtures/plain-documents" "$A"
 git -C "$A" init -q
+git -C "$A" config user.name fixture                  # the served actor is read from the checkout's git identity
+git -C "$A" config user.email fixture@example.invalid
 git -C "$A" add -A
 git -C "$A" commit -qm fixture
 B=$(mktemp -d)/plain-notes                            # (b) ordinary Markdown with NO front matter at all
@@ -63,6 +66,8 @@ printf '# Roadmap\n\nThe roadmap links to the [budget](budget.md) and the [notes
 printf '# Budget\n\nBudget figures for the roadmap.\n' > "$B/budget.md"
 printf '# Meeting notes\n\nWe discussed the roadmap and the budget.\n' > "$B/notes.md"
 git -C "$B" init -q
+git -C "$B" config user.name fixture
+git -C "$B" config user.email fixture@example.invalid
 git -C "$B" add -A
 git -C "$B" commit -qm notes
 for R in "$A" "$B"; do                                # no model binding: doxbench_binding's DEFAULT_BINDINGS_RELPATH is absent
@@ -106,7 +111,8 @@ curl -sf "http://127.0.0.1:$PORT/" > "$W/index.html"
 grep -qi '<html' "$W/index.html"
 curl -sf "http://127.0.0.1:$PORT/snapshot.json" > "$W/snap.json"
 curl -sf "http://127.0.0.1:$PORT/capabilities" > "$W/caps.json"
-curl -sf "http://127.0.0.1:$PORT/workbench/model-catalog" > "$W/catalog.json"
+TOKEN=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["console_token"])' "$W/caps.json")
+curl -sf -H "X-XF-Console-Token: $TOKEN" "http://127.0.0.1:$PORT/workbench/model-catalog" > "$W/catalog.json"
 python3 - "$W/snap.json" "$W/caps.json" "$W/catalog.json" <<'PY'
 import json, sys
 snap, caps, cat = (json.load(open(p)) for p in sys.argv[1:4])
