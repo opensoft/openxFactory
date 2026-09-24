@@ -103,8 +103,10 @@ and must never grow one. The lockstep in § 4 belongs to the OTHER verifier.
 
 Run every step in ONE shell, with `NEW_SHA` set as a real variable to the new
 openXdox assembly-root commit, all 40 hex characters. Every command below reads
-`"$NEW_SHA"`. None of them takes a hand-typed sha, and the two Python steps
-refuse a value that is not 40 lowercase hex:
+`"$NEW_SHA"`. None of them takes a hand-typed sha, and the Python steps refuse a
+value that is not 40 lowercase hex. A step that fails prints `REFUSE` and
+returns non-zero. Stop there: nothing later assumes a step that did not print its
+OK:
 
 ```sh
 NEW_SHA=0123456789abcdef0123456789abcdef01234567   # a placeholder: replace it
@@ -124,13 +126,25 @@ NEW_SHA=0123456789abcdef0123456789abcdef01234567   # a placeholder: replace it
 2. **Work in a fresh full clone whose directory is named `openxFactory`**, on a
    new branch off `origin/main`. The directory name is not cosmetic: see the
    last point of § 5.
-3. **Move the submodule to `NEW_SHA`.**
+3. **Move the submodule to `NEW_SHA`, checking step 1 as it goes.** The block
+   is ONE `&&` chain, and it FAILS CLOSED. It prints its `OK` line only when
+   every link succeeded:
+   - the fetch;
+   - `NEW_SHA` being on openXdox's `main`;
+   - the checkout;
+   - the checked-out revision.
+
+   Otherwise it prints `REFUSE` and returns non-zero. It uses `false`, not
+   `exit`, so an interactive shell stays open.
 
    ```sh
-   git submodule update --init openXdox openDox
-   git -C openXdox fetch origin
-   git -C openXdox checkout --detach "$NEW_SHA"
-   [ "$(git -C openXdox rev-parse HEAD)" = "$NEW_SHA" ] || echo "REFUSE: openXdox is not at NEW_SHA" >&2
+   git submodule update --init openXdox openDox &&
+     git -C openXdox fetch origin &&
+     git -C openXdox merge-base --is-ancestor "$NEW_SHA" origin/main &&
+     git -C openXdox checkout --detach "$NEW_SHA" &&
+     [ "$(git -C openXdox rev-parse HEAD)" = "$NEW_SHA" ] &&
+     echo "OK: openXdox is checked out at NEW_SHA, which is on its main" ||
+     { echo "REFUSE: NEW_SHA is not on openXdox main, or openXdox is not at it; stop here" >&2; false; }
    ```
 
 4. **Recompute the digest with a second implementation**, independent of the
@@ -160,15 +174,17 @@ NEW_SHA=0123456789abcdef0123456789abcdef01234567   # a placeholder: replace it
    PY
    ```
 
-   With `NEW_SHA` at `2f3f857d` (the pin on 2026-09-24), this prints
+   With `NEW_SHA=2f3f857daccce6ade3a15e0f3d0e926f9ff7c925` (the pin on
+   2026-09-24), this prints
    `149dc2cd6701abbacb635718713b01cb172e6eadb2f6a29607212016aa23d1c5`, the
-   recorded value, and exits 0. Given an unknown commit, or an abbreviated one,
-   it exits 1 and prints no digest.
-5. **Edit `contracts/openxdox-pin.yaml`: `commit:` and `digests.tree_sha256:`
-   only.**
+   recorded value, and exits 0. Given an unknown commit, or an abbreviated one
+   such as `2f3f857d`, it exits 1 and prints no digest.
+5. **Edit `contracts/openxdox-pin.yaml` in place. Edit `commit:` and
+   `digests.tree_sha256:`, and any prose line that still names the OLD sha;
+   nothing else.**
    - Grep the file for the OLD sha first. A header sentence that names it is
-     now false and moves too; #1146 had to correct *"this re-pin advances the
-     gitlink … to `646f1dc0`"*.
+     now false and moves too, rewritten on its own lines; #1146 had to correct
+     *"this re-pin advances the gitlink … to `646f1dc0`"*.
    - **Keep the file's line count and every line's position.** Other documents
      cite it BY LINE: the promoted `openspec/specs/document-lifecycle/spec.md`
      cites `:76-79,92-94`, and the active `add-neutral-product-standalone-operability`
@@ -247,10 +263,10 @@ PY
 
 Measured results:
 
-| `NEW_SHA` | derived openDox | exit | output |
+| `NEW_SHA` (full, as run) | derived openDox | exit | output |
 | --- | --- | ---: | --- |
-| `2f3f857d` | `dc7aa08f…`, equal to this repository's pin | 0 | one line |
-| `88a1047e` | `c4c5014d…` | 1 | `DIFFERENT` |
+| `2f3f857daccce6ade3a15e0f3d0e926f9ff7c925` | `dc7aa08f…`, equal to this repository's pin | 0 | one line |
+| `88a1047e43c180d41b9ee16ae48688bed7ee5415` | `c4c5014d…` | 1 | `DIFFERENT` |
 
 If they differ, the openDox side moves in the SAME commit. That means the
 `openDox` gitlink, `contracts/opendox-pin.yaml` `commit:` and `tree_sha256`, and
@@ -315,15 +331,31 @@ runbook: "opensoft/openDox-code docs/runtime.md sections 5-6, …"
 
 `contracts/openxdox-pin.yaml` carries NO `migration:` field.
 
-On 2026-09-24, `git ls-tree -r --name-only` finds no path containing `migrat`
-at openXdox `2f3f857d`, openXdox-code `626f2c8d` or openXdox-spec `f088b097`.
-So this pin has nothing to declare yet.
+The check below is run with the cwd in each repository and the commit as its
+argument. It FAILS CLOSED: a failing `ls-tree` raises and exits 1, and is never
+read as "0 paths". That is not true of the obvious `git ls-tree … | grep -i
+migrat`, which reports no hit either way.
+
+```sh
+python3 -c 'import subprocess, sys
+names = subprocess.run(["git", "ls-tree", "-r", "--name-only", sys.argv[1]],
+                       check=True, capture_output=True, text=True).stdout.splitlines()
+hits = [n for n in names if "migrat" in n.lower()]
+for n in hits:
+    print(n)
+print(f"{len(hits)} path(s) containing migrat")' <full 40-hex commit>
+```
+
+On 2026-09-24 it prints `0 path(s) containing migrat` for each of openXdox
+`2f3f857d`, openXdox-code `626f2c8d` and openXdox-spec `f088b097`. So this pin
+has nothing to declare yet. The same check does find paths where they exist. At
+openDox-code it lists `migrations/0001_identity_and_coordination.sql` among its
+hits.
 
 **UNCONFIRMED:** whether the first advance that DOES cross an openXdox migration
 is expected to ADD the field here, filled on the sibling's pattern. The trigger
-to watch for is the same command returning a hit for the first time:
-`git ls-tree -r --name-only <tree> | grep -i migrat`. The openDox pin's own
-header records exactly that before/after measurement at its `dc7aa08f` bump.
+to watch for is this check reporting a hit for the first time. The openDox pin's
+own header records exactly that before/after measurement at its `dc7aa08f` bump.
 
 ## 7. Worked examples
 
