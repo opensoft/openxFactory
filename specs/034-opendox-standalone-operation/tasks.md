@@ -119,8 +119,18 @@ any other task of the phase starts (plan.md § Summary).
     PR 2 landed (T043).
 - [ ] T006 **Analyze round 1a.** Run `/speckit-analyze` over spec, plan and
   tasks. No CRITICAL finding may stand before any phase-1 task starts (the
-  constitution's workflow gate). Record its verdict in
-  `evidence/analyze-round-1a.md`, with no trailer.
+  constitution's workflow gate).
+  - First set the feature context. `.specify/feature.json` is gitignored, so
+    a fresh openxFactory clone has no feature pointer, and the prerequisite
+    resolver refuses without one. Run from that clone, with this feature's
+    files at the branch's head or on `main` once #1155 lands:
+
+        export SPECIFY_FEATURE_DIRECTORY=specs/034-opendox-standalone-operation
+        bash .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+
+    The check must print this feature's `FEATURE_DIR` before analyze runs.
+  - Record that output and analyze's verdict in
+    `evidence/analyze-round-1a.md`, with no trailer.
   - T003, T005 and T006 can land their evidence together, in one bookkeeping
     PR. It touches only this feature's directory, so it needs no Rule 6
     window.
@@ -172,7 +182,8 @@ any other task of the phase starts (plan.md § Summary).
     any requirement or scenario text back as RULING NEEDED.
   - Re-plan phase 2 in `plan.md` and in this file, and lift its PROVISIONAL
     marker.
-  - Run `/speckit-analyze`, and find nothing CRITICAL.
+  - Run `/speckit-analyze` with T006's feature context, and find nothing
+    CRITICAL.
   - **Blocked by**: R1Q10, R1Q11, R1Q12, R1Q13, R1Q14, R1Q23.
   - **After**: T004.
 
@@ -799,8 +810,8 @@ no-model state. `consumer_reach.py` is gone.
 - [ ] T069 **Phase 3's round.** T009's steps for phase 3: encode the answers,
   hand amendments to a T007 batch, bring any requirement or scenario text back
   as RULING NEEDED, re-plan phase 3 and lift its PROVISIONAL marker, and run
-  `/speckit-analyze`, finding nothing CRITICAL. No task of phase 3 starts
-  before it is done.
+  `/speckit-analyze` with T006's feature context, finding nothing CRITICAL. No
+  task of phase 3 starts before it is done.
   - **Blocked by**: R1Q10, R1Q12, R1Q15, R1Q16, R1Q17, R1Q18, R1Q19.
   - **After**: T009.
 
