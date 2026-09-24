@@ -86,8 +86,8 @@ test_a_working_tree_deletion_is_deliberately_not_drift` pins that behaviour so
 the claim cannot rot back into the overclaim it replaced. This is a REAL
 NARROWING against `verify-openxwallet-pin.py`, whose `pin-member-missing` does
 catch a working-tree deletion, and it is recorded as OWED rather than argued
-away: whether the consumer gate wired in task 5.3 (Phase 5) also needs a
-dirty-checkout refusal is that task's call to make, with this paragraph as the
+away: task 5.3's consumer gate (#1059) carries no dirty-checkout refusal, so
+whether one is needed stays an open question, with this paragraph as the
 input. In CI the question is close to moot — the checkout is materialized from
 the gitlink on every run — so the exposure is a local run, which is exactly
 where a reader most needs the tool to say what it did and did not check.
@@ -96,13 +96,13 @@ where a reader most needs the tool to say what it did and did not check.
 reasoning. The five describe a TREE that disagrees with a well-formed pin —
 each is a governed finding a reviewer can act on. `pin-unreadable` describes an
 ENVIRONMENT in which no finding can be reached at all: the pin is absent, does
-not parse, is not a mapping, names a digest definition this tool does not
-implement, or PyYAML is missing. It still exits 2 like everything else — it is
-excluded from the vocabulary, not from fail-closure.
+not parse, is not a mapping, or names a digest definition this tool does not
+implement. It still exits 2 — excluded from the vocabulary, not from fail-
+closure. A missing PyYAML exits 2 before any of this, at the import guard.
 
-WHAT THIS TOOL IS NOT. It is not wired into any required check. `Phase 4`
-(`docs/opendox-cutover-runbook.md` § 7) mounts the submodule and writes the pin;
-wiring a consumer gate that runs this file is task 5.3, Phase 5. Nor does it
+WHAT THIS TOOL IS NOT. It is not the gate: task 5.3 wired it into the required
+`openxdox-consumer-gate` (#1059; ruleset 23554310 requires it on `main`), after
+`Phase 4` (`docs/opendox-cutover-runbook.md` § 7) wrote the pin. Nor does it
 carry the wallet's `--aggregation-root` mode: `opensoft/xFactory` records no
 `openXdox` gitlink at all today, so an aggregation-parity check would refuse by
 construction, and adding that gitlink is a change to a different repository.
@@ -145,16 +145,16 @@ PIN_PATH = ROOT / "contracts" / "openxdox-pin.yaml"
 REMEDIATION = (
     "Remediation: run `git submodule update --init openXdox` (NOT --recursive; "
     "openXdox's own code/spec legs are not consumed here). If the pin itself "
-    "is stale, follow `openXdox/README.md#the-lockstep-invariant` — the "
-    "gitlink and this pin file move in ONE commit."
+    "is stale, follow `docs/openxdox-pin-resync-runbook.md` — the gitlink and "
+    "this pin file move in ONE commit."
 )
 
 # The five refusal codes, in the order they can be reached.
 #
 # Prefixed `openxdox-` rather than reusing the wallet's ratified six: see the
-# module docstring. Nothing downstream consumes this vocabulary yet — the
-# consumer gate is task 5.3, Phase 5 — which is exactly why it is fixed now,
-# before something starts branching on a string that has not settled.
+# module docstring. Nothing downstream branches on this vocabulary yet — the
+# consumer gate task 5.3 wired (#1059) reads the exit code only — which is why
+# it is fixed now, before something starts branching on an unsettled string.
 REFUSAL_CODES: tuple[str, ...] = (
     "openxdox-pin-tag-only",
     "openxdox-pin-submodule-uninitialized",
