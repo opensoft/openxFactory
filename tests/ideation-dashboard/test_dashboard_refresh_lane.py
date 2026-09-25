@@ -347,15 +347,60 @@ def test_the_corpus_revision_is_path_scoped_not_the_branch_tip(tmp_path):
     assert set(lane.CORPUS_BAKED_PATHS) <= set(argv)
 
 
-def test_the_baked_input_scope_is_exactly_what_the_dockerfile_copies():
-    """The eight paths, and deliberately not `tests/` or `experiments/`
-    (169 MB, referenced by zero docs)."""
-    assert lane.CORPUS_BAKED_PATHS == (
+def test_the_copied_scope_is_exactly_what_the_dockerfile_copies():
+    """The eight paths the image COPIES, and deliberately not `tests/` or
+    `experiments/` (169 MB, referenced by zero docs)."""
+    assert lane.CORPUS_COPIED_PATHS == (
         "contracts", "docs", "examples", "ideation", "openspec",
         "scripts/doc_health", "scripts/ideation_dashboard", "templates")
     assert lane.RECIPE_BAKED_PATHS == ("containers/ideation-dashboard",)
     assert "experiments" not in lane.CORPUS_BAKED_PATHS
     assert "tests" not in lane.CORPUS_BAKED_PATHS
+
+
+def test_the_baked_scope_is_the_copied_set_plus_the_render_unit():
+    """#1161. The image bakes the SNAPSHOT as well as the corpus, and since the
+    § 5.2 shed the snapshot's renderer is the two pinned products behind the
+    host bootstrap. So the decision's scope names them: a product re-pin, or an
+    edit to the bootstrap, is corpus movement, as an edit to the renderer in
+    `scripts/ideation_dashboard` was before the shed."""
+    assert lane.CORPUS_BAKED_PATHS == (
+        "contracts", "docs", "examples", "ideation", "openDox", "openXdox",
+        "openspec", "scripts/carved_reach.py", "scripts/doc_health",
+        "scripts/ideation-dashboard-cli.py", "scripts/ideation_dashboard",
+        "scripts/opendox_host.py", "scripts/profile_openxfactory.py",
+        "scripts/wire_messages.py", "templates")
+    # Sorted, because the tuple is written into the pin as the scope, and two
+    # spellings of one scope would read as a scope change.
+    assert list(lane.CORPUS_BAKED_PATHS) == sorted(lane.CORPUS_BAKED_PATHS)
+    assert set(lane.CORPUS_BAKED_PATHS) == {*lane.CORPUS_COPIED_PATHS,
+                                             *lane.CORPUS_RENDER_PATHS}
+    assert lane.RENDER_ENTRY in lane.CORPUS_RENDER_PATHS
+    assert set(lane.RENDER_LEG_GITLINKS) <= set(lane.CORPUS_RENDER_PATHS)
+    assert [gitlink for gitlink, _leg, _package in lane.RENDER_LEGS] == \
+        list(lane.RENDER_LEG_GITLINKS)
+
+
+def test_the_widened_scope_costs_exactly_one_rebuild():
+    """The live pin records the eight-path scope it was built with. Against it
+    the widened scope is a SCOPE CHANGE, which is one rebuild: the pin that
+    rebuild records carries the new scope, and the run after it reads as
+    unchanged. Measured here rather than asserted in prose."""
+    before = lane.Provenance(
+        corpus_repo=lane.DEFAULT_CORPUS_REPO, corpus_revision=CORPUS_A,
+        corpus_scope=lane.CORPUS_COPIED_PATHS,
+        recipe_repo=lane.DEFAULT_RECIPE_REPO, recipe_revision=RECIPE_A,
+        recipe_scope=lane.RECIPE_BAKED_PATHS)
+    first = lane.decide_refresh(corpus_revision=CORPUS_A,
+                                recipe_revision=RECIPE_A, recorded=before)
+    assert first.build is True
+    assert first.reason == lane.REASON_SCOPE_CHANGED
+    after = lane.parse_provenance(lane.render_provenance(_prov()))
+    assert after is not None and after.corpus_scope == lane.CORPUS_BAKED_PATHS
+    second = lane.decide_refresh(corpus_revision=CORPUS_A,
+                                 recipe_revision=RECIPE_A, recorded=after)
+    assert second.build is False
+    assert second.reason == lane.REASON_UNCHANGED
 
 
 # ---------------------------------------------------------------------------
@@ -692,6 +737,130 @@ def test_the_report_section_says_whose_outcome_it_names(tmp_path):
     # and when the recorded run IS this run, it says so instead
     same = lane.render_report_section(status, this_run_id="111")
     assert "this run (111)" in same
+
+
+def test_a_strict_verdict_handed_down_is_recorded_as_one(tmp_path):
+    """A seal refused because its own validator REJECTED the snapshot under
+    --strict arrives as `skip_result=RESULT_STRICT_FAILED`, with the findings.
+    It is recorded as `strict_failed`, reads no input, and carries the findings,
+    bounded. Any other handed-down result is recorded as the skip it names."""
+    def _explode():
+        raise AssertionError("a handed-down verdict must read no input")
+
+    findings = [f"ERROR [snapshot-dangling-cluster-ref] snapshot.json: {n}"
+                for n in range(80)]
+    outcome = lane.run_refresh_lane(
+        tmp_path / "strict", read_inputs=_explode, skip_reason="rejected",
+        skip_result=lane.RESULT_STRICT_FAILED, skip_detail=findings)
+    assert outcome.result == lane.RESULT_STRICT_FAILED
+    payload = _status(outcome.status_path)
+    assert payload["result"] == "strict_failed"
+    assert payload["reason"] == "rejected"
+    assert payload["detail"] == findings[:lane.DETAIL_CAP]
+    assert outcome.annotation().startswith("::warning::")
+    assert "STRICT FAILED" in outcome.log_line()
+    odd = lane.run_refresh_lane(tmp_path / "odd", read_inputs=_explode,
+                                skip_reason="x", skip_result=lane.RESULT_OK)
+    assert odd.result == lane.RESULT_SKIPPED
+
+
+def _write_seal_result(path: Path, **fields) -> Path:
+    payload = {"kind": "ideation-dashboard-seal-result", "sealed": False,
+               "reason": "--strict REJECTED the snapshot this seal renders",
+               "strict_failed": True,
+               "detail": ["ERROR [snapshot-dangling-cluster-ref] snapshot.json: x"]}
+    payload.update(fields)
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return path
+
+
+@pytest.mark.parametrize("fields, strict", [
+    ({}, True),
+    ({"strict_failed": False}, False),
+    ({"sealed": True}, False),
+    ({"kind": "something-else"}, False),
+    ({"reason": "  "}, False),
+    ({"strict_failed": "true"}, False),
+], ids=["a-strict-verdict", "a-plain-refusal", "a-seal-that-sealed",
+        "not-a-seal-result", "no-reason", "a-string-is-not-true"])
+def test_the_decide_phase_records_a_strict_verdict_from_the_seal_result(
+        tmp_path, fields, strict):
+    """`--seal-result-in` turns the record step's skip into the verdict ONLY
+    for a seal result that did not seal, says `strict_failed: true` and gives
+    a reason. Anything else is recorded as the skip the workflow named, so a
+    malformed or older seal result can never turn a skip into a verdict."""
+    result = _write_seal_result(tmp_path / "seal-result.json", **fields)
+    lane.main(["--repo-root", str(tmp_path), "--phase", "decide",
+               "--skip-reason", "source not sealed: whatever the seal said",
+               "--seal-result-in", str(result)])
+    payload = _status(tmp_path / lane.DEFAULT_OUT_DIR / lane.STATUS_NAME)
+    if strict:
+        assert payload["result"] == "strict_failed"
+        assert payload["reason"] == \
+            "--strict REJECTED the snapshot this seal renders"
+        assert payload["detail"] == [
+            "ERROR [snapshot-dangling-cluster-ref] snapshot.json: x"]
+    else:
+        assert payload["result"] == "skipped"
+        assert payload["reason"] == "source not sealed: whatever the seal said"
+        assert payload["detail"] == []
+
+
+def test_a_missing_seal_result_leaves_the_skip_as_named(tmp_path):
+    lane.main(["--repo-root", str(tmp_path), "--phase", "decide",
+               "--skip-reason", "source not sealed: unknown",
+               "--seal-result-in", str(tmp_path / "absent.json")])
+    payload = _status(tmp_path / lane.DEFAULT_OUT_DIR / lane.STATUS_NAME)
+    assert payload["result"] == "skipped"
+    assert payload["reason"] == "source not sealed: unknown"
+
+
+@pytest.mark.parametrize("where", ["beside-the-checkout",
+                                   "linked-from-inside-it",
+                                   "climbing-out-of-it"])
+def test_a_seal_result_outside_the_checkout_is_never_read(tmp_path, where):
+    """The seal phase writes its result inside the checkout the lane runs
+    over, and only a result there is read. A strict verdict anywhere else,
+    reached by its own path, through a link inside the checkout, or by `..`,
+    leaves the skip as named."""
+    root = tmp_path / "aggregation"
+    root.mkdir()
+    outside = _write_seal_result(tmp_path / "seal-result.json")
+    if where == "beside-the-checkout":
+        given = str(outside)
+    elif where == "linked-from-inside-it":
+        (root / "seal-result.json").symlink_to(outside)
+        given = str(root / "seal-result.json")
+    else:
+        given = str(root / ".." / "seal-result.json")
+    lane.main(["--repo-root", str(root), "--phase", "decide",
+               "--skip-reason", "source not sealed: whatever the seal said",
+               "--seal-result-in", given])
+    payload = _status(root / lane.DEFAULT_OUT_DIR / lane.STATUS_NAME)
+    assert payload["result"] == "skipped"
+    assert payload["reason"] == "source not sealed: whatever the seal said"
+    assert lane.read_strict_verdict(outside, within=tmp_path) is not None
+
+
+def test_the_report_section_lists_a_strict_verdicts_findings():
+    findings = [f"ERROR [snapshot-dangling-cluster-ref] snapshot.json: `{n}`"
+                for n in range(lane.REPORT_FINDINGS_CAP + 3)]
+    section = lane.render_report_section(
+        {"result": "strict_failed", "run_id": "1", "reason": "rejected",
+         "detail": findings}, this_run_id="2")
+    assert f"Findings (the validator's own output, {len(findings)} line(s))" \
+        in section
+    listed = [line for line in section.splitlines()
+              if line.startswith("  - `ERROR")]
+    assert len(listed) == lane.REPORT_FINDINGS_CAP
+    # A backtick inside a finding cannot break out of its code span.
+    assert all(line.count("`") == 2 for line in listed)
+    assert "… 3 more in refresh-status.json" in section
+    # Only a strict verdict lists them: a skip's detail stays in the artifact.
+    skipped = lane.render_report_section(
+        {"result": "skipped", "run_id": "1", "reason": "x",
+         "detail": findings}, this_run_id="2")
+    assert "Findings" not in skipped
 
 
 def test_the_report_section_reports_a_stuck_chain():

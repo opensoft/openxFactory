@@ -1619,6 +1619,43 @@ jobs:
           else
             echo "MedxEHR declares no code gitlink at this pin; skipping the nested init"
           fi
+          # openxFactory's two carved PRODUCTS, `openDox` and `openXdox`, and
+          # each product's own two legs, `spec` and `code` (openxFactory
+          # #1161). THIS JOB ONLY. The § 5.2 shed moved the dashboard's render
+          # modules to the products' `code` legs and the validator's schemas to
+          # their `spec` legs, and openxFactory reads both through its own pin
+          # (`scripts/carved_reach.py`, RULED Q7). Every lane of this job that
+          # renders or validates a snapshot reaches them, and until this block
+          # each one failed or skipped for their absence (opensoft/xFactory run
+          # 35947804907): the snapshot lane died with `CarveReachUnavailable`;
+          # the ideation-readiness and derive-possibles lanes skipped with "the
+          # pinned openxdox_spec leg is not materialized"; and the refresh
+          # stage's seal could not resolve the validator it carries. `prepare`
+          # reads neither product, and that run shows no failure or skip there
+          # for their absence, so it inits neither.
+          #
+          # The four legs are NAMED rather than reached with `--recursive`, for
+          # the reason the two blocks above give: nothing wider joins the
+          # nightly should a leg ever grow submodules of its own. GUARDED like
+          # them, on each `.gitmodules` actually declaring the path, so a pin
+          # from before the products were mounted skips the init rather than
+          # failing the nightly over an ordering.
+          for product in openDox openXdox; do
+            if git -C openxFactory config --file .gitmodules \
+                 --get "submodule.${product}.path" >/dev/null 2>&1; then
+              git -C openxFactory submodule update --init "$product"
+              for leg in spec code; do
+                if git -C "openxFactory/${product}" config --file .gitmodules \
+                     --get "submodule.${leg}.path" >/dev/null 2>&1; then
+                  git -C "openxFactory/${product}" submodule update --init "$leg"
+                else
+                  echo "openxFactory/${product} declares no ${leg} leg at this pin; skipping the nested init"
+                fi
+              done
+            else
+              echo "openxFactory declares no ${product} gitlink at this pin; skipping the nested init"
+            fi
+          done
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -3710,17 +3747,24 @@ jobs:
         # read of the single-file recipe. Nothing is materialized by a
         # worker-side read anywhere in this stage.
         #
-        # The seal carries ONE thing the decision's baked set does not name:
-        # the pinned openXdox product's own validator, composed with its
-        # schemas under the seal's own `validator/` root. The parent RUNS it
-        # once before it seals, so a copy that cannot run never reaches the
-        # child. It comes from the product, not the corpus, which stopped
-        # carrying it at the § 5.2 shed (#1158). The corpus half is exactly
-        # the baked set, so the decision's scope does not move. The reason
-        # lives in the module, beside the code. This job does not yet mount
-        # openxFactory's openXdox and openDox gitlinks, which the validator is
-        # resolved through. Until it does, this step refuses and names them
-        # (#1161).
+        # The seal also carries the pinned openXdox product's own validator,
+        # composed with its schemas under the seal's own `validator/` root,
+        # because the corpus stopped carrying it at the § 5.2 shed (#1158).
+        # And it carries the RENDER UNIT (#1161): the two products' `code`
+        # legs, archived at the commits `source_head` pins them at, beside the
+        # corpus's own `scripts/ideation-dashboard-cli.py`, which is the one
+        # entry the child renders through. Both are resolved from the products
+        # the "Init governed submodules only" step above materializes. A
+        # parent whose products sit at another pin than `source_head`'s
+        # refuses rather than mixing them. Before it seals, the parent runs
+        # the child's own render from the seal and the sealed validator over
+        # it under --strict. So a unit that cannot render never reaches the
+        # child, and a snapshot the gate rejects is recorded HERE as
+        # `strict_failed`, with the validator's findings, by the record step
+        # below. The reasons live in the module, beside the code. Like every
+        # step of this stage it is `continue-on-error` and ordered after the
+        # report is delivered, so a refusal here stops this stage's dispatch
+        # and nothing else in the nightly.
         if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true'
         continue-on-error: true
         env:
@@ -3770,19 +3814,30 @@ jobs:
         # A refused seal is a RECORDED outcome, not a failure: nothing is
         # dispatched, the nightly continues, and the next run catches up in one
         # hop — the same bounded cost the readiness skip carries.
+        # A seal refused because its own validator REJECTED the snapshot under
+        # --strict is recorded as the verdict it is (`strict_failed`, with the
+        # validator's findings), by handing the seal result on. The hand-off
+        # is made ONLY when the seal result says so. The scripts this job runs
+        # come from the aggregation's openxFactory pin, while this workflow
+        # runs at openxFactory main, so a pin whose seal writes no
+        # `strict_failed` must still be handed exactly the call it knows.
         if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true' && (steps.dfr-seal.outputs.sealed != 'true' || steps.dfr-upload.outcome != 'success')
         continue-on-error: true
         env:
           SEALED: ${{ steps.dfr-seal.outputs.sealed }}
         run: |
+          STRICT=false
           if [ "$SEALED" = "true" ]; then
             REASON="the sealed source artifact could not be uploaded"
           else
             REASON="$(python3 -c 'import json;print(json.load(open("dfr-seal-result.json")).get("reason") or "unknown")' 2>/dev/null || echo unknown)"
+            STRICT="$(python3 -c 'import json;print(str(json.load(open("dfr-seal-result.json")).get("strict_failed") is True).lower())' 2>/dev/null || echo false)"
           fi
-          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
-            --repo-root . --phase decide \
-            --skip-reason "source not sealed: ${REASON}"
+          ARGS=(--repo-root . --phase decide --skip-reason "source not sealed: ${REASON}")
+          if [ "$STRICT" = "true" ]; then
+            ARGS+=(--seal-result-in dfr-seal-result.json)
+          fi
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py "${ARGS[@]}"
       - name: Dispatch artifact-only dashboard-image child
         id: dfr-dispatch
         # Cloned from "Dispatch artifact-only readiness child". The child lives
