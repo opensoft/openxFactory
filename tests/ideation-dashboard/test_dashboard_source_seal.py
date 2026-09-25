@@ -1513,6 +1513,64 @@ def test_the_seal_phase_writes_the_dispatch_gate(corpus, tmp_path, monkeypatch):
                             recipe_revision=RECIPE_REV) == []
 
 
+@pytest.mark.parametrize("planted", ["a-link-to-a-workspace-file",
+                                     "a-file-that-says-sealed"])
+def test_a_seal_result_sealed_code_planted_refuses_the_seal(
+        corpus, tmp_path, monkeypatch, planted):
+    """The seal result sits outside the seal, at the fixed path the workflow
+    gates the dispatch on, and sealed code runs before it is written. An
+    entry found there afterwards was made by that code. It is never written
+    through: the seal is refused, and the lane's own result replaces it
+    (Copilot, PR #1166)."""
+    head = _git(corpus, "rev-parse", "HEAD")
+    workspace_file = tmp_path / "aggregation" / "some-workspace-file.yml"
+    workspace_file.parent.mkdir(parents=True, exist_ok=True)
+    workspace_file.write_text("untouched\n", encoding="utf-8")
+    result_path = tmp_path / "aggregation" / "seal-result.json"
+
+    def planting(seal_root, *, source_head, source_committed_at):
+        if planted == "a-link-to-a-workspace-file":
+            result_path.symlink_to(workspace_file)
+        else:
+            result_path.write_text('{"sealed": true}\n', encoding="utf-8")
+        return dict(STUB_PRECHECK)
+
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", planting)
+    result = _seal_cli(tmp_path, corpus, decision=_decision(head))
+    assert not result_path.is_symlink()
+    assert result["sealed"] is False
+    assert result["reason"] == lane.SEAL_RESULT_PLANTED
+    assert result["strict_failed"] is False
+    assert workspace_file.read_text(encoding="utf-8") == "untouched\n"
+
+
+@pytest.mark.parametrize("stale", ["a-file", "a-link-to-a-workspace-file"])
+def test_a_stale_seal_result_is_cleared_before_the_seal_runs(
+        corpus, tmp_path, monkeypatch, stale):
+    """What sits at the result path BEFORE the seal starts is an earlier
+    run's, not sealed code's. It is removed without being followed, and the
+    seal proceeds."""
+    head = _git(corpus, "rev-parse", "HEAD")
+    root = tmp_path / "aggregation"
+    root.mkdir()
+    workspace_file = root / "some-workspace-file.yml"
+    workspace_file.write_text("untouched\n", encoding="utf-8")
+    result_path = root / "seal-result.json"
+    if stale == "a-file":
+        result_path.write_text('{"sealed": false}\n', encoding="utf-8")
+    else:
+        result_path.symlink_to(workspace_file)
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", _stub_precheck)
+    result = _seal_cli(tmp_path, corpus, decision=_decision(head))
+    assert result["sealed"] is True
+    assert not result_path.is_symlink()
+    assert workspace_file.read_text(encoding="utf-8") == "untouched\n"
+
+
 def test_the_seal_phase_reports_a_refusal_as_a_gate_not_an_exception(
         corpus, tmp_path, monkeypatch):
     head = _git(corpus, "rev-parse", "HEAD")
@@ -2043,6 +2101,53 @@ def test_verify_refuses_a_seal_whose_render_unit_is_not_whole(corpus, tmp_path):
         "could not import it",
         "the openXdox code leg records file_count 2, but the seal indexes 0 "
         "file(s) under openxFactory/openXdox/code/"]
+
+
+@pytest.mark.parametrize("stray", ["openDox/code/tests/test_leg.py",
+                                   "openXdox/code/pyproject.toml"])
+def test_verify_refuses_a_leg_carrying_anything_beside_its_src(corpus,
+                                                               tmp_path,
+                                                               stray):
+    """A leg is sealed as its `src/` alone. A file of the leg outside `src/`
+    is refused even when the leg's `file_count` counts it, since the count
+    alone cannot tell the render unit from a wider tree (Copilot,
+    opensoft/xFactory PR #526)."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    extra = seal / lane.SEAL_CORPUS_RELPATH / stray
+    extra.parent.mkdir(parents=True, exist_ok=True)
+    extra.write_text("# beside src\n", encoding="utf-8")
+    gitlink = stray.split("/")[0]
+    for record in manifest["render_legs"]:
+        if record["gitlink"] == gitlink:
+            record["file_count"] += 1
+    _rewrite_coherently(seal, manifest)
+    root = f"{lane.SEAL_CORPUS_RELPATH}/{gitlink}/code"
+    assert lane.verify_seal(seal) == [
+        f"the {gitlink} code leg indexes 1 file(s) outside {root}/src/ "
+        f"({lane.SEAL_CORPUS_RELPATH}/{stray}), and a leg is sealed as its "
+        "src/ alone"]
+
+
+@pytest.mark.parametrize("change, said", [
+    ({"schema_leg": None}, "records schema_leg None, expected 'spec'"),
+    ({"schema_leg": "code"}, "records schema_leg 'code', expected 'spec'"),
+    ({"schema_leg_revision": "f088b09"},
+     "records schema_leg_revision 'f088b09', expected a full commit revision"),
+    ({"schema_leg_revision": None},
+     "records schema_leg_revision None, expected a full commit revision"),
+], ids=["no-schema-leg", "another-schema-leg", "abbreviated-revision",
+        "no-revision"])
+def test_verify_refuses_a_leg_without_its_schema_provenance(corpus, tmp_path,
+                                                            change, said):
+    """The sealed validator's schemas come from each product's schema leg, so
+    the manifest's record of that leg's pinned revision is required, not
+    optional (Copilot, PR #1166)."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    manifest["render_legs"][1].update(change)
+    _rewrite_coherently(seal, manifest)
+    assert lane.verify_seal(seal) == [f"the openXdox code leg {said}"]
 
 
 def test_the_render_bootstrap_is_what_the_entry_imports_first():

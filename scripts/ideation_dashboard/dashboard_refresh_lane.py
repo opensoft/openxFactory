@@ -1301,6 +1301,18 @@ def _refuse_an_occupied_manifest_path(seal_dir) -> None:
         raise _occupied_manifest_path("a file")
 
 
+def _create_new_file(target, data: bytes, *, dir_fd=None) -> None:
+    """Create `target`, which must not exist yet, and write `data` to it.
+    `O_EXCL` fails on ANY existing entry, a link included, wherever it
+    points, so the bytes land at `target` itself or nowhere. Raises
+    `FileExistsError` when something is already there."""
+    flags = (os.O_WRONLY | os.O_CREAT | os.O_EXCL
+             | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0))
+    descriptor = os.open(target, flags, 0o666, dir_fd=dir_fd)
+    with os.fdopen(descriptor, "wb") as handle:
+        handle.write(data)
+
+
 def _write_new_manifest(seal_dir, text: str, *, identity=None) -> None:
     """Create the manifest, which must not exist yet. `O_EXCL` fails on ANY
     existing entry, a symbolic link included, wherever it points, so the bytes
@@ -1310,8 +1322,6 @@ def _write_new_manifest(seal_dir, text: str, *, identity=None) -> None:
     following a link. With `identity`, the directory as created, the handle
     must be that very directory, so a seal directory replaced after it was
     created is refused rather than written into (Copilot, PR #1166)."""
-    flags = (os.O_WRONLY | os.O_CREAT | os.O_EXCL
-             | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0))
     try:
         directory = _open_directory(seal_dir)
     except OSError as exc:
@@ -1324,15 +1334,36 @@ def _write_new_manifest(seal_dir, text: str, *, identity=None) -> None:
         target = (SEAL_MANIFEST_NAME if directory is not None
                   else Path(seal_dir) / SEAL_MANIFEST_NAME)
         try:
-            descriptor = os.open(target, flags, 0o666, dir_fd=directory)
+            _create_new_file(target, text.encode("utf-8"), dir_fd=directory)
         except FileExistsError as exc:
             raise _occupied_manifest_path(
                 "one that appeared while the lane was writing it") from exc
     finally:
         if directory is not None:
             os.close(directory)
-    with os.fdopen(descriptor, "wb") as handle:
-        handle.write(text.encode("utf-8"))
+
+
+# THE SEAL RESULT IS THE LANE'S OWN FILE (Copilot, PR #1166). It sits outside
+# the seal, at a fixed path the workflow reads to gate the dispatch, and
+# sealed code runs before it is written. So its path is cleared before the
+# seal starts, and anything found there afterwards is an entry sealed code
+# made: the seal is refused, the entry is removed without being followed,
+# and the lane's own result is created in its place, exclusively.
+SEAL_RESULT_PLANTED = (
+    "the seal result's path held an entry the lane did not write: sealed "
+    "code ran before the result was written, so the seal is refused rather "
+    "than dispatched")
+
+
+def _clear_result_path(path) -> None:
+    """Remove whatever sits at `path` without following it: a file or a link
+    is unlinked, and a directory is left for the exclusive create to refuse."""
+    try:
+        info = os.lstat(path)
+    except FileNotFoundError:
+        return
+    if not stat.S_ISDIR(info.st_mode):
+        os.unlink(path)
 
 
 def tree_digest(index: dict[str, str]) -> str:
@@ -2687,7 +2718,11 @@ def _render_unit_problems(manifest: dict, files: dict,
     for record in legs:
         gitlink, leg, package = record["gitlink"], record["leg"], record["package"]
         name = f"the {gitlink} {leg} leg"
-        for key in ("gitlink_revision", "leg_revision"):
+        if record.get("schema_leg") != SCHEMA_LEG:
+            problems.append(
+                f"{name} records schema_leg {record.get('schema_leg')!r}, "
+                f"expected {SCHEMA_LEG!r}")
+        for key in ("gitlink_revision", "leg_revision", "schema_leg_revision"):
             value = record.get(key)
             if not (isinstance(value, str) and _FULL_REVISION_RE.match(value)):
                 problems.append(
@@ -2703,6 +2738,17 @@ def _render_unit_problems(manifest: dict, files: dict,
                 f"{name} records paths {record.get('paths')!r}, expected "
                 f"{list(RENDER_LEG_PATHS)!r}")
         indexed = [path for path in files if path.startswith(relpath + "/")]
+        # A leg is sealed as its `src/` alone, so nothing else of it may be
+        # indexed, whatever `file_count` says (Copilot, opensoft/xFactory PR
+        # #526).
+        sealed_under = tuple(f"{relpath}/{path}/" for path in RENDER_LEG_PATHS)
+        stray = sorted(path for path in indexed
+                       if not path.startswith(sealed_under))
+        if stray:
+            problems.append(
+                f"{name} indexes {len(stray)} file(s) outside "
+                f"{', '.join(sealed_under)} ({stray[0]}), and a leg is sealed "
+                "as its src/ alone")
         modules = f"{relpath}/src/{package}/"
         if not any(path.startswith(modules) and path.endswith(".py")
                    for path in indexed):
@@ -3388,6 +3434,12 @@ def main(argv: list[str] | None = None) -> None:
             load_error = None
         manifest: dict | None = None
         strict_failed, strict_detail = False, []
+        result_out = Path(args.seal_result_out) if args.seal_result_out else None
+        if result_out is not None:
+            try:
+                _clear_result_path(result_out)
+            except OSError as exc:
+                print(f"  ::warning::could not clear the seal result: {exc}")
         if load_error is not None:
             reason = (f"no usable parent decision ({args.decision_in!r}): "
                       f"{load_error}")
@@ -3420,11 +3472,16 @@ def main(argv: list[str] | None = None) -> None:
                                       manifest=manifest,
                                       strict_failed=strict_failed,
                                       detail=strict_detail)
-        if args.seal_result_out:
+        if result_out is not None:
+            if os.path.lexists(result_out):
+                manifest, reason = None, SEAL_RESULT_PLANTED
+                strict_failed, strict_detail = False, []
+                payload = seal_result_payload(sealed=False, reason=reason,
+                                              manifest=None)
             try:
-                Path(args.seal_result_out).write_text(
-                    json.dumps(payload, indent=2, sort_keys=True) + "\n",
-                    encoding="utf-8")
+                _clear_result_path(result_out)
+                _create_new_file(result_out, (json.dumps(
+                    payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
             except OSError as exc:
                 print(f"  ::warning::could not write the seal result: {exc}")
         if manifest is not None:
