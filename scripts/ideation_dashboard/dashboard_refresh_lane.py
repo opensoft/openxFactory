@@ -161,13 +161,13 @@ CORPUS_COPIED_PATHS: tuple[str, ...] = (
 # which the Dockerfile also copies, so the copied set covered it by coincidence.
 # The shed moved it to the pinned openDox and openXdox products. openxFactory
 # reaches them through its own pin (RULED Q7) and its own host bootstrap, so the
-# renderer is now the two product gitlinks plus the five files the bootstrap is
-# made of. MEASURED, not listed from memory: an audit hook over the real render
-# (`RENDER_ENTRY generate`) at `57af6927` opened nothing else under `scripts/`
-# outside the two copied packages, and nothing under either product outside
-# its code leg's `src/`. A test repeats that measurement, so a render that
-# grows an import outside this set fails in the suite rather than in the
-# child.
+# renderer is now the two product gitlinks plus five files: the entry, and the
+# four its host bootstrap is made of (`RENDER_BOOTSTRAP`). MEASURED, not listed
+# from memory: an audit hook over the real render (`RENDER_ENTRY generate`) at
+# `57af6927` opened nothing else under `scripts/` outside the two copied
+# packages, and nothing under either product outside its code leg's `src/`.
+# A test repeats that measurement, so a render that grows an import outside
+# this set fails in the suite rather than in the child.
 #
 # A gitlink path is a path `git log` answers for, so a product re-pin is corpus
 # movement exactly as a renderer edit in `scripts/ideation_dashboard` was.
@@ -2656,6 +2656,21 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
         recomputed[relpath] = actual
         if actual != files[relpath]:
             problems.append(f"sha256 mismatch: {relpath}")
+    # AND NOTHING ELSE IS THERE (Copilot, PR #1166). `files` says what may
+    # exist, not only what must. The child renders, validates and bakes out
+    # of this tree, so a file the index does not name is bytes the digest
+    # never covered, and an extra module under a leg's `src/` would be
+    # importable.
+    unlisted = sorted(
+        path.relative_to(root).as_posix() for path in root.rglob("*")
+        if (path.is_symlink() or not path.is_dir())
+        and path.relative_to(root).as_posix() != SEAL_MANIFEST_NAME
+        and path.relative_to(root).as_posix() not in files)
+    problems += [f"the seal holds {relpath}, which its index does not name"
+                 for relpath in unlisted[:10]]
+    if len(unlisted) > 10:
+        problems.append(
+            f"... and {len(unlisted) - 10} more the index does not name")
     if len(recomputed) == len(files):
         # Recomputed whenever every indexed path WAS hashed, and deliberately
         # NOT suppressed by an unrelated problem above (a wrong `kind`, a

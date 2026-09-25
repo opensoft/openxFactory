@@ -1248,6 +1248,37 @@ def test_verify_refuses_an_absolute_files_key(corpus, tmp_path):
                for problem in problems)
 
 
+@pytest.mark.parametrize("extra", [
+    "openxFactory/unindexed.txt",
+    "openxFactory/openXdox/code/src/openxdox/unindexed.py",
+    "openxFactory/openDox/code/src/json.py"],
+    ids=["beside-the-corpus", "a-module-in-a-leg", "a-stdlib-shadow-in-a-leg"])
+def test_verify_refuses_a_file_the_index_does_not_name(corpus, tmp_path,
+                                                        extra):
+    """`files` says what may exist, not only what must (Copilot, PR #1166).
+    The child renders, validates and bakes out of the seal, so an unindexed
+    file is bytes the digest never covered, and one under a leg's `src/`
+    would be importable, here even shadowing a standard module."""
+    seal = tmp_path / "seal"
+    _seal(corpus, seal)
+    target = seal / extra
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("extra\n", encoding="utf-8")
+    assert lane.verify_seal(seal) == [
+        f"the seal holds {extra}, which its index does not name"]
+
+
+def test_verify_bounds_the_unindexed_files_it_names(corpus, tmp_path):
+    seal = tmp_path / "seal"
+    _seal(corpus, seal)
+    for n in range(12):
+        (seal / lane.SEAL_CORPUS_RELPATH / f"extra-{n:02d}.txt").write_text(
+            "extra\n", encoding="utf-8")
+    problems = lane.verify_seal(seal)
+    assert len(problems) == 11
+    assert problems[-1] == "... and 2 more the index does not name"
+
+
 def test_verify_refuses_a_symlinked_entry(corpus, tmp_path):
     """The manifest still names a real path INSIDE the seal, but that path is
     now a symlink to a file outside — no `..`, no absolute path, nothing the
