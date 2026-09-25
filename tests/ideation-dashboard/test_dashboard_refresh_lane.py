@@ -815,6 +815,33 @@ def test_a_missing_seal_result_leaves_the_skip_as_named(tmp_path):
     assert payload["reason"] == "source not sealed: unknown"
 
 
+@pytest.mark.parametrize("where", ["beside-the-checkout",
+                                   "linked-from-inside-it",
+                                   "climbing-out-of-it"])
+def test_a_seal_result_outside_the_checkout_is_never_read(tmp_path, where):
+    """The seal phase writes its result inside the checkout the lane runs
+    over, and only a result there is read. A strict verdict anywhere else,
+    reached by its own path, through a link inside the checkout, or by `..`,
+    leaves the skip as named."""
+    root = tmp_path / "aggregation"
+    root.mkdir()
+    outside = _write_seal_result(tmp_path / "seal-result.json")
+    if where == "beside-the-checkout":
+        given = str(outside)
+    elif where == "linked-from-inside-it":
+        (root / "seal-result.json").symlink_to(outside)
+        given = str(root / "seal-result.json")
+    else:
+        given = str(root / ".." / "seal-result.json")
+    lane.main(["--repo-root", str(root), "--phase", "decide",
+               "--skip-reason", "source not sealed: whatever the seal said",
+               "--seal-result-in", given])
+    payload = _status(root / lane.DEFAULT_OUT_DIR / lane.STATUS_NAME)
+    assert payload["result"] == "skipped"
+    assert payload["reason"] == "source not sealed: whatever the seal said"
+    assert lane.read_strict_verdict(outside, within=tmp_path) is not None
+
+
 def test_the_report_section_lists_a_strict_verdicts_findings():
     findings = [f"ERROR [snapshot-dangling-cluster-ref] snapshot.json: `{n}`"
                 for n in range(lane.REPORT_FINDINGS_CAP + 3)]

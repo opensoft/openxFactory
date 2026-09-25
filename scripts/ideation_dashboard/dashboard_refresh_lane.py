@@ -944,8 +944,9 @@ class BuildResult:
 # that composed unit as regular files under its own root, `validator/`
 # (`scripts/` beside `contracts/schemas/`), where the script's own `parents[1]`
 # is the unit and its schemas resolve. Then the parent RUNS the sealed copy
-# once, through the product's own `snapshot.validate_snapshot`, over a minimal
-# snapshot-kind probe, and refuses unless the validator reached a verdict. So
+# once, through the product's own `snapshot.validate_snapshot` in an
+# allowlisted environment, over a minimal snapshot-kind probe, and refuses
+# unless the validator reached a verdict. So
 # what the child's `--strict` runs is a byte-for-byte copy of the unit the
 # snapshot lane validates with, and that copy has run once, here, to a verdict.
 # The probe's verdict is not a verdict on the corpus and is never read as one:
@@ -1233,6 +1234,41 @@ def seal_file_index(seal_dir) -> dict[str, str]:
     return index
 
 
+def _occupied_manifest_path(what: str) -> SealRefused:
+    return SealRefused(
+        f"the seal already holds a {SEAL_MANIFEST_NAME} the lane did not write "
+        f"({what}): sealed code runs before the manifest is written, and the "
+        "manifest is never written through anything it left")
+
+
+def _refuse_an_occupied_manifest_path(seal_dir) -> None:
+    """Refuse the seal when anything at all sits at the manifest's path: a
+    file, a directory, or a symbolic link, dangling or not."""
+    path = Path(seal_dir) / SEAL_MANIFEST_NAME
+    if path.is_symlink():
+        raise _occupied_manifest_path("a symbolic link")
+    if path.is_dir():
+        raise _occupied_manifest_path("a directory")
+    if os.path.lexists(path):
+        raise _occupied_manifest_path("a file")
+
+
+def _write_new_manifest(seal_dir, text: str) -> None:
+    """Create the manifest, which must not exist yet. `O_EXCL` fails on ANY
+    existing entry, a symbolic link included, wherever it points, so the bytes
+    land at the manifest's own path or nowhere."""
+    path = Path(seal_dir) / SEAL_MANIFEST_NAME
+    flags = (os.O_WRONLY | os.O_CREAT | os.O_EXCL
+             | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0))
+    try:
+        descriptor = os.open(path, flags, 0o666)
+    except FileExistsError as exc:
+        raise _occupied_manifest_path(
+            "one that appeared while the lane was writing it") from exc
+    with os.fdopen(descriptor, "wb") as handle:
+        handle.write(text.encode("utf-8"))
+
+
 def tree_digest(index: dict[str, str]) -> str:
     """One digest over the whole sealed tree — see `TREE_DIGEST_SPEC`, which is
     written into the manifest so the child implements the rule the artifact
@@ -1430,7 +1466,9 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
     the snapshot lane makes, over `VALIDATOR_PROBE`. "Available" is the only
     thing it reads: the probe's own verdict is a finding by construction, and
     it is never a verdict on the corpus. The probe lives in a scratch directory
-    outside the seal, so nothing it touches is sealed."""
+    outside the seal, so nothing it touches is sealed. The copy is sealed code,
+    so it runs in the pre-dispatch render's allowlisted environment, not this
+    job's (`validate_in_render_environment`)."""
     # WHICH PRODUCT REVISION the copy comes from, read FIRST. A unit resolved
     # from a product source tree records that tree's HEAD. A HEAD that cannot
     # be read as a full revision REFUSES the seal, because the manifest
@@ -1478,7 +1516,9 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
         probe = Path(scratch) / "validator-probe.json"
         probe.write_text(json.dumps(VALIDATOR_PROBE, sort_keys=True) + "\n",
                          encoding="utf-8")
-        result = product.validate_snapshot(probe, validator=script)
+        result = validate_in_render_environment(
+            product, probe, validator=script, strict=False,
+            seal_root=seal_root)
     if not result.available:
         said = _validator_said(result)
         raise SealRefused(
@@ -1637,7 +1677,9 @@ RENDER_REPOSITORY = "openxFactory"
 # product (a test holds the two equal).
 PRECHECK_VALIDATED = "validated"
 # Measured at `57af6927`: about five seconds for the real corpus. The bound is
-# for a render that hangs, not for a slow one.
+# for a render that hangs, not for a slow one. Each run of the sealed
+# validator gets the same bound, because the product's own call has none, and
+# a validator that hangs must not hold the rest of the nightly.
 PRECHECK_TIMEOUT_SECONDS = 600
 # The ONLY variables of this job's environment the pre-dispatch render
 # receives, by name, and by prefix for the locale. It runs code read out of the
@@ -1678,6 +1720,117 @@ def _render_environment(seal_root, home) -> dict[str, str]:
         "GIT_CONFIG_NOSYSTEM": "1",
     })
     return env
+
+
+# THE SEALED VALIDATOR RUNS IN THAT ENVIRONMENT TOO (Copilot, PR #1166). The
+# product's `snapshot.validate_snapshot` launches the validator with no `env`
+# of its own. Called in THIS process, it would hand the sealed copy every
+# credential the job holds. So the call is made in a fresh interpreter whose
+# whole environment is `_render_environment`'s, working in a scratch
+# directory. It is still the product's own function, with its own three-outcome
+# reading, and everything it launches inherits the allowlist. The harness
+# imports the very module this parent imported, and ends without a verdict if
+# that name resolves to any other file. It hands the product's result back as
+# the last line of its stdout. The validator's own output never reaches that
+# stream, because the product captures it.
+_VALIDATE_HARNESS = """\
+import json, sys
+from pathlib import Path
+module_file, target, validator, strictness = sys.argv[1:5]
+if sys.path and sys.path[0] == "":
+    sys.path.pop(0)
+sys.path.insert(0, str(Path(module_file).parents[1]))
+from openxdox import snapshot
+if Path(snapshot.__file__).resolve() != Path(module_file).resolve():
+    sys.exit(f"openxdox.snapshot resolved to {snapshot.__file__}, not to "
+             f"{module_file}")
+result = snapshot.validate_snapshot(Path(target), validator=Path(validator),
+                                    strict=strictness == "strict")
+print(json.dumps({"ok": result.ok, "returncode": result.returncode,
+                  "stdout": result.stdout, "stderr": result.stderr,
+                  "outcome": result.outcome,
+                  "unavailable_reason": result.unavailable_reason}))
+"""
+# The shape of the verdict the harness prints: each field, and its type.
+_HARNESS_VERDICT_SHAPE = {"ok": bool, "returncode": int, "stdout": str,
+                          "stderr": str, "outcome": str}
+
+
+def _harness_verdict(stdout, outcomes) -> dict | None:
+    """The product's result as the harness printed it, on the last line of its
+    stdout, or None when that line is not one: not JSON, not an object, a
+    field missing or of another type, or an outcome not in `outcomes`."""
+    lines = [line for line in (stdout or "").splitlines() if line.strip()]
+    if not lines:
+        return None
+    try:
+        verdict = json.loads(lines[-1])
+    except ValueError:
+        return None
+    if not isinstance(verdict, dict):
+        return None
+    if any(type(verdict.get(name)) is not kind
+           for name, kind in _HARNESS_VERDICT_SHAPE.items()):
+        return None
+    if not isinstance(verdict.get("unavailable_reason"), (str, type(None))):
+        return None
+    return verdict if verdict["outcome"] in outcomes else None
+
+
+def validate_in_render_environment(product, target, *, validator, strict: bool,
+                                   seal_root, run=subprocess.run,
+                                   timeout: int = PRECHECK_TIMEOUT_SECONDS):
+    """The product's own `validate_snapshot(target, validator=...,
+    strict=...)`, run in the pre-dispatch render's environment rather than this
+    job's (see `_VALIDATE_HARNESS`). Returns the product's `ValidationResult`.
+
+    Git may climb neither out of the seal nor out of the scratch directory the
+    validator runs in. A harness that cannot be launched, does not finish, or
+    returns no verdict is reported the way the product reports a validator
+    that cannot run: outcome `VALIDATOR_UNAVAILABLE`, with the reason. Nothing
+    is then known about the target, and both callers refuse on that
+    outcome."""
+    validator = Path(validator).resolve()
+    module_file = Path(product.__file__).resolve()
+
+    def unavailable(reason: str, *, returncode: int = -1, stderr: str = ""):
+        return product.ValidationResult(
+            False, returncode, "", stderr, validator,
+            product.VALIDATOR_UNAVAILABLE, reason)
+
+    with tempfile.TemporaryDirectory(prefix="dfr-validate-") as scratch:
+        scratch_root = Path(scratch).resolve()
+        home = scratch_root / "home"
+        home.mkdir()
+        env = _render_environment(seal_root, home)
+        env["GIT_CEILING_DIRECTORIES"] = os.pathsep.join(
+            (env["GIT_CEILING_DIRECTORIES"], str(scratch_root.parent)))
+        argv = [sys.executable, "-c", _VALIDATE_HARNESS, str(module_file),
+                str(Path(target).resolve()), str(validator),
+                "strict" if strict else "lenient"]
+        try:
+            proc = run(argv, cwd=str(scratch_root), env=env,
+                       capture_output=True, text=True, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            return unavailable(f"the validator did not finish within {timeout}s")
+        except OSError as exc:
+            return unavailable(
+                "the validator could not be launched in the render's "
+                f"environment ({type(exc).__name__}: {exc})")
+    verdict = _harness_verdict(
+        proc.stdout, (product.VALIDATED, product.NOT_CONFORMANT,
+                      product.VALIDATOR_UNAVAILABLE))
+    if proc.returncode != 0 or verdict is None:
+        # Its stderr is kept, since a harness that could not import the product
+        # says why there. Its stdout carries nothing but a verdict line.
+        return unavailable(
+            f"the validator's harness returned no verdict (exit "
+            f"{proc.returncode})", returncode=proc.returncode,
+            stderr=proc.stderr or "")
+    return product.ValidationResult(
+        verdict["ok"], verdict["returncode"], verdict["stdout"],
+        verdict["stderr"], validator, verdict["outcome"],
+        verdict["unavailable_reason"])
 
 
 # STRICT FINDINGS THAT HAVE A TRACKING ISSUE: (finding code, the value the
@@ -1749,15 +1902,22 @@ def precheck_sealed_render(seal_root, *, source_head: str,
     `--source-revision` and `--generated-at`, and `--no-validate` because
     validation is the sealed unit's job. Then the sealed validator runs over
     the result, through the product's own three-outcome `validate_snapshot`,
-    as the probe does. The snapshot is written to a scratch directory outside
-    the seal and discarded. The child generates the one the image bakes, and
-    the child's `--strict` stays the publication gate.
+    as the probe does. Both run in the allowlisted environment
+    (`_render_environment`, `validate_in_render_environment`), never in this
+    job's. The snapshot is written to a scratch directory outside the seal and
+    discarded. The child generates the one the image bakes, and the child's
+    `--strict` stays the publication gate.
+
+    Every path either run is handed is absolute. The nightly names its seal
+    relative to the job's working directory (`--seal-out dfr-seal`), and the
+    render runs from inside the seal, where a relative path would name
+    nothing.
 
     Raises `SealRefused` when the render fails, when it drops either anchor,
     or when the validator cannot run. Raises `StrictGateRejected`, carrying
     the validator's own output, when the validator REJECTS the snapshot. That
     is a verdict on the corpus, and the lane records it as one."""
-    seal_root = Path(seal_root)
+    seal_root = Path(seal_root).resolve()
     corpus_root = seal_root / SEAL_CORPUS_RELPATH
     entry = corpus_root / RENDER_ENTRY
     validator = seal_root / SEAL_VALIDATOR_RELPATH
@@ -1813,8 +1973,9 @@ def precheck_sealed_render(seal_root, *, source_head: str,
                 "child's one-revision assertion would refuse it")
         documents = rendered.get("documents")
         document_count = len(documents) if isinstance(documents, list) else 0
-        result = product.validate_snapshot(snapshot, validator=validator,
-                                           strict=True)
+        result = validate_in_render_environment(
+            product, snapshot, validator=validator, strict=True,
+            seal_root=seal_root, run=run, timeout=timeout)
     if not result.available:
         said = _validator_said(result)
         raise SealRefused(
@@ -1882,8 +2043,10 @@ def seal_source(
       * a snapshot the sealed validator REJECTS under `--strict` seals
         nothing, and is raised as `StrictGateRejected`, carrying the
         validator's own findings;
-      * a pre-dispatch render that changed the sealed tree seals nothing.
-    Only a seal that passed all eleven gets a `manifest.json`, and the
+      * a pre-dispatch render that changed the sealed tree seals nothing;
+      * a `manifest.json` the lane did not write, left by the sealed code that
+        ran before it, seals nothing.
+    Only a seal that passed all twelve gets a `manifest.json`, and the
     manifest's presence is therefore the artifact's own statement that the
     parent stands behind it.
 
@@ -2028,6 +2191,12 @@ def seal_source(
         raise SealRefused(
             "the pre-dispatch render changed the sealed tree, so the seal "
             "would no longer be the tree its own render was checked on")
+    # THE MANIFEST'S OWN PATH IS STILL EMPTY (Copilot, PR #1166). The index
+    # excludes `manifest.json`, the one path it cannot cover, so it cannot see
+    # what sealed code left there, and the probe and the render have both run
+    # by now. Whatever is there refuses the seal. The write below also creates
+    # the file exclusively, so nothing put there later is followed either.
+    _refuse_an_occupied_manifest_path(seal_root)
     total_bytes = sum((seal_root / relpath).stat().st_size for relpath in index)
     manifest = {
         "schema_version": SEAL_SCHEMA_VERSION,
@@ -2076,8 +2245,8 @@ def seal_source(
         "total_bytes": total_bytes,
         "files": index,
     }
-    (seal_root / SEAL_MANIFEST_NAME).write_text(
-        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _write_new_manifest(seal_root,
+                        json.dumps(manifest, indent=2, sort_keys=True) + "\n")
     return manifest
 
 
@@ -2350,16 +2519,30 @@ def seal_result_payload(*, sealed: bool, reason: str | None,
     }
 
 
-def read_strict_verdict(path) -> tuple[str, list[str]] | None:
+def _confined_path(path, base) -> str:
+    """`path`'s canonical form, when that names something inside `base`, or
+    `ValueError`. The canonical path is what is checked, never the spelling,
+    so neither `..` nor a link leads out of `base`."""
+    resolved = os.path.realpath(path)
+    root = os.path.realpath(base)
+    if resolved != root and not resolved.startswith(root + os.sep):
+        raise ValueError(f"{path!r} is outside {base}")
+    return resolved
+
+
+def read_strict_verdict(path, *, within) -> tuple[str, list[str]] | None:
     """The strict verdict a seal result records, as `(reason, findings)`, or
     None.
 
     None unless the file is a seal result that did NOT seal, says
     `strict_failed: true`, and gives a reason. Anything else is recorded as the
     skip the workflow already named, so a malformed or older seal result can
-    never turn a skip into a verdict."""
+    never turn a skip into a verdict. The file is read only from inside
+    `within`, the checkout this lane runs over, where the seal phase writes
+    it. A path that resolves anywhere else is never opened."""
     try:
-        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+        with open(_confined_path(path, within), encoding="utf-8") as handle:
+            payload = json.load(handle)
     except (OSError, TypeError, ValueError):
         return None
     if not isinstance(payload, dict):
@@ -3055,7 +3238,7 @@ def main(argv: list[str] | None = None) -> None:
 
     skip_reason, skip_result, skip_detail = args.skip_reason, RESULT_SKIPPED, []
     if skip_reason and args.seal_result_in:
-        verdict = read_strict_verdict(args.seal_result_in)
+        verdict = read_strict_verdict(args.seal_result_in, within=repo_root)
         if verdict is not None:
             skip_result = RESULT_STRICT_FAILED
             skip_reason, skip_detail = verdict

@@ -583,32 +583,105 @@ def test_a_product_revision_that_cannot_be_read_refuses_the_seal(
     assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
 
 
+_RECORDING_VALIDATOR = '''\
+import json, os, sys
+from pathlib import Path
+with open(RECORD, "a", encoding="utf-8") as handle:
+    handle.write(json.dumps({
+        "file": __file__, "argv": sys.argv[1:], "cwd": os.getcwd(),
+        "env": dict(os.environ),
+        "probe": json.loads(Path(sys.argv[1]).read_text(encoding="utf-8")),
+    }) + "\\n")
+print("ok")
+'''
+
+
+def _recording_validator(where: Path, record: Path) -> "lane.PinnedValidator":
+    """`_stub_validator`, whose script also appends one line to `record` for
+    each run: the file that ran, its argv, the probe it was handed, its working
+    directory and its environment. The evidence is what the VALIDATOR PROCESS
+    saw, so nothing in this process is patched to observe it."""
+    stub = _stub_validator(where)
+    stub.runnable.write_text(f"RECORD = {str(record)!r}\n" + _RECORDING_VALIDATOR,
+                             encoding="utf-8")
+    return stub
+
+
+# What the job holding the seal could export: its credentials, its GitHub and
+# Git plumbing, an interpreter path override, and credentials a denylist would
+# have had to name (Copilot, PR #1166). None of it may reach sealed code.
+_JOB_ENVIRONMENT = {
+    "GH_TOKEN": "t1", "GITHUB_TOKEN": "t2", "SUBMODULE_TOKEN": "t3",
+    "AZURE_CLIENT_SECRET": "t4", "ACR_PASSWORD": "t5",
+    "SIGNING_PRIVATE_KEY": "t6", "GITHUB_WORKSPACE": "/w",
+    "GIT_ASKPASS": "/askpass", "GIT_CONFIG_PARAMETERS": "'http.extraheader=x'",
+    "ACTIONS_RUNTIME_TOKEN": "t7", "SSH_AUTH_SOCK": "/s",
+    "PYTHONPATH": "/elsewhere", "AWS_ACCESS_KEY_ID": "t8",
+    "DOCKER_AUTH_CONFIG": "t9", "KUBECONFIG": "/runner/kube",
+    "NPM_CONFIG_USERCONFIG": "/runner/npmrc", "VIRTUAL_ENV": "/runner/venv"}
+_JOB_SECRETS = ("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9")
+# What the render's environment adds to the allowlisted names.
+_RENDER_ENV_GIVEN = {"HOME", "PYTHONDONTWRITEBYTECODE", "PYTHONIOENCODING",
+                     "GIT_CEILING_DIRECTORIES", "GIT_CONFIG_GLOBAL",
+                     "GIT_CONFIG_NOSYSTEM"}
+
+
+def _export_the_job_environment(monkeypatch) -> None:
+    for name, value in _JOB_ENVIRONMENT.items():
+        monkeypatch.setenv(name, value)
+    monkeypatch.setenv("LC_ALL", "C.UTF-8")
+
+
+def _assert_the_renders_environment(env: dict, seal: Path) -> None:
+    """ALLOWLISTED: nothing of the job's reaches sealed code but the kept names
+    and what the render is given. (An interpreter adds nothing to its own
+    environ.) Git reads no configuration of the job's and cannot climb out of
+    the seal, and HOME is a scratch directory."""
+    for name in _JOB_ENVIRONMENT:
+        assert name not in env, name
+    assert not any(value in _JOB_SECRETS for value in env.values())
+    assert {name for name in env
+            if name not in lane._RENDER_ENV_KEPT and name not in _RENDER_ENV_GIVEN
+            and not name.startswith(lane._RENDER_ENV_KEPT_PREFIXES)} == set()
+    assert env["LC_ALL"] == "C.UTF-8"
+    assert env["PYTHONDONTWRITEBYTECODE"] == "1"
+    assert str(seal.resolve()) in env["GIT_CEILING_DIRECTORIES"].split(os.pathsep)
+    assert env["GIT_CONFIG_GLOBAL"] == os.devnull
+    assert env["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert env["HOME"] != os.environ.get("HOME")
+    assert not Path(env["HOME"]).resolve().is_relative_to(seal.resolve())
+    assert "PATH" in env                     # the interpreter still resolves
+
+
 def test_the_one_run_is_of_the_sealed_copy_over_the_probe(corpus, tmp_path,
                                                           monkeypatch):
     """What the parent runs is the SEALED copy, from inside the seal. It is not
     the composed unit it was copied from, because the child will run the copy.
-    It runs exactly once, through the product's own `validate_snapshot`, over
-    `VALIDATOR_PROBE`, and the probe itself is never part of the artifact."""
-    runs: list[dict] = []
-    real = nightly_lane.snapshot_mod.validate_snapshot
-
-    def recording(path, *, validator=None, strict=False, search_from=None):
-        runs.append({"path": Path(path), "validator": Path(validator),
-                     "strict": strict,
-                     "probe": json.loads(Path(path).read_text(encoding="utf-8"))})
-        return real(path, validator=validator, strict=strict,
-                    search_from=search_from)
-
-    monkeypatch.setattr(nightly_lane.snapshot_mod, "validate_snapshot", recording)
+    It runs exactly once, over `VALIDATOR_PROBE`, and the probe itself is never
+    part of the artifact. The copy is sealed code and this job holds
+    credentials, so it runs in the render's allowlisted environment, from a
+    scratch directory (Copilot, PR #1166)."""
+    _export_the_job_environment(monkeypatch)
+    record = tmp_path / "probe-runs.jsonl"
+    stub = _recording_validator(tmp_path / "unit", record)
     seal = tmp_path / "seal"
-    manifest = _seal(corpus, seal)
+    manifest = _seal(corpus, seal, resolve_validator=lambda: stub)
+    runs = [json.loads(line)
+            for line in record.read_text(encoding="utf-8").splitlines()]
     assert len(runs) == 1
     (run,) = runs
-    assert run["validator"] == seal / lane.SEAL_VALIDATOR_RELPATH
+    assert Path(run["file"]).resolve() == \
+        (seal / lane.SEAL_VALIDATOR_RELPATH).resolve()
     assert run["probe"] == lane.VALIDATOR_PROBE
-    assert run["strict"] is False
-    assert not run["path"].resolve().is_relative_to(seal.resolve())
+    assert run["argv"][1:] == []                     # no --strict
+    assert not Path(run["argv"][0]).resolve().is_relative_to(seal.resolve())
     assert not any(key.endswith("validator-probe.json") for key in manifest["files"])
+    _assert_the_renders_environment(run["env"], seal)
+    assert not Path(run["cwd"]).resolve().is_relative_to(seal.resolve())
+    assert Path(run["cwd"]).resolve() != Path.cwd().resolve()
+    assert manifest["validator_probe"] == {
+        "kind": lane.VALIDATOR_PROBE["kind"],
+        "outcome": snapshot_mod.VALIDATED, "returncode": 0}
 
 
 def test_the_confined_locator_never_adopts_the_sealed_validator(corpus, tmp_path):
@@ -1909,13 +1982,15 @@ output.write_text(json.dumps({"kind": "ideation-dashboard-snapshot",
 '''
 
 _STAND_IN_VALIDATOR = '''\
-"""A stand-in sealed validator: records its argv, then answers per mode."""
+"""A stand-in sealed validator: records how it was run, then answers per
+mode."""
 import json, os, sys
 from pathlib import Path
 
 config = json.loads(Path(CONFIG).read_text(encoding="utf-8"))
-Path(config["validator_record"]).write_text(
-    json.dumps(sys.argv[1:]), encoding="utf-8")
+Path(config["validator_record"]).write_text(json.dumps(
+    {"argv": sys.argv[1:], "cwd": os.getcwd(), "env": dict(os.environ)}),
+    encoding="utf-8")
 mode = config.get("validator", "ok")
 target = sys.argv[1]
 if mode == "many-findings":
@@ -1994,7 +2069,27 @@ def test_the_pre_dispatch_render_is_the_childs_own_invocation(
     assert Path(ran["cwd"]).resolve() == corpus_root.resolve()
     assert not Path(output).resolve().is_relative_to(stand_in_seal.resolve())
     judged = json.loads((tmp_path / "validator.json").read_text(encoding="utf-8"))
-    assert judged == [str(Path(output).resolve()), "--strict"]
+    assert judged["argv"] == [str(Path(output).resolve()), "--strict"]
+
+
+def test_a_seal_named_relative_to_the_working_directory_still_renders(
+        stand_in_seal, tmp_path, monkeypatch):
+    """The nightly names its seal `dfr-seal`, relative to the job's working
+    directory, and the render runs from INSIDE the seal. So every path the
+    render and the validator are handed is absolute. A relative one would be
+    read from the wrong directory, and every nightly seal would be refused
+    as a render that could not run."""
+    monkeypatch.chdir(tmp_path)
+    record = lane.precheck_sealed_render(Path(stand_in_seal.name),
+                                         source_head=HEAD_REV,
+                                         source_committed_at=COMMITTED_AT)
+    assert record["outcome"] == lane.PRECHECK_VALIDATED
+    assert record["documents"] == 3
+    ran = json.loads((tmp_path / "entry.json").read_text(encoding="utf-8"))
+    corpus_root = (stand_in_seal / lane.SEAL_CORPUS_RELPATH).resolve()
+    assert ran["argv"][ran["argv"].index("--repo-root") + 1] == str(corpus_root)
+    judged = json.loads((tmp_path / "validator.json").read_text(encoding="utf-8"))
+    assert Path(judged["argv"][0]).is_absolute()
 
 
 def test_the_pre_dispatch_render_holds_no_credential_and_no_repository(
@@ -2005,47 +2100,29 @@ def test_the_pre_dispatch_render_holds_no_credential_and_no_repository(
     scratch HOME, no bytecode written, and git may not climb out of the seal
     into the aggregation checkout it sits in, which the child's seal never
     has above it."""
-    for name, value in {"GH_TOKEN": "t1", "GITHUB_TOKEN": "t2",
-                        "SUBMODULE_TOKEN": "t3", "AZURE_CLIENT_SECRET": "t4",
-                        "ACR_PASSWORD": "t5", "SIGNING_PRIVATE_KEY": "t6",
-                        "GITHUB_WORKSPACE": "/w", "GIT_ASKPASS": "/askpass",
-                        "GIT_CONFIG_PARAMETERS": "'http.extraheader=x'",
-                        "ACTIONS_RUNTIME_TOKEN": "t7", "SSH_AUTH_SOCK": "/s",
-                        "PYTHONPATH": "/elsewhere"}.items():
-        monkeypatch.setenv(name, value)
-    # And credentials a denylist would have to have named (Copilot, #1166).
-    for name, value in {"AWS_ACCESS_KEY_ID": "t8", "DOCKER_AUTH_CONFIG": "t9",
-                        "KUBECONFIG": "/runner/kube", "NPM_CONFIG_USERCONFIG":
-                        "/runner/npmrc", "VIRTUAL_ENV": "/runner/venv"}.items():
-        monkeypatch.setenv(name, value)
-    monkeypatch.setenv("LC_ALL", "C.UTF-8")
+    _export_the_job_environment(monkeypatch)
     _precheck(stand_in_seal)
     env = json.loads((tmp_path / "entry.json").read_text(encoding="utf-8"))["env"]
-    for name in ("GH_TOKEN", "GITHUB_TOKEN", "SUBMODULE_TOKEN",
-                 "AZURE_CLIENT_SECRET", "ACR_PASSWORD", "SIGNING_PRIVATE_KEY",
-                 "GITHUB_WORKSPACE", "GIT_ASKPASS", "GIT_CONFIG_PARAMETERS",
-                 "ACTIONS_RUNTIME_TOKEN", "SSH_AUTH_SOCK", "PYTHONPATH",
-                 "AWS_ACCESS_KEY_ID", "DOCKER_AUTH_CONFIG", "KUBECONFIG",
-                 "NPM_CONFIG_USERCONFIG", "VIRTUAL_ENV"):
-        assert name not in env, name
-    assert not any(value in ("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8",
-                             "t9") for value in env.values())
-    # ALLOWLISTED: nothing reaches the render but the kept names and what the
-    # render is given. (The interpreter adds nothing to its own environ.)
-    given = {"HOME", "PYTHONDONTWRITEBYTECODE", "PYTHONIOENCODING",
-             "GIT_CEILING_DIRECTORIES", "GIT_CONFIG_GLOBAL",
-             "GIT_CONFIG_NOSYSTEM"}
-    assert {name for name in env
-            if name not in lane._RENDER_ENV_KEPT and name not in given
-            and not name.startswith(lane._RENDER_ENV_KEPT_PREFIXES)} == set()
-    assert env["LC_ALL"] == "C.UTF-8"
-    assert env["PYTHONDONTWRITEBYTECODE"] == "1"
+    _assert_the_renders_environment(env, stand_in_seal)
     assert env["GIT_CEILING_DIRECTORIES"] == str(stand_in_seal.resolve())
-    assert env["GIT_CONFIG_GLOBAL"] == os.devnull
-    assert env["GIT_CONFIG_NOSYSTEM"] == "1"
-    assert env["HOME"] != os.environ.get("HOME")
-    assert not Path(env["HOME"]).resolve().is_relative_to(stand_in_seal.resolve())
-    assert "PATH" in env                     # the interpreter still resolves
+
+
+def test_the_sealed_validator_runs_in_the_renders_environment_too(
+        stand_in_seal, tmp_path, monkeypatch):
+    """The sealed validator is sealed code as well. The product's
+    `validate_snapshot` launches it with no environment of its own, so a call
+    made in this process would have handed it every credential of the job
+    (Copilot, PR #1166). It runs in the render's allowlisted environment, from
+    a scratch directory outside the seal, and git can climb out of neither."""
+    _export_the_job_environment(monkeypatch)
+    _precheck(stand_in_seal)
+    judged = json.loads((tmp_path / "validator.json").read_text(encoding="utf-8"))
+    env = judged["env"]
+    _assert_the_renders_environment(env, stand_in_seal)
+    cwd = Path(judged["cwd"]).resolve()
+    assert not cwd.is_relative_to(stand_in_seal.resolve())
+    assert cwd != Path.cwd().resolve()
+    assert str(cwd.parent) in env["GIT_CEILING_DIRECTORIES"].split(os.pathsep)
 
 
 @pytest.mark.parametrize("mode, said", [
@@ -2125,6 +2202,106 @@ def test_a_render_that_does_not_finish_is_refused(stand_in_seal):
                                     run=hanging, timeout=7)
 
 
+_A_VALIDATED_VERDICT = json.dumps({
+    "ok": True, "returncode": 0, "stdout": "", "stderr": "",
+    "outcome": "validated", "unavailable_reason": None})
+
+
+@pytest.mark.parametrize("harness, said", [
+    ("hangs", "the validator did not finish within 7s"),
+    ("cannot-launch", "the validator could not be launched in the render's "
+                      "environment (OSError: exec format error)"),
+    ("says-nothing", "the validator's harness returned no verdict (exit 0)"),
+    ("prints-no-object", "the validator's harness returned no verdict (exit 0)"),
+    ("prints-another-shape", "the validator's harness returned no verdict "
+                             "(exit 0)"),
+    ("exits-non-zero", "the validator's harness returned no verdict (exit 1)"),
+], ids=["hangs", "cannot-launch", "says-nothing", "prints-no-object",
+        "prints-another-shape", "exits-non-zero"])
+def test_a_validator_run_that_reaches_no_verdict_is_refused(stand_in_seal,
+                                                            harness, said):
+    """The validator's run is bounded, and only a harness that exits cleanly
+    with a verdict of the product's own shape has answered. Anything else is
+    the product's own "could not run", never a verdict on the corpus. That
+    holds even for a harness that printed "validated" before exiting non-zero.
+    The render is real here, and only the harness is stood in for."""
+    bounds: list = []
+
+    def run(argv, **kw):
+        if argv[1:2] != ["-c"]:
+            return subprocess.run(argv, **kw)
+        bounds.append(kw.get("timeout"))
+        if harness == "hangs":
+            raise subprocess.TimeoutExpired(argv, kw.get("timeout"))
+        if harness == "cannot-launch":
+            raise OSError("exec format error")
+        stdout = {"says-nothing": "",
+                  "prints-no-object": "[]\n",
+                  "prints-another-shape": _A_VALIDATED_VERDICT.replace(
+                      '"validated"', '"maybe"') + "\n",
+                  "exits-non-zero": _A_VALIDATED_VERDICT + "\n"}[harness]
+        return subprocess.CompletedProcess(
+            argv, 1 if harness == "exits-non-zero" else 0, stdout, "")
+
+    with pytest.raises(lane.SealRefused) as refused:
+        lane.precheck_sealed_render(stand_in_seal, source_head=HEAD_REV,
+                                    source_committed_at=COMMITTED_AT,
+                                    run=run, timeout=7)
+    assert not isinstance(refused.value, lane.StrictGateRejected)
+    reason = str(refused.value)
+    assert reason.startswith("the sealed validator could NOT RUN over the "
+                             "snapshot this seal renders")
+    assert said in reason
+    assert bounds == [7]                      # the validator's run is bounded
+
+
+_MODAL_VALIDATOR = '''\
+import sys
+print("checked", *sys.argv[1:])
+if MODE == "findings":
+    print("ERROR [snapshot-unknown-kind] a finding")
+    sys.exit(1)
+if MODE == "harness":
+    print("ERROR harness failure: jsonschema is not installed", file=sys.stderr)
+    sys.exit(2)
+'''
+
+
+@pytest.mark.parametrize("mode, target_text, strict", [
+    ("ok", "{}\n", False),
+    ("ok", "{}\n", True),
+    ("findings", "{}\n", True),
+    ("harness", "{}\n", True),
+    ("harness", "{not json", True),
+    ("a-directory", "{}\n", True),
+], ids=["validated", "validated-strict", "not-conformant", "unavailable",
+        "an-unreadable-target-is-the-datas", "not-a-file"])
+def test_the_fenced_call_answers_what_the_products_own_call_answers(
+        tmp_path, mode, target_text, strict):
+    """Moving the call into the render's environment changes WHERE it runs,
+    never what it answers. Over each of the product's outcomes, including its
+    own attribution of a harness exit over an unreadable target to the data,
+    the fenced call returns the product's in-process result, field for
+    field."""
+    validator = tmp_path / "validator.py"
+    if mode == "a-directory":
+        validator.mkdir()
+    else:
+        validator.write_text(f"MODE = {mode!r}\n" + _MODAL_VALIDATOR,
+                             encoding="utf-8")
+    target = tmp_path / "target.json"
+    target.write_text(target_text, encoding="utf-8")
+    fenced = lane.validate_in_render_environment(
+        snapshot_mod, target, validator=validator, strict=strict,
+        seal_root=tmp_path)
+    own = snapshot_mod.validate_snapshot(target, validator=validator,
+                                         strict=strict)
+    for name in ("ok", "returncode", "stdout", "stderr", "outcome",
+                 "unavailable_reason"):
+        assert getattr(fenced, name) == getattr(own, name), name
+    assert fenced.validator == Path(own.validator).resolve()
+
+
 @pytest.mark.parametrize("lines, cited", [
     (["ERROR [snapshot-dangling-cluster-ref] s.json: x 'cl-plane-1'"] * 3,
      "known defect, tracked as opensoft/openxFactory#1159 (3 of 3 finding(s))"),
@@ -2164,6 +2341,68 @@ def test_a_rejected_precheck_leaves_no_manifest(corpus, tmp_path):
     with pytest.raises(lane.StrictGateRejected):
         _seal(corpus, tmp_path / "seal", precheck_render=rejecting)
     assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+
+
+@pytest.mark.parametrize("planted, what", [
+    ("a-link-out-of-the-seal", "a symbolic link"),
+    ("a-dangling-link", "a symbolic link"),
+    ("a-file", "a file"),
+    ("a-directory", "a directory"),
+], ids=["a-link-out-of-the-seal", "a-dangling-link", "a-file", "a-directory"])
+def test_a_manifest_the_lane_did_not_write_refuses_the_seal(corpus, tmp_path,
+                                                            planted, what):
+    """Sealed code runs before the manifest is written: the validator's probe
+    and the pre-dispatch render. The index cannot see `manifest.json`, the one
+    path it excludes. So whatever either leaves there refuses the seal, and
+    nothing is written through it (Copilot, PR #1166). A link out of the seal
+    would otherwise have had the manifest written wherever it pointed."""
+    outside = tmp_path / "outside.json"
+    outside.write_text("untouched\n", encoding="utf-8")
+    nowhere = tmp_path / "nowhere.json"
+
+    def planting(seal_root, *, source_head, source_committed_at):
+        path = Path(seal_root) / lane.SEAL_MANIFEST_NAME
+        if planted == "a-link-out-of-the-seal":
+            path.symlink_to(outside)
+        elif planted == "a-dangling-link":
+            path.symlink_to(nowhere)
+        elif planted == "a-file":
+            path.write_text("{}\n", encoding="utf-8")
+        else:
+            path.mkdir()
+        return dict(STUB_PRECHECK)
+
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal", precheck_render=planting)
+    assert str(refused.value) == (
+        f"the seal already holds a {lane.SEAL_MANIFEST_NAME} the lane did not "
+        f"write ({what}): sealed code runs before the manifest is written, and "
+        "the manifest is never written through anything it left")
+    assert outside.read_text(encoding="utf-8") == "untouched\n"
+    assert not nowhere.exists() and not nowhere.is_symlink()
+
+
+@pytest.mark.parametrize("points_at", ["a-file-out-of-the-seal", "nothing"])
+def test_the_manifest_is_created_exclusively(tmp_path, points_at):
+    """What the check cannot see, a link put in place after it, the write
+    refuses too: `O_EXCL` creates the file or fails, and never follows a
+    link."""
+    seal = tmp_path / "seal"
+    seal.mkdir()
+    outside = tmp_path / "outside.json"
+    outside.write_text("untouched\n", encoding="utf-8")
+    target = outside if points_at == "a-file-out-of-the-seal" \
+        else tmp_path / "nowhere.json"
+    (seal / lane.SEAL_MANIFEST_NAME).symlink_to(target)
+    with pytest.raises(lane.SealRefused,
+                       match="one that appeared while the lane was writing it"):
+        lane._write_new_manifest(seal, "{}\n")
+    assert outside.read_text(encoding="utf-8") == "untouched\n"
+    assert not (tmp_path / "nowhere.json").exists()
+    fresh = tmp_path / "fresh"
+    fresh.mkdir()
+    lane._write_new_manifest(fresh, '{"a": 1}\n')
+    assert (fresh / lane.SEAL_MANIFEST_NAME).read_bytes() == b'{"a": 1}\n'
 
 
 # ---------------------------------------------------------------------------
