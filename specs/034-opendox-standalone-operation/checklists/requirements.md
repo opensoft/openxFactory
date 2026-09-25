@@ -12,7 +12,7 @@ before implementation starts.
 - [x] Every requirement names the #1144 requirement and the boxes it realizes
       (FR-001 to FR-010), so the packet stays the authority.
 - [x] Nothing in spec.md restates, narrows or widens a ratified requirement.
-      Contradictions go to Brett as R1Q1–R1Q23 instead. A scenario text that
+      Contradictions go to Brett as R1Q1–R1Q24 instead. A scenario text that
       an answer touches goes to him as RULING NEEDED (RN-1, plan.md).
 - [x] The user stories are the release map's three phases, plus the
       invariant (US4).
@@ -23,10 +23,14 @@ before implementation starts.
 
 - [ ] No `[NEEDS CLARIFICATION]` remains. **Partly open.** The eleven
       questions phase 1 needed are answered (`#656` `5817152735`) and encoded
-      in spec.md § Clarifications. Twelve remain open: R1Q10–R1Q19 and
-      R1Q23 for phases 2–3, which T009 (phase 2) and T069 (phase 3) encode
-      as they are answered, and R1Q21, on process.
-      Until then, phases 2–3 are PROVISIONAL and authorize no
+      in spec.md § Clarifications. Thirteen remain open:
+      - R1Q10–R1Q13, R1Q15–R1Q19 and R1Q23, for phases 2–3. T009 (phase 2)
+        and T069 (phase 3) encode them as they are answered.
+      - R1Q14, R1Q24 and R1Q12's part, for phase 1's T061 and T043, since
+        T005's re-measure. T019 encodes them.
+      - R1Q21, on process.
+
+      Until then, phases 2–3, T061 and T043 are PROVISIONAL and authorize no
       implementation.
 - [x] Every requirement can be tested. FR-001 to FR-010 each cite #1144's own
       falsifier. FR-011 is tested by AT-R1 (T095, T096), and FR-012 by each
@@ -66,4 +70,5 @@ before implementation starts.
   ambiguities are resolved, and analyze is clean. They are open on purpose.
   The brief asked for the plan before the answers, and forbade resolving the
   questions by assumption. Phase 1's questions are now answered, and phases
-  2–3's remain open. plan.md § Complexity Tracking records the deviation.
+  2–3's remain open. So do the three that T005 raised for T061 and T043.
+  plan.md § Complexity Tracking records both deviations.
