@@ -76,9 +76,10 @@ and SHALL be admitted by EXACTLY ONE `pin`, because the commit that pin names is
 the one revision the evidence is read at, and two pins of one root would make
 that revision a pick. An `external` repository's `.gitmodules` SHALL admit
 nothing, whatever openxFactory pins of it, an `external` repository being no
-part of this estate. A `pinned` row that is not itself admitted by a `pin` —
-every row this clause admits among them — SHALL carry no row's `gitlink`, so the
-reach ends one hop from an openxFactory pin and never runs down a chain of roots.
+part of this estate. A `pinned` row that is not itself admitted by a `pin`, and
+every row a pinned root's `gitlink` admits whether or not it also carries a
+`pin` of its own, SHALL carry no row's `gitlink`, so the reach ends one hop from
+an openxFactory pin and never runs down a chain of roots.
 A row admitted by a pinned root's `gitlink` SHALL NOT declare
 `governance: governed`: openxFactory reaches it only through its pin of the
 root, at the commit that pin fixes, and authors none of it, which is what a
