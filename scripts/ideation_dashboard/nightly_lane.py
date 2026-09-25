@@ -190,6 +190,22 @@ def _pinned_validator() -> Path | None:
     return doxbench_contracts._composed_validator(found)
 
 
+def _pinned_validator_missing() -> str:
+    """WHERE `_pinned_validator()` looked, for when it answers None.
+
+    Spelled ONCE, for the two callers that must say it: this lane's skip, and
+    the refresh lane's seal refusal, which resolves its validator through
+    `_pinned_validator()` too (openxFactory #1158). One sentence in one place,
+    so the two lanes cannot come to disagree about where the default is
+    looked for.
+    """
+    root = snapshot_mod.product_root()
+    return (f"{root / snapshot_mod.VALIDATOR_RELPATH} does not exist"
+            if root is not None else
+            "openxdox is not running from a source checkout, so it ships no "
+            "validator")
+
+
 def _write_status(boundary: OutputBoundary, out_dir: Path, payload: dict) -> Path | None:
     """Write the lane-status artifact. Its own failure must never take the
     lane down (the log line still reports the outcome)."""
@@ -288,12 +304,8 @@ def run_lane(
 
         pinned = validator or _pinned_validator()
         if pinned is None:
-            root = snapshot_mod.product_root()
-            where = (f"{root / snapshot_mod.VALIDATOR_RELPATH} does not exist"
-                     if root is not None else
-                     "openxdox is not running from a source checkout, so it "
-                     "ships no validator")
-            return _skip(f"pinned openxdox validator not found ({where})", rev)
+            return _skip("pinned openxdox validator not found "
+                         f"({_pinned_validator_missing()})", rev)
         result = snapshot_mod.validate_snapshot(candidate, validator=pinned,
                                                 strict=strict)
         if not result.available:
