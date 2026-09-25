@@ -196,17 +196,53 @@ def _product_head() -> str:
     return _git(root, "rev-parse", "HEAD") if root is not None else "e" * 40
 
 
+# The product module the parent classifies the sealed validator's runs with.
+# The stand-in legs carry the REAL one, since the parent imports it out of the
+# seal (Copilot, PR #1166).
+PRODUCT_MODULE_TEXT = Path(snapshot_mod.__file__).read_text(encoding="utf-8")
+
+
+def _recording_product_module(record: Path) -> str:
+    """The real product module, whose `validate_snapshot` also appends the
+    file it was loaded from to `record` on every call."""
+    return PRODUCT_MODULE_TEXT + (
+        f"\n\nRECORD = {str(record)!r}\n"
+        "_products_own_validate_snapshot = validate_snapshot\n\n\n"
+        "def validate_snapshot(*args, **kwargs):\n"
+        "    with open(RECORD, 'a', encoding='utf-8') as handle:\n"
+        "        handle.write(__file__ + '\\n')\n"
+        "    return _products_own_validate_snapshot(*args, **kwargs)\n")
+
+
+def _stub_legs_carrying(product_module: str | None):
+    """A leg-sealer STAND-IN whose openXdox leg carries `product_module` as the
+    product module the parent classifies with, or none at all."""
+    def stub_legs(*, corpus_checkout, source_head, corpus_root, runner):
+        return _stub_leg_records(corpus_root, product_module)
+    return stub_legs
+
+
 def _stub_legs(*, corpus_checkout, source_head, corpus_root, runner):
     """A leg-sealer STAND-IN: one module per product under the path the real
-    sealer extracts to, and records shaped exactly like its own. Tests about
-    the seal's other mechanics inject it, as they inject the recipe. The tests
-    about the legs run `seal_render_legs` over real nested submodules."""
+    sealer extracts to, the real product module in the validator leg, and
+    records shaped exactly like its own. Tests about the seal's other
+    mechanics inject it, as they inject the recipe. The tests about the legs
+    run `seal_render_legs` over real nested submodules."""
+    return _stub_leg_records(corpus_root, PRODUCT_MODULE_TEXT)
+
+
+def _stub_leg_records(corpus_root, product_module: str) -> list[dict]:
     records = []
     for index, (gitlink, leg, package) in enumerate(lane.RENDER_LEGS):
         modules = Path(corpus_root) / gitlink / leg / "src" / package
         modules.mkdir(parents=True)
         (modules / "__init__.py").write_text(f"# stand-in {package}\n",
                                              encoding="utf-8")
+        count = 1
+        if (gitlink, leg) == lane.VALIDATOR_LEG and product_module is not None:
+            (modules / lane.SEALED_PRODUCT_MODULE).write_text(
+                product_module, encoding="utf-8")
+            count = 2
         records.append({
             "gitlink": gitlink, "gitlink_revision": str(index + 1) * 40,
             "leg": leg,
@@ -214,7 +250,7 @@ def _stub_legs(*, corpus_checkout, source_head, corpus_root, runner):
                              else str(index + 5) * 40),
             "package": package,
             "relpath": f"{lane.SEAL_CORPUS_RELPATH}/{gitlink}/{leg}",
-            "paths": list(lane.RENDER_LEG_PATHS), "file_count": 1})
+            "paths": list(lane.RENDER_LEG_PATHS), "file_count": count})
     return records
 
 
@@ -682,6 +718,32 @@ def test_the_one_run_is_of_the_sealed_copy_over_the_probe(corpus, tmp_path,
     assert manifest["validator_probe"] == {
         "kind": lane.VALIDATOR_PROBE["kind"],
         "outcome": snapshot_mod.VALIDATED, "returncode": 0}
+
+
+def test_the_probe_is_classified_by_the_sealed_product_module(corpus,
+                                                              tmp_path):
+    """The probe's run is read by the product's own `validate_snapshot` as the
+    SEAL carries it, out of the sealed openXdox leg, never by this parent's
+    worktree copy, which could be dirty (Copilot, PR #1166)."""
+    record = tmp_path / "classified-by.txt"
+    seal = tmp_path / "seal"
+    _seal(corpus, seal, seal_legs=_stub_legs_carrying(
+        _recording_product_module(record)))
+    assert record.read_text(encoding="utf-8").splitlines() == [
+        str(lane.sealed_product_module(seal))]
+
+
+def test_a_seal_without_the_product_module_cannot_classify_its_probe(
+        corpus, tmp_path):
+    """A sealed openXdox leg that carries no product module leaves the parent
+    nothing to read the probe with, so the seal is refused, naming why."""
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal", seal_legs=_stub_legs_carrying(None))
+    reason = str(refused.value)
+    assert reason.startswith("the sealed validator could NOT RUN")
+    assert "the validator's harness returned no verdict (exit 1)" in reason
+    assert "cannot import name 'snapshot' from 'openxdox'" in reason
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
 
 
 def test_the_confined_locator_never_adopts_the_sealed_validator(corpus, tmp_path):
@@ -1638,6 +1700,11 @@ def _product(where: Path, name: str, code_leg: str, package: str) -> Path:
                                                  encoding="utf-8")
             (modules / "cli.py").write_text(
                 "def main(argv=None):\n    return 0\n", encoding="utf-8")
+            if package == "openxdox":
+                # The product module the parent classifies with, out of the
+                # sealed leg.
+                (modules / lane.SEALED_PRODUCT_MODULE).write_text(
+                    PRODUCT_MODULE_TEXT, encoding="utf-8")
             (repo / "src" / "extension.py").write_text(
                 "# beside the package\n", encoding="utf-8")
             (repo / "tests").mkdir()
@@ -1705,10 +1772,12 @@ def test_the_legs_are_sealed_at_the_commits_the_sealed_corpus_pins(
         assert record["relpath"] == f"{lane.SEAL_CORPUS_RELPATH}/{gitlink}/{leg}"
         assert record["paths"] == ["src"]
         sealed = corpus_root / gitlink / leg
-        assert _leg_files(sealed) == sorted([
-            "src/extension.py", f"src/{package}/__init__.py",
-            f"src/{package}/cli.py"])
-        assert record["file_count"] == 3
+        carried = ["src/extension.py", f"src/{package}/__init__.py",
+                   f"src/{package}/cli.py"]
+        if (gitlink, leg) == lane.VALIDATOR_LEG:
+            carried.append(f"src/{package}/{lane.SEALED_PRODUCT_MODULE}")
+        assert _leg_files(sealed) == sorted(carried)
+        assert record["file_count"] == len(carried)
         assert sorted(path.name for path in (corpus_root / gitlink).iterdir()) \
             == [leg]
     assert sorted(path.name for path in corpus_root.iterdir()) == \
@@ -1726,7 +1795,7 @@ def test_a_seal_with_real_legs_verifies(corpus_with_products, tmp_path):
     legs = [key for key in manifest["files"]
             if key.split("/")[1:2] in (["openDox"], ["openXdox"])]
     assert len(legs) == sum(record["file_count"]
-                            for record in manifest["render_legs"]) == 6
+                            for record in manifest["render_legs"]) == 7
 
 
 def _commit_inside(checkout: Path) -> str:
@@ -1925,7 +1994,7 @@ def test_verify_refuses_a_seal_whose_render_unit_is_not_whole(corpus, tmp_path):
     assert lane.verify_seal(seal) == [
         f"the seal indexes no module under {modules} — the child's render "
         "could not import it",
-        "the openXdox code leg records file_count 1, but the seal indexes 0 "
+        "the openXdox code leg records file_count 2, but the seal indexes 0 "
         "file(s) under openxFactory/openXdox/code/"]
 
 
@@ -2091,6 +2160,9 @@ def stand_in_seal(tmp_path) -> Path:
     validator.parent.mkdir(parents=True)
     validator.write_text(f"CONFIG = {config}\n" + _STAND_IN_VALIDATOR,
                          encoding="utf-8")
+    module = lane.sealed_product_module(seal)
+    module.parent.mkdir(parents=True)
+    module.write_text(PRODUCT_MODULE_TEXT, encoding="utf-8")
     _configure(tmp_path)
     return seal
 
@@ -2129,6 +2201,18 @@ def test_the_pre_dispatch_render_is_the_childs_own_invocation(
     assert not handed.is_relative_to(stand_in_seal.resolve())
     assert judged["sha256"] == \
         (tmp_path / "entry.json.sha256").read_text(encoding="utf-8")
+
+
+def test_the_verdict_is_read_by_the_sealed_product_module(stand_in_seal,
+                                                         tmp_path):
+    """The pre-dispatch verdict is the product's own reading, as the SEAL
+    carries it (Copilot, PR #1166)."""
+    record = tmp_path / "classified-by.txt"
+    lane.sealed_product_module(stand_in_seal).write_text(
+        _recording_product_module(record), encoding="utf-8")
+    assert _precheck(stand_in_seal)["outcome"] == lane.PRECHECK_VALIDATED
+    assert record.read_text(encoding="utf-8").splitlines() == [
+        str(lane.sealed_product_module(stand_in_seal))]
 
 
 def test_a_seal_named_relative_to_the_working_directory_still_renders(
@@ -2477,7 +2561,7 @@ def test_the_fenced_call_answers_what_the_products_own_call_answers(
     target.write_text(target_text, encoding="utf-8")
     fenced = lane.validate_in_render_environment(
         snapshot_mod, target, validator=validator, strict=strict,
-        seal_root=tmp_path)
+        seal_root=tmp_path, module_file=Path(snapshot_mod.__file__))
     own = snapshot_mod.validate_snapshot(target, validator=validator,
                                          strict=strict)
     for name in ("ok", "returncode", "stdout", "stderr", "outcome",

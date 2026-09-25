@@ -1059,6 +1059,10 @@ RENDER_LEG_PATHS: tuple[str, ...] = ("src",)
 # equal to `validator_revision`, so the renderer and the validator are one
 # product revision (see `seal_source`).
 VALIDATOR_LEG = ("openXdox", "code")
+# The product module the parent classifies the sealed validator's runs with,
+# inside the sealed validator leg's package: the product's own
+# three-outcome `validate_snapshot`.
+SEALED_PRODUCT_MODULE = "snapshot.py"
 
 # The sealed validator unit, and its layout. `VALIDATOR_SCRIPT_PATH` is the
 # script's path INSIDE the unit. It is also the product's own
@@ -1525,7 +1529,9 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
     it is never a verdict on the corpus. The probe lives in a scratch directory
     outside the seal, so nothing it touches is sealed. The copy is sealed code,
     so it runs in the pre-dispatch render's allowlisted environment, not this
-    job's (`validate_in_render_environment`)."""
+    job's, and its run is classified by the SEALED product module
+    (`validate_in_render_environment`, `sealed_product_module`). The render
+    legs are sealed before this runs."""
     # WHICH PRODUCT REVISION the copy comes from, read FIRST. A unit resolved
     # from a product source tree records that tree's HEAD. A HEAD that cannot
     # be read as a full revision REFUSES the seal, because the manifest
@@ -1575,7 +1581,8 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
                          encoding="utf-8")
         result = validate_in_render_environment(
             product, probe, validator=script, strict=False,
-            seal_root=seal_root)
+            seal_root=seal_root,
+            module_file=sealed_product_module(seal_root))
     if not result.available:
         said = _validator_said(result)
         raise SealRefused(
@@ -1785,10 +1792,12 @@ def _render_environment(seal_root, home) -> dict[str, str]:
 # credential the job holds. So the call is made in a fresh interpreter whose
 # whole environment is `_render_environment`'s, working in a scratch
 # directory. It is still the product's own function, with its own three-outcome
-# reading, and everything it launches inherits the allowlist. The harness
-# imports the very module this parent imported, and ends without a verdict if
-# that name resolves to any other file. It hands the product's result back as
-# the last line of its stdout. The validator's own output never reaches that
+# reading, and everything it launches inherits the allowlist. The module is
+# the SEALED one, out of the seal's openXdox leg (`sealed_product_module`):
+# the exact code the seal carries, never this parent's worktree, which could
+# be dirty (Copilot, PR #1166). The harness ends without a verdict if the
+# name resolves to any other file. It hands the product's result back as the
+# last line of its stdout. The validator's own output never reaches that
 # stream, because the product captures it.
 _VALIDATE_HARNESS = """\
 import json, sys
@@ -1834,12 +1843,26 @@ def _harness_verdict(stdout, outcomes) -> dict | None:
     return verdict if verdict["outcome"] in outcomes else None
 
 
+def sealed_product_module(seal_root) -> Path:
+    """Where the seal carries the product module the validator's runs are
+    classified with: `SEALED_PRODUCT_MODULE` in the sealed `VALIDATOR_LEG`'s
+    package."""
+    package = next(package for gitlink, leg, package in RENDER_LEGS
+                   if (gitlink, leg) == VALIDATOR_LEG)
+    gitlink, leg = VALIDATOR_LEG
+    return (Path(seal_root).resolve() / SEAL_CORPUS_RELPATH / gitlink / leg
+            / "src" / package / SEALED_PRODUCT_MODULE)
+
+
 def validate_in_render_environment(product, target, *, validator, strict: bool,
-                                   seal_root, run=subprocess.run,
+                                   seal_root, module_file,
+                                   run=subprocess.run,
                                    timeout: int = PRECHECK_TIMEOUT_SECONDS):
     """The product's own `validate_snapshot(target, validator=...,
-    strict=...)`, run in the pre-dispatch render's environment rather than this
-    job's (see `_VALIDATE_HARNESS`). Returns the product's `ValidationResult`.
+    strict=...)`, imported from `module_file` and run in the pre-dispatch
+    render's environment rather than this job's (see `_VALIDATE_HARNESS`).
+    Returns a `ValidationResult`, the parent's `product` supplying only that
+    record's type and the outcome spellings.
 
     Git may climb neither out of the seal nor out of the scratch directory the
     validator runs in. A harness that cannot be launched, does not finish, or
@@ -1848,7 +1871,7 @@ def validate_in_render_environment(product, target, *, validator, strict: bool,
     is then known about the target, and both callers refuse on that
     outcome."""
     validator = Path(validator).resolve()
-    module_file = Path(product.__file__).resolve()
+    module_file = Path(module_file).resolve()
 
     def unavailable(reason: str, *, returncode: int = -1, stderr: str = ""):
         return product.ValidationResult(
@@ -2137,7 +2160,9 @@ def precheck_sealed_render(seal_root, *, source_head: str,
             scrub = (*scrub, judged)
             result = validate_in_render_environment(
                 product, judged, validator=validator, strict=True,
-                seal_root=seal_root, run=run, timeout=timeout)
+                seal_root=seal_root,
+                module_file=sealed_product_module(seal_root), run=run,
+                timeout=timeout)
     if not result.available:
         said = _validator_said(result)
         raise SealRefused(
