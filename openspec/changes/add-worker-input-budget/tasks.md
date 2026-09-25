@@ -12,14 +12,22 @@ this change.
 - [ ] 0.1 Rule **OQ-1**, the grounding share: half the budget reserved for
   promoted specs (as built), or another split. At the 2026-09-21 corpus the
   built default sends 93 of 311 documents and defers 218, 71 of them
-  promoted specs.
+  promoted specs. Measured at shares 0.3 to 0.7 on the 2026-09-24 inventory,
+  with a lane recommendation that is not a ruling: `proposal.md` OQ-1.
 - [ ] 0.2 Confirm **OQ-2**: this packet caps and records; it does NOT carry
   deferred documents over to the next night, because no sweep cursor exists
   and the committed inventory baseline advances unconditionally. A real
-  carry-over is a separate packet.
-- [ ] 0.3 Note **OQ-3**: the live HTTP 403 org-entitlement block (since
-  2026-09-16) is not addressed by any code here and needs an administrative
-  act.
+  carry-over is a separate packet. Measured 2026-09-24 (the committed
+  baseline has held at 2026-09-04, no nightly report having landed since),
+  with a lane recommendation that is not a ruling: `proposal.md` OQ-2.
+- [x] 0.3 Note **OQ-3**: the HTTP 403 org-entitlement block (filed as live
+  since 2026-09-16) is not addressed by any code here and needed an
+  administrative act. **RESOLVED 2026-09-23** by that act — Brett Heap's
+  Console-side remedy, opensoft/xFactory#491 option 1 — verified by the
+  re-dispatched analysis child, opensoft/xFactory run 35889825278 (the
+  1,899,789-byte prompt accepted, 4 findings), and by the 2026-09-24 nightly,
+  run 35947804907, whose four model children all succeeded with model
+  output. Evidence in full: `proposal.md` OQ-3.
 - [ ] 0.4 Ratify or amend the two spec deltas.
 
 ## Group 1 — authoring (done by this change)
