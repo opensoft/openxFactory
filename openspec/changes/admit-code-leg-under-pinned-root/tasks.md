@@ -136,7 +136,7 @@ SEPARATE word.
 FAILS-THEN-PASSES obligation: every new test is written to FAIL against the tree
 without its arm, and is shown failing before it is shown passing.
 
-- [ ] 3.1 `scripts/estate_inventory.py`:
+- [x] 3.1 `scripts/estate_inventory.py`:
       (i) THE CARRIER BOUND WIDENED at load (`design.md` D3): a `gitlink`
       carrier resolves to a `governed` row, OR to a `pinned` row admitted by
       EXACTLY ONE `pin`; an `external` carrier, a `pinned` carrier admitted by
@@ -158,7 +158,22 @@ without its arm, and is shown failing before it is shown passing.
       time-bounded `_git`, with `GIT_ALLOW_PROTOCOL` set to name no protocol,
       normalized by the same `_GITMODULES_URL_RE` and `normalize_origin`, and
       `None` — never a fetch — where the commit or blob is not local.
-- [ ] 3.2 `scripts/validate-estate-inventory.py`: its `--estate-tree` mode, for a
+      **DONE, PR #1163: the arm at `06651cbd`, on the eight cases pinned
+      before it at `a80072ae`.** (i) `_pinned_carrier_refusal` refuses by name
+      an `external` carrier, a carrier that is itself a leg (the ONE-HOP bound,
+      checked directly and first, so a leg carrying a `pin` of its own is still
+      refused), a `pinned` carrier admitted by no `pin`, and one admitted by two
+      or more. (ii) The class bound, in the same function. (iii)
+      `pinned_commit`, a value or a reason, never raised; the pin must still
+      name the carrier as its source. (iv) `gitmodules_addresses_at` /
+      `_gitmodules_at` (`cat-file -t`, then `ls-tree -- :(literal).gitmodules`
+      for a regular-file blob only, then `cat-file blob`) through `_git`, whose
+      sanitized environment gives EVERY call `GIT_ALLOW_PROTOCOL=none`, the
+      guard relied on; `GIT_NO_LAZY_FETCH=1` rides beside it as a
+      build-dependent extra, named so at `c8e70d79`. Hardened once on
+      Copilot's review: `_git` decodes git's output as UTF-8, strictly, never
+      by the locale (`a970d6a3`, pinned first at `978b4d1b`).
+- [x] 3.2 `scripts/validate-estate-inventory.py`: its `--estate-tree` mode, for a
       row whose carrier row is `pinned`, verifies the tree exactly as today and
       then reads the carrier at its pinned commit through § 3.1 (iv), never the
       working-tree `.gitmodules`. A pin naming no commit and a tree that cannot
@@ -166,14 +181,28 @@ without its arm, and is shown failing before it is shown passing.
       COUNTED, the report naming the pin and the commit; a leg a verified tree
       does not carry at the pinned commit is a finding, exit 1. Governed
       carriers are read exactly as today.
-- [ ] 3.3 `scripts/estate-repository-inventory.yaml`: FOUR rows, `design.md` D7 —
+      **DONE, PR #1163, commit `06651cbd`.** Each supplied tree is verified
+      exactly as before, and a pinned carrier is then read through
+      `carrier_members` at the commit its pin names. NOT RE-CHECKED names the
+      pin and the commit, and a report block names where each pinned carrier
+      was read. At `c230f4c2`, `python3 scripts/validate-estate-inventory.py .
+      --estate-tree opensoft/openDox=openDox --estate-tree
+      opensoft/openXdox=openXdox` exits 0 with the four legs NAMED at
+      `dc7aa08f` and `069fe471`. The openXdox pin moved from `2f3f857d` by
+      #1157 while this packet was open, and names the same two legs.
+- [x] 3.3 `scripts/estate-repository-inventory.yaml`: FOUR rows, `design.md` D7 —
       `opensoft/openDox-spec`, `opensoft/openDox-code`, `opensoft/openXdox-spec`,
       `opensoft/openXdox-code` — each `governance: pinned` and admitted by a
       `gitlink` in its root. The header's `gitlink` definition says what the
       delta now says, and its population note is re-measured with a SIXTH
       command beside the five it records: each pin-admitted `pinned` row's
       `.gitmodules` at the commit its pin names.
-- [ ] 3.4 `tests/estate_inventory/test_estate_inventory.py`, one case per new
+      **DONE, PR #1163, commit `06651cbd`.** Rows 34-37, with the header's
+      `gitlink` definition, re-check paragraph and population note re-measured
+      by six commands at the realization head. At `c230f4c2`, `python3
+      scripts/validate-estate-inventory.py .` exits 0: `37 repositories — 26
+      governed, 10 pinned, 1 external; 1 provisional`, with `34 NOT RE-CHECKED`.
+- [x] 3.4 `tests/estate_inventory/test_estate_inventory.py`, one case per new
       scenario class, each FAILING against the unwidened judge first:
       a leg row carried by a pin-admitted `pinned` root LOADS; a `pinned`
       carrier admitted by no `pin`, and one admitted by two, are REFUSED; a leg
@@ -190,6 +219,15 @@ without its arm, and is shown failing before it is shown passing.
       assertion — its refused carrier is `external`, still refused — and its
       docstring's clause "or from one it carries as `pinned`" is corrected in
       the same commit, disclosed in the pull request body.
+      **DONE, PR #1163.** Eight cases at `a80072ae`, pinned before the arm,
+      with the docstring correction in the same commit and every assertion
+      kept. A ninth at `06651cbd`: a pinned carrier's tree that does not verify
+      is NOT RE-CHECKED, and its pinned-commit read is proven NOT ATTEMPTED by
+      a trace of the validator's own git calls (`df453ea5`, the verifier's N5).
+      A tenth at `978b4d1b`: the UTF-8 read under an ASCII locale (Copilot's
+      review). Against `main` `daca0b89`'s `scripts/` the ten FAIL and 64 pass;
+      at `c230f4c2` all 74 pass, and `python3 -m pytest tests/estate_inventory
+      tests/code_surface tests/scope_globs -q` gives 327 passed.
 - [ ] 3.5 **NO OTHER FILE MOVES.** `scripts/validate-code-surface.py`, every
       contract member (the two pins are READ), every workflow, every other test
       and every promoted byte are untouched, verified in the realization pull
