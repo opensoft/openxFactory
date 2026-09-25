@@ -697,6 +697,32 @@ def subprocess_runner(argv, *, cwd=None, env=None) -> CommandResult:
                          proc.stdout or "", proc.stderr or "")
 
 
+def exact_git(repo_dir, *arguments: str) -> list[str]:
+    """The argv of an EXACT-CONTENT git read the seal makes:
+    `git --no-replace-objects -C <repo> ...`. Pass it with
+    `env=exact_git_environment()`.
+
+    Every read and archive the seal's record depends on goes through it: the
+    revision reads, the committer date, the gitlink reads and both archives.
+    A replace ref would otherwise hand `git archive` another commit's tree
+    under the pinned commit's name, and the archive's own recorded revision
+    would still read as the pin (Copilot, PR #1166). The decision's
+    path-scoped `log` and its `fetch` are not exact-content reads and keep the
+    plain form."""
+    return ["git", "--no-replace-objects", "-C", str(repo_dir), *arguments]
+
+
+def exact_git_environment() -> dict[str, str]:
+    """The environment of an `exact_git` read: `carved_reach`'s scrubbed,
+    replacement-free one, REUSED rather than copied, as
+    `scripts/carve_test_mapping.py` and the carve-conformance verifier reuse
+    it. An ambient `GIT_DIR`, alternate object directory, command-scoped
+    configuration or replace-ref base would otherwise make `-C <repo>` read
+    some other store than the checkout named (Copilot, PR #1166)."""
+    from carved_reach import _sanitized_git_environment
+    return _sanitized_git_environment()
+
+
 def git_baked_input_revision(repo_dir, paths, *, ref: str = "HEAD",
                              runner=subprocess_runner) -> str | None:
     """`git log -1 --format=%H <ref> -- <paths>` — the last commit touching the
@@ -714,8 +740,9 @@ def git_head_revision(repo_dir, *, ref: str = "HEAD",
     """The HEAD of a checkout the caller ALREADY HAS — a plain `rev-parse`
     read, never a fetch and never a clone. Kept as part of the module's read
     layer beside the two baked-input readers: the retired build recipe was one
-    caller, not its reason to exist."""
-    result = runner(["git", "-C", str(repo_dir), "rev-parse", ref])
+    caller, not its reason to exist. An exact-content read (`exact_git`)."""
+    result = runner(exact_git(repo_dir, "rev-parse", ref),
+                    env=exact_git_environment())
     if not result.ok:
         return None
     return (result.stdout.strip() or None)
@@ -1222,13 +1249,16 @@ def git_commit_datetime(repo_dir, revision: str, *,
     revision the seal was made at. This is the value the child hands to
     `generate --generated-at`, and it is a property of the COMMIT, so a seal
     made twice from one revision names one stamp."""
-    # Byte-for-byte the call `generator.RealGitDates.commit_date` makes,
-    # `--` end-of-options marker included, so the stamp the child receives
-    # through `--generated-at` is the SAME STRING the pre-seal child derived
-    # inside its own checkout — the change moves where the value comes from,
-    # never what it says, and the snapshot stays byte-identical across it.
-    result = runner(["git", "-C", str(repo_dir), "show", "-s",
-                     "--format=%cI", revision, "--"])
+    # The query `generator.RealGitDates.commit_date` makes, `--`
+    # end-of-options marker included, so the stamp the child receives through
+    # `--generated-at` is the SAME STRING the pre-seal child derived inside
+    # its own checkout — the change moves where the value comes from, never
+    # what it says, and the snapshot stays byte-identical across it. It runs
+    # as an exact-content read (`exact_git`), which changes the answer only
+    # where a replace ref would have changed it.
+    result = runner(exact_git(repo_dir, "show", "-s", "--format=%cI",
+                              revision, "--"),
+                    env=exact_git_environment())
     if not result.ok:
         return None
     value = result.stdout.strip().splitlines()
@@ -1474,8 +1504,8 @@ def _gitlink_at(repo_dir, treeish: str, path: str, *,
     a gitlink. It is asked of the tree being SEALED, never of the checkout's
     HEAD: this parent's corpus checkout sits at the aggregation's pin, and the
     seal is of `source_head`."""
-    result = runner(["git", "-C", str(repo_dir), "ls-tree", treeish, "--",
-                     path])
+    result = runner(exact_git(repo_dir, "ls-tree", treeish, "--", path),
+                    env=exact_git_environment())
     if not result.ok:
         return None
     lines = [line for line in result.stdout.splitlines() if line.strip()]
@@ -1566,9 +1596,10 @@ def seal_render_legs(*, corpus_checkout, source_head: str, corpus_root,
         dest = corpus_root / gitlink / leg
         with tempfile.TemporaryDirectory(prefix="dfr-leg-") as staging:
             archive_path = Path(staging) / "leg.tar"
-            result = runner(["git", "-C", str(leg_dir), "archive",
-                             "--format=tar", f"--output={archive_path}",
-                             leg_pinned, "--", *RENDER_LEG_PATHS])
+            result = runner(exact_git(leg_dir, "archive", "--format=tar",
+                                      f"--output={archive_path}", leg_pinned,
+                                      "--", *RENDER_LEG_PATHS),
+                            env=exact_git_environment())
             if not result.ok:
                 raise SealRefused(
                     f"git archive of the {gitlink} {leg} leg failed at "
@@ -1608,28 +1639,36 @@ PRECHECK_VALIDATED = "validated"
 # Measured at `57af6927`: about five seconds for the real corpus. The bound is
 # for a render that hangs, not for a slow one.
 PRECHECK_TIMEOUT_SECONDS = 600
-# Environment entries the pre-dispatch render never receives. It runs code read
-# out of the seal, and this job holds the App token (`GH_TOKEN`) and a
-# token-bearing git configuration. So credentials, the job's own GitHub and Git
-# variables, and the interpreter's path overrides are dropped, and `HOME` is a
-# scratch directory. The child's worker holds none of these to begin with.
-_RENDER_ENV_DROPPED = re.compile(
-    r"(TOKEN|SECRET|PASSWORD|PRIVATE|CREDENTIAL|_KEY$|^GH_|^GITHUB_|^GIT_"
-    r"|^ACTIONS_|^SSH_|^PYTHONPATH$|^PYTHONSTARTUP$|^PYTHONHOME$)",
-    re.IGNORECASE)
+# The ONLY variables of this job's environment the pre-dispatch render
+# receives, by name, and by prefix for the locale. It runs code read out of the
+# seal, and this job holds the App token, a token-bearing git configuration and
+# whatever else the runner exports. So the environment is BUILT from an
+# allowlist rather than filtered by a denylist, which would pass any
+# credential it had not thought to name (Copilot, PR #1166). What is kept is
+# what an interpreter needs to start and read files in this locale:
+# `LD_LIBRARY_PATH` because the runner's toolcache interpreter can load its
+# own shared library from it; the Windows system variables because a child on
+# a Windows rider runs the same entry. The child's worker holds no
+# credential to begin with.
+_RENDER_ENV_KEPT = ("PATH", "LD_LIBRARY_PATH", "LANG", "LANGUAGE", "TZ",
+                    "TMPDIR", "TEMP", "TMP", "SYSTEMROOT", "SYSTEMDRIVE",
+                    "WINDIR", "COMSPEC", "PATHEXT")
+_RENDER_ENV_KEPT_PREFIXES = ("LC_",)
 
 
 def _render_environment(seal_root, home) -> dict[str, str]:
-    """The environment of the parent's pre-dispatch render.
+    """The environment of the parent's pre-dispatch render: the allowlisted
+    variables (`_RENDER_ENV_KEPT`), and nothing else of this job's.
 
-    Beyond what `_RENDER_ENV_DROPPED` removes, three settings make the render
-    the child's. No bytecode is written, so the render cannot add a file to
-    the tree the index is about to cover. `git` may not climb out of the seal:
-    this parent's seal sits INSIDE the aggregation checkout, while the child's
-    has no repository above it. And git reads no global or system
+    Beyond them, the settings below make the render the child's. `HOME` is a
+    scratch directory. No bytecode is written, so the render cannot add a file
+    to the tree the index is about to cover. `git` may not climb out of the
+    seal: this parent's seal sits INSIDE the aggregation checkout, while the
+    child's has no repository above it. And git reads no global or system
     configuration."""
     env = {key: value for key, value in os.environ.items()
-           if not _RENDER_ENV_DROPPED.search(key)}
+           if key in _RENDER_ENV_KEPT
+           or key.startswith(_RENDER_ENV_KEPT_PREFIXES)}
     env.update({
         "HOME": str(home),
         "PYTHONDONTWRITEBYTECODE": "1",
@@ -1657,11 +1696,11 @@ KNOWN_STRICT_FINDINGS = (
 _FINDING_LINE_RE = re.compile(r"^(ERROR|WARNING) \[([a-z0-9-]+)\] ")
 
 
-def _output_lines(result, *, scrub=(), cap: int = DETAIL_CAP) -> list[str]:
-    """A process's own output, stdout then stderr, blank lines dropped, capped:
-    the per-finding record a one-line reason cannot carry. Each `scrub` path
-    is replaced by its file name, so a finding names `snapshot.json` rather
-    than this parent's scratch directory."""
+def _output_lines(result, *, scrub=(), cap: int | None = DETAIL_CAP) -> list[str]:
+    """A process's own output, stdout then stderr, blank lines dropped, capped
+    at `cap` (None for every line): the per-finding record a one-line reason
+    cannot carry. Each `scrub` path is replaced by its file name, so a finding
+    names `snapshot.json` rather than this parent's scratch directory."""
     lines: list[str] = []
     for stream in (getattr(result, "stdout", ""), getattr(result, "stderr", "")):
         for line in (stream or "").splitlines():
@@ -1669,7 +1708,7 @@ def _output_lines(result, *, scrub=(), cap: int = DETAIL_CAP) -> list[str]:
                 for path in scrub:
                     line = line.replace(str(path), Path(path).name)
                 lines.append(line.rstrip())
-    return lines[:cap]
+    return lines if cap is None else lines[:cap]
 
 
 def known_finding_citation(lines) -> str:
@@ -1784,7 +1823,10 @@ def precheck_sealed_render(seal_root, *, source_head: str,
             f"{result.unavailable_reason}"
             + (f" — it said: {said}" if said else ""))
     if not result.ok:
-        findings = _output_lines(result, scrub=scrub)
+        # EVERY line is read for the citation, and the detail the verdict
+        # carries is capped afterwards (`StrictGateRejected`). A tracked
+        # finding past the cap is still cited (Copilot, PR #1166).
+        findings = _output_lines(result, scrub=scrub, cap=None)
         citation = known_finding_citation(findings)
         raise StrictGateRejected(
             f"--strict REJECTED the snapshot this seal renders "
@@ -1909,9 +1951,10 @@ def seal_source(
     # bytes never pass through this module's text-mode runner.
     with tempfile.TemporaryDirectory(prefix="dfr-seal-") as staging:
         archive_path = Path(staging) / "source.tar"
-        result = runner(["git", "-C", str(corpus_checkout), "archive",
-                         "--format=tar", f"--output={archive_path}",
-                         source_head, "--", *seal_paths])
+        result = runner(exact_git(corpus_checkout, "archive", "--format=tar",
+                                  f"--output={archive_path}", source_head,
+                                  "--", *seal_paths),
+                        env=exact_git_environment())
         if not result.ok:
             raise SealRefused(
                 f"git archive failed at {_short(source_head)}: "

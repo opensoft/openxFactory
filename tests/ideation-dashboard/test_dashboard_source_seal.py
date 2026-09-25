@@ -253,16 +253,45 @@ def _seal(corpus: Path, seal_dir: Path, *, decision: dict | None = None,
 
 
 class RecordingRunner:
-    """Wraps the real runner and records every argv, so "the seal speaks git
-    and nothing else" is asserted on the calls rather than on the source."""
+    """Wraps the real runner and records every argv, and the environment each
+    call was given, so "the seal speaks git and nothing else" is asserted on
+    the calls rather than on the source."""
 
     def __init__(self, inner=lane.subprocess_runner) -> None:
         self.inner = inner
         self.calls: list[tuple[str, ...]] = []
+        self.environments: list[dict | None] = []
 
     def __call__(self, argv, **kw):
         self.calls.append(tuple(str(a) for a in argv))
+        self.environments.append(kw.get("env"))
         return self.inner(argv, **kw)
+
+
+def _verb(argv) -> str:
+    """The git subcommand of a recorded call: the first word after `git` that
+    is neither a global option nor the directory `-C` takes."""
+    words = list(argv[1:])
+    while words:
+        word = words.pop(0)
+        if word == "-C":
+            words.pop(0)
+        elif not word.startswith("-"):
+            return word
+    return ""
+
+
+def _assert_exact_reads(runner: "RecordingRunner") -> None:
+    """Every git call was an EXACT-CONTENT read: replacement-free, and in the
+    scrubbed environment, so no ambient redirection reached it."""
+    for argv, env in zip(runner.calls, runner.environments):
+        assert argv[:2] == ("git", "--no-replace-objects"), argv
+        assert env is not None, argv
+        assert env.get("GIT_NO_REPLACE_OBJECTS") == "1", argv
+        for name in ("GIT_DIR", "GIT_OBJECT_DIRECTORY",
+                     "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_REPLACE_REF_BASE",
+                     "GIT_CONFIG_PARAMETERS", "GIT_WORK_TREE", "GIT_COMMON_DIR"):
+            assert name not in env, (name, argv)
 
 
 # ---------------------------------------------------------------------------
@@ -531,7 +560,8 @@ def test_a_product_revision_that_cannot_be_read_refuses_the_seal(
     product = tmp_path / "product"
     product.mkdir()
     pinned = lane.PinnedValidator(runnable=stub.runnable, product_root=product)
-    asked = ("git", "-C", str(product), "rev-parse", "HEAD")
+    asked = ("git", "--no-replace-objects", "-C", str(product), "rev-parse",
+             "HEAD")
 
     def runner(argv, **kw):
         if tuple(str(a) for a in argv) == asked:
@@ -1242,8 +1272,9 @@ def test_the_seal_speaks_only_git_and_never_builds_or_pushes(corpus, tmp_path,
     assert runner.calls, "the seal made no subprocess call at all"
     for argv in runner.calls:
         assert argv[0] == "git", argv
-    verbs = {argv[3] for argv in runner.calls if len(argv) > 3}
+    verbs = {_verb(argv) for argv in runner.calls}
     assert verbs <= {"archive", "show", "rev-parse"}, verbs
+    _assert_exact_reads(runner)
     assert not hasattr(lane, "build_and_push")
 
 
@@ -1731,8 +1762,46 @@ def test_the_leg_sealer_speaks_only_git(corpus_with_products, tmp_path):
                           runner=runner)
     assert runner.calls
     assert all(argv[0] == "git" for argv in runner.calls)
-    assert {argv[3] for argv in runner.calls} == {"ls-tree", "rev-parse",
-                                                  "archive"}
+    assert {_verb(argv) for argv in runner.calls} == {"ls-tree", "rev-parse",
+                                                      "archive"}
+    _assert_exact_reads(runner)
+
+
+def test_ambient_git_redirection_cannot_change_what_is_sealed(
+        corpus_with_products, tmp_path, monkeypatch):
+    """The seal's reads are EXACT-CONTENT reads (Copilot, PR #1166). Here the
+    pinned openXdox leg commit has a REPLACE REF naming another commit with
+    other bytes, and the job's environment names another repository, another
+    object store and a replace-ref base. A plain read would follow either one
+    and still record the pinned commit's name. The seal holds the pinned
+    commit's own bytes."""
+    corpus = corpus_with_products
+    head = _git(corpus, "rev-parse", "HEAD")
+    pinned = _git(corpus, "rev-parse", f"{head}:openXdox")
+    leg_dir = corpus / "openXdox" / "code"
+    leg_pin = _git(corpus / "openXdox", "rev-parse", f"{pinned}:code")
+    module = leg_dir / "src" / "openxdox" / "__init__.py"
+    genuine = module.read_bytes()
+    module.write_text("# the REPLACEMENT's bytes\n", encoding="utf-8")
+    _git(leg_dir, "commit", "--quiet", "-am", "a replacement")
+    replacement = _git(leg_dir, "rev-parse", "HEAD")
+    _git(leg_dir, "checkout", "--quiet", "--detach", leg_pin)
+    _git(leg_dir, "replace", leg_pin, replacement)
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    _git(elsewhere, "init", "--quiet", "-b", "main")
+    # From here on, no fixture git runs: the environment is the job's.
+    monkeypatch.setenv("GIT_DIR", str(elsewhere / ".git"))
+    monkeypatch.setenv("GIT_OBJECT_DIRECTORY", str(elsewhere / ".git" / "objects"))
+    monkeypatch.setenv("GIT_ALTERNATE_OBJECT_DIRECTORIES",
+                       str(elsewhere / ".git" / "objects"))
+    monkeypatch.setenv("GIT_REPLACE_REF_BASE", "refs/replace/")
+    corpus_root = tmp_path / "seal" / lane.SEAL_CORPUS_RELPATH
+    records = lane.seal_render_legs(corpus_checkout=corpus, source_head=head,
+                                    corpus_root=corpus_root)
+    assert [record["leg_revision"] for record in records][1] == leg_pin
+    sealed = corpus_root / "openXdox" / "code" / "src" / "openxdox" / "__init__.py"
+    assert sealed.read_bytes() == genuine
 
 
 def test_verify_refuses_a_seal_whose_render_unit_is_not_whole(corpus, tmp_path):
@@ -1814,15 +1883,18 @@ def test_verify_refuses_the_2_0_layout_that_carried_no_render_unit(corpus,
 # ---------------------------------------------------------------------------
 
 _STAND_IN_ENTRY = '''\
-"""A stand-in RENDER_ENTRY: records how it was run, then renders per mode."""
+"""A stand-in RENDER_ENTRY: records how it was run, then renders per mode.
+Its configuration is a file whose path is written into this script, because
+the render's environment carries none of the test's own variables."""
 import json, os, sys
 from pathlib import Path
 
+config = json.loads(Path(CONFIG).read_text(encoding="utf-8"))
 args = sys.argv[1:]
-Path(os.environ["DFR_TEST_ENTRY_RECORD"]).write_text(json.dumps(
+Path(config["entry_record"]).write_text(json.dumps(
     {"argv": args, "cwd": os.getcwd(), "env": dict(os.environ)}),
     encoding="utf-8")
-mode = os.environ.get("DFR_TEST_RENDER", "ok")
+mode = config.get("render", "ok")
 if mode == "fail":
     print("Traceback: the render could not import opendox", file=sys.stderr)
     sys.exit(3)
@@ -1841,10 +1913,18 @@ _STAND_IN_VALIDATOR = '''\
 import json, os, sys
 from pathlib import Path
 
-Path(os.environ["DFR_TEST_VALIDATOR_RECORD"]).write_text(
+config = json.loads(Path(CONFIG).read_text(encoding="utf-8"))
+Path(config["validator_record"]).write_text(
     json.dumps(sys.argv[1:]), encoding="utf-8")
-mode = os.environ.get("DFR_TEST_VALIDATOR", "ok")
+mode = config.get("validator", "ok")
 target = sys.argv[1]
+if mode == "many-findings":
+    for n in range(60):
+        print(f"ERROR [snapshot-unknown-kind] {target}: filler {n}")
+    print(f"ERROR [snapshot-dangling-cluster-ref] {target}: possible 'pos-z' "
+          "claiming_clusters references unknown cluster 'cl-plane-1'")
+    print("validate-ideation-dashboard-contracts: 61 error(s), 0 warning(s)")
+    sys.exit(1)
 if mode == "findings":
     for pos in ("pos-a", "pos-b", "pos-c"):
         print(f"ERROR [snapshot-dangling-cluster-ref] {target}: possible "
@@ -1863,20 +1943,29 @@ print("validate-ideation-dashboard-contracts: 0 error(s), 0 warning(s)")
 HEAD_REV = "1" * 40
 
 
+def _configure(tmp_path: Path, **modes) -> None:
+    """Set the stand-ins' modes (`render=`, `validator=`) for the next run."""
+    (tmp_path / "stand-in-config.json").write_text(json.dumps({
+        "entry_record": str(tmp_path / "entry.json"),
+        "validator_record": str(tmp_path / "validator.json"), **modes}),
+        encoding="utf-8")
+
+
 @pytest.fixture
-def stand_in_seal(tmp_path, monkeypatch) -> Path:
+def stand_in_seal(tmp_path) -> Path:
     """A seal holding a stand-in render entry and a stand-in sealed validator
-    at the paths the real ones occupy, with their records wired up."""
+    at the paths the real ones occupy, with their records wired up through a
+    configuration file named inside each script."""
     seal = tmp_path / "seal"
+    config = repr(str(tmp_path / "stand-in-config.json"))
     entry = seal / lane.SEAL_CORPUS_RELPATH / lane.RENDER_ENTRY
     entry.parent.mkdir(parents=True)
-    entry.write_text(_STAND_IN_ENTRY, encoding="utf-8")
+    entry.write_text(f"CONFIG = {config}\n" + _STAND_IN_ENTRY, encoding="utf-8")
     validator = seal / lane.SEAL_VALIDATOR_RELPATH
     validator.parent.mkdir(parents=True)
-    validator.write_text(_STAND_IN_VALIDATOR, encoding="utf-8")
-    monkeypatch.setenv("DFR_TEST_ENTRY_RECORD", str(tmp_path / "entry.json"))
-    monkeypatch.setenv("DFR_TEST_VALIDATOR_RECORD",
-                       str(tmp_path / "validator.json"))
+    validator.write_text(f"CONFIG = {config}\n" + _STAND_IN_VALIDATOR,
+                         encoding="utf-8")
+    _configure(tmp_path)
     return seal
 
 
@@ -1924,15 +2013,32 @@ def test_the_pre_dispatch_render_holds_no_credential_and_no_repository(
                         "ACTIONS_RUNTIME_TOKEN": "t7", "SSH_AUTH_SOCK": "/s",
                         "PYTHONPATH": "/elsewhere"}.items():
         monkeypatch.setenv(name, value)
+    # And credentials a denylist would have to have named (Copilot, #1166).
+    for name, value in {"AWS_ACCESS_KEY_ID": "t8", "DOCKER_AUTH_CONFIG": "t9",
+                        "KUBECONFIG": "/runner/kube", "NPM_CONFIG_USERCONFIG":
+                        "/runner/npmrc", "VIRTUAL_ENV": "/runner/venv"}.items():
+        monkeypatch.setenv(name, value)
+    monkeypatch.setenv("LC_ALL", "C.UTF-8")
     _precheck(stand_in_seal)
     env = json.loads((tmp_path / "entry.json").read_text(encoding="utf-8"))["env"]
     for name in ("GH_TOKEN", "GITHUB_TOKEN", "SUBMODULE_TOKEN",
                  "AZURE_CLIENT_SECRET", "ACR_PASSWORD", "SIGNING_PRIVATE_KEY",
                  "GITHUB_WORKSPACE", "GIT_ASKPASS", "GIT_CONFIG_PARAMETERS",
-                 "ACTIONS_RUNTIME_TOKEN", "SSH_AUTH_SOCK", "PYTHONPATH"):
+                 "ACTIONS_RUNTIME_TOKEN", "SSH_AUTH_SOCK", "PYTHONPATH",
+                 "AWS_ACCESS_KEY_ID", "DOCKER_AUTH_CONFIG", "KUBECONFIG",
+                 "NPM_CONFIG_USERCONFIG", "VIRTUAL_ENV"):
         assert name not in env, name
-    assert not any(value in ("t1", "t2", "t3", "t4", "t5", "t6", "t7")
-                   for value in env.values())
+    assert not any(value in ("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8",
+                             "t9") for value in env.values())
+    # ALLOWLISTED: nothing reaches the render but the kept names and what the
+    # render is given. (The interpreter adds nothing to its own environ.)
+    given = {"HOME", "PYTHONDONTWRITEBYTECODE", "PYTHONIOENCODING",
+             "GIT_CEILING_DIRECTORIES", "GIT_CONFIG_GLOBAL",
+             "GIT_CONFIG_NOSYSTEM"}
+    assert {name for name in env
+            if name not in lane._RENDER_ENV_KEPT and name not in given
+            and not name.startswith(lane._RENDER_ENV_KEPT_PREFIXES)} == set()
+    assert env["LC_ALL"] == "C.UTF-8"
     assert env["PYTHONDONTWRITEBYTECODE"] == "1"
     assert env["GIT_CEILING_DIRECTORIES"] == str(stand_in_seal.resolve())
     assert env["GIT_CONFIG_GLOBAL"] == os.devnull
@@ -1950,8 +2056,8 @@ def test_the_pre_dispatch_render_holds_no_credential_and_no_repository(
                      f"(source_revision {'0' * 40!r}"),
 ], ids=["the-render-fails", "an-anchor-is-dropped"])
 def test_a_sealed_render_that_would_fail_the_child_is_refused(
-        stand_in_seal, monkeypatch, mode, said):
-    monkeypatch.setenv("DFR_TEST_RENDER", mode)
+        stand_in_seal, tmp_path, mode, said):
+    _configure(tmp_path, render=mode)
     with pytest.raises(lane.SealRefused) as refused:
         _precheck(stand_in_seal)
     assert not isinstance(refused.value, lane.StrictGateRejected)
@@ -1959,8 +2065,8 @@ def test_a_sealed_render_that_would_fail_the_child_is_refused(
 
 
 def test_a_sealed_validator_that_cannot_run_over_the_render_is_refused(
-        stand_in_seal, monkeypatch):
-    monkeypatch.setenv("DFR_TEST_VALIDATOR", "harness")
+        stand_in_seal, tmp_path):
+    _configure(tmp_path, validator="harness")
     with pytest.raises(lane.SealRefused) as refused:
         _precheck(stand_in_seal)
     assert not isinstance(refused.value, lane.StrictGateRejected)
@@ -1971,12 +2077,12 @@ def test_a_sealed_validator_that_cannot_run_over_the_render_is_refused(
 
 
 def test_a_strict_rejection_is_a_verdict_carrying_the_findings(
-        stand_in_seal, monkeypatch):
+        stand_in_seal, tmp_path):
     """`StrictGateRejected`: the validator's own findings, with the scratch
     path reduced to the file's name, and the tracking issue of every finding
     it knows, counted, so a rejection that also carries a new finding never
     reads as fully tracked."""
-    monkeypatch.setenv("DFR_TEST_VALIDATOR", "findings")
+    _configure(tmp_path, validator="findings")
     with pytest.raises(lane.StrictGateRejected) as rejected:
         _precheck(stand_in_seal)
     reason = str(rejected.value)
@@ -1993,6 +2099,20 @@ def test_a_strict_rejection_is_a_verdict_carrying_the_findings(
         "ERROR [snapshot-dangling-cluster-ref] snapshot.json: possible 'pos-d' "
         "claiming_clusters references unknown cluster 'cl-other-2'",
         "validate-ideation-dashboard-contracts: 4 error(s), 0 warning(s)"]
+
+
+def test_a_tracked_finding_past_the_detail_cap_is_still_cited(
+        stand_in_seal, tmp_path):
+    """The citation reads EVERY line the validator wrote, and only the detail
+    the verdict carries is capped (Copilot, PR #1166). Here the one tracked
+    finding is the 61st, past `DETAIL_CAP`."""
+    _configure(tmp_path, validator="many-findings")
+    with pytest.raises(lane.StrictGateRejected) as rejected:
+        _precheck(stand_in_seal)
+    assert "tracked as opensoft/openxFactory#1159 (1 of 61 finding(s); 60 " \
+        "tracked by no known issue)" in str(rejected.value)
+    assert len(rejected.value.detail) == lane.DETAIL_CAP
+    assert not any("cl-plane-1" in line for line in rejected.value.detail)
 
 
 def test_a_render_that_does_not_finish_is_refused(stand_in_seal):
