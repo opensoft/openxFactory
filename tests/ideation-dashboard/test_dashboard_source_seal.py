@@ -1929,6 +1929,31 @@ def test_verify_refuses_a_seal_whose_render_unit_is_not_whole(corpus, tmp_path):
         "file(s) under openxFactory/openXdox/code/"]
 
 
+def test_the_render_bootstrap_is_what_the_entry_imports_first():
+    """The four host-bootstrap files the entry imports before it reaches
+    either product: the render paths less the gitlinks and the entry."""
+    assert lane.RENDER_BOOTSTRAP == (
+        "scripts/carved_reach.py", "scripts/opendox_host.py",
+        "scripts/profile_openxfactory.py", "scripts/wire_messages.py")
+
+
+@pytest.mark.parametrize("dropped", lane.RENDER_BOOTSTRAP)
+def test_verify_refuses_a_seal_missing_a_bootstrap_file(corpus, tmp_path,
+                                                         dropped):
+    """The entry imports its host bootstrap before either product, so a seal
+    without one of those files would pass an intake that checked the entry
+    alone and fail only once the render started (Copilot, opensoft/xFactory
+    PR #526). The removal is made coherent, so only the requirement can see
+    it."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    (seal / lane.SEAL_CORPUS_RELPATH / dropped).unlink()
+    _rewrite_coherently(seal, manifest)
+    assert lane.verify_seal(seal) == [
+        f"the seal does not carry {lane.SEAL_CORPUS_RELPATH}/{dropped}, which "
+        "the renderer imports before it reaches either product"]
+
+
 def test_verify_refuses_the_2_0_layout_that_carried_no_render_unit(corpus,
                                                                    tmp_path):
     """A 2.0.0 seal (#1162) carried the validator unit and no render unit. The
@@ -1959,7 +1984,7 @@ _STAND_IN_ENTRY = '''\
 """A stand-in RENDER_ENTRY: records how it was run, then renders per mode.
 Its configuration is a file whose path is written into this script, because
 the render's environment carries none of the test's own variables."""
-import json, os, sys
+import hashlib, json, os, sys
 from pathlib import Path
 
 config = json.loads(Path(CONFIG).read_text(encoding="utf-8"))
@@ -1976,20 +2001,35 @@ revision = args[args.index("--source-revision") + 1]
 stamp = args[args.index("--generated-at") + 1]
 if mode == "drop-anchors":
     revision = "0" * 40
-output.write_text(json.dumps({"kind": "ideation-dashboard-snapshot",
+text = json.dumps({"kind": "ideation-dashboard-snapshot",
     "generation": {"source_revision": revision, "generated_at": stamp},
-    "documents": [{"id": "a"}, {"id": "b"}, {"id": "c"}]}), encoding="utf-8")
+    "documents": [{"id": "a"}, {"id": "b"}, {"id": "c"}]})
+if mode in ("link-out", "hard-link"):
+    # A file elsewhere on the host, readable and a valid snapshot, handed to
+    # the parent through a link at the output path.
+    host = Path(config["host_file"])
+    host.write_text(text, encoding="utf-8")
+    (output.symlink_to if mode == "link-out" else output.hardlink_to)(host)
+elif mode == "directory":
+    output.mkdir()
+elif mode == "fifo":
+    os.mkfifo(output)
+else:
+    output.write_text(text, encoding="utf-8")
+    Path(config["entry_record"] + ".sha256").write_text(
+        hashlib.sha256(output.read_bytes()).hexdigest(), encoding="utf-8")
 '''
 
 _STAND_IN_VALIDATOR = '''\
-"""A stand-in sealed validator: records how it was run, then answers per
-mode."""
-import json, os, sys
+"""A stand-in sealed validator: records how it was run and what it was
+handed, then answers per mode."""
+import hashlib, json, os, sys
 from pathlib import Path
 
 config = json.loads(Path(CONFIG).read_text(encoding="utf-8"))
 Path(config["validator_record"]).write_text(json.dumps(
-    {"argv": sys.argv[1:], "cwd": os.getcwd(), "env": dict(os.environ)}),
+    {"argv": sys.argv[1:], "cwd": os.getcwd(), "env": dict(os.environ),
+     "sha256": hashlib.sha256(Path(sys.argv[1]).read_bytes()).hexdigest()}),
     encoding="utf-8")
 mode = config.get("validator", "ok")
 target = sys.argv[1]
@@ -2022,7 +2062,8 @@ def _configure(tmp_path: Path, **modes) -> None:
     """Set the stand-ins' modes (`render=`, `validator=`) for the next run."""
     (tmp_path / "stand-in-config.json").write_text(json.dumps({
         "entry_record": str(tmp_path / "entry.json"),
-        "validator_record": str(tmp_path / "validator.json"), **modes}),
+        "validator_record": str(tmp_path / "validator.json"),
+        "host_file": str(tmp_path / "host-file.json"), **modes}),
         encoding="utf-8")
 
 
@@ -2068,8 +2109,16 @@ def test_the_pre_dispatch_render_is_the_childs_own_invocation(
         "--generated-at", COMMITTED_AT, "--output", output, "--no-validate"]
     assert Path(ran["cwd"]).resolve() == corpus_root.resolve()
     assert not Path(output).resolve().is_relative_to(stand_in_seal.resolve())
+    # The validator judges a COPY of exactly the bytes the render wrote, in a
+    # directory the render never saw, under `--strict`.
     judged = json.loads((tmp_path / "validator.json").read_text(encoding="utf-8"))
-    assert judged["argv"] == [str(Path(output).resolve()), "--strict"]
+    handed = Path(judged["argv"][0])
+    assert judged["argv"][1:] == ["--strict"]
+    assert handed.name == "snapshot.json" and handed.is_absolute()
+    assert handed.parent != Path(output).resolve().parent
+    assert not handed.is_relative_to(stand_in_seal.resolve())
+    assert judged["sha256"] == \
+        (tmp_path / "entry.json.sha256").read_text(encoding="utf-8")
 
 
 def test_a_seal_named_relative_to_the_working_directory_still_renders(
@@ -2139,6 +2188,52 @@ def test_a_sealed_render_that_would_fail_the_child_is_refused(
         _precheck(stand_in_seal)
     assert not isinstance(refused.value, lane.StrictGateRejected)
     assert str(refused.value).startswith(said)
+
+
+@pytest.mark.parametrize("mode, what", [
+    ("link-out", "a symbolic link"),
+    ("hard-link", "a hard link to another file"),
+    ("directory", "a directory"),
+    ("fifo", "not a regular file"),
+], ids=["a-link-out-of-the-scratch-directory", "a-hard-link", "a-directory",
+        "a-fifo"])
+def test_render_output_that_is_not_a_file_of_its_own_is_refused(
+        stand_in_seal, tmp_path, mode, what):
+    """The render is sealed code, and its output is read by the parent, then
+    validated and quoted in the findings. A link there would hand the parent
+    any file on this host, here a valid snapshot the render put elsewhere
+    (Copilot, PR #1166). So the output must be a regular file of its own, and
+    nothing else is read or validated."""
+    _configure(tmp_path, render=mode)
+    with pytest.raises(lane.SealRefused) as refused:
+        _precheck(stand_in_seal)
+    assert not isinstance(refused.value, lane.StrictGateRejected)
+    assert str(refused.value) == (
+        f"the sealed render's output is {what}, not a file of its own, so the "
+        "parent will not read it: a link could hand the parent any file on "
+        "this host to validate and quote")
+    assert not (tmp_path / "validator.json").exists()      # nothing judged
+
+
+def test_a_render_output_swapped_after_its_check_is_refused(tmp_path,
+                                                            monkeypatch):
+    """The output is checked, then opened without following a link, and
+    checked again through the descriptor. A swap between the two is
+    refused."""
+    first = tmp_path / "snapshot.json"
+    first.write_text("{}", encoding="utf-8")
+    other = tmp_path / "other.json"
+    other.write_text("{}", encoding="utf-8")
+    checked, real = os.lstat(other), os.lstat
+    monkeypatch.setattr(
+        lane.os, "lstat",
+        lambda path, *a, **kw: checked if Path(path) == first
+        else real(path, *a, **kw))
+    with pytest.raises(lane.SealRefused, match="a file that was swapped after "
+                                               "it was checked"):
+        lane._read_render_output(first)
+    monkeypatch.undo()
+    assert lane._read_render_output(first) == b"{}"
 
 
 def test_a_sealed_validator_that_cannot_run_over_the_render_is_refused(

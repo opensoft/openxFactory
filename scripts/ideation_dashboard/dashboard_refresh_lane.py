@@ -121,6 +121,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tarfile
@@ -183,6 +184,12 @@ CORPUS_RENDER_PATHS: tuple[str, ...] = (
     "scripts/profile_openxfactory.py",
     "scripts/wire_messages.py",
 )
+# The host bootstrap the entry imports before it reaches either product: the
+# render paths less the two gitlinks and the entry itself. The intake requires
+# each one, since a seal missing any of them fails only once the render starts.
+RENDER_BOOTSTRAP: tuple[str, ...] = tuple(
+    path for path in CORPUS_RENDER_PATHS
+    if path not in RENDER_LEG_GITLINKS and path != RENDER_ENTRY)
 
 # The corpus repository's BAKED INPUTS: what the image copies, plus what
 # renders the snapshot it copies. This is the decision's scope. Sorted, because
@@ -1889,6 +1896,62 @@ def known_finding_citation(lines) -> str:
             + ")")
 
 
+def _not_a_file_of_its_own(info: os.stat_result) -> str:
+    """What `info` is, when it is anything but a regular file with one link;
+    "" when it is one."""
+    if stat.S_ISLNK(info.st_mode):
+        return "a symbolic link"
+    if stat.S_ISDIR(info.st_mode):
+        return "a directory"
+    if not stat.S_ISREG(info.st_mode):
+        return "not a regular file"
+    if info.st_nlink != 1:
+        return "a hard link to another file"
+    return ""
+
+
+def _render_output_refused(what: str) -> SealRefused:
+    return SealRefused(
+        f"the sealed render's output is {what}, not a file of its own, so "
+        "the parent will not read it: a link could hand the parent any file "
+        "on this host to validate and quote")
+
+
+def _read_render_output(path) -> bytes:
+    """The bytes the sealed render wrote at `path`, which must be a regular
+    file of its own: not a symbolic link, not a hard link, nothing else. The
+    render is sealed code, and a link would have the parent validate, and
+    quote in its findings, whatever file on this host it named (Copilot,
+    PR #1166). The file is opened without following a link and checked again
+    through the open descriptor, so a swap after the first check is refused
+    too."""
+    try:
+        before = os.lstat(path)
+    except OSError as exc:
+        raise SealRefused(
+            f"the sealed render's output cannot be read ({exc})") from exc
+    what = _not_a_file_of_its_own(before)
+    if what:
+        raise _render_output_refused(what)
+    flags = (os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+             | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0))
+    try:
+        descriptor = os.open(path, flags)
+    except OSError as exc:
+        raise _render_output_refused(
+            f"something that could not be opened without following a link "
+            f"({exc.strerror})") from exc
+    with os.fdopen(descriptor, "rb") as handle:
+        after = os.fstat(handle.fileno())
+        what = _not_a_file_of_its_own(after)
+        if not what and (after.st_dev, after.st_ino) != (before.st_dev,
+                                                         before.st_ino):
+            what = "a file that was swapped after it was checked"
+        if what:
+            raise _render_output_refused(what)
+        return handle.read()
+
+
 def precheck_sealed_render(seal_root, *, source_head: str,
                            source_committed_at: str,
                            run=subprocess.run,
@@ -1950,15 +2013,16 @@ def precheck_sealed_render(seal_root, *, source_head: str,
         except OSError as exc:
             raise SealRefused(
                 f"the sealed render could not be launched: {exc}") from exc
-        if proc.returncode != 0 or not snapshot.is_file():
+        if proc.returncode != 0 or not os.path.lexists(snapshot):
             said = _validator_said(proc)
             raise SealRefused(
                 "the sealed render unit could not render the snapshot (exit "
                 f"{proc.returncode}), so the child's generate would fail the "
                 "same way" + (f": {said}" if said else ""))
+        written = _read_render_output(snapshot)
         try:
-            rendered = json.loads(snapshot.read_text(encoding="utf-8"))
-        except (OSError, ValueError) as exc:
+            rendered = json.loads(written.decode("utf-8"))
+        except ValueError as exc:
             raise SealRefused(
                 f"the sealed render wrote no readable snapshot ({exc})") from exc
         generation = rendered.get("generation") if isinstance(rendered, dict) \
@@ -1973,9 +2037,16 @@ def precheck_sealed_render(seal_root, *, source_head: str,
                 "child's one-revision assertion would refuse it")
         documents = rendered.get("documents")
         document_count = len(documents) if isinstance(documents, list) else 0
-        result = validate_in_render_environment(
-            product, snapshot, validator=validator, strict=True,
-            seal_root=seal_root, run=run, timeout=timeout)
+        # THE VALIDATOR JUDGES THE BYTES READ ABOVE, from a copy in a
+        # directory made after the render exited. Nothing the render left
+        # behind can stand between what was checked and what is judged.
+        with tempfile.TemporaryDirectory(prefix="dfr-judged-") as judged_dir:
+            judged = Path(judged_dir).resolve() / snapshot.name
+            judged.write_bytes(written)
+            scrub = (*scrub, judged)
+            result = validate_in_render_environment(
+                product, judged, validator=validator, strict=True,
+                seal_root=seal_root, run=run, timeout=timeout)
     if not result.available:
         said = _validator_said(result)
         raise SealRefused(
@@ -2410,8 +2481,9 @@ def _render_unit_problems(manifest: dict, files: dict,
     """What is wrong with the seal's RENDER UNIT (#1161), for `verify_seal`.
 
     The child runs `render_entry` from the sealed corpus, and it can reach
-    only what the seal carries. So the entry must be indexed, and each
-    `RENDER_LEGS` product must have its record: the commit the sealed corpus
+    only what the seal carries. So the entry and its host bootstrap
+    (`RENDER_BOOTSTRAP`) must be indexed, and each `RENDER_LEGS` product must
+    have its record: the commit the sealed corpus
     pins the product at, the leg commit that product pins, and indexed modules
     under the leg's `src/<package>/`. The file count must match what is
     indexed, and a validator copied from a product tree must be that openXdox
@@ -2427,6 +2499,11 @@ def _render_unit_problems(manifest: dict, files: dict,
         problems.append(
             f"the seal does not carry {SEAL_CORPUS_RELPATH}/{RENDER_ENTRY}, "
             "the renderer the child runs")
+    for path in RENDER_BOOTSTRAP:
+        if f"{SEAL_CORPUS_RELPATH}/{path}" not in files:
+            problems.append(
+                f"the seal does not carry {SEAL_CORPUS_RELPATH}/{path}, which "
+                "the renderer imports before it reaches either product")
     legs = manifest.get("render_legs")
     if not isinstance(legs, list):
         return problems + [
