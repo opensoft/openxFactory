@@ -14,7 +14,8 @@ the ratified packet is the authority.
 T005 re-measured every figure on 2026-09-25. This file stays the record of
 2026-09-24, and the drift is in
 [`evidence/remeasure-2026-09-25.md`](./evidence/remeasure-2026-09-25.md). R10,
-R11, R12 and R13 moved, and R11's move brought T061 into phase 1.
+R11, R12 and R13 moved, and R11's move brought T061 into phase 1, which R1Q25
+asks Brett to confirm (T006).
 
 ## R0 — The trees measured, and how to reproduce them
 

@@ -3,14 +3,16 @@
 **Feature Branch**: `034-opendox-standalone-operation`
 **Created**: 2026-09-24
 Status: draft
-**Clarifications**: 11 of the 24 clarify questions are answered, including
-every question phase 1 needed when it was planned. 13 are open. Phases 2–3
+**Clarifications**: 11 of the 25 clarify questions are answered, including
+every question phase 1 needed when it was planned. 14 are open. Phases 2–3
 are PROVISIONAL until theirs are answered. So are two tasks of phase 1, T061
-and T043, which T005's re-measure put on R1Q14, R1Q24 and part of R1Q12.
+and T043, which T005's re-measure put on R1Q14 and R1Q24. T006's analyze added
+R1Q25, on 7.3's phase, and took R1Q12 off them.
 **Realizes**: RELEASE 1, "standalone operation", phases 1–3, of the
 openxFactory OpenSpec change `add-neutral-product-standalone-operability`
 (#1144, landed `94b6f7f1`). The phases follow that change's RULED release map
-(`#656` `5799646419`, as corrected by `5800995035`).
+(`#656` `5799646419`, as corrected by `5800995035`). One move departs from
+that map: T005's re-plan brings 7.3 into phase 1, and R1Q25 puts it to Brett.
 **Lane**: `openxfactory-4`
 **Input**: the lane's planning brief of 2026-09-24. It asks for the Speckit
 planning artifacts for release 1, with every task mapped to a #1144 box, a
@@ -32,7 +34,7 @@ below realizes one of #1144's requirements and names it. Nothing here restates,
 narrows or widens the packet. Where this file appears to do so, that is a
 defect in this file, and the packet wins. Where the packet contradicts itself
 or the live code, the contradiction is put to Brett as a question
-([`clarify-questions.md`](./clarify-questions.md), `R1Q1`–`R1Q24`). It is never
+([`clarify-questions.md`](./clarify-questions.md), `R1Q1`–`R1Q25`). It is never
 settled here by assumption.
 
 **Why the feature lives in openxFactory.** The governing change lives here.
@@ -51,7 +53,9 @@ only under R1Q12 (b), which re-homes its snapshot schemas.
 
 Round 1 raised 22 questions in [`clarify-questions.md`](./clarify-questions.md),
 and one answer raised a 23rd. T005's re-measure raised a 24th on 2026-09-25
-([`evidence/remeasure-2026-09-25.md`](./evidence/remeasure-2026-09-25.md)).
+([`evidence/remeasure-2026-09-25.md`](./evidence/remeasure-2026-09-25.md)),
+and T006's analyze a 25th the same day
+([`evidence/analyze-round-1a.md`](./evidence/analyze-round-1a.md)).
 They are named `R1Q<n>`, because a bare `Q<n>` already names one of #1144's own
 rulings (RULING Q1, RULING Q2, Q-R4, DIRECTION Q5).
 
@@ -120,7 +124,7 @@ amendment there as bookkeeping, and the realization carries it out
 edits no file of #1144.
 
 **Still OPEN** (phases 2–3, phase 1's openXdox-code tail, and process):
-R1Q10–R1Q19, R1Q21, R1Q23 and R1Q24. Every task one of them blocks carries
+R1Q10–R1Q19, R1Q21 and R1Q23–R1Q25. Every task one of them blocks carries
 `Blocked by: R1Qn` in [`tasks.md`](./tasks.md). None of those tasks may start
 until its round task has encoded the answer here: T009 for phase 2, T069 for
 phase 3, and T019 for phase 1's T061 and T043.
@@ -200,7 +204,8 @@ generate is not standalone (requirement 4, first scenario).
 
 **Independent Test**: at the phase-2 tip, F5.3, F7.2, F5.1 (5.3a re-run) and
 F5.2 (5.4a) all pass. F5.2 is run as T007's batch C amends it and as R1Q23
-decides. F7.1 (7.3) moved to phase 1 with T061 (T005).
+decides. F7.1 (7.3) moved to phase 1 with T061 (T005), which R1Q25 asks
+Brett to confirm.
 
 **Acceptance Scenarios**:
 
@@ -279,7 +284,7 @@ regression, not a release.
 `pytest-suite`) stay green at every pin advance. An interim F11.1 run after
 each phase's openxFactory landings exits 0: T018, T065 and T098, each by
 T093's procedure. F5.2 and 9.3's integration suite pass, and so does F7.1 at
-the phase-1 tip (T061).
+the phase-1 tip (T061), unless R1Q25 returns it to phase 2.
 
 **Acceptance Scenarios**:
 
@@ -294,7 +299,8 @@ the phase-1 tip (T061).
 3. **Given** openXdox installed in a fresh venv, **When** its validator lookup
    starts inside a planted pre-shed tree, **Then** it resolves the installed
    distribution's own validator, and its schemas are on disk (7.3; R1Q14,
-   R1Q12). This is phase 1's since T005.
+   R1Q24). T005's re-plan makes this phase 1's, and R1Q25 asks Brett to
+   confirm it.
 
 ---
 
@@ -309,8 +315,9 @@ the phase-1 tip (T061).
 - A test file in openXdox-code needs `doc_health`. It is listed in the declared
   exclusion with its reason, and it is never silently skipped (R1Q6 (d)).
 - A test file in openXdox-code needs openxFactory's contracts or its
-  status-exemption rail, but not `doc_health`. T005 found seven such files.
-  R1Q24 decides where they run, and until then T043 does not start.
+  status-exemption rail, but not `doc_health`. T005 found seven such files,
+  and its experiment an eighth behind a residue failure. R1Q24 decides where
+  that class runs, and until then neither T043 nor T061 starts.
 - The install mode is unset (R1Q15), or a local install is asked to bind
   beyond loopback, which is refused with no opt-in (13.4).
 - A raw key appears inside an endpoint URL, not in a field (16.3).
@@ -365,7 +372,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   schemas it reads SHALL be on disk in one installed checkout. The input set is
   narrowed to openDox's own kinds first, and no intent-plane or governance
   schema is vendored. openXdox's validator lookup SHALL resolve through its
-  installed distribution, with no parent walk (R1Q12, R1Q14).
+  installed distribution, with no parent walk (R1Q12; for 7.3, R1Q14, R1Q24
+  and R1Q25).
 - **FR-006** (requirement 9; 9.1–9.5; F9.1, F9.2): each leg's required check
   SHALL run its whole suite green in its own checkout. Where a check runs less
   than the whole suite, it SHALL declare the exclusion with its count and its
@@ -445,11 +453,12 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 
 ### Measurable Outcomes
 
-- **SC-001** (phase 1 exit): at the phase-1 tip, F2.1, F3.1, F7.1, F9.1 (in
-  both legs) and F9.2 exit 0, each as amended where T007 records an amendment,
-  `opendox --help` exits 0, and F4.1's scan lists only `openxdox` targets.
+- **SC-001** (phase 1 exit): at the phase-1 tip, F2.1, F3.1, F7.1 (unless
+  R1Q25 returns it to phase 2), F9.1 (in both legs) and F9.2 exit 0, each as
+  amended where T007 records an amendment. `opendox --help` exits 0, and
+  F4.1's scan lists only `openxdox` targets.
   RN-1 is ruled, and T016 matches the ruling. T019 has applied the answers to
-  R1Q14, R1Q24 and R1Q12's part.
+  R1Q14, R1Q24 and R1Q25.
   - openDox-code's suite goes from 0 passed today to whole and green.
   - openXdox-code's goes from 57 collection errors to green over the whole
     suite less its declared `doc_health` exclusion (R1Q6 (d)), and as R1Q24
@@ -527,8 +536,8 @@ drives it from outside, so FR-006 is unaffected.
   is planned on its answers.
 - The open phase questions (R1Q10–R1Q13, R1Q15–R1Q19, R1Q23) are applied by
   each provisional phase's round task (T009, T069) before any task they block.
-  R1Q14, R1Q24 and R1Q12's part are applied to phase 1's T061 and T043 by
-  T019. R1Q21 is a process question, and no release-1 task waits on it.
+  R1Q14, R1Q24 and R1Q25 are applied to phase 1's T061 and T043 by T019.
+  R1Q21 is a process question, and no release-1 task waits on it.
 - Phases 2 and 3 are PROVISIONAL. They are drafted on the recommended
   options, and each conditional step names its question. They authorize no
   implementation until their round task has re-planned them on their answers

@@ -48,9 +48,12 @@ research.md § Appendix, and so is the shim:
 | `scan_deferred_reaches.py` | `fe11620319b02c23dd9a014bc581e1f4867f013f3c26890d43b12dccce5530a0` |
 | `census_consumer_reach.py` | `7f36b848a3a0a93e3c7af8481d7248582254c1715247c11e4fe626cd4826c804` |
 | `box_census.py` | `516f11c3b4c958f1b05db4a0919a1e48368dc9d49ef0bd6ed8d637411ca0f2b7` |
+| `shim/ideation_dashboard/__init__.py` (empty) | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `shim/ideation_dashboard/serve_openxfactory_lanes.py` | `e00c4c5f786b97fae3afe48e41a6590ad237c8f46e917670ec7e6075c72a3478` |
 
 T005 adds one tool, `classify_whole_suite.py`, which is given in full in the
 [Appendix](#appendix--classify_whole_suitepy) and persisted beside the others.
+Its sha256 is `3a76945d054db7701b260eda71910ae2ad6211639e532538b1d07c05f9552e24`.
 
 ## Drift, figure by figure
 
@@ -66,8 +69,8 @@ T005 adds one tool, `classify_whole_suite.py`, which is given in full in the
 | **R8** | five verbs; `main(["--help"])` exits 0; the golden holds 31 sections, 11 + 20 | the same, with the golden read at `c415c3d1` | no |
 | **R9** | one line: `src/opendox/conformance_corpus.py 35 .runtime.local_git_adapter` | the same | no |
 | **R10** | 85 test files; `validate` names 16; 8 `--noconftest` lines; floors `564/558/6`; 57 collection errors (26 `doc_health`, 28 `ideation_dashboard`, 3 `test_gate_routes`); `DOC_HEALTH_SURFACE` declares 8 modules | **87 test files**: openXdox-code#28 added `test_snapshot_validator_home.py` and `test_validator_schema_home.py`, and `validate` runs neither. Everything else is the same | **yes** |
-| **R11** | 22 protected suites; plain, 12 fail on `ideation_dashboard` and 10 on `doc_health`; with the shim, 19 fail on `doc_health`, `test_gate_loop_views` passes 74, `test_snapshot` fails 3 and passes 14, `test_snapshot_validation_launch` fails 9 | **23 protected suites**: 5.4a's glob `tests/test_snapshot*.py` now also selects `test_snapshot_validator_home.py`. Plain, 13 fail on `ideation_dashboard` (the new suite is the thirteenth) and 10 on `doc_health`. With the shim, the same 19 fail on `doc_health`, `test_gate_loop_views` passes 74, **`test_snapshot` fails 2 and passes 15**, `test_snapshot_validation_launch` fails 9, and `test_snapshot_validator_home` passes 12. The `getsource` probe is unchanged | **yes** |
-| **R12** | 456 rows: 318 with destination fields and 138 with `reason` and `evidence`; the table of fifteen openDox-code files | the same counts, and every row in R12's table is unchanged. The manifest moved once, in #1153 (C3's PR 1): openXdox-code's `snapshot.py` row went from `moved_verbatim` to `moved_with_declared_edit`, with two `edits[]` entries | yes, outside R12's table |
+| **R11** | 22 protected suites; plain, 12 fail on `ideation_dashboard` and 10 on `doc_health`; with the shim, 19 fail on `doc_health`, `test_gate_loop_views` passes 74, `test_snapshot` fails 3 and passes 14, `test_snapshot_validation_launch` fails 9 | **23 protected suites**: 5.4a's glob `tests/test_snapshot*.py` now also selects `test_snapshot_validator_home.py`. Plain, 13 fail on `ideation_dashboard` (the new suite is the thirteenth, at setup rather than at collection, so R10's 57 collection errors stand) and 10 on `doc_health`. With the shim, the same 19 fail on `doc_health`, `test_gate_loop_views` passes 74, **`test_snapshot` fails 2 and passes 15**, `test_snapshot_validation_launch` fails 9, and `test_snapshot_validator_home` passes 12. The `getsource` probe is unchanged | **yes** |
+| **R12** | 456 rows: 318 with destination fields and 138 with `reason` and `evidence`; the table of fifteen openDox-code files | the same counts, and every row in R12's table is unchanged. The manifest moved once, in #1153 (C3's PR 1): openXdox-code's `snapshot.py` row went from `moved_verbatim` to `moved_with_declared_edit`, with one `edits[]` entry, and the validator script's row gained a second `edits[]` entry | yes, outside R12's table |
 | **R13** | openxFactory's `openXdox` pin `2f3f857d`; the openXdox root's `code` `626f2c8d` | **`069fe471`** and **`e28930bf`**, as C3 planned. The rest is the same: `dc7aa08f`, `d816cf06` (openDox-code's `main` is 4 ahead of it), `5c137a90` (11 behind, and an ancestor of `d816cf06`), and each ruleset requires `validate` alone | **yes** |
 | **R14** | the snapshot contract's `required` list and its four enums | the same | no |
 | **R15** | the seven tabs, the chat rail's one entry point, the catalog route's validators, and the rail's copy | the same | no |
@@ -217,7 +220,9 @@ so.
    `After: T049, T009` is dropped. Dropping T009 would also drop T061's
    implicit wait on R1Q12. Under (b), R1Q12 re-homes two of the three schemas
    that T061 packages, so T061 now names R1Q12 on its own `Blocked by:` line,
-   next to R1Q14. 7.3 and F7.1 now close in phase 1.
+   next to R1Q14. 7.3 and F7.1 now close in phase 1. (T006's analyze later
+   took R1Q12 off T061 and put the move itself to Brett as R1Q25:
+   [`analyze-round-1a.md`](./analyze-round-1a.md).)
 2. **5.4a's glob now selects seven suites.** C3's
    `test_a_start_outside_the_product_is_refused_not_walked` lives in
    `test_snapshot_validator_home.py`, which is one of the seven. Revising it, as
@@ -225,12 +230,13 @@ so.
    test in `test_snapshot.py`. R1Q14's text now says so. R1Q23's four
    `doc_health` suites are unchanged, and the seventh suite passes.
 3. **The whole suite has six classes that no task named**, besides K, which
-   is the shim's own. C, D, E and G widen T040. H and I become **R1Q24**. T043 now starts by re-running the
-   whole suite at T040's pin, and it names the class of every red file it
-   finds.
+   is the shim's own. C, D, E and G widen T040. H and I become **R1Q24**.
+   T043 now starts by re-running the whole suite at T040's pin, and it names
+   the class of every red file it finds.
 4. **The round.** T061 and T043 wait on questions that are still open, so a
    new holder task, **T019**, applies their answers. It encodes R1Q14, R1Q24
-   and the part of R1Q12 that T061 needs. It then re-plans phase 1's
+   and the part of R1Q12 that T061 needs (T006 later replaced that part with
+   R1Q25). It then re-plans phase 1's
    openXdox-code tail and re-runs analyze before T061 or T043 starts. That is
    the step T009 and T069 take for their phases.
 
