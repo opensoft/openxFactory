@@ -1241,6 +1241,38 @@ def seal_file_index(seal_dir) -> dict[str, str]:
     return index
 
 
+# Whether this platform opens a file relative to a directory handle. Every
+# parent the nightly runs on does. One that cannot falls back to paths.
+_DIR_FD = os.open in os.supports_dir_fd and os.stat in os.supports_dir_fd
+
+
+def _open_directory(path) -> int | None:
+    """A handle on the directory at `path`, opened without following a link
+    at its last component, or None where the platform opens nothing relative
+    to a handle."""
+    if not _DIR_FD:
+        return None
+    return os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+                   | getattr(os, "O_NOFOLLOW", 0))
+
+
+def _replaced_seal_directory() -> SealRefused:
+    return SealRefused(
+        "the seal directory is no longer the one the lane created: sealed "
+        "code ran inside it, and the manifest is never written anywhere else")
+
+
+def _seal_directory_identity(seal_dir) -> tuple[int, int]:
+    """The seal directory as created, as `(st_dev, st_ino)`. It must be a
+    directory, not a link to one."""
+    info = os.lstat(seal_dir)
+    if stat.S_ISLNK(info.st_mode) or not stat.S_ISDIR(info.st_mode):
+        raise SealRefused(
+            f"the seal directory {seal_dir} is not a directory of its own "
+            "(a link, or not a directory at all)")
+    return info.st_dev, info.st_ino
+
+
 def _occupied_manifest_path(what: str) -> SealRefused:
     return SealRefused(
         f"the seal already holds a {SEAL_MANIFEST_NAME} the lane did not write "
@@ -1260,18 +1292,36 @@ def _refuse_an_occupied_manifest_path(seal_dir) -> None:
         raise _occupied_manifest_path("a file")
 
 
-def _write_new_manifest(seal_dir, text: str) -> None:
+def _write_new_manifest(seal_dir, text: str, *, identity=None) -> None:
     """Create the manifest, which must not exist yet. `O_EXCL` fails on ANY
     existing entry, a symbolic link included, wherever it points, so the bytes
-    land at the manifest's own path or nowhere."""
-    path = Path(seal_dir) / SEAL_MANIFEST_NAME
+    land at the manifest's own path or nowhere.
+
+    It is created relative to a handle on the seal directory, opened without
+    following a link. With `identity`, the directory as created, the handle
+    must be that very directory, so a seal directory replaced after it was
+    created is refused rather than written into (Copilot, PR #1166)."""
     flags = (os.O_WRONLY | os.O_CREAT | os.O_EXCL
              | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0))
     try:
-        descriptor = os.open(path, flags, 0o666)
-    except FileExistsError as exc:
-        raise _occupied_manifest_path(
-            "one that appeared while the lane was writing it") from exc
+        directory = _open_directory(seal_dir)
+    except OSError as exc:
+        raise _replaced_seal_directory() from exc
+    try:
+        if directory is not None and identity is not None:
+            info = os.fstat(directory)
+            if (info.st_dev, info.st_ino) != tuple(identity):
+                raise _replaced_seal_directory()
+        target = (SEAL_MANIFEST_NAME if directory is not None
+                  else Path(seal_dir) / SEAL_MANIFEST_NAME)
+        try:
+            descriptor = os.open(target, flags, 0o666, dir_fd=directory)
+        except FileExistsError as exc:
+            raise _occupied_manifest_path(
+                "one that appeared while the lane was writing it") from exc
+    finally:
+        if directory is not None:
+            os.close(directory)
     with os.fdopen(descriptor, "wb") as handle:
         handle.write(text.encode("utf-8"))
 
@@ -1917,16 +1967,28 @@ def _render_output_refused(what: str) -> SealRefused:
         "on this host to validate and quote")
 
 
-def _read_render_output(path) -> bytes:
-    """The bytes the sealed render wrote at `path`, which must be a regular
+def _render_output_present(name, *, dir_fd=None) -> bool:
+    """Whether anything at all sits at `name`, relative to `dir_fd` when it is
+    given, a dangling link included."""
+    try:
+        os.stat(name, dir_fd=dir_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        return False
+    return True
+
+
+def _read_render_output(name, *, dir_fd=None) -> bytes:
+    """The bytes the sealed render wrote at `name`, which must be a regular
     file of its own: not a symbolic link, not a hard link, nothing else. The
     render is sealed code, and a link would have the parent validate, and
     quote in its findings, whatever file on this host it named (Copilot,
-    PR #1166). The file is opened without following a link and checked again
-    through the open descriptor, so a swap after the first check is refused
-    too."""
+    PR #1166). `name` is read relative to `dir_fd`, a handle on the directory
+    the parent made, when one is given, so a directory swapped in on the way
+    to it cannot redirect the read. The file is opened without following a
+    link and checked again through the open descriptor, so a swap after the
+    first check is refused too."""
     try:
-        before = os.lstat(path)
+        before = os.stat(name, dir_fd=dir_fd, follow_symlinks=False)
     except OSError as exc:
         raise SealRefused(
             f"the sealed render's output cannot be read ({exc})") from exc
@@ -1936,7 +1998,7 @@ def _read_render_output(path) -> bytes:
     flags = (os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
              | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0))
     try:
-        descriptor = os.open(path, flags)
+        descriptor = os.open(name, flags, dir_fd=dir_fd)
     except OSError as exc:
         raise _render_output_refused(
             f"something that could not be opened without following a link "
@@ -1950,6 +2012,40 @@ def _read_render_output(path) -> bytes:
         if what:
             raise _render_output_refused(what)
         return handle.read()
+
+
+def _run_the_sealed_render(entry, corpus_root, seal_root, home, snapshot,
+                           output, scratch_fd, *, source_head: str,
+                           source_committed_at: str, run, timeout: int) -> bytes:
+    """Run `RENDER_ENTRY generate` from the sealed corpus root, as the child
+    does, writing `snapshot`, and return the bytes it wrote. They are read
+    through `scratch_fd`, the handle on the directory `snapshot` was made in,
+    under the name `output` (`_read_render_output`)."""
+    argv = [sys.executable, str(entry), "generate",
+            "--repo-root", str(corpus_root),
+            "--repository", RENDER_REPOSITORY,
+            "--source-revision", source_head,
+            "--generated-at", source_committed_at,
+            "--output", str(snapshot), "--no-validate"]
+    try:
+        proc = run(argv, cwd=str(corpus_root),
+                   env=_render_environment(seal_root, home),
+                   capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired as exc:
+        raise SealRefused(
+            f"the sealed render did not finish within {timeout}s, so the "
+            "child's generate would not either") from exc
+    except OSError as exc:
+        raise SealRefused(
+            f"the sealed render could not be launched: {exc}") from exc
+    if (proc.returncode != 0
+            or not _render_output_present(output, dir_fd=scratch_fd)):
+        said = _validator_said(proc)
+        raise SealRefused(
+            "the sealed render unit could not render the snapshot (exit "
+            f"{proc.returncode}), so the child's generate would fail the "
+            "same way" + (f": {said}" if said else ""))
+    return _read_render_output(output, dir_fd=scratch_fd)
 
 
 def precheck_sealed_render(seal_root, *, source_head: str,
@@ -1990,36 +2086,31 @@ def precheck_sealed_render(seal_root, *, source_head: str,
         raise SealRefused(
             "the sealed render cannot be checked on this parent "
             f"({type(exc).__name__}: {exc})") from exc
-    with tempfile.TemporaryDirectory(prefix="dfr-precheck-") as scratch:
+    # `ignore_cleanup_errors`, because the render may have left the scratch
+    # path a link, which the cleanup refuses to follow; the refusal below is
+    # the one to report.
+    with tempfile.TemporaryDirectory(prefix="dfr-precheck-",
+                                     ignore_cleanup_errors=True) as scratch:
         scratch_root = Path(scratch)
         snapshot = scratch_root / "snapshot.json"
         scrub = (snapshot.resolve(), snapshot)
         home = scratch_root / "home"
         home.mkdir()
-        argv = [sys.executable, str(entry), "generate",
-                "--repo-root", str(corpus_root),
-                "--repository", RENDER_REPOSITORY,
-                "--source-revision", source_head,
-                "--generated-at", source_committed_at,
-                "--output", str(snapshot), "--no-validate"]
+        # THE SCRATCH DIRECTORY IS HELD BEFORE THE RENDER RUNS (Copilot, PR
+        # #1166). The render may replace its path with a link to another
+        # directory. The output is read through this handle, from the
+        # directory this parent made, whatever the path names afterwards.
+        scratch_fd = _open_directory(scratch_root)
+        output = snapshot.name if scratch_fd is not None else snapshot
         try:
-            proc = run(argv, cwd=str(corpus_root),
-                       env=_render_environment(seal_root, home),
-                       capture_output=True, text=True, timeout=timeout)
-        except subprocess.TimeoutExpired as exc:
-            raise SealRefused(
-                f"the sealed render did not finish within {timeout}s, so the "
-                "child's generate would not either") from exc
-        except OSError as exc:
-            raise SealRefused(
-                f"the sealed render could not be launched: {exc}") from exc
-        if proc.returncode != 0 or not os.path.lexists(snapshot):
-            said = _validator_said(proc)
-            raise SealRefused(
-                "the sealed render unit could not render the snapshot (exit "
-                f"{proc.returncode}), so the child's generate would fail the "
-                "same way" + (f": {said}" if said else ""))
-        written = _read_render_output(snapshot)
+            written = _run_the_sealed_render(
+                entry, corpus_root, seal_root, home, snapshot, output,
+                scratch_fd, source_head=source_head,
+                source_committed_at=source_committed_at, run=run,
+                timeout=timeout)
+        finally:
+            if scratch_fd is not None:
+                os.close(scratch_fd)
         try:
             rendered = json.loads(written.decode("utf-8"))
         except ValueError as exc:
@@ -2114,7 +2205,8 @@ def seal_source(
       * a snapshot the sealed validator REJECTS under `--strict` seals
         nothing, and is raised as `StrictGateRejected`, carrying the
         validator's own findings;
-      * a pre-dispatch render that changed the sealed tree seals nothing;
+      * a pre-dispatch render that changed the sealed tree, or replaced the
+        seal directory itself, seals nothing;
       * a `manifest.json` the lane did not write, left by the sealed code that
         ran before it, seals nothing.
     Only a seal that passed all twelve gets a `manifest.json`, and the
@@ -2171,6 +2263,10 @@ def seal_source(
     # and RUN below, once the seal tree exists.
     pinned = (resolve_validator or resolve_pinned_validator)()
     seal_root.mkdir(parents=True, exist_ok=True)
+    # THE SEAL DIRECTORY AS CREATED. Sealed code runs inside it before the
+    # manifest is written (the probe and the render), so the manifest is
+    # written only into this very directory (Copilot, PR #1166).
+    seal_identity = _seal_directory_identity(seal_root)
     corpus_root = seal_root / SEAL_CORPUS_RELPATH
     # THE RENDER LEGS ARE SEALED BEFORE THE CORPUS IS ARCHIVED, for the reason
     # the validator is resolved first: a parent whose legs sit at another pin
@@ -2317,7 +2413,8 @@ def seal_source(
         "files": index,
     }
     _write_new_manifest(seal_root,
-                        json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+                        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                        identity=seal_identity)
     return manifest
 
 

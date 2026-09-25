@@ -2010,6 +2010,15 @@ if mode in ("link-out", "hard-link"):
     host = Path(config["host_file"])
     host.write_text(text, encoding="utf-8")
     (output.symlink_to if mode == "link-out" else output.hardlink_to)(host)
+elif mode == "swap-scratch":
+    # A valid snapshot written elsewhere, and the scratch directory's own
+    # path swapped for a link to it.
+    host = Path(config["host_dir"])
+    host.mkdir(exist_ok=True)
+    (host / output.name).write_text(text, encoding="utf-8")
+    scratch = output.parent
+    scratch.rename(str(scratch) + ".moved")
+    scratch.symlink_to(host, target_is_directory=True)
 elif mode == "directory":
     output.mkdir()
 elif mode == "fifo":
@@ -2063,7 +2072,8 @@ def _configure(tmp_path: Path, **modes) -> None:
     (tmp_path / "stand-in-config.json").write_text(json.dumps({
         "entry_record": str(tmp_path / "entry.json"),
         "validator_record": str(tmp_path / "validator.json"),
-        "host_file": str(tmp_path / "host-file.json"), **modes}),
+        "host_file": str(tmp_path / "host-file.json"),
+        "host_dir": str(tmp_path / "host-dir"), **modes}),
         encoding="utf-8")
 
 
@@ -2215,6 +2225,85 @@ def test_render_output_that_is_not_a_file_of_its_own_is_refused(
     assert not (tmp_path / "validator.json").exists()      # nothing judged
 
 
+def test_a_scratch_directory_the_render_swapped_is_never_read_through(
+        stand_in_seal, tmp_path):
+    """The render may replace the scratch directory's path with a link to
+    another directory holding a valid snapshot (Copilot, PR #1166). The
+    parent reads through the handle it took on the directory it made, before
+    the render ran, and that directory holds no output. So nothing is
+    validated, and the refusal is the render's own failure."""
+    _configure(tmp_path, render="swap-scratch")
+    with pytest.raises(lane.SealRefused) as refused:
+        _precheck(stand_in_seal)
+    assert str(refused.value).startswith(
+        "the sealed render unit could not render the snapshot (exit 0)")
+    assert not (tmp_path / "validator.json").exists()      # nothing judged
+    ran = json.loads((tmp_path / "entry.json").read_text(encoding="utf-8"))
+    scratch = Path(ran["argv"][ran["argv"].index("--output") + 1]).parent
+    assert scratch.is_symlink()                  # the swap really happened
+    scratch.unlink()
+    shutil.rmtree(str(scratch) + ".moved")
+
+
+@pytest.mark.parametrize("replacement", ["a-link-to-the-moved-seal",
+                                         "a-copy-in-its-place"])
+def test_a_seal_directory_the_render_replaced_gets_no_manifest(
+        corpus, tmp_path, replacement):
+    """Sealed code runs inside the seal directory, so it could move it and
+    put a link, or a copy with the same content, where it was. The index
+    would match either. The directory is held by identity from its creation,
+    so either is refused, and no manifest is written anywhere (Copilot,
+    PR #1166)."""
+    seal = tmp_path / "seal"
+    moved = tmp_path / "seal.moved"
+
+    def replacing(seal_root, *, source_head, source_committed_at):
+        Path(seal_root).rename(moved)
+        if replacement == "a-link-to-the-moved-seal":
+            Path(seal_root).symlink_to(moved, target_is_directory=True)
+        else:
+            shutil.copytree(moved, seal_root)
+        return dict(STUB_PRECHECK)
+
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, precheck_render=replacing)
+    assert str(refused.value) == (
+        "the seal directory is no longer the one the lane created: sealed "
+        "code ran inside it, and the manifest is never written anywhere else")
+    assert not (moved / lane.SEAL_MANIFEST_NAME).exists()
+    assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
+
+
+def test_the_manifest_is_written_only_into_the_directory_created(tmp_path):
+    """The write itself holds the identity too: handed another directory, or
+    a link, it writes nothing."""
+    created = tmp_path / "created"
+    created.mkdir()
+    identity = lane._seal_directory_identity(created)
+    other = tmp_path / "other"
+    other.mkdir()
+    link = tmp_path / "link"
+    link.symlink_to(created, target_is_directory=True)
+    for target in (other, link):
+        with pytest.raises(lane.SealRefused,
+                           match="no longer the one the lane created"):
+            lane._write_new_manifest(target, "{}\n", identity=identity)
+    assert not any(path.name == lane.SEAL_MANIFEST_NAME
+                   for path in tmp_path.rglob("*"))
+    lane._write_new_manifest(created, "{}\n", identity=identity)
+    assert (created / lane.SEAL_MANIFEST_NAME).read_bytes() == b"{}\n"
+
+
+def test_a_seal_directory_that_is_a_link_is_refused(corpus, tmp_path):
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    link = tmp_path / "seal"
+    link.symlink_to(empty, target_is_directory=True)
+    with pytest.raises(lane.SealRefused, match="is not a directory of its own"):
+        _seal(corpus, link)
+    assert list(empty.iterdir()) == []
+
+
 def test_a_render_output_swapped_after_its_check_is_refused(tmp_path,
                                                             monkeypatch):
     """The output is checked, then opened without following a link, and
@@ -2224,9 +2313,9 @@ def test_a_render_output_swapped_after_its_check_is_refused(tmp_path,
     first.write_text("{}", encoding="utf-8")
     other = tmp_path / "other.json"
     other.write_text("{}", encoding="utf-8")
-    checked, real = os.lstat(other), os.lstat
+    checked, real = os.lstat(other), os.stat
     monkeypatch.setattr(
-        lane.os, "lstat",
+        lane.os, "stat",
         lambda path, *a, **kw: checked if Path(path) == first
         else real(path, *a, **kw))
     with pytest.raises(lane.SealRefused, match="a file that was swapped after "
