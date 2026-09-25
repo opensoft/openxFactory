@@ -1055,6 +1055,11 @@ RENDER_LEGS: tuple[tuple[str, str, str], ...] = (
     ("openXdox", "code", "openxdox"),
 )
 RENDER_LEG_PATHS: tuple[str, ...] = ("src",)
+# Each product's OTHER leg. Nothing of it is sealed as a leg, but the sealed
+# validator's schemas are composed from it (`doxbench_contracts.
+# _composed_validator`, through the carve rows), so it is held to its pin as
+# the code leg is, and its revision is recorded beside the code leg's.
+SCHEMA_LEG = "spec"
 # The one leg the sealed validator is resolved from. Its revision is held
 # equal to `validator_revision`, so the renderer and the validator are one
 # product revision (see `seal_source`).
@@ -1575,6 +1580,10 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
         raise SealRefused(
             "the sealed validator cannot be run on this parent "
             f"({type(exc).__name__}: {exc})") from exc
+    # THE PROBE IS SEALED CODE TOO, run with the seal writable. So the tree
+    # it runs in is indexed before it runs and again after, and a probe that
+    # changed it is refused (Copilot, PR #1166).
+    before = seal_file_index(seal_root)
     with tempfile.TemporaryDirectory(prefix="dfr-probe-") as scratch:
         probe = Path(scratch) / "validator-probe.json"
         probe.write_text(json.dumps(VALIDATOR_PROBE, sort_keys=True) + "\n",
@@ -1583,6 +1592,10 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
             product, probe, validator=script, strict=False,
             seal_root=seal_root,
             module_file=sealed_product_module(seal_root))
+    if seal_file_index(seal_root) != before:
+        raise SealRefused(
+            "the sealed validator's probe changed the sealed tree, so the "
+            "seal would no longer be the tree its validator was run in")
     if not result.available:
         said = _validator_said(result)
         raise SealRefused(
@@ -1697,6 +1710,8 @@ def seal_render_legs(*, corpus_checkout, source_head: str, corpus_root,
                 f"this parent's {gitlink}/{leg} is at {_short(leg_head)}, but "
                 f"{gitlink}@{_short(pinned)} pins it at {_short(leg_pinned)} "
                 "— the seal would carry a leg its product does not pin")
+        schema_pinned = _schema_leg_at_its_pin(product, gitlink, pinned, init,
+                                               runner=runner)
         dest = corpus_root / gitlink / leg
         with tempfile.TemporaryDirectory(prefix="dfr-leg-") as staging:
             archive_path = Path(staging) / "leg.tar"
@@ -1729,8 +1744,37 @@ def seal_render_legs(*, corpus_checkout, source_head: str, corpus_root,
             "relpath": f"{SEAL_CORPUS_RELPATH}/{gitlink}/{leg}",
             "paths": list(RENDER_LEG_PATHS),
             "file_count": count,
+            "schema_leg": SCHEMA_LEG,
+            "schema_leg_revision": schema_pinned,
         })
     return sealed
+
+
+def _schema_leg_at_its_pin(product: Path, gitlink: str, pinned: str,
+                           init: str, *, runner=subprocess_runner) -> str:
+    """The commit `gitlink@pinned` pins its `SCHEMA_LEG` at, once this parent's
+    checkout of that leg is proven to BE that commit (Copilot, PR #1166). The
+    sealed validator's schemas are composed from this checkout, so one at
+    another commit would seal schema bytes no pin describes."""
+    schema_pinned = _gitlink_at(product, pinned, SCHEMA_LEG, runner=runner)
+    if schema_pinned is None:
+        raise SealRefused(
+            f"{gitlink}@{_short(pinned)} pins no {SCHEMA_LEG} leg, so the "
+            "sealed validator's schemas would have no pin")
+    schema_dir = product / SCHEMA_LEG
+    schema_head = _materialized_head(schema_dir, runner=runner)
+    if schema_head is None:
+        raise SealRefused(
+            f"the {gitlink} {SCHEMA_LEG} leg is not materialized at "
+            f"{schema_dir}, and the sealed validator's schemas are composed "
+            f"from it — run {init} in the corpus checkout")
+    if schema_head != schema_pinned:
+        raise SealRefused(
+            f"this parent's {gitlink}/{SCHEMA_LEG} is at "
+            f"{_short(schema_head)}, but {gitlink}@{_short(pinned)} pins it at "
+            f"{_short(schema_pinned)} — the seal would carry schemas its "
+            "product does not pin")
+    return schema_pinned
 
 
 # The repository id the pre-dispatch render names, the one the child's own
@@ -2217,11 +2261,14 @@ def seal_source(
         BEFORE the corpus is archived, since the corpus no longer supplies it;
       * a render leg that `source_head` does not pin, that this parent has not
         materialized at exactly that pin, or whose archive does not record it
-        seals nothing, and is also found out before the corpus is archived;
+        seals nothing, and so does a product whose schema leg this parent
+        holds at any other commit than its pin; both are found out before the
+        corpus is archived;
       * an archive whose own recorded commit is not `source_head` seals
         nothing;
       * a validator whose product revision cannot be read, whose unit cannot
-        be copied whole, or whose sealed copy cannot RUN seals nothing;
+        be copied whole, whose sealed copy cannot RUN, or whose run changed
+        the sealed tree seals nothing;
       * a validator copied from another revision of the product than the
         sealed openXdox leg seals nothing;
       * a recipe that cannot be read seals nothing;

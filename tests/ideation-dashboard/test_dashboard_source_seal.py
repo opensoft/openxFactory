@@ -250,7 +250,9 @@ def _stub_leg_records(corpus_root, product_module: str) -> list[dict]:
                              else str(index + 5) * 40),
             "package": package,
             "relpath": f"{lane.SEAL_CORPUS_RELPATH}/{gitlink}/{leg}",
-            "paths": list(lane.RENDER_LEG_PATHS), "file_count": count})
+            "paths": list(lane.RENDER_LEG_PATHS), "file_count": count,
+            "schema_leg": lane.SCHEMA_LEG,
+            "schema_leg_revision": str(index + 7) * 40})
     return records
 
 
@@ -718,6 +720,31 @@ def test_the_one_run_is_of_the_sealed_copy_over_the_probe(corpus, tmp_path,
     assert manifest["validator_probe"] == {
         "kind": lane.VALIDATOR_PROBE["kind"],
         "outcome": snapshot_mod.VALIDATED, "returncode": 0}
+
+
+@pytest.mark.parametrize("change", ["a-file-rewritten", "a-file-added"])
+def test_a_probe_that_changes_the_sealed_tree_is_refused(corpus, tmp_path,
+                                                         change):
+    """The probe runs sealed code with the seal writable, and it runs before
+    the seal's index is taken. So the tree is indexed around the probe too,
+    and a validator that rewrote or added a file while it ran is refused,
+    never indexed and published (Copilot, PR #1166)."""
+    stub = _stub_validator(tmp_path / "unit")
+    target = ("docs/a.md" if change == "a-file-rewritten"
+              else "docs/planted.md")
+    stub.runnable.write_text(
+        "from pathlib import Path\n"
+        "seal = Path(__file__).resolve().parents[2]\n"
+        f"(seal / 'openxFactory' / {target!r}).write_text('planted\\n')\n"
+        "print('ok')\n", encoding="utf-8")
+    if change == "a-file-rewritten":
+        assert (corpus / target).is_file()
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal", resolve_validator=lambda: stub)
+    assert str(refused.value) == (
+        "the sealed validator's probe changed the sealed tree, so the seal "
+        "would no longer be the tree its validator was run in")
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
 
 
 def test_the_probe_is_classified_by_the_sealed_product_module(corpus,
@@ -1771,6 +1798,10 @@ def test_the_legs_are_sealed_at_the_commits_the_sealed_corpus_pins(
             _git(corpus / gitlink, "rev-parse", f"{pinned}:{leg}")
         assert record["relpath"] == f"{lane.SEAL_CORPUS_RELPATH}/{gitlink}/{leg}"
         assert record["paths"] == ["src"]
+        # The schema leg is held to its pin and recorded, never sealed.
+        assert record["schema_leg"] == lane.SCHEMA_LEG
+        assert record["schema_leg_revision"] == \
+            _git(corpus / gitlink, "rev-parse", f"{pinned}:{lane.SCHEMA_LEG}")
         sealed = corpus_root / gitlink / leg
         carried = ["src/extension.py", f"src/{package}/__init__.py",
                    f"src/{package}/cli.py"]
@@ -1808,7 +1839,8 @@ def _commit_inside(checkout: Path) -> str:
 
 @pytest.mark.parametrize("shape", [
     "no-gitlink", "product-not-materialized", "product-at-another-commit",
-    "leg-not-materialized", "leg-at-another-commit"])
+    "leg-not-materialized", "leg-at-another-commit",
+    "schema-leg-not-materialized", "schema-leg-at-another-commit"])
 def test_a_leg_this_parent_does_not_hold_at_its_pin_is_refused(
         corpus, tmp_path, shape, request):
     """NOTHING IS FETCHED. The legs are the ones this parent materialized, and
@@ -1831,6 +1863,12 @@ def test_a_leg_this_parent_does_not_hold_at_its_pin_is_refused(
     elif shape == "leg-at-another-commit":
         leg_pin = _git(corpus / "openXdox", "rev-parse", f"{pinned}:code")
         moved = _commit_inside(corpus / "openXdox" / "code")
+    elif shape == "schema-leg-not-materialized":
+        _git(corpus / "openXdox", "submodule", "deinit", "--quiet", "--force",
+             "spec")
+    elif shape == "schema-leg-at-another-commit":
+        leg_pin = _git(corpus / "openXdox", "rev-parse", f"{pinned}:spec")
+        moved = _commit_inside(corpus / "openXdox" / "spec")
     seal = tmp_path / "seal"
     with pytest.raises(lane.SealRefused) as refused:
         _seal(corpus, seal, seal_legs=None)
@@ -1847,11 +1885,20 @@ def test_a_leg_this_parent_does_not_hold_at_its_pin_is_refused(
     elif shape == "leg-not-materialized":
         expected = ("the openXdox code leg is not materialized at "
                     f"{corpus / 'openXdox' / 'code'}")
-    else:
+    elif shape == "leg-at-another-commit":
         expected = (f"this parent's openXdox/code is at {short(moved)}, but "
                     f"openXdox@{short(pinned)} pins it at {short(leg_pin)}")
+    elif shape == "schema-leg-not-materialized":
+        expected = ("the openXdox spec leg is not materialized at "
+                    f"{corpus / 'openXdox' / 'spec'}, and the sealed "
+                    "validator's schemas are composed from it")
+    else:
+        expected = (f"this parent's openXdox/spec is at {short(moved)}, but "
+                    f"openXdox@{short(pinned)} pins it at {short(leg_pin)} — "
+                    "the seal would carry schemas its product does not pin")
     assert reason.startswith(expected), reason
-    if shape in ("product-not-materialized", "leg-not-materialized"):
+    if shape in ("product-not-materialized", "leg-not-materialized",
+                 "schema-leg-not-materialized"):
         assert "git submodule update --init --recursive openDox openXdox" in reason
     assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
     # Found out BEFORE the corpus is archived: no corpus path was extracted.
