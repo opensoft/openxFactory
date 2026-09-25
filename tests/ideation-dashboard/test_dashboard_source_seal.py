@@ -559,6 +559,74 @@ def test_a_sealed_validator_that_cannot_run_is_refused(corpus, tmp_path, drop,
     assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
 
 
+def _committed_unit(where: Path) -> tuple["lane.PinnedValidator", Path, Path]:
+    """A composed unit built the way the product's composer builds one, from
+    two committed repositories: the script COPIED from a product tree, and the
+    snapshot schema LINKED into a spec tree."""
+    product, spec = where / "product", where / "spec"
+    for repo in (product, spec):
+        repo.mkdir(parents=True)
+        _git(repo, "init", "--quiet", "-b", "main")
+    script = product / lane.VALIDATOR_SCRIPT_PATH
+    script.parent.mkdir(parents=True)
+    script.write_text("print('ok')\n", encoding="utf-8")
+    schema = spec / lane.VALIDATOR_SCHEMAS_PATH / STUB_SCHEMA
+    schema.parent.mkdir(parents=True)
+    schema.write_text("{}\n", encoding="utf-8")
+    for repo in (product, spec):
+        _git(repo, "add", "-A")
+        _git(repo, "commit", "--quiet", "-m", "committed")
+    farm = where / "farm"
+    runnable = farm / lane.VALIDATOR_SCRIPT_PATH
+    runnable.parent.mkdir(parents=True)
+    shutil.copyfile(script, runnable)
+    (farm / lane.VALIDATOR_SCHEMAS_PATH).mkdir(parents=True)
+    (farm / lane.VALIDATOR_SCHEMAS_PATH / STUB_SCHEMA).symlink_to(schema)
+    return (lane.PinnedValidator(runnable=runnable, product_root=product),
+            product, spec)
+
+
+@pytest.mark.parametrize("change, said", [
+    ("the-script-edited", f"product/{lane.VALIDATOR_SCRIPT_PATH} (M)"),
+    ("the-copy-differs", f"{lane.VALIDATOR_SCRIPT_PATH} (the unit's copy is "
+                         "not the file at"),
+    ("a-schema-edited",
+     f"spec/{lane.VALIDATOR_SCHEMAS_PATH}/{STUB_SCHEMA} (M)"),
+    ("a-schema-untracked",
+     f"spec/{lane.VALIDATOR_SCHEMAS_PATH}/extra.schema.yaml (??)"),
+], ids=["the-script-edited", "the-copy-differs", "a-schema-edited",
+        "a-schema-untracked"])
+def test_a_unit_composed_from_uncommitted_bytes_is_refused(corpus, tmp_path,
+                                                           change, said):
+    """The unit is composed from worktrees, and a HEAD says nothing about
+    uncommitted bytes. So a validator unit whose script or schemas are not
+    what their repositories' HEADs hold is refused, before it is copied or
+    run (Copilot, PR #1166)."""
+    pinned, product, spec = _committed_unit(tmp_path / "unit")
+    schemas = Path(pinned.runnable).parents[1] / lane.VALIDATOR_SCHEMAS_PATH
+    if change == "the-script-edited":
+        (product / lane.VALIDATOR_SCRIPT_PATH).write_text(
+            "print('edited')\n", encoding="utf-8")
+        shutil.copyfile(product / lane.VALIDATOR_SCRIPT_PATH, pinned.runnable)
+    elif change == "the-copy-differs":
+        Path(pinned.runnable).write_text("print('other')\n", encoding="utf-8")
+    elif change == "a-schema-edited":
+        (spec / lane.VALIDATOR_SCHEMAS_PATH / STUB_SCHEMA).write_text(
+            "{'edited': 1}\n", encoding="utf-8")
+    else:
+        extra = spec / lane.VALIDATOR_SCHEMAS_PATH / "extra.schema.yaml"
+        extra.write_text("{}\n", encoding="utf-8")
+        (schemas / "extra.schema.yaml").symlink_to(extra)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal", resolve_validator=lambda: pinned)
+    reason = str(refused.value)
+    assert reason.startswith(
+        "the validator unit is composed from uncommitted bytes: "), reason
+    assert said in reason, reason
+    assert "no commit describes" in reason
+    assert not (tmp_path / "seal" / lane.SEAL_VALIDATOR_ROOT).exists()
+
+
 @pytest.mark.parametrize("shape", ["a-dangling-link", "a-directory"])
 def test_a_unit_entry_that_is_not_a_regular_file_is_refused_by_name(
         corpus, tmp_path, shape):
@@ -1435,7 +1503,7 @@ def test_the_seal_speaks_only_git_and_never_builds_or_pushes(corpus, tmp_path,
     for argv in runner.calls:
         assert argv[0] == "git", argv
     verbs = {_verb(argv) for argv in runner.calls}
-    assert verbs <= {"archive", "show", "rev-parse"}, verbs
+    assert verbs <= {"archive", "show", "rev-parse", "status"}, verbs
     _assert_exact_reads(runner)
     assert not hasattr(lane, "build_and_push")
 

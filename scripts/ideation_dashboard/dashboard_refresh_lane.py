@@ -1541,6 +1541,57 @@ def _validator_said(result) -> str:
     return ""
 
 
+def _enclosing_repository(path: Path) -> Path | None:
+    """The nearest directory at or above `path` that holds a `.git` of its
+    own: the repository, or a submodule's worktree, a file belongs to."""
+    for parent in path.parents:
+        if (parent / ".git").exists():
+            return parent
+    return None
+
+
+def _uncommitted_unit_sources(pinned: PinnedValidator, *,
+                              runner=subprocess_runner) -> list[str]:
+    """Each file the composed unit was built from that its repository's HEAD
+    does not hold as it is: modified, untracked, ignored, or in no repository
+    at all. Empty when every one is committed.
+
+    The unit is composed from WORKTREES (Copilot, PR #1166): the script is
+    copied from the product's code leg, and each schema is a link into a
+    product's spec leg or into this checkout. The seal holds those HEADs to
+    their pins, but a HEAD says nothing about uncommitted bytes. So each
+    source is asked of its own repository, and the copied script is also held
+    equal to the file it was copied from."""
+    sources = [Path(pinned.product_root) / VALIDATOR_SCRIPT_PATH]
+    problems: list[str] = []
+    if (not sources[0].is_file() or Path(pinned.runnable).read_bytes()
+            != sources[0].read_bytes()):
+        problems.append(f"{VALIDATOR_SCRIPT_PATH} (the unit's copy is not the "
+                        f"file at {pinned.product_root})")
+    schemas = Path(pinned.runnable).parents[1] / VALIDATOR_SCHEMAS_PATH
+    if schemas.is_dir():
+        sources += [entry.resolve() for entry in sorted(schemas.iterdir())]
+    by_repository: dict[Path, list[str]] = {}
+    for source in sources:
+        repository = _enclosing_repository(source)
+        if repository is None:
+            problems.append(f"{source} (in no repository)")
+            continue
+        by_repository.setdefault(repository, []).append(
+            source.relative_to(repository).as_posix())
+    for repository, relpaths in by_repository.items():
+        result = runner(exact_git(repository, "status", "--porcelain=v1",
+                                  "--untracked-files=all", "--ignored=matching",
+                                  "--", *relpaths),
+                        env=exact_git_environment())
+        if not result.ok:
+            problems.append(f"{repository} (its status could not be read)")
+            continue
+        problems += [f"{repository.name}/{line[3:]} ({line[:2].strip()})"
+                     for line in result.stdout.splitlines() if line.strip()]
+    return problems
+
+
 def seal_validator(seal_root, pinned: PinnedValidator, *,
                    runner=subprocess_runner) -> dict:
     """Copy the pinned validator's composed unit into the seal, then RUN the
@@ -1584,6 +1635,16 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
                 f"{pinned.product_root} to a commit (read {read}) — the sealed "
                 "validator's provenance would go unrecorded")
         revision = head
+        # THE UNIT'S BYTES ARE COMMITTED BYTES. A revision is recorded, and
+        # held equal to the sealed leg's, only for bytes that revision holds.
+        dirty = _uncommitted_unit_sources(pinned, runner=runner)
+        if dirty:
+            raise SealRefused(
+                "the validator unit is composed from uncommitted bytes: "
+                f"{', '.join(dirty[:5])}"
+                + (f" and {len(dirty) - 5} more" if len(dirty) > 5 else "")
+                + " — the seal would carry a validator no commit describes, "
+                "so it could not be held to the render's revision")
     root = Path(seal_root) / SEAL_VALIDATOR_ROOT
     script = root / VALIDATOR_SCRIPT_PATH
     script.parent.mkdir(parents=True)
