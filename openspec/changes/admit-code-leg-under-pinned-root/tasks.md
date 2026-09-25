@@ -228,21 +228,53 @@ without its arm, and is shown failing before it is shown passing.
       review). Against `main` `daca0b89`'s `scripts/` the ten FAIL and 64 pass;
       at `c230f4c2` all 74 pass, and `python3 -m pytest tests/estate_inventory
       tests/code_surface tests/scope_globs -q` gives 327 passed.
-- [ ] 3.5 **NO OTHER FILE MOVES.** `scripts/validate-code-surface.py`, every
+- [x] 3.5 **NO OTHER FILE MOVES.** `scripts/validate-code-surface.py`, every
       contract member (the two pins are READ), every workflow, every other test
       and every promoted byte are untouched, verified in the realization pull
       request by its own diff.
+      **DONE, 2026-09-25, at head `1c6662e7862e2c1389d05a2bf78f3a4b54eb5157`.**
+      `git diff --stat 1c6662e7^..1c6662e7` — the squash commit against its own
+      single parent `c415c3d1`, i.e. PR #1163's own file list, cross-checked
+      against `gh pr view 1163 -R opensoft/openxFactory --json files` (both
+      give the identical set) — shows EXACTLY five files: this file,
+      `scripts/estate-repository-inventory.yaml`, `scripts/estate_inventory.py`,
+      `scripts/validate-estate-inventory.py`, and
+      `tests/estate_inventory/test_estate_inventory.py`. `scripts/validate-code-
+      surface.py` is ABSENT from that diff (confirmed untouched); so are both
+      pins (`contracts/opendox-pin.yaml`, `contracts/openxdox-pin.yaml` — read,
+      never written), every `.github/workflows/*` file, and every other test.
+      (The wider `daca0b89..1c6662e7` range also lists `README.md` and six
+      `specs/034-opendox-standalone-operation/*` files; `git log --oneline
+      daca0b89..1c6662e7 -- README.md` attributes those to the unrelated
+      intervening `c415c3d1` "Plan 034" (#1155), which landed between the
+      packet and the realization — not this packet's own diff, named here so
+      the wider range is not mistaken for it.)
 
 ## 4. Verification (OPEN; taken at the realization head)
 
-- [ ] 4.1 `python3 -m pytest tests/estate_inventory tests/code_surface tests/scope_globs -q`
+- [x] 4.1 `python3 -m pytest tests/estate_inventory tests/code_surface tests/scope_globs -q`
       green, with the fails-then-passes evidence for § 3.4 in the realization
       pull request body.
-- [ ] 4.2 `python3 scripts/validate-estate-inventory.py .` and
+      **DONE, 2026-09-25, at head `1c6662e7862e2c1389d05a2bf78f3a4b54eb5157`.**
+      `327 passed in 24.00s` — the same count § 3.4 already recorded at
+      `c230f4c2`, so no regression between that head and the realization head.
+      The fails-then-passes evidence for § 3.4's ten new cases is already in
+      PR #1163's body (ten FAIL against `daca0b89`'s `scripts/`, 64 pass; all
+      74 pass at `c230f4c2`).
+- [x] 4.2 `python3 scripts/validate-estate-inventory.py .` and
       `python3 scripts/validate-code-surface.py .` both exit 0, the first
       reporting 37 rows (26 governed, 10 pinned, 1 external) and 34 `gitlink`
       rows NOT RE-CHECKED on a default run.
-- [ ] 4.3 **RE-MEASURED AT THE REALIZATION HEAD, NOT CARRIED FROM THIS
+      **DONE, 2026-09-25, at head `1c6662e7862e2c1389d05a2bf78f3a4b54eb5157`.**
+      `python3 scripts/validate-estate-inventory.py .` exits 0: "estate
+      inventory: 37 repositories — 26 governed, 10 pinned, 1 external; 1
+      provisional" and "gitlink rows: 34 — 0 named in a VERIFIED supplied
+      tree, 0 absent from one, 34 NOT RE-CHECKED". `python3
+      scripts/validate-code-surface.py .` exits 0: "code_surface: 46 active
+      proposals, 46 declaring" and "membership: 31 readable heads naming 8
+      distinct identifiers — 8 carried by the estate inventory (37 rows), 0
+      refused".
+- [x] 4.3 **RE-MEASURED AT THE REALIZATION HEAD, NOT CARRIED FROM THIS
       DRAFTING**: `design.md` D0.1 and D0.2 re-run (a root re-pinned between
       drafting and realization moves the commit the evidence is read at, and
       any leg that moved is DISCLOSED here), and one SUPPLIED-TREE run —
@@ -250,7 +282,43 @@ without its arm, and is shown failing before it is shown passing.
       opensoft/openDox=openDox --estate-tree opensoft/openXdox=openXdox` over
       openxFactory's own initialized submodules — reporting all four leg rows
       NAMED at their pinned commits.
-- [ ] 4.4 `pytest-suite` green on the realization pull request at its merge head.
+      **DONE, 2026-09-25, at head `1c6662e7862e2c1389d05a2bf78f3a4b54eb5157`.**
+      D0.1 re-run: `contracts/opendox-pin.yaml` names
+      `dc7aa08fe48c8d17b596b0daa1ce87cdc0472aca` (unchanged since drafting);
+      `contracts/openxdox-pin.yaml` names
+      `069fe471f2ef5d23ea4461c0e0abd9f2768b6a31` (unchanged since `design.md`
+      D0.2's own already-recorded post-#1157 re-measurement note — main has
+      not re-pinned openXdox again). `git ls-files -s | awk '$1=="160000"'`
+      confirms both still equal openxFactory's own gitlinks for the same
+      roots. D0.2 re-run: `git submodule update --init -- openDox openXdox`
+      (populated from the gitlinks, which equal the pins), then read locally:
+      `openDox` at its pinned commit names `spec@8fe8c4c71c4da8d363394441ad9e2c9547e540a3`
+      `code@d816cf06f1c9752a39c2b71ba40adc4ae3f3bf66` (unchanged); `openXdox`
+      at its pinned commit names `spec@f088b09732e236279898b53ab9fb0f5ebc89509a`
+      `code@e28930bf052febff0c7bdd0463a72ce3c4f5e8fe` (unchanged since the
+      already-recorded re-measurement). The one-hop bound re-confirmed (`gh
+      api repos/<leg>/git/trees/<sha>?recursive=1` on all four legs at their
+      current commits): 0 gitlinks each. **NO NUMBER DIFFERS** from
+      `design.md`'s dated measurement AS IT NOW STANDS (i.e. including its own
+      post-#1157 re-measurement paragraph) — nothing newly moved between
+      drafting's close and this realization head, so nothing further to
+      disclose. Supplied-tree run: `python3 scripts/validate-estate-inventory.py .
+      --estate-tree opensoft/openDox=openDox --estate-tree
+      opensoft/openXdox=openXdox` exits 0: "gitlink rows: 34 — 4 named in a
+      VERIFIED supplied tree, 0 absent from one, 30 NOT RE-CHECKED", with the
+      PINNED-carriers block naming both roots at their pinned commits and the
+      two legs each — the four leg rows NAMED, exactly as § 3.2 already
+      recorded at `c230f4c2`.
+- [x] 4.4 `pytest-suite` green on the realization pull request at its merge head.
+      **DONE, 2026-09-25.** PR #1163's merge-head run, at its head
+      `65565eefce0a3cbd120247ec22fe20cd067dc2af`: run `36141345097`,
+      `pytest-suite`, `completed`/`success`,
+      `selected=8890 passed=8884 skipped=6 failures=0 errors=0`. The same
+      check on `main` at the squash-merge commit
+      `1c6662e7862e2c1389d05a2bf78f3a4b54eb5157` itself: run `36149875028`,
+      `pytest-suite`, `completed`/`success` (completed 2026-09-25T15:10:43Z),
+      `selected=8890 passed=8884 skipped=6 failures=0 errors=0` — identical
+      counts, as expected of a squash merge that carries the same tree.
 
 ## 5. Archive (OPEN; a separate act on a separate word)
 
