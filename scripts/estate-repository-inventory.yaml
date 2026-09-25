@@ -32,6 +32,15 @@ kind: estate-repository-inventory
 #             one: the estate also nests a repository under a governed
 #             DomainxFactory, and a `gitlink` read as the aggregation's alone
 #             would leave every nested member admitted by nothing at all.
+#             A PINNED ASSEMBLY ROOT's `.gitmodules` IS A CARRIER TOO, read AT
+#             THE COMMIT openxFactory's own `pin` of that root names
+#             (admit-code-leg-under-pinned-root, openxFactory #1150): there the
+#             act of admission is openxFactory's pin, and the root's gitlink
+#             is the site that pin reaches. The root's own row is `pinned` and
+#             admitted by EXACTLY ONE `pin`; an `external` row's `.gitmodules`
+#             admits nothing; the reach ends ONE HOP from the pin; a row a
+#             pinned root admits never declares `governed`; any other carrier
+#             REFUSES the file; and nothing here pins or mounts a leg.
 #   pin       an openxFactory file under `contracts/` names the repository as
 #             the source of a commit-and-digest pin (`path:`).
 #   workflow  an openxFactory workflow dispatches into the repository, or
@@ -99,7 +108,11 @@ kind: estate-repository-inventory
 # tree is VERIFIED AS THE CARRIER before its `.gitmodules` is trusted (ruled by
 # Brett Heap, 2026-09-18, verbatim "Bind the carrier identity"), and a run given
 # no such path reports those rows as NOT RE-CHECKED with their count. Silence
-# is never a pass.
+# is never a pass. A PINNED carrier's tree, once verified, is read AT THE
+# COMMIT ITS PIN NAMES, out of the tree's own object store and never at its
+# working files, with every transport refused; a pin naming no commit, or a
+# tree that cannot produce that commit's `.gitmodules` locally, leaves the row
+# NOT RE-CHECKED, the report naming the pin and the commit.
 #
 # THIS FILE IS NOT UNDER `contracts/`, AND THE REASON IS MEASURED RATHER THAN
 # PREFERRED (`design.md` D2, D0.6). A file under `contracts/` is a bundle
@@ -113,21 +126,37 @@ kind: estate-repository-inventory
 # states for its own placement and the reason this file takes the same one.
 #
 # THE POPULATION IS A FACT ABOUT THE ESTATE AND IS RE-MEASURED, never carried.
-# THIRTY-THREE rows, built from the five naming sites at `design.md` D0.1 and
-# RE-MEASURED at this realization head by the same five commands (`tasks.md`
-# § 4.3): the aggregation's `.gitmodules` (23 addresses, the identical set),
-# the governed repositories' own `.gitmodules` (12 nested gitlinks in 7
-# repositories as of `728b8770` — rows 28-33's reclassification to `governed`
-# added `opensoft/LedgerxAvatar` as a SEVENTH carrier, nesting
-# `opensoft/openAvatar`; that target names NO repository the inventory did
-# not already carry (row 15, the aggregation's own gitlink), so the set
-# still names the same 7 no other site names: `openChart`, `openPractice`,
-# `MedxAvatar`, `LedgerxAvatar`, `MedxEHR-spec`, `MedxEHR-code` and
-# `LedgerxWallet` — PR #1119's own § 4.3 disclosure, re-measured here rather
-# than left to contradict it), this repository's `contracts/` pins (the same
-# 6 repositories), this repository's workflows (the same 1, already a
-# submodule) and the ratified change whose realization creates a repository
-# (the same 1, still active). ZERO ROWS MOVED.
+# THIRTY-SEVEN rows. Rows 1-33 were built from the five naming sites at
+# `add-estate-repository-inventory`'s `design.md` D0.1; rows 34-37, the four
+# legs, are the SIXTH site's, which `admit-code-leg-under-pinned-root`
+# (openxFactory #1150) adds. ALL SIX were RE-MEASURED at that change's
+# realization head, 2026-09-24:
+#   1. the aggregation's `.gitmodules` (`opensoft/xFactory` main `29afa5ff`):
+#      23 addresses, the identical set the 23 `carrier: opensoft/xFactory`
+#      rows carry;
+#   2. the 25 governed non-root rows' own `.gitmodules`: 12 nested gitlinks in
+#      7 repositories (openxFactory 4, MedxEHR 2, LedgerxFactory 2, and
+#      MedxFactory, MedxChart, MedxPractice and LedgerxAvatar 1 each), naming
+#      the same 7 no other site names — `openChart`, `openPractice`,
+#      `MedxAvatar`, `LedgerxAvatar`, `MedxEHR-spec`, `MedxEHR-code` and
+#      `LedgerxWallet`. (`opensoft/LedgerxAvatar` became the SEVENTH carrier
+#      when rows 28-33 were classed `governed`; its one target,
+#      `opensoft/openAvatar`, is row 15, the aggregation's own gitlink — PR
+#      #1119's § 4.3 disclosure, kept here rather than left to contradict it);
+#   3. this repository's `contracts/` pins: the same 6 repositories, none of
+#      them a leg;
+#   4. this repository's workflows: the same 1, already a submodule;
+#   5. the ratified change whose realization creates a repository: the same 1,
+#      still active;
+#   6. NEW — each `pinned` row admitted by a `pin`, its `.gitmodules` read at
+#      the commit that pin names. `opensoft/openDox` (at `dc7aa08f`) and
+#      `opensoft/openXdox` (at `069fe471`, re-pinned from `2f3f857d` by #1157
+#      while the change was open, the same two legs named) each name a `spec`
+#      and a `code` leg; `opensoft/openXwallet` (at `f3eb929b`) and
+#      `opensoft/openRepoShape` (at `e9c4827b`) carry no submodule. FOUR legs,
+#      none of them a row before, and none of the four carries a submodule at
+#      the commit its root names, so the one-hop bound reaches nothing further.
+# FOUR ROWS ADDED; NO OTHER ROW MOVED.
 
 repositories:
 
@@ -441,3 +470,49 @@ repositories:
     admitted_by:
       - kind: gitlink
         carrier: MedxSoft/MedxEHR
+
+  # ── the legs of the pinned assembly roots ─────────────────────────────────
+  # THE FOUR ROWS NO GOVERNED CARRIER CAN ADMIT (admit-code-leg-under-pinned-root,
+  # openxFactory #1150). `opensoft/openDox` and `opensoft/openXdox` are each an
+  # ASSEMBLY ROOT whose one commit names two legs, `spec` and `code`, and
+  # openxFactory pins each root EXACTLY ONCE (`contracts/opendox-pin.yaml`,
+  # `contracts/openxdox-pin.yaml`) and never pins or mounts a leg, that being the
+  # root's own job (`split-opendox-two-layer-product` task 5.1). So each leg is
+  # admitted by a `gitlink` in its ROOT, read at the commit the root's pin names,
+  # one hop from that pin and no further. `pinned` and never `governed`:
+  # openxFactory reaches a leg only through its pin of the root, at the commit
+  # that pin fixes, and authors none of it (that change's `design.md` D4). FOUR
+  # AND NOT TWO: at both pinned commits the root names a `spec` leg beside its
+  # `code` leg, and a repository a naming site names with no row is what the
+  # enumeration forbids (the same `design.md`, D7).
+  - repository: opensoft/openDox-spec
+    name: openDox-spec
+    role: spec leg of the openDox assembly root
+    governance: pinned
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/openDox
+
+  - repository: opensoft/openDox-code
+    name: openDox-code
+    role: code leg of the openDox assembly root
+    governance: pinned
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/openDox
+
+  - repository: opensoft/openXdox-spec
+    name: openXdox-spec
+    role: spec leg of the openXdox assembly root
+    governance: pinned
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/openXdox
+
+  - repository: opensoft/openXdox-code
+    name: openXdox-code
+    role: code leg of the openXdox assembly root
+    governance: pinned
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/openXdox
