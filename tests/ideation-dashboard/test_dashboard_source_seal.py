@@ -20,6 +20,19 @@ What each block here pins.
     a real sealed tree, is proven never to adopt the sealed copy
     (openXdox-code `e28930bf` confines the locator to the product's own
     tree).
+  * THE RENDER UNIT RIDES IN THE SEAL (#1161). Since the shed the child's
+    renderer is the two pinned products' `code` legs behind openxFactory's
+    host bootstrap, so the seal carries both legs, archived at the commits the
+    SEALED corpus pins them at, and refuses a parent whose products sit
+    anywhere else. The leg tests build real products with real nested
+    submodules; the rest inject a stand-in leg sealer, as they inject the
+    recipe. Before it writes a manifest the parent renders the child's own
+    snapshot FROM THE SEAL and runs the sealed validator over it under
+    `--strict`; a rejection is `StrictGateRejected`, a verdict carrying the
+    validator's findings. The mechanics are tested over a stand-in entry and
+    validator, and one test seals THIS checkout, legs and all, and renders the
+    real corpus from the seal. An audit-hook test repeats the measurement the
+    render unit was declared from.
   * THE REVISION IS PROVEN, NOT ASSERTED. `git archive` records the commit it
     was made from in a global extended pax header; the seal refuses unless
     that header equals the `source_head` it is about to record. After this
@@ -41,7 +54,8 @@ What each block here pins.
 
 No network: the corpus is a real `git init` under `tmp_path` (git is not a
 guarded binary — `nlm`/`gh`/`omp` are), the recipe read is always injected, and
-the validator unit is injected except where a test says it is the real one.
+the validator unit, the legs and the pre-dispatch render are injected except
+where a test says it uses the real one.
 """
 
 from __future__ import annotations
@@ -51,12 +65,14 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import tarfile
 from datetime import datetime
 from pathlib import Path
 
 import pytest
 
+from conftest import REPO_ROOT
 from ideation_dashboard import dashboard_refresh_lane as lane
 from ideation_dashboard import nightly_lane
 from openxdox import snapshot as snapshot_mod
@@ -110,16 +126,26 @@ def _git(repo: Path, *argv: str) -> str:
 @pytest.fixture
 def corpus(tmp_path: Path) -> Path:
     """A corpus checkout shaped like openxFactory since the § 5.2 shed
-    (`cc4ae9d3`): every BAKED path, one file deep, and NOT the top-level
+    (`cc4ae9d3`): every BAKED path, one file deep (a baked FILE path is the
+    file itself), and NOT the top-level
     `scripts/validate-ideation-dashboard-contracts.py` the shed moved to
     openXdox-code. Built from `CORPUS_BAKED_PATHS`, never from the seal set, so
     the fixture cannot quietly re-grow the file the seal must stop asking for.
-    """
+
+    The two products are GITLINKS, and this fixture carries neither: the tests
+    about the legs build `corpus_with_products`, and the rest inject a
+    stand-in leg sealer, as they inject the recipe."""
     repo = tmp_path / "openxFactory-src"
     repo.mkdir()
     _git(repo, "init", "--quiet", "-b", "main")
     for relpath in lane.CORPUS_BAKED_PATHS:
+        if relpath in lane.RENDER_LEG_GITLINKS:
+            continue
         target = repo / relpath
+        if relpath.endswith(".py"):
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(f"# {relpath}\n", encoding="utf-8")
+            continue
         target.mkdir(parents=True, exist_ok=True)
         (target / "a.md").write_text(f"# {relpath}\n", encoding="utf-8")
     # A path OUTSIDE the seal set, to prove the seal is bounded.
@@ -157,14 +183,58 @@ def _stub_validator(where: Path) -> "lane.PinnedValidator":
     return lane.PinnedValidator(runnable=script)
 
 
-_STUB = object()   # `_seal`'s default: inject the stub unit
+_STUB = object()   # `_seal`'s default: inject the stand-in
+
+
+def _product_head() -> str:
+    """The HEAD of the real openXdox code leg this suite runs against. A real
+    seal records it as that leg's revision whenever the validator it carries
+    came from the real product, so the stand-in leg sealer records it too: a
+    test that pairs the stand-in legs with the REAL resolver then seals one
+    product revision, as a real parent does, rather than two."""
+    root = snapshot_mod.product_root()
+    return _git(root, "rev-parse", "HEAD") if root is not None else "e" * 40
+
+
+def _stub_legs(*, corpus_checkout, source_head, corpus_root, runner):
+    """A leg-sealer STAND-IN: one module per product under the path the real
+    sealer extracts to, and records shaped exactly like its own. Tests about
+    the seal's other mechanics inject it, as they inject the recipe. The tests
+    about the legs run `seal_render_legs` over real nested submodules."""
+    records = []
+    for index, (gitlink, leg, package) in enumerate(lane.RENDER_LEGS):
+        modules = Path(corpus_root) / gitlink / leg / "src" / package
+        modules.mkdir(parents=True)
+        (modules / "__init__.py").write_text(f"# stand-in {package}\n",
+                                             encoding="utf-8")
+        records.append({
+            "gitlink": gitlink, "gitlink_revision": str(index + 1) * 40,
+            "leg": leg,
+            "leg_revision": (_product_head() if (gitlink, leg) == lane.VALIDATOR_LEG
+                             else str(index + 5) * 40),
+            "package": package,
+            "relpath": f"{lane.SEAL_CORPUS_RELPATH}/{gitlink}/{leg}",
+            "paths": list(lane.RENDER_LEG_PATHS), "file_count": 1})
+    return records
+
+
+STUB_PRECHECK = {"entry": lane.RENDER_ENTRY, "documents": 0, "strict": True,
+                 "outcome": lane.PRECHECK_VALIDATED, "returncode": 0}
+
+
+def _stub_precheck(seal_root, *, source_head, source_committed_at):
+    """A pre-dispatch-render STAND-IN that passes. The render's own mechanics
+    are tested over a stand-in entry, and the real render over this checkout."""
+    return dict(STUB_PRECHECK)
 
 
 def _seal(corpus: Path, seal_dir: Path, *, decision: dict | None = None,
           recipe: str | None = RECIPE_TEXT, resolve_validator=_STUB,
-          **kw) -> dict:
-    """`seal_source` over the fixture corpus. `resolve_validator=None` means the
-    REAL resolver, the snapshot lane's own; the default injects the stub unit."""
+          seal_legs=_STUB, precheck_render=_STUB, **kw) -> dict:
+    """`seal_source` over the fixture corpus. `None` for `resolve_validator`,
+    `seal_legs` or `precheck_render` means the REAL one (the snapshot lane's
+    own resolver, `seal_render_legs`, `precheck_sealed_render`); the default
+    injects the stand-in."""
     head = _git(corpus, "rev-parse", "HEAD")
     if resolve_validator is _STUB:
         stub = _stub_validator(Path(seal_dir).parent / "stub-validator")
@@ -176,6 +246,9 @@ def _seal(corpus: Path, seal_dir: Path, *, decision: dict | None = None,
         corpus_ref=kw.pop("corpus_ref", "HEAD"),
         read_recipe=(lambda: recipe),
         resolve_validator=resolve_validator,
+        seal_legs=_stub_legs if seal_legs is _STUB else seal_legs,
+        precheck_render=(_stub_precheck if precheck_render is _STUB
+                         else precheck_render),
         **kw)
 
 
@@ -197,12 +270,20 @@ class RecordingRunner:
 # ---------------------------------------------------------------------------
 
 def test_the_corpus_seal_set_is_the_baked_set_and_never_names_the_shed_path():
-    """The corpus half of the seal is EXACTLY the baked set. The one path that
-    used to widen it, `scripts/validate-ideation-dashboard-contracts.py`, left
-    openxFactory at the § 5.2 shed (`cc4ae9d3`), and asking `git archive` for it
-    refused every real corpus: `fatal: pathspec ... did not match any files`,
-    measured at `1edbb3dd` (#1158)."""
-    assert lane.CORPUS_SEAL_PATHS == lane.CORPUS_BAKED_PATHS
+    """The corpus half of the seal is EXACTLY the baked set, less the two
+    product gitlinks, whose legs are sealed on their own (#1161): `git
+    archive` of a gitlink writes an empty directory, never the product. The
+    one path that used to widen the set,
+    `scripts/validate-ideation-dashboard-contracts.py`, left openxFactory at
+    the § 5.2 shed (`cc4ae9d3`), and asking `git archive` for it refused every
+    real corpus: `fatal: pathspec ... did not match any files`, measured at
+    `1edbb3dd` (#1158)."""
+    assert lane.CORPUS_SEAL_PATHS == tuple(
+        path for path in lane.CORPUS_BAKED_PATHS
+        if path not in lane.RENDER_LEG_GITLINKS)
+    assert set(lane.CORPUS_BAKED_PATHS) - set(lane.CORPUS_SEAL_PATHS) == \
+        set(lane.RENDER_LEG_GITLINKS)
+    assert lane.RENDER_ENTRY in lane.CORPUS_SEAL_PATHS
     assert lane.VALIDATOR_SCRIPT_PATH not in lane.CORPUS_SEAL_PATHS
     # Sorted, like the baked tuple, because both are written into records that
     # compare scope for equality and two spellings would read as a change.
@@ -231,9 +312,8 @@ def test_the_decision_scope_does_not_follow_the_validator():
     decision scope is pinned to the baked set here, and the cost of widening it
     is measured."""
     assert lane.VALIDATOR_SCRIPT_PATH not in lane.CORPUS_BAKED_PATHS
-    assert lane.CORPUS_BAKED_PATHS == (
-        "contracts", "docs", "examples", "ideation", "openspec",
-        "scripts/doc_health", "scripts/ideation_dashboard", "templates")
+    # The scope itself is pinned beside the Dockerfile's copied set in
+    # `test_dashboard_refresh_lane.py`.
     recorded = lane.Provenance(
         corpus_repo=lane.DEFAULT_CORPUS_REPO, corpus_revision="a" * 40,
         corpus_scope=lane.CORPUS_BAKED_PATHS,
@@ -270,7 +350,8 @@ def test_a_post_shed_corpus_seals_with_the_products_own_validator(corpus, tmp_pa
     manifest = lane.seal_source(
         corpus_checkout=corpus, seal_dir=seal, correlation_id=CORRELATION,
         decision=_decision(head), corpus_ref="HEAD",
-        read_recipe=(lambda: RECIPE_TEXT))
+        read_recipe=(lambda: RECIPE_TEXT), seal_legs=_stub_legs,
+        precheck_render=_stub_precheck)
 
     own = snapshot_mod.find_validator()
     assert own is not None
@@ -343,11 +424,12 @@ def test_a_genuinely_missing_validator_still_refuses_naming_where_it_looked(
 
 def test_unmaterialized_carve_legs_refuse_naming_the_legs(corpus, tmp_path,
                                                           monkeypatch):
-    """The nightly's finalize job does not mount openxFactory's openXdox and
-    openDox gitlinks today (#1161), and the resolver reads the product through
-    them. `carved_reach` refuses that read BY NAME, and the seal carries the
-    refusal instead of a traceback: it is a SealRefused that names the
-    gitlinks and the command, and nothing is sealed."""
+    """A parent that has not materialized openxFactory's openXdox and openDox
+    gitlinks (the nightly's finalize job, until #1161 mounted them) cannot
+    resolve the validator, which is read through them. `carved_reach` refuses
+    that read BY NAME, and the seal carries the refusal instead of a
+    traceback: it is a SealRefused that names the gitlinks and the command,
+    and nothing is sealed."""
     import carved_reach
 
     def unmaterialized():
@@ -577,6 +659,13 @@ def test_the_manifest_carries_every_field_the_child_reads(corpus, tmp_path):
     assert manifest["validator_probe"] == {
         "kind": lane.VALIDATOR_PROBE["kind"],
         "outcome": snapshot_mod.VALIDATED, "returncode": 0}
+    # The render unit (#1161): the entry the child runs, both legs, and what
+    # the pre-dispatch render answered.
+    assert manifest["render_entry"] == lane.RENDER_ENTRY
+    assert f"{lane.SEAL_CORPUS_RELPATH}/{lane.RENDER_ENTRY}" in manifest["files"]
+    assert [(leg["gitlink"], leg["leg"], leg["package"])
+            for leg in manifest["render_legs"]] == list(lane.RENDER_LEGS)
+    assert manifest["precheck"] == STUB_PRECHECK
     assert manifest["digest_algorithm"] == "sha256"
     assert manifest["decision"]["reason"] == lane.REASON_CORPUS_MOVED
     assert (seal / manifest["recipe_relpath"]).read_text(encoding="utf-8") \
@@ -1028,7 +1117,8 @@ def test_verify_refuses_the_1x_layout_that_sealed_the_validator_in_the_corpus(
     manifest["files"] = lane.seal_file_index(seal)
     manifest["tree_digest"] = lane.tree_digest(manifest["files"])
     for field in ("validator_relpath", "validator_revision",
-                  "validator_schema_count", "validator_probe"):
+                  "validator_schema_count", "validator_probe",
+                  "render_entry", "render_legs", "precheck"):
         del manifest[field]                         # 2.x-only fields
     manifest["schema_version"] = "1.0.0"
     (seal / lane.SEAL_MANIFEST_NAME).write_text(
@@ -1048,6 +1138,10 @@ def test_verify_refuses_the_1x_layout_that_sealed_the_validator_in_the_corpus(
         "the schema the child validates against",
         "validator_probe is None — the manifest does not record that the "
         "sealed validator ran to a verdict",
+        f"render_entry is None, expected {lane.RENDER_ENTRY!r} — the child "
+        "would have no renderer to run",
+        "render_legs is None — the seal records no render unit, so the "
+        "child's render would reach no product",
     ]
     assert lane.SEAL_SCHEMA_VERSION.split(".", 1)[0] == "2"
 
@@ -1140,7 +1234,8 @@ def test_the_seal_speaks_only_git_and_never_builds_or_pushes(corpus, tmp_path,
     revision reads and, with the real resolver, the product revision the
     sealed validator came from. The one run of the sealed validator is not a
     runner call; `test_the_one_run_is_of_the_sealed_copy_over_the_probe` pins
-    it."""
+    it. The legs' own git reads are pinned over real submodules in
+    `test_the_leg_sealer_speaks_only_git`."""
     runner = RecordingRunner()
     _seal(corpus, tmp_path / "seal", runner=runner,
           resolve_validator=resolve_validator)
@@ -1201,9 +1296,15 @@ def test_the_seal_phase_writes_the_dispatch_gate(corpus, tmp_path, monkeypatch):
     head = _git(corpus, "rev-parse", "HEAD")
     monkeypatch.setattr(lane, "gh_read_file",
                         lambda *a, **kw: RECIPE_TEXT)
+    # The CLI takes the module's own leg sealer and pre-dispatch render, so the
+    # stand-ins are put where it looks for them.
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", _stub_precheck)
     result = _seal_cli(tmp_path, corpus, decision=_decision(head))
     assert result["sealed"] is True
     assert result["reason"] is None
+    assert result["strict_failed"] is False
+    assert result["detail"] == []
     assert result["artifact_name"] == f"dashboard-image-source-{CORRELATION}"
     assert result["source_head"] == head
     assert result["corpus_revision"] == head
@@ -1227,6 +1328,34 @@ def test_the_seal_phase_reports_a_refusal_as_a_gate_not_an_exception(
     result = _seal_cli(tmp_path, corpus, decision=_decision(head))
     assert result["sealed"] is False
     assert result["reason"] == "RuntimeError: boom"
+    assert result["strict_failed"] is False
+
+
+def test_the_seal_phase_records_a_strict_verdict_with_its_findings(
+        corpus, tmp_path, monkeypatch, capsys):
+    """A snapshot the sealed validator REJECTS is a verdict, not a fault. The
+    seal result says `strict_failed` and carries the findings, which is what
+    the workflow's record step reads to record the verdict. Nothing is sealed,
+    so nothing is dispatched, and the process still exits 0."""
+    head = _git(corpus, "rev-parse", "HEAD")
+    findings = ["ERROR [snapshot-dangling-cluster-ref] snapshot.json: one",
+                "validate-ideation-dashboard-contracts: 1 error(s), 0 warning(s)"]
+
+    def rejecting(seal_root, *, source_head, source_committed_at):
+        raise lane.StrictGateRejected("--strict REJECTED the snapshot this "
+                                      "seal renders", detail=findings)
+
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", rejecting)
+    result = _seal_cli(tmp_path, corpus, decision=_decision(head))
+    assert result["sealed"] is False
+    assert result["strict_failed"] is True
+    assert result["reason"] == "--strict REJECTED the snapshot this seal renders"
+    assert result["detail"] == findings
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+    said = capsys.readouterr().out
+    assert "STRICT FAILED" in said and findings[0] in said
 
 
 # ---------------------------------------------------------------------------
@@ -1314,6 +1443,60 @@ def test_an_unsealed_source_records_a_skip_rather_than_a_failure():
     assert _step_index(steps, id="dfr-dispatch") > steps.index(skip)
 
 
+def test_the_record_step_hands_on_a_strict_verdict_only_when_the_seal_says_so():
+    """The record step passes the seal result on ONLY when the seal result
+    says `strict_failed`. This workflow runs at openxFactory main while the
+    scripts come from the aggregation's openxFactory pin, and a pin that
+    predates the flag must be handed exactly the call it knows."""
+    steps = _finalize_steps()
+    run = steps[_step_index(
+        steps,
+        name="Ideation-dashboard image refresh — record skip (source not sealed)",
+    )]["run"]
+    assert 'get("strict_failed") is True' in run
+    guard = run.index('if [ "$STRICT" = "true" ]; then')
+    handoff = run.index("ARGS+=(--seal-result-in dfr-seal-result.json)")
+    assert guard < handoff < run.index("fi", handoff)
+    assert run.count("--seal-result-in") == 1
+    assert run.index("STRICT=false") < guard              # defaulted first
+
+
+def _job_steps(job: str) -> list[dict]:
+    import yaml
+    workflow = yaml.safe_load(
+        (REPO_ROOT / ".github" / "workflows" / "doc-health-reusable.yml")
+        .read_text(encoding="utf-8"))
+    return workflow["jobs"][job]["steps"]
+
+
+def test_the_finalize_job_mounts_both_products_and_their_legs():
+    """#1161: every lane of `finalize` that renders or validates a snapshot
+    reaches the products' legs, and the seal carries them. So `finalize` inits
+    each product and each product's two legs, BY NAME (never `--recursive`,
+    which would admit a leg's own submodules), each guarded on the
+    `.gitmodules` that declares it. `prepare` reads neither product and inits
+    neither."""
+    finalize = _job_steps("finalize")
+    run = finalize[_step_index(finalize, name="Init governed submodules only")]["run"]
+    block = run[run.index("for product in openDox openXdox; do"):]
+    assert '--get "submodule.${product}.path"' in block
+    assert 'git -C openxFactory submodule update --init "$product"' in block
+    assert "for leg in spec code; do" in block
+    assert '--get "submodule.${leg}.path"' in block
+    assert 'git -C "openxFactory/${product}" submodule update --init "$leg"' in block
+    assert "--recursive" not in block
+    assert {gitlink for gitlink, _leg, _pkg in lane.RENDER_LEGS} == \
+        {"openDox", "openXdox"}
+    assert {leg for _gitlink, leg, _pkg in lane.RENDER_LEGS} <= {"spec", "code"}
+    # The mount precedes every step that reaches a product.
+    mount = _step_index(finalize, name="Init governed submodules only")
+    assert mount < _step_index(finalize, id="dfr-seal")
+    prepare = _job_steps("prepare")
+    prepare_run = prepare[_step_index(
+        prepare, name="Init governed submodules only")]["run"]
+    assert "openDox" not in prepare_run and "openXdox" not in prepare_run
+
+
 def test_the_refresh_stage_materializes_nothing_by_a_worker_side_read():
     """The stage's own steps are the parent's. No step in it may introduce a
     second source materialization — the seal is the one place source crosses,
@@ -1327,3 +1510,673 @@ def test_the_refresh_stage_materializes_nothing_by_a_worker_side_read():
         assert "git clone" not in run, step.get("name")
         assert "GIT_SSH_COMMAND" not in run, step.get("name")
         assert "sparse-checkout" not in run, step.get("name")
+
+
+# ---------------------------------------------------------------------------
+# the render legs (#1161) — sealed at the commits the SEALED corpus pins, from
+# real nested submodules, and refused whenever this parent holds anything else
+# ---------------------------------------------------------------------------
+
+def _product(where: Path, name: str, code_leg: str, package: str) -> Path:
+    """A product shaped like openDox or openXdox: a repository whose `spec`
+    and `code` legs are its own submodules. The code leg carries its package
+    under `src/`, a module BESIDE the package (openXdox-code's `src/` has two),
+    and a `tests/` tree and a `pyproject.toml` the render unit must not carry."""
+    legs: dict[str, Path] = {}
+    for leg in ("spec", code_leg):
+        repo = where / f"{name}-{leg}"
+        repo.mkdir(parents=True)
+        _git(repo, "init", "--quiet", "-b", "main")
+        if leg == code_leg:
+            modules = repo / "src" / package
+            modules.mkdir(parents=True)
+            (modules / "__init__.py").write_text(f'"""{package}"""\n',
+                                                 encoding="utf-8")
+            (modules / "cli.py").write_text(
+                "def main(argv=None):\n    return 0\n", encoding="utf-8")
+            (repo / "src" / "extension.py").write_text(
+                "# beside the package\n", encoding="utf-8")
+            (repo / "tests").mkdir()
+            (repo / "tests" / "test_leg.py").write_text("# never sealed\n",
+                                                        encoding="utf-8")
+            (repo / "pyproject.toml").write_text(
+                f'[project]\nname = "{package}"\n', encoding="utf-8")
+        else:
+            (repo / "README.md").write_text(f"# {name} spec\n", encoding="utf-8")
+        _git(repo, "add", "-A")
+        _git(repo, "commit", "--quiet", "-m", f"{name} {leg}")
+        legs[leg] = repo
+    product = where / name
+    product.mkdir(parents=True)
+    _git(product, "init", "--quiet", "-b", "main")
+    (product / "README.md").write_text(f"# {name}\n", encoding="utf-8")
+    _git(product, "add", "README.md")
+    for leg, repo in legs.items():
+        _git(product, "-c", "protocol.file.allow=always", "submodule", "add",
+             "--quiet", str(repo), leg)
+    _git(product, "commit", "--quiet", "-m", name)
+    return product
+
+
+@pytest.fixture
+def corpus_with_products(corpus: Path, tmp_path: Path) -> Path:
+    """The fixture corpus with both products MOUNTED, as openxFactory mounts
+    them: each a gitlink, each product's legs its own gitlinks, all
+    materialized at the commits they are pinned at."""
+    upstream = tmp_path / "upstream"
+    for gitlink, leg, package in lane.RENDER_LEGS:
+        product = _product(upstream, gitlink, leg, package)
+        _git(corpus, "-c", "protocol.file.allow=always", "submodule", "add",
+             "--quiet", str(product), gitlink)
+    _git(corpus, "-c", "protocol.file.allow=always", "submodule", "update",
+         "--init", "--recursive", "--quiet")
+    _git(corpus, "commit", "--quiet", "-m", "mount the products")
+    return corpus
+
+
+def _leg_files(root: Path) -> list[str]:
+    return sorted(path.relative_to(root).as_posix()
+                  for path in root.rglob("*") if path.is_file())
+
+
+def test_the_legs_are_sealed_at_the_commits_the_sealed_corpus_pins(
+        corpus_with_products, tmp_path):
+    """Each product's commit is read out of `source_head`'s own tree, each leg's
+    out of THAT product commit's tree, and each leg's `src/` is archived at its
+    commit: the package and the modules beside it, and nothing else of the
+    product (no `tests/`, no `pyproject.toml`, no `spec` leg)."""
+    corpus = corpus_with_products
+    head = _git(corpus, "rev-parse", "HEAD")
+    corpus_root = tmp_path / "seal" / lane.SEAL_CORPUS_RELPATH
+    records = lane.seal_render_legs(corpus_checkout=corpus, source_head=head,
+                                    corpus_root=corpus_root)
+    assert [(record["gitlink"], record["leg"], record["package"])
+            for record in records] == list(lane.RENDER_LEGS)
+    for record in records:
+        gitlink, leg, package = record["gitlink"], record["leg"], record["package"]
+        pinned = _git(corpus, "rev-parse", f"{head}:{gitlink}")
+        assert record["gitlink_revision"] == pinned
+        assert record["leg_revision"] == \
+            _git(corpus / gitlink, "rev-parse", f"{pinned}:{leg}")
+        assert record["relpath"] == f"{lane.SEAL_CORPUS_RELPATH}/{gitlink}/{leg}"
+        assert record["paths"] == ["src"]
+        sealed = corpus_root / gitlink / leg
+        assert _leg_files(sealed) == sorted([
+            "src/extension.py", f"src/{package}/__init__.py",
+            f"src/{package}/cli.py"])
+        assert record["file_count"] == 3
+        assert sorted(path.name for path in (corpus_root / gitlink).iterdir()) \
+            == [leg]
+    assert sorted(path.name for path in corpus_root.iterdir()) == \
+        sorted(lane.RENDER_LEG_GITLINKS)
+
+
+def test_a_seal_with_real_legs_verifies(corpus_with_products, tmp_path):
+    corpus = corpus_with_products
+    head = _git(corpus, "rev-parse", "HEAD")
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal, seal_legs=None)
+    assert lane.verify_seal(seal, correlation_id=CORRELATION,
+                            corpus_revision=head,
+                            recipe_revision=RECIPE_REV) == []
+    legs = [key for key in manifest["files"]
+            if key.split("/")[1:2] in (["openDox"], ["openXdox"])]
+    assert len(legs) == sum(record["file_count"]
+                            for record in manifest["render_legs"]) == 6
+
+
+def _commit_inside(checkout: Path) -> str:
+    (checkout / "drift.txt").write_text("a commit the corpus does not pin\n",
+                                        encoding="utf-8")
+    _git(checkout, "add", "drift.txt")
+    _git(checkout, "commit", "--quiet", "-m", "drift")
+    return _git(checkout, "rev-parse", "HEAD")
+
+
+@pytest.mark.parametrize("shape", [
+    "no-gitlink", "product-not-materialized", "product-at-another-commit",
+    "leg-not-materialized", "leg-at-another-commit"])
+def test_a_leg_this_parent_does_not_hold_at_its_pin_is_refused(
+        corpus, tmp_path, shape, request):
+    """NOTHING IS FETCHED. The legs are the ones this parent materialized, and
+    a parent holding anything other than exactly the commits `source_head`
+    pins refuses, naming both, before the corpus is archived. Sealing main's
+    corpus with a renderer main does not pin would publish a snapshot no pin
+    describes."""
+    if shape != "no-gitlink":
+        corpus = request.getfixturevalue("corpus_with_products")
+    head = _git(corpus, "rev-parse", "HEAD")
+    pinned = (_git(corpus, "rev-parse", f"{head}:openXdox")
+              if shape != "no-gitlink" else None)
+    if shape == "product-not-materialized":
+        _git(corpus, "submodule", "deinit", "--quiet", "--force", "openXdox")
+    elif shape == "product-at-another-commit":
+        moved = _commit_inside(corpus / "openXdox")
+    elif shape == "leg-not-materialized":
+        _git(corpus / "openXdox", "submodule", "deinit", "--quiet", "--force",
+             "code")
+    elif shape == "leg-at-another-commit":
+        leg_pin = _git(corpus / "openXdox", "rev-parse", f"{pinned}:code")
+        moved = _commit_inside(corpus / "openXdox" / "code")
+    seal = tmp_path / "seal"
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, seal_legs=None)
+    reason = str(refused.value)
+    short = lane._short
+    if shape == "no-gitlink":
+        expected = f"{short(head)} pins no openDox gitlink"
+    elif shape == "product-not-materialized":
+        expected = ("the pinned openXdox product is not materialized at "
+                    f"{corpus / 'openXdox'}")
+    elif shape == "product-at-another-commit":
+        expected = (f"this parent's openXdox is at {short(moved)}, but "
+                    f"{short(head)} pins openXdox@{short(pinned)}")
+    elif shape == "leg-not-materialized":
+        expected = ("the openXdox code leg is not materialized at "
+                    f"{corpus / 'openXdox' / 'code'}")
+    else:
+        expected = (f"this parent's openXdox/code is at {short(moved)}, but "
+                    f"openXdox@{short(pinned)} pins it at {short(leg_pin)}")
+    assert reason.startswith(expected), reason
+    if shape in ("product-not-materialized", "leg-not-materialized"):
+        assert "git submodule update --init --recursive openDox openXdox" in reason
+    assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
+    # Found out BEFORE the corpus is archived: no corpus path was extracted.
+    assert not (seal / lane.SEAL_CORPUS_RELPATH / "docs").exists()
+
+
+def test_a_leg_archive_naming_another_commit_is_refused(corpus_with_products,
+                                                        tmp_path, monkeypatch):
+    """The leg archive's own recorded commit is checked, as the corpus half's
+    is: a leg whose bytes came from another commit than the one its record
+    names must not be sealed."""
+    monkeypatch.setattr(lane, "git_archive_revision", lambda _path: "f" * 40)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus_with_products, tmp_path / "seal", seal_legs=None)
+    assert str(refused.value).startswith(
+        f"the openDox code leg archive's own recorded revision ({'f' * 40}) is "
+        "not its pinned commit")
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+
+
+def test_a_validator_from_another_product_revision_is_refused(
+        corpus_with_products, tmp_path):
+    """ONE PRODUCT REVISION. The REAL resolver copies the validator out of the
+    real openXdox code leg this suite runs against, while these legs are the
+    fixture's own. A real parent reads both through one checkout. A parent
+    whose two disagree would have the child judge the snapshot with a product
+    revision its render did not use, so it is refused."""
+    corpus = corpus_with_products
+    head = _git(corpus, "rev-parse", "HEAD")
+    pinned = _git(corpus, "rev-parse", f"{head}:openXdox")
+    leg = _git(corpus / "openXdox", "rev-parse", f"{pinned}:code")
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal", seal_legs=None, resolve_validator=None)
+    assert str(refused.value).startswith(
+        f"the sealed validator was copied from openXdox code at "
+        f"{lane._short(_product_head())}, but the sealed render unit carries it "
+        f"at {lane._short(leg)}")
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+
+
+def test_the_leg_sealer_speaks_only_git(corpus_with_products, tmp_path):
+    """The legs are read with `ls-tree`, `rev-parse` and `archive`, in
+    checkouts this parent already holds: no fetch, no clone, no submodule
+    command, and nothing that is not git."""
+    runner = RecordingRunner()
+    corpus = corpus_with_products
+    lane.seal_render_legs(corpus_checkout=corpus,
+                          source_head=_git(corpus, "rev-parse", "HEAD"),
+                          corpus_root=tmp_path / "seal" / "openxFactory",
+                          runner=runner)
+    assert runner.calls
+    assert all(argv[0] == "git" for argv in runner.calls)
+    assert {argv[3] for argv in runner.calls} == {"ls-tree", "rev-parse",
+                                                  "archive"}
+
+
+def test_verify_refuses_a_seal_whose_render_unit_is_not_whole(corpus, tmp_path):
+    """The intake requires the RENDER unit too. Each tamper is made coherent,
+    the index and the tree digest recomputed, so the digest check alone would
+    pass it."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    assert lane.verify_seal(seal) == []
+    base = json.loads(json.dumps(manifest))
+    modules = f"{lane.SEAL_CORPUS_RELPATH}/openXdox/code/src/openxdox/"
+
+    def problems(mutate) -> list[str]:
+        candidate = json.loads(json.dumps(base))
+        mutate(candidate)
+        (seal / lane.SEAL_MANIFEST_NAME).write_text(
+            json.dumps(candidate, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8")
+        return lane.verify_seal(seal)
+
+    assert problems(lambda m: m.update(render_entry="scripts/other.py")) == [
+        "render_entry is 'scripts/other.py', expected "
+        f"{lane.RENDER_ENTRY!r} — the child would have no renderer to run"]
+    assert problems(lambda m: m["render_legs"].reverse()) == [
+        f"render_legs records "
+        f"{[(g, l, p) for g, l, p in reversed(lane.RENDER_LEGS)]!r}, expected "
+        f"{list(lane.RENDER_LEGS)!r}"]
+    assert problems(lambda m: m["render_legs"][1].update(
+        leg_revision="abc1234")) == [
+        "the openXdox code leg records leg_revision 'abc1234', expected a "
+        "full commit revision"]
+    assert problems(lambda m: m["render_legs"][0].update(file_count=9)) == [
+        "the openDox code leg records file_count 9, but the seal indexes 1 "
+        "file(s) under openxFactory/openDox/code/"]
+    assert problems(lambda m: m.update(precheck=dict(
+        STUB_PRECHECK, outcome="not-conformant")))[0].startswith(
+        "precheck is ")
+    assert problems(lambda m: m.update(validator_revision="1" * 40)) == [
+        f"validator_revision {'1' * 40!r} is not the sealed openXdox code "
+        f"leg's revision {base['render_legs'][1]['leg_revision']!r}"]
+    # And the modules themselves: the leg's package emptied, coherently.
+    shutil.rmtree(seal / modules)
+    candidate = json.loads(json.dumps(base))
+    candidate["files"] = lane.seal_file_index(seal)
+    candidate["tree_digest"] = lane.tree_digest(candidate["files"])
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(candidate, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    assert lane.verify_seal(seal) == [
+        f"the seal indexes no module under {modules} — the child's render "
+        "could not import it",
+        "the openXdox code leg records file_count 1, but the seal indexes 0 "
+        "file(s) under openxFactory/openXdox/code/"]
+
+
+def test_verify_refuses_the_2_0_layout_that_carried_no_render_unit(corpus,
+                                                                   tmp_path):
+    """A 2.0.0 seal (#1162) carried the validator unit and no render unit. The
+    major is the same, so it is read, and it is refused for exactly what it
+    lacks: the child could not render from it."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    shutil.rmtree(seal / lane.SEAL_CORPUS_RELPATH / "openDox")
+    shutil.rmtree(seal / lane.SEAL_CORPUS_RELPATH / "openXdox")
+    (seal / lane.SEAL_CORPUS_RELPATH / lane.RENDER_ENTRY).unlink()
+    for field in ("render_entry", "render_legs", "precheck"):
+        del manifest[field]
+    manifest["schema_version"] = "2.0.0"
+    _rewrite_coherently(seal, manifest)
+    assert lane.verify_seal(seal) == [
+        f"render_entry is None, expected {lane.RENDER_ENTRY!r} — the child "
+        "would have no renderer to run",
+        "render_legs is None — the seal records no render unit, so the "
+        "child's render would reach no product"]
+
+
+# ---------------------------------------------------------------------------
+# the pre-dispatch render (#1161) — the child's own render and --strict, run
+# on the parent over the seal, before anything is dispatched
+# ---------------------------------------------------------------------------
+
+_STAND_IN_ENTRY = '''\
+"""A stand-in RENDER_ENTRY: records how it was run, then renders per mode."""
+import json, os, sys
+from pathlib import Path
+
+args = sys.argv[1:]
+Path(os.environ["DFR_TEST_ENTRY_RECORD"]).write_text(json.dumps(
+    {"argv": args, "cwd": os.getcwd(), "env": dict(os.environ)}),
+    encoding="utf-8")
+mode = os.environ.get("DFR_TEST_RENDER", "ok")
+if mode == "fail":
+    print("Traceback: the render could not import opendox", file=sys.stderr)
+    sys.exit(3)
+output = Path(args[args.index("--output") + 1])
+revision = args[args.index("--source-revision") + 1]
+stamp = args[args.index("--generated-at") + 1]
+if mode == "drop-anchors":
+    revision = "0" * 40
+output.write_text(json.dumps({"kind": "ideation-dashboard-snapshot",
+    "generation": {"source_revision": revision, "generated_at": stamp},
+    "documents": [{"id": "a"}, {"id": "b"}, {"id": "c"}]}), encoding="utf-8")
+'''
+
+_STAND_IN_VALIDATOR = '''\
+"""A stand-in sealed validator: records its argv, then answers per mode."""
+import json, os, sys
+from pathlib import Path
+
+Path(os.environ["DFR_TEST_VALIDATOR_RECORD"]).write_text(
+    json.dumps(sys.argv[1:]), encoding="utf-8")
+mode = os.environ.get("DFR_TEST_VALIDATOR", "ok")
+target = sys.argv[1]
+if mode == "findings":
+    for pos in ("pos-a", "pos-b", "pos-c"):
+        print(f"ERROR [snapshot-dangling-cluster-ref] {target}: possible "
+              f"{pos!r} claiming_clusters references unknown cluster "
+              "'cl-plane-1'")
+    print(f"ERROR [snapshot-dangling-cluster-ref] {target}: possible 'pos-d' "
+          "claiming_clusters references unknown cluster 'cl-other-2'")
+    print("validate-ideation-dashboard-contracts: 4 error(s), 0 warning(s)")
+    sys.exit(1)
+if mode == "harness":
+    print("ERROR harness failure: jsonschema is not installed", file=sys.stderr)
+    sys.exit(2)
+print("validate-ideation-dashboard-contracts: 0 error(s), 0 warning(s)")
+'''
+
+HEAD_REV = "1" * 40
+
+
+@pytest.fixture
+def stand_in_seal(tmp_path, monkeypatch) -> Path:
+    """A seal holding a stand-in render entry and a stand-in sealed validator
+    at the paths the real ones occupy, with their records wired up."""
+    seal = tmp_path / "seal"
+    entry = seal / lane.SEAL_CORPUS_RELPATH / lane.RENDER_ENTRY
+    entry.parent.mkdir(parents=True)
+    entry.write_text(_STAND_IN_ENTRY, encoding="utf-8")
+    validator = seal / lane.SEAL_VALIDATOR_RELPATH
+    validator.parent.mkdir(parents=True)
+    validator.write_text(_STAND_IN_VALIDATOR, encoding="utf-8")
+    monkeypatch.setenv("DFR_TEST_ENTRY_RECORD", str(tmp_path / "entry.json"))
+    monkeypatch.setenv("DFR_TEST_VALIDATOR_RECORD",
+                       str(tmp_path / "validator.json"))
+    return seal
+
+
+def _precheck(seal: Path) -> dict:
+    return lane.precheck_sealed_render(seal, source_head=HEAD_REV,
+                                       source_committed_at=COMMITTED_AT)
+
+
+def test_the_pre_dispatch_render_is_the_childs_own_invocation(
+        stand_in_seal, tmp_path, monkeypatch):
+    """The entry runs from the SEALED corpus root, with the seal's two anchors
+    and `--no-validate`, writing outside the seal. Then the SEALED validator
+    runs over what it wrote, under `--strict`. The record it returns is what
+    the manifest's `precheck` says."""
+    record = _precheck(stand_in_seal)
+    assert record == {"entry": lane.RENDER_ENTRY, "documents": 3,
+                      "strict": True, "outcome": lane.PRECHECK_VALIDATED,
+                      "returncode": 0}
+    ran = json.loads((tmp_path / "entry.json").read_text(encoding="utf-8"))
+    corpus_root = stand_in_seal / lane.SEAL_CORPUS_RELPATH
+    output = ran["argv"][ran["argv"].index("--output") + 1]
+    assert ran["argv"] == [
+        "generate", "--repo-root", str(corpus_root),
+        "--repository", "openxFactory", "--source-revision", HEAD_REV,
+        "--generated-at", COMMITTED_AT, "--output", output, "--no-validate"]
+    assert Path(ran["cwd"]).resolve() == corpus_root.resolve()
+    assert not Path(output).resolve().is_relative_to(stand_in_seal.resolve())
+    judged = json.loads((tmp_path / "validator.json").read_text(encoding="utf-8"))
+    assert judged == [str(Path(output).resolve()), "--strict"]
+
+
+def test_the_pre_dispatch_render_holds_no_credential_and_no_repository(
+        stand_in_seal, tmp_path, monkeypatch):
+    """It runs code read OUT OF THE SEAL, in a job that holds the App token and
+    a token-bearing git configuration. So it receives neither: no credential,
+    none of the job's GitHub or Git variables, no interpreter path override, a
+    scratch HOME, no bytecode written, and git may not climb out of the seal
+    into the aggregation checkout it sits in, which the child's seal never
+    has above it."""
+    for name, value in {"GH_TOKEN": "t1", "GITHUB_TOKEN": "t2",
+                        "SUBMODULE_TOKEN": "t3", "AZURE_CLIENT_SECRET": "t4",
+                        "ACR_PASSWORD": "t5", "SIGNING_PRIVATE_KEY": "t6",
+                        "GITHUB_WORKSPACE": "/w", "GIT_ASKPASS": "/askpass",
+                        "GIT_CONFIG_PARAMETERS": "'http.extraheader=x'",
+                        "ACTIONS_RUNTIME_TOKEN": "t7", "SSH_AUTH_SOCK": "/s",
+                        "PYTHONPATH": "/elsewhere"}.items():
+        monkeypatch.setenv(name, value)
+    _precheck(stand_in_seal)
+    env = json.loads((tmp_path / "entry.json").read_text(encoding="utf-8"))["env"]
+    for name in ("GH_TOKEN", "GITHUB_TOKEN", "SUBMODULE_TOKEN",
+                 "AZURE_CLIENT_SECRET", "ACR_PASSWORD", "SIGNING_PRIVATE_KEY",
+                 "GITHUB_WORKSPACE", "GIT_ASKPASS", "GIT_CONFIG_PARAMETERS",
+                 "ACTIONS_RUNTIME_TOKEN", "SSH_AUTH_SOCK", "PYTHONPATH"):
+        assert name not in env, name
+    assert not any(value in ("t1", "t2", "t3", "t4", "t5", "t6", "t7")
+                   for value in env.values())
+    assert env["PYTHONDONTWRITEBYTECODE"] == "1"
+    assert env["GIT_CEILING_DIRECTORIES"] == str(stand_in_seal.resolve())
+    assert env["GIT_CONFIG_GLOBAL"] == os.devnull
+    assert env["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert env["HOME"] != os.environ.get("HOME")
+    assert not Path(env["HOME"]).resolve().is_relative_to(stand_in_seal.resolve())
+    assert "PATH" in env                     # the interpreter still resolves
+
+
+@pytest.mark.parametrize("mode, said", [
+    ("fail", "the sealed render unit could not render the snapshot (exit 3), "
+             "so the child's generate would fail the same way: Traceback: the "
+             "render could not import opendox"),
+    ("drop-anchors", "the sealed render did not carry the seal's two anchors "
+                     f"(source_revision {'0' * 40!r}"),
+], ids=["the-render-fails", "an-anchor-is-dropped"])
+def test_a_sealed_render_that_would_fail_the_child_is_refused(
+        stand_in_seal, monkeypatch, mode, said):
+    monkeypatch.setenv("DFR_TEST_RENDER", mode)
+    with pytest.raises(lane.SealRefused) as refused:
+        _precheck(stand_in_seal)
+    assert not isinstance(refused.value, lane.StrictGateRejected)
+    assert str(refused.value).startswith(said)
+
+
+def test_a_sealed_validator_that_cannot_run_over_the_render_is_refused(
+        stand_in_seal, monkeypatch):
+    monkeypatch.setenv("DFR_TEST_VALIDATOR", "harness")
+    with pytest.raises(lane.SealRefused) as refused:
+        _precheck(stand_in_seal)
+    assert not isinstance(refused.value, lane.StrictGateRejected)
+    reason = str(refused.value)
+    assert reason.startswith("the sealed validator could NOT RUN over the "
+                             "snapshot this seal renders")
+    assert "jsonschema is not installed" in reason
+
+
+def test_a_strict_rejection_is_a_verdict_carrying_the_findings(
+        stand_in_seal, monkeypatch):
+    """`StrictGateRejected`: the validator's own findings, with the scratch
+    path reduced to the file's name, and the tracking issue of every finding
+    it knows, counted, so a rejection that also carries a new finding never
+    reads as fully tracked."""
+    monkeypatch.setenv("DFR_TEST_VALIDATOR", "findings")
+    with pytest.raises(lane.StrictGateRejected) as rejected:
+        _precheck(stand_in_seal)
+    reason = str(rejected.value)
+    assert reason.startswith(
+        "--strict REJECTED the snapshot this seal renders "
+        "(validate-ideation-dashboard-contracts: 4 error(s), 0 warning(s)), a "
+        "known defect, tracked as opensoft/openxFactory#1159 (3 of 4 "
+        "finding(s); 1 tracked by no known issue); the child's publication "
+        "gate would refuse it the same way, so nothing is dispatched")
+    assert rejected.value.detail == [
+        *(f"ERROR [snapshot-dangling-cluster-ref] snapshot.json: possible "
+          f"{pos!r} claiming_clusters references unknown cluster 'cl-plane-1'"
+          for pos in ("pos-a", "pos-b", "pos-c")),
+        "ERROR [snapshot-dangling-cluster-ref] snapshot.json: possible 'pos-d' "
+        "claiming_clusters references unknown cluster 'cl-other-2'",
+        "validate-ideation-dashboard-contracts: 4 error(s), 0 warning(s)"]
+
+
+def test_a_render_that_does_not_finish_is_refused(stand_in_seal):
+    def hanging(argv, **kw):
+        raise subprocess.TimeoutExpired(argv, kw.get("timeout"))
+
+    with pytest.raises(lane.SealRefused, match="did not finish within 7s"):
+        lane.precheck_sealed_render(stand_in_seal, source_head=HEAD_REV,
+                                    source_committed_at=COMMITTED_AT,
+                                    run=hanging, timeout=7)
+
+
+@pytest.mark.parametrize("lines, cited", [
+    (["ERROR [snapshot-dangling-cluster-ref] s.json: x 'cl-plane-1'"] * 3,
+     "known defect, tracked as opensoft/openxFactory#1159 (3 of 3 finding(s))"),
+    (["ERROR [snapshot-dangling-cluster-ref] s.json: x 'cl-plane-10'"], ""),
+    (["ERROR [snapshot-unknown-kind] s.json: x 'cl-plane-1'"], ""),
+    (["validate-ideation-dashboard-contracts: 0 error(s), 1 warning(s)"], ""),
+    ([], ""),
+], ids=["all-known", "another-cluster", "another-code", "no-finding-line",
+        "nothing"])
+def test_a_citation_is_made_only_for_the_finding_it_tracks(lines, cited):
+    """The citation retires itself: once the corpus is fixed the finding is
+    gone, and a different finding, even one naming a lookalike value or the
+    same value under another code, is never cited against an issue that is
+    not its own."""
+    assert lane.known_finding_citation(lines) == cited
+
+
+def test_the_precheck_outcome_is_the_products_own_spelling():
+    assert lane.PRECHECK_VALIDATED == snapshot_mod.VALIDATED
+
+
+def test_a_precheck_that_changes_the_sealed_tree_is_refused(corpus, tmp_path):
+    def writing(seal_root, *, source_head, source_committed_at):
+        (Path(seal_root) / lane.SEAL_CORPUS_RELPATH / "docs" / "new.md"
+         ).write_text("written by the render\n", encoding="utf-8")
+        return dict(STUB_PRECHECK)
+
+    with pytest.raises(lane.SealRefused, match="changed the sealed tree"):
+        _seal(corpus, tmp_path / "seal", precheck_render=writing)
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+
+
+def test_a_rejected_precheck_leaves_no_manifest(corpus, tmp_path):
+    def rejecting(seal_root, *, source_head, source_committed_at):
+        raise lane.StrictGateRejected("--strict REJECTED", detail=["x"])
+
+    with pytest.raises(lane.StrictGateRejected):
+        _seal(corpus, tmp_path / "seal", precheck_render=rejecting)
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+
+
+# ---------------------------------------------------------------------------
+# THIS CHECKOUT, sealed for real, and its real corpus rendered from the seal
+# ---------------------------------------------------------------------------
+
+def test_this_checkout_seals_and_its_corpus_renders_from_the_seal(tmp_path):
+    """The whole chain over the real repository: the corpus half at HEAD, both
+    real legs at the commits HEAD pins, the real resolver's validator, and the
+    REAL pre-dispatch render, the child's own invocation, run FROM THE SEAL
+    with `git` fenced out of this checkout. The render must reach a verdict.
+    Whether the verdict is `validated` is a property of the corpus, not of the
+    seal, so both are accepted here. A rejection must carry the validator's
+    finding lines (#1159's three dangling `cl-plane-1` refs, at the time of
+    writing). The seal itself is then verified whole."""
+    head = _git(REPO_ROOT, "rev-parse", "HEAD")
+    verdict: dict = {}
+
+    def precheck(seal_root, **anchors):
+        try:
+            verdict["record"] = lane.precheck_sealed_render(seal_root, **anchors)
+        except lane.StrictGateRejected as rejected:
+            verdict["rejected"] = rejected
+            return dict(STUB_PRECHECK)      # so the seal can be verified below
+        return verdict["record"]
+
+    seal = tmp_path / "seal"
+    manifest = lane.seal_source(
+        corpus_checkout=REPO_ROOT, seal_dir=seal, correlation_id=CORRELATION,
+        decision=_decision(head), corpus_ref="HEAD",
+        read_recipe=(lambda: RECIPE_TEXT), precheck_render=precheck)
+    assert lane.verify_seal(seal, correlation_id=CORRELATION,
+                            corpus_revision=head,
+                            recipe_revision=RECIPE_REV) == []
+    for record in manifest["render_legs"]:
+        pinned = _git(REPO_ROOT, "rev-parse", f"HEAD:{record['gitlink']}")
+        assert record["gitlink_revision"] == pinned
+        assert record["leg_revision"] == _git(
+            REPO_ROOT / record["gitlink"], "rev-parse",
+            f"{pinned}:{record['leg']}")
+    (validator_leg,) = [record for record in manifest["render_legs"]
+                        if (record["gitlink"], record["leg"]) == lane.VALIDATOR_LEG]
+    assert manifest["validator_revision"] == validator_leg["leg_revision"]
+    if "rejected" in verdict:
+        findings = [line for line in verdict["rejected"].detail
+                    if lane._FINDING_LINE_RE.match(line)]
+        assert findings, verdict["rejected"].detail
+        assert not any(str(tmp_path) in line or "dfr-precheck-" in line
+                       for line in verdict["rejected"].detail)
+    else:
+        assert verdict["record"]["outcome"] == lane.PRECHECK_VALIDATED
+        assert verdict["record"]["documents"] > 0
+
+
+_CLOSURE_HARNESS = '''\
+"""Run RENDER_ENTRY under an audit hook; record every checkout path opened or
+listed (lane openxfactory-4, #1161)."""
+import os, runpy, sys
+from pathlib import Path
+
+root = Path(sys.argv[1]).resolve()
+record = Path(sys.argv[2])
+seen = set()
+
+
+def note(path):
+    try:
+        seen.add(Path(os.fsdecode(path)).resolve().relative_to(root).as_posix())
+    except (TypeError, ValueError, OSError):
+        pass
+
+
+def hook(event, args):
+    if event in ("open", "os.listdir", "os.scandir") and args and \\
+            isinstance(args[0], (str, bytes, os.PathLike)):
+        note(args[0])
+
+
+sys.addaudithook(hook)
+sys.argv = [str(root / sys.argv[3]), *sys.argv[4:]]
+code = 0
+try:
+    runpy.run_path(sys.argv[0], run_name="__main__")
+except SystemExit as exc:
+    code = exc.code or 0
+for module in list(sys.modules.values()):
+    if getattr(module, "__file__", None):
+        note(module.__file__)
+record.write_text("\\n".join(sorted(seen)) + "\\n", encoding="utf-8")
+sys.exit(code)
+'''
+
+
+def test_the_render_reads_nothing_outside_the_render_unit(tmp_path):
+    """THE MEASUREMENT THE UNIT WAS DECLARED FROM, repeated. The real render,
+    through `RENDER_ENTRY`, over this checkout, under an audit hook: every path
+    it opens or lists under the checkout is inside the sealed corpus paths or
+    a leg's `src/` (or is a directory above one, which the import system
+    lists). And every declared file is actually read, so the unit is neither
+    too narrow for the child nor wider than the render."""
+    head = _git(REPO_ROOT, "rev-parse", "HEAD")
+    stamp = _git(REPO_ROOT, "show", "-s", "--format=%cI", head, "--")
+    harness = tmp_path / "harness.py"
+    harness.write_text(_CLOSURE_HARNESS, encoding="utf-8")
+    record = tmp_path / "opened.txt"
+    env = {key: value for key, value in os.environ.items()
+           if key != "PYTHONPATH"}
+    env.update(PYTHONDONTWRITEBYTECODE="1",
+               PYTHONPYCACHEPREFIX=str(tmp_path / "pycache"))
+    proc = subprocess.run(
+        [sys.executable, str(harness), str(REPO_ROOT), str(record),
+         lane.RENDER_ENTRY, "generate", "--repo-root", str(REPO_ROOT),
+         "--repository", "openxFactory", "--source-revision", head,
+         "--generated-at", stamp, "--output", str(tmp_path / "snapshot.json"),
+         "--no-validate"],
+        cwd=str(REPO_ROOT), env=env, capture_output=True, text=True,
+        timeout=600)
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    opened = set(record.read_text(encoding="utf-8").split())
+    files = {path for path in lane.CORPUS_SEAL_PATHS if path.endswith(".py")}
+    roots = [path for path in lane.CORPUS_SEAL_PATHS if not path.endswith(".py")]
+    roots += [f"{gitlink}/{leg}/{path}" for gitlink, leg, _package
+              in lane.RENDER_LEGS for path in lane.RENDER_LEG_PATHS]
+    above = {"/".join(parts[:depth])
+             for entry in (*files, *roots) for parts in [entry.split("/")]
+             for depth in range(1, len(parts))}
+    outside = sorted(
+        path for path in opened
+        if path not in files and path not in above
+        and not any(path == root or path.startswith(root + "/")
+                    for root in roots))
+    assert outside == []
+    assert files <= opened, sorted(files - opened)
+    for gitlink, leg, package in lane.RENDER_LEGS:
+        assert any(path.startswith(f"{gitlink}/{leg}/src/{package}/")
+                   for path in opened), gitlink
