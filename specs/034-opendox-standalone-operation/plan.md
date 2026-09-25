@@ -451,9 +451,9 @@ close beside it. R1Q12 no longer holds T061: T061 packages the three schemas
 where they stand, and under R1Q12 (b) the package data follows them in phase 2
 (T009). The analyze also found that openxFactory's nightly and refresh lanes
 read the lookup T061 changes, and that R1Q14's options weigh differently for
-them (R1Q14's T006 paragraph). Its second pass found three phase-1 callers
-that still validate other kinds through the validator T061 would narrow to
-its three schemas. So R1Q25 recommends (b): 7.3 stays in phase 2, beside
+them (R1Q14's T006 paragraph). Its second pass found phase-1 callers that
+validate other kinds through the validator T061 would narrow to its three
+schemas: two today, and a third once T061's lookup reaches it. So R1Q25 recommends (b): 7.3 stays in phase 2, beside
 openDox's own validator (T057, T058). Until T019 applies the answer, T061 and
 T043 stay drafted on #1155's contingency, which is option (a), and neither
 starts.

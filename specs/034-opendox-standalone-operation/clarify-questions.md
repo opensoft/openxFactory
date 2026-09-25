@@ -929,12 +929,15 @@ contingency for exactly this case, and T005 applied it: T061 moved into phase
 A second fact weighs against the move. F7.1's second named test,
 `test_every_schema_the_consumer_validates_is_on_disk`, passes only once the
 consumer's validator is narrowed to *"its three schemas"*. Today it names the
-family's ten, and three callers in phase 1 still validate other kinds through
-it: openDox-code's `workbench.py:442` (`validate_manifest`), openxFactory's
-`doxbench_contracts.delegated_semantic_validation`, and the
-`find_openxfactory_validator` helper that `test_lens.py` uses. openDox's own
-validator arrives with T057 and T058 in phase 2, and T055 retires
-`workbench.py`'s lookup there. So in phase 1 the narrowing would take those
+family's ten. Two callers in phase 1 validate other kinds through it:
+openxFactory's `doxbench_contracts.delegated_semantic_validation`, and the
+`find_openxfactory_validator` helper that `test_lens.py` uses. A third,
+openDox-code's `workbench.py:442` (`validate_manifest`), gets no validator
+today, because the lookup answers `None` from a start outside the product
+(C3's confinement, measured at `e28930bf`). It would get this one once 7.3's
+lookup resolves the installed distribution. openDox's own validator arrives
+with T057 and T058 in phase 2, and T055 retires `workbench.py`'s lookup
+there. So in phase 1 the narrowing would take those
 kinds from their callers, or 7.3 would land without it. Phase 1's close, and
 F4's direct-arrow revisit that is ruled to follow phase 1 (T048), then also
 wait on 7.3.
@@ -967,6 +970,6 @@ schemas only once the kinds it gives up have their own validators, and those
 arrive in phase 2. (b) keeps the map, at the price of one more exclusion
 reason in phase 1, beside the ones R1Q24 (a) would add. (a) keeps phase 1's
 exclusion to `doc_health`, but its T061 must then either narrow the validator
-under three callers, or land without the narrowing that F7.1's second test
-needs.
+under the callers above, or land without the narrowing that F7.1's second
+test needs.
 **ANSWER:** OPEN (phase 1's openXdox-code tail); awaiting Brett Heap.

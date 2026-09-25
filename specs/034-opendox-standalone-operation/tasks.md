@@ -691,17 +691,21 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
   - **What the consumer validates (T006).** 7.3 locates *"its three schemas
     (7.1's openXdox-spec three)"*: `ideation-dashboard-snapshot`, its
     `-index`, and `gate-action-record`. Today the validator's
-    `SCHEMA_FILENAMES` names the family's ten, and three phase-1 callers still
-    validate other kinds through it:
-    - openDox-code's `workbench.py:442` (`validate_manifest`, the
-      `ideation-workbench` manifest), through `consumer_reach.find_validator`
-      until T055 retires that name in phase 2;
+    `SCHEMA_FILENAMES` names the family's ten. Two phase-1 callers validate
+    other kinds through it now, and a third would once this task's lookup
+    reaches it:
     - openxFactory's `doxbench_contracts.delegated_semantic_validation`, which
       `test_doxbench_contracts.py::test_delegated_semantics_accept_the_packaged_positives`
       runs over the doxBench positives;
     - `tests/ideation-dashboard/conftest.py`'s `find_openxfactory_validator`,
       which `test_lens.py::test_manifest_with_new_candidates_validates_clean`
-      uses.
+      uses;
+    - openDox-code's `workbench.py:442` (`validate_manifest`, the
+      `ideation-workbench` manifest), through `consumer_reach.find_validator`
+      until T055 retires that name in phase 2. From a start outside the
+      product that lookup answers `None` at `e28930bf` (C3's confinement), so
+      this caller gets no validator today. It gets this one once this task's
+      lookup resolves the installed distribution from any start.
 
     So `test_every_schema_the_consumer_validates_is_on_disk` passes only if
     the set narrows to the three, and narrowing it in phase 1 takes those
