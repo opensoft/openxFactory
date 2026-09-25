@@ -19,7 +19,7 @@ It is built in three phases, following #1144's RULED release map:
   and 10.1. It also takes 7.3, which T005's re-measure brought in, because
   openXdox-code's whole suite needs its validator's schemas. That move departs
   from the RULED map, which puts Group 7 in phase 2, so R1Q25 puts it to
-  Brett. openDox-code's
+  Brett, and recommends (b), which keeps 7.3 in phase 2. openDox-code's
   suite runs whole. openXdox-code's runs whole less the declared `doc_health`
   exclusion (R1Q6 (d)), which stays an open extraction. R1Q24 decides where
   its files that reach openxFactory's contracts or rail run.
@@ -41,7 +41,8 @@ re-measure raised `R1Q24`, and T006's analyze raised `R1Q25`.
   which holds phase 1's close but none of its work.
   - **Except two tasks, since T005.** T061 (7.3) came in through its
     contingency, and it waits on R1Q14, R1Q24 and R1Q25. T043 met the two
-    classes R1Q24 asks about. Both tasks are PROVISIONAL, as the
+    classes R1Q24 asks about, and R1Q25 decides whether
+    `tests/test_snapshot.py` joins its exclusion. Both tasks are PROVISIONAL, as the
     later phases are. Their round, T019, encodes the answers, re-plans them
     and re-runs analyze before either starts. The rest of phase 1 is
     unaffected.
@@ -123,8 +124,8 @@ of T006's analyze (`evidence/analyze-round-1a.md`).*
 | V. Validation gates | PASS for this PR, against `main`'s recorded baseline | This PR touches no `openspec/` path: `git diff --stat main -- openspec/` is empty. `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` gives `111 passed, 1 failed (112 items)` at this branch's head, run on 2026-09-25, and so `main` at `c415c3d1` gives the same. #1155 measured `110 passed, 1 failed` on 2026-09-24. The one item gained since is `admit-code-leg-under-pinned-root`, filed on `main` as #1156 (`daca0b89`). research.md's `dd2466ad` is a different thing: the baseline the plan's measurements were taken at, not this PR's gate. The one failure is `add-chain-attestation`'s "omits scenario(s)" finding. It is an accepted disposition in `contracts/openspec-cli-pin.yaml` (`ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'`), and it retires when that change archives. This PR cannot move it. The gate the repository enforces, `scripts/validate-openspec-cli-pin.py --all` (the `openspec-cli-pin` check), exits 0 with `0 UNDISPOSITIONED failures`. No other `scripts/validate-*.py` reads `specs/`. The PR that lands this revision is green on every check before it lands, and its READY comment quotes them. Implementation evidence will be falsifier output, quoted. |
 | VI. Versioned releases | WATCH | 9.5 says *"none cuts a contract bundle"*. R1Q11 (a) or R1Q12 (b) would add an openDox-spec schema (T053), which is probably a `dox-v1.1` minor at the openDox root; if so, that release follows the root's own four-value rule. |
 | VII. Fail-closed authority | PASS | Every seam refuses naming itself when nothing is registered (4.2's discipline). The hosted mode refuses without an issuer. An unknown dialect is refused. |
-| Workflow: *"material ambiguities MUST be resolved before planning"* | **PASS for phase 1 less T061 and T043; those two, and phases 2–3, PROVISIONAL** | This plan authorizes only phase 1 for implementation. Every material ambiguity in it is resolved (`5817152735`), except the three on its openXdox-code tail: R1Q14 and R1Q25 (T061), and R1Q24 (T061, T043), which T005's re-measure and T006's analyze raised. Those two tasks are provisional, as phases 2–3 are, and authorize nothing yet. Each provisional part is planned for implementation only by its round task (T019, T009, T069), which encodes its answers, re-plans it and re-runs analyze. A task blocked by an open R1Q never starts (FR-012). See Complexity Tracking. |
-| Repository Constraints | PASS, with one deviation | **Shared tree**: every writer works in its own clone, stages explicit paths and commits with pathspecs, so none touches the shared root checkout. **Worktree mode**: the git extension's sibling worktree under `../openxFactory-worktrees/` is not used. This feature's PRs run from the lane's own clone of openxFactory, as the lane protocol and each brief require; the rule's purpose, that no lifecycle command runs in the root checkout, holds. See Complexity Tracking. **The aggregation pin**: each openxFactory landing (this feature's bookkeeping PRs, T007's batches, and T047, T064 and T094) is followed by the aggregation's ordinary pin-sync in `opensoft/xFactory`, a separate commit that is not an arc landing and carries no trailer. The holder has it done after each landing, as this Repository Constraints rule requires. |
+| Workflow: *"material ambiguities MUST be resolved before planning"* | **PASS for phase 1 less T061 and T043; those two, and phases 2–3, PROVISIONAL** | This plan authorizes only phase 1 for implementation. Every material ambiguity in it is resolved (`5817152735`), except the three on its openXdox-code tail: R1Q14 (T061), and R1Q24 and R1Q25 (T061, T043), which T005's re-measure and T006's analyze raised or brought in. Those two tasks are provisional, as phases 2–3 are, and authorize nothing yet. Each provisional part is planned for implementation only by its round task (T019, T009, T069), which encodes its answers, re-plans it and re-runs analyze. A task blocked by an open R1Q never starts (FR-012). See Complexity Tracking. |
+| Repository Constraints | PASS, with one deviation | **Shared tree**: every writer works in its own clone, stages explicit paths and commits with pathspecs, so none touches the shared root checkout. **Worktree mode**: the git extension's sibling worktree under `../openxFactory-worktrees/` is not used. This feature's PRs run from the lane's own clone of openxFactory, as the lane protocol and each brief require; the rule's purpose, that no lifecycle command runs in the root checkout, holds. See Complexity Tracking. **The aggregation pin**: each openxFactory landing (this feature's bookkeeping PRs, T007's batches, and T047, T064 and T094) is followed by the aggregation's ordinary pin-sync in `opensoft/xFactory`, a separate commit that is not an arc landing and carries no `Arc:` trailer. The holder has it done after each landing, as this Repository Constraints rule requires. |
 
 ## Project Structure
 
@@ -140,7 +141,7 @@ specs/034-opendox-standalone-operation/
 ├── tasks.md                # 88 tasks, T001–T098 (some ids unused), box accounting (69 of 124)
 ├── checklists/
 │   └── requirements.md     # the spec-quality checklist
-└── evidence/               # bookkeeping records, with no trailer (R1Q20 (a))
+└── evidence/               # bookkeeping records, with no `Arc:` trailer (R1Q20 (a))
     ├── arc-base.md         # T003: ARC_BASE for all seven repositories; PACKET_MERGE
     ├── remeasure-2026-09-25.md   # T005: R1–R15 again, and openXdox-code's whole suite
     └── analyze-round-1a.md # T006: the prerequisites check and analyze's verdict
@@ -204,8 +205,8 @@ this worktree, which holds the plan only.
 |---|---|---|
 | 0 | 3.0 (ratification) | answers applied; analyze clean |
 | 1 | 2.1, 2.1a, 2.2, 2.3, 2.4, 2.5, 2.6, F2.1; 3.1, 3.2, 3.3 (first run; T065 and T098 repeat it before T097 ticks it), F3.1; 4.1, 4.1a, 4.2; 7.3, F7.1 (T061, moved in by T005, pending R1Q25); 9.1, 9.2a, 9.3, 9.4, F9.1, F9.2; 10.1 | F2.1, F3.1, F7.1, F9.1 (both legs), F9.2, `opendox --help` |
-| 2 | 5.0, 5.1, 5.2, 5.3, 5.3a, F5.1, 5.4, 5.4a, F5.2, 5.5, F5.3; 7.0, 7.1, 7.1a, 7.1b, 7.2, F7.2 | F5.1, F5.2, F5.3, F7.2; standalone `generate-and-open` serves |
-| 3 | 4.3, F4.1; 9.2 (its whole-suite check lands in phase 1, and its ratchet reaches `(0, 0)` at T086); 10.2, 10.2a, 10.3, F10.1; 13.1–13.6, 13.4a, F13.1; 16.1–16.6, F16.1 | F4.1, F10.1, F13.1, F16.1; AT-R1 follows the checkpoint (T095, T096) |
+| 2 | 5.0, 5.1, 5.2, 5.3, 5.3a, F5.1, 5.4, 5.4a, F5.2, 5.5, F5.3; 7.0, 7.1, 7.1a, 7.1b, 7.2, F7.2 (and 7.3, F7.1 if R1Q25 is ruled (b)) | F5.1, F5.2, F5.3, F7.2; standalone `generate-and-open` serves |
+| 3 | 4.3, F4.1; 9.2 (its whole-suite check lands in phase 1, and its ratchet reaches `(0, 0)` at T086, a reading R1Q25 puts to Brett); 10.2, 10.2a, 10.3, F10.1; 13.1–13.6, 13.4a, F13.1; 16.1–16.6, F16.1 | F4.1, F10.1, F13.1, F16.1; AT-R1 follows the checkpoint (T095, T096) |
 | every phase, ticked at ARC close | 9.5, 11.0, 11.1, F11.1 | interim F11.1 after each phase |
 | already `[x]` | 5.6 | — |
 
@@ -230,9 +231,9 @@ T001–T008 (holder: claims, ARC_BASE, round 1a, re-measure, analyze, #1144 amen
                  T038 (10.1, Q-R4)  after B and T022
           [oD]   T039 root pin (T090 steps 1–2)  after T022, T032, T037, T038
           [oXc]  T040 (pin, residue) → T041 (declared exclusion) → T042 (9.3) → T043 → T044
-                 T040 → T061 (7.3, moved in by T005) → T043; T019 before T061 and T043
-          [oX]→[oxF]  T047 consumer pins (steps 5–6) after T039, T044, T007 batch A; carries T045 + T046
-          T047 → T017 (3.3) and T018 (interim F11.1) → checkpoint T049 (after T007 batches A, B, RN-1, and T019 through T043);  holder T048
+                 T040 → T061 (7.3, moved in by T005, pending R1Q25) → T043; T019 and T007 batches C and F before T061 and T043
+          [oX]→[oxF]  T047 consumer pins (steps 5–6) after T039, T044, T007 batches A and E; carries T045 + T046
+          T047 → T017 (3.3) and T018 (interim F11.1) → checkpoint T049 (after T007 batches A, B and D, RN-1, and T019 through T043);  holder T048
  PHASE 2 (PROVISIONAL)  T009 (phase 2's round: answers, re-plan, analyze) first
           [oDc]  T050 → T051  ∥  T052  ∥  T057   (∥ T053 [oDs] if R1Q11 (a) or R1Q12 (b))
                  T054 (projection) → T055 (sources, 4.3 part) → T056 → T058 (validator)
@@ -264,6 +265,7 @@ lists of the re-planned tasks.
 | `src/opendox/workbench.py` | T026 → T025 (both in P1-E) |
 | openDox-code `pyproject.toml` | T038 (`[project.scripts]`) → T036 (`testpaths`, and the `test` extra); T069 re-derives phase 3's packaging edits (R1Q16) |
 | openDox-code `tests/test_authoring_seam.py` | T020 (the seam tests) → T021 → T022 |
+| openDox-code `tests/test_consumer_reach.py` | T011 (`opendox.cli` and `opendox.serve` into `NEUTRAL_MODULES`) → T034 (the rest of `STILL_REACHING`) |
 | openDox-code `.github/workflows/validate.yml` | T036 → T037; no earlier phase-1 slice edits it (tasks.md § Phase 1), and T095 adds phase 3's `acceptance` job |
 | openXdox-code `tests/test_dependency_direction.py` (the ratchet) | T040 (it moves the pin and leaves the ratchet unchanged) → T059 → T086 |
 | openXdox-code `pyproject.toml` | T040 (the `opendox @` pin and `rfc3339-validator`) → T061 (the validator's package data) |
@@ -370,15 +372,16 @@ R1Q6"*. Phase 1 is therefore planned on its answers, not on recommendations.
 | R1Q7 | (a) | The reviewed respelling allow-list (T007 batch C; T043, T059, T086). |
 | R1Q8 | (a) | `tests_runtime/` is part of the whole suite, with a PostgreSQL service in the required job (T036). F9.1 is unchanged. |
 | R1Q9 | (a) | `session_documents` resolves through `list_documents` in phase 1 (T025, T046). |
-| R1Q20 | (a) | Bookkeeping carries no trailer (T091). T007 batch A adds 11.0's addendum. |
+| R1Q20 | (a) | Bookkeeping carries no `Arc:` trailer (T091). T007 batch A adds 11.0's addendum. |
 
 **Where the amendments go.** Brett's comment says: *"Where an answer amends a
 ratified falsifier (F3.1, F9.1) or widens the 11.1 guard, that change rides in
 the realization as the answer records it."*
 
 - The planning PR (#1155) edits no file of #1144.
-- T007 records each amendment in #1144's `tasks.md`, in three bookkeeping
-  batches (A, B and C).
+- T007 records each amendment in #1144's `tasks.md`, in bookkeeping batches:
+  A, B and C for the answers of `5817152735`, D only on RN-1 (a), E for the
+  composition tests phase 1 finds, and F for T019's answers.
 - Each batch lands under a Rule 6 window, with no `Arc:` trailer, before the
   checkpoint that runs the amended falsifier.
 - `tasks.md` § "Ruled amendments" lists every amended line, the text it takes,
@@ -448,7 +451,12 @@ close beside it. R1Q12 no longer holds T061: T061 packages the three schemas
 where they stand, and under R1Q12 (b) the package data follows them in phase 2
 (T009). The analyze also found that openxFactory's nightly and refresh lanes
 read the lookup T061 changes, and that R1Q14's options weigh differently for
-them (R1Q14's T006 paragraph).
+them (R1Q14's T006 paragraph). Its second pass found three phase-1 callers
+that still validate other kinds through the validator T061 would narrow to
+its three schemas. So R1Q25 recommends (b): 7.3 stays in phase 2, beside
+openDox's own validator (T057, T058). Until T019 applies the answer, T061 and
+T043 stay drafted on #1155's contingency, which is option (a), and neither
+starts.
 
 All three questions, R1Q14, R1Q24 and R1Q25, go through T019. Phase 1
 therefore closes only once Brett has answered them, as well as RN-1. Only T061,

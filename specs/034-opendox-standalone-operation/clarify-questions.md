@@ -25,8 +25,8 @@ code.
   a `Blocked by:` line. Until they are answered, phases 2 and 3 are
   PROVISIONAL in the plan and authorize no implementation.
 - **Phase 1's openXdox-code tail.** Three open questions bear on phase 1:
-  R1Q14 and R1Q25, through T061 (7.3, which its contingency moved into phase
-  1), and R1Q24, through T061 and T043. T019 applies their answers. Until then
+  R1Q14, through T061 (7.3, which its contingency moved into phase 1), and
+  R1Q24 and R1Q25, through T061 and T043. T019 applies their answers. Until then
   T061 and T043 authorize no implementation, and the rest of phase 1 is
   unaffected. T006's analyze took R1Q12 off this tail: T061 packages the
   three schemas where they stand, so no answer to R1Q12 changes it.
@@ -59,7 +59,7 @@ R1Q14, R1Q24 and R1Q25.
 
 | phase | cannot start or close without |
 |---|---|
-| 1, it runs | its start: no open question. R1Q1–R1Q9 and R1Q22 are answered (`5817152735`), T006's round-1a analyze is done, and each slice's claim gates its own start. Its close: RN-1, and T019's answers for the openXdox-code tail: R1Q14 and R1Q25 (T061, 7.3) and R1Q24 (T061, T043) |
+| 1, it runs | its start: no open question. R1Q1–R1Q9 and R1Q22 are answered (`5817152735`), T006's round-1a analyze is done, and each slice's claim gates its own start. Its close: RN-1, and T019's answers for the openXdox-code tail: R1Q14 (T061, 7.3), and R1Q24 and R1Q25 (T061, T043) |
 | 2, useful alone | R1Q11, R1Q12, R1Q13 (the projection and the validator); R1Q10 (serving it); R1Q23 (F5.2's four `doc_health` suites). T009 encodes them and re-plans the phase |
 | 3, it installs | R1Q15, R1Q16 (the install); R1Q10, R1Q12 (chat standalone); R1Q17, R1Q18 (16.3); R1Q19 (the lens in the acceptance). T069 encodes them and re-plans the phase |
 | every landing | nothing open. R1Q20 and R1Q22 are answered |
@@ -911,7 +911,7 @@ phase 1.
 
 ---
 
-## R1Q25 — The re-plan moved 7.3 into phase 1, but #1144's RULED release map puts Group 7 in phase 2 *(blocks T019, T061; phase 1's openXdox-code tail)* — **OPEN**
+## R1Q25 — The re-plan moved 7.3 into phase 1, but #1144's RULED release map puts Group 7 in phase 2 *(blocks T019, T043, T061; phase 1's openXdox-code tail)* — **OPEN**
 
 **Raised by** T006's analyze on 2026-09-25
 ([`evidence/analyze-round-1a.md`](./evidence/analyze-round-1a.md), finding
@@ -925,6 +925,19 @@ protected suites it cannot be edited to pass. So openXdox-code's F9.1, as batch
 B amends it, cannot pass in phase 1 until 7.3 lands. #1155's T061 carried a
 contingency for exactly this case, and T005 applied it: T061 moved into phase
 1.
+
+A second fact weighs against the move. F7.1's second named test,
+`test_every_schema_the_consumer_validates_is_on_disk`, passes only once the
+consumer's validator is narrowed to *"its three schemas"*. Today it names the
+family's ten, and three callers in phase 1 still validate other kinds through
+it: openDox-code's `workbench.py:442` (`validate_manifest`), openxFactory's
+`doxbench_contracts.delegated_semantic_validation`, and the
+`find_openxfactory_validator` helper that `test_lens.py` uses. openDox's own
+validator arrives with T057 and T058 in phase 2, and T055 retires
+`workbench.py`'s lookup there. So in phase 1 the narrowing would take those
+kinds from their callers, or 7.3 would land without it. Phase 1's close, and
+F4's direct-arrow revisit that is ruled to follow phase 1 (T048), then also
+wait on 7.3.
 
 **What #1144 says.** The release map is RULED (`5799646419`, `5800995035`):
 *"The map orders the build."* Phase 1 is *"Group 2; Group 3; 4.1, 4.1a, 4.2
@@ -940,14 +953,20 @@ says of 4.3 that it *"closes with the last of them"*, and says nothing of 9.2.
 **Options.**
 - (a) 7.3 and F7.1 move into phase 1, as the re-plan has them, and 9.2 closes
   with its ratchet in phase 3. T007 records both as addenda to the map.
-- (b) 7.3 stays in phase 2. Phase 1's openXdox-code check declares
-  `tests/test_snapshot.py` as an exclusion with its own reason (its schemas,
-  until 7.3), and batch B's F9.1 admits that reason. 9.2 is read as in (a).
+- (b) 7.3 stays in phase 2, beside openDox's own validator. Phase 1's
+  openXdox-code check declares `tests/test_snapshot.py` as an exclusion with
+  its own reason (its schemas, until 7.3), and T007's batch F amends F9.1 to
+  admit that reason. That widens R1Q6 (d)'s exclusion, which is limited to
+  `doc_health`, as R1Q24 (a) would, so the answer is what admits it. T043
+  carries the entry. 9.2 is read as in (a).
 - (c) Something else you name.
 
-**Recommendation.** (a). It is the only option under which phase 1's
-openXdox-code check passes with no exclusion reason beyond `doc_health`, and
-T061 is already planned, and provisional until T019. (b) keeps the map's
-letter, at the price of a second exclusion reason and a protected suite held
-out of the required check until phase 2.
+**Recommendation.** (b), since T006. The map groups 7.3 with openDox's own
+validator for a reason: the consumer's validator can narrow to its three
+schemas only once the kinds it gives up have their own validators, and those
+arrive in phase 2. (b) keeps the map, at the price of one more exclusion
+reason in phase 1, beside the ones R1Q24 (a) would add. (a) keeps phase 1's
+exclusion to `doc_health`, but its T061 must then either narrow the validator
+under three callers, or land without the narrowing that F7.1's second test
+needs.
 **ANSWER:** OPEN (phase 1's openXdox-code tail); awaiting Brett Heap.

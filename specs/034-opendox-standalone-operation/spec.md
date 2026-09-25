@@ -204,8 +204,8 @@ generate is not standalone (requirement 4, first scenario).
 
 **Independent Test**: at the phase-2 tip, F5.3, F7.2, F5.1 (5.3a re-run) and
 F5.2 (5.4a) all pass. F5.2 is run as T007's batch C amends it and as R1Q23
-decides. F7.1 (7.3) moved to phase 1 with T061 (T005), which R1Q25 asks
-Brett to confirm.
+decides. F7.1 (7.3) moved to phase 1 with T061 (T005), a move R1Q25 puts to
+Brett.
 
 **Acceptance Scenarios**:
 
@@ -299,8 +299,8 @@ the phase-1 tip (T061), unless R1Q25 returns it to phase 2.
 3. **Given** openXdox installed in a fresh venv, **When** its validator lookup
    starts inside a planted pre-shed tree, **Then** it resolves the installed
    distribution's own validator, and its schemas are on disk (7.3; R1Q14,
-   R1Q24). T005's re-plan makes this phase 1's, and R1Q25 asks Brett to
-   confirm it.
+   R1Q24). T005's re-plan makes this phase 1's, a move R1Q25 puts to
+   Brett.
 
 ---
 
@@ -464,7 +464,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
     suite less its declared `doc_health` exclusion (R1Q6 (d)), and as R1Q24
     decides. The exclusion is reported as an open extraction, as FR-006 says.
 - **SC-002** (phase 2 exit): F5.1, F5.2, F5.3 and F7.2 exit 0, with F5.2 as
-  T007's batch C amends it and as R1Q23 decides.
+  T007's batch C amends it and as R1Q23 decides. F7.1 exits 0 here too if
+  R1Q25 returns 7.3 to phase 2.
 - **SC-003** (phase 3 exit): F4.1, F10.1, F13.1 and F16.1 exit 0, and the F4.1
   scan prints `no deferred reach names the consumer or the publisher`.
 - **SC-004**: AT-R1 passes, and its evidence is recorded in this feature's
