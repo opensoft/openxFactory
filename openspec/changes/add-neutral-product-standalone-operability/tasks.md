@@ -1316,12 +1316,18 @@ packet's interim arrangement ends.**
   **AMENDED — T007 Batch A (`5817152735`; Ruled R1Q2 (a); R1Q22 (a); amends
   11.1 and this falsifier, F11.1):** A fourth declared surface: NAMED
   openxFactory composition tests, which may be edited or added and are never
-  removed. The guard gains `COMPOSITION_TESTS =
+  removed. The guard IS TO GAIN `COMPOSITION_TESTS =
   {"tests/ideation-dashboard/test_extension_point_parity.py",
-  "tests/ideation-dashboard/test_serve_column_split.py"}` beside `HOST`.
-  Batch E adds a path before the landing that adds it (T034, T035), or that
-  T047's `pytest-suite` run finds. Also an addendum to 11.1: the manifest
-  records the carve as it arrived, so an arc edit to a carved file needs no
+  "tests/ideation-dashboard/test_serve_column_split.py"}` beside `HOST` — this
+  bookkeeping amendment records that future edit; it does NOT itself touch
+  the executable Python above, which still checks only `HOST`, `HOST_TESTS`
+  and `PIN_PAIRS` until it lands. T045, T093 and T094 add the set (and the
+  `elif p in HOST or ... or p in COMPOSITION_TESTS:` arm that reads it) when
+  they land; until then, an edit to either named composition test is still
+  correctly reported as `touched ...` by the falsifier as written. Batch E
+  adds a path before the landing that adds it (T034, T035), or that T047's
+  `pytest-suite` run finds. Also an addendum to 11.1: the manifest records
+  the carve as it arrived, so an arc edit to a carved file needs no
   declared-edit act. Carried out by T045, T093, T094.
 
 ## Group 12 — Requirement 11: the neutral submission step (RULED, openDox-code)
