@@ -22,10 +22,11 @@ dispositioned below. One puts a new question to Brett, R1Q25 (F1). Four leave
 the plan as it is (F12, B2, A1 and U4), each for the reason its row gives. The
 rest change this revision.
 
-The second pass found 2 HIGH and 1 MEDIUM, and 12 LOW. Copilot's review of the
-same commit found 1 MEDIUM, and the author 1 LOW while carrying them. § Second
-pass dispositions all seventeen, and each changes this revision. None puts a
-new question. One changes R1Q25's recommendation to (b) (V2).
+The second pass found 2 HIGH and 1 MEDIUM, and 12 LOW. Copilot's reviews found
+3 MEDIUM, one at `5192201c` and two at `88a43004`, and the author 1 LOW while
+carrying them. § Second pass dispositions all nineteen, and each changes this
+revision. None puts a new question. One changes R1Q25's recommendation to (b)
+(V2).
 
 ## How it was run
 
@@ -69,7 +70,8 @@ defect, the row names both.
 analysis, read-only, over `5192201c`, the commit that carried the first
 dispositions. It checked that each was carried, and its findings are
 `V1`–`V15`. Copilot's review of the same commit found one more, `CP1`, and
-the author found `U5` while carrying them.
+the author found `U5` while carrying them. Copilot's review of `88a43004`
+found `CP2` and `CP3`.
 
 **Measurements made for the analysis.** Each was run in a scratch clone, and
 none touches a shared tree.
@@ -181,7 +183,7 @@ collection of a named file that `collect_ignore` lists.
 |---|---|---|---|
 | V1 | HIGH | T011 could not pass openDox-code's required `validate` check. The check runs `tests/test_consumer_reach.py` under `--noconftest`, and the file fails as soon as `opendox.cli` and `opendox.serve` import, asking for both to move into `NEUTRAL_MODULES` *"in the same act"*. The plan left the file to T034, which comes after T011. U2's rule, that no slice edits `validate.yml` before T036, removed the only other way out. | T011's PR moves the two modules into `NEUTRAL_MODULES`, and its falsifier names the file. T034 re-derives the rest of `STILL_REACHING`. plan.md's single-writer table gains the file (T011 → T034), and P1-A's files list it. |
 | V2 | HIGH | T061's narrowing of the consumer's validator, from the family's ten schemas to its three, was weighed only for openxFactory's nightly lane. Three phase-1 callers still validate other kinds through the same script: openDox-code's `workbench.py:442` (`validate_manifest`), openxFactory's `doxbench_contracts.delegated_semantic_validation`, and `tests/ideation-dashboard/conftest.py`'s `find_openxfactory_validator`, which `test_lens.py` uses. R1Q25's recommendation, (a), did not weigh them. | T061 names the three callers, and T019 records what the answer means for each. P1-K and T047 add their tests (`test_doxbench_contracts.py` and `test_lens.py`) as named composition tests if batch E names them. R1Q25's **Measured** gains the fact, and its recommendation is now **(b)**: the map keeps 7.3 beside openDox's own validator, which arrives with T057 and T058 in phase 2. Measured while carrying it: `delegated_semantic_validation` and the conftest helper run the script today, but `workbench.py:442` gets no validator today, since the lookup answers `None` from outside the product. It would get the narrowed one once T061's lookup resolves the installed distribution, and T061, R1Q25 and plan.md now say so. |
-| V3 | MEDIUM | `After: T007 (batches C and F)`, on T061 and T043, is read by the tools as all of T007. That makes T041 an ancestor of T061, against the plan's T061 ∥ T041–T042. | tasks.md § Format now says that such an entry waits for the named batches alone, and that the tools read it as all of T007, so their graph is the stricter one. A task that waits on some of T007's batches may still run beside a task another batch waits for. |
+| V3 | MEDIUM | `After: T007 (batches C and F)`, on T061 and T043, is read by the tools as all of T007. That makes T041 an ancestor of T061, against the plan's T061 ∥ T041–T042. | tasks.md § Format now says that such an entry waits for the named batches alone, and that the tools read it as all of T007, so their graph is the stricter one. A task that waits on some of T007's batches may still run beside a task another batch waits for. Superseded by CP2: the tools now read each batch as a node of its own. |
 | V4 | LOW | plan.md and tasks.md still gave T047 batch A alone, T049 no batch D and T061 no batches C and F, and plan.md spoke of three batches. | They now say A and E; D; C and F. plan.md lists the six batches, A–F, and what each carries. |
 | V5 | LOW | T045 ran `pytest-suite` at the new openDox pin only, while the red tests T061 causes arrive with the openXdox pin. | It runs at T047's new openDox and openXdox pins. C3's row says so too. |
 | V6 | LOW | P1-K, an arc slice, listed `nightly_lane.py` and the refresh lane's seal. Neither is an 11.1 surface, and T047 never edits them. | P1-K and T047 list only the tests, as named composition tests if batch E names them. No arc landing edits the scripts. |
@@ -196,6 +198,8 @@ collection of a named file that `collect_ignore` lists.
 | V15 | LOW | plan.md said T005's re-measure and T006's analyze raised the three open questions, but R1Q14 dates from round 1. | It says "raised or brought in", as the checklist does. |
 | CP1 | MEDIUM | Copilot, on T064's note: T061 precedes T047 only while R1Q25 keeps it in phase 1. Under (b) T061 returns to phase 2, so T064's note must be conditional, and phase 2 must restore F7.1. | T064's note is conditional on R1Q25. Under (b), T019 puts T061 back on T064's `After:` line and gives it back its own `After: T049, T009`, with F7.1 back in T063. T063's note and T019's re-plan list say so, and spec.md's SC-002 has F7.1 exit 0 in phase 2 if R1Q25 returns 7.3 there. |
 | U5 | LOW | The author, while carrying V2 and V12: under R1Q25 (b), T043's exclusion declares `tests/test_snapshot.py`, so T043's content turns on R1Q25. Yet T043 was blocked by R1Q24 alone, and waited on R1Q25 only through T019 and T061. | T043 is blocked by R1Q24 and R1Q25, and says why. R1Q25's header, the start-state block and its table, plan.md's Summary and Workflow row, and P1-J's row list T043. R1Q25 (b) now says that it widens R1Q6 (d)'s `doc_health`-only exclusion, as R1Q24 (a) would, so the answer is what admits it. |
+| CP2 | MEDIUM | Copilot, on § Format, at `88a43004`: T061 waits on `T007 (batches C and F)`, but the tools read that as all of T007, batch E included. Batch E needs P1-K's writer's run at the new pins, and P1-K follows P1-J, which follows T061 and T043. The checker missed that cycle only because batch E's prerequisite was prose, not an edge. | **The tools are batch-aware.** A shared parser, `aftergraph.py`, reads each of T007's batches as a node of its own (`T007.A` to `T007.F`), and a bare `T007` as every batch. T007's `After` is now given by batch, and batch E's run inputs, T039 and T044, are edges. Measured on this revision: the batch reading has no cycle, and none with the Lands-with groups merged. Folding the batches back into one T007 node gives two cycles, `T007 → T044 → T043 → T007` and `T007 → T044 → T043 → T061 → T007`, which is the finding. All six tools use the parser. Their edges for the other 87 tasks are unchanged. `arrowcheck.py` now also checks the two arrows that break across a line, `T054 → T055` and `T087 → T086`, which it had counted but not checked. |
+| CP3 | MEDIUM | Copilot, at `88a43004`, on code unchanged since its last review: US1's fourth acceptance scenario described openXdox-code's run as less the `doc_health` exclusion and R1Q24's decision. R1Q25 (b) would add `tests/test_snapshot.py` to the exclusion. | The scenario says that R1Q25 decides whether the file runs in phase 1, with 7.3, or joins the exclusion with a reason of its own. The story's summary, the edge cases, FR-006, the declared-exclusion entity and SC-001 say the same. None of them answers R1Q25. |
 
 ## Coverage
 
@@ -249,20 +253,21 @@ No finding breaks a MUST at this revision.
 | duplications | 1 (A1) |
 | findings, first pass | CRITICAL 0, HIGH 7, MEDIUM 20, LOW 8 |
 | findings, second pass | CRITICAL 0, HIGH 2, MEDIUM 1, LOW 12 (V1–V15) |
-| findings, Copilot's first review | MEDIUM 1 (CP1) |
+| findings, Copilot's reviews | MEDIUM 3 (CP1 at `5192201c`; CP2 and CP3 at `88a43004`) |
 | findings, the author while carrying them | LOW 1 (U5) |
 | new questions for Brett | 1 (R1Q25), recommended (b) since the second pass |
 
 ## The checks after the dispositions
 
 Run from `specs/034-opendox-standalone-operation/` after both passes'
-dispositions, with the persisted tools:
+dispositions, with the persisted tools. Since CP2 they share one batch-aware
+parser, `aftergraph.py`:
 
 | check | result |
 |---|---|
 | `qcheck.py` over `qmap.py` (R1Q1–R1Q25) | `headers checked; mismatches: 0` |
-| `depcheck.py` | `tasks: 88 edges: 173`, `cycles: none` (172 at `5192201c`; V7 adds T021's edge to T011) |
-| `arrowcheck.py` | `arrow mismatches: 0`, 54 arrows |
+| `depcheck.py` | `tasks: 88 nodes: 94 (T007's batches are nodes: T007.A, …, T007.F) edges: 186`; `cycles: none`; and `none` with the Lands-with groups `[T011, T030]`, `[T031, T036]` and `[T045, T046, T047]` merged. Before CP2 it read T007 whole and printed `edges: 173` (172 at `5192201c`; V7 adds T021's edge to T011) |
+| `arrowcheck.py` | `arrow mismatches: 0`, `arrows checked: 54`, now including the two that break across a line |
 | `phasecover.py` | every task before its phase's checkpoint; T048 after T049, by design |
 | `chaincheck.py` | `single-writer chain gaps: 0` |
 | `chaindirect.py` | 25 pairs DIRECT, and two transitive: `validate.yml`'s T037 → T095, through the root pins (`T095 → T076 → T087 → T062 → T039 → T037`), and `test_consumer_reach.py`'s T011 → T034, through T032 |

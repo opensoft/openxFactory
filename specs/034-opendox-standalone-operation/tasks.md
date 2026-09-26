@@ -30,10 +30,11 @@ holds the boxes and every falsifier.
   for the other, so neither names the other on its `After:` line.
 
 An `After:` entry such as `T007 (batches C and F)` waits for those batches of
-T007 alone. The plan-consistency tools read it as all of T007, so their graph
-orders such a task after every batch's own dependencies too. A task that waits
-on some of T007's batches may still run beside a task that another batch waits
-for (T006).
+T007 alone, and a bare `T007` waits for every batch. T007's `After, by batch`
+field gives each batch its own line. The plan-consistency tools read each
+batch as a node of its own, `T007.A` to `T007.F`, so the graph they check is
+the one this file states. A task that waits on some of T007's batches may
+still run beside a task that another batch waits for (T006).
 
 A task with no `[P]` either shares a file with a neighbour or depends on one.
 
@@ -209,12 +210,16 @@ them and re-run analyze. Every other phase-1 task is planned on answers.
     carries out.
   - **Ruled**: R1Q1, R1Q2, R1Q3, R1Q5, R1Q6, R1Q7, R1Q9, R1Q20 and R1Q22,
     `5817152735`.
-  - **After**: batch A and batch C wait on nothing. Batch B waits on T041,
-    which names the exclusion file. Batch D waits on RN-1's ruling. Batch E
-    waits on T034 and T035, whose PR bodies list what they move, and on the
-    red tests that P1-K's writer names at the new pin, before that slice's
-    openxFactory PR opens. It cannot wait on that slice's landing, which needs
-    it. Batch F waits on T019.
+  - **After**, by batch:
+    - **A**: nothing.
+    - **B**: T041, which names the exclusion file.
+    - **C**: nothing.
+    - **D**: RN-1's ruling, which is not a task.
+    - **E**: T034 and T035, whose PR bodies list what they move, and T039 and
+      T044. P1-K's writer names the red tests at the pins of those two
+      commits, before its openxFactory PR opens. Batch E cannot wait on that
+      PR's landing, which needs it.
+    - **F**: T019.
 - [ ] T008 **Raise the `doc_health` direction arc (R1Q6 (d)).** R1Q6 (d)
   makes the direction question its own arc: openXdox-code's modules import
   openxFactory's `doc_health`, and openxFactory packages nothing (research

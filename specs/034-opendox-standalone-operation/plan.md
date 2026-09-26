@@ -479,7 +479,9 @@ the lane's tool directory, so that T005's re-measure does not depend on any
 session's scratch space. T005's fifth script, `classify_whole_suite.py`
 (`evidence/remeasure-2026-09-25.md` § Appendix), sits beside them, with the
 plan-consistency checks that T006 ran and that T009, T019 and T069 run again.
-Each persistence is recorded in its PR's body.
+The checks read each of T007's batches as a node of its own (tasks.md
+§ Format), and check for cycles with each Lands-with group merged too. Each
+persistence is recorded in its PR's body.
 
 ## Complexity Tracking
 

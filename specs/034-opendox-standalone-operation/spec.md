@@ -144,7 +144,8 @@ declared extras. Every module imports. The command-line parser builds on
 openDox's own default profile. The entry point registers openDox's own default
 corpus adapter. Each leg's suite runs green in its own checkout. openDox-code's
 runs whole. openXdox-code's runs whole less a declared `doc_health` exclusion,
-which is reported as an open extraction (R1Q6 (d)). The `opendox` console
+which is reported as an open extraction (R1Q6 (d)). R1Q24 and R1Q25, both
+open, may each add entries with a reason of their own. The `opendox` console
 script exists.
 
 **Why this priority**: nothing else in the release can be exercised until the
@@ -178,7 +179,9 @@ packages.
    - openXdox-code's is the whole suite less its declared `doc_health`
      exclusion, which every run reports with its count and its reason (R1Q6
      (d)). R1Q24 decides where its files that reach openxFactory's contracts
-     or rail run.
+     or rail run. R1Q25 decides whether `tests/test_snapshot.py` runs in
+     phase 1, with 7.3, or joins the exclusion with a reason of its own until
+     7.3 lands (its option (b)).
 5. **Given** openXdox-code with openDox at its pin, **When** the declared
    integration suite runs, **Then** it passes, including the 31-entry assembled
    `--help` tree (requirement 9, third scenario).
@@ -318,6 +321,10 @@ the phase-1 tip (T061), unless R1Q25 returns it to phase 2.
   status-exemption rail, but not `doc_health`. T005 found seven such files,
   and its experiment an eighth behind a residue failure. R1Q24 decides where
   that class runs, and until then neither T043 nor T061 starts.
+- `tests/test_snapshot.py` needs no `doc_health`, yet fails in a lone
+  checkout until 7.3 locates its schemas. R1Q25 decides whether 7.3 lands in
+  phase 1 or the file joins the declared exclusion with its own reason until
+  then, and until then neither T043 nor T061 starts.
 - The install mode is unset (R1Q15), or a local install is asked to bind
   beyond loopback, which is refused with no opt-in (13.4).
 - A raw key appears inside an endpoint URL, not in a field (16.3).
@@ -385,7 +392,9 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
     exclusion stays an OPEN EXTRACTION until the direction arc (T008) lands.
     It is reported as open, and never as closed, including at the archive.
     R1Q24 (open) decides where the files that reach openxFactory's contracts
-    or its status-exemption rail run.
+    or its status-exemption rail run. R1Q25 (open) decides whether
+    `tests/test_snapshot.py` runs with 7.3 in phase 1, or is declared with its
+    own reason until 7.3 lands.
   - Behaviour that needs both legs SHALL be declared integration tests at the
     declared composition.
   - The margins SHALL be restored, with no skip carrying the gap. A skip that
@@ -434,7 +443,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   `build_server` composes them into `BoundDashboardHandler`'s bases.
 - **Declared exclusion**: openXdox-code's committed list of the test files that
   need openxFactory's `doc_health`, with its count and reason, reported as an
-  open extraction (R1Q6 (d)).
+  open extraction (R1Q6 (d)). Any entry that R1Q24 or R1Q25 admits carries a
+  reason of its own.
 - **Home-corpus registration**: `corpus_adapter.register_home(factory)` and
   `home()`, plus `ADAPTER_NOT_REGISTERED`.
 - **Generator seam**: the operation handed over, its registration point beside
@@ -462,7 +472,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   - openDox-code's suite goes from 0 passed today to whole and green.
   - openXdox-code's goes from 57 collection errors to green over the whole
     suite less its declared `doc_health` exclusion (R1Q6 (d)), and as R1Q24
-    decides. The exclusion is reported as an open extraction, as FR-006 says.
+    and R1Q25 decide. The exclusion is reported as an open extraction, as
+    FR-006 says.
 - **SC-002** (phase 2 exit): F5.1, F5.2, F5.3 and F7.2 exit 0, with F5.2 as
   T007's batch C amends it and as R1Q23 decides. F7.1 exits 0 here too if
   R1Q25 returns 7.3 to phase 2.
