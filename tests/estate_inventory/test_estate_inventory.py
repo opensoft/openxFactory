@@ -30,11 +30,19 @@ FAILS-THEN-PASSES. Every case here is written to fail against the tree without
 § 3.1–§ 3.4: the module under test does not exist there, the inventory file does
 not exist there, and `validate-code-surface.py` has no `--inventory` flag and no
 membership block to assert on. The realization pull request records both runs.
+
+AND A FOURTH SUBJECT, SINCE `admit-code-leg-under-pinned-root` § 3.4: the
+`## MODIFIED` block that widens the `gitlink` carrier to a PINNED ASSEMBLY ROOT
+openxFactory pins exactly once, its `.gitmodules` read AT THE COMMIT THAT PIN
+NAMES and one hop no further. Its cases sit under their own heading at the end
+of this file, each written to fail against the unwidened judge.
 """
 from __future__ import annotations
 
 import datetime
 import importlib.util
+import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -1304,9 +1312,19 @@ def test_a_gitlink_CARRIER_must_resolve_to_a_GOVERNED_row(tmp_path):
 
     A carrier was accepted on its SHAPE alone, so a row could claim evidence
     from a repository this inventory carries no row for at all, or from one it
-    carries as `pinned` or `external` — and a supplied checkout of that
-    repository would then discharge the row. Membership would rest on a tree
-    nobody in this estate writes.
+    carries as `external` — and a supplied checkout of that repository would
+    then discharge the row. Membership would rest on a tree nobody in this
+    estate writes.
+
+    CORRECTED BY `admit-code-leg-under-pinned-root` (openxFactory #1150), AND
+    EVERY ASSERTION KEPT. This docstring also said "or from one it carries as
+    `pinned`", and the widened carrier bound makes that clause false as
+    written: a `pinned` ASSEMBLY ROOT that openxFactory pins EXACTLY ONCE is a
+    lawful carrier, its `.gitmodules` read at the commit that pin names. What
+    stays refused is a `pinned` row that no openxFactory pin fixes, or that two
+    fix — the cases under that change's own heading at the end of this file —
+    and an `external` one, which is the carrier this case refuses and still
+    does.
     """
     unknown = _inventory(tmp_path, [
         _row("opensoft/Thing",
@@ -2160,3 +2178,560 @@ def test_a_DUPLICATE_former_across_two_COMPLETE_rows_refuses_the_whole_file(
     assert transfers == {"opensoft/Bogus": "opensoft/First",
                          "opensoft/Elsewhere": "opensoft/Other"}
     assert findings == ()
+
+
+# ==============================================================================
+# `admit-code-leg-under-pinned-root` § 3.4: a code leg nested under a PINNED
+# assembly root, admitted by the root's gitlink AT THE COMMIT ITS PIN NAMES
+#
+# THE SHAPE IS RULED (a) (Brett Heap, 2026-09-24, verbatim "(a) recommended for
+# both, ratify when the draft is green"): a `gitlink` whose CARRIER may be a
+# `pinned` row admitted by EXACTLY ONE `pin`, the root's `.gitmodules` read at
+# the commit that pin names, one hop and no further. No kind is added, and the
+# leg is pinned and mounted by nothing in openxFactory.
+#
+# EACH CASE IS WRITTEN TO FAIL AGAINST THE UNWIDENED JUDGE, on the packet's own
+# fails-then-passes obligation. A refusal case would pass on a bare "it
+# raises", because the unwidened loader refuses EVERY pinned carrier — so each
+# one asserts the CONDITION its refusal names, and loads the lawful shape beside
+# it, which is exactly what the unwidened loader cannot do. Within this section
+# `design.md` and `tasks.md` are that change's own, not
+# `add-estate-repository-inventory`'s.
+# ==============================================================================
+
+_PINNED_ROOT = "opensoft/openDox"
+_LEG = "opensoft/openDox-code"
+_ROOT_PIN = "contracts/opendox-pin.yaml"
+_ROOT_ORIGIN = "git@github.com:opensoft/openDox.git"
+
+
+def _pinned_root_row(address: str = _PINNED_ROOT,
+                     pins: tuple[str, ...] = (_ROOT_PIN,)) -> dict:
+    """A `pinned` ASSEMBLY ROOT admitted by `pins` — the live shape of
+    `opensoft/openDox` and `opensoft/openXdox`, less their aggregation gitlink,
+    which is not the subject here."""
+    return _row(address, governance="pinned", role="a pinned assembly root",
+                admitted_by=[{"kind": "pin", "path": pin} for pin in pins])
+
+
+def _leg_row(address: str = _LEG, carrier: str = _PINNED_ROOT,
+             governance: str = "pinned") -> dict:
+    """A LEG: a row admitted by a gitlink in a pinned root."""
+    return _row(address, governance=governance,
+                role="a leg of a pinned assembly root",
+                admitted_by=[{"kind": "gitlink", "carrier": carrier}])
+
+
+def _pin_file(root: Path, commit: object, *, revision_kind: object = "commit",
+              repository: str = _PINNED_ROOT, path: str = _ROOT_PIN) -> Path:
+    """A `kind: pinned_contract_manifest` pin in the SCANNED tree, carrying the
+    fields the pinned-commit read takes from it and nothing else."""
+    target = root / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(
+        yaml.safe_dump({"schema_version": 1,
+                        "kind": "pinned_contract_manifest",
+                        "source_repository": repository,
+                        "commit": commit,
+                        "revision_kind": revision_kind},
+                       sort_keys=False, width=10_000),
+        encoding="utf-8")
+    return target
+
+
+def _hermetic_git_env(**extra: str) -> dict[str, str]:
+    """The ambient environment with NO global or system git config, so a
+    developer's `commit.gpgsign` or `core.hooksPath` cannot reach a scratch
+    commit — `tests/opendox_pin`'s `_hermetic_git` reasoning, applied per call
+    here rather than to the whole file."""
+    environment = dict(os.environ)
+    environment["GIT_CONFIG_GLOBAL"] = os.devnull
+    environment["GIT_CONFIG_NOSYSTEM"] = "1"
+    environment.update(extra)
+    return environment
+
+
+def _git_out(tree: Path, *args: str) -> str:
+    """`git -C tree …` with a pinned identity, for building fixtures only —
+    never the read under test, which is the module's own."""
+    return subprocess.run(
+        ["git", "-c", "user.name=estate-inventory-test",
+         "-c", "user.email=estate-inventory-test@example.invalid",
+         "-c", "commit.gpgsign=false", "-c", "protocol.file.allow=always",
+         "-C", str(tree), *args],
+        check=True, capture_output=True, text=True,
+        env=_hermetic_git_env()).stdout
+
+
+def _gitmodules_text(addresses: list[str]) -> str:
+    """A `.gitmodules` in the spelling the live roots write — `https://` URLs —
+    while the carrier's own origin is `git@`, so ONE normalization is proved to
+    read both."""
+    return "".join(
+        f'[submodule "{address.split("/")[-1]}"]\n'
+        f'\tpath = {address.split("/")[-1]}\n'
+        f'\turl = https://github.com/{address}.git\n'
+        for address in addresses)
+
+
+def _commit_gitmodules(tree: Path, addresses: list[str], message: str) -> str:
+    """Commit a `.gitmodules` naming `addresses`; return the new commit."""
+    (tree / ".gitmodules").write_text(_gitmodules_text(addresses),
+                                      encoding="utf-8")
+    _git_out(tree, "add", ".gitmodules")
+    _git_out(tree, "commit", "-q", "-m", message)
+    return _git_out(tree, "rev-parse", "HEAD").strip()
+
+
+def _missing_objects(tree: Path) -> set[str]:
+    """The objects a partial clone does NOT hold, listed WITHOUT fetching them:
+    `--missing=print` reports a missing object and never fetches it, and the
+    transport refusal beside it keeps that true on a git that read it
+    otherwise."""
+    listing = subprocess.run(
+        ["git", "-C", str(tree), "rev-list", "--objects", "--all",
+         "--missing=print"],
+        check=True, capture_output=True, text=True,
+        env=_hermetic_git_env(GIT_ALLOW_PROTOCOL="none")).stdout
+    return {line[1:].strip() for line in listing.splitlines()
+            if line.startswith("?")}
+
+
+def _run_inventory_traced(root: Path, inventory: Path, trace: Path,
+                          *extra: str):
+    """`_run_inventory`, with every `git` the validator starts TRACED to
+    `trace`: what the validator ASKED git, whatever its report prints.
+
+    `GIT_TRACE` naming an absolute path makes each git process append the argv
+    it ran, and the module's sanitized environment passes it through — it
+    scrubs the variables that MOVE a repository, not the one that reports on
+    one. A case reading the trace asserts a read it EXPECTS as well as the one
+    it forbids, so a trace that recorded nothing cannot pass for a read that
+    was never made.
+    """
+    return subprocess.run(
+        [sys.executable, str(INVENTORY_VALIDATOR), str(root),
+         "--inventory", str(inventory), *extra],
+        capture_output=True, text=True,
+        env={**os.environ, "GIT_TRACE": str(trace)})
+
+
+def test_a_code_leg_carried_by_a_PIN_ADMITTED_PINNED_root_LOADS(tmp_path):
+    """Scenario *A code leg is nested under a pinned assembly root*.
+
+    "the inventory SHALL carry a row for the leg whose `admitted_by:` names
+    that gitlink AND the pinned root that carries it … the leg's row SHALL NOT
+    declare `governance: governed`". The unwidened loader refused this file
+    whole ("THE KIND SAYS GOVERNED"), which is `design.md` D0.3's measured
+    refusal. It now LOADS, and the default run counts the leg NOT RE-CHECKED
+    exactly as it counts every other `gitlink` row.
+
+    THE CLASS BOUND REFUSES `governed` AND ONLY `governed` (`design.md` D4, the
+    alternative "require exactly `pinned`" declined), so an `external` leg — a
+    third-party repository a root nests — loads too.
+    """
+    path = _inventory(tmp_path, [_pinned_root_row(), _leg_row()])
+    inventory = ei.load_inventory(path)
+    leg = inventory.by_address[_LEG]
+    assert leg.governance == "pinned"
+    assert [(a.kind, a.carrier) for a in leg.admitted_by] == \
+        [(ei.GITLINK, _PINNED_ROOT)]
+
+    external = _inventory(tmp_path, [_pinned_root_row(),
+                                     _leg_row(governance="external")],
+                          name="external-leg.yaml")
+    assert ei.load_inventory(external).by_address[_LEG].governance == \
+        "external"
+
+    _pin_file(tmp_path, "0" * 40)
+    result = _run_inventory(tmp_path, path)
+    assert result.returncode == 0, result.stdout
+    assert "1 NOT RE-CHECKED" in result.stdout
+    assert f"no working tree was supplied for the carrier {_PINNED_ROOT}" \
+        in result.stdout
+
+
+def test_a_PINNED_carrier_admitted_by_NO_pin_or_by_TWO_is_REFUSED(tmp_path):
+    """Scenario *A gitlink names a carrier outside the two lawful forms*, the
+    carrier half.
+
+    "WHEN a row is admitted by a `gitlink` whose carrier's row is … `pinned`
+    and admitted by no `pin` or by more than one … THEN the validator MUST
+    REFUSE the inventory, naming the row, the carrier, and the condition that
+    fails." NO PIN is a root openxFactory fixes at no commit, so its
+    `.gitmodules` has no revision to be read at; TWO PINS make that revision a
+    pick. The refusal names which.
+    """
+    unpinned = _inventory(tmp_path, [
+        _row(_PINNED_ROOT, governance="pinned",
+             admitted_by=[{"kind": "gitlink", "carrier": ei.AGGREGATION_ROOT}]),
+        _leg_row(),
+    ], name="unpinned.yaml")
+    with pytest.raises(ei.EstateInventoryError) as refusal:
+        ei.load_inventory(unpinned)
+    message = str(refusal.value)
+    assert f"({_LEG})" in message and f"`{_PINNED_ROOT}`" in message
+    assert "admitted by NO `pin`" in message
+
+    second = "contracts/opendox-second-pin.yaml"
+    twice = _inventory(tmp_path, [_pinned_root_row(pins=(_ROOT_PIN, second)),
+                                  _leg_row()], name="twice.yaml")
+    with pytest.raises(ei.EstateInventoryError) as refusal:
+        ei.load_inventory(twice)
+    message = str(refusal.value)
+    assert f"({_LEG})" in message and f"`{_PINNED_ROOT}`" in message
+    assert "admitted by 2 `pin`s" in message
+    assert _ROOT_PIN in message and second in message
+
+    # AND THE LAWFUL SHAPE — ONE PIN — LOADS, which the unwidened loader
+    # refused along with the two above.
+    lawful = _inventory(tmp_path, [_pinned_root_row(), _leg_row()],
+                        name="lawful.yaml")
+    assert ei.load_inventory(lawful).by_address[_LEG].admitted_by[0].carrier \
+        == _PINNED_ROOT
+
+
+def test_a_leg_declaring_governance_GOVERNED_is_REFUSED(tmp_path):
+    """Scenario *A gitlink names a carrier outside the two lawful forms*, the
+    class half: "or the row itself declares `governance: governed` while a
+    pinned root's gitlink admits it". openxFactory reaches a leg only through
+    its pin of the root and authors none of it, which is what a `pin`-admitted
+    row is too — and the loader already refuses a `governed` row admitted by a
+    `pin`. `design.md` D4.
+    """
+    governed = _inventory(tmp_path, [_pinned_root_row(),
+                                     _leg_row(governance="governed")],
+                          name="governed-leg.yaml")
+    with pytest.raises(ei.EstateInventoryError) as refusal:
+        ei.load_inventory(governed)
+    message = str(refusal.value)
+    assert f"({_LEG})" in message and f"`{_PINNED_ROOT}`" in message
+    assert "SHALL NOT DECLARE `governance: governed`" in message
+
+    lawful = _inventory(tmp_path, [_pinned_root_row(), _leg_row()],
+                        name="lawful.yaml")
+    assert ei.load_inventory(lawful).by_address[_LEG].governance == "pinned"
+
+
+def test_a_row_carried_by_a_LEG_is_REFUSED_one_hop_and_no_further(tmp_path):
+    """The same scenario's last clause: "a row a pinned root's gitlink admits
+    MUST NOT itself carry a further row's gitlink, the reach ending one hop
+    from an openxFactory pin."
+
+    TWO SHAPES OF THE SECOND HOP ARE TAKEN. The ordinary one, a leg carrying a
+    row, is also refused by the pin-count bound — a leg is a `pinned` row no
+    pin admits. The other is a leg that ALSO carries a `pin` of its own: the
+    pin-count bound alone would pass it as a carrier, and the requirement's
+    MUST is over EVERY row a pinned root's gitlink admits, so the realization
+    checks the hop directly rather than leaning on the count.
+    """
+    beyond = "opensoft/openDox-code-vendored"
+    chain = _inventory(tmp_path, [
+        _pinned_root_row(), _leg_row(),
+        _row(beyond, governance="pinned",
+             admitted_by=[{"kind": "gitlink", "carrier": _LEG}]),
+    ], name="chain.yaml")
+    with pytest.raises(ei.EstateInventoryError) as refusal:
+        ei.load_inventory(chain)
+    message = str(refusal.value)
+    assert f"({beyond})" in message and f"`{_LEG}`" in message
+    assert "ONE HOP" in message
+
+    self_pinned_leg = _inventory(tmp_path, [
+        _pinned_root_row(),
+        _row(_LEG, governance="pinned",
+             admitted_by=[{"kind": "gitlink", "carrier": _PINNED_ROOT},
+                          {"kind": "pin", "path": "contracts/leg-pin.yaml"}]),
+        _row(beyond, governance="pinned",
+             admitted_by=[{"kind": "gitlink", "carrier": _LEG}]),
+    ], name="self-pinned-leg.yaml")
+    with pytest.raises(ei.EstateInventoryError) as refusal:
+        ei.load_inventory(self_pinned_leg)
+    assert "ONE HOP" in str(refusal.value)
+
+    one_hop = _inventory(tmp_path, [_pinned_root_row(), _leg_row()],
+                         name="one-hop.yaml")
+    assert len(ei.load_inventory(one_hop).rows) == 2
+
+
+def test_a_pinned_roots_gitlink_is_rechecked_AT_ITS_PINNED_COMMIT_and_never_its_working_files(
+        tmp_path):
+    """Scenario *A pinned root's gitlink is re-checked at its pinned commit*.
+
+    "the validator MUST read the carrier's `.gitmodules` as of the commit the
+    carrier's `pin` names, from the tree's own object store and with no network
+    call, and MUST NOT read the tree's working files or any other revision …
+    the leg's absence from that `.gitmodules` MUST be a finding against the
+    leg's row."
+
+    THE TWO HALVES ARE ONE PROOF, which is why they share a test (`tasks.md`
+    § 3.4). A tree whose PINNED commit names the leg is NAMED while its HEAD
+    and its working `.gitmodules` both sit at revisions that do not; a tree
+    whose working `.gitmodules` names the leg while its pinned commit does not
+    is a FINDING. A reader of the working files would get both backwards.
+    """
+    inventory = _inventory(tmp_path, [_pinned_root_row(), _leg_row()])
+
+    named = _worktree(tmp_path, _ROOT_ORIGIN, name="named-root")
+    pinned = _commit_gitmodules(named, [_LEG, "opensoft/openDox-spec"],
+                                "the commit the pin names")
+    _commit_gitmodules(named, ["opensoft/openDox-spec"],
+                       "a later revision the pin does not name")
+    (named / ".gitmodules").write_text(
+        _gitmodules_text(["opensoft/Unrelated"]), encoding="utf-8")
+    assert ei.gitmodules_addresses(named) == ("opensoft/Unrelated",)
+    _pin_file(tmp_path, pinned)
+    result = _run_inventory(tmp_path, inventory,
+                            "--estate-tree", f"{_PINNED_ROOT}={named}")
+    assert result.returncode == 0, result.stdout
+    assert "1 named in a VERIFIED supplied tree" in result.stdout
+    assert pinned in result.stdout
+    assert set(ei.gitmodules_addresses_at(named, pinned)) == \
+        {_LEG, "opensoft/openDox-spec"}
+
+    absent = _worktree(tmp_path, _ROOT_ORIGIN, name="absent-root")
+    pinned = _commit_gitmodules(absent, ["opensoft/openDox-spec"],
+                                "the commit the pin names")
+    _commit_gitmodules(absent, [_LEG, "opensoft/openDox-spec"],
+                       "a later revision that does name the leg")
+    assert _LEG in ei.gitmodules_addresses(absent)
+    _pin_file(tmp_path, pinned)
+    result = _run_inventory(tmp_path, inventory,
+                            "--estate-tree", f"{_PINNED_ROOT}={absent}")
+    assert result.returncode == 1, result.stdout
+    assert f"does NOT carry `{_LEG}`" in result.stdout
+    assert pinned in result.stdout
+    assert "1 absent from one" in result.stdout
+
+
+def test_a_BLOBLESS_clone_missing_the_pinned_gitmodules_is_NOT_RECHECKED_and_fetches_NOTHING(
+        tmp_path, monkeypatch):
+    """`design.md` D0.6's transcript, as a test (`tasks.md` § 3.4).
+
+    "A verified tree whose object store cannot produce that commit's
+    `.gitmodules` without [a network call] — a partial clone missing the
+    object … SHALL … leave the row reported NOT RE-CHECKED, COUNTED and
+    NEITHER PASSED NOR FAILED, the report naming the pin and the commit", and
+    "THE READ SHALL MAKE NO NETWORK CALL".
+
+    THE PROMISOR IS KEPT REACHABLE ON PURPOSE, so the absence afterwards means
+    something: a clone whose promisor was cut would stay blobless whatever the
+    reader did. The clone's promisor remote is a local `file://` path the
+    reader COULD fetch from, and its `origin` carries the carrier's identity.
+    Four facts are then taken in order: the reader reports NOT RE-CHECKED and
+    the blob is STILL ABSENT; the transport refusal ALONE holds it, with
+    `GIT_NO_LAZY_FETCH` removed (`design.md` D5 names the refusal, not that
+    switch, as the guard); an UNGUARDED read of the same object in the same
+    clone DOES fetch it, so the promisor was reachable all along; and with the
+    blob local, the same tree now NAMES the leg.
+    """
+    upstream = _worktree(tmp_path, _ROOT_ORIGIN, name="upstream")
+    pinned = _commit_gitmodules(upstream, [_LEG], "the commit the pin names")
+    blob = _git_out(upstream, "rev-parse", f"{pinned}:.gitmodules").strip()
+    _git_out(upstream, "config", "uploadpack.allowFilter", "true")
+    _git_out(upstream, "config", "uploadpack.allowAnySHA1InWant", "true")
+
+    clone = tmp_path / "blobless"
+    _git_out(tmp_path, "clone", "-q", "--filter=blob:none", "--no-checkout",
+             f"file://{upstream}", str(clone))
+    _git_out(clone, "remote", "rename", "origin", "promisor")
+    _git_out(clone, "remote", "add", "origin", _ROOT_ORIGIN)
+    assert blob in _missing_objects(clone)  # the precondition, taken first
+
+    _pin_file(tmp_path, pinned)
+    inventory = _inventory(tmp_path, [_pinned_root_row(), _leg_row()])
+    result = _run_inventory(tmp_path, inventory,
+                            "--estate-tree", f"{_PINNED_ROOT}={clone}")
+    assert result.returncode == 0, result.stdout
+    assert "0 named in a VERIFIED supplied tree" in result.stdout
+    assert "0 absent from one" in result.stdout
+    assert "1 NOT RE-CHECKED" in result.stdout
+    assert pinned in result.stdout and _ROOT_PIN in result.stdout
+    assert "without a network call" in result.stdout
+    assert blob in _missing_objects(clone)  # NOTHING WAS FETCHED
+
+    protocols = set(ei._sanitized_git_environment()["GIT_ALLOW_PROTOCOL"]
+                    .split(":"))
+    assert not protocols & {"file", "git", "http", "https", "ssh", "ext"}
+    sanitized = ei._sanitized_git_environment
+    with monkeypatch.context() as patch:
+        patch.setattr(ei, "_sanitized_git_environment",
+                      lambda: {name: value
+                               for name, value in sanitized().items()
+                               if name != "GIT_NO_LAZY_FETCH"})
+        assert ei.gitmodules_addresses_at(clone, pinned) is None
+    assert blob in _missing_objects(clone)
+
+    _git_out(clone, "cat-file", "blob", blob)  # UNGUARDED: this one fetches
+    assert blob not in _missing_objects(clone)
+    result = _run_inventory(tmp_path, inventory,
+                            "--estate-tree", f"{_PINNED_ROOT}={clone}")
+    assert result.returncode == 0, result.stdout
+    assert "1 named in a VERIFIED supplied tree" in result.stdout
+
+
+def test_a_carrier_pin_naming_NO_COMMIT_or_one_the_tree_LACKS_leaves_the_leg_NOT_RECHECKED(
+        tmp_path):
+    """The same scenario's last clause, its other two mouths: "a carrier pin
+    that names no commit" — a `revision_kind` that is not `commit`, or a
+    `commit` that is not 40 hex, `scripts/verify-opendox-pin.py::_pinned_commit`'s
+    `opendox-pin-tag-only` shape — and a verified tree that never fetched the
+    pinned commit. Each leaves the leg NOT RE-CHECKED and COUNTED, NEITHER
+    PASSED NOR FAILED, the report naming the pin and what it read there: a run
+    that has looked at the wrong revision has not looked.
+    """
+    tree = _worktree(tmp_path, _ROOT_ORIGIN, name="root")
+    pinned = _commit_gitmodules(tree, [_LEG], "the commit the pin names")
+    inventory = _inventory(tmp_path, [_pinned_root_row(), _leg_row()])
+    never_fetched = "f" * 40
+    for commit, revision_kind, needle in (
+            (pinned, "tag", "`revision_kind: 'tag'`"),
+            (pinned[:12], "commit", "not exactly 40 hex characters"),
+            (never_fetched, "commit", never_fetched)):
+        _pin_file(tmp_path, commit, revision_kind=revision_kind)
+        result = _run_inventory(tmp_path, inventory,
+                                "--estate-tree", f"{_PINNED_ROOT}={tree}")
+        assert result.returncode == 0, (commit, result.stdout)
+        assert "0 absent from one" in result.stdout, result.stdout
+        assert "1 NOT RE-CHECKED" in result.stdout, result.stdout
+        assert _ROOT_PIN in result.stdout, result.stdout
+        assert needle in result.stdout, (needle, result.stdout)
+
+
+def test_a_pinned_carriers_tree_that_does_NOT_VERIFY_is_NOT_RECHECKED(tmp_path):
+    """The added paragraph's first step, which the scenario's WHEN presupposes:
+    "the tree supplied for it SHALL FIRST be verified as the carrier on exactly
+    the terms above" — and the carried scenario *A gitlink row is re-checked
+    only against a supplied tree*, taken for the carrier that is newly lawful.
+    Every earlier verification case supplies a GOVERNED carrier, so none of them
+    shows that the pinned read cannot skip the binding.
+
+    CONTENT-ADDRESSING FIXES WHAT A COMMIT SAYS, NOT WHOSE TREE WAS SUPPLIED. A
+    tree whose own origin names another repository is refused as the carrier
+    even while its object store holds the very commit the pin names, whose
+    `.gitmodules` names the leg — a path is an assertion and not an identity
+    ("Bind the carrier identity"). The leg is NOT RE-CHECKED and counted, the
+    report naming the carrier expected and what the tree is; and the SAME tree,
+    once its origin says it is the carrier, NAMES the leg at that commit, so
+    the refusal is the binding's and not the read's.
+
+    AND THE PINNED-COMMIT READ IS NOT ATTEMPTED, which the report alone cannot
+    show: a realization could read the impostor's object store and simply not
+    print what it found. So the validator's own `git` calls are traced. The
+    unverified run's trace holds the binding's reads — it was recording — and
+    no object read at all, and nothing naming the pinned commit; the verified
+    run's trace holds `cat-file -t` of exactly that commit.
+    """
+    impostor = _worktree(tmp_path, "git@github.com:opensoft/Innocent.git",
+                         name="impostor")
+    pinned = _commit_gitmodules(impostor, [_LEG], "the commit the pin names")
+    _pin_file(tmp_path, pinned)
+    inventory = _inventory(tmp_path, [_pinned_root_row(), _leg_row()])
+    trace = tmp_path / "unverified.trace"
+    result = _run_inventory_traced(
+        tmp_path, inventory, trace,
+        "--estate-tree", f"{_PINNED_ROOT}={impostor}")
+    assert result.returncode == 0, result.stdout
+    assert "0 named in a VERIFIED supplied tree" in result.stdout
+    assert "0 absent from one" in result.stdout
+    assert "1 NOT RE-CHECKED" in result.stdout
+    assert f"is a checkout of opensoft/Innocent, not of {_PINNED_ROOT}" \
+        in result.stdout
+    assert pinned not in result.stdout  # the pinned commit is not reported
+    asked = trace.read_text(encoding="utf-8")
+    assert "remote get-url origin" in asked, asked  # the binding WAS read
+    assert pinned not in asked, asked  # and the pinned commit was NOT
+    assert "cat-file" not in asked and "ls-tree" not in asked, asked
+
+    _git_out(impostor, "remote", "set-url", "origin", _ROOT_ORIGIN)
+    trace = tmp_path / "verified.trace"
+    result = _run_inventory_traced(
+        tmp_path, inventory, trace,
+        "--estate-tree", f"{_PINNED_ROOT}={impostor}")
+    assert result.returncode == 0, result.stdout
+    assert "1 named in a VERIFIED supplied tree" in result.stdout
+    assert pinned in result.stdout
+    asked = trace.read_text(encoding="utf-8")
+    assert f"cat-file -t {pinned}" in asked, asked  # the same trace sees it
+
+
+def test_a_pinned_roots_gitmodules_is_read_as_UTF8_whatever_the_locale(
+        tmp_path):
+    """The object-store read decodes the `.gitmodules` blob as UTF-8, STRICTLY,
+    exactly as the working-tree read (`gitmodules_addresses`) decodes the same
+    file, and never by the locale. Raised by Copilot's review of #1163: decoded
+    by the locale, a `.gitmodules` carrying one non-ASCII byte fails to decode
+    under a non-UTF-8 locale, and the leg is reported NOT RE-CHECKED as though
+    the store could not produce the blob.
+
+    The validator runs under an ASCII locale (`LC_ALL=C`, with locale coercion
+    and Python's UTF-8 mode both off, and only its own stdout kept UTF-8 so the
+    report can print), and the precondition is ASSERTED rather than assumed:
+    the encoding that run decodes by is not UTF-8. The pinned commit's
+    `.gitmodules` names its submodule in UTF-8, and the leg is NAMED.
+    """
+    ascii_locale = {**os.environ, "LC_ALL": "C", "LANG": "C",
+                    "PYTHONUTF8": "0", "PYTHONCOERCECLOCALE": "0",
+                    "PYTHONIOENCODING": "utf-8"}
+    probe = subprocess.run(
+        [sys.executable, "-c", "import locale; print(locale.getencoding())"],
+        capture_output=True, text=True, env=ascii_locale, check=True)
+    assert "utf" not in probe.stdout.lower(), probe.stdout  # not vacuous
+
+    tree = _worktree(tmp_path, _ROOT_ORIGIN, name="root")
+    (tree / ".gitmodules").write_text(
+        '[submodule "c\u00f4de"]\n\tpath = c\u00f4de\n'
+        f"\turl = https://github.com/{_LEG}.git\n", encoding="utf-8")
+    _git_out(tree, "add", ".gitmodules")
+    _git_out(tree, "commit", "-q", "-m", "a .gitmodules naming in UTF-8")
+    pinned = _git_out(tree, "rev-parse", "HEAD").strip()
+    _pin_file(tmp_path, pinned)
+    inventory = _inventory(tmp_path, [_pinned_root_row(), _leg_row()])
+    result = subprocess.run(
+        [sys.executable, str(INVENTORY_VALIDATOR), str(tmp_path),
+         "--inventory", str(inventory),
+         "--estate-tree", f"{_PINNED_ROOT}={tree}"],
+        capture_output=True, encoding="utf-8", env=ascii_locale)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "1 named in a VERIFIED supplied tree" in result.stdout, result.stdout
+    assert "0 NOT RE-CHECKED" in result.stdout, result.stdout
+
+
+def test_the_live_inventory_carries_the_FOUR_legs_of_the_two_pinned_roots():
+    """`tasks.md` § 3.3, over the real file: FOUR rows, not two (`design.md`
+    D7), because at the commits openxFactory pins both roots name a `spec` leg
+    beside the `code` leg. Each is `pinned` and admitted by ONE gitlink in its
+    root; each root is `pinned` and admitted by exactly one `pin`.
+
+    AND NOTHING HERE PINS OR MOUNTS A LEG, which is the first scenario's last
+    clause read against this repository: no `contracts/` pin names a leg as its
+    source, and openxFactory's own `.gitmodules` carries none — the root's pin
+    is the whole of the evidence of reach.
+    """
+    inventory = ei.load_inventory(INVENTORY)
+    roots = {"opensoft/openDox": "contracts/opendox-pin.yaml",
+             "opensoft/openXdox": "contracts/openxdox-pin.yaml"}
+    legs = {"opensoft/openDox-spec": "opensoft/openDox",
+            "opensoft/openDox-code": "opensoft/openDox",
+            "opensoft/openXdox-spec": "opensoft/openXdox",
+            "opensoft/openXdox-code": "opensoft/openXdox"}
+    for root, pin in roots.items():
+        row = inventory.by_address[root]
+        assert row.governance == "pinned", root
+        assert [a.path for a in row.admitted_by if a.kind == ei.PIN] == [pin]
+    for leg, root in legs.items():
+        row = inventory.by_address.get(leg)
+        assert row is not None, leg
+        assert row.governance == "pinned", leg
+        assert [(a.kind, a.carrier) for a in row.admitted_by] == \
+            [(ei.GITLINK, root)], leg
+        assert ei.resolve(inventory, row.name).row is row
+
+    mounted = ei.gitmodules_addresses(ROOT)
+    assert mounted is not None and not set(legs) & set(mounted), mounted
+    source = re.compile(r"^\s*(?:source_)?repository:\s*[\"']?"
+                        r"(?P<address>[A-Za-z0-9._/-]+?)[\"']?\s*$", re.M)
+    for pin in sorted((ROOT / "contracts").glob("*.yaml")):
+        named = {m.group("address")
+                 for m in source.finditer(pin.read_text(encoding="utf-8"))}
+        assert not named & set(legs), (pin.name, named & set(legs))
