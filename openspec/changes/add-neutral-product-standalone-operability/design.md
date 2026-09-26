@@ -156,6 +156,13 @@ scenario exists to say so.
 
 All of it is downstream of two import statements.
 
+**AMENDED — T007 Batch A (`5817152735`; Ruled R1Q1 (a); amends 2.2 in
+`tasks.md`):** An addendum. The routes still travel through the
+`RouteBinding` seam. The methods they name travel through a
+handler-contribution facet that openDox declares, which this D4's "no new
+mechanism" did not foresee. openxFactory's half gains the `LaneRoutes`
+declaration. Carried out by T010, T011, T045.
+
 ## D5 — G2's default profile does NOT re-own the composition point
 
 The carve deleted `profile_openxfactory.py` — the manifest's single

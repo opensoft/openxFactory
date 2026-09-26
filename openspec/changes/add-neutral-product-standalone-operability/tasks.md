@@ -233,6 +233,13 @@ mention in the package is prose.
   remains is openDox-code's half: 2.1's removal, with every openDox-side reader of
   the five re-exported names moved to the lanes column's own spelling or to a
   neutral one.
+
+  **AMENDED — T007 Batch A (`5817152735`; Ruled R1Q1 (a)):** An addendum. The
+  routes still travel through the `RouteBinding` seam. The methods they name
+  travel through a handler-contribution facet that openDox declares, which
+  D4's "no new mechanism" did not foresee. openxFactory's half gains the
+  `LaneRoutes` declaration. A parallel addendum is recorded at `design.md`
+  § D4. Carried out by T010, T011, T045.
 - [ ] 2.3 Sweep every remaining module-level reach: grep `src/` for
   `ideation_dashboard`, `corpus_adapter_openxfactory`, `doc_health` and
   `openxdox` at import position, and close or defer each with a recorded reason.
@@ -308,6 +315,14 @@ mention in the package is prose.
   called `domain_profile.register()`, and a registered profile still replaces it.
   `profile_proxy.py`'s refusal is kept for the case it was written for — an
   ambiguous registration — and is NOT weakened into an empty tuple.
+
+  **AMENDED — T007 Batch A (`5817152735`; Ruled R1Q3 (a), (i), (ii)):** "fall
+  back to it" becomes "register it", because the default is a registration
+  the entry point makes. The refusal `profile_proxy.py` keeps is the one it
+  was written for, NOTHING REGISTERED (`profile_proxy.py:42-46`). It is not
+  "an ambiguous registration": that case is `AlreadyRegistered`. A host
+  registration made before a build replaces the default. (ii)'s after-build
+  refusal joins 3.2 only with RN-1. Carried out by T016.
 - [ ] 3.3 Leave the carve manifest's `deleted_at_carve` row for
   `scripts/ideation_dashboard/profile_openxfactory.py` BYTE-IDENTICAL:
   openxFactory's profile stays deleted from the core and `scripts/opendox_host.py`
@@ -333,6 +348,14 @@ mention in the package is prose.
   it takes three required positional ones (`web_dir`, `snapshot_path`,
   `checkout_root`), so that line would have failed with a `TypeError` whatever
   the profile did.
+
+  **AMENDED — T007 Batch A (`5817152735`; Ruled R1Q3 (a)):** F3.1's line 2 is
+  amended. The line asks after `build_parser()`: `python -c "from opendox.cli
+  import build_parser; from opendox import domain_profile as d;
+  build_parser(); print('OK', d.name_of(d.current()))"`. The prose under it
+  adds that a bare process that builds nothing still meets
+  `ProfileNotRegistered`, which `tests/test_profile_registration.py` asserts.
+  Carried out by T016, T049.
 
 ## Group 4 — Requirement 5 / G4: the deferred reach resolves through the seam (openDox-code)
 
@@ -392,6 +415,12 @@ mention in the package is prose.
   openxFactory are phase 1's reach-back cut; the nineteen into openXdox are
   routed within release 1, each no later than the phase whose surface calls it,
   and this box closes with the last of them.
+
+  **AMENDED — T007 Batch A (`5817152735`; Ruled R1Q9 (a)):** Of `workbench.py`'s
+  four reaches, only three (`:1407-1409`) are the ones `run_scoped_doc_health`
+  makes. The fourth, `session_documents` (`:746`), resolves through the
+  registered adapter's `list_documents` in phase 1, and the hosted membership
+  rule is unchanged. Carried out by T025, T026, T046.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, no
   `corpus_adapter_openxfactory` importable):
 
@@ -1055,6 +1084,12 @@ packet's interim arrangement ends.**
   verbs are wired into `opendox.cli` in the BUILD-arc act that repairs
   `opendox.serve`, and `opendox-runtime` is the spelling until then."* So 10.1
   follows group 2 and discharges Q-R4's condition.
+
+  **AMENDED — T007 Batch A (`5817152735`; Ruled R1Q5 (a)):** An addendum.
+  Q-R4's condition is discharged through the default profile's
+  `SUBCOMMAND_EXTENSIONS` (`RuntimeSubcommand`). `opendox-runtime` stays as an
+  alias, and a host's own profile keeps the 31-entry tree. Carried out by
+  T038, T042.
 - [ ] 10.2 The web bundle is served by that entry point and is reachable in a
   browser from an openDox-only install. openDox-code carries **42** web files,
   self-contained by declaration (`src/opendox/web/index.html`: *"All assets are
@@ -1131,6 +1166,11 @@ packet's interim arrangement ends.**
   everything that reached `main` in between, and in a shared repository that is
   every other lane's work. Such a guard would flag unrelated landings, or, with a
   pathspec narrow enough to avoid them, miss the arc's own edits outside it.
+
+  **AMENDED — T007 Batch A (`5817152735`; Ruled R1Q20 (a)):** An addendum.
+  Bookkeeping is not an arc landing and carries no `Arc:` trailer: the
+  Speckit feature files, #1144's ticks, evidence notes and amendments, and
+  interim guard output. Carried out by T091.
 - [ ] 11.1 At the close of the arc, a diff of openxFactory across every group
   shows: no `scripts/doc_health/` family moved, no `openspec/specs/` capability
   removed, no corpus document moved, no intent-plane schema moved, and no
@@ -1272,6 +1312,17 @@ packet's interim arrangement ends.**
   refused one that deletes `contracts/openxdox-pin.yaml`, one that deletes the
   `openXdox` gitlink and one that moves the undeclared gitlink. The guard before
   the openXdox pair was declared refused the openXdox pair's move.
+
+  **AMENDED — T007 Batch A (`5817152735`; Ruled R1Q2 (a); R1Q22 (a); amends
+  11.1 and this falsifier, F11.1):** A fourth declared surface: NAMED
+  openxFactory composition tests, which may be edited or added and are never
+  removed. The guard gains `COMPOSITION_TESTS =
+  {"tests/ideation-dashboard/test_extension_point_parity.py",
+  "tests/ideation-dashboard/test_serve_column_split.py"}` beside `HOST`.
+  Batch E adds a path before the landing that adds it (T034, T035), or that
+  T047's `pytest-suite` run finds. Also an addendum to 11.1: the manifest
+  records the carve as it arrived, so an arc edit to a carved file needs no
+  declared-edit act. Carried out by T045, T093, T094.
 
 ## Group 12 — Requirement 11: the neutral submission step (RULED, openDox-code)
 
