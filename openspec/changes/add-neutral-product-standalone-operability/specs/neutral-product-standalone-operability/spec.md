@@ -65,6 +65,23 @@ profile was deleted at the carve rather than travelling; the absence of any
 default, however, leaves a product that cannot start, and that is a defect
 rather than a discipline.
 
+**AMENDED 2026-09-26 ON BRETT HEAP'S RULING RN-1 (a), AFTER RATIFICATION, BY
+ITS OWN RATIFIER.** `#656` comment `5850003126`, verbatim *"go with
+recommendations on all the open questions"*, over RN-1 as put in
+`specs/034-opendox-standalone-operation/plan.md` § "Ruling needed". As ratified
+(`#656` comment `5815412869`, over `19237b91`), the scenario *A host registers
+its own profile* did not say when the registration is made, so a registration
+made AFTER the product's parser or server had been built from the default had to
+replace the default as well, although what had been built would keep reading
+the default. R1Q3 (ii), ruled for that plan in `#656` comment `5817152735`,
+refuses that later registration instead. That scenario's WHEN now ends *"before
+the product's parser or server has been built from the default in that
+process"*, and the ADDED scenario *A host registers a profile after a build from
+the default* states the refusal. Nothing else here moved: the paragraph above,
+the first three scenarios and the fourth scenario's THEN stand as ratified. The
+requirement now carries five scenarios where it was ratified with four, and the
+capability seventy-six where it was ratified with seventy-five.
+
 #### Scenario: An entry point is built with no host registration
 - **WHEN** the product's parser or server is built in a process where no host has registered a domain profile
 - **THEN** it builds on the product's OWN default profile and starts, rather than refusing
@@ -78,8 +95,12 @@ rather than a discipline.
 - **THEN** those words are the default profile's vocabulary unchanged, and the arc neither re-authors them nor designs a new workflow around them
 
 #### Scenario: A host registers its own profile
-- **WHEN** a host, consumer layer or domain descendant registers a profile
+- **WHEN** a host, consumer layer or domain descendant registers a profile before the product's parser or server has been built from the default in that process
 - **THEN** the registered profile replaces the default for that process, so the default is a fallback and never a privileged path
+
+#### Scenario: A host registers a profile after a build from the default
+- **WHEN** a host, consumer layer or domain descendant registers a profile after the product's parser or server has been built from the default in that process
+- **THEN** the registration is refused rather than swapped in silently, because what was already built would keep the default while later readers took the new profile, and one process would then answer from two profiles
 
 ### Requirement: A neutral product produces its own primary artifact with no consumer installed
 A neutral product SHALL produce the primary artifact its own verbs serve — for a
