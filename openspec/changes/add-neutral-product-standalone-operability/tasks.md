@@ -602,13 +602,17 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   taken by glob rather than typed out, and a suite the arc rewrote would prove
   nothing, so edits to them are refused through 11.0's trailer.
 
-  **AMENDED — T007 Batch C (`5817152735`; Ruled R1Q7 (a); this falsifier,
-  F5.2, and 12.5's falsifier both take this amendment):** The "unedited by
-  the arc" check subtracts the edits entered in a reviewed allow-list in
-  openXdox-code, such as `tests/protected_suite_respellings.yaml`. Each entry
-  names the suite, the landing, the reference it respelled, and its review.
-  No edit that weakens an assertion is entered. Carried out by T043, T059,
-  T086.
+  **AMENDED — T007 Batch C (`5817152735`; Ruled R1Q7 (a)):** F5.2 and 12.5's
+  falsifier both take this amendment. The "unedited by the arc" check IS TO
+  SUBTRACT the edits entered in a reviewed allow-list in openXdox-code, such
+  as `tests/protected_suite_respellings.yaml` — a file this amendment does
+  not itself create. Each entry names the suite, the landing, the reference
+  it respelled, and its review; no edit that weakens an assertion is
+  entered. This bookkeeping amendment does NOT itself touch the Python
+  above: `edited = touched & suites` still computes and refuses on every
+  intersection exactly as written, with no allow-list read, until T043
+  creates the allow-list file and T059/T086 wire the subtraction into both
+  falsifiers' checks. Carried out by T043, T059, T086.
 - [ ] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
   projection replaces them; the import-time column stays at zero.
 - [x] 5.6 **Do NOT author the view-wiring slice here** — and it can no longer be
@@ -1445,12 +1449,17 @@ that does not name a platform.
   bash and zsh, which does not word-split a variable. The measurement behind 12.5
   stands: none of the 16 is among the files openXdox's `validate.yml` runs.
 
-  **AMENDED — T007 Batch C (`5817152735`; Ruled R1Q7 (a); this falsifier and
-  F5.2 both take this amendment):** The "unedited by the arc" check subtracts
-  the edits entered in a reviewed allow-list in openXdox-code, such as
-  `tests/protected_suite_respellings.yaml`. Each entry names the suite, the
-  landing, the reference it respelled, and its review. No edit that weakens
-  an assertion is entered. Carried out by T043, T059, T086.
+  **AMENDED — T007 Batch C (`5817152735`; Ruled R1Q7 (a)):** This falsifier
+  and F5.2 both take this amendment. The "unedited by the arc" check IS TO
+  SUBTRACT the edits entered in a reviewed allow-list in openXdox-code, such
+  as `tests/protected_suite_respellings.yaml` — a file this amendment does
+  not itself create. Each entry names the suite, the landing, the reference
+  it respelled, and its review; no edit that weakens an assertion is
+  entered. This bookkeeping amendment does NOT itself touch the Python
+  above: `edited = touched & {...}` still computes and refuses on every
+  intersection exactly as written, with no allow-list read, until T043
+  creates the allow-list file and T059/T086 wire the subtraction into both
+  falsifiers' checks. Carried out by T043, T059, T086.
 - [ ] 12.6 **MERGE AUTHORITY — RULED, HOLD RELEASED.** Brett Heap, `#656` comment
   `5784155201`, 2026-09-22T21:06:01Z: *"merge yes"* — landing authority follows
   whoever governs the repository. A GOVERNED host reserves landing and routes it
