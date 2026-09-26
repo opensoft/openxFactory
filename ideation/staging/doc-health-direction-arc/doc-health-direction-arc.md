@@ -38,8 +38,9 @@ example a packaged, pinned `doc_health` distribution, or a narrower
 neutral-utility extraction that leaves the governance-specific families behind.
 
 openXdox-code is the neutral, standalone-installable consumer product this
-whole arc (plan 034) exists to realize. Its generator and five other modules
-reach directly into `openxFactory`'s `scripts/doc_health/` package by name —
+whole arc (plan 034) exists to realize. Its generator and seven other modules
+(eight in all — claim 2 below names them) reach directly into `openxFactory`'s
+`scripts/doc_health/` package by name —
 not through a declared interface, not through a pinned, installable
 distribution, but the same way two modules inside ONE repository would import
 each other. `openxFactory` ships no `pyproject.toml`, so `doc_health` cannot be
@@ -78,10 +79,11 @@ governed-flow suites to run — or sooner, if R1Q23 (open, phase 2) is answered
    silently.
 
 3. **The cost is measured, not estimated.** In a fresh venv over an
-   openXdox-code checkout alone (no openxFactory sibling), 57 of 87 test files
-   fail at COLLECTION, before any test body runs: 26 on `doc_health`, 28 on
-   `ideation_dashboard` (a separate, already-planned fix — plan 034 Group 2),
-   3 on a missing `test_gate_routes` helper. Simulating Group 2's fix away
+   openXdox-code checkout alone (no openxFactory sibling), a plain run stops
+   at 57 errors during collection, before any test body runs: 26 on
+   `doc_health`, 28 on `ideation_dashboard` (a separate, already-planned fix —
+   plan 034 Group 2), 3 on a missing `test_gate_routes` helper (of 87 test
+   files in the current tree). Simulating Group 2's fix away
    (so only the `doc_health` reach remains), 19 of the 23 suites that plan
    034's F5.2 and 12.5 falsifiers protect from arc edits still fail on
    `doc_health` (`specs/034-opendox-standalone-operation/research.md` R10,
@@ -130,15 +132,27 @@ material above.
 
 ## Open questions
 
-1. **(R1Q6's option (a)) Pinned dependency.** openXdox-code gains `doc_health`
-   as a declared, pinned, installable dependency. Needs openxFactory to
-   package it (a `pyproject.toml` for `scripts/doc_health/`, or a dedicated
-   distribution), and makes the openxFactory ↔ openXdox pin two-way
-   (openxFactory already pins openXdox; openXdox would then pin openxFactory's
-   tooling too). `corpus-adapter-seam` already requires that ANY two mutually
-   importing packages relocate their shared type into a module both depend on
-   BEFORE either is extracted — this option would need that resolved for
-   whatever `doc_health` surface openXdox-code actually needs.
+1. **(R1Q6's option (a)) Pinned dependency — does NOT by itself conform.**
+   openXdox-code gains `doc_health` as a declared, pinned, installable
+   dependency (needs openxFactory to package it: a `pyproject.toml` for
+   `scripts/doc_health/`, or a dedicated distribution). On its own this does
+   NOT resolve the stated seam violation: openXdox-code would still be a
+   neutral product importing `openxFactory`'s own tooling, merely through a
+   proper pin instead of an ad-hoc `PYTHONPATH` reach, and it makes the
+   openxFactory ↔ openXdox pin explicitly TWO-WAY (openxFactory already pins
+   openXdox; openXdox would then pin openxFactory's tooling too) — the
+   opposite of Requirement 1's one-way rule. As stated, this cannot be the
+   exit option by itself; either (i) `doc_health` (or the slice openXdox-code
+   needs) first moves to a genuinely neutral, separately-versioned home, so
+   openXdox-code pins a THIRD PARTY rather than "openxFactory's own tooling"
+   — at which point this option becomes a realization detail of open
+   question 4, not a standalone answer — or (ii) it is adopted explicitly as
+   a labelled, time-boxed WORKAROUND under its own `corpus-adapter-seam`
+   exception, rather than as something that lifts R1Q6 (d)'s exclusion by
+   itself. `corpus-adapter-seam` already requires that any two mutually
+   importing packages relocate their shared type into a module both depend
+   on BEFORE either is extracted — the same discipline (i) would need,
+   applied to whatever `doc_health` surface openXdox-code actually needs.
 2. **(R1Q6's option (b)) Declared integration tests.** The `doc_health`-dependent
    openXdox-code tests become declared integration tests that live where the
    composition is declared — openxFactory — per requirement 9's own admitted
