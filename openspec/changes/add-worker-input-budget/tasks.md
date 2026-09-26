@@ -9,17 +9,28 @@ this change.
 
 ## Group 0 — RATIFICATION GATE (human; blocks nothing already built, gates landing)
 
-- [ ] 0.1 Rule **OQ-1**, the grounding share: half the budget reserved for
+- [x] 0.1 Rule **OQ-1**, the grounding share: half the budget reserved for
   promoted specs (as built), or another split. At the 2026-09-21 corpus the
   built default sends 93 of 311 documents and defers 218, 71 of them
-  promoted specs. Measured at shares 0.3 to 0.7 on the 2026-09-24 inventory,
-  with a lane recommendation that is not a ruling: `proposal.md` OQ-1.
-- [ ] 0.2 Confirm **OQ-2**: this packet caps and records; it does NOT carry
+  promoted specs; measured at shares 0.3 to 0.7 on the 2026-09-24 inventory.
+  **RESOLVED 2026-09-26: 0.5, as built** — Brett Heap's ruling in session to
+  lane `openxfactory-1`, option verbatim *"Accept both, land #1160"*,
+  recorded on opensoft/xFactory#480 comment 5850005209 (item 3, answering
+  the RULING NEEDED, comment 5820150177); the lane recommendation to keep 0.5
+  is accepted as it stood, and no code changes (`GROUNDING_BUDGET_SHARE` is
+  already `0.5`). Evidence in full: `proposal.md` OQ-1.
+- [x] 0.2 Confirm **OQ-2**: this packet caps and records; it does NOT carry
   deferred documents over to the next night, because no sweep cursor exists
-  and the committed inventory baseline advances unconditionally. A real
-  carry-over is a separate packet. Measured 2026-09-24 (the committed
-  baseline has held at 2026-09-04, no nightly report having landed since),
-  with a lane recommendation that is not a ruling: `proposal.md` OQ-2.
+  and the inventory baseline is emitted unconditionally. A real carry-over is
+  a separate packet. Measured 2026-09-24 (the committed baseline has held at
+  2026-09-04, no nightly report having landed since). **RESOLVED 2026-09-26:
+  confirmed, with the carry-over staged as its own packet** — the same
+  ruling and record as 0.1, which took the RULING NEEDED's option (a); the
+  topic is `ideation/staging/doc-health-sweep-carry-over/`, created by this
+  revision, with the cursor as its own committed record beside the inventory.
+  The ruling does not wait on the baseline: opensoft/xFactory#396, ruled the
+  same day to land with the nightly's content winning, unsticks it without
+  making a deferred document swept. Evidence in full: `proposal.md` OQ-2.
 - [x] 0.3 Note **OQ-3**: the HTTP 403 org-entitlement block (filed as live
   since 2026-09-16) is not addressed by any code here and needed an
   administrative act. **RESOLVED 2026-09-23** by that act — Brett Heap's

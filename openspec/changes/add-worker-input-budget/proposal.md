@@ -176,13 +176,24 @@ delta closes that hole explicitly.
 
 ## Open questions
 
-- **OQ-1 — the grounding share.** The default reserves half the budget for
-  promoted specs. At the 2026-09-21 corpus that sends 93 of 311 documents and
-  defers 218, of which 71 are promoted specs, so `semantic-contradiction` is
-  grounded against roughly half the promoted corpus on any given night. The
+- **OQ-1 — RESOLVED 2026-09-26: the grounding share stays 0.5.** Filed on
+  2026-09-22 as *"the grounding share"*: the default reserves half the budget
+  for promoted specs. At the 2026-09-21 corpus that sends 93 of 311 documents
+  and defers 218, of which 71 are promoted specs, so `semantic-contradiction`
+  is grounded against roughly half the promoted corpus on any given night. The
   alternative — spending the whole budget on grounding and sweeping almost no
-  changed documents — is worse, but the split is a policy choice and is put for
-  ruling rather than assumed.
+  changed documents — is worse, but the split is a policy choice and was put
+  for ruling rather than assumed. The ruling was taken on 2026-09-26: Brett
+  Heap chose, in session to lane `openxfactory-1` by structured choice, the
+  option verbatim *"Accept both, land #1160"*, answering the RULING NEEDED of
+  2026-09-24 (opensoft/xFactory#480, comment 5820150177), which put this
+  question as, verbatim, *Your word: a share, or "keep 0.5".* The ruling is
+  recorded on the same issue — comment 5850005209, item 3, verbatim *"OQ-1,
+  the grounding share stays 0.5"* — and as a RULED line on the lane register
+  (2026-09-26T21:22:13Z) naming opensoft/openxFactory#1160. The lane
+  recommendation below is accepted as it stood. No code changes:
+  `GROUNDING_BUDGET_SHARE` is already `0.5` in `scripts/doc_health/semantic.py`,
+  as built.
   - **Measured 2026-09-24.** Both nights since the budget went live packed to
     their 1,900,000-byte budget, per their own `semantic-sweep-bundle`
     `meta.json`: 2026-09-23 (opensoft/xFactory run 35810840997) sent 1,899,789
@@ -217,21 +228,46 @@ delta closes that hole explicitly.
     for byte and its `meta.json` budget record field for field, and the
     current inventory's 0.5 prompt is byte-identical to the 2026-09-24
     night's.
-  - **Lane recommendation (not a ruling):** keep 0.5 — each 0.1 of share only
+  - **Lane recommendation as put for ruling on 2026-09-24, verbatim (accepted
+    2026-09-26, above):** keep 0.5 — each 0.1 of share only
     moves about 190,000 bytes of capacity between the populations (3 to 10
     changed documents one way, 7 to 12 specs the other), while how much of
     openxFactory the sweep reaches at any share — at most 2 of its 109
     changed documents and 14 of its 66 specs — is set by the `(repo, path)`
     packing order, which no share repairs.
-- **OQ-2 — deferral does not carry over, and this packet does not make it.** The
-  incremental scope is a content-hash diff against the last committed
-  `health/inventory/<date>.json`, which the `finalize` job emits
-  UNCONDITIONALLY (`--emit-inventory`, `if: always()`) from the full current
-  inventory. There is no per-document sweep cursor anywhere in `doc_health`. A
-  document deferred tonight is therefore in tomorrow's baseline, no longer
-  "changed", and would not be re-selected. This packet consequently CAPS AND
-  RECORDS rather than claiming a carry-over it does not implement; a real
-  carry-over needs its own state and its own packet.
+- **OQ-2 — RESOLVED 2026-09-26: cap-and-record, with the carry-over as a
+  separate packet.** Filed on 2026-09-22 as *"deferral does not carry over,
+  and this packet does not make it"*: the incremental scope is a content-hash
+  diff against the last committed `health/inventory/<date>.json`, which the
+  `finalize` job emits UNCONDITIONALLY (`--emit-inventory`, `if: always()`)
+  from the full current inventory. There is no per-document sweep cursor
+  anywhere in `doc_health`. A document deferred tonight is therefore in
+  tomorrow's baseline, no longer "changed", and would not be re-selected. This
+  packet consequently CAPS AND RECORDS rather than claiming a carry-over it
+  does not implement; a real carry-over needs its own state and its own
+  packet. The ruling was taken on 2026-09-26 by the same choice and the same
+  option as OQ-1, verbatim *"Accept both, land #1160"*. The RULING NEEDED had
+  put this question as, verbatim, *Your word: (a) cap-and-record here +
+  stage the carry-over packet, (b) cap-and-record alone, or (c) fold
+  carry-over into this packet.* The record's own gloss (comment 5850005209,
+  item 3), verbatim *"OQ-2, cap-and-record plus the separate carry-over
+  packet at `ideation/staging/doc-health-sweep-carry-over/` with the cursor as
+  its own record beside the inventory"*, is option (a). This packet therefore
+  caps and records and carries nothing over; the carry-over is staged by this
+  revision as `ideation/staging/doc-health-sweep-carry-over/`, which carries
+  as a settled claim the design constraint the recommendation below states:
+  the cursor is its own committed record beside the inventory, never a field
+  of it. **The ruling stands on its own, whatever the baseline does.** The
+  same ruling set's item 4 (answering comment 5819739722), verbatim
+  *"Approve, nightly wins"*, rules that opensoft/xFactory#396 lands with the
+  nightly's content winning, which unsticks the committed baseline once it
+  lands. That
+  changes how a deferred document is lost, not whether: while the baseline
+  stood at `health/inventory/2026-09-04.json` a deferred document was
+  re-selected and deferred again by the same packing order (measured below);
+  once the baseline advances, a deferred document leaves the next night's
+  diff unswept. Cap-and-record names every deferral in both cases, and the
+  carry-over packet records the deferred-document cursor in both cases.
   - **Measured 2026-09-24.** The committed baseline has not in fact advanced
     since 2026-09-04: the aggregation's `main` carries `health/inventory/`
     only through `2026-09-04.json` — no nightly report has landed since
@@ -242,8 +278,10 @@ delta closes that hole explicitly.
     deferred changed document is therefore re-selected today — and deferred
     again, the packing order being deterministic: 219 documents (151 changed
     documents, 68 promoted specs) were deferred on both nights.
-  - **Lane recommendation (not a ruling):** accept cap-and-record for this
-    packet, and carry deferrals over in a separate packet staged first as
+  - **Lane recommendation as put for ruling on 2026-09-24, verbatim (accepted
+    2026-09-26, above; the topic it names is created by this revision):**
+    accept cap-and-record for this packet, and carry deferrals over in a
+    separate packet staged first as
     `ideation/staging/doc-health-sweep-carry-over/` (not created here). Its
     one design constraint: the cursor is its own committed record beside the
     inventory (for example `health/sweep-cursor/<date>.json`, written from
