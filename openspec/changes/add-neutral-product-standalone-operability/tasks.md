@@ -316,13 +316,16 @@ mention in the package is prose.
   `profile_proxy.py`'s refusal is kept for the case it was written for — an
   ambiguous registration — and is NOT weakened into an empty tuple.
 
-  **AMENDED — T007 Batch A (`5817152735`; Ruled R1Q3 (a), (i), (ii)):** "fall
+  **AMENDED — T007 Batch A (`5817152735`; Ruled R1Q3 (a), (i), (ii); (ii)'s
+  after-build half per RN-1 (a), `5850003126`, #1170):** "fall
   back to it" becomes "register it", because the default is a registration
   the entry point makes. The refusal `profile_proxy.py` keeps is the one it
   was written for, NOTHING REGISTERED (`profile_proxy.py:42-46`). It is not
   "an ambiguous registration": that case is `AlreadyRegistered`. A host
-  registration made before a build replaces the default. (ii)'s after-build
-  refusal joins 3.2 only with RN-1. Carried out by T016.
+  registration made BEFORE a build replaces the default; RN-1 (a) rules that
+  one made AFTER a build is refused instead (`AlreadyRegistered`), landed as
+  spec.md's fifth scenario (#1170) — so 3.2 now covers both halves of (ii).
+  Carried out by T016.
 - [ ] 3.3 Leave the carve manifest's `deleted_at_carve` row for
   `scripts/ideation_dashboard/profile_openxfactory.py` BYTE-IDENTICAL:
   openxFactory's profile stays deleted from the core and `scripts/opendox_host.py`

@@ -73,7 +73,8 @@ under which it can.
 ## D3 — Why the gaps are REQUIREMENTS and not merely tasks
 
 A gap list is an actor's inventory; it expires when the actor stops. Seventeen
-requirements with seventy-five scenarios are a standing property of any neutral
+requirements with seventy-six scenarios (amended from seventy-five: RN-1 (a),
+`#656` comment `5850003126`, #1170) are a standing property of any neutral
 product this repository pins, and they outlive the arc. The concrete openDox
 work is in `tasks.md`, one box per requirement, each naming the falsification
 command — so the requirement states the property, the task states the act, and
@@ -178,9 +179,13 @@ does not. The distinction the requirement draws:
   documents and ideas, the domain the founding ruling gave openDox — as a
   DEFAULT that any host replaces by registering.
 
-The third scenario is the guard: *"WHEN a host, consumer layer or domain
-descendant registers a profile → THEN the registered profile replaces the default
-for that process, so the default is a fallback and never a privileged path."*
+The fourth scenario is the guard: *"WHEN a host, consumer layer or domain
+descendant registers a profile before the product's parser or server has been
+built from the default in that process → THEN the registered profile replaces
+the default for that process, so the default is a fallback and never a
+privileged path."* (Quoted as amended: RN-1 (a), `#656` comment `5850003126`,
+#1170, added the "before... built" qualifier to the WHEN; the fifth scenario,
+added by the same ruling, refuses a registration made AFTER a build instead.)
 That is the same shape `corpus-adapter-seam` already requires of openxFactory's
 own adapter — one implementation among others, no privileged route.
 
