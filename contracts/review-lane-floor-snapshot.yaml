@@ -157,12 +157,12 @@ floor:
     # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
     # prefix:             openspec/specs
     # source_repository:  opensoft/openxFactory
-    # generated_at:       fc837dffb9be0b8c28823c339e401f97e0e3e28a
-    # entry_count:        63
+    # generated_at:       e8fde27fa00a4b0f6d96fc29168498cb420fcbf9
+    # entry_count:        66
     # regenerate with:
     #   python3 scripts/merge_master/generate_specs_floor_block.py \
     #     --repo <opensoft/openxFactory checkout> \
-    #     --ref fc837dffb9be0b8c28823c339e401f97e0e3e28a --write
+    #     --ref e8fde27fa00a4b0f6d96fc29168498cb420fcbf9 --write
     #
     # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
     # The eight entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
@@ -205,6 +205,7 @@ floor:
     - openspec/specs/client-infrastructure-request/spec.md
     - openspec/specs/client-layer-tuning/spec.md
     - openspec/specs/consent-instrument/spec.md
+    - openspec/specs/corpus-adapter-seam/spec.md
     - openspec/specs/credential-contracts/spec.md
     - openspec/specs/crystallization-build/spec.md
     - openspec/specs/crystallization-consent/spec.md
@@ -217,6 +218,7 @@ floor:
     - openspec/specs/document-lifecycle/spec.md
     - openspec/specs/domain-conformance-checks/spec.md
     - openspec/specs/domain-descendant-boundary/spec.md
+    - openspec/specs/domain-mapping-declaration/spec.md
     - openspec/specs/domain-ontology-lifecycle/spec.md
     - openspec/specs/governed-derived-model/spec.md
     - openspec/specs/hermes-customer-subject-runtime/spec.md
@@ -236,6 +238,7 @@ floor:
     - openspec/specs/omnigent-domain-overlay/spec.md
     - openspec/specs/omnigent-install-manifest/spec.md
     - openspec/specs/openxfactory-engineering-adapter/spec.md
+    - openspec/specs/packet-citation-report/spec.md
     - openspec/specs/pattern-ledger/spec.md
     - openspec/specs/project-repo-schema/spec.md
     - openspec/specs/reference-proof-placement/spec.md
