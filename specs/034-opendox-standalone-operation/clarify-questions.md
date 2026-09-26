@@ -8,7 +8,7 @@ operation", phases 1–3) of the ratified OpenSpec change
 **Lane**: `openxfactory-4`. **Raised**: 2026-09-24, while planning, before any
 code.
 
-**Answer state: 11 ANSWERED, 12 OPEN.**
+**Answer state: 11 ANSWERED, 14 OPEN.**
 
 - **ANSWERED** (R1Q1–R1Q9, R1Q20, R1Q22: every question phase 1 needed).
   RULED 2026-09-24T15:31:46Z by Brett Heap, interactive in the lane session,
@@ -18,24 +18,37 @@ code.
   encoded in [`spec.md`](./spec.md) § Clarifications and in
   [`tasks.md`](./tasks.md), where it shows as a `Ruled:` line.
 - **OPEN** (R1Q10–R1Q19 and R1Q21, which bear on phases 2–3 and on process).
-  Also **R1Q23**, which R1Q6's answer raises for phase 2. Where one of these
-  carries a recommendation, it is a recommendation only. Every task it blocks
-  names it on a `Blocked by:` line. Until they are answered, phases 2 and 3 are
+  Also **R1Q23**, which R1Q6's answer raises for phase 2, **R1Q24**, which
+  T005's re-measure raised on 2026-09-25, and **R1Q25**, which T006's analyze
+  raised the same day. Where one of these carries a
+  recommendation, it is a recommendation only. Every task it blocks names it on
+  a `Blocked by:` line. Until they are answered, phases 2 and 3 are
   PROVISIONAL in the plan and authorize no implementation.
+- **Phase 1's openXdox-code tail.** Three open questions bear on phase 1:
+  R1Q14, through T061 (7.3, which its contingency moved into phase 1), and
+  R1Q24 and R1Q25, through T061 and T043. T019 applies their answers. Until then
+  T061 and T043 authorize no implementation, and the rest of phase 1 is
+  unaffected. T006's analyze took R1Q12 off this tail: T061 packages the
+  three schemas where they stand, so no answer to R1Q12 changes it.
 
-**Naming.** These are `R1Q1`…`R1Q23`. A bare `Q<n>` in this estate already names
+**Naming.** These are `R1Q1`…`R1Q25`. A bare `Q<n>` in this estate already names
 one of #1144's own rulings (RULING Q1, RULING Q2, Q-R4, DIRECTION Q5), so this
 round never uses one.
 
 **Measured at**: openDox-code `1e4a57fb`, openXdox-code `626f2c8d`, openDox-spec
 `8fe8c4c7`, openXdox-spec `f088b097`, openxFactory `dd2466ad`. Every figure is
 re-runnable from [`research.md`](./research.md), which gives the command beside
-it. Task ids (`T0nn`) are [`tasks.md`](./tasks.md)'s.
+it. T005 re-measured every figure on 2026-09-25, at openXdox-code `e28930bf` and
+openxFactory `c415c3d1`, with the other repositories unchanged
+([`evidence/remeasure-2026-09-25.md`](./evidence/remeasure-2026-09-25.md)). The
+questions below quote the 2026-09-24 figures, and a "Re-measured" paragraph
+follows wherever one moved. Task ids (`T0nn`) are [`tasks.md`](./tasks.md)'s.
 
 **How to answer.** One line per question is enough, e.g. `R1Q15 b`. An answer is
 written inline under its question and encoded into `spec.md` in the same commit.
 T004 did that for round 1a. T009 does it for phase 2's questions, and T069 for
-phase 3's.
+phase 3's. T019 does it for the three that hold phase 1's openXdox-code tail:
+R1Q14, R1Q24 and R1Q25.
 - An answer that changes a falsifier or a task line of #1144's `tasks.md` is
   recorded there by T007, on your word, under a Rule 6 window.
 - An answer that would change a requirement's text or a scenario is put to
@@ -46,16 +59,16 @@ phase 3's.
 
 | phase | cannot start or close without |
 |---|---|
-| 1, it runs | no open question: R1Q1–R1Q9 and R1Q22 are answered (`5817152735`). T006's round-1a analyze and each slice's claim gate its start, and RN-1 gates its close |
-| 2, useful alone | R1Q11, R1Q12, R1Q13 (the projection and the validator); R1Q10 (serving it); R1Q14 (7.3); R1Q23 (F5.2's four `doc_health` suites). T009 encodes them and re-plans the phase |
+| 1, it runs | its start: no open question. R1Q1–R1Q9 and R1Q22 are answered (`5817152735`), T006's round-1a analyze is done, and each slice's claim gates its own start. Its close: RN-1, and T019's answers for the openXdox-code tail: R1Q14 (T061, 7.3), and R1Q24 and R1Q25 (T061, T043) |
+| 2, useful alone | R1Q11, R1Q12, R1Q13 (the projection and the validator); R1Q10 (serving it); R1Q23 (F5.2's four `doc_health` suites). T009 encodes them and re-plans the phase |
 | 3, it installs | R1Q15, R1Q16 (the install); R1Q10, R1Q12 (chat standalone); R1Q17, R1Q18 (16.3); R1Q19 (the lens in the acceptance). T069 encodes them and re-plans the phase |
 | every landing | nothing open. R1Q20 and R1Q22 are answered |
 | process only | R1Q21 |
 
-**What can start now**: the holder tasks T002, T003, T005 and T008, and T007's
-batches A and C. T006 follows T003 and T005, and T007's batch B follows T041.
-Every phase-1 task follows T006 and its slice's claim (T002). See `tasks.md`
-§ "What can start".
+**What can start now**: the holder tasks T002 and T008, and T007's batches A
+and C. T003, T005 and T006 are done. T007's batch B follows T041, and T019
+follows its answers. Every phase-1 task follows its slice's claim (T002), and
+T061 and T043 also follow T019. See `tasks.md` § "What can start".
 
 ---
 
@@ -274,6 +287,13 @@ and its reason"*, reported as an open extraction.
   the direction question becomes its own arc, decided before 12.5 (release 2)
   needs the 16 governed suites to run.
 
+**Re-measured (T005, 2026-09-25).** At openXdox-code `e28930bf` there are 87
+test files, since C3's PR 2 added two. The 57 collection errors and their
+causes are unchanged. 5.4a's glob now selects seven suites, so 23 are
+protected, and with Group 2 simulated the same 19 fail on `doc_health`
+([`evidence/remeasure-2026-09-25.md`](./evidence/remeasure-2026-09-25.md), R10
+and R11).
+
 **Recommendation.** (d) for release 1, or (c) now; (a) creates a pin cycle.
 **ANSWER: (d)**, RULED in `5817152735`. The exclusion is declared with its count and its reason (T041), and T007 batch B amends F9.1 for openXdox-code. T008 raises the direction arc. Two consequences follow. Requirement 9 stays an OPEN EXTRACTION for openXdox-code until that arc lands, and the archive must report it so. Four of 5.4a's six suites also need `doc_health`, which F5.2 does not provide; that raises **R1Q23** (phase 2).
 
@@ -295,6 +315,13 @@ its text; since BUILD slice 2b that attribute is `consumer_reach`'s forwarder �
 qualname `LateGateRoutes._handle_gate_action`, source `def forward(...)` — and the
 asserted text is ABSENT, so the suite fails on that assertion even once it
 imports. Release 1 then removes the base altogether (R1Q1).
+
+**Re-measured (T005, 2026-09-25).** 23 suites are protected at openXdox-code
+`e28930bf`: 5.4a's glob selects seven, C3's `test_snapshot_validator_home.py`
+among them, and 12.5 protects 16. With Group 2 simulated, the same 19 fail on
+`doc_health`, `test_snapshot.py` fails 2 of its 17 cases (the schemas; see
+R1Q14), `test_snapshot_validation_launch.py` still fails 9, and the new suite
+passes 12. The `getsource` probe is unchanged.
 
 **Options.**
 - (a) Admit a reviewed allow-list of edits to protected suites that only RESPELL
@@ -468,6 +495,20 @@ them."* F7.2 validates a snapshot and asserts the malformed fixture's
   validates only its own three kinds, and F7.2 is amended to validate a workbench
   manifest.
 
+**Re-measured (T005, 2026-09-25).** Option (b) now bears on phase 1. T005
+moved T061 (7.3) into phase 1. T061 packages openXdox's validator with *"its
+three schemas"*, which are openXdox-spec's. (b) re-homes two of them, the
+snapshot schema and its index. So T061 waits for this answer as far as (b)
+goes. An answer of (a) or (c) leaves the three where T061 finds them.
+
+**Re-measured (T006, 2026-09-25).** T006's analyze found that this answer
+cannot be given for phase 1 alone, since its recommendation turns on R1Q11. It
+also found that T061 does not need it. T061 packages the three schemas from
+where they stand when it lands, which is openXdox-spec. Under (b), T053
+re-homes two of them in phase 2, and the package data then follows them there,
+a step T009 plans. So T061 no longer waits for this question, and neither does
+T019. It is phases 2–3's again.
+
 **Recommendation.** (a) if R1Q11 is (a); otherwise (b).
 **ANSWER:** OPEN (phases 2–3); awaiting Brett Heap.
 
@@ -504,7 +545,7 @@ fixture yields at least one group, so AT-R1 can open the chat pane.
 
 ---
 
-## R1Q14 — 7.3's falsifier and lane 4's ruled C3 act disagree about `find_validator` *(blocks T009, T061; phase 2)* — **OPEN**
+## R1Q14 — 7.3's falsifier and lane 4's ruled C3 act disagree about `find_validator` *(blocks T019, T061; phase 1's openXdox-code tail, since the re-measure)* — **OPEN**
 
 **Measured.** C3 (claimed on `#656` `5815613524`, ruled (a) in `5815412869`) makes
 openXdox's `find_validator` answer `None` from a start outside the product
@@ -517,11 +558,50 @@ which does not exist yet. T061 must add it to one of 5.4a's six protected
 suites, and F5.2 refuses that edit, because R1Q7 (a)'s allow-list admits only
 respellings. So an answer here must also say how F5.2 admits it.
 
+**Re-measured (T005, 2026-09-25).** At openXdox-code `e28930bf`, which carries
+C3's PR 2, `tests/test_snapshot.py` still fails two of the three cases that
+research R11 recorded, in a lone checkout. The lookup case now passes. The two
+that fail do so because C3's validator reaches its schemas only through
+`CONTRACTS_DIR`, and no spec leg sits beside a lone checkout. With
+`CONTRACTS_DIR` naming openXdox-spec's contracts, and `rfc3339-validator`
+installed, all 17 pass
+([`evidence/remeasure-2026-09-25.md`](./evidence/remeasure-2026-09-25.md)). So
+T061's contingency applies. It is in phase 1, and this question now holds phase
+1's close, through T019 and T043.
+
+One more fact bears on the answer. C3's
+`test_a_start_outside_the_product_is_refused_not_walked` lives in
+`tests/test_snapshot_validator_home.py`. 5.4a's glob, `tests/test_snapshot*.py`,
+now selects that suite too, so 5.4a protects seven suites. Revising C3's test
+under (a) is therefore a second edit that F5.2 refuses, beside the new test in
+`tests/test_snapshot.py`. The answer must say how F5.2 admits both.
+
+**Re-measured (T006, 2026-09-25): openxFactory reads this lookup too.** Its
+nightly lane asks `find_validator()` and `product_root()` for its pinned
+validator (`scripts/ideation_dashboard/nightly_lane.py`, `_pinned_validator`
+and `_pinned_validator_missing`), and so does the refresh lane's seal
+(`dashboard_refresh_lane.py`). `tests/ideation-dashboard/test_dashboard_source_seal.py`
+asserts `find_validator(start) is None` for starts outside the product, and
+that `VALIDATOR_SCRIPT_PATH` equals `VALIDATOR_RELPATH`. When C3 last changed
+the lookup, its #1157 had to update `nightly_lane.py`, `test_nightly_lane.py`
+and that seal test. None of the three is one of 11.1's surfaces, and the two
+scripts are not tests, which R1Q2 (a) could name. So under (a), T061's landing
+at T047's pin would need openxFactory edits that an arc landing may not make,
+unless one of these holds:
+- T061's design leaves what those files read unchanged;
+- a T007 batch names the two tests as composition tests, and the scripts
+  need no edit;
+- the edits land as a non-arc openxFactory act that works at both pins.
+
+Under (b), the confinement stands and the files keep working. T019 records
+which of these the answer takes.
+
 **Options.** (a) 7.3 governs: the lookup ignores its start and resolves the
 installed distribution's validator, and C3's test is revised in 7.3's landing.
 (b) C3 governs: 7.3's falsifier is amended to expect `None` outside the product.
 
-**Recommendation.** (a). **ANSWER:** OPEN (phases 2–3); awaiting Brett Heap.
+**Recommendation.** (a). **ANSWER:** OPEN (phase 1's openXdox-code tail, since
+T005); awaiting Brett Heap.
 
 ---
 
@@ -669,7 +749,7 @@ features (016, 017, 018, 023, 024) and `add-modified-block-currency-check` by fo
 
 ---
 
-## R1Q22 — Does the carve's declared-edit discipline govern the arc's edits to carved files? *(governs T007 and every task that edits a carved file: T010–T012, T016, T021, T022, T025–T027, T034, T035, T038, T055, T057, T073, T078–T081, T084, T088; in openXdox-code, T061 and T086; and T092)* — **ANSWERED (a)**
+## R1Q22 — Does the carve's declared-edit discipline govern the arc's edits to carved files? *(governs T007 and every task that edits a carved file: T010–T012, T016, T021, T022, T025–T027, T034, T035, T037, T038, T055, T057, T073, T078–T081, T084, T088; in openXdox-code, T040, T043, T044, T061 and T086; and T092)* — **ANSWERED (a)**
 
 **Measured.** `src/opendox/runtime/cli.py:17-19`: *"`src/opendox/cli.py` is a
 CARVED file with a row in openxFactory's `docs/opendox-carve-manifest.yaml`, so a
@@ -697,7 +777,7 @@ any other change (*"a row, a field, a digest"*) and any disposition move.
 - (c) Yes, and 11.1's guard is widened so trailered landings may add `edits[]`
   entries.
 
-**Recommendation.** (a). **ANSWER: (a)**, RULED in `5817152735`. No arc edit to a carved file needs a declared-edit act. T038 corrects `runtime/cli.py:17-19`, which said otherwise, and T007 batch A adds 11.1's addendum.
+**Recommendation.** (a). **ANSWER: (a)**, RULED in `5817152735`. No arc edit to a carved file needs a declared-edit act. T038 corrects `runtime/cli.py:17-19`, which said otherwise, and T007 batch A adds 11.1's addendum. T005's re-plan adds T040 and T043 to the tasks that carry this answer: the residue they clear sits in carved openXdox-code test rows. T006's analyze adds T037 and T044, whose skips sit in carved test files. Phases 2–3's tasks that edit a carved file without this line (T056, T058, T075, T085) get it from T009 and T069.
 
 ---
 
@@ -716,6 +796,11 @@ research R10). R1Q6 (d) makes that reach a DECLARED EXCLUSION for F9.1 and
 moves the direction question into its own arc (T008). It sets that arc's
 deadline at release 2's 12.5. It says nothing of F5.2, which closes in phase
 2, in release 1.
+
+**Re-measured (T005, 2026-09-25).** At openXdox-code `e28930bf`, F5.2's glob
+selects seven suites. C3's PR 2 added `tests/test_snapshot_validator_home.py`,
+which passes all 12 of its cases with Group 2 simulated. The four that fail on
+`doc_health` are the same four.
 
 **What #1144 says.** 5.4a: the consumer *"loses no capability — requirement
 4's third scenario is the check"*. F5.2: *"the governed projection's own suites
@@ -738,3 +823,153 @@ governed corpus — THEN the projection is unchanged."*
   extraction.
 
 **Recommendation.** (a). **ANSWER:** OPEN (phase 2); awaiting Brett Heap.
+
+---
+
+## R1Q24 — openXdox-code's test files that need openxFactory's contracts or its status-exemption rail, not `doc_health` *(blocks T019, T043, T061; phase 1's openXdox-code tail)* — **OPEN**
+
+**Raised by** T005's re-measure on 2026-09-25. It was the first run of
+openXdox-code's WHOLE suite
+([`evidence/remeasure-2026-09-25.md`](./evidence/remeasure-2026-09-25.md)). The
+question is asked here rather than assumed.
+
+**Measured.** The run was at openXdox-code `e28930bf`, with Group 2 simulated
+and `rfc3339-validator` installed. 161 red results in seven files have a cause
+that is neither `doc_health` nor carve residue. The residue goes to T040 and
+T043, and the `doc_health` files to T041.
+
+- **The status-exemption rail** (87 results): `test_doxbench_packet.py` (54),
+  `test_doxbench_turns.py` (32) and `test_doxbench_abstract_envelope.py` (1).
+  Each packet openDox assembles marks every source through its exemption rail.
+  That rail imports openxFactory's `ideation_dashboard.doxbench_status_exemption`
+  (`doxbench_packet.py:177`, research R5). T027 turns that reach into a seam
+  that fails closed when nothing is registered. Only openxFactory registers the
+  rail (T046). So in openXdox-code's own checkout these cases stay red after
+  phase 1. `test_doxbench_packet.py` also has 3 `doc_health` cases and 13
+  carve-residue paths.
+- **The contract family** (74 results):
+  `test_validate_ideation_dashboard_contracts.py` (32),
+  `test_wheel_action_contracts.py` (18), `test_project_schema_election.py` (13)
+  and `test_project_action_contracts.py` (11). Each sets
+  `ROOT = Path(__file__).resolve().parents[2]`, a pre-carve path that lands
+  outside the checkout. In a scratch copy, `ROOT` was respelled to the checkout
+  and `CONTRACTS_DIR` was set to openXdox-spec's contracts, and they still
+  failed. They read the family's packaged examples, and three schemas that
+  openxFactory owns: `project-register`, `gate-intent` and
+  `demotion-execution-receipt`. 7.1 and 7.1b keep those schemas in openxFactory.
+
+**Re-measured (T006, 2026-09-25): by class, not by list.** The seven files
+are the classes as `e28930bf` shows them. T005's experiment found an eighth
+behind a residue failure: once its helper and paths were cleared,
+`test_doxbench_blank_reason.py` read openxFactory's `contracts/manifest.yaml`,
+and a `dashboard_web_root` that only openxFactory's conftest defines. So the
+question is about the two classes, and T043's triage at T040's pin names the
+files in each. Two more facts bear on the answer:
+- F7.1's second named test,
+  `test_validate_ideation_dashboard_contracts.py::test_every_schema_the_consumer_validates_is_on_disk`,
+  goes into one of these files. Under (a) the file is listed, and F7.1 still
+  runs that one test by node id. pytest collects a file named on its command
+  line even when the root conftest's `collect_ignore` lists it (measured with
+  pytest 8.4.2). Under (b) the file leaves openXdox-code, so a T007 batch
+  amends F7.1 to name the test's new home. So T061 waits for this answer too.
+- The answer also shapes T008 (what the direction arc takes), T027 and T085
+  (the rail's seam and its default), and T046 (the host registers the rail).
+
+Neither class is `doc_health`, so T041's declared exclusion cannot hold them.
+R1Q6 (d) limits the exclusion to `doc_health` reachability, and T041's own test
+asserts that each listed file fails for exactly that reason. T043 cannot go
+green without a decision.
+
+**What #1144 says.** Requirement 9 has each repository run its suite green
+*"in its own checkout with no sibling repository present"*. A test that needs
+two repositories is an integration test *"where the composition is declared"*.
+The requirement's first scenario admits a DECLARED exclusion *"with its count
+and its reason"*, reported as an open extraction. 7.1b keeps the intent-plane
+schemas with openxFactory, and nothing vendors them.
+
+**Options.**
+- (a) Widen T041's declared exclusion to the seven files, each with its own
+  reason: openxFactory's status-exemption rail, or openxFactory's contracts.
+  They are reported as open extractions, like the `doc_health` entries, and the
+  direction arc (T008) takes them as well. F9.1 as batch B amends it already
+  asserts only a count, a reason per entry and the printed extraction. T041's
+  test would then check each entry against its own reason.
+- (b) Move them to openxFactory as NAMED composition tests (R1Q2 (a)), since
+  openXdox and openxFactory are composed there. T047's openxFactory PR lands
+  them, after a T007 batch adds their paths to F11.1's named set.
+- (c) Give openDox's status-exemption seam a default in phase 1, namely T085's
+  "no status exemption", which R1Q10 decides. The three doxBench files then run
+  against openDox's own default, and the four contract-family files take (a)
+  or (b).
+
+**Recommendation.** (a) for release 1. It is R1Q6 (d)'s pattern for the same
+direction problem. It adds no composition to release 1, and T008's arc is where
+the direction is decided. (b) would be the long-run home for the tests of the
+openxFactory-owned schemas. (c) pulls R1Q10, a question for phases 2–3, into
+phase 1.
+**ANSWER:** OPEN (phase 1's openXdox-code tail); awaiting Brett Heap.
+
+---
+
+## R1Q25 — The re-plan moved 7.3 into phase 1, but #1144's RULED release map puts Group 7 in phase 2 *(blocks T019, T043, T061; phase 1's openXdox-code tail)* — **OPEN**
+
+**Raised by** T006's analyze on 2026-09-25
+([`evidence/analyze-round-1a.md`](./evidence/analyze-round-1a.md), finding
+F1). It is asked here rather than assumed.
+
+**Measured.** At openXdox-code `e28930bf`, `tests/test_snapshot.py` still fails
+two cases, because its validator reaches its schemas only through
+`CONTRACTS_DIR`, and a lone checkout has none (R1Q14). It needs no
+`doc_health`, so R1Q6 (d)'s exclusion cannot hold it. As one of 5.4a's
+protected suites it cannot be edited to pass. So openXdox-code's F9.1, as batch
+B amends it, cannot pass in phase 1 until 7.3 lands. #1155's T061 carried a
+contingency for exactly this case, and T005 applied it: T061 moved into phase
+1.
+
+A second fact weighs against the move. F7.1's second named test,
+`test_every_schema_the_consumer_validates_is_on_disk`, passes only once the
+consumer's validator is narrowed to *"its three schemas"*. Today it names the
+family's ten. Two callers in phase 1 validate other kinds through it:
+openxFactory's `doxbench_contracts.delegated_semantic_validation`, and the
+`find_openxfactory_validator` helper that `test_lens.py` uses. A third,
+openDox-code's `workbench.py:442` (`validate_manifest`), gets no validator
+today, because the lookup answers `None` from a start outside the product
+(C3's confinement, measured at `e28930bf`). It would get this one once 7.3's
+lookup resolves the installed distribution. openDox's own validator arrives
+with T057 and T058 in phase 2, and T055 retires `workbench.py`'s lookup
+there. So in phase 1 the narrowing would take those
+kinds from their callers, or 7.3 would land without it. Phase 1's close, and
+F4's direct-arrow revisit that is ruled to follow phase 1 (T048), then also
+wait on 7.3.
+
+**What #1144 says.** The release map is RULED (`5799646419`, `5800995035`):
+*"The map orders the build."* Phase 1 is *"Group 2; Group 3; 4.1, 4.1a, 4.2
+and 4.3's eight reaches into openxFactory; Group 9 but 9.5; 10.1"*, and phase 2
+is *"Group 5; Group 7"*. The contingency is the plan's, not a ruling.
+
+The plan reads one more box against the map's letter. 9.2 lowers the ratchet
+*"as each deferred reach closes"*, and 4.3's nineteen reaches into openXdox
+close by phase 3. So the plan lands 9.2's whole-suite check in phase 1 and
+closes the box in phase 3, although the map puts Group 9 in phase 1. The map
+says of 4.3 that it *"closes with the last of them"*, and says nothing of 9.2.
+
+**Options.**
+- (a) 7.3 and F7.1 move into phase 1, as the re-plan has them, and 9.2 closes
+  with its ratchet in phase 3. T007 records both as addenda to the map.
+- (b) 7.3 stays in phase 2, beside openDox's own validator. Phase 1's
+  openXdox-code check declares `tests/test_snapshot.py` as an exclusion with
+  its own reason (its schemas, until 7.3), and T007's batch F amends F9.1 to
+  admit that reason. That widens R1Q6 (d)'s exclusion, which is limited to
+  `doc_health`, as R1Q24 (a) would, so the answer is what admits it. T043
+  carries the entry. 9.2 is read as in (a).
+- (c) Something else you name.
+
+**Recommendation.** (b), since T006. The map groups 7.3 with openDox's own
+validator for a reason: the consumer's validator can narrow to its three
+schemas only once the kinds it gives up have their own validators, and those
+arrive in phase 2. (b) keeps the map, at the price of one more exclusion
+reason in phase 1, beside the ones R1Q24 (a) would add. (a) keeps phase 1's
+exclusion to `doc_health`, but its T061 must then either narrow the validator
+under the callers above, or land without the narrowing that F7.1's second
+test needs.
+**ANSWER:** OPEN (phase 1's openXdox-code tail); awaiting Brett Heap.
