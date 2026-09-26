@@ -47,11 +47,14 @@ reading of what follows ratification is the LANE'S READING and not more
 words of Brett Heap's, and the merge of this pull request is a separate act
 performed by whoever holds it, never by this lane alone.
 
-**AMENDMENT PENDING RULING (R1, 2026-09-25):** the one-hop parenthetical at
-`spec.md`'s `pinned`-row paragraph ("A `pinned` row that is not itself admitted
-by a `pin` — every row this clause admits among them — SHALL carry no row's
-`gitlink`") is reworded to the direct hop rule in this pull request; it lands
-only on Brett Heap's word, before the § 5 archive.
+**AMENDMENT RULED (R1, 2026-09-26):** Brett Heap ruled on R1, 2026-09-26
+approximately 21:15Z, verbatim "(a) recommended, land #1165 when green", given
+in the lane's terminal to lane `openxfactory-5` (session `b254fdd5`); recorded
+as a `RULED` entry against `opensoft/openxFactory#1165` in `opensoft/brett-wip`
+`lanes/log/openXfactory-5.md` at commit `613c676d`. The one-hop parenthetical at
+`spec.md`'s `pinned`-row paragraph is amended to the direct hop rule by this
+pull request, as authored; it lands by this PR once its head is green, before
+the § 5 archive.
 
 Origin: openxFactory
 
