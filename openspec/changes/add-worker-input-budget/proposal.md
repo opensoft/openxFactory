@@ -176,24 +176,148 @@ delta closes that hole explicitly.
 
 ## Open questions
 
-- **OQ-1 — the grounding share.** The default reserves half the budget for
-  promoted specs. At the 2026-09-21 corpus that sends 93 of 311 documents and
-  defers 218, of which 71 are promoted specs, so `semantic-contradiction` is
-  grounded against roughly half the promoted corpus on any given night. The
+- **OQ-1 — RESOLVED 2026-09-26: the grounding share stays 0.5.** Filed on
+  2026-09-22 as *"the grounding share"*: the default reserves half the budget
+  for promoted specs. At the 2026-09-21 corpus that sends 93 of 311 documents
+  and defers 218, of which 71 are promoted specs, so `semantic-contradiction`
+  is grounded against roughly half the promoted corpus on any given night. The
   alternative — spending the whole budget on grounding and sweeping almost no
-  changed documents — is worse, but the split is a policy choice and is put for
-  ruling rather than assumed.
-- **OQ-2 — deferral does not carry over, and this packet does not make it.** The
-  incremental scope is a content-hash diff against the last committed
-  `health/inventory/<date>.json`, which the `finalize` job emits
-  UNCONDITIONALLY (`--emit-inventory`, `if: always()`) from the full current
-  inventory. There is no per-document sweep cursor anywhere in `doc_health`. A
-  document deferred tonight is therefore in tomorrow's baseline, no longer
-  "changed", and would not be re-selected. This packet consequently CAPS AND
-  RECORDS rather than claiming a carry-over it does not implement; a real
-  carry-over needs its own state and its own packet.
-- **OQ-3 — a live blocker this packet does not address.** Since 2026-09-16 the
-  runner's CLI receives HTTP 403 *"Your organization has disabled Claude
-  subscription access for Claude Code"* on every invocation (readiness findings,
-  2026-09-16 through 2026-09-21: 12 of 12 entries errored; 2026-09-09 through
-  2026-09-15: 0 of 12). No code change reaches that; it is an administrative act.
+  changed documents — is worse, but the split is a policy choice and was put
+  for ruling rather than assumed. The ruling was taken on 2026-09-26: Brett
+  Heap chose, in session to lane `openxfactory-1` by structured choice, the
+  option verbatim *"Accept both, land #1160"*, answering the RULING NEEDED of
+  2026-09-24 (opensoft/xFactory#480, comment 5820150177), which put this
+  question as, verbatim, *Your word: a share, or "keep 0.5".* The ruling is
+  recorded on the same issue — comment 5850005209, item 3, verbatim *"OQ-1,
+  the grounding share stays 0.5"* — and as a RULED line on the lane register
+  (2026-09-26T21:22:13Z) naming opensoft/openxFactory#1160. The lane
+  recommendation below is accepted as it stood. No code changes:
+  `GROUNDING_BUDGET_SHARE` is already `0.5` in `scripts/doc_health/semantic.py`,
+  as built.
+  - **Measured 2026-09-24.** Both nights since the budget went live packed to
+    their 1,900,000-byte budget, per their own `semantic-sweep-bundle`
+    `meta.json`: 2026-09-23 (opensoft/xFactory run 35810840997) sent 1,899,789
+    bytes, 92 documents, and deferred 226 — 152 changed documents and 74
+    promoted specs; 2026-09-24 (run 35947804907) sent 1,899,236 bytes, 96
+    documents, and deferred 227 — 156 changed documents and 71 promoted specs
+    (counted by the `population` the packer records on every deferral; every
+    deferred spec is an `openspec/specs/*/spec.md` and no deferred changed
+    document is). The split at each share, on the CURRENT inventory with no
+    model call: the aggregation's `main` at `c6280584`, assembled by the
+    runner's own prepare path (`doc-health.py --repo-root . --previous-inventory
+    health/inventory/2026-09-04.json --semantic-prepare`) — 196 changed
+    documents costing 5,051,588 bytes and 127 promoted specs costing 2,984,532
+    bytes at the packer's `document_cost` — then packed by
+    `pack_within_budget` at each share:
+
+    | grounding share | bytes sent | sent / deferred | changed docs sent / deferred | promoted specs sent / deferred | openxFactory sent: changed docs of 109, specs of 66 | codexFactory sent: changed docs of 31, specs of 13 |
+    | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+    | 0.3 | 1,899,164 | 90 / 233 | 53 / 143 | 37 / 90 | 1, 0 | 0, 0 |
+    | 0.4 | 1,899,413 | 94 / 229 | 50 / 146 | 44 / 83 | 1, 1 | 0, 0 |
+    | 0.5 (built) | 1,899,236 | 96 / 227 | 40 / 156 | 56 / 71 | 0, 1 | 1, 7 |
+    | 0.6 | 1,899,594 | 96 / 227 | 33 / 163 | 63 / 64 | 1, 3 | 0, 12 |
+    | 0.7 | 1,899,953 | 104 / 219 | 29 / 167 | 75 / 52 | 2, 14 | 0, 13 |
+
+    The weekly full sweep over the same inventory (the same prepare path with
+    a Sunday `--as-of 2026-09-27`: 738 governed documents costing 9,416,787
+    bytes, the same 127 specs) sends, at 0.3 / 0.4 / 0.5 / 0.6 / 0.7, 202 /
+    184 / 183 / 181 / 182 documents — 165 / 140 / 127 / 118 / 107 governed
+    documents and 37 / 44 / 56 / 63 / 75 specs — and of openxFactory's 397
+    governed documents 0 / 1 / 0 / 0 / 0. The method reproduces production:
+    at 0.5 the repack rebuilds each nightly bundle's `analysis-input.txt` byte
+    for byte and its `meta.json` budget record field for field, and the
+    current inventory's 0.5 prompt is byte-identical to the 2026-09-24
+    night's.
+  - **Lane recommendation as put for ruling on 2026-09-24, verbatim (accepted
+    2026-09-26, above):** keep 0.5 — each 0.1 of share only
+    moves about 190,000 bytes of capacity between the populations (3 to 10
+    changed documents one way, 7 to 12 specs the other), while how much of
+    openxFactory the sweep reaches at any share — at most 2 of its 109
+    changed documents and 14 of its 66 specs — is set by the `(repo, path)`
+    packing order, which no share repairs.
+- **OQ-2 — RESOLVED 2026-09-26: cap-and-record, with the carry-over as a
+  separate packet.** Filed on 2026-09-22 as *"deferral does not carry over,
+  and this packet does not make it"*: the incremental scope is a content-hash
+  diff against the last committed `health/inventory/<date>.json`, which the
+  `finalize` job emits UNCONDITIONALLY (`--emit-inventory`, `if: always()`)
+  from the full current inventory. There is no per-document sweep cursor
+  anywhere in `doc_health`. A document deferred tonight is therefore in
+  tomorrow's baseline, no longer "changed", and would not be re-selected by
+  the next night's incremental selection (only a full sweep, on the weekly
+  day or under the `full-nightly` scope, selects the whole inventory again,
+  and there the same packing order defers the late-sorting documents too). This
+  packet consequently CAPS AND RECORDS rather than claiming a carry-over it
+  does not implement; a real carry-over needs its own state and its own
+  packet. The ruling was taken on 2026-09-26 by the same choice and the same
+  option as OQ-1, verbatim *"Accept both, land #1160"*. The RULING NEEDED had
+  put this question as, verbatim, *Your word: (a) cap-and-record here +
+  stage the carry-over packet, (b) cap-and-record alone, or (c) fold
+  carry-over into this packet.* The record's own gloss (comment 5850005209,
+  item 3), verbatim *"OQ-2, cap-and-record plus the separate carry-over
+  packet at `ideation/staging/doc-health-sweep-carry-over/` with the cursor as
+  its own record beside the inventory"*, is option (a). This packet therefore
+  caps and records and carries nothing over; the carry-over is staged by this
+  revision as `ideation/staging/doc-health-sweep-carry-over/`, which carries
+  as a settled claim the design constraint the recommendation below states:
+  the cursor is its own committed record beside the inventory, never a field
+  of it. **The ruling stands on its own, whatever the baseline does.** The
+  same ruling set's item 4 (answering comment 5819739722), verbatim
+  *"Approve, nightly wins"*, rules that opensoft/xFactory#396 lands with the
+  nightly's content winning, which unsticks the committed baseline once it
+  lands. That changes how a deferred document is lost, not whether: while
+  the baseline stood at `health/inventory/2026-09-04.json` a deferred
+  document was re-selected and deferred again by the same packing order
+  (measured below); once the baseline advances, a deferred document leaves
+  the next night's diff unswept. Cap-and-record names every deferral in both cases, and the
+  carry-over packet records the deferred-document cursor in both cases.
+  - **Measured 2026-09-24.** The committed baseline has not in fact advanced
+    since 2026-09-04: the aggregation's `main` carries `health/inventory/`
+    only through `2026-09-04.json` — no nightly report has landed since
+    opensoft/xFactory#235 that day, and the rolling report pull request that
+    would land one, opensoft/xFactory#396 (`doc-health/nightly`), has been
+    open since 2026-09-10 — and both nights' selections reproduce exactly
+    against that file (193 of 736 on 2026-09-23, 196 of 738 on 2026-09-24). A
+    deferred changed document is therefore re-selected today — and deferred
+    again, the packing order being deterministic: 219 documents (151 changed
+    documents, 68 promoted specs) were deferred on both nights.
+  - **Lane recommendation as put for ruling on 2026-09-24, verbatim (accepted
+    2026-09-26, above; the topic it names is created by this revision):**
+    accept cap-and-record for this packet, and carry deferrals over in a
+    separate packet staged first as
+    `ideation/staging/doc-health-sweep-carry-over/` (not created here). Its
+    one design constraint: the cursor is its own committed record beside the
+    inventory (for example `health/sweep-cursor/<date>.json`, written from
+    the bundle's `meta.json` `deferred` list and delivered in the same report
+    commit), never a field of `health/inventory/<date>.json` — `finalize`
+    emits that file UNCONDITIONALLY from the full current inventory every
+    night, so a cursor folded into it would be erased by the next emit.
+- **OQ-3 — RESOLVED 2026-09-23.** Filed on 2026-09-22 as *"a live blocker
+  this packet does not address"*: from 2026-09-16 through 2026-09-21 the
+  runner's CLI had received HTTP 403 *"Your organization has disabled Claude
+  subscription access for Claude Code"* on every invocation (readiness: 12 of
+  12 clusters errored each of those nights, 0 of 12 on 2026-09-15), which no
+  code change reaches. The 2026-09-22 nightly, run after the filing, drew no
+  403 (its readiness, derive-possibles and cataloger children all answered);
+  the refusal recurred on 2026-09-23 (opensoft/xFactory#491).
+  The administrative act was taken on 2026-09-23: Brett Heap re-enabled
+  Claude Code access via subscription in the Anthropic Console — the remedy
+  that issue #491 names as its option 1 — and reported, verbatim, *"the HTTP
+  403: 'Your organization has disabled Claude subscription access for Claude
+  Code.' error was fixed. it runs now"* (recorded on #491 at 16:34:40Z); no
+  repository change was made. Verified the same hour: the analysis child
+  re-dispatched against nightly parent run 35810840997 — opensoft/xFactory
+  Actions run 35889825278, correlation `semantic-35810840997-2` — passed the
+  input-size guard at 1,899,789 of 1,900,000 bytes, and the model accepted
+  the prompt and returned 4 findings in 2 min 16 s, where that morning's
+  02:48Z dispatch of the same bundle (run 35811821401) had been refused 403.
+  Issue #491 closed at 16:38:55Z and #479, the governing issue, at 16:38:58Z,
+  with both halves of task 4.3 recorded on it. The 2026-09-24 nightly (run
+  35947804907, conclusion `success`) is the first full night under the
+  restored access: all four model children succeeded with model output —
+  analysis 35948587830 (guard passed at 1,899,236 bytes; 5 findings),
+  cataloger 35948591376 (21 catalog entries), readiness 35949701420 (12 of 12
+  clusters, no error entry) and derive-possibles 35950836940 (10 of 10). A
+  recurrence can no longer hide in a green child: opensoft/xFactory#499
+  (merge `4feb0db3`, 2026-09-23T22:52:54Z, for #492) fails the readiness and
+  derive-possibles children closed with a degraded artifact on any 401/403
+  refusal, as the analysis and cataloger children already fail on one.

@@ -6,14 +6,16 @@ Status: draft
 T095 automates the HTTP half as a harness in openDox-code's own `acceptance`
 CI job, which has no database service. T096 runs the browser half on the host.
 
-The run installs openDox-code at its phase-3 tip, so every question that blocks
-phases 2 and 3 is answered first. The steps below depend directly on R1Q10,
-R1Q12 (the catalog's validators), R1Q13, R1Q15, R1Q16 and R1Q19. **Four places
-below are conditional**, and each names the question it depends on: the
-install line (R1Q16), the `--local` flag (R1Q15), the lens's seed actions
-(R1Q19) and the datastore's stop (R1Q16 (iv)). Use whatever the openDox root's
-`README.md` documents once 10.3 has landed: that README, not this file, is the
-product's one documented command (requirement 10).
+The run installs openDox-code at its phase-3 tip. Every question these steps
+depend on is answered, on `#656` comment `5850003126`. R1Q26 and R1Q27,
+answered on `5851950767`, bear on openXdox and openxFactory, and not on an
+openDox-only install. The steps follow `5850003126`'s answers: R1Q10 (a) and
+R1Q12 (a) for the catalog's validators, R1Q13 (a) with (c) for the tiles,
+R1Q15 (b) for `--local`, R1Q16 (iii) and (iv) for the install and the
+datastore's stop, and R1Q19 (a) for the lens. No step is conditional. Use
+whatever the openDox root's `README.md` documents once 10.3 has landed: that
+README, not this file, is the product's one documented command (requirement
+10).
 
 ## 1. A clean machine, with openDox and nothing else
 
@@ -25,7 +27,7 @@ git clone -q https://github.com/opensoft/openDox-code "$W/openDox-code"
 git -C "$W/openDox-code" checkout -q "$RELEASE1_TIP"
 python3 -m venv --clear "$W/v"
 . "$W/v/bin/activate"
-pip install "$W/openDox-code"                         # CONDITIONAL (R1Q16): "$W/openDox-code[local]" if an extra is chosen
+pip install "$W/openDox-code[local]"                  # the local extra brings the bundled server (R1Q16 (iii))
 for s in openxdox ideation_dashboard doc_health corpus_adapter_openxfactory; do
   if python -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('$s') else 1)"; then echo "FAIL: $s is importable"; exit 1; fi
 done
@@ -97,7 +99,7 @@ for host in ("127.0.0.1", "::1"):
     raise SystemExit(f"FAIL: something already listens on {host}:{port}, so a ready answer would not come from this run")
 print(f"port {port} is free")
 PY
-# CONDITIONAL (R1Q15): the recommended answer (b) selects local mode explicitly, shown here as --local.
+# R1Q15 (b): the documented command selects local mode explicitly.
 opendox generate-and-open --local --repo-root "$R" --repository fixture --no-open --port "$PORT" &
 SERVER=$!
 trap 'kill "$SERVER" 2>&- || true' EXIT
@@ -145,14 +147,16 @@ server from § 3 running, in this order:
 2. **Wheel.** Click `#tab-wheel`. It must render a tile for every station
    that the snapshot fills.
 3. **Radar lens.** Click `#tab-lens`. The bullseye must render the documents
-   as dots, and the text "nothing on the radar" must be absent. The two seed
-   actions must behave as R1Q19 decides; under (a), neither is offered.
+   as dots, and the text "nothing on the radar" must be absent. Neither seed
+   action may be offered, since no binding answers them standalone (R1Q19
+   (a)).
 4. **Chat.** On the wheel, use a grouping tile's `workbench` verb. The staging
    workbench must open, and BEFORE any turn its chat rail must show the "no
    model configured" state, naming how to configure a model. Attempting a turn
    must be refused with `model_capability_unavailable`. Both editors must stay
-   usable. Repository (b) must also yield a grouping tile (R1Q13); if it
-   yields none, the run FAILS and does not skip.
+   usable. Repository (b) must also yield a grouping tile, from the topics
+   its notes share (R1Q13 (a) with (c)); if it yields none, the run FAILS and
+   does not skip.
 5. The verdict comes from `smoke_signals`: zero `pageerror`, nothing
    undeclared, and no 5xx.
 
@@ -167,5 +171,6 @@ kill "$SERVER"
 wait "$SERVER" 2>&- || true                           # the port is free again before the next pass
 ```
 
-The bundled datastore stops with the entry point (R1Q16 (iv)). After the second
+The bundled datastore stops with the entry point (R1Q16 (iv)), and T095
+asserts that no bundled-server process is left. After the second
 pass, with `R="$B"`, remove the scratch space: `rm -rf "$W" "$OPENDOX_STATE_DIR"`.

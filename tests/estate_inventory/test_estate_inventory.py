@@ -2598,6 +2598,61 @@ def test_a_carrier_pin_naming_NO_COMMIT_or_one_the_tree_LACKS_leaves_the_leg_NOT
         assert needle in result.stdout, (needle, result.stdout)
 
 
+def test_the_PINNED_carriers_SUMMARY_names_the_real_reason_a_pin_gives_no_commit(
+        tmp_path):
+    """P-2 of the #1156 verification packet (`verify-1156-report.md`, "P-2
+    (cosmetic, optional follow-up)"): the pinned-carriers SUMMARY block's
+    `reading.commit is None` branch printed one fixed phrase, "`<pin>` names
+    no commit to read at", whatever `pinned_commit` actually returned.
+    `pinned_commit` also returns no commit when the pin file THIS TREE
+    CARRIES is MISSING, and when it fails the STRICT LOADER (malformed) — two
+    reasons the per-row NOT RE-CHECKED line already names correctly
+    (`CarrierMembers.detail`, built from `PinnedCommit.detail`). This proves
+    the SUMMARY line now names that SAME real reason too, for a MISSING pin
+    and for a MALFORMED one, rather than the one-size phrase — and that each
+    run still counts the leg NOT RE-CHECKED, never named or gone.
+    """
+    tree = _worktree(tmp_path, _ROOT_ORIGIN, name="root")
+    _commit_gitmodules(tree, [_LEG], "the commit the pin names")
+    inventory = _inventory(tmp_path, [_pinned_root_row(), _leg_row()])
+    summary_bullet = f"  - {_PINNED_ROOT}: "
+
+    # The pin file is simply absent from this tree: `_pin_file` is never
+    # called, so `tmp_path / _ROOT_PIN` does not exist. (The root's own
+    # in-tree `pin` admission also reports GONE on this same run, which is
+    # why the run's returncode is 1 and not 0 — a separate, already-correct
+    # finding this case does not disturb.)
+    result = _run_inventory(tmp_path, inventory,
+                            "--estate-tree", f"{_PINNED_ROOT}={tree}")
+    assert result.returncode == 1, result.stdout
+    assert "1 NOT RE-CHECKED" in result.stdout, result.stdout
+    lines = [line for line in result.stdout.splitlines()
+             if line.startswith(summary_bullet)]
+    assert len(lines) == 1, result.stdout
+    assert (f"this tree carries no `{_ROOT_PIN}` to read "
+            f"`{_PINNED_ROOT}`'s pinned commit from") in lines[0], lines[0]
+
+    # The pin file exists but fails the strict loader: a duplicate key.
+    pin_path = tmp_path / _ROOT_PIN
+    pin_path.parent.mkdir(parents=True, exist_ok=True)
+    pin_path.write_text(
+        "schema_version: 1\n"
+        "kind: pinned_contract_manifest\n"
+        f"source_repository: {_PINNED_ROOT}\n"
+        f"commit: {'f' * 40}\n"
+        f"commit: {'e' * 40}\n"
+        "revision_kind: commit\n",
+        encoding="utf-8")
+    result = _run_inventory(tmp_path, inventory,
+                            "--estate-tree", f"{_PINNED_ROOT}={tree}")
+    assert result.returncode == 1, result.stdout
+    assert "1 NOT RE-CHECKED" in result.stdout, result.stdout
+    lines = [line for line in result.stdout.splitlines()
+             if line.startswith(summary_bullet)]
+    assert len(lines) == 1, result.stdout
+    assert "cannot be read through the strict loader" in lines[0], lines[0]
+
+
 def test_a_pinned_carriers_tree_that_does_NOT_VERIFY_is_NOT_RECHECKED(tmp_path):
     """The added paragraph's first step, which the scenario's WHEN presupposes:
     "the tree supplied for it SHALL FIRST be verified as the carrier on exactly

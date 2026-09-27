@@ -283,8 +283,8 @@ def main(argv: list[str] | None = None) -> int:
               "pin names and never at its working files:")
         for reading in pinned_reads:
             if reading.commit is None:
-                print(f"  - {reading.carrier}: `{reading.pin}` names no commit "
-                      "to read at; its rows are NOT RE-CHECKED.")
+                print(f"  - {reading.carrier}: {reading.detail}; its rows "
+                      "are NOT RE-CHECKED.")
             elif reading.addresses is None:
                 print(f"  - {reading.carrier}: `{reading.pin}` names "
                       f"{reading.commit}, and the supplied tree could not "
