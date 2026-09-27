@@ -989,6 +989,95 @@ def test_write_run_refuses_a_snapshot_the_run_does_not_record(tmp_path):
         assert tree_state(root) == before, name  # no claim, no run.yaml
 
 
+def test_write_run_refuses_a_non_snapshot_stranger_anywhere_in_the_run(
+        tmp_path):
+    # Follow-up to #1175 (opensoft/openxFactory#1186, Copilot's review
+    # thread on catalog.py:1161): the preflight above this one compared
+    # only the repositories a run records against paths _snapshot_files
+    # yields, which filters to *.yaml -- so a plain non-YAML file
+    # (notes.txt), a *.yaml.bak-suffixed one, or a stranger subdirectory
+    # (empty, or holding only non-YAML content) never surfaced there, and
+    # the run-identity hash never saw it. _refuse_foreign_descendants checks
+    # EVERY descendant of the run directory against the exact allowed set
+    # (run.yaml plus the repository-snapshot paths this run records), so
+    # each of these is now refused before the first write or claim, the
+    # same way (CatalogError, "does not record") as the existing
+    # stranger-snapshot refusal above.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid, _recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    cases = {
+        "non-yaml-top-level": ("notes.txt",),
+        "non-yaml-nested": ("xFactories", "notes.txt"),
+        "yaml-bak-suffix": ("run.yaml.bak",),
+        "stranger-subdirectory-empty": ("extra",),  # a directory, no file
+        "stranger-subdirectory-with-file": ("extra", "junk.txt"),
+    }
+    for name, rel in cases.items():
+        root = tmp_path / name
+        shutil.copytree(tmp_path / "src", root)
+        run_dir = runs_root(root) / DAY_STR / rid
+        stray = run_dir.joinpath(*rel)
+        if name == "stranger-subdirectory-empty":
+            stray.mkdir()
+        else:
+            stray.parent.mkdir(parents=True, exist_ok=True)
+            stray.write_text("stranger\n", encoding="utf-8")
+        before = tree_state(root)
+        with pytest.raises(catalog.CatalogError, match="does not record"):
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        assert tree_state(root) == before, name  # no claim, no run.yaml
+
+
+def test_write_run_refuses_a_symlinked_stranger_in_the_run(tmp_path):
+    # A stranger planted as a symlink is refused too -- but by the
+    # PRE-EXISTING _refuse_links_inside guard (#1175 rounds 6 and 9), which
+    # walks every node under the run directory and refuses any symlink
+    # outright, before _refuse_foreign_descendants (this follow-up's new
+    # check, added above) ever runs. This scenario already raised on main;
+    # unlike the five plain file/directory cases in the test above, it is
+    # not new coverage. It is kept as an interaction guard: adding the
+    # descendant-vs-allowed-set check must not loosen, skip, or reorder the
+    # existing no-symlink-anywhere guarantee.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha}
+    rid, recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    root = tmp_path / "linked"
+    shutil.copytree(tmp_path / "src", root)
+    run_dir = runs_root(root) / DAY_STR / rid
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    target = outside / "evil.yaml"
+    target.write_bytes(recorded["alpha"].read_bytes())
+    (run_dir / "evil.yaml").symlink_to(target)
+    before = tree_state(root)
+    with pytest.raises(catalog.CatalogError, match="symlink"):
+        catalog.write_run(root, DAY, runs, TAXONOMY)
+    assert tree_state(root) == before
+
+
+def test_write_run_still_passes_a_clean_run(tmp_path):
+    # The new descendant preflight (_refuse_foreign_descendants) must not
+    # reject a run holding exactly its own allowed set: a fresh run
+    # directory (nothing exists yet, so the "if run_dir.exists()" guard is
+    # not even entered), and a repeat over one already fully recorded --
+    # run.yaml, every legitimate snapshot, including the "xFactories"
+    # ancestor directory a slash-separated repository id creates, and
+    # nothing else.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid, paths = catalog.write_run(tmp_path / "fresh", DAY, runs, TAXONOMY)
+    assert sorted(paths) == ["alpha", "xFactories/MedxFactory"]
+    rid_again, paths_again = catalog.write_run(
+        tmp_path / "fresh", DAY, runs, TAXONOMY)
+    assert rid_again == rid
+    assert {r: p.read_bytes() for r, p in paths_again.items()} == \
+        {r: p.read_bytes() for r, p in paths.items()}
+    assert catalog.load_snapshot(tmp_path / "fresh")["run_id"] == rid
+
+
 def test_write_run_refuses_edited_run_metadata_before_any_write(tmp_path):
     # Review round 5 (Copilot, #1175): a regular but edited run.yaml passed
     # as a completed run. A retry over a run whose snapshots all matched
