@@ -242,7 +242,10 @@ delta closes that hole explicitly.
   `finalize` job emits UNCONDITIONALLY (`--emit-inventory`, `if: always()`)
   from the full current inventory. There is no per-document sweep cursor
   anywhere in `doc_health`. A document deferred tonight is therefore in
-  tomorrow's baseline, no longer "changed", and would not be re-selected. This
+  tomorrow's baseline, no longer "changed", and would not be re-selected by
+  the next night's incremental selection (only a full sweep, on the weekly
+  day or under the `full-nightly` scope, selects the whole inventory again,
+  and there the same packing order defers the late-sorting documents too). This
   packet consequently CAPS AND RECORDS rather than claiming a carry-over it
   does not implement; a real carry-over needs its own state and its own
   packet. The ruling was taken on 2026-09-26 by the same choice and the same
