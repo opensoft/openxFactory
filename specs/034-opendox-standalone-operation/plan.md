@@ -454,7 +454,8 @@ put to Brett Heap in `clarify-questions.md`, and neither is settled here.
 
 T059, T060, T061 and T066 carry them as `Blocked by:` lines. T067 encodes the
 answers, T007's batch I records the #1144 lines they amend, and the analyze
-runs again. Phase 1 and the rest of phase 2 do not wait on them.
+runs again, so T067 and batch I carry the same line. Phase 1 and the rest of
+phase 2 do not wait on them.
 
 ### Ruling needed
 

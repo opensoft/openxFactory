@@ -21,9 +21,10 @@ and **R1Q27** (V2-1, V2-2). Both go to Brett Heap in
 and neither is answered by assumption. The four tasks they reach, T059, T060,
 T061 and T066, carry them as `Blocked by:` lines (FR-012), so the plan
 authorizes none of the four. T067, the third round, encodes the answers, and
-T007's batch I records the #1144 lines they amend. This is the plan's one
-deviation from the constitution's workflow gate, which plan.md § Complexity
-Tracking records, as the Governance section requires.
+T007's batch I records the #1144 lines they amend, so both carry the same
+line. This is the plan's one deviation from the constitution's workflow gate,
+which plan.md § Complexity Tracking records, as the Governance section
+requires.
 
 The verifier made its count conditional on exactly that. Had this revision
 claimed a PASS without raising the two questions, it would have counted both

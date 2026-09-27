@@ -218,8 +218,9 @@ neither is answered here by assumption.
   distribution, and the other kinds only where the tree it runs from supplies
   their schemas.
 
-They hold T059, T060, T061 and T066 (`Blocked by:`), and T067 encodes their
-answers. No other task carries a `Blocked by:` line.
+They hold T059, T060, T061 and T066, each through a `Blocked by:` line. T067,
+which encodes their answers, carries the same line, and so does T007 for its
+batch I alone. No other task carries a `Blocked by:` line.
 
 One box needs no question. **3.0** ("RATIFICATION READ FIRST") is discharged by
 the ratification word itself. `5815412869` ratified the change and struck no
