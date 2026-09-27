@@ -91,17 +91,25 @@ def by_key(entries):
     return {(e["repo"], e["path"]): e for e in entries}
 
 
+def entries_by_repo(entries):
+    """{repo: that repo's entries}, the shape catalog.run_id/write_run take."""
+    grouped = {}
+    for entry in entries:
+        grouped.setdefault(entry["repo"], []).append(entry)
+    return grouped
+
+
 def write_run(root, inv, as_of=DAY, taxonomy=None):
-    """One full mechanical pass: entries -> per-repository snapshots."""
+    """One full mechanical pass: entries -> per-repository snapshots,
+    recorded through catalog.write_run (the content-addressed id)."""
     taxonomy = TAXONOMY if taxonomy is None else taxonomy
-    rid = catalog.run_id(inv, taxonomy)
-    entries = catalog.mechanical_entries(inv)
-    paths = {}
-    for repo in sorted({e["repo"] for e in entries}):
-        paths[repo] = catalog.write_snapshot(
-            root, as_of, rid, repo,
-            [e for e in entries if e["repo"] == repo], taxonomy)
-    return rid, paths
+    return catalog.write_run(
+        root, as_of, entries_by_repo(catalog.mechanical_entries(inv)),
+        taxonomy)
+
+
+def alpha_entries(inv):
+    return [e for e in catalog.mechanical_entries(inv) if e["repo"] == "alpha"]
 
 
 def runs_root(root):
@@ -207,10 +215,10 @@ def test_opaque_entries_omit_the_path_from_snapshots(tmp_path):
     inv = extended_inventory()
     entries = catalog.mechanical_entries(
         inv, path_prohibited=prohibit_protected)
-    rid = catalog.run_id(inv, TAXONOMY)
-    alpha_path = catalog.write_snapshot(
-        root, DAY, rid, "alpha",
-        [e for e in entries if e["repo"] == "alpha"], TAXONOMY)
+    alpha = [e for e in entries if e["repo"] == "alpha"]
+    rid = catalog.run_id({"alpha": alpha}, TAXONOMY)
+    alpha_path = catalog.write_snapshot(root, DAY, rid, "alpha", alpha,
+                                        TAXONOMY)
     rendered = alpha_path.read_text(encoding="utf-8")
     # FR-012: neither the protected path nor protected content appears
     # in the produced artifact.
@@ -250,11 +258,18 @@ def test_ambiguous_locators_are_rejected(tmp_path):
     partial = dict(neither, document_ref="0" * 64)  # no path_sha256
     with pytest.raises(ValueError, match="ambiguous"):
         catalog.diff([partial], [])
-    # The snapshot writer refuses them too, before anything lands.
-    rid = catalog.run_id(inv, TAXONOMY)
+    # The snapshot writer refuses them too, before anything lands — and so
+    # does minting a run id over them, since the id addresses the snapshot
+    # the writer would render.
+    repo = entries[0]["repo"]
+    rid = catalog.run_id({repo: [entries[0]]}, TAXONOMY)
     with pytest.raises(ValueError, match="ambiguous"):
-        catalog.write_snapshot(tmp_path / "agg", DAY, rid,
-                               entries[0]["repo"], [both], TAXONOMY)
+        catalog.write_snapshot(tmp_path / "agg", DAY, rid, repo, [both],
+                               TAXONOMY)
+    with pytest.raises(ValueError, match="ambiguous"):
+        catalog.run_id({repo: [both]}, TAXONOMY)
+    with pytest.raises(ValueError, match="ambiguous"):
+        catalog.write_run(tmp_path / "agg", DAY, {repo: [both]}, TAXONOMY)
     assert not (tmp_path / "agg").exists()
 
 
@@ -429,21 +444,152 @@ def test_registry_input_reads_content_hash_and_version(tmp_path):
             registry_revision=REGISTRY_REVISIONS["alpha"])
 
 
-def test_run_id_is_inventory_and_taxonomy_derived():
+def test_legacy_run_id_is_inventory_and_taxonomy_derived():
+    # The pre-#519 key, kept only to recognize the runs recorded under it.
     inv = extended_inventory()
-    rid = catalog.run_id(inv)
-    assert rid == catalog.run_id(extended_inventory())  # no wall clock
+    rid = catalog.legacy_run_id(inv)
+    assert rid == catalog.legacy_run_id(extended_inventory())  # no wall clock
     assert rid == inventory.snapshot_id(inv)
-    # Any corpus change — content or revision — is a different run.
-    assert catalog.run_id(extended_inventory(WORKSPACE, LATER_HEADS)) != rid
-    # The effective taxonomy digest folds into run identity, so a
-    # taxonomy change over an unchanged corpus is a new run too.
-    with_taxonomy = catalog.run_id(inv, TAXONOMY)
+    # Any corpus change — content or revision — is a different key.
+    assert catalog.legacy_run_id(
+        extended_inventory(WORKSPACE, LATER_HEADS)) != rid
+    # The effective taxonomy digest folds in, so a taxonomy change over an
+    # unchanged corpus is a different key too.
+    with_taxonomy = catalog.legacy_run_id(inv, TAXONOMY)
     assert with_taxonomy != rid
-    assert with_taxonomy == catalog.run_id(extended_inventory(), TAXONOMY)
+    assert with_taxonomy == catalog.legacy_run_id(extended_inventory(),
+                                                  TAXONOMY)
     other = catalog.effective_taxonomy(
         [dict(registry_inputs()[0], registry_version="9")])
-    assert catalog.run_id(inv, other) != with_taxonomy
+    assert catalog.legacy_run_id(inv, other) != with_taxonomy
+
+
+def classified(entries, path, value):
+    """`entries` with one document carrying a suggested factory_scope, the
+    shape a merged cataloger recommendation leaves on an entry."""
+    out = []
+    for entry in entries:
+        entry = dict(entry)
+        if entry["path"] == path:
+            entry["facet_assignments"] = [{
+                "facet": "factory_scope", "proposed_values": [],
+                "review": None, "state": "suggested",
+                "state_since": DAY_STR, "transitions": [],
+                "values": [value]}]
+        out.append(entry)
+    return out
+
+
+def test_run_id_is_a_content_address():
+    # opensoft/xFactory#519: the id addresses the recorded CONTENT, not
+    # just the inventory and taxonomy that shaped part of it.
+    inv = extended_inventory()
+    runs = entries_by_repo(catalog.mechanical_entries(inv))
+    rid = catalog.run_id(runs, TAXONOMY)
+    assert len(rid) == 64 and set(rid) <= set("0123456789abcdef")
+    # Deterministic, independent of caller order (repositories or entries).
+    assert rid == catalog.run_id(
+        entries_by_repo(catalog.mechanical_entries(extended_inventory())),
+        TAXONOMY)
+    assert rid == catalog.run_id(
+        {repo: list(reversed(runs[repo])) for repo in reversed(sorted(runs))},
+        TAXONOMY)
+    # The SAME inventory and taxonomy with a different classification --
+    # the #519 collision -- is a different run.
+    reclassified = dict(runs, alpha=classified(
+        runs["alpha"], "docs/widget-overview.md", "domain"))
+    assert catalog.run_id(reclassified, TAXONOMY) != rid
+    assert catalog.run_id(dict(runs, alpha=classified(
+        runs["alpha"], "docs/widget-overview.md", "neutral")), TAXONOMY) \
+        != catalog.run_id(reclassified, TAXONOMY)
+    # A revision-only move and a taxonomy change are still new runs.
+    assert catalog.run_id(entries_by_repo(catalog.mechanical_entries(
+        extended_inventory(WORKSPACE, LATER_HEADS))), TAXONOMY) != rid
+    other = catalog.effective_taxonomy(
+        [dict(registry_inputs()[0], registry_version="9")])
+    assert catalog.run_id(runs, other) != rid
+    # Dropping a repository is a different run: the id covers the whole run.
+    assert catalog.run_id({"alpha": runs["alpha"]}, TAXONOMY) != rid
+    # It never equals the legacy key for the same inputs.
+    assert rid != catalog.legacy_run_id(inv, TAXONOMY)
+    with pytest.raises(ValueError, match="at least one"):
+        catalog.run_id({}, TAXONOMY)
+
+
+def test_write_run_records_under_the_content_address(tmp_path):
+    root = tmp_path / "agg"
+    inv = extended_inventory()
+    runs = entries_by_repo(catalog.mechanical_entries(inv))
+    rid, paths = catalog.write_run(root, DAY, runs, TAXONOMY)
+    assert rid == catalog.run_id(runs, TAXONOMY)
+    assert sorted(paths) == ["alpha", "openxFactory"]
+    assert all(p.parent == runs_root(root) / DAY_STR / rid
+               for p in paths.values())
+    recorded = catalog.load_snapshot(root)
+    assert recorded["run_id"] == rid
+    # The recorded documents themselves hash back to the id.
+    assert catalog.content_digest(recorded["repos"]) == rid
+    assert catalog.run_id_scheme(rid, recorded["repos"]) == \
+        catalog.CONTENT_ADDRESSED
+
+
+def test_two_trees_recording_one_corpus_share_an_id_only_for_one_content(
+        tmp_path):
+    # The #519 shape: two producers of the SAME inventory and taxonomy on
+    # the same day, in trees that never see each other. Identical content
+    # converges on one id and byte-identical files; a different
+    # classification can no longer land under the same id.
+    inv = extended_inventory()
+    runs = entries_by_repo(catalog.mechanical_entries(inv))
+    rid_a, paths_a = catalog.write_run(tmp_path / "a", DAY, runs, TAXONOMY)
+    rid_b, paths_b = catalog.write_run(tmp_path / "b", DAY, runs, TAXONOMY)
+    assert rid_a == rid_b
+    assert {r: p.read_bytes() for r, p in paths_a.items()} == \
+        {r: p.read_bytes() for r, p in paths_b.items()}
+    reclassified = dict(runs, alpha=classified(
+        runs["alpha"], "docs/widget-overview.md", "domain"))
+    rid_c, _ = catalog.write_run(tmp_path / "c", DAY, reclassified, TAXONOMY)
+    assert rid_c != rid_a
+    # Under the legacy key all three would have shared ONE id.
+    assert catalog.legacy_run_id(inv, TAXONOMY) == \
+        catalog.legacy_run_id(extended_inventory(), TAXONOMY)
+
+
+def test_run_id_scheme_tells_content_legacy_and_edited_runs_apart(tmp_path):
+    inv = extended_inventory()
+    runs = entries_by_repo(catalog.mechanical_entries(inv))
+    # A content-addressed run verifies.
+    rid, _ = catalog.write_run(tmp_path / "new", DAY, runs, TAXONOMY)
+    new_docs = catalog.load_snapshot(tmp_path / "new")["repos"]
+    assert catalog.run_id_scheme(rid, new_docs) == catalog.CONTENT_ADDRESSED
+    # A run recorded under the pre-#519 key is recognized, not verified.
+    legacy = catalog.legacy_run_id(inv, TAXONOMY)
+    for repo, entries in sorted(runs.items()):
+        catalog.write_snapshot(tmp_path / "old", DAY, legacy, repo, entries,
+                               TAXONOMY)
+    old_docs = catalog.load_snapshot(tmp_path / "old")["repos"]
+    assert catalog.run_id_scheme(legacy, old_docs) == \
+        catalog.LEGACY_INPUT_KEY
+    # An edited snapshot under a content-addressed id is neither.
+    edited = json.loads(json.dumps(new_docs))
+    edited["alpha"]["entries"][0]["status"] = "tampered"
+    assert catalog.run_id_scheme(rid, edited) is None
+    # A lost repository snapshot is neither.
+    assert catalog.run_id_scheme(rid, {"alpha": new_docs["alpha"]}) is None
+    # A file from another run (its own run_id) mixed in is neither.
+    catalog.write_run(tmp_path / "other", DAY, dict(
+        runs, alpha=classified(runs["alpha"], "docs/widget-overview.md",
+                               "domain")), TAXONOMY)
+    other = catalog.load_snapshot(tmp_path / "other")["repos"]
+    assert catalog.run_id_scheme(rid, dict(new_docs, alpha=other["alpha"])) \
+        is None
+    # Retagging that foreign file with this run's id still fails the hash.
+    retagged = json.loads(json.dumps(other["alpha"]))
+    retagged["run"]["run_id"] = rid
+    assert catalog.run_id_scheme(rid, dict(new_docs, alpha=retagged)) is None
+    # A run holding no snapshot at all is neither (never vacuously legacy).
+    assert catalog.run_id_scheme(rid, {}) is None
+    assert catalog.run_id_scheme(legacy, {}) is None
 
 
 # --- snapshots: immutable dated run paths (T007) -----------------------------
@@ -494,10 +640,8 @@ def test_as_of_rejects_datetime_instances(tmp_path):
     # would accept it and emit a run directory outside YYYY-MM-DD
     # (isoformat() on a datetime includes a time component).
     root = tmp_path / "agg"
-    inv = extended_inventory()
-    rid = catalog.run_id(inv, TAXONOMY)
-    alpha = [e for e in catalog.mechanical_entries(inv)
-             if e["repo"] == "alpha"]
+    alpha = alpha_entries(extended_inventory())
+    rid = catalog.run_id({"alpha": alpha}, TAXONOMY)
     bad_as_of = datetime(2026, 7, 9, 12, 30)
     with pytest.raises(ValueError, match="datetime"):
         catalog.write_snapshot(root, bad_as_of, rid, "alpha", alpha, TAXONOMY)
@@ -510,10 +654,8 @@ def test_snapshots_require_complete_taxonomy_provenance(tmp_path):
     # Contract scenario "Taxonomy inputs are incomplete": a snapshot
     # lacking the digest or an ordered pinned-registry input is refused.
     root = tmp_path / "agg"
-    inv = extended_inventory()
-    rid = catalog.run_id(inv, TAXONOMY)
-    alpha = [e for e in catalog.mechanical_entries(inv)
-             if e["repo"] == "alpha"]
+    alpha = alpha_entries(extended_inventory())
+    rid = catalog.run_id({"alpha": alpha}, TAXONOMY)
     for bad in (None, {}, {"digest": TAXONOMY["digest"]},
                 {"digest": TAXONOMY["digest"], "inputs": []},
                 {"inputs": TAXONOMY["inputs"]}):
@@ -681,7 +823,8 @@ def test_interrupted_run_heals_with_a_fresh_sequence(tmp_path):
     # run.yaml nor a snapshot landed. A retry re-claims and records.
     root = tmp_path / "agg"
     inv = extended_inventory()
-    rid = catalog.run_id(inv, TAXONOMY)
+    rid = catalog.run_id(entries_by_repo(catalog.mechanical_entries(inv)),
+                         TAXONOMY)
     claims = runs_root(root) / ".sequence"
     claims.mkdir(parents=True)
     (claims / "000001.yaml").write_text(json.dumps({
@@ -749,7 +892,7 @@ def test_slash_separated_repo_ids_become_subdirectories(tmp_path):
     entries = [dict(e, repo="xFactories/MedxFactory")
                for e in catalog.mechanical_entries(inv)
                if e["repo"] == "alpha"]
-    rid = catalog.run_id(inv, TAXONOMY)
+    rid = catalog.run_id({"xFactories/MedxFactory": entries}, TAXONOMY)
     path = catalog.write_snapshot(root, DAY, rid, "xFactories/MedxFactory",
                                   entries, TAXONOMY)
     assert path == (runs_root(root) / DAY_STR / rid
@@ -760,10 +903,8 @@ def test_slash_separated_repo_ids_become_subdirectories(tmp_path):
 
 def test_snapshot_path_boundaries_are_enforced(tmp_path):
     root = tmp_path / "agg"
-    inv = extended_inventory()
-    rid = catalog.run_id(inv, TAXONOMY)
-    alpha = [e for e in catalog.mechanical_entries(inv)
-             if e["repo"] == "alpha"]
+    alpha = alpha_entries(extended_inventory())
+    rid = catalog.run_id({"alpha": alpha}, TAXONOMY)
     for bad_repo in ("", "run", "../alpha", "alpha/../..", ".hidden"):
         with pytest.raises(ValueError):
             catalog.write_snapshot(

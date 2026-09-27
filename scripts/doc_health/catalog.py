@@ -18,11 +18,20 @@ Run layout (research D4; contract "Governed document catalog coverage"):
     health/document-catalog/runs/.sequence/
         <NNNNNN>.yaml       atomically claimed run-sequence records
 
-``<run-id>`` derives from the inventory content hash plus the effective
-taxonomy digest — an existing run directory for identical inputs is a
-completed no-op, and different inputs can never overwrite an existing
-snapshot (a taxonomy change over an unchanged corpus is a new run, not
-a conflicting rewrite of an immutable one).
+``<run-id>`` is a content address (``run_id``): a SHA-256 over every
+per-repository snapshot document the run records, so one id names
+exactly one content. An existing run directory for the same id is a
+completed no-op, and any difference in recorded content — inventory,
+taxonomy, a carried-forward or freshly merged classification, the date
+stamped on a pending marker — is a new run, never a conflicting rewrite
+of an immutable one. Runs recorded before opensoft/xFactory#519 used
+the inventory-plus-taxonomy key (``legacy_run_id``) instead, which did
+not cover classification: two producers of the same corpus state
+recorded different snapshots under one id (``87544bd5…`` on 2026-09-24,
+written by the nightly and again by a manual run; ``5ac351da…`` on
+2026-08-16 and again, with pending markers added, on 2026-08-17).
+``run_id_scheme`` tells the two schemes apart when a recorded run is
+verified.
 
 Concurrent-run protection (spec US1 acceptance 5): every recorded run
 first claims a sequence number by creating a claim file with
@@ -370,21 +379,94 @@ def _validate_taxonomy(taxonomy) -> dict:
 
 # --- run identity -------------------------------------------------------------
 
-def run_id(inv: list[dict], taxonomy=None) -> str:
-    """Deterministic run id (research D4 — never wall clock): the
-    inventory content hash, folded with the effective taxonomy digest
-    when one is supplied. An identical *inventory* (every entry field,
-    including each entry's owning-repo `revision` — not document content
-    alone) under an identical effective taxonomy => identical run id =>
-    the same immutable run directory; a taxonomy change over an unchanged
-    corpus is a new run rather than a conflicting rewrite of an immutable
-    snapshot. Because `revision` participates, an unrelated commit that
-    moves a repo's HEAD without changing any governed document's content
-    still yields a new run id — deliberately: a snapshot's provenance
-    must reflect the revision it was taken at (data-model.md, Catalog
-    entry freshness). This is narrower than `diff()`'s per-document
-    `modified` classification, which stays content-hash-only (design
-    decision 8)."""
+# Domain separator, and the version of the content-address scheme: no other
+# digest in the catalog hashes this prefix, so a run id can never equal an
+# inventory snapshot id, a taxonomy digest, or a legacy key by construction.
+_RUN_ID_DOMAIN = "xfactory-document-catalog-run/content-v1"
+
+# The two run-id schemes a recorded run can satisfy (``run_id_scheme``).
+CONTENT_ADDRESSED = "content-addressed"
+LEGACY_INPUT_KEY = "legacy-input-key"
+
+
+def _blank_run_id(document: dict) -> dict:
+    """A shallow copy of one snapshot document with ``run.run_id`` emptied:
+    the id is an address of the content, so it cannot be an input to
+    itself. Nothing else is touched."""
+    blanked = dict(document)
+    run = document.get("run")
+    blanked["run"] = dict(run, run_id="") if isinstance(run, dict) else run
+    return blanked
+
+
+def content_digest(documents: dict) -> str:
+    """The content address of a run's snapshot documents (``{repository:
+    snapshot document}``): SHA-256 over the scheme's domain separator and,
+    per repository in sorted order, a framed ``[repository, byte length]``
+    header followed by the document's byte-stable rendering (``render``)
+    with its own ``run.run_id`` blanked. Framing keeps the concatenation
+    unambiguous, so two different document sets can never hash alike short
+    of a SHA-256 collision. Pure: reads nothing but its argument."""
+    digest = hashlib.sha256(f"{_RUN_ID_DOMAIN}\n".encode("utf-8"))
+    for repo in sorted(documents):
+        body = render(_blank_run_id(documents[repo])).encode("utf-8")
+        digest.update(json.dumps([repo, len(body)]).encode("utf-8") + b"\n")
+        digest.update(body)
+    return digest.hexdigest()
+
+
+def run_id(entries_by_repo: dict, taxonomy) -> str:
+    """The run id a run recording ``entries_by_repo`` (``{repository: that
+    repository's catalog entries}``) under the effective ``taxonomy`` block
+    writes: the content address (``content_digest``) of exactly the
+    per-repository snapshot documents ``write_snapshot`` renders for them.
+
+    Deterministic (research D4 — never wall clock) AND content-addressed
+    (opensoft/xFactory#519): identical recorded content => identical id =>
+    the same immutable run directory, and different recorded content =>
+    a different id, whatever made it differ. That second half is what the
+    inventory-plus-taxonomy key (``legacy_run_id``) lacked: a snapshot's
+    content is shaped by more than the inventory and the taxonomy — by the
+    classification carried forward from whichever run the writing tree
+    last recorded, by the validated recommendations a cataloger child
+    returned or did not return, and by the ``state_since`` date every new
+    pending marker is stamped with — so one key could name two contents.
+    Every input still participates because every input shows in the
+    content: each entry's ``revision`` and ``snapshot_id`` (so an unrelated
+    commit that moves a repository's HEAD is still a new run, as a
+    snapshot's provenance must reflect the revision it was taken at —
+    data-model.md, Catalog entry freshness) and the effective taxonomy
+    block. ``diff()``'s per-document ``modified`` classification stays
+    content-hash-only (design decision 8).
+
+    Raises ValueError, before anything could land, for an empty run, an
+    incomplete taxonomy, or entries ``write_snapshot`` would itself refuse
+    (a foreign repository, an ambiguous or duplicate locator, mixed
+    revisions)."""
+    if not entries_by_repo:
+        raise ValueError("a run records at least one repository snapshot")
+    taxonomy_block = _validate_taxonomy(taxonomy)
+    return content_digest({
+        repo: _snapshot_document("", repo, list(entries), taxonomy_block)
+        for repo, entries in entries_by_repo.items()})
+
+
+def _legacy_key(inventory_snapshot_id: str, taxonomy_digest) -> str:
+    if taxonomy_digest is None:
+        return inventory_snapshot_id
+    return hashlib.sha256(
+        f"{inventory_snapshot_id}\n{taxonomy_digest}\n".encode()).hexdigest()
+
+
+def legacy_run_id(inv: list[dict], taxonomy=None) -> str:
+    """The id every run recorded before opensoft/xFactory#519 used: the
+    inventory content hash, folded with the effective taxonomy digest when
+    one is supplied. It is NOT a content address — it never covered the
+    classification a run records — so it must never be used to mint the id
+    of a new run (``run_id`` does that). It survives so a recorded run
+    written under it can still be recognized as honestly derived
+    (``run_id_scheme``), and because the recorded history keeps those
+    names forever."""
     base = inventory.snapshot_id(inv)
     if taxonomy is None:
         return base
@@ -392,7 +474,54 @@ def run_id(inv: list[dict], taxonomy=None) -> str:
         else str(taxonomy)
     if not digest:
         raise ValueError("taxonomy carries no effective digest")
-    return hashlib.sha256(f"{base}\n{digest}\n".encode()).hexdigest()
+    return _legacy_key(base, digest)
+
+
+def _is_legacy_named(name: str, documents: dict) -> bool:
+    """Every document derives ``name`` as its legacy key from its own
+    recorded ``run.inventory_snapshot_id`` and ``taxonomy.digest``."""
+    for document in documents.values():
+        inventory_id = document["run"].get("inventory_snapshot_id")
+        taxonomy = document.get("taxonomy")
+        digest = taxonomy.get("digest") if isinstance(taxonomy, dict) \
+            else None
+        if not isinstance(inventory_id, str) or not inventory_id:
+            return False
+        if name not in {_legacy_key(inventory_id, None),
+                        _legacy_key(inventory_id, digest)}:
+            return False
+    return True
+
+
+def run_id_scheme(name: str, documents: dict) -> str | None:
+    """The run-id scheme a RECORDED run satisfies, or None.
+
+    ``documents`` maps each repository to the snapshot document the run
+    holds for it (``load_snapshot(...)["repos"]``) and ``name`` is the run
+    directory's name. Every document must record ``name`` as its own
+    ``run.run_id``; then the run is ``CONTENT_ADDRESSED`` when ``name`` is
+    the content address of exactly these documents (``content_digest``),
+    or ``LEGACY_INPUT_KEY`` when ``name`` is the pre-#519 key each
+    document's own recorded inventory snapshot id and taxonomy digest
+    derive. A legacy run's content cannot be verified — that key never
+    covered classification, which is the defect #519 records — so the
+    legacy answer says only that the name is honestly derived. None means
+    the directory holds content its name does not address: a snapshot
+    edited after it was recorded, a repository snapshot lost, or files
+    mixed from different runs. The cheap legacy test runs first, so the
+    recorded legacy history is never re-rendered."""
+    if not documents:
+        return None
+    for document in documents.values():
+        if not isinstance(document, dict) \
+                or not isinstance(document.get("run"), dict) \
+                or document["run"].get("run_id") != name:
+            return None
+    if _is_legacy_named(name, documents):
+        return LEGACY_INPUT_KEY
+    if content_digest(documents) == name:
+        return CONTENT_ADDRESSED
+    return None
 
 
 def _as_of_str(as_of) -> str:
@@ -634,8 +763,11 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
     - Identical-content no-op: an existing snapshot file with the same
       rendered bytes returns its path unchanged (completed run).
     - Immutability: an existing snapshot file with different bytes is
-      never rewritten — CatalogError. Run ids fold in the taxonomy
-      digest, so a taxonomy change is a new run, not a conflict.
+      never rewritten — CatalogError. Run ids are content addresses
+      (``run_id``; ``write_run`` mints them), so different content is
+      always a different run and this refusal is reached only through a
+      directory that was edited by hand, mixed from two runs, or named by
+      a caller that did not mint its id from the content it writes.
     - Crash safety: ``run.yaml`` is written after the snapshot file, so
       a recorded run always holds at least one repository snapshot;
       directories without ``run.yaml`` are invisible to
@@ -694,6 +826,28 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
     return target
 
 
+def write_run(root, as_of, entries_by_repo: dict, taxonomy
+              ) -> tuple[str, dict]:
+    """Record one run: mint its content-addressed id from exactly the
+    content being recorded (``run_id``) and write every repository's
+    snapshot under it (``write_snapshot``, in sorted repository order, with
+    all of its sequence-claim, stale-refusal, immutability, and crash-heal
+    guarantees). Returns ``(run_id, {repository: snapshot path})``.
+
+    This is the one call the dispatch layer records a run through, so no
+    caller can pair a content with an id that does not address it — the
+    pairing opensoft/xFactory#519 found two producers disagreeing over.
+    Two independent trees recording the same content converge on the same
+    id and byte-identical files; recording different content can never
+    reuse an id, whichever tree or date it lands on."""
+    rid = run_id(entries_by_repo, taxonomy)
+    paths = {}
+    for repo in sorted(entries_by_repo):
+        paths[repo] = write_snapshot(root, as_of, rid, repo,
+                                     entries_by_repo[repo], taxonomy)
+    return rid, paths
+
+
 def _load_run(run_dir: Path, day: str, sequence: int, rid: str) -> dict:
     repos = {}
     for path in sorted(run_dir.rglob("*.yaml")):
@@ -712,7 +866,9 @@ def load_snapshot(root, as_of=None, run_id=None) -> dict | None:
     Returns ``{"as_of", "run_id", "sequence", "repos": {repo: doc}}``
     or None when nothing matches. ``as_of`` narrows to a date (latest
     run on that date by recorded sequence); ``run_id`` narrows to a
-    specific run (latest date when the same content recurred). Only
+    specific run (latest date when the same content recurred — for a
+    content-addressed id, byte-identical content; a pre-#519 legacy id
+    promises only the same inventory and taxonomy). Only
     recorded runs (with ``run.yaml``) participate: sequence numbers are
     claimed atomically and unique, so "latest" is a total order, never
     a tie-break, and a crashed run directory is never returned.
