@@ -887,11 +887,38 @@ def _refuse_links_inside(run_dir: Path) -> None:
                     f"follows: {node}")
 
 
+def _is_writer_temp(node: Path, allowed_files) -> bool:
+    """True when ``node`` has exactly the shape ``_write_rendered``'s
+    ``tempfile.mkstemp(dir=path.parent, prefix=path.name + ".",
+    suffix=".tmp")`` leaves beside one of ``allowed_files``: a
+    same-directory sibling named ``"<final-name>.<anything>.tmp"``.
+
+    That covers both a concurrent writer's in-flight temp (PR #1189
+    review, Codex: an identical writer can be between its own ``mkstemp``
+    and ``os.replace`` when this preflight runs — the overlapping-writer
+    design ``test_overlapping_identical_runs_both_complete`` already
+    relies on) and one a hard crash orphaned before ``_write_rendered``'s
+    own ``except BaseException: tmp.unlink()`` could run. Neither is a
+    foreign descendant: the run-identity hash never reads it (only
+    ``_snapshot_files``'s ``*.yaml`` match does, and ``.tmp`` never
+    satisfies that), and it is always either replaced by ``os.replace``
+    or left as harmless debris, never read as recorded content. A
+    stranger that merely resembles one — wrong directory, or not this
+    exact affix shape — still refuses."""
+    if not node.name.endswith(".tmp"):
+        return False
+    return any(
+        node.parent == target.parent
+        and node.name.startswith(target.name + ".")
+        for target in allowed_files)
+
+
 def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:
     """Refuse a run directory that holds any descendant — file or
     subdirectory, at any depth — outside the exact allowed set:
     ``run.yaml`` plus the repository-snapshot paths this run records
-    (``allowed_files``). A directory that is a proper ancestor of an
+    (``allowed_files``), each allowed file's own writer-owned temp
+    (``_is_writer_temp``). A directory that is a proper ancestor of an
     allowed file is exactly the structure the writer itself makes for a
     slash-separated repository id, and passes; anything else is refused
     before the first write or claim — a plain file the writer never wrote
@@ -910,7 +937,15 @@ def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:
     ``_refuse_links_inside`` already documents (``rglob`` silently skips a
     linked directory); by the time this runs, that call has already refused
     every symlink anywhere in ``run_dir``, so this only ever walks a plain
-    tree."""
+    tree. ``onerror`` fails closed (PR #1189 review, Copilot): ``os.walk``
+    otherwise silently swallows a directory it cannot enumerate (permission
+    denied, torn down mid-walk), and a foreign descendant could then hide
+    inside one and never be seen at all."""
+    def _refuse_unreadable(exc: OSError) -> None:
+        raise CatalogError(
+            f"catalog run directory could not be fully enumerated, so a "
+            f"foreign descendant could stay hidden: {exc}")
+
     allowed_files = set(allowed_files)
     allowed_dirs = {run_dir}
     for target in allowed_files:
@@ -918,12 +953,14 @@ def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:
         while node != run_dir:
             allowed_dirs.add(node)
             node = node.parent
-    for dirpath, dirnames, filenames in os.walk(run_dir):
+    for dirpath, dirnames, filenames in os.walk(
+            run_dir, onerror=_refuse_unreadable):
         dirnames.sort()
         base = Path(dirpath)
         for name in sorted(filenames):
             node = base / name
-            if node not in allowed_files:
+            if node not in allowed_files and \
+                    not _is_writer_temp(node, allowed_files):
                 raise CatalogError(
                     f"catalog run directory holds a path this run does "
                     f"not record ({node.relative_to(run_dir).as_posix()}): "

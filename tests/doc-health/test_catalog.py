@@ -1078,6 +1078,97 @@ def test_write_run_still_passes_a_clean_run(tmp_path):
     assert catalog.load_snapshot(tmp_path / "fresh")["run_id"] == rid
 
 
+def test_write_run_tolerates_a_writer_owned_temp_file(tmp_path):
+    # Review (Codex, PR #1189 for #1186, P1): _write_rendered's
+    # tempfile.mkstemp(dir=path.parent, prefix=path.name + ".",
+    # suffix=".tmp") deliberately creates "<final-name>.<random>.tmp"
+    # INSIDE the run directory. An identical writer racing this one --
+    # caught between its own mkstemp and os.replace when this preflight
+    # runs, exactly the overlap test_overlapping_identical_runs_
+    # both_complete relies on, but now with a temp file actually on disk
+    # -- or a hard crash that orphaned one before write_rendered's own
+    # "except BaseException: tmp.unlink()" could run, must not be mistaken
+    # for a foreign descendant: neither shape is ever read by the
+    # run-identity hash (_snapshot_files' *.yaml match never sees a .tmp
+    # file), and both are harmless debris a retry ignores rather than
+    # claims or deletes.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid, _recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+
+    # Concurrent writer: a full, already-complete run also holding
+    # in-flight sibling temps for its own recorded snapshots and run.yaml.
+    concurrent = tmp_path / "concurrent"
+    shutil.copytree(tmp_path / "src", concurrent)
+    run_dir = runs_root(concurrent) / DAY_STR / rid
+    temps = [
+        run_dir / "alpha.yaml.z9k2p7.tmp",
+        run_dir / "xFactories" / "MedxFactory.yaml.q1w2e3.tmp",
+        run_dir / "run.yaml.a1b2c3.tmp",
+    ]
+    for t in temps:
+        t.write_bytes(b"partial, in flight")
+    rid_again, paths_again = catalog.write_run(concurrent, DAY, runs,
+                                               TAXONOMY)
+    assert rid_again == rid
+    assert sorted(paths_again) == ["alpha", "xFactories/MedxFactory"]
+    # Untouched -- this writer never claims or cleans up a temp it did not
+    # itself create.
+    assert all(t.read_bytes() == b"partial, in flight" for t in temps)
+
+    # Hard-crash-orphaned temp beside a PARTIAL run: the crash window
+    # test_write_snapshot_never_adds_to_a_complete_run's "partial" case
+    # heals, now with debris left by the very crash that made it partial.
+    crashed = tmp_path / "crashed"
+    catalog.write_snapshot(crashed, DAY, rid, "alpha", runs["alpha"],
+                           TAXONOMY)  # only alpha landed before the crash
+    crashed_run_dir = runs_root(crashed) / DAY_STR / rid
+    (crashed_run_dir / "xFactories").mkdir()
+    orphaned = (crashed_run_dir / "xFactories" /
+               "MedxFactory.yaml.orphaned9z.tmp")
+    orphaned.write_bytes(b"never replaced")
+    rid_healed, paths_healed = catalog.write_run(crashed, DAY, runs,
+                                                 TAXONOMY)
+    assert rid_healed == rid
+    assert sorted(paths_healed) == ["alpha", "xFactories/MedxFactory"]
+    assert orphaned.read_bytes() == b"never replaced"
+
+
+def test_write_run_fails_closed_on_an_unenumerable_run_directory(tmp_path):
+    # Review (Copilot, PR #1189 for #1186): os.walk silently skips a
+    # directory it cannot enumerate when onerror is omitted, so a foreign
+    # descendant hidden inside an unreadable subdirectory of an otherwise
+    # legitimate, allowed ancestor ("xFactories/", here) would never be
+    # seen at all -- the preflight would complete over a subtree it never
+    # actually verified. _refuse_foreign_descendants now fails closed: an
+    # enumeration error anywhere in the run directory refuses the run
+    # rather than silently letting it through.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid, _recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    root = tmp_path / "unreadable"
+    shutil.copytree(tmp_path / "src", root)
+    run_dir = runs_root(root) / DAY_STR / rid
+    blocked = run_dir / "xFactories"
+    before = tree_state(root)
+    mode = blocked.stat().st_mode
+    # Execute-only (no read): a KNOWN child path (the preceding checks'
+    # lstat of xFactories/MedxFactory.yaml) still resolves fine, but
+    # os.scandir(xFactories) -- what os.walk needs to enumerate its
+    # contents -- is denied, which is exactly the enumeration failure
+    # under test.
+    blocked.chmod(0o100)
+    try:
+        with pytest.raises(catalog.CatalogError,
+                           match="could not be fully enumerated"):
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+    finally:
+        blocked.chmod(mode)  # restore -- tmp_path cleanup needs it readable
+    assert tree_state(root) == before  # no claim, no write
+
+
 def test_write_run_refuses_edited_run_metadata_before_any_write(tmp_path):
     # Review round 5 (Copilot, #1175): a regular but edited run.yaml passed
     # as a completed run. A retry over a run whose snapshots all matched
