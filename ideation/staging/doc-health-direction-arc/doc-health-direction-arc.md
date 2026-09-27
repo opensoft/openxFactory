@@ -23,6 +23,7 @@ this topic's options borrow from; if the eventual shape is a genuinely neutral
 package, a new root-level product (the `openXwallet` precedent: a neutral
 standard openxFactory pins by commit and digest) is also in scope
 Staging ID: openxFactory:staging:doc-health-direction-arc
+Captured: 2026-09-26
 Source: Raised by plan 034 (`specs/034-opendox-standalone-operation/tasks.md`
 T008), on Brett Heap's ruling R1Q6 (d) (`#656` comment `5817152735`,
 2026-09-24T15:31:46Z, verbatim *"(a) on all eleven, (d) on R1Q6"*). The interim
@@ -114,7 +115,7 @@ governed-flow suites to run — or sooner, if R1Q23 (open, phase 2) is answered
    names alone, a module of git-repository helpers and a text-splitting
    function, not a check family, a disposition reader or a classifier. This is
    an OBSERVATION, not an audited claim: it is offered as a possible seam
-   (open question 4 below), not a conclusion, because the other seven modules
+   (Q4 below), not a conclusion, because the other seven modules
    and the remaining reaches are not audited here.
 
 6. **The declared exclusion has a hard deadline, not an open-ended one.**
@@ -132,130 +133,200 @@ None recorded at staging.
 
 ## Conflicts
 
-This topic's own subject is a currently-tolerated conflict with a ratified
-spec: openXdox-code's eight `doc_health` imports stand against
-`corpus-adapter-seam`'s Requirement 1 today, held open only by R1Q6 (d)'s
-named, counted, release-1-scoped exception (`#656` comment `5817152735`). That
-is not a new conflict this topic creates; it is the conflict this topic exists
-to EXAMINE — not necessarily to close. Open questions 2 and 3 (options (b)
-and (c)) can close R1Q6's requirement-9 problem (the suite runs green alone)
-without touching a single production import, which would leave this
-Requirement 1 conflict standing as an UNRESOLVED violation — separate from,
-and NOT WAIVED by, R1Q6 (d)'s exclusion (that ruling covers only the
-standalone-suite/requirement-9 problem; nothing in the ruled record accepts
-or decides this conflict). Only option (a) done as a genuine extraction
-closes the conflict for the whole eight-module surface; open question 4's
-split closes it only for whatever slice it actually retargets, leaving it
-open for any module left on (b) or (c) instead. See § Exit path. No other
-staged topic or ratified spec is known to contradict the material above.
+- **This topic's own subject is a currently-tolerated conflict with a
+  ratified spec.** openXdox-code's eight `doc_health` imports stand against
+  `corpus-adapter-seam`'s Requirement 1 today, held open only by R1Q6 (d)'s
+  named, counted, release-1-scoped exception (`#656` comment `5817152735`).
+  That is not a new conflict this topic creates; it is the conflict this
+  topic exists to EXAMINE — not necessarily to close, and NOT waived by
+  R1Q6 (d): that ruling covers only the standalone-suite/requirement-9
+  problem, and nothing in the ruled record accepts or decides this conflict.
+  Q2 and Q3 (options (b) and (c)) can close R1Q6's requirement-9 problem (the
+  suite runs green alone) without touching a single production import,
+  which would leave this Requirement 1 conflict standing as its own,
+  separately unresolved question. Only option (a) done as a genuine
+  extraction closes the conflict for the whole eight-module surface; Q4's
+  split closes it only for whatever slice it actually retargets, leaving it
+  open for any module left on (b) or (c) instead. See § Exit path. No other
+  staged topic or ratified spec is known to contradict the material above.
+  — Added-by: Claude Sonnet 5 (lane openxfactory-4) · 2026-09-27
 
 ## Open questions
 
-1. **(R1Q6's option (a)) Pinned dependency — does NOT by itself conform.**
-   openXdox-code gains `doc_health` as a declared, pinned, installable
-   dependency (needs openxFactory to package it: a `pyproject.toml` for
-   `scripts/doc_health/`, or a dedicated distribution). On its own this does
-   NOT resolve the stated seam violation: openXdox-code would still be a
-   neutral product importing `openxFactory`'s own tooling, merely through a
-   proper pin instead of an ad-hoc `PYTHONPATH` reach, and it makes the
-   openxFactory ↔ openXdox pin explicitly TWO-WAY (openxFactory already pins
-   openXdox; openXdox would then pin openxFactory's tooling too) — the
-   opposite of Requirement 1's one-way rule. As stated, this cannot be the
-   exit option by itself; either (i) `doc_health` (or the slice openXdox-code
-   needs) first moves to a genuinely neutral, separately-versioned home, so
-   openXdox-code pins a THIRD PARTY rather than "openxFactory's own tooling"
-   — at which point this option becomes a realization detail of open
-   question 4, not a standalone answer — or (ii) it is adopted explicitly as
-   a labelled, time-boxed WORKAROUND under its own `corpus-adapter-seam`
-   exception, rather than as something that lifts R1Q6 (d)'s exclusion by
-   itself. `corpus-adapter-seam` already requires that any two mutually
-   importing packages relocate their shared type into a module both depend
-   on BEFORE either is extracted — the same discipline (i) would need,
-   applied to whatever `doc_health` surface openXdox-code actually needs.
-2. **(R1Q6's option (b)) Declared integration tests.** The `doc_health`-dependent
-   openXdox-code tests become declared integration tests that live where the
-   composition is declared — openxFactory — per requirement 9's own admitted
-   exception for tests that need two repositories. Needs R1Q2's declared
-   composition-test surface widened to admit them (the same surface plan 034's
-   T007 batch A / batch E already grows for the `openxdox_host` composition
-   tests). **This closes requirement 9 only.** It moves or composes TESTS,
-   not production code: `DOC_HEALTH_SURFACE`'s eight modules keep their
-   imports exactly as measured, so `corpus-adapter-seam`'s Requirement 1
-   conflict (claim 1) stands untouched — chosen alone, this does not close
-   the conflict this topic examines, only R1Q6's test-runs-alone problem.
-3. **(R1Q6's option (c)) Composed CI, no shared package.** openXdox-code's own
-   CI composes an openxFactory checkout at a declared, pinned commit (checked
-   out beside it — the shape `pytest-suite` already uses for the root
-   pins), reading requirement 9's "no sibling" as "no sibling OF ITS OWN
-   PROJECT" rather than "no sibling repository at all." R1Q6's own
-   recommendation named this option, or (d), as the two live candidates for
-   release 1; (d) (the declared exclusion) was ruled instead, precisely so
-   this direction question could be taken slower and separately. **Like (b),
-   this closes requirement 9 only** — it changes CI composition, not a
-   single production import, so it leaves Requirement 1's conflict standing
-   too.
-4. **A narrower seam: split the surface instead of choosing one shape for all
-   eight modules.** Claim 5 above observes that at least `generator.py`'s
-   three `doc_health` imports read as generic git/text utilities rather than
-   governance logic. Is part of `DOC_HEALTH_SURFACE` better served by
-   extracting a small neutral utility module (own home, own pin, trivial
-   distribution) while the genuinely governance-specific reaches (in
-   `cli_gate`, `completeness`, `corpus_root`, `gate_console`, `gate_routes`,
-   `round_trip`, `snapshot_registry`) take option (b) or (c) instead? This
-   needs the other seven modules' imports audited the way claim 5 only
-   sketches for `generator.py`.
-5. **Timing: does this arc have to move into release 1?** R1Q23 (open, phase
-   2) asks whether F5.2 (phase 2, four of 5.4a's six generator suites) forces
-   this arc's decision and realization ahead of its named deadline (12.5,
-   release 2). If R1Q23 is answered (b) ("bring the direction arc forward"),
-   this topic's exit gate tightens to phase 2's close rather than 12.5.
-6. **Who owns realization once the direction is ruled?** Plan 034 names no
-   task for the fix itself — T008 raises the arc; it does not schedule the
-   work. The exit proposal below should either carry its own task list or
-   name the plan/lane that will.
+### Q1. Does openXdox-code gaining `doc_health` as an installable, pinned dependency (R1Q6's option (a)) resolve the Requirement 1 conflict on its own?
+
+Context: R1Q6 named this as a live option: openXdox-code gains `doc_health`
+as a declared, pinned, installable dependency, which needs openxFactory to
+package it (a `pyproject.toml` for `scripts/doc_health/`, or a dedicated
+distribution). Measured: on its own this does not resolve the seam
+violation — openXdox-code would still be a neutral product importing
+`openxFactory`'s own tooling, merely through a proper pin instead of an
+ad-hoc `PYTHONPATH` reach, and it makes the openxFactory ↔ openXdox pin
+explicitly TWO-WAY (openxFactory already pins openXdox; openXdox would then
+pin openxFactory's tooling too) — the opposite of Requirement 1's one-way
+rule. `corpus-adapter-seam` already requires that any two mutually importing
+packages relocate their shared type into a module both depend on BEFORE
+either is extracted.
+Recommended answer: No, not as a standalone answer. Either (i) `doc_health`
+(or the slice openXdox-code needs) first moves to a genuinely neutral,
+separately-versioned home, so openXdox-code pins a THIRD PARTY rather than
+"openxFactory's own tooling" — at which point this becomes a realization
+detail of Q4 rather than a standalone answer — or (ii) it is adopted
+explicitly as a labelled, time-boxed WORKAROUND under its own
+`corpus-adapter-seam` exception, never as something that lifts R1Q6 (d)'s
+exclusion by itself.
+Explanation: Packaging changes the MECHANISM (an ad-hoc `PYTHONPATH` reach
+becomes a declared pin) but not the DIRECTION (openXdox-code still imports
+openxFactory's own tooling, and openxFactory still pins openXdox). Only
+relocating the tooling itself, or explicitly accepting the residual
+violation, avoids re-creating the two-way-pin shape `corpus-adapter-seam`
+forbids.
+Disposition status: open
+Added-by: Claude Sonnet 5 (lane openxfactory-4) · 2026-09-27
+
+### Q2. Does moving the `doc_health`-dependent tests into declared integration tests in openxFactory (R1Q6's option (b)) close the Requirement 1 conflict?
+
+Context: Option (b) makes the `doc_health`-dependent openXdox-code tests
+declared integration tests that live where the composition is declared —
+openxFactory — per requirement 9's own admitted exception for tests that
+need two repositories. It needs R1Q2's declared composition-test surface
+widened to admit them (the same surface plan 034's T007 batch A / batch E
+already grows for the `openxdox_host` composition tests).
+Recommended answer: No — it closes requirement 9 only (the suite runs green
+alone, because the moved tests no longer need to). It moves or composes
+TESTS, not production code: `DOC_HEALTH_SURFACE`'s eight modules keep their
+imports exactly as measured, so the Requirement 1 conflict (claim 1) stands
+untouched. Chosen alone, this must not be read as closing the conflict this
+topic examines.
+Explanation: Requirement 9 and Requirement 1 are different rules — one about
+where a test's composition is declared, the other about which direction a
+production import points. Satisfying the first says nothing about the
+second.
+Disposition status: open
+Added-by: Claude Sonnet 5 (lane openxfactory-4) · 2026-09-27
+
+### Q3. Does composing openXdox-code's CI with a pinned openxFactory checkout and no shared package (R1Q6's option (c)) close the Requirement 1 conflict?
+
+Context: Option (c) has openXdox-code's own CI compose an openxFactory
+checkout at a declared, pinned commit (checked out beside it — the shape
+`pytest-suite` already uses for the root pins), reading requirement 9's "no
+sibling" as "no sibling OF ITS OWN PROJECT" rather than "no sibling
+repository at all." R1Q6's own recommendation named this option, or (d), as
+the two live candidates for release 1; (d) (the declared exclusion) was
+ruled instead, precisely so this direction question could be taken slower
+and separately.
+Recommended answer: No, for the same reason as Q2 — like (b), this closes
+requirement 9 only. It changes CI composition, not a single production
+import, so it leaves Requirement 1's conflict standing too.
+Explanation: (c) is a test-execution-environment change, not an
+import-direction change. The eight-module surface is unaffected either way.
+Disposition status: open
+Added-by: Claude Sonnet 5 (lane openxfactory-4) · 2026-09-27
+
+### Q4. Should the surface be split — extracting only the non-governance slice to a neutral home, rather than choosing one shape for all eight modules?
+
+Context: Claim 5 observes that at least `generator.py`'s three `doc_health`
+imports (`doc_health.corpus`, `doc_health.corpus.RealGit`,
+`doc_health.lines.split_keepends`) read as generic git/text utilities rather
+than governance-specific logic, unlike the other seven modules' unaudited
+reaches (`cli_gate`, `completeness`, `corpus_root`, `gate_console`,
+`gate_routes`, `round_trip`, `snapshot_registry`).
+Recommended answer: Worth auditing before ruling among (a)/(b)/(c) for the
+WHOLE surface. Extract a small neutral utility module (own home, own pin,
+trivial distribution) for whatever slice is genuinely non-governance, while
+the genuinely governance-specific reaches take (b) or (c). This closes the
+Requirement 1 conflict only for whatever it actually retargets — the other
+modules, left on (b)/(c), stay exactly as open as Q2/Q3 describe unless they
+too are retargeted.
+Explanation: A single shape for all eight modules may be wrong if the
+reaches are not uniform in kind. But this is an unaudited hypothesis: the
+other seven modules' imports are not examined here, only asserted as a
+possibility.
+Disposition status: open
+Added-by: Claude Sonnet 5 (lane openxfactory-4) · 2026-09-27
+
+### Q5. Does R1Q23's answer force this arc's decision and realization ahead of its named deadline?
+
+Context: R1Q23 (open, phase 2) asks whether F5.2 (phase 2, four of 5.4a's
+six generator suites, which need `doc_health` and which F5.2 does not
+provide) forces this arc's decision and realization ahead of its named
+deadline (release 2's 12.5).
+Recommended answer: Follows R1Q23; not decided here. If R1Q23 is answered
+(b) ("bring the direction arc forward"), this topic's exit gate tightens to
+phase 2's close rather than 12.5.
+Explanation: This topic's own deadline is derivative of R1Q23's answer,
+which belongs to plan 034's own round (T009, phase 2), not to this topic.
+Disposition status: open
+Added-by: Claude Sonnet 5 (lane openxfactory-4) · 2026-09-27
+
+### Q6. Who owns the realization work once the direction is ruled?
+
+Context: Plan 034 names no task for the fix itself — T008 raises the arc; it
+does not schedule the work of actually retargeting `DOC_HEALTH_SURFACE`.
+Recommended answer: The exit proposal should either carry its own task
+list, or name the plan/lane that will own it, rather than leave realization
+unowned once the direction is ruled.
+Explanation: An arc that is ruled but not scheduled risks sitting exactly
+where R1Q6 (d)'s exclusion already sits — tolerated, not resolved — unless a
+proposal and owner are named at the same time as the ruling.
+Disposition status: open
+Added-by: Claude Sonnet 5 (lane openxfactory-4) · 2026-09-27
 
 ## Exit path
 
-A proposal once open questions 1–3 are ruled (which of (a)/(b)/(c), or a
-split per open question 4) and open question 5's timing is settled (does
+A proposal once Q1–Q3 are ruled (which of (a)/(b)/(c), or a
+split per Q4) and Q5's timing is settled (does
 R1Q23 pull this ahead of phase 2's close). The shape depends on which is
 ruled, because R1Q6's requirement-9 problem (can the suite run green alone)
 and `corpus-adapter-seam`'s Requirement 1 conflict (do the production imports
 point the wrong way — claim 1) do NOT necessarily close together:
 
-- **If (b) or (c) alone is ruled:** a realization change that moves or
-  composes TESTS/CI only; `DOC_HEALTH_SURFACE`'s eight production imports are
+- **If (b) or (c) alone is ruled, applied to the whole eight-module
+  surface:** a realization change that moves or composes TESTS/CI only, for
+  all eight `DOC_HEALTH_SURFACE` modules; their production imports are
   UNTOUCHED. This lifts R1Q6 (d)'s declared exclusion and lets
   `add-neutral-product-standalone-operability` report requirement 9 closed —
-  but Requirement 1's conflict stands exactly as measured today. R1Q6 (d)
-  ruled only the standalone-suite/requirement-9 exclusion; it does NOT waive
-  Requirement 1, and nothing has accepted this violation. The proposal must
-  say so plainly and bring the conflict to Brett as its own question, rather
-  than let requirement 9's closure read as if it had resolved this too.
-- **If (a) is ruled and realized as a genuine extraction, or open question
-  4's split is taken:** a realization change against openXdox-code (and
-  openDox-code, if the chosen seam borrows the registered-adapter pattern
-  already used for `corpus_adapter` / `domain_profile` there) that actually
-  RETARGETS some or all of `DOC_HEALTH_SURFACE`'s eight modules away from
-  importing `openxFactory`'s `doc_health` by name. This closes requirement 9
-  AND the Requirement 1 conflict FOR WHATEVER IT RETARGETS: doing all eight
-  closes the conflict outright; taking the split alone (generator.py's three
-  imports) closes it only for that module, and the other seven stand exactly
-  as open as the bullet above describes unless they too are retargeted
-  rather than merely moved to (b) or (c). A `corpus-adapter-seam` or
+  but Requirement 1's conflict stands exactly as measured today, for the
+  full surface. R1Q6 (d) ruled only the standalone-suite/requirement-9
+  exclusion; it does NOT waive Requirement 1, and nothing has accepted this
+  violation. The proposal must say so plainly and bring the conflict to
+  Brett as its own question, rather than let requirement 9's closure read as
+  if it had resolved this too.
+- **If (a) is ruled and realized as a genuine extraction of all eight
+  modules:** a realization change against openXdox-code (and openDox-code,
+  if the chosen seam borrows the registered-adapter pattern already used for
+  `corpus_adapter` / `domain_profile` there) that RETARGETS all of
+  `DOC_HEALTH_SURFACE`'s eight modules away from importing `openxFactory`'s
+  `doc_health` by name. This closes requirement 9 for the repository AND the
+  Requirement 1 conflict outright. A `corpus-adapter-seam` or
   `neutral-product-pin` spec delta rides along only if the ruled shape needs
   new contract text.
+- **If Q4's split is taken:** the same kind of realization change retargets
+  only `generator.py`'s three imports, closing the Requirement 1 conflict
+  for that one module alone. This does NOT by itself close requirement 9 for
+  the repository: the other seven `DOC_HEALTH_SURFACE` modules' suites still
+  fail collection standalone until they are ALSO resolved — either
+  retargeted too (extending toward full (a)), or given the same (b)/(c)
+  composition/CI treatment the first bullet describes for whatever is left.
+  Q4's own recommended answer already bundles the split with (b)/(c) for the
+  remaining seven; a proposal taking the split must carry that bundling
+  through, not leave it implicit or deferred, and must not report
+  requirement 9 closed on the split alone.
 
-Either path lifts R1Q6 (d)'s declared exclusion and closes requirement 9 for
-openXdox-code. Closing the Requirement 1 conflict this topic was raised to
-examine is NOT automatic: it happens only module by module, for whatever the
-ruled shape actually retargets — the whole surface under (a)-as-extraction,
-or only the retargeted slice under the split, with every module left on (b)
-or (c) staying exactly as open as before. The proposal must say, module by
-module, which is which, rather than let requirement 9's closure imply the
-other.
+Requirement 9 closes for the repository only once every `DOC_HEALTH_SURFACE`
+module has received one of these three treatments — (b)/(c) applied whole,
+(a) applied whole, or Q4's split paired with (b)/(c) (or retargeting) for
+what it does not retarget; it does NOT close from taking the split in
+isolation, with the remaining seven modules' resolution left unscheduled.
+Closing the Requirement 1 conflict this topic was raised to examine is a
+separate question, decided module by module regardless of requirement 9's
+status: the whole surface closes it under full (a); the retargeted slice
+alone closes it under the split; every module left on (b) or (c) leaves it
+exactly as open as before. The proposal must say, module by module, which is
+which, and must not let requirement 9's closure — however it is achieved —
+imply Requirement 1's.
 
-Gated on: Brett Heap's ruling of open questions 1–3 (and optionally 4), and
+Gated on: Brett Heap's ruling of Q1–Q3 (and optionally Q4), and
 R1Q23's answer for timing. Deadline, as R1Q6 (d) and T008 name it: before
 release 2's 12.5 needs its sixteen governed-flow suites to run, or sooner if
 R1Q23 is answered (b).

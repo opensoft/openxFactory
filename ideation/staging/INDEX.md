@@ -2702,11 +2702,17 @@ repo scope.
   requirement 9 as an open extraction for openXdox-code until this arc lands.
 - **Exit path.** A proposal once Brett rules among the direction options
   (and, if raised, the split option) and R1Q23's timing question is answered.
-  (b)/(c) alone close requirement 9 (the suite runs green) without touching a
-  single production import, leaving the `corpus-adapter-seam` conflict open
-  as its own question to Brett; only (a)-as-genuine-extraction, or the split
-  for whatever it retargets, also retargets `DOC_HEALTH_SURFACE`'s imports
-  and closes that conflict too — module by module, not automatically. A
+  (b)/(c) alone, applied to the whole eight-module surface, close
+  requirement 9 (the suite runs green) without touching a single production
+  import, leaving the `corpus-adapter-seam` conflict open as its own
+  question to Brett. (a)-as-genuine-extraction of all eight modules closes
+  both requirement 9 and that conflict outright. The split closes the
+  conflict only for whatever it retargets (`generator.py`'s three imports);
+  it does NOT by itself close requirement 9 for the repository — the other
+  seven modules' suites still fail standalone until they too are resolved,
+  either retargeted or given the same (b)/(c) treatment. A proposal taking
+  the split must resolve or schedule that remainder in the same breath and
+  must not report requirement 9 closed on the split alone. A
   `corpus-adapter-seam` / `neutral-product-pin` spec delta rides along only
   if the ruled shape needs new contract text. Plan 034 names no task for the
   fix itself, only for raising the question (T008), so the exit proposal owes
