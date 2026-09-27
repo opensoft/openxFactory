@@ -4327,9 +4327,13 @@ profile = opendox_host.profile()
 for facet in sys.argv[3:]:
     getattr(profile, facet)
 # Every module of the unit's own packages came from the runtime tree, a
-# namespace package's every path included.
+# namespace package's every path included. `route_extension` too: the lane
+# column imports it by its bare name, and the checkout also has a copy at
+# `scripts/route_extension.py`, which the unit does not carry. It must be a
+# leg's replica, inside the tree (Copilot, PR #1179).
 OWN = {"carved_reach", "doc_health", "ideation_dashboard", "opendox",
-       "opendox_host", "openxdox", "profile_openxfactory", "wire_messages"}
+       "opendox_host", "openxdox", "profile_openxfactory", "route_extension",
+       "wire_messages"}
 for name, module in sorted(sys.modules.items()):
     if name.split(".")[0] not in OWN:
         continue
