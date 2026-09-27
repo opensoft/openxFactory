@@ -2690,8 +2690,10 @@ repo scope.
   (`doc_health.corpus`, `doc_health.corpus.RealGit`,
   `doc_health.lines.split_keepends`) read as generic git/text utilities
   rather than governance-specific logic, unlike the other seven modules'
-  unaudited reaches. Only (a) done as a genuine extraction closes the
-  `corpus-adapter-seam` conflict for the whole eight-module surface; the
+  unaudited reaches. Only a genuine neutral-home extraction (Q1's option
+  (i) — NOT mere pinning under R1Q6's literal option (a), which does not
+  resolve the seam by itself) closes the `corpus-adapter-seam` conflict for
+  the whole eight-module surface; the
   split closes it only for whatever it retargets (generator.py's three
   imports alone, as sketched), leaving the conflict open for the other
   seven modules if they stay on (b) or (c) instead of being retargeted too.
@@ -2714,7 +2716,8 @@ repo scope.
   `doc_health` portion of requirement 9 (the suite no longer needs
   `doc_health` to run green) without touching a single production import,
   leaving the `corpus-adapter-seam` conflict open as its own question to
-  Brett. (a)-as-genuine-extraction of all eight modules closes that same
+  Brett. Q1's genuine neutral-home extraction, realized for all eight
+  modules (not R1Q6's literal option (a) alone), closes that same
   `doc_health` portion outright AND the conflict outright. The split closes
   the conflict only for whatever it retargets (`generator.py`'s three
   imports); it does NOT by itself close even the `doc_health` portion for

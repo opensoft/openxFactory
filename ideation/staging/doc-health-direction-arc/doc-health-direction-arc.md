@@ -148,21 +148,24 @@ None recorded at staging.
 ## Conflicts
 
 - **This topic's own subject is a currently-tolerated conflict with a
-  ratified spec.** openXdox-code's eight `doc_health` imports stand against
-  `corpus-adapter-seam`'s Requirement 1 today, held open only by R1Q6 (d)'s
-  named, counted, release-1-scoped exception (`#656` comment `5817152735`).
-  That is not a new conflict this topic creates; it is the conflict this
-  topic exists to EXAMINE — not necessarily to close, and NOT waived by
-  R1Q6 (d): that ruling covers only the standalone-suite/requirement-9
-  problem, and nothing in the ruled record accepts or decides this conflict.
-  Q2 and Q3 (options (b) and (c)) can close R1Q6's requirement-9 problem (the
-  suite runs green alone) without touching a single production import,
-  which would leave this Requirement 1 conflict standing as its own,
-  separately unresolved question. Only option (a) done as a genuine
-  extraction closes the conflict for the whole eight-module surface; Q4's
-  split closes it only for whatever slice it actually retargets, leaving it
-  open for any module left on (b) or (c) instead. See § Exit path. No other
-  staged topic or ratified spec is known to contradict the material above.
+  ratified spec — one R1Q6 (d) does NOT authorize or cover.** openXdox-code's
+  eight `doc_health` imports stand against `corpus-adapter-seam`'s
+  Requirement 1 today. R1Q6 (d) is a separate, release-1-scoped, named,
+  counted exception (`#656` comment `5817152735`) for requirement 9's own
+  standalone-suite problem only; it does not authorize, preserve, or extend
+  to an exception for Requirement 1, and nothing in the ruled record accepts
+  or decides this conflict. That is not a new conflict this topic creates;
+  it is the conflict this topic exists to EXAMINE — not necessarily to
+  close. Q2 and Q3 (options (b) and (c)) can close R1Q6's requirement-9
+  problem (the suite runs green alone) without touching a single production
+  import, which would leave this Requirement 1 conflict standing as its
+  own, separately unresolved question. Only a genuine neutral-home
+  extraction (Q1's option (i) — NOT mere pinning under R1Q6's literal
+  option (a), which Q1 finds does not resolve the seam by itself) closes
+  the conflict for the whole eight-module surface; Q4's split closes it
+  only for whatever slice it actually retargets, leaving it open for any
+  module left on (b) or (c) instead. See § Exit path. No other staged topic
+  or ratified spec is known to contradict the material above.
   — Added-by: Claude Sonnet 5 (lane openxfactory-4) · 2026-09-27
 
 ## Open questions
@@ -311,8 +314,10 @@ point the wrong way — claim 1) do NOT necessarily close together:
   and nothing has accepted this violation. The proposal must say so plainly
   and bring the conflict to Brett as its own question, rather than let
   requirement 9's closure read as if it had resolved this too.
-- **If (a) is ruled and realized as a genuine extraction of all eight
-  modules:** a realization change against openXdox-code (and openDox-code,
+- **If Q1's genuine neutral-home extraction is realized for all eight
+  modules** (NOT R1Q6's literal option (a) alone, which Q1 finds does not
+  resolve the seam by itself)**:** a realization change against
+  openXdox-code (and openDox-code,
   if the chosen seam borrows the registered-adapter pattern already used for
   `corpus_adapter` / `domain_profile` there) that RETARGETS all of
   `DOC_HEALTH_SURFACE`'s eight modules away from importing `openxFactory`'s
@@ -326,8 +331,9 @@ point the wrong way — claim 1) do NOT necessarily close together:
   for that one module alone. This does NOT by itself close even the
   `doc_health` portion of requirement 9: the other seven `DOC_HEALTH_SURFACE`
   modules' suites still fail collection standalone until they are ALSO
-  resolved — either retargeted too (extending toward full (a)), or given the
-  same (b)/(c) composition/CI treatment the first bullet describes for
+  resolved — either retargeted too (extending toward the full genuine
+  extraction), or given the same (b)/(c) composition/CI treatment the first
+  bullet describes for
   whatever is left. Q4's own recommended answer already bundles the split
   with (b)/(c) for the remaining seven; a proposal taking the split must
   carry that bundling through, not leave it implicit or deferred, and must
@@ -335,8 +341,9 @@ point the wrong way — claim 1) do NOT necessarily close together:
 
 This arc's ruling closes the `doc_health`-caused portion of requirement 9's
 exclusion only once every `DOC_HEALTH_SURFACE` module has received one of
-these three treatments — (b)/(c) applied whole, (a) applied whole, or Q4's
-split paired with (b)/(c) (or retargeting) for what it does not retarget; it
+these three treatments — (b)/(c) applied whole, the full genuine extraction
+applied whole, or Q4's split paired with (b)/(c) (or retargeting) for what
+it does not retarget; it
 does NOT close even that portion from taking the split in isolation, with
 the remaining seven modules' resolution left unscheduled. And even fully
 closed, that portion is not the whole of requirement 9 for openXdox-code:
@@ -348,8 +355,9 @@ the repository, until those are ALSO resolved, on their own tracks; this
 proposal must say so and must not read its own closure as reaching them.
 Closing the Requirement 1 conflict this topic was raised to examine is a
 further, separate question, decided module by module regardless of either
-exclusion's status: the whole surface closes it under full (a); the
-retargeted slice alone closes it under the split; every module left on (b)
+exclusion's status: the whole surface closes it under the full genuine
+extraction; the retargeted slice alone closes it under the split; every
+module left on (b)
 or (c) leaves it exactly as open as before. The proposal must say, module by
 module, which is which, and must not let either exclusion's closure —
 however achieved — imply Requirement 1's, or imply R1Q24/R1Q25's.
