@@ -847,6 +847,45 @@ def test_overlapping_identical_runs_both_complete(tmp_path, monkeypatch):
         catalog.CONTENT_ADDRESSED
 
 
+def test_write_snapshot_never_adds_to_a_complete_run(tmp_path):
+    # Review round 8 (Copilot, #1175): once run.yaml existed, write_snapshot
+    # wrote any missing target. A caller could record a content-addressed id
+    # for one repository and then append another under the same id,
+    # mutating a closed run into mixed content. A run whose recorded
+    # snapshots already make up the content its id addresses is complete,
+    # and it refuses additions. A partial run (crashed between its first
+    # snapshot and its last) is still completed by a retry.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid_one, _ = catalog.write_run(tmp_path / "closed", DAY,
+                                   {"alpha": runs["alpha"]}, TAXONOMY)
+    before = tree_state(tmp_path / "closed")
+    with pytest.raises(catalog.CatalogError, match="complete"):
+        catalog.write_snapshot(tmp_path / "closed", DAY, rid_one,
+                               "openxFactory", runs["openxFactory"],
+                               TAXONOMY)
+    assert tree_state(tmp_path / "closed") == before
+    closed = catalog.load_snapshot(tmp_path / "closed")
+    assert catalog.run_id_scheme(rid_one, closed["repos"],
+                                 catalog._load_run_bytes(
+                                     runs_root(tmp_path / "closed") /
+                                     DAY_STR / rid_one)) == \
+        catalog.CONTENT_ADDRESSED
+    # The crash window: the full run's first snapshot and run.yaml landed,
+    # the second never did. The same content's retry completes it.
+    rid = catalog.run_id(runs, TAXONOMY)
+    catalog.write_snapshot(tmp_path / "partial", DAY, rid, "alpha",
+                           runs["alpha"], TAXONOMY)
+    assert catalog.load_snapshot(tmp_path / "partial")["repos"].keys() == \
+        {"alpha"}
+    assert catalog.write_run(tmp_path / "partial", DAY, runs, TAXONOMY)[0] \
+        == rid
+    healed = catalog.load_snapshot(tmp_path / "partial")
+    assert healed["repos"].keys() == {"alpha", "openxFactory"}
+    assert catalog.run_id_scheme(rid, healed["repos"], catalog._load_run_bytes(
+        runs_root(tmp_path / "partial") / DAY_STR / rid)) == \
+        catalog.CONTENT_ADDRESSED
+
+
 def test_a_foreign_sequence_claim_node_is_refused_before_claiming(tmp_path):
     # Review round 7 (Copilot, #1175): the claim scan skipped a claim-named
     # node that was not a regular file. The O_EXCL open then collided with a

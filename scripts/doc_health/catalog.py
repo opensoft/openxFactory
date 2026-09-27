@@ -948,6 +948,16 @@ def _holds_exactly(target: Path, expected: bytes) -> bool:
     return True
 
 
+def _addresses_itself(run_dir: Path, rid: str) -> bool:
+    """True when the snapshots already recorded in ``run_dir`` make up
+    exactly the content ``rid`` addresses (``_persisted_digest`` over their
+    raw bytes). That makes the run complete and closed. A partial run does
+    not address itself yet, because it crashed between its first snapshot
+    and its last. Neither does a run named by the legacy key."""
+    persisted = _load_run_bytes(run_dir)
+    return bool(persisted) and _persisted_digest(rid, persisted) == rid
+
+
 def _recorded(root: Path, run_dir: Path, rid: str, day: str) -> bool:
     """Returns False when the run has no ``run.yaml`` yet (never recorded,
     or crashed before recording). Returns True when ``run.yaml`` is exactly
@@ -1026,6 +1036,13 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
       a recorded run always holds at least one repository snapshot;
       directories without ``run.yaml`` are invisible to
       ``load_snapshot`` and heal idempotently on retry.
+    - Closed runs stay closed: a recorded run whose snapshots already make
+      up exactly the content its id addresses (``_addresses_itself``) is
+      complete, and a snapshot for any other repository is refused. A
+      partial run, one that crashed between its first snapshot and its
+      last, is still completed. This call cannot know a partial run's
+      full content. ``write_run``, which does know it, also refuses a
+      stranger's snapshot left inside a run.
     """
     root = Path(root)
     day = _as_of_str(as_of)
@@ -1056,6 +1073,17 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
             run_dir.mkdir()
         except FileExistsError:
             pass  # raced an identical-content run — same rid, same bytes
+    elif _addresses_itself(run_dir, rid):
+        # Recorded, and the content its id addresses is already all there,
+        # so this target (absent above) is no part of it. The exception is
+        # a concurrent identical writer that has just landed it: that is
+        # the completed no-op.
+        if _holds_exactly(target, expected):
+            return target
+        raise CatalogError(
+            f"catalog run is complete: its recorded snapshots already make "
+            f"up the content its id addresses, so a snapshot added now would "
+            f"mix it: {target}")
 
     target.parent.mkdir(parents=True, exist_ok=True)
     if not _holds_exactly(target, expected):  # re-check: race lost mid-write

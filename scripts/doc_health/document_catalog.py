@@ -795,8 +795,13 @@ def _run_identity_findings(ctx) -> list[Finding]:
     finding. So is a run that is not the plain tree the writer makes
     (``catalog._refuse_foreign_run_tree``): a symlink anywhere from the
     catalog root down to the run, or inside it. That run is refused before
-    anything is read, so bytes that live outside the catalog are never
-    hashed as the run's own and can never verify it clean. So is a run
+    its snapshots are read, so bytes that live outside the catalog are
+    never hashed as the run's own and can never verify it clean. By then
+    the shared run scan (``catalog._iter_runs``) has already read the run's
+    ``run.yaml`` sequence, following links as it does for every check. A
+    malformed linked ``run.yaml`` therefore takes the whole-family path
+    below, like any unreadable one. Making that shared scan link-safe
+    would change every reader, and it is outside this check. So is a run
     whose ``run.yaml`` is not exactly the record the writer writes for this
     directory (``catalog._recorded``): its own id and date, byte for byte,
     and a sequence whose claim is this run's. An edited id, date or
