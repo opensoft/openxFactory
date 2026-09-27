@@ -76,6 +76,7 @@ import ast
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -1579,18 +1580,452 @@ def test_the_intermediate_archive_is_never_part_of_the_artifact(corpus, tmp_path
     assert not any(key.endswith(".tar") for key in manifest["files"])
 
 
-def test_a_non_empty_seal_directory_is_refused(corpus, tmp_path):
-    """A seal is a FRESH tree, never an overlay on one. `files` is the
+# ---------------------------------------------------------------------------
+# THE SEAL DIRECTORY IS THE LANE'S OWN (#1182). The lane makes it itself,
+# exclusively, before anything is written into it and before any sealed code
+# runs, and holds a handle on it from then on. Everything the lane writes
+# under it goes through that handle, so a path swapped after the making
+# redirects nothing, and a seal whose path no longer leads to the directory
+# the lane made is refused.
+# ---------------------------------------------------------------------------
+
+def _existing_seal_path(seal: Path) -> str:
+    return (f"the seal directory {seal} already exists: a seal is materialized "
+            "only into a directory the lane creates itself, never into one it "
+            "found")
+
+
+def _linked_seal_path(seal: Path) -> str:
+    return (f"the seal directory {seal} is not a directory of its own, but a "
+            "link: a seal is materialized only into a directory the lane "
+            "creates itself, and never through a link")
+
+
+def _recording_resolver(where: Path, calls: list):
+    """A stand-in resolver that records each time the seal resolves its
+    validator, which it does before it makes the seal directory."""
+    stub = _stub_validator(where)
+
+    def resolving():
+        calls.append(stub)
+        return stub
+
+    return resolving
+
+
+def _what_is_at(path: Path):
+    """What sits at `path`, to show nothing was written into it: a
+    directory's listing, a file's bytes, or None."""
+    if path.is_dir():
+        return sorted(entry.name for entry in path.iterdir())
+    return path.read_bytes() if path.exists() else None
+
+
+def _identity(path) -> tuple[int, int]:
+    """The directory `path` leads to, as `(st_dev, st_ino)`."""
+    info = os.stat(path)
+    return info.st_dev, info.st_ino
+
+
+def _tree_state(root: Path) -> dict:
+    """Every path under `root`, with what it is: a directory, a link and
+    its target, or a file and its bytes."""
+    state: dict = {}
+    for path in sorted(root.rglob("*")):
+        key = path.relative_to(root).as_posix()
+        if path.is_symlink():
+            state[key] = ("link", os.readlink(path))
+        elif path.is_dir():
+            state[key] = ("directory",)
+        else:
+            state[key] = ("file", path.read_bytes())
+    return state
+
+
+@pytest.mark.parametrize("found", ["an-empty-directory",
+                                   "a-directory-holding-files", "a-file"])
+def test_a_seal_directory_that_already_exists_is_refused(corpus, tmp_path,
+                                                          found):
+    """A SEAL IS A FRESH TREE THE LANE MAKES ITSELF (#1182). `files` is the
     authority on what the child must find, so a leftover from an earlier
     attempt would be indexed, digested and shipped as though the parent had
-    sealed it."""
+    sealed it, and a directory someone else made, empty or not, is one whose
+    history the lane cannot vouch for. So anything already at the seal's
+    path refuses the seal, before the validator is even resolved, and
+    nothing is written into it."""
     seal = tmp_path / "seal"
-    seal.mkdir()
-    (seal / "leftover.txt").write_text("from an earlier attempt\n",
-                                       encoding="utf-8")
-    with pytest.raises(lane.SealRefused, match="not empty"):
+    if found == "a-file":
+        seal.write_text("not a directory\n", encoding="utf-8")
+    else:
+        seal.mkdir()
+        if found == "a-directory-holding-files":
+            (seal / "leftover.txt").write_text("from an earlier attempt\n",
+                                               encoding="utf-8")
+    before = _what_is_at(seal)
+    calls: list = []
+    resolving = _recording_resolver(tmp_path / "unit", calls)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, resolve_validator=resolving)
+    assert str(refused.value) == _existing_seal_path(seal)
+    assert calls == []
+    assert _what_is_at(seal) == before
+
+
+def test_a_seal_directory_that_appears_before_the_lane_makes_it_is_refused(
+        corpus, tmp_path):
+    """THE MAKING IS EXCLUSIVE (#1182). The lane looks for an existing path
+    first, for a legible refusal, then makes the directory with a plain
+    `mkdir`, which fails on anything already there. A directory that appears
+    in between, here as the validator is resolved, is refused as one the lane
+    found, never adopted."""
+    seal = tmp_path / "seal"
+    stub = _stub_validator(tmp_path / "unit")
+
+    def appearing():
+        seal.mkdir()
+        return stub
+
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, resolve_validator=appearing)
+    assert str(refused.value) == _existing_seal_path(seal)
+    assert list(seal.iterdir()) == []
+
+
+@pytest.mark.parametrize("swap", ["a-link-out", "a-directory-holding-files"])
+def test_a_seal_directory_swapped_as_the_lane_makes_it_is_refused(
+        corpus, tmp_path, monkeypatch, swap):
+    """THE DIRECTORY HELD IS THE DIRECTORY MADE (#1182). Something acting in
+    the instant between the lane's `mkdir` and its taking a handle could put
+    a link, or another directory, at the seal's path. The handle is opened
+    without following a link, relative to the directory the seal was made
+    in, and a directory the lane has just made holds nothing, so either is
+    refused, and nothing is written through it. The swap is made here as the
+    lane's own `mkdir` of the seal returns."""
+    seal = tmp_path / "seal"
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    make = os.mkdir
+
+    def making_then_swapping(path, mode=0o777, *, dir_fd=None):
+        make(path, mode, dir_fd=dir_fd)
+        if dir_fd is None or os.fspath(path) != seal.name:
+            return
+        os.rename(seal.name, f"{seal.name}.made", src_dir_fd=dir_fd,
+                  dst_dir_fd=dir_fd)
+        if swap == "a-link-out":
+            os.symlink(outside, seal.name, target_is_directory=True,
+                       dir_fd=dir_fd)
+        else:
+            make(seal.name, mode, dir_fd=dir_fd)
+            (seal / "planted.txt").write_text("planted\n", encoding="utf-8")
+
+    monkeypatch.setattr(lane.os, "mkdir", making_then_swapping)
+    with pytest.raises(lane.SealRefused) as refused:
         _seal(corpus, seal)
+    assert str(refused.value) == (
+        f"the seal directory {seal} was replaced as the lane made it, and "
+        "nothing is written into what took its place")
+    assert list(outside.iterdir()) == []
+    assert not (tmp_path / f"{seal.name}.made" / lane.SEAL_CORPUS_RELPATH
+                ).exists()
+
+
+def test_a_seal_directory_swapped_after_the_lane_made_it_gets_nothing_more(
+        corpus, tmp_path):
+    """A SWAPPED SEAL DIRECTORY GETS NOTHING MORE (#1182). Once the lane has
+    made the seal directory, something may move it aside and put a link to
+    another directory at its path, here as the legs are sealed. Nothing more
+    is written, through the link or into the directory moved aside: the lane
+    finds its path no longer leads to the directory it holds before it
+    extracts the corpus, and refuses the seal. Before this, the corpus and
+    the validator were extracted through the link, and the probe ran from
+    the other directory."""
+    seal = tmp_path / "seal"
+    moved = tmp_path / "seal.moved"
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    stub = _stub_validator(tmp_path / "unit")
+
+    def swapping_legs(*, corpus_checkout, source_head, corpus_root, runner):
+        records = _stub_leg_records(corpus_root, PRODUCT_MODULE_TEXT,
+                                    _validator_head(stub))
+        seal.rename(moved)
+        seal.symlink_to(outside, target_is_directory=True)
+        return records
+
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, resolve_validator=lambda: stub,
+              seal_legs=swapping_legs)
+    assert sorted(path.name for path in outside.iterdir()) == []
+    assert str(refused.value) == (
+        "the seal directory is no longer the one the lane created: it was "
+        "replaced after the lane made it, and the corpus is never written "
+        "anywhere else")
+    assert not (moved / lane.SEAL_CORPUS_RELPATH / "docs").exists()
+    assert not (moved / lane.SEAL_VALIDATOR_ROOT).exists()
+    assert not (moved / lane.SEAL_MANIFEST_NAME).exists()
+
+
+def test_a_seal_directory_swapped_while_the_lane_writes_it_keeps_the_writes(
+        corpus, tmp_path):
+    """EVERY WRITE GOES THROUGH THE HANDLE (#1182). The corpus is extracted,
+    and the validator copied, through the handle the lane holds on the
+    directory it made, never through its path. So a swap of the path in the
+    middle of the writing, here as the corpus archive is made, redirects
+    nothing: the corpus lands in the directory the lane made, wherever that
+    now is, and nothing lands where the link points. The next check refuses
+    the seal, before the recipe is written."""
+    seal = tmp_path / "seal"
+    moved = tmp_path / "seal.moved"
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    swapped: list = []
+
+    def runner(argv, **kw):
+        result = lane.subprocess_runner(argv, **kw)
+        if "archive" in [str(a) for a in argv] and not swapped:
+            seal.rename(moved)
+            seal.symlink_to(outside, target_is_directory=True)
+            swapped.append(argv)
+        return result
+
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, runner=runner)
+    assert swapped, "the corpus archive was never made"
+    assert sorted(path.name for path in outside.iterdir()) == []
+    assert (moved / lane.SEAL_CORPUS_RELPATH / "docs" / "a.md").is_file()
+    assert (moved / lane.SEAL_VALIDATOR_RELPATH).is_file()
+    assert str(refused.value) == (
+        "the seal directory is no longer the one the lane created: sealed "
+        "code ran inside it, and the recipe is never written anywhere else")
+    assert not (moved / "recipe").exists()
+    assert not (moved / lane.SEAL_MANIFEST_NAME).exists()
+
+
+@pytest.mark.parametrize("replacement", ["a-fresh-directory",
+                                         "a-link-to-the-moved-one"])
+def test_a_directory_on_the_way_swapped_as_the_seal_is_made_gets_nothing(
+        corpus, tmp_path, monkeypatch, replacement):
+    """THE WAY TO THE SEAL IS HELD AS WELL AS THE SEAL (Copilot, PR #1185).
+    The walk from the root holds each directory on the way by a handle, and
+    the seal is made relative to the last one. So a directory on the way
+    that is moved out of the root after the walk opened it, and replaced,
+    would have the seal made inside the moved one, out of the root, while
+    its name led to the replacement, and the legs would be written there
+    before any check of the name. Once the seal is made, its way is walked
+    again from the root, by name and through no link, and a seal its name
+    does not lead to is refused before anything is written into it. The
+    swap is made here as the lane's own `mkdir` of the seal is called: `a`
+    moves out of the root, and a fresh directory, or a link to where `a`
+    went, takes its place."""
+    root = tmp_path / "root"
+    seal = root / "a" / "b" / "dfr-seal"
+    seal.parent.mkdir(parents=True)
+    moved = tmp_path / "moved"
+    stub = _stub_validator(tmp_path / "unit")
+    make = os.mkdir
+
+    def swapping_then_making(path, mode=0o777, *, dir_fd=None):
+        if (dir_fd is not None and os.fspath(path) == seal.name
+                and not moved.exists()):
+            (root / "a").rename(moved)
+            if replacement == "a-fresh-directory":
+                seal.parent.mkdir(parents=True)
+            else:
+                (root / "a").symlink_to(moved, target_is_directory=True)
+        make(path, mode, dir_fd=dir_fd)
+
+    monkeypatch.setattr(lane.os, "mkdir", swapping_then_making)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, seal_within=root, resolve_validator=lambda: stub)
+    assert _what_is_at(moved / "b" / seal.name) == []
+    assert str(refused.value) == (
+        f"the seal directory {seal} was made where its path no longer leads: "
+        f"a directory on its way from {root} was replaced as the lane made "
+        "it, and nothing is written into it")
+    if replacement == "a-fresh-directory":
+        assert not os.path.lexists(seal)
+
+
+@pytest.mark.parametrize("when", ["as-the-legs-are-sealed",
+                                  "as-the-render-runs"])
+def test_a_directory_on_the_way_swapped_for_a_link_gets_nothing_more(
+        corpus, tmp_path, when):
+    """THE NAME IS HELD TO THE SEAL THROUGH NO LINK (Copilot, PR #1185). A
+    directory on the seal's way may be moved out of the root after the seal
+    is made, and a link to it put in its place, here as the legs are sealed
+    or as the render runs. The seal's path then still reaches the directory
+    the lane made, but through a link, out of the root. Each check of the
+    name walks it again from the root through no link, as the making did,
+    so the seal is refused and nothing more is written into it. Before
+    this, the check looked through the link, and the seal was completed,
+    manifest and all, out of the root."""
+    root = tmp_path / "root"
+    seal = root / "a" / "b" / "dfr-seal"
+    seal.parent.mkdir(parents=True)
+    moved = tmp_path / "moved"
+    stub = _stub_validator(tmp_path / "unit")
+
+    def swap():
+        (root / "a").rename(moved)
+        (root / "a").symlink_to(moved, target_is_directory=True)
+
+    def swapping_legs(*, corpus_checkout, source_head, corpus_root, runner):
+        records = _stub_leg_records(corpus_root, PRODUCT_MODULE_TEXT,
+                                    _validator_head(stub))
+        if when == "as-the-legs-are-sealed":
+            swap()
+        return records
+
+    def swapping_render(seal_root, *, source_head, source_committed_at):
+        if when == "as-the-render-runs":
+            swap()
+        return dict(STUB_PRECHECK)
+
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, seal_within=root, resolve_validator=lambda: stub,
+              seal_legs=swapping_legs, precheck_render=swapping_render)
+    what, after = (("corpus", "it was replaced after the lane made it")
+                   if when == "as-the-legs-are-sealed"
+                   else ("manifest", "sealed code ran inside it"))
+    assert str(refused.value) == (
+        f"the seal directory is no longer the one the lane created: {after}, "
+        f"and the {what} is never written anywhere else")
+    made = moved / "b" / seal.name
+    assert made.is_dir()
+    assert not (made / lane.SEAL_MANIFEST_NAME).exists()
+    if when == "as-the-legs-are-sealed":
+        assert not (made / lane.SEAL_CORPUS_RELPATH / "docs").exists()
+
+
+@pytest.mark.parametrize("replacement", ["a-copy-in-its-place",
+                                         "a-directory-of-its-own"])
+def test_the_render_is_handed_the_directory_the_lane_made_not_its_name(
+        corpus, tmp_path, monkeypatch, replacement):
+    """THE RENDER RUNS FROM THE DIRECTORY THE LANE MADE (Copilot, PR #1185).
+    The validator's probe is sealed code, run with the seal writable before
+    the render, so the seal's name may lead somewhere else by the time the
+    render runs. The render is handed the directory the lane holds, as the
+    probe is, never the name. Here the seal is moved aside once the recipe
+    is written, and a copy of it, or a directory of its own, is put at its
+    name. The render still runs from the directory the lane made, and the
+    seal is refused before its manifest, since its name no longer leads
+    there."""
+    seal = tmp_path / "seal"
+    moved = tmp_path / "seal.moved"
+    write_recipe = lane._write_new_recipe
+    ran_in: list = []
+
+    def writing_then_swapping(held, text, **kw):
+        write_recipe(held, text, **kw)
+        seal.rename(moved)
+        if replacement == "a-copy-in-its-place":
+            shutil.copytree(moved, seal)
+        else:
+            seal.mkdir()
+
+    def recording(seal_root, *, source_head, source_committed_at):
+        # The first thing the real render does with what it is handed.
+        ran_in.append(_identity(Path(seal_root).resolve()))
+        return dict(STUB_PRECHECK)
+
+    monkeypatch.setattr(lane, "_write_new_recipe", writing_then_swapping)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, precheck_render=recording)
+    assert ran_in == [_identity(moved)]
+    assert str(refused.value) == (
+        "the seal directory is no longer the one the lane created: sealed "
+        "code ran inside it, and the manifest is never written anywhere else")
+    assert not (moved / lane.SEAL_MANIFEST_NAME).exists()
     assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
+
+
+@pytest.mark.parametrize("replacement", ["a-link-to-the-moved-seal",
+                                         "a-copy-in-its-place"])
+def test_a_seal_directory_swapped_as_its_manifest_is_written_is_not_published(
+        corpus, tmp_path, monkeypatch, replacement):
+    """THE NAME IS HELD ONCE MORE AFTER THE MANIFEST (Copilot, PR #1185). The
+    manifest is the seal's publication marker, and once the lane records the
+    seal sealed, the workflow uploads whatever the seal's name leads to. A
+    name swapped while the manifest was written would publish something
+    else. So the name is held to the directory once more after the write. A
+    seal whose name no longer leads there is refused, and its manifest is
+    withdrawn from the directory the lane made, through its handle. Here the
+    seal is moved aside as the manifest's write returns, and a link to it,
+    or a copy of it, is put at its name."""
+    seal = tmp_path / "seal"
+    moved = tmp_path / "seal.moved"
+    write_manifest = lane._write_new_manifest
+
+    def writing_then_swapping(held, text, **kw):
+        write_manifest(held, text, **kw)
+        seal.rename(moved)
+        if replacement == "a-link-to-the-moved-seal":
+            seal.symlink_to(moved, target_is_directory=True)
+        else:
+            shutil.copytree(moved, seal)
+
+    monkeypatch.setattr(lane, "_write_new_manifest", writing_then_swapping)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal)
+    assert not (moved / lane.SEAL_MANIFEST_NAME).exists()
+    assert str(refused.value) == (
+        "the seal directory is no longer the one the lane created: it was "
+        "replaced as its manifest was written, so the seal is not published, "
+        "and its manifest is withdrawn")
+
+
+def test_a_confined_seal_is_never_made_by_its_path_alone(corpus, tmp_path,
+                                                          monkeypatch):
+    """A PLATFORM THAT HOLDS NO HANDLE MAKES NO CONFINED SEAL (Copilot, PR
+    #1185). Where the platform opens nothing relative to a handle, the seal
+    directory could only be made, written and checked by its path. A
+    directory on its way replaced after `--seal-out` was checked would then
+    redirect the whole writable tree, and a directory swapped in at its name
+    would be taken for the one made. So a seal confined to a root, as `main`
+    confines it to `--repo-root`, is refused there before anything is made.
+    A direct call that confines nothing still makes its seal by the path, as
+    the manifest's write always has where no handle can be opened."""
+    root = tmp_path / "root"
+    root.mkdir()
+    seal = root / "dfr-seal"
+    monkeypatch.setattr(lane, "_DIR_FD", False)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, seal_within=root)
+    assert not os.path.lexists(seal)
+    assert str(refused.value) == (
+        f"the seal directory {seal} cannot be made here: this platform opens "
+        f"nothing relative to a handle, and a seal confined to {root} is "
+        "never made, written or checked by its path alone")
+    free = tmp_path / "free"
+    _seal(corpus, free)
+    assert (free / lane.SEAL_MANIFEST_NAME).is_file()
+
+
+def test_a_confined_seal_is_never_written_by_its_path(corpus, tmp_path,
+                                                       monkeypatch):
+    """NOR ONE THAT NAMES NO PATH THROUGH A HANDLE (Copilot, PR #1185). A
+    platform can open a directory relative to a handle and still name no
+    path through one (no `/proc/self/fd`). The seal would then be written,
+    indexed and counted through its name, which sealed code may swap, and
+    the handle would guard only the making. So a seal confined to a root is
+    refused there too, before anything is made. A direct call that confines
+    nothing still writes its seal through the name, as before. Here the
+    handles' path names nothing (`_HANDLE_PATHS`)."""
+    root = tmp_path / "root"
+    root.mkdir()
+    seal = root / "dfr-seal"
+    monkeypatch.setattr(lane, "_HANDLE_PATHS", tmp_path / "no-handle-paths")
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, seal_within=root)
+    assert not os.path.lexists(seal)
+    assert str(refused.value) == (
+        f"the seal directory {seal} cannot be made here: this platform names "
+        f"no path through a handle, and a seal confined to {root} is never "
+        "written or read by its path alone")
+    free = tmp_path / "free"
+    _seal(corpus, free)
+    assert (free / lane.SEAL_MANIFEST_NAME).is_file()
 
 
 @pytest.mark.parametrize("path", [path for path in SERVE_ONLY
@@ -2112,6 +2547,12 @@ def test_the_seal_speaks_only_git_and_never_builds_or_pushes(corpus, tmp_path,
 # the CLI phase — the dispatch gate, and a refusal that never fails the run
 # ---------------------------------------------------------------------------
 
+def _cli_seal(tmp_path: Path) -> Path:
+    """Where the CLI tests name the seal: inside the checkout the lane runs
+    over, as the workflow's own `--seal-out dfr-seal` does (#1182)."""
+    return tmp_path / "aggregation" / "dfr-seal"
+
+
 def _seal_cli(tmp_path: Path, corpus: Path, *extra: str,
               decision: dict | None = None) -> dict | None:
     root = tmp_path / "aggregation"
@@ -2122,7 +2563,7 @@ def _seal_cli(tmp_path: Path, corpus: Path, *extra: str,
     lane.main(["--repo-root", str(root), "--phase", "seal",
                "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
                "--decision-in", str(root / "dfr-decision.json"),
-               "--seal-out", str(tmp_path / "seal"),
+               "--seal-out", str(_cli_seal(tmp_path)),
                "--seal-result-out", str(root / "seal-result.json"),
                "--correlation-id", CORRELATION, *extra])
     try:
@@ -2143,7 +2584,7 @@ def test_the_seal_phase_refuses_an_absent_decision_without_failing_the_run(
     result = _seal_cli(tmp_path, corpus)          # no decision file written
     assert result["sealed"] is False
     assert "no usable parent decision" in result["reason"]
-    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+    assert not (_cli_seal(tmp_path) / lane.SEAL_MANIFEST_NAME).exists()
 
 
 def test_the_seal_phase_refuses_a_no_change_decision(corpus, tmp_path):
@@ -2174,9 +2615,9 @@ def test_the_seal_phase_writes_the_dispatch_gate(corpus, tmp_path, monkeypatch):
     assert is_rfc3339_datetime(result["source_committed_at"])
     assert len(result["tree_digest"]) == 64
     assert result["file_count"] > 0 and result["total_bytes"] > 0
-    manifest = lane.read_seal_manifest(tmp_path / "seal")
+    manifest = lane.read_seal_manifest(_cli_seal(tmp_path))
     assert manifest["tree_digest"] == result["tree_digest"]
-    assert lane.verify_seal(tmp_path / "seal", correlation_id=CORRELATION,
+    assert lane.verify_seal(_cli_seal(tmp_path), correlation_id=CORRELATION,
                             corpus_revision=head,
                             recipe_revision=RECIPE_REV) == []
 
@@ -2321,7 +2762,7 @@ def test_a_seal_result_path_the_lane_may_not_clear_is_refused(
     code = lane.main(["--repo-root", str(root), "--phase", "seal",
                       "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
                       "--decision-in", str(root / "dfr-decision.json"),
-                      "--seal-out", str(tmp_path / "seal"),
+                      "--seal-out", str(root / "dfr-seal"),
                       "--seal-result-out", given,
                       "--correlation-id", CORRELATION])
     # No result of the lane's own is written, so the step fails.
@@ -2329,7 +2770,7 @@ def test_a_seal_result_path_the_lane_may_not_clear_is_refused(
     assert victim.read_text(encoding="utf-8") == "untouched\n"
     assert (kept / "report.md").read_text(encoding="utf-8") == "untouched\n"
     assert (root / "dfr-decision.json").is_file()
-    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+    assert not os.path.lexists(root / "dfr-seal")
     said = capsys.readouterr().out
     assert "NOT SEALED" in said and "the seal result" in said
 
@@ -2347,7 +2788,7 @@ def _seal_phase(tmp_path: Path, corpus: Path, root: Path):
     return lane.main(["--repo-root", str(root), "--phase", "seal",
                       "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
                       "--decision-in", str(root / "dfr-decision.json"),
-                      "--seal-out", str(tmp_path / "seal"),
+                      "--seal-out", str(root / "dfr-seal"),
                       "--seal-result-out", str(root / "seal-result.json"),
                       "--correlation-id", CORRELATION])
 
@@ -2450,7 +2891,7 @@ def test_a_result_directory_sealed_code_replaced_is_never_written_through(
     lane.main(["--repo-root", str(root), "--phase", "seal",
                "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
                "--decision-in", str(root / "dfr-decision.json"),
-               "--seal-out", str(tmp_path / "seal"),
+               "--seal-out", str(root / "dfr-seal"),
                "--seal-result-out", str(root / "seal-result.json"),
                "--correlation-id", CORRELATION])
     assert (outside / "seal-result.json").read_text(encoding="utf-8") == \
@@ -2482,6 +2923,16 @@ def test_the_workflows_own_relative_spelling_seals(corpus, tmp_path,
     (root / "dfr-decision.json").write_text(json.dumps(_decision(head)),
                                             encoding="utf-8")
     monkeypatch.chdir(root)
+    # The spelling satisfies the rule `--seal-out` is held to (#1182): one
+    # relative name inside the checkout, which no step before the seal step
+    # makes or names, so the lane makes it fresh. The upload reads the same
+    # name (`test_the_upload_names_the_artifact_the_child_downloads`).
+    assert lane._seal_out_path("dfr-seal", Path(".").resolve()) == \
+        (root / "dfr-seal").resolve()
+    steps = _finalize_steps()
+    for step in steps[:_step_index(steps, id="dfr-seal")]:
+        assert not re.search(r"dfr-seal(?![-\w])", json.dumps(step)), \
+            step.get("name")
     monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
     monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
     monkeypatch.setattr(lane, "precheck_sealed_render", _stub_precheck)
@@ -2495,6 +2946,239 @@ def test_the_workflows_own_relative_spelling_seals(corpus, tmp_path,
         encoding="utf-8"))
     assert result["sealed"] is True, result["reason"]
     assert (root / "dfr-seal" / lane.SEAL_MANIFEST_NAME).is_file()
+
+
+@pytest.mark.parametrize("where, clause", [
+    ("beside-the-checkout", "is not inside the checkout"),
+    ("climbing-out-of-it", "is not inside the checkout"),
+    ("through-a-link-out-of-it", "is not inside the checkout"),
+    ("through-a-link-inside-it", "leads through a link"),
+    ("a-link-at-its-own-name", "leads through a link"),
+    ("a-dangling-link-at-its-own-name", "leads through a link"),
+    ("an-existing-directory-inside-it", "already exists"),
+    ("in-a-directory-that-does-not-exist",
+     "is in a directory that does not exist"),
+])
+def test_a_seal_out_the_lane_may_not_make_is_refused_before_anything_is_sealed(
+        corpus, tmp_path, monkeypatch, capsys, where, clause):
+    """--SEAL-OUT IS CONFINED TO THE CHECKOUT AND MADE FRESH (#1182). The seal
+    directory is where sealed code runs with a writable tree, and where the
+    workflow uploads from. So `--seal-out` must resolve inside `--repo-root`,
+    through no link at any component, the last included, and name nothing
+    that exists yet, in a directory that does. Anything else is refused
+    before the seal starts: nothing of the seal runs, sealed code least of
+    all, nothing is made or written anywhere, and the refusal is a recorded
+    outcome, so the step succeeds and nothing is dispatched. Before this, a
+    seal was made beside the checkout, out of it by `..` or through a link,
+    in a directory it found, or in one `mkdir` made on the way."""
+    head = _git(corpus, "rev-parse", "HEAD")
+    root = tmp_path / "aggregation"
+    root.mkdir()
+    (root / "dfr-decision.json").write_text(json.dumps(_decision(head)),
+                                            encoding="utf-8")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    inside = root / "inside"
+    inside.mkdir()
+    if where == "through-a-link-out-of-it":
+        (root / "linked").symlink_to(outside, target_is_directory=True)
+    elif where == "through-a-link-inside-it":
+        (root / "linked").symlink_to(inside, target_is_directory=True)
+    elif where == "a-link-at-its-own-name":
+        (root / "dfr-seal").symlink_to(inside, target_is_directory=True)
+    elif where == "a-dangling-link-at-its-own-name":
+        (root / "dfr-seal").symlink_to(root / "nowhere",
+                                       target_is_directory=True)
+    elif where == "an-existing-directory-inside-it":
+        (root / "dfr-seal").mkdir()
+    given = {
+        "beside-the-checkout": str(tmp_path / "seal"),
+        "climbing-out-of-it": str(root / ".." / "seal"),
+        "through-a-link-out-of-it": str(root / "linked" / "dfr-seal"),
+        "through-a-link-inside-it": str(root / "linked" / "dfr-seal"),
+        "a-link-at-its-own-name": str(root / "dfr-seal"),
+        "a-dangling-link-at-its-own-name": str(root / "dfr-seal"),
+        "an-existing-directory-inside-it": str(root / "dfr-seal"),
+        "in-a-directory-that-does-not-exist": str(root / "absent"
+                                                  / "dfr-seal"),
+    }[where]
+    entered: list = []
+    sealing = lane.seal_source
+
+    def entering(**kw):
+        entered.append(kw)
+        return sealing(**kw)
+
+    monkeypatch.setattr(lane, "seal_source", entering)
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", _stub_precheck)
+    code = lane.main(["--repo-root", str(root), "--phase", "seal",
+                      "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
+                      "--decision-in", str(root / "dfr-decision.json"),
+                      "--seal-out", given,
+                      "--seal-result-out", str(root / "seal-result.json"),
+                      "--correlation-id", CORRELATION])
+    result = json.loads((root / "seal-result.json").read_text(
+        encoding="utf-8"))
+    assert result["sealed"] is False
+    assert result["reason"].startswith(
+        f"the seal cannot be made: --seal-out {given!r} {clause}"), \
+        result["reason"]
+    assert entered == []
+    assert code is None
+    assert sorted(path.name for path in outside.iterdir()) == []
+    assert sorted(path.name for path in inside.iterdir()) == []
+    assert not os.path.lexists(tmp_path / "seal")
+    assert not os.path.lexists(root / "absent")
+    assert "NOT SEALED — the seal cannot be made" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("overlap", ["one-path-holding-a-seal",
+                                     "one-free-path",
+                                     "the-result-inside-the-seal",
+                                     "the-seal-inside-the-result",
+                                     "a-free-seal-inside-the-result",
+                                     "a-link-to-the-result",
+                                     "a-free-result-inside-an-existing-seal",
+                                     "the-checkout-itself"])
+def test_a_seal_out_that_overlaps_the_seal_result_is_never_touched(
+        corpus, tmp_path, monkeypatch, capsys, overlap):
+    """THE SEAL AND ITS RESULT ARE TWO PATHS (Copilot, PR #1185). The seal
+    result's path is cleared before the seal runs, since whatever sits there
+    is the lane's to remove (#1166). A `--seal-out` that is the same path,
+    or holds it, or lies inside it, would have had an existing seal, or
+    whatever it held, removed as a stale result, and the path then passed as
+    fresh and been sealed into. So an overlap is found before anything is
+    cleared, and on an overlap neither path is touched: nothing is removed,
+    made, sealed or written, and the step fails, since the lane will not
+    write its result at a path that is the seal's, or inside it, or holds
+    it. A result written anyway would land inside an existing seal (Copilot,
+    PR #1185, review 5331632101). The paths are compared as spelled and as
+    resolved, so a `--seal-out` that is a link to the result's path overlaps
+    it too, and the checkout itself overlaps every result path inside it. A
+    `--seal-out` refused on its own keeps its own reason; a free one is
+    refused for the overlap."""
+    head = _git(corpus, "rev-parse", "HEAD")
+    root = tmp_path / "aggregation"
+    root.mkdir()
+    (root / "dfr-decision.json").write_text(json.dumps(_decision(head)),
+                                            encoding="utf-8")
+    if overlap in ("one-path-holding-a-seal", "one-free-path"):
+        seal_out = result_out = root / "dfr-seal.json"
+    elif overlap in ("the-result-inside-the-seal",
+                     "a-free-result-inside-an-existing-seal"):
+        seal_out = root / "dfr-seal"
+        result_out = seal_out / "seal-result.json"
+    elif overlap == "a-link-to-the-result":
+        seal_out = root / "dfr-seal"
+        result_out = root / "seal-result.json"
+    elif overlap == "the-checkout-itself":
+        seal_out = root
+        result_out = root / "seal-result.json"
+    else:
+        result_out = root / "seal-result.json"
+        seal_out = result_out / "dfr-seal"
+    kept = seal_out / "kept.txt"
+    free = overlap in ("one-free-path", "a-free-seal-inside-the-result")
+    if overlap == "a-link-to-the-result":
+        result_out.mkdir()
+        (result_out / "kept.txt").write_text("an earlier seal\n",
+                                             encoding="utf-8")
+        seal_out.symlink_to(result_out, target_is_directory=True)
+    elif not free:
+        seal_out.mkdir(parents=True, exist_ok=overlap == "the-checkout-itself")
+        kept.write_text("an earlier seal\n", encoding="utf-8")
+    if overlap == "the-result-inside-the-seal":
+        result_out.write_text('{"stale": true}\n', encoding="utf-8")
+    if overlap == "a-free-seal-inside-the-result":
+        result_out.mkdir()
+    before = _tree_state(root)
+    entered: list = []
+    sealing = lane.seal_source
+
+    def entering(**kw):
+        entered.append(kw)
+        return sealing(**kw)
+
+    monkeypatch.setattr(lane, "seal_source", entering)
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", _stub_precheck)
+    code = lane.main(["--repo-root", str(root), "--phase", "seal",
+                      "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
+                      "--decision-in", str(root / "dfr-decision.json"),
+                      "--seal-out", str(seal_out),
+                      "--seal-result-out", str(result_out),
+                      "--correlation-id", CORRELATION])
+    if not free:
+        assert kept.read_text(encoding="utf-8") == "an earlier seal\n"
+    if overlap == "the-result-inside-the-seal":
+        assert result_out.read_text(encoding="utf-8") == '{"stale": true}\n'
+    if overlap == "a-free-seal-inside-the-result":
+        assert result_out.is_dir()
+    assert entered == []
+    if free:
+        reason = (f"the seal cannot be made: --seal-out {str(seal_out)!r} and "
+                  f"--seal-result-out {str(result_out)!r} overlap, and "
+                  "neither is touched: the seal and its result are two "
+                  "paths, never one inside the other")
+    elif overlap == "a-link-to-the-result":
+        reason = (f"the seal cannot be made: --seal-out {str(seal_out)!r} "
+                  f"leads through a link (to {result_out}), and the seal is "
+                  "never made through one")
+    else:
+        reason = (f"the seal cannot be made: --seal-out {str(seal_out)!r} "
+                  "already exists, and the lane makes the seal only in a "
+                  "directory it creates itself")
+    assert f"NOT SEALED — {reason}" in capsys.readouterr().out
+    assert _tree_state(root) == before
+    assert code == lane.SEAL_RESULT_UNWRITTEN_EXIT
+
+
+def test_a_link_put_on_the_seal_out_path_after_its_check_is_never_made_through(
+        corpus, tmp_path, monkeypatch):
+    """THE MAKING HOLDS THE RULE TOO (#1182). `--seal-out` is checked before
+    the seal starts, and the seal directory is made later, once the validator
+    is resolved. The lane makes it by walking from `--repo-root`, opening
+    each directory on the way relative to the one before and without
+    following a link, so a directory on the way swapped for a link in
+    between, here as the validator is resolved, refuses the seal, and
+    nothing is made where the link points."""
+    head = _git(corpus, "rev-parse", "HEAD")
+    root = tmp_path / "aggregation"
+    root.mkdir()
+    (root / "dfr-decision.json").write_text(json.dumps(_decision(head)),
+                                            encoding="utf-8")
+    (root / "a" / "b").mkdir(parents=True)
+    outside = tmp_path / "outside"
+    (outside / "b").mkdir(parents=True)
+    seal = root / "a" / "b" / "dfr-seal"
+    resolving = lane.resolve_pinned_validator
+
+    def swapping():
+        (root / "a").rename(root / "a.moved")
+        (root / "a").symlink_to(outside, target_is_directory=True)
+        return resolving()
+
+    monkeypatch.setattr(lane, "resolve_pinned_validator", swapping)
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", _stub_precheck)
+    code = lane.main(["--repo-root", str(root), "--phase", "seal",
+                      "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
+                      "--decision-in", str(root / "dfr-decision.json"),
+                      "--seal-out", str(seal),
+                      "--seal-result-out", str(root / "seal-result.json"),
+                      "--correlation-id", CORRELATION])
+    result = json.loads((root / "seal-result.json").read_text(
+        encoding="utf-8"))
+    assert sorted(path.name for path in (outside / "b").iterdir()) == []
+    assert result["sealed"] is False
+    assert result["reason"].startswith(
+        f"the seal directory {seal} cannot be made: 'a', on its way from "
+        f"{root}, is not a directory of its own"), result["reason"]
+    assert code is None
 
 
 def test_clearing_the_result_path_follows_no_link(tmp_path, monkeypatch):
@@ -2550,7 +3234,7 @@ def test_the_seal_phase_records_a_strict_verdict_with_its_findings(
     assert result["strict_failed"] is True
     assert result["reason"] == "--strict REJECTED the snapshot this seal renders"
     assert result["detail"] == findings
-    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+    assert not (_cli_seal(tmp_path) / lane.SEAL_MANIFEST_NAME).exists()
     said = capsys.readouterr().out
     assert "STRICT FAILED" in said and findings[0] in said
 
@@ -3342,9 +4026,10 @@ def test_a_leg_without_a_module_the_render_unit_imports_is_refused(
     _mount_products(corpus, tmp_path / "upstream", omit={gitlink: (module,)})
     package = next(package for name, _leg, package in lane.RENDER_LEGS
                    if name == gitlink)
+    head = _git(corpus, "rev-parse", "HEAD")
     with pytest.raises(lane.SealRefused) as refused:
         lane.seal_render_legs(
-            corpus_checkout=corpus, source_head=_git(corpus, "rev-parse", "HEAD"),
+            corpus_checkout=corpus, source_head=head,
             corpus_root=tmp_path / "seal" / lane.SEAL_CORPUS_RELPATH)
     assert str(refused.value).startswith(
         f"the sealed {gitlink} code leg carries no src/{package}/{module}, "
@@ -3833,16 +4518,18 @@ def test_a_seal_directory_the_render_replaced_gets_no_manifest(
     put a link, or a copy with the same content, where it was. The index
     would match either. The directory is held by identity from its creation,
     so either is refused, and no manifest is written anywhere (Copilot,
-    PR #1166)."""
+    PR #1166). The render is handed the directory the lane holds (Copilot,
+    PR #1185), so the stand-in moves the seal by its name, as sealed code
+    that knows where it runs would."""
     seal = tmp_path / "seal"
     moved = tmp_path / "seal.moved"
 
     def replacing(seal_root, *, source_head, source_committed_at):
-        Path(seal_root).rename(moved)
+        seal.rename(moved)
         if replacement == "a-link-to-the-moved-seal":
-            Path(seal_root).symlink_to(moved, target_is_directory=True)
+            seal.symlink_to(moved, target_is_directory=True)
         else:
-            shutil.copytree(moved, seal_root)
+            shutil.copytree(moved, seal)
         return dict(STUB_PRECHECK)
 
     with pytest.raises(lane.SealRefused) as refused:
@@ -3874,14 +4561,31 @@ def test_the_manifest_is_written_only_into_the_directory_created(tmp_path):
     assert (created / lane.SEAL_MANIFEST_NAME).read_bytes() == b"{}\n"
 
 
-def test_a_seal_directory_that_is_a_link_is_refused(corpus, tmp_path):
-    empty = tmp_path / "empty"
-    empty.mkdir()
+@pytest.mark.parametrize("leads_to", ["an-empty-directory",
+                                      "a-directory-holding-files", "nothing"])
+def test_a_seal_directory_that_is_a_link_is_refused(corpus, tmp_path,
+                                                    leads_to):
+    """A LINK AT THE SEAL'S OWN NAME IS NEVER FOLLOWED (#1182). It is refused
+    before the validator is resolved, whatever it leads to, and nothing is
+    read or written through it. Before this, the lane looked through it to
+    ask whether its target was empty, adopted an empty one as far as its
+    `mkdir`, and let a dangling one escape as a bare `FileExistsError`."""
+    target = tmp_path / "target"
+    if leads_to != "nothing":
+        target.mkdir()
+        if leads_to == "a-directory-holding-files":
+            (target / "kept.txt").write_text("untouched\n", encoding="utf-8")
+    before = _what_is_at(target)
     link = tmp_path / "seal"
-    link.symlink_to(empty, target_is_directory=True)
-    with pytest.raises(lane.SealRefused, match="is not a directory of its own"):
-        _seal(corpus, link)
-    assert list(empty.iterdir()) == []
+    link.symlink_to(target, target_is_directory=True)
+    calls: list = []
+    resolving = _recording_resolver(tmp_path / "unit", calls)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, link, resolve_validator=resolving)
+    assert str(refused.value) == _linked_seal_path(link)
+    assert calls == []
+    assert link.is_symlink()
+    assert _what_is_at(target) == before
 
 
 def test_a_render_output_swapped_after_its_check_is_refused(tmp_path,
