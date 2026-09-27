@@ -3186,9 +3186,10 @@ def test_a_leg_without_a_module_the_serve_entry_imports_is_refused(
     _mount_products(corpus, tmp_path / "upstream", omit={gitlink: (module,)})
     package = next(package for name, _leg, package in lane.RENDER_LEGS
                    if name == gitlink)
+    head = _git(corpus, "rev-parse", "HEAD")
     with pytest.raises(lane.SealRefused) as refused:
         lane.seal_render_legs(
-            corpus_checkout=corpus, source_head=_git(corpus, "rev-parse", "HEAD"),
+            corpus_checkout=corpus, source_head=head,
             corpus_root=tmp_path / "seal" / lane.SEAL_CORPUS_RELPATH)
     assert str(refused.value) == (
         f"the sealed {gitlink} code leg carries no src/{package}/{module}, "
@@ -3244,7 +3245,8 @@ def test_verify_refuses_the_2_0_layout_that_carried_no_render_unit(corpus,
                                                                    tmp_path):
     """A 2.0.0 seal (#1162) carried the validator unit and no render unit. The
     major is the same, so it is read, and it is refused for exactly what it
-    lacks: the child could not render from it."""
+    lacks, each named: the child could not render from it, and it lacks what
+    a 2.1 seal lacks too, the corpus-schema record and the serve unit."""
     seal = tmp_path / "seal"
     manifest = _seal(corpus, seal)
     shutil.rmtree(seal / lane.SEAL_CORPUS_RELPATH / "openDox")
@@ -3276,10 +3278,15 @@ def test_verify_refuses_the_2_0_layout_that_carried_no_render_unit(corpus,
 def test_verify_refuses_the_2_1_layout_that_carried_no_serve_unit(corpus,
                                                                   tmp_path):
     """A 2.1.0 seal (#1166) carried the render unit, but not the serve's entry,
-    and named no serve unit. The major is the same, so it is read, and it is
-    refused for exactly what it lacks: the image built from it could not
+    named no serve unit, and recorded none of its validator's schemas as the
+    corpus's. The major is the same, so it is read, and it is refused for
+    exactly what it lacks, each named: the child could not hold the
+    validator to the sealed corpus, and the image built from it could not
     start (#1164). So 2.2.0 is the floor, by those named lacks rather than by
-    a version comparison, as 2.1 was for a 2.0 seal."""
+    a version comparison, as 2.1 was for a 2.0 seal. The fixture keeps a real
+    2.1 seal's shape, which predates all three fields, so it lacks all three.
+    Each lack is also refused alone, by the serve record's and the corpus
+    schemas' own tests (Copilot, PR #1179)."""
     seal = tmp_path / "seal"
     manifest = _seal(corpus, seal)
     (seal / lane.SEAL_CORPUS_RELPATH / SERVE_ENTRY).unlink(missing_ok=True)
