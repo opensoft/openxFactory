@@ -12,8 +12,11 @@ refuses: *"no neutral product `openxFactory` pins SHALL import
 measured the defect, could not fix it inside release 1's scope, and ruled a
 named, counted, release-1-only reprieve (a declared exclusion, R1Q6 (d))
 rather than conformance. This topic raises the DIRECTION question that
-reprieve deferred: how the dependency should actually run, so requirement 9
-stops being an open extraction for openXdox-code.
+reprieve deferred: how the dependency should actually run, so the
+`doc_health`-caused portion of requirement 9's exclusion stops being open for
+openXdox-code. Two OTHER, non-`doc_health` exclusions (R1Q24, R1Q25; claim 6)
+are open on the same plan and are NOT this topic's subject — closing this
+arc alone does not make openXdox-code's suite green standalone.
 Topics: doc_health, direction-arc, corpus-adapter-seam, dependency-direction, openxdox-code, neutral-tooling-home, R1Q6, opendox-standalone-operation, plan-034
 Repository context: openxFactory owns `doc_health` and the governing
 `corpus-adapter-seam` capability; openXdox-code is the consumer whose module-level
@@ -118,14 +121,25 @@ governed-flow suites to run — or sooner, if R1Q23 (open, phase 2) is answered
    (Q4 below), not a conclusion, because the other seven modules
    and the remaining reaches are not audited here.
 
-6. **The declared exclusion has a hard deadline, not an open-ended one.**
+6. **The declared exclusion has a hard deadline, not an open-ended one — and
+   it is not requirement 9's only open exclusion.**
    R1Q6 (d)'s exclusion is explicitly *"an OPEN EXTRACTION"* for openXdox-code
    — `add-neutral-product-standalone-operability`'s archive act must report
-   requirement 9 as open there, and must not read it as closed, until this arc
-   lands. R1Q23 (open, phase 2, `specs/034-opendox-standalone-operation/clarify-questions.md`)
+   the `doc_health`-caused portion of requirement 9 as open there, and must
+   not read it as closed, until this arc lands. R1Q23 (open, phase 2,
+   `specs/034-opendox-standalone-operation/clarify-questions.md`)
    already asks whether this arc must be brought forward INTO release 1's
    critical path, because four of 5.4a's six generator suites need
    `doc_health` in phase 2's F5.2 falsifier too and F5.2 does not provide it.
+   Separately, and NOT this arc's subject: R1Q24 (open; `clarify-questions.md`
+   lines 829-897) names 161 red results across seven openXdox-code files
+   caused by openxFactory's status-exemption rail and contract family, not
+   `doc_health`; R1Q25 (open; lines 899-925) names `test_snapshot.py`'s
+   `CONTRACTS_DIR` reachability, also not `doc_health`. Both block the same
+   tasks this arc's exclusion does (T019, T043, T061) but for unrelated
+   causes. Ruling and realizing this arc closes ONLY the `doc_health`
+   portion; openXdox-code's suite does not run green standalone until R1Q24
+   and R1Q25 are also resolved, on their own tracks.
 
 ## Idea notes (pre-document, non-documented)
 
@@ -192,12 +206,14 @@ openxFactory — per requirement 9's own admitted exception for tests that
 need two repositories. It needs R1Q2's declared composition-test surface
 widened to admit them (the same surface plan 034's T007 batch A / batch E
 already grows for the `openxdox_host` composition tests).
-Recommended answer: No — it closes requirement 9 only (the suite runs green
-alone, because the moved tests no longer need to). It moves or composes
-TESTS, not production code: `DOC_HEALTH_SURFACE`'s eight modules keep their
-imports exactly as measured, so the Requirement 1 conflict (claim 1) stands
-untouched. Chosen alone, this must not be read as closing the conflict this
-topic examines.
+Recommended answer: No — it closes only the `doc_health` portion of
+requirement 9 (the suite no longer needs `doc_health` to run green alone;
+R1Q24 and R1Q25's separate, non-`doc_health` exclusions still stand — claim
+6). It moves or composes TESTS, not production code: `DOC_HEALTH_SURFACE`'s
+eight modules keep their imports exactly as measured, so the Requirement 1
+conflict (claim 1) stands untouched. Chosen alone, this must not be read as
+closing the conflict this topic examines, or as making openXdox-code's suite
+green standalone outright.
 Explanation: Requirement 9 and Requirement 1 are different rules — one about
 where a test's composition is declared, the other about which direction a
 production import points. Satisfying the first says nothing about the
@@ -216,8 +232,10 @@ the two live candidates for release 1; (d) (the declared exclusion) was
 ruled instead, precisely so this direction question could be taken slower
 and separately.
 Recommended answer: No, for the same reason as Q2 — like (b), this closes
-requirement 9 only. It changes CI composition, not a single production
-import, so it leaves Requirement 1's conflict standing too.
+only the `doc_health` portion of requirement 9, not R1Q24/R1Q25's separate
+exclusions (claim 6), and not the whole of requirement 9 for the repository.
+It changes CI composition, not a single production import, so it leaves
+Requirement 1's conflict standing too.
 Explanation: (c) is a test-execution-environment change, not an
 import-direction change. The eight-module surface is unaffected either way.
 Disposition status: open
@@ -285,46 +303,56 @@ point the wrong way — claim 1) do NOT necessarily close together:
   surface:** a realization change that moves or composes TESTS/CI only, for
   all eight `DOC_HEALTH_SURFACE` modules; their production imports are
   UNTOUCHED. This lifts R1Q6 (d)'s declared exclusion and lets
-  `add-neutral-product-standalone-operability` report requirement 9 closed —
-  but Requirement 1's conflict stands exactly as measured today, for the
-  full surface. R1Q6 (d) ruled only the standalone-suite/requirement-9
-  exclusion; it does NOT waive Requirement 1, and nothing has accepted this
-  violation. The proposal must say so plainly and bring the conflict to
-  Brett as its own question, rather than let requirement 9's closure read as
-  if it had resolved this too.
+  `add-neutral-product-standalone-operability` report the `doc_health`
+  portion of requirement 9 closed (R1Q24 and R1Q25's separate, non-`doc_health`
+  exclusions still stand — claim 6) — but Requirement 1's conflict stands
+  exactly as measured today, for the full surface. R1Q6 (d) ruled only the
+  standalone-suite/requirement-9 exclusion; it does NOT waive Requirement 1,
+  and nothing has accepted this violation. The proposal must say so plainly
+  and bring the conflict to Brett as its own question, rather than let
+  requirement 9's closure read as if it had resolved this too.
 - **If (a) is ruled and realized as a genuine extraction of all eight
   modules:** a realization change against openXdox-code (and openDox-code,
   if the chosen seam borrows the registered-adapter pattern already used for
   `corpus_adapter` / `domain_profile` there) that RETARGETS all of
   `DOC_HEALTH_SURFACE`'s eight modules away from importing `openxFactory`'s
-  `doc_health` by name. This closes requirement 9 for the repository AND the
+  `doc_health` by name. This closes the `doc_health` portion of requirement 9
+  outright (R1Q24/R1Q25's separate exclusions still stand — claim 6) AND the
   Requirement 1 conflict outright. A `corpus-adapter-seam` or
   `neutral-product-pin` spec delta rides along only if the ruled shape needs
   new contract text.
 - **If Q4's split is taken:** the same kind of realization change retargets
   only `generator.py`'s three imports, closing the Requirement 1 conflict
-  for that one module alone. This does NOT by itself close requirement 9 for
-  the repository: the other seven `DOC_HEALTH_SURFACE` modules' suites still
-  fail collection standalone until they are ALSO resolved — either
-  retargeted too (extending toward full (a)), or given the same (b)/(c)
-  composition/CI treatment the first bullet describes for whatever is left.
-  Q4's own recommended answer already bundles the split with (b)/(c) for the
-  remaining seven; a proposal taking the split must carry that bundling
-  through, not leave it implicit or deferred, and must not report
-  requirement 9 closed on the split alone.
+  for that one module alone. This does NOT by itself close even the
+  `doc_health` portion of requirement 9: the other seven `DOC_HEALTH_SURFACE`
+  modules' suites still fail collection standalone until they are ALSO
+  resolved — either retargeted too (extending toward full (a)), or given the
+  same (b)/(c) composition/CI treatment the first bullet describes for
+  whatever is left. Q4's own recommended answer already bundles the split
+  with (b)/(c) for the remaining seven; a proposal taking the split must
+  carry that bundling through, not leave it implicit or deferred, and must
+  not report requirement 9 closed on the split alone.
 
-Requirement 9 closes for the repository only once every `DOC_HEALTH_SURFACE`
-module has received one of these three treatments — (b)/(c) applied whole,
-(a) applied whole, or Q4's split paired with (b)/(c) (or retargeting) for
-what it does not retarget; it does NOT close from taking the split in
-isolation, with the remaining seven modules' resolution left unscheduled.
+This arc's ruling closes the `doc_health`-caused portion of requirement 9's
+exclusion only once every `DOC_HEALTH_SURFACE` module has received one of
+these three treatments — (b)/(c) applied whole, (a) applied whole, or Q4's
+split paired with (b)/(c) (or retargeting) for what it does not retarget; it
+does NOT close even that portion from taking the split in isolation, with
+the remaining seven modules' resolution left unscheduled. And even fully
+closed, that portion is not the whole of requirement 9 for openXdox-code:
+R1Q24 and R1Q25 (claim 6) name separate, non-`doc_health` exclusions — the
+status-exemption/contract-family tests, and `test_snapshot.py`'s
+`CONTRACTS_DIR` reachability — that this arc does not touch. openXdox-code's
+suite does not run green standalone, and requirement 9 does not close for
+the repository, until those are ALSO resolved, on their own tracks; this
+proposal must say so and must not read its own closure as reaching them.
 Closing the Requirement 1 conflict this topic was raised to examine is a
-separate question, decided module by module regardless of requirement 9's
-status: the whole surface closes it under full (a); the retargeted slice
-alone closes it under the split; every module left on (b) or (c) leaves it
-exactly as open as before. The proposal must say, module by module, which is
-which, and must not let requirement 9's closure — however it is achieved —
-imply Requirement 1's.
+further, separate question, decided module by module regardless of either
+exclusion's status: the whole surface closes it under full (a); the
+retargeted slice alone closes it under the split; every module left on (b)
+or (c) leaves it exactly as open as before. The proposal must say, module by
+module, which is which, and must not let either exclusion's closure —
+however achieved — imply Requirement 1's, or imply R1Q24/R1Q25's.
 
 Gated on: Brett Heap's ruling of Q1–Q3 (and optionally Q4), R1Q23's answer
 for timing, and Q6's owner/task-list requirement — the exit proposal must

@@ -2681,8 +2681,10 @@ repo scope.
   R1Q23 (open, phase 2) is answered (b). NOT ruled: which of R1Q6's three
   named options — (a) openXdox-code pins `doc_health` as an installable
   dependency, (b) the affected tests become declared composition/integration
-  tests in openxFactory (closes requirement 9 only, leaving the production
-  imports untouched), (c) openXdox-code's CI composes a pinned openxFactory
+  tests in openxFactory (closes only the `doc_health` portion of
+  requirement 9, leaving the production imports untouched and leaving
+  R1Q24/R1Q25's separate, non-`doc_health` exclusions standing), (c)
+  openXdox-code's CI composes a pinned openxFactory
   checkout (same caveat as (b)) — or a fourth this topic adds: splitting the
   surface, since at least `generator.py`'s three `doc_health` imports
   (`doc_health.corpus`, `doc_health.corpus.RealGit`,
@@ -2698,21 +2700,33 @@ repo scope.
   R1Q6 (d) rules only a release-1-scoped requirement-9 exclusion; it does
   NOT waive Requirement 1 or accept this conflict, which stands as its own
   unresolved question until this arc's ruling. Separately,
-  `add-neutral-product-standalone-operability`'s archive act must report
-  requirement 9 as an open extraction for openXdox-code until this arc lands.
+  `add-neutral-product-standalone-operability`'s archive act must report the
+  `doc_health` portion of requirement 9 as an open extraction for
+  openXdox-code until this arc lands — and even then, requirement 9 is not
+  fully closed for the repository: R1Q24 (open; status-exemption/contract-family
+  tests, 161 red results across seven files, `clarify-questions.md` lines
+  829-897) and R1Q25 (open; `test_snapshot.py`'s `CONTRACTS_DIR` reachability,
+  lines 899-925) name separate, non-`doc_health` exclusions this arc does not
+  touch.
 - **Exit path.** A proposal once Brett rules among the direction options
   (and, if raised, the split option) and R1Q23's timing question is answered.
-  (b)/(c) alone, applied to the whole eight-module surface, close
-  requirement 9 (the suite runs green) without touching a single production
-  import, leaving the `corpus-adapter-seam` conflict open as its own
-  question to Brett. (a)-as-genuine-extraction of all eight modules closes
-  both requirement 9 and that conflict outright. The split closes the
-  conflict only for whatever it retargets (`generator.py`'s three imports);
-  it does NOT by itself close requirement 9 for the repository — the other
-  seven modules' suites still fail standalone until they too are resolved,
-  either retargeted or given the same (b)/(c) treatment. A proposal taking
-  the split must resolve or schedule that remainder in the same breath and
-  must not report requirement 9 closed on the split alone. A
+  (b)/(c) alone, applied to the whole eight-module surface, close the
+  `doc_health` portion of requirement 9 (the suite no longer needs
+  `doc_health` to run green) without touching a single production import,
+  leaving the `corpus-adapter-seam` conflict open as its own question to
+  Brett. (a)-as-genuine-extraction of all eight modules closes that same
+  `doc_health` portion outright AND the conflict outright. The split closes
+  the conflict only for whatever it retargets (`generator.py`'s three
+  imports); it does NOT by itself close even the `doc_health` portion for
+  the repository — the other seven modules' suites still fail standalone
+  until they too are resolved, either retargeted or given the same (b)/(c)
+  treatment. Whichever path is ruled, requirement 9 does NOT fully close for
+  the repository from this arc alone: R1Q24 and R1Q25 name separate,
+  non-`doc_health` exclusions this arc does not touch, which must resolve on
+  their own tracks first. A proposal taking the split must resolve or
+  schedule the `doc_health` remainder in the same breath, must not report
+  requirement 9 closed on the split alone, and must not read this arc's
+  closure — however achieved — as reaching R1Q24/R1Q25. A
   `corpus-adapter-seam` / `neutral-product-pin` spec delta rides along only
   if the ruled shape needs new contract text. Plan 034 names no task for the
   fix itself, only for raising the question (T008), so the exit proposal owes
