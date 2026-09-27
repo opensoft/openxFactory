@@ -1710,62 +1710,205 @@ def test_the_seal_phase_writes_the_dispatch_gate(corpus, tmp_path, monkeypatch):
                             recipe_revision=RECIPE_REV) == []
 
 
+def _a_directory_holding_links_out(where: Path, workspace_file: Path,
+                                   workspace_dir: Path) -> None:
+    """A real directory at `where`, holding a link to a workspace file, a link
+    to a workspace directory, and a tree of its own: the lane removes all of
+    it and follows none of it."""
+    where.mkdir()
+    (where / "to-a-file").symlink_to(workspace_file)
+    (where / "to-a-directory").symlink_to(workspace_dir,
+                                          target_is_directory=True)
+    (where / "nested").mkdir()
+    (where / "nested" / "planted.txt").write_text("planted\n",
+                                                  encoding="utf-8")
+
+
+def _a_workspace(root: Path) -> tuple[Path, Path]:
+    """A workspace file and a workspace directory holding one, which nothing
+    the seal phase does may touch."""
+    root.mkdir(parents=True, exist_ok=True)
+    workspace_file = root / "some-workspace-file.yml"
+    workspace_file.write_text("untouched\n", encoding="utf-8")
+    workspace_dir = root / "some-workspace-dir"
+    workspace_dir.mkdir()
+    (workspace_dir / "kept.txt").write_text("untouched\n", encoding="utf-8")
+    return workspace_file, workspace_dir
+
+
 @pytest.mark.parametrize("planted", ["a-link-to-a-workspace-file",
-                                     "a-file-that-says-sealed"])
+                                     "a-file-that-says-sealed",
+                                     "a-directory-holding-links-out"])
 def test_a_seal_result_sealed_code_planted_refuses_the_seal(
         corpus, tmp_path, monkeypatch, planted):
     """The seal result sits outside the seal, at the fixed path the workflow
     gates the dispatch on, and sealed code runs before it is written. An
     entry found there afterwards was made by that code. It is never written
     through: the seal is refused, and the lane's own result replaces it
-    (Copilot, PR #1166)."""
+    (Copilot, PR #1166). A real DIRECTORY there is removed too, with
+    everything under it and without following a link inside it, so the
+    record step reads the refusal rather than falling back to `unknown`
+    (Copilot, PR #1166, the review of 2c4520e7)."""
     head = _git(corpus, "rev-parse", "HEAD")
-    workspace_file = tmp_path / "aggregation" / "some-workspace-file.yml"
-    workspace_file.parent.mkdir(parents=True, exist_ok=True)
-    workspace_file.write_text("untouched\n", encoding="utf-8")
+    workspace_file, workspace_dir = _a_workspace(tmp_path / "aggregation")
     result_path = tmp_path / "aggregation" / "seal-result.json"
 
     def planting(seal_root, *, source_head, source_committed_at):
         if planted == "a-link-to-a-workspace-file":
             result_path.symlink_to(workspace_file)
-        else:
+        elif planted == "a-file-that-says-sealed":
             result_path.write_text('{"sealed": true}\n', encoding="utf-8")
+        else:
+            _a_directory_holding_links_out(result_path, workspace_file,
+                                           workspace_dir)
         return dict(STUB_PRECHECK)
 
     monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
     monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
     monkeypatch.setattr(lane, "precheck_sealed_render", planting)
     result = _seal_cli(tmp_path, corpus, decision=_decision(head))
-    assert not result_path.is_symlink()
+    assert not result_path.is_symlink() and result_path.is_file()
     assert result["sealed"] is False
     assert result["reason"] == lane.SEAL_RESULT_PLANTED
     assert result["strict_failed"] is False
     assert workspace_file.read_text(encoding="utf-8") == "untouched\n"
+    assert (workspace_dir / "kept.txt").read_text(encoding="utf-8") == \
+        "untouched\n"
 
 
-@pytest.mark.parametrize("stale", ["a-file", "a-link-to-a-workspace-file"])
+@pytest.mark.parametrize("stale", ["a-file", "a-link-to-a-workspace-file",
+                                   "a-directory-holding-links-out"])
 def test_a_stale_seal_result_is_cleared_before_the_seal_runs(
         corpus, tmp_path, monkeypatch, stale):
     """What sits at the result path BEFORE the seal starts is an earlier
-    run's, not sealed code's. It is removed without being followed, and the
-    seal proceeds."""
+    run's, not sealed code's. It is removed without being followed, a
+    directory with everything under it, and the seal proceeds. A directory
+    left there used to survive the clearing and then read as planted, and
+    its result could not be written at all."""
     head = _git(corpus, "rev-parse", "HEAD")
     root = tmp_path / "aggregation"
-    root.mkdir()
-    workspace_file = root / "some-workspace-file.yml"
-    workspace_file.write_text("untouched\n", encoding="utf-8")
+    workspace_file, workspace_dir = _a_workspace(root)
     result_path = root / "seal-result.json"
     if stale == "a-file":
         result_path.write_text('{"sealed": false}\n', encoding="utf-8")
-    else:
+    elif stale == "a-link-to-a-workspace-file":
         result_path.symlink_to(workspace_file)
+    else:
+        _a_directory_holding_links_out(result_path, workspace_file,
+                                       workspace_dir)
     monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
     monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
     monkeypatch.setattr(lane, "precheck_sealed_render", _stub_precheck)
     result = _seal_cli(tmp_path, corpus, decision=_decision(head))
     assert result["sealed"] is True
-    assert not result_path.is_symlink()
+    assert not result_path.is_symlink() and result_path.is_file()
     assert workspace_file.read_text(encoding="utf-8") == "untouched\n"
+    assert (workspace_dir / "kept.txt").read_text(encoding="utf-8") == \
+        "untouched\n"
+
+
+@pytest.mark.parametrize("where", ["beside-the-checkout", "climbing-out-of-it",
+                                   "through-a-link-inside-it",
+                                   "not-a-json-file", "the-checkout-itself"])
+def test_a_seal_result_path_the_lane_may_not_clear_is_refused(
+        corpus, tmp_path, monkeypatch, capsys, where):
+    """The seal result is written only inside the checkout the lane runs
+    over, the one place the record step reads it (`read_strict_verdict`),
+    and only at a path naming a `.json` file. The lane REMOVES whatever sits
+    at that path before it writes, a directory with everything under it, so
+    a path out of the checkout, by itself, by `..` or through a link, or one
+    that could name the checkout or a real directory in it, is refused
+    before anything is removed. Nothing is sealed, since a seal whose result
+    cannot be written could never be dispatched."""
+    head = _git(corpus, "rev-parse", "HEAD")
+    root = tmp_path / "aggregation"
+    root.mkdir()
+    (root / "dfr-decision.json").write_text(json.dumps(_decision(head)),
+                                            encoding="utf-8")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    victim = outside / "seal-result.json"
+    victim.write_text("untouched\n", encoding="utf-8")
+    kept = root / "health"
+    kept.mkdir()
+    (kept / "report.md").write_text("untouched\n", encoding="utf-8")
+    if where == "through-a-link-inside-it":
+        (root / "linked").symlink_to(outside, target_is_directory=True)
+    given = {
+        "beside-the-checkout": str(victim),
+        "climbing-out-of-it": str(root / ".." / "outside" / "seal-result.json"),
+        "through-a-link-inside-it": str(root / "linked" / "seal-result.json"),
+        "not-a-json-file": str(kept),
+        "the-checkout-itself": str(root),
+    }[where]
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", _stub_precheck)
+    lane.main(["--repo-root", str(root), "--phase", "seal",
+               "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
+               "--decision-in", str(root / "dfr-decision.json"),
+               "--seal-out", str(tmp_path / "seal"),
+               "--seal-result-out", given,
+               "--correlation-id", CORRELATION])
+    assert victim.read_text(encoding="utf-8") == "untouched\n"
+    assert (kept / "report.md").read_text(encoding="utf-8") == "untouched\n"
+    assert (root / "dfr-decision.json").is_file()
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+    said = capsys.readouterr().out
+    assert "NOT SEALED" in said and "the seal result" in said
+
+
+def test_the_workflows_own_relative_spelling_seals(corpus, tmp_path,
+                                                   monkeypatch):
+    """The nightly runs the seal phase from the aggregation root with
+    `--repo-root .`, and names the result and the seal relative to it. That
+    spelling is inside the checkout, so holding the result's path there
+    refuses nothing the workflow passes."""
+    seal_step = _finalize_steps()[_step_index(_finalize_steps(),
+                                              id="dfr-seal")]["run"]
+    for spelling in ("--repo-root . --phase seal", "--seal-out dfr-seal",
+                     "--seal-result-out dfr-seal-result.json",
+                     "--decision-in dfr-decision.json"):
+        assert spelling in seal_step, spelling
+    head = _git(corpus, "rev-parse", "HEAD")
+    root = tmp_path / "aggregation"
+    root.mkdir()
+    (root / "dfr-decision.json").write_text(json.dumps(_decision(head)),
+                                            encoding="utf-8")
+    monkeypatch.chdir(root)
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", _stub_precheck)
+    lane.main(["--repo-root", ".", "--phase", "seal",
+               "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
+               "--decision-in", "dfr-decision.json",
+               "--seal-out", "dfr-seal",
+               "--seal-result-out", "dfr-seal-result.json",
+               "--correlation-id", CORRELATION])
+    result = json.loads((root / "dfr-seal-result.json").read_text(
+        encoding="utf-8"))
+    assert result["sealed"] is True, result["reason"]
+    assert (root / "dfr-seal" / lane.SEAL_MANIFEST_NAME).is_file()
+
+
+def test_clearing_the_result_path_follows_no_link(tmp_path, monkeypatch):
+    """A directory at the result path is removed with everything under it,
+    and a link inside it is removed as the link, never followed. Where the
+    platform's `shutil.rmtree` could follow a link swapped in while it runs,
+    the directory is refused instead, and left as it was."""
+    workspace_file, workspace_dir = _a_workspace(tmp_path / "workspace")
+    planted = tmp_path / "seal-result.json"
+    _a_directory_holding_links_out(planted, workspace_file, workspace_dir)
+    monkeypatch.setattr(shutil.rmtree, "avoids_symlink_attacks", False)
+    with pytest.raises(OSError, match="could follow a link"):
+        lane._clear_result_path(planted)
+    assert (planted / "nested" / "planted.txt").is_file()
+    monkeypatch.undo()
+    lane._clear_result_path(planted)
+    assert not os.path.lexists(planted)
+    assert workspace_file.read_text(encoding="utf-8") == "untouched\n"
+    assert (workspace_dir / "kept.txt").read_text(encoding="utf-8") == \
+        "untouched\n"
 
 
 def test_the_seal_phase_reports_a_refusal_as_a_gate_not_an_exception(

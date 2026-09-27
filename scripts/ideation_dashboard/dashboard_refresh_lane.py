@@ -1348,22 +1348,68 @@ def _write_new_manifest(seal_dir, text: str, *, identity=None) -> None:
 # sealed code runs before it is written. So its path is cleared before the
 # seal starts, and anything found there afterwards is an entry sealed code
 # made: the seal is refused, the entry is removed without being followed,
-# and the lane's own result is created in its place, exclusively.
+# and the lane's own result is created in its place, exclusively. The entry
+# may be a file, a link or a real directory, and a directory is removed with
+# everything under it, so the record step always reads the lane's own
+# result rather than falling back to `unknown`. The path is therefore held
+# inside the checkout first (`_seal_result_path`).
 SEAL_RESULT_PLANTED = (
     "the seal result's path held an entry the lane did not write: sealed "
     "code ran before the result was written, so the seal is refused rather "
     "than dispatched")
 
 
+def _seal_result_path(given, within) -> Path:
+    """Where the seal result may be written: `given`, made absolute, with every
+    directory above its last component resolved, inside `within`, the
+    checkout the lane runs over, and naming a `.json` file. Raises
+    `ValueError` for anything else.
+
+    THE LAST COMPONENT IS KEPT AS GIVEN, never resolved. Whatever sits there,
+    a stale file, a link, a directory sealed code planted, is the lane's to
+    remove, not to follow (`_clear_result_path`). The directories above it
+    are resolved, so neither `..` nor a link leads the write, or the removal,
+    out of the checkout. The record step reads the result only from inside
+    the checkout (`read_strict_verdict`), so one written anywhere else could
+    never be read. And since a directory at this path is removed with
+    everything under it, the path must name a `.json` file, which the
+    checkout itself, and each real directory in it, does not."""
+    absolute = os.path.abspath(given)
+    parent, name = os.path.split(absolute)
+    root = os.path.realpath(within)
+    candidate = os.path.normpath(os.path.join(os.path.realpath(parent), name))
+    if not candidate.startswith(root + os.sep):
+        raise ValueError(
+            f"--seal-result-out {given!r} is not inside the checkout {within}, "
+            "where the record step reads the seal result")
+    if not name.endswith(".json"):
+        raise ValueError(
+            f"--seal-result-out {given!r} does not name a .json file, and the "
+            "lane removes whatever sits at the seal result's path")
+    return Path(candidate)
+
+
 def _clear_result_path(path) -> None:
     """Remove whatever sits at `path` without following it: a file or a link
-    is unlinked, and a directory is left for the exclusive create to refuse."""
+    is unlinked, and a directory is removed with everything under it
+    (Copilot, PR #1166). `shutil.rmtree` removes a link inside the tree as a
+    link, and refuses a directory swapped for a link after the check below.
+    Where the platform's `rmtree` could follow a link swapped in while it
+    runs, the directory is refused instead, and left. `path` comes from
+    `_seal_result_path`: it is inside the checkout and names a `.json`
+    file."""
     try:
         info = os.lstat(path)
     except FileNotFoundError:
         return
     if not stat.S_ISDIR(info.st_mode):
         os.unlink(path)
+        return
+    if not getattr(shutil.rmtree, "avoids_symlink_attacks", False):
+        raise OSError(
+            f"{path} is a directory, and this platform's rmtree could follow a "
+            "link swapped in while it runs, so it is left as it is")
+    shutil.rmtree(path)
 
 
 def tree_digest(index: dict[str, str]) -> str:
@@ -3465,7 +3511,9 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--seal-result-out", default=None,
                     help="write the seal result as JSON (--phase seal): the "
                          "dispatch gate, plus the values the child's own "
-                         "intake check compares against")
+                         "intake check compares against. A .json path inside "
+                         "--repo-root, where the record step reads it; "
+                         "whatever sits there first is removed")
     ap.add_argument("--correlation-id", default=None,
                     help="the readiness correlation id (--phase seal); the "
                          "artifact is named "
@@ -3535,13 +3583,24 @@ def main(argv: list[str] | None = None) -> None:
             load_error = None
         manifest: dict | None = None
         strict_failed, strict_detail = False, []
-        result_out = Path(args.seal_result_out) if args.seal_result_out else None
+        # THE RESULT'S PATH IS HELD INSIDE THE CHECKOUT BEFORE ANYTHING AT IT
+        # IS REMOVED (`_seal_result_path`). A path it refuses gets nothing
+        # written and nothing removed, and nothing is sealed, since a seal
+        # whose result cannot be written could never be dispatched.
+        result_out, result_refused = None, None
+        if args.seal_result_out:
+            try:
+                result_out = _seal_result_path(args.seal_result_out, repo_root)
+            except ValueError as exc:
+                result_refused = f"the seal result cannot be written: {exc}"
         if result_out is not None:
             try:
                 _clear_result_path(result_out)
             except OSError as exc:
                 print(f"  ::warning::could not clear the seal result: {exc}")
-        if load_error is not None:
+        if result_refused is not None:
+            reason = result_refused
+        elif load_error is not None:
             reason = (f"no usable parent decision ({args.decision_in!r}): "
                       f"{load_error}")
         elif not args.seal_out:
