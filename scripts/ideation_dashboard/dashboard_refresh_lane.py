@@ -152,8 +152,9 @@ DEFAULT_OUT_DIR = "health/ideation-dashboard"
 # the domain profile, and both legs' `src/`, at openxFactory's own pins (RULED
 # Q7). MEASURED, not listed from memory: the #1164 writer's audit hook over
 # the serve at `c415c3d1`, across the build and runtime phases and every
-# route, read nothing else of the checkout, and a test repeats the build
-# phase's half of that measurement. Sorted, as the manifest records it.
+# route, read nothing else of the checkout, and a test repeats it for the
+# serve's start: its build step, and the profile facets the server reads when
+# it is built. Sorted, as the manifest records it.
 SERVE_ENTRY = "scripts/ideation-dashboard-serve.py"
 SERVE_UNIT: tuple[str, ...] = (
     "contracts/domain-profiles/openxfactory-engineering.yaml",
@@ -1046,8 +1047,9 @@ class BuildResult:
 # of it, the entry itself, which `CORPUS_SEAL_PATHS` now names. The rest was
 # already sealed: the host bootstrap and both legs as the render unit, the two
 # packages and the two files inside `contracts/` and `docs/` as corpus paths.
-# The manifest names the unit, the intake requires each of its paths once,
-# and the seal refuses first a corpus that lacks one (`SERVE_ONLY`).
+# The manifest names the unit, the intake requires each of its paths once
+# (`SERVE_ONLY`), and the seal refuses first a corpus that does not carry one
+# as the kind the unit names it.
 #
 # THE REVISION IS PROVEN, NOT ASSERTED. `git archive`'s tar output carries the
 # commit it was made from in a global extended pax header (`comment=<sha>`),
@@ -1151,8 +1153,7 @@ RENDER_LEG_MODULES: dict[tuple[str, str], tuple[str, ...]] = {
 # each `SERVE_UNIT` path ONCE, so a seal that lacks one is one problem, not
 # two. The entry is required by `serve_entry`, and the host bootstrap and both
 # legs' `src/` by the render unit's own checks, which already name them. The
-# rest, listed here, are required as serve-unit paths, and the seal refuses
-# the same set first, by the same rule (`_serve_only_paths_absent`).
+# rest, listed here, are required as serve-unit paths (`_serve_paths_absent`).
 _SERVE_UNIT_HELD_BY_THE_RENDER = frozenset((
     *RENDER_BOOTSTRAP,
     *(f"{gitlink}/{leg}/{path}/" for gitlink, leg, _package in RENDER_LEGS
@@ -1160,6 +1161,15 @@ _SERVE_UNIT_HELD_BY_THE_RENDER = frozenset((
 SERVE_ONLY: tuple[str, ...] = tuple(
     path for path in SERVE_UNIT
     if path != SERVE_ENTRY and path not in _SERVE_UNIT_HELD_BY_THE_RENDER)
+# What of the unit the corpus ARCHIVE carries: all of it but the two legs,
+# which the leg sealer seals whole. The seal checks each of these as the kind
+# the unit names it, by the intake's own rule, before it writes a manifest.
+# The archive's pathspec cannot promise that: it admits a directory at a
+# file's path, which satisfies neither the recipe, which copies a file there,
+# nor the intake (Copilot, PR #1179).
+_SERVE_UNIT_ARCHIVED: tuple[str, ...] = tuple(
+    path for path in SERVE_UNIT
+    if path.split("/", 1)[0] not in RENDER_LEG_GITLINKS)
 
 # The sealed validator unit, and its layout. `VALIDATOR_SCRIPT_PATH` is the
 # script's path INSIDE the unit. It is also the product's own
@@ -2688,9 +2698,10 @@ def seal_source(
         corpus is archived;
       * an archive whose own recorded commit is not `source_head` seals
         nothing;
-      * a sealed corpus that lacks a path of the serve unit, which the served
-        image's recipe copies, and which neither the archive's pathspec nor
-        the leg sealer promises (`SERVE_ONLY`), seals nothing;
+      * a sealed corpus that does not carry each path of the serve unit its
+        archive holds as the kind the unit names it, a file as a file and a
+        tree holding a file, seals nothing, since the served image's recipe
+        copies each one;
       * a validator whose product revision cannot be read, whose unit
         carries corpus bytes `source_head` does not hold, whose unit cannot
         be copied whole, whose sealed copy cannot RUN, whose run changed the
@@ -2808,13 +2819,16 @@ def seal_source(
     # THE SERVE UNIT IS SEALED WHOLE (#1164, seal 2.2.0). The served image's
     # recipe copies each of its paths out of the context the child assembles
     # from this corpus, so a seal that lacks one builds no image, and the
-    # intake refuses it. Each script of the unit is a pathspec of the archive
-    # above, which refuses to miss one, and the legs are sealed whole. What
-    # neither promises, a file inside a directory the archive names whole, is
-    # checked here, by the intake's own rule.
-    absent = _serve_only_paths_absent(
-        path.relative_to(seal_root).as_posix()
-        for path in corpus_root.rglob("*") if path.is_file())
+    # intake refuses it. The archive's pathspec does not promise the unit: a
+    # file inside a directory it names whole may be absent, and a directory
+    # at a file's path satisfies a pathspec, though not the recipe (Copilot,
+    # PR #1179). So every path of the unit the archive holds is checked here,
+    # as the kind the unit names it, by the intake's own rule. The legs are
+    # sealed whole by the leg sealer.
+    absent = _serve_paths_absent(
+        (path.relative_to(seal_root).as_posix()
+         for path in corpus_root.rglob("*") if path.is_file()),
+        _SERVE_UNIT_ARCHIVED)
     if absent:
         missing = f"{SEAL_CORPUS_RELPATH}/{absent[0]}"
         what = (f"carries no file under {missing}" if missing.endswith("/")
@@ -3251,14 +3265,15 @@ def _render_unit_problems(manifest: dict, files: dict,
     return problems
 
 
-def _serve_only_paths_absent(carried) -> list[str]:
-    """The `SERVE_ONLY` paths `carried` does not hold, in `SERVE_UNIT` order:
-    a file it does not name, or a tree it names no file under. `carried` is
-    seal-relative paths, the manifest's `files` keys or the files a sealed
-    corpus holds, so the seal and the intake refuse by one rule."""
+def _serve_paths_absent(carried, paths) -> list[str]:
+    """Which of `paths`, serve-unit paths, `carried` does not hold, in order: a
+    file it does not name exactly, or a tree it names no file under.
+    `carried` is seal-relative paths: the manifest's `files` keys at the
+    intake, or the files a sealed corpus holds at the seal, so the two refuse
+    by one rule. A directory at a file's path names no file there."""
     carried = set(carried)
     absent: list[str] = []
-    for path in SERVE_ONLY:
+    for path in paths:
         name = f"{SEAL_CORPUS_RELPATH}/{path}"
         if path.endswith("/"):
             held = any(relpath.startswith(name) for relpath in carried)
@@ -3299,7 +3314,7 @@ def _serve_unit_problems(manifest: dict, files: dict) -> list[str]:
     elif unit != list(SERVE_UNIT):
         problems.append(
             f"serve_unit records {unit!r}, expected {list(SERVE_UNIT)!r}")
-    for path in _serve_only_paths_absent(files):
+    for path in _serve_paths_absent(files, SERVE_ONLY):
         name = f"{SEAL_CORPUS_RELPATH}/{path}"
         if path.endswith("/"):
             problems.append(f"the seal indexes no file under {name}, which "

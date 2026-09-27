@@ -1494,15 +1494,43 @@ def test_a_corpus_without_a_serve_unit_file_is_refused(corpus, tmp_path,
 
 
 @pytest.mark.parametrize("path", [path for path in SERVE_UNIT
+                                  if not path.endswith("/")])
+def test_a_serve_unit_file_that_is_a_directory_is_refused(corpus, tmp_path,
+                                                          path):
+    """A FILE OF THE UNIT MUST BE A FILE (Copilot, PR #1179). A directory at a
+    file's path satisfies the corpus archive's pathspec, which names the path
+    and whatever is under it. It satisfies neither the recipe, which copies a
+    file there, nor the intake, which requires the file itself. So the seal
+    checks every path of the unit its archive carries as the kind the unit
+    names it, and refuses a directory at a file's path, naming it, before any
+    manifest is written."""
+    target = corpus / path
+    _git(corpus, "rm", "--quiet", path)
+    target.mkdir(parents=True)
+    (target / "planted.py").write_text("# a directory, not the file\n",
+                                       encoding="utf-8")
+    _git(corpus, "add", "-A")
+    _git(corpus, "commit", "--quiet", "-m", f"a directory at {path}")
+    seal = tmp_path / "seal"
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal)
+    assert str(refused.value) == (
+        f"the sealed corpus does not carry {lane.SEAL_CORPUS_RELPATH}/{path}, "
+        "which the served image's recipe copies — the image the child builds "
+        "could not start")
+    assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
+
+
+@pytest.mark.parametrize("path", [path for path in SERVE_UNIT
                                   if path.startswith("scripts/")])
 def test_a_corpus_without_a_serve_unit_script_fails_its_archive(corpus,
                                                                 tmp_path,
                                                                 path):
     """Every script of the serve unit, the two packages included, is a
     pathspec of the corpus archive in its own right, so `git archive` refuses
-    a corpus that lacks one, naming it, before anything is sealed. The seal
-    needs no second check for them. (The legs are sealed whole by the leg
-    sealer, and the two files no pathspec can promise are checked by name.)"""
+    a corpus that lacks one, naming it, before anything is sealed. (A
+    directory at one of their paths passes the archive, and the seal's own
+    check refuses it, above. The legs are sealed whole by the leg sealer.)"""
     _git(corpus, "rm", "-r", "--quiet", path.rstrip("/"))
     _git(corpus, "commit", "--quiet", "-m", f"drop {path}")
     seal = tmp_path / "seal"
