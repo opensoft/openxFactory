@@ -844,6 +844,10 @@ def test_a_unit_schema_from_the_corpus_must_be_the_sealed_revisions(
                          corpus_ref=ref)
         assert (seal / lane.SEAL_VALIDATOR_ROOT / lane.VALIDATOR_SCHEMAS_PATH
                 / STUB_SCHEMA).read_text(encoding="utf-8") == "revision: newer\n"
+        # Recorded beside its corpus path, so the child can hold the two to
+        # one file's bytes (seal 2.2.0).
+        assert manifest["validator_corpus_schemas"] == {
+            STUB_SCHEMA: f"{lane.VALIDATOR_SCHEMAS_PATH}/{STUB_SCHEMA}"}
         assert lane.verify_seal(seal) == []
         assert manifest["source_head"] == _git(corpus, "rev-parse", "HEAD")
         return
@@ -854,6 +858,106 @@ def test_a_unit_schema_from_the_corpus_must_be_the_sealed_revisions(
         f"not hold: openxFactory-src/{lane.VALIDATOR_SCHEMAS_PATH}/"
         f"{STUB_SCHEMA}"), str(refused.value)
     assert "with schemas from another corpus revision" in str(refused.value)
+    assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
+
+
+def _unit_with_a_corpus_schema(corpus: Path, where: Path,
+                               relpath: str) -> "lane.PinnedValidator":
+    """A composed unit whose snapshot schema is LINKED into the corpus
+    checkout at `relpath`, committed there, as the composer fills in a schema
+    the carve legs do not supply. Its script is a committed product's."""
+    schema = corpus / relpath
+    schema.parent.mkdir(parents=True, exist_ok=True)
+    schema.write_text("kind: from-the-corpus\n", encoding="utf-8")
+    _git(corpus, "add", "-A")
+    _git(corpus, "commit", "--quiet", "-m", f"a schema at {relpath}")
+    product = where / "product"
+    product.mkdir(parents=True)
+    _git(product, "init", "--quiet", "-b", "main")
+    script = product / lane.VALIDATOR_SCRIPT_PATH
+    script.parent.mkdir(parents=True)
+    script.write_text(STUB_SCRIPT, encoding="utf-8")
+    _git(product, "add", "-A")
+    _git(product, "commit", "--quiet", "-m", "product")
+    farm = where / "farm"
+    runnable = farm / lane.VALIDATOR_SCRIPT_PATH
+    runnable.parent.mkdir(parents=True)
+    shutil.copyfile(script, runnable)
+    (farm / lane.VALIDATOR_SCHEMAS_PATH).mkdir(parents=True)
+    (farm / lane.VALIDATOR_SCHEMAS_PATH / STUB_SCHEMA).symlink_to(schema)
+    return lane.PinnedValidator(runnable=runnable, product_root=product)
+
+
+_CORPUS_SCHEMA = f"{lane.VALIDATOR_SCHEMAS_PATH}/{STUB_SCHEMA}"
+
+
+@pytest.mark.parametrize("tamper", [
+    "the-sealed-schema-rewritten", "the-corpus-copy-rewritten",
+    "a-name-the-unit-lacks", "no-record", "not-a-mapping-of-paths"])
+def test_verify_holds_each_corpus_schema_to_the_sealed_corpus(corpus,
+                                                              tmp_path,
+                                                              tamper):
+    """WHICH SCHEMAS CAME FROM THE CORPUS (seal 2.2.0). The parent holds each
+    schema the composer took from the corpus checkout to `source_head`'s bytes
+    with git (Copilot, PR #1166). The child has no git, but the sealed corpus
+    IS `source_head`'s tree, so the manifest names each such schema beside
+    its corpus path, and the intake holds the two to one file's bytes. A
+    record it cannot hold, or no record at all, is refused. Each tamper is
+    made coherent, so only this requirement can see it."""
+    unit = _unit_with_a_corpus_schema(corpus, tmp_path / "unit", _CORPUS_SCHEMA)
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal, resolve_validator=lambda: unit)
+    assert manifest["validator_corpus_schemas"] == {STUB_SCHEMA: _CORPUS_SCHEMA}
+    assert lane.verify_seal(seal) == []
+    schemas = f"{lane.SEAL_VALIDATOR_ROOT}/{lane.VALIDATOR_SCHEMAS_PATH}/"
+    held = ("validator_corpus_schemas records {name!r} as the corpus's "
+            "{relpath!r}, but the seal does not carry {schemas}{name} and "
+            "openxFactory/{relpath} as the same bytes — the child would judge "
+            "the render with a schema from another corpus revision")
+    if tamper == "the-sealed-schema-rewritten":
+        (seal / schemas / STUB_SCHEMA).write_text("kind: other\n",
+                                                  encoding="utf-8")
+        expected = [held.format(name=STUB_SCHEMA, relpath=_CORPUS_SCHEMA,
+                                schemas=schemas)]
+    elif tamper == "the-corpus-copy-rewritten":
+        (seal / lane.SEAL_CORPUS_RELPATH / _CORPUS_SCHEMA).write_text(
+            "kind: other\n", encoding="utf-8")
+        expected = [held.format(name=STUB_SCHEMA, relpath=_CORPUS_SCHEMA,
+                                schemas=schemas)]
+    elif tamper == "a-name-the-unit-lacks":
+        manifest["validator_corpus_schemas"]["other.schema.yaml"] = \
+            _CORPUS_SCHEMA
+        expected = [held.format(name="other.schema.yaml",
+                                relpath=_CORPUS_SCHEMA, schemas=schemas)]
+    elif tamper == "no-record":
+        del manifest["validator_corpus_schemas"]
+        expected = [NO_CORPUS_SCHEMAS]
+    else:
+        manifest["validator_corpus_schemas"] = {STUB_SCHEMA: 7}
+        expected = [
+            f"validator_corpus_schemas is {{{STUB_SCHEMA!r}: 7}} — the "
+            "manifest does not record which of the sealed validator's schemas "
+            "came from the corpus"]
+    _rewrite_coherently(seal, manifest)
+    assert lane.verify_seal(seal) == expected
+
+
+def test_a_corpus_schema_the_sealed_corpus_does_not_carry_is_refused(
+        corpus, tmp_path):
+    """The seal refuses first what the intake refuses: a schema the unit took
+    from the corpus at a path the corpus archive does not carry (here
+    `experiments/`, which is never sealed) could not be held to the sealed
+    corpus by the child, so it is refused, naming it, and no manifest is
+    written."""
+    relpath = "experiments/extra.schema.yaml"
+    unit = _unit_with_a_corpus_schema(corpus, tmp_path / "unit", relpath)
+    seal = tmp_path / "seal"
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, resolve_validator=lambda: unit)
+    assert str(refused.value) == (
+        f"the validator unit takes {STUB_SCHEMA} from the corpus at "
+        f"{relpath}, which the sealed corpus does not carry as the same bytes "
+        "— the child could not hold the validator to the render's corpus")
     assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
 
 
@@ -1216,6 +1320,8 @@ def test_the_manifest_carries_every_field_the_child_reads(corpus, tmp_path):
     assert manifest["validator_probe"] == {
         "kind": lane.VALIDATOR_PROBE["kind"],
         "outcome": snapshot_mod.VALIDATED, "returncode": 0}
+    # The stand-in unit's one schema is its own tree's, not the corpus's.
+    assert manifest["validator_corpus_schemas"] == {}
     # The render unit (#1161): the entry the child runs, both legs, and what
     # the pre-dispatch render answered.
     assert manifest["render_entry"] == lane.RENDER_ENTRY
@@ -1787,7 +1893,7 @@ def test_verify_refuses_the_1x_layout_that_sealed_the_validator_in_the_corpus(
     for field in ("validator_relpath", "validator_revision",
                   "validator_schema_count", "validator_probe",
                   "render_entry", "render_legs", "precheck", "serve_entry",
-                  "serve_unit"):
+                  "serve_unit", "validator_corpus_schemas"):
         del manifest[field]                         # 2.x-only fields
     manifest["schema_version"] = "1.0.0"
     (seal / lane.SEAL_MANIFEST_NAME).write_text(
@@ -1808,6 +1914,7 @@ def test_verify_refuses_the_1x_layout_that_sealed_the_validator_in_the_corpus(
         "validator_probe is None — the manifest does not record that the "
         f"sealed validator ran to a verdict ({VERDICT_PAIRS})",
         "validator_revision is None, expected a full commit revision",
+        NO_CORPUS_SCHEMAS,
         f"render_entry is None, expected {lane.RENDER_ENTRY!r} — the child "
         "would have no renderer to run",
         "render_legs is None — the seal records no render unit, so the "
@@ -1818,6 +1925,13 @@ def test_verify_refuses_the_1x_layout_that_sealed_the_validator_in_the_corpus(
         "child builds could not start",
     ]
     assert lane.SEAL_SCHEMA_VERSION.split(".", 1)[0] == "2"
+
+
+# What the intake says of a seal that records nothing about where its
+# validator's schemas came from (seal 2.2.0).
+NO_CORPUS_SCHEMAS = (
+    "validator_corpus_schemas is None — the manifest does not record which of "
+    "the sealed validator's schemas came from the corpus")
 
 
 def _rewrite_coherently(seal: Path, manifest: dict) -> None:
@@ -3138,11 +3252,12 @@ def test_verify_refuses_the_2_0_layout_that_carried_no_render_unit(corpus,
     (seal / lane.SEAL_CORPUS_RELPATH / lane.RENDER_ENTRY).unlink()
     (seal / lane.SEAL_CORPUS_RELPATH / SERVE_ENTRY).unlink()
     for field in ("render_entry", "render_legs", "precheck", "serve_entry",
-                  "serve_unit"):
+                  "serve_unit", "validator_corpus_schemas"):
         del manifest[field]
     manifest["schema_version"] = "2.0.0"
     _rewrite_coherently(seal, manifest)
     assert lane.verify_seal(seal) == [
+        NO_CORPUS_SCHEMAS,
         f"render_entry is None, expected {lane.RENDER_ENTRY!r} — the child "
         "would have no renderer to run",
         "render_legs is None — the seal records no render unit, so the "
@@ -3168,11 +3283,12 @@ def test_verify_refuses_the_2_1_layout_that_carried_no_serve_unit(corpus,
     seal = tmp_path / "seal"
     manifest = _seal(corpus, seal)
     (seal / lane.SEAL_CORPUS_RELPATH / SERVE_ENTRY).unlink(missing_ok=True)
-    for field in ("serve_entry", "serve_unit"):
+    for field in ("serve_entry", "serve_unit", "validator_corpus_schemas"):
         manifest.pop(field, None)
     manifest["schema_version"] = "2.1.0"
     _rewrite_coherently(seal, manifest)
     assert lane.verify_seal(seal) == [
+        NO_CORPUS_SCHEMAS,
         f"serve_entry is None, expected {SERVE_ENTRY!r} — the image the child "
         "builds could not start",
         "serve_unit is None — the seal records no serve unit, so the image the "
@@ -4239,6 +4355,15 @@ def test_the_served_image_starts_from_a_seal_of_this_checkout(tmp_path):
                             corpus_revision=head,
                             recipe_revision=RECIPE_REV) == []
     assert manifest["serve_unit"] == list(SERVE_UNIT)
+    # The real unit fills in from the corpus the schemas the legs do not
+    # supply, so the record is not empty, and each schema it names is the
+    # sealed corpus's own bytes (seal 2.2.0).
+    corpus_schemas = manifest["validator_corpus_schemas"]
+    assert corpus_schemas
+    for name, relpath in corpus_schemas.items():
+        assert (seal / lane.SEAL_VALIDATOR_ROOT / lane.VALIDATOR_SCHEMAS_PATH
+                / name).read_bytes() == \
+            (seal / lane.SEAL_CORPUS_RELPATH / relpath).read_bytes(), name
     corpus_root = seal / lane.SEAL_CORPUS_RELPATH
     app = tmp_path / "app" / "openxFactory"
     for path in manifest["serve_unit"]:
