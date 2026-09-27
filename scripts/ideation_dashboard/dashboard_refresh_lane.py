@@ -1447,10 +1447,12 @@ def _write_new_recipe(seal_dir, text: str, *, identity=None) -> None:
 # made: the seal is refused, the entry is removed without being followed,
 # and the lane's own result is created in its place, exclusively. The entry
 # may be a file, a link or a real directory, and a directory is removed with
-# everything under it, so the record step always reads the lane's own
-# result rather than falling back to `unknown`. The path is therefore held
-# inside the checkout first (`_seal_result_path`), and its directory is held
-# by a handle from before sealed code runs (`_HeldResultPath`).
+# everything under it, so the record step reads the lane's own result rather
+# than falling back to `unknown`. An entry the lane cannot remove leaves no
+# result of its own, and the step fails instead (`SEAL_RESULT_UNWRITTEN_EXIT`).
+# The path is therefore held inside the checkout first (`_seal_result_path`),
+# and its directory is held by a handle from before sealed code runs
+# (`_HeldResultPath`).
 SEAL_RESULT_PLANTED = (
     "the seal result's path held an entry the lane did not write: sealed "
     "code ran before the result was written, so the seal is refused rather "
@@ -1460,6 +1462,17 @@ SEAL_RESULT_DIRECTORY_REPLACED = (
     "sealed code ran, so the path the workflow reads leads somewhere else: "
     "the seal is refused, and its result is written only into the directory "
     "the lane held")
+# A SEAL RESULT THE LANE COULD NOT WRITE FAILS THE STEP (Copilot, PR #1166).
+# The workflow reads `sealed` from the seal result right after this phase, so
+# a result the lane could not write cannot withhold the dispatch: whatever
+# sits at its path would be read in its place, stale or planted, and sealed
+# code can plant one there and leave it where the lane cannot remove it. So
+# a seal phase given `--seal-result-out` that did not write its own result
+# returns this exit code, and the step's `bash -e` stops before `sealed` is
+# read: nothing is uploaded, and nothing is dispatched. The record step reads
+# the result only after a seal step that succeeded. A result path the lane
+# cannot clear before the seal starts is refused, and no sealed code runs.
+SEAL_RESULT_UNWRITTEN_EXIT = 3
 
 
 def _seal_result_path(given, within) -> Path:
@@ -1553,17 +1566,21 @@ class _HeldResultPath:
             return SEAL_RESULT_PLANTED
         return None
 
-    def write(self, payload: dict) -> None:
+    def write(self, payload: dict) -> bool:
         """Clear the result's name, create the lane's own result there
-        exclusively, and let the directory go. Never raises for the write: a
-        result that cannot be written leaves the dispatch withheld."""
+        exclusively, and let the directory go. True when the result was
+        written. Never raises for the write: a result that cannot be written
+        is reported, and the seal phase then fails its step
+        (`SEAL_RESULT_UNWRITTEN_EXIT`)."""
         try:
             self.clear()
             _create_new_file(self._name(), (json.dumps(
                 payload, indent=2, sort_keys=True) + "\n").encode("utf-8"),
                 dir_fd=self.directory)
+            return True
         except OSError as exc:
             print(f"  ::warning::could not write the seal result: {exc}")
+            return False
         finally:
             if self.directory is not None:
                 os.close(self.directory)
@@ -3723,13 +3740,17 @@ def run_refresh_lane(
 # a copy of the pinned product validator.
 # --------------------------------------------------------------------------
 
-def main(argv: list[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> int | None:
     """CLI entry. Void by contract, like the snapshot lane's, but only for a
     VALID phase: every path through the lane's own logic for `decide`, `seal`,
     `pin`, `report` or `record-pr` — including a total failure, reported as
     SKIPPED (a refused seal included) — falls through and the process exits 0,
     so the deterministic doc-health results and the delivered report are never
-    affected. A phase argparse
+    affected. ONE lane path is outside it: a seal phase that could not write
+    its own seal result returns `SEAL_RESULT_UNWRITTEN_EXIT`, since the
+    workflow gates the dispatch on that result and only the step's failure can
+    then withhold it. That step is `continue-on-error`, so the doc-health
+    results and the report are unaffected by it too. A phase argparse
     itself refuses — an unknown value, including the retired `build` — is a
     USAGE error: argparse prints the fixed choice set and exits non-zero
     (`SystemExit(2)`) before any lane logic runs. That exit code is
@@ -3854,9 +3875,12 @@ def main(argv: list[str] | None = None) -> None:
         # THE PARENT SEAL. Never raises out of here: like every other path in
         # this lane a refusal is a RECORDED outcome and exit 0, and the
         # workflow gates the dispatch on `sealed` rather than on this
-        # process's status. A refused seal costs one cycle of served-plane
-        # freshness — the same bounded cost the readiness skip costs — and the
-        # next run catches up in one hop.
+        # process's status. The one exception is a seal result the lane could
+        # not write: with no result of its own to gate on, the process's
+        # status is what withholds the dispatch (`SEAL_RESULT_UNWRITTEN_EXIT`).
+        # A refused seal costs one cycle of served-plane freshness — the same
+        # bounded cost the readiness skip costs — and the next run catches up
+        # in one hop.
         try:
             decision = json.loads(
                 Path(args.decision_in).read_text(encoding="utf-8"))
@@ -3870,7 +3894,11 @@ def main(argv: list[str] | None = None) -> None:
         # A HANDLE, BEFORE ANYTHING AT IT IS REMOVED AND BEFORE SEALED CODE
         # RUNS (`_hold_seal_result_path`). A path it refuses gets nothing
         # written and nothing removed, and nothing is sealed, since a seal
-        # whose result cannot be written could never be dispatched.
+        # whose result cannot be written could never be dispatched. A path it
+        # holds but cannot clear is refused too, before any sealed code runs:
+        # whatever sits there would be read in place of the lane's own result
+        # (Copilot, PR #1166). Either way the phase fails its step
+        # (`SEAL_RESULT_UNWRITTEN_EXIT`).
         result, result_refused = None, None
         if args.seal_result_out:
             try:
@@ -3882,7 +3910,9 @@ def main(argv: list[str] | None = None) -> None:
             try:
                 result.clear()
             except OSError as exc:
-                print(f"  ::warning::could not clear the seal result: {exc}")
+                result_refused = (
+                    f"the seal result's path could not be cleared ({exc}), so "
+                    "the lane could not write its own result there")
         if result_refused is not None:
             reason = result_refused
         elif load_error is not None:
@@ -3917,14 +3947,19 @@ def main(argv: list[str] | None = None) -> None:
                                       manifest=manifest,
                                       strict_failed=strict_failed,
                                       detail=strict_detail)
+        written = False
         if result is not None:
-            refusal = result.refusal()
-            if refusal is not None:
-                manifest, reason = None, refusal
-                strict_failed, strict_detail = False, []
-                payload = seal_result_payload(sealed=False, reason=reason,
-                                              manifest=None)
-            result.write(payload)
+            # Only a seal that ran can have left anything at the result's
+            # path. A path that could not be cleared still holds what was
+            # there before, and that is not the seal's doing.
+            if result_refused is None:
+                refusal = result.refusal()
+                if refusal is not None:
+                    manifest, reason = None, refusal
+                    strict_failed, strict_detail = False, []
+                    payload = seal_result_payload(sealed=False, reason=reason,
+                                                  manifest=None)
+            written = result.write(payload)
         if manifest is not None:
             print(f"::notice::{LANE}: SEALED {manifest['artifact_name']} — "
                   f"source_head={_short(manifest['source_head'])}, "
@@ -3938,6 +3973,12 @@ def main(argv: list[str] | None = None) -> None:
         else:
             print(f"::warning::{LANE}: NOT SEALED — {reason}; nothing "
                   "dispatched, next run catches up in one hop")
+        if args.seal_result_out and not written:
+            print(f"::error::{LANE}: the seal result could not be written at "
+                  f"{args.seal_result_out!r}, so this step fails rather than "
+                  "leave the dispatch to whatever sits at that path: nothing "
+                  "is uploaded, and nothing is dispatched")
+            return SEAL_RESULT_UNWRITTEN_EXIT
         return
 
     if args.phase == "record-pr":

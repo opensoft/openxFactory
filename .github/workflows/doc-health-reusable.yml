@@ -3821,14 +3821,21 @@ jobs:
         # come from the aggregation's openxFactory pin, while this workflow
         # runs at openxFactory main, so a pin whose seal writes no
         # `strict_failed` must still be handed exactly the call it knows.
+        # The seal result is read ONLY after a seal step that succeeded. The
+        # seal phase fails its step exactly when it could not write a result
+        # of its own, so whatever sits at that path then is not the lane's:
+        # no reason is read from it, and nothing is handed on as a verdict.
         if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true' && (steps.dfr-seal.outputs.sealed != 'true' || steps.dfr-upload.outcome != 'success')
         continue-on-error: true
         env:
           SEALED: ${{ steps.dfr-seal.outputs.sealed }}
+          SEAL_OUTCOME: ${{ steps.dfr-seal.outcome }}
         run: |
           STRICT=false
           if [ "$SEALED" = "true" ]; then
             REASON="the sealed source artifact could not be uploaded"
+          elif [ "$SEAL_OUTCOME" != "success" ]; then
+            REASON="the seal step failed without a seal result of its own (see that step's log)"
           else
             REASON="$(python3 -c 'import json;print(json.load(open("dfr-seal-result.json")).get("reason") or "unknown")' 2>/dev/null || echo unknown)"
             STRICT="$(python3 -c 'import json;print(str(json.load(open("dfr-seal-result.json")).get("strict_failed") is True).lower())' 2>/dev/null || echo false)"

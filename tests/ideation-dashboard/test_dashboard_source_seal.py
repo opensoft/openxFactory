@@ -2034,18 +2034,106 @@ def test_a_seal_result_path_the_lane_may_not_clear_is_refused(
     monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
     monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
     monkeypatch.setattr(lane, "precheck_sealed_render", _stub_precheck)
-    lane.main(["--repo-root", str(root), "--phase", "seal",
-               "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
-               "--decision-in", str(root / "dfr-decision.json"),
-               "--seal-out", str(tmp_path / "seal"),
-               "--seal-result-out", given,
-               "--correlation-id", CORRELATION])
+    code = lane.main(["--repo-root", str(root), "--phase", "seal",
+                      "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
+                      "--decision-in", str(root / "dfr-decision.json"),
+                      "--seal-out", str(tmp_path / "seal"),
+                      "--seal-result-out", given,
+                      "--correlation-id", CORRELATION])
+    # No result of the lane's own is written, so the step fails.
+    assert code == lane.SEAL_RESULT_UNWRITTEN_EXIT
     assert victim.read_text(encoding="utf-8") == "untouched\n"
     assert (kept / "report.md").read_text(encoding="utf-8") == "untouched\n"
     assert (root / "dfr-decision.json").is_file()
     assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
     said = capsys.readouterr().out
     assert "NOT SEALED" in said and "the seal result" in said
+
+
+def _a_checkout_deciding_a_build(tmp_path: Path, corpus: Path) -> Path:
+    root = tmp_path / "aggregation"
+    root.mkdir()
+    head = _git(corpus, "rev-parse", "HEAD")
+    (root / "dfr-decision.json").write_text(json.dumps(_decision(head)),
+                                            encoding="utf-8")
+    return root
+
+
+def _seal_phase(tmp_path: Path, corpus: Path, root: Path):
+    return lane.main(["--repo-root", str(root), "--phase", "seal",
+                      "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
+                      "--decision-in", str(root / "dfr-decision.json"),
+                      "--seal-out", str(tmp_path / "seal"),
+                      "--seal-result-out", str(root / "seal-result.json"),
+                      "--correlation-id", CORRELATION])
+
+
+def test_a_seal_result_the_lane_cannot_write_fails_the_step(
+        corpus, tmp_path, monkeypatch, capsys):
+    """THE STEP FAILS WHEN THE LANE'S OWN RESULT CANNOT BE WRITTEN (Copilot,
+    PR #1166). The workflow reads `sealed` from the seal result right after
+    this phase, so a result the lane could not write cannot withhold the
+    dispatch: whatever sits at its path is read in its place. Sealed code
+    that plants a result saying `sealed: true`, and leaves it where the lane
+    cannot remove it (a directory made read-only, stood in for here by a
+    removal that fails), gets the plant refused and the phase's non-zero
+    exit, which the step's `bash -e` stops on before `sealed` is read."""
+    root = _a_checkout_deciding_a_build(tmp_path, corpus)
+    result_path = root / "seal-result.json"
+    planted = []
+    clear = lane._clear_result_path
+
+    def planting(seal_root, *, source_head, source_committed_at):
+        result_path.write_text(json.dumps({"sealed": True}), encoding="utf-8")
+        planted.append(result_path)
+        return dict(STUB_PRECHECK)
+
+    def removing_until_planted(path, *, dir_fd=None):
+        if planted:
+            raise PermissionError(13, "Permission denied", os.fspath(path))
+        return clear(path, dir_fd=dir_fd)
+
+    monkeypatch.setattr(lane, "_clear_result_path", removing_until_planted)
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", planting)
+    code = _seal_phase(tmp_path, corpus, root)
+    assert planted, "the stand-in render never ran"
+    assert code is not None and code != 0
+    assert code == lane.SEAL_RESULT_UNWRITTEN_EXIT
+    said = capsys.readouterr().out
+    assert f"NOT SEALED — {lane.SEAL_RESULT_PLANTED}" in said
+    assert "the seal result could not be written" in said
+    # The plant is still there, and it is the step's failure, not the file,
+    # that withholds the dispatch.
+    assert json.loads(result_path.read_text(encoding="utf-8")) == \
+        {"sealed": True}
+
+
+def test_a_seal_result_path_the_lane_cannot_clear_seals_nothing(
+        corpus, tmp_path, monkeypatch, capsys):
+    """A result path the lane cannot clear before the seal starts is one it
+    cannot write its own result at, and whatever sits there, a stale result
+    saying `sealed: true` included, would be read in its place. So no sealed
+    code runs, nothing is sealed, and the phase fails its step (Copilot,
+    PR #1166)."""
+    root = _a_checkout_deciding_a_build(tmp_path, corpus)
+    stale = root / "seal-result.json"
+    stale.write_text(json.dumps({"sealed": True}), encoding="utf-8")
+    sealed = []
+
+    def refusing_removal(path, *, dir_fd=None):
+        raise PermissionError(13, "Permission denied", os.fspath(path))
+
+    monkeypatch.setattr(lane, "_clear_result_path", refusing_removal)
+    monkeypatch.setattr(lane, "seal_source", lambda **kw: sealed.append(kw))
+    code = _seal_phase(tmp_path, corpus, root)
+    assert sealed == [], "the seal ran although its result path held a stale result"
+    assert code is not None and code != 0
+    assert code == lane.SEAL_RESULT_UNWRITTEN_EXIT
+    said = capsys.readouterr().out
+    assert "NOT SEALED — the seal result's path could not be cleared" in said
+    assert json.loads(stale.read_text(encoding="utf-8")) == {"sealed": True}
 
 
 def test_a_result_directory_sealed_code_replaced_is_never_written_through(
@@ -2284,6 +2372,51 @@ def test_the_record_step_hands_on_a_strict_verdict_only_when_the_seal_says_so():
     assert guard < handoff < run.index("fi", handoff)
     assert run.count("--seal-result-in") == 1
     assert run.index("STRICT=false") < guard              # defaulted first
+
+
+def test_the_seal_steps_failure_is_what_withholds_an_unwritten_result():
+    """A seal phase that could not write its own result exits non-zero
+    (`SEAL_RESULT_UNWRITTEN_EXIT`), and that is what withholds the dispatch
+    then: the step runs under the default `bash -e`, so it stops at the
+    lane's call before `sealed` is read from whatever sits at the result's
+    path. So neither the step nor its job or workflow names another shell,
+    and nothing masks the lane's status (Copilot, PR #1166)."""
+    import yaml
+    workflow = yaml.safe_load(
+        (REPO_ROOT / ".github" / "workflows" / "doc-health-reusable.yml")
+        .read_text(encoding="utf-8"))
+    assert "defaults" not in workflow
+    assert "defaults" not in workflow["jobs"]["finalize"]
+    steps = workflow["jobs"]["finalize"]["steps"]
+    seal = steps[_step_index(steps, id="dfr-seal")]
+    assert "shell" not in seal
+    run = seal["run"]
+    call = run.index("python3 openxFactory/scripts/dashboard-refresh-nightly.py")
+    read = run.index('SEALED="$(python3')
+    assert call < read
+    assert "set +e" not in run
+    invocation = run[call:read]
+    assert "||" not in invocation and "&&" not in invocation
+    assert "--seal-result-out dfr-seal-result.json" in invocation
+
+
+def test_the_record_step_reads_the_seal_result_only_after_a_seal_step_that_succeeded():
+    """A seal step that failed wrote no seal result of its own: the lane
+    fails its step exactly when it could not (`SEAL_RESULT_UNWRITTEN_EXIT`).
+    Whatever sits at the result's path then is not the lane's, so the record
+    step neither reads a reason from it nor hands it on as a strict verdict
+    (Copilot, PR #1166)."""
+    steps = _finalize_steps()
+    skip = steps[_step_index(
+        steps,
+        name="Ideation-dashboard image refresh — record skip (source not sealed)",
+    )]
+    assert skip["env"]["SEAL_OUTCOME"] == "${{ steps.dfr-seal.outcome }}"
+    run = skip["run"]
+    failed = run.index('elif [ "$SEAL_OUTCOME" != "success" ]; then')
+    assert run.index('if [ "$SEALED" = "true" ]; then') < failed
+    assert failed < run.index('open("dfr-seal-result.json")')
+    assert run.index("STRICT=false") < failed
 
 
 def _job_steps(job: str) -> list[dict]:
