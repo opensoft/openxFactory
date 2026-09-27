@@ -1627,6 +1627,21 @@ def _identity(path) -> tuple[int, int]:
     return info.st_dev, info.st_ino
 
 
+def _tree_state(root: Path) -> dict:
+    """Every path under `root`, with what it is: a directory, a link and
+    its target, or a file and its bytes."""
+    state: dict = {}
+    for path in sorted(root.rglob("*")):
+        key = path.relative_to(root).as_posix()
+        if path.is_symlink():
+            state[key] = ("link", os.readlink(path))
+        elif path.is_dir():
+            state[key] = ("directory",)
+        else:
+            state[key] = ("file", path.read_bytes())
+    return state
+
+
 @pytest.mark.parametrize("found", ["an-empty-directory",
                                    "a-directory-holding-files", "a-file"])
 def test_a_seal_directory_that_already_exists_is_refused(corpus, tmp_path,
@@ -1923,6 +1938,33 @@ def test_the_render_is_handed_the_directory_the_lane_made_not_its_name(
         "code ran inside it, and the manifest is never written anywhere else")
     assert not (moved / lane.SEAL_MANIFEST_NAME).exists()
     assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
+
+
+def test_a_confined_seal_is_never_made_by_its_path_alone(corpus, tmp_path,
+                                                          monkeypatch):
+    """A PLATFORM THAT HOLDS NO HANDLE MAKES NO CONFINED SEAL (Copilot, PR
+    #1185). Where the platform opens nothing relative to a handle, the seal
+    directory could only be made, written and checked by its path. A
+    directory on its way replaced after `--seal-out` was checked would then
+    redirect the whole writable tree, and a directory swapped in at its name
+    would be taken for the one made. So a seal confined to a root, as `main`
+    confines it to `--repo-root`, is refused there before anything is made.
+    A direct call that confines nothing still makes its seal by the path, as
+    the manifest's write always has where no handle can be opened."""
+    root = tmp_path / "root"
+    root.mkdir()
+    seal = root / "dfr-seal"
+    monkeypatch.setattr(lane, "_DIR_FD", False)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, seal_within=root)
+    assert not os.path.lexists(seal)
+    assert str(refused.value) == (
+        f"the seal directory {seal} cannot be made here: this platform opens "
+        f"nothing relative to a handle, and a seal confined to {root} is "
+        "never made, written or checked by its path alone")
+    free = tmp_path / "free"
+    _seal(corpus, free)
+    assert (free / lane.SEAL_MANIFEST_NAME).is_file()
 
 
 @pytest.mark.parametrize("path", [path for path in SERVE_ONLY
@@ -2931,6 +2973,105 @@ def test_a_seal_out_the_lane_may_not_make_is_refused_before_anything_is_sealed(
     assert not os.path.lexists(tmp_path / "seal")
     assert not os.path.lexists(root / "absent")
     assert "NOT SEALED — the seal cannot be made" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("overlap", ["one-path-holding-a-seal",
+                                     "one-free-path",
+                                     "the-result-inside-the-seal",
+                                     "the-seal-inside-the-result",
+                                     "a-free-seal-inside-the-result",
+                                     "a-link-to-the-result"])
+def test_a_seal_out_that_overlaps_the_seal_result_is_never_touched(
+        corpus, tmp_path, monkeypatch, capsys, overlap):
+    """THE SEAL AND ITS RESULT ARE TWO PATHS (Copilot, PR #1185). The seal
+    result's path is cleared before the seal runs, since whatever sits there
+    is the lane's to remove (#1166). A `--seal-out` that is the same path,
+    or holds it, or lies inside it, would have had an existing seal, or
+    whatever it held, removed as a stale result, and the path then passed as
+    fresh and been sealed into. So an overlap is found before anything is
+    cleared: nothing is removed, made or sealed. The paths are compared as
+    spelled and as resolved, so a `--seal-out` that is a link to the
+    result's path overlaps it too. A `--seal-out` refused on its own keeps
+    its own reason; a free one is refused for the overlap. The refusal is
+    written as the result where the result's path is free, and the step
+    fails where it is not, since the lane will not clear it."""
+    head = _git(corpus, "rev-parse", "HEAD")
+    root = tmp_path / "aggregation"
+    root.mkdir()
+    (root / "dfr-decision.json").write_text(json.dumps(_decision(head)),
+                                            encoding="utf-8")
+    if overlap in ("one-path-holding-a-seal", "one-free-path"):
+        seal_out = result_out = root / "dfr-seal.json"
+    elif overlap == "the-result-inside-the-seal":
+        seal_out = root / "dfr-seal"
+        result_out = seal_out / "seal-result.json"
+    elif overlap == "a-link-to-the-result":
+        seal_out = root / "dfr-seal"
+        result_out = root / "seal-result.json"
+    else:
+        result_out = root / "seal-result.json"
+        seal_out = result_out / "dfr-seal"
+    kept = seal_out / "kept.txt"
+    free = overlap in ("one-free-path", "a-free-seal-inside-the-result")
+    if overlap == "a-link-to-the-result":
+        result_out.mkdir()
+        (result_out / "kept.txt").write_text("an earlier seal\n",
+                                             encoding="utf-8")
+        seal_out.symlink_to(result_out, target_is_directory=True)
+    elif not free:
+        seal_out.mkdir(parents=True)
+        kept.write_text("an earlier seal\n", encoding="utf-8")
+    if overlap == "the-result-inside-the-seal":
+        result_out.write_text('{"stale": true}\n', encoding="utf-8")
+    if overlap == "a-free-seal-inside-the-result":
+        result_out.mkdir()
+    before = _tree_state(root)
+    entered: list = []
+    sealing = lane.seal_source
+
+    def entering(**kw):
+        entered.append(kw)
+        return sealing(**kw)
+
+    monkeypatch.setattr(lane, "seal_source", entering)
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", _stub_precheck)
+    code = lane.main(["--repo-root", str(root), "--phase", "seal",
+                      "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
+                      "--decision-in", str(root / "dfr-decision.json"),
+                      "--seal-out", str(seal_out),
+                      "--seal-result-out", str(result_out),
+                      "--correlation-id", CORRELATION])
+    if not free:
+        assert kept.read_text(encoding="utf-8") == "an earlier seal\n"
+    if overlap == "the-result-inside-the-seal":
+        assert result_out.read_text(encoding="utf-8") == '{"stale": true}\n'
+    if overlap == "a-free-seal-inside-the-result":
+        assert result_out.is_dir()
+    assert entered == []
+    if free:
+        reason = (f"the seal cannot be made: --seal-out {str(seal_out)!r} and "
+                  f"--seal-result-out {str(result_out)!r} overlap, and "
+                  "neither is touched: the seal and its result are two "
+                  "paths, never one inside the other")
+    elif overlap == "a-link-to-the-result":
+        reason = (f"the seal cannot be made: --seal-out {str(seal_out)!r} "
+                  f"leads through a link (to {result_out}), and the seal is "
+                  "never made through one")
+    else:
+        reason = (f"the seal cannot be made: --seal-out {str(seal_out)!r} "
+                  "already exists, and the lane makes the seal only in a "
+                  "directory it creates itself")
+    assert f"NOT SEALED — {reason}" in capsys.readouterr().out
+    if overlap == "one-free-path":
+        assert code is None
+        result = json.loads(result_out.read_text(encoding="utf-8"))
+        assert (result["sealed"], result["reason"]) == (False, reason)
+        before[result_out.name] = ("file", result_out.read_bytes())
+    else:
+        assert code == lane.SEAL_RESULT_UNWRITTEN_EXIT
+    assert _tree_state(root) == before
 
 
 def test_a_link_put_on_the_seal_out_path_after_its_check_is_never_made_through(
