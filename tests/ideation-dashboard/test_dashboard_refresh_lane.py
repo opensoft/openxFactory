@@ -348,14 +348,49 @@ def test_the_corpus_revision_is_path_scoped_not_the_branch_tip(tmp_path):
 
 
 def test_the_copied_scope_is_exactly_what_the_dockerfile_copies():
-    """The eight paths the image COPIES, and deliberately not `tests/` or
+    """The fifteen git-log scopes the post-shed recipe (Omnigent-Install #322,
+    `6b7da477`) COPIES: the six corpus directories its `/source` tree carries,
+    the two script packages, both products, and the serve's entry with the
+    four host files it reaches. And deliberately not `tests/` or
     `experiments/` (169 MB, referenced by zero docs)."""
     assert lane.CORPUS_COPIED_PATHS == (
-        "contracts", "docs", "examples", "ideation", "openspec",
-        "scripts/doc_health", "scripts/ideation_dashboard", "templates")
+        "contracts", "docs", "examples", "ideation", "openDox", "openXdox",
+        "openspec", "scripts/carved_reach.py", "scripts/doc_health",
+        "scripts/ideation-dashboard-serve.py", "scripts/ideation_dashboard",
+        "scripts/opendox_host.py", "scripts/profile_openxfactory.py",
+        "scripts/wire_messages.py", "templates")
+    # Sorted, like the baked tuple it is folded into.
+    assert list(lane.CORPUS_COPIED_PATHS) == sorted(lane.CORPUS_COPIED_PATHS)
     assert lane.RECIPE_BAKED_PATHS == ("containers/ideation-dashboard",)
     assert "experiments" not in lane.CORPUS_BAKED_PATHS
     assert "tests" not in lane.CORPUS_BAKED_PATHS
+
+
+# The corpus directories the served image's `/source` tree carries, which the
+# recipe copies whole (Omnigent-Install `6b7da477`,
+# `containers/ideation-dashboard/Dockerfile` lines 130-135).
+SOURCE_ROOTS = ("contracts", "docs", "examples", "ideation", "openspec",
+                "templates")
+
+
+def test_the_copied_scope_is_the_git_log_scope_of_all_the_recipe_copies():
+    """THE SCOPE IS DERIVED, NOT LISTED FROM MEMORY. Every path the served
+    image's recipe copies out of the corpus is in its `/source` tree
+    (`SOURCE_ROOTS`) or its runtime tree (`SERVE_UNIT`, #1164). The narrowest
+    `git log` scope of a runtime-tree path is the path itself, or, for a
+    leg, its product's gitlink, which `git log` answers for, unless a
+    `/source` root already covers it. `CORPUS_COPIED_PATHS` is exactly those
+    scopes, so a path the recipe copies cannot move outside the decision."""
+    scopes = set(SOURCE_ROOTS)
+    for entry in lane.SERVE_UNIT:
+        path = entry.rstrip("/")
+        if any(path == root or path.startswith(root + "/")
+               for root in SOURCE_ROOTS):
+            continue
+        top = path.split("/", 1)[0]
+        scopes.add(top if top in lane.RENDER_LEG_GITLINKS else path)
+    assert set(lane.CORPUS_COPIED_PATHS) == scopes
+    assert len(lane.CORPUS_COPIED_PATHS) == len(scopes)
 
 
 def test_the_baked_scope_is_the_copied_set_plus_the_render_unit():
@@ -367,9 +402,14 @@ def test_the_baked_scope_is_the_copied_set_plus_the_render_unit():
     assert lane.CORPUS_BAKED_PATHS == (
         "contracts", "docs", "examples", "ideation", "openDox", "openXdox",
         "openspec", "scripts/carved_reach.py", "scripts/doc_health",
-        "scripts/ideation-dashboard-cli.py", "scripts/ideation_dashboard",
+        "scripts/ideation-dashboard-cli.py",
+        "scripts/ideation-dashboard-serve.py", "scripts/ideation_dashboard",
         "scripts/opendox_host.py", "scripts/profile_openxfactory.py",
         "scripts/wire_messages.py", "templates")
+    # Since the post-shed recipe (#1164) the image copies every render path
+    # but the render entry: the image serves, and does not render.
+    assert set(lane.CORPUS_BAKED_PATHS) - set(lane.CORPUS_COPIED_PATHS) == \
+        {lane.RENDER_ENTRY}
     # Sorted, because the tuple is written into the pin as the scope, and two
     # spellings of one scope would read as a scope change.
     assert list(lane.CORPUS_BAKED_PATHS) == sorted(lane.CORPUS_BAKED_PATHS)
@@ -381,14 +421,32 @@ def test_the_baked_scope_is_the_copied_set_plus_the_render_unit():
         list(lane.RENDER_LEG_GITLINKS)
 
 
-def test_the_widened_scope_costs_exactly_one_rebuild():
-    """The live pin records the eight-path scope it was built with. Against it
-    the widened scope is a SCOPE CHANGE, which is one rebuild: the pin that
-    rebuild records carries the new scope, and the run after it reads as
-    unchanged. Measured here rather than asserted in prose."""
+# The corpus scopes a pin may have been recorded with before this one: the
+# eight paths the pre-shed image copied, and the render unit's widening of
+# them (seal 2.1.0, #1161), which lacked the serve's entry.
+EIGHT_PATH_SCOPE = ("contracts", "docs", "examples", "ideation", "openspec",
+                    "scripts/doc_health", "scripts/ideation_dashboard",
+                    "templates")
+RENDER_UNIT_SCOPE = ("contracts", "docs", "examples", "ideation", "openDox",
+                     "openXdox", "openspec", "scripts/carved_reach.py",
+                     "scripts/doc_health", "scripts/ideation-dashboard-cli.py",
+                     "scripts/ideation_dashboard", "scripts/opendox_host.py",
+                     "scripts/profile_openxfactory.py",
+                     "scripts/wire_messages.py", "templates")
+
+
+@pytest.mark.parametrize("recorded_scope", [EIGHT_PATH_SCOPE,
+                                            RENDER_UNIT_SCOPE],
+                         ids=["the-eight-path-pin", "the-render-unit-pin"])
+def test_the_widened_scope_costs_exactly_one_rebuild(recorded_scope):
+    """A pin records the scope it was built with: the eight-path scope, or
+    the render unit's (#1161). Against either, the current scope is a SCOPE
+    CHANGE, which is one rebuild: the pin that rebuild records carries the new
+    scope, and the run after it reads as unchanged. Measured here rather than
+    asserted in prose."""
     before = lane.Provenance(
         corpus_repo=lane.DEFAULT_CORPUS_REPO, corpus_revision=CORPUS_A,
-        corpus_scope=lane.CORPUS_COPIED_PATHS,
+        corpus_scope=recorded_scope,
         recipe_repo=lane.DEFAULT_RECIPE_REPO, recipe_revision=RECIPE_A,
         recipe_scope=lane.RECIPE_BAKED_PATHS)
     first = lane.decide_refresh(corpus_revision=CORPUS_A,

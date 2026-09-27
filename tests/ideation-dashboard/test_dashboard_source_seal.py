@@ -36,6 +36,15 @@ What each block here pins.
     validator, and one test seals THIS checkout, legs and all, and renders the
     real corpus from the seal. An audit-hook test repeats the measurement the
     render unit was declared from.
+  * THE SERVE UNIT RIDES THERE TOO (#1164, seal 2.2.0). Since the post-shed
+    recipe (Omnigent-Install `6b7da477`) the served image starts
+    `scripts/ideation-dashboard-serve.py` from a runtime tree it copies out
+    of the context the child assembles from the seal. So the seal carries
+    that tree, the manifest names it (`serve_entry`, `serve_unit`), the
+    intake requires each of its paths once, and the seal refuses first a
+    corpus that lacks one. An audit-hook test measures the serve's build
+    phase against the unit, and the recipe's own build step runs over the
+    runtime tree copied out of a real seal of this checkout.
   * THE REVISION IS PROVEN, NOT ASSERTED. `git archive` records the commit it
     was made from in a global extended pax header; the seal refuses unless
     that header equals the `source_head` it is about to record. After this
@@ -100,6 +109,33 @@ def _instant(value: str) -> datetime:
 RECIPE_REV = "c" * 40
 RECIPE_TEXT = "FROM python:3.12-slim\nCOPY openxFactory/docs /srv/source/docs\n"
 
+# THE SERVE UNIT (#1164, seal 2.2.0): the runtime tree the served image's
+# recipe copies, at Omnigent-Install `6b7da477`
+# (`containers/ideation-dashboard/Dockerfile` lines 82-108), corpus-relative,
+# a trailing `/` naming a tree as the recipe spells one. Spelled here as the
+# tests' expectation; the lane's `SERVE_UNIT` is held to it.
+SERVE_ENTRY = "scripts/ideation-dashboard-serve.py"
+SERVE_UNIT = (
+    "contracts/domain-profiles/openxfactory-engineering.yaml",
+    "docs/opendox-carve-manifest.yaml",
+    "openDox/code/src/",
+    "openXdox/code/src/",
+    "scripts/carved_reach.py",
+    "scripts/doc_health/",
+    SERVE_ENTRY,
+    "scripts/ideation_dashboard/",
+    "scripts/opendox_host.py",
+    "scripts/profile_openxfactory.py",
+    "scripts/wire_messages.py",
+)
+# What the intake requires AS serve-unit paths: the unit less its entry,
+# which `serve_entry` names, and less what the render unit's own checks
+# already require (the host bootstrap, and both legs' `src/`), so no missing
+# path is reported twice.
+SERVE_ONLY = ("contracts/domain-profiles/openxfactory-engineering.yaml",
+              "docs/opendox-carve-manifest.yaml", "scripts/doc_health/",
+              "scripts/ideation_dashboard/")
+
 
 # ---------------------------------------------------------------------------
 # helpers — a real, tiny corpus repository, and a stub recipe read
@@ -135,6 +171,9 @@ def corpus(tmp_path: Path) -> Path:
     `scripts/validate-ideation-dashboard-contracts.py` the shed moved to
     openXdox-code. Built from `CORPUS_BAKED_PATHS`, never from the seal set, so
     the fixture cannot quietly re-grow the file the seal must stop asking for.
+    It also carries each FILE of the serve unit (#1164) that no baked path
+    makes: the served image's recipe copies two files out of `contracts/` and
+    `docs/` by name.
 
     The two products are GITLINKS, and this fixture carries neither: the tests
     about the legs build `corpus_with_products`, and the rest inject a
@@ -152,6 +191,13 @@ def corpus(tmp_path: Path) -> Path:
             continue
         target.mkdir(parents=True, exist_ok=True)
         (target / "a.md").write_text(f"# {relpath}\n", encoding="utf-8")
+    for relpath in SERVE_UNIT:
+        target = repo / relpath
+        if (relpath.endswith("/") or target.exists()
+                or relpath.split("/", 1)[0] in lane.RENDER_LEG_GITLINKS):
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(f"# {relpath}\n", encoding="utf-8")
     # A path OUTSIDE the seal set, to prove the seal is bounded.
     (repo / "experiments").mkdir()
     (repo / "experiments" / "huge.bin").write_text("x" * 1024, encoding="utf-8")
@@ -439,6 +485,33 @@ def test_the_corpus_seal_set_is_the_baked_set_and_never_names_the_shed_path():
     # Sorted, like the baked tuple, because both are written into records that
     # compare scope for equality and two spellings would read as a change.
     assert list(lane.CORPUS_SEAL_PATHS) == sorted(lane.CORPUS_SEAL_PATHS)
+
+
+def test_the_serve_unit_is_the_recipes_runtime_tree():
+    """THE SERVE UNIT (#1164, seal 2.2.0). The recipe landed at
+    Omnigent-Install `6b7da477` copies eleven paths out of the corpus to
+    START the image: the serve's entry, the four host files it reaches, the
+    two retained script packages, the carve manifest, the domain profile, and
+    both legs' `src/`. The seal carries them and the manifest names them. The
+    intake requires each ONCE: the entry by `serve_entry`, the host bootstrap
+    and the legs by the render unit's own checks, which already name them,
+    and the other four as serve-unit paths (`SERVE_ONLY`). Each is in this
+    checkout."""
+    assert lane.SEAL_SCHEMA_VERSION == "2.2.0"
+    assert lane.SERVE_ENTRY == SERVE_ENTRY
+    assert lane.SERVE_UNIT == SERVE_UNIT
+    assert list(lane.SERVE_UNIT) == sorted(lane.SERVE_UNIT)
+    assert lane.SERVE_ENTRY in lane.CORPUS_SEAL_PATHS
+    assert lane.SERVE_ONLY == SERVE_ONLY
+    held = [*lane.RENDER_BOOTSTRAP,
+            *(f"{gitlink}/{leg}/{path}/" for gitlink, leg, _package
+              in lane.RENDER_LEGS for path in lane.RENDER_LEG_PATHS)]
+    # A partition: each path of the unit is required by exactly one check.
+    assert sorted([SERVE_ENTRY, *SERVE_ONLY, *held]) == sorted(SERVE_UNIT)
+    for path in SERVE_UNIT:
+        target = REPO_ROOT / path
+        assert (any(item.is_file() for item in target.rglob("*"))
+                if path.endswith("/") else target.is_file()), path
 
 
 def test_the_sealed_validator_path_is_the_products_own():
@@ -1138,6 +1211,17 @@ def test_the_manifest_carries_every_field_the_child_reads(corpus, tmp_path):
     assert [(leg["gitlink"], leg["leg"], leg["package"])
             for leg in manifest["render_legs"]] == list(lane.RENDER_LEGS)
     assert manifest["precheck"] == STUB_PRECHECK
+    # The serve unit (#1164, seal 2.2.0): the entry the served image starts,
+    # and every path its recipe copies, each carried as rows of `files`.
+    assert manifest["schema_version"] == "2.2.0"
+    assert manifest.get("serve_entry") == SERVE_ENTRY
+    assert manifest.get("serve_unit") == list(SERVE_UNIT)
+    for path in SERVE_UNIT:
+        carried = f"{lane.SEAL_CORPUS_RELPATH}/{path}"
+        assert (any(key.startswith(carried) for key in manifest["files"])
+                if path.endswith("/") else carried in manifest["files"]), path
+    assert SERVE_ENTRY in manifest["seal_paths"]
+    assert SERVE_ENTRY in manifest["corpus_baked_paths"]
     assert manifest["digest_algorithm"] == "sha256"
     assert manifest["decision"]["reason"] == lane.REASON_CORPUS_MOVED
     assert (seal / manifest["recipe_relpath"]).read_text(encoding="utf-8") \
@@ -1389,6 +1473,47 @@ def test_a_non_empty_seal_directory_is_refused(corpus, tmp_path):
     assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
 
 
+@pytest.mark.parametrize("path", [path for path in SERVE_ONLY
+                                  if not path.endswith("/")])
+def test_a_corpus_without_a_serve_unit_file_is_refused(corpus, tmp_path,
+                                                       path):
+    """THE SEAL REFUSES FIRST WHAT THE INTAKE REFUSES (#1164). Two files of the
+    serve unit sit inside directories the corpus archive names whole
+    (`contracts`, `docs`), so the archive cannot promise them. A corpus that
+    lacks one is refused, naming it, and no manifest is written."""
+    _git(corpus, "rm", "--quiet", path)
+    _git(corpus, "commit", "--quiet", "-m", f"drop {path}")
+    seal = tmp_path / "seal"
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal)
+    assert str(refused.value) == (
+        f"the sealed corpus does not carry {lane.SEAL_CORPUS_RELPATH}/{path}, "
+        "which the served image's recipe copies — the image the child builds "
+        "could not start")
+    assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
+
+
+@pytest.mark.parametrize("path", [path for path in SERVE_UNIT
+                                  if path.startswith("scripts/")])
+def test_a_corpus_without_a_serve_unit_script_fails_its_archive(corpus,
+                                                                tmp_path,
+                                                                path):
+    """Every script of the serve unit, the two packages included, is a
+    pathspec of the corpus archive in its own right, so `git archive` refuses
+    a corpus that lacks one, naming it, before anything is sealed. The seal
+    needs no second check for them. (The legs are sealed whole by the leg
+    sealer, and the two files no pathspec can promise are checked by name.)"""
+    _git(corpus, "rm", "-r", "--quiet", path.rstrip("/"))
+    _git(corpus, "commit", "--quiet", "-m", f"drop {path}")
+    seal = tmp_path / "seal"
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal)
+    reason = str(refused.value)
+    assert reason.startswith("git archive failed at "), reason
+    assert path.rstrip("/") in reason
+    assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
+
+
 # ---------------------------------------------------------------------------
 # the child's intake check (S3's reference implementation)
 # ---------------------------------------------------------------------------
@@ -1621,7 +1746,8 @@ def test_verify_refuses_the_1x_layout_that_sealed_the_validator_in_the_corpus(
     manifest["tree_digest"] = lane.tree_digest(manifest["files"])
     for field in ("validator_relpath", "validator_revision",
                   "validator_schema_count", "validator_probe",
-                  "render_entry", "render_legs", "precheck"):
+                  "render_entry", "render_legs", "precheck", "serve_entry",
+                  "serve_unit"):
         del manifest[field]                         # 2.x-only fields
     manifest["schema_version"] = "1.0.0"
     (seal / lane.SEAL_MANIFEST_NAME).write_text(
@@ -1646,6 +1772,10 @@ def test_verify_refuses_the_1x_layout_that_sealed_the_validator_in_the_corpus(
         "would have no renderer to run",
         "render_legs is None — the seal records no render unit, so the "
         "child's render would reach no product",
+        f"serve_entry is None, expected {SERVE_ENTRY!r} — the image the child "
+        "builds could not start",
+        "serve_unit is None — the seal records no serve unit, so the image the "
+        "child builds could not start",
     ]
     assert lane.SEAL_SCHEMA_VERSION.split(".", 1)[0] == "2"
 
@@ -2881,7 +3011,9 @@ def test_verify_refuses_the_2_0_layout_that_carried_no_render_unit(corpus,
     shutil.rmtree(seal / lane.SEAL_CORPUS_RELPATH / "openDox")
     shutil.rmtree(seal / lane.SEAL_CORPUS_RELPATH / "openXdox")
     (seal / lane.SEAL_CORPUS_RELPATH / lane.RENDER_ENTRY).unlink()
-    for field in ("render_entry", "render_legs", "precheck"):
+    (seal / lane.SEAL_CORPUS_RELPATH / SERVE_ENTRY).unlink()
+    for field in ("render_entry", "render_legs", "precheck", "serve_entry",
+                  "serve_unit"):
         del manifest[field]
     manifest["schema_version"] = "2.0.0"
     _rewrite_coherently(seal, manifest)
@@ -2889,7 +3021,140 @@ def test_verify_refuses_the_2_0_layout_that_carried_no_render_unit(corpus,
         f"render_entry is None, expected {lane.RENDER_ENTRY!r} — the child "
         "would have no renderer to run",
         "render_legs is None — the seal records no render unit, so the "
-        "child's render would reach no product"]
+        "child's render would reach no product",
+        f"serve_entry is None, expected {SERVE_ENTRY!r} — the image the child "
+        "builds could not start",
+        "serve_unit is None — the seal records no serve unit, so the image the "
+        "child builds could not start"]
+
+
+# ---------------------------------------------------------------------------
+# the serve unit (#1164, seal 2.2.0) — what the served image's recipe copies
+# out of the context the child assembles from the seal, to start the image
+# ---------------------------------------------------------------------------
+
+def test_verify_refuses_the_2_1_layout_that_carried_no_serve_unit(corpus,
+                                                                  tmp_path):
+    """A 2.1.0 seal (#1166) carried the render unit, but not the serve's entry,
+    and named no serve unit. The major is the same, so it is read, and it is
+    refused for exactly what it lacks: the image built from it could not
+    start (#1164). So 2.2.0 is the floor, by those named lacks rather than by
+    a version comparison, as 2.1 was for a 2.0 seal."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    (seal / lane.SEAL_CORPUS_RELPATH / SERVE_ENTRY).unlink(missing_ok=True)
+    for field in ("serve_entry", "serve_unit"):
+        manifest.pop(field, None)
+    manifest["schema_version"] = "2.1.0"
+    _rewrite_coherently(seal, manifest)
+    assert lane.verify_seal(seal) == [
+        f"serve_entry is None, expected {SERVE_ENTRY!r} — the image the child "
+        "builds could not start",
+        "serve_unit is None — the seal records no serve unit, so the image the "
+        "child builds could not start"]
+
+
+_NO_CARVE_MANIFEST = [path for path in SERVE_UNIT
+                      if path != "docs/opendox-carve-manifest.yaml"]
+
+
+@pytest.mark.parametrize("field, value, said", [
+    ("serve_entry", _ABSENT,
+     f"serve_entry is None, expected {SERVE_ENTRY!r} — the image the child "
+     "builds could not start"),
+    ("serve_entry", "scripts/ideation-dashboard-cli.py",
+     "serve_entry is 'scripts/ideation-dashboard-cli.py', expected "
+     f"{SERVE_ENTRY!r} — the image the child builds could not start"),
+    ("serve_unit", _ABSENT,
+     "serve_unit is None — the seal records no serve unit, so the image the "
+     "child builds could not start"),
+    ("serve_unit", "scripts",
+     "serve_unit is 'scripts' — the seal records no serve unit, so the image "
+     "the child builds could not start"),
+    ("serve_unit", list(reversed(SERVE_UNIT)),
+     f"serve_unit records {list(reversed(SERVE_UNIT))!r}, expected "
+     f"{list(SERVE_UNIT)!r}"),
+    ("serve_unit", _NO_CARVE_MANIFEST,
+     f"serve_unit records {_NO_CARVE_MANIFEST!r}, expected "
+     f"{list(SERVE_UNIT)!r}"),
+], ids=["no-serve-entry", "the-render-entry-named-as-the-serve-entry",
+        "no-serve-unit", "not-a-list", "out-of-order", "a-path-left-out"])
+def test_verify_holds_the_serve_record_to_the_readers_own(corpus, tmp_path,
+                                                          field, value, said):
+    """The manifest names the serve unit, and the intake holds that record to
+    its OWN `SERVE_ENTRY` and `SERVE_UNIT`. A parent and a child that disagree
+    about what the image copies, or a tampered record, is refused by name.
+    The files are untouched, so the record is the only thing wrong: a record
+    that leaves a path out changes nothing about what the intake requires."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    if value is _ABSENT:
+        manifest.pop(field, None)
+    else:
+        manifest[field] = value
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    assert lane.verify_seal(seal) == [said]
+
+
+def test_verify_refuses_a_serve_entry_the_seal_does_not_carry(corpus,
+                                                              tmp_path):
+    """Named is not carried: the entry the served image starts must be
+    indexed. The removal is made coherent, so only the requirement can see
+    it."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    (seal / lane.SEAL_CORPUS_RELPATH / SERVE_ENTRY).unlink(missing_ok=True)
+    _rewrite_coherently(seal, manifest)
+    assert lane.verify_seal(seal) == [
+        f"the seal does not carry {lane.SEAL_CORPUS_RELPATH}/{SERVE_ENTRY}, "
+        "the entry the served image starts"]
+
+
+@pytest.mark.parametrize("path", SERVE_ONLY)
+def test_verify_refuses_a_seal_missing_a_serve_only_path(corpus, tmp_path,
+                                                          path):
+    """The recipe copies each of these out of the context the child assembles
+    from the seal, so a seal that lacks one builds no image, and the render
+    unit names none of them. So the serve unit requires them, by the reader's
+    own list, whatever the manifest records: a file must be indexed, and a
+    tree must hold an indexed file. The removal is made coherent, so only the
+    requirement can see it."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    target = seal / lane.SEAL_CORPUS_RELPATH / path
+    if path.endswith("/"):
+        shutil.rmtree(target)
+        said = (f"the seal indexes no file under {lane.SEAL_CORPUS_RELPATH}/"
+                f"{path}, which the served image's recipe copies")
+    else:
+        target.unlink()
+        said = (f"the seal does not carry {lane.SEAL_CORPUS_RELPATH}/{path}, "
+                "which the served image's recipe copies")
+    _rewrite_coherently(seal, manifest)
+    assert lane.verify_seal(seal) == [said]
+
+
+@pytest.mark.parametrize("path", SERVE_UNIT)
+def test_every_serve_unit_path_is_required_once(corpus, tmp_path, path):
+    """THE WHOLE UNIT IS REQUIRED, EACH PATH ONCE. Whichever check names it,
+    the serve entry's, the render unit's (the host bootstrap, and the legs'
+    `src/`) or the serve unit's own, a seal that lacks any path of the unit
+    is refused by exactly one problem naming that path. The removal is made
+    coherent, so only the requirement can see it."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    target = seal / lane.SEAL_CORPUS_RELPATH / path
+    if path.endswith("/"):
+        shutil.rmtree(target)
+    else:
+        target.unlink(missing_ok=True)
+    _rewrite_coherently(seal, manifest)
+    problems = lane.verify_seal(seal)
+    named = f"{lane.SEAL_CORPUS_RELPATH}/{path}"
+    assert [problem for problem in problems if named in problem] != [], \
+        problems
+    assert sum(named in problem for problem in problems) == 1, problems
 
 
 # ---------------------------------------------------------------------------
@@ -3679,7 +3944,192 @@ def test_the_render_reads_nothing_outside_the_render_unit(tmp_path):
         and not any(path == root or path.startswith(root + "/")
                     for root in roots))
     assert outside == []
-    assert files <= opened, sorted(files - opened)
+    # Every file the RENDER unit declares is read by the render. The seal
+    # carries the serve's entry as well, which the render never reads: the
+    # serve unit is measured on its own, below.
+    unit = {path for path in lane.CORPUS_RENDER_PATHS
+            if path not in lane.RENDER_LEG_GITLINKS}
+    assert unit <= files
+    assert unit <= opened, sorted(unit - opened)
     for gitlink, leg, package in lane.RENDER_LEGS:
         assert any(path.startswith(f"{gitlink}/{leg}/src/{package}/")
                    for path in opened), gitlink
+
+
+# The profile facets the serve reads when the image starts, beyond its build
+# step: `ROUTE_EXTENSIONS` for `opendox.serve.build_server()`, and `DISPLAY`
+# for its `/capabilities` payload (`scripts/opendox_host.py`, `FACETS`). The
+# host profile imports `scripts/profile_openxfactory.py` only when one is
+# read, so a build step alone never reaches it.
+SERVE_FACETS = ("ROUTE_EXTENSIONS", "DISPLAY")
+
+_SERVE_BUILD_HARNESS = '''\
+"""Run SERVE_ENTRY's start under an audit hook, as the served image runs it:
+the module body, which is the whole host bootstrap, the web root it composes,
+and the profile facets the server reads when it is built (argv[4:]), never
+the server loop. Record every checkout path opened, listed or linked
+(#1164)."""
+import os, runpy, sys
+from pathlib import Path
+
+root = Path(sys.argv[1]).resolve()
+record = Path(sys.argv[2])
+seen = set()
+
+
+def note(path):
+    try:
+        seen.add(Path(os.fsdecode(path)).resolve().relative_to(root).as_posix())
+    except (TypeError, ValueError, OSError):
+        pass
+
+
+def hook(event, args):
+    if event in ("open", "os.listdir", "os.scandir") and args and \\
+            isinstance(args[0], (str, bytes, os.PathLike)):
+        note(args[0])
+
+
+sys.addaudithook(hook)
+entry = runpy.run_path(str(root / sys.argv[3]), run_name="image_build")
+web_root = Path(entry["_composed_web_root"]())
+for linked in sorted(web_root.rglob("*")):
+    if linked.is_symlink():
+        note(os.readlink(linked))
+import opendox_host
+profile = opendox_host.profile()
+for facet in sys.argv[4:]:
+    getattr(profile, facet)
+for module in list(sys.modules.values()):
+    if getattr(module, "__file__", None):
+        note(module.__file__)
+record.write_text("\\n".join(sorted(seen)) + "\\n", encoding="utf-8")
+'''
+
+
+def _without_the_checkout_on_the_path(tmp_path: Path) -> dict[str, str]:
+    """This process's environment with no `PYTHONPATH`, and bytecode written
+    nowhere near a tree under test."""
+    env = {key: value for key, value in os.environ.items()
+           if key != "PYTHONPATH"}
+    env.update(PYTHONDONTWRITEBYTECODE="1",
+               PYTHONPYCACHEPREFIX=str(tmp_path / "pycache"))
+    return env
+
+
+def test_the_serve_start_reads_nothing_outside_the_serve_unit(tmp_path):
+    """THE MEASUREMENT THE SERVE UNIT WAS DECLARED FROM, repeated (#1164). The
+    served image's build step loads `SERVE_ENTRY` as a module, which performs
+    its whole host bootstrap, and composes the web root from the carve
+    manifest. At start the server then reads its profile facets
+    (`SERVE_FACETS`). Run that way over this checkout, under an audit hook,
+    every checkout path it opens, lists or links is in the serve unit, a file
+    of it or under a tree of it, or is a directory above one, which the
+    import system lists. And it reads every file of the unit, and something
+    under every tree, so the unit is neither too narrow for the image nor
+    wider than its start. The #1164 writer's own measurement, at `c415c3d1`,
+    adds every route, and found nothing further."""
+    harness = tmp_path / "harness.py"
+    harness.write_text(_SERVE_BUILD_HARNESS, encoding="utf-8")
+    record = tmp_path / "opened.txt"
+    proc = subprocess.run(
+        [sys.executable, str(harness), str(REPO_ROOT), str(record),
+         lane.SERVE_ENTRY, *SERVE_FACETS],
+        cwd=str(tmp_path), env=_without_the_checkout_on_the_path(tmp_path),
+        capture_output=True, text=True, timeout=600)
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    opened = set(record.read_text(encoding="utf-8").split())
+    files = {path for path in lane.SERVE_UNIT if not path.endswith("/")}
+    trees = [path for path in lane.SERVE_UNIT if path.endswith("/")]
+    above = {"/".join(parts[:depth]) for entry in lane.SERVE_UNIT
+             for parts in [entry.rstrip("/").split("/")]
+             for depth in range(1, len(parts))}
+    outside = sorted(
+        path for path in opened
+        if path not in files and path not in above
+        and not any(f"{path}/".startswith(tree) for tree in trees))
+    assert outside == []
+    assert files <= opened, sorted(files - opened)
+    for tree in trees:
+        assert any(path.startswith(tree) for path in opened), tree
+
+
+_RECIPE_BUILD_STEP = '''\
+"""The served image's recipe's build step (Omnigent-Install `6b7da477`,
+`containers/ideation-dashboard/Dockerfile`), over the runtime tree at argv[1]:
+load the entry as a module, which performs its whole host bootstrap, and copy
+the web root it composes to argv[2]. A composed link that leads out of the
+runtime tree is refused, since a copy that read this checkout would pass here
+and fail in the image. Then the profile facets the server reads when the
+image starts (argv[3:]), each resolved from the runtime tree."""
+import runpy, shutil, sys
+from pathlib import Path
+
+app, out = Path(sys.argv[1]).resolve(), Path(sys.argv[2])
+entry = runpy.run_path(str(app / "scripts" / "ideation-dashboard-serve.py"),
+                       run_name="image_build")
+web_root = Path(entry["_composed_web_root"]())
+for linked in sorted(web_root.rglob("*")):
+    if linked.is_symlink() and not linked.resolve().is_relative_to(app):
+        sys.exit(f"{linked} leads out of the runtime tree, to "
+                 f"{linked.resolve()}")
+shutil.copytree(web_root, out)
+import opendox_host
+profile = opendox_host.profile()
+for facet in sys.argv[3:]:
+    getattr(profile, facet)
+# Every module of the unit's own packages came from the runtime tree, a
+# namespace package's every path included.
+OWN = {"carved_reach", "doc_health", "ideation_dashboard", "opendox",
+       "opendox_host", "openxdox", "profile_openxfactory", "wire_messages"}
+for name, module in sorted(sys.modules.items()):
+    if name.split(".")[0] not in OWN:
+        continue
+    places = ([module.__file__] if getattr(module, "__file__", None)
+              else list(getattr(module, "__path__", [])))
+    for place in places:
+        if not Path(place).resolve().is_relative_to(app):
+            sys.exit(f"{name} was imported from outside the runtime tree, "
+                     f"from {place}")
+'''
+
+
+def test_the_served_image_starts_from_a_seal_of_this_checkout(tmp_path):
+    """THE IMAGE THE CHILD BUILDS CAN START (#1164), short of a container. A
+    real seal of this checkout, both legs at the commits HEAD pins. The
+    runtime tree is copied out of the SEALED corpus as the recipe copies it,
+    `serve_unit` path by path, and the recipe's own build step runs over that
+    tree with nothing of this checkout on the path. The host bootstrap
+    completes, the web root it composes is whole, every link inside the tree,
+    carrying the index and openxFactory's one retained view, and the profile
+    facets the server reads at start resolve, every module imported from the
+    tree."""
+    head = _git(REPO_ROOT, "rev-parse", "HEAD")
+    seal = tmp_path / "seal"
+    manifest = lane.seal_source(
+        corpus_checkout=REPO_ROOT, seal_dir=seal, correlation_id=CORRELATION,
+        decision=_decision(head), corpus_ref="HEAD",
+        read_recipe=(lambda: RECIPE_TEXT), precheck_render=_stub_precheck)
+    assert lane.verify_seal(seal, correlation_id=CORRELATION,
+                            corpus_revision=head,
+                            recipe_revision=RECIPE_REV) == []
+    assert manifest["serve_unit"] == list(SERVE_UNIT)
+    corpus_root = seal / lane.SEAL_CORPUS_RELPATH
+    app = tmp_path / "app" / "openxFactory"
+    for path in manifest["serve_unit"]:
+        source, target = corpus_root / path, app / path
+        if path.endswith("/"):
+            shutil.copytree(source, target)
+        else:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, target)
+    harness = tmp_path / "build-step.py"
+    harness.write_text(_RECIPE_BUILD_STEP, encoding="utf-8")
+    web = tmp_path / "web"
+    proc = subprocess.run(
+        [sys.executable, str(harness), str(app), str(web), *SERVE_FACETS],
+        cwd=str(tmp_path), env=_without_the_checkout_on_the_path(tmp_path),
+        capture_output=True, text=True, timeout=600)
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    assert (web / "index.html").is_file()
+    assert (web / "views" / "intent-feed.js").is_file()

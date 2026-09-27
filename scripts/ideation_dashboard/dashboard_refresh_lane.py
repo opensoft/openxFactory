@@ -19,9 +19,9 @@ Decision 10). Two revisions are compared against the two recorded with the
 currently pinned image:
 
   * the CORPUS input revision — openxFactory, the last commit touching its
-    baked inputs (`CORPUS_BAKED_PATHS`): the eight paths the Dockerfile
-    copies, plus the render unit that makes the snapshot it copies (the two
-    product gitlinks and the host bootstrap, #1161);
+    baked inputs (`CORPUS_BAKED_PATHS`): the fifteen scopes the Dockerfile
+    copies since the post-shed recipe (#1164), plus the render entry that
+    makes the snapshot it copies (#1161);
   * the BUILD-RECIPE input revision — Omnigent-Install, the last commit
     touching `containers/ideation-dashboard` (`RECIPE_BAKED_PATHS`).
 
@@ -95,7 +95,8 @@ entry point the child will run, and runs the sealed validator over it under
 `--strict`: a seal whose snapshot the child's publication gate would refuse is
 never dispatched, and the refusal carries the validator's own findings. See
 the seal section for why the validator comes from the product rather than the
-corpus, and why the render unit is sealed where it is.
+corpus, why the render unit is sealed where it is, and why the serve unit
+rides beside it (#1164).
 
 WHAT THIS MODULE DELIBERATELY DOES NOT DO. It opens no pull request and pushes
 no branch. It RENDERS the pin (the rewritten overlay text plus a PR body) and
@@ -140,17 +141,56 @@ LANE = "ideation-dashboard-refresh"
 STATUS_NAME = "refresh-status.json"
 DEFAULT_OUT_DIR = "health/ideation-dashboard"
 
-# What the served plane's Dockerfile COPIES out of the corpus (`COPY
-# openxFactory/...` plus the two script packages), which correctly ignores
-# `tests/` and `experiments/` (169 MB, referenced by zero docs).
+# THE SERVE UNIT (#1164, seal 2.2.0): what the served plane's Dockerfile copies
+# out of the corpus to START the image, its runtime tree. Since the post-shed
+# recipe (Omnigent-Install #322, landed `6b7da477`) the image runs
+# openxFactory's own `SERVE_ENTRY`, which reaches both pinned products through
+# the host bootstrap, composes its web root from the carve manifest, and
+# registers the domain profile. So the recipe copies, corpus-relative (a
+# trailing `/` names a tree, as the recipe spells one): the entry and the four
+# host files it reaches, the two retained script packages, the carve manifest,
+# the domain profile, and both legs' `src/`, at openxFactory's own pins (RULED
+# Q7). MEASURED, not listed from memory: the #1164 writer's audit hook over
+# the serve at `c415c3d1`, across the build and runtime phases and every
+# route, read nothing else of the checkout, and a test repeats the build
+# phase's half of that measurement. Sorted, as the manifest records it.
+SERVE_ENTRY = "scripts/ideation-dashboard-serve.py"
+SERVE_UNIT: tuple[str, ...] = (
+    "contracts/domain-profiles/openxfactory-engineering.yaml",
+    "docs/opendox-carve-manifest.yaml",
+    "openDox/code/src/",
+    "openXdox/code/src/",
+    "scripts/carved_reach.py",
+    "scripts/doc_health/",
+    SERVE_ENTRY,
+    "scripts/ideation_dashboard/",
+    "scripts/opendox_host.py",
+    "scripts/profile_openxfactory.py",
+    "scripts/wire_messages.py",
+)
+
+# What the served plane's Dockerfile COPIES out of the corpus, as the git-log
+# scopes the decision reads: the six corpus directories its `/source` tree
+# carries, plus the narrowest scope of each path of the serve unit that those
+# do not already cover. A leg's scope is its product's gitlink, a path `git
+# log` answers for, so a re-pin is movement. It correctly ignores `tests/`
+# and `experiments/` (169 MB, referenced by zero docs). A test derives this
+# tuple from `SERVE_UNIT` and the `/source` roots.
 CORPUS_COPIED_PATHS: tuple[str, ...] = (
     "contracts",
     "docs",
     "examples",
     "ideation",
+    "openDox",
+    "openXdox",
     "openspec",
+    "scripts/carved_reach.py",
     "scripts/doc_health",
+    SERVE_ENTRY,
     "scripts/ideation_dashboard",
+    "scripts/opendox_host.py",
+    "scripts/profile_openxfactory.py",
+    "scripts/wire_messages.py",
     "templates",
 )
 
@@ -168,6 +208,11 @@ CORPUS_COPIED_PATHS: tuple[str, ...] = (
 # packages, and nothing under either product outside its code leg's `src/`.
 # A test repeats that measurement, so a render that grows an import outside
 # this set fails in the suite rather than in the child.
+#
+# Since the post-shed recipe (#1164) the image copies all of it again but
+# `RENDER_ENTRY`, because the serve reaches the same products through the same
+# bootstrap. The render entry is the one baked input the image does not copy:
+# the image serves, and does not render.
 #
 # A gitlink path is a path `git log` answers for, so a product re-pin is corpus
 # movement exactly as a renderer edit in `scripts/ideation_dashboard` was.
@@ -994,6 +1039,16 @@ class BuildResult:
 # outside the seal and discarded: the child still generates the one the image
 # bakes, and the child's `--strict` is still the publication gate.
 #
+# THE SERVE UNIT RIDES THERE TOO (#1164, seal 2.2.0). The child builds the
+# image from a context it assembles out of the sealed corpus, and the recipe
+# copies the runtime tree `SERVE_UNIT` names out of that context, then starts
+# `SERVE_ENTRY`. Against the 2.1.0 seal the corpus half lacked exactly one file
+# of it, the entry itself, which `CORPUS_SEAL_PATHS` now names. The rest was
+# already sealed: the host bootstrap and both legs as the render unit, the two
+# packages and the two files inside `contracts/` and `docs/` as corpus paths.
+# The manifest names the unit, the intake requires each of its paths once,
+# and the seal refuses first a corpus that lacks one (`SERVE_ONLY`).
+#
 # THE REVISION IS PROVEN, NOT ASSERTED. `git archive`'s tar output carries the
 # commit it was made from in a global extended pax header (`comment=<sha>`),
 # written by git itself, and the seal refuses unless that header equals the
@@ -1021,7 +1076,15 @@ SEAL_MANIFEST_KIND = "ideation-dashboard-sealed-source-manifest"
 # place and meaning, so a 2.0 reader still reads the seal. A 2.1 reader
 # refuses a 2.0 seal by what it lacks, naming it: a seal with no render unit
 # is one the child could not render from.
-SEAL_SCHEMA_VERSION = "2.1.0"
+#
+# 2.2.0 FROM #1164, AND AGAIN ONLY THE MINOR MOVES. The corpus half now also
+# carries the SERVE UNIT, what the served image's recipe copies to start the
+# image, and the manifest names it (`serve_entry`, `serve_unit`). Every 2.1.0
+# field keeps its name, place and meaning. A 2.2 reader refuses a 2.1 seal by
+# what it lacks, naming it: the recipe copies the serve entry and runs it, so
+# an image built from a seal without it could not start. That makes 2.2.0 the
+# floor the child can build from.
+SEAL_SCHEMA_VERSION = "2.2.0"
 SEAL_ARTIFACT_PREFIX = "dashboard-image-source-"
 SEAL_DIGEST_ALGORITHM = "sha256"
 
@@ -1083,6 +1146,20 @@ RENDER_LEG_MODULES: dict[tuple[str, str], tuple[str, ...]] = {
                            "serve_projection.py", SEALED_PRODUCT_MODULE,
                            "view_extensions.py"),
 }
+
+# THE SERVE UNIT'S OWN REQUIREMENT (#1164, seal 2.2.0). The intake requires
+# each `SERVE_UNIT` path ONCE, so a seal that lacks one is one problem, not
+# two. The entry is required by `serve_entry`, and the host bootstrap and both
+# legs' `src/` by the render unit's own checks, which already name them. The
+# rest, listed here, are required as serve-unit paths, and the seal refuses
+# the same set first, by the same rule (`_serve_only_paths_absent`).
+_SERVE_UNIT_HELD_BY_THE_RENDER = frozenset((
+    *RENDER_BOOTSTRAP,
+    *(f"{gitlink}/{leg}/{path}/" for gitlink, leg, _package in RENDER_LEGS
+      for path in RENDER_LEG_PATHS)))
+SERVE_ONLY: tuple[str, ...] = tuple(
+    path for path in SERVE_UNIT
+    if path != SERVE_ENTRY and path not in _SERVE_UNIT_HELD_BY_THE_RENDER)
 
 # The sealed validator unit, and its layout. `VALIDATOR_SCRIPT_PATH` is the
 # script's path INSIDE the unit. It is also the product's own
@@ -2611,6 +2688,9 @@ def seal_source(
         corpus is archived;
       * an archive whose own recorded commit is not `source_head` seals
         nothing;
+      * a sealed corpus that lacks a path of the serve unit, which the served
+        image's recipe copies, and which neither the archive's pathspec nor
+        the leg sealer promises (`SERVE_ONLY`), seals nothing;
       * a validator whose product revision cannot be read, whose unit
         carries corpus bytes `source_head` does not hold, whose unit cannot
         be copied whole, whose sealed copy cannot RUN, whose run changed the
@@ -2630,7 +2710,7 @@ def seal_source(
         seal directory itself, seals nothing;
       * a `manifest.json` the lane did not write, left by the sealed code that
         ran before it, seals nothing.
-    Only a seal that passed all twelve gets a `manifest.json`, and the
+    Only a seal that passed all thirteen gets a `manifest.json`, and the
     manifest's presence is therefore the artifact's own statement that the
     parent stands behind it.
 
@@ -2725,6 +2805,23 @@ def seal_source(
                for path in seal_paths):
         raise SealRefused(
             "the sealed corpus is empty — none of the seal paths materialized")
+    # THE SERVE UNIT IS SEALED WHOLE (#1164, seal 2.2.0). The served image's
+    # recipe copies each of its paths out of the context the child assembles
+    # from this corpus, so a seal that lacks one builds no image, and the
+    # intake refuses it. Each script of the unit is a pathspec of the archive
+    # above, which refuses to miss one, and the legs are sealed whole. What
+    # neither promises, a file inside a directory the archive names whole, is
+    # checked here, by the intake's own rule.
+    absent = _serve_only_paths_absent(
+        path.relative_to(seal_root).as_posix()
+        for path in corpus_root.rglob("*") if path.is_file())
+    if absent:
+        missing = f"{SEAL_CORPUS_RELPATH}/{absent[0]}"
+        what = (f"carries no file under {missing}" if missing.endswith("/")
+                else f"does not carry {missing}")
+        raise SealRefused(
+            f"the sealed corpus {what}, which the served image's recipe "
+            "copies — the image the child builds could not start")
     # The #179 trap, refused at the seal rather than at `--strict` three steps
     # later. A validation that could not RUN is a strict failure with no
     # finding to read, so the sealed copy is RUN here, and a copy that cannot
@@ -2836,6 +2933,11 @@ def seal_source(
         "render_entry": RENDER_ENTRY,
         "render_legs": render_legs,
         "precheck": precheck,
+        # THE SERVE UNIT (#1164, seal 2.2.0): the entry the served image
+        # starts, and every path its recipe copies to start it. Each is rows
+        # of `files` below, and the legs among them are `render_legs` above.
+        "serve_entry": SERVE_ENTRY,
+        "serve_unit": list(SERVE_UNIT),
         "decision": {
             "outcome": decision.get("outcome"),
             "reason": decision.get("reason"),
@@ -2875,7 +2977,9 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
     its schemas, and a recorded run that reached a verdict. A whole render unit
     means the entry, both products' code legs at recorded commits, and a
     recorded pre-dispatch render that passed `--strict`
-    (`_render_unit_problems`).
+    (`_render_unit_problems`). A whole serve unit means the entry the served
+    image starts, and every path its recipe copies, named and carried
+    (`_serve_unit_problems`).
 
     Returns the problems, empty when the seal verifies. It is a list rather
     than an exception because the child must report ALL of what is wrong before
@@ -3024,6 +3128,7 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
     # A malformed revision is reported once, above, and never also compared.
     problems += _render_unit_problems(
         manifest, files, validator_revision if well_formed else None)
+    problems += _serve_unit_problems(manifest, files)
     if manifest.get("recipe_relpath") not in files:
         problems.append("the seal does not carry the build recipe")
     return problems
@@ -3143,6 +3248,65 @@ def _render_unit_problems(manifest: dict, files: dict,
             "the sealed render passed its own validator under --strict "
             f"({PRECHECK_VALIDATED} with exit "
             f"{VALIDATOR_VERDICT_RETURNCODES[PRECHECK_VALIDATED]})")
+    return problems
+
+
+def _serve_only_paths_absent(carried) -> list[str]:
+    """The `SERVE_ONLY` paths `carried` does not hold, in `SERVE_UNIT` order:
+    a file it does not name, or a tree it names no file under. `carried` is
+    seal-relative paths, the manifest's `files` keys or the files a sealed
+    corpus holds, so the seal and the intake refuse by one rule."""
+    carried = set(carried)
+    absent: list[str] = []
+    for path in SERVE_ONLY:
+        name = f"{SEAL_CORPUS_RELPATH}/{path}"
+        if path.endswith("/"):
+            held = any(relpath.startswith(name) for relpath in carried)
+        else:
+            held = name in carried
+        if not held:
+            absent.append(path)
+    return absent
+
+
+def _serve_unit_problems(manifest: dict, files: dict) -> list[str]:
+    """What is wrong with the seal's SERVE UNIT (#1164, seal 2.2.0), for
+    `verify_seal`.
+
+    The child assembles the served image's build context out of the sealed
+    corpus, and the recipe copies each `SERVE_UNIT` path out of it, then
+    starts `SERVE_ENTRY`. So the manifest must name the entry and the unit as
+    this reader does, and each path must be carried. What is required is this
+    reader's own list, whatever the manifest records, and each path once: the
+    entry here by name, the host bootstrap and both legs' `src/` by
+    `_render_unit_problems`, and the rest (`SERVE_ONLY`) here, a file indexed
+    and a tree holding an indexed file."""
+    problems: list[str] = []
+    entry = manifest.get("serve_entry")
+    if entry != SERVE_ENTRY:
+        problems.append(
+            f"serve_entry is {entry!r}, expected {SERVE_ENTRY!r} — the image "
+            "the child builds could not start")
+    elif f"{SEAL_CORPUS_RELPATH}/{SERVE_ENTRY}" not in files:
+        problems.append(
+            f"the seal does not carry {SEAL_CORPUS_RELPATH}/{SERVE_ENTRY}, the "
+            "entry the served image starts")
+    unit = manifest.get("serve_unit")
+    if not isinstance(unit, list):
+        problems.append(
+            f"serve_unit is {unit!r} — the seal records no serve unit, so the "
+            "image the child builds could not start")
+    elif unit != list(SERVE_UNIT):
+        problems.append(
+            f"serve_unit records {unit!r}, expected {list(SERVE_UNIT)!r}")
+    for path in _serve_only_paths_absent(files):
+        name = f"{SEAL_CORPUS_RELPATH}/{path}"
+        if path.endswith("/"):
+            problems.append(f"the seal indexes no file under {name}, which "
+                            "the served image's recipe copies")
+        else:
+            problems.append(f"the seal does not carry {name}, which the "
+                            "served image's recipe copies")
     return problems
 
 
