@@ -132,6 +132,14 @@ missing consumer module in front of a user is not standalone operation.
 over 5.0's fixture. 10.1's own proof in phase 1 is that falsifier's first
 assertion, `opendox --help`.
 
+**AMENDED — T007 Batch F (`5850003126`; Ruled R1Q25 (b)):** 9.2 closes in
+phase 3, although the map puts Group 9 in phase 1. Its whole-suite check lands
+in phase 1, and the box closes where its ratchet reaches `(0, 0)`, in phase 3,
+because 9.2 lowers `OPENDOX_BACK_IMPORTS` *"as each deferred reach closes"*
+and 4.3's nineteen reaches into openXdox close by then. 7.3 stays in phase 2,
+beside openDox's own validator, as the map has it. Nothing else in the map
+moves. Carried out by T043, T086 and T097.
+
 **Release 2's rulings are SEQUENCED, not deferred, reopened or weakened.** The
 rulings recorded for phases 4 and 5 — `5783934499` (the neutral submission step),
 `5784155201` (merge authority, and health in the store; its install half is phase
@@ -662,6 +670,18 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   exists (T019's rule names its owner) and T059/T086 wire the subtraction
   into both falsifiers' checks. Carried out by whichever task T019 names as
   the file's first owner, plus T059, T086.
+
+  **AMENDED — T007 Batch F (`5850003126`; Ruled R1Q14 (a)):** The reviewed
+  allow-list that R1Q7 (a) admits for this falsifier (`5817152735`; T007
+  Batch C) also admits the two edits F7.1 requires. Each is entered with its
+  reason, and neither as a respelling: the added
+  `tests/test_snapshot.py::test_the_validator_is_the_installed_consumers_own`,
+  and the revised
+  `tests/test_snapshot_validator_home.py::test_a_start_outside_the_product_is_refused_not_walked`,
+  whose expected answer 7.3 now governs. The second file is a suite the glob
+  above selects: lane 4's C3 added it (openXdox-code#28, `e28930bf`), so the
+  glob selects seven suites there. This bookkeeping amendment does not itself
+  touch the Python above. Carried out by T061 and T063.
 - [ ] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
   projection replaces them; the import-time column stays at zero.
 - [x] 5.6 **Do NOT author the view-wiring slice here** — and it can no longer be
@@ -976,6 +996,15 @@ packet's interim arrangement ends.**
   no file list (follows group 2).
 - [ ] 9.2 openXdox-code the same, with `OPENDOX_BACK_IMPORTS` lowered as each
   deferred reach closes. The import-time column is ALREADY zero and stays there.
+
+  **AMENDED — T007 Batch F (`5850003126`; Ruled R1Q24 (a), R1Q25 (b)):** For
+  release 1, the declared exclusion that openXdox-code's whole suite runs less
+  (R1Q6 (d), `5817152735`; T007 Batch B) also holds the files that reach
+  openxFactory's status-exemption rail or its contracts, and
+  `tests/test_snapshot.py` until 7.3 lands. Each entry carries its own reason
+  and is reported as an open extraction. The whole-suite check lands in phase
+  1, and the box closes in phase 3, as this batch's addendum to the release
+  map records. Carried out by T041, T043, T061, T086 and T097.
 - [ ] 9.2a **Add the missing instrument.** No gate watches the openDox →
   openxFactory direction — the ratchet measures openDox → openXdox only, which is
   how two import-time reaches into the publisher survived a completed inversion
@@ -1045,6 +1074,17 @@ packet's interim arrangement ends.**
   `grep` after a failing `pytest` must not make the sequence exit zero), and the
   `test` asserts the exclusion count is ZERO rather than leaving it to a reader.
   Today openDox-code gives 1,298 errors / 0 passed and openXdox-code 1,089 / 0.
+
+  **AMENDED — T007 Batch F (`5850003126`; Ruled R1Q24 (a), R1Q25 (b)):** For
+  openXdox-code, the declared exclusion that R1Q6 (d) admits (`5817152735`;
+  T007 Batch B) takes three more reasons, and each entry names its own:
+  openxFactory's status-exemption rail and openxFactory's contracts, both
+  pending the `doc_health` direction arc (T008), and the consumer's schemas
+  until 7.3 lands, for `tests/test_snapshot.py` alone. Every entry is reported
+  as an open extraction, as the `doc_health` entries are, and the checks this
+  falsifier makes of the exclusion apply to every entry. The
+  `tests/test_snapshot.py` entry leaves when 7.3 lands, in phase 2.
+  openDox-code's run is unchanged. Carried out by T041, T043, T049 and T061.
 - [ ] **FALSIFIED BY** (9.3, and requirement 9's third scenario: an openXdox-code
   checkout, the composition's declared home, with openDox arriving ONLY through
   the pin):
