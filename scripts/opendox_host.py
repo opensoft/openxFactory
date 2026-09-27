@@ -260,6 +260,9 @@ def register_openxfactory() -> Any:
 
       * `scripts/ideation-dashboard-serve.py`, the serve entrypoint
         `scripts/reserve-dashboard.sh` executes — the production caller.
+      * `scripts/ideation-dashboard-cli.py`, its command-line twin: the render
+        the nightly refresh lane's worker child runs from the sealed corpus,
+        and the parent's pre-dispatch render of the same seal (#1161).
       * `tests/conftest.py` and `tests/ideation-dashboard/conftest.py`, for the
         suites that build servers and parsers in-process.
       * `tests/ideation-dashboard/test_cli_column_split.py`'s BOOTSTRAP, the
@@ -284,7 +287,9 @@ def register_openxfactory() -> Any:
     `scripts/ideation_dashboard/dashboard_refresh_lane.py` has a `__main__` of
     its own and does NOT call it: it imports neither engine module, and a hook
     where none is needed would be the blanket registration this file's FACETS
-    list refuses in the other direction.
+    list refuses in the other direction. Its pre-dispatch render runs
+    `scripts/ideation-dashboard-cli.py` in a process of its own, which
+    registers there.
 
     A COLUMN must NOT call it: `ideation_dashboard/serve_openxfactory_lanes.py`
     is imported BY `profile_openxfactory`, so a column that registered the

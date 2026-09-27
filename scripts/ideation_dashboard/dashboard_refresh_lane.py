@@ -18,8 +18,10 @@ THE NO-CHANGE DECISION IS ON INPUT REVISIONS, BEFORE THE BUILD (design
 Decision 10). Two revisions are compared against the two recorded with the
 currently pinned image:
 
-  * the CORPUS input revision — openxFactory, the last commit touching the
-    eight paths the Dockerfile copies (`CORPUS_BAKED_PATHS`);
+  * the CORPUS input revision — openxFactory, the last commit touching its
+    baked inputs (`CORPUS_BAKED_PATHS`): the eight paths the Dockerfile
+    copies, plus the render unit that makes the snapshot it copies (the two
+    product gitlinks and the host bootstrap, #1161);
   * the BUILD-RECIPE input revision — Omnigent-Install, the last commit
     touching `containers/ideation-dashboard` (`RECIPE_BAKED_PATHS`).
 
@@ -60,13 +62,18 @@ build is — on the worker child, before the image exists — so the two-revisio
 trap is DETECTABLE rather than merely avoidable: an image whose snapshot names
 revision X over a corpus at revision Y publishes a freshness header the viewer
 cannot satisfy. OF THAT RECIPE, THIS MODULE HOLDS ONLY THE PREDICATE
-(`verify_one_revision`) — never the generation, the build or the assertion's
-call site.
+(`verify_one_revision`) — never the generation of the snapshot the image
+bakes, the build or the assertion's call site. The parent's pre-dispatch
+render (`precheck_sealed_render`) renders the same seal only to run the
+child's publication gate early; its snapshot is discarded and never baked.
 
 `--strict` IS THE PUBLICATION GATE and it precedes the push. Zero errors AND
 zero warnings, and a validator that could not RUN fails too; a non-zero exit
 means no tag, no push, no digest, no branch, no pull request — there is nothing
-to retract because nothing was published.
+to retract because nothing was published. The child's run of it is the gate.
+The parent runs the same sealed validator over the same sealed render first,
+so a seal the gate would refuse is recorded as `strict_failed`, with the
+validator's own output, and is never dispatched.
 
 FAILURE SEMANTICS, as the snapshot lane's: every error path is a recorded
 outcome and exit 0. The lane never fails the nightly, and its own status write
@@ -79,11 +86,16 @@ parent, from the corpus checkout the decision already used, with a manifest
 carrying the source head, that commit's own committer date, both path-scoped
 input revisions, a per-file sha256 index and one digest over the whole sealed
 tree. Sealing is MATERIALIZATION, not building: `git archive` of a revision the
-parent already has, one contents read of the single-file recipe, and a copy of
-the pinned openxdox product's own validator composed with its schemas, which
-the parent RUNS once before it seals, so a copy that cannot run never reaches
-the child. See the seal section for why the validator comes from the product
-rather than the corpus, and why the decision's path set does not follow it.
+parent already has, the same of the two pinned product code legs that render
+the snapshot, one contents read of the single-file recipe, and a copy of the
+pinned openxdox product's own validator composed with its schemas, which the
+parent RUNS once before it seals, so a copy that cannot run never reaches the
+child. Then the parent renders the snapshot FROM THE SEAL, through the same
+entry point the child will run, and runs the sealed validator over it under
+`--strict`: a seal whose snapshot the child's publication gate would refuse is
+never dispatched, and the refusal carries the validator's own findings. See
+the seal section for why the validator comes from the product rather than the
+corpus, and why the render unit is sealed where it is.
 
 WHAT THIS MODULE DELIBERATELY DOES NOT DO. It opens no pull request and pushes
 no branch. It RENDERS the pin (the rewritten overlay text plus a PR body) and
@@ -109,6 +121,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tarfile
@@ -127,13 +140,10 @@ LANE = "ideation-dashboard-refresh"
 STATUS_NAME = "refresh-status.json"
 DEFAULT_OUT_DIR = "health/ideation-dashboard"
 
-# The corpus repository's BAKED INPUTS — exactly the paths the served plane's
-# Dockerfile copies (`COPY openxFactory/...` plus the two script packages),
-# which correctly ignores `tests/` and `experiments/` (169 MB, referenced by
-# zero docs). Sorted, because the tuple is written into the pin as the SCOPE
-# the comparison was made with and two spellings of one scope would read as a
-# scope change.
-CORPUS_BAKED_PATHS: tuple[str, ...] = (
+# What the served plane's Dockerfile COPIES out of the corpus (`COPY
+# openxFactory/...` plus the two script packages), which correctly ignores
+# `tests/` and `experiments/` (169 MB, referenced by zero docs).
+CORPUS_COPIED_PATHS: tuple[str, ...] = (
     "contracts",
     "docs",
     "examples",
@@ -143,6 +153,50 @@ CORPUS_BAKED_PATHS: tuple[str, ...] = (
     "scripts/ideation_dashboard",
     "templates",
 )
+
+# THE RENDER UNIT'S CORPUS SIDE (openxFactory #1161). The image bakes the
+# SNAPSHOT as well as the corpus, and the snapshot is whatever the renderer
+# makes of the corpus, so the renderer is a baked input too. Until the
+# split-opendox § 5.2 shed (`cc4ae9d3`) it lived in `scripts/ideation_dashboard`,
+# which the Dockerfile also copies, so the copied set covered it by coincidence.
+# The shed moved it to the pinned openDox and openXdox products. openxFactory
+# reaches them through its own pin (RULED Q7) and its own host bootstrap, so the
+# renderer is now the two product gitlinks plus five files: the entry, and the
+# four its host bootstrap is made of (`RENDER_BOOTSTRAP`). MEASURED, not listed
+# from memory: an audit hook over the real render (`RENDER_ENTRY generate`) at
+# `57af6927` opened nothing else under `scripts/` outside the two copied
+# packages, and nothing under either product outside its code leg's `src/`.
+# A test repeats that measurement, so a render that grows an import outside
+# this set fails in the suite rather than in the child.
+#
+# A gitlink path is a path `git log` answers for, so a product re-pin is corpus
+# movement exactly as a renderer edit in `scripts/ideation_dashboard` was.
+RENDER_LEG_GITLINKS: tuple[str, ...] = ("openDox", "openXdox")
+# The product's own command line, behind openxFactory's host bootstrap. The
+# worker child runs it from the sealed corpus root, and so does the parent's
+# own pre-dispatch render.
+RENDER_ENTRY = "scripts/ideation-dashboard-cli.py"
+CORPUS_RENDER_PATHS: tuple[str, ...] = (
+    *RENDER_LEG_GITLINKS,
+    "scripts/carved_reach.py",
+    RENDER_ENTRY,
+    "scripts/opendox_host.py",
+    "scripts/profile_openxfactory.py",
+    "scripts/wire_messages.py",
+)
+# The host bootstrap the entry imports before it reaches either product: the
+# render paths less the two gitlinks and the entry itself. The intake requires
+# each one, since a seal missing any of them fails only once the render starts.
+RENDER_BOOTSTRAP: tuple[str, ...] = tuple(
+    path for path in CORPUS_RENDER_PATHS
+    if path not in RENDER_LEG_GITLINKS and path != RENDER_ENTRY)
+
+# The corpus repository's BAKED INPUTS: what the image copies, plus what
+# renders the snapshot it copies. This is the decision's scope. Sorted, because
+# the tuple is written into the pin as the SCOPE the comparison was made with
+# and two spellings of one scope would read as a scope change.
+CORPUS_BAKED_PATHS: tuple[str, ...] = tuple(
+    sorted({*CORPUS_COPIED_PATHS, *CORPUS_RENDER_PATHS}))
 
 # The served plane's BAKED INPUTS: the build recipe. A Dockerfile change alters
 # the image with the corpus untouched and would otherwise be invisible behind a
@@ -650,6 +704,32 @@ def subprocess_runner(argv, *, cwd=None, env=None) -> CommandResult:
                          proc.stdout or "", proc.stderr or "")
 
 
+def exact_git(repo_dir, *arguments: str) -> list[str]:
+    """The argv of an EXACT-CONTENT git read the seal makes:
+    `git --no-replace-objects -C <repo> ...`. Pass it with
+    `env=exact_git_environment()`.
+
+    Every read and archive the seal's record depends on goes through it: the
+    revision reads, the committer date, the gitlink reads and both archives.
+    A replace ref would otherwise hand `git archive` another commit's tree
+    under the pinned commit's name, and the archive's own recorded revision
+    would still read as the pin (Copilot, PR #1166). The decision's
+    path-scoped `log` and its `fetch` are not exact-content reads and keep the
+    plain form."""
+    return ["git", "--no-replace-objects", "-C", str(repo_dir), *arguments]
+
+
+def exact_git_environment() -> dict[str, str]:
+    """The environment of an `exact_git` read: `carved_reach`'s scrubbed,
+    replacement-free one, REUSED rather than copied, as
+    `scripts/carve_test_mapping.py` and the carve-conformance verifier reuse
+    it. An ambient `GIT_DIR`, alternate object directory, command-scoped
+    configuration or replace-ref base would otherwise make `-C <repo>` read
+    some other store than the checkout named (Copilot, PR #1166)."""
+    from carved_reach import _sanitized_git_environment
+    return _sanitized_git_environment()
+
+
 def git_baked_input_revision(repo_dir, paths, *, ref: str = "HEAD",
                              runner=subprocess_runner) -> str | None:
     """`git log -1 --format=%H <ref> -- <paths>` — the last commit touching the
@@ -667,8 +747,9 @@ def git_head_revision(repo_dir, *, ref: str = "HEAD",
     """The HEAD of a checkout the caller ALREADY HAS — a plain `rev-parse`
     read, never a fetch and never a clone. Kept as part of the module's read
     layer beside the two baked-input readers: the retired build recipe was one
-    caller, not its reason to exist."""
-    result = runner(["git", "-C", str(repo_dir), "rev-parse", ref])
+    caller, not its reason to exist. An exact-content read (`exact_git`)."""
+    result = runner(exact_git(repo_dir, "rev-parse", ref),
+                    env=exact_git_environment())
     if not result.ok:
         return None
     return (result.stdout.strip() or None)
@@ -870,21 +951,48 @@ class BuildResult:
 # that composed unit as regular files under its own root, `validator/`
 # (`scripts/` beside `contracts/schemas/`), where the script's own `parents[1]`
 # is the unit and its schemas resolve. Then the parent RUNS the sealed copy
-# once, through the product's own `snapshot.validate_snapshot`, over a minimal
-# snapshot-kind probe, and refuses unless the validator reached a verdict. So
+# once, through the product's own `snapshot.validate_snapshot` in an
+# allowlisted environment, over a minimal snapshot-kind probe, and refuses
+# unless the validator reached a verdict. So
 # what the child's `--strict` runs is a byte-for-byte copy of the unit the
 # snapshot lane validates with, and that copy has run once, here, to a verdict.
 # The probe's verdict is not a verdict on the corpus and is never read as one:
 # judging the corpus stays the child's `--strict`.
 #
-# The corpus half is therefore exactly `git archive` of the baked set, and the
-# DECISION set is still exactly `CORPUS_BAKED_PATHS`. Adding the validator's
-# path to the decision scope would make `_same_scope` fire
-# `REASON_SCOPE_CHANGED` against every recorded pin and force one rebuild for
-# nothing. The old asymmetry holds in its new shape: the validator is sealed but
-# not baked. `validator/` sits BESIDE the corpus rather than under it, so no
-# context root the child copies out of the corpus can reach it, and the image
-# cannot COPY it.
+# The validator's path is not in the decision scope: adding it would make
+# `_same_scope` fire `REASON_SCOPE_CHANGED` against every recorded pin and
+# force one rebuild for nothing. The old asymmetry holds in its new shape: the
+# validator is sealed but not baked. `validator/` sits BESIDE the corpus rather
+# than under it, so no context root the child copies out of the corpus can
+# reach it, and the image cannot COPY it.
+#
+# THE RENDER UNIT RIDES INSIDE THE CORPUS HALF (openxFactory #1161). The child
+# used to render with `python -m ideation_dashboard.cli` out of the sealed
+# `scripts/`. The shed moved that module to openDox-code, so the child found
+# nothing to run. The renderer is now the pinned products behind openxFactory's
+# host bootstrap (`CORPUS_RENDER_PATHS`), so the seal carries both halves of
+# it, laid out where the SEALED tree's own `carved_reach` looks for them:
+#
+#   * the bootstrap files, by the same `git archive` as the rest of the corpus
+#     (`CORPUS_SEAL_PATHS` is the baked set less the two gitlinks, which an
+#     archive cannot carry the contents of);
+#   * each product's code leg, at the commit the SEALED CORPUS pins it at, as
+#     `git archive` of its `src/` from the leg this parent has materialized,
+#     extracted under `openxFactory/<gitlink>/<leg>/`. The pinned commit is
+#     read from `source_head`'s own tree, never from the checkout's HEAD, and
+#     the materialized leg must BE that commit. A parent whose legs sit at
+#     another pin refuses by name rather than rendering main's corpus with a
+#     renderer main does not pin. The legs are also where the sealed validator
+#     is resolved from, so the same check keeps the renderer and the validator
+#     one product revision.
+#
+# Then the parent RENDERS FROM THE SEAL, through `RENDER_ENTRY`, exactly as the
+# child will, and runs the sealed validator over the result under `--strict`
+# (`precheck_sealed_render`). A render that fails is a refusal. A render the
+# validator rejects is a refusal the lane records as `strict_failed`, with the
+# validator's own findings, and nothing is dispatched. The snapshot is written
+# outside the seal and discarded: the child still generates the one the image
+# bakes, and the child's `--strict` is still the publication gate.
 #
 # THE REVISION IS PROVEN, NOT ASSERTED. `git archive`'s tar output carries the
 # commit it was made from in a global extended pax header (`comment=<sha>`),
@@ -906,7 +1014,14 @@ SEAL_MANIFEST_KIND = "ideation-dashboard-sealed-source-manifest"
 # major this reader reads", which is legible. A reader expecting 1.x that
 # refused over a "missing" validator would name a file the seal does carry,
 # only elsewhere.
-SEAL_SCHEMA_VERSION = "2.0.0"
+#
+# 2.1.0 FROM #1161, AND ONLY THE MINOR MOVES. The corpus half now carries the
+# render unit (`render_entry`, `render_legs`) and the manifest records the
+# parent's pre-dispatch render (`precheck`). Every 2.0.0 field keeps its name,
+# place and meaning, so a 2.0 reader still reads the seal. A 2.1 reader
+# refuses a 2.0 seal by what it lacks, naming it: a seal with no render unit
+# is one the child could not render from.
+SEAL_SCHEMA_VERSION = "2.1.0"
 SEAL_ARTIFACT_PREFIX = "dashboard-image-source-"
 SEAL_DIGEST_ALGORITHM = "sha256"
 
@@ -920,12 +1035,54 @@ SEAL_RECIPE_RELPATH = "recipe/Dockerfile"
 # read at the pinned recipe revision — never a checkout of that repository.
 RECIPE_DOCKERFILE_PATH = "containers/ideation-dashboard/Dockerfile"
 
-# The corpus half of the seal: exactly the baked set. The one path that used to
-# widen it left the corpus at the shed (see the section note above). It keeps
-# its own name because the manifest records it as `seal_paths`, beside
-# `corpus_baked_paths`. A reader comparing the two should find them EQUAL; it
-# should not find one of them missing.
-CORPUS_SEAL_PATHS: tuple[str, ...] = CORPUS_BAKED_PATHS
+# The corpus half's `git archive` pathspec: the baked set less the two product
+# gitlinks, whose CONTENTS an archive of this repository cannot carry. They are
+# sealed as legs instead (`RENDER_LEGS`). The one path that used to widen the
+# set left the corpus at the shed (see the section note above). The manifest
+# records it as `seal_paths`, beside `corpus_baked_paths`; a reader comparing
+# the two finds them differing by exactly `RENDER_LEG_GITLINKS`, and finds
+# those under `render_legs`.
+CORPUS_SEAL_PATHS: tuple[str, ...] = tuple(
+    path for path in CORPUS_BAKED_PATHS if path not in RENDER_LEG_GITLINKS)
+
+# The render unit's product half: each product gitlink, the leg under it that
+# carries the code, and the package that leg must carry. It is the layout
+# `carved_reach.LEGS` reads, so the sealed tree's own bootstrap finds each leg
+# where it looks. Only `src/` travels: the measured render reads nothing else
+# of either leg.
+RENDER_LEGS: tuple[tuple[str, str, str], ...] = (
+    ("openDox", "code", "opendox"),
+    ("openXdox", "code", "openxdox"),
+)
+RENDER_LEG_PATHS: tuple[str, ...] = ("src",)
+# Each product's OTHER leg. Nothing of it is sealed as a leg, but the sealed
+# validator's schemas are composed from it (`doxbench_contracts.
+# _composed_validator`, through the carve rows), so it is held to its pin as
+# the code leg is, and its revision is recorded beside the code leg's.
+SCHEMA_LEG = "spec"
+# The one leg the sealed validator is resolved from. Its revision is held
+# equal to `validator_revision`, so the renderer and the validator are one
+# product revision (see `seal_source`).
+VALIDATOR_LEG = ("openXdox", "code")
+# The product module the parent classifies the sealed validator's runs with,
+# inside the sealed validator leg's package: the product's own
+# three-outcome `validate_snapshot`.
+SEALED_PRODUCT_MODULE = "snapshot.py"
+# THE PRODUCT MODULES THE RENDER UNIT IMPORTS BY NAME (Copilot, PR #1166), per
+# code leg, under `src/<package>/`: the entry's `opendox.cli`, the host
+# bootstrap's own imports (`opendox_host`, `profile_openxfactory`), and the
+# module the sealed validator's runs are classified with. The intake requires
+# each one, as it requires the bootstrap by name: a leg that had lost one
+# passed an intake that asked for SOME module, and failed only at the child's
+# import. Nothing else of a leg is named, since the rest is the product's own
+# layout. A test holds this equal to what an `ast` read of the entry and its
+# bootstrap finds.
+RENDER_LEG_MODULES: dict[tuple[str, str], tuple[str, ...]] = {
+    ("openDox", "code"): ("cli.py", "domain_profile.py"),
+    ("openXdox", "code"): ("cli_gate.py", "domain_profile.py", "serve_gate.py",
+                           "serve_projection.py", SEALED_PRODUCT_MODULE,
+                           "view_extensions.py"),
+}
 
 # The sealed validator unit, and its layout. `VALIDATOR_SCRIPT_PATH` is the
 # script's path INSIDE the unit. It is also the product's own
@@ -961,6 +1118,30 @@ VALIDATOR_PROBE = {"kind": "ideation-dashboard-snapshot"}
 # because this module must import without the carve legs on disk.
 VALIDATOR_SNAPSHOT_SCHEMA = "ideation-dashboard-snapshot.schema.yaml"
 VALIDATOR_VERDICT_OUTCOMES = ("validated", "not-conformant")
+# The exit code each of those verdicts is read from: the validator's own
+# contract is "0 ok, 1 findings, 2 harness error", and the product reads the
+# verdict on a readable document from that number alone (`snapshot.
+# FINDINGS_EXIT`). Both documents the parent validates are readable JSON by
+# construction: the probe is the parent's own, and the render's output is
+# parsed before a copy of it is judged. So a verdict and its exit code are
+# one fact, and a record that pairs them otherwise was not reached by the
+# validator (Copilot, opensoft/xFactory PR #526). A test holds these equal to
+# the product's own.
+VALIDATOR_VERDICT_RETURNCODES = dict(zip(VALIDATOR_VERDICT_OUTCOMES, (0, 1)))
+_VERDICT_PAIRS = ", or ".join(
+    f"{outcome} with exit {code}"
+    for outcome, code in VALIDATOR_VERDICT_RETURNCODES.items())
+
+
+def _a_verdict_with_its_returncode(record, outcomes) -> bool:
+    """True when `record` names one of `outcomes` beside the exit code that
+    verdict is read from (`VALIDATOR_VERDICT_RETURNCODES`). The code must be
+    an `int`, and not a `bool`, because `True == 1` and `False == 0`."""
+    if not isinstance(record, dict):
+        return False
+    outcome, returncode = record.get("outcome"), record.get("returncode")
+    return (outcome in outcomes and type(returncode) is int
+            and returncode == VALIDATOR_VERDICT_RETURNCODES.get(outcome))
 
 # The manifest field whose value the child passes to `generate --generated-at`.
 # NOT a wall clock: `generation.generated_at` is defined as the source
@@ -994,6 +1175,22 @@ class SealRefused(Exception):
     artifact: the child must never be able to download a seal whose manifest
     the parent could not stand behind, so the phase writes no manifest at all
     and the dispatch is gated on the result it wrote instead."""
+
+
+class StrictGateRejected(SealRefused):
+    """The sealed validator REJECTED, under `--strict`, the snapshot this seal
+    renders. The child's publication gate would refuse the same snapshot, so
+    nothing is dispatched.
+
+    A SUBCLASS, deliberately. Every caller that handles a refusal handles this
+    one: no manifest is written and no child is dispatched. It is the one
+    refusal that is a verdict ON THE CORPUS rather than a fault of the parent,
+    so it also carries the validator's own output, bounded, and the lane
+    records it as `strict_failed` rather than as a skip."""
+
+    def __init__(self, message: str, detail=()) -> None:
+        super().__init__(message)
+        self.detail = [str(line) for line in detail][:DETAIL_CAP]
 
 
 def seal_artifact_name(correlation_id: str) -> str:
@@ -1092,6 +1289,318 @@ def seal_file_index(seal_dir) -> dict[str, str]:
     return index
 
 
+# Whether this platform opens and makes an entry relative to a directory
+# handle. Every parent the nightly runs on does. One that cannot falls back
+# to paths.
+_DIR_FD = (os.open in os.supports_dir_fd and os.stat in os.supports_dir_fd
+           and os.mkdir in os.supports_dir_fd)
+
+
+def _open_directory(path, *, dir_fd=None) -> int | None:
+    """A handle on the directory at `path` (relative to `dir_fd` when one is
+    given), opened without following a link at its last component, or None
+    where the platform opens nothing relative to a handle."""
+    if not _DIR_FD:
+        return None
+    return os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+                   | getattr(os, "O_NOFOLLOW", 0), dir_fd=dir_fd)
+
+
+def _replaced_seal_directory(what: str = "manifest") -> SealRefused:
+    return SealRefused(
+        "the seal directory is no longer the one the lane created: sealed "
+        f"code ran inside it, and the {what} is never written anywhere else")
+
+
+def _seal_directory_identity(seal_dir) -> tuple[int, int]:
+    """The seal directory as created, as `(st_dev, st_ino)`. It must be a
+    directory, not a link to one."""
+    info = os.lstat(seal_dir)
+    if stat.S_ISLNK(info.st_mode) or not stat.S_ISDIR(info.st_mode):
+        raise SealRefused(
+            f"the seal directory {seal_dir} is not a directory of its own "
+            "(a link, or not a directory at all)")
+    return info.st_dev, info.st_ino
+
+
+def _occupied_manifest_path(what: str) -> SealRefused:
+    return SealRefused(
+        f"the seal already holds a {SEAL_MANIFEST_NAME} the lane did not write "
+        f"({what}): sealed code runs before the manifest is written, and the "
+        "manifest is never written through anything it left")
+
+
+def _refuse_an_occupied_manifest_path(seal_dir) -> None:
+    """Refuse the seal when anything at all sits at the manifest's path: a
+    file, a directory, or a symbolic link, dangling or not."""
+    path = Path(seal_dir) / SEAL_MANIFEST_NAME
+    if path.is_symlink():
+        raise _occupied_manifest_path("a symbolic link")
+    if path.is_dir():
+        raise _occupied_manifest_path("a directory")
+    if os.path.lexists(path):
+        raise _occupied_manifest_path("a file")
+
+
+def _create_new_file(target, data: bytes, *, dir_fd=None) -> None:
+    """Create `target`, which must not exist yet, and write `data` to it.
+    `O_EXCL` fails on ANY existing entry, a link included, wherever it
+    points, so the bytes land at `target` itself or nowhere. Raises
+    `FileExistsError` when something is already there."""
+    flags = (os.O_WRONLY | os.O_CREAT | os.O_EXCL
+             | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0))
+    descriptor = os.open(target, flags, 0o666, dir_fd=dir_fd)
+    with os.fdopen(descriptor, "wb") as handle:
+        handle.write(data)
+
+
+def _write_new_manifest(seal_dir, text: str, *, identity=None) -> None:
+    """Create the manifest, which must not exist yet. `O_EXCL` fails on ANY
+    existing entry, a symbolic link included, wherever it points, so the bytes
+    land at the manifest's own path or nowhere.
+
+    It is created relative to a handle on the seal directory, opened without
+    following a link. With `identity`, the directory as created, the handle
+    must be that very directory, so a seal directory replaced after it was
+    created is refused rather than written into (Copilot, PR #1166)."""
+    try:
+        directory = _open_directory(seal_dir)
+    except OSError as exc:
+        raise _replaced_seal_directory() from exc
+    try:
+        if directory is not None and identity is not None:
+            info = os.fstat(directory)
+            if (info.st_dev, info.st_ino) != tuple(identity):
+                raise _replaced_seal_directory()
+        target = (SEAL_MANIFEST_NAME if directory is not None
+                  else Path(seal_dir) / SEAL_MANIFEST_NAME)
+        try:
+            _create_new_file(target, text.encode("utf-8"), dir_fd=directory)
+        except FileExistsError as exc:
+            raise _occupied_manifest_path(
+                "one that appeared while the lane was writing it") from exc
+    finally:
+        if directory is not None:
+            os.close(directory)
+
+
+def _occupied_recipe_path() -> SealRefused:
+    folder = SEAL_RECIPE_RELPATH.split("/")[0]
+    return SealRefused(
+        f"the seal already holds {folder}/ that the lane did not make: sealed "
+        "code ran inside the seal before the recipe was written, and the "
+        "recipe is never written through anything it left")
+
+
+def _write_new_recipe(seal_dir, text: str, *, identity=None) -> None:
+    """Create the recipe the way the manifest is created (Copilot, PR #1166).
+    The validator's probe runs sealed code with the seal writable before the
+    recipe is written, and the probe's after-index cannot see what a process
+    it left behind puts at the recipe's path later: a link out, a hard link
+    to a host file, or a directory of its own.
+
+    So the recipe's directory is MADE here, exclusively, relative to a handle
+    on the seal directory as created (with `identity`, the handle must be
+    that very directory), and opened without following a link; the recipe is
+    created in it `O_EXCL|O_NOFOLLOW`. Anything already at either path
+    refuses the seal, and nothing is written through it."""
+    folder, name = SEAL_RECIPE_RELPATH.split("/")
+    try:
+        directory = _open_directory(seal_dir)
+    except OSError as exc:
+        raise _replaced_seal_directory("recipe") from exc
+    try:
+        if directory is not None and identity is not None:
+            info = os.fstat(directory)
+            if (info.st_dev, info.st_ino) != tuple(identity):
+                raise _replaced_seal_directory("recipe")
+        place = folder if directory is not None else Path(seal_dir) / folder
+        try:
+            os.mkdir(place, dir_fd=directory)
+        except FileExistsError as exc:
+            raise _occupied_recipe_path() from exc
+        try:
+            recipe_dir = _open_directory(place, dir_fd=directory)
+        except OSError as exc:
+            # What the lane just made is no longer there as a directory of
+            # its own: a link or a file took its place.
+            raise _occupied_recipe_path() from exc
+        try:
+            target = name if recipe_dir is not None else Path(place) / name
+            try:
+                _create_new_file(target, text.encode("utf-8"),
+                                 dir_fd=recipe_dir)
+            except FileExistsError as exc:
+                raise _occupied_recipe_path() from exc
+        finally:
+            if recipe_dir is not None:
+                os.close(recipe_dir)
+    finally:
+        if directory is not None:
+            os.close(directory)
+
+
+# THE SEAL RESULT IS THE LANE'S OWN FILE (Copilot, PR #1166). It sits outside
+# the seal, at a fixed path the workflow reads to gate the dispatch, and
+# sealed code runs before it is written. So its path is cleared before the
+# seal starts, and anything found there afterwards is an entry sealed code
+# made: the seal is refused, the entry is removed without being followed,
+# and the lane's own result is created in its place, exclusively. The entry
+# may be a file, a link or a real directory, and a directory is removed with
+# everything under it, so the record step reads the lane's own result rather
+# than falling back to `unknown`. An entry the lane cannot remove leaves no
+# result of its own, and the step fails instead (`SEAL_RESULT_UNWRITTEN_EXIT`).
+# The path is therefore held inside the checkout first (`_seal_result_path`),
+# and its directory is held by a handle from before sealed code runs
+# (`_HeldResultPath`).
+SEAL_RESULT_PLANTED = (
+    "the seal result's path held an entry the lane did not write: sealed "
+    "code ran before the result was written, so the seal is refused rather "
+    "than dispatched")
+SEAL_RESULT_DIRECTORY_REPLACED = (
+    "the seal result's directory is no longer the one the lane held before "
+    "sealed code ran, so the path the workflow reads leads somewhere else: "
+    "the seal is refused, and its result is written only into the directory "
+    "the lane held")
+# A SEAL RESULT THE LANE COULD NOT WRITE FAILS THE STEP (Copilot, PR #1166).
+# The workflow reads `sealed` from the seal result right after this phase, so
+# a result the lane could not write cannot withhold the dispatch: whatever
+# sits at its path would be read in its place, stale or planted, and sealed
+# code can plant one there and leave it where the lane cannot remove it. So
+# a seal phase given `--seal-result-out` that did not write its own result
+# returns this exit code, and the step's `bash -e` stops before `sealed` is
+# read: nothing is uploaded, and nothing is dispatched. The record step reads
+# the result only after a seal step that succeeded. A result path the lane
+# cannot clear before the seal starts is refused, and no sealed code runs.
+SEAL_RESULT_UNWRITTEN_EXIT = 3
+
+
+def _seal_result_path(given, within) -> Path:
+    """Where the seal result may be written: `given`, made absolute, with every
+    directory above its last component resolved, inside `within`, the
+    checkout the lane runs over, and naming a `.json` file. Raises
+    `ValueError` for anything else.
+
+    THE LAST COMPONENT IS KEPT AS GIVEN, never resolved. Whatever sits there,
+    a stale file, a link, a directory sealed code planted, is the lane's to
+    remove, not to follow (`_clear_result_path`). The directories above it
+    are resolved, so neither `..` nor a link leads the write, or the removal,
+    out of the checkout. The record step reads the result only from inside
+    the checkout (`read_strict_verdict`), so one written anywhere else could
+    never be read. And since a directory at this path is removed with
+    everything under it, the path must name a `.json` file, which the
+    checkout itself, and each real directory in it, does not."""
+    absolute = os.path.abspath(given)
+    parent, name = os.path.split(absolute)
+    root = os.path.realpath(within)
+    candidate = os.path.normpath(os.path.join(os.path.realpath(parent), name))
+    if not candidate.startswith(root + os.sep):
+        raise ValueError(
+            f"--seal-result-out {given!r} is not inside the checkout {within}, "
+            "where the record step reads the seal result")
+    if not name.endswith(".json"):
+        raise ValueError(
+            f"--seal-result-out {given!r} does not name a .json file, and the "
+            "lane removes whatever sits at the seal result's path")
+    return Path(candidate)
+
+
+def _clear_result_path(path, *, dir_fd=None) -> None:
+    """Remove whatever sits at `path`, relative to `dir_fd` when it is given,
+    without following it: a file or a link is unlinked, and a directory is
+    removed with everything under it (Copilot, PR #1166). `shutil.rmtree`
+    removes a link inside the tree as a link, and refuses a directory swapped
+    for a link after the check below. Where the platform's `rmtree` could
+    follow a link swapped in while it runs, the directory is refused instead,
+    and left. `path` comes from `_seal_result_path`: it is inside the
+    checkout and names a `.json` file."""
+    try:
+        info = os.stat(path, dir_fd=dir_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        return
+    if not stat.S_ISDIR(info.st_mode):
+        os.unlink(path, dir_fd=dir_fd)
+        return
+    if not getattr(shutil.rmtree, "avoids_symlink_attacks", False):
+        raise OSError(
+            f"{path} is a directory, and this platform's rmtree could follow a "
+            "link swapped in while it runs, so it is left as it is")
+    shutil.rmtree(path, dir_fd=dir_fd)
+
+
+@dataclass
+class _HeldResultPath:
+    """The seal result's path (`_seal_result_path`), with its directory held by
+    a handle taken before any sealed code runs (Copilot, PR #1166).
+
+    Sealed code could move that directory aside and put a link to another in
+    its place, and a path used afterwards would follow the link. So every act
+    at the result's path, looking, clearing and creating, is relative to the
+    directory the lane held, never through the path, and the path is checked
+    to still lead there before the result is written. Where the platform
+    opens nothing relative to a handle, the path is used, as the manifest's
+    write does."""
+
+    path: Path
+    directory: int | None = None
+
+    def _name(self):
+        return self.path.name if self.directory is not None else self.path
+
+    def clear(self) -> None:
+        _clear_result_path(self._name(), dir_fd=self.directory)
+
+    def refusal(self) -> str | None:
+        """Why the seal is refused at the end, or None: the path no longer
+        leads to the directory held, or an entry the lane did not write sits
+        at the result's name there."""
+        if self.directory is not None:
+            try:
+                now = os.stat(self.path.parent)
+            except OSError:
+                return SEAL_RESULT_DIRECTORY_REPLACED
+            held = os.fstat(self.directory)
+            if (now.st_dev, now.st_ino) != (held.st_dev, held.st_ino):
+                return SEAL_RESULT_DIRECTORY_REPLACED
+        if _render_output_present(self._name(), dir_fd=self.directory):
+            return SEAL_RESULT_PLANTED
+        return None
+
+    def write(self, payload: dict) -> bool:
+        """Clear the result's name, create the lane's own result there
+        exclusively, and let the directory go. True when the result was
+        written. Never raises for the write: a result that cannot be written
+        is reported, and the seal phase then fails its step
+        (`SEAL_RESULT_UNWRITTEN_EXIT`)."""
+        try:
+            self.clear()
+            _create_new_file(self._name(), (json.dumps(
+                payload, indent=2, sort_keys=True) + "\n").encode("utf-8"),
+                dir_fd=self.directory)
+            return True
+        except OSError as exc:
+            print(f"  ::warning::could not write the seal result: {exc}")
+            return False
+        finally:
+            if self.directory is not None:
+                os.close(self.directory)
+                self.directory = None
+
+
+def _hold_seal_result_path(given, within) -> _HeldResultPath:
+    """`_seal_result_path(given, within)`, with its directory held. Raises
+    `ValueError` for a path the lane may not write at, one whose directory it
+    cannot hold included."""
+    path = _seal_result_path(given, within)
+    try:
+        directory = _open_directory(path.parent)
+    except OSError as exc:
+        raise ValueError(
+            f"--seal-result-out {given!r} is in a directory the lane cannot "
+            f"hold ({exc.strerror})") from exc
+    return _HeldResultPath(path, directory)
+
+
 def tree_digest(index: dict[str, str]) -> str:
     """One digest over the whole sealed tree — see `TREE_DIGEST_SPEC`, which is
     written into the manifest so the child implements the rule the artifact
@@ -1108,13 +1617,16 @@ def git_commit_datetime(repo_dir, revision: str, *,
     revision the seal was made at. This is the value the child hands to
     `generate --generated-at`, and it is a property of the COMMIT, so a seal
     made twice from one revision names one stamp."""
-    # Byte-for-byte the call `generator.RealGitDates.commit_date` makes,
-    # `--` end-of-options marker included, so the stamp the child receives
-    # through `--generated-at` is the SAME STRING the pre-seal child derived
-    # inside its own checkout — the change moves where the value comes from,
-    # never what it says, and the snapshot stays byte-identical across it.
-    result = runner(["git", "-C", str(repo_dir), "show", "-s",
-                     "--format=%cI", revision, "--"])
+    # The query `generator.RealGitDates.commit_date` makes, `--`
+    # end-of-options marker included, so the stamp the child receives through
+    # `--generated-at` is the SAME STRING the pre-seal child derived inside
+    # its own checkout — the change moves where the value comes from, never
+    # what it says, and the snapshot stays byte-identical across it. It runs
+    # as an exact-content read (`exact_git`), which changes the answer only
+    # where a replace ref would have changed it.
+    result = runner(exact_git(repo_dir, "show", "-s", "--format=%cI",
+                              revision, "--"),
+                    env=exact_git_environment())
     if not result.ok:
         return None
     value = result.stdout.strip().splitlines()
@@ -1203,8 +1715,9 @@ class PinnedValidator:
     `runnable` is the COMPOSED script. Its `parents[1]` is a self-contained unit
     holding `scripts/` beside `contracts/schemas/`, and that unit is what the
     seal copies. `product_root` is the product tree the validator was found in.
-    It is read only to record which revision the sealed copy came from, and
-    None records none."""
+    It is read only to record which revision the sealed copy came from. None
+    records none, and `seal_source` refuses a validator with no revision,
+    since it could not be held to the render unit's openXdox leg."""
 
     runnable: Path
     product_root: Path | None = None
@@ -1264,12 +1777,105 @@ def _validator_said(result) -> str:
     return ""
 
 
-def seal_validator(seal_root, pinned: PinnedValidator, *,
-                   runner=subprocess_runner) -> dict:
+def _enclosing_repository(path: Path) -> Path | None:
+    """The nearest directory at or above `path` that holds a `.git` of its
+    own: the repository, or a submodule's worktree, a file belongs to."""
+    for parent in path.parents:
+        if (parent / ".git").exists():
+            return parent
+    return None
+
+
+def _unit_sources(pinned: PinnedValidator) -> list[Path]:
+    """The files the composed unit was built from, resolved: the script in the
+    product tree it was copied from, then each schema the unit links."""
+    sources = [(Path(pinned.product_root) / VALIDATOR_SCRIPT_PATH).resolve()]
+    schemas = Path(pinned.runnable).parents[1] / VALIDATOR_SCHEMAS_PATH
+    if schemas.is_dir():
+        sources += [entry.resolve() for entry in sorted(schemas.iterdir())]
+    return sources
+
+
+def _uncommitted_unit_sources(pinned: PinnedValidator, *,
+                              runner=subprocess_runner) -> list[str]:
+    """Each file the composed unit was built from that its repository's HEAD
+    does not hold as it is: modified, untracked, ignored, or in no repository
+    at all. Empty when every one is committed.
+
+    The unit is composed from WORKTREES (Copilot, PR #1166): the script is
+    copied from the product's code leg, and each schema is a link into a
+    product's spec leg or into this checkout. The seal holds those HEADs to
+    their pins, but a HEAD says nothing about uncommitted bytes. So each
+    source is asked of its own repository, and the copied script is also held
+    equal to the file it was copied from."""
+    sources = _unit_sources(pinned)
+    problems: list[str] = []
+    if (not sources[0].is_file() or Path(pinned.runnable).read_bytes()
+            != sources[0].read_bytes()):
+        problems.append(f"{VALIDATOR_SCRIPT_PATH} (the unit's copy is not the "
+                        f"file at {pinned.product_root})")
+    by_repository: dict[Path, list[str]] = {}
+    for source in sources:
+        repository = _enclosing_repository(source)
+        if repository is None:
+            problems.append(f"{source} (in no repository)")
+            continue
+        by_repository.setdefault(repository, []).append(
+            source.relative_to(repository).as_posix())
+    for repository, relpaths in by_repository.items():
+        result = runner(exact_git(repository, "status", "--porcelain=v1",
+                                  "--untracked-files=all", "--ignored=matching",
+                                  "--", *relpaths),
+                        env=exact_git_environment())
+        if not result.ok:
+            problems.append(f"{repository} (its status could not be read)")
+            continue
+        problems += [f"{repository.name}/{line[3:]} ({line[:2].strip()})"
+                     for line in result.stdout.splitlines() if line.strip()]
+    return problems
+
+
+def _unit_sources_source_head_does_not_hold(
+        pinned: PinnedValidator, *, corpus_checkout, source_head: str,
+        runner=subprocess_runner) -> list[str]:
+    """Each file the composed unit was built from out of the CORPUS checkout
+    whose content is not what `source_head` holds at its path: absent there,
+    or other bytes. Empty when there is none.
+
+    THE UNIT IS BOUND TO THE SEALED REVISION (Copilot, PR #1166). The
+    composer fills in, from this checkout's own `contracts/schemas/`, each
+    schema the carve legs do not supply (`doxbench_contracts.
+    _composed_validator`). This parent's checkout sits at the aggregation's
+    pin while the seal is of `source_head`, so a source committed at the
+    checkout's HEAD can still be another corpus revision's bytes. A leg's
+    sources are held to `source_head`'s pins where the legs are sealed
+    (`seal_render_legs`), and this holds the corpus's own to `source_head`
+    itself. It runs after `_uncommitted_unit_sources`, so each source it
+    compares is tracked and clean."""
+    corpus = Path(corpus_checkout).resolve()
+    relpaths = sorted(source.relative_to(corpus).as_posix()
+                      for source in _unit_sources(pinned)
+                      if _enclosing_repository(source) == corpus)
+    if not relpaths:
+        return []
+    result = runner(exact_git(corpus, "diff", "--no-ext-diff", "--no-textconv",
+                              "--no-renames", "--name-only", source_head,
+                              "--", *relpaths),
+                    env=exact_git_environment())
+    if not result.ok:
+        return [f"{corpus.name} (its difference from {_short(source_head)} "
+                "could not be read)"]
+    return [f"{corpus.name}/{line.strip()}"
+            for line in result.stdout.splitlines() if line.strip()]
+
+
+def seal_validator(seal_root, pinned: PinnedValidator, *, corpus_checkout,
+                   source_head: str, runner=subprocess_runner) -> dict:
     """Copy the pinned validator's composed unit into the seal, then RUN the
     sealed copy once. It returns the manifest's validator fields. It raises
     `SealRefused` when the product's revision cannot be read, when the unit
-    cannot be copied whole, or when the sealed copy cannot run.
+    is not made of bytes `source_head` and its pins describe, when it cannot
+    be copied whole, or when the sealed copy cannot run.
 
     REGULAR FILES ONLY. The composed unit is a script COPY beside schema LINKS
     to the pinned bytes. `upload-artifact@v4` preserves no symlink, and
@@ -1286,12 +1892,18 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
     the snapshot lane makes, over `VALIDATOR_PROBE`. "Available" is the only
     thing it reads: the probe's own verdict is a finding by construction, and
     it is never a verdict on the corpus. The probe lives in a scratch directory
-    outside the seal, so nothing it touches is sealed."""
+    outside the seal, so nothing it touches is sealed. The copy is sealed code,
+    so it runs in the pre-dispatch render's allowlisted environment, not this
+    job's, and its run is classified by the SEALED product module
+    (`validate_in_render_environment`, `sealed_product_module`). The render
+    legs are sealed before this runs."""
     # WHICH PRODUCT REVISION the copy comes from, read FIRST. A unit resolved
     # from a product source tree records that tree's HEAD. A HEAD that cannot
     # be read as a full revision REFUSES the seal, because the manifest
     # promises that provenance and a null would silently drop it. Only a unit
-    # with no product tree at all (an injected stand-in) records none.
+    # with no product tree at all (an injected stand-in) records none, and
+    # `seal_source` refuses it once the unit has run: a null could not be
+    # held to the render unit's openXdox leg.
     revision = None
     if pinned.product_root is not None:
         head = (git_head_revision(pinned.product_root, runner=runner)
@@ -1303,6 +1915,27 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
                 f"{pinned.product_root} to a commit (read {read}) — the sealed "
                 "validator's provenance would go unrecorded")
         revision = head
+        # THE UNIT'S BYTES ARE COMMITTED BYTES. A revision is recorded, and
+        # held equal to the sealed leg's, only for bytes that revision holds.
+        dirty = _uncommitted_unit_sources(pinned, runner=runner)
+        if dirty:
+            raise SealRefused(
+                "the validator unit is composed from uncommitted bytes: "
+                f"{', '.join(dirty[:5])}"
+                + (f" and {len(dirty) - 5} more" if len(dirty) > 5 else "")
+                + " — the seal would carry a validator no commit describes, "
+                "so it could not be held to the render's revision")
+        stale = _unit_sources_source_head_does_not_hold(
+            pinned, corpus_checkout=corpus_checkout, source_head=source_head,
+            runner=runner)
+        if stale:
+            raise SealRefused(
+                "the validator unit carries corpus bytes that "
+                f"{_short(source_head)} does not hold: {', '.join(stale[:5])}"
+                + (f" and {len(stale) - 5} more" if len(stale) > 5 else "")
+                + f" — the child would judge the render of "
+                f"{_short(source_head)} with schemas from another corpus "
+                "revision")
     root = Path(seal_root) / SEAL_VALIDATOR_ROOT
     script = root / VALIDATOR_SCRIPT_PATH
     script.parent.mkdir(parents=True)
@@ -1330,25 +1963,693 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
         raise SealRefused(
             "the sealed validator cannot be run on this parent "
             f"({type(exc).__name__}: {exc})") from exc
+    # THE PROBE IS SEALED CODE TOO, run with the seal writable. So the tree
+    # it runs in is indexed before it runs and again after, and a probe that
+    # changed it is refused (Copilot, PR #1166).
+    before = seal_file_index(seal_root)
     with tempfile.TemporaryDirectory(prefix="dfr-probe-") as scratch:
         probe = Path(scratch) / "validator-probe.json"
         probe.write_text(json.dumps(VALIDATOR_PROBE, sort_keys=True) + "\n",
                          encoding="utf-8")
-        result = product.validate_snapshot(probe, validator=script)
+        result = validate_in_render_environment(
+            product, probe, validator=script, strict=False,
+            seal_root=seal_root,
+            module_file=sealed_product_module(seal_root))
+    if seal_file_index(seal_root) != before:
+        raise SealRefused(
+            "the sealed validator's probe changed the sealed tree, so the "
+            "seal would no longer be the tree its validator was run in")
     if not result.available:
         said = _validator_said(result)
         raise SealRefused(
             "the sealed validator could NOT RUN, so the child's --strict "
             f"could not run it either: {result.unavailable_reason}"
             + (f" — it said: {said}" if said else ""))
+    # WHAT IS RECORDED IS WHAT THE INTAKE READS. The probe is the parent's own
+    # JSON, so its verdict is read from the exit code alone, and a verdict
+    # beside any other code was not reached by the validator: the sealed
+    # product module the run is classified with can print any pairing. It is
+    # refused here, never recorded for the intake to refuse (Copilot,
+    # opensoft/xFactory PR #526).
+    probe = {"kind": VALIDATOR_PROBE["kind"], "outcome": result.outcome,
+             "returncode": result.returncode}
+    if not _a_verdict_with_its_returncode(probe, VALIDATOR_VERDICT_OUTCOMES):
+        raise SealRefused(
+            f"the sealed validator's probe answered {result.outcome!r} with "
+            f"exit {result.returncode!r}, which is not a verdict as the "
+            f"validator reports one ({_VERDICT_PAIRS}) — the seal would "
+            "record a run the child's intake refuses")
     return {
         "validator_relpath": SEAL_VALIDATOR_RELPATH,
         "validator_revision": revision,
         "validator_schema_count": carried,
-        "validator_probe": {"kind": VALIDATOR_PROBE["kind"],
-                            "outcome": result.outcome,
-                            "returncode": result.returncode},
+        "validator_probe": probe,
     }
+
+
+def _gitlink_at(repo_dir, treeish: str, path: str, *,
+                runner=subprocess_runner) -> str | None:
+    """The commit `treeish` pins at `path`, read out of that tree, or None when
+    the entry is not a gitlink.
+
+    `git ls-tree <treeish> -- <path>` prints `160000 commit <sha>\\t<path>` for
+    a gitlink. It is asked of the tree being SEALED, never of the checkout's
+    HEAD: this parent's corpus checkout sits at the aggregation's pin, and the
+    seal is of `source_head`."""
+    result = runner(exact_git(repo_dir, "ls-tree", treeish, "--", path),
+                    env=exact_git_environment())
+    if not result.ok:
+        return None
+    lines = [line for line in result.stdout.splitlines() if line.strip()]
+    if len(lines) != 1:
+        return None
+    meta, _, name = lines[0].partition("\t")
+    fields = meta.split()
+    if name != path or len(fields) != 3 or fields[:2] != ["160000", "commit"]:
+        return None
+    sha = fields[2].strip().lower()
+    return sha if _FULL_REVISION_RE.match(sha) else None
+
+
+def _materialized_head(checkout, *, runner=subprocess_runner) -> str | None:
+    """The HEAD of a submodule checkout this parent HAS, or None.
+
+    `.git` must be present AT the directory. An unmaterialized gitlink is an
+    empty directory, and `git -C` from inside one climbs to the SUPERPROJECT
+    and answers that repository's HEAD instead, which would read as a
+    materialized leg at the wrong commit."""
+    if not (Path(checkout) / ".git").exists():
+        return None
+    head = (git_head_revision(checkout, runner=runner) or "").strip().lower()
+    return head if _FULL_REVISION_RE.match(head) else None
+
+
+def seal_render_legs(*, corpus_checkout, source_head: str, corpus_root,
+                     runner=subprocess_runner) -> list[dict]:
+    """Seal each product's code leg under the sealed corpus, at the commit the
+    SEALED corpus pins it at. Returns the manifest's `render_legs` records.
+
+    For each `RENDER_LEGS` entry, the product commit comes from `source_head`'s
+    own tree, and the leg commit comes from THAT product commit's tree. The
+    checkout this parent materialized must be exactly those two commits. The
+    leg's `src/` is then archived at its commit, the archive's own recorded
+    revision is checked as the corpus half's is, and it is extracted where the
+    sealed tree's own `carved_reach` looks for it.
+
+    NOTHING IS FETCHED. The legs are the ones the finalize job materialized for
+    the snapshot lane, and a parent whose legs sit at another pin than
+    `source_head`'s REFUSES, naming both: sealing main's corpus with a renderer
+    main does not pin would publish a snapshot no pin describes.
+
+    Raises `SealRefused`, naming the gitlink, for anything it cannot prove."""
+    corpus_checkout = Path(corpus_checkout)
+    corpus_root = Path(corpus_root)
+    init = "`git submodule update --init --recursive openDox openXdox`"
+    sealed: list[dict] = []
+    for gitlink, leg, package in RENDER_LEGS:
+        pinned = _gitlink_at(corpus_checkout, source_head, gitlink,
+                             runner=runner)
+        if pinned is None:
+            raise SealRefused(
+                f"{_short(source_head)} pins no {gitlink} gitlink, so the "
+                "render unit cannot be sealed and the child would have no "
+                "renderer to run")
+        product = corpus_checkout / gitlink
+        head = _materialized_head(product, runner=runner)
+        if head is None:
+            raise SealRefused(
+                f"the pinned {gitlink} product is not materialized at "
+                f"{product}, and the render unit is sealed from it — run "
+                f"{init} in the corpus checkout")
+        if head != pinned:
+            raise SealRefused(
+                f"this parent's {gitlink} is at {_short(head)}, but "
+                f"{_short(source_head)} pins {gitlink}@{_short(pinned)} — the "
+                "seal would render the corpus with a product it does not pin. "
+                "The parent materializes the products the aggregation's "
+                "openxFactory pin names; its next pin-sync brings them level, "
+                "and the next run seals")
+        leg_pinned = _gitlink_at(product, pinned, leg, runner=runner)
+        if leg_pinned is None:
+            raise SealRefused(
+                f"{gitlink}@{_short(pinned)} pins no {leg} leg, so the render "
+                "unit cannot be sealed")
+        leg_dir = product / leg
+        leg_head = _materialized_head(leg_dir, runner=runner)
+        if leg_head is None:
+            raise SealRefused(
+                f"the {gitlink} {leg} leg is not materialized at {leg_dir} — "
+                f"run {init} in the corpus checkout")
+        if leg_head != leg_pinned:
+            raise SealRefused(
+                f"this parent's {gitlink}/{leg} is at {_short(leg_head)}, but "
+                f"{gitlink}@{_short(pinned)} pins it at {_short(leg_pinned)} "
+                "— the seal would carry a leg its product does not pin")
+        schema_pinned = _schema_leg_at_its_pin(product, gitlink, pinned, init,
+                                               runner=runner)
+        dest = corpus_root / gitlink / leg
+        with tempfile.TemporaryDirectory(prefix="dfr-leg-") as staging:
+            archive_path = Path(staging) / "leg.tar"
+            result = runner(exact_git(leg_dir, "archive", "--format=tar",
+                                      f"--output={archive_path}", leg_pinned,
+                                      "--", *RENDER_LEG_PATHS),
+                            env=exact_git_environment())
+            if not result.ok:
+                raise SealRefused(
+                    f"git archive of the {gitlink} {leg} leg failed at "
+                    f"{_short(leg_pinned)}: {result.stderr.strip()[:200]}")
+            recorded = git_archive_revision(archive_path)
+            if recorded != leg_pinned:
+                raise SealRefused(
+                    f"the {gitlink} {leg} leg archive's own recorded revision "
+                    f"({recorded or 'absent'}) is not its pinned commit "
+                    f"({leg_pinned})")
+            count = _extract_seal_archive(archive_path, dest)
+        modules = dest / "src" / package
+        if not (modules.is_dir() and any(modules.glob("*.py"))):
+            raise SealRefused(
+                f"the sealed {gitlink} {leg} leg carries no module under "
+                f"src/{package}, so the child's bootstrap would refuse it")
+        missing = [module for module in RENDER_LEG_MODULES.get((gitlink, leg),
+                                                              ())
+                   if not (modules / module).is_file()]
+        if missing:
+            raise SealRefused(
+                f"the sealed {gitlink} {leg} leg carries no "
+                + ", ".join(f"src/{package}/{module}" for module in missing)
+                + ", which the render unit imports by name, so the child's "
+                "render could not import it")
+        sealed.append({
+            "gitlink": gitlink,
+            "gitlink_revision": pinned,
+            "leg": leg,
+            "leg_revision": leg_pinned,
+            "package": package,
+            "relpath": f"{SEAL_CORPUS_RELPATH}/{gitlink}/{leg}",
+            "paths": list(RENDER_LEG_PATHS),
+            "file_count": count,
+            "schema_leg": SCHEMA_LEG,
+            "schema_leg_revision": schema_pinned,
+        })
+    return sealed
+
+
+def _schema_leg_at_its_pin(product: Path, gitlink: str, pinned: str,
+                           init: str, *, runner=subprocess_runner) -> str:
+    """The commit `gitlink@pinned` pins its `SCHEMA_LEG` at, once this parent's
+    checkout of that leg is proven to BE that commit (Copilot, PR #1166). The
+    sealed validator's schemas are composed from this checkout, so one at
+    another commit would seal schema bytes no pin describes."""
+    schema_pinned = _gitlink_at(product, pinned, SCHEMA_LEG, runner=runner)
+    if schema_pinned is None:
+        raise SealRefused(
+            f"{gitlink}@{_short(pinned)} pins no {SCHEMA_LEG} leg, so the "
+            "sealed validator's schemas would have no pin")
+    schema_dir = product / SCHEMA_LEG
+    schema_head = _materialized_head(schema_dir, runner=runner)
+    if schema_head is None:
+        raise SealRefused(
+            f"the {gitlink} {SCHEMA_LEG} leg is not materialized at "
+            f"{schema_dir}, and the sealed validator's schemas are composed "
+            f"from it — run {init} in the corpus checkout")
+    if schema_head != schema_pinned:
+        raise SealRefused(
+            f"this parent's {gitlink}/{SCHEMA_LEG} is at "
+            f"{_short(schema_head)}, but {gitlink}@{_short(pinned)} pins it at "
+            f"{_short(schema_pinned)} — the seal would carry schemas its "
+            "product does not pin")
+    return schema_pinned
+
+
+# The repository id the pre-dispatch render names, the one the child's own
+# generate passes. The snapshot lane and the served image use the same id.
+RENDER_REPOSITORY = "openxFactory"
+# The one pre-dispatch outcome a manifest can record: the product's own
+# `snapshot.VALIDATED` spelling, restated so `verify_seal` never imports the
+# product (a test holds the two equal).
+PRECHECK_VALIDATED = "validated"
+# Measured at `57af6927`: about five seconds for the real corpus. The bound is
+# for a render that hangs, not for a slow one. Each run of the sealed
+# validator gets the same bound, because the product's own call has none, and
+# a validator that hangs must not hold the rest of the nightly.
+PRECHECK_TIMEOUT_SECONDS = 600
+# The ONLY variables of this job's environment the pre-dispatch render
+# receives, by name, and by prefix for the locale. It runs code read out of the
+# seal, and this job holds the App token, a token-bearing git configuration and
+# whatever else the runner exports. So the environment is BUILT from an
+# allowlist rather than filtered by a denylist, which would pass any
+# credential it had not thought to name (Copilot, PR #1166). What is kept is
+# what an interpreter needs to start and read files in this locale:
+# `LD_LIBRARY_PATH` because the runner's toolcache interpreter can load its
+# own shared library from it; the Windows system variables because a child on
+# a Windows rider runs the same entry. The child's worker holds no
+# credential to begin with.
+_RENDER_ENV_KEPT = ("PATH", "LD_LIBRARY_PATH", "LANG", "LANGUAGE", "TZ",
+                    "TMPDIR", "TEMP", "TMP", "SYSTEMROOT", "SYSTEMDRIVE",
+                    "WINDIR", "COMSPEC", "PATHEXT")
+_RENDER_ENV_KEPT_PREFIXES = ("LC_",)
+
+
+def _render_environment(seal_root, home) -> dict[str, str]:
+    """The environment of the parent's pre-dispatch render: the allowlisted
+    variables (`_RENDER_ENV_KEPT`), and nothing else of this job's.
+
+    Beyond them, the settings below make the render the child's. `HOME` is a
+    scratch directory. No bytecode is written, so the render cannot add a file
+    to the tree the index is about to cover. `git` may not climb out of the
+    seal: this parent's seal sits INSIDE the aggregation checkout, while the
+    child's has no repository above it. And git reads no global or system
+    configuration."""
+    env = {key: value for key, value in os.environ.items()
+           if key in _RENDER_ENV_KEPT
+           or key.startswith(_RENDER_ENV_KEPT_PREFIXES)}
+    env.update({
+        "HOME": str(home),
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "GIT_CEILING_DIRECTORIES": str(Path(seal_root).resolve()),
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "GIT_CONFIG_NOSYSTEM": "1",
+    })
+    return env
+
+
+# THE SEALED VALIDATOR RUNS IN THAT ENVIRONMENT TOO (Copilot, PR #1166). The
+# product's `snapshot.validate_snapshot` launches the validator with no `env`
+# of its own. Called in THIS process, it would hand the sealed copy every
+# credential the job holds. So the call is made in a fresh interpreter whose
+# whole environment is `_render_environment`'s, working in a scratch
+# directory. It is still the product's own function, with its own three-outcome
+# reading, and everything it launches inherits the allowlist. The module is
+# the SEALED one, out of the seal's openXdox leg (`sealed_product_module`):
+# the exact code the seal carries, never this parent's worktree, which could
+# be dirty (Copilot, PR #1166). The harness ends without a verdict if the
+# name resolves to any other file. It hands the product's result back as the
+# last line of its stdout. The validator's own output never reaches that
+# stream, because the product captures it.
+_VALIDATE_HARNESS = """\
+import json, sys
+from pathlib import Path
+module_file, target, validator, strictness = sys.argv[1:5]
+if sys.path and sys.path[0] == "":
+    sys.path.pop(0)
+sys.path.insert(0, str(Path(module_file).parents[1]))
+from openxdox import snapshot
+if Path(snapshot.__file__).resolve() != Path(module_file).resolve():
+    sys.exit(f"openxdox.snapshot resolved to {snapshot.__file__}, not to "
+             f"{module_file}")
+result = snapshot.validate_snapshot(Path(target), validator=Path(validator),
+                                    strict=strictness == "strict")
+print(json.dumps({"ok": result.ok, "returncode": result.returncode,
+                  "stdout": result.stdout, "stderr": result.stderr,
+                  "outcome": result.outcome,
+                  "unavailable_reason": result.unavailable_reason}))
+"""
+# The shape of the verdict the harness prints: each field, and its type.
+_HARNESS_VERDICT_SHAPE = {"ok": bool, "returncode": int, "stdout": str,
+                          "stderr": str, "outcome": str}
+
+
+def _harness_verdict(stdout, outcomes) -> dict | None:
+    """The product's result as the harness printed it, on the last line of its
+    stdout, or None when that line is not one: not JSON, not an object, a
+    field missing or of another type, or an outcome not in `outcomes`."""
+    lines = [line for line in (stdout or "").splitlines() if line.strip()]
+    if not lines:
+        return None
+    try:
+        verdict = json.loads(lines[-1])
+    except ValueError:
+        return None
+    if not isinstance(verdict, dict):
+        return None
+    if any(type(verdict.get(name)) is not kind
+           for name, kind in _HARNESS_VERDICT_SHAPE.items()):
+        return None
+    if not isinstance(verdict.get("unavailable_reason"), (str, type(None))):
+        return None
+    return verdict if verdict["outcome"] in outcomes else None
+
+
+def sealed_product_module(seal_root) -> Path:
+    """Where the seal carries the product module the validator's runs are
+    classified with: `SEALED_PRODUCT_MODULE` in the sealed `VALIDATOR_LEG`'s
+    package."""
+    package = next(package for gitlink, leg, package in RENDER_LEGS
+                   if (gitlink, leg) == VALIDATOR_LEG)
+    gitlink, leg = VALIDATOR_LEG
+    return (Path(seal_root).resolve() / SEAL_CORPUS_RELPATH / gitlink / leg
+            / "src" / package / SEALED_PRODUCT_MODULE)
+
+
+def validate_in_render_environment(product, target, *, validator, strict: bool,
+                                   seal_root, module_file,
+                                   run=subprocess.run,
+                                   timeout: int = PRECHECK_TIMEOUT_SECONDS):
+    """The product's own `validate_snapshot(target, validator=...,
+    strict=...)`, imported from `module_file` and run in the pre-dispatch
+    render's environment rather than this job's (see `_VALIDATE_HARNESS`).
+    Returns a `ValidationResult`, the parent's `product` supplying only that
+    record's type and the outcome spellings.
+
+    Git may climb neither out of the seal nor out of the scratch directory the
+    validator runs in. A harness that cannot be launched, does not finish, or
+    returns no verdict is reported the way the product reports a validator
+    that cannot run: outcome `VALIDATOR_UNAVAILABLE`, with the reason. Nothing
+    is then known about the target, and both callers refuse on that
+    outcome."""
+    validator = Path(validator).resolve()
+    module_file = Path(module_file).resolve()
+
+    def unavailable(reason: str, *, returncode: int = -1, stderr: str = ""):
+        return product.ValidationResult(
+            False, returncode, "", stderr, validator,
+            product.VALIDATOR_UNAVAILABLE, reason)
+
+    with tempfile.TemporaryDirectory(prefix="dfr-validate-") as scratch:
+        scratch_root = Path(scratch).resolve()
+        home = scratch_root / "home"
+        home.mkdir()
+        env = _render_environment(seal_root, home)
+        env["GIT_CEILING_DIRECTORIES"] = os.pathsep.join(
+            (env["GIT_CEILING_DIRECTORIES"], str(scratch_root.parent)))
+        argv = [sys.executable, "-c", _VALIDATE_HARNESS, str(module_file),
+                str(Path(target).resolve()), str(validator),
+                "strict" if strict else "lenient"]
+        try:
+            proc = run(argv, cwd=str(scratch_root), env=env,
+                       capture_output=True, text=True, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            return unavailable(f"the validator did not finish within {timeout}s")
+        except OSError as exc:
+            return unavailable(
+                "the validator could not be launched in the render's "
+                f"environment ({type(exc).__name__}: {exc})")
+    verdict = _harness_verdict(
+        proc.stdout, (product.VALIDATED, product.NOT_CONFORMANT,
+                      product.VALIDATOR_UNAVAILABLE))
+    if proc.returncode != 0 or verdict is None:
+        # Its stderr is kept, since a harness that could not import the product
+        # says why there. Its stdout carries nothing but a verdict line.
+        return unavailable(
+            f"the validator's harness returned no verdict (exit "
+            f"{proc.returncode})", returncode=proc.returncode,
+            stderr=proc.stderr or "")
+    return product.ValidationResult(
+        verdict["ok"], verdict["returncode"], verdict["stdout"],
+        verdict["stderr"], validator, verdict["outcome"],
+        verdict["unavailable_reason"])
+
+
+# STRICT FINDINGS THAT HAVE A TRACKING ISSUE: (finding code, the value the
+# finding names, the issue). A rejection whose findings include one is cited
+# against that issue, so a reader of the nightly learns that this is the known
+# defect and where it is tracked, rather than a new breakage. The match is on
+# the validator's own finding code AND the value it names, so the citation
+# retires itself. Once the corpus is fixed the finding is gone, and a
+# different rejection is never cited against an issue that is not its own.
+KNOWN_STRICT_FINDINGS = (
+    ("snapshot-dangling-cluster-ref", "'cl-plane-1'",
+     "opensoft/openxFactory#1159"),
+)
+# The validator's per-finding lines: `ERROR [<code>] <path>: <message>`, and
+# the same shape for a warning.
+_FINDING_LINE_RE = re.compile(r"^(ERROR|WARNING) \[([a-z0-9-]+)\] ")
+
+
+def _output_lines(result, *, scrub=(), cap: int | None = DETAIL_CAP) -> list[str]:
+    """A process's own output, stdout then stderr, blank lines dropped, capped
+    at `cap` (None for every line): the per-finding record a one-line reason
+    cannot carry. Each `scrub` path is replaced by its file name, so a finding
+    names `snapshot.json` rather than this parent's scratch directory."""
+    lines: list[str] = []
+    for stream in (getattr(result, "stdout", ""), getattr(result, "stderr", "")):
+        for line in (stream or "").splitlines():
+            if line.strip():
+                for path in scrub:
+                    line = line.replace(str(path), Path(path).name)
+                lines.append(line.rstrip())
+    return lines if cap is None else lines[:cap]
+
+
+def known_finding_citation(lines) -> str:
+    """Which tracking issues `KNOWN_STRICT_FINDINGS` cites for these findings,
+    as one clause, or "" when none applies.
+
+    The clause says how many of the findings are the known ones, so a
+    rejection that ALSO carries a new finding never reads as fully tracked."""
+    findings = [line for line in lines if _FINDING_LINE_RE.match(line)]
+    issues: list[str] = []
+    tracked = 0
+    for line in findings:
+        code = _FINDING_LINE_RE.match(line).group(2)
+        hits = [issue for known, value, issue in KNOWN_STRICT_FINDINGS
+                if code == known and value in line]
+        if hits:
+            tracked += 1
+            issues += [issue for issue in hits if issue not in issues]
+    if not issues:
+        return ""
+    untracked = len(findings) - tracked
+    return (f"known defect, tracked as {', '.join(issues)} ({tracked} of "
+            f"{len(findings)} finding(s)"
+            + (f"; {untracked} tracked by no known issue" if untracked else "")
+            + ")")
+
+
+def _not_a_file_of_its_own(info: os.stat_result) -> str:
+    """What `info` is, when it is anything but a regular file with one link;
+    "" when it is one."""
+    if stat.S_ISLNK(info.st_mode):
+        return "a symbolic link"
+    if stat.S_ISDIR(info.st_mode):
+        return "a directory"
+    if not stat.S_ISREG(info.st_mode):
+        return "not a regular file"
+    if info.st_nlink != 1:
+        return "a hard link to another file"
+    return ""
+
+
+def _render_output_refused(what: str) -> SealRefused:
+    return SealRefused(
+        f"the sealed render's output is {what}, not a file of its own, so "
+        "the parent will not read it: a link could hand the parent any file "
+        "on this host to validate and quote")
+
+
+def _render_output_present(name, *, dir_fd=None) -> bool:
+    """Whether anything at all sits at `name`, relative to `dir_fd` when it is
+    given, a dangling link included."""
+    try:
+        os.stat(name, dir_fd=dir_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        return False
+    return True
+
+
+def _read_render_output(name, *, dir_fd=None) -> bytes:
+    """The bytes the sealed render wrote at `name`, which must be a regular
+    file of its own: not a symbolic link, not a hard link, nothing else. The
+    render is sealed code, and a link would have the parent validate, and
+    quote in its findings, whatever file on this host it named (Copilot,
+    PR #1166). `name` is read relative to `dir_fd`, a handle on the directory
+    the parent made, when one is given, so a directory swapped in on the way
+    to it cannot redirect the read. The file is opened without following a
+    link and checked again through the open descriptor, so a swap after the
+    first check is refused too."""
+    try:
+        before = os.stat(name, dir_fd=dir_fd, follow_symlinks=False)
+    except OSError as exc:
+        raise SealRefused(
+            f"the sealed render's output cannot be read ({exc})") from exc
+    what = _not_a_file_of_its_own(before)
+    if what:
+        raise _render_output_refused(what)
+    flags = (os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+             | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0))
+    try:
+        descriptor = os.open(name, flags, dir_fd=dir_fd)
+    except OSError as exc:
+        raise _render_output_refused(
+            f"something that could not be opened without following a link "
+            f"({exc.strerror})") from exc
+    with os.fdopen(descriptor, "rb") as handle:
+        after = os.fstat(handle.fileno())
+        what = _not_a_file_of_its_own(after)
+        if not what and (after.st_dev, after.st_ino) != (before.st_dev,
+                                                         before.st_ino):
+            what = "a file that was swapped after it was checked"
+        if what:
+            raise _render_output_refused(what)
+        return handle.read()
+
+
+def _run_the_sealed_render(entry, corpus_root, seal_root, home, snapshot,
+                           output, scratch_fd, *, source_head: str,
+                           source_committed_at: str, run, timeout: int) -> bytes:
+    """Run `RENDER_ENTRY generate` from the sealed corpus root, as the child
+    does, writing `snapshot`, and return the bytes it wrote. They are read
+    through `scratch_fd`, the handle on the directory `snapshot` was made in,
+    under the name `output` (`_read_render_output`)."""
+    argv = [sys.executable, str(entry), "generate",
+            "--repo-root", str(corpus_root),
+            "--repository", RENDER_REPOSITORY,
+            "--source-revision", source_head,
+            "--generated-at", source_committed_at,
+            "--output", str(snapshot), "--no-validate"]
+    try:
+        proc = run(argv, cwd=str(corpus_root),
+                   env=_render_environment(seal_root, home),
+                   capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired as exc:
+        raise SealRefused(
+            f"the sealed render did not finish within {timeout}s, so the "
+            "child's generate would not either") from exc
+    except OSError as exc:
+        raise SealRefused(
+            f"the sealed render could not be launched: {exc}") from exc
+    if (proc.returncode != 0
+            or not _render_output_present(output, dir_fd=scratch_fd)):
+        said = _validator_said(proc)
+        raise SealRefused(
+            "the sealed render unit could not render the snapshot (exit "
+            f"{proc.returncode}), so the child's generate would fail the "
+            "same way" + (f": {said}" if said else ""))
+    return _read_render_output(output, dir_fd=scratch_fd)
+
+
+def precheck_sealed_render(seal_root, *, source_head: str,
+                           source_committed_at: str,
+                           run=subprocess.run,
+                           timeout: int = PRECHECK_TIMEOUT_SECONDS) -> dict:
+    """Render the snapshot FROM THE SEAL and run the sealed validator over it
+    under `--strict`, exactly as the child will. Returns the manifest's
+    `precheck` record.
+
+    THE CHILD'S OWN INVOCATION, in the child's own tree. `RENDER_ENTRY` runs
+    from the sealed corpus root, with the seal's two anchors as its
+    `--source-revision` and `--generated-at`, and `--no-validate` because
+    validation is the sealed unit's job. Then the sealed validator runs over
+    the result, through the product's own three-outcome `validate_snapshot`,
+    as the probe does. Both run in the allowlisted environment
+    (`_render_environment`, `validate_in_render_environment`), never in this
+    job's. The snapshot is written to a scratch directory outside the seal and
+    discarded. The child generates the one the image bakes, and the child's
+    `--strict` stays the publication gate.
+
+    Every path either run is handed is absolute. The nightly names its seal
+    relative to the job's working directory (`--seal-out dfr-seal`), and the
+    render runs from inside the seal, where a relative path would name
+    nothing.
+
+    Raises `SealRefused` when the render fails, when it drops either anchor,
+    or when the validator cannot run. Raises `StrictGateRejected`, carrying
+    the validator's own output, when the validator REJECTS the snapshot. That
+    is a verdict on the corpus, and the lane records it as one."""
+    seal_root = Path(seal_root).resolve()
+    corpus_root = seal_root / SEAL_CORPUS_RELPATH
+    entry = corpus_root / RENDER_ENTRY
+    validator = seal_root / SEAL_VALIDATOR_RELPATH
+    try:
+        product = _snapshot_lane().snapshot_mod
+    except ImportError as exc:
+        raise SealRefused(
+            "the sealed render cannot be checked on this parent "
+            f"({type(exc).__name__}: {exc})") from exc
+    # `ignore_cleanup_errors`, because the render may have left the scratch
+    # path a link, which the cleanup refuses to follow; the refusal below is
+    # the one to report.
+    with tempfile.TemporaryDirectory(prefix="dfr-precheck-",
+                                     ignore_cleanup_errors=True) as scratch:
+        scratch_root = Path(scratch)
+        snapshot = scratch_root / "snapshot.json"
+        scrub = (snapshot.resolve(), snapshot)
+        home = scratch_root / "home"
+        home.mkdir()
+        # THE SCRATCH DIRECTORY IS HELD BEFORE THE RENDER RUNS (Copilot, PR
+        # #1166). The render may replace its path with a link to another
+        # directory. The output is read through this handle, from the
+        # directory this parent made, whatever the path names afterwards.
+        scratch_fd = _open_directory(scratch_root)
+        output = snapshot.name if scratch_fd is not None else snapshot
+        try:
+            written = _run_the_sealed_render(
+                entry, corpus_root, seal_root, home, snapshot, output,
+                scratch_fd, source_head=source_head,
+                source_committed_at=source_committed_at, run=run,
+                timeout=timeout)
+        finally:
+            if scratch_fd is not None:
+                os.close(scratch_fd)
+        try:
+            rendered = json.loads(written.decode("utf-8"))
+        except ValueError as exc:
+            raise SealRefused(
+                f"the sealed render wrote no readable snapshot ({exc})") from exc
+        generation = rendered.get("generation") if isinstance(rendered, dict) \
+            else None
+        generation = generation if isinstance(generation, dict) else {}
+        if (generation.get("source_revision") != source_head
+                or generation.get("generated_at") != source_committed_at):
+            raise SealRefused(
+                "the sealed render did not carry the seal's two anchors "
+                f"(source_revision {generation.get('source_revision')!r}, "
+                f"generated_at {generation.get('generated_at')!r}), so the "
+                "child's one-revision assertion would refuse it")
+        documents = rendered.get("documents")
+        document_count = len(documents) if isinstance(documents, list) else 0
+        # THE VALIDATOR JUDGES THE BYTES READ ABOVE, from a copy in a
+        # directory made after the render exited. Nothing the render left
+        # behind can stand between what was checked and what is judged.
+        with tempfile.TemporaryDirectory(prefix="dfr-judged-") as judged_dir:
+            judged = Path(judged_dir).resolve() / snapshot.name
+            judged.write_bytes(written)
+            scrub = (*scrub, judged)
+            result = validate_in_render_environment(
+                product, judged, validator=validator, strict=True,
+                seal_root=seal_root,
+                module_file=sealed_product_module(seal_root), run=run,
+                timeout=timeout)
+    if not result.available:
+        said = _validator_said(result)
+        raise SealRefused(
+            "the sealed validator could NOT RUN over the snapshot this seal "
+            f"renders, so the child's --strict could not either: "
+            f"{result.unavailable_reason}"
+            + (f" — it said: {said}" if said else ""))
+    # A VERDICT, BEFORE EITHER BRANCH (Copilot, opensoft/xFactory PR #526).
+    # The render's output was parsed before a copy of it was judged, so the
+    # verdict is read from the exit code alone, and the flag that says it
+    # passed must agree. The sealed product module can print anything, and
+    # an answer that is not a verdict is neither recorded as a pass for the
+    # intake to refuse nor reported as a verdict on the corpus.
+    if (not _a_verdict_with_its_returncode(
+            {"outcome": result.outcome, "returncode": result.returncode},
+            VALIDATOR_VERDICT_OUTCOMES)
+            or result.ok != (result.outcome == PRECHECK_VALIDATED)):
+        raise SealRefused(
+            f"the sealed validator answered {result.outcome!r} with exit "
+            f"{result.returncode!r} (ok={result.ok!r}) over the snapshot this "
+            "seal renders, which is not a verdict as the validator reports "
+            f"one ({_VERDICT_PAIRS}), so the child's --strict could not be "
+            "judged by it")
+    if not result.ok:
+        # EVERY line is read for the citation, and the detail the verdict
+        # carries is capped afterwards (`StrictGateRejected`). A tracked
+        # finding past the cap is still cited (Copilot, PR #1166).
+        findings = _output_lines(result, scrub=scrub, cap=None)
+        citation = known_finding_citation(findings)
+        raise StrictGateRejected(
+            f"--strict REJECTED the snapshot this seal renders "
+            f"({result.summary()})"
+            + (f", a {citation}" if citation else "")
+            + "; the child's publication gate would refuse it the same way, "
+            "so nothing is dispatched",
+            detail=findings)
+    return {"entry": RENDER_ENTRY, "documents": document_count,
+            "strict": True, "outcome": result.outcome,
+            "returncode": result.returncode}
 
 
 def seal_source(
@@ -1368,6 +2669,8 @@ def seal_source(
     runner=subprocess_runner,
     read_recipe=None,
     resolve_validator=None,
+    seal_legs=None,
+    precheck_render=None,
 ) -> dict:
     """Materialize the bounded source artifact and return its manifest.
 
@@ -1376,18 +2679,41 @@ def seal_source(
       * a revision that cannot be resolved seals nothing;
       * a validator that cannot be resolved seals nothing, and is found out
         BEFORE the corpus is archived, since the corpus no longer supplies it;
+      * a render leg that `source_head` does not pin, that this parent has not
+        materialized at exactly that pin, or whose archive does not record it
+        seals nothing, and so does a product whose schema leg this parent
+        holds at any other commit than its pin; both are found out before the
+        corpus is archived;
       * an archive whose own recorded commit is not `source_head` seals
         nothing;
-      * a validator whose product revision cannot be read, whose unit cannot
-        be copied whole, or whose sealed copy cannot RUN seals nothing;
-      * a recipe that cannot be read seals nothing.
-    Only a seal that passed all six gets a `manifest.json`, and the manifest's
-    presence is therefore the artifact's own statement that the parent stands
-    behind it.
+      * a validator whose product revision cannot be read, whose unit
+        carries corpus bytes `source_head` does not hold, whose unit cannot
+        be copied whole, whose sealed copy cannot RUN, whose run changed the
+        sealed tree, or whose run answered a verdict beside another exit code
+        than the one it is read from, seals nothing;
+      * a validator copied from another revision of the product than the
+        sealed openXdox leg, or from no product tree at all, or held beside
+        no openXdox leg, seals nothing;
+      * a recipe that cannot be read, or whose path in the seal already
+        holds anything sealed code left there, seals nothing;
+      * a sealed render unit that cannot render the snapshot, or a sealed
+        validator that cannot run over it or answers no verdict as the
+        validator reports one, seals nothing;
+      * a snapshot the sealed validator REJECTS under `--strict` seals
+        nothing, and is raised as `StrictGateRejected`, carrying the
+        validator's own findings;
+      * a pre-dispatch render that changed the sealed tree, or replaced the
+        seal directory itself, seals nothing;
+      * a `manifest.json` the lane did not write, left by the sealed code that
+        ran before it, seals nothing.
+    Only a seal that passed all twelve gets a `manifest.json`, and the
+    manifest's presence is therefore the artifact's own statement that the
+    parent stands behind it.
 
-    `resolve_validator` is injectable for the same reason `read_recipe` is.
-    Left None it is `resolve_pinned_validator`, the snapshot lane's own
-    resolver.
+    `resolve_validator`, `seal_legs` and `precheck_render` are injectable for
+    the same reason `read_recipe` is. Left None they are
+    `resolve_pinned_validator` (the snapshot lane's own resolver),
+    `seal_render_legs` and `precheck_sealed_render`.
 
     Raises `SealRefused` — never returns a partial seal."""
     decision = decision or {}
@@ -1434,15 +2760,28 @@ def seal_source(
     # and RUN below, once the seal tree exists.
     pinned = (resolve_validator or resolve_pinned_validator)()
     seal_root.mkdir(parents=True, exist_ok=True)
+    # THE SEAL DIRECTORY AS CREATED. Sealed code runs inside it before the
+    # manifest is written (the probe and the render), so the manifest is
+    # written only into this very directory (Copilot, PR #1166).
+    seal_identity = _seal_directory_identity(seal_root)
     corpus_root = seal_root / SEAL_CORPUS_RELPATH
+    # THE RENDER LEGS ARE SEALED BEFORE THE CORPUS IS ARCHIVED, for the reason
+    # the validator is resolved first: a parent whose legs sit at another pin
+    # than `source_head`'s is told so before the corpus is archived for
+    # nothing. Neither archive touches the other's paths: `seal_paths` names
+    # no gitlink, so the corpus extract lands beside the legs.
+    render_legs = (seal_legs or seal_render_legs)(
+        corpus_checkout=corpus_checkout, source_head=source_head,
+        corpus_root=corpus_root, runner=runner)
     # The intermediate tar lives OUTSIDE the seal (and outside the checkout):
     # it is not part of the artifact, and `git archive --output=` means the
     # bytes never pass through this module's text-mode runner.
     with tempfile.TemporaryDirectory(prefix="dfr-seal-") as staging:
         archive_path = Path(staging) / "source.tar"
-        result = runner(["git", "-C", str(corpus_checkout), "archive",
-                         "--format=tar", f"--output={archive_path}",
-                         source_head, "--", *seal_paths])
+        result = runner(exact_git(corpus_checkout, "archive", "--format=tar",
+                                  f"--output={archive_path}", source_head,
+                                  "--", *seal_paths),
+                        env=exact_git_environment())
         if not result.ok:
             raise SealRefused(
                 f"git archive failed at {_short(source_head)}: "
@@ -1466,7 +2805,41 @@ def seal_source(
     # later. A validation that could not RUN is a strict failure with no
     # finding to read, so the sealed copy is RUN here, and a copy that cannot
     # reach a verdict is refused (see `seal_validator`).
-    validator_fields = seal_validator(seal_root, pinned, runner=runner)
+    validator_fields = seal_validator(seal_root, pinned,
+                                      corpus_checkout=corpus_checkout,
+                                      source_head=source_head, runner=runner)
+    # ONE PRODUCT REVISION. The validator is resolved from this parent's own
+    # openXdox leg, and the render unit carries `source_head`'s. They are the
+    # same checkout whenever the legs above were sealed, so a disagreement is
+    # a parent whose validator came from somewhere else. That parent is
+    # refused rather than recorded, because the child's `--strict` would
+    # judge the snapshot with a product revision the render did not use.
+    #
+    # THE CHECK ALWAYS RUNS (Copilot, PR #1166). A validator with no product
+    # revision is refused, and so is a render unit with no openXdox code leg
+    # to hold it to. Every 2.1 seal carries that leg, and the intake requires
+    # the two to be one revision, so either would only be a seal the child
+    # refuses. Only an injected stand-in resolves from no product tree.
+    validator_leg = next((leg for leg in render_legs
+                          if (leg.get("gitlink"), leg.get("leg"))
+                          == VALIDATOR_LEG), None)
+    validator_revision = validator_fields.get("validator_revision")
+    if validator_revision is None:
+        raise SealRefused(
+            "the sealed validator records no product revision (it was not "
+            "resolved from a product tree), so it cannot be held to the "
+            "render unit's openXdox code leg — the child's intake refuses a "
+            "seal whose validator names no revision")
+    if (validator_leg is None
+            or validator_revision != validator_leg.get("leg_revision")):
+        carried = ("carries no openXdox code leg" if validator_leg is None
+                   else "carries it at "
+                   f"{_short(validator_leg.get('leg_revision'))}")
+        raise SealRefused(
+            f"the sealed validator was copied from openXdox code at "
+            f"{_short(validator_revision)}, but the sealed render unit "
+            f"{carried} — the child would validate the snapshot with a "
+            "product revision its render did not use")
 
     def _read_recipe_from_the_contents_api() -> str | None:
         # The recipe directory holds exactly ONE file, so this is a contents
@@ -1481,11 +2854,31 @@ def seal_source(
         raise SealRefused(
             f"could not read {recipe_path} from {recipe_repo} at "
             f"{_short(recipe_revision)}")
-    recipe_file = seal_root / SEAL_RECIPE_RELPATH
-    recipe_file.parent.mkdir(parents=True, exist_ok=True)
-    recipe_file.write_text(recipe_text, encoding="utf-8")
+    # THE RECIPE IS WRITTEN AS THE MANIFEST IS (Copilot, PR #1166): its
+    # directory made exclusively and the recipe created `O_EXCL|O_NOFOLLOW`
+    # inside the seal directory as created, since the probe's sealed code ran
+    # with the seal writable before this point.
+    _write_new_recipe(seal_root, recipe_text, identity=seal_identity)
 
     index = seal_file_index(seal_root)
+    # THE CHILD'S RENDER AND ITS `--strict`, RUN HERE FIRST, over exactly the
+    # tree the index above covers. A seal whose render unit cannot render, or
+    # whose snapshot its own validator rejects, would only fail on the worker.
+    # Finding that out here costs one render, and it keeps the verdict in this
+    # run's own report.
+    precheck = (precheck_render or precheck_sealed_render)(
+        seal_root, source_head=source_head,
+        source_committed_at=source_committed_at)
+    if seal_file_index(seal_root) != index:
+        raise SealRefused(
+            "the pre-dispatch render changed the sealed tree, so the seal "
+            "would no longer be the tree its own render was checked on")
+    # THE MANIFEST'S OWN PATH IS STILL EMPTY (Copilot, PR #1166). The index
+    # excludes `manifest.json`, the one path it cannot cover, so it cannot see
+    # what sealed code left there, and the probe and the render have both run
+    # by now. Whatever is there refuses the seal. The write below also creates
+    # the file exclusively, so nothing put there later is followed either.
+    _refuse_an_occupied_manifest_path(seal_root)
     total_bytes = sum((seal_root / relpath).stat().st_size for relpath in index)
     manifest = {
         "schema_version": SEAL_SCHEMA_VERSION,
@@ -1513,6 +2906,14 @@ def seal_source(
         # The run is RECORDED on every seal, like `file_count`, rather than
         # reconstructed from a run log.
         **validator_fields,
+        # THE RENDER UNIT (#1161). The child runs `render_entry` from the
+        # sealed corpus. It reaches the two products' code legs that
+        # `render_legs` records, at the commits `source_head` pins them at,
+        # and `precheck` is what that same render and `--strict` answered on
+        # this parent before anything was dispatched.
+        "render_entry": RENDER_ENTRY,
+        "render_legs": render_legs,
+        "precheck": precheck,
         "decision": {
             "outcome": decision.get("outcome"),
             "reason": decision.get("reason"),
@@ -1526,8 +2927,9 @@ def seal_source(
         "total_bytes": total_bytes,
         "files": index,
     }
-    (seal_root / SEAL_MANIFEST_NAME).write_text(
-        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _write_new_manifest(seal_root,
+                        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                        identity=seal_identity)
     return manifest
 
 
@@ -1546,9 +2948,12 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
     """The REFERENCE implementation of the child's intake check: manifest
     present and well-formed, every indexed path present with the recorded
     sha256, the tree digest recomputing, the recorded revisions matching the
-    parent decision the child was dispatched with, and the sealed validator
-    unit whole. A whole unit means its script, its schemas, and a recorded run
-    that reached a verdict.
+    parent decision the child was dispatched with, the sealed validator unit
+    whole, and the render unit whole. A whole validator unit means its script,
+    its schemas, and a recorded run that reached a verdict. A whole render unit
+    means the entry, both products' code legs at recorded commits, and a
+    recorded pre-dispatch render that passed `--strict`
+    (`_render_unit_problems`).
 
     Returns the problems, empty when the seal verifies. It is a list rather
     than an exception because the child must report ALL of what is wrong before
@@ -1602,6 +3007,21 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
         recomputed[relpath] = actual
         if actual != files[relpath]:
             problems.append(f"sha256 mismatch: {relpath}")
+    # AND NOTHING ELSE IS THERE (Copilot, PR #1166). `files` says what may
+    # exist, not only what must. The child renders, validates and bakes out
+    # of this tree, so a file the index does not name is bytes the digest
+    # never covered, and an extra module under a leg's `src/` would be
+    # importable.
+    unlisted = sorted(
+        path.relative_to(root).as_posix() for path in root.rglob("*")
+        if (path.is_symlink() or not path.is_dir())
+        and path.relative_to(root).as_posix() != SEAL_MANIFEST_NAME
+        and path.relative_to(root).as_posix() not in files)
+    problems += [f"the seal holds {relpath}, which its index does not name"
+                 for relpath in unlisted[:10]]
+    if len(unlisted) > 10:
+        problems.append(
+            f"... and {len(unlisted) - 10} more the index does not name")
     if len(recomputed) == len(files):
         # Recomputed whenever every indexed path WAS hashed, and deliberately
         # NOT suppressed by an unrelated problem above (a wrong `kind`, a
@@ -1639,7 +3059,8 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
     # a snapshot, which is the #179 trap in the unit's shape. So the intake
     # also requires the schemas to be indexed, the recorded count to equal the
     # indexed count, the snapshot schema to be among them, and the parent's
-    # one recorded run to have reached a verdict.
+    # one recorded run to have reached a verdict, recorded beside the exit
+    # code it is read from (Copilot, opensoft/xFactory PR #526).
     schemas_prefix = f"{SEAL_VALIDATOR_ROOT}/{VALIDATOR_SCHEMAS_PATH}/"
     indexed_schemas = sum(1 for relpath in files
                           if relpath.startswith(schemas_prefix))
@@ -1660,35 +3081,169 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
     probe = manifest.get("validator_probe")
     if not (isinstance(probe, dict)
             and probe.get("kind") == VALIDATOR_PROBE["kind"]
-            and probe.get("outcome") in VALIDATOR_VERDICT_OUTCOMES):
+            and _a_verdict_with_its_returncode(probe,
+                                               VALIDATOR_VERDICT_OUTCOMES)):
         problems.append(
             f"validator_probe is {probe!r} — the manifest does not record "
-            "that the sealed validator ran to a verdict")
-    # Null only for a unit with no product tree; anything else it records must
-    # be a full revision, which the seal refuses to write otherwise.
+            f"that the sealed validator ran to a verdict ({_VERDICT_PAIRS})")
+    # REQUIRED (Copilot, PR #1166). Every 2.1 seal carries the openXdox code
+    # leg, and this revision is what holds the sealed validator to it, so a
+    # null is refused like every other value that is not a full revision. A
+    # null that verified would let a tampered manifest erase the check: a
+    # validator copied from another product commit, and this field nulled.
+    # The seal refuses to write anything but a full revision here.
     validator_revision = manifest.get("validator_revision")
-    if validator_revision is not None and not (
-            isinstance(validator_revision, str)
-            and _FULL_REVISION_RE.match(validator_revision)):
+    well_formed = (isinstance(validator_revision, str)
+                   and bool(_FULL_REVISION_RE.match(validator_revision)))
+    if not well_formed:
         problems.append(
             f"validator_revision is {validator_revision!r}, expected a full "
-            "commit revision or null")
+            "commit revision")
+    # A malformed revision is reported once, above, and never also compared.
+    problems += _render_unit_problems(
+        manifest, files, validator_revision if well_formed else None)
     if manifest.get("recipe_relpath") not in files:
         problems.append("the seal does not carry the build recipe")
     return problems
 
 
+def _render_unit_problems(manifest: dict, files: dict,
+                          validator_revision) -> list[str]:
+    """What is wrong with the seal's RENDER UNIT (#1161), for `verify_seal`.
+
+    The child runs `render_entry` from the sealed corpus, and it can reach
+    only what the seal carries. So the entry and its host bootstrap
+    (`RENDER_BOOTSTRAP`) must be indexed, and each `RENDER_LEGS` product must
+    have its record: the commit the sealed corpus
+    pins the product at, the leg commit that product pins, and indexed modules
+    under the leg's `src/<package>/`, among them each module the render unit
+    imports by name (`RENDER_LEG_MODULES`). The file count must match what is
+    indexed, and the validator's revision must be that openXdox leg's own
+    revision. `validator_revision` is None when the caller has already
+    reported it as no full revision. The pre-dispatch render must be recorded
+    as validated, with exit 0, under `--strict`, since the parent seals
+    nothing else."""
+    problems: list[str] = []
+    entry = manifest.get("render_entry")
+    if entry != RENDER_ENTRY:
+        problems.append(
+            f"render_entry is {entry!r}, expected {RENDER_ENTRY!r} — the "
+            "child would have no renderer to run")
+    elif f"{SEAL_CORPUS_RELPATH}/{RENDER_ENTRY}" not in files:
+        problems.append(
+            f"the seal does not carry {SEAL_CORPUS_RELPATH}/{RENDER_ENTRY}, "
+            "the renderer the child runs")
+    for path in RENDER_BOOTSTRAP:
+        if f"{SEAL_CORPUS_RELPATH}/{path}" not in files:
+            problems.append(
+                f"the seal does not carry {SEAL_CORPUS_RELPATH}/{path}, which "
+                "the renderer imports before it reaches either product")
+    legs = manifest.get("render_legs")
+    if not isinstance(legs, list):
+        return problems + [
+            f"render_legs is {legs!r} — the seal records no render unit, so "
+            "the child's render would reach no product"]
+    expected = [(gitlink, leg, package) for gitlink, leg, package in RENDER_LEGS]
+    recorded = [(record.get("gitlink"), record.get("leg"), record.get("package"))
+                if isinstance(record, dict) else None for record in legs]
+    if recorded != expected:
+        return problems + [
+            f"render_legs records {recorded!r}, expected {expected!r}"]
+    for record in legs:
+        gitlink, leg, package = record["gitlink"], record["leg"], record["package"]
+        name = f"the {gitlink} {leg} leg"
+        if record.get("schema_leg") != SCHEMA_LEG:
+            problems.append(
+                f"{name} records schema_leg {record.get('schema_leg')!r}, "
+                f"expected {SCHEMA_LEG!r}")
+        for key in ("gitlink_revision", "leg_revision", "schema_leg_revision"):
+            value = record.get(key)
+            if not (isinstance(value, str) and _FULL_REVISION_RE.match(value)):
+                problems.append(
+                    f"{name} records {key} {value!r}, expected a full commit "
+                    "revision")
+        relpath = f"{SEAL_CORPUS_RELPATH}/{gitlink}/{leg}"
+        if record.get("relpath") != relpath:
+            problems.append(
+                f"{name} records relpath {record.get('relpath')!r}, expected "
+                f"{relpath!r}")
+        if record.get("paths") != list(RENDER_LEG_PATHS):
+            problems.append(
+                f"{name} records paths {record.get('paths')!r}, expected "
+                f"{list(RENDER_LEG_PATHS)!r}")
+        indexed = [path for path in files if path.startswith(relpath + "/")]
+        # A leg is sealed as its `src/` alone, so nothing else of it may be
+        # indexed, whatever `file_count` says (Copilot, opensoft/xFactory PR
+        # #526).
+        sealed_under = tuple(f"{relpath}/{path}/" for path in RENDER_LEG_PATHS)
+        stray = sorted(path for path in indexed
+                       if not path.startswith(sealed_under))
+        if stray:
+            problems.append(
+                f"{name} indexes {len(stray)} file(s) outside "
+                f"{', '.join(sealed_under)} ({stray[0]}), and a leg is sealed "
+                "as its src/ alone")
+        modules = f"{relpath}/src/{package}/"
+        if not any(path.startswith(modules) and path.endswith(".py")
+                   for path in indexed):
+            problems.append(
+                f"the seal indexes no module under {modules} — the child's "
+                "render could not import it")
+        else:
+            problems += [
+                f"the seal does not carry {modules}{module}, which the render "
+                "unit imports by name"
+                for module in RENDER_LEG_MODULES.get((gitlink, leg), ())
+                if f"{modules}{module}" not in files]
+        count = record.get("file_count")
+        if isinstance(count, bool) or count != len(indexed):
+            problems.append(
+                f"{name} records file_count {count!r}, but the seal indexes "
+                f"{len(indexed)} file(s) under {relpath}/")
+        # Two full revisions are compared. A malformed one is reported once,
+        # by its own check, and never also compared.
+        leg_revision = record.get("leg_revision")
+        if ((gitlink, leg) == VALIDATOR_LEG and validator_revision is not None
+                and isinstance(leg_revision, str)
+                and _FULL_REVISION_RE.match(leg_revision)
+                and leg_revision != validator_revision):
+            problems.append(
+                f"validator_revision {validator_revision!r} is not the sealed "
+                f"{gitlink} {leg} leg's revision {leg_revision!r}")
+    precheck = manifest.get("precheck")
+    if not (isinstance(precheck, dict)
+            and precheck.get("entry") == RENDER_ENTRY
+            and precheck.get("strict") is True
+            and _a_verdict_with_its_returncode(precheck,
+                                               (PRECHECK_VALIDATED,))):
+        problems.append(
+            f"precheck is {precheck!r} — the manifest does not record that "
+            "the sealed render passed its own validator under --strict "
+            f"({PRECHECK_VALIDATED} with exit "
+            f"{VALIDATOR_VERDICT_RETURNCODES[PRECHECK_VALIDATED]})")
+    return problems
+
+
 def seal_result_payload(*, sealed: bool, reason: str | None,
                         manifest: dict | None,
-                        artifact_name: str | None = None) -> dict:
+                        artifact_name: str | None = None,
+                        strict_failed: bool = False,
+                        detail=()) -> dict:
     """What the workflow gates the dispatch on. Deliberately small: sealed or
     not, why not, and the four values the dispatch and the child's own check
-    need."""
+    need.
+
+    `strict_failed` is True only for a seal refused because the sealed
+    validator REJECTED the snapshot under `--strict` (`StrictGateRejected`).
+    `detail` then carries the validator's own findings, bounded, so the step
+    that records the outcome can record the verdict rather than a skip."""
     manifest = manifest or {}
     return {
         "kind": "ideation-dashboard-seal-result",
         "sealed": bool(sealed),
         "reason": reason,
+        "strict_failed": bool(strict_failed) and not sealed,
+        "detail": [str(line) for line in detail][:DETAIL_CAP],
         "artifact_name": manifest.get("artifact_name") or artifact_name,
         "correlation_id": manifest.get("correlation_id"),
         "source_head": manifest.get("source_head"),
@@ -1701,6 +3256,46 @@ def seal_result_payload(*, sealed: bool, reason: str | None,
         "generated_at": _now_iso(),
         "run_id": _run_id(),
     }
+
+
+def _confined_path(path, base) -> str:
+    """`path`'s canonical form, when that names something inside `base`, or
+    `ValueError`. The canonical path is what is checked, never the spelling,
+    so neither `..` nor a link leads out of `base`."""
+    resolved = os.path.realpath(path)
+    root = os.path.realpath(base)
+    if resolved != root and not resolved.startswith(root + os.sep):
+        raise ValueError(f"{path!r} is outside {base}")
+    return resolved
+
+
+def read_strict_verdict(path, *, within) -> tuple[str, list[str]] | None:
+    """The strict verdict a seal result records, as `(reason, findings)`, or
+    None.
+
+    None unless the file is a seal result that did NOT seal, says
+    `strict_failed: true`, and gives a reason. Anything else is recorded as the
+    skip the workflow already named, so a malformed or older seal result can
+    never turn a skip into a verdict. The file is read only from inside
+    `within`, the checkout this lane runs over, where the seal phase writes
+    it. A path that resolves anywhere else is never opened."""
+    try:
+        with open(_confined_path(path, within), encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, TypeError, ValueError):
+        return None
+    if not isinstance(payload, dict):
+        return None
+    reason = payload.get("reason")
+    if (payload.get("kind") != "ideation-dashboard-seal-result"
+            or payload.get("sealed") is not False
+            or payload.get("strict_failed") is not True
+            or not isinstance(reason, str) or not reason.strip()):
+        return None
+    detail = payload.get("detail")
+    findings = ([str(line) for line in detail][:DETAIL_CAP]
+                if isinstance(detail, list) else [])
+    return reason.strip(), findings
 
 
 # --------------------------------------------------------------------------
@@ -1822,6 +3417,9 @@ def write_refresh_status(out_dir: Path, payload: dict) -> Path | None:
 
 
 REPORT_HEADING = "## Ideation-dashboard image refresh"
+# How many of a strict verdict's findings the report lists. The status
+# artifact keeps up to `DETAIL_CAP` of them.
+REPORT_FINDINGS_CAP = 20
 
 
 def render_report_section(status: dict | None, *, this_run_id: str | None = None,
@@ -1878,6 +3476,18 @@ def render_report_section(status: dict | None, *, this_run_id: str | None = None
                      f"`{status['source_revision']}`")
     if status.get("pull_request"):
         lines.append(f"- Pin pull request: {status['pull_request']}")
+    if status.get("result") == RESULT_STRICT_FAILED and status.get("detail"):
+        # A strict verdict's findings belong in the report. A reader who sees
+        # "strict_failed" and has to find a run log to learn WHICH document
+        # failed has been handed half the verdict.
+        findings = [str(line) for line in status["detail"]]
+        lines.append("- Findings (the validator's own output, "
+                     f"{len(findings)} line(s)):")
+        lines += [f"  - `{line.replace('`', "'")}`"
+                  for line in findings[:REPORT_FINDINGS_CAP]]
+        if len(findings) > REPORT_FINDINGS_CAP:
+            lines.append(f"  - … {len(findings) - REPORT_FINDINGS_CAP} more "
+                         "in refresh-status.json")
     if stuck_pull_request:
         lines.append(f"- **STUCK CHAIN**: pin pull request "
                      f"{stuck_pull_request} on `{DEFAULT_PIN_BRANCH}` is still "
@@ -1990,6 +3600,8 @@ def run_refresh_lane(
     pin_out: Path | str | None = None,
     run_url: str | None = None,
     skip_reason: str | None = None,
+    skip_result: str = RESULT_SKIPPED,
+    skip_detail=(),
     write_status: bool = True,
 ) -> RefreshOutcome:
     """Decide, then (only then) build, then render the pin proposal.
@@ -2003,9 +3615,13 @@ def run_refresh_lane(
     handed straight to that callable: this module neither constructs nor
     interprets one, because it holds no build recipe.
 
-    Never raises. `skip_reason` is the readiness verdict handed down by the
-    workflow: an unready worker skips before any input is read, and there is
-    deliberately no hosted fallback."""
+    Never raises. `skip_reason` is a verdict handed down by the workflow: an
+    unready worker skips before any input is read, and there is deliberately no
+    hosted fallback. A refused seal is handed down the same way, and a seal
+    refused because its own validator REJECTED the snapshot under `--strict`
+    arrives with `skip_result=RESULT_STRICT_FAILED` and the validator's
+    findings as `skip_detail`. It is recorded as the verdict it is. Any other
+    `skip_result` is recorded as a skip."""
     out_abs = Path(repo_root) / out_dir
 
     def _emit(outcome: RefreshOutcome) -> RefreshOutcome:
@@ -2021,7 +3637,11 @@ def run_refresh_lane(
         return outcome
 
     if skip_reason:
-        return _emit(RefreshOutcome(RESULT_SKIPPED, skip_reason, None))
+        handed = (skip_result if skip_result in (RESULT_SKIPPED,
+                                                 RESULT_STRICT_FAILED)
+                  else RESULT_SKIPPED)
+        return _emit(RefreshOutcome(handed, skip_reason, None,
+                                    detail=list(skip_detail)[:DETAIL_CAP]))
 
     try:
         if inputs is None:
@@ -2120,13 +3740,17 @@ def run_refresh_lane(
 # a copy of the pinned product validator.
 # --------------------------------------------------------------------------
 
-def main(argv: list[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> int | None:
     """CLI entry. Void by contract, like the snapshot lane's, but only for a
     VALID phase: every path through the lane's own logic for `decide`, `seal`,
     `pin`, `report` or `record-pr` — including a total failure, reported as
     SKIPPED (a refused seal included) — falls through and the process exits 0,
     so the deterministic doc-health results and the delivered report are never
-    affected. A phase argparse
+    affected. ONE lane path is outside it: a seal phase that could not write
+    its own seal result returns `SEAL_RESULT_UNWRITTEN_EXIT`, since the
+    workflow gates the dispatch on that result and only the step's failure can
+    then withhold it. That step is `continue-on-error`, so the doc-health
+    results and the report are unaffected by it too. A phase argparse
     itself refuses — an unknown value, including the retired `build` — is a
     USAGE error: argparse prints the fixed choice set and exits non-zero
     (`SystemExit(2)`) before any lane logic runs. That exit code is
@@ -2144,11 +3768,13 @@ def main(argv: list[str] | None = None) -> None:
                          "pre-dispatch gate). "
                          "seal: materialize the bounded source artifact the "
                          "credential-free child consumes — the decide phase's "
-                         "own decision (--decision-in) at one revision, plus "
-                         "the pinned recipe, plus the pinned openxdox "
-                         "validator composed with its schemas and run once, "
-                         "plus a manifest — into --seal-out, and write the "
-                         "dispatch gate to --seal-result-out. "
+                         "own decision (--decision-in) at one revision, with "
+                         "the two products' code legs it pins, plus the "
+                         "pinned recipe, plus the pinned openxdox validator "
+                         "composed with its schemas and run once, plus a "
+                         "manifest — into --seal-out, after rendering the "
+                         "child's snapshot from it once under --strict, and "
+                         "write the dispatch gate to --seal-result-out. "
                          "pin: render the pin proposal from the worker child's "
                          "returned digest (--digest-in) — this module writes "
                          "files and never pushes a branch. "
@@ -2189,7 +3815,9 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--seal-result-out", default=None,
                     help="write the seal result as JSON (--phase seal): the "
                          "dispatch gate, plus the values the child's own "
-                         "intake check compares against")
+                         "intake check compares against. A .json path inside "
+                         "--repo-root, where the record step reads it; "
+                         "whatever sits there first is removed")
     ap.add_argument("--correlation-id", default=None,
                     help="the readiness correlation id (--phase seal); the "
                          "artifact is named "
@@ -2207,6 +3835,12 @@ def main(argv: list[str] | None = None) -> None:
                          "corpus_revision")
     ap.add_argument("--skip-reason", default=None,
                     help="the readiness verdict: skip fail-closed, read nothing")
+    ap.add_argument("--seal-result-in", default=None,
+                    help="with --skip-reason: the seal phase's own "
+                         "--seal-result-out file. A seal refused because its "
+                         "own validator REJECTED the snapshot under --strict "
+                         "(strict_failed) is recorded as strict_failed, with "
+                         "the validator's findings, instead of as a skip")
     ap.add_argument("--run-url", default=None)
     ap.add_argument("--pull-request", default=None,
                     help="the pin pull request's reference to record on the "
@@ -2241,9 +3875,12 @@ def main(argv: list[str] | None = None) -> None:
         # THE PARENT SEAL. Never raises out of here: like every other path in
         # this lane a refusal is a RECORDED outcome and exit 0, and the
         # workflow gates the dispatch on `sealed` rather than on this
-        # process's status. A refused seal costs one cycle of served-plane
-        # freshness — the same bounded cost the readiness skip costs — and the
-        # next run catches up in one hop.
+        # process's status. The one exception is a seal result the lane could
+        # not write: with no result of its own to gate on, the process's
+        # status is what withholds the dispatch (`SEAL_RESULT_UNWRITTEN_EXIT`).
+        # A refused seal costs one cycle of served-plane freshness — the same
+        # bounded cost the readiness skip costs — and the next run catches up
+        # in one hop.
         try:
             decision = json.loads(
                 Path(args.decision_in).read_text(encoding="utf-8"))
@@ -2252,7 +3889,33 @@ def main(argv: list[str] | None = None) -> None:
         else:
             load_error = None
         manifest: dict | None = None
-        if load_error is not None:
+        strict_failed, strict_detail = False, []
+        # THE RESULT'S PATH IS HELD INSIDE THE CHECKOUT, AND ITS DIRECTORY BY
+        # A HANDLE, BEFORE ANYTHING AT IT IS REMOVED AND BEFORE SEALED CODE
+        # RUNS (`_hold_seal_result_path`). A path it refuses gets nothing
+        # written and nothing removed, and nothing is sealed, since a seal
+        # whose result cannot be written could never be dispatched. A path it
+        # holds but cannot clear is refused too, before any sealed code runs:
+        # whatever sits there would be read in place of the lane's own result
+        # (Copilot, PR #1166). Either way the phase fails its step
+        # (`SEAL_RESULT_UNWRITTEN_EXIT`).
+        result, result_refused = None, None
+        if args.seal_result_out:
+            try:
+                result = _hold_seal_result_path(args.seal_result_out,
+                                                repo_root)
+            except ValueError as exc:
+                result_refused = f"the seal result cannot be written: {exc}"
+        if result is not None:
+            try:
+                result.clear()
+            except OSError as exc:
+                result_refused = (
+                    f"the seal result's path could not be cleared ({exc}), so "
+                    "the lane could not write its own result there")
+        if result_refused is not None:
+            reason = result_refused
+        elif load_error is not None:
             reason = (f"no usable parent decision ({args.decision_in!r}): "
                       f"{load_error}")
         elif not args.seal_out:
@@ -2271,28 +3934,51 @@ def main(argv: list[str] | None = None) -> None:
                                        or os.environ.get("GITHUB_REPOSITORY")),
                     parent_run_id=_run_id())
                 reason = None
+            except StrictGateRejected as exc:
+                # A verdict on the corpus, and recorded as one: the step that
+                # records the outcome reads `strict_failed` and the findings.
+                reason = str(exc)
+                strict_failed, strict_detail = True, list(exc.detail)
             except SealRefused as exc:
                 reason = str(exc)
             except Exception as exc:  # noqa: BLE001 — a seal never fails the run
                 reason = f"{type(exc).__name__}: {exc}"
         payload = seal_result_payload(sealed=manifest is not None, reason=reason,
-                                      manifest=manifest)
-        if args.seal_result_out:
-            try:
-                Path(args.seal_result_out).write_text(
-                    json.dumps(payload, indent=2, sort_keys=True) + "\n",
-                    encoding="utf-8")
-            except OSError as exc:
-                print(f"  ::warning::could not write the seal result: {exc}")
+                                      manifest=manifest,
+                                      strict_failed=strict_failed,
+                                      detail=strict_detail)
+        written = False
+        if result is not None:
+            # Only a seal that ran can have left anything at the result's
+            # path. A path that could not be cleared still holds what was
+            # there before, and that is not the seal's doing.
+            if result_refused is None:
+                refusal = result.refusal()
+                if refusal is not None:
+                    manifest, reason = None, refusal
+                    strict_failed, strict_detail = False, []
+                    payload = seal_result_payload(sealed=False, reason=reason,
+                                                  manifest=None)
+            written = result.write(payload)
         if manifest is not None:
             print(f"::notice::{LANE}: SEALED {manifest['artifact_name']} — "
                   f"source_head={_short(manifest['source_head'])}, "
                   f"{manifest['file_count']} files, "
                   f"{manifest['total_bytes']} bytes, "
                   f"tree_digest={manifest['tree_digest'][:12]}")
+        elif strict_failed:
+            print(f"::warning::{LANE}: STRICT FAILED — {reason}")
+            for line in strict_detail:
+                print(f"  {line}")
         else:
             print(f"::warning::{LANE}: NOT SEALED — {reason}; nothing "
                   "dispatched, next run catches up in one hop")
+        if args.seal_result_out and not written:
+            print(f"::error::{LANE}: the seal result could not be written at "
+                  f"{args.seal_result_out!r}, so this step fails rather than "
+                  "leave the dispatch to whatever sits at that path: nothing "
+                  "is uploaded, and nothing is dispatched")
+            return SEAL_RESULT_UNWRITTEN_EXIT
         return
 
     if args.phase == "record-pr":
@@ -2335,12 +4021,20 @@ def main(argv: list[str] | None = None) -> None:
         def build(plan=None, _result=result):  # noqa: ARG001 — signature parity
             return _result
 
+    skip_reason, skip_result, skip_detail = args.skip_reason, RESULT_SKIPPED, []
+    if skip_reason and args.seal_result_in:
+        verdict = read_strict_verdict(args.seal_result_in, within=repo_root)
+        if verdict is not None:
+            skip_result = RESULT_STRICT_FAILED
+            skip_reason, skip_detail = verdict
+
     outcome = run_refresh_lane(
         repo_root, out_dir=args.out_dir, image=args.image,
         corpus_repo=args.corpus_repo, recipe_repo=args.recipe_repo,
         overlay_path=args.overlay_path, read_inputs=_read, build=build,
         pin_out=args.pin_out, run_url=args.run_url,
-        skip_reason=args.skip_reason)
+        skip_reason=skip_reason, skip_result=skip_result,
+        skip_detail=skip_detail)
 
     print(outcome.annotation())
     print(outcome.log_line())
