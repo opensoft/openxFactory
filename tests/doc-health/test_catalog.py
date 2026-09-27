@@ -91,17 +91,25 @@ def by_key(entries):
     return {(e["repo"], e["path"]): e for e in entries}
 
 
+def entries_by_repo(entries):
+    """{repo: that repo's entries}, the shape catalog.run_id/write_run take."""
+    grouped = {}
+    for entry in entries:
+        grouped.setdefault(entry["repo"], []).append(entry)
+    return grouped
+
+
 def write_run(root, inv, as_of=DAY, taxonomy=None):
-    """One full mechanical pass: entries -> per-repository snapshots."""
+    """One full mechanical pass: entries -> per-repository snapshots,
+    recorded through catalog.write_run (the content-addressed id)."""
     taxonomy = TAXONOMY if taxonomy is None else taxonomy
-    rid = catalog.run_id(inv, taxonomy)
-    entries = catalog.mechanical_entries(inv)
-    paths = {}
-    for repo in sorted({e["repo"] for e in entries}):
-        paths[repo] = catalog.write_snapshot(
-            root, as_of, rid, repo,
-            [e for e in entries if e["repo"] == repo], taxonomy)
-    return rid, paths
+    return catalog.write_run(
+        root, as_of, entries_by_repo(catalog.mechanical_entries(inv)),
+        taxonomy)
+
+
+def alpha_entries(inv):
+    return [e for e in catalog.mechanical_entries(inv) if e["repo"] == "alpha"]
 
 
 def runs_root(root):
@@ -207,10 +215,10 @@ def test_opaque_entries_omit_the_path_from_snapshots(tmp_path):
     inv = extended_inventory()
     entries = catalog.mechanical_entries(
         inv, path_prohibited=prohibit_protected)
-    rid = catalog.run_id(inv, TAXONOMY)
-    alpha_path = catalog.write_snapshot(
-        root, DAY, rid, "alpha",
-        [e for e in entries if e["repo"] == "alpha"], TAXONOMY)
+    alpha = [e for e in entries if e["repo"] == "alpha"]
+    rid = catalog.run_id({"alpha": alpha}, TAXONOMY)
+    alpha_path = catalog.write_snapshot(root, DAY, rid, "alpha", alpha,
+                                        TAXONOMY)
     rendered = alpha_path.read_text(encoding="utf-8")
     # FR-012: neither the protected path nor protected content appears
     # in the produced artifact.
@@ -250,11 +258,18 @@ def test_ambiguous_locators_are_rejected(tmp_path):
     partial = dict(neither, document_ref="0" * 64)  # no path_sha256
     with pytest.raises(ValueError, match="ambiguous"):
         catalog.diff([partial], [])
-    # The snapshot writer refuses them too, before anything lands.
-    rid = catalog.run_id(inv, TAXONOMY)
+    # The snapshot writer refuses them too, before anything lands — and so
+    # does minting a run id over them, since the id addresses the snapshot
+    # the writer would render.
+    repo = entries[0]["repo"]
+    rid = catalog.run_id({repo: [entries[0]]}, TAXONOMY)
     with pytest.raises(ValueError, match="ambiguous"):
-        catalog.write_snapshot(tmp_path / "agg", DAY, rid,
-                               entries[0]["repo"], [both], TAXONOMY)
+        catalog.write_snapshot(tmp_path / "agg", DAY, rid, repo, [both],
+                               TAXONOMY)
+    with pytest.raises(ValueError, match="ambiguous"):
+        catalog.run_id({repo: [both]}, TAXONOMY)
+    with pytest.raises(ValueError, match="ambiguous"):
+        catalog.write_run(tmp_path / "agg", DAY, {repo: [both]}, TAXONOMY)
     assert not (tmp_path / "agg").exists()
 
 
@@ -429,21 +444,643 @@ def test_registry_input_reads_content_hash_and_version(tmp_path):
             registry_revision=REGISTRY_REVISIONS["alpha"])
 
 
-def test_run_id_is_inventory_and_taxonomy_derived():
+def test_legacy_run_id_is_inventory_and_taxonomy_derived():
+    # The pre-#519 key, kept only to recognize the runs recorded under it.
     inv = extended_inventory()
-    rid = catalog.run_id(inv)
-    assert rid == catalog.run_id(extended_inventory())  # no wall clock
+    rid = catalog.legacy_run_id(inv)
+    assert rid == catalog.legacy_run_id(extended_inventory())  # no wall clock
     assert rid == inventory.snapshot_id(inv)
-    # Any corpus change — content or revision — is a different run.
-    assert catalog.run_id(extended_inventory(WORKSPACE, LATER_HEADS)) != rid
-    # The effective taxonomy digest folds into run identity, so a
-    # taxonomy change over an unchanged corpus is a new run too.
-    with_taxonomy = catalog.run_id(inv, TAXONOMY)
+    # Any corpus change — content or revision — is a different key.
+    assert catalog.legacy_run_id(
+        extended_inventory(WORKSPACE, LATER_HEADS)) != rid
+    # The effective taxonomy digest folds in, so a taxonomy change over an
+    # unchanged corpus is a different key too.
+    with_taxonomy = catalog.legacy_run_id(inv, TAXONOMY)
     assert with_taxonomy != rid
-    assert with_taxonomy == catalog.run_id(extended_inventory(), TAXONOMY)
+    assert with_taxonomy == catalog.legacy_run_id(extended_inventory(),
+                                                  TAXONOMY)
     other = catalog.effective_taxonomy(
         [dict(registry_inputs()[0], registry_version="9")])
-    assert catalog.run_id(inv, other) != with_taxonomy
+    assert catalog.legacy_run_id(inv, other) != with_taxonomy
+
+
+def classified(entries, path, value):
+    """`entries` with one document carrying a suggested factory_scope, the
+    shape a merged cataloger recommendation leaves on an entry."""
+    out = []
+    for entry in entries:
+        entry = dict(entry)
+        if entry["path"] == path:
+            entry["facet_assignments"] = [{
+                "facet": "factory_scope", "proposed_values": [],
+                "review": None, "state": "suggested",
+                "state_since": DAY_STR, "transitions": [],
+                "values": [value]}]
+        out.append(entry)
+    return out
+
+
+def test_run_id_is_a_content_address():
+    # opensoft/xFactory#519: the id addresses the recorded CONTENT, not
+    # just the inventory and taxonomy that shaped part of it.
+    inv = extended_inventory()
+    runs = entries_by_repo(catalog.mechanical_entries(inv))
+    rid = catalog.run_id(runs, TAXONOMY)
+    assert len(rid) == 64 and set(rid) <= set("0123456789abcdef")
+    # Deterministic, independent of caller order (repositories or entries).
+    assert rid == catalog.run_id(
+        entries_by_repo(catalog.mechanical_entries(extended_inventory())),
+        TAXONOMY)
+    assert rid == catalog.run_id(
+        {repo: list(reversed(runs[repo])) for repo in reversed(sorted(runs))},
+        TAXONOMY)
+    # The SAME inventory and taxonomy with a different classification --
+    # the #519 collision -- is a different run.
+    reclassified = dict(runs, alpha=classified(
+        runs["alpha"], "docs/widget-overview.md", "domain"))
+    assert catalog.run_id(reclassified, TAXONOMY) != rid
+    assert catalog.run_id(dict(runs, alpha=classified(
+        runs["alpha"], "docs/widget-overview.md", "neutral")), TAXONOMY) \
+        != catalog.run_id(reclassified, TAXONOMY)
+    # A revision-only move and a taxonomy change are still new runs.
+    assert catalog.run_id(entries_by_repo(catalog.mechanical_entries(
+        extended_inventory(WORKSPACE, LATER_HEADS))), TAXONOMY) != rid
+    other = catalog.effective_taxonomy(
+        [dict(registry_inputs()[0], registry_version="9")])
+    assert catalog.run_id(runs, other) != rid
+    # Dropping a repository is a different run: the id covers the whole run.
+    assert catalog.run_id({"alpha": runs["alpha"]}, TAXONOMY) != rid
+    # It never equals the legacy key for the same inputs.
+    assert rid != catalog.legacy_run_id(inv, TAXONOMY)
+    with pytest.raises(ValueError, match="at least one"):
+        catalog.run_id({}, TAXONOMY)
+
+
+def test_write_run_records_under_the_content_address(tmp_path):
+    root = tmp_path / "agg"
+    inv = extended_inventory()
+    runs = entries_by_repo(catalog.mechanical_entries(inv))
+    rid, paths = catalog.write_run(root, DAY, runs, TAXONOMY)
+    assert rid == catalog.run_id(runs, TAXONOMY)
+    assert sorted(paths) == ["alpha", "openxFactory"]
+    assert all(p.parent == runs_root(root) / DAY_STR / rid
+               for p in paths.values())
+    recorded = catalog.load_snapshot(root)
+    assert recorded["run_id"] == rid
+    # The recorded documents themselves hash back to the id.
+    assert catalog.content_digest(recorded["repos"]) == rid
+    assert catalog.run_id_scheme(rid, recorded["repos"]) == \
+        catalog.CONTENT_ADDRESSED
+
+
+def test_two_trees_recording_one_corpus_share_an_id_only_for_one_content(
+        tmp_path):
+    # The #519 shape: two producers of the SAME inventory and taxonomy on
+    # the same day, in trees that never see each other. Identical content
+    # converges on one id and byte-identical files; a different
+    # classification can no longer land under the same id.
+    inv = extended_inventory()
+    runs = entries_by_repo(catalog.mechanical_entries(inv))
+    rid_a, paths_a = catalog.write_run(tmp_path / "a", DAY, runs, TAXONOMY)
+    rid_b, paths_b = catalog.write_run(tmp_path / "b", DAY, runs, TAXONOMY)
+    assert rid_a == rid_b
+    assert {r: p.read_bytes() for r, p in paths_a.items()} == \
+        {r: p.read_bytes() for r, p in paths_b.items()}
+    reclassified = dict(runs, alpha=classified(
+        runs["alpha"], "docs/widget-overview.md", "domain"))
+    rid_c, _ = catalog.write_run(tmp_path / "c", DAY, reclassified, TAXONOMY)
+    assert rid_c != rid_a
+    # Under the legacy key all three would have shared ONE id.
+    assert catalog.legacy_run_id(inv, TAXONOMY) == \
+        catalog.legacy_run_id(extended_inventory(), TAXONOMY)
+
+
+def test_run_id_scheme_tells_content_legacy_and_edited_runs_apart(tmp_path):
+    inv = extended_inventory()
+    runs = entries_by_repo(catalog.mechanical_entries(inv))
+    # A content-addressed run verifies.
+    rid, _ = catalog.write_run(tmp_path / "new", DAY, runs, TAXONOMY)
+    new_docs = catalog.load_snapshot(tmp_path / "new")["repos"]
+    assert catalog.run_id_scheme(rid, new_docs) == catalog.CONTENT_ADDRESSED
+    # A run recorded under the pre-#519 key is recognized, not verified.
+    legacy = catalog.legacy_run_id(inv, TAXONOMY)
+    for repo, entries in sorted(runs.items()):
+        catalog.write_snapshot(tmp_path / "old", DAY, legacy, repo, entries,
+                               TAXONOMY)
+    old_docs = catalog.load_snapshot(tmp_path / "old")["repos"]
+    assert catalog.run_id_scheme(legacy, old_docs) == \
+        catalog.LEGACY_INPUT_KEY
+    # An edited snapshot under a content-addressed id is neither.
+    edited = json.loads(json.dumps(new_docs))
+    edited["alpha"]["entries"][0]["status"] = "tampered"
+    assert catalog.run_id_scheme(rid, edited) is None
+    # A lost repository snapshot is neither.
+    assert catalog.run_id_scheme(rid, {"alpha": new_docs["alpha"]}) is None
+    # A file from another run (its own run_id) mixed in is neither.
+    catalog.write_run(tmp_path / "other", DAY, dict(
+        runs, alpha=classified(runs["alpha"], "docs/widget-overview.md",
+                               "domain")), TAXONOMY)
+    other = catalog.load_snapshot(tmp_path / "other")["repos"]
+    assert catalog.run_id_scheme(rid, dict(new_docs, alpha=other["alpha"])) \
+        is None
+    # Retagging that foreign file with this run's id still fails the hash.
+    retagged = json.loads(json.dumps(other["alpha"]))
+    retagged["run"]["run_id"] = rid
+    assert catalog.run_id_scheme(rid, dict(new_docs, alpha=retagged)) is None
+    # A run holding no snapshot at all is neither (never vacuously legacy).
+    assert catalog.run_id_scheme(rid, {}) is None
+    assert catalog.run_id_scheme(legacy, {}) is None
+
+
+def test_run_id_scheme_verifies_the_persisted_bytes(tmp_path):
+    # Review (Codex, #1175): parsing a re-serialized snapshot and rendering
+    # it again reproduces the original bytes, so a check over parsed
+    # documents alone would call an edited file intact. With the raw
+    # persisted bytes, verification is byte for byte -- line endings too
+    # (Copilot, #1175: a universal-newline text read would have translated
+    # a CRLF edit back to the writer's LF before hashing).
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid, _ = catalog.write_run(tmp_path, DAY, runs, TAXONOMY)
+    run_dir = runs_root(tmp_path) / DAY_STR / rid
+    docs = catalog.load_snapshot(tmp_path)["repos"]
+    persisted = catalog._load_run_bytes(run_dir)
+    assert sorted(persisted) == sorted(docs)
+    assert catalog.run_id_scheme(rid, docs, persisted) == \
+        catalog.CONTENT_ADDRESSED
+    # The byte-exact address equals the parsed one for the writer's files.
+    assert catalog._persisted_digest(rid, persisted) == \
+        catalog.content_digest(docs) == rid
+    # Same content, different bytes: indentation, compact form, a trailing
+    # newline, CRLF line endings.
+    original = persisted["alpha"]
+    for edited in (
+            json.dumps(docs["alpha"], indent=4, sort_keys=True).encode(),
+            json.dumps(docs["alpha"], sort_keys=True,
+                       separators=(",", ":")).encode(),
+            original + b"\n",
+            original.replace(b"\n", b"\r\n")):
+        assert json.loads(edited) == docs["alpha"]
+        assert catalog.run_id_scheme(
+            rid, docs, dict(persisted, alpha=edited)) is None
+    # A CRLF file is exactly what a text-mode read would have hidden.
+    (run_dir / "alpha.yaml").write_bytes(original.replace(b"\n", b"\r\n"))
+    assert (run_dir / "alpha.yaml").read_text(encoding="utf-8") == \
+        original.decode("utf-8")
+    assert catalog.run_id_scheme(
+        rid, docs, catalog._load_run_bytes(run_dir)) is None
+    # The bytes must cover exactly the documents' repositories.
+    assert catalog.run_id_scheme(
+        rid, docs, {"alpha": persisted["alpha"]}) is None
+    # A legacy run stays recognized on its derivation, bytes or not.
+    inv = extended_inventory()
+    legacy = catalog.legacy_run_id(inv, TAXONOMY)
+    for repo, entries in sorted(runs.items()):
+        catalog.write_snapshot(tmp_path / "old", DAY, legacy, repo, entries,
+                               TAXONOMY)
+    old_docs = catalog.load_snapshot(tmp_path / "old")["repos"]
+    old_bytes = catalog._load_run_bytes(
+        runs_root(tmp_path / "old") / DAY_STR / legacy)
+    assert catalog.run_id_scheme(legacy, old_docs, old_bytes) == \
+        catalog.LEGACY_INPUT_KEY
+
+
+def test_write_run_preflights_every_repository_id_before_writing(tmp_path):
+    # Review (Copilot, #1175): a valid repository sorted before an invalid
+    # one must not be recorded first -- the run would be left partial,
+    # holding a run.yaml and only some of its snapshots.
+    alpha = alpha_entries(extended_inventory())
+    for bad_repo in ("run", "../x", ".hidden", "alpha/../.."):
+        runs = {"alpha": alpha, bad_repo: [dict(e, repo=bad_repo)
+                                          for e in alpha]}
+        with pytest.raises(ValueError, match="invalid repository id"):
+            catalog.run_id(runs, TAXONOMY)
+        with pytest.raises(ValueError, match="invalid repository id"):
+            catalog.write_run(tmp_path / "agg", DAY, runs, TAXONOMY)
+    assert not (tmp_path / "agg").exists()  # nothing landed, not even alpha
+
+
+def test_write_run_refuses_a_conflicting_later_repository_before_any_write(
+        tmp_path):
+    # Review (Copilot, #1175): a run directory already holding a CONFLICTING
+    # file for a later repository (edited by hand, or mixed from another
+    # run) must be refused before the earlier repository is written or a
+    # sequence claimed -- not after, which would leave a partial recorded
+    # run behind.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid, source = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    run_dir = runs_root(tmp_path / "agg") / DAY_STR / rid
+    run_dir.mkdir(parents=True)
+    tampered = source["openxFactory"].read_bytes() + b" "
+    (run_dir / "openxFactory.yaml").write_bytes(tampered)  # sorts after alpha
+    with pytest.raises(catalog.CatalogError, match="immutable"):
+        catalog.write_run(tmp_path / "agg", DAY, runs, TAXONOMY)
+    assert sorted(p.name for p in run_dir.iterdir()) == ["openxFactory.yaml"]
+    assert (run_dir / "openxFactory.yaml").read_bytes() == tampered
+    assert not (runs_root(tmp_path / "agg") / ".sequence").exists()
+    assert catalog.load_snapshot(tmp_path / "agg") is None
+
+
+def test_write_run_refuses_occupied_run_paths_before_any_write(tmp_path):
+    # Review (Copilot, #1175): a node the run would never write -- a
+    # directory at a snapshot or run.yaml path, a file where the run, date,
+    # or a slash-separated repository's directory goes, or (round 5) where
+    # the claims directory or any catalog directory above the date goes --
+    # must be refused as a controlled CatalogError before the first write,
+    # never surface as a filesystem error after a sequence was claimed.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid = catalog.run_id(runs, TAXONOMY)
+
+    def as_file(path):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("occupied\n", encoding="utf-8")
+
+    # run.parents: [0] the date directory, [1] runs, [2] document-catalog,
+    # [3] health.
+    cases = {
+        "snapshot-is-a-directory": lambda run: (
+            run / "xFactories" / "MedxFactory.yaml").mkdir(parents=True),
+        "run-yaml-is-a-directory": lambda run: (
+            run / "run.yaml").mkdir(parents=True),
+        "repository-subdirectory-is-a-file": lambda run: as_file(
+            run / "xFactories"),
+        "run-directory-is-a-file": as_file,
+        "date-directory-is-a-file": lambda run: as_file(run.parent),
+        "sequence-directory-is-a-file": lambda run: as_file(
+            run.parents[1] / ".sequence"),
+        "runs-directory-is-a-file": lambda run: as_file(run.parents[1]),
+        "catalog-directory-is-a-file": lambda run: as_file(run.parents[2]),
+        "health-directory-is-a-file": lambda run: as_file(run.parents[3]),
+    }
+    for name, occupy in cases.items():
+        root = tmp_path / name
+        run_dir = runs_root(root) / DAY_STR / rid
+        occupy(run_dir)
+        before = tree_state(root)
+        with pytest.raises(catalog.CatalogError, match="occupied"):
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        assert tree_state(root) == before, name  # no claim, no snapshot
+        assert not (run_dir / "alpha.yaml").exists(), name
+        assert catalog.load_snapshot(root) is None, name
+
+
+def test_write_run_refuses_symlinked_paths_before_any_write(tmp_path):
+    # Review round 5 (Copilot, #1175): is_dir() and is_file() follow
+    # symlinks. A symlinked catalog directory passed the preflight and
+    # carried the run's writes and claims out of health/document-catalog/
+    # runs, and a snapshot or run.yaml linked to an outside file holding
+    # the recorded bytes was accepted as a completed no-op, leaving the run
+    # with records that stay mutable from outside it. The writer never
+    # follows a symlink at any depth from the root down, or inside an
+    # existing run. That holds for a dangling link and for one pointing
+    # back inside the tree, too.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid, recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    recorded_meta = (runs_root(tmp_path / "src") / DAY_STR / rid /
+                     "run.yaml").read_bytes()
+
+    def link_dir(node, outside):
+        node.parent.mkdir(parents=True, exist_ok=True)
+        node.symlink_to(outside, target_is_directory=True)
+
+    def link_file(node, outside, content):
+        outside_file = outside / node.name
+        if content is not None:
+            outside_file.write_bytes(content)
+        node.unlink()
+        node.symlink_to(outside_file)
+
+    # Directory cases start from an empty tree; file cases from a complete
+    # copy of the recorded run, so only the link stands between the retry
+    # and a completed no-op. The root itself counts (round 6): a symlinked
+    # root must not carry the claims and snapshots somewhere else.
+    dir_cases = {
+        "root": lambda root: root,
+        "health": lambda root: root / "health",
+        "document-catalog": lambda root: root / "health" / "document-catalog",
+        "runs": runs_root,
+        "sequence": lambda root: runs_root(root) / ".sequence",
+        "date": lambda root: runs_root(root) / DAY_STR,
+        "run": lambda root: runs_root(root) / DAY_STR / rid,
+        "repository-subdirectory": lambda root: (
+            runs_root(root) / DAY_STR / rid / "xFactories"),
+    }
+    file_cases = {
+        "snapshot-to-recorded-bytes": ("alpha.yaml",
+                                       recorded["alpha"].read_bytes()),
+        "run-yaml-to-recorded-bytes": ("run.yaml", recorded_meta),
+        "run-yaml-dangling": ("run.yaml", None),
+    }
+    cases = [(f"{name}-directory", "directory", node)
+             for name, node in dir_cases.items()]
+    cases += [(name, "file", spec) for name, spec in file_cases.items()]
+    cases += [("date-directory-inside-the-tree", "inside-the-tree", None),
+              ("link-inside-a-recorded-run", "inside-the-run", None)]
+    for name, kind, spec in cases:
+        root, outside = tmp_path / name, tmp_path / f"{name}-outside"
+        outside.mkdir()
+        run_dir = runs_root(root) / DAY_STR / rid
+        if kind == "directory":
+            link_dir(spec(root), outside)
+        elif kind == "file":
+            shutil.copytree(tmp_path / "src", root, symlinks=True)
+            link_file(run_dir / spec[0], outside, spec[1])
+        elif kind == "inside-the-tree":  # to a real catalog directory
+            real = runs_root(root) / "2026-07-01"
+            real.mkdir(parents=True)
+            link_dir(runs_root(root) / DAY_STR, real)
+        else:  # a linked directory inside an otherwise complete run, which
+            # Path.rglob would silently skip (round 6)
+            shutil.copytree(tmp_path / "src", root, symlinks=True)
+            (outside / "stray.yaml").write_bytes(
+                recorded["alpha"].read_bytes())
+            link_dir(run_dir / "linked", outside)
+        before, before_outside = tree_state(root), tree_state(outside)
+        with pytest.raises(catalog.CatalogError, match="symlink"):
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        if name in ("root-directory", "run-directory",
+                    "snapshot-to-recorded-bytes"):
+            with pytest.raises(catalog.CatalogError, match="symlink"):
+                catalog.write_snapshot(root, DAY, rid, "alpha", alpha,
+                                       TAXONOMY)
+        assert tree_state(root) == before, name  # no claim, no snapshot
+        assert tree_state(outside) == before_outside, name
+
+
+def test_overlapping_identical_runs_both_complete(tmp_path, monkeypatch):
+    # Review round 7 (Copilot, #1175): two identical write_run calls that
+    # overlap after the preflight each claim a sequence, and the writer that
+    # reaches its run.yaml step second finds the other one's record.
+    # _recorded holds that record to its OWN sequence and that sequence's
+    # claim, both of which name this run. It never compares them with the
+    # caller's sequence, so the later writer completes as a no-op instead of
+    # refusing. Its claim stays orphaned and keeps its number, exactly as a
+    # crashed run's claim does.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    real_claim = catalog._claim_sequence
+    interleaved = []
+
+    def claim_then_let_the_other_writer_finish(root, day, rid):
+        sequence = real_claim(root, day, rid)
+        if not interleaved:  # the first writer, just past its claim
+            interleaved.append(sequence)
+            catalog.write_run(root, day, runs, TAXONOMY)  # start to finish
+        return sequence
+
+    monkeypatch.setattr(catalog, "_claim_sequence",
+                        claim_then_let_the_other_writer_finish)
+    rid, paths = catalog.write_run(tmp_path, DAY, runs, TAXONOMY)
+    assert interleaved == [1]
+    run_dir = runs_root(tmp_path) / DAY_STR / rid
+    meta = json.loads((run_dir / "run.yaml").read_text(encoding="utf-8"))
+    assert meta["sequence"] == 2  # the other writer recorded first
+    claims = runs_root(tmp_path) / ".sequence"
+    assert [json.loads(p.read_text(encoding="utf-8"))["run_id"]
+            for p in sorted(claims.iterdir())] == [rid, rid]  # 1 orphaned
+    latest = catalog.load_snapshot(tmp_path)
+    assert (latest["run_id"], latest["sequence"]) == (rid, 2)
+    assert catalog.run_id_scheme(rid, latest["repos"],
+                                 catalog._load_run_bytes(run_dir)) == \
+        catalog.CONTENT_ADDRESSED
+
+
+def test_write_snapshot_never_adds_to_a_complete_run(tmp_path):
+    # Review round 8 (Copilot, #1175): once run.yaml existed, write_snapshot
+    # wrote any missing target. A caller could record a content-addressed id
+    # for one repository and then append another under the same id,
+    # mutating a closed run into mixed content. A run whose recorded
+    # snapshots already make up the content its id addresses is complete,
+    # and it refuses additions. A partial run (crashed between its first
+    # snapshot and its last) is still completed by a retry.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid_one, _ = catalog.write_run(tmp_path / "closed", DAY,
+                                   {"alpha": runs["alpha"]}, TAXONOMY)
+    before = tree_state(tmp_path / "closed")
+    with pytest.raises(catalog.CatalogError, match="complete"):
+        catalog.write_snapshot(tmp_path / "closed", DAY, rid_one,
+                               "openxFactory", runs["openxFactory"],
+                               TAXONOMY)
+    assert tree_state(tmp_path / "closed") == before
+    closed = catalog.load_snapshot(tmp_path / "closed")
+    assert catalog.run_id_scheme(rid_one, closed["repos"],
+                                 catalog._load_run_bytes(
+                                     runs_root(tmp_path / "closed") /
+                                     DAY_STR / rid_one)) == \
+        catalog.CONTENT_ADDRESSED
+    # The crash window: the full run's first snapshot and run.yaml landed,
+    # the second never did. The same content's retry completes it.
+    rid = catalog.run_id(runs, TAXONOMY)
+    catalog.write_snapshot(tmp_path / "partial", DAY, rid, "alpha",
+                           runs["alpha"], TAXONOMY)
+    assert catalog.load_snapshot(tmp_path / "partial")["repos"].keys() == \
+        {"alpha"}
+    assert catalog.write_run(tmp_path / "partial", DAY, runs, TAXONOMY)[0] \
+        == rid
+    healed = catalog.load_snapshot(tmp_path / "partial")
+    assert healed["repos"].keys() == {"alpha", "openxFactory"}
+    assert catalog.run_id_scheme(rid, healed["repos"], catalog._load_run_bytes(
+        runs_root(tmp_path / "partial") / DAY_STR / rid)) == \
+        catalog.CONTENT_ADDRESSED
+
+
+def test_write_snapshot_never_heals_a_partial_run_around_a_link(tmp_path):
+    # Review round 9 (Copilot, #1175): write_snapshot checked only its own
+    # target's path. A partial run holding an unrelated symlink was still
+    # completed and closed: its missing snapshot was written, and an
+    # unrecorded run was also claimed and given its run.yaml. That left a
+    # closed run holding a link, which a linked directory can use to hide
+    # files from _snapshot_files. Healing refuses a run with a link anywhere
+    # inside it, as write_run does.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid = catalog.run_id(runs, TAXONOMY)
+    for recorded in (False, True):
+        root = tmp_path / f"recorded-{recorded}"
+        catalog.write_snapshot(root, DAY, rid, "alpha", runs["alpha"],
+                               TAXONOMY)  # the crash window: alpha only
+        run_dir = runs_root(root) / DAY_STR / rid
+        if not recorded:
+            (run_dir / "run.yaml").unlink()
+        outside = tmp_path / f"outside-{recorded}"
+        outside.mkdir()
+        (run_dir / "linked").symlink_to(outside, target_is_directory=True)
+        before = tree_state(root)
+        with pytest.raises(catalog.CatalogError, match="symlink"):
+            catalog.write_snapshot(root, DAY, rid, "openxFactory",
+                                   runs["openxFactory"], TAXONOMY)
+        assert tree_state(root) == before, recorded  # no claim, no write
+        assert not (run_dir / "openxFactory.yaml").exists(), recorded
+        assert tree_state(outside) == {}, recorded
+
+
+def test_a_foreign_sequence_claim_node_is_refused_before_claiming(tmp_path):
+    # Review round 7 (Copilot, #1175): the claim scan skipped a claim-named
+    # node that was not a regular file. The O_EXCL open then collided with a
+    # directory or a dangling link at that number forever, and the scan
+    # followed a symlinked claim to import an outside sequence and date.
+    # Each is now refused before anything is claimed or written.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "claim.yaml").write_text(catalog.render(
+        catalog._claim_document(1, "2026-07-01", "f" * 64)),
+        encoding="utf-8")
+    cases = {
+        "directory": lambda claim: claim.mkdir(),
+        "dangling-symlink": lambda claim: claim.symlink_to(
+            outside / "missing.yaml"),
+        "symlink-to-a-claim": lambda claim: claim.symlink_to(
+            outside / "claim.yaml"),
+    }
+    for name, plant in cases.items():
+        root = tmp_path / name
+        claims = runs_root(root) / ".sequence"
+        claims.mkdir(parents=True)
+        plant(claims / "000001.yaml")
+        before = tree_state(root)
+        outcome = []
+
+        def attempt():
+            try:
+                catalog.write_run(root, DAY, runs, TAXONOMY)
+                outcome.append("recorded")
+            except catalog.CatalogError as exc:
+                outcome.append(str(exc))
+
+        writer = threading.Thread(target=attempt, daemon=True)
+        writer.start()
+        writer.join(10)
+        assert not writer.is_alive(), f"{name}: the claim loop never ended"
+        assert outcome and "000001.yaml" in outcome[0], (name, outcome)
+        assert "symlink" in outcome[0] or "occupied" in outcome[0], name
+        assert tree_state(root) == before, name  # nothing claimed
+        assert not (runs_root(root) / DAY_STR).exists(), name
+
+
+def test_write_run_refuses_a_snapshot_the_run_does_not_record(tmp_path):
+    # Review round 6 (Copilot, #1175): the preflight compared only the
+    # repositories this call records. A run directory also holding a
+    # stranger's snapshot, for another repository or mixed in from another
+    # run, passed as a completed no-op. Crashed before its run.yaml, the run
+    # was even completed around the stranger. Either way the closed run
+    # held a file the run-identity check reads as mixed content.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid, recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    stranger = recorded["alpha"].read_bytes()
+    cases = {
+        "top-level": ("zeta.yaml",),
+        "nested": ("xFactories", "Extra.yaml"),
+        "crashed-run": ("zeta.yaml",),  # run.yaml removed below
+    }
+    for name, rel in cases.items():
+        root = tmp_path / name
+        shutil.copytree(tmp_path / "src", root)
+        run_dir = runs_root(root) / DAY_STR / rid
+        run_dir.joinpath(*rel).write_bytes(stranger)
+        if name == "crashed-run":
+            (run_dir / "run.yaml").unlink()
+        before = tree_state(root)
+        with pytest.raises(catalog.CatalogError, match="does not record"):
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        assert tree_state(root) == before, name  # no claim, no run.yaml
+
+
+def test_write_run_refuses_edited_run_metadata_before_any_write(tmp_path):
+    # Review round 5 (Copilot, #1175): a regular but edited run.yaml passed
+    # as a completed run. A retry over a run whose snapshots all matched
+    # returned without reading it, and a retry over a run missing a
+    # snapshot wrote that snapshot under the edited record without
+    # claiming. load_snapshot then ordered the run by whatever sequence the
+    # file stated. An existing run.yaml must be exactly this run's record
+    # (its id, its date, a positive integer sequence, byte for byte), and
+    # its sequence must be a claim this run made.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid, recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    meta_rel = ("health", "document-catalog", "runs", DAY_STR, rid,
+                "run.yaml")
+    claim_rel = ("health", "document-catalog", "runs", ".sequence",
+                 "000001.yaml")
+    meta = json.loads((tmp_path / "src").joinpath(*meta_rel)
+                      .read_text(encoding="utf-8"))
+    assert meta == {"schema_version": 1,
+                    "kind": "xfactory_document_catalog_run",
+                    "status": "record", "run_id": rid, "as_of": DAY_STR,
+                    "sequence": 1}
+
+    def canonical(**changes):
+        return catalog.render(dict(meta, **changes)).encode("utf-8")
+
+    claim = json.loads((tmp_path / "src").joinpath(*claim_rel)
+                       .read_text(encoding="utf-8"))
+    edits = {
+        "wrong-run-id": (meta_rel, canonical(run_id="f" * 64)),
+        "wrong-date": (meta_rel, canonical(as_of="2026-07-10")),
+        "string-sequence": (meta_rel, canonical(sequence="1")),
+        "boolean-sequence": (meta_rel, canonical(sequence=True)),
+        "zero-sequence": (meta_rel, canonical(sequence=0)),
+        "unclaimed-sequence": (meta_rel, canonical(sequence=7)),
+        "extra-field": (meta_rel, canonical(note="edited")),
+        "compact-reserialization": (
+            meta_rel, json.dumps(meta, sort_keys=True).encode("utf-8")),
+        "crlf-line-endings": (meta_rel,
+                              canonical().replace(b"\n", b"\r\n")),
+        "not-json": (meta_rel, b"sequence: 1\n"),
+        "not-an-object": (meta_rel, b"[]\n"),
+        "claim-names-another-run": (claim_rel, catalog.render(
+            dict(claim, run_id="f" * 64)).encode("utf-8")),
+        "claim-missing": (claim_rel, None),
+    }
+    # The untouched copy is a completed no-op, so each refusal below is the
+    # edit's doing.
+    shutil.copytree(tmp_path / "src", tmp_path / "control")
+    before = tree_state(tmp_path / "control")
+    assert catalog.write_run(tmp_path / "control", DAY, runs, TAXONOMY)[0] \
+        == rid
+    assert tree_state(tmp_path / "control") == before
+    for name, (rel, content) in edits.items():
+        for missing_snapshot in (False, True):
+            root = tmp_path / f"{name}-{missing_snapshot}"
+            shutil.copytree(tmp_path / "src", root)
+            if content is None:
+                root.joinpath(*rel).unlink()
+            else:
+                root.joinpath(*rel).write_bytes(content)
+            if missing_snapshot:
+                (runs_root(root) / DAY_STR / rid / "openxFactory.yaml") \
+                    .unlink()
+            before = tree_state(root)
+            with pytest.raises(catalog.CatalogError,
+                               match="catalog run metadata"):
+                catalog.write_run(root, DAY, runs, TAXONOMY)
+            with pytest.raises(catalog.CatalogError,
+                               match="catalog run metadata"):
+                catalog.write_snapshot(root, DAY, rid, "alpha",
+                                       runs["alpha"], TAXONOMY)
+            assert tree_state(root) == before, (name, missing_snapshot)
+
+
+def test_a_line_ending_edit_is_never_a_completed_noop(tmp_path):
+    # Review (Copilot, #1175): the existing-file checks compare RAW bytes.
+    # A text-mode read translates CRLF back to LF, so a retry over a
+    # CRLF-edited snapshot used to return as a completed no-op.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid, paths = catalog.write_run(tmp_path, DAY, runs, TAXONOMY)
+    for path in paths.values():  # the writer lands exactly render()'s bytes
+        raw = path.read_bytes()
+        assert raw == catalog.render(json.loads(raw)).encode("utf-8")
+        assert b"\r" not in raw
+    edited = paths["alpha"].read_bytes().replace(b"\n", b"\r\n")
+    paths["alpha"].write_bytes(edited)
+    with pytest.raises(catalog.CatalogError, match="immutable"):
+        catalog.write_run(tmp_path, DAY, runs, TAXONOMY)
+    with pytest.raises(catalog.CatalogError, match="immutable"):
+        catalog.write_snapshot(tmp_path, DAY, rid, "alpha", runs["alpha"],
+                               TAXONOMY)
+    assert paths["alpha"].read_bytes() == edited  # refused, never rewritten
 
 
 # --- snapshots: immutable dated run paths (T007) -----------------------------
@@ -494,10 +1131,8 @@ def test_as_of_rejects_datetime_instances(tmp_path):
     # would accept it and emit a run directory outside YYYY-MM-DD
     # (isoformat() on a datetime includes a time component).
     root = tmp_path / "agg"
-    inv = extended_inventory()
-    rid = catalog.run_id(inv, TAXONOMY)
-    alpha = [e for e in catalog.mechanical_entries(inv)
-             if e["repo"] == "alpha"]
+    alpha = alpha_entries(extended_inventory())
+    rid = catalog.run_id({"alpha": alpha}, TAXONOMY)
     bad_as_of = datetime(2026, 7, 9, 12, 30)
     with pytest.raises(ValueError, match="datetime"):
         catalog.write_snapshot(root, bad_as_of, rid, "alpha", alpha, TAXONOMY)
@@ -510,10 +1145,8 @@ def test_snapshots_require_complete_taxonomy_provenance(tmp_path):
     # Contract scenario "Taxonomy inputs are incomplete": a snapshot
     # lacking the digest or an ordered pinned-registry input is refused.
     root = tmp_path / "agg"
-    inv = extended_inventory()
-    rid = catalog.run_id(inv, TAXONOMY)
-    alpha = [e for e in catalog.mechanical_entries(inv)
-             if e["repo"] == "alpha"]
+    alpha = alpha_entries(extended_inventory())
+    rid = catalog.run_id({"alpha": alpha}, TAXONOMY)
     for bad in (None, {}, {"digest": TAXONOMY["digest"]},
                 {"digest": TAXONOMY["digest"], "inputs": []},
                 {"inputs": TAXONOMY["inputs"]}):
@@ -681,7 +1314,8 @@ def test_interrupted_run_heals_with_a_fresh_sequence(tmp_path):
     # run.yaml nor a snapshot landed. A retry re-claims and records.
     root = tmp_path / "agg"
     inv = extended_inventory()
-    rid = catalog.run_id(inv, TAXONOMY)
+    rid = catalog.run_id(entries_by_repo(catalog.mechanical_entries(inv)),
+                         TAXONOMY)
     claims = runs_root(root) / ".sequence"
     claims.mkdir(parents=True)
     (claims / "000001.yaml").write_text(json.dumps({
@@ -749,7 +1383,7 @@ def test_slash_separated_repo_ids_become_subdirectories(tmp_path):
     entries = [dict(e, repo="xFactories/MedxFactory")
                for e in catalog.mechanical_entries(inv)
                if e["repo"] == "alpha"]
-    rid = catalog.run_id(inv, TAXONOMY)
+    rid = catalog.run_id({"xFactories/MedxFactory": entries}, TAXONOMY)
     path = catalog.write_snapshot(root, DAY, rid, "xFactories/MedxFactory",
                                   entries, TAXONOMY)
     assert path == (runs_root(root) / DAY_STR / rid
@@ -760,10 +1394,8 @@ def test_slash_separated_repo_ids_become_subdirectories(tmp_path):
 
 def test_snapshot_path_boundaries_are_enforced(tmp_path):
     root = tmp_path / "agg"
-    inv = extended_inventory()
-    rid = catalog.run_id(inv, TAXONOMY)
-    alpha = [e for e in catalog.mechanical_entries(inv)
-             if e["repo"] == "alpha"]
+    alpha = alpha_entries(extended_inventory())
+    rid = catalog.run_id({"alpha": alpha}, TAXONOMY)
     for bad_repo in ("", "run", "../alpha", "alpha/../..", ".hidden"):
         with pytest.raises(ValueError):
             catalog.write_snapshot(
