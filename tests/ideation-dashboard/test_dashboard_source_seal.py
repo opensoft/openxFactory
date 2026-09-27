@@ -14,7 +14,10 @@ What each block here pins.
     manifest. A validator that cannot be resolved is a refusal that names
     where it was looked for. A unit that cannot be copied whole, or a copy
     that cannot run, is a refusal that names what was wrong. Most tests
-    inject a stub unit, as they inject the recipe. The tests that are about
+    inject a stub unit, as they inject the recipe. It is a committed product
+    tree whose HEAD the stand-in legs record, because the seal holds the
+    validator to the render unit's openXdox leg and refuses a validator with
+    no product revision. The tests that are about
     the validator use the REAL resolver over the real pinned legs. The
     DECISION set stays the baked set, and the real `find_validator`, run over
     a real sealed tree, is proven never to adopt the sealed copy
@@ -166,21 +169,47 @@ def _decision(corpus_revision: str, **kw) -> dict:
 
 
 STUB_SCHEMA = lane.VALIDATOR_SNAPSHOT_SCHEMA
+STUB_SCRIPT = "#!/usr/bin/env python3\nprint('ok')\n"
 
 
-def _stub_validator(where: Path) -> "lane.PinnedValidator":
+def _stub_validator(where: Path, *, script: str = STUB_SCRIPT
+                    ) -> "lane.PinnedValidator":
     """A composed-unit STAND-IN: `scripts/` beside `contracts/schemas/`, the
-    shape `nightly_lane._pinned_validator()` answers. The script prints `ok`
-    and exits 0, whatever it is handed, so it is always "available" and never
-    a verdict on anything. Tests about the seal's own mechanics inject this,
-    as they inject the recipe. Tests about the VALIDATOR use the real one."""
-    script = where / lane.VALIDATOR_SCRIPT_PATH
-    script.parent.mkdir(parents=True, exist_ok=True)
-    script.write_text("#!/usr/bin/env python3\nprint('ok')\n", encoding="utf-8")
+    shape `nightly_lane._pinned_validator()` answers. The default script
+    prints `ok` and exits 0, whatever it is handed, so it is always
+    "available" and never a verdict on anything. Tests about the seal's own
+    mechanics inject this, as they inject the recipe. Tests about the
+    VALIDATOR use the real one.
+
+    It is a COMMITTED PRODUCT TREE, and it is the unit's `product_root`, as
+    every unit the real resolver answers has one. Every 2.1 seal carries the
+    openXdox code leg, so the seal records the product revision its validator
+    came from and refuses a unit that has none (Copilot, PR #1166). A test
+    that needs another script hands it in here, so what it seals is committed
+    bytes."""
+    runnable = where / lane.VALIDATOR_SCRIPT_PATH
+    runnable.parent.mkdir(parents=True, exist_ok=True)
+    runnable.write_text(script, encoding="utf-8")
     schemas = where / lane.VALIDATOR_SCHEMAS_PATH
     schemas.mkdir(parents=True, exist_ok=True)
     (schemas / STUB_SCHEMA).write_text("{}\n", encoding="utf-8")
-    return lane.PinnedValidator(runnable=script)
+    if not (where / ".git").exists():
+        _git(where, "init", "--quiet", "-b", "main")
+    if _git(where, "status", "--porcelain"):
+        _git(where, "add", "-A")
+        _git(where, "commit", "--quiet", "-m", "a stand-in validator unit")
+    return lane.PinnedValidator(runnable=runnable, product_root=where)
+
+
+def _validator_head(pinned) -> str:
+    """The revision a real seal records for `pinned`: the HEAD of the product
+    tree it was resolved from. A unit with no tree of its own records none,
+    and the seal refuses it before this stand-in value is compared with
+    anything."""
+    root = getattr(pinned, "product_root", None)
+    if root is None or not (Path(root) / ".git").exists():
+        return "e" * 40
+    return _git(Path(root), "rev-parse", "HEAD")
 
 
 _STUB = object()   # `_seal`'s default: inject the stand-in
@@ -214,24 +243,23 @@ def _recording_product_module(record: Path) -> str:
         "    return _products_own_validate_snapshot(*args, **kwargs)\n")
 
 
-def _stub_legs_carrying(product_module: str | None):
-    """A leg-sealer STAND-IN whose openXdox leg carries `product_module` as the
-    product module the parent classifies with, or none at all."""
-    def stub_legs(*, corpus_checkout, source_head, corpus_root, runner):
-        return _stub_leg_records(corpus_root, product_module)
-    return stub_legs
-
-
 def _stub_legs(*, corpus_checkout, source_head, corpus_root, runner):
     """A leg-sealer STAND-IN: one module per product under the path the real
     sealer extracts to, the real product module in the validator leg, and
-    records shaped exactly like its own. Tests about the seal's other
-    mechanics inject it, as they inject the recipe. The tests about the legs
-    run `seal_render_legs` over real nested submodules."""
-    return _stub_leg_records(corpus_root, PRODUCT_MODULE_TEXT)
+    records shaped exactly like its own. This one stands in beside the REAL
+    resolver, so its openXdox code leg records the real product's HEAD: a
+    real parent's validator and legs are one checkout. Tests about the seal's
+    other mechanics inject it, as they inject the recipe, and `_seal` injects
+    one that records whichever validator it resolved. The tests about the
+    legs run `seal_render_legs` over real nested submodules."""
+    return _stub_leg_records(corpus_root, PRODUCT_MODULE_TEXT, _product_head())
 
 
-def _stub_leg_records(corpus_root, product_module: str) -> list[dict]:
+def _stub_leg_records(corpus_root, product_module: str | None,
+                      validator_revision: str) -> list[dict]:
+    """The stand-in legs' tree and records. The openXdox code leg carries
+    `product_module` as the product module the parent classifies with (None:
+    none at all), and records `validator_revision` as its commit."""
     records = []
     for index, (gitlink, leg, package) in enumerate(lane.RENDER_LEGS):
         modules = Path(corpus_root) / gitlink / leg / "src" / package
@@ -246,7 +274,8 @@ def _stub_leg_records(corpus_root, product_module: str) -> list[dict]:
         records.append({
             "gitlink": gitlink, "gitlink_revision": str(index + 1) * 40,
             "leg": leg,
-            "leg_revision": (_product_head() if (gitlink, leg) == lane.VALIDATOR_LEG
+            "leg_revision": (validator_revision
+                             if (gitlink, leg) == lane.VALIDATOR_LEG
                              else str(index + 5) * 40),
             "package": package,
             "relpath": f"{lane.SEAL_CORPUS_RELPATH}/{gitlink}/{leg}",
@@ -268,23 +297,41 @@ def _stub_precheck(seal_root, *, source_head, source_committed_at):
 
 def _seal(corpus: Path, seal_dir: Path, *, decision: dict | None = None,
           recipe: str | None = RECIPE_TEXT, resolve_validator=_STUB,
-          seal_legs=_STUB, precheck_render=_STUB, **kw) -> dict:
+          seal_legs=_STUB, precheck_render=_STUB,
+          product_module: str | None = PRODUCT_MODULE_TEXT, **kw) -> dict:
     """`seal_source` over the fixture corpus. `None` for `resolve_validator`,
     `seal_legs` or `precheck_render` means the REAL one (the snapshot lane's
     own resolver, `seal_render_legs`, `precheck_sealed_render`); the default
-    injects the stand-in."""
+    injects the stand-in.
+
+    The stand-in legs share one checkout with the validator, as a real
+    parent's do. Their openXdox code leg records the HEAD of the product tree
+    `seal_source` resolved its validator from, which it resolves before it
+    seals the legs, and carries `product_module`, None for no product module
+    at all."""
     head = _git(corpus, "rev-parse", "HEAD")
     if resolve_validator is _STUB:
         stub = _stub_validator(Path(seal_dir).parent / "stub-validator")
         resolve_validator = (lambda: stub)
+    resolved: list = []
+
+    def resolving():
+        pinned = (resolve_validator or lane.resolve_pinned_validator)()
+        resolved.append(pinned)
+        return pinned
+
+    def stand_in_legs(*, corpus_checkout, source_head, corpus_root, runner):
+        return _stub_leg_records(corpus_root, product_module,
+                                 _validator_head(resolved[-1]))
+
     return lane.seal_source(
         corpus_checkout=corpus, seal_dir=seal_dir,
         correlation_id=kw.pop("correlation_id", CORRELATION),
         decision=decision if decision is not None else _decision(head),
         corpus_ref=kw.pop("corpus_ref", "HEAD"),
         read_recipe=(lambda: recipe),
-        resolve_validator=resolve_validator,
-        seal_legs=_stub_legs if seal_legs is _STUB else seal_legs,
+        resolve_validator=resolving,
+        seal_legs=stand_in_legs if seal_legs is _STUB else seal_legs,
         precheck_render=(_stub_precheck if precheck_render is _STUB
                          else precheck_render),
         **kw)
@@ -635,8 +682,12 @@ def test_a_unit_entry_that_is_not_a_regular_file_is_refused_by_name(
     A skipped schema would seal a narrower unit than the one the snapshot lane
     validates with, and the probe could not see it, because the validator asks
     for a family schema only when an instance needs one. The stub script here
-    reaches a verdict on anything, so only the copy can refuse."""
+    reaches a verdict on anything, so only the copy can refuse. The unit has
+    no product tree, so the committed-bytes check, which runs first and would
+    refuse the dangling link as a source in no repository, leaves the copy to
+    refuse it: this test is about the copy."""
     stub = _stub_validator(tmp_path / "unit")
+    unit = lane.PinnedValidator(runnable=stub.runnable)
     odd = (tmp_path / "unit" / lane.VALIDATOR_SCHEMAS_PATH
            / "ideation-dashboard-workbench.schema.yaml")
     if shape == "a-dangling-link":
@@ -644,7 +695,7 @@ def test_a_unit_entry_that_is_not_a_regular_file_is_refused_by_name(
     else:
         odd.mkdir()
     with pytest.raises(lane.SealRefused) as refused:
-        _seal(corpus, tmp_path / "seal", resolve_validator=lambda: stub)
+        _seal(corpus, tmp_path / "seal", resolve_validator=lambda: unit)
     reason = str(refused.value)
     assert reason.startswith("the composed validator unit carries "
                              "ideation-dashboard-workbench.schema.yaml, which "
@@ -659,9 +710,11 @@ def test_a_product_revision_that_cannot_be_read_refuses_the_seal(
     """The manifest promises WHICH product revision the sealed validator came
     from. A unit resolved from a product tree whose HEAD cannot be read as a
     full revision is refused. It is never sealed with a null revision (Copilot
-    review of #1162). Only a unit with no product tree at all records none,
-    which is what the stub unit seals. The runner answers the one product
-    read here, so no real tree has to be broken to ask it."""
+    review of #1162). A unit with no product tree at all records none, and
+    the seal refuses that too, as a validator it cannot hold to the render
+    (`test_a_validator_the_seal_cannot_hold_to_the_render_is_refused`). The
+    runner answers the one product read here, so no real tree has to be
+    broken to ask it."""
     stub = _stub_validator(tmp_path / "unit")
     product = tmp_path / "product"
     product.mkdir()
@@ -689,6 +742,43 @@ def test_a_product_revision_that_cannot_be_read_refuses_the_seal(
     assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
 
 
+@pytest.mark.parametrize("shape", ["no-product-tree", "no-validator-leg"])
+def test_a_validator_the_seal_cannot_hold_to_the_render_is_refused(
+        corpus, tmp_path, shape):
+    """ONE PRODUCT REVISION, ALWAYS CHECKED (Copilot, PR #1166). The seal
+    holds its validator to the render unit's openXdox code leg. A unit with
+    no product tree records no revision to hold, and a render unit without
+    that leg has nothing to hold it to. Both used to seal, with the check
+    skipped, and the intake now refuses a null revision, so the seal refuses
+    both first and leaves no manifest."""
+    stub = _stub_validator(tmp_path / "unit")
+    head = _validator_head(stub)
+    injected = {}
+    if shape == "no-product-tree":
+        unit = lane.PinnedValidator(runnable=stub.runnable)
+    else:
+        unit = stub
+        injected["seal_legs"] = lambda **legs: [
+            record for record in _stub_leg_records(
+                legs["corpus_root"], PRODUCT_MODULE_TEXT, head)
+            if (record["gitlink"], record["leg"]) != lane.VALIDATOR_LEG]
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal", resolve_validator=lambda: unit,
+              **injected)
+    reason = str(refused.value)
+    if shape == "no-product-tree":
+        assert reason.startswith(
+            "the sealed validator records no product revision (it was not "
+            "resolved from a product tree), so it cannot be held to the "
+            "render unit's openXdox code leg"), reason
+    else:
+        assert reason.startswith(
+            f"the sealed validator was copied from openXdox code at "
+            f"{lane._short(head)}, but the sealed render unit carries no "
+            "openXdox code leg"), reason
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
+
+
 _RECORDING_VALIDATOR = '''\
 import json, os, sys
 from pathlib import Path
@@ -707,10 +797,8 @@ def _recording_validator(where: Path, record: Path) -> "lane.PinnedValidator":
     each run: the file that ran, its argv, the probe it was handed, its working
     directory and its environment. The evidence is what the VALIDATOR PROCESS
     saw, so nothing in this process is patched to observe it."""
-    stub = _stub_validator(where)
-    stub.runnable.write_text(f"RECORD = {str(record)!r}\n" + _RECORDING_VALIDATOR,
-                             encoding="utf-8")
-    return stub
+    return _stub_validator(
+        where, script=f"RECORD = {str(record)!r}\n" + _RECORDING_VALIDATOR)
 
 
 # What the job holding the seal could export: its credentials, its GitHub and
@@ -797,14 +885,13 @@ def test_a_probe_that_changes_the_sealed_tree_is_refused(corpus, tmp_path,
     the seal's index is taken. So the tree is indexed around the probe too,
     and a validator that rewrote or added a file while it ran is refused,
     never indexed and published (Copilot, PR #1166)."""
-    stub = _stub_validator(tmp_path / "unit")
     target = ("docs/a.md" if change == "a-file-rewritten"
               else "docs/planted.md")
-    stub.runnable.write_text(
+    stub = _stub_validator(tmp_path / "unit", script=(
         "from pathlib import Path\n"
         "seal = Path(__file__).resolve().parents[2]\n"
         f"(seal / 'openxFactory' / {target!r}).write_text('planted\\n')\n"
-        "print('ok')\n", encoding="utf-8")
+        "print('ok')\n"))
     if change == "a-file-rewritten":
         assert (corpus / target).is_file()
     with pytest.raises(lane.SealRefused) as refused:
@@ -822,8 +909,7 @@ def test_the_probe_is_classified_by_the_sealed_product_module(corpus,
     worktree copy, which could be dirty (Copilot, PR #1166)."""
     record = tmp_path / "classified-by.txt"
     seal = tmp_path / "seal"
-    _seal(corpus, seal, seal_legs=_stub_legs_carrying(
-        _recording_product_module(record)))
+    _seal(corpus, seal, product_module=_recording_product_module(record))
     assert record.read_text(encoding="utf-8").splitlines() == [
         str(lane.sealed_product_module(seal))]
 
@@ -833,7 +919,7 @@ def test_a_seal_without_the_product_module_cannot_classify_its_probe(
     """A sealed openXdox leg that carries no product module leaves the parent
     nothing to read the probe with, so the seal is refused, naming why."""
     with pytest.raises(lane.SealRefused) as refused:
-        _seal(corpus, tmp_path / "seal", seal_legs=_stub_legs_carrying(None))
+        _seal(corpus, tmp_path / "seal", product_module=None)
     reason = str(refused.value)
     assert reason.startswith("the sealed validator could NOT RUN")
     assert "the validator's harness returned no verdict (exit 1)" in reason
@@ -915,7 +1001,13 @@ def test_the_manifest_carries_every_field_the_child_reads(corpus, tmp_path):
     assert manifest["validator_relpath"] == lane.SEAL_VALIDATOR_RELPATH
     assert manifest["validator_relpath"] in manifest["files"]
     assert manifest["validator_schema_count"] == 1        # the stub unit's one
-    assert manifest["validator_revision"] is None         # the stub has no tree
+    # The revision of the stand-in's committed tree, which is the revision
+    # the stand-in legs record for the openXdox code leg.
+    assert manifest["validator_revision"] == \
+        _git(tmp_path / "stub-validator", "rev-parse", "HEAD")
+    assert manifest["validator_revision"] == next(
+        leg["leg_revision"] for leg in manifest["render_legs"]
+        if (leg["gitlink"], leg["leg"]) == lane.VALIDATOR_LEG)
     assert manifest["validator_probe"] == {
         "kind": lane.VALIDATOR_PROBE["kind"],
         "outcome": snapshot_mod.VALIDATED, "returncode": 0}
@@ -1429,6 +1521,7 @@ def test_verify_refuses_the_1x_layout_that_sealed_the_validator_in_the_corpus(
         "the schema the child validates against",
         "validator_probe is None — the manifest does not record that the "
         "sealed validator ran to a verdict",
+        "validator_revision is None, expected a full commit revision",
         f"render_entry is None, expected {lane.RENDER_ENTRY!r} — the child "
         "would have no renderer to run",
         "render_legs is None — the seal records no render unit, so the "
@@ -1495,22 +1588,25 @@ def test_verify_refuses_a_validator_unit_that_is_not_whole(corpus, tmp_path,
     assert lane.verify_seal(seal) == expected
 
 
+@pytest.mark.parametrize("recorded", [None, "abc1234", "", 40],
+                         ids=["null", "abbreviated", "empty", "not-a-string"])
 def test_verify_refuses_a_validator_revision_that_is_not_a_full_revision(
-        corpus, tmp_path):
-    """Null is what a unit with no product tree records, and it verifies. A
-    revision that IS recorded must be a full one. The seal refuses to write
-    anything else, so a manifest carrying anything else was not written by
-    it."""
+        corpus, tmp_path, recorded):
+    """REQUIRED, NOT OPTIONAL (Copilot, PR #1166). Every 2.1 seal carries the
+    openXdox code leg, and the validator's revision is what holds the sealed
+    validator to that leg. A null used to verify, as the record of a unit
+    with no product tree, so a tampered manifest could carry a validator
+    copied from another product commit, null this one field, and pass. A
+    null is refused like every other value that is not a full revision, and
+    the seal refuses to write one."""
     seal = tmp_path / "seal"
     manifest = _seal(corpus, seal)
-    assert manifest["validator_revision"] is None
     assert lane.verify_seal(seal) == []
-    manifest["validator_revision"] = "abc1234"
+    manifest["validator_revision"] = recorded
     (seal / lane.SEAL_MANIFEST_NAME).write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     assert lane.verify_seal(seal) == [
-        "validator_revision is 'abc1234', expected a full commit revision or "
-        "null"]
+        f"validator_revision is {recorded!r}, expected a full commit revision"]
 
 
 # ---------------------------------------------------------------------------
@@ -1522,8 +1618,10 @@ def test_verify_refuses_a_validator_revision_that_is_not_a_full_revision(
 def test_the_seal_speaks_only_git_and_never_builds_or_pushes(corpus, tmp_path,
                                                              resolve_validator):
     """Every shell-out through the seal's runner is `git`: the archive, the two
-    revision reads and, with the real resolver, the product revision the
-    sealed validator came from. The one run of the sealed validator is not a
+    revision reads, and the product revision the sealed validator came from
+    with the status read that holds its unit to committed bytes, for the
+    stand-in unit's committed tree and the real resolver's product alike.
+    The one run of the sealed validator is not a
     runner call; `test_the_one_run_is_of_the_sealed_copy_over_the_probe` pins
     it. The legs' own git reads are pinned over real submodules in
     `test_the_leg_sealer_speaks_only_git`."""
@@ -1871,7 +1969,10 @@ def _product(where: Path, name: str, code_leg: str, package: str) -> Path:
     """A product shaped like openDox or openXdox: a repository whose `spec`
     and `code` legs are its own submodules. The code leg carries its package
     under `src/`, a module BESIDE the package (openXdox-code's `src/` has two),
-    and a `tests/` tree and a `pyproject.toml` the render unit must not carry."""
+    and a `tests/` tree and a `pyproject.toml` the render unit must not carry.
+    openXdox's code leg also commits a stand-in validator unit, which a test
+    resolves its validator from, as a real parent resolves the real one from
+    the same checkout as its render legs."""
     legs: dict[str, Path] = {}
     for leg in ("spec", code_leg):
         repo = where / f"{name}-{leg}"
@@ -1886,9 +1987,16 @@ def _product(where: Path, name: str, code_leg: str, package: str) -> Path:
                 "def main(argv=None):\n    return 0\n", encoding="utf-8")
             if package == "openxdox":
                 # The product module the parent classifies with, out of the
-                # sealed leg.
+                # sealed leg, and a stand-in validator unit outside `src/`,
+                # which the leg sealer never archives.
                 (modules / lane.SEALED_PRODUCT_MODULE).write_text(
                     PRODUCT_MODULE_TEXT, encoding="utf-8")
+                script = repo / lane.VALIDATOR_SCRIPT_PATH
+                script.parent.mkdir(parents=True)
+                script.write_text(STUB_SCRIPT, encoding="utf-8")
+                schemas = repo / lane.VALIDATOR_SCHEMAS_PATH
+                schemas.mkdir(parents=True)
+                (schemas / STUB_SCHEMA).write_text("{}\n", encoding="utf-8")
             (repo / "src" / "extension.py").write_text(
                 "# beside the package\n", encoding="utf-8")
             (repo / "tests").mkdir()
@@ -1973,13 +2081,22 @@ def test_the_legs_are_sealed_at_the_commits_the_sealed_corpus_pins(
 
 
 def test_a_seal_with_real_legs_verifies(corpus_with_products, tmp_path):
+    """Real legs, and a validator resolved from the materialized openXdox code
+    leg, as a real parent resolves it. The seal records the leg's own commit
+    as the validator's revision, and it verifies."""
     corpus = corpus_with_products
     head = _git(corpus, "rev-parse", "HEAD")
+    leg = corpus / "openXdox" / "code"
+    unit = lane.PinnedValidator(runnable=leg / lane.VALIDATOR_SCRIPT_PATH,
+                                product_root=leg)
     seal = tmp_path / "seal"
-    manifest = _seal(corpus, seal, seal_legs=None)
+    manifest = _seal(corpus, seal, seal_legs=None,
+                     resolve_validator=lambda: unit)
     assert lane.verify_seal(seal, correlation_id=CORRELATION,
                             corpus_revision=head,
                             recipe_revision=RECIPE_REV) == []
+    assert manifest["validator_revision"] == _git(leg, "rev-parse", "HEAD") \
+        == manifest["render_legs"][1]["leg_revision"]
     legs = [key for key in manifest["files"]
             if key.split("/")[1:2] in (["openDox"], ["openXdox"])]
     assert len(legs) == sum(record["file_count"]

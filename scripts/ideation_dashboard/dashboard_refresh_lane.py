@@ -1480,8 +1480,9 @@ class PinnedValidator:
     `runnable` is the COMPOSED script. Its `parents[1]` is a self-contained unit
     holding `scripts/` beside `contracts/schemas/`, and that unit is what the
     seal copies. `product_root` is the product tree the validator was found in.
-    It is read only to record which revision the sealed copy came from, and
-    None records none."""
+    It is read only to record which revision the sealed copy came from. None
+    records none, and `seal_source` refuses a validator with no revision,
+    since it could not be held to the render unit's openXdox leg."""
 
     runnable: Path
     product_root: Path | None = None
@@ -1623,7 +1624,9 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
     # from a product source tree records that tree's HEAD. A HEAD that cannot
     # be read as a full revision REFUSES the seal, because the manifest
     # promises that provenance and a null would silently drop it. Only a unit
-    # with no product tree at all (an injected stand-in) records none.
+    # with no product tree at all (an injected stand-in) records none, and
+    # `seal_source` refuses it once the unit has run: a null could not be
+    # held to the render unit's openXdox leg.
     revision = None
     if pinned.product_root is not None:
         head = (git_head_revision(pinned.product_root, runner=runner)
@@ -2362,7 +2365,8 @@ def seal_source(
         be copied whole, whose sealed copy cannot RUN, or whose run changed
         the sealed tree seals nothing;
       * a validator copied from another revision of the product than the
-        sealed openXdox leg seals nothing;
+        sealed openXdox leg, or from no product tree at all, or held beside
+        no openXdox leg, seals nothing;
       * a recipe that cannot be read seals nothing;
       * a sealed render unit that cannot render the snapshot, or a sealed
         validator that cannot run over it, seals nothing;
@@ -2479,18 +2483,32 @@ def seal_source(
     # a parent whose validator came from somewhere else. That parent is
     # refused rather than recorded, because the child's `--strict` would
     # judge the snapshot with a product revision the render did not use.
+    #
+    # THE CHECK ALWAYS RUNS (Copilot, PR #1166). A validator with no product
+    # revision is refused, and so is a render unit with no openXdox code leg
+    # to hold it to. Every 2.1 seal carries that leg, and the intake requires
+    # the two to be one revision, so either would only be a seal the child
+    # refuses. Only an injected stand-in resolves from no product tree.
     validator_leg = next((leg for leg in render_legs
                           if (leg.get("gitlink"), leg.get("leg"))
                           == VALIDATOR_LEG), None)
     validator_revision = validator_fields.get("validator_revision")
-    if (validator_revision is not None and validator_leg is not None
-            and validator_revision != validator_leg.get("leg_revision")):
+    if validator_revision is None:
+        raise SealRefused(
+            "the sealed validator records no product revision (it was not "
+            "resolved from a product tree), so it cannot be held to the "
+            "render unit's openXdox code leg — the child's intake refuses a "
+            "seal whose validator names no revision")
+    if (validator_leg is None
+            or validator_revision != validator_leg.get("leg_revision")):
+        carried = ("carries no openXdox code leg" if validator_leg is None
+                   else "carries it at "
+                   f"{_short(validator_leg.get('leg_revision'))}")
         raise SealRefused(
             f"the sealed validator was copied from openXdox code at "
-            f"{_short(validator_revision)}, but the sealed render unit carries "
-            f"it at {_short(validator_leg.get('leg_revision'))} — the child "
-            "would validate the snapshot with a product revision its render "
-            "did not use")
+            f"{_short(validator_revision)}, but the sealed render unit "
+            f"{carried} — the child would validate the snapshot with a "
+            "product revision its render did not use")
 
     def _read_recipe_from_the_contents_api() -> str | None:
         # The recipe directory holds exactly ONE file, so this is a contents
@@ -2733,20 +2751,22 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
         problems.append(
             f"validator_probe is {probe!r} — the manifest does not record "
             "that the sealed validator ran to a verdict")
-    # Null only for a unit with no product tree; anything else it records must
-    # be a full revision, which the seal refuses to write otherwise.
+    # REQUIRED (Copilot, PR #1166). Every 2.1 seal carries the openXdox code
+    # leg, and this revision is what holds the sealed validator to it, so a
+    # null is refused like every other value that is not a full revision. A
+    # null that verified would let a tampered manifest erase the check: a
+    # validator copied from another product commit, and this field nulled.
+    # The seal refuses to write anything but a full revision here.
     validator_revision = manifest.get("validator_revision")
-    if validator_revision is not None and not (
-            isinstance(validator_revision, str)
-            and _FULL_REVISION_RE.match(validator_revision)):
+    well_formed = (isinstance(validator_revision, str)
+                   and bool(_FULL_REVISION_RE.match(validator_revision)))
+    if not well_formed:
         problems.append(
             f"validator_revision is {validator_revision!r}, expected a full "
-            "commit revision or null")
+            "commit revision")
     # A malformed revision is reported once, above, and never also compared.
     problems += _render_unit_problems(
-        manifest, files,
-        validator_revision if isinstance(validator_revision, str)
-        and _FULL_REVISION_RE.match(validator_revision) else None)
+        manifest, files, validator_revision if well_formed else None)
     if manifest.get("recipe_relpath") not in files:
         problems.append("the seal does not carry the build recipe")
     return problems
@@ -2762,9 +2782,10 @@ def _render_unit_problems(manifest: dict, files: dict,
     have its record: the commit the sealed corpus
     pins the product at, the leg commit that product pins, and indexed modules
     under the leg's `src/<package>/`. The file count must match what is
-    indexed, and a validator copied from a product tree must be that openXdox
-    leg's own revision. The pre-dispatch render must be recorded as validated
-    under `--strict`, since the parent seals nothing else."""
+    indexed, and the validator's revision must be that openXdox leg's own
+    revision. `validator_revision` is None when the caller has already
+    reported it as no full revision. The pre-dispatch render must be recorded
+    as validated under `--strict`, since the parent seals nothing else."""
     problems: list[str] = []
     entry = manifest.get("render_entry")
     if entry != RENDER_ENTRY:
@@ -2836,12 +2857,16 @@ def _render_unit_problems(manifest: dict, files: dict,
             problems.append(
                 f"{name} records file_count {count!r}, but the seal indexes "
                 f"{len(indexed)} file(s) under {relpath}/")
+        # Two full revisions are compared. A malformed one is reported once,
+        # by its own check, and never also compared.
+        leg_revision = record.get("leg_revision")
         if ((gitlink, leg) == VALIDATOR_LEG and validator_revision is not None
-                and record.get("leg_revision") != validator_revision):
+                and isinstance(leg_revision, str)
+                and _FULL_REVISION_RE.match(leg_revision)
+                and leg_revision != validator_revision):
             problems.append(
                 f"validator_revision {validator_revision!r} is not the sealed "
-                f"{gitlink} {leg} leg's revision "
-                f"{record.get('leg_revision')!r}")
+                f"{gitlink} {leg} leg's revision {leg_revision!r}")
     precheck = manifest.get("precheck")
     if not (isinstance(precheck, dict)
             and precheck.get("entry") == RENDER_ENTRY
