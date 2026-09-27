@@ -1389,25 +1389,27 @@ def seal_file_index(seal_dir) -> dict[str, str]:
     return index
 
 
-# Whether this platform opens a file relative to a directory handle. Every
-# parent the nightly runs on does. One that cannot falls back to paths.
-_DIR_FD = os.open in os.supports_dir_fd and os.stat in os.supports_dir_fd
+# Whether this platform opens and makes an entry relative to a directory
+# handle. Every parent the nightly runs on does. One that cannot falls back
+# to paths.
+_DIR_FD = (os.open in os.supports_dir_fd and os.stat in os.supports_dir_fd
+           and os.mkdir in os.supports_dir_fd)
 
 
-def _open_directory(path) -> int | None:
-    """A handle on the directory at `path`, opened without following a link
-    at its last component, or None where the platform opens nothing relative
-    to a handle."""
+def _open_directory(path, *, dir_fd=None) -> int | None:
+    """A handle on the directory at `path` (relative to `dir_fd` when one is
+    given), opened without following a link at its last component, or None
+    where the platform opens nothing relative to a handle."""
     if not _DIR_FD:
         return None
     return os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
-                   | getattr(os, "O_NOFOLLOW", 0))
+                   | getattr(os, "O_NOFOLLOW", 0), dir_fd=dir_fd)
 
 
-def _replaced_seal_directory() -> SealRefused:
+def _replaced_seal_directory(what: str = "manifest") -> SealRefused:
     return SealRefused(
         "the seal directory is no longer the one the lane created: sealed "
-        "code ran inside it, and the manifest is never written anywhere else")
+        f"code ran inside it, and the {what} is never written anywhere else")
 
 
 def _seal_directory_identity(seal_dir) -> tuple[int, int]:
@@ -1482,6 +1484,62 @@ def _write_new_manifest(seal_dir, text: str, *, identity=None) -> None:
             os.close(directory)
 
 
+def _occupied_recipe_path() -> SealRefused:
+    folder = SEAL_RECIPE_RELPATH.split("/")[0]
+    return SealRefused(
+        f"the seal already holds {folder}/ that the lane did not make: sealed "
+        "code ran inside the seal before the recipe was written, and the "
+        "recipe is never written through anything it left")
+
+
+def _write_new_recipe(seal_dir, text: str, *, identity=None) -> None:
+    """Create the recipe the way the manifest is created (Copilot, PR #1166).
+    The validator's probe runs sealed code with the seal writable before the
+    recipe is written, and the probe's after-index cannot see what a process
+    it left behind puts at the recipe's path later: a link out, a hard link
+    to a host file, or a directory of its own.
+
+    So the recipe's directory is MADE here, exclusively, relative to a handle
+    on the seal directory as created (with `identity`, the handle must be
+    that very directory), and opened without following a link; the recipe is
+    created in it `O_EXCL|O_NOFOLLOW`. Anything already at either path
+    refuses the seal, and nothing is written through it."""
+    folder, name = SEAL_RECIPE_RELPATH.split("/")
+    try:
+        directory = _open_directory(seal_dir)
+    except OSError as exc:
+        raise _replaced_seal_directory("recipe") from exc
+    try:
+        if directory is not None and identity is not None:
+            info = os.fstat(directory)
+            if (info.st_dev, info.st_ino) != tuple(identity):
+                raise _replaced_seal_directory("recipe")
+        place = folder if directory is not None else Path(seal_dir) / folder
+        try:
+            os.mkdir(place, dir_fd=directory)
+        except FileExistsError as exc:
+            raise _occupied_recipe_path() from exc
+        try:
+            recipe_dir = _open_directory(place, dir_fd=directory)
+        except OSError as exc:
+            # What the lane just made is no longer there as a directory of
+            # its own: a link or a file took its place.
+            raise _occupied_recipe_path() from exc
+        try:
+            target = name if recipe_dir is not None else Path(place) / name
+            try:
+                _create_new_file(target, text.encode("utf-8"),
+                                 dir_fd=recipe_dir)
+            except FileExistsError as exc:
+                raise _occupied_recipe_path() from exc
+        finally:
+            if recipe_dir is not None:
+                os.close(recipe_dir)
+    finally:
+        if directory is not None:
+            os.close(directory)
+
+
 # THE SEAL RESULT IS THE LANE'S OWN FILE (Copilot, PR #1166). It sits outside
 # the seal, at a fixed path the workflow reads to gate the dispatch, and
 # sealed code runs before it is written. So its path is cleared before the
@@ -1489,10 +1547,12 @@ def _write_new_manifest(seal_dir, text: str, *, identity=None) -> None:
 # made: the seal is refused, the entry is removed without being followed,
 # and the lane's own result is created in its place, exclusively. The entry
 # may be a file, a link or a real directory, and a directory is removed with
-# everything under it, so the record step always reads the lane's own
-# result rather than falling back to `unknown`. The path is therefore held
-# inside the checkout first (`_seal_result_path`), and its directory is held
-# by a handle from before sealed code runs (`_HeldResultPath`).
+# everything under it, so the record step reads the lane's own result rather
+# than falling back to `unknown`. An entry the lane cannot remove leaves no
+# result of its own, and the step fails instead (`SEAL_RESULT_UNWRITTEN_EXIT`).
+# The path is therefore held inside the checkout first (`_seal_result_path`),
+# and its directory is held by a handle from before sealed code runs
+# (`_HeldResultPath`).
 SEAL_RESULT_PLANTED = (
     "the seal result's path held an entry the lane did not write: sealed "
     "code ran before the result was written, so the seal is refused rather "
@@ -1502,6 +1562,17 @@ SEAL_RESULT_DIRECTORY_REPLACED = (
     "sealed code ran, so the path the workflow reads leads somewhere else: "
     "the seal is refused, and its result is written only into the directory "
     "the lane held")
+# A SEAL RESULT THE LANE COULD NOT WRITE FAILS THE STEP (Copilot, PR #1166).
+# The workflow reads `sealed` from the seal result right after this phase, so
+# a result the lane could not write cannot withhold the dispatch: whatever
+# sits at its path would be read in its place, stale or planted, and sealed
+# code can plant one there and leave it where the lane cannot remove it. So
+# a seal phase given `--seal-result-out` that did not write its own result
+# returns this exit code, and the step's `bash -e` stops before `sealed` is
+# read: nothing is uploaded, and nothing is dispatched. The record step reads
+# the result only after a seal step that succeeded. A result path the lane
+# cannot clear before the seal starts is refused, and no sealed code runs.
+SEAL_RESULT_UNWRITTEN_EXIT = 3
 
 
 def _seal_result_path(given, within) -> Path:
@@ -1595,17 +1666,21 @@ class _HeldResultPath:
             return SEAL_RESULT_PLANTED
         return None
 
-    def write(self, payload: dict) -> None:
+    def write(self, payload: dict) -> bool:
         """Clear the result's name, create the lane's own result there
-        exclusively, and let the directory go. Never raises for the write: a
-        result that cannot be written leaves the dispatch withheld."""
+        exclusively, and let the directory go. True when the result was
+        written. Never raises for the write: a result that cannot be written
+        is reported, and the seal phase then fails its step
+        (`SEAL_RESULT_UNWRITTEN_EXIT`)."""
         try:
             self.clear()
             _create_new_file(self._name(), (json.dumps(
                 payload, indent=2, sort_keys=True) + "\n").encode("utf-8"),
                 dir_fd=self.directory)
+            return True
         except OSError as exc:
             print(f"  ::warning::could not write the seal result: {exc}")
+            return False
         finally:
             if self.directory is not None:
                 os.close(self.directory)
@@ -2764,7 +2839,8 @@ def seal_source(
       * a validator copied from another revision of the product than the
         sealed openXdox leg, or from no product tree at all, or held beside
         no openXdox leg, seals nothing;
-      * a recipe that cannot be read seals nothing;
+      * a recipe that cannot be read, or whose path in the seal already
+        holds anything sealed code left there, seals nothing;
       * a sealed render unit that cannot render the snapshot, or a sealed
         validator that cannot run over it or answers no verdict as the
         validator reports one, seals nothing;
@@ -2943,9 +3019,11 @@ def seal_source(
         raise SealRefused(
             f"could not read {recipe_path} from {recipe_repo} at "
             f"{_short(recipe_revision)}")
-    recipe_file = seal_root / SEAL_RECIPE_RELPATH
-    recipe_file.parent.mkdir(parents=True, exist_ok=True)
-    recipe_file.write_text(recipe_text, encoding="utf-8")
+    # THE RECIPE IS WRITTEN AS THE MANIFEST IS (Copilot, PR #1166): its
+    # directory made exclusively and the recipe created `O_EXCL|O_NOFOLLOW`
+    # inside the seal directory as created, since the probe's sealed code ran
+    # with the seal writable before this point.
+    _write_new_recipe(seal_root, recipe_text, identity=seal_identity)
 
     index = seal_file_index(seal_root)
     # THE CHILD'S RENDER AND ITS `--strict`, RUN HERE FIRST, over exactly the
@@ -3946,13 +4024,17 @@ def run_refresh_lane(
 # a copy of the pinned product validator.
 # --------------------------------------------------------------------------
 
-def main(argv: list[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> int | None:
     """CLI entry. Void by contract, like the snapshot lane's, but only for a
     VALID phase: every path through the lane's own logic for `decide`, `seal`,
     `pin`, `report` or `record-pr` — including a total failure, reported as
     SKIPPED (a refused seal included) — falls through and the process exits 0,
     so the deterministic doc-health results and the delivered report are never
-    affected. A phase argparse
+    affected. ONE lane path is outside it: a seal phase that could not write
+    its own seal result returns `SEAL_RESULT_UNWRITTEN_EXIT`, since the
+    workflow gates the dispatch on that result and only the step's failure can
+    then withhold it. That step is `continue-on-error`, so the doc-health
+    results and the report are unaffected by it too. A phase argparse
     itself refuses — an unknown value, including the retired `build` — is a
     USAGE error: argparse prints the fixed choice set and exits non-zero
     (`SystemExit(2)`) before any lane logic runs. That exit code is
@@ -4077,9 +4159,12 @@ def main(argv: list[str] | None = None) -> None:
         # THE PARENT SEAL. Never raises out of here: like every other path in
         # this lane a refusal is a RECORDED outcome and exit 0, and the
         # workflow gates the dispatch on `sealed` rather than on this
-        # process's status. A refused seal costs one cycle of served-plane
-        # freshness — the same bounded cost the readiness skip costs — and the
-        # next run catches up in one hop.
+        # process's status. The one exception is a seal result the lane could
+        # not write: with no result of its own to gate on, the process's
+        # status is what withholds the dispatch (`SEAL_RESULT_UNWRITTEN_EXIT`).
+        # A refused seal costs one cycle of served-plane freshness — the same
+        # bounded cost the readiness skip costs — and the next run catches up
+        # in one hop.
         try:
             decision = json.loads(
                 Path(args.decision_in).read_text(encoding="utf-8"))
@@ -4093,7 +4178,11 @@ def main(argv: list[str] | None = None) -> None:
         # A HANDLE, BEFORE ANYTHING AT IT IS REMOVED AND BEFORE SEALED CODE
         # RUNS (`_hold_seal_result_path`). A path it refuses gets nothing
         # written and nothing removed, and nothing is sealed, since a seal
-        # whose result cannot be written could never be dispatched.
+        # whose result cannot be written could never be dispatched. A path it
+        # holds but cannot clear is refused too, before any sealed code runs:
+        # whatever sits there would be read in place of the lane's own result
+        # (Copilot, PR #1166). Either way the phase fails its step
+        # (`SEAL_RESULT_UNWRITTEN_EXIT`).
         result, result_refused = None, None
         if args.seal_result_out:
             try:
@@ -4105,7 +4194,9 @@ def main(argv: list[str] | None = None) -> None:
             try:
                 result.clear()
             except OSError as exc:
-                print(f"  ::warning::could not clear the seal result: {exc}")
+                result_refused = (
+                    f"the seal result's path could not be cleared ({exc}), so "
+                    "the lane could not write its own result there")
         if result_refused is not None:
             reason = result_refused
         elif load_error is not None:
@@ -4140,14 +4231,19 @@ def main(argv: list[str] | None = None) -> None:
                                       manifest=manifest,
                                       strict_failed=strict_failed,
                                       detail=strict_detail)
+        written = False
         if result is not None:
-            refusal = result.refusal()
-            if refusal is not None:
-                manifest, reason = None, refusal
-                strict_failed, strict_detail = False, []
-                payload = seal_result_payload(sealed=False, reason=reason,
-                                              manifest=None)
-            result.write(payload)
+            # Only a seal that ran can have left anything at the result's
+            # path. A path that could not be cleared still holds what was
+            # there before, and that is not the seal's doing.
+            if result_refused is None:
+                refusal = result.refusal()
+                if refusal is not None:
+                    manifest, reason = None, refusal
+                    strict_failed, strict_detail = False, []
+                    payload = seal_result_payload(sealed=False, reason=reason,
+                                                  manifest=None)
+            written = result.write(payload)
         if manifest is not None:
             print(f"::notice::{LANE}: SEALED {manifest['artifact_name']} — "
                   f"source_head={_short(manifest['source_head'])}, "
@@ -4161,6 +4257,12 @@ def main(argv: list[str] | None = None) -> None:
         else:
             print(f"::warning::{LANE}: NOT SEALED — {reason}; nothing "
                   "dispatched, next run catches up in one hop")
+        if args.seal_result_out and not written:
+            print(f"::error::{LANE}: the seal result could not be written at "
+                  f"{args.seal_result_out!r}, so this step fails rather than "
+                  "leave the dispatch to whatever sits at that path: nothing "
+                  "is uploaded, and nothing is dispatched")
+            return SEAL_RESULT_UNWRITTEN_EXIT
         return
 
     if args.phase == "record-pr":
