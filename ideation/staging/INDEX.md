@@ -2694,14 +2694,20 @@ repo scope.
   imports alone, as sketched), leaving the conflict open for the other
   seven modules if they stay on (b) or (c) instead of being retargeted too.
 - **Conflict, named rather than new.** The topic's own subject IS a
-  currently-tolerated conflict with `corpus-adapter-seam`'s Requirement 1;
-  R1Q6 (d)'s exclusion holds it open for release 1 only, and
+  currently-tolerated conflict with `corpus-adapter-seam`'s Requirement 1.
+  R1Q6 (d) rules only a release-1-scoped requirement-9 exclusion; it does
+  NOT waive Requirement 1 or accept this conflict, which stands as its own
+  unresolved question until this arc's ruling. Separately,
   `add-neutral-product-standalone-operability`'s archive act must report
   requirement 9 as an open extraction for openXdox-code until this arc lands.
 - **Exit path.** A proposal once Brett rules among the direction options
   (and, if raised, the split option) and R1Q23's timing question is answered.
-  Most likely a realization-only change retargeting `DOC_HEALTH_SURFACE`'s
-  eight modules, with a `corpus-adapter-seam` / `neutral-product-pin` spec
-  delta only if the ruled option needs new contract text. Plan 034 names no
-  task for the fix itself, only for raising the question (T008), so the exit
-  proposal owes its own task list or a named owning lane.
+  (b)/(c) alone close requirement 9 (the suite runs green) without touching a
+  single production import, leaving the `corpus-adapter-seam` conflict open
+  as its own question to Brett; only (a)-as-genuine-extraction, or the split
+  for whatever it retargets, also retargets `DOC_HEALTH_SURFACE`'s imports
+  and closes that conflict too — module by module, not automatically. A
+  `corpus-adapter-seam` / `neutral-product-pin` spec delta rides along only
+  if the ruled shape needs new contract text. Plan 034 names no task for the
+  fix itself, only for raising the question (T008), so the exit proposal owes
+  its own task list or a named owning lane.
