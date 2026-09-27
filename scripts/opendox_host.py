@@ -416,18 +416,25 @@ def _seam_name(module: Any, call: str) -> str:
     return f"{module.__name__}.{call}"
 
 
-def _holds_a_registration(module: Any, call: str) -> bool | None:
+def _holds_a_registration(module: Any, call: str, value: Any) -> bool | None:
     """Whether the seam behind `call` holds a registration already, read
-    through that seam's own public query. None for a seam with no query.
+    through that seam's own public query, before `value` is registered there.
+    None where that cannot be told, and a None is never taken back.
 
-    The scope reads as empty while `session_notebook_scope()` answers openDox's
-    default. A host that registered the default name explicitly reads as empty
-    too, and the registration below then refuses before it writes anything, so
-    nothing is taken back that this call did not write."""
+    THE SCOPE HAS NO SUCH QUERY, so it is read off `session_notebook_scope()`,
+    which answers openDox's default both when nothing is registered and when
+    the default name was registered explicitly (Copilot, PR #1181). The two
+    differ only when `value` is the default name too, since any other name is
+    refused over an explicit default before it is written. So for the default
+    name the answer is None, and a registration that may have been there
+    before this call is left in place rather than guessed away. This host
+    registers `documents`, so its own scope is always told apart."""
     if call not in _TAKE_BACK:
         return None
     query, _ = _TAKE_BACK[call]
     if query is None:
+        if value == module.DEFAULT_SESSION_NOTEBOOK_SCOPE:
+            return None
         return (module.session_notebook_scope()
                 != module.DEFAULT_SESSION_NOTEBOOK_SCOPE)
     return bool(getattr(module, query)())
@@ -477,7 +484,7 @@ def register_seams() -> tuple[str, ...]:
     written: list[tuple[Any, str]] = []
     try:
         for module, call, implementation in declared:
-            held = _holds_a_registration(module, call)
+            held = _holds_a_registration(module, call, implementation)
             getattr(module, call)(implementation)
             if held is False:
                 written.append((module, call))

@@ -495,9 +495,9 @@ class _FakeSeams:
     def _empty(self, key):
         return lambda: self.state.update({key: None})
 
-    def table(self):
+    def table(self, scope="documents"):
         return (
-            (self.workbench, "register_session_notebook_scope", "documents"),
+            (self.workbench, "register_session_notebook_scope", scope),
             (self.workbench, "register_health_check", "host check"),
             (self.serve_wire, "register_doxbench_validators", "host validators"),
             (self.packet, "register_status_exemption", "host rail"),
@@ -530,6 +530,31 @@ def test_a_refusal_keeps_what_this_host_had_already_registered(monkeypatch):
     assert fake.state == {"scope": "documents", "check": "host check",
                           "validators": None, "rail": "another host's rail",
                           "home": None}
+
+
+def test_a_default_scope_registered_before_this_call_is_not_taken_back(
+        monkeypatch):
+    """Copilot, PR #1181: `session_notebook_scope()` answers the default both
+    when nothing is registered and when the default name was registered
+    explicitly. A table that registers the default name therefore cannot tell
+    whether its registration wrote anything, and a refusal later in the call
+    leaves the scope as it found it rather than emptying a registration made
+    before the call."""
+    fake = _FakeSeams(scope="all", validators="another host's validators")
+    monkeypatch.setattr(opendox_host, "seams", lambda: fake.table(scope="all"))
+    with pytest.raises(_FakeSeams.Refused):
+        opendox_host.register_seams()
+    assert fake.state["scope"] == "all"
+    assert fake.state["check"] is None
+
+
+def test_the_hosts_own_scope_is_never_the_ambiguous_one():
+    """The one state the scope's public query cannot tell apart matters only
+    for the default name, and this host registers another."""
+    assert opendox_host.SESSION_NOTEBOOK_SCOPE != corpus_adapter.SCOPE_ALL
+    if LEG_HAS_THE_SEAMS:
+        assert (opendox_host.SESSION_NOTEBOOK_SCOPE
+                != workbench.DEFAULT_SESSION_NOTEBOOK_SCOPE)
 
 
 def test_a_refused_seam_on_the_pinned_leg_takes_the_others_back():
