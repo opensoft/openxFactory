@@ -618,12 +618,14 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   file is not itself one of the protected suites, so nothing above stops an
   arc landing from adding its own authorizing entry alongside the edit it
   accompanies: T059/T086 must treat the allow-list as immutable to the
-  measured arc — excepting only T043's own bootstrap landing that creates
-  the file — and must read it from a fixed, pre-arc revision, never the
-  arc's own working tree, before applying any subtraction; a landing that
-  touches the allow-list itself outside that one bootstrap exception is
-  refused like any other unentered edit to a protected path. This
-  bookkeeping amendment does NOT itself touch the Python above: `edited =
+  measured arc from the moment T043's bootstrap landing creates it — the
+  committed tree AT OR IMMEDIATELY AFTER that landing is the one fixed
+  snapshot every later check reads, never a later landing's own working
+  tree, so T043's own first entry IS subtractable while no later landing's
+  self-authorizing edit to the file is. A landing after T043's bootstrap
+  that itself touches the allow-list is refused like any other unentered
+  edit to a protected path. This bookkeeping amendment does NOT itself
+  touch the Python above: `edited =
   touched & suites` still computes and refuses on every
   intersection exactly as written, with no allow-list read, until the file
   exists and T059/T086 wire the subtraction into both falsifiers' checks.
@@ -1489,12 +1491,14 @@ that does not name a platform.
   file is not itself one of the protected suites, so nothing above stops an
   arc landing from adding its own authorizing entry alongside the edit it
   accompanies: T059/T086 must treat the allow-list as immutable to the
-  measured arc — excepting only T043's own bootstrap landing that creates
-  the file — and must read it from a fixed, pre-arc revision, never the
-  arc's own working tree, before applying any subtraction; a landing that
-  touches the allow-list itself outside that one bootstrap exception is
-  refused like any other unentered edit to a protected path. This
-  bookkeeping amendment does NOT itself touch the Python above: `edited =
+  measured arc from the moment T043's bootstrap landing creates it — the
+  committed tree AT OR IMMEDIATELY AFTER that landing is the one fixed
+  snapshot every later check reads, never a later landing's own working
+  tree, so T043's own first entry IS subtractable while no later landing's
+  self-authorizing edit to the file is. A landing after T043's bootstrap
+  that itself touches the allow-list is refused like any other unentered
+  edit to a protected path. This bookkeeping amendment does NOT itself
+  touch the Python above: `edited =
   touched & {...}` still computes and refuses on every
   intersection exactly as written, with no allow-list read, until the file
   exists and T059/T086 wire the subtraction into both falsifiers' checks.
