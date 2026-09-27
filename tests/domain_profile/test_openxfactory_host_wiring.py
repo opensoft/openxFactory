@@ -72,13 +72,14 @@ from opendox.profile_proxy import profile_openxfactory as proxy  # noqa: E402
 LANE_ROUTES = serve_openxfactory_lanes.LaneRoutes
 
 #: The five registration calls openDox-code's phase 1 declared, each on the
-#: module that declares it (T020, T025, T026, T027).
+#: module that declares it (T020, T025, T026, T027), in the order the host
+#: registers them: the home corpus last (`opendox_host.seams()` says why).
 SEAM_CALLS = (
-    (corpus_adapter, "register_home"),
     (workbench, "register_session_notebook_scope"),
     (workbench, "register_health_check"),
     (serve_wire, "register_doxbench_validators"),
     (doxbench_packet, "register_status_exemption"),
+    (corpus_adapter, "register_home"),
 )
 
 #: Which of the two pinned shapes this run composes, read off the LEG: T011
@@ -423,12 +424,150 @@ def test_the_seam_table_is_the_five_calls_in_their_registration_order():
     table = opendox_host.seams()
     assert [(module, call) for module, call, _ in table] == list(SEAM_CALLS)
     assert [value for _, _, value in table] == [
-        opendox_host.home_corpus,
         opendox_host.SESSION_NOTEBOOK_SCOPE,
         opendox_host.scoped_doc_health,
         opendox_host.doxbench_validators,
         doxbench_status_exemption,
+        opendox_host.home_corpus,
     ]
+
+
+def test_every_seam_but_the_last_can_be_taken_back():
+    """A refusal takes back what the call wrote, through each seam's own
+    public calls, so every seam before the last has them. The last is the home
+    seam, which openDox gives no call that empties it, and which refuses
+    nothing callable, so nothing can refuse after it is written."""
+    calls = [call for _, call in SEAM_CALLS]
+    assert calls[-1] == "register_home"
+    assert sorted(opendox_host._TAKE_BACK) == sorted(calls[:-1])
+    if not LEG_HAS_THE_SEAMS:
+        return
+    for module, call in SEAM_CALLS[:-1]:
+        query, empty = opendox_host._TAKE_BACK[call]
+        for name in filter(None, (query, empty)):
+            assert callable(getattr(module, name, None)), f"{module.__name__}.{name}"
+    assert workbench.session_notebook_scope() != workbench.DEFAULT_SESSION_NOTEBOOK_SCOPE, (
+        "the host's scope reads as registered through the query the "
+        "take-back uses")
+
+
+class _FakeSeams:
+    """Four seams in the shapes openDox's own take, plus a home seam with no
+    call that empties it: the same object again is a no-op, a different one
+    is refused, and each has the public query and emptying calls the host's
+    take-back reads."""
+
+    class Refused(Exception):
+        pass
+
+    def __init__(self, **held):
+        self.state = {"scope": None, "check": None, "validators": None,
+                      "rail": None, "home": None, **held}
+        self.workbench = types.SimpleNamespace(
+            __name__="fake_workbench", DEFAULT_SESSION_NOTEBOOK_SCOPE="all",
+            register_session_notebook_scope=self._register("scope"),
+            session_notebook_scope=lambda: self.state["scope"] or "all",
+            unregister_session_notebook_scope=self._empty("scope"),
+            register_health_check=self._register("check"),
+            health_check_registered=lambda: self.state["check"] is not None,
+            unregister_health_check=self._empty("check"))
+        self.serve_wire = types.SimpleNamespace(
+            __name__="fake_serve_wire",
+            register_doxbench_validators=self._register("validators"),
+            doxbench_validators_registered=lambda: self.state["validators"] is not None,
+            unregister_doxbench_validators=self._empty("validators"))
+        self.packet = types.SimpleNamespace(
+            __name__="fake_packet",
+            register_status_exemption=self._register("rail"),
+            status_exemption_registered=lambda: self.state["rail"] is not None,
+            unregister_status_exemption=self._empty("rail"))
+        self.corpus = types.SimpleNamespace(
+            __name__="fake_corpus_adapter",
+            register_home=lambda factory: self.state.update(home=factory))
+
+    def _register(self, key):
+        def register(value):
+            if self.state[key] is not None and self.state[key] != value:
+                raise self.Refused(key)
+            self.state[key] = value
+        return register
+
+    def _empty(self, key):
+        return lambda: self.state.update({key: None})
+
+    def table(self):
+        return (
+            (self.workbench, "register_session_notebook_scope", "documents"),
+            (self.workbench, "register_health_check", "host check"),
+            (self.serve_wire, "register_doxbench_validators", "host validators"),
+            (self.packet, "register_status_exemption", "host rail"),
+            (self.corpus, "register_home", "host home"),
+        )
+
+
+def test_a_refused_seam_leaves_none_of_this_calls_writes_behind(monkeypatch):
+    """Copilot, PR #1181: the seams are registered one by one, so a seam that
+    refuses must not leave the ones before it written. Here the validators
+    seam already holds another host's factory."""
+    fake = _FakeSeams(validators="another host's validators")
+    monkeypatch.setattr(opendox_host, "seams", fake.table)
+    with pytest.raises(_FakeSeams.Refused):
+        opendox_host.register_seams()
+    assert fake.state == {"scope": None, "check": None,
+                          "validators": "another host's validators",
+                          "rail": None, "home": None}
+
+
+def test_a_refusal_keeps_what_this_host_had_already_registered(monkeypatch):
+    """An idempotent second call writes nothing where the seam already holds
+    this host's object, so a refusal later in that call empties nothing the
+    first call registered."""
+    fake = _FakeSeams(scope="documents", check="host check",
+                      rail="another host's rail")
+    monkeypatch.setattr(opendox_host, "seams", fake.table)
+    with pytest.raises(_FakeSeams.Refused):
+        opendox_host.register_seams()
+    assert fake.state == {"scope": "documents", "check": "host check",
+                          "validators": None, "rail": "another host's rail",
+                          "home": None}
+
+
+def test_a_refused_seam_on_the_pinned_leg_takes_the_others_back():
+    """The same on the leg's own seams, in a SUBPROCESS, because they are
+    process-wide."""
+    proc = _run("""
+        import sys
+        sys.path.insert(0, {scripts!r})
+        import carved_reach
+        carved_reach.install()
+        import opendox_host
+        from opendox import corpus_adapter, doxbench_packet, serve_wire, workbench
+        if not hasattr(serve_wire, "register_doxbench_validators"):
+            print("LEG HAS NO SEAMS", opendox_host.register_seams())
+            raise SystemExit(0)
+        other = lambda: {{}}
+        serve_wire.register_doxbench_validators(other)
+        try:
+            opendox_host.register_seams()
+        except serve_wire.DoxbenchValidatorsAlreadyRegistered:
+            print("REFUSED")
+        print("scope", workbench.session_notebook_scope())
+        print("check", workbench.health_check_registered())
+        print("rail", doxbench_packet.status_exemption_registered())
+        try:
+            corpus_adapter.home()
+        except corpus_adapter.CorpusRefused:
+            print("home empty")
+        serve_wire.unregister_doxbench_validators()
+        print("after", opendox_host.register_seams()[-1])
+    """)
+    assert proc.returncode == 0, proc.stderr
+    if LEG_HAS_THE_SEAMS:
+        assert proc.stdout.splitlines() == [
+            "REFUSED", "scope all", "check False", "rail False", "home empty",
+            "after opendox.corpus_adapter.register_home"], proc.stdout
+    else:
+        assert proc.stdout.splitlines() == ["LEG HAS NO SEAMS ()"], proc.stdout
 
 
 def test_registering_imports_neither_factorys_package():

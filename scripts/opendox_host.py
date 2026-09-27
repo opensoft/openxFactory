@@ -375,6 +375,12 @@ def seams() -> tuple[tuple[Any, str, Any], ...]:
     """Every seam this host fills, as `(module, registration call, what it
     registers)`, in the order `register_openxfactory()` registers them.
 
+    THE HOME CORPUS IS LAST, on purpose. `register_home()` always overwrites,
+    so it refuses nothing this host registers, and openDox gives the home seam
+    no call that empties it again. Registered last, no later seam can refuse
+    after it has been written, so `register_seams()` never needs to take it
+    back (see "NONE OF THIS CALL'S WRITES SURVIVE A REFUSAL" there).
+
     Resolved on the call, like everything else here that lives at a pinned
     leg. Importing these modules adds nothing that reaches `sys.path`
     (see "EACH IMPLEMENTATION IS RESOLVED WHEN IT IS CALLED" above).
@@ -383,16 +389,48 @@ def seams() -> tuple[tuple[Any, str, Any], ...]:
     from opendox import corpus_adapter, doxbench_packet, serve_wire, workbench
 
     return (
-        (corpus_adapter, "register_home", home_corpus),
         (workbench, "register_session_notebook_scope", SESSION_NOTEBOOK_SCOPE),
         (workbench, "register_health_check", scoped_doc_health),
         (serve_wire, "register_doxbench_validators", doxbench_validators),
         (doxbench_packet, "register_status_exemption", doxbench_status_exemption),
+        (corpus_adapter, "register_home", home_corpus),
     )
+
+
+#: For each seam `register_seams()` may have to take back, the seam's own
+#: public calls: `(the call that answers whether it holds a registration, the
+#: call that empties it)`. The session notebook's scope has no such query, so
+#: `_holds_a_registration()` reads it off `session_notebook_scope()`. The home
+#: seam has neither, and `seams()` registers it last for that reason.
+_TAKE_BACK: dict[str, tuple[str | None, str]] = {
+    "register_session_notebook_scope": (None, "unregister_session_notebook_scope"),
+    "register_health_check": ("health_check_registered", "unregister_health_check"),
+    "register_doxbench_validators": ("doxbench_validators_registered",
+                                     "unregister_doxbench_validators"),
+    "register_status_exemption": ("status_exemption_registered",
+                                  "unregister_status_exemption"),
+}
 
 
 def _seam_name(module: Any, call: str) -> str:
     return f"{module.__name__}.{call}"
+
+
+def _holds_a_registration(module: Any, call: str) -> bool | None:
+    """Whether the seam behind `call` holds a registration already, read
+    through that seam's own public query. None for a seam with no query.
+
+    The scope reads as empty while `session_notebook_scope()` answers openDox's
+    default. A host that registered the default name explicitly reads as empty
+    too, and the registration below then refuses before it writes anything, so
+    nothing is taken back that this call did not write."""
+    if call not in _TAKE_BACK:
+        return None
+    query, _ = _TAKE_BACK[call]
+    if query is None:
+        return (module.session_notebook_scope()
+                != module.DEFAULT_SESSION_NOTEBOOK_SCOPE)
+    return bool(getattr(module, query)())
 
 
 def register_seams() -> tuple[str, ...]:
@@ -409,9 +447,16 @@ def register_seams() -> tuple[str, ...]:
     reading this repository's code through some seams and meeting an empty
     seam's refusal, or openDox's own default, at the rest.
 
-    Each call's own refusal reaches the caller unchanged: a DIFFERENT object
-    already registered is the split every seam refuses, and it is not
-    swallowed here.
+    NONE OF THIS CALL'S WRITES SURVIVE A REFUSAL (Copilot, PR #1181). A seam
+    that already holds a DIFFERENT object refuses this host's, which is the
+    split every seam exists to refuse, and the refusal reaches the caller
+    unchanged. Before it does, every seam this call wrote is emptied again
+    through its own public call, in reverse order, so the process is left as
+    this call found it rather than half hosted. A seam that already held this
+    host's object was not written, because its registration is a no-op, and it
+    is not emptied. The profile registration that precedes this call is
+    `register_openxfactory()`'s and stays, and its caller's start fails with
+    the refusal.
     """
     declared = seams()
     missing = [_seam_name(module, call) for module, call, _ in declared
@@ -429,8 +474,17 @@ def register_seams() -> tuple[str, ...]:
             "some seams and an empty seam, or openDox's own default, at the "
             "others. Pin a leg that carries all five, or one that carries "
             "none; see contracts/opendox-pin.yaml.")
-    for module, call, implementation in declared:
-        getattr(module, call)(implementation)
+    written: list[tuple[Any, str]] = []
+    try:
+        for module, call, implementation in declared:
+            held = _holds_a_registration(module, call)
+            getattr(module, call)(implementation)
+            if held is False:
+                written.append((module, call))
+    except Exception:
+        for module, call in reversed(written):
+            getattr(module, _TAKE_BACK[call][1])()
+        raise
     return tuple(_seam_name(module, call) for module, call, _ in declared)
 
 
