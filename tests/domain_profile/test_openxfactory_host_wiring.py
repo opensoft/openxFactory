@@ -1,0 +1,469 @@
+"""openxFactory's host wiring for openDox's phase-1 seams (plan 034 T045, T046).
+
+WHAT THIS FILE POLICES, the openxFactory half of #1144 tasks 2.2, 4.1 and 4.3:
+
+  1. **T045, the lanes column** (R1Q1 (a), `#656` comment `5817152735`).
+     `scripts/profile_openxfactory.py` declares `LaneRoutes` under openDox's
+     handler-contribution facet, and the composite profile forwards it, so the
+     class openDox's server binds carries the lanes column's methods, each the
+     column's own function.
+  2. **T046, the other host wiring.** One process-start call,
+     `opendox_host.register_openxfactory()`, fills every seam openDox-code's
+     phase 1 declared with the code its reach used to import: the home corpus
+     (4.1), the session notebook's scope (R1Q9 (a)), the scoped health check,
+     the doxBench validators and the status-exemption rail (4.3). Its start
+     asserts that the profile it registered is the one openDox answers (R1Q4
+     (a)).
+  3. **What a hosted request gets is unchanged.** The session notebook lists
+     the same documents with the same bytes as the rule it replaces, a scoped
+     health run answers what the old in-process run answered, and the doxBench
+     validators and rail are the host's own.
+
+TWO PINNED SHAPES, AND EVERY TEST HOLDS AT BOTH. Until plan 034's T047 moves
+`contracts/opendox-pin.yaml`, the pinned openDox leg predates the seams: its
+`DashboardHandler` still takes `LaneRoutes` as a base, and its reaches import
+this repository's packages by name. From T047's pin on, the leg carries T010's
+facet, T011's handler without the lanes base, and the five seams. A test whose
+subject exists only at the second shape asserts, at the first, the fact that
+makes it absent, so no test passes by skipping. `LEG_HAS_THE_SEAMS` is read
+off the leg's own classes, never off openxFactory's replica of
+`route_extension`, and `test_the_pinned_leg_is_one_of_the_two_shapes` refuses
+any third one.
+
+THE REGISTRIES ARE PROCESS-WIDE, so a test that needs a fresh one runs in a
+SUBPROCESS, as `test_openxfactory_profile.py` explains for the profile.
+"""
+
+from __future__ import annotations
+
+import subprocess
+import sys
+import textwrap
+import types
+from datetime import date
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SCRIPTS = REPO_ROOT / "scripts"
+
+# `tests/conftest.py` has already installed the reach and made the ONE call.
+import opendox_host                                          # noqa: E402
+import profile_openxfactory                                  # noqa: E402
+from corpus_adapter_openxfactory import home_corpus as adapter_home_corpus  # noqa: E402
+from doc_health import corpus as dh_corpus                   # noqa: E402
+from ideation_dashboard import doxbench_contracts            # noqa: E402
+from ideation_dashboard import doxbench_status_exemption     # noqa: E402
+from ideation_dashboard import serve_openxfactory_lanes      # noqa: E402
+from opendox import corpus_adapter                           # noqa: E402
+from opendox import doxbench_packet                          # noqa: E402
+from opendox import domain_profile as opendox_registry      # noqa: E402
+from opendox import serve as serve_mod                       # noqa: E402
+from opendox import serve_wire                               # noqa: E402
+from opendox import workbench                                # noqa: E402
+from opendox.profile_proxy import profile_openxfactory as proxy  # noqa: E402
+
+LANE_ROUTES = serve_openxfactory_lanes.LaneRoutes
+
+#: The five registration calls openDox-code's phase 1 declared, each on the
+#: module that declares it (T020, T025, T026, T027).
+SEAM_CALLS = (
+    (corpus_adapter, "register_home"),
+    (workbench, "register_session_notebook_scope"),
+    (workbench, "register_health_check"),
+    (serve_wire, "register_doxbench_validators"),
+    (doxbench_packet, "register_status_exemption"),
+)
+
+#: Which of the two pinned shapes this run composes, read off the LEG: T011
+#: took `LaneRoutes` off `DashboardHandler`'s bases in the same phase-1 commit
+#: that carries the five seams.
+LEG_HAS_THE_SEAMS = LANE_ROUTES not in serve_mod.DashboardHandler.__mro__
+
+
+def _lane_methods() -> tuple[str, ...]:
+    return tuple(sorted(name for name in vars(LANE_ROUTES)
+                        if not (name.startswith("__") and name.endswith("__"))))
+
+
+def _run(program: str) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        [sys.executable, "-c", textwrap.dedent(program).format(scripts=str(SCRIPTS))],
+        capture_output=True, text=True, cwd=str(REPO_ROOT))
+
+
+# --------------------------------------------------------------------------
+# 0. the pinned leg is one of the two shapes this file knows
+# --------------------------------------------------------------------------
+
+def test_the_pinned_leg_is_one_of_the_two_shapes():
+    """The seams and T011's handler arrive in one phase-1 commit, so a leg has
+    all of them or none. A leg with some of each is a pin between those
+    landings, which `register_seams()` refuses too, and every two-shape test
+    below would be asserting the wrong half."""
+    declared = [f"{module.__name__}.{call}" for module, call in SEAM_CALLS
+                if callable(getattr(module, call, None))]
+    if LEG_HAS_THE_SEAMS:
+        assert len(declared) == len(SEAM_CALLS), (
+            f"LaneRoutes is off DashboardHandler's bases, so the leg carries "
+            f"plan 034 T011, yet it declares only {declared} of the five seams")
+    else:
+        assert declared == [], (
+            f"LaneRoutes is still a base of DashboardHandler, so the leg "
+            f"predates plan 034 T011, yet it declares {declared}")
+
+
+# --------------------------------------------------------------------------
+# 1. T045: the lanes column, through the handler-contribution facet
+# --------------------------------------------------------------------------
+
+def test_the_profile_declares_the_lanes_column_under_the_handler_facet():
+    """R1Q1 (a): the host names its own mixin. Forwarded by the composite, not
+    copied into it, like every facet `opendox_host.FACETS` lists."""
+    assert "HANDLER_CONTRIBUTIONS" in opendox_host.FACETS
+    assert profile_openxfactory.HANDLER_CONTRIBUTIONS == (LANE_ROUTES,)
+    assert type(profile_openxfactory.HANDLER_CONTRIBUTIONS) is tuple, (
+        "openDox refuses a facet that is not a plain tuple of classes")
+    assert proxy.HANDLER_CONTRIBUTIONS is profile_openxfactory.HANDLER_CONTRIBUTIONS
+    assert opendox_host.profile().HANDLER_CONTRIBUTIONS is (
+        profile_openxfactory.HANDLER_CONTRIBUTIONS)
+
+
+def test_no_route_extension_declares_a_second_copy_of_the_column():
+    """openDox refuses a mixin declared twice, by the profile and by an
+    extension, so the declaration lives in ONE place: the profile."""
+    for extension in profile_openxfactory.ROUTE_EXTENSIONS:
+        assert getattr(extension, "HANDLER_CONTRIBUTIONS", None) is None, (
+            f"{type(extension).__name__} declares HANDLER_CONTRIBUTIONS as "
+            "well as the profile")
+
+
+def test_the_lanes_column_arrives_where_the_pinned_leg_binds_it():
+    """Before T011 the column is a base of openDox's `DashboardHandler`. From
+    T011 on it is composed in at build time, by the SAME `route_extension`
+    module `opendox.serve` builds with, after the core handler, and every one
+    of its six methods resolves to the column's own function.
+
+    Read through `serve_mod.route_extension`, the module the server really
+    uses. `route_extension` is a top-level module with three copies in this
+    composition: the openDox leg's, openXdox-code's `src/route_extension.py`
+    and openxFactory's `scripts/route_extension.py`. `carved_reach.install()`
+    puts `openXdox/code/src` first, so the first copy found need not be the
+    leg's. A copy that predates the facet fails here, naming its file, rather
+    than at the first `build_server`."""
+    methods = _lane_methods()
+    assert len(methods) == 6, methods
+    if not LEG_HAS_THE_SEAMS:
+        assert LANE_ROUTES in serve_mod.DashboardHandler.__mro__
+        for name in methods:
+            assert getattr(serve_mod.DashboardHandler, name) is vars(LANE_ROUTES)[name]
+        return
+
+    seam = serve_mod.route_extension
+    assert hasattr(seam, "collect_handler_contributions"), (
+        f"opendox.serve builds with {seam.__file__}, which has no "
+        "handler-contribution facet, while the pinned openDox leg's "
+        "DashboardHandler no longer carries LaneRoutes, so the lanes routes "
+        "cannot be bound. That copy of route_extension predates openDox-code "
+        "T010 and is found ahead of the leg's own on sys.path.")
+    contributed = seam.collect_handler_contributions(
+        (proxy, *profile_openxfactory.ROUTE_EXTENSIONS),
+        base=serve_mod.DashboardHandler)
+    assert contributed == (LANE_ROUTES,)
+    bound = seam.compose_handler("BoundDashboardHandler",
+                                 serve_mod.DashboardHandler, contributed, {})
+    assert bound.__mro__ == ((bound,) + serve_mod.DashboardHandler.__mro__[:-1]
+                             + (LANE_ROUTES, object))
+    for name in methods:
+        assert name not in vars(serve_mod.DashboardHandler)
+        assert getattr(bound, name) is vars(LANE_ROUTES)[name], name
+
+
+# --------------------------------------------------------------------------
+# 2. T046: the host asserts its own registration (R1Q4 (a))
+# --------------------------------------------------------------------------
+
+def test_the_registered_profile_is_this_hosts_own():
+    assert opendox_registry.current() is opendox_host.profile()
+    assert opendox_host.register_openxfactory() is opendox_host.profile()
+
+
+def test_the_host_refuses_when_the_registry_answers_another_profile():
+    """The assertion is real: a registry that accepted the composite and then
+    answered something else is refused, and no seam is written. In a
+    SUBPROCESS, because the registry is process-wide."""
+    proc = _run("""
+        import sys
+        sys.path.insert(0, {scripts!r})
+        import carved_reach
+        carved_reach.install()
+        import opendox_host
+        from opendox import domain_profile as odp
+        stranger = object()
+        odp.current = lambda: stranger
+        try:
+            opendox_host.register_openxfactory()
+        except opendox_host.HostProfileNotRegistered as exc:
+            print("REFUSED", "R1Q4 (a)" in str(exc))
+        else:
+            print("NO REFUSAL")
+        from opendox import corpus_adapter
+        if hasattr(corpus_adapter, "home"):
+            try:
+                corpus_adapter.home()
+            except corpus_adapter.CorpusRefused:
+                print("NO SEAM WRITTEN")
+            else:
+                print("A SEAM WAS WRITTEN")
+        else:
+            print("NO SEAM WRITTEN")
+    """)
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.split() == ["REFUSED", "True", "NO", "SEAM", "WRITTEN"], proc.stdout
+
+
+def test_the_host_replaces_the_default_until_something_is_built_from_it():
+    """R1Q3 (ii), with the host's side of it: registering over openDox's own
+    default before any build replaces it, and registering after a build from
+    it is refused with `AlreadyRegistered`, which the host does not swallow.
+    In a SUBPROCESS, because the registry is process-wide."""
+    proc = _run("""
+        import sys
+        sys.path.insert(0, {scripts!r})
+        import carved_reach
+        carved_reach.install()
+        import opendox_host
+        from opendox import domain_profile as odp
+        if not hasattr(odp, "register_default"):
+            print("LEG HAS NO DEFAULT")
+            raise SystemExit(0)
+        from opendox import default_profile
+        odp.register_default(default_profile)
+        opendox_host.register_openxfactory()
+        print("REPLACED", odp.current() is opendox_host.profile())
+        odp.unregister()
+        odp.register_default(default_profile)
+        odp.current_for_build()
+        try:
+            opendox_host.register_openxfactory()
+        except odp.AlreadyRegistered:
+            print("REFUSED AFTER A BUILD")
+        else:
+            print("NO REFUSAL")
+    """)
+    assert proc.returncode == 0, proc.stderr
+    if LEG_HAS_THE_SEAMS:
+        assert proc.stdout.splitlines() == ["REPLACED True", "REFUSED AFTER A BUILD"], proc.stdout
+    else:
+        assert proc.stdout.splitlines() == ["LEG HAS NO DEFAULT"], proc.stdout
+
+
+# --------------------------------------------------------------------------
+# 3. T046: every seam holds this host's implementation
+# --------------------------------------------------------------------------
+
+def test_every_seam_the_leg_declares_holds_this_hosts_implementation():
+    """Identity through each seam's own public refusal: re-registering this
+    host's object is a no-op, and a different object is refused, so the one
+    registered is this host's. Nothing below writes a seam."""
+    if not LEG_HAS_THE_SEAMS:
+        assert opendox_host.register_seams() == ()
+        return
+    assert corpus_adapter.home() is opendox_host.home_corpus
+    assert workbench.session_notebook_scope() == opendox_host.SESSION_NOTEBOOK_SCOPE
+    assert workbench.health_check_registered()
+    assert serve_wire.doxbench_validators_registered()
+    assert doxbench_packet.status_exemption_registered()
+
+    with pytest.raises(workbench.WorkbenchError):
+        workbench.register_session_notebook_scope(corpus_adapter.SCOPE_ALL)
+    with pytest.raises(workbench.WorkbenchError):
+        workbench.register_health_check(lambda *args, **kwargs: None)
+    with pytest.raises(serve_wire.DoxbenchValidatorsAlreadyRegistered):
+        serve_wire.register_doxbench_validators(lambda: {})
+    other_rail = types.SimpleNamespace(lifecycle_status=lambda text: None,
+                                       is_compression_exempt=lambda text: False)
+    with pytest.raises(doxbench_packet.StatusExemptionAlreadyRegistered):
+        doxbench_packet.register_status_exemption(other_rail)
+
+    assert opendox_host.register_seams() == tuple(
+        f"{module.__name__}.{call}" for module, call in SEAM_CALLS)
+    assert corpus_adapter.home() is opendox_host.home_corpus
+
+
+def test_a_leg_with_only_some_seams_is_refused_naming_the_missing(monkeypatch):
+    """ALL OR NONE (`register_seams()`'s docstring). A leg that carries some of
+    the five and not the others is refused before any seam is written."""
+    written = []
+    present = types.SimpleNamespace(__name__="present",
+                                    register_home=written.append)
+    absent = types.SimpleNamespace(__name__="absent")
+    monkeypatch.setattr(opendox_host, "seams", lambda: (
+        (present, "register_home", "the factory"),
+        (absent, "register_health_check", "the check"),
+    ))
+    with pytest.raises(opendox_host.HostSeamsIncomplete) as excinfo:
+        opendox_host.register_seams()
+    assert "absent.register_health_check" in str(excinfo.value)
+    assert written == []
+
+
+def test_a_leg_with_no_seams_registers_nothing(monkeypatch):
+    monkeypatch.setattr(opendox_host, "seams", lambda: (
+        (types.SimpleNamespace(__name__="bare"), "register_home", "the factory"),
+    ))
+    assert opendox_host.register_seams() == ()
+
+
+def test_the_seam_table_is_the_five_calls_in_their_registration_order():
+    table = opendox_host.seams()
+    assert [(module, call) for module, call, _ in table] == list(SEAM_CALLS)
+    assert [value for _, _, value in table] == [
+        opendox_host.home_corpus,
+        opendox_host.SESSION_NOTEBOOK_SCOPE,
+        opendox_host.scoped_doc_health,
+        opendox_host.doxbench_validators,
+        doxbench_status_exemption,
+    ]
+
+
+def test_registering_imports_neither_factorys_package():
+    """The two factories import their package ON THE CALL, as the reaches they
+    replace did. `corpus_adapter_openxfactory` puts the pinned `openDox/code/
+    src` at the head of `sys.path` when it is imported, so importing it at
+    process start would change which copy of `route_extension` every later
+    import finds. In a SUBPROCESS, so the imports measured are this call's."""
+    proc = _run("""
+        import sys
+        sys.path.insert(0, {scripts!r})
+        import carved_reach
+        carved_reach.install()
+        head = list(sys.path)
+        import opendox_host
+        opendox_host.register_openxfactory()
+        print("adapter", "corpus_adapter_openxfactory" in sys.modules)
+        print("contracts", "ideation_dashboard.doxbench_contracts" in sys.modules)
+        print("route_extension", "route_extension" in sys.modules)
+        print("path_unchanged", sys.path == head)
+    """)
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.split() == [
+        "adapter", "False", "contracts", "False",
+        "route_extension", "False", "path_unchanged", "True"], proc.stdout
+
+
+# --------------------------------------------------------------------------
+# 4. T046: what a hosted request gets is unchanged
+# --------------------------------------------------------------------------
+
+def test_the_scope_the_host_registers_is_one_its_corpus_declares():
+    adapter, ref = adapter_home_corpus(REPO_ROOT)
+    scopes = adapter.resolve(ref).scopes
+    assert opendox_host.SESSION_NOTEBOOK_SCOPE in scopes, scopes
+    assert opendox_host.SESSION_NOTEBOOK_SCOPE != corpus_adapter.SCOPE_ALL
+
+
+def test_the_home_factory_builds_a_fresh_adapter_over_the_root_it_is_given(tmp_path):
+    first, first_ref = opendox_host.home_corpus(str(tmp_path))
+    second, _ = opendox_host.home_corpus(str(tmp_path))
+    assert first is not second, (
+        "the adapter caches listings for as long as it lives, so a shared one "
+        "would give a session notebook re-sync a stale listing")
+    assert first_ref.location == str(tmp_path)
+    assert first_ref.name == tmp_path.name
+
+
+def test_the_hosted_session_notebook_is_unchanged():
+    """T046's falsifier (R1Q9 (a)). The notebook's source set, by document and
+    by bytes, is what the rule it replaces gave: `doc_health`'s governed roots
+    plus a declared `Status:` header, each document within the size cap.
+
+    Compared as a mapping, because the projection sorts by path before it
+    syncs (`workbench._sync_sources`), so the order of the list is not part of
+    what a notebook receives. Before T047's pin, `session_documents` IS that
+    rule; from it on, the rule is the registered adapter's `documents` scope."""
+    listed = workbench.session_documents(REPO_ROOT)
+    keys = [key for key, _ in listed]
+    assert len(keys) == len(set(keys)), "a document is listed twice"
+    expected = {doc.path: doc.text
+                for doc in dh_corpus.load_docs(REPO_ROOT.name, REPO_ROOT)
+                if doc.status and len(doc.text.encode("utf-8"))
+                <= workbench._MAX_SESSION_SOURCE_BYTES}
+    assert len(expected) > 100, "the rule selected almost nothing to compare"
+    got = dict(listed)
+    assert sorted(set(got) ^ set(expected)) == []
+    assert got == expected
+
+
+_BAD_STATUS = "# Bad status\n\nStatus: not-a-lifecycle-word\n\nBody.\n"
+_GOOD_STATUS = "# Good status\n\nStatus: brainstorm\n\nBody.\n"
+
+
+def _old_scoped_run(root: Path, documents, families):
+    """The in-process run `run_scoped_doc_health` made before openDox-code
+    #39, restated as the oracle: this test's own copy, so the host's
+    `scoped_doc_health` is compared with it rather than with itself."""
+    from doc_health import DEFAULT_THRESHOLDS
+    from doc_health.runner import Context, run_suite
+
+    wanted = set(documents)
+    docs = [d for d in dh_corpus.load_docs(root.name, root) if d.path in wanted]
+    ctx = Context(repo_paths={root.name: root}, docs=docs, capabilities={},
+                  change_ids={}, git=dh_corpus.RealGit(),
+                  thresholds=dict(DEFAULT_THRESHOLDS), as_of=date(2026, 9, 27),
+                  agg_root=None)
+    findings = []
+    for family in families:
+        findings.extend(run_suite(ctx, family, set()).findings)
+    return [f for f in findings if f.path in wanted], len(docs)
+
+
+def test_a_scoped_health_run_answers_what_the_in_process_run_answered(tmp_path):
+    (tmp_path / "ideation" / "brainstorm").mkdir(parents=True)
+    (tmp_path / "ideation" / "brainstorm" / "bad.md").write_text(_BAD_STATUS)
+    (tmp_path / "ideation" / "brainstorm" / "good.md").write_text(_GOOD_STATUS)
+    documents = ["ideation/brainstorm/bad.md", "ideation/brainstorm/good.md"]
+    families = workbench.DEFAULT_SCOPED_FAMILIES
+
+    result = workbench.run_scoped_doc_health(
+        tmp_path, documents, as_of=date(2026, 9, 27))
+    findings, checked = _old_scoped_run(tmp_path.resolve(), documents, families)
+
+    assert findings, "the oracle found nothing, so the comparison is vacuous"
+    assert result.status == "completed", result.detail
+    assert list(result.findings) == findings
+    assert result.detail == (
+        f"{len(findings)} finding(s) over {checked} scoped doc(s) "
+        f"(families: {', '.join(families)})")
+
+
+def test_a_scoped_health_run_refuses_a_family_doc_health_does_not_carry(tmp_path):
+    with pytest.raises(workbench.WorkbenchError) as excinfo:
+        workbench.run_scoped_doc_health(tmp_path, [], families=("no-such-family",))
+    assert "no-such-family" in str(excinfo.value)
+
+
+def test_the_doxbench_validators_are_the_contract_pins_own():
+    """Before the seam `default_doxbench_validators()` called
+    `doxbench_contracts.validators()`; through it, the host's factory does."""
+    assert sorted(serve_wire.default_doxbench_validators()) == sorted(
+        doxbench_contracts.validators())
+
+
+#: The rail's seven names that the packet module answers, as
+#: `tests/ideation-dashboard/test_doxbench_status_exemption.py` spells them
+#: (`CARVED_NAMES`).
+RAIL_NAMES = (
+    "_STATUS_RE", "STATUS_SCAN_LINES", "EXEMPT_STATUSES", "_STATUS_DECORATORS",
+    "lifecycle_status", "status_word", "is_compression_exempt",
+)
+
+
+def test_the_packet_module_answers_the_rails_own_names():
+    """The seven names the packet module answers are the rail module's own
+    objects, as `tests/ideation-dashboard/test_doxbench_status_exemption.py`
+    reads them: before the seam because the packet module imports them, and
+    through it because the host registers the module itself."""
+    for name in RAIL_NAMES:
+        assert getattr(doxbench_packet, name) is getattr(doxbench_status_exemption, name), name

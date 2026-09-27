@@ -10,11 +10,14 @@ together still describe the entire dispatch of this server.
 
 FIVE THINGS, because each answers a different question a reviewer of a move has:
 
-  1. **The methods still resolve on `DashboardHandler`.** A move that fell out
-     of the base list, or a mixin that failed to compose, would leave the
-     handler without the method — which `route_extension.resolve_handlers`
+  1. **The methods still resolve on the class the server binds.** A move that
+     fell out of the base list, or a mixin that failed to compose, would leave
+     the handler without the method — which `route_extension.resolve_handlers`
      refuses at build time, but only for routes that are BOUND. The ones that
-     stayed core arms (`_serve_snapshot`) have no binding to refuse them.
+     stayed core arms (`_serve_snapshot`) have no binding to refuse them. The
+     lanes column is composed in by the host profile's handler contribution
+     from plan 034's T011 on, so it is resolved on the bound class, not on
+     `DashboardHandler` (T045).
   2. **The profile is what the server is assembled with.** Three extensions,
      each conforming to the protocol, in a declared order.
   3. **The flattened binding set, exactly.** Method, pattern, prefix-ness and
@@ -187,12 +190,28 @@ def post(host, port, path, body):
 
 
 @pytest.mark.parametrize("name,owner", sorted(MOVED_HANDLERS.items()))
-def test_every_moved_handler_still_resolves_on_the_request_handler(name, owner):
-    """Through the MRO, from the column module that now owns it."""
-    resolved = getattr(serve_mod.DashboardHandler, name, None)
+def test_every_moved_handler_still_resolves_on_the_request_handler(
+        tmp_path, name, owner):
+    """Through the MRO of the class a real `build_server` BINDS, from the
+    column module that now owns it.
+
+    RESOLVED WHERE THE SERVER BINDS IT, not on `DashboardHandler` (plan 034
+    T045, R1Q1 (a), `#656` comment `5817152735`; a NAMED composition test
+    under R1Q2 (a)). openDox-code's T011 took `LaneRoutes` off
+    `DashboardHandler`'s bases, and the host profile now contributes it
+    through the handler-contribution facet, which `build_server` composes into
+    the class it binds. So from that pin on, the six lanes methods resolve on
+    the bound class and on `DashboardHandler` not at all. The bound class
+    answers every moved method at both pins, which is the property this test
+    exists for: a column that failed to compose leaves the server without it.
+    A lanes method must also BE the column's own function, since the facet
+    only adds: never a copy, a forwarder or a core method of the same name."""
+    with serving(tmp_path) as (httpd, _host, _port):
+        bound = handler_class(httpd)
+    resolved = getattr(bound, name, None)
     assert resolved is not None and callable(resolved), (
-        f"{name} no longer resolves on DashboardHandler — the column mixin "
-        "holding it is not composed into the base list")
+        f"{name} no longer resolves on the class build_server binds — the "
+        "column mixin holding it is not composed into it")
     assert name in vars(owner), (
         f"{name} is not defined on {owner.__module__}.{owner.__qualname__}; "
         "the move landed somewhere else than this file records")
@@ -200,6 +219,24 @@ def test_every_moved_handler_still_resolves_on_the_request_handler(name, owner):
         f"{name} is defined on DashboardHandler AS WELL as on "
         f"{owner.__qualname__} — a second copy that would shadow the column's, "
         "which is a fork of the route, not a move of it")
+    if owner is serve_openxfactory_lanes.LaneRoutes:
+        assert resolved is vars(owner)[name], (
+            f"{name} resolves on the bound class to {resolved!r}, not to "
+            "LaneRoutes' own function")
+
+
+def test_the_lanes_read_route_is_served_through_the_bound_class(tmp_path):
+    """T045's falsifier, at the wire: the lanes column's read route answers
+    from a real server, whichever way the pinned leg composes the column. Its
+    four write routes are driven by the loopback tests in section 4."""
+    with serving(tmp_path) as (_httpd, host, port):
+        conn = http.client.HTTPConnection(host, port, timeout=5)
+        conn.request("GET", serve_openxfactory_lanes.COMMITTED_INTENTS_ROUTE)
+        resp = conn.getresponse()
+        body = json.loads(resp.read().decode("utf-8"))
+        conn.close()
+    assert resp.status == 200, body
+    assert body["kind"] == "committed-intent-feed", body
 
 
 # ---------------------------------------------------------------------------
