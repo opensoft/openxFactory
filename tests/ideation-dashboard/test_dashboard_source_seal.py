@@ -696,6 +696,63 @@ def test_a_unit_composed_from_uncommitted_bytes_is_refused(corpus, tmp_path,
     assert not (tmp_path / "seal" / lane.SEAL_VALIDATOR_ROOT).exists()
 
 
+@pytest.mark.parametrize("sealed", ["the-checkout-head", "another-revision",
+                                    "a-revision-without-it"])
+def test_a_unit_schema_from_the_corpus_must_be_the_sealed_revisions(
+        corpus, tmp_path, sealed):
+    """THE UNIT IS BOUND TO THE SEALED REVISION (Copilot, PR #1166). The
+    composer fills in, from the corpus checkout's own `contracts/schemas/`,
+    each schema the carve legs do not supply, and a real parent's checkout
+    sits at the aggregation's pin while the seal is of `source_head`. So a
+    schema the unit takes from the corpus checkout must be the bytes
+    `source_head` holds at its path: committed at the checkout's HEAD is not
+    enough. Here the checkout's HEAD carries a newer schema than the sealed
+    revision, or the sealed revision carries none."""
+    first = _git(corpus, "rev-parse", "HEAD")
+    schema = corpus / lane.VALIDATOR_SCHEMAS_PATH / STUB_SCHEMA
+    schema.parent.mkdir(parents=True)
+    schema.write_text("revision: older\n", encoding="utf-8")
+    _git(corpus, "add", "-A")
+    _git(corpus, "commit", "--quiet", "-m", "an older schema")
+    older = _git(corpus, "rev-parse", "HEAD")
+    schema.write_text("revision: newer\n", encoding="utf-8")
+    _git(corpus, "commit", "--quiet", "-am", "a newer schema")
+    product = tmp_path / "product"
+    product.mkdir()
+    _git(product, "init", "--quiet", "-b", "main")
+    script = product / lane.VALIDATOR_SCRIPT_PATH
+    script.parent.mkdir(parents=True)
+    script.write_text(STUB_SCRIPT, encoding="utf-8")
+    _git(product, "add", "-A")
+    _git(product, "commit", "--quiet", "-m", "product")
+    farm = tmp_path / "farm"
+    runnable = farm / lane.VALIDATOR_SCRIPT_PATH
+    runnable.parent.mkdir(parents=True)
+    shutil.copyfile(script, runnable)
+    (farm / lane.VALIDATOR_SCHEMAS_PATH).mkdir(parents=True)
+    (farm / lane.VALIDATOR_SCHEMAS_PATH / STUB_SCHEMA).symlink_to(schema)
+    unit = lane.PinnedValidator(runnable=runnable, product_root=product)
+    ref = {"the-checkout-head": "HEAD", "another-revision": older,
+           "a-revision-without-it": first}[sealed]
+    seal = tmp_path / "seal"
+    if sealed == "the-checkout-head":
+        manifest = _seal(corpus, seal, resolve_validator=lambda: unit,
+                         corpus_ref=ref)
+        assert (seal / lane.SEAL_VALIDATOR_ROOT / lane.VALIDATOR_SCHEMAS_PATH
+                / STUB_SCHEMA).read_text(encoding="utf-8") == "revision: newer\n"
+        assert lane.verify_seal(seal) == []
+        assert manifest["source_head"] == _git(corpus, "rev-parse", "HEAD")
+        return
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, resolve_validator=lambda: unit, corpus_ref=ref)
+    assert str(refused.value).startswith(
+        f"the validator unit carries corpus bytes that {lane._short(ref)} does "
+        f"not hold: openxFactory-src/{lane.VALIDATOR_SCHEMAS_PATH}/"
+        f"{STUB_SCHEMA}"), str(refused.value)
+    assert "with schemas from another corpus revision" in str(refused.value)
+    assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
+
+
 @pytest.mark.parametrize("shape", ["a-dangling-link", "a-directory"])
 def test_a_unit_entry_that_is_not_a_regular_file_is_refused_by_name(
         corpus, tmp_path, shape):
@@ -1741,7 +1798,7 @@ def test_the_seal_speaks_only_git_and_never_builds_or_pushes(corpus, tmp_path,
     for argv in runner.calls:
         assert argv[0] == "git", argv
     verbs = {_verb(argv) for argv in runner.calls}
-    assert verbs <= {"archive", "show", "rev-parse", "status"}, verbs
+    assert verbs <= {"archive", "show", "rev-parse", "status", "diff"}, verbs
     _assert_exact_reads(runner)
     assert not hasattr(lane, "build_and_push")
 

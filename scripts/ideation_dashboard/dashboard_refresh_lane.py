@@ -1621,6 +1621,16 @@ def _enclosing_repository(path: Path) -> Path | None:
     return None
 
 
+def _unit_sources(pinned: PinnedValidator) -> list[Path]:
+    """The files the composed unit was built from, resolved: the script in the
+    product tree it was copied from, then each schema the unit links."""
+    sources = [(Path(pinned.product_root) / VALIDATOR_SCRIPT_PATH).resolve()]
+    schemas = Path(pinned.runnable).parents[1] / VALIDATOR_SCHEMAS_PATH
+    if schemas.is_dir():
+        sources += [entry.resolve() for entry in sorted(schemas.iterdir())]
+    return sources
+
+
 def _uncommitted_unit_sources(pinned: PinnedValidator, *,
                               runner=subprocess_runner) -> list[str]:
     """Each file the composed unit was built from that its repository's HEAD
@@ -1633,15 +1643,12 @@ def _uncommitted_unit_sources(pinned: PinnedValidator, *,
     their pins, but a HEAD says nothing about uncommitted bytes. So each
     source is asked of its own repository, and the copied script is also held
     equal to the file it was copied from."""
-    sources = [Path(pinned.product_root) / VALIDATOR_SCRIPT_PATH]
+    sources = _unit_sources(pinned)
     problems: list[str] = []
     if (not sources[0].is_file() or Path(pinned.runnable).read_bytes()
             != sources[0].read_bytes()):
         problems.append(f"{VALIDATOR_SCRIPT_PATH} (the unit's copy is not the "
                         f"file at {pinned.product_root})")
-    schemas = Path(pinned.runnable).parents[1] / VALIDATOR_SCHEMAS_PATH
-    if schemas.is_dir():
-        sources += [entry.resolve() for entry in sorted(schemas.iterdir())]
     by_repository: dict[Path, list[str]] = {}
     for source in sources:
         repository = _enclosing_repository(source)
@@ -1663,12 +1670,47 @@ def _uncommitted_unit_sources(pinned: PinnedValidator, *,
     return problems
 
 
-def seal_validator(seal_root, pinned: PinnedValidator, *,
-                   runner=subprocess_runner) -> dict:
+def _unit_sources_source_head_does_not_hold(
+        pinned: PinnedValidator, *, corpus_checkout, source_head: str,
+        runner=subprocess_runner) -> list[str]:
+    """Each file the composed unit was built from out of the CORPUS checkout
+    whose content is not what `source_head` holds at its path: absent there,
+    or other bytes. Empty when there is none.
+
+    THE UNIT IS BOUND TO THE SEALED REVISION (Copilot, PR #1166). The
+    composer fills in, from this checkout's own `contracts/schemas/`, each
+    schema the carve legs do not supply (`doxbench_contracts.
+    _composed_validator`). This parent's checkout sits at the aggregation's
+    pin while the seal is of `source_head`, so a source committed at the
+    checkout's HEAD can still be another corpus revision's bytes. A leg's
+    sources are held to `source_head`'s pins where the legs are sealed
+    (`seal_render_legs`), and this holds the corpus's own to `source_head`
+    itself. It runs after `_uncommitted_unit_sources`, so each source it
+    compares is tracked and clean."""
+    corpus = Path(corpus_checkout).resolve()
+    relpaths = sorted(source.relative_to(corpus).as_posix()
+                      for source in _unit_sources(pinned)
+                      if _enclosing_repository(source) == corpus)
+    if not relpaths:
+        return []
+    result = runner(exact_git(corpus, "diff", "--no-ext-diff", "--no-textconv",
+                              "--no-renames", "--name-only", source_head,
+                              "--", *relpaths),
+                    env=exact_git_environment())
+    if not result.ok:
+        return [f"{corpus.name} (its difference from {_short(source_head)} "
+                "could not be read)"]
+    return [f"{corpus.name}/{line.strip()}"
+            for line in result.stdout.splitlines() if line.strip()]
+
+
+def seal_validator(seal_root, pinned: PinnedValidator, *, corpus_checkout,
+                   source_head: str, runner=subprocess_runner) -> dict:
     """Copy the pinned validator's composed unit into the seal, then RUN the
     sealed copy once. It returns the manifest's validator fields. It raises
     `SealRefused` when the product's revision cannot be read, when the unit
-    cannot be copied whole, or when the sealed copy cannot run.
+    is not made of bytes `source_head` and its pins describe, when it cannot
+    be copied whole, or when the sealed copy cannot run.
 
     REGULAR FILES ONLY. The composed unit is a script COPY beside schema LINKS
     to the pinned bytes. `upload-artifact@v4` preserves no symlink, and
@@ -1718,6 +1760,17 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
                 + (f" and {len(dirty) - 5} more" if len(dirty) > 5 else "")
                 + " — the seal would carry a validator no commit describes, "
                 "so it could not be held to the render's revision")
+        stale = _unit_sources_source_head_does_not_hold(
+            pinned, corpus_checkout=corpus_checkout, source_head=source_head,
+            runner=runner)
+        if stale:
+            raise SealRefused(
+                "the validator unit carries corpus bytes that "
+                f"{_short(source_head)} does not hold: {', '.join(stale[:5])}"
+                + (f" and {len(stale) - 5} more" if len(stale) > 5 else "")
+                + f" — the child would judge the render of "
+                f"{_short(source_head)} with schemas from another corpus "
+                "revision")
     root = Path(seal_root) / SEAL_VALIDATOR_ROOT
     script = root / VALIDATOR_SCRIPT_PATH
     script.parent.mkdir(parents=True)
@@ -2459,7 +2512,8 @@ def seal_source(
         corpus is archived;
       * an archive whose own recorded commit is not `source_head` seals
         nothing;
-      * a validator whose product revision cannot be read, whose unit cannot
+      * a validator whose product revision cannot be read, whose unit
+        carries corpus bytes `source_head` does not hold, whose unit cannot
         be copied whole, whose sealed copy cannot RUN, whose run changed the
         sealed tree, or whose run answered a verdict beside another exit code
         than the one it is read from, seals nothing;
@@ -2576,7 +2630,9 @@ def seal_source(
     # later. A validation that could not RUN is a strict failure with no
     # finding to read, so the sealed copy is RUN here, and a copy that cannot
     # reach a verdict is refused (see `seal_validator`).
-    validator_fields = seal_validator(seal_root, pinned, runner=runner)
+    validator_fields = seal_validator(seal_root, pinned,
+                                      corpus_checkout=corpus_checkout,
+                                      source_head=source_head, runner=runner)
     # ONE PRODUCT REVISION. The validator is resolved from this parent's own
     # openXdox leg, and the render unit carries `source_head`'s. They are the
     # same checkout whenever the legs above were sealed, so a disagreement is
