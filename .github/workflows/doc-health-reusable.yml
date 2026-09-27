@@ -3733,6 +3733,86 @@ jobs:
             --decision-out dfr-decision.json
           BUILD="$(python3 -c 'import json;print(str(json.load(open("dfr-decision.json"))["build"]).lower())' 2>/dev/null || echo false)"
           echo "build=${BUILD}" >> "$GITHUB_OUTPUT"
+      - name: Ideation-dashboard image refresh — build the image the sealed runs run in
+        id: dfr-sealed-image
+        # EVERY SEALED RUN OF THIS STAGE RUNS IN A CONTAINER (#1191; RULED by
+        # Brett Heap, 2026-09-27, "(b) for the finalize job too": the
+        # parent-side twin of opensoft/xFactory#526's ruling (b)). The seal
+        # step below runs the sealed validator's probe, the pre-dispatch
+        # render and its --strict validation, all code read out of the seal,
+        # and each runs as one `docker run` the lane builds (`SealedContainer`
+        # in dashboard_refresh_lane.py) in this image, by the content id this
+        # step records in SEALED_IMAGE, never by a name a pull or a tag could
+        # move. The Dockerfile is the heredoc below and nothing else: `docker
+        # build -` reads it from stdin, with no build context at all. One FROM,
+        # by digest, and one RUN that installs the validator's dependency tree
+        # (the render needs PyYAML of it) at the versions
+        # requirements/hermes-runtime-contracts.lock pins, each wheel by a
+        # sha256 that lock lists, binary-only, with no dependency resolution of
+        # pip's own: the child worker's image, byte for byte. The image carries
+        # this run's label from the moment it exists, so the job's last step
+        # removes it, and anything a cancelled run left, by that label.
+        #   base: python:3.12-slim at the index digest Docker Hub served on
+        #   2026-09-27 (python 3.12.14 on debian trixie-slim, docker-library
+        #   688a0b86); the openDox product needs Python 3.12 or newer.
+        # It runs before any sealed code, and refuses what would take its
+        # calls, or a later step's, elsewhere: ACTIONS_ALLOW_UNSECURE_COMMANDS
+        # (a printed line could then set a variable or a PATH entry), and every
+        # variable that would send the docker CLI to another daemon or
+        # builder. The lane refuses the same set before any sealed run, and a
+        # seal with no SEALED_IMAGE runs no sealed code at all. Like every step
+        # of this stage it is `continue-on-error`: a failed build is a refused
+        # seal, recorded, and nothing else in the nightly.
+        if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true'
+        continue-on-error: true
+        timeout-minutes: 10
+        shell: /bin/bash --noprofile --norc -p -eo pipefail {0}
+        run: |
+          set -euo pipefail
+          if [ -n "${ACTIONS_ALLOW_UNSECURE_COMMANDS+set}" ]; then
+            echo "::error::ACTIONS_ALLOW_UNSECURE_COMMANDS is set, so output this job does not control could set a variable or a PATH entry for a later step"
+            exit 1
+          fi
+          for name in DOCKER_HOST DOCKER_CONTEXT DOCKER_TLS DOCKER_TLS_VERIFY \
+                      DOCKER_CERT_PATH BUILDX_CONFIG BUILDX_BUILDER; do
+            if [ -n "${!name+set}" ]; then
+              echo "::error::$name is set, so the docker CLI would not send its calls to the local daemon's own socket"
+              exit 1
+            fi
+          done
+          # A fresh configuration directory, so no plugin, proxy setting or
+          # login of the runner user's reaches the build.
+          DOCKER_CONFIG="$(/usr/bin/mktemp -d "${RUNNER_TEMP:?}/dfr-docker-config.XXXXXX")"
+          export DOCKER_CONFIG
+          IIDFILE="$(/usr/bin/mktemp "${RUNNER_TEMP:?}/dfr-sealed-image.XXXXXX")"
+          /usr/bin/docker build \
+            --label "openxfactory.dashboard-refresh.sealed-run=${GITHUB_RUN_ID:?}-${GITHUB_RUN_ATTEMPT:?}" \
+            --iidfile "$IIDFILE" - <<'DOCKERFILE'
+          FROM python:3.12-slim@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f
+          RUN printf '%s\n' \
+                'attrs==26.1.0 --hash=sha256:c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309' \
+                'jsonschema==4.25.1 --hash=sha256:3fba0169e345c7175110351d456342c364814cfcf3b964ba4587f22915230a63' \
+                'jsonschema-specifications==2025.9.1 --hash=sha256:98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe' \
+                'pyyaml==6.0.3 --hash=sha256:ba1cc08a7ccde2d2ec775841541641e4548226580ab850948cbfda66a1befcdc --hash=sha256:9149cad251584d5fb4981be1ecde53a1ca46c891a79788c0df828d2f166bda28' \
+                'referencing==0.37.0 --hash=sha256:381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231' \
+                'rfc3339-validator==0.1.4 --hash=sha256:24f6ec1eda14ef823da9e36ec7113124b39c04d50a4d3d3a3c2859577e7791fa' \
+                'rpds-py==2026.6.3 --hash=sha256:ecabd69db66de867690f9797f2f8fa27ba501bbc24540cbdbdc649cd15888ba6 --hash=sha256:55927d532399c2c646100ff7feb48eaa940ad70f42cd68e1328f3ded9f81ca24' \
+                'six==1.17.0 --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274' \
+                'typing-extensions==4.16.0 --hash=sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8' \
+                > /tmp/sealed-run.txt \
+           && python3 -m pip install --no-cache-dir --no-input \
+                --disable-pip-version-check --root-user-action=ignore \
+                --no-deps --only-binary=:all: --require-hashes \
+                -r /tmp/sealed-run.txt \
+           && rm /tmp/sealed-run.txt \
+           && python3 -c 'import yaml, jsonschema, referencing, rfc3339_validator'
+          DOCKERFILE
+          SEALED_IMAGE="$(/usr/bin/cat -- "$IIDFILE")"
+          if [[ ! "$SEALED_IMAGE" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::docker build recorded '$SEALED_IMAGE', which is not an image id, so the sealed runs have no image"
+            exit 1
+          fi
+          echo "SEALED_IMAGE=$SEALED_IMAGE" >> "$GITHUB_ENV"
       - name: Ideation-dashboard image refresh — seal the bounded source artifact
         id: dfr-seal
         # THE PARENT SEALS, because the child may not read the repository at
@@ -3770,15 +3850,16 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
           CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}
+        shell: /bin/bash --noprofile --norc -p -e {0}
         run: |
-          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+          "${pythonLocation:?}/bin/python3" openxFactory/scripts/dashboard-refresh-nightly.py \
             --repo-root . --phase seal \
             --corpus-checkout openxFactory \
             --decision-in dfr-decision.json \
             --seal-out dfr-seal \
             --seal-result-out dfr-seal-result.json \
             --correlation-id "$CORRELATION_ID"
-          SEALED="$(python3 -c 'import json;print(str(json.load(open("dfr-seal-result.json"))["sealed"]).lower())' 2>/dev/null || echo false)"
+          SEALED="$("${pythonLocation:?}/bin/python3" -c 'import json;print(str(json.load(open("dfr-seal-result.json"))["sealed"]).lower())' 2>/dev/null || echo false)"
           echo "sealed=${SEALED}" >> "$GITHUB_OUTPUT"
       - name: Upload the sealed dashboard-image source artifact
         # The sibling pattern this lane copies rather than invents:
@@ -3830,6 +3911,7 @@ jobs:
         env:
           SEALED: ${{ steps.dfr-seal.outputs.sealed }}
           SEAL_OUTCOME: ${{ steps.dfr-seal.outcome }}
+        shell: /bin/bash --noprofile --norc -p -e {0}
         run: |
           STRICT=false
           if [ "$SEALED" = "true" ]; then
@@ -3837,14 +3919,14 @@ jobs:
           elif [ "$SEAL_OUTCOME" != "success" ]; then
             REASON="the seal step failed without a seal result of its own (see that step's log)"
           else
-            REASON="$(python3 -c 'import json;print(json.load(open("dfr-seal-result.json")).get("reason") or "unknown")' 2>/dev/null || echo unknown)"
-            STRICT="$(python3 -c 'import json;print(str(json.load(open("dfr-seal-result.json")).get("strict_failed") is True).lower())' 2>/dev/null || echo false)"
+            REASON="$("${pythonLocation:?}/bin/python3" -c 'import json;print(json.load(open("dfr-seal-result.json")).get("reason") or "unknown")' 2>/dev/null || echo unknown)"
+            STRICT="$("${pythonLocation:?}/bin/python3" -c 'import json;print(str(json.load(open("dfr-seal-result.json")).get("strict_failed") is True).lower())' 2>/dev/null || echo false)"
           fi
           ARGS=(--repo-root . --phase decide --skip-reason "source not sealed: ${REASON}")
           if [ "$STRICT" = "true" ]; then
             ARGS+=(--seal-result-in dfr-seal-result.json)
           fi
-          python3 openxFactory/scripts/dashboard-refresh-nightly.py "${ARGS[@]}"
+          "${pythonLocation:?}/bin/python3" openxFactory/scripts/dashboard-refresh-nightly.py "${ARGS[@]}"
       - name: Dispatch artifact-only dashboard-image child
         id: dfr-dispatch
         # Cloned from "Dispatch artifact-only readiness child". The child lives
@@ -3861,8 +3943,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}
           DISPATCH_LABEL: ${{ steps.dfr-readiness.outputs.dispatch_label }}
+        shell: /bin/bash --noprofile --norc -p -e {0}
         run: |
-          if gh workflow run dashboard-image-worker.yml \
+          if /usr/bin/gh workflow run dashboard-image-worker.yml \
             --repo "$GITHUB_REPOSITORY" \
             --ref "$GITHUB_REF_NAME" \
             -f source_run_id="$GITHUB_RUN_ID" \
@@ -3885,8 +3968,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           DISPATCHED: ${{ steps.dfr-dispatch.outputs.dispatched }}
           CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}
+        shell: /bin/bash --noprofile --norc -p -e {0}
         run: |
-          mkdir -p dfr-digest
+          /usr/bin/mkdir -p dfr-digest
           REASON="child_dispatch_failed"
           if [ "$DISPATCHED" = "true" ]; then
             TITLE="dashboard-image-${CORRELATION_ID}"
@@ -3894,7 +3978,7 @@ jobs:
             CHILD_ID=""
             REASON="child_not_observed"
             while [ $SECONDS -lt $DISCOVERY_DEADLINE ]; do
-              if ! gh run list \
+              if ! /usr/bin/gh run list \
                   --repo "$GITHUB_REPOSITORY" \
                   --workflow dashboard-image-worker.yml \
                   --limit 50 \
@@ -3903,7 +3987,7 @@ jobs:
                 REASON="worker_result_query_failed"
                 break
               fi
-              if ! CHILD_ID="$(python3 - "$TITLE" <<'PY'
+              if ! CHILD_ID="$("${pythonLocation:?}/bin/python3" - "$TITLE" <<'PY'
           import json
           import sys
           try:
@@ -3922,7 +4006,7 @@ jobs:
                 break
               fi
               [ -n "$CHILD_ID" ] && break
-              sleep 10
+              /usr/bin/sleep 10
             done
             if [ -n "$CHILD_ID" ]; then
               COMPLETED="false"
@@ -3930,7 +4014,7 @@ jobs:
               QUEUE_DEADLINE=$((SECONDS + 600))
               REASON="child_queue_timeout"
               while [ $SECONDS -lt $QUEUE_DEADLINE ]; do
-                if ! STATUS="$(gh run view "$CHILD_ID" \
+                if ! STATUS="$(/usr/bin/gh run view "$CHILD_ID" \
                     --repo "$GITHUB_REPOSITORY" \
                     --json status --jq .status 2>/dev/null)"; then
                   REASON="worker_result_query_failed"
@@ -3944,13 +4028,13 @@ jobs:
                   RUNNING="true"
                   break
                 fi
-                sleep 15
+                /usr/bin/sleep 15
               done
               if [ "$RUNNING" = "true" ]; then
                 RUN_DEADLINE=$((SECONDS + 1800))
                 REASON="child_timeout"
                 while [ $SECONDS -lt $RUN_DEADLINE ]; do
-                  if ! STATUS="$(gh run view "$CHILD_ID" \
+                  if ! STATUS="$(/usr/bin/gh run view "$CHILD_ID" \
                       --repo "$GITHUB_REPOSITORY" \
                       --json status --jq .status 2>/dev/null)"; then
                     REASON="worker_result_query_failed"
@@ -3960,11 +4044,11 @@ jobs:
                     COMPLETED="true"
                     break
                   fi
-                  sleep 15
+                  /usr/bin/sleep 15
                 done
                 if [ "$COMPLETED" != "true" ] && \
                    [ "$REASON" = "child_timeout" ]; then
-                  if STATUS="$(gh run view "$CHILD_ID" \
+                  if STATUS="$(/usr/bin/gh run view "$CHILD_ID" \
                       --repo "$GITHUB_REPOSITORY" \
                       --json status --jq .status 2>/dev/null)"; then
                     [ "$STATUS" = "completed" ] && COMPLETED="true"
@@ -3976,11 +4060,11 @@ jobs:
               if [[ "$COMPLETED" != "true" && \
                     ( "$REASON" = "child_timeout" || \
                       "$REASON" = "child_queue_timeout" ) ]]; then
-                gh run cancel "$CHILD_ID" --repo "$GITHUB_REPOSITORY" \
+                /usr/bin/gh run cancel "$CHILD_ID" --repo "$GITHUB_REPOSITORY" \
                   >/dev/null 2>&1 || true
               fi
               if [ "$COMPLETED" = "true" ]; then
-                if ! CONCLUSION="$(gh run view "$CHILD_ID" \
+                if ! CONCLUSION="$(/usr/bin/gh run view "$CHILD_ID" \
                     --repo "$GITHUB_REPOSITORY" \
                     --json conclusion --jq .conclusion 2>/dev/null)"; then
                   REASON="worker_result_query_failed"
@@ -3989,7 +4073,7 @@ jobs:
                 # The child uploads exactly one file, digest.json, so the
                 # download always lands at dfr-digest/digest.json.
                 if [ "$CONCLUSION" = "success" ] && \
-                   gh run download "$CHILD_ID" \
+                   /usr/bin/gh run download "$CHILD_ID" \
                      --repo "$GITHUB_REPOSITORY" \
                      --name "dashboard-image-digest-${CORRELATION_ID}" \
                      --dir dfr-digest; then
@@ -4014,13 +4098,14 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: /bin/bash --noprofile --norc -p -e {0}
         run: |
           if [ ! -f dfr-digest/digest.json ]; then
-            echo "::warning::no digest artifact from the dashboard-image child ($(cat dfr-digest/unavailable-reason.txt 2>/dev/null || echo unknown)) — nothing to pin this cycle"
+            echo "::warning::no digest artifact from the dashboard-image child ($(/usr/bin/cat dfr-digest/unavailable-reason.txt 2>/dev/null || echo unknown)) — nothing to pin this cycle"
             echo "pinned=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+          "${pythonLocation:?}/bin/python3" openxFactory/scripts/dashboard-refresh-nightly.py \
             --repo-root . --phase pin \
             --corpus-checkout openxFactory \
             --digest-in dfr-digest/digest.json \
@@ -4048,6 +4133,7 @@ jobs:
         continue-on-error: true
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        shell: /bin/bash --noprofile --norc -p -e {0}
         run: |
           set -uo pipefail
           RECIPE_REPO="opensoft/Omnigent-Install"
@@ -4055,58 +4141,58 @@ jobs:
           BRANCH="bot/dox-dashboard-pin"
           # Fail-soft scope probe: a read that 403s means the App installation
           # does not yet include Omnigent-Install (task 1.2). Log and park.
-          if ! gh api "repos/${RECIPE_REPO}" >/dev/null 2>&1; then
+          if ! /usr/bin/gh api "repos/${RECIPE_REPO}" >/dev/null 2>&1; then
             echo "::warning::the minted App token cannot reach ${RECIPE_REPO} (installation gate 1.2 unsatisfied) — pin PR not opened; refresh parks for the human gate"
             exit 0
           fi
-          BOT_LOGIN="$(gh api /user -q .login 2>/dev/null || echo 'xfactory-app[bot]')"
+          BOT_LOGIN="$(/usr/bin/gh api /user -q .login 2>/dev/null || echo 'xfactory-app[bot]')"
           WORK="$RUNNER_TEMP/omnigent-install-pin"
-          rm -rf "$WORK"
-          if ! git clone --depth 1 --branch main \
+          /usr/bin/rm -rf "$WORK"
+          if ! /usr/bin/git clone --depth 1 --branch main \
               "https://x-access-token:${GH_TOKEN}@github.com/${RECIPE_REPO}.git" "$WORK" 2>/dev/null; then
             echo "::warning::could not clone ${RECIPE_REPO} with the App token — pin PR not opened; refresh parks"
             exit 0
           fi
-          cp dfr-pin/kustomization.yaml "$WORK/$OVERLAY"
-          git -C "$WORK" config user.name "$BOT_LOGIN"
-          git -C "$WORK" config user.email "${BOT_LOGIN}@users.noreply.github.com"
-          git -C "$WORK" add "$OVERLAY"
+          /usr/bin/cp dfr-pin/kustomization.yaml "$WORK/$OVERLAY"
+          /usr/bin/git -C "$WORK" config user.name "$BOT_LOGIN"
+          /usr/bin/git -C "$WORK" config user.email "${BOT_LOGIN}@users.noreply.github.com"
+          /usr/bin/git -C "$WORK" add "$OVERLAY"
           # Envelope guard: the ONLY diff is the overlay. If nothing changed, the
           # served plane already carries this pin — nothing to propose.
-          if git -C "$WORK" diff --cached --quiet; then
+          if /usr/bin/git -C "$WORK" diff --cached --quiet; then
             echo "the rendered overlay is byte-identical to ${RECIPE_REPO} main — nothing to propose"
             exit 0
           fi
-          MAIN_TIP="$(git -C "$WORK" rev-parse HEAD)"
-          git -C "$WORK" commit -q -m "dox: refresh ideation-dashboard image pin"
-          DELIVERY_TREE="$(git -C "$WORK" write-tree)"
-          OPEN_PR="$(gh pr list --repo "$RECIPE_REPO" --head "$BRANCH" --base main --state open --json number -q '.[0].number' 2>/dev/null || true)"
+          MAIN_TIP="$(/usr/bin/git -C "$WORK" rev-parse HEAD)"
+          /usr/bin/git -C "$WORK" commit -q -m "dox: refresh ideation-dashboard image pin"
+          DELIVERY_TREE="$(/usr/bin/git -C "$WORK" write-tree)"
+          OPEN_PR="$(/usr/bin/gh pr list --repo "$RECIPE_REPO" --head "$BRANCH" --base main --state open --json number -q '.[0].number' 2>/dev/null || true)"
           PR_URL=""
           if [ -n "$OPEN_PR" ]; then
             # Preserve the open PR + its thread. Fast-forward the branch: merge
             # commit, first parent = current remote branch tip, second = main.
-            git -C "$WORK" fetch origin "$BRANCH" 2>/dev/null || true
-            REMOTE_TIP="$(git -C "$WORK" rev-parse FETCH_HEAD 2>/dev/null || echo "$MAIN_TIP")"
-            NEW_TIP="$(git -C "$WORK" commit-tree "$DELIVERY_TREE" -p "$REMOTE_TIP" -p "$MAIN_TIP" -m "dox: refresh ideation-dashboard image pin")"
-            git -C "$WORK" update-ref "refs/heads/${BRANCH}" "$NEW_TIP"
-            if ! git -C "$WORK" push origin "$BRANCH" 2>/dev/null; then
+            /usr/bin/git -C "$WORK" fetch origin "$BRANCH" 2>/dev/null || true
+            REMOTE_TIP="$(/usr/bin/git -C "$WORK" rev-parse FETCH_HEAD 2>/dev/null || echo "$MAIN_TIP")"
+            NEW_TIP="$(/usr/bin/git -C "$WORK" commit-tree "$DELIVERY_TREE" -p "$REMOTE_TIP" -p "$MAIN_TIP" -m "dox: refresh ideation-dashboard image pin")"
+            /usr/bin/git -C "$WORK" update-ref "refs/heads/${BRANCH}" "$NEW_TIP"
+            if ! /usr/bin/git -C "$WORK" push origin "$BRANCH" 2>/dev/null; then
               echo "::warning::could not advance ${BRANCH} on ${RECIPE_REPO} (App scope? installation gate 1.2) — refresh parks for the human gate"
               exit 0
             fi
-            PR_URL="$(gh pr view "$OPEN_PR" --repo "$RECIPE_REPO" --json url -q .url 2>/dev/null || echo "")"
+            PR_URL="$(/usr/bin/gh pr view "$OPEN_PR" --repo "$RECIPE_REPO" --json url -q .url 2>/dev/null || echo "")"
           else
             # No open PR: (re)create the branch by CREATION (ref deletion is
             # unrestricted), then a single fresh commit atop main — no --force.
-            if git -C "$WORK" ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
-              git -C "$WORK" push origin --delete "$BRANCH" 2>/dev/null || true
+            if /usr/bin/git -C "$WORK" ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+              /usr/bin/git -C "$WORK" push origin --delete "$BRANCH" 2>/dev/null || true
             fi
-            NEW_TIP="$(git -C "$WORK" commit-tree "$DELIVERY_TREE" -p "$MAIN_TIP" -m "dox: refresh ideation-dashboard image pin")"
-            git -C "$WORK" update-ref "refs/heads/${BRANCH}" "$NEW_TIP"
-            if ! git -C "$WORK" push origin "$BRANCH" 2>/dev/null; then
+            NEW_TIP="$(/usr/bin/git -C "$WORK" commit-tree "$DELIVERY_TREE" -p "$MAIN_TIP" -m "dox: refresh ideation-dashboard image pin")"
+            /usr/bin/git -C "$WORK" update-ref "refs/heads/${BRANCH}" "$NEW_TIP"
+            if ! /usr/bin/git -C "$WORK" push origin "$BRANCH" 2>/dev/null; then
               echo "::warning::could not create ${BRANCH} on ${RECIPE_REPO} (App scope? installation gate 1.2) — pin PR not opened; refresh parks for the human gate"
               exit 0
             fi
-            PR_URL="$(gh pr create --repo "$RECIPE_REPO" \
+            PR_URL="$(/usr/bin/gh pr create --repo "$RECIPE_REPO" \
               --base main --head "$BRANCH" \
               --title "dox: refresh ideation-dashboard image pin" \
               --body-file dfr-pin/pr-body.md 2>/dev/null || echo "")"
@@ -4115,7 +4201,7 @@ jobs:
             echo "::notice::ideation-dashboard-refresh: pin PR delivered — ${PR_URL}"
             # Patch this run's status with the PR reference (task 4.7). Rides the
             # next delivery, like the status itself. Best-effort.
-            python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            "${pythonLocation:?}/bin/python3" openxFactory/scripts/dashboard-refresh-nightly.py \
               --repo-root . --phase record-pr --pull-request "$PR_URL" || true
           else
             echo "::warning::pin branch delivered but the PR reference could not be resolved — refresh may need a manual PR open"
@@ -4125,6 +4211,7 @@ jobs:
         if: steps.run.outputs.new_count != '0'
         env:
           GH_TOKEN: ${{ github.token }}
+        shell: /bin/bash --noprofile --norc -p -e {0}
         run: |
           # issue-body.md is capped well under GitHub's 65536-character
           # createIssue limit (opensoft/openxFactory#1118): a regression
@@ -4133,7 +4220,7 @@ jobs:
           # renderer (shared with "Run doc-health suite" above, which wrote
           # the FULL list to new-findings.md before this step ever runs)
           # caps on UTF-8 bytes, which upper-bounds characters too.
-          python3 - <<'PY'
+          "${pythonLocation:?}/bin/python3" - <<'PY'
           import json, sys
           sys.path.insert(0, "openxFactory/scripts")
           from doc_health.regression_issue_body import render
@@ -4142,7 +4229,7 @@ jobs:
           issue_body, _ = render(findings, run_date, cap_bytes=60000)
           open("issue-body.md", "w").write(issue_body)
           PY
-          gh issue create \
+          /usr/bin/gh issue create \
             --title "doc-health regressions ${{ steps.run.outputs.run_date }}" \
             --body-file issue-body.md \
             --repo "${{ github.repository }}" \
@@ -4160,13 +4247,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RUN_DATE: ${{ steps.run.outputs.run_date }}
           REPORT_PATH: health/reports/${{ steps.run.outputs.run_date }}.md
+        shell: /bin/bash --noprofile --norc -p -e {0}
         run: |
-          if ! gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+          if ! /usr/bin/gh issue list --repo "$GITHUB_REPOSITORY" --state open \
               --limit 200 --json number,title > open-issues.json; then
             echo "::warning::could not list issues; skipping stale-regression cleanup"
             exit 0
           fi
-          STALE="$(python3 - "$RUN_DATE" <<'PY'
+          STALE="$("${pythonLocation:?}/bin/python3" - "$RUN_DATE" <<'PY'
           import json, re, sys
           run_date = sys.argv[1]
           # Exact title shape only: "doc-health regressions YYYY-MM-DD".
@@ -4187,8 +4275,31 @@ jobs:
             exit 0
           fi
           for n in $STALE; do
-            gh issue close "$n" --repo "$GITHUB_REPOSITORY" \
+            /usr/bin/gh issue close "$n" --repo "$GITHUB_REPOSITORY" \
               --comment "superseded by ${REPORT_PATH}" \
               && echo "Closed stale regression issue #${n}." \
               || echo "::warning::failed to close stale regression issue #${n}"
           done
+      - name: Ideation-dashboard image refresh — remove the sealed runs' containers and image
+        # LAST, and always (#1191). Every sealed run is `--rm` in the
+        # foreground, and the lane refuses a seal whose run left a container
+        # running. A cancelled run can still leave one, and the image stays
+        # until something removes it. So every container carrying this run's
+        # label is removed, then the image by the id the build step recorded,
+        # and by the label, which it carries from the moment it exists.
+        if: always()
+        continue-on-error: true
+        shell: /bin/bash --noprofile --norc -p -e {0}
+        run: |
+          LABEL="openxfactory.dashboard-refresh.sealed-run=${GITHUB_RUN_ID:?}-${GITHUB_RUN_ATTEMPT:?}"
+          DOCKER_CONFIG="$(/usr/bin/mktemp -d "${RUNNER_TEMP:?}/dfr-docker-config.XXXXXX")"
+          export DOCKER_CONFIG
+          left="$(/usr/bin/docker ps -aq --filter "label=$LABEL" 2>/dev/null || true)"
+          if [ -n "$left" ]; then
+            printf '%s\n' "$left" | /usr/bin/xargs -r /usr/bin/docker rm -f >/dev/null 2>&1 || true
+          fi
+          if [[ "${SEALED_IMAGE:-}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            /usr/bin/docker image rm "$SEALED_IMAGE" >/dev/null 2>&1 || true
+          fi
+          /usr/bin/docker image ls -aq --no-trunc --filter "label=$LABEL" 2>/dev/null \
+            | /usr/bin/xargs -r /usr/bin/docker image rm >/dev/null 2>&1 || true
