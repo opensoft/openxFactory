@@ -680,6 +680,42 @@ def test_write_run_refuses_a_conflicting_later_repository_before_any_write(
     assert catalog.load_snapshot(tmp_path / "agg") is None
 
 
+def test_write_run_refuses_occupied_run_paths_before_any_write(tmp_path):
+    # Review (Copilot, #1175): a node the run would never write -- a
+    # directory at a snapshot or run.yaml path, a file where the run, date,
+    # or a slash-separated repository's directory goes -- must be refused
+    # as a controlled CatalogError before the first write, never surface
+    # as a filesystem error after a sequence was claimed.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid = catalog.run_id(runs, TAXONOMY)
+
+    def as_file(path):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("occupied\n", encoding="utf-8")
+
+    cases = {
+        "snapshot-is-a-directory": lambda run: (
+            run / "xFactories" / "MedxFactory.yaml").mkdir(parents=True),
+        "run-yaml-is-a-directory": lambda run: (
+            run / "run.yaml").mkdir(parents=True),
+        "repository-subdirectory-is-a-file": lambda run: as_file(
+            run / "xFactories"),
+        "run-directory-is-a-file": as_file,
+        "date-directory-is-a-file": lambda run: as_file(run.parent),
+    }
+    for name, occupy in cases.items():
+        root = tmp_path / name
+        run_dir = runs_root(root) / DAY_STR / rid
+        occupy(run_dir)
+        with pytest.raises(catalog.CatalogError, match="occupied"):
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        assert not (runs_root(root) / ".sequence").exists(), name
+        assert not (run_dir / "alpha.yaml").exists(), name
+        assert catalog.load_snapshot(root) is None, name
+
+
 def test_a_line_ending_edit_is_never_a_completed_noop(tmp_path):
     # Review (Copilot, #1175): the existing-file checks compare RAW bytes.
     # A text-mode read translates CRLF back to LF, so a retry over a

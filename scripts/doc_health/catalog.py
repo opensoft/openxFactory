@@ -800,19 +800,52 @@ def _snapshot_document(rid: str, repo: str, entries: list[dict],
     }
 
 
+def _occupied(path: Path) -> bool:
+    """Something — anything, a dangling symlink included — sits at
+    ``path``."""
+    return path.exists() or path.is_symlink()
+
+
 def _holds_exactly(target: Path, expected: bytes) -> bool:
-    """False when ``target`` is absent, True when it holds exactly
-    ``expected``, and ``CatalogError`` when it holds anything else — an
-    immutable snapshot is never rewritten. Compared as RAW bytes: a
-    universal-newline text read would translate a CRLF edit back to the
-    writer's LF and wave an altered record through as a completed no-op."""
-    if not target.is_file():
+    """False when ``target`` is absent, True when it is a regular file
+    holding exactly ``expected``, and ``CatalogError`` when anything else
+    occupies it — a file with other bytes (an immutable snapshot is never
+    rewritten) or a non-file node such as a directory (which would
+    otherwise pass as "absent" and fail the write mid-run). Compared as RAW
+    bytes: a universal-newline text read would translate a CRLF edit back
+    to the writer's LF and wave an altered record through as a completed
+    no-op."""
+    if not _occupied(target):
         return False
+    if not target.is_file():
+        raise CatalogError(
+            f"immutable snapshot path is occupied by a non-file: {target}")
     if target.read_bytes() != expected:
         raise CatalogError(
             f"immutable snapshot already exists with different content: "
             f"{target}")
     return True
+
+
+def _refuse_occupied_run_paths(run_dir: Path, targets) -> None:
+    """Refuse a run, before its first write, whose paths are occupied by
+    something the run would never write there: a non-directory where the
+    date directory, the run directory, or a slash-separated repository's
+    subdirectory goes, or a non-file at ``run.yaml``. The writer would
+    otherwise claim its sequence and then fail on a filesystem error
+    mid-run, leaving an orphaned claim or a partial run."""
+    directories = {run_dir.parent, run_dir}
+    for target in targets:
+        directories.update(p for p in target.parents if run_dir in p.parents)
+    for node in sorted(directories):
+        if _occupied(node) and not node.is_dir():
+            raise CatalogError(
+                f"catalog run path is occupied by a non-directory: {node}")
+    meta_path = run_dir / RUN_META_NAME
+    if _occupied(meta_path) and not meta_path.is_file():
+        raise CatalogError(
+            f"catalog run metadata path is occupied by a non-file: "
+            f"{meta_path}")
 
 
 def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
@@ -907,17 +940,21 @@ def write_run(root, as_of, entries_by_repo: dict, taxonomy
     id and byte-identical files; recording different content can never
     reuse an id, whichever tree or date it lands on.
 
-    All-or-nothing on refusal: every input check (``run_id``) and every
+    All-or-nothing on refusal: every input check (``run_id``), every node
+    the run will create (``_refuse_occupied_run_paths``), and every
     existing target of the run (``_holds_exactly``, raw bytes) is checked
-    BEFORE the first write, so a directory holding a conflicting file for
-    a LATER repository — edited by hand, or mixed from another run — is
-    refused before an earlier repository is written or a sequence is
-    claimed, never after, which would leave a partial recorded run."""
+    BEFORE the first write. A directory holding a conflicting file — or a
+    non-file node — for a LATER repository, edited by hand or mixed from
+    another run, is refused before an earlier repository is written or a
+    sequence is claimed, never after, which would leave a partial recorded
+    run."""
     rid = run_id(entries_by_repo, taxonomy)
     taxonomy_block = _validate_taxonomy(taxonomy)
     run_dir = Path(root) / RUNS_DIR / _as_of_str(as_of) / rid
+    targets = {repo: _repo_file(run_dir, repo) for repo in entries_by_repo}
+    _refuse_occupied_run_paths(run_dir, targets.values())
     for repo in sorted(entries_by_repo):
-        _holds_exactly(_repo_file(run_dir, repo), render(_snapshot_document(
+        _holds_exactly(targets[repo], render(_snapshot_document(
             rid, repo, list(entries_by_repo[repo]), taxonomy_block))
             .encode("utf-8"))
     paths = {}
