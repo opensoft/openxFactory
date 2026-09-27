@@ -6,7 +6,8 @@ WHAT THIS FILE POLICES, the openxFactory half of #1144 tasks 2.2, 4.1 and 4.3:
      `scripts/profile_openxfactory.py` declares `LaneRoutes` under openDox's
      handler-contribution facet, and the composite profile forwards it, so the
      class openDox's server binds carries the lanes column's methods, each the
-     column's own function.
+     column's own function, and a real server serves the column's five routes
+     through them.
   2. **T046, the other host wiring.** One process-start call,
      `opendox_host.register_openxfactory()`, fills every seam openDox-code's
      phase 1 declared with the code its reach used to import: the home corpus
@@ -36,10 +37,14 @@ SUBPROCESS, as `test_openxfactory_profile.py` explains for the profile.
 
 from __future__ import annotations
 
+import http.client
+import json
 import subprocess
 import sys
 import textwrap
+import threading
 import types
+from contextlib import contextmanager
 from datetime import date
 from pathlib import Path
 
@@ -178,6 +183,104 @@ def test_the_lanes_column_arrives_where_the_pinned_leg_binds_it():
     for name in methods:
         assert name not in vars(serve_mod.DashboardHandler)
         assert getattr(bound, name) is vars(LANE_ROUTES)[name], name
+
+
+#: The dashboard fixture tree the ideation-dashboard suite serves, and the
+#: revision it stamps (`tests/ideation-dashboard/conftest.py`).
+BASE_REPO = REPO_ROOT / "tests" / "ideation-dashboard" / "fixtures" / "base-repo"
+PINNED_REVISION = "abcd1234" * 5
+
+
+class _FakeGit:
+    def head_sha(self, repo) -> str:
+        return PINNED_REVISION
+
+    def commit_date(self, repo, revision: str) -> str:
+        return "2026-07-12T00:00:00+00:00"
+
+
+@contextmanager
+def _serving(tmp_path):
+    """A real server over the fixture tree, built through the registered
+    profile, as `tests/ideation-dashboard/test_serve_column_split.py` builds
+    one. The asset root is read off its manifest row, never spelled."""
+    import carved_reach
+    from openxdox.generator import generate_snapshot
+
+    web = carved_reach.source("scripts/ideation_dashboard/web/index.html").parent
+    snap = tmp_path / "snapshot.json"
+    snap.write_text(json.dumps(generate_snapshot(
+        BASE_REPO, "fixture-repo", source_revision=PINNED_REVISION,
+        git=_FakeGit())), encoding="utf-8")
+    httpd = serve_mod.build_server(web, snap, BASE_REPO, head=PINNED_REVISION,
+                                   actor="brett")
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    try:
+        yield httpd.server_address[:2]
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+        thread.join(timeout=2)
+
+
+def _request(host, port, method: str, path: str):
+    conn = http.client.HTTPConnection(host, port, timeout=5)
+    try:
+        conn.request(method, path, body=b"" if method == "POST" else None)
+        resp = conn.getresponse()
+        raw = resp.read()
+    finally:
+        conn.close()
+    return resp.status, json.loads(raw.decode("utf-8") or "null")
+
+
+def test_the_five_lane_routes_are_served_by_the_columns_own_methods(
+        tmp_path, monkeypatch):
+    """T045's falsifier, "the five lane routes are served", at the wire.
+
+    A request to each of the column's five routes, on a real server built
+    through the registered profile, reaches the column's own method, whichever
+    way the pinned leg composes the column. Each method is replaced, for this
+    test only, by a probe that answers with its own name, so the four write
+    routes run no refresh and no seed: what each route does keeps its own
+    suites, which run unmodified. The read route is also served for real,
+    below."""
+    bindings = tuple(serve_openxfactory_lanes.LaneRoutesExtension().routes())
+    assert len(bindings) == 5, bindings
+    assert all(binding.handler in vars(LANE_ROUTES) for binding in bindings)
+
+    reached: list[str] = []
+
+    def probe(name: str):
+        def handler(self, *args):
+            reached.append(name)
+            payload = json.dumps({"served_by": name}).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+        return handler
+
+    for binding in bindings:
+        monkeypatch.setattr(LANE_ROUTES, binding.handler, probe(binding.handler))
+    with _serving(tmp_path) as (host, port):
+        answers = [_request(host, port, binding.method, binding.pattern)
+                   for binding in bindings]
+    assert answers == [(200, {"served_by": binding.handler})
+                       for binding in bindings]
+    assert reached == [binding.handler for binding in bindings]
+
+
+def test_the_lanes_read_route_answers_from_a_real_server(tmp_path):
+    """The read route with the column's real method: the committed-intent
+    feed, as `test_intent_plane_boundary.py` reads it."""
+    with _serving(tmp_path) as (host, port):
+        status, body = _request(host, port, "GET",
+                                serve_openxfactory_lanes.COMMITTED_INTENTS_ROUTE)
+    assert status == 200, body
+    assert body["kind"] == "committed-intent-feed", body
 
 
 # --------------------------------------------------------------------------

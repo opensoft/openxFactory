@@ -225,20 +225,6 @@ def test_every_moved_handler_still_resolves_on_the_request_handler(
             "LaneRoutes' own function")
 
 
-def test_the_lanes_read_route_is_served_through_the_bound_class(tmp_path):
-    """T045's falsifier, at the wire: the lanes column's read route answers
-    from a real server, whichever way the pinned leg composes the column. Its
-    four write routes are driven by the loopback tests in section 4."""
-    with serving(tmp_path) as (_httpd, host, port):
-        conn = http.client.HTTPConnection(host, port, timeout=5)
-        conn.request("GET", serve_openxfactory_lanes.COMMITTED_INTENTS_ROUTE)
-        resp = conn.getresponse()
-        body = json.loads(resp.read().decode("utf-8"))
-        conn.close()
-    assert resp.status == 200, body
-    assert body["kind"] == "committed-intent-feed", body
-
-
 # ---------------------------------------------------------------------------
 # 2. the profile
 # ---------------------------------------------------------------------------
