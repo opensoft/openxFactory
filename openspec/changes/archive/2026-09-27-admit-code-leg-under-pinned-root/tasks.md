@@ -378,7 +378,7 @@ without its arm, and is shown failing before it is shown passing.
       `archive_change` stops with *"change has incomplete tasks"* while any
       `- [ ]` line remains in this file. **THE PROMOTION ITSELF IS THE
       WRAPPER'S ACT, PERFORMED IN THE COMMIT THAT MOVES THIS DIRECTORY and
-      recorded below in that same commit.** The one requirement it promotes is
+      recorded below in the commit after it.** The one requirement it promotes is
       `release-realization`'s *The estate's repositories are enumerated in a
       governed inventory*, this packet's SOLE `## MODIFIED` block, as amended
       by R1 (#1165 → `b5ec3899`): the direct hop sentence and not the
