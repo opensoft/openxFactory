@@ -1621,6 +1621,12 @@ def _what_is_at(path: Path):
     return path.read_bytes() if path.exists() else None
 
 
+def _identity(path) -> tuple[int, int]:
+    """The directory `path` leads to, as `(st_dev, st_ino)`."""
+    info = os.stat(path)
+    return info.st_dev, info.st_ino
+
+
 @pytest.mark.parametrize("found", ["an-empty-directory",
                                    "a-directory-holding-files", "a-file"])
 def test_a_seal_directory_that_already_exists_is_refused(corpus, tmp_path,
@@ -1642,9 +1648,9 @@ def test_a_seal_directory_that_already_exists_is_refused(corpus, tmp_path,
                                                encoding="utf-8")
     before = _what_is_at(seal)
     calls: list = []
+    resolving = _recording_resolver(tmp_path / "unit", calls)
     with pytest.raises(lane.SealRefused) as refused:
-        _seal(corpus, seal,
-              resolve_validator=_recording_resolver(tmp_path / "unit", calls))
+        _seal(corpus, seal, resolve_validator=resolving)
     assert str(refused.value) == _existing_seal_path(seal)
     assert calls == []
     assert _what_is_at(seal) == before
@@ -1779,6 +1785,144 @@ def test_a_seal_directory_swapped_while_the_lane_writes_it_keeps_the_writes(
         "code ran inside it, and the recipe is never written anywhere else")
     assert not (moved / "recipe").exists()
     assert not (moved / lane.SEAL_MANIFEST_NAME).exists()
+
+
+@pytest.mark.parametrize("replacement", ["a-fresh-directory",
+                                         "a-link-to-the-moved-one"])
+def test_a_directory_on_the_way_swapped_as_the_seal_is_made_gets_nothing(
+        corpus, tmp_path, monkeypatch, replacement):
+    """THE WAY TO THE SEAL IS HELD AS WELL AS THE SEAL (Copilot, PR #1185).
+    The walk from the root holds each directory on the way by a handle, and
+    the seal is made relative to the last one. So a directory on the way
+    that is moved out of the root after the walk opened it, and replaced,
+    would have the seal made inside the moved one, out of the root, while
+    its name led to the replacement, and the legs would be written there
+    before any check of the name. Once the seal is made, its way is walked
+    again from the root, by name and through no link, and a seal its name
+    does not lead to is refused before anything is written into it. The
+    swap is made here as the lane's own `mkdir` of the seal is called: `a`
+    moves out of the root, and a fresh directory, or a link to where `a`
+    went, takes its place."""
+    root = tmp_path / "root"
+    seal = root / "a" / "b" / "dfr-seal"
+    seal.parent.mkdir(parents=True)
+    moved = tmp_path / "moved"
+    stub = _stub_validator(tmp_path / "unit")
+    make = os.mkdir
+
+    def swapping_then_making(path, mode=0o777, *, dir_fd=None):
+        if (dir_fd is not None and os.fspath(path) == seal.name
+                and not moved.exists()):
+            (root / "a").rename(moved)
+            if replacement == "a-fresh-directory":
+                seal.parent.mkdir(parents=True)
+            else:
+                (root / "a").symlink_to(moved, target_is_directory=True)
+        make(path, mode, dir_fd=dir_fd)
+
+    monkeypatch.setattr(lane.os, "mkdir", swapping_then_making)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, seal_within=root, resolve_validator=lambda: stub)
+    assert _what_is_at(moved / "b" / seal.name) == []
+    assert str(refused.value) == (
+        f"the seal directory {seal} was made where its path no longer leads: "
+        f"a directory on its way from {root} was replaced as the lane made "
+        "it, and nothing is written into it")
+    if replacement == "a-fresh-directory":
+        assert not os.path.lexists(seal)
+
+
+@pytest.mark.parametrize("when", ["as-the-legs-are-sealed",
+                                  "as-the-render-runs"])
+def test_a_directory_on_the_way_swapped_for_a_link_gets_nothing_more(
+        corpus, tmp_path, when):
+    """THE NAME IS HELD TO THE SEAL THROUGH NO LINK (Copilot, PR #1185). A
+    directory on the seal's way may be moved out of the root after the seal
+    is made, and a link to it put in its place, here as the legs are sealed
+    or as the render runs. The seal's path then still reaches the directory
+    the lane made, but through a link, out of the root. Each check of the
+    name walks it again from the root through no link, as the making did,
+    so the seal is refused and nothing more is written into it. Before
+    this, the check looked through the link, and the seal was completed,
+    manifest and all, out of the root."""
+    root = tmp_path / "root"
+    seal = root / "a" / "b" / "dfr-seal"
+    seal.parent.mkdir(parents=True)
+    moved = tmp_path / "moved"
+    stub = _stub_validator(tmp_path / "unit")
+
+    def swap():
+        (root / "a").rename(moved)
+        (root / "a").symlink_to(moved, target_is_directory=True)
+
+    def swapping_legs(*, corpus_checkout, source_head, corpus_root, runner):
+        records = _stub_leg_records(corpus_root, PRODUCT_MODULE_TEXT,
+                                    _validator_head(stub))
+        if when == "as-the-legs-are-sealed":
+            swap()
+        return records
+
+    def swapping_render(seal_root, *, source_head, source_committed_at):
+        if when == "as-the-render-runs":
+            swap()
+        return dict(STUB_PRECHECK)
+
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, seal_within=root, resolve_validator=lambda: stub,
+              seal_legs=swapping_legs, precheck_render=swapping_render)
+    what, after = (("corpus", "it was replaced after the lane made it")
+                   if when == "as-the-legs-are-sealed"
+                   else ("manifest", "sealed code ran inside it"))
+    assert str(refused.value) == (
+        f"the seal directory is no longer the one the lane created: {after}, "
+        f"and the {what} is never written anywhere else")
+    made = moved / "b" / seal.name
+    assert made.is_dir()
+    assert not (made / lane.SEAL_MANIFEST_NAME).exists()
+    if when == "as-the-legs-are-sealed":
+        assert not (made / lane.SEAL_CORPUS_RELPATH / "docs").exists()
+
+
+@pytest.mark.parametrize("replacement", ["a-copy-in-its-place",
+                                         "a-directory-of-its-own"])
+def test_the_render_is_handed_the_directory_the_lane_made_not_its_name(
+        corpus, tmp_path, monkeypatch, replacement):
+    """THE RENDER RUNS FROM THE DIRECTORY THE LANE MADE (Copilot, PR #1185).
+    The validator's probe is sealed code, run with the seal writable before
+    the render, so the seal's name may lead somewhere else by the time the
+    render runs. The render is handed the directory the lane holds, as the
+    probe is, never the name. Here the seal is moved aside once the recipe
+    is written, and a copy of it, or a directory of its own, is put at its
+    name. The render still runs from the directory the lane made, and the
+    seal is refused before its manifest, since its name no longer leads
+    there."""
+    seal = tmp_path / "seal"
+    moved = tmp_path / "seal.moved"
+    write_recipe = lane._write_new_recipe
+    ran_in: list = []
+
+    def writing_then_swapping(held, text, **kw):
+        write_recipe(held, text, **kw)
+        seal.rename(moved)
+        if replacement == "a-copy-in-its-place":
+            shutil.copytree(moved, seal)
+        else:
+            seal.mkdir()
+
+    def recording(seal_root, *, source_head, source_committed_at):
+        # The first thing the real render does with what it is handed.
+        ran_in.append(_identity(Path(seal_root).resolve()))
+        return dict(STUB_PRECHECK)
+
+    monkeypatch.setattr(lane, "_write_new_recipe", writing_then_swapping)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, precheck_render=recording)
+    assert ran_in == [_identity(moved)]
+    assert str(refused.value) == (
+        "the seal directory is no longer the one the lane created: sealed "
+        "code ran inside it, and the manifest is never written anywhere else")
+    assert not (moved / lane.SEAL_MANIFEST_NAME).exists()
+    assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
 
 
 @pytest.mark.parametrize("path", [path for path in SERVE_ONLY
@@ -3679,9 +3823,10 @@ def test_a_leg_without_a_module_the_render_unit_imports_is_refused(
     _mount_products(corpus, tmp_path / "upstream", omit={gitlink: (module,)})
     package = next(package for name, _leg, package in lane.RENDER_LEGS
                    if name == gitlink)
+    head = _git(corpus, "rev-parse", "HEAD")
     with pytest.raises(lane.SealRefused) as refused:
         lane.seal_render_legs(
-            corpus_checkout=corpus, source_head=_git(corpus, "rev-parse", "HEAD"),
+            corpus_checkout=corpus, source_head=head,
             corpus_root=tmp_path / "seal" / lane.SEAL_CORPUS_RELPATH)
     assert str(refused.value).startswith(
         f"the sealed {gitlink} code leg carries no src/{package}/{module}, "
@@ -4170,16 +4315,18 @@ def test_a_seal_directory_the_render_replaced_gets_no_manifest(
     put a link, or a copy with the same content, where it was. The index
     would match either. The directory is held by identity from its creation,
     so either is refused, and no manifest is written anywhere (Copilot,
-    PR #1166)."""
+    PR #1166). The render is handed the directory the lane holds (Copilot,
+    PR #1185), so the stand-in moves the seal by its name, as sealed code
+    that knows where it runs would."""
     seal = tmp_path / "seal"
     moved = tmp_path / "seal.moved"
 
     def replacing(seal_root, *, source_head, source_committed_at):
-        Path(seal_root).rename(moved)
+        seal.rename(moved)
         if replacement == "a-link-to-the-moved-seal":
-            Path(seal_root).symlink_to(moved, target_is_directory=True)
+            seal.symlink_to(moved, target_is_directory=True)
         else:
-            shutil.copytree(moved, seal_root)
+            shutil.copytree(moved, seal)
         return dict(STUB_PRECHECK)
 
     with pytest.raises(lane.SealRefused) as refused:
@@ -4229,9 +4376,9 @@ def test_a_seal_directory_that_is_a_link_is_refused(corpus, tmp_path,
     link = tmp_path / "seal"
     link.symlink_to(target, target_is_directory=True)
     calls: list = []
+    resolving = _recording_resolver(tmp_path / "unit", calls)
     with pytest.raises(lane.SealRefused) as refused:
-        _seal(corpus, link,
-              resolve_validator=_recording_resolver(tmp_path / "unit", calls))
+        _seal(corpus, link, resolve_validator=resolving)
     assert str(refused.value) == _linked_seal_path(link)
     assert calls == []
     assert link.is_symlink()
