@@ -67,10 +67,11 @@ except ImportError:                                         # pragma: no cover
 # families suggest state-changing edits; everything else is mechanical.
 #
 # "document-catalog" is deliberately ABSENT here (research D6): its
-# twelve finding classes are a mix of mechanical/auto-fixable checks
+# thirteen finding classes are a mix of mechanical/auto-fixable checks
 # (coverage, duplicate-key, stale-entry, artifact-type, immutable-path,
-# recursion) and always-contested ones (taxonomy/controlled-value,
-# resolution, confidence, provenance, override-standing, pending-aging).
+# run-identity, recursion) and always-contested ones
+# (taxonomy/controlled-value, resolution, confidence, provenance,
+# override-standing, pending-aging).
 # A single table entry here would force one resolution onto every
 # class, contradicting D6. document_catalog.py sets `resolution=` per
 # finding instead — see its module docstring.

@@ -16,12 +16,15 @@ or contract-validation logic is introduced here, and neither function ever
 constructs a `Finding` or touches `result.findings` — `CatalogMeta` is a
 distinct, report-only shape (FR-012).
 
-Only `merge_catalog_findings` calls `catalog.write_snapshot` (see its own
-docstring for why `prepare_catalog_bundle` deliberately does not): it always
-runs — even absent any dispatch at all — so it is the single point of truth
-that durably records each run's snapshot, satisfying FR-001/FR-006/FR-007's
-"every run produces a full mechanical snapshot" regardless of the cataloger
-child's availability.
+Only `merge_catalog_findings` records a run (`catalog.write_run`; see
+`prepare_catalog_bundle`'s docstring for why that function deliberately does
+not): it always runs — even absent any dispatch at all — so it is the single
+point of truth that durably records each run's snapshot, satisfying
+FR-001/FR-006/FR-007's "every run produces a full mechanical snapshot"
+regardless of the cataloger child's availability. The id it records under is
+the content address of exactly what it merged (opensoft/xFactory#519), so the
+nightly and any other producer of the same corpus state can only share a run
+id when they record byte-identical snapshots.
 
 Deviation from contracts/module-interfaces.md's illustrative sketch: that
 document names a `previous_inventory` parameter mirroring
@@ -277,7 +280,9 @@ def _recompute(repo_paths: dict, inventory: list[dict], catalog_root,
         base_by_repo.setdefault(entry["repo"], []).append(entry)
 
     taxonomy = _effective_taxonomy(repo_paths, inventory)
-    rid = catalog.run_id(inventory, taxonomy)
+    # No run id here: the id is the content address of what the MERGE
+    # records (`catalog.write_run`), which depends on the recommendations
+    # that arrive after this shared recompute (opensoft/xFactory#519).
     prompt_version, prompt_text = cataloger.load_prompt_contract()
 
     # select()'s own `baseline_mode = not catalog_map` check requires the
@@ -298,7 +303,7 @@ def _recompute(repo_paths: dict, inventory: list[dict], catalog_root,
     return {
         "curr_entries": curr_entries, "prev_entries": prev_entries,
         "base_entries": base_entries, "base_by_repo": base_by_repo,
-        "taxonomy": taxonomy, "rid": rid,
+        "taxonomy": taxonomy,
         "prompt_version": prompt_version, "prompt_text": prompt_text,
         "selections": selections, "shards": shards, "diff": the_diff,
     }
@@ -584,18 +589,16 @@ def prepare_catalog_bundle(repo_paths: dict, docs, as_of, catalog_root,
     throttle, and why this call is a PREVIEW whose durable persistence
     happens via `merge_catalog_findings`'s parallel call instead.
 
-    Deliberately does NOT call `catalog.write_snapshot` itself (either
-    path): `run_id` is a pure function of (inventory, taxonomy) alone
-    (`catalog.run_id`), so a caller invoking prepare then merge against the
-    SAME checkout (a real scenario — e.g. `--single-repo` local/PR-gate
-    use, not only the two-job nightly workflow's separate ephemeral
-    runners) would otherwise have this call and `merge_catalog_findings`'s
-    later call target the identical immutable run identity with DIFFERENT
-    content (mechanical-only here vs. merged-with-recommendations there) —
-    catalog.py's immutability guarantee (deliberately absolute; never
-    bypassed here, see module docstring) would then refuse the second
-    write as a conflict. `merge_catalog_findings` ALWAYS runs (even with
-    no dispatch at all — the workflow wiring passes
+    Deliberately does NOT record a run itself (either path): the run id is
+    the content address of what `merge_catalog_findings` records
+    (`catalog.write_run` — mechanical carry-forward plus whatever validated
+    recommendations and pending markers the merge folds in), which this
+    phase cannot know before the child returns. A write here would record a
+    SECOND, mechanical-only run of the same day — no longer a conflict (a
+    different content is a different id since opensoft/xFactory#519, where
+    the old inventory-plus-taxonomy id made it one), but a spurious record
+    that "latest" would then have to step over. `merge_catalog_findings`
+    ALWAYS runs (even with no dispatch at all — the workflow wiring passes
     `--catalog-unavailable-reason worker_unavailable` unconditionally) and
     is therefore the single point of truth that durably records this run's
     snapshot; FR-001's "before any cataloger child is dispatched" ordering
@@ -604,7 +607,8 @@ def prepare_catalog_bundle(repo_paths: dict, docs, as_of, catalog_root,
     not by a second, redundant persisted write here.
 
     Returns a meta dict (mirrors `semantic.prepare_bundle`'s meta shape)
-    plus the `CatalogMeta` fields available at prepare time.
+    plus the `CatalogMeta` fields available at prepare time. It carries no
+    `run_id`: the id is minted from the merged content, after this phase.
     """
     _validate_prepared_inventory(repo_paths, inventory, docs)
     if baseline_mode:
@@ -638,7 +642,6 @@ def prepare_catalog_bundle(repo_paths: dict, docs, as_of, catalog_root,
             "classifier_version": cataloger.CLASSIFIER_VERSION,
             "prompt_version": prompt_version,
             "model": None,  # never dispatched this invocation
-            "run_id": catalog.run_id(inventory, taxonomy),
             "baseline_progress": baseline_progress,
         }
     state = _recompute(repo_paths, inventory, catalog_root, scope,
@@ -669,7 +672,6 @@ def prepare_catalog_bundle(repo_paths: dict, docs, as_of, catalog_root,
         "classifier_version": cataloger.CLASSIFIER_VERSION,
         "prompt_version": state["prompt_version"],
         "model": model,
-        "run_id": state["rid"],
     }
 
 
@@ -781,10 +783,14 @@ def merge_catalog_findings(repo_paths: dict, as_of, catalog_root,
        `skipped_reason`), never a crash;
     2. `cataloger.pending_records` for every selected-but-uncovered facet,
        always (whether or not real findings arrived);
-    3. `catalog.merge_recommendations` + `catalog.write_snapshot` the merged
-       result per repository — the one call that durably records this run's
-       catalog state (see `prepare_catalog_bundle`'s docstring for why it
-       never calls `catalog.write_snapshot` itself);
+    3. `catalog.merge_recommendations` per repository, then
+       `catalog.write_run` over ALL the merged repositories at once — the
+       one call that durably records this run's catalog state (see
+       `prepare_catalog_bundle`'s docstring for why it never records a run
+       itself), under the content address of exactly that merged state, so
+       a producer that merged anything different records a different run
+       id rather than a different content under this one
+       (opensoft/xFactory#519);
     4. when `baseline_mode`: ALSO advances the mechanical baseline
        (`_advance_baseline`) — this is the call that durably persists it
        (module docstring: this runs in the `finalize` job, which commits
@@ -817,16 +823,22 @@ def merge_catalog_findings(repo_paths: dict, as_of, catalog_root,
         state["selections"], state["prev_entries"], as_of)
     all_records = validated_records + pending
 
-    snapshot_refs = []
+    merged_by_repo: dict[str, list[dict]] = {}
     merged_entries: list[dict] = []
     for repo in sorted(state["base_by_repo"]):
         merged = catalog.merge_recommendations(
             state["base_by_repo"][repo], all_records)
+        merged_by_repo[repo] = merged
         merged_entries.extend(merged)
-        path = catalog.write_snapshot(
-            catalog_root, as_of, state["rid"], repo, merged,
-            state["taxonomy"])
-        snapshot_refs.append(str(path))
+    # The id is minted HERE, from the whole merged run, never from the
+    # inventory and taxonomy alone: two producers of one corpus state that
+    # merged different classification can no longer share a run id. An
+    # empty corpus records nothing, exactly as the per-repository loop did.
+    paths = {}
+    if merged_by_repo:
+        _rid, paths = catalog.write_run(catalog_root, as_of, merged_by_repo,
+                                        state["taxonomy"])
+    snapshot_refs = [str(paths[repo]) for repo in sorted(paths)]
 
     recommendation_refs = []
     if validated_records and resolved_job_id:
