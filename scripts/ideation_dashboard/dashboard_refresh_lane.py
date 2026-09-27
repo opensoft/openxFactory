@@ -1436,10 +1436,12 @@ def _seal_directory_identity(seal_dir) -> tuple[int, int]:
 # seal. From then on the lane holds a handle on the directory it made, and
 # every write and read it makes under the seal goes through that handle
 # (`_HeldSealDirectory.root`), never through the name, so a name swapped
-# after the making redirects nothing. Before each write the seal stands
-# behind, the name is held to still lead to that very directory, since the
-# workflow uploads whatever the name leads to: a seal whose name leads
-# anywhere else gets nothing more written, and is refused.
+# after the making redirects nothing, and the sealed code the lane runs is
+# handed that directory too, never the name. Before each write the seal
+# stands behind, the name is held to still lead to that very directory,
+# along the way it was made by and through no link, since the workflow
+# uploads whatever the name leads to: a seal whose name leads anywhere else
+# gets nothing more written, and is refused.
 
 def _existing_seal_path(path) -> SealRefused:
     """The refusal for anything already at the seal directory's path."""
@@ -1465,6 +1467,37 @@ def _seal_directory_replaced_as_made(path) -> SealRefused:
     return SealRefused(
         f"the seal directory {path} was replaced as the lane made it, and "
         "nothing is written into what took its place")
+
+
+def _seal_made_off_its_way(path, start) -> SealRefused:
+    return SealRefused(
+        f"the seal directory {path} was made where its path no longer leads: "
+        f"a directory on its way from {start} was replaced as the lane made "
+        "it, and nothing is written into it")
+
+
+def _reached_by_name(start, names) -> tuple[int, int] | None:
+    """The directory reached from `start` by `names`, as `(st_dev, st_ino)`:
+    `start` opened without following a link at its own name, then each name
+    opened relative to the directory before it, without following a link.
+    None when that walk reaches no directory."""
+    try:
+        here = _open_directory(start)
+    except OSError:
+        return None
+    if here is None:
+        return None
+    try:
+        for name in names:
+            below = _open_directory(name, dir_fd=here)
+            here, above = below, here
+            os.close(above)
+        info = os.fstat(here)
+    except OSError:
+        return None
+    finally:
+        os.close(here)
+    return info.st_dev, info.st_ino
 
 
 # Where the kernel names an open file by its handle: a path that resolves
@@ -1494,36 +1527,123 @@ class _HeldSealDirectory:
     """The seal directory the lane made (`_new_seal_directory`), with the
     handle it has held on it since.
 
-    `path` is the name it was made at: what the workflow uploads, and what
-    the pre-dispatch render is handed. `root` is what every write and read
-    the lane makes under the seal goes through: the handle's own path where
-    the platform names one (`_path_through_handle`), so a name swapped after
-    the making redirects nothing, else `path`. `directory` is None where the
-    platform opens nothing relative to a handle, and the path is then used,
-    as the manifest's write has always done there."""
+    `path` is the name it was made at, which the workflow uploads. `root` is
+    what every write and read the lane makes under the seal goes through,
+    and what the sealed code the lane runs is handed: the handle's own path
+    where the platform names one (`_path_through_handle`), so a name swapped
+    after the making redirects nothing, else `path`. `directory` is None
+    where the platform opens nothing relative to a handle, and the path is
+    then used, as the manifest's write has always done there.
+
+    `way` is where the walk that made the directory started, and the names
+    of the directories it took below that (`_new_seal_directory`). `path`
+    leads to the directory held only while that walk, taken again by name
+    and through no link, reaches it (`leads_here`). None where the platform
+    opens nothing relative to a handle."""
 
     path: Path
     directory: int | None
     identity: tuple[int, int]
     root: Path
+    way: tuple[Path, tuple[str, ...]] | None = None
+
+    def leads_here(self) -> bool:
+        """Whether `path` still leads to the directory the lane made, with
+        the identity it was made with: along `way` through no link at all
+        (Copilot, PR #1185), or, with no `way`, through no link at its own
+        name."""
+        if self.way is not None:
+            start, steps = self.way
+            return (_reached_by_name(start, (*steps, self.path.name))
+                    == self.identity)
+        try:
+            now = os.stat(self.path, follow_symlinks=False)
+        except OSError:
+            return False
+        return (stat.S_ISDIR(now.st_mode)
+                and (now.st_dev, now.st_ino) == self.identity)
 
     def refuse_if_replaced(self, what: str, *,
                            after: str = "sealed code ran inside it") -> None:
         """Refuse the seal unless `path` still leads to the directory the lane
-        made: a directory, not a link at its last component, with the
-        identity it was made with."""
-        try:
-            now = os.stat(self.path, follow_symlinks=False)
-        except OSError as exc:
-            raise _replaced_seal_directory(what, after=after) from exc
-        if (not stat.S_ISDIR(now.st_mode)
-                or (now.st_dev, now.st_ino) != self.identity):
+        made (`leads_here`)."""
+        if not self.leads_here():
             raise _replaced_seal_directory(what, after=after)
 
     def close(self) -> None:
         if self.directory is not None:
             os.close(self.directory)
             self.directory = None
+
+
+def _seal_directory_way(seal_dir, within
+                        ) -> tuple[Path, Path, tuple[str, ...]]:
+    """The seal directory's path, where the walk that makes it starts, and
+    the names of the directories that walk takes below that, in order
+    (`_new_seal_directory`)."""
+    path = Path(seal_dir)
+    if within is None:
+        return path, path.parent, ()
+    path = Path(os.path.abspath(path))
+    spelled, root = str(path), os.path.realpath(within)
+    if not spelled.startswith(root + os.sep):
+        raise SealRefused(
+            f"the seal directory {path} is not inside {root}")
+    # The walk starts where the seal's own path reaches the root, and takes
+    # each directory below it in turn.
+    return (path, Path(spelled[:len(root)]),
+            Path(spelled[len(root) + 1:]).parent.parts)
+
+
+def _walked_down(parent: int, steps, path, start) -> int:
+    """The handle on the directory the seal goes in, reached from `parent`,
+    the handle on `start`, by `steps`, each opened relative to the one before
+    it and without following a link. Every other handle is closed, and every
+    handle is closed when it raises."""
+    for step in steps:
+        try:
+            below = _open_directory(step, dir_fd=parent)
+        except OSError as exc:
+            os.close(parent)
+            raise SealRefused(
+                f"the seal directory {path} cannot be made: {step!r}, on "
+                f"its way from {start}, is not a directory of its own "
+                f"({exc.strerror}), and a seal is never made through a "
+                "link") from exc
+        parent, above = below, parent
+        os.close(above)
+    return parent
+
+
+def _made_and_opened(path, parent: int) -> int:
+    """Make the seal directory in the directory `parent` holds, with a plain
+    `mkdir`, and open it without following a link. Returns its handle."""
+    try:
+        os.mkdir(path.name, dir_fd=parent)
+    except FileExistsError as exc:
+        raise _existing_seal_path(path) from exc
+    except OSError as exc:
+        raise SealRefused(
+            f"the seal directory {path} cannot be made ({exc.strerror})"
+        ) from exc
+    try:
+        return _open_directory(path.name, dir_fd=parent)
+    except OSError as exc:
+        raise _seal_directory_replaced_as_made(path) from exc
+
+
+def _new_seal_directory_by_path(path) -> _HeldSealDirectory:
+    """The seal directory made, and held, by its path, where the platform
+    opens nothing relative to a handle."""
+    try:
+        os.mkdir(path)
+    except FileExistsError as exc:
+        raise _existing_seal_path(path) from exc
+    except OSError as exc:
+        raise SealRefused(
+            f"the seal directory {path} cannot be made ({exc.strerror})"
+        ) from exc
+    return _HeldSealDirectory(path, None, _seal_directory_identity(path), path)
 
 
 def _new_seal_directory(seal_dir, *, within=None) -> _HeldSealDirectory:
@@ -1545,20 +1665,17 @@ def _new_seal_directory(seal_dir, *, within=None) -> _HeldSealDirectory:
     HELD AS MADE. The new directory is then opened the same way, and must be
     empty, since a directory the lane has just made holds nothing. So one
     swapped for a link, or for another directory, in the instant after the
-    `mkdir` is refused, and nothing is written into it."""
-    path = Path(seal_dir)
-    if within is None:
-        start, steps = path.parent, ()
-    else:
-        path = Path(os.path.abspath(path))
-        spelled, root = str(path), os.path.realpath(within)
-        if not spelled.startswith(root + os.sep):
-            raise SealRefused(
-                f"the seal directory {path} is not inside {root}")
-        # The walk starts where the seal's own path reaches the root, and
-        # takes each directory below it in turn.
-        start = Path(spelled[:len(root)])
-        steps = Path(spelled[len(root) + 1:]).parent.parts
+    `mkdir` is refused, and nothing is written into it.
+
+    ITS WAY, WALKED AGAIN (Copilot, PR #1185). A directory on the way is
+    held by a handle only while the walk goes through it, so one moved out
+    of `within` after it was opened, and replaced, would have the seal made
+    inside the moved one, where the seal's path does not lead. So once the
+    directory is made, the way is walked again, by name and through no link,
+    and must reach it, or the seal is refused before anything is written
+    into it. Every later check of the name walks it the same way
+    (`_HeldSealDirectory.leads_here`)."""
+    path, start, steps = _seal_directory_way(seal_dir, within)
     try:
         parent = _open_directory(start)
     except OSError as exc:
@@ -1568,40 +1685,10 @@ def _new_seal_directory(seal_dir, *, within=None) -> _HeldSealDirectory:
     if parent is None:
         # The platform opens nothing relative to a handle, so the seal is
         # made, and held, by its path.
-        try:
-            os.mkdir(path)
-        except FileExistsError as exc:
-            raise _existing_seal_path(path) from exc
-        except OSError as exc:
-            raise SealRefused(
-                f"the seal directory {path} cannot be made ({exc.strerror})"
-            ) from exc
-        return _HeldSealDirectory(path, None, _seal_directory_identity(path),
-                                  path)
+        return _new_seal_directory_by_path(path)
+    parent = _walked_down(parent, steps, path, start)
     try:
-        for step in steps:
-            try:
-                below = _open_directory(step, dir_fd=parent)
-            except OSError as exc:
-                raise SealRefused(
-                    f"the seal directory {path} cannot be made: {step!r}, on "
-                    f"its way from {start}, is not a directory of its own "
-                    f"({exc.strerror}), and a seal is never made through a "
-                    "link") from exc
-            os.close(parent)
-            parent = below
-        try:
-            os.mkdir(path.name, dir_fd=parent)
-        except FileExistsError as exc:
-            raise _existing_seal_path(path) from exc
-        except OSError as exc:
-            raise SealRefused(
-                f"the seal directory {path} cannot be made ({exc.strerror})"
-            ) from exc
-        try:
-            directory = _open_directory(path.name, dir_fd=parent)
-        except OSError as exc:
-            raise _seal_directory_replaced_as_made(path) from exc
+        directory = _made_and_opened(path, parent)
     finally:
         os.close(parent)
     try:
@@ -1612,9 +1699,13 @@ def _new_seal_directory(seal_dir, *, within=None) -> _HeldSealDirectory:
         os.close(directory)
         raise
     identity = (info.st_dev, info.st_ino)
-    return _HeldSealDirectory(path, directory, identity,
+    held = _HeldSealDirectory(path, directory, identity,
                               _path_through_handle(directory, identity)
-                              or path)
+                              or path, way=(start, steps))
+    if not held.leads_here():
+        held.close()
+        raise _seal_made_off_its_way(path, start)
+    return held
 
 
 @contextlib.contextmanager
@@ -2932,7 +3023,9 @@ def precheck_sealed_render(seal_root, *, source_head: str,
     Every path either run is handed is absolute. The nightly names its seal
     relative to the job's working directory (`--seal-out dfr-seal`), and the
     render runs from inside the seal, where a relative path would name
-    nothing.
+    nothing. A seal handed as the path of the lane's own handle on it
+    (`_HeldSealDirectory.root`) resolves to where that directory is, since a
+    child cannot use this process's handle.
 
     Raises `SealRefused` when the render fails, when it drops either anchor,
     or when the validator cannot run. Raises `StrictGateRejected`, carrying
@@ -3120,8 +3213,9 @@ def seal_source(
     THE SEAL DIRECTORY IS THE LANE'S OWN (#1182). The lane makes it itself
     (`_new_seal_directory`) and holds a handle on it until the seal is done.
     Every write and read the lane makes under the seal goes through that
-    handle (`_HeldSealDirectory.root`), and the pre-dispatch render, which is
-    sealed code, is handed the directory's name. `seal_within` is the root
+    handle (`_HeldSealDirectory.root`), and the sealed code it runs, the
+    validator's probe and the pre-dispatch render, is handed that directory
+    too, never its name (Copilot, PR #1185). `seal_within` is the root
     the directory must lie in, and `main` passes `--repo-root`: the
     directory is then made by walking from it through no link. Left None,
     the directory is made in its parent, opened without following a link at
@@ -3316,8 +3410,15 @@ def seal_source(
         # whose snapshot its own validator rejects, would only fail on the worker.
         # Finding that out here costs one render, and it keeps the verdict in this
         # run's own report.
+        #
+        # IT RUNS FROM THE DIRECTORY THE LANE MADE (Copilot, PR #1185), as the
+        # probe did: it is handed the directory the lane holds, never the
+        # name, which the probe's sealed code could have pointed anywhere. A
+        # child process cannot use this process's handle, so it is handed
+        # where that directory is when it starts, read through the handle.
+        # The name is held to the directory again before the manifest.
         precheck = (precheck_render or precheck_sealed_render)(
-            held.path, source_head=source_head,
+            seal_root, source_head=source_head,
             source_committed_at=source_committed_at)
         if seal_file_index(seal_root) != index:
             raise SealRefused(
