@@ -1131,6 +1131,18 @@ edit to a protected proof with its reason, which is the route R1Q14 (a) took
 for F7.1. (b) breaks openXdox's own views, and (c) edits a protected proof
 outside the guard that exists to see it.
 
+**Corrections after the answer.** Brett Heap answered this question on
+`#656`, comment `5851950767`, and T067 encodes the answer. The second pass of
+round 2's analyze then found two errors in the text above, which is left as
+it was put. Neither bears on the answer.
+- *"Neither file is an 11.1 surface"* holds for the facet test alone.
+  `scripts/profile_openxfactory.py` is one of 11.1's host-wiring surfaces, in
+  F11.1's `HOST` set. The test is what keeps the edit out of an arc landing,
+  and T066's both-pins act carries both files (W2-2, U2-14).
+- *"it drives `open-pr`, `:672`"* overstates the test. `:672` asserts only
+  that `open-pr` is among the views' verbs, and that string is why 12.5's
+  grep selects the file (W2-8).
+
 ---
 
 ## R1Q27 — The consumer's validator narrows to its three schemas, but openxFactory's contracts name it as the validator of openxFactory's own kinds *(governs T007, T061, T066, T067; phase 2)* — **OPEN**
@@ -1194,3 +1206,18 @@ consumer's validator narrows.
 walk, without taking the validator away from rules that name it. (b) is the
 long-run home, and it is a change of its own. (c) leaves governed rules
 unenforced.
+
+**Corrections after the answer.** Brett Heap answered this question on
+`#656`, comment `5851950767`, and T067 encodes the answer. The second pass of
+round 2's analyze then found two errors in the text above, which is left as
+it was put. Neither bears on the answer.
+- *"7.1b: nothing vendors them"* is not what #1144 says. 7.1b covers two of
+  the four kinds, `gate-intent` and `ideation-possibles-register`, and says
+  *"openDox needs neither"*. 7.1 admits one copy of the four: *"Only if a
+  measured openDox verb genuinely needs one of openxFactory's four does it
+  arrive as the DIGEST-PINNED VENDORED COPY `neutral-product-pin` admits"*
+  (W2-9).
+- Option (c) amends the three RETAINED rows but names no OpenSpec change.
+  Principle II requires one for a change to an artifact contract, as the text
+  above says of these rows, so (c) would have needed an OpenSpec change of
+  openxFactory's, as (b) does (W2-3).

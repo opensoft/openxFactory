@@ -39,7 +39,7 @@ below realizes one of #1144's requirements and names it. Nothing here restates,
 narrows or widens the packet. Where this file appears to do so, that is a
 defect in this file, and the packet wins. Where the packet contradicts itself
 or the live code, the contradiction is put to Brett as a question
-([`clarify-questions.md`](./clarify-questions.md), `R1Q1`–`R1Q25`). It is never
+([`clarify-questions.md`](./clarify-questions.md), `R1Q1`–`R1Q27`). It is never
 settled here by assumption.
 
 **Why the feature lives in openxFactory.** The governing change lives here.
@@ -220,7 +220,9 @@ neither is answered here by assumption.
 
 They hold T059, T060, T061 and T066, each through a `Blocked by:` line. T067,
 which encodes their answers, carries the same line, and so does T007 for its
-batch I alone. No other task carries a `Blocked by:` line.
+batch I alone. No other task carries a `Blocked by:` line. T063, T064 and
+T065 follow the held tasks through their `After:` lines, so phase 2 closes
+only once both are answered.
 
 One box needs no question. **3.0** ("RATIFICATION READ FIRST") is discharged by
 the ratification word itself. `5815412869` ratified the change and struck no
@@ -444,7 +446,8 @@ suite pass.
 - A plain document declares a `stage:` value that is not one of the six role
   keys. The value is not a declaration: the generate verb reports it, naming
   the document, and reads the document as a source, so no other value reaches
-  the neutral snapshot (T054; R1Q13 (a) with (c)).
+  the neutral snapshot (T054 in process and T056 through the verb; R1Q13 (a)
+  with (c)).
 - A raw key appears inside an endpoint URL, not in a field (16.3).
 - The plain repository yields no grouping, candidate or selection tile, so the
   chat pane cannot be opened at all. The fixture declares at least one group,
@@ -688,8 +691,9 @@ drives it from outside, so FR-006 is unaffected.
   revision: R1Q14, R1Q24 and R1Q25 by T019, R1Q10–R1Q13 and R1Q23 by T009, and
   R1Q15–R1Q19 by T069. R1Q21 (a) makes release 2 its own Speckit feature.
 - Phases 2 and 3 are planned on their answers, except T059, T060, T061 and
-  T066, which wait on R1Q26 and R1Q27 (T067). No other step is conditional on
-  an open question.
+  T066, which wait on R1Q26 and R1Q27, as do T067, which encodes them, and
+  T007's batch I. T063, T064 and T065 follow the four through their `After:`
+  lines. No other step's plan turns on an open question.
 - Lane 4's own acts C1, C3 and C4 (`#656` `5815604830`, `5815613524`,
   `5815620605`) have all landed (#1152, #1153, openXdox-code#28, #1157 and
   #1154). This feature starts from them and duplicates none of them.

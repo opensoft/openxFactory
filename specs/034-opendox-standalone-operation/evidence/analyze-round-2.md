@@ -3,9 +3,10 @@
 Status: record
 
 **Feature**: [`034-opendox-standalone-operation`](../spec.md) · **Tasks**: T019,
-T009 and T069 ([`tasks.md`](../tasks.md)) · **Run**: 2026-09-27, both passes
-00:18–01:17Z over `a241bb3a`, and the dispositions until 02:15Z ·
-**Lane**: `openxfactory-4`
+T009 and T069 ([`tasks.md`](../tasks.md)) · **Run**: 2026-09-27, over
+`a241bb3a` (committed 00:17:45Z), with the dispositions in `488c7d31`
+(01:55:52Z) and `9fb6baa7` (02:12:30Z), and a second pass over `9fb6baa7`
+(§ "The second pass") · **Lane**: `openxfactory-4`
 
 This note is bookkeeping, so it carries no `Arc:` trailer (R1Q20 (a),
 `5817152735`).
@@ -18,13 +19,14 @@ requirement without a task.
 The analysis raised two questions that the answers do not settle, **R1Q26**
 and **R1Q27** (V2-1, V2-2). Both go to Brett Heap in
 [`clarify-questions.md`](../clarify-questions.md), each with a recommendation,
-and neither is answered by assumption. The four tasks they reach, T059, T060,
-T061 and T066, carry them as `Blocked by:` lines (FR-012), so the plan
-authorizes none of the four. T067, the third round, encodes the answers, and
-T007's batch I records the #1144 lines they amend, so both carry the same
-line. This is the plan's one deviation from the constitution's workflow gate,
-which plan.md § Complexity Tracking records, as the Governance section
-requires.
+and neither is answered by assumption. The four tasks whose plans turn on
+them, T059, T060, T061 and T066, carry them as `Blocked by:` lines (FR-012),
+so the plan authorizes none of the four. T063, T064 and T065 follow those four
+through their `After:` lines (tasks.md § Format). T067, the third round,
+encodes the answers, and T007's batch I records the #1144 lines they amend,
+so both carry the same line. This is the plan's one deviation from the
+constitution's workflow gate, which plan.md § Complexity Tracking records, as
+the Governance section requires.
 
 The verifier made its count conditional on exactly that. Had this revision
 claimed a PASS without raising the two questions, it would have counted both
@@ -37,10 +39,17 @@ T063, so it follows them through phase 2.
 
 The author's pass found 1 HIGH, 4 MEDIUM and 7 LOW (U2-1 to U2-12). The
 verifier's pass found 4 HIGH, 8 MEDIUM and 14 LOW (V2-1 to V2-26). Seven
-defects were found by both, so the tables below hold 31 rows: 5 HIGH, 10
+defects were found by both, so the two passes give 31 rows: 5 HIGH, 10
 MEDIUM and 16 LOW. The author found one more, U2-13 (MEDIUM), while carrying
-V2-1. Every finding is dispositioned below. Two raise the new questions, and
-the rest change this revision.
+V2-1, so the tables below hold 32 rows, 11 of them MEDIUM. Every finding is
+dispositioned below. Two raise the new questions, and the rest change this
+revision.
+
+**The second pass**, over `9fb6baa7`, also found nothing CRITICAL: 4 MEDIUM
+and 16 LOW (W2-1 to W2-20). Copilot's review of the same commit raised one
+more (CP2-1). All are dispositioned in § "The second pass". Brett Heap has
+since answered R1Q26 and R1Q27, both (a), on `#656`, comment `5851950767`,
+and T067 encodes the answers in a bookkeeping PR of its own.
 
 ## How it was run
 
@@ -79,9 +88,10 @@ pathspecs.
 verifier ran it again, read-only, over a separate clone of `a241bb3a`, with
 #1144 at `79a720a2` and the measurement trees at openDox-code `1e4a57fb` and
 openXdox-code `e28930bf`. It also re-ran the plan-consistency tools, twice,
-with byte-identical output. The two sets of findings are merged below. The
-verifier's are `V2-1` onwards, and the author's are `U2-1` onwards. Where both
-passes found the same defect, the row names both.
+with byte-identical output, and its report was last written at 01:53:16Z.
+The two sets of findings are merged below. The verifier's are `V2-1` onwards,
+and the author's are `U2-1` onwards. Where both passes found the same defect,
+the row names both.
 
 **The dispositions** are in commit `488c7d31`. `main` then moved to
 `b060d400` (#1174, an archive whose one README edit is in the OpenSpec Records
@@ -103,8 +113,10 @@ read from a measurement tree, and none touches a shared tree.
   --porcelain --ignored` on both trees was the same before and after.
 - **12.5's computed set.** At `e28930bf`, `git grep -l -e 'open-pr' -e
   'open_pr' -e 'FakePullRequests' -- 'tests/test_*.py'` lists 16 files, and
-  `tests/test_gate_loop_views.py` is one of them (it drives `open-pr` at
-  `:672`). No task, plan, research or re-measure line named it before.
+  `tests/test_gate_loop_views.py` is one of them: its `:672` asserts that
+  `open-pr` is among the views' verbs, and the grep matches that string. No
+  plan line named its two facet tests before. research.md, T005's re-measure
+  and R1Q7's text name the file, for its pass count only.
 - **openxFactory's facet composition.** `scripts/profile_openxfactory.py:218`:
   *"ONLY `stages` IS COMPOSED"*. `tests/test_engineering_profile_display_facet.py`
   asserts `"values" not in facet` (`:272`) and `set(view_extensions.DISPLAY) ==
@@ -153,8 +165,8 @@ underspecified case. LOW is wording.
 
 | ID | finding | disposition |
 |---|---|---|
-| V2-5 | openxFactory composes only openXdox's `stages`, and its facet test asserts that no `values` section exists. At T064's pins, openxFactory's served views would match neutral values against the governed snapshot. So T064's *"none is expected"* and T059's *"governed views keep matching"* were false for openxFactory. Neither file is an 11.1 surface. | Folded into R1Q26. Under its option (a), T066 composes the `values` block into openxFactory's profile and updates the facet test, in its both-pins form. P2-H lists both files. T059 and T064 say that openxFactory's views match only through T066. |
-| V2-7, U2-3 | Nothing defined "groups derive from shared topics" for a document with no front matter, yet AT-R1's repository (b) has none and must yield a grouping tile. The author also found no rule for a `stage:` value outside the six role keys. | T054 names the topic rule and tests it over a copy of repository (b), which must yield at least one group. A `stage:` value outside the six is not a declaration: the generate verb reports it, naming the document, and reads the document as a source, and the closed schema admits only the six. spec.md gains the edge case, and T054's falsifier both tests. |
+| V2-5 | openxFactory composes only openXdox's `stages`, and its facet test asserts that no `values` section exists. At T064's pins, openxFactory's served views would match neutral values against the governed snapshot. So T064's *"none is expected"* and T059's *"governed views keep matching"* were false for openxFactory. The facet test is not an 11.1 surface, but the profile is one of 11.1's host-wiring surfaces, which this row and R1Q26 first missed (W2-2, U2-14). | Folded into R1Q26. Under its option (a), T066 composes the `values` block into openxFactory's profile and updates the facet test, in its both-pins form. P2-H lists both files. T059 and T064 say that openxFactory's views match only through T066. |
+| V2-7, U2-3 | Nothing defined "groups derive from shared topics" for a document with no front matter, yet AT-R1's repository (b) has none and must yield a grouping tile. The author also found no rule for a `stage:` value outside the six role keys. | T054's PR names the topic rule, and a test runs it over a copy of repository (b), which must yield at least one group. A `stage:` value outside the six is not a declaration: the generate verb reports it, naming the document, and reads the document as a source, and the closed schema admits only the six. spec.md gains the edge case. T054's falsifier tests the topic rule and the projection's half of the `stage:` case, and T056's tests the verb's half (W2-4). |
 | V2-8 | T061 kept three answers of the lookup, but openxFactory's farm and the refresh lane's seal rely on a fourth: a tree's own `contracts/schemas/` is read first. | Folded into R1Q27, whose option (a) keeps it. T061 names the fourth answer and says that R1Q27 decides it. |
 | V2-9 | `evidence/analyze-round-2.md` did not exist, while twelve places cited it and the README linked it. | This note is that file, in the same PR. Its verdict agrees with the cited lines: nothing CRITICAL, and R1Q26 and R1Q27 raised. |
 | V2-10 | `tests/test_validate_ideation_dashboard_contracts.py` imports in a lone checkout, but its `ROOT` is `parents[2]`, above the checkout, left from the carve. A new test that reused its paths would fail, or adopt an enclosing tree, which is the class of defect 7.3 closes. | T061's new test resolves the validator and its schemas through the installed distribution, never through the module's paths, and T061 records the `ROOT` note. |
@@ -190,8 +202,10 @@ underspecified case. LOW is wording.
 
 Four lines of the encoding are not an option's own words. Each was checked
 against the ruling and the plan's rules, and each follows from what Brett
-answered, so none goes back to him. The verifier checked the same four and
-found each lawful.
+answered, so none goes back to him. The verifier checked the same four. It
+found three lawful as written, and that the fourth, 5.3a's `values` block,
+collides with 12.5's protected tests, which needs Brett (V2-1). That part is
+R1Q26 (W2-19).
 
 - **F10.1 installs `.[local]` (T069, batch H).** R1Q16 (iii) makes the
   standalone install `pip install "opendox[local]"`, and its sub-question
@@ -258,10 +272,10 @@ the trees.
 
 | key | tasks | note |
 |---|---|---|
-| FR-001 | T010, T011, T030, T031, T032, T036, T049 | |
+| FR-001 | T010, T011, T030, T031, T032, T036, T045, T049 | |
 | FR-002 | T001, T015, T016, T017, T049 | requirement 3 as #1170 amended it |
 | FR-003 | T012, T020–T022, T025–T027, T046, T055, T084–T086, T089 | |
-| FR-004 | T050, T052–T056, T059, T060, T063 | T059 and T060 wait on R1Q26 |
+| FR-004 | T050, T052–T056, T059, T060, T061, T063 | T059 and T060 wait on R1Q26, and T061 on R1Q27 |
 | FR-005 | T051, T053, T057, T058, T061, T063 | T061 waits on R1Q27; T066 keeps openxFactory's callers working at T064's pins |
 | FR-006 | T034–T037, T040–T044, T049, T061, T086, T090 | T061 clears `tests/test_snapshot.py`'s entry |
 | FR-007 | T038, T075–T077 | |
@@ -291,8 +305,9 @@ No finding breaks a MUST at this revision.
   9.5 addendum (VI). The two plan readings fail closed (VII).
 - **Principle II.** V2-2 would have changed what three contract rows enforce
   with no OpenSpec change. It is a question now, and T061 cannot land before
-  it is answered. R1Q27's option (b), the only one that moves the rows, names
-  its own OpenSpec change.
+  it is answered. R1Q27's options (b) and (c) both change the rows. (b) names
+  its own OpenSpec change, and (c), which named none, would have needed one
+  too (W2-3). Option (a) changes no row.
 - **The workflow gate.** *"Material ambiguities MUST be resolved before
   planning"* holds for phase 1, phase 3 and every other task of phase 2. T059,
   T060, T061 and T066 are planned while R1Q26 and R1Q27 are open, and they
@@ -310,18 +325,21 @@ No finding breaks a MUST at this revision.
 | requirements | 19 (12 FR, 7 SC) |
 | tasks | 90, T001–T098 with eight ids unused (T013, T014, T023, T024, T028, T029, T033, T068); eight done (T001, T003–T006, T009, T019, T069) |
 | coverage | 19 of 19 |
-| questions | 27: 25 answered (11 on `5817152735`, 14 on `5850003126`), and R1Q26 and R1Q27 open; RN-1 ruled (a) and landed |
+| questions | 27: 25 answered in this revision (11 on `5817152735`, 14 on `5850003126`), and R1Q26 and R1Q27 open in it, since answered (a) on `5851950767` for T067; RN-1 ruled (a) and landed |
 | held tasks | T059, T060, T061 and T066, with T067 and T007's batch I |
 | findings, author's pass | CRITICAL 0, HIGH 1, MEDIUM 4, LOW 7 (U2-1 to U2-12) |
 | findings, verifier's pass | CRITICAL 0, HIGH 4, MEDIUM 8, LOW 14 (V2-1 to V2-26) |
 | findings, merged | 31 rows: HIGH 5, MEDIUM 10, LOW 16 |
 | findings, the author while carrying them | MEDIUM 1 (U2-13) |
-| new questions for Brett | 2 (R1Q26, R1Q27), each recommended (a) |
+| findings, second pass | CRITICAL 0, HIGH 0, MEDIUM 4, LOW 16 (W2-1 to W2-20), W2-2 also found by the author (U2-14) |
+| findings, Copilot's review of `9fb6baa7` | 1 (CP2-1) |
+| new questions for Brett | 2 (R1Q26, R1Q27), each recommended (a) and answered (a) |
 
 ## The checks after the dispositions
 
-Run from `specs/034-opendox-standalone-operation/` with the persisted tools,
-which read each of T007's nine batches as a node of its own:
+Run from `specs/034-opendox-standalone-operation/` at `9fb6baa7`, with the
+persisted tools, which read each of T007's nine batches as a node of its own.
+§ "The second pass" gives them again after its dispositions.
 
 | check | result |
 |---|---|
@@ -354,11 +372,95 @@ T044, with T047 and the checkpoint T049 after it. Re-analyzed on its own:
 
 Nothing in the tail is held, and the tail's checks above are clean.
 
+## The second pass
+
+**How it was run.** A second independent Opus verifier ran `/speckit-analyze`
+again, read-only, over a separate clone of `9fb6baa7`, with #1144, the
+constitution and the measurement trees as the first pass had them. It re-ran
+the plan-consistency tools twice, with identical output, and checked each
+disposition above against the files. The full prerequisite check writes
+`.specify/feature.json`, so it ran in a scratch clone of `9fb6baa7`, where it
+exited 0. The optional analyze hooks were not run.
+
+**What it found.** CRITICAL 0, HIGH 0, MEDIUM 4 and LOW 16 (W2-1 to W2-20).
+No constitution MUST is broken. Holding the four tasks with `Blocked by:`
+lines and a Complexity Tracking row is lawful under the Workflow and
+Governance sections, as round 1a's record found for the same pattern. It
+rated W2-1 MEDIUM rather than CRITICAL, because T064 comes after T066, which
+is held, so nothing authorizes T064's work before the answers. Of the 32 rows
+above, 28 were carried in full, and four in part: V2-3, V2-25, U2-11 and
+V2-7/U2-3 (W2-11, W2-12, W2-13 and W2-18). The author had also found W2-2,
+as U2-14, while drafting T067's encoding.
+
+**Copilot's review** of `9fb6baa7` raised one finding (CP2-1). Its overview's
+*"stale validation evidence"* is the plan row that W2-7 names.
+
+**After the pass.** Brett Heap answered R1Q26 and R1Q27, both (a), on `#656`,
+comment `5851950767` (2026-09-27T02:25:29Z). This revision does not encode the
+answers. T067 does, in its own bookkeeping PR, so this pass's findings are
+dispositioned against the text it read. Where a finding corrects the text of
+R1Q26 or R1Q27, the question gains a correction after the answer, and its
+text is left as it was put.
+
+### MEDIUM
+
+| ID | finding | disposition |
+|---|---|---|
+| W2-1 | The hold was incomplete. T064's text was written on R1Q26 (a), and T067 re-plans it, yet it had no `Blocked by:` line. plan.md said the rest of phase 2 does not wait on the questions, while tasks.md § What can start says that T063, T064 and T065 do. T063's F7.1 run is read as batch I records R1Q27's answer, and it had no line either. | T064's two sentences that read the answers now defer to T066, in the form T067 re-plans, so T064's own text turns on neither answer. § Format states the rule the plan had only implied: a task whose own text turns on no open answer carries no `Blocked by:` line, because its `After:` line holds it, as it holds T063, T064 and T065. plan.md's round-3 section, spec.md and this record's verdict say so. |
+| W2-2, U2-14 | *"Neither file is an 11.1 surface"*, in R1Q26 and in V2-5's row, was false for `scripts/profile_openxfactory.py`, which is one of 11.1's host-wiring surfaces, in F11.1's `HOST` set. Only the facet test is outside 11.1. | R1Q26's correction after the answer says so, and V2-5's row is corrected. T066's both-pins act carries both files, so no task changes. |
+| W2-3 | R1Q27's option (c) amended the three RETAINED rows but named no OpenSpec change, which Principle II requires. This record said that (b) was the only option that moves the rows. | R1Q27's correction after the answer says that (c) needed an OpenSpec change too, and § Constitution alignment says that (b) and (c) both change the rows. Brett answered (a), which changes none. |
+| W2-4 | The verb's half of the `stage:` edge case had no test. T054's falsifier is in process, the generate verb reaches the consumer's generator until T055, and no later falsifier named the case. | T056's falsifier adds it. `python -m opendox.cli generate`, over a copy of T050's fixture with one out-of-set `stage:` value, reports it, naming the document, the value and the six keys, and the snapshot reads that document as a source. T054, P2-R's row and spec.md's edge case name the test. |
+
+### LOW
+
+| ID | finding | disposition |
+|---|---|---|
+| W2-5 | spec.md cited `R1Q1`–`R1Q25`, and there are 27. | `R1Q1`–`R1Q27`. |
+| W2-6 | spec.md's *"No other step is conditional on an open question"* left out T067 and batch I. Its *"No other task carries a `Blocked by:` line"* was CP2-1, which `309481e8` had fixed. | The line names T067, batch I, and T063, T064 and T065, and says that no other step's plan turns on an open question. |
+| W2-7 | plan.md's Principle V row gave `111 passed, 1 failed (112 items)` over `79a720a2`, and called `admit-code-leg-under-pinned-root` the item gained since. At `b060d400`, #1174 has archived it. | The row is restated over `b060d400`, measured again: `110 passed, 1 failed (111 items)`. |
+| W2-8 | *"it drives `open-pr`, `:672`"* overstated the test, which only asserts that the verb's name is in the views' verb table. | Corrected in R1Q26's correction and in § How it was run. |
+| W2-9 | R1Q27's *"7.1b: nothing vendors them"* was not #1144's wording. | R1Q27's correction quotes 7.1b and 7.1's one-copy clause. |
+| W2-10 | R1Q26's options left out a route: keep `SNAPSHOT_VALUES`' defaults governed, as 5.3 was ratified, and put the neutral values in the `values` block of openDox's default profile facet. In the verifier's in-memory simulation it changes no protected test and breaks no view. It too re-reads R1Q11 (a), so it is (d) in form, but Brett had not been shown it. | Put to Brett Heap on 2026-09-27, after this pass, with its costs: it re-reads R1Q11 (a)'s *"its facet maps roles to governed values"*, reverses batch G's 5.3 line and T054's move of the defaults, and keeps the governed words as openDox's built-in defaults. He kept (a), verbatim *"Keep (a) as ruled (Recommended)"*. Nothing in the plan changes. |
+| W2-11 | P2-R's row still said *"F10.1's generate half"* (V2-3, in part). | The row uses T056's wording, a plain install and no `--local`, and names the verb's `stage:` test. |
+| W2-12 | P2-L's falsifier stopped at `pytest-suite`, though T064 also runs the consumer gate's suite at its floors (V2-25, in part). | Added, with both floors. |
+| W2-13 | The two batch-F rows did not name the rulings behind what they extend, as U2-11's bullet says each line does (U2-11, in part). | F5.2's row names R1Q7 (a)'s allow-list, and the F9.1 row R1Q6 (d)'s exclusion. |
+| W2-14 | T052 edits the entry points' one-line calls in `cli.py` and `serve.py`, but was in neither single-writer chain, and P2-G listed no such file. The order held transitively. | T052 joins both chains, in plan.md's table and in the persisted `chaincheck.py` and `chaindirect.py`, and P2-G lists the calls. |
+| W2-15 | The run line's times disagreed with the commits, and with the first report's own time. | The run line gives the commit times, and § How it was run gives the report's. |
+| W2-16 | *"the tables below hold 31 rows … 10 MEDIUM"* left out U2-13. | 32 rows, 11 of them MEDIUM. |
+| W2-17 | *"No task, plan, research or re-measure line named it before"* was false: research.md, T005's re-measure and R1Q7's text name the file, for its pass count. | It says what R1Q26 says: no plan line named its two facet tests. |
+| W2-18 | V2-7 and U2-3's row said *"T054 names the topic rule"*, but T054 says that its PR names the rule (V2-7/U2-3, in part). | The row says so. |
+| W2-19 | § Lines the answers imply said that the first verifier found all four lines lawful, but it found that the fourth needed Brett. | Three lawful, and the fourth is R1Q26. |
+| W2-20 | FR-001's coverage row left out T045, and FR-004's left out T061 and R1Q27. Both rows were copied from round 1a. | Both are added. |
+
+### Copilot's review
+
+| ID | finding | disposition |
+|---|---|---|
+| CP2-1 | spec.md said that no task but T059, T060, T061 and T066 carries a `Blocked by:` line, yet T067 and T007's batch I carry one (thread `4113807969`). | `309481e8` names both, in spec.md, plan.md's round-3 section and this record's verdict. |
+
+### The checks after the second pass
+
+Run as above, at this revision, with `chaincheck.py` and `chaindirect.py`
+carrying T052 (W2-14):
+
+| check | result |
+|---|---|
+| `qcheck.py` over `qmap.py` | `headers checked: 27 of 27; mismatches: 0` |
+| `depcheck.py` | `tasks: 90 nodes: 99`, `edges: 216`; `cycles: none`, and `none` with the Lands-with groups merged |
+| `arrowcheck.py` | `arrow mismatches: 0`, `arrows checked: 69` |
+| `phasecover.py` | as above: phase 1 32 tasks, phase 2 17 and phase 3 23, each before its checkpoint; T048 after T049, by design |
+| `chaincheck.py` | `single-writer chain gaps: 0` |
+| `chaindirect.py` | 41 pairs, 25 DIRECT and 16 transitive, each through a printed path. T052's four pairs are transitive: `T022 → T052` and `T038 → T052` through T049, and `T052 → T055` through T054 |
+| `sharedfiles.py` | 53 shared pairs, 4 NOT ORDERED, the same four phase-1 pairs as above. P2-G's seven new pairs are ordered |
+| `openspec validate --all --strict` | `110 passed, 1 failed (111 items)`, the one failure being `add-chain-attestation`'s accepted disposition |
+| `scripts/validate-openspec-cli-pin.py --all` | exit 0, `0 UNDISPOSITIONED failures` |
+
 ## Next
 
-- **Brett Heap** is asked R1Q26 and R1Q27. T067 then encodes the answers,
-  re-plans T059, T060, T061, T064 and T066, and records its analyze in
-  `evidence/analyze-round-3.md`.
+- **Brett Heap** answered R1Q26 and R1Q27, both (a), on `5851950767`, and
+  kept R1Q26 (a) when the second pass's W2-10 was put to him. T067 encodes
+  the answers in its own bookkeeping PR, re-plans T059, T060, T061, T064 and
+  T066, and records its analyze in `evidence/analyze-round-3.md`.
 - **T007's batches F, G and H** land next, each its own bookkeeping PR under a
   Rule 6 window, before the tasks their `After:` lines name. Batch F is due
   before T043. Batch I follows T067.
