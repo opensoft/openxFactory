@@ -615,17 +615,20 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   trusting any subtraction, that the landing's actual diff for that path
   contains ONLY the entry's recorded text; a path whose landing diff does
   not match stays refused, exactly like an unentered edit. The allow-list
-  file is not itself one of the protected suites, so nothing above stops an
-  arc landing from adding its own authorizing entry alongside the edit it
-  accompanies: T059/T086 must treat the allow-list as immutable to the
-  measured arc from the moment T043's bootstrap landing creates it — the
-  committed tree AT OR IMMEDIATELY AFTER that landing is the one fixed
-  snapshot every later check reads, never a later landing's own working
-  tree, so T043's own first entry IS subtractable while no later landing's
-  self-authorizing edit to the file is. A landing after T043's bootstrap
-  that itself touches the allow-list is refused like any other unentered
-  edit to a protected path. This bookkeeping amendment does NOT itself
-  touch the Python above: `edited =
+  file is not itself one of the protected suites, so nothing above stops a
+  landing from adding its own authorizing entry alongside the edit it
+  accompanies IN THE SAME LANDING — same-landing self-authorization the
+  check must refuse regardless of the file's history. T059/T086 must read
+  the allow-list AS IT STOOD IMMEDIATELY BEFORE the landing under
+  measurement: a landing's own edits to the file, if any, do not count
+  toward authorizing that same landing's protected-suite edits. A
+  respelling is entered by its OWN prior, separate, reviewed landing (one
+  that touches only the allow-list, or a non-arc governance update) BEFORE
+  the landing that relies on it — T043's bootstrap entry is the first such
+  prior landing, not a one-time-only exception; any number of later,
+  separate, reviewed entries may follow the same pattern, each again
+  refused if it tries to authorize an edit within its own landing. This
+  bookkeeping amendment does NOT itself touch the Python above: `edited =
   touched & suites` still computes and refuses on every
   intersection exactly as written, with no allow-list read, until the file
   exists and T059/T086 wire the subtraction into both falsifiers' checks.
@@ -1488,17 +1491,20 @@ that does not name a platform.
   trusting any subtraction, that the landing's actual diff for that path
   contains ONLY the entry's recorded text; a path whose landing diff does
   not match stays refused, exactly like an unentered edit. The allow-list
-  file is not itself one of the protected suites, so nothing above stops an
-  arc landing from adding its own authorizing entry alongside the edit it
-  accompanies: T059/T086 must treat the allow-list as immutable to the
-  measured arc from the moment T043's bootstrap landing creates it — the
-  committed tree AT OR IMMEDIATELY AFTER that landing is the one fixed
-  snapshot every later check reads, never a later landing's own working
-  tree, so T043's own first entry IS subtractable while no later landing's
-  self-authorizing edit to the file is. A landing after T043's bootstrap
-  that itself touches the allow-list is refused like any other unentered
-  edit to a protected path. This bookkeeping amendment does NOT itself
-  touch the Python above: `edited =
+  file is not itself one of the protected suites, so nothing above stops a
+  landing from adding its own authorizing entry alongside the edit it
+  accompanies IN THE SAME LANDING — same-landing self-authorization the
+  check must refuse regardless of the file's history. T059/T086 must read
+  the allow-list AS IT STOOD IMMEDIATELY BEFORE the landing under
+  measurement: a landing's own edits to the file, if any, do not count
+  toward authorizing that same landing's protected-suite edits. A
+  respelling is entered by its OWN prior, separate, reviewed landing (one
+  that touches only the allow-list, or a non-arc governance update) BEFORE
+  the landing that relies on it — T043's bootstrap entry is the first such
+  prior landing, not a one-time-only exception; any number of later,
+  separate, reviewed entries may follow the same pattern, each again
+  refused if it tries to authorize an edit within its own landing. This
+  bookkeeping amendment does NOT itself touch the Python above: `edited =
   touched & {...}` still computes and refuses on every
   intersection exactly as written, with no allow-list read, until the file
   exists and T059/T086 wire the subtraction into both falsifiers' checks.
