@@ -887,6 +887,107 @@ def _refuse_links_inside(run_dir: Path) -> None:
                     f"follows: {node}")
 
 
+def _is_writer_temp(node: Path, allowed_files) -> bool:
+    """True when ``node`` has exactly the shape ``_write_rendered``'s
+    ``tempfile.mkstemp(dir=path.parent, prefix=path.name + ".",
+    suffix=".tmp")`` leaves beside one of ``allowed_files``: a
+    same-directory sibling, a REGULAR file, named ``"<final-name>.``
+    then a non-empty random component then ``".tmp"``.
+
+    That covers both a concurrent writer's in-flight temp (PR #1189
+    review, Codex: an identical writer can be between its own ``mkstemp``
+    and ``os.replace`` when this preflight runs — the overlapping-writer
+    design ``test_overlapping_identical_runs_both_complete`` already
+    relies on) and one a hard crash orphaned before ``_write_rendered``'s
+    own ``except BaseException: tmp.unlink()`` could run. Neither is a
+    foreign descendant: the run-identity hash never reads it (only
+    ``_snapshot_files``'s ``*.yaml`` match does, and ``.tmp`` never
+    satisfies that), and it is always either replaced by ``os.replace``
+    or left as harmless debris, never read as recorded content.
+
+    Both requirements this docstring bolded are load-bearing (PR #1189
+    review, Copilot round 2): ``mkstemp`` never omits its random
+    component, so a same-directory ``"<final-name>.tmp"`` with NO random
+    part cannot be one of its temps — only a stranger deliberately or
+    accidentally named to resemble one, which must still refuse. And
+    ``mkstemp`` always creates a plain file, never a FIFO, socket, or
+    device — a foreign special node merely named like a temp must still
+    refuse too, so this checks ``is_file()`` (safe: by the time this
+    runs, ``_refuse_links_inside`` has already refused every symlink in
+    ``run_dir``, so a True here can only mean a genuine regular file)."""
+    if not node.name.endswith(".tmp"):
+        return False
+    for target in allowed_files:
+        if node.parent != target.parent:
+            continue
+        prefix = target.name + "."
+        if node.name.startswith(prefix) and \
+                node.name[len(prefix):-len(".tmp")] and node.is_file():
+            return True
+    return False
+
+
+def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:
+    """Refuse a run directory that holds any descendant — file or
+    subdirectory, at any depth — outside the exact allowed set:
+    ``run.yaml`` plus the repository-snapshot paths this run records
+    (``allowed_files``), each allowed file's own writer-owned temp
+    (``_is_writer_temp``). A directory that is a proper ancestor of an
+    allowed file is exactly the structure the writer itself makes for a
+    slash-separated repository id, and passes; anything else is refused
+    before the first write or claim — a plain file the writer never wrote
+    (``notes.txt``, a stray ``run.yaml.bak``), or an unexpected
+    subdirectory, empty or not, whatever it holds.
+
+    ``_snapshot_files`` alone missed this for ``write_run``'s preflight:
+    filtered to ``*.yaml``, it never saw a non-YAML stranger, a
+    ``*.yaml.bak``-suffixed one, or an otherwise invisible stranger
+    subdirectory, so none of those ever reached the run-identity hash
+    (Copilot's review thread on #1175, ``catalog.py:1161``, declined there
+    as out of scope for that landing and raised as its own follow-up:
+    opensoft/openxFactory#1186).
+
+    ``os.walk``, never ``Path.rglob``, for the same reason
+    ``_refuse_links_inside`` already documents (``rglob`` silently skips a
+    linked directory); by the time this runs, that call has already refused
+    every symlink anywhere in ``run_dir``, so this only ever walks a plain
+    tree. ``onerror`` fails closed (PR #1189 review, Copilot): ``os.walk``
+    otherwise silently swallows a directory it cannot enumerate (permission
+    denied, torn down mid-walk), and a foreign descendant could then hide
+    inside one and never be seen at all."""
+    def _refuse_unreadable(exc: OSError) -> None:
+        raise CatalogError(
+            f"catalog run directory could not be fully enumerated, so a "
+            f"foreign descendant could stay hidden: {exc}")
+
+    allowed_files = set(allowed_files)
+    allowed_dirs = {run_dir}
+    for target in allowed_files:
+        node = target.parent
+        while node != run_dir:
+            allowed_dirs.add(node)
+            node = node.parent
+    for dirpath, dirnames, filenames in os.walk(
+            run_dir, onerror=_refuse_unreadable):
+        dirnames.sort()
+        base = Path(dirpath)
+        for name in sorted(filenames):
+            node = base / name
+            if node not in allowed_files and \
+                    not _is_writer_temp(node, allowed_files):
+                raise CatalogError(
+                    f"catalog run directory holds a path this run does "
+                    f"not record ({node.relative_to(run_dir).as_posix()}): "
+                    f"{run_dir}")
+        for name in dirnames:
+            node = base / name
+            if node not in allowed_dirs:
+                raise CatalogError(
+                    f"catalog run directory holds a path this run does "
+                    f"not record ({node.relative_to(run_dir).as_posix()}): "
+                    f"{run_dir}")
+
+
 def _refuse_unsafe_run_paths(root: Path, run_dir: Path, targets) -> None:
     """Refuse a run, before its first write or claim, if any path it would
     write through is foreign (``_refuse_foreign_node``). That covers every
@@ -1134,21 +1235,23 @@ def write_run(root, as_of, entries_by_repo: dict, taxonomy
       (``_refuse_unsafe_run_paths``: no symlink, no node of the wrong
       type);
     - an existing run directory must hold no symlink
-      (``_refuse_links_inside``) and no snapshot of a repository this run
-      does not record;
+      (``_refuse_links_inside``) and no descendant — file or subdirectory,
+      at any depth — outside the exact allowed set of ``run.yaml`` plus the
+      repository-snapshot paths this run records
+      (``_refuse_foreign_descendants``);
     - an existing ``run.yaml`` must be exactly this run's record
       (``_recorded``);
     - every existing target of the run must hold exactly its bytes
       (``_holds_exactly``, raw bytes).
 
     A run directory holding a conflicting file or a foreign node for a
-    LATER repository (edited by hand or mixed from another run), a snapshot
-    this run does not record, or an edited ``run.yaml`` is refused before
-    an earlier repository is written or a sequence is claimed. It is never
-    refused after, which would leave a partial recorded run. A
-    completed-looking run is never accepted on a ``run.yaml`` it did not
-    write, or with a stranger's snapshot left inside it: the run-identity
-    check would then find the closed run mixed."""
+    LATER repository (edited by hand or mixed from another run), a stray
+    file or subdirectory the run does not record, or an edited ``run.yaml``
+    is refused before an earlier repository is written or a sequence is
+    claimed. It is never refused after, which would leave a partial recorded
+    run. A completed-looking run is never accepted on a ``run.yaml`` it did
+    not write, or with a stranger left inside it: the run-identity check
+    would then find the closed run mixed."""
     rid = run_id(entries_by_repo, taxonomy)
     taxonomy_block = _validate_taxonomy(taxonomy)
     day = _as_of_str(as_of)
@@ -1157,12 +1260,8 @@ def write_run(root, as_of, entries_by_repo: dict, taxonomy
     _refuse_unsafe_run_paths(root, run_dir, targets.values())
     if run_dir.exists():  # a real directory, per the check above
         _refuse_links_inside(run_dir)
-        strangers = sorted(repo for repo, _path in _snapshot_files(run_dir)
-                           if repo not in targets)
-        if strangers:
-            raise CatalogError(
-                f"catalog run directory holds snapshots this run does not "
-                f"record ({', '.join(strangers)}): {run_dir}")
+        _refuse_foreign_descendants(
+            run_dir, [run_dir / RUN_META_NAME, *targets.values()])
     _recorded(root, run_dir, rid, day)  # an existing run.yaml must be ours
     for repo in sorted(entries_by_repo):
         _holds_exactly(targets[repo], render(_snapshot_document(
