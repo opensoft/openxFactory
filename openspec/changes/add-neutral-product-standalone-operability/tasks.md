@@ -606,42 +606,30 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   falsifier both take this amendment. The "unedited by the arc" check IS TO
   SUBTRACT the edits entered in a reviewed allow-list in openXdox-code, such
   as `tests/protected_suite_respellings.yaml` — a file this amendment does
-  not itself create. Each entry names the suite, the landing, the reference
-  it respelled, its review, AND the exact old/new text (or a diff/content
-  digest) of the respelling; no edit that weakens an assertion is entered.
-  Because the check subtracts by PATH, not by line, a landing that respells
-  the named reference while ALSO weakening a different assertion in the
-  same suite would otherwise pass unnoticed: T059/T086 must validate, before
+  not itself create. T019 already gives the file its owner
+  (`specs/034-opendox-standalone-operation/tasks.md`, T019's re-plan
+  bullets, verbatim): *"the first task that makes an admitted edit to a
+  protected suite creates the file in its own PR. An entry names its
+  landing by that PR's number, since the landing's commit is not known
+  inside it."* This amendment does not name that task itself — WHICHEVER
+  task turns out to be first, per T019's own rule, creates the file; that
+  ownership question belongs to T019's re-plan, not to this bookkeeping
+  amendment. Each entry names the suite, the landing, the reference it
+  respelled, its review, AND the exact old/new text (or a diff/content
+  digest) of the respelling; no edit that weakens an assertion is entered,
+  and the PR that adds an entry is reviewed on exactly that basis. Because
+  the check subtracts by PATH, not by line, a landing that respells the
+  named reference while ALSO weakening a different assertion in the same
+  suite would otherwise pass unnoticed: T059/T086 must validate, before
   trusting any subtraction, that the landing's actual diff for that path
   contains ONLY the entry's recorded text; a path whose landing diff does
-  not match stays refused, exactly like an unentered edit. The allow-list
-  file is not itself one of the protected suites, so nothing above stops a
-  landing from adding its own authorizing entry alongside the edit it
-  accompanies IN THE SAME LANDING — same-landing self-authorization the
-  check must refuse regardless of the file's history. T059/T086 must read
-  the allow-list AS IT STOOD IMMEDIATELY BEFORE the landing under
-  measurement: a landing's own edits to the file, if any, do not count
-  toward authorizing that same landing's protected-suite edits. A
-  respelling is entered by its OWN prior, separate, reviewed landing (one
-  that touches only the allow-list, or a non-arc governance update) BEFORE
-  the landing that relies on it — T043's bootstrap entry is the first such
-  prior landing, not a one-time-only exception; any number of later,
-  separate, reviewed entries may follow the same pattern, each again
-  refused if it tries to authorize an edit within its own landing. This
-  bookkeeping amendment does NOT itself touch the Python above: `edited =
-  touched & suites` still computes and refuses on every
+  not match stays refused, exactly like an unentered edit. This bookkeeping
+  amendment does NOT itself touch the Python above: `edited = touched &
+  suites` still computes and refuses on every
   intersection exactly as written, with no allow-list read, until the file
-  exists and T059/T086 wire the subtraction into both falsifiers' checks.
-  T043 creates the file: its own triage (9.2) already commits to the
-  allow-list's first entry, `test_branch_session.py`'s stale `getsource`
-  assertion, respelled once T041's exclusion no longer holds it
-  (`specs/034-opendox-standalone-operation/tasks.md`, T043's own text).
-  T061 is not an earlier candidate — R1Q14 and R1Q25 both still block it,
-  and F5.2 refuses its kind of edit (add/revise, not respell) until R1Q14
-  says how the allow-list admits it; nor is T060, whose own text expects no
-  code change. R1Q26 (a)'s later admission of two `test_gate_loop_views.py`
-  edits (`#656`, 2026-09-27) is batch I's and T066's, a separate batch this
-  amendment does not touch. Carried out by T043, T059, T086.
+  exists (T019's rule names its owner) and T059/T086 wire the subtraction
+  into both falsifiers' checks. Carried out by whichever task T019 names as
+  the file's first owner, plus T059, T086.
 - [ ] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
   projection replaces them; the import-time column stays at zero.
 - [x] 5.6 **Do NOT author the view-wiring slice here** — and it can no longer be
@@ -1482,42 +1470,30 @@ that does not name a platform.
   and F5.2 both take this amendment. The "unedited by the arc" check IS TO
   SUBTRACT the edits entered in a reviewed allow-list in openXdox-code, such
   as `tests/protected_suite_respellings.yaml` — a file this amendment does
-  not itself create. Each entry names the suite, the landing, the reference
-  it respelled, its review, AND the exact old/new text (or a diff/content
-  digest) of the respelling; no edit that weakens an assertion is entered.
-  Because the check subtracts by PATH, not by line, a landing that respells
-  the named reference while ALSO weakening a different assertion in the
-  same suite would otherwise pass unnoticed: T059/T086 must validate, before
+  not itself create. T019 already gives the file its owner
+  (`specs/034-opendox-standalone-operation/tasks.md`, T019's re-plan
+  bullets, verbatim): *"the first task that makes an admitted edit to a
+  protected suite creates the file in its own PR. An entry names its
+  landing by that PR's number, since the landing's commit is not known
+  inside it."* This amendment does not name that task itself — WHICHEVER
+  task turns out to be first, per T019's own rule, creates the file; that
+  ownership question belongs to T019's re-plan, not to this bookkeeping
+  amendment. Each entry names the suite, the landing, the reference it
+  respelled, its review, AND the exact old/new text (or a diff/content
+  digest) of the respelling; no edit that weakens an assertion is entered,
+  and the PR that adds an entry is reviewed on exactly that basis. Because
+  the check subtracts by PATH, not by line, a landing that respells the
+  named reference while ALSO weakening a different assertion in the same
+  suite would otherwise pass unnoticed: T059/T086 must validate, before
   trusting any subtraction, that the landing's actual diff for that path
   contains ONLY the entry's recorded text; a path whose landing diff does
-  not match stays refused, exactly like an unentered edit. The allow-list
-  file is not itself one of the protected suites, so nothing above stops a
-  landing from adding its own authorizing entry alongside the edit it
-  accompanies IN THE SAME LANDING — same-landing self-authorization the
-  check must refuse regardless of the file's history. T059/T086 must read
-  the allow-list AS IT STOOD IMMEDIATELY BEFORE the landing under
-  measurement: a landing's own edits to the file, if any, do not count
-  toward authorizing that same landing's protected-suite edits. A
-  respelling is entered by its OWN prior, separate, reviewed landing (one
-  that touches only the allow-list, or a non-arc governance update) BEFORE
-  the landing that relies on it — T043's bootstrap entry is the first such
-  prior landing, not a one-time-only exception; any number of later,
-  separate, reviewed entries may follow the same pattern, each again
-  refused if it tries to authorize an edit within its own landing. This
-  bookkeeping amendment does NOT itself touch the Python above: `edited =
-  touched & {...}` still computes and refuses on every
+  not match stays refused, exactly like an unentered edit. This bookkeeping
+  amendment does NOT itself touch the Python above: `edited = touched &
+  {...}` still computes and refuses on every
   intersection exactly as written, with no allow-list read, until the file
-  exists and T059/T086 wire the subtraction into both falsifiers' checks.
-  T043 creates the file: its own triage (9.2) already commits to the
-  allow-list's first entry, `test_branch_session.py`'s stale `getsource`
-  assertion, respelled once T041's exclusion no longer holds it
-  (`specs/034-opendox-standalone-operation/tasks.md`, T043's own text).
-  T061 is not an earlier candidate — R1Q14 and R1Q25 both still block it,
-  and F5.2 refuses its kind of edit (add/revise, not respell) until R1Q14
-  says how the allow-list admits it; nor is T060, whose own text expects no
-  code change. R1Q26 (a)'s later admission of two `test_gate_loop_views.py`
-  edits (`#656`, 2026-09-27) is batch I's and T066's, a separate batch this
-  amendment does not touch. Carried out by T043, T059, T086.
+  exists (T019's rule names its owner) and T059/T086 wire the subtraction
+  into both falsifiers' checks. Carried out by whichever task T019 names as
+  the file's first owner, plus T059, T086.
 - [ ] 12.6 **MERGE AUTHORITY — RULED, HOLD RELEASED.** Brett Heap, `#656` comment
   `5784155201`, 2026-09-22T21:06:01Z: *"merge yes"* — landing authority follows
   whoever governs the repository. A GOVERNED host reserves landing and routes it
