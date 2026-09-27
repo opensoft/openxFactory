@@ -261,12 +261,11 @@ delta closes that hole explicitly.
   same ruling set's item 4 (answering comment 5819739722), verbatim
   *"Approve, nightly wins"*, rules that opensoft/xFactory#396 lands with the
   nightly's content winning, which unsticks the committed baseline once it
-  lands. That
-  changes how a deferred document is lost, not whether: while the baseline
-  stood at `health/inventory/2026-09-04.json` a deferred document was
-  re-selected and deferred again by the same packing order (measured below);
-  once the baseline advances, a deferred document leaves the next night's
-  diff unswept. Cap-and-record names every deferral in both cases, and the
+  lands. That changes how a deferred document is lost, not whether: while
+  the baseline stood at `health/inventory/2026-09-04.json` a deferred
+  document was re-selected and deferred again by the same packing order
+  (measured below); once the baseline advances, a deferred document leaves
+  the next night's diff unswept. Cap-and-record names every deferral in both cases, and the
   carry-over packet records the deferred-document cursor in both cases.
   - **Measured 2026-09-24.** The committed baseline has not in fact advanced
     since 2026-09-04: the aggregation's `main` carries `health/inventory/`

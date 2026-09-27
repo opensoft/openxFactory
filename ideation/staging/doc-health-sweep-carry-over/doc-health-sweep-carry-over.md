@@ -15,7 +15,7 @@ budgeted nights) or, once the baseline advances, dropped from the next
 night's selection without ever being analyzed. Brett Heap ruled on 2026-09-26
 that the budget packet caps and records, and that the carry-over is this
 separate packet, with the cursor as its own committed record beside the
-inventory. This topic stages that carry-over: a document the sweep selected
+inventory. This topic stages that carry-over: a document that CHANGED
 stays OWED until the sweep has actually analyzed it.
 Topics: doc-health, semantic-sweep, worker-input-budget, sweep-cursor,
 carry-over, deferred-documents, inventory-baseline, incremental-scope,
@@ -38,10 +38,10 @@ recorded verbatim under "The ruling" below, on opensoft/xFactory#480
 (comment 5850005209, item 3) and as a RULED line on the lane register. The
 evidence is that packet's own OQ-2 measurement of 2026-09-24 and the code
 read for this fragment on 2026-09-26 at openxFactory `main` `1c6662e7`.
-Target capabilities: MODIFIED `doc-health` (a document the semantic sweep's
-input budget defers stays owed: a sweep cursor committed as its own record
-beside `health/inventory/<date>.json` offers it again on the next night until
-it is analyzed, and the report states what was carried and for how long)
+Target capabilities: MODIFIED `doc-health` (a changed document the semantic
+sweep's input budget defers stays owed: a sweep cursor committed as its own
+record beside `health/inventory/<date>.json` offers it again on the next night
+until it is analyzed, and the report states what was carried and for how long)
 
 ## Last proposal attempt (round-trip provenance)
 
@@ -173,27 +173,30 @@ remember what it owes.
 <!-- xspec:candidate target=doc-health -->
 The semantic sweep gains a SWEEP CURSOR: a committed record, separate from the
 inventory and delivered in the same report commit, of every document the sweep
-still OWES because some night selected it and no completed analysis has
-contained it since. Each night's selection is what its scope selects today,
-together with every document the previous cursor carries that is still in the
-inventory; a full-sweep night enrols only the deferred documents that also
-changed since the previous inventory, so the owed set never grows into the
-corpus. Within each population's reserved share the packer offers owed
+still OWES: one that changed, was selected on some night, and has not been in
+a completed analysis since. Each night's selection is what its scope selects
+today, together with every document the previous cursor carries that is still
+in the inventory; a full-sweep night enrols only the deferred documents that
+also changed since the previous inventory, so the owed set never grows into
+the corpus. Within each population's reserved share the packer offers owed
 documents first, oldest deferral first, then tonight's newly changed documents
-in `(repo, path)` order, first fit and whole documents only, as now. The next
-cursor is whatever is still owed after the night. A document leaves the cursor
-only when the analysis worker completed on a prompt that contained it, so a
-night whose sweep was skipped or failed discharges nothing, and everything
-that night would have enrolled stays owed, sent or not. A document whose
-content changes while it is owed is owed once, keeping its first deferral
-date; a document deleted from the inventory leaves the cursor with the reason
-recorded. Promoted specs deferred from the grounding population are recorded
-too, but they rotate rather than accrue debt: last night's deferred specs are
-offered first in tonight's grounding phase. The report states how many
-documents were carried in, how many were discharged, how many are still owed,
-and how many nights the oldest has waited. The cursor never enters
-`health/inventory/<date>.json`, and the inventory's meaning, the snapshot both
-passes report against, does not change.
+in `(repo, path)` order, first fit and whole documents only, as now. An owed
+document larger than its population's reserved share, which no order can send
+while the other population fills its own, is recorded as OVERSIZED instead:
+named in every report and left out of the queue until its content or the
+budget changes. The next cursor is whatever is still owed after the night. A
+document leaves the cursor only when the analysis worker completed on a prompt
+that contained it, so a night whose sweep was skipped or failed discharges
+nothing, and everything that night would have enrolled stays owed, sent or
+not. A document whose content changes while it is owed is owed once, keeping
+its first deferral date; a document deleted from the inventory leaves the
+cursor with the reason recorded. Promoted specs deferred from the grounding
+population are recorded too, but they rotate rather than accrue debt: last
+night's deferred specs are offered first in tonight's grounding phase. The
+report states how many documents were carried in, how many were discharged,
+how many are still owed, and how many nights the oldest has waited. The cursor
+never enters `health/inventory/<date>.json`, and the inventory's meaning, the
+snapshot both passes report against, does not change.
 <!-- /xspec:candidate -->
 
 ## Impact
@@ -276,8 +279,9 @@ passes report against, does not change.
   promoted text is real. — Added-by: Claude Opus 5.5 (lane openxfactory-1) ·
   2026-09-26
 - **Owed documents compete with tonight's changes for one fixed share.**
-  Oldest-first bounds how long a document can stay owed only while the
-  corpus changes more slowly than the share drains it (Claim 5). A night
+  Oldest-first bounds how long a document that can fit stays owed, and only
+  while the corpus changes more slowly than the share drains it (Claim 5; Q3
+  takes the documents that can never fit out of the queue). A night
   with more changed bytes than the share puts new changes behind old debt.
   Nothing here resolves that; it is recorded so the change carries a report
   line for it instead of an assumption. — Added-by: Claude Opus 5.5 (lane
@@ -353,17 +357,36 @@ Added-by: Claude Opus 5.5 (lane openxfactory-1) · 2026-09-26
 Context: Within each population's share the packer walks first fit in
 `(repo, path)` order. With a cursor it has two groups to order: documents
 owed from earlier nights and documents newly changed tonight. The order
-decides who waits when the share is short (Claim 5).
+decides who waits when the share is short (Claim 5). One kind of document
+no order can help: one whose own `document_cost` exceeds its population's
+reserved share. It can be sent only on a night when the other population
+leaves enough of its own share unused to cover the excess, which the
+grounding population (2,984,532 bytes of specs against a 948,920-byte share)
+does not. Until then
+`_pack_first_fit` defers it whole and walks on, which is the budget packet's
+required behaviour for an oversized document.
 Recommended answer: Owed documents first, oldest `first_deferred` first with
 `(repo, path)` as the tiebreak; then tonight's newly changed documents in
 `(repo, path)` order; first fit throughout, whole documents only, as today.
-Explanation: Oldest-first bounds how long any document can stay owed
-whenever the backlog drains at all, and given the cursor it is exactly as
-deterministic as the current order, so a night stays reproducible from its
-inputs. Newest-first would starve the backlog the way the alphabet does now,
-and interleaving adds a policy dial nobody has asked for. Where the share is
-too small for the owed set, tonight's changes wait, and the report's
-oldest-owed age is what makes that visible rather than silent.
+An owed document whose cost exceeds its population's reserved share (948,920
+bytes at 0.5) leaves that queue. The cursor records it as OVERSIZED with its
+size, the report names it every night as a document the sweep cannot reach
+at this budget, its prior findings stay protected exactly as a deferred
+document's are, and it is looked at again only when its content changes or
+the budget does. A promoted spec too large for the grounding share is named
+the same way, though it owes nothing.
+Explanation: Oldest-first bounds how long any document that CAN fit stays
+owed, whenever the backlog drains at all, and given the cursor it is exactly
+as deterministic as the current order, so a night stays reproducible from
+its inputs. A document that cannot fit has no bound under any order: the
+packer defers it and moves on, deliberately. Left in the queue, it would sit
+at the head forever and turn the oldest-owed age into a measure of that one
+document. Its remedy is a human act (split the document, or change the
+budget), not waiting, so it is named instead of queued. Newest-first would
+starve the backlog the way the alphabet does now, and interleaving adds a
+policy dial nobody has asked for. Where the share is too small for the owed
+set, tonight's changes wait, and the report's oldest-owed age is what makes
+that visible rather than silent.
 Disposition status: open
 Added-by: Claude Opus 5.5 (lane openxfactory-1) · 2026-09-26
 
@@ -414,13 +437,17 @@ policy chosen from `incremental | full-weekly | full-nightly`. A carry-over
 widens the swept set beyond tonight's diff on an axis no scope value names
 (Conflicts).
 Recommended answer: An obligation of the chosen scope, stated in *Sweep
-sequencing and snapshot consistency*: a document a scope SELECTED stays owed
-until it is analyzed, whatever the scope. No new scope value.
+sequencing and snapshot consistency*: a document that CHANGED since the
+previous inventory, and that a night selected and did not analyze, stays
+owed until it is analyzed, whatever the scope. On an incremental night
+everything the scope selects changed; on a full-sweep night only the changed
+ones are enrolled (Q7). No new scope value.
 Explanation: A scope value answers which documents a night selects. The
-carry-over answers whether selecting a document and not analyzing it
-discharges anything, which is a different question. As a scope value, a
-Hermes layer could turn it OFF, and that would reinstate the silent loss as
-policy.
+carry-over answers whether a changed document that was selected and not
+analyzed has been discharged, which is a different question. As a scope
+value, a Hermes layer could turn it OFF, and that would reinstate the silent
+loss as policy. Tying the obligation to change rather than to selection is
+what lets a full sweep offer the whole corpus without making all of it owed.
 Disposition status: open
 Added-by: Claude Opus 5.5 (lane openxfactory-1) · 2026-09-26
 
