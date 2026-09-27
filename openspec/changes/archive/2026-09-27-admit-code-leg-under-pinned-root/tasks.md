@@ -320,7 +320,7 @@ without its arm, and is shown failing before it is shown passing.
       `selected=8890 passed=8884 skipped=6 failures=0 errors=0` — identical
       counts, as expected of a squash merge that carries the same tree.
 
-## 5. Archive (GIVEN 2026-09-27: Brett Heap's archive word, on merged-plus-green evidence)
+## 5. Archive (PERFORMED 2026-09-27 on merged-plus-green evidence, on Brett Heap's archive word)
 
 - [x] 5.1 **(OPERATOR)** `code_surface` is NON-EMPTY, so under
       `release-realization` this packet archives on MERGED-PLUS-GREEN
@@ -383,6 +383,51 @@ without its arm, and is shown failing before it is shown passing.
       governed inventory*, this packet's SOLE `## MODIFIED` block, as amended
       by R1 (#1165 → `b5ec3899`): the direct hop sentence and not the
       pre-amendment parenthetical.
+      **DONE THROUGH THE GOVERNED WRAPPER, NEVER A BARE `openspec archive`**, in
+      the commit that moves this directory (`293ca89f`):
+      `TZ=UTC python3 scripts/proposal-support.py . archive admit-code-leg-under-pinned-root --yes`,
+      exit **0**, run 2026-09-27T00:42:19Z → 00:42:24Z. Its decisive lines:
+      `ORIGIN RETAINED admit-code-leg-under-pinned-root (declaration unchanged
+      since the ratifying commit daca0b898e37)`; `Totals: 1 passed, 0 failed
+      (1 items)`; `Task status: ✓ Complete`; `Applying changes to
+      openspec/specs/release-realization/spec.md: ~ 1 modified`; `Totals: + 0,
+      ~ 1, - 0, → 0`; `Change 'admit-code-leg-under-pinned-root' archived as
+      '2026-09-27-admit-code-leg-under-pinned-root'`; `OK openspec-cli-pin:
+      @fission-ai/openspec@1.12.0 verified against its content address and
+      every target validated --strict clean`; `NO SUPPORTING DOCS ... (origin
+      retained, nothing to package)`. The CLI is the content-addressed pinned
+      1.12.0 artifact and NOT the 1.13.1 on `PATH`; `--path-mode` was not
+      used; `--date` was not passed, so the wrapper took today in UTC.
+      **THE ARCHIVE DIRECTORY IS
+      `openspec/changes/archive/2026-09-27-admit-code-leg-under-pinned-root/`**,
+      named for the UTC day of the wrapper run and of the commit that adds it,
+      which is what `archive-date-vs-commit` measures. **ORIGIN RETAINED WITH
+      NO RECORD OWED**: `.openspec.yaml` was last touched by the ratifying
+      commit `daca0b89` itself, so `openspec/origin-dispositions.yaml` is not
+      edited.
+      **THE PROMOTED TEXT IS THE DELTA AS WRITTEN, MEASURED ON BOTH SIDES AND
+      NOT EYEBALLED**, the block extracted programmatically by its
+      `### Requirement:` heading from the archived delta and from canon and
+      hashed. `openspec/specs/release-realization/spec.md` is the ONLY
+      capability this delta touches: the `## MODIFIED` block *The estate's
+      repositories are enumerated in a governed inventory* REPLACES canon's
+      block — before 12,297 bytes / 160 lines / 8 scenarios (sha256
+      `3020c2c916df22bb…`), after **19,044 bytes / 230 lines / 11 scenarios,
+      sha256 `0bbd1aa2d631e8cf…` on BOTH the archived delta and canon**. It
+      carries the R1 amendment's direct hop sentence — *"A `pinned` row that
+      is not itself admitted by a `pin`, and every row a pinned root's
+      `gitlink` admits whether or not it also carries a `pin` of its own,
+      SHALL carry no row's `gitlink`"* — and the pre-amendment parenthetical
+      appears nowhere in canon. `release-realization` requirement count
+      **21 -> 21** and scenario count **122 -> 125** (-8 +11, re-taken with
+      `grep -c` from canon rather than copied forward); canon's preamble and
+      the other TWENTY requirement blocks are raw byte-identical before and
+      after, hashed one by one, every hunk lying inside the promoted block;
+      `--numstat` **+71 -1**, and `-w` reads the same, so no changed line is
+      whitespace-only. The one removed line is the `gitlink` bullet's line
+      where the new sentence enters, re-wrapped; the block's own `Removed
+      from canon by` marker names the replaced bullet in canon. THE CLI DID
+      NOT DIVERGE FROM THE DELTA and no block was corrected by hand.
 - [x] 5.3 **(OPERATOR)** Close openxFactory #1150 THERE, by a closing keyword
       written in the archive pull request's BODY and in no commit message on
       any branch of this change.
