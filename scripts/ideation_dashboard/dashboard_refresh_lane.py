@@ -1000,8 +1000,8 @@ class BuildResult:
 # that composed unit as regular files under its own root, `validator/`
 # (`scripts/` beside `contracts/schemas/`), where the script's own `parents[1]`
 # is the unit and its schemas resolve. Then the parent RUNS the sealed copy
-# once, through the product's own `snapshot.validate_snapshot` in an
-# allowlisted environment, over a minimal snapshot-kind probe, and refuses
+# once, through the product's own `snapshot.validate_snapshot` in a sealed
+# container (#1191), over a minimal snapshot-kind probe, and refuses
 # unless the validator reached a verdict. So
 # what the child's `--strict` runs is a byte-for-byte copy of the unit the
 # snapshot lane validates with, and that copy has run once, here, to a verdict.
@@ -1857,10 +1857,12 @@ def _occupied_recipe_path() -> SealRefused:
 
 def _write_new_recipe(seal_dir, text: str, *, identity=None) -> None:
     """Create the recipe the way the manifest is created (Copilot, PR #1166).
-    The validator's probe runs sealed code with the seal writable before the
-    recipe is written, and the probe's after-index cannot see what a process
-    it left behind puts at the recipe's path later: a link out, a hard link
-    to a host file, or a directory of its own.
+    The validator's probe runs sealed code before the recipe is written.
+    Since #1191 it runs in a sealed container, with the seal mounted
+    read-only, and nothing it starts outlives that container. The recipe is
+    still created as though a process the probe left behind could reach its
+    path later, which the probe's after-index could not see: a link out, a
+    hard link to a host file, or a directory of its own.
 
     So the recipe's directory is MADE here, exclusively, relative to a handle
     on the seal directory as created (`_seal_directory_handle`: the
@@ -2425,8 +2427,8 @@ def seal_validator(seal_root, pinned: PinnedValidator, *, corpus_checkout,
     thing it reads: the probe's own verdict is a finding by construction, and
     it is never a verdict on the corpus. The probe lives in a scratch directory
     outside the seal, so nothing it touches is sealed. The copy is sealed code,
-    so it runs in the pre-dispatch render's allowlisted environment, not this
-    job's, and its run is classified by the SEALED product module
+    so it runs in a sealed container (`container`, #1191), never on this
+    runner, and its run is classified by the SEALED product module
     (`validate_in_render_environment`, `sealed_product_module`). The render
     legs are sealed before this runs.
 
@@ -3695,8 +3697,9 @@ def seal_source(
         # THE RECIPE IS WRITTEN AS THE MANIFEST IS (Copilot, PR #1166): its
         # directory made exclusively and the recipe created `O_EXCL|O_NOFOLLOW`
         # inside the seal directory the lane holds, whose name must still lead
-        # to it, since the probe's sealed code ran with the seal writable before
-        # this point.
+        # to it, since the probe's sealed code ran before this point. It ran
+        # with the seal mounted read-only (#1191), and the recipe is held
+        # against it all the same.
         _write_new_recipe(held, recipe_text)
 
         index = seal_file_index(seal_root)

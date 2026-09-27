@@ -4287,6 +4287,13 @@ jobs:
         # until something removes it. So every container carrying this run's
         # label is removed, then the image by the id the build step recorded,
         # and by the label, which it carries from the moment it exists.
+        # A container already going away by its own `--rm` refuses
+        # `docker rm` and holds the image until it is gone, which
+        # opensoft/xFactory#526 found on real docker, so the sweep goes on
+        # until none of this run's is left, for at most 30 seconds. One still
+        # there after that, or a daemon that cannot say, fails this step. The
+        # job continues past it, so the nightly is never failed by it, and
+        # the run shows it.
         if: always()
         continue-on-error: true
         shell: /bin/bash --noprofile --norc -p -e {0}
@@ -4294,12 +4301,20 @@ jobs:
           LABEL="openxfactory.dashboard-refresh.sealed-run=${GITHUB_RUN_ID:?}-${GITHUB_RUN_ATTEMPT:?}"
           DOCKER_CONFIG="$(/usr/bin/mktemp -d "${RUNNER_TEMP:?}/dfr-docker-config.XXXXXX")"
           export DOCKER_CONFIG
-          left="$(/usr/bin/docker ps -aq --filter "label=$LABEL" 2>/dev/null || true)"
-          if [ -n "$left" ]; then
+          for _ in {1..30}; do
+            left="$(/usr/bin/docker ps -aq --filter "label=$LABEL" 2>/dev/null || true)"
+            if [ -z "$left" ]; then
+              break
+            fi
             printf '%s\n' "$left" | /usr/bin/xargs -r /usr/bin/docker rm -f >/dev/null 2>&1 || true
-          fi
+            /usr/bin/sleep 1
+          done
           if [[ "${SEALED_IMAGE:-}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
             /usr/bin/docker image rm "$SEALED_IMAGE" >/dev/null 2>&1 || true
           fi
           /usr/bin/docker image ls -aq --no-trunc --filter "label=$LABEL" 2>/dev/null \
             | /usr/bin/xargs -r /usr/bin/docker image rm >/dev/null 2>&1 || true
+          if ! left="$(/usr/bin/docker ps -aq --filter "label=$LABEL")" || [ -n "$left" ]; then
+            echo "::error::a container of this run's sealed code is still there after this step swept for 30 seconds, or the daemon could not say: ${left//$'\n'/ }"
+            exit 1
+          fi

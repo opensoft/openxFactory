@@ -3647,6 +3647,99 @@ def test_the_job_removes_its_sealed_containers_and_image_last():
     assert lane.SEALED_RUN_LABEL == "openxfactory.dashboard-refresh.sealed-run"
 
 
+# A stand-in for the scrub step's docker: it logs each call, lists one
+# container of this run's until `left` sweeps have seen it ("forever" never
+# lets it go), refuses `rm -f` as docker does for a container already going
+# away by its own `--rm`, and fails every `ps` once `ps-fails` exists.
+_SCRUB_DOCKER = """\
+import os, sys
+from pathlib import Path
+state = Path(os.environ["STAND_IN_STATE"])
+with open(state / "calls", "a", encoding="utf-8") as log:
+    log.write(" ".join(sys.argv[1:]) + "\\n")
+if sys.argv[1] == "ps":
+    if (state / "ps-fails").exists():
+        sys.exit(1)
+    left = (state / "left").read_text().strip()
+    if left == "forever":
+        print("c0ffee")
+    elif int(left) > 0:
+        print("c0ffee")
+        (state / "left").write_text(str(int(left) - 1))
+elif sys.argv[1] == "rm":
+    sys.exit("Error response from daemon: removal of container c0ffee is "
+             "already in progress")
+"""
+
+
+def _run_the_scrub_step(tmp_path, *, left: str, ps_fails: bool = False):
+    """The job's last step, run under its own shell, with its docker and its
+    sleep swapped for stand-ins by their absolute paths."""
+    run = _finalize_steps()[-1]["run"]
+    state = tmp_path / "state"
+    state.mkdir()
+    (state / "left").write_text(left)
+    if ps_fails:
+        (state / "ps-fails").write_text("")
+    docker = tmp_path / "docker"
+    docker.write_text(f"#!{sys.executable}\n{_SCRUB_DOCKER}")
+    docker.chmod(0o755)
+    sleep = tmp_path / "sleep"
+    sleep.write_text(f'#!/bin/sh\necho "sleep $*" >> "{state}/calls"\n')
+    sleep.chmod(0o755)
+    script = tmp_path / "step.sh"
+    script.write_text(run.replace("/usr/bin/docker", str(docker))
+                      .replace("/usr/bin/sleep", str(sleep)))
+    runner_temp = tmp_path / "runner-temp"
+    runner_temp.mkdir()
+    proc = subprocess.run(
+        ["/bin/bash", "--noprofile", "--norc", "-p", "-e", str(script)],
+        env={"PATH": "/usr/bin:/bin", "GITHUB_RUN_ID": "4242",
+             "GITHUB_RUN_ATTEMPT": "2", "RUNNER_TEMP": str(runner_temp),
+             "SEALED_IMAGE": STAND_IN_IMAGE, "STAND_IN_STATE": str(state)},
+        capture_output=True, text=True, timeout=120)
+    calls = (state / "calls").read_text().splitlines()
+    return proc, calls
+
+
+def test_the_scrub_sweeps_until_no_container_of_this_run_is_left(tmp_path):
+    """A container already going away by its own `--rm` refuses `docker rm`
+    and holds the sealed image until it is gone, which opensoft/xFactory#526
+    found on real docker. So the last step sweeps this run's containers until
+    none is left, and only then removes the image (#1191)."""
+    proc, calls = _run_the_scrub_step(tmp_path, left="3")
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    label = "label=openxfactory.dashboard-refresh.sealed-run=4242-2"
+    sweeps = [call for call in calls if call == f"ps -aq --filter {label}"]
+    assert len(sweeps) == 5    # three that list it, the one that does not, the check
+    assert calls.count("rm -f c0ffee") == 3
+    image = calls.index(f"image rm {STAND_IN_IMAGE}")
+    assert image > max(i for i, call in enumerate(calls)
+                       if call == "rm -f c0ffee")
+    assert image > max(i for i, call in enumerate(calls[:image])
+                       if call.startswith("ps "))
+    assert "::error::" not in proc.stdout
+
+
+@pytest.mark.parametrize("left, ps_fails", [("forever", False), ("0", True)],
+                         ids=["a-container-that-never-goes",
+                              "a-daemon-that-cannot-list"])
+def test_a_container_the_scrub_could_not_remove_fails_the_step(
+        tmp_path, left, ps_fails):
+    """A container of this run's still there after 30 seconds of sweeping, or
+    a daemon that cannot say whether one is, fails the step. The step is
+    continue-on-error, so the nightly is never failed by it, and the run
+    shows it (#1191, as opensoft/xFactory#526's last step does)."""
+    proc, calls = _run_the_scrub_step(tmp_path, left=left, ps_fails=ps_fails)
+    assert proc.returncode == 1, proc.stdout + proc.stderr
+    assert "::error::a container of this run's sealed code" in proc.stdout
+    assert f"image rm {STAND_IN_IMAGE}" in calls
+    if left == "forever":
+        assert calls.count("rm -f c0ffee") == 30
+        assert "c0ffee" in proc.stdout
+    assert _finalize_steps()[-1]["continue-on-error"] is True
+
+
 _HEREDOC = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
 _COMMAND_AT = re.compile(r"(?:^|[;&|(!]|\$\()\s*([A-Za-z_][A-Za-z0-9_.+-]*)(?=\s|$|\))")
 # A keyword that a command follows is a separator, never itself a command.
