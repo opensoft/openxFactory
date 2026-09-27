@@ -181,10 +181,11 @@ also changed since the previous inventory, so the owed set never grows into
 the corpus. Within each population's reserved share the packer offers owed
 documents first, oldest deferral first, then tonight's newly changed documents
 in `(repo, path)` order, first fit and whole documents only, as now. An owed
-document larger than its population's reserved share, which no order can send
-while the other population fills its own, is recorded as OVERSIZED instead:
-named in every report and left out of the queue until its content or the
-budget changes. The next cursor is whatever is still owed after the night. A
+document larger than the whole usable budget, which no packing can ever send,
+is recorded as OVERSIZED instead: named in every report and left out of the
+queue until its content or the budget changes. One larger only than its
+population's share stays owed and queued for the packer's third phase, and is
+reported apart. The next cursor is whatever is still owed after the night. A
 document leaves the cursor only when the analysis worker completed on a prompt
 that contained it, so a night whose sweep was skipped or failed discharges
 nothing, and everything that night would have enrolled stays owed, sent or
@@ -279,9 +280,10 @@ snapshot both passes report against, does not change.
   promoted text is real. — Added-by: Claude Opus 5.5 (lane openxfactory-1) ·
   2026-09-26
 - **Owed documents compete with tonight's changes for one fixed share.**
-  Oldest-first bounds how long a document that can fit stays owed, and only
-  while the corpus changes more slowly than the share drains it (Claim 5; Q3
-  takes the documents that can never fit out of the queue). A night
+  Oldest-first bounds how long a document that fits its share stays owed,
+  and only while the corpus changes more slowly than the share drains it
+  (Claim 5; Q3 reports apart the documents too large for their share, and
+  takes those too large for the whole budget out of the queue). A night
   with more changed bytes than the share puts new changes behind old debt.
   Nothing here resolves that; it is recorded so the change carries a report
   line for it instead of an assumption. — Added-by: Claude Opus 5.5 (lane
@@ -357,36 +359,42 @@ Added-by: Claude Opus 5.5 (lane openxfactory-1) · 2026-09-26
 Context: Within each population's share the packer walks first fit in
 `(repo, path)` order. With a cursor it has two groups to order: documents
 owed from earlier nights and documents newly changed tonight. The order
-decides who waits when the share is short (Claim 5). One kind of document
-no order can help: one whose own `document_cost` exceeds its population's
-reserved share. It can be sent only on a night when the other population
-leaves enough of its own share unused to cover the excess, which the
-grounding population (2,984,532 bytes of specs against a 948,920-byte share)
-does not. Until then
-`_pack_first_fit` defers it whole and walks on, which is the budget packet's
-required behaviour for an oversized document.
+decides who waits when the share is short (Claim 5). Two kinds of document
+fall outside any ordering. One whose own `document_cost` exceeds the usable
+budget (the budget less the prompt scaffold, 1,897,840 bytes today) can
+never be sent at all. One whose cost exceeds only its population's reserved
+share (948,920 bytes at 0.5) can be sent only by the packer's third phase,
+on a night when everything else packed leaves at least its cost unused;
+while the grounding population (2,984,532 bytes of specs) fills its own
+share, that night does not come. Either way `_pack_first_fit` defers it
+whole and walks on, which is the budget packet's required behaviour.
 Recommended answer: Owed documents first, oldest `first_deferred` first with
 `(repo, path)` as the tiebreak; then tonight's newly changed documents in
 `(repo, path)` order; first fit throughout, whole documents only, as today.
-An owed document whose cost exceeds its population's reserved share (948,920
-bytes at 0.5) leaves that queue. The cursor records it as OVERSIZED with its
-size, the report names it every night as a document the sweep cannot reach
-at this budget, its prior findings stay protected exactly as a deferred
-document's are, and it is looked at again only when its content changes or
-the budget does. A promoted spec too large for the grounding share is named
-the same way, though it owes nothing.
-Explanation: Oldest-first bounds how long any document that CAN fit stays
-owed, whenever the backlog drains at all, and given the cursor it is exactly
-as deterministic as the current order, so a night stays reproducible from
-its inputs. A document that cannot fit has no bound under any order: the
-packer defers it and moves on, deliberately. Left in the queue, it would sit
-at the head forever and turn the oldest-owed age into a measure of that one
-document. Its remedy is a human act (split the document, or change the
-budget), not waiting, so it is named instead of queued. Newest-first would
-starve the backlog the way the alphabet does now, and interleaving adds a
-policy dial nobody has asked for. Where the share is too small for the owed
-set, tonight's changes wait, and the report's oldest-owed age is what makes
-that visible rather than silent.
+An owed document whose cost exceeds the usable budget leaves that queue. The
+cursor records it as OVERSIZED with its size, the report names it every
+night as a document the sweep cannot reach at this budget, its prior
+findings stay protected exactly as a deferred document's are, and it is
+looked at again only when its content changes or the budget does. An owed
+document larger than its share but within the usable budget stays owed and
+queued, because the third phase can still send it, but the report names it
+apart with its own age instead of letting it set the oldest-owed age. A
+promoted spec in either position is named the same way, though it owes
+nothing.
+Explanation: Oldest-first bounds how long a document that fits its share
+stays owed, whenever the backlog drains at all, and given the cursor it is
+exactly as deterministic as the current order, so a night stays reproducible
+from its inputs. The other two kinds have no such bound under any order: the
+packer defers them and moves on, deliberately. One that can never fit would
+sit at the head of the queue forever. Its remedy is a human act (split the
+document, or change the budget), not waiting, so it is named instead of
+queued. One larger than its share can still go out on a light night, so it
+keeps its place, but its wait measures the other population's demand, not
+the backlog, so it is reported apart and the oldest-owed age keeps meaning
+what it says. Newest-first would starve the backlog the way the alphabet
+does now, and interleaving adds a policy dial nobody has asked for. Where
+the share is too small for the owed set, tonight's changes wait, and the
+report's oldest-owed age is what makes that visible rather than silent.
 Disposition status: open
 Added-by: Claude Opus 5.5 (lane openxfactory-1) · 2026-09-26
 
