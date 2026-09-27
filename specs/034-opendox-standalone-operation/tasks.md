@@ -17,8 +17,9 @@ holds the boxes and every falsifier.
 - **Falsifier**: the #1144 falsifier or named test the task must pass, quoted
   in its PR.
 - **Blocked by**: the open `R1Q` questions, if any. No task starts while one
-  of these is open (FR-012). None has been open since `5850003126`, so no task
-  carries this line now.
+  of these is open (FR-012). Two are open, R1Q26 and R1Q27, which round 2's
+  analyze raised. T059, T060, T061, T066 and T067 carry this line, and T007
+  carries it for batch I alone.
 - **Ruled**: the answered `R1Q` questions whose answers the task carries out.
   A ruled question no longer blocks. Brett Heap answered them on `#656`, in two
   rounds:
@@ -39,7 +40,7 @@ An `After:` entry such as `T007 (batches C and F)` waits for those batches of
 T007 alone, and a bare `T007` waits for every batch. T007's `After, by batch`
 field gives each batch its own line. The plan-consistency tools read each
 batch as a node of its own, so the graph they check is
-the one this file states. There are eight batches, `T007.A` to `T007.H`. A
+the one this file states. There are nine batches, `T007.A` to `T007.I`. A
 task that waits on some of T007's batches may still run beside a task that
 another batch waits for (T006).
 
@@ -70,19 +71,24 @@ with `-R` in every `gh` call.
 
 ## What can start
 
-Brett Heap has answered all 25 questions on `#656`. The eleven that phase 1
-needed were answered on comment `5817152735` (verbatim *"(a) on all eleven,
-(d) on R1Q6"*), and T004 encoded them. The other fourteen were answered on
+Brett Heap has answered 25 of the 27 questions on `#656`. The eleven that
+phase 1 needed were answered on comment `5817152735` (verbatim *"(a) on all
+eleven, (d) on R1Q6"*), and T004 encoded them. Fourteen more were answered on
 comment `5850003126` (verbatim *"go with recommendations on all the open
 questions"*), which also ruled RN-1 (a). T019, T009 and T069 encode that
 second round in this revision, for phase 1's openXdox-code tail, phase 2 and
 phase 3. T001 and T003–T006 are done, and their evidence is in `evidence/`.
-**No task is blocked by an open question, and no phase is provisional.**
+**Round 2's analyze raised R1Q26 and R1Q27, which are open**
+(`evidence/analyze-round-2.md`). They hold T059, T060, T061 and T066 in phase
+2, and T067 encodes their answers. Phase 1, and every other task of phase 2,
+is planned on answers. T064, T065 and the checkpoint T063 follow the held
+tasks through their `After:` lines, so phase 2 cannot close, nor phase 3
+start, until the two are answered.
 
 - **The holder starts now**: T002, T008, and T007's batches A and C. Batch D
-  (RN-1 (a)) has landed, as #1170 → `79a720a2`. Batch B waits on T041, and
-  batches F, G and H on this revision. Each batch lands before the tasks whose `After:` lines name
-  it.
+  (RN-1 (a)) has landed, as #1170 → `79a720a2`. Batch B waits on T041,
+  batches F, G and H on this revision, and batch I on T067. Each batch lands
+  before the tasks whose `After:` lines name it.
 - **Each phase-1 task** starts once its slice has been claimed (T002).
   **T020** and **T030** never needed an answer. **T030** lands with T011,
   because it fails until 2.1 lands. **T043** also waits for T007's batches C
@@ -94,8 +100,10 @@ phase 3. T001 and T003–T006 are done, and their evidence is in `evidence/`.
   tasks its `After:` line names.
 - **Phases 2 and 3** each start once the phase before them has closed: every
   phase-2 task comes after T049, and every phase-3 task after T063, through
-  its own `After:` line. Each phase's writer slices are below its phase-1
-  counterpart, in § "Phase 2 writer slices" and § "Phase 3 writer slices".
+  its own `After:` line. In phase 2, T059, T060, T061 and T066 also wait on
+  T067, which R1Q26 and R1Q27 hold. Each phase's writer slices are below its
+  phase-1 counterpart, in § "Phase 2 writer slices" and § "Phase 3 writer
+  slices".
 
 ---
 
@@ -190,7 +198,8 @@ phase 3. T001 and T003–T006 are done, and their evidence is in `evidence/`.
   - It carries no `Arc:` trailer (R1Q20 (a)), so 11.1's guard never reads it.
   - It carries no closing keyword. Each amended line cites the ruling it
     carries out: `5817152735` for batches A, B, C and E, and `5850003126` for
-    batches D, F, G and H.
+    batches D, F, G and H. Batch I cites the comment that answers R1Q26 and
+    R1Q27.
 
   - **Batch A** holds the F3.1, 2.2, 3.2, 4.3, 10.1, 11.0, 11.1 and F11.1
     amendments. It lands before T047, whose openxFactory landing edits the
@@ -214,16 +223,27 @@ phase 3. T001 and T003–T006 are done, and their evidence is in `evidence/`.
     more exclusion reasons (R1Q24 (a), R1Q25 (b)), and 9.2 gains its
     phase-3 close as an addendum to the release map (R1Q25 (b)). F7.1 is
     unchanged. It lands before T043 and T061.
+    - Two of its lines extend what another batch adds: F5.2's allow-list is
+      batch C's, and F9.1's exclusion is batch B's. Each names what it extends
+      by the ruling behind it, R1Q7 (a) or R1Q6 (d) (`5817152735`), so it
+      reads the same whichever batch lands first. Of two batches that amend
+      one line, the later rebases onto the earlier.
   - **Batch G** holds the amendments that T009's answers imply: the 4.3
-    addendum (R1Q10 (a)), 5.3 and 5.3a (R1Q11 (a)), 7.1 (R1Q11 (a), R1Q12
-    (a)), the 9.5 addendum (R1Q11 (a)) and F5.2's environment line (R1Q23
-    (a)). It lands before T053, phase 2's first landing, and so before every
-    phase-2 task that follows T053.
+    addendum (R1Q10 (a)), 5.3 and 5.3a (R1Q11 (a)), 7.0 and 7.1 (R1Q11 (a),
+    R1Q12 (a)), the 9.5 addendum (R1Q11 (a)) and F5.2's environment line
+    (R1Q23 (a)). It lands before T053, phase 2's first landing, and so before
+    every phase-2 task that follows T053.
   - **Batch H** holds the amendments that T069's answers imply: F10.1 and 10.3
     (R1Q15 (b), R1Q16 (iii)), the 13.4 addendum (R1Q15 (b)), the 13.1
     addendum and F13.1 (R1Q16), and the 16.3 addendum (R1Q17 (b), R1Q18 (a)).
-    It lands before T070 and T080, and so before every phase-3 task that
-    runs an amended line.
+    It lands before T070, T075 and T080, and so before every phase-3 task
+    that runs an amended line.
+  - **Batch I** holds the amendments that the answers to R1Q26 and R1Q27
+    imply, which T067 lists once they are given. Under the recommended
+    answers, 12.5's falsifier admits `tests/test_gate_loop_views.py`'s two
+    facet edits, each with its reason (R1Q26 (a)), and 7.3 and F7.1 read the
+    second named test as every schema that install validates (R1Q27 (a)). It
+    lands before T060 and T061.
 
   A realization PR that lands before its batch still quotes the falsifier as
   the answer records it, citing the ruling.
@@ -232,6 +252,8 @@ phase 3. T001 and T003–T006 are done, and their evidence is in `evidence/`.
   - **Ruled**: R1Q1, R1Q2, R1Q3, R1Q5, R1Q6, R1Q7, R1Q9, R1Q20 and R1Q22,
     `5817152735`; R1Q10, R1Q11, R1Q12, R1Q14, R1Q15, R1Q16, R1Q17, R1Q18,
     R1Q23, R1Q24 and R1Q25, `5850003126`.
+  - **Blocked by**: R1Q26 and R1Q27, for batch I alone. Batches A–H do not
+    wait on them.
   - **After**, by batch:
     - **A**: nothing.
     - **B**: T041, which names the exclusion file.
@@ -245,6 +267,7 @@ phase 3. T001 and T003–T006 are done, and their evidence is in `evidence/`.
     - **F**: T019.
     - **G**: T009.
     - **H**: T069.
+    - **I**: T067.
 - [ ] T008 **Raise the `doc_health` direction arc (R1Q6 (d)).** R1Q6 (d)
   makes the direction question its own arc: openXdox-code's modules import
   openxFactory's `doc_health`, and openxFactory packages nothing (research
@@ -254,10 +277,12 @@ phase 3. T001 and T003–T006 are done, and their evidence is in `evidence/`.
   and names that deadline.
   - Under R1Q24 (a), the arc also takes the two other classes in the declared
     exclusion: the files that reach openxFactory's status-exemption rail, and
-    those that reach its contracts (T043). It also inherits T061's list of the
-    excluded files that validate a kind the narrowed validator gives up, so it
-    knows which validator each will need once it runs. The proposal cites
-    `5850003126` for those.
+    those that reach its contracts (T043). Its record cites `5850003126` for
+    them.
+  - T061's PR body, in phase 2, lists the excluded files that validate a kind
+    the narrowed validator gives up. The holder then adds that list to the
+    arc's record, as bookkeeping, so the arc knows which validator each file
+    will need once it runs.
   - **Ruled**: R1Q6 (d), `5817152735`; R1Q24 (a), `5850003126`.
 - [x] T009 **Phase 2's round.** DONE in this revision, on `5850003126`. No
   task of phase 2 starts before it is done.
@@ -265,13 +290,15 @@ phase 3. T001 and T003–T006 are done, and their evidence is in `evidence/`.
     `spec.md` § Clarifications and `clarify-questions.md`.
   - The #1144 lines they amend are T007's batch G (§ "Ruled amendments"). None
     changes a requirement or a scenario, so no RULING NEEDED is raised.
-  - Phase 2 is re-planned in `plan.md`, below, and in § "Phase 2 writer
+  - Phase 2 is re-planned below, in `plan.md`, and in § "Phase 2 writer
     slices", and its PROVISIONAL marker is lifted.
   - `/speckit-analyze` ran with T006's feature context over the whole
     revision, T019's and T069's parts included, and found nothing CRITICAL.
     Every finding is recorded with its disposition in
     `evidence/analyze-round-2.md`, which is linked from this feature's README
-    entry. That one record serves T009, T019 and T069.
+    entry. That one record serves T009, T019 and T069. It also raised R1Q26
+    and R1Q27, which hold T059, T060, T061 and T066, and T067 is their
+    round.
   - **Ruled**: R1Q10 (a), R1Q11 (a), R1Q12 (a), R1Q13 (a) with (c), R1Q23 (a),
     `5850003126`.
   - **After**: T004.
@@ -309,6 +336,17 @@ phase 3. T001 and T003–T006 are done, and their evidence is in `evidence/`.
     found nothing CRITICAL (`evidence/analyze-round-2.md`, T009).
   - **Ruled**: R1Q14 (a), R1Q24 (a), R1Q25 (b), `5850003126`.
   - **After**: T006.
+- [ ] T067 **Round 3: R1Q26 and R1Q27.** Round 2's analyze raised both
+  (`evidence/analyze-round-2.md`, V2-1 and V2-2). Once Brett Heap answers
+  them:
+  - encode the answers in `spec.md` § Clarifications and
+    `clarify-questions.md`, and hand T007's batch I the #1144 lines they amend;
+  - re-plan T059, T060, T061, T064 and T066 on them. T066's re-plan names how
+    each kind reaches its own validator (V2-12);
+  - re-run `/speckit-analyze` over the result, and record it in
+    `evidence/analyze-round-3.md`, linked from this feature's README entry.
+  - **Blocked by**: R1Q26, R1Q27.
+  - **After**: T009.
 
 ---
 
@@ -648,10 +686,11 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
   - **Realizes**: 10.1.
   - **Falsifier**: `opendox --help` exits 0 (F10.1's first assertion, which is
     phase 1's proof); `opendox runtime --help` exits 0. Both run after a plain
-    `pip install .` into a fresh venv, as F10.1 installs, so no extra is
-    present, and so they also show that the default profile imports with no
-    extra. `opendox.runtime.cli` imports under a plain install (measured for
-    T006: PyYAML is its only dependency there).
+    `pip install .` into a fresh venv, so no extra is present, and so they also
+    show that the default profile imports with no extra. They keep that plain
+    install even after batch H makes F10.1 install `.[local]` (R1Q16 (iii)).
+    `opendox.runtime.cli` imports under a plain install (measured for T006:
+    PyYAML is its only dependency there).
   - **Ruled**: R1Q4 (a), R1Q5 (a), R1Q22 (a).
   - **After**: T016, T022 (`cli.py`'s single-writer order).
 
@@ -919,7 +958,9 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
 
 Planned on answers since T009 (`5850003126`): R1Q10 (a), R1Q11 (a), R1Q12
 (a), R1Q13 (a) with (c), and R1Q23 (a). R1Q25 (b) returned T061 (7.3) here
-from phase 1. Every phase-2 task comes after T049 and T009.
+from phase 1. Every phase-2 task comes after T049 and T009. T059, T060, T061
+and T066 also wait on R1Q26 and R1Q27, which round 2's analyze raised, and on
+T067, which encodes their answers.
 
 **Goal**: with no consumer installed, openDox generates its own neutral
 snapshot from a plain repository, serves it standalone, and validates it
@@ -993,6 +1034,15 @@ unchanged.
   - It writes T053's neutral snapshot. A document lands in the station its
     neutral `stage:` key names, a document that declares nothing is a source,
     and groups derive from the topics sources share (R1Q13 (a) with (c)).
+  - The topic rule must work on documents with no front matter at all. AT-R1's
+    repository (b) has none, and it must still yield a grouping tile
+    (quickstart.md § 2). The PR names the rule, and a test runs it over a copy
+    of that repository, which must yield at least one group.
+  - A `stage:` value that is not one of the six role keys is not a
+    declaration. The generate verb reports it, naming the document, the value
+    and the six keys, and reads the document as a source. The neutral schema
+    admits only the six (T053), and a closed set rejects a value it does not
+    know (Principle VII), so no other value reaches the snapshot.
   - `display_profile.py` changes in one place, as batch G amends 5.3:
     `SNAPSHOT_VALUES`' defaults become the neutral snapshot's values, so the
     product's own views match its own snapshot (R1Q11 (a)). The governed
@@ -1001,7 +1051,13 @@ unchanged.
     so `required_header_fields()` answers it (R1Q13 (a)). A document without
     those fields is still read, as a source.
   - **Realizes**: 5.1, 5.2, 5.3.
-  - **Falsifier**: F5.3.
+  - **Falsifier**: an in-process test that the projection over T050's
+    fixture, with neither sibling importable, validates against T053's schema
+    and carries none of F5.3's declared words; the topic-rule test over a copy
+    of repository (b); and a test that a `stage:` value outside the six is
+    reported and read as a source. F5.3 itself runs `python -m opendox.cli
+    generate`, whose generate verb reaches the consumer's generator until T055
+    routes it (`cli.py:90`), so T056 and T063 quote it.
   - **Ruled**: R1Q11 (a), R1Q13 (a) with (c), `5850003126`.
   - **After**: T050, T052, T053.
 - [ ] T057 [US2] [oDc] **7.1, 7.1a, 7.1b, 7.2: the validator's input set.**
@@ -1015,7 +1071,8 @@ unchanged.
     NOT in the set (7.1b).
   - The validator is new surface at the code leg (7.2).
   - **Realizes**: 7.1, 7.1a, 7.1b, 7.2.
-  - **Falsifier**: F7.2's schema half.
+  - **Falsifier**: the packaged-copy digest test and the 7.1b test. F7.2 runs
+    the generate verbs, so T058 and T063 quote it.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q12 (a), `5850003126`.
   - **After**: T049, T009, T053.
 - [ ] T055 [US2] [oDc] **Serve and generate standalone; route 4.3's
@@ -1044,7 +1101,9 @@ unchanged.
   the fixture with neither sibling importable, and the server STARTS (the limit
   measured in research R7 is lifted).
   - **Realizes**: 5.1 (part).
-  - **Falsifier**: F5.3; F10.1's generate half, without the console script.
+  - **Falsifier**: F5.3; and F10.1's `generate-and-open` run through
+    `python -m opendox.cli`, with a plain install and no `--local`, which
+    arrives in phase 3 (T070). F10.1 as batch H amends it is T077's.
   - **Ruled**: R1Q22 (a), `5817152735`.
   - **After**: T055.
 - [ ] T058 [US2] [oDc] **The post-render validator in the generate verbs.** It
@@ -1064,12 +1123,21 @@ unchanged.
   to admit that block beside the facet's one stage. The block is inert at the
   old pin, where the defaults are still the governed values, so it lands
   before T059 moves the pin.
+  - **Held by R1Q26.** `tests/test_gate_loop_views.py`, one of 12.5's
+    governed suites, pins the facet as it is today. Its
+    `test_the_display_facet_declares_one_stage_entry_and_nothing_else` goes
+    red at this landing, and its
+    `test_the_overlay_changes_four_words_and_the_named_absence_and_nothing_else`
+    at T059's pin (analyze round 2, V2-1). An arc landing may not edit that
+    suite, and R1Q7 (a)'s allow-list admits only respellings. T067 re-plans
+    this task on R1Q26's answer.
   - **Realizes**: 5.3a, F5.1.
   - **Falsifier**: F5.1, whose assertions read only the facet's stages; and a
     test that the facet's `values` block holds the governed snapshot's values,
     so the governed views place every card as they do today.
   - **Ruled**: R1Q11 (a), `5850003126`.
-  - **After**: T054.
+  - **Blocked by**: R1Q26.
+  - **After**: T054, T067, T007 (batch I).
 - [ ] T062 [US4] [oD] **Phase 2's openDox root pin** (T090 steps 1–2). T053's
   spec pin and bundle come first in this root, so this commit follows them.
   - **Realizes**: 9.5 (part).
@@ -1083,21 +1151,30 @@ unchanged.
   - It moves `pyproject.toml`'s `opendox @` pin to the phase-2 openDox-code
     commit (step 3). The ratchet is lowered for T055's closed reaches in the
     same landing.
-  - T060 has landed first, so openXdox's governed views keep matching the
-    governed snapshot once the pin carries openDox's neutral `SNAPSHOT_VALUES`.
+  - T060 has landed first, so openXdox's own views keep matching the governed
+    snapshot once the pin carries openDox's neutral `SNAPSHOT_VALUES`.
+    openxFactory's served views do not, until its profile composes the
+    facet's `values` block (T066, R1Q26).
+  - **Held by R1Q26**, because this pin is where the protected overlay test
+    goes red (T060).
   - **Realizes**: 5.4a, 9.5 (step 3, part).
   - **Falsifier**: seam tests that show openXdox's contributions are the
     registered ones; and 5.4a's generator suites, run in F5.2's environment as
     batch G amends it, with openxFactory's `scripts/` composed at a named
-    commit (R1Q23 (a)). They pass, except `tests/test_snapshot.py`'s two
-    schema cases, which wait for T061 (R1Q25 (b)). So F5.2 whole is T061's,
-    and T063 runs it again. No arc landing edited the suites except through
-    R1Q7 (a)'s allow-list (T007 batch C). F5.2 takes them by glob: six in
-    research, seven at openXdox-code `e28930bf` (T005).
+    commit (R1Q23 (a)). `tests/test_snapshot.py` runs with its two schema
+    cases deselected, since they wait for T061 (R1Q25 (b)):
+    `--deselect tests/test_snapshot.py::test_minimal_snapshot_validates_against_pinned_validator`
+    and
+    `--deselect tests/test_snapshot.py::test_referentially_broken_snapshot_is_rejected`.
+    Every other suite runs whole. So F5.2 whole is T061's, and T063 runs it
+    again. No arc landing edited the suites except through R1Q7 (a)'s
+    allow-list (T007 batch C). F5.2 takes them by glob: six in research, seven
+    at openXdox-code `e28930bf` (T005).
   - **Ruled**: R1Q6 (d), R1Q7 (a), `5817152735`; R1Q10 (a), R1Q23 (a),
     `5850003126`.
-  - **After**: T052, T055, T060, T062, T007 (batch C), T040 (the ratchet's
-    single-writer order).
+  - **Blocked by**: R1Q26.
+  - **After**: T052, T055, T060, T062, T067, T007 (batch C), T040 (the
+    ratchet's single-writer order).
 - [ ] T061 [US4] [oXc] **7.3: the consumer's validator lookup through the
   installed distribution**, with no parent walk (R1Q14 (a)). The lookup
   ignores its start and resolves the installed distribution's own validator.
@@ -1105,11 +1182,12 @@ unchanged.
   the same landing.
   - **In phase 2, beside openDox's own validator (R1Q25 (b)).** The RULED
     release map puts Group 7 here. This task follows T059, whose pin brings
-    openDox's validator (T057, T058), so every kind the consumer's validator
-    gives up already has a validator of its own. Until it lands, phase 1's
-    check declares `tests/test_snapshot.py` in the exclusion (T043). This PR
-    removes that entry, since the file then passes and T041's test would
-    refuse it.
+    openDox's validator (T057, T058), so each of openDox's kinds that the
+    consumer's validator gives up already has a validator of its own.
+    openxFactory's four kinds have none, and R1Q27 asks what validates them.
+    Until this task lands, phase 1's check declares `tests/test_snapshot.py`
+    in the exclusion (T043). This PR removes that entry, since the file then
+    passes and T041's test would refuse it.
   - 7.3's falsifier names two tests, and neither exists yet:
     `tests/test_snapshot.py::test_the_validator_is_the_installed_consumers_own`
     and
@@ -1118,12 +1196,16 @@ unchanged.
       revised in another, `tests/test_snapshot_validator_home.py`, which 5.4a's
       glob selects since T005. T007's batch F admits both edits to the
       reviewed allow-list, each entered with its reason (R1Q14 (a)). If no
-      earlier task has created that file, this PR creates it.
+      earlier task has created the reviewed allow-list, this PR creates it.
     - The second goes into a contract-family file that T043 declared in the
       exclusion (R1Q24 (a)). F7.1 still runs it by node id, because pytest
       collects a file named on its command line even when `collect_ignore`
       lists it (pytest 8.4.2, T006). The file's module level only computes
       paths, so it imports in a lone checkout (read at `e28930bf` for T019).
+      Those paths are the carve's: its `ROOT` is `parents[2]`, above the
+      checkout (`:28`). So the new test resolves the validator and its schemas
+      through the installed distribution, and never through the module's own
+      paths (V2-10).
   - **The ten-to-three narrowing (T006, T019).** 7.3 locates *"its three
     schemas (7.1's openXdox-spec three)"*: `ideation-dashboard-snapshot`, its
     `-index`, and `gate-action-record`. The validator's `SCHEMA_FILENAMES`
@@ -1147,12 +1229,20 @@ unchanged.
       it there. `test_aggregation_register_instance.py` skips in a lone
       checkout, where no aggregation register exists. A file that runs in the
       whole suite and validates one of the seven moves to openDox's validator
-      in this PR, which T059's pin makes available. T008's direction arc
-      inherits the list.
-    - openxFactory's four kinds reach no leg's validator, as 7.1b requires. A
-      search of openxFactory at `a65230f6` finds none of the four among what
-      its callers of this validator validate (T019), and T066's run at the
-      candidate pins is the proof.
+      in this PR, which T059's pin makes available. The holder adds the list
+      to T008's direction-arc record.
+    - **openxFactory's four kinds: R1Q27.** No code caller validates
+      them through this script (a search of openxFactory at `a65230f6` for
+      T019), but openxFactory's `contracts/manifest.yaml` names it as their
+      validator. Three retained rows say their rules are enforced by it, the
+      cross-reference validator delegates the register's rules to it, and
+      `contracts/README.md` documents its `--transition`. openxFactory's farm
+      (`doxbench_contracts._composed_validator`) runs it with openxFactory's
+      own schemas beside it, which it reads first
+      (`validate-ideation-dashboard-contracts.py:119-121`). Narrowed to three,
+      it would no longer check what those rows say it checks. 7.1b is about
+      what openDox needs, and does not settle this (V2-2). T067 re-plans the
+      narrowing on R1Q27's answer.
   - **openxFactory's lanes read this lookup (R1Q14's T006 paragraph).** The
     nightly lane calls `find_validator()` with no start and `product_root()`
     (`nightly_lane.py`, `_pinned_validator` and `_pinned_validator_missing`).
@@ -1160,7 +1250,9 @@ unchanged.
     `VALIDATOR_RELPATH` (`dashboard_refresh_lane.py`). Both validate
     snapshots, which stay the consumer's kind. This task keeps those three
     answers for a source checkout, which is how openxFactory composes the leg,
-    so neither script needs an edit. The seal test's assertion that a start
+    so neither script needs an edit. The farm and the seal also rely on a
+    fourth: a tree's own `contracts/schemas/` is read first. Whether it stays
+    is part of R1Q27 (V2-8). The seal test's assertion that a start
     outside the product answers `None` does change under R1Q14 (a), and T066
     revises it. If this task cannot keep the three answers, the script edits
     ride in T066 too.
@@ -1173,8 +1265,9 @@ unchanged.
     T007's batches C, F and G amend it, which this landing makes reachable.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q14 (a), R1Q24 (a), R1Q25 (b),
     `5850003126`.
-  - **After**: T059, T007 (batches C and F), and C3's openXdox-code PR 2
-    (openXdox-code#28, landed as `e28930bf`).
+  - **Blocked by**: R1Q27.
+  - **After**: T059, T067, T007 (batches C, F and I), and C3's openXdox-code
+    PR 2 (openXdox-code#28, landed as `e28930bf`).
 - [ ] T066 [US4] [oxF] **openxFactory's validator callers, ahead of 7.3 (a
   non-arc act).** T061 narrows the consumer's validator to its three kinds,
   and T064 composes that commit into openxFactory. Before T064, this act moves
@@ -1190,6 +1283,18 @@ unchanged.
     to the consumer's script otherwise. At the current pins nothing changes.
     At T064's pins the doxBench wire kinds and the workbench manifest reach
     openDox's validator.
+  - `find_openxfactory_validator` returns one script path today, and its
+    callers run it for openDox's kinds and for the consumer's
+    (`test_gate_routes.py`, `test_lens.py`). openDox-code has no `scripts/`
+    (7.2), so T067's re-plan names the mechanism, a script that dispatches by
+    kind or a second finder with its callers moved, and says which of
+    openDox's validators is on disk at T064's pins (V2-12).
+  - **Held by R1Q26 and R1Q27.** Under R1Q26 (a), this act also composes the
+    facet's `values` block into openxFactory's profile
+    (`scripts/profile_openxfactory.py`, which composes only `stages` today)
+    and updates `tests/test_engineering_profile_display_facet.py`
+    (`:272`, `:566`), in the same both-pins form (V2-5). What it does for
+    openxFactory's four kinds turns on R1Q27.
   - `tests/ideation-dashboard/test_dashboard_source_seal.py`'s
     `test_the_confined_locator_never_adopts_the_sealed_validator` asserts
     `find_validator(start) is None` for starts inside the seal. Under R1Q14
@@ -1198,27 +1303,33 @@ unchanged.
   - `nightly_lane.py` and `dashboard_refresh_lane.py` need no edit if T061
     keeps the three answers they read. If it does not, their edits ride here,
     in the same both-pins form.
-  - Before its PR opens, its writer runs openxFactory's whole `pytest-suite`
-    with the two roots at T064's candidate commits: the openDox root at T062's,
-    and the openXdox root with its code at T061's. Every red test is named in
+  - Before its PR opens, its writer runs openxFactory's whole `pytest-suite`,
+    and the `openxdox-consumer-gate` suite at its floors (`MIN_PASSED` 1137
+    and `EXPECT_SKIPPED` 0 at `79a720a2`), since `pytest-suite` alone passes
+    on skips (V2-25). It runs them with the two roots at T064's candidate
+    commits: the openDox root at T062's, and the openXdox root with its code at
+    T061's. Every red test is named in
     the PR body. Each is fixed here, or raised with the holder if no both-pins
     form exists.
   - **Realizes**: none of the 69 boxes. It keeps requirement 1 at T064's pins
     (SC-007).
-  - **Falsifier**: openxFactory's `pytest-suite`, green on this PR at the
-    current pins and green at T064's candidate pins, both quoted.
+  - **Falsifier**: openxFactory's `pytest-suite` and the consumer gate's
+    suite at its floors, green on this PR at the current pins and at T064's
+    candidate pins, all quoted.
   - **Ruled**: R1Q14 (a), R1Q25 (b), `5850003126`.
-  - **After**: T061, T062.
+  - **Blocked by**: R1Q26, R1Q27.
+  - **After**: T061, T062, T067.
 - [ ] T064 [US4] [oX] [oxF] **Phase 2's consumer pins** (T090 steps 5–6). The
   openXdox root moves to T061's commit, the phase's last openXdox-code
   landing, and to T062's root commit. Host wiring is needed only if
   openxFactory's composite has to register a generator contribution. It
   composes openXdox's profile, so none is expected; confirm that by
-  `pytest-suite`.
+  `pytest-suite`. The facet's `values` block reaches openxFactory's served
+  views only through T066's composition (R1Q26).
   - T066 has landed first, so openxFactory's validator callers already send
     openDox's kinds to the validator these pins bring.
   - **Realizes**: 9.5 (part).
-  - **Falsifier**: as T047's.
+  - **Falsifier**: as T047's, with the consumer gate's suite at its floors.
   - **After**: T059, T060, T061, T062, T066, T047 (the pin pairs'
     single-writer order).
 - [ ] T065 [US4] [oxF] **Phase 2's interim F11.1**, by T093's procedure, with
@@ -1282,15 +1393,20 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - `local` or `hosted`, defaulting to `hosted`, and read beside
     `OPENDOX_OIDC_ISSUER`.
   - `generate-and-open --local` selects local exactly as
-    `OPENDOX_INSTALL_MODE=local` does, and a flag and a setting that disagree
-    are refused, naming both (R1Q15 (b), as batch H's 13.4 addendum reads).
-    With neither, the install is hosted (13.5).
+    `OPENDOX_INSTALL_MODE=local` does (R1Q15 (b), as batch H's 13.4 addendum
+    reads). With neither, the install is hosted (13.5).
+  - A flag and a setting that disagree, such as `--local` with
+    `OPENDOX_INSTALL_MODE=hosted`, are refused, naming both, so no explicit
+    selection is silently overridden. No answer rules this case. The refusal
+    is the plan's fail-closed reading (Principle VII), which
+    `evidence/analyze-round-2.md` records for Brett. Batch H does not write it
+    into #1144.
   - `local` needs no broker, binds loopback only, and refuses a non-loopback
     `--host` with no opt-in.
   - `hosted`, or unset, with no issuer refuses, naming the setting.
   - Hosted mode is otherwise unchanged.
   - **Realizes**: 13.4, 13.5, 13.6.
-  - **Falsifier**: F13.1's refusals.
+  - **Falsifier**: F13.1's refusals, and a test of the disagreeing pair.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q15 (b), `5850003126`.
   - **After**: T071, T007 (batch H).
 - [ ] T072 [US3] [oDc] **13.1: the bundled PostgreSQL server** (R1Q16).
@@ -1333,9 +1449,10 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   bundle, reachable in a browser from an openDox-only install. `intent-feed.js`
   is not owed (10.2a is a declaration, recorded in the PR).
   - **Realizes**: 10.2, 10.2a.
-  - **Falsifier**: F10.1's fetch.
+  - **Falsifier**: F10.1's fetch, as batch H amends it: a `.[local]` install
+    and `--local`, which start the bundled server, so it follows T072.
   - **Ruled**: R1Q22 (a), `5817152735`.
-  - **After**: T056, T038, T063, T069.
+  - **After**: T056, T038, T063, T069, T072, T007 (batch H).
 - [ ] T076 [US3] [oD] **10.3: the openDox root's `README.md` documents the one
   command.** It is `pip install "opendox[local]"`, then
   `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii), as batch H's
@@ -1377,7 +1494,10 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - Keys in the URL and in extra fields are refused, via `carries_a_credential`.
   - A reference is resolved by a built-in resolver for `env:NAME` and the OS
     keyring, at call time and inside `doxbench_provider.py` only (R1Q17 (b)).
-    A record whose reference the built-in resolver takes names no broker.
+    A record whose reference the built-in resolver takes names no broker:
+    `broker_argv` is not required for it, and one given beside such a
+    reference is refused, so each record has one resolver. A test holds
+    both.
   - An endpoint that takes no credential declares the auth kind `none`, under
     which `broker_argv` and `credential_ref` are forbidden (R1Q18 (a)). `none`
     joins `AUTH_KINDS` after the two kinds that exist, so F16.1's
@@ -1522,7 +1642,7 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - **Falsifier**: `make pins` in the openDox root (step 2) and in the openXdox
     root (step 5), and openxFactory's `scripts/verify-opendox-pin.py` and
     `scripts/verify-openxdox-pin.py` (step 6).
-- [ ] T091 [oDc] [oXc] [oD] [oX] [oxF] **The trailer (11.0).** Every
+- [ ] T091 [oDc] [oXc] [oD] [oX] [oxF] [oDs] **The trailer (11.0).** Every
   realization commit and every landing carries `Arc:
   neutral-product-standalone-operability` as well as `Lane: openxfactory-4`.
   That holds in every repository the arc touches: the five, and openDox-spec
@@ -1691,35 +1811,40 @@ Every release-1 box, with the task that closes it:
   after it, in this revision. All of them are done. T007's batches land
   before the landings and checkpoints that need them: batch A before T047,
   both A and B before T049, C before T059, T061 and T043, D before T049, E
-  before T047, F before T043 and T061, G before T053, and H before T070 and
-  T080. T016 may land before batch A, and T041 and T043 before batch B, each
-  quoting its falsifier as the answer records it (T007).
-- **The round tasks** are done. T019 encoded phase 1's openXdox-code tail,
-  T009 phase 2 and T069 phase 3, each on `5850003126`, and one analyze ran
-  over the result (`evidence/analyze-round-2.md`).
+  before T047, F before T043 and T061, G before T053, H before T070, T075 and
+  T080, and I before T060 and T061. T016 may land before batch A, and T041
+  and T043 before batch B, each quoting its falsifier as the answer records it
+  (T007).
+- **The round tasks.** T019 encoded phase 1's openXdox-code tail, T009 phase
+  2 and T069 phase 3, each on `5850003126`, and one analyze ran over the
+  result (`evidence/analyze-round-2.md`). That analyze raised R1Q26 and R1Q27,
+  and T067, the third round, encodes their answers once they are given.
 - **Phase 1**: lanes A–E run in parallel, subject to plan.md's single-writer
   table (`serve.py`, `cli.py`, `workbench.py`, `pyproject.toml`,
-  `tests/test_authoring_seam.py` and openDox-code's `validate.yml` in phase
-  1). They join at T032 and then run T034 → T035 → T036 → T037. T031
-  co-lands in T036's PR. T039 then pins
+  `tests/test_authoring_seam.py`, `tests/test_consumer_reach.py` and
+  openDox-code's `validate.yml` in phase 1). They join at T032 and then run
+  T034 → T035 → T036 → T037. T031 co-lands in T036's PR. T039 then pins
   openDox's phase-1 commit in the openDox root, after T022, T032, T037 and
   T038. openXdox-code follows: T040 → T041 → T042 → T043 → T044, with
   T007's batches C and F before T043. T047 moves the consumer pins after T039,
   T044 and T007's batches A and E, and openxFactory's host wiring (T045,
   T046) lands inside T047's openxFactory PR. T017 and T018 run after T047.
   T049 closes the phase after T007's batches A, B, D and F.
-- **Phase 2**: T053 first, after T049, T009 and T007's batch G. Then T050 →
-  T051, and T053 → T052 and T053 → T057, in parallel. Then T054 → T055 →
-  T056 → T058, with T055 also after T057. T062 (the phase-2 openDox root pin)
-  follows T054–T058, and T060 follows T054. openXdox-code runs T059 → T061
-  (T059 after T052, T055, T060, T062 and T007's batch C; T061 after T007's
-  batches C and F). Then T061 → T066 → T064, and T064 → T065 → T063.
+- **Phase 2**: T053 and T050 first, in parallel: T053 after T049, T009 and
+  T007's batch G, and T050 after T049 and T009. Then T051, after both, and
+  T053 → T052 and T053 → T057, in parallel. Then T054 → T055 → T056 → T058,
+  with T055 also after T057. T062 (the phase-2 openDox root pin) follows
+  T054–T058, and T060 follows T054. openXdox-code runs T059 → T061 (T059
+  after T052, T055, T060, T062 and T007's batch C; T061 after T007's batches
+  C, F and I). Then T061 → T066 → T064, and T064 → T065 → T063. T059, T060,
+  T061 and T066 also wait on T067, which R1Q26 and R1Q27 hold, and batch I
+  follows T067.
 - **Phase 3**: T069 is done. Group 13 runs T071 → T070 → T072 → T073 → T074,
   with T084 after T073 for `serve.py`. In parallel: Group 16's binding slice
-  (T078 → T079 → T080), T085 → T081, T075 → T077 (with T072 → T077), and
-  T088. Then T082, which comes after T081, T084 and T085, and T083. Then
-  T087 (the phase-3 openDox root pin) → T086 → T094 → T098 → T089, and
-  T087 → T076 → T089.
+  (T078 → T079 → T080), T085 → T081, and T088. T075 and T077 run F10.1 as
+  batch H amends it, so both follow T072: T072 → T075 → T077. Then T082,
+  which comes after T081, T084 and T085, and T083. Then T087 (the phase-3
+  openDox root pin) → T086 → T094 → T098 → T089, and T087 → T076 → T089.
 - **Acceptance**: T095 (after T089 and T076) → T096 → T097.
 
 ### Parallel slices, summarised
@@ -1727,8 +1852,8 @@ Every release-1 box, with the task that closes it:
 | phase | runs in parallel | is serialized |
 |---|---|---|
 | 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; `pyproject.toml` (T038 → T036); `tests/test_authoring_seam.py` (T020 → T021 → T022); openDox-code's `validate.yml` (T036 → T037); T020 → T025 and T026 → T025; T032 → T037; T039 (root pin) → openXdox (T040, then T041 → T042 → T043 → T044) → T047 → T017, T018 |
-| 2 | T053 ∥ T050, then T052 ∥ T057 ∥ T051 | T053 → T054 → T055 → T056 → T058; T062 → T059 → T061 → T066 → T064; openXdox-code `pyproject.toml` (T059 → T061); ratchet writers |
-| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T075 ∥ T088 | `serve.py` and `cli.py` (T070, T072 and T073 before T084); openDox-code `pyproject.toml` (T072); `doxbench_binding.py` (T078 → T080); T085 → T081; T087 → T086 → T094 |
+| 2 | T053 ∥ T050, then T052 ∥ T057 ∥ T051 | T053 → T054 → T055 → T056 → T058; T062 → T059 → T061 → T066 → T064; openXdox-code `pyproject.toml` (T059 → T061); ratchet writers; T067 (R1Q26, R1Q27) before T059, T060, T061 and T066 |
+| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072 | `serve.py` and `cli.py` (T070, T072 and T073 before T084); openDox-code `pyproject.toml` (T072); `doxbench_binding.py` (T078 → T080); T085 → T081; T087 → T086 → T094 |
 
 ## Phase 1 writer slices (for the fan-out)
 
@@ -1750,7 +1875,7 @@ openxFactory reaches, is P1-E. Lane E rides in P1-A (T030) and P1-G (T031).
 | slice | group | tasks | repo | files | depends on | falsifier it must pass | size |
 |---|---|---|---|---|---|---|---|
 | P1-A route seam | G1 | T010, T011 (with T030), T012 | oDc | `src/route_extension.py`; `src/opendox/serve.py`; readers of the five lane names; new `tests/test_route_handler_contribution.py` and `tests/test_imports_standalone.py`; `tests/test_consumer_reach.py` (T011 moves two modules into `NEUTRAL_MODULES`) | T006 | F2.1 (sweep and named test); the new seam tests | Opus |
-| P1-B default profile | G1 | T015, T016 | oDc | `src/opendox/domain_profile.py`, `profile_proxy.py`, a new default-profile module; one-line entry calls in `cli.py`/`serve.py`; `tests/test_profile_registration.py` and a vocabulary test | T006; T016 lands after P1-A (T012 is its last `serve.py` edit). RN-1 holds only phase 1's close | the vocabulary test and the `RuntimeSubcommand` test (T015); F3.1 with line 2 as amended (T007 batch A), and `tests/test_profile_registration.py` (T016) | Opus |
+| P1-B default profile | G1 | T015, T016 | oDc | `src/opendox/domain_profile.py`, `profile_proxy.py`, a new default-profile module; one-line entry calls in `cli.py`/`serve.py`; `tests/test_profile_registration.py` and a vocabulary test | T006; T016 lands after P1-A (T012 is its last `serve.py` edit) | the vocabulary test and the `RuntimeSubcommand` test (T015); F3.1 with line 2 as amended (T007 batch A), and `tests/test_profile_registration.py` (T016) | Opus |
 | P1-C home-corpus seam | G1 | T020 | oDc | `src/opendox/corpus_adapter.py`; `tests/test_authoring_seam.py` (new) | T006 (it never needed an answer) | the seam tests: with nothing registered, `home()` refuses `ADAPTER_NOT_REGISTERED`, naming the seam and `register_home(...)`; a registered factory is what `home()` returns | Sonnet |
 | P1-E openxFactory reaches | G1; T025 after P1-C | T026, T027, then T025 | oDc | `src/opendox/workbench.py`, `serve_wire.py`, `doxbench_packet.py`, with seam tests | T006; P1-C for T025 | F4.1's scan without `workbench.py:746/1407-1409`, `serve_wire.py:1369` or `doxbench_packet.py:177`; a session-notebook membership test | Opus |
 | P1-D authoring and the default adapter | G2 | T021, T022 | oDc | `src/opendox/authoring.py`; entry registration in `cli.py`/`serve.py`; `tests/test_authoring_seam.py` | P1-C, P1-B | F4.1's first block; `…::test_required_header_fields_come_from_the_registered_adapter` (T021); `…::test_an_entry_point_registers_the_local_git_corpus_when_no_host_has` (T022) | Sonnet |
@@ -1778,27 +1903,29 @@ claim (T002).
 P1-K's host wiring (T045, T046) can be authored once P1-A and P1-C–P1-E have
 landed, and it lands inside T047's PR. The holder works beside the slices:
 T007's batches A and C and T008 now, batch B with P1-J, and batches F, G and
-H once this revision has landed. Batch D has landed (#1170).
+H once this revision has landed. Batch D has landed (#1170). Batch I follows
+T067.
 
 ## Phase 2 writer slices (for the fan-out)
 
 The rules are phase 1's: one writer and one claim (T002) per slice, landing in
 `After:` order, each PR quoting its task's falsifier. Every phase-2 slice
 starts after T049 and T009, and T007's batch G lands before P2-S opens.
+P2-X, P2-K, P2-C and P2-H also wait on T067, which R1Q26 and R1Q27 hold.
 
 | slice | group | tasks | repo | files | depends on | falsifier it must pass | size |
 |---|---|---|---|---|---|---|---|
 | P2-S neutral snapshot contract | G1 | T053 | oDs, oD | openDox-spec: the new schema and its fixtures. openDox root: the spec pin, then the `dox-v1.x` bundle | T049, T009; T007 batch G | the root's `make validate`; openDox-spec's `validate` | Opus (a new contract, whose sections are what T054 writes) |
 | P2-F fixtures | G1 (T050); T051 after P2-S | T050, T051 | oDc | `tests/fixtures/plain-documents/` and its vocabulary test; `tests/fixtures/malformed/` with `EXPECTED_RULE` | T049, T009; P2-S for T051 | the vocabulary test (T050); the one violation, named by `EXPECTED_RULE` (T051) | Sonnet |
 | P2-G generator seam | G2 | T052 | oDc | the generator seam, beside `domain_profile.register()`, and its seam tests | P2-S | the seam tests | Opus |
-| P2-V validator input set | G2 | T057 | oDc | the validator, the four packaged schemas and their digest test; openDox-code's `pyproject.toml` (package data) | P2-S | F7.2's schema half; the 7.1b test | Opus |
-| P2-P neutral projection | G3 | T054 | oDc | the projection's new modules; `src/opendox/display_profile.py` (`SNAPSHOT_VALUES`' defaults, batch G's 5.3); the default adapter's field set | P2-F (T050), P2-G, P2-S | F5.3 | Opus |
-| P2-X openXdox's facet | G4 | T060 | oXc | `src/openxdox/view_extensions.py` (the `values` block) | P2-P | F5.1, and the `values` test | Sonnet |
+| P2-V validator input set | G2 | T057 | oDc | the validator, the four packaged schemas and their digest test; openDox-code's `pyproject.toml` (package data) | P2-S | the packaged-copy digest test; the 7.1b test | Opus |
+| P2-P neutral projection | G3 | T054 | oDc | the projection's new modules; `src/opendox/display_profile.py` (`SNAPSHOT_VALUES`' defaults, batch G's 5.3); the default adapter's field set | P2-F (T050), P2-G, P2-S | the in-process projection test, the topic-rule test and the `stage:` test (F5.3 runs at T056) | Opus |
+| P2-X openXdox's facet | G4 | T060 | oXc | `src/openxdox/view_extensions.py` (the `values` block); R1Q26 decides what `tests/test_gate_loop_views.py`'s two facet tests take | P2-P; T067 and T007 batch I (R1Q26) | F5.1, and the `values` test | Sonnet |
 | P2-R serve and generate standalone | G4 | T055, T056, T058 | oDc | `src/opendox/serve.py`, `src/opendox/cli.py`, `src/opendox/branch_session.py`, `src/opendox/workbench.py` and `src/opendox/serve_workbench.py` (T055); the seams' default modules | P2-P, P2-V, P2-F (T051, for T058) | F4.1's scan, down by these reaches (T055); F5.3 and F10.1's generate half (T056); F7.2 (T058) | Opus |
 | P2-D openDox root pin | G5 | T062 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-2 openDox-code slice landed (T054–T058) | `make pins` | Sonnet |
-| P2-K openXdox contributes | G6 | T059 | oXc | the contributions through the seams; `pyproject.toml` (the `opendox @` pin); `tests/test_dependency_direction.py` (the ratchet) | P2-D, P2-X; T007 batch C | seam tests, and 5.4a's suites in F5.2's environment, all but `tests/test_snapshot.py`'s two schema cases | Opus |
-| P2-C the consumer's validator (7.3) | G7 | T061 | oXc | `src/openxdox/snapshot.py`; `scripts/validate-ideation-dashboard-contracts.py`; the package data and `pyproject.toml`; `tests/test_snapshot.py` and `tests/test_snapshot_validator_home.py` (protected, admitted by batch F); `tests/test_validate_ideation_dashboard_contracts.py`; `tests/test_validator_schema_home.py`; the exclusion file (`tests/test_snapshot.py`'s entry leaves) | P2-K; T007 batches C and F | F7.1, with both of its named tests; F5.2 whole | Opus |
-| P2-H openxFactory's validator callers (non-arc) | G8 | T066 | oxF | `scripts/ideation_dashboard/doxbench_contracts.py`; `tests/ideation-dashboard/conftest.py`; `tests/ideation-dashboard/test_dashboard_source_seal.py`; whatever `pytest-suite` at the candidate pins names | P2-C, P2-D | openxFactory's `pytest-suite` at the current pins and at T064's candidate pins | Opus |
+| P2-K openXdox contributes | G6 | T059 | oXc | the contributions through the seams; `pyproject.toml` (the `opendox @` pin); `tests/test_dependency_direction.py` (the ratchet) | P2-D, P2-X; T007 batch C; T067 (R1Q26) | seam tests, and 5.4a's suites in F5.2's environment, all but `tests/test_snapshot.py`'s two schema cases | Opus |
+| P2-C the consumer's validator (7.3) | G7 | T061 | oXc | `src/openxdox/snapshot.py`; `scripts/validate-ideation-dashboard-contracts.py`; the package data and `pyproject.toml`; `tests/test_snapshot.py` and `tests/test_snapshot_validator_home.py` (protected, admitted by batch F); `tests/test_validate_ideation_dashboard_contracts.py`; `tests/test_validator_schema_home.py`; the exclusion file (`tests/test_snapshot.py`'s entry leaves) | P2-K; T067 (R1Q27); T007 batches C, F and I | F7.1, with both of its named tests; F5.2 whole | Opus |
+| P2-H openxFactory's validator callers (non-arc) | G8 | T066 | oxF | `scripts/ideation_dashboard/doxbench_contracts.py`; `tests/ideation-dashboard/conftest.py`; `tests/ideation-dashboard/test_dashboard_source_seal.py`; under R1Q26 (a), `scripts/profile_openxfactory.py` and `tests/test_engineering_profile_display_facet.py`; whatever the candidate pins' runs name | P2-C, P2-D; T067 (R1Q26, R1Q27) | openxFactory's `pytest-suite`, and the consumer gate's suite at its floors, at the current pins and at T064's candidate pins | Opus |
 | P2-L consumer pins | G9 | T064 | oX, oxF | openXdox root: `code`, `contracts/code-pin.yaml`, `contracts/opendox-pin.yaml`. openxFactory: both pin pairs | P2-H, P2-K, P2-C, P2-X, P2-D | `make pins` in the openXdox root; `verify-opendox-pin.py`, `verify-openxdox-pin.py`; `pytest-suite` | Sonnet |
 | P2-M read-only checks | G9, after P2-L | T065 | oxF | `evidence/` only | P2-L | interim F11.1 prints `requirement 1 holds` | Sonnet |
 | checkpoint | G9, last | T063 | — | none (a verifier) | P2-L, P2-M; T007 batches C, F and G | F5.1, F5.2, F5.3, F7.1, F7.2; a standalone `generate-and-open` | Opus (verifier) |
@@ -1806,7 +1933,7 @@ starts after T049 and T009, and T007's batch G lands before P2-S opens.
 ## Phase 3 writer slices (for the fan-out)
 
 Every phase-3 slice starts after T063 and T069, and T007's batch H lands
-before P3-I's T070 and P3-B's T080.
+before P3-I's T070, P3-E's T075 and P3-B's T080.
 
 | slice | group | tasks | repo | files | depends on | falsifier it must pass | size |
 |---|---|---|---|---|---|---|---|
@@ -1815,7 +1942,7 @@ before P3-I's T070 and P3-B's T080.
 | P3-B binding and provider | G1 | T078, T079, T080 | oDc | `src/opendox/doxbench_binding.py`; `src/opendox/doxbench_provider.py` (the dialect arm, and the resolver); `src/opendox/cli_model_binding.py` (`--model`) | T063, T069; T007 batch H for T080 | F16.1's dialect, field and refusal assertions; the resolver's and `none`'s tests | Opus |
 | P3-D doxBench defaults and the no-model state | G1 (T085); T081 after it | T085, T081 | oDc | the default registrations for T027's seams; `src/opendox/doxbench_install.py`; `src/opendox/web/views/doxbench-chat.js`; `tests/test_chat_model_configuration.py` (new) | T063, T069 | the served catalog route answers with no available entry (T085); F16.1's catalog block and the named test (T081) | Opus |
 | P3-L lens seed actions | G1 | T088 | oDc | `src/opendox/web/views/lens.js`, and the capability that says a binding answers | T063, T069 | AT-R1 step 6 | Sonnet |
-| P3-E the door | G1 (T075); T077 after P3-I | T075, T077 | oDc | none, unless T075's run finds a gap in how the bundle is served. An edit to the server module then joins its single-writer order between T073 and T084 before the PR opens | T063, T069; P3-I (T072) for T077 | F10.1's fetch (T075); F10.1, as batch H amends it (T077) | Sonnet |
+| P3-E the door | G2, after P3-I | T075, T077 | oDc | none, unless T075's run finds a gap in how the bundle is served. An edit to the server module then joins its single-writer order between T073 and T084 before the PR opens | P3-I (T072); T007 batch H | F10.1's fetch, as batch H amends it (T075); F10.1, as batch H amends it (T077) | Sonnet |
 | P3-R 4.3's last reaches | G2, after P3-I | T084 | oDc | `src/opendox/serve.py`, `src/opendox/cli.py`, `src/opendox/serve_workbench.py`, `src/opendox/serve_project.py` and `src/opendox/branch_session.py`; the defaults' modules; `src/opendox/consumer_reach.py` (deleted) | P3-I | F4.1 whole | Opus |
 | P3-N no model, everywhere | G3 | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole (T083) | Sonnet |
 | P3-P openDox root pin | G4 | T087 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-3 openDox-code slice landed | `make pins` | Sonnet |
@@ -1831,9 +1958,11 @@ before P3-I's T070 and P3-B's T080.
 
 Brett Heap's answers amend #1144's falsifiers, task lines, addenda and one
 design note. Batches A, B and C carry `5817152735`'s answers, and batches F,
-G and H carry `5850003126`'s. They amend no requirement and no scenario. T007
-records each amendment in #1144's `tasks.md` (and the D4 addendum in
-`design.md`) as bookkeeping, and the realization tasks beside it carry it out.
+G and H carry `5850003126`'s. Batch I will carry the answers to R1Q26 and
+R1Q27, and T067 adds its rows here once they are given. They amend no
+requirement and no scenario. T007 records each amendment in #1144's
+`tasks.md` (and the D4 addendum in `design.md`) as bookkeeping, and the
+realization tasks beside it carry it out.
 The one scenario text an answer touches is not listed here. It is RN-1
 (plan.md § "Ruling needed"), ruled (a) in `5850003126`. T007's batch D
 landed it in #1144's spec delta, as #1170 → `79a720a2`.
@@ -1849,7 +1978,7 @@ landed it in #1144's spec delta, as #1170 → `79a720a2`.
 | A | 11.1; F11.1 | A fourth declared surface: NAMED openxFactory composition tests, which may be edited or added and are never removed. The guard gains `COMPOSITION_TESTS = {"tests/ideation-dashboard/test_extension_point_parity.py", "tests/ideation-dashboard/test_serve_column_split.py"}` beside `HOST`. Batch E adds a path before the landing that adds it (T034, T035), or that T047's `pytest-suite` run finds. Also an addendum to 11.1: the manifest records the carve as it arrived, so an arc edit to a carved file needs no declared-edit act. | R1Q2 (a); R1Q22 (a) | T045, T093, T094 |
 | B | F9.1 (openXdox-code) | `python -m pytest -q` collects the whole suite less the files in T041's declared exclusion file. The falsifier asserts three things: the file's count equals its entries, every entry carries its reason, and the run prints the exclusion as an open extraction. The two `validate.yml` assertions stay. openDox-code's F9.1 is unchanged (R1Q8 (a)). | R1Q6 (d) | T041, T043, T049 |
 | B | 9.4 | An addendum: each of openXdox's six skips either asserts, or its file joins the declared exclusion. | R1Q6 (d) | T044 |
-| B | 9.2 | An addendum (T006): for release 1, openXdox-code's whole suite runs less T041's declared exclusion, which is reported as an open extraction with its count and its reason. T097 ticks 9.2 with that note, and requirement 9 stays open for openXdox-code until the direction arc (T008) lands. | R1Q6 (d) | T041, T043, T097 |
+| B | 9.2 | An addendum (T006): for release 1, openXdox-code's whole suite runs less T041's declared exclusion, which is reported as an open extraction with its count and each entry's reason. T097 ticks 9.2 with that note, and requirement 9 stays open for openXdox-code until the direction arc (T008) lands. | R1Q6 (d) | T041, T043, T097 |
 | C | F5.2; 12.5's falsifier | The "unedited by the arc" check subtracts the edits entered in a reviewed allow-list in openXdox-code, such as `tests/protected_suite_respellings.yaml`. Each entry names the suite, the landing, the reference it respelled, and its review. No edit that weakens an assertion is entered. | R1Q7 (a) | T043, T059, T086 |
 | F | F5.2 | The reviewed allow-list also admits the two edits F7.1 requires, each entered with its reason and neither as a respelling: the added `tests/test_snapshot.py::test_the_validator_is_the_installed_consumers_own`, and the revised `tests/test_snapshot_validator_home.py::test_a_start_outside_the_product_is_refused_not_walked`, whose answer 7.3 governs. | R1Q14 (a) | T061, T063 |
 | F | F9.1 (openXdox-code); 9.2 | The declared exclusion admits three more reasons, each entry naming its own: openxFactory's status-exemption rail and openxFactory's contracts, both pending the direction arc (T008), and the consumer's schemas until 7.3 lands, for `tests/test_snapshot.py` alone. Each is reported as an open extraction, as the `doc_health` entries are. | R1Q24 (a), R1Q25 (b) | T041, T043, T049, T061 |
@@ -1860,7 +1989,7 @@ landed it in #1144's spec delta, as #1170 → `79a720a2`.
 | G | 9.5 | An addendum. Phase 2 cuts one contract bundle, a `dox-v1.x` minor at the openDox root under its four-value rule, because T053 adds an openDox-spec contract. openDox-spec joins the arc's repositories, and its landings carry the trailer (11.0). | R1Q11 (a) | T053, T062, T090 |
 | G | F5.2 | Its environment also composes openxFactory at a NAMED commit. After the two installs it requires `OPENXFACTORY`, puts `"$OPENXFACTORY/scripts"` on `PYTHONPATH`, and quotes that checkout's commit. Only the environment changes. | R1Q23 (a) | T059, T061, T063 |
 | H | F10.1; 10.3 | F10.1 installs `".[local]"` and runs `opendox generate-and-open --local …`, and `opendox --help` stays its first assertion. 10.3's README documents that command. The install line follows from R1Q15 (b) together with R1Q16 (iii), because the local mode's server arrives only with the extra. | R1Q15 (b), R1Q16 (iii) | T070, T076, T077 |
-| H | 13.4 | An addendum. `generate-and-open --local` and `OPENDOX_INSTALL_MODE=local` are one selection, and a flag and a setting that disagree are refused, naming both. With neither, the install is hosted, as 13.5 requires. | R1Q15 (b) | T070 |
+| H | 13.4 | An addendum. `generate-and-open --local` selects the local mode explicitly, as `OPENDOX_INSTALL_MODE=local` does. With neither, the install is hosted, as 13.5 requires. | R1Q15 (b) | T070 |
 | H | 13.1; F13.1 | 13.1 leaves the packaging to the realization, and an addendum names it. The document server starts the bundled server as its own child and reports it. Starting and migrating the store is all release 1 asks of it. It ships as the `opendox[local]` extra, and it stops with the entry point. F13.1 installs `".[local]"`. | R1Q16 (i)–(iv) | T072, T073, T074 |
 | H | 16.3 | 16.3 leaves two choices to the realization, and an addendum names them. A built-in resolver takes `env:NAME` and OS-keyring references, at call time and inside `doxbench_provider.py` only, and such a record names no broker. A third auth kind, `none`, forbids `broker_argv` and `credential_ref`. It joins after the two kinds that exist, so F16.1's `AUTH_KINDS[0]` is unchanged. | R1Q17 (b), R1Q18 (a) | T080 |
 

@@ -8,7 +8,7 @@ operation", phases 1–3) of the ratified OpenSpec change
 **Lane**: `openxfactory-4`. **Raised**: 2026-09-24, while planning, before any
 code.
 
-**Answer state: 25 ANSWERED, 0 OPEN.**
+**Answer state: 25 ANSWERED, 2 OPEN (R1Q26, R1Q27).**
 
 - **Round 1a: ANSWERED** (R1Q1–R1Q9, R1Q20, R1Q22: every question phase 1
   needed when it was planned). RULED 2026-09-24T15:31:46Z by Brett Heap,
@@ -21,16 +21,22 @@ code.
   verbatim: *"go with recommendations on all the open questions"*. So each of
   the fourteen is answered with the option this file recommended, as its
   ANSWER line records. The same comment ruled RN-1 (a).
+- **Round 3: OPEN** (R1Q26, R1Q27). Round 2's analyze raised both on
+  2026-09-27 ([`evidence/analyze-round-2.md`](./evidence/analyze-round-2.md),
+  V2-1 and V2-2). They hold T059, T060, T061 and T066, in phase 2, and T067
+  encodes their answers.
 - Every answer is encoded in [`spec.md`](./spec.md) § Clarifications and in
-  [`tasks.md`](./tasks.md), where it shows as a `Ruled:` line. No task carries
-  a `Blocked by:` line, and no phase is provisional.
+  [`tasks.md`](./tasks.md), where it shows as a `Ruled:` line. The two open
+  questions show as `Blocked by:` lines on T059, T060, T061, T066 and T067,
+  and on T007 for its batch I alone. Phase 1 and the rest of phase 2 are
+  planned on answers.
 - **Where round 2 is encoded.** T019 applies R1Q14, R1Q24 and R1Q25 to phase
   1's openXdox-code tail. Under R1Q25 (b), T061 (7.3) returns to phase 2, and
   T043 declares `tests/test_snapshot.py` in the exclusion until it lands. T009
   applies R1Q10–R1Q13 and R1Q23 to phase 2, and T069 applies R1Q15–R1Q19 to
   phase 3. R1Q21 is recorded in `plan.md`.
 
-**Naming.** These are `R1Q1`…`R1Q25`. A bare `Q<n>` in this estate already names
+**Naming.** These are `R1Q1`…`R1Q27`. A bare `Q<n>` in this estate already names
 one of #1144's own rulings (RULING Q1, RULING Q2, Q-R4, DIRECTION Q5), so this
 round never uses one.
 
@@ -47,7 +53,8 @@ follows wherever one moved. Task ids (`T0nn`) are [`tasks.md`](./tasks.md)'s.
 `R1Q15 b`. An answer is written inline under its question and encoded into
 `spec.md` in the same commit. T004 did that for round 1a. T019, T009 and T069
 did it for round 2, in one bookkeeping PR: T019 for R1Q14, R1Q24 and R1Q25,
-T009 for phase 2's questions, and T069 for phase 3's.
+T009 for phase 2's questions, and T069 for phase 3's. T067 does it for R1Q26
+and R1Q27.
 - An answer that changes a falsifier or a task line of #1144's `tasks.md` is
   recorded there by T007, on your word, under a Rule 6 window.
 - An answer that would change a requirement's text or a scenario is put to
@@ -59,17 +66,18 @@ T009 for phase 2's questions, and T069 for phase 3's.
 | phase | cannot start or close without |
 |---|---|
 | 1, it runs | nothing open. Its start: each slice's claim. Its close: T007's batches A, B, D and F, which record `5817152735`'s amendments, RN-1 (a) (landed, #1170), and R1Q24 (a) and R1Q25 (b) |
-| 2, useful alone | nothing open. R1Q10–R1Q13 and R1Q23 are answered, T009 re-planned the phase, and T007's batch G lands before its first task |
-| 3, it installs | nothing open. R1Q15–R1Q19 are answered, with R1Q10 and R1Q12 for chat standalone. T069 re-planned the phase, and T007's batch H lands before the tasks that run an amended line |
+| 2, useful alone | R1Q26 and R1Q27, for T059, T060, T061 and T066 (T067), and so for the phase's close. R1Q10–R1Q13 and R1Q23 are answered, T009 re-planned the phase, and T007's batch G lands before its first task |
+| 3, it installs | nothing open of its own. It starts after T063, so it follows R1Q26 and R1Q27 through phase 2. R1Q15–R1Q19 are answered, with R1Q10 and R1Q12 for chat standalone. T069 re-planned the phase, and T007's batch H lands before the tasks that run an amended line |
 | every landing | nothing open. R1Q20 and R1Q22 are answered |
 | process only | nothing open. R1Q21 is answered (a) |
 
 **What can start now**: the holder tasks T002 and T008, and T007's batches A
 and C. Batch D has landed (#1170 → `79a720a2`). T003–T006, T009, T019 and
 T069 are done.
-Batch B follows T041, and batches F, G and H follow the round-2 revision.
-Every phase-1 task follows its slice's claim (T002), and T043 also follows
-batches C and F. See `tasks.md` § "What can start".
+Batch B follows T041, batches F, G and H follow the round-2 revision, and
+batch I follows T067. Every phase-1 task follows its slice's claim (T002), and
+T043 also follows batches C and F. T059, T060, T061 and T066 also follow T067,
+which waits on R1Q26 and R1Q27. See `tasks.md` § "What can start".
 
 ---
 
@@ -196,7 +204,7 @@ from the default (RULED ASK-4 Q5's reason)? Recommended: replace while nothing
 has been built; refuse once a parser or server was built from the default.
 
 **Recommendation.** (a), with (i) as proposed and (ii) as recommended.
-**ANSWER: (a)**, with (i) and (ii), RULED in `5817152735`. T007 batch A amends F3.1 line 2 and 3.2's wording. (ii) conflicts with the TEXT of requirement 3's fourth scenario, which replaces the default unconditionally. That text change is **RULING NEEDED RN-1** (plan.md § "Ruling needed"). It holds phase 1's close (T049), not T016's landing, because the after-build refusal is today's `AlreadyRegistered`. Brett ruled RN-1 (a) in `5850003126`, and T007's batch D put it into the scenario text (#1170 → `79a720a2`).
+**ANSWER: (a)**, with (i) and (ii), RULED in `5817152735`. T007 batch A amends F3.1 line 2 and 3.2's wording. (ii) conflicts with the TEXT of requirement 3's fourth scenario, which replaces the default unconditionally. That text change is **RULING NEEDED RN-1** (plan.md § "Ruling needed"). It held phase 1's close (T049), not T016's landing, because the after-build refusal is today's `AlreadyRegistered`. Brett ruled RN-1 (a) in `5850003126`, and T007's batch D put it into the scenario text (#1170 → `79a720a2`).
 
 ---
 
@@ -531,7 +539,8 @@ joins the arc as its sixth repository, and openXdox-spec is not touched. The
 code leg carries digest-checked copies of its spec leg's four schemas, held by
 a test to the spec-leg commit the openDox root pins (T057). The malformed
 fixture breaks one of the neutral schema's rules (T051). The same copies serve
-T085's chat validators. T007's batch G amends 7.1's "three" to four.
+T085's chat validators. T007's batch G amends 7.1's "three" to four, and
+records 7.0's fixture against the neutral schema.
 
 ---
 
@@ -672,9 +681,10 @@ command must carry the mode.
 `--local` flag, RULED in `5850003126`. The documented command is
 `opendox generate-and-open --local …` (T070, T076). T007's batch H amends
 F10.1 to pass it, records that 10.3's README documents it, and adds a 13.4
-addendum. The addendum makes the flag and `OPENDOX_INSTALL_MODE=local` one
-selection, and refuses a flag and a setting that disagree. With neither, the
-install is hosted, so 13.5 holds.
+addendum: the flag selects local as `OPENDOX_INSTALL_MODE=local` does, and
+with neither the install is hosted, so 13.5 holds. The answer does not say
+what a flag and a setting that disagree do. T070 refuses the pair, as the
+plan's fail-closed reading, which `evidence/analyze-round-2.md` records.
 
 ---
 
@@ -1049,3 +1059,128 @@ read as in (a): its whole-suite check lands in phase 1, and the box closes in
 phase 3, at T086. T007's batch F admits the new reason in F9.1 and 9.2, and
 records 9.2's close as an addendum beside the map. T066 carries the
 narrowing's effect on openxFactory's callers.
+
+---
+
+## R1Q26 — openXdox's facet gains a `values` block, but a suite 12.5 protects pins the facet as it is *(governs T007, T059, T060, T066, T067; phase 2)* — **OPEN**
+
+**Raised by** round 2's analyze on 2026-09-27
+([`evidence/analyze-round-2.md`](./evidence/analyze-round-2.md), V2-1 and
+V2-5). It is asked here rather than assumed.
+
+**Measured.** R1Q11 (a) moves `SNAPSHOT_VALUES`' defaults to the neutral
+snapshot's values (T054), and the governed values into openXdox's `DISPLAY`
+facet, in a `values` block (T060, batch G's 5.3a). At openXdox-code
+`e28930bf`, `tests/test_gate_loop_views.py` pins that facet:
+- `test_the_display_facet_declares_one_stage_entry_and_nothing_else` asserts
+  `view_extensions.DISPLAY == {"stages": …}`, so the block turns it red at
+  T060's own landing.
+- `test_the_overlay_changes_four_words_and_the_named_absence_and_nothing_else`
+  asserts that the facet changes exactly five leaves of the served display. At
+  T059's pin, where the defaults are neutral, the block changes six more
+  (`values.*`), so it turns red there. An in-memory simulation over the
+  measurement trees shows both.
+
+The file is one of the sixteen suites 12.5's falsifier computes (it drives
+`open-pr`, `:672`), so an arc landing that edits it fails that falsifier. R1Q7
+(a)'s reviewed allow-list admits only respellings, and batch F admits only
+F7.1's two F5.2 edits. The plan named neither test.
+
+openxFactory pins the facet's shape as well. Its profile composes only
+openXdox's `stages` (`scripts/profile_openxfactory.py`: *"ONLY `stages` IS
+COMPOSED"*), and `tests/test_engineering_profile_display_facet.py` asserts
+`"values" not in facet` (`:272`) and `set(view_extensions.DISPLAY) ==
+{"stages"}` (`:566`). At T064's pins, openxFactory's served views would match
+the neutral values against the governed snapshot. Neither file is an 11.1
+surface.
+
+**What #1144 says.** 5.3a: openXdox's facet is *"partial, one stage"*, the
+completion stage *"and NOTHING ELSE"*, which batch G amends. 12.5's falsifier:
+the governed suites *"must pass AND must be unedited by the arc"*. R1Q7 (a):
+only an edit that respells a reference to a moved seam, with no assertion
+weakened.
+
+**Options.**
+- (a) Admit the two edits. T007's batch I amends 12.5's falsifier so that the
+  reviewed allow-list also admits the edits to those two tests, each entered
+  with its reason, as batch F does for F7.1 (R1Q14 (a)). T060 and T059 make
+  them. openxFactory composes the `values` block, and updates its own facet
+  test, in T066, a non-arc act that holds at both pins.
+- (b) Keep openXdox's facet as it is, and let openxFactory's composite facet
+  carry the governed values instead. No protected test changes. But openXdox's
+  own served views, without openxFactory, would then match neutral values
+  against its governed snapshot, and R1Q11 (a)'s *"its facet maps roles to
+  governed values"* would be re-read.
+- (c) T060 lands as a non-arc openXdox-code act that holds at both pins, since
+  its block is inert at the old pin. 12.5's guard reads only trailered
+  landings, so it would never see the edit, but the edit is still the arc's,
+  and the protected proof still changes.
+- (d) Something else you name.
+
+**Recommendation.** (a). It keeps R1Q11 (a) as answered, and it records each
+edit to a protected proof with its reason, which is the route R1Q14 (a) took
+for F7.1. (b) breaks openXdox's own views, and (c) edits a protected proof
+outside the guard that exists to see it.
+
+---
+
+## R1Q27 — The consumer's validator narrows to its three schemas, but openxFactory's contracts name it as the validator of openxFactory's own kinds *(governs T007, T061, T066, T067; phase 2)* — **OPEN**
+
+**Raised by** round 2's analyze on 2026-09-27
+([`evidence/analyze-round-2.md`](./evidence/analyze-round-2.md), V2-2 and
+V2-8). It is asked here rather than assumed.
+
+**Measured.** 7.3 has openXdox's validator locate *"its three schemas (7.1's
+openXdox-spec three)"* through the installed distribution. F7.1's second test,
+`test_every_schema_the_consumer_validates_is_on_disk`, passes only once the
+validator's `SCHEMA_FILENAMES`, the family's ten today, narrows to those three
+(T006). Four of the ten are openxFactory's: `ideation-possibles-register`,
+`project-register`, `demotion-execution-receipt` and `gate-intent`.
+openxFactory's own contracts name this script as their validator:
+- `contracts/manifest.yaml` says the shed validator *"is still this family's
+  conformance validator … which is also what keeps the three RETAINED rows
+  that name it (ideation-possibles-register, gate-intent,
+  demotion-execution-receipt) validated by the owner they document"*, and each
+  of those rows' `consumption_rule` names it as the enforcer of its rules;
+- `scripts/validate-ideation-cross-reference.py` delegates the register's
+  id-uniqueness, transitions and derived-entry rules to it (*"run it
+  separately"*);
+- `contracts/README.md` documents its register transitions, `--transition OLD
+  NEW`.
+
+openxFactory reaches it through a composed farm.
+`doxbench_contracts._composed_validator` copies the script beside the family's
+schemas and openxFactory's own, and the script reads *"this tree's own
+`contracts/`"* first (`validate-ideation-dashboard-contracts.py:119-121`, at
+openXdox-code `e28930bf`). No code caller validates the four kinds today
+(T019's search), but these contract rows do. Narrowed as T061 planned, the
+script would no longer check what three rows say it checks, and nothing
+would change those rows under OpenSpec (Principle II). T061's earlier *"as
+7.1b requires"* misread 7.1b, which is about what openDox needs.
+
+**What #1144 says.** 7.1: the ten schemas have three owners, and openxFactory's
+four stay with openxFactory. 7.1b: nothing vendors them. 7.3 and F7.1, as
+above. It does not say what validates openxFactory's four once the
+consumer's validator narrows.
+
+**Options.**
+- (a) The consumer's validator validates its own three kinds from its
+  installed distribution everywhere, and the other kinds only where the tree
+  it runs from supplies their schemas, as openxFactory's farm does today (a
+  tree's own `contracts/` read first). F7.1's second test reads *"every schema
+  this install validates is on disk"*. openxFactory's rows, its
+  cross-reference hand-off and its README stay true, and no contract changes.
+  T007's batch I records the reading beside 7.3 and F7.1.
+- (b) openxFactory gets a validator of its own for its four kinds. Its three
+  rows, the cross-reference hand-off and the README move to it, under an
+  OpenSpec change of openxFactory's. The consumer's validator then validates
+  its three alone.
+- (c) The narrowing lands as planned, and the gap is recorded as an open
+  boundary finding for the direction arc (T008), with the three rows amended
+  to say that their rules are not enforced until that arc lands.
+- (d) Something else you name.
+
+**Recommendation.** (a), for release 1. It closes 7.3's defect, the parent
+walk, without taking the validator away from rules that name it. (b) is the
+long-run home, and it is a change of its own. (c) leaves governed rules
+unenforced.

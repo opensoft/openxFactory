@@ -6,14 +6,16 @@ Status: draft
 T095 automates the HTTP half as a harness in openDox-code's own `acceptance`
 CI job, which has no database service. T096 runs the browser half on the host.
 
-The run installs openDox-code at its phase-3 tip, so every question that blocks
-phases 2 and 3 is answered, on `#656` comment `5850003126`. The steps follow
-those answers: R1Q10 (a) and R1Q12 (a) for the catalog's validators, R1Q13 (a)
-with (c) for the tiles, R1Q15 (b) for `--local`, R1Q16 (iii) and (iv) for the
-install and the datastore's stop, and R1Q19 (a) for the lens. No step is
-conditional. Use whatever the openDox root's
-`README.md` documents once 10.3 has landed: that README, not this file, is the
-product's one documented command (requirement 10).
+The run installs openDox-code at its phase-3 tip. Every question these steps
+depend on is answered, on `#656` comment `5850003126`. R1Q26 and R1Q27, which
+are open, bear on openXdox and openxFactory, and not on an openDox-only
+install, though the phase-3 tip comes after phase 2's close, which waits on
+them. The steps follow `5850003126`'s answers: R1Q10 (a) and R1Q12 (a) for
+the catalog's validators, R1Q13 (a) with (c) for the tiles, R1Q15 (b) for
+`--local`, R1Q16 (iii) and (iv) for the install and the datastore's stop, and
+R1Q19 (a) for the lens. No step is conditional. Use whatever the openDox
+root's `README.md` documents once 10.3 has landed: that README, not this file,
+is the product's one documented command (requirement 10).
 
 ## 1. A clean machine, with openDox and nothing else
 

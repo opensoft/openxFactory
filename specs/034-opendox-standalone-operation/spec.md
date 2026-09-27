@@ -3,9 +3,11 @@
 **Feature Branch**: `034-opendox-standalone-operation`
 **Created**: 2026-09-24
 Status: draft
-**Clarifications**: all 25 clarify questions are answered, in two rounds:
-eleven on `#656` comment `5817152735`, and fourteen on comment `5850003126`,
-which also ruled RN-1 (a). No phase is provisional.
+**Clarifications**: 25 of the 27 clarify questions are answered, in two
+rounds: eleven on `#656` comment `5817152735`, and fourteen on comment
+`5850003126`, which also ruled RN-1 (a). Round 2's analyze raised R1Q26 and
+R1Q27, which are open. They hold four phase-2 tasks, T059, T060, T061 and
+T066, and nothing in phase 1.
 **Realizes**: RELEASE 1, "standalone operation", phases 1–3, of the
 openxFactory OpenSpec change `add-neutral-product-standalone-operability`
 (#1144, landed `94b6f7f1`). The phases follow that change's RULED release map
@@ -58,7 +60,9 @@ Round 1 raised 22 questions in [`clarify-questions.md`](./clarify-questions.md),
 and one answer raised a 23rd. T005's re-measure raised a 24th on 2026-09-25
 ([`evidence/remeasure-2026-09-25.md`](./evidence/remeasure-2026-09-25.md)),
 and T006's analyze a 25th the same day
-([`evidence/analyze-round-1a.md`](./evidence/analyze-round-1a.md)).
+([`evidence/analyze-round-1a.md`](./evidence/analyze-round-1a.md)). Round 2's
+analyze raised a 26th and a 27th on 2026-09-27
+([`evidence/analyze-round-2.md`](./evidence/analyze-round-2.md)).
 They are named `R1Q<n>`, because a bare `Q<n>` already names one of #1144's own
 rulings (RULING Q1, RULING Q2, Q-R4, DIRECTION Q5).
 
@@ -89,7 +93,8 @@ R1Q6"*.
   registration replaces the default until a parser or server is built from
   it, and is refused after that. That conflicts with the TEXT of requirement
   3's fourth scenario, so it is RULING NEEDED RN-1 (plan.md § "Ruling
-  needed"). RN-1 holds phase 1's close (T049), but not T016's landing.
+  needed"). RN-1 held phase 1's close (T049), but not T016's landing, until
+  it was ruled (a) (§ Session 2026-09-26).
 - Q: R1Q4. What does the default profile contribute, given that an empty
   default stays refused? → A: (a). openDox's own verbs and routes: the runtime
   verbs now, and release 2's `submit`, `land` and `health` later. Its
@@ -196,8 +201,25 @@ The #1144 lines these answers amend are T007's batches F, G and H
 ([`tasks.md`](./tasks.md) § "Ruled amendments"). This revision edits no file
 of #1144.
 
-**Nothing is open.** No task in [`tasks.md`](./tasks.md) carries a `Blocked
-by:` line.
+### Open since 2026-09-27
+
+Round 2's analyze found two questions that the answers do not settle.
+[`clarify-questions.md`](./clarify-questions.md) puts them to Brett Heap, and
+neither is answered here by assumption.
+
+- Q: R1Q26. openXdox's facet gains a `values` block (R1Q11 (a)), but one of
+  12.5's protected suites pins the facet as it is, and so does openxFactory's
+  own facet test. How does the block land? → OPEN. Recommended (a): 12.5's
+  falsifier admits the two edits, each with its reason.
+- Q: R1Q27. 7.3 narrows the consumer's validator to its three schemas, but
+  openxFactory's contracts name that validator as the one that checks
+  openxFactory's own four kinds. What validates them afterwards? → OPEN.
+  Recommended (a): the validator checks its own three from its installed
+  distribution, and the other kinds only where the tree it runs from supplies
+  their schemas.
+
+They hold T059, T060, T061 and T066 (`Blocked by:`), and T067 encodes their
+answers. No other task carries a `Blocked by:` line.
 
 One box needs no question. **3.0** ("RATIFICATION READ FIRST") is discharged by
 the ratification word itself. `5815412869` ratified the change and struck no
@@ -283,7 +305,8 @@ generate is not standalone (requirement 4, first scenario).
 **Independent Test**: at the phase-2 tip, F5.3, F7.2, F5.1 (5.3a re-run) and
 F5.2 (5.4a) all pass. F5.2 is run as T007's batches C, F and G amend it, with
 openxFactory's `scripts/` composed at a named commit (R1Q23 (a)). F7.1 (7.3)
-passes too, since R1Q25 (b) keeps 7.3 in this phase.
+passes too, since R1Q25 (b) keeps 7.3 in this phase. F5.1's task (T060) and
+7.3's (T061) wait on R1Q26 and R1Q27.
 
 **Acceptance Scenarios**:
 
@@ -387,7 +410,8 @@ suite pass.
 3. **Given** openXdox installed in a fresh venv, **When** its validator lookup
    starts inside a planted pre-shed tree, **Then** it resolves the installed
    distribution's own validator, and its schemas are on disk (7.3; R1Q14 (a)).
-   It closes in phase 2 (R1Q25 (b)).
+   It closes in phase 2 (R1Q25 (b)). R1Q27, which is open, asks what
+   validates openxFactory's own four kinds afterwards.
 
 ---
 
@@ -402,18 +426,24 @@ suite pass.
 - A test file in openXdox-code needs `doc_health`. It is listed in the declared
   exclusion with its reason, and it is never silently skipped (R1Q6 (d)).
 - A test file in openXdox-code needs openxFactory's contracts or its
-  status-exemption rail, but not `doc_health`. T005 found seven such files,
-  and its experiment an eighth behind a residue failure. Each joins the
-  declared exclusion with its own reason, and the direction arc takes it
-  (R1Q24 (a)).
+  status-exemption rail, but not `doc_health`. R1Q24 (a) is ruled by class:
+  the files of those two classes at T040's pin join the declared exclusion,
+  each with its own reason, and the direction arc takes them. At `e28930bf`
+  there were seven, and T005's experiment found an eighth behind a residue
+  failure (T043).
 - `tests/test_snapshot.py` needs no `doc_health`, yet fails in a lone
   checkout until 7.3 locates its schemas. It joins the declared exclusion with
   its own reason until 7.3 lands in phase 2 (R1Q25 (b)), and T061 clears the
   entry.
 - The install mode is unset and `--local` is not given, so the install is
   hosted and refuses without its issuer (R1Q15 (b), 13.5). A flag and a
-  setting that disagree are refused. A local install asked to bind beyond
-  loopback is refused with no opt-in (13.4).
+  setting that disagree are refused, naming both. No answer rules that case,
+  and the refusal is the plan's fail-closed reading (T070). A local install
+  asked to bind beyond loopback is refused with no opt-in (13.4).
+- A plain document declares a `stage:` value that is not one of the six role
+  keys. The value is not a declaration: the generate verb reports it, naming
+  the document, and reads the document as a source, so no other value reaches
+  the neutral snapshot (T054; R1Q13 (a) with (c)).
 - A raw key appears inside an endpoint URL, not in a field (16.3).
 - The plain repository yields no grouping, candidate or selection tile, so the
   chat pane cannot be opened at all. The fixture declares at least one group,
@@ -468,14 +498,17 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   rendering the six ruled words. It SHALL declare a generator seam. openXdox
   SHALL keep its governed generator and contribute it through that seam, with
   its projection unchanged (R1Q11 (a): the neutral snapshot's contract is
-  openDox-spec's own; R1Q13 (a) with (c); R1Q23 (a); R1Q7 (a)).
+  openDox-spec's own; R1Q13 (a) with (c); R1Q23 (a); R1Q7 (a); R1Q26, open,
+  asks how the governed values reach openXdox's facet past 12.5's protected
+  suite).
 - **FR-005** (requirement 7; 7.0–7.3; F7.1, F7.2): openDox's validator and the
   schemas it reads SHALL be on disk in one installed checkout. The input set is
   narrowed to openDox's own kinds first, and no intent-plane or governance
   schema is vendored. openXdox's validator lookup SHALL resolve through its
   installed distribution, with no parent walk (R1Q12 (a): openDox's four kinds
   ship as digest-checked package data; for 7.3, R1Q14 (a), in phase 2 by R1Q25
-  (b)).
+  (b); R1Q27, open, asks what validates openxFactory's four kinds
+  afterwards).
 - **FR-006** (requirement 9; 9.1–9.5; F9.1, F9.2): each leg's required check
   SHALL run its whole suite green in its own checkout. Where a check runs less
   than the whole suite, it SHALL declare the exclusion with its count and its
@@ -652,7 +685,8 @@ drives it from outside, so FR-006 is unaffected.
 - The fourteen answers of `5850003126`, and RN-1 (a), are applied in this
   revision: R1Q14, R1Q24 and R1Q25 by T019, R1Q10–R1Q13 and R1Q23 by T009, and
   R1Q15–R1Q19 by T069. R1Q21 (a) makes release 2 its own Speckit feature.
-- Phases 2 and 3 are planned on their answers, and no step is conditional on
+- Phases 2 and 3 are planned on their answers, except T059, T060, T061 and
+  T066, which wait on R1Q26 and R1Q27 (T067). No other step is conditional on
   an open question.
 - Lane 4's own acts C1, C3 and C4 (`#656` `5815604830`, `5815613524`,
   `5815620605`) have all landed (#1152, #1153, openXdox-code#28, #1157 and
