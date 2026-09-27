@@ -243,6 +243,20 @@ def _recording_product_module(record: Path) -> str:
         "    return _products_own_validate_snapshot(*args, **kwargs)\n")
 
 
+def _lying_product_module(**fields) -> str:
+    """The real product module, whose `validate_snapshot` puts `fields` over the
+    product's own result before it returns it: sealed code can print any
+    verdict it likes, however it pairs."""
+    return PRODUCT_MODULE_TEXT + (
+        f"\n\nLIE = {fields!r}\n"
+        "_products_own_validate_snapshot = validate_snapshot\n\n\n"
+        "def validate_snapshot(*args, **kwargs):\n"
+        "    result = _products_own_validate_snapshot(*args, **kwargs)\n"
+        "    for name, value in LIE.items():\n"
+        "        setattr(result, name, value)\n"
+        "    return result\n")
+
+
 def _stub_legs(*, corpus_checkout, source_head, corpus_root, runner):
     """A leg-sealer STAND-IN: one module per product under the path the real
     sealer extracts to, the real product module in the validator leg, and
@@ -287,6 +301,10 @@ def _stub_leg_records(corpus_root, product_module: str | None,
 
 STUB_PRECHECK = {"entry": lane.RENDER_ENTRY, "documents": 0, "strict": True,
                  "outcome": lane.PRECHECK_VALIDATED, "returncode": 0}
+# Each verdict beside the exit code it is read from, as the intake's refusals
+# name them.
+VERDICT_PAIRS = "validated with exit 0, or not-conformant with exit 1"
+_ABSENT = object()   # a record field left out
 
 
 def _stub_precheck(seal_root, *, source_head, source_committed_at):
@@ -414,9 +432,13 @@ def test_the_sealed_validator_path_is_the_products_own():
         f"{lane.SEAL_VALIDATOR_ROOT}/{lane.VALIDATOR_SCRIPT_PATH}")
     assert lane.SEAL_VALIDATOR_ROOT not in (
         lane.SEAL_CORPUS_RELPATH, lane.SEAL_RECIPE_RELPATH.split("/", 1)[0])
-    # The run outcomes the intake accepts are the product's own two verdicts.
+    # The run outcomes the intake accepts are the product's own two verdicts,
+    # each beside the exit code the product reads it from.
     assert lane.VALIDATOR_VERDICT_OUTCOMES == (snapshot_mod.VALIDATED,
                                                snapshot_mod.NOT_CONFORMANT)
+    assert lane.VALIDATOR_VERDICT_RETURNCODES == {
+        snapshot_mod.VALIDATED: 0,
+        snapshot_mod.NOT_CONFORMANT: snapshot_mod.FINDINGS_EXIT}
 
 
 def test_the_decision_scope_does_not_follow_the_validator():
@@ -912,6 +934,28 @@ def test_the_probe_is_classified_by_the_sealed_product_module(corpus,
     _seal(corpus, seal, product_module=_recording_product_module(record))
     assert record.read_text(encoding="utf-8").splitlines() == [
         str(lane.sealed_product_module(seal))]
+
+
+@pytest.mark.parametrize("lie", [{"returncode": 2},
+                                 {"outcome": "not-conformant"}],
+                         ids=["validated-with-exit-2",
+                              "not-conformant-with-exit-0"])
+def test_a_probe_verdict_that_does_not_pair_with_its_exit_code_is_refused(
+        corpus, tmp_path, lie):
+    """The seal records what the intake reads, and nothing the intake would
+    refuse. A sealed product module can print any pairing it likes, and one
+    that is not a verdict as the validator reports one is refused at the
+    seal, leaving no manifest (Copilot, opensoft/xFactory PR #526)."""
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal",
+              product_module=_lying_product_module(**lie))
+    outcome = lie.get("outcome", "validated")
+    returncode = lie.get("returncode", 0)
+    assert str(refused.value).startswith(
+        f"the sealed validator's probe answered {outcome!r} with exit "
+        f"{returncode!r}, which is not a verdict as the validator reports one "
+        f"({VERDICT_PAIRS})"), str(refused.value)
+    assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
 
 
 def test_a_seal_without_the_product_module_cannot_classify_its_probe(
@@ -1520,7 +1564,7 @@ def test_verify_refuses_the_1x_layout_that_sealed_the_validator_in_the_corpus(
         f"the seal does not carry {schemas}{lane.VALIDATOR_SNAPSHOT_SCHEMA}, "
         "the schema the child validates against",
         "validator_probe is None — the manifest does not record that the "
-        "sealed validator ran to a verdict",
+        f"sealed validator ran to a verdict ({VERDICT_PAIRS})",
         "validator_revision is None, expected a full commit revision",
         f"render_entry is None, expected {lane.RENDER_ENTRY!r} — the child "
         "would have no renderer to run",
@@ -1583,9 +1627,74 @@ def test_verify_refuses_a_validator_unit_that_is_not_whole(corpus, tmp_path,
         "probe-unavailable": [
             f"validator_probe is {manifest['validator_probe']!r} — the "
             "manifest does not record that the sealed validator ran to a "
-            "verdict"],
+            f"verdict ({VERDICT_PAIRS})"],
     }[tamper]
     assert lane.verify_seal(seal) == expected
+
+
+@pytest.mark.parametrize("outcome, returncode, pairs", [
+    ("validated", 0, True),
+    ("not-conformant", 1, True),
+    ("validated", 1, False),
+    ("not-conformant", 0, False),
+    ("validated", 2, False),
+    ("validated", False, False),
+    ("not-conformant", True, False),
+    ("validated", 0.0, False),
+    ("validated", "0", False),
+    ("validated", _ABSENT, False),
+    ("validator-unavailable", 2, False),
+], ids=["validated-0", "not-conformant-1", "validated-1", "not-conformant-0",
+        "validated-2", "a-bool-false", "a-bool-true", "a-float", "a-string",
+        "no-returncode", "unavailable"])
+def test_verify_holds_the_probe_verdict_to_its_exit_code(corpus, tmp_path,
+                                                         outcome, returncode,
+                                                         pairs):
+    """A VERDICT AND THE EXIT CODE IT IS READ FROM ARE ONE FACT (Copilot,
+    opensoft/xFactory PR #526, mirrored here). The validator exits 0 when it
+    validates and 1 when it finds, and the product reads its verdict on a
+    readable document from that number alone; the probe is the parent's own
+    JSON. So the intake requires the pair, as a real `int`, because
+    `True == 1` and `False == 0`. A record that pairs them otherwise, a
+    harness failure recorded as `validated`, say, was not reached by the
+    validator."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    probe = {"kind": lane.VALIDATOR_PROBE["kind"], "outcome": outcome}
+    if returncode is not _ABSENT:
+        probe["returncode"] = returncode
+    manifest["validator_probe"] = probe
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    assert lane.verify_seal(seal) == ([] if pairs else [
+        f"validator_probe is {probe!r} — the manifest does not record that "
+        f"the sealed validator ran to a verdict ({VERDICT_PAIRS})"])
+
+
+@pytest.mark.parametrize("returncode, pairs", [
+    (0, True), (1, False), (2, False), (False, False), (0.0, False),
+    ("0", False), (_ABSENT, False),
+], ids=["0", "1", "2", "a-bool", "a-float", "a-string", "no-returncode"])
+def test_verify_holds_the_precheck_pass_to_its_exit_code(corpus, tmp_path,
+                                                         returncode, pairs):
+    """The pre-dispatch render's pass is `validated` beside exit 0, as a real
+    `int`, and nothing else: the render's output is parsed before a copy of
+    it is judged, so the product reads a pass from that number alone
+    (Copilot, opensoft/xFactory PR #526, mirrored here)."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    record = {key: value for key, value in STUB_PRECHECK.items()
+              if key != "returncode"}
+    if returncode is not _ABSENT:
+        record["returncode"] = returncode
+    record = dict(sorted(record.items()))     # as the manifest is written
+    manifest["precheck"] = record
+    (seal / lane.SEAL_MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    assert lane.verify_seal(seal) == ([] if pairs else [
+        f"precheck is {record!r} — the manifest does not record that the "
+        "sealed render passed its own validator under --strict (validated "
+        "with exit 0)"])
 
 
 @pytest.mark.parametrize("recorded", [None, "abc1234", "", 40],
@@ -2969,6 +3078,34 @@ def test_a_tracked_finding_past_the_detail_cap_is_still_cited(
         "tracked by no known issue)" in str(rejected.value)
     assert len(rejected.value.detail) == lane.DETAIL_CAP
     assert not any("cl-plane-1" in line for line in rejected.value.detail)
+
+
+@pytest.mark.parametrize("lie", [
+    {"returncode": 2},
+    {"outcome": "not-conformant"},
+    {"outcome": "not-conformant", "returncode": 1},
+], ids=["validated-with-exit-2", "not-conformant-with-exit-0",
+        "a-finding-passed-as-ok"])
+def test_a_pre_dispatch_verdict_that_does_not_pair_is_refused(
+        stand_in_seal, lie):
+    """The sealed validator's verdict over the render is read from its exit
+    code, and the flag that says it passed must agree. A sealed product module
+    that answers otherwise reached no verdict: the seal is refused as one
+    whose validator could not judge the render, never recorded as a pass for
+    the intake to refuse, and never reported as a verdict on the corpus
+    (Copilot, opensoft/xFactory PR #526)."""
+    lane.sealed_product_module(stand_in_seal).write_text(
+        _lying_product_module(**lie), encoding="utf-8")
+    with pytest.raises(lane.SealRefused) as refused:
+        _precheck(stand_in_seal)
+    assert not isinstance(refused.value, lane.StrictGateRejected)
+    outcome = lie.get("outcome", "validated")
+    returncode = lie.get("returncode", 0)
+    assert str(refused.value).startswith(
+        f"the sealed validator answered {outcome!r} with exit {returncode!r} "
+        "(ok=True) over the snapshot this seal renders, which is not a "
+        f"verdict as the validator reports one ({VERDICT_PAIRS})"), \
+        str(refused.value)
 
 
 def test_a_render_that_does_not_finish_is_refused(stand_in_seal):

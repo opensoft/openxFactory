@@ -1103,6 +1103,30 @@ VALIDATOR_PROBE = {"kind": "ideation-dashboard-snapshot"}
 # because this module must import without the carve legs on disk.
 VALIDATOR_SNAPSHOT_SCHEMA = "ideation-dashboard-snapshot.schema.yaml"
 VALIDATOR_VERDICT_OUTCOMES = ("validated", "not-conformant")
+# The exit code each of those verdicts is read from: the validator's own
+# contract is "0 ok, 1 findings, 2 harness error", and the product reads the
+# verdict on a readable document from that number alone (`snapshot.
+# FINDINGS_EXIT`). Both documents the parent validates are readable JSON by
+# construction: the probe is the parent's own, and the render's output is
+# parsed before a copy of it is judged. So a verdict and its exit code are
+# one fact, and a record that pairs them otherwise was not reached by the
+# validator (Copilot, opensoft/xFactory PR #526). A test holds these equal to
+# the product's own.
+VALIDATOR_VERDICT_RETURNCODES = dict(zip(VALIDATOR_VERDICT_OUTCOMES, (0, 1)))
+_VERDICT_PAIRS = ", or ".join(
+    f"{outcome} with exit {code}"
+    for outcome, code in VALIDATOR_VERDICT_RETURNCODES.items())
+
+
+def _a_verdict_with_its_returncode(record, outcomes) -> bool:
+    """True when `record` names one of `outcomes` beside the exit code that
+    verdict is read from (`VALIDATOR_VERDICT_RETURNCODES`). The code must be
+    an `int`, and not a `bool`, because `True == 1` and `False == 0`."""
+    if not isinstance(record, dict):
+        return False
+    outcome, returncode = record.get("outcome"), record.get("returncode")
+    return (outcome in outcomes and type(returncode) is int
+            and returncode == VALIDATOR_VERDICT_RETURNCODES.get(outcome))
 
 # The manifest field whose value the child passes to `generate --generated-at`.
 # NOT a wall clock: `generation.generated_at` is defined as the source
@@ -1743,13 +1767,25 @@ def seal_validator(seal_root, pinned: PinnedValidator, *,
             "the sealed validator could NOT RUN, so the child's --strict "
             f"could not run it either: {result.unavailable_reason}"
             + (f" — it said: {said}" if said else ""))
+    # WHAT IS RECORDED IS WHAT THE INTAKE READS. The probe is the parent's own
+    # JSON, so its verdict is read from the exit code alone, and a verdict
+    # beside any other code was not reached by the validator: the sealed
+    # product module the run is classified with can print any pairing. It is
+    # refused here, never recorded for the intake to refuse (Copilot,
+    # opensoft/xFactory PR #526).
+    probe = {"kind": VALIDATOR_PROBE["kind"], "outcome": result.outcome,
+             "returncode": result.returncode}
+    if not _a_verdict_with_its_returncode(probe, VALIDATOR_VERDICT_OUTCOMES):
+        raise SealRefused(
+            f"the sealed validator's probe answered {result.outcome!r} with "
+            f"exit {result.returncode!r}, which is not a verdict as the "
+            f"validator reports one ({_VERDICT_PAIRS}) — the seal would "
+            "record a run the child's intake refuses")
     return {
         "validator_relpath": SEAL_VALIDATOR_RELPATH,
         "validator_revision": revision,
         "validator_schema_count": carried,
-        "validator_probe": {"kind": VALIDATOR_PROBE["kind"],
-                            "outcome": result.outcome,
-                            "returncode": result.returncode},
+        "validator_probe": probe,
     }
 
 
@@ -2355,6 +2391,22 @@ def precheck_sealed_render(seal_root, *, source_head: str,
             f"renders, so the child's --strict could not either: "
             f"{result.unavailable_reason}"
             + (f" — it said: {said}" if said else ""))
+    # A VERDICT, BEFORE EITHER BRANCH (Copilot, opensoft/xFactory PR #526).
+    # The render's output was parsed before a copy of it was judged, so the
+    # verdict is read from the exit code alone, and the flag that says it
+    # passed must agree. The sealed product module can print anything, and
+    # an answer that is not a verdict is neither recorded as a pass for the
+    # intake to refuse nor reported as a verdict on the corpus.
+    if (not _a_verdict_with_its_returncode(
+            {"outcome": result.outcome, "returncode": result.returncode},
+            VALIDATOR_VERDICT_OUTCOMES)
+            or result.ok != (result.outcome == PRECHECK_VALIDATED)):
+        raise SealRefused(
+            f"the sealed validator answered {result.outcome!r} with exit "
+            f"{result.returncode!r} (ok={result.ok!r}) over the snapshot this "
+            "seal renders, which is not a verdict as the validator reports "
+            f"one ({_VERDICT_PAIRS}), so the child's --strict could not be "
+            "judged by it")
     if not result.ok:
         # EVERY line is read for the citation, and the detail the verdict
         # carries is capped afterwards (`StrictGateRejected`). A tracked
@@ -2408,14 +2460,16 @@ def seal_source(
       * an archive whose own recorded commit is not `source_head` seals
         nothing;
       * a validator whose product revision cannot be read, whose unit cannot
-        be copied whole, whose sealed copy cannot RUN, or whose run changed
-        the sealed tree seals nothing;
+        be copied whole, whose sealed copy cannot RUN, whose run changed the
+        sealed tree, or whose run answered a verdict beside another exit code
+        than the one it is read from, seals nothing;
       * a validator copied from another revision of the product than the
         sealed openXdox leg, or from no product tree at all, or held beside
         no openXdox leg, seals nothing;
       * a recipe that cannot be read seals nothing;
       * a sealed render unit that cannot render the snapshot, or a sealed
-        validator that cannot run over it, seals nothing;
+        validator that cannot run over it or answers no verdict as the
+        validator reports one, seals nothing;
       * a snapshot the sealed validator REJECTS under `--strict` seals
         nothing, and is raised as `StrictGateRejected`, carrying the
         validator's own findings;
@@ -2772,7 +2826,8 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
     # a snapshot, which is the #179 trap in the unit's shape. So the intake
     # also requires the schemas to be indexed, the recorded count to equal the
     # indexed count, the snapshot schema to be among them, and the parent's
-    # one recorded run to have reached a verdict.
+    # one recorded run to have reached a verdict, recorded beside the exit
+    # code it is read from (Copilot, opensoft/xFactory PR #526).
     schemas_prefix = f"{SEAL_VALIDATOR_ROOT}/{VALIDATOR_SCHEMAS_PATH}/"
     indexed_schemas = sum(1 for relpath in files
                           if relpath.startswith(schemas_prefix))
@@ -2793,10 +2848,11 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
     probe = manifest.get("validator_probe")
     if not (isinstance(probe, dict)
             and probe.get("kind") == VALIDATOR_PROBE["kind"]
-            and probe.get("outcome") in VALIDATOR_VERDICT_OUTCOMES):
+            and _a_verdict_with_its_returncode(probe,
+                                               VALIDATOR_VERDICT_OUTCOMES)):
         problems.append(
             f"validator_probe is {probe!r} — the manifest does not record "
-            "that the sealed validator ran to a verdict")
+            f"that the sealed validator ran to a verdict ({_VERDICT_PAIRS})")
     # REQUIRED (Copilot, PR #1166). Every 2.1 seal carries the openXdox code
     # leg, and this revision is what holds the sealed validator to it, so a
     # null is refused like every other value that is not a full revision. A
@@ -2831,7 +2887,8 @@ def _render_unit_problems(manifest: dict, files: dict,
     indexed, and the validator's revision must be that openXdox leg's own
     revision. `validator_revision` is None when the caller has already
     reported it as no full revision. The pre-dispatch render must be recorded
-    as validated under `--strict`, since the parent seals nothing else."""
+    as validated, with exit 0, under `--strict`, since the parent seals
+    nothing else."""
     problems: list[str] = []
     entry = manifest.get("render_entry")
     if entry != RENDER_ENTRY:
@@ -2917,10 +2974,13 @@ def _render_unit_problems(manifest: dict, files: dict,
     if not (isinstance(precheck, dict)
             and precheck.get("entry") == RENDER_ENTRY
             and precheck.get("strict") is True
-            and precheck.get("outcome") == PRECHECK_VALIDATED):
+            and _a_verdict_with_its_returncode(precheck,
+                                               (PRECHECK_VALIDATED,))):
         problems.append(
             f"precheck is {precheck!r} — the manifest does not record that "
-            "the sealed render passed its own validator under --strict")
+            "the sealed render passed its own validator under --strict "
+            f"({PRECHECK_VALIDATED} with exit "
+            f"{VALIDATOR_VERDICT_RETURNCODES[PRECHECK_VALIDATED]})")
     return problems
 
 
