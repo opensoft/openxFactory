@@ -63,6 +63,7 @@ where a test says it uses the real one.
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import os
@@ -231,6 +232,19 @@ def _product_head() -> str:
 PRODUCT_MODULE_TEXT = Path(snapshot_mod.__file__).read_text(encoding="utf-8")
 
 
+# The product modules the render unit's corpus side imports by name, per code
+# leg, under `src/<package>/`: the entry's `opendox.cli`, the host bootstrap's
+# imports, and the module the sealed validator's runs are classified with.
+# Spelled here as the tests' expectation. The lane's `RENDER_LEG_MODULES`, and
+# an `ast` read of the entry and its bootstrap, are both held to it.
+RENDER_UNIT_IMPORTS = {
+    ("openDox", "code"): ("cli.py", "domain_profile.py"),
+    ("openXdox", "code"): ("cli_gate.py", "domain_profile.py", "serve_gate.py",
+                           "serve_projection.py", "snapshot.py",
+                           "view_extensions.py"),
+}
+
+
 def _recording_product_module(record: Path) -> str:
     """The real product module, whose `validate_snapshot` also appends the
     file it was loaded from to `record` on every call."""
@@ -281,10 +295,15 @@ def _stub_leg_records(corpus_root, product_module: str | None,
         (modules / "__init__.py").write_text(f"# stand-in {package}\n",
                                              encoding="utf-8")
         count = 1
-        if (gitlink, leg) == lane.VALIDATOR_LEG and product_module is not None:
-            (modules / lane.SEALED_PRODUCT_MODULE).write_text(
-                product_module, encoding="utf-8")
-            count = 2
+        for module in RENDER_UNIT_IMPORTS[(gitlink, leg)]:
+            if module == lane.SEALED_PRODUCT_MODULE:
+                if product_module is None:
+                    continue
+                text = product_module
+            else:
+                text = f"# stand-in {package}.{module[:-3]}\n"
+            (modules / module).write_text(text, encoding="utf-8")
+            count += 1
         records.append({
             "gitlink": gitlink, "gitlink_revision": str(index + 1) * 40,
             "leg": leg,
@@ -2274,14 +2293,16 @@ def test_the_refresh_stage_materializes_nothing_by_a_worker_side_read():
 # real nested submodules, and refused whenever this parent holds anything else
 # ---------------------------------------------------------------------------
 
-def _product(where: Path, name: str, code_leg: str, package: str) -> Path:
+def _product(where: Path, name: str, code_leg: str, package: str, *,
+             omit: tuple[str, ...] = ()) -> Path:
     """A product shaped like openDox or openXdox: a repository whose `spec`
     and `code` legs are its own submodules. The code leg carries its package
     under `src/`, a module BESIDE the package (openXdox-code's `src/` has two),
     and a `tests/` tree and a `pyproject.toml` the render unit must not carry.
     openXdox's code leg also commits a stand-in validator unit, which a test
     resolves its validator from, as a real parent resolves the real one from
-    the same checkout as its render legs."""
+    the same checkout as its render legs. Every code leg carries the modules
+    the render unit imports by name, less any in `omit`."""
     legs: dict[str, Path] = {}
     for leg in ("spec", code_leg):
         repo = where / f"{name}-{leg}"
@@ -2294,6 +2315,10 @@ def _product(where: Path, name: str, code_leg: str, package: str) -> Path:
                                                  encoding="utf-8")
             (modules / "cli.py").write_text(
                 "def main(argv=None):\n    return 0\n", encoding="utf-8")
+            for module in RENDER_UNIT_IMPORTS[(name, code_leg)]:
+                if module not in ("cli.py", lane.SEALED_PRODUCT_MODULE):
+                    (modules / module).write_text(
+                        f'"""{package}.{module[:-3]}"""\n', encoding="utf-8")
             if package == "openxdox":
                 # The product module the parent classifies with, out of the
                 # sealed leg, and a stand-in validator unit outside `src/`,
@@ -2315,6 +2340,8 @@ def _product(where: Path, name: str, code_leg: str, package: str) -> Path:
                 f'[project]\nname = "{package}"\n', encoding="utf-8")
         else:
             (repo / "README.md").write_text(f"# {name} spec\n", encoding="utf-8")
+        for module in omit:
+            (repo / "src" / package / module).unlink(missing_ok=True)
         _git(repo, "add", "-A")
         _git(repo, "commit", "--quiet", "-m", f"{name} {leg}")
         legs[leg] = repo
@@ -2330,20 +2357,35 @@ def _product(where: Path, name: str, code_leg: str, package: str) -> Path:
     return product
 
 
-@pytest.fixture
-def corpus_with_products(corpus: Path, tmp_path: Path) -> Path:
-    """The fixture corpus with both products MOUNTED, as openxFactory mounts
-    them: each a gitlink, each product's legs its own gitlinks, all
-    materialized at the commits they are pinned at."""
-    upstream = tmp_path / "upstream"
+def _mount_products(corpus: Path, upstream: Path, *,
+                    omit: dict[str, tuple[str, ...]] | None = None) -> Path:
+    """Mount both products in `corpus`, as openxFactory mounts them: each a
+    gitlink, each product's legs its own gitlinks, all materialized at the
+    commits they are pinned at. `omit` leaves modules out of a product's code
+    leg, by gitlink."""
     for gitlink, leg, package in lane.RENDER_LEGS:
-        product = _product(upstream, gitlink, leg, package)
+        product = _product(upstream, gitlink, leg, package,
+                           omit=(omit or {}).get(gitlink, ()))
         _git(corpus, "-c", "protocol.file.allow=always", "submodule", "add",
              "--quiet", str(product), gitlink)
     _git(corpus, "-c", "protocol.file.allow=always", "submodule", "update",
          "--init", "--recursive", "--quiet")
     _git(corpus, "commit", "--quiet", "-m", "mount the products")
     return corpus
+
+
+@pytest.fixture
+def corpus_with_products(corpus: Path, tmp_path: Path) -> Path:
+    """The fixture corpus with both products MOUNTED (`_mount_products`)."""
+    return _mount_products(corpus, tmp_path / "upstream")
+
+
+def _product_leg_src(package: str, gitlink: str, leg: str) -> list[str]:
+    """What `_product` puts under a code leg's `src/`, as leg-relative paths."""
+    return sorted({"src/extension.py", f"src/{package}/__init__.py",
+                   f"src/{package}/cli.py",
+                   *(f"src/{package}/{module}"
+                     for module in RENDER_UNIT_IMPORTS[(gitlink, leg)])})
 
 
 def _leg_files(root: Path) -> list[str]:
@@ -2377,11 +2419,8 @@ def test_the_legs_are_sealed_at_the_commits_the_sealed_corpus_pins(
         assert record["schema_leg_revision"] == \
             _git(corpus / gitlink, "rev-parse", f"{pinned}:{lane.SCHEMA_LEG}")
         sealed = corpus_root / gitlink / leg
-        carried = ["src/extension.py", f"src/{package}/__init__.py",
-                   f"src/{package}/cli.py"]
-        if (gitlink, leg) == lane.VALIDATOR_LEG:
-            carried.append(f"src/{package}/{lane.SEALED_PRODUCT_MODULE}")
-        assert _leg_files(sealed) == sorted(carried)
+        carried = _product_leg_src(package, gitlink, leg)
+        assert _leg_files(sealed) == carried
         assert record["file_count"] == len(carried)
         assert sorted(path.name for path in (corpus_root / gitlink).iterdir()) \
             == [leg]
@@ -2409,7 +2448,9 @@ def test_a_seal_with_real_legs_verifies(corpus_with_products, tmp_path):
     legs = [key for key in manifest["files"]
             if key.split("/")[1:2] in (["openDox"], ["openXdox"])]
     assert len(legs) == sum(record["file_count"]
-                            for record in manifest["render_legs"]) == 7
+                            for record in manifest["render_legs"]) == sum(
+        len(_product_leg_src(package, gitlink, leg))
+        for gitlink, leg, package in lane.RENDER_LEGS)
 
 
 def _commit_inside(checkout: Path) -> str:
@@ -2605,9 +2646,10 @@ def test_verify_refuses_a_seal_whose_render_unit_is_not_whole(corpus, tmp_path):
         leg_revision="abc1234")) == [
         "the openXdox code leg records leg_revision 'abc1234', expected a "
         "full commit revision"]
-    assert problems(lambda m: m["render_legs"][0].update(file_count=9)) == [
-        "the openDox code leg records file_count 9, but the seal indexes 1 "
-        "file(s) under openxFactory/openDox/code/"]
+    assert problems(lambda m: m["render_legs"][0].update(file_count=99)) == [
+        "the openDox code leg records file_count 99, but the seal indexes "
+        f"{base['render_legs'][0]['file_count']} file(s) under "
+        "openxFactory/openDox/code/"]
     assert problems(lambda m: m.update(precheck=dict(
         STUB_PRECHECK, outcome="not-conformant")))[0].startswith(
         "precheck is ")
@@ -2624,7 +2666,8 @@ def test_verify_refuses_a_seal_whose_render_unit_is_not_whole(corpus, tmp_path):
     assert lane.verify_seal(seal) == [
         f"the seal indexes no module under {modules} — the child's render "
         "could not import it",
-        "the openXdox code leg records file_count 2, but the seal indexes 0 "
+        "the openXdox code leg records file_count "
+        f"{base['render_legs'][1]['file_count']}, but the seal indexes 0 "
         "file(s) under openxFactory/openXdox/code/"]
 
 
@@ -2673,6 +2716,87 @@ def test_verify_refuses_a_leg_without_its_schema_provenance(corpus, tmp_path,
     manifest["render_legs"][1].update(change)
     _rewrite_coherently(seal, manifest)
     assert lane.verify_seal(seal) == [f"the openXdox code leg {said}"]
+
+
+def test_the_render_leg_modules_are_what_the_render_unit_imports_by_name():
+    """THE MODULES THE INTAKE REQUIRES BY NAME (Copilot, PR #1166) are exactly
+    the product modules the seal's own corpus side imports by name, read here
+    with `ast` out of the entry and the four files of its host bootstrap, and
+    the module the lane classifies the sealed validator's runs with. A render
+    unit that grows such an import grows the requirement, or this fails. Each
+    is a module the real legs carry at their pins."""
+    package_leg = {package: (gitlink, leg)
+                   for gitlink, leg, package in lane.RENDER_LEGS}
+    named: dict[tuple[str, str], set[str]] = {key: set()
+                                              for key in package_leg.values()}
+    for relpath in (lane.RENDER_ENTRY, *lane.RENDER_BOOTSTRAP):
+        tree = ast.parse((REPO_ROOT / relpath).read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if (isinstance(node, ast.ImportFrom) and node.level == 0
+                    and node.module):
+                top, _, rest = node.module.partition(".")
+                if top in package_leg:
+                    named[package_leg[top]].update(
+                        [f"{rest.split('.')[0]}.py"] if rest
+                        else [f"{alias.name}.py" for alias in node.names])
+            elif isinstance(node, ast.Import):
+                for alias in node.names:
+                    top, _, rest = alias.name.partition(".")
+                    if top in package_leg and rest:
+                        named[package_leg[top]].add(f"{rest.split('.')[0]}.py")
+    named[lane.VALIDATOR_LEG].add(lane.SEALED_PRODUCT_MODULE)
+    assert {key: tuple(sorted(modules))
+            for key, modules in named.items()} == RENDER_UNIT_IMPORTS
+    assert lane.RENDER_LEG_MODULES == RENDER_UNIT_IMPORTS
+    for gitlink, leg, package in lane.RENDER_LEGS:
+        for module in RENDER_UNIT_IMPORTS[(gitlink, leg)]:
+            assert (REPO_ROOT / gitlink / leg / "src" / package / module
+                    ).is_file(), (gitlink, module)
+
+
+@pytest.mark.parametrize("gitlink, module", [
+    (gitlink, module) for (gitlink, _leg), modules in RENDER_UNIT_IMPORTS.items()
+    for module in modules])
+def test_verify_refuses_a_leg_without_a_module_the_render_unit_imports(
+        corpus, tmp_path, gitlink, module):
+    """The intake asked each product's package for SOME module, so a leg that
+    had lost `opendox/cli.py`, or a module the host bootstrap or the verdict
+    classifier imports, passed it and failed only at the child's import
+    (Copilot, PR #1166). Each such module is required by name, as the corpus
+    side's bootstrap is. The removal is made coherent, so only the
+    requirement can see it."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    package = next(package for name, _leg, package in lane.RENDER_LEGS
+                   if name == gitlink)
+    relpath = f"{lane.SEAL_CORPUS_RELPATH}/{gitlink}/code/src/{package}/{module}"
+    (seal / relpath).unlink()
+    for record in manifest["render_legs"]:
+        if record["gitlink"] == gitlink:
+            record["file_count"] -= 1
+    _rewrite_coherently(seal, manifest)
+    assert lane.verify_seal(seal) == [
+        f"the seal does not carry {relpath}, which the render unit imports "
+        "by name"]
+
+
+@pytest.mark.parametrize("gitlink, module", [("openDox", "domain_profile.py"),
+                                             ("openXdox", "serve_gate.py")])
+def test_a_leg_without_a_module_the_render_unit_imports_is_refused(
+        corpus, tmp_path, gitlink, module):
+    """The leg sealer refuses first what the intake refuses: a product whose
+    pinned code leg lacks a module the render unit imports by name is never
+    sealed, and the refusal names the module."""
+    _mount_products(corpus, tmp_path / "upstream", omit={gitlink: (module,)})
+    package = next(package for name, _leg, package in lane.RENDER_LEGS
+                   if name == gitlink)
+    with pytest.raises(lane.SealRefused) as refused:
+        lane.seal_render_legs(
+            corpus_checkout=corpus, source_head=_git(corpus, "rev-parse", "HEAD"),
+            corpus_root=tmp_path / "seal" / lane.SEAL_CORPUS_RELPATH)
+    assert str(refused.value).startswith(
+        f"the sealed {gitlink} code leg carries no src/{package}/{module}, "
+        "which the render unit imports by name"), str(refused.value)
 
 
 def test_the_render_bootstrap_is_what_the_entry_imports_first():

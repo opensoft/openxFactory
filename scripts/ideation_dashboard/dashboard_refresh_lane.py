@@ -1068,6 +1068,21 @@ VALIDATOR_LEG = ("openXdox", "code")
 # inside the sealed validator leg's package: the product's own
 # three-outcome `validate_snapshot`.
 SEALED_PRODUCT_MODULE = "snapshot.py"
+# THE PRODUCT MODULES THE RENDER UNIT IMPORTS BY NAME (Copilot, PR #1166), per
+# code leg, under `src/<package>/`: the entry's `opendox.cli`, the host
+# bootstrap's own imports (`opendox_host`, `profile_openxfactory`), and the
+# module the sealed validator's runs are classified with. The intake requires
+# each one, as it requires the bootstrap by name: a leg that had lost one
+# passed an intake that asked for SOME module, and failed only at the child's
+# import. Nothing else of a leg is named, since the rest is the product's own
+# layout. A test holds this equal to what an `ast` read of the entry and its
+# bootstrap finds.
+RENDER_LEG_MODULES: dict[tuple[str, str], tuple[str, ...]] = {
+    ("openDox", "code"): ("cli.py", "domain_profile.py"),
+    ("openXdox", "code"): ("cli_gate.py", "domain_profile.py", "serve_gate.py",
+                           "serve_projection.py", SEALED_PRODUCT_MODULE,
+                           "view_extensions.py"),
+}
 
 # The sealed validator unit, and its layout. `VALIDATOR_SCRIPT_PATH` is the
 # script's path INSIDE the unit. It is also the product's own
@@ -1965,6 +1980,15 @@ def seal_render_legs(*, corpus_checkout, source_head: str, corpus_root,
             raise SealRefused(
                 f"the sealed {gitlink} {leg} leg carries no module under "
                 f"src/{package}, so the child's bootstrap would refuse it")
+        missing = [module for module in RENDER_LEG_MODULES.get((gitlink, leg),
+                                                              ())
+                   if not (modules / module).is_file()]
+        if missing:
+            raise SealRefused(
+                f"the sealed {gitlink} {leg} leg carries no "
+                + ", ".join(f"src/{package}/{module}" for module in missing)
+                + ", which the render unit imports by name, so the child's "
+                "render could not import it")
         sealed.append({
             "gitlink": gitlink,
             "gitlink_revision": pinned,
@@ -2939,7 +2963,8 @@ def _render_unit_problems(manifest: dict, files: dict,
     (`RENDER_BOOTSTRAP`) must be indexed, and each `RENDER_LEGS` product must
     have its record: the commit the sealed corpus
     pins the product at, the leg commit that product pins, and indexed modules
-    under the leg's `src/<package>/`. The file count must match what is
+    under the leg's `src/<package>/`, among them each module the render unit
+    imports by name (`RENDER_LEG_MODULES`). The file count must match what is
     indexed, and the validator's revision must be that openXdox leg's own
     revision. `validator_revision` is None when the caller has already
     reported it as no full revision. The pre-dispatch render must be recorded
@@ -3011,6 +3036,12 @@ def _render_unit_problems(manifest: dict, files: dict,
             problems.append(
                 f"the seal indexes no module under {modules} — the child's "
                 "render could not import it")
+        else:
+            problems += [
+                f"the seal does not carry {modules}{module}, which the render "
+                "unit imports by name"
+                for module in RENDER_LEG_MODULES.get((gitlink, leg), ())
+                if f"{modules}{module}" not in files]
         count = record.get("file_count")
         if isinstance(count, bool) or count != len(indexed):
             problems.append(
