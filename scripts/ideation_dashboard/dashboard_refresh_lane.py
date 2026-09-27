@@ -2509,10 +2509,7 @@ def validate_in_render_environment(product, target, *, validator, strict: bool,
 # the validator's own finding code AND the value it names, so the citation
 # retires itself. Once the corpus is fixed the finding is gone, and a
 # different rejection is never cited against an issue that is not its own.
-KNOWN_STRICT_FINDINGS = (
-    ("snapshot-dangling-cluster-ref", "'cl-plane-1'",
-     "opensoft/openxFactory#1159"),
-)
+KNOWN_STRICT_FINDINGS: tuple[tuple[str, str, str], ...] = ()
 # The validator's per-finding lines: `ERROR [<code>] <path>: <message>`, and
 # the same shape for a warning.
 _FINDING_LINE_RE = re.compile(r"^(ERROR|WARNING) \[([a-z0-9-]+)\] ")
