@@ -1409,6 +1409,377 @@ def test_snapshot_path_boundaries_are_enforced(tmp_path):
                                TAXONOMY)
 
 
+# --- link-safe run scan (opensoft/openxFactory#1187) -------------------------
+
+LATER_DAY_STR = "2026-07-10"
+
+
+def legacy_iter_runs(root):
+    """`catalog._iter_runs` as it stood before opensoft/openxFactory#1187: the
+    reference every caller's view of a clean tree must still match."""
+    runs = runs_root(root)
+    if not runs.is_dir():
+        return
+    for date_dir in sorted(runs.iterdir()):
+        if not date_dir.is_dir() or date_dir.name.startswith("."):
+            continue
+        for run_dir in sorted(date_dir.iterdir()):
+            if not run_dir.is_dir() or run_dir.name.startswith("."):
+                continue
+            meta_path = run_dir / "run.yaml"
+            if not meta_path.is_file():
+                continue
+            sequence = json.loads(
+                meta_path.read_text(encoding="utf-8")).get("sequence", 0)
+            yield date_dir.name, sequence, run_dir.name, run_dir
+
+
+def later_runs():
+    """{repo: entries} for the corpus at LATER_HEADS: a content no other run
+    in these tests records, so it mints a run id of its own."""
+    return entries_by_repo(catalog.mechanical_entries(
+        extended_inventory(WORKSPACE, LATER_HEADS)))
+
+
+def foreign_run(base, as_of=LATER_DAY_STR):
+    """The directory of a run recorded in a catalog tree of its own at
+    `base`: content that lives outside the tree a link is planted in."""
+    rid, _paths = catalog.write_run(base, as_of, later_runs(), TAXONOMY)
+    return runs_root(base) / as_of / rid
+
+
+def plant_link(node, target, directory=True):
+    node.parent.mkdir(parents=True, exist_ok=True)
+    node.symlink_to(target, target_is_directory=directory)
+    return node
+
+
+def relink_file(node, target):
+    """Replace the regular file at `node` with a symlink to `target`."""
+    node.unlink()
+    return plant_link(node, target, directory=False)
+
+
+def copy_run(source, run_dir, meta=True):
+    """A real run directory holding a copy of `source`'s snapshots, and of
+    its run.yaml unless `meta` is False (a test then plants its own)."""
+    shutil.copytree(source, run_dir)
+    if not meta:
+        (run_dir / "run.yaml").unlink()
+    return run_dir
+
+
+def refused(scan):
+    return [entry for entry in scan if entry.refusal is not None]
+
+
+def test_run_scan_matches_the_legacy_scan_on_a_clean_tree(tmp_path):
+    # opensoft/openxFactory#1187: making the shared scan link-safe must not
+    # change what any caller sees in a tree without links: several days,
+    # several runs a day, a slash-separated repository, a crashed run, stray
+    # files and a hidden directory. The scan yields exactly the runs, in
+    # exactly the order, the scan before #1187 did, and refuses none. The
+    # latest-run lookup, the date and id lookups, the next claimed sequence
+    # and the stale refusal all follow from those same runs.
+    root = tmp_path / "agg"
+    rid_one, _ = write_run(root, extended_inventory())
+    rid_two, _ = write_run(root, extended_inventory(WORKSPACE, LATER_HEADS))
+    alpha = alpha_entries(extended_inventory())
+    rid_three, _ = catalog.write_run(root, LATER_DAY_STR, {
+        "xFactories/MedxFactory": [dict(e, repo="xFactories/MedxFactory")
+                                   for e in alpha]}, TAXONOMY)
+    crashed = runs_root(root) / LATER_DAY_STR / ("e" * 64)
+    crashed.mkdir()
+    (crashed / "alpha.yaml").write_text("{}\n", encoding="utf-8")
+    (runs_root(root) / "notes.yaml").write_text("stray\n", encoding="utf-8")
+    (runs_root(root) / DAY_STR / "loose.yaml").write_text(
+        "stray\n", encoding="utf-8")
+    hidden = runs_root(root) / DAY_STR / ".partial"
+    hidden.mkdir()
+    (hidden / "run.yaml").write_text(catalog.render(
+        catalog._run_meta_document(".partial", DAY_STR, 99)),
+        encoding="utf-8")
+
+    legacy = list(legacy_iter_runs(root))
+    scan = list(catalog._iter_runs(root))
+    assert [tuple(entry[:4]) for entry in scan] == legacy
+    assert refused(scan) == []
+    assert sorted((d, seq, r) for d, seq, r, _dir in legacy) == [
+        (DAY_STR, 1, rid_one), (DAY_STR, 2, rid_two),
+        (LATER_DAY_STR, 3, rid_three)]
+
+    def latest_of(runs):
+        d, seq, r, _dir = max(runs, key=lambda run: (run[0], run[1]))
+        return d, seq, r
+
+    latest = catalog.load_snapshot(root)
+    assert (latest["as_of"], latest["sequence"], latest["run_id"]) == \
+        latest_of(legacy)
+    on_day = catalog.load_snapshot(root, as_of=DAY)
+    assert (on_day["as_of"], on_day["sequence"], on_day["run_id"]) == \
+        latest_of([run for run in legacy if run[0] == DAY_STR])
+    assert catalog.load_snapshot(root, run_id=rid_one)["sequence"] == 1
+    assert catalog.load_snapshot(root, run_id="e" * 64) is None
+
+    # The writer claims one past every number those runs and their claims
+    # hold, and still refuses a run dated before the latest of them.
+    claimed = [int(p.stem) for p in (runs_root(root) / ".sequence").iterdir()]
+    expected = max([seq for _d, seq, _r, _dir in legacy] + claimed) + 1
+    rid_four, paths = catalog.write_run(root, LATER_DAY_STR, {
+        "alpha": classified(alpha, "docs/widget-overview.md", "domain")},
+        TAXONOMY)
+    meta = json.loads((paths["alpha"].parent / "run.yaml")
+                      .read_text(encoding="utf-8"))
+    assert meta["sequence"] == expected == 4
+    assert catalog.load_snapshot(root)["run_id"] == rid_four
+    with pytest.raises(catalog.CatalogError, match="stale"):
+        write_run(root, extended_inventory(), as_of="2026-07-08")
+
+
+def test_run_scan_refuses_every_symlink_position_for_that_entry_alone(
+        tmp_path):
+    # opensoft/openxFactory#1187 (Copilot, round 8 of #1175): the shared scan
+    # followed links, because is_dir(), is_file() and the run.yaml read all
+    # do. A symlinked day directory, run directory or run.yaml was enumerated,
+    # and its run.yaml read, as though it were a recorded run, and a malformed
+    # linked run.yaml aborted the scan for every caller. Each is now yielded
+    # as a refused entry for that entry alone, and nothing behind the link is
+    # read: the foreign run.yaml below is not even JSON. That holds for a link
+    # escaping the catalog root, one pointing back inside the tree, and a
+    # dangling one. A recorded run holding a link inside it is refused the
+    # same way, since a reader of that run would read its snapshots through
+    # the link. Every other entry, and the scan's order, is the clean tree's.
+    clean = tmp_path / "clean"
+    rid, _ = write_run(clean, extended_inventory())
+    clean_scan = list(catalog._iter_runs(clean))
+    foreign = foreign_run(tmp_path / "foreign")
+    (foreign / "run.yaml").write_text("<<not json>>", encoding="utf-8")
+    recorded = foreign_run(tmp_path / "foreign-recorded")  # valid run.yaml
+    frid = foreign.name
+
+    def day(root):
+        return runs_root(root) / DAY_STR
+
+    def day_escaping(root, out):
+        return (plant_link(runs_root(root) / LATER_DAY_STR, foreign.parent),
+                LATER_DAY_STR, None)
+
+    def day_inside(root, out):
+        return (plant_link(runs_root(root) / LATER_DAY_STR, day(root)),
+                LATER_DAY_STR, None)
+
+    def day_dangling(root, out):
+        return (plant_link(runs_root(root) / LATER_DAY_STR, out / "missing"),
+                LATER_DAY_STR, None)
+
+    def run_escaping(root, out):
+        return plant_link(day(root) / frid, foreign), DAY_STR, frid
+
+    def run_inside(root, out):
+        alias = "f" * 64
+        return plant_link(day(root) / alias, day(root) / rid), DAY_STR, alias
+
+    def run_dangling(root, out):
+        return plant_link(day(root) / frid, out / "missing"), DAY_STR, frid
+
+    def run_yaml_to(target_of):
+        def plant(root, out):
+            run = copy_run(recorded, day(root) / frid, meta=False)
+            return (plant_link(run / "run.yaml", target_of(root, out),
+                               directory=False), DAY_STR, frid)
+        return plant
+
+    def snapshot_inside(root, out):
+        run = copy_run(recorded, day(root) / frid)
+        return (relink_file(run / "alpha.yaml", recorded / "alpha.yaml"),
+                DAY_STR, frid)
+
+    def directory_inside(root, out):
+        run = copy_run(recorded, day(root) / frid)
+        return plant_link(run / "linked", foreign), DAY_STR, frid
+
+    cases = {
+        "day-escaping-the-root": day_escaping,
+        "day-inside-the-tree": day_inside,
+        "day-dangling": day_dangling,
+        "run-escaping-the-root": run_escaping,
+        "run-inside-the-tree": run_inside,
+        "run-dangling": run_dangling,
+        "run-yaml-escaping-the-root": run_yaml_to(
+            lambda root, out: foreign / "run.yaml"),
+        "run-yaml-inside-the-tree": run_yaml_to(
+            lambda root, out: day(root) / rid / "run.yaml"),
+        "run-yaml-dangling": run_yaml_to(
+            lambda root, out: out / "missing.yaml"),
+        "snapshot-inside-a-recorded-run": snapshot_inside,
+        "directory-inside-a-recorded-run": directory_inside,
+    }
+    for name, plant in cases.items():
+        root, outside = tmp_path / name, tmp_path / f"{name}-outside"
+        shutil.copytree(clean, root)
+        outside.mkdir()
+        node, as_of, run_id = plant(root, outside)
+        entry = (as_of, None, run_id,
+                 None if run_id is None else runs_root(root) / as_of / run_id)
+        # The clean tree's runs, untouched, plus the one refused entry in its
+        # sorted place. It carries no sequence: nothing behind it was read.
+        expected = sorted(
+            [(d, seq, r, root / run_dir.relative_to(clean))
+             for d, seq, r, run_dir in (e[:4] for e in clean_scan)] + [entry],
+            key=lambda e: (e[0], e[2] or ""))
+        scan = list(catalog._iter_runs(root))
+        assert [tuple(e[:4]) for e in scan] == expected, name
+        bad = refused(scan)
+        assert [tuple(e[:4]) for e in bad] == [entry], name
+        assert "symlink" in str(bad[0].refusal), name
+        assert str(node) in str(bad[0].refusal), name  # names the link itself
+
+
+def test_latest_run_is_never_a_symlinked_entry(tmp_path):
+    # opensoft/openxFactory#1187: a link dated after every recorded run was
+    # the "latest" run load_snapshot returned, read through the link. A day
+    # directory aliasing a real one even made a run the latest under a date
+    # it was never recorded on. The lookup never selects a refused entry, as
+    # latest, by date or by id, and returns the latest run it can read
+    # without a link.
+    clean = tmp_path / "clean"
+    rid, _ = write_run(clean, extended_inventory())
+    expected = catalog.load_snapshot(clean)
+    recorded = foreign_run(tmp_path / "foreign")
+    frid = recorded.name
+
+    def later(root):
+        return runs_root(root) / LATER_DAY_STR
+
+    def day_alias(root):
+        plant_link(later(root), runs_root(root) / DAY_STR)
+
+    def run_directory(root):
+        plant_link(later(root) / frid, recorded)
+
+    def run_yaml(root):
+        run = copy_run(recorded, later(root) / frid, meta=False)
+        plant_link(run / "run.yaml", recorded / "run.yaml", directory=False)
+
+    def link_inside_the_run(root):
+        run = copy_run(recorded, later(root) / frid)
+        relink_file(run / "alpha.yaml", recorded / "alpha.yaml")
+
+    for plant in (day_alias, run_directory, run_yaml, link_inside_the_run):
+        root = tmp_path / plant.__name__
+        shutil.copytree(clean, root)
+        plant(root)
+        latest = catalog.load_snapshot(root)
+        assert (latest["as_of"], latest["run_id"], latest["sequence"]) == \
+            (DAY_STR, rid, 1), plant.__name__
+        assert latest["repos"] == expected["repos"], plant.__name__
+        assert catalog.load_snapshot(root, as_of=LATER_DAY_STR) is None, \
+            plant.__name__
+        assert catalog.load_snapshot(root, run_id=frid) is None, \
+            plant.__name__
+
+
+def test_no_sequence_is_claimed_beside_a_symlinked_entry(tmp_path):
+    # opensoft/openxFactory#1187: the claim step took its highest sequence and
+    # newest date from the shared scan, which read them through links: a
+    # linked run's number and date came from wherever the link pointed, and a
+    # dangling link was passed over as if nothing were there. An entry the
+    # scan refuses has neither a sequence nor a date the claim can trust, so
+    # no sequence is claimed beside it: a claim could reuse the number it
+    # records, or land a run dated before it. Nothing is claimed or written.
+    # Once the entry is repaired, the writer claims one past every number the
+    # catalog holds, so the number a linked run occupies is never reused.
+    base = tmp_path / "base"
+    write_run(base, extended_inventory())
+    rid_two, _ = write_run(base, extended_inventory(WORKSPACE, LATER_HEADS),
+                           as_of=LATER_DAY_STR)
+    new_runs = {"alpha": classified(alpha_entries(extended_inventory()),
+                                    "docs/widget-overview.md", "domain")}
+    new_day = "2026-07-12"
+    far_later = foreign_run(tmp_path / "foreign", as_of="2026-07-20")
+
+    def run_two(root):
+        return runs_root(root) / LATER_DAY_STR / rid_two
+
+    def recorded_run_replaced_by_a_link(root, out):
+        shutil.move(run_two(root), out / rid_two)
+        plant_link(run_two(root), out / rid_two)
+
+        def repair():
+            run_two(root).unlink()
+            shutil.move(out / rid_two, run_two(root))
+        return repair
+
+    def foreign_day_dated_later(root, out):
+        # Read through, its run.yaml would stale-refuse the claim instead.
+        return plant_link(runs_root(root) / "2026-07-20",
+                          far_later.parent).unlink
+
+    def dangling_run_yaml(root, out):
+        # Read through, it would be passed over as a crashed run.
+        run = copy_run(run_two(base), runs_root(root) / DAY_STR / ("d" * 64),
+                       meta=False)
+        plant_link(run / "run.yaml", out / "missing.yaml", directory=False)
+        return lambda: shutil.rmtree(run)
+
+    def link_inside_a_recorded_run(root, out):
+        return plant_link(run_two(root) / "linked", out).unlink
+
+    for plant in (recorded_run_replaced_by_a_link, foreign_day_dated_later,
+                  dangling_run_yaml, link_inside_a_recorded_run):
+        name = plant.__name__
+        root, outside = tmp_path / name, tmp_path / f"{name}-outside"
+        shutil.copytree(base, root)
+        outside.mkdir()
+        repair = plant(root, outside)
+        before, before_outside = tree_state(root), tree_state(outside)
+        with pytest.raises(catalog.CatalogError,
+                           match="no run sequence is claimed beside") as exc:
+            catalog.write_run(root, new_day, new_runs, TAXONOMY)
+        assert "symlink" in str(exc.value), name
+        assert tree_state(root) == before, name  # no claim, no snapshot
+        assert tree_state(outside) == before_outside, name
+        assert not (runs_root(root) / new_day).exists(), name
+        repair()
+        rid, paths = catalog.write_run(root, new_day, new_runs, TAXONOMY)
+        meta = json.loads((paths["alpha"].parent / "run.yaml")
+                          .read_text(encoding="utf-8"))
+        assert meta["sequence"] == 3, name  # past 1 and the linked run's 2
+        assert sorted(p.name for p in (runs_root(root) / ".sequence")
+                      .iterdir()) == \
+            ["000001.yaml", "000002.yaml", "000003.yaml"], name
+        assert catalog.load_snapshot(root)["run_id"] == rid, name
+
+
+def test_a_symlinked_catalog_directory_refuses_the_whole_scan(tmp_path):
+    # opensoft/openxFactory#1187: a link at the catalog root, or at a catalog
+    # directory above the day directories, puts every run behind it, so there
+    # is no single entry to report. The scan raises, naming the link, and so
+    # does every caller that walks it. A node there that is not a directory
+    # still means no catalog at all.
+    clean = tmp_path / "clean"
+    write_run(clean, extended_inventory())
+    chain = {
+        "root": lambda root: root,
+        "health": lambda root: root / "health",
+        "document-catalog": lambda root: root / "health" / "document-catalog",
+        "runs": runs_root,
+    }
+    for name, node_of in chain.items():
+        root, outside = tmp_path / name, tmp_path / f"{name}-outside"
+        shutil.copytree(clean, outside)
+        node = plant_link(node_of(root), node_of(outside))
+        with pytest.raises(catalog.CatalogError, match="symlink") as exc:
+            list(catalog._iter_runs(root))
+        assert str(node) in str(exc.value), name
+        with pytest.raises(catalog.CatalogError, match="symlink"):
+            catalog.load_snapshot(root)
+    not_a_directory = tmp_path / "not-a-directory"
+    runs_root(not_a_directory).parent.mkdir(parents=True)
+    runs_root(not_a_directory).write_text("occupied\n", encoding="utf-8")
+    assert list(catalog._iter_runs(not_a_directory)) == []
+    assert catalog.load_snapshot(not_a_directory) is None
+
 # --- recursion exclusion (T008) ----------------------------------------------
 
 def test_generated_catalog_paths_are_excluded_from_discovery():
