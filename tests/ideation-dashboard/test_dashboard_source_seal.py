@@ -1967,6 +1967,32 @@ def test_a_confined_seal_is_never_made_by_its_path_alone(corpus, tmp_path,
     assert (free / lane.SEAL_MANIFEST_NAME).is_file()
 
 
+def test_a_confined_seal_is_never_written_by_its_path(corpus, tmp_path,
+                                                       monkeypatch):
+    """NOR ONE THAT NAMES NO PATH THROUGH A HANDLE (Copilot, PR #1185). A
+    platform can open a directory relative to a handle and still name no
+    path through one (no `/proc/self/fd`). The seal would then be written,
+    indexed and counted through its name, which sealed code may swap, and
+    the handle would guard only the making. So a seal confined to a root is
+    refused there too, before anything is made. A direct call that confines
+    nothing still writes its seal through the name, as before. Here the
+    handles' path names nothing (`_HANDLE_PATHS`)."""
+    root = tmp_path / "root"
+    root.mkdir()
+    seal = root / "dfr-seal"
+    monkeypatch.setattr(lane, "_HANDLE_PATHS", tmp_path / "no-handle-paths")
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, seal_within=root)
+    assert not os.path.lexists(seal)
+    assert str(refused.value) == (
+        f"the seal directory {seal} cannot be made here: this platform names "
+        f"no path through a handle, and a seal confined to {root} is never "
+        "written or read by its path alone")
+    free = tmp_path / "free"
+    _seal(corpus, free)
+    assert (free / lane.SEAL_MANIFEST_NAME).is_file()
+
+
 @pytest.mark.parametrize("path", [path for path in SERVE_ONLY
                                   if not path.endswith("/")])
 def test_a_corpus_without_a_serve_unit_file_is_refused(corpus, tmp_path,
