@@ -10,6 +10,7 @@ conftest.FakeGit, and every write lands under a tmp catalog root."""
 
 from __future__ import annotations
 
+import errno
 import hashlib
 import json
 import os
@@ -1953,12 +1954,15 @@ def test_run_scan_never_takes_an_unchecked_node_for_link_free(tmp_path,
         blocked.chmod(original)
 
 
-def record_followed_links(patch, under):
+def record_followed_links(patch, under, every=False, fail=None):
     """The paths of every symlink at or below `under` whose target a call
     stats while `patch` holds: ``os.stat`` following links, which
     ``Path.is_dir``, ``Path.is_file``, ``Path.exists`` and ``os.path.isdir``
     all reach, and a ``DirEntry`` classified or stat-ed following links, as
-    ``os.walk`` classifies every entry it lists (``DirEntry.is_dir``)."""
+    ``os.walk`` classifies every entry it lists (``DirEntry.is_dir``).
+    `every` records every node such a call stats, link or not. A recorded
+    ``os.stat`` of a path `fail` accepts then raises ``PermissionError``, as
+    a stat that fails where the node's own ``lstat`` succeeded would."""
     followed = []
     real_stat, real_scandir = os.stat, os.scandir
     prefix = os.fspath(under)
@@ -1968,11 +1972,14 @@ def record_followed_links(patch, under):
             return False  # a file descriptor: nothing to follow
         path = os.fspath(path)
         return ((path == prefix or path.startswith(prefix + os.sep))
-                and os.path.islink(path))
+                and (every or os.path.islink(path)))
 
     def tracked_stat(path, *, dir_fd=None, follow_symlinks=True):
         if follow_symlinks and dir_fd is None and link_below(path):
             followed.append(os.fspath(path))
+            if fail is not None and fail(os.fspath(path)):
+                raise PermissionError(errno.EACCES, os.strerror(errno.EACCES),
+                                      os.fspath(path))
         return real_stat(path, dir_fd=dir_fd, follow_symlinks=follow_symlinks)
 
     class Entry:
@@ -2118,6 +2125,52 @@ def test_run_scan_never_stats_a_link_target(tmp_path):
         assert [(e.as_of, e.run_id) for e in bad] == [(as_of, run_id)], name
         assert str(node) in str(bad[0].refusal), name  # names the link itself
         assert (latest["run_id"], by_id) == (rid, None), name
+
+
+def test_run_scan_classifies_every_node_by_its_own_lstat(tmp_path):
+    # Review round 5 (Copilot, #1190: two findings its review counted but
+    # never posted): after its lstat check the scan still asked is_dir() and
+    # is_file() whether a node was a directory or a recorded run.yaml. Each
+    # stats the node a second time, following links, and from Python 3.13
+    # swallows every OSError. So a catalog, day or run directory, or a
+    # run.yaml, whose second stat failed read as absent: the scan reported
+    # no catalog, or passed over a day or a recorded run, instead of failing
+    # closed. Every node is now classified by the mode its own lstat
+    # returned, so the scan makes no following stat at all, and with is_dir()
+    # and is_file() pinned to their 3.13 behaviour, a following stat that
+    # fails changes nothing it yields.
+    root = tmp_path / "agg"
+    rid_one, _ = write_run(root, extended_inventory())
+    alpha = alpha_entries(extended_inventory())
+    rid_two, _ = catalog.write_run(root, LATER_DAY_STR, {
+        "xFactories/MedxFactory": [dict(e, repo="xFactories/MedxFactory")
+                                   for e in alpha]}, TAXONOMY)
+    (runs_root(root) / LATER_DAY_STR / ("e" * 64)).mkdir()  # crashed run
+    (runs_root(root) / "notes.yaml").write_text("stray\n", encoding="utf-8")
+    expected = list(catalog._iter_runs(root))
+    assert [tuple(e[:3]) for e in expected] == [
+        (DAY_STR, 1, rid_one), (LATER_DAY_STR, 2, rid_two)]  # none refused
+    chain = {os.fspath(node) for node in catalog._catalog_chain(root)}
+    days = {os.fspath(runs_root(root) / DAY_STR),
+            os.fspath(runs_root(root) / LATER_DAY_STR)}
+    run_dirs = {os.fspath(e[3]) for e in expected}
+
+    with pytest.MonkeyPatch.context() as patch:
+        followed = record_followed_links(patch, root, every=True)
+        assert list(catalog._iter_runs(root)) == expected
+    assert followed == []
+
+    for name, denied in (
+            ("a-catalog-directory", lambda path: path in chain),
+            ("a-day-directory", lambda path: path in days),
+            ("a-run-directory", lambda path: path in run_dirs),
+            ("a-run-yaml", lambda path: os.path.basename(path) == "run.yaml"),
+            ("every-node", lambda path: True)):
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setattr(Path, "is_dir", lambda self: os.path.isdir(self))
+            patch.setattr(Path, "is_file", lambda self: os.path.isfile(self))
+            record_followed_links(patch, root, every=True, fail=denied)
+            assert list(catalog._iter_runs(root)) == expected, name
 
 
 def test_latest_run_is_never_a_symlinked_entry(tmp_path):

@@ -719,12 +719,6 @@ def _own_mode(node: Path) -> tuple[int | None, CatalogError | None]:
     return mode, None
 
 
-def _link_refusal(node: Path) -> CatalogError | None:
-    """The refusal for a node the run scan cannot take as link-free, or
-    None when nothing is there or the node is not a link (``_own_mode``)."""
-    return _own_mode(node)[1]
-
-
 def _unlisted_refusal(exc: OSError) -> CatalogError:
     """The refusal for a directory the run scan cannot list: a link could
     hide below it."""
@@ -785,10 +779,12 @@ def _iter_runs(root: Path):
     a record. It is skipped so it can never be selected as "latest" or
     block newer work, and a retry of the same content heals it.
 
-    The scan never follows a symlink (opensoft/openxFactory#1187). It checks
-    each node for a link with an explicit ``lstat`` (``_own_mode``) before it
-    lists, stats or reads it, so it never stats or reads through one, not even
-    to classify it. A link where the writer makes a day directory, a run
+    The scan never follows a symlink (opensoft/openxFactory#1187). It
+    classifies each node by the mode of its own explicit ``lstat``
+    (``_own_mode``), never by a second stat, before it lists or reads it.
+    So it never stats or reads through a link, not even to classify it,
+    and it refuses a node it cannot check rather than take it for
+    absent. A link where the writer makes a day directory, a run
     directory or ``run.yaml`` is yielded as a refused entry for that entry
     alone, whether it dangles, points inside the tree or escapes the
     catalog root. The scan fails closed, so a node there it cannot check,
@@ -812,10 +808,10 @@ def _iter_runs(root: Path):
     A regular ``run.yaml`` that cannot be parsed still raises
     ``CatalogError`` from the scan, unchanged."""
     for node in _catalog_chain(root):
-        refusal = _link_refusal(node)
+        mode, refusal = _own_mode(node)
         if refusal is not None:
             raise refusal
-        if not node.is_dir():
+        if mode is None or not stat.S_ISDIR(mode):
             return  # no catalog yet, or not a directory: no recorded run
     date_dirs, refusal = _listing(Path(root) / RUNS_DIR)
     if refusal is not None:
@@ -823,9 +819,9 @@ def _iter_runs(root: Path):
     for date_dir in date_dirs:
         if date_dir.name.startswith("."):
             continue
-        refusal = _link_refusal(date_dir)
+        mode, refusal = _own_mode(date_dir)
         if refusal is None:
-            if not date_dir.is_dir():
+            if mode is None or not stat.S_ISDIR(mode):
                 continue
             run_dirs, refusal = _listing(date_dir)
         if refusal is not None:
@@ -835,13 +831,13 @@ def _iter_runs(root: Path):
             if run_dir.name.startswith("."):
                 continue
             meta_path = run_dir / RUN_META_NAME
-            refusal = _link_refusal(run_dir)
+            mode, refusal = _own_mode(run_dir)
             if refusal is None:
-                if not run_dir.is_dir():
+                if mode is None or not stat.S_ISDIR(mode):
                     continue
-                refusal = _link_refusal(meta_path)  # a dangling one included
+                mode, refusal = _own_mode(meta_path)  # a dangling one included
             if refusal is None:
-                if not meta_path.is_file():
+                if mode is None or not stat.S_ISREG(mode):
                     continue  # unrecorded: crashed or still in flight
                 refusal = _link_inside(run_dir)
             if refusal is not None:
