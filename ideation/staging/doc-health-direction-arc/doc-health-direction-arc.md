@@ -2,11 +2,13 @@
 
 Status: staged
 Kind: architecture
-Summary: openXdox-code — a neutral product `openxFactory` pins — imports
-`openxFactory`'s own `doc_health` package at module level in eight places.
-That is the exact shape `corpus-adapter-seam`'s Requirement 1 refuses: *"no
-neutral product `openxFactory` pins SHALL import `openxFactory`'s own
-tooling."* Plan 034 (`add-neutral-product-standalone-operability`, release 1)
+Summary: openXdox-code — the CODE LEG of openXdox, the assembly root
+`openxFactory` pins directly (`contracts/openxdox-pin.yaml`; the code and
+spec legs are never separately pinned or mounted from openxFactory's side) —
+imports `openxFactory`'s own `doc_health` package at module level in eight
+places. That is the exact shape `corpus-adapter-seam`'s Requirement 1
+refuses: *"no neutral product `openxFactory` pins SHALL import
+`openxFactory`'s own tooling."* Plan 034 (`add-neutral-product-standalone-operability`, release 1)
 measured the defect, could not fix it inside release 1's scope, and ruled a
 named, counted, release-1-only reprieve (a declared exclusion, R1Q6 (d))
 rather than conformance. This topic raises the DIRECTION question that
@@ -61,8 +63,15 @@ governed-flow suites to run — or sooner, if R1Q23 (open, phase 2) is answered
    `openxFactory` pins SHALL import `openxFactory`'s own tooling... The
    dependency points ONE WAY — a reader depends on the interface it
    implements, and never on the corpus's own check families."* openXdox-code
-   is exactly such a pinned neutral product (`contracts/openxdox-pin.yaml`),
-   and `add-neutral-product-standalone-operability`'s own `design.md` invokes
+   is reached through exactly such a pin, one hop removed:
+   `contracts/openxdox-pin.yaml` pins the openXdox ASSEMBLY ROOT directly
+   (RULING F, `#656`, 2026-09-05, *"rule F openXdox only"* — the code and
+   spec legs are "never separately pinned or mounted" from openxFactory's
+   side), and the assembly root's OWN `openXdox/contracts/code-pin.yaml`
+   pins openXdox-code in turn. The eight `doc_health` imports this topic
+   measures live in openXdox-code's own source tree, reached through that
+   chain rather than named in openxFactory's own pin file.
+   `add-neutral-product-standalone-operability`'s own `design.md` invokes
    this same requirement when it rules out moving `openXdox`'s generator into
    `openDox`, because that move "would have put `import doc_health` inside the
    neutral core, which is the exact thing `corpus-adapter-seam`'s first

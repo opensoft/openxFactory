@@ -2668,9 +2668,10 @@ repo scope.
   `pyproject.toml`, so `doc_health` is not an installable distribution — the
   import only resolves when openXdox-code's checkout sits beside (or is
   composed with) an openxFactory checkout. In a fresh venv over an
-  openXdox-code checkout alone, 26 of 57 (of 87) test-file collection errors
-  are on `doc_health`; with the separate `ideation_dashboard` reach simulated
-  away, 19 of the 23 suites plan 034's F5.2/12.5 falsifiers protect from arc
+  openXdox-code checkout alone (87 test files in the tree), a plain run stops
+  at 57 errors during collection, 26 of them on `doc_health`; with the
+  separate `ideation_dashboard` reach simulated away, 19 of the 23 suites
+  plan 034's F5.2/12.5 falsifiers protect from arc
   edits still fail on it (`specs/034-opendox-standalone-operation/research.md`
   R10, R11).
 - **What is ruled, and what is not.** RULED: R1Q6 (d) — decline conformance
