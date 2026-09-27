@@ -607,9 +607,16 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   SUBTRACT the edits entered in a reviewed allow-list in openXdox-code, such
   as `tests/protected_suite_respellings.yaml` — a file this amendment does
   not itself create. Each entry names the suite, the landing, the reference
-  it respelled, and its review; no edit that weakens an assertion is
-  entered. This bookkeeping amendment does NOT itself touch the Python
-  above: `edited = touched & suites` still computes and refuses on every
+  it respelled, its review, AND the exact old/new text (or a diff/content
+  digest) of the respelling; no edit that weakens an assertion is entered.
+  Because the check subtracts by PATH, not by line, a landing that respells
+  the named reference while ALSO weakening a different assertion in the
+  same suite would otherwise pass unnoticed: T059/T086 must validate, before
+  trusting any subtraction, that the landing's actual diff for that path
+  contains ONLY the entry's recorded text; a path whose landing diff does
+  not match stays refused, exactly like an unentered edit. This bookkeeping
+  amendment does NOT itself touch the Python above: `edited = touched &
+  suites` still computes and refuses on every
   intersection exactly as written, with no allow-list read, until the file
   exists and T059/T086 wire the subtraction into both falsifiers' checks.
   T043 creates the file: its own triage (9.2) already commits to the
@@ -1463,9 +1470,16 @@ that does not name a platform.
   SUBTRACT the edits entered in a reviewed allow-list in openXdox-code, such
   as `tests/protected_suite_respellings.yaml` — a file this amendment does
   not itself create. Each entry names the suite, the landing, the reference
-  it respelled, and its review; no edit that weakens an assertion is
-  entered. This bookkeeping amendment does NOT itself touch the Python
-  above: `edited = touched & {...}` still computes and refuses on every
+  it respelled, its review, AND the exact old/new text (or a diff/content
+  digest) of the respelling; no edit that weakens an assertion is entered.
+  Because the check subtracts by PATH, not by line, a landing that respells
+  the named reference while ALSO weakening a different assertion in the
+  same suite would otherwise pass unnoticed: T059/T086 must validate, before
+  trusting any subtraction, that the landing's actual diff for that path
+  contains ONLY the entry's recorded text; a path whose landing diff does
+  not match stays refused, exactly like an unentered edit. This bookkeeping
+  amendment does NOT itself touch the Python above: `edited = touched &
+  {...}` still computes and refuses on every
   intersection exactly as written, with no allow-list read, until the file
   exists and T059/T086 wire the subtraction into both falsifiers' checks.
   T043 creates the file: its own triage (9.2) already commits to the
