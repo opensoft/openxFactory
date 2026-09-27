@@ -595,39 +595,52 @@ def test_run_id_scheme_tells_content_legacy_and_edited_runs_apart(tmp_path):
 def test_run_id_scheme_verifies_the_persisted_bytes(tmp_path):
     # Review (Codex, #1175): parsing a re-serialized snapshot and rendering
     # it again reproduces the original bytes, so a check over parsed
-    # documents alone would call an edited file intact. With the persisted
-    # texts, verification is byte for byte.
+    # documents alone would call an edited file intact. With the raw
+    # persisted bytes, verification is byte for byte -- line endings too
+    # (Copilot, #1175: a universal-newline text read would have translated
+    # a CRLF edit back to the writer's LF before hashing).
     runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
     rid, _ = catalog.write_run(tmp_path, DAY, runs, TAXONOMY)
     run_dir = runs_root(tmp_path) / DAY_STR / rid
     docs = catalog.load_snapshot(tmp_path)["repos"]
-    texts = catalog._load_run_texts(run_dir)
-    assert sorted(texts) == sorted(docs)
-    assert catalog.run_id_scheme(rid, docs, texts) == \
+    persisted = catalog._load_run_bytes(run_dir)
+    assert sorted(persisted) == sorted(docs)
+    assert catalog.run_id_scheme(rid, docs, persisted) == \
         catalog.CONTENT_ADDRESSED
     # The byte-exact address equals the parsed one for the writer's files.
-    assert catalog._persisted_digest(rid, texts) == \
+    assert catalog._persisted_digest(rid, persisted) == \
         catalog.content_digest(docs) == rid
-    # Same content, different serialization: indentation, compact form.
-    for reserialized in (json.dumps(docs["alpha"], indent=4, sort_keys=True),
-                         json.dumps(docs["alpha"], sort_keys=True,
-                                    separators=(",", ":")),
-                         texts["alpha"] + "\n"):
-        assert json.loads(reserialized) == docs["alpha"]
+    # Same content, different bytes: indentation, compact form, a trailing
+    # newline, CRLF line endings.
+    original = persisted["alpha"]
+    for edited in (
+            json.dumps(docs["alpha"], indent=4, sort_keys=True).encode(),
+            json.dumps(docs["alpha"], sort_keys=True,
+                       separators=(",", ":")).encode(),
+            original + b"\n",
+            original.replace(b"\n", b"\r\n")):
+        assert json.loads(edited) == docs["alpha"]
         assert catalog.run_id_scheme(
-            rid, docs, dict(texts, alpha=reserialized)) is None
-    # Texts must cover exactly the documents' repositories.
-    assert catalog.run_id_scheme(rid, docs, {"alpha": texts["alpha"]}) is None
-    # A legacy run stays recognized on its derivation, texts or not.
+            rid, docs, dict(persisted, alpha=edited)) is None
+    # A CRLF file is exactly what a text-mode read would have hidden.
+    (run_dir / "alpha.yaml").write_bytes(original.replace(b"\n", b"\r\n"))
+    assert (run_dir / "alpha.yaml").read_text(encoding="utf-8") == \
+        original.decode("utf-8")
+    assert catalog.run_id_scheme(
+        rid, docs, catalog._load_run_bytes(run_dir)) is None
+    # The bytes must cover exactly the documents' repositories.
+    assert catalog.run_id_scheme(
+        rid, docs, {"alpha": persisted["alpha"]}) is None
+    # A legacy run stays recognized on its derivation, bytes or not.
     inv = extended_inventory()
     legacy = catalog.legacy_run_id(inv, TAXONOMY)
     for repo, entries in sorted(runs.items()):
         catalog.write_snapshot(tmp_path / "old", DAY, legacy, repo, entries,
                                TAXONOMY)
     old_docs = catalog.load_snapshot(tmp_path / "old")["repos"]
-    old_texts = catalog._load_run_texts(
+    old_bytes = catalog._load_run_bytes(
         runs_root(tmp_path / "old") / DAY_STR / legacy)
-    assert catalog.run_id_scheme(legacy, old_docs, old_texts) == \
+    assert catalog.run_id_scheme(legacy, old_docs, old_bytes) == \
         catalog.LEGACY_INPUT_KEY
 
 

@@ -424,22 +424,25 @@ def content_digest(documents: dict) -> str:
         for repo, document in documents.items()})
 
 
-def _persisted_digest(name: str, texts: dict) -> str | None:
-    """``content_digest`` recomputed from PERSISTED snapshot texts
-    (``{repository: file text}``), byte for byte: nothing is parsed or
-    re-rendered, only the one ``"run_id": "<name>"`` pair the canonical
-    rendering carries (inside ``run``) is blanked in place. For a file the
-    writer produced, the result equals ``content_digest`` of its parsed
-    document; a serialization-only edit — indentation, key order, trailing
-    whitespace — changes it just as a content edit does, where a parsed
-    comparison would render the original bytes back. None when a text does
-    not carry that pair exactly once (not the writer's rendering)."""
-    pair = f'"run_id": {json.dumps(name)}'
+def _persisted_digest(name: str, persisted: dict) -> str | None:
+    """``content_digest`` recomputed from PERSISTED snapshot bytes
+    (``{repository: raw file bytes}``), byte for byte: nothing is decoded,
+    parsed, or re-rendered — only the one ``"run_id": "<name>"`` pair the
+    canonical rendering carries (inside ``run``) is blanked in place. For a
+    file the writer produced (UTF-8, ``\\n`` line endings — research D3),
+    the result equals ``content_digest`` of its parsed document; any byte
+    edit changes it just as a content edit does — indentation, key order,
+    trailing whitespace, or line endings (a CRLF conversion included, which
+    a universal-newline text read would silently translate back) — where a
+    parsed comparison would render the original bytes back. None when the
+    bytes do not carry that pair exactly once (not the writer's
+    rendering)."""
+    pair = f'"run_id": {json.dumps(name)}'.encode("utf-8")
     bodies = {}
-    for repo, text in texts.items():
-        if text.count(pair) != 1:
+    for repo, blob in persisted.items():
+        if blob.count(pair) != 1:
             return None
-        bodies[repo] = text.replace(pair, '"run_id": ""', 1).encode("utf-8")
+        bodies[repo] = blob.replace(pair, b'"run_id": ""', 1)
     return _address(bodies)
 
 
@@ -526,7 +529,7 @@ def _is_legacy_named(name: str, documents: dict) -> bool:
 
 
 def run_id_scheme(name: str, documents: dict,
-                  texts: dict | None = None) -> str | None:
+                  persisted: dict | None = None) -> str | None:
     """The run-id scheme a RECORDED run satisfies, or None.
 
     ``documents`` maps each repository to the snapshot document the run
@@ -542,16 +545,17 @@ def run_id_scheme(name: str, documents: dict,
     not address: a snapshot edited after it was recorded, a repository
     snapshot lost, or files mixed from different runs.
 
-    ``texts`` (``{repository: persisted file text}``, the same repositories
-    as ``documents``) makes the content test byte-exact
-    (``_persisted_digest``): a recorded run is verified against the bytes on
-    disk, so even a serialization-only edit breaks its identity. Without
-    ``texts`` the test runs over ``content_digest`` of the parsed documents,
-    for callers holding a run in memory. The cheap legacy test runs first,
-    so the recorded legacy history is never re-hashed."""
+    ``persisted`` (``{repository: raw file bytes}``, the same repositories
+    as ``documents``; ``_load_run_bytes``) makes the content test
+    byte-exact (``_persisted_digest``): a recorded run is verified against
+    the bytes on disk, so even a serialization-only or line-ending edit
+    breaks its identity. Without ``persisted`` the test runs over
+    ``content_digest`` of the parsed documents, for callers holding a run
+    in memory. The cheap legacy test runs first, so the recorded legacy
+    history is never re-hashed."""
     if not documents:
         return None
-    if texts is not None and set(texts) != set(documents):
+    if persisted is not None and set(persisted) != set(documents):
         return None
     for document in documents.values():
         if not isinstance(document, dict) \
@@ -560,8 +564,8 @@ def run_id_scheme(name: str, documents: dict,
             return None
     if _is_legacy_named(name, documents):
         return LEGACY_INPUT_KEY
-    address = content_digest(documents) if texts is None \
-        else _persisted_digest(name, texts)
+    address = content_digest(documents) if persisted is None \
+        else _persisted_digest(name, persisted)
     if address == name:
         return CONTENT_ADDRESSED
     return None
@@ -909,18 +913,20 @@ def _load_run(run_dir: Path, day: str, sequence: int, rid: str) -> dict:
             "repos": repos}
 
 
-def _load_run_texts(run_dir: Path) -> dict:
-    """{repository: persisted snapshot text} for one run directory — the
-    bytes ``run_id_scheme`` verifies a recorded run against. An unreadable
-    file raises the same controlled ``CatalogError`` ``_load_yaml_json``
-    does."""
-    texts = {}
+def _load_run_bytes(run_dir: Path) -> dict:
+    """{repository: raw persisted snapshot bytes} for one run directory —
+    exactly what ``run_id_scheme`` verifies a recorded run against. Raw,
+    never a decoded text read: universal-newline translation would turn a
+    CRLF edit back into the writer's LF bytes before they are hashed. An
+    unreadable file raises the same controlled ``CatalogError``
+    ``_load_yaml_json`` does."""
+    persisted = {}
     for repo, path in _snapshot_files(run_dir):
         try:
-            texts[repo] = path.read_text(encoding="utf-8")
-        except (OSError, ValueError) as exc:
+            persisted[repo] = path.read_bytes()
+        except OSError as exc:
             raise CatalogError(f"corrupt catalog artifact {path}: {exc}")
-    return texts
+    return persisted
 
 
 def load_snapshot(root, as_of=None, run_id=None) -> dict | None:

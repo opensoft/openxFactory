@@ -864,18 +864,26 @@ def test_edited_content_addressed_run_is_flagged(tmp_path):
 def test_reserialized_content_addressed_run_is_flagged(tmp_path):
     # Review (Codex, #1175): an edit to a closed snapshot's SERIALIZATION
     # alone -- same parsed content, different bytes -- still breaks its
-    # identity, because the check hashes the bytes on disk.
-    root = tmp_path / "agg"
-    build_complete_baseline(root)
-    rid, paths = catalog.write_run(root, DAY, mechanical_runs(), TAXONOMY)
-    doc = json.loads(paths["alpha"].read_text(encoding="utf-8"))
-    paths["alpha"].write_text(json.dumps(doc, indent=4, sort_keys=True),
-                              encoding="utf-8")
-    got = fam_document_catalog(ctx_for(catalog_root=root))
-    assert [(f.severity, f.repo, f.path) for f in got] == [
-        (ERROR, "(catalog)", f"runs/{DAY_STR}/{rid}")]
-    assert got[0].rule.startswith("[run-identity] ")
-    assert got[0].action == RUN_IDENTITY_ACTION
+    # identity, because the check hashes the raw bytes on disk. That holds
+    # for a line-ending-only edit too (Copilot, #1175), which a
+    # universal-newline text read would have hidden.
+    original = {}
+    for name, rewrite in (
+            ("indent", lambda raw: json.dumps(
+                json.loads(raw), indent=4, sort_keys=True).encode()),
+            ("crlf", lambda raw: raw.replace(b"\n", b"\r\n"))):
+        root = tmp_path / name
+        build_complete_baseline(root)
+        rid, paths = catalog.write_run(root, DAY, mechanical_runs(),
+                                       TAXONOMY)
+        original[name] = paths["alpha"].read_bytes()
+        paths["alpha"].write_bytes(rewrite(original[name]))
+        got = fam_document_catalog(ctx_for(catalog_root=root))
+        assert [(f.severity, f.repo, f.path) for f in got] == [
+            (ERROR, "(catalog)", f"runs/{DAY_STR}/{rid}")], name
+        assert got[0].rule.startswith("[run-identity] ")
+        assert got[0].action == RUN_IDENTITY_ACTION
+    assert original["indent"] == original["crlf"]  # one run, two edits
 
 
 def test_file_mixed_in_from_another_run_is_flagged(tmp_path):

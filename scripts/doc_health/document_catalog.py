@@ -780,9 +780,10 @@ def _run_identity_findings(ctx) -> list[Finding]:
     record immutability" scenario, applied to run ids: every RECORDED run
     whose directory name the writer could have minted must hold content
     that name honestly addresses — the content address of its snapshots,
-    verified against the persisted bytes, or the legacy key its own
+    verified against the raw persisted bytes, or the legacy key its own
     snapshots derive (``catalog.run_id_scheme``). A run that is neither
-    was edited after it was recorded (a serialization-only edit included),
+    was edited after it was recorded (a serialization-only or line-ending
+    edit included),
     lost a repository snapshot, or mixes files from two runs, and a reader
     resolving it by id would get a content no producer recorded under that
     id. Legacy runs pass on the derivation alone: their key never covered
@@ -802,7 +803,7 @@ def _run_identity_findings(ctx) -> list[Finding]:
         where = f"runs/{day}/{rid}"
         try:
             documents = catalog._load_run(run_dir, day, sequence, rid)["repos"]
-            texts = catalog._load_run_texts(run_dir)
+            persisted = catalog._load_run_bytes(run_dir)
         except catalog.CatalogError as exc:
             findings.append(_finding(
                 "catalog-integrity", ERROR, "(catalog)", where,
@@ -810,7 +811,7 @@ def _run_identity_findings(ctx) -> list[Finding]:
                 "repair or remove the corrupt catalog artifact and re-run "
                 "the mechanical catalog pass"))
             continue
-        if catalog.run_id_scheme(rid, documents, texts) is None:
+        if catalog.run_id_scheme(rid, documents, persisted) is None:
             findings.append(_finding(
                 "run-identity", ERROR, "(catalog)", where,
                 "recorded snapshots are not the content their run id "
