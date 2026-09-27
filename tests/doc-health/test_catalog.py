@@ -592,6 +592,60 @@ def test_run_id_scheme_tells_content_legacy_and_edited_runs_apart(tmp_path):
     assert catalog.run_id_scheme(legacy, {}) is None
 
 
+def test_run_id_scheme_verifies_the_persisted_bytes(tmp_path):
+    # Review (Codex, #1175): parsing a re-serialized snapshot and rendering
+    # it again reproduces the original bytes, so a check over parsed
+    # documents alone would call an edited file intact. With the persisted
+    # texts, verification is byte for byte.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid, _ = catalog.write_run(tmp_path, DAY, runs, TAXONOMY)
+    run_dir = runs_root(tmp_path) / DAY_STR / rid
+    docs = catalog.load_snapshot(tmp_path)["repos"]
+    texts = catalog._load_run_texts(run_dir)
+    assert sorted(texts) == sorted(docs)
+    assert catalog.run_id_scheme(rid, docs, texts) == \
+        catalog.CONTENT_ADDRESSED
+    # The byte-exact address equals the parsed one for the writer's files.
+    assert catalog._persisted_digest(rid, texts) == \
+        catalog.content_digest(docs) == rid
+    # Same content, different serialization: indentation, compact form.
+    for reserialized in (json.dumps(docs["alpha"], indent=4, sort_keys=True),
+                         json.dumps(docs["alpha"], sort_keys=True,
+                                    separators=(",", ":")),
+                         texts["alpha"] + "\n"):
+        assert json.loads(reserialized) == docs["alpha"]
+        assert catalog.run_id_scheme(
+            rid, docs, dict(texts, alpha=reserialized)) is None
+    # Texts must cover exactly the documents' repositories.
+    assert catalog.run_id_scheme(rid, docs, {"alpha": texts["alpha"]}) is None
+    # A legacy run stays recognized on its derivation, texts or not.
+    inv = extended_inventory()
+    legacy = catalog.legacy_run_id(inv, TAXONOMY)
+    for repo, entries in sorted(runs.items()):
+        catalog.write_snapshot(tmp_path / "old", DAY, legacy, repo, entries,
+                               TAXONOMY)
+    old_docs = catalog.load_snapshot(tmp_path / "old")["repos"]
+    old_texts = catalog._load_run_texts(
+        runs_root(tmp_path / "old") / DAY_STR / legacy)
+    assert catalog.run_id_scheme(legacy, old_docs, old_texts) == \
+        catalog.LEGACY_INPUT_KEY
+
+
+def test_write_run_preflights_every_repository_id_before_writing(tmp_path):
+    # Review (Copilot, #1175): a valid repository sorted before an invalid
+    # one must not be recorded first -- the run would be left partial,
+    # holding a run.yaml and only some of its snapshots.
+    alpha = alpha_entries(extended_inventory())
+    for bad_repo in ("run", "../x", ".hidden", "alpha/../.."):
+        runs = {"alpha": alpha, bad_repo: [dict(e, repo=bad_repo)
+                                          for e in alpha]}
+        with pytest.raises(ValueError, match="invalid repository id"):
+            catalog.run_id(runs, TAXONOMY)
+        with pytest.raises(ValueError, match="invalid repository id"):
+            catalog.write_run(tmp_path / "agg", DAY, runs, TAXONOMY)
+    assert not (tmp_path / "agg").exists()  # nothing landed, not even alpha
+
+
 # --- snapshots: immutable dated run paths (T007) -----------------------------
 
 def test_write_snapshot_creates_immutable_dated_run(tmp_path):

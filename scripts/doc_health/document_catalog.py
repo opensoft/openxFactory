@@ -780,16 +780,21 @@ def _run_identity_findings(ctx) -> list[Finding]:
     record immutability" scenario, applied to run ids: every RECORDED run
     whose directory name the writer could have minted must hold content
     that name honestly addresses — the content address of its snapshots,
-    or the legacy key its own snapshots derive (``catalog.run_id_scheme``).
-    A run that is neither was edited after it was recorded, lost a
-    repository snapshot, or mixes files from two runs, and a reader
+    verified against the persisted bytes, or the legacy key its own
+    snapshots derive (``catalog.run_id_scheme``). A run that is neither
+    was edited after it was recorded (a serialization-only edit included),
+    lost a repository snapshot, or mixes files from two runs, and a reader
     resolving it by id would get a content no producer recorded under that
     id. Legacy runs pass on the derivation alone: their key never covered
     classification (the defect #519 records), so their content cannot be
-    held to it; the recorded history is never re-rendered for that reason
-    (the legacy test is cheap and runs first). A recorded run that cannot
-    be read is reported as catalog-integrity for that run alone, so one
-    torn historical record never hides every other finding."""
+    held to it; the recorded history is never re-hashed for that reason
+    (the legacy test is cheap and runs first). A recorded run whose
+    snapshot FILE cannot be read is reported as catalog-integrity for that
+    run alone, so one torn historical snapshot never hides every other
+    finding. An unreadable ``run.yaml`` is different and unchanged: the
+    shared run scan (``catalog._iter_runs``, which ``load_snapshot`` and
+    therefore the checks above also walk) raises on it, and the family
+    reports that once, as the whole-family catalog-integrity finding."""
     findings = []
     for day, sequence, rid, run_dir in catalog._iter_runs(ctx.catalog_root):
         if not _WRITER_RUN_ID_RE.match(rid):
@@ -797,6 +802,7 @@ def _run_identity_findings(ctx) -> list[Finding]:
         where = f"runs/{day}/{rid}"
         try:
             documents = catalog._load_run(run_dir, day, sequence, rid)["repos"]
+            texts = catalog._load_run_texts(run_dir)
         except catalog.CatalogError as exc:
             findings.append(_finding(
                 "catalog-integrity", ERROR, "(catalog)", where,
@@ -804,7 +810,7 @@ def _run_identity_findings(ctx) -> list[Finding]:
                 "repair or remove the corrupt catalog artifact and re-run "
                 "the mechanical catalog pass"))
             continue
-        if catalog.run_id_scheme(rid, documents) is None:
+        if catalog.run_id_scheme(rid, documents, texts) is None:
             findings.append(_finding(
                 "run-identity", ERROR, "(catalog)", where,
                 "recorded snapshots are not the content their run id "

@@ -399,20 +399,48 @@ def _blank_run_id(document: dict) -> dict:
     return blanked
 
 
-def content_digest(documents: dict) -> str:
-    """The content address of a run's snapshot documents (``{repository:
-    snapshot document}``): SHA-256 over the scheme's domain separator and,
-    per repository in sorted order, a framed ``[repository, byte length]``
-    header followed by the document's byte-stable rendering (``render``)
-    with its own ``run.run_id`` blanked. Framing keeps the concatenation
-    unambiguous, so two different document sets can never hash alike short
-    of a SHA-256 collision. Pure: reads nothing but its argument."""
+def _address(bodies: dict) -> str:
+    """SHA-256 over the scheme's domain separator and, per repository in
+    sorted order, a framed ``[repository, byte length]`` header followed by
+    that repository's blanked snapshot bytes. Framing keeps the
+    concatenation unambiguous, so two different body sets can never hash
+    alike short of a SHA-256 collision."""
     digest = hashlib.sha256(f"{_RUN_ID_DOMAIN}\n".encode("utf-8"))
-    for repo in sorted(documents):
-        body = render(_blank_run_id(documents[repo])).encode("utf-8")
+    for repo in sorted(bodies):
+        body = bodies[repo]
         digest.update(json.dumps([repo, len(body)]).encode("utf-8") + b"\n")
         digest.update(body)
     return digest.hexdigest()
+
+
+def content_digest(documents: dict) -> str:
+    """The content address of a run's snapshot documents (``{repository:
+    snapshot document}``): ``_address`` over each document's byte-stable
+    rendering (``render``) with its own ``run.run_id`` blanked — exactly
+    the bytes ``write_snapshot`` persists, less the id. Pure: reads nothing
+    but its argument."""
+    return _address({
+        repo: render(_blank_run_id(document)).encode("utf-8")
+        for repo, document in documents.items()})
+
+
+def _persisted_digest(name: str, texts: dict) -> str | None:
+    """``content_digest`` recomputed from PERSISTED snapshot texts
+    (``{repository: file text}``), byte for byte: nothing is parsed or
+    re-rendered, only the one ``"run_id": "<name>"`` pair the canonical
+    rendering carries (inside ``run``) is blanked in place. For a file the
+    writer produced, the result equals ``content_digest`` of its parsed
+    document; a serialization-only edit — indentation, key order, trailing
+    whitespace — changes it just as a content edit does, where a parsed
+    comparison would render the original bytes back. None when a text does
+    not carry that pair exactly once (not the writer's rendering)."""
+    pair = f'"run_id": {json.dumps(name)}'
+    bodies = {}
+    for repo, text in texts.items():
+        if text.count(pair) != 1:
+            return None
+        bodies[repo] = text.replace(pair, '"run_id": ""', 1).encode("utf-8")
+    return _address(bodies)
 
 
 def run_id(entries_by_repo: dict, taxonomy) -> str:
@@ -440,11 +468,15 @@ def run_id(entries_by_repo: dict, taxonomy) -> str:
     content-hash-only (design decision 8).
 
     Raises ValueError, before anything could land, for an empty run, an
-    incomplete taxonomy, or entries ``write_snapshot`` would itself refuse
-    (a foreign repository, an ambiguous or duplicate locator, mixed
-    revisions)."""
+    incomplete taxonomy, or anything ``write_snapshot`` would itself refuse
+    for ANY repository of the run (a repository id that is not a safe path
+    segment, a foreign entry, an ambiguous or duplicate locator, mixed
+    revisions) — so ``write_run`` can never record some repositories of a
+    run and then fail on a later one, leaving a partial run behind."""
     if not entries_by_repo:
         raise ValueError("a run records at least one repository snapshot")
+    for repo in entries_by_repo:
+        _repo_segments(repo)
     taxonomy_block = _validate_taxonomy(taxonomy)
     return content_digest({
         repo: _snapshot_document("", repo, list(entries), taxonomy_block)
@@ -493,24 +525,33 @@ def _is_legacy_named(name: str, documents: dict) -> bool:
     return True
 
 
-def run_id_scheme(name: str, documents: dict) -> str | None:
+def run_id_scheme(name: str, documents: dict,
+                  texts: dict | None = None) -> str | None:
     """The run-id scheme a RECORDED run satisfies, or None.
 
     ``documents`` maps each repository to the snapshot document the run
     holds for it (``load_snapshot(...)["repos"]``) and ``name`` is the run
     directory's name. Every document must record ``name`` as its own
     ``run.run_id``; then the run is ``CONTENT_ADDRESSED`` when ``name`` is
-    the content address of exactly these documents (``content_digest``),
-    or ``LEGACY_INPUT_KEY`` when ``name`` is the pre-#519 key each
-    document's own recorded inventory snapshot id and taxonomy digest
-    derive. A legacy run's content cannot be verified — that key never
-    covered classification, which is the defect #519 records — so the
-    legacy answer says only that the name is honestly derived. None means
-    the directory holds content its name does not address: a snapshot
-    edited after it was recorded, a repository snapshot lost, or files
-    mixed from different runs. The cheap legacy test runs first, so the
-    recorded legacy history is never re-rendered."""
+    the content address of exactly this run, or ``LEGACY_INPUT_KEY`` when
+    ``name`` is the pre-#519 key each document's own recorded inventory
+    snapshot id and taxonomy digest derive. A legacy run's content cannot
+    be verified — that key never covered classification, which is the
+    defect #519 records — so the legacy answer says only that the name is
+    honestly derived. None means the directory holds content its name does
+    not address: a snapshot edited after it was recorded, a repository
+    snapshot lost, or files mixed from different runs.
+
+    ``texts`` (``{repository: persisted file text}``, the same repositories
+    as ``documents``) makes the content test byte-exact
+    (``_persisted_digest``): a recorded run is verified against the bytes on
+    disk, so even a serialization-only edit breaks its identity. Without
+    ``texts`` the test runs over ``content_digest`` of the parsed documents,
+    for callers holding a run in memory. The cheap legacy test runs first,
+    so the recorded legacy history is never re-hashed."""
     if not documents:
+        return None
+    if texts is not None and set(texts) != set(documents):
         return None
     for document in documents.values():
         if not isinstance(document, dict) \
@@ -519,7 +560,9 @@ def run_id_scheme(name: str, documents: dict) -> str | None:
             return None
     if _is_legacy_named(name, documents):
         return LEGACY_INPUT_KEY
-    if content_digest(documents) == name:
+    address = content_digest(documents) if texts is None \
+        else _persisted_digest(name, texts)
+    if address == name:
         return CONTENT_ADDRESSED
     return None
 
@@ -848,16 +891,36 @@ def write_run(root, as_of, entries_by_repo: dict, taxonomy
     return rid, paths
 
 
-def _load_run(run_dir: Path, day: str, sequence: int, rid: str) -> dict:
-    repos = {}
+def _snapshot_files(run_dir: Path):
+    """(repository, path) for every per-repository snapshot file of one run
+    directory, in sorted path order; slash-separated repository ids come
+    back from their subdirectories."""
     for path in sorted(run_dir.rglob("*.yaml")):
         if path == run_dir / RUN_META_NAME:
             continue
         rel = path.relative_to(run_dir)
-        repo = "/".join(rel.parts)[:-len(".yaml")]
-        repos[repo] = _load_yaml_json(path)
+        yield "/".join(rel.parts)[:-len(".yaml")], path
+
+
+def _load_run(run_dir: Path, day: str, sequence: int, rid: str) -> dict:
+    repos = {repo: _load_yaml_json(path)
+             for repo, path in _snapshot_files(run_dir)}
     return {"as_of": day, "run_id": rid, "sequence": sequence,
             "repos": repos}
+
+
+def _load_run_texts(run_dir: Path) -> dict:
+    """{repository: persisted snapshot text} for one run directory — the
+    bytes ``run_id_scheme`` verifies a recorded run against. An unreadable
+    file raises the same controlled ``CatalogError`` ``_load_yaml_json``
+    does."""
+    texts = {}
+    for repo, path in _snapshot_files(run_dir):
+        try:
+            texts[repo] = path.read_text(encoding="utf-8")
+        except (OSError, ValueError) as exc:
+            raise CatalogError(f"corrupt catalog artifact {path}: {exc}")
+    return texts
 
 
 def load_snapshot(root, as_of=None, run_id=None) -> dict | None:
