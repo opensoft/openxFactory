@@ -732,8 +732,9 @@ def test_write_run_refuses_symlinked_paths_before_any_write(tmp_path):
     # runs, and a snapshot or run.yaml linked to an outside file holding
     # the recorded bytes was accepted as a completed no-op, leaving the run
     # with records that stay mutable from outside it. The writer never
-    # follows a symlink at any depth from health/ down. That holds for a
-    # dangling link and for one pointing back inside the tree, too.
+    # follows a symlink at any depth from the root down, or inside an
+    # existing run. That holds for a dangling link and for one pointing
+    # back inside the tree, too.
     alpha = alpha_entries(extended_inventory())
     runs = {"alpha": alpha, "xFactories/MedxFactory": [
         dict(e, repo="xFactories/MedxFactory") for e in alpha]}
@@ -754,8 +755,10 @@ def test_write_run_refuses_symlinked_paths_before_any_write(tmp_path):
 
     # Directory cases start from an empty tree; file cases from a complete
     # copy of the recorded run, so only the link stands between the retry
-    # and a completed no-op.
+    # and a completed no-op. The root itself counts (round 6): a symlinked
+    # root must not carry the claims and snapshots somewhere else.
     dir_cases = {
+        "root": lambda root: root,
         "health": lambda root: root / "health",
         "document-catalog": lambda root: root / "health" / "document-catalog",
         "runs": runs_root,
@@ -771,32 +774,70 @@ def test_write_run_refuses_symlinked_paths_before_any_write(tmp_path):
         "run-yaml-to-recorded-bytes": ("run.yaml", recorded_meta),
         "run-yaml-dangling": ("run.yaml", None),
     }
-    cases = [(f"{name}-directory", node, None)
+    cases = [(f"{name}-directory", "directory", node)
              for name, node in dir_cases.items()]
-    cases += [(name, None, spec) for name, spec in file_cases.items()]
-    cases.append(("date-directory-inside-the-tree", None, None))
-    for name, dir_node, file_spec in cases:
+    cases += [(name, "file", spec) for name, spec in file_cases.items()]
+    cases += [("date-directory-inside-the-tree", "inside-the-tree", None),
+              ("link-inside-a-recorded-run", "inside-the-run", None)]
+    for name, kind, spec in cases:
         root, outside = tmp_path / name, tmp_path / f"{name}-outside"
         outside.mkdir()
         run_dir = runs_root(root) / DAY_STR / rid
-        if dir_node is not None:
-            link_dir(dir_node(root), outside)
-        elif file_spec is not None:
+        if kind == "directory":
+            link_dir(spec(root), outside)
+        elif kind == "file":
             shutil.copytree(tmp_path / "src", root, symlinks=True)
-            link_file(run_dir / file_spec[0], outside, file_spec[1])
-        else:  # a link to a real directory INSIDE the catalog tree
+            link_file(run_dir / spec[0], outside, spec[1])
+        elif kind == "inside-the-tree":  # to a real catalog directory
             real = runs_root(root) / "2026-07-01"
             real.mkdir(parents=True)
             link_dir(runs_root(root) / DAY_STR, real)
+        else:  # a linked directory inside an otherwise complete run, which
+            # Path.rglob would silently skip (round 6)
+            shutil.copytree(tmp_path / "src", root, symlinks=True)
+            (outside / "stray.yaml").write_bytes(
+                recorded["alpha"].read_bytes())
+            link_dir(run_dir / "linked", outside)
         before, before_outside = tree_state(root), tree_state(outside)
         with pytest.raises(catalog.CatalogError, match="symlink"):
             catalog.write_run(root, DAY, runs, TAXONOMY)
-        if name in ("run-directory", "snapshot-to-recorded-bytes"):
+        if name in ("root-directory", "run-directory",
+                    "snapshot-to-recorded-bytes"):
             with pytest.raises(catalog.CatalogError, match="symlink"):
                 catalog.write_snapshot(root, DAY, rid, "alpha", alpha,
                                        TAXONOMY)
         assert tree_state(root) == before, name  # no claim, no snapshot
         assert tree_state(outside) == before_outside, name
+
+
+def test_write_run_refuses_a_snapshot_the_run_does_not_record(tmp_path):
+    # Review round 6 (Copilot, #1175): the preflight compared only the
+    # repositories this call records. A run directory also holding a
+    # stranger's snapshot, for another repository or mixed in from another
+    # run, passed as a completed no-op. Crashed before its run.yaml, the run
+    # was even completed around the stranger. Either way the closed run
+    # held a file the run-identity check reads as mixed content.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid, recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    stranger = recorded["alpha"].read_bytes()
+    cases = {
+        "top-level": ("zeta.yaml",),
+        "nested": ("xFactories", "Extra.yaml"),
+        "crashed-run": ("zeta.yaml",),  # run.yaml removed below
+    }
+    for name, rel in cases.items():
+        root = tmp_path / name
+        shutil.copytree(tmp_path / "src", root)
+        run_dir = runs_root(root) / DAY_STR / rid
+        run_dir.joinpath(*rel).write_bytes(stranger)
+        if name == "crashed-run":
+            (run_dir / "run.yaml").unlink()
+        before = tree_state(root)
+        with pytest.raises(catalog.CatalogError, match="does not record"):
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        assert tree_state(root) == before, name  # no claim, no run.yaml
 
 
 def test_write_run_refuses_edited_run_metadata_before_any_write(tmp_path):

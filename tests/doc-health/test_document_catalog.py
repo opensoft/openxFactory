@@ -950,6 +950,51 @@ def test_hand_named_runs_are_outside_the_run_identity_check(tmp_path):
     assert fam_document_catalog(ctx_for(catalog_root=root)) == []
 
 
+def test_symlinked_run_is_reported_as_catalog_integrity(tmp_path):
+    # Review round 6 (Copilot, #1175): the run loaders follow symlinks. A
+    # run whose snapshot, run.yaml or directory was a link to an outside
+    # copy verified clean against bytes that live outside the catalog. A
+    # linked directory inside the run was skipped by Path.rglob, so what it
+    # held was never seen. None of these is the tree the writer makes. Each
+    # is reported as catalog-integrity for that run, before anything behind
+    # the link is read.
+    def relink_file(run_dir, name, outside):
+        outside.mkdir()
+        copy = outside / name
+        copy.write_bytes((run_dir / name).read_bytes())
+        (run_dir / name).unlink()
+        (run_dir / name).symlink_to(copy)
+
+    def relink_run(run_dir, outside):
+        shutil.copytree(run_dir, outside)
+        shutil.rmtree(run_dir)
+        run_dir.symlink_to(outside, target_is_directory=True)
+
+    def link_inside(run_dir, outside):
+        outside.mkdir()
+        (outside / "stray.yaml").write_bytes(
+            (run_dir / "alpha.yaml").read_bytes())
+        (run_dir / "linked").symlink_to(outside, target_is_directory=True)
+
+    cases = {
+        "snapshot": lambda run, out: relink_file(run, "alpha.yaml", out),
+        "run-yaml": lambda run, out: relink_file(run, "run.yaml", out),
+        "run-directory": relink_run,
+        "directory-inside-the-run": link_inside,
+    }
+    for name, link in cases.items():
+        root = tmp_path / name
+        build_complete_baseline(root)
+        rid, paths = catalog.write_run(root, DAY, mechanical_runs(), TAXONOMY)
+        link(paths["alpha"].parent, tmp_path / f"{name}-outside")
+        got = fam_document_catalog(ctx_for(catalog_root=root))
+        assert [(f.severity, f.repo, f.path) for f in got] == [
+            (ERROR, "(catalog)", f"runs/{DAY_STR}/{rid}")], name
+        assert got[0].rule.startswith("[catalog-integrity] recorded run could "
+                                      "not be read"), name
+        assert "symlink" in got[0].rule, name
+
+
 def test_torn_historical_run_is_reported_for_that_run_alone(tmp_path):
     # The family reads only the LATEST run for every other check; this one
     # reads every recorded run, so a torn OLDER run must be reported as that

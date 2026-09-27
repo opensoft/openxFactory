@@ -792,22 +792,29 @@ def _run_identity_findings(ctx) -> list[Finding]:
     (the legacy test is cheap and runs first). A recorded run whose
     snapshot FILE cannot be read is reported as catalog-integrity for that
     run alone, so one torn historical snapshot never hides every other
-    finding. An unreadable ``run.yaml`` is different and unchanged: the
-    shared run scan (``catalog._iter_runs``, which ``load_snapshot`` and
-    therefore the checks above also walk) raises on it, and the family
-    reports that once, as the whole-family catalog-integrity finding."""
+    finding. So is a run that is not the plain tree the writer makes
+    (``catalog._refuse_foreign_run_tree``): a symlink anywhere from the
+    catalog root down to the run, or inside it. That run is refused before
+    anything is read, so bytes that live outside the catalog are never
+    hashed as the run's own and can never verify it clean. An unreadable
+    ``run.yaml`` is different and unchanged: the shared run scan
+    (``catalog._iter_runs``, which ``load_snapshot`` and therefore the
+    checks above also walk) raises on it, and the family reports that once,
+    as the whole-family catalog-integrity finding."""
     findings = []
     for day, sequence, rid, run_dir in catalog._iter_runs(ctx.catalog_root):
         if not _WRITER_RUN_ID_RE.match(rid):
             continue
         where = f"runs/{day}/{rid}"
         try:
+            catalog._refuse_foreign_run_tree(ctx.catalog_root, run_dir)
             documents = catalog._load_run(run_dir, day, sequence, rid)["repos"]
             persisted = catalog._load_run_bytes(run_dir)
         except catalog.CatalogError as exc:
             findings.append(_finding(
                 "catalog-integrity", ERROR, "(catalog)", where,
-                f"recorded run could not be read: {exc}",
+                f"recorded run could not be read as the writer records it: "
+                f"{exc}",
                 "repair or remove the corrupt catalog artifact and re-run "
                 "the mechanical catalog pass"))
             continue

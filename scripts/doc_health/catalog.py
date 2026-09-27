@@ -843,23 +843,49 @@ def _refuse_foreign_node(node: Path, directory: bool) -> None:
         raise CatalogError(f"catalog path is occupied by a {wanted}: {node}")
 
 
+def _catalog_chain(root: Path) -> list[Path]:
+    """``root`` itself, then every catalog directory down to the runs
+    directory: ``health``, ``health/document-catalog`` and ``.../runs``.
+    ``root`` is included, so a symlinked root is refused too. The runner
+    resolves the root it hands the writer and the checks (``Path.resolve``),
+    so only a caller that did not resolve its root can pass a symlinked
+    one."""
+    root = Path(root)
+    return [root] + [root.joinpath(*RUNS_DIR.parts[:depth])
+                     for depth in range(1, len(RUNS_DIR.parts) + 1)]
+
+
+def _refuse_links_inside(run_dir: Path) -> None:
+    """Refuse a run directory that holds a symlink anywhere inside it: a
+    linked snapshot, ``run.yaml`` or subdirectory. ``Path.rglob`` lists a
+    linked file and silently skips a linked directory, so without this
+    walk neither the writer nor the verifier would see what such a link
+    hides, or where it points."""
+    for dirpath, dirnames, filenames in os.walk(run_dir):
+        dirnames.sort()
+        for name in sorted(dirnames + filenames):
+            node = Path(dirpath) / name
+            if node.is_symlink():
+                raise CatalogError(
+                    f"catalog path is a symlink, which the writer never "
+                    f"follows: {node}")
+
+
 def _refuse_unsafe_run_paths(root: Path, run_dir: Path, targets) -> None:
     """Refuse a run, before its first write or claim, if any path it would
     write through is foreign (``_refuse_foreign_node``). That covers every
-    directory, top-down, from the first catalog segment under ``root``
-    (``health``, ``health/document-catalog``, ``.../runs``) to the
-    sequence-claim directory, the date and run directories, and a
+    directory, top-down, from ``root`` itself through ``health``,
+    ``health/document-catalog`` and ``.../runs`` (``_catalog_chain``) to
+    the sequence-claim directory, the date and run directories, and a
     slash-separated repository's subdirectories, plus ``run.yaml`` and
     every snapshot file. Each node is checked with its ancestors, so no
-    component between ``root`` and a written file can be a symlink. A
-    foreign node would otherwise surface only after the sequence was
-    claimed, as a filesystem error mid-run that leaves an orphaned claim or
-    a partial run, or it would carry the writes outside the tree without
-    any error."""
-    root = Path(root)
-    directories = [root.joinpath(*RUNS_DIR.parts[:depth])
-                   for depth in range(1, len(RUNS_DIR.parts) + 1)]
-    directories += [root / SEQUENCE_DIR, run_dir.parent, run_dir]
+    component from ``root`` to a written file can be a symlink. A foreign
+    node would otherwise surface only after the sequence was claimed, as a
+    filesystem error mid-run that leaves an orphaned claim or a partial
+    run, or it would carry the writes outside the tree without any
+    error."""
+    directories = _catalog_chain(root)
+    directories += [Path(root) / SEQUENCE_DIR, run_dir.parent, run_dir]
     targets = list(targets)
     nested = {p for target in targets for p in target.parents
               if run_dir in p.parents}
@@ -868,6 +894,20 @@ def _refuse_unsafe_run_paths(root: Path, run_dir: Path, targets) -> None:
         _refuse_foreign_node(node, directory=True)
     for node in [run_dir / RUN_META_NAME, *targets]:
         _refuse_foreign_node(node, directory=False)
+
+
+def _refuse_foreign_run_tree(root: Path, run_dir: Path) -> None:
+    """Refuse a RECORDED run that is not the plain tree the writer makes.
+    That means a symlink or a wrong-type node anywhere from ``root`` down
+    to its run directory (``_catalog_chain``, then the date and run
+    directories), or a symlink anywhere inside the run
+    (``_refuse_links_inside``). Reading through such a link would hash
+    bytes that live outside the catalog, and would verify a record that
+    stays mutable from outside it. The run-identity check calls this before
+    it reads a run."""
+    for node in [*_catalog_chain(root), run_dir.parent, run_dir]:
+        _refuse_foreign_node(node, directory=True)
+    _refuse_links_inside(run_dir)
 
 
 def _read_record(path: Path) -> bytes:
@@ -968,8 +1008,8 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
       directory that was edited by hand, mixed from two runs, or named by
       a caller that did not mint its id from the content it writes.
     - Path safety: every directory and file on the run's paths, from
-      ``health`` down, must be absent or a real directory or regular file
-      of the kind the writer makes there (``_refuse_unsafe_run_paths``).
+      ``root`` itself down, must be absent or a real directory or regular
+      file of the kind the writer makes there (``_refuse_unsafe_run_paths``).
       A symlink is refused, and so is a node of the wrong type, before
       anything is claimed or written. The writer never writes or claims
       outside the catalog tree.
@@ -1034,23 +1074,42 @@ def write_run(root, as_of, entries_by_repo: dict, taxonomy
     reuse an id, whichever tree or date it lands on.
 
     All-or-nothing on refusal: every check runs BEFORE the first write or
-    claim. That means every input check (``run_id``), every node on the
-    run's paths from ``health`` down (``_refuse_unsafe_run_paths``: no
-    symlink, no node of the wrong type), an existing ``run.yaml``, which
-    must be exactly this run's record (``_recorded``), and every existing
-    target of the run (``_holds_exactly``, raw bytes). A run directory
-    holding a conflicting file or a foreign node for a LATER repository
-    (edited by hand or mixed from another run), or holding an edited
-    ``run.yaml``, is refused before an earlier repository is written or a
-    sequence is claimed. It is never refused after, which would leave a
-    partial recorded run, and a completed-looking run is never accepted on
-    a ``run.yaml`` it did not write."""
+    claim. The checks, in order:
+
+    - every input check (``run_id``);
+    - every node on the run's paths from ``root`` down
+      (``_refuse_unsafe_run_paths``: no symlink, no node of the wrong
+      type);
+    - an existing run directory must hold no symlink
+      (``_refuse_links_inside``) and no snapshot of a repository this run
+      does not record;
+    - an existing ``run.yaml`` must be exactly this run's record
+      (``_recorded``);
+    - every existing target of the run must hold exactly its bytes
+      (``_holds_exactly``, raw bytes).
+
+    A run directory holding a conflicting file or a foreign node for a
+    LATER repository (edited by hand or mixed from another run), a snapshot
+    this run does not record, or an edited ``run.yaml`` is refused before
+    an earlier repository is written or a sequence is claimed. It is never
+    refused after, which would leave a partial recorded run. A
+    completed-looking run is never accepted on a ``run.yaml`` it did not
+    write, or with a stranger's snapshot left inside it: the run-identity
+    check would then find the closed run mixed."""
     rid = run_id(entries_by_repo, taxonomy)
     taxonomy_block = _validate_taxonomy(taxonomy)
     day = _as_of_str(as_of)
     run_dir = Path(root) / RUNS_DIR / day / rid
     targets = {repo: _repo_file(run_dir, repo) for repo in entries_by_repo}
     _refuse_unsafe_run_paths(root, run_dir, targets.values())
+    if run_dir.exists():  # a real directory, per the check above
+        _refuse_links_inside(run_dir)
+        strangers = sorted(repo for repo, _path in _snapshot_files(run_dir)
+                           if repo not in targets)
+        if strangers:
+            raise CatalogError(
+                f"catalog run directory holds snapshots this run does not "
+                f"record ({', '.join(strangers)}): {run_dir}")
     _recorded(root, run_dir, rid, day)  # an existing run.yaml must be ours
     for repo in sorted(entries_by_repo):
         _holds_exactly(targets[repo], render(_snapshot_document(
@@ -1085,16 +1144,13 @@ def _load_run_bytes(run_dir: Path) -> dict:
     """{repository: raw persisted snapshot bytes} for one run directory —
     exactly what ``run_id_scheme`` verifies a recorded run against. Raw,
     never a decoded text read: universal-newline translation would turn a
-    CRLF edit back into the writer's LF bytes before they are hashed. An
-    unreadable file raises the same controlled ``CatalogError``
-    ``_load_yaml_json`` does."""
-    persisted = {}
-    for repo, path in _snapshot_files(run_dir):
-        try:
-            persisted[repo] = path.read_bytes()
-        except OSError as exc:
-            raise CatalogError(f"corrupt catalog artifact {path}: {exc}")
-    return persisted
+    CRLF edit back into the writer's LF bytes before they are hashed. Each
+    file is read through ``_read_record``. A symlinked snapshot raises
+    ``CatalogError`` rather than having its target's bytes hashed as if the
+    run held them, and so does an unreadable file, as in
+    ``_load_yaml_json``."""
+    return {repo: _read_record(path)
+            for repo, path in _snapshot_files(run_dir)}
 
 
 def load_snapshot(root, as_of=None, run_id=None) -> dict | None:
