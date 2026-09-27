@@ -1424,6 +1424,88 @@ packet's interim arrangement ends.**
   the carve as it arrived, so an arc edit to a carved file needs no
   declared-edit act. Carried out by T045, T093, T094.
 
+  **AMENDED — T007 Batch E (`5817152735`; Ruled R1Q2 (a), R1Q22 (a); the
+  paths and edits below are `5856475254`, P1-K's three questions,
+  2026-09-27T13:54:40Z):** Batch A widened the guard to `COMPOSITION_TESTS`;
+  this batch adds the paths phase 1 has actually moved or found into it,
+  each named before the landing that adds it (R1Q2 (a)):
+
+  - `tests/ideation-dashboard/test_outline_template_agreement.py` and
+    `tests/ideation-dashboard/test_memory_gateway_roster.py`. T034
+    (openDox-code#50 → `71b631bc`) moves four cases here: the outline
+    model's `doc_health` case (first file), and three memory-gateway roster
+    cases (second file), because each reads a spec that exists only in
+    openxFactory (`scripts/doc_health/families.py`, respectively
+    `openspec/specs/memory-gateway/spec.md`). T034's own text names only the
+    outline case; the holder accepted the memory-gateway move under the same
+    R1Q2 (a), because the spec those cases read is openxFactory's alone, and
+    no openDox repository carries a copy. Neither destination exists in
+    openxFactory yet; T047 creates both.
+  - `tests/ideation-dashboard/test_authoring_classify_derivation.py` and
+    `tests/ideation-dashboard/test_doxbench_status_exemption.py`. Both
+    already exist here. P1-K's writer (openxFactory#1181), composing
+    openDox-code and openXdox-code at T047's new pins, found that each pins
+    an openDox internal a phase-1 seam removed:
+    `test_the_gate_reaches_the_corpus_only_through_the_two_public_names`
+    (T020 made `authoring.py` reach the home corpus through
+    `corpus_adapter.home()` alone, binding no name out of the adapter
+    package) and `test_the_dependence_on_the_carved_rail_sits_at_exactly_one_line`
+    (T027 removed the packet module's only import of the status-exemption
+    rail). T047 edits the one pinned assertion in each; neither file moves.
+
+  Once T045, T093 and T094 land it, `COMPOSITION_TESTS` reads:
+
+      COMPOSITION_TESTS = {
+          "tests/ideation-dashboard/test_extension_point_parity.py",
+          "tests/ideation-dashboard/test_serve_column_split.py",
+          "tests/ideation-dashboard/test_outline_template_agreement.py",
+          "tests/ideation-dashboard/test_memory_gateway_roster.py",
+          "tests/ideation-dashboard/test_authoring_classify_derivation.py",
+          "tests/ideation-dashboard/test_doxbench_status_exemption.py",
+      }
+
+  This bookkeeping amendment does not itself touch the executable Python
+  above, which still checks batch A's two-path set until T045, T093 and T094
+  land it.
+
+  `5856475254` also rules two more findings of P1-K's writer, which admit
+  arc edits that are NOT composition tests, so they do not join this set.
+  **`scripts/route_extension.py`**: openDox-code#40 (T010, `0f10b1f5`)
+  changed `src/route_extension.py` from blob
+  `34802071d5b9e417f6c29c6929db69f518f91cce` to
+  `7781665d9ae0d4be298cd7d9cbe625666f7481ee` (62817 bytes, sha256
+  `d81124e62dba9df33abe44f3eb467188c98156f002cc7a92e297cd689da87515`), so
+  both carved replicas of the route-extension seam are now stale.
+  openxFactory's copy (still blob `34802071…`, the manifest's recorded
+  figure) is a `not_moved / replicated_at_destination` row
+  (`docs/opendox-carve-manifest.yaml:2993-2996`), so its resync in T047's
+  PR is exactly the arc edit R1Q22 (a) already admits: no new declared
+  surface, provided the row's `note` is EXTENDED, never rewritten, with
+  this reason when T047 lands. openXdox-code's twin replica carries the
+  same resync already, on its own open PR (openXdox-code#29, head
+  `f65537aa`): the identical blob, byte count and digest. That landing is a
+  different repository's, outside this guard, and is recorded here only so
+  the pair reads as one repair; it has not merged to openXdox-code `main`
+  as of this writing. **`scripts/sync-notebooklm-books.py`'s `--session-ref`
+  path**: it reaches `workbench.session_documents` without first calling
+  `register_openxfactory()`, the only seam reader P1-K's writer found that
+  does not register; T047's PR adds the call. This file carries no
+  carve-manifest row today, so R1Q22 (a)'s carved-file route does not reach
+  it on its own — `5856475254` admits the edit regardless ("admitted by
+  batch E"). This paragraph records the admission and its reason; T045,
+  T093 and T094 choose the guard-code shape that reads it when they encode
+  11.1.
+
+  **Still to come, before this PR leaves DRAFT.** T035 (openDox-code#51,
+  open) may move more cases out of the root suite — `test_session_harness.py`
+  among them, this batch's own task line's candidate. T039 (openDox#13,
+  open, the root pin) and T044 (P1-J's last task; no PR for P1-J exists yet
+  in openXdox-code) have not landed; P1-K's writer names whatever red test
+  each new pin turns up, before T047's openxFactory PR opens (this task's
+  own "After, by batch: E" line). Each addition lands here as a further
+  commit, cited the same way, before this PR leaves DRAFT. Carried out by
+  T045, T047, T093, T094.
+
 ## Group 12 — Requirement 11: the neutral submission step (RULED, openDox-code)
 
 **RULED** by Brett Heap, `#656` comment `5783934499`, 2026-09-22T20:49:40Z:
