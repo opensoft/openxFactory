@@ -534,32 +534,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [admit-code-leg-under-pinned-root](openspec/changes/admit-code-leg-under-pinned-root/proposal.md)
-  — filed 2026-09-24, lane `openxfactory-5` (display `openXfactory-5`),
-  **`Status: ratified`** (2026-09-24, approximately 16:52Z, Brett Heap,
-  *"(a) recommended for both, ratify when the draft is green"*, a `RULED`
-  entry against #1150 in `opensoft/brett-wip` `lanes/log/openXfactory-5.md`
-  at commit `536b7ecf`; the word names option (a) for D1 and is otherwise
-  bare, so D4 and D6 take their recommended options; CONDITIONAL on the draft
-  head being green, MET at head `f9e3d01124ccdc35dc5686b68ea54cfba25aade3`,
-  2026-09-24 ~20:17Z). `tasks.md` § 1 is ticked.
-  Answers openxFactory [#1150](https://github.com/opensoft/openxFactory/issues/1150),
-  CLAIMED by this lane before authoring: the estate inventory cannot record a
-  code leg nested under a pinned assembly root, so a `code_surface:` cannot name
-  `opensoft/openDox-code` or `opensoft/openXdox-code` (#1144 names the two roots
-  meanwhile, on ruling `5804191141`). **ONE `## MODIFIED` BLOCK OVER
-  `release-realization`'s *The estate's repositories are enumerated in a
-  governed inventory*, ELEVEN SCENARIOS**: the `gitlink` bullet gains one
-  sentence admitting a PINNED ASSEMBLY ROOT as a carrier, read AT THE COMMIT
-  openxFactory's own `pin` of it names; two added paragraphs bound that carrier
-  (`pinned`, exactly one `pin`, one hop, the leg never `governed`) and read its
-  evidence from the supplied tree's own object store at the pinned commit with
-  no network call; three added scenarios; the replaced bullet named in a
-  `Removed from canon by` marker. No admission kind is added and no leg is
-  pinned or mounted by openxFactory. **`code_surface:` openxFactory;
-  `target_release: implemented`** — the realization (four existing files, four
-  new inventory rows) is a later pull request, and the packet archives only on
-  merged-plus-green realization evidence, where #1150 closes.
 - [add-neutral-product-standalone-operability](openspec/changes/add-neutral-product-standalone-operability/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-24,
   Brett Heap, *"ratify #1144, land the follow-ons, (a) on C1–C5"*, `#656` comment
@@ -3208,6 +3182,84 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [admit-code-leg-under-pinned-root](openspec/changes/archive/2026-09-27-admit-code-leg-under-pinned-root/proposal.md)
+  — **ARCHIVED 2026-09-27** by
+  [PR #ARCHIVE-PR-NUMBER-PENDING](https://github.com/opensoft/openxFactory/pull/ARCHIVE-PR-NUMBER-PENDING),
+  filed 2026-09-24 by lane `openxfactory-5` (display `openXfactory-5`) in answer
+  to openxFactory
+  [#1150](https://github.com/opensoft/openxFactory/issues/1150),
+  **RATIFIED 2026-09-24 at approximately 16:52Z by Brett Heap** (openxFactory
+  repository owner), verbatim ***"(a) recommended for both, ratify when the
+  draft is green"*** (a `RULED` entry against #1150 in `opensoft/brett-wip`
+  `lanes/log/openXfactory-5.md` at commit `536b7ecf`; the condition MET at head
+  `f9e3d01124ccdc35dc5686b68ea54cfba25aade3`, 2026-09-24 ~20:17Z), and amended
+  once, by his R1 word *"(a) recommended, land #1165 when green"* (2026-09-26),
+  which made the one-hop parenthetical THE DIRECT HOP RULE; every word given in
+  the lane's terminal, so NO GITHUB COMMENT CARRIES THEM; ratifying commit
+  `daca0b898e37`.
+  **`code_surface: openxFactory` IS NON-EMPTY, so under `release-realization`
+  this packet archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE and on a
+  SEPARATE ARCHIVE WORD — never on landing and never on ratification.** The
+  evidence, cited rather than asserted: the packet landed as PR
+  [#1156](https://github.com/opensoft/openxFactory/pull/1156) →
+  `daca0b898e37369a560de6befab6ca68e1b5e065` (2026-09-25T13:21:58Z) and its R1
+  amendment as PR
+  [#1165](https://github.com/opensoft/openxFactory/pull/1165) →
+  `b5ec389908107141d9ab90165b7f8d015028d0af` (2026-09-26T21:52:36Z); § 3's
+  REALIZATION landed as PR
+  [#1163](https://github.com/opensoft/openxFactory/pull/1163) →
+  `1c6662e7862e2c1389d05a2bf78f3a4b54eb5157` (2026-09-25T14:47:44Z, by SQUASH
+  from head `65565eef`), on Brett Heap's *"land #1163 when the verifier clears
+  it"*; `pytest-suite` decided **SUCCESS on `main` at `1c6662e7` itself**, run
+  [`36149875028`](https://github.com/opensoft/openxFactory/actions/runs/36149875028)
+  (2026-09-25T15:10:43Z), and again at `b5ec3899`, run
+  [`36274413446`](https://github.com/opensoft/openxFactory/actions/runs/36274413446);
+  and PR [#1168](https://github.com/opensoft/openxFactory/pull/1168)'s § 3.5
+  and § 4 realization-head evidence ticks (`4b5290b4`) ride this archive
+  unchanged. **THE ARCHIVE WORD IS BRETT HEAP'S**, verbatim ***"archive it when
+  the draft is up"*** (2026-09-27, in the lane's terminal; RULED in
+  `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at 2026-09-27T00:32:46Z
+  against #1150), and the pull request lands by MERGE COMMIT, never squash, so
+  this directory's date keeps matching its adding commit.
+  **THE ARCHIVE WAS PERFORMED THROUGH THE GOVERNED WRAPPER AND NEVER A BARE
+  `openspec archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive admit-code-leg-under-pinned-root --yes`,
+  exit 0 — *"ORIGIN RETAINED admit-code-leg-under-pinned-root (declaration
+  unchanged since the ratifying commit daca0b898e37)"*, *"Applying changes to
+  openspec/specs/release-realization/spec.md: ~ 1 modified"*, *"Totals: + 0,
+  ~ 1, - 0, → 0"*, *"archived as '2026-09-27-admit-code-leg-under-pinned-root'"*,
+  over the content-addressed `@fission-ai/openspec@1.12.0` pin and not the
+  1.13.1 on `PATH`; `--date` was not passed, so the directory takes today in
+  UTC.
+  **THE PROMOTION, MEASURED BYTE FOR BYTE ON BOTH SIDES AND NOT EYEBALLED.**
+  ONE `## MODIFIED` block, *The estate's repositories are enumerated in a
+  governed inventory*, onto `openspec/specs/release-realization/spec.md`:
+  before **12,297 bytes / 160 lines / 8 scenarios** (sha256
+  `3020c2c916df22bb…`), after **19,044 bytes / 230 lines / 11 scenarios,
+  sha256 `0bbd1aa2d631e8cf…` on the archived delta AND canon**; `--numstat`
+  **+71 −1**, and `−w` reads the same; requirement count **21 → 21**,
+  scenarios **122 → 125**; the other twenty requirement blocks byte-identical,
+  hashed one by one; the CLI diverged from the delta nowhere. **WHAT IS NOW
+  CANON:** a PINNED ASSEMBLY ROOT's `.gitmodules` is a `gitlink` carrier too,
+  read AT THE COMMIT openxFactory's own `pin` of that root names; the carrier
+  is `pinned` and admitted by exactly one `pin`, an `external` repository's
+  `.gitmodules` admits nothing, a `pinned` row not itself admitted by a `pin`
+  and every row a pinned root's `gitlink` admits carry no row's `gitlink` (THE
+  DIRECT HOP RULE, as R1 amended it), a leg's row never declares
+  `governance: governed`, and the pinned carrier's evidence is read out of the
+  supplied tree's own object store at the pinned commit with no network call,
+  NOT RE-CHECKED where the tree cannot produce it. The replaced `gitlink`
+  bullet is named in canon by its `Removed from canon by` marker.
+  **THE FIVE PACKET FILES MOVE AS `R100` PURE RENAMES** (`.openspec.yaml`,
+  `design.md`, `proposal.md`, `specs/release-realization/spec.md`,
+  `tasks.md`), the § 3.5, § 4 and § 5 ticks having ridden this branch before
+  the move; § 6's six `- [~]` boxes stay `- [~]`, successors named and not
+  work owed.
+  **#1150 IS SHUT BY THIS ARCHIVE'S LANDING AND BY NO EARLIER ACT**: the one
+  closing keyword sits in the archive pull request's body, and no commit
+  message on this branch or on the packet's, the realization's or the
+  amendment's carries one.
 
 - [add-estate-repository-inventory](openspec/changes/archive/2026-09-23-add-estate-repository-inventory/proposal.md)
   — **ARCHIVED 2026-09-23** by
