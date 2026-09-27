@@ -1635,6 +1635,48 @@ def test_run_scan_refuses_every_symlink_position_for_that_entry_alone(
         assert str(node) in str(bad[0].refusal), name  # names the link itself
 
 
+def test_run_scan_fails_closed_on_a_directory_it_cannot_list(tmp_path):
+    # Review round 2 (Copilot, #1190): the walk inside a recorded run passed
+    # no onerror, so os.walk skipped a directory it could not list in
+    # silence, and the run was yielded as link-free over a subtree nobody
+    # saw: a link below it would evade the refusal. The scan's own walk now
+    # fails closed. A directory it cannot list, or an entry it cannot check,
+    # refuses that run alone: load_snapshot never selects it, and no
+    # sequence is claimed beside it. Readable again, the run is whole.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    cases = (
+        # No read: os.scandir of the directory is denied.
+        ("unlistable", 0o100, "could not be listed"),
+        # No search: it lists, but what it lists cannot be lstat-ed.
+        ("unsearchable", 0o400, "could not be checked"),
+    )
+    for name, mode, reason in cases:
+        root = tmp_path / name
+        rid, _ = catalog.write_run(root, DAY, runs, TAXONOMY)
+        run_dir = runs_root(root) / DAY_STR / rid
+        blocked = run_dir / "xFactories"
+        original = blocked.stat().st_mode
+        blocked.chmod(mode)
+        try:
+            scan = list(catalog._iter_runs(root))
+            assert [tuple(e[:4]) for e in scan] == [
+                (DAY_STR, None, rid, run_dir)], name
+            assert reason in str(scan[0].refusal), name
+            assert catalog.load_snapshot(root) is None, name
+            with pytest.raises(catalog.CatalogError,
+                               match="no run sequence is claimed beside"):
+                catalog.write_run(root, LATER_DAY_STR, later_runs(),
+                                  TAXONOMY)
+            assert sorted(p.name for p in (runs_root(root) / ".sequence")
+                          .iterdir()) == ["000001.yaml"], name
+            assert not (runs_root(root) / LATER_DAY_STR).exists(), name
+        finally:
+            blocked.chmod(original)  # restore: tmp_path cleanup needs it
+        assert catalog.load_snapshot(root)["run_id"] == rid, name
+
+
 def test_latest_run_is_never_a_symlinked_entry(tmp_path):
     # opensoft/openxFactory#1187: a link dated after every recorded run was
     # the "latest" run load_snapshot returned, read through the link. A day

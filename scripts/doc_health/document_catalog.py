@@ -809,14 +809,15 @@ def _run_identity_findings(ctx) -> list[Finding]:
     The shared run scan (``catalog._iter_runs``, which ``load_snapshot`` and
     therefore the checks above also walk) never follows a link either
     (opensoft/openxFactory#1187). A symlinked day directory, run directory
-    or ``run.yaml``, or a recorded run holding a link, reaches this check as
-    the scan's own refusal, before anything behind the link is read, even a
-    malformed ``run.yaml``. It is reported as catalog-integrity for that
-    entry alone, whatever the entry's name (a symlinked day directory is
-    reported as the day itself), and ``load_snapshot`` never selects it. An
-    unreadable REGULAR ``run.yaml`` is different and unchanged: the scan
-    raises on it, and the family reports that once, as the whole-family
-    catalog-integrity finding."""
+    or ``run.yaml``, or a recorded run holding a link or a directory the
+    scan cannot list, reaches this check as the scan's own refusal, before
+    anything behind the link is read, even a malformed ``run.yaml``. It is
+    reported as catalog-integrity for that entry alone, whatever the
+    entry's name (a symlinked day directory is reported as the day itself),
+    and ``load_snapshot`` never selects it. An unreadable REGULAR
+    ``run.yaml`` is different and unchanged: the scan raises on it, and the
+    family reports that once, as the whole-family catalog-integrity
+    finding."""
     findings = []
     for day, sequence, rid, run_dir, refusal in catalog._iter_runs(
             ctx.catalog_root):

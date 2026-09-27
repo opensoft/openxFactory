@@ -1163,6 +1163,32 @@ def test_symlinked_scan_entries_are_reported_for_that_entry_alone(tmp_path):
         assert got[0].action == INTEGRITY_ACTION, name
 
 
+def test_a_run_holding_a_directory_the_scan_cannot_list_is_reported_alone(
+        tmp_path):
+    # Review round 2 (Copilot, #1190): a directory inside a recorded run
+    # that os.walk could not list was skipped in silence, so the run passed
+    # as link-free and every check read it. The run scan fails closed now:
+    # the run is reported as catalog-integrity for that run alone, and no
+    # other check reads it.
+    root = tmp_path / "agg"
+    build_complete_baseline(root)
+    rid, paths = catalog.write_run(root, DAY, mechanical_runs(), TAXONOMY)
+    blocked = paths["alpha"].parent / "blocked"
+    blocked.mkdir()
+    original = blocked.stat().st_mode
+    blocked.chmod(0o100)  # listing it is denied
+    try:
+        got = fam_document_catalog(ctx_for(catalog_root=root))
+    finally:
+        blocked.chmod(original)  # restore: tmp_path cleanup needs it
+    assert [(f.severity, f.repo, f.path) for f in got] == [
+        (ERROR, "(catalog)", f"runs/{DAY_STR}/{rid}")]
+    assert got[0].rule.startswith("[catalog-integrity] recorded run could "
+                                  "not be read")
+    assert "could not be listed" in got[0].rule
+    assert got[0].action == INTEGRITY_ACTION
+
+
 def test_a_linked_latest_run_never_feeds_the_other_checks(tmp_path):
     # opensoft/openxFactory#1187: load_snapshot took a linked run dated after
     # every recorded run as the latest, so every check that reads the latest

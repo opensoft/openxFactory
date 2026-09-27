@@ -679,8 +679,9 @@ class _RunEntry(NamedTuple):
     ``CatalogError`` that says why, and never a sequence: nothing behind
     it was read. That is a symlinked day directory (the day is the entry,
     so ``run_id`` and ``run_dir`` are None), a symlinked run directory or
-    ``run.yaml``, or a recorded run holding a symlink anywhere inside
-    it."""
+    ``run.yaml``, or a recorded run the scan cannot vouch for as link-free
+    (``_link_inside``: a symlink anywhere inside it, or a directory inside
+    it that cannot be listed)."""
     as_of: str
     sequence: int | None
     run_id: str | None
@@ -694,6 +695,36 @@ def _symlink_refusal(node: Path) -> CatalogError:
     points to, and never stats or reads its target."""
     return CatalogError(
         f"catalog path is a symlink, which the writer never follows: {node}")
+
+
+def _link_inside(run_dir: Path) -> CatalogError | None:
+    """The refusal for a recorded run the scan cannot vouch for as
+    link-free, or None. That is a symlink anywhere inside it
+    (``_symlink_refusal``), or a directory inside it that cannot be listed,
+    or an entry that cannot be checked, since a link could hide there. The
+    walk fails closed: ``os.walk`` would otherwise skip a directory it
+    cannot list in silence (``onerror`` omitted), and the run would pass as
+    link-free over a subtree nobody saw. The writer's own walk is
+    ``_refuse_links_inside``, which the run scan leaves unchanged."""
+    def unlisted(exc: OSError) -> None:
+        raise CatalogError(
+            f"catalog path could not be listed, so a symlink below it "
+            f"cannot be ruled out: {exc}")
+
+    try:
+        for dirpath, dirnames, filenames in os.walk(run_dir,
+                                                    onerror=unlisted):
+            dirnames.sort()
+            for name in sorted(dirnames + filenames):
+                node = Path(dirpath) / name
+                if node.is_symlink():
+                    return _symlink_refusal(node)
+    except CatalogError as exc:
+        return exc
+    except OSError as exc:  # an entry the scan cannot even lstat
+        return CatalogError(
+            f"catalog path could not be checked for a symlink: {exc}")
+    return None
 
 
 def _iter_runs(root: Path):
@@ -710,19 +741,20 @@ def _iter_runs(root: Path):
     never reads through one. A link where the writer makes a day directory,
     a run directory or ``run.yaml`` is yielded as a refused entry for that
     entry alone, whether it dangles, points inside the tree or escapes the
-    catalog root. So is a recorded run holding a link anywhere inside it
-    (``_refuse_links_inside``), because a reader of that run would read its
-    snapshots through the link. Such an entry is never skipped the way a
-    crashed run is, so every caller must decide what it means:
-    ``load_snapshot`` never selects it, ``_claim_sequence`` claims nothing
-    beside it, and the document-catalog family reports it as
-    catalog-integrity. A link at the catalog root or a catalog directory
-    above the day directories (``_catalog_chain``) puts every run behind
-    it, with no single entry to report, so it raises ``CatalogError``. A
-    missing catalog directory, or a node there that is not a directory,
-    means no recorded run, as before. A hidden (dot-named) entry is not a
-    day or a run, and is skipped by its name alone, so ``.sequence`` is
-    never listed here.
+    catalog root. So is a recorded run holding a link anywhere inside it,
+    or a directory inside it that the scan cannot list (``_link_inside``,
+    which fails closed), because a reader of that run would read its
+    snapshots through the link, or over a subtree nobody checked. Such an
+    entry is never skipped the way a crashed run is, so every caller must
+    decide what it means: ``load_snapshot`` never selects it,
+    ``_claim_sequence`` claims nothing beside it, and the document-catalog
+    family reports it as catalog-integrity. A link at the catalog root or a
+    catalog directory above the day directories (``_catalog_chain``) puts
+    every run behind it, with no single entry to report, so it raises
+    ``CatalogError``. A missing catalog directory, or a node there that is
+    not a directory, means no recorded run, as before. A hidden (dot-named)
+    entry is not a day or a run, and is skipped by its name alone, so
+    ``.sequence`` is never listed here.
 
     A regular ``run.yaml`` that cannot be parsed still raises
     ``CatalogError`` from the scan, unchanged."""
@@ -756,11 +788,10 @@ def _iter_runs(root: Path):
                 continue
             if not meta_path.is_file():
                 continue  # unrecorded: crashed or still in flight
-            try:
-                _refuse_links_inside(run_dir)
-            except CatalogError as exc:
+            refusal = _link_inside(run_dir)
+            if refusal is not None:
                 yield _RunEntry(date_dir.name, None, run_dir.name, run_dir,
-                                exc)
+                                refusal)
                 continue
             sequence = _load_yaml_json(meta_path).get("sequence", 0)
             yield _RunEntry(date_dir.name, sequence, run_dir.name, run_dir,
@@ -825,12 +856,12 @@ def _claim_sequence(root: Path, day: str, rid: str) -> int:
     acceptance 5).
 
     An entry the run scan refuses (``_iter_runs``: a symlinked day or run
-    directory or ``run.yaml``, or a link inside a recorded run) refuses the
-    claim too. The scan never reads that entry's sequence or date, so a
-    claim beside it could reuse the number it records or land a run dated
-    before it. The writer records nothing until the entry is repaired or
-    removed, just as it records nothing beside a foreign claim node
-    (``_read_claims``).
+    directory or ``run.yaml``, or a recorded run it cannot vouch for as
+    link-free) refuses the claim too. The scan never reads that entry's
+    sequence or date, so a claim beside it could reuse the number it
+    records or land a run dated before it. The writer records nothing until
+    the entry is repaired or removed, just as it records nothing beside a
+    foreign claim node (``_read_claims``).
 
     Every refusal comes before anything is created, the claims directory
     included, and before anything is read through a link. The run scan goes
@@ -1322,12 +1353,12 @@ def load_snapshot(root, as_of=None, run_id=None) -> dict | None:
     a tie-break, and a crashed run directory is never returned.
 
     An entry the run scan refuses (``_iter_runs``: a symlinked day or run
-    directory or ``run.yaml``, or a recorded run holding a link) never
-    participates either, as latest, by date or by id. Its content would be
-    read through the link, so the latest matching run that can be read
-    without one is returned instead, or None. The document-catalog family
-    reports the refused entry as catalog-integrity, so it is never passed
-    over unseen.
+    directory or ``run.yaml``, or a recorded run it cannot vouch for as
+    link-free) never participates either, as latest, by date or by id. Its
+    content would be read through the link, so the latest matching run
+    that can be read without one is returned instead, or None. The
+    document-catalog family reports the refused entry as
+    catalog-integrity, so it is never passed over unseen.
     """
     day = _as_of_str(as_of) if as_of is not None else None
     rid = str(run_id) if run_id is not None else None
