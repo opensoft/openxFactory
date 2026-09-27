@@ -1744,6 +1744,173 @@ def test_run_scan_never_takes_an_unchecked_node_for_link_free(tmp_path,
         blocked.chmod(original)
 
 
+def record_followed_links(patch, under):
+    """The paths of every symlink at or below `under` whose target a call
+    stats while `patch` holds: ``os.stat`` following links, which
+    ``Path.is_dir``, ``Path.is_file``, ``Path.exists`` and ``os.path.isdir``
+    all reach, and a ``DirEntry`` classified or stat-ed following links, as
+    ``os.walk`` classifies every entry it lists (``DirEntry.is_dir``)."""
+    followed = []
+    real_stat, real_scandir = os.stat, os.scandir
+    prefix = os.fspath(under)
+
+    def link_below(path):
+        if not isinstance(path, (str, os.PathLike)):
+            return False  # a file descriptor: nothing to follow
+        path = os.fspath(path)
+        return ((path == prefix or path.startswith(prefix + os.sep))
+                and os.path.islink(path))
+
+    def tracked_stat(path, *, dir_fd=None, follow_symlinks=True):
+        if follow_symlinks and dir_fd is None and link_below(path):
+            followed.append(os.fspath(path))
+        return real_stat(path, dir_fd=dir_fd, follow_symlinks=follow_symlinks)
+
+    class Entry:
+        """A listed entry that records a classification following a link."""
+
+        def __init__(self, entry):
+            self._entry, self.name, self.path = entry, entry.name, entry.path
+
+        def __fspath__(self):
+            return self.path
+
+        def _record(self, follow_symlinks):
+            if follow_symlinks and link_below(self.path):
+                followed.append(self.path)
+
+        def is_dir(self, *, follow_symlinks=True):
+            self._record(follow_symlinks)
+            return self._entry.is_dir(follow_symlinks=follow_symlinks)
+
+        def is_file(self, *, follow_symlinks=True):
+            self._record(follow_symlinks)
+            return self._entry.is_file(follow_symlinks=follow_symlinks)
+
+        def stat(self, *, follow_symlinks=True):
+            self._record(follow_symlinks)
+            return self._entry.stat(follow_symlinks=follow_symlinks)
+
+        def is_symlink(self):
+            return self._entry.is_symlink()
+
+        def inode(self):
+            return self._entry.inode()
+
+    class Listing:
+        """An ``os.scandir`` iterator that yields recording entries."""
+
+        def __init__(self, listing):
+            self._listing = listing
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc_info):
+            self._listing.close()
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            return Entry(next(self._listing))
+
+        def close(self):
+            self._listing.close()
+
+    patch.setattr(os, "stat", tracked_stat)
+    patch.setattr(os, "scandir", lambda path=".": Listing(real_scandir(path)))
+    return followed
+
+
+def test_run_scan_never_stats_a_link_target(tmp_path):
+    # Review round 4 (Copilot, #1190): the walk inside a recorded run was
+    # os.walk, which classifies every entry it lists with DirEntry.is_dir(),
+    # and that follows a link to stat its target before the scan's own lstat
+    # check sees the link. The walk is now driven by each node's own lstat
+    # and descends only into a real directory, so no caller of the scan
+    # stats a link's target, wherever the link sits and wherever it points:
+    # outside the catalog root, back inside the tree, or nowhere. Each such
+    # entry is still refused for that entry alone.
+    probe = tmp_path / "probe"
+    link = plant_link(probe / "linked", tmp_path)
+    with pytest.MonkeyPatch.context() as patch:
+        followed = record_followed_links(patch, probe)
+        list(os.walk(probe))
+        link.is_dir()
+    # The recorder sees both ways the old walk stats a link's target.
+    assert followed == [str(link), str(link)]
+
+    clean = tmp_path / "clean"
+    rid, _ = write_run(clean, extended_inventory())
+    recorded = foreign_run(tmp_path / "foreign")
+    frid = recorded.name
+
+    def day(root):
+        return runs_root(root) / DAY_STR
+
+    def linked_day(root, out):
+        return (plant_link(runs_root(root) / LATER_DAY_STR, recorded.parent),
+                LATER_DAY_STR, None)
+
+    def linked_run(root, out):
+        return plant_link(day(root) / frid, recorded), DAY_STR, frid
+
+    def linked_run_yaml(root, out):
+        run = copy_run(recorded, day(root) / frid, meta=False)
+        return (plant_link(run / "run.yaml", recorded / "run.yaml",
+                           directory=False), DAY_STR, frid)
+
+    def inside(link_at, target_of, directory):
+        def plant(root, out):
+            run = copy_run(recorded, day(root) / frid)
+            node = run / link_at
+            if node.is_file():
+                node.unlink()  # a snapshot the run records, now a link
+            return (plant_link(node, target_of(root, out), directory),
+                    DAY_STR, frid)
+        return plant
+
+    cases = {
+        "day-directory": linked_day,
+        "run-directory": linked_run,
+        "run-yaml": linked_run_yaml,
+        "file-escaping-the-root": inside(
+            "alpha.yaml", lambda root, out: recorded / "alpha.yaml", False),
+        "file-inside-the-tree": inside(
+            "alpha.yaml", lambda root, out: day(root) / rid / "alpha.yaml",
+            False),
+        "file-dangling": inside(
+            "alpha.yaml", lambda root, out: out / "missing.yaml", False),
+        "directory-escaping-the-root": inside(
+            "linked", lambda root, out: recorded, True),
+        "directory-inside-the-tree": inside(
+            "linked", lambda root, out: day(root) / rid, True),
+        "directory-dangling": inside(
+            "linked", lambda root, out: out / "missing", True),
+        "below-real-subdirectories": inside(
+            "deep/er/linked", lambda root, out: recorded, True),
+    }
+    for name, plant in cases.items():
+        root, outside = tmp_path / name, tmp_path / f"{name}-outside"
+        shutil.copytree(clean, root)
+        outside.mkdir()
+        node, as_of, run_id = plant(root, outside)
+        with pytest.MonkeyPatch.context() as patch:
+            followed = record_followed_links(patch, root)
+            scan = list(catalog._iter_runs(root))
+            latest = catalog.load_snapshot(root)
+            by_id = catalog.load_snapshot(root, run_id=frid)
+            with pytest.raises(catalog.CatalogError,
+                               match="no run sequence is claimed beside"):
+                catalog._claim_sequence(root, "2026-07-12", frid)
+        assert followed == [], name
+        bad = refused(scan)
+        assert [(e.as_of, e.run_id) for e in bad] == [(as_of, run_id)], name
+        assert str(node) in str(bad[0].refusal), name  # names the link itself
+        assert (latest["run_id"], by_id) == (rid, None), name
+
+
 def test_latest_run_is_never_a_symlinked_entry(tmp_path):
     # opensoft/openxFactory#1187: a link dated after every recorded run was
     # the "latest" run load_snapshot returned, read through the link. A day

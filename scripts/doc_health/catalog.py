@@ -698,22 +698,31 @@ def _symlink_refusal(node: Path) -> CatalogError:
         f"catalog path is a symlink, which the writer never follows: {node}")
 
 
-def _link_refusal(node: Path) -> CatalogError | None:
-    """The refusal for a node the run scan cannot take as link-free, or
-    None when nothing is there or the node is not a link. A symlink is
-    refused (``_symlink_refusal``), and so is a node whose own ``lstat``
-    fails for any reason but its absence, because what cannot be checked
-    could be a link. The check is an explicit ``os.lstat``: from Python
-    3.13 ``Path.is_symlink`` swallows every ``OSError`` and would report
-    such a node link-free."""
+def _own_mode(node: Path) -> tuple[int | None, CatalogError | None]:
+    """``node``'s own mode, from an ``lstat`` that never follows it:
+    ``(mode, None)`` for a node that is not a link, ``(None, None)`` when
+    nothing is there, and ``(None, refusal)`` for a node the run scan
+    cannot take as link-free. A symlink is refused (``_symlink_refusal``),
+    and so is a node whose own ``lstat`` fails for any reason but its
+    absence, because what cannot be checked could be a link. The check is
+    an explicit ``os.lstat``: from Python 3.13 ``Path.is_symlink`` swallows
+    every ``OSError`` and would report such a node link-free."""
     try:
         mode = os.lstat(node).st_mode
     except (FileNotFoundError, NotADirectoryError):
-        return None
+        return None, None
     except OSError as exc:
-        return CatalogError(
+        return None, CatalogError(
             f"catalog path could not be checked for a symlink: {exc}")
-    return _symlink_refusal(node) if stat.S_ISLNK(mode) else None
+    if stat.S_ISLNK(mode):
+        return None, _symlink_refusal(node)
+    return mode, None
+
+
+def _link_refusal(node: Path) -> CatalogError | None:
+    """The refusal for a node the run scan cannot take as link-free, or
+    None when nothing is there or the node is not a link (``_own_mode``)."""
+    return _own_mode(node)[1]
 
 
 def _unlisted_refusal(exc: OSError) -> CatalogError:
@@ -726,7 +735,8 @@ def _unlisted_refusal(exc: OSError) -> CatalogError:
 
 def _listing(directory: Path) -> tuple[list[Path], CatalogError | None]:
     """``(sorted entries, None)`` for a directory the run scan can list, or
-    ``([], refusal)`` for one it cannot (``_unlisted_refusal``)."""
+    ``([], refusal)`` for one it cannot (``_unlisted_refusal``). Listing
+    reads names only: it stats no entry, so it follows no link."""
     try:
         return sorted(directory.iterdir()), None
     except OSError as exc:
@@ -736,26 +746,33 @@ def _listing(directory: Path) -> tuple[list[Path], CatalogError | None]:
 def _link_inside(run_dir: Path) -> CatalogError | None:
     """The refusal for a recorded run the scan cannot vouch for as
     link-free, or None. That is a symlink anywhere inside it, or an entry
-    inside it that cannot be checked (``_link_refusal``), or a directory
-    inside it that cannot be listed (``_unlisted_refusal``), since a link
-    could hide there. The walk fails closed: ``os.walk`` would otherwise
-    skip a directory it cannot list in silence (``onerror`` omitted), and
-    the run would pass as link-free over a subtree nobody saw. The writer's
-    own walk is ``_refuse_links_inside``, which the run scan leaves
-    unchanged."""
-    def unlisted(exc: OSError) -> None:
-        raise _unlisted_refusal(exc)
+    inside it that cannot be checked (``_own_mode``), or a directory inside
+    it that cannot be listed (``_unlisted_refusal``), since a link could
+    hide there.
 
-    try:
-        for dirpath, dirnames, filenames in os.walk(run_dir,
-                                                    onerror=unlisted):
-            dirnames.sort()
-            for name in sorted(dirnames + filenames):
-                refusal = _link_refusal(Path(dirpath) / name)
-                if refusal is not None:
-                    return refusal
-    except CatalogError as exc:
-        return exc
+    The walk is driven by each node's own ``lstat``: it identifies a link
+    before anything else touches it, and it descends only into a real
+    directory. So it never stats a link's target, not even to classify it,
+    as ``os.walk`` does: that sorts entries into directories and files with
+    ``DirEntry.is_dir``, which follows a link. The walk visits nodes
+    depth-first in name order, like the writer's own walk
+    (``_refuse_links_inside``, which the run scan leaves unchanged), and it
+    fails closed where ``os.walk`` skips a directory it cannot list in
+    silence, which would pass the run as link-free over a subtree nobody
+    saw."""
+    pending = [run_dir]
+    while pending:
+        nodes, refusal = _listing(pending.pop())
+        if refusal is not None:
+            return refusal
+        directories = []
+        for node in nodes:
+            mode, refusal = _own_mode(node)
+            if refusal is not None:
+                return refusal
+            if mode is not None and stat.S_ISDIR(mode):
+                directories.append(node)
+        pending.extend(reversed(directories))  # the first name is walked next
     return None
 
 
@@ -768,10 +785,10 @@ def _iter_runs(root: Path):
     a record. It is skipped so it can never be selected as "latest" or
     block newer work, and a retry of the same content heals it.
 
-    The scan never follows a symlink (opensoft/openxFactory#1187). It
-    checks each node for a link with an explicit ``lstat``
-    (``_link_refusal``) before it lists, stats or reads it, and it never
-    reads through one. A link where the writer makes a day directory, a run
+    The scan never follows a symlink (opensoft/openxFactory#1187). It checks
+    each node for a link with an explicit ``lstat`` (``_own_mode``) before it
+    lists, stats or reads it, so it never stats or reads through one, not even
+    to classify it. A link where the writer makes a day directory, a run
     directory or ``run.yaml`` is yielded as a refused entry for that entry
     alone, whether it dangles, points inside the tree or escapes the
     catalog root. The scan fails closed, so a node there it cannot check,
