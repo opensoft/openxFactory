@@ -1391,11 +1391,17 @@ def _write_new_manifest(seal_dir, text: str, *, identity=None) -> None:
 # may be a file, a link or a real directory, and a directory is removed with
 # everything under it, so the record step always reads the lane's own
 # result rather than falling back to `unknown`. The path is therefore held
-# inside the checkout first (`_seal_result_path`).
+# inside the checkout first (`_seal_result_path`), and its directory is held
+# by a handle from before sealed code runs (`_HeldResultPath`).
 SEAL_RESULT_PLANTED = (
     "the seal result's path held an entry the lane did not write: sealed "
     "code ran before the result was written, so the seal is refused rather "
     "than dispatched")
+SEAL_RESULT_DIRECTORY_REPLACED = (
+    "the seal result's directory is no longer the one the lane held before "
+    "sealed code ran, so the path the workflow reads leads somewhere else: "
+    "the seal is refused, and its result is written only into the directory "
+    "the lane held")
 
 
 def _seal_result_path(given, within) -> Path:
@@ -1428,27 +1434,96 @@ def _seal_result_path(given, within) -> Path:
     return Path(candidate)
 
 
-def _clear_result_path(path) -> None:
-    """Remove whatever sits at `path` without following it: a file or a link
-    is unlinked, and a directory is removed with everything under it
-    (Copilot, PR #1166). `shutil.rmtree` removes a link inside the tree as a
-    link, and refuses a directory swapped for a link after the check below.
-    Where the platform's `rmtree` could follow a link swapped in while it
-    runs, the directory is refused instead, and left. `path` comes from
-    `_seal_result_path`: it is inside the checkout and names a `.json`
-    file."""
+def _clear_result_path(path, *, dir_fd=None) -> None:
+    """Remove whatever sits at `path`, relative to `dir_fd` when it is given,
+    without following it: a file or a link is unlinked, and a directory is
+    removed with everything under it (Copilot, PR #1166). `shutil.rmtree`
+    removes a link inside the tree as a link, and refuses a directory swapped
+    for a link after the check below. Where the platform's `rmtree` could
+    follow a link swapped in while it runs, the directory is refused instead,
+    and left. `path` comes from `_seal_result_path`: it is inside the
+    checkout and names a `.json` file."""
     try:
-        info = os.lstat(path)
+        info = os.stat(path, dir_fd=dir_fd, follow_symlinks=False)
     except FileNotFoundError:
         return
     if not stat.S_ISDIR(info.st_mode):
-        os.unlink(path)
+        os.unlink(path, dir_fd=dir_fd)
         return
     if not getattr(shutil.rmtree, "avoids_symlink_attacks", False):
         raise OSError(
             f"{path} is a directory, and this platform's rmtree could follow a "
             "link swapped in while it runs, so it is left as it is")
-    shutil.rmtree(path)
+    shutil.rmtree(path, dir_fd=dir_fd)
+
+
+@dataclass
+class _HeldResultPath:
+    """The seal result's path (`_seal_result_path`), with its directory held by
+    a handle taken before any sealed code runs (Copilot, PR #1166).
+
+    Sealed code could move that directory aside and put a link to another in
+    its place, and a path used afterwards would follow the link. So every act
+    at the result's path, looking, clearing and creating, is relative to the
+    directory the lane held, never through the path, and the path is checked
+    to still lead there before the result is written. Where the platform
+    opens nothing relative to a handle, the path is used, as the manifest's
+    write does."""
+
+    path: Path
+    directory: int | None = None
+
+    def _name(self):
+        return self.path.name if self.directory is not None else self.path
+
+    def clear(self) -> None:
+        _clear_result_path(self._name(), dir_fd=self.directory)
+
+    def refusal(self) -> str | None:
+        """Why the seal is refused at the end, or None: the path no longer
+        leads to the directory held, or an entry the lane did not write sits
+        at the result's name there."""
+        if self.directory is not None:
+            try:
+                now = os.stat(self.path.parent)
+            except OSError:
+                return SEAL_RESULT_DIRECTORY_REPLACED
+            held = os.fstat(self.directory)
+            if (now.st_dev, now.st_ino) != (held.st_dev, held.st_ino):
+                return SEAL_RESULT_DIRECTORY_REPLACED
+        if _render_output_present(self._name(), dir_fd=self.directory):
+            return SEAL_RESULT_PLANTED
+        return None
+
+    def write(self, payload: dict) -> None:
+        """Clear the result's name, create the lane's own result there
+        exclusively, and let the directory go. Never raises for the write: a
+        result that cannot be written leaves the dispatch withheld."""
+        try:
+            self.clear()
+            _create_new_file(self._name(), (json.dumps(
+                payload, indent=2, sort_keys=True) + "\n").encode("utf-8"),
+                dir_fd=self.directory)
+        except OSError as exc:
+            print(f"  ::warning::could not write the seal result: {exc}")
+        finally:
+            if self.directory is not None:
+                os.close(self.directory)
+                self.directory = None
+
+
+def _hold_seal_result_path(given, within) -> _HeldResultPath:
+    """`_seal_result_path(given, within)`, with its directory held. Raises
+    `ValueError` for a path the lane may not write at, one whose directory it
+    cannot hold included."""
+    path = _seal_result_path(given, within)
+    try:
+        directory = _open_directory(path.parent)
+    except OSError as exc:
+        raise ValueError(
+            f"--seal-result-out {given!r} is in a directory the lane cannot "
+            f"hold ({exc.strerror})") from exc
+    return _HeldResultPath(path, directory)
 
 
 def tree_digest(index: dict[str, str]) -> str:
@@ -3730,19 +3805,21 @@ def main(argv: list[str] | None = None) -> None:
             load_error = None
         manifest: dict | None = None
         strict_failed, strict_detail = False, []
-        # THE RESULT'S PATH IS HELD INSIDE THE CHECKOUT BEFORE ANYTHING AT IT
-        # IS REMOVED (`_seal_result_path`). A path it refuses gets nothing
+        # THE RESULT'S PATH IS HELD INSIDE THE CHECKOUT, AND ITS DIRECTORY BY
+        # A HANDLE, BEFORE ANYTHING AT IT IS REMOVED AND BEFORE SEALED CODE
+        # RUNS (`_hold_seal_result_path`). A path it refuses gets nothing
         # written and nothing removed, and nothing is sealed, since a seal
         # whose result cannot be written could never be dispatched.
-        result_out, result_refused = None, None
+        result, result_refused = None, None
         if args.seal_result_out:
             try:
-                result_out = _seal_result_path(args.seal_result_out, repo_root)
+                result = _hold_seal_result_path(args.seal_result_out,
+                                                repo_root)
             except ValueError as exc:
                 result_refused = f"the seal result cannot be written: {exc}"
-        if result_out is not None:
+        if result is not None:
             try:
-                _clear_result_path(result_out)
+                result.clear()
             except OSError as exc:
                 print(f"  ::warning::could not clear the seal result: {exc}")
         if result_refused is not None:
@@ -3779,18 +3856,14 @@ def main(argv: list[str] | None = None) -> None:
                                       manifest=manifest,
                                       strict_failed=strict_failed,
                                       detail=strict_detail)
-        if result_out is not None:
-            if os.path.lexists(result_out):
-                manifest, reason = None, SEAL_RESULT_PLANTED
+        if result is not None:
+            refusal = result.refusal()
+            if refusal is not None:
+                manifest, reason = None, refusal
                 strict_failed, strict_detail = False, []
                 payload = seal_result_payload(sealed=False, reason=reason,
                                               manifest=None)
-            try:
-                _clear_result_path(result_out)
-                _create_new_file(result_out, (json.dumps(
-                    payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
-            except OSError as exc:
-                print(f"  ::warning::could not write the seal result: {exc}")
+            result.write(payload)
         if manifest is not None:
             print(f"::notice::{LANE}: SEALED {manifest['artifact_name']} — "
                   f"source_head={_short(manifest['source_head'])}, "

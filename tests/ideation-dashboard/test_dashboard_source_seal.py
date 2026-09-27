@@ -1994,7 +1994,8 @@ def test_a_stale_seal_result_is_cleared_before_the_seal_runs(
 
 @pytest.mark.parametrize("where", ["beside-the-checkout", "climbing-out-of-it",
                                    "through-a-link-inside-it",
-                                   "not-a-json-file", "the-checkout-itself"])
+                                   "not-a-json-file", "the-checkout-itself",
+                                   "in-a-directory-that-does-not-exist"])
 def test_a_seal_result_path_the_lane_may_not_clear_is_refused(
         corpus, tmp_path, monkeypatch, capsys, where):
     """The seal result is written only inside the checkout the lane runs
@@ -2025,6 +2026,8 @@ def test_a_seal_result_path_the_lane_may_not_clear_is_refused(
         "through-a-link-inside-it": str(root / "linked" / "seal-result.json"),
         "not-a-json-file": str(kept),
         "the-checkout-itself": str(root),
+        "in-a-directory-that-does-not-exist": str(root / "absent"
+                                                  / "seal-result.json"),
     }[where]
     monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
     monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
@@ -2041,6 +2044,50 @@ def test_a_seal_result_path_the_lane_may_not_clear_is_refused(
     assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
     said = capsys.readouterr().out
     assert "NOT SEALED" in said and "the seal result" in said
+
+
+def test_a_result_directory_sealed_code_replaced_is_never_written_through(
+        corpus, tmp_path, monkeypatch, capsys):
+    """THE RESULT'S DIRECTORY IS HELD from before any sealed code runs
+    (Copilot, PR #1166). Sealed code that moves the checkout aside and puts a
+    link to another directory in its place gets nothing written, and nothing
+    removed, through the link: every act at the result's path is relative to
+    the directory the lane held. The lane's own result goes there, and it
+    refuses the seal, since the path the workflow reads no longer leads to
+    it."""
+    head = _git(corpus, "rev-parse", "HEAD")
+    root = tmp_path / "aggregation"
+    root.mkdir()
+    (root / "dfr-decision.json").write_text(json.dumps(_decision(head)),
+                                            encoding="utf-8")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "seal-result.json").write_text("untouched\n", encoding="utf-8")
+    moved = tmp_path / "aggregation.moved"
+
+    def replacing(seal_root, *, source_head, source_committed_at):
+        root.rename(moved)
+        root.symlink_to(outside, target_is_directory=True)
+        return dict(STUB_PRECHECK)
+
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", replacing)
+    lane.main(["--repo-root", str(root), "--phase", "seal",
+               "--corpus-checkout", str(corpus), "--corpus-ref", "HEAD",
+               "--decision-in", str(root / "dfr-decision.json"),
+               "--seal-out", str(tmp_path / "seal"),
+               "--seal-result-out", str(root / "seal-result.json"),
+               "--correlation-id", CORRELATION])
+    assert (outside / "seal-result.json").read_text(encoding="utf-8") == \
+        "untouched\n"
+    assert sorted(path.name for path in outside.iterdir()) == \
+        ["seal-result.json"]
+    result = json.loads((moved / "seal-result.json").read_text(
+        encoding="utf-8"))
+    assert result["sealed"] is False
+    assert result["reason"] == lane.SEAL_RESULT_DIRECTORY_REPLACED
+    assert "NOT SEALED" in capsys.readouterr().out
 
 
 def test_the_workflows_own_relative_spelling_seals(corpus, tmp_path,
