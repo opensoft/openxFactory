@@ -612,11 +612,16 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   above: `edited = touched & suites` still computes and refuses on every
   intersection exactly as written, with no allow-list read, until the file
   exists and T059/T086 wire the subtraction into both falsifiers' checks.
-  Whichever task first needs to enter an edit creates the file: T043 if its
-  own triage respells a suite; otherwise T061 (7.3's admitted respellings,
-  R1Q14); or T060, under R1Q26 (a)'s ruling (`#656`, 2026-09-27) admitting
-  its 5.3a edits to `tests/test_gate_loop_views.py`. Carried out by
-  whichever of T043 / T061 / T060 creates the file first, plus T059, T086.
+  T043 creates the file: its own triage (9.2) already commits to the
+  allow-list's first entry, `test_branch_session.py`'s stale `getsource`
+  assertion, respelled once T041's exclusion no longer holds it
+  (`specs/034-opendox-standalone-operation/tasks.md`, T043's own text).
+  T061 is not an earlier candidate — R1Q14 and R1Q25 both still block it,
+  and F5.2 refuses its kind of edit (add/revise, not respell) until R1Q14
+  says how the allow-list admits it; nor is T060, whose own text expects no
+  code change. R1Q26 (a)'s later admission of two `test_gate_loop_views.py`
+  edits (`#656`, 2026-09-27) is batch I's and T066's, a separate batch this
+  amendment does not touch. Carried out by T043, T059, T086.
 - [ ] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
   projection replaces them; the import-time column stays at zero.
 - [x] 5.6 **Do NOT author the view-wiring slice here** — and it can no longer be
@@ -1463,11 +1468,16 @@ that does not name a platform.
   above: `edited = touched & {...}` still computes and refuses on every
   intersection exactly as written, with no allow-list read, until the file
   exists and T059/T086 wire the subtraction into both falsifiers' checks.
-  Whichever task first needs to enter an edit creates the file: T043 if its
-  own triage respells a suite; otherwise T061 (7.3's admitted respellings,
-  R1Q14); or T060, under R1Q26 (a)'s ruling (`#656`, 2026-09-27) admitting
-  its 5.3a edits to `tests/test_gate_loop_views.py`. Carried out by
-  whichever of T043 / T061 / T060 creates the file first, plus T059, T086.
+  T043 creates the file: its own triage (9.2) already commits to the
+  allow-list's first entry, `test_branch_session.py`'s stale `getsource`
+  assertion, respelled once T041's exclusion no longer holds it
+  (`specs/034-opendox-standalone-operation/tasks.md`, T043's own text).
+  T061 is not an earlier candidate — R1Q14 and R1Q25 both still block it,
+  and F5.2 refuses its kind of edit (add/revise, not respell) until R1Q14
+  says how the allow-list admits it; nor is T060, whose own text expects no
+  code change. R1Q26 (a)'s later admission of two `test_gate_loop_views.py`
+  edits (`#656`, 2026-09-27) is batch I's and T066's, a separate batch this
+  amendment does not touch. Carried out by T043, T059, T086.
 - [ ] 12.6 **MERGE AUTHORITY — RULED, HOLD RELEASED.** Brett Heap, `#656` comment
   `5784155201`, 2026-09-22T21:06:01Z: *"merge yes"* — landing authority follows
   whoever governs the repository. A GOVERNED host reserves landing and routes it
