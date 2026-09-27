@@ -3917,22 +3917,28 @@ def test_a_sealed_validator_that_cannot_run_over_the_render_is_refused(
     assert "jsonschema is not installed" in reason
 
 
+# A STAND-IN TRACKING ROW for the citation machinery. The production table,
+# `lane.KNOWN_STRICT_FINDINGS`, is empty since #1159's row was dropped, so the
+# tests of the machinery install this row instead. It keeps the shape of the
+# stand-in validator's `cl-plane-1` findings, under an issue that is not real.
+_TRACKED_ROW = ("snapshot-dangling-cluster-ref", "'cl-plane-1'",
+                "stand-in/tracker#1")
+
+
 def test_a_strict_rejection_is_a_verdict_carrying_the_findings(
         stand_in_seal, tmp_path):
     """`StrictGateRejected`: the validator's own findings, with the scratch
-    path reduced to the file's name, and the tracking issue of every finding
-    it knows, counted, so a rejection that also carries a new finding never
-    reads as fully tracked."""
+    path reduced to the file's name. No finding is tracked today, so the
+    reason cites no issue, not even for the `cl-plane-1` findings #1159 once
+    tracked: a recurrence reads as a rejection of its own."""
     _configure(tmp_path, validator="findings")
     with pytest.raises(lane.StrictGateRejected) as rejected:
         _precheck(stand_in_seal)
-    reason = str(rejected.value)
-    assert reason.startswith(
+    assert str(rejected.value) == (
         "--strict REJECTED the snapshot this seal renders "
-        "(validate-ideation-dashboard-contracts: 4 error(s), 0 warning(s)), a "
-        "known defect, tracked as opensoft/openxFactory#1159 (3 of 4 "
-        "finding(s); 1 tracked by no known issue); the child's publication "
-        "gate would refuse it the same way, so nothing is dispatched")
+        "(validate-ideation-dashboard-contracts: 4 error(s), 0 warning(s)); "
+        "the child's publication gate would refuse it the same way, so "
+        "nothing is dispatched")
     assert rejected.value.detail == [
         *(f"ERROR [snapshot-dangling-cluster-ref] snapshot.json: possible "
           f"{pos!r} claiming_clusters references unknown cluster 'cl-plane-1'"
@@ -3942,15 +3948,33 @@ def test_a_strict_rejection_is_a_verdict_carrying_the_findings(
         "validate-ideation-dashboard-contracts: 4 error(s), 0 warning(s)"]
 
 
+def test_a_strict_rejection_cites_the_issue_of_every_finding_it_tracks(
+        stand_in_seal, tmp_path, monkeypatch):
+    """With a row in the table, the reason cites its issue and counts the
+    findings it tracks, so a rejection that also carries a new finding never
+    reads as fully tracked."""
+    monkeypatch.setattr(lane, "KNOWN_STRICT_FINDINGS", (_TRACKED_ROW,))
+    _configure(tmp_path, validator="findings")
+    with pytest.raises(lane.StrictGateRejected) as rejected:
+        _precheck(stand_in_seal)
+    assert str(rejected.value) == (
+        "--strict REJECTED the snapshot this seal renders "
+        "(validate-ideation-dashboard-contracts: 4 error(s), 0 warning(s)), a "
+        "known defect, tracked as stand-in/tracker#1 (3 of 4 finding(s); 1 "
+        "tracked by no known issue); the child's publication gate would "
+        "refuse it the same way, so nothing is dispatched")
+
+
 def test_a_tracked_finding_past_the_detail_cap_is_still_cited(
-        stand_in_seal, tmp_path):
+        stand_in_seal, tmp_path, monkeypatch):
     """The citation reads EVERY line the validator wrote, and only the detail
     the verdict carries is capped (Copilot, PR #1166). Here the one tracked
     finding is the 61st, past `DETAIL_CAP`."""
+    monkeypatch.setattr(lane, "KNOWN_STRICT_FINDINGS", (_TRACKED_ROW,))
     _configure(tmp_path, validator="many-findings")
     with pytest.raises(lane.StrictGateRejected) as rejected:
         _precheck(stand_in_seal)
-    assert "tracked as opensoft/openxFactory#1159 (1 of 61 finding(s); 60 " \
+    assert "tracked as stand-in/tracker#1 (1 of 61 finding(s); 60 " \
         "tracked by no known issue)" in str(rejected.value)
     assert len(rejected.value.detail) == lane.DETAIL_CAP
     assert not any("cl-plane-1" in line for line in rejected.value.detail)
@@ -4094,20 +4118,32 @@ def test_the_fenced_call_answers_what_the_products_own_call_answers(
     assert fenced.validator == Path(own.validator).resolve()
 
 
+def test_no_strict_finding_is_tracked_today():
+    """THE TABLE IS EMPTY. #1184 repaired the corpus and #1159 closed, so its
+    one row tracked nothing and was dropped. Its finding, should it recur,
+    draws no citation, rather than one naming a closed issue."""
+    assert lane.KNOWN_STRICT_FINDINGS == ()
+    assert lane.known_finding_citation(
+        ["ERROR [snapshot-dangling-cluster-ref] s.json: x 'cl-plane-1'"] * 3
+    ) == ""
+
+
 @pytest.mark.parametrize("lines, cited", [
     (["ERROR [snapshot-dangling-cluster-ref] s.json: x 'cl-plane-1'"] * 3,
-     "known defect, tracked as opensoft/openxFactory#1159 (3 of 3 finding(s))"),
+     "known defect, tracked as stand-in/tracker#1 (3 of 3 finding(s))"),
     (["ERROR [snapshot-dangling-cluster-ref] s.json: x 'cl-plane-10'"], ""),
     (["ERROR [snapshot-unknown-kind] s.json: x 'cl-plane-1'"], ""),
     (["validate-ideation-dashboard-contracts: 0 error(s), 1 warning(s)"], ""),
     ([], ""),
 ], ids=["all-known", "another-cluster", "another-code", "no-finding-line",
         "nothing"])
-def test_a_citation_is_made_only_for_the_finding_it_tracks(lines, cited):
+def test_a_citation_is_made_only_for_the_finding_it_tracks(
+        lines, cited, monkeypatch):
     """The citation retires itself: once the corpus is fixed the finding is
     gone, and a different finding, even one naming a lookalike value or the
     same value under another code, is never cited against an issue that is
-    not its own."""
+    not its own. Run against the stand-in row, since no row is real today."""
+    monkeypatch.setattr(lane, "KNOWN_STRICT_FINDINGS", (_TRACKED_ROW,))
     assert lane.known_finding_citation(lines) == cited
 
 
