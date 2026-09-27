@@ -886,6 +886,35 @@ def test_write_snapshot_never_adds_to_a_complete_run(tmp_path):
         catalog.CONTENT_ADDRESSED
 
 
+def test_write_snapshot_never_heals_a_partial_run_around_a_link(tmp_path):
+    # Review round 9 (Copilot, #1175): write_snapshot checked only its own
+    # target's path. A partial run holding an unrelated symlink was still
+    # completed and closed: its missing snapshot was written, and an
+    # unrecorded run was also claimed and given its run.yaml. That left a
+    # closed run holding a link, which a linked directory can use to hide
+    # files from _snapshot_files. Healing refuses a run with a link anywhere
+    # inside it, as write_run does.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid = catalog.run_id(runs, TAXONOMY)
+    for recorded in (False, True):
+        root = tmp_path / f"recorded-{recorded}"
+        catalog.write_snapshot(root, DAY, rid, "alpha", runs["alpha"],
+                               TAXONOMY)  # the crash window: alpha only
+        run_dir = runs_root(root) / DAY_STR / rid
+        if not recorded:
+            (run_dir / "run.yaml").unlink()
+        outside = tmp_path / f"outside-{recorded}"
+        outside.mkdir()
+        (run_dir / "linked").symlink_to(outside, target_is_directory=True)
+        before = tree_state(root)
+        with pytest.raises(catalog.CatalogError, match="symlink"):
+            catalog.write_snapshot(root, DAY, rid, "openxFactory",
+                                   runs["openxFactory"], TAXONOMY)
+        assert tree_state(root) == before, recorded  # no claim, no write
+        assert not (run_dir / "openxFactory.yaml").exists(), recorded
+        assert tree_state(outside) == {}, recorded
+
+
 def test_a_foreign_sequence_claim_node_is_refused_before_claiming(tmp_path):
     # Review round 7 (Copilot, #1175): the claim scan skipped a claim-named
     # node that was not a regular file. The O_EXCL open then collided with a

@@ -858,7 +858,14 @@ def _catalog_chain(root: Path) -> list[Path]:
     ``root`` is included, so a symlinked root is refused too. The runner
     resolves the root it hands the writer and the checks (``Path.resolve``),
     so only a caller that did not resolve its root can pass a symlinked
-    one."""
+    one.
+
+    The no-follow guarantee covers the tree from ``root`` down, because
+    that is where a symlink can arrive as content: committed, merged, or
+    copied in with a run. The directories above ``root`` belong to the host
+    that holds the checkout, and git never carries a link there. So they
+    are the caller's to choose, and a checkout reached through a linked
+    home or workspace directory stays usable."""
     root = Path(root)
     return [root] + [root.joinpath(*RUNS_DIR.parts[:depth])
                      for depth in range(1, len(RUNS_DIR.parts) + 1)]
@@ -1029,9 +1036,11 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
     - Path safety: every directory and file on the run's paths, from
       ``root`` itself down, must be absent or a real directory or regular
       file of the kind the writer makes there (``_refuse_unsafe_run_paths``).
-      A symlink is refused, and so is a node of the wrong type, before
-      anything is claimed or written. The writer never writes or claims
-      outside the catalog tree.
+      An existing run directory must also hold no symlink anywhere inside
+      it (``_refuse_links_inside``). A symlink is refused, and so is a node
+      of the wrong type, before anything is claimed or written. The writer
+      never writes or claims outside the catalog tree, and it never closes
+      a run around a link.
     - Crash safety: ``run.yaml`` is written after the snapshot file, so
       a recorded run always holds at least one repository snapshot;
       directories without ``run.yaml`` are invisible to
@@ -1058,6 +1067,10 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
     target = _repo_file(run_dir, repo)
     meta_path = run_dir / RUN_META_NAME
     _refuse_unsafe_run_paths(root, run_dir, [target])
+    if run_dir.exists():  # a real directory, per the check above
+        # A partial run is healed only if it holds no link anywhere, since
+        # healing it would otherwise close a run around one.
+        _refuse_links_inside(run_dir)
 
     if _holds_exactly(target, expected):
         if _recorded(root, run_dir, rid, day):
