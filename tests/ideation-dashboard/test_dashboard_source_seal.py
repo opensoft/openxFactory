@@ -1940,6 +1940,41 @@ def test_the_render_is_handed_the_directory_the_lane_made_not_its_name(
     assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
 
 
+@pytest.mark.parametrize("replacement", ["a-link-to-the-moved-seal",
+                                         "a-copy-in-its-place"])
+def test_a_seal_directory_swapped_as_its_manifest_is_written_is_not_published(
+        corpus, tmp_path, monkeypatch, replacement):
+    """THE NAME IS HELD ONCE MORE AFTER THE MANIFEST (Copilot, PR #1185). The
+    manifest is the seal's publication marker, and once the lane records the
+    seal sealed, the workflow uploads whatever the seal's name leads to. A
+    name swapped while the manifest was written would publish something
+    else. So the name is held to the directory once more after the write. A
+    seal whose name no longer leads there is refused, and its manifest is
+    withdrawn from the directory the lane made, through its handle. Here the
+    seal is moved aside as the manifest's write returns, and a link to it,
+    or a copy of it, is put at its name."""
+    seal = tmp_path / "seal"
+    moved = tmp_path / "seal.moved"
+    write_manifest = lane._write_new_manifest
+
+    def writing_then_swapping(held, text, **kw):
+        write_manifest(held, text, **kw)
+        seal.rename(moved)
+        if replacement == "a-link-to-the-moved-seal":
+            seal.symlink_to(moved, target_is_directory=True)
+        else:
+            shutil.copytree(moved, seal)
+
+    monkeypatch.setattr(lane, "_write_new_manifest", writing_then_swapping)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal)
+    assert not (moved / lane.SEAL_MANIFEST_NAME).exists()
+    assert str(refused.value) == (
+        "the seal directory is no longer the one the lane created: it was "
+        "replaced as its manifest was written, so the seal is not published, "
+        "and its manifest is withdrawn")
+
+
 def test_a_confined_seal_is_never_made_by_its_path_alone(corpus, tmp_path,
                                                           monkeypatch):
     """A PLATFORM THAT HOLDS NO HANDLE MAKES NO CONFINED SEAL (Copilot, PR
@@ -2921,7 +2956,6 @@ def test_the_workflows_own_relative_spelling_seals(corpus, tmp_path,
     ("a-link-at-its-own-name", "leads through a link"),
     ("a-dangling-link-at-its-own-name", "leads through a link"),
     ("an-existing-directory-inside-it", "already exists"),
-    ("the-checkout-itself", "already exists"),
     ("in-a-directory-that-does-not-exist",
      "is in a directory that does not exist"),
 ])
@@ -2965,7 +2999,6 @@ def test_a_seal_out_the_lane_may_not_make_is_refused_before_anything_is_sealed(
         "a-link-at-its-own-name": str(root / "dfr-seal"),
         "a-dangling-link-at-its-own-name": str(root / "dfr-seal"),
         "an-existing-directory-inside-it": str(root / "dfr-seal"),
-        "the-checkout-itself": str(root),
         "in-a-directory-that-does-not-exist": str(root / "absent"
                                                   / "dfr-seal"),
     }[where]
@@ -3006,7 +3039,9 @@ def test_a_seal_out_the_lane_may_not_make_is_refused_before_anything_is_sealed(
                                      "the-result-inside-the-seal",
                                      "the-seal-inside-the-result",
                                      "a-free-seal-inside-the-result",
-                                     "a-link-to-the-result"])
+                                     "a-link-to-the-result",
+                                     "a-free-result-inside-an-existing-seal",
+                                     "the-checkout-itself"])
 def test_a_seal_out_that_overlaps_the_seal_result_is_never_touched(
         corpus, tmp_path, monkeypatch, capsys, overlap):
     """THE SEAL AND ITS RESULT ARE TWO PATHS (Copilot, PR #1185). The seal
@@ -3015,12 +3050,15 @@ def test_a_seal_out_that_overlaps_the_seal_result_is_never_touched(
     or holds it, or lies inside it, would have had an existing seal, or
     whatever it held, removed as a stale result, and the path then passed as
     fresh and been sealed into. So an overlap is found before anything is
-    cleared: nothing is removed, made or sealed. The paths are compared as
-    spelled and as resolved, so a `--seal-out` that is a link to the
-    result's path overlaps it too. A `--seal-out` refused on its own keeps
-    its own reason; a free one is refused for the overlap. The refusal is
-    written as the result where the result's path is free, and the step
-    fails where it is not, since the lane will not clear it."""
+    cleared, and on an overlap neither path is touched: nothing is removed,
+    made, sealed or written, and the step fails, since the lane will not
+    write its result at a path that is the seal's, or inside it, or holds
+    it. A result written anyway would land inside an existing seal (Copilot,
+    PR #1185, review 5331632101). The paths are compared as spelled and as
+    resolved, so a `--seal-out` that is a link to the result's path overlaps
+    it too, and the checkout itself overlaps every result path inside it. A
+    `--seal-out` refused on its own keeps its own reason; a free one is
+    refused for the overlap."""
     head = _git(corpus, "rev-parse", "HEAD")
     root = tmp_path / "aggregation"
     root.mkdir()
@@ -3028,11 +3066,15 @@ def test_a_seal_out_that_overlaps_the_seal_result_is_never_touched(
                                             encoding="utf-8")
     if overlap in ("one-path-holding-a-seal", "one-free-path"):
         seal_out = result_out = root / "dfr-seal.json"
-    elif overlap == "the-result-inside-the-seal":
+    elif overlap in ("the-result-inside-the-seal",
+                     "a-free-result-inside-an-existing-seal"):
         seal_out = root / "dfr-seal"
         result_out = seal_out / "seal-result.json"
     elif overlap == "a-link-to-the-result":
         seal_out = root / "dfr-seal"
+        result_out = root / "seal-result.json"
+    elif overlap == "the-checkout-itself":
+        seal_out = root
         result_out = root / "seal-result.json"
     else:
         result_out = root / "seal-result.json"
@@ -3045,7 +3087,7 @@ def test_a_seal_out_that_overlaps_the_seal_result_is_never_touched(
                                              encoding="utf-8")
         seal_out.symlink_to(result_out, target_is_directory=True)
     elif not free:
-        seal_out.mkdir(parents=True)
+        seal_out.mkdir(parents=True, exist_ok=overlap == "the-checkout-itself")
         kept.write_text("an earlier seal\n", encoding="utf-8")
     if overlap == "the-result-inside-the-seal":
         result_out.write_text('{"stale": true}\n', encoding="utf-8")
@@ -3090,14 +3132,8 @@ def test_a_seal_out_that_overlaps_the_seal_result_is_never_touched(
                   "already exists, and the lane makes the seal only in a "
                   "directory it creates itself")
     assert f"NOT SEALED — {reason}" in capsys.readouterr().out
-    if overlap == "one-free-path":
-        assert code is None
-        result = json.loads(result_out.read_text(encoding="utf-8"))
-        assert (result["sealed"], result["reason"]) == (False, reason)
-        before[result_out.name] = ("file", result_out.read_bytes())
-    else:
-        assert code == lane.SEAL_RESULT_UNWRITTEN_EXIT
     assert _tree_state(root) == before
+    assert code == lane.SEAL_RESULT_UNWRITTEN_EXIT
 
 
 def test_a_link_put_on_the_seal_out_path_after_its_check_is_never_made_through(
