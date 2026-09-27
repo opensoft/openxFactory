@@ -222,7 +222,7 @@ def test_coverage_gap_after_baseline_is_flagged(tmp_path):
     # was pinned anywhere). An action line is operator guidance rendered in
     # every ranked-plan row; nothing else in this repository notices it
     # changing, so each family gets one verbatim pin in its own suite. This
-    # family emits twelve finding classes, each with its own action text;
+    # family emits thirteen finding classes, each with its own action text;
     # `coverage`'s is pinned here as the family's representative one.
     assert got[0].action == "run the mechanical catalog pass to add this document"
 
@@ -802,6 +802,264 @@ def test_misplaced_run_artifact_is_flagged(tmp_path):
     assert "does not conform to the recognized catalog" in got[0].rule
 
 
+# --- run-identity (opensoft/xFactory#519) ---------------------------------------
+
+RUN_IDENTITY_ACTION = (
+    "restore the run directory byte for byte from the commit that recorded "
+    "it; a closed catalog record is never edited or merged by hand")
+
+
+def mechanical_runs():
+    """{repo: mechanical entries} for the unmodified fixture corpus."""
+    return {repo: entries_for(repo) for repo in REPOS}
+
+
+def classified_runs():
+    """The same corpus with one alpha document carrying a structurally
+    valid suggested factory_scope -- a merged recommendation's shape."""
+    runs = mechanical_runs()
+    alpha = [dict(e) for e in runs["alpha"]]
+    alpha[0]["facet_assignments"] = [
+        assignment("factory_scope", "suggested", values=["domain"])]
+    return dict(runs, alpha=alpha)
+
+
+def edit_recorded(path, mutate):
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    mutate(doc)
+    path.write_text(catalog.render(doc), encoding="utf-8")
+
+
+def test_content_addressed_and_legacy_runs_verify_clean(tmp_path):
+    # A run minted by catalog.write_run verifies as the address of its own
+    # content; a run recorded under the pre-#519 inventory-plus-taxonomy key
+    # (every run on the aggregation's main before this change) is
+    # recognized as honestly named and never re-rendered.
+    root = tmp_path / "agg"
+    build_complete_baseline(root)
+    legacy = catalog.legacy_run_id(extended_inventory(), TAXONOMY)
+    for repo, entries in sorted(mechanical_runs().items()):
+        catalog.write_snapshot(root, DAY, legacy, repo, entries, TAXONOMY)
+    rid, _ = catalog.write_run(root, DAY, classified_runs(), TAXONOMY)
+    assert rid != legacy
+    assert fam_document_catalog(ctx_for(catalog_root=root)) == []
+
+
+def test_edited_content_addressed_run_is_flagged(tmp_path):
+    root = tmp_path / "agg"
+    build_complete_baseline(root)
+    rid, paths = catalog.write_run(root, DAY, mechanical_runs(), TAXONOMY)
+    # An edit no other check reads: only the run's identity can see it.
+    edit_recorded(paths["alpha"],
+                  lambda doc: doc["entries"][0].update(status="tampered"))
+
+    got = fam_document_catalog(ctx_for(catalog_root=root))
+    assert [(f.severity, f.repo, f.path) for f in got] == [
+        (ERROR, "(catalog)", f"runs/{DAY_STR}/{rid}")]
+    assert got[0].rule.startswith("[run-identity] recorded snapshots are "
+                                  "not the content their run id addresses")
+    assert got[0].action == RUN_IDENTITY_ACTION
+
+
+def test_reserialized_content_addressed_run_is_flagged(tmp_path):
+    # Review (Codex, #1175): an edit to a closed snapshot's SERIALIZATION
+    # alone -- same parsed content, different bytes -- still breaks its
+    # identity, because the check hashes the raw bytes on disk. That holds
+    # for a line-ending-only edit too (Copilot, #1175), which a
+    # universal-newline text read would have hidden.
+    original = {}
+    for name, rewrite in (
+            ("indent", lambda raw: json.dumps(
+                json.loads(raw), indent=4, sort_keys=True).encode()),
+            ("crlf", lambda raw: raw.replace(b"\n", b"\r\n"))):
+        root = tmp_path / name
+        build_complete_baseline(root)
+        rid, paths = catalog.write_run(root, DAY, mechanical_runs(),
+                                       TAXONOMY)
+        original[name] = paths["alpha"].read_bytes()
+        paths["alpha"].write_bytes(rewrite(original[name]))
+        got = fam_document_catalog(ctx_for(catalog_root=root))
+        assert [(f.severity, f.repo, f.path) for f in got] == [
+            (ERROR, "(catalog)", f"runs/{DAY_STR}/{rid}")], name
+        assert got[0].rule.startswith("[run-identity] ")
+        assert got[0].action == RUN_IDENTITY_ACTION
+    assert original["indent"] == original["crlf"]  # one run, two edits
+
+
+def test_file_mixed_in_from_another_run_is_flagged(tmp_path):
+    # The shape a hand resolution of #396's conflict could have produced:
+    # one run directory holding a snapshot another run recorded. The run
+    # that lost its file is flagged whether or not the stranger was
+    # re-tagged with its run id; the donor run stays clean.
+    root = tmp_path / "agg"
+    build_complete_baseline(root)
+    rid_one, paths_one = catalog.write_run(root, DAY, mechanical_runs(),
+                                           TAXONOMY)
+    rid_two, paths_two = catalog.write_run(root, DAY, classified_runs(),
+                                           TAXONOMY)
+    assert rid_one != rid_two
+    stranger = paths_two["alpha"].read_text(encoding="utf-8")
+    paths_one["alpha"].write_text(stranger, encoding="utf-8")
+    expected = [(ERROR, "(catalog)", f"runs/{DAY_STR}/{rid_one}")]
+    got = fam_document_catalog(ctx_for(catalog_root=root))
+    assert [(f.severity, f.repo, f.path) for f in got] == expected
+    edit_recorded(paths_one["alpha"],
+                  lambda doc: doc["run"].update(run_id=rid_one))
+    got = fam_document_catalog(ctx_for(catalog_root=root))
+    assert [(f.severity, f.repo, f.path) for f in got] == expected
+    assert all(f.rule.startswith("[run-identity] ") for f in got)
+
+
+def test_legacy_key_is_not_a_blanket_pass(tmp_path):
+    # A legacy-named run holding a snapshot of a DIFFERENT inventory (here
+    # re-tagged with the run's name) derives a different legacy key, so the
+    # name no longer honestly describes it.
+    root = tmp_path / "agg"
+    build_complete_baseline(root)
+    legacy = catalog.legacy_run_id(extended_inventory(), TAXONOMY)
+    paths = {repo: catalog.write_snapshot(root, DAY, legacy, repo, entries,
+                                          TAXONOMY)
+             for repo, entries in sorted(mechanical_runs().items())}
+    moved = {repo: entries_for(repo, heads=dict(HEADS, alpha="c" * 40))
+             for repo in REPOS}
+    other = catalog.legacy_run_id(
+        extended_inventory(heads=dict(HEADS, alpha="c" * 40)), TAXONOMY)
+    assert other != legacy
+    stranger = catalog.write_snapshot(tmp_path / "other", DAY, other,
+                                      "openxFactory", moved["openxFactory"],
+                                      TAXONOMY)
+    paths["openxFactory"].write_text(stranger.read_text(encoding="utf-8"),
+                                     encoding="utf-8")
+    edit_recorded(paths["openxFactory"],
+                  lambda doc: doc["run"].update(run_id=legacy))
+    got = by_class(fam_document_catalog(ctx_for(catalog_root=root)),
+                   "run-identity")
+    assert [(f.severity, f.path) for f in got] == [
+        (ERROR, f"runs/{DAY_STR}/{legacy}")]
+
+
+def test_hand_named_runs_are_outside_the_run_identity_check(tmp_path):
+    # Names the writer never mints (fixtures, foreign records) claim no
+    # derivation; their placement is the immutable-path check's business.
+    root = tmp_path / "agg"
+    build_complete_baseline(root)
+    path = write_incremental_snapshot(root, "alpha", entries_for("alpha"),
+                                      "hand-named-run")
+    edit_recorded(path, lambda doc: doc["entries"][0].update(
+        status="tampered"))
+    assert fam_document_catalog(ctx_for(catalog_root=root)) == []
+
+
+def test_symlinked_run_is_reported_as_catalog_integrity(tmp_path):
+    # Review round 6 (Copilot, #1175): the run loaders follow symlinks. A
+    # run whose snapshot, run.yaml or directory was a link to an outside
+    # copy verified clean against bytes that live outside the catalog. A
+    # linked directory inside the run was skipped by Path.rglob, so what it
+    # held was never seen. None of these is the tree the writer makes. Each
+    # is reported as catalog-integrity for that run, before anything behind
+    # the link is read.
+    def relink_file(run_dir, name, outside):
+        outside.mkdir()
+        copy = outside / name
+        copy.write_bytes((run_dir / name).read_bytes())
+        (run_dir / name).unlink()
+        (run_dir / name).symlink_to(copy)
+
+    def relink_run(run_dir, outside):
+        shutil.copytree(run_dir, outside)
+        shutil.rmtree(run_dir)
+        run_dir.symlink_to(outside, target_is_directory=True)
+
+    def link_inside(run_dir, outside):
+        outside.mkdir()
+        (outside / "stray.yaml").write_bytes(
+            (run_dir / "alpha.yaml").read_bytes())
+        (run_dir / "linked").symlink_to(outside, target_is_directory=True)
+
+    def relink_claims(run_dir, outside):
+        # Review round 10: the claims directory vouches for run.yaml's
+        # sequence, so an outside copy of it must not.
+        relink_run(run_dir.parent.parent / ".sequence", outside)
+
+    cases = {
+        "snapshot": lambda run, out: relink_file(run, "alpha.yaml", out),
+        "run-yaml": lambda run, out: relink_file(run, "run.yaml", out),
+        "run-directory": relink_run,
+        "directory-inside-the-run": link_inside,
+        "claims-directory": relink_claims,
+    }
+    for name, link in cases.items():
+        root = tmp_path / name
+        build_complete_baseline(root)
+        rid, paths = catalog.write_run(root, DAY, mechanical_runs(), TAXONOMY)
+        link(paths["alpha"].parent, tmp_path / f"{name}-outside")
+        got = fam_document_catalog(ctx_for(catalog_root=root))
+        assert [(f.severity, f.repo, f.path) for f in got] == [
+            (ERROR, "(catalog)", f"runs/{DAY_STR}/{rid}")], name
+        assert got[0].rule.startswith("[catalog-integrity] recorded run could "
+                                      "not be read"), name
+        assert "symlink" in got[0].rule, name
+
+
+def test_edited_run_metadata_is_reported_as_catalog_integrity(tmp_path):
+    # Review round 7 (Copilot, #1175): the check verified only the snapshots.
+    # A run.yaml edited to another id or date, or to a sequence another run
+    # claimed, or left without its claim, kept the snapshots' address valid
+    # and passed unseen. A shared sequence also breaks the total order
+    # "latest" relies on. run.yaml must be exactly the record the writer
+    # writes for its directory, with a sequence this run claimed.
+    def edit_meta(meta_path, **changes):
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        meta_path.write_text(catalog.render(dict(meta, **changes)),
+                             encoding="utf-8")
+
+    cases = ("run-id", "as-of", "sequence-of-another-run", "claim-missing")
+    for name in cases:
+        root = tmp_path / name
+        build_complete_baseline(root)
+        rid, paths = catalog.write_run(root, DAY, mechanical_runs(), TAXONOMY)
+        _, others = catalog.write_run(root, DAY, classified_runs(), TAXONOMY)
+        meta_path = paths["alpha"].parent / "run.yaml"
+        sequence = json.loads(meta_path.read_text(encoding="utf-8"))[
+            "sequence"]
+        if name == "run-id":
+            edit_meta(meta_path, run_id="f" * 64)
+        elif name == "as-of":
+            edit_meta(meta_path, as_of="2026-07-01")
+        elif name == "sequence-of-another-run":
+            edit_meta(meta_path, sequence=json.loads(
+                (others["alpha"].parent / "run.yaml").read_text(
+                    encoding="utf-8"))["sequence"])
+        else:
+            (root / "health" / "document-catalog" / "runs" / ".sequence" /
+             f"{sequence:06d}.yaml").unlink()
+        got = by_class(fam_document_catalog(ctx_for(catalog_root=root)),
+                       "catalog-integrity")
+        assert [(f.severity, f.repo, f.path) for f in got] == [
+            (ERROR, "(catalog)", f"runs/{DAY_STR}/{rid}")], name
+        assert "catalog run metadata" in got[0].rule, name
+
+
+def test_torn_historical_run_is_reported_for_that_run_alone(tmp_path):
+    # The family reads only the LATEST run for every other check; this one
+    # reads every recorded run, so a torn OLDER run must be reported as that
+    # run's own catalog-integrity finding -- never escalate into the
+    # whole-family abort that would hide every other finding.
+    root = tmp_path / "agg"
+    build_complete_baseline(root)
+    rid_one, paths_one = catalog.write_run(root, DAY, mechanical_runs(),
+                                           TAXONOMY)
+    catalog.write_run(root, DAY, classified_runs(), TAXONOMY)  # the latest
+    paths_one["alpha"].write_text("<<not json>>", encoding="utf-8")
+    got = fam_document_catalog(ctx_for(catalog_root=root))
+    assert [(f.severity, f.repo, f.path) for f in got] == [
+        (ERROR, "(catalog)", f"runs/{DAY_STR}/{rid_one}")]
+    assert got[0].rule.startswith("[catalog-integrity] recorded run could "
+                                  "not be read")
+    assert got[0].action == ("repair or remove the corrupt catalog artifact "
+                             "and re-run the mechanical catalog pass")
+
+
 # --- recursion -------------------------------------------------------------------
 
 def test_recursion_of_generated_records_is_flagged(tmp_path):
@@ -1075,15 +1333,16 @@ def test_runner_family_document_catalog_clean_single_repo(tmp_path):
 
 def test_every_action_string_the_document_catalog_family_can_emit_is_pinned_verbatim(
         tmp_path):
-    """`fam_document_catalog` raises TWENTY-THREE distinct action strings
-    across its twelve finding classes (module docstring) plus the
-    defensive `catalog-integrity` class. `#448` (`cadc05ec`) pinned one
+    """`fam_document_catalog` raises TWENTY-FOUR distinct action strings
+    across its thirteen finding classes (module docstring; `run-identity`
+    joined with opensoft/xFactory#519) plus the defensive
+    `catalog-integrity` class. `#448` (`cadc05ec`) pinned one
     (`test_coverage_gap_after_baseline_is_flagged`, above, "coverage"'s —
     picked as this family's representative one of twelve).  Steward
     follow-up (Brett, 2026-08-28) widens that to the whole set,
     table-driven.
 
-    ALL TWENTY-THREE are pinned BEHAVIOURALLY, reusing this suite's own
+    ALL TWENTY-FOUR are pinned BEHAVIOURALLY, reusing this suite's own
     fixture helpers (`build_complete_baseline`, `write_incremental_snapshot`,
     `assignment`, `valid_provenance`, `entries_for`, `ctx_for`) exactly as
     the existing per-defect tests above use them. A `catalogued` entry's
@@ -1091,10 +1350,11 @@ def test_every_action_string_the_document_catalog_family_can_emit_is_pinned_verb
     interfaces.md `load_snapshot`), so a chain of incremental snapshots over
     ONE shared complete baseline is run and unioned scenario-by-scenario
     (mirroring `test_ratified_citation_spellings.py`'s own pattern) rather
-    than accumulated into one snapshot; four scenarios need a baseline
+    than accumulated into one snapshot; five scenarios need a baseline
     shape none of the others may share (an incomplete baseline, a corrupt
     persisted artifact, a baseline missing one document, an ambiguous
-    baseline row) and get their own root. No static fallback is needed.
+    baseline row, a content-addressed run edited after it was recorded)
+    and get their own root. No static fallback is needed.
     """
     behavioral = set()
 
@@ -1306,10 +1566,20 @@ def test_every_action_string_the_document_catalog_family_can_emit_is_pinned_verb
     behavioral |= {f.action for f in
                   fam_document_catalog(ctx_for(catalog_root=root_int))}
 
+    # run-identity: a content-addressed run edited after it was recorded.
+    root_rid = tmp_path / "agg-run-identity"
+    build_complete_baseline(root_rid)
+    _rid, rid_paths = catalog.write_run(root_rid, DAY, mechanical_runs(),
+                                        TAXONOMY)
+    edit_recorded(rid_paths["alpha"],
+                  lambda doc: doc["entries"][0].update(status="tampered"))
+    behavioral |= {f.action for f in
+                  fam_document_catalog(ctx_for(catalog_root=root_rid))}
+
     behavioral = frozenset(behavioral)
     static = harvest_static(document_catalog)
     assert static - behavioral == frozenset(), (
-        "every one of this family's 23 actions is designed to be reachable "
+        "every one of this family's 24 actions is designed to be reachable "
         "behaviourally; a non-empty difference here means a scenario above "
         "stopped firing (e.g. a hand-rolled run's fixed `sequence:` losing "
         "the 'latest run' race to an auto-claimed one), not that the table "
@@ -1341,6 +1611,9 @@ def test_every_action_string_the_document_catalog_family_can_emit_is_pinned_verb
         "regenerate the snapshot",
         "regenerate the snapshot with a valid effective-taxonomy block",
         "move or remove the misplaced catalog artifact",
+        "restore the run directory byte for byte from the commit that "
+        "recorded it; a closed catalog record is never edited or merged by "
+        "hand",
         "resume the sharded baseline build to enable complete-coverage "
         "enforcement",
         "repair or remove the corrupt catalog artifact and re-run the "

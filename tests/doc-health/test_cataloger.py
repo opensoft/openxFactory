@@ -1076,7 +1076,7 @@ def test_merge_recommendations_lands_only_in_a_later_immutable_snapshot(
     inv_one = extended_inventory()
     alpha_one = [e for e in catalog.mechanical_entries(inv_one)
                 if e["repo"] == "alpha"]
-    rid_one = catalog.run_id(inv_one, TAXONOMY)
+    rid_one = catalog.run_id({"alpha": alpha_one}, TAXONOMY)
     path_one = catalog.write_snapshot(
         root, DAY, rid_one, "alpha", alpha_one, TAXONOMY)
     before = path_one.read_bytes()
@@ -1092,7 +1092,7 @@ def test_merge_recommendations_lands_only_in_a_later_immutable_snapshot(
     alpha_two = [e for e in catalog.mechanical_entries(inv_two)
                 if e["repo"] == "alpha"]
     merged = catalog.merge_recommendations(alpha_two, [record])
-    rid_two = catalog.run_id(inv_two, TAXONOMY)
+    rid_two = catalog.run_id({"alpha": merged}, TAXONOMY)
     assert rid_two != rid_one
     path_two = catalog.write_snapshot(
         root, DAY, rid_two, "alpha", merged, TAXONOMY)
@@ -1513,7 +1513,7 @@ def test_worker_offline_partial_or_invalid_output_never_disturbs_mechanical_resu
     root = tmp_path / "agg"
     inv = extended_inventory()
     alpha = [e for e in catalog.mechanical_entries(inv) if e["repo"] == "alpha"]
-    rid = catalog.run_id(inv, TAXONOMY)
+    rid = catalog.run_id({"alpha": alpha}, TAXONOMY)
     snapshot_path = catalog.write_snapshot(
         root, DAY, rid, "alpha", alpha, TAXONOMY)
     before = snapshot_path.read_bytes()

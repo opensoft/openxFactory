@@ -10,7 +10,8 @@ never judging or auto-fixing a structurally valid but semantically
 debatable classification (spec US3 acceptance 3), never converting a
 catalog value into routing or lifecycle authority (FR-007).
 
-Twelve finding classes exist here (module-interfaces.md), encoded as a
+Thirteen finding classes exist here (module-interfaces.md, plus
+``run-identity`` from opensoft/xFactory#519), encoded as a
 ``[<class>] `` prefix on each finding's ``rule`` text (this family's own
 convention — the ``Finding`` dataclass has no dedicated "check" field,
 so the bracket tag is what lets tests and report consumers select a
@@ -21,9 +22,10 @@ disambiguate through distinctive rule wording):
     (controlled facet/state/value vocabularies, a malformed
     ``state_since``, tag-registry topic tags, and the recorded taxonomy
     block), resolution (capability_refs), confidence, provenance,
-    override-standing, immutable-path, recursion, pending-aging
+    override-standing, immutable-path, run-identity (a recorded run whose
+    content its id does not address), recursion, pending-aging
 
-A thirteenth defensive class, ``catalog-integrity``, is not a per-defect
+A fourteenth defensive class, ``catalog-integrity``, is not a per-defect
 check but the family's last line of defense: an unparseable, torn, or
 wrong-shape PERSISTED catalog artifact (run.yaml, snapshot, baseline
 shard, marker, or merged fold) surfaces from the load helpers as a
@@ -32,7 +34,7 @@ controlled ``catalog.CatalogError`` and is reported as one
 run (the contract rule every checker relies on: malformed persisted data
 is reported, never fatal).
 
-Resolution semantics (research D6): the twelve classes are NOT
+Resolution semantics (research D6): the thirteen classes are NOT
 uniformly auto-fixable or contested, so — unlike the wholly-contested
 families in ``families.FAMILY_RESOLUTION`` — this family is
 deliberately absent from that table and instead sets ``resolution``
@@ -761,6 +763,87 @@ def _immutable_path_findings(ctx) -> list[Finding]:
     return findings
 
 
+# --- run-identity (opensoft/xFactory#519) ----------------------------------------
+
+# Both run-id schemes the catalog writer has ever used produce 64 lowercase
+# hex characters: the content address (`catalog.run_id`) and the pre-#519
+# inventory-plus-taxonomy key (`catalog.legacy_run_id`). A recorded run under
+# any other name was not minted by the writer — a hand-built fixture or a
+# foreign record whose placement the immutable-path check already judges —
+# so it claims no derivation for this check to hold it to.
+_WRITER_RUN_ID_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _run_identity_findings(ctx) -> list[Finding]:
+    """Contract "Catalog reporting and immutable history" (closed
+    snapshots MUST remain immutable) and doc-health's "catalog identity /
+    record immutability" scenario, applied to run ids: every RECORDED run
+    whose directory name the writer could have minted must hold content
+    that name honestly addresses — the content address of its snapshots,
+    verified against the raw persisted bytes, or the legacy key its own
+    snapshots derive (``catalog.run_id_scheme``). A run that is neither
+    was edited after it was recorded (a serialization-only or line-ending
+    edit included),
+    lost a repository snapshot, or mixes files from two runs, and a reader
+    resolving it by id would get a content no producer recorded under that
+    id. Legacy runs pass on the derivation alone: their key never covered
+    classification (the defect #519 records), so their content cannot be
+    held to it; the recorded history is never re-hashed for that reason
+    (the legacy test is cheap and runs first). A recorded run whose
+    snapshot FILE cannot be read is reported as catalog-integrity for that
+    run alone, so one torn historical snapshot never hides every other
+    finding. So is a run that is not the plain tree the writer makes
+    (``catalog._refuse_foreign_run_tree``): a symlink anywhere from the
+    catalog root down to the run, or inside it. That run is refused before
+    its snapshots are read, so bytes that live outside the catalog are
+    never hashed as the run's own and can never verify it clean. By then
+    the shared run scan (``catalog._iter_runs``) has already read the run's
+    ``run.yaml`` sequence, following links as it does for every check. A
+    malformed linked ``run.yaml`` therefore takes the whole-family path
+    below, like any unreadable one. Making that shared scan link-safe
+    would change every reader, and it is outside this check. So is a run
+    whose ``run.yaml`` is not exactly the record the writer writes for this
+    directory (``catalog._recorded``): its own id and date, byte for byte,
+    and a sequence whose claim is this run's. An edited id, date or
+    sequence would otherwise leave the snapshots' address valid and pass
+    unseen. A sequence claimed by a different run would also break the
+    total order that "latest" relies on. An unreadable ``run.yaml`` is
+    different and unchanged: the shared run scan (``catalog._iter_runs``,
+    which ``load_snapshot`` and therefore the checks above also walk)
+    raises on it, and the family reports that once, as the whole-family
+    catalog-integrity finding."""
+    findings = []
+    for day, sequence, rid, run_dir in catalog._iter_runs(ctx.catalog_root):
+        if not _WRITER_RUN_ID_RE.match(rid):
+            continue
+        where = f"runs/{day}/{rid}"
+        try:
+            catalog._refuse_foreign_run_tree(ctx.catalog_root, run_dir)
+            catalog._recorded(ctx.catalog_root, run_dir, rid, day)
+            documents = catalog._load_run(run_dir, day, sequence, rid)["repos"]
+            persisted = catalog._load_run_bytes(run_dir)
+        except catalog.CatalogError as exc:
+            findings.append(_finding(
+                "catalog-integrity", ERROR, "(catalog)", where,
+                f"recorded run could not be read as the writer records it: "
+                f"{exc}",
+                "repair or remove the corrupt catalog artifact and re-run "
+                "the mechanical catalog pass"))
+            continue
+        if catalog.run_id_scheme(rid, documents, persisted) is None:
+            findings.append(_finding(
+                "run-identity", ERROR, "(catalog)", where,
+                "recorded snapshots are not the content their run id "
+                "addresses, and the id is not the legacy inventory-plus-"
+                "taxonomy key they derive either: the run was edited after "
+                "it was recorded, lost a repository snapshot, or mixes "
+                "files from different runs",
+                "restore the run directory byte for byte from the commit "
+                "that recorded it; a closed catalog record is never edited "
+                "or merged by hand"))
+    return findings
+
+
 # --- recursion -------------------------------------------------------------
 
 def _recursion_findings(ctx) -> list[Finding]:
@@ -858,6 +941,7 @@ def fam_document_catalog(ctx):
         findings += _confidence_provenance_findings(ctx)
         findings += _override_standing_findings(ctx)
         findings += _immutable_path_findings(ctx)
+        findings += _run_identity_findings(ctx)
         findings += _recursion_findings(ctx)
         findings += _pending_aging_findings(ctx)
         return findings
