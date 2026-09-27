@@ -335,7 +335,8 @@ def _stub_precheck(seal_root, *, source_head, source_committed_at):
 def _seal(corpus: Path, seal_dir: Path, *, decision: dict | None = None,
           recipe: str | None = RECIPE_TEXT, resolve_validator=_STUB,
           seal_legs=_STUB, precheck_render=_STUB,
-          product_module: str | None = PRODUCT_MODULE_TEXT, **kw) -> dict:
+          product_module: str | None = PRODUCT_MODULE_TEXT, read_recipe=None,
+          **kw) -> dict:
     """`seal_source` over the fixture corpus. `None` for `resolve_validator`,
     `seal_legs` or `precheck_render` means the REAL one (the snapshot lane's
     own resolver, `seal_render_legs`, `precheck_sealed_render`); the default
@@ -345,7 +346,8 @@ def _seal(corpus: Path, seal_dir: Path, *, decision: dict | None = None,
     parent's do. Their openXdox code leg records the HEAD of the product tree
     `seal_source` resolved its validator from, which it resolves before it
     seals the legs, and carries `product_module`, None for no product module
-    at all."""
+    at all. `read_recipe`, when given, reads the recipe instead of the
+    stand-in that answers `recipe`."""
     head = _git(corpus, "rev-parse", "HEAD")
     if resolve_validator is _STUB:
         stub = _stub_validator(Path(seal_dir).parent / "stub-validator")
@@ -366,7 +368,7 @@ def _seal(corpus: Path, seal_dir: Path, *, decision: dict | None = None,
         correlation_id=kw.pop("correlation_id", CORRELATION),
         decision=decision if decision is not None else _decision(head),
         corpus_ref=kw.pop("corpus_ref", "HEAD"),
-        read_recipe=(lambda: recipe),
+        read_recipe=read_recipe or (lambda: recipe),
         resolve_validator=resolving,
         seal_legs=stand_in_legs if seal_legs is _STUB else seal_legs,
         precheck_render=(_stub_precheck if precheck_render is _STUB
@@ -3465,6 +3467,64 @@ def test_a_citation_is_made_only_for_the_finding_it_tracks(lines, cited):
 
 def test_the_precheck_outcome_is_the_products_own_spelling():
     assert lane.PRECHECK_VALIDATED == snapshot_mod.VALIDATED
+
+
+@pytest.mark.parametrize("planted", [
+    "a-link-out-at-the-recipe", "a-link-out-for-its-directory",
+    "a-hard-link-at-the-recipe", "a-directory-of-its-own",
+    "the-seal-directory-replaced"])
+def test_the_recipe_is_never_written_through_anything_sealed_code_left(
+        corpus, tmp_path, planted):
+    """THE RECIPE IS WRITTEN AS THE MANIFEST IS (Copilot, PR #1166). The
+    validator's probe runs sealed code with the seal writable before the
+    recipe is written, and the probe's after-index cannot see what a process
+    it left behind puts at the recipe's path later. So the recipe's directory
+    is made exclusively and the recipe created `O_EXCL|O_NOFOLLOW`, relative
+    to the seal directory as created. Whatever is already there refuses the
+    seal, and nothing is written through it: no host file, no host directory,
+    no replaced seal directory. The entry is planted here as the recipe is
+    read, just before it is written."""
+    host_file = tmp_path / "host-file.txt"
+    host_file.write_text("untouched\n", encoding="utf-8")
+    host_dir = tmp_path / "host-dir"
+    host_dir.mkdir()
+    seal = tmp_path / "seal"
+    moved = tmp_path / "seal.moved"
+    folder = seal / lane.SEAL_RECIPE_RELPATH.split("/")[0]
+
+    def planting():
+        if planted == "a-link-out-at-the-recipe":
+            folder.mkdir()
+            (folder / "Dockerfile").symlink_to(host_file)
+        elif planted == "a-link-out-for-its-directory":
+            folder.symlink_to(host_dir, target_is_directory=True)
+        elif planted == "a-hard-link-at-the-recipe":
+            folder.mkdir()
+            (folder / "Dockerfile").hardlink_to(host_file)
+        elif planted == "a-directory-of-its-own":
+            folder.mkdir()
+        else:
+            seal.rename(moved)
+            seal.symlink_to(moved, target_is_directory=True)
+        return RECIPE_TEXT
+
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, seal, read_recipe=planting)
+    reason = str(refused.value)
+    if planted == "the-seal-directory-replaced":
+        assert reason == (
+            "the seal directory is no longer the one the lane created: sealed "
+            "code ran inside it, and the recipe is never written anywhere "
+            "else")
+        assert not (moved / "recipe").exists()
+    else:
+        assert reason == (
+            "the seal already holds recipe/ that the lane did not make: sealed "
+            "code ran inside the seal before the recipe was written, and the "
+            "recipe is never written through anything it left"), reason
+    assert host_file.read_text(encoding="utf-8") == "untouched\n"
+    assert list(host_dir.iterdir()) == []
+    assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
 
 
 def test_a_precheck_that_changes_the_sealed_tree_is_refused(corpus, tmp_path):

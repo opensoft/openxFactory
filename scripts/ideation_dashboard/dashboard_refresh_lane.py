@@ -1289,25 +1289,27 @@ def seal_file_index(seal_dir) -> dict[str, str]:
     return index
 
 
-# Whether this platform opens a file relative to a directory handle. Every
-# parent the nightly runs on does. One that cannot falls back to paths.
-_DIR_FD = os.open in os.supports_dir_fd and os.stat in os.supports_dir_fd
+# Whether this platform opens and makes an entry relative to a directory
+# handle. Every parent the nightly runs on does. One that cannot falls back
+# to paths.
+_DIR_FD = (os.open in os.supports_dir_fd and os.stat in os.supports_dir_fd
+           and os.mkdir in os.supports_dir_fd)
 
 
-def _open_directory(path) -> int | None:
-    """A handle on the directory at `path`, opened without following a link
-    at its last component, or None where the platform opens nothing relative
-    to a handle."""
+def _open_directory(path, *, dir_fd=None) -> int | None:
+    """A handle on the directory at `path` (relative to `dir_fd` when one is
+    given), opened without following a link at its last component, or None
+    where the platform opens nothing relative to a handle."""
     if not _DIR_FD:
         return None
     return os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
-                   | getattr(os, "O_NOFOLLOW", 0))
+                   | getattr(os, "O_NOFOLLOW", 0), dir_fd=dir_fd)
 
 
-def _replaced_seal_directory() -> SealRefused:
+def _replaced_seal_directory(what: str = "manifest") -> SealRefused:
     return SealRefused(
         "the seal directory is no longer the one the lane created: sealed "
-        "code ran inside it, and the manifest is never written anywhere else")
+        f"code ran inside it, and the {what} is never written anywhere else")
 
 
 def _seal_directory_identity(seal_dir) -> tuple[int, int]:
@@ -1377,6 +1379,62 @@ def _write_new_manifest(seal_dir, text: str, *, identity=None) -> None:
         except FileExistsError as exc:
             raise _occupied_manifest_path(
                 "one that appeared while the lane was writing it") from exc
+    finally:
+        if directory is not None:
+            os.close(directory)
+
+
+def _occupied_recipe_path() -> SealRefused:
+    folder = SEAL_RECIPE_RELPATH.split("/")[0]
+    return SealRefused(
+        f"the seal already holds {folder}/ that the lane did not make: sealed "
+        "code ran inside the seal before the recipe was written, and the "
+        "recipe is never written through anything it left")
+
+
+def _write_new_recipe(seal_dir, text: str, *, identity=None) -> None:
+    """Create the recipe the way the manifest is created (Copilot, PR #1166).
+    The validator's probe runs sealed code with the seal writable before the
+    recipe is written, and the probe's after-index cannot see what a process
+    it left behind puts at the recipe's path later: a link out, a hard link
+    to a host file, or a directory of its own.
+
+    So the recipe's directory is MADE here, exclusively, relative to a handle
+    on the seal directory as created (with `identity`, the handle must be
+    that very directory), and opened without following a link; the recipe is
+    created in it `O_EXCL|O_NOFOLLOW`. Anything already at either path
+    refuses the seal, and nothing is written through it."""
+    folder, name = SEAL_RECIPE_RELPATH.split("/")
+    try:
+        directory = _open_directory(seal_dir)
+    except OSError as exc:
+        raise _replaced_seal_directory("recipe") from exc
+    try:
+        if directory is not None and identity is not None:
+            info = os.fstat(directory)
+            if (info.st_dev, info.st_ino) != tuple(identity):
+                raise _replaced_seal_directory("recipe")
+        place = folder if directory is not None else Path(seal_dir) / folder
+        try:
+            os.mkdir(place, dir_fd=directory)
+        except FileExistsError as exc:
+            raise _occupied_recipe_path() from exc
+        try:
+            recipe_dir = _open_directory(place, dir_fd=directory)
+        except OSError as exc:
+            # What the lane just made is no longer there as a directory of
+            # its own: a link or a file took its place.
+            raise _occupied_recipe_path() from exc
+        try:
+            target = name if recipe_dir is not None else Path(place) / name
+            try:
+                _create_new_file(target, text.encode("utf-8"),
+                                 dir_fd=recipe_dir)
+            except FileExistsError as exc:
+                raise _occupied_recipe_path() from exc
+        finally:
+            if recipe_dir is not None:
+                os.close(recipe_dir)
     finally:
         if directory is not None:
             os.close(directory)
@@ -2619,7 +2677,8 @@ def seal_source(
       * a validator copied from another revision of the product than the
         sealed openXdox leg, or from no product tree at all, or held beside
         no openXdox leg, seals nothing;
-      * a recipe that cannot be read seals nothing;
+      * a recipe that cannot be read, or whose path in the seal already
+        holds anything sealed code left there, seals nothing;
       * a sealed render unit that cannot render the snapshot, or a sealed
         validator that cannot run over it or answers no verdict as the
         validator reports one, seals nothing;
@@ -2778,9 +2837,11 @@ def seal_source(
         raise SealRefused(
             f"could not read {recipe_path} from {recipe_repo} at "
             f"{_short(recipe_revision)}")
-    recipe_file = seal_root / SEAL_RECIPE_RELPATH
-    recipe_file.parent.mkdir(parents=True, exist_ok=True)
-    recipe_file.write_text(recipe_text, encoding="utf-8")
+    # THE RECIPE IS WRITTEN AS THE MANIFEST IS (Copilot, PR #1166): its
+    # directory made exclusively and the recipe created `O_EXCL|O_NOFOLLOW`
+    # inside the seal directory as created, since the probe's sealed code ran
+    # with the seal writable before this point.
+    _write_new_recipe(seal_root, recipe_text, identity=seal_identity)
 
     index = seal_file_index(seal_root)
     # THE CHILD'S RENDER AND ITS `--strict`, RUN HERE FIRST, over exactly the
