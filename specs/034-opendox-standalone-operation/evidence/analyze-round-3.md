@@ -26,10 +26,13 @@ and the constitution's workflow gate, *"material ambiguities MUST be resolved
 before planning"*, holds for the whole plan without a deviation. The held
 tasks' row leaves plan.md § Complexity Tracking.
 
-The author's pass found 1 HIGH, 2 MEDIUM and 6 LOW (U3-1 to U3-9). This
-revision dispositions all nine. An independent verifier's pass over the
-encoding follows in this PR, and its findings join this note with their
-dispositions.
+The author's pass found 1 HIGH, 2 MEDIUM and 6 LOW (U3-1 to U3-9). An
+independent verifier then ran the analysis again over the encoding commit,
+`a28e6af9`. It found CRITICAL 0, HIGH 0, MEDIUM 0 and LOW 1 (W3-1): one of the
+author's dispositions was carried only in part. Copilot's review of the same
+commit raised one more (CP3-1), about this note's own state. This PR
+dispositions all eleven, in § "Findings, and what this revision does with
+each" and § "The verifier's pass".
 
 ## What T067 encodes
 
@@ -62,7 +65,9 @@ dispositions.
   line anywhere in a message. So the seven openDox-code landings whose squash
   body carries it count as written. openDox-code#37 (`e295b1a9`, T020) and
   #44 (`9d13bd16`, T021) carry none, and T091's record at the arc's close
-  names both. No falsifier changes, and no `main` is rewritten.
+  names both. No falsifier changes, and no `main` is rewritten. This is the
+  disposition of the finding the holder raised about how F11.1 and T091 find
+  the arc's landings.
 
 ## How it was run
 
@@ -129,6 +134,55 @@ missing step or an underspecified case. LOW is wording.
 | U3-7 | LOW | `clarify-questions.md`'s phase table said that batch I lands before T059, T060 and T061. tasks.md also names T063. | T063 is added. |
 | U3-8 | LOW | T091's account of the kit's fix gave no landing made since it. | It names openDox-code#42 (`19370adc`, T016), which carries its `Arc:` line in the trailer block. |
 
+## The verifier's pass
+
+**How it was run.** An independent Sonnet verifier ran `/speckit-analyze`
+again, read-only, over a clone of `a28e6af9`, with #1144, the constitution,
+the measurement trees and a clone of openDox-code as this note names them. It
+read the two ruling comments verbatim through the API and re-ran the plan
+tools from the feature directory. It ran the full prerequisite check in a
+scratch clone of its own, where it exited 0 with the JSON above, and it did
+not run the optional hooks. Its trees showed no change afterwards (`git status
+--porcelain --ignored`).
+
+**What it found.** CRITICAL 0, HIGH 0, MEDIUM 0 and LOW 1. Of the author's
+nine dispositions, eight were carried in full, and U3-3 only in part (W3-1).
+
+| ID | sev | finding | disposition |
+|---|---|---|---|
+| W3-1 | LOW | U3-3's reflow of quickstart.md's answers paragraph left one line of 94 characters, *"datastore's stop, … Use whatever the openDox"*, in a paragraph of 64 to 78. The meaning was unaffected. | The paragraph is rewrapped. |
+| CP3-1 | — | Copilot's review of `a28e6af9` (thread `4114067826`): this note carried `Status: record` while its verifier's pass was still to come. | This section records the pass, and the verdict counts it. |
+
+**What it confirmed**, each with its command:
+- The ANSWER lines of R1Q26 and R1Q27 match comments `5851950767` and
+  `5852513402` word for word. Batch I's three rows and plan.md's round-3 rows
+  state only option (a)'s consequences. U3-9's change to R1Q14's ANSWER line
+  leaves what Brett ruled as it was, (a) on `5850003126`, and corrects only
+  the plan's own account of T066.
+- No task carries a `Blocked by:` line. The one left is the field's
+  definition in § Format. Every `(governs …)` header matches the `Ruled:`
+  lines (`qcheck.py`).
+- T066's re-plan holds against the sources, and no other line of the
+  feature says that T066 moves a caller:
+  - `delegated_semantic_validation` calls `_composed_validator` for every
+    kind, and that links the whole family's schemas into its farm;
+  - `find_openxfactory_validator` returns one script, run in the same farm;
+  - the consumer's validator reads *"this tree's own `contracts/`"* first
+    (`:119-121`, at `e28930bf`), and `SCHEMA_FILENAMES` still lists the ten
+    there.
+- The two entered edits are to `tests/test_gate_loop_views.py:1644`, which
+  asserts `DISPLAY == {"stages": …}`, and `:1723`, which asserts exactly five
+  changed leaves. 12.5's ratified falsifier refuses any arc edit, and batches
+  C and I amend it. T019, T043, T060 and T061 state the allow-list's owner
+  the same way.
+- T091's trailer account matches openDox-code's history landing by landing,
+  and #42's landing time, 03:20:45Z. F5.2 and 12.5 run their grep in
+  openXdox-code, and F11.1 runs it in openxFactory, so no falsifier reads
+  openDox-code's landings.
+- The tools give the figures in § "The checks after the dispositions", and
+  this note's counts, metrics and coverage table hold: 90 tasks, eight ids
+  unused, nine done, 19 requirements, and `total 124` from `box_census.py`.
+
 ## Coverage
 
 | key | tasks | note |
@@ -175,6 +229,8 @@ No finding breaks a MUST at this revision.
 | questions | 27, all answered: 11 on `5817152735`, 14 on `5850003126` and 2 on `5851950767`, with R1Q26 (a) kept on `5852513402`; RN-1 ruled (a) and landed |
 | held tasks | none |
 | findings, author's pass | CRITICAL 0, HIGH 1, MEDIUM 2, LOW 6 (U3-1 to U3-9) |
+| findings, verifier's pass | CRITICAL 0, HIGH 0, MEDIUM 0, LOW 1 (W3-1) |
+| findings, Copilot's review of `a28e6af9` | 1 (CP3-1) |
 
 ## The checks after the dispositions
 

@@ -12,9 +12,10 @@ answered on `5851950767`, bear on openXdox and openxFactory, and not on an
 openDox-only install. The steps follow `5850003126`'s answers: R1Q10 (a) and
 R1Q12 (a) for the catalog's validators, R1Q13 (a) with (c) for the tiles,
 R1Q15 (b) for `--local`, R1Q16 (iii) and (iv) for the install and the
-datastore's stop, and R1Q19 (a) for the lens. No step is conditional. Use whatever the openDox
-root's `README.md` documents once 10.3 has landed: that README, not this file,
-is the product's one documented command (requirement 10).
+datastore's stop, and R1Q19 (a) for the lens. No step is conditional. Use
+whatever the openDox root's `README.md` documents once 10.3 has landed: that
+README, not this file, is the product's one documented command (requirement
+10).
 
 ## 1. A clean machine, with openDox and nothing else
 
