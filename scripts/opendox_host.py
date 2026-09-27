@@ -416,6 +416,36 @@ def _seam_name(module: Any, call: str) -> str:
     return f"{module.__name__}.{call}"
 
 
+def _assert_this_hosts_profile() -> None:
+    """R1Q4 (a): the profile openDox answers is this host's composite, or
+    `HostProfileNotRegistered`.
+
+    `register_openxfactory()` asserts it once `register()` has returned, and
+    `register_seams()` asserts it before it writes anything, so the seams are
+    filled only in a process whose registered profile is this host's, however
+    they are reached (Copilot, PR #1181)."""
+    from opendox import domain_profile as registry
+
+    composite = profile()
+    try:
+        answered = registry.current()
+    except registry.ProfileNotRegistered as exc:
+        raise HostProfileNotRegistered(
+            "no profile is registered with opendox.domain_profile, so this "
+            "process has no openxFactory profile to fill the seams for. R1Q4 "
+            "(a) has the host assert its own registration at its start, and "
+            "this is that assertion refusing: call "
+            "opendox_host.register_openxfactory(), which registers the "
+            "profile and then fills the seams.") from exc
+    if answered is not composite:
+        raise HostProfileNotRegistered(
+            "opendox.domain_profile.current() answers "
+            f"{type(answered).__name__}, not openxFactory's profile, so this "
+            "process would compose from a profile that is not openxFactory's. "
+            "R1Q4 (a) has the host assert its own registration at its start, "
+            "and this is that assertion refusing.")
+
+
 def _holds_a_registration(module: Any, call: str, value: Any) -> bool | None:
     """Whether the seam behind `call` holds a registration already, read
     through that seam's own public query, before `value` is registered there.
@@ -464,7 +494,13 @@ def register_seams() -> tuple[str, ...]:
     is not emptied. The profile registration that precedes this call is
     `register_openxfactory()`'s and stays, and its caller's start fails with
     the refusal.
+
+    AND ONLY FOR THIS HOST'S PROFILE. It first asserts that openDox answers
+    this host's composite, as `register_openxfactory()` does after `register()`
+    (R1Q4 (a)), so a process whose registered profile is some other host's,
+    or none, gets `HostProfileNotRegistered` and no seam is written.
     """
+    _assert_this_hosts_profile()
     declared = seams()
     missing = [_seam_name(module, call) for module, call, _ in declared
                if not callable(getattr(module, call, None))]
@@ -621,15 +657,7 @@ def register_openxfactory() -> Any:
     # assumed: a registry that answered anything else would leave this
     # process serving openDox's own default with none of openxFactory's
     # routes, which looks exactly like a working server.
-    answered = registry.current()
-    if answered is not composite:
-        raise HostProfileNotRegistered(
-            "opendox.domain_profile.register() accepted openxFactory's "
-            "profile, and opendox.domain_profile.current() answers "
-            f"{type(answered).__name__} instead, so this process would compose "
-            "from a profile that is not openxFactory's. R1Q4 (a) has the host "
-            "assert its own registration at its start, and this is that "
-            "assertion refusing.")
+    _assert_this_hosts_profile()
 
     register_seams()
     return registered

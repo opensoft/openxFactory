@@ -396,6 +396,42 @@ def test_every_seam_the_leg_declares_holds_this_hosts_implementation():
     assert corpus_adapter.home() is opendox_host.home_corpus
 
 
+def test_the_seams_are_filled_only_for_this_hosts_profile():
+    """Copilot, PR #1181: `register_seams()` asserts R1Q4 (a) itself, before
+    it writes anything, so reaching it without `register_openxfactory()`
+    fills no seam: not with no profile registered, and not with another
+    profile answering. In a SUBPROCESS, because the registries are
+    process-wide."""
+    proc = _run("""
+        import sys
+        sys.path.insert(0, {scripts!r})
+        import carved_reach
+        carved_reach.install()
+        import opendox_host
+        from opendox import corpus_adapter, workbench
+        from opendox import domain_profile as odp
+        def written():
+            if not hasattr(workbench, "register_health_check"):
+                return "leg has no seams"
+            return (workbench.session_notebook_scope(),
+                    workbench.health_check_registered())
+        for case in ("none", "another"):
+            if case == "another":
+                stranger = object()
+                odp.current = lambda: stranger
+            try:
+                opendox_host.register_seams()
+            except opendox_host.HostProfileNotRegistered as exc:
+                print(case, "REFUSED", "R1Q4 (a)" in str(exc), written())
+            else:
+                print(case, "NO REFUSAL")
+    """)
+    assert proc.returncode == 0, proc.stderr
+    empty = "('all', False)" if LEG_HAS_THE_SEAMS else "leg has no seams"
+    assert proc.stdout.splitlines() == [
+        f"none REFUSED True {empty}", f"another REFUSED True {empty}"], proc.stdout
+
+
 def test_a_leg_with_only_some_seams_is_refused_naming_the_missing(monkeypatch):
     """ALL OR NONE (`register_seams()`'s docstring). A leg that carries some of
     the five and not the others is refused before any seam is written."""
@@ -567,6 +603,8 @@ def test_a_refused_seam_on_the_pinned_leg_takes_the_others_back():
         carved_reach.install()
         import opendox_host
         from opendox import corpus_adapter, doxbench_packet, serve_wire, workbench
+        from opendox import domain_profile as odp
+        odp.register(opendox_host.profile())   # the profile alone, no seam
         if not hasattr(serve_wire, "register_doxbench_validators"):
             print("LEG HAS NO SEAMS", opendox_host.register_seams())
             raise SystemExit(0)
