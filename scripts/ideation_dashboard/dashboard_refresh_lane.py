@@ -1469,6 +1469,13 @@ def _seal_directory_replaced_as_made(path) -> SealRefused:
         "nothing is written into what took its place")
 
 
+def _seal_confined_without_a_handle(path, root) -> SealRefused:
+    return SealRefused(
+        f"the seal directory {path} cannot be made here: this platform opens "
+        f"nothing relative to a handle, and a seal confined to {root} is "
+        "never made, written or checked by its path alone")
+
+
 def _seal_made_off_its_way(path, start) -> SealRefused:
     return SealRefused(
         f"the seal directory {path} was made where its path no longer leads: "
@@ -1667,6 +1674,14 @@ def _new_seal_directory(seal_dir, *, within=None) -> _HeldSealDirectory:
     swapped for a link, or for another directory, in the instant after the
     `mkdir` is refused, and nothing is written into it.
 
+    NEVER BY ITS PATH ALONE WHEN CONFINED (Copilot, PR #1185). Where the
+    platform opens nothing relative to a handle, the directory could only be
+    made, written and checked by its path, so a directory on its way
+    replaced after `--seal-out` was checked would redirect the whole
+    writable tree. A seal confined to `within` is refused there, before
+    anything is made. Without `within` it is made by its path, as the
+    manifest's write has always been where no handle can be opened.
+
     ITS WAY, WALKED AGAIN (Copilot, PR #1185). A directory on the way is
     held by a handle only while the walk goes through it, so one moved out
     of `within` after it was opened, and replaced, would have the seal made
@@ -1676,6 +1691,8 @@ def _new_seal_directory(seal_dir, *, within=None) -> _HeldSealDirectory:
     into it. Every later check of the name walks it the same way
     (`_HeldSealDirectory.leads_here`)."""
     path, start, steps = _seal_directory_way(seal_dir, within)
+    if within is not None and not _DIR_FD:
+        raise _seal_confined_without_a_handle(path, start)
     try:
         parent = _open_directory(start)
     except OSError as exc:
@@ -1683,8 +1700,8 @@ def _new_seal_directory(seal_dir, *, within=None) -> _HeldSealDirectory:
             f"the seal directory {path} cannot be made: {start} cannot be "
             f"held as a directory of its own ({exc.strerror})") from exc
     if parent is None:
-        # The platform opens nothing relative to a handle, so the seal is
-        # made, and held, by its path.
+        # The platform opens nothing relative to a handle, and the seal is
+        # confined to nothing, so it is made, and held, by its path.
         return _new_seal_directory_by_path(path)
     parent = _walked_down(parent, steps, path, start)
     try:
@@ -1962,14 +1979,15 @@ class _HeldResultPath:
             return SEAL_RESULT_PLANTED
         return None
 
-    def write(self, payload: dict) -> bool:
-        """Clear the result's name, create the lane's own result there
-        exclusively, and let the directory go. True when the result was
-        written. Never raises for the write: a result that cannot be written
-        is reported, and the seal phase then fails its step
+    def write(self, payload: dict, *, clear: bool = True) -> bool:
+        """Clear the result's name, unless `clear` is False, create the lane's
+        own result there exclusively, and let the directory go. True when the
+        result was written. Never raises for the write: a result that cannot
+        be written is reported, and the seal phase then fails its step
         (`SEAL_RESULT_UNWRITTEN_EXIT`)."""
         try:
-            self.clear()
+            if clear:
+                self.clear()
             _create_new_file(self._name(), (json.dumps(
                 payload, indent=2, sort_keys=True) + "\n").encode("utf-8"),
                 dir_fd=self.directory)
@@ -1995,6 +2013,32 @@ def _hold_seal_result_path(given, within) -> _HeldResultPath:
             f"--seal-result-out {given!r} is in a directory the lane cannot "
             f"hold ({exc.strerror})") from exc
     return _HeldResultPath(path, directory)
+
+
+def _spellings(given) -> set[str]:
+    """`given` made absolute, as spelled, with the directories above its last
+    component resolved, and resolved whole."""
+    absolute = os.path.abspath(given)
+    parent, name = os.path.split(absolute)
+    return {absolute, os.path.join(os.path.realpath(parent), name),
+            os.path.realpath(absolute)}
+
+
+def _seal_paths_overlap(seal_out, result_out) -> str | None:
+    """Why `--seal-out` and `--seal-result-out` may not be used together, or
+    None (Copilot, PR #1185): they name one path, or one lies inside the
+    other, in any of their spellings (`_spellings`). The result's path is
+    cleared before the seal runs, since whatever sits there is the lane's to
+    remove, so an overlap would remove an existing seal, or what it holds,
+    and let its path pass as fresh."""
+    if not any(one == other or one.startswith(other + os.sep)
+               or other.startswith(one + os.sep)
+               for one in _spellings(seal_out)
+               for other in _spellings(result_out)):
+        return None
+    return (f"--seal-out {seal_out!r} and --seal-result-out {result_out!r} "
+            "overlap, and neither is touched: the seal and its result are "
+            "two paths, never one inside the other")
 
 
 def _seal_out_path(given, within) -> Path:
@@ -4484,9 +4528,10 @@ def main(argv: list[str] | None = None) -> int | None:
                          "artifact into (--phase seal); the workflow uploads "
                          "it, this module never dispatches. A path inside "
                          "--repo-root that does not exist yet, in a "
-                         "directory that does, reached through no link: the "
-                         "lane makes the directory itself, and refuses the "
-                         "seal before it starts for anything else")
+                         "directory that does, reached through no link, and "
+                         "apart from --seal-result-out: the lane makes the "
+                         "directory itself, and refuses the seal before it "
+                         "starts for anything else")
     ap.add_argument("--seal-result-out", default=None,
                     help="write the seal result as JSON (--phase seal): the "
                          "dispatch gate, plus the values the child's own "
@@ -4581,7 +4626,16 @@ def main(argv: list[str] | None = None) -> int | None:
                                                 repo_root)
             except ValueError as exc:
                 result_refused = f"the seal result cannot be written: {exc}"
-        if result is not None:
+        # THE SEAL AND ITS RESULT ARE TWO PATHS (Copilot, PR #1185). The
+        # result's path is cleared next, so a `--seal-out` that is the same
+        # path, holds it, or lies inside it would lose an existing seal, or
+        # what it holds, and then pass as fresh. An overlap is found first:
+        # nothing is cleared, nothing is sealed, and the refusal is written
+        # only where the result's path is free. A `--seal-out` refused on
+        # its own is refused for its own reason.
+        overlap = (_seal_paths_overlap(args.seal_out, args.seal_result_out)
+                   if args.seal_out and args.seal_result_out else None)
+        if result is not None and overlap is None:
             try:
                 result.clear()
             except OSError as exc:
@@ -4601,6 +4655,9 @@ def main(argv: list[str] | None = None) -> int | None:
                 seal_dir = _seal_out_path(args.seal_out, repo_root)
             except ValueError as exc:
                 seal_out_refused = f"the seal cannot be made: {exc}"
+            if seal_dir is not None and overlap is not None:
+                seal_dir = None
+                seal_out_refused = f"the seal cannot be made: {overlap}"
         if result_refused is not None:
             reason = result_refused
         elif load_error is not None:
@@ -4639,15 +4696,16 @@ def main(argv: list[str] | None = None) -> int | None:
         if result is not None:
             # Only a seal that ran can have left anything at the result's
             # path. A path that could not be cleared still holds what was
-            # there before, and that is not the seal's doing.
-            if result_refused is None:
+            # there before, and that is not the seal's doing, and a path
+            # that overlaps `--seal-out` was never cleared at all.
+            if result_refused is None and overlap is None:
                 refusal = result.refusal()
                 if refusal is not None:
                     manifest, reason = None, refusal
                     strict_failed, strict_detail = False, []
                     payload = seal_result_payload(sealed=False, reason=reason,
                                                   manifest=None)
-            written = result.write(payload)
+            written = result.write(payload, clear=overlap is None)
         if manifest is not None:
             print(f"::notice::{LANE}: SEALED {manifest['artifact_name']} — "
                   f"source_head={_short(manifest['source_head'])}, "
