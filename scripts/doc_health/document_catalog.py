@@ -770,7 +770,9 @@ def _immutable_path_findings(ctx) -> list[Finding]:
 # inventory-plus-taxonomy key (`catalog.legacy_run_id`). A recorded run under
 # any other name was not minted by the writer — a hand-built fixture or a
 # foreign record whose placement the immutable-path check already judges —
-# so it claims no derivation for this check to hold it to.
+# so it claims no derivation for this check to hold it to. An entry the shared
+# run scan refuses is reported whatever its name: its defect is the link, not
+# the derivation, and no other check sees it.
 _WRITER_RUN_ID_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
@@ -796,28 +798,35 @@ def _run_identity_findings(ctx) -> list[Finding]:
     (``catalog._refuse_foreign_run_tree``): a symlink anywhere from the
     catalog root down to the run, or inside it. That run is refused before
     its snapshots are read, so bytes that live outside the catalog are
-    never hashed as the run's own and can never verify it clean. By then
-    the shared run scan (``catalog._iter_runs``) has already read the run's
-    ``run.yaml`` sequence, following links as it does for every check. A
-    malformed linked ``run.yaml`` therefore takes the whole-family path
-    below, like any unreadable one. Making that shared scan link-safe
-    would change every reader, and it is outside this check. So is a run
+    never hashed as the run's own and can never verify it clean. So is a run
     whose ``run.yaml`` is not exactly the record the writer writes for this
     directory (``catalog._recorded``): its own id and date, byte for byte,
     and a sequence whose claim is this run's. An edited id, date or
     sequence would otherwise leave the snapshots' address valid and pass
     unseen. A sequence claimed by a different run would also break the
-    total order that "latest" relies on. An unreadable ``run.yaml`` is
-    different and unchanged: the shared run scan (``catalog._iter_runs``,
-    which ``load_snapshot`` and therefore the checks above also walk)
-    raises on it, and the family reports that once, as the whole-family
-    catalog-integrity finding."""
+    total order that "latest" relies on.
+
+    The shared run scan (``catalog._iter_runs``, which ``load_snapshot`` and
+    therefore the checks above also walk) never follows a link either
+    (opensoft/openxFactory#1187). A symlinked day directory, run directory
+    or ``run.yaml``, or a recorded run holding a link or a directory the
+    scan cannot list, reaches this check as the scan's own refusal, before
+    anything behind the link is read, even a malformed ``run.yaml``. It is
+    reported as catalog-integrity for that entry alone, whatever the
+    entry's name (a symlinked day directory is reported as the day itself),
+    and ``load_snapshot`` never selects it. An unreadable REGULAR
+    ``run.yaml`` is different and unchanged: the scan raises on it, and the
+    family reports that once, as the whole-family catalog-integrity
+    finding."""
     findings = []
-    for day, sequence, rid, run_dir in catalog._iter_runs(ctx.catalog_root):
-        if not _WRITER_RUN_ID_RE.match(rid):
+    for day, sequence, rid, run_dir, refusal in catalog._iter_runs(
+            ctx.catalog_root):
+        if refusal is None and not _WRITER_RUN_ID_RE.match(rid):
             continue
-        where = f"runs/{day}/{rid}"
+        where = f"runs/{day}" if rid is None else f"runs/{day}/{rid}"
         try:
+            if refusal is not None:
+                raise refusal  # the scan read nothing behind the link
             catalog._refuse_foreign_run_tree(ctx.catalog_root, run_dir)
             catalog._recorded(ctx.catalog_root, run_dir, rid, day)
             documents = catalog._load_run(run_dir, day, sequence, rid)["repos"]

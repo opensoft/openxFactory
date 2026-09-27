@@ -41,7 +41,10 @@ and "latest" is never a tie-break. A run dated earlier than any claimed
 or recorded run is refused as stale before it creates anything, and a
 run directory without ``run.yaml`` (crashed or in-flight) is not a
 recorded run: it is invisible to ``load_snapshot`` and heals
-idempotently on retry.
+idempotently on retry. Nor is an entry the shared run scan
+(``_iter_runs``) could read only through a symlink: ``load_snapshot``
+never selects it, no sequence is claimed beside it, and the
+document-catalog family reports it as catalog-integrity.
 
 Every snapshot records its effective-taxonomy provenance (contract
 "Controlled classification facets and provenance"): the SHA-256 digest
@@ -58,10 +61,12 @@ import hashlib
 import json
 import os
 import re
+import stat
 import tempfile
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
+from typing import NamedTuple
 
 from . import inventory
 
@@ -667,26 +672,181 @@ def _load_yaml_json(path: Path) -> dict:
     return data
 
 
+class _RunEntry(NamedTuple):
+    """One entry of the shared run scan (``_iter_runs``).
+
+    A recorded run carries its day, its ``run.yaml`` sequence, its id and
+    directory, and no ``refusal``. An entry the scan refuses carries the
+    ``CatalogError`` that says why, and never a sequence: nothing behind it
+    was read. That is a symlinked day directory, or one the scan cannot
+    check or list (the day is the entry, so ``run_id`` and ``run_dir`` are
+    None), a symlinked run directory or ``run.yaml``, or one the scan
+    cannot check, or a recorded run it cannot vouch for as link-free
+    (``_link_inside``)."""
+    as_of: str
+    sequence: int | None
+    run_id: str | None
+    run_dir: Path | None
+    refusal: CatalogError | None
+
+
+def _symlink_refusal(node: Path) -> CatalogError:
+    """The refusal for a symlink the run scan meets where the writer makes
+    a directory or ``run.yaml``. The scan never follows it, whatever it
+    points to, and never stats or reads its target."""
+    return CatalogError(
+        f"catalog path is a symlink, which the writer never follows: {node}")
+
+
+def _own_mode(node: Path) -> tuple[int | None, CatalogError | None]:
+    """``node``'s own mode, from an ``lstat`` that never follows it:
+    ``(mode, None)`` for a node that is not a link, ``(None, None)`` when
+    nothing is there, and ``(None, refusal)`` for a node the run scan
+    cannot take as link-free. A symlink is refused (``_symlink_refusal``),
+    and so is a node whose own ``lstat`` fails for any reason but its
+    absence, because what cannot be checked could be a link. The check is
+    an explicit ``os.lstat``: from Python 3.13 ``Path.is_symlink`` swallows
+    every ``OSError`` and would report such a node link-free."""
+    try:
+        mode = os.lstat(node).st_mode
+    except (FileNotFoundError, NotADirectoryError):
+        return None, None
+    except OSError as exc:
+        return None, CatalogError(
+            f"catalog path could not be checked for a symlink: {exc}")
+    if stat.S_ISLNK(mode):
+        return None, _symlink_refusal(node)
+    return mode, None
+
+
+def _unlisted_refusal(exc: OSError) -> CatalogError:
+    """The refusal for a directory the run scan cannot list: a link could
+    hide below it."""
+    return CatalogError(
+        f"catalog path could not be listed, so a symlink below it cannot be "
+        f"ruled out: {exc}")
+
+
+def _listing(directory: Path) -> tuple[list[Path], CatalogError | None]:
+    """``(sorted entries, None)`` for a directory the run scan can list, or
+    ``([], refusal)`` for one it cannot (``_unlisted_refusal``). Listing
+    reads names only: it stats no entry, so it follows no link."""
+    try:
+        return sorted(directory.iterdir()), None
+    except OSError as exc:
+        return [], _unlisted_refusal(exc)
+
+
+def _link_inside(run_dir: Path) -> CatalogError | None:
+    """The refusal for a recorded run the scan cannot vouch for as
+    link-free, or None. That is a symlink anywhere inside it, or an entry
+    inside it that cannot be checked (``_own_mode``), or a directory inside
+    it that cannot be listed (``_unlisted_refusal``), since a link could
+    hide there.
+
+    The walk is driven by each node's own ``lstat``: it identifies a link
+    before anything else touches it, and it descends only into a real
+    directory. So it never stats a link's target, not even to classify it,
+    as ``os.walk`` does: that sorts entries into directories and files with
+    ``DirEntry.is_dir``, which follows a link. The walk visits nodes
+    depth-first in name order, like the writer's own walk
+    (``_refuse_links_inside``, which the run scan leaves unchanged), and it
+    fails closed where ``os.walk`` skips a directory it cannot list in
+    silence, which would pass the run as link-free over a subtree nobody
+    saw."""
+    pending = [run_dir]
+    while pending:
+        nodes, refusal = _listing(pending.pop())
+        if refusal is not None:
+            return refusal
+        directories = []
+        for node in nodes:
+            mode, refusal = _own_mode(node)
+            if refusal is not None:
+                return refusal
+            if mode is not None and stat.S_ISDIR(mode):
+                directories.append(node)
+        pending.extend(reversed(directories))  # the first name is walked next
+    return None
+
+
 def _iter_runs(root: Path):
-    """Yield (as_of, sequence, run_id, run_dir) for every RECORDED run
-    under the catalog root, in deterministic order. A run directory
-    without ``run.yaml`` is a crashed or in-flight run, not a record —
-    it is skipped so it can never be selected as "latest" or block
-    newer work; a retry of the same content heals it."""
-    runs_root = Path(root) / RUNS_DIR
-    if not runs_root.is_dir():
-        return
-    for date_dir in sorted(runs_root.iterdir()):
-        if not date_dir.is_dir() or date_dir.name.startswith("."):
+    """Yield a ``_RunEntry`` for every RECORDED run under the catalog root,
+    and for every entry the scan refuses, in deterministic order (sorted
+    day directories, then sorted run directories).
+
+    A run directory without ``run.yaml`` is a crashed or in-flight run, not
+    a record. It is skipped so it can never be selected as "latest" or
+    block newer work, and a retry of the same content heals it.
+
+    The scan never follows a symlink (opensoft/openxFactory#1187). It
+    classifies each node by the mode of its own explicit ``lstat``
+    (``_own_mode``), never by a second stat, before it lists or reads it.
+    So it never stats or reads through a link, not even to classify it,
+    and it refuses a node it cannot check rather than take it for
+    absent. A link where the writer makes a day directory, a run
+    directory or ``run.yaml`` is yielded as a refused entry for that entry
+    alone, whether it dangles, points inside the tree or escapes the
+    catalog root. The scan fails closed, so a node there it cannot check,
+    or a day directory it cannot list (``_listing``), is refused the same
+    way: a link could hide there. So is a recorded run holding a link
+    anywhere inside it, or anything inside it the scan cannot check or list
+    (``_link_inside``), because a reader of that run would read its
+    snapshots through the link, or over a subtree nobody checked. Such an
+    entry is never skipped the way a crashed run is, so every caller must
+    decide what it means: ``load_snapshot`` never selects it,
+    ``_claim_sequence`` claims nothing beside it, and the document-catalog
+    family reports it as catalog-integrity. A link, or a node the scan
+    cannot check or list, at the catalog root or a catalog directory above
+    the day directories (``_catalog_chain``) puts every run behind it, with
+    no single entry to report, so it raises ``CatalogError``. A missing
+    catalog directory, or a node there that is not a directory, means no
+    recorded run, as before. A hidden (dot-named) entry is not a day or a
+    run, and is skipped by its name alone, so ``.sequence`` is never listed
+    here.
+
+    A regular ``run.yaml`` that cannot be parsed still raises
+    ``CatalogError`` from the scan, unchanged."""
+    for node in _catalog_chain(root):
+        mode, refusal = _own_mode(node)
+        if refusal is not None:
+            raise refusal
+        if mode is None or not stat.S_ISDIR(mode):
+            return  # no catalog yet, or not a directory: no recorded run
+    date_dirs, refusal = _listing(Path(root) / RUNS_DIR)
+    if refusal is not None:
+        raise refusal
+    for date_dir in date_dirs:
+        if date_dir.name.startswith("."):
             continue
-        for run_dir in sorted(date_dir.iterdir()):
-            if not run_dir.is_dir() or run_dir.name.startswith("."):
+        mode, refusal = _own_mode(date_dir)
+        if refusal is None:
+            if mode is None or not stat.S_ISDIR(mode):
+                continue
+            run_dirs, refusal = _listing(date_dir)
+        if refusal is not None:
+            yield _RunEntry(date_dir.name, None, None, None, refusal)
+            continue
+        for run_dir in run_dirs:
+            if run_dir.name.startswith("."):
                 continue
             meta_path = run_dir / RUN_META_NAME
-            if not meta_path.is_file():
-                continue  # unrecorded: crashed or still in flight
+            mode, refusal = _own_mode(run_dir)
+            if refusal is None:
+                if mode is None or not stat.S_ISDIR(mode):
+                    continue
+                mode, refusal = _own_mode(meta_path)  # a dangling one included
+            if refusal is None:
+                if mode is None or not stat.S_ISREG(mode):
+                    continue  # unrecorded: crashed or still in flight
+                refusal = _link_inside(run_dir)
+            if refusal is not None:
+                yield _RunEntry(date_dir.name, None, run_dir.name, run_dir,
+                                refusal)
+                continue
             sequence = _load_yaml_json(meta_path).get("sequence", 0)
-            yield date_dir.name, sequence, run_dir.name, run_dir
+            yield _RunEntry(date_dir.name, sequence, run_dir.name, run_dir,
+                            None)
 
 
 # --- sequence claims (concurrent-run protection) ------------------------------
@@ -745,24 +905,48 @@ def _claim_sequence(root: Path, day: str, rid: str) -> int:
     forces a re-scan, so a newer-dated run that claims first is always
     visible before an older-dated run can claim (spec US1
     acceptance 5).
+
+    An entry the run scan refuses (``_iter_runs``: a symlinked day or run
+    directory or ``run.yaml``, or a recorded run it cannot vouch for as
+    link-free) refuses the claim too. The scan never reads that entry's
+    sequence or date, so a claim beside it could reuse the number it
+    records or land a run dated before it. The writer records nothing until
+    the entry is repaired or removed, just as it records nothing beside a
+    foreign claim node (``_read_claims``).
+
+    Every refusal comes before anything is created, the claims directory
+    included, and before anything is read through a link. The run scan goes
+    first, because it refuses a link on the catalog chain
+    (``_catalog_chain``) before anything follows it. The claims directory
+    must then be absent or a real directory (``_refuse_foreign_node``)
+    before its claims are read, and it is created only when a number is
+    about to be claimed. So a stale run, a run beside a refused entry, and a
+    direct call through a linked root or claims directory each leave the
+    tree exactly as it was, whether or not ``write_run``'s own preflight ran
+    first.
     """
     claims_dir = Path(root) / SEQUENCE_DIR
-    claims_dir.mkdir(parents=True, exist_ok=True)
     while True:
         highest, newest = 0, None
+        for as_of, seq, _rid, _dir, refusal in _iter_runs(root):
+            if refusal is not None:
+                raise CatalogError(
+                    f"no run sequence is claimed beside a catalog entry the "
+                    f"run scan refuses ({refusal})")
+            highest = max(highest, seq)
+            if newest is None or as_of > newest:
+                newest = as_of
+        _refuse_foreign_node(claims_dir, directory=True)  # no linked claims
         for seq, as_of in _read_claims(claims_dir):
             highest = max(highest, seq)
             if as_of is not None and (newest is None or as_of > newest):
-                newest = as_of
-        for as_of, seq, _rid, _dir in _iter_runs(root):
-            highest = max(highest, seq)
-            if newest is None or as_of > newest:
                 newest = as_of
         if newest is not None and day < newest:
             raise CatalogError(
                 f"stale snapshot refused: run dated {day} is older than "
                 f"the latest recorded run ({newest})")
         sequence = highest + 1
+        claims_dir.mkdir(parents=True, exist_ok=True)
         claim_path = claims_dir / f"{sequence:06d}.yaml"
         try:
             fd = os.open(claim_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
@@ -1317,12 +1501,22 @@ def load_snapshot(root, as_of=None, run_id=None) -> dict | None:
     recorded runs (with ``run.yaml``) participate: sequence numbers are
     claimed atomically and unique, so "latest" is a total order, never
     a tie-break, and a crashed run directory is never returned.
+
+    An entry the run scan refuses (``_iter_runs``: a symlinked day or run
+    directory or ``run.yaml``, or a recorded run it cannot vouch for as
+    link-free) never participates either, as latest, by date or by id. Its
+    content would be read through the link, so the latest matching run
+    that can be read without one is returned instead, or None. The
+    document-catalog family reports the refused entry as
+    catalog-integrity, so it is never passed over unseen.
     """
     day = _as_of_str(as_of) if as_of is not None else None
     rid = str(run_id) if run_id is not None else None
     candidates = [
-        (d, seq, r, run_dir) for d, seq, r, run_dir in _iter_runs(root)
-        if (day is None or d == day) and (rid is None or r == rid)]
+        (d, seq, r, run_dir)
+        for d, seq, r, run_dir, refusal in _iter_runs(root)
+        if refusal is None
+        and (day is None or d == day) and (rid is None or r == rid)]
     if not candidates:
         return None
     d, seq, r, run_dir = max(candidates, key=lambda c: (c[0], c[1]))
