@@ -485,8 +485,9 @@ openDox's generator writes it (T054), and its validator reads it (T058).
 openXdox's governed generator keeps `ideation-dashboard-snapshot`.
 `SNAPSHOT_VALUES`' defaults move to the neutral values, and the governed values
 move to openXdox's facet, in its `values` block (T054, T060). The bundle is cut
-as a `dox-v1.x` minor at the openDox root (T053). T007's batch G amends 5.3,
-5.3a and 7.1, and adds 9.5's addendum.
+as a `dox-v1.x` minor at the openDox root (T053). T007's batch G amends 5.3
+and 7.1, and adds 9.5's addendum. 5.3a's `values` block waits for batch I,
+because R1Q26 decides how it lands.
 
 ---
 
@@ -739,8 +740,10 @@ credential-free local endpoints only; hosted APIs need the broker.
 **Recommendation.** (b). "The realization's choice" is a valid answer.
 **ANSWER: (b)**, RULED in `5850003126`. A built-in resolver takes `env:NAME`
 and OS-keyring references, at call time and inside `doxbench_provider.py` only
-(T080). A record whose reference it takes names no broker. T007's batch H
-records the choice as a 16.3 addendum.
+(T080). A record whose reference it takes needs no broker. T007's batch H
+records the choice as a 16.3 addendum. T080 also refuses a broker given beside
+such a reference, as the plan's fail-closed reading, which
+`evidence/analyze-round-2.md` records.
 
 ---
 
@@ -1070,7 +1073,7 @@ V2-5). It is asked here rather than assumed.
 
 **Measured.** R1Q11 (a) moves `SNAPSHOT_VALUES`' defaults to the neutral
 snapshot's values (T054), and the governed values into openXdox's `DISPLAY`
-facet, in a `values` block (T060, batch G's 5.3a). At openXdox-code
+facet, in a `values` block (T060, 5.3a as R1Q11 (a) implies). At openXdox-code
 `e28930bf`, `tests/test_gate_loop_views.py` pins that facet:
 - `test_the_display_facet_declares_one_stage_entry_and_nothing_else` asserts
   `view_extensions.DISPLAY == {"stages": …}`, so the block turns it red at
@@ -1082,9 +1085,13 @@ facet, in a `values` block (T060, batch G's 5.3a). At openXdox-code
   measurement trees shows both.
 
 The file is one of the sixteen suites 12.5's falsifier computes (it drives
-`open-pr`, `:672`), so an arc landing that edits it fails that falsifier. R1Q7
-(a)'s reviewed allow-list admits only respellings, and batch F admits only
-F7.1's two F5.2 edits. The plan named neither test.
+`open-pr`, `:672`). It needs none of the declared exclusion's four reasons,
+so openXdox-code's whole-suite check (9.2, from T043) runs it, and it passes
+once Group 2 has landed (`74 passed` in research R11's shimmed run). Left as
+it is, it goes red there at T060's landing. Edited, it fails 12.5's falsifier, which runs in
+release 2 but reads every landing of the arc since `ARC_BASE`. R1Q7 (a)'s
+reviewed allow-list admits only respellings, and batch F admits only F7.1's
+two F5.2 edits. The plan named neither test.
 
 openxFactory pins the facet's shape as well. Its profile composes only
 openXdox's `stages` (`scripts/profile_openxfactory.py`: *"ONLY `stages` IS
@@ -1095,26 +1102,28 @@ the neutral values against the governed snapshot. Neither file is an 11.1
 surface.
 
 **What #1144 says.** 5.3a: openXdox's facet is *"partial, one stage"*, the
-completion stage *"and NOTHING ELSE"*, which batch G amends. 12.5's falsifier:
+completion stage *"and NOTHING ELSE"*, which R1Q11 (a) implies amending, in
+batch I, once this is answered. 12.5's falsifier:
 the governed suites *"must pass AND must be unedited by the arc"*. R1Q7 (a):
 only an edit that respells a reference to a moved seam, with no assertion
 weakened.
 
 **Options.**
-- (a) Admit the two edits. T007's batch I amends 12.5's falsifier so that the
-  reviewed allow-list also admits the edits to those two tests, each entered
-  with its reason, as batch F does for F7.1 (R1Q14 (a)). T060 and T059 make
-  them. openxFactory composes the `values` block, and updates its own facet
-  test, in T066, a non-arc act that holds at both pins.
+- (a) Admit the two edits. T007's batch I amends 5.3a to admit the block,
+  and 12.5's falsifier so that the reviewed allow-list also admits the edits
+  to those two tests, each entered with its reason, as batch F does for F7.1
+  (R1Q14 (a)). T060 and T059 make them. openxFactory composes the `values`
+  block, and updates its own facet test, in T066, a non-arc act that holds at
+  both pins.
 - (b) Keep openXdox's facet as it is, and let openxFactory's composite facet
-  carry the governed values instead. No protected test changes. But openXdox's
-  own served views, without openxFactory, would then match neutral values
-  against its governed snapshot, and R1Q11 (a)'s *"its facet maps roles to
-  governed values"* would be re-read.
+  carry the governed values instead. 5.3a is not amended, and no protected
+  test changes. But openXdox's own served views, without openxFactory, would
+  then match neutral values against its governed snapshot, and R1Q11 (a)'s
+  *"its facet maps roles to governed values"* would be re-read.
 - (c) T060 lands as a non-arc openXdox-code act that holds at both pins, since
-  its block is inert at the old pin. 12.5's guard reads only trailered
-  landings, so it would never see the edit, but the edit is still the arc's,
-  and the protected proof still changes.
+  its block is inert at the old pin, and 5.3a is amended as in (a). 12.5's
+  guard reads only trailered landings, so it would never see the edit, but
+  the edit is still the arc's, and the protected proof still changes.
 - (d) Something else you name.
 
 **Recommendation.** (a). It keeps R1Q11 (a) as answered, and it records each
@@ -1140,8 +1149,9 @@ openxFactory's own contracts name this script as their validator:
 - `contracts/manifest.yaml` says the shed validator *"is still this family's
   conformance validator … which is also what keeps the three RETAINED rows
   that name it (ideation-possibles-register, gate-intent,
-  demotion-execution-receipt) validated by the owner they document"*, and each
-  of those rows' `consumption_rule` names it as the enforcer of its rules;
+  demotion-execution-receipt) validated by the owner they document"*. Each of
+  those rows' `consumption_rule` names it: two say their rules are *"enforced
+  by"* it, and the third that consumers *"run"* it;
 - `scripts/validate-ideation-cross-reference.py` delegates the register's
   id-uniqueness, transitions and derived-entry rules to it (*"run it
   separately"*);

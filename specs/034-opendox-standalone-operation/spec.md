@@ -610,7 +610,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
     exclusion is reported as an open extraction, as FR-006 says.
 - **SC-002** (phase 2 exit): F5.1, F5.2, F5.3, F7.1 and F7.2 exit 0. F5.2 runs
   as T007's batches C, F and G amend it (R1Q23 (a)), and F7.1 runs here
-  because R1Q25 (b) keeps 7.3 in phase 2.
+  because R1Q25 (b) keeps 7.3 in phase 2, read as batch I records R1Q27's
+  answer.
 - **SC-003** (phase 3 exit): F4.1, F10.1, F13.1 and F16.1 exit 0, and the F4.1
   scan prints `no deferred reach names the consumer or the publisher`.
 - **SC-004**: AT-R1 passes, and its evidence is recorded in this feature's

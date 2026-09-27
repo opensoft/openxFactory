@@ -242,7 +242,7 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
                  T059 → T061 (7.3, after T007 batches C, F and I)
           HELD   T067 (R1Q26, R1Q27; open) → T059, T060, T061 and T066;  T067 → T007 batch I, which lands before T060 and T061
           [oxF]  T061 → T066 (a non-arc act: the validator callers, at both pins)
-          [oX]→[oxF]  T066 → T064 consumer pins → T065 (interim F11.1) → checkpoint T063 (after T007 batches C, F and G)
+          [oX]→[oxF]  T066 → T064 consumer pins → T065 (interim F11.1) → checkpoint T063 (after T007 batches C, F, G and I)
  PHASE 3  T069 is done; T007 batch H lands before T070, T075 and T080
           [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080;  T085 → T081
                  4.3 end: T084 (after T073)          T072 → T075 → T077 (F10.1 as batch H amends it);  T082, T083, T088
@@ -398,7 +398,7 @@ the realization as the answer records it."*
   A, B and C for the answers of `5817152735`, D for RN-1 (a) (landed as
   #1170), E for the composition tests phase 1 finds, F, G and H for round
   2's answers, which T019, T009 and T069 encode, and I for the answers to
-  R1Q26 and R1Q27, which T067 encodes.
+  R1Q26 and R1Q27, which T067 encodes, with 5.3a's `values` block.
 - Each batch lands under a Rule 6 window, with no `Arc:` trailer, before the
   checkpoint that runs the amended falsifier.
 - `tasks.md` § "Ruled amendments" lists every amended line, the text it takes,
@@ -417,7 +417,7 @@ recommended.
 | R1Q24 | (a) | The declared exclusion takes the rail and contracts classes, each file with its reason (T041, T043), and T008's arc takes them. |
 | R1Q25 | (b) | 7.3 stays in phase 2 (T061, after T059). Phase 1 declares `tests/test_snapshot.py` in the exclusion (T043), and 9.2's phase-3 close is batch F's addendum. |
 | R1Q10 | (a) | An openDox default for each consumer mechanism, registered by the entry points (T052, T055, T084, T085), and openXdox's governed ones through the same seams (T059, T086). Batch G's 4.3 addendum. |
-| R1Q11 | (a) | A neutral snapshot schema in openDox-spec, a sixth repository (T053). `SNAPSHOT_VALUES`' defaults move, and the governed values go to openXdox's facet (T054, T060). A `dox-v1.x` bundle. Batch G: 5.3, 5.3a, 7.0, 7.1 and 9.5. R1Q26, open, asks how the facet's `values` block lands. |
+| R1Q11 | (a) | A neutral snapshot schema in openDox-spec, a sixth repository (T053). `SNAPSHOT_VALUES`' defaults move, and the governed values go to openXdox's facet (T054, T060). A `dox-v1.x` bundle. Batch G: 5.3, 7.0, 7.1 and 9.5. 5.3a's `values` block is batch I's, since R1Q26, open, asks how it lands. |
 | R1Q12 | (a) | openDox's validator takes its spec leg's four kinds as digest-checked package data (T057), and the malformed fixture breaks the neutral schema (T051). openXdox-spec is untouched. Batch G: 7.0 and 7.1. |
 | R1Q13 | (a) with (c) | A neutral `stage:` key, a small default field set, and sources with derived groups (T050, T054, T096). |
 | R1Q23 | (a) | F5.2 composes openxFactory's `scripts/` at a named commit (batch G; T059, T063). |
