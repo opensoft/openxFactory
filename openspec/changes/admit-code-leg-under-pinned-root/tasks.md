@@ -320,23 +320,89 @@ without its arm, and is shown failing before it is shown passing.
       `selected=8890 passed=8884 skipped=6 failures=0 errors=0` — identical
       counts, as expected of a squash merge that carries the same tree.
 
-## 5. Archive (OPEN; a separate act on a separate word)
+## 5. Archive (GIVEN 2026-09-27: Brett Heap's archive word, on merged-plus-green evidence)
 
-- [ ] 5.1 **(OPERATOR)** `code_surface` is NON-EMPTY, so under
+- [x] 5.1 **(OPERATOR)** `code_surface` is NON-EMPTY, so under
       `release-realization` this packet archives on MERGED-PLUS-GREEN
       REALIZATION EVIDENCE and not on this landing. The archive is a separate
       pull request on a separate word, opened as a DRAFT and landed by MERGE
       COMMIT, never squash, so the archive directory's date keeps matching its
       adding commit.
-- [ ] 5.2 **(OPERATOR)** Promote the `## MODIFIED` block onto
+      **THE EVIDENCE IS IN HAND, 2026-09-27, AND EVERY LEG IS CITED RATHER THAN
+      ASSERTED.** (i) THE PACKET landed as PR
+      [#1156](https://github.com/opensoft/openxFactory/pull/1156) →
+      `daca0b898e37369a560de6befab6ca68e1b5e065` on `main`,
+      2026-09-25T13:21:58Z, on Brett Heap's *"land #1156 when the B head is
+      green"* (RULED in `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at
+      2026-09-24T21:30:23Z), ratified by his *"(a) recommended for both, ratify
+      when the draft is green"* (§ 1.1); and the R1 amendment landed as PR
+      [#1165](https://github.com/opensoft/openxFactory/pull/1165) →
+      `b5ec389908107141d9ab90165b7f8d015028d0af`, 2026-09-26T21:52:36Z, on his
+      *"(a) recommended, land #1165 when green"* (RULED at
+      2026-09-26T21:15:40Z, brett-wip commit `613c676d`). (ii) **§ 3's
+      REALIZATION** landed as PR
+      [#1163](https://github.com/opensoft/openxFactory/pull/1163) →
+      `1c6662e7862e2c1389d05a2bf78f3a4b54eb5157` on `main`,
+      2026-09-25T14:47:44Z, by SQUASH from head `65565eef`, on his *"land
+      #1163 when the verifier clears it"* (RULED at 2026-09-25T13:40:15Z).
+      (iii) **THE GREEN HALF AT CANON'S GRAIN**: `pytest-suite` SUCCESS on
+      `main` AT `1c6662e7` itself, run
+      [`36149875028`](https://github.com/opensoft/openxFactory/actions/runs/36149875028),
+      event `push`, `completed` / `success`, 2026-09-25T14:47:47Z →
+      15:10:43Z (§ 4.4), and again on `main` at the amendment's merge
+      `b5ec3899`, run
+      [`36274413446`](https://github.com/opensoft/openxFactory/actions/runs/36274413446),
+      `completed` / `success`, 2026-09-26T22:15:45Z — both re-read with `gh
+      run view` rather than carried. `daca0b89` → `1c6662e7` → `b5ec3899` is
+      an ancestry chain, each leg checked with `git merge-base
+      --is-ancestor`, and § 3.5 and § 4 carry the realization-head evidence
+      (PR #1168's commit `4b5290b4`, carried onto this branch unchanged).
+      **THE OPERATOR HALF IS GIVEN, AND IT IS BRETT HEAP'S WORD, NOT THIS
+      LANE'S DECISION**: verbatim *"archive it when the draft is up"*, given in
+      the lane's terminal to lane `openXfactory-5` (session `b254fdd5`) on
+      2026-09-27, approximately 00:32Z, and RULED in `opensoft/brett-wip`
+      `lanes/log/openXfactory-5.md` at 2026-09-27T00:32:46Z against
+      openxFactory #1150 (brett-wip commit `7bbff3ab`). NO GITHUB COMMENT
+      CARRIES THE WORD: the channel is the terminal, and that register entry
+      plus this citation is how it survives. The archive pull request is
+      opened as a DRAFT and lands by MERGE COMMIT, never squash, once it is
+      green and Copilot-clean, so this directory's date keeps matching its
+      adding commit.
+- [x] 5.2 **(OPERATOR)** Promote the `## MODIFIED` block onto
       `openspec/specs/release-realization/spec.md` at that archive and at that
       archive only, through the governed wrapper
       (`TZ=UTC python3 scripts/proposal-support.py . archive admit-code-leg-under-pinned-root --yes`),
       never a bare `openspec archive`, with the promoted block hashed on both
       sides.
-- [ ] 5.3 **(OPERATOR)** Close openxFactory #1150 THERE, by a closing keyword
+      **TICKED BEFORE THE RUN, BECAUSE THE WRAPPER REFUSES AN OPEN BOX**:
+      `archive_change` stops with *"change has incomplete tasks"* while any
+      `- [ ]` line remains in this file. **THE PROMOTION ITSELF IS THE
+      WRAPPER'S ACT, PERFORMED IN THE COMMIT THAT MOVES THIS DIRECTORY and
+      recorded below in that same commit.** The one requirement it promotes is
+      `release-realization`'s *The estate's repositories are enumerated in a
+      governed inventory*, this packet's SOLE `## MODIFIED` block, as amended
+      by R1 (#1165 → `b5ec3899`): the direct hop sentence and not the
+      pre-amendment parenthetical.
+- [x] 5.3 **(OPERATOR)** Close openxFactory #1150 THERE, by a closing keyword
       written in the archive pull request's BODY and in no commit message on
       any branch of this change.
+      **THE INSTRUMENT IS PLACED, AND THE TICK RECORDS THE PLACING AND NEVER
+      THAT THE ISSUE IS SHUT.** The closing keyword naming openxFactory #1150
+      is written as its own line in the BODY of the archive pull request that
+      carries this commit, and in NO other place; #1150 shuts on the MERGE of
+      that pull request — the landing lane's act on Brett Heap's archive word,
+      RULED in `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at
+      2026-09-27T00:32:46Z against #1150 — and at no earlier act. **AND NO
+      COMMIT MESSAGE CARRIES A CLOSING KEYWORD, SCANNED RATHER THAN ASSUMED**:
+      a case-insensitive Python `re` scan for any of `close`, `closes`,
+      `closed`, `fix`, `fixes`, `fixed`, `resolve`, `resolves`, `resolved`
+      followed by an optional colon and an issue reference returns **0**
+      matches over this branch's commit messages, over the 18 commits of the
+      packet's, the realization's, the amendment's and the carried evidence's
+      pull requests (#1156: 5, #1163: 9, #1165: 3, #1168: 1), and over their
+      squash commits `daca0b89`, `1c6662e7` and `b5ec3899`. Every other issue
+      and pull-request number in those messages and in the archive pull
+      request's body is a `Refs`-style naming and shuts nothing.
 
 ## 6. Measured and NOT taken (OPEN; successors, not work owed)
 
