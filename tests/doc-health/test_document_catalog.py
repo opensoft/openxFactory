@@ -976,11 +976,17 @@ def test_symlinked_run_is_reported_as_catalog_integrity(tmp_path):
             (run_dir / "alpha.yaml").read_bytes())
         (run_dir / "linked").symlink_to(outside, target_is_directory=True)
 
+    def relink_claims(run_dir, outside):
+        # Review round 10: the claims directory vouches for run.yaml's
+        # sequence, so an outside copy of it must not.
+        relink_run(run_dir.parent.parent / ".sequence", outside)
+
     cases = {
         "snapshot": lambda run, out: relink_file(run, "alpha.yaml", out),
         "run-yaml": lambda run, out: relink_file(run, "run.yaml", out),
         "run-directory": relink_run,
         "directory-inside-the-run": link_inside,
+        "claims-directory": relink_claims,
     }
     for name, link in cases.items():
         root = tmp_path / name

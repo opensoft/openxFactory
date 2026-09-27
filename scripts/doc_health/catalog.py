@@ -916,12 +916,14 @@ def _refuse_foreign_run_tree(root: Path, run_dir: Path) -> None:
     """Refuse a RECORDED run that is not the plain tree the writer makes.
     That means a symlink or a wrong-type node anywhere from ``root`` down
     to its run directory (``_catalog_chain``, then the date and run
-    directories), or a symlink anywhere inside the run
-    (``_refuse_links_inside``). Reading through such a link would hash
-    bytes that live outside the catalog, and would verify a record that
-    stays mutable from outside it. The run-identity check calls this before
-    it reads a run."""
-    for node in [*_catalog_chain(root), run_dir.parent, run_dir]:
+    directories), or at the sequence-claim directory whose claim vouches
+    for the run's ``run.yaml`` (``_recorded``). It also means a symlink
+    anywhere inside the run (``_refuse_links_inside``). Reading through
+    such a link would hash bytes, or trust a claim, that live outside the
+    catalog, and would verify a record that stays mutable from outside it.
+    The run-identity check calls this before it reads a run."""
+    for node in [*_catalog_chain(root), Path(root) / SEQUENCE_DIR,
+                 run_dir.parent, run_dir]:
         _refuse_foreign_node(node, directory=True)
     _refuse_links_inside(run_dir)
 
@@ -994,6 +996,7 @@ def _recorded(root: Path, run_dir: Path, rid: str, day: str) -> bool:
             f"(run_id {rid}, as_of {day}, a positive integer sequence, byte "
             f"for byte): {meta_path}")
     claim_path = Path(root) / SEQUENCE_DIR / f"{sequence:06d}.yaml"
+    _refuse_foreign_node(claim_path.parent, directory=True)  # no linked claims
     if not _occupied(claim_path) or _read_record(claim_path) != render(
             _claim_document(sequence, day, rid)).encode("utf-8"):
         raise CatalogError(
