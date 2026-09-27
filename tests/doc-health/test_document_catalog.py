@@ -1060,6 +1060,178 @@ def test_torn_historical_run_is_reported_for_that_run_alone(tmp_path):
                              "and re-run the mechanical catalog pass")
 
 
+# --- link-safe run scan (opensoft/openxFactory#1187) ---------------------------
+
+INTEGRITY_ACTION = ("repair or remove the corrupt catalog artifact and re-run "
+                    "the mechanical catalog pass")
+LATER_DAY_STR = "2026-07-10"
+
+
+def runs_dir(root):
+    return root / "health" / "document-catalog" / "runs"
+
+
+def plant_link(node, target, directory=True):
+    node.parent.mkdir(parents=True, exist_ok=True)
+    node.symlink_to(target, target_is_directory=directory)
+    return node
+
+
+def test_symlinked_scan_entries_are_reported_for_that_entry_alone(tmp_path):
+    # opensoft/openxFactory#1187 (Copilot, round 8 of #1175): the shared run
+    # scan followed a link before this check could refuse it. A malformed
+    # linked run.yaml aborted the whole family into one catalog-integrity
+    # finding. A symlinked day directory was reported once per run behind it,
+    # after the scan had read each run's run.yaml through it. A link under a
+    # name the writer never mints, and a dangling run.yaml, went unreported.
+    # The scan now refuses each link without reading behind it, and this
+    # check reports it as catalog-integrity for that entry alone, whatever its
+    # name, while every other check runs on the rest of the catalog.
+    frid, foreign_paths = catalog.write_run(
+        tmp_path / "foreign", LATER_DAY_STR, classified_runs(), TAXONOMY)
+    foreign = foreign_paths["alpha"].parent
+    recorded = tmp_path / "recorded"
+    shutil.copytree(foreign, recorded)  # a valid copy, run.yaml included
+    (foreign / "run.yaml").write_text("<<not json>>", encoding="utf-8")
+    hand_named = "hand-named-run"  # a name the writer never mints
+
+    def copy_run(root, name, meta=True):
+        run = runs_dir(root) / DAY_STR / name
+        shutil.copytree(recorded, run)
+        if not meta:
+            (run / "run.yaml").unlink()
+        return run
+
+    def day_escaping(root, rid):
+        plant_link(runs_dir(root) / LATER_DAY_STR, foreign.parent)
+        return f"runs/{LATER_DAY_STR}"
+
+    def day_inside_the_tree(root, rid):
+        plant_link(runs_dir(root) / LATER_DAY_STR, runs_dir(root) / DAY_STR)
+        return f"runs/{LATER_DAY_STR}"
+
+    def day_dangling(root, rid):
+        plant_link(runs_dir(root) / LATER_DAY_STR, tmp_path / "missing")
+        return f"runs/{LATER_DAY_STR}"
+
+    def run_escaping(root, rid):
+        plant_link(runs_dir(root) / DAY_STR / frid, foreign)
+        return f"runs/{DAY_STR}/{frid}"
+
+    def run_dangling(root, rid):
+        plant_link(runs_dir(root) / DAY_STR / frid, tmp_path / "missing")
+        return f"runs/{DAY_STR}/{frid}"
+
+    def run_under_a_hand_picked_name(root, rid):
+        plant_link(runs_dir(root) / DAY_STR / hand_named,
+                   runs_dir(root) / DAY_STR / rid)
+        return f"runs/{DAY_STR}/{hand_named}"
+
+    def run_yaml_escaping(root, rid):
+        run = copy_run(root, frid, meta=False)
+        plant_link(run / "run.yaml", foreign / "run.yaml", directory=False)
+        return f"runs/{DAY_STR}/{frid}"
+
+    def run_yaml_dangling(root, rid):
+        run = copy_run(root, frid, meta=False)
+        plant_link(run / "run.yaml", tmp_path / "missing.yaml",
+                   directory=False)
+        return f"runs/{DAY_STR}/{frid}"
+
+    def link_inside_a_hand_named_run(root, rid):
+        run = copy_run(root, hand_named)
+        (run / "alpha.yaml").unlink()
+        plant_link(run / "alpha.yaml", recorded / "alpha.yaml",
+                   directory=False)
+        return f"runs/{DAY_STR}/{hand_named}"
+
+    for plant in (day_escaping, day_inside_the_tree, day_dangling,
+                  run_escaping, run_under_a_hand_picked_name, run_dangling,
+                  run_yaml_escaping, run_yaml_dangling,
+                  link_inside_a_hand_named_run):
+        name = plant.__name__
+        root = tmp_path / name
+        build_complete_baseline(root)
+        rid, _ = catalog.write_run(root, DAY, mechanical_runs(), TAXONOMY)
+        where = plant(root, rid)
+        got = fam_document_catalog(ctx_for(catalog_root=root))
+        assert [(f.severity, f.repo, f.path) for f in got] == [
+            (ERROR, "(catalog)", where)], name
+        assert got[0].rule.startswith("[catalog-integrity] recorded run could "
+                                      "not be read"), name
+        assert "symlink" in got[0].rule, name
+        assert got[0].action == INTEGRITY_ACTION, name
+
+
+def test_a_run_holding_a_directory_the_scan_cannot_list_is_reported_alone(
+        tmp_path):
+    # Review round 2 (Copilot, #1190): a directory inside a recorded run
+    # that os.walk could not list was skipped in silence, so the run passed
+    # as link-free and every check read it. The run scan fails closed now:
+    # the run is reported as catalog-integrity for that run alone, and no
+    # other check reads it.
+    root = tmp_path / "agg"
+    build_complete_baseline(root)
+    rid, paths = catalog.write_run(root, DAY, mechanical_runs(), TAXONOMY)
+    blocked = paths["alpha"].parent / "blocked"
+    blocked.mkdir()
+    original = blocked.stat().st_mode
+    blocked.chmod(0o100)  # listing it is denied
+    try:
+        got = fam_document_catalog(ctx_for(catalog_root=root))
+    finally:
+        blocked.chmod(original)  # restore: tmp_path cleanup needs it
+    assert [(f.severity, f.repo, f.path) for f in got] == [
+        (ERROR, "(catalog)", f"runs/{DAY_STR}/{rid}")]
+    assert got[0].rule.startswith("[catalog-integrity] recorded run could "
+                                  "not be read")
+    assert "could not be listed" in got[0].rule
+    assert got[0].action == INTEGRITY_ACTION
+
+
+def test_a_linked_latest_run_never_feeds_the_other_checks(tmp_path):
+    # opensoft/openxFactory#1187: load_snapshot took a linked run dated after
+    # every recorded run as the latest, so every check that reads the latest
+    # run judged content read through the link: here an artifact_type outside
+    # the contract vocabulary, which only the linked run carries. The link is
+    # now the one finding, and the checks judge the catalog's own latest run.
+    root = tmp_path / "agg"
+    build_complete_baseline(root)
+    catalog.write_run(root, DAY, mechanical_runs(), TAXONOMY)
+    corrupted = mechanical_runs()
+    corrupted["alpha"] = [dict(e) for e in corrupted["alpha"]]
+    corrupted["alpha"][0]["artifact_type"] = "widget_yaml"
+    frid, paths = catalog.write_run(tmp_path / "foreign", LATER_DAY_STR,
+                                    corrupted, TAXONOMY)
+    plant_link(runs_dir(root) / LATER_DAY_STR / frid, paths["alpha"].parent)
+    got = fam_document_catalog(ctx_for(catalog_root=root))
+    assert [(f.severity, f.repo, f.path) for f in got] == [
+        (ERROR, "(catalog)", f"runs/{LATER_DAY_STR}/{frid}")]
+    assert got[0].rule.startswith("[catalog-integrity] ")
+    assert by_class(got, "artifact-type") == []
+
+
+def test_a_symlinked_runs_directory_is_one_whole_family_finding(tmp_path):
+    # opensoft/openxFactory#1187: with the runs directory itself a link, every
+    # run is behind it and there is no single entry to report. The shared
+    # scan raises before it reads any run, and the family reports that once,
+    # as its whole-family catalog-integrity finding, where it used to read
+    # every run through the link and then report each one.
+    root = tmp_path / "agg"
+    build_complete_baseline(root)
+    catalog.write_run(root, DAY, mechanical_runs(), TAXONOMY)
+    outside = tmp_path / "runs-outside"
+    shutil.move(runs_dir(root), outside)
+    plant_link(runs_dir(root), outside)
+    got = fam_document_catalog(ctx_for(catalog_root=root))
+    assert [(f.severity, f.repo, f.path) for f in got] == [
+        (ERROR, "(catalog)", "(persisted state)")]
+    assert got[0].rule.startswith("[catalog-integrity] persisted catalog "
+                                  "state could not be read")
+    assert "symlink" in got[0].rule
+    assert got[0].action == INTEGRITY_ACTION
+
+
 # --- recursion -------------------------------------------------------------------
 
 def test_recursion_of_generated_records_is_flagged(tmp_path):
