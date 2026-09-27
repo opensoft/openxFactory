@@ -326,7 +326,11 @@ exactly as open as before. The proposal must say, module by module, which is
 which, and must not let requirement 9's closure — however it is achieved —
 imply Requirement 1's.
 
-Gated on: Brett Heap's ruling of Q1–Q3 (and optionally Q4), and
-R1Q23's answer for timing. Deadline, as R1Q6 (d) and T008 name it: before
-release 2's 12.5 needs its sixteen governed-flow suites to run, or sooner if
-R1Q23 is answered (b).
+Gated on: Brett Heap's ruling of Q1–Q3 (and optionally Q4), R1Q23's answer
+for timing, and Q6's owner/task-list requirement — the exit proposal must
+either carry its own realization task list or name the plan/lane that owns
+it; a ruling among Q1–Q3 (and Q4/Q5) without also satisfying Q6 does not
+clear this gate, since it would leave the fix ruled but unowned, exactly the
+tolerated-not-resolved state this arc exists to end. Deadline, as R1Q6 (d)
+and T008 name it: before release 2's 12.5 needs its sixteen governed-flow
+suites to run, or sooner if R1Q23 is answered (b).
