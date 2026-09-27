@@ -8,7 +8,7 @@ operation", phases 1–3) of the ratified OpenSpec change
 **Lane**: `openxfactory-4`. **Raised**: 2026-09-24, while planning, before any
 code.
 
-**Answer state: 25 ANSWERED, 2 OPEN (R1Q26, R1Q27).**
+**Answer state: 27 ANSWERED, 0 OPEN.**
 
 - **Round 1a: ANSWERED** (R1Q1–R1Q9, R1Q20, R1Q22: every question phase 1
   needed when it was planned). RULED 2026-09-24T15:31:46Z by Brett Heap,
@@ -21,15 +21,18 @@ code.
   verbatim: *"go with recommendations on all the open questions"*. So each of
   the fourteen is answered with the option this file recommended, as its
   ANSWER line records. The same comment ruled RN-1 (a).
-- **Round 3: OPEN** (R1Q26, R1Q27). Round 2's analyze raised both on
+- **Round 3: ANSWERED** (R1Q26, R1Q27). Round 2's analyze raised both on
   2026-09-27 ([`evidence/analyze-round-2.md`](./evidence/analyze-round-2.md),
-  V2-1 and V2-2). They hold T059, T060, T061 and T066, in phase 2, and T067
-  encodes their answers.
+  V2-1 and V2-2). RULED 2026-09-27T02:25:29Z by Brett Heap on `#656`, comment
+  `5851950767`, verbatim: *"(a) Admit the two edits (Recommended)"* and *"(a)
+  Own three, others by tree (Recommended)"*. So both are answered (a), the
+  option this file recommended, as each ANSWER line records. The analyze's
+  second pass then found a route R1Q26 had not listed (W2-10). Brett was shown
+  it and kept (a), on comment `5852513402` (2026-09-27T04:08:46Z), verbatim
+  *"Keep (a) as ruled (Recommended)"*.
 - Every answer is encoded in [`spec.md`](./spec.md) § Clarifications and in
-  [`tasks.md`](./tasks.md), where it shows as a `Ruled:` line. The two open
-  questions show as `Blocked by:` lines on T059, T060, T061, T066 and T067,
-  and on T007 for its batch I alone. Phase 1 and the rest of phase 2 are
-  planned on answers.
+  [`tasks.md`](./tasks.md), where it shows as a `Ruled:` line. No task carries
+  a `Blocked by:` line, and no phase is provisional.
 - **Where round 2 is encoded.** T019 applies R1Q14, R1Q24 and R1Q25 to phase
   1's openXdox-code tail. Under R1Q25 (b), T061 (7.3) returns to phase 2, and
   T043 declares `tests/test_snapshot.py` in the exclusion until it lands. T009
@@ -53,8 +56,8 @@ follows wherever one moved. Task ids (`T0nn`) are [`tasks.md`](./tasks.md)'s.
 `R1Q15 b`. An answer is written inline under its question and encoded into
 `spec.md` in the same commit. T004 did that for round 1a. T019, T009 and T069
 did it for round 2, in one bookkeeping PR: T019 for R1Q14, R1Q24 and R1Q25,
-T009 for phase 2's questions, and T069 for phase 3's. T067 does it for R1Q26
-and R1Q27.
+T009 for phase 2's questions, and T069 for phase 3's. T067 did it for R1Q26
+and R1Q27, in a bookkeeping PR of its own.
 - An answer that changes a falsifier or a task line of #1144's `tasks.md` is
   recorded there by T007, on your word, under a Rule 6 window.
 - An answer that would change a requirement's text or a scenario is put to
@@ -66,18 +69,17 @@ and R1Q27.
 | phase | cannot start or close without |
 |---|---|
 | 1, it runs | nothing open. Its start: each slice's claim. Its close: T007's batches A, B, D and F, which record `5817152735`'s amendments, RN-1 (a) (landed, #1170), and R1Q24 (a) and R1Q25 (b) |
-| 2, useful alone | R1Q26 and R1Q27, for T059, T060, T061 and T066 (T067), and so for the phase's close. R1Q10–R1Q13 and R1Q23 are answered, T009 re-planned the phase, and T007's batch G lands before its first task |
-| 3, it installs | nothing open of its own. It starts after T063, so it follows R1Q26 and R1Q27 through phase 2. R1Q15–R1Q19 are answered, with R1Q10 and R1Q12 for chat standalone. T069 re-planned the phase, and T007's batch H lands before the tasks that run an amended line |
+| 2, useful alone | nothing open. R1Q10–R1Q13, R1Q23, R1Q26 and R1Q27 are answered, T009 and T067 re-planned the phase, T007's batch G lands before its first task, and batch I before T059, T060, T061 and T063 |
+| 3, it installs | nothing open. R1Q15–R1Q19 are answered, with R1Q10 and R1Q12 for chat standalone. T069 re-planned the phase, and T007's batch H lands before the tasks that run an amended line |
 | every landing | nothing open. R1Q20 and R1Q22 are answered |
 | process only | nothing open. R1Q21 is answered (a) |
 
 **What can start now**: the holder tasks T002 and T008, and T007's batches A
-and C. Batch D has landed (#1170 → `79a720a2`). T003–T006, T009, T019 and
-T069 are done.
+and C. Batch D has landed (#1170 → `79a720a2`). T003–T006, T009, T019, T067
+and T069 are done.
 Batch B follows T041, batches F, G and H follow the round-2 revision, and
 batch I follows T067. Every phase-1 task follows its slice's claim (T002), and
-T043 also follows batches C and F. T059, T060, T061 and T066 also follow T067,
-which waits on R1Q26 and R1Q27. See `tasks.md` § "What can start".
+T043 also follows batches C and F. See `tasks.md` § "What can start".
 
 ---
 
@@ -486,8 +488,8 @@ openXdox's governed generator keeps `ideation-dashboard-snapshot`.
 `SNAPSHOT_VALUES`' defaults move to the neutral values, and the governed values
 move to openXdox's facet, in its `values` block (T054, T060). The bundle is cut
 as a `dox-v1.x` minor at the openDox root (T053). T007's batch G amends 5.3
-and 7.1, and adds 9.5's addendum. 5.3a's `values` block waits for batch I,
-because R1Q26 decides how it lands.
+and 7.1, and adds 9.5's addendum. 5.3a's `values` block is batch I's,
+because R1Q26 (a) decided how it lands.
 
 ---
 
@@ -643,9 +645,11 @@ amends F5.2 so that the reviewed allow-list admits both of F7.1's edits, each
 with its reason. Of the three ways the T006 paragraph lists, T019 takes the
 first and the third. T061 keeps what openxFactory's two lanes read, so their
 scripts need no edit. T066, a non-arc openxFactory act that holds at both pins,
-revises the seal test and sends openDox's kinds to openDox's validator before
-T064. R1Q25 (b) returned T061 to phase 2, so the pin in question is T064's,
-not T047's.
+revises the seal test before T064. It sent openDox's kinds to openDox's
+validator until T067 re-planned it: under R1Q27 (a) the consumer's validator
+keeps validating every kind openxFactory's farm supplies, so no caller moves.
+R1Q25 (b) returned T061 to phase 2, so the pin in question is T064's, not
+T047's.
 
 ---
 
@@ -1065,7 +1069,7 @@ narrowing's effect on openxFactory's callers.
 
 ---
 
-## R1Q26 — openXdox's facet gains a `values` block, but a suite 12.5 protects pins the facet as it is *(governs T007, T059, T060, T066, T067; phase 2)* — **OPEN**
+## R1Q26 — openXdox's facet gains a `values` block, but a suite 12.5 protects pins the facet as it is *(governs T007, T059, T060, T064, T066, T067; phase 2)* — **ANSWERED (a)**
 
 **Raised by** round 2's analyze on 2026-09-27
 ([`evidence/analyze-round-2.md`](./evidence/analyze-round-2.md), V2-1 and
@@ -1130,6 +1134,16 @@ weakened.
 edit to a protected proof with its reason, which is the route R1Q14 (a) took
 for F7.1. (b) breaks openXdox's own views, and (c) edits a protected proof
 outside the guard that exists to see it.
+**ANSWER: (a)**, RULED in `5851950767`, verbatim *"(a) Admit the two edits
+(Recommended)"*. T007's batch I amends 5.3a to admit the facet's `values`
+block, and 12.5's falsifier so that the reviewed allow-list admits the two
+edits to `tests/test_gate_loop_views.py`, each entered with its reason. T060
+makes the first edit and T059 the second. T066 composes `values` into
+openxFactory's profile, and updates its facet test, in its both-pins form.
+Brett kept (a) on `5852513402`, verbatim *"Keep (a) as ruled (Recommended)"*,
+once shown a route these options had not listed: governed defaults kept, and
+the neutral values in openDox's default profile facet (W2-10,
+[`evidence/analyze-round-2.md`](./evidence/analyze-round-2.md)).
 
 **Corrections after the answer.** Brett Heap answered this question on
 `#656`, comment `5851950767`, and T067 encodes the answer. The second pass of
@@ -1145,7 +1159,7 @@ it was put. Neither bears on the answer.
 
 ---
 
-## R1Q27 — The consumer's validator narrows to its three schemas, but openxFactory's contracts name it as the validator of openxFactory's own kinds *(governs T007, T061, T066, T067; phase 2)* — **OPEN**
+## R1Q27 — The consumer's validator narrows to its three schemas, but openxFactory's contracts name it as the validator of openxFactory's own kinds *(governs T007, T061, T063, T064, T066, T067; phase 2)* — **ANSWERED (a)**
 
 **Raised by** round 2's analyze on 2026-09-27
 ([`evidence/analyze-round-2.md`](./evidence/analyze-round-2.md), V2-2 and
@@ -1206,6 +1220,13 @@ consumer's validator narrows.
 walk, without taking the validator away from rules that name it. (b) is the
 long-run home, and it is a change of its own. (c) leaves governed rules
 unenforced.
+**ANSWER: (a)**, RULED in `5851950767`, verbatim *"(a) Own three, others by
+tree (Recommended)"*. The consumer's validator validates its own three kinds
+from its installed distribution everywhere, and the other kinds only where the
+tree it runs from supplies their schemas, its own `contracts/` read first, as
+openxFactory's farm does today (T061). F7.1's second test reads *"every schema
+this install validates is on disk"*, which T007's batch I records beside 7.3
+and F7.1, and the checkpoint T063 runs it so. No contract row changes.
 
 **Corrections after the answer.** Brett Heap answered this question on
 `#656`, comment `5851950767`, and T067 encodes the answer. The second pass of

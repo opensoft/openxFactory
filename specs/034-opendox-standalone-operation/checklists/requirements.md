@@ -21,12 +21,11 @@ before implementation starts.
 
 ## Requirement completeness
 
-- [ ] No `[NEEDS CLARIFICATION]` remains. **Partly open.** 25 questions are
-      answered and encoded in spec.md § Clarifications: eleven on `#656`
-      `5817152735`, which T004 encoded, and fourteen on `5850003126`, which
-      T019, T009 and T069 encoded. RN-1 is ruled (a) and landed (#1170).
-      Round 2's analyze raised R1Q26 and R1Q27, which are open. They hold
-      T059, T060, T061 and T066 in phase 2, and T067 encodes them.
+- [x] No `[NEEDS CLARIFICATION]` remains. All 27 questions are answered and
+      encoded in spec.md § Clarifications: eleven on `#656` `5817152735`,
+      which T004 encoded, fourteen on `5850003126`, which T019, T009 and T069
+      encoded, and two on `5851950767`, which T067 encoded. RN-1 is ruled (a)
+      and landed (#1170). No phase is provisional.
 - [x] Every requirement can be tested. FR-001 to FR-010 each cite #1144's own
       falsifier. FR-011 is tested by AT-R1 (T095, T096), and FR-012 by each
       PR's review against its task's lines and its quoted falsifier output.
@@ -60,7 +59,8 @@ before implementation starts.
 - [x] `/speckit-analyze` has reported no CRITICAL finding. T006's round-1a
       run found none (`evidence/analyze-round-1a.md`), and round 2's run over
       T019's, T009's and T069's re-plan found none either
-      (`evidence/analyze-round-2.md`). Every finding either run raised is
+      (`evidence/analyze-round-2.md`), nor did round 3's over T067's
+      (`evidence/analyze-round-3.md`). Every finding each run raised is
       dispositioned in its record.
 
 ## Notes
@@ -69,7 +69,6 @@ before implementation starts.
   purpose until round 2: the brief asked for the plan before the answers, and
   forbade resolving the questions by assumption. Round 2 answered every
   question then open, none by assumption. Its analyze then found two more,
-  R1Q26 and R1Q27, which go to Brett Heap in the same way, so the item stays
-  unticked until T067 encodes them. plan.md § Complexity Tracking records
-  the four tasks they hold. The second gate, analyze, is clean for this
-  revision (round 2).
+  R1Q26 and R1Q27, which went to Brett Heap in the same way, and he answered
+  both on `5851950767`. T067 encoded them, so the item is ticked. The second
+  gate, analyze, is clean for this revision (round 3).

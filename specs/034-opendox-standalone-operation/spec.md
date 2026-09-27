@@ -3,11 +3,10 @@
 **Feature Branch**: `034-opendox-standalone-operation`
 **Created**: 2026-09-24
 Status: draft
-**Clarifications**: 25 of the 27 clarify questions are answered, in two
-rounds: eleven on `#656` comment `5817152735`, and fourteen on comment
-`5850003126`, which also ruled RN-1 (a). Round 2's analyze raised R1Q26 and
-R1Q27, which are open. They hold four phase-2 tasks, T059, T060, T061 and
-T066, and nothing in phase 1.
+**Clarifications**: all 27 clarify questions are answered, in three rounds:
+eleven on `#656` comment `5817152735`, fourteen on comment `5850003126`, which
+also ruled RN-1 (a), and two on comment `5851950767`. No phase is
+provisional.
 **Realizes**: RELEASE 1, "standalone operation", phases 1–3, of the
 openxFactory OpenSpec change `add-neutral-product-standalone-operability`
 (#1144, landed `94b6f7f1`). The phases follow that change's RULED release map
@@ -62,7 +61,8 @@ and one answer raised a 23rd. T005's re-measure raised a 24th on 2026-09-25
 and T006's analyze a 25th the same day
 ([`evidence/analyze-round-1a.md`](./evidence/analyze-round-1a.md)). Round 2's
 analyze raised a 26th and a 27th on 2026-09-27
-([`evidence/analyze-round-2.md`](./evidence/analyze-round-2.md)).
+([`evidence/analyze-round-2.md`](./evidence/analyze-round-2.md)), and Brett
+answered both the same day.
 They are named `R1Q<n>`, because a bare `Q<n>` already names one of #1144's own
 rulings (RULING Q1, RULING Q2, Q-R4, DIRECTION Q5).
 
@@ -143,8 +143,8 @@ recommended. T019, T009 and T069 encode them.
   distribution's validator, and C3's test is revised in 7.3's landing (T061).
   F5.2's allow-list admits both of F7.1's edits, each with its reason.
   openxFactory's scripts read what T061 leaves unchanged, and T066, a non-arc
-  openxFactory act, adapts its validator callers and the seal test at both
-  pins.
+  openxFactory act, revises the seal test at both pins. Under R1Q27 (a) it
+  moves none of openxFactory's validator callers (T067).
 - Q: R1Q24. Where do openXdox-code's files that need openxFactory's
   status-exemption rail or its contracts run? → A: (a). They join the declared
   exclusion, each file with its own reason, as open extractions that the
@@ -201,28 +201,36 @@ The #1144 lines these answers amend are T007's batches F, G and H
 ([`tasks.md`](./tasks.md) § "Ruled amendments"). This revision edits no file
 of #1144.
 
-### Open since 2026-09-27
+### Session 2026-09-27
 
-Round 2's analyze found two questions that the answers do not settle.
-[`clarify-questions.md`](./clarify-questions.md) puts them to Brett Heap, and
-neither is answered here by assumption.
+Round 2's analyze found two questions that the answers did not settle, and
+[`clarify-questions.md`](./clarify-questions.md) put them to Brett Heap. He
+answered both on `#656`, comment `5851950767`, 2026-09-27T02:25:29Z, verbatim
+*"(a) Admit the two edits (Recommended)"* and *"(a) Own three, others by tree
+(Recommended)"*. T067 encodes them. When the analyze's second pass found a
+route R1Q26 had not listed (W2-10), Brett was shown it and kept (a), on
+comment `5852513402`, verbatim *"Keep (a) as ruled (Recommended)"*.
 
 - Q: R1Q26. openXdox's facet gains a `values` block (R1Q11 (a)), but one of
   12.5's protected suites pins the facet as it is, and so does openxFactory's
-  own facet test. How does the block land? → OPEN. Recommended (a): 12.5's
-  falsifier admits the two edits, each with its reason.
+  own facet test. How does the block land? → A: (a). T007's batch I amends
+  5.3a to admit the block, and 12.5's falsifier to admit the two edits to
+  `tests/test_gate_loop_views.py`, each entered with its reason. T060 makes
+  the first and T059 the second. T066 composes `values` into openxFactory's
+  profile at both pins.
 - Q: R1Q27. 7.3 narrows the consumer's validator to its three schemas, but
   openxFactory's contracts name that validator as the one that checks
-  openxFactory's own four kinds. What validates them afterwards? → OPEN.
-  Recommended (a): the validator checks its own three from its installed
-  distribution, and the other kinds only where the tree it runs from supplies
-  their schemas.
+  openxFactory's own four kinds. What validates them afterwards? → A: (a).
+  The validator checks its own three from its installed distribution, and the
+  other kinds only where the tree it runs from supplies their schemas, as
+  openxFactory's farm does today. F7.1's second test reads *"every schema this
+  install validates is on disk"* (batch I). No contract row changes.
 
-They hold T059, T060, T061 and T066, each through a `Blocked by:` line. T067,
-which encodes their answers, carries the same line, and so does T007 for its
-batch I alone. No other task carries a `Blocked by:` line. T063, T064 and
-T065 follow the held tasks through their `After:` lines, so phase 2 closes
-only once both are answered.
+The #1144 lines these answers amend are T007's batch I ([`tasks.md`](./tasks.md)
+§ "Ruled amendments").
+
+**Nothing is open.** No task in [`tasks.md`](./tasks.md) carries a `Blocked
+by:` line.
 
 One box needs no question. **3.0** ("RATIFICATION READ FIRST") is discharged by
 the ratification word itself. `5815412869` ratified the change and struck no
@@ -308,8 +316,8 @@ generate is not standalone (requirement 4, first scenario).
 **Independent Test**: at the phase-2 tip, F5.3, F7.2, F5.1 (5.3a re-run) and
 F5.2 (5.4a) all pass. F5.2 is run as T007's batches C, F and G amend it, with
 openxFactory's `scripts/` composed at a named commit (R1Q23 (a)). F7.1 (7.3)
-passes too, since R1Q25 (b) keeps 7.3 in this phase. F5.1's task (T060) and
-7.3's (T061) wait on R1Q26 and R1Q27.
+passes too, since R1Q25 (b) keeps 7.3 in this phase, and its second test
+reads as R1Q27 (a) has it.
 
 **Acceptance Scenarios**:
 
@@ -413,8 +421,8 @@ suite pass.
 3. **Given** openXdox installed in a fresh venv, **When** its validator lookup
    starts inside a planted pre-shed tree, **Then** it resolves the installed
    distribution's own validator, and its schemas are on disk (7.3; R1Q14 (a)).
-   It closes in phase 2 (R1Q25 (b)). R1Q27, which is open, asks what
-   validates openxFactory's own four kinds afterwards.
+   It closes in phase 2 (R1Q25 (b)), and every schema that install validates
+   is on disk (R1Q27 (a)).
 
 ---
 
@@ -502,17 +510,17 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   rendering the six ruled words. It SHALL declare a generator seam. openXdox
   SHALL keep its governed generator and contribute it through that seam, with
   its projection unchanged (R1Q11 (a): the neutral snapshot's contract is
-  openDox-spec's own; R1Q13 (a) with (c); R1Q23 (a); R1Q7 (a); R1Q26, open,
-  asks how the governed values reach openXdox's facet past 12.5's protected
-  suite).
+  openDox-spec's own; R1Q13 (a) with (c); R1Q23 (a); R1Q7 (a); R1Q26 (a):
+  the governed values go to openXdox's facet, whose two protected tests are
+  edited with their reasons).
 - **FR-005** (requirement 7; 7.0–7.3; F7.1, F7.2): openDox's validator and the
   schemas it reads SHALL be on disk in one installed checkout. The input set is
   narrowed to openDox's own kinds first, and no intent-plane or governance
   schema is vendored. openXdox's validator lookup SHALL resolve through its
   installed distribution, with no parent walk (R1Q12 (a): openDox's four kinds
   ship as digest-checked package data; for 7.3, R1Q14 (a), in phase 2 by R1Q25
-  (b); R1Q27, open, asks what validates openxFactory's four kinds
-  afterwards).
+  (b); R1Q27 (a): the other kinds only where the tree it runs from supplies
+  their schemas).
 - **FR-006** (requirement 9; 9.1–9.5; F9.1, F9.2): each leg's required check
   SHALL run its whole suite green in its own checkout. Where a check runs less
   than the whole suite, it SHALL declare the exclusion with its count and its
@@ -614,8 +622,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
     exclusion is reported as an open extraction, as FR-006 says.
 - **SC-002** (phase 2 exit): F5.1, F5.2, F5.3, F7.1 and F7.2 exit 0. F5.2 runs
   as T007's batches C, F and G amend it (R1Q23 (a)), and F7.1 runs here
-  because R1Q25 (b) keeps 7.3 in phase 2, read as batch I records R1Q27's
-  answer.
+  because R1Q25 (b) keeps 7.3 in phase 2, read as batch I records R1Q27
+  (a).
 - **SC-003** (phase 3 exit): F4.1, F10.1, F13.1 and F16.1 exit 0, and the F4.1
   scan prints `no deferred reach names the consumer or the publisher`.
 - **SC-004**: AT-R1 passes, and its evidence is recorded in this feature's
@@ -690,10 +698,10 @@ drives it from outside, so FR-006 is unaffected.
 - The fourteen answers of `5850003126`, and RN-1 (a), are applied in this
   revision: R1Q14, R1Q24 and R1Q25 by T019, R1Q10–R1Q13 and R1Q23 by T009, and
   R1Q15–R1Q19 by T069. R1Q21 (a) makes release 2 its own Speckit feature.
-- Phases 2 and 3 are planned on their answers, except T059, T060, T061 and
-  T066, which wait on R1Q26 and R1Q27, as do T067, which encodes them, and
-  T007's batch I. T063, T064 and T065 follow the four through their `After:`
-  lines. No other step's plan turns on an open question.
+- R1Q26 (a) and R1Q27 (a), answered on `5851950767`, are applied by T067, in
+  its own bookkeeping PR.
+- Phases 2 and 3 are planned on their answers, and no step is conditional on
+  an open question.
 - Lane 4's own acts C1, C3 and C4 (`#656` `5815604830`, `5815613524`,
   `5815620605`) have all landed (#1152, #1153, openXdox-code#28, #1157 and
   #1154). This feature starts from them and duplicates none of them.
