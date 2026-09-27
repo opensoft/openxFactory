@@ -1,4 +1,4 @@
-# Staged: a deferred document stays owed — the semantic sweep's carry-over, with its cursor beside the inventory
+# Staged: a changed document the sweep defers stays owed — the semantic sweep's carry-over, with its cursor beside the inventory
 
 Status: staged
 Kind: capability-proposal
@@ -11,12 +11,13 @@ content-hash diff against the last committed `health/inventory/<date>.json`,
 which `finalize` emits unconditionally, so a deferred document is either
 re-selected and deferred again by the same order (measured 2026-09-24, while
 the committed baseline stood at 2026-09-04: 219 documents deferred on both
-budgeted nights) or, once the baseline advances, dropped from the next
-night's selection without ever being analyzed. Brett Heap ruled on 2026-09-26
-that the budget packet caps and records, and that the carry-over is this
-separate packet, with the cursor as its own committed record beside the
-inventory. This topic stages that carry-over: a document that CHANGED
-stays OWED until the sweep has actually analyzed it.
+budgeted nights) or, once the baseline advances, dropped from the next night's
+incremental selection without ever being analyzed (only a full sweep selects
+it again, where the same order defers the late-sorting documents too). Brett
+Heap ruled on 2026-09-26 that the budget packet caps and records, and that the
+carry-over is this separate packet, with the cursor as its own committed
+record beside the inventory. This topic stages that carry-over: a document
+that CHANGED stays OWED until the sweep has actually analyzed it.
 Topics: doc-health, semantic-sweep, worker-input-budget, sweep-cursor,
 carry-over, deferred-documents, inventory-baseline, incremental-scope,
 grounding-share, nightly-report
@@ -109,8 +110,12 @@ This topic does not depend on that; see Claim 3.
    documents, 68 promoted specs) were deferred on both budgeted nights
    measured, 2026-09-23 and 2026-09-24, against
    `health/inventory/2026-09-04.json`. Once the baseline advances, a deferred
-   document leaves the next night's diff and is not selected again until its
-   content changes. The first state spends the budget on the same documents
+   document leaves the next night's incremental diff. It is selected again
+   only when its content changes or a full sweep (weekly, or the
+   `full-nightly` scope) takes the whole corpus, and there the same
+   `(repo, path)` packing defers the late-sorting documents again: the budget
+   packet's Sunday repack at 0.5 sent none of openxFactory's 397 governed
+   documents. The first state spends the budget on the same documents
    every night; the second loses the deferred ones silently. Nothing in the
    current design obliges a deferred document ever to be analyzed.
    FALSIFIABLE BY: a code path in `scripts/doc_health/` that reads an earlier
@@ -158,14 +163,15 @@ the next inventory unconditionally, so what becomes of a deferred document is
 decided by the report cadence rather than by the sweep. While the committed
 baseline stood at 2026-09-04 the same documents were re-selected and deferred
 again every night (219 on both budgeted nights measured); once the baseline
-advances, a deferred document leaves the diff and is never selected again
-until someone edits it. The packing order is `(repo, path)`, so the deferred
-documents are the same ones every time: at the built share of 0.5, none of
-openxFactory's 109 changed documents and one of its 66 promoted specs were
-sent on the 2026-09-24 inventory, and no share repairs that, because the order
-causes it. A document the report names as deferred every night and nothing
-ever sweeps is a finding the sweep will never make. The sweep needs to
-remember what it owes.
+advances, a deferred document leaves the diff, and only a full sweep selects
+it again, where the same packing defers the late-sorting documents too (the
+budget packet's Sunday repack at 0.5 sent none of openxFactory's 397 governed
+documents). The packing order is `(repo, path)`, so the deferred documents are
+the same ones every time: at the built share of 0.5, none of openxFactory's
+109 changed documents and one of its 66 promoted specs were sent on the
+2026-09-24 inventory, and no share repairs that, because the order causes it.
+A document the report names as deferred every night and nothing ever sweeps is
+a finding the sweep will never make. The sweep needs to remember what it owes.
 <!-- /xspec:candidate -->
 
 ## What changes
@@ -319,7 +325,7 @@ current hash differs.
 Recommended answer: The OWED SET: one entry per owed document carrying
 `repo`, `path`, `population`, the `content_sha256` it was selected at, its
 `first_deferred` date and `nights_owed`, written from the deferral record
-and the night's outcome, and read as an addition to tonight's diff.
+and the night's outcome, and read as an addition to tonight's selection.
 Explanation: It is the shape the ruling's example names. It leaves the
 incremental scope's basis, the previous report, exactly as promoted and ADDS
 to it, and it stays small: hundreds of entries rather than the whole corpus.
@@ -348,9 +354,10 @@ Explanation: Owing a spec would let grounding debt compete with subject debt
 for no finding a spec could ever produce. Ignoring grounding deferrals would
 leave the contradiction check blind to the same specs forever, which is the
 `(repo, path)` effect that the budget packet's OQ-1 measurement found no
-share repairs. Rotation offers every spec within about four nights at
-2026-09-24 sizes (2,984,532 bytes of specs, a little over three nights of
-the grounding share) without creating a debt.
+share repairs. Rotation offers every spec that fits the grounding share (the
+largest of openxFactory's own 66 costs 317,749 bytes) within about four
+nights at 2026-09-24 sizes (2,984,532 bytes of specs, a little over three
+nights of the grounding share) without creating a debt.
 Disposition status: open
 Added-by: Claude Opus 5.5 (lane openxfactory-1) · 2026-09-26
 
@@ -461,7 +468,8 @@ Added-by: Claude Opus 5.5 (lane openxfactory-1) · 2026-09-26
 
 ### Q7. Does the weekly full sweep enrol its own deferrals in the owed set?
 
-Context: On the weekly day the selection is the whole governed corpus. The
+Context: On the weekly day, and every night under the `full-nightly` scope,
+the selection is the whole governed corpus. The
 budget packet's 2026-09-24 repack of a Sunday sweep over that inventory
 found 738 governed documents costing 9,416,787 bytes, of which 127 are sent
 at share 0.5.
@@ -489,20 +497,30 @@ Added-by: Claude Opus 5.5 (lane openxfactory-1) · 2026-09-26
 Context: The baseline stood at `health/inventory/2026-09-04.json` through
 every budgeted night measured, and opensoft/xFactory#396 is ruled to land,
 which advances it in one step. At that moment every document deferred under
-the stuck baseline leaves the diff; a cursor that ships later and starts
-empty never learns they were owed. The budgeted nights' `semantic-sweep-bundle`
-artifacts live in the calling repository and expire 90 days after each run
-started, the repository default the reusable workflow's own comment records.
-Recommended answer: Replay the cursor's own rule over every retained
-budgeted night, oldest first, from the recorded bundles and each night's
-recorded sweep outcome. For the case in hand that reduces to the deferral
-list of the last night selected against the stuck baseline. If no budgeted
-bundle is retained, start empty and say so in the first report.
-Explanation: A seed replayed from recorded artifacts is exactly as grounded
-as every later cursor, with nothing recomputed or remembered by hand.
-Starting empty would forget precisely the documents this topic was raised
-for. An expired seed is reported rather than reconstructed, because a
-guessed owed set would be a claim the evidence does not carry.
+the stuck baseline leaves the diff, and a cursor that starts empty never
+learns it was owed. The debt is older than the budget. Per the budget
+packet's evidence table, the analysis child last succeeded with nothing held
+back on 2026-09-02, and it failed on 2026-09-03 and 2026-09-04, whose
+inventories were committed anyway, so even the stuck diff against
+2026-09-04 misses what changed on those two nights. The budgeted nights'
+`semantic-sweep-bundle` artifacts expire 90 days after each run started
+(the repository default the reusable workflow's own comment records); the
+committed inventories under `health/inventory/` do not expire.
+Recommended answer: Seed the first cursor from the committed inventories,
+never empty. Enrol every governed document whose content differs between the
+current inventory and `health/inventory/2026-09-02.json`, the last committed
+inventory whose night's sweep completed with nothing held back. Remove from
+that seed only the documents that a retained bundle, together with its
+night's recorded outcome, proves were analyzed since at their current
+content.
+Explanation: Committed inventories are durable, so the seed never depends on
+artifact retention, and the guarantee holds from the first cursor with no
+empty-start exception to record. The seed over-approximates: a document
+already analyzed on a budgeted night whose bundle has expired is analyzed
+again. That costs budget and loses nothing, which is the right side to err
+on for a sweep whose failure mode has been silent loss. A seed replayed only
+from bundles would be exact while they last and would then start empty,
+forgetting the documents this topic was raised for.
 Disposition status: open
 Added-by: Claude Opus 5.5 (lane openxfactory-1) · 2026-09-26
 
