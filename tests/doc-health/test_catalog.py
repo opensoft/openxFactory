@@ -659,6 +659,47 @@ def test_write_run_preflights_every_repository_id_before_writing(tmp_path):
     assert not (tmp_path / "agg").exists()  # nothing landed, not even alpha
 
 
+def test_write_run_refuses_a_conflicting_later_repository_before_any_write(
+        tmp_path):
+    # Review (Copilot, #1175): a run directory already holding a CONFLICTING
+    # file for a later repository (edited by hand, or mixed from another
+    # run) must be refused before the earlier repository is written or a
+    # sequence claimed -- not after, which would leave a partial recorded
+    # run behind.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid, source = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    run_dir = runs_root(tmp_path / "agg") / DAY_STR / rid
+    run_dir.mkdir(parents=True)
+    tampered = source["openxFactory"].read_bytes() + b" "
+    (run_dir / "openxFactory.yaml").write_bytes(tampered)  # sorts after alpha
+    with pytest.raises(catalog.CatalogError, match="immutable"):
+        catalog.write_run(tmp_path / "agg", DAY, runs, TAXONOMY)
+    assert sorted(p.name for p in run_dir.iterdir()) == ["openxFactory.yaml"]
+    assert (run_dir / "openxFactory.yaml").read_bytes() == tampered
+    assert not (runs_root(tmp_path / "agg") / ".sequence").exists()
+    assert catalog.load_snapshot(tmp_path / "agg") is None
+
+
+def test_a_line_ending_edit_is_never_a_completed_noop(tmp_path):
+    # Review (Copilot, #1175): the existing-file checks compare RAW bytes.
+    # A text-mode read translates CRLF back to LF, so a retry over a
+    # CRLF-edited snapshot used to return as a completed no-op.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid, paths = catalog.write_run(tmp_path, DAY, runs, TAXONOMY)
+    for path in paths.values():  # the writer lands exactly render()'s bytes
+        raw = path.read_bytes()
+        assert raw == catalog.render(json.loads(raw)).encode("utf-8")
+        assert b"\r" not in raw
+    edited = paths["alpha"].read_bytes().replace(b"\n", b"\r\n")
+    paths["alpha"].write_bytes(edited)
+    with pytest.raises(catalog.CatalogError, match="immutable"):
+        catalog.write_run(tmp_path, DAY, runs, TAXONOMY)
+    with pytest.raises(catalog.CatalogError, match="immutable"):
+        catalog.write_snapshot(tmp_path, DAY, rid, "alpha", runs["alpha"],
+                               TAXONOMY)
+    assert paths["alpha"].read_bytes() == edited  # refused, never rewritten
+
+
 # --- snapshots: immutable dated run paths (T007) -----------------------------
 
 def test_write_snapshot_creates_immutable_dated_run(tmp_path):

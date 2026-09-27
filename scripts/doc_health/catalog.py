@@ -624,12 +624,19 @@ def _write_rendered(path: Path, text: str) -> None:
     per-invocation temp). The last ``os.replace`` wins atomically;
     identical-content racers converge on identical bytes. Perms are
     ``mkstemp``'s default 0600 — git normalizes modes on commit, so
-    there is no need to widen them here."""
+    there is no need to widen them here.
+
+    ``newline="\\n"`` pins the persisted bytes to exactly ``text`` encoded
+    as UTF-8 on every platform (research D3: ``\\n`` line endings) — a
+    default text-mode write would translate to the platform's line
+    separator, and every existing-file check (``write_snapshot``,
+    ``write_run``) and the byte-exact run-id verification
+    (``run_id_scheme``) compare raw bytes against ``render``'s output."""
     fd, tmp_name = tempfile.mkstemp(
         dir=path.parent, prefix=path.name + ".", suffix=".tmp")
     tmp = Path(tmp_name)
     try:
-        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(text)
         os.replace(tmp, path)  # atomic publish; consumes this temp only
     except BaseException:
@@ -739,7 +746,10 @@ def _claim_sequence(root: Path, day: str, rid: str) -> int:
             fd = os.open(claim_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         except FileExistsError:
             continue  # lost the race — re-scan and retry
-        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+        # newline="\n": the claim's bytes are render()'s on every platform
+        # (research D3), exactly as _write_rendered persists every other
+        # catalog record.
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(render({
                 "schema_version": SCHEMA_VERSION,
                 "kind": SEQUENCE_CLAIM_KIND,
@@ -790,6 +800,21 @@ def _snapshot_document(rid: str, repo: str, entries: list[dict],
     }
 
 
+def _holds_exactly(target: Path, expected: bytes) -> bool:
+    """False when ``target`` is absent, True when it holds exactly
+    ``expected``, and ``CatalogError`` when it holds anything else — an
+    immutable snapshot is never rewritten. Compared as RAW bytes: a
+    universal-newline text read would translate a CRLF edit back to the
+    writer's LF and wave an altered record through as a completed no-op."""
+    if not target.is_file():
+        return False
+    if target.read_bytes() != expected:
+        raise CatalogError(
+            f"immutable snapshot already exists with different content: "
+            f"{target}")
+    return True
+
+
 def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
     """Write one repository's immutable snapshot into the dated,
     run-scoped catalog path; returns the snapshot file path.
@@ -808,7 +833,9 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
       files of an already-recorded run is never stale — its recency was
       fixed when its sequence was claimed.
     - Identical-content no-op: an existing snapshot file with the same
-      rendered bytes returns its path unchanged (completed run).
+      rendered bytes returns its path unchanged (completed run). The
+      comparison is raw bytes (``_holds_exactly``), so a byte-level edit
+      such as a CRLF conversion is never mistaken for the recorded file.
     - Immutability: an existing snapshot file with different bytes is
       never rewritten — CatalogError. Run ids are content addresses
       (``run_id``; ``write_run`` mints them), so different content is
@@ -828,16 +855,13 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
     taxonomy_block = _validate_taxonomy(taxonomy)
     document = _snapshot_document(rid, repo, list(entries), taxonomy_block)
     rendered = render(document)
+    expected = rendered.encode("utf-8")  # the bytes _write_rendered lands
 
     run_dir = root / RUNS_DIR / day / rid
     target = _repo_file(run_dir, repo)
     meta_path = run_dir / RUN_META_NAME
 
-    if target.is_file():
-        if target.read_text(encoding="utf-8") != rendered:
-            raise CatalogError(
-                f"immutable snapshot already exists with different "
-                f"content: {target}")
+    if _holds_exactly(target, expected):
         if meta_path.is_file():
             return target  # completed no-op: already recorded
         # fall through: heal a crash between snapshot and run.yaml
@@ -853,12 +877,7 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
             pass  # raced an identical-content run — same rid, same bytes
 
     target.parent.mkdir(parents=True, exist_ok=True)
-    if target.is_file():  # re-check: race lost mid-write
-        if target.read_text(encoding="utf-8") != rendered:
-            raise CatalogError(
-                f"immutable snapshot already exists with different "
-                f"content: {target}")
-    else:
+    if not _holds_exactly(target, expected):  # re-check: race lost mid-write
         _write_rendered(target, rendered)
 
     if sequence is not None and not meta_path.is_file():
@@ -886,8 +905,21 @@ def write_run(root, as_of, entries_by_repo: dict, taxonomy
     pairing opensoft/xFactory#519 found two producers disagreeing over.
     Two independent trees recording the same content converge on the same
     id and byte-identical files; recording different content can never
-    reuse an id, whichever tree or date it lands on."""
+    reuse an id, whichever tree or date it lands on.
+
+    All-or-nothing on refusal: every input check (``run_id``) and every
+    existing target of the run (``_holds_exactly``, raw bytes) is checked
+    BEFORE the first write, so a directory holding a conflicting file for
+    a LATER repository — edited by hand, or mixed from another run — is
+    refused before an earlier repository is written or a sequence is
+    claimed, never after, which would leave a partial recorded run."""
     rid = run_id(entries_by_repo, taxonomy)
+    taxonomy_block = _validate_taxonomy(taxonomy)
+    run_dir = Path(root) / RUNS_DIR / _as_of_str(as_of) / rid
+    for repo in sorted(entries_by_repo):
+        _holds_exactly(_repo_file(run_dir, repo), render(_snapshot_document(
+            rid, repo, list(entries_by_repo[repo]), taxonomy_block))
+            .encode("utf-8"))
     paths = {}
     for repo in sorted(entries_by_repo):
         paths[repo] = write_snapshot(root, as_of, rid, repo,
