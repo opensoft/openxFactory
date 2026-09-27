@@ -12,9 +12,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import threading
 from datetime import datetime
+from pathlib import Path
 
 import pytest
 
@@ -1675,6 +1677,71 @@ def test_run_scan_fails_closed_on_a_directory_it_cannot_list(tmp_path):
         finally:
             blocked.chmod(original)  # restore: tmp_path cleanup needs it
         assert catalog.load_snapshot(root)["run_id"] == rid, name
+
+
+def test_run_scan_never_takes_an_unchecked_node_for_link_free(tmp_path,
+                                                               monkeypatch):
+    # Review round 3 (Copilot, #1190): from Python 3.13 Path.is_symlink is
+    # os.path.islink, which reports a node whose lstat is denied as no link,
+    # so a scan built on it passes a child of a listable but unsearchable
+    # directory, a link included, as link-free. Python 3.12 raises instead,
+    # so it is pinned to the 3.13 behaviour here: the scan must not depend on
+    # it. The same holds where the scan meets a day or run directory it
+    # cannot list or search. Every node is checked with an explicit lstat,
+    # and whatever the scan cannot check or list refuses that entry alone;
+    # the runs directory itself refuses the whole scan.
+    monkeypatch.setattr(Path, "is_symlink", lambda self: os.path.islink(self))
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    cases = (
+        # (name, node to block from the run directory, mode, whether the
+        # refused entry is the run or its day, reason)
+        ("subdirectory-unsearchable", lambda run: run / "xFactories", 0o400,
+         "run", "could not be checked"),
+        ("run-directory-unsearchable", lambda run: run, 0o600, "run",
+         "could not be checked"),
+        ("day-directory-unsearchable", lambda run: run.parent, 0o400, "run",
+         "could not be checked"),
+        ("day-directory-unlistable", lambda run: run.parent, 0o100, "day",
+         "could not be listed"),
+    )
+    for name, blocked_of, mode, entry, reason in cases:
+        root = tmp_path / name
+        rid, _ = catalog.write_run(root, DAY, runs, TAXONOMY)
+        run_dir = runs_root(root) / DAY_STR / rid
+        blocked = blocked_of(run_dir)
+        original = blocked.stat().st_mode
+        blocked.chmod(mode)
+        try:
+            scan = list(catalog._iter_runs(root))
+            assert [tuple(e[:4]) for e in scan] == [
+                (DAY_STR, None, rid, run_dir) if entry == "run"
+                else (DAY_STR, None, None, None)], name
+            assert reason in str(scan[0].refusal), name
+            assert catalog.load_snapshot(root) is None, name
+            with pytest.raises(catalog.CatalogError,
+                               match="no run sequence is claimed beside"):
+                catalog.write_run(root, LATER_DAY_STR, later_runs(),
+                                  TAXONOMY)
+            assert not (runs_root(root) / LATER_DAY_STR).exists(), name
+        finally:
+            blocked.chmod(original)  # restore: tmp_path cleanup needs it
+        assert catalog.load_snapshot(root)["run_id"] == rid, name
+        assert sorted(p.name for p in (runs_root(root) / ".sequence")
+                      .iterdir()) == ["000001.yaml"], name  # nothing claimed
+    root = tmp_path / "runs-directory-unlistable"
+    catalog.write_run(root, DAY, runs, TAXONOMY)
+    blocked = runs_root(root)
+    original = blocked.stat().st_mode
+    blocked.chmod(0o100)
+    try:
+        with pytest.raises(catalog.CatalogError, match="could not be listed"):
+            list(catalog._iter_runs(root))
+        with pytest.raises(catalog.CatalogError, match="could not be listed"):
+            catalog.load_snapshot(root)
+    finally:
+        blocked.chmod(original)
 
 
 def test_latest_run_is_never_a_symlinked_entry(tmp_path):

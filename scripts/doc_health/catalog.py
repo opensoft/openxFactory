@@ -61,6 +61,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import tempfile
 from dataclasses import dataclass
 from datetime import date, datetime
@@ -676,12 +677,12 @@ class _RunEntry(NamedTuple):
 
     A recorded run carries its day, its ``run.yaml`` sequence, its id and
     directory, and no ``refusal``. An entry the scan refuses carries the
-    ``CatalogError`` that says why, and never a sequence: nothing behind
-    it was read. That is a symlinked day directory (the day is the entry,
-    so ``run_id`` and ``run_dir`` are None), a symlinked run directory or
-    ``run.yaml``, or a recorded run the scan cannot vouch for as link-free
-    (``_link_inside``: a symlink anywhere inside it, or a directory inside
-    it that cannot be listed)."""
+    ``CatalogError`` that says why, and never a sequence: nothing behind it
+    was read. That is a symlinked day directory, or one the scan cannot
+    check or list (the day is the entry, so ``run_id`` and ``run_dir`` are
+    None), a symlinked run directory or ``run.yaml``, or one the scan
+    cannot check, or a recorded run it cannot vouch for as link-free
+    (``_link_inside``)."""
     as_of: str
     sequence: int | None
     run_id: str | None
@@ -697,33 +698,64 @@ def _symlink_refusal(node: Path) -> CatalogError:
         f"catalog path is a symlink, which the writer never follows: {node}")
 
 
+def _link_refusal(node: Path) -> CatalogError | None:
+    """The refusal for a node the run scan cannot take as link-free, or
+    None when nothing is there or the node is not a link. A symlink is
+    refused (``_symlink_refusal``), and so is a node whose own ``lstat``
+    fails for any reason but its absence, because what cannot be checked
+    could be a link. The check is an explicit ``os.lstat``: from Python
+    3.13 ``Path.is_symlink`` swallows every ``OSError`` and would report
+    such a node link-free."""
+    try:
+        mode = os.lstat(node).st_mode
+    except (FileNotFoundError, NotADirectoryError):
+        return None
+    except OSError as exc:
+        return CatalogError(
+            f"catalog path could not be checked for a symlink: {exc}")
+    return _symlink_refusal(node) if stat.S_ISLNK(mode) else None
+
+
+def _unlisted_refusal(exc: OSError) -> CatalogError:
+    """The refusal for a directory the run scan cannot list: a link could
+    hide below it."""
+    return CatalogError(
+        f"catalog path could not be listed, so a symlink below it cannot be "
+        f"ruled out: {exc}")
+
+
+def _listing(directory: Path) -> tuple[list[Path], CatalogError | None]:
+    """``(sorted entries, None)`` for a directory the run scan can list, or
+    ``([], refusal)`` for one it cannot (``_unlisted_refusal``)."""
+    try:
+        return sorted(directory.iterdir()), None
+    except OSError as exc:
+        return [], _unlisted_refusal(exc)
+
+
 def _link_inside(run_dir: Path) -> CatalogError | None:
     """The refusal for a recorded run the scan cannot vouch for as
-    link-free, or None. That is a symlink anywhere inside it
-    (``_symlink_refusal``), or a directory inside it that cannot be listed,
-    or an entry that cannot be checked, since a link could hide there. The
-    walk fails closed: ``os.walk`` would otherwise skip a directory it
-    cannot list in silence (``onerror`` omitted), and the run would pass as
-    link-free over a subtree nobody saw. The writer's own walk is
-    ``_refuse_links_inside``, which the run scan leaves unchanged."""
+    link-free, or None. That is a symlink anywhere inside it, or an entry
+    inside it that cannot be checked (``_link_refusal``), or a directory
+    inside it that cannot be listed (``_unlisted_refusal``), since a link
+    could hide there. The walk fails closed: ``os.walk`` would otherwise
+    skip a directory it cannot list in silence (``onerror`` omitted), and
+    the run would pass as link-free over a subtree nobody saw. The writer's
+    own walk is ``_refuse_links_inside``, which the run scan leaves
+    unchanged."""
     def unlisted(exc: OSError) -> None:
-        raise CatalogError(
-            f"catalog path could not be listed, so a symlink below it "
-            f"cannot be ruled out: {exc}")
+        raise _unlisted_refusal(exc)
 
     try:
         for dirpath, dirnames, filenames in os.walk(run_dir,
                                                     onerror=unlisted):
             dirnames.sort()
             for name in sorted(dirnames + filenames):
-                node = Path(dirpath) / name
-                if node.is_symlink():
-                    return _symlink_refusal(node)
+                refusal = _link_refusal(Path(dirpath) / name)
+                if refusal is not None:
+                    return refusal
     except CatalogError as exc:
         return exc
-    except OSError as exc:  # an entry the scan cannot even lstat
-        return CatalogError(
-            f"catalog path could not be checked for a symlink: {exc}")
     return None
 
 
@@ -737,58 +769,64 @@ def _iter_runs(root: Path):
     block newer work, and a retry of the same content heals it.
 
     The scan never follows a symlink (opensoft/openxFactory#1187). It
-    checks each node for a link before it lists, stats or reads it, and it
-    never reads through one. A link where the writer makes a day directory,
-    a run directory or ``run.yaml`` is yielded as a refused entry for that
-    entry alone, whether it dangles, points inside the tree or escapes the
-    catalog root. So is a recorded run holding a link anywhere inside it,
-    or a directory inside it that the scan cannot list (``_link_inside``,
-    which fails closed), because a reader of that run would read its
+    checks each node for a link with an explicit ``lstat``
+    (``_link_refusal``) before it lists, stats or reads it, and it never
+    reads through one. A link where the writer makes a day directory, a run
+    directory or ``run.yaml`` is yielded as a refused entry for that entry
+    alone, whether it dangles, points inside the tree or escapes the
+    catalog root. The scan fails closed, so a node there it cannot check,
+    or a day directory it cannot list (``_listing``), is refused the same
+    way: a link could hide there. So is a recorded run holding a link
+    anywhere inside it, or anything inside it the scan cannot check or list
+    (``_link_inside``), because a reader of that run would read its
     snapshots through the link, or over a subtree nobody checked. Such an
     entry is never skipped the way a crashed run is, so every caller must
     decide what it means: ``load_snapshot`` never selects it,
     ``_claim_sequence`` claims nothing beside it, and the document-catalog
-    family reports it as catalog-integrity. A link at the catalog root or a
-    catalog directory above the day directories (``_catalog_chain``) puts
-    every run behind it, with no single entry to report, so it raises
-    ``CatalogError``. A missing catalog directory, or a node there that is
-    not a directory, means no recorded run, as before. A hidden (dot-named)
-    entry is not a day or a run, and is skipped by its name alone, so
-    ``.sequence`` is never listed here.
+    family reports it as catalog-integrity. A link, or a node the scan
+    cannot check or list, at the catalog root or a catalog directory above
+    the day directories (``_catalog_chain``) puts every run behind it, with
+    no single entry to report, so it raises ``CatalogError``. A missing
+    catalog directory, or a node there that is not a directory, means no
+    recorded run, as before. A hidden (dot-named) entry is not a day or a
+    run, and is skipped by its name alone, so ``.sequence`` is never listed
+    here.
 
     A regular ``run.yaml`` that cannot be parsed still raises
     ``CatalogError`` from the scan, unchanged."""
     for node in _catalog_chain(root):
-        if node.is_symlink():
-            raise _symlink_refusal(node)
+        refusal = _link_refusal(node)
+        if refusal is not None:
+            raise refusal
         if not node.is_dir():
             return  # no catalog yet, or not a directory: no recorded run
-    for date_dir in sorted((Path(root) / RUNS_DIR).iterdir()):
+    date_dirs, refusal = _listing(Path(root) / RUNS_DIR)
+    if refusal is not None:
+        raise refusal
+    for date_dir in date_dirs:
         if date_dir.name.startswith("."):
             continue
-        if date_dir.is_symlink():
-            yield _RunEntry(date_dir.name, None, None, None,
-                            _symlink_refusal(date_dir))
+        refusal = _link_refusal(date_dir)
+        if refusal is None:
+            if not date_dir.is_dir():
+                continue
+            run_dirs, refusal = _listing(date_dir)
+        if refusal is not None:
+            yield _RunEntry(date_dir.name, None, None, None, refusal)
             continue
-        if not date_dir.is_dir():
-            continue
-        for run_dir in sorted(date_dir.iterdir()):
+        for run_dir in run_dirs:
             if run_dir.name.startswith("."):
                 continue
             meta_path = run_dir / RUN_META_NAME
-            link = run_dir if run_dir.is_symlink() else None
-            if link is None:
+            refusal = _link_refusal(run_dir)
+            if refusal is None:
                 if not run_dir.is_dir():
                     continue
-                if meta_path.is_symlink():  # a dangling one included
-                    link = meta_path
-            if link is not None:
-                yield _RunEntry(date_dir.name, None, run_dir.name, run_dir,
-                                _symlink_refusal(link))
-                continue
-            if not meta_path.is_file():
-                continue  # unrecorded: crashed or still in flight
-            refusal = _link_inside(run_dir)
+                refusal = _link_refusal(meta_path)  # a dangling one included
+            if refusal is None:
+                if not meta_path.is_file():
+                    continue  # unrecorded: crashed or still in flight
+                refusal = _link_inside(run_dir)
             if refusal is not None:
                 yield _RunEntry(date_dir.name, None, run_dir.name, run_dir,
                                 refusal)
