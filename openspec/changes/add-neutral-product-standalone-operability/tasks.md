@@ -589,6 +589,18 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   openDox-code `1e4a57fb` installed over it, it passes, and it passes against
   `626f2c8d` as well. The earlier form, which
   read `host_display(DomainProfile)`, answers `None` against the same trees.
+
+  **AMENDED — T007 Batch I (`5851950767`; Ruled R1Q26 (a), with R1Q11 (a),
+  `5850003126`):** openXdox's facet also carries a `values` block beside its
+  one stage, holding the governed snapshot's values, because 5.3's defaults
+  become the neutral snapshot's values (T007 Batch G). `display_profile.py`
+  already lets a host override those values, so no openDox code changes for
+  the block. The facet stays partial in its stages, and the falsifier above
+  reads only the stages, so it is unchanged. The two tests of
+  `tests/test_gate_loop_views.py` that pin the facet as it was are edited
+  under 12.5's falsifier as this batch amends it. openxFactory composes the
+  block into its own profile, in a non-arc act that holds at both pins.
+  Carried out by T060, T059 and T066.
 - [ ] 5.4 **DECLARE THE GENERATOR SEAM — it does not exist and `CorpusAdapter` is
   not it.** `src/opendox/corpus_adapter.py`'s Protocol is CLOSED at six members
   (`resolve`, `list_documents`, `read`, `classify`, `check`, `write_back`) and its
@@ -900,6 +912,16 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   working directory, which exits 0 whatever it is given. The assertion is on
   WHERE the validator came from, so a lookup that still walks up fails even when
   the planted script would have "passed" every snapshot.
+
+  **AMENDED — T007 Batch I (`5851950767`; Ruled R1Q27 (a)):** The consumer's
+  validator validates its own three kinds (7.1's openXdox-spec three) from its
+  installed distribution, wherever it runs. It validates the family's other
+  kinds only where the tree it runs from supplies their schemas, reading that
+  tree's own `contracts/` first, as openxFactory's composed validator does
+  today. So the openxFactory contract rows that name it stay true, and no
+  contract changes. The second named test reads accordingly: every schema
+  THIS INSTALL validates is on disk, its own three always, and another kind's
+  only where the running tree supplies it. Carried out by T061 and T063.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, **INSTALLED into a
   fresh venv**, because 7.1 settles that the three schemas travel as PACKAGE
   DATA and a bare clone therefore cannot exercise the packaged set this box is
@@ -1594,6 +1616,19 @@ that does not name a platform.
   exists (T019's rule names its owner) and T059/T086 wire the subtraction
   into both falsifiers' checks. Carried out by whichever task T019 names as
   the file's first owner, plus T059, T086.
+
+  **AMENDED — T007 Batch I (`5851950767`; Ruled R1Q26 (a)):** The reviewed
+  allow-list that R1Q7 (a) admits for this falsifier (`5817152735`; T007
+  Batch C) also admits the two edits to `tests/test_gate_loop_views.py` that
+  5.3a's `values` block requires. Each is entered with its reason, and
+  neither as a respelling:
+  `test_the_display_facet_declares_one_stage_entry_and_nothing_else`, which
+  then admits the `values` block beside the one stage, and
+  `test_the_overlay_changes_four_words_and_the_named_absence_and_nothing_else`,
+  whose changed leaves then include the block's `values.*` leaves once 5.3's
+  defaults are neutral. No other assertion of the suite changes. This
+  bookkeeping amendment does not itself touch the command above. Carried out
+  by T060 and T059.
 - [ ] 12.6 **MERGE AUTHORITY — RULED, HOLD RELEASED.** Brett Heap, `#656` comment
   `5784155201`, 2026-09-22T21:06:01Z: *"merge yes"* — landing authority follows
   whoever governs the repository. A GOVERNED host reserves landing and routes it
