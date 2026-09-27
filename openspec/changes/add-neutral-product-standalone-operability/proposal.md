@@ -362,7 +362,9 @@ name entirely. The correction is task 9.1's, not this packet's.
 ## What Changes
 
 ONE `## ADDED Requirements` block creating the capability
-`neutral-product-standalone-operability` — seventeen requirements, seventy-five scenarios.
+`neutral-product-standalone-operability` — seventeen requirements, seventy-six
+scenarios (amended from seventy-five: RN-1 (a) adds requirement 3's fifth
+scenario, `#656` comment `5850003126`, landed as #1170).
 The capability is the sibling of `neutral-product-pin`: that one governs
 openxFactory CONSUMING an external neutral product; this one governs the product
 being able to STAND UP without its consumer. It is written domain-neutrally and
@@ -779,4 +781,5 @@ the other sixteen (`review/ratification-2026-09-24.md` § 2).
 
 ## Capabilities
 
-- `neutral-product-standalone-operability` — ADDED, 17 requirements, 75 scenarios.
+- `neutral-product-standalone-operability` — ADDED, 17 requirements, 76
+  scenarios (amended from 75 by RN-1 (a), `#656` comment `5850003126`, #1170).

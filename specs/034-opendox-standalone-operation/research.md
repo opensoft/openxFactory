@@ -15,7 +15,8 @@ T005 re-measured every figure on 2026-09-25. This file stays the record of
 2026-09-24, and the drift is in
 [`evidence/remeasure-2026-09-25.md`](./evidence/remeasure-2026-09-25.md). R10,
 R11, R12 and R13 moved, and R11's move brought T061 into phase 1, a move
-R1Q25 puts to Brett (T006).
+R1Q25 put to Brett (T006). He answered (b) on `5850003126`, so T061 is back in
+phase 2.
 
 ## R0 — The trees measured, and how to reproduce them
 
