@@ -21,18 +21,11 @@ before implementation starts.
 
 ## Requirement completeness
 
-- [ ] No `[NEEDS CLARIFICATION]` remains. **Partly open.** The eleven
-      questions phase 1 needed are answered (`#656` `5817152735`) and encoded
-      in spec.md § Clarifications. Fourteen remain open:
-      - R1Q10–R1Q13, R1Q15–R1Q19 and R1Q23, for phases 2–3. T009 (phase 2)
-        and T069 (phase 3) encode them as they are answered.
-      - R1Q14, R1Q24 and R1Q25, for phase 1's T061 and T043, raised or
-        brought in by T005's re-measure and T006's analyze. T019 encodes
-        them.
-      - R1Q21, on process.
-
-      Until then, phases 2–3, T061 and T043 are PROVISIONAL and authorize no
-      implementation.
+- [x] No `[NEEDS CLARIFICATION]` remains. All 25 questions are answered and
+      encoded in spec.md § Clarifications: eleven on `#656` `5817152735`,
+      which T004 encoded, and fourteen on `5850003126`, which T019, T009 and
+      T069 encoded. RN-1 is ruled (a) and landed (#1170). No phase is
+      provisional.
 - [x] Every requirement can be tested. FR-001 to FR-010 each cite #1144's own
       falsifier. FR-011 is tested by AT-R1 (T095, T096), and FR-012 by each
       PR's review against its task's lines and its quoted falsifier output.
@@ -63,16 +56,15 @@ before implementation starts.
 - [x] Parallel slices, and files limited to a single writer, are declared
       (plan.md; tasks.md § "Phase 1 writer slices").
 - [x] `/speckit-analyze` has reported no CRITICAL finding. T006's round-1a
-      run found none (`evidence/analyze-round-1a.md`), and every finding it
-      raised is dispositioned there. T009, T019 and T069 run it again for the
-      parts they re-plan.
+      run found none (`evidence/analyze-round-1a.md`), and round 2's run over
+      T019's, T009's and T069's re-plan found none either
+      (`evidence/analyze-round-2.md`). Every finding either raised is
+      dispositioned in its record.
 
 ## Notes
 
-- The unchecked item is the constitution's first gate: material ambiguities
-  are resolved. It is open on purpose. The brief asked for the plan before the
-  answers, and forbade resolving the questions by assumption. Phase 1's
-  questions are now answered, and phases 2–3's remain open. So do the three
-  on T061 and T043: R1Q14, R1Q24 and R1Q25. plan.md § Complexity Tracking
-  records both deviations. The second gate, analyze, is clean for this
-  revision (T006).
+- The constitution's first gate, material ambiguities resolved, was open on
+  purpose until round 2: the brief asked for the plan before the answers, and
+  forbade resolving the questions by assumption. Every question is now
+  answered by Brett Heap, none by assumption, so the item is ticked. The
+  second gate, analyze, is clean for this revision (round 2).
