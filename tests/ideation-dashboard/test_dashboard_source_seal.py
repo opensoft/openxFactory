@@ -3472,7 +3472,7 @@ def test_the_precheck_outcome_is_the_products_own_spelling():
 @pytest.mark.parametrize("planted", [
     "a-link-out-at-the-recipe", "a-link-out-for-its-directory",
     "a-hard-link-at-the-recipe", "a-directory-of-its-own",
-    "the-seal-directory-replaced"])
+    "the-seal-directory-replaced", "the-seal-directory-replaced-by-a-copy"])
 def test_the_recipe_is_never_written_through_anything_sealed_code_left(
         corpus, tmp_path, planted):
     """THE RECIPE IS WRITTEN AS THE MANIFEST IS (Copilot, PR #1166). The
@@ -3482,8 +3482,9 @@ def test_the_recipe_is_never_written_through_anything_sealed_code_left(
     is made exclusively and the recipe created `O_EXCL|O_NOFOLLOW`, relative
     to the seal directory as created. Whatever is already there refuses the
     seal, and nothing is written through it: no host file, no host directory,
-    no replaced seal directory. The entry is planted here as the recipe is
-    read, just before it is written."""
+    no replaced seal directory, whether a link or a copy stands in for it.
+    The entry is planted here as the recipe is read, just before it is
+    written."""
     host_file = tmp_path / "host-file.txt"
     host_file.write_text("untouched\n", encoding="utf-8")
     host_dir = tmp_path / "host-dir"
@@ -3505,18 +3506,22 @@ def test_the_recipe_is_never_written_through_anything_sealed_code_left(
             folder.mkdir()
         else:
             seal.rename(moved)
-            seal.symlink_to(moved, target_is_directory=True)
+            if planted == "the-seal-directory-replaced":
+                seal.symlink_to(moved, target_is_directory=True)
+            else:
+                shutil.copytree(moved, seal)
         return RECIPE_TEXT
 
     with pytest.raises(lane.SealRefused) as refused:
         _seal(corpus, seal, read_recipe=planting)
     reason = str(refused.value)
-    if planted == "the-seal-directory-replaced":
+    if planted.startswith("the-seal-directory-replaced"):
         assert reason == (
             "the seal directory is no longer the one the lane created: sealed "
             "code ran inside it, and the recipe is never written anywhere "
             "else")
-        assert not (moved / "recipe").exists()
+        assert not os.path.lexists(moved / "recipe")
+        assert not os.path.lexists(seal / "recipe")
     else:
         assert reason == (
             "the seal already holds recipe/ that the lane did not make: sealed "
@@ -3525,6 +3530,46 @@ def test_the_recipe_is_never_written_through_anything_sealed_code_left(
     assert host_file.read_text(encoding="utf-8") == "untouched\n"
     assert list(host_dir.iterdir()) == []
     assert not (seal / lane.SEAL_MANIFEST_NAME).exists()
+
+
+@pytest.mark.parametrize("swap", ["a-link-out-for-its-directory",
+                                  "a-link-out-at-the-recipe"])
+def test_the_recipe_directory_is_held_from_its_making_to_the_recipe(
+        corpus, tmp_path, monkeypatch, swap):
+    """A process sealed code left behind could act in the instant between the
+    lane making `recipe/` and creating the recipe in it: put a link where the
+    directory was, or a link inside it. The directory is opened without
+    following a link, and the recipe created `O_EXCL|O_NOFOLLOW`, so either
+    is refused as a seal refusal, and nothing is written through it. The swap
+    is made here as the lane's own `mkdir` of `recipe/` returns."""
+    host_file = tmp_path / "host-file.txt"
+    host_file.write_text("untouched\n", encoding="utf-8")
+    host_dir = tmp_path / "host-dir"
+    host_dir.mkdir()
+    folder = lane.SEAL_RECIPE_RELPATH.split("/")[0]
+    make = os.mkdir
+
+    def making_then_swapping(path, mode=0o777, *, dir_fd=None):
+        make(path, mode, dir_fd=dir_fd)
+        if dir_fd is None or os.fspath(path) != folder:
+            return
+        if swap == "a-link-out-for-its-directory":
+            os.rename(folder, folder + ".made", src_dir_fd=dir_fd,
+                      dst_dir_fd=dir_fd)
+            os.symlink(host_dir, folder, target_is_directory=True,
+                       dir_fd=dir_fd)
+        else:
+            os.symlink(host_file, f"{folder}/Dockerfile", dir_fd=dir_fd)
+
+    monkeypatch.setattr(lane.os, "mkdir", making_then_swapping)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal")
+    assert str(refused.value) == (
+        "the seal already holds recipe/ that the lane did not make: sealed "
+        "code ran inside the seal before the recipe was written, and the "
+        "recipe is never written through anything it left")
+    assert host_file.read_text(encoding="utf-8") == "untouched\n"
+    assert list(host_dir.iterdir()) == []
 
 
 def test_a_precheck_that_changes_the_sealed_tree_is_refused(corpus, tmp_path):
