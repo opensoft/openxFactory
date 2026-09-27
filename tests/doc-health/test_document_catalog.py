@@ -995,6 +995,45 @@ def test_symlinked_run_is_reported_as_catalog_integrity(tmp_path):
         assert "symlink" in got[0].rule, name
 
 
+def test_edited_run_metadata_is_reported_as_catalog_integrity(tmp_path):
+    # Review round 7 (Copilot, #1175): the check verified only the snapshots.
+    # A run.yaml edited to another id or date, or to a sequence another run
+    # claimed, or left without its claim, kept the snapshots' address valid
+    # and passed unseen. A shared sequence also breaks the total order
+    # "latest" relies on. run.yaml must be exactly the record the writer
+    # writes for its directory, with a sequence this run claimed.
+    def edit_meta(meta_path, **changes):
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        meta_path.write_text(catalog.render(dict(meta, **changes)),
+                             encoding="utf-8")
+
+    cases = ("run-id", "as-of", "sequence-of-another-run", "claim-missing")
+    for name in cases:
+        root = tmp_path / name
+        build_complete_baseline(root)
+        rid, paths = catalog.write_run(root, DAY, mechanical_runs(), TAXONOMY)
+        _, others = catalog.write_run(root, DAY, classified_runs(), TAXONOMY)
+        meta_path = paths["alpha"].parent / "run.yaml"
+        sequence = json.loads(meta_path.read_text(encoding="utf-8"))[
+            "sequence"]
+        if name == "run-id":
+            edit_meta(meta_path, run_id="f" * 64)
+        elif name == "as-of":
+            edit_meta(meta_path, as_of="2026-07-01")
+        elif name == "sequence-of-another-run":
+            edit_meta(meta_path, sequence=json.loads(
+                (others["alpha"].parent / "run.yaml").read_text(
+                    encoding="utf-8"))["sequence"])
+        else:
+            (root / "health" / "document-catalog" / "runs" / ".sequence" /
+             f"{sequence:06d}.yaml").unlink()
+        got = by_class(fam_document_catalog(ctx_for(catalog_root=root)),
+                       "catalog-integrity")
+        assert [(f.severity, f.repo, f.path) for f in got] == [
+            (ERROR, "(catalog)", f"runs/{DAY_STR}/{rid}")], name
+        assert "catalog run metadata" in got[0].rule, name
+
+
 def test_torn_historical_run_is_reported_for_that_run_alone(tmp_path):
     # The family reads only the LATEST run for every other check; this one
     # reads every recorded run, so a torn OLDER run must be reported as that

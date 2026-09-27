@@ -810,6 +810,87 @@ def test_write_run_refuses_symlinked_paths_before_any_write(tmp_path):
         assert tree_state(outside) == before_outside, name
 
 
+def test_overlapping_identical_runs_both_complete(tmp_path, monkeypatch):
+    # Review round 7 (Copilot, #1175): two identical write_run calls that
+    # overlap after the preflight each claim a sequence, and the writer that
+    # reaches its run.yaml step second finds the other one's record.
+    # _recorded holds that record to its OWN sequence and that sequence's
+    # claim, both of which name this run. It never compares them with the
+    # caller's sequence, so the later writer completes as a no-op instead of
+    # refusing. Its claim stays orphaned and keeps its number, exactly as a
+    # crashed run's claim does.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    real_claim = catalog._claim_sequence
+    interleaved = []
+
+    def claim_then_let_the_other_writer_finish(root, day, rid):
+        sequence = real_claim(root, day, rid)
+        if not interleaved:  # the first writer, just past its claim
+            interleaved.append(sequence)
+            catalog.write_run(root, day, runs, TAXONOMY)  # start to finish
+        return sequence
+
+    monkeypatch.setattr(catalog, "_claim_sequence",
+                        claim_then_let_the_other_writer_finish)
+    rid, paths = catalog.write_run(tmp_path, DAY, runs, TAXONOMY)
+    assert interleaved == [1]
+    run_dir = runs_root(tmp_path) / DAY_STR / rid
+    meta = json.loads((run_dir / "run.yaml").read_text(encoding="utf-8"))
+    assert meta["sequence"] == 2  # the other writer recorded first
+    claims = runs_root(tmp_path) / ".sequence"
+    assert [json.loads(p.read_text(encoding="utf-8"))["run_id"]
+            for p in sorted(claims.iterdir())] == [rid, rid]  # 1 orphaned
+    latest = catalog.load_snapshot(tmp_path)
+    assert (latest["run_id"], latest["sequence"]) == (rid, 2)
+    assert catalog.run_id_scheme(rid, latest["repos"],
+                                 catalog._load_run_bytes(run_dir)) == \
+        catalog.CONTENT_ADDRESSED
+
+
+def test_a_foreign_sequence_claim_node_is_refused_before_claiming(tmp_path):
+    # Review round 7 (Copilot, #1175): the claim scan skipped a claim-named
+    # node that was not a regular file. The O_EXCL open then collided with a
+    # directory or a dangling link at that number forever, and the scan
+    # followed a symlinked claim to import an outside sequence and date.
+    # Each is now refused before anything is claimed or written.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "claim.yaml").write_text(catalog.render(
+        catalog._claim_document(1, "2026-07-01", "f" * 64)),
+        encoding="utf-8")
+    cases = {
+        "directory": lambda claim: claim.mkdir(),
+        "dangling-symlink": lambda claim: claim.symlink_to(
+            outside / "missing.yaml"),
+        "symlink-to-a-claim": lambda claim: claim.symlink_to(
+            outside / "claim.yaml"),
+    }
+    for name, plant in cases.items():
+        root = tmp_path / name
+        claims = runs_root(root) / ".sequence"
+        claims.mkdir(parents=True)
+        plant(claims / "000001.yaml")
+        before = tree_state(root)
+        outcome = []
+
+        def attempt():
+            try:
+                catalog.write_run(root, DAY, runs, TAXONOMY)
+                outcome.append("recorded")
+            except catalog.CatalogError as exc:
+                outcome.append(str(exc))
+
+        writer = threading.Thread(target=attempt, daemon=True)
+        writer.start()
+        writer.join(10)
+        assert not writer.is_alive(), f"{name}: the claim loop never ended"
+        assert outcome and "000001.yaml" in outcome[0], (name, outcome)
+        assert "symlink" in outcome[0] or "occupied" in outcome[0], name
+        assert tree_state(root) == before, name  # nothing claimed
+        assert not (runs_root(root) / DAY_STR).exists(), name
+
+
 def test_write_run_refuses_a_snapshot_the_run_does_not_record(tmp_path):
     # Review round 6 (Copilot, #1175): the preflight compared only the
     # repositories this call records. A run directory also holding a

@@ -694,14 +694,23 @@ def _iter_runs(root: Path):
 def _read_claims(claims_dir: Path) -> list[tuple]:
     """(sequence, as_of) for every claimed sequence number. A claim
     whose content has not landed yet still occupies its number (the
-    filename is the claim); its date is simply unknown."""
+    filename is the claim); its date is simply unknown.
+
+    A claim-named node that is not a regular file is refused
+    (``_refuse_foreign_node``) before anything is claimed. That covers a
+    directory, a dangling symlink, and a symlink to anything. Skipping
+    such a node would loop ``_claim_sequence`` forever, because its
+    ``O_EXCL`` open would keep colliding with a number the scan never
+    counts. Following a link would import a sequence and a date from
+    outside the catalog tree."""
     claims = []
     if not claims_dir.is_dir():
         return claims
     for path in sorted(claims_dir.iterdir()):
         stem, _, suffix = path.name.partition(".")
-        if not path.is_file() or suffix != "yaml" or not stem.isdigit():
+        if suffix != "yaml" or not stem.isdigit():
             continue
+        _refuse_foreign_node(path, directory=False)
         as_of = None
         try:
             as_of = _load_yaml_json(path).get("as_of")

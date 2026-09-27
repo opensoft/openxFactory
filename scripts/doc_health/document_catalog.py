@@ -796,11 +796,17 @@ def _run_identity_findings(ctx) -> list[Finding]:
     (``catalog._refuse_foreign_run_tree``): a symlink anywhere from the
     catalog root down to the run, or inside it. That run is refused before
     anything is read, so bytes that live outside the catalog are never
-    hashed as the run's own and can never verify it clean. An unreadable
-    ``run.yaml`` is different and unchanged: the shared run scan
-    (``catalog._iter_runs``, which ``load_snapshot`` and therefore the
-    checks above also walk) raises on it, and the family reports that once,
-    as the whole-family catalog-integrity finding."""
+    hashed as the run's own and can never verify it clean. So is a run
+    whose ``run.yaml`` is not exactly the record the writer writes for this
+    directory (``catalog._recorded``): its own id and date, byte for byte,
+    and a sequence whose claim is this run's. An edited id, date or
+    sequence would otherwise leave the snapshots' address valid and pass
+    unseen. A sequence claimed by a different run would also break the
+    total order that "latest" relies on. An unreadable ``run.yaml`` is
+    different and unchanged: the shared run scan (``catalog._iter_runs``,
+    which ``load_snapshot`` and therefore the checks above also walk)
+    raises on it, and the family reports that once, as the whole-family
+    catalog-integrity finding."""
     findings = []
     for day, sequence, rid, run_dir in catalog._iter_runs(ctx.catalog_root):
         if not _WRITER_RUN_ID_RE.match(rid):
@@ -808,6 +814,7 @@ def _run_identity_findings(ctx) -> list[Finding]:
         where = f"runs/{day}/{rid}"
         try:
             catalog._refuse_foreign_run_tree(ctx.catalog_root, run_dir)
+            catalog._recorded(ctx.catalog_root, run_dir, rid, day)
             documents = catalog._load_run(run_dir, day, sequence, rid)["repos"]
             persisted = catalog._load_run_bytes(run_dir)
         except catalog.CatalogError as exc:
