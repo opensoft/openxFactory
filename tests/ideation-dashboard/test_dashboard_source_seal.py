@@ -289,6 +289,18 @@ RENDER_UNIT_IMPORTS = {
                            "serve_projection.py", "snapshot.py",
                            "view_extensions.py"),
 }
+# The product modules the SERVE entry imports by name beyond those
+# (#1164, seal 2.2.0): `opendox.serve`, which the image starts. The lane's
+# `SERVE_LEG_MODULES`, and an `ast` read of the serve entry and its host
+# bootstrap less the render unit's, are both held to it.
+SERVE_UNIT_IMPORTS = {("openDox", "code"): ("serve.py",)}
+
+
+def _named_leg_modules(gitlink: str, leg: str) -> tuple[str, ...]:
+    """Every product module the render unit or the serve entry imports by
+    name from one code leg."""
+    return (*RENDER_UNIT_IMPORTS[(gitlink, leg)],
+            *SERVE_UNIT_IMPORTS.get((gitlink, leg), ()))
 
 
 def _recording_product_module(record: Path) -> str:
@@ -341,7 +353,7 @@ def _stub_leg_records(corpus_root, product_module: str | None,
         (modules / "__init__.py").write_text(f"# stand-in {package}\n",
                                              encoding="utf-8")
         count = 1
-        for module in RENDER_UNIT_IMPORTS[(gitlink, leg)]:
+        for module in _named_leg_modules(gitlink, leg):
             if module == lane.SEALED_PRODUCT_MODULE:
                 if product_module is None:
                     continue
@@ -2520,7 +2532,7 @@ def _product(where: Path, name: str, code_leg: str, package: str, *,
                                                  encoding="utf-8")
             (modules / "cli.py").write_text(
                 "def main(argv=None):\n    return 0\n", encoding="utf-8")
-            for module in RENDER_UNIT_IMPORTS[(name, code_leg)]:
+            for module in _named_leg_modules(name, code_leg):
                 if module not in ("cli.py", lane.SEALED_PRODUCT_MODULE):
                     (modules / module).write_text(
                         f'"""{package}.{module[:-3]}"""\n', encoding="utf-8")
@@ -2590,7 +2602,7 @@ def _product_leg_src(package: str, gitlink: str, leg: str) -> list[str]:
     return sorted({"src/extension.py", f"src/{package}/__init__.py",
                    f"src/{package}/cli.py",
                    *(f"src/{package}/{module}"
-                     for module in RENDER_UNIT_IMPORTS[(gitlink, leg)])})
+                     for module in _named_leg_modules(gitlink, leg))})
 
 
 def _leg_files(root: Path) -> list[str]:
@@ -2983,6 +2995,91 @@ def test_verify_refuses_a_leg_without_a_module_the_render_unit_imports(
     assert lane.verify_seal(seal) == [
         f"the seal does not carry {relpath}, which the render unit imports "
         "by name"]
+
+
+def test_the_serve_leg_modules_are_what_the_serve_entry_imports_by_name():
+    """THE SERVE ENTRY'S NAMED IMPORTS (#1164, seal 2.2.0). The product modules
+    the serve entry and its host bootstrap import by name, read with `ast`,
+    less those the render unit already requires, are exactly
+    `SERVE_LEG_MODULES`: today `opendox.serve`, which the image starts. So a
+    serve entry that grows such an import grows the requirement, or this
+    fails, and no module is required twice. Each is a module the real legs
+    carry at their pins."""
+    package_leg = {package: (gitlink, leg)
+                   for gitlink, leg, package in lane.RENDER_LEGS}
+    named: dict[tuple[str, str], set[str]] = {key: set()
+                                              for key in package_leg.values()}
+    for relpath in (lane.SERVE_ENTRY, *lane.RENDER_BOOTSTRAP):
+        tree = ast.parse((REPO_ROOT / relpath).read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if (isinstance(node, ast.ImportFrom) and node.level == 0
+                    and node.module):
+                top, _, rest = node.module.partition(".")
+                if top in package_leg:
+                    named[package_leg[top]].update(
+                        [f"{rest.split('.')[0]}.py"] if rest
+                        else [f"{alias.name}.py" for alias in node.names])
+            elif isinstance(node, ast.Import):
+                for alias in node.names:
+                    top, _, rest = alias.name.partition(".")
+                    if top in package_leg and rest:
+                        named[package_leg[top]].add(f"{rest.split('.')[0]}.py")
+    beyond = {key: tuple(sorted(modules - set(RENDER_UNIT_IMPORTS[key])))
+              for key, modules in named.items()}
+    assert {key: modules for key, modules in beyond.items() if modules} == \
+        SERVE_UNIT_IMPORTS
+    assert lane.SERVE_LEG_MODULES == SERVE_UNIT_IMPORTS
+    for gitlink, leg, package in lane.RENDER_LEGS:
+        for module in SERVE_UNIT_IMPORTS.get((gitlink, leg), ()):
+            assert (REPO_ROOT / gitlink / leg / "src" / package / module
+                    ).is_file(), (gitlink, module)
+
+
+@pytest.mark.parametrize("gitlink, module", [
+    (gitlink, module) for (gitlink, _leg), modules in SERVE_UNIT_IMPORTS.items()
+    for module in modules])
+def test_verify_refuses_a_leg_without_a_module_the_serve_entry_imports(
+        corpus, tmp_path, gitlink, module):
+    """The serve entry imports `opendox.serve` by name, so a leg that lost it
+    would pass an intake that asked the render unit's questions only, and the
+    image would fail at start. It is required by name, once. The removal is
+    made coherent, so only the requirement can see it."""
+    seal = tmp_path / "seal"
+    manifest = _seal(corpus, seal)
+    package = next(package for name, _leg, package in lane.RENDER_LEGS
+                   if name == gitlink)
+    relpath = f"{lane.SEAL_CORPUS_RELPATH}/{gitlink}/code/src/{package}/{module}"
+    (seal / relpath).unlink(missing_ok=True)
+    for record in manifest["render_legs"]:
+        if record["gitlink"] == gitlink:
+            record["file_count"] = sum(
+                1 for path in (seal / record["relpath"]).rglob("*")
+                if path.is_file())
+    _rewrite_coherently(seal, manifest)
+    assert lane.verify_seal(seal) == [
+        f"the seal does not carry {relpath}, which the serve entry imports "
+        "by name"]
+
+
+@pytest.mark.parametrize("gitlink, module", [
+    (gitlink, module) for (gitlink, _leg), modules in SERVE_UNIT_IMPORTS.items()
+    for module in modules])
+def test_a_leg_without_a_module_the_serve_entry_imports_is_refused(
+        corpus, tmp_path, gitlink, module):
+    """The leg sealer refuses first what the intake refuses: a product whose
+    pinned code leg lacks a module the serve entry imports by name is never
+    sealed, and the refusal names the module."""
+    _mount_products(corpus, tmp_path / "upstream", omit={gitlink: (module,)})
+    package = next(package for name, _leg, package in lane.RENDER_LEGS
+                   if name == gitlink)
+    with pytest.raises(lane.SealRefused) as refused:
+        lane.seal_render_legs(
+            corpus_checkout=corpus, source_head=_git(corpus, "rev-parse", "HEAD"),
+            corpus_root=tmp_path / "seal" / lane.SEAL_CORPUS_RELPATH)
+    assert str(refused.value) == (
+        f"the sealed {gitlink} code leg carries no src/{package}/{module}, "
+        "which the serve entry imports by name, so the image the child builds "
+        "could not start")
 
 
 @pytest.mark.parametrize("gitlink, module", [("openDox", "domain_profile.py"),

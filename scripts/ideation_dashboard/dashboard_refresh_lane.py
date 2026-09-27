@@ -1148,6 +1148,16 @@ RENDER_LEG_MODULES: dict[tuple[str, str], tuple[str, ...]] = {
                            "serve_projection.py", SEALED_PRODUCT_MODULE,
                            "view_extensions.py"),
 }
+# THE PRODUCT MODULES THE SERVE ENTRY IMPORTS BY NAME beyond those (#1164,
+# seal 2.2.0), per code leg, under `src/<package>/`: `opendox.serve`, which
+# the image starts. The host bootstrap is the render unit's, so its imports
+# are already required above, and each module is required once. The leg
+# sealer and the intake require these as they require the render unit's. A
+# test holds this equal to what an `ast` read of the serve entry and its
+# bootstrap finds, less `RENDER_LEG_MODULES`.
+SERVE_LEG_MODULES: dict[tuple[str, str], tuple[str, ...]] = {
+    ("openDox", "code"): ("serve.py",),
+}
 
 # THE SERVE UNIT'S OWN REQUIREMENT (#1164, seal 2.2.0). The intake requires
 # each `SERVE_UNIT` path ONCE, so a seal that lacks one is one problem, not
@@ -2151,6 +2161,15 @@ def seal_render_legs(*, corpus_checkout, source_head: str, corpus_root,
                 + ", ".join(f"src/{package}/{module}" for module in missing)
                 + ", which the render unit imports by name, so the child's "
                 "render could not import it")
+        missing = [module for module in SERVE_LEG_MODULES.get((gitlink, leg),
+                                                             ())
+                   if not (modules / module).is_file()]
+        if missing:
+            raise SealRefused(
+                f"the sealed {gitlink} {leg} leg carries no "
+                + ", ".join(f"src/{package}/{module}" for module in missing)
+                + ", which the serve entry imports by name, so the image the "
+                "child builds could not start")
         sealed.append({
             "gitlink": gitlink,
             "gitlink_revision": pinned,
@@ -3295,7 +3314,8 @@ def _serve_unit_problems(manifest: dict, files: dict) -> list[str]:
     reader's own list, whatever the manifest records, and each path once: the
     entry here by name, the host bootstrap and both legs' `src/` by
     `_render_unit_problems`, and the rest (`SERVE_ONLY`) here, a file indexed
-    and a tree holding an indexed file."""
+    and a tree holding an indexed file. The legs' modules the serve entry
+    imports by name (`SERVE_LEG_MODULES`) are required here too."""
     problems: list[str] = []
     entry = manifest.get("serve_entry")
     if entry != SERVE_ENTRY:
@@ -3322,6 +3342,19 @@ def _serve_unit_problems(manifest: dict, files: dict) -> list[str]:
         else:
             problems.append(f"the seal does not carry {name}, which the "
                             "served image's recipe copies")
+    # The legs' modules the serve entry imports by name. A leg with no module
+    # at all is the render unit's problem, already named, so it is not named
+    # again here.
+    for gitlink, leg, package in RENDER_LEGS:
+        modules = f"{SEAL_CORPUS_RELPATH}/{gitlink}/{leg}/src/{package}/"
+        if not any(path.startswith(modules) and path.endswith(".py")
+                   for path in files):
+            continue
+        problems += [
+            f"the seal does not carry {modules}{module}, which the serve "
+            "entry imports by name"
+            for module in SERVE_LEG_MODULES.get((gitlink, leg), ())
+            if f"{modules}{module}" not in files]
     return problems
 
 
