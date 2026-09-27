@@ -1499,7 +1499,10 @@ because they are exactly the ways this estate has ever named a repository:
   REPOSITORY IS THE WIDE CASE AND NOT THE ONLY ONE: the estate also places a
   repository as a NESTED DESCENDANT of a governed DomainxFactory rather than as
   an aggregation sibling, and a `gitlink` read as the aggregation's alone would
-  leave every nested member admitted by nothing at all. Naming the carrier is
+  leave every nested member admitted by nothing at all. A PINNED ASSEMBLY
+  ROOT's `.gitmodules` IS A CARRIER TOO, read AT THE COMMIT openxFactory's own
+  `pin` of that root names: there the act of admission is openxFactory's pin,
+  and the root's gitlink is the site that pin reaches. Naming the carrier is
   what keeps the evidence checkable, a reader being unable to look in a tree the
   row does not name.
 - `pin`: an openxFactory file under `contracts/` names the repository as the
@@ -1527,6 +1530,28 @@ discharge into no kind, and the provisional row it opened could never be closed.
 A row still admitted only by an ARCHIVED change SHALL be a finding, on the same
 terms as a row whose evidence has gone: the provisional admission outlived the
 act that justified it.
+
+A PINNED ROOT CARRIES A `gitlink` ONLY AS FAR AS openxFactory's OWN PIN REACHES,
+AND ONE HOP FROM IT. The carrier's own row SHALL declare `governance: pinned`
+and SHALL be admitted by EXACTLY ONE `pin`, because the commit that pin names is
+the one revision the evidence is read at, and two pins of one root would make
+that revision a pick. An `external` repository's `.gitmodules` SHALL admit
+nothing, whatever openxFactory pins of it, an `external` repository being no
+part of this estate. A `pinned` row that is not itself admitted by a `pin`, and
+every row a pinned root's `gitlink` admits whether or not it also carries a
+`pin` of its own, SHALL carry no row's `gitlink`, so the reach ends one hop from
+an openxFactory pin and never runs down a chain of roots.
+A row admitted by a pinned root's `gitlink` SHALL NOT declare
+`governance: governed`: openxFactory reaches it only through its pin of the
+root, at the commit that pin fixes, and authors none of it, which is what a
+`pin`-admitted row is too. An inventory whose `gitlink` names a carrier outside
+these conditions SHALL be REFUSED, the evidence it records being evidence no
+reader can check against a tree openxFactory consumes. NOTHING HERE PINS OR
+MOUNTS A LEG: openxFactory files no pin for the repository the root carries and
+adds no gitlink to it, that being the assembly root's own job, and the root's
+pin is the whole of the evidence of reach.
+
+**Removed from canon by admit-code-leg-under-pinned-root (2026-09-24):** `` `gitlink`: a GOVERNED ESTATE REPOSITORY's `.gitmodules` carries the submodule, and the evidence SHALL NAME THE REPOSITORY THAT CARRIES IT. This is the estate's own act of admission and the widest class. THE AGGREGATION REPOSITORY IS THE WIDE CASE AND NOT THE ONLY ONE: the estate also places a repository as a NESTED DESCENDANT of a governed DomainxFactory rather than as an aggregation sibling, and a `gitlink` read as the aggregation's alone would leave every nested member admitted by nothing at all. Naming the carrier is what keeps the evidence checkable, a reader being unable to look in a tree the row does not name. `` — the bullet defined the `gitlink` kind by a GOVERNED carrier alone, which left a code leg nested under a pinned assembly root admitted by none of the five kinds (openxFactory #1150). NOTHING IT SAID IS DROPPED: the replacing bullet above carries every one of its sentences word for word and adds ONE, naming the pinned assembly root as a second carrier read at its pinned commit, which the paragraph above bounds.
 
 THE RE-CHECK OF ADMISSION EVIDENCE IS BOUNDED BY WHERE THE EVIDENCE LIVES, and
 the bound is STATED rather than left for a reader to discover when the validator
@@ -1559,6 +1584,21 @@ identity"*.
 A validator that fetched the tree itself would make a required check depend on a
 token and on read access to a private repository, which is the cost the derived
 shape was refused for and which may not be readmitted at the reverse arm.
+
+A PINNED CARRIER'S EVIDENCE IS READ AT THE COMMIT ITS PIN NAMES, AND AT NO OTHER
+REVISION. Where the carrier a `gitlink` row names is a `pinned` row, the tree
+supplied for it SHALL first be verified as the carrier on exactly the terms
+above, and the row's evidence SHALL then be the carrier's `.gitmodules` AS OF
+THE COMMIT the carrier's `pin` names, read out of the supplied tree's own object
+store — never out of its working files, and never at another revision, because
+openxFactory consumes the root at that commit and at no other, and a leg the
+root names at another revision is a leg of a tree openxFactory has not consumed.
+THE READ SHALL MAKE NO NETWORK CALL. A verified tree whose object store cannot
+produce that commit's `.gitmodules` without one — a partial clone missing the
+object, a shallow clone, a checkout that never fetched the pinned commit — and a
+carrier pin that names no commit to read at SHALL each leave the row reported
+NOT RE-CHECKED, COUNTED and NEITHER PASSED NOR FAILED, the report naming the pin
+and the commit: a run that has looked at the wrong revision has not looked.
 
 THE GOVERNANCE CLASS SAYS WHAT A ROW MEANS FOR A REPOSITORY THAT IS PINNED
 RATHER THAN GOVERNED, which is the second half of the same authority question,
@@ -1596,10 +1636,34 @@ contract release would be corrected late or not at all, which is the reason
 `scripts/code-surface-register.yaml` states for its own placement and the reason
 this file takes the same one.
 
+**AMENDED BY `admit-code-leg-under-pinned-root` (2026-09-24).** Every paragraph
+and every scenario of this block is promoted canon's own bytes except the
+`gitlink` bullet, which is REPLACED and named in the `Removed from canon by`
+marker above, and TWO PARAGRAPHS and THREE SCENARIOS, which are ADDED: the
+paragraph that bounds which pinned root may carry a `gitlink`, the paragraph
+that reads such a carrier's evidence at its pinned commit, and one scenario for
+each of those two and one for the refusal between them. THE CLOSED SET STAYS
+FIVE KINDS AND NO KIND IS ADDED: a leg of a pinned root is named by a gitlink,
+and what this amendment widens is who may carry one. No governance class, no
+other kind, no resolution rule, no placement and no promoted scenario moves, and
+*A declared repository is judged for membership against the estate inventory*
+beside this requirement is untouched.
+
 #### Scenario: A repository is admitted to the estate by a gitlink
 - **WHEN** a governed estate repository's `.gitmodules` carries a submodule for a repository — the aggregation repository's in the wide case, a governed DomainxFactory's where the estate nested the repository rather than sibling-linking it
 - **THEN** the inventory SHALL carry a row for it whose `admitted_by:` names that gitlink AND the repository that carries it
 - **AND** the row's governance class states whether the estate authors its contents or consumes it at a pin
+
+#### Scenario: A code leg is nested under a pinned assembly root
+- **WHEN** a `pinned` row admitted by exactly one `pin` is an assembly root whose `.gitmodules`, at the commit that pin names, carries a submodule for a leg openxFactory neither pins nor mounts
+- **THEN** the inventory SHALL carry a row for the leg whose `admitted_by:` names that gitlink AND the pinned root that carries it
+- **AND** the leg's row SHALL NOT declare `governance: governed`, openxFactory reaching it only through its pin of the root
+- **AND** no pin is filed for the leg and no gitlink to it is added to openxFactory, the root's pin being the whole of the evidence of reach
+
+#### Scenario: A gitlink names a carrier outside the two lawful forms
+- **WHEN** a row is admitted by a `gitlink` whose carrier's row is `external`, or is `pinned` and admitted by no `pin` or by more than one, or the row itself declares `governance: governed` while a pinned root's gitlink admits it
+- **THEN** the validator MUST REFUSE the inventory, naming the row, the carrier, and the condition that fails
+- **AND** a row a pinned root's gitlink admits MUST NOT itself carry a further row's gitlink, the reach ending one hop from an openxFactory pin
 
 #### Scenario: A neutral product is pinned but is no submodule
 - **WHEN** an openxFactory file under `contracts/` names a repository as the source of a commit-and-digest pin, and no `.gitmodules` entry names it
@@ -1632,6 +1696,12 @@ this file takes the same one.
 - **THEN** the validator MUST report that row as NOT RE-CHECKED and MUST count it, and MUST NOT pass it silently, MUST NOT fail it, and MUST NOT fetch the carrying repository
 - **AND** when that working tree IS supplied as a path input, it MUST FIRST be verified as a checkout of the carrier the row names — by the tree's own origin URL or by the carrier's record in `contracts/policies/repository-identity.yaml` — and only then MUST the row's `.gitmodules` evidence be re-checked in it, its absence there being a finding against the row
 - **AND** a supplied tree that FAILS that verification leaves the row reported NOT RE-CHECKED and COUNTED, neither passed nor failed, the report naming the carrier the row expects and what the tree actually is, a path being an assertion and not an identity
+
+#### Scenario: A pinned root's gitlink is re-checked at its pinned commit
+- **WHEN** a working tree is supplied for a carrier whose row is `pinned`, and it verifies as that carrier
+- **THEN** the validator MUST read the carrier's `.gitmodules` as of the commit the carrier's `pin` names, from the tree's own object store and with no network call, and MUST NOT read the tree's working files or any other revision
+- **AND** the leg's absence from that `.gitmodules` MUST be a finding against the leg's row
+- **AND** a verified tree that cannot produce that commit's `.gitmodules` without a network call, or a carrier pin that names no commit, MUST leave the row reported NOT RE-CHECKED and COUNTED, neither passed nor failed, the report naming the pin and the commit
 
 #### Scenario: The inventory carries a former address
 - **WHEN** a row's `repository:` is an address `contracts/policies/repository-identity.yaml` records as FORMER
