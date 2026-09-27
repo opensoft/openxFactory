@@ -2681,12 +2681,15 @@ repo scope.
   R1Q23 (open, phase 2) is answered (b). NOT ruled: which of R1Q6's three
   named options — (a) openXdox-code pins `doc_health` as an installable
   dependency, (b) the affected tests become declared composition/integration
-  tests in openxFactory, (c) openXdox-code's CI composes a pinned openxFactory
-  checkout — or a fourth this topic adds: splitting the surface, since at
-  least `generator.py`'s three `doc_health` imports
-  (`doc_health.corpus.RealGit`, `doc_health.lines.split_keepends`) read as
-  generic git/text utilities rather than governance-specific logic, unlike
-  the other seven modules' unaudited reaches.
+  tests in openxFactory (closes requirement 9 only, leaving the production
+  imports untouched), (c) openXdox-code's CI composes a pinned openxFactory
+  checkout (same caveat as (b)) — or a fourth this topic adds: splitting the
+  surface, since at least `generator.py`'s three `doc_health` imports
+  (`doc_health.corpus`, `doc_health.corpus.RealGit`,
+  `doc_health.lines.split_keepends`) read as generic git/text utilities
+  rather than governance-specific logic, unlike the other seven modules'
+  unaudited reaches. Only (a) done as a genuine extraction, or this split,
+  closes the `corpus-adapter-seam` conflict itself.
 - **Conflict, named rather than new.** The topic's own subject IS a
   currently-tolerated conflict with `corpus-adapter-seam`'s Requirement 1;
   R1Q6 (d)'s exclusion holds it open for release 1 only, and

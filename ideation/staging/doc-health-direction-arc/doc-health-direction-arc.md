@@ -109,9 +109,10 @@ governed-flow suites to run — or sooner, if R1Q23 (open, phase 2) is answered
 
 5. **Not every one of the eight imports is obviously governance logic.**
    `generator.py`'s three `doc_health` imports (design.md § "THE CORRECTION")
-   are `doc_health.corpus.RealGit` and `doc_health.lines.split_keepends` —
-   read on their names alone, a git-repository wrapper and a text-splitting
-   helper, not a check family, a disposition reader or a classifier. This is
+   are `from doc_health import corpus`, `from doc_health.corpus import
+   RealGit` and `from doc_health.lines import split_keepends` — read on their
+   names alone, a module of git-repository helpers and a text-splitting
+   function, not a check family, a disposition reader or a classifier. This is
    an OBSERVATION, not an audited claim: it is offered as a possible seam
    (open question 4 below), not a conclusion, because the other seven modules
    and the remaining reaches are not audited here.
@@ -136,8 +137,13 @@ spec: openXdox-code's eight `doc_health` imports stand against
 `corpus-adapter-seam`'s Requirement 1 today, held open only by R1Q6 (d)'s
 named, counted, release-1-scoped exception (`#656` comment `5817152735`). That
 is not a new conflict this topic creates; it is the conflict this topic exists
-to close. No other staged topic or ratified spec is known to contradict the
-material above.
+to EXAMINE — not necessarily to close. Open questions 2 and 3 (options (b)
+and (c)) can close R1Q6's requirement-9 problem (the suite runs green alone)
+without touching a single production import, which would leave this
+Requirement 1 conflict standing as a known, accepted exception rather than
+resolving it; only option (a) done as a genuine extraction, or open question
+4's split, closes the conflict itself. See § Exit path. No other staged topic
+or ratified spec is known to contradict the material above.
 
 ## Open questions
 
@@ -168,7 +174,11 @@ material above.
    exception for tests that need two repositories. Needs R1Q2's declared
    composition-test surface widened to admit them (the same surface plan 034's
    T007 batch A / batch E already grows for the `openxdox_host` composition
-   tests).
+   tests). **This closes requirement 9 only.** It moves or composes TESTS,
+   not production code: `DOC_HEALTH_SURFACE`'s eight modules keep their
+   imports exactly as measured, so `corpus-adapter-seam`'s Requirement 1
+   conflict (claim 1) stands untouched — chosen alone, this does not close
+   the conflict this topic examines, only R1Q6's test-runs-alone problem.
 3. **(R1Q6's option (c)) Composed CI, no shared package.** openXdox-code's own
    CI composes an openxFactory checkout at a declared, pinned commit (checked
    out beside it — the shape `pytest-suite` already uses for the root
@@ -176,7 +186,10 @@ material above.
    PROJECT" rather than "no sibling repository at all." R1Q6's own
    recommendation named this option, or (d), as the two live candidates for
    release 1; (d) (the declared exclusion) was ruled instead, precisely so
-   this direction question could be taken slower and separately.
+   this direction question could be taken slower and separately. **Like (b),
+   this closes requirement 9 only** — it changes CI composition, not a
+   single production import, so it leaves Requirement 1's conflict standing
+   too.
 4. **A narrower seam: split the surface instead of choosing one shape for all
    eight modules.** Claim 5 above observes that at least `generator.py`'s
    three `doc_health` imports read as generic git/text utilities rather than
@@ -201,15 +214,32 @@ material above.
 
 A proposal once open questions 1–3 are ruled (which of (a)/(b)/(c), or a
 split per open question 4) and open question 5's timing is settled (does
-R1Q23 pull this ahead of phase 2's close). Most likely shape: a realization-only
-change against openXdox-code (and openDox-code, if the chosen seam borrows the
-registered-adapter pattern already used for `corpus_adapter` /
-`domain_profile` there) that retargets `DOC_HEALTH_SURFACE`'s eight modules,
-with a `corpus-adapter-seam` or `neutral-product-pin` spec delta only if the
-ruled option needs new contract text. Closing this arc lifts R1Q6 (d)'s
-declared exclusion and lets `add-neutral-product-standalone-operability`
-report requirement 9 closed for openXdox-code rather than as an open
-extraction.
+R1Q23 pull this ahead of phase 2's close). The shape depends on which is
+ruled, because R1Q6's requirement-9 problem (can the suite run green alone)
+and `corpus-adapter-seam`'s Requirement 1 conflict (do the production imports
+point the wrong way — claim 1) do NOT necessarily close together:
+
+- **If (b) or (c) alone is ruled:** a realization change that moves or
+  composes TESTS/CI only; `DOC_HEALTH_SURFACE`'s eight production imports are
+  UNTOUCHED. This lifts R1Q6 (d)'s declared exclusion and lets
+  `add-neutral-product-standalone-operability` report requirement 9 closed —
+  but Requirement 1's conflict stands exactly as measured today, and the
+  proposal must record that explicitly as a known, accepted exception rather
+  than let requirement 9's closure read as if it had resolved it too.
+- **If (a) is ruled and realized as a genuine extraction, or open question
+  4's split is taken:** a realization change against openXdox-code (and
+  openDox-code, if the chosen seam borrows the registered-adapter pattern
+  already used for `corpus_adapter` / `domain_profile` there) that actually
+  RETARGETS some or all of `DOC_HEALTH_SURFACE`'s eight modules away from
+  importing `openxFactory`'s `doc_health` by name. This closes BOTH
+  requirement 9 and the Requirement 1 conflict, with a `corpus-adapter-seam`
+  or `neutral-product-pin` spec delta only if the ruled shape needs new
+  contract text.
+
+Either path lifts R1Q6 (d)'s declared exclusion and closes requirement 9 for
+openXdox-code; only the second also closes the Requirement 1 conflict this
+topic was raised to examine, which the proposal must say plainly rather than
+leave implied.
 
 Gated on: Brett Heap's ruling of open questions 1–3 (and optionally 4), and
 R1Q23's answer for timing. Deadline, as R1Q6 (d) and T008 name it: before
