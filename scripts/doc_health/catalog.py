@@ -891,7 +891,8 @@ def _is_writer_temp(node: Path, allowed_files) -> bool:
     """True when ``node`` has exactly the shape ``_write_rendered``'s
     ``tempfile.mkstemp(dir=path.parent, prefix=path.name + ".",
     suffix=".tmp")`` leaves beside one of ``allowed_files``: a
-    same-directory sibling named ``"<final-name>.<anything>.tmp"``.
+    same-directory sibling, a REGULAR file, named ``"<final-name>.``
+    then a non-empty random component then ``".tmp"``.
 
     That covers both a concurrent writer's in-flight temp (PR #1189
     review, Codex: an identical writer can be between its own ``mkstemp``
@@ -902,15 +903,28 @@ def _is_writer_temp(node: Path, allowed_files) -> bool:
     foreign descendant: the run-identity hash never reads it (only
     ``_snapshot_files``'s ``*.yaml`` match does, and ``.tmp`` never
     satisfies that), and it is always either replaced by ``os.replace``
-    or left as harmless debris, never read as recorded content. A
-    stranger that merely resembles one — wrong directory, or not this
-    exact affix shape — still refuses."""
+    or left as harmless debris, never read as recorded content.
+
+    Both requirements this docstring bolded are load-bearing (PR #1189
+    review, Copilot round 2): ``mkstemp`` never omits its random
+    component, so a same-directory ``"<final-name>.tmp"`` with NO random
+    part cannot be one of its temps — only a stranger deliberately or
+    accidentally named to resemble one, which must still refuse. And
+    ``mkstemp`` always creates a plain file, never a FIFO, socket, or
+    device — a foreign special node merely named like a temp must still
+    refuse too, so this checks ``is_file()`` (safe: by the time this
+    runs, ``_refuse_links_inside`` has already refused every symlink in
+    ``run_dir``, so a True here can only mean a genuine regular file)."""
     if not node.name.endswith(".tmp"):
         return False
-    return any(
-        node.parent == target.parent
-        and node.name.startswith(target.name + ".")
-        for target in allowed_files)
+    for target in allowed_files:
+        if node.parent != target.parent:
+            continue
+        prefix = target.name + "."
+        if node.name.startswith(prefix) and \
+                node.name[len(prefix):-len(".tmp")] and node.is_file():
+            return True
+    return False
 
 
 def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:

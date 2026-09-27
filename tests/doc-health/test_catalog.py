@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import threading
 from datetime import datetime
@@ -1167,6 +1168,35 @@ def test_write_run_fails_closed_on_an_unenumerable_run_directory(tmp_path):
     finally:
         blocked.chmod(mode)  # restore -- tmp_path cleanup needs it readable
     assert tree_state(root) == before  # no claim, no write
+
+
+def test_write_run_refuses_a_stranger_merely_shaped_like_a_writer_temp(
+        tmp_path):
+    # Review round 2 (Copilot, PR #1189 for #1186): _is_writer_temp's first
+    # cut accepted "<final-name>.tmp" with NO random component (mkstemp
+    # never omits one -- only a stranger deliberately or accidentally named
+    # to resemble a temp could be that exact string) and any non-symlink
+    # special node sharing a temp-shaped name (mkstemp only ever creates a
+    # plain file). Both are still foreign descendants and must still
+    # refuse.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha}
+    rid, _recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    cases = {
+        "no-random-component": lambda run_dir: (
+            run_dir / "alpha.yaml.tmp").write_bytes(b"not a real temp"),
+        "fifo-shaped-like-a-temp": lambda run_dir: os.mkfifo(
+            run_dir / "alpha.yaml.z9k2p7.tmp"),
+    }
+    for name, plant in cases.items():
+        root = tmp_path / name
+        shutil.copytree(tmp_path / "src", root)
+        run_dir = runs_root(root) / DAY_STR / rid
+        plant(run_dir)
+        before = tree_state(root)
+        with pytest.raises(catalog.CatalogError, match="does not record"):
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        assert tree_state(root) == before, name  # no claim, no run.yaml
 
 
 def test_write_run_refuses_edited_run_metadata_before_any_write(tmp_path):
