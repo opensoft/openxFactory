@@ -1476,6 +1476,13 @@ def _seal_confined_without_a_handle(path, root) -> SealRefused:
         "never made, written or checked by its path alone")
 
 
+def _seal_confined_without_a_handle_path(path, root) -> SealRefused:
+    return SealRefused(
+        f"the seal directory {path} cannot be made here: this platform names "
+        f"no path through a handle, and a seal confined to {root} is never "
+        "written or read by its path alone")
+
+
 def _seal_made_off_its_way(path, start) -> SealRefused:
     return SealRefused(
         f"the seal directory {path} was made where its path no longer leads: "
@@ -1512,6 +1519,12 @@ def _reached_by_name(start, names) -> tuple[int, int] | None:
 # parent runs, has one. Elsewhere the seal is written through its checked
 # path, as the manifest has always been where no handle can be opened.
 _HANDLE_PATHS = Path("/proc/self/fd")
+
+
+def _handle_identity(directory: int) -> tuple[int, int]:
+    """The directory `directory` holds, as `(st_dev, st_ino)`."""
+    info = os.fstat(directory)
+    return info.st_dev, info.st_ino
 
 
 def _path_through_handle(directory: int, identity) -> Path | None:
@@ -1679,8 +1692,12 @@ def _new_seal_directory(seal_dir, *, within=None) -> _HeldSealDirectory:
     made, written and checked by its path, so a directory on its way
     replaced after `--seal-out` was checked would redirect the whole
     writable tree. A seal confined to `within` is refused there, before
-    anything is made. Without `within` it is made by its path, as the
-    manifest's write has always been where no handle can be opened.
+    anything is made. So is one where the platform opens a directory
+    relative to a handle but names no path through one (no `/proc/self/fd`,
+    `_path_through_handle`), since the seal would then be written, indexed
+    and counted through its name, which sealed code may swap. Without
+    `within`, the seal falls back to its path in either case, as the
+    manifest's write always has where no handle serves.
 
     ITS WAY, WALKED AGAIN (Copilot, PR #1185). A directory on the way is
     held by a handle only while the walk goes through it, so one moved out
@@ -1704,6 +1721,10 @@ def _new_seal_directory(seal_dir, *, within=None) -> _HeldSealDirectory:
         # confined to nothing, so it is made, and held, by its path.
         return _new_seal_directory_by_path(path)
     parent = _walked_down(parent, steps, path, start)
+    if within is not None and _path_through_handle(
+            parent, _handle_identity(parent)) is None:
+        os.close(parent)
+        raise _seal_confined_without_a_handle_path(path, start)
     try:
         directory = _made_and_opened(path, parent)
     finally:
