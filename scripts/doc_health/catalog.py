@@ -826,20 +826,26 @@ def _claim_sequence(root: Path, day: str, rid: str) -> int:
 
     An entry the run scan refuses (``_iter_runs``: a symlinked day or run
     directory or ``run.yaml``, or a link inside a recorded run) refuses the
-    claim too, before any number is claimed. The scan never reads that
-    entry's sequence or date, so a claim beside it could reuse the number
-    it records or land a run dated before it. The writer records nothing
-    until the entry is repaired or removed, just as it records nothing
-    beside a foreign claim node (``_read_claims``).
+    claim too. The scan never reads that entry's sequence or date, so a
+    claim beside it could reuse the number it records or land a run dated
+    before it. The writer records nothing until the entry is repaired or
+    removed, just as it records nothing beside a foreign claim node
+    (``_read_claims``).
+
+    Every refusal comes before anything is created, the claims directory
+    included, and before anything is read through a link. The run scan goes
+    first, because it refuses a link on the catalog chain
+    (``_catalog_chain``) before anything follows it. The claims directory
+    must then be absent or a real directory (``_refuse_foreign_node``)
+    before its claims are read, and it is created only when a number is
+    about to be claimed. So a stale run, a run beside a refused entry, and a
+    direct call through a linked root or claims directory each leave the
+    tree exactly as it was, whether or not ``write_run``'s own preflight ran
+    first.
     """
     claims_dir = Path(root) / SEQUENCE_DIR
-    claims_dir.mkdir(parents=True, exist_ok=True)
     while True:
         highest, newest = 0, None
-        for seq, as_of in _read_claims(claims_dir):
-            highest = max(highest, seq)
-            if as_of is not None and (newest is None or as_of > newest):
-                newest = as_of
         for as_of, seq, _rid, _dir, refusal in _iter_runs(root):
             if refusal is not None:
                 raise CatalogError(
@@ -848,11 +854,17 @@ def _claim_sequence(root: Path, day: str, rid: str) -> int:
             highest = max(highest, seq)
             if newest is None or as_of > newest:
                 newest = as_of
+        _refuse_foreign_node(claims_dir, directory=True)  # no linked claims
+        for seq, as_of in _read_claims(claims_dir):
+            highest = max(highest, seq)
+            if as_of is not None and (newest is None or as_of > newest):
+                newest = as_of
         if newest is not None and day < newest:
             raise CatalogError(
                 f"stale snapshot refused: run dated {day} is older than "
                 f"the latest recorded run ({newest})")
         sequence = highest + 1
+        claims_dir.mkdir(parents=True, exist_ok=True)
         claim_path = claims_dir / f"{sequence:06d}.yaml"
         try:
             fd = os.open(claim_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)

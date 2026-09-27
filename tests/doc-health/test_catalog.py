@@ -1751,6 +1751,72 @@ def test_no_sequence_is_claimed_beside_a_symlinked_entry(tmp_path):
         assert catalog.load_snapshot(root)["run_id"] == rid, name
 
 
+def test_a_refused_claim_creates_nothing(tmp_path):
+    # Review (Copilot and Codex, #1190): the claim step created the claims
+    # directory before the run scan could refuse. A write_run refused beside
+    # a linked entry, or as stale, still left runs/.sequence behind, and a
+    # direct claim through a linked root or runs directory created it inside
+    # the link's target before the scan raised. A linked claims directory was
+    # read, and claimed into, through the link. Every refusal now comes
+    # before anything is created or read through a link.
+    base = tmp_path / "base"
+    write_run(base, extended_inventory(), as_of=LATER_DAY_STR)
+    shutil.rmtree(runs_root(base) / ".sequence")  # no claims ledger yet
+    new_runs = {"alpha": classified(alpha_entries(extended_inventory()),
+                                    "docs/widget-overview.md", "domain")}
+    rid = catalog.run_id(new_runs, TAXONOMY)
+
+    def beside_a_refused_entry(root, out):
+        plant_link(runs_root(root) / "2026-07-11", out)
+        return (root, lambda: catalog.write_run(root, "2026-07-12", new_runs,
+                                                TAXONOMY),
+                "no run sequence is claimed beside")
+
+    def stale(root, out):
+        return (root, lambda: catalog.write_run(root, DAY, new_runs,
+                                                TAXONOMY), "stale")
+
+    def through_a_linked_root(root, out):
+        link = plant_link(out / "linked-root", root)
+        return (root, lambda: catalog._claim_sequence(link, "2026-07-12",
+                                                      rid), "symlink")
+
+    def through_a_linked_runs_directory(root, out):
+        target = out / "runs"
+        shutil.move(runs_root(root), target)
+        plant_link(runs_root(root), target)
+        return (target, lambda: catalog._claim_sequence(root, "2026-07-12",
+                                                        rid), "symlink")
+
+    def through_a_linked_claims_directory(root, out):
+        claims = out / "claims"
+        claims.mkdir()
+        (claims / "000001.yaml").write_text(catalog.render(
+            catalog._claim_document(1, LATER_DAY_STR, "f" * 64)),
+            encoding="utf-8")
+        plant_link(runs_root(root) / ".sequence", claims)
+        return (claims, lambda: catalog._claim_sequence(root, "2026-07-12",
+                                                        rid), "symlink")
+
+    for plant in (beside_a_refused_entry, stale, through_a_linked_root,
+                  through_a_linked_runs_directory,
+                  through_a_linked_claims_directory):
+        name = plant.__name__
+        root, outside = tmp_path / name, tmp_path / f"{name}-outside"
+        shutil.copytree(base, root)
+        outside.mkdir()
+        watched, claim, match = plant(root, outside)
+        before, before_outside = tree_state(watched), tree_state(outside)
+        with pytest.raises(catalog.CatalogError, match=match):
+            claim()
+        assert tree_state(watched) == before, name  # no claim anywhere
+        assert tree_state(outside) == before_outside, name
+        if name != "through_a_linked_claims_directory":
+            claims_dir = (watched / ".sequence" if watched.name == "runs"
+                          else runs_root(watched) / ".sequence")
+            assert not claims_dir.exists(), name  # not even the directory
+
+
 def test_a_symlinked_catalog_directory_refuses_the_whole_scan(tmp_path):
     # opensoft/openxFactory#1187: a link at the catalog root, or at a catalog
     # directory above the day directories, puts every run behind it, so there
