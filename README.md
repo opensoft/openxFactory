@@ -83,6 +83,7 @@ Core domain-neutral docs:
 - [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, § 5.7's and § 5.8's two RULED corrections to a placement (a re-destination and a retirement), and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 2743 declared edit lines over 177 rows, and 20 replica rows of which one declares two lines, and its per-destination table below them is re-derived and asserted cell by cell)
 - [The carve conformance corpus](scripts/carve_conformance.py) (`split-opendox-two-layer-product` § 3.7 FLOOR PART 3, RULED OQ-1: the neutral conformance corpus — RULED OQ-3's documents at `tests/corpus-adapter/fixtures/`, which do not move because eleven manifest rows name those paths as `replicated_at_destination` — as a closed set of 17 checks over ANY corpus reader, 10 positives and 7 negative confirmations, standard library plus `corpus_adapter` only and no home vocabulary in its source text so that a destination holding nothing else of openxFactory's can run it; the operator's way in is `scripts/verify-carve-conformance.py` (`--destination <key> --dest-root <dir> --adapter <module>:<factory>`, exit 0 or 2, six refusal codes, a `--json` seat; RULED Q-F1 (a) 2026-09-17 also lets a destination whose corpus is git HISTORY hand in a TRANSPOSITION of the same documents with `--corpus`, which the runner proves faithful key by key and byte by byte — the identities it lists and reads under are held to the resolution it asked for, the bytes to the shipped table — refusing `conformance-corpus-unfaithful` before any check runs and naming the transposition, its revision and that table's digest in the verdict; where the reader cannot resolve or list the location at all there is nothing to compare, so the 17 checks report that instead and a run whose 17 all passed over a transposition never proven faithful refuses at the end rather than printing OK), driven by `tests/carve_conformance/` and documented at runbook § 2.2, which also carries the per-destination verdicts measured 2026-09-10 — openxFactory's own adapter passes 17 of 17 — and § 3.7 IS ticked, on `OK — 17 of 17` at a landed head in every named destination: openxFactory `eb1880cb`, openXdox-code `3ee8cd31`, openDox-code `93ccc3dd` (`tasks.md` amendment #8, PR #1124 → `3e3b4587`))
 - [The snapshot-equivalence runner](scripts/verify-snapshot-equivalence.py) (`split-opendox-two-layer-product` § 5.5 FLOOR PART 4, design § D6 (4), RULED OQ-1: renders ONE corpus through the PRE-split tree at the published annotated tag `opendox-carve-0` (`b075fd91dc8f`, FLOOR PART 1's own `carve_commit`, frozen by RULED (a), `#656` comment `5625573095`) in an isolated child interpreter, and through the POST-split stack — `openxdox.generator` + `openxdox.snapshot` at the pinned openXdox-code, reached through `scripts/carved_reach.py` (RULED Q7, `#656` comment `5626248666`) with the § 4.4 domain profile registered — in this process, and compares the two snapshots BYTE FOR BYTE at a pinned `source_revision`, because unpinned the two sides diverge on the anchor alone and the comparison means nothing; `--corpus` is repeatable and each one is a corpus state, of which the suite runs four in a single invocation and two MUST move the digest; seven named refusal codes and one blanket, exit 0 or 2 and never 1, a `--json` seat, and every pin verified before any digest exists — six mounts, each nested gitlink read out of the exact commit the level above it verified, the imported trees swept clean, and the SUPERPROJECT's own unpinned revision and dirt carried in the evidence; driven by `tests/snapshot_equivalence/` inside the required `pytest-suite` check and documented at runbook § 2.3, which carries the measured verdict — 14,849 bytes, `sha256 764b077b…0735` over the shipped corpus)
+- [openDox standalone operation, release 1: Speckit feature 034](specs/034-opendox-standalone-operation/spec.md) (the implementation plan for release 1, phases 1–3, of the ratified `add-neutral-product-standalone-operability` (#1144). All three phases are planned on Brett Heap's answers, `#656` comments `5817152735`, `5850003126` and `5851950767`: [plan](specs/034-opendox-standalone-operation/plan.md) · [tasks, with each phase's writer slices](specs/034-opendox-standalone-operation/tasks.md) · [research](specs/034-opendox-standalone-operation/research.md) · [clarify questions](specs/034-opendox-standalone-operation/clarify-questions.md) · [AT-R1 quickstart](specs/034-opendox-standalone-operation/quickstart.md) · [quality checklist](specs/034-opendox-standalone-operation/checklists/requirements.md) · evidence: [ARC_BASE](specs/034-opendox-standalone-operation/evidence/arc-base.md), [re-measure](specs/034-opendox-standalone-operation/evidence/remeasure-2026-09-25.md), [analyze round 1a](specs/034-opendox-standalone-operation/evidence/analyze-round-1a.md), [analyze round 2](specs/034-opendox-standalone-operation/evidence/analyze-round-2.md), [analyze round 3](specs/034-opendox-standalone-operation/evidence/analyze-round-3.md))
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
 - [Governed Derived Model](docs/governed-derived-model.md)
@@ -827,12 +828,20 @@ Active changes:
   deferred document's prior findings from reading as resolved. `code_surface:`
   is non-empty (two packers and their record here; the two child workflows in
   `opensoft/xFactory`), so the packet archives on merged-plus-green realization
-  evidence and not on landing. **THREE OPEN QUESTIONS, ALL DECLARED:** the
-  grounding share (half, as built — at the 2026-09-21 corpus that sends 93 of
-  311 documents), the fact that this packet CAPS AND RECORDS rather than
-  carrying deferrals over (no sweep cursor exists, and the committed inventory
-  baseline advances unconditionally), and the live HTTP 403 org-entitlement
-  block no code here addresses.
+  evidence and not on landing. **ALL THREE QUESTIONS RESOLVED.** The
+  grounding share STAYS 0.5, as built (at the 2026-09-21 corpus that sends 93
+  of 311 documents; measured at five shares on 2026-09-24), and the packet
+  CAPS AND RECORDS rather than carrying deferrals over (no sweep cursor
+  exists, and the inventory baseline is emitted unconditionally) — both
+  RESOLVED 2026-09-26 by Brett Heap's ruling in session, option verbatim
+  *"Accept both, land #1160"* (recorded on opensoft/xFactory#480), which
+  accepted both measured recommendations and sent the carry-over to its own
+  staged topic, `ideation/staging/doc-health-sweep-carry-over/`, with the
+  cursor as its own record beside the inventory. The third, the HTTP 403
+  org-entitlement block no code here addresses, is RESOLVED 2026-09-23 by
+  Brett Heap's administrative act, verified the same hour and by the
+  2026-09-24 nightly. `Status: draft` is unchanged: resolving the questions
+  ratifies neither spec delta (task 0.4).
 
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
@@ -3181,6 +3190,84 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [admit-code-leg-under-pinned-root](openspec/changes/archive/2026-09-27-admit-code-leg-under-pinned-root/proposal.md)
+  — **ARCHIVED 2026-09-27** by
+  [PR #1174](https://github.com/opensoft/openxFactory/pull/1174),
+  filed 2026-09-24 by lane `openxfactory-5` (display `openXfactory-5`) in answer
+  to openxFactory
+  [#1150](https://github.com/opensoft/openxFactory/issues/1150),
+  **RATIFIED 2026-09-24 at approximately 16:52Z by Brett Heap** (openxFactory
+  repository owner), verbatim ***"(a) recommended for both, ratify when the
+  draft is green"*** (a `RULED` entry against #1150 in `opensoft/brett-wip`
+  `lanes/log/openXfactory-5.md` at commit `536b7ecf`; the condition MET at head
+  `f9e3d01124ccdc35dc5686b68ea54cfba25aade3`, 2026-09-24 ~20:17Z), and amended
+  once, by his R1 word *"(a) recommended, land #1165 when green"* (2026-09-26),
+  which made the one-hop parenthetical THE DIRECT HOP RULE; every word given in
+  the lane's terminal, so NO GITHUB COMMENT CARRIES THEM; ratifying commit
+  `daca0b898e37`.
+  **`code_surface: openxFactory` IS NON-EMPTY, so under `release-realization`
+  this packet archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE and on a
+  SEPARATE ARCHIVE WORD — never on landing and never on ratification.** The
+  evidence, cited rather than asserted: the packet landed as PR
+  [#1156](https://github.com/opensoft/openxFactory/pull/1156) →
+  `daca0b898e37369a560de6befab6ca68e1b5e065` (2026-09-25T13:21:58Z) and its R1
+  amendment as PR
+  [#1165](https://github.com/opensoft/openxFactory/pull/1165) →
+  `b5ec389908107141d9ab90165b7f8d015028d0af` (2026-09-26T21:52:36Z); § 3's
+  REALIZATION landed as PR
+  [#1163](https://github.com/opensoft/openxFactory/pull/1163) →
+  `1c6662e7862e2c1389d05a2bf78f3a4b54eb5157` (2026-09-25T14:47:44Z, by SQUASH
+  from head `65565eef`), on Brett Heap's *"land #1163 when the verifier clears
+  it"*; `pytest-suite` decided **SUCCESS on `main` at `1c6662e7` itself**, run
+  [`36149875028`](https://github.com/opensoft/openxFactory/actions/runs/36149875028)
+  (2026-09-25T15:10:43Z), and again at `b5ec3899`, run
+  [`36274413446`](https://github.com/opensoft/openxFactory/actions/runs/36274413446);
+  and PR [#1168](https://github.com/opensoft/openxFactory/pull/1168)'s § 3.5
+  and § 4 realization-head evidence ticks (`4b5290b4`) ride this archive
+  unchanged. **THE ARCHIVE WORD IS BRETT HEAP'S**, verbatim ***"archive it when
+  the draft is up"*** (2026-09-27, in the lane's terminal; RULED in
+  `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at 2026-09-27T00:32:46Z
+  against #1150), and the pull request lands by MERGE COMMIT, never squash, so
+  this directory's date keeps matching its adding commit.
+  **THE ARCHIVE WAS PERFORMED THROUGH THE GOVERNED WRAPPER AND NEVER A BARE
+  `openspec archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive admit-code-leg-under-pinned-root --yes`,
+  exit 0 — *"ORIGIN RETAINED admit-code-leg-under-pinned-root (declaration
+  unchanged since the ratifying commit daca0b898e37)"*, *"Applying changes to
+  openspec/specs/release-realization/spec.md: ~ 1 modified"*, *"Totals: + 0,
+  ~ 1, - 0, → 0"*, *"archived as '2026-09-27-admit-code-leg-under-pinned-root'"*,
+  over the content-addressed `@fission-ai/openspec@1.12.0` pin and not the
+  1.13.1 on `PATH`; `--date` was not passed, so the directory takes today in
+  UTC.
+  **THE PROMOTION, MEASURED BYTE FOR BYTE ON BOTH SIDES AND NOT EYEBALLED.**
+  ONE `## MODIFIED` block, *The estate's repositories are enumerated in a
+  governed inventory*, onto `openspec/specs/release-realization/spec.md`:
+  before **12,297 bytes / 160 lines / 8 scenarios** (sha256
+  `3020c2c916df22bb…`), after **19,044 bytes / 230 lines / 11 scenarios,
+  sha256 `0bbd1aa2d631e8cf…` on the archived delta AND canon**; `--numstat`
+  **+71 −1**, and `−w` reads the same; requirement count **21 → 21**,
+  scenarios **122 → 125**; the other twenty requirement blocks byte-identical,
+  hashed one by one; the CLI diverged from the delta nowhere. **WHAT IS NOW
+  CANON:** a PINNED ASSEMBLY ROOT's `.gitmodules` is a `gitlink` carrier too,
+  read AT THE COMMIT openxFactory's own `pin` of that root names; the carrier
+  is `pinned` and admitted by exactly one `pin`, an `external` repository's
+  `.gitmodules` admits nothing, a `pinned` row not itself admitted by a `pin`
+  and every row a pinned root's `gitlink` admits carry no row's `gitlink` (THE
+  DIRECT HOP RULE, as R1 amended it), a leg's row never declares
+  `governance: governed`, and the pinned carrier's evidence is read out of the
+  supplied tree's own object store at the pinned commit with no network call,
+  NOT RE-CHECKED where the tree cannot produce it. The replaced `gitlink`
+  bullet is named in canon by its `Removed from canon by` marker.
+  **THE FIVE PACKET FILES MOVE AS `R100` PURE RENAMES** (`.openspec.yaml`,
+  `design.md`, `proposal.md`, `specs/release-realization/spec.md`,
+  `tasks.md`), the § 3.5, § 4 and § 5 ticks having ridden this branch before
+  the move; § 6's six `- [~]` boxes stay `- [~]`, successors named and not
+  work owed.
+  **#1150 IS SHUT BY THIS ARCHIVE'S LANDING AND BY NO EARLIER ACT**: the one
+  closing keyword sits in the archive pull request's body, and no commit
+  message on this branch or on the packet's, the realization's or the
+  amendment's carries one.
 
 - [add-estate-repository-inventory](openspec/changes/archive/2026-09-23-add-estate-repository-inventory/proposal.md)
   — **ARCHIVED 2026-09-23** by
