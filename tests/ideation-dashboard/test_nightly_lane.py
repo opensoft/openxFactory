@@ -114,6 +114,36 @@ def test_missing_register_is_legal_and_renders_ungrouped(tmp_path):
     assert "project" not in snap  # ungrouped implicit project (D10)
 
 
+@needs_validator
+def test_the_default_validator_is_the_products_own_never_an_enclosing_copy(tmp_path):
+    """With no `validator=`, the lane validates with the openxdox product's OWN
+    validator, composed runnable, and publishes. It used to ask
+    `find_validator(agg_root)`, a walk up for
+    `openxFactory/scripts/validate-ideation-dashboard-contracts.py`. That file
+    was shed at `cc4ae9d3`. From openXdox-code `e28930bf` on, the locator
+    confines to the product's own tree, so that call could never find anything
+    (split-opendox-two-layer-product § 8.9 residue (iii)).
+
+    The decoy is that defect class itself: a stale pre-shed copy one level up,
+    exactly where the old walk looked, which rejects everything. Adopting it
+    would skip the lane with "snapshot rejected"."""
+    outer = tmp_path / "outer"
+    decoy = (outer / "openxFactory" / "scripts"
+             / "validate-ideation-dashboard-contracts.py")
+    decoy.parent.mkdir(parents=True)
+    decoy.write_text("import sys\nprint('ERROR decoy adopted')\nsys.exit(1)\n",
+                     encoding="utf-8")
+    (outer / "agg").mkdir()
+    agg = _agg_root(outer / "agg")
+    _register(agg)
+
+    out = lane.run_lane(agg, repository="fixture-repo",
+                        source_revision=PINNED_REVISION)
+
+    assert out.ok, out.reason
+    assert (agg / "health/ideation-dashboard/fixture-repo-snapshot.json").is_file()
+
+
 # ---------------------------------------------------------------------------
 # failure isolation: any error -> SKIPPED, exit 0, previous snapshot untouched
 # ---------------------------------------------------------------------------
@@ -195,6 +225,26 @@ def test_an_unrunnable_validator_skips_without_blaming_the_snapshot(tmp_path):
     assert not (out_dir / "fixture-repo-snapshot.json").exists()
     status = json.loads((out_dir / "lane-status.json").read_text())
     assert status["result"] == "skipped"
+
+
+def test_a_product_without_its_validator_skips_naming_the_product_tree(
+        tmp_path, monkeypatch):
+    """The skip names the one place the default is looked for, the openxdox
+    product's own tree. It never names the aggregation root, which is no longer
+    searched. No `@needs_validator`: the point is a product that has none."""
+    agg = _agg_root(tmp_path)
+    _register(agg)
+    monkeypatch.setattr(lane.snapshot_mod, "find_validator",
+                        lambda start=None: None)
+
+    out = lane.run_lane(agg, repository="fixture-repo",
+                        source_revision=PINNED_REVISION)
+
+    assert not out.ok
+    assert out.reason.startswith("pinned openxdox validator not found ("), \
+        out.reason
+    assert str(agg) not in out.reason, out.reason
+    assert not (agg / "health/ideation-dashboard/fixture-repo-snapshot.json").exists()
 
 
 @needs_validator

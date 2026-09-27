@@ -3702,19 +3702,25 @@ jobs:
         # all: the re-ratified requirement prohibits a Git repository
         # credential, deploy key, credential helper or repository network
         # access on the worker, so the source has to cross as ONE bounded
-        # artifact this credentialed job produces. THIS JOB ALREADY HAS
-        # EVERYTHING IT NEEDS — the openxFactory submodule is initialised with
-        # full history for the decision above, and the App token already reads
-        # Omnigent-Install — so the seal is a `git archive` of a revision in
-        # hand plus one contents read of the single-file recipe. Nothing is
-        # materialized by a worker-side read anywhere in this stage.
+        # artifact this credentialed job produces. FOR THE CORPUS AND THE
+        # RECIPE THIS JOB ALREADY HAS WHAT IT NEEDS — the openxFactory
+        # submodule is initialised with full history for the decision above,
+        # and the App token already reads Omnigent-Install — so that half of
+        # the seal is a `git archive` of a revision in hand plus one contents
+        # read of the single-file recipe. Nothing is materialized by a
+        # worker-side read anywhere in this stage.
         #
-        # The SEAL path set is deliberately WIDER than the decision's baked set
-        # by exactly one file (the top-level snapshot validator the child's
-        # `--strict` has to be able to RUN), and the decision's set must NOT
-        # follow it or every recorded pin would read as a scope change and
-        # rebuild once for nothing. Both halves live in the module, beside the
-        # reason.
+        # The seal carries ONE thing the decision's baked set does not name:
+        # the pinned openXdox product's own validator, composed with its
+        # schemas under the seal's own `validator/` root. The parent RUNS it
+        # once before it seals, so a copy that cannot run never reaches the
+        # child. It comes from the product, not the corpus, which stopped
+        # carrying it at the § 5.2 shed (#1158). The corpus half is exactly
+        # the baked set, so the decision's scope does not move. The reason
+        # lives in the module, beside the code. This job does not yet mount
+        # openxFactory's openXdox and openDox gitlinks, which the validator is
+        # resolved through. Until it does, this step refuses and names them
+        # (#1161).
         if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true'
         continue-on-error: true
         env:

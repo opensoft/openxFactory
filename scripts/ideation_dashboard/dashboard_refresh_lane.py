@@ -79,9 +79,11 @@ parent, from the corpus checkout the decision already used, with a manifest
 carrying the source head, that commit's own committer date, both path-scoped
 input revisions, a per-file sha256 index and one digest over the whole sealed
 tree. Sealing is MATERIALIZATION, not building: `git archive` of a revision the
-parent already has, plus one contents read of the single-file recipe. See the
-seal section for why the seal path set is deliberately WIDER than the baked
-path set and why the decision's set must not follow it.
+parent already has, one contents read of the single-file recipe, and a copy of
+the pinned openxdox product's own validator composed with its schemas, which
+the parent RUNS once before it seals, so a copy that cannot run never reaches
+the child. See the seal section for why the validator comes from the product
+rather than the corpus, and why the decision's path set does not follow it.
 
 WHAT THIS MODULE DELIBERATELY DOES NOT DO. It opens no pull request and pushes
 no branch. It RENDERS the pin (the rewritten overlay text plus a PR body) and
@@ -106,6 +108,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -846,19 +849,42 @@ class BuildResult:
 # materialization costs one `git archive` of a revision it has in hand: no
 # second checkout, no working-tree mutation, and nothing cloned.
 #
-# THE SEAL SET IS NOT THE DECISION SET, and the difference is load-bearing.
-# `snapshot.find_validator` walks UP from the tree being scanned for
-# `openxFactory/scripts/validate-ideation-dashboard-contracts.py`; that file is
-# a TOP-LEVEL `scripts/*.py`, so `CORPUS_BAKED_PATHS` — which names
-# `scripts/doc_health` and `scripts/ideation_dashboard` but not their parent —
-# does not carry it. A cone-mode sparse checkout dragged it in as a side
-# effect; a `git archive` over a path list does not, and a seal without it
-# fails `--strict` with "validator unavailable" rather than with a finding.
-# So the SEAL set is `CORPUS_BAKED_PATHS ∪ {the validator}` while the DECISION
-# set stays exactly `CORPUS_BAKED_PATHS`: widening the decision scope would
-# make `_same_scope` fire `REASON_SCOPE_CHANGED` against every recorded pin and
-# force one rebuild for nothing. The asymmetry is deliberate — the validator's
-# own revision is sealed but not baked, because the image does not COPY it.
+# THE VALIDATOR COMES FROM THE PRODUCT, NOT FROM THE CORPUS (openxFactory
+# #1158). Until the split-opendox § 5.2 shed (`cc4ae9d3`, #940) the seal set
+# was `CORPUS_BAKED_PATHS ∪ {scripts/validate-ideation-dashboard-contracts.py}`:
+# `snapshot.find_validator` walked UP to that TOP-LEVEL file, and a `git
+# archive` over the baked path list does not carry it. The shed moved the file
+# to openXdox-code, and from then on asking the archive for it refused EVERY
+# real corpus (`fatal: pathspec 'scripts/validate-ideation-dashboard-
+# contracts.py' did not match any files`, measured at `1edbb3dd`). The presence
+# check behind it named a file this repository no longer carries. Two more
+# facts close the old route for good. From openXdox-code `e28930bf` the locator
+# CONFINES to the product's own tree (split-opendox-two-layer-product § 8.9
+# residue (iii)), so it never adopts a copy a seal puts outside that tree. And
+# FOUND IS NOT RUNNABLE: at the code leg the script reads no `contracts/` of
+# its own, and exits 2 before it reads a snapshot (#1157).
+#
+# So the validator is resolved by the SNAPSHOT LANE'S OWN resolver,
+# `nightly_lane._pinned_validator()`: the product's validator, composed with
+# its schemas by `doxbench_contracts._composed_validator`. The seal carries
+# that composed unit as regular files under its own root, `validator/`
+# (`scripts/` beside `contracts/schemas/`), where the script's own `parents[1]`
+# is the unit and its schemas resolve. Then the parent RUNS the sealed copy
+# once, through the product's own `snapshot.validate_snapshot`, over a minimal
+# snapshot-kind probe, and refuses unless the validator reached a verdict. So
+# what the child's `--strict` runs is a byte-for-byte copy of the unit the
+# snapshot lane validates with, and that copy has run once, here, to a verdict.
+# The probe's verdict is not a verdict on the corpus and is never read as one:
+# judging the corpus stays the child's `--strict`.
+#
+# The corpus half is therefore exactly `git archive` of the baked set, and the
+# DECISION set is still exactly `CORPUS_BAKED_PATHS`. Adding the validator's
+# path to the decision scope would make `_same_scope` fire
+# `REASON_SCOPE_CHANGED` against every recorded pin and force one rebuild for
+# nothing. The old asymmetry holds in its new shape: the validator is sealed but
+# not baked. `validator/` sits BESIDE the corpus rather than under it, so no
+# context root the child copies out of the corpus can reach it, and the image
+# cannot COPY it.
 #
 # THE REVISION IS PROVEN, NOT ASSERTED. `git archive`'s tar output carries the
 # commit it was made from in a global extended pax header (`comment=<sha>`),
@@ -872,7 +898,15 @@ class BuildResult:
 
 SEAL_MANIFEST_NAME = "manifest.json"
 SEAL_MANIFEST_KIND = "ideation-dashboard-sealed-source-manifest"
-SEAL_SCHEMA_VERSION = "1.0.0"
+# 2.0.0 FROM #1158, AND THE MAJOR MOVES ON PURPOSE. A 1.x seal carried its
+# validator INSIDE the corpus, at `openxFactory/scripts/validate-ideation-
+# dashboard-contracts.py`, and a 1.x reader looks for it there. A 2.x seal
+# carries the product's validator at `SEAL_VALIDATOR_RELPATH` instead. That
+# makes it a layout a 1.x reader cannot consume. The right refusal is "not a
+# major this reader reads", which is legible. A reader expecting 1.x that
+# refused over a "missing" validator would name a file the seal does carry,
+# only elsewhere.
+SEAL_SCHEMA_VERSION = "2.0.0"
 SEAL_ARTIFACT_PREFIX = "dashboard-image-source-"
 SEAL_DIGEST_ALGORITHM = "sha256"
 
@@ -886,10 +920,47 @@ SEAL_RECIPE_RELPATH = "recipe/Dockerfile"
 # read at the pinned recipe revision — never a checkout of that repository.
 RECIPE_DOCKERFILE_PATH = "containers/ideation-dashboard/Dockerfile"
 
-# The one path the seal adds to the baked set. See the section note above.
-VALIDATOR_SEAL_PATH = "scripts/validate-ideation-dashboard-contracts.py"
-CORPUS_SEAL_PATHS: tuple[str, ...] = tuple(sorted({*CORPUS_BAKED_PATHS,
-                                                   VALIDATOR_SEAL_PATH}))
+# The corpus half of the seal: exactly the baked set. The one path that used to
+# widen it left the corpus at the shed (see the section note above). It keeps
+# its own name because the manifest records it as `seal_paths`, beside
+# `corpus_baked_paths`. A reader comparing the two should find them EQUAL; it
+# should not find one of them missing.
+CORPUS_SEAL_PATHS: tuple[str, ...] = CORPUS_BAKED_PATHS
+
+# The sealed validator unit, and its layout. `VALIDATOR_SCRIPT_PATH` is the
+# script's path INSIDE the unit. It is also the product's own
+# `snapshot.VALIDATOR_RELPATH`, and a test holds the two equal. It is spelled
+# here rather than imported because this module must import without the carve
+# legs on disk. The unit sits at `SEAL_VALIDATOR_ROOT`, beside the corpus and
+# the recipe, so it is sealed and never baked.
+SEAL_VALIDATOR_ROOT = "validator"
+VALIDATOR_SCRIPT_PATH = "scripts/validate-ideation-dashboard-contracts.py"
+VALIDATOR_SCHEMAS_PATH = "contracts/schemas"
+SEAL_VALIDATOR_RELPATH = f"{SEAL_VALIDATOR_ROOT}/{VALIDATOR_SCRIPT_PATH}"
+
+# The one instance the parent runs the sealed validator over. It is a
+# snapshot-kind document with nothing else in it. The validator can reach a
+# verdict on it (exit 1, findings) only when it launches from the seal, reads
+# the unit's own `contracts/schemas/`, and has loaded the snapshot schema. It
+# exits 2, a harness failure that `snapshot.validate_snapshot` reports as
+# unavailable, when that schema or every schema is missing. "Available" on
+# this probe therefore means the sealed copy RUNS, over the schema the child
+# validates against. That the copy carries the rest of the unit is held by
+# the copy itself (`seal_validator` refuses an entry it cannot copy), not by
+# the probe: the validator asks for another family schema only when an
+# instance needs it. Measured on the composed unit: rc 1 with 9 findings.
+# Without the snapshot schema: rc 2. With no schemas: rc 2.
+VALIDATOR_PROBE = {"kind": "ideation-dashboard-snapshot"}
+
+# What a 2.x seal's intake requires of the unit beyond its script. First, the
+# schema the child validates against, by the name the product's own validator
+# asks for it; a test drops exactly this name and has the product refuse,
+# naming it. Second, the outcomes of the parent's one run that mean the copy
+# RAN to a verdict: the product's `snapshot.VALIDATED` and
+# `snapshot.NOT_CONFORMANT`, which a test holds equal. Both are spelled here
+# because this module must import without the carve legs on disk.
+VALIDATOR_SNAPSHOT_SCHEMA = "ideation-dashboard-snapshot.schema.yaml"
+VALIDATOR_VERDICT_OUTCOMES = ("validated", "not-conformant")
 
 # The manifest field whose value the child passes to `generate --generated-at`.
 # NOT a wall clock: `generation.generated_at` is defined as the source
@@ -1125,6 +1196,161 @@ def _decision_field(decision: dict, key: str) -> str:
     return value
 
 
+@dataclass(frozen=True)
+class PinnedValidator:
+    """The validator the seal will carry, as its resolver answered.
+
+    `runnable` is the COMPOSED script. Its `parents[1]` is a self-contained unit
+    holding `scripts/` beside `contracts/schemas/`, and that unit is what the
+    seal copies. `product_root` is the product tree the validator was found in.
+    It is read only to record which revision the sealed copy came from, and
+    None records none."""
+
+    runnable: Path
+    product_root: Path | None = None
+
+
+def _snapshot_lane():
+    """`nightly_lane`, imported LAZILY, and only by the seal.
+
+    It cannot be imported everywhere this module is. It reads `openxdox` from
+    the pinned carve legs at import, and a checkout whose legs are not
+    materialized refuses that import by name
+    (`carved_reach.CarveReachUnavailable`, an `ImportError`). The decide, pin,
+    report and record-pr phases must keep running in such a checkout. That is
+    the case for the nightly's finalize job today (openxFactory #1161).
+    """
+    from ideation_dashboard import nightly_lane
+    return nightly_lane
+
+
+def resolve_pinned_validator() -> PinnedValidator:
+    """THE SNAPSHOT LANE'S OWN RESOLVER, `nightly_lane._pinned_validator()`.
+
+    This is the same function the snapshot lane validates with. It resolves the
+    product's own validator, composed with its schemas, so the two lanes cannot
+    come to disagree about which validator is the pinned one (#1157, #1158).
+    Nothing here re-derives it.
+
+    It raises `SealRefused`, naming where the validator was looked for, when
+    none can be resolved: the carve legs are not on disk, or the product tree
+    carries no validator. It never returns None."""
+    unreachable = ("the child's validator would be unreachable and --strict "
+                   "would fail with no finding to read")
+    try:
+        nightly_lane = _snapshot_lane()
+        runnable = nightly_lane._pinned_validator()
+    except ImportError as exc:  # `CarveReachUnavailable` is one
+        raise SealRefused(
+            "the pinned openxdox validator cannot be resolved on this parent "
+            f"({type(exc).__name__}: {exc}) — {unreachable}") from exc
+    if runnable is None:
+        raise SealRefused(
+            "the pinned openxdox validator was not found "
+            f"({nightly_lane._pinned_validator_missing()}) — {unreachable}")
+    return PinnedValidator(runnable=Path(runnable),
+                           product_root=nightly_lane.snapshot_mod.product_root())
+
+
+def _validator_said(result) -> str:
+    """The validator's own last line, from stderr first, so a refusal carries its
+    words and not only an exit code. Bounded, because it lands in one status
+    field."""
+    for stream in (result.stderr, result.stdout):
+        lines = [line.strip() for line in (stream or "").splitlines()
+                 if line.strip()]
+        if lines:
+            return lines[-1][:400]
+    return ""
+
+
+def seal_validator(seal_root, pinned: PinnedValidator, *,
+                   runner=subprocess_runner) -> dict:
+    """Copy the pinned validator's composed unit into the seal, then RUN the
+    sealed copy once. It returns the manifest's validator fields. It raises
+    `SealRefused` when the product's revision cannot be read, when the unit
+    cannot be copied whole, or when the sealed copy cannot run.
+
+    REGULAR FILES ONLY. The composed unit is a script COPY beside schema LINKS
+    to the pinned bytes. `upload-artifact@v4` preserves no symlink, and
+    `seal_file_index` refuses one, so each schema is copied THROUGH its link:
+    the seal holds the pinned bytes, never the link. An entry that does not
+    resolve to a regular file (a dangling link, a directory) is REFUSED by
+    name, never skipped. Skipping it would seal a narrower unit than the one
+    the snapshot lane validates with, and the probe below could not see the
+    difference: the validator asks for a family schema only when an instance
+    needs it.
+
+    THE RUN IS OF THE SEALED COPY, from inside the seal. It goes through the
+    product's own three-outcome `snapshot.validate_snapshot`, which is the call
+    the snapshot lane makes, over `VALIDATOR_PROBE`. "Available" is the only
+    thing it reads: the probe's own verdict is a finding by construction, and
+    it is never a verdict on the corpus. The probe lives in a scratch directory
+    outside the seal, so nothing it touches is sealed."""
+    # WHICH PRODUCT REVISION the copy comes from, read FIRST. A unit resolved
+    # from a product source tree records that tree's HEAD. A HEAD that cannot
+    # be read as a full revision REFUSES the seal, because the manifest
+    # promises that provenance and a null would silently drop it. Only a unit
+    # with no product tree at all (an injected stand-in) records none.
+    revision = None
+    if pinned.product_root is not None:
+        head = (git_head_revision(pinned.product_root, runner=runner)
+                or "").strip().lower()
+        if not _FULL_REVISION_RE.match(head):
+            read = repr(head) if head else "nothing"
+            raise SealRefused(
+                "could not resolve the pinned product's revision at "
+                f"{pinned.product_root} to a commit (read {read}) — the sealed "
+                "validator's provenance would go unrecorded")
+        revision = head
+    root = Path(seal_root) / SEAL_VALIDATOR_ROOT
+    script = root / VALIDATOR_SCRIPT_PATH
+    script.parent.mkdir(parents=True)
+    shutil.copyfile(pinned.runnable, script)
+    schemas = root / VALIDATOR_SCHEMAS_PATH
+    # Created even when the unit has none, deliberately. The validator prefers
+    # its OWN `contracts/schemas/` whenever that directory exists, so an ambient
+    # `CONTRACTS_DIR` can never stand in for a schema the seal does not carry.
+    schemas.mkdir(parents=True)
+    carried = 0
+    source = Path(pinned.runnable).parents[1] / VALIDATOR_SCHEMAS_PATH
+    if source.is_dir():
+        for entry in sorted(source.iterdir(), key=lambda path: path.name):
+            if not entry.is_file():    # follows the link to the pinned bytes
+                raise SealRefused(
+                    f"the composed validator unit carries {entry.name}, which "
+                    f"does not resolve to a regular file ({entry}) — sealing "
+                    "it without that entry would seal a narrower unit than "
+                    "the one the snapshot lane validates with")
+            shutil.copyfile(entry, schemas / entry.name)
+            carried += 1
+    try:
+        product = _snapshot_lane().snapshot_mod
+    except ImportError as exc:
+        raise SealRefused(
+            "the sealed validator cannot be run on this parent "
+            f"({type(exc).__name__}: {exc})") from exc
+    with tempfile.TemporaryDirectory(prefix="dfr-probe-") as scratch:
+        probe = Path(scratch) / "validator-probe.json"
+        probe.write_text(json.dumps(VALIDATOR_PROBE, sort_keys=True) + "\n",
+                         encoding="utf-8")
+        result = product.validate_snapshot(probe, validator=script)
+    if not result.available:
+        said = _validator_said(result)
+        raise SealRefused(
+            "the sealed validator could NOT RUN, so the child's --strict "
+            f"could not run it either: {result.unavailable_reason}"
+            + (f" — it said: {said}" if said else ""))
+    return {
+        "validator_relpath": SEAL_VALIDATOR_RELPATH,
+        "validator_revision": revision,
+        "validator_schema_count": carried,
+        "validator_probe": {"kind": VALIDATOR_PROBE["kind"],
+                            "outcome": result.outcome,
+                            "returncode": result.returncode},
+    }
+
+
 def seal_source(
     *,
     corpus_checkout,
@@ -1141,15 +1367,27 @@ def seal_source(
     parent_run_id: str | None = None,
     runner=subprocess_runner,
     read_recipe=None,
+    resolve_validator=None,
 ) -> dict:
     """Materialize the bounded source artifact and return its manifest.
 
-    Order matters and is the order of the refusals: a decision that did not ask
-    for a build seals nothing; a revision that cannot be resolved seals
-    nothing; an archive whose own recorded commit is not `source_head` seals
-    nothing; a recipe that cannot be read seals nothing. Only a seal that
-    passed all four gets a `manifest.json`, and the manifest's presence is
-    therefore the artifact's own statement that the parent stands behind it.
+    Order matters and is the order of the refusals:
+      * a decision that did not ask for a build seals nothing;
+      * a revision that cannot be resolved seals nothing;
+      * a validator that cannot be resolved seals nothing, and is found out
+        BEFORE the corpus is archived, since the corpus no longer supplies it;
+      * an archive whose own recorded commit is not `source_head` seals
+        nothing;
+      * a validator whose product revision cannot be read, whose unit cannot
+        be copied whole, or whose sealed copy cannot RUN seals nothing;
+      * a recipe that cannot be read seals nothing.
+    Only a seal that passed all six gets a `manifest.json`, and the manifest's
+    presence is therefore the artifact's own statement that the parent stands
+    behind it.
+
+    `resolve_validator` is injectable for the same reason `read_recipe` is.
+    Left None it is `resolve_pinned_validator`, the snapshot lane's own
+    resolver.
 
     Raises `SealRefused` — never returns a partial seal."""
     decision = decision or {}
@@ -1189,6 +1427,12 @@ def seal_source(
         raise SealRefused(
             f"the seal directory {seal_root} is not empty — a seal must be "
             "materialized into a fresh tree")
+    # THE VALIDATOR IS RESOLVED BEFORE THE CORPUS IS ARCHIVED. It no longer
+    # comes out of the corpus, so nothing about it waits for the corpus, and a
+    # parent that cannot resolve it is told so before the whole corpus
+    # (44,492,413 bytes at `1edbb3dd`) is archived for nothing. It is SEALED
+    # and RUN below, once the seal tree exists.
+    pinned = (resolve_validator or resolve_pinned_validator)()
     seal_root.mkdir(parents=True, exist_ok=True)
     corpus_root = seal_root / SEAL_CORPUS_RELPATH
     # The intermediate tar lives OUTSIDE the seal (and outside the checkout):
@@ -1218,16 +1462,11 @@ def seal_source(
                for path in seal_paths):
         raise SealRefused(
             "the sealed corpus is empty — none of the seal paths materialized")
-    validator = _contained_relpath(corpus_root, VALIDATOR_SEAL_PATH)
-    if not validator.is_file():
-        # The #179 trap, refused at the seal rather than at `--strict` three
-        # steps later: without this file the child's validation cannot RUN, and
-        # a validation that could not run is a strict failure with no finding
-        # to read.
-        raise SealRefused(
-            f"the seal is missing {VALIDATOR_SEAL_PATH} — the child's "
-            "validator would be unreachable and --strict would fail with no "
-            "finding to read")
+    # The #179 trap, refused at the seal rather than at `--strict` three steps
+    # later. A validation that could not RUN is a strict failure with no
+    # finding to read, so the sealed copy is RUN here, and a copy that cannot
+    # reach a verdict is refused (see `seal_validator`).
+    validator_fields = seal_validator(seal_root, pinned, runner=runner)
 
     def _read_recipe_from_the_contents_api() -> str | None:
         # The recipe directory holds exactly ONE file, so this is a contents
@@ -1269,6 +1508,11 @@ def seal_source(
         "recipe_revision": recipe_revision,
         "recipe_path": recipe_path,
         "recipe_relpath": SEAL_RECIPE_RELPATH,
+        # Where the sealed validator is, which product revision it was copied
+        # from, how many schemas travel with it, and what its one run answered.
+        # The run is RECORDED on every seal, like `file_count`, rather than
+        # reconstructed from a run log.
+        **validator_fields,
         "decision": {
             "outcome": decision.get("outcome"),
             "reason": decision.get("reason"),
@@ -1301,8 +1545,10 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
                 recipe_revision: str | None = None) -> list[str]:
     """The REFERENCE implementation of the child's intake check: manifest
     present and well-formed, every indexed path present with the recorded
-    sha256, the tree digest recomputing, and the recorded revisions matching
-    the parent decision the child was dispatched with.
+    sha256, the tree digest recomputing, the recorded revisions matching the
+    parent decision the child was dispatched with, and the sealed validator
+    unit whole. A whole unit means its script, its schemas, and a recorded run
+    that reached a verdict.
 
     Returns the problems, empty when the seal verifies. It is a list rather
     than an exception because the child must report ALL of what is wrong before
@@ -1377,10 +1623,56 @@ def verify_seal(seal_dir, *, correlation_id: str | None = None,
             problems.append(
                 f"{label} mismatch: manifest records "
                 f"{manifest.get(key)!r}, the dispatch carried {expected!r}")
-    if SEAL_CORPUS_RELPATH + "/" + VALIDATOR_SEAL_PATH not in files:
+    # The validator is the PRODUCT's, sealed beside the corpus (#1158), so it is
+    # looked for where a 2.x seal carries it and nowhere else. A validator
+    # inside the corpus is a 1.x layout and satisfies nothing here.
+    if manifest.get("validator_relpath") != SEAL_VALIDATOR_RELPATH:
         problems.append(
-            f"the seal does not carry {SEAL_CORPUS_RELPATH}/{VALIDATOR_SEAL_PATH} "
-            "— strict validation could not run")
+            f"validator_relpath is {manifest.get('validator_relpath')!r}, "
+            f"expected {SEAL_VALIDATOR_RELPATH!r}")
+    if SEAL_VALIDATOR_RELPATH not in files:
+        problems.append(
+            f"the seal does not carry {SEAL_VALIDATOR_RELPATH} — strict "
+            "validation could not run")
+    # THE UNIT, NOT ONLY ITS SCRIPT (Copilot review of #1162). The script by
+    # itself validates nothing. Without its schemas it exits 2 before it reads
+    # a snapshot, which is the #179 trap in the unit's shape. So the intake
+    # also requires the schemas to be indexed, the recorded count to equal the
+    # indexed count, the snapshot schema to be among them, and the parent's
+    # one recorded run to have reached a verdict.
+    schemas_prefix = f"{SEAL_VALIDATOR_ROOT}/{VALIDATOR_SCHEMAS_PATH}/"
+    indexed_schemas = sum(1 for relpath in files
+                          if relpath.startswith(schemas_prefix))
+    if not indexed_schemas:
+        problems.append(
+            f"the seal indexes no schema under {schemas_prefix} — strict "
+            "validation could not run")
+    schema_count = manifest.get("validator_schema_count")
+    if isinstance(schema_count, bool) or schema_count != indexed_schemas:
+        problems.append(
+            f"validator_schema_count is {schema_count!r}, but the seal "
+            f"indexes {indexed_schemas} schema(s) under {schemas_prefix}")
+    if schemas_prefix + VALIDATOR_SNAPSHOT_SCHEMA not in files:
+        problems.append(
+            f"the seal does not carry {schemas_prefix}"
+            f"{VALIDATOR_SNAPSHOT_SCHEMA}, the schema the child validates "
+            "against")
+    probe = manifest.get("validator_probe")
+    if not (isinstance(probe, dict)
+            and probe.get("kind") == VALIDATOR_PROBE["kind"]
+            and probe.get("outcome") in VALIDATOR_VERDICT_OUTCOMES):
+        problems.append(
+            f"validator_probe is {probe!r} — the manifest does not record "
+            "that the sealed validator ran to a verdict")
+    # Null only for a unit with no product tree; anything else it records must
+    # be a full revision, which the seal refuses to write otherwise.
+    validator_revision = manifest.get("validator_revision")
+    if validator_revision is not None and not (
+            isinstance(validator_revision, str)
+            and _FULL_REVISION_RE.match(validator_revision)):
+        problems.append(
+            f"validator_revision is {validator_revision!r}, expected a full "
+            "commit revision or null")
     if manifest.get("recipe_relpath") not in files:
         problems.append("the seal does not carry the build recipe")
     return problems
@@ -1823,8 +2115,9 @@ def run_refresh_lane(
 # --------------------------------------------------------------------------
 # CLI. The PARENT's phases only — decide, seal, pin, report, record-pr. The
 # build belongs to the worker child and lives in the child's own workflow; no
-# phase here builds an image or pushes one, and the only source materialization
-# is the parent's own `git archive` of a revision it already holds.
+# phase here builds an image or pushes one. The only source materialization is
+# the parent's own `git archive` of a revision it already holds, sealed beside
+# a copy of the pinned product validator.
 # --------------------------------------------------------------------------
 
 def main(argv: list[str] | None = None) -> None:
@@ -1852,9 +2145,10 @@ def main(argv: list[str] | None = None) -> None:
                          "seal: materialize the bounded source artifact the "
                          "credential-free child consumes — the decide phase's "
                          "own decision (--decision-in) at one revision, plus "
-                         "the pinned recipe, plus a manifest — into "
-                         "--seal-out, and write the dispatch gate to "
-                         "--seal-result-out. "
+                         "the pinned recipe, plus the pinned openxdox "
+                         "validator composed with its schemas and run once, "
+                         "plus a manifest — into --seal-out, and write the "
+                         "dispatch gate to --seal-result-out. "
                          "pin: render the pin proposal from the worker child's "
                          "returned digest (--digest-in) — this module writes "
                          "files and never pushes a branch. "
