@@ -2688,8 +2688,11 @@ repo scope.
   (`doc_health.corpus`, `doc_health.corpus.RealGit`,
   `doc_health.lines.split_keepends`) read as generic git/text utilities
   rather than governance-specific logic, unlike the other seven modules'
-  unaudited reaches. Only (a) done as a genuine extraction, or this split,
-  closes the `corpus-adapter-seam` conflict itself.
+  unaudited reaches. Only (a) done as a genuine extraction closes the
+  `corpus-adapter-seam` conflict for the whole eight-module surface; the
+  split closes it only for whatever it retargets (generator.py's three
+  imports alone, as sketched), leaving the conflict open for the other
+  seven modules if they stay on (b) or (c) instead of being retargeted too.
 - **Conflict, named rather than new.** The topic's own subject IS a
   currently-tolerated conflict with `corpus-adapter-seam`'s Requirement 1;
   R1Q6 (d)'s exclusion holds it open for release 1 only, and

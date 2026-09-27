@@ -140,10 +140,14 @@ is not a new conflict this topic creates; it is the conflict this topic exists
 to EXAMINE — not necessarily to close. Open questions 2 and 3 (options (b)
 and (c)) can close R1Q6's requirement-9 problem (the suite runs green alone)
 without touching a single production import, which would leave this
-Requirement 1 conflict standing as a known, accepted exception rather than
-resolving it; only option (a) done as a genuine extraction, or open question
-4's split, closes the conflict itself. See § Exit path. No other staged topic
-or ratified spec is known to contradict the material above.
+Requirement 1 conflict standing as an UNRESOLVED violation — separate from,
+and NOT WAIVED by, R1Q6 (d)'s exclusion (that ruling covers only the
+standalone-suite/requirement-9 problem; nothing in the ruled record accepts
+or decides this conflict). Only option (a) done as a genuine extraction
+closes the conflict for the whole eight-module surface; open question 4's
+split closes it only for whatever slice it actually retargets, leaving it
+open for any module left on (b) or (c) instead. See § Exit path. No other
+staged topic or ratified spec is known to contradict the material above.
 
 ## Open questions
 
@@ -223,23 +227,33 @@ point the wrong way — claim 1) do NOT necessarily close together:
   composes TESTS/CI only; `DOC_HEALTH_SURFACE`'s eight production imports are
   UNTOUCHED. This lifts R1Q6 (d)'s declared exclusion and lets
   `add-neutral-product-standalone-operability` report requirement 9 closed —
-  but Requirement 1's conflict stands exactly as measured today, and the
-  proposal must record that explicitly as a known, accepted exception rather
-  than let requirement 9's closure read as if it had resolved it too.
+  but Requirement 1's conflict stands exactly as measured today. R1Q6 (d)
+  ruled only the standalone-suite/requirement-9 exclusion; it does NOT waive
+  Requirement 1, and nothing has accepted this violation. The proposal must
+  say so plainly and bring the conflict to Brett as its own question, rather
+  than let requirement 9's closure read as if it had resolved this too.
 - **If (a) is ruled and realized as a genuine extraction, or open question
   4's split is taken:** a realization change against openXdox-code (and
   openDox-code, if the chosen seam borrows the registered-adapter pattern
   already used for `corpus_adapter` / `domain_profile` there) that actually
   RETARGETS some or all of `DOC_HEALTH_SURFACE`'s eight modules away from
-  importing `openxFactory`'s `doc_health` by name. This closes BOTH
-  requirement 9 and the Requirement 1 conflict, with a `corpus-adapter-seam`
-  or `neutral-product-pin` spec delta only if the ruled shape needs new
-  contract text.
+  importing `openxFactory`'s `doc_health` by name. This closes requirement 9
+  AND the Requirement 1 conflict FOR WHATEVER IT RETARGETS: doing all eight
+  closes the conflict outright; taking the split alone (generator.py's three
+  imports) closes it only for that module, and the other seven stand exactly
+  as open as the bullet above describes unless they too are retargeted
+  rather than merely moved to (b) or (c). A `corpus-adapter-seam` or
+  `neutral-product-pin` spec delta rides along only if the ruled shape needs
+  new contract text.
 
 Either path lifts R1Q6 (d)'s declared exclusion and closes requirement 9 for
-openXdox-code; only the second also closes the Requirement 1 conflict this
-topic was raised to examine, which the proposal must say plainly rather than
-leave implied.
+openXdox-code. Closing the Requirement 1 conflict this topic was raised to
+examine is NOT automatic: it happens only module by module, for whatever the
+ruled shape actually retargets — the whole surface under (a)-as-extraction,
+or only the retargeted slice under the split, with every module left on (b)
+or (c) staying exactly as open as before. The proposal must say, module by
+module, which is which, rather than let requirement 9's closure imply the
+other.
 
 Gated on: Brett Heap's ruling of open questions 1–3 (and optionally 4), and
 R1Q23's answer for timing. Deadline, as R1Q6 (d) and T008 name it: before
