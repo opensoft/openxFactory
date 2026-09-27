@@ -3185,7 +3185,7 @@ Archived changes:
 
 - [admit-code-leg-under-pinned-root](openspec/changes/archive/2026-09-27-admit-code-leg-under-pinned-root/proposal.md)
   — **ARCHIVED 2026-09-27** by
-  [PR #ARCHIVE-PR-NUMBER-PENDING](https://github.com/opensoft/openxFactory/pull/ARCHIVE-PR-NUMBER-PENDING),
+  [PR #1174](https://github.com/opensoft/openxFactory/pull/1174),
   filed 2026-09-24 by lane `openxfactory-5` (display `openXfactory-5`) in answer
   to openxFactory
   [#1150](https://github.com/opensoft/openxFactory/issues/1150),
