@@ -711,6 +711,19 @@ def _read_claims(claims_dir: Path) -> list[tuple]:
     return claims
 
 
+def _claim_document(sequence: int, day: str, rid: str) -> dict:
+    """The claim record ``_claim_sequence`` writes for one run's number —
+    also exactly what ``_recorded`` holds a ``run.yaml``'s sequence to."""
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "kind": SEQUENCE_CLAIM_KIND,
+        "status": "record",
+        "sequence": sequence,
+        "as_of": day,
+        "run_id": rid,
+    }
+
+
 def _claim_sequence(root: Path, day: str, rid: str) -> int:
     """Atomically claim the next run sequence number.
 
@@ -750,14 +763,7 @@ def _claim_sequence(root: Path, day: str, rid: str) -> int:
         # (research D3), exactly as _write_rendered persists every other
         # catalog record.
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
-            handle.write(render({
-                "schema_version": SCHEMA_VERSION,
-                "kind": SEQUENCE_CLAIM_KIND,
-                "status": "record",
-                "sequence": sequence,
-                "as_of": day,
-                "run_id": rid,
-            }))
+            handle.write(render(_claim_document(sequence, day, rid)))
         return sequence
 
 
@@ -800,52 +806,134 @@ def _snapshot_document(rid: str, repo: str, entries: list[dict],
     }
 
 
+def _run_meta_document(rid: str, day: str, sequence: int) -> dict:
+    """The ``run.yaml`` record ``write_snapshot`` writes for one run —
+    also exactly what ``_recorded`` holds an existing ``run.yaml`` to."""
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "kind": RUN_META_KIND,
+        "status": "record",
+        "run_id": rid,
+        "as_of": day,
+        "sequence": sequence,
+    }
+
+
 def _occupied(path: Path) -> bool:
     """Something — anything, a dangling symlink included — sits at
     ``path``."""
     return path.exists() or path.is_symlink()
 
 
+def _refuse_foreign_node(node: Path, directory: bool) -> None:
+    """Refuse a node the writer did not make and would not make there. That
+    means a symlink, to anything, or a node of the wrong type: a
+    non-directory where the writer needs a directory, or a non-file where it
+    needs a file. An absent node passes, because the writer creates it.
+    Followed, a symlink would send the run's writes and claims out of the
+    catalog tree, or accept an outside file as an immutable record that
+    stays mutable from outside. So the writer never follows one, even a
+    symlink that points inside the tree."""
+    if node.is_symlink():
+        raise CatalogError(
+            f"catalog path is a symlink, which the writer never follows: "
+            f"{node}")
+    if node.exists() and not (node.is_dir() if directory else node.is_file()):
+        wanted = "non-directory" if directory else "non-file"
+        raise CatalogError(f"catalog path is occupied by a {wanted}: {node}")
+
+
+def _refuse_unsafe_run_paths(root: Path, run_dir: Path, targets) -> None:
+    """Refuse a run, before its first write or claim, if any path it would
+    write through is foreign (``_refuse_foreign_node``). That covers every
+    directory, top-down, from the first catalog segment under ``root``
+    (``health``, ``health/document-catalog``, ``.../runs``) to the
+    sequence-claim directory, the date and run directories, and a
+    slash-separated repository's subdirectories, plus ``run.yaml`` and
+    every snapshot file. Each node is checked with its ancestors, so no
+    component between ``root`` and a written file can be a symlink. A
+    foreign node would otherwise surface only after the sequence was
+    claimed, as a filesystem error mid-run that leaves an orphaned claim or
+    a partial run, or it would carry the writes outside the tree without
+    any error."""
+    root = Path(root)
+    directories = [root.joinpath(*RUNS_DIR.parts[:depth])
+                   for depth in range(1, len(RUNS_DIR.parts) + 1)]
+    directories += [root / SEQUENCE_DIR, run_dir.parent, run_dir]
+    targets = list(targets)
+    nested = {p for target in targets for p in target.parents
+              if run_dir in p.parents}
+    directories += sorted(nested, key=lambda p: (len(p.parts), p))
+    for node in directories:
+        _refuse_foreign_node(node, directory=True)
+    for node in [run_dir / RUN_META_NAME, *targets]:
+        _refuse_foreign_node(node, directory=False)
+
+
+def _read_record(path: Path) -> bytes:
+    """Raw bytes of one existing regular-file catalog record (never through
+    a symlink), with an unreadable file raised as ``CatalogError``."""
+    _refuse_foreign_node(path, directory=False)
+    try:
+        return path.read_bytes()
+    except OSError as exc:
+        raise CatalogError(f"corrupt catalog artifact {path}: {exc}")
+
+
 def _holds_exactly(target: Path, expected: bytes) -> bool:
     """False when ``target`` is absent, True when it is a regular file
     holding exactly ``expected``, and ``CatalogError`` when anything else
     occupies it — a file with other bytes (an immutable snapshot is never
-    rewritten) or a non-file node such as a directory (which would
-    otherwise pass as "absent" and fail the write mid-run). Compared as RAW
-    bytes: a universal-newline text read would translate a CRLF edit back
-    to the writer's LF and wave an altered record through as a completed
-    no-op."""
+    rewritten), a non-file node such as a directory (which would otherwise
+    pass as "absent" and fail the write mid-run), or a symlink, even to a
+    file with the expected bytes (the run would keep a record that is
+    mutable from outside it). Compared as RAW bytes: a universal-newline
+    text read would translate a CRLF edit back to the writer's LF and wave
+    an altered record through as a completed no-op."""
     if not _occupied(target):
         return False
-    if not target.is_file():
-        raise CatalogError(
-            f"immutable snapshot path is occupied by a non-file: {target}")
-    if target.read_bytes() != expected:
+    if _read_record(target) != expected:
         raise CatalogError(
             f"immutable snapshot already exists with different content: "
             f"{target}")
     return True
 
 
-def _refuse_occupied_run_paths(run_dir: Path, targets) -> None:
-    """Refuse a run, before its first write, whose paths are occupied by
-    something the run would never write there: a non-directory where the
-    date directory, the run directory, or a slash-separated repository's
-    subdirectory goes, or a non-file at ``run.yaml``. The writer would
-    otherwise claim its sequence and then fail on a filesystem error
-    mid-run, leaving an orphaned claim or a partial run."""
-    directories = {run_dir.parent, run_dir}
-    for target in targets:
-        directories.update(p for p in target.parents if run_dir in p.parents)
-    for node in sorted(directories):
-        if _occupied(node) and not node.is_dir():
-            raise CatalogError(
-                f"catalog run path is occupied by a non-directory: {node}")
+def _recorded(root: Path, run_dir: Path, rid: str, day: str) -> bool:
+    """Returns False when the run has no ``run.yaml`` yet (never recorded,
+    or crashed before recording). Returns True when ``run.yaml`` is exactly
+    the record this writer writes for ``rid`` on ``day``. That means
+    ``_run_meta_document`` byte for byte, with a positive integer sequence
+    whose claim under ``.sequence/`` is this run's own claim record
+    (``_claim_document``). Raises ``CatalogError`` for anything else.
+
+    Without this check, a regular ``run.yaml`` that was edited,
+    re-serialized, or copied in from elsewhere would pass as a completed
+    run. A retry would then accept a wrong id, a wrong date, or a sequence
+    this run never claimed, and ``load_snapshot`` would order the run by
+    that sequence, or fail on a non-integer one."""
     meta_path = run_dir / RUN_META_NAME
-    if _occupied(meta_path) and not meta_path.is_file():
+    if not _occupied(meta_path):
+        return False
+    raw = _read_record(meta_path)
+    try:
+        sequence = json.loads(raw.decode("utf-8")).get("sequence")
+    except (UnicodeDecodeError, ValueError, AttributeError):
+        sequence = None
+    if (not isinstance(sequence, int) or isinstance(sequence, bool)
+            or sequence < 1 or raw != render(
+                _run_meta_document(rid, day, sequence)).encode("utf-8")):
         raise CatalogError(
-            f"catalog run metadata path is occupied by a non-file: "
-            f"{meta_path}")
+            f"catalog run metadata is not the record this run writes "
+            f"(run_id {rid}, as_of {day}, a positive integer sequence, byte "
+            f"for byte): {meta_path}")
+    claim_path = Path(root) / SEQUENCE_DIR / f"{sequence:06d}.yaml"
+    if not _occupied(claim_path) or _read_record(claim_path) != render(
+            _claim_document(sequence, day, rid)).encode("utf-8"):
+        raise CatalogError(
+            f"catalog run metadata states sequence {sequence}, which this "
+            f"run never claimed: {meta_path}")
+    return True
 
 
 def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
@@ -869,12 +957,22 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
       rendered bytes returns its path unchanged (completed run). The
       comparison is raw bytes (``_holds_exactly``), so a byte-level edit
       such as a CRLF conversion is never mistaken for the recorded file.
+      The run counts as recorded only if its ``run.yaml`` is exactly this
+      run's record, and its sequence is this run's own claim
+      (``_recorded``). An edited or foreign ``run.yaml`` is refused, never
+      accepted.
     - Immutability: an existing snapshot file with different bytes is
       never rewritten — CatalogError. Run ids are content addresses
       (``run_id``; ``write_run`` mints them), so different content is
       always a different run and this refusal is reached only through a
       directory that was edited by hand, mixed from two runs, or named by
       a caller that did not mint its id from the content it writes.
+    - Path safety: every directory and file on the run's paths, from
+      ``health`` down, must be absent or a real directory or regular file
+      of the kind the writer makes there (``_refuse_unsafe_run_paths``).
+      A symlink is refused, and so is a node of the wrong type, before
+      anything is claimed or written. The writer never writes or claims
+      outside the catalog tree.
     - Crash safety: ``run.yaml`` is written after the snapshot file, so
       a recorded run always holds at least one repository snapshot;
       directories without ``run.yaml`` are invisible to
@@ -893,14 +991,15 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
     run_dir = root / RUNS_DIR / day / rid
     target = _repo_file(run_dir, repo)
     meta_path = run_dir / RUN_META_NAME
+    _refuse_unsafe_run_paths(root, run_dir, [target])
 
     if _holds_exactly(target, expected):
-        if meta_path.is_file():
+        if _recorded(root, run_dir, rid, day):
             return target  # completed no-op: already recorded
         # fall through: heal a crash between snapshot and run.yaml
 
     sequence = None
-    if not meta_path.is_file():
+    if not _recorded(root, run_dir, rid, day):
         # Includes the stale refusal; raises before anything is created.
         sequence = _claim_sequence(root, day, rid)
         run_dir.parent.mkdir(parents=True, exist_ok=True)
@@ -913,15 +1012,9 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
     if not _holds_exactly(target, expected):  # re-check: race lost mid-write
         _write_rendered(target, rendered)
 
-    if sequence is not None and not meta_path.is_file():
-        _write_rendered(meta_path, render({
-            "schema_version": SCHEMA_VERSION,
-            "kind": RUN_META_KIND,
-            "status": "record",
-            "run_id": rid,
-            "as_of": day,
-            "sequence": sequence,
-        }))
+    if sequence is not None and not _recorded(root, run_dir, rid, day):
+        _write_rendered(meta_path,
+                        render(_run_meta_document(rid, day, sequence)))
     return target
 
 
@@ -940,19 +1033,25 @@ def write_run(root, as_of, entries_by_repo: dict, taxonomy
     id and byte-identical files; recording different content can never
     reuse an id, whichever tree or date it lands on.
 
-    All-or-nothing on refusal: every input check (``run_id``), every node
-    the run will create (``_refuse_occupied_run_paths``), and every
-    existing target of the run (``_holds_exactly``, raw bytes) is checked
-    BEFORE the first write. A directory holding a conflicting file — or a
-    non-file node — for a LATER repository, edited by hand or mixed from
-    another run, is refused before an earlier repository is written or a
-    sequence is claimed, never after, which would leave a partial recorded
-    run."""
+    All-or-nothing on refusal: every check runs BEFORE the first write or
+    claim. That means every input check (``run_id``), every node on the
+    run's paths from ``health`` down (``_refuse_unsafe_run_paths``: no
+    symlink, no node of the wrong type), an existing ``run.yaml``, which
+    must be exactly this run's record (``_recorded``), and every existing
+    target of the run (``_holds_exactly``, raw bytes). A run directory
+    holding a conflicting file or a foreign node for a LATER repository
+    (edited by hand or mixed from another run), or holding an edited
+    ``run.yaml``, is refused before an earlier repository is written or a
+    sequence is claimed. It is never refused after, which would leave a
+    partial recorded run, and a completed-looking run is never accepted on
+    a ``run.yaml`` it did not write."""
     rid = run_id(entries_by_repo, taxonomy)
     taxonomy_block = _validate_taxonomy(taxonomy)
-    run_dir = Path(root) / RUNS_DIR / _as_of_str(as_of) / rid
+    day = _as_of_str(as_of)
+    run_dir = Path(root) / RUNS_DIR / day / rid
     targets = {repo: _repo_file(run_dir, repo) for repo in entries_by_repo}
-    _refuse_occupied_run_paths(run_dir, targets.values())
+    _refuse_unsafe_run_paths(root, run_dir, targets.values())
+    _recorded(root, run_dir, rid, day)  # an existing run.yaml must be ours
     for repo in sorted(entries_by_repo):
         _holds_exactly(targets[repo], render(_snapshot_document(
             rid, repo, list(entries_by_repo[repo]), taxonomy_block))

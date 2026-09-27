@@ -683,9 +683,10 @@ def test_write_run_refuses_a_conflicting_later_repository_before_any_write(
 def test_write_run_refuses_occupied_run_paths_before_any_write(tmp_path):
     # Review (Copilot, #1175): a node the run would never write -- a
     # directory at a snapshot or run.yaml path, a file where the run, date,
-    # or a slash-separated repository's directory goes -- must be refused
-    # as a controlled CatalogError before the first write, never surface
-    # as a filesystem error after a sequence was claimed.
+    # or a slash-separated repository's directory goes, or (round 5) where
+    # the claims directory or any catalog directory above the date goes --
+    # must be refused as a controlled CatalogError before the first write,
+    # never surface as a filesystem error after a sequence was claimed.
     alpha = alpha_entries(extended_inventory())
     runs = {"alpha": alpha, "xFactories/MedxFactory": [
         dict(e, repo="xFactories/MedxFactory") for e in alpha]}
@@ -695,6 +696,8 @@ def test_write_run_refuses_occupied_run_paths_before_any_write(tmp_path):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("occupied\n", encoding="utf-8")
 
+    # run.parents: [0] the date directory, [1] runs, [2] document-catalog,
+    # [3] health.
     cases = {
         "snapshot-is-a-directory": lambda run: (
             run / "xFactories" / "MedxFactory.yaml").mkdir(parents=True),
@@ -704,16 +707,170 @@ def test_write_run_refuses_occupied_run_paths_before_any_write(tmp_path):
             run / "xFactories"),
         "run-directory-is-a-file": as_file,
         "date-directory-is-a-file": lambda run: as_file(run.parent),
+        "sequence-directory-is-a-file": lambda run: as_file(
+            run.parents[1] / ".sequence"),
+        "runs-directory-is-a-file": lambda run: as_file(run.parents[1]),
+        "catalog-directory-is-a-file": lambda run: as_file(run.parents[2]),
+        "health-directory-is-a-file": lambda run: as_file(run.parents[3]),
     }
     for name, occupy in cases.items():
         root = tmp_path / name
         run_dir = runs_root(root) / DAY_STR / rid
         occupy(run_dir)
+        before = tree_state(root)
         with pytest.raises(catalog.CatalogError, match="occupied"):
             catalog.write_run(root, DAY, runs, TAXONOMY)
-        assert not (runs_root(root) / ".sequence").exists(), name
+        assert tree_state(root) == before, name  # no claim, no snapshot
         assert not (run_dir / "alpha.yaml").exists(), name
         assert catalog.load_snapshot(root) is None, name
+
+
+def test_write_run_refuses_symlinked_paths_before_any_write(tmp_path):
+    # Review round 5 (Copilot, #1175): is_dir() and is_file() follow
+    # symlinks. A symlinked catalog directory passed the preflight and
+    # carried the run's writes and claims out of health/document-catalog/
+    # runs, and a snapshot or run.yaml linked to an outside file holding
+    # the recorded bytes was accepted as a completed no-op, leaving the run
+    # with records that stay mutable from outside it. The writer never
+    # follows a symlink at any depth from health/ down. That holds for a
+    # dangling link and for one pointing back inside the tree, too.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid, recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    recorded_meta = (runs_root(tmp_path / "src") / DAY_STR / rid /
+                     "run.yaml").read_bytes()
+
+    def link_dir(node, outside):
+        node.parent.mkdir(parents=True, exist_ok=True)
+        node.symlink_to(outside, target_is_directory=True)
+
+    def link_file(node, outside, content):
+        outside_file = outside / node.name
+        if content is not None:
+            outside_file.write_bytes(content)
+        node.unlink()
+        node.symlink_to(outside_file)
+
+    # Directory cases start from an empty tree; file cases from a complete
+    # copy of the recorded run, so only the link stands between the retry
+    # and a completed no-op.
+    dir_cases = {
+        "health": lambda root: root / "health",
+        "document-catalog": lambda root: root / "health" / "document-catalog",
+        "runs": runs_root,
+        "sequence": lambda root: runs_root(root) / ".sequence",
+        "date": lambda root: runs_root(root) / DAY_STR,
+        "run": lambda root: runs_root(root) / DAY_STR / rid,
+        "repository-subdirectory": lambda root: (
+            runs_root(root) / DAY_STR / rid / "xFactories"),
+    }
+    file_cases = {
+        "snapshot-to-recorded-bytes": ("alpha.yaml",
+                                       recorded["alpha"].read_bytes()),
+        "run-yaml-to-recorded-bytes": ("run.yaml", recorded_meta),
+        "run-yaml-dangling": ("run.yaml", None),
+    }
+    cases = [(f"{name}-directory", node, None)
+             for name, node in dir_cases.items()]
+    cases += [(name, None, spec) for name, spec in file_cases.items()]
+    cases.append(("date-directory-inside-the-tree", None, None))
+    for name, dir_node, file_spec in cases:
+        root, outside = tmp_path / name, tmp_path / f"{name}-outside"
+        outside.mkdir()
+        run_dir = runs_root(root) / DAY_STR / rid
+        if dir_node is not None:
+            link_dir(dir_node(root), outside)
+        elif file_spec is not None:
+            shutil.copytree(tmp_path / "src", root, symlinks=True)
+            link_file(run_dir / file_spec[0], outside, file_spec[1])
+        else:  # a link to a real directory INSIDE the catalog tree
+            real = runs_root(root) / "2026-07-01"
+            real.mkdir(parents=True)
+            link_dir(runs_root(root) / DAY_STR, real)
+        before, before_outside = tree_state(root), tree_state(outside)
+        with pytest.raises(catalog.CatalogError, match="symlink"):
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        if name in ("run-directory", "snapshot-to-recorded-bytes"):
+            with pytest.raises(catalog.CatalogError, match="symlink"):
+                catalog.write_snapshot(root, DAY, rid, "alpha", alpha,
+                                       TAXONOMY)
+        assert tree_state(root) == before, name  # no claim, no snapshot
+        assert tree_state(outside) == before_outside, name
+
+
+def test_write_run_refuses_edited_run_metadata_before_any_write(tmp_path):
+    # Review round 5 (Copilot, #1175): a regular but edited run.yaml passed
+    # as a completed run. A retry over a run whose snapshots all matched
+    # returned without reading it, and a retry over a run missing a
+    # snapshot wrote that snapshot under the edited record without
+    # claiming. load_snapshot then ordered the run by whatever sequence the
+    # file stated. An existing run.yaml must be exactly this run's record
+    # (its id, its date, a positive integer sequence, byte for byte), and
+    # its sequence must be a claim this run made.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid, recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    meta_rel = ("health", "document-catalog", "runs", DAY_STR, rid,
+                "run.yaml")
+    claim_rel = ("health", "document-catalog", "runs", ".sequence",
+                 "000001.yaml")
+    meta = json.loads((tmp_path / "src").joinpath(*meta_rel)
+                      .read_text(encoding="utf-8"))
+    assert meta == {"schema_version": 1,
+                    "kind": "xfactory_document_catalog_run",
+                    "status": "record", "run_id": rid, "as_of": DAY_STR,
+                    "sequence": 1}
+
+    def canonical(**changes):
+        return catalog.render(dict(meta, **changes)).encode("utf-8")
+
+    claim = json.loads((tmp_path / "src").joinpath(*claim_rel)
+                       .read_text(encoding="utf-8"))
+    edits = {
+        "wrong-run-id": (meta_rel, canonical(run_id="f" * 64)),
+        "wrong-date": (meta_rel, canonical(as_of="2026-07-10")),
+        "string-sequence": (meta_rel, canonical(sequence="1")),
+        "boolean-sequence": (meta_rel, canonical(sequence=True)),
+        "zero-sequence": (meta_rel, canonical(sequence=0)),
+        "unclaimed-sequence": (meta_rel, canonical(sequence=7)),
+        "extra-field": (meta_rel, canonical(note="edited")),
+        "compact-reserialization": (
+            meta_rel, json.dumps(meta, sort_keys=True).encode("utf-8")),
+        "crlf-line-endings": (meta_rel,
+                              canonical().replace(b"\n", b"\r\n")),
+        "not-json": (meta_rel, b"sequence: 1\n"),
+        "not-an-object": (meta_rel, b"[]\n"),
+        "claim-names-another-run": (claim_rel, catalog.render(
+            dict(claim, run_id="f" * 64)).encode("utf-8")),
+        "claim-missing": (claim_rel, None),
+    }
+    # The untouched copy is a completed no-op, so each refusal below is the
+    # edit's doing.
+    shutil.copytree(tmp_path / "src", tmp_path / "control")
+    before = tree_state(tmp_path / "control")
+    assert catalog.write_run(tmp_path / "control", DAY, runs, TAXONOMY)[0] \
+        == rid
+    assert tree_state(tmp_path / "control") == before
+    for name, (rel, content) in edits.items():
+        for missing_snapshot in (False, True):
+            root = tmp_path / f"{name}-{missing_snapshot}"
+            shutil.copytree(tmp_path / "src", root)
+            if content is None:
+                root.joinpath(*rel).unlink()
+            else:
+                root.joinpath(*rel).write_bytes(content)
+            if missing_snapshot:
+                (runs_root(root) / DAY_STR / rid / "openxFactory.yaml") \
+                    .unlink()
+            before = tree_state(root)
+            with pytest.raises(catalog.CatalogError,
+                               match="catalog run metadata"):
+                catalog.write_run(root, DAY, runs, TAXONOMY)
+            with pytest.raises(catalog.CatalogError,
+                               match="catalog run metadata"):
+                catalog.write_snapshot(root, DAY, rid, "alpha",
+                                       runs["alpha"], TAXONOMY)
+            assert tree_state(root) == before, (name, missing_snapshot)
 
 
 def test_a_line_ending_edit_is_never_a_completed_noop(tmp_path):
