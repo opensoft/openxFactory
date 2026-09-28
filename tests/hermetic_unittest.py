@@ -48,13 +48,39 @@ if str(TESTS_ROOT) not in sys.path:
 
 import hermeticity  # noqa: E402  (after the path insert, by construction)
 
+# THE SAME CARVED REACH `tests/conftest.py` INSTALLS, AND FOR THE SAME REASON
+# `runner_seams()` BELOW NEEDS IT (§ 5.2 shed). Layer 2's two patch targets are
+# `opendox.workbench` and `opendox.session_pr`, and `runner_seams()` locates
+# them with `find_spec` — which finds nothing in THIS process unless the
+# openDox leg's `src/` is on `sys.path` already. The pytest route gets that
+# from `tests/conftest.py`, which every pytest invocation under `tests/` loads
+# before a single test module imports anything; this runner has no conftest to
+# load it from, so it installs the identical reach itself, before `run()`
+# below imports anything either. MEASURED without this line:
+# `python3 tests/hermetic_unittest.py tests/notebooklm/` ERRORED
+# (`ModuleNotFoundError: No module named 'opendox'`) on the one test that
+# needs the leg, rather than installing layer 2 or skipping cleanly — this
+# runner was silently guarding LESS than the pytest route over the identical
+# tree, the same shape of gap finding 17 was about in the first place.
+SCRIPTS_DIR = TESTS_ROOT.parent / "scripts"
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
+
+from carved_reach import install as install_carved_reach  # noqa: E402
+
 
 def install_guard(where: Path | None = None) -> Path:
     """Both layers, in this process. Returns the shim directory.
 
     Layer 2 is a plain `setattr` rather than a monkeypatch: there is no fixture
     lifetime here, the process exists to run one discovery, and the seams must be
-    poisoned before the first test module imports anything."""
+    poisoned before the first test module imports anything. The carved reach is
+    installed first, and for the same reason: `runner_seams()` cannot find
+    `opendox.workbench`/`opendox.session_pr` to patch unless the openDox leg is
+    already on `sys.path`, and `install()` is the one call that either puts it
+    there or arranges the by-name refusal for a leg that is genuinely
+    uninitialized — it never raises itself (scripts/carved_reach.py)."""
+    install_carved_reach(tests=True)
     root = Path(where) if where is not None \
         else Path(tempfile.mkdtemp(prefix="hermetic-unittest-"))
     shim, _restore = hermeticity.install_binary_shim(root / "bin")
