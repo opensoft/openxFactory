@@ -612,6 +612,13 @@ def register_openxfactory() -> Any:
       * `scripts/ideation_dashboard/intent_apply_lane.py` — reaches both engine
         readers.
 
+    SEAM READER. `scripts/sync-notebooklm-books.py`'s `--session-ref` re-sync
+    builds neither a parser nor a server and reaches no engine module, but its
+    `session_source_set()` calls `workbench.session_documents`, which lists the
+    REGISTERED home corpus under the registered session-notebook scope (plan
+    034 T025). So it registers first, through its `_register_host()` (T047,
+    admitted by T007 batch E on RULED `5856475254`).
+
     `scripts/ideation_dashboard/dashboard_refresh_lane.py` has a `__main__` of
     its own and does NOT call it: it imports neither engine module, and a hook
     where none is needed would be the blanket registration this file's FACETS

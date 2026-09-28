@@ -64,6 +64,100 @@ declare bindings for them; they do not gain a way to attach a callable at
 request time, because a callable attached at request time is precisely the
 privileged route this shape forbids.
 
+WHERE A CONTRIBUTED ROUTE'S METHODS COME FROM: THE HANDLER-CONTRIBUTION FACET
+(R1Q1 (a), Brett Heap, openxFactory#656 comment 5817152735). The invariant
+above carried a consequence it did not state. If a binding may only name a
+method the handler class already has, then the class a column's methods live
+on had to be one of the handler's BASES, written where the core handler is
+written. That is how a descendant's own column came to be a base of openDox's
+core handler, and with it an import-time reach into a package openDox can
+never have.
+
+So the class the server binds is COMPOSED at build time rather than written at
+import time. A host profile, or a route extension, MAY declare
+`HANDLER_CONTRIBUTIONS`, the mixin classes that hold the methods its bindings
+name. The server reads the facet off the profile and off every extension it
+collected bindings from. `collect_handler_contributions` checks the mixins
+against the core handler class, and `compose_handler` builds the bound class
+with the core handler FIRST among its bases and the contributions after it.
+`resolve_handlers` is unchanged, and it runs after the composition. So every
+binding is still checked against the class that will dispatch it, and a
+binding still cannot introduce a handler: the method must be on the composed
+class before the server binds. That class is composed ONCE, at wiring time,
+and never at request time. No core module names a contributor, because each
+contributor names itself, on its own profile or extension.
+
+A CONTRIBUTION MAY ONLY ADD. It is refused with the same `RouteBindingError`
+wherever it would do more:
+  * a name the core handler already resolves. Replacing a core method is the
+    fork this module exists to prevent. A contributed method that the core
+    shadows is worse: its binding would dispatch the core's method, silently;
+  * a name the core handler sets on its INSTANCES (the request path, the
+    output stream, the headers), which no class's `dir()` lists. These names
+    are measured at wiring time from the source of every class in the core's
+    MRO. Each method's assignments are read through ITS receiver, the first
+    positional parameter, whatever it is called: `self.<name> = ...`, and
+    `setattr(self, "<name>", ...)` with a literal name. A `staticmethod` has no
+    receiver, and a nested class's methods receive that class's instances, so
+    neither is read. The instance's own attribute takes precedence over a
+    contributed method, so a binding naming one would pass `resolve_handlers`,
+    which looks on the class, and then dispatch the core's value. Core code
+    that probes such a name before it sets it (`hasattr(self,
+    "_headers_buffer")`) would find the contribution instead. A class whose
+    source cannot be read (`object`, a class built at run time) contributes no
+    measured names;
+  * a name another contribution also defines. Which of the two answered would
+    be decided by assembly order, the accident `collect_bindings` refuses to
+    depend on;
+  * a dunder beyond the ones a `class` statement writes by itself, which
+    include `__orig_bases__` where a base resolved through `__mro_entries__`.
+    `__getattr__`, `__getattribute__`, `__init__` and their kin reach the
+    OBJECT PROTOCOL, which is why `RouteBinding` refuses a dunder handler name.
+    A contributed `__getattribute__` would sit in front of every gate the core
+    reads off `self`;
+  * a DATA DESCRIPTOR: a `property`, a named slot, anything whose type defines
+    `__set__` or `__delete__`. A data descriptor takes precedence over an
+    instance's own attributes, so it would intercept the core's per-instance
+    state under its name, including state set in a way the measurement above
+    cannot read. A contribution holds METHODS. The bookkeeping names are
+    exempt from the dunder rule by name, so their VALUES are checked too: a
+    data descriptor under one is refused unless the core answers that name
+    itself, ahead of it in the MRO;
+  * a DESCRIPTOR THAT IS NOT A METHOD: anything whose type defines `__get__`
+    and is not exactly a function, a `staticmethod` or a `classmethod`, such
+    as a `functools.cached_property` or a `__get__` of the contribution's own.
+    Python binds those three the same way on the class and on an instance,
+    and `resolve_handlers` checks each binding on the class. Any other
+    descriptor may answer the two differently, so its binding could pass at
+    wiring time and fail at request time;
+  * a METACLASS other than the core handler's own, or one it derives from. The
+    composed class would take it, and a metaclass decides how the class itself
+    is called, compared, hashed and asked for a name. A metaclass whose
+    `__getattr__` answered any name would pass `resolve_handlers`, which looks
+    each binding's method up on the class, for a method no instance has;
+  * an ancestor it shares with the core handler, other than `object`. So
+    composing it can never reorder the core's MRO, which stays a prefix of the
+    composed class's own;
+  * a declaration that is not a plain TUPLE of classes (a set's order would
+    hang on hashing, a generator would compose nothing on a second build, and
+    a tuple subclass may iterate however it likes), a class declared twice, or
+    classes `type()` cannot compose at all. That last one
+    `collect_handler_contributions` finds by composing once, before the build
+    does its expensive work.
+
+Classes are compared by IDENTITY throughout, never by hash or equality, which
+belong to a class's metaclass. Every refusal names what it refuses through a
+formatter that cannot raise, since a contributor is an object this module
+cannot vet. The checks bound what a contribution does to the composed class.
+They are not a sandbox: a contributor is host code, running in the same
+process.
+
+The facet is OPTIONAL, and its absence is not a defect: a profile or an
+extension that declares none contributes no mixin, and the server binds the
+core handler alone. It is read by PRESENCE, as `opendox.view_extension` reads
+`VIEW_EXTENSIONS`: an absent facet and a declared `None` both contribute
+nothing, and any other value is a declaration, refused if it is malformed.
+
 CORE ARMS ARE CONSULTED FIRST, so a contributed route can never SHADOW a core
 one. The app server's fixed dispatch runs to completion before these bindings
 are consulted, and the fallback (static serve on a read, "unknown action" on a
@@ -160,8 +254,9 @@ class RouteBindingError(ValueError):
 
     One exception for every wiring defect in this module — a malformed binding,
     a duplicate, an extension that does not conform, a handler name that does
-    not resolve — because a caller does nothing different for any of them: they
-    are all "this server must not start".
+    not resolve, a handler contribution that cannot be composed — because a
+    caller does nothing different for any of them: they are all "this server
+    must not start".
     """
 
 
@@ -470,6 +565,563 @@ def collect_bindings(extensions) -> tuple[RouteBinding, ...]:
             accepted.append(binding)
             (prefix if binding.is_prefix else exact).append(binding)
     return tuple(exact) + tuple(prefix)
+
+
+# ---------------------------------------------------------------------------
+# THE HANDLER-CONTRIBUTION FACET (R1Q1 (a)). The module docstring carries the
+# argument; what follows is the mechanism and its refusals.
+# ---------------------------------------------------------------------------
+
+#: The OPTIONAL attribute under which a host profile or a route extension
+#: declares the mixin classes its bindings' methods live on: a tuple of
+#: classes. Absent, or `None`, declares none.
+HANDLER_FACET = "HANDLER_CONTRIBUTIONS"
+
+#: How much of a `repr` a refusal quotes before it stops being read.
+_NAME_LIMIT = 120
+
+
+def _is_dunder(name: str) -> bool:
+    return len(name) > 4 and name.startswith("__") and name.endswith("__")
+
+
+def _is_class(obj) -> bool:
+    """Whether `obj` is a class, decided by its REAL type. `isinstance` would
+    also consult the `__class__` the object reports, which an object this
+    module cannot vet may make raise."""
+    return issubclass(type(obj), type)
+
+
+def _is_one_of(obj, candidates) -> bool:
+    """Membership by IDENTITY. A class's hash and equality belong to its
+    metaclass, and a contributed class may have one that refuses both."""
+    return any(candidate is obj for candidate in candidates)
+
+
+def _is_data_descriptor(value) -> bool:
+    """A `property`, a named slot, or anything else whose type defines
+    `__set__` or `__delete__`: an attribute that takes precedence over an
+    instance's own."""
+    return any("__set__" in vars(kind) or "__delete__" in vars(kind)
+               for kind in type(value).__mro__)
+
+
+#: The descriptors a contribution may carry. Python binds these three the same
+#: way whether they are looked up on the class or on an instance, so a
+#: binding checked on the class is dispatched as checked. The test is on the
+#: EXACT type, because a subclass may define a `__get__` of its own.
+_METHOD_KINDS = (type(_is_dunder), staticmethod, classmethod)
+
+
+def _is_foreign_descriptor(value) -> bool:
+    """A descriptor other than a method: its type defines `__get__`, and it is
+    not exactly a function, a `staticmethod` or a `classmethod`."""
+    return (not _is_one_of(type(value), _METHOD_KINDS)
+            and any("__get__" in vars(kind) for kind in type(value).__mro__))
+
+
+def _receiver_targets(node, receiver: str) -> set[str]:
+    """The names a syntax tree assigns on `receiver`: plain, augmented,
+    annotated and unpacked assignment, a `for` or `with` target, and
+    `setattr(<receiver>, "<name>", ...)` with a literal name."""
+    import ast   # local, like the measurement's other imports: see below
+
+    names: set[str] = set()
+    for node in ast.walk(node):
+        if isinstance(node, ast.Assign):
+            targets = list(node.targets)
+        elif isinstance(node, (ast.AugAssign, ast.AnnAssign, ast.For,
+                               ast.AsyncFor)):
+            targets = [node.target]
+        elif isinstance(node, ast.withitem) and node.optional_vars is not None:
+            targets = [node.optional_vars]
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name) \
+                and node.func.id == "setattr" and len(node.args) >= 2 \
+                and isinstance(node.args[0], ast.Name) \
+                and node.args[0].id == receiver \
+                and isinstance(node.args[1], ast.Constant) \
+                and isinstance(node.args[1].value, str):
+            names.add(node.args[1].value)
+            continue
+        else:
+            continue
+        while targets:
+            target = targets.pop()
+            if isinstance(target, (ast.Tuple, ast.List)):
+                targets.extend(target.elts)
+            elif isinstance(target, ast.Starred):
+                targets.append(target.value)
+            elif isinstance(target, ast.Attribute) \
+                    and isinstance(target.value, ast.Name) \
+                    and target.value.id == receiver:
+                names.add(target.attr)
+    return names
+
+
+def _methods(class_node):
+    """Each function a class body defines, however conditionally: a `def`
+    under an `if` or a `try`, or a `lambda` in a class-level expression. It
+    does not descend into a nested class, whose methods receive that class's
+    instances, or into a method's own body."""
+    import ast
+
+    pending = list(class_node.body)
+    while pending:
+        node = pending.pop()
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            yield node
+        elif not isinstance(node, ast.ClassDef):
+            pending.extend(ast.iter_child_nodes(node))
+
+
+def _decorator_name(decorator) -> str:
+    import ast
+
+    while isinstance(decorator, ast.Call):
+        decorator = decorator.func
+    if isinstance(decorator, ast.Attribute):
+        return decorator.attr
+    return decorator.id if isinstance(decorator, ast.Name) else ""
+
+
+def _receiver(method) -> str | None:
+    """The name a method's receiver goes by: its first positional parameter,
+    WHATEVER it is called. A `staticmethod` has none. A `classmethod`'s is
+    the class, and what it assigns there is state as well: a name the core
+    sets on its class at run time would replace a contributed one."""
+    import ast
+
+    if not isinstance(method, ast.Lambda) and any(
+            _decorator_name(decorator) == "staticmethod"
+            for decorator in method.decorator_list):
+        return None
+    params = [*method.args.posonlyargs, *method.args.args]
+    return params[0].arg if params else None
+
+
+def _assigned_by_methods(tree) -> set[str]:
+    """The names the methods of the class a source tree defines assign on
+    their receivers."""
+    import ast
+
+    names: set[str] = set()
+    for class_node in (node for node in tree.body
+                       if isinstance(node, ast.ClassDef)):
+        for method in _methods(class_node):
+            receiver = _receiver(method)
+            if receiver is not None:
+                names |= _receiver_targets(method, receiver)
+    return names
+
+
+#: Each core class measured so far, keyed by `id()` and holding the class, so
+#: the key cannot be reused while the entry lives. A class is measured once
+#: per process, and a build that composes nothing measures nothing.
+_MEASURED: dict[int, tuple[type, frozenset[str]]] = {}
+
+
+def _assigned_on_self(klass: type) -> frozenset[str]:
+    """The names `klass`'s own source assigns on its instances.
+
+    Each method's assignments are read through ITS receiver, the first
+    positional parameter, whatever it is called. The measurement reads the
+    class's source with `inspect`, so a class whose source cannot be read,
+    such as `object` or a class built at run time, measures as assigning
+    nothing. The imports are local: `inspect` is not small, and only a build
+    that composes a contribution needs it.
+    """
+    held = _MEASURED.get(id(klass))
+    if held is not None and held[0] is klass:
+        return held[1]
+    import ast
+    import inspect
+    import textwrap
+
+    try:
+        tree = ast.parse(textwrap.dedent(inspect.getsource(klass)))
+    except (OSError, TypeError, SyntaxError):
+        names = frozenset()
+    else:
+        names = frozenset(_assigned_by_methods(tree))
+    _MEASURED[id(klass)] = (klass, names)
+    return names
+
+
+def _instance_state(base: type) -> dict[str, type]:
+    """Each name the classes of `base`'s MRO assign on their instances,
+    mapped to the first of them in MRO order that does, so a refusal can name
+    it."""
+    state: dict[str, type] = {}
+    for klass in base.__mro__:
+        for name in sorted(_assigned_on_self(klass)):
+            state.setdefault(name, klass)
+    return state
+
+
+class _ClassStatementBookkeeping:
+    """Never composed. It exists to be asked, once at import, which dunders a
+    `class` statement writes into a class namespace BY ITSELF on the running
+    interpreter.
+
+    Measuring the set keeps the refusal of object-protocol names from carrying
+    a list that a later Python release adds to. 3.13, for one, added
+    `__firstlineno__` and `__static_attributes__` to every class. The
+    annotation and the instance store below are there so that the entries
+    those two features write are included.
+    """
+
+    probe: int
+
+    def _probe(self) -> None:
+        self.probe = 0
+
+
+class _ResolvedRoot:
+    """The class `_ResolvedBookkeeping`'s base resolves to."""
+
+
+class _ResolvesToRoot:
+    """A base that is not a class. It resolves to one at class creation
+    through `__mro_entries__`, as a generic alias does."""
+
+    def __mro_entries__(self, bases):
+        return (_ResolvedRoot,)
+
+
+class _ResolvedBookkeeping(_ResolvesToRoot()):
+    """Never composed. It is the second measurement: which dunders a `class`
+    statement writes BY ITSELF when a base was resolved. That is
+    `__orig_bases__`, the record of the bases as written. It is kept apart
+    from the probe above, because a base of its own would move `__dict__` and
+    `__weakref__` off the class being measured."""
+
+
+#: The dunders a mixin carries because it IS a class, not because it asked for
+#: behaviour: the bookkeeping the two probes measure, plus two names no probe
+#: can measure alone.
+#: * `__slots__` declares a layout rather than a hook. An empty one adds
+#:   nothing, and a named slot is a data descriptor, refused as one.
+#: * `__type_params__` is written by the class statement of a class that
+#:   declares type parameters (PEP 695). Such a class always takes
+#:   `typing.Generic` as an implicit base, and a probe built that way would
+#:   also measure the `__parameters__` that `Generic.__init_subclass__` writes,
+#:   which is a hook's work, not bookkeeping. A generic mixin is refused for
+#:   `Generic`'s own `__init_subclass__` and `__class_getitem__`. Exempting
+#:   this one name keeps that refusal naming the hooks.
+_CLASS_BOOKKEEPING = frozenset(
+    name for probe in (_ClassStatementBookkeeping, _ResolvedBookkeeping)
+    for name in vars(probe) if _is_dunder(name)
+) | {"__slots__", "__type_params__"}
+
+
+def _class_name(obj) -> str:
+    if not _is_class(obj):
+        return ""
+    return f"{str.__str__(obj.__module__)}.{str.__str__(obj.__qualname__)}"
+
+
+def _given_name(obj) -> str:
+    return str.__str__(getattr(obj, "__name__", ""))
+
+
+def _short_repr(obj) -> str:
+    text = str.__str__(repr(obj))
+    return text if len(text) <= _NAME_LIMIT else text[:_NAME_LIMIT - 1] + "…"
+
+
+def _describe(obj) -> str:
+    """A contributor's or a contribution's name, for a refusal. NEVER RAISES
+    an `Exception`: a refusal that fails while formatting itself replaces the
+    reader's problem with a worse one, and a contributor is an object this
+    module cannot vet.
+
+    A class says `module.qualname`. Anything else says its `__name__` if it has
+    a string one (a profile MODULE), and otherwise its `repr`, truncated. Each
+    of those reads runs code the object's own type supplies, so each is tried
+    in turn, and a plain `str` is taken from whichever answers. An object that
+    none of them can name is described by its type. A lazy profile proxy
+    refuses dunder lookups by design, and its `repr` does not resolve the
+    profile, so the proxy reaches the `repr` branch.
+    """
+    for read in (_class_name, _given_name, _short_repr):
+        try:
+            text = read(obj)
+        except Exception:          # noqa: BLE001 — naming must never out-raise
+            continue
+        if text:
+            return text
+    try:
+        return f"a {str.__str__(type(obj).__name__)}"
+    except Exception:              # noqa: BLE001
+        return "an object that cannot be named"
+
+
+def declared_handler_contributions(contributor) -> tuple[type, ...]:
+    """What ONE contributor declares under `HANDLER_FACET`.
+
+    Returns `()` when the contributor declares nothing, and the classes when it
+    declares some. A malformed declaration is refused: the value must be a
+    plain TUPLE of classes. Every refusal names what it was handed through
+    `_describe`, so a declaration whose `repr` raises is still refused with
+    `RouteBindingError`.
+
+    `contributor` is a host profile (or the lazy proxy over one) or a route
+    extension. Nothing about its type is checked, because this module may name
+    neither kind: this is the same structural neutrality `RouteExtension`
+    keeps. The facet is read with `getattr(..., None)`, and a profile proxy
+    that finds the facet missing raises an `AttributeError` subclass, precisely
+    so that spelling answers "none".
+    """
+    declared = getattr(contributor, HANDLER_FACET, None)
+    if declared is None:
+        return ()
+    if type(declared) is not tuple:
+        raise RouteBindingError(
+            f"{_describe(contributor)} declares {HANDLER_FACET} = "
+            f"{_describe(declared)}, which is not a plain tuple of classes. "
+            "Declare the mixins as a tuple, even for one: `(Mixin,)`, not "
+            "`Mixin`. A list, a set, a generator or a tuple subclass is "
+            "refused too. A set would make the composed class's MRO depend on "
+            "hashing, a generator would compose nothing the second time a "
+            "server is built, and a subclass may iterate however it likes.")
+    for item in declared:
+        if not _is_class(item):
+            raise RouteBindingError(
+                f"{_describe(contributor)} declares {_describe(item)} under "
+                f"{HANDLER_FACET}, which is not a class. A handler "
+                "contribution is a mixin CLASS whose methods a binding names; "
+                "it is composed into the class the server binds, so it cannot "
+                "be an instance, a function or a name.")
+    return declared
+
+
+def _refuse_an_unsafe_composition(base: type, contributions, *,
+                                  namespace=()) -> None:
+    """Refuse any contribution that would do more than ADD to `base`.
+
+    The rules are the module docstring's, and so is the argument for each.
+    `namespace` holds the class attributes the composed class will carry
+    itself; a contributed name that one of them would shadow is refused as
+    well.
+
+    The metaclass is checked FIRST, from `type(mixin)` alone, because every
+    later read of the mixin (its MRO, its namespace, its name) runs through
+    it. Classes are compared by identity throughout (`_is_one_of`).
+    """
+    core = base.__mro__
+    core_metaclasses = type(base).__mro__
+    answered = set(dir(base))
+    instance_state = _instance_state(base) if contributions else {}
+    own_attributes = set(namespace)
+    owner: dict[str, type] = {}
+    for mixin in contributions:
+        if not _is_class(mixin):
+            raise RouteBindingError(
+                f"{_describe(mixin)} is not a class, so it cannot be composed "
+                f"onto {_describe(base)}: a handler contribution is a mixin "
+                "CLASS.")
+        if not _is_one_of(type(mixin), core_metaclasses):
+            raise RouteBindingError(
+                f"the handler contribution {_describe(mixin)} is built by the "
+                f"metaclass {_describe(type(mixin))}, which is neither the "
+                f"core handler {_describe(base)}'s metaclass "
+                f"({_describe(type(base))}) nor one it derives from. The "
+                "composed class would take that metaclass, and a metaclass "
+                "decides how the class itself is called, compared, hashed and "
+                "asked for a name: the OBJECT PROTOCOL of the class. One whose "
+                "`__getattr__` answered any name would pass `resolve_handlers`, "
+                "which looks each binding's method up on the class, for a "
+                "method no instance has.")
+        if _is_one_of(mixin, core):
+            raise RouteBindingError(
+                f"the handler contribution {_describe(mixin)} is already in "
+                f"{_describe(base)}'s MRO, so declaring it composes nothing. "
+                "A declaration that changes nothing is refused, for the "
+                "reason a binding that never fires is.")
+        chain = [klass for klass in mixin.__mro__ if klass is not object]
+        if _is_one_of(base, chain):
+            raise RouteBindingError(
+                f"the handler contribution {_describe(mixin)} subclasses the "
+                f"core handler {_describe(base)}. That makes it a second "
+                "handler, not a mixin, and a second handler is a fork of the "
+                "core rather than a contribution to it.")
+        shared = [klass for klass in chain if _is_one_of(klass, core)]
+        if shared:
+            raise RouteBindingError(
+                f"the handler contribution {_describe(mixin)} shares ancestry "
+                f"with the core handler {_describe(base)} "
+                f"({[_describe(klass) for klass in shared]}). Composing it "
+                "would reorder the core's MRO. A contribution is a plain "
+                "mixin, which shares nothing with the core but `object`.")
+        hooks = sorted({name for klass in chain for name in vars(klass)
+                        if _is_dunder(name) and name not in _CLASS_BOOKKEEPING})
+        if hooks:
+            raise RouteBindingError(
+                f"the handler contribution {_describe(mixin)} defines {hooks}. "
+                "A dunder reaches the OBJECT PROTOCOL rather than the server's "
+                "own surface, so a contributed one would change how the core "
+                "handler itself behaves. That is a privileged route, not a "
+                "contributed one, and the reason `RouteBinding` refuses a "
+                "dunder handler name.")
+        # Class bookkeeping passes the refusal above by NAME, so its VALUE is
+        # checked here. Where the core answers a bookkeeping name itself, as
+        # it answers `__dict__`, the core's copy precedes the contribution in
+        # the MRO and a contributed one is never reached. Where the core does
+        # not, a descriptor under that name would answer on every instance.
+        reached = [(name, value) for klass in chain
+                   for name, value in vars(klass).items()
+                   if not (_is_dunder(name) and name in answered)]
+        descriptors = sorted({name for name, value in reached
+                              if _is_data_descriptor(value)})
+        if descriptors:
+            raise RouteBindingError(
+                f"the handler contribution {_describe(mixin)} defines "
+                f"{descriptors} as DATA DESCRIPTORS (a property, a named slot, "
+                "anything whose type defines `__set__` or `__delete__`). A data "
+                "descriptor takes precedence over an instance's own "
+                "attributes, so it would intercept the core handler's "
+                "per-instance state under its name, including state set in a "
+                "way no wiring-time measurement can read. A contribution holds "
+                "METHODS.")
+        foreign = sorted({name for name, value in reached
+                          if _is_foreign_descriptor(value)})
+        if foreign:
+            raise RouteBindingError(
+                f"the handler contribution {_describe(mixin)} defines "
+                f"{foreign} as descriptors that are not methods: each has a "
+                "`__get__` of its own, where a contribution may carry only a "
+                "function, a `staticmethod` or a `classmethod`. Such a "
+                "descriptor may answer the class and an instance differently, "
+                "and `resolve_handlers` checks each binding on the CLASS, so a "
+                "binding naming one could pass at wiring time and fail at "
+                "request time. A contribution holds METHODS.")
+        names = {name for klass in chain for name in vars(klass)
+                 if not _is_dunder(name)}
+        shadowed = sorted(names & answered)
+        if shadowed:
+            where = ", ".join(
+                f"{name} on "
+                f"{_describe(next((k for k in base.__mro__ if name in vars(k)), base))}"
+                for name in shadowed)
+            raise RouteBindingError(
+                f"the handler contribution {_describe(mixin)} defines names "
+                f"the core handler {_describe(base)} already has ({where}). A "
+                "contribution may only ADD a method. Replacing a core method "
+                "is the fork this seam exists to prevent. A contributed method "
+                "the core shadows is a binding that silently dispatches the "
+                "core's method instead of its own.")
+        on_instances = sorted(names & set(instance_state))
+        if on_instances:
+            where = ", ".join(f"{name} by {_describe(instance_state[name])}"
+                              for name in on_instances)
+            raise RouteBindingError(
+                f"the handler contribution {_describe(mixin)} defines names "
+                f"the core handler {_describe(base)} sets on each INSTANCE "
+                f"({where}, measured from its source). An instance's own "
+                "attribute takes precedence over a contributed method, so a "
+                "binding naming one would pass `resolve_handlers`, which looks "
+                "on the class, and then dispatch the core's value instead. "
+                "Core code that probes the name before setting it would find "
+                "the contribution. A contribution may only ADD.")
+        clashes = sorted(name for name in names if name in owner)
+        if clashes:
+            first = sorted({_describe(owner[name]) for name in clashes})
+            raise RouteBindingError(
+                f"the handler contributions {first} and {_describe(mixin)} "
+                f"both define {clashes}. Which one answered would be decided by "
+                "the order the contributions happened to be assembled in, the "
+                "accident `collect_bindings` refuses to depend on.")
+        overridden = sorted(names & own_attributes)
+        if overridden:
+            raise RouteBindingError(
+                f"the handler contribution {_describe(mixin)} defines "
+                f"{overridden}, which the composed class sets as its own class "
+                "attributes. The contributed names would never be reached.")
+        for name in names:
+            owner[name] = mixin
+
+
+def _compose(name: str, base: type, contributions: tuple,
+             namespace) -> type:
+    """`type(name, (base, *contributions), namespace)`, with the `TypeError`
+    that `type` raises for an MRO, layout or metaclass conflict converted into
+    the module's one refusal."""
+    try:
+        return type(name, (base, *contributions), dict(namespace))
+    except TypeError as exc:
+        raise RouteBindingError(
+            f"the handler contributions "
+            f"{[_describe(mixin) for mixin in contributions]} cannot be "
+            f"composed onto {_describe(base)}: {exc}") from exc
+
+
+def collect_handler_contributions(contributors, *, base: type) -> tuple[type, ...]:
+    """Every mixin the contributors declare, in declaration order, checked
+    against `base`, the core request-handler class they will be composed onto.
+
+    Called at WIRING time beside `collect_bindings`, and for the same reason: a
+    contribution that cannot be composed refuses the build before a socket, a
+    checkout read or a session bootstrap. So the checks are not all it runs. It
+    also composes the contributions onto `base` ONCE, as a throwaway class, so
+    that an MRO or layout conflict that only `type()` can find is found here,
+    before any of that work, rather than at the end of the build.
+
+    The same class declared twice is refused, whether one contributor declared
+    it twice or two contributors declared it once each: which declaration
+    composed it would be an accident of assembly. "The same" is identity,
+    never a hash, which a contributed class's metaclass may refuse.
+
+    The composition itself belongs to `compose_handler`, which repeats these
+    checks against the class it actually creates.
+    """
+    declared: list[tuple[type, object]] = []
+    for contributor in contributors:
+        for mixin in declared_handler_contributions(contributor):
+            earlier = [by for seen, by in declared if seen is mixin]
+            if earlier:
+                raise RouteBindingError(
+                    f"the handler contribution {_describe(mixin)} is declared "
+                    f"twice, by {_describe(earlier[0])} and by "
+                    f"{_describe(contributor)}. Declare each mixin once, beside "
+                    "the bindings whose methods it holds.")
+            declared.append((mixin, contributor))
+    collected = tuple(mixin for mixin, _by in declared)
+    _refuse_an_unsafe_composition(base, collected)
+    if collected:
+        _compose("_ComposabilityPreflight", base, collected, {})
+    return collected
+
+
+def compose_handler(name: str, base: type, contributions, namespace) -> type:
+    """The request-handler class a server binds: `base` first, then each
+    contribution, carrying `namespace` as its own class attributes.
+
+    `type(name, (base, *contributions), namespace)`, and nothing cleverer. It
+    runs after the checks `collect_handler_contributions` makes, repeated here
+    because this is the function that creates the class, and a guarantee about
+    a class belongs where the class is made. With no contributions it is
+    exactly `type(name, (base,), namespace)`, the class a server bound before
+    this facet existed. A `TypeError` from `type` itself, such as an MRO or
+    layout conflict, is converted into the module's one refusal.
+
+    `contributions` is a plain TUPLE, as `collect_handler_contributions`
+    returns it, for the reason the facet is one: the composition must not
+    depend on iteration state.
+    """
+    if type(contributions) is not tuple:
+        raise RouteBindingError(
+            f"compose_handler takes the contributions as a plain tuple, as "
+            f"collect_handler_contributions returns them, not "
+            f"{_describe(contributions)}.")
+    duplicates = sorted({_describe(mixin)
+                         for index, mixin in enumerate(contributions)
+                         if _is_one_of(mixin, contributions[:index])})
+    if duplicates:
+        raise RouteBindingError(
+            f"the handler contributions {duplicates} are each listed more "
+            "than once. Compose each mixin once.")
+    _refuse_an_unsafe_composition(base, contributions, namespace=namespace)
+    return _compose(name, base, contributions, namespace)
 
 
 #: Sentinel distinguishing "no such attribute" from "the attribute is None" —
