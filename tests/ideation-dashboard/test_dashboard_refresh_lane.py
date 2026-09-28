@@ -627,13 +627,28 @@ def test_the_module_holds_no_build_recipe_and_no_clone():
     though the live lane never reached it — the child does the work in its own
     workflow. Asserted on the SOURCE rather than on behaviour, because the
     property being held is the ABSENCE of a code path: a behavioural test
-    cannot distinguish "never called" from "cannot be called"."""
+    cannot distinguish "never called" from "cannot be called".
+
+    The one docker the lane runs is the sealed runs' (#1191): `run` of one
+    sealed container, and `ps` and `rm` of what a run left. So every docker
+    argv the module builds starts with one of those three, and nothing is
+    built, pushed or logged into."""
     assert not hasattr(lane, "build_and_push")
     assert not hasattr(lane, "BuildPlan")
     literals = _code_string_literals(lane)
-    for command_token in ("clone", "sparse-checkout", "docker", "az",
+    for command_token in ("clone", "sparse-checkout", "az",
                           "--filter=blob:none"):
         assert command_token not in literals, command_token
+    subcommands = set()
+    for node in ast.walk(ast.parse(inspect.getsource(lane))):
+        if not (isinstance(node, ast.List) and len(node.elts) > 1):
+            continue
+        head, second = node.elts[0], node.elts[1]
+        if ((isinstance(head, ast.Attribute) and head.attr == "docker")
+                or (isinstance(head, ast.Name) and head.id == "DOCKER")):
+            assert isinstance(second, ast.Constant), ast.dump(node)
+            subcommands.add(second.value)
+    assert subcommands == {"run", "ps", "rm"}
 
 
 def test_the_cli_refuses_a_build_phase(tmp_path):
@@ -722,6 +737,24 @@ def test_every_outcome_class_is_reachable_and_annotated(tmp_path):
     # A skip is never silent: it annotates as a warning, not a notice.
     skip = lane.run_refresh_lane(tmp_path / "skip2", skip_reason="stale_heartbeat")
     assert skip.annotation().startswith("::warning::")
+
+
+@pytest.mark.parametrize("result", [lane.RESULT_SKIPPED,
+                                    lane.RESULT_STRICT_FAILED,
+                                    lane.RESULT_NO_CHANGE])
+def test_an_outcome_reason_is_one_line_in_the_log_and_the_annotation(result):
+    """A reason can carry text a sealed run printed, read back from the seal
+    result by the record step (Copilot, PR #1192). The runner takes a
+    workflow command only at the start of a line, so the log line and the
+    annotation are one line each whatever it holds, and the annotation
+    escapes `%` as command data is escaped."""
+    outcome = lane.RefreshOutcome(
+        result=result, decision=None,
+        reason="said\n::add-path::/tmp/evil\r::set-env name=X::y\u2028%0A")
+    for printed in (outcome.log_line(), outcome.annotation()):
+        assert len(printed.splitlines()) == 1, printed
+    assert outcome.log_line().startswith(f"{lane.LANE}: ")
+    assert "%250A" in outcome.annotation()
 
 
 def test_the_pull_request_reference_is_recorded_on_the_delivered_status(tmp_path):
