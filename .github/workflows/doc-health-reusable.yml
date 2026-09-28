@@ -3769,6 +3769,11 @@ jobs:
         shell: /bin/bash --noprofile --norc -p -eo pipefail {0}
         run: |
           set -euo pipefail
+          # Cleared first, for every later step, so a build that stops
+          # before the end leaves no image id behind it, whatever the job
+          # held before (Copilot, PR #1192). Only a built and checked id is
+          # recorded, at the end, and GITHUB_ENV takes the last value.
+          echo "SEALED_IMAGE=" >> "$GITHUB_ENV"
           if [ -n "${ACTIONS_ALLOW_UNSECURE_COMMANDS+set}" ]; then
             echo "::error::ACTIONS_ALLOW_UNSECURE_COMMANDS is set, so output this job does not control could set a variable or a PATH entry for a later step"
             exit 1
@@ -4299,6 +4304,10 @@ jobs:
         shell: /bin/bash --noprofile --norc -p -e {0}
         run: |
           LABEL="openxfactory.dashboard-refresh.sealed-run=${GITHUB_RUN_ID:?}-${GITHUB_RUN_ATTEMPT:?}"
+          # The local daemon the build and the lane used, whatever the job
+          # holds (Copilot, PR #1192): each variable they refuse is unset.
+          unset DOCKER_HOST DOCKER_CONTEXT DOCKER_TLS DOCKER_TLS_VERIFY \
+                DOCKER_CERT_PATH BUILDX_CONFIG BUILDX_BUILDER
           DOCKER_CONFIG="$(/usr/bin/mktemp -d "${RUNNER_TEMP:?}/dfr-docker-config.XXXXXX")"
           export DOCKER_CONFIG
           for _ in {1..30}; do

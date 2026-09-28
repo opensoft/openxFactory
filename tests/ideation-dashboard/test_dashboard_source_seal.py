@@ -3409,6 +3409,57 @@ def test_the_strict_findings_reach_the_log_inside_a_fence(
                    and not line.startswith("::warning::"))
 
 
+@pytest.mark.parametrize("raised", ["refused", "rejected"])
+def test_a_sealed_reason_reaches_the_log_as_one_warning_line(
+        corpus, tmp_path, monkeypatch, capsys, raised):
+    """A refusal can carry a line a sealed run printed (`_last_line`,
+    `_validator_said`), and the seal phase prints its reason as the data of a
+    `::warning::` line. The runner takes a workflow command only at the start
+    of a line, so the reason is printed as one line whatever it holds, with
+    `%` escaped as command data is (Copilot, PR #1192): nothing it carries
+    starts a line of its own."""
+    head = _git(corpus, "rev-parse", "HEAD")
+    reason = ("the sealed render unit could not render the snapshot (exit 1): "
+              "said\n::add-path::/tmp/evil\r::set-env name=GH_TOKEN::stolen"
+              "\u2028::error::sealed %0A::stop-commands::guessed")
+
+    def refusing(seal_root, *, source_head, source_committed_at,
+                 container=None):
+        if raised == "refused":
+            raise lane.SealRefused(reason)
+        raise lane.StrictGateRejected(reason, detail=["ERROR [x] a finding"])
+
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", refusing)
+    _seal_cli(tmp_path, corpus, decision=_decision(head))
+    lines = capsys.readouterr().out.splitlines()
+    fence = [n for n, line in enumerate(lines)
+             if re.fullmatch(r"::stop-commands::[0-9a-f]{32}", line)]
+    assert len(fence) == (1 if raised == "rejected" else 0), lines
+    outside = lines[:fence[0]] if fence else lines
+    warned = [line for line in outside if "add-path" in line]
+    assert len(warned) == 1 and warned[0].startswith("::warning::"), lines
+    assert "%250A::stop-commands::guessed" in warned[0]
+    assert not any(line.lstrip().startswith("::")
+                   and not line.startswith("::warning::")
+                   for line in outside), lines
+
+
+def test_each_fence_is_opened_with_a_token_of_its_own(capsys):
+    """The fence's token is drawn at each print, never fixed, so no sealed
+    run can have seen the one that closes it (#1191)."""
+    tokens = set()
+    for _ in range(3):
+        lane._print_fenced(["::add-path::/tmp/evil"])
+        lines = capsys.readouterr().out.splitlines()
+        token = lines[0].removeprefix("::stop-commands::")
+        assert re.fullmatch(r"[0-9a-f]{32}", token), lines
+        assert lines[1:] == ["  ::add-path::/tmp/evil", f"::{token}::"]
+        tokens.add(token)
+    assert len(tokens) == 3
+
+
 # ---------------------------------------------------------------------------
 # the parent's own workflow stage — ordering, gating and the artifact's name
 # ---------------------------------------------------------------------------
@@ -3657,6 +3708,10 @@ from pathlib import Path
 state = Path(os.environ["STAND_IN_STATE"])
 with open(state / "calls", "a", encoding="utf-8") as log:
     log.write(" ".join(sys.argv[1:]) + "\\n")
+    seen = sorted(name for name in os.environ if name.startswith((
+        "DOCKER_H", "DOCKER_CONTEXT", "DOCKER_TLS", "DOCKER_CERT", "BUILDX_")))
+    if seen:
+        log.write("SAW " + " ".join(seen) + "\\n")
 if sys.argv[1] == "ps":
     if (state / "ps-fails").exists():
         sys.exit(1)
@@ -3696,7 +3751,9 @@ def _run_the_scrub_step(tmp_path, *, left: str, ps_fails: bool = False):
         ["/bin/bash", "--noprofile", "--norc", "-p", "-e", str(script)],
         env={"PATH": "/usr/bin:/bin", "GITHUB_RUN_ID": "4242",
              "GITHUB_RUN_ATTEMPT": "2", "RUNNER_TEMP": str(runner_temp),
-             "SEALED_IMAGE": STAND_IN_IMAGE, "STAND_IN_STATE": str(state)},
+             "SEALED_IMAGE": STAND_IN_IMAGE, "STAND_IN_STATE": str(state),
+             **{name: "tcp://elsewhere.invalid:2376"
+                for name in lane._SEALED_REFUSED_ENV[1:]}},
         capture_output=True, text=True, timeout=120)
     calls = (state / "calls").read_text().splitlines()
     return proc, calls
@@ -3719,6 +3776,9 @@ def test_the_scrub_sweeps_until_no_container_of_this_run_is_left(tmp_path):
     assert image > max(i for i, call in enumerate(calls[:image])
                        if call.startswith("ps "))
     assert "::error::" not in proc.stdout
+    # The same local daemon the build and the lane used: each variable they
+    # refuse is unset before the first call (Copilot, PR #1192).
+    assert not [call for call in calls if call.startswith("SAW ")], calls
 
 
 @pytest.mark.parametrize("left, ps_fails", [("forever", False), ("0", True)],
@@ -3738,6 +3798,73 @@ def test_a_container_the_scrub_could_not_remove_fails_the_step(
         assert calls.count("rm -f c0ffee") == 30
         assert "c0ffee" in proc.stdout
     assert _finalize_steps()[-1]["continue-on-error"] is True
+
+
+# A stand-in for the build step's docker: `build` fails when BUILD_FAILS is
+# set, and otherwise records an image id in the `--iidfile` it is handed.
+_BUILD_DOCKER = """\
+import os, sys
+with open(os.environ["STAND_IN_SEEN"], "w", encoding="utf-8") as seen:
+    seen.write(os.environ.get("DOCKER_CONFIG", ""))
+if os.environ.get("BUILD_FAILS"):
+    sys.exit("ERROR: failed to solve")
+args = sys.argv[1:]
+with open(args[args.index("--iidfile") + 1], "w", encoding="utf-8") as out:
+    out.write("sha256:" + "ab" * 32)
+"""
+
+
+@pytest.mark.parametrize("fails", [True, False], ids=["a-build-that-stops",
+                                                      "a-build-that-ends"])
+def test_the_build_step_records_no_image_id_but_its_own(tmp_path, fails):
+    """The step clears SEALED_IMAGE for every later step before it builds, so
+    a build that stops leaves no image id behind it, whatever the job held
+    before, and only a built and checked id is recorded (Copilot, PR #1192).
+    GITHUB_ENV takes the last value written."""
+    docker = tmp_path / "docker"
+    docker.write_text(f"#!{sys.executable}\n{_BUILD_DOCKER}")
+    docker.chmod(0o755)
+    script = tmp_path / "step.sh"
+    script.write_text(_the_build_step()["run"].replace("/usr/bin/docker",
+                                                       str(docker)))
+    github_env = tmp_path / "github-env"
+    github_env.write_text("")
+    runner_temp = tmp_path / "runner-temp"
+    runner_temp.mkdir()
+    proc = subprocess.run(
+        ["/bin/bash", "--noprofile", "--norc", "-p", "-eo", "pipefail",
+         str(script)],
+        env={"PATH": "/usr/bin:/bin", "GITHUB_RUN_ID": "4242",
+             "GITHUB_RUN_ATTEMPT": "2", "RUNNER_TEMP": str(runner_temp),
+             "GITHUB_ENV": str(github_env), "SEALED_IMAGE": STAND_IN_IMAGE,
+             "STAND_IN_SEEN": str(tmp_path / "seen"),
+             **({"BUILD_FAILS": "1"} if fails else {})},
+        capture_output=True, text=True, timeout=120)
+    # The build runs with a docker configuration of its own, made fresh in
+    # the job's temporary directory, so no login or plugin of the runner
+    # user's reaches it (#1191).
+    config = Path((tmp_path / "seen").read_text())
+    assert config.parent == runner_temp, config
+    assert config.name.startswith("dfr-docker-config."), config
+    recorded = [line for line in github_env.read_text().splitlines()
+                if line.startswith("SEALED_IMAGE=")]
+    assert recorded[0] == "SEALED_IMAGE="
+    if fails:
+        assert proc.returncode != 0
+        assert recorded == ["SEALED_IMAGE="]
+    else:
+        assert proc.returncode == 0, proc.stderr
+        assert recorded == ["SEALED_IMAGE=", "SEALED_IMAGE=sha256:" + "ab" * 32]
+    for scope in (_workflow(), _workflow()["jobs"]["finalize"],
+                  *_finalize_steps()):
+        assert "SEALED_IMAGE" not in (scope.get("env") or {})
+
+
+def _workflow() -> dict:
+    import yaml
+    return yaml.safe_load(
+        (REPO_ROOT / ".github" / "workflows" / "doc-health-reusable.yml")
+        .read_text(encoding="utf-8"))
 
 
 _HEREDOC = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
@@ -5432,14 +5559,33 @@ _A_VALIDATED_VERDICT = json.dumps({
     "outcome": "validated", "unavailable_reason": None})
 
 
+def test_each_sealed_run_is_read_to_its_own_bound(stand_in_seal):
+    """What the host reads of a run is bounded by what that run may print:
+    the render's snapshot by SEALED_SNAPSHOT_LIMIT, and a validator's verdict
+    by SEALED_LOG_LIMIT (#1191)."""
+    container = _AnsweringContainer(
+        lane.resolve_sealed_container(),
+        lambda: lane.SealedRunResult(0, (_A_VALIDATED_VERDICT + "\n").encode(),
+                                     b""))
+    lane.precheck_sealed_render(stand_in_seal, source_head=HEAD_REV,
+                                source_committed_at=COMMITTED_AT,
+                                container=container, timeout=7)
+    assert container.limits == [("render", lane.SEALED_SNAPSHOT_LIMIT),
+                                ("validator", lane.SEALED_LOG_LIMIT)]
+    assert (lane.SEALED_SNAPSHOT_LIMIT, lane.SEALED_LOG_LIMIT) == (33554432,
+                                                                  1048576)
+
+
 class _AnsweringContainer:
     """The real stand-in container for the render, and one canned answer for
     every validator run."""
 
     def __init__(self, real, answer):
         self.real, self.answer, self.timeouts = real, answer, []
+        self.limits = []
 
     def run(self, what, seal_root, command, **kw):
+        self.limits.append((what, kw["stdout_limit"]))
         if what == "render":
             return self.real.run(what, seal_root, command, **kw)
         self.timeouts.append(kw["timeout"])

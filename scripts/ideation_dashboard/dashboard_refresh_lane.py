@@ -2888,6 +2888,21 @@ def _print_fenced(lines) -> None:
     print(f"::{token}::")
 
 
+def _one_line(text) -> str:
+    """`text` as one line of the job's log: each line break `str.splitlines`
+    knows, a superset of those the runner splits a step's output on, becomes
+    a space. The runner takes a workflow command only at the start of a
+    line, and a refusal's reason can carry a line a sealed run printed
+    (Copilot, PR #1192)."""
+    return " ".join(str(text).splitlines())
+
+
+def _command_data(text) -> str:
+    """`text` as a workflow command's data: one line, with `%` escaped as
+    `%25`, so no escape it carries is read as a line break."""
+    return _one_line(text).replace("%", "%25")
+
+
 def _drain_bounded(stream, limit: int, into: list) -> None:
     """Read `stream` to its end, keeping at most `limit + 1` bytes: the one
     byte past the limit says it was passed. The rest is read and dropped, so
@@ -4319,21 +4334,24 @@ class RefreshOutcome:
         return self.result == RESULT_OK and bool(self.built_digest)
 
     def log_line(self) -> str:
+        # One line whatever the reason holds: it can carry text a sealed run
+        # printed, read back from the seal result (Copilot, PR #1192).
+        reason = None if self.reason is None else _one_line(self.reason)
         if self.result == RESULT_OK:
             return (f"{LANE}: OK — built {self.tag} @ {_short(self.built_digest)} "
                     f"(source_revision={_short(self.source_revision)})")
         if self.result == RESULT_NO_CHANGE:
-            return (f"{LANE}: NO CHANGE — {self.reason}; no checkout, no "
+            return (f"{LANE}: NO CHANGE — {reason}; no checkout, no "
                     "snapshot, no build, no push, no branch, no pull request")
         if self.result == RESULT_STRICT_FAILED:
-            return f"{LANE}: STRICT FAILED — {self.reason}; nothing published"
-        return f"{LANE}: SKIPPED — {self.reason}"
+            return f"{LANE}: STRICT FAILED — {reason}; nothing published"
+        return f"{LANE}: SKIPPED — {reason}"
 
     def annotation(self) -> str:
         """A GitHub Actions annotation, so no outcome is invisible in the run
         itself whatever the artifact-delivery lag turns out to be."""
         level = "notice" if self.result in (RESULT_OK, RESULT_NO_CHANGE) else "warning"
-        return f"::{level}::{self.log_line()}"
+        return f"::{level}::{self.log_line().replace('%', '%25')}"
 
 
 def refresh_status_payload(
@@ -4985,10 +5003,12 @@ def main(argv: list[str] | None = None) -> int | None:
                   f"{manifest['total_bytes']} bytes, "
                   f"tree_digest={manifest['tree_digest'][:12]}")
         elif strict_failed:
-            print(f"::warning::{LANE}: STRICT FAILED — {reason}")
+            print(f"::warning::{LANE}: STRICT FAILED — "
+                  f"{_command_data(reason)}")
             _print_fenced(strict_detail)
         else:
-            print(f"::warning::{LANE}: NOT SEALED — {reason}; nothing "
+            print(f"::warning::{LANE}: NOT SEALED — "
+                  f"{_command_data(reason)}; nothing "
                   "dispatched, next run catches up in one hop")
         if args.seal_result_out and not written:
             print(f"::error::{LANE}: the seal result could not be written at "

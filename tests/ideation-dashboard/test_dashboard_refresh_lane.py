@@ -739,6 +739,24 @@ def test_every_outcome_class_is_reachable_and_annotated(tmp_path):
     assert skip.annotation().startswith("::warning::")
 
 
+@pytest.mark.parametrize("result", [lane.RESULT_SKIPPED,
+                                    lane.RESULT_STRICT_FAILED,
+                                    lane.RESULT_NO_CHANGE])
+def test_an_outcome_reason_is_one_line_in_the_log_and_the_annotation(result):
+    """A reason can carry text a sealed run printed, read back from the seal
+    result by the record step (Copilot, PR #1192). The runner takes a
+    workflow command only at the start of a line, so the log line and the
+    annotation are one line each whatever it holds, and the annotation
+    escapes `%` as command data is escaped."""
+    outcome = lane.RefreshOutcome(
+        result=result, decision=None,
+        reason="said\n::add-path::/tmp/evil\r::set-env name=X::y\u2028%0A")
+    for printed in (outcome.log_line(), outcome.annotation()):
+        assert len(printed.splitlines()) == 1, printed
+    assert outcome.log_line().startswith(f"{lane.LANE}: ")
+    assert "%250A" in outcome.annotation()
+
+
 def test_the_pull_request_reference_is_recorded_on_the_delivered_status(tmp_path):
     build = RecordingBuild()
     outcome = lane.run_refresh_lane(
