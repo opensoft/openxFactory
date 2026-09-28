@@ -742,8 +742,13 @@ def _write_rendered(root: Path, path: Path, text: str) -> None:
     ``catalog_baseline._write_exclusive`` already guards against with a
     per-invocation temp). The last ``os.replace`` wins atomically;
     identical-content racers converge on identical bytes. The content is
-    written in full and its handle closed before the rename, so the rename
-    never publishes a file this writer is still writing. Perms are
+    written in full, flushed and fsynced before its handle closes and the
+    rename publishes it, the fsync-then-rename order
+    opensoft/openxFactory#1196 keeps (PR #1199 review, Copilot): closing
+    alone flushes Python's buffer but makes nothing durable, so a power
+    loss could otherwise leave a published record whose bytes never reached
+    the disk. A rename a power loss undoes leaves the record absent, the
+    crash window a retry heals, never a torn record. Perms are
     ``mkstemp``'s default 0600 — git normalizes modes on commit, so there
     is no need to widen them here.
 
@@ -764,6 +769,8 @@ def _write_rendered(root: Path, path: Path, text: str) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())  # durable before it is published
         os.replace(tmp, path)  # atomic publish; consumes this temp only
     except BaseException:
         tmp.unlink(missing_ok=True)  # own temp, if os.replace never ran

@@ -2776,3 +2776,38 @@ def test_write_rendered_publishes_only_by_an_atomic_rename(tmp_path):
     catalog._write_rendered(tmp_path, target, "{}\n")
     assert target.read_bytes() == b"{}\n"
     assert list(staging.iterdir()) == []
+
+
+def test_write_rendered_fsyncs_the_complete_temp_before_the_rename(tmp_path):
+    # PR #1199 review (Copilot, round 3 overview), and the fsync-then-rename
+    # order opensoft/openxFactory#1196 keeps: closing the temp flushes
+    # Python's buffer but makes nothing durable, so a power loss after the
+    # rename could publish a record whose bytes never reached the disk. The
+    # temp's own descriptor is fsynced, holding the complete bytes, before
+    # os.replace publishes it, and exactly once per write.
+    target = runs_root(tmp_path) / DAY_STR / ("e" * 64) / "alpha.yaml"
+    target.parent.mkdir(parents=True)
+    staging = tmp_path / catalog.STAGING_DIR
+    text = catalog.render({"kind": "probe", "schema_version": 1})
+    real_fsync, real_replace = os.fsync, os.replace
+    events = []
+
+    def fsync(fd):
+        staged = list(staging.iterdir())
+        assert len(staged) == 1, staged
+        assert os.fstat(fd).st_ino == os.lstat(staged[0]).st_ino  # the temp
+        events.append(("fsync", staged[0].read_bytes()))
+        return real_fsync(fd)
+
+    def replace(src, dst):
+        events.append(("replace", Path(src).parent, Path(dst)))
+        return real_replace(src, dst)
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(os, "fsync", fsync)
+        patch.setattr(os, "replace", replace)
+        catalog._write_rendered(tmp_path, target, text)
+    assert events == [("fsync", text.encode("utf-8")),
+                      ("replace", staging, target)]
+    assert target.read_bytes() == text.encode("utf-8")
+    assert list(staging.iterdir()) == []
