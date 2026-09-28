@@ -35,18 +35,39 @@ of its own, so `REPO_ROOT` is computed locally here — the same pattern
 `tests/domain_profile/test_openxfactory_profile.py` already uses — rather
 than imported `from conftest import REPO_ROOT` as the openDox-code source did
 (that import resolved there through `tests/ideation-dashboard/conftest.py`,
-which this directory does not have). This is the one adaptation from #51's
-text; the three cases' bodies below are otherwise verbatim.
+which this directory does not have). This is one of two adaptations from
+#51's text; the three cases' bodies below are otherwise verbatim.
 
 The rootdir-anchor case beside them
 (`test_the_rootdir_anchor_is_what_puts_the_hookup_in_scope`) stayed in
 openDox-code, rewritten for that leg's own anchor.
+
+THE SECOND ADAPTATION, `_bare_environ()`. `test_the_bare_unittest_route_is_
+detected_as_unguarded` proves nothing if its child inherits protection from
+the very session proving its absence — and it does, unless corrected: THIS
+file's own three tests are collected under `tests/`, so `tests/hermeticity.
+py`'s session-scoped `hermetic_binary_path` fixture is ALREADY active for
+the OUTER pytest process by the time any of them runs, and `subprocess.run`
+inherits `os.environ` — PATH included — by default. MEASURED: the bare
+`unittest discover` child then resolved `nlm` to the OUTER session's OWN
+shim (not the real binary), so `shutil.which` found the marker and the
+"unguarded" assertion started passing for the wrong reason — invisible
+while `test_the_in_process_runners_are_the_refusals` (the OTHER guard case)
+ALSO reliably errored on a bare `find_spec` for an unrelated cause (Copilot
+review, PR #1195), which alone made the child report FAILED regardless.
+Once that unrelated error started skipping cleanly instead, this one had
+nothing left to hide behind. `_bare_environ()` strips any PATH entry under
+the system temp directory — where every `tmp_path`-rooted guard shim lives
+and no real installed binary ever does — so the bare route sees the PATH a
+genuinely pytest-less, guard-less host would.
 """
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -59,13 +80,25 @@ PROBE = "tests/notebooklm/test_hermeticity_guard.py"
 PROBE_DIR = "tests/notebooklm"
 
 
-def _probe_run(args, *, cwd) -> subprocess.CompletedProcess:
+def _probe_run(args, *, cwd, env=None) -> subprocess.CompletedProcess:
     """Run a child interpreter over the conftest-less-directory probe.
 
     `-p no:cacheprovider` because this writes nothing into the real checkout, and
-    the probe itself only READS `PATH` and two module attributes."""
+    the probe itself only READS `PATH` and two module attributes. `env=None`
+    inherits this process's own environment, same as before — the bare-unittest
+    case below is the one caller that must NOT."""
     return subprocess.run([sys.executable, *args], cwd=str(cwd),
-                          capture_output=True, text=True, timeout=300)
+                          capture_output=True, text=True, timeout=300, env=env)
+
+
+def _bare_environ() -> dict[str, str]:
+    """This process's own environment, minus any PATH entry under the system
+    temp directory — see the module docstring's "SECOND ADAPTATION"."""
+    env = dict(os.environ)
+    tmp = tempfile.gettempdir()
+    kept = [p for p in env.get("PATH", "").split(os.pathsep) if not p.startswith(tmp)]
+    env["PATH"] = os.pathsep.join(kept)
+    return env
 
 
 def test_a_pytest_run_started_inside_a_conftestless_directory_is_guarded():
@@ -119,7 +152,7 @@ def test_the_bare_unittest_route_is_detected_as_unguarded():
     above proves nothing)."""
     proc = _probe_run(["-m", "unittest", "discover", "-s", PROBE_DIR,
                        "-t", PROBE_DIR, "-p", "test_hermeticity_guard.py"],
-                      cwd=REPO_ROOT)
+                      cwd=REPO_ROOT, env=_bare_environ())
 
     assert proc.returncode != 0
     assert "FAILED" in proc.stderr, proc.stderr
