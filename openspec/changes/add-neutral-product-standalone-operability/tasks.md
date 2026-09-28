@@ -1138,11 +1138,11 @@ packet's interim arrangement ends.**
 
   Measured at landing: T041 wrote all four admitted reasons' entries at
   once, not the two-step split its own task line had planned (T041 writes
-  the `doc_health` entries; T043's triage adds the rest). `status-exemption-
-  rail` and `openxfactory-contracts` (R1Q24 (a)), and `consumer-schemas`,
-  named for `tests/test_snapshot.py` alone (R1Q25 (b)) — all three
-  `5850003126`, T007 Batch F's — were already in T041's file when it
-  landed, so T043's triage of the same pin found the same red results
+  the `doc_health` entries; T043's triage adds the rest).
+  `status-exemption-rail` and `openxfactory-contracts` (R1Q24 (a)), and
+  `consumer-schemas`, named for `tests/test_snapshot.py` alone (R1Q25 (b))
+  — all three `5850003126`, T007 Batch F's — were already in T041's file
+  when it landed, so T043's triage of the same pin found the same red results
   across the same files and became a re-run rather than an addition, which
   the holder accepted. `count` moved from 66 to 67 only later, at T044,
   with the `tests/test_seam_assembly_beside_gate_and_projection.py` entry,
