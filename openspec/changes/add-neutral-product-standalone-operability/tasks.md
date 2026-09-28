@@ -1107,6 +1107,19 @@ packet's interim arrangement ends.**
   falsifier makes of the exclusion apply to every entry. The
   `tests/test_snapshot.py` entry leaves when 7.3 lands, in phase 2.
   openDox-code's run is unchanged. Carried out by T041, T043, T049 and T061.
+
+  **AMENDED — T007 Batch J (`5870594693`; citing `5859927858`):** The
+  declared exclusion above (R1Q6 (d), `5817152735`; T007 Batch B, already
+  extended by three more reasons, `5850003126`; T007 Batch F) takes a
+  fourth: the assembled-surface test
+  `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_31_entry_tree_the_manifest_records`,
+  deselected for T042's own reason — `cli_gate` imports openxFactory's
+  `doc_health` at load time — pending the same `doc_health` direction arc
+  (T008). It is reported as an open extraction, as the other three entries
+  are, and the checks this falsifier makes of the exclusion apply to it as
+  well. T008 removes this entry together with the workflow's own deselect,
+  the same act that closes the other three. openDox-code's run is
+  unchanged. Carried out by T043.
 - [ ] **FALSIFIED BY** (9.3, and requirement 9's third scenario: an openXdox-code
   checkout, the composition's declared home, with openDox arriving ONLY through
   the pin):
