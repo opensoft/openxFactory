@@ -1528,35 +1528,63 @@ packet's interim arrangement ends.**
   above, which still checks batch A's two-path set until T045, T093 and T094
   land it.
 
-  `5856475254` also rules two more findings of P1-K's writer, which admit
-  arc edits that are NOT composition tests, so they do not join this set.
+  `5856475254` also rules two more findings of P1-K's writer as ADMITTED
+  edits — admitted IN PRINCIPLE, meaning no further ruling is needed before
+  T047 lands them, but each still needs a GUARD-CODE OR MANIFEST mechanism
+  this paragraph records the NEED for and does not itself supply. Neither
+  is a composition test, so neither joins the set above.
+
   **`scripts/route_extension.py`**: openDox-code#40 (T010, `0f10b1f5`)
   changed `src/route_extension.py` from blob
   `34802071d5b9e417f6c29c6929db69f518f91cce` to
   `7781665d9ae0d4be298cd7d9cbe625666f7481ee` (62817 bytes, sha256
   `d81124e62dba9df33abe44f3eb467188c98156f002cc7a92e297cd689da87515`), so
   both carved replicas of the route-extension seam are now stale.
-  openxFactory's copy (still blob `34802071…`, the manifest's recorded
-  figure) is a `not_moved / replicated_at_destination` row
-  (`docs/opendox-carve-manifest.yaml:2993-2996`), so its resync in T047's
-  PR is exactly the arc edit R1Q22 (a) already admits: no new declared
-  surface, provided the row's `note` is EXTENDED, never rewritten, with
-  this reason when T047 lands. **openXdox-code's twin replica has now
-  LANDED the same resync**, via its own PR (openXdox-code#29, merged
-  `d84b5048`, head `f65537aa`): the identical blob, byte count and digest,
-  re-verified directly on openXdox-code `main` today (at `6158151e`, T044's
-  tip, five commits past #29's merge) — the resync persists forward
-  unchanged. That landing was a different repository's own arc edit,
-  outside this guard, recorded here only so the pair reads as one repair.
+  openxFactory's copy (still blob `34802071…`) is a
+  `not_moved / replicated_at_destination` row
+  (`docs/opendox-carve-manifest.yaml:2993-2996`) whose ONLY field today is
+  `evidence:` — it carries no `edits:` block. R1Q22 (a) ("no declared-edit
+  act precedes an arc edit to a carved file") removes the need for a
+  SEPARATE RULING before this resync; it does NOT by itself make F11.1's
+  `elif p != MANIFEST: breach` branch admit the path
+  `scripts/route_extension.py`, and it does not by itself satisfy
+  `scripts/verify-carve-arrival.py`'s reading of the row either. The row's
+  `edits:` grammar (RULED Q-L7 (a); `docs/opendox-carve-manifest.yaml:114-120`)
+  declares lines PERMITTED to diverge from the file's blob AT THE CARVE
+  COMMIT — a narrower shape than "resynced wholesale to a LATER upstream
+  commit." Whether this resync fits that grammar as written, needs a
+  grammar amendment, or needs its own F11.1 declared-surface entry is NOT
+  decided here. T045, T093 and T094 (or a further ruling, if the mechanism
+  itself needs Brett's word) resolve it when T047 lands; this paragraph
+  records only that the EDIT is admitted, not the MECHANISM that admits
+  its path.
+
+  **openXdox-code's twin replica has now LANDED the same resync**, via its
+  own PR (openXdox-code#29, merged `d84b5048`, head `f65537aa`): the
+  identical blob, byte count and digest, re-verified directly on
+  openXdox-code `main` today (at `6158151e`, T044's tip, five commits past
+  #29's merge). That landing was a different repository's own arc edit,
+  outside this guard (F11.1 measures only openxFactory), recorded here
+  only so the pair reads as one repair; whatever mechanism openXdox-code
+  used or needed for its own equivalent check is that repository's
+  concern, not this one's.
+
   **`scripts/sync-notebooklm-books.py`'s `--session-ref` path**: it reaches
   `workbench.session_documents` without first calling
   `register_openxfactory()`, the only seam reader P1-K's writer found that
   does not register; T047's PR adds the call. This file carries no
-  carve-manifest row today, so R1Q22 (a)'s carved-file route does not reach
-  it on its own — `5856475254` admits the edit regardless ("admitted by
-  batch E"). This paragraph records the admission and its reason; T045,
-  T093 and T094 choose the guard-code shape that reads it when they encode
-  11.1.
+  carve-manifest row AT ALL, so R1Q22 (a)'s carved-file route cannot reach
+  it even in principle — `5856475254` admits the EDIT regardless ("admitted
+  by batch E"), but, exactly as with `route_extension.py` above, admits no
+  PATH through F11.1's current or batch-A-amended guard code:
+  `scripts/sync-notebooklm-books.py` is not `HOST`, not `HOST_TESTS`, not a
+  `PIN_PAIR`, not `COMPOSITION_TESTS` (it is not a test) and not the
+  manifest. T045, T093 and T094 must add SOME declared-surface admission
+  for this exact path — or land the edit outside the `Arc:`-trailered
+  commit entirely, as T066's precedent does for a non-arc openxFactory
+  change — before T047's landing can pass F11.1 clean. This paragraph
+  records the admission and the gap; it does not choose between those
+  routes.
 
   **A carried-over risk, recorded and not actioned** (T035's "Notes for the
   destinations," none of which blocked T035 itself): openxFactory's OWN
