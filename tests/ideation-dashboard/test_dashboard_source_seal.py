@@ -3563,6 +3563,39 @@ def test_the_record_step_hands_on_a_strict_verdict_only_when_the_seal_says_so():
     assert run.index("STRICT=false") < guard              # defaulted first
 
 
+def _run_the_seal_step(tmp_path, pinned: str, *, plant=None):
+    """The seal step's own script, run under its own shell in a stand-in
+    workspace whose pinned lane is `pinned` and whose nightly script only
+    records that it ran. `plant` puts something at the result's path first."""
+    steps = _finalize_steps()
+    seal = steps[_step_index(steps, id="dfr-seal")]
+    workspace = tmp_path / "workspace"
+    package = workspace / "openxFactory" / "scripts" / "ideation_dashboard"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("")
+    (package / "dashboard_refresh_lane.py").write_text(pinned)
+    (workspace / "openxFactory" / "scripts" /
+     "dashboard-refresh-nightly.py").write_text(
+        "import json, pathlib\n"
+        "pathlib.Path('nightly-ran').write_text('')\n"
+        "json.dump({'sealed': True}, open('dfr-seal-result.json', 'w'))\n")
+    if plant is not None:
+        plant(workspace / "dfr-seal-result.json")
+    python = tmp_path / "python" / "bin"
+    python.mkdir(parents=True)
+    (python / "python3").symlink_to(sys.executable)
+    script = tmp_path / "step.sh"
+    script.write_text(seal["run"])
+    output = tmp_path / "github-output"
+    output.write_text("")
+    proc = subprocess.run(
+        ["/bin/bash", "--noprofile", "--norc", "-p", "-e", str(script)],
+        cwd=workspace, capture_output=True, text=True, timeout=120,
+        env={"PATH": "/usr/bin:/bin", "pythonLocation": str(python.parent),
+             "GITHUB_OUTPUT": str(output), "CORRELATION_ID": "c-1"})
+    return proc, workspace, output.read_text()
+
+
 _A_LANE_FROM_BEFORE_1191 = "LANE = 'ideation-dashboard-refresh'\n"
 _A_LANE_THAT_CONTAINS_ITS_RUNS = 'SEALED_IMAGE_ENV = "SEALED_IMAGE"\n'
 _A_LANE_THAT_CANNOT_BE_IMPORTED = "raise SystemExit(0)\ndef (:\n"
@@ -3583,38 +3616,48 @@ def test_the_seal_step_runs_no_lane_that_would_run_sealed_code_here(
     SEALED_IMAGE. Any other lane seals nothing, and the refusal is recorded as
     the seal's result, so the record step reports it and nothing is uploaded
     or dispatched (Copilot, PR #1192)."""
-    steps = _finalize_steps()
-    seal = steps[_step_index(steps, id="dfr-seal")]
-    workspace = tmp_path / "workspace"
-    package = workspace / "openxFactory" / "scripts" / "ideation_dashboard"
-    package.mkdir(parents=True)
-    (package / "__init__.py").write_text("")
-    (package / "dashboard_refresh_lane.py").write_text(pinned)
-    (workspace / "openxFactory" / "scripts" /
-     "dashboard-refresh-nightly.py").write_text(
-        "import json, pathlib\n"
-        "pathlib.Path('nightly-ran').write_text('')\n"
-        "json.dump({'sealed': True}, open('dfr-seal-result.json', 'w'))\n")
-    python = tmp_path / "python" / "bin"
-    python.mkdir(parents=True)
-    (python / "python3").symlink_to(sys.executable)
-    script = tmp_path / "step.sh"
-    script.write_text(seal["run"])
-    output = tmp_path / "github-output"
-    output.write_text("")
-    proc = subprocess.run(
-        ["/bin/bash", "--noprofile", "--norc", "-p", "-e", str(script)],
-        cwd=workspace, capture_output=True, text=True, timeout=120,
-        env={"PATH": "/usr/bin:/bin", "pythonLocation": str(python.parent),
-             "GITHUB_OUTPUT": str(output), "CORRELATION_ID": "c-1"})
+    proc, workspace, output = _run_the_seal_step(tmp_path, pinned)
     assert proc.returncode == 0, proc.stdout + proc.stderr
     result = json.loads((workspace / "dfr-seal-result.json").read_text())
     assert (workspace / "nightly-ran").exists() is seals
-    assert output.read_text() == f"sealed={str(seals).lower()}\n"
+    assert output == f"sealed={str(seals).lower()}\n"
     assert result["sealed"] is seals
     if not seals:
         assert "predates #1191" in result["reason"], result
         assert "::warning::" in proc.stdout and "NOT SEALED" in proc.stdout
+
+
+@pytest.mark.parametrize("kind", ["a-link-out-of-the-checkout",
+                                  "a-directory"])
+def test_the_refusal_the_seal_step_records_follows_nothing_at_its_path(
+        tmp_path, kind):
+    """The seal step writes a pinned lane's refusal itself, since that lane
+    cannot be trusted to. So it removes whatever sits at the result's path
+    as the lane does, without following it, and creates the result
+    exclusively, following no link. A link planted there never has its
+    target written, and a directory there leaves no result at all, so the
+    record step reads none and still nothing is sealed (Copilot, PR #1192)."""
+    outside = tmp_path / "outside.json"
+    outside.write_text("untouched")
+
+    def plant(path):
+        if kind == "a-link-out-of-the-checkout":
+            path.symlink_to(outside)
+        else:
+            path.mkdir()
+
+    proc, workspace, output = _run_the_seal_step(
+        tmp_path, _A_LANE_FROM_BEFORE_1191, plant=plant)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert outside.read_text() == "untouched"
+    assert output == "sealed=false\n"
+    assert not (workspace / "nightly-ran").exists()
+    result = workspace / "dfr-seal-result.json"
+    if kind == "a-link-out-of-the-checkout":
+        assert not result.is_symlink() and result.is_file()
+        assert json.loads(result.read_text())["sealed"] is False
+    else:
+        assert result.is_dir()
 
 
 def test_the_seal_steps_failure_is_what_withholds_an_unwritten_result():
