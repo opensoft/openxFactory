@@ -254,9 +254,12 @@ def profile() -> Any:
 # plan 034 turned each into a SEAM that a host fills with ONE registration at
 # process start (openDox-code T020, T025, T026 and T027), in
 # `opendox.domain_profile`'s idiom: the same object again is a no-op, a
-# different one is refused, and an empty seam refuses naming itself. This host
-# is the one whose packages the reaches named, so it registers the very code
-# they reached, and what a hosted request gets is unchanged.
+# different one is refused, and an empty seam refuses naming itself. The home
+# corpus (T020) is the one exception to the middle clause: openDox-code's
+# `register_home()` always overwrites, and `seams()` below says why this host
+# may let it. This host is the one whose packages the reaches named, so it
+# registers the very code they reached, and what a hosted request gets is
+# unchanged.
 #
 # EACH IMPLEMENTATION IS RESOLVED WHEN IT IS CALLED, as the reach it replaces
 # was. The two factories below import their package on every call, so the
@@ -381,6 +384,17 @@ def seams() -> tuple[tuple[Any, str, Any], ...]:
     after it has been written, so `register_seams()` never needs to take it
     back (see "NONE OF THIS CALL'S WRITES SURVIVE A REFUSAL" there).
 
+    THE OVERWRITE NEVER REPLACES ANOTHER HOST'S HOME (Copilot, PR #1181). A
+    host registers its profile before its seams, and a profile that is not
+    this host's composite is refused before any seam is written: by
+    `register()` inside `register_openxfactory()`, and by R1Q4 (a)'s
+    assertion at the top of `register_seams()`. So another host's home is
+    never reached by this write. What it can replace is openDox's OWN
+    default, which an entry point registers through `register_default_home()`
+    only where nothing answers `home()`, and the host replaces that default
+    as it replaces openDox's default profile before anything is built from
+    it (R1Q3 (ii)). `tests/domain_profile/` holds both cases.
+
     Resolved on the call, like everything else here that lives at a pinned
     leg. Importing these modules adds nothing that reaches `sys.path`
     (see "EACH IMPLEMENTATION IS RESOLVED WHEN IT IS CALLED" above).
@@ -484,16 +498,18 @@ def register_seams() -> tuple[str, ...]:
     reading this repository's code through some seams and meeting an empty
     seam's refusal, or openDox's own default, at the rest.
 
-    NONE OF THIS CALL'S WRITES SURVIVE A REFUSAL (Copilot, PR #1181). A seam
-    that already holds a DIFFERENT object refuses this host's, which is the
-    split every seam exists to refuse, and the refusal reaches the caller
-    unchanged. Before it does, every seam this call wrote is emptied again
-    through its own public call, in reverse order, so the process is left as
-    this call found it rather than half hosted. A seam that already held this
-    host's object was not written, because its registration is a no-op, and it
-    is not emptied. The profile registration that precedes this call is
-    `register_openxfactory()`'s and stays, and its caller's start fails with
-    the refusal.
+    NONE OF THIS CALL'S WRITES SURVIVE A REFUSAL (Copilot, PR #1181). Each seam
+    but the home seam refuses this host's object when it already holds a
+    DIFFERENT one, which is the split every seam exists to refuse, and the
+    refusal reaches the caller unchanged. The home seam refuses nothing
+    callable, and `seams()` says why no other host's home can meet its
+    overwrite. Before a refusal reaches the caller, every seam this call wrote
+    is emptied again through its own public call, in reverse order, so the
+    process is left as this call found it rather than half hosted. A seam that
+    already held this host's object was not written, because its registration
+    is a no-op, and it is not emptied. The profile registration that precedes
+    this call is `register_openxfactory()`'s and stays, and its caller's start
+    fails with the refusal.
 
     AND ONLY FOR THIS HOST'S PROFILE. It first asserts that openDox answers
     this host's composite, as `register_openxfactory()` does after `register()`

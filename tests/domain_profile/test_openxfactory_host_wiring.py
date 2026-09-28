@@ -487,6 +487,82 @@ def test_every_seam_but_the_last_can_be_taken_back():
         "take-back uses")
 
 
+def test_the_host_replaces_opendoxs_own_default_home():
+    """Copilot, PR #1181: the home seam refuses nothing callable, so what its
+    overwrite can meet is openDox's OWN default, which an entry point
+    registers through `register_default_home()` only where nothing answers
+    `home()`. The host replaces it, as it replaces openDox's default profile
+    before anything is built from it (R1Q3 (ii)). In a SUBPROCESS, because
+    the seams are process-wide."""
+    proc = _run("""
+        import sys
+        sys.path.insert(0, {scripts!r})
+        import carved_reach
+        carved_reach.install()
+        import opendox_host
+        from opendox import corpus_adapter
+        if not hasattr(corpus_adapter, "register_default_home"):
+            print("LEG HAS NO SEAMS")
+            raise SystemExit(0)
+        def opendox_default(root):
+            raise AssertionError("never called: a registration is unevaluated")
+        corpus_adapter.register_default_home(opendox_default)
+        print("default", corpus_adapter.home() is opendox_default)
+        opendox_host.register_openxfactory()
+        print("replaced", corpus_adapter.home() is opendox_host.home_corpus)
+    """)
+    assert proc.returncode == 0, proc.stderr
+    if LEG_HAS_THE_SEAMS:
+        assert proc.stdout.splitlines() == [
+            "default True", "replaced True"], proc.stdout
+    else:
+        assert proc.stdout.splitlines() == ["LEG HAS NO SEAMS"], proc.stdout
+
+
+def test_another_hosts_home_is_never_reached_by_the_overwrite():
+    """Copilot, PR #1181: a home another host registered cannot meet this
+    host's overwrite. That host registered its own profile first, and a
+    profile that is not this host's composite is refused before any seam is
+    written, by `register()` and again by `register_seams()` itself (R1Q4
+    (a)), so the other host's home is still the one `home()` answers. In a
+    SUBPROCESS, because the registries are process-wide."""
+    proc = _run("""
+        import sys
+        sys.path.insert(0, {scripts!r})
+        import carved_reach
+        carved_reach.install()
+        import opendox_host
+        from opendox import corpus_adapter
+        from opendox import domain_profile as odp
+        if not hasattr(corpus_adapter, "register_home"):
+            print("LEG HAS NO SEAMS")
+            raise SystemExit(0)
+        def other_home(root):
+            raise AssertionError("never called: a registration is unevaluated")
+        odp.register(object())                    # another host's profile,
+        corpus_adapter.register_home(other_home)  # and then its home
+        try:
+            opendox_host.register_openxfactory()
+        except odp.AlreadyRegistered:
+            print("register REFUSED")
+        else:
+            print("register NO REFUSAL")
+        try:
+            opendox_host.register_seams()
+        except opendox_host.HostProfileNotRegistered:
+            print("seams REFUSED")
+        else:
+            print("seams NO REFUSAL")
+        print("home kept", corpus_adapter.home() is other_home)
+    """)
+    assert proc.returncode == 0, proc.stderr
+    if LEG_HAS_THE_SEAMS:
+        assert proc.stdout.splitlines() == [
+            "register REFUSED", "seams REFUSED", "home kept True"], proc.stdout
+    else:
+        assert proc.stdout.splitlines() == ["LEG HAS NO SEAMS"], proc.stdout
+
+
 class _FakeSeams:
     """Four seams in the shapes openDox's own take, plus a home seam with no
     call that empties it: the same object again is a no-op, a different one
