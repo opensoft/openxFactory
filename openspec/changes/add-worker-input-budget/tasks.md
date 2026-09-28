@@ -80,6 +80,23 @@ this change.
 
 ## Group 4 — after ratification
 
+**Sequencing tension, named rather than hidden** (raised by Codex's and
+Copilot's review of the PR that ticked 4.1-4.3): this Group's own heading
+reads "after ratification," and Group 0 above states it "gates landing" —
+yet 4.1 measurably happened on 2026-09-22, while 0.4 (ratifying the two
+spec deltas that make this behavior NORMATIVE rather than merely an
+implementation fix) is still open even as this line is written. The
+landing was not ungated: it ran under a separate, explicit operational
+word, Brett Heap's *"land the input-size guard when green"* — the same
+word 4.1 cites below, governing issue `opensoft/xFactory#479` — given the
+same day the proposal itself was opened, because the nightly's analysis
+child had been silently failing every night since 2026-08-30 and the
+fix's urgency was judged ahead of waiting on the spec-text ratification.
+Whether that operational word is the "approved exception" this house rule
+contemplates, or whether 0.4 should have gated 4.1 regardless, is put to
+Brett Heap as a RULING (see the PR report); this note records the tension
+rather than resolving it by silent omission.
+
 - [x] 4.1 Land both pull requests on Brett Heap's word. **DONE 2026-09-22.**
   `opensoft/openxFactory#1137` ("Bound the bounded workers' input to the
   model's context window", branch `fix/semantic-sweep-input-budget`) merged
