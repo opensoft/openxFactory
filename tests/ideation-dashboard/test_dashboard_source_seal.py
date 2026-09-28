@@ -3628,6 +3628,7 @@ def test_the_seal_step_runs_no_lane_that_would_run_sealed_code_here(
 
 
 @pytest.mark.parametrize("kind", ["a-link-out-of-the-checkout",
+                                  "a-link-the-step-cannot-remove",
                                   "a-directory"])
 def test_the_refusal_the_seal_step_records_follows_nothing_at_its_path(
         tmp_path, kind):
@@ -3641,13 +3642,18 @@ def test_the_refusal_the_seal_step_records_follows_nothing_at_its_path(
     outside.write_text("untouched")
 
     def plant(path):
-        if kind == "a-link-out-of-the-checkout":
+        if kind.startswith("a-link"):
             path.symlink_to(outside)
         else:
             path.mkdir()
+        if kind == "a-link-the-step-cannot-remove":
+            path.parent.chmod(0o555)    # so `rm` leaves the link in place
 
-    proc, workspace, output = _run_the_seal_step(
-        tmp_path, _A_LANE_FROM_BEFORE_1191, plant=plant)
+    try:
+        proc, workspace, output = _run_the_seal_step(
+            tmp_path, _A_LANE_FROM_BEFORE_1191, plant=plant)
+    finally:
+        (tmp_path / "workspace").chmod(0o755)
     assert proc.returncode == 0, proc.stdout + proc.stderr
     assert outside.read_text() == "untouched"
     assert output == "sealed=false\n"
@@ -3656,6 +3662,8 @@ def test_the_refusal_the_seal_step_records_follows_nothing_at_its_path(
     if kind == "a-link-out-of-the-checkout":
         assert not result.is_symlink() and result.is_file()
         assert json.loads(result.read_text())["sealed"] is False
+    elif kind == "a-link-the-step-cannot-remove":
+        assert result.is_symlink()
     else:
         assert result.is_dir()
 
@@ -3803,7 +3811,9 @@ def test_the_job_removes_its_sealed_containers_and_image_last():
 # container already going away by its own `--rm`, and fails every `ps` once
 # `ps-fails` exists. The recorded image is found while `image-stays` exists,
 # an image with the run's label is listed while `labelled-image-stays` does,
-# and the image listing fails while `image-ls-fails` does.
+# and the image listing fails while `image-ls-fails` does. An untagged image
+# of the run, while `untagged-image` exists, is listed only to `-a`, as
+# docker's containerd image store lists one, until it is removed.
 _SCRUB_DOCKER = """\
 import os, sys
 from pathlib import Path
@@ -3818,6 +3828,10 @@ if sys.argv[1:3] == ["image", "ls"]:
         sys.exit(1)
     if (state / "labelled-image-stays").exists():
         print("sha256:" + "fe" * 32)
+    if (state / "untagged-image").exists() and "-aq" in sys.argv:
+        print("sha256:" + "0f" * 32)
+if sys.argv[1:4] == ["image", "rm", "sha256:" + "0f" * 32]:
+    (state / "untagged-image").unlink()
 if sys.argv[1] == "ps":
     if (state / "ps-fails").exists():
         sys.exit(1)
@@ -3920,6 +3934,18 @@ def test_a_container_the_scrub_could_not_remove_fails_the_step(
         assert calls.count("rm -f c0ffee") == 30
         assert "c0ffee" in proc.stdout
     assert _finalize_steps()[-1]["continue-on-error"] is True
+
+
+def test_the_scrub_removes_an_untagged_image_of_this_run(tmp_path):
+    """Docker's containerd image store lists an untagged image only with
+    `--all`, which opensoft/xFactory#526 found on real docker. So the images
+    carrying this run's label are listed with `-a` to be removed, and an
+    untagged one goes too, leaving the step clean (#1191)."""
+    proc, calls = _run_the_scrub_step(tmp_path, left="0",
+                                      flags=("untagged-image",))
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "image rm sha256:" + "0f" * 32 in calls
+    assert "::error::" not in proc.stdout
 
 
 @pytest.mark.parametrize("flag, said", [
