@@ -1467,7 +1467,8 @@ packet's interim arrangement ends.**
     (T027 removed the packet module's only import of the status-exemption
     rail). T047 edits the one pinned assertion in each; neither file moves.
   - **Five more paths, from T035 (openDox-code#51 → `80acead1`, LANDED),
-    which moves thirteen cases into them.** T035's own PR body addresses
+    which moves thirteen cases into them and adds one fresh (fourteen cases
+    total across the five, below).** T035's own PR body addresses
     this batch directly: *"T007's batch E adds each destination path to
     F11.1's named set before T047 lands"* (its § "For T007's batch E, T041
     and T047"). None of the five exists in openxFactory yet:
@@ -1503,9 +1504,9 @@ packet's interim arrangement ends.**
       creates the file as a new path under an `Arc:`-trailered landing, and
       no other declared surface (`HOST`, `HOST_TESTS`, `PIN_PAIRS`, the
       manifest) fits a brand-new test file; the guard has no carve-out for
-      "moved but not a composition." All thirteen cases across these five
-      files join `COMPOSITION_TESTS` the same way, for that structural
-      reason if not always the deeper one.
+      "moved but not a composition." All fourteen cases across these five
+      files (3 + 3 + 3 + 2 + 3) join `COMPOSITION_TESTS` the same way, for
+      that structural reason if not always the deeper one.
 
   Once T045, T093 and T094 land it, `COMPOSITION_TESTS` reads:
 
@@ -1572,9 +1573,10 @@ packet's interim arrangement ends.**
   because a `find_spec` probe that finds nothing degrades to a notice rather
   than a failure, the same escape T035 closed in openDox-code.
 
-  **Still to come, before this PR leaves DRAFT.** T035 (openDox-code#51 →
-  `80acead1`), T039 (openDox#13 → `663ac683`, pinning `code` to `2d116415`)
-  and T044 (openXdox-code#33 → `6158151e`) have all now LANDED. Every
+  **One input still open, before this PR leaves DRAFT.** T035
+  (openDox-code#51 → `80acead1`), T039 (openDox#13 → `663ac683`, pinning
+  `code` to `2d116415`) and T044 (openXdox-code#33 → `6158151e`) have all
+  now LANDED. Every
   composition-test path they supply is named above; T044 supplies none (its
   declared exclusion closes at the triple 885/881/4, all in openXdox-code,
   none of it F11.1's). The one input still open: P1-K's writer
