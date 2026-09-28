@@ -96,6 +96,144 @@ CORRELATION = "dashboard-refresh-4242-1"
 COMMITTED_AT = "2026-09-04T01:02:03+00:00"
 
 
+# ---------------------------------------------------------------------------
+# EVERY SEALED RUN GOES THROUGH A STAND-IN DOCKER CLI HERE (#1191). The lane
+# runs the probe, the pre-dispatch render and its --strict validation in a
+# sealed container, by `/usr/bin/docker`. These tests hand it this stand-in
+# instead: it takes the lane's `docker run` argv as the daemon would, maps
+# each container path the lane names (/seal, /judged, /out, /tmp, and the
+# image's /usr/local/bin/python3) to one on this host, and runs the command
+# here with the environment the argv names and nothing else. So every test
+# still drives the lane's own argv, its bounded reading and its check that no
+# container is left, while the containment itself is held by the argv tests
+# below and proven against a real daemon by
+# tests/sealed-run-proof/sealed_run_containment_proof.py.
+# ---------------------------------------------------------------------------
+
+STAND_IN_IMAGE = "sha256:" + "5e" * 32
+_SEALED_DOCKER_ENV = ("ACTIONS_ALLOW_UNSECURE_COMMANDS", "DOCKER_HOST",
+                      "DOCKER_CONTEXT", "DOCKER_TLS", "DOCKER_TLS_VERIFY",
+                      "DOCKER_CERT_PATH", "BUILDX_CONFIG", "BUILDX_BUILDER")
+_STAND_IN_DOCKER = r"""#!PYTHON
+import json, os, shutil, subprocess, sys, tempfile, time
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+config_file = HERE / "stand-in-docker.json"
+config = json.loads(config_file.read_text()) if config_file.exists() else {}
+with open(HERE / "stand-in-docker.log", "a", encoding="utf-8") as log:
+    log.write(json.dumps({"argv": sys.argv[1:], "env": dict(os.environ)}) + "\n")
+args = sys.argv[1:]
+if args[0] == "ps":
+    print("\n".join(config.get("running", [])))
+    sys.exit(config.get("ps_exit", 0))
+if args[0] == "rm":
+    if config.get("rm_exit"):
+        sys.exit(config["rm_exit"])
+    config["running"] = [cid for cid in config.get("running", [])
+                         if cid not in args[2:]]
+    config_file.write_text(json.dumps(config))
+    sys.exit(0)
+assert args[0] == "run", args
+BARE = {"--rm", "--init", "--read-only"}
+i, mounts, env, workdir, tmpfs = 1, {}, {}, "/", []
+while args[i].startswith("--"):
+    flag = args[i]
+    if flag in BARE:
+        i += 1
+        continue
+    value, i = args[i + 1], i + 2
+    if flag == "--mount":
+        fields = dict(part.split("=", 1) for part in value.split(",") if "=" in part)
+        mounts[fields["target"]] = fields["source"]
+    elif flag == "--env":
+        key, _, val = value.partition("=")
+        env[key] = val
+    elif flag == "--workdir":
+        workdir = value
+    elif flag == "--tmpfs":
+        tmpfs.append(value.split(":", 1)[0])
+command = args[i + 1:]
+scratch = Path(tempfile.mkdtemp(prefix="stand-in-container-"))
+for target in tmpfs:
+    made = scratch / target.strip("/")
+    made.mkdir(parents=True)
+    mounts[target] = str(made)
+
+
+def host(value):
+    if value == "/usr/local/bin/python3":
+        return sys.executable
+    for target in sorted(mounts, key=len, reverse=True):
+        if value == target or value.startswith(target + "/"):
+            return mounts[target] + value[len(target):]
+    return value
+
+
+try:
+    if config.get("hang"):
+        time.sleep(3600)
+    if "exit" in config:
+        sys.stdout.write(config.get("stdout", ""))
+        sys.stderr.write(config.get("stderr", ""))
+        sys.stdout.flush()
+        sys.exit(config["exit"])
+    run_env = {"PATH": "/usr/local/bin:/usr/bin:/bin",
+               **{key: host(val) for key, val in env.items()}}
+    proc = subprocess.run([host(arg) for arg in command], cwd=host(workdir),
+                          env=run_env)
+    sys.exit(proc.returncode)
+finally:
+    shutil.rmtree(scratch, ignore_errors=True)
+"""
+
+
+@pytest.fixture(scope="session")
+def _stand_in_docker_home(tmp_path_factory) -> Path:
+    home = tmp_path_factory.mktemp("stand-in-docker")
+    docker = home / "docker"
+    docker.write_text(_STAND_IN_DOCKER.replace("#!PYTHON", f"#!{sys.executable}", 1),
+                      encoding="utf-8")
+    docker.chmod(0o755)
+    return home
+
+
+@pytest.fixture(autouse=True)
+def stand_in_docker(_stand_in_docker_home, monkeypatch) -> Path:
+    """The stand-in docker CLI, fresh for each test: no configuration, no
+    log, `SEALED_IMAGE` set to an image id, and none of the variables the lane
+    refuses."""
+    for name in ("stand-in-docker.json", "stand-in-docker.log"):
+        (_stand_in_docker_home / name).unlink(missing_ok=True)
+    monkeypatch.setattr(lane, "DOCKER", str(_stand_in_docker_home / "docker"),
+                        raising=False)
+    monkeypatch.setenv("SEALED_IMAGE", STAND_IN_IMAGE)
+    for name in (*_SEALED_DOCKER_ENV, "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT",
+                 "RUNNER_TEMP"):
+        monkeypatch.delenv(name, raising=False)
+    return _stand_in_docker_home
+
+
+def _docker_calls(home: Path) -> list[dict]:
+    """Every call the stand-in docker CLI took this test, in order."""
+    log = home / "stand-in-docker.log"
+    if not log.exists():
+        return []
+    return [json.loads(line) for line in
+            log.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def _sealed_runs(home: Path) -> list[list[str]]:
+    """The argv, after `docker`, of every sealed run this test made."""
+    return [call["argv"] for call in _docker_calls(home)
+            if call["argv"][:1] == ["run"]]
+
+
+def _stand_in_docker_config(home: Path, **config) -> None:
+    (home / "stand-in-docker.json").write_text(json.dumps(config),
+                                               encoding="utf-8")
+
+
 def _instant(value: str) -> datetime:
     """The INSTANT a stamp denotes, not its spelling.
 
@@ -385,7 +523,8 @@ VERDICT_PAIRS = "validated with exit 0, or not-conformant with exit 1"
 _ABSENT = object()   # a record field left out
 
 
-def _stub_precheck(seal_root, *, source_head, source_committed_at):
+def _stub_precheck(seal_root, *, source_head, source_committed_at,
+                   container=None):
     """A pre-dispatch-render STAND-IN that passes. The render's own mechanics
     are tested over a stand-in entry, and the real render over this checkout."""
     return dict(STUB_PRECHECK)
@@ -1104,10 +1243,10 @@ _JOB_ENVIRONMENT = {
     "DOCKER_AUTH_CONFIG": "t9", "KUBECONFIG": "/runner/kube",
     "NPM_CONFIG_USERCONFIG": "/runner/npmrc", "VIRTUAL_ENV": "/runner/venv"}
 _JOB_SECRETS = ("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9")
-# What the render's environment adds to the allowlisted names.
-_RENDER_ENV_GIVEN = {"HOME", "PYTHONDONTWRITEBYTECODE", "PYTHONIOENCODING",
-                     "GIT_CEILING_DIRECTORIES", "GIT_CONFIG_GLOBAL",
-                     "GIT_CONFIG_NOSYSTEM"}
+# What a sealed run is given, and all it is given (#1191): four literals, and
+# the PATH the stand-in docker CLI runs the host's interpreter by.
+_SEALED_RUN_ENV = {"PYTHONDONTWRITEBYTECODE": "1", "PYTHONIOENCODING": "utf-8",
+                   "LANG": "C.UTF-8"}
 
 
 def _export_the_job_environment(monkeypatch) -> None:
@@ -1117,24 +1256,18 @@ def _export_the_job_environment(monkeypatch) -> None:
 
 
 def _assert_the_renders_environment(env: dict, seal: Path) -> None:
-    """ALLOWLISTED: nothing of the job's reaches sealed code but the kept names
-    and what the render is given. (An interpreter adds nothing to its own
-    environ.) Git reads no configuration of the job's and cannot climb out of
-    the seal, and HOME is a scratch directory."""
+    """NOTHING OF THE JOB'S reaches sealed code (#1191). A sealed run is given
+    four literals and nothing else, and the stand-in docker CLI adds only the
+    PATH it runs the host's interpreter by. HOME is the container's own /tmp,
+    never the job's, and not even the job's locale crosses."""
     for name in _JOB_ENVIRONMENT:
         assert name not in env, name
     assert not any(value in _JOB_SECRETS for value in env.values())
-    assert {name for name in env
-            if name not in lane._RENDER_ENV_KEPT and name not in _RENDER_ENV_GIVEN
-            and not name.startswith(lane._RENDER_ENV_KEPT_PREFIXES)} == set()
-    assert env["LC_ALL"] == "C.UTF-8"
-    assert env["PYTHONDONTWRITEBYTECODE"] == "1"
-    assert str(seal.resolve()) in env["GIT_CEILING_DIRECTORIES"].split(os.pathsep)
-    assert env["GIT_CONFIG_GLOBAL"] == os.devnull
-    assert env["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert set(env) - {"PATH"} == {*_SEALED_RUN_ENV, "HOME"}, sorted(env)
+    for name, value in _SEALED_RUN_ENV.items():
+        assert env[name] == value, name
     assert env["HOME"] != os.environ.get("HOME")
-    assert not Path(env["HOME"]).resolve().is_relative_to(seal.resolve())
-    assert "PATH" in env                     # the interpreter still resolves
+    assert "LC_ALL" not in env
 
 
 def test_the_one_run_is_of_the_sealed_copy_over_the_probe(corpus, tmp_path,
@@ -1877,7 +2010,8 @@ def test_a_directory_on_the_way_swapped_for_a_link_gets_nothing_more(
             swap()
         return records
 
-    def swapping_render(seal_root, *, source_head, source_committed_at):
+    def swapping_render(seal_root, *, source_head, source_committed_at,
+                        container=None):
         if when == "as-the-render-runs":
             swap()
         return dict(STUB_PRECHECK)
@@ -1924,7 +2058,8 @@ def test_the_render_is_handed_the_directory_the_lane_made_not_its_name(
         else:
             seal.mkdir()
 
-    def recording(seal_root, *, source_head, source_committed_at):
+    def recording(seal_root, *, source_head, source_committed_at,
+                  container=None):
         # The first thing the real render does with what it is handed.
         ran_in.append(_identity(Path(seal_root).resolve()))
         return dict(STUB_PRECHECK)
@@ -2665,7 +2800,8 @@ def test_a_seal_result_sealed_code_planted_refuses_the_seal(
     workspace_file, workspace_dir = _a_workspace(tmp_path / "aggregation")
     result_path = tmp_path / "aggregation" / "seal-result.json"
 
-    def planting(seal_root, *, source_head, source_committed_at):
+    def planting(seal_root, *, source_head, source_committed_at,
+                 container=None):
         if planted == "a-link-to-a-workspace-file":
             result_path.symlink_to(workspace_file)
         elif planted == "a-file-that-says-sealed":
@@ -2808,7 +2944,8 @@ def test_a_seal_result_the_lane_cannot_write_fails_the_step(
     planted = []
     clear = lane._clear_result_path
 
-    def planting(seal_root, *, source_head, source_committed_at):
+    def planting(seal_root, *, source_head, source_committed_at,
+                 container=None):
         result_path.write_text(json.dumps({"sealed": True}), encoding="utf-8")
         planted.append(result_path)
         return dict(STUB_PRECHECK)
@@ -2880,7 +3017,8 @@ def test_a_result_directory_sealed_code_replaced_is_never_written_through(
     (outside / "seal-result.json").write_text("untouched\n", encoding="utf-8")
     moved = tmp_path / "aggregation.moved"
 
-    def replacing(seal_root, *, source_head, source_committed_at):
+    def replacing(seal_root, *, source_head, source_committed_at,
+                  container=None):
         root.rename(moved)
         root.symlink_to(outside, target_is_directory=True)
         return dict(STUB_PRECHECK)
@@ -3222,7 +3360,8 @@ def test_the_seal_phase_records_a_strict_verdict_with_its_findings(
     findings = ["ERROR [snapshot-dangling-cluster-ref] snapshot.json: one",
                 "validate-ideation-dashboard-contracts: 1 error(s), 0 warning(s)"]
 
-    def rejecting(seal_root, *, source_head, source_committed_at):
+    def rejecting(seal_root, *, source_head, source_committed_at,
+                  container=None):
         raise lane.StrictGateRejected("--strict REJECTED the snapshot this "
                                       "seal renders", detail=findings)
 
@@ -3237,6 +3376,93 @@ def test_the_seal_phase_records_a_strict_verdict_with_its_findings(
     assert not (_cli_seal(tmp_path) / lane.SEAL_MANIFEST_NAME).exists()
     said = capsys.readouterr().out
     assert "STRICT FAILED" in said and findings[0] in said
+
+
+def test_the_strict_findings_reach_the_log_inside_a_fence(
+        corpus, tmp_path, monkeypatch, capsys):
+    """The findings are the sealed validator's own output, and the runner
+    takes a workflow command from any line a step prints. So they reach the
+    job's log only inside a fence (#1191): `::stop-commands::` with a token
+    drawn after the run, 128 random bits no sealed run saw, and the same
+    token on a line of its own to resume. A finding that prints a command,
+    or tries to open or close a fence of its own, stays inside."""
+    head = _git(corpus, "rev-parse", "HEAD")
+    findings = ["ERROR [snapshot-unknown-kind] ::add-path::/tmp/evil",
+                "::set-env name=GH_TOKEN::stolen",
+                "::stop-commands::0123456789abcdef0123456789abcdef",
+                "::0123456789abcdef0123456789abcdef::"]
+
+    def rejecting(seal_root, *, source_head, source_committed_at,
+                  container=None):
+        raise lane.StrictGateRejected("--strict REJECTED the snapshot this "
+                                      "seal renders", detail=findings)
+
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", rejecting)
+    _seal_cli(tmp_path, corpus, decision=_decision(head))
+    lines = capsys.readouterr().out.splitlines()
+    opened = [n for n, line in enumerate(lines)
+              if re.fullmatch(r"::stop-commands::[0-9a-f]{32}", line)]
+    assert len(opened) == 1, lines
+    token = lines[opened[0]].split("::")[2]
+    closed = lines.index(f"::{token}::")
+    assert lines[opened[0] + 1:closed] == [f"  {line}" for line in findings]
+    assert token != "0123456789abcdef0123456789abcdef"
+    assert not any(line.startswith("::") for line in lines[:opened[0]]
+                   if "STRICT FAILED" not in line and "NOT SEALED" not in line
+                   and not line.startswith("::warning::"))
+
+
+@pytest.mark.parametrize("raised", ["refused", "rejected"])
+def test_a_sealed_reason_reaches_the_log_as_one_warning_line(
+        corpus, tmp_path, monkeypatch, capsys, raised):
+    """A refusal can carry a line a sealed run printed (`_last_line`,
+    `_validator_said`), and the seal phase prints its reason as the data of a
+    `::warning::` line. The runner takes a workflow command only at the start
+    of a line, so the reason is printed as one line whatever it holds, with
+    `%` escaped as command data is (Copilot, PR #1192): nothing it carries
+    starts a line of its own."""
+    head = _git(corpus, "rev-parse", "HEAD")
+    reason = ("the sealed render unit could not render the snapshot (exit 1): "
+              "said\n::add-path::/tmp/evil\r::set-env name=GH_TOKEN::stolen"
+              "\u2028::error::sealed %0A::stop-commands::guessed")
+
+    def refusing(seal_root, *, source_head, source_committed_at,
+                 container=None):
+        if raised == "refused":
+            raise lane.SealRefused(reason)
+        raise lane.StrictGateRejected(reason, detail=["ERROR [x] a finding"])
+
+    monkeypatch.setattr(lane, "gh_read_file", lambda *a, **kw: RECIPE_TEXT)
+    monkeypatch.setattr(lane, "seal_render_legs", _stub_legs)
+    monkeypatch.setattr(lane, "precheck_sealed_render", refusing)
+    _seal_cli(tmp_path, corpus, decision=_decision(head))
+    lines = capsys.readouterr().out.splitlines()
+    fence = [n for n, line in enumerate(lines)
+             if re.fullmatch(r"::stop-commands::[0-9a-f]{32}", line)]
+    assert len(fence) == (1 if raised == "rejected" else 0), lines
+    outside = lines[:fence[0]] if fence else lines
+    warned = [line for line in outside if "add-path" in line]
+    assert len(warned) == 1 and warned[0].startswith("::warning::"), lines
+    assert "%250A::stop-commands::guessed" in warned[0]
+    assert not any(line.lstrip().startswith("::")
+                   and not line.startswith("::warning::")
+                   for line in outside), lines
+
+
+def test_each_fence_is_opened_with_a_token_of_its_own(capsys):
+    """The fence's token is drawn at each print, never fixed, so no sealed
+    run can have seen the one that closes it (#1191)."""
+    tokens = set()
+    for _ in range(3):
+        lane._print_fenced(["::add-path::/tmp/evil"])
+        lines = capsys.readouterr().out.splitlines()
+        token = lines[0].removeprefix("::stop-commands::")
+        assert re.fullmatch(r"[0-9a-f]{32}", token), lines
+        assert lines[1:] == ["  ::add-path::/tmp/evil", f"::{token}::"]
+        tokens.add(token)
+    assert len(tokens) == 3
 
 
 # ---------------------------------------------------------------------------
@@ -3342,13 +3568,119 @@ def test_the_record_step_hands_on_a_strict_verdict_only_when_the_seal_says_so():
     assert run.index("STRICT=false") < guard              # defaulted first
 
 
+def _run_the_seal_step(tmp_path, pinned: str, *, plant=None):
+    """The seal step's own script, run under its own shell in a stand-in
+    workspace whose pinned lane is `pinned` and whose nightly script only
+    records that it ran. `plant` puts something at the result's path first."""
+    steps = _finalize_steps()
+    seal = steps[_step_index(steps, id="dfr-seal")]
+    workspace = tmp_path / "workspace"
+    package = workspace / "openxFactory" / "scripts" / "ideation_dashboard"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("")
+    (package / "dashboard_refresh_lane.py").write_text(pinned)
+    (workspace / "openxFactory" / "scripts" /
+     "dashboard-refresh-nightly.py").write_text(
+        "import json, pathlib\n"
+        "pathlib.Path('nightly-ran').write_text('')\n"
+        "json.dump({'sealed': True}, open('dfr-seal-result.json', 'w'))\n")
+    if plant is not None:
+        plant(workspace / "dfr-seal-result.json")
+    python = tmp_path / "python" / "bin"
+    python.mkdir(parents=True)
+    (python / "python3").symlink_to(sys.executable)
+    script = tmp_path / "step.sh"
+    script.write_text(seal["run"])
+    output = tmp_path / "github-output"
+    output.write_text("")
+    proc = subprocess.run(
+        ["/bin/bash", "--noprofile", "--norc", "-p", "-e", str(script)],
+        cwd=workspace, capture_output=True, text=True, timeout=120,
+        env={"PATH": "/usr/bin:/bin", "pythonLocation": str(python.parent),
+             "GITHUB_OUTPUT": str(output), "CORRELATION_ID": "c-1"})
+    return proc, workspace, output.read_text()
+
+
+_A_LANE_FROM_BEFORE_1191 = "LANE = 'ideation-dashboard-refresh'\n"
+_A_LANE_THAT_CONTAINS_ITS_RUNS = 'SEALED_IMAGE_ENV = "SEALED_IMAGE"\n'
+_A_LANE_THAT_CANNOT_BE_IMPORTED = "raise SystemExit(0)\ndef (:\n"
+
+
+@pytest.mark.parametrize("pinned, seals", [
+    (_A_LANE_FROM_BEFORE_1191, False),
+    (_A_LANE_THAT_CANNOT_BE_IMPORTED, False),
+    (_A_LANE_THAT_CONTAINS_ITS_RUNS, True),
+], ids=["a-lane-from-before-1191", "a-lane-that-cannot-be-imported",
+        "a-lane-that-contains-its-runs"])
+def test_the_seal_step_runs_no_lane_that_would_run_sealed_code_here(
+        tmp_path, pinned, seals):
+    """This workflow runs at openxFactory main, and the lane comes from the
+    aggregation's pin. A lane from before #1191 ignores SEALED_IMAGE and runs
+    the probe, the render and its --strict validation on this runner. So the
+    seal step asks the pinned lane first, and runs it only when it names
+    SEALED_IMAGE. Any other lane seals nothing, and the refusal is recorded as
+    the seal's result, so the record step reports it and nothing is uploaded
+    or dispatched (Copilot, PR #1192)."""
+    proc, workspace, output = _run_the_seal_step(tmp_path, pinned)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    result = json.loads((workspace / "dfr-seal-result.json").read_text())
+    assert (workspace / "nightly-ran").exists() is seals
+    assert output == f"sealed={str(seals).lower()}\n"
+    assert result["sealed"] is seals
+    if not seals:
+        assert "predates #1191" in result["reason"], result
+        assert "::warning::" in proc.stdout and "NOT SEALED" in proc.stdout
+
+
+@pytest.mark.parametrize("kind", ["a-link-out-of-the-checkout",
+                                  "a-link-the-step-cannot-remove",
+                                  "a-directory"])
+def test_the_refusal_the_seal_step_records_follows_nothing_at_its_path(
+        tmp_path, kind):
+    """The seal step writes a pinned lane's refusal itself, since that lane
+    cannot be trusted to. So it removes whatever sits at the result's path
+    as the lane does, without following it, and creates the result
+    exclusively, following no link. A link planted there never has its
+    target written, and a directory there leaves no result at all, so the
+    record step reads none and still nothing is sealed (Copilot, PR #1192)."""
+    outside = tmp_path / "outside.json"
+    outside.write_text("untouched")
+
+    def plant(path):
+        if kind.startswith("a-link"):
+            path.symlink_to(outside)
+        else:
+            path.mkdir()
+        if kind == "a-link-the-step-cannot-remove":
+            path.parent.chmod(0o555)    # so `rm` leaves the link in place
+
+    try:
+        proc, workspace, output = _run_the_seal_step(
+            tmp_path, _A_LANE_FROM_BEFORE_1191, plant=plant)
+    finally:
+        (tmp_path / "workspace").chmod(0o755)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert outside.read_text() == "untouched"
+    assert output == "sealed=false\n"
+    assert not (workspace / "nightly-ran").exists()
+    result = workspace / "dfr-seal-result.json"
+    if kind == "a-link-out-of-the-checkout":
+        assert not result.is_symlink() and result.is_file()
+        assert json.loads(result.read_text())["sealed"] is False
+    elif kind == "a-link-the-step-cannot-remove":
+        assert result.is_symlink()
+    else:
+        assert result.is_dir()
+
+
 def test_the_seal_steps_failure_is_what_withholds_an_unwritten_result():
     """A seal phase that could not write its own result exits non-zero
     (`SEAL_RESULT_UNWRITTEN_EXIT`), and that is what withholds the dispatch
-    then: the step runs under the default `bash -e`, so it stops at the
-    lane's call before `sealed` is read from whatever sits at the result's
-    path. So neither the step nor its job or workflow names another shell,
-    and nothing masks the lane's status (Copilot, PR #1166)."""
+    then: the step runs under `bash -e`, by its absolute path since sealed
+    code has run by then (#1191), so it stops at the lane's call before
+    `sealed` is read from whatever sits at the result's path. So no job or
+    workflow default names another shell, and nothing masks the lane's
+    status (Copilot, PR #1166)."""
     import yaml
     workflow = yaml.safe_load(
         (REPO_ROOT / ".github" / "workflows" / "doc-health-reusable.yml")
@@ -3357,15 +3689,456 @@ def test_the_seal_steps_failure_is_what_withholds_an_unwritten_result():
     assert "defaults" not in workflow["jobs"]["finalize"]
     steps = workflow["jobs"]["finalize"]["steps"]
     seal = steps[_step_index(steps, id="dfr-seal")]
-    assert "shell" not in seal
+    assert seal["shell"] == "/bin/bash --noprofile --norc -p -e {0}"
     run = seal["run"]
-    call = run.index("python3 openxFactory/scripts/dashboard-refresh-nightly.py")
-    read = run.index('SEALED="$(python3')
+    call = run.index('"${pythonLocation:?}/bin/python3" '
+                     "openxFactory/scripts/dashboard-refresh-nightly.py")
+    read = run.index('SEALED="$("${pythonLocation:?}/bin/python3"')
     assert call < read
     assert "set +e" not in run
     invocation = run[call:read]
     assert "||" not in invocation and "&&" not in invocation
     assert "--seal-result-out dfr-seal-result.json" in invocation
+
+
+def _the_build_step() -> dict:
+    steps = _finalize_steps()
+    return steps[_step_index(steps, id="dfr-sealed-image")]
+
+
+def test_the_finalize_job_builds_the_sealed_image_before_the_seal():
+    """The sealed runs' image is built in the finalize job, before the seal
+    step, under the seal step's own condition, and handed on by its content
+    id in SEALED_IMAGE (#1191). The workflow runs at openxFactory main while
+    the lane comes from the aggregation's pin, so the id crosses by the
+    environment, which a lane that predates it ignores, never by a flag it
+    would refuse."""
+    steps = _finalize_steps()
+    build = _the_build_step()
+    seal = steps[_step_index(steps, id="dfr-seal")]
+    assert steps.index(build) == steps.index(seal) - 1
+    assert build["if"] == seal["if"]
+    assert build["continue-on-error"] is True
+    assert build["shell"] == "/bin/bash --noprofile --norc -p -eo pipefail {0}"
+    run = build["run"]
+    assert "/usr/bin/docker build \\\n" in run
+    assert ('--label "openxfactory.dashboard-refresh.sealed-run='
+            '${GITHUB_RUN_ID:?}-${GITHUB_RUN_ATTEMPT:?}"') in run
+    assert "--iidfile \"$IIDFILE\" - <<'DOCKERFILE'" in run
+    assert 'echo "SEALED_IMAGE=$SEALED_IMAGE" >> "$GITHUB_ENV"' in run
+    assert 'if [[ ! "$SEALED_IMAGE" =~ ^sha256:[0-9a-f]{64}$ ]]; then' in run
+    assert lane.SEALED_IMAGE_ENV == "SEALED_IMAGE"
+    assert "SEALED_IMAGE" not in (seal.get("env") or {})
+    assert "--sealed-image" not in seal["run"]
+
+
+def _dockerfile(run: str) -> str:
+    return run.split("<<'DOCKERFILE'\n", 1)[1].split("\nDOCKERFILE", 1)[0]
+
+
+def _lock_pins() -> dict[str, tuple[str, set[str]]]:
+    """requirements/hermes-runtime-contracts.lock: name -> (version,
+    hashes)."""
+    pins: dict[str, tuple[str, set[str]]] = {}
+    name = None
+    lock = REPO_ROOT / "requirements" / "hermes-runtime-contracts.lock"
+    for line in lock.read_text(encoding="utf-8").splitlines():
+        head = re.match(r"^([A-Za-z0-9_.-]+)==(\S+)", line)
+        if head:
+            name = head.group(1).lower()
+            pins[name] = (head.group(2), set())
+        for digest in re.findall(r"--hash=sha256:([0-9a-f]{64})", line):
+            pins[name][1].add(digest)
+    return pins
+
+
+def test_the_sealed_image_installs_exactly_what_the_lock_pins():
+    """ONE FROM, by digest, and each wheel at the version
+    requirements/hermes-runtime-contracts.lock pins, by a sha256 the lock
+    lists, binary-only and with no resolution of pip's own (#1191): the
+    child worker's image (opensoft/xFactory#526)."""
+    dockerfile = _dockerfile(_the_build_step()["run"])
+    froms = [line for line in dockerfile.splitlines() if line.startswith("FROM ")]
+    assert froms == ["FROM python:3.12-slim@sha256:"
+                     "f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f"]
+    assert "--no-deps --only-binary=:all: --require-hashes" in dockerfile
+    wheels = re.findall(r"'([a-z0-9-]+)==(\S+)((?: --hash=sha256:[0-9a-f]{64})+)'",
+                        dockerfile)
+    assert {name for name, _v, _h in wheels} == {
+        "attrs", "jsonschema", "jsonschema-specifications", "pyyaml",
+        "referencing", "rfc3339-validator", "rpds-py", "six",
+        "typing-extensions"}
+    pins = _lock_pins()
+    for name, version, hashes in wheels:
+        locked_version, locked_hashes = pins[name]
+        assert version == locked_version, name
+        named = set(re.findall(r"[0-9a-f]{64}", hashes))
+        assert named and named <= locked_hashes, name
+
+
+def test_the_build_step_refuses_what_would_take_the_calls_elsewhere():
+    """Before anything is built, the step refuses ACTIONS_ALLOW_UNSECURE_COMMANDS
+    and every variable that would send the docker CLI to another daemon or
+    builder, the set the lane refuses before any sealed run (#1191)."""
+    run = _the_build_step()["run"]
+    assert 'if [ -n "${ACTIONS_ALLOW_UNSECURE_COMMANDS+set}" ]; then' in run
+    listed = run.split("for name in ", 1)[1].split("; do", 1)[0]
+    assert listed.replace("\\", " ").split() == list(_SEALED_DOCKER_ENV[1:])
+    assert set(_SEALED_DOCKER_ENV) == set(lane._SEALED_REFUSED_ENV)
+    assert run.index("ACTIONS_ALLOW_UNSECURE_COMMANDS") < run.index("docker build")
+
+
+def test_the_job_removes_its_sealed_containers_and_image_last():
+    """Every sealed run is `--rm`, and a cancelled run can still leave a
+    container, and the image stays until something removes it. So the job's
+    last step, always, removes what carries this run's label, and the image
+    by its id (#1191)."""
+    steps = _finalize_steps()
+    scrub = steps[-1]
+    assert scrub["if"] == "always()"
+    assert scrub["continue-on-error"] is True
+    run = scrub["run"]
+    label = ('LABEL="openxfactory.dashboard-refresh.sealed-run='
+             '${GITHUB_RUN_ID:?}-${GITHUB_RUN_ATTEMPT:?}"')
+    assert label in run
+    assert '/usr/bin/docker ps -aq --filter "label=$LABEL"' in run
+    assert ('/usr/bin/xargs -r /usr/bin/env -i "${docker_env[@]}" '
+            '/usr/bin/docker rm -f') in run
+    assert '/usr/bin/docker image rm "$SEALED_IMAGE"' in run
+    assert '/usr/bin/docker image ls -aq --no-trunc --filter "label=$LABEL"' in run
+    assert lane.SEALED_RUN_LABEL == "openxfactory.dashboard-refresh.sealed-run"
+
+
+# A stand-in for the scrub step's docker, found by its own path, since every
+# call runs under `env -i`. It logs each call and the environment it sees,
+# lists one container of this run's until `left` sweeps have seen it
+# ("forever" never lets it go), refuses `rm -f` as docker does for a
+# container already going away by its own `--rm`, and fails every `ps` once
+# `ps-fails` exists. The recorded image is found while `image-stays` exists,
+# an image with the run's label is listed while `labelled-image-stays` does,
+# and the image listing fails while `image-ls-fails` does. An untagged image
+# of the run, while `untagged-image` exists, is listed only to `-a`, as
+# docker's containerd image store lists one, until it is removed.
+_SCRUB_DOCKER = """\
+import os, sys
+from pathlib import Path
+state = Path(sys.argv[0]).resolve().parent / "state"
+with open(state / "calls", "a", encoding="utf-8") as log:
+    log.write(" ".join(sys.argv[1:]) + "\\n")
+    log.write("ENV " + " ".join(sorted(os.environ)) + "\\n")
+if sys.argv[1:3] == ["image", "inspect"]:
+    sys.exit(0 if (state / "image-stays").exists() else 1)
+if sys.argv[1:3] == ["image", "ls"]:
+    if (state / "image-ls-fails").exists():
+        sys.exit(1)
+    if (state / "labelled-image-stays").exists():
+        print("sha256:" + "fe" * 32)
+    if (state / "untagged-image").exists() and "-aq" in sys.argv:
+        print("sha256:" + "0f" * 32)
+if sys.argv[1:4] == ["image", "rm", "sha256:" + "0f" * 32]:
+    (state / "untagged-image").unlink()
+if sys.argv[1] == "ps":
+    if (state / "ps-fails").exists():
+        sys.exit(1)
+    left = (state / "left").read_text().strip()
+    if left == "forever":
+        print("c0ffee")
+    elif int(left) > 0:
+        print("c0ffee")
+        (state / "left").write_text(str(int(left) - 1))
+elif sys.argv[1] == "rm":
+    sys.exit("Error response from daemon: removal of container c0ffee is "
+             "already in progress")
+"""
+
+
+# What a runner's job can hold that a docker call must never see: proxies,
+# which the docker CLI honors from its environment, and a token.
+_THE_JOBS_OWN_ENVIRONMENT = {
+    "HTTP_PROXY": "http://user:secret@proxy.invalid:3128",
+    "https_proxy": "http://user:secret@proxy.invalid:3128",
+    "ALL_PROXY": "socks5://proxy.invalid:1080", "NO_PROXY": "",
+    "GH_TOKEN": "a-token-no-docker-call-sees"}
+
+
+def _run_the_scrub_step(tmp_path, *, left: str, ps_fails: bool = False,
+                        flags=()):
+    """The job's last step, run under its own shell, with its docker and its
+    sleep swapped for stand-ins by their absolute paths."""
+    run = _finalize_steps()[-1]["run"]
+    state = tmp_path / "state"
+    state.mkdir()
+    (state / "left").write_text(left)
+    if ps_fails:
+        (state / "ps-fails").write_text("")
+    for flag in flags:
+        (state / flag).write_text("")
+    docker = tmp_path / "docker"
+    docker.write_text(f"#!{sys.executable}\n{_SCRUB_DOCKER}")
+    docker.chmod(0o755)
+    sleep = tmp_path / "sleep"
+    sleep.write_text(f'#!/bin/sh\necho "sleep $*" >> "{state}/calls"\n')
+    sleep.chmod(0o755)
+    script = tmp_path / "step.sh"
+    script.write_text(run.replace("/usr/bin/docker", str(docker))
+                      .replace("/usr/bin/sleep", str(sleep)))
+    runner_temp = tmp_path / "runner-temp"
+    runner_temp.mkdir()
+    proc = subprocess.run(
+        ["/bin/bash", "--noprofile", "--norc", "-p", "-e", str(script)],
+        env={"PATH": "/usr/bin:/bin", "GITHUB_RUN_ID": "4242",
+             "GITHUB_RUN_ATTEMPT": "2", "RUNNER_TEMP": str(runner_temp),
+             "SEALED_IMAGE": STAND_IN_IMAGE, "STAND_IN_STATE": str(state),
+             **_THE_JOBS_OWN_ENVIRONMENT,
+             **{name: "tcp://elsewhere.invalid:2376"
+                for name in lane._SEALED_REFUSED_ENV[1:]}},
+        capture_output=True, text=True, timeout=120)
+    calls = (state / "calls").read_text().splitlines()
+    return proc, calls
+
+
+def test_the_scrub_sweeps_until_no_container_of_this_run_is_left(tmp_path):
+    """A container already going away by its own `--rm` refuses `docker rm`
+    and holds the sealed image until it is gone, which opensoft/xFactory#526
+    found on real docker. So the last step sweeps this run's containers until
+    none is left, and only then removes the image (#1191)."""
+    proc, calls = _run_the_scrub_step(tmp_path, left="3")
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    label = "label=openxfactory.dashboard-refresh.sealed-run=4242-2"
+    sweeps = [call for call in calls if call == f"ps -aq --filter {label}"]
+    assert len(sweeps) == 5    # three that list it, the one that does not, the check
+    assert calls.count("rm -f c0ffee") == 3
+    image = calls.index(f"image rm {STAND_IN_IMAGE}")
+    assert image > max(i for i, call in enumerate(calls)
+                       if call == "rm -f c0ffee")
+    assert image > max(i for i, call in enumerate(calls[:image])
+                       if call.startswith("ps "))
+    assert "::error::" not in proc.stdout
+    # Every call sees nothing of the job's environment but a fresh docker
+    # configuration, as the build's and the lane's do, so it reaches the
+    # local daemon they used, through no proxy and no routing variable
+    # (Copilot, PR #1192).
+    seen = {call for call in calls if call.startswith("ENV ")}
+    assert seen == {"ENV DOCKER_CONFIG HOME LANG PATH"}, seen
+
+
+@pytest.mark.parametrize("left, ps_fails", [("forever", False), ("0", True)],
+                         ids=["a-container-that-never-goes",
+                              "a-daemon-that-cannot-list"])
+def test_a_container_the_scrub_could_not_remove_fails_the_step(
+        tmp_path, left, ps_fails):
+    """A container of this run's still there after 30 seconds of sweeping, or
+    a daemon that cannot say whether one is, fails the step. The step is
+    continue-on-error, so the nightly is never failed by it, and the run
+    shows it (#1191, as opensoft/xFactory#526's last step does)."""
+    proc, calls = _run_the_scrub_step(tmp_path, left=left, ps_fails=ps_fails)
+    assert proc.returncode == 1, proc.stdout + proc.stderr
+    assert "::error::a container of this run's sealed code" in proc.stdout
+    assert f"image rm {STAND_IN_IMAGE}" in calls
+    if left == "forever":
+        assert calls.count("rm -f c0ffee") == 30
+        assert "c0ffee" in proc.stdout
+    assert _finalize_steps()[-1]["continue-on-error"] is True
+
+
+def test_the_scrub_removes_an_untagged_image_of_this_run(tmp_path):
+    """Docker's containerd image store lists an untagged image only with
+    `--all`, which opensoft/xFactory#526 found on real docker. So the images
+    carrying this run's label are listed with `-a` to be removed, and an
+    untagged one goes too, leaving the step clean (#1191)."""
+    proc, calls = _run_the_scrub_step(tmp_path, left="0",
+                                      flags=("untagged-image",))
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "image rm sha256:" + "0f" * 32 in calls
+    assert "::error::" not in proc.stdout
+
+
+@pytest.mark.parametrize("flag, said", [
+    ("image-stays", f"the sealed image {STAND_IN_IMAGE} is still there"),
+    ("labelled-image-stays", "an image carrying this run's label is still "
+                             "there, or the daemon could not say: sha256:"),
+    ("image-ls-fails", "an image carrying this run's label is still there, "
+                       "or the daemon could not say"),
+], ids=["the-recorded-image", "an-image-with-the-label",
+        "a-daemon-that-cannot-list-images"])
+def test_an_image_the_scrub_could_not_remove_fails_the_step(tmp_path, flag,
+                                                            said):
+    """The image the build step recorded, or any image carrying this run's
+    label, still there after the removals, or a daemon that cannot say,
+    fails the step, as a container left behind does (Copilot, PR #1192)."""
+    proc, calls = _run_the_scrub_step(tmp_path, left="0", flags=(flag,))
+    assert proc.returncode == 1, proc.stdout + proc.stderr
+    assert f"::error::{said}" in proc.stdout, proc.stdout
+    assert f"image rm {STAND_IN_IMAGE}" in calls
+
+
+# A stand-in for the build step's docker, found by its own path, since the
+# build runs under `env -i`. It records the environment it sees, fails while
+# `build-fails` sits beside it, and otherwise records an image id in the
+# `--iidfile` it is handed.
+_BUILD_DOCKER = """\
+import json, os, sys
+from pathlib import Path
+here = Path(sys.argv[0]).resolve().parent
+(here / "seen").write_text(json.dumps(dict(os.environ)), encoding="utf-8")
+if (here / "build-fails").exists():
+    sys.exit("ERROR: failed to solve")
+args = sys.argv[1:]
+with open(args[args.index("--iidfile") + 1], "w", encoding="utf-8") as out:
+    out.write("sha256:" + "ab" * 32)
+"""
+
+
+@pytest.mark.parametrize("fails", [True, False], ids=["a-build-that-stops",
+                                                      "a-build-that-ends"])
+def test_the_build_step_records_no_image_id_but_its_own(tmp_path, fails):
+    """The step clears SEALED_IMAGE for every later step before it builds, so
+    a build that stops leaves no image id behind it, whatever the job held
+    before, and only a built and checked id is recorded (Copilot, PR #1192).
+    GITHUB_ENV takes the last value written."""
+    docker = tmp_path / "docker"
+    docker.write_text(f"#!{sys.executable}\n{_BUILD_DOCKER}")
+    docker.chmod(0o755)
+    if fails:
+        (tmp_path / "build-fails").write_text("")
+    script = tmp_path / "step.sh"
+    script.write_text(_the_build_step()["run"].replace("/usr/bin/docker",
+                                                       str(docker)))
+    github_env = tmp_path / "github-env"
+    github_env.write_text("")
+    runner_temp = tmp_path / "runner-temp"
+    runner_temp.mkdir()
+    proc = subprocess.run(
+        ["/bin/bash", "--noprofile", "--norc", "-p", "-eo", "pipefail",
+         str(script)],
+        env={"PATH": "/usr/bin:/bin", "GITHUB_RUN_ID": "4242",
+             "GITHUB_RUN_ATTEMPT": "2", "RUNNER_TEMP": str(runner_temp),
+             "GITHUB_ENV": str(github_env), "SEALED_IMAGE": STAND_IN_IMAGE,
+             **_THE_JOBS_OWN_ENVIRONMENT},
+        capture_output=True, text=True, timeout=120)
+    # The build sees nothing of the job's environment but a docker
+    # configuration of its own, made fresh in the job's temporary directory,
+    # so no login, plugin or proxy of the runner's reaches it (#1191;
+    # Copilot, PR #1192).
+    seen = json.loads((tmp_path / "seen").read_text(encoding="utf-8"))
+    assert sorted(seen) == ["DOCKER_CONFIG", "HOME", "LANG", "PATH"], seen
+    config = Path(seen["DOCKER_CONFIG"])
+    assert seen["HOME"] == seen["DOCKER_CONFIG"]
+    assert config.parent == runner_temp, config
+    assert config.name.startswith("dfr-docker-config."), config
+    recorded = [line for line in github_env.read_text().splitlines()
+                if line.startswith("SEALED_IMAGE=")]
+    assert recorded[0] == "SEALED_IMAGE="
+    if fails:
+        assert proc.returncode != 0
+        assert recorded == ["SEALED_IMAGE="]
+    else:
+        assert proc.returncode == 0, proc.stderr
+        assert recorded == ["SEALED_IMAGE=", "SEALED_IMAGE=sha256:" + "ab" * 32]
+    for scope in (_workflow(), _workflow()["jobs"]["finalize"],
+                  *_finalize_steps()):
+        assert "SEALED_IMAGE" not in (scope.get("env") or {})
+
+
+def _workflow() -> dict:
+    import yaml
+    return yaml.safe_load(
+        (REPO_ROOT / ".github" / "workflows" / "doc-health-reusable.yml")
+        .read_text(encoding="utf-8"))
+
+
+_HEREDOC = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
+_COMMAND_AT = re.compile(r"(?:^|[;&|(!]|\$\()\s*([A-Za-z_][A-Za-z0-9_.+-]*)(?=\s|$|\))")
+# A keyword that a command follows is a separator, never itself a command.
+_KEYWORD = re.compile(r"\b(?:if|then|do|else|elif|while|until)\b")
+# Commands a step may name bare: the shell's own builtins and keywords.
+_BUILTINS = {"if", "then", "else", "elif", "fi", "for", "in", "do", "done",
+             "while", "until", "case", "esac", "echo", "printf", "exit",
+             "export", "set", "unset", "local", "read", "true", "false",
+             "test", "cd", "shift", "return", "break", "continue", "trap",
+             "wait", "declare", "readonly", "mapfile", "command", "type"}
+
+
+def _outside_quotes(line: str) -> str:
+    """`line` with quoted text blanked, keeping in view the command
+    substitutions a double-quoted string runs, with their own quoted text
+    blanked in turn."""
+    out, i, n, depth, in_double = [], 0, len(line), 0, False
+    while i < n:
+        c = line[i]
+        if c == "\\":
+            out.append("  ")
+            i += 2
+        elif c == "'" and not (in_double and depth == 0):
+            j = line.find("'", i + 1)
+            j = n - 1 if j < 0 else j
+            out.append(" " * (j - i + 1))
+            i = j + 1
+        elif c == '"' and in_double and depth:
+            j = line.find('"', i + 1)
+            j = n - 1 if j < 0 else j
+            out.append(" " * (j - i + 1))
+            i = j + 1
+        elif c == '"':
+            in_double = not in_double
+            out.append(" ")
+            i += 1
+        elif in_double and line.startswith("$(", i):
+            depth += 1
+            out.append("$(")
+            i += 2
+        elif in_double and c == ")" and depth:
+            depth -= 1
+            out.append(")")
+            i += 1
+        else:
+            out.append(c if not in_double or depth else " ")
+            i += 1
+    return "".join(out)
+
+
+def _bare_commands(run: str) -> list[str]:
+    """The bare command names of a step's script, outside comments, quoted
+    text and heredoc bodies. A line a backslash continues is read as one
+    with the next."""
+    found, pending = [], []
+    for raw in run.replace("\\\n", " ").splitlines():
+        if pending:
+            if raw.strip() == pending[0]:
+                pending.pop(0)
+            continue
+        pending += [m.group(2) for m in _HEREDOC.finditer(raw)]
+        if raw.lstrip().startswith("#"):
+            continue
+        line = re.sub(r"\$?\(\([^()]*\)\)", " ", raw)     # arithmetic
+        line = _KEYWORD.sub(";", _outside_quotes(line))
+        found += [name for name in _COMMAND_AT.findall(line.strip())
+                  if name not in _BUILTINS]
+    return found
+
+
+def test_every_step_after_sealed_code_calls_its_tools_by_absolute_path():
+    """From the step that builds the sealed image on, every step runs its
+    shell by its absolute path and calls every tool by its absolute path,
+    never by a name looked up on a PATH (#1191). Nothing sealed can reach
+    this runner's PATH, since every sealed run is contained. This makes the
+    later steps independent of that PATH as well, as the child worker's are
+    (opensoft/xFactory#526)."""
+    steps = _finalize_steps()
+    later = steps[steps.index(_the_build_step()):]
+    shells = []
+    for step in later:
+        if "run" not in step:
+            continue
+        shells.append(step["shell"])
+        assert _bare_commands(step["run"]) == [], step.get("name")
+    assert set(shells) == {"/bin/bash --noprofile --norc -p -e {0}",
+                           "/bin/bash --noprofile --norc -p -eo pipefail {0}"}
+    seal = steps[_step_index(steps, id="dfr-seal")]
+    assert _bare_commands("python3 -c x; gh api y") == ["python3", "gh"]
+    assert _bare_commands("if gh api y; then X=\"$(git log)\"; fi") == \
+        ["gh", "git"]
+    assert '"${pythonLocation:?}/bin/python3" -c' in seal["run"]
 
 
 def test_the_record_step_reads_the_seal_result_only_after_a_seal_step_that_succeeded():
@@ -4354,11 +5127,12 @@ def _precheck(seal: Path) -> dict:
 
 
 def test_the_pre_dispatch_render_is_the_childs_own_invocation(
-        stand_in_seal, tmp_path, monkeypatch):
+        stand_in_seal, tmp_path, stand_in_docker):
     """The entry runs from the SEALED corpus root, with the seal's two anchors
-    and `--no-validate`, writing outside the seal. Then the SEALED validator
-    runs over what it wrote, under `--strict`. The record it returns is what
-    the manifest's `precheck` says."""
+    and `--no-validate`, word for word the child worker's generate, writing
+    into the container's own /out (#1191). Then the SEALED validator runs over
+    what it streamed, under `--strict`. The record it returns is what the
+    manifest's `precheck` says."""
     record = _precheck(stand_in_seal)
     assert record == {"entry": lane.RENDER_ENTRY, "documents": 3,
                       "strict": True, "outcome": lane.PRECHECK_VALIDATED,
@@ -4367,13 +5141,20 @@ def test_the_pre_dispatch_render_is_the_childs_own_invocation(
     corpus_root = stand_in_seal / lane.SEAL_CORPUS_RELPATH
     output = ran["argv"][ran["argv"].index("--output") + 1]
     assert ran["argv"] == [
-        "generate", "--repo-root", str(corpus_root),
-        "--repository", "openxFactory", "--source-revision", HEAD_REV,
-        "--generated-at", COMMITTED_AT, "--output", output, "--no-validate"]
+        "generate", "--repo-root", ".", "--repository", "openxFactory",
+        "--no-validate", "--source-revision", HEAD_REV,
+        "--generated-at", COMMITTED_AT, "--output", output]
     assert Path(ran["cwd"]).resolve() == corpus_root.resolve()
+    assert output.endswith("/out/openxFactory-snapshot.json")
     assert not Path(output).resolve().is_relative_to(stand_in_seal.resolve())
-    # The validator judges a COPY of exactly the bytes the render wrote, in a
-    # directory the render never saw, under `--strict`.
+    render, validator = _sealed_runs(stand_in_docker)
+    assert render[render.index(lane.SEALED_PYTHON):] == [
+        lane.SEALED_PYTHON, lane.RENDER_ENTRY, "generate", "--repo-root", ".",
+        "--repository", "openxFactory", "--no-validate",
+        "--source-revision", HEAD_REV, "--generated-at", COMMITTED_AT,
+        "--output", lane.SEALED_RENDER_OUTPUT]
+    # The validator judges a COPY of exactly the bytes the render streamed, in
+    # a directory made for it and mounted read-only, under `--strict`.
     judged = json.loads((tmp_path / "validator.json").read_text(encoding="utf-8"))
     handed = Path(judged["argv"][0])
     assert judged["argv"][1:] == ["--strict"]
@@ -4382,6 +5163,266 @@ def test_the_pre_dispatch_render_is_the_childs_own_invocation(
     assert not handed.is_relative_to(stand_in_seal.resolve())
     assert judged["sha256"] == \
         (tmp_path / "entry.json.sha256").read_text(encoding="utf-8")
+    module = lane.sealed_product_module(stand_in_seal).resolve()
+    assert validator[-4:] == [
+        "/seal/" + module.relative_to(stand_in_seal.resolve()).as_posix(),
+        f"{lane.SEALED_JUDGED}/snapshot.json",
+        f"/seal/{lane.SEAL_VALIDATOR_RELPATH}", "strict"]
+
+
+# ---------------------------------------------------------------------------
+# #1191: every sealed run is one `docker run` in the child worker's shape
+# ---------------------------------------------------------------------------
+
+_LABEL_4242 = "openxfactory.dashboard-refresh.sealed-run=4242-1"
+
+
+def _the_childs_shape(seal: Path, label: str) -> list[str]:
+    """The `docker run` every sealed run starts with, written out here word
+    for word, so no flag can drop out of the lane's unnoticed: the flags
+    opensoft/xFactory#526 runs the child's sealed render and validator
+    with."""
+    return ["run", "--rm", "--init", "--pull", "never",
+            "--read-only", "--tmpfs", "/tmp:rw,noexec,nosuid,nodev,size=64m",
+            "--network", "none", "--ipc", "none",
+            "--user", f"{os.getuid()}:{os.getgid()}",
+            "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
+            "--pids-limit", "128", "--memory", "1g", "--memory-swap", "1g",
+            "--cpus", "1", "--label", label, "--log-driver", "none",
+            "--env", "PYTHONDONTWRITEBYTECODE=1",
+            "--env", "PYTHONIOENCODING=utf-8",
+            "--env", "HOME=/tmp", "--env", "LANG=C.UTF-8",
+            "--mount", f"type=bind,source={seal.resolve()},target=/seal,readonly"]
+
+
+def test_every_sealed_run_is_one_docker_run_in_the_childs_shape(
+        stand_in_seal, stand_in_docker, monkeypatch):
+    """THE PRE-DISPATCH RENDER AND ITS VALIDATOR RUN IN THE CHILD'S CONTAINER
+    (#1191, "(b) for the finalize job too"). Each is one `docker run` of the
+    image the build step recorded, by id, with the seal read-only at /seal,
+    a read-only root, no network, no capability, this runner's non-root uid,
+    bounded processes, memory and CPU, this run's label, four literals of
+    environment, `--init` and `--rm`. The render's one writable place is a
+    tmpfs of its own at /out. The validator sees the judged copy's directory,
+    read-only, at /judged, and nothing else of the runner's."""
+    monkeypatch.setenv("GITHUB_RUN_ID", "4242")
+    monkeypatch.setenv("GITHUB_RUN_ATTEMPT", "1")
+    _precheck(stand_in_seal)
+    render, validator = _sealed_runs(stand_in_docker)
+    shape = _the_childs_shape(stand_in_seal, _LABEL_4242)
+    assert render[:len(shape)] == shape
+    assert render[len(shape):render.index(lane.SEALED_PYTHON)] == [
+        "--tmpfs", "/out:rw,noexec,nosuid,nodev,size=32m",
+        "--workdir", "/seal/openxFactory", STAND_IN_IMAGE,
+        "/bin/sh", "-c", lane._SEALED_RENDER_WRAPPER, "render",
+        "/out/openxFactory-snapshot.json"]
+    assert validator[:len(shape)] == shape
+    judged = validator[len(shape) + 1]
+    assert re.fullmatch(r"type=bind,source=/\S+/dfr-judged-\w+,target=/judged,"
+                        r"readonly", judged), judged
+    assert validator[len(shape)] == "--mount"
+    assert validator[len(shape) + 2:len(shape) + 7] == [
+        "--workdir", "/tmp", STAND_IN_IMAGE, "/usr/local/bin/python3", "-c"]
+
+
+def test_the_probe_runs_in_a_sealed_container_never_on_the_runner(
+        corpus, tmp_path, stand_in_docker, monkeypatch):
+    """THE PROBE IS SEALED CODE, AND IT RUNS IN A CONTAINER (#1191). The
+    sealed validator's run over the probe is one `docker run` in the child's
+    shape, over the probe's own directory mounted read-only at /judged. Not
+    one sealed run reaches this runner's own interpreter."""
+    monkeypatch.setenv("GITHUB_RUN_ID", "4242")
+    monkeypatch.setenv("GITHUB_RUN_ATTEMPT", "1")
+    seal = tmp_path / "seal"
+    _seal(corpus, seal)
+    runs = _sealed_runs(stand_in_docker)
+    assert runs, "the probe ran on this runner, not in a sealed container"
+    probe = runs[0]
+    shape = _the_childs_shape(seal, _LABEL_4242)
+    assert probe[:len(shape)] == shape
+    assert probe[-4:] == [
+        "/seal/" + lane.sealed_product_module(seal).resolve().relative_to(
+            seal.resolve()).as_posix(),
+        f"{lane.SEALED_JUDGED}/validator-probe.json",
+        f"/seal/{lane.SEAL_VALIDATOR_RELPATH}", "lenient"]
+    assert re.fullmatch(r"type=bind,source=/\S+/dfr-probe-\w+,target=/judged,"
+                        r"readonly", probe[len(shape) + 1])
+
+
+@pytest.mark.parametrize("image", [None, "", "latest", "python:3.12-slim",
+                                   "sha256:" + "a" * 63, "sha256:" + "A" * 64,
+                                   "sha256:" + "a" * 64 + "\n"],
+                         ids=["unset", "empty", "a-tag", "a-name",
+                              "a-short-id", "upper-case", "a-trailing-newline"])
+def test_no_sealed_code_runs_without_the_image_the_build_step_records(
+        corpus, tmp_path, stand_in_docker, monkeypatch, image):
+    """The sealed runs run in the image the finalize job's build step made,
+    named by the content id it recorded in `SEALED_IMAGE`, never by a name a
+    pull or a tag could move. Anything else refuses the seal before the
+    corpus is archived, and no sealed code runs at all: not in a container,
+    and not on this runner in its place (#1191)."""
+    if image is None:
+        monkeypatch.delenv("SEALED_IMAGE")
+    else:
+        monkeypatch.setenv("SEALED_IMAGE", image)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal")
+    assert str(refused.value) == (
+        f"SEALED_IMAGE is {image or ''!r}, not the image id the finalize "
+        "job's build step records, so no sealed code runs")
+    assert _docker_calls(stand_in_docker) == []
+    assert not (tmp_path / "seal" / lane.SEAL_CORPUS_RELPATH).exists()
+
+
+@pytest.mark.parametrize("name", _SEALED_DOCKER_ENV)
+def test_a_variable_that_would_take_the_calls_elsewhere_refuses_every_sealed_run(
+        corpus, tmp_path, stand_in_docker, monkeypatch, name):
+    """Set at all, whatever its value, each of these would send the docker
+    CLI's calls to another daemon or builder than the one the build step
+    used, or, for ACTIONS_ALLOW_UNSECURE_COMMANDS, let a line printed by a
+    step set a variable or a PATH entry for a later one. The seal is refused
+    and no sealed code runs (#1191)."""
+    monkeypatch.setenv(name, "")
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal")
+    if name == "ACTIONS_ALLOW_UNSECURE_COMMANDS":
+        assert str(refused.value) == (
+            "ACTIONS_ALLOW_UNSECURE_COMMANDS is set, so output this job does "
+            "not control could set a variable or a PATH entry for a later "
+            "step: no sealed code runs")
+    else:
+        assert str(refused.value) == (
+            f"{name} is set, so the docker CLI would not send its calls to the "
+            "local daemon the build step used: no sealed code runs")
+    assert _docker_calls(stand_in_docker) == []
+
+
+def test_a_root_uid_runs_no_sealed_code(corpus, tmp_path, stand_in_docker,
+                                        monkeypatch):
+    """The sealed runs take this runner's own uid and gid, and never root's
+    (#1191)."""
+    monkeypatch.setattr(lane.os, "getuid", lambda: 0)
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal")
+    assert str(refused.value) == (
+        "the sealed runs take this runner's uid and gid, and they are root's, "
+        "so no sealed code runs")
+    assert _docker_calls(stand_in_docker) == []
+
+
+def test_no_docker_cli_at_its_absolute_path_runs_no_sealed_code(
+        corpus, tmp_path, stand_in_docker, monkeypatch):
+    """The docker CLI is called by its absolute path, never looked up on a
+    PATH, and a runner without it runs no sealed code (#1191)."""
+    monkeypatch.setattr(lane, "DOCKER", str(tmp_path / "no-docker-here"))
+    with pytest.raises(lane.SealRefused) as refused:
+        _seal(corpus, tmp_path / "seal")
+    assert str(refused.value) == (
+        f"there is no docker CLI at {tmp_path / 'no-docker-here'}, so no "
+        "sealed code runs")
+    assert lane.DOCKER.startswith("/")
+
+
+def test_the_real_lane_calls_docker_by_its_absolute_system_path(monkeypatch):
+    monkeypatch.undo()
+    assert lane.DOCKER == "/usr/bin/docker"
+
+
+def test_a_container_left_running_is_removed_and_refuses_the_seal(
+        stand_in_seal, stand_in_docker, monkeypatch):
+    """`--init` and `--rm` in the foreground end every process of a run with
+    its container. The lane still asks the daemon, after each run, for any
+    container of this run's label still running. One that is has sealed
+    code that could still act: it is removed, and the seal is refused
+    (#1191)."""
+    monkeypatch.setenv("GITHUB_RUN_ID", "4242")
+    monkeypatch.setenv("GITHUB_RUN_ATTEMPT", "1")
+    _stand_in_docker_config(stand_in_docker, running=["c0ffee"])
+    with pytest.raises(lane.SealRefused) as refused:
+        _precheck(stand_in_seal)
+    assert str(refused.value) == (
+        "a container of the sealed render was still running after it "
+        "returned, so sealed code could still act: it is removed, and the "
+        "seal is refused")
+    calls = [call["argv"] for call in _docker_calls(stand_in_docker)]
+    listing = ["ps", "-q", "--filter", f"label={_LABEL_4242}"]
+    assert ["rm", "-f", "c0ffee"] in calls
+    # Asked again after the removal, and gone.
+    assert calls[calls.index(["rm", "-f", "c0ffee"]) + 1] == listing
+
+
+def test_a_container_the_daemon_cannot_remove_refuses_the_seal_saying_so(
+        stand_in_seal, stand_in_docker, monkeypatch):
+    """A removal the daemon rejects leaves the container running, so the
+    refusal says so rather than that it was removed. The seal is refused
+    either way, and the job's last step removes what the run left, or fails
+    (Copilot, PR #1192)."""
+    monkeypatch.setenv("GITHUB_RUN_ID", "4242")
+    monkeypatch.setenv("GITHUB_RUN_ATTEMPT", "1")
+    _stand_in_docker_config(stand_in_docker, running=["c0ffee"], rm_exit=1)
+    with pytest.raises(lane.SealRefused) as refused:
+        _precheck(stand_in_seal)
+    assert str(refused.value) == (
+        "a container of the sealed render was still running after it "
+        "returned, so sealed code could still act, and the daemon could not "
+        "remove it (c0ffee): the seal is refused, and the job's last step "
+        "removes what this run left")
+
+
+def test_a_daemon_that_cannot_list_the_runs_refuses_the_seal(
+        stand_in_seal, stand_in_docker):
+    """A run the daemon cannot account for is not known to be gone
+    (#1191)."""
+    _stand_in_docker_config(stand_in_docker, ps_exit=1)
+    with pytest.raises(lane.SealRefused, match="could not list this job's "
+                                               "sealed containers"):
+        _precheck(stand_in_seal)
+
+
+def test_the_docker_cli_runs_with_none_of_the_jobs_environment(
+        stand_in_seal, stand_in_docker, monkeypatch):
+    """The docker CLI itself is handed system tool directories and a fresh
+    configuration directory of its own, and nothing else of the job's: no
+    credential, and no plugin, proxy setting or login of the runner user's
+    (#1191)."""
+    _export_the_job_environment(monkeypatch)
+    _precheck(stand_in_seal)
+    calls = _docker_calls(stand_in_docker)
+    assert calls, "no sealed run went through the docker CLI"
+    for call in calls:
+        env = call["env"]
+        assert set(env) <= {"PATH", "HOME", "DOCKER_CONFIG", "LANG"}, sorted(env)
+        assert env["PATH"] == "/usr/sbin:/usr/bin:/sbin:/bin"
+        assert env["DOCKER_CONFIG"] == env["HOME"]
+        assert Path(env["DOCKER_CONFIG"]).name.startswith("dfr-docker-config-")
+        assert not any(value in _JOB_SECRETS for value in env.values())
+
+
+@pytest.mark.parametrize("name", ["a,b", 'a"b'], ids=["a-comma", "a-quote"])
+def test_a_mount_source_that_could_add_a_field_is_refused(tmp_path, name):
+    """A mount is written as comma-separated fields, so a source holding a
+    comma or a quote could add a field of its own, `readonly=false` among
+    them. Such a path is refused, not mounted (#1191)."""
+    seal = tmp_path / name
+    seal.mkdir()
+    container = lane.resolve_sealed_container()
+    with pytest.raises(lane.SealRefused, match="a mount source must be an "
+                                               "absolute path with no comma"):
+        container.argv(seal, workdir="/tmp")
+
+
+def test_the_label_is_this_runs_when_the_job_names_it(monkeypatch):
+    """The build step labels the image, and the job's last step removes
+    what carries the label, by this run's id and attempt. A run outside a
+    job gets a label of its own (#1191)."""
+    monkeypatch.setenv("GITHUB_RUN_ID", "4242")
+    monkeypatch.setenv("GITHUB_RUN_ATTEMPT", "1")
+    assert lane.resolve_sealed_container().label == _LABEL_4242
+    monkeypatch.delenv("GITHUB_RUN_ID")
+    first = lane.resolve_sealed_container().label
+    assert re.fullmatch(r"openxfactory\.dashboard-refresh\.sealed-run="
+                        r"local-[0-9a-f]{16}", first)
+    assert lane.resolve_sealed_container().label != first
 
 
 def test_the_verdict_is_read_by_the_sealed_product_module(stand_in_seal,
@@ -4397,21 +5438,23 @@ def test_the_verdict_is_read_by_the_sealed_product_module(stand_in_seal,
 
 
 def test_a_seal_named_relative_to_the_working_directory_still_renders(
-        stand_in_seal, tmp_path, monkeypatch):
+        stand_in_seal, tmp_path, monkeypatch, stand_in_docker):
     """The nightly names its seal `dfr-seal`, relative to the job's working
-    directory, and the render runs from INSIDE the seal. So every path the
-    render and the validator are handed is absolute. A relative one would be
-    read from the wrong directory, and every nightly seal would be refused
-    as a render that could not run."""
+    directory. The container mounts the seal from where it is, by its
+    absolute path, and the render runs from inside it at /seal. A relative
+    source would be refused by the daemon, and every nightly seal with it."""
     monkeypatch.chdir(tmp_path)
     record = lane.precheck_sealed_render(Path(stand_in_seal.name),
                                          source_head=HEAD_REV,
                                          source_committed_at=COMMITTED_AT)
     assert record["outcome"] == lane.PRECHECK_VALIDATED
     assert record["documents"] == 3
+    for run in _sealed_runs(stand_in_docker):
+        assert (f"type=bind,source={stand_in_seal.resolve()},target=/seal,"
+                "readonly") in run
     ran = json.loads((tmp_path / "entry.json").read_text(encoding="utf-8"))
     corpus_root = (stand_in_seal / lane.SEAL_CORPUS_RELPATH).resolve()
-    assert ran["argv"][ran["argv"].index("--repo-root") + 1] == str(corpus_root)
+    assert Path(ran["cwd"]).resolve() == corpus_root
     judged = json.loads((tmp_path / "validator.json").read_text(encoding="utf-8"))
     assert Path(judged["argv"][0]).is_absolute()
 
@@ -4419,16 +5462,14 @@ def test_a_seal_named_relative_to_the_working_directory_still_renders(
 def test_the_pre_dispatch_render_holds_no_credential_and_no_repository(
         stand_in_seal, tmp_path, monkeypatch):
     """It runs code read OUT OF THE SEAL, in a job that holds the App token and
-    a token-bearing git configuration. So it receives neither: no credential,
-    none of the job's GitHub or Git variables, no interpreter path override, a
-    scratch HOME, no bytecode written, and git may not climb out of the seal
-    into the aggregation checkout it sits in, which the child's seal never
-    has above it."""
+    a token-bearing git configuration. So its container is given none of the
+    job's variables: no credential, none of the job's GitHub or Git
+    variables, no interpreter path override, and HOME its own /tmp (#1191).
+    No git or repository is mounted into it at all."""
     _export_the_job_environment(monkeypatch)
     _precheck(stand_in_seal)
     env = json.loads((tmp_path / "entry.json").read_text(encoding="utf-8"))["env"]
     _assert_the_renders_environment(env, stand_in_seal)
-    assert env["GIT_CEILING_DIRECTORIES"] == str(stand_in_seal.resolve())
 
 
 def test_the_sealed_validator_runs_in_the_renders_environment_too(
@@ -4436,17 +5477,15 @@ def test_the_sealed_validator_runs_in_the_renders_environment_too(
     """The sealed validator is sealed code as well. The product's
     `validate_snapshot` launches it with no environment of its own, so a call
     made in this process would have handed it every credential of the job
-    (Copilot, PR #1166). It runs in the render's allowlisted environment, from
-    a scratch directory outside the seal, and git can climb out of neither."""
+    (Copilot, PR #1166). It runs in a sealed container of its own, from that
+    container's /tmp, outside the seal (#1191)."""
     _export_the_job_environment(monkeypatch)
     _precheck(stand_in_seal)
     judged = json.loads((tmp_path / "validator.json").read_text(encoding="utf-8"))
-    env = judged["env"]
-    _assert_the_renders_environment(env, stand_in_seal)
+    _assert_the_renders_environment(judged["env"], stand_in_seal)
     cwd = Path(judged["cwd"]).resolve()
     assert not cwd.is_relative_to(stand_in_seal.resolve())
     assert cwd != Path.cwd().resolve()
-    assert str(cwd.parent) in env["GIT_CEILING_DIRECTORIES"].split(os.pathsep)
 
 
 @pytest.mark.parametrize("mode, said", [
@@ -4465,49 +5504,55 @@ def test_a_sealed_render_that_would_fail_the_child_is_refused(
     assert str(refused.value).startswith(said)
 
 
-@pytest.mark.parametrize("mode, what", [
-    ("link-out", "a symbolic link"),
-    ("hard-link", "a hard link to another file"),
-    ("directory", "a directory"),
-    ("fifo", "not a regular file"),
-], ids=["a-link-out-of-the-scratch-directory", "a-hard-link", "a-directory",
-        "a-fifo"])
+@pytest.mark.parametrize("mode", ["link-out", "directory", "fifo"],
+                         ids=["a-link-out-of-its-directory", "a-directory",
+                              "a-fifo"])
 def test_render_output_that_is_not_a_file_of_its_own_is_refused(
-        stand_in_seal, tmp_path, mode, what):
-    """The render is sealed code, and its output is read by the parent, then
-    validated and quoted in the findings. A link there would hand the parent
-    any file on this host, here a valid snapshot the render put elsewhere
-    (Copilot, PR #1166). So the output must be a regular file of its own, and
-    nothing else is read or validated."""
+        stand_in_seal, tmp_path, mode):
+    """The snapshot leaves the render's container by stdout alone, and the
+    child worker's own wrapper streams it only when the render left a regular
+    file of its own at /out (#1191). A link there, a directory or a fifo is
+    refused inside the container with exit 3, and nothing is streamed, read
+    or validated."""
     _configure(tmp_path, render=mode)
     with pytest.raises(lane.SealRefused) as refused:
         _precheck(stand_in_seal)
     assert not isinstance(refused.value, lane.StrictGateRejected)
-    assert str(refused.value) == (
-        f"the sealed render's output is {what}, not a file of its own, so the "
-        "parent will not read it: a link could hand the parent any file on "
-        "this host to validate and quote")
+    assert re.fullmatch(
+        r"the sealed render unit could not render the snapshot \(exit 3\), "
+        r"so the child's generate would fail the same way: the sealed render "
+        r"left no regular file at \S+/out/openxFactory-snapshot\.json",
+        str(refused.value)), str(refused.value)
     assert not (tmp_path / "validator.json").exists()      # nothing judged
 
 
-def test_a_scratch_directory_the_render_swapped_is_never_read_through(
-        stand_in_seal, tmp_path):
-    """The render may replace the scratch directory's path with a link to
-    another directory holding a valid snapshot (Copilot, PR #1166). The
-    parent reads through the handle it took on the directory it made, before
-    the render ran, and that directory holds no output. So nothing is
-    validated, and the refusal is the render's own failure."""
-    _configure(tmp_path, render="swap-scratch")
+def test_the_snapshot_leaves_the_render_by_stdout_bounded(
+        stand_in_seal, tmp_path, monkeypatch):
+    """Nothing the render writes lands on this runner. Its snapshot is
+    streamed out of its container, and the host keeps at most one byte past
+    `SEALED_SNAPSHOT_LIMIT`: a render that streams more is refused before
+    anything is parsed, copied or validated (#1191)."""
+    monkeypatch.setattr(lane, "SEALED_SNAPSHOT_LIMIT", 64)
     with pytest.raises(lane.SealRefused) as refused:
         _precheck(stand_in_seal)
-    assert str(refused.value).startswith(
-        "the sealed render unit could not render the snapshot (exit 0)")
+    assert str(refused.value) == (
+        "the sealed render streamed more than 64 bytes, which no snapshot "
+        "needs, so its output is refused")
     assert not (tmp_path / "validator.json").exists()      # nothing judged
-    ran = json.loads((tmp_path / "entry.json").read_text(encoding="utf-8"))
-    scratch = Path(ran["argv"][ran["argv"].index("--output") + 1]).parent
-    assert scratch.is_symlink()                  # the swap really happened
-    scratch.unlink()
-    shutil.rmtree(str(scratch) + ".moved")
+
+
+def test_a_render_that_prints_past_the_log_bound_is_refused(
+        stand_in_seal, tmp_path, monkeypatch):
+    """What a sealed run prints for the log is bounded too
+    (`SEALED_LOG_LIMIT`), and a run past it is refused, whatever it
+    exited with (#1191)."""
+    monkeypatch.setattr(lane, "SEALED_LOG_LIMIT", 16)
+    _configure(tmp_path, render="fail")
+    with pytest.raises(lane.SealRefused) as refused:
+        _precheck(stand_in_seal)
+    assert str(refused.value) == (
+        "the sealed render printed more than 16 bytes for the log, which no "
+        "render needs, so it is refused")
 
 
 @pytest.mark.parametrize("replacement", ["a-link-to-the-moved-seal",
@@ -4524,7 +5569,8 @@ def test_a_seal_directory_the_render_replaced_gets_no_manifest(
     seal = tmp_path / "seal"
     moved = tmp_path / "seal.moved"
 
-    def replacing(seal_root, *, source_head, source_committed_at):
+    def replacing(seal_root, *, source_head, source_committed_at,
+                  container=None):
         seal.rename(moved)
         if replacement == "a-link-to-the-moved-seal":
             seal.symlink_to(moved, target_is_directory=True)
@@ -4586,27 +5632,6 @@ def test_a_seal_directory_that_is_a_link_is_refused(corpus, tmp_path,
     assert calls == []
     assert link.is_symlink()
     assert _what_is_at(target) == before
-
-
-def test_a_render_output_swapped_after_its_check_is_refused(tmp_path,
-                                                            monkeypatch):
-    """The output is checked, then opened without following a link, and
-    checked again through the descriptor. A swap between the two is
-    refused."""
-    first = tmp_path / "snapshot.json"
-    first.write_text("{}", encoding="utf-8")
-    other = tmp_path / "other.json"
-    other.write_text("{}", encoding="utf-8")
-    checked, real = os.lstat(other), os.stat
-    monkeypatch.setattr(
-        lane.os, "stat",
-        lambda path, *a, **kw: checked if Path(path) == first
-        else real(path, *a, **kw))
-    with pytest.raises(lane.SealRefused, match="a file that was swapped after "
-                                               "it was checked"):
-        lane._read_render_output(first)
-    monkeypatch.undo()
-    assert lane._read_render_output(first) == b"{}"
 
 
 def test_a_sealed_validator_that_cannot_run_over_the_render_is_refused(
@@ -4712,14 +5737,21 @@ def test_a_pre_dispatch_verdict_that_does_not_pair_is_refused(
         str(refused.value)
 
 
-def test_a_render_that_does_not_finish_is_refused(stand_in_seal):
-    def hanging(argv, **kw):
-        raise subprocess.TimeoutExpired(argv, kw.get("timeout"))
-
-    with pytest.raises(lane.SealRefused, match="did not finish within 7s"):
+def test_a_render_that_does_not_finish_is_refused(stand_in_seal,
+                                                  stand_in_docker):
+    """A sealed run is bounded. One past its bound is killed with its
+    container, and the lane looks for anything the run left before it
+    refuses the seal (#1191)."""
+    _stand_in_docker_config(stand_in_docker, hang=True)
+    with pytest.raises(lane.SealRefused, match="did not finish within 2s"):
         lane.precheck_sealed_render(stand_in_seal, source_head=HEAD_REV,
                                     source_committed_at=COMMITTED_AT,
-                                    run=hanging, timeout=7)
+                                    timeout=2)
+    calls = [call["argv"] for call in _docker_calls(stand_in_docker)]
+    assert calls[0][0] == "run"
+    assert any(call[:4] == ["ps", "-a", "-q", "--filter"]
+               and call[4].startswith(f"label={lane.SEALED_RUN_LABEL}=")
+               for call in calls[1:]), calls
 
 
 _A_VALIDATED_VERDICT = json.dumps({
@@ -4727,52 +5759,93 @@ _A_VALIDATED_VERDICT = json.dumps({
     "outcome": "validated", "unavailable_reason": None})
 
 
+def test_each_sealed_run_is_read_to_its_own_bound(stand_in_seal):
+    """What the host reads of a run is bounded by what that run may print:
+    the render's snapshot by SEALED_SNAPSHOT_LIMIT, and a validator's verdict
+    by SEALED_LOG_LIMIT (#1191)."""
+    container = _AnsweringContainer(
+        lane.resolve_sealed_container(),
+        lambda: lane.SealedRunResult(0, (_A_VALIDATED_VERDICT + "\n").encode(),
+                                     b""))
+    lane.precheck_sealed_render(stand_in_seal, source_head=HEAD_REV,
+                                source_committed_at=COMMITTED_AT,
+                                container=container, timeout=7)
+    assert container.limits == [("render", lane.SEALED_SNAPSHOT_LIMIT),
+                                ("validator", lane.SEALED_LOG_LIMIT)]
+    assert (lane.SEALED_SNAPSHOT_LIMIT, lane.SEALED_LOG_LIMIT) == (33554432,
+                                                                  1048576)
+
+
+class _AnsweringContainer:
+    """The real stand-in container for the render, and one canned answer for
+    every validator run."""
+
+    def __init__(self, real, answer):
+        self.real, self.answer, self.timeouts = real, answer, []
+        self.limits = []
+
+    def run(self, what, seal_root, command, **kw):
+        self.limits.append((what, kw["stdout_limit"]))
+        if what == "render":
+            return self.real.run(what, seal_root, command, **kw)
+        self.timeouts.append(kw["timeout"])
+        return self.answer()
+
+
+def _answer(harness):
+    if harness == "cannot-launch":
+        raise lane.SealRefused("the sealed validator could not be launched in "
+                               "its container (OSError: exec format error)")
+    if harness == "hangs":
+        return lane.SealedRunResult(-9, b"", b"", timed_out=True)
+    if harness == "prints-past-the-bound":
+        return lane.SealedRunResult(0, _A_VALIDATED_VERDICT.encode(), b"",
+                                    stdout_over=True)
+    stdout = {"says-nothing": "",
+              "prints-no-object": "[]\n",
+              "prints-another-shape": _A_VALIDATED_VERDICT.replace(
+                  '"validated"', '"maybe"') + "\n",
+              "exits-non-zero": _A_VALIDATED_VERDICT + "\n"}[harness]
+    return lane.SealedRunResult(1 if harness == "exits-non-zero" else 0,
+                                stdout.encode(), b"")
+
+
 @pytest.mark.parametrize("harness, said", [
     ("hangs", "the validator did not finish within 7s"),
-    ("cannot-launch", "the validator could not be launched in the render's "
-                      "environment (OSError: exec format error)"),
+    ("cannot-launch", "the sealed validator could not be launched in its "
+                      "container (OSError: exec format error)"),
     ("says-nothing", "the validator's harness returned no verdict (exit 0)"),
     ("prints-no-object", "the validator's harness returned no verdict (exit 0)"),
     ("prints-another-shape", "the validator's harness returned no verdict "
                              "(exit 0)"),
     ("exits-non-zero", "the validator's harness returned no verdict (exit 1)"),
+    ("prints-past-the-bound", "the validator's run printed more than "
+                              "1048576 bytes, which no verdict needs"),
 ], ids=["hangs", "cannot-launch", "says-nothing", "prints-no-object",
-        "prints-another-shape", "exits-non-zero"])
+        "prints-another-shape", "exits-non-zero", "prints-past-the-bound"])
 def test_a_validator_run_that_reaches_no_verdict_is_refused(stand_in_seal,
                                                             harness, said):
     """The validator's run is bounded, and only a harness that exits cleanly
     with a verdict of the product's own shape has answered. Anything else is
     the product's own "could not run", never a verdict on the corpus. That
-    holds even for a harness that printed "validated" before exiting non-zero.
-    The render is real here, and only the harness is stood in for."""
-    bounds: list = []
-
-    def run(argv, **kw):
-        if argv[1:2] != ["-c"]:
-            return subprocess.run(argv, **kw)
-        bounds.append(kw.get("timeout"))
-        if harness == "hangs":
-            raise subprocess.TimeoutExpired(argv, kw.get("timeout"))
-        if harness == "cannot-launch":
-            raise OSError("exec format error")
-        stdout = {"says-nothing": "",
-                  "prints-no-object": "[]\n",
-                  "prints-another-shape": _A_VALIDATED_VERDICT.replace(
-                      '"validated"', '"maybe"') + "\n",
-                  "exits-non-zero": _A_VALIDATED_VERDICT + "\n"}[harness]
-        return subprocess.CompletedProcess(
-            argv, 1 if harness == "exits-non-zero" else 0, stdout, "")
-
+    holds even for a harness that printed "validated" before exiting non-zero,
+    and for one that printed past its bound. The render is real here, and
+    only the validator's run is stood in for."""
+    container = _AnsweringContainer(lane.resolve_sealed_container(),
+                                    lambda: _answer(harness))
     with pytest.raises(lane.SealRefused) as refused:
         lane.precheck_sealed_render(stand_in_seal, source_head=HEAD_REV,
                                     source_committed_at=COMMITTED_AT,
-                                    run=run, timeout=7)
+                                    container=container, timeout=7)
     assert not isinstance(refused.value, lane.StrictGateRejected)
     reason = str(refused.value)
+    if harness == "cannot-launch":
+        assert reason == said
+        return
     assert reason.startswith("the sealed validator could NOT RUN over the "
                              "snapshot this seal renders")
     assert said in reason
-    assert bounds == [7]                      # the validator's run is bounded
+    assert container.timeouts == [7]          # the validator's run is bounded
 
 
 _MODAL_VALIDATOR = '''\
@@ -4798,22 +5871,29 @@ if MODE == "harness":
         "an-unreadable-target-is-the-datas", "not-a-file"])
 def test_the_fenced_call_answers_what_the_products_own_call_answers(
         tmp_path, mode, target_text, strict):
-    """Moving the call into the render's environment changes WHERE it runs,
-    never what it answers. Over each of the product's outcomes, including its
+    """Moving the call into a sealed container changes WHERE it runs, never
+    what it answers. Over each of the product's outcomes, including its
     own attribution of a harness exit over an unreadable target to the data,
     the fenced call returns the product's in-process result, field for
     field."""
-    validator = tmp_path / "validator.py"
+    seal = tmp_path / "seal"
+    package = seal / "src" / "openxdox"
+    shutil.copytree(Path(snapshot_mod.__file__).parent, package,
+                    ignore=shutil.ignore_patterns("__pycache__"))
+    validator = seal / "validator.py"
     if mode == "a-directory":
         validator.mkdir()
     else:
         validator.write_text(f"MODE = {mode!r}\n" + _MODAL_VALIDATOR,
                              encoding="utf-8")
-    target = tmp_path / "target.json"
+    judged = tmp_path / "judged"
+    judged.mkdir()
+    target = judged / "target.json"
     target.write_text(target_text, encoding="utf-8")
     fenced = lane.validate_in_render_environment(
         snapshot_mod, target, validator=validator, strict=strict,
-        seal_root=tmp_path, module_file=Path(snapshot_mod.__file__))
+        seal_root=seal, module_file=package / "snapshot.py",
+        container=lane.resolve_sealed_container())
     own = snapshot_mod.validate_snapshot(target, validator=validator,
                                          strict=strict)
     for name in ("ok", "returncode", "stdout", "stderr", "outcome",
@@ -4959,7 +6039,8 @@ def test_the_recipe_directory_is_held_from_its_making_to_the_recipe(
 
 
 def test_a_precheck_that_changes_the_sealed_tree_is_refused(corpus, tmp_path):
-    def writing(seal_root, *, source_head, source_committed_at):
+    def writing(seal_root, *, source_head, source_committed_at,
+                container=None):
         (Path(seal_root) / lane.SEAL_CORPUS_RELPATH / "docs" / "new.md"
          ).write_text("written by the render\n", encoding="utf-8")
         return dict(STUB_PRECHECK)
@@ -4970,7 +6051,8 @@ def test_a_precheck_that_changes_the_sealed_tree_is_refused(corpus, tmp_path):
 
 
 def test_a_rejected_precheck_leaves_no_manifest(corpus, tmp_path):
-    def rejecting(seal_root, *, source_head, source_committed_at):
+    def rejecting(seal_root, *, source_head, source_committed_at,
+                  container=None):
         raise lane.StrictGateRejected("--strict REJECTED", detail=["x"])
 
     with pytest.raises(lane.StrictGateRejected):
@@ -4995,7 +6077,8 @@ def test_a_manifest_the_lane_did_not_write_refuses_the_seal(corpus, tmp_path,
     outside.write_text("untouched\n", encoding="utf-8")
     nowhere = tmp_path / "nowhere.json"
 
-    def planting(seal_root, *, source_head, source_committed_at):
+    def planting(seal_root, *, source_head, source_committed_at,
+                 container=None):
         path = Path(seal_root) / lane.SEAL_MANIFEST_NAME
         if planted == "a-link-out-of-the-seal":
             path.symlink_to(outside)

@@ -122,12 +122,14 @@ import hashlib
 import json
 import os
 import re
+import secrets
 import shutil
 import stat
 import subprocess
 import sys
 import tarfile
 import tempfile
+import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
@@ -998,8 +1000,8 @@ class BuildResult:
 # that composed unit as regular files under its own root, `validator/`
 # (`scripts/` beside `contracts/schemas/`), where the script's own `parents[1]`
 # is the unit and its schemas resolve. Then the parent RUNS the sealed copy
-# once, through the product's own `snapshot.validate_snapshot` in an
-# allowlisted environment, over a minimal snapshot-kind probe, and refuses
+# once, through the product's own `snapshot.validate_snapshot` in a sealed
+# container (#1191), over a minimal snapshot-kind probe, and refuses
 # unless the validator reached a verdict. So
 # what the child's `--strict` runs is a byte-for-byte copy of the unit the
 # snapshot lane validates with, and that copy has run once, here, to a verdict.
@@ -1855,10 +1857,12 @@ def _occupied_recipe_path() -> SealRefused:
 
 def _write_new_recipe(seal_dir, text: str, *, identity=None) -> None:
     """Create the recipe the way the manifest is created (Copilot, PR #1166).
-    The validator's probe runs sealed code with the seal writable before the
-    recipe is written, and the probe's after-index cannot see what a process
-    it left behind puts at the recipe's path later: a link out, a hard link
-    to a host file, or a directory of its own.
+    The validator's probe runs sealed code before the recipe is written.
+    Since #1191 it runs in a sealed container, with the seal mounted
+    read-only, and nothing it starts outlives that container. The recipe is
+    still created as though a process the probe left behind could reach its
+    path later, which the probe's after-index could not see: a link out, a
+    hard link to a host file, or a directory of its own.
 
     So the recipe's directory is MADE here, exclusively, relative to a handle
     on the seal directory as created (`_seal_directory_handle`: the
@@ -2399,7 +2403,8 @@ def _unit_sources_source_head_does_not_hold(
 
 
 def seal_validator(seal_root, pinned: PinnedValidator, *, corpus_checkout,
-                   source_head: str, runner=subprocess_runner) -> dict:
+                   source_head: str, runner=subprocess_runner,
+                   container=None) -> dict:
     """Copy the pinned validator's composed unit into the seal, then RUN the
     sealed copy once. It returns the manifest's validator fields. It raises
     `SealRefused` when the product's revision cannot be read, when the unit
@@ -2422,8 +2427,8 @@ def seal_validator(seal_root, pinned: PinnedValidator, *, corpus_checkout,
     thing it reads: the probe's own verdict is a finding by construction, and
     it is never a verdict on the corpus. The probe lives in a scratch directory
     outside the seal, so nothing it touches is sealed. The copy is sealed code,
-    so it runs in the pre-dispatch render's allowlisted environment, not this
-    job's, and its run is classified by the SEALED product module
+    so it runs in a sealed container (`container`, #1191), never on this
+    runner, and its run is classified by the SEALED product module
     (`validate_in_render_environment`, `sealed_product_module`). The render
     legs are sealed before this runs.
 
@@ -2523,18 +2528,22 @@ def seal_validator(seal_root, pinned: PinnedValidator, *, corpus_checkout,
         raise SealRefused(
             "the sealed validator cannot be run on this parent "
             f"({type(exc).__name__}: {exc})") from exc
-    # THE PROBE IS SEALED CODE TOO, run with the seal writable. So the tree
-    # it runs in is indexed before it runs and again after, and a probe that
-    # changed it is refused (Copilot, PR #1166).
+    # THE PROBE IS SEALED CODE TOO. It runs in a sealed container, with the
+    # seal mounted read-only (#1191), and the tree is still indexed before it
+    # runs and again after, a check that holds without trusting the mount: a
+    # probe that changed it is refused (Copilot, PR #1166).
+    if container is None:
+        container = resolve_sealed_container()
     before = seal_file_index(seal_root)
-    with tempfile.TemporaryDirectory(prefix="dfr-probe-") as scratch:
+    with _sealed_scratch("dfr-probe-") as scratch:
         probe = Path(scratch) / "validator-probe.json"
         probe.write_text(json.dumps(VALIDATOR_PROBE, sort_keys=True) + "\n",
                          encoding="utf-8")
         result = validate_in_render_environment(
             product, probe, validator=script, strict=False,
             seal_root=seal_root,
-            module_file=sealed_product_module(seal_root))
+            module_file=sealed_product_module(seal_root),
+            container=container)
     if seal_file_index(seal_root) != before:
         raise SealRefused(
             "the sealed validator's probe changed the sealed tree, so the "
@@ -2763,60 +2772,346 @@ PRECHECK_VALIDATED = "validated"
 # validator gets the same bound, because the product's own call has none, and
 # a validator that hangs must not hold the rest of the nightly.
 PRECHECK_TIMEOUT_SECONDS = 600
-# The ONLY variables of this job's environment the pre-dispatch render
-# receives, by name, and by prefix for the locale. It runs code read out of the
-# seal, and this job holds the App token, a token-bearing git configuration and
-# whatever else the runner exports. So the environment is BUILT from an
-# allowlist rather than filtered by a denylist, which would pass any
-# credential it had not thought to name (Copilot, PR #1166). What is kept is
-# what an interpreter needs to start and read files in this locale:
-# `LD_LIBRARY_PATH` because the runner's toolcache interpreter can load its
-# own shared library from it; the Windows system variables because a child on
-# a Windows rider runs the same entry. The child's worker holds no
-# credential to begin with.
-_RENDER_ENV_KEPT = ("PATH", "LD_LIBRARY_PATH", "LANG", "LANGUAGE", "TZ",
-                    "TMPDIR", "TEMP", "TMP", "SYSTEMROOT", "SYSTEMDRIVE",
-                    "WINDIR", "COMSPEC", "PATHEXT")
-_RENDER_ENV_KEPT_PREFIXES = ("LC_",)
+# EVERY SEALED RUN RUNS IN A CONTAINER (#1191). Brett Heap ruled, 2026-09-27,
+# "(b) for the finalize job too": the parent-side twin of the ruling
+# opensoft/xFactory#526 landed at db26fdc0 for the child. The probe, the
+# pre-dispatch render and its `--strict` validation are code read out of the
+# seal, and this job holds the App token and runs later steps with it. So
+# each runs as ONE `docker run` built here (`SealedContainer`), in the shape
+# the child's worker runs its own sealed render and validator in:
+#   * the image the finalize job's build step made, by its content id
+#     (`SEALED_IMAGE`, never a name a pull or a tag could move), with
+#     `--pull never`;
+#   * the seal bind-mounted READ-ONLY at /seal, the one file a validator run
+#     judges read-only at /judged, and nothing of the runner's writable. The
+#     render writes into a bounded tmpfs of its own and streams its snapshot
+#     out by stdout;
+#   * a read-only root with a noexec /tmp, no network, no IPC, no
+#     capabilities, no new privileges, this runner's own non-root uid, and a
+#     bound on processes, memory and CPU;
+#   * no variable of the runner's. The four a run is given are written out
+#     as literals, and the docker CLI itself runs with a fresh configuration
+#     directory and nothing else of the job's;
+#   * `--init` and `--rm`, in the foreground, so every descendant dies with
+#     the container's init: nothing sealed code starts outlives its run.
+#     Each run carries this job's label. A container with it still running
+#     after the run returned is removed and refuses the seal, and the job's
+#     last step removes anything a cancelled run left behind.
+# The host reads only what a run prints, bounded (`SEALED_LOG_LIMIT`, and
+# `SEALED_SNAPSHOT_LIMIT` for the snapshot), and the sealed output it prints
+# into the job's log goes inside a fence the runner takes no workflow command
+# in (`_print_fenced`).
+DOCKER = "/usr/bin/docker"
+SEALED_IMAGE_ENV = "SEALED_IMAGE"
+_SEALED_IMAGE_RE = re.compile(r"sha256:[0-9a-f]{64}")
+# The label every sealed run carries, and the image they run in. The build
+# step and the job's last step spell the same key.
+SEALED_RUN_LABEL = "openxfactory.dashboard-refresh.sealed-run"
+SEALED_PYTHON = "/usr/local/bin/python3"
+SEALED_SEAL = "/seal"
+SEALED_JUDGED = "/judged"
+SEALED_OUT = "/out"
+SEALED_RENDER_OUTPUT = f"{SEALED_OUT}/openxFactory-snapshot.json"
+SEALED_LOG_LIMIT = 1048576
+SEALED_SNAPSHOT_LIMIT = 33554432
+_SEALED_ENV = ("PYTHONDONTWRITEBYTECODE=1", "PYTHONIOENCODING=utf-8",
+               "HOME=/tmp", "LANG=C.UTF-8")
+# Refused when set at all, whatever the value. While
+# ACTIONS_ALLOW_UNSECURE_COMMANDS is set, the runner acts on `set-env` and
+# `add-path` in any line a step prints, so output this job does not control
+# could reach a later step. Each of the others would send the docker CLI's
+# calls to another daemon or builder than the local one the build step used.
+_SEALED_REFUSED_ENV = ("ACTIONS_ALLOW_UNSECURE_COMMANDS", "DOCKER_HOST",
+                       "DOCKER_CONTEXT", "DOCKER_TLS", "DOCKER_TLS_VERIFY",
+                       "DOCKER_CERT_PATH", "BUILDX_CONFIG", "BUILDX_BUILDER")
+# The child worker's own wrapper around the render: the render's output goes
+# to stderr, then the snapshot is streamed out if it is a regular file of the
+# render's own. Exit 3 names one that is not.
+_SEALED_RENDER_WRAPPER = (
+    'out=$1; shift; unset PWD OLDPWD\n'
+    '"$@" >&2 || exit\n'
+    'if [ -L "$out" ] || [ ! -f "$out" ]; then\n'
+    '  echo "the sealed render left no regular file at $out" >&2\n'
+    '  exit 3\n'
+    'fi\n'
+    'exec /bin/cat -- "$out"\n')
 
 
-def _render_environment(seal_root, home) -> dict[str, str]:
-    """The environment of the parent's pre-dispatch render: the allowlisted
-    variables (`_RENDER_ENV_KEPT`), and nothing else of this job's.
-
-    Beyond them, the settings below make the render the child's. `HOME` is a
-    scratch directory. No bytecode is written, so the render cannot add a file
-    to the tree the index is about to cover. `git` may not climb out of the
-    seal: this parent's seal sits INSIDE the aggregation checkout, while the
-    child's has no repository above it. And git reads no global or system
-    configuration."""
-    env = {key: value for key, value in os.environ.items()
-           if key in _RENDER_ENV_KEPT
-           or key.startswith(_RENDER_ENV_KEPT_PREFIXES)}
-    env.update({
-        "HOME": str(home),
-        "PYTHONDONTWRITEBYTECODE": "1",
-        "PYTHONIOENCODING": "utf-8",
-        "GIT_CEILING_DIRECTORIES": str(Path(seal_root).resolve()),
-        "GIT_CONFIG_GLOBAL": os.devnull,
-        "GIT_CONFIG_NOSYSTEM": "1",
-    })
-    return env
+def _mountable(path) -> str:
+    """`path` resolved, as a mount source may name it: absolute, with no
+    comma, quote or newline. A mount is written as comma-separated fields, so
+    such a path could add a field of its own. Raises `SealRefused` for any
+    other."""
+    resolved = os.path.realpath(path)
+    if not os.path.isabs(resolved) or any(c in resolved for c in ',"\n\r'):
+        raise SealRefused(
+            f"refusing to mount {resolved!r} into a sealed run: a mount "
+            "source must be an absolute path with no comma, quote or newline")
+    return resolved
 
 
-# THE SEALED VALIDATOR RUNS IN THAT ENVIRONMENT TOO (Copilot, PR #1166). The
-# product's `snapshot.validate_snapshot` launches the validator with no `env`
-# of its own. Called in THIS process, it would hand the sealed copy every
-# credential the job holds. So the call is made in a fresh interpreter whose
-# whole environment is `_render_environment`'s, working in a scratch
-# directory. It is still the product's own function, with its own three-outcome
-# reading, and everything it launches inherits the allowlist. The module is
-# the SEALED one, out of the seal's openXdox leg (`sealed_product_module`):
-# the exact code the seal carries, never this parent's worktree, which could
-# be dirty (Copilot, PR #1166). The harness ends without a verdict if the
-# name resolves to any other file. It hands the product's result back as the
-# last line of its stdout. The validator's own output never reaches that
-# stream, because the product captures it.
+def _in_the_seal(path, seal_root) -> str:
+    """Where `path`, inside the seal on this runner, is in a sealed run.
+    Raises `ValueError` for a path outside the seal."""
+    relpath = Path(path).resolve().relative_to(Path(seal_root).resolve())
+    return f"{SEALED_SEAL}/{relpath.as_posix()}"
+
+
+def _sealed_scratch(prefix: str) -> tempfile.TemporaryDirectory:
+    """A scratch directory to mount into a sealed run: in the job's own
+    temporary directory (`RUNNER_TEMP`) when it has one, which the local
+    daemon mounts from, as the child worker's are."""
+    runner_temp = os.environ.get("RUNNER_TEMP")
+    return tempfile.TemporaryDirectory(
+        prefix=prefix,
+        dir=runner_temp if runner_temp and os.path.isdir(runner_temp) else None)
+
+
+def _docker_cli_environment(config: str) -> dict[str, str]:
+    """The docker CLI's whole environment: system tool directories, and a
+    fresh configuration directory of its own (`DOCKER_CONFIG`), so no plugin,
+    proxy setting or credential of the runner's user reaches it or a sealed
+    container. Nothing else of the job's."""
+    return {"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "HOME": config,
+            "DOCKER_CONFIG": config, "LANG": "C.UTF-8"}
+
+
+def _print_fenced(lines) -> None:
+    """Print sealed output into the job's log inside a fence the runner takes
+    no workflow command in (#1191): `::stop-commands::` with a token drawn
+    now, 128 random bits no sealed run saw, then the same token on a line of
+    its own to resume. Nothing the output holds can close the fence."""
+    token = secrets.token_hex(16)
+    print(f"::stop-commands::{token}")
+    for line in lines:
+        print(f"  {line}")
+    print(f"::{token}::")
+
+
+def _one_line(text) -> str:
+    """`text` as one line of the job's log: each line break `str.splitlines`
+    knows, a superset of those the runner splits a step's output on, becomes
+    a space. The runner takes a workflow command only at the start of a
+    line, and a refusal's reason can carry a line a sealed run printed
+    (Copilot, PR #1192)."""
+    return " ".join(str(text).splitlines())
+
+
+def _command_data(text) -> str:
+    """`text` as a workflow command's data: one line, with `%` escaped as
+    `%25`, so no escape it carries is read as a line break."""
+    return _one_line(text).replace("%", "%25")
+
+
+def _drain_bounded(stream, limit: int, into: list) -> None:
+    """Read `stream` to its end, keeping at most `limit + 1` bytes: the one
+    byte past the limit says it was passed. The rest is read and dropped, so
+    a run that prints too much is never stalled on a full pipe. Its timeout
+    bounds it."""
+    kept = bytearray()
+    while True:
+        chunk = stream.read1(65536)
+        if not chunk:
+            break
+        room = limit + 1 - len(kept)
+        if room > 0:
+            kept += chunk[:room]
+    into.append(bytes(kept))
+
+
+@dataclass(frozen=True)
+class SealedRunResult:
+    """What one sealed run printed, bounded, and how it ended."""
+    returncode: int
+    stdout: bytes
+    stderr: bytes
+    stdout_over: bool = False
+    stderr_over: bool = False
+    timed_out: bool = False
+
+
+@dataclass(frozen=True)
+class SealedContainer:
+    """How this parent runs sealed code (#1191; see `DOCKER`)."""
+    image: str
+    label: str
+    uid: int
+    gid: int
+    docker: str = DOCKER
+
+    def argv(self, seal_root, *, mounts=(), workdir: str,
+             out: bool = False) -> list[str]:
+        """One sealed run's `docker run`, up to and including the image. The
+        command follows it."""
+        argv = [self.docker, "run", "--rm", "--init", "--pull", "never",
+                "--read-only", "--tmpfs",
+                "/tmp:rw,noexec,nosuid,nodev,size=64m",
+                "--network", "none", "--ipc", "none",
+                "--user", f"{self.uid}:{self.gid}",
+                "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
+                "--pids-limit", "128", "--memory", "1g", "--memory-swap", "1g",
+                "--cpus", "1", "--label", self.label, "--log-driver", "none"]
+        for pair in _SEALED_ENV:
+            argv += ["--env", pair]
+        argv += ["--mount", f"type=bind,source={_mountable(seal_root)},"
+                            f"target={SEALED_SEAL},readonly"]
+        for source, target in mounts:
+            argv += ["--mount", f"type=bind,source={_mountable(source)},"
+                                f"target={target},readonly"]
+        if out:
+            argv += ["--tmpfs", f"{SEALED_OUT}:rw,noexec,nosuid,nodev,size=32m"]
+        return [*argv, "--workdir", workdir, self.image]
+
+    def _containers(self, config: str, *, every: bool) -> list[str]:
+        """This job's sealed containers still running, or every one there is
+        with `every`. Raises `SealRefused` when the daemon cannot say, since
+        a run it cannot account for is not known to be gone."""
+        listing = subprocess.run(
+            [self.docker, "ps", *(["-a"] if every else []), "-q", "--filter",
+             f"label={self.label}"],
+            cwd="/", env=_docker_cli_environment(config),
+            stdin=subprocess.DEVNULL, capture_output=True, text=True,
+            timeout=60)
+        if listing.returncode != 0:
+            raise SealRefused(
+                "the docker daemon could not list this job's sealed "
+                f"containers (exit {listing.returncode}), so a sealed run is "
+                "not known to be gone")
+        return listing.stdout.split()
+
+    def _remove(self, config: str, ids: list[str]) -> bool:
+        """Remove `ids` by force. Returns whether the daemon did so."""
+        if not ids:
+            return True
+        removal = subprocess.run([self.docker, "rm", "-f", *ids], cwd="/",
+                                 env=_docker_cli_environment(config),
+                                 stdin=subprocess.DEVNULL,
+                                 capture_output=True, timeout=120)
+        return removal.returncode == 0
+
+    def run(self, what: str, seal_root, command, *, mounts=(), workdir: str,
+            out: bool = False, stdout_limit: int,
+            timeout: int) -> SealedRunResult:
+        """Run `command` in one sealed container, in the foreground, and
+        return what it printed, each stream bounded. A run past `timeout` is
+        killed with its container. Raises `SealRefused` when the docker CLI
+        cannot be launched, and when a container of this job's is still
+        running after the run returned: it is removed first."""
+        argv = [*self.argv(seal_root, mounts=mounts, workdir=workdir, out=out),
+                *command]
+        with tempfile.TemporaryDirectory(prefix="dfr-docker-config-") as config:
+            try:
+                proc = subprocess.Popen(
+                    argv, cwd="/", env=_docker_cli_environment(config),
+                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+            except OSError as exc:
+                raise SealRefused(
+                    f"the sealed {what} could not be launched in its "
+                    f"container ({type(exc).__name__}: {exc})") from exc
+            stdout: list[bytes] = []
+            stderr: list[bytes] = []
+            readers = [
+                threading.Thread(target=_drain_bounded, daemon=True,
+                                 args=(proc.stdout, stdout_limit, stdout)),
+                threading.Thread(target=_drain_bounded, daemon=True,
+                                 args=(proc.stderr, SEALED_LOG_LIMIT, stderr))]
+            for reader in readers:
+                reader.start()
+            timed_out = False
+            try:
+                proc.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                timed_out = True
+                proc.kill()
+                proc.wait()
+                self._remove(config, self._containers(config, every=True))
+            for reader in readers:
+                reader.join(timeout=60)
+            left = self._containers(config, every=False)
+            if left:
+                # Removed, then asked again: a removal the daemon rejects
+                # leaves the container running, and the refusal says so
+                # (Copilot, PR #1192). The seal is refused either way.
+                self._remove(config, left)
+                still = self._containers(config, every=False)
+                if still:
+                    raise SealRefused(
+                        f"a container of the sealed {what} was still running "
+                        "after it returned, so sealed code could still act, "
+                        "and the daemon could not remove it "
+                        f"({', '.join(still)}): the seal is refused, and the "
+                        "job's last step removes what this run left")
+                raise SealRefused(
+                    f"a container of the sealed {what} was still running after "
+                    "it returned, so sealed code could still act: it is "
+                    "removed, and the seal is refused")
+        printed = stdout[0] if stdout else b""
+        said = stderr[0] if stderr else b""
+        return SealedRunResult(
+            returncode=proc.returncode, stdout=printed[:stdout_limit],
+            stderr=said[:SEALED_LOG_LIMIT],
+            stdout_over=len(printed) > stdout_limit,
+            stderr_over=len(said) > SEALED_LOG_LIMIT, timed_out=timed_out)
+
+
+def resolve_sealed_container(environ=None) -> SealedContainer:
+    """The container every sealed run of this parent runs in (#1191). Raises
+    `SealRefused`, naming why no sealed code may run: a variable that would
+    take a later step's commands, or the docker CLI, somewhere else; an image
+    id the finalize job's build step did not record; a root uid; or no docker
+    CLI at `DOCKER`. Nothing sealed ever runs on this runner instead."""
+    environ = os.environ if environ is None else environ
+    for name in _SEALED_REFUSED_ENV:
+        if name in environ:
+            if name == "ACTIONS_ALLOW_UNSECURE_COMMANDS":
+                raise SealRefused(
+                    "ACTIONS_ALLOW_UNSECURE_COMMANDS is set, so output this "
+                    "job does not control could set a variable or a PATH "
+                    "entry for a later step: no sealed code runs")
+            raise SealRefused(
+                f"{name} is set, so the docker CLI would not send its calls "
+                "to the local daemon the build step used: no sealed code runs")
+    image = environ.get(SEALED_IMAGE_ENV, "")
+    if not _SEALED_IMAGE_RE.fullmatch(image):
+        raise SealRefused(
+            f"{SEALED_IMAGE_ENV} is {image!r}, not the image id the finalize "
+            "job's build step records, so no sealed code runs")
+    uid, gid = os.getuid(), os.getgid()
+    if uid == 0 or gid == 0:
+        raise SealRefused(
+            "the sealed runs take this runner's uid and gid, and they are "
+            "root's, so no sealed code runs")
+    if not (os.path.isabs(DOCKER) and os.access(DOCKER, os.X_OK)):
+        raise SealRefused(
+            f"there is no docker CLI at {DOCKER}, so no sealed code runs")
+    run_id = environ.get("GITHUB_RUN_ID", "")
+    attempt = environ.get("GITHUB_RUN_ATTEMPT", "")
+    tag = (f"{run_id}-{attempt}" if run_id.isdigit() and attempt.isdigit()
+           else f"local-{secrets.token_hex(8)}")
+    return SealedContainer(image=image, label=f"{SEALED_RUN_LABEL}={tag}",
+                           uid=uid, gid=gid, docker=DOCKER)
+
+
+def _last_line(data: bytes) -> str:
+    """A run's own last line, bounded, so a refusal carries its words."""
+    lines = [line.strip() for line in
+             data.decode("utf-8", "replace").splitlines() if line.strip()]
+    return lines[-1][:400] if lines else ""
+
+
+# THE SEALED VALIDATOR RUNS IN THE SEALED CONTAINER TOO (Copilot, PR #1166;
+# #1191). The product's `snapshot.validate_snapshot` launches the validator
+# with no `env` of its own, so the call is made in a fresh interpreter in a
+# sealed container, whose whole environment is the four literals the
+# container is given. It is still the product's own function, with its own
+# three-outcome reading. The module is the SEALED one, out of the seal's
+# openXdox leg (`sealed_product_module`): the exact code the seal carries,
+# never this parent's worktree, which could be dirty (Copilot, PR #1166). The
+# harness ends without a verdict if the name resolves to any other file. It
+# hands the product's result back as the last line of its stdout. The
+# validator's own output never reaches that stream, because the product
+# captures it.
 _VALIDATE_HARNESS = """\
 import json, sys
 from pathlib import Path
@@ -2873,58 +3168,61 @@ def sealed_product_module(seal_root) -> Path:
 
 
 def validate_in_render_environment(product, target, *, validator, strict: bool,
-                                   seal_root, module_file,
-                                   run=subprocess.run,
+                                   seal_root, module_file, container,
                                    timeout: int = PRECHECK_TIMEOUT_SECONDS):
     """The product's own `validate_snapshot(target, validator=...,
-    strict=...)`, imported from `module_file` and run in the pre-dispatch
-    render's environment rather than this job's (see `_VALIDATE_HARNESS`).
+    strict=...)`, imported from `module_file` and run in a sealed container
+    (`container.run`, #1191), never on this runner (see `_VALIDATE_HARNESS`).
     Returns a `ValidationResult`, the parent's `product` supplying only that
     record's type and the outcome spellings.
 
-    Git may climb neither out of the seal nor out of the scratch directory the
-    validator runs in. A harness that cannot be launched, does not finish, or
-    returns no verdict is reported the way the product reports a validator
-    that cannot run: outcome `VALIDATOR_UNAVAILABLE`, with the reason. Nothing
-    is then known about the target, and both callers refuse on that
-    outcome."""
+    The seal is mounted read-only, and `target`'s own directory, which holds
+    nothing else, read-only at `SEALED_JUDGED`. What the run prints is
+    bounded. A run that cannot be started, does not finish, prints past the
+    bound or returns no verdict is reported the way the product reports a
+    validator that cannot run: outcome `VALIDATOR_UNAVAILABLE`, with the
+    reason. Nothing is then known about the target, and both callers refuse
+    on that outcome."""
     validator = Path(validator).resolve()
     module_file = Path(module_file).resolve()
+    target = Path(target).resolve()
 
     def unavailable(reason: str, *, returncode: int = -1, stderr: str = ""):
         return product.ValidationResult(
             False, returncode, "", stderr, validator,
             product.VALIDATOR_UNAVAILABLE, reason)
 
-    with tempfile.TemporaryDirectory(prefix="dfr-validate-") as scratch:
-        scratch_root = Path(scratch).resolve()
-        home = scratch_root / "home"
-        home.mkdir()
-        env = _render_environment(seal_root, home)
-        env["GIT_CEILING_DIRECTORIES"] = os.pathsep.join(
-            (env["GIT_CEILING_DIRECTORIES"], str(scratch_root.parent)))
-        argv = [sys.executable, "-c", _VALIDATE_HARNESS, str(module_file),
-                str(Path(target).resolve()), str(validator),
-                "strict" if strict else "lenient"]
-        try:
-            proc = run(argv, cwd=str(scratch_root), env=env,
-                       capture_output=True, text=True, timeout=timeout)
-        except subprocess.TimeoutExpired:
-            return unavailable(f"the validator did not finish within {timeout}s")
-        except OSError as exc:
-            return unavailable(
-                "the validator could not be launched in the render's "
-                f"environment ({type(exc).__name__}: {exc})")
+    try:
+        inside = (_in_the_seal(module_file, seal_root),
+                  _in_the_seal(validator, seal_root))
+    except ValueError:
+        return unavailable(
+            "the validator or the product module it is read by is not inside "
+            "the seal, so no sealed container could run it")
+    run = container.run(
+        "validator", seal_root,
+        [SEALED_PYTHON, "-c", _VALIDATE_HARNESS, inside[0],
+         f"{SEALED_JUDGED}/{target.name}", inside[1],
+         "strict" if strict else "lenient"],
+        mounts=((target.parent, SEALED_JUDGED),), workdir="/tmp",
+        stdout_limit=SEALED_LOG_LIMIT, timeout=timeout)
+    stderr = run.stderr.decode("utf-8", "replace")
+    if run.timed_out:
+        return unavailable(f"the validator did not finish within {timeout}s")
+    if run.stdout_over or run.stderr_over:
+        return unavailable(
+            f"the validator's run printed more than {SEALED_LOG_LIMIT} bytes, "
+            "which no verdict needs")
     verdict = _harness_verdict(
-        proc.stdout, (product.VALIDATED, product.NOT_CONFORMANT,
-                      product.VALIDATOR_UNAVAILABLE))
-    if proc.returncode != 0 or verdict is None:
+        run.stdout.decode("utf-8", "replace"),
+        (product.VALIDATED, product.NOT_CONFORMANT,
+         product.VALIDATOR_UNAVAILABLE))
+    if run.returncode != 0 or verdict is None:
         # Its stderr is kept, since a harness that could not import the product
         # says why there. Its stdout carries nothing but a verdict line.
         return unavailable(
             f"the validator's harness returned no verdict (exit "
-            f"{proc.returncode})", returncode=proc.returncode,
-            stderr=proc.stderr or "")
+            f"{run.returncode})", returncode=run.returncode, stderr=stderr)
     return product.ValidationResult(
         verdict["ok"], verdict["returncode"], verdict["stdout"],
         verdict["stderr"], validator, verdict["outcome"],
@@ -2984,27 +3282,6 @@ def known_finding_citation(lines) -> str:
             + ")")
 
 
-def _not_a_file_of_its_own(info: os.stat_result) -> str:
-    """What `info` is, when it is anything but a regular file with one link;
-    "" when it is one."""
-    if stat.S_ISLNK(info.st_mode):
-        return "a symbolic link"
-    if stat.S_ISDIR(info.st_mode):
-        return "a directory"
-    if not stat.S_ISREG(info.st_mode):
-        return "not a regular file"
-    if info.st_nlink != 1:
-        return "a hard link to another file"
-    return ""
-
-
-def _render_output_refused(what: str) -> SealRefused:
-    return SealRefused(
-        f"the sealed render's output is {what}, not a file of its own, so "
-        "the parent will not read it: a link could hand the parent any file "
-        "on this host to validate and quote")
-
-
 def _render_output_present(name, *, dir_fd=None) -> bool:
     """Whether anything at all sits at `name`, relative to `dir_fd` when it is
     given, a dangling link included."""
@@ -3015,171 +3292,120 @@ def _render_output_present(name, *, dir_fd=None) -> bool:
     return True
 
 
-def _read_render_output(name, *, dir_fd=None) -> bytes:
-    """The bytes the sealed render wrote at `name`, which must be a regular
-    file of its own: not a symbolic link, not a hard link, nothing else. The
-    render is sealed code, and a link would have the parent validate, and
-    quote in its findings, whatever file on this host it named (Copilot,
-    PR #1166). `name` is read relative to `dir_fd`, a handle on the directory
-    the parent made, when one is given, so a directory swapped in on the way
-    to it cannot redirect the read. The file is opened without following a
-    link and checked again through the open descriptor, so a swap after the
-    first check is refused too."""
-    try:
-        before = os.stat(name, dir_fd=dir_fd, follow_symlinks=False)
-    except OSError as exc:
-        raise SealRefused(
-            f"the sealed render's output cannot be read ({exc})") from exc
-    what = _not_a_file_of_its_own(before)
-    if what:
-        raise _render_output_refused(what)
-    flags = (os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
-             | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0))
-    try:
-        descriptor = os.open(name, flags, dir_fd=dir_fd)
-    except OSError as exc:
-        raise _render_output_refused(
-            f"something that could not be opened without following a link "
-            f"({exc.strerror})") from exc
-    with os.fdopen(descriptor, "rb") as handle:
-        after = os.fstat(handle.fileno())
-        what = _not_a_file_of_its_own(after)
-        if not what and (after.st_dev, after.st_ino) != (before.st_dev,
-                                                         before.st_ino):
-            what = "a file that was swapped after it was checked"
-        if what:
-            raise _render_output_refused(what)
-        return handle.read()
-
-
-def _run_the_sealed_render(entry, corpus_root, seal_root, home, snapshot,
-                           output, scratch_fd, *, source_head: str,
-                           source_committed_at: str, run, timeout: int) -> bytes:
-    """Run `RENDER_ENTRY generate` from the sealed corpus root, as the child
-    does, writing `snapshot`, and return the bytes it wrote. They are read
-    through `scratch_fd`, the handle on the directory `snapshot` was made in,
-    under the name `output` (`_read_render_output`)."""
-    argv = [sys.executable, str(entry), "generate",
-            "--repo-root", str(corpus_root),
-            "--repository", RENDER_REPOSITORY,
-            "--source-revision", source_head,
-            "--generated-at", source_committed_at,
-            "--output", str(snapshot), "--no-validate"]
-    try:
-        proc = run(argv, cwd=str(corpus_root),
-                   env=_render_environment(seal_root, home),
-                   capture_output=True, text=True, timeout=timeout)
-    except subprocess.TimeoutExpired as exc:
+def _run_the_sealed_render(seal_root, *, source_head: str,
+                           source_committed_at: str, container,
+                           timeout: int) -> bytes:
+    """Run `RENDER_ENTRY generate` in a sealed container, from the sealed
+    corpus root, word for word as the child worker does (opensoft/xFactory
+    #526), and return the snapshot it streamed. The render writes into a
+    tmpfs of its own (`SEALED_OUT`), its own output goes to stderr, and the
+    snapshot leaves by stdout alone, bounded by `SEALED_SNAPSHOT_LIMIT`.
+    Nothing it writes lands on this runner."""
+    command = ["/bin/sh", "-c", _SEALED_RENDER_WRAPPER, "render",
+               SEALED_RENDER_OUTPUT, SEALED_PYTHON, RENDER_ENTRY, "generate",
+               "--repo-root", ".", "--repository", RENDER_REPOSITORY,
+               "--no-validate", "--source-revision", source_head,
+               "--generated-at", source_committed_at,
+               "--output", SEALED_RENDER_OUTPUT]
+    run = container.run("render", seal_root, command,
+                        workdir=f"{SEALED_SEAL}/{SEAL_CORPUS_RELPATH}",
+                        out=True, stdout_limit=SEALED_SNAPSHOT_LIMIT,
+                        timeout=timeout)
+    if run.timed_out:
         raise SealRefused(
             f"the sealed render did not finish within {timeout}s, so the "
-            "child's generate would not either") from exc
-    except OSError as exc:
+            "child's generate would not either")
+    if run.stderr_over:
         raise SealRefused(
-            f"the sealed render could not be launched: {exc}") from exc
-    if (proc.returncode != 0
-            or not _render_output_present(output, dir_fd=scratch_fd)):
-        said = _validator_said(proc)
+            f"the sealed render printed more than {SEALED_LOG_LIMIT} bytes "
+            "for the log, which no render needs, so it is refused")
+    if run.stdout_over:
+        raise SealRefused(
+            f"the sealed render streamed more than {SEALED_SNAPSHOT_LIMIT} "
+            "bytes, which no snapshot needs, so its output is refused")
+    if run.returncode != 0:
+        said = _last_line(run.stderr)
         raise SealRefused(
             "the sealed render unit could not render the snapshot (exit "
-            f"{proc.returncode}), so the child's generate would fail the "
+            f"{run.returncode}), so the child's generate would fail the "
             "same way" + (f": {said}" if said else ""))
-    return _read_render_output(output, dir_fd=scratch_fd)
+    if not run.stdout:
+        raise SealRefused(
+            "the sealed render streamed no snapshot, so there is nothing of "
+            "its own to judge")
+    return run.stdout
 
 
 def precheck_sealed_render(seal_root, *, source_head: str,
-                           source_committed_at: str,
-                           run=subprocess.run,
+                           source_committed_at: str, container=None,
                            timeout: int = PRECHECK_TIMEOUT_SECONDS) -> dict:
     """Render the snapshot FROM THE SEAL and run the sealed validator over it
     under `--strict`, exactly as the child will. Returns the manifest's
     `precheck` record.
 
-    THE CHILD'S OWN INVOCATION, in the child's own tree. `RENDER_ENTRY` runs
-    from the sealed corpus root, with the seal's two anchors as its
+    THE CHILD'S OWN INVOCATION, in the child's own container. `RENDER_ENTRY`
+    runs from the sealed corpus root, with the seal's two anchors as its
     `--source-revision` and `--generated-at`, and `--no-validate` because
-    validation is the sealed unit's job. Then the sealed validator runs over
-    the result, through the product's own three-outcome `validate_snapshot`,
-    as the probe does. Both run in the allowlisted environment
-    (`_render_environment`, `validate_in_render_environment`), never in this
-    job's. The snapshot is written to a scratch directory outside the seal and
-    discarded. The child generates the one the image bakes, and the child's
-    `--strict` stays the publication gate.
+    validation is the sealed unit's job: word for word the child worker's
+    generate. Then the sealed validator runs over what it streamed, through
+    the product's own three-outcome `validate_snapshot`, as the probe does.
+    Both run in a sealed container (`container`, else
+    `resolve_sealed_container()`, #1191), never on this runner. The snapshot
+    is held only as the bytes the render streamed, then discarded. The child
+    generates the one the image bakes, and the child's `--strict` stays the
+    publication gate.
 
-    Every path either run is handed is absolute. The nightly names its seal
-    relative to the job's working directory (`--seal-out dfr-seal`), and the
-    render runs from inside the seal, where a relative path would name
-    nothing. A seal handed as the path of the lane's own handle on it
-    (`_HeldSealDirectory.root`) resolves to where that directory is, since a
-    child cannot use this process's handle.
+    A seal handed as the path of the lane's own handle on it
+    (`_HeldSealDirectory.root`) resolves to where that directory is, which is
+    what the container mounts.
 
     Raises `SealRefused` when the render fails, when it drops either anchor,
     or when the validator cannot run. Raises `StrictGateRejected`, carrying
     the validator's own output, when the validator REJECTS the snapshot. That
     is a verdict on the corpus, and the lane records it as one."""
     seal_root = Path(seal_root).resolve()
-    corpus_root = seal_root / SEAL_CORPUS_RELPATH
-    entry = corpus_root / RENDER_ENTRY
     validator = seal_root / SEAL_VALIDATOR_RELPATH
+    if container is None:
+        container = resolve_sealed_container()
     try:
         product = _snapshot_lane().snapshot_mod
     except ImportError as exc:
         raise SealRefused(
             "the sealed render cannot be checked on this parent "
             f"({type(exc).__name__}: {exc})") from exc
-    # `ignore_cleanup_errors`, because the render may have left the scratch
-    # path a link, which the cleanup refuses to follow; the refusal below is
-    # the one to report.
-    with tempfile.TemporaryDirectory(prefix="dfr-precheck-",
-                                     ignore_cleanup_errors=True) as scratch:
-        scratch_root = Path(scratch)
-        snapshot = scratch_root / "snapshot.json"
-        scrub = (snapshot.resolve(), snapshot)
-        home = scratch_root / "home"
-        home.mkdir()
-        # THE SCRATCH DIRECTORY IS HELD BEFORE THE RENDER RUNS (Copilot, PR
-        # #1166). The render may replace its path with a link to another
-        # directory. The output is read through this handle, from the
-        # directory this parent made, whatever the path names afterwards.
-        scratch_fd = _open_directory(scratch_root)
-        output = snapshot.name if scratch_fd is not None else snapshot
-        try:
-            written = _run_the_sealed_render(
-                entry, corpus_root, seal_root, home, snapshot, output,
-                scratch_fd, source_head=source_head,
-                source_committed_at=source_committed_at, run=run,
-                timeout=timeout)
-        finally:
-            if scratch_fd is not None:
-                os.close(scratch_fd)
-        try:
-            rendered = json.loads(written.decode("utf-8"))
-        except ValueError as exc:
-            raise SealRefused(
-                f"the sealed render wrote no readable snapshot ({exc})") from exc
-        generation = rendered.get("generation") if isinstance(rendered, dict) \
-            else None
-        generation = generation if isinstance(generation, dict) else {}
-        if (generation.get("source_revision") != source_head
-                or generation.get("generated_at") != source_committed_at):
-            raise SealRefused(
-                "the sealed render did not carry the seal's two anchors "
-                f"(source_revision {generation.get('source_revision')!r}, "
-                f"generated_at {generation.get('generated_at')!r}), so the "
-                "child's one-revision assertion would refuse it")
-        documents = rendered.get("documents")
-        document_count = len(documents) if isinstance(documents, list) else 0
-        # THE VALIDATOR JUDGES THE BYTES READ ABOVE, from a copy in a
-        # directory made after the render exited. Nothing the render left
-        # behind can stand between what was checked and what is judged.
-        with tempfile.TemporaryDirectory(prefix="dfr-judged-") as judged_dir:
-            judged = Path(judged_dir).resolve() / snapshot.name
-            judged.write_bytes(written)
-            scrub = (*scrub, judged)
-            result = validate_in_render_environment(
-                product, judged, validator=validator, strict=True,
-                seal_root=seal_root,
-                module_file=sealed_product_module(seal_root), run=run,
-                timeout=timeout)
+    written = _run_the_sealed_render(
+        seal_root, source_head=source_head,
+        source_committed_at=source_committed_at, container=container,
+        timeout=timeout)
+    try:
+        rendered = json.loads(written.decode("utf-8"))
+    except ValueError as exc:
+        raise SealRefused(
+            f"the sealed render wrote no readable snapshot ({exc})") from exc
+    generation = rendered.get("generation") if isinstance(rendered, dict) \
+        else None
+    generation = generation if isinstance(generation, dict) else {}
+    if (generation.get("source_revision") != source_head
+            or generation.get("generated_at") != source_committed_at):
+        raise SealRefused(
+            "the sealed render did not carry the seal's two anchors "
+            f"(source_revision {generation.get('source_revision')!r}, "
+            f"generated_at {generation.get('generated_at')!r}), so the "
+            "child's one-revision assertion would refuse it")
+    documents = rendered.get("documents")
+    document_count = len(documents) if isinstance(documents, list) else 0
+    # THE VALIDATOR JUDGES THE BYTES THE RENDER STREAMED, from a copy in a
+    # directory made after the render exited, mounted read-only into the
+    # validator's container and holding nothing else.
+    with _sealed_scratch("dfr-judged-") as judged_dir:
+        judged = Path(judged_dir).resolve() / "snapshot.json"
+        judged.write_bytes(written)
+        scrub = (judged, f"{SEALED_JUDGED}/{judged.name}")
+        result = validate_in_render_environment(
+            product, judged, validator=validator, strict=True,
+            seal_root=seal_root,
+            module_file=sealed_product_module(seal_root),
+            container=container, timeout=timeout)
     if not result.available:
         said = _validator_said(result)
         raise SealRefused(
@@ -3241,6 +3467,7 @@ def seal_source(
     seal_legs=None,
     precheck_render=None,
     seal_within=None,
+    sealed_container=None,
 ) -> dict:
     """Materialize the bounded source artifact and return its manifest.
 
@@ -3252,6 +3479,11 @@ def seal_source(
         is found out BEFORE the validator is resolved (#1182);
       * a validator that cannot be resolved seals nothing, and is found out
         BEFORE the corpus is archived, since the corpus no longer supplies it;
+      * a parent that cannot run sealed code in its container (#1191): no
+        image id from the build step, a variable that would take a later
+        step's commands or the docker CLI elsewhere, a root uid, or no docker
+        CLI, seals nothing, also found out before the corpus is archived, and
+        no sealed code runs on this runner instead;
       * a seal directory the lane cannot make fresh and hold, because a
         directory appeared at its path, a directory on its way from
         `seal_within` is a link or no directory at all, or what the lane
@@ -3358,6 +3590,11 @@ def seal_source(
     # (44,492,413 bytes at `1edbb3dd`) is archived for nothing. It is SEALED
     # and RUN below, once the seal tree exists.
     pinned = (resolve_validator or resolve_pinned_validator)()
+    # THE SEALED RUNS' CONTAINER, before the corpus is archived (#1191). A
+    # parent that could not run the probe and the render in one is told so
+    # before anything is archived for nothing.
+    container = (sealed_container if sealed_container is not None
+                 else resolve_sealed_container())
     # THE SEAL DIRECTORY, MADE AND HELD (#1182). Sealed code runs inside it
     # before the manifest is written (the probe and the render), so the lane
     # makes it itself, before anything is written into it, and holds a
@@ -3438,7 +3675,8 @@ def seal_source(
         # reach a verdict is refused (see `seal_validator`).
         validator_fields = seal_validator(seal_root, pinned,
                                           corpus_checkout=corpus_checkout,
-                                          source_head=source_head, runner=runner)
+                                          source_head=source_head, runner=runner,
+                                          container=container)
         # ONE PRODUCT REVISION. The validator is resolved from this parent's own
         # openXdox leg, and the render unit carries `source_head`'s. They are the
         # same checkout whenever the legs above were sealed, so a disagreement is
@@ -3488,8 +3726,9 @@ def seal_source(
         # THE RECIPE IS WRITTEN AS THE MANIFEST IS (Copilot, PR #1166): its
         # directory made exclusively and the recipe created `O_EXCL|O_NOFOLLOW`
         # inside the seal directory the lane holds, whose name must still lead
-        # to it, since the probe's sealed code ran with the seal writable before
-        # this point.
+        # to it, since the probe's sealed code ran before this point. It ran
+        # with the seal mounted read-only (#1191), and the recipe is held
+        # against it all the same.
         _write_new_recipe(held, recipe_text)
 
         index = seal_file_index(seal_root)
@@ -3505,9 +3744,14 @@ def seal_source(
         # child process cannot use this process's handle, so it is handed
         # where that directory is when it starts, read through the handle.
         # The name is held to the directory again before the manifest.
-        precheck = (precheck_render or precheck_sealed_render)(
-            seal_root, source_head=source_head,
-            source_committed_at=source_committed_at)
+        precheck = (
+            precheck_render(seal_root, source_head=source_head,
+                            source_committed_at=source_committed_at)
+            if precheck_render is not None
+            else precheck_sealed_render(
+                seal_root, source_head=source_head,
+                source_committed_at=source_committed_at,
+                container=container))
         if seal_file_index(seal_root) != index:
             raise SealRefused(
                 "the pre-dispatch render changed the sealed tree, so the seal "
@@ -4104,21 +4348,24 @@ class RefreshOutcome:
         return self.result == RESULT_OK and bool(self.built_digest)
 
     def log_line(self) -> str:
+        # One line whatever the reason holds: it can carry text a sealed run
+        # printed, read back from the seal result (Copilot, PR #1192).
+        reason = None if self.reason is None else _one_line(self.reason)
         if self.result == RESULT_OK:
             return (f"{LANE}: OK — built {self.tag} @ {_short(self.built_digest)} "
                     f"(source_revision={_short(self.source_revision)})")
         if self.result == RESULT_NO_CHANGE:
-            return (f"{LANE}: NO CHANGE — {self.reason}; no checkout, no "
+            return (f"{LANE}: NO CHANGE — {reason}; no checkout, no "
                     "snapshot, no build, no push, no branch, no pull request")
         if self.result == RESULT_STRICT_FAILED:
-            return f"{LANE}: STRICT FAILED — {self.reason}; nothing published"
-        return f"{LANE}: SKIPPED — {self.reason}"
+            return f"{LANE}: STRICT FAILED — {reason}; nothing published"
+        return f"{LANE}: SKIPPED — {reason}"
 
     def annotation(self) -> str:
         """A GitHub Actions annotation, so no outcome is invisible in the run
         itself whatever the artifact-delivery lag turns out to be."""
         level = "notice" if self.result in (RESULT_OK, RESULT_NO_CHANGE) else "warning"
-        return f"::{level}::{self.log_line()}"
+        return f"::{level}::{self.log_line().replace('%', '%25')}"
 
 
 def refresh_status_payload(
@@ -4770,11 +5017,12 @@ def main(argv: list[str] | None = None) -> int | None:
                   f"{manifest['total_bytes']} bytes, "
                   f"tree_digest={manifest['tree_digest'][:12]}")
         elif strict_failed:
-            print(f"::warning::{LANE}: STRICT FAILED — {reason}")
-            for line in strict_detail:
-                print(f"  {line}")
+            print(f"::warning::{LANE}: STRICT FAILED — "
+                  f"{_command_data(reason)}")
+            _print_fenced(strict_detail)
         else:
-            print(f"::warning::{LANE}: NOT SEALED — {reason}; nothing "
+            print(f"::warning::{LANE}: NOT SEALED — "
+                  f"{_command_data(reason)}; nothing "
                   "dispatched, next run catches up in one hop")
         if args.seal_result_out and not written:
             print(f"::error::{LANE}: the seal result could not be written at "
