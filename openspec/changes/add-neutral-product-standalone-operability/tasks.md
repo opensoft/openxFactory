@@ -1688,9 +1688,15 @@ packet's interim arrangement ends.**
     and its own verifying suite moves with it. Neither sits on a current
     F11.1 surface either.
 
-  T045, T093 and T094 (or a further ruling, where a mechanism needs
-  Brett's word) choose how the guard admits these seven; this paragraph
-  records only that each edit is admitted, and why, not the mechanism.
+  **UNRESOLVED, plainly**: no guard-code mechanism exists yet for any of
+  these seven — F11.1's falsifier, as it stands, still checks only batch
+  A's original two-path `COMPOSITION_TESTS` set (widened to four above),
+  with no branch that admits a `route_extension.py`-shaped or
+  `sync-notebooklm-books.py`-shaped edit at all. T045, T093 and T094 (or a
+  further ruling, where a mechanism needs Brett's word) must choose how the
+  guard admits these seven before T047 can pass F11.1 clean; this paragraph
+  records only that each edit is admitted IN PRINCIPLE, and why, not the
+  mechanism, and does not itself close that gap.
 
   **A carried-over risk, recorded and not actioned** (T035's "Notes for the
   destinations," none of which blocked T035 itself): openxFactory's OWN
@@ -1707,9 +1713,13 @@ packet's interim arrangement ends.**
   because a `find_spec` probe that finds nothing degrades to a notice rather
   than a failure, the same escape T035 closed in openDox-code.
 
-  **Every input is now landed and measured; nothing is still open.** T034
-  (openDox-code#50 → `71b631bc`), T035 (openDox-code#51 → `80acead1`), T039
-  (openDox#13 → `663ac683`, pinning `code` to `2d116415`) and T044
+  **Every input is now landed and MEASURED; no red is unaccounted for — but
+  the guard-code mechanism for one class of them is a separate, still
+  UNRESOLVED question this batch does not answer** (above: "T045, T093 and
+  T094 ... choose how the guard admits these seven ... this paragraph
+  records only that each edit is admitted, and why, not the mechanism").
+  T034 (openDox-code#50 → `71b631bc`), T035 (openDox-code#51 → `80acead1`),
+  T039 (openDox#13 → `663ac683`, pinning `code` to `2d116415`) and T044
   (openXdox-code#33 → `6158151e`) have all landed; T044 supplies no
   composition-test path (its declared exclusion, at the triple 885/881/4,
   is entirely openXdox-code's own). P1-K's writer's `pytest-suite` run at
@@ -1717,7 +1727,9 @@ packet's interim arrangement ends.**
   paragraph accounts for — the four `COMPOSITION_TESTS` edits, the six
   relocated files, the seven admitted arc edits, and T035's held-out
   cases — and the same run at #1181's fixing commits (run T4) finds none.
-  Carried out by T045, T047, T093, T094.
+  That inventory is closed; the guard-code mechanism for the seven admitted
+  arc edits is not — left for T045, T093 and T094 (or a further ruling) to
+  close. Carried out by T045, T047, T093, T094.
 
 ## Group 12 — Requirement 11: the neutral submission step (RULED, openDox-code)
 
