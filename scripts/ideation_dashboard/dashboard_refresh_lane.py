@@ -117,16 +117,19 @@ from __future__ import annotations
 
 import argparse
 import base64
+import contextlib
 import hashlib
 import json
 import os
 import re
+import secrets
 import shutil
 import stat
 import subprocess
 import sys
 import tarfile
 import tempfile
+import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
@@ -997,8 +1000,8 @@ class BuildResult:
 # that composed unit as regular files under its own root, `validator/`
 # (`scripts/` beside `contracts/schemas/`), where the script's own `parents[1]`
 # is the unit and its schemas resolve. Then the parent RUNS the sealed copy
-# once, through the product's own `snapshot.validate_snapshot` in an
-# allowlisted environment, over a minimal snapshot-kind probe, and refuses
+# once, through the product's own `snapshot.validate_snapshot` in a sealed
+# container (#1191), over a minimal snapshot-kind probe, and refuses
 # unless the validator reached a verdict. So
 # what the child's `--strict` runs is a byte-for-byte copy of the unit the
 # snapshot lane validates with, and that copy has run once, here, to a verdict.
@@ -1406,10 +1409,12 @@ def _open_directory(path, *, dir_fd=None) -> int | None:
                    | getattr(os, "O_NOFOLLOW", 0), dir_fd=dir_fd)
 
 
-def _replaced_seal_directory(what: str = "manifest") -> SealRefused:
+def _replaced_seal_directory(what: str = "manifest", *,
+                             after: str = "sealed code ran inside it"
+                             ) -> SealRefused:
     return SealRefused(
-        "the seal directory is no longer the one the lane created: sealed "
-        f"code ran inside it, and the {what} is never written anywhere else")
+        "the seal directory is no longer the one the lane created: "
+        f"{after}, and the {what} is never written anywhere else")
 
 
 def _seal_directory_identity(seal_dir) -> tuple[int, int]:
@@ -1421,6 +1426,371 @@ def _seal_directory_identity(seal_dir) -> tuple[int, int]:
             f"the seal directory {seal_dir} is not a directory of its own "
             "(a link, or not a directory at all)")
     return info.st_dev, info.st_ino
+
+
+# THE SEAL DIRECTORY IS THE LANE'S OWN (#1182). Sealed code runs inside it,
+# with the tree writable (the validator's probe and the pre-dispatch render),
+# and the workflow uploads it by name. So its path is held inside the
+# checkout first (`_seal_out_path`), and the lane makes the directory itself,
+# exclusively, before anything is written into it and before any sealed code
+# runs (`_new_seal_directory`). An existing path, a link on the way to it, a
+# directory that appears or is swapped in as it is made: each refuses the
+# seal. From then on the lane holds a handle on the directory it made, and
+# every write and read it makes under the seal goes through that handle
+# (`_HeldSealDirectory.root`), never through the name, so a name swapped
+# after the making redirects nothing, and the sealed code the lane runs is
+# handed that directory too, never the name. Before each write the seal
+# stands behind, the name is held to still lead to that very directory,
+# along the way it was made by and through no link, since the workflow
+# uploads whatever the name leads to: a seal whose name leads anywhere else
+# gets nothing more written, and is refused.
+
+def _existing_seal_path(path) -> SealRefused:
+    """The refusal for anything already at the seal directory's path."""
+    if os.path.islink(path):
+        return SealRefused(
+            f"the seal directory {path} is not a directory of its own, but a "
+            "link: a seal is materialized only into a directory the lane "
+            "creates itself, and never through a link")
+    return SealRefused(
+        f"the seal directory {path} already exists: a seal is materialized "
+        "only into a directory the lane creates itself, never into one it "
+        "found")
+
+
+def _refuse_an_existing_seal_path(path) -> None:
+    """Refuse the seal when anything at all sits at the seal directory's
+    path: a directory, empty or not, a file, or a link, dangling or not."""
+    if os.path.lexists(path):
+        raise _existing_seal_path(path)
+
+
+def _seal_directory_replaced_as_made(path) -> SealRefused:
+    return SealRefused(
+        f"the seal directory {path} was replaced as the lane made it, and "
+        "nothing is written into what took its place")
+
+
+def _seal_replaced_at_publication() -> SealRefused:
+    return SealRefused(
+        "the seal directory is no longer the one the lane created: it was "
+        "replaced as its manifest was written, so the seal is not published, "
+        "and its manifest is withdrawn")
+
+
+def _seal_confined_without_a_handle(path, root) -> SealRefused:
+    return SealRefused(
+        f"the seal directory {path} cannot be made here: this platform opens "
+        f"nothing relative to a handle, and a seal confined to {root} is "
+        "never made, written or checked by its path alone")
+
+
+def _seal_confined_without_a_handle_path(path, root) -> SealRefused:
+    return SealRefused(
+        f"the seal directory {path} cannot be made here: this platform names "
+        f"no path through a handle, and a seal confined to {root} is never "
+        "written or read by its path alone")
+
+
+def _seal_made_off_its_way(path, start) -> SealRefused:
+    return SealRefused(
+        f"the seal directory {path} was made where its path no longer leads: "
+        f"a directory on its way from {start} was replaced as the lane made "
+        "it, and nothing is written into it")
+
+
+def _reached_by_name(start, names) -> tuple[int, int] | None:
+    """The directory reached from `start` by `names`, as `(st_dev, st_ino)`:
+    `start` opened without following a link at its own name, then each name
+    opened relative to the directory before it, without following a link.
+    None when that walk reaches no directory."""
+    try:
+        here = _open_directory(start)
+    except OSError:
+        return None
+    if here is None:
+        return None
+    try:
+        for name in names:
+            below = _open_directory(name, dir_fd=here)
+            here, above = below, here
+            os.close(above)
+        info = os.fstat(here)
+    except OSError:
+        return None
+    finally:
+        os.close(here)
+    return info.st_dev, info.st_ino
+
+
+# Where the kernel names an open file by its handle: a path that resolves
+# through the handle itself, never through a name. Linux, where the nightly's
+# parent runs, has one. Elsewhere the seal is written through its checked
+# path, as the manifest has always been where no handle can be opened.
+_HANDLE_PATHS = Path("/proc/self/fd")
+
+
+def _handle_identity(directory: int) -> tuple[int, int]:
+    """The directory `directory` holds, as `(st_dev, st_ino)`."""
+    info = os.fstat(directory)
+    return info.st_dev, info.st_ino
+
+
+def _path_through_handle(directory: int, identity) -> Path | None:
+    """A path that reaches the directory `directory` holds through the handle
+    itself, or None where the platform names none. It must reach exactly the
+    directory held, by identity, or it is not used."""
+    where = _HANDLE_PATHS / str(directory)
+    try:
+        info = os.stat(where)
+    except OSError:
+        return None
+    if (not stat.S_ISDIR(info.st_mode)
+            or (info.st_dev, info.st_ino) != tuple(identity)):
+        return None
+    return where
+
+
+@dataclass
+class _HeldSealDirectory:
+    """The seal directory the lane made (`_new_seal_directory`), with the
+    handle it has held on it since.
+
+    `path` is the name it was made at, which the workflow uploads. `root` is
+    what every write and read the lane makes under the seal goes through,
+    and what the sealed code the lane runs is handed: the handle's own path
+    where the platform names one (`_path_through_handle`), so a name swapped
+    after the making redirects nothing, else `path`. `directory` is None
+    where the platform opens nothing relative to a handle, and the path is
+    then used, as the manifest's write has always done there.
+
+    `way` is where the walk that made the directory started, and the names
+    of the directories it took below that (`_new_seal_directory`). `path`
+    leads to the directory held only while that walk, taken again by name
+    and through no link, reaches it (`leads_here`). None where the platform
+    opens nothing relative to a handle."""
+
+    path: Path
+    directory: int | None
+    identity: tuple[int, int]
+    root: Path
+    way: tuple[Path, tuple[str, ...]] | None = None
+
+    def leads_here(self) -> bool:
+        """Whether `path` still leads to the directory the lane made, with
+        the identity it was made with: along `way` through no link at all
+        (Copilot, PR #1185), or, with no `way`, through no link at its own
+        name."""
+        if self.way is not None:
+            start, steps = self.way
+            return (_reached_by_name(start, (*steps, self.path.name))
+                    == self.identity)
+        try:
+            now = os.stat(self.path, follow_symlinks=False)
+        except OSError:
+            return False
+        return (stat.S_ISDIR(now.st_mode)
+                and (now.st_dev, now.st_ino) == self.identity)
+
+    def refuse_if_replaced(self, what: str, *,
+                           after: str = "sealed code ran inside it") -> None:
+        """Refuse the seal unless `path` still leads to the directory the lane
+        made (`leads_here`)."""
+        if not self.leads_here():
+            raise _replaced_seal_directory(what, after=after)
+
+    def close(self) -> None:
+        if self.directory is not None:
+            os.close(self.directory)
+            self.directory = None
+
+
+def _seal_directory_way(seal_dir, within
+                        ) -> tuple[Path, Path, tuple[str, ...]]:
+    """The seal directory's path, where the walk that makes it starts, and
+    the names of the directories that walk takes below that, in order
+    (`_new_seal_directory`)."""
+    path = Path(seal_dir)
+    if within is None:
+        return path, path.parent, ()
+    path = Path(os.path.abspath(path))
+    spelled, root = str(path), os.path.realpath(within)
+    if not spelled.startswith(root + os.sep):
+        raise SealRefused(
+            f"the seal directory {path} is not inside {root}")
+    # The walk starts where the seal's own path reaches the root, and takes
+    # each directory below it in turn.
+    return (path, Path(spelled[:len(root)]),
+            Path(spelled[len(root) + 1:]).parent.parts)
+
+
+def _walked_down(parent: int, steps, path, start) -> int:
+    """The handle on the directory the seal goes in, reached from `parent`,
+    the handle on `start`, by `steps`, each opened relative to the one before
+    it and without following a link. Every other handle is closed, and every
+    handle is closed when it raises."""
+    for step in steps:
+        try:
+            below = _open_directory(step, dir_fd=parent)
+        except OSError as exc:
+            os.close(parent)
+            raise SealRefused(
+                f"the seal directory {path} cannot be made: {step!r}, on "
+                f"its way from {start}, is not a directory of its own "
+                f"({exc.strerror}), and a seal is never made through a "
+                "link") from exc
+        parent, above = below, parent
+        os.close(above)
+    return parent
+
+
+def _made_and_opened(path, parent: int) -> int:
+    """Make the seal directory in the directory `parent` holds, with a plain
+    `mkdir`, and open it without following a link. Returns its handle."""
+    try:
+        os.mkdir(path.name, dir_fd=parent)
+    except FileExistsError as exc:
+        raise _existing_seal_path(path) from exc
+    except OSError as exc:
+        raise SealRefused(
+            f"the seal directory {path} cannot be made ({exc.strerror})"
+        ) from exc
+    try:
+        return _open_directory(path.name, dir_fd=parent)
+    except OSError as exc:
+        raise _seal_directory_replaced_as_made(path) from exc
+
+
+def _new_seal_directory_by_path(path) -> _HeldSealDirectory:
+    """The seal directory made, and held, by its path, where the platform
+    opens nothing relative to a handle."""
+    try:
+        os.mkdir(path)
+    except FileExistsError as exc:
+        raise _existing_seal_path(path) from exc
+    except OSError as exc:
+        raise SealRefused(
+            f"the seal directory {path} cannot be made ({exc.strerror})"
+        ) from exc
+    return _HeldSealDirectory(path, None, _seal_directory_identity(path), path)
+
+
+def _new_seal_directory(seal_dir, *, within=None) -> _HeldSealDirectory:
+    """Make the seal directory, which must not exist yet, and hold it (#1182).
+    Raises `SealRefused`.
+
+    MADE, NEVER ADOPTED. It is made with a plain `mkdir` relative to a handle
+    on the directory it goes in, which fails on anything already there, a
+    link included, wherever it points. So the lane never adopts a directory
+    it did not make.
+
+    THROUGH NO LINK. With `within`, the root the seal must lie in, that
+    handle is reached by walking from `within`, each directory on the way
+    opened relative to the one before and without following a link, so no
+    link below `within` is followed, whenever it was put there. Without it,
+    the directory the seal goes in is opened without following a link at
+    its own name.
+
+    HELD AS MADE. The new directory is then opened the same way, and must be
+    empty, since a directory the lane has just made holds nothing. So one
+    swapped for a link, or for another directory, in the instant after the
+    `mkdir` is refused, and nothing is written into it.
+
+    NEVER BY ITS PATH ALONE WHEN CONFINED (Copilot, PR #1185). Where the
+    platform opens nothing relative to a handle, the directory could only be
+    made, written and checked by its path, so a directory on its way
+    replaced after `--seal-out` was checked would redirect the whole
+    writable tree. A seal confined to `within` is refused there, before
+    anything is made. So is one where the platform opens a directory
+    relative to a handle but names no path through one (no `/proc/self/fd`,
+    `_path_through_handle`), since the seal would then be written, indexed
+    and counted through its name, which sealed code may swap. Without
+    `within`, the seal falls back to its path in either case, as the
+    manifest's write always has where no handle serves.
+
+    ITS WAY, WALKED AGAIN (Copilot, PR #1185). A directory on the way is
+    held by a handle only while the walk goes through it, so one moved out
+    of `within` after it was opened, and replaced, would have the seal made
+    inside the moved one, where the seal's path does not lead. So once the
+    directory is made, the way is walked again, by name and through no link,
+    and must reach it, or the seal is refused before anything is written
+    into it. Every later check of the name walks it the same way
+    (`_HeldSealDirectory.leads_here`)."""
+    path, start, steps = _seal_directory_way(seal_dir, within)
+    if within is not None and not _DIR_FD:
+        raise _seal_confined_without_a_handle(path, start)
+    try:
+        parent = _open_directory(start)
+    except OSError as exc:
+        raise SealRefused(
+            f"the seal directory {path} cannot be made: {start} cannot be "
+            f"held as a directory of its own ({exc.strerror})") from exc
+    if parent is None:
+        # The platform opens nothing relative to a handle, and the seal is
+        # confined to nothing, so it is made, and held, by its path.
+        return _new_seal_directory_by_path(path)
+    parent = _walked_down(parent, steps, path, start)
+    if within is not None and _path_through_handle(
+            parent, _handle_identity(parent)) is None:
+        os.close(parent)
+        raise _seal_confined_without_a_handle_path(path, start)
+    try:
+        directory = _made_and_opened(path, parent)
+    finally:
+        os.close(parent)
+    try:
+        info = os.fstat(directory)
+        if os.listdir in os.supports_fd and os.listdir(directory):
+            raise _seal_directory_replaced_as_made(path)
+    except BaseException:
+        os.close(directory)
+        raise
+    identity = (info.st_dev, info.st_ino)
+    held = _HeldSealDirectory(path, directory, identity,
+                              _path_through_handle(directory, identity)
+                              or path, way=(start, steps))
+    if not held.leads_here():
+        held.close()
+        raise _seal_made_off_its_way(path, start)
+    return held
+
+
+def _withdraw_manifest(held: _HeldSealDirectory) -> None:
+    """Remove the manifest the lane has just written from the directory it
+    made, through the handle it holds, so that directory never carries a
+    manifest the lane does not stand behind (Copilot, PR #1185). Without a
+    handle nothing is removed, since the name may lead anywhere by now."""
+    if held.directory is None:
+        return
+    with contextlib.suppress(OSError):
+        os.unlink(SEAL_MANIFEST_NAME, dir_fd=held.directory)
+
+
+@contextlib.contextmanager
+def _seal_directory_handle(seal_dir, identity, what: str):
+    """A handle on the seal directory for writing `what`, with the path it is
+    named by, for as long as the write takes. The directory the lane holds
+    (`_HeldSealDirectory`) gives its own handle, once its path is held to
+    still lead there (#1182). A path is opened without following a link at
+    its last component, and held to `identity` when that is given. The
+    handle is None where the platform opens nothing relative to one."""
+    if isinstance(seal_dir, _HeldSealDirectory):
+        seal_dir.refuse_if_replaced(what)
+        yield seal_dir.directory, seal_dir.path
+        return
+    try:
+        directory = _open_directory(seal_dir)
+    except OSError as exc:
+        raise _replaced_seal_directory(what) from exc
+    try:
+        if directory is not None and identity is not None:
+            info = os.fstat(directory)
+            if (info.st_dev, info.st_ino) != tuple(identity):
+                raise _replaced_seal_directory(what)
+        yield directory, Path(seal_dir)
+    finally:
+        if directory is not None:
+            os.close(directory)
 
 
 def _occupied_manifest_path(what: str) -> SealRefused:
@@ -1459,29 +1829,22 @@ def _write_new_manifest(seal_dir, text: str, *, identity=None) -> None:
     existing entry, a symbolic link included, wherever it points, so the bytes
     land at the manifest's own path or nowhere.
 
-    It is created relative to a handle on the seal directory, opened without
-    following a link. With `identity`, the directory as created, the handle
-    must be that very directory, so a seal directory replaced after it was
-    created is refused rather than written into (Copilot, PR #1166)."""
-    try:
-        directory = _open_directory(seal_dir)
-    except OSError as exc:
-        raise _replaced_seal_directory() from exc
-    try:
-        if directory is not None and identity is not None:
-            info = os.fstat(directory)
-            if (info.st_dev, info.st_ino) != tuple(identity):
-                raise _replaced_seal_directory()
+    It is created relative to a handle on the seal directory
+    (`_seal_directory_handle`). The seal hands the directory it holds
+    (`_HeldSealDirectory`), whose name must still lead to it (#1182). Handed
+    a path, the handle is opened without following a link, and with
+    `identity`, the directory as created, it must be that very directory.
+    Either way a seal directory replaced after it was created is refused
+    rather than written into (Copilot, PR #1166)."""
+    with _seal_directory_handle(seal_dir, identity, "manifest") as (
+            directory, path):
         target = (SEAL_MANIFEST_NAME if directory is not None
-                  else Path(seal_dir) / SEAL_MANIFEST_NAME)
+                  else path / SEAL_MANIFEST_NAME)
         try:
             _create_new_file(target, text.encode("utf-8"), dir_fd=directory)
         except FileExistsError as exc:
             raise _occupied_manifest_path(
                 "one that appeared while the lane was writing it") from exc
-    finally:
-        if directory is not None:
-            os.close(directory)
 
 
 def _occupied_recipe_path() -> SealRefused:
@@ -1494,27 +1857,23 @@ def _occupied_recipe_path() -> SealRefused:
 
 def _write_new_recipe(seal_dir, text: str, *, identity=None) -> None:
     """Create the recipe the way the manifest is created (Copilot, PR #1166).
-    The validator's probe runs sealed code with the seal writable before the
-    recipe is written, and the probe's after-index cannot see what a process
-    it left behind puts at the recipe's path later: a link out, a hard link
-    to a host file, or a directory of its own.
+    The validator's probe runs sealed code before the recipe is written.
+    Since #1191 it runs in a sealed container, with the seal mounted
+    read-only, and nothing it starts outlives that container. The recipe is
+    still created as though a process the probe left behind could reach its
+    path later, which the probe's after-index could not see: a link out, a
+    hard link to a host file, or a directory of its own.
 
     So the recipe's directory is MADE here, exclusively, relative to a handle
-    on the seal directory as created (with `identity`, the handle must be
-    that very directory), and opened without following a link; the recipe is
+    on the seal directory as created (`_seal_directory_handle`: the
+    directory the seal holds, whose name must still lead to it, or a path
+    held to `identity`), and opened without following a link; the recipe is
     created in it `O_EXCL|O_NOFOLLOW`. Anything already at either path
     refuses the seal, and nothing is written through it."""
     folder, name = SEAL_RECIPE_RELPATH.split("/")
-    try:
-        directory = _open_directory(seal_dir)
-    except OSError as exc:
-        raise _replaced_seal_directory("recipe") from exc
-    try:
-        if directory is not None and identity is not None:
-            info = os.fstat(directory)
-            if (info.st_dev, info.st_ino) != tuple(identity):
-                raise _replaced_seal_directory("recipe")
-        place = folder if directory is not None else Path(seal_dir) / folder
+    with _seal_directory_handle(seal_dir, identity, "recipe") as (
+            directory, path):
+        place = folder if directory is not None else path / folder
         try:
             os.mkdir(place, dir_fd=directory)
         except FileExistsError as exc:
@@ -1535,9 +1894,6 @@ def _write_new_recipe(seal_dir, text: str, *, identity=None) -> None:
         finally:
             if recipe_dir is not None:
                 os.close(recipe_dir)
-    finally:
-        if directory is not None:
-            os.close(directory)
 
 
 # THE SEAL RESULT IS THE LANE'S OWN FILE (Copilot, PR #1166). It sits outside
@@ -1666,6 +2022,12 @@ class _HeldResultPath:
             return SEAL_RESULT_PLANTED
         return None
 
+    def release(self) -> None:
+        """Let the directory go, with nothing written at the result's path."""
+        if self.directory is not None:
+            os.close(self.directory)
+            self.directory = None
+
     def write(self, payload: dict) -> bool:
         """Clear the result's name, create the lane's own result there
         exclusively, and let the directory go. True when the result was
@@ -1699,6 +2061,77 @@ def _hold_seal_result_path(given, within) -> _HeldResultPath:
             f"--seal-result-out {given!r} is in a directory the lane cannot "
             f"hold ({exc.strerror})") from exc
     return _HeldResultPath(path, directory)
+
+
+def _spellings(given) -> set[str]:
+    """`given` made absolute, as spelled, with the directories above its last
+    component resolved, and resolved whole."""
+    absolute = os.path.abspath(given)
+    parent, name = os.path.split(absolute)
+    return {absolute, os.path.join(os.path.realpath(parent), name),
+            os.path.realpath(absolute)}
+
+
+def _seal_paths_overlap(seal_out, result_out) -> str | None:
+    """Why `--seal-out` and `--seal-result-out` may not be used together, or
+    None (Copilot, PR #1185): they name one path, or one lies inside the
+    other, in any of their spellings (`_spellings`). The result's path is
+    cleared before the seal runs, since whatever sits there is the lane's to
+    remove, so an overlap would remove an existing seal, or what it holds,
+    and let its path pass as fresh."""
+    if not any(one == other or one.startswith(other + os.sep)
+               or other.startswith(one + os.sep)
+               for one in _spellings(seal_out)
+               for other in _spellings(result_out)):
+        return None
+    return (f"--seal-out {seal_out!r} and --seal-result-out {result_out!r} "
+            "overlap, and neither is touched: the seal and its result are "
+            "two paths, never one inside the other")
+
+
+def _seal_out_path(given, within) -> Path:
+    """Where the seal may be made (#1182): `given`, made canonical, inside
+    `within`, the checkout the lane runs over, and not there yet. Raises
+    `ValueError` for anything else.
+
+    INSIDE THE CHECKOUT, BY ITS CANONICAL PATH. The seal directory is where
+    sealed code runs with the tree writable, and the workflow uploads it by
+    name from the checkout, so a seal made anywhere else would put that
+    writable tree wherever the argument pointed. The canonical path is what
+    is checked, never the spelling, so neither `..` nor a link leads out.
+
+    THROUGH NO LINK. The canonical path must be the spelling itself, made
+    absolute. A link at any component, the last included, dangling or not,
+    is refused rather than followed, even one that leads back inside the
+    checkout: the name the workflow uploads would then be a link, and what
+    it leads to could change under it. A relative spelling is read from the
+    working directory, as the nightly's `dfr-seal` is.
+
+    NOT THERE YET, IN A DIRECTORY THAT IS. The lane makes the seal directory
+    itself and never adopts one, so a path where anything sits is refused,
+    the checkout itself included, and so is one whose directory does not
+    exist, since the lane makes no directory on the way. `seal_source` holds
+    each of these again as it makes the directory, walking from `within`
+    without following a link (`_new_seal_directory`)."""
+    absolute = os.path.abspath(given)
+    resolved = os.path.realpath(given)
+    root = os.path.realpath(within)
+    if resolved != root and not resolved.startswith(root + os.sep):
+        raise ValueError(
+            f"--seal-out {given!r} is not inside the checkout {within}, where "
+            "the lane makes the seal and the workflow uploads it from")
+    if resolved != absolute:
+        raise ValueError(
+            f"--seal-out {given!r} leads through a link (to {resolved}), and "
+            "the seal is never made through one")
+    if os.path.lexists(resolved):
+        raise ValueError(
+            f"--seal-out {given!r} already exists, and the lane makes the "
+            "seal only in a directory it creates itself")
+    if not os.path.isdir(os.path.dirname(resolved)):
+        raise ValueError(
+            f"--seal-out {given!r} is in a directory that does not exist")
+    return Path(resolved)
 
 
 def tree_digest(index: dict[str, str]) -> str:
@@ -1970,7 +2403,8 @@ def _unit_sources_source_head_does_not_hold(
 
 
 def seal_validator(seal_root, pinned: PinnedValidator, *, corpus_checkout,
-                   source_head: str, runner=subprocess_runner) -> dict:
+                   source_head: str, runner=subprocess_runner,
+                   container=None) -> dict:
     """Copy the pinned validator's composed unit into the seal, then RUN the
     sealed copy once. It returns the manifest's validator fields. It raises
     `SealRefused` when the product's revision cannot be read, when the unit
@@ -1993,8 +2427,8 @@ def seal_validator(seal_root, pinned: PinnedValidator, *, corpus_checkout,
     thing it reads: the probe's own verdict is a finding by construction, and
     it is never a verdict on the corpus. The probe lives in a scratch directory
     outside the seal, so nothing it touches is sealed. The copy is sealed code,
-    so it runs in the pre-dispatch render's allowlisted environment, not this
-    job's, and its run is classified by the SEALED product module
+    so it runs in a sealed container (`container`, #1191), never on this
+    runner, and its run is classified by the SEALED product module
     (`validate_in_render_environment`, `sealed_product_module`). The render
     legs are sealed before this runs.
 
@@ -2094,18 +2528,22 @@ def seal_validator(seal_root, pinned: PinnedValidator, *, corpus_checkout,
         raise SealRefused(
             "the sealed validator cannot be run on this parent "
             f"({type(exc).__name__}: {exc})") from exc
-    # THE PROBE IS SEALED CODE TOO, run with the seal writable. So the tree
-    # it runs in is indexed before it runs and again after, and a probe that
-    # changed it is refused (Copilot, PR #1166).
+    # THE PROBE IS SEALED CODE TOO. It runs in a sealed container, with the
+    # seal mounted read-only (#1191), and the tree is still indexed before it
+    # runs and again after, a check that holds without trusting the mount: a
+    # probe that changed it is refused (Copilot, PR #1166).
+    if container is None:
+        container = resolve_sealed_container()
     before = seal_file_index(seal_root)
-    with tempfile.TemporaryDirectory(prefix="dfr-probe-") as scratch:
+    with _sealed_scratch("dfr-probe-") as scratch:
         probe = Path(scratch) / "validator-probe.json"
         probe.write_text(json.dumps(VALIDATOR_PROBE, sort_keys=True) + "\n",
                          encoding="utf-8")
         result = validate_in_render_environment(
             product, probe, validator=script, strict=False,
             seal_root=seal_root,
-            module_file=sealed_product_module(seal_root))
+            module_file=sealed_product_module(seal_root),
+            container=container)
     if seal_file_index(seal_root) != before:
         raise SealRefused(
             "the sealed validator's probe changed the sealed tree, so the "
@@ -2334,60 +2772,346 @@ PRECHECK_VALIDATED = "validated"
 # validator gets the same bound, because the product's own call has none, and
 # a validator that hangs must not hold the rest of the nightly.
 PRECHECK_TIMEOUT_SECONDS = 600
-# The ONLY variables of this job's environment the pre-dispatch render
-# receives, by name, and by prefix for the locale. It runs code read out of the
-# seal, and this job holds the App token, a token-bearing git configuration and
-# whatever else the runner exports. So the environment is BUILT from an
-# allowlist rather than filtered by a denylist, which would pass any
-# credential it had not thought to name (Copilot, PR #1166). What is kept is
-# what an interpreter needs to start and read files in this locale:
-# `LD_LIBRARY_PATH` because the runner's toolcache interpreter can load its
-# own shared library from it; the Windows system variables because a child on
-# a Windows rider runs the same entry. The child's worker holds no
-# credential to begin with.
-_RENDER_ENV_KEPT = ("PATH", "LD_LIBRARY_PATH", "LANG", "LANGUAGE", "TZ",
-                    "TMPDIR", "TEMP", "TMP", "SYSTEMROOT", "SYSTEMDRIVE",
-                    "WINDIR", "COMSPEC", "PATHEXT")
-_RENDER_ENV_KEPT_PREFIXES = ("LC_",)
+# EVERY SEALED RUN RUNS IN A CONTAINER (#1191). Brett Heap ruled, 2026-09-27,
+# "(b) for the finalize job too": the parent-side twin of the ruling
+# opensoft/xFactory#526 landed at db26fdc0 for the child. The probe, the
+# pre-dispatch render and its `--strict` validation are code read out of the
+# seal, and this job holds the App token and runs later steps with it. So
+# each runs as ONE `docker run` built here (`SealedContainer`), in the shape
+# the child's worker runs its own sealed render and validator in:
+#   * the image the finalize job's build step made, by its content id
+#     (`SEALED_IMAGE`, never a name a pull or a tag could move), with
+#     `--pull never`;
+#   * the seal bind-mounted READ-ONLY at /seal, the one file a validator run
+#     judges read-only at /judged, and nothing of the runner's writable. The
+#     render writes into a bounded tmpfs of its own and streams its snapshot
+#     out by stdout;
+#   * a read-only root with a noexec /tmp, no network, no IPC, no
+#     capabilities, no new privileges, this runner's own non-root uid, and a
+#     bound on processes, memory and CPU;
+#   * no variable of the runner's. The four a run is given are written out
+#     as literals, and the docker CLI itself runs with a fresh configuration
+#     directory and nothing else of the job's;
+#   * `--init` and `--rm`, in the foreground, so every descendant dies with
+#     the container's init: nothing sealed code starts outlives its run.
+#     Each run carries this job's label. A container with it still running
+#     after the run returned is removed and refuses the seal, and the job's
+#     last step removes anything a cancelled run left behind.
+# The host reads only what a run prints, bounded (`SEALED_LOG_LIMIT`, and
+# `SEALED_SNAPSHOT_LIMIT` for the snapshot), and the sealed output it prints
+# into the job's log goes inside a fence the runner takes no workflow command
+# in (`_print_fenced`).
+DOCKER = "/usr/bin/docker"
+SEALED_IMAGE_ENV = "SEALED_IMAGE"
+_SEALED_IMAGE_RE = re.compile(r"sha256:[0-9a-f]{64}")
+# The label every sealed run carries, and the image they run in. The build
+# step and the job's last step spell the same key.
+SEALED_RUN_LABEL = "openxfactory.dashboard-refresh.sealed-run"
+SEALED_PYTHON = "/usr/local/bin/python3"
+SEALED_SEAL = "/seal"
+SEALED_JUDGED = "/judged"
+SEALED_OUT = "/out"
+SEALED_RENDER_OUTPUT = f"{SEALED_OUT}/openxFactory-snapshot.json"
+SEALED_LOG_LIMIT = 1048576
+SEALED_SNAPSHOT_LIMIT = 33554432
+_SEALED_ENV = ("PYTHONDONTWRITEBYTECODE=1", "PYTHONIOENCODING=utf-8",
+               "HOME=/tmp", "LANG=C.UTF-8")
+# Refused when set at all, whatever the value. While
+# ACTIONS_ALLOW_UNSECURE_COMMANDS is set, the runner acts on `set-env` and
+# `add-path` in any line a step prints, so output this job does not control
+# could reach a later step. Each of the others would send the docker CLI's
+# calls to another daemon or builder than the local one the build step used.
+_SEALED_REFUSED_ENV = ("ACTIONS_ALLOW_UNSECURE_COMMANDS", "DOCKER_HOST",
+                       "DOCKER_CONTEXT", "DOCKER_TLS", "DOCKER_TLS_VERIFY",
+                       "DOCKER_CERT_PATH", "BUILDX_CONFIG", "BUILDX_BUILDER")
+# The child worker's own wrapper around the render: the render's output goes
+# to stderr, then the snapshot is streamed out if it is a regular file of the
+# render's own. Exit 3 names one that is not.
+_SEALED_RENDER_WRAPPER = (
+    'out=$1; shift; unset PWD OLDPWD\n'
+    '"$@" >&2 || exit\n'
+    'if [ -L "$out" ] || [ ! -f "$out" ]; then\n'
+    '  echo "the sealed render left no regular file at $out" >&2\n'
+    '  exit 3\n'
+    'fi\n'
+    'exec /bin/cat -- "$out"\n')
 
 
-def _render_environment(seal_root, home) -> dict[str, str]:
-    """The environment of the parent's pre-dispatch render: the allowlisted
-    variables (`_RENDER_ENV_KEPT`), and nothing else of this job's.
-
-    Beyond them, the settings below make the render the child's. `HOME` is a
-    scratch directory. No bytecode is written, so the render cannot add a file
-    to the tree the index is about to cover. `git` may not climb out of the
-    seal: this parent's seal sits INSIDE the aggregation checkout, while the
-    child's has no repository above it. And git reads no global or system
-    configuration."""
-    env = {key: value for key, value in os.environ.items()
-           if key in _RENDER_ENV_KEPT
-           or key.startswith(_RENDER_ENV_KEPT_PREFIXES)}
-    env.update({
-        "HOME": str(home),
-        "PYTHONDONTWRITEBYTECODE": "1",
-        "PYTHONIOENCODING": "utf-8",
-        "GIT_CEILING_DIRECTORIES": str(Path(seal_root).resolve()),
-        "GIT_CONFIG_GLOBAL": os.devnull,
-        "GIT_CONFIG_NOSYSTEM": "1",
-    })
-    return env
+def _mountable(path) -> str:
+    """`path` resolved, as a mount source may name it: absolute, with no
+    comma, quote or newline. A mount is written as comma-separated fields, so
+    such a path could add a field of its own. Raises `SealRefused` for any
+    other."""
+    resolved = os.path.realpath(path)
+    if not os.path.isabs(resolved) or any(c in resolved for c in ',"\n\r'):
+        raise SealRefused(
+            f"refusing to mount {resolved!r} into a sealed run: a mount "
+            "source must be an absolute path with no comma, quote or newline")
+    return resolved
 
 
-# THE SEALED VALIDATOR RUNS IN THAT ENVIRONMENT TOO (Copilot, PR #1166). The
-# product's `snapshot.validate_snapshot` launches the validator with no `env`
-# of its own. Called in THIS process, it would hand the sealed copy every
-# credential the job holds. So the call is made in a fresh interpreter whose
-# whole environment is `_render_environment`'s, working in a scratch
-# directory. It is still the product's own function, with its own three-outcome
-# reading, and everything it launches inherits the allowlist. The module is
-# the SEALED one, out of the seal's openXdox leg (`sealed_product_module`):
-# the exact code the seal carries, never this parent's worktree, which could
-# be dirty (Copilot, PR #1166). The harness ends without a verdict if the
-# name resolves to any other file. It hands the product's result back as the
-# last line of its stdout. The validator's own output never reaches that
-# stream, because the product captures it.
+def _in_the_seal(path, seal_root) -> str:
+    """Where `path`, inside the seal on this runner, is in a sealed run.
+    Raises `ValueError` for a path outside the seal."""
+    relpath = Path(path).resolve().relative_to(Path(seal_root).resolve())
+    return f"{SEALED_SEAL}/{relpath.as_posix()}"
+
+
+def _sealed_scratch(prefix: str) -> tempfile.TemporaryDirectory:
+    """A scratch directory to mount into a sealed run: in the job's own
+    temporary directory (`RUNNER_TEMP`) when it has one, which the local
+    daemon mounts from, as the child worker's are."""
+    runner_temp = os.environ.get("RUNNER_TEMP")
+    return tempfile.TemporaryDirectory(
+        prefix=prefix,
+        dir=runner_temp if runner_temp and os.path.isdir(runner_temp) else None)
+
+
+def _docker_cli_environment(config: str) -> dict[str, str]:
+    """The docker CLI's whole environment: system tool directories, and a
+    fresh configuration directory of its own (`DOCKER_CONFIG`), so no plugin,
+    proxy setting or credential of the runner's user reaches it or a sealed
+    container. Nothing else of the job's."""
+    return {"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "HOME": config,
+            "DOCKER_CONFIG": config, "LANG": "C.UTF-8"}
+
+
+def _print_fenced(lines) -> None:
+    """Print sealed output into the job's log inside a fence the runner takes
+    no workflow command in (#1191): `::stop-commands::` with a token drawn
+    now, 128 random bits no sealed run saw, then the same token on a line of
+    its own to resume. Nothing the output holds can close the fence."""
+    token = secrets.token_hex(16)
+    print(f"::stop-commands::{token}")
+    for line in lines:
+        print(f"  {line}")
+    print(f"::{token}::")
+
+
+def _one_line(text) -> str:
+    """`text` as one line of the job's log: each line break `str.splitlines`
+    knows, a superset of those the runner splits a step's output on, becomes
+    a space. The runner takes a workflow command only at the start of a
+    line, and a refusal's reason can carry a line a sealed run printed
+    (Copilot, PR #1192)."""
+    return " ".join(str(text).splitlines())
+
+
+def _command_data(text) -> str:
+    """`text` as a workflow command's data: one line, with `%` escaped as
+    `%25`, so no escape it carries is read as a line break."""
+    return _one_line(text).replace("%", "%25")
+
+
+def _drain_bounded(stream, limit: int, into: list) -> None:
+    """Read `stream` to its end, keeping at most `limit + 1` bytes: the one
+    byte past the limit says it was passed. The rest is read and dropped, so
+    a run that prints too much is never stalled on a full pipe. Its timeout
+    bounds it."""
+    kept = bytearray()
+    while True:
+        chunk = stream.read1(65536)
+        if not chunk:
+            break
+        room = limit + 1 - len(kept)
+        if room > 0:
+            kept += chunk[:room]
+    into.append(bytes(kept))
+
+
+@dataclass(frozen=True)
+class SealedRunResult:
+    """What one sealed run printed, bounded, and how it ended."""
+    returncode: int
+    stdout: bytes
+    stderr: bytes
+    stdout_over: bool = False
+    stderr_over: bool = False
+    timed_out: bool = False
+
+
+@dataclass(frozen=True)
+class SealedContainer:
+    """How this parent runs sealed code (#1191; see `DOCKER`)."""
+    image: str
+    label: str
+    uid: int
+    gid: int
+    docker: str = DOCKER
+
+    def argv(self, seal_root, *, mounts=(), workdir: str,
+             out: bool = False) -> list[str]:
+        """One sealed run's `docker run`, up to and including the image. The
+        command follows it."""
+        argv = [self.docker, "run", "--rm", "--init", "--pull", "never",
+                "--read-only", "--tmpfs",
+                "/tmp:rw,noexec,nosuid,nodev,size=64m",
+                "--network", "none", "--ipc", "none",
+                "--user", f"{self.uid}:{self.gid}",
+                "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
+                "--pids-limit", "128", "--memory", "1g", "--memory-swap", "1g",
+                "--cpus", "1", "--label", self.label, "--log-driver", "none"]
+        for pair in _SEALED_ENV:
+            argv += ["--env", pair]
+        argv += ["--mount", f"type=bind,source={_mountable(seal_root)},"
+                            f"target={SEALED_SEAL},readonly"]
+        for source, target in mounts:
+            argv += ["--mount", f"type=bind,source={_mountable(source)},"
+                                f"target={target},readonly"]
+        if out:
+            argv += ["--tmpfs", f"{SEALED_OUT}:rw,noexec,nosuid,nodev,size=32m"]
+        return [*argv, "--workdir", workdir, self.image]
+
+    def _containers(self, config: str, *, every: bool) -> list[str]:
+        """This job's sealed containers still running, or every one there is
+        with `every`. Raises `SealRefused` when the daemon cannot say, since
+        a run it cannot account for is not known to be gone."""
+        listing = subprocess.run(
+            [self.docker, "ps", *(["-a"] if every else []), "-q", "--filter",
+             f"label={self.label}"],
+            cwd="/", env=_docker_cli_environment(config),
+            stdin=subprocess.DEVNULL, capture_output=True, text=True,
+            timeout=60)
+        if listing.returncode != 0:
+            raise SealRefused(
+                "the docker daemon could not list this job's sealed "
+                f"containers (exit {listing.returncode}), so a sealed run is "
+                "not known to be gone")
+        return listing.stdout.split()
+
+    def _remove(self, config: str, ids: list[str]) -> bool:
+        """Remove `ids` by force. Returns whether the daemon did so."""
+        if not ids:
+            return True
+        removal = subprocess.run([self.docker, "rm", "-f", *ids], cwd="/",
+                                 env=_docker_cli_environment(config),
+                                 stdin=subprocess.DEVNULL,
+                                 capture_output=True, timeout=120)
+        return removal.returncode == 0
+
+    def run(self, what: str, seal_root, command, *, mounts=(), workdir: str,
+            out: bool = False, stdout_limit: int,
+            timeout: int) -> SealedRunResult:
+        """Run `command` in one sealed container, in the foreground, and
+        return what it printed, each stream bounded. A run past `timeout` is
+        killed with its container. Raises `SealRefused` when the docker CLI
+        cannot be launched, and when a container of this job's is still
+        running after the run returned: it is removed first."""
+        argv = [*self.argv(seal_root, mounts=mounts, workdir=workdir, out=out),
+                *command]
+        with tempfile.TemporaryDirectory(prefix="dfr-docker-config-") as config:
+            try:
+                proc = subprocess.Popen(
+                    argv, cwd="/", env=_docker_cli_environment(config),
+                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+            except OSError as exc:
+                raise SealRefused(
+                    f"the sealed {what} could not be launched in its "
+                    f"container ({type(exc).__name__}: {exc})") from exc
+            stdout: list[bytes] = []
+            stderr: list[bytes] = []
+            readers = [
+                threading.Thread(target=_drain_bounded, daemon=True,
+                                 args=(proc.stdout, stdout_limit, stdout)),
+                threading.Thread(target=_drain_bounded, daemon=True,
+                                 args=(proc.stderr, SEALED_LOG_LIMIT, stderr))]
+            for reader in readers:
+                reader.start()
+            timed_out = False
+            try:
+                proc.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                timed_out = True
+                proc.kill()
+                proc.wait()
+                self._remove(config, self._containers(config, every=True))
+            for reader in readers:
+                reader.join(timeout=60)
+            left = self._containers(config, every=False)
+            if left:
+                # Removed, then asked again: a removal the daemon rejects
+                # leaves the container running, and the refusal says so
+                # (Copilot, PR #1192). The seal is refused either way.
+                self._remove(config, left)
+                still = self._containers(config, every=False)
+                if still:
+                    raise SealRefused(
+                        f"a container of the sealed {what} was still running "
+                        "after it returned, so sealed code could still act, "
+                        "and the daemon could not remove it "
+                        f"({', '.join(still)}): the seal is refused, and the "
+                        "job's last step removes what this run left")
+                raise SealRefused(
+                    f"a container of the sealed {what} was still running after "
+                    "it returned, so sealed code could still act: it is "
+                    "removed, and the seal is refused")
+        printed = stdout[0] if stdout else b""
+        said = stderr[0] if stderr else b""
+        return SealedRunResult(
+            returncode=proc.returncode, stdout=printed[:stdout_limit],
+            stderr=said[:SEALED_LOG_LIMIT],
+            stdout_over=len(printed) > stdout_limit,
+            stderr_over=len(said) > SEALED_LOG_LIMIT, timed_out=timed_out)
+
+
+def resolve_sealed_container(environ=None) -> SealedContainer:
+    """The container every sealed run of this parent runs in (#1191). Raises
+    `SealRefused`, naming why no sealed code may run: a variable that would
+    take a later step's commands, or the docker CLI, somewhere else; an image
+    id the finalize job's build step did not record; a root uid; or no docker
+    CLI at `DOCKER`. Nothing sealed ever runs on this runner instead."""
+    environ = os.environ if environ is None else environ
+    for name in _SEALED_REFUSED_ENV:
+        if name in environ:
+            if name == "ACTIONS_ALLOW_UNSECURE_COMMANDS":
+                raise SealRefused(
+                    "ACTIONS_ALLOW_UNSECURE_COMMANDS is set, so output this "
+                    "job does not control could set a variable or a PATH "
+                    "entry for a later step: no sealed code runs")
+            raise SealRefused(
+                f"{name} is set, so the docker CLI would not send its calls "
+                "to the local daemon the build step used: no sealed code runs")
+    image = environ.get(SEALED_IMAGE_ENV, "")
+    if not _SEALED_IMAGE_RE.fullmatch(image):
+        raise SealRefused(
+            f"{SEALED_IMAGE_ENV} is {image!r}, not the image id the finalize "
+            "job's build step records, so no sealed code runs")
+    uid, gid = os.getuid(), os.getgid()
+    if uid == 0 or gid == 0:
+        raise SealRefused(
+            "the sealed runs take this runner's uid and gid, and they are "
+            "root's, so no sealed code runs")
+    if not (os.path.isabs(DOCKER) and os.access(DOCKER, os.X_OK)):
+        raise SealRefused(
+            f"there is no docker CLI at {DOCKER}, so no sealed code runs")
+    run_id = environ.get("GITHUB_RUN_ID", "")
+    attempt = environ.get("GITHUB_RUN_ATTEMPT", "")
+    tag = (f"{run_id}-{attempt}" if run_id.isdigit() and attempt.isdigit()
+           else f"local-{secrets.token_hex(8)}")
+    return SealedContainer(image=image, label=f"{SEALED_RUN_LABEL}={tag}",
+                           uid=uid, gid=gid, docker=DOCKER)
+
+
+def _last_line(data: bytes) -> str:
+    """A run's own last line, bounded, so a refusal carries its words."""
+    lines = [line.strip() for line in
+             data.decode("utf-8", "replace").splitlines() if line.strip()]
+    return lines[-1][:400] if lines else ""
+
+
+# THE SEALED VALIDATOR RUNS IN THE SEALED CONTAINER TOO (Copilot, PR #1166;
+# #1191). The product's `snapshot.validate_snapshot` launches the validator
+# with no `env` of its own, so the call is made in a fresh interpreter in a
+# sealed container, whose whole environment is the four literals the
+# container is given. It is still the product's own function, with its own
+# three-outcome reading. The module is the SEALED one, out of the seal's
+# openXdox leg (`sealed_product_module`): the exact code the seal carries,
+# never this parent's worktree, which could be dirty (Copilot, PR #1166). The
+# harness ends without a verdict if the name resolves to any other file. It
+# hands the product's result back as the last line of its stdout. The
+# validator's own output never reaches that stream, because the product
+# captures it.
 _VALIDATE_HARNESS = """\
 import json, sys
 from pathlib import Path
@@ -2444,58 +3168,61 @@ def sealed_product_module(seal_root) -> Path:
 
 
 def validate_in_render_environment(product, target, *, validator, strict: bool,
-                                   seal_root, module_file,
-                                   run=subprocess.run,
+                                   seal_root, module_file, container,
                                    timeout: int = PRECHECK_TIMEOUT_SECONDS):
     """The product's own `validate_snapshot(target, validator=...,
-    strict=...)`, imported from `module_file` and run in the pre-dispatch
-    render's environment rather than this job's (see `_VALIDATE_HARNESS`).
+    strict=...)`, imported from `module_file` and run in a sealed container
+    (`container.run`, #1191), never on this runner (see `_VALIDATE_HARNESS`).
     Returns a `ValidationResult`, the parent's `product` supplying only that
     record's type and the outcome spellings.
 
-    Git may climb neither out of the seal nor out of the scratch directory the
-    validator runs in. A harness that cannot be launched, does not finish, or
-    returns no verdict is reported the way the product reports a validator
-    that cannot run: outcome `VALIDATOR_UNAVAILABLE`, with the reason. Nothing
-    is then known about the target, and both callers refuse on that
-    outcome."""
+    The seal is mounted read-only, and `target`'s own directory, which holds
+    nothing else, read-only at `SEALED_JUDGED`. What the run prints is
+    bounded. A run that cannot be started, does not finish, prints past the
+    bound or returns no verdict is reported the way the product reports a
+    validator that cannot run: outcome `VALIDATOR_UNAVAILABLE`, with the
+    reason. Nothing is then known about the target, and both callers refuse
+    on that outcome."""
     validator = Path(validator).resolve()
     module_file = Path(module_file).resolve()
+    target = Path(target).resolve()
 
     def unavailable(reason: str, *, returncode: int = -1, stderr: str = ""):
         return product.ValidationResult(
             False, returncode, "", stderr, validator,
             product.VALIDATOR_UNAVAILABLE, reason)
 
-    with tempfile.TemporaryDirectory(prefix="dfr-validate-") as scratch:
-        scratch_root = Path(scratch).resolve()
-        home = scratch_root / "home"
-        home.mkdir()
-        env = _render_environment(seal_root, home)
-        env["GIT_CEILING_DIRECTORIES"] = os.pathsep.join(
-            (env["GIT_CEILING_DIRECTORIES"], str(scratch_root.parent)))
-        argv = [sys.executable, "-c", _VALIDATE_HARNESS, str(module_file),
-                str(Path(target).resolve()), str(validator),
-                "strict" if strict else "lenient"]
-        try:
-            proc = run(argv, cwd=str(scratch_root), env=env,
-                       capture_output=True, text=True, timeout=timeout)
-        except subprocess.TimeoutExpired:
-            return unavailable(f"the validator did not finish within {timeout}s")
-        except OSError as exc:
-            return unavailable(
-                "the validator could not be launched in the render's "
-                f"environment ({type(exc).__name__}: {exc})")
+    try:
+        inside = (_in_the_seal(module_file, seal_root),
+                  _in_the_seal(validator, seal_root))
+    except ValueError:
+        return unavailable(
+            "the validator or the product module it is read by is not inside "
+            "the seal, so no sealed container could run it")
+    run = container.run(
+        "validator", seal_root,
+        [SEALED_PYTHON, "-c", _VALIDATE_HARNESS, inside[0],
+         f"{SEALED_JUDGED}/{target.name}", inside[1],
+         "strict" if strict else "lenient"],
+        mounts=((target.parent, SEALED_JUDGED),), workdir="/tmp",
+        stdout_limit=SEALED_LOG_LIMIT, timeout=timeout)
+    stderr = run.stderr.decode("utf-8", "replace")
+    if run.timed_out:
+        return unavailable(f"the validator did not finish within {timeout}s")
+    if run.stdout_over or run.stderr_over:
+        return unavailable(
+            f"the validator's run printed more than {SEALED_LOG_LIMIT} bytes, "
+            "which no verdict needs")
     verdict = _harness_verdict(
-        proc.stdout, (product.VALIDATED, product.NOT_CONFORMANT,
-                      product.VALIDATOR_UNAVAILABLE))
-    if proc.returncode != 0 or verdict is None:
+        run.stdout.decode("utf-8", "replace"),
+        (product.VALIDATED, product.NOT_CONFORMANT,
+         product.VALIDATOR_UNAVAILABLE))
+    if run.returncode != 0 or verdict is None:
         # Its stderr is kept, since a harness that could not import the product
         # says why there. Its stdout carries nothing but a verdict line.
         return unavailable(
             f"the validator's harness returned no verdict (exit "
-            f"{proc.returncode})", returncode=proc.returncode,
-            stderr=proc.stderr or "")
+            f"{run.returncode})", returncode=run.returncode, stderr=stderr)
     return product.ValidationResult(
         verdict["ok"], verdict["returncode"], verdict["stdout"],
         verdict["stderr"], validator, verdict["outcome"],
@@ -2509,10 +3236,7 @@ def validate_in_render_environment(product, target, *, validator, strict: bool,
 # the validator's own finding code AND the value it names, so the citation
 # retires itself. Once the corpus is fixed the finding is gone, and a
 # different rejection is never cited against an issue that is not its own.
-KNOWN_STRICT_FINDINGS = (
-    ("snapshot-dangling-cluster-ref", "'cl-plane-1'",
-     "opensoft/openxFactory#1159"),
-)
+KNOWN_STRICT_FINDINGS: tuple[tuple[str, str, str], ...] = ()
 # The validator's per-finding lines: `ERROR [<code>] <path>: <message>`, and
 # the same shape for a warning.
 _FINDING_LINE_RE = re.compile(r"^(ERROR|WARNING) \[([a-z0-9-]+)\] ")
@@ -2558,27 +3282,6 @@ def known_finding_citation(lines) -> str:
             + ")")
 
 
-def _not_a_file_of_its_own(info: os.stat_result) -> str:
-    """What `info` is, when it is anything but a regular file with one link;
-    "" when it is one."""
-    if stat.S_ISLNK(info.st_mode):
-        return "a symbolic link"
-    if stat.S_ISDIR(info.st_mode):
-        return "a directory"
-    if not stat.S_ISREG(info.st_mode):
-        return "not a regular file"
-    if info.st_nlink != 1:
-        return "a hard link to another file"
-    return ""
-
-
-def _render_output_refused(what: str) -> SealRefused:
-    return SealRefused(
-        f"the sealed render's output is {what}, not a file of its own, so "
-        "the parent will not read it: a link could hand the parent any file "
-        "on this host to validate and quote")
-
-
 def _render_output_present(name, *, dir_fd=None) -> bool:
     """Whether anything at all sits at `name`, relative to `dir_fd` when it is
     given, a dangling link included."""
@@ -2589,169 +3292,120 @@ def _render_output_present(name, *, dir_fd=None) -> bool:
     return True
 
 
-def _read_render_output(name, *, dir_fd=None) -> bytes:
-    """The bytes the sealed render wrote at `name`, which must be a regular
-    file of its own: not a symbolic link, not a hard link, nothing else. The
-    render is sealed code, and a link would have the parent validate, and
-    quote in its findings, whatever file on this host it named (Copilot,
-    PR #1166). `name` is read relative to `dir_fd`, a handle on the directory
-    the parent made, when one is given, so a directory swapped in on the way
-    to it cannot redirect the read. The file is opened without following a
-    link and checked again through the open descriptor, so a swap after the
-    first check is refused too."""
-    try:
-        before = os.stat(name, dir_fd=dir_fd, follow_symlinks=False)
-    except OSError as exc:
-        raise SealRefused(
-            f"the sealed render's output cannot be read ({exc})") from exc
-    what = _not_a_file_of_its_own(before)
-    if what:
-        raise _render_output_refused(what)
-    flags = (os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
-             | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0))
-    try:
-        descriptor = os.open(name, flags, dir_fd=dir_fd)
-    except OSError as exc:
-        raise _render_output_refused(
-            f"something that could not be opened without following a link "
-            f"({exc.strerror})") from exc
-    with os.fdopen(descriptor, "rb") as handle:
-        after = os.fstat(handle.fileno())
-        what = _not_a_file_of_its_own(after)
-        if not what and (after.st_dev, after.st_ino) != (before.st_dev,
-                                                         before.st_ino):
-            what = "a file that was swapped after it was checked"
-        if what:
-            raise _render_output_refused(what)
-        return handle.read()
-
-
-def _run_the_sealed_render(entry, corpus_root, seal_root, home, snapshot,
-                           output, scratch_fd, *, source_head: str,
-                           source_committed_at: str, run, timeout: int) -> bytes:
-    """Run `RENDER_ENTRY generate` from the sealed corpus root, as the child
-    does, writing `snapshot`, and return the bytes it wrote. They are read
-    through `scratch_fd`, the handle on the directory `snapshot` was made in,
-    under the name `output` (`_read_render_output`)."""
-    argv = [sys.executable, str(entry), "generate",
-            "--repo-root", str(corpus_root),
-            "--repository", RENDER_REPOSITORY,
-            "--source-revision", source_head,
-            "--generated-at", source_committed_at,
-            "--output", str(snapshot), "--no-validate"]
-    try:
-        proc = run(argv, cwd=str(corpus_root),
-                   env=_render_environment(seal_root, home),
-                   capture_output=True, text=True, timeout=timeout)
-    except subprocess.TimeoutExpired as exc:
+def _run_the_sealed_render(seal_root, *, source_head: str,
+                           source_committed_at: str, container,
+                           timeout: int) -> bytes:
+    """Run `RENDER_ENTRY generate` in a sealed container, from the sealed
+    corpus root, word for word as the child worker does (opensoft/xFactory
+    #526), and return the snapshot it streamed. The render writes into a
+    tmpfs of its own (`SEALED_OUT`), its own output goes to stderr, and the
+    snapshot leaves by stdout alone, bounded by `SEALED_SNAPSHOT_LIMIT`.
+    Nothing it writes lands on this runner."""
+    command = ["/bin/sh", "-c", _SEALED_RENDER_WRAPPER, "render",
+               SEALED_RENDER_OUTPUT, SEALED_PYTHON, RENDER_ENTRY, "generate",
+               "--repo-root", ".", "--repository", RENDER_REPOSITORY,
+               "--no-validate", "--source-revision", source_head,
+               "--generated-at", source_committed_at,
+               "--output", SEALED_RENDER_OUTPUT]
+    run = container.run("render", seal_root, command,
+                        workdir=f"{SEALED_SEAL}/{SEAL_CORPUS_RELPATH}",
+                        out=True, stdout_limit=SEALED_SNAPSHOT_LIMIT,
+                        timeout=timeout)
+    if run.timed_out:
         raise SealRefused(
             f"the sealed render did not finish within {timeout}s, so the "
-            "child's generate would not either") from exc
-    except OSError as exc:
+            "child's generate would not either")
+    if run.stderr_over:
         raise SealRefused(
-            f"the sealed render could not be launched: {exc}") from exc
-    if (proc.returncode != 0
-            or not _render_output_present(output, dir_fd=scratch_fd)):
-        said = _validator_said(proc)
+            f"the sealed render printed more than {SEALED_LOG_LIMIT} bytes "
+            "for the log, which no render needs, so it is refused")
+    if run.stdout_over:
+        raise SealRefused(
+            f"the sealed render streamed more than {SEALED_SNAPSHOT_LIMIT} "
+            "bytes, which no snapshot needs, so its output is refused")
+    if run.returncode != 0:
+        said = _last_line(run.stderr)
         raise SealRefused(
             "the sealed render unit could not render the snapshot (exit "
-            f"{proc.returncode}), so the child's generate would fail the "
+            f"{run.returncode}), so the child's generate would fail the "
             "same way" + (f": {said}" if said else ""))
-    return _read_render_output(output, dir_fd=scratch_fd)
+    if not run.stdout:
+        raise SealRefused(
+            "the sealed render streamed no snapshot, so there is nothing of "
+            "its own to judge")
+    return run.stdout
 
 
 def precheck_sealed_render(seal_root, *, source_head: str,
-                           source_committed_at: str,
-                           run=subprocess.run,
+                           source_committed_at: str, container=None,
                            timeout: int = PRECHECK_TIMEOUT_SECONDS) -> dict:
     """Render the snapshot FROM THE SEAL and run the sealed validator over it
     under `--strict`, exactly as the child will. Returns the manifest's
     `precheck` record.
 
-    THE CHILD'S OWN INVOCATION, in the child's own tree. `RENDER_ENTRY` runs
-    from the sealed corpus root, with the seal's two anchors as its
+    THE CHILD'S OWN INVOCATION, in the child's own container. `RENDER_ENTRY`
+    runs from the sealed corpus root, with the seal's two anchors as its
     `--source-revision` and `--generated-at`, and `--no-validate` because
-    validation is the sealed unit's job. Then the sealed validator runs over
-    the result, through the product's own three-outcome `validate_snapshot`,
-    as the probe does. Both run in the allowlisted environment
-    (`_render_environment`, `validate_in_render_environment`), never in this
-    job's. The snapshot is written to a scratch directory outside the seal and
-    discarded. The child generates the one the image bakes, and the child's
-    `--strict` stays the publication gate.
+    validation is the sealed unit's job: word for word the child worker's
+    generate. Then the sealed validator runs over what it streamed, through
+    the product's own three-outcome `validate_snapshot`, as the probe does.
+    Both run in a sealed container (`container`, else
+    `resolve_sealed_container()`, #1191), never on this runner. The snapshot
+    is held only as the bytes the render streamed, then discarded. The child
+    generates the one the image bakes, and the child's `--strict` stays the
+    publication gate.
 
-    Every path either run is handed is absolute. The nightly names its seal
-    relative to the job's working directory (`--seal-out dfr-seal`), and the
-    render runs from inside the seal, where a relative path would name
-    nothing.
+    A seal handed as the path of the lane's own handle on it
+    (`_HeldSealDirectory.root`) resolves to where that directory is, which is
+    what the container mounts.
 
     Raises `SealRefused` when the render fails, when it drops either anchor,
     or when the validator cannot run. Raises `StrictGateRejected`, carrying
     the validator's own output, when the validator REJECTS the snapshot. That
     is a verdict on the corpus, and the lane records it as one."""
     seal_root = Path(seal_root).resolve()
-    corpus_root = seal_root / SEAL_CORPUS_RELPATH
-    entry = corpus_root / RENDER_ENTRY
     validator = seal_root / SEAL_VALIDATOR_RELPATH
+    if container is None:
+        container = resolve_sealed_container()
     try:
         product = _snapshot_lane().snapshot_mod
     except ImportError as exc:
         raise SealRefused(
             "the sealed render cannot be checked on this parent "
             f"({type(exc).__name__}: {exc})") from exc
-    # `ignore_cleanup_errors`, because the render may have left the scratch
-    # path a link, which the cleanup refuses to follow; the refusal below is
-    # the one to report.
-    with tempfile.TemporaryDirectory(prefix="dfr-precheck-",
-                                     ignore_cleanup_errors=True) as scratch:
-        scratch_root = Path(scratch)
-        snapshot = scratch_root / "snapshot.json"
-        scrub = (snapshot.resolve(), snapshot)
-        home = scratch_root / "home"
-        home.mkdir()
-        # THE SCRATCH DIRECTORY IS HELD BEFORE THE RENDER RUNS (Copilot, PR
-        # #1166). The render may replace its path with a link to another
-        # directory. The output is read through this handle, from the
-        # directory this parent made, whatever the path names afterwards.
-        scratch_fd = _open_directory(scratch_root)
-        output = snapshot.name if scratch_fd is not None else snapshot
-        try:
-            written = _run_the_sealed_render(
-                entry, corpus_root, seal_root, home, snapshot, output,
-                scratch_fd, source_head=source_head,
-                source_committed_at=source_committed_at, run=run,
-                timeout=timeout)
-        finally:
-            if scratch_fd is not None:
-                os.close(scratch_fd)
-        try:
-            rendered = json.loads(written.decode("utf-8"))
-        except ValueError as exc:
-            raise SealRefused(
-                f"the sealed render wrote no readable snapshot ({exc})") from exc
-        generation = rendered.get("generation") if isinstance(rendered, dict) \
-            else None
-        generation = generation if isinstance(generation, dict) else {}
-        if (generation.get("source_revision") != source_head
-                or generation.get("generated_at") != source_committed_at):
-            raise SealRefused(
-                "the sealed render did not carry the seal's two anchors "
-                f"(source_revision {generation.get('source_revision')!r}, "
-                f"generated_at {generation.get('generated_at')!r}), so the "
-                "child's one-revision assertion would refuse it")
-        documents = rendered.get("documents")
-        document_count = len(documents) if isinstance(documents, list) else 0
-        # THE VALIDATOR JUDGES THE BYTES READ ABOVE, from a copy in a
-        # directory made after the render exited. Nothing the render left
-        # behind can stand between what was checked and what is judged.
-        with tempfile.TemporaryDirectory(prefix="dfr-judged-") as judged_dir:
-            judged = Path(judged_dir).resolve() / snapshot.name
-            judged.write_bytes(written)
-            scrub = (*scrub, judged)
-            result = validate_in_render_environment(
-                product, judged, validator=validator, strict=True,
-                seal_root=seal_root,
-                module_file=sealed_product_module(seal_root), run=run,
-                timeout=timeout)
+    written = _run_the_sealed_render(
+        seal_root, source_head=source_head,
+        source_committed_at=source_committed_at, container=container,
+        timeout=timeout)
+    try:
+        rendered = json.loads(written.decode("utf-8"))
+    except ValueError as exc:
+        raise SealRefused(
+            f"the sealed render wrote no readable snapshot ({exc})") from exc
+    generation = rendered.get("generation") if isinstance(rendered, dict) \
+        else None
+    generation = generation if isinstance(generation, dict) else {}
+    if (generation.get("source_revision") != source_head
+            or generation.get("generated_at") != source_committed_at):
+        raise SealRefused(
+            "the sealed render did not carry the seal's two anchors "
+            f"(source_revision {generation.get('source_revision')!r}, "
+            f"generated_at {generation.get('generated_at')!r}), so the "
+            "child's one-revision assertion would refuse it")
+    documents = rendered.get("documents")
+    document_count = len(documents) if isinstance(documents, list) else 0
+    # THE VALIDATOR JUDGES THE BYTES THE RENDER STREAMED, from a copy in a
+    # directory made after the render exited, mounted read-only into the
+    # validator's container and holding nothing else.
+    with _sealed_scratch("dfr-judged-") as judged_dir:
+        judged = Path(judged_dir).resolve() / "snapshot.json"
+        judged.write_bytes(written)
+        scrub = (judged, f"{SEALED_JUDGED}/{judged.name}")
+        result = validate_in_render_environment(
+            product, judged, validator=validator, strict=True,
+            seal_root=seal_root,
+            module_file=sealed_product_module(seal_root),
+            container=container, timeout=timeout)
     if not result.available:
         said = _validator_said(result)
         raise SealRefused(
@@ -2812,19 +3466,37 @@ def seal_source(
     resolve_validator=None,
     seal_legs=None,
     precheck_render=None,
+    seal_within=None,
+    sealed_container=None,
 ) -> dict:
     """Materialize the bounded source artifact and return its manifest.
 
     Order matters and is the order of the refusals:
       * a decision that did not ask for a build seals nothing;
       * a revision that cannot be resolved seals nothing;
+      * a seal directory path where anything sits already, a directory,
+        empty or not, a file, or a link, dangling or not, seals nothing, and
+        is found out BEFORE the validator is resolved (#1182);
       * a validator that cannot be resolved seals nothing, and is found out
         BEFORE the corpus is archived, since the corpus no longer supplies it;
+      * a parent that cannot run sealed code in its container (#1191): no
+        image id from the build step, a variable that would take a later
+        step's commands or the docker CLI elsewhere, a root uid, or no docker
+        CLI, seals nothing, also found out before the corpus is archived, and
+        no sealed code runs on this runner instead;
+      * a seal directory the lane cannot make fresh and hold, because a
+        directory appeared at its path, a directory on its way from
+        `seal_within` is a link or no directory at all, or what the lane
+        made was swapped as it made it, seals nothing, and nothing is
+        written into it (#1182);
       * a render leg that `source_head` does not pin, that this parent has not
         materialized at exactly that pin, or whose archive does not record it
         seals nothing, and so does a product whose schema leg this parent
         holds at any other commit than its pin; both are found out before the
         corpus is archived;
+      * a seal directory whose name no longer leads to the directory the lane
+        made, found as the corpus is about to be extracted, seals nothing, and
+        gets nothing more written (#1182);
       * an archive whose own recorded commit is not `source_head` seals
         nothing;
       * a sealed corpus that does not carry each path of the serve unit its
@@ -2850,10 +3522,24 @@ def seal_source(
       * a pre-dispatch render that changed the sealed tree, or replaced the
         seal directory itself, seals nothing;
       * a `manifest.json` the lane did not write, left by the sealed code that
-        ran before it, seals nothing.
-    Only a seal that passed all thirteen gets a `manifest.json`, and the
+        ran before it, seals nothing;
+      * a seal directory whose name no longer leads to the directory the lane
+        made once the manifest is written is not published, and its manifest
+        is withdrawn (Copilot, PR #1185).
+    Only a seal that passed all seventeen keeps a `manifest.json`, and the
     manifest's presence is therefore the artifact's own statement that the
     parent stands behind it.
+
+    THE SEAL DIRECTORY IS THE LANE'S OWN (#1182). The lane makes it itself
+    (`_new_seal_directory`) and holds a handle on it until the seal is done.
+    Every write and read the lane makes under the seal goes through that
+    handle (`_HeldSealDirectory.root`), and the sealed code it runs, the
+    validator's probe and the pre-dispatch render, is handed that directory
+    too, never its name (Copilot, PR #1185). `seal_within` is the root
+    the directory must lie in, and `main` passes `--repo-root`: the
+    directory is then made by walking from it through no link. Left None,
+    the directory is made in its parent, opened without following a link at
+    its own name.
 
     `resolve_validator`, `seal_legs` and `precheck_render` are injectable for
     the same reason `read_recipe` is. Left None they are
@@ -2890,217 +3576,259 @@ def seal_source(
             f"could not read the committer date of {_short(source_head)}")
 
     seal_root = Path(seal_dir)
-    if seal_root.exists() and any(seal_root.iterdir()):
-        # A seal is a FRESH tree, never an overlay on one: `files` is the
-        # authority on what the child must find, so a leftover from an earlier
-        # attempt would be indexed, digested and shipped as though the parent
-        # had sealed it.
-        raise SealRefused(
-            f"the seal directory {seal_root} is not empty — a seal must be "
-            "materialized into a fresh tree")
+    # A SEAL IS A FRESH TREE THE LANE MAKES ITSELF, never an overlay on one:
+    # `files` is the authority on what the child must find, so a leftover
+    # from an earlier attempt would be indexed, digested and shipped as
+    # though the parent had sealed it. A directory the lane did not make,
+    # empty or not, or a link, is one it cannot vouch for either (#1182). So
+    # anything at the path refuses the seal, here, before the validator is
+    # resolved, and the directory is made exclusively below.
+    _refuse_an_existing_seal_path(seal_root)
     # THE VALIDATOR IS RESOLVED BEFORE THE CORPUS IS ARCHIVED. It no longer
     # comes out of the corpus, so nothing about it waits for the corpus, and a
     # parent that cannot resolve it is told so before the whole corpus
     # (44,492,413 bytes at `1edbb3dd`) is archived for nothing. It is SEALED
     # and RUN below, once the seal tree exists.
     pinned = (resolve_validator or resolve_pinned_validator)()
-    seal_root.mkdir(parents=True, exist_ok=True)
-    # THE SEAL DIRECTORY AS CREATED. Sealed code runs inside it before the
-    # manifest is written (the probe and the render), so the manifest is
+    # THE SEALED RUNS' CONTAINER, before the corpus is archived (#1191). A
+    # parent that could not run the probe and the render in one is told so
+    # before anything is archived for nothing.
+    container = (sealed_container if sealed_container is not None
+                 else resolve_sealed_container())
+    # THE SEAL DIRECTORY, MADE AND HELD (#1182). Sealed code runs inside it
+    # before the manifest is written (the probe and the render), so the lane
+    # makes it itself, before anything is written into it, and holds a
+    # handle on it until the seal is done. The recipe and the manifest are
     # written only into this very directory (Copilot, PR #1166).
-    seal_identity = _seal_directory_identity(seal_root)
-    corpus_root = seal_root / SEAL_CORPUS_RELPATH
-    # THE RENDER LEGS ARE SEALED BEFORE THE CORPUS IS ARCHIVED, for the reason
-    # the validator is resolved first: a parent whose legs sit at another pin
-    # than `source_head`'s is told so before the corpus is archived for
-    # nothing. Neither archive touches the other's paths: `seal_paths` names
-    # no gitlink, so the corpus extract lands beside the legs.
-    render_legs = (seal_legs or seal_render_legs)(
-        corpus_checkout=corpus_checkout, source_head=source_head,
-        corpus_root=corpus_root, runner=runner)
-    # The intermediate tar lives OUTSIDE the seal (and outside the checkout):
-    # it is not part of the artifact, and `git archive --output=` means the
-    # bytes never pass through this module's text-mode runner.
-    with tempfile.TemporaryDirectory(prefix="dfr-seal-") as staging:
-        archive_path = Path(staging) / "source.tar"
-        result = runner(exact_git(corpus_checkout, "archive", "--format=tar",
-                                  f"--output={archive_path}", source_head,
-                                  "--", *seal_paths),
-                        env=exact_git_environment())
-        if not result.ok:
+    held = _new_seal_directory(seal_root, within=seal_within)
+    try:
+        # From here on every write and read the lane makes under the seal
+        # goes through the handle it holds (`held.root`), never through the
+        # name, so a name swapped after the making redirects none of them.
+        seal_root = held.root
+        corpus_root = seal_root / SEAL_CORPUS_RELPATH
+        # THE RENDER LEGS ARE SEALED BEFORE THE CORPUS IS ARCHIVED, for the reason
+        # the validator is resolved first: a parent whose legs sit at another pin
+        # than `source_head`'s is told so before the corpus is archived for
+        # nothing. Neither archive touches the other's paths: `seal_paths` names
+        # no gitlink, so the corpus extract lands beside the legs.
+        render_legs = (seal_legs or seal_render_legs)(
+            corpus_checkout=corpus_checkout, source_head=source_head,
+            corpus_root=corpus_root, runner=runner)
+        # NOTHING MORE GOES INTO A SWAPPED SEAL (#1182). The corpus is about to
+        # be extracted, and if the name no longer leads to the directory the
+        # lane made, the workflow would upload something else: the seal is
+        # refused before anything more is written.
+        held.refuse_if_replaced("corpus",
+                                after="it was replaced after the lane made it")
+        # The intermediate tar lives OUTSIDE the seal (and outside the checkout):
+        # it is not part of the artifact, and `git archive --output=` means the
+        # bytes never pass through this module's text-mode runner.
+        with tempfile.TemporaryDirectory(prefix="dfr-seal-") as staging:
+            archive_path = Path(staging) / "source.tar"
+            result = runner(exact_git(corpus_checkout, "archive", "--format=tar",
+                                      f"--output={archive_path}", source_head,
+                                      "--", *seal_paths),
+                            env=exact_git_environment())
+            if not result.ok:
+                raise SealRefused(
+                    f"git archive failed at {_short(source_head)}: "
+                    f"{result.stderr.strip()[:200]}")
+
+            # THE PARENT-SIDE ONE-REVISION ASSERTION (design open question 1). The
+            # archive names its own commit; if that is not the head we recorded,
+            # the two would disagree in a manifest nobody could later disprove.
+            recorded = git_archive_revision(archive_path)
+            if recorded != source_head:
+                raise SealRefused(
+                    "the source archive's own recorded revision "
+                    f"({recorded or 'absent'}) is not the sealed source_head "
+                    f"({source_head})")
+            _extract_seal_archive(archive_path, corpus_root)
+        if not any(_contained_relpath(corpus_root, path.split("/", 1)[0]).exists()
+                   for path in seal_paths):
             raise SealRefused(
-                f"git archive failed at {_short(source_head)}: "
-                f"{result.stderr.strip()[:200]}")
-
-        # THE PARENT-SIDE ONE-REVISION ASSERTION (design open question 1). The
-        # archive names its own commit; if that is not the head we recorded,
-        # the two would disagree in a manifest nobody could later disprove.
-        recorded = git_archive_revision(archive_path)
-        if recorded != source_head:
+                "the sealed corpus is empty — none of the seal paths materialized")
+        # THE SERVE UNIT IS SEALED WHOLE (#1164, seal 2.2.0). The served image's
+        # recipe copies each of its paths out of the context the child assembles
+        # from this corpus, so a seal that lacks one builds no image, and the
+        # intake refuses it. The archive's pathspec does not promise the unit: a
+        # file inside a directory it names whole may be absent, and a directory
+        # at a file's path satisfies a pathspec, though not the recipe (Copilot,
+        # PR #1179). So every path of the unit the archive holds is checked here,
+        # as the kind the unit names it, by the intake's own rule. The legs are
+        # sealed whole by the leg sealer.
+        absent = _serve_paths_absent(
+            (path.relative_to(seal_root).as_posix()
+             for path in corpus_root.rglob("*") if path.is_file()),
+            _SERVE_UNIT_ARCHIVED)
+        if absent:
+            missing = f"{SEAL_CORPUS_RELPATH}/{absent[0]}"
+            what = (f"carries no file under {missing}" if missing.endswith("/")
+                    else f"does not carry {missing}")
             raise SealRefused(
-                "the source archive's own recorded revision "
-                f"({recorded or 'absent'}) is not the sealed source_head "
-                f"({source_head})")
-        _extract_seal_archive(archive_path, corpus_root)
-    if not any(_contained_relpath(corpus_root, path.split("/", 1)[0]).exists()
-               for path in seal_paths):
-        raise SealRefused(
-            "the sealed corpus is empty — none of the seal paths materialized")
-    # THE SERVE UNIT IS SEALED WHOLE (#1164, seal 2.2.0). The served image's
-    # recipe copies each of its paths out of the context the child assembles
-    # from this corpus, so a seal that lacks one builds no image, and the
-    # intake refuses it. The archive's pathspec does not promise the unit: a
-    # file inside a directory it names whole may be absent, and a directory
-    # at a file's path satisfies a pathspec, though not the recipe (Copilot,
-    # PR #1179). So every path of the unit the archive holds is checked here,
-    # as the kind the unit names it, by the intake's own rule. The legs are
-    # sealed whole by the leg sealer.
-    absent = _serve_paths_absent(
-        (path.relative_to(seal_root).as_posix()
-         for path in corpus_root.rglob("*") if path.is_file()),
-        _SERVE_UNIT_ARCHIVED)
-    if absent:
-        missing = f"{SEAL_CORPUS_RELPATH}/{absent[0]}"
-        what = (f"carries no file under {missing}" if missing.endswith("/")
-                else f"does not carry {missing}")
-        raise SealRefused(
-            f"the sealed corpus {what}, which the served image's recipe "
-            "copies — the image the child builds could not start")
-    # The #179 trap, refused at the seal rather than at `--strict` three steps
-    # later. A validation that could not RUN is a strict failure with no
-    # finding to read, so the sealed copy is RUN here, and a copy that cannot
-    # reach a verdict is refused (see `seal_validator`).
-    validator_fields = seal_validator(seal_root, pinned,
-                                      corpus_checkout=corpus_checkout,
-                                      source_head=source_head, runner=runner)
-    # ONE PRODUCT REVISION. The validator is resolved from this parent's own
-    # openXdox leg, and the render unit carries `source_head`'s. They are the
-    # same checkout whenever the legs above were sealed, so a disagreement is
-    # a parent whose validator came from somewhere else. That parent is
-    # refused rather than recorded, because the child's `--strict` would
-    # judge the snapshot with a product revision the render did not use.
-    #
-    # THE CHECK ALWAYS RUNS (Copilot, PR #1166). A validator with no product
-    # revision is refused, and so is a render unit with no openXdox code leg
-    # to hold it to. Every 2.1 seal carries that leg, and the intake requires
-    # the two to be one revision, so either would only be a seal the child
-    # refuses. Only an injected stand-in resolves from no product tree.
-    validator_leg = next((leg for leg in render_legs
-                          if (leg.get("gitlink"), leg.get("leg"))
-                          == VALIDATOR_LEG), None)
-    validator_revision = validator_fields.get("validator_revision")
-    if validator_revision is None:
-        raise SealRefused(
-            "the sealed validator records no product revision (it was not "
-            "resolved from a product tree), so it cannot be held to the "
-            "render unit's openXdox code leg — the child's intake refuses a "
-            "seal whose validator names no revision")
-    if (validator_leg is None
-            or validator_revision != validator_leg.get("leg_revision")):
-        carried = ("carries no openXdox code leg" if validator_leg is None
-                   else "carries it at "
-                   f"{_short(validator_leg.get('leg_revision'))}")
-        raise SealRefused(
-            f"the sealed validator was copied from openXdox code at "
-            f"{_short(validator_revision)}, but the sealed render unit "
-            f"{carried} — the child would validate the snapshot with a "
-            "product revision its render did not use")
+                f"the sealed corpus {what}, which the served image's recipe "
+                "copies — the image the child builds could not start")
+        # The #179 trap, refused at the seal rather than at `--strict` three steps
+        # later. A validation that could not RUN is a strict failure with no
+        # finding to read, so the sealed copy is RUN here, and a copy that cannot
+        # reach a verdict is refused (see `seal_validator`).
+        validator_fields = seal_validator(seal_root, pinned,
+                                          corpus_checkout=corpus_checkout,
+                                          source_head=source_head, runner=runner,
+                                          container=container)
+        # ONE PRODUCT REVISION. The validator is resolved from this parent's own
+        # openXdox leg, and the render unit carries `source_head`'s. They are the
+        # same checkout whenever the legs above were sealed, so a disagreement is
+        # a parent whose validator came from somewhere else. That parent is
+        # refused rather than recorded, because the child's `--strict` would
+        # judge the snapshot with a product revision the render did not use.
+        #
+        # THE CHECK ALWAYS RUNS (Copilot, PR #1166). A validator with no product
+        # revision is refused, and so is a render unit with no openXdox code leg
+        # to hold it to. Every 2.1 seal carries that leg, and the intake requires
+        # the two to be one revision, so either would only be a seal the child
+        # refuses. Only an injected stand-in resolves from no product tree.
+        validator_leg = next((leg for leg in render_legs
+                              if (leg.get("gitlink"), leg.get("leg"))
+                              == VALIDATOR_LEG), None)
+        validator_revision = validator_fields.get("validator_revision")
+        if validator_revision is None:
+            raise SealRefused(
+                "the sealed validator records no product revision (it was not "
+                "resolved from a product tree), so it cannot be held to the "
+                "render unit's openXdox code leg — the child's intake refuses a "
+                "seal whose validator names no revision")
+        if (validator_leg is None
+                or validator_revision != validator_leg.get("leg_revision")):
+            carried = ("carries no openXdox code leg" if validator_leg is None
+                       else "carries it at "
+                       f"{_short(validator_leg.get('leg_revision'))}")
+            raise SealRefused(
+                f"the sealed validator was copied from openXdox code at "
+                f"{_short(validator_revision)}, but the sealed render unit "
+                f"{carried} — the child would validate the snapshot with a "
+                "product revision its render did not use")
 
-    def _read_recipe_from_the_contents_api() -> str | None:
-        # The recipe directory holds exactly ONE file, so this is a contents
-        # read at the pinned recipe revision — the same `gh api` path
-        # `read_current_inputs` already uses for the overlay. The served
-        # plane's repository is never checked out.
-        return gh_read_file(recipe_repo, recipe_path, ref=recipe_revision,
-                            runner=runner)
+        def _read_recipe_from_the_contents_api() -> str | None:
+            # The recipe directory holds exactly ONE file, so this is a contents
+            # read at the pinned recipe revision — the same `gh api` path
+            # `read_current_inputs` already uses for the overlay. The served
+            # plane's repository is never checked out.
+            return gh_read_file(recipe_repo, recipe_path, ref=recipe_revision,
+                                runner=runner)
 
-    recipe_text = (read_recipe or _read_recipe_from_the_contents_api)()
-    if not recipe_text or not recipe_text.strip():
-        raise SealRefused(
-            f"could not read {recipe_path} from {recipe_repo} at "
-            f"{_short(recipe_revision)}")
-    # THE RECIPE IS WRITTEN AS THE MANIFEST IS (Copilot, PR #1166): its
-    # directory made exclusively and the recipe created `O_EXCL|O_NOFOLLOW`
-    # inside the seal directory as created, since the probe's sealed code ran
-    # with the seal writable before this point.
-    _write_new_recipe(seal_root, recipe_text, identity=seal_identity)
+        recipe_text = (read_recipe or _read_recipe_from_the_contents_api)()
+        if not recipe_text or not recipe_text.strip():
+            raise SealRefused(
+                f"could not read {recipe_path} from {recipe_repo} at "
+                f"{_short(recipe_revision)}")
+        # THE RECIPE IS WRITTEN AS THE MANIFEST IS (Copilot, PR #1166): its
+        # directory made exclusively and the recipe created `O_EXCL|O_NOFOLLOW`
+        # inside the seal directory the lane holds, whose name must still lead
+        # to it, since the probe's sealed code ran before this point. It ran
+        # with the seal mounted read-only (#1191), and the recipe is held
+        # against it all the same.
+        _write_new_recipe(held, recipe_text)
 
-    index = seal_file_index(seal_root)
-    # THE CHILD'S RENDER AND ITS `--strict`, RUN HERE FIRST, over exactly the
-    # tree the index above covers. A seal whose render unit cannot render, or
-    # whose snapshot its own validator rejects, would only fail on the worker.
-    # Finding that out here costs one render, and it keeps the verdict in this
-    # run's own report.
-    precheck = (precheck_render or precheck_sealed_render)(
-        seal_root, source_head=source_head,
-        source_committed_at=source_committed_at)
-    if seal_file_index(seal_root) != index:
-        raise SealRefused(
-            "the pre-dispatch render changed the sealed tree, so the seal "
-            "would no longer be the tree its own render was checked on")
-    # THE MANIFEST'S OWN PATH IS STILL EMPTY (Copilot, PR #1166). The index
-    # excludes `manifest.json`, the one path it cannot cover, so it cannot see
-    # what sealed code left there, and the probe and the render have both run
-    # by now. Whatever is there refuses the seal. The write below also creates
-    # the file exclusively, so nothing put there later is followed either.
-    _refuse_an_occupied_manifest_path(seal_root)
-    total_bytes = sum((seal_root / relpath).stat().st_size for relpath in index)
-    manifest = {
-        "schema_version": SEAL_SCHEMA_VERSION,
-        "kind": SEAL_MANIFEST_KIND,
-        "artifact_name": artifact_name,
-        "correlation_id": correlation_id,
-        "parent_repository": parent_repository,
-        "parent_run_id": parent_run_id,
-        "sealed_at": _now_iso(),
-        "source_repo": corpus_repo,
-        "source_ref": corpus_ref,
-        "source_head": source_head,
-        "source_committed_at": source_committed_at,
-        "generated_at_field": SEAL_GENERATED_AT_FIELD,
-        "corpus_relpath": SEAL_CORPUS_RELPATH,
-        "corpus_revision": corpus_revision,
-        "corpus_baked_paths": list(corpus_baked_paths),
-        "seal_paths": list(seal_paths),
-        "recipe_repo": recipe_repo,
-        "recipe_revision": recipe_revision,
-        "recipe_path": recipe_path,
-        "recipe_relpath": SEAL_RECIPE_RELPATH,
-        # Where the sealed validator is, which product revision it was copied
-        # from, how many schemas travel with it, and what its one run answered.
-        # The run is RECORDED on every seal, like `file_count`, rather than
-        # reconstructed from a run log.
-        **validator_fields,
-        # THE RENDER UNIT (#1161). The child runs `render_entry` from the
-        # sealed corpus. It reaches the two products' code legs that
-        # `render_legs` records, at the commits `source_head` pins them at,
-        # and `precheck` is what that same render and `--strict` answered on
-        # this parent before anything was dispatched.
-        "render_entry": RENDER_ENTRY,
-        "render_legs": render_legs,
-        "precheck": precheck,
-        # THE SERVE UNIT (#1164, seal 2.2.0): the entry the served image
-        # starts, and every path its recipe copies to start it. Each is rows
-        # of `files` below, and the legs among them are `render_legs` above.
-        "serve_entry": SERVE_ENTRY,
-        "serve_unit": list(SERVE_UNIT),
-        "decision": {
-            "outcome": decision.get("outcome"),
-            "reason": decision.get("reason"),
+        index = seal_file_index(seal_root)
+        # THE CHILD'S RENDER AND ITS `--strict`, RUN HERE FIRST, over exactly the
+        # tree the index above covers. A seal whose render unit cannot render, or
+        # whose snapshot its own validator rejects, would only fail on the worker.
+        # Finding that out here costs one render, and it keeps the verdict in this
+        # run's own report.
+        #
+        # IT RUNS FROM THE DIRECTORY THE LANE MADE (Copilot, PR #1185), as the
+        # probe did: it is handed the directory the lane holds, never the
+        # name, which the probe's sealed code could have pointed anywhere. A
+        # child process cannot use this process's handle, so it is handed
+        # where that directory is when it starts, read through the handle.
+        # The name is held to the directory again before the manifest.
+        precheck = (
+            precheck_render(seal_root, source_head=source_head,
+                            source_committed_at=source_committed_at)
+            if precheck_render is not None
+            else precheck_sealed_render(
+                seal_root, source_head=source_head,
+                source_committed_at=source_committed_at,
+                container=container))
+        if seal_file_index(seal_root) != index:
+            raise SealRefused(
+                "the pre-dispatch render changed the sealed tree, so the seal "
+                "would no longer be the tree its own render was checked on")
+        # THE MANIFEST'S OWN PATH IS STILL EMPTY (Copilot, PR #1166). The index
+        # excludes `manifest.json`, the one path it cannot cover, so it cannot see
+        # what sealed code left there, and the probe and the render have both run
+        # by now. Whatever is there refuses the seal. The write below also creates
+        # the file exclusively, so nothing put there later is followed either.
+        _refuse_an_occupied_manifest_path(seal_root)
+        total_bytes = sum((seal_root / relpath).stat().st_size for relpath in index)
+        manifest = {
+            "schema_version": SEAL_SCHEMA_VERSION,
+            "kind": SEAL_MANIFEST_KIND,
+            "artifact_name": artifact_name,
+            "correlation_id": correlation_id,
+            "parent_repository": parent_repository,
+            "parent_run_id": parent_run_id,
+            "sealed_at": _now_iso(),
+            "source_repo": corpus_repo,
+            "source_ref": corpus_ref,
+            "source_head": source_head,
+            "source_committed_at": source_committed_at,
+            "generated_at_field": SEAL_GENERATED_AT_FIELD,
+            "corpus_relpath": SEAL_CORPUS_RELPATH,
             "corpus_revision": corpus_revision,
+            "corpus_baked_paths": list(corpus_baked_paths),
+            "seal_paths": list(seal_paths),
+            "recipe_repo": recipe_repo,
             "recipe_revision": recipe_revision,
-        },
-        "digest_algorithm": SEAL_DIGEST_ALGORITHM,
-        "tree_digest_spec": TREE_DIGEST_SPEC,
-        "tree_digest": tree_digest(index),
-        "file_count": len(index),
-        "total_bytes": total_bytes,
-        "files": index,
-    }
-    _write_new_manifest(seal_root,
-                        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
-                        identity=seal_identity)
-    return manifest
+            "recipe_path": recipe_path,
+            "recipe_relpath": SEAL_RECIPE_RELPATH,
+            # Where the sealed validator is, which product revision it was copied
+            # from, how many schemas travel with it, and what its one run answered.
+            # The run is RECORDED on every seal, like `file_count`, rather than
+            # reconstructed from a run log.
+            **validator_fields,
+            # THE RENDER UNIT (#1161). The child runs `render_entry` from the
+            # sealed corpus. It reaches the two products' code legs that
+            # `render_legs` records, at the commits `source_head` pins them at,
+            # and `precheck` is what that same render and `--strict` answered on
+            # this parent before anything was dispatched.
+            "render_entry": RENDER_ENTRY,
+            "render_legs": render_legs,
+            "precheck": precheck,
+            # THE SERVE UNIT (#1164, seal 2.2.0): the entry the served image
+            # starts, and every path its recipe copies to start it. Each is rows
+            # of `files` below, and the legs among them are `render_legs` above.
+            "serve_entry": SERVE_ENTRY,
+            "serve_unit": list(SERVE_UNIT),
+            "decision": {
+                "outcome": decision.get("outcome"),
+                "reason": decision.get("reason"),
+                "corpus_revision": corpus_revision,
+                "recipe_revision": recipe_revision,
+            },
+            "digest_algorithm": SEAL_DIGEST_ALGORITHM,
+            "tree_digest_spec": TREE_DIGEST_SPEC,
+            "tree_digest": tree_digest(index),
+            "file_count": len(index),
+            "total_bytes": total_bytes,
+            "files": index,
+        }
+        _write_new_manifest(held, json.dumps(manifest, indent=2,
+                                             sort_keys=True) + "\n")
+        # THE NAME, HELD ONCE MORE, AFTER THE MANIFEST (Copilot, PR #1185).
+        # The manifest is the seal's publication marker, and once the seal
+        # is recorded sealed the workflow uploads whatever the name leads to.
+        # A name swapped while the manifest was written would publish
+        # something else, so the seal is refused, and the manifest withdrawn
+        # through the handle.
+        if not held.leads_here():
+            _withdraw_manifest(held)
+            raise _seal_replaced_at_publication()
+        return manifest
+    finally:
+        held.close()
 
 
 def read_seal_manifest(seal_dir) -> dict | None:
@@ -3620,21 +4348,24 @@ class RefreshOutcome:
         return self.result == RESULT_OK and bool(self.built_digest)
 
     def log_line(self) -> str:
+        # One line whatever the reason holds: it can carry text a sealed run
+        # printed, read back from the seal result (Copilot, PR #1192).
+        reason = None if self.reason is None else _one_line(self.reason)
         if self.result == RESULT_OK:
             return (f"{LANE}: OK — built {self.tag} @ {_short(self.built_digest)} "
                     f"(source_revision={_short(self.source_revision)})")
         if self.result == RESULT_NO_CHANGE:
-            return (f"{LANE}: NO CHANGE — {self.reason}; no checkout, no "
+            return (f"{LANE}: NO CHANGE — {reason}; no checkout, no "
                     "snapshot, no build, no push, no branch, no pull request")
         if self.result == RESULT_STRICT_FAILED:
-            return f"{LANE}: STRICT FAILED — {self.reason}; nothing published"
-        return f"{LANE}: SKIPPED — {self.reason}"
+            return f"{LANE}: STRICT FAILED — {reason}; nothing published"
+        return f"{LANE}: SKIPPED — {reason}"
 
     def annotation(self) -> str:
         """A GitHub Actions annotation, so no outcome is invisible in the run
         itself whatever the artifact-delivery lag turns out to be."""
         level = "notice" if self.result in (RESULT_OK, RESULT_NO_CHANGE) else "warning"
-        return f"::{level}::{self.log_line()}"
+        return f"::{level}::{self.log_line().replace('%', '%25')}"
 
 
 def refresh_status_payload(
@@ -4095,7 +4826,12 @@ def main(argv: list[str] | None = None) -> int | None:
     ap.add_argument("--seal-out", default=None,
                     help="directory to materialize the bounded source "
                          "artifact into (--phase seal); the workflow uploads "
-                         "it, this module never dispatches")
+                         "it, this module never dispatches. A path inside "
+                         "--repo-root that does not exist yet, in a "
+                         "directory that does, reached through no link, and "
+                         "apart from --seal-result-out: the lane makes the "
+                         "directory itself, and refuses the seal before it "
+                         "starts for anything else")
     ap.add_argument("--seal-result-out", default=None,
                     help="write the seal result as JSON (--phase seal): the "
                          "dispatch gate, plus the values the child's own "
@@ -4190,25 +4926,52 @@ def main(argv: list[str] | None = None) -> int | None:
                                                 repo_root)
             except ValueError as exc:
                 result_refused = f"the seal result cannot be written: {exc}"
-        if result is not None:
+        # THE SEAL AND ITS RESULT ARE TWO PATHS (Copilot, PR #1185). The
+        # result's path is cleared next, so a `--seal-out` that is the same
+        # path, holds it, or lies inside it would lose an existing seal, or
+        # what it holds, and then pass as fresh. An overlap is found first,
+        # and then neither path is touched: nothing is cleared, sealed or
+        # written, and the step fails, since a result written at a path
+        # that is the seal's, inside it, or holding it could land inside an
+        # existing seal. A `--seal-out` refused on its own is refused for
+        # its own reason.
+        overlap = (_seal_paths_overlap(args.seal_out, args.seal_result_out)
+                   if args.seal_out and args.seal_result_out else None)
+        if result is not None and overlap is None:
             try:
                 result.clear()
             except OSError as exc:
                 result_refused = (
                     f"the seal result's path could not be cleared ({exc}), so "
                     "the lane could not write its own result there")
+        # THE SEAL DIRECTORY'S PATH IS HELD INSIDE THE CHECKOUT, THROUGH NO
+        # LINK, AND FRESH, BEFORE THE SEAL STARTS (#1182, `_seal_out_path`).
+        # A path it refuses gets nothing made and nothing written, and nothing
+        # of the seal runs, sealed code least of all. The refusal is recorded
+        # in the lane's own result like any other, so the step succeeds and
+        # nothing is dispatched. `seal_source` holds the path again as it
+        # makes the directory, walking from the checkout (`seal_within`).
+        seal_dir, seal_out_refused = None, None
+        if args.seal_out:
+            try:
+                seal_dir = _seal_out_path(args.seal_out, repo_root)
+            except ValueError as exc:
+                seal_out_refused = f"the seal cannot be made: {exc}"
+            if seal_dir is not None and overlap is not None:
+                seal_dir = None
+                seal_out_refused = f"the seal cannot be made: {overlap}"
         if result_refused is not None:
             reason = result_refused
         elif load_error is not None:
             reason = (f"no usable parent decision ({args.decision_in!r}): "
                       f"{load_error}")
-        elif not args.seal_out:
-            reason = "no --seal-out directory was given"
+        elif seal_dir is None:
+            reason = seal_out_refused or "no --seal-out directory was given"
         else:
             try:
                 manifest = seal_source(
                     corpus_checkout=repo_root / args.corpus_checkout,
-                    seal_dir=Path(args.seal_out),
+                    seal_dir=seal_dir, seal_within=repo_root,
                     correlation_id=args.correlation_id or "",
                     decision=decision,
                     corpus_repo=args.corpus_repo, corpus_ref=args.corpus_ref,
@@ -4232,7 +4995,10 @@ def main(argv: list[str] | None = None) -> int | None:
                                       strict_failed=strict_failed,
                                       detail=strict_detail)
         written = False
-        if result is not None:
+        if result is not None and overlap is not None:
+            # A path that overlaps `--seal-out` gets nothing written.
+            result.release()
+        elif result is not None:
             # Only a seal that ran can have left anything at the result's
             # path. A path that could not be cleared still holds what was
             # there before, and that is not the seal's doing.
@@ -4251,11 +5017,12 @@ def main(argv: list[str] | None = None) -> int | None:
                   f"{manifest['total_bytes']} bytes, "
                   f"tree_digest={manifest['tree_digest'][:12]}")
         elif strict_failed:
-            print(f"::warning::{LANE}: STRICT FAILED — {reason}")
-            for line in strict_detail:
-                print(f"  {line}")
+            print(f"::warning::{LANE}: STRICT FAILED — "
+                  f"{_command_data(reason)}")
+            _print_fenced(strict_detail)
         else:
-            print(f"::warning::{LANE}: NOT SEALED — {reason}; nothing "
+            print(f"::warning::{LANE}: NOT SEALED — "
+                  f"{_command_data(reason)}; nothing "
                   "dispatched, next run catches up in one hop")
         if args.seal_result_out and not written:
             print(f"::error::{LANE}: the seal result could not be written at "

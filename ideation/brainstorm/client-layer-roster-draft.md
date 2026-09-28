@@ -3,15 +3,14 @@
 Status: brainstorm
 Kind: template
 Summary: Draft of the Plane-1 (decider) persona objects for the Client
-("Company Policy") layer — the operating organization's authority personas that
-answer "is this allowed *here*?". Unlike the domain roster (deliberately
-independent personas), the client roster is a **coherent house team**: all
-personas inherit a shared house-style voice baseline and vary only subtly within
-it (the cast-coherence decision). Authored under Option E — trait framework +
-authored prose for the three flagship deciders (Company Policy Lead, Change
-Approvals Authority, Security & Compliance Officer). Because the client layer is
-per-client, the house voice itself is **client-tunable** (the wizard sets the
-baseline), while safety-anchored disposition stays locked. Parent:
+("Company Policy") layer — the operating organization's authority personas that answer
+"is this allowed *here*?". Unlike the domain roster (deliberately independent personas),
+the client roster is a **coherent house team**: all personas inherit a shared house-style
+voice baseline and vary only subtly within it (the cast-coherence decision). Authored
+under Option E — trait framework + authored prose for the three flagship deciders
+(Company Policy Lead, Change Approvals Authority, Security & Compliance Officer). Because
+the client layer is per-client, the house voice itself is **client-tunable** (the wizard
+sets the baseline), while safety-anchored disposition stays locked. Parent:
 `client-layer-scaffold.md`; character model: `hermes-persona-character-model.md`.
 Topics: client, client-hermes, company-policy, plane-1, house-team, authority-personas,
 roster, house-style, approvals, security-compliance, liaison, client-tunable

@@ -142,11 +142,10 @@ def test_prepare_catalog_bundle_first_run_writes_bundle_not_snapshot(
     assert (out_dir / "output.schema.json").is_file()
 
     # Deliberately does NOT durably write the snapshot itself (module
-    # docstring): a caller running prepare then merge against the SAME
-    # checkout (e.g. --single-repo local/PR-gate use) would otherwise hit
-    # catalog.write_snapshot's immutability guard, since run_id depends only
-    # on (inventory, taxonomy) -- identical between the two phases in one
-    # cycle. merge_catalog_findings is the one call that commits.
+    # docstring): the run id is the content address of what the MERGE
+    # records, which prepare cannot know before the child returns, so a
+    # write here would record a second, mechanical-only run of the same day.
+    # merge_catalog_findings is the one call that commits.
     assert catalog.load_snapshot(tmp_path) is None
 
 
@@ -158,17 +157,18 @@ def test_prepare_catalog_bundle_is_deterministic_on_a_clean_rerun(tmp_path):
     again = catalog_dispatch.prepare_catalog_bundle(
         repo_paths, docs, DAY, tmp_path, tmp_path / "bundle-2", MODEL, inv,
         allowed_output_root=tmp_path)
-    assert first["run_id"] == again["run_id"]
     assert first == again
+    # No run id at prepare time: it is minted from the merged content
+    # (opensoft/xFactory#519), which does not exist yet.
+    assert "run_id" not in first
 
 
 def test_prepare_then_merge_in_the_same_checkout_never_conflicts(tmp_path):
     # Regression: a caller invoking prepare then merge against the SAME
     # catalog_root (a real scenario -- e.g. --single-repo local/PR-gate use,
     # not only the two-job nightly workflow's separate ephemeral runners)
-    # must never hit catalog.write_snapshot's immutability guard, since
-    # run_id depends only on (inventory, taxonomy) and is therefore
-    # identical between the two calls in one cycle.
+    # must never hit catalog.write_snapshot's immutability guard; prepare
+    # records nothing, so the merge records the cycle's one run.
     repo_paths, docs, inv = alpha_setup()
     catalog_dispatch.prepare_catalog_bundle(
         repo_paths, docs, DAY, tmp_path, tmp_path / "bundle", MODEL, inv,
@@ -500,17 +500,44 @@ def test_merge_unrelated_commit_selects_nothing_for_reclassification(
     assert second.snapshot_refs
 
 
-def test_merge_same_run_identity_is_immutable_refused_or_noop(
+def fake_worker_findings(tmp_path, repo_paths, inv):
+    """(job_id, findings_path) for the first-run shard's fake-worker
+    artifact, classifying docs/widget-overview.md -- what a returning
+    cataloger child hands the merge phase."""
+    shard, job = first_shard_and_job(repo_paths, inv)
+    job_id = job["job"]["id"]
+    target = next(s for s in shard.selections
+                 if s.path == "docs/widget-overview.md")
+    findings_path = tmp_path / f"{job_id}.json"
+    findings_path.write_text(run_fake_worker(
+        FAKE_WORKER, REPO=target.repo, DOC_PATH=target.path),
+        encoding="utf-8")
+    return job_id, findings_path
+
+
+def recorded_bytes(root) -> dict:
+    """{path under runs/: bytes} for every recorded catalog artifact."""
+    runs = root / "health" / "document-catalog" / "runs"
+    return {p.relative_to(runs).as_posix(): p.read_bytes()
+            for p in sorted(runs.rglob("*")) if p.is_file()}
+
+
+def test_merge_same_day_replay_is_a_noop_and_a_new_classification_a_new_run(
         tmp_path):
-    # US2 acceptance 3: a second run attempting to write the same run
-    # identity's snapshot is a safe no-op on identical content, and a
-    # DIFFERING write under that identical identity is refused outright
-    # -- the recorded artifact is never mutated either way.
+    # US2 acceptance 3 / FR-008 under content-addressed run ids
+    # (opensoft/xFactory#519): a second run over the same catalog state is a
+    # safe no-op on identical content, and a same-day run that merged a
+    # DIFFERENT classification lands to a non-colliding path -- a new run id
+    # at the next sequence -- instead of reusing the recorded run's id. The
+    # recorded artifact is never mutated either way; refusing a differing
+    # write under one id stays absolute (catalog.write_snapshot, pinned by
+    # test_catalog's conflicting-rewrite test).
     repo_paths, _, inv = alpha_setup()
     first = catalog_dispatch.merge_catalog_findings(
         repo_paths, DAY, tmp_path, MODEL, inv,
         findings_path=None, unavailable_reason=None)
     recorded = Path(first.snapshot_refs[0]).read_bytes()
+    first_run = catalog.load_snapshot(tmp_path)
 
     # Identical replay (same as_of, inventory, catalog state): safe no-op.
     second = catalog_dispatch.merge_catalog_findings(
@@ -518,25 +545,97 @@ def test_merge_same_run_identity_is_immutable_refused_or_noop(
         findings_path=None, unavailable_reason=None)
     assert second.snapshot_refs == first.snapshot_refs
     assert Path(second.snapshot_refs[0]).read_bytes() == recorded
+    assert catalog.load_snapshot(tmp_path)["sequence"] == \
+        first_run["sequence"]
 
-    # A differing write under the SAME (as_of, inventory) run identity --
-    # a real recommendation arriving for the shard this run would have
-    # dispatched -- is refused, never silently overwriting the recorded
-    # snapshot (catalog.py's absolute immutability guard; module
-    # docstring).
-    shard, job = first_shard_and_job(repo_paths, inv)
-    job_id = job["job"]["id"]
-    target = next(s for s in shard.selections
-                 if s.path == "docs/widget-overview.md")
-    findings_text = run_fake_worker(
-        FAKE_WORKER, REPO=target.repo, DOC_PATH=target.path)
-    findings_path = tmp_path / f"{job_id}.json"
-    findings_path.write_text(findings_text, encoding="utf-8")
-    with pytest.raises(catalog.CatalogError, match="immutable"):
-        catalog_dispatch.merge_catalog_findings(
-            repo_paths, DAY, tmp_path, MODEL, inv,
-            job_id=job_id, findings_path=findings_path)
+    # A real recommendation arriving for the shard this run dispatched is a
+    # different recorded content, so it is a different run -- never a
+    # rewrite of, or a refusal against, the one already recorded.
+    job_id, findings_path = fake_worker_findings(tmp_path, repo_paths, inv)
+    third = catalog_dispatch.merge_catalog_findings(
+        repo_paths, DAY, tmp_path, MODEL, inv,
+        job_id=job_id, findings_path=findings_path)
+    assert third.state_counts["suggested"] == 1
+    assert third.snapshot_refs != first.snapshot_refs
     assert Path(first.snapshot_refs[0]).read_bytes() == recorded
+    latest = catalog.load_snapshot(tmp_path)
+    assert latest["as_of"] == DAY.isoformat()
+    assert latest["sequence"] == first_run["sequence"] + 1
+    assert latest["run_id"] != first_run["run_id"]
+    assert catalog.load_snapshot(tmp_path, run_id=first_run["run_id"]) \
+        ["repos"] == first_run["repos"]
+
+
+def test_two_producers_of_one_corpus_state_share_a_run_id_only_for_one_content(
+        tmp_path):
+    # opensoft/xFactory#519, reproduced. On 2026-09-24 the doc-health
+    # nightly (its cataloger child's validated recommendation merged) and a
+    # manual catalog run (no worker) recorded the SAME inventory and
+    # taxonomy in trees that never saw each other, and both wrote run
+    # 87544bd5... -- with different AdxFactory, HealthLinc, and
+    # LedgerxFactory snapshots. Each tree's immutability guard was
+    # satisfied; the collision surfaced only as a merge conflict on the
+    # rolling nightly PR. The id is now the content address of what each
+    # producer merged.
+    repo_paths, _, inv = alpha_setup()
+    job_id, findings_path = fake_worker_findings(tmp_path, repo_paths, inv)
+    nightly = catalog_dispatch.merge_catalog_findings(
+        repo_paths, DAY, tmp_path / "nightly", MODEL, inv,
+        job_id=job_id, findings_path=findings_path)
+    for name in ("manual", "manual-again"):
+        manual = catalog_dispatch.merge_catalog_findings(
+            repo_paths, DAY, tmp_path / name, MODEL, inv,
+            findings_path=None,
+            unavailable_reason=catalog_dispatch.WORKER_UNAVAILABLE)
+    assert (nightly.state_counts["suggested"],
+            manual.state_counts["suggested"]) == (1, 0)
+    runs = {name: catalog.load_snapshot(tmp_path / name)
+            for name in ("nightly", "manual", "manual-again")}
+
+    # The pre-#519 key hashed only the inventory snapshot id and the
+    # taxonomy digest, identical for both producers -- so it named both
+    # runs alike...
+    assert len({(run["repos"]["alpha"]["run"]["inventory_snapshot_id"],
+                 run["repos"]["alpha"]["taxonomy"]["digest"])
+                for run in runs.values()}) == 1
+    legacy = catalog.legacy_run_id(
+        inv, catalog_dispatch._effective_taxonomy(repo_paths, inv))
+    # ...the content address cannot: different content, different id.
+    assert runs["nightly"]["run_id"] != runs["manual"]["run_id"]
+    assert legacy not in {run["run_id"] for run in runs.values()}
+    # The same content from independent trees converges byte for byte, so
+    # two such producers merge cleanly instead of conflicting.
+    assert runs["manual-again"]["run_id"] == runs["manual"]["run_id"]
+    assert recorded_bytes(tmp_path / "manual-again") == \
+        recorded_bytes(tmp_path / "manual")
+    # Every recorded run verifies as the address of its own content.
+    for run in runs.values():
+        assert catalog.run_id_scheme(run["run_id"], run["repos"]) == \
+            catalog.CONTENT_ADDRESSED
+
+
+def test_a_different_selection_over_one_inventory_is_a_different_run_id(
+        tmp_path):
+    # opensoft/xFactory#519's second instance, already on main: run
+    # 5ac351da... was recorded on 2026-08-16 and again on 2026-08-17 over
+    # the same inventory and taxonomy, the second time carrying pending
+    # markers (state_since 2026-08-17) the first lacked, so one id named two
+    # contents and `load_snapshot(run_id=...)` could only return the later.
+    # Reproduced with a scoped first run: a later unscoped run over the SAME
+    # inventory also selects the other repository and records more.
+    repo_paths, _, inv = two_repo_setup()
+    catalog_dispatch.merge_catalog_findings(
+        repo_paths, DAY, tmp_path, MODEL, inv,
+        findings_path=None, unavailable_reason=None, scope="alpha")
+    catalog_dispatch.merge_catalog_findings(
+        repo_paths, LATER_DAY, tmp_path, MODEL, inv,
+        findings_path=None, unavailable_reason=None)
+    first = catalog.load_snapshot(tmp_path, as_of=DAY)
+    later = catalog.load_snapshot(tmp_path, as_of=LATER_DAY)
+    assert first["repos"] != later["repos"]  # one inventory, two contents
+    assert first["run_id"] != later["run_id"]
+    assert catalog.load_snapshot(tmp_path, run_id=first["run_id"]) \
+        ["repos"] == first["repos"]
 
 
 def test_undelivered_recommendation_is_merged_only_by_a_later_run(tmp_path):
