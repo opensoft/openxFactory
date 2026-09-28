@@ -14,12 +14,21 @@ is reached only after it. `tests/notebooklm/test_sync_notebooklm_books.py`
 drives the real reader in this same process, where `tests/conftest.py` has
 already registered; this file is what notices if the script stops doing it
 for itself.
+
+THE LAST TEST RUNS IN A CLEAN INTERPRETER, because only there does nothing
+else install the carved reach or register first (Copilot, PR #1181). The
+script imports the host before any reach is installed, so the order holds only
+because the host's one call installs the reach itself. That test loads the
+script as its entry point does and drives `session_source_set()` twice.
 """
 
 from __future__ import annotations
 
 import importlib.util
+import os
+import subprocess
 import sys
+import textwrap
 import types
 from pathlib import Path
 
@@ -116,3 +125,54 @@ def test_the_registration_is_the_hosts_one_call() -> None:
         "the sync script should make the host's one call exactly once")
     assert "register_home(" not in source
     assert "register_session_notebook_scope(" not in source
+
+
+#: What the clean interpreter runs: the script loaded as its entry point
+#: loads it, then the registration step and the reader, twice.
+_STANDALONE = textwrap.dedent("""
+    import importlib.util, sys, types
+    from pathlib import Path
+    root = Path({root!r})
+    spec = importlib.util.spec_from_file_location("sync_books", {script!r})
+    sync = importlib.util.module_from_spec(spec)
+    sys.modules["sync_books"] = sync
+    spec.loader.exec_module(sync)
+    print("loaded", "opendox" in sys.modules, "opendox_host" in sys.modules)
+    target = types.SimpleNamespace(worktree=root, repository="openxFactory")
+    first = sync.session_source_set(target)
+    import opendox, opendox_host
+    from opendox import corpus_adapter, domain_profile, workbench
+    profile = domain_profile.current()
+    leg = (root / "openDox" / "code" / "src").resolve()
+    print("registered", profile is opendox_host.profile(),
+          corpus_adapter.home() is opendox_host.home_corpus,
+          workbench.session_notebook_scope(),
+          Path(opendox.__file__).resolve().is_relative_to(leg))
+    second = sync.session_source_set(target)
+    print("again", bool(first), second == first,
+          domain_profile.current() is profile)
+""")
+
+
+def test_a_standalone_run_registers_for_itself_in_a_clean_interpreter(
+        tmp_path: Path) -> None:
+    """Copilot, PR #1181: a standalone run imports the host before any reach
+    is installed, and nothing else registers for it.
+    - Loading the script imports neither `opendox` nor the host.
+    - The first `session_source_set()` then installs the pinned leg's reach,
+      registers this host's profile, home corpus and scope, and reads.
+    - The second reads the same documents through the same profile.
+    With no `PYTHONPATH`, and from a directory that is not the checkout, so
+    the reach can come only from the host's own call."""
+    env = {key: value for key, value in os.environ.items()
+           if key != "PYTHONPATH"}
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+    program = _STANDALONE.format(root=str(REPO_ROOT), script=str(SCRIPT))
+    proc = subprocess.run([sys.executable, "-c", program], capture_output=True,
+                          text=True, cwd=str(tmp_path), env=env, timeout=300)
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.splitlines() == [
+        "loaded False False",
+        "registered True True documents True",
+        "again True True True",
+    ], proc.stdout
