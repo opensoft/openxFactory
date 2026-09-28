@@ -35,6 +35,7 @@ from pathlib import Path
 
 import pytest
 
+import carved_reach
 from carved_reach import source as carved_source
 from ideation_dashboard import doxbench_contracts
 
@@ -46,8 +47,20 @@ def _composed_validator() -> Path | None:
     """The validator the carve sent to openXdox-code, composed with its
     schemas: `tests/ideation-dashboard/conftest.py`'s `_shed_validator()`
     resolution, which that directory's `find_openxfactory_validator()`
-    answers there. None only if the leg is not on disk."""
-    moved = carved_source("scripts/validate-ideation-dashboard-contracts.py")
+    answers there. None only if the leg is not on disk.
+
+    NOT ON DISK HAS TWO SPELLINGS (Copilot, PR #1181).
+    - A leg that is not materialized at all: `carved_reach.source()` refuses
+      it with `CarveReachUnavailable`. Uncaught, that refusal would fail this
+      whole module at collection, before the skip below could apply.
+    - A materialized leg that lacks the file.
+    Both answer None, so the three cases skip, as the shared resolver has
+    them do. Any other refusal, such as a path in no manifest row, is a real
+    regression and is not caught."""
+    try:
+        moved = carved_source("scripts/validate-ideation-dashboard-contracts.py")
+    except carved_reach.CarveReachUnavailable:
+        return None
     if not moved.is_file():
         return None
     return doxbench_contracts._composed_validator(moved)
@@ -131,3 +144,34 @@ def test_committed_manifest_is_rejected_by_the_pinned_validator(tmp_path):
     out = proc.stdout + proc.stderr
     assert "committed-workbench-manifest" in out, out
     assert proc.returncode != 0
+
+
+# ----------------------------------------------------------------------------
+# The resolution itself: a leg that is not on disk skips, it does not break
+# collection (Copilot, PR #1181)
+# ----------------------------------------------------------------------------
+
+def test_an_unmaterialized_leg_answers_none_so_the_three_cases_skip(monkeypatch):
+    """`carved_reach.source()` refuses a leg that is not materialized with
+    `CarveReachUnavailable`. The module-level resolution answers None for
+    that refusal, so the cases above skip rather than the module failing at
+    collection. The refusal is planted, because at the committed pins the leg
+    is on disk."""
+    def unmaterialized(path):
+        raise carved_reach.CarveReachUnavailable(
+            f"planted: the pinned openxdox_code leg is not materialized, so "
+            f"{path} cannot be read")
+
+    monkeypatch.setattr(sys.modules[__name__], "carved_source", unmaterialized)
+    assert _composed_validator() is None
+
+
+def test_only_the_missing_leg_is_answered_none(monkeypatch):
+    """The catch is exactly the not-on-disk refusal. A path in no manifest row
+    is a regression, and it surfaces rather than turning into a skip."""
+    def no_row(path):
+        raise carved_reach.NotACarvedPath(f"planted: {path} is in no row")
+
+    monkeypatch.setattr(sys.modules[__name__], "carved_source", no_row)
+    with pytest.raises(carved_reach.NotACarvedPath, match="planted"):
+        _composed_validator()
