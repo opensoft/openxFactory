@@ -2567,26 +2567,30 @@ def test_write_run_refuses_a_foreign_staging_directory_before_any_write(
         assert not (runs_root(root) / DAY_STR).exists(), name
 
 
-def test_write_run_refuses_a_cross_filesystem_run_before_any_claim(tmp_path):
-    # PR #1199 review (Copilot): the atomic-rename check ran only when a
-    # write was staged, after the sequence was claimed and the run's
-    # directories made, so a staging directory on another filesystem than
-    # the run left an orphaned claim and a partial run behind, although that
-    # refusal depends on the layout alone. The preflight now checks every
-    # directory the run publishes into against the staging directory before
-    # anything is claimed, counting a directory not made yet as its nearest
-    # existing ancestor's, where it would be made. A mount is simulated by
-    # shifting the filesystem id of every node at or below one directory.
+def test_write_run_refuses_a_cross_mount_run_before_any_claim(tmp_path):
+    # PR #1199 review (Copilot, two rounds): the atomic-rename check ran
+    # only when a write was staged, after the sequence was claimed and the
+    # run's directories made, so a staging directory an atomic rename could
+    # not publish from left an orphaned claim and a partial run behind,
+    # although that refusal depends on the layout alone. And an st_dev match
+    # alone passed two bind mounts of one filesystem, between which
+    # rename(2) still fails with EXDEV. The preflight now checks every
+    # directory the run publishes into against the staging directory, its
+    # filesystem AND its mount, before anything is claimed, counting a
+    # directory not made yet as its nearest existing ancestor's, where it
+    # would be made. A mount is simulated by shifting one id of every node
+    # at or below one directory: the device id for another filesystem, the
+    # mount id alone for a bind mount of the same filesystem.
     runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
     rid = catalog.run_id(runs, TAXONOMY)
-    real_filesystem_id = catalog._filesystem_id
+    real = {"_device_id": catalog._device_id, "_mount_id": catalog._mount_id}
 
-    def mounted_at(mount):
-        def filesystem_id(node):
+    def mounted_at(seam, mount):
+        def shifted_id(node):
             node = Path(node)
-            shifted = node == mount or mount in node.parents
-            return real_filesystem_id(node) + (1 if shifted else 0)
-        return filesystem_id
+            shift = 1 if node == mount or mount in node.parents else 0
+            return (real[seam](node) or 0) + shift
+        return shifted_id
 
     def made(node):
         node.mkdir(parents=True)
@@ -2599,33 +2603,37 @@ def test_write_run_refuses_a_cross_filesystem_run_before_any_claim(tmp_path):
         "a-crashed-run-directory": lambda root: made(
             runs_root(root) / DAY_STR / rid),
     }
-    for name, mount_of in mounts.items():
-        root = tmp_path / name
-        mount = mount_of(root)
-        before = tree_state(root)
-        with pytest.MonkeyPatch.context() as patch:
-            patch.setattr(catalog, "_filesystem_id", mounted_at(mount))
-            with pytest.raises(catalog.CatalogError,
-                               match="same filesystem") as exc:
-                catalog.write_run(root, DAY, runs, TAXONOMY)
-            with pytest.raises(catalog.CatalogError, match="same filesystem"):
-                catalog.write_snapshot(root, DAY, rid, "alpha", runs["alpha"],
-                                       TAXONOMY)
-        assert str(tmp_path) not in str(exc.value), name  # tree-relative
-        assert tree_state(root) == before, name
-        assert not (runs_root(root) / ".sequence").exists(), name  # no claim
-        assert not (runs_root(root) / DAY_STR / rid / "run.yaml").exists(), \
-            name
+    for seam in ("_device_id", "_mount_id"):
+        for name, mount_of in mounts.items():
+            root = tmp_path / seam / name
+            mount = mount_of(root)
+            before = tree_state(root)
+            with pytest.MonkeyPatch.context() as patch:
+                patch.setattr(catalog, seam, mounted_at(seam, mount))
+                with pytest.raises(catalog.CatalogError,
+                                   match="same filesystem and mount") as exc:
+                    catalog.write_run(root, DAY, runs, TAXONOMY)
+                with pytest.raises(catalog.CatalogError,
+                                   match="same filesystem and mount"):
+                    catalog.write_snapshot(root, DAY, rid, "alpha",
+                                           runs["alpha"], TAXONOMY)
+            case = (seam, name)
+            assert str(tmp_path) not in str(exc.value), case  # tree-relative
+            assert tree_state(root) == before, case
+            assert not (runs_root(root) / ".sequence").exists(), case
+            assert not (runs_root(root) / DAY_STR / rid / "run.yaml") \
+                .exists(), case
 
-    # A run tree mounted whole is one filesystem: a fresh run records, the
-    # directories it has not made yet counted as the mounted one's.
-    root = tmp_path / "mounted-whole"
-    runs_root(root).mkdir(parents=True)
-    with pytest.MonkeyPatch.context() as patch:
-        patch.setattr(catalog, "_filesystem_id", mounted_at(runs_root(root)))
-        assert catalog.write_run(root, DAY, runs, TAXONOMY)[0] == rid
-    assert catalog.load_snapshot(root)["run_id"] == rid
-    assert list((root / catalog.STAGING_DIR).iterdir()) == []
+        # A run tree mounted whole is one filesystem and one mount: a fresh
+        # run records, the directories it has not made yet counted as the
+        # mounted one's.
+        root = tmp_path / seam / "mounted-whole"
+        runs_root(root).mkdir(parents=True)
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setattr(catalog, seam, mounted_at(seam, runs_root(root)))
+            assert catalog.write_run(root, DAY, runs, TAXONOMY)[0] == rid
+        assert catalog.load_snapshot(root)["run_id"] == rid, seam
+        assert list((root / catalog.STAGING_DIR).iterdir()) == [], seam
 
 
 # --- recursion exclusion (T008) ----------------------------------------------
@@ -2727,11 +2735,11 @@ def test_write_rendered_publishes_only_by_an_atomic_rename(tmp_path):
     # atomic rename, out of a staging directory the write re-checks at the
     # moment it stages: a symlinked staging directory is refused there too,
     # with nothing written through it. The rename needs the staging and
-    # target directories on one filesystem. The layout keeps them there;
-    # were they on two devices, the write is refused, naming tree-relative
+    # target directories on one filesystem and one mount. The layout keeps
+    # them there; were they not, the write is refused, naming tree-relative
     # paths, before anything is staged. A rename that fails anyway
-    # (os.replace fails across filesystems, never copies) leaves neither the
-    # target nor the temp behind.
+    # (os.replace fails across mounts, never copies) leaves neither the
+    # target nor the temp behind. On Linux the mount id is really read.
     target = runs_root(tmp_path) / DAY_STR / ("e" * 64) / "alpha.yaml"
     target.parent.mkdir(parents=True)
     staging = tmp_path / catalog.STAGING_DIR
@@ -2744,9 +2752,9 @@ def test_write_rendered_publishes_only_by_an_atomic_rename(tmp_path):
     staging.unlink()
 
     with pytest.MonkeyPatch.context() as patch:
-        patch.setattr(catalog, "_same_filesystem", lambda a, b: False)
+        patch.setattr(catalog, "_rename_compatible", lambda a, b: False)
         with pytest.raises(catalog.CatalogError,
-                           match="same filesystem") as exc:
+                           match="same filesystem and mount") as exc:
             catalog._write_rendered(tmp_path, target, "{}\n")
     assert str(tmp_path) not in str(exc.value)  # tree-relative paths only
     assert not target.exists() and list(staging.iterdir()) == []
@@ -2761,7 +2769,10 @@ def test_write_rendered_publishes_only_by_an_atomic_rename(tmp_path):
     assert failed.value.errno == errno.EXDEV
     assert not target.exists() and list(staging.iterdir()) == []
 
-    assert catalog._same_filesystem(staging, target.parent)
+    assert catalog._rename_compatible(staging, target.parent)
+    assert catalog._mount_id(staging) == catalog._mount_id(target.parent)
+    assert catalog._mount_id(staging) is not None or \
+        not hasattr(os, "O_PATH") or not Path("/proc/self/fdinfo").is_dir()
     catalog._write_rendered(tmp_path, target, "{}\n")
     assert target.read_bytes() == b"{}\n"
     assert list(staging.iterdir()) == []
