@@ -630,6 +630,31 @@ def test_a_refused_seam_leaves_none_of_this_calls_writes_behind(monkeypatch):
                           "rail": None, "home": None}
 
 
+@pytest.mark.parametrize("seam, dropped", [
+    ("workbench", "unregister_session_notebook_scope"),
+    ("workbench", "health_check_registered"),
+    ("serve_wire", "unregister_doxbench_validators"),
+    ("packet", "status_exemption_registered"),
+])
+def test_a_seam_without_its_take_back_calls_is_refused_before_any_write(
+        monkeypatch, seam, dropped):
+    """Copilot, PR #1181: a leg that carries every registration and not one
+    of the calls that take a registration back is refused before anything is
+    written. Otherwise a refusal later in the call would reach a take-back
+    that raises `AttributeError`, masking the refusal and leaving the earlier
+    seams written. The leg's own calls are held to the same table by
+    `test_every_seam_but_the_last_can_be_taken_back`."""
+    fake = _FakeSeams()
+    module = getattr(fake, seam)
+    delattr(module, dropped)
+    monkeypatch.setattr(opendox_host, "seams", fake.table)
+    with pytest.raises(opendox_host.HostSeamsIncomplete) as excinfo:
+        opendox_host.register_seams()
+    assert f"{module.__name__}.{dropped}" in str(excinfo.value)
+    assert fake.state == {"scope": None, "check": None, "validators": None,
+                          "rail": None, "home": None}
+
+
 def test_a_refusal_keeps_what_this_host_had_already_registered(monkeypatch):
     """An idempotent second call writes nothing where the seam already holds
     this host's object, so a refusal later in that call empties nothing the

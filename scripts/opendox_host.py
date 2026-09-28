@@ -371,7 +371,8 @@ class HostProfileNotRegistered(RuntimeError):
 
 
 class HostSeamsIncomplete(RuntimeError):
-    """The pinned openDox leg declares some of phase 1's seams and not others."""
+    """The pinned openDox leg declares some of phase 1's seams and not others,
+    or declares them without the public calls that take one back."""
 
 
 def seams() -> tuple[tuple[Any, str, Any], ...]:
@@ -511,6 +512,14 @@ def register_seams() -> tuple[str, ...]:
     this call is `register_openxfactory()`'s and stays, and its caller's start
     fails with the refusal.
 
+    SO THE CALLS THAT TAKE A SEAM BACK ARE CHECKED WITH THE REGISTRATIONS
+    (Copilot, PR #1181). Before anything is written, every `_TAKE_BACK` call
+    of every declared seam must exist, or `HostSeamsIncomplete` names the
+    missing ones. Without that check, a leg carrying the registrations and
+    not one of those calls would pass the check above, and a later refusal's
+    take-back would raise an `AttributeError` that masked the refusal and
+    left the earlier seams written.
+
     AND ONLY FOR THIS HOST'S PROFILE. It first asserts that openDox answers
     this host's composite, as `register_openxfactory()` does after `register()`
     (R1Q4 (a)), so a process whose registered profile is some other host's,
@@ -533,6 +542,20 @@ def register_seams() -> tuple[str, ...]:
             "some seams and an empty seam, or openDox's own default, at the "
             "others. Pin a leg that carries all five, or one that carries "
             "none; see contracts/opendox-pin.yaml.")
+    unready = [_seam_name(module, name)
+               for module, call, _ in declared if call in _TAKE_BACK
+               for name in _TAKE_BACK[call]
+               if name is not None and not callable(getattr(module, name, None))]
+    if unready:
+        raise HostSeamsIncomplete(
+            "the pinned openDox leg declares every seam openxFactory fills, "
+            f"but not {unready}, the public calls that take a registration "
+            "back. A refusal part-way through this call empties what the "
+            "call wrote through those calls, so without them an "
+            "AttributeError would mask the refusal and leave the earlier "
+            "seams written. They arrive with the seams (T020, T025, T026, "
+            "T027); pin a leg that carries them; see "
+            "contracts/opendox-pin.yaml.")
     written: list[tuple[Any, str]] = []
     try:
         for module, call, implementation in declared:
