@@ -107,7 +107,7 @@ COMMITTED_AT = "2026-09-04T01:02:03+00:00"
 # still drives the lane's own argv, its bounded reading and its check that no
 # container is left, while the containment itself is held by the argv tests
 # below and proven against a real daemon by
-# tests/ideation-dashboard/tools/sealed_run_containment_proof.py.
+# tests/sealed-run-proof/sealed_run_containment_proof.py.
 # ---------------------------------------------------------------------------
 
 STAND_IN_IMAGE = "sha256:" + "5e" * 32
@@ -3561,6 +3561,60 @@ def test_the_record_step_hands_on_a_strict_verdict_only_when_the_seal_says_so():
     assert guard < handoff < run.index("fi", handoff)
     assert run.count("--seal-result-in") == 1
     assert run.index("STRICT=false") < guard              # defaulted first
+
+
+_A_LANE_FROM_BEFORE_1191 = "LANE = 'ideation-dashboard-refresh'\n"
+_A_LANE_THAT_CONTAINS_ITS_RUNS = 'SEALED_IMAGE_ENV = "SEALED_IMAGE"\n'
+_A_LANE_THAT_CANNOT_BE_IMPORTED = "raise SystemExit(0)\ndef (:\n"
+
+
+@pytest.mark.parametrize("pinned, seals", [
+    (_A_LANE_FROM_BEFORE_1191, False),
+    (_A_LANE_THAT_CANNOT_BE_IMPORTED, False),
+    (_A_LANE_THAT_CONTAINS_ITS_RUNS, True),
+], ids=["a-lane-from-before-1191", "a-lane-that-cannot-be-imported",
+        "a-lane-that-contains-its-runs"])
+def test_the_seal_step_runs_no_lane_that_would_run_sealed_code_here(
+        tmp_path, pinned, seals):
+    """This workflow runs at openxFactory main, and the lane comes from the
+    aggregation's pin. A lane from before #1191 ignores SEALED_IMAGE and runs
+    the probe, the render and its --strict validation on this runner. So the
+    seal step asks the pinned lane first, and runs it only when it names
+    SEALED_IMAGE. Any other lane seals nothing, and the refusal is recorded as
+    the seal's result, so the record step reports it and nothing is uploaded
+    or dispatched (Copilot, PR #1192)."""
+    steps = _finalize_steps()
+    seal = steps[_step_index(steps, id="dfr-seal")]
+    workspace = tmp_path / "workspace"
+    package = workspace / "openxFactory" / "scripts" / "ideation_dashboard"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("")
+    (package / "dashboard_refresh_lane.py").write_text(pinned)
+    (workspace / "openxFactory" / "scripts" /
+     "dashboard-refresh-nightly.py").write_text(
+        "import json, pathlib\n"
+        "pathlib.Path('nightly-ran').write_text('')\n"
+        "json.dump({'sealed': True}, open('dfr-seal-result.json', 'w'))\n")
+    python = tmp_path / "python" / "bin"
+    python.mkdir(parents=True)
+    (python / "python3").symlink_to(sys.executable)
+    script = tmp_path / "step.sh"
+    script.write_text(seal["run"])
+    output = tmp_path / "github-output"
+    output.write_text("")
+    proc = subprocess.run(
+        ["/bin/bash", "--noprofile", "--norc", "-p", "-e", str(script)],
+        cwd=workspace, capture_output=True, text=True, timeout=120,
+        env={"PATH": "/usr/bin:/bin", "pythonLocation": str(python.parent),
+             "GITHUB_OUTPUT": str(output), "CORRELATION_ID": "c-1"})
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    result = json.loads((workspace / "dfr-seal-result.json").read_text())
+    assert (workspace / "nightly-ran").exists() is seals
+    assert output.read_text() == f"sealed={str(seals).lower()}\n"
+    assert result["sealed"] is seals
+    if not seals:
+        assert "predates #1191" in result["reason"], result
+        assert "::warning::" in proc.stdout and "NOT SEALED" in proc.stdout
 
 
 def test_the_seal_steps_failure_is_what_withholds_an_unwritten_result():

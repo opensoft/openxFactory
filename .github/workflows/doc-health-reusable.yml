@@ -3861,6 +3861,21 @@ jobs:
           CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}
         shell: /bin/bash --noprofile --norc -p -e {0}
         run: |
+          # THE PINNED LANE MUST RUN ITS SEALED CODE IN THE IMAGE (#1191;
+          # Copilot, PR #1192). This workflow runs at openxFactory main, and
+          # the lane comes from the aggregation's pin. A lane from before
+          # #1191 ignores SEALED_IMAGE and runs the probe, the render and its
+          # --strict validation on this runner. So the pinned lane is asked
+          # first, and one that does not name SEALED_IMAGE, or cannot be
+          # imported, seals nothing: the refusal is recorded as the seal's
+          # result, and no sealed code runs.
+          if ! "${pythonLocation:?}/bin/python3" -c 'import sys; sys.path.insert(0, "openxFactory/scripts"); from ideation_dashboard import dashboard_refresh_lane as lane; sys.exit(getattr(lane, "SEALED_IMAGE_ENV", None) != "SEALED_IMAGE")' 2>/dev/null; then
+            "${pythonLocation:?}/bin/python3" -c 'import json, sys; json.dump({"sealed": False, "reason": sys.argv[1]}, open("dfr-seal-result.json", "w"))' \
+              "the pinned lane predates #1191 (it does not run sealed code in the image the build step made, or cannot be imported), so nothing is sealed and no sealed code runs on this runner until the aggregation's pin carries #1191"
+            echo "::warning::ideation-dashboard-refresh: NOT SEALED — the pinned lane predates #1191, so no sealed code runs on this runner; nothing dispatched"
+            echo "sealed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           "${pythonLocation:?}/bin/python3" openxFactory/scripts/dashboard-refresh-nightly.py \
             --repo-root . --phase seal \
             --corpus-checkout openxFactory \
