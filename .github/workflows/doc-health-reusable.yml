@@ -3785,12 +3785,16 @@ jobs:
               exit 1
             fi
           done
-          # A fresh configuration directory, so no plugin, proxy setting or
-          # login of the runner user's reaches the build.
+          # The build's docker CLI sees nothing of the job's environment but a
+          # fresh configuration directory, as the lane's own calls do, so no
+          # plugin, login or proxy of the runner's reaches it: the CLI honors
+          # proxy variables from its environment, not only from its
+          # configuration (Copilot, PR #1192).
           DOCKER_CONFIG="$(/usr/bin/mktemp -d "${RUNNER_TEMP:?}/dfr-docker-config.XXXXXX")"
-          export DOCKER_CONFIG
           IIDFILE="$(/usr/bin/mktemp "${RUNNER_TEMP:?}/dfr-sealed-image.XXXXXX")"
-          /usr/bin/docker build \
+          /usr/bin/env -i PATH=/usr/sbin:/usr/bin:/sbin:/bin HOME="$DOCKER_CONFIG" \
+            DOCKER_CONFIG="$DOCKER_CONFIG" LANG=C.UTF-8 \
+            /usr/bin/docker build \
             --label "openxfactory.dashboard-refresh.sealed-run=${GITHUB_RUN_ID:?}-${GITHUB_RUN_ATTEMPT:?}" \
             --iidfile "$IIDFILE" - <<'DOCKERFILE'
           FROM python:3.12-slim@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f
@@ -4292,38 +4296,51 @@ jobs:
         # until something removes it. So every container carrying this run's
         # label is removed, then the image by the id the build step recorded,
         # and by the label, which it carries from the moment it exists.
-        # A container already going away by its own `--rm` refuses
+          # A container already going away by its own `--rm` refuses
         # `docker rm` and holds the image until it is gone, which
         # opensoft/xFactory#526 found on real docker, so the sweep goes on
-        # until none of this run's is left, for at most 30 seconds. One still
-        # there after that, or a daemon that cannot say, fails this step. The
-        # job continues past it, so the nightly is never failed by it, and
-        # the run shows it.
+        # until none of this run's is left, for at most 30 seconds. What is
+        # still there after the removals fails this step: a container, the
+        # recorded image, an image carrying the label, or a daemon that
+        # cannot say (Copilot, PR #1192). The job continues past it, so the
+        # nightly is never failed by it, and the run shows it.
         if: always()
         continue-on-error: true
         shell: /bin/bash --noprofile --norc -p -e {0}
         run: |
           LABEL="openxfactory.dashboard-refresh.sealed-run=${GITHUB_RUN_ID:?}-${GITHUB_RUN_ATTEMPT:?}"
-          # The local daemon the build and the lane used, whatever the job
-          # holds (Copilot, PR #1192): each variable they refuse is unset.
-          unset DOCKER_HOST DOCKER_CONTEXT DOCKER_TLS DOCKER_TLS_VERIFY \
-                DOCKER_CERT_PATH BUILDX_CONFIG BUILDX_BUILDER
-          DOCKER_CONFIG="$(/usr/bin/mktemp -d "${RUNNER_TEMP:?}/dfr-docker-config.XXXXXX")"
-          export DOCKER_CONFIG
+          # Every docker call here sees nothing of the job's environment but
+          # a fresh configuration directory, as the build's and the lane's
+          # do, so it reaches the local daemon they used, through no proxy
+          # and no routing variable the job holds (Copilot, PR #1192).
+          config="$(/usr/bin/mktemp -d "${RUNNER_TEMP:?}/dfr-docker-config.XXXXXX")"
+          docker_env=(PATH=/usr/sbin:/usr/bin:/sbin:/bin HOME="$config"
+                      DOCKER_CONFIG="$config" LANG=C.UTF-8)
           for _ in {1..30}; do
-            left="$(/usr/bin/docker ps -aq --filter "label=$LABEL" 2>/dev/null || true)"
+            left="$(/usr/bin/env -i "${docker_env[@]}" /usr/bin/docker ps -aq --filter "label=$LABEL" 2>/dev/null || true)"
             if [ -z "$left" ]; then
               break
             fi
-            printf '%s\n' "$left" | /usr/bin/xargs -r /usr/bin/docker rm -f >/dev/null 2>&1 || true
+            printf '%s\n' "$left" | /usr/bin/xargs -r /usr/bin/env -i "${docker_env[@]}" /usr/bin/docker rm -f >/dev/null 2>&1 || true
             /usr/bin/sleep 1
           done
           if [[ "${SEALED_IMAGE:-}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
-            /usr/bin/docker image rm "$SEALED_IMAGE" >/dev/null 2>&1 || true
+            /usr/bin/env -i "${docker_env[@]}" /usr/bin/docker image rm "$SEALED_IMAGE" >/dev/null 2>&1 || true
           fi
-          /usr/bin/docker image ls -aq --no-trunc --filter "label=$LABEL" 2>/dev/null \
-            | /usr/bin/xargs -r /usr/bin/docker image rm >/dev/null 2>&1 || true
-          if ! left="$(/usr/bin/docker ps -aq --filter "label=$LABEL")" || [ -n "$left" ]; then
+          /usr/bin/env -i "${docker_env[@]}" /usr/bin/docker image ls -aq --no-trunc --filter "label=$LABEL" 2>/dev/null \
+            | /usr/bin/xargs -r /usr/bin/env -i "${docker_env[@]}" /usr/bin/docker image rm >/dev/null 2>&1 || true
+          failed=0
+          if ! left="$(/usr/bin/env -i "${docker_env[@]}" /usr/bin/docker ps -aq --filter "label=$LABEL")" || [ -n "$left" ]; then
             echo "::error::a container of this run's sealed code is still there after this step swept for 30 seconds, or the daemon could not say: ${left//$'\n'/ }"
-            exit 1
+            failed=1
           fi
+          if ! images="$(/usr/bin/env -i "${docker_env[@]}" /usr/bin/docker image ls -aq --no-trunc --filter "label=$LABEL")" || [ -n "$images" ]; then
+            echo "::error::an image carrying this run's label is still there, or the daemon could not say: ${images//$'\n'/ }"
+            failed=1
+          fi
+          if [[ "${SEALED_IMAGE:-}" =~ ^sha256:[0-9a-f]{64}$ ]] \
+             && /usr/bin/env -i "${docker_env[@]}" /usr/bin/docker image inspect "$SEALED_IMAGE" >/dev/null 2>&1; then
+            echo "::error::the sealed image $SEALED_IMAGE is still there"
+            failed=1
+          fi
+          exit "$failed"

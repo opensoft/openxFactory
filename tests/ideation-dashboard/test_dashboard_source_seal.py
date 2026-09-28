@@ -3692,26 +3692,35 @@ def test_the_job_removes_its_sealed_containers_and_image_last():
              '${GITHUB_RUN_ID:?}-${GITHUB_RUN_ATTEMPT:?}"')
     assert label in run
     assert '/usr/bin/docker ps -aq --filter "label=$LABEL"' in run
-    assert "/usr/bin/xargs -r /usr/bin/docker rm -f" in run
+    assert ('/usr/bin/xargs -r /usr/bin/env -i "${docker_env[@]}" '
+            '/usr/bin/docker rm -f') in run
     assert '/usr/bin/docker image rm "$SEALED_IMAGE"' in run
     assert '/usr/bin/docker image ls -aq --no-trunc --filter "label=$LABEL"' in run
     assert lane.SEALED_RUN_LABEL == "openxfactory.dashboard-refresh.sealed-run"
 
 
-# A stand-in for the scrub step's docker: it logs each call, lists one
-# container of this run's until `left` sweeps have seen it ("forever" never
-# lets it go), refuses `rm -f` as docker does for a container already going
-# away by its own `--rm`, and fails every `ps` once `ps-fails` exists.
+# A stand-in for the scrub step's docker, found by its own path, since every
+# call runs under `env -i`. It logs each call and the environment it sees,
+# lists one container of this run's until `left` sweeps have seen it
+# ("forever" never lets it go), refuses `rm -f` as docker does for a
+# container already going away by its own `--rm`, and fails every `ps` once
+# `ps-fails` exists. The recorded image is found while `image-stays` exists,
+# an image with the run's label is listed while `labelled-image-stays` does,
+# and the image listing fails while `image-ls-fails` does.
 _SCRUB_DOCKER = """\
 import os, sys
 from pathlib import Path
-state = Path(os.environ["STAND_IN_STATE"])
+state = Path(sys.argv[0]).resolve().parent / "state"
 with open(state / "calls", "a", encoding="utf-8") as log:
     log.write(" ".join(sys.argv[1:]) + "\\n")
-    seen = sorted(name for name in os.environ if name.startswith((
-        "DOCKER_H", "DOCKER_CONTEXT", "DOCKER_TLS", "DOCKER_CERT", "BUILDX_")))
-    if seen:
-        log.write("SAW " + " ".join(seen) + "\\n")
+    log.write("ENV " + " ".join(sorted(os.environ)) + "\\n")
+if sys.argv[1:3] == ["image", "inspect"]:
+    sys.exit(0 if (state / "image-stays").exists() else 1)
+if sys.argv[1:3] == ["image", "ls"]:
+    if (state / "image-ls-fails").exists():
+        sys.exit(1)
+    if (state / "labelled-image-stays").exists():
+        print("sha256:" + "fe" * 32)
 if sys.argv[1] == "ps":
     if (state / "ps-fails").exists():
         sys.exit(1)
@@ -3727,7 +3736,17 @@ elif sys.argv[1] == "rm":
 """
 
 
-def _run_the_scrub_step(tmp_path, *, left: str, ps_fails: bool = False):
+# What a runner's job can hold that a docker call must never see: proxies,
+# which the docker CLI honors from its environment, and a token.
+_THE_JOBS_OWN_ENVIRONMENT = {
+    "HTTP_PROXY": "http://user:secret@proxy.invalid:3128",
+    "https_proxy": "http://user:secret@proxy.invalid:3128",
+    "ALL_PROXY": "socks5://proxy.invalid:1080", "NO_PROXY": "",
+    "GH_TOKEN": "a-token-no-docker-call-sees"}
+
+
+def _run_the_scrub_step(tmp_path, *, left: str, ps_fails: bool = False,
+                        flags=()):
     """The job's last step, run under its own shell, with its docker and its
     sleep swapped for stand-ins by their absolute paths."""
     run = _finalize_steps()[-1]["run"]
@@ -3736,6 +3755,8 @@ def _run_the_scrub_step(tmp_path, *, left: str, ps_fails: bool = False):
     (state / "left").write_text(left)
     if ps_fails:
         (state / "ps-fails").write_text("")
+    for flag in flags:
+        (state / flag).write_text("")
     docker = tmp_path / "docker"
     docker.write_text(f"#!{sys.executable}\n{_SCRUB_DOCKER}")
     docker.chmod(0o755)
@@ -3752,6 +3773,7 @@ def _run_the_scrub_step(tmp_path, *, left: str, ps_fails: bool = False):
         env={"PATH": "/usr/bin:/bin", "GITHUB_RUN_ID": "4242",
              "GITHUB_RUN_ATTEMPT": "2", "RUNNER_TEMP": str(runner_temp),
              "SEALED_IMAGE": STAND_IN_IMAGE, "STAND_IN_STATE": str(state),
+             **_THE_JOBS_OWN_ENVIRONMENT,
              **{name: "tcp://elsewhere.invalid:2376"
                 for name in lane._SEALED_REFUSED_ENV[1:]}},
         capture_output=True, text=True, timeout=120)
@@ -3776,9 +3798,12 @@ def test_the_scrub_sweeps_until_no_container_of_this_run_is_left(tmp_path):
     assert image > max(i for i, call in enumerate(calls[:image])
                        if call.startswith("ps "))
     assert "::error::" not in proc.stdout
-    # The same local daemon the build and the lane used: each variable they
-    # refuse is unset before the first call (Copilot, PR #1192).
-    assert not [call for call in calls if call.startswith("SAW ")], calls
+    # Every call sees nothing of the job's environment but a fresh docker
+    # configuration, as the build's and the lane's do, so it reaches the
+    # local daemon they used, through no proxy and no routing variable
+    # (Copilot, PR #1192).
+    seen = {call for call in calls if call.startswith("ENV ")}
+    assert seen == {"ENV DOCKER_CONFIG HOME LANG PATH"}, seen
 
 
 @pytest.mark.parametrize("left, ps_fails", [("forever", False), ("0", True)],
@@ -3800,13 +3825,35 @@ def test_a_container_the_scrub_could_not_remove_fails_the_step(
     assert _finalize_steps()[-1]["continue-on-error"] is True
 
 
-# A stand-in for the build step's docker: `build` fails when BUILD_FAILS is
-# set, and otherwise records an image id in the `--iidfile` it is handed.
+@pytest.mark.parametrize("flag, said", [
+    ("image-stays", f"the sealed image {STAND_IN_IMAGE} is still there"),
+    ("labelled-image-stays", "an image carrying this run's label is still "
+                             "there, or the daemon could not say: sha256:"),
+    ("image-ls-fails", "an image carrying this run's label is still there, "
+                       "or the daemon could not say"),
+], ids=["the-recorded-image", "an-image-with-the-label",
+        "a-daemon-that-cannot-list-images"])
+def test_an_image_the_scrub_could_not_remove_fails_the_step(tmp_path, flag,
+                                                            said):
+    """The image the build step recorded, or any image carrying this run's
+    label, still there after the removals, or a daemon that cannot say,
+    fails the step, as a container left behind does (Copilot, PR #1192)."""
+    proc, calls = _run_the_scrub_step(tmp_path, left="0", flags=(flag,))
+    assert proc.returncode == 1, proc.stdout + proc.stderr
+    assert f"::error::{said}" in proc.stdout, proc.stdout
+    assert f"image rm {STAND_IN_IMAGE}" in calls
+
+
+# A stand-in for the build step's docker, found by its own path, since the
+# build runs under `env -i`. It records the environment it sees, fails while
+# `build-fails` sits beside it, and otherwise records an image id in the
+# `--iidfile` it is handed.
 _BUILD_DOCKER = """\
-import os, sys
-with open(os.environ["STAND_IN_SEEN"], "w", encoding="utf-8") as seen:
-    seen.write(os.environ.get("DOCKER_CONFIG", ""))
-if os.environ.get("BUILD_FAILS"):
+import json, os, sys
+from pathlib import Path
+here = Path(sys.argv[0]).resolve().parent
+(here / "seen").write_text(json.dumps(dict(os.environ)), encoding="utf-8")
+if (here / "build-fails").exists():
     sys.exit("ERROR: failed to solve")
 args = sys.argv[1:]
 with open(args[args.index("--iidfile") + 1], "w", encoding="utf-8") as out:
@@ -3824,6 +3871,8 @@ def test_the_build_step_records_no_image_id_but_its_own(tmp_path, fails):
     docker = tmp_path / "docker"
     docker.write_text(f"#!{sys.executable}\n{_BUILD_DOCKER}")
     docker.chmod(0o755)
+    if fails:
+        (tmp_path / "build-fails").write_text("")
     script = tmp_path / "step.sh"
     script.write_text(_the_build_step()["run"].replace("/usr/bin/docker",
                                                        str(docker)))
@@ -3837,13 +3886,16 @@ def test_the_build_step_records_no_image_id_but_its_own(tmp_path, fails):
         env={"PATH": "/usr/bin:/bin", "GITHUB_RUN_ID": "4242",
              "GITHUB_RUN_ATTEMPT": "2", "RUNNER_TEMP": str(runner_temp),
              "GITHUB_ENV": str(github_env), "SEALED_IMAGE": STAND_IN_IMAGE,
-             "STAND_IN_SEEN": str(tmp_path / "seen"),
-             **({"BUILD_FAILS": "1"} if fails else {})},
+             **_THE_JOBS_OWN_ENVIRONMENT},
         capture_output=True, text=True, timeout=120)
-    # The build runs with a docker configuration of its own, made fresh in
-    # the job's temporary directory, so no login or plugin of the runner
-    # user's reaches it (#1191).
-    config = Path((tmp_path / "seen").read_text())
+    # The build sees nothing of the job's environment but a docker
+    # configuration of its own, made fresh in the job's temporary directory,
+    # so no login, plugin or proxy of the runner's reaches it (#1191;
+    # Copilot, PR #1192).
+    seen = json.loads((tmp_path / "seen").read_text(encoding="utf-8"))
+    assert sorted(seen) == ["DOCKER_CONFIG", "HOME", "LANG", "PATH"], seen
+    config = Path(seen["DOCKER_CONFIG"])
+    assert seen["HOME"] == seen["DOCKER_CONFIG"]
     assert config.parent == runner_temp, config
     assert config.name.startswith("dfr-docker-config."), config
     recorded = [line for line in github_env.read_text().splitlines()

@@ -8,9 +8,13 @@ file is never collected, and CI's pytest-suite counts are unchanged by it
 daemon, the network the first time the image is built, and a working
 directory the daemon can mount from:
 
-    python3 tests/ideation-dashboard/sealed_run_containment_proof.py \\
+    python3 tests/sealed-run-proof/sealed_run_containment_proof.py \\
         --work-dir DIR [--daemon-path-map LOCAL=DAEMON] [--fresh-build] \\
         [--skip-real-seal] [--keep]
+
+It lives outside `tests/ideation-dashboard/`, which is the openDox carve
+surface (`docs/opendox-carve-manifest.yaml`). A file that appears there
+needs a re-cut of the manifest, and a proof is no reason for one.
 
 `--daemon-path-map` is for a checkout in a dev container that reaches the
 host's daemon through its socket, where the daemon sees the same directory
