@@ -78,15 +78,43 @@ class HermeticityGuardReachesThisDirectoryTests(unittest.TestCase):
                 "reader to the wrong document")
 
     def test_the_in_process_runners_are_the_refusals(self):
-        # adopt-neutral-tooling-home tranche A: layer 2's seams live in the
-        # dashboard package, which arrives with tranche B; until then there
-        # is no in-process runner to assert (layer 1 is asserted above).
-        # find_spec, not try/except — see tests/hermeticity.py runner_seams.
-        # Self-healing on tranche B.
+        # WHERE THIS PROBE HAS TO LOOK NOW (§ 5.2 shed, RULED (a), `#656`
+        # comment `5625573095`). Layer 2's seams moved to the pinned openDox
+        # leg with the rest of the package — see tests/hermeticity.py's
+        # `runner_seams()`, which patches `opendox.workbench` and
+        # `opendox.session_pr` — so this probe has to ask for the same names
+        # the imports two lines down actually use. It used to ask for the
+        # pre-shed `ideation_dashboard.workbench`, which is gone for good
+        # after the shed: that spelling answers None FOREVER rather than
+        # self-healing, which is exactly what left this case silently
+        # skipping instead of running (found measuring plan 034's T047).
+        #
+        # try/except ImportError, NOT a bare find_spec — Copilot review,
+        # PR #1195. `carved_reach.install()` (run by tests/conftest.py, and
+        # now by tests/hermetic_unittest.py's install_guard()) arms
+        # `sys.meta_path` with `_LegMissing` whenever a leg is genuinely
+        # uninitialized, and `_LegMissing.find_spec()` RAISES
+        # `CarveReachUnavailable` (an ImportError) for a carved root name
+        # rather than returning None — reproduced: on a checkout with the
+        # openDox/openXdox gitlinks not materialized, a bare
+        # `find_spec("opendox.workbench")` here made this case ERROR under
+        # both the pytest and the guarded-unittest route instead of skipping
+        # cleanly, exactly the "errors instead of skipping" shape finding 17
+        # is itself about. This is the identical hazard `runner_seams()`
+        # already guards against, one file over, and the fix is the same
+        # shape: probe both names it goes on to import, inside the same
+        # try/except.
         from importlib.util import find_spec
-        if find_spec("ideation_dashboard.workbench") is None:
-            self.skipTest("ideation_dashboard arrives with "
-                          "adopt-neutral-tooling-home tranche B")
+        try:
+            dashboard_ready = all(
+                find_spec(f"opendox.{name}") is not None
+                for name in ("session_pr", "workbench"))
+        except ImportError:
+            dashboard_ready = False
+        if not dashboard_ready:
+            self.skipTest("opendox is not materialized: run `git submodule "
+                          "update --init --recursive openDox openXdox` from "
+                          "the repository root")
         from opendox import session_pr as session_pr_mod
         from opendox import workbench as workbench_mod
 

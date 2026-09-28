@@ -99,11 +99,14 @@
 # developer worktree, 21 on a runner (a three-skip difference; it was two before
 # `024-root-governed-repo-recognition` added the LedgerxFactory fixture-drift
 # guard, which resolves and RUNS in a worktree beside `xFactories/`). SINCE THE
-# § 5.2 SHED (2026-09-11) the runner number is 6, because one of the two files
-# that carried those guard strings — `tests/ideation-dashboard/
+# § 5.2 SHED (2026-09-11) the runner number became 6, because one of the two
+# files that carried those guard strings — `tests/ideation-dashboard/
 # test_session_harness.py` — is one of the 111 test files the shed moved to the
-# legs; the other stays and still skips. The exact runner number is pinned in
-# `EXPECT_SKIPPED` below, where the reason for each move is recorded.
+# legs; the other stays and still skips. THE HERMETICITY-PROBE REPAIR
+# (plan 034) MOVES IT AGAIN, TO 5, for an unrelated reason — not a guard
+# standing down, but a stale probe repointed. The exact runner number is
+# pinned in `EXPECT_SKIPPED` below, where the reason for each move is
+# recorded.
 #
 # WHY THE LOCK, NOT AN AD-HOC PIP LIST. `requirements/hermes-runtime-contracts.lock`
 # is the ratified validator-input source: `specs/005-customer-subject-runtime/
@@ -779,7 +782,40 @@ jobs:
           # and corpus readers that pointed at moved files between `dd0f307a`
           # and `20cfd0b9` — were re-pointed at the pinned legs rather than
           # left standing down, which is the move this pin exists to force.
-          EXPECT_SKIPPED: "6"
+          #
+          # MOVED 6 -> 5 BY THE HERMETICITY-PROBE REPAIR (plan 034). One of
+          # those 6 was never a stand-down at all: `tests/notebooklm/
+          # test_hermeticity_guard.py`'s layer-2 case carried the SAME
+          # shed-name defect this pin's own history is full of above — its
+          # `find_spec("ideation_dashboard.workbench")` probe still asked for
+          # the PRE-shed name, which answers None FOREVER after the shed
+          # rather than self-healing, so the case SKIPPED silently instead of
+          # asserting anything (found measuring plan 034; `tests/hermeticity.
+          # py`'s own `runner_seams()` was repointed to `opendox.workbench`
+          # at the shed, one file over, and this probe was not). Repointed the
+          # same way, and `tests/hermetic_unittest.py` now installs the same
+          # carved reach `tests/conftest.py` does — MEASURED before that
+          # second fix: the guarded-unittest route ERRORED
+          # (`ModuleNotFoundError: No module named 'opendox'`) on this same
+          # case rather than running it or skipping cleanly, because that
+          # runner installed no carved reach at all and so guarded LESS than
+          # the pytest route over the identical tree.
+          #
+          # TWO SIBLINGS IN THE SAME DIRECTORY ARE NOT TOUCHED HERE, AND THAT
+          # IS WHY THE PIN FALLS TO 5 RATHER THAN FURTHER. `tests/notebooklm/
+          # test_workbench_sweep_wiring.py` and `tests/notebooklm/
+          # test_sync_notebooklm_books.py` raise the identical stale-name
+          # `unittest.SkipTest` at import time (`ideation_dashboard.workbench`
+          # / `ideation_dashboard.branch_session`), each costing this pin
+          # exactly one skip — a whole module skips as ONE unit under
+          # pytest's unittest integration, not one per test method (measured:
+          # each file's own several test methods collapse to a single
+          # `SKIPPED` line). Out of this repair's declared scope; left as a
+          # follow-up. MEASURED, not estimated: `pytest tests/notebooklm -q
+          # -rs` moved from `3 skipped` (this case plus those same two
+          # siblings) to `2 skipped` (the two siblings alone) over an
+          # unchanged 108 passed / 30 subtests passed.
+          EXPECT_SKIPPED: "5"
           # THE NAMED VERDICT — the freshness verifier watched as itself rather
           # than as one unit of an aggregate it can hide inside.
           #
