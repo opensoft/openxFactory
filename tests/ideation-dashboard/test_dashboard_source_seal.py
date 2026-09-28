@@ -128,6 +128,11 @@ if args[0] == "ps":
     print("\n".join(config.get("running", [])))
     sys.exit(config.get("ps_exit", 0))
 if args[0] == "rm":
+    if config.get("rm_exit"):
+        sys.exit(config["rm_exit"])
+    config["running"] = [cid for cid in config.get("running", [])
+                         if cid not in args[2:]]
+    config_file.write_text(json.dumps(config))
     sys.exit(0)
 assert args[0] == "run", args
 BARE = {"--rm", "--init", "--read-only"}
@@ -5340,8 +5345,28 @@ def test_a_container_left_running_is_removed_and_refuses_the_seal(
         "returned, so sealed code could still act: it is removed, and the "
         "seal is refused")
     calls = [call["argv"] for call in _docker_calls(stand_in_docker)]
-    assert ["ps", "-q", "--filter", f"label={_LABEL_4242}"] in calls
+    listing = ["ps", "-q", "--filter", f"label={_LABEL_4242}"]
     assert ["rm", "-f", "c0ffee"] in calls
+    # Asked again after the removal, and gone.
+    assert calls[calls.index(["rm", "-f", "c0ffee"]) + 1] == listing
+
+
+def test_a_container_the_daemon_cannot_remove_refuses_the_seal_saying_so(
+        stand_in_seal, stand_in_docker, monkeypatch):
+    """A removal the daemon rejects leaves the container running, so the
+    refusal says so rather than that it was removed. The seal is refused
+    either way, and the job's last step removes what the run left, or fails
+    (Copilot, PR #1192)."""
+    monkeypatch.setenv("GITHUB_RUN_ID", "4242")
+    monkeypatch.setenv("GITHUB_RUN_ATTEMPT", "1")
+    _stand_in_docker_config(stand_in_docker, running=["c0ffee"], rm_exit=1)
+    with pytest.raises(lane.SealRefused) as refused:
+        _precheck(stand_in_seal)
+    assert str(refused.value) == (
+        "a container of the sealed render was still running after it "
+        "returned, so sealed code could still act, and the daemon could not "
+        "remove it (c0ffee): the seal is refused, and the job's last step "
+        "removes what this run left")
 
 
 def test_a_daemon_that_cannot_list_the_runs_refuses_the_seal(

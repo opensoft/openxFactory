@@ -2979,12 +2979,15 @@ class SealedContainer:
                 "not known to be gone")
         return listing.stdout.split()
 
-    def _remove(self, config: str, ids: list[str]) -> None:
-        if ids:
-            subprocess.run([self.docker, "rm", "-f", *ids], cwd="/",
-                           env=_docker_cli_environment(config),
-                           stdin=subprocess.DEVNULL, capture_output=True,
-                           timeout=120)
+    def _remove(self, config: str, ids: list[str]) -> bool:
+        """Remove `ids` by force. Returns whether the daemon did so."""
+        if not ids:
+            return True
+        removal = subprocess.run([self.docker, "rm", "-f", *ids], cwd="/",
+                                 env=_docker_cli_environment(config),
+                                 stdin=subprocess.DEVNULL,
+                                 capture_output=True, timeout=120)
+        return removal.returncode == 0
 
     def run(self, what: str, seal_root, command, *, mounts=(), workdir: str,
             out: bool = False, stdout_limit: int,
@@ -3027,7 +3030,18 @@ class SealedContainer:
                 reader.join(timeout=60)
             left = self._containers(config, every=False)
             if left:
+                # Removed, then asked again: a removal the daemon rejects
+                # leaves the container running, and the refusal says so
+                # (Copilot, PR #1192). The seal is refused either way.
                 self._remove(config, left)
+                still = self._containers(config, every=False)
+                if still:
+                    raise SealRefused(
+                        f"a container of the sealed {what} was still running "
+                        "after it returned, so sealed code could still act, "
+                        "and the daemon could not remove it "
+                        f"({', '.join(still)}): the seal is refused, and the "
+                        "job's last step removes what this run left")
                 raise SealRefused(
                     f"a container of the sealed {what} was still running after "
                     "it returned, so sealed code could still act: it is "
