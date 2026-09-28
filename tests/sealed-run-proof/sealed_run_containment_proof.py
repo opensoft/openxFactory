@@ -134,8 +134,12 @@ def docker(*args: str, check_rc: bool = False) -> subprocess.CompletedProcess:
     return done
 
 
-def containers_of(label: str) -> list[str]:
-    return docker("ps", "-aq", "--filter", f"label={label}").stdout.split()
+def containers_of(label: str) -> list[str] | None:
+    """The containers carrying `label`, or None when the daemon cannot list
+    them: an empty listing is read as "none left" only from a listing that
+    succeeded (Copilot, PR #1192)."""
+    listing = docker("ps", "-aq", "--filter", f"label={label}")
+    return listing.stdout.split() if listing.returncode == 0 else None
 
 
 def finalize_step(**match) -> dict:
@@ -420,8 +424,10 @@ def refused_by(call) -> str | None:
 
 def nothing_left(label: str, what: str) -> None:
     left = containers_of(label)
-    check(not left, f"no container of the run's label is left after {what}",
-          f"docker ps -a --filter label={label}: {left or 'none'}")
+    check(left == [], f"no container of the run's label is left after {what}",
+          f"docker ps -a --filter label={label}: "
+          + ("the daemon could not list them" if left is None
+             else " ".join(left) or "none"))
 
 
 def prove_the_build(work: Path, env: dict, fresh: bool) -> str:
@@ -821,13 +827,20 @@ def prove_the_scrub(work: Path, env: dict, image: str, label: str) -> None:
     check(done.returncode == 0 and "::error::" not in done.stdout,
           "the last step ends clean", f"exit {done.returncode}"
           + (f": {done.stdout.strip()}" if done.stdout.strip() else ""))
-    gone = docker("image", "inspect", image).returncode != 0
+    # Each read counts only from a listing that succeeded: a daemon that
+    # cannot answer fails the check rather than reading as "nothing left".
+    every = docker("image", "ls", "-aq", "--no-trunc")
     labelled = docker("image", "ls", "-aq", "--no-trunc", "--filter",
-                      f"label={label}").stdout.split()
-    check(gone and not labelled and not containers_of(label),
+                      f"label={label}")
+    left = containers_of(label)
+    listed = every.returncode == 0 and labelled.returncode == 0
+    check(listed and image not in every.stdout.split()
+          and not labelled.stdout.split() and left == [],
           "no image and no container of the run is left",
-          f"image inspect {'fails' if gone else 'still finds it'}; "
-          f"labelled images {labelled or 'none'}")
+          ("the daemon could not list its images" if not listed else
+           f"image {'still listed' if image in every.stdout.split() else 'gone'};"
+           f" labelled images {labelled.stdout.split() or 'none'};"
+           f" containers {'unlisted' if left is None else left or 'none'}"))
 
 
 def main() -> int:
