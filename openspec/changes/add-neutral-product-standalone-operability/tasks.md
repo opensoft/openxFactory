@@ -1019,6 +1019,13 @@ packet's interim arrangement ends.**
 - [ ] 9.2 openXdox-code the same, with `OPENDOX_BACK_IMPORTS` lowered as each
   deferred reach closes. The import-time column is ALREADY zero and stays there.
 
+  **AMENDED — T007 Batch B (`5817152735`; Ruled R1Q6 (d)):** An addendum
+  (T006): for release 1, openXdox-code's whole suite runs less T041's
+  declared exclusion, `tests/declared_exclusion.yaml`, which is reported as
+  an open extraction with its count and each entry's reason. T097 ticks 9.2
+  with that note, and requirement 9 stays open for openXdox-code until the
+  direction arc (T008) lands. Carried out by T041, T043 and T097.
+
   **AMENDED — T007 Batch F (`5850003126`; Ruled R1Q24 (a), R1Q25 (b)):** For
   release 1, the declared exclusion that openXdox-code's whole suite runs less
   (R1Q6 (d), `5817152735`; T007 Batch B) also holds the files that reach
@@ -1049,6 +1056,29 @@ packet's interim arrangement ends.**
   for real once that lands"*. Two of openDox's three are the mirror image. **The
   whole-product assertions are precisely the ones that skip**, which is why both
   legs report green while neither product runs.
+
+  **AMENDED — T007 Batch B (`5817152735`; Ruled R1Q6 (d)):** An addendum:
+  each of openXdox's six skips either asserts, or its file joins the
+  declared exclusion.
+
+  T044 (openXdox's half) moved all six: the three seam suites
+  (`tests/test_evidence_provenance_surface_seam.py`,
+  `tests/test_model_scenario_workbench_seam.py`,
+  `tests/test_role_authority_projection_seam.py`) drop their `doc_health`
+  guard and the two cases each it skipped; those cases now assert for real —
+  composed, they pass, and alone they fail on `doc_health` only — moved into
+  `tests/test_seam_assembly_beside_gate_and_projection.py`, a file T044
+  created, which the declaration lists under `doc_health`. The three suites
+  keep their other cases, losing only the guard and gaining a pointer
+  paragraph to the new file. This corrects T044's own `Ruled` line: the two
+  moved skips came to sit in a CREATED file, not a carved one — the three
+  seam suites themselves are carved and stay carved. The floors re-pin over
+  the whole suite less that file, at `885/881/4`, margin zero, ON CI's
+  reading. openDox-code's mirror-image two (T037, its half) assert for real
+  with no declared exclusion of its own (openDox-code carries none, R1Q8
+  (a)); its floors restore at `2476/2465/11`, THREE BELOW CI's reading — the
+  holder's decision for that leg, where openXdox's sit ON it instead, as 9.4
+  and T044's own text read. Carried out by T044.
 - [ ] 9.5 **The pins that compose the legs advance with the arc, each by its
   owner's ordinary pin-sync act.** This packet moves none of them, and the
   realization cannot be exercised without moving them. Measured on 2026-09-23:
@@ -1096,6 +1126,32 @@ packet's interim arrangement ends.**
   `grep` after a failing `pytest` must not make the sequence exit zero), and the
   `test` asserts the exclusion count is ZERO rather than leaving it to a reader.
   Today openDox-code gives 1,298 errors / 0 passed and openXdox-code 1,089 / 0.
+
+  **AMENDED — T007 Batch B (`5817152735`; Ruled R1Q6 (d)):** `python -m
+  pytest -q` collects the whole suite less the files in T041's declared
+  exclusion file, `tests/declared_exclusion.yaml`. The falsifier asserts
+  three things: the file's count equals its entries, every entry carries its
+  reason, and the run prints the exclusion as an open extraction — its own
+  title line reads `open extraction: the declared exclusion`. The two
+  `validate.yml` assertions stay. openDox-code's F9.1 is unchanged (R1Q8
+  (a)).
+
+  Measured at landing: T041 wrote all four admitted reasons' entries at
+  once, not the two-step split its own task line had planned (T041 writes
+  the `doc_health` entries; T043's triage adds the rest).
+  `status-exemption-rail` and `openxfactory-contracts` (R1Q24 (a)), and
+  `consumer-schemas`, named for `tests/test_snapshot.py` alone (R1Q25 (b))
+  — all three `5850003126`, T007 Batch F's — were already in T041's file
+  when it landed, so T043's triage of the same pin found the same red results
+  across the same files and became a re-run rather than an addition, which
+  the holder accepted. `count` moved from 66 to 67 only later, at T044,
+  with the `tests/test_seam_assembly_beside_gate_and_projection.py` entry,
+  under `doc_health`. This file's four reasons are distinct from, and do
+  not include, the assembled-help-tree test that T007 Batch J separately
+  rules out of F9.1's realized falsifier line (`5870594693`, citing
+  `5859927858`); T008 retires both together. CI's own reading of the triple
+  (selected/passed/skipped) is `885/881/4`, at margin zero. Carried out by
+  T041, T043 and T049.
 
   **AMENDED — T007 Batch F (`5850003126`; Ruled R1Q24 (a), R1Q25 (b)):** For
   openXdox-code, the declared exclusion that R1Q6 (d) admits (`5817152735`;
