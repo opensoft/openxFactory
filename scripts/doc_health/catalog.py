@@ -622,10 +622,43 @@ def _repo_file(run_dir: Path, repo: str) -> Path:
     return run_dir.joinpath(*segments[:-1]) / (segments[-1] + ".yaml")
 
 
+def _nearest_existing(node: Path) -> Path:
+    """``node`` when something is there, else its nearest ancestor that
+    exists, which is where a directory made at ``node`` would be created."""
+    node = Path(node)
+    while node.parent != node:
+        try:
+            os.lstat(node)
+        except (FileNotFoundError, NotADirectoryError):
+            node = node.parent
+            continue
+        return node
+    return node
+
+
+def _filesystem_id(node: Path) -> int:
+    """The id (``st_dev``) of the filesystem ``node`` is on."""
+    return os.lstat(node).st_dev
+
+
 def _same_filesystem(a: Path, b: Path) -> bool:
-    """Whether directories ``a`` and ``b`` sit on one filesystem (one
-    ``st_dev``), which an atomic rename from one into the other needs."""
-    return os.lstat(a).st_dev == os.lstat(b).st_dev
+    """Whether ``a`` and ``b`` are, or once made will be, on one filesystem
+    (one ``st_dev``), which an atomic rename from one into the other needs.
+    A path with nothing there yet counts as its nearest existing ancestor
+    (``_nearest_existing``), where it would be made."""
+    return _filesystem_id(_nearest_existing(a)) == \
+        _filesystem_id(_nearest_existing(b))
+
+
+def _cross_filesystem_refusal(root: Path, directory: Path) -> CatalogError:
+    """The refusal for a write that could not be published into
+    ``directory`` from the staging directory by an atomic rename, naming
+    both by their paths under ``root``."""
+    return CatalogError(
+        f"catalog staging directory {STAGING_DIR.as_posix()} is not on the "
+        f"same filesystem as {Path(directory).relative_to(root).as_posix()}, "
+        f"so a write staged there could not be published by an atomic "
+        f"rename")
 
 
 def _write_rendered(root: Path, path: Path, text: str) -> None:
@@ -658,11 +691,13 @@ def _write_rendered(root: Path, path: Path, text: str) -> None:
     (``immutable-path``), so a person can remove it.
 
     An atomic rename needs one filesystem. The layout keeps the staging
-    directory on the run tree's, beside the day directories, and a staging
-    directory on another device than ``path``'s directory is refused before
-    anything is staged (``_same_filesystem``). ``os.replace`` never falls
-    back to a copy in any case: across filesystems it fails, and the temp
-    is removed.
+    directory on the run tree's, beside the day directories. The writer's
+    preflight (``_refuse_unsafe_run_paths``) refuses a run whose directories
+    are on another filesystem than the staging directory before anything is
+    claimed, and this write checks again before anything is staged
+    (``_same_filesystem``), since a directory can be mounted in between.
+    ``os.replace`` never falls back to a copy in any case: across
+    filesystems it fails, and the temp is removed.
 
     Because every writer owns its own temp, two racing writers of the
     same target — even with DIFFERENT bytes, as when two runs of one
@@ -689,11 +724,7 @@ def _write_rendered(root: Path, path: Path, text: str) -> None:
     _refuse_foreign_node(staging, directory=True)  # never stage via a link
     staging.mkdir(exist_ok=True)
     if not _same_filesystem(staging, path.parent):
-        raise CatalogError(
-            f"catalog staging directory {STAGING_DIR.as_posix()} is not on "
-            f"the same filesystem as "
-            f"{path.parent.relative_to(root).as_posix()}, so a write staged "
-            f"there could not be published by an atomic rename")
+        raise _cross_filesystem_refusal(root, path.parent)
     fd, tmp_name = tempfile.mkstemp(
         dir=staging, prefix=path.name + ".", suffix=".tmp")
     tmp = Path(tmp_name)
@@ -1210,7 +1241,14 @@ def _refuse_unsafe_run_paths(root: Path, run_dir: Path, targets) -> None:
     node would otherwise surface only after the sequence was claimed, as a
     filesystem error mid-run that leaves an orphaned claim or a partial
     run, or it would carry the writes outside the tree without any
-    error."""
+    error.
+
+    Last, every directory the run publishes a file into must be on the
+    staging directory's filesystem (``_same_filesystem``, counting a
+    directory not made yet as its nearest existing ancestor's), so an
+    atomic rename can publish each staged write (``_write_rendered``). That
+    refusal depends on the layout alone, so it too comes before anything is
+    claimed or made (PR #1199 review, Copilot)."""
     directories = _catalog_chain(root)
     directories += [Path(root) / SEQUENCE_DIR, Path(root) / STAGING_DIR,
                     run_dir.parent, run_dir]
@@ -1222,6 +1260,10 @@ def _refuse_unsafe_run_paths(root: Path, run_dir: Path, targets) -> None:
         _refuse_foreign_node(node, directory=True)
     for node in [run_dir / RUN_META_NAME, *targets]:
         _refuse_foreign_node(node, directory=False)
+    staging = Path(root) / STAGING_DIR
+    for directory in sorted({run_dir, *(t.parent for t in targets)}):
+        if not _same_filesystem(staging, directory):
+            raise _cross_filesystem_refusal(root, directory)
 
 
 def _refuse_foreign_run_tree(root: Path, run_dir: Path) -> None:

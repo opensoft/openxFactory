@@ -2567,6 +2567,67 @@ def test_write_run_refuses_a_foreign_staging_directory_before_any_write(
         assert not (runs_root(root) / DAY_STR).exists(), name
 
 
+def test_write_run_refuses_a_cross_filesystem_run_before_any_claim(tmp_path):
+    # PR #1199 review (Copilot): the atomic-rename check ran only when a
+    # write was staged, after the sequence was claimed and the run's
+    # directories made, so a staging directory on another filesystem than
+    # the run left an orphaned claim and a partial run behind, although that
+    # refusal depends on the layout alone. The preflight now checks every
+    # directory the run publishes into against the staging directory before
+    # anything is claimed, counting a directory not made yet as its nearest
+    # existing ancestor's, where it would be made. A mount is simulated by
+    # shifting the filesystem id of every node at or below one directory.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid = catalog.run_id(runs, TAXONOMY)
+    real_filesystem_id = catalog._filesystem_id
+
+    def mounted_at(mount):
+        def filesystem_id(node):
+            node = Path(node)
+            shifted = node == mount or mount in node.parents
+            return real_filesystem_id(node) + (1 if shifted else 0)
+        return filesystem_id
+
+    def made(node):
+        node.mkdir(parents=True)
+        return node
+
+    mounts = {
+        "the-staging-directory": lambda root: made(
+            root / catalog.STAGING_DIR),
+        "a-day-directory": lambda root: made(runs_root(root) / DAY_STR),
+        "a-crashed-run-directory": lambda root: made(
+            runs_root(root) / DAY_STR / rid),
+    }
+    for name, mount_of in mounts.items():
+        root = tmp_path / name
+        mount = mount_of(root)
+        before = tree_state(root)
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setattr(catalog, "_filesystem_id", mounted_at(mount))
+            with pytest.raises(catalog.CatalogError,
+                               match="same filesystem") as exc:
+                catalog.write_run(root, DAY, runs, TAXONOMY)
+            with pytest.raises(catalog.CatalogError, match="same filesystem"):
+                catalog.write_snapshot(root, DAY, rid, "alpha", runs["alpha"],
+                                       TAXONOMY)
+        assert str(tmp_path) not in str(exc.value), name  # tree-relative
+        assert tree_state(root) == before, name
+        assert not (runs_root(root) / ".sequence").exists(), name  # no claim
+        assert not (runs_root(root) / DAY_STR / rid / "run.yaml").exists(), \
+            name
+
+    # A run tree mounted whole is one filesystem: a fresh run records, the
+    # directories it has not made yet counted as the mounted one's.
+    root = tmp_path / "mounted-whole"
+    runs_root(root).mkdir(parents=True)
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(catalog, "_filesystem_id", mounted_at(runs_root(root)))
+        assert catalog.write_run(root, DAY, runs, TAXONOMY)[0] == rid
+    assert catalog.load_snapshot(root)["run_id"] == rid
+    assert list((root / catalog.STAGING_DIR).iterdir()) == []
+
+
 # --- recursion exclusion (T008) ----------------------------------------------
 
 def test_generated_catalog_paths_are_excluded_from_discovery():
