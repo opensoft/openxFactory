@@ -1493,6 +1493,244 @@ packet's interim arrangement ends.**
   the carve as it arrived, so an arc edit to a carved file needs no
   declared-edit act. Carried out by T045, T093, T094.
 
+  **AMENDED — T007 Batch E (`5817152735`; Ruled R1Q2 (a), R1Q22 (a); the
+  specific paths and edits below are `5856475254` (P1-K's three questions),
+  T035's own hand-off (openDox-code#51), and P1-K's writer's committed-pin
+  measurement (openxFactory#1181, `PROGRESS-T047.md` § "THE COMMITTED-PIN
+  RED-TEST LIST", runs T1/T3/T4), each addressed to this batch by name):**
+  Batch A widened the guard to `COMPOSITION_TESTS`; this batch names every
+  path phase 1 has actually moved, edited or found, now that the full
+  committed-pin measurement is in. At openDox `663ac683` (code `2d116415`)
+  and openXdox `6495ba98` (code `6158151e`), `pytest tests/ -q -m "not
+  postgres"` gives 266 failed, 1 collection error with #1181's host wiring
+  alone and nothing else (run T1); at #1181's fixing commits merged with
+  `main` `e369cb25` (run T4, head `f79a72f3`), it gives 8886 passed, 6
+  skipped, 0 failed, 0 errors — the same 6 skips `main` has. Every one of
+  the 267 committed-pin reds is one of the causes below.
+
+  **Four paths join `COMPOSITION_TESTS`** — batch A's original two,
+  unchanged, plus P1-K's two, each re-described below at the fuller cause
+  its writer's measurement found:
+
+  - `tests/ideation-dashboard/test_authoring_classify_derivation.py::test_the_gate_reaches_the_corpus_only_through_the_two_public_names`.
+    T020/T021 made `authoring.py` reach the home corpus through the
+    REGISTERED seam, `corpus_adapter.home()`, alone: at the pinned leg it
+    binds no name out of the adapter package (`bound == []`, was
+    `["home_corpus"]`), and a new second assertion checks the two public
+    names it takes from the interface module instead
+    (`sorted(interface) == ["DocumentId", "home"]`).
+  - `tests/ideation-dashboard/test_doxbench_status_exemption.py`. TWO
+    edits, not one: (i)
+    `test_the_dependence_on_the_carved_rail_sits_at_exactly_one_line`'s
+    assertion moves from "exactly one import" to `seam_lines == []` — T027
+    removed the packet module's only import of the status-exemption rail;
+    the host registers it now (T046) and the module reads the
+    registration — plus a new assertion naming the rail's only readers
+    (`_status_exemption`, beside the three registration calls). (ii) A
+    separate cause the committed-pin run alone found: importing this file
+    now runs openXdox-code `6158151e`'s own
+    `from conftest import assert_not_at_this_leg, carved_module_path`
+    (through its `test_doxbench_packet` import), and this directory's
+    conftest has neither, which stopped collection outright. The fix lends
+    both names onto this directory's conftest module as refusals, for the
+    one import, inside a `try`/`finally` that removes them again straight
+    after — nothing here can call them, and the conftest is left as it was.
+
+  Both files stay in `tests/ideation-dashboard/`, are edited, not moved or
+  created, and each pins something openDox- or openXdox-owned — the
+  adapter seam's public names, and the registered status-exemption rail —
+  so both are compositions in the deep sense, not only the structural one.
+
+  **Six more paths — T034's two, T035's four — do NOT join
+  `COMPOSITION_TESTS`, correcting this batch's own earlier, WRONG
+  proposal.** T034 (openDox-code#50 → `71b631bc`) moves four cases (the
+  outline model's `doc_health` case, and three memory-gateway roster
+  cases); T035 (openDox-code#51 → `80acead1`) moves nine more and adds one
+  fresh, into four destinations its own PR body addresses to this batch by
+  name. This batch's first proposal put all six destinations under
+  `tests/ideation-dashboard/`, naming each in `COMPOSITION_TESTS`. **P1-K's
+  writer's measurement found that proposal INFEASIBLE, not merely
+  unwise**: `scripts/validate-carve-manifest.py` REFUSES
+  `carve-file-undeclared` for any NEW file under `tests/ideation-dashboard/`,
+  because the carve's `moved_paths:` surface already covers the whole
+  directory, closed to undeclared arrivals — a different refusal from
+  anything a `COMPOSITION_TESTS` entry could admit. The six land under
+  `tests/domain_profile/` instead, same basenames, verified directly on
+  #1181's head:
+
+  - `tests/domain_profile/test_outline_template_agreement.py` — T034's
+    outline case.
+  - `tests/domain_profile/test_memory_gateway_roster.py` — T034's three
+    memory-gateway cases.
+  - `tests/domain_profile/test_workbench_manifest_validation.py` — T035, 3
+    cases (from `test_workbench.py`); the pinned validator openXdox-code
+    now carries.
+  - `tests/domain_profile/test_workbench_scoped_doc_health.py` — T035, 3
+    cases (same source file); the registered `doc_health` seam (T026/T046)
+    and its `base-repo` fixture.
+  - `tests/domain_profile/test_session_worktree_book_scan.py` — T035, 2 of
+    its 3 proposed cases
+    (`test_session_worktrees_never_reach_a_lifecycle_book`,
+    `test_pinned_factory_paths_never_admits_a_worktree_container`).
+    **`test_worktree_container_is_gitignored_in_the_aggregation_repo` is
+    HELD OUT**: it SKIPS wherever no aggregation checkout exists, which is
+    every CI run, and landing it would move `pytest-suite`'s
+    `EXPECT_SKIPPED` from 6 to 7. Held, not decided against; a later task
+    takes it up.
+  - `tests/domain_profile/test_doxbench_chat_ceiling.py` — T035's one
+    moved case, plus one it adds fresh
+    (`test_the_browser_ceiling_equals_the_servers_ceiling`, pinning one
+    side of a triangle whose openXdox-code twin T041's exclusion hides for
+    now).
+
+  None of these six needs a `COMPOSITION_TESTS` entry: `tests/domain_profile/`
+  is already `HOST_TESTS`, F11.1's SECOND declared surface
+  (`p.startswith(HOST_TESTS)`), covering every path under it
+  unconditionally, new or edited. **This is a correction, not an update** —
+  this batch's first text asked for six entries at paths that could never
+  have been created there.
+
+  **T035's fifth destination, `test_hermeticity_probe_routes.py`, still
+  does NOT join anything here** — reaffirming this batch's SECOND answer
+  to T035's open question (reversed from its first, on an earlier Copilot
+  finding at this PR: see the branch's commit history). It pins nothing
+  about the composition; it lands as a plain, non-`Arc:`-trailered
+  openxFactory test in its own PR (T066's precedent), unclaimed as of this
+  writing. P1-K's writer's measurement found it already: two of its three
+  cases fail today and the third passes, all through
+  `tests/notebooklm/test_hermeticity_guard.py:87`'s stale
+  `find_spec("ideation_dashboard.workbench")` probe — a fourth
+  `EXPECT_SKIPPED` question that PR must answer, not this one.
+
+  Once T045, T093 and T094 land it, `COMPOSITION_TESTS` reads:
+
+      COMPOSITION_TESTS = {
+          "tests/ideation-dashboard/test_extension_point_parity.py",         # batch A
+          "tests/ideation-dashboard/test_serve_column_split.py",             # batch A
+          "tests/ideation-dashboard/test_authoring_classify_derivation.py",  # P1-K (#1181)
+          "tests/ideation-dashboard/test_doxbench_status_exemption.py",      # P1-K (#1181)
+      }
+
+  — unchanged in SIZE from batch A's own first proposal, though not in
+  content: `test_extension_point_parity.py` and `test_serve_column_split.py`
+  are ALSO among the 260 reds the stale `route_extension.py` replica
+  causes (below), an ordinary edit inside the composition each already
+  names, not a new cause.
+
+  This bookkeeping amendment does not itself touch the executable Python
+  above, which still checks batch A's two-path set until T045, T093 and T094
+  land it.
+
+  **Seven paths sit on NO F11.1 surface at all, and each is an ADMITTED
+  arc edit, not a composition test.** `5856475254` items 1-2 name the
+  first two; P1-K's writer's committed-pin measurement found the other
+  five. Every one is admitted IN PRINCIPLE — no further ruling is needed
+  before T047 lands them — but each still needs a GUARD-CODE mechanism
+  this paragraph records the NEED for and does not itself supply:
+
+  - **`scripts/route_extension.py`**: openDox-code#40 (T010, `0f10b1f5`)
+    changed `src/route_extension.py` from blob
+    `34802071d5b9e417f6c29c6929db69f518f91cce` to
+    `7781665d9ae0d4be298cd7d9cbe625666f7481ee` (62817 bytes, sha256
+    `d81124e62dba9df33abe44f3eb467188c98156f002cc7a92e297cd689da87515`), so
+    both carved replicas of the route-extension seam were stale. **260 of
+    the 267 committed-pin reds share this ONE cause**
+    (`AttributeError: module 'route_extension' has no attribute
+    'collect_handler_contributions'`), across 11 files including two
+    `COMPOSITION_TESTS` paths already named above (an ordinary edit inside
+    a composition each already admits, not a new cause). T047's resync
+    (`4303e67c`) cures every one. openxFactory's copy is a
+    `not_moved / replicated_at_destination` row
+    (`docs/opendox-carve-manifest.yaml:2993-2996`) whose ONLY field is
+    `evidence:` — **verified directly on #1181's resync commit: the row is
+    LEFT UNTOUCHED, no `edits:` block added.** R1Q22 (a) ("no declared-edit
+    act precedes an arc edit to a carved file") removes the need for a
+    SEPARATE RULING before the resync; it does not by itself make F11.1's
+    `elif p != MANIFEST: breach` branch admit this path — and, now
+    confirmed rather than merely suspected, the resync does not go through
+    the manifest at all. The row's `edits:` grammar (RULED Q-L7 (a);
+    `docs/opendox-carve-manifest.yaml:114-120`) would in any case only
+    cover lines permitted to diverge from the blob AT THE CARVE COMMIT, a
+    narrower shape than a wholesale resync to a later upstream commit.
+    T045, T093 and T094 (or a further ruling, if the mechanism itself needs
+    Brett's word) choose the actual guard-code path when T047 lands; this
+    paragraph records only that the edit is admitted, not the mechanism.
+    **openXdox-code's twin replica has already LANDED the same resync**
+    (openXdox-code#29, merged `d84b5048`), re-verified directly on that
+    repo's `main` today at `6158151e` — a different repository's own arc
+    edit, outside this guard, recorded here only so the pair reads as one
+    repair.
+  - **`scripts/sync-notebooklm-books.py`**: its `--session-ref` path now
+    calls `register_openxfactory()` before reaching
+    `workbench.session_documents` (`4303e67c`, the same commit as the
+    resync above). No carve-manifest row, no current surface — not `HOST`,
+    `HOST_TESTS`, a `PIN_PAIR`, `COMPOSITION_TESTS` (it is not a test) or
+    the manifest.
+  - **`scripts/ideation_dashboard/dashboard_refresh_lane.py`** and
+    **`tests/ideation-dashboard/test_dashboard_source_seal.py`**: two
+    cases
+    (`test_the_render_leg_modules_are_what_the_render_unit_imports_by_name`,
+    `test_the_serve_leg_modules_are_what_the_serve_entry_imports_by_name`)
+    broke when openxFactory#1166 merged with T046: `opendox_host.seams()`
+    imports `corpus_adapter`, `doxbench_packet`, `serve_wire` and
+    `workbench`, none yet named in the seal's
+    `RENDER_UNIT_IMPORTS`/`RENDER_LEG_MODULES`. Fixed (`b05175f7`) by
+    adding all four. **Red at ANY pin** — a standing gap #1166 left, not
+    something T047's specific pin bump caused, found only because this
+    measurement ran the whole suite.
+  - **`tests/openxdox_pin/test_openxdox_pin_verifier.py::test_ruling_q7_two_direct_upstreams_in_lockstep`**:
+    a snapshot literal that its own comment says moves on every pin bump,
+    `dc7aa08f` → `663ac683` (`b05175f7`).
+  - **`docs/opendox-carve-admissions.yaml`** and
+    **`tests/carve_arrival/test_verify_carve_arrival.py`**: the arrivals
+    registry gains `created:` entries (each with `since:` the landing
+    commit) for every file this PR newly places under a declared surface,
+    and its own verifying suite moves with it. Neither sits on a current
+    F11.1 surface either.
+
+  **UNRESOLVED, plainly**: no guard-code mechanism exists yet for any of
+  these seven — F11.1's falsifier, as it stands, still checks only batch
+  A's original two-path `COMPOSITION_TESTS` set (widened to four above),
+  with no branch that admits a `route_extension.py`-shaped or
+  `sync-notebooklm-books.py`-shaped edit at all. T045, T093 and T094 (or a
+  further ruling, where a mechanism needs Brett's word) must choose how the
+  guard admits these seven before T047 can pass F11.1 clean; this paragraph
+  records only that each edit is admitted IN PRINCIPLE, and why, not the
+  mechanism, and does not itself close that gap.
+
+  **A carried-over risk, recorded and not actioned** (T035's "Notes for the
+  destinations," none of which blocked T035 itself): openxFactory's OWN
+  `tests/hermeticity.py` (root-level, not under `tests/ideation-dashboard/`)
+  runs the same `find_spec` seam-probe SHAPE that T035 just retired in
+  openDox-code's copy. Here it already names the post-carve seams
+  (`find_spec(f"opendox.{name}")`, `tests/hermeticity.py:472-484`), and it
+  resolves today only because `scripts/ideation_dashboard/` (with
+  `carved_reach.py`'s path injection) still sits in this tree. No phase-1
+  task removes `scripts/ideation_dashboard/` from openxFactory, so nothing
+  acts on this now; T035's writer's own words are the flag for whichever
+  future task does: *"When `scripts/ideation_dashboard/` leaves openxFactory,
+  its layer 2 goes off just as silently as it was off here"* — silently,
+  because a `find_spec` probe that finds nothing degrades to a notice rather
+  than a failure, the same escape T035 closed in openDox-code.
+
+  **Every input is now landed and MEASURED; no red is unaccounted for — but
+  the guard-code mechanism for one class of them is a separate, still
+  UNRESOLVED question this batch does not answer** (above: "T045, T093 and
+  T094 ... choose how the guard admits these seven ... this paragraph
+  records only that each edit is admitted, and why, not the mechanism").
+  T034 (openDox-code#50 → `71b631bc`), T035 (openDox-code#51 → `80acead1`),
+  T039 (openDox#13 → `663ac683`, pinning `code` to `2d116415`) and T044
+  (openXdox-code#33 → `6158151e`) have all landed; T044 supplies no
+  composition-test path (its declared exclusion, at the triple 885/881/4,
+  is entirely openXdox-code's own). P1-K's writer's `pytest-suite` run at
+  those committed pins (run T1, above) found exactly the 267 reds this
+  paragraph accounts for — the four `COMPOSITION_TESTS` edits, the six
+  relocated files, the seven admitted arc edits, and T035's held-out
+  cases — and the same run at #1181's fixing commits (run T4) finds none.
+  That inventory is closed; the guard-code mechanism for the seven admitted
+  arc edits is not — left for T045, T093 and T094 (or a further ruling) to
+  close. Carried out by T045, T047, T093, T094.
+
 ## Group 12 — Requirement 11: the neutral submission step (RULED, openDox-code)
 
 **RULED** by Brett Heap, `#656` comment `5783934499`, 2026-09-22T20:49:40Z:
