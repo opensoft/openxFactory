@@ -18,11 +18,20 @@ Run layout (research D4; contract "Governed document catalog coverage"):
     health/document-catalog/runs/.sequence/
         <NNNNNN>.yaml       atomically claimed run-sequence records
 
-``<run-id>`` derives from the inventory content hash plus the effective
-taxonomy digest — an existing run directory for identical inputs is a
-completed no-op, and different inputs can never overwrite an existing
-snapshot (a taxonomy change over an unchanged corpus is a new run, not
-a conflicting rewrite of an immutable one).
+``<run-id>`` is a content address (``run_id``): a SHA-256 over every
+per-repository snapshot document the run records, so one id names
+exactly one content. An existing run directory for the same id is a
+completed no-op, and any difference in recorded content — inventory,
+taxonomy, a carried-forward or freshly merged classification, the date
+stamped on a pending marker — is a new run, never a conflicting rewrite
+of an immutable one. Runs recorded before opensoft/xFactory#519 used
+the inventory-plus-taxonomy key (``legacy_run_id``) instead, which did
+not cover classification: two producers of the same corpus state
+recorded different snapshots under one id (``87544bd5…`` on 2026-09-24,
+written by the nightly and again by a manual run; ``5ac351da…`` on
+2026-08-16 and again, with pending markers added, on 2026-08-17).
+``run_id_scheme`` tells the two schemes apart when a recorded run is
+verified.
 
 Concurrent-run protection (spec US1 acceptance 5): every recorded run
 first claims a sequence number by creating a claim file with
@@ -32,7 +41,10 @@ and "latest" is never a tie-break. A run dated earlier than any claimed
 or recorded run is refused as stale before it creates anything, and a
 run directory without ``run.yaml`` (crashed or in-flight) is not a
 recorded run: it is invisible to ``load_snapshot`` and heals
-idempotently on retry.
+idempotently on retry. Nor is an entry the shared run scan
+(``_iter_runs``) could read only through a symlink: ``load_snapshot``
+never selects it, no sequence is claimed beside it, and the
+document-catalog family reports it as catalog-integrity.
 
 Every snapshot records its effective-taxonomy provenance (contract
 "Controlled classification facets and provenance"): the SHA-256 digest
@@ -49,10 +61,12 @@ import hashlib
 import json
 import os
 import re
+import stat
 import tempfile
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
+from typing import NamedTuple
 
 from . import inventory
 
@@ -370,21 +384,129 @@ def _validate_taxonomy(taxonomy) -> dict:
 
 # --- run identity -------------------------------------------------------------
 
-def run_id(inv: list[dict], taxonomy=None) -> str:
-    """Deterministic run id (research D4 — never wall clock): the
-    inventory content hash, folded with the effective taxonomy digest
-    when one is supplied. An identical *inventory* (every entry field,
-    including each entry's owning-repo `revision` — not document content
-    alone) under an identical effective taxonomy => identical run id =>
-    the same immutable run directory; a taxonomy change over an unchanged
-    corpus is a new run rather than a conflicting rewrite of an immutable
-    snapshot. Because `revision` participates, an unrelated commit that
-    moves a repo's HEAD without changing any governed document's content
-    still yields a new run id — deliberately: a snapshot's provenance
-    must reflect the revision it was taken at (data-model.md, Catalog
-    entry freshness). This is narrower than `diff()`'s per-document
-    `modified` classification, which stays content-hash-only (design
-    decision 8)."""
+# Domain separator, and the version of the content-address scheme: no other
+# digest in the catalog hashes this prefix, so a run id can never equal an
+# inventory snapshot id, a taxonomy digest, or a legacy key by construction.
+_RUN_ID_DOMAIN = "xfactory-document-catalog-run/content-v1"
+
+# The two run-id schemes a recorded run can satisfy (``run_id_scheme``).
+CONTENT_ADDRESSED = "content-addressed"
+LEGACY_INPUT_KEY = "legacy-input-key"
+
+
+def _blank_run_id(document: dict) -> dict:
+    """A shallow copy of one snapshot document with ``run.run_id`` emptied:
+    the id is an address of the content, so it cannot be an input to
+    itself. Nothing else is touched."""
+    blanked = dict(document)
+    run = document.get("run")
+    blanked["run"] = dict(run, run_id="") if isinstance(run, dict) else run
+    return blanked
+
+
+def _address(bodies: dict) -> str:
+    """SHA-256 over the scheme's domain separator and, per repository in
+    sorted order, a framed ``[repository, byte length]`` header followed by
+    that repository's blanked snapshot bytes. Framing keeps the
+    concatenation unambiguous, so two different body sets can never hash
+    alike short of a SHA-256 collision."""
+    digest = hashlib.sha256(f"{_RUN_ID_DOMAIN}\n".encode("utf-8"))
+    for repo in sorted(bodies):
+        body = bodies[repo]
+        digest.update(json.dumps([repo, len(body)]).encode("utf-8") + b"\n")
+        digest.update(body)
+    return digest.hexdigest()
+
+
+def content_digest(documents: dict) -> str:
+    """The content address of a run's snapshot documents (``{repository:
+    snapshot document}``): ``_address`` over each document's byte-stable
+    rendering (``render``) with its own ``run.run_id`` blanked — exactly
+    the bytes ``write_snapshot`` persists, less the id. Pure: reads nothing
+    but its argument."""
+    return _address({
+        repo: render(_blank_run_id(document)).encode("utf-8")
+        for repo, document in documents.items()})
+
+
+def _persisted_digest(name: str, persisted: dict) -> str | None:
+    """``content_digest`` recomputed from PERSISTED snapshot bytes
+    (``{repository: raw file bytes}``), byte for byte: nothing is decoded,
+    parsed, or re-rendered — only the one ``"run_id": "<name>"`` pair the
+    canonical rendering carries (inside ``run``) is blanked in place. For a
+    file the writer produced (UTF-8, ``\\n`` line endings — research D3),
+    the result equals ``content_digest`` of its parsed document; any byte
+    edit changes it just as a content edit does — indentation, key order,
+    trailing whitespace, or line endings (a CRLF conversion included, which
+    a universal-newline text read would silently translate back) — where a
+    parsed comparison would render the original bytes back. None when the
+    bytes do not carry that pair exactly once (not the writer's
+    rendering)."""
+    pair = f'"run_id": {json.dumps(name)}'.encode("utf-8")
+    bodies = {}
+    for repo, blob in persisted.items():
+        if blob.count(pair) != 1:
+            return None
+        bodies[repo] = blob.replace(pair, b'"run_id": ""', 1)
+    return _address(bodies)
+
+
+def run_id(entries_by_repo: dict, taxonomy) -> str:
+    """The run id a run recording ``entries_by_repo`` (``{repository: that
+    repository's catalog entries}``) under the effective ``taxonomy`` block
+    writes: the content address (``content_digest``) of exactly the
+    per-repository snapshot documents ``write_snapshot`` renders for them.
+
+    Deterministic (research D4 — never wall clock) AND content-addressed
+    (opensoft/xFactory#519): identical recorded content => identical id =>
+    the same immutable run directory, and different recorded content =>
+    a different id, whatever made it differ. That second half is what the
+    inventory-plus-taxonomy key (``legacy_run_id``) lacked: a snapshot's
+    content is shaped by more than the inventory and the taxonomy — by the
+    classification carried forward from whichever run the writing tree
+    last recorded, by the validated recommendations a cataloger child
+    returned or did not return, and by the ``state_since`` date every new
+    pending marker is stamped with — so one key could name two contents.
+    Every input still participates because every input shows in the
+    content: each entry's ``revision`` and ``snapshot_id`` (so an unrelated
+    commit that moves a repository's HEAD is still a new run, as a
+    snapshot's provenance must reflect the revision it was taken at —
+    data-model.md, Catalog entry freshness) and the effective taxonomy
+    block. ``diff()``'s per-document ``modified`` classification stays
+    content-hash-only (design decision 8).
+
+    Raises ValueError, before anything could land, for an empty run, an
+    incomplete taxonomy, or anything ``write_snapshot`` would itself refuse
+    for ANY repository of the run (a repository id that is not a safe path
+    segment, a foreign entry, an ambiguous or duplicate locator, mixed
+    revisions) — so ``write_run`` can never record some repositories of a
+    run and then fail on a later one, leaving a partial run behind."""
+    if not entries_by_repo:
+        raise ValueError("a run records at least one repository snapshot")
+    for repo in entries_by_repo:
+        _repo_segments(repo)
+    taxonomy_block = _validate_taxonomy(taxonomy)
+    return content_digest({
+        repo: _snapshot_document("", repo, list(entries), taxonomy_block)
+        for repo, entries in entries_by_repo.items()})
+
+
+def _legacy_key(inventory_snapshot_id: str, taxonomy_digest) -> str:
+    if taxonomy_digest is None:
+        return inventory_snapshot_id
+    return hashlib.sha256(
+        f"{inventory_snapshot_id}\n{taxonomy_digest}\n".encode()).hexdigest()
+
+
+def legacy_run_id(inv: list[dict], taxonomy=None) -> str:
+    """The id every run recorded before opensoft/xFactory#519 used: the
+    inventory content hash, folded with the effective taxonomy digest when
+    one is supplied. It is NOT a content address — it never covered the
+    classification a run records — so it must never be used to mint the id
+    of a new run (``run_id`` does that). It survives so a recorded run
+    written under it can still be recognized as honestly derived
+    (``run_id_scheme``), and because the recorded history keeps those
+    names forever."""
     base = inventory.snapshot_id(inv)
     if taxonomy is None:
         return base
@@ -392,7 +514,66 @@ def run_id(inv: list[dict], taxonomy=None) -> str:
         else str(taxonomy)
     if not digest:
         raise ValueError("taxonomy carries no effective digest")
-    return hashlib.sha256(f"{base}\n{digest}\n".encode()).hexdigest()
+    return _legacy_key(base, digest)
+
+
+def _is_legacy_named(name: str, documents: dict) -> bool:
+    """Every document derives ``name`` as its legacy key from its own
+    recorded ``run.inventory_snapshot_id`` and ``taxonomy.digest``."""
+    for document in documents.values():
+        inventory_id = document["run"].get("inventory_snapshot_id")
+        taxonomy = document.get("taxonomy")
+        digest = taxonomy.get("digest") if isinstance(taxonomy, dict) \
+            else None
+        if not isinstance(inventory_id, str) or not inventory_id:
+            return False
+        if name not in {_legacy_key(inventory_id, None),
+                        _legacy_key(inventory_id, digest)}:
+            return False
+    return True
+
+
+def run_id_scheme(name: str, documents: dict,
+                  persisted: dict | None = None) -> str | None:
+    """The run-id scheme a RECORDED run satisfies, or None.
+
+    ``documents`` maps each repository to the snapshot document the run
+    holds for it (``load_snapshot(...)["repos"]``) and ``name`` is the run
+    directory's name. Every document must record ``name`` as its own
+    ``run.run_id``; then the run is ``CONTENT_ADDRESSED`` when ``name`` is
+    the content address of exactly this run, or ``LEGACY_INPUT_KEY`` when
+    ``name`` is the pre-#519 key each document's own recorded inventory
+    snapshot id and taxonomy digest derive. A legacy run's content cannot
+    be verified — that key never covered classification, which is the
+    defect #519 records — so the legacy answer says only that the name is
+    honestly derived. None means the directory holds content its name does
+    not address: a snapshot edited after it was recorded, a repository
+    snapshot lost, or files mixed from different runs.
+
+    ``persisted`` (``{repository: raw file bytes}``, the same repositories
+    as ``documents``; ``_load_run_bytes``) makes the content test
+    byte-exact (``_persisted_digest``): a recorded run is verified against
+    the bytes on disk, so even a serialization-only or line-ending edit
+    breaks its identity. Without ``persisted`` the test runs over
+    ``content_digest`` of the parsed documents, for callers holding a run
+    in memory. The cheap legacy test runs first, so the recorded legacy
+    history is never re-hashed."""
+    if not documents:
+        return None
+    if persisted is not None and set(persisted) != set(documents):
+        return None
+    for document in documents.values():
+        if not isinstance(document, dict) \
+                or not isinstance(document.get("run"), dict) \
+                or document["run"].get("run_id") != name:
+            return None
+    if _is_legacy_named(name, documents):
+        return LEGACY_INPUT_KEY
+    address = content_digest(documents) if persisted is None \
+        else _persisted_digest(name, persisted)
+    if address == name:
+        return CONTENT_ADDRESSED
+    return None
 
 
 def _as_of_str(as_of) -> str:
@@ -448,12 +629,19 @@ def _write_rendered(path: Path, text: str) -> None:
     per-invocation temp). The last ``os.replace`` wins atomically;
     identical-content racers converge on identical bytes. Perms are
     ``mkstemp``'s default 0600 — git normalizes modes on commit, so
-    there is no need to widen them here."""
+    there is no need to widen them here.
+
+    ``newline="\\n"`` pins the persisted bytes to exactly ``text`` encoded
+    as UTF-8 on every platform (research D3: ``\\n`` line endings) — a
+    default text-mode write would translate to the platform's line
+    separator, and every existing-file check (``write_snapshot``,
+    ``write_run``) and the byte-exact run-id verification
+    (``run_id_scheme``) compare raw bytes against ``render``'s output."""
     fd, tmp_name = tempfile.mkstemp(
         dir=path.parent, prefix=path.name + ".", suffix=".tmp")
     tmp = Path(tmp_name)
     try:
-        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(text)
         os.replace(tmp, path)  # atomic publish; consumes this temp only
     except BaseException:
@@ -484,26 +672,181 @@ def _load_yaml_json(path: Path) -> dict:
     return data
 
 
+class _RunEntry(NamedTuple):
+    """One entry of the shared run scan (``_iter_runs``).
+
+    A recorded run carries its day, its ``run.yaml`` sequence, its id and
+    directory, and no ``refusal``. An entry the scan refuses carries the
+    ``CatalogError`` that says why, and never a sequence: nothing behind it
+    was read. That is a symlinked day directory, or one the scan cannot
+    check or list (the day is the entry, so ``run_id`` and ``run_dir`` are
+    None), a symlinked run directory or ``run.yaml``, or one the scan
+    cannot check, or a recorded run it cannot vouch for as link-free
+    (``_link_inside``)."""
+    as_of: str
+    sequence: int | None
+    run_id: str | None
+    run_dir: Path | None
+    refusal: CatalogError | None
+
+
+def _symlink_refusal(node: Path) -> CatalogError:
+    """The refusal for a symlink the run scan meets where the writer makes
+    a directory or ``run.yaml``. The scan never follows it, whatever it
+    points to, and never stats or reads its target."""
+    return CatalogError(
+        f"catalog path is a symlink, which the writer never follows: {node}")
+
+
+def _own_mode(node: Path) -> tuple[int | None, CatalogError | None]:
+    """``node``'s own mode, from an ``lstat`` that never follows it:
+    ``(mode, None)`` for a node that is not a link, ``(None, None)`` when
+    nothing is there, and ``(None, refusal)`` for a node the run scan
+    cannot take as link-free. A symlink is refused (``_symlink_refusal``),
+    and so is a node whose own ``lstat`` fails for any reason but its
+    absence, because what cannot be checked could be a link. The check is
+    an explicit ``os.lstat``: from Python 3.13 ``Path.is_symlink`` swallows
+    every ``OSError`` and would report such a node link-free."""
+    try:
+        mode = os.lstat(node).st_mode
+    except (FileNotFoundError, NotADirectoryError):
+        return None, None
+    except OSError as exc:
+        return None, CatalogError(
+            f"catalog path could not be checked for a symlink: {exc}")
+    if stat.S_ISLNK(mode):
+        return None, _symlink_refusal(node)
+    return mode, None
+
+
+def _unlisted_refusal(exc: OSError) -> CatalogError:
+    """The refusal for a directory the run scan cannot list: a link could
+    hide below it."""
+    return CatalogError(
+        f"catalog path could not be listed, so a symlink below it cannot be "
+        f"ruled out: {exc}")
+
+
+def _listing(directory: Path) -> tuple[list[Path], CatalogError | None]:
+    """``(sorted entries, None)`` for a directory the run scan can list, or
+    ``([], refusal)`` for one it cannot (``_unlisted_refusal``). Listing
+    reads names only: it stats no entry, so it follows no link."""
+    try:
+        return sorted(directory.iterdir()), None
+    except OSError as exc:
+        return [], _unlisted_refusal(exc)
+
+
+def _link_inside(run_dir: Path) -> CatalogError | None:
+    """The refusal for a recorded run the scan cannot vouch for as
+    link-free, or None. That is a symlink anywhere inside it, or an entry
+    inside it that cannot be checked (``_own_mode``), or a directory inside
+    it that cannot be listed (``_unlisted_refusal``), since a link could
+    hide there.
+
+    The walk is driven by each node's own ``lstat``: it identifies a link
+    before anything else touches it, and it descends only into a real
+    directory. So it never stats a link's target, not even to classify it,
+    as ``os.walk`` does: that sorts entries into directories and files with
+    ``DirEntry.is_dir``, which follows a link. The walk visits nodes
+    depth-first in name order, like the writer's own walk
+    (``_refuse_links_inside``, which the run scan leaves unchanged), and it
+    fails closed where ``os.walk`` skips a directory it cannot list in
+    silence, which would pass the run as link-free over a subtree nobody
+    saw."""
+    pending = [run_dir]
+    while pending:
+        nodes, refusal = _listing(pending.pop())
+        if refusal is not None:
+            return refusal
+        directories = []
+        for node in nodes:
+            mode, refusal = _own_mode(node)
+            if refusal is not None:
+                return refusal
+            if mode is not None and stat.S_ISDIR(mode):
+                directories.append(node)
+        pending.extend(reversed(directories))  # the first name is walked next
+    return None
+
+
 def _iter_runs(root: Path):
-    """Yield (as_of, sequence, run_id, run_dir) for every RECORDED run
-    under the catalog root, in deterministic order. A run directory
-    without ``run.yaml`` is a crashed or in-flight run, not a record —
-    it is skipped so it can never be selected as "latest" or block
-    newer work; a retry of the same content heals it."""
-    runs_root = Path(root) / RUNS_DIR
-    if not runs_root.is_dir():
-        return
-    for date_dir in sorted(runs_root.iterdir()):
-        if not date_dir.is_dir() or date_dir.name.startswith("."):
+    """Yield a ``_RunEntry`` for every RECORDED run under the catalog root,
+    and for every entry the scan refuses, in deterministic order (sorted
+    day directories, then sorted run directories).
+
+    A run directory without ``run.yaml`` is a crashed or in-flight run, not
+    a record. It is skipped so it can never be selected as "latest" or
+    block newer work, and a retry of the same content heals it.
+
+    The scan never follows a symlink (opensoft/openxFactory#1187). It
+    classifies each node by the mode of its own explicit ``lstat``
+    (``_own_mode``), never by a second stat, before it lists or reads it.
+    So it never stats or reads through a link, not even to classify it,
+    and it refuses a node it cannot check rather than take it for
+    absent. A link where the writer makes a day directory, a run
+    directory or ``run.yaml`` is yielded as a refused entry for that entry
+    alone, whether it dangles, points inside the tree or escapes the
+    catalog root. The scan fails closed, so a node there it cannot check,
+    or a day directory it cannot list (``_listing``), is refused the same
+    way: a link could hide there. So is a recorded run holding a link
+    anywhere inside it, or anything inside it the scan cannot check or list
+    (``_link_inside``), because a reader of that run would read its
+    snapshots through the link, or over a subtree nobody checked. Such an
+    entry is never skipped the way a crashed run is, so every caller must
+    decide what it means: ``load_snapshot`` never selects it,
+    ``_claim_sequence`` claims nothing beside it, and the document-catalog
+    family reports it as catalog-integrity. A link, or a node the scan
+    cannot check or list, at the catalog root or a catalog directory above
+    the day directories (``_catalog_chain``) puts every run behind it, with
+    no single entry to report, so it raises ``CatalogError``. A missing
+    catalog directory, or a node there that is not a directory, means no
+    recorded run, as before. A hidden (dot-named) entry is not a day or a
+    run, and is skipped by its name alone, so ``.sequence`` is never listed
+    here.
+
+    A regular ``run.yaml`` that cannot be parsed still raises
+    ``CatalogError`` from the scan, unchanged."""
+    for node in _catalog_chain(root):
+        mode, refusal = _own_mode(node)
+        if refusal is not None:
+            raise refusal
+        if mode is None or not stat.S_ISDIR(mode):
+            return  # no catalog yet, or not a directory: no recorded run
+    date_dirs, refusal = _listing(Path(root) / RUNS_DIR)
+    if refusal is not None:
+        raise refusal
+    for date_dir in date_dirs:
+        if date_dir.name.startswith("."):
             continue
-        for run_dir in sorted(date_dir.iterdir()):
-            if not run_dir.is_dir() or run_dir.name.startswith("."):
+        mode, refusal = _own_mode(date_dir)
+        if refusal is None:
+            if mode is None or not stat.S_ISDIR(mode):
+                continue
+            run_dirs, refusal = _listing(date_dir)
+        if refusal is not None:
+            yield _RunEntry(date_dir.name, None, None, None, refusal)
+            continue
+        for run_dir in run_dirs:
+            if run_dir.name.startswith("."):
                 continue
             meta_path = run_dir / RUN_META_NAME
-            if not meta_path.is_file():
-                continue  # unrecorded: crashed or still in flight
+            mode, refusal = _own_mode(run_dir)
+            if refusal is None:
+                if mode is None or not stat.S_ISDIR(mode):
+                    continue
+                mode, refusal = _own_mode(meta_path)  # a dangling one included
+            if refusal is None:
+                if mode is None or not stat.S_ISREG(mode):
+                    continue  # unrecorded: crashed or still in flight
+                refusal = _link_inside(run_dir)
+            if refusal is not None:
+                yield _RunEntry(date_dir.name, None, run_dir.name, run_dir,
+                                refusal)
+                continue
             sequence = _load_yaml_json(meta_path).get("sequence", 0)
-            yield date_dir.name, sequence, run_dir.name, run_dir
+            yield _RunEntry(date_dir.name, sequence, run_dir.name, run_dir,
+                            None)
 
 
 # --- sequence claims (concurrent-run protection) ------------------------------
@@ -511,14 +854,23 @@ def _iter_runs(root: Path):
 def _read_claims(claims_dir: Path) -> list[tuple]:
     """(sequence, as_of) for every claimed sequence number. A claim
     whose content has not landed yet still occupies its number (the
-    filename is the claim); its date is simply unknown."""
+    filename is the claim); its date is simply unknown.
+
+    A claim-named node that is not a regular file is refused
+    (``_refuse_foreign_node``) before anything is claimed. That covers a
+    directory, a dangling symlink, and a symlink to anything. Skipping
+    such a node would loop ``_claim_sequence`` forever, because its
+    ``O_EXCL`` open would keep colliding with a number the scan never
+    counts. Following a link would import a sequence and a date from
+    outside the catalog tree."""
     claims = []
     if not claims_dir.is_dir():
         return claims
     for path in sorted(claims_dir.iterdir()):
         stem, _, suffix = path.name.partition(".")
-        if not path.is_file() or suffix != "yaml" or not stem.isdigit():
+        if suffix != "yaml" or not stem.isdigit():
             continue
+        _refuse_foreign_node(path, directory=False)
         as_of = None
         try:
             as_of = _load_yaml_json(path).get("as_of")
@@ -526,6 +878,19 @@ def _read_claims(claims_dir: Path) -> list[tuple]:
             pass  # claim created, content not yet flushed (or unreadable)
         claims.append((int(stem), as_of))
     return claims
+
+
+def _claim_document(sequence: int, day: str, rid: str) -> dict:
+    """The claim record ``_claim_sequence`` writes for one run's number —
+    also exactly what ``_recorded`` holds a ``run.yaml``'s sequence to."""
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "kind": SEQUENCE_CLAIM_KIND,
+        "status": "record",
+        "sequence": sequence,
+        "as_of": day,
+        "run_id": rid,
+    }
 
 
 def _claim_sequence(root: Path, day: str, rid: str) -> int:
@@ -540,38 +905,58 @@ def _claim_sequence(root: Path, day: str, rid: str) -> int:
     forces a re-scan, so a newer-dated run that claims first is always
     visible before an older-dated run can claim (spec US1
     acceptance 5).
+
+    An entry the run scan refuses (``_iter_runs``: a symlinked day or run
+    directory or ``run.yaml``, or a recorded run it cannot vouch for as
+    link-free) refuses the claim too. The scan never reads that entry's
+    sequence or date, so a claim beside it could reuse the number it
+    records or land a run dated before it. The writer records nothing until
+    the entry is repaired or removed, just as it records nothing beside a
+    foreign claim node (``_read_claims``).
+
+    Every refusal comes before anything is created, the claims directory
+    included, and before anything is read through a link. The run scan goes
+    first, because it refuses a link on the catalog chain
+    (``_catalog_chain``) before anything follows it. The claims directory
+    must then be absent or a real directory (``_refuse_foreign_node``)
+    before its claims are read, and it is created only when a number is
+    about to be claimed. So a stale run, a run beside a refused entry, and a
+    direct call through a linked root or claims directory each leave the
+    tree exactly as it was, whether or not ``write_run``'s own preflight ran
+    first.
     """
     claims_dir = Path(root) / SEQUENCE_DIR
-    claims_dir.mkdir(parents=True, exist_ok=True)
     while True:
         highest, newest = 0, None
+        for as_of, seq, _rid, _dir, refusal in _iter_runs(root):
+            if refusal is not None:
+                raise CatalogError(
+                    f"no run sequence is claimed beside a catalog entry the "
+                    f"run scan refuses ({refusal})")
+            highest = max(highest, seq)
+            if newest is None or as_of > newest:
+                newest = as_of
+        _refuse_foreign_node(claims_dir, directory=True)  # no linked claims
         for seq, as_of in _read_claims(claims_dir):
             highest = max(highest, seq)
             if as_of is not None and (newest is None or as_of > newest):
-                newest = as_of
-        for as_of, seq, _rid, _dir in _iter_runs(root):
-            highest = max(highest, seq)
-            if newest is None or as_of > newest:
                 newest = as_of
         if newest is not None and day < newest:
             raise CatalogError(
                 f"stale snapshot refused: run dated {day} is older than "
                 f"the latest recorded run ({newest})")
         sequence = highest + 1
+        claims_dir.mkdir(parents=True, exist_ok=True)
         claim_path = claims_dir / f"{sequence:06d}.yaml"
         try:
             fd = os.open(claim_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         except FileExistsError:
             continue  # lost the race — re-scan and retry
-        with os.fdopen(fd, "w", encoding="utf-8") as handle:
-            handle.write(render({
-                "schema_version": SCHEMA_VERSION,
-                "kind": SEQUENCE_CLAIM_KIND,
-                "status": "record",
-                "sequence": sequence,
-                "as_of": day,
-                "run_id": rid,
-            }))
+        # newline="\n": the claim's bytes are render()'s on every platform
+        # (research D3), exactly as _write_rendered persists every other
+        # catalog record.
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(render(_claim_document(sequence, day, rid)))
         return sequence
 
 
@@ -614,6 +999,297 @@ def _snapshot_document(rid: str, repo: str, entries: list[dict],
     }
 
 
+def _run_meta_document(rid: str, day: str, sequence: int) -> dict:
+    """The ``run.yaml`` record ``write_snapshot`` writes for one run —
+    also exactly what ``_recorded`` holds an existing ``run.yaml`` to."""
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "kind": RUN_META_KIND,
+        "status": "record",
+        "run_id": rid,
+        "as_of": day,
+        "sequence": sequence,
+    }
+
+
+def _occupied(path: Path) -> bool:
+    """Something — anything, a dangling symlink included — sits at
+    ``path``."""
+    return path.exists() or path.is_symlink()
+
+
+def _refuse_foreign_node(node: Path, directory: bool) -> None:
+    """Refuse a node the writer did not make and would not make there. That
+    means a symlink, to anything, or a node of the wrong type: a
+    non-directory where the writer needs a directory, or a non-file where it
+    needs a file. An absent node passes, because the writer creates it.
+    Followed, a symlink would send the run's writes and claims out of the
+    catalog tree, or accept an outside file as an immutable record that
+    stays mutable from outside. So the writer never follows one, even a
+    symlink that points inside the tree."""
+    if node.is_symlink():
+        raise CatalogError(
+            f"catalog path is a symlink, which the writer never follows: "
+            f"{node}")
+    if node.exists() and not (node.is_dir() if directory else node.is_file()):
+        wanted = "non-directory" if directory else "non-file"
+        raise CatalogError(f"catalog path is occupied by a {wanted}: {node}")
+
+
+def _catalog_chain(root: Path) -> list[Path]:
+    """``root`` itself, then every catalog directory down to the runs
+    directory: ``health``, ``health/document-catalog`` and ``.../runs``.
+    ``root`` is included, so a symlinked root is refused too. The runner
+    resolves the root it hands the writer and the checks (``Path.resolve``),
+    so only a caller that did not resolve its root can pass a symlinked
+    one.
+
+    The no-follow guarantee covers the tree from ``root`` down, because
+    that is where a symlink can arrive as content: committed, merged, or
+    copied in with a run. The directories above ``root`` belong to the host
+    that holds the checkout, and git never carries a link there. So they
+    are the caller's to choose, and a checkout reached through a linked
+    home or workspace directory stays usable."""
+    root = Path(root)
+    return [root] + [root.joinpath(*RUNS_DIR.parts[:depth])
+                     for depth in range(1, len(RUNS_DIR.parts) + 1)]
+
+
+def _refuse_links_inside(run_dir: Path) -> None:
+    """Refuse a run directory that holds a symlink anywhere inside it: a
+    linked snapshot, ``run.yaml`` or subdirectory. ``Path.rglob`` lists a
+    linked file and silently skips a linked directory, so without this
+    walk neither the writer nor the verifier would see what such a link
+    hides, or where it points."""
+    for dirpath, dirnames, filenames in os.walk(run_dir):
+        dirnames.sort()
+        for name in sorted(dirnames + filenames):
+            node = Path(dirpath) / name
+            if node.is_symlink():
+                raise CatalogError(
+                    f"catalog path is a symlink, which the writer never "
+                    f"follows: {node}")
+
+
+def _is_writer_temp(node: Path, allowed_files) -> bool:
+    """True when ``node`` has exactly the shape ``_write_rendered``'s
+    ``tempfile.mkstemp(dir=path.parent, prefix=path.name + ".",
+    suffix=".tmp")`` leaves beside one of ``allowed_files``: a
+    same-directory sibling, a REGULAR file, named ``"<final-name>.``
+    then a non-empty random component then ``".tmp"``.
+
+    That covers both a concurrent writer's in-flight temp (PR #1189
+    review, Codex: an identical writer can be between its own ``mkstemp``
+    and ``os.replace`` when this preflight runs — the overlapping-writer
+    design ``test_overlapping_identical_runs_both_complete`` already
+    relies on) and one a hard crash orphaned before ``_write_rendered``'s
+    own ``except BaseException: tmp.unlink()`` could run. Neither is a
+    foreign descendant: the run-identity hash never reads it (only
+    ``_snapshot_files``'s ``*.yaml`` match does, and ``.tmp`` never
+    satisfies that), and it is always either replaced by ``os.replace``
+    or left as harmless debris, never read as recorded content.
+
+    Both requirements this docstring bolded are load-bearing (PR #1189
+    review, Copilot round 2): ``mkstemp`` never omits its random
+    component, so a same-directory ``"<final-name>.tmp"`` with NO random
+    part cannot be one of its temps — only a stranger deliberately or
+    accidentally named to resemble one, which must still refuse. And
+    ``mkstemp`` always creates a plain file, never a FIFO, socket, or
+    device — a foreign special node merely named like a temp must still
+    refuse too, so this checks ``is_file()`` (safe: by the time this
+    runs, ``_refuse_links_inside`` has already refused every symlink in
+    ``run_dir``, so a True here can only mean a genuine regular file)."""
+    if not node.name.endswith(".tmp"):
+        return False
+    for target in allowed_files:
+        if node.parent != target.parent:
+            continue
+        prefix = target.name + "."
+        if node.name.startswith(prefix) and \
+                node.name[len(prefix):-len(".tmp")] and node.is_file():
+            return True
+    return False
+
+
+def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:
+    """Refuse a run directory that holds any descendant — file or
+    subdirectory, at any depth — outside the exact allowed set:
+    ``run.yaml`` plus the repository-snapshot paths this run records
+    (``allowed_files``), each allowed file's own writer-owned temp
+    (``_is_writer_temp``). A directory that is a proper ancestor of an
+    allowed file is exactly the structure the writer itself makes for a
+    slash-separated repository id, and passes; anything else is refused
+    before the first write or claim — a plain file the writer never wrote
+    (``notes.txt``, a stray ``run.yaml.bak``), or an unexpected
+    subdirectory, empty or not, whatever it holds.
+
+    ``_snapshot_files`` alone missed this for ``write_run``'s preflight:
+    filtered to ``*.yaml``, it never saw a non-YAML stranger, a
+    ``*.yaml.bak``-suffixed one, or an otherwise invisible stranger
+    subdirectory, so none of those ever reached the run-identity hash
+    (Copilot's review thread on #1175, ``catalog.py:1161``, declined there
+    as out of scope for that landing and raised as its own follow-up:
+    opensoft/openxFactory#1186).
+
+    ``os.walk``, never ``Path.rglob``, for the same reason
+    ``_refuse_links_inside`` already documents (``rglob`` silently skips a
+    linked directory); by the time this runs, that call has already refused
+    every symlink anywhere in ``run_dir``, so this only ever walks a plain
+    tree. ``onerror`` fails closed (PR #1189 review, Copilot): ``os.walk``
+    otherwise silently swallows a directory it cannot enumerate (permission
+    denied, torn down mid-walk), and a foreign descendant could then hide
+    inside one and never be seen at all."""
+    def _refuse_unreadable(exc: OSError) -> None:
+        raise CatalogError(
+            f"catalog run directory could not be fully enumerated, so a "
+            f"foreign descendant could stay hidden: {exc}")
+
+    allowed_files = set(allowed_files)
+    allowed_dirs = {run_dir}
+    for target in allowed_files:
+        node = target.parent
+        while node != run_dir:
+            allowed_dirs.add(node)
+            node = node.parent
+    for dirpath, dirnames, filenames in os.walk(
+            run_dir, onerror=_refuse_unreadable):
+        dirnames.sort()
+        base = Path(dirpath)
+        for name in sorted(filenames):
+            node = base / name
+            if node not in allowed_files and \
+                    not _is_writer_temp(node, allowed_files):
+                raise CatalogError(
+                    f"catalog run directory holds a path this run does "
+                    f"not record ({node.relative_to(run_dir).as_posix()}): "
+                    f"{run_dir}")
+        for name in dirnames:
+            node = base / name
+            if node not in allowed_dirs:
+                raise CatalogError(
+                    f"catalog run directory holds a path this run does "
+                    f"not record ({node.relative_to(run_dir).as_posix()}): "
+                    f"{run_dir}")
+
+
+def _refuse_unsafe_run_paths(root: Path, run_dir: Path, targets) -> None:
+    """Refuse a run, before its first write or claim, if any path it would
+    write through is foreign (``_refuse_foreign_node``). That covers every
+    directory, top-down, from ``root`` itself through ``health``,
+    ``health/document-catalog`` and ``.../runs`` (``_catalog_chain``) to
+    the sequence-claim directory, the date and run directories, and a
+    slash-separated repository's subdirectories, plus ``run.yaml`` and
+    every snapshot file. Each node is checked with its ancestors, so no
+    component from ``root`` to a written file can be a symlink. A foreign
+    node would otherwise surface only after the sequence was claimed, as a
+    filesystem error mid-run that leaves an orphaned claim or a partial
+    run, or it would carry the writes outside the tree without any
+    error."""
+    directories = _catalog_chain(root)
+    directories += [Path(root) / SEQUENCE_DIR, run_dir.parent, run_dir]
+    targets = list(targets)
+    nested = {p for target in targets for p in target.parents
+              if run_dir in p.parents}
+    directories += sorted(nested, key=lambda p: (len(p.parts), p))
+    for node in directories:
+        _refuse_foreign_node(node, directory=True)
+    for node in [run_dir / RUN_META_NAME, *targets]:
+        _refuse_foreign_node(node, directory=False)
+
+
+def _refuse_foreign_run_tree(root: Path, run_dir: Path) -> None:
+    """Refuse a RECORDED run that is not the plain tree the writer makes.
+    That means a symlink or a wrong-type node anywhere from ``root`` down
+    to its run directory (``_catalog_chain``, then the date and run
+    directories), or at the sequence-claim directory whose claim vouches
+    for the run's ``run.yaml`` (``_recorded``). It also means a symlink
+    anywhere inside the run (``_refuse_links_inside``). Reading through
+    such a link would hash bytes, or trust a claim, that live outside the
+    catalog, and would verify a record that stays mutable from outside it.
+    The run-identity check calls this before it reads a run."""
+    for node in [*_catalog_chain(root), Path(root) / SEQUENCE_DIR,
+                 run_dir.parent, run_dir]:
+        _refuse_foreign_node(node, directory=True)
+    _refuse_links_inside(run_dir)
+
+
+def _read_record(path: Path) -> bytes:
+    """Raw bytes of one existing regular-file catalog record (never through
+    a symlink), with an unreadable file raised as ``CatalogError``."""
+    _refuse_foreign_node(path, directory=False)
+    try:
+        return path.read_bytes()
+    except OSError as exc:
+        raise CatalogError(f"corrupt catalog artifact {path}: {exc}")
+
+
+def _holds_exactly(target: Path, expected: bytes) -> bool:
+    """False when ``target`` is absent, True when it is a regular file
+    holding exactly ``expected``, and ``CatalogError`` when anything else
+    occupies it — a file with other bytes (an immutable snapshot is never
+    rewritten), a non-file node such as a directory (which would otherwise
+    pass as "absent" and fail the write mid-run), or a symlink, even to a
+    file with the expected bytes (the run would keep a record that is
+    mutable from outside it). Compared as RAW bytes: a universal-newline
+    text read would translate a CRLF edit back to the writer's LF and wave
+    an altered record through as a completed no-op."""
+    if not _occupied(target):
+        return False
+    if _read_record(target) != expected:
+        raise CatalogError(
+            f"immutable snapshot already exists with different content: "
+            f"{target}")
+    return True
+
+
+def _addresses_itself(run_dir: Path, rid: str) -> bool:
+    """True when the snapshots already recorded in ``run_dir`` make up
+    exactly the content ``rid`` addresses (``_persisted_digest`` over their
+    raw bytes). That makes the run complete and closed. A partial run does
+    not address itself yet, because it crashed between its first snapshot
+    and its last. Neither does a run named by the legacy key."""
+    persisted = _load_run_bytes(run_dir)
+    return bool(persisted) and _persisted_digest(rid, persisted) == rid
+
+
+def _recorded(root: Path, run_dir: Path, rid: str, day: str) -> bool:
+    """Returns False when the run has no ``run.yaml`` yet (never recorded,
+    or crashed before recording). Returns True when ``run.yaml`` is exactly
+    the record this writer writes for ``rid`` on ``day``. That means
+    ``_run_meta_document`` byte for byte, with a positive integer sequence
+    whose claim under ``.sequence/`` is this run's own claim record
+    (``_claim_document``). Raises ``CatalogError`` for anything else.
+
+    Without this check, a regular ``run.yaml`` that was edited,
+    re-serialized, or copied in from elsewhere would pass as a completed
+    run. A retry would then accept a wrong id, a wrong date, or a sequence
+    this run never claimed, and ``load_snapshot`` would order the run by
+    that sequence, or fail on a non-integer one."""
+    meta_path = run_dir / RUN_META_NAME
+    if not _occupied(meta_path):
+        return False
+    raw = _read_record(meta_path)
+    try:
+        sequence = json.loads(raw.decode("utf-8")).get("sequence")
+    except (UnicodeDecodeError, ValueError, AttributeError):
+        sequence = None
+    if (not isinstance(sequence, int) or isinstance(sequence, bool)
+            or sequence < 1 or raw != render(
+                _run_meta_document(rid, day, sequence)).encode("utf-8")):
+        raise CatalogError(
+            f"catalog run metadata is not the record this run writes "
+            f"(run_id {rid}, as_of {day}, a positive integer sequence, byte "
+            f"for byte): {meta_path}")
+    claim_path = Path(root) / SEQUENCE_DIR / f"{sequence:06d}.yaml"
+    _refuse_foreign_node(claim_path.parent, directory=True)  # no linked claims
+    if not _occupied(claim_path) or _read_record(claim_path) != render(
+            _claim_document(sequence, day, rid)).encode("utf-8"):
+        raise CatalogError(
+            f"catalog run metadata states sequence {sequence}, which this "
+            f"run never claimed: {meta_path}")
+    return True
+
+
 def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
     """Write one repository's immutable snapshot into the dated,
     run-scoped catalog path; returns the snapshot file path.
@@ -632,14 +1308,38 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
       files of an already-recorded run is never stale — its recency was
       fixed when its sequence was claimed.
     - Identical-content no-op: an existing snapshot file with the same
-      rendered bytes returns its path unchanged (completed run).
+      rendered bytes returns its path unchanged (completed run). The
+      comparison is raw bytes (``_holds_exactly``), so a byte-level edit
+      such as a CRLF conversion is never mistaken for the recorded file.
+      The run counts as recorded only if its ``run.yaml`` is exactly this
+      run's record, and its sequence is this run's own claim
+      (``_recorded``). An edited or foreign ``run.yaml`` is refused, never
+      accepted.
     - Immutability: an existing snapshot file with different bytes is
-      never rewritten — CatalogError. Run ids fold in the taxonomy
-      digest, so a taxonomy change is a new run, not a conflict.
+      never rewritten — CatalogError. Run ids are content addresses
+      (``run_id``; ``write_run`` mints them), so different content is
+      always a different run and this refusal is reached only through a
+      directory that was edited by hand, mixed from two runs, or named by
+      a caller that did not mint its id from the content it writes.
+    - Path safety: every directory and file on the run's paths, from
+      ``root`` itself down, must be absent or a real directory or regular
+      file of the kind the writer makes there (``_refuse_unsafe_run_paths``).
+      An existing run directory must also hold no symlink anywhere inside
+      it (``_refuse_links_inside``). A symlink is refused, and so is a node
+      of the wrong type, before anything is claimed or written. The writer
+      never writes or claims outside the catalog tree, and it never closes
+      a run around a link.
     - Crash safety: ``run.yaml`` is written after the snapshot file, so
       a recorded run always holds at least one repository snapshot;
       directories without ``run.yaml`` are invisible to
       ``load_snapshot`` and heal idempotently on retry.
+    - Closed runs stay closed: a recorded run whose snapshots already make
+      up exactly the content its id addresses (``_addresses_itself``) is
+      complete, and a snapshot for any other repository is refused. A
+      partial run, one that crashed between its first snapshot and its
+      last, is still completed. This call cannot know a partial run's
+      full content. ``write_run``, which does know it, also refuses a
+      stranger's snapshot left inside a run.
     """
     root = Path(root)
     day = _as_of_str(as_of)
@@ -649,22 +1349,24 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
     taxonomy_block = _validate_taxonomy(taxonomy)
     document = _snapshot_document(rid, repo, list(entries), taxonomy_block)
     rendered = render(document)
+    expected = rendered.encode("utf-8")  # the bytes _write_rendered lands
 
     run_dir = root / RUNS_DIR / day / rid
     target = _repo_file(run_dir, repo)
     meta_path = run_dir / RUN_META_NAME
+    _refuse_unsafe_run_paths(root, run_dir, [target])
+    if run_dir.exists():  # a real directory, per the check above
+        # A partial run is healed only if it holds no link anywhere, since
+        # healing it would otherwise close a run around one.
+        _refuse_links_inside(run_dir)
 
-    if target.is_file():
-        if target.read_text(encoding="utf-8") != rendered:
-            raise CatalogError(
-                f"immutable snapshot already exists with different "
-                f"content: {target}")
-        if meta_path.is_file():
+    if _holds_exactly(target, expected):
+        if _recorded(root, run_dir, rid, day):
             return target  # completed no-op: already recorded
         # fall through: heal a crash between snapshot and run.yaml
 
     sequence = None
-    if not meta_path.is_file():
+    if not _recorded(root, run_dir, rid, day):
         # Includes the stale refusal; raises before anything is created.
         sequence = _claim_sequence(root, day, rid)
         run_dir.parent.mkdir(parents=True, exist_ok=True)
@@ -672,38 +1374,119 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
             run_dir.mkdir()
         except FileExistsError:
             pass  # raced an identical-content run — same rid, same bytes
+    elif _addresses_itself(run_dir, rid):
+        # Recorded, and the content its id addresses is already all there,
+        # so this target (absent above) is no part of it. The exception is
+        # a concurrent identical writer that has just landed it: that is
+        # the completed no-op.
+        if _holds_exactly(target, expected):
+            return target
+        raise CatalogError(
+            f"catalog run is complete: its recorded snapshots already make "
+            f"up the content its id addresses, so a snapshot added now would "
+            f"mix it: {target}")
 
     target.parent.mkdir(parents=True, exist_ok=True)
-    if target.is_file():  # re-check: race lost mid-write
-        if target.read_text(encoding="utf-8") != rendered:
-            raise CatalogError(
-                f"immutable snapshot already exists with different "
-                f"content: {target}")
-    else:
+    if not _holds_exactly(target, expected):  # re-check: race lost mid-write
         _write_rendered(target, rendered)
 
-    if sequence is not None and not meta_path.is_file():
-        _write_rendered(meta_path, render({
-            "schema_version": SCHEMA_VERSION,
-            "kind": RUN_META_KIND,
-            "status": "record",
-            "run_id": rid,
-            "as_of": day,
-            "sequence": sequence,
-        }))
+    if sequence is not None and not _recorded(root, run_dir, rid, day):
+        _write_rendered(meta_path,
+                        render(_run_meta_document(rid, day, sequence)))
     return target
 
 
-def _load_run(run_dir: Path, day: str, sequence: int, rid: str) -> dict:
-    repos = {}
+def write_run(root, as_of, entries_by_repo: dict, taxonomy
+              ) -> tuple[str, dict]:
+    """Record one run: mint its content-addressed id from exactly the
+    content being recorded (``run_id``) and write every repository's
+    snapshot under it (``write_snapshot``, in sorted repository order, with
+    all of its sequence-claim, stale-refusal, immutability, and crash-heal
+    guarantees). Returns ``(run_id, {repository: snapshot path})``.
+
+    This is the one call the dispatch layer records a run through, so no
+    caller can pair a content with an id that does not address it — the
+    pairing opensoft/xFactory#519 found two producers disagreeing over.
+    Two independent trees recording the same content converge on the same
+    id and byte-identical files; recording different content can never
+    reuse an id, whichever tree or date it lands on.
+
+    All-or-nothing on refusal: every check runs BEFORE the first write or
+    claim. The checks, in order:
+
+    - every input check (``run_id``);
+    - every node on the run's paths from ``root`` down
+      (``_refuse_unsafe_run_paths``: no symlink, no node of the wrong
+      type);
+    - an existing run directory must hold no symlink
+      (``_refuse_links_inside``) and no descendant — file or subdirectory,
+      at any depth — outside the exact allowed set of ``run.yaml`` plus the
+      repository-snapshot paths this run records
+      (``_refuse_foreign_descendants``);
+    - an existing ``run.yaml`` must be exactly this run's record
+      (``_recorded``);
+    - every existing target of the run must hold exactly its bytes
+      (``_holds_exactly``, raw bytes).
+
+    A run directory holding a conflicting file or a foreign node for a
+    LATER repository (edited by hand or mixed from another run), a stray
+    file or subdirectory the run does not record, or an edited ``run.yaml``
+    is refused before an earlier repository is written or a sequence is
+    claimed. It is never refused after, which would leave a partial recorded
+    run. A completed-looking run is never accepted on a ``run.yaml`` it did
+    not write, or with a stranger left inside it: the run-identity check
+    would then find the closed run mixed."""
+    rid = run_id(entries_by_repo, taxonomy)
+    taxonomy_block = _validate_taxonomy(taxonomy)
+    day = _as_of_str(as_of)
+    run_dir = Path(root) / RUNS_DIR / day / rid
+    targets = {repo: _repo_file(run_dir, repo) for repo in entries_by_repo}
+    _refuse_unsafe_run_paths(root, run_dir, targets.values())
+    if run_dir.exists():  # a real directory, per the check above
+        _refuse_links_inside(run_dir)
+        _refuse_foreign_descendants(
+            run_dir, [run_dir / RUN_META_NAME, *targets.values()])
+    _recorded(root, run_dir, rid, day)  # an existing run.yaml must be ours
+    for repo in sorted(entries_by_repo):
+        _holds_exactly(targets[repo], render(_snapshot_document(
+            rid, repo, list(entries_by_repo[repo]), taxonomy_block))
+            .encode("utf-8"))
+    paths = {}
+    for repo in sorted(entries_by_repo):
+        paths[repo] = write_snapshot(root, as_of, rid, repo,
+                                     entries_by_repo[repo], taxonomy)
+    return rid, paths
+
+
+def _snapshot_files(run_dir: Path):
+    """(repository, path) for every per-repository snapshot file of one run
+    directory, in sorted path order; slash-separated repository ids come
+    back from their subdirectories."""
     for path in sorted(run_dir.rglob("*.yaml")):
         if path == run_dir / RUN_META_NAME:
             continue
         rel = path.relative_to(run_dir)
-        repo = "/".join(rel.parts)[:-len(".yaml")]
-        repos[repo] = _load_yaml_json(path)
+        yield "/".join(rel.parts)[:-len(".yaml")], path
+
+
+def _load_run(run_dir: Path, day: str, sequence: int, rid: str) -> dict:
+    repos = {repo: _load_yaml_json(path)
+             for repo, path in _snapshot_files(run_dir)}
     return {"as_of": day, "run_id": rid, "sequence": sequence,
             "repos": repos}
+
+
+def _load_run_bytes(run_dir: Path) -> dict:
+    """{repository: raw persisted snapshot bytes} for one run directory —
+    exactly what ``run_id_scheme`` verifies a recorded run against. Raw,
+    never a decoded text read: universal-newline translation would turn a
+    CRLF edit back into the writer's LF bytes before they are hashed. Each
+    file is read through ``_read_record``. A symlinked snapshot raises
+    ``CatalogError`` rather than having its target's bytes hashed as if the
+    run held them, and so does an unreadable file, as in
+    ``_load_yaml_json``."""
+    return {repo: _read_record(path)
+            for repo, path in _snapshot_files(run_dir)}
 
 
 def load_snapshot(root, as_of=None, run_id=None) -> dict | None:
@@ -712,16 +1495,28 @@ def load_snapshot(root, as_of=None, run_id=None) -> dict | None:
     Returns ``{"as_of", "run_id", "sequence", "repos": {repo: doc}}``
     or None when nothing matches. ``as_of`` narrows to a date (latest
     run on that date by recorded sequence); ``run_id`` narrows to a
-    specific run (latest date when the same content recurred). Only
+    specific run (latest date when the same content recurred — for a
+    content-addressed id, byte-identical content; a pre-#519 legacy id
+    promises only the same inventory and taxonomy). Only
     recorded runs (with ``run.yaml``) participate: sequence numbers are
     claimed atomically and unique, so "latest" is a total order, never
     a tie-break, and a crashed run directory is never returned.
+
+    An entry the run scan refuses (``_iter_runs``: a symlinked day or run
+    directory or ``run.yaml``, or a recorded run it cannot vouch for as
+    link-free) never participates either, as latest, by date or by id. Its
+    content would be read through the link, so the latest matching run
+    that can be read without one is returned instead, or None. The
+    document-catalog family reports the refused entry as
+    catalog-integrity, so it is never passed over unseen.
     """
     day = _as_of_str(as_of) if as_of is not None else None
     rid = str(run_id) if run_id is not None else None
     candidates = [
-        (d, seq, r, run_dir) for d, seq, r, run_dir in _iter_runs(root)
-        if (day is None or d == day) and (rid is None or r == rid)]
+        (d, seq, r, run_dir)
+        for d, seq, r, run_dir, refusal in _iter_runs(root)
+        if refusal is None
+        and (day is None or d == day) and (rid is None or r == rid)]
     if not candidates:
         return None
     d, seq, r, run_dir = max(candidates, key=lambda c: (c[0], c[1]))
