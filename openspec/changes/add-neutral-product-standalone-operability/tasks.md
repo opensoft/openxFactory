@@ -1466,12 +1466,11 @@ packet's interim arrangement ends.**
     package) and `test_the_dependence_on_the_carved_rail_sits_at_exactly_one_line`
     (T027 removed the packet module's only import of the status-exemption
     rail). T047 edits the one pinned assertion in each; neither file moves.
-  - **Five more paths, from T035 (openDox-code#51 → `80acead1`, LANDED),
-    which moves thirteen cases into them and adds one fresh (fourteen cases
-    total across the five, below).** T035's own PR body addresses
-    this batch directly: *"T007's batch E adds each destination path to
-    F11.1's named set before T047 lands"* (its § "For T007's batch E, T041
-    and T047"). None of the five exists in openxFactory yet:
+  - **Four more paths, from T035 (openDox-code#51 → `80acead1`, LANDED),
+    which moves eleven cases into them (3 + 3 + 3 + 2).** T035's own PR body
+    addresses this batch directly: *"T007's batch E adds each destination
+    path to F11.1's named set before T047 lands"* (its § "For T007's batch
+    E, T041 and T047"). None of the four exists in openxFactory yet:
     - `tests/ideation-dashboard/test_workbench_manifest_validation.py` (3
       cases, from `test_workbench.py`) needs the pinned validator
       openXdox-code now carries (`find_openxfactory_validator` →
@@ -1490,23 +1489,38 @@ packet's interim arrangement ends.**
       for now) needs the released `xfactory-workbench-chat-turn.schema.yaml`
       (carved to openDox-spec) and `doxbench-chat-model.js`, both through
       `carved_source(...)` at the pin.
-    - `tests/ideation-dashboard/test_hermeticity_probe_routes.py` (3 cases,
-      from `test_hermeticity.py`) — **this is the P1-G carry-over the
-      holder named.** T035's own notes flag these three, alone among the
-      thirteen, as not compositions in the deep sense: *"They test
-      openxFactory's own tree and touch no openDox file"* — unlike the
-      other four destinations above, each of which pins something openDox-
-      or openXdox-owned (a validator, a `doc_health` seam, the notebooklm
-      sync module, a carved schema). T035's writer left the join open for
-      this batch to decide (*"Batch E's admission should say whether they
-      join F11.1's named set or land as plain openxFactory tests"*). **This
-      batch decides: they join**, same as the other four — T047 still
-      creates the file as a new path under an `Arc:`-trailered landing, and
-      no other declared surface (`HOST`, `HOST_TESTS`, `PIN_PAIRS`, the
-      manifest) fits a brand-new test file; the guard has no carve-out for
-      "moved but not a composition." All fourteen cases across these five
-      files (3 + 3 + 3 + 2 + 3) join `COMPOSITION_TESTS` the same way, for
-      that structural reason if not always the deeper one.
+
+    Each of these four pins something openDox- or openXdox-owned (a
+    validator, a `doc_health` seam, the notebooklm sync module, a carved
+    schema), so each is a composition test in the deep sense, not only the
+    structural one.
+
+  - **T035's fifth destination, `tests/ideation-dashboard/test_hermeticity_probe_routes.py`
+    (3 cases, from `test_hermeticity.py`), does NOT join `COMPOSITION_TESTS`
+    — this reverses this batch's first answer to its own open question,
+    on a Copilot review finding at this PR.** T035's writer flagged these
+    three, alone among its thirteen moved cases, as not compositions in the
+    deep sense — *"They test openxFactory's own tree and touch no openDox
+    file"* — and asked *"Batch E's admission should say whether they join
+    F11.1's named set or land as plain openxFactory tests."* This batch
+    first answered "they join," reasoning only that T047 creates the file
+    as a new path with no other declared surface to fit. **That reasoning
+    was wrong, or at least too quick.** `COMPOSITION_TESTS`' whole point is
+    a NARROW allow-list for files that must change because they pin a
+    composed (openDox- or openXdox-owned) fact; "may be edited or added and
+    are never removed" is a standing, permanent license once a path is in
+    it. Admitting a file that pins nothing about the composition — solely
+    because it happens to want creating in the same PR as four files that
+    do — would let every FUTURE `Arc:`-trailered landing touch it freely
+    too, quietly widening what the guard actually protects. The file does
+    not need T047's new pins at all (its cases exercise openxFactory's OWN
+    hermeticity mechanism, not anything T045/T046 register), so nothing
+    requires it to land inside T047's arc-trailered PR in the first place.
+    **This batch now answers the other way: it lands as a plain
+    openxFactory test**, in its own PR that carries no `Arc:` trailer — the
+    same route T066 already uses for an openxFactory-only change correct at
+    every pin — so F11.1's guard never reads it, and never needs to. That
+    PR is not this one and not T047's; it is unclaimed as of this writing.
 
   Once T045, T093 and T094 land it, `COMPOSITION_TESTS` reads:
 
@@ -1521,8 +1535,10 @@ packet's interim arrangement ends.**
           "tests/ideation-dashboard/test_workbench_scoped_doc_health.py",     # T035 (#51)
           "tests/ideation-dashboard/test_session_worktree_book_scan.py",      # T035 (#51)
           "tests/ideation-dashboard/test_doxbench_chat_ceiling.py",           # T035 (#51)
-          "tests/ideation-dashboard/test_hermeticity_probe_routes.py",        # T035 (#51)
       }
+
+  (`test_hermeticity_probe_routes.py` is deliberately NOT in this set — see
+  above.)
 
   This bookkeeping amendment does not itself touch the executable Python
   above, which still checks batch A's two-path set until T045, T093 and T094
