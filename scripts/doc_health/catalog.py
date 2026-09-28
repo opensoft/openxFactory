@@ -705,8 +705,10 @@ def _own_mode(node: Path) -> tuple[int | None, CatalogError | None]:
     cannot take as link-free. A symlink is refused (``_symlink_refusal``),
     and so is a node whose own ``lstat`` fails for any reason but its
     absence, because what cannot be checked could be a link. The check is
-    an explicit ``os.lstat``: from Python 3.13 ``Path.is_symlink`` swallows
-    every ``OSError`` and would report such a node link-free."""
+    an explicit ``os.lstat`` with its own errno handling, so the scan's
+    fail-closed guarantee never depends on ``pathlib``'s own (private,
+    undocumented) error-swallowing behaviour -- whatever that behaviour
+    is or becomes on any interpreter version."""
     try:
         mode = os.lstat(node).st_mode
     except (FileNotFoundError, NotADirectoryError):
@@ -1055,13 +1057,44 @@ def _catalog_chain(root: Path) -> list[Path]:
                      for depth in range(1, len(RUNS_DIR.parts) + 1)]
 
 
+def _refuse_unreadable_walk(run_dir: Path):
+    """The ``onerror`` callback for an ``os.walk(run_dir, ...)`` scan of a
+    run directory: refuse rather than silently continue when a
+    subdirectory cannot be enumerated (permission denied, torn down
+    mid-walk). ``os.walk`` otherwise skips such a directory in silence,
+    and whatever it hides -- a symlink, a foreign descendant -- would
+    never be seen. Shared by ``_refuse_links_inside`` and
+    ``_refuse_foreign_descendants`` (PR #1189 review, Copilot, extended to
+    the link-refusal walk for opensoft/openxFactory#1197, which had no
+    ``onerror`` at all). Names the node the walk could not enter by a
+    path relative to ``run_dir``, never the host-absolute one the
+    underlying ``OSError`` itself carries."""
+    def _onerror(exc: OSError) -> None:
+        node = Path(exc.filename) if exc.filename else run_dir
+        try:
+            where = node.relative_to(run_dir).as_posix()
+        except ValueError:
+            where = node.as_posix()
+        raise CatalogError(
+            f"catalog run directory could not be fully enumerated, so a "
+            f"symlink or a foreign descendant could stay hidden "
+            f"({where}): {run_dir}")
+    return _onerror
+
+
 def _refuse_links_inside(run_dir: Path) -> None:
     """Refuse a run directory that holds a symlink anywhere inside it: a
     linked snapshot, ``run.yaml`` or subdirectory. ``Path.rglob`` lists a
     linked file and silently skips a linked directory, so without this
     walk neither the writer nor the verifier would see what such a link
-    hides, or where it points."""
-    for dirpath, dirnames, filenames in os.walk(run_dir):
+    hides, or where it points. ``onerror`` fails closed
+    (``_refuse_unreadable_walk``): opensoft/openxFactory#1197 found this
+    walk, unlike its sibling ``_refuse_foreign_descendants``, passed no
+    ``onerror`` at all, so ``os.walk`` silently skipped a subdirectory it
+    could not enumerate and a symlink hiding inside one would never be
+    seen."""
+    for dirpath, dirnames, filenames in os.walk(
+            run_dir, onerror=_refuse_unreadable_walk(run_dir)):
         dirnames.sort()
         for name in sorted(dirnames + filenames):
             node = Path(dirpath) / name
@@ -1135,15 +1168,12 @@ def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:
     ``_refuse_links_inside`` already documents (``rglob`` silently skips a
     linked directory); by the time this runs, that call has already refused
     every symlink anywhere in ``run_dir``, so this only ever walks a plain
-    tree. ``onerror`` fails closed (PR #1189 review, Copilot): ``os.walk``
-    otherwise silently swallows a directory it cannot enumerate (permission
-    denied, torn down mid-walk), and a foreign descendant could then hide
-    inside one and never be seen at all."""
-    def _refuse_unreadable(exc: OSError) -> None:
-        raise CatalogError(
-            f"catalog run directory could not be fully enumerated, so a "
-            f"foreign descendant could stay hidden: {exc}")
-
+    tree. ``onerror`` fails closed (``_refuse_unreadable_walk``, shared
+    with ``_refuse_links_inside`` since opensoft/openxFactory#1197; PR
+    #1189 review, Copilot, first added it here): ``os.walk`` otherwise
+    silently swallows a directory it cannot enumerate (permission denied,
+    torn down mid-walk), and a foreign descendant could then hide inside
+    one and never be seen at all."""
     allowed_files = set(allowed_files)
     allowed_dirs = {run_dir}
     for target in allowed_files:
@@ -1152,7 +1182,7 @@ def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:
             allowed_dirs.add(node)
             node = node.parent
     for dirpath, dirnames, filenames in os.walk(
-            run_dir, onerror=_refuse_unreadable):
+            run_dir, onerror=_refuse_unreadable_walk(run_dir)):
         dirnames.sort()
         base = Path(dirpath)
         for name in sorted(filenames):
