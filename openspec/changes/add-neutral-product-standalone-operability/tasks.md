@@ -1376,6 +1376,32 @@ packet's interim arrangement ends.**
       HOST_TESTS = "tests/domain_profile/"
       PIN_PAIRS = {"openDox", "contracts/opendox-pin.yaml",                  # 9.5, each pair in one commit
                    "openXdox", "contracts/openxdox-pin.yaml"}
+      # T007 batch A (5817152735; R1Q2 (a); R1Q22 (a)) landed here by T093
+      # (P1-L, T017/T018): a fourth declared surface, named openxFactory
+      # composition tests. T007 batch E (openxFactory#1183, LANDED) named
+      # the final four paths phase 1 moved, edited or found.
+      COMPOSITION_TESTS = {
+          "tests/ideation-dashboard/test_extension_point_parity.py",         # batch A
+          "tests/ideation-dashboard/test_serve_column_split.py",             # batch A
+          "tests/ideation-dashboard/test_authoring_classify_derivation.py",  # P1-K (#1181)
+          "tests/ideation-dashboard/test_doxbench_status_exemption.py",      # P1-K (#1181)
+      }
+      # RULED (Brett Heap, `#656` comment `5890601202`, 2026-09-29T12:46:55Z:
+      # "Named closed list (Recommended)"), landed here by T093 (P1-L,
+      # T017/T018): a fifth declared surface, the seven arc edits T007 batch
+      # E found on no F11.1 surface, each admitted in principle by
+      # `5856475254` (the first two) or by P1-K's writer's committed-pin
+      # measurement (the other five). A CLOSED list: later phases extend it
+      # only by a further ruling, never by this guard's own code alone.
+      ADMITTED_ARC_EDITS = {
+          "scripts/route_extension.py",                       # resynced 34802071->7781665d (T047 4303e67c); manifest row docs/opendox-carve-manifest.yaml:2993 carries no edits[], left untouched; cures 260 of 267 committed-pin reds
+          "scripts/sync-notebooklm-books.py",                  # session_source_set() now calls register_openxfactory() first (same commit); no carve-manifest row, no prior surface
+          "scripts/ideation_dashboard/dashboard_refresh_lane.py",   # RENDER_LEG_MODULES gains corpus_adapter/doxbench_packet/serve_wire/workbench (paired with the seal test below); red at ANY pin, a standing #1166 gap
+          "tests/ideation-dashboard/test_dashboard_source_seal.py", # RENDER_UNIT_IMPORTS gains the same four modules T046's opendox_host.seams() imports (paired with dashboard_refresh_lane.py above)
+          "tests/openxdox_pin/test_openxdox_pin_verifier.py",  # test_ruling_q7_two_direct_upstreams_in_lockstep's snapshot literal moves on every pin bump by its own comment's design (dc7aa08f->663ac683 here)
+          "docs/opendox-carve-admissions.yaml",                # gains created: entries (each since: the landing commit) for every file this PR newly places under a declared surface (paired with the arrival test below)
+          "tests/carve_arrival/test_verify_carve_arrival.py",  # the arrivals-registry verifying suite moves with docs/opendox-carve-admissions.yaml above
+      }
       def manifest_at(rev):
           out = subprocess.run(["git", "show", f"{rev}:{MANIFEST}"], check=True, capture_output=True, text=True).stdout
           return yaml.safe_load(out)
@@ -1391,7 +1417,7 @@ packet's interim arrangement ends.**
       for c, s, p in (l.rstrip("\n").split("\t") for l in open(sys.argv[1]) if l.strip()):
           if s not in ("A", "M"):                       # requirement 1's third scenario: a far side is never deleted
               breach.append(f"{c[:12]}: {'deleted' if s == 'D' else 'changed the type of'} {p}")
-          elif p in HOST or p.startswith(HOST_TESTS) or p in PIN_PAIRS:
+          elif p in HOST or p.startswith(HOST_TESTS) or p in PIN_PAIRS or p in COMPOSITION_TESTS or p in ADMITTED_ARC_EDITS:
               continue                                  # a declared surface of the arc (11.1)
           elif p != MANIFEST:
               breach.append(f"{c[:12]}: touched {p}")
@@ -1493,6 +1519,15 @@ packet's interim arrangement ends.**
   the carve as it arrived, so an arc edit to a carved file needs no
   declared-edit act. Carried out by T045, T093, T094.
 
+  **LANDED — T093 (P1-L, T017/T018), 2026-09-29:** the executable Python
+  above now carries `COMPOSITION_TESTS` (the four paths batch E names
+  below) and its `elif` arm, beside a fifth declared surface,
+  `ADMITTED_ARC_EDITS`, RULED by Brett Heap (`#656` comment `5890601202`,
+  2026-09-29T12:46:55Z: "Named closed list (Recommended)") for the seven
+  paths batch E found on no surface at all. See that ruling, and the
+  amended runs it required, where batch E's text below used to read
+  "UNRESOLVED".
+
   **AMENDED — T007 Batch E (`5817152735`; Ruled R1Q2 (a), R1Q22 (a); the
   specific paths and edits below are `5856475254` (P1-K's three questions),
   T035's own hand-off (openDox-code#51), and P1-K's writer's committed-pin
@@ -1575,7 +1610,9 @@ packet's interim arrangement ends.**
     **`test_worktree_container_is_gitignored_in_the_aggregation_repo` is
     HELD OUT**: it SKIPS wherever no aggregation checkout exists, which is
     every CI run, and landing it would move `pytest-suite`'s
-    `EXPECT_SKIPPED` from 6 to 7. Held, not decided against; a later task
+    `EXPECT_SKIPPED` from 5 to 6 (opensoft/openxFactory#1195 has since
+    landed the hermeticity-probe repair, moving the pin 6 → 5; this was
+    "6 to 7" before that landing). Held, not decided against; a later task
     takes it up.
   - `tests/domain_profile/test_doxbench_chat_ceiling.py` — T035's one
     moved case, plus one it adds fresh
@@ -1617,9 +1654,11 @@ packet's interim arrangement ends.**
   causes (below), an ordinary edit inside the composition each already
   names, not a new cause.
 
-  This bookkeeping amendment does not itself touch the executable Python
-  above, which still checks batch A's two-path set until T045, T093 and T094
-  land it.
+  **LANDED — T093 (P1-L, T017/T018), 2026-09-29** (superseding this
+  paragraph's original close, "this bookkeeping amendment does not itself
+  touch the executable Python above, which still checks batch A's two-path
+  set until T045, T093 and T094 land it"): the executable Python above now
+  carries exactly this four-path `COMPOSITION_TESTS`.
 
   **Seven paths sit on NO F11.1 surface at all, and each is an ADMITTED
   arc edit, not a composition test.** `5856475254` items 1-2 name the
@@ -1688,15 +1727,31 @@ packet's interim arrangement ends.**
     and its own verifying suite moves with it. Neither sits on a current
     F11.1 surface either.
 
-  **UNRESOLVED, plainly**: no guard-code mechanism exists yet for any of
-  these seven — F11.1's falsifier, as it stands, still checks only batch
-  A's original two-path `COMPOSITION_TESTS` set (widened to four above),
-  with no branch that admits a `route_extension.py`-shaped or
+  **RESOLVED — RULED (Brett Heap, `#656` comment `5890601202`,
+  2026-09-29T12:46:55Z: "Named closed list (Recommended)"):** F11.1 is
+  amended to carry an `ADMITTED_ARC_EDITS` set naming exactly these seven
+  paths, each with the reason a bullet above gives, beside `HOST`,
+  `HOST_TESTS`, `PIN_PAIRS` and `COMPOSITION_TESTS`. Any other path still
+  fails the guard, and later phases extend this list only by a further
+  ruling, never by this guard's own code alone. T093 (P1-L, T017/T018)
+  landed the amendment in the executable Python above and proved it both
+  ways at ARC_TIP `f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b`: FAIL before
+  the amendment (`evidence/f11.1-phase1.txt`, the original run, matching
+  this paragraph's finding exactly — the same seven paths, no others), PASS
+  after it, and FAIL again on a planted eighth path (a negative control,
+  never pushed). Carried out by T093.
+
+  *(Kept for the record, superseded by the ruling above rather than
+  deleted — this paragraph's finding as first written, 2026-09-28:
+  "UNRESOLVED, plainly: no guard-code mechanism exists yet for any of these
+  seven — F11.1's falsifier, as it stands, still checks only batch A's
+  original two-path `COMPOSITION_TESTS` set (widened to four above), with
+  no branch that admits a `route_extension.py`-shaped or
   `sync-notebooklm-books.py`-shaped edit at all. T045, T093 and T094 (or a
   further ruling, where a mechanism needs Brett's word) must choose how the
   guard admits these seven before T047 can pass F11.1 clean; this paragraph
   records only that each edit is admitted IN PRINCIPLE, and why, not the
-  mechanism, and does not itself close that gap.
+  mechanism, and does not itself close that gap.")*
 
   **A carried-over risk, recorded and not actioned** (T035's "Notes for the
   destinations," none of which blocked T035 itself): openxFactory's OWN
@@ -1713,12 +1768,10 @@ packet's interim arrangement ends.**
   because a `find_spec` probe that finds nothing degrades to a notice rather
   than a failure, the same escape T035 closed in openDox-code.
 
-  **Every input is now landed and MEASURED; no red is unaccounted for — but
-  the guard-code mechanism for one class of them is a separate, still
-  UNRESOLVED question this batch does not answer** (above: "T045, T093 and
-  T094 ... choose how the guard admits these seven ... this paragraph
-  records only that each edit is admitted, and why, not the mechanism").
-  T034 (openDox-code#50 → `71b631bc`), T035 (openDox-code#51 → `80acead1`),
+  **Every input is now landed and MEASURED; no red is unaccounted for, and**
+  (RESOLVED — RULED `#656` comment `5890601202`, 2026-09-29, see above) **the
+  guard-code mechanism for that one class of them is now closed, by a named
+  list.** T034 (openDox-code#50 → `71b631bc`), T035 (openDox-code#51 → `80acead1`),
   T039 (openDox#13 → `663ac683`, pinning `code` to `2d116415`) and T044
   (openXdox-code#33 → `6158151e`) have all landed; T044 supplies no
   composition-test path (its declared exclusion, at the triple 885/881/4,
@@ -1727,9 +1780,10 @@ packet's interim arrangement ends.**
   paragraph accounts for — the four `COMPOSITION_TESTS` edits, the six
   relocated files, the seven admitted arc edits, and T035's held-out
   cases — and the same run at #1181's fixing commits (run T4) finds none.
-  That inventory is closed; the guard-code mechanism for the seven admitted
-  arc edits is not — left for T045, T093 and T094 (or a further ruling) to
-  close. Carried out by T045, T047, T093, T094.
+  That inventory is closed, and so, now, is the guard-code mechanism for
+  the seven admitted arc edits — RULED (`#656` comment `5890601202`), landed
+  by T093 (P1-L) in the executable Python above. Carried out by T045, T047,
+  T093, T094.
 
 ## Group 12 — Requirement 11: the neutral submission step (RULED, openDox-code)
 

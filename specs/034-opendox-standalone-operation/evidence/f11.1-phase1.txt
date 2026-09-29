@@ -1,0 +1,241 @@
+T018 -- Phase 1's interim F11.1 (by T093's procedure)
+Feature: 034-opendox-standalone-operation. Lane: openxfactory-4
+(openXfactory-4-openDox_extraction). Taken: 2026-09-29.
+
+PACKET_MERGE=94b6f7f13b45c351b9142345738965c974b7dd37
+  (#1144's own landing on openxFactory main; evidence/arc-base.md)
+ARC_TIP=f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b
+  (opensoft/openxFactory#1181, T047, phase 1's sole openxFactory arc landing
+  so far -- squash-merged onto b974253403a25bcebeb5e626f9e8e62f381b9f73;
+  first-parent line confirmed; commit message carries the trailer
+  "Arc: neutral-product-standalone-operability")
+
+Guard: 11.1's FALSIFIED BY block
+(openspec/changes/add-neutral-product-standalone-operability/tasks.md
+lines ~1359-1412), AS WIDENED BY T007 BATCH A (5817152735; R1Q2 (a);
+R1Q22 (a); tasks.md lines ~1479-1494): a fourth declared surface,
+COMPOSITION_TESTS, beside HOST/HOST_TESTS/PIN_PAIRS. T007 batch E
+(opensoft/openxFactory#1183, LANDED b974253403a25bcebeb5e626f9e8e62f381b9f73)
+names the final four paths (tasks.md lines ~1605-1612):
+
+    COMPOSITION_TESTS = {
+        "tests/ideation-dashboard/test_extension_point_parity.py",         # batch A
+        "tests/ideation-dashboard/test_serve_column_split.py",             # batch A
+        "tests/ideation-dashboard/test_authoring_classify_derivation.py",  # P1-K (#1181)
+        "tests/ideation-dashboard/test_doxbench_status_exemption.py",      # P1-K (#1181)
+    }
+
+No other change was made to the ratified executable Python. The
+reconstruction was diffed line-by-line against the source doc's own
+heredoc body and matches it exactly outside this deliberate widening.
+
+VERBATIM OUTPUT (exit code 1; stdout was empty -- the PASS line,
+"requirement 1 holds: ...", never printed):
+
+== arc-commits.txt ==
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b
+== arc-changes.tsv ==
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	contracts/opendox-pin.yaml
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	contracts/openxdox-pin.yaml
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	docs/opendox-carve-admissions.yaml
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	openDox
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	openXdox
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	scripts/ideation_dashboard/dashboard_refresh_lane.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	scripts/opendox_host.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	scripts/profile_openxfactory.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	scripts/route_extension.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	scripts/sync-notebooklm-books.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/carve_arrival/test_verify_carve_arrival.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_doxbench_chat_ceiling.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_memory_gateway_roster.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_openxfactory_host_wiring.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_outline_template_agreement.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_session_resync_registers_host.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_session_worktree_book_scan.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_workbench_manifest_validation.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_workbench_scoped_doc_health.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/ideation-dashboard/test_authoring_classify_derivation.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/ideation-dashboard/test_dashboard_source_seal.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/ideation-dashboard/test_doxbench_status_exemption.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/ideation-dashboard/test_extension_point_parity.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/ideation-dashboard/test_serve_column_split.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/openxdox_pin/test_openxdox_pin_verifier.py
+FAIL: the arc changed what requirement 1 keeps:
+  f56c87c6b8d7: touched docs/opendox-carve-admissions.yaml
+  f56c87c6b8d7: touched scripts/ideation_dashboard/dashboard_refresh_lane.py
+  f56c87c6b8d7: touched scripts/route_extension.py
+  f56c87c6b8d7: touched scripts/sync-notebooklm-books.py
+  f56c87c6b8d7: touched tests/carve_arrival/test_verify_carve_arrival.py
+  f56c87c6b8d7: touched tests/ideation-dashboard/test_dashboard_source_seal.py
+  f56c87c6b8d7: touched tests/openxdox_pin/test_openxdox_pin_verifier.py
+
+VERDICT (ORIGINAL RUN, 2026-09-29, before the ruling below): F11.1's
+falsifier did NOT print "requirement 1 holds". It failed (exit 1) on
+exactly the seven paths that T007 batch E's own text
+(openspec/changes/add-neutral-product-standalone-operability/tasks.md,
+the "Seven paths sit on NO F11.1 surface at all" paragraph, ~lines
+1624-1699 as they then stood) already names as "ADMITTED arc edits, not
+a composition test" and flagged (at that time) as "UNRESOLVED, plainly:
+no guard-code mechanism exists yet for any of these seven ... T045,
+T093 and T094 (or a further ruling) must choose how the guard admits
+these seven before T047 can pass F11.1 clean." Nothing else breached:
+every HOST, HOST_TESTS, PIN_PAIRS and COMPOSITION_TESTS path #1181
+touched was correctly admitted, and docs/opendox-carve-manifest.yaml
+does not appear in arc-changes.tsv at all (#1181 does not touch it --
+see T017 below).
+
+Per this task's instruction, F11.1 and the manifest were NOT "fixed" to
+make this pass. This was a stop-and-report condition: I reported the
+exact output to main rather than inventing a mechanism myself, and
+neither T017 nor T018 was ticked at that point.
+
+---
+
+THE RULING (main relayed it; independently re-read from the source)
+
+opensoft/openxFactory#656, comment 5890601202, Brett Heap,
+2026-09-29T12:46:55Z (fetched directly via
+`gh api repos/opensoft/openxFactory/issues/comments/5890601202`, not
+merely quoted secondhand):
+
+    RULED -- F11.1's seven admitted arc edits, Brett 2026-09-29: "Named
+    closed list (Recommended)". F11.1 (#1144 tasks.md) is amended to
+    carry an ADMITTED_ARC_EDITS list naming exactly:
+    docs/opendox-carve-admissions.yaml,
+    scripts/ideation_dashboard/dashboard_refresh_lane.py,
+    scripts/route_extension.py, scripts/sync-notebooklm-books.py,
+    tests/carve_arrival/test_verify_carve_arrival.py,
+    tests/ideation-dashboard/test_dashboard_source_seal.py,
+    tests/openxdox_pin/test_openxdox_pin_verifier.py, each with batch
+    E's recorded reason. Any other path still fails the guard. Later
+    phases extend the list only by a further ruling. F11.1 is re-run at
+    T047's landing (f56c87c6), and both runs are recorded.
+
+Carried out: the executable Python in
+openspec/changes/add-neutral-product-standalone-operability/tasks.md
+(11.1's FALSIFIED BY block) now defines ADMITTED_ARC_EDITS with exactly
+these seven paths, each commented with the one-line reason batch E's
+own "Seven paths..." paragraph gives it, beside the COMPOSITION_TESTS
+widening (batch A/E, landed in the same edit -- it had not actually been
+applied to the executable block before this). The `elif` arm now reads
+`p in HOST or p.startswith(HOST_TESTS) or p in PIN_PAIRS or p in
+COMPOSITION_TESTS or p in ADMITTED_ARC_EDITS`. Batch E's three
+"UNRESOLVED"-flavoured callouts in that file are replaced with pointers
+to this ruling; none of the surrounding factual record (the per-path
+reasons, the measurement figures, the landing shas) was deleted -- the
+original "UNRESOLVED, plainly" paragraph is kept verbatim, quoted and
+marked superseded, immediately beside its replacement.
+
+---
+
+AMENDED RUN -- PASS (2026-09-29, same ARC_TIP, after the ruling)
+
+Same PACKET_MERGE=94b6f7f13b45c351b9142345738965c974b7dd37 and
+ARC_TIP=f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b as the original run
+above. This time the guard was not hand-transcribed: it was extracted
+byte-for-byte from the committed file itself (`sed -n '<start>,<end>p'
+openspec/changes/add-neutral-product-standalone-operability/tasks.md`,
+the FALSIFIED BY block, `set -euo pipefail` through the closing `PY`,
+dedented) and executed as extracted, so the evidence below is provably
+the same code that lands in this PR.
+
+VERBATIM OUTPUT (exit code 0):
+
+    requirement 1 holds: 0 note(s) annotated, every other path a
+    declared surface (11.1)
+
+(stderr was empty.)
+
+---
+
+NEGATIVE CONTROL (2026-09-29, same ARC_TIP plus one planted commit,
+never pushed)
+
+To confirm the amended guard is still CLOSED -- it must admit only the
+paths actually named, not "anything" -- an eighth touched path was
+planted on a scratch, detached local git-worktree
+(`git worktree add --detach <tmp> f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b`,
+never pushed, removed with `git worktree remove --force` immediately
+after and never merged into this branch): one new commit,
+8e4f3b4ef8f0d4512c5a8d78da73739a5114ef12, parent
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b, carrying the
+`Arc: neutral-product-standalone-operability` trailer and touching
+exactly one new file, docs/an-eighth-path-not-on-any-f11.1-surface.md,
+which sits on no HOST/HOST_TESTS/PIN_PAIRS/COMPOSITION_TESTS/
+ADMITTED_ARC_EDITS surface and is not the manifest. Same extracted
+script, same PACKET_MERGE, ARC_TIP set to the planted commit instead:
+
+VERBATIM OUTPUT (exit code 1):
+
+    FAIL: the arc changed what requirement 1 keeps:
+      8e4f3b4ef8f0: touched docs/an-eighth-path-not-on-any-f11.1-surface.md
+
+The guard correctly refused the planted path and named it precisely.
+The planted commit and its scratch worktree no longer exist on any
+branch, local or remote; it was never part of this PR's history.
+
+---
+
+VERDICT (FINAL): F11.1 holds at ARC_TIP f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b,
+under the guard as amended by RULED #656 comment 5890601202 ("Named
+closed list"). T017 and T018 are ticked in tasks.md on the strength of
+this record.
+
+---
+
+T017 -- 3.3, read-only: the profile_openxfactory.py deleted_at_carve row
+Feature: 034-opendox-standalone-operation. Lane: openxfactory-4
+(openXfactory-4-openDox_extraction). Taken: 2026-09-29.
+
+Row (docs/opendox-carve-manifest.yaml):
+    source_path: scripts/ideation_dashboard/profile_openxfactory.py
+    disposition: not_moved
+    reason: deleted_at_carve
+    evidence: "The module's own docstring (:6-8) names it \"the one file
+      the § 3 carve deletes rather than moves\"; after the carve
+      openXdox declares its own profile."
+
+This row has no `edits:` block (not_moved/deleted_at_carve rows carry
+none), so under F11.1's manifest-content rule it can never gain a note
+and must never change at all -- a stricter bar than a moved row's
+"note may only be extended."
+
+Note on `carve_commit:` (b075fd91dc8fced8e1373825ba80220c33536bae, the
+manifest's own header field): that commit exists on openxFactory main
+(confirmed an ancestor) but PRE-DATES docs/opendox-carve-manifest.yaml's
+own introduction by about four hours the same day (2026-09-09) -- the
+manifest file itself does not exist in that commit's tree ("git show
+b075fd91...:docs/opendox-carve-manifest.yaml" fails: path absent). So a
+literal byte-compare of this row "at carve_commit" is not possible; the
+earliest point in history the row can be read at all is the manifest's
+own introducing commit.
+
+Independent verification performed (beyond relying on F11.1's own
+per-landing diff, which never even reaches the manifest branch for
+#1181 -- docs/opendox-carve-manifest.yaml does not appear in #1181's
+diff at all, per the arc-changes.tsv above):
+
+1. `git log -S'source_path: scripts/ideation_dashboard/profile_openxfactory.py'
+   -- docs/opendox-carve-manifest.yaml` returns exactly ONE commit,
+   17167481e9d69dec9347f1d26699b6218a697f53, "The openDox carve manifest
+   at opendox-carve-0 (split-opendox § 3.1) (#865)", 2026-09-09
+   18:20:29 -0400 -- the file's own introducing commit. No other commit,
+   of the 20 that ever touch docs/opendox-carve-manifest.yaml, adds or
+   removes this row's identifying line.
+2. Direct diff of the row's four lines (source_path/disposition/reason/
+   evidence), extracted at the introducing commit
+   (17167481e9d69dec9347f1d26699b6218a697f53) and at ARC_TIP
+   (f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b): zero differences.
+   (For contrast: the whole file's diff over the same two revisions is
+   1589 lines, from the ~19 other commits that added or extended other
+   rows' `edits[].note` fields in the interim -- so the file does move,
+   only ever by notes, and never on this row.)
+
+VERDICT: the deleted_at_carve row for
+scripts/ideation_dashboard/profile_openxfactory.py is confirmed
+byte-identical between its introduction and ARC_TIP
+(f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b, opensoft/openxFactory#1181).
+3.3 holds for this arc landing. T017 rides on F11.1 as its falsifier
+(tasks.md: "Falsifier: F11.1 (interim: T018, T065, T098)"); with the
+amended run above now printing "requirement 1 holds" (RULED #656 comment
+5890601202), T017 is ticked alongside T018.

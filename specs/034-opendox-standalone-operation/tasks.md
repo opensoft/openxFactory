@@ -476,7 +476,7 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
     so T016 lands as planned. Batch D landed as #1170 → `79a720a2`, so
     requirement 3's text now says what T016 does (T049).
   - **After**: T015, T012 (Lane A's last `serve.py` edit).
-- [ ] T017 [US4] [oxF] **3.3, read-only.** At every openxFactory arc
+- [x] T017 [US4] [oxF] **3.3, read-only.** At every openxFactory arc
   landing, confirm that the carve manifest's `deleted_at_carve` row for
   `scripts/ideation_dashboard/profile_openxfactory.py` is byte-identical. F11.1's
   content check already refuses any row change, so the interim F11.1 runs are
@@ -926,7 +926,7 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
     `verify-openxdox-pin.py`; `pytest-suite`.
   - **After**: T039, T044, T007 (batches A and E).
   - **Lands with**: T045, T046.
-- [ ] T018 [US4] [oxF] **Phase 1's interim F11.1**, by T093's procedure, with
+- [x] T018 [US4] [oxF] **Phase 1's interim F11.1**, by T093's procedure, with
   `ARC_TIP` at T047's landing. Record the output in
   `evidence/f11.1-phase1.txt`, with no `Arc:` trailer, and link it from
   this feature's README entry (Principle IV).
