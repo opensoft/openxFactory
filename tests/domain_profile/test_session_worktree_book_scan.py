@@ -19,9 +19,10 @@ The third, `test_worktree_container_is_gitignored_in_the_aggregation_repo`
 (`:248-260`, with `find_aggregation_root` at `:229-238`), is NOT here. It
 reads the xFactory AGGREGATION checkout's ignore file, found by a parent walk,
 and skips where there is none. In openxFactory's CI the walk finds none, so the
-case would skip in the required gate: `pytest-suite` pins
-`EXPECT_SKIPPED: "6"` over `tests/`. A destination for it is a question for
-the holder; T047's PR names it.
+case would skip in the required gate, whose `EXPECT_SKIPPED`
+(`.github/workflows/pytest-suite.yml`) pins the EXACT number of skips over
+`tests/`. T007 batch E (#1144's `tasks.md`) records it as HELD OUT: held, not
+decided against.
 
 WHY `tests/domain_profile/`, AND NOT THE PROPOSED `tests/ideation-dashboard/`
 PATH. `tests/ideation-dashboard/` is inside the carve surface
