@@ -1347,6 +1347,18 @@ packet's interim arrangement ends.**
   under `tests/domain_profile/`. Third, the PIN PAIRS of 9.5, one per assembly
   root: the `openDox` gitlink with `contracts/opendox-pin.yaml`, and the
   `openXdox` gitlink with `contracts/openxdox-pin.yaml`.
+
+  **Addendum (Copilot, opensoft/openxFactory#1202; the "exactly three
+  kinds" above is UNCHANGED prose, per T007's own rule that an amendment
+  touches no requirement text): two more kinds joined it, each already
+  RULED and each recorded as its own AMENDED paragraph below the guard —
+  never here, so this sentence's original count stays exactly what it
+  said the day #1144 landed.** Fourth, NAMED openxFactory composition
+  tests (`COMPOSITION_TESTS`; T007 batch A, R1Q2 (a)). Fifth, the SEVEN
+  paths T007 batch E found on no surface at all, each admitted by name
+  (`ADMITTED_ARC_EDITS`; RULED, `#656` comment `5890601202`, "Named
+  closed list"). Both are edited-or-added-never-removed, exactly as the
+  three above; see the guard for the exact, current, five-way `elif`.
 - [ ] **FALSIFIED BY** (openxFactory checkout, at the close of the arc).
   **`PACKET_MERGE` is THIS PACKET'S OWN MERGE COMMIT, not a pre-authoring
   commit.** The guard measures what the ARC does to openxFactory. The packet's

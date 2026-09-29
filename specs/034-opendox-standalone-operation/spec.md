@@ -415,7 +415,11 @@ suite pass.
    and the handler-contribution facet (R1Q1 (a), R1Q2 (a)).
 2. **Given** every arc landing on openxFactory `main` since `94b6f7f1`, **When**
    F11.1 runs, **Then** each path touched is one of 11.1's surfaces, as
-   widened to named composition tests by R1Q2 (a). The manifest differs only
+   widened to named composition tests by R1Q2 (a), and further to the seven
+   admitted arc edits closed list RULED on `#656` comment `5890601202`
+   ("Named closed list") — proved at T018 (phase 1) with `ARC_TIP`
+   `f56c87c6`, both a PASS at that closed list and a FAIL on a planted
+   eighth path never in it. The manifest differs only
    in `edits[].note` values, each added where an entry had none or extended,
    and none rewritten (requirement 1; R1Q20 (a), R1Q22 (a)).
 3. **Given** openXdox installed in a fresh venv, **When** its validator lookup
@@ -568,7 +572,10 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   out of openxFactory. Every realization landing SHALL carry `Arc:
   neutral-product-standalone-operability`, and bookkeeping SHALL NOT (R1Q20
   (a)). openxFactory's arc edits SHALL stay within 11.1's surfaces: its three,
-  plus the named composition tests of R1Q2 (a) (R1Q22 (a)).
+  plus the named composition tests of R1Q2 (a) (R1Q22 (a)), plus the seven
+  admitted arc edits closed list RULED on `#656` comment `5890601202`
+  ("Named closed list") — a later phase extends that list only by a
+  further ruling, never by edited guard code alone.
 - **FR-011** (acceptance): release 1 SHALL pass AT-R1 (below) before its
   bookkeeping ticks the release-1 boxes.
 - **FR-012** (process): no task SHALL start while a question in its
