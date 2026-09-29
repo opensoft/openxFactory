@@ -77,6 +77,14 @@ declared there (RULED `#656` comments `5784683830` and `5801057769`) and must
 have one source.
 `_display_facet()`'s own docstring states which roles are deliberately left
 undeclared and why.
+
+THE FIFTH FACET, `HANDLER_CONTRIBUTIONS` (plan 034 T045, R1Q1 (a), `#656`
+comment `5817152735`). The mixin classes whose methods this assembly's route
+bindings name, which openDox's `build_server` composes into the class it binds
+(openDox-code T010, landed as `0f10b1f5`). It carries the lanes column alone,
+because T011 (`0e88454a`) took `LaneRoutes` off the bases of openDox's
+`DashboardHandler`. The declaration below says why the two openXdox columns are
+not in it.
 """
 
 from __future__ import annotations
@@ -110,6 +118,39 @@ ROUTE_EXTENSIONS: tuple = (
     serve_projection.ProjectionRoutesExtension(),
     serve_openxfactory_lanes.LaneRoutesExtension(),
 )
+
+
+#: THE HANDLER-CONTRIBUTION FACET (plan 034 T045; R1Q1 (a), Brett Heap,
+#: `#656` comment `5817152735`). The mixin classes that hold the methods this
+#: assembly's route bindings name, which openDox's `build_server` composes into
+#: the class it binds, after the core handler.
+#:
+#: ONE member: the lanes column, openxFactory's own. `LaneRoutesExtension`
+#: (above) binds five routes, one `GET` and four `POST`, to methods of
+#: `serve_openxfactory_lanes.LaneRoutes`, which holds six: the five handlers,
+#: and `_run_refresh`, which the refresh handler calls. Until plan 034's T011
+#: that class reached the request handler as a BASE of openDox's
+#: `DashboardHandler`, written into openDox's own class statement. That base
+#: was an import-time reach into a package openDox can never have, so T011 took
+#: it off, and the column arrives through this facet instead: the host names
+#: its own mixin, and no core module names a contributor (`route_extension`'s
+#: own docstring, "WHERE A CONTRIBUTED ROUTE'S METHODS COME FROM").
+#:
+#: THE TWO openXdox COLUMNS ARE NOT HERE. openDox's `DashboardHandler` still
+#: carries them, as the `consumer_reach.LateGateRoutes` and
+#: `LateProjectionRoutes` stand-ins, until phase 3 hands them to the facet
+#: (plan 034 T084), where openXdox contributes them (T086). Declaring them here
+#: now would be refused: a contribution may only ADD, and the core handler
+#: already answers every one of their methods.
+#:
+#: INERT AT A LEG THAT PREDATES THE FACET. A pinned openDox leg before T010
+#: reads no `HANDLER_CONTRIBUTIONS` at all, and still composes `LaneRoutes` as a
+#: base of `DashboardHandler`, so this declaration changes nothing there. It is
+#: forwarded to openDox through the composite profile like every facet this
+#: module contributes (`opendox_host.FACETS`), and it is a module-level tuple
+#: rather than a lazy answer because `serve_openxfactory_lanes` is already
+#: imported above, for `ROUTE_EXTENSIONS`.
+HANDLER_CONTRIBUTIONS: tuple = (serve_openxfactory_lanes.LaneRoutes,)
 
 
 #: THE THREE STATUS VOCABULARIES `opendox.display_profile` PROJECTS, restricted

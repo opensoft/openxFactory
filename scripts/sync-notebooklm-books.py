@@ -2083,10 +2083,31 @@ def _session_worktree_of(root: Path, path: Path) -> Path | None:
     return None
 
 
+def _register_host() -> None:
+    """Register openxFactory's profile and fill its seams, as every openxFactory
+    process that reaches a seam reader does (`opendox_host.register_openxfactory`,
+    idempotent for this one profile).
+
+    `workbench.session_documents` lists the REGISTERED home corpus under the
+    registered session-notebook scope (plan 034 T025). Only the host fills
+    those two seams (T046), and nothing else in this script registers, so
+    without this call the `--session-ref` re-sync would refuse
+    `ADAPTER_NOT_REGISTERED` at the pinned openDox leg. Admitted by T007 batch E
+    on RULED `5856475254` (`#656`), item 2."""
+    scripts_dir = Path(__file__).resolve().parent
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+    import opendox_host
+
+    opendox_host.register_openxfactory()
+
+
 def session_source_set(target: SessionTarget) -> list[tuple[str, str]]:
     """The session notebook's desired sources, read FROM the worktree. Delegates
     to `workbench.session_documents` so create-at-open (the dashboard) and this
-    re-sync project exactly ONE membership rule."""
+    re-sync project exactly ONE membership rule. The host registers first
+    (`_register_host`), because that rule is the registered corpus's."""
+    _register_host()
     wb = _dashboard_module("workbench")
     return wb.session_documents(target.worktree, repository=target.repository)
 

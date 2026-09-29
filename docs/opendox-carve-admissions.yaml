@@ -70,9 +70,15 @@ kind: opendox-carve-admissions
 destinations:
   opendox_code:
     created:
+      - path: src/opendox/conformance_corpus.py
+        reason: "added by openDox-code #31 (split-opendox § 3.7 FLOOR PART 3, openDox side: the declared conformance factory)"
+        since: "93ccc3dd98312ae725fef02a801ee23a7ce736fc"
       - path: src/opendox/consumer_reach.py
         reason: "added by openDox-code #9 (BUILD 3.5/3.6 late seam)"
         since: "da8aae969b4057bd46d2550c265e5bb363142458"
+      - path: src/opendox/default_profile.py
+        reason: "added by openDox-code #38 (plan 034 T015: openDox's own default profile)"
+        since: "a435aecfe04ba09c677e5c3d78fd7a47986d175a"
       - path: src/opendox/defaults.py
         reason: "added by openDox-code #10 (BUILD slice 2b, openDox-owned defaults)"
         since: "0f1f2e59e31b8304979f18d8af7108b0f82899fb"
@@ -133,21 +139,42 @@ destinations:
       - path: tests/fixtures/web_boundary_census.yaml
         reason: "added by openDox-code #13 (§ 3.4 S1, the web-boundary census: 42 files classified for the S2-S7 defect measurements; no arrived file touched, so S1 needed no row-annotation PR of its own)"
         since: "e86deb2dbcec528a312784508ddbf63c376abc33"
+      - path: tests/test_authoring_seam.py
+        reason: "added by openDox-code #37 (plan 034 T020: the home-corpus seam)"
+        since: "e295b1a9c1d979a3219499de61b67dce487c75f6"
       - path: tests/test_binding_stylesheets.py
         reason: "added by opensoft/openDox-code `build/q7-binding-stylesheets` (split-opendox § 3.4, RULED Q7, `#656` comment `5648049748`) — the CSS extraction's own running proof, on `validate.yml`'s explicit list: the `ViewBinding.styles` slot refused at BOTH halves of the seam, the absent case carried onto `/capabilities`, the `<link>` injector driven under `node` against the real `views/view_extension.js` (one link per resolved href, `document.head` and never `document.body` per RULED Q8, the failed sheet NAMED and non-fatal), and the extraction itself measured against `styles.css` — no gate-exclusive selector survives there, every `--st-*` token and every shared selector does, and where an assembly has placed openXdox's six modules the 54-class set is RE-DERIVED from them rather than trusted"
         since: "144a4a338f3e1017662fbde0f2e3e7916231baea"
+      - path: tests/test_checkout_head.py
+        reason: "added by openDox-code #47 (plan 034 T012: a checkout's HEAD read with openDox's own reader)"
+        since: "276830289dd69c3ee284dd1f45188ebd85a59502"
+      - path: tests/test_conformance_corpus.py
+        reason: "added by openDox-code #31 (split-opendox § 3.7 FLOOR PART 3, openDox side: the declared conformance factory)"
+        since: "93ccc3dd98312ae725fef02a801ee23a7ce736fc"
       - path: tests/test_consumer_reach.py
         reason: "added by openDox-code #9 (BUILD 3.5/3.6 late seam)"
         since: "da8aae969b4057bd46d2550c265e5bb363142458"
+      - path: tests/test_default_profile.py
+        reason: "added by openDox-code #38 (plan 034 T015: openDox's own default profile)"
+        since: "a435aecfe04ba09c677e5c3d78fd7a47986d175a"
       - path: tests/test_display_facet.py
         reason: "added by opensoft/openDox-code `build/s7-parameterize-class-c` (PR #21, split-opendox § 3.4 slice S7, RULED Q1/Q2/Q7, `#656` comment `5648049748`) — slice S7's own running proof, on `validate.yml`'s explicit list: that the two halves of the facet declare the same roles in the same order and the same neutral words, that a declared facet is read or refused rather than guessed at, and the slice's own success test — that a STUDENT INSTALL whose profile declares no facet renders openDox's own neutral vocabulary and no word of openxFactory's anywhere in the payload"
         since: "372a04da2a14c2a4c547b78e9500d65f63899aac"
       - path: tests/test_display_facet_leaves.py
         reason: "added by opensoft/openDox-code `build/s7-residue-leaf-facet` (split-opendox § 3.4, the SLICE S7 RESIDUE — the two threads Copilot opened on PR #21 at `c7a216c7` and the five it left SUPPRESSED in review `5192900474`'s body; S7 LANDED note `#656` comment `5688498049`; FORM RULED Q-L1, `#656` comment `5628560136`) — the proof for the SEVEN display-facet LEAVES inside modules slice S7 had already parameterized at their mounts: FIVE assertions run the real `views/display.js`, `views/explorer.js`, `views/outline-model.js` and `views/docs.js` under `node` and EIGHT read the source, and the file alone is 11 failed / 2 passed against a pristine worktree at `0b4e8bbf` (13 tests; the two that pass there are the return-value guard beside `applyTokens` and the behavioural probe that only bites once `runAddSection` forwards its argument, so every one of the seven leaves is failed by at least one of the eleven). MEASURED AT THE LEG'S LANDING HEAD AND NOT AT `since:`, which stays the INTRODUCING commit `338143a3` (12 tests, four of them node-gated) — a leg review round moves this count and never the pin: openDox-code#28's own Copilot round added the thirteenth, a behavioural probe of `docHaystack` proving the regex beside it could not tell a deleted array element from the guard above it. A CREATED file with no row (RULED OQ-C); this annotation lands FIRST per Q-L1 and the leg follows"
         since: "338143a30856f7d572a2473ae7a5d6ac81dfdb7a"
+      - path: tests/test_doxbench_seams.py
+        reason: "added by openDox-code #41 (plan 034 T027: the doxBench seams)"
+        since: "8017cd52158d89abc1c4862eb2cf32ed2d52a1eb"
       - path: tests/test_gate_loop_contributed.py
         reason: "added by openDox-code #20 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg B) — the shell's half of the contract, node-driven against the real `views/view_extension.js`: the student install, RULED Q1's generic mount pass, RULED Q2's declared namespace, RULED Q4's `requires`, RULED Q10's refusal transport and RULED counterpart Q6's four supply sites"
         since: "fd7160d71813874033c21d6f2a8daa5ebf2350e4"
+      - path: tests/test_health_check_seam.py
+        reason: "added by openDox-code #39 (plan 034 T026: the health-check seam)"
+        since: "582ed0739155622ab3fd5e9259a2c5c10aea3539"
+      - path: tests/test_imports_standalone.py
+        reason: "added by openDox-code #46 (plan 034 T011, with T030: serve.py's import-time reaches removed)"
+        since: "0e88454a7c814f059a34ce8f77f109cf7eae3bed"
       - path: tests/test_intent_binding_dom.py
         reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731) — node-driven DOM probe of the optional binding, narrowed out of validate.yml under RULED Q-L5 (b'). The two siblings this entry used to name as narrowed with it, test_intent_tray_dom.py and test_wheel_verbs_dom.py, are RETIRED: RULED 5656343213 retires both rows at this leg (#656 CLAIM 5656690570, openxFactory PR #1043), so the floor stops asking for their arrival and requires it ABSENT, and opensoft/openDox-code#24 carries the deletion that answers it — until that pull request merges, the arrival run at this leg refuses arrival-not-retired, which is the window cutover-runbook § 5.8 describes. THEIR NARROWING IS NOT WHAT CHANGES and is not undone by any of it: validate.yml's selection never named those two, does not name them now, and the leg's deletion deliberately leaves that allow-list alone — what ends are the files, not their exclusion from a list. This probe stays because its surface does: RULED Q5 gave openDox views/intent-binding.js, which arrived here, while theirs was views/intent-feed.js, RULED OQ-F not_moved"
         since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
@@ -157,12 +184,24 @@ destinations:
       - path: tests/test_profile_registration.py
         reason: "added by openDox-code #11 (the 4.3 registration tests)"
         since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"
+      - path: tests/test_reach_sweep.py
+        reason: "added by openDox-code #49 (plan 034 T032: the 2.3 sweep)"
+        since: "68be484ad8a3cb218b6cd217292c11736aa1c9b4"
+      - path: tests/test_route_handler_contribution.py
+        reason: "added by openDox-code #40 (plan 034 T010: the handler-contribution facet)"
+        since: "0f10b1f5b0650c58ac940d84ef45bd58a5f2df37"
+      - path: tests/test_session_notebook_membership.py
+        reason: "added by openDox-code #43 (plan 034 T025: the session notebook's registered scope)"
+        since: "c46430fb9aff39c7949a45c2956bba3ab696d605"
       - path: tests/test_source_core_arm.py
         reason: "added by opensoft/openDox-code build/s6-source-core-arm (PR #16, split-opendox § 3.4 slice S6, RULED Q4, `#656` comment `5642758731`) — the runnable half of the /source re-homing: 25 shape assertions over the route's ownership, its exact-before-prefix dispatch order, its single containment authority, its content types and its three refusals, on validate.yml's explicit list; this admission PR lands first per Q-L1"
         since: "b00fbd920a019e2cee816b4936f921ceeab67a8c"
       - path: tests/test_split_route_tails.py
         reason: "added by opensoft/openDox-code build/s4-split-route-tails (PR #17, split-opendox § 3.4 slice S4, RULED Q3, `#656` comment `5642758731`) — 29 node-driven assertions over the three new class-B modules and the five route tails they receive (two to `gate-lens.js`, two to `gate-projects.js`, one to `projection-index.js`; the other eight of the thirteen counted route constants arrive at the existing SWB modules, are removed, or stay in place), named on validate.yml's explicit list in the same commit; this admission PR lands first per Q-L1"
         since: "2e842178b2bceaee9a45441b7d70d797fe1205cf"
+      - path: tests/test_triple_pin.py
+        reason: "added by openDox-code #33 (split-opendox § 3.7 residue: the collection pin's test)"
+        since: "1d4ac83c63246f0b96f8b7b61b2ef4cd6e6183f1"
       - path: tests/test_view_registry.py
         reason: "added by opensoft/openDox-code build/s3-view-registry (PR #14, split-opendox § 3.4 slice S3, `#656` comment `5642758731`) — the registry's own tests; this admission PR (openxFactory #1001) lands first per Q-L1"
         since: "cb810d39737bf50bbe87e5700177c2e5ce2750da"
@@ -229,15 +268,78 @@ destinations:
       - path: src/openxdox/web_assets.py
         reason: "added by openXdox-code #18 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg A) — RULED Q5's ASSEMBLY HOOK: `install_view_modules(web_dir)` places this column's module bytes into openDox's one `--web-dir`"
         since: "01b06c940fa9f62c9b10f369b0843c4088690d49"
+      - path: tests/declared_exclusion.yaml
+        reason: "added by openXdox-code #30 (plan 034 T041, 9.2)"
+        since: "5fbd188ed4fe3681e189fafe49d7d0699d70a2ee"
+      - path: tests/doxbench_port_ban.py
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/doxbench_routes_harness.py
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/fixtures/base-repo/ideation/brainstorm/avatar-client-lab.md
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/fixtures/base-repo/ideation/brainstorm/doc-health-checks.md
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/fixtures/base-repo/ideation/brainstorm/dtn-register.md
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/fixtures/base-repo/ideation/brainstorm/legacy-note.md
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/fixtures/base-repo/ideation/cross-reference.yaml
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/fixtures/base-repo/ideation/staging/ideation-governance/README.md
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/fixtures/base-repo/ideation/staging/keyword-lens/README.md
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/fixtures/base-repo/openspec/changes/add-ideation-governance/proposal.md
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/fixtures/base-repo/openspec/changes/add-ideation-governance/tasks.md
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/fixtures/base-repo/openspec/changes/archive/2026-07-12-add-document-cataloging/proposal.md
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/fixtures/base-repo/project-register.yaml
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/fixtures/fake_omp_child.py
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
       - path: tests/fixtures/openxfactory-engineering-profile.yaml
         reason: "added by openXdox-code #14 (the 4.4 engine's profile fixture)"
         since: "3840c1670771e2dc7bcd64eaafbc43169e0f383d"
+      - path: tests/gate_routes_harness.py
+        reason: "added by openXdox-code #29 (plan 034 T040, 9.2)"
+        since: "d84b5048955add697dcf2f60bd3e4244500d0a49"
+      - path: tests/integration/declared_composition.py
+        reason: "added by openXdox-code #31 (plan 034 T042, 9.3)"
+        since: "4e16db95ff9e6c531dfbe79f517e0384399b947c"
+      - path: tests/integration/test_assembled_bundle.py
+        reason: "added by openXdox-code #31 (plan 034 T042, 9.3)"
+        since: "4e16db95ff9e6c531dfbe79f517e0384399b947c"
+      - path: tests/integration/test_assembled_surface.py
+        reason: "added by openXdox-code #31 (plan 034 T042, 9.3)"
+        since: "4e16db95ff9e6c531dfbe79f517e0384399b947c"
+      - path: tests/integration/test_declared_composition.py
+        reason: "added by openXdox-code #31 (plan 034 T042, 9.3)"
+        since: "4e16db95ff9e6c531dfbe79f517e0384399b947c"
       - path: tests/opendox_bundle.py
         reason: "added by openXdox-code #19 (§ 3.4 slice S8: the PINNED openDox bundle the 31 mis-pointed suites read, and the composed root RULED Q5 assembles)"
         since: "c8e4a59bd8eab231e5903e26b2a9b08e9e527fba"
       - path: tests/test_corpus_shape.py
         reason: "added by opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`, split-opendox-two-layer-product `design.md` § D4 machinery (1), RULED Q-X1..Q-X4 `#656` comment `5715212264`) — on `validate.yml`'s explicit `--noconftest` list: what a `CorpusShape` refuses to be, and what `from_profile` derives from the vendored engineering profile's six artifact kinds and eleven declared locations"
         since: "5494bb43350636cf7c3d5a3b6b2d6262ab74dd06"
+      - path: tests/test_declared_exclusion.py
+        reason: "added by openXdox-code #30 (plan 034 T041, 9.2)"
+        since: "5fbd188ed4fe3681e189fafe49d7d0699d70a2ee"
       - path: tests/test_dependency_direction.py
         reason: "added by openXdox-code #7"
         since: "bfd95063b2a71be097a04bb6a3a99c4c131dd322"
@@ -259,6 +361,12 @@ destinations:
       - path: tests/test_gate_loop_views.py
         reason: "added by openXdox-code #18 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg A) — the column's contract EXECUTED rather than described: the six bindings, their declared exports and routes, RULED Q3's one mount signature, RULED Q4's `requires`, the assembly hook and the hosted fallback"
         since: "01b06c940fa9f62c9b10f369b0843c4088690d49"
+      - path: tests/test_hermeticity_gate_verbs.py
+        reason: "added by openXdox-code #30 (plan 034 T041, 9.2)"
+        since: "5fbd188ed4fe3681e189fafe49d7d0699d70a2ee"
+      - path: tests/test_hermeticity_runner_seams.py
+        reason: "added by openXdox-code #30 (plan 034 T041, 9.2)"
+        since: "5fbd188ed4fe3681e189fafe49d7d0699d70a2ee"
       - path: tests/test_model_scenario_workbench.py
         reason: "added by openXdox-code #12 (4.5 slice 3)"
         since: "5333b125dc0f2dd9ee6f6e558c758fbfe6c49b4d"
@@ -274,6 +382,9 @@ destinations:
       - path: tests/test_role_authority_projection_seam.py
         reason: "added by openXdox-code #10 (4.5 slice 1)"
         since: "4f98e77c7985f786af2ec295c38b6b06a7f5fce6"
+      - path: tests/test_seam_assembly_beside_gate_and_projection.py
+        reason: "added by openXdox-code #33 (plan 034 T044, 9.4)"
+        since: "6158151e7f5202e1894f13365702daedca88cc26"
       - path: tests/test_snapshot_validator_home.py
         reason: "added by opensoft/openXdox-code `fix/snapshot-validator-carve-residue` (split-opendox-two-layer-product § 8.9 residue (ii) and (iii), RULED Q-P3 (a), `#656` comment `5728856581`) — the suite that pins the snapshot validator to the product's own tree: `VALIDATOR_RELPATH` names the file this leg carries, and an enclosing pre-shed checkout, a pre-shed corpus, the cwd and an installed copy are never adopted; this admission lands first per Q-L1"
         since: "45825ff7e0dda642bd2c2faf65aad2f30cf04421"
