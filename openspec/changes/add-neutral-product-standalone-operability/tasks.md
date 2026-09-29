@@ -1625,12 +1625,17 @@ packet's interim arrangement ends.**
     `EXPECT_SKIPPED` from 5 to 6 (opensoft/openxFactory#1195 has since
     landed the hermeticity-probe repair, moving the pin 6 → 5; this was
     "6 to 7" before that landing). Held, not decided against; a later task
-    takes it up.
+    takes it up. *(Taken up at T049, 2026-09-29: the phase-1 checkpoint
+    found the case in no suite, so on the holder's decision it landed in
+    this file by opensoft/openxFactory#1203 → `08e97c27`, which moved
+    `EXPECT_SKIPPED` from 5 to 6.)*
   - `tests/domain_profile/test_doxbench_chat_ceiling.py` — T035's one
     moved case, plus one it adds fresh
     (`test_the_browser_ceiling_equals_the_servers_ceiling`, pinning one
     side of a triangle whose openXdox-code twin T041's exclusion hides for
-    now).
+    now). *(Corrected at T049, 2026-09-29: T035 added that fresh case to
+    openDox-code's own `tests/test_doxbench_chat_view.py`, where `2d116415`
+    still carries it, not to this file, which holds only the moved case.)*
 
   None of these six needs a `COMPOSITION_TESTS` entry: `tests/domain_profile/`
   is already `HOST_TESTS`, F11.1's SECOND declared surface
