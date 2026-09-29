@@ -10,19 +10,27 @@ carries no such script. The script is this repository's, so the cases run
 here, against it, loaded by spec under this file's own module name exactly as
 the source module did.
 
-Two of T035's three session cases are here, verbatim:
+All three of T035's session cases are here, verbatim:
+`test_worktree_container_is_gitignored_in_the_aggregation_repo` (`:248-260`,
+with `find_aggregation_root` at `:229-238` and `_check_ignore` at `:241-245`),
 `test_session_worktrees_never_reach_a_lifecycle_book` (`:279-329`) and
 `test_pinned_factory_paths_never_admits_a_worktree_container` (`:332-347`).
-Both build their workspace under `tmp_path`.
+The last two build their workspace under `tmp_path`.
 
-The third, `test_worktree_container_is_gitignored_in_the_aggregation_repo`
-(`:248-260`, with `find_aggregation_root` at `:229-238`), is NOT here. It
-reads the xFactory AGGREGATION checkout's ignore file, found by a parent walk,
-and skips where there is none. In openxFactory's CI the walk finds none, so the
-case would skip in the required gate, whose `EXPECT_SKIPPED`
-(`.github/workflows/pytest-suite.yml`) pins the EXACT number of skips over
-`tests/`. T007 batch E (#1144's `tasks.md`) records it as HELD OUT: held, not
-decided against.
+The first reads the xFactory AGGREGATION checkout's own ignore file, found by a
+parent walk from this repository's root, and skips where there is none. On a
+runner the walk finds none (the workspace holds this checkout beside the
+pinned decision core, and no `.gitmodules`), so there it SKIPS, and the
+required gate's `EXPECT_SKIPPED` (`.github/workflows/pytest-suite.yml`), which
+pins the EXACT number of skips over `tests/`, counts it: the pin moved 5 -> 6
+with this case. Inside an aggregation checkout it runs and asserts. T007 batch
+E (#1144's `tasks.md`) first HELD IT OUT ("held, not decided against; a later
+task takes it up"). Plan 034's phase-1 checkpoint (T049) then found it in no
+suite at all, which requirement 9's second scenario refuses, so it lands here
+on the holder's decision of 2026-09-29. Its synthetic half,
+`test_the_worktrees_pattern_covers_the_sessions_sub_path`, never left
+openDox-code (`tests/test_session_harness.py`), because it builds its own
+repository and reads nothing of openxFactory's.
 
 WHY `tests/domain_profile/`, AND NOT THE PROPOSED `tests/ideation-dashboard/`
 PATH. `tests/ideation-dashboard/` is inside the carve surface
@@ -38,8 +46,11 @@ composed there.
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -52,6 +63,40 @@ sync = importlib.util.module_from_spec(_spec)
 assert _spec.loader is not None
 sys.modules[_spec.name] = sync
 _spec.loader.exec_module(sync)
+
+
+def find_aggregation_root(start: Path | None = None) -> Path | None:
+    """The xFactory aggregation checkout: the ancestor carrying `.gitmodules`
+    and an `openxFactory/` directory. None when unreachable (a bare clone of
+    this repo alone), in which case the real-tree half of the regression skips
+    and the synthetic half still runs."""
+    base = (start or REPO_ROOT).resolve()
+    for d in [base, *base.parents]:
+        if (d / ".gitmodules").is_file() and (d / "openxFactory").is_dir():
+            return d
+    return None
+
+
+def _check_ignore(root: Path, relpath: str) -> str | None:
+    done = subprocess.run(["git", "check-ignore", "-v", relpath],
+                          cwd=str(root), text=True, capture_output=True,
+                          check=False)
+    return done.stdout.strip() or None
+
+
+def test_worktree_container_is_gitignored_in_the_aggregation_repo():
+    agg = find_aggregation_root()
+    if agg is None:
+        pytest.skip("no aggregation checkout reachable from this tree")
+    for rel in ("xFactories/codexFactory-worktrees/",
+                "xFactories/codexFactory-worktrees/sessions/draft__demo-topic/",
+                "xFactories/codexFactory-worktrees/sessions/draft__demo-topic/a.md",
+                "openxFactory-worktrees/sessions/draft__demo-topic/"):
+        matched = _check_ignore(agg, rel)
+        assert matched is not None, f"{rel} is NOT gitignored — FR-005 broke"
+        # the finding is specifically that the EXISTING `*-worktrees/` pattern
+        # covers it, so no new ignore entry is owed (research R7)
+        assert matched.endswith("*-worktrees/\t" + rel) or "*-worktrees/" in matched
 
 
 def test_session_worktrees_never_reach_a_lifecycle_book(tmp_path):
