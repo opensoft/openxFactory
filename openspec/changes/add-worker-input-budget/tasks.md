@@ -134,11 +134,26 @@ rather than resolving it by silent omission.
   under continuously since the night of 2026-09-23.
 - [x] 4.3 Confirm on the first green nightly: `meta.json` carries
   `input_budget_bytes`, the child does not refuse, and the report's sweep
-  section states the input line. **CONFIRMED, night of 2026-09-24**
-  (`opensoft/xFactory` nightly run `35947804907`, conclusion `success`;
-  analysis child `35948587830` success; cataloger child `35948591376`
-  success — the first fully green night after the pin first carried the
-  packer). Measured directly from the downloaded run artifacts:
+  section states the input line. **CONFIRMED, night of 2026-09-24** —
+  precisely for the two children this task needs, not the whole run:
+  `opensoft/xFactory` nightly run `35947804907`'s analysis child
+  `35948587830` and cataloger child `35948591376` both `success`, the
+  first night either produced the budget record under the packer. The
+  same run's `finalize` job separately recorded, in a different lane, a
+  snapshot-lane failure and readiness/derive-possibles skips: per
+  `.github/workflows/doc-health-reusable.yml:1628-1635`, "the snapshot
+  lane died with `CarveReachUnavailable`; the ideation-readiness and
+  derive-possibles lanes skipped with 'the pinned openxdox_spec leg is
+  not materialized'; and the refresh stage's seal could not resolve the
+  validator it carries" — the openDox/openXdox carved legs not yet being
+  initialized in that job, since fixed by that same block. (The
+  separately-dispatched readiness-worker and derive-possibles-worker
+  children — runs `35949701420` and `35950836940` — are a different pair
+  and themselves succeeded that night; the skips named above are a later
+  dashboard-snapshot rendering lane, not them.) This night is therefore
+  not called "fully green" here — only the analysis/cataloger record
+  below is what this task rests on. Measured directly from the downloaded
+  run artifacts:
   `semantic-sweep-bundle/meta.json` — `input_budget_bytes: 1900000`,
   `input_bytes: 1899236`, `docs_included: 96`, `docs_deferred: 227`,
   `truncated: true`. `document-catalog-bundle/meta.json` —
