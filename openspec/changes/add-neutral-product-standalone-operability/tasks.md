@@ -432,6 +432,28 @@ mention in the package is prose.
   makes. The fourth, `session_documents` (`:746`), resolves through the
   registered adapter's `list_documents` in phase 1, and the hosted membership
   rule is unchanged. Carried out by T025, T026, T046.
+
+  **AMENDED — T007 Batch G (`5850003126`; Ruled R1Q10 (a)):** An addendum.
+  Every consumer mechanism on release 1's path gets an openDox-owned neutral
+  default, which the entry points register where no host has, in R1Q3 (a)'s
+  pattern (`5817152735`), the one 4.1a already sets for the home corpus.
+  openXdox contributes its governed one through the same seam, in R-G3's
+  pattern. The mechanisms are the ones that the nineteen reaches into
+  openXdox and `consumer_reach.py`'s names reach, as R1Q10 measures them
+  (`specs/034-opendox-standalone-operation/clarify-questions.md`), among them
+  the snapshot registry, the generator (5.4's seam), the doxBench scope and
+  the gate primitives behind chat's Save. For the two reaches into
+  openxFactory's `ideation_dashboard`, the doxBench contracts at
+  `serve_wire.py:1369` and the status-exemption rail at
+  `doxbench_packet.py:177`, openDox's default validators run over its spec
+  leg's two chat schemas, `xfactory-workbench-chat-turn` and
+  `xfactory-workbench-model-catalog`, and there is no status exemption by
+  default. The three reaches `run_scoped_doc_health` makes (T007 Batch A)
+  keep this box's own rule above: they refuse until Group 6 registers
+  openDox's own check. A bare process still refuses, naming the seam (4.2),
+  because a default is a registration an entry point makes and never a
+  fallback inside the seam. Carried out by T052, T055, T059, T084, T085 and
+  T086.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, no
   `corpus_adapter_openxfactory` importable):
 
@@ -537,6 +559,18 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   `completions` — the DECLARED value in `display_profile.py`, not the docstring
   that narrated it). **No word is re-authored and no workflow is designed.**
   `src/opendox/display_profile.py` is unchanged by this group.
+
+  **AMENDED — T007 Batch G (`5850003126`; Ruled R1Q11 (a)):** The closing
+  sentence above, *"`src/opendox/display_profile.py` is unchanged by this
+  group"*, is amended. `display_profile.py` changes in ONE place, where
+  `SNAPSHOT_VALUES`' defaults become the neutral snapshot's values.
+  openDox's own generator writes the neutral snapshot kind that T053 adds,
+  whose stage values are the six role keys (7.1 as this batch amends it), so
+  the defaults move with it and the product's own views match its own
+  snapshot. No word is re-authored and no workflow is designed: the six
+  words above stand. The governed values move to openXdox's facet, in the
+  `values` block that 5.3a's addendum admits (T007 Batch I, `5851950767`;
+  R1Q26 (a)), which R1Q11 (a) also implies. Carried out by T054.
 - [ ] 5.3a **openXdox declares the estate's FIRST `DISPLAY` facet — partial, one
   stage** (openXdox-code; RULED `5784683830`, *"1, keep completed and overlay
   implemented"*): the `completion` stage labelled **"implemented"**, the
@@ -694,6 +728,26 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   above selects: lane 4's C3 added it (openXdox-code#28, `e28930bf`), so the
   glob selects seven suites there. This bookkeeping amendment does not itself
   touch the Python above. Carried out by T061 and T063.
+
+  **AMENDED — T007 Batch G (`5850003126`; Ruled R1Q23 (a)):** F5.2's
+  environment line is amended. Its environment also composes openxFactory at
+  a NAMED commit: after the two installs, the block IS TO require
+  `OPENXFACTORY`, an openxFactory checkout, put `"$OPENXFACTORY/scripts"` on
+  `PYTHONPATH`, and quote that checkout's commit. `doc_health` lives in that
+  directory. Four of the suites the glob selects (`test_generator.py`,
+  `test_snapshot_determinism.py`, `test_snapshot_registry.py` and
+  `test_session_snapshot.py`) fail on `doc_health`, which openXdox's
+  `generator.py` and `snapshot_registry.py` import at module level (R1Q23's
+  measurement), and R1Q6 (d) (`5817152735`) leaves that reach to the
+  direction arc (T008). Composed this way, they can run where this falsifier
+  runs them. It is the declared-composition pattern of requirement 9's second
+  scenario, and the setting requirement 4's third scenario names. Nothing
+  else in the block changes by this amendment: the glob and the loop over
+  the suites stand as written, and the arc-landing check stands as T007
+  Batches C and F amend it. This bookkeeping amendment does not itself touch
+  the command above: the runs that use F5.2's environment (T059, T061 and
+  T063) use this one and quote the commit. Carried out by T059, T061 and
+  T063.
 - [ ] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
   projection replaces them; the import-time column stays at zero.
 - [x] 5.6 **Do NOT author the view-wiring slice here** — and it can no longer be
@@ -808,6 +862,13 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   carries a file `EXPECTED_RULE` holding the IDENTIFIER the validator reports for
   that violation, so the acceptance asserts the rule itself and not a wording it
   guesses at.
+
+  **AMENDED — T007 Batch G (`5850003126`; Ruled R1Q11 (a), R1Q12 (a)):** The
+  one violation is of a rule of the neutral snapshot schema that T053 adds to
+  openDox-spec (7.1 as this batch amends it), and `EXPECTED_RULE` holds that
+  rule's identifier. The generate verbs validate the snapshot they write
+  against that schema, so the refusal F7.2 asserts is for a rule of
+  openDox's own contract. Carried out by T051 and T053.
 - [ ] 7.1 **NARROW THE INPUT SET FIRST, then acquire what remains.** The existing
   validator's `SCHEMA_FILENAMES` names **ten** schemas and they have three
   different owners, so "give openDox the whole set" is the wrong shape:
@@ -845,6 +906,21 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   four does it arrive as the DIGEST-PINNED VENDORED COPY `neutral-product-pin`
   admits — a CONSUMED manifest member, and note that capability admits **ONE**,
   so needing more than one is itself a finding to raise rather than a thing to do.
+
+  **AMENDED — T007 Batch G (`5850003126`; Ruled R1Q11 (a), R1Q12 (a)):** "its
+  spec leg's **three**" becomes FOUR. openDox's validator validates its spec
+  leg's four kinds: the three of the table's first row, and the neutral
+  snapshot schema that T053 adds to openDox-spec, whose stage values are the
+  six role keys. That neutral kind is the snapshot openDox's generate verbs
+  write. openXdox's governed generator keeps writing
+  `ideation-dashboard-snapshot`, which stays the consumer's, as the table's
+  second row has it, and openXdox-spec does not change. The four travel as
+  package data, as this box resolves: the code leg carries digest-checked
+  copies of them, and a test holds each copy to the spec-leg commit the
+  openDox root pins (`contracts/spec-pin.yaml`). The same copies serve the
+  doxBench chat validators that this batch's 4.3 addendum names. F7.2's
+  command is unchanged: it installs the product, so the packaged set it
+  exercises is these four. Carried out by T053, T057 and T058.
 - [ ] 7.1b **AND TWO OF THOSE FOUR ARE NOT AVAILABLE BY THAT ROUTE AT ALL.**
   `gate-intent.schema.yaml` is an INTENT-PLANE schema — the carve manifest lists
   it among the validator's contract files (`docs/opendox-carve-manifest.yaml:459`)
@@ -1103,6 +1179,26 @@ packet's interim arrangement ends.**
   `scripts/verify-opendox-pin.py` and `scripts/verify-openxdox-pin.py` check.
   Every one is an ancestor move, not a fork, and none cuts a contract bundle or
   owes a release tag.
+
+  **AMENDED — T007 Batch G (`5850003126`; Ruled R1Q11 (a)):** An addendum.
+  *"None cuts a contract bundle or owes a release tag"* stays true of every
+  pin move above. Phase 2 adds one move that does both: it cuts ONE contract
+  bundle, a `dox-v1.x` minor at the openDox root, because T053 adds an
+  openDox-spec contract, the neutral snapshot schema (7.1 as this batch
+  amends it). A bundle is the legs at the commits the root pins, so the
+  root's `spec` gitlink and `contracts/spec-pin.yaml`, which name
+  openDox-spec `8fe8c4c7` (measured 2026-09-29), move to T053's commit for
+  the cut. The root cuts it under its own four-value rule (its
+  `contracts/CHANGELOG.md`): the manifest's `contract_bundle_version`, the
+  manifest's entries, the matching CHANGELOG entry, and an annotated
+  `dox-v<major>.<minor>` tag over the root commit that names both legs, so
+  this move owes its tag as well. The proposal says the same of the
+  realization, that it *"cuts no bundle and owes no tag"* (its
+  `code_surface:` and § What Changes). That sentence is read with this one
+  exception, and this bookkeeping edits no line of the proposal.
+  openDox-spec joins the arc's repositories, a sixth beside the five 11.0
+  names, and its landings carry 11.0's trailer. Carried out by T053, T062
+  and T090.
 - [ ] **FALSIFIED BY** (each leg's own checkout, no sibling installed):
 
       set -euo pipefail
@@ -1273,6 +1369,17 @@ packet's interim arrangement ends.**
   which is where the shape's own "What goes where" puts *"the implementation and
   its tests"*; the root's `README.md` has no shape-pin row and is the project's
   own to edit, so it documents and points at the command.
+
+  **AMENDED — T007 Batch H (`5850003126`; Ruled R1Q15 (b), R1Q16 (iii)):**
+  The command the root's `README.md` documents is the standalone install and
+  its one start: `pip install "opendox[local]"`, then
+  `opendox generate-and-open --local …`. The flag selects the local mode
+  explicitly (13.4 as this batch amends it), and the `local` extra carries
+  the bundled server that mode starts (13.1 as this batch amends it). After
+  the install, that start is the single command requirement 10's second
+  scenario has a user run. The entry point is still the code leg's console
+  script, and no `Makefile` target is added, for the reason above. Carried
+  out by T070 and T076.
 - [ ] **FALSIFIED BY** (clean checkout of openDox-code ONLY, fresh venv, no
   sibling installed — the server is started in the BACKGROUND with a readiness
   wait so the sequence runs to completion unattended):
@@ -1309,6 +1416,21 @@ packet's interim arrangement ends.**
   console script, there is no `__main__.py`, and nothing serves `web/` — the
   runtime's `app.py` mounts no `StaticFiles` and declares only `/livez`,
   `/readyz` and `/api/v1`.
+
+  **AMENDED — T007 Batch H (`5850003126`; Ruled R1Q15 (b), R1Q16 (iii)):**
+  F10.1's install line and its start line are amended, and `opendox --help`
+  stays its first assertion. `pip install .` becomes
+  `pip install ".[local]"`, and the start becomes
+  `opendox generate-and-open --local …`: the flag follows the verb, as every
+  option does (10.1), and the rest of that line stands as written. The
+  install line follows from R1Q15 (b) together with R1Q16 (iii): the start
+  passes `--local`, and the local mode's server arrives only with the extra
+  (13.1 as this batch amends it). F13.1 installs the same extra, so the two
+  still share one install line. F13.1's last probe sets neither the flag nor
+  the setting, and it still refuses, naming `OPENDOX_OIDC_ISSUER`, so the two
+  falsifiers no longer collide (R1Q15). This bookkeeping amendment does not
+  itself touch the command above: T077 runs it as amended. Carried out by
+  T070 and T077.
 
 ## Group 11 — Requirement 1: the guard holds (openxFactory)
 
@@ -2216,6 +2338,19 @@ amendments.
   `OPENDOX_DATABASE_URL` stays the refusal `config.py:13` already makes, so a
   hosted install can no more fall into a private local database than into local
   identity.
+
+  **AMENDED — T007 Batch H (`5850003126`; Ruled R1Q16 (i)–(iv)):** An
+  addendum. This box leaves the server's packaging to the realization, and
+  the answer names it. The document server starts the bundled server as its
+  own child and reports it (i), so the process a user reaches is the one
+  that owns it (13.4a). Starting and migrating the store is all release 1
+  asks of it, since the document surface reads nothing from it in release 1
+  (ii). It ships as the `opendox[local]` extra, which carries the runtime's
+  packages and the server's own (iii), and it stops with the entry point
+  (iv). Everything else above is unchanged: both DSNs supplied by the
+  product, the data directory and the socket under `OPENDOX_STATE_DIR`, no
+  TCP port, and the `database_bundle` report. F13.1 installs `".[local]"`,
+  as this batch's addendum there records. Carried out by T072 and T073.
 - [ ] 13.2 **Add no SQLite dialect**, and record the refusal where a future reader
   will look for it: a second dialect doubles every migration and every schema test
   forever, for a database that under RULING Q1 holds no document. **A non-PostgreSQL
@@ -2250,6 +2385,13 @@ amendments.
   judgement at the mode's own boundary. *(An earlier
   draft called it `OPENDOX_IDENTITY_MODE`. Once it also chose the datastore, that
   name described half of what it selects.)*
+
+  **AMENDED — T007 Batch H (`5850003126`; Ruled R1Q15 (b)):** An addendum.
+  `generate-and-open --local` selects the local mode explicitly, as
+  `OPENDOX_INSTALL_MODE=local` does. With neither, the install is hosted, as
+  13.5 requires. The flag is an option of the verb and follows it, as every
+  option does (10.1), and it is the selection the one documented command
+  makes (10.3 and F10.1 as this batch amends them). Carried out by T070.
 - [ ] 13.4a **The serving process reports its own install shape.** The entry
   point's served `/capabilities` payload (the same crossing `display_manifest`
   already publishes, `display_profile.py:670`) gains an `install` block. It holds
@@ -2392,6 +2534,17 @@ amendments.
   `OPENDOX_DATABASE_URL` and `OPENDOX_OIDC_ISSUER`, there is no local mode, and
   `load_settings` accepts a collapsed DSN pair (the migration DSN is optional
   there).
+
+  **AMENDED — T007 Batch H (`5850003126`; Ruled R1Q16 (i)–(iv)):** F13.1's
+  install line is amended: `pip install .` becomes `pip install ".[local]"`,
+  the standalone install (13.1 as this batch amends it). It is still group
+  10's install, since F10.1 installs the same extra. The local probe's
+  `OPENDOX_INSTALL_MODE=local` is the same selection as `--local` (13.4 as
+  this batch amends it), so that probe stands as written. So do the
+  refusals: the last probe sets neither, and it still proves that the unset
+  default refuses as `hosted` does. Nothing else in the block changes. This
+  bookkeeping amendment does not itself touch the command above: T074 runs
+  it as amended. Carried out by T074.
 
 ## Group 14 — Requirements 6, 14, 15: health in the store, and the fix loop (RULED, openDox-code)
 
@@ -2899,6 +3052,20 @@ and redesigns none of them.
   program (`broker_argv`, required), and the one broker that exists,
   openProfiler's `openprofiler-broker`, is a separate product (`design.md`
   § D14).
+
+  **AMENDED — T007 Batch H (`5850003126`; Ruled R1Q17 (b), R1Q18 (a)):** An
+  addendum. This box leaves two choices to the realization (`design.md`
+  § D14), and the answers name them. What resolves a reference in a
+  standalone install (R1Q17 (b)): a built-in resolver takes `env:NAME` and
+  OS-keyring references, at call time and inside `doxbench_provider.py`
+  only, and a record whose reference it takes needs no broker. How an
+  endpoint that takes no credential declares so (R1Q18 (a)): a third auth
+  kind, `none`, under which `broker_argv` and `credential_ref` are
+  forbidden, so the absence is declared and never a field left out. `none`
+  joins `AUTH_KINDS` after the two kinds that exist, `api_key` and `oauth`,
+  so F16.1's `AUTH_KINDS[0]` is unchanged and still names a kind that takes
+  a credential. The rest of the box stands: a reference is never a raw key,
+  and a raw key is refused when it is declared. Carried out by T080.
 - [ ] 16.4 **"No model configured" is a STATE, shown before any turn.**
   Measured: with no binding, `declared_model_port_factory(...)()` resolves the
   harness declaration, and its catalog offers `omp-local`, "Local harness model",
