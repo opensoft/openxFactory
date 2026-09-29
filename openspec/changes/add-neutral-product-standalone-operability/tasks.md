@@ -1273,6 +1273,17 @@ packet's interim arrangement ends.**
   which is where the shape's own "What goes where" puts *"the implementation and
   its tests"*; the root's `README.md` has no shape-pin row and is the project's
   own to edit, so it documents and points at the command.
+
+  **AMENDED — T007 Batch H (`5850003126`; Ruled R1Q15 (b), R1Q16 (iii)):**
+  The command the root's `README.md` documents is the standalone install and
+  its one start: `pip install "opendox[local]"`, then
+  `opendox generate-and-open --local …`. The flag selects the local mode
+  explicitly (13.4 as this batch amends it), and the `local` extra carries
+  the bundled server that mode starts (13.1 as this batch amends it). After
+  the install, that start is the single command requirement 10's second
+  scenario has a user run. The entry point is still the code leg's console
+  script, and no `Makefile` target is added, for the reason above. Carried
+  out by T070 and T076.
 - [ ] **FALSIFIED BY** (clean checkout of openDox-code ONLY, fresh venv, no
   sibling installed — the server is started in the BACKGROUND with a readiness
   wait so the sequence runs to completion unattended):
@@ -1309,6 +1320,21 @@ packet's interim arrangement ends.**
   console script, there is no `__main__.py`, and nothing serves `web/` — the
   runtime's `app.py` mounts no `StaticFiles` and declares only `/livez`,
   `/readyz` and `/api/v1`.
+
+  **AMENDED — T007 Batch H (`5850003126`; Ruled R1Q15 (b), R1Q16 (iii)):**
+  F10.1's install line and its start line are amended, and `opendox --help`
+  stays its first assertion. `pip install .` becomes
+  `pip install ".[local]"`, and the start becomes
+  `opendox generate-and-open --local …`: the flag follows the verb, as every
+  option does (10.1), and the rest of that line stands as written. The
+  install line follows from R1Q15 (b) together with R1Q16 (iii): the start
+  passes `--local`, and the local mode's server arrives only with the extra
+  (13.1 as this batch amends it). F13.1 installs the same extra, so the two
+  still share one install line. F13.1's last probe sets neither the flag nor
+  the setting, and it still refuses, naming `OPENDOX_OIDC_ISSUER`, so the two
+  falsifiers no longer collide (R1Q15). This bookkeeping amendment does not
+  itself touch the command above: T077 runs it as amended. Carried out by
+  T070 and T077.
 
 ## Group 11 — Requirement 1: the guard holds (openxFactory)
 
@@ -2216,6 +2242,19 @@ amendments.
   `OPENDOX_DATABASE_URL` stays the refusal `config.py:13` already makes, so a
   hosted install can no more fall into a private local database than into local
   identity.
+
+  **AMENDED — T007 Batch H (`5850003126`; Ruled R1Q16 (i)–(iv)):** An
+  addendum. This box leaves the server's packaging to the realization, and
+  the answer names it. The document server starts the bundled server as its
+  own child and reports it (i), so the process a user reaches is the one
+  that owns it (13.4a). Starting and migrating the store is all release 1
+  asks of it, since the document surface reads nothing from it in release 1
+  (ii). It ships as the `opendox[local]` extra, which carries the runtime's
+  packages and the server's own (iii), and it stops with the entry point
+  (iv). Everything else above is unchanged: both DSNs supplied by the
+  product, the data directory and the socket under `OPENDOX_STATE_DIR`, no
+  TCP port, and the `database_bundle` report. F13.1 installs `".[local]"`,
+  as this batch's addendum there records. Carried out by T072 and T073.
 - [ ] 13.2 **Add no SQLite dialect**, and record the refusal where a future reader
   will look for it: a second dialect doubles every migration and every schema test
   forever, for a database that under RULING Q1 holds no document. **A non-PostgreSQL
@@ -2250,6 +2289,13 @@ amendments.
   judgement at the mode's own boundary. *(An earlier
   draft called it `OPENDOX_IDENTITY_MODE`. Once it also chose the datastore, that
   name described half of what it selects.)*
+
+  **AMENDED — T007 Batch H (`5850003126`; Ruled R1Q15 (b)):** An addendum.
+  `generate-and-open --local` selects the local mode explicitly, as
+  `OPENDOX_INSTALL_MODE=local` does. With neither, the install is hosted, as
+  13.5 requires. The flag is an option of the verb and follows it, as every
+  option does (10.1), and it is the selection the one documented command
+  makes (10.3 and F10.1 as this batch amends them). Carried out by T070.
 - [ ] 13.4a **The serving process reports its own install shape.** The entry
   point's served `/capabilities` payload (the same crossing `display_manifest`
   already publishes, `display_profile.py:670`) gains an `install` block. It holds
@@ -2392,6 +2438,17 @@ amendments.
   `OPENDOX_DATABASE_URL` and `OPENDOX_OIDC_ISSUER`, there is no local mode, and
   `load_settings` accepts a collapsed DSN pair (the migration DSN is optional
   there).
+
+  **AMENDED — T007 Batch H (`5850003126`; Ruled R1Q16 (i)–(iv)):** F13.1's
+  install line is amended: `pip install .` becomes `pip install ".[local]"`,
+  the standalone install (13.1 as this batch amends it). It is still group
+  10's install, since F10.1 installs the same extra. The local probe's
+  `OPENDOX_INSTALL_MODE=local` is the same selection as `--local` (13.4 as
+  this batch amends it), so that probe stands as written. So do the
+  refusals: the last probe sets neither, and it still proves that the unset
+  default refuses as `hosted` does. Nothing else in the block changes. This
+  bookkeeping amendment does not itself touch the command above: T074 runs
+  it as amended. Carried out by T074.
 
 ## Group 14 — Requirements 6, 14, 15: health in the store, and the fix loop (RULED, openDox-code)
 
@@ -2899,6 +2956,20 @@ and redesigns none of them.
   program (`broker_argv`, required), and the one broker that exists,
   openProfiler's `openprofiler-broker`, is a separate product (`design.md`
   § D14).
+
+  **AMENDED — T007 Batch H (`5850003126`; Ruled R1Q17 (b), R1Q18 (a)):** An
+  addendum. This box leaves two choices to the realization (`design.md`
+  § D14), and the answers name them. What resolves a reference in a
+  standalone install (R1Q17 (b)): a built-in resolver takes `env:NAME` and
+  OS-keyring references, at call time and inside `doxbench_provider.py`
+  only, and a record whose reference it takes needs no broker. How an
+  endpoint that takes no credential declares so (R1Q18 (a)): a third auth
+  kind, `none`, under which `broker_argv` and `credential_ref` are
+  forbidden, so the absence is declared and never a field left out. `none`
+  joins `AUTH_KINDS` after the two kinds that exist, `api_key` and `oauth`,
+  so F16.1's `AUTH_KINDS[0]` is unchanged and still names a kind that takes
+  a credential. The rest of the box stands: a reference is never a raw key,
+  and a raw key is refused when it is declared. Carried out by T080.
 - [ ] 16.4 **"No model configured" is a STATE, shown before any turn.**
   Measured: with no binding, `declared_model_port_factory(...)()` resolves the
   harness declaration, and its catalog offers `omp-local`, "Local harness model",
