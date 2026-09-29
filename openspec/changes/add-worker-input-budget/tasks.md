@@ -80,10 +80,111 @@ this change.
 
 ## Group 4 — after ratification
 
-- [ ] 4.1 Land both pull requests on Brett Heap's word.
-- [ ] 4.2 Pin-sync the aggregation's `openxFactory` gitlink so the nightly
-  runs the budgeted packer (`prepare` runs `python3
-  openxFactory/scripts/doc-health.py` FROM the gitlink).
-- [ ] 4.3 Confirm on the first green nightly: `meta.json` carries
+**Sequencing tension, named rather than hidden** (raised by Codex's and
+Copilot's review of the PR that ticked 4.1-4.3): this Group's own heading
+reads "after ratification," and Group 0 above states it "gates landing" —
+yet 4.1 measurably happened on 2026-09-22, while 0.4 (ratifying the two
+spec deltas that make this behavior NORMATIVE rather than merely an
+implementation fix) is still open even as this line is written. The
+landing was not ungated: it ran under a separate, explicit operational
+word, Brett Heap's *"land the input-size guard when green"* — the same
+word 4.1 cites below, governing issue `opensoft/xFactory#479` — given the
+same day the proposal itself was opened, because the nightly's analysis
+child had been silently failing every night since 2026-08-30 and the
+fix's urgency was judged ahead of waiting on the spec-text ratification.
+Whether that operational word is the "approved exception" this house rule
+contemplates, or whether 0.4 should have gated 4.1 regardless, is put to
+Brett Heap as a RULING (see the PR report); this note records the tension
+rather than resolving it by silent omission.
+
+- [x] 4.1 Land both pull requests on Brett Heap's word. **DONE 2026-09-22.**
+  `opensoft/openxFactory#1137` ("Bound the bounded workers' input to the
+  model's context window", branch `fix/semantic-sweep-input-budget`) merged
+  2026-09-22T03:45:21Z at `9da52e318aa7662efa57b750bef3dc1992ff6332`.
+  `opensoft/xFactory#481` ("Make the doc-health workers refuse an
+  over-budget input, and say why", branch `fix/worker-input-size-guard`)
+  merged 2026-09-22T03:45:36Z at `b2479b6e4d9a6bccb8cdf5e2b39417257dc3f5c5`
+  — fifteen seconds later. Both landed under the same word: Brett Heap's
+  *"land the input-size guard when green"* (governing issue
+  `opensoft/xFactory#479`), recorded as a FREEZE/LANDING/LANDED sequence on
+  `opensoft/openxFactory#1137` (comments at 03:45:01Z / 03:45:15Z /
+  03:45:26Z→merge `9da52e31`) and confirmed on `opensoft/xFactory#481`
+  (comment at 03:45:32Z, *"the parent-side budget landed in
+  opensoft/openxFactory#1137; the two-file pin-sync follows"*).
+- [x] 4.2 Pin-sync the aggregation's `openxFactory` gitlink so the nightly
+  runs the budgeted packer. **DONE, and continuously true since
+  2026-09-22.** The gitlink first carried the packer via
+  `opensoft/xFactory#483` ("Sync submodule pointer: openxFactory aaddda66
+  -> 9da52e31, with the clearing PIN in the same commit"), merged
+  2026-09-22T03:58:45Z — 13 minutes after `#1137` landed — moving the
+  gitlink to `9da52e318aa7662efa57b750bef3dc1992ff6332`, `#1137`'s own merge
+  commit. Measured: `git merge-base --is-ancestor 9da52e31 <gitlink>` holds
+  for every nightly's gitlink since (`94b6f7f1` 09-24, `dd2466ad` 09-25/26,
+  `1c6662e7` 09-27, `133e37d9` 09-28's own nightly) and for every pin-sync
+  landed today past that — `opensoft/xFactory#543` ("Sync openxFactory pin
+  133e37d9 -> 6b97c601", merged 2026-09-28T17:58:15Z) and
+  `opensoft/xFactory#544` ("Sync openxFactory pin 6b97c601 -> e369cb25,
+  T007 batch B record", merged 2026-09-28T22:33:16Z). The CURRENT gitlink,
+  confirmed live via `gh api "repos/opensoft/xFactory/contents/openxFactory?ref=main"`
+  at 2026-09-28T23:05:35Z, is `e369cb25cd9a4ea0c62469777bde003168191a37` —
+  `#544`'s target, and a measured descendant of the packer's
+  merge commit. `#543`/`#544` are routine lockstep pin-syncs for unrelated
+  commits (finalize-job sealed-run containment, a T007 openspec record);
+  neither was needed to first admit the packer, which the nightly has run
+  under continuously since the night of 2026-09-23.
+- [x] 4.3 Confirm on the first green nightly: `meta.json` carries
   `input_budget_bytes`, the child does not refuse, and the report's sweep
-  section states the input line.
+  section states the input line. **CONFIRMED, night of 2026-09-24** —
+  precisely for the two children this task needs, not the whole run:
+  `opensoft/xFactory` nightly run `35947804907`'s analysis child
+  `35948587830` and cataloger child `35948591376` both `success` — the
+  first night BOTH children this task needs succeeded end to end with
+  real model output under the packer. The budget record itself is
+  older: per `proposal.md`'s own OQ-1 citation, the `semantic-sweep-bundle/
+  meta.json` the packer writes already carried a full budget record the
+  night before (09-23, run `35810840997` — 1,899,789 bytes, 92 documents,
+  226 deferred) regardless of that night's model-call outcome, because
+  `prepare` packs and records the budget before either child is
+  dispatched. This task's claim is about the children succeeding, not
+  about when the record first existed. The same run's `finalize` job
+  separately recorded, in a different lane, a
+  snapshot-lane failure and readiness/derive-possibles skips: per
+  `.github/workflows/doc-health-reusable.yml:1628-1635`, "the snapshot
+  lane died with `CarveReachUnavailable`; the ideation-readiness and
+  derive-possibles lanes skipped with 'the pinned openxdox_spec leg is
+  not materialized'; and the refresh stage's seal could not resolve the
+  validator it carries" — the openDox/openXdox carved legs not yet being
+  initialized in that job, since fixed by that same block. (The
+  separately-dispatched readiness-worker and derive-possibles-worker
+  children — runs `35949701420` and `35950836940` — are a different pair
+  and themselves succeeded that night; the skips named above are a later
+  dashboard-snapshot rendering lane, not them.) This night is therefore
+  not called "fully green" here — only the analysis/cataloger record
+  below is what this task rests on. Measured directly from the downloaded
+  run artifacts:
+  `semantic-sweep-bundle/meta.json` — `input_budget_bytes: 1900000`,
+  `input_bytes: 1899236`, `docs_included: 96`, `docs_deferred: 227`,
+  `truncated: true`. `document-catalog-bundle/meta.json` —
+  `input_budget_bytes: 1900000`, a measured `shard_input_bytes` per shard
+  (35 shards; largest `CATSHARD-0016-464b736481` at 918,035 bytes),
+  `shards_over_budget: []` (none this night). Neither child's bundle
+  carries a `skip-reason.json`; the analysis child's own job log states
+  `input-size guard: analysis-input.txt is 1899236 bytes against a
+  1900000-byte budget from meta.json` immediately before the model call
+  that produced real findings — the guard ran and passed, it did not
+  refuse. The committed report (`health/reports/2026-09-24.md`, blob
+  `761fec1e6de9f8bc0903e9838a1b6b93a31390fd`, reached via commit
+  `28f8d918f6` on the rolling report branch behind
+  `opensoft/xFactory#396`/`#533`) states, under `## Semantic Sweep`:
+  *"- input: 1899236 of 1900000 budgeted bytes, 96 docs sent, 227
+  deferred"* — byte for byte the bundle's own `meta.json` record.
+  **Residual, as of 2026-09-28 (not a defect in this packet):** the four
+  nights since — 09-25, 09-26, 09-27, 09-28 — the analysis and cataloger
+  children have both again failed, but measurably NOT on the input-size
+  guard: 09-28's analysis child log shows the same guard line passing at
+  1,899,526 of 1,900,000 bytes, immediately followed by the model call's
+  own `"api_error_status":403, "result":"Your organization has disabled
+  Claude subscription access for Claude Code..."` — OQ-3's HTTP 403
+  recurring, not a budget refusal. No further nightly has run since
+  today's `#543`/`#544` pin-syncs (next scheduled 2026-09-29T02:17Z, cron
+  `17 2 * * *`).
