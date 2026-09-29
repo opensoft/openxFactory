@@ -17,6 +17,10 @@ Run layout (research D4; contract "Governed document catalog coverage"):
                             slash-separated repo IDs become subdirs
     health/document-catalog/runs/.sequence/
         <NNNNNN>.yaml       atomically claimed run-sequence records
+    health/document-catalog/runs/.staging/
+        <name>.<rand>.tmp   a write before its rename (``_write_rendered``),
+                            or one a crash left: never a record, and
+                            never inside a run directory
 
 ``<run-id>`` is a content address (``run_id``): a SHA-256 over every
 per-repository snapshot document the run records, so one id names
@@ -76,6 +80,12 @@ from . import inventory
 CATALOG_DIR = Path("health") / "document-catalog"
 RUNS_DIR = CATALOG_DIR / "runs"
 SEQUENCE_DIR = RUNS_DIR / ".sequence"
+# Where every write is staged before an atomic rename publishes it
+# (``_write_rendered``; opensoft/openxFactory#1196): beside the day
+# directories, so on the run tree's own filesystem, and dot-named like
+# ``.sequence``, so the run scan skips it by name. No run directory ever
+# holds a temp of the writer's, so the preflight admits none.
+STAGING_DIR = RUNS_DIR / ".staging"
 
 # Run-metadata file name inside each run directory; reserved (a repo
 # named "run" would collide with it and is refused).
@@ -612,11 +622,147 @@ def _repo_file(run_dir: Path, repo: str) -> Path:
     return run_dir.joinpath(*segments[:-1]) / (segments[-1] + ".yaml")
 
 
-def _write_rendered(path: Path, text: str) -> None:
-    """Crash-safe AND concurrency-safe write: the content lands complete
-    in a UNIQUE per-invocation temp file (``mkstemp``, never a shared
-    fixed ``.tmp`` name in the destination dir), then an atomic
-    ``os.replace`` publishes it.
+def _nearest_existing(node: Path) -> Path:
+    """``node`` when something is there, else its nearest ancestor that
+    exists, which is where a directory made at ``node`` would be created."""
+    node = Path(node)
+    while node.parent != node:
+        try:
+            os.stat(node)
+        except (FileNotFoundError, NotADirectoryError):
+            node = node.parent
+            continue
+        return node
+    return node
+
+
+def _device_id(node: Path) -> int:
+    """The id (``st_dev``) of the filesystem ``node`` is on."""
+    return os.stat(node).st_dev
+
+
+def _mount_id(directory: Path) -> int | None:
+    """The id of the mount ``directory`` is on, read from Linux's
+    ``/proc/self/fdinfo`` (``mnt_id``) through an ``O_PATH`` descriptor,
+    which needs no permission on the directory itself; None where the
+    platform does not say (no ``O_PATH``, or no procfs)."""
+    if not hasattr(os, "O_PATH"):
+        return None
+    fd = os.open(directory, os.O_PATH | os.O_DIRECTORY)
+    try:
+        with open(f"/proc/self/fdinfo/{fd}", encoding="ascii") as info:
+            for line in info:
+                key, _, value = line.partition(":")
+                if key == "mnt_id":
+                    return int(value)
+    except OSError:
+        return None
+    finally:
+        os.close(fd)
+    return None
+
+
+def _rename_compatible(a: Path, b: Path) -> bool:
+    """Whether ``os.replace`` can move a file from directory ``a`` into
+    directory ``b`` atomically: whether they are, or once made will be, on
+    one filesystem (one ``st_dev``) and one mount. ``rename(2)`` fails with
+    ``EXDEV`` across mount points even when one filesystem is mounted at
+    both, so two bind mounts of one filesystem, which share an ``st_dev``,
+    are told apart by their mount ids (``_mount_id``; PR #1199 review,
+    Copilot) wherever the platform gives one. A path with nothing there yet
+    counts as its nearest existing ancestor (``_nearest_existing``), where
+    it would be made. Links are followed: by the time this runs the writer
+    has refused every link from the catalog root down, and above the root a
+    link is the host's (``_catalog_chain``), so a directory made below one
+    lands on its target's filesystem and mount."""
+    a, b = _nearest_existing(a), _nearest_existing(b)
+    if _device_id(a) != _device_id(b):
+        return False
+    mount_a, mount_b = _mount_id(a), _mount_id(b)
+    return mount_a is None or mount_b is None or mount_a == mount_b
+
+
+def _fsync_directory(directory: Path) -> None:
+    """fsync ``directory`` itself, which makes the entries renamed or made
+    in it durable. POSIX lets a directory be opened for that; elsewhere the
+    platform offers no such call, and nothing is done."""
+    if os.name != "posix":
+        return
+    fd = os.open(directory, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def _fsync_publish(root: Path, directory: Path) -> None:
+    """Make an entry renamed or made in ``directory`` durable, with every
+    directory from it up to the runs directory, deepest first. Each
+    directory's own entry in its parent is then durable too, so what was
+    published is reachable after a power loss, not only stored: a
+    slash-separated repository's snapshot sits in a directory the writer
+    made inside the run, and a day directory or the claims directory can be
+    new in the runs directory. Nothing above the runs directory is synced:
+    losing one of those entries loses the runs directory whole, claims and
+    runs together, and an absent run is what a retry records."""
+    runs = Path(root) / RUNS_DIR
+    node = Path(directory)
+    while True:
+        _fsync_directory(node)
+        if node == runs or runs not in node.parents:
+            return
+        node = node.parent
+
+
+def _cross_mount_refusal(root: Path, directory: Path) -> CatalogError:
+    """The refusal for a write that could not be published into
+    ``directory`` from the staging directory by an atomic rename, naming
+    both by their paths under ``root``."""
+    return CatalogError(
+        f"catalog staging directory {STAGING_DIR.as_posix()} is not on the "
+        f"same filesystem and mount as "
+        f"{Path(directory).relative_to(root).as_posix()}, so a write staged "
+        f"there could not be published by an atomic rename")
+
+
+def _write_rendered(root: Path, path: Path, text: str) -> None:
+    """Crash-safe AND concurrency-safe write of ``path``, a file of the
+    catalog tree under ``root``: the content lands complete in a UNIQUE
+    per-invocation temp file (``mkstemp``, never a shared fixed ``.tmp``
+    name) in the catalog's staging directory (``STAGING_DIR``), then an
+    atomic ``os.replace`` publishes it at ``path``.
+
+    The temp is never staged beside ``path`` (opensoft/openxFactory#1196).
+    Beside it meant inside the run directory, so the writer's preflight
+    (``_refuse_foreign_descendants``) had to admit every file shaped like a
+    temp, ``<final-name>.<random>.tmp``, to spare a concurrent writer's
+    temp in flight and one a crash left behind, and a stranger merely
+    named that way passed too. The staging directory is outside every run
+    and day directory, and the run scan skips it by name, so no temp of the
+    writer's is ever in the tree the preflight and the scan read, and the
+    preflight admits none. Like every catalog directory the writer writes
+    through, the staging directory is refused when it is a symlink or not
+    a directory (``_refuse_foreign_node``): a temp staged through a link
+    would be written outside the catalog tree.
+
+    A temp a crash leaves in the staging directory is ignored: never swept
+    and never read. Nothing tells it apart from a concurrent writer's temp
+    in flight, whose ``os.replace`` a sweep would break, and telling them
+    apart by age would read the wall clock, which the catalog never does.
+    It is inert where it lies, because it reaches a run only through the
+    rename of the writer that staged it, which the crash never made. The
+    document-catalog family reports it as a misplaced catalog artifact
+    (``immutable-path``), so a person can remove it.
+
+    An atomic rename needs one filesystem and one mount
+    (``_rename_compatible``). The layout keeps the staging directory on the
+    run tree's, beside the day directories. The writer's preflight
+    (``_refuse_unsafe_run_paths``) refuses a run with a directory on
+    another filesystem or mount than the staging directory before anything
+    is claimed, and this write checks again before anything is staged,
+    since a directory can be mounted in between. ``os.replace`` never falls
+    back to a copy in any case: across mounts it fails, and the temp is
+    removed.
 
     Because every writer owns its own temp, two racing writers of the
     same target — even with DIFFERENT bytes, as when two runs of one
@@ -627,9 +773,22 @@ def _write_rendered(path: Path, text: str) -> None:
     ``.tmp`` predecessor admitted — the same hazard
     ``catalog_baseline._write_exclusive`` already guards against with a
     per-invocation temp). The last ``os.replace`` wins atomically;
-    identical-content racers converge on identical bytes. Perms are
-    ``mkstemp``'s default 0600 — git normalizes modes on commit, so
-    there is no need to widen them here.
+    identical-content racers converge on identical bytes. The content is
+    written in full, flushed and fsynced before its handle closes and the
+    rename publishes it, the fsync-then-rename order
+    opensoft/openxFactory#1196 keeps (PR #1199 review, Copilot): closing
+    alone flushes Python's buffer but makes nothing durable, so a power
+    loss could otherwise leave a published record whose bytes never reached
+    the disk. The rename is then made durable too, up to the runs
+    directory, before this returns and so before the run's next file is
+    published (``_fsync_publish``; PR #1199 review, Copilot): a power loss
+    can no longer undo a snapshot's rename while keeping the ``run.yaml``
+    published after it, which would leave a recorded run holding no
+    snapshot. The run's sequence claim is made durable the same way before
+    anything of the run is written (``_claim_sequence``), so no durable
+    ``run.yaml`` can name a claim a power loss took. Perms are ``mkstemp``'s
+    default 0600 — git normalizes modes on commit, so there is no need to
+    widen them here.
 
     ``newline="\\n"`` pins the persisted bytes to exactly ``text`` encoded
     as UTF-8 on every platform (research D3: ``\\n`` line endings) — a
@@ -637,16 +796,24 @@ def _write_rendered(path: Path, text: str) -> None:
     separator, and every existing-file check (``write_snapshot``,
     ``write_run``) and the byte-exact run-id verification
     (``run_id_scheme``) compare raw bytes against ``render``'s output."""
+    staging = Path(root) / STAGING_DIR
+    _refuse_foreign_node(staging, directory=True)  # never stage via a link
+    staging.mkdir(exist_ok=True)
+    if not _rename_compatible(staging, path.parent):
+        raise _cross_mount_refusal(root, path.parent)
     fd, tmp_name = tempfile.mkstemp(
-        dir=path.parent, prefix=path.name + ".", suffix=".tmp")
+        dir=staging, prefix=path.name + ".", suffix=".tmp")
     tmp = Path(tmp_name)
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())  # durable before it is published
         os.replace(tmp, path)  # atomic publish; consumes this temp only
     except BaseException:
         tmp.unlink(missing_ok=True)  # own temp, if os.replace never ran
         raise
+    _fsync_publish(root, path.parent)  # the publish itself durable
 
 
 def _load_yaml_json(path: Path) -> dict:
@@ -802,8 +969,8 @@ def _iter_runs(root: Path):
     no single entry to report, so it raises ``CatalogError``. A missing
     catalog directory, or a node there that is not a directory, means no
     recorded run, as before. A hidden (dot-named) entry is not a day or a
-    run, and is skipped by its name alone, so ``.sequence`` is never listed
-    here.
+    run, and is skipped by its name alone, so neither ``.sequence`` nor the
+    writer's staging directory (``STAGING_DIR``) is ever listed here.
 
     A regular ``run.yaml`` that cannot be parsed still raises
     ``CatalogError`` from the scan, unchanged."""
@@ -954,9 +1121,14 @@ def _claim_sequence(root: Path, day: str, rid: str) -> int:
             continue  # lost the race — re-scan and retry
         # newline="\n": the claim's bytes are render()'s on every platform
         # (research D3), exactly as _write_rendered persists every other
-        # catalog record.
+        # catalog record. The claim is durable, with its entry, before
+        # anything of its run is written: a run.yaml is only ever published
+        # naming a claim a power loss can no longer take (PR #1199 review).
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(render(_claim_document(sequence, day, rid)))
+            handle.flush()
+            os.fsync(handle.fileno())
+        _fsync_publish(root, claims_dir)
         return sequence
 
 
@@ -1071,57 +1243,26 @@ def _refuse_links_inside(run_dir: Path) -> None:
                     f"follows: {node}")
 
 
-def _is_writer_temp(node: Path, allowed_files) -> bool:
-    """True when ``node`` has exactly the shape ``_write_rendered``'s
-    ``tempfile.mkstemp(dir=path.parent, prefix=path.name + ".",
-    suffix=".tmp")`` leaves beside one of ``allowed_files``: a
-    same-directory sibling, a REGULAR file, named ``"<final-name>.``
-    then a non-empty random component then ``".tmp"``.
-
-    That covers both a concurrent writer's in-flight temp (PR #1189
-    review, Codex: an identical writer can be between its own ``mkstemp``
-    and ``os.replace`` when this preflight runs — the overlapping-writer
-    design ``test_overlapping_identical_runs_both_complete`` already
-    relies on) and one a hard crash orphaned before ``_write_rendered``'s
-    own ``except BaseException: tmp.unlink()`` could run. Neither is a
-    foreign descendant: the run-identity hash never reads it (only
-    ``_snapshot_files``'s ``*.yaml`` match does, and ``.tmp`` never
-    satisfies that), and it is always either replaced by ``os.replace``
-    or left as harmless debris, never read as recorded content.
-
-    Both requirements this docstring bolded are load-bearing (PR #1189
-    review, Copilot round 2): ``mkstemp`` never omits its random
-    component, so a same-directory ``"<final-name>.tmp"`` with NO random
-    part cannot be one of its temps — only a stranger deliberately or
-    accidentally named to resemble one, which must still refuse. And
-    ``mkstemp`` always creates a plain file, never a FIFO, socket, or
-    device — a foreign special node merely named like a temp must still
-    refuse too, so this checks ``is_file()`` (safe: by the time this
-    runs, ``_refuse_links_inside`` has already refused every symlink in
-    ``run_dir``, so a True here can only mean a genuine regular file)."""
-    if not node.name.endswith(".tmp"):
-        return False
-    for target in allowed_files:
-        if node.parent != target.parent:
-            continue
-        prefix = target.name + "."
-        if node.name.startswith(prefix) and \
-                node.name[len(prefix):-len(".tmp")] and node.is_file():
-            return True
-    return False
-
-
 def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:
     """Refuse a run directory that holds any descendant — file or
     subdirectory, at any depth — outside the exact allowed set:
     ``run.yaml`` plus the repository-snapshot paths this run records
-    (``allowed_files``), each allowed file's own writer-owned temp
-    (``_is_writer_temp``). A directory that is a proper ancestor of an
+    (``allowed_files``). A directory that is a proper ancestor of an
     allowed file is exactly the structure the writer itself makes for a
     slash-separated repository id, and passes; anything else is refused
     before the first write or claim — a plain file the writer never wrote
     (``notes.txt``, a stray ``run.yaml.bak``), or an unexpected
     subdirectory, empty or not, whatever it holds.
+
+    That includes a file named like one of the writer's temps
+    (``<final-name>.<random>.tmp``): no temp is admitted
+    (opensoft/openxFactory#1196). The writer stages every write outside
+    the run tree (``_write_rendered``, ``STAGING_DIR``), so no run
+    directory ever holds one of its temps, in flight or left by a crash,
+    and a file of that shape inside a run can only be a stranger. While
+    the writer staged its temps beside their targets, this preflight
+    admitted that shape, and a stranger merely named that way passed
+    (PR #1189 review, Copilot's last round).
 
     ``_snapshot_files`` alone missed this for ``write_run``'s preflight:
     filtered to ``*.yaml``, it never saw a non-YAML stranger, a
@@ -1157,8 +1298,7 @@ def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:
         base = Path(dirpath)
         for name in sorted(filenames):
             node = base / name
-            if node not in allowed_files and \
-                    not _is_writer_temp(node, allowed_files):
+            if node not in allowed_files:
                 raise CatalogError(
                     f"catalog run directory holds a path this run does "
                     f"not record ({node.relative_to(run_dir).as_posix()}): "
@@ -1177,16 +1317,25 @@ def _refuse_unsafe_run_paths(root: Path, run_dir: Path, targets) -> None:
     write through is foreign (``_refuse_foreign_node``). That covers every
     directory, top-down, from ``root`` itself through ``health``,
     ``health/document-catalog`` and ``.../runs`` (``_catalog_chain``) to
-    the sequence-claim directory, the date and run directories, and a
+    the sequence-claim directory, the staging directory every write is
+    staged in (``STAGING_DIR``), the date and run directories, and a
     slash-separated repository's subdirectories, plus ``run.yaml`` and
     every snapshot file. Each node is checked with its ancestors, so no
     component from ``root`` to a written file can be a symlink. A foreign
     node would otherwise surface only after the sequence was claimed, as a
     filesystem error mid-run that leaves an orphaned claim or a partial
     run, or it would carry the writes outside the tree without any
-    error."""
+    error.
+
+    Last, every directory the run publishes a file into must be on the
+    staging directory's filesystem and mount (``_rename_compatible``,
+    counting a directory not made yet as its nearest existing ancestor's),
+    so an atomic rename can publish each staged write (``_write_rendered``).
+    That refusal depends on the layout alone, so it too comes before
+    anything is claimed or made (PR #1199 review, Copilot)."""
     directories = _catalog_chain(root)
-    directories += [Path(root) / SEQUENCE_DIR, run_dir.parent, run_dir]
+    directories += [Path(root) / SEQUENCE_DIR, Path(root) / STAGING_DIR,
+                    run_dir.parent, run_dir]
     targets = list(targets)
     nested = {p for target in targets for p in target.parents
               if run_dir in p.parents}
@@ -1195,6 +1344,10 @@ def _refuse_unsafe_run_paths(root: Path, run_dir: Path, targets) -> None:
         _refuse_foreign_node(node, directory=True)
     for node in [run_dir / RUN_META_NAME, *targets]:
         _refuse_foreign_node(node, directory=False)
+    staging = Path(root) / STAGING_DIR
+    for directory in sorted({run_dir, *(t.parent for t in targets)}):
+        if not _rename_compatible(staging, directory):
+            raise _cross_mount_refusal(root, directory)
 
 
 def _refuse_foreign_run_tree(root: Path, run_dir: Path) -> None:
@@ -1329,10 +1482,21 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
       of the wrong type, before anything is claimed or written. The writer
       never writes or claims outside the catalog tree, and it never closes
       a run around a link.
-    - Crash safety: ``run.yaml`` is written after the snapshot file, so
-      a recorded run always holds at least one repository snapshot;
+    - Crash safety: every file is staged outside the run tree
+      (``STAGING_DIR``) and published by an atomic rename
+      (``_write_rendered``), so a crash never leaves a partial or temp file
+      inside a run: at most a stale temp in the staging directory, which
+      nothing reads. ``run.yaml`` is written after the snapshot file, so a
+      recorded run always holds at least one repository snapshot;
       directories without ``run.yaml`` are invisible to
       ``load_snapshot`` and heal idempotently on retry.
+    - Durability: a rename is visible before its writer's directory sync
+      runs, so a file this call finds already published may be another
+      writer's that is still between the two, or that died there. Every
+      path that accepts such a file, the snapshot or ``run.yaml``, first
+      makes it durable itself (``_fsync_publish``) before it publishes
+      anything after it or reports the run recorded, so no call succeeds on
+      a rename a power loss could still undo (PR #1199 review, Copilot).
     - Closed runs stay closed: a recorded run whose snapshots already make
       up exactly the content its id addresses (``_addresses_itself``) is
       complete, and a snapshot for any other repository is refused. A
@@ -1362,7 +1526,11 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
 
     if _holds_exactly(target, expected):
         if _recorded(root, run_dir, rid, day):
-            return target  # completed no-op: already recorded
+            # Completed no-op: already recorded. Its snapshot and run.yaml
+            # may be another writer's renames that are not synced yet, and
+            # this snapshot's directory chain runs through the run's own.
+            _fsync_publish(root, target.parent)
+            return target
         # fall through: heal a crash between snapshot and run.yaml
 
     sequence = None
@@ -1378,8 +1546,9 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
         # Recorded, and the content its id addresses is already all there,
         # so this target (absent above) is no part of it. The exception is
         # a concurrent identical writer that has just landed it: that is
-        # the completed no-op.
+        # the completed no-op, once its rename is durable.
         if _holds_exactly(target, expected):
+            _fsync_publish(root, target.parent)
             return target
         raise CatalogError(
             f"catalog run is complete: its recorded snapshots already make "
@@ -1387,12 +1556,20 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
             f"mix it: {target}")
 
     target.parent.mkdir(parents=True, exist_ok=True)
-    if not _holds_exactly(target, expected):  # re-check: race lost mid-write
-        _write_rendered(target, rendered)
+    if _holds_exactly(target, expected):  # re-check: race lost mid-write
+        # Another writer published it: durable before run.yaml names it.
+        _fsync_publish(root, target.parent)
+    else:
+        _write_rendered(root, target, rendered)
 
-    if sequence is not None and not _recorded(root, run_dir, rid, day):
-        _write_rendered(meta_path,
-                        render(_run_meta_document(rid, day, sequence)))
+    if sequence is not None:
+        if _recorded(root, run_dir, rid, day):
+            # Another writer recorded the run first: durable before this
+            # call reports it recorded.
+            _fsync_publish(root, run_dir)
+        else:
+            _write_rendered(root, meta_path,
+                            render(_run_meta_document(rid, day, sequence)))
     return target
 
 
