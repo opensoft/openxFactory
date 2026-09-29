@@ -15,6 +15,7 @@ import hashlib
 import json
 import os
 import shutil
+import stat
 import threading
 from datetime import datetime
 from pathlib import Path
@@ -2846,3 +2847,188 @@ def test_every_publish_is_durable_before_the_next_is_staged(tmp_path):
         expected += [("sync directory", [directory]) for directory in chain]
     assert events == expected
     assert list(staging.iterdir()) == []
+
+
+class Died(Exception):
+    """A writer stopped dead at the moment a test chose."""
+
+
+def record_durability(patch, root, events, rules=()):
+    """Append to `events`, while `patch` holds, every ``os.replace`` as
+    ``("replace", <path under the runs directory>)`` and every ``os.fsync``
+    of a directory as ``("sync", <path under the runs directory>)``, each
+    right after the real call. `rules` pairs an event with a callable run
+    once, at that moment: that is how a test pauses a writer immediately
+    after one of its renames or syncs, runs another writer there, or stops
+    one dead."""
+    runs = runs_root(root)
+    real_replace, real_fsync = os.replace, os.fsync
+    pending = list(rules)
+
+    def label(node):
+        return Path(node).relative_to(runs).as_posix()
+
+    def happened(event):
+        events.append(event)
+        for rule in pending:
+            if rule[0] == event:
+                pending.remove(rule)
+                rule[1]()
+                return
+
+    def replace(src, dst):
+        real_replace(src, dst)
+        happened(("replace", label(dst)))
+
+    def fsync(fd):
+        real_fsync(fd)
+        found = os.fstat(fd)
+        if stat.S_ISDIR(found.st_mode):
+            names = [label(p) for p in [runs, *runs.rglob("*")]
+                     if p.is_dir() and (os.lstat(p).st_dev, os.lstat(p).st_ino)
+                     == (found.st_dev, found.st_ino)]
+            happened(("sync", names[0] if names else "?"))
+
+    patch.setattr(os, "replace", replace)
+    patch.setattr(os, "fsync", fsync)
+
+
+def test_a_writer_accepts_another_writers_publish_only_once_durable(tmp_path):
+    # PR #1199 review (Copilot, at caf0c029): os.replace makes a file
+    # visible before its writer's directory sync runs, and an identical
+    # writer running in that window accepted the file as published -- as a
+    # completed no-op, by skipping its own write, or by finding the run
+    # recorded or complete -- without syncing it, then published a run.yaml
+    # over it or reported success. Were the first writer to die before its
+    # sync, a power loss could still take what the second had reported
+    # recorded. That is sharpest for a slash-separated repository, whose
+    # directory no run.yaml sync covers. Every path that accepts a file
+    # another writer published now makes it durable itself first. Each case
+    # pauses one writer immediately after a rename (in case 3, after its
+    # snapshot's last sync), runs the other there, and stops a writer dead
+    # before its own sync.
+    nested = [dict(e, repo="xFactories/MedxFactory")
+              for e in alpha_entries(extended_inventory())]
+    runs = {"xFactories/MedxFactory": nested}
+    rid = catalog.run_id(runs, TAXONOMY)
+    run = f"{DAY_STR}/{rid}"
+    snapshot = f"{run}/xFactories/MedxFactory.yaml"
+    chain = [f"{run}/xFactories", run, DAY_STR, "."]  # up to the runs dir
+
+    def between(events, start, end):
+        return events[events.index(start) + 1:events.index(end)]
+
+    def first_writer(root, rules):
+        events = []
+        with pytest.MonkeyPatch.context() as patch:
+            record_durability(patch, root, events, rules(root, events))
+            try:
+                assert catalog.write_run(root, DAY, runs, TAXONOMY)[0] == rid
+                events.append(("first returns",))
+            except Died:
+                events.append(("first dies",))
+        return events
+
+    def second_runs_then_first_dies(root, events):
+        events.append(("second starts",))
+        assert catalog.write_run(root, DAY, runs, TAXONOMY)[0] == rid
+        events.append(("second returns",))
+        raise Died
+
+    def recorded(root, sequence, name=rid):
+        latest = catalog.load_snapshot(root)
+        assert (latest["run_id"], latest["sequence"]) == (name, sequence)
+        assert catalog.run_id_scheme(name, latest["repos"],
+                                     catalog._load_run_bytes(
+                                         runs_root(root) / DAY_STR / name)) \
+            == catalog.CONTENT_ADDRESSED
+
+    # 1. The first writer is paused right after its snapshot's rename, and
+    #    dies there. The second finds the snapshot published, so it writes
+    #    none: it syncs that snapshot's directory chain, after its own claim,
+    #    before its run.yaml names the snapshot.
+    root = tmp_path / "after-the-snapshot-rename"
+    events = first_writer(root, lambda root, events: [
+        (("replace", snapshot),
+         lambda: second_runs_then_first_dies(root, events))])
+    second = between(events, ("second starts",), ("second returns",))
+    published = second.index(("replace", f"{run}/run.yaml"))
+    assert [name for _kind, name in second[:published]] == \
+        [".sequence", "."] + chain
+    assert ("replace", snapshot) not in second and \
+        events[-1] == ("first dies",)
+    recorded(root, 2)
+
+    # 2. Paused right after its run.yaml's rename, the first writer dies. The
+    #    second is a completed no-op: it writes nothing, and syncs the
+    #    snapshot's chain, run.yaml's directory included, before it returns.
+    root = tmp_path / "after-the-run-yaml-rename"
+    events = first_writer(root, lambda root, events: [
+        (("replace", f"{run}/run.yaml"),
+         lambda: second_runs_then_first_dies(root, events))])
+    assert between(events, ("second starts",), ("second returns",)) == \
+        [("sync", directory) for directory in chain]
+    assert events[-1] == ("first dies",)
+    recorded(root, 1)
+
+    # 3. Paused after its snapshot's sync, before it checks for run.yaml, the
+    #    first writer lets the second claim, publish run.yaml, and die right
+    #    after that rename. The first then finds the run recorded, and syncs
+    #    run.yaml's directory chain before it returns. (The "." that follows
+    #    "second dies" is the rest of the first writer's own snapshot chain.)
+    root = tmp_path / "a-run-yaml-found-after-the-claim"
+
+    def second_publishes_run_yaml_and_dies(root, events):
+        events.append(("second starts",))
+        with pytest.raises(Died):
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        events.append(("second dies",))
+
+    def die():
+        raise Died
+
+    events = first_writer(root, lambda root, events: [
+        (("sync", DAY_STR),
+         lambda: second_publishes_run_yaml_and_dies(root, events)),
+        (("replace", f"{run}/run.yaml"), die)])
+    assert between(events, ("second dies",), ("first returns",)) == \
+        [("sync", "."), ("sync", run), ("sync", DAY_STR), ("sync", ".")]
+    recorded(root, 2)
+
+    # 4. A recorded partial run lacks one snapshot, which another writer
+    #    renames into place, and dies, just as this call finds the run
+    #    complete. The call returns the completed no-op only after syncing
+    #    that snapshot's directory chain.
+    both = {"alpha": alpha_entries(extended_inventory()),
+            "xFactories/MedxFactory": nested}
+    both_rid = catalog.run_id(both, TAXONOMY)
+    _rid, source = catalog.write_run(tmp_path / "source", DAY, both, TAXONOMY)
+    landed_bytes = source["xFactories/MedxFactory"].read_bytes()
+    root = tmp_path / "a-complete-run-found-mid-call"
+    catalog.write_snapshot(root, DAY, both_rid, "alpha", both["alpha"],
+                           TAXONOMY)  # recorded, partial
+    both_run = f"{DAY_STR}/{both_rid}"
+    real_addresses_itself = catalog._addresses_itself
+    events = []
+
+    def addresses_itself(run_dir, name):
+        if ("another writer renames",) not in events:
+            events.append(("another writer renames",))
+            (run_dir / "xFactories").mkdir()
+            landed = tmp_path / "landed.tmp"
+            landed.write_bytes(landed_bytes)
+            os.replace(landed, run_dir / "xFactories" / "MedxFactory.yaml")
+        return real_addresses_itself(run_dir, name)
+
+    with pytest.MonkeyPatch.context() as patch:
+        record_durability(patch, root, events)
+        patch.setattr(catalog, "_addresses_itself", addresses_itself)
+        catalog.write_snapshot(root, DAY, both_rid, "xFactories/MedxFactory",
+                               nested, TAXONOMY)
+        events.append(("call returns",))
+    assert between(events, ("replace",
+                            f"{both_run}/xFactories/MedxFactory.yaml"),
+                   ("call returns",)) == [
+        ("sync", f"{both_run}/xFactories"), ("sync", both_run),
+        ("sync", DAY_STR), ("sync", ".")]
+    recorded(root, 1, both_rid)

@@ -1490,6 +1490,13 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
       recorded run always holds at least one repository snapshot;
       directories without ``run.yaml`` are invisible to
       ``load_snapshot`` and heal idempotently on retry.
+    - Durability: a rename is visible before its writer's directory sync
+      runs, so a file this call finds already published may be another
+      writer's that is still between the two, or that died there. Every
+      path that accepts such a file, the snapshot or ``run.yaml``, first
+      makes it durable itself (``_fsync_publish``) before it publishes
+      anything after it or reports the run recorded, so no call succeeds on
+      a rename a power loss could still undo (PR #1199 review, Copilot).
     - Closed runs stay closed: a recorded run whose snapshots already make
       up exactly the content its id addresses (``_addresses_itself``) is
       complete, and a snapshot for any other repository is refused. A
@@ -1519,7 +1526,11 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
 
     if _holds_exactly(target, expected):
         if _recorded(root, run_dir, rid, day):
-            return target  # completed no-op: already recorded
+            # Completed no-op: already recorded. Its snapshot and run.yaml
+            # may be another writer's renames that are not synced yet, and
+            # this snapshot's directory chain runs through the run's own.
+            _fsync_publish(root, target.parent)
+            return target
         # fall through: heal a crash between snapshot and run.yaml
 
     sequence = None
@@ -1535,8 +1546,9 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
         # Recorded, and the content its id addresses is already all there,
         # so this target (absent above) is no part of it. The exception is
         # a concurrent identical writer that has just landed it: that is
-        # the completed no-op.
+        # the completed no-op, once its rename is durable.
         if _holds_exactly(target, expected):
+            _fsync_publish(root, target.parent)
             return target
         raise CatalogError(
             f"catalog run is complete: its recorded snapshots already make "
@@ -1544,12 +1556,20 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
             f"mix it: {target}")
 
     target.parent.mkdir(parents=True, exist_ok=True)
-    if not _holds_exactly(target, expected):  # re-check: race lost mid-write
+    if _holds_exactly(target, expected):  # re-check: race lost mid-write
+        # Another writer published it: durable before run.yaml names it.
+        _fsync_publish(root, target.parent)
+    else:
         _write_rendered(root, target, rendered)
 
-    if sequence is not None and not _recorded(root, run_dir, rid, day):
-        _write_rendered(root, meta_path,
-                        render(_run_meta_document(rid, day, sequence)))
+    if sequence is not None:
+        if _recorded(root, run_dir, rid, day):
+            # Another writer recorded the run first: durable before this
+            # call reports it recorded.
+            _fsync_publish(root, run_dir)
+        else:
+            _write_rendered(root, meta_path,
+                            render(_run_meta_document(rid, day, sequence)))
     return target
 
 
