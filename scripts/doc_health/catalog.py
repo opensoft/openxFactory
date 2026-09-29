@@ -705,11 +705,13 @@ def _own_mode(node: Path) -> tuple[int | None, CatalogError | None]:
     cannot take as link-free. A symlink is refused (``_symlink_refusal``),
     and so is a node whose own ``lstat`` fails for any reason but its
     absence, because what cannot be checked could be a link. The check is
-    an explicit ``os.lstat`` with its own errno handling: ``Path.is_symlink``
-    already documents this same contract (only "doesn't exist" reads as
-    ``False``; a permission error or the like propagates), so this is
-    insulation against a future version changing that contract, not a
-    correction of the current one."""
+    an explicit ``os.lstat`` with its own errno handling: through Python
+    3.13, ``Path.is_symlink`` documents this same propagate-vs-absent
+    contract, but Python 3.14 changes it -- there ``is_symlink`` calls
+    ``os.path.islink`` directly, which swallows every ``OSError`` -- so
+    this keeps the scan's fail-closed guarantee correct on a version CI
+    does not run today, not merely insulated against one that might exist
+    tomorrow."""
     try:
         mode = os.lstat(node).st_mode
     except (FileNotFoundError, NotADirectoryError):

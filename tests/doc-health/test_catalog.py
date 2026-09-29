@@ -1925,17 +1925,18 @@ def test_run_scan_never_takes_an_unchecked_node_for_link_free(tmp_path,
     # Review round 3 (Copilot, #1190): if the scan asked Path.is_symlink
     # whether a node was a link, a denied lstat reading as "no link" would
     # be a real hazard on any implementation that swallows every OSError
-    # the way os.path.islink does. Python's own is_symlink is documented
-    # not to: only "doesn't exist" reads as False, and a permission error
-    # or the like propagates (verified against the CPython sources and the
-    # official docs; see the PR body). The scan still never asks
-    # Path.is_symlink at all -- insulation against a future version
-    # changing that contract, not a correction of the current one: every
-    # node is checked with an explicit lstat, and whatever it cannot check
-    # or list refuses that entry alone; the runs directory itself refuses
-    # the whole scan. This monkeypatch pins is_symlink to the worst case
-    # anyway, to prove the scan is unaffected regardless of which contract
-    # holds.
+    # the way os.path.islink does -- which is no longer hypothetical:
+    # through Python 3.13, is_symlink documents the propagate-vs-absent
+    # contract (only "doesn't exist" reads as False; a permission error
+    # propagates), but Python 3.14 changes it -- is_symlink there calls
+    # os.path.islink directly (verified against the CPython sources and
+    # the official docs; see the PR body). The scan still never asks
+    # Path.is_symlink at all: every node is checked with an explicit
+    # lstat, and whatever it cannot check or list refuses that entry
+    # alone; the runs directory itself refuses the whole scan. This
+    # monkeypatch pins is_symlink to exactly that -- Python 3.14's real
+    # behaviour, not merely a worst case -- to prove the scan is
+    # unaffected on 3.12, 3.13, or 3.14.
     monkeypatch.setattr(Path, "is_symlink", lambda self: os.path.islink(self))
     alpha = alpha_entries(extended_inventory())
     runs = {"alpha": alpha, "xFactories/MedxFactory": [
@@ -2171,16 +2172,17 @@ def test_run_scan_classifies_every_node_by_its_own_lstat(tmp_path):
     # implementation that swallows every OSError the way os.path.isdir and
     # os.path.isfile do, a failed second stat would read as absent: the
     # scan would report no catalog, or pass over a day or a recorded run,
-    # instead of failing closed. Python's own is_dir/is_file are documented
-    # not to swallow it (only "doesn't exist" reads as False; a permission
-    # error propagates -- verified against the CPython sources and the
-    # official docs, see the PR body), but the scan does not lean on that
-    # contract either: every node is now classified by the mode its own
-    # lstat returned, so the scan makes no following stat at all -- one
-    # explicit primitive doing the whole job, insulated against a future
-    # version rather than resting on today's documented one. With is_dir()
-    # and is_file() pinned to the worst case below, a following stat that
-    # fails changes nothing it yields.
+    # instead of failing closed -- which is no longer hypothetical: through
+    # Python 3.13, is_dir/is_file document the propagate-vs-absent contract
+    # (only "doesn't exist" reads as False; a permission error propagates
+    # -- verified against the CPython sources and the official docs, see
+    # the PR body), but Python 3.14 changes it -- both call os.path.isdir/
+    # isfile directly there. The scan does not lean on either version's
+    # contract: every node is now classified by the mode its own lstat
+    # returned, so the scan makes no following stat at all -- one explicit
+    # primitive doing the whole job on 3.12, 3.13, or 3.14 alike. With
+    # is_dir() and is_file() pinned to that real 3.14 behaviour below, a
+    # following stat that fails changes nothing it yields.
     root = tmp_path / "agg"
     rid_one, _ = write_run(root, extended_inventory())
     alpha = alpha_entries(extended_inventory())
