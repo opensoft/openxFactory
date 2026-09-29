@@ -1203,6 +1203,38 @@ def test_refuse_links_inside_fails_closed_on_an_unenumerable_subdirectory(
     assert "(xFactories)" in message
 
 
+def test_refuse_links_inside_fails_closed_on_an_unprobeable_entry(
+        tmp_path, monkeypatch):
+    # Copilot review (PR #1200): onerror only covers a failed
+    # scandir(top), not a failed per-entry classification -- os.walk's own
+    # is_dir() catches an OSError from one listed entry and treats it as a
+    # plain file rather than aborting (same on 3.12, 3.13, and 3.14), and
+    # the entry is still yielded either way. A bare node.is_symlink() would
+    # then misclassify it right along with os.walk: not a directory to
+    # refuse enumerating, and on Python 3.14 not a symlink either, since
+    # is_symlink there swallows the same error. Every listed name is
+    # classified by _own_mode's explicit os.lstat instead (the same
+    # primitive _link_inside already uses for the read-side scan), so a
+    # per-entry probe failure -- injected here on os.lstat itself, not
+    # scandir -- still refuses.
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    blocked = run_dir / "MedxFactory.yaml"
+    blocked.write_bytes(b"placeholder")
+    real_lstat = os.lstat
+
+    def denying_lstat(path, *args, **kwargs):
+        if Path(path) == blocked:
+            raise PermissionError(
+                errno.EACCES, os.strerror(errno.EACCES), os.fspath(path))
+        return real_lstat(path, *args, **kwargs)
+
+    monkeypatch.setattr(os, "lstat", denying_lstat)
+    with pytest.raises(catalog.CatalogError) as excinfo:
+        catalog._refuse_links_inside(run_dir)
+    assert "could not be checked for a symlink" in str(excinfo.value)
+
+
 def test_write_run_refuses_a_stranger_merely_shaped_like_a_writer_temp(
         tmp_path):
     # Review round 2 (Copilot, PR #1189 for #1186): _is_writer_temp's first

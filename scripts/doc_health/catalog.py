@@ -1095,16 +1095,30 @@ def _refuse_links_inside(run_dir: Path) -> None:
     walk, unlike its sibling ``_refuse_foreign_descendants``, passed no
     ``onerror`` at all, so ``os.walk`` silently skipped a subdirectory it
     could not enumerate and a symlink hiding inside one would never be
-    seen."""
+    seen.
+
+    ``onerror`` only covers a failed ``scandir(top)`` -- not a failed
+    per-entry classification. ``os.walk`` itself catches an ``OSError``
+    from each listed entry's own ``is_dir()`` and treats that entry as a
+    plain file rather than aborting (same on 3.12, 3.13, and 3.14), and
+    the entry is still yielded either way, so every name this walk lists
+    is still classified here (Copilot review, PR #1200): with a bare
+    ``node.is_symlink()``, an entry whose own metadata cannot be read
+    would misclassify right along with it -- not a directory to refuse
+    enumerating, and on Python 3.14 not a symlink either, since
+    ``is_symlink`` there swallows the same error. So every listed name is
+    classified by ``_own_mode`` instead, the same explicit ``os.lstat``
+    primitive ``_link_inside`` already uses for the read-side scan: a
+    node it cannot check refuses by name, on every interpreter version
+    alike."""
     for dirpath, dirnames, filenames in os.walk(
             run_dir, onerror=_refuse_unreadable_walk(run_dir)):
         dirnames.sort()
         for name in sorted(dirnames + filenames):
             node = Path(dirpath) / name
-            if node.is_symlink():
-                raise CatalogError(
-                    f"catalog path is a symlink, which the writer never "
-                    f"follows: {node}")
+            _, refusal = _own_mode(node)
+            if refusal is not None:
+                raise refusal
 
 
 def _is_writer_temp(node: Path, allowed_files) -> bool:
