@@ -258,12 +258,11 @@ and 1,305 errors (research R2).
 
 **Independent Test**: at the phase-1 tip, F2.1, F3.1 (line 2 as amended, R1Q3
 (a)), F9.1 (in both legs; openXdox-code's as amended, R1Q6 (d), R1Q24 (a),
-R1Q25 (b)), F9.2 and
-`opendox --help` all pass. So do 4.3's eight
+R1Q25 (b)) and `opendox --help` all pass. So do 4.3's eight
 reaches into openxFactory, under F4.1's scan restricted to the publisher's
-packages. F9.2 is the one exception: RULED `5859927858` keeps it unchanged,
-so it stays red on the 31-entry help-tree test until T008, and phase 1 closes
-with it quoted red (holder decision, 2026-09-29, at T049).
+packages. F9.2 is run and quoted red, not passed: RULED `5859927858` keeps it
+unchanged, so it stays red on the 31-entry help-tree test until T008, and
+phase 1 closes with it quoted so (holder decision, 2026-09-29, at T049).
 
 **Acceptance Scenarios**:
 
@@ -620,9 +619,9 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 
 ### Measurable Outcomes
 
-- **SC-001** (phase 1 exit): at the phase-1 tip, F2.1, F3.1, F9.1 (in both
-  legs) and F9.2 exit 0, each as amended where T007 records an amendment.
-  F9.2 is excepted until T008, as US1's independent test records (RULED
+- **SC-001** (phase 1 exit): at the phase-1 tip, F2.1, F3.1 and F9.1 (in both
+  legs) exit 0, each as amended where T007 records an amendment. F9.2 is run
+  and quoted red until T008, as US1's independent test records (RULED
   `5859927858`).
   `opendox --help` exits 0, and F4.1's scan lists only `openxdox` targets.
   RN-1 (a) is in requirement 3's text (T007's batch D, #1170 → `79a720a2`),

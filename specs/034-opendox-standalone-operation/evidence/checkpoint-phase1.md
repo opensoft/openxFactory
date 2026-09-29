@@ -77,8 +77,8 @@ neutral-product-standalone-operability$' 94b6f7f1..e81eed62`).
 - **Each ran from a fresh clone of its leg at the pinned commit**, with an
   empty `git status --porcelain`, from the checkout root, under `bash`, and in
   the foreground.
-- **Environment.** Python 3.12.3; `python` resolves to `/usr/bin/python3.12`
-  through a `PATH` shim, because the host has no `python` and CI's
+- **Environment.** Python 3.12.3; `python` resolves to the host's Python 3.12
+  interpreter through a `PATH` shim, because the host has no `python` and CI's
   `setup-python` gives 3.12. `TMPDIR` is a scratch directory, `LANG=C.UTF-8`,
   and `PYTHONPATH` is unset. The only other variable any run sets is the DSN in
   § 3. In the quoted output the scratch directory's host path is written
@@ -156,12 +156,15 @@ OK opendox.default_profile
 F9.1 as extracted (sha256 `ec2acf0c0093…`), unchanged for openDox-code
 (R1Q8 (a)). T036 has F9.1's runs "export the database's DSN the way the job
 does, and quote the variables they set". The job sets exactly one, on its
-`pytest` step, against its `postgres:16` service (user, password and database
-`opendox`). This run set the same variable against a `postgres:16` container
-of its own:
+`pytest` step, against its `postgres:16` service (user and database `opendox`,
+with the throwaway password `validate.yml` declares). This run set the same
+variable, with the same user, database and password, against a `postgres:16`
+container of its own. Here the password, and that container's host and port,
+are placeholders, so the record stores no credential and no host address
+(Principle IV):
 
 ```
-OPENDOX_TEST_DATABASE_URL=postgresql://opendox:opendox@host.docker.internal:32770/opendox
+OPENDOX_TEST_DATABASE_URL=postgresql://opendox:<password>@<host>:<port>/opendox
 ```
 
 **Exit 0.** The run collects `testpaths` whole (`tests`,
