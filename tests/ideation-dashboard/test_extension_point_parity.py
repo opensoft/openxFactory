@@ -400,29 +400,76 @@ def test_the_mixins_precede_simplehttprequesthandler_in_the_mro():
     stand-ins are checked to BE the gate and projection columns — by the
     module and class each declares it stands in for — so a stand-in pointed at
     the wrong column fails here rather than at a route.
+
+    AND SPLIT BY THE PINNED LEG, for plan 034's T011 and T045 (R1Q1 (a),
+    `#656` comment `5817152735`; a NAMED composition test under R1Q2 (a)).
+    T011 took `LaneRoutes` off `DashboardHandler`'s bases, because the base
+    was an import-time reach from openDox into this repository, and the column
+    now arrives through openDox's handler-contribution facet: the host profile
+    declares it (`profile_openxfactory.HANDLER_CONTRIBUTIONS`) and
+    `build_server` composes it into the class it binds, AFTER the core
+    handler's whole MRO. Until T047 moves the pin, the leg is the old shape,
+    and the eight-entry prefix above is asserted as it was. At a leg that
+    carries T011, the core handler's prefix is seven entries without the lanes
+    column, and the class the server binds is the core handler's MRO with
+    `LaneRoutes` last before `object`. Decision 1's safety property then holds
+    by refusal rather than by order: openDox refuses a contributed name that
+    anything in the core handler's MRO already answers, `http.server`'s chain
+    included, so no lanes method can lose to it or shadow it.
     """
     from opendox import serve as serve_mod
     from ideation_dashboard import serve_openxfactory_lanes
     from opendox import consumer_reach, serve_project, serve_workbench
+    from opendox.profile_proxy import profile_openxfactory as proxy
     from openxdox import serve_gate, serve_projection
 
+    lanes = serve_openxfactory_lanes.LaneRoutes
     mro = serve_mod.DashboardHandler.__mro__
-    assert mro[:8] == (
-        serve_mod.DashboardHandler,
-        serve_workbench.WorkbenchRoutes,
-        serve_project.ProjectRoutes,
-        consumer_reach.LateGateRoutes,
-        consumer_reach.LateProjectionRoutes,
-        consumer_reach._LateConsumerColumn,
-        serve_openxfactory_lanes.LaneRoutes,
-        http.server.SimpleHTTPRequestHandler,
-    ), (
-        "DashboardHandler's MRO no longer starts "
-        "(DashboardHandler, WorkbenchRoutes, ProjectRoutes, LateGateRoutes, "
-        "LateProjectionRoutes, _LateConsumerColumn, LaneRoutes, "
-        "SimpleHTTPRequestHandler) — decision 1's ordering claim no longer "
-        "holds, and a mixin member sharing a name with the http.server chain "
-        f"would now resolve to the WRONG implementation. Got: {mro[:8]}")
+    if lanes in mro:
+        # THE LEG BEFORE plan 034's T011: the lanes column is a base.
+        assert mro[:8] == (
+            serve_mod.DashboardHandler,
+            serve_workbench.WorkbenchRoutes,
+            serve_project.ProjectRoutes,
+            consumer_reach.LateGateRoutes,
+            consumer_reach.LateProjectionRoutes,
+            consumer_reach._LateConsumerColumn,
+            lanes,
+            http.server.SimpleHTTPRequestHandler,
+        ), (
+            "DashboardHandler's MRO no longer starts "
+            "(DashboardHandler, WorkbenchRoutes, ProjectRoutes, LateGateRoutes, "
+            "LateProjectionRoutes, _LateConsumerColumn, LaneRoutes, "
+            "SimpleHTTPRequestHandler) — decision 1's ordering claim no longer "
+            "holds, and a mixin member sharing a name with the http.server chain "
+            f"would now resolve to the WRONG implementation. Got: {mro[:8]}")
+    else:
+        # THE LEG FROM T011 ON: the host contributes the lanes column.
+        assert mro[:7] == (
+            serve_mod.DashboardHandler,
+            serve_workbench.WorkbenchRoutes,
+            serve_project.ProjectRoutes,
+            consumer_reach.LateGateRoutes,
+            consumer_reach.LateProjectionRoutes,
+            consumer_reach._LateConsumerColumn,
+            http.server.SimpleHTTPRequestHandler,
+        ), (
+            "DashboardHandler's MRO no longer starts "
+            "(DashboardHandler, WorkbenchRoutes, ProjectRoutes, LateGateRoutes, "
+            "LateProjectionRoutes, _LateConsumerColumn, "
+            f"SimpleHTTPRequestHandler). Got: {mro[:7]}")
+        seam = serve_mod.route_extension
+        assert hasattr(seam, "compose_handler"), (
+            f"opendox.serve builds with {seam.__file__}, which predates the "
+            "handler-contribution facet, so the lanes column cannot be bound")
+        contributed = seam.collect_handler_contributions(
+            (proxy, *proxy.ROUTE_EXTENSIONS), base=serve_mod.DashboardHandler)
+        assert contributed == (lanes,), contributed
+        bound = seam.compose_handler(
+            "BoundDashboardHandler", serve_mod.DashboardHandler, contributed, {})
+        assert bound.__mro__ == (bound, *mro[:-1], lanes, object), (
+            "the class the server binds is not the core handler's MRO with the "
+            f"lanes column composed after it. Got: {bound.__mro__}")
     # The two stand-ins ARE the openXdox columns they name, so the respelling
     # above did not quietly drop a column out of the chain.
     assert repr(consumer_reach.LateGateRoutes).count("GateRoutes")

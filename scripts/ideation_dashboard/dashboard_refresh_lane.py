@@ -1147,9 +1147,13 @@ SEALED_PRODUCT_MODULE = "snapshot.py"
 # passed an intake that asked for SOME module, and failed only at the child's
 # import. Nothing else of a leg is named, since the rest is the product's own
 # layout. A test holds this equal to what an `ast` read of the entry and its
-# bootstrap finds.
+# bootstrap finds. The four seam modules (`corpus_adapter`, `doxbench_packet`,
+# `serve_wire`, `workbench`) joined with plan 034 T046/T047: the bootstrap's
+# `opendox_host.seams()` imports them to fill openDox's phase-1 seams.
 RENDER_LEG_MODULES: dict[tuple[str, str], tuple[str, ...]] = {
-    ("openDox", "code"): ("cli.py", "domain_profile.py"),
+    ("openDox", "code"): ("cli.py", "corpus_adapter.py", "domain_profile.py",
+                          "doxbench_packet.py", "serve_wire.py",
+                          "workbench.py"),
     ("openXdox", "code"): ("cli_gate.py", "domain_profile.py", "serve_gate.py",
                            "serve_projection.py", SEALED_PRODUCT_MODULE,
                            "view_extensions.py"),
