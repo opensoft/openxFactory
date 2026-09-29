@@ -137,9 +137,17 @@ rather than resolving it by silent omission.
   section states the input line. **CONFIRMED, night of 2026-09-24** —
   precisely for the two children this task needs, not the whole run:
   `opensoft/xFactory` nightly run `35947804907`'s analysis child
-  `35948587830` and cataloger child `35948591376` both `success`, the
-  first night either produced the budget record under the packer. The
-  same run's `finalize` job separately recorded, in a different lane, a
+  `35948587830` and cataloger child `35948591376` both `success` — the
+  first night BOTH children this task needs succeeded end to end with
+  real model output under the packer. The budget record itself is
+  older: per `proposal.md`'s own OQ-1 citation, the `semantic-sweep-bundle/
+  meta.json` the packer writes already carried a full budget record the
+  night before (09-23, run `35810840997` — 1,899,789 bytes, 92 documents,
+  226 deferred) regardless of that night's model-call outcome, because
+  `prepare` packs and records the budget before either child is
+  dispatched. This task's claim is about the children succeeding, not
+  about when the record first existed. The same run's `finalize` job
+  separately recorded, in a different lane, a
   snapshot-lane failure and readiness/derive-possibles skips: per
   `.github/workflows/doc-health-reusable.yml:1628-1635`, "the snapshot
   lane died with `CarveReachUnavailable`; the ideation-readiness and
