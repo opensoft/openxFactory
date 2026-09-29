@@ -682,6 +682,38 @@ def _rename_compatible(a: Path, b: Path) -> bool:
     return mount_a is None or mount_b is None or mount_a == mount_b
 
 
+def _fsync_directory(directory: Path) -> None:
+    """fsync ``directory`` itself, which makes the entries renamed or made
+    in it durable. POSIX lets a directory be opened for that; elsewhere the
+    platform offers no such call, and nothing is done."""
+    if os.name != "posix":
+        return
+    fd = os.open(directory, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def _fsync_publish(root: Path, directory: Path) -> None:
+    """Make an entry renamed or made in ``directory`` durable, with every
+    directory from it up to the runs directory, deepest first. Each
+    directory's own entry in its parent is then durable too, so what was
+    published is reachable after a power loss, not only stored: a
+    slash-separated repository's snapshot sits in a directory the writer
+    made inside the run, and a day directory or the claims directory can be
+    new in the runs directory. Nothing above the runs directory is synced:
+    losing one of those entries loses the runs directory whole, claims and
+    runs together, and an absent run is what a retry records."""
+    runs = Path(root) / RUNS_DIR
+    node = Path(directory)
+    while True:
+        _fsync_directory(node)
+        if node == runs or runs not in node.parents:
+            return
+        node = node.parent
+
+
 def _cross_mount_refusal(root: Path, directory: Path) -> CatalogError:
     """The refusal for a write that could not be published into
     ``directory`` from the staging directory by an atomic rename, naming
@@ -747,10 +779,16 @@ def _write_rendered(root: Path, path: Path, text: str) -> None:
     opensoft/openxFactory#1196 keeps (PR #1199 review, Copilot): closing
     alone flushes Python's buffer but makes nothing durable, so a power
     loss could otherwise leave a published record whose bytes never reached
-    the disk. A rename a power loss undoes leaves the record absent, the
-    crash window a retry heals, never a torn record. Perms are
-    ``mkstemp``'s default 0600 — git normalizes modes on commit, so there
-    is no need to widen them here.
+    the disk. The rename is then made durable too, up to the runs
+    directory, before this returns and so before the run's next file is
+    published (``_fsync_publish``; PR #1199 review, Copilot): a power loss
+    can no longer undo a snapshot's rename while keeping the ``run.yaml``
+    published after it, which would leave a recorded run holding no
+    snapshot. The run's sequence claim is made durable the same way before
+    anything of the run is written (``_claim_sequence``), so no durable
+    ``run.yaml`` can name a claim a power loss took. Perms are ``mkstemp``'s
+    default 0600 — git normalizes modes on commit, so there is no need to
+    widen them here.
 
     ``newline="\\n"`` pins the persisted bytes to exactly ``text`` encoded
     as UTF-8 on every platform (research D3: ``\\n`` line endings) — a
@@ -775,6 +813,7 @@ def _write_rendered(root: Path, path: Path, text: str) -> None:
     except BaseException:
         tmp.unlink(missing_ok=True)  # own temp, if os.replace never ran
         raise
+    _fsync_publish(root, path.parent)  # the publish itself durable
 
 
 def _load_yaml_json(path: Path) -> dict:
@@ -1082,9 +1121,14 @@ def _claim_sequence(root: Path, day: str, rid: str) -> int:
             continue  # lost the race — re-scan and retry
         # newline="\n": the claim's bytes are render()'s on every platform
         # (research D3), exactly as _write_rendered persists every other
-        # catalog record.
+        # catalog record. The claim is durable, with its entry, before
+        # anything of its run is written: a run.yaml is only ever published
+        # naming a claim a power loss can no longer take (PR #1199 review).
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(render(_claim_document(sequence, day, rid)))
+            handle.flush()
+            os.fsync(handle.fileno())
+        _fsync_publish(root, claims_dir)
         return sequence
 
 

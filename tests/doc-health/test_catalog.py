@@ -2778,36 +2778,71 @@ def test_write_rendered_publishes_only_by_an_atomic_rename(tmp_path):
     assert list(staging.iterdir()) == []
 
 
-def test_write_rendered_fsyncs_the_complete_temp_before_the_rename(tmp_path):
-    # PR #1199 review (Copilot, round 3 overview), and the fsync-then-rename
-    # order opensoft/openxFactory#1196 keeps: closing the temp flushes
-    # Python's buffer but makes nothing durable, so a power loss after the
-    # rename could publish a record whose bytes never reached the disk. The
-    # temp's own descriptor is fsynced, holding the complete bytes, before
-    # os.replace publishes it, and exactly once per write.
-    target = runs_root(tmp_path) / DAY_STR / ("e" * 64) / "alpha.yaml"
-    target.parent.mkdir(parents=True)
+def test_every_publish_is_durable_before_the_next_is_staged(tmp_path):
+    # PR #1199 review (Copilot, rounds 3 and 4), and the fsync-then-rename
+    # order opensoft/openxFactory#1196 keeps. Closing a temp flushes
+    # Python's buffer but makes nothing durable, and a rename is a directory
+    # entry the disk can still lose: a power loss could undo a snapshot's
+    # rename and keep the run.yaml published after it, leaving a recorded
+    # run holding no snapshot. Each write of a run now fsyncs its own temp,
+    # complete, renames it, and fsyncs the directory it landed in and every
+    # directory from that one up to the runs directory, all before the
+    # run's next file is staged. A slash-separated repository's snapshot
+    # lands in a directory the writer made inside the run, so its chain is
+    # one directory longer. The run's sequence claim is made durable the
+    # same way before anything of the run is written, so no durable run.yaml
+    # names a claim a power loss took.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid = catalog.run_id(runs, TAXONOMY)
     staging = tmp_path / catalog.STAGING_DIR
-    text = catalog.render({"kind": "probe", "schema_version": 1})
     real_fsync, real_replace = os.fsync, os.replace
     events = []
 
+    def label(node):
+        return Path(node).relative_to(runs_root(tmp_path)).as_posix()
+
     def fsync(fd):
-        staged = list(staging.iterdir())
-        assert len(staged) == 1, staged
-        assert os.fstat(fd).st_ino == os.lstat(staged[0]).st_ino  # the temp
-        events.append(("fsync", staged[0].read_bytes()))
+        inode = os.fstat(fd).st_ino
+        claims = runs_root(tmp_path) / ".sequence"
+        temps = [p for p in staging.iterdir() if os.lstat(p).st_ino == inode] \
+            if staging.is_dir() else []
+        claimed = [p for p in claims.iterdir() if p.is_file()
+                   and os.lstat(p).st_ino == inode]
+        if temps:  # the temp itself, holding what it is about to publish
+            events.append(("sync temp", temps[0].name.split(".")[0],
+                           temps[0].read_bytes()))
+        elif claimed:
+            events.append(("sync claim", claimed[0].name,
+                           claimed[0].read_bytes()))
+        else:
+            tree = [runs_root(tmp_path), *(
+                p for p in runs_root(tmp_path).rglob("*") if p.is_dir())]
+            events.append(("sync directory", [
+                label(p) for p in tree if os.lstat(p).st_ino == inode]))
         return real_fsync(fd)
 
     def replace(src, dst):
-        events.append(("replace", Path(src).parent, Path(dst)))
+        assert Path(src).parent == staging, src
+        events.append(("replace", label(dst)))
         return real_replace(src, dst)
 
     with pytest.MonkeyPatch.context() as patch:
         patch.setattr(os, "fsync", fsync)
         patch.setattr(os, "replace", replace)
-        catalog._write_rendered(tmp_path, target, text)
-    assert events == [("fsync", text.encode("utf-8")),
-                      ("replace", staging, target)]
-    assert target.read_bytes() == text.encode("utf-8")
+        assert catalog.write_run(tmp_path, DAY, runs, TAXONOMY)[0] == rid
+    run = f"{DAY_STR}/{rid}"
+    published = (("alpha", f"{run}/alpha.yaml", [run, DAY_STR, "."]),
+                 ("run", f"{run}/run.yaml", [run, DAY_STR, "."]),
+                 ("MedxFactory", f"{run}/xFactories/MedxFactory.yaml",
+                  [f"{run}/xFactories", run, DAY_STR, "."]))
+    claim = runs_root(tmp_path) / ".sequence" / "000001.yaml"
+    expected = [("sync claim", claim.name, claim.read_bytes()),
+                ("sync directory", [".sequence"]), ("sync directory", ["."])]
+    for name, path, chain in published:
+        body = (runs_root(tmp_path) / path).read_bytes()
+        expected += [("sync temp", name, body), ("replace", path)]
+        expected += [("sync directory", [directory]) for directory in chain]
+    assert events == expected
     assert list(staging.iterdir()) == []
