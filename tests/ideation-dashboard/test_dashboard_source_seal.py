@@ -423,7 +423,11 @@ PRODUCT_MODULE_TEXT = Path(snapshot_mod.__file__).read_text(encoding="utf-8")
 # Spelled here as the tests' expectation. The lane's `RENDER_LEG_MODULES`, and
 # an `ast` read of the entry and its bootstrap, are both held to it.
 RENDER_UNIT_IMPORTS = {
-    ("openDox", "code"): ("cli.py", "domain_profile.py"),
+    # The four seam modules joined with plan 034 T046/T047: the host
+    # bootstrap's `opendox_host.seams()` imports them.
+    ("openDox", "code"): ("cli.py", "corpus_adapter.py", "domain_profile.py",
+                          "doxbench_packet.py", "serve_wire.py",
+                          "workbench.py"),
     ("openXdox", "code"): ("cli_gate.py", "domain_profile.py", "serve_gate.py",
                            "serve_projection.py", "snapshot.py",
                            "view_extensions.py"),

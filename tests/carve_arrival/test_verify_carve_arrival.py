@@ -5193,7 +5193,7 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     `created:` sets. The seeding commit (openxFactory PR #979, `972b484a`) is
     the seed and takes no ordinal. Measured that way the landed sequence is
     PR #984, #1002, #1001, #1009, #1010, #1023, #1030, #1025, #1067, #1068,
-    #1085, #1091 and #1153 — thirteen amendments, ten of which bump
+    #1085, #1091, #1153 and #1181 — fourteen amendments, eleven of which bump
     `opendox_code`.
     AN ORDINAL IS NOT A POSITION IN THIS FILE and never was: the assertion
     blocks below run in the order the reading needs, so an ordinal is read off
@@ -5346,6 +5346,15 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     bump above: opensoft/openXdox-code#23 pairs with — and lands after — this
     admission PR.
 
+    AMENDED A FOURTEENTH TIME by openxFactory PR #1181, plan 034 T047 (the
+    phase-1 pin PR, which moves BOTH pins): thirty-seven more — twenty-four
+    `openxdox_code` files from openXdox-code#29, #30, #31 and #33 (T040, T041,
+    T042, T044) and thirteen `opendox_code` files: eleven that openDox-code
+    #33 and #37-#49 added after `d816cf06`, and two from #31 that no earlier
+    bump admitted. The legs landed FIRST this time, so each `since` is the leg's
+    own squash landing. Pinned by path AND `since`, and counted in the
+    committed file, on the RULED Q7 block's reasoning.
+
     What is durable is asserted in place of the frozen content: the two
     RULED openxdox_code seed entries (the measured defect this file repairs,
     `#656` comment 5639058687), the three RULED Q5 opendox_code entries, the
@@ -5355,8 +5364,9 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     `openxdox_code`), the three § 3.4 SLICE S7 entries, § 3.4 SLICE S8's one
     `openxdox_code` entry, the ten `src/opendox/runtime/` entries, RULED Q7's
     five (one `opendox_code` and the four `openxdox_code` sheets), the one
-    § 3.4 SLICE-S7 RESIDUE entry and openXdox-code#23's five
-    `openxdox_code` entries are still declared with their own
+    § 3.4 SLICE-S7 RESIDUE entry, openXdox-code#23's five
+    `openxdox_code` entries and plan 034 T047's thirty-seven are still
+    declared with their own
     `since`, every `since` is a 40-hex commit, every `reason` is non-empty,
     and every destination's list is alphabetical by `path` with no repeat —
     the file's own stated invariants, over whatever the file has
@@ -5834,6 +5844,116 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     assert "src/opendox/runtime/local_git_adapter.py" in opendox_seed, (
         "the file `split-opendox-two-layer-product` § 3.7 imports as "
         "`opendox.runtime.local_git_adapter` is no longer declared")
+
+    # THE FOURTEENTH BUMP: plan 034 T047, the phase-1 pin PR
+    # (openxFactory#1181), which moves BOTH pins and so admits the created
+    # files of both `-code` legs, the governed way ("a new admission is a
+    # reviewed ONE-LINE diff in the pull request that bumps the destination's
+    # pin"). UNLIKE every bump above, the legs LANDED FIRST: each `since` is
+    # the leg's own squash landing on `main`, which is where
+    # `git log --diff-filter=A` finds each file introduced.
+    #
+    # DERIVED, NOT RUN GREEN, and the reason is stated so the gap is not read
+    # as an omission. At both new pins `verify-carve-arrival.py --phase B`
+    # refuses `arrival-undeclared-edit` before it reaches the created-file
+    # walk: phase 1's arc edits to carved files carry no declared-edit act
+    # (T007 batch A's addendum to 11.1, R1Q22 (a)). So the lists are the files
+    # added between the last pins where the run WAS green (openXdox-code
+    # `e28930bf`, openDox-code `d816cf06`) and the new ones (`6158151e`,
+    # `2d116415`), each checked present at the new pin and introduced by the
+    # commit its `since` names.
+    #
+    # `opendox_code` ALSO GAINS TWO OLDER FILES, openDox-code#31's
+    # (`93ccc3dd`, § 3.7 FLOOR PART 3), which the run at `d816cf06` already
+    # needed as `--allow-created` and no earlier bump admitted.
+    T047_ADMITTED = {
+        "openxdox_code": {
+            # openXdox-code#29, plan 034 T040 (9.2)
+            **{path: "d84b5048955add697dcf2f60bd3e4244500d0a49" for path in (
+                "tests/doxbench_port_ban.py",
+                "tests/doxbench_routes_harness.py",
+                "tests/fixtures/base-repo/ideation/brainstorm/avatar-client-lab.md",
+                "tests/fixtures/base-repo/ideation/brainstorm/doc-health-checks.md",
+                "tests/fixtures/base-repo/ideation/brainstorm/dtn-register.md",
+                "tests/fixtures/base-repo/ideation/brainstorm/legacy-note.md",
+                "tests/fixtures/base-repo/ideation/cross-reference.yaml",
+                "tests/fixtures/base-repo/ideation/staging/ideation-governance/README.md",
+                "tests/fixtures/base-repo/ideation/staging/keyword-lens/README.md",
+                "tests/fixtures/base-repo/openspec/changes/add-ideation-governance/proposal.md",
+                "tests/fixtures/base-repo/openspec/changes/add-ideation-governance/tasks.md",
+                "tests/fixtures/base-repo/openspec/changes/archive/2026-07-12-add-document-cataloging/proposal.md",
+                "tests/fixtures/base-repo/project-register.yaml",
+                "tests/fixtures/fake_omp_child.py",
+                "tests/gate_routes_harness.py")},
+            # openXdox-code#30, plan 034 T041 (9.2)
+            **{path: "5fbd188ed4fe3681e189fafe49d7d0699d70a2ee" for path in (
+                "tests/declared_exclusion.yaml",
+                "tests/test_declared_exclusion.py",
+                "tests/test_hermeticity_gate_verbs.py",
+                "tests/test_hermeticity_runner_seams.py")},
+            # openXdox-code#31, plan 034 T042 (9.3)
+            **{path: "4e16db95ff9e6c531dfbe79f517e0384399b947c" for path in (
+                "tests/integration/declared_composition.py",
+                "tests/integration/test_assembled_bundle.py",
+                "tests/integration/test_assembled_surface.py",
+                "tests/integration/test_declared_composition.py")},
+            # openXdox-code#33, plan 034 T044 (9.4)
+            "tests/test_seam_assembly_beside_gate_and_projection.py":
+                "6158151e7f5202e1894f13365702daedca88cc26",
+        },
+        "opendox_code": {
+            "src/opendox/conformance_corpus.py":
+                "93ccc3dd98312ae725fef02a801ee23a7ce736fc",   # #31, § 3.7
+            "tests/test_conformance_corpus.py":
+                "93ccc3dd98312ae725fef02a801ee23a7ce736fc",   # #31, § 3.7
+            "tests/test_triple_pin.py":
+                "1d4ac83c63246f0b96f8b7b61b2ef4cd6e6183f1",   # #33, § 3.7 residue
+            "tests/test_authoring_seam.py":
+                "e295b1a9c1d979a3219499de61b67dce487c75f6",   # #37, T020
+            "src/opendox/default_profile.py":
+                "a435aecfe04ba09c677e5c3d78fd7a47986d175a",   # #38, T015
+            "tests/test_default_profile.py":
+                "a435aecfe04ba09c677e5c3d78fd7a47986d175a",   # #38, T015
+            "tests/test_health_check_seam.py":
+                "582ed0739155622ab3fd5e9259a2c5c10aea3539",   # #39, T026
+            "tests/test_route_handler_contribution.py":
+                "0f10b1f5b0650c58ac940d84ef45bd58a5f2df37",   # #40, T010
+            "tests/test_doxbench_seams.py":
+                "8017cd52158d89abc1c4862eb2cf32ed2d52a1eb",   # #41, T027
+            "tests/test_session_notebook_membership.py":
+                "c46430fb9aff39c7949a45c2956bba3ab696d605",   # #43, T025
+            "tests/test_imports_standalone.py":
+                "0e88454a7c814f059a34ce8f77f109cf7eae3bed",   # #46, T011/T030
+            "tests/test_checkout_head.py":
+                "276830289dd69c3ee284dd1f45188ebd85a59502",   # #47, T012
+            "tests/test_reach_sweep.py":
+                "68be484ad8a3cb218b6cd217292c11736aa1c9b4",   # #49, T032
+        },
+    }
+    for destination, wanted in T047_ADMITTED.items():
+        declared = {entry["path"]: entry
+                    for entry in admissions.get(destination, [])}
+        for path, since in wanted.items():
+            assert path in declared, (
+                f"{path} is one of plan 034 T047's admissions at {destination} "
+                "and is no longer declared")
+            assert declared[path]["since"] == since, (
+                f"{path}'s `since` is {declared[path]['since']!r}; its leg "
+                f"introduced it at {since!r}, and an admission whose `since` is "
+                "not the introducing commit is not a falsifiable claim")
+    # THIRTY-SEVEN, COUNTED IN THE COMMITTED FILE AT EVERY DESTINATION, on the
+    # RULED Q7 block's reasoning above: an extra admission riding in on one of
+    # these commits, under any destination, fails.
+    t047_commits = {since for wanted in T047_ADMITTED.values()
+                    for since in wanted.values()}
+    t047_committed = {(destination, entry["path"])
+                      for destination, entries in admissions.items()
+                      for entry in (entries or [])
+                      if entry["since"] in t047_commits}
+    assert t047_committed == {(destination, path)
+                              for destination, wanted in T047_ADMITTED.items()
+                              for path in wanted}, sorted(t047_committed)
+    assert len(t047_committed) == 37, sorted(t047_committed)
 
     # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
     # replaces nothing: the frozen-content assertions these stand in for
