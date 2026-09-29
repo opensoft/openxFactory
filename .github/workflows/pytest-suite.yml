@@ -104,9 +104,12 @@
 # test_session_harness.py` — is one of the 111 test files the shed moved to the
 # legs; the other stays and still skips. THE HERMETICITY-PROBE REPAIR
 # (plan 034) MOVES IT AGAIN, TO 5, for an unrelated reason — not a guard
-# standing down, but a stale probe repointed. The exact runner number is
-# pinned in `EXPECT_SKIPPED` below, where the reason for each move is
-# recorded.
+# standing down, but a stale probe repointed. THE AGGREGATION IGNORE-FILE
+# CASE'S RETURN (plan 034, found by T049, the phase-1 checkpoint) MOVES IT
+# BACK TO 6: the case carries the aggregation guard, now in
+# `tests/domain_profile/test_session_worktree_book_scan.py`, and stands down
+# on a runner as it did before the shed. The exact runner number is pinned in
+# `EXPECT_SKIPPED` below, where the reason for each move is recorded.
 #
 # WHY THE LOCK, NOT AN AD-HOC PIP LIST. `requirements/hermes-runtime-contracts.lock`
 # is the ratified validator-input source: `specs/005-customer-subject-runtime/
@@ -673,13 +676,15 @@ jobs:
           # rise from here.
           MIN_SELECTED: "7050"
           MIN_PASSED: "7044"
-          # EXACT — the anti-vacuity pin. 6 on a runner since the § 5.2 shed
-          # (21 before it; the move is recorded below). A developer worktree
-          # inside the aggregation checkout measures a DIFFERENT number, because
-          # the self-skip guards ("no sibling openxFactory checkout", "no
-          # aggregation checkout reachable from this tree", "no sibling
-          # LedgerxFactory checkout reachable from this tree") stand down here and
-          # resolve there; this number is CI's, deliberately.
+          # EXACT — the anti-vacuity pin. 6 on a runner: 21 before the § 5.2
+          # shed, 6 after it, 5 after the hermeticity-probe repair, and 6 again
+          # since the aggregation ignore-file case returned (each move is
+          # recorded below). A developer worktree inside the aggregation
+          # checkout measures a DIFFERENT number, because the self-skip guards
+          # ("no sibling openxFactory checkout", "no aggregation checkout
+          # reachable from this tree", "no sibling LedgerxFactory checkout
+          # reachable from this tree") stand down here and resolve there; this
+          # number is CI's, deliberately.
           #
           # MOVED 20 -> 21 on 2026-08-27 by feature
           # `024-root-governed-repo-recognition`, with the reason the gate's own
@@ -815,7 +820,37 @@ jobs:
           # -rs` moved from `3 skipped` (this case plus those same two
           # siblings) to `2 skipped` (the two siblings alone) over an
           # unchanged 108 passed / 30 subtests passed.
-          EXPECT_SKIPPED: "5"
+          #
+          # MOVED 5 -> 6 BY THE AGGREGATION IGNORE-FILE CASE'S RETURN (plan 034,
+          # found by T049, the phase-1 checkpoint), WITH THE REASON.
+          # `tests/domain_profile/test_session_worktree_book_scan.py::
+          # test_worktree_container_is_gitignored_in_the_aggregation_repo` is
+          # back in this suite. It carries the "no aggregation checkout
+          # reachable from this tree" guard named above, which left this
+          # repository in the § 5.2 shed with
+          # `tests/ideation-dashboard/test_session_harness.py` (the 21 -> 6
+          # entry). openDox-code#51 (plan 034 T035) then moved the case out of
+          # openDox-code, whose lone checkout had only ever skipped it, and T007
+          # batch E held it out of #1181 so that this pin could stay at 5. T049
+          # found it in NO suite, which requirement 9's second scenario refuses,
+          # so it lands here. On a runner its parent walk finds no aggregation
+          # checkout, so it SKIPS. That is a stand-down of the kind this pin
+          # already counts, not a directory that turned into skips. Inside an
+          # aggregation checkout it RUNS, and asserts that the existing
+          # `*-worktrees/` ignore pattern covers a session's worktree container
+          # (FR-005, research R7). MEASURED, not estimated: `pytest
+          # tests/domain_profile -q -m "not postgres" -rs`, in this job's layout
+          # (no aggregation checkout above the tree), moved from `80 passed` to
+          # `80 passed, 1 skipped`, and the one skip is this case, with the
+          # guard string above. Inside a fresh clone of opensoft/xFactory with
+          # this repository as its `openxFactory` submodule, the same file gives
+          # `3 passed`, this case among them, and this case FAILS once the
+          # aggregation's `*-worktrees/` line is removed. The whole suite over
+          # this change, run as this job runs it, skips exactly 6: `main`'s 5,
+          # node for node, and this case.
+          # (MIN_SELECTED and MIN_PASSED are FLOORS and need no edit: the case
+          # adds one selected test and no passed one.)
+          EXPECT_SKIPPED: "6"
           # THE NAMED VERDICT — the freshness verifier watched as itself rather
           # than as one unit of an aggregate it can hide inside.
           #
