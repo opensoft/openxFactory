@@ -1843,6 +1843,9 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     resolved credential travels. An `https://` endpoint, a loopback one and
     one that takes no credential (auth kind `none`) are reached as before,
     and only a credential sent over `http://` beyond loopback is refused.
+    The request that presents the credential keeps that route: it follows no
+    redirect, and over plain `http://` it takes no proxy (openDox-code#63;
+    batch K's note records both).
     Brett Heap answered openxFactory#1207's question, whether that needs a
     batch in #1144, with `5916000030`, item 1: *"Yes, amendment batch K
     (Recommended)"*. T007's batch K adds a dated note to #1144's requirement
