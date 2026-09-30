@@ -97,9 +97,10 @@ R1Q6"*.
   it was ruled (a) (§ Session 2026-09-26).
 - Q: R1Q4. What does the default profile contribute, given that an empty
   default stays refused? → A: (a). openDox's own verbs and routes: the runtime
-  verbs now, and release 2's `submit`, `land` and `health` later. Its
-  `DISPLAY` is `NEUTRAL_DISPLAY`. A governed host's own start asserts that its
-  profile is the registered one.
+  verbs now, and release 2's `submit`, `land` and `health` later. Its display
+  words are `NEUTRAL_DISPLAY`'s: it declares no `DISPLAY` facet, so the absent
+  facet renders them (holder reading, `#656` `5851560764`). A governed host's
+  own start asserts that its profile is the registered one.
 - Q: R1Q5. Where do the runtime verbs register without breaking the 31-entry
   golden? → A: (a). Through the default profile's `SUBCOMMAND_EXTENSIONS`
   (`RuntimeSubcommand`), and `opendox-runtime` stays as an alias. A host that
@@ -566,7 +567,11 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   document server owns as its child and which stops with the entry point).
 - **FR-009** (requirement 17; 16.1–16.6; F16.1): chat SHALL reach any
   OpenAI-compatible endpoint by URL, model name and credential reference, and
-  SHALL refuse a raw key when it is declared. With no model configured, it
+  SHALL refuse a raw key when it is declared. A credential that the built-in
+  resolver resolves SHALL be sent only over `https://`, or over `http://` to
+  `127.0.0.1`, `::1` or `localhost`, and any other `http://` endpoint SHALL be
+  refused (`ENDPOINT_NOT_PRIVATE`; RULED `#656` `5880893901`, and the broker
+  path follows in openDox-code#64, `5890601202`). With no model configured, it
   SHALL show a "no model configured" state before any turn, and every other
   surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);
   R1Q17 (b): a built-in `env:` and keyring resolver in that module; R1Q18 (a):
@@ -587,9 +592,10 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 
 ### Key Entities
 
-- **Default profile**: openDox's own domain profile (documents and ideas), with
-  `DISPLAY` as `NEUTRAL_DISPLAY`, registered by the entry points (R1Q3 (a)). It
-  contributes openDox's own verbs, the runtime verbs through
+- **Default profile**: openDox's own domain profile (documents and ideas), whose
+  display words are `NEUTRAL_DISPLAY`'s (it declares no `DISPLAY` facet, so the
+  absent facet renders them; `5851560764`), registered by the entry points (R1Q3
+  (a)). It contributes openDox's own verbs, the runtime verbs through
   `RuntimeSubcommand` now (R1Q4 (a), R1Q5 (a)).
 - **Handler contribution**: the facet R1Q1 (a) rules. A profile or extension
   declares the mixin classes whose methods its bindings name, and
