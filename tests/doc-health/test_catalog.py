@@ -15,6 +15,7 @@ import hashlib
 import json
 import os
 import shutil
+import stat
 import threading
 from datetime import datetime
 from pathlib import Path
@@ -1081,61 +1082,67 @@ def test_write_run_still_passes_a_clean_run(tmp_path):
     assert catalog.load_snapshot(tmp_path / "fresh")["run_id"] == rid
 
 
-def test_write_run_tolerates_a_writer_owned_temp_file(tmp_path):
-    # Review (Codex, PR #1189 for #1186, P1): _write_rendered's
-    # tempfile.mkstemp(dir=path.parent, prefix=path.name + ".",
-    # suffix=".tmp") deliberately creates "<final-name>.<random>.tmp"
-    # INSIDE the run directory. An identical writer racing this one --
-    # caught between its own mkstemp and os.replace when this preflight
-    # runs, exactly the overlap test_overlapping_identical_runs_
-    # both_complete relies on, but now with a temp file actually on disk
-    # -- or a hard crash that orphaned one before write_rendered's own
-    # "except BaseException: tmp.unlink()" could run, must not be mistaken
-    # for a foreign descendant: neither shape is ever read by the
-    # run-identity hash (_snapshot_files' *.yaml match never sees a .tmp
-    # file), and both are harmless debris a retry ignores rather than
-    # claims or deletes.
+def test_write_run_refuses_a_temp_shaped_stranger_in_the_run(tmp_path):
+    # opensoft/openxFactory#1196, from Copilot's last round on PR #1189
+    # (#1186): the preflight admitted any regular file named like one of
+    # _write_rendered's temps, "<final-name>.<random>.tmp", beside an
+    # allowed file, because the writer staged its temps there. A concurrent
+    # writer's temp in flight and one a crash left behind both sat inside
+    # the run, so a stranger merely named that way passed too. Every write
+    # is now staged in catalog.STAGING_DIR, outside every run, so no temp of
+    # the writer's is ever inside one and the preflight admits none. Each
+    # shape the admission let through now refuses before anything is
+    # claimed or written, like any other stranger: beside a snapshot,
+    # beside a nested repository's snapshot, beside run.yaml, and beside a
+    # partial run a crash left behind, which heals once the file is gone.
+    # This replaces the test that pinned the admission. The writer's own
+    # temps, in flight and left by a crash, are pinned by the staging
+    # tests (opensoft/openxFactory#1196) further down.
     alpha = alpha_entries(extended_inventory())
     runs = {"alpha": alpha, "xFactories/MedxFactory": [
         dict(e, repo="xFactories/MedxFactory") for e in alpha]}
     rid, _recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    cases = {
+        "beside-a-snapshot": ("alpha.yaml.z9k2p7.tmp",),
+        "beside-a-nested-snapshot": ("xFactories",
+                                     "MedxFactory.yaml.q1w2e3.tmp"),
+        "beside-run-yaml": ("run.yaml.a1b2c3.tmp",),
+    }
+    for name, rel in cases.items():
+        root = tmp_path / name
+        shutil.copytree(tmp_path / "src", root)
+        run_dir = runs_root(root) / DAY_STR / rid
+        run_dir.joinpath(*rel).write_bytes(b"partial, in flight")
+        before = tree_state(root)
+        with pytest.raises(catalog.CatalogError,
+                           match="does not record") as exc:
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        assert "/".join(rel) in str(exc.value), name  # names the stranger
+        assert tree_state(root) == before, name  # no claim, no write
 
-    # Concurrent writer: a full, already-complete run also holding
-    # in-flight sibling temps for its own recorded snapshots and run.yaml.
-    concurrent = tmp_path / "concurrent"
-    shutil.copytree(tmp_path / "src", concurrent)
-    run_dir = runs_root(concurrent) / DAY_STR / rid
-    temps = [
-        run_dir / "alpha.yaml.z9k2p7.tmp",
-        run_dir / "xFactories" / "MedxFactory.yaml.q1w2e3.tmp",
-        run_dir / "run.yaml.a1b2c3.tmp",
-    ]
-    for t in temps:
-        t.write_bytes(b"partial, in flight")
-    rid_again, paths_again = catalog.write_run(concurrent, DAY, runs,
-                                               TAXONOMY)
-    assert rid_again == rid
-    assert sorted(paths_again) == ["alpha", "xFactories/MedxFactory"]
-    # Untouched -- this writer never claims or cleans up a temp it did not
-    # itself create.
-    assert all(t.read_bytes() == b"partial, in flight" for t in temps)
-
-    # Hard-crash-orphaned temp beside a PARTIAL run: the crash window
-    # test_write_snapshot_never_adds_to_a_complete_run's "partial" case
-    # heals, now with debris left by the very crash that made it partial.
+    # A partial run: alpha and run.yaml landed, then a crash left the temp
+    # of the snapshot it never published beside that snapshot's path, where
+    # the writer once staged it. The retry refuses rather than heal the run
+    # around it, and heals once the file is gone.
     crashed = tmp_path / "crashed"
     catalog.write_snapshot(crashed, DAY, rid, "alpha", runs["alpha"],
                            TAXONOMY)  # only alpha landed before the crash
     crashed_run_dir = runs_root(crashed) / DAY_STR / rid
     (crashed_run_dir / "xFactories").mkdir()
     orphaned = (crashed_run_dir / "xFactories" /
-               "MedxFactory.yaml.orphaned9z.tmp")
+                "MedxFactory.yaml.orphaned9z.tmp")
     orphaned.write_bytes(b"never replaced")
+    before = tree_state(crashed)
+    with pytest.raises(catalog.CatalogError, match="does not record"):
+        catalog.write_run(crashed, DAY, runs, TAXONOMY)
+    assert tree_state(crashed) == before
+    orphaned.unlink()
     rid_healed, paths_healed = catalog.write_run(crashed, DAY, runs,
                                                  TAXONOMY)
     assert rid_healed == rid
     assert sorted(paths_healed) == ["alpha", "xFactories/MedxFactory"]
-    assert orphaned.read_bytes() == b"never replaced"
+    assert sorted(catalog.load_snapshot(crashed)["repos"]) == \
+        ["alpha", "xFactories/MedxFactory"]
 
 
 def test_write_run_fails_closed_on_an_unenumerable_run_directory(tmp_path):
@@ -1237,13 +1244,14 @@ def test_refuse_links_inside_fails_closed_on_an_unprobeable_entry(
 
 def test_write_run_refuses_a_stranger_merely_shaped_like_a_writer_temp(
         tmp_path):
-    # Review round 2 (Copilot, PR #1189 for #1186): _is_writer_temp's first
-    # cut accepted "<final-name>.tmp" with NO random component (mkstemp
+    # Review round 2 (Copilot, PR #1189 for #1186): the temp admission's
+    # first cut accepted "<final-name>.tmp" with NO random component (mkstemp
     # never omits one -- only a stranger deliberately or accidentally named
     # to resemble a temp could be that exact string) and any non-symlink
     # special node sharing a temp-shaped name (mkstemp only ever creates a
-    # plain file). Both are still foreign descendants and must still
-    # refuse.
+    # plain file). Both are foreign descendants and must refuse. Since
+    # opensoft/openxFactory#1196 no temp shape is admitted at all, so they
+    # refuse as every temp-shaped stranger does.
     alpha = alpha_entries(extended_inventory())
     runs = {"alpha": alpha}
     rid, _recorded = catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
@@ -2460,6 +2468,251 @@ def test_a_symlinked_catalog_directory_refuses_the_whole_scan(tmp_path):
     assert list(catalog._iter_runs(not_a_directory)) == []
     assert catalog.load_snapshot(not_a_directory) is None
 
+
+# --- writes staged outside the run tree (opensoft/openxFactory#1196) ---------
+
+def test_the_writers_staged_temp_is_never_inside_the_scanned_tree(tmp_path):
+    # opensoft/openxFactory#1196: a write in flight has its temp on disk,
+    # and _write_rendered stages it in catalog.STAGING_DIR: beside the day
+    # directories, on the run tree's own filesystem, named for its target,
+    # and never inside a day or run directory. So neither the run scan nor
+    # the writer's preflight ever meets it. This pins Codex's P1 on PR #1189
+    # at the moment that finding named: an identical writer that starts
+    # while another is between its mkstemp and its os.replace completes,
+    # although the preflight now admits no temp-shaped file at all. Each
+    # publish is checked at its rename, with the temp still staged.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid = catalog.run_id(runs, TAXONOMY)
+    run_dir = runs_root(tmp_path) / DAY_STR / rid
+    staging = tmp_path / catalog.STAGING_DIR
+    allowed = [run_dir / "run.yaml", run_dir / "alpha.yaml",
+               run_dir / "xFactories" / "MedxFactory.yaml"]
+    real_replace = os.replace
+    published = []
+
+    def publish(src, dst):
+        src, dst = Path(src), Path(dst)
+        staged = src.read_bytes()
+        # Staged, not beside its target: in the staging directory, on the
+        # target directory's filesystem, holding the complete rendering.
+        assert src.parent == staging, src
+        assert src.name.startswith(dst.name + ".") and \
+            src.name.endswith(".tmp"), src
+        assert os.lstat(staging).st_dev == os.lstat(dst.parent).st_dev
+        assert staged == catalog.render(json.loads(staged)).encode("utf-8")
+        # The scan lists nothing for the staging directory, and the
+        # preflight's walk over the run finds nothing the run does not
+        # record.
+        assert all(entry.as_of != staging.name
+                   for entry in catalog._iter_runs(tmp_path))
+        catalog._refuse_foreign_descendants(run_dir, allowed)
+        published.append((dst.relative_to(run_dir).as_posix(),
+                          sorted(p.name for p in staging.iterdir())))
+        if len(published) == 1:  # the first write is in flight: an
+            catalog.write_run(tmp_path, DAY, runs, TAXONOMY)  # identical one
+        return real_replace(src, dst)
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(os, "replace", publish)
+        assert catalog.write_run(tmp_path, DAY, runs, TAXONOMY)[0] == rid
+    # The first writer's alpha.yaml temp stayed staged while the second
+    # writer's preflight, claim and three publishes ran, and the second
+    # recorded the run. The first then published an identical alpha.yaml
+    # and found the rest recorded.
+    assert [dst for dst, _staged in published] == [
+        "alpha.yaml", "alpha.yaml", "run.yaml", "xFactories/MedxFactory.yaml"]
+    assert [len(staged) for _dst, staged in published] == [1, 2, 2, 2]
+    assert list(staging.iterdir()) == []  # every temp consumed by its rename
+    meta = json.loads((run_dir / "run.yaml").read_text(encoding="utf-8"))
+    assert meta["sequence"] == 2  # the second writer recorded first
+    claims = runs_root(tmp_path) / ".sequence"
+    assert [json.loads(p.read_text(encoding="utf-8"))["run_id"]
+            for p in sorted(claims.iterdir())] == [rid, rid]  # 1 orphaned
+    latest = catalog.load_snapshot(tmp_path)
+    assert (latest["run_id"], latest["sequence"]) == (rid, 2)
+    assert catalog.run_id_scheme(rid, latest["repos"],
+                                 catalog._load_run_bytes(run_dir)) == \
+        catalog.CONTENT_ADDRESSED
+
+
+def test_stale_staging_content_is_ignored_and_never_admitted(tmp_path):
+    # opensoft/openxFactory#1196: a writer that crashes between its mkstemp
+    # and its os.replace leaves its temp in catalog.STAGING_DIR. Stale
+    # staging content is IGNORED, never swept: nothing tells it apart from a
+    # concurrent writer's temp in flight, whose rename a sweep would break,
+    # and an age test would read the wall clock. It is never read either,
+    # so it is never admitted as a snapshot: only the rename of the writer
+    # that staged it could carry it into a run, and the crash never made
+    # that rename. Stale content shaped as a complete snapshot of this very
+    # run, a conflicting one, a run.yaml naming another sequence, or a whole
+    # recorded run leaves the scan, the latest-run lookup, the first write,
+    # its retry and the run's identity exactly as a clean tree has them,
+    # and is itself left exactly as it was.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    clean = tmp_path / "clean"
+    rid, clean_paths = catalog.write_run(clean, DAY, runs, TAXONOMY)
+    snapshot = clean_paths["alpha"].read_bytes()
+    conflicting = catalog.render(
+        dict(json.loads(snapshot), status="tampered")).encode("utf-8")
+    root = tmp_path / "stale"
+    staging = root / catalog.STAGING_DIR
+    stale = {
+        ("alpha.yaml.x1y2z3.tmp",): snapshot,  # complete, never renamed
+        ("openxFactory.yaml.k9m8n7.tmp",): conflicting,
+        ("run.yaml.p0q9r8.tmp",): catalog.render(
+            catalog._run_meta_document(rid, DAY_STR, 7)).encode("utf-8"),
+        # A whole run's layout: read as a run, it would claim sequence 7.
+        ("f" * 64, "alpha.yaml"): conflicting,
+        ("f" * 64, "run.yaml"): catalog.render(
+            catalog._run_meta_document("f" * 64, DAY_STR, 7)).encode("utf-8"),
+    }
+    for rel, content in stale.items():
+        node = staging.joinpath(*rel)
+        node.parent.mkdir(parents=True, exist_ok=True)
+        node.write_bytes(content)
+    left = tree_state(staging)
+
+    assert list(catalog._iter_runs(root)) == []
+    assert catalog.load_snapshot(root) is None
+    assert catalog.write_run(root, DAY, runs, TAXONOMY)[0] == rid
+    run_dir = runs_root(root) / DAY_STR / rid
+    meta = json.loads((run_dir / "run.yaml").read_text(encoding="utf-8"))
+    assert meta["sequence"] == 1  # no stale sequence was ever read
+    assert tree_state(runs_root(root) / DAY_STR) == \
+        tree_state(runs_root(clean) / DAY_STR)  # the clean tree's run
+    assert [(e.as_of, e.sequence, e.run_id, e.refusal)
+            for e in catalog._iter_runs(root)] == [(DAY_STR, 1, rid, None)]
+    latest = catalog.load_snapshot(root)
+    assert latest["repos"] == catalog.load_snapshot(clean)["repos"]
+    assert catalog.run_id_scheme(rid, latest["repos"],
+                                 catalog._load_run_bytes(run_dir)) == \
+        catalog.CONTENT_ADDRESSED
+    before = tree_state(root)
+    assert catalog.write_run(root, DAY, runs, TAXONOMY)[0] == rid  # a no-op
+    assert tree_state(root) == before
+    assert tree_state(staging) == left  # ignored, never swept
+
+
+def test_write_run_refuses_a_foreign_staging_directory_before_any_write(
+        tmp_path):
+    # opensoft/openxFactory#1196: every write passes through the staging
+    # directory, so the writer holds it to what it holds every catalog
+    # directory it writes through. A symlink there (escaping the catalog
+    # root, into a day directory of the tree, or dangling) or a node that
+    # is not a directory is refused before anything is claimed, staged or
+    # written. A temp staged through such a link would be written outside
+    # the catalog tree, or inside a day directory the run scan reads.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid = catalog.run_id(runs, TAXONOMY)
+
+    def staging_of(root):
+        return root / catalog.STAGING_DIR
+
+    def into_a_day_directory(root, out):
+        day = runs_root(root) / "2026-07-01"
+        day.mkdir(parents=True)
+        plant_link(staging_of(root), day)
+
+    def not_a_directory(root, out):
+        staging_of(root).parent.mkdir(parents=True)
+        staging_of(root).write_text("occupied\n", encoding="utf-8")
+
+    cases = {
+        "symlink-escaping-the-root": (
+            lambda root, out: plant_link(staging_of(root), out), "symlink"),
+        "symlink-into-a-day-directory": (into_a_day_directory, "symlink"),
+        "symlink-dangling": (
+            lambda root, out: plant_link(staging_of(root), out / "missing"),
+            "symlink"),
+        "not-a-directory": (not_a_directory, "occupied"),
+    }
+    for name, (plant, reason) in cases.items():
+        root, outside = tmp_path / name, tmp_path / f"{name}-outside"
+        outside.mkdir()
+        plant(root, outside)
+        before, before_outside = tree_state(root), tree_state(outside)
+        with pytest.raises(catalog.CatalogError, match=reason):
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        with pytest.raises(catalog.CatalogError, match=reason):
+            catalog.write_snapshot(root, DAY, rid, "alpha", runs["alpha"],
+                                   TAXONOMY)
+        assert tree_state(root) == before, name  # no claim, no snapshot
+        assert tree_state(outside) == before_outside, name  # nothing staged
+        assert not (runs_root(root) / ".sequence").exists(), name
+        assert not (runs_root(root) / DAY_STR).exists(), name
+
+
+def test_write_run_refuses_a_cross_mount_run_before_any_claim(tmp_path):
+    # PR #1199 review (Copilot, two rounds): the atomic-rename check ran
+    # only when a write was staged, after the sequence was claimed and the
+    # run's directories made, so a staging directory an atomic rename could
+    # not publish from left an orphaned claim and a partial run behind,
+    # although that refusal depends on the layout alone. And an st_dev match
+    # alone passed two bind mounts of one filesystem, between which
+    # rename(2) still fails with EXDEV. The preflight now checks every
+    # directory the run publishes into against the staging directory, its
+    # filesystem AND its mount, before anything is claimed, counting a
+    # directory not made yet as its nearest existing ancestor's, where it
+    # would be made. A mount is simulated by shifting one id of every node
+    # at or below one directory: the device id for another filesystem, the
+    # mount id alone for a bind mount of the same filesystem.
+    runs = entries_by_repo(catalog.mechanical_entries(extended_inventory()))
+    rid = catalog.run_id(runs, TAXONOMY)
+    real = {"_device_id": catalog._device_id, "_mount_id": catalog._mount_id}
+
+    def mounted_at(seam, mount):
+        def shifted_id(node):
+            node = Path(node)
+            shift = 1 if node == mount or mount in node.parents else 0
+            return (real[seam](node) or 0) + shift
+        return shifted_id
+
+    def made(node):
+        node.mkdir(parents=True)
+        return node
+
+    mounts = {
+        "the-staging-directory": lambda root: made(
+            root / catalog.STAGING_DIR),
+        "a-day-directory": lambda root: made(runs_root(root) / DAY_STR),
+        "a-crashed-run-directory": lambda root: made(
+            runs_root(root) / DAY_STR / rid),
+    }
+    for seam in ("_device_id", "_mount_id"):
+        for name, mount_of in mounts.items():
+            root = tmp_path / seam / name
+            mount = mount_of(root)
+            before = tree_state(root)
+            with pytest.MonkeyPatch.context() as patch:
+                patch.setattr(catalog, seam, mounted_at(seam, mount))
+                with pytest.raises(catalog.CatalogError,
+                                   match="same filesystem and mount") as exc:
+                    catalog.write_run(root, DAY, runs, TAXONOMY)
+                with pytest.raises(catalog.CatalogError,
+                                   match="same filesystem and mount"):
+                    catalog.write_snapshot(root, DAY, rid, "alpha",
+                                           runs["alpha"], TAXONOMY)
+            case = (seam, name)
+            assert str(tmp_path) not in str(exc.value), case  # tree-relative
+            assert tree_state(root) == before, case
+            assert not (runs_root(root) / ".sequence").exists(), case
+            assert not (runs_root(root) / DAY_STR / rid / "run.yaml") \
+                .exists(), case
+
+        # A run tree mounted whole is one filesystem and one mount: a fresh
+        # run records, the directories it has not made yet counted as the
+        # mounted one's.
+        root = tmp_path / seam / "mounted-whole"
+        runs_root(root).mkdir(parents=True)
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setattr(catalog, seam, mounted_at(seam, runs_root(root)))
+            assert catalog.write_run(root, DAY, runs, TAXONOMY)[0] == rid
+        assert catalog.load_snapshot(root)["run_id"] == rid, seam
+        assert list((root / catalog.STAGING_DIR).iterdir()) == [], seam
+
+
 # --- recursion exclusion (T008) ----------------------------------------------
 
 def test_generated_catalog_paths_are_excluded_from_discovery():
@@ -2518,9 +2771,12 @@ def test_write_rendered_is_concurrency_safe_across_distinct_content(tmp_path):
     # sequence) never share/truncate/unlink each other's temp — no torn
     # destination file, and no stray FileNotFoundError from a winner
     # consuming a shared temp. The old fixed `path.name + ".tmp"` failed
-    # precisely this.
+    # precisely this. Since opensoft/openxFactory#1196 every temp is staged
+    # in the catalog's staging directory, never beside its target, so the
+    # call names the catalog root and no temp may be left in either place.
     target = tmp_path / "sub" / "run.yaml"
     target.parent.mkdir(parents=True)
+    (tmp_path / catalog.RUNS_DIR).mkdir(parents=True)  # the staging parent
     # Distinct AND different-length payloads so any torn interleaving of
     # two writes is detectable as "not equal to any single input".
     inputs = [f"sequence: {i}\n" + "x" * (i * 37) + "\n" for i in range(24)]
@@ -2530,7 +2786,7 @@ def test_write_rendered_is_concurrency_safe_across_distinct_content(tmp_path):
     def writer(text):
         try:
             barrier.wait()
-            catalog._write_rendered(target, text)
+            catalog._write_rendered(tmp_path, target, text)
         except BaseException as exc:  # noqa: BLE001 - recorded, asserted below
             errors.append(exc)
 
@@ -2544,7 +2800,311 @@ def test_write_rendered_is_concurrency_safe_across_distinct_content(tmp_path):
     # The published file is exactly ONE writer's complete bytes — never a
     # torn blend of two different-length writes.
     assert target.read_text(encoding="utf-8") in inputs
-    # No shared/leaked temp remains beside the published file.
+    # No shared/leaked temp remains beside the published file, or staged.
     leftovers = [p.name for p in target.parent.iterdir()
                  if p.name != "run.yaml"]
     assert leftovers == []
+    assert list((tmp_path / catalog.STAGING_DIR).iterdir()) == []
+
+
+def test_write_rendered_publishes_only_by_an_atomic_rename(tmp_path):
+    # opensoft/openxFactory#1196: a staged write is published only by an
+    # atomic rename, out of a staging directory the write re-checks at the
+    # moment it stages: a symlinked staging directory is refused there too,
+    # with nothing written through it. The rename needs the staging and
+    # target directories on one filesystem and one mount. The layout keeps
+    # them there; were they not, the write is refused, naming tree-relative
+    # paths, before anything is staged. A rename that fails anyway
+    # (os.replace fails across mounts, never copies) leaves neither the
+    # target nor the temp behind. On Linux the mount id is really read.
+    target = runs_root(tmp_path) / DAY_STR / ("e" * 64) / "alpha.yaml"
+    target.parent.mkdir(parents=True)
+    staging = tmp_path / catalog.STAGING_DIR
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    staging.symlink_to(outside, target_is_directory=True)
+    with pytest.raises(catalog.CatalogError, match="symlink"):
+        catalog._write_rendered(tmp_path, target, "{}\n")
+    assert not target.exists() and list(outside.iterdir()) == []
+    staging.unlink()
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(catalog, "_rename_compatible", lambda a, b: False)
+        with pytest.raises(catalog.CatalogError,
+                           match="same filesystem and mount") as exc:
+            catalog._write_rendered(tmp_path, target, "{}\n")
+    assert str(tmp_path) not in str(exc.value)  # tree-relative paths only
+    assert not target.exists() and list(staging.iterdir()) == []
+
+    def cross_device(src, dst):
+        raise OSError(errno.EXDEV, os.strerror(errno.EXDEV))
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(os, "replace", cross_device)
+        with pytest.raises(OSError) as failed:
+            catalog._write_rendered(tmp_path, target, "{}\n")
+    assert failed.value.errno == errno.EXDEV
+    assert not target.exists() and list(staging.iterdir()) == []
+
+    assert catalog._rename_compatible(staging, target.parent)
+    assert catalog._mount_id(staging) == catalog._mount_id(target.parent)
+    assert catalog._mount_id(staging) is not None or \
+        not hasattr(os, "O_PATH") or not Path("/proc/self/fdinfo").is_dir()
+    catalog._write_rendered(tmp_path, target, "{}\n")
+    assert target.read_bytes() == b"{}\n"
+    assert list(staging.iterdir()) == []
+
+
+def test_every_publish_is_durable_before_the_next_is_staged(tmp_path):
+    # PR #1199 review (Copilot, rounds 3 and 4), and the fsync-then-rename
+    # order opensoft/openxFactory#1196 keeps. Closing a temp flushes
+    # Python's buffer but makes nothing durable, and a rename is a directory
+    # entry the disk can still lose: a power loss could undo a snapshot's
+    # rename and keep the run.yaml published after it, leaving a recorded
+    # run holding no snapshot. Each write of a run now fsyncs its own temp,
+    # complete, renames it, and fsyncs the directory it landed in and every
+    # directory from that one up to the runs directory, all before the
+    # run's next file is staged. A slash-separated repository's snapshot
+    # lands in a directory the writer made inside the run, so its chain is
+    # one directory longer. The run's sequence claim is made durable the
+    # same way before anything of the run is written, so no durable run.yaml
+    # names a claim a power loss took.
+    alpha = alpha_entries(extended_inventory())
+    runs = {"alpha": alpha, "xFactories/MedxFactory": [
+        dict(e, repo="xFactories/MedxFactory") for e in alpha]}
+    rid = catalog.run_id(runs, TAXONOMY)
+    staging = tmp_path / catalog.STAGING_DIR
+    real_fsync, real_replace = os.fsync, os.replace
+    events = []
+
+    def label(node):
+        return Path(node).relative_to(runs_root(tmp_path)).as_posix()
+
+    def fsync(fd):
+        inode = os.fstat(fd).st_ino
+        claims = runs_root(tmp_path) / ".sequence"
+        temps = [p for p in staging.iterdir() if os.lstat(p).st_ino == inode] \
+            if staging.is_dir() else []
+        claimed = [p for p in claims.iterdir() if p.is_file()
+                   and os.lstat(p).st_ino == inode]
+        if temps:  # the temp itself, holding what it is about to publish
+            events.append(("sync temp", temps[0].name.split(".")[0],
+                           temps[0].read_bytes()))
+        elif claimed:
+            events.append(("sync claim", claimed[0].name,
+                           claimed[0].read_bytes()))
+        else:
+            tree = [runs_root(tmp_path), *(
+                p for p in runs_root(tmp_path).rglob("*") if p.is_dir())]
+            events.append(("sync directory", [
+                label(p) for p in tree if os.lstat(p).st_ino == inode]))
+        return real_fsync(fd)
+
+    def replace(src, dst):
+        assert Path(src).parent == staging, src
+        events.append(("replace", label(dst)))
+        return real_replace(src, dst)
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(os, "fsync", fsync)
+        patch.setattr(os, "replace", replace)
+        assert catalog.write_run(tmp_path, DAY, runs, TAXONOMY)[0] == rid
+    run = f"{DAY_STR}/{rid}"
+    published = (("alpha", f"{run}/alpha.yaml", [run, DAY_STR, "."]),
+                 ("run", f"{run}/run.yaml", [run, DAY_STR, "."]),
+                 ("MedxFactory", f"{run}/xFactories/MedxFactory.yaml",
+                  [f"{run}/xFactories", run, DAY_STR, "."]))
+    claim = runs_root(tmp_path) / ".sequence" / "000001.yaml"
+    expected = [("sync claim", claim.name, claim.read_bytes()),
+                ("sync directory", [".sequence"]), ("sync directory", ["."])]
+    for name, path, chain in published:
+        body = (runs_root(tmp_path) / path).read_bytes()
+        expected += [("sync temp", name, body), ("replace", path)]
+        expected += [("sync directory", [directory]) for directory in chain]
+    assert events == expected
+    assert list(staging.iterdir()) == []
+
+
+class Died(Exception):
+    """A writer stopped dead at the moment a test chose."""
+
+
+def record_durability(patch, root, events, rules=()):
+    """Append to `events`, while `patch` holds, every ``os.replace`` as
+    ``("replace", <path under the runs directory>)`` and every ``os.fsync``
+    of a directory as ``("sync", <path under the runs directory>)``, each
+    right after the real call. `rules` pairs an event with a callable run
+    once, at that moment: that is how a test pauses a writer immediately
+    after one of its renames or syncs, runs another writer there, or stops
+    one dead."""
+    runs = runs_root(root)
+    real_replace, real_fsync = os.replace, os.fsync
+    pending = list(rules)
+
+    def label(node):
+        return Path(node).relative_to(runs).as_posix()
+
+    def happened(event):
+        events.append(event)
+        for rule in pending:
+            if rule[0] == event:
+                pending.remove(rule)
+                rule[1]()
+                return
+
+    def replace(src, dst):
+        real_replace(src, dst)
+        happened(("replace", label(dst)))
+
+    def fsync(fd):
+        real_fsync(fd)
+        found = os.fstat(fd)
+        if stat.S_ISDIR(found.st_mode):
+            names = [label(p) for p in [runs, *runs.rglob("*")]
+                     if p.is_dir() and (os.lstat(p).st_dev, os.lstat(p).st_ino)
+                     == (found.st_dev, found.st_ino)]
+            happened(("sync", names[0] if names else "?"))
+
+    patch.setattr(os, "replace", replace)
+    patch.setattr(os, "fsync", fsync)
+
+
+def test_a_writer_accepts_another_writers_publish_only_once_durable(tmp_path):
+    # PR #1199 review (Copilot, at caf0c029): os.replace makes a file
+    # visible before its writer's directory sync runs, and an identical
+    # writer running in that window accepted the file as published -- as a
+    # completed no-op, by skipping its own write, or by finding the run
+    # recorded or complete -- without syncing it, then published a run.yaml
+    # over it or reported success. Were the first writer to die before its
+    # sync, a power loss could still take what the second had reported
+    # recorded. That is sharpest for a slash-separated repository, whose
+    # directory no run.yaml sync covers. Every path that accepts a file
+    # another writer published now makes it durable itself first. Each case
+    # pauses one writer immediately after a rename (in case 3, after its
+    # snapshot's last sync), runs the other there, and stops a writer dead
+    # before its own sync.
+    nested = [dict(e, repo="xFactories/MedxFactory")
+              for e in alpha_entries(extended_inventory())]
+    runs = {"xFactories/MedxFactory": nested}
+    rid = catalog.run_id(runs, TAXONOMY)
+    run = f"{DAY_STR}/{rid}"
+    snapshot = f"{run}/xFactories/MedxFactory.yaml"
+    chain = [f"{run}/xFactories", run, DAY_STR, "."]  # up to the runs dir
+
+    def between(events, start, end):
+        return events[events.index(start) + 1:events.index(end)]
+
+    def first_writer(root, rules):
+        events = []
+        with pytest.MonkeyPatch.context() as patch:
+            record_durability(patch, root, events, rules(root, events))
+            try:
+                assert catalog.write_run(root, DAY, runs, TAXONOMY)[0] == rid
+                events.append(("first returns",))
+            except Died:
+                events.append(("first dies",))
+        return events
+
+    def second_runs_then_first_dies(root, events):
+        events.append(("second starts",))
+        assert catalog.write_run(root, DAY, runs, TAXONOMY)[0] == rid
+        events.append(("second returns",))
+        raise Died
+
+    def recorded(root, sequence, name=rid):
+        latest = catalog.load_snapshot(root)
+        assert (latest["run_id"], latest["sequence"]) == (name, sequence)
+        assert catalog.run_id_scheme(name, latest["repos"],
+                                     catalog._load_run_bytes(
+                                         runs_root(root) / DAY_STR / name)) \
+            == catalog.CONTENT_ADDRESSED
+
+    # 1. The first writer is paused right after its snapshot's rename, and
+    #    dies there. The second finds the snapshot published, so it writes
+    #    none: it syncs that snapshot's directory chain, after its own claim,
+    #    before its run.yaml names the snapshot.
+    root = tmp_path / "after-the-snapshot-rename"
+    events = first_writer(root, lambda root, events: [
+        (("replace", snapshot),
+         lambda: second_runs_then_first_dies(root, events))])
+    second = between(events, ("second starts",), ("second returns",))
+    published = second.index(("replace", f"{run}/run.yaml"))
+    assert [name for _kind, name in second[:published]] == \
+        [".sequence", "."] + chain
+    assert ("replace", snapshot) not in second and \
+        events[-1] == ("first dies",)
+    recorded(root, 2)
+
+    # 2. Paused right after its run.yaml's rename, the first writer dies. The
+    #    second is a completed no-op: it writes nothing, and syncs the
+    #    snapshot's chain, run.yaml's directory included, before it returns.
+    root = tmp_path / "after-the-run-yaml-rename"
+    events = first_writer(root, lambda root, events: [
+        (("replace", f"{run}/run.yaml"),
+         lambda: second_runs_then_first_dies(root, events))])
+    assert between(events, ("second starts",), ("second returns",)) == \
+        [("sync", directory) for directory in chain]
+    assert events[-1] == ("first dies",)
+    recorded(root, 1)
+
+    # 3. Paused after its snapshot's sync, before it checks for run.yaml, the
+    #    first writer lets the second claim, publish run.yaml, and die right
+    #    after that rename. The first then finds the run recorded, and syncs
+    #    run.yaml's directory chain before it returns. (The "." that follows
+    #    "second dies" is the rest of the first writer's own snapshot chain.)
+    root = tmp_path / "a-run-yaml-found-after-the-claim"
+
+    def second_publishes_run_yaml_and_dies(root, events):
+        events.append(("second starts",))
+        with pytest.raises(Died):
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        events.append(("second dies",))
+
+    def die():
+        raise Died
+
+    events = first_writer(root, lambda root, events: [
+        (("sync", DAY_STR),
+         lambda: second_publishes_run_yaml_and_dies(root, events)),
+        (("replace", f"{run}/run.yaml"), die)])
+    assert between(events, ("second dies",), ("first returns",)) == \
+        [("sync", "."), ("sync", run), ("sync", DAY_STR), ("sync", ".")]
+    recorded(root, 2)
+
+    # 4. A recorded partial run lacks one snapshot, which another writer
+    #    renames into place, and dies, just as this call finds the run
+    #    complete. The call returns the completed no-op only after syncing
+    #    that snapshot's directory chain.
+    both = {"alpha": alpha_entries(extended_inventory()),
+            "xFactories/MedxFactory": nested}
+    both_rid = catalog.run_id(both, TAXONOMY)
+    _rid, source = catalog.write_run(tmp_path / "source", DAY, both, TAXONOMY)
+    landed_bytes = source["xFactories/MedxFactory"].read_bytes()
+    root = tmp_path / "a-complete-run-found-mid-call"
+    catalog.write_snapshot(root, DAY, both_rid, "alpha", both["alpha"],
+                           TAXONOMY)  # recorded, partial
+    both_run = f"{DAY_STR}/{both_rid}"
+    real_addresses_itself = catalog._addresses_itself
+    events = []
+
+    def addresses_itself(run_dir, name):
+        if ("another writer renames",) not in events:
+            events.append(("another writer renames",))
+            (run_dir / "xFactories").mkdir()
+            landed = tmp_path / "landed.tmp"
+            landed.write_bytes(landed_bytes)
+            os.replace(landed, run_dir / "xFactories" / "MedxFactory.yaml")
+        return real_addresses_itself(run_dir, name)
+
+    with pytest.MonkeyPatch.context() as patch:
+        record_durability(patch, root, events)
+        patch.setattr(catalog, "_addresses_itself", addresses_itself)
+        catalog.write_snapshot(root, DAY, both_rid, "xFactories/MedxFactory",
+                               nested, TAXONOMY)
+        events.append(("call returns",))
+    assert between(events, ("replace",
+                            f"{both_run}/xFactories/MedxFactory.yaml"),
+                   ("call returns",)) == [
+        ("sync", f"{both_run}/xFactories"), ("sync", both_run),
+        ("sync", DAY_STR), ("sync", ".")]
+    recorded(root, 1, both_rid)

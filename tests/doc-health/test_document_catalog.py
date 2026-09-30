@@ -802,6 +802,32 @@ def test_misplaced_run_artifact_is_flagged(tmp_path):
     assert "does not conform to the recognized catalog" in got[0].rule
 
 
+def test_a_stale_staged_write_is_reported_as_a_misplaced_artifact(tmp_path):
+    # opensoft/openxFactory#1196: the writer stages every write in
+    # catalog.STAGING_DIR and leaves nothing there once the write lands, so
+    # a clean write adds no finding. A temp a crash left there is ignored by
+    # the writer and never read as a run, and this family reports it as a
+    # misplaced catalog artifact, for a person to remove: the same finding
+    # the same temp drew while the writer staged it inside the run.
+    root = tmp_path / "agg"
+    build_complete_baseline(root)
+    rid, paths = catalog.write_run(root, DAY, mechanical_runs(), TAXONOMY)
+    staging = root / catalog.STAGING_DIR
+    assert staging.is_dir() and list(staging.iterdir()) == []
+    assert fam_document_catalog(ctx_for(catalog_root=root)) == []
+    name = "alpha.yaml.x1y2z3.tmp"
+    for where, rel in ((staging, f"runs/.staging/{name}"),
+                       (paths["alpha"].parent,
+                        f"runs/{DAY_STR}/{rid}/{name}")):
+        stale = where / name
+        stale.write_bytes(paths["alpha"].read_bytes())
+        got = fam_document_catalog(ctx_for(catalog_root=root))
+        assert [(f.severity, f.repo, f.path) for f in got] == [
+            (ERROR, "(catalog)", rel)], rel
+        assert got[0].rule.startswith("[immutable-path] "), rel
+        stale.unlink()
+
+
 # --- run-identity (opensoft/xFactory#519) ---------------------------------------
 
 RUN_IDENTITY_ACTION = (

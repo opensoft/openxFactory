@@ -254,9 +254,19 @@ def test_the_gate_reaches_the_corpus_only_through_the_two_public_names():
     `from corpus_adapter_openxfactory.classify import absent_fields` is one line
     shorter than the route this module takes and would answer the same question
     by a door the interface does not define.
+
+    AMENDED by plan 034 T047 (a named composition test, R1Q2 (a); T007 batch
+    E). openDox-code's T020/T021 made the gate reach the home corpus through
+    the REGISTERED seam, `corpus_adapter.home()`, so at the pinned leg it binds
+    NO name out of the adapter package: the two public names it takes are the
+    interface's own, `DocumentId` and `home`. It used to bind `home_corpus`
+    from this repository's package directly, which is the pinned assertion
+    this amendment moves. The walk that finds a package import is unchanged,
+    so a shortcut written back in still fails here.
     """
     tree = ast.parse(AUTHORING.read_text(encoding="utf-8"), filename=str(AUTHORING))
     bound = []
+    interface = []
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom) and node.module and not node.level:
             if node.module.split(".")[0] in {"corpus_adapter_openxfactory",
@@ -265,9 +275,16 @@ def test_the_gate_reaches_the_corpus_only_through_the_two_public_names():
                 assert node.module in {"corpus_adapter_openxfactory"}, (
                     f"line {node.lineno} imports {node.module!r} — the package's "
                     "submodules are not a route this consumer may take")
-    assert bound == ["home_corpus"], (
-        f"authoring.py binds {bound} out of the adapter package; the only name "
-        "it needs is `home_corpus`")
+        if (isinstance(node, ast.ImportFrom) and node.level == 1
+                and node.module == "corpus_adapter"):
+            interface.extend(alias.name for alias in node.names)
+    assert bound == [], (
+        f"authoring.py binds {bound} out of the adapter package; it reaches the "
+        "home corpus through the registered seam, `corpus_adapter.home()`, and "
+        "needs no name of the package's")
+    assert sorted(interface) == ["DocumentId", "home"], (
+        f"authoring.py takes {sorted(interface)} from the interface module; the "
+        "two public names the gate needs are `DocumentId` and `home`")
 
 
 def test_the_proposal_is_staged_where_the_header_contract_applies():

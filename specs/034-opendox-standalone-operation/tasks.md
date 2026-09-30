@@ -476,7 +476,7 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
     so T016 lands as planned. Batch D landed as #1170 → `79a720a2`, so
     requirement 3's text now says what T016 does (T049).
   - **After**: T015, T012 (Lane A's last `serve.py` edit).
-- [ ] T017 [US4] [oxF] **3.3, read-only.** At every openxFactory arc
+- [x] T017 [US4] [oxF] **3.3, read-only.** At every openxFactory arc
   landing, confirm that the carve manifest's `deleted_at_carve` row for
   `scripts/ideation_dashboard/profile_openxfactory.py` is byte-identical. F11.1's
   content check already refuses any row change, so the interim F11.1 runs are
@@ -926,7 +926,7 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
     `verify-openxdox-pin.py`; `pytest-suite`.
   - **After**: T039, T044, T007 (batches A and E).
   - **Lands with**: T045, T046.
-- [ ] T018 [US4] [oxF] **Phase 1's interim F11.1**, by T093's procedure, with
+- [x] T018 [US4] [oxF] **Phase 1's interim F11.1**, by T093's procedure, with
   `ARC_TIP` at T047's landing. Record the output in
   `evidence/f11.1-phase1.txt`, with no `Arc:` trailer, and link it from
   this feature's README entry (Principle IV).
@@ -937,7 +937,7 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
   openxFactory's direct `opendox` imports and bring Brett the direct-arrow
   question (F4, outside both releases; `5799494355`).
   - **After**: T049.
-- [ ] T049 **Phase 1 checkpoint.** Run and quote:
+- [x] T049 **Phase 1 checkpoint.** Run and quote:
   - F2.1, and F3.1 with line 2 as amended (T007 batch A);
   - F9.1 in each leg (openXdox-code's as amended by batches B and F,
     openDox-code's with the database DSN exported), and F9.2;
@@ -952,6 +952,13 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
 
   F7.1 is not run here. 7.3 closes in phase 2 (R1Q25 (b)), and T063 runs it.
   Tick nothing; T097 ticks.
+
+  F9.2 is quoted red, as ruled. RULED `5859927858` keeps F9.2 unchanged, so it
+  stays red on the 31-entry help-tree test until T008, and phase 1 closes with
+  it quoted so: its box closes after T008, not here (holder decision,
+  2026-09-29, at T049). The run is recorded in `evidence/checkpoint-phase1.md`.
+  Its arrival check first found one of T035's cases in no suite. That case
+  landed first (#1203 → `08e97c27`), so the check finds all 19.
   - **Ruled**: RN-1 (a), `5850003126`. Batch D landed as #1170 → `79a720a2`,
     so requirement 3 is reported as realized once T016 matches it.
   - **After**: T047, T017, T018, T007 (batches A, B, D and F).
@@ -1715,6 +1722,10 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   manifest records the carve as it arrived, so an arc edit to a carved file
   needs nothing more (R1Q22 (a)). Each phase's notes ride in that phase's
   openxFactory PR (T047, T064, T094), for the reaches the phase closed.
+  Phase 1's rode in T049's checkpoint PR instead, on the holder's decision of
+  2026-09-28: six notes on five rows, for the ten reaches phase 1 closed. That
+  PR carries no `Arc:` trailer, so F11.1's count of annotated notes never
+  includes them. Their PR ran F11.1's content rule over them instead.
   - **Realizes**: 11.1, which is ticked at ARC close.
   - **Falsifier**: F11.1's manifest check. With every `edits[].note` removed,
     the two documents must be equal, and a note that already existed may only
@@ -1800,9 +1811,10 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     `5850003126`.
   - **After**: T095.
 - [ ] T097 [oxF] **Bookkeeping.**
-  - Tick #1144's release-1 boxes, each with its evidence note: the 63 in the
+  - Tick #1144's release-1 boxes, each with its evidence note: the 62 in the
     table below. 3.0 is already ticked (#1151).
-  - Leave 9.5, 11.0, 11.1 and F11.1 open for the arc's close.
+  - Leave 9.5, 11.0, 11.1 and F11.1 open for the arc's close, and F9.2 open
+    until T008 (RULED `5859927858`; holder decision, 2026-09-29, at T049).
   - The PR touches `openspec/changes/`, so it lands under a Rule 6
     `LANDING`/`LANDED` window. It carries no `Arc:` trailer (R1Q20 (a)) and no
     closing keyword.
@@ -1832,7 +1844,8 @@ Release 1's 69 boxes, by class:
 
 | class | count | boxes |
 |---|---|---|
-| closed by a realization task in release 1 | 63 | every other box below |
+| closed by a realization task in release 1 | 62 | every other box below |
+| closes after T008, outside release 1's tasks | 1 | F9.2: RULED `5859927858` keeps it unchanged and red on the 31-entry help-tree test until T008 (holder decision, 2026-09-29, at T049) |
 | discharged by the ratification | 1 | 3.0 (ticked by #1151, T001) |
 | already `[x]` | 1 | 5.6 (openDox-code#35 → `3c3a9e31`) |
 | performed in every phase, ticked at ARC close | 4 | 9.5 (T090), 11.0 (T091), 11.1 (T092), F11.1 (T093) |
@@ -1847,7 +1860,7 @@ Every release-1 box, with the task that closes it:
 | 4 (5) | 4.1 → T020, T021, T046 · 4.1a → T022 · 4.2 → T020 · 4.3 → T012, T021, T025–T027, T046, T055, T084–T086 · F4.1 → T089 |
 | 5 (12) | 5.0 → T050 · 5.1 → T053, T054, T056 · 5.2 → T054 · 5.3 → T054 · 5.3a → T060 · F5.1 → T060 · 5.4 → T052 · 5.4a → T059 · F5.2 → T061, T063 · 5.5 → T055 · 5.6 `[x]` · F5.3 → T063 |
 | 7 (8) | 7.0 → T051 · 7.1 → T053, T057 · 7.1b → T057 · 7.1a → T057 · 7.2 → T057, T058 · 7.3 → T061 · F7.1 → T061 · F7.2 → T058, T063 |
-| 9 (8) | 9.1 → T034–T036 · 9.2 → T040, T041, T043, T086 · 9.2a → T030, T036 · 9.3 → T035, T042 · 9.4 → T037, T044 · 9.5 → T039, T040, T047, T059, T062, T064, T086, T087, T094 (T090's steps; arc close) · F9.1 → T049 · F9.2 → T049 |
+| 9 (8) | 9.1 → T034–T036 · 9.2 → T040, T041, T043, T086 · 9.2a → T030, T036 · 9.3 → T035, T042 · 9.4 → T037, T044 · 9.5 → T039, T040, T047, T059, T062, T064, T086, T087, T094 (T090's steps; arc close) · F9.1 → T049 · F9.2 → after T008 (T049 quotes it red, as RULED `5859927858` keeps it) |
 | 10 (5) | 10.1 → T038 · 10.2 → T075 · 10.2a → T075 · 10.3 → T076 · F10.1 → T077 |
 | 11 (3) | 11.0 → T091 · 11.1 → T045, T092 · F11.1 → T093 (all at arc close) |
 | 13 (8) | 13.1 → T072 · 13.2 → T071 · 13.3 → T071 · 13.4 → T070 · 13.4a → T073 · 13.5 → T070 · 13.6 → T070 · F13.1 → T074 |

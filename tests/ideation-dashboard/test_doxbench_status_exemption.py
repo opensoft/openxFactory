@@ -71,23 +71,58 @@ from ideation_dashboard import doxbench_status_exemption as rail  # noqa: E402
 # existing packet suite already uses. Imported rather than restated: a parity
 # proof over a SECOND fixture corpus would prove parity over something no other
 # test exercises.
-from test_doxbench_packet import (  # noqa: E402
-    _FORBIDDEN_MODULE_NEEDLES,
-    DOC_A,
-    DOC_B,
-    DRAFT_TEXT,
-    EVIDENCE_DRAFT,
-    EVIDENCE_RATIFIED,
-    FOREIGN_TEXT,
-    OUTLINE,
-    RATIFIED_TEXT,
-    SCOPE,
-    TURN,
-    _boundary,
-    _clock,
-    _projection,
-    _thread,
-)
+#
+# THE SUITE IS openXdox-code's, AND FROM `6158151e` IT IMPORTS TWO NAMES OF ITS
+# OWN CONFTEST (plan 034 T047; a named composition test, R1Q2 (a), T007 batch
+# E). Its `from conftest import assert_not_at_this_leg, carved_module_path`
+# resolves, in this process, to THIS directory's conftest, which has neither,
+# so the import stopped the whole run at collection. Both are called only by
+# the packet suite's own tests, and this file imports its fixture corpus,
+# never its tests, so each is LENT for the one import as a refusal, and taken
+# back straight after: nothing here can call it, and the conftest is left as
+# it was.
+import conftest as _this_directory_conftest  # noqa: E402
+
+_LEG_ONLY_CONFTEST_NAMES: tuple[str, ...] = (
+    "assert_not_at_this_leg", "carved_module_path")
+
+
+def _leg_only_helper(name: str):
+    def refuse(*_args, **_kwargs):
+        raise AssertionError(
+            f"{name} is openXdox-code's own conftest helper, lent to "
+            "test_doxbench_packet for its import only; this file takes that "
+            "suite's fixture corpus, never its tests, so nothing here may "
+            "call it")
+    refuse.__name__ = name
+    return refuse
+
+
+_lent = [name for name in _LEG_ONLY_CONFTEST_NAMES
+         if not hasattr(_this_directory_conftest, name)]
+for _name in _lent:
+    setattr(_this_directory_conftest, _name, _leg_only_helper(_name))
+try:
+    from test_doxbench_packet import (  # noqa: E402
+        _FORBIDDEN_MODULE_NEEDLES,
+        DOC_A,
+        DOC_B,
+        DRAFT_TEXT,
+        EVIDENCE_DRAFT,
+        EVIDENCE_RATIFIED,
+        FOREIGN_TEXT,
+        OUTLINE,
+        RATIFIED_TEXT,
+        SCOPE,
+        TURN,
+        _boundary,
+        _clock,
+        _projection,
+        _thread,
+    )
+finally:
+    for _name in _lent:
+        delattr(_this_directory_conftest, _name)
 
 # POST-SHED (§ 5.2, RULED (a)): the packet module is a moved row read from the
 # pinned openDox-code leg; the exemption module below is a `not_moved` row and
@@ -183,12 +218,34 @@ def test_the_dependence_on_the_carved_rail_sits_at_exactly_one_line():
     Not a style preference: a module `__getattr__` that imported the rail
     itself, plus `exemption_rail` importing it again, would be two places to
     find and two places to change at the carve. `_status_exemption()` is the
-    one, and everything else in the file goes through it."""
+    one, and everything else in the file goes through it.
+
+    AMENDED by plan 034 T047 (a named composition test, R1Q2 (a); T007 batch
+    E). openDox-code's T027 removed the packet module's only import of this
+    rail: the host registers it (`register_status_exemption`, T046) and the
+    module reads the registration. So the pinned count moves from one import
+    to none, and the ONE readable point is asserted where it now is:
+    `_status_exemption()` is the only reader of the registered rail besides
+    the three registration calls themselves."""
     seam_lines = [line for module, line in imported_modules(PACKET_MODULE)
                   if module == SEAM_MODULE_NAME]
-    assert len(seam_lines) == 1, (
-        f"expected exactly one import of {SEAM_MODULE_NAME!r} in "
-        f"{PACKET_MODULE.name}; found it at lines {seam_lines}")
+    assert seam_lines == [], (
+        f"expected no import of {SEAM_MODULE_NAME!r} in {PACKET_MODULE.name}, "
+        "which reads the rail the host registers; found it at lines "
+        f"{seam_lines}")
+    tree = ast.parse(PACKET_MODULE.read_text(encoding="utf-8"),
+                     filename=str(PACKET_MODULE))
+    readers = sorted(
+        node.name for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and any(isinstance(inner, ast.Name)
+                and inner.id == "_status_exemption_rail"
+                for inner in ast.walk(node)))
+    assert readers == ["_status_exemption", "register_status_exemption",
+                       "status_exemption_registered",
+                       "unregister_status_exemption"], (
+        f"the registered rail is read in {readers}; `_status_exemption()` is "
+        "the one readable point, beside the three registration calls")
 
 
 def test_the_carved_module_is_a_leaf_of_its_own_package():

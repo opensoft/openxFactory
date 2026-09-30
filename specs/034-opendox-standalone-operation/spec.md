@@ -258,10 +258,11 @@ and 1,305 errors (research R2).
 
 **Independent Test**: at the phase-1 tip, F2.1, F3.1 (line 2 as amended, R1Q3
 (a)), F9.1 (in both legs; openXdox-code's as amended, R1Q6 (d), R1Q24 (a),
-R1Q25 (b)), F9.2 and
-`opendox --help` all pass. So do 4.3's eight
+R1Q25 (b)) and `opendox --help` all pass. So do 4.3's eight
 reaches into openxFactory, under F4.1's scan restricted to the publisher's
-packages.
+packages. F9.2 is run and quoted red, not passed: RULED `5859927858` keeps it
+unchanged, so it stays red on the 31-entry help-tree test until T008, and
+phase 1 closes with it quoted so (holder decision, 2026-09-29, at T049).
 
 **Acceptance Scenarios**:
 
@@ -415,7 +416,11 @@ suite pass.
    and the handler-contribution facet (R1Q1 (a), R1Q2 (a)).
 2. **Given** every arc landing on openxFactory `main` since `94b6f7f1`, **When**
    F11.1 runs, **Then** each path touched is one of 11.1's surfaces, as
-   widened to named composition tests by R1Q2 (a). The manifest differs only
+   widened to named composition tests by R1Q2 (a), and further to the seven
+   admitted arc edits closed list RULED on `#656` comment `5890601202`
+   ("Named closed list") — proved at T018 (phase 1) with `ARC_TIP`
+   `f56c87c6`, both a PASS at that closed list and a FAIL on a planted
+   eighth path never in it. The manifest differs only
    in `edits[].note` values, each added where an entry had none or extended,
    and none rewritten (requirement 1; R1Q20 (a), R1Q22 (a)).
 3. **Given** openXdox installed in a fresh venv, **When** its validator lookup
@@ -568,7 +573,10 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   out of openxFactory. Every realization landing SHALL carry `Arc:
   neutral-product-standalone-operability`, and bookkeeping SHALL NOT (R1Q20
   (a)). openxFactory's arc edits SHALL stay within 11.1's surfaces: its three,
-  plus the named composition tests of R1Q2 (a) (R1Q22 (a)).
+  plus the named composition tests of R1Q2 (a) (R1Q22 (a)), plus the seven
+  admitted arc edits closed list RULED on `#656` comment `5890601202`
+  ("Named closed list") — a later phase extends that list only by a
+  further ruling, never by edited guard code alone.
 - **FR-011** (acceptance): release 1 SHALL pass AT-R1 (below) before its
   bookkeeping ticks the release-1 boxes.
 - **FR-012** (process): no task SHALL start while a question in its
@@ -611,8 +619,10 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 
 ### Measurable Outcomes
 
-- **SC-001** (phase 1 exit): at the phase-1 tip, F2.1, F3.1, F9.1 (in both
-  legs) and F9.2 exit 0, each as amended where T007 records an amendment.
+- **SC-001** (phase 1 exit): at the phase-1 tip, F2.1, F3.1 and F9.1 (in both
+  legs) exit 0, each as amended where T007 records an amendment. F9.2 is run
+  and quoted red until T008, as US1's independent test records (RULED
+  `5859927858`).
   `opendox --help` exits 0, and F4.1's scan lists only `openxdox` targets.
   RN-1 (a) is in requirement 3's text (T007's batch D, #1170 → `79a720a2`),
   and T016 matches it.
@@ -631,14 +641,16 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 - **SC-005**: after each phase's openxFactory landings, an interim F11.1 run
   (`PACKET_MERGE=94b6f7f1`), with the guard as widened by T007's batch A,
   prints `requirement 1 holds`.
-- **SC-006**: at release-1 close, 65 of release 1's 69 boxes are ticked, each
+- **SC-006**: at release-1 close, 64 of release 1's 69 boxes are ticked, each
   with its evidence:
-  - 63 by T097;
+  - 62 by T097;
   - 3.0, by the ratification record (#1151);
   - 5.6, which was already `[x]`.
 
   The other four (9.5, 11.0, 11.1 and F11.1) are performed in every phase, but
-  left open for the arc's close after release 2.
+  left open for the arc's close after release 2. F9.2 stays open until T008,
+  because RULED `5859927858` keeps it red on the help-tree test until then
+  (holder decision, 2026-09-29, at T049).
 - **SC-007**: openxFactory's required checks are green at every pin advance
   this release makes.
 
