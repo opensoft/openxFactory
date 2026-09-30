@@ -776,3 +776,43 @@ def test_declared_checkouts_ignores_declarations_that_climb_out(tmp_path):
 ])
 def test_repository_name_is_the_url_tail(url, name):
     assert lane._repository_name(url) == name
+
+
+def test_no_candidate_source_can_resolve_outside_the_aggregation_root(tmp_path):
+    """Copilot review, PR #1209: containment held only for NESTED
+    declarations, while the id used as a path and the root `.gitmodules` map
+    were tried unchanged. The escape target here is a real populated checkout,
+    so only containment refuses it."""
+    outside = _commit_repo(tmp_path / "outside")
+    agg = _commit_repo(tmp_path / "agg", gitmodules=(
+        '[submodule "esc"]\n\tpath = ../outside\n\turl = git@example.invalid:esc.git\n'))
+    assert lane._borrowed_toplevel(outside) is None  # populated, so reachable
+    assert lane.submodule_paths(agg) == {"outside": "../outside"}
+
+    assert lane.resolve_checkout(agg, "../outside") is None       # the id as a path
+    assert lane.resolve_checkout(agg, "outside") is None          # the root map
+    assert lane.resolve_checkout(agg, str(outside)) is None       # an absolute id
+    out = lane.run_multi_lane(agg, repositories=["../outside", "outside"],
+                              generate=_never_generate)
+    assert out.published == []
+
+
+def test_an_undecodable_nested_gitmodules_declares_nothing(tmp_path):
+    """Copilot review, PR #1209: `UnicodeDecodeError` is not an `OSError`, so
+    one malformed `.gitmodules` in a pinned repository aborted the whole run
+    before `index-status.json` was written."""
+    agg = _nested_agg_root(tmp_path)
+    (agg / "openxFactory" / "openDox" / ".gitmodules").write_bytes(
+        b'\xff\xfe[submodule "spec"]\n\tpath = spec\n')
+
+    declared = lane.declared_checkouts(agg)
+    assert "openDox-spec" not in declared
+    assert declared["openDox"] == ["openDox", "openxFactory/openDox"]
+
+    out = lane.run_multi_lane(agg, repositories=["openDox-spec"],
+                              generate=_never_generate)
+    assert out.published == []
+    status = json.loads(
+        (agg / "health/ideation-dashboard/index-status.json").read_text())
+    assert status["skipped"] == [
+        {"repository": "openDox-spec", "reason": "checkout not found"}]

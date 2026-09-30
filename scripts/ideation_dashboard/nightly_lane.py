@@ -434,10 +434,12 @@ class MultiLaneOutcome:
 
 def _gitmodules_entries(gitmodules: Path) -> list[tuple[str, str | None]]:
     """`(path, url)` per `[submodule]` section of one `.gitmodules`, in declared
-    order. An unreadable file declares nothing."""
+    order. An unreadable or undecodable file declares nothing: one malformed
+    `.gitmodules` in a pinned repository must not abort the whole run before
+    `index-status.json` is written (Copilot review, PR #1209)."""
     try:
         text = gitmodules.read_text(encoding="utf-8")
-    except OSError:
+    except (OSError, UnicodeDecodeError):
         return []
     sections: list[dict[str, str]] = []
     for line in text.splitlines():
@@ -518,7 +520,7 @@ def declared_checkouts(agg_root: Path) -> dict[str, list[str]]:
         base_dir = root / base if base else root
         try:
             real = base_dir.resolve()
-        except OSError:
+        except (OSError, RuntimeError):  # RuntimeError: a symlink loop
             continue
         if real in seen:
             continue
@@ -559,14 +561,19 @@ def locate_checkout(agg_root: Path, repository: str,
     FIRST candidate that is a directory and not an uninitialised submodule is
     the checkout. A candidate with no git checkout of its own is never used,
     because its HEAD is the enclosing repository's (#1208); it is recorded
-    instead, so the skip can say which declared directories were empty."""
+    instead, so the skip can say which declared directories were empty.
+
+    EVERY candidate passes the same containment `declared_checkouts` applies:
+    an id or a root declaration that is absolute or climbs out with `..` is
+    never tried, so no source can point the generator outside the
+    aggregation root (Copilot review, PR #1209)."""
     root = Path(agg_root)
     name = Path(repository).name
     subs = submodules if submodules is not None else submodule_paths(root)
     decl = declared if declared is not None else declared_checkouts(root)
-    candidates = [repository]
-    if subs.get(name):
-        candidates.append(subs[name])
+    candidates = [c for c in (_declared_rel("", repository),
+                              _declared_rel("", subs[name]) if subs.get(name) else None)
+                  if c is not None]
     candidates.extend(decl.get(name, []))
     uninitialised: list[str] = []
     for rel in dict.fromkeys(candidates):
