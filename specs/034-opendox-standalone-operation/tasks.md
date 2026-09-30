@@ -477,7 +477,9 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
 - [x] T015 [P] [US1] [oDc] **Ship openDox's default profile for its own domain**
   (documents and ideas).
   - It carries none of openxFactory's `Status:` taxonomy, change/spec/delta
-    nouns or act verbs, and its `DISPLAY` is `NEUTRAL_DISPLAY` unchanged.
+    nouns or act verbs, and its display words are `NEUTRAL_DISPLAY`'s,
+    unchanged. It declares no `DISPLAY` facet, so the absent facet renders
+    them (holder reading, `#656` `5851560764`).
   - It contributes openDox's OWN verbs and routes (R1Q4 (a)). For now that
     means the runtime verbs: `RuntimeSubcommand` is in its
     `SUBCOMMAND_EXTENSIONS` from this first landing (R1Q5 (a)), so no build
@@ -494,11 +496,11 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
   - **Ruled**: R1Q4 (a), R1Q5 (a).
   - **After**: T006.
   - **Landed**: openDox-code#38 → `a435aecf`.
-  - As landed, the default declares no `DISPLAY` facet, so the neutral words
-    render through the absent facet, because assigning `NEUTRAL_DISPLAY`
-    literally would pin light-theme colours on `:root` and override dark mode.
-    `ProjectSubcommand` stays out of the default. Both are holder readings
-    within existing rulings, recorded on `#656`, `5851560764`.
+  - As landed, the default declares no `DISPLAY` facet, because assigning
+    `NEUTRAL_DISPLAY` literally would pin light-theme colours on `:root` and
+    override dark mode. `ProjectSubcommand` stays out of the default. Both are
+    holder readings within existing rulings, recorded on `#656`,
+    `5851560764`.
 - [x] T016 [US1] [oDc] **Registration semantics (R1Q3 (a)).**
   - `build_parser()`, `build_server()` and `main()` REGISTER the default where
     nothing is registered, so `is_registered()` then answers True. The default
@@ -684,7 +686,8 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
   - It moved four cases to openxFactory: the outline case, and three
     memory-gateway cases. The holder accepted the memory-gateway move under R1Q2
     (a), because the spec those cases read exists only in openxFactory
-    (openDox-code#50's body). T047 says where all four landed.
+    (openDox-code#50's body). All four landed under `tests/domain_profile/`,
+    which is in `HOST_TESTS`, and not in F11.1's named set (see T047).
 - [x] T035 [US1] [oDc] **Empty the root `conftest.py`'s `collect_ignore`**
   (seven modules; research R4).
   - The six that import `openxdox` each leave `collect_ignore` in one of two
@@ -715,7 +718,8 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
   - One case, `test_worktree_container_is_gitignored_in_the_aggregation_repo`,
     was held out of the move, and landed on its own as openxFactory#1203 →
     `08e97c27` (`EXPECT_SKIPPED` 5 → 6), because T049's arrival check found it
-    in no suite.
+    in no suite. The cases it did move to openxFactory landed under
+    `tests/domain_profile/`, not in F11.1's named set (see T047).
 - [x] T036 [US1] [oDc] **The required check runs the whole suite.**
   - Remove `validate.yml`'s three `--noconftest` steps and their file lists.
     Also remove the 15 comment lines that name the flag, because F9.1's
@@ -743,7 +747,10 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
     `[project.scripts]` lands first).
   - **Landed**: openDox-code#52 → `55194335`, with T031.
 - [x] T037 [US1] [oDc] **9.4, openDox's half.** Restore the margin over the
-  floors. The two skips that mirror openXdox's gap assert for real.
+  floors. The two skips that mirror openXdox's gap leave this leg, because
+  they need both legs. Their both-legs halves assert for real in openXdox-code's
+  `tests/integration/` (T042), and the half this leg can prove alone asserts
+  here (holder decision, 2026-09-27; openDox-code#55).
   - **Realizes**: 9.4 (part).
   - **Falsifier**: the triple in `validate.yml`.
   - **Ruled**: R1Q22 (a). The two skips sit in
@@ -760,12 +767,12 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
       floor with slack in it is a floor that stops catching the regression it
       was set to catch"* (openDox-code#55, question 1). openXdox-code's floors
       stay on CI's reading (T044).
-    - The two skips that mirrored openXdox's gap do not assert for real in this
-      leg. Their both-legs halves went to the composition, and T042 took them
-      (see T042). The half this leg can prove alone stays, and asserts on every
-      run. The gap until T042 landed was accepted. Both cases are in
-      openXdox-code's `tests/integration/test_assembled_bundle.py` at
-      `6158151e`.
+    - The two skips that mirrored openXdox's gap left this leg, as the task
+      sentence above now says. Their both-legs halves went to the composition,
+      and T042 took them (see T042). The half this leg can prove alone stays,
+      and asserts on every run. The gap until T042 landed was accepted. Both
+      cases are in openXdox-code's `tests/integration/test_assembled_bundle.py`
+      at `6158151e`.
 - [x] T038 [US1] [oDc] **10.1: `[project.scripts] opendox = "opendox.cli:main"`**,
   with Q-R4's runtime verbs reached through the default profile's
   `SUBCOMMAND_EXTENSIONS`, where T015 put `RuntimeSubcommand` (R1Q5 (a)).
@@ -853,13 +860,14 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
       alone, from R1Q25 (b). T061 clears that entry in phase 2.
 
     T007's batch F admits the last three in F9.1 and 9.2.
-  - T041 writes the `doc_health` entries, and T043's triage adds the entries
-    for the other three reasons. T005 measured the `doc_health` set at
-    openXdox-code `e28930bf`, with Group 2 simulated: 50 files fail at
-    collection on it, and `test_doxbench_packet.py` has 3 `doc_health` cases
-    as well, among failures of other classes (`evidence/remeasure-2026-09-25.md`,
-    class A). The file is written from the run at T040's pin, not from that
-    list.
+  - T041 writes the entries for all four reasons, on the holder's decision at
+    its landing, because a file with two reasons cannot be split between two
+    tasks. T043's triage is then a re-run at T040's pin. T005 measured the
+    `doc_health` set at openXdox-code `e28930bf`, with Group 2 simulated: 50
+    files fail at collection on it, and `test_doxbench_packet.py` has 3
+    `doc_health` cases as well, among failures of other classes
+    (`evidence/remeasure-2026-09-25.md`, class A). The file is written from the
+    run at T040's pin, not from that list.
   - The root `conftest.py` derives its `collect_ignore` from that file. So
     once T043 removes `validate.yml`'s file list and its `--noconftest` lines,
     the whole suite collects less the exclusion, with no list to keep.
@@ -885,9 +893,10 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
   - **As landed, on the holder's decisions at T041's landing**:
     - T041 wrote the entries for all four reasons, not only the `doc_health`
       ones, because a file with two reasons cannot be split between two tasks
-      (openXdox-code#30). The sentence above, that T043's triage adds the
-      entries for the other three reasons, was not followed. T043's triage
-      became a re-run at T040's pin, and the pin moved no entry.
+      (openXdox-code#30). The plan's earlier split, T041 writing the
+      `doc_health` entries and T043 the other three reasons', was not
+      followed. T043's triage became a re-run at T040's pin, and the pin
+      moved no entry.
     - The layer-2 hermeticity commits stay in T041, and T043 re-runs them at the
       pin.
     - The protected `tests/test_snapshot_validation_launch.py` joins the
@@ -923,7 +932,8 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
     here (openXdox-code#31).
 - [x] T043 [US1] [oXc] **9.2: the required check runs the whole suite, less
   the declared exclusion.** Remove the file list and all 8 `--noconftest`
-  lines. Re-pin `MIN_SELECTED`/`MIN_PASSED` (now 564/558) and
+  lines. Re-pin `MIN_SELECTED`/`MIN_PASSED` (564/558 when this was written,
+  574/568 once T042 landed) and
   `EXPECT_SKIPPED` to the triple measured over the whole suite less T041's
   exclusion.
   - **First, the whole suite at T040's pin.** T043 runs openXdox-code's whole
@@ -978,8 +988,7 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
   - **Landed**: openXdox-code#32 → `4610bca5`. F9.1, with the one `--deselect`
     that batch J records, exits 0 there. It landed before batch J did, and
     quoted the falsifier as `5870594693` amends it, as T007 allows.
-  - The floors were re-pinned to 890/880/10, at CI's reading with no margin.
-    T042 had raised them to 574/568, so the "now 564/558" above is stale
+  - The floors were re-pinned to 890/880/10, at CI's reading with no margin
     (openXdox-code#31, #32). T041's layer-2 hermeticity commits were re-run at
     the pin (openXdox-code#32).
 - [x] T044 [US1] [oXc] **9.4, openXdox's half.** Restore the margin over the
