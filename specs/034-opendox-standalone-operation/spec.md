@@ -573,6 +573,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   whether the built-in resolver resolves it (`5880893901`) or a broker mints
   it (`5890601202`). A binding that would send one over `http://` to any
   other host SHALL be refused when it is declared (`ENDPOINT_NOT_PRIVATE`).
+  The request that presents a credential SHALL follow no redirect, and over
+  plain `http://` it SHALL take no proxy, so the credential keeps that route.
   An endpoint that declares the auth kind `none` presents no credential and
   keeps whatever route it declares. This is #1144's requirement 17 as its
   batch-K note reads it (`5916000030`, item 1). With no model configured, it
