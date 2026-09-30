@@ -28,15 +28,21 @@ MedxFactory, AdxFactory, and LedgerxFactory with the UNMODIFIED generator, so
 neutrality was never the missing piece — the selector, the per-repository
 snapshots, and the index were. The project register is the roster (design D9),
 so adding a repository is a register edit plus a lane run: no code change and no
-image change.
+image change. A register id resolves to a checkout some `.gitmodules` in the
+workspace DECLARES, at any depth (`locate_checkout`), which is how the nested
+product legs (`openDox-spec`, `openXdox-code`, ...) are reached; and a declared
+directory that was never initialised is skipped as `submodule not initialised`,
+never scanned (openxFactory #1208).
 
 The lane itself STAGES AND COMMITS NOTHING: the nightly host's existing
 "Commit report" step (``git add health/``) sweeps these files into the same
 commit that lands the dated reports and inventories — exactly the reports'
 emission pattern.
 
-FAILURE SEMANTICS (task 4.1): any error — a missing checkout, an unresolvable
-pin, a generator crash, a snapshot the pinned validator rejects — makes the
+FAILURE SEMANTICS (task 4.1): any error — a missing checkout, a checkout that
+is an uninitialised submodule directory (whose HEAD git would answer from the
+enclosing repository), an unresolvable pin, a generator crash, a snapshot the
+pinned validator rejects — makes the
 lane report SKIPPED (reason in ``lane-status.json`` and on stdout) and exit 0,
 so the deterministic doc-health results are NEVER affected. A skipped run
 leaves the previously committed snapshot in place (still the last good current
@@ -76,7 +82,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
@@ -103,6 +109,10 @@ DEFAULT_OUT_DIR = "health/ideation-dashboard"
 DEFAULT_REGISTER = "project-register.yaml"
 STATUS_NAME = "lane-status.json"
 INDEX_STATUS_NAME = "index-status.json"
+# `index-status.json` skip reasons for a repository that never reached
+# `run_lane` (a `run_lane` skip records its own full reason instead).
+SKIP_CHECKOUT_NOT_FOUND = "checkout not found"
+SKIP_SUBMODULE_NOT_INITIALISED = "submodule not initialised"
 
 
 @dataclass
@@ -124,7 +134,11 @@ class LaneOutcome:
 
 def _head_sha(repo: Path) -> str | None:
     """The pinned checkout's HEAD sha — the deterministic source_revision
-    anchor. None on any failure (not a git checkout, git absent)."""
+    anchor. None on any failure (not a git checkout, git absent).
+
+    It answers for WHATEVER work tree encloses `repo`, which is why
+    `run_lane` asks `_borrowed_toplevel` first: git walks up out of a
+    directory that has no checkout of its own."""
     try:
         proc = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
                               capture_output=True, text=True)
@@ -133,6 +147,51 @@ def _head_sha(repo: Path) -> str | None:
     if proc.returncode != 0:
         return None
     return proc.stdout.strip() or None
+
+
+def _git_toplevel(path: Path) -> Path | None:
+    """The top level of the work tree git finds for `path`, or None when git
+    finds none (or is absent)."""
+    try:
+        proc = subprocess.run(["git", "-C", str(path), "rev-parse", "--show-toplevel"],
+                              capture_output=True, text=True)
+    except OSError:
+        return None
+    top = proc.stdout.strip() if proc.returncode == 0 else ""
+    return Path(top).resolve() if top else None
+
+
+def _borrowed_toplevel(checkout: Path) -> Path | None:
+    """The ENCLOSING work tree whose HEAD a directory would borrow, when the
+    directory has no git checkout of its own (openxFactory #1208).
+
+    A declared submodule that was never initialised is an EMPTY directory
+    inside the aggregation's own work tree. `git -C <it> rev-parse HEAD` walks
+    up and answers the AGGREGATION's head, so a lane that trusted it would
+    publish an empty snapshot under a revision that is not the repository's.
+    A checkout is POPULATED when it has a `.git` entry of its own (a work
+    tree's `.git` directory, or the gitfile a submodule checkout carries) or
+    git resolves its top level to the directory itself; it then answers None.
+    A directory in no work tree at all also answers None: its HEAD fails to
+    resolve, which is the lane's existing skip, and nothing is borrowed."""
+    if (checkout / ".git").exists():
+        return None
+    top = _git_toplevel(checkout)
+    if top is None or top == checkout.resolve():
+        return None
+    return top
+
+
+def _enclosing_label(top: Path, agg_root: Path) -> str:
+    """Where a borrowed HEAD would come from, said without an absolute path
+    (lane-status.json is committed by the nightly)."""
+    root = agg_root.resolve()
+    if top == root:
+        return "the aggregation root"
+    try:
+        return f"the enclosing repository {top.relative_to(root).as_posix()!r}"
+    except ValueError:
+        return "an enclosing repository outside the aggregation root"
 
 
 def _now_iso() -> str:
@@ -289,6 +348,20 @@ def run_lane(
         if not checkout_root.is_dir():
             return _skip(f"pinned checkout not found: {checkout}")
 
+        # The anchor is DERIVED from the checkout only when the caller pinned
+        # none, and a derived anchor must be the checkout's OWN: an
+        # uninitialised submodule directory would lend the enclosing
+        # repository's HEAD to an empty snapshot (#1208). An explicit
+        # `source_revision` is the caller's statement and borrows nothing.
+        if not source_revision:
+            borrowed = _borrowed_toplevel(checkout_root)
+            if borrowed is not None:
+                return _skip(
+                    f"{SKIP_SUBMODULE_NOT_INITIALISED}: the pinned checkout "
+                    f"{checkout!r} has no git checkout of its own, so its HEAD "
+                    f"would be {_enclosing_label(borrowed, agg_root)}'s, not this "
+                    "repository's revision")
+
         rev = source_revision or _head_sha(checkout_root)
         if not rev:
             return _skip(f"cannot resolve HEAD of the pinned checkout {checkout!r} "
@@ -359,41 +432,161 @@ class MultiLaneOutcome:
                 + (f", index {self.index_path}" if self.index_path else ", NO index"))
 
 
+def _gitmodules_entries(gitmodules: Path) -> list[tuple[str, str | None]]:
+    """`(path, url)` per `[submodule]` section of one `.gitmodules`, in declared
+    order. An unreadable file declares nothing."""
+    try:
+        text = gitmodules.read_text(encoding="utf-8")
+    except OSError:
+        return []
+    sections: list[dict[str, str]] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped[0] in "#;":
+            continue
+        if stripped.startswith("["):
+            sections.append({})
+            continue
+        key, sep, value = stripped.partition("=")
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] == '"':
+            value = value[1:-1]  # git config's quoted form
+        if sep and sections:
+            sections[-1].setdefault(key.strip().lower(), value)
+    return [(s["path"], s.get("url") or None) for s in sections if s.get("path")]
+
+
+def _repository_name(url: str | None) -> str | None:
+    """The repository NAME a submodule URL declares: its last path segment,
+    without `.git` (`git@github.com:opensoft/openDox-spec.git` ->
+    `openDox-spec`). This is the name the project register uses for a leg
+    whose checkout path is only `spec` or `code`."""
+    if not url:
+        return None
+    tail = url.strip().rstrip("/").rsplit("/", 1)[-1].rsplit(":", 1)[-1]
+    if tail.endswith(".git"):
+        tail = tail[:-4]
+    return tail or None
+
+
+def _declared_rel(base: str, path: str) -> str | None:
+    """`path` declared by the `.gitmodules` at `base`, as a path relative to
+    the aggregation root. None for a declaration that is absolute or climbs out
+    of the repository declaring it: that is not a checkout this lane scans."""
+    declared = PurePosixPath(path.strip())
+    if not path.strip() or declared.is_absolute() or ".." in declared.parts:
+        return None
+    joined = PurePosixPath(base) / declared if base else declared
+    rel = joined.as_posix()
+    return None if rel in ("", ".") else rel
+
+
 def submodule_paths(agg_root: Path) -> dict[str, str]:
     """`.gitmodules` path per submodule BASENAME — the aggregation workspace's own
     statement of where each repository lives. The project register names repository
     IDS (which match those basenames); nothing here guesses a layout."""
     out: dict[str, str] = {}
-    gitmodules = Path(agg_root) / ".gitmodules"
-    try:
-        text = gitmodules.read_text(encoding="utf-8")
-    except OSError:
-        return out
-    for line in text.splitlines():
-        stripped = line.strip()
-        if not stripped.startswith("path"):
-            continue
-        _, _, value = stripped.partition("=")
-        rel = value.strip()
+    for path, _url in _gitmodules_entries(Path(agg_root) / ".gitmodules"):
+        rel = path.strip()
         if rel:
             out.setdefault(Path(rel).name, rel)
     return out
 
 
+def declared_checkouts(agg_root: Path) -> dict[str, list[str]]:
+    """Every checkout the workspace DECLARES, at any depth, by the names a
+    register id may use for it (openxFactory #1208).
+
+    The aggregation root's `.gitmodules` is read first, then the `.gitmodules`
+    of every POPULATED checkout it declares, and so on down (breadth first, so
+    a shallower declaration is always the earlier candidate). Each declared
+    checkout answers to its path BASENAME, as `submodule_paths` has always
+    keyed it, AND to the repository NAME its URL declares. The second key is
+    what reaches a nested product leg: openxFactory declares `openDox`, and
+    openDox declares `spec` at `https://github.com/opensoft/openDox-spec.git`,
+    so the register id `openDox-spec` is `openxFactory/openDox/spec`. Nothing
+    here guesses a layout: every candidate is a path some `.gitmodules`
+    declares, relative to the aggregation root, in the order found. A checkout
+    that was never initialised is an empty directory with no `.gitmodules` to
+    read, so the walk stops there on its own."""
+    root = Path(agg_root)
+    out: dict[str, list[str]] = {}
+    queue: list[str] = [""]  # "" is the aggregation root itself
+    seen: set[Path] = set()
+    while queue:
+        base = queue.pop(0)
+        base_dir = root / base if base else root
+        try:
+            real = base_dir.resolve()
+        except OSError:
+            continue
+        if real in seen:
+            continue
+        seen.add(real)
+        for path, url in _gitmodules_entries(base_dir / ".gitmodules"):
+            rel = _declared_rel(base, path)
+            if rel is None:
+                continue
+            for name in dict.fromkeys(n for n in (PurePosixPath(rel).name,
+                                                  _repository_name(url)) if n):
+                bucket = out.setdefault(name, [])
+                if rel not in bucket:
+                    bucket.append(rel)
+            child = root / rel
+            if ((child / ".gitmodules").is_file()
+                    and _borrowed_toplevel(child) is None):
+                queue.append(rel)
+    return out
+
+
+@dataclass
+class CheckoutLocation:
+    """Where a repository id resolved. `path` is the populated checkout,
+    relative to the aggregation root, or None. `uninitialised` lists the
+    declared directories that exist but have no git checkout of their own, in
+    the order they were tried — the evidence for a `submodule not initialised`
+    skip."""
+    path: str | None
+    uninitialised: list[str]
+
+
+def locate_checkout(agg_root: Path, repository: str,
+                    submodules: dict[str, str] | None = None,
+                    declared: dict[str, list[str]] | None = None) -> CheckoutLocation:
+    """Resolve a repository id to its checkout, trying in order: the id used AS
+    a path, the aggregation root's `.gitmodules` basename map, then every
+    checkout the workspace declares at any depth (`declared_checkouts`). The
+    FIRST candidate that is a directory and not an uninitialised submodule is
+    the checkout. A candidate with no git checkout of its own is never used,
+    because its HEAD is the enclosing repository's (#1208); it is recorded
+    instead, so the skip can say which declared directories were empty."""
+    root = Path(agg_root)
+    name = Path(repository).name
+    subs = submodules if submodules is not None else submodule_paths(root)
+    decl = declared if declared is not None else declared_checkouts(root)
+    candidates = [repository]
+    if subs.get(name):
+        candidates.append(subs[name])
+    candidates.extend(decl.get(name, []))
+    uninitialised: list[str] = []
+    for rel in dict.fromkeys(candidates):
+        directory = root / rel
+        if not directory.is_dir():
+            continue
+        if _borrowed_toplevel(directory) is not None:
+            uninitialised.append(rel)
+            continue
+        return CheckoutLocation(rel, uninitialised)
+    return CheckoutLocation(None, uninitialised)
+
+
 def resolve_checkout(agg_root: Path, repository: str,
-                     submodules: dict[str, str] | None = None) -> str | None:
-    """The checkout path (relative to the aggregation root) for a repository id:
-    the repository id used AS a path, then the `.gitmodules` basename map. None
-    when nothing resolves — that repository is SKIPPED with a reason rather than
-    guessed at."""
-    subs = submodules if submodules is not None else submodule_paths(agg_root)
-    direct = Path(agg_root) / repository
-    if direct.is_dir():
-        return repository
-    rel = subs.get(Path(repository).name)
-    if rel and (Path(agg_root) / rel).is_dir():
-        return rel
-    return None
+                     submodules: dict[str, str] | None = None,
+                     declared: dict[str, list[str]] | None = None) -> str | None:
+    """The checkout path (relative to the aggregation root) for a repository
+    id, as `locate_checkout` resolves it. None when nothing resolves — that
+    repository is SKIPPED with a reason rather than guessed at."""
+    return locate_checkout(agg_root, repository, submodules, declared).path
 
 
 def registered_repositories(agg_root: Path, register: str = DEFAULT_REGISTER) -> list[str]:
@@ -439,16 +632,29 @@ def run_multi_lane(
     out_abs = agg_root / out_dir
     repos = repositories if repositories is not None else registered_repositories(agg_root, register)
     subs = submodule_paths(agg_root)
+    declared = declared_checkouts(agg_root)
 
     outcomes: list[LaneOutcome] = []
     entries: list[registry_mod.SnapshotEntry] = []
-    skipped: list[dict[str, str]] = []
+    skipped: list[dict] = []
     for repository in repos:
-        checkout = resolve_checkout(agg_root, repository, subs)
+        located = locate_checkout(agg_root, repository, subs, declared)
+        checkout = located.path
+        if checkout is None and located.uninitialised:
+            # Declared, but never checked out: no revision of its own exists
+            # to snapshot, so nothing is published for it (#1208).
+            outcomes.append(LaneOutcome(
+                False, f"{SKIP_SUBMODULE_NOT_INITIALISED} for repository {repository!r}: "
+                       f"{', '.join(located.uninitialised)} declared but not checked out",
+                None, None, None))
+            skipped.append({"repository": repository,
+                            "reason": SKIP_SUBMODULE_NOT_INITIALISED,
+                            "paths": list(located.uninitialised)})
+            continue
         if checkout is None:
             outcomes.append(LaneOutcome(
                 False, f"no checkout found for repository {repository!r}", None, None, None))
-            skipped.append({"repository": repository, "reason": "checkout not found"})
+            skipped.append({"repository": repository, "reason": SKIP_CHECKOUT_NOT_FOUND})
             continue
         outcome = run_lane(agg_root, checkout=checkout, repository=repository,
                            out_dir=out_dir, register=register, validator=validator,

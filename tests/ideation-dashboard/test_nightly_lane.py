@@ -565,3 +565,214 @@ def test_reusable_nightly_publishes_the_registered_repository_index():
     assert "--aggregate medx-clinical" in workflow
     assert "--aggregate-members MedxFactory,openChart,MedxEHR,HealthLinc" in workflow
     assert '--aggregate-display-name "Medx clinical"' in workflow
+
+
+# ---------------------------------------------------------------------------
+# openxFactory #1208: a checkout is used only when it is POPULATED, and a
+# register id reaches the nested product legs through the `.gitmodules` of
+# the checkouts the workspace declares. The nightly initialises only
+# `^(openxFactory|xFactories/)` plus openxFactory's nested openDox/openXdox
+# and their legs, so every other declared submodule is an EMPTY directory
+# inside the aggregation's work tree, and `git rev-parse HEAD` there answers
+# the aggregation's own head.
+# ---------------------------------------------------------------------------
+
+def _commit_repo(path: Path, gitmodules: str | None = None) -> Path:
+    """`git init` plus one commit at `path`, optionally declaring
+    `.gitmodules` (read from the work tree, as the lane reads it)."""
+    path.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["git", "init", "-q", "-b", "main", str(path)], check=True)
+    if gitmodules is not None:
+        (path / ".gitmodules").write_text(gitmodules, encoding="utf-8")
+        subprocess.run(["git", "-C", str(path), "add", ".gitmodules"], check=True)
+    subprocess.run(
+        ["git", "-C", str(path), "-c", "user.name=Fixture",
+         "-c", "user.email=fixture@example.invalid",
+         "commit", "-q", "--allow-empty", "-m", "fixture"],
+        check=True,
+    )
+    return path
+
+
+def _never_generate(*args, **kwargs):
+    raise AssertionError("the generator must not run over an uninitialised checkout")
+
+
+def test_an_uninitialised_submodule_directory_is_skipped_never_published(tmp_path):
+    agg = _commit_repo(tmp_path / "agg")
+    (agg / "openxFactory").mkdir()  # declared, never initialised: empty
+    # The hazard the fixture reproduces: git walks up out of the empty
+    # directory and answers the AGGREGATION's head.
+    assert lane._head_sha(agg / "openxFactory") == lane._head_sha(agg)
+
+    out = lane.run_lane(agg, generate=_never_generate)
+
+    assert not out.ok
+    assert out.reason.startswith("submodule not initialised: "), out.reason
+    assert "the aggregation root" in out.reason, out.reason
+    assert str(tmp_path) not in out.reason, out.reason  # no absolute path
+    assert out.source_revision is None
+    out_dir = agg / "health/ideation-dashboard"
+    assert not (out_dir / "openxFactory-snapshot.json").exists()
+    assert not (out_dir / "openxFactory-snapshot.json.candidate").exists()
+    status = json.loads((out_dir / "lane-status.json").read_text())
+    assert status["result"] == "skipped"
+    assert status["reason"] == out.reason
+    assert status["source_revision"] is None
+
+
+def test_the_populated_predicate(tmp_path):
+    agg = _commit_repo(tmp_path / "agg")
+    (agg / "empty").mkdir()
+    populated = _commit_repo(agg / "populated")
+    gitfile = agg / "gitfile"
+    gitfile.mkdir()
+    # a submodule checkout carries a `.git` FILE, not a directory
+    (gitfile / ".git").write_text("gitdir: ../.git/modules/gitfile\n", encoding="utf-8")
+    plain = tmp_path / "plain"
+    plain.mkdir()
+
+    assert lane._borrowed_toplevel(agg / "empty") == agg.resolve()
+    assert lane._borrowed_toplevel(populated) is None
+    assert lane._borrowed_toplevel(gitfile) is None
+    assert lane._borrowed_toplevel(agg) is None
+    # in no work tree at all: nothing to borrow, and the HEAD skip still names it
+    assert lane._borrowed_toplevel(plain) is None
+
+
+def test_multi_lane_skips_an_uninitialised_submodule_by_name(tmp_path):
+    agg = _commit_repo(tmp_path, gitmodules=(
+        '[submodule "ghost-sub"]\n\tpath = installs/ghost-sub\n'
+        '\turl = git@example.invalid:ghost-sub.git\n'))
+    (agg / "installs" / "ghost-sub").mkdir(parents=True)
+
+    out = lane.run_multi_lane(agg, repositories=["ghost-sub", "nowhere"],
+                              generate=_never_generate)
+
+    assert out.published == [] and out.index_path is None
+    assert out.outcomes[0].reason == (
+        "submodule not initialised for repository 'ghost-sub': "
+        "installs/ghost-sub declared but not checked out")
+    out_dir = agg / "health/ideation-dashboard"
+    assert not (out_dir / "ghost-sub-snapshot.json").exists()
+    status = json.loads((out_dir / "index-status.json").read_text())
+    assert status["skipped"] == [
+        {"repository": "ghost-sub", "reason": "submodule not initialised",
+         "paths": ["installs/ghost-sub"]},
+        {"repository": "nowhere", "reason": "checkout not found"}]
+
+
+def _nested_agg_root(tmp_path: Path, *, legs_initialised: bool = True) -> Path:
+    """The nightly's nested shape: the aggregation declares `openxFactory`
+    (populated) and `openDox` (declared, never initialised); openxFactory
+    declares its own `openDox` (populated) and an uninitialised install; the
+    openDox assembly root declares its `spec` and `code` legs under URLs whose
+    repository names are the register ids `openDox-spec` / `openDox-code`."""
+    agg = _commit_repo(tmp_path / "agg", gitmodules=(
+        '[submodule "openxFactory"]\n\tpath = openxFactory\n'
+        '\turl = git@github.com:opensoft/openxFactory.git\n'
+        '[submodule "openDox"]\n\tpath = openDox\n'
+        '\turl = git@github.com:opensoft/openDox.git\n'))
+    (agg / "openDox").mkdir()
+    ox = _commit_repo(agg / "openxFactory", gitmodules=(
+        '[submodule "installs/omnigent-install"]\n'
+        '\tpath = installs/omnigent-install\n'
+        '\turl = git@github.com:opensoft/Omnigent-Install.git\n'
+        '[submodule "openDox"]\n\tpath = openDox\n'
+        '\turl = git@github.com:opensoft/openDox.git\n'))
+    (ox / "installs" / "omnigent-install").mkdir(parents=True)
+    product = _commit_repo(ox / "openDox", gitmodules=(
+        '[submodule "spec"]\n\tpath = spec\n'
+        '\turl = https://github.com/opensoft/openDox-spec.git\n'
+        '[submodule "code"]\n\tpath = code\n'
+        '\turl = https://github.com/opensoft/openDox-code.git\n'))
+    if legs_initialised:
+        _copy_git_fixture(product / "spec")
+        _commit_repo(product / "code")
+    else:
+        (product / "spec").mkdir()
+        (product / "code").mkdir()
+    return agg
+
+
+def test_nested_product_legs_resolve_through_the_declaring_gitmodules(tmp_path):
+    agg = _nested_agg_root(tmp_path)
+    # the aggregation root's own basename map never reaches a leg
+    assert "openDox-spec" not in lane.submodule_paths(agg)
+
+    declared = lane.declared_checkouts(agg)
+    assert declared["openDox-spec"] == ["openxFactory/openDox/spec"]
+    assert declared["openDox-code"] == ["openxFactory/openDox/code"]
+    assert declared["openDox"] == ["openDox", "openxFactory/openDox"]  # shallowest first
+    assert declared["spec"] == ["openxFactory/openDox/spec"]  # the path basename still keys it
+
+    assert lane.resolve_checkout(agg, "openDox-spec") == "openxFactory/openDox/spec"
+    assert lane.resolve_checkout(agg, "openDox-code") == "openxFactory/openDox/code"
+    # the aggregation root's openDox is declared but empty, so the populated
+    # nested copy is the checkout, and the empty one is recorded as tried
+    located = lane.locate_checkout(agg, "openDox")
+    assert (located.path, located.uninitialised) == ("openxFactory/openDox", ["openDox"])
+    # declared at two depths and initialised at neither: nothing resolves
+    located = lane.locate_checkout(agg, "omnigent-install")
+    assert located.path is None
+    assert located.uninitialised == ["openxFactory/installs/omnigent-install"]
+
+
+def test_nested_legs_that_were_never_initialised_are_skipped_by_name(tmp_path):
+    agg = _nested_agg_root(tmp_path, legs_initialised=False)
+    out = lane.run_multi_lane(agg, repositories=["openDox-spec", "openDox-code"],
+                              generate=_never_generate)
+    assert out.published == []
+    status = json.loads(
+        (agg / "health/ideation-dashboard/index-status.json").read_text())
+    assert status["skipped"] == [
+        {"repository": "openDox-spec", "reason": "submodule not initialised",
+         "paths": ["openxFactory/openDox/spec"]},
+        {"repository": "openDox-code", "reason": "submodule not initialised",
+         "paths": ["openxFactory/openDox/code"]}]
+
+
+@needs_validator
+def test_multi_lane_publishes_the_nested_legs_under_their_own_revisions(tmp_path):
+    agg = _nested_agg_root(tmp_path)
+    repos = ["openDox", "openDox-spec", "openDox-code"]
+    out = lane.run_multi_lane(agg, repositories=repos, validator=VALIDATOR)
+    assert [o.ok for o in out.outcomes] == [True, True, True], \
+        [o.reason for o in out.outcomes]
+
+    borrowed = {lane._head_sha(agg), lane._head_sha(agg / "openxFactory")}
+    published = agg / "health/ideation-dashboard"
+    for repository, checkout in (("openDox", "openxFactory/openDox"),
+                                 ("openDox-spec", "openxFactory/openDox/spec"),
+                                 ("openDox-code", "openxFactory/openDox/code")):
+        snap = json.loads((published / f"{repository}-snapshot.json").read_text())
+        revision = snap["generation"]["source_revision"]
+        assert revision == lane._head_sha(agg / checkout), repository
+        assert revision not in borrowed, repository
+    spec = json.loads((published / "openDox-spec-snapshot.json").read_text())
+    assert spec["documents"], "the leg's own corpus reaches its snapshot"
+    index = json.loads((published / "index.json").read_text())
+    assert [e["repository"] for e in index["entries"]] == sorted(repos)
+
+
+def test_declared_checkouts_ignores_declarations_that_climb_out(tmp_path):
+    agg = _commit_repo(tmp_path, gitmodules=(
+        "# a comment line\n"
+        '[submodule "up"]\n\tpath = ../outside\n\turl = git@example.invalid:up.git\n'
+        '[submodule "abs"]\n\tpath = /etc\n\turl = git@example.invalid:abs.git\n'
+        '[submodule "ok"]\n\tpath = nested/ok\n\turl = https://example.invalid/x/Ok-Name\n'
+        '[submodule "quoted"]\n\tpath = "sp ace"\n'))
+    assert lane.declared_checkouts(agg) == {
+        "ok": ["nested/ok"], "Ok-Name": ["nested/ok"], "sp ace": ["sp ace"]}
+
+
+@pytest.mark.parametrize("url,name", [
+    ("git@github.com:opensoft/openDox-spec.git", "openDox-spec"),
+    ("https://github.com/opensoft/openXdox-code.git", "openXdox-code"),
+    ("https://github.com/opensoft/openXdox-code/", "openXdox-code"),
+    ("../sibling.git", "sibling"),
+    ("git@example.invalid:alpha.git", "alpha"),
+    (None, None),
+])
+def test_repository_name_is_the_url_tail(url, name):
+    assert lane._repository_name(url) == name
