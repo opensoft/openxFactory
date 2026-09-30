@@ -285,7 +285,8 @@ planned on answers.
     answers. So `gate` and `refresh` read false standalone, and a composed
     host reads as today. `notebook`, `edit`, `session` and `intent` keep
     their conditions, and the three late reaches that drop a connection
-    refuse cleanly, as 4.2 requires. Items 2 and 3 amend nothing in #1144:
+    answer through their seams or refuse cleanly, as 4.2 requires. Items 2
+    and 3 amend nothing in #1144:
     T085 and T084 carry them. It lands before T084.
 
   A realization PR that lands before its batch still quotes the falsifier as
@@ -1946,12 +1947,20 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
       `web/views/staging-workbench-model.js:1068`), are hidden too.
     - A composed host that contributes the routes reads as today.
       `notebook`, `edit`, `session` and `intent` keep their conditions.
-    - Move the `openxdox` imports at `serve_workbench.py:2611` (the document
-      abstract) and `:1219` (model approval), and `serve_project.py:271` (the
-      project register), behind their capability checks. A standalone request
-      then gets a structured refusal instead of a dropped connection. They
-      are three of the reaches this task routes, and the move holds until
-      each is routed.
+    - The three reaches that drop a connection standalone answer cleanly
+      instead. At `047bb4fa`:
+      - The document abstract's `openxdox` import (`serve_workbench.py:2611`)
+        sits above its step-one check, which reads `session` and `gate`
+        (`:2625`). It moves below that check, so once `gate` reads false a
+        standalone request is refused `model_capability_unavailable`.
+      - Model approval (`:1219`) passes its only check standalone, because
+        `_intake_console_refusal` (`:875`) reads `session` alone. The project
+        register (`serve_project.py:271`) has no check at all: `GET
+        /project-register.json` calls `_serve_project_register` directly. Both
+        are among this task's reaches, and this task routes each through its
+        seam. openDox's default answers where one serves the request (R1Q10
+        (a)), and otherwise the seam refuses by name (4.2).
+      - None of the three ends a request with a dropped connection.
     - T007's batch L records the rule at #1144's 4.3.
   - **Every broken rule, once (RULED `5920216845`, item 3, *"Show every
     rule, grouped (Recommended)"*).** `cli._report_non_conformance`
@@ -1965,9 +1974,11 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     prints `no deferred reach names the consumer or the publisher`. Also a
     named test: for every `actions` key that reads true, a route it governs
     does not answer `unknown_action`, over T056's standalone child
-    (`tests/standalone_child.py`) and over a composed host. And a test that
-    a rejected snapshot breaking several rules prints each rule id once,
-    with its count.
+    (`tests/standalone_child.py`) and over a composed host. Over the same
+    standalone child, a request to each of the three sites gets a
+    structured answer or refusal, never `RemoteDisconnected`. And a test
+    that a rejected snapshot breaking several rules prints each rule id
+    once, with its count.
   - **Ruled**: R1Q1 (a), R1Q22 (a), `5817152735`; R1Q10 (a), `5850003126`;
     items 1 and 3 of `5920216845`.
   - **After**: T055, T073 (`serve.py`'s single-writer order), T007 (batch L).
@@ -1983,11 +1994,16 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     a member or excluded) leave `default_projection`'s `WORKBENCH_RULES`
     (`default_projection.py:134` at `047bb4fa`) for `opendox.validator`. They
     take ids openDox's validator owns, in place of the identifiers the
-    consumer's script gave them. No #1144 falsifier names either id, so no
-    #1144 line moves.
+    consumer's script gave them. Like its other rules (`ids-are-unique`,
+    `candidate-names-a-group`), each states what must hold, under the
+    `ideation-workbench` kind: `pinned-keywords-are-checked` and
+    `new-candidates-are-disjoint`. T085 carries the old adapter ids only as
+    its tests' before-state, and keeps neither as an alias. No #1144
+    falsifier names either old id, so no #1144 line moves.
   - **Realizes**: 4.3 (part), 16.4 (part).
   - **Falsifier**: the served catalog route answers, with no available
-    entry. Also `opendox.validator` reports both rules under its own ids, and
+    entry. Also `opendox.validator` reports the two rules as
+    `pinned-keywords-are-checked` and `new-candidates-are-disjoint`, and
     `default_projection` checks neither.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q10 (a), R1Q12 (a), `5850003126`;
     item 2 of `5920216845`.
@@ -2397,7 +2413,7 @@ P3-B's T080, and batch L before P3-R's T084.
 | P3-I install mode and the bundle | G1 | T071, T070, T072, T073 | oDc | `src/opendox/runtime/config.py`; `src/opendox/cli.py` (`--local`); the bundle module; `src/opendox/serve.py` (the child, and the `install` block); openDox-code's `pyproject.toml` (the `local` extra, which the `test` extra joins) | T063, T069; T007 batch H for T070 | F13.1's `load_settings` block (T071), its refusals (T070), its TCP-listener and `runtime status` blocks (T072), its `caps.json` block (T073) | Opus |
 | P3-J F13.1 | G2, after P3-I | T074 | oDc | none (a run) | P3-I | F13.1, as batch H amends it | Sonnet |
 | P3-B binding and provider | G1 | T078, T079, T080 | oDc | `src/opendox/doxbench_binding.py`; `src/opendox/doxbench_provider.py` (the dialect arm, and the resolver); `src/opendox/cli_model_binding.py` (`--model`) | T063, T069; T007 batches H and K for T080 | F16.1's dialect, field and refusal assertions; the resolver's and `none`'s tests | Opus |
-| P3-D doxBench defaults and the no-model state | G1 (T085); T081 after it | T085, T081 | oDc | the default registrations for T027's seams; `src/opendox/doxbench_install.py`; `src/opendox/web/views/doxbench-chat.js`; `tests/test_chat_model_configuration.py` (new); `src/opendox/validator.py` and `src/opendox/default_projection.py` (T058's two workbench-manifest rules, T085) | T063, T069 | the served catalog route answers with no available entry, and the two rules report under openDox's ids (T085); F16.1's catalog block and the named test (T081) | Opus |
+| P3-D doxBench defaults and the no-model state | G1 (T085); T081 after it | T085, T081 | oDc | the default registrations for T027's seams; `src/opendox/doxbench_install.py`; `src/opendox/web/views/doxbench-chat.js`; `tests/test_chat_model_configuration.py` (new); `src/opendox/validator.py` and `src/opendox/default_projection.py` (T058's two workbench-manifest rules, T085) | T063, T069 | the served catalog route answers with no available entry, and the two rules report as `pinned-keywords-are-checked` and `new-candidates-are-disjoint` (T085); F16.1's catalog block and the named test (T081) | Opus |
 | P3-L lens seed actions | G1 | T088 | oDc | `src/opendox/web/views/lens.js`, and the capability that says a binding answers | T063, T069 | AT-R1 step 6 | Sonnet |
 | P3-E the door | G2, after P3-I | T075, T077 | oDc | none, unless T075's run finds a gap in how the bundle is served. An edit to the server module then joins its single-writer order between T073 and T084 before the PR opens | P3-I (T072); T007 batch H | F10.1's fetch, as batch H amends it (T075); F10.1, as batch H amends it (T077) | Sonnet |
 | P3-R 4.3's last reaches | G2, after P3-I | T084 | oDc | `src/opendox/serve.py`, `src/opendox/cli.py`, `src/opendox/serve_workbench.py`, `src/opendox/serve_project.py` and `src/opendox/branch_session.py`; the defaults' modules; `src/opendox/consumer_reach.py` (deleted) | P3-I; T007 batch L | F4.1 whole; the capability-honesty test, over a standalone child and a composed host; the rejection-output test | Opus |
@@ -2458,7 +2474,7 @@ landed it in #1144's spec delta, as #1170 → `79a720a2`.
 | J | F9.1 (openXdox-code) | The declared exclusion takes a fourth entry: `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_31_entry_tree_the_manifest_records`, deselected for T042's own reason (`cli_gate` imports openxFactory's `doc_health` at load time), pending the direction arc (T008). It is reported as an open extraction like the other three. T008 removes the entry together with the workflow's own deselect. openDox-code's run is unchanged. | `5870594693`, citing `5859927858` | T043, T049, T008 |
 | K | requirement 17 and scenario 17.1 (spec delta); 16.3 | A dated note in requirement 17's body, after its SHALL paragraph and above its scenarios, in batch D's form, with a pointer after batch H's 16.3 addendum. No ratified text is rewritten. A credential the built-in resolver resolves (`5880893901`) and a token a broker mints (`5890601202`) are each sent only over `https://`, or over `http://` to `127.0.0.1`, `[::1]` or `localhost`. Any other `http://` endpoint that would receive one is refused when it is declared (`ENDPOINT_NOT_PRIVATE`), before anything is resolved or minted. The request follows no redirect, and over plain `http://` it takes no proxy. The auth kind `none` keeps its route. F16.1 is unchanged. | `5916000030`, item 1 | T080, and openDox-code#64 (no task of this plan) |
 | K | F5.2 | The reviewed allow-list, R1Q7 (a)'s, also admits T061's ten walk-premise edits, each entered with its reason and none as a respelling: nine in `tests/test_snapshot_validation_launch.py`, and `tests/test_snapshot.py::test_a_missing_validator_is_unavailable_not_a_verdict`. `test_a_run_dir_beside_a_checkout_still_uses_that_one_first` inverts its answer and keeps its name. For F5.2, batch C's "the entry's recorded text" reads as several entries' texts together: one landing's entries for one suite, applied in the order listed, chain by git blob, and the call passes `--chains`. 12.5's falsifier is not amended, and its call refuses a chain. | `5916000030`, item 4 | T061, T063 |
-| L | 4.3 | An addendum after batch G's. A flag in the served `/capabilities` payload's `actions` map whose affordance is a route this server serves is true only where such a route answers. `gate` and `refresh`, whose routes a host contributes through the route bindings, are true only when the assembled bindings carry a route they govern, so standalone both read false (and the workbench's session controls, which read `actions.gate`, are hidden), and a composed host reads as today. `notebook`, `edit` and `session` keep their conditions, and `intent`, which names another plane's API, keeps its own. The three reaches that drop a connection standalone (`serve_workbench.py:1219` and `:2611`, `serve_project.py:271` at `047bb4fa`) refuse cleanly until routed, as 4.2 requires. | `5920216845`, item 1 | T084 |
+| L | 4.3 | An addendum after batch G's. A flag in the served `/capabilities` payload's `actions` map whose affordance is a route this server serves is true only where such a route answers. `gate` and `refresh`, whose routes a host contributes through the route bindings, are true only when the assembled bindings carry a route they govern, so standalone both read false (and the workbench's session controls, which read `actions.gate`, are hidden), and a composed host reads as today. `notebook`, `edit` and `session` keep their conditions, and `intent`, which names another plane's API, keeps its own. The three reaches that drop a connection standalone (`serve_workbench.py:1219` and `:2611`, `serve_project.py:271` at `047bb4fa`) answer through their seams, from openDox's default where one serves the request, or else with a structured refusal, never a dropped connection, as 4.2 requires. | `5920216845`, item 1 | T084 |
 
 R1Q4 (a) and R1Q8 (a) amend nothing in #1144. They shape T015, T038, T046 and
 T036 only. Nor do three of round 2's answers. R1Q13 (a) with (c) shapes T050,

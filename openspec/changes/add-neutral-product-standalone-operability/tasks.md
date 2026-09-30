@@ -479,8 +479,10 @@ mention in the package is prose.
   found three of this box's nineteen reaches into openXdox ending a request
   with a dropped connection, because nothing contributes the names they
   import: `serve_workbench.py:1219` and `:2611`, and `serve_project.py:271`,
-  at `047bb4fa`. Until each is routed, it sits behind its capability check
-  and refuses with a structured error, which is 4.2's discipline: never a
+  at `047bb4fa`. Each of the three IS TO answer through its seam, from
+  openDox's default where one serves the request (batch G's addendum
+  above), or else with a structured refusal that names the seam. That is
+  4.2's discipline: never a dropped connection, and never a
   `ModuleNotFoundError` raised from inside a function. The realization's
   named test carries the check: for every `actions` key that reads true, a
   route it governs does not answer `unknown_action`, over a standalone
