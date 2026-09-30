@@ -1794,9 +1794,13 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     (`ENDPOINT_NOT_PRIVATE`). RULED `5880893901`, Brett Heap, 2026-09-28:
     *"Refuse unless loopback (Recommended)"*. #1144's 16.3 text and
     requirement 17 ("any endpoint") are unchanged, and so is `spec.md`'s
-    FR-009: this record is the plan's only statement of the rule. Whether the
-    ruling needs a batch in #1144 is not settled here (raised on
-    openxFactory#1207). The broker path is unchanged in this task.
+    FR-009: this record is the plan's only statement of the rule, as T071's
+    is for 13.3. The rule narrows where a resolved credential travels. An
+    `https://` endpoint, a loopback one and one that takes no credential
+    (auth kind `none`) are reached as before, and only a credential sent over
+    `http://` beyond loopback is refused. Whether that needs a batch in #1144
+    is not settled here (raised on openxFactory#1207). The broker path is
+    unchanged in this task.
   - **The broker path follows in a separate phase-3 draft**, openDox-code#64,
     stacked after #63 (T080's PR). It is no task of this plan, and T080's
     scope does not grow. It gives a minted token the protections above:
