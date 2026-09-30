@@ -1284,7 +1284,7 @@ unchanged.
     ruling, `5851560764`), and `source_revision` is the caller's pin, else the
     corpus HEAD; and, from 2026-09-28, `render_scaffold()` gained `lead_fields`,
     so that a scaffold reads as having its `title` and `summary`.
-- [ ] T057 [US2] [oDc] **7.1, 7.1a, 7.1b, 7.2: the validator's input set.**
+- [x] T057 [US2] [oDc] **7.1, 7.1a, 7.1b, 7.2: the validator's input set.**
   - Narrow it to openDox's own kinds: its spec leg's four, which are 7.1's
     three and T053's neutral snapshot schema (7.1 as batch G amends it).
   - Ship the four as package data. A test checks each copy's digest against
@@ -1299,6 +1299,9 @@ unchanged.
     the generate verbs, so T058 and T063 quote it.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q12 (a), `5850003126`.
   - **After**: T049, T009, T053.
+  - **Landed**: openDox-code#58 → `8ec08e91`. Its `pyproject.toml` package-data
+    key is its own line, on the holder's decision that openDox-code's phase-1
+    work on `pyproject.toml` was finished.
 - [ ] T055 [US2] [oDc] **Serve and generate standalone; route 4.3's
   generator-facing reaches.**
   - Give the snapshot source and registry, the corpus-root predicate, and the
@@ -1308,10 +1311,11 @@ unchanged.
     `:629`, `:1687` and `:1993`, `cli.py:610` and `branch_session.py:1568`,
     `:2105`, `:2151`, `:2228` and `:3573`.
   - The validator lookup's default is openDox's own validator (T057), wired in
-    by T058. T055 lands first, with a stand-in as the default: T057's PR
-    (openDox-code#58) is NOT merged into T055's (#59), on the holder's
-    decision of 2026-09-28. The stand-in names T057 and never answers
-    `validated`, and T058 swaps in `opendox.validator`. Either way
+    by T058. T055 keeps a stand-in as the default until then, on the holder's
+    decision of 2026-09-28: T057's PR (openDox-code#58) is NOT merged into
+    T055's (#59), and T055 takes T057's code only through `main`. T057 has
+    landed (openDox-code#58 → `8ec08e91`). The stand-in names T057 and never
+    answers `validated`, and T058 swaps in `opendox.validator`. Either way
     `workbench.py:442`'s `validate_manifest` stops reaching
     `consumer_reach.find_validator` for the `ideation-workbench` manifest,
     which is the first of T061's callers.
