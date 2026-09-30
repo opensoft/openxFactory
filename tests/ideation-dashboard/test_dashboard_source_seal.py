@@ -1379,25 +1379,37 @@ def test_a_seal_without_the_product_module_cannot_classify_its_probe(
 def test_the_confined_locator_never_adopts_the_sealed_validator(corpus, tmp_path):
     """THE WALK THIS TEST ONCE PROVED IS GONE, ON PURPOSE. Since openXdox-code
     `e28930bf` (split-opendox-two-layer-product § 8.9 residue (iii)),
-    `snapshot.find_validator` answers only for the product's OWN validator. It
-    CONFINES instead of walking up: a start outside the product's tree answers
-    None. So the sealed copy is never adopted from where it sits, from the seal
-    root, from the directory the child hands `--repo-root`, or from its own
-    directory. A caller that means it passes it explicitly
-    (`validate_snapshot(..., validator=...)`), and that channel is proven here
-    too. As before, this runs the REAL locator over a REAL sealed tree rather
-    than restating a path. Since #1158 the sealed copy lives under the seal's
-    own `validator/` root, and the refresh lane's seal rationale says so.
+    `snapshot.find_validator` answers only for the product's OWN validator.
+    There it CONFINED instead of walking up: a start outside the product's tree
+    answered None. Since openXdox-code #36 (`6a3b93b9`, plan 034 T061, #1144
+    7.3, RULED R1Q14 (a)) it IGNORES its start: it answers the installed
+    distribution's own validator, which in a source checkout, the way
+    openxFactory composes the leg, is that tree's own
+    `scripts/validate-ideation-dashboard-contracts.py`. So the assertion is
+    what this test is for, and it holds at both pins (plan 034 T066): whatever
+    the locator answers for a start inside the seal, it is never the sealed
+    copy, from where it sits, from the seal root, from the directory the child
+    hands `--repo-root`, or from its own directory. A caller that means it
+    passes it explicitly (`validate_snapshot(..., validator=...)`), and that
+    channel is proven here too. As before, this runs the REAL locator over a
+    REAL sealed tree rather than restating a path. Since #1158 the sealed copy
+    lives under the seal's own `validator/` root, and the refresh lane's seal
+    rationale says so.
     """
     seal = tmp_path / "seal"
     _seal(corpus, seal)
     corpus_root = seal / lane.SEAL_CORPUS_RELPATH
     sealed = seal / lane.SEAL_VALIDATOR_RELPATH
     assert sealed.is_file()
-    for start in (seal, corpus_root, sealed.parent):
-        assert snapshot_mod.find_validator(start) is None, start
     own = snapshot_mod.find_validator()
     assert own is None or not own.resolve().is_relative_to(seal.resolve())
+    # Confined (None) at the older leg, the product's own at T061's: never an
+    # enclosing tree's validator, and so never the sealed copy.
+    for start in (seal, corpus_root, sealed.parent):
+        found = snapshot_mod.find_validator(start)
+        assert found is None or found == own, (start, found, own)
+        assert found is None or not found.resolve().is_relative_to(
+            seal.resolve()), (start, found)
     # Passed explicitly, the sealed copy is the one that runs. The stub unit's
     # script prints `ok` and exits 0, whatever it is handed.
     probe = tmp_path / "probe.json"

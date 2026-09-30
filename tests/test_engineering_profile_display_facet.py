@@ -250,7 +250,7 @@ def test_the_packet_order_matches_display_profiles_own_stated_answer():
 
 
 # --------------------------------------------------------------------------
-# 4. deliberate omissions (tokens, values, sections, the wider areas; stages: 8)
+# 4. deliberate omissions (tokens, sections, the wider areas; stages: 8; values: 9)
 # --------------------------------------------------------------------------
 
 def test_sections_this_facet_deliberately_does_not_declare():
@@ -269,7 +269,7 @@ def test_sections_this_facet_deliberately_does_not_declare():
     facet = profile_openxfactory.DISPLAY
     assert "tokens" not in facet
     assert set(facet["stages"]) == {"completion"}  # the five others: section 8
-    assert "values" not in facet
+    assert facet.get("values") == view_extensions.DISPLAY.get("values")  # section 9
     assert "sections" not in facet
     assert "proposed" not in facet["areas"]
     assert "reference" not in facet["areas"]
@@ -557,18 +557,27 @@ def test_the_stage_words_are_openxdoxs_own_copied_not_restated():
         assert entry is not view_extensions.DISPLAY["stages"][role], role
 
 
-def test_stages_is_the_one_section_openxdox_declares_and_the_one_composed():
-    """`_openxdox_stages()` composes openXdox's `stages` and nothing else,
-    because this facet answers every other section from the registered
-    profile. So a section openXdox adds later is a decision for
+def test_stages_and_values_are_the_sections_openxdox_declares_and_composes():
+    """`_openxdox_stages()` composes openXdox's `stages` and
+    `_openxdox_values()` its `values`, and nothing else is composed, because
+    this facet answers every other section from the registered profile. So a
+    section openXdox adds later is a decision for
     `scripts/profile_openxfactory.py`, and it surfaces HERE, at the pin bump
-    that carries it, rather than being merged or dropped silently."""
-    assert set(view_extensions.DISPLAY) == {"stages"}, (
-        f"openxdox.view_extensions.DISPLAY now declares "
-        f"{sorted(view_extensions.DISPLAY)}; openxFactory composes only "
-        "`stages` from it. Decide whether this facet composes the new "
-        "section, in scripts/profile_openxfactory.py::_openxdox_stages, and "
-        "update this test with the reason.")
+    that carries it, rather than being merged or dropped silently.
+
+    AT BOTH PINS (plan 034 T066). An openXdox code leg before openXdox-code #34
+    (`c41063d6`, T060) declares `stages` alone; from #34 it declares `values`
+    beside it. Either set passes, and the facet carries exactly what openXdox
+    declares of the two."""
+    declared = set(view_extensions.DISPLAY)
+    assert declared in ({"stages"}, {"stages", "values"}), (
+        f"openxdox.view_extensions.DISPLAY now declares {sorted(declared)}; "
+        "openxFactory composes only `stages` and `values` from it. Decide "
+        "whether this facet composes the new section, in "
+        "scripts/profile_openxfactory.py, and update this test with the "
+        "reason.")
+    facet = profile_openxfactory.DISPLAY
+    assert ("values" in facet) == ("values" in declared), sorted(facet)
 
 
 def test_the_composition_restates_no_stage_word():
@@ -692,4 +701,119 @@ def test_a_malformed_openxdox_display_refuses_at_every_level(monkeypatch, shape)
         profile_openxfactory.DISPLAY
     assert not isinstance(caught.value, AttributeError)
     with pytest.raises(RuntimeError, match="must be a mapping of stage"):
+        display_profile.host_display(proxy)
+
+
+# --------------------------------------------------------------------------
+# 9. the governed snapshot's values, composed from openXdox (plan 034 T066;
+# R1Q26 (a), `opensoft/openxFactory#656` comment `5851950767`)
+#
+# openDox's views match two snapshot enums against
+# `display_profile.SNAPSHOT_VALUES` to place a card: a document's stage and a
+# candidate's state. Plan 034 T054 moved those defaults from the governed
+# words to openDox's own neutral snapshot's values, and openXdox declares the
+# governed words on its facet's `values` block (openXdox-code #34, T060). A
+# served openxFactory page reads only this repository's facet, so it keeps
+# placing every governed card only if the facet composes that block. These
+# tests hold at both pins: before T054 and #34 the defaults ARE the governed
+# words and openXdox declares no block; after them the block is what carries
+# the governed words.
+# --------------------------------------------------------------------------
+
+def _governed_values() -> dict[str, dict[str, str]]:
+    """The registered profile's word for every role openDox matches an enum on.
+
+    Derived the way openXdox's engine derives them, and the way openXdox-code's
+    own `tests/test_gate_loop_probes.py::_governed_values` holds its block to
+    them: the document spine is the kind `kind_declaring("demote")` names, and
+    the register is the kind `kind_declaring("promote-to-staging")` names. The
+    ROLES are the pinned openDox's own, so a role openDox starts matching on is
+    asked for here too, and none is typed."""
+    profile = engine.current()
+    kinds = {"document_stage": profile.kind_declaring("demote"),
+             "register_state": profile.kind_declaring("promote-to-staging")}
+    return {name: {role: profile.status(role, kind=kinds[name]) for role in roles}
+            for name, roles in display_profile.SNAPSHOT_VALUES.items()}
+
+
+def test_the_served_page_places_every_governed_card_at_this_pin(tmp_path):
+    """THE PROPERTY T066 KEEPS, as a served page reads it. The `display` block
+    of `/capabilities` carries the values every class-C view matches the
+    governed snapshot's enums against, and at this repository's pins they are
+    the governed profile's own words, whichever defaults the pinned openDox
+    ships."""
+    display = _served_capabilities(tmp_path)["display"]
+    assert display["values"] == _governed_values(), (
+        f"the served values are {display['values']!r}; the governed snapshot "
+        f"writes {_governed_values()!r}, so a view would misplace its cards")
+
+
+def test_the_values_are_openxdoxs_own_copied_not_restated():
+    """ONE SOURCE, at both pins. Where openXdox declares the block, the facet's
+    `values` equal it and are a COPY at both levels; where it declares none,
+    the facet declares none, and openDox serves its own defaults."""
+    facet = profile_openxfactory.DISPLAY
+    declared = view_extensions.DISPLAY.get("values")
+    if declared is None:
+        assert "values" not in facet, facet["values"]
+        return
+    assert facet["values"] == declared
+    assert facet["values"] is not declared
+    for name, entry in facet["values"].items():
+        assert entry is not declared[name], name
+
+
+#: A table of snapshot-value defaults that is NOT the governed words, one word
+#: per role, derived from the pinned openDox's own roles so no word is typed:
+#: what a served page falls back to where the facet composes no block.
+def _not_governed_defaults() -> dict[str, dict[str, str]]:
+    return {name: {role: f"{name}-{role}-default" for role in roles}
+            for name, roles in display_profile.SNAPSHOT_VALUES.items()}
+
+
+@pytest.mark.parametrize("composed", [True, False],
+                         ids=["composed", "the-composition-drops-them"])
+def test_the_block_is_what_keeps_the_governed_values_beside_other_defaults(
+        tmp_path, monkeypatch, composed):
+    """MUTATION, pin-independent. openDox's defaults are set to a table that is
+    not the governed words, which is what T054's neutral defaults are, and
+    openXdox's facet is given the governed block, which is what #34 declares.
+    Composed, the served page still carries the governed words. With the
+    composition dropped, it serves the other defaults, and the predicate
+    `test_the_served_page_places_every_governed_card_at_this_pin` uses refuses
+    that state."""
+    governed = _governed_values()
+    monkeypatch.setattr(display_profile, "SNAPSHOT_VALUES", _not_governed_defaults())
+    monkeypatch.setattr(view_extensions, "DISPLAY",
+                        {**view_extensions.DISPLAY, "values": governed})
+    if not composed:
+        monkeypatch.setattr(profile_openxfactory, "_openxdox_values", lambda: None)
+    served = _served_capabilities(tmp_path)["display"]["values"]
+    if composed:
+        assert served == governed
+    else:
+        assert served == _not_governed_defaults()
+        assert served != governed
+
+
+#: The malformed `values` shapes, one per level `_openxdox_values()` reads.
+_MALFORMED_VALUES = {
+    "values-is-not-a-mapping": ["document_stage"],
+    "an-enum-entry-is-not-a-mapping": {"document_stage": "brainstorm"},
+}
+
+
+@pytest.mark.parametrize("shape", list(_MALFORMED_VALUES))
+def test_a_malformed_openxdox_values_block_refuses(monkeypatch, shape):
+    """MUTATION: openXdox's `values` present but MALFORMED. It REFUSES with
+    `RuntimeError`, never `AttributeError`, so neither the proxy nor
+    `host_display()`'s 3-argument `getattr` can absorb it into a silent "no
+    facet declared"."""
+    monkeypatch.setattr(view_extensions, "DISPLAY",
+                        {**view_extensions.DISPLAY,
+                         "values": _MALFORMED_VALUES[shape]})
+    with pytest.raises(RuntimeError, match="composes it as a mapping") as caught:
+        profile_openxfactory.DISPLAY
+    assert not isinstance(caught.value, AttributeError)
+    with pytest.raises(RuntimeError, match="composes it as a mapping"):
         display_profile.host_display(proxy)

@@ -1637,16 +1637,33 @@ unchanged.
 - [ ] T064 [US4] [oX] [oxF] **Phase 2's consumer pins** (T090 steps 5–6). The
   openXdox root moves to T061's commit, the phase's last openXdox-code
   landing, and to T062's root commit. Host wiring is needed only if
-  openxFactory's composite has to register a generator contribution. It
-  composes openXdox's profile, so none is expected; confirm that by
-  `pytest-suite`. The facet's `values` block reaches openxFactory's served
-  views only through T066's composition (R1Q26 (a)).
-  - **Why no host line is expected (holder decision, 2026-09-27, at T052).**
-    T059 registers openXdox's generator from openXdox's own
-    profile-registration path, the hook openxFactory already calls
-    (`register_openxfactory()` makes the profile registration today). So
-    the line above, that this composes openXdox's profile and so needs
-    none, stays true (openDox-code#54).
+  openxFactory's composite has to register a generator contribution, and it
+  does, so T064 owes one host line (below); confirm it by `pytest-suite`.
+  The facet's `values` block reaches openxFactory's served views only through
+  T066's composition (R1Q26 (a)).
+  - **The one host line (holder decision, 2026-09-29, at T059, which REVISES
+    the decision of 2026-09-27 at T052).** `scripts/opendox_host.register_openxfactory()`
+    calls `openxdox.projection_contributions.register()`, which T059 added
+    (openXdox-code#35 → `839492d9`), and a test under `tests/domain_profile/`
+    pins it. `scripts/opendox_host.py` is on F11.1's `HOST` surface, so the
+    guard admits the line.
+    - The revised decision read: *"T059 registers openXdox's generator from
+      openXdox's own profile-registration path, the hook openxFactory already
+      calls (`register_openxfactory()` makes the profile registration today).
+      So the line above, that this composes openXdox's profile and so needs
+      none, stays true (openDox-code#54)."* That misread the host.
+      `register_openxfactory()` calls `openxdox.domain_profile.load()` and
+      registers the composite with openDox alone
+      (`opendox.domain_profile.register(composite)`). It never calls
+      `openxdox.domain_profile.register()`, the hook that registers the
+      governed projection too since T059.
+    - The revision is recorded in the lane's later-slice notes (2026-09-29
+      ~23:55Z) and in openXdox-code#35's body.
+    - This correction rides in T066's non-arc PR, not in T064's (holder
+      decision, 2026-09-30). A plan edit in T064's arc PR sits on no F11.1
+      surface, so the guard would refuse it: a dry run on a simulated T064
+      commit refused `specs/034-opendox-standalone-operation/tasks.md` and
+      nothing else.
   - T066 has landed first, so openxFactory's profile composes the block and
     its seal test holds at these pins. Its validator callers need no move:
     under R1Q27 (a) the consumer's validator keeps validating every kind
