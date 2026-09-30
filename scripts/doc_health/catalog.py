@@ -895,26 +895,41 @@ def _unchecked_refusal(root: Path, node: Path, exc: OSError) -> CatalogError:
         f"is refused rather than taken for absent: {_tree_path(root, node)}")
 
 
-def _node_mode(root: Path, node: Path) -> int | None:
-    """``node``'s own mode, a symlink's included, from one explicit
-    ``os.lstat`` that never follows it: None when nothing is there
-    (``FileNotFoundError``, ``NotADirectoryError``), and the controlled
-    refusal (``_unchecked_refusal``, naming the node under the catalog root
-    ``root``) RAISED when the ``lstat`` fails for any other reason. This is
-    the catalog's one probe primitive: the run scan's ``_own_mode`` and the
-    writer's ``_occupied`` and ``_refuse_foreign_node`` all classify a node
-    by it, so an unreadable node reads as neither absent nor present, nor
-    as link-free, on every interpreter version (opensoft/openxFactory#1201).
+def _lstat_mode(node: Path) -> tuple[int | None, OSError | None]:
+    """The catalog's one probe primitive: ``node``'s own mode, a symlink's
+    included, from one explicit ``os.lstat`` that never follows it.
+    ``(mode, None)`` for a node that is there, ``(None, None)`` when nothing
+    is there (``FileNotFoundError``, ``NotADirectoryError``), and
+    ``(None, exc)`` when the ``lstat`` fails for any other reason, which
+    every caller refuses rather than reads as absent. Each caller names the
+    node its own way: the run scan and the writer's probes under the catalog
+    root (``_own_mode``, ``_node_mode``; opensoft/openxFactory#1201), the
+    writer's walk under the run directory (``_walked_mode``, PR #1200).
+
     ``Path.exists``, ``is_dir``, ``is_file`` and ``is_symlink`` cannot do
-    that job: Python 3.14 answers False from each of them for a node whose
-    ``stat`` fails for any reason at all."""
+    this job: Python 3.14 answers False from each of them for a node whose
+    ``stat`` fails for any reason at all, so an unreadable node would read
+    as absent, and as link-free."""
     try:
-        return os.lstat(node).st_mode
+        return os.lstat(node).st_mode, None
     except (FileNotFoundError, NotADirectoryError):
-        return None
+        return None, None
     except OSError as exc:
-        # Raised from None: the OSError's own text carries the host path.
-        raise _unchecked_refusal(root, node, exc) from None
+        return None, exc
+
+
+def _node_mode(root: Path, node: Path) -> int | None:
+    """``node``'s own mode, a symlink's included (``_lstat_mode``), or None
+    when nothing is there; a node whose ``lstat`` fails for any other reason
+    RAISES the controlled refusal, naming it under the catalog root ``root``
+    (``_unchecked_refusal``; opensoft/openxFactory#1201). The writer's probe
+    for "is anything there, and what" (``_occupied``): it reads an
+    unreadable node as neither absent nor present, on every interpreter
+    version."""
+    mode, exc = _lstat_mode(node)
+    if exc is not None:
+        raise _unchecked_refusal(root, node, exc)
+    return mode
 
 
 def _own_mode(root: Path, node: Path
@@ -924,18 +939,19 @@ def _own_mode(root: Path, node: Path
     nothing is there, and ``(None, refusal)`` for a node the run scan
     cannot take as link-free. A symlink is refused (``_symlink_refusal``),
     and so is a node whose own ``lstat`` fails for any reason but its
-    absence (``_unchecked_refusal``), because what cannot be checked could
-    be a link. The check is an explicit ``os.lstat`` with its own errno
-    handling (``_node_mode``): through Python 3.13, ``Path.is_symlink``
-    documents this same propagate-vs-absent contract, but Python 3.14
-    changes it -- there ``is_symlink`` calls ``os.path.islink`` directly,
-    which swallows every ``OSError`` -- so this keeps the scan's fail-closed
-    guarantee correct on a version CI does not run today, not merely
-    insulated against one that might exist tomorrow."""
-    try:
-        mode = _node_mode(root, node)
-    except CatalogError as refusal:
-        return None, refusal
+    absence (``_unchecked_refusal``, naming it under the catalog root
+    ``root``), because what cannot be checked could be a link. The check is
+    an explicit ``os.lstat`` with its own errno handling (``_lstat_mode``):
+    through Python 3.13, ``Path.is_symlink`` documents this same
+    propagate-vs-absent contract, but Python 3.14 changes it -- there
+    ``is_symlink`` calls ``os.path.islink`` directly, which swallows every
+    ``OSError`` -- so this keeps the scan's fail-closed guarantee correct on
+    a version CI does not run today, not merely insulated against one that
+    might exist tomorrow. The writer's own guard (``_refuse_foreign_node``)
+    classifies its nodes by it too since opensoft/openxFactory#1201."""
+    mode, exc = _lstat_mode(node)
+    if exc is not None:
+        return None, _unchecked_refusal(root, node, exc)
     if mode is not None and stat.S_ISLNK(mode):
         return None, _symlink_refusal(node)
     return mode, None
@@ -1307,65 +1323,119 @@ def _catalog_chain(root: Path) -> list[Path]:
                      for depth in range(1, len(RUNS_DIR.parts) + 1)]
 
 
-def _refuse_unreadable_walk(run_dir: Path):
-    """The ``onerror`` callback for an ``os.walk(run_dir, ...)`` scan of a
-    run directory: refuse rather than silently continue when a
-    subdirectory cannot be enumerated (permission denied, torn down
-    mid-walk). ``os.walk`` otherwise skips such a directory in silence,
-    and whatever it hides -- a symlink, a foreign descendant -- would
-    never be seen. Shared by ``_refuse_links_inside`` and
-    ``_refuse_foreign_descendants`` (PR #1189 review, Copilot, extended to
-    the link-refusal walk for opensoft/openxFactory#1197, which had no
-    ``onerror`` at all). Names the node the walk could not enter by a
-    path relative to ``run_dir``, never the host-absolute one the
-    underlying ``OSError`` itself carries."""
-    def _onerror(exc: OSError) -> None:
-        node = Path(exc.filename) if exc.filename else run_dir
-        try:
-            where = node.relative_to(run_dir).as_posix()
-        except ValueError:
-            where = node.as_posix()
+def _unenumerable_refusal(run_dir: Path, exc: OSError) -> CatalogError:
+    """The refusal for a directory in ``run_dir``, or ``run_dir`` itself,
+    that the writer's walk (``_walk_run_tree``) could not list, at the start
+    of its listing or midway through (permission denied, torn down
+    mid-walk). A walk that skipped it would never see what it holds -- a
+    symlink, a foreign descendant. PR #1189's review (Copilot) first
+    refused such a directory in ``_refuse_foreign_descendants``;
+    opensoft/openxFactory#1197 found ``_refuse_links_inside`` refused
+    nothing there. Names the directory by a path relative to ``run_dir``,
+    never the host-absolute one the ``OSError`` itself carries."""
+    node = Path(exc.filename) if exc.filename else run_dir
+    try:
+        where = node.relative_to(run_dir).as_posix()
+    except ValueError:
+        where = node.as_posix()
+    return CatalogError(
+        f"catalog run directory could not be fully enumerated, so a "
+        f"symlink or a foreign descendant could stay hidden "
+        f"({where}): {run_dir}")
+
+
+def _walked_mode(run_dir: Path, node: Path) -> int | None:
+    """``node``'s own mode for the writer's walk (``_walk_run_tree``), or
+    None when nothing is there: the explicit ``lstat`` ``_own_mode`` makes,
+    with the same errno handling. A symlink is refused as ``_own_mode``
+    refuses it (``_symlink_refusal``). A node whose ``lstat`` fails for any
+    reason but its absence is refused too, since what cannot be checked
+    could be a link, but by its path relative to ``run_dir``, as
+    ``_unenumerable_refusal`` names a directory, never by the raw
+    ``OSError``, which carries the host-absolute path (PR #1200 review,
+    Copilot). The ``lstat`` is the catalog's one probe primitive
+    (``_lstat_mode``), shared with ``_own_mode`` since
+    opensoft/openxFactory#1201."""
+    mode, exc = _lstat_mode(node)
+    if exc is not None:
         raise CatalogError(
-            f"catalog run directory could not be fully enumerated, so a "
-            f"symlink or a foreign descendant could stay hidden "
-            f"({where}): {run_dir}")
-    return _onerror
+            f"catalog path could not be checked for a symlink "
+            f"({node.relative_to(run_dir).as_posix()}): {run_dir}") from exc
+    if mode is not None and stat.S_ISLNK(mode):
+        raise _symlink_refusal(node)
+    return mode
 
 
-def _refuse_links_inside(root: Path, run_dir: Path) -> None:
+def _walk_run_tree(run_dir: Path):
+    """Walk ``run_dir`` depth-first in name order, yielding
+    ``(files, directories)`` for each directory in it, ``run_dir`` first:
+    every node listed there, split by the mode of the node's own ``lstat``
+    (``_walked_mode``). A node that is not a directory, or that is gone
+    since it was listed, counts as a file. The walk enters exactly the nodes
+    that ``lstat`` says are directories, so one probe decides both how a
+    node is classified and whether the walk descends into it.
+
+    It refuses as it goes. A symlink anywhere inside ``run_dir`` is
+    refused, and so is a node whose own ``lstat`` fails for any reason but
+    its absence (``_walked_mode``), since what cannot be checked could be a
+    link. A directory it cannot list is refused too
+    (``_unenumerable_refusal``), at the start of the listing or midway
+    through. Those two are named by their paths relative to ``run_dir``,
+    and a link as ``_own_mode`` names one (``_symlink_refusal``).
+
+    Not ``os.walk`` (Codex, P1, and Copilot review, PR #1200). ``os.walk``
+    splits each listing with ``DirEntry.is_dir()``, and when that call
+    raises it files the entry as a non-directory and never enters it, on
+    3.12, 3.13 and 3.14 alike, though the entry's own ``lstat`` then says
+    it is a directory. A link or a stranger below such a directory stayed
+    hidden from the walk's caller, which then passed the run. Classifying
+    each listed name by ``_own_mode`` did not help while ``os.walk`` still
+    chose what to enter. So this walk lists names only (``os.scandir``,
+    never asked to classify an entry) and takes every decision from each
+    node's own ``lstat``: the same walk ``_link_inside`` makes for the
+    read-side scan, raising where that one returns, and naming a node it
+    cannot check or list by its path in the run."""
+    pending = [Path(run_dir)]
+    while pending:
+        directory = pending.pop()
+        try:
+            with os.scandir(directory) as listing:
+                names = sorted(entry.name for entry in listing)
+        except OSError as exc:
+            raise _unenumerable_refusal(run_dir, exc) from exc
+        files, directories = [], []
+        for name in names:
+            node = directory / name
+            mode = _walked_mode(run_dir, node)
+            if mode is not None and stat.S_ISDIR(mode):
+                directories.append(node)
+            else:
+                files.append(node)
+        yield files, directories
+        pending.extend(reversed(directories))  # the first name is walked next
+
+
+def _refuse_links_inside(run_dir: Path) -> None:
     """Refuse a run directory that holds a symlink anywhere inside it: a
     linked snapshot, ``run.yaml`` or subdirectory. ``Path.rglob`` lists a
     linked file and silently skips a linked directory, so without this
     walk neither the writer nor the verifier would see what such a link
-    hides, or where it points. ``onerror`` fails closed
-    (``_refuse_unreadable_walk``): opensoft/openxFactory#1197 found this
-    walk, unlike its sibling ``_refuse_foreign_descendants``, passed no
-    ``onerror`` at all, so ``os.walk`` silently skipped a subdirectory it
-    could not enumerate and a symlink hiding inside one would never be
-    seen.
+    hides, or where it points.
 
-    ``onerror`` only covers a failed ``scandir(top)`` -- not a failed
-    per-entry classification. ``os.walk`` itself catches an ``OSError``
-    from each listed entry's own ``is_dir()`` and treats that entry as a
-    plain file rather than aborting (same on 3.12, 3.13, and 3.14), and
-    the entry is still yielded either way, so every name this walk lists
-    is still classified here (Copilot review, PR #1200): with a bare
-    ``node.is_symlink()``, an entry whose own metadata cannot be read
-    would misclassify right along with it -- not a directory to refuse
-    enumerating, and on Python 3.14 not a symlink either, since
-    ``is_symlink`` there swallows the same error. So every listed name is
-    classified by ``_own_mode`` instead, the same explicit ``os.lstat``
-    primitive ``_link_inside`` already uses for the read-side scan: a
-    node it cannot check refuses by name, on every interpreter version
-    alike."""
-    for dirpath, dirnames, filenames in os.walk(
-            run_dir, onerror=_refuse_unreadable_walk(run_dir)):
-        dirnames.sort()
-        for name in sorted(dirnames + filenames):
-            node = Path(dirpath) / name
-            _, refusal = _own_mode(root, node)
-            if refusal is not None:
-                raise refusal
+    The walk is ``_walk_run_tree``, which refuses every link it meets, and
+    every node it cannot check or list. It was ``os.walk`` until PR
+    #1200's review. That walk passed no ``onerror`` at all, unlike its
+    sibling ``_refuse_foreign_descendants``, so it silently skipped a
+    subdirectory it could not enumerate (opensoft/openxFactory#1197). It
+    classified each listed name with ``Path.is_symlink``, which on Python
+    3.14 swallows the error from an entry whose own metadata cannot be
+    read and reports no link (Copilot review, PR #1200). And it never
+    entered a directory whose ``DirEntry.is_dir()`` had failed (Codex and
+    Copilot review, PR #1200). ``_walk_run_tree`` documents why each node's
+    own ``lstat`` now drives the walk, and it refuses in all three cases,
+    by name, on every interpreter version alike."""
+    for _files, _directories in _walk_run_tree(run_dir):
+        pass  # the walk itself refuses every link and every unchecked node
 
 
 def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:
@@ -1397,16 +1467,20 @@ def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:
     as out of scope for that landing and raised as its own follow-up:
     opensoft/openxFactory#1186).
 
-    ``os.walk``, never ``Path.rglob``, for the same reason
-    ``_refuse_links_inside`` already documents (``rglob`` silently skips a
-    linked directory); by the time this runs, that call has already refused
-    every symlink anywhere in ``run_dir``, so this only ever walks a plain
-    tree. ``onerror`` fails closed (``_refuse_unreadable_walk``, shared
-    with ``_refuse_links_inside`` since opensoft/openxFactory#1197; PR
-    #1189 review, Copilot, first added it here): ``os.walk`` otherwise
-    silently swallows a directory it cannot enumerate (permission denied,
-    torn down mid-walk), and a foreign descendant could then hide inside
-    one and never be seen at all."""
+    The walk is ``_walk_run_tree``, never ``Path.rglob``, for the same
+    reason ``_refuse_links_inside`` already documents (``rglob`` silently
+    skips a linked directory); by the time this runs, that call has already
+    refused every symlink anywhere in ``run_dir``, so this only ever walks
+    a plain tree. It fails closed on a directory it cannot list
+    (``_unenumerable_refusal``; PR #1189 review, Copilot, first refused one
+    here), where ``os.walk`` would silently skip it, permission denied or
+    torn down mid-walk, and a foreign descendant could then hide inside it
+    and never be seen at all. And it tells a directory from a file by the
+    node's own ``lstat``, never by ``DirEntry.is_dir()``, which ``os.walk``
+    took a failure of for a file (PR #1200 review, Codex and Copilot):
+    such a directory was refused under its own name rather than the
+    stranger's inside it, or, at a recorded file's own path, passed
+    without being entered."""
     allowed_files = set(allowed_files)
     allowed_dirs = {run_dir}
     for target in allowed_files:
@@ -1414,19 +1488,14 @@ def _refuse_foreign_descendants(run_dir: Path, allowed_files) -> None:
         while node != run_dir:
             allowed_dirs.add(node)
             node = node.parent
-    for dirpath, dirnames, filenames in os.walk(
-            run_dir, onerror=_refuse_unreadable_walk(run_dir)):
-        dirnames.sort()
-        base = Path(dirpath)
-        for name in sorted(filenames):
-            node = base / name
+    for files, directories in _walk_run_tree(run_dir):
+        for node in files:
             if node not in allowed_files:
                 raise CatalogError(
                     f"catalog run directory holds a path this run does "
                     f"not record ({node.relative_to(run_dir).as_posix()}): "
                     f"{run_dir}")
-        for name in dirnames:
-            node = base / name
+        for node in directories:
             if node not in allowed_dirs:
                 raise CatalogError(
                     f"catalog run directory holds a path this run does "
@@ -1485,7 +1554,7 @@ def _refuse_foreign_run_tree(root: Path, run_dir: Path) -> None:
     for node in [*_catalog_chain(root), Path(root) / SEQUENCE_DIR,
                  run_dir.parent, run_dir]:
         _refuse_foreign_node(root, node, directory=True)
-    _refuse_links_inside(root, run_dir)
+    _refuse_links_inside(run_dir)
 
 
 def _read_record(root: Path, path: Path) -> bytes:
@@ -1646,7 +1715,7 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
     if _occupied(root, run_dir):  # a real directory, per the check above
         # A partial run is healed only if it holds no link anywhere, since
         # healing it would otherwise close a run around one.
-        _refuse_links_inside(root, run_dir)
+        _refuse_links_inside(run_dir)
 
     if _holds_exactly(root, target, expected):
         if _recorded(root, run_dir, rid, day):
@@ -1746,7 +1815,7 @@ def write_run(root, as_of, entries_by_repo: dict, taxonomy
     # Must refuse: an unreadable run directory is not an absent one, and
     # taking it for absent would skip both preflight walks below.
     if _occupied(root, run_dir):  # a real directory, per the check above
-        _refuse_links_inside(root, run_dir)
+        _refuse_links_inside(run_dir)
         _refuse_foreign_descendants(
             run_dir, [run_dir / RUN_META_NAME, *targets.values()])
     _recorded(root, run_dir, rid, day)  # an existing run.yaml must be ours
