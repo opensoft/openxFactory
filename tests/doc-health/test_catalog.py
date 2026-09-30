@@ -1166,9 +1166,9 @@ def test_write_run_fails_closed_on_an_unenumerable_run_directory(tmp_path):
     mode = blocked.stat().st_mode
     # Execute-only (no read): a KNOWN child path (the preceding checks'
     # lstat of xFactories/MedxFactory.yaml) still resolves fine, but
-    # os.scandir(xFactories) -- what os.walk needs to enumerate its
-    # contents -- is denied, which is exactly the enumeration failure
-    # under test.
+    # os.scandir(xFactories) -- what the walk needs to enumerate its
+    # contents (os.walk then, _walk_run_tree since PR #1200) -- is denied,
+    # which is exactly the enumeration failure under test.
     blocked.chmod(0o100)
     try:
         with pytest.raises(catalog.CatalogError,
@@ -1177,6 +1177,198 @@ def test_write_run_fails_closed_on_an_unenumerable_run_directory(tmp_path):
     finally:
         blocked.chmod(mode)  # restore -- tmp_path cleanup needs it readable
     assert tree_state(root) == before  # no claim, no write
+
+
+def test_refuse_links_inside_fails_closed_on_an_unenumerable_subdirectory(
+        tmp_path, monkeypatch):
+    # opensoft/openxFactory#1197: _refuse_links_inside's own os.walk passed
+    # no onerror at all -- unlike its sibling _refuse_foreign_descendants
+    # (PR #1189/#1190), which already failed closed the same way -- so a
+    # subdirectory os.walk could not enumerate was silently skipped, and a
+    # symlink hiding inside one would never be seen. Monkeypatched, not
+    # chmod'd: chmod does not deny a directory to root, so a chmod-based
+    # repro would not hold under a root test runner or in CI.
+    run_dir = tmp_path / "run"
+    blocked = run_dir / "xFactories"
+    blocked.mkdir(parents=True)
+    (blocked / "MedxFactory.yaml").write_bytes(b"placeholder")
+    real_scandir = os.scandir
+
+    def denying_scandir(path="."):
+        if Path(path) == blocked:
+            raise PermissionError(
+                errno.EACCES, os.strerror(errno.EACCES), os.fspath(path))
+        return real_scandir(path)
+
+    monkeypatch.setattr(os, "scandir", denying_scandir)
+    with pytest.raises(catalog.CatalogError) as excinfo:
+        catalog._refuse_links_inside(run_dir)
+    message = str(excinfo.value)
+    assert "could not be fully enumerated" in message
+    # the node the walk could not enter, named relative to run_dir, never
+    # the host-absolute path the underlying OSError itself carries
+    assert "(xFactories)" in message
+    assert os.fspath(blocked) not in message
+
+
+def test_refuse_links_inside_fails_closed_on_an_unprobeable_entry(
+        tmp_path, monkeypatch):
+    # Copilot review (PR #1200): onerror only covers a failed
+    # scandir(top), not a failed per-entry classification -- os.walk's own
+    # is_dir() catches an OSError from one listed entry and treats it as a
+    # plain file rather than aborting (same on 3.12, 3.13, and 3.14), and
+    # the entry is still yielded either way. A bare node.is_symlink() would
+    # then misclassify it right along with os.walk: not a directory to
+    # refuse enumerating, and on Python 3.14 not a symlink either, since
+    # is_symlink there swallows the same error. Every listed name is
+    # classified by _own_mode's explicit os.lstat instead (the same
+    # primitive _link_inside already uses for the read-side scan), so a
+    # per-entry probe failure -- injected here on os.lstat itself, not
+    # scandir -- still refuses. (The walk is no longer os.walk at all since
+    # the next review round: see the is_dir tests below.) The review after
+    # that (Copilot, PR #1200 at 89c1d630): _own_mode's own refusal
+    # interpolates the raw OSError, host-absolute path and all, so the
+    # writer's walk names such a node relative to run_dir instead, as it
+    # names a directory it cannot list; nested here, so the relative name
+    # carries a separator.
+    run_dir = tmp_path / "run"
+    blocked = run_dir / "xFactories" / "MedxFactory.yaml"
+    blocked.parent.mkdir(parents=True)
+    blocked.write_bytes(b"placeholder")
+    real_lstat = os.lstat
+
+    def denying_lstat(path, *args, **kwargs):
+        if Path(path) == blocked:
+            raise PermissionError(
+                errno.EACCES, os.strerror(errno.EACCES), os.fspath(path))
+        return real_lstat(path, *args, **kwargs)
+
+    monkeypatch.setattr(os, "lstat", denying_lstat)
+    with pytest.raises(catalog.CatalogError) as excinfo:
+        catalog._refuse_links_inside(run_dir)
+    message = str(excinfo.value)
+    assert "could not be checked for a symlink" in message
+    assert "(xFactories/MedxFactory.yaml)" in message
+    assert os.fspath(blocked) not in message
+
+
+def deny_is_dir(patch, directory):
+    """Make ``os.scandir`` list ``directory`` as an entry whose own
+    ``DirEntry.is_dir()`` raises EACCES, as a stat that fails for a moment
+    would, while ``directory``'s own ``lstat`` still succeeds. ``os.walk``
+    catches that error and files the entry as a non-directory, so it lists
+    the directory but never enters it."""
+    real_scandir = os.scandir
+    denied = os.fspath(directory)
+
+    class Entry:
+        """A listed entry whose ``is_dir()`` fails for ``directory``."""
+
+        def __init__(self, entry):
+            self._entry, self.name, self.path = entry, entry.name, entry.path
+
+        def __fspath__(self):
+            return self.path
+
+        def is_dir(self, *, follow_symlinks=True):
+            if self.path == denied:
+                raise PermissionError(errno.EACCES, os.strerror(errno.EACCES),
+                                      self.path)
+            return self._entry.is_dir(follow_symlinks=follow_symlinks)
+
+        def is_file(self, *, follow_symlinks=True):
+            return self._entry.is_file(follow_symlinks=follow_symlinks)
+
+        def is_symlink(self):
+            return self._entry.is_symlink()
+
+        def stat(self, *, follow_symlinks=True):
+            return self._entry.stat(follow_symlinks=follow_symlinks)
+
+        def inode(self):
+            return self._entry.inode()
+
+    class Listing:
+        """An ``os.scandir`` iterator that yields such entries."""
+
+        def __init__(self, listing):
+            self._listing = listing
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc_info):
+            self._listing.close()
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            return Entry(next(self._listing))
+
+        def close(self):
+            self._listing.close()
+
+    patch.setattr(os, "scandir", lambda path=".": Listing(real_scandir(path)))
+
+
+def test_refuse_links_inside_enters_a_directory_whose_is_dir_failed(
+        tmp_path, monkeypatch):
+    # Codex (P1) and Copilot review, PR #1200 at 9f3e67b2: classifying each
+    # listed name by _own_mode was not enough while os.walk still decided
+    # which names to enter. os.walk splits a listing with DirEntry.is_dir(),
+    # and when that raises it files the entry as a non-directory and never
+    # descends into it, even though the entry's own lstat then says it is a
+    # directory. A link below such a directory stayed hidden and the
+    # preflight passed. The walk is now driven by each node's own lstat
+    # alone, for descent as well as classification, and never asks
+    # DirEntry.is_dir() at all.
+    run_dir = tmp_path / "run"
+    hidden = run_dir / "xFactories"
+    link = plant_link(hidden / "linked", tmp_path)
+    deny_is_dir(monkeypatch, hidden)
+    # The premise, on this interpreter: os.walk lists xFactories as a file
+    # and never enters it.
+    assert list(os.walk(run_dir)) == [(os.fspath(run_dir), [], ["xFactories"])]
+    with pytest.raises(catalog.CatalogError,
+                       match="is a symlink") as excinfo:
+        catalog._refuse_links_inside(run_dir)
+    assert str(excinfo.value).endswith(os.fspath(link))
+
+
+def test_refuse_foreign_descendants_enters_a_directory_whose_is_dir_failed(
+        tmp_path, monkeypatch):
+    # The same review round, for the sibling walk. With os.walk's split, a
+    # directory whose is_dir() failed was checked as if it were a file:
+    # refused as a whole when it was no recorded file, which named the
+    # directory instead of the stranger inside it, and passed unentered
+    # when it sat at a recorded file's own path, with a stranger hidden in
+    # it. Driven by each node's own lstat, the walk enters both and names
+    # what it finds.
+    run_dir = tmp_path / "run"
+    snapshot = run_dir / "xFactories" / "MedxFactory.yaml"
+    snapshot.parent.mkdir(parents=True)
+    snapshot.write_bytes(b"placeholder")
+    (snapshot.parent / "notes.txt").write_bytes(b"stranger")
+    allowed = [run_dir / "run.yaml", snapshot]
+    with pytest.MonkeyPatch.context() as patch:
+        deny_is_dir(patch, snapshot.parent)
+        with pytest.raises(catalog.CatalogError) as excinfo:
+            catalog._refuse_foreign_descendants(run_dir, allowed)
+    assert "(xFactories/notes.txt)" in str(excinfo.value)
+
+    shutil.rmtree(run_dir)
+    squatter = run_dir / "alpha.yaml"  # a directory at a recorded file's path
+    squatter.mkdir(parents=True)
+    (squatter / "notes.txt").write_bytes(b"stranger")
+    allowed = [run_dir / "run.yaml", squatter]
+    with pytest.MonkeyPatch.context() as patch:
+        deny_is_dir(patch, squatter)
+        assert list(os.walk(run_dir)) == [
+            (os.fspath(run_dir), [], ["alpha.yaml"])]  # never entered
+        with pytest.raises(catalog.CatalogError) as excinfo:
+            catalog._refuse_foreign_descendants(run_dir, allowed)
+    assert "(alpha.yaml)" in str(excinfo.value)
 
 
 def test_write_run_refuses_a_stranger_merely_shaped_like_a_writer_temp(
@@ -1899,15 +2091,21 @@ def test_run_scan_fails_closed_on_a_directory_it_cannot_list(tmp_path):
 
 def test_run_scan_never_takes_an_unchecked_node_for_link_free(tmp_path,
                                                                monkeypatch):
-    # Review round 3 (Copilot, #1190): from Python 3.13 Path.is_symlink is
-    # os.path.islink, which reports a node whose lstat is denied as no link,
-    # so a scan built on it passes a child of a listable but unsearchable
-    # directory, a link included, as link-free. Python 3.12 raises instead,
-    # so it is pinned to the 3.13 behaviour here: the scan must not depend on
-    # it. The same holds where the scan meets a day or run directory it
-    # cannot list or search. Every node is checked with an explicit lstat,
-    # and whatever the scan cannot check or list refuses that entry alone;
-    # the runs directory itself refuses the whole scan.
+    # Review round 3 (Copilot, #1190): if the scan asked Path.is_symlink
+    # whether a node was a link, a denied lstat reading as "no link" would
+    # be a real hazard on any implementation that swallows every OSError
+    # the way os.path.islink does -- which is no longer hypothetical:
+    # through Python 3.13, is_symlink documents the propagate-vs-absent
+    # contract (only "doesn't exist" reads as False; a permission error
+    # propagates), but Python 3.14 changes it -- is_symlink there calls
+    # os.path.islink directly (verified against the CPython sources and
+    # the official docs; see the PR body). The scan still never asks
+    # Path.is_symlink at all: every node is checked with an explicit
+    # lstat, and whatever it cannot check or list refuses that entry
+    # alone; the runs directory itself refuses the whole scan. This
+    # monkeypatch pins is_symlink to exactly that -- Python 3.14's real
+    # behaviour, not merely a worst case -- to prove the scan is
+    # unaffected on 3.12, 3.13, or 3.14.
     monkeypatch.setattr(Path, "is_symlink", lambda self: os.path.islink(self))
     alpha = alpha_entries(extended_inventory())
     runs = {"alpha": alpha, "xFactories/MedxFactory": [
@@ -2139,14 +2337,21 @@ def test_run_scan_classifies_every_node_by_its_own_lstat(tmp_path):
     # Review round 5 (Copilot, #1190: two findings its review counted but
     # never posted): after its lstat check the scan still asked is_dir() and
     # is_file() whether a node was a directory or a recorded run.yaml. Each
-    # stats the node a second time, following links, and from Python 3.13
-    # swallows every OSError. So a catalog, day or run directory, or a
-    # run.yaml, whose second stat failed read as absent: the scan reported
-    # no catalog, or passed over a day or a recorded run, instead of failing
-    # closed. Every node is now classified by the mode its own lstat
-    # returned, so the scan makes no following stat at all, and with is_dir()
-    # and is_file() pinned to their 3.13 behaviour, a following stat that
-    # fails changes nothing it yields.
+    # stats the node a second time, following links, and on any
+    # implementation that swallows every OSError the way os.path.isdir and
+    # os.path.isfile do, a failed second stat would read as absent: the
+    # scan would report no catalog, or pass over a day or a recorded run,
+    # instead of failing closed -- which is no longer hypothetical: through
+    # Python 3.13, is_dir/is_file document the propagate-vs-absent contract
+    # (only "doesn't exist" reads as False; a permission error propagates
+    # -- verified against the CPython sources and the official docs, see
+    # the PR body), but Python 3.14 changes it -- both call os.path.isdir/
+    # isfile directly there. The scan does not lean on either version's
+    # contract: every node is now classified by the mode its own lstat
+    # returned, so the scan makes no following stat at all -- one explicit
+    # primitive doing the whole job on 3.12, 3.13, or 3.14 alike. With
+    # is_dir() and is_file() pinned to that real 3.14 behaviour below, a
+    # following stat that fails changes nothing it yields.
     root = tmp_path / "agg"
     rid_one, _ = write_run(root, extended_inventory())
     alpha = alpha_entries(extended_inventory())
