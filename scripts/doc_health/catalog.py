@@ -1253,21 +1253,45 @@ def _unenumerable_refusal(run_dir: Path, exc: OSError) -> CatalogError:
         f"({where}): {run_dir}")
 
 
+def _walked_mode(run_dir: Path, node: Path) -> int | None:
+    """``node``'s own mode for the writer's walk (``_walk_run_tree``), or
+    None when nothing is there: the explicit ``lstat`` ``_own_mode`` makes,
+    with the same errno handling. A symlink is refused as ``_own_mode``
+    refuses it (``_symlink_refusal``). A node whose ``lstat`` fails for any
+    reason but its absence is refused too, since what cannot be checked
+    could be a link, but by its path relative to ``run_dir``, as
+    ``_unenumerable_refusal`` names a directory: ``_own_mode``'s refusal
+    interpolates the raw ``OSError``, which carries the host-absolute path
+    (PR #1200 review, Copilot)."""
+    try:
+        mode = os.lstat(node).st_mode
+    except (FileNotFoundError, NotADirectoryError):
+        return None
+    except OSError as exc:
+        raise CatalogError(
+            f"catalog path could not be checked for a symlink "
+            f"({node.relative_to(run_dir).as_posix()}): {run_dir}") from exc
+    if stat.S_ISLNK(mode):
+        raise _symlink_refusal(node)
+    return mode
+
+
 def _walk_run_tree(run_dir: Path):
     """Walk ``run_dir`` depth-first in name order, yielding
     ``(files, directories)`` for each directory in it, ``run_dir`` first:
     every node listed there, split by the mode of the node's own ``lstat``
-    (``_own_mode``). A node that is not a directory, or that is gone since
-    it was listed, counts as a file. The walk enters exactly the nodes that
-    ``lstat`` says are directories, so one probe decides both how a node is
-    classified and whether the walk descends into it.
+    (``_walked_mode``). A node that is not a directory, or that is gone
+    since it was listed, counts as a file. The walk enters exactly the nodes
+    that ``lstat`` says are directories, so one probe decides both how a
+    node is classified and whether the walk descends into it.
 
     It refuses as it goes. A symlink anywhere inside ``run_dir`` is
     refused, and so is a node whose own ``lstat`` fails for any reason but
-    its absence (``_own_mode``), since what cannot be checked could be a
+    its absence (``_walked_mode``), since what cannot be checked could be a
     link. A directory it cannot list is refused too
     (``_unenumerable_refusal``), at the start of the listing or midway
-    through.
+    through. Those two are named by their paths relative to ``run_dir``,
+    and a link as ``_own_mode`` names one (``_symlink_refusal``).
 
     Not ``os.walk`` (Codex, P1, and Copilot review, PR #1200). ``os.walk``
     splits each listing with ``DirEntry.is_dir()``, and when that call
@@ -1279,8 +1303,8 @@ def _walk_run_tree(run_dir: Path):
     chose what to enter. So this walk lists names only (``os.scandir``,
     never asked to classify an entry) and takes every decision from each
     node's own ``lstat``: the same walk ``_link_inside`` makes for the
-    read-side scan, raising where that one returns, and naming an
-    unlistable directory by its path in the run."""
+    read-side scan, raising where that one returns, and naming a node it
+    cannot check or list by its path in the run."""
     pending = [Path(run_dir)]
     while pending:
         directory = pending.pop()
@@ -1292,9 +1316,7 @@ def _walk_run_tree(run_dir: Path):
         files, directories = [], []
         for name in names:
             node = directory / name
-            mode, refusal = _own_mode(node)
-            if refusal is not None:
-                raise refusal
+            mode = _walked_mode(run_dir, node)
             if mode is not None and stat.S_ISDIR(mode):
                 directories.append(node)
             else:

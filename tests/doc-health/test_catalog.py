@@ -1208,6 +1208,7 @@ def test_refuse_links_inside_fails_closed_on_an_unenumerable_subdirectory(
     # the node the walk could not enter, named relative to run_dir, never
     # the host-absolute path the underlying OSError itself carries
     assert "(xFactories)" in message
+    assert os.fspath(blocked) not in message
 
 
 def test_refuse_links_inside_fails_closed_on_an_unprobeable_entry(
@@ -1224,10 +1225,15 @@ def test_refuse_links_inside_fails_closed_on_an_unprobeable_entry(
     # primitive _link_inside already uses for the read-side scan), so a
     # per-entry probe failure -- injected here on os.lstat itself, not
     # scandir -- still refuses. (The walk is no longer os.walk at all since
-    # the next review round: see the is_dir tests below.)
+    # the next review round: see the is_dir tests below.) The review after
+    # that (Copilot, PR #1200 at 89c1d630): _own_mode's own refusal
+    # interpolates the raw OSError, host-absolute path and all, so the
+    # writer's walk names such a node relative to run_dir instead, as it
+    # names a directory it cannot list; nested here, so the relative name
+    # carries a separator.
     run_dir = tmp_path / "run"
-    run_dir.mkdir()
-    blocked = run_dir / "MedxFactory.yaml"
+    blocked = run_dir / "xFactories" / "MedxFactory.yaml"
+    blocked.parent.mkdir(parents=True)
     blocked.write_bytes(b"placeholder")
     real_lstat = os.lstat
 
@@ -1240,7 +1246,10 @@ def test_refuse_links_inside_fails_closed_on_an_unprobeable_entry(
     monkeypatch.setattr(os, "lstat", denying_lstat)
     with pytest.raises(catalog.CatalogError) as excinfo:
         catalog._refuse_links_inside(run_dir)
-    assert "could not be checked for a symlink" in str(excinfo.value)
+    message = str(excinfo.value)
+    assert "could not be checked for a symlink" in message
+    assert "(xFactories/MedxFactory.yaml)" in message
+    assert os.fspath(blocked) not in message
 
 
 def deny_is_dir(patch, directory):
