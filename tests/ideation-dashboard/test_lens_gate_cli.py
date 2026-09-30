@@ -38,7 +38,7 @@ def _wire(monkeypatch):
     validators at the real openxFactory checkout (the CLI auto-finds them from
     the checkout in production; the tmp checkout is outside the workspace)."""
     snap = _snapshot()
-    monkeypatch.setattr(cli, "generate_snapshot", lambda *a, **k: snap)
+    monkeypatch.setattr(*_generation_site(), lambda *a, **k: snap)
     monkeypatch.setattr(wb, "find_validator", lambda *a, **k: VALIDATOR)
     monkeypatch.setattr(hs, "find_cross_reference_validator", lambda *a, **k: XREF_VALIDATOR)
     monkeypatch.setattr(hs, "XREF_VALIDATOR_RELPATH", XREF_VALIDATOR)
@@ -126,3 +126,16 @@ def test_cli_exposes_no_gate_bypass_flag():
     source = Path(inspect.getsourcefile(cli)).read_text("utf-8")
     for flag in ("--force", "--override", "--skip-readiness", "--no-gate"):
         assert flag not in source, flag
+
+
+def _generation_site():
+    """Where the gate verbs' `_gate_snapshot` generates, at the pinned openDox
+    leg, as the `(object, name)` `_wire` stubs (plan 034 T066). Before
+    openDox-code #59 (`fa140875`, T055) it reads `generate_snapshot` out of
+    `cli`'s own globals; from #59 it generates through the generator seam,
+    `cli.generator_seam.generate`, and `cli` binds no `generate_snapshot`. So
+    the stub reaches the same one reader at both pins, and `_gate_snapshot`
+    itself stays under test."""
+    if hasattr(cli, "generate_snapshot"):
+        return cli, "generate_snapshot"
+    return cli.generator_seam, "generate"

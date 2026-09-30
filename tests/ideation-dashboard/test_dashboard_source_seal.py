@@ -5256,11 +5256,17 @@ def test_the_probe_runs_in_a_sealed_container_never_on_the_runner(
     probe = runs[0]
     shape = _the_childs_shape(seal, _LABEL_4242)
     assert probe[:len(shape)] == shape
-    assert probe[-4:] == [
+    # The harness's four arguments, then each other sealed code leg's `src/`
+    # (`lane.sealed_leg_sources`, plan 034 T066): the openDox leg, which the
+    # seal carries at both pins.
+    legs = ["/seal/" + src.relative_to(seal.resolve()).as_posix()
+            for src in lane.sealed_leg_sources(seal)]
+    assert legs, "the seal carries no code leg beside the validator's"
+    assert probe[-(4 + len(legs)):] == [
         "/seal/" + lane.sealed_product_module(seal).resolve().relative_to(
             seal.resolve()).as_posix(),
         f"{lane.SEALED_JUDGED}/validator-probe.json",
-        f"/seal/{lane.SEAL_VALIDATOR_RELPATH}", "lenient"]
+        f"/seal/{lane.SEAL_VALIDATOR_RELPATH}", "lenient", *legs]
     assert re.fullmatch(r"type=bind,source=/\S+/dfr-probe-\w+,target=/judged,"
                         r"readonly", probe[len(shape) + 1])
 
@@ -5896,6 +5902,17 @@ def test_the_fenced_call_answers_what_the_products_own_call_answers(
     package = seal / "src" / "openxdox"
     shutil.copytree(Path(snapshot_mod.__file__).parent, package,
                     ignore=shutil.ignore_patterns("__pycache__"))
+    # Each other code leg, where a real seal carries it: from openXdox-code #35
+    # the product module imports openDox's `projection_seams`, and the parent
+    # hands the harness that leg's `src/` (`lane.sealed_leg_sources`, plan 034
+    # T066). At a leg whose product module imports none, it is read by nothing.
+    import importlib
+    for gitlink, leg, name in lane.RENDER_LEGS:
+        if (gitlink, leg) != lane.VALIDATOR_LEG:
+            shutil.copytree(
+                Path(importlib.import_module(name).__file__).parent,
+                seal / lane.SEAL_CORPUS_RELPATH / gitlink / leg / "src" / name,
+                ignore=shutil.ignore_patterns("__pycache__"))
     validator = seal / "validator.py"
     if mode == "a-directory":
         validator.mkdir()
