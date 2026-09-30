@@ -317,8 +317,9 @@ governed corpus is projected exactly as it is today.
 generate is not standalone (requirement 4, first scenario).
 
 **Independent Test**: at the phase-2 tip, F5.3, F7.2, F5.1 (5.3a re-run) and
-F5.2 (5.4a) all pass. F5.2 is run as T007's batches C, F and G amend it, with
-openxFactory's `scripts/` composed at a named commit (R1Q23 (a)). F7.1 (7.3)
+F5.2 (5.4a) all pass. F5.2 is run as T007's batches C, F, G and K amend it,
+with openxFactory's `scripts/` composed at a named commit (R1Q23 (a)) and its
+last step passing `--chains` (`5916000030`, item 4). F7.1 (7.3)
 passes too, since R1Q25 (b) keeps 7.3 in this phase, and its second test
 reads as R1Q27 (a) has it.
 
@@ -567,7 +568,16 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   document server owns as its child and which stops with the entry point).
 - **FR-009** (requirement 17; 16.1–16.6; F16.1): chat SHALL reach any
   OpenAI-compatible endpoint by URL, model name and credential reference, and
-  SHALL refuse a raw key when it is declared. With no model configured, it
+  SHALL refuse a raw key when it is declared. A credential SHALL travel only
+  over `https://`, or over `http://` to `127.0.0.1`, `[::1]` or `localhost`,
+  whether the built-in resolver resolves it (`5880893901`) or a broker mints
+  it (`5890601202`). A binding that would send one over `http://` to any
+  other host SHALL be refused when it is declared (`ENDPOINT_NOT_PRIVATE`).
+  The request that presents a credential SHALL follow no redirect, and over
+  plain `http://` it SHALL take no proxy, so the credential keeps that route.
+  An endpoint that declares the auth kind `none` presents no credential and
+  keeps whatever route it declares. This is #1144's requirement 17 as its
+  batch-K note reads it (`5916000030`, item 1). With no model configured, it
   SHALL show a "no model configured" state before any turn, and every other
   surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);
   R1Q17 (b): a built-in `env:` and keyring resolver in that module; R1Q18 (a):
@@ -635,7 +645,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
     suite less its declared exclusion (R1Q6 (d), R1Q24 (a), R1Q25 (b)). The
     exclusion is reported as an open extraction, as FR-006 says.
 - **SC-002** (phase 2 exit): F5.1, F5.2, F5.3, F7.1 and F7.2 exit 0. F5.2 runs
-  as T007's batches C, F and G amend it (R1Q23 (a)), and F7.1 runs here
+  as T007's batches C, F, G and K amend it (R1Q23 (a); `5916000030`, item 4:
+  its last step passes `--chains`), and F7.1 runs here
   because R1Q25 (b) keeps 7.3 in phase 2, read as batch I records R1Q27
   (a).
 - **SC-003** (phase 3 exit): F4.1, F10.1, F13.1 and F16.1 exit 0, and the F4.1

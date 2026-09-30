@@ -229,7 +229,7 @@ it"*), `serve.py:629` is routed in phase 2 along with the snapshot source.
 ## Dependency graph
 
 ```text
-T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measure, analyze, #1144 amendments in batches A–J, the direction arc)
+T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measure, analyze, #1144 amendments in batches A–K, the direction arc)
                               │
  PHASE 1  [oDc]  A: T010→T011→T012 (serve.py)     B: T015→T016 (profile)
                  C: T020→T021→T022 (adapter)      D: T026→T025, T027 (seams; T025 also after T020)
@@ -247,10 +247,10 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
                  T054 (projection) → T055 (sources, 4.3 part; also after T057) → T056 → T058 (validator)
           [oD]   T062 root pin  after T054–T058
           [oXc]  T060 (the facet's values) after T054, T007 batch I;  T059 (5.4a, the pin) after T052, T055, T060, T062, T007 batches C and I
-                 T059 → T061 (7.3, after T007 batches C, F and I)
+                 T059 → T061 (7.3, after T007 batches C, F, I and K)
           [oxF]  T061 → T066 (a non-arc act: the seal test and the facet's values, at both pins)
-          [oX]→[oxF]  T066 → T064 consumer pins → T065 (interim F11.1) → checkpoint T063 (after T007 batches C, F, G and I)
- PHASE 3  T069 is done; T007 batch H lands before T070, T075 and T080
+          [oX]→[oxF]  T066 → T064 consumer pins → T065 (interim F11.1) → checkpoint T063 (after T007 batches C, F, G, I and K)
+ PHASE 3  T069 is done; T007 batch H lands before T070, T075 and T080, and batch K before T080
           [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080;  T085 → T081
                  4.3 end: T084 (after T073)          T072 → T075 → T077 (F10.1 as batch H amends it);  T082, T083, T088
           [oD]   T087 root pin → T076 (README: the opendox[local] install and the --local command)
@@ -416,7 +416,10 @@ the realization as the answer records it."*
   #1170), E for the composition tests phase 1 finds, F, G and H for round
   2's answers, which T019, T009 and T069 encode, I for round 3's, which
   T067 encodes: 5.3a's `values` block, 12.5's two admitted edits and F7.1's
-  reading, and J for the help-tree deselect (`5870594693`).
+  reading, J for the help-tree deselect (`5870594693`), and K for Brett
+  Heap's word of 2026-09-30 (`5916000030`): a dated note to requirement 17
+  on the loopback and broker-path rulings (`5880893901`, `5890601202`), and
+  F5.2's admission of T061's ten walk-premise edits.
 - Each batch lands under a Rule 6 window, with no `Arc:` trailer, before the
   checkpoint that runs the amended falsifier.
 - `tasks.md` § "Ruled amendments" lists every amended line, the text it takes,

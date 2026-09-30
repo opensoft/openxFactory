@@ -635,6 +635,36 @@ MODULE SHALL contact a model provider, and it alone SHALL hold a provider
 endpoint, a provider SDK or a credential in flight; a new request grammar joins
 that module and widens no other.
 
+**AMENDED 2026-09-30 ON BRETT HEAP'S RULING, AFTER RATIFICATION, BY ITS OWN
+RATIFIER (T007 BATCH K).** `#656` comment `5916000030`, item 1, verbatim
+*"Yes, amendment batch K (Recommended)"*. As ratified (`#656` comment
+`5815412869`, over `19237b91`), this requirement and its first scenario, *A
+hosted API or a local server is configured*, reach ANY endpoint that speaks the
+protocol, by whatever route its URL names. Two later rulings narrow that in one
+respect only: the route a credential travels by. A credential that the built-in
+resolver resolves from an `env:` or `keyring:` reference is sent only over
+`https://`, or over `http://` to `127.0.0.1`, `[::1]` or `localhost` (`#656`
+comment `5880893901`, verbatim *"Refuse unless loopback (Recommended)"*). A
+token that a credential broker mints takes the same rule (`#656` comment
+`5890601202`, verbatim *"Yes, separate phase-3 draft (Recommended)"*, which
+gives the broker path the built-in resolver's protections). A binding that
+would present either over `http://` to any other host is refused when it is
+declared, with the fixed diagnostic `ENDPOINT_NOT_PRIVATE`, before any
+reference is resolved or any token is minted, and nothing is stored. The
+credential also keeps that route on the wire: the request that presents it
+follows no redirect, which refuses the turn, and over plain `http://` it takes
+no proxy. An endpoint that takes no credential, which declares the auth kind
+`none`, keeps whatever route it declares, since it presents nothing. So a
+hosted API over `https://` and a server on the user's own machine over loopback
+are reached as the first scenario says, and the one configuration it no longer
+reaches is a credential sent over plain `http://` beyond loopback. Nothing else
+here moved: the requirement's title, the paragraph above with its SHALL
+sentences, and all four scenarios stand as ratified, and the requirement still
+carries four scenarios. The two rules are carried out in openDox-code#63 (plan
+034's T080) and openDox-code#64, the broker path's own draft. #64's other
+ruling, `#656` comment `5901112350` item 2, concerns the broker's own refusals
+and does not bear on the route.
+
 #### Scenario: A hosted API or a local server is configured
 - **WHEN** a user configures an endpoint that speaks the OpenAI-compatible chat protocol by its URL, a model name and a credential reference, whether it is a hosted API or a server on their own machine
 - **THEN** chat turns go to that endpoint in that protocol's grammar, naming that model, and the credential is resolved from the reference for the call rather than read from the configuration
