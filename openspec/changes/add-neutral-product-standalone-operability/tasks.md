@@ -454,6 +454,38 @@ mention in the package is prose.
   because a default is a registration an entry point makes and never a
   fallback inside the seam. Carried out by T052, T055, T059, T084, T085 and
   T086.
+
+  **AMENDED — T007 Batch L (`5920216845`, item 1):** An addendum, on what the
+  served `/capabilities` payload claims. Measured at openDox-code `main`
+  `047bb4fa`, over a standalone serve of the plain fixture, the payload's
+  `actions` map answers `gate` and `refresh` true, while every
+  `POST /actions/gate/<verb>` and `POST /actions/refresh` answers
+  `404 unknown_action`. The gate flag follows the checkout's git identity
+  alone (`compute_capabilities`, `serve.py:464`, called at `:1957`), and the
+  route bindings the assembly collected (`:1900`) are never passed to it.
+  A flag in that `actions` map whose affordance is a route this server
+  serves IS TO be true only where such a route answers it. `gate` and
+  `refresh` govern routes a host contributes through the route bindings
+  (`/actions/gate/<verb>` and `/actions/refresh`), so each is true only when
+  the assembled bindings carry a route it governs. Standalone, with no host
+  contributing them, both read false, and a composed host that contributes
+  them reads exactly as today. `notebook`, `edit` and `session` govern core
+  routes and keep their conditions. `intent`, which names a POST to another
+  plane's intent API and no route of this server, keeps its own. The
+  workbench's session controls read `actions.gate`
+  (`sessionActionsLive`, `web/views/staging-workbench-model.js:1068`), so a
+  false `gate` standalone also hides session controls that no route
+  answers. That is the half of the fix a user sees. The same measurement
+  found three of this box's nineteen reaches into openXdox ending a request
+  with a dropped connection, because nothing contributes the names they
+  import: `serve_workbench.py:1219` and `:2611`, and `serve_project.py:271`,
+  at `047bb4fa`. Until each is routed, it sits behind its capability check
+  and refuses with a structured error, which is 4.2's discipline: never a
+  `ModuleNotFoundError` raised from inside a function. The realization's
+  named test carries the check: for every `actions` key that reads true, a
+  route it governs does not answer `unknown_action`, over a standalone
+  server and over a composed host. This bookkeeping amendment does not
+  itself touch the Python below. Carried out by T084.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, no
   `corpus_adapter_openxfactory` importable):
 

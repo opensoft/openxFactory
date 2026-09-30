@@ -43,7 +43,7 @@ An `After:` entry such as `T007 (batches C and F)` waits for those batches of
 T007 alone, and a bare `T007` waits for every batch. T007's `After, by batch`
 field gives each batch its own line. The plan-consistency tools read each
 batch as a node of its own, so the graph they check is
-the one this file states. There are eleven batches, `T007.A` to `T007.K`. A
+the one this file states. There are twelve batches, `T007.A` to `T007.L`. A
 task that waits on some of T007's batches may still run beside a task that
 another batch waits for (T006).
 
@@ -88,9 +88,9 @@ planned on answers.
 
 - **The holder's own tasks**: T002 is a standing act, one claim per slice.
   T008 was raised as a staged topic (#1173), and the arc it raised is still
-  open. Ten of T007's eleven batches have landed, from A (#1171) to J
-  (#1193). Batch K, on Brett Heap's word of 2026-09-30 (`5916000030`), lands
-  before T061 and T080, and T007 lists each.
+  open. Eleven of T007's twelve batches have landed, from A (#1171) to K
+  (#1210). Batch L, on Brett Heap's second word of 2026-09-30
+  (`5920216845`), lands before T084, and T007 lists each.
 - **Each phase-1 task** starts once its slice has been claimed (T002).
   **T020** and **T030** never needed an answer. **T030** lands with T011,
   because it fails until 2.1 lands. **T043** also waits for T007's batches C
@@ -195,15 +195,15 @@ planned on answers.
   own ruling. Batch K adds a dated note to requirement 17 on its own ruling
   (`5916000030`, item 1), and rewrites no requirement or scenario text. The
   full list is in § "Ruled amendments" below. Each batch is its own
-  bookkeeping PR. T007 was ticked when batch J landed, and it is open again
-  for batch K.
+  bookkeeping PR. T007 was ticked when batch J landed, and was reopened for
+  batch K, which has landed. It is open for batch L.
   - Every PR touches `openspec/changes/`, so it lands under a Rule 6
     `LANDING`/`LANDED` window.
   - It carries no `Arc:` trailer (R1Q20 (a)), so 11.1's guard never reads it.
   - It carries no closing keyword. Each amended line cites the ruling it
     carries out: `5817152735` for batches A, B, C and E, and `5850003126` for
     batches D, F, G and H, `5851950767` for batch I, `5870594693` for
-    batch J, and `5916000030` for batch K.
+    batch J, `5916000030` for batch K, and `5920216845` for batch L.
 
   - **Batch A** holds the F3.1, 2.2, 3.2, 4.3, 10.1, 11.0, 11.1 and F11.1
     amendments. It lands before T047, whose openxFactory landing edits the
@@ -276,6 +276,17 @@ planned on answers.
 
     It lands before T061 (openXdox-code#36), and so before T063, whose F5.2
     run needs it, and before T080 (openDox-code#63) and openDox-code#64.
+    LANDED as #1210 → `39f19145`.
+  - **Batch L** holds the one #1144 amendment that Brett Heap's multi-choice
+    word of 2026-09-30 (`5920216845`) implies. Item 1, *"Fix in T084 + #1144
+    note (Recommended)"*, is an addendum at 4.3, after batch G's. It records
+    that a flag in the served `/capabilities` payload's `actions` map whose
+    affordance is a route this server serves is true only where such a route
+    answers. So `gate` and `refresh` read false standalone, and a composed
+    host reads as today. `notebook`, `edit`, `session` and `intent` keep
+    their conditions, and the three late reaches that drop a connection
+    refuse cleanly, as 4.2 requires. Items 2 and 3 amend nothing in #1144:
+    T085 and T084 carry them. It lands before T084.
 
   A realization PR that lands before its batch still quotes the falsifier as
   the answer records it, citing the ruling.
@@ -286,7 +297,8 @@ planned on answers.
     R1Q23, R1Q24 and R1Q25, `5850003126`; R1Q26 and R1Q27, `5851950767`;
     the help-tree deselect (no question), `5870594693`, citing
     `5859927858`; items 1 and 4 of `5916000030`, with the loopback rule
-    `5880893901` and the broker-path ruling `5890601202`.
+    `5880893901` and the broker-path ruling `5890601202`; item 1 of
+    `5920216845`.
   - **After**, by batch:
     - **A**: nothing.
     - **B**: T041, which names the exclusion file.
@@ -306,12 +318,16 @@ planned on answers.
       landing (openXdox-code#36), and before 16.3's (openDox-code#63) and
       openDox-code#64's. This line names those landings by pull request,
       because a task id here would read as one K waits for.
-  - **Landed**: batches A to J, each an openxFactory PR with no `Arc:` trailer.
+    - **L**: nothing, since `5920216845` is given. L lands before the landing
+      that routes 4.3's last reaches (P3-R's). This line names that landing
+      by its slice, for the same reason as K's.
+  - **Landed**: batches A to K, each an openxFactory PR with no `Arc:` trailer.
     A #1171 → `bca4a260`; B #1194 → `e369cb25`; C #1172 → `4663e9e8`; D #1170 →
     `79a720a2`; E #1183 → `b9742534`; F #1178 → `295abd8d`; G #1205 →
     `91e4685f`; H #1206 → `f99a2097`; I #1180 → `8421603a`; J #1193 →
-    `6b97c601`. Batch K has not landed yet. The plan bookkeeping that follows
-    its landing records its PR and merge commit, and ticks T007 again.
+    `6b97c601`; K #1210 → `39f19145`. Batch L has not landed yet. The plan
+    bookkeeping that follows its landing records its PR and merge commit, and
+    ticks T007 again.
   - #1144's `tasks.md` was also edited outside the batches. #1202 → `e81eed62`
     (T018's PR) added F11.1's `ADMITTED_ARC_EDITS` (RULED `5890601202`) and
     corrected batch E's held-case count from "6 to 7" to "5 to 6". #1204 →
@@ -1913,19 +1929,68 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     governed ones in T086.
   - Hand the gate and projection columns to the handler-contribution facet
     (R1Q1 (a)).
+  - **Capability honesty (RULED `5920216845`, item 1, *"Fix in T084 + #1144
+    note (Recommended)"*).** Measured at openDox-code `047bb4fa`, a
+    standalone `/capabilities` answers `actions.gate` and `actions.refresh`
+    true, while every `POST /actions/gate/<verb>` and `POST /actions/refresh`
+    answers `404 unknown_action`. The gate flag follows the checkout's git
+    identity alone (`serve.py:529` and `:533`, in `compute_capabilities` at
+    `:464`).
+    - Pass the route bindings the assembly collects (`serve.py:1900`) into
+      `compute_capabilities` (called at `:1957`). Each `actions` flag whose
+      affordance is a route this server serves is then true only where such
+      a route answers. `gate` and `refresh` are true only when the bindings
+      carry a route they govern.
+    - Standalone, both read false. So the workbench's session controls,
+      which read `actions.gate` (`sessionActionsLive`,
+      `web/views/staging-workbench-model.js:1068`), are hidden too.
+    - A composed host that contributes the routes reads as today.
+      `notebook`, `edit`, `session` and `intent` keep their conditions.
+    - Move the `openxdox` imports at `serve_workbench.py:2611` (the document
+      abstract) and `:1219` (model approval), and `serve_project.py:271` (the
+      project register), behind their capability checks. A standalone request
+      then gets a structured refusal instead of a dropped connection. They
+      are three of the reaches this task routes, and the move holds until
+      each is routed.
+    - T007's batch L records the rule at #1144's 4.3.
+  - **Every broken rule, once (RULED `5920216845`, item 3, *"Show every
+    rule, grouped (Recommended)"*).** `cli._report_non_conformance`
+    (`cli.py:481`) prints each broken rule id once, with its count, instead
+    of the last 20 lines of the validator's output (`:490`). This task
+    already ends `cli.py`'s single-writer order. No #1144 line changes,
+    because F7.2 asserts only that the fixture's rule id is printed, which
+    stays true.
   - **Realizes**: 4.3.
   - **Falsifier**: F4.1 whole: `consumer_reach.py` is absent, and the scan
-    prints `no deferred reach names the consumer or the publisher`.
-  - **Ruled**: R1Q1 (a), R1Q22 (a), `5817152735`; R1Q10 (a), `5850003126`.
-  - **After**: T055, T073 (`serve.py`'s single-writer order).
+    prints `no deferred reach names the consumer or the publisher`. Also a
+    named test: for every `actions` key that reads true, a route it governs
+    does not answer `unknown_action`, over T056's standalone child
+    (`tests/standalone_child.py`) and over a composed host. And a test that
+    a rejected snapshot breaking several rules prints each rule id once,
+    with its count.
+  - **Ruled**: R1Q1 (a), R1Q22 (a), `5817152735`; R1Q10 (a), `5850003126`;
+    items 1 and 3 of `5920216845`.
+  - **After**: T055, T073 (`serve.py`'s single-writer order), T007 (batch L).
 - [ ] T085 [US3] [oDc] **The standalone doxBench defaults for T027's seams**
   (R1Q10 (a)). openDox's own validators run over the packaged copies of
   openDox-spec's `xfactory-workbench-chat-turn` and
   `xfactory-workbench-model-catalog` (T057, R1Q12 (a)). There is no status
   exemption by default.
+  - **T058's two workbench-manifest rules move into openDox's validator
+    (RULED `5920216845`, item 2, *"Move into openDox's validator
+    (Recommended)"*).** `workbench-pinned-not-checked` (every pinned keyword
+    is a checked one) and `workbench-candidate-overlap` (no new candidate is
+    a member or excluded) leave `default_projection`'s `WORKBENCH_RULES`
+    (`default_projection.py:134` at `047bb4fa`) for `opendox.validator`. They
+    take ids openDox's validator owns, in place of the identifiers the
+    consumer's script gave them. No #1144 falsifier names either id, so no
+    #1144 line moves.
   - **Realizes**: 4.3 (part), 16.4 (part).
-  - **Falsifier**: the served catalog route answers, with no available entry.
-  - **Ruled**: R1Q22 (a), `5817152735`; R1Q10 (a), R1Q12 (a), `5850003126`.
+  - **Falsifier**: the served catalog route answers, with no available
+    entry. Also `opendox.validator` reports both rules under its own ids, and
+    `default_projection` checks neither.
+  - **Ruled**: R1Q22 (a), `5817152735`; R1Q10 (a), R1Q12 (a), `5850003126`;
+    item 2 of `5920216845`.
   - **After**: T057, T063, T069.
 - [ ] T088 [US3] [oDc] **The lens's two seed actions** are offered only where a
   binding answers them (R1Q19 (a)). Standalone, no binding answers
@@ -2203,8 +2268,8 @@ Every release-1 box, with the task that closes it:
   both A and B before T049, C before T059, T061 and T043, D before T049, E
   before T047, F before T043 and T061, G before T053, H before T070, T075 and
   T080, I before T059, T060, T061 and T063, J before T049, whose F9.1
-  run needs J's `--deselect`, and K before T061, T063 and T080 (and
-  openDox-code#64, which is no task of this plan). T016 may land before batch A, T041 and T043
+  run needs J's `--deselect`, K before T061, T063 and T080 (and
+  openDox-code#64, which is no task of this plan), and L before T084. T016 may land before batch A, T041 and T043
   before batch B, and T043 before batch J, each quoting its falsifier as the
   answer records it (T007).
 - **The round tasks.** T019 encoded phase 1's openXdox-code tail, T009 phase
@@ -2325,17 +2390,17 @@ Batch I lands before P2-X, P2-K and P2-C, and batch K before P2-C.
 
 Every phase-3 slice starts after T063 and T069, and T007's batch H lands
 before P3-I's T070, P3-E's T075 and P3-B's T080. Batch K also lands before
-P3-B's T080.
+P3-B's T080, and batch L before P3-R's T084.
 
 | slice | group | tasks | repo | files | depends on | falsifier it must pass | size |
 |---|---|---|---|---|---|---|---|
 | P3-I install mode and the bundle | G1 | T071, T070, T072, T073 | oDc | `src/opendox/runtime/config.py`; `src/opendox/cli.py` (`--local`); the bundle module; `src/opendox/serve.py` (the child, and the `install` block); openDox-code's `pyproject.toml` (the `local` extra, which the `test` extra joins) | T063, T069; T007 batch H for T070 | F13.1's `load_settings` block (T071), its refusals (T070), its TCP-listener and `runtime status` blocks (T072), its `caps.json` block (T073) | Opus |
 | P3-J F13.1 | G2, after P3-I | T074 | oDc | none (a run) | P3-I | F13.1, as batch H amends it | Sonnet |
 | P3-B binding and provider | G1 | T078, T079, T080 | oDc | `src/opendox/doxbench_binding.py`; `src/opendox/doxbench_provider.py` (the dialect arm, and the resolver); `src/opendox/cli_model_binding.py` (`--model`) | T063, T069; T007 batches H and K for T080 | F16.1's dialect, field and refusal assertions; the resolver's and `none`'s tests | Opus |
-| P3-D doxBench defaults and the no-model state | G1 (T085); T081 after it | T085, T081 | oDc | the default registrations for T027's seams; `src/opendox/doxbench_install.py`; `src/opendox/web/views/doxbench-chat.js`; `tests/test_chat_model_configuration.py` (new) | T063, T069 | the served catalog route answers with no available entry (T085); F16.1's catalog block and the named test (T081) | Opus |
+| P3-D doxBench defaults and the no-model state | G1 (T085); T081 after it | T085, T081 | oDc | the default registrations for T027's seams; `src/opendox/doxbench_install.py`; `src/opendox/web/views/doxbench-chat.js`; `tests/test_chat_model_configuration.py` (new); `src/opendox/validator.py` and `src/opendox/default_projection.py` (T058's two workbench-manifest rules, T085) | T063, T069 | the served catalog route answers with no available entry, and the two rules report under openDox's ids (T085); F16.1's catalog block and the named test (T081) | Opus |
 | P3-L lens seed actions | G1 | T088 | oDc | `src/opendox/web/views/lens.js`, and the capability that says a binding answers | T063, T069 | AT-R1 step 6 | Sonnet |
 | P3-E the door | G2, after P3-I | T075, T077 | oDc | none, unless T075's run finds a gap in how the bundle is served. An edit to the server module then joins its single-writer order between T073 and T084 before the PR opens | P3-I (T072); T007 batch H | F10.1's fetch, as batch H amends it (T075); F10.1, as batch H amends it (T077) | Sonnet |
-| P3-R 4.3's last reaches | G2, after P3-I | T084 | oDc | `src/opendox/serve.py`, `src/opendox/cli.py`, `src/opendox/serve_workbench.py`, `src/opendox/serve_project.py` and `src/opendox/branch_session.py`; the defaults' modules; `src/opendox/consumer_reach.py` (deleted) | P3-I | F4.1 whole | Opus |
+| P3-R 4.3's last reaches | G2, after P3-I | T084 | oDc | `src/opendox/serve.py`, `src/opendox/cli.py`, `src/opendox/serve_workbench.py`, `src/opendox/serve_project.py` and `src/opendox/branch_session.py`; the defaults' modules; `src/opendox/consumer_reach.py` (deleted) | P3-I; T007 batch L | F4.1 whole; the capability-honesty test, over a standalone child and a composed host; the rejection-output test | Opus |
 | P3-N no model, everywhere | G3 | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole (T083) | Sonnet |
 | P3-P openDox root pin | G4 | T087 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-3 openDox-code slice landed | `make pins` | Sonnet |
 | P3-O the root README | G5 | T076 | oD | `README.md` | P3-P, P3-J, P3-E | review; AT-R1 step 4 follows it | Sonnet |
@@ -2346,12 +2411,13 @@ P3-B's T080.
 | acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O | the harness; the oracle's verdict | Opus |
 | bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance; T007 every batch | none (a record) | Sonnet |
 
-## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`)
+## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`)
 
 Brett Heap's answers amend #1144's falsifiers, task lines, addenda and one
 design note. Batches A, B and C carry `5817152735`'s answers, and batches F,
 G and H carry `5850003126`'s, batch I carries `5851950767`'s, batch J
-carries `5870594693`'s, and batch K carries `5916000030`'s. They amend
+carries `5870594693`'s, batch K carries `5916000030`'s, and batch L
+carries `5920216845`'s. They amend
 no requirement and no scenario, except that batch K's first row adds a
 dated note to requirement 17 on its own ruling and rewrites none of its
 text. T007 records each amendment in #1144's `tasks.md` (and the D4
@@ -2392,8 +2458,13 @@ landed it in #1144's spec delta, as #1170 → `79a720a2`.
 | J | F9.1 (openXdox-code) | The declared exclusion takes a fourth entry: `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_31_entry_tree_the_manifest_records`, deselected for T042's own reason (`cli_gate` imports openxFactory's `doc_health` at load time), pending the direction arc (T008). It is reported as an open extraction like the other three. T008 removes the entry together with the workflow's own deselect. openDox-code's run is unchanged. | `5870594693`, citing `5859927858` | T043, T049, T008 |
 | K | requirement 17 and scenario 17.1 (spec delta); 16.3 | A dated note in requirement 17's body, after its SHALL paragraph and above its scenarios, in batch D's form, with a pointer after batch H's 16.3 addendum. No ratified text is rewritten. A credential the built-in resolver resolves (`5880893901`) and a token a broker mints (`5890601202`) are each sent only over `https://`, or over `http://` to `127.0.0.1`, `[::1]` or `localhost`. Any other `http://` endpoint that would receive one is refused when it is declared (`ENDPOINT_NOT_PRIVATE`), before anything is resolved or minted. The request follows no redirect, and over plain `http://` it takes no proxy. The auth kind `none` keeps its route. F16.1 is unchanged. | `5916000030`, item 1 | T080, and openDox-code#64 (no task of this plan) |
 | K | F5.2 | The reviewed allow-list, R1Q7 (a)'s, also admits T061's ten walk-premise edits, each entered with its reason and none as a respelling: nine in `tests/test_snapshot_validation_launch.py`, and `tests/test_snapshot.py::test_a_missing_validator_is_unavailable_not_a_verdict`. `test_a_run_dir_beside_a_checkout_still_uses_that_one_first` inverts its answer and keeps its name. For F5.2, batch C's "the entry's recorded text" reads as several entries' texts together: one landing's entries for one suite, applied in the order listed, chain by git blob, and the call passes `--chains`. 12.5's falsifier is not amended, and its call refuses a chain. | `5916000030`, item 4 | T061, T063 |
+| L | 4.3 | An addendum after batch G's. A flag in the served `/capabilities` payload's `actions` map whose affordance is a route this server serves is true only where such a route answers. `gate` and `refresh`, whose routes a host contributes through the route bindings, are true only when the assembled bindings carry a route they govern, so standalone both read false (and the workbench's session controls, which read `actions.gate`, are hidden), and a composed host reads as today. `notebook`, `edit` and `session` keep their conditions, and `intent`, which names another plane's API, keeps its own. The three reaches that drop a connection standalone (`serve_workbench.py:1219` and `:2611`, `serve_project.py:271` at `047bb4fa`) refuse cleanly until routed, as 4.2 requires. | `5920216845`, item 1 | T084 |
 
 R1Q4 (a) and R1Q8 (a) amend nothing in #1144. They shape T015, T038, T046 and
 T036 only. Nor do three of round 2's answers. R1Q13 (a) with (c) shapes T050,
 T054 and T096, R1Q19 (a) shapes T088 and T096, and R1Q21 (a) is a process
-answer, recorded in plan.md.
+answer, recorded in plan.md. Nor do items 2 and 3 of `5920216845`. T085
+moves T058's two workbench-manifest rules into openDox's validator, and T084
+prints every broken rule once, because no #1144 falsifier names those rule
+ids or fixes the CLI's rejection output: F7.2 asserts only that the
+fixture's rule id is printed.
