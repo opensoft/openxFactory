@@ -241,7 +241,7 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
           [oXc]  T040 (pin, residue) → T041 (declared exclusion, four reasons) → T042 (9.3) → T043 → T044
                  T007 batches C and F before T043
           [oX]→[oxF]  T047 consumer pins (steps 5–6) after T039, T044, T007 batches A and E; carries T045 + T046
-          T047 → T017 (3.3) and T018 (interim F11.1) → checkpoint T049 (after T007 batches A, B, D and F);  holder T048
+          T047 → T017 (3.3) and T018 (interim F11.1) → checkpoint T049 (after T007 batches A, B, D, F and J);  holder T048
  PHASE 2  T053 [oDs][oD] first: the neutral schema, the spec pin, the dox-v1.x bundle (after T007 batch G)
           [oDc]  T050 → T051;  T053 → T052;  T053 → T057
                  T054 (projection) → T055 (sources, 4.3 part; also after T057) → T056 → T058 (validator)

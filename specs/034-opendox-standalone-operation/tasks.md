@@ -97,8 +97,8 @@ planned on answers.
 - **R1Q25 (b) returned T061 (7.3) to phase 2**, beside openDox's own validator
   (T057, T058). Until T061 lands, phase 1's openXdox-code check declares
   `tests/test_snapshot.py` in its exclusion with its own reason (T043).
-- **Phase 1's CLOSE** (T049) waits on T007's batches A, B, D and F, among the
-  tasks its `After:` line names.
+- **Phase 1's CLOSE** (T049) waits on T007's batches A, B, D, F and J, among
+  the tasks its `After:` line names.
 - **Phases 2 and 3** each start once the phase before them has closed: every
   phase-2 task comes after T049, and every phase-3 task after T063, through
   its own `After:` line. In phase 2, T059, T060 and T061 also wait on T007's
@@ -251,7 +251,8 @@ planned on answers.
     `5859927858`. F9.1's openXdox-code exclusion takes a fourth entry, the
     31-entry help-tree test, deselected for the reason `5859927858` gives
     (`cli_gate` imports `doc_health` at load time) until T008. T043 carries
-    it out, and T008 removes it. LANDED as #1193 → `6b97c601`.
+    it out, and T008 removes it. It lands before T049, whose F9.1 run needs
+    it. LANDED as #1193 → `6b97c601`.
 
   A realization PR that lands before its batch still quotes the falsifier as
   the answer records it, citing the ruling.
@@ -975,7 +976,8 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
   - **After**: T019, T041, T042, T007 (batches C and F), and C3's
     openXdox-code PR 2 (openXdox-code#28, landed as `e28930bf`).
   - **Landed**: openXdox-code#32 → `4610bca5`. F9.1, with the one `--deselect`
-    that batch J records, exits 0 there.
+    that batch J records, exits 0 there. It landed before batch J did, and
+    quoted the falsifier as `5870594693` amends it, as T007 allows.
   - The floors were re-pinned to 890/880/10, at CI's reading with no margin.
     T042 had raised them to 574/568, so the "now 564/558" above is stale
     (openXdox-code#31, #32). T041's layer-2 hermeticity commits were re-run at
@@ -1135,7 +1137,7 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
   landed first (#1203 → `08e97c27`), so the check finds all 19.
   - **Ruled**: RN-1 (a), `5850003126`. Batch D landed as #1170 → `79a720a2`,
     so requirement 3 is reported as realized once T016 matches it.
-  - **After**: T047, T017, T018, T007 (batches A, B, D and F).
+  - **After**: T047, T017, T018, T007 (batches A, B, D, F and J).
 
 ---
 
@@ -1288,7 +1290,11 @@ unchanged.
     pattern), as batch G's 4.3 addendum reads. Their uses are `serve.py:1647`,
     `:629`, `:1687` and `:1993`, `cli.py:610` and `branch_session.py:1568`,
     `:2105`, `:2151`, `:2228` and `:3573`.
-  - The validator lookup's default is openDox's own validator (T057). So
+  - The validator lookup's default is openDox's own validator (T057), wired in
+    by T058. T055 lands first, with a stand-in as the default: T057's PR
+    (openDox-code#58) is NOT merged into T055's (#59), on the holder's
+    decision of 2026-09-28. The stand-in names T057 and never answers
+    `validated`, and T058 swaps in `opendox.validator`. Either way
     `workbench.py:442`'s `validate_manifest` stops reaching
     `consumer_reach.find_validator` for the `ideation-workbench` manifest,
     which is the first of T061's callers.
@@ -1299,10 +1305,6 @@ unchanged.
   - An empty `--project-register` or `--possibles` path is REFUSED, failing
     closed. It is never dropped, and never read as `Path("")` (holder
     decision, 2026-09-28; taken in openDox-code#59 at `d7aa9d8c`).
-  - The validator lookup's default is a stand-in until T058 wires
-    `opendox.validator`. The holder decided (2026-09-28) that T057's PR
-    (openDox-code#58) is NOT merged into T055's (#59), so #59's stand-in
-    names T057 and never answers `validated`.
   - **Realizes**: 5.5, 4.3 (part).
   - **Falsifier**: F4.1's scan, down by these reaches.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q10 (a), `5850003126`.
@@ -2110,8 +2112,9 @@ Every release-1 box, with the task that closes it:
   before the landings and checkpoints that need them: batch A before T047,
   both A and B before T049, C before T059, T061 and T043, D before T049, E
   before T047, F before T043 and T061, G before T053, H before T070, T075 and
-  T080, and I before T059, T060, T061 and T063. T016 may land before batch
-  A, and T041 and T043 before batch B, each quoting its falsifier as the
+  T080, I before T059, T060, T061 and T063, and J before T049, whose F9.1
+  run needs J's `--deselect`. T016 may land before batch A, T041 and T043
+  before batch B, and T043 before batch J, each quoting its falsifier as the
   answer records it (T007).
 - **The round tasks.** T019 encoded phase 1's openXdox-code tail, T009 phase
   2 and T069 phase 3, each on `5850003126`, and one analyze ran over the
@@ -2128,7 +2131,7 @@ Every release-1 box, with the task that closes it:
   T007's batches C and F before T043. T047 moves the consumer pins after T039,
   T044 and T007's batches A and E, and openxFactory's host wiring (T045,
   T046) lands inside T047's openxFactory PR. T017 and T018 run after T047.
-  T049 closes the phase after T007's batches A, B, D and F.
+  T049 closes the phase after T007's batches A, B, D, F and J.
 - **Phase 2**: T053 and T050 first, in parallel: T053 after T049, T009 and
   T007's batch G, and T050 after T049 and T009. Then T051, after both, and
   T053 → T052 and T053 → T057, in parallel. Then T054 → T055 → T056 → T058,
@@ -2185,7 +2188,7 @@ openxFactory reaches, is P1-E. Lane E rides in P1-A (T030) and P1-G (T031).
 | P1-J openXdox green alone, less the declared exclusion | G5, after P1-I | T041, T042, T043, T044 | oXc | the declared exclusion file, with its four reasons, and `conftest.py`; `tests/integration/` (new, with `test_assembled_surface.py` and P1-G's relocated modules); `.github/workflows/validate.yml`; the residue T043 finds at T040's pin | P1-I, P1-G; T007 batches C and F for T043; T007 batch B lands once T041 names its file | the exclusion test and batch B's three exclusion assertions (T041); F9.2 (T042, quoted red until T008); F9.1 (openXdox-code, as amended by batches B, F and J) (T043) | Opus |
 | P1-K pins and host wiring | G6 | T045, T046, T047 | oX, oxF | openXdox root: `code`, `contracts/code-pin.yaml`, `contracts/opendox-pin.yaml`. openxFactory: both pin pairs, plus `scripts/opendox_host.py`, `scripts/profile_openxfactory.py`, `tests/domain_profile/`, `tests/ideation-dashboard/test_extension_point_parity.py` and `tests/ideation-dashboard/test_serve_column_split.py` (and, as named composition tests, `test_session_harness.py` or `test_outline_model.py`'s `doc_health` case if T035 or T034 moves one here). openxFactory's readers of openXdox's validator need nothing here, because T061 lands in phase 2 and T066 takes their change | P1-R, P1-J; T007 batches A and E (F11.1 names the composition tests) | `make pins` in the openXdox root; `verify-opendox-pin.py`, `verify-openxdox-pin.py`; openxFactory `pytest-suite` | Opus |
 | P1-L read-only checks | G6, after P1-K | T017, T018 | oxF | `evidence/` only | P1-K | interim F11.1 (T018, by T093's procedure), as widened by batch A, prints `requirement 1 holds` | Sonnet |
-| checkpoint | G6, last | T049 | — | none (a verifier) | P1-K, P1-L; T007 batches A, B, D and F | F2.1; F3.1 as amended; F9.1 in both legs; F9.2; `opendox --help`; F4.1's scan | Opus (verifier) |
+| checkpoint | G6, last | T049 | — | none (a verifier) | P1-K, P1-L; T007 batches A, B, D, F and J | F2.1; F3.1 as amended; F9.1 in both legs; F9.2; `opendox --help`; F4.1's scan | Opus (verifier) |
 
 **Fan-out order.** Before any slice: T006's round-1a analyze, and the slice's
 claim (T002).
@@ -2292,7 +2295,7 @@ landed it in #1144's spec delta, as #1170 → `79a720a2`.
 | I | 5.3a | An addendum. openXdox's facet also carries a `values` block beside its one stage, holding the governed snapshot's values, because 5.3's defaults become the neutral snapshot's values (batch G). `display_profile.py` already lets a host override those values. The facet stays partial in its stages, so the falsifier, which reads only the stages, is unchanged. openxFactory composes the block in a non-arc act. | R1Q26 (a), with R1Q11 (a) | T060, T059, T066 |
 | I | 12.5's falsifier | The reviewed allow-list (batch C) also admits the two edits to `tests/test_gate_loop_views.py` that 5.3a's `values` block requires, each entered with its reason and neither as a respelling: `test_the_display_facet_declares_one_stage_entry_and_nothing_else`, which then admits the block beside the one stage, and `test_the_overlay_changes_four_words_and_the_named_absence_and_nothing_else`, whose changed leaves then include the block's `values.*` leaves. No other assertion changes. | R1Q26 (a) | T060, T059 |
 | I | 7.3; F7.1 | The consumer's validator validates its own three kinds from its installed distribution wherever it runs, and the other kinds only where the tree it runs from supplies their schemas, its own `contracts/` read first, as openxFactory's composed validator does today. F7.1's second test reads: every schema this install validates is on disk. No contract changes. | R1Q27 (a) | T061, T063 |
-| J | F9.1 (openXdox-code) | The declared exclusion takes a fourth entry: `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_31_entry_tree_the_manifest_records`, deselected for T042's own reason (`cli_gate` imports openxFactory's `doc_health` at load time), pending the direction arc (T008). It is reported as an open extraction like the other three. T008 removes the entry together with the workflow's own deselect. openDox-code's run is unchanged. | `5870594693`, citing `5859927858` | T043, T008 |
+| J | F9.1 (openXdox-code) | The declared exclusion takes a fourth entry: `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_31_entry_tree_the_manifest_records`, deselected for T042's own reason (`cli_gate` imports openxFactory's `doc_health` at load time), pending the direction arc (T008). It is reported as an open extraction like the other three. T008 removes the entry together with the workflow's own deselect. openDox-code's run is unchanged. | `5870594693`, citing `5859927858` | T043, T049, T008 |
 
 R1Q4 (a) and R1Q8 (a) amend nothing in #1144. They shape T015, T038, T046 and
 T036 only. Nor do three of round 2's answers. R1Q13 (a) with (c) shapes T050,
