@@ -1237,7 +1237,7 @@ unchanged.
   - **After**: T049, T009, T053.
   - **Landed**: openDox-code#54 → `fa8862cc`. F5.2 is quoted in T059's and
     T061's PRs, as the falsifier line says, not in this one.
-- [ ] T054 [US2] [oDc] **5.1–5.3: openDox's small neutral projection** over
+- [x] T054 [US2] [oDc] **5.1–5.3: openDox's small neutral projection** over
   `CorpusAdapter`. It is new code, not a copy of openXdox's.
   - It is bound to `LocalGitCorpus` (5.2) and renders the six words only
     (5.3).
@@ -1276,6 +1276,14 @@ unchanged.
     verb's own report of a `stage:` value outside the six.
   - **Ruled**: R1Q11 (a), R1Q13 (a) with (c), `5850003126`.
   - **After**: T050, T052, T053.
+  - **Landed**: openDox-code#57 → `a691e4e4`.
+  - It carries these holder decisions, each recorded in its body: `organized`
+    maps to `grouping`; an entry the adapter cannot classify is left out unread;
+    the wheel's grouping tile counts a group's edges where no tally exists, and
+    the schema is not widened; content comes from the working tree (T022's
+    ruling, `5851560764`), and `source_revision` is the caller's pin, else the
+    corpus HEAD; and, from 2026-09-28, `render_scaffold()` gained `lead_fields`,
+    so that a scaffold reads as having its `title` and `summary`.
 - [ ] T057 [US2] [oDc] **7.1, 7.1a, 7.1b, 7.2: the validator's input set.**
   - Narrow it to openDox's own kinds: its spec leg's four, which are 7.1's
     three and T053's neutral snapshot schema (7.1 as batch G amends it).
@@ -1343,7 +1351,7 @@ unchanged.
     non-zero, naming `EXPECTED_RULE`, with no `No such file or directory`.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q11 (a), R1Q12 (a), `5850003126`.
   - **After**: T051, T056, T057.
-- [ ] T060 [US4] [oXc] **5.3a: openXdox's facet carries the governed snapshot
+- [x] T060 [US4] [oXc] **5.3a: openXdox's facet carries the governed snapshot
   values, and F5.1 is re-run against the realized openDox.** R1Q11 (a) moves
   `SNAPSHOT_VALUES`' defaults to the neutral snapshot's values (T054). So the
   governed values move into openXdox's `DISPLAY` facet, in its `values` block,
@@ -1366,6 +1374,13 @@ unchanged.
     `tests/test_gate_loop_views.py` green, with its one entered edit.
   - **Ruled**: R1Q11 (a), `5850003126`; R1Q26 (a), `5851950767`.
   - **After**: T054, T067, T007 (batch I).
+  - **Landed**: openXdox-code#34 → `c41063d6`. It created the reviewed
+    allow-list, `tests/protected_suite_respellings.yaml`, and entered this
+    task's one edit to `tests/test_gate_loop_views.py` (suite blob `7321b04d` →
+    `a56906c6`).
+  - For T064: the allow-list needs a `created:` admission under `openxdox_code`
+    in `docs/opendox-carve-admissions.yaml`, with `since:` set to this landing
+    commit (openXdox-code#34).
 - [ ] T062 [US4] [oD] **Phase 2's openDox root pin** (T090 steps 1–2). T053's
   spec pin and bundle come first in this root, so this commit follows them.
   - **Realizes**: 9.5 (part).
