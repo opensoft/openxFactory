@@ -968,7 +968,8 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
     `tests/test_snapshot_validator_home.py`, which 5.4a's glob now selects as
     well, passes all 12 of its cases at `e28930bf`.
   - **Realizes**: 9.2.
-  - **Falsifier**: F9.1 (openXdox-code), as amended by T007's batches B and F.
+  - **Falsifier**: F9.1 (openXdox-code), as amended by T007's batches B and F,
+    and by batch J's one `--deselect`, which T008 removes.
   - **Ruled**: R1Q6 (d), R1Q7 (a), R1Q22 (a), `5817152735`; R1Q24 (a), R1Q25
     (b), `5850003126`.
   - **After**: T019, T041, T042, T007 (batches C and F), and C3's
@@ -999,10 +1000,13 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
     `tests/test_seam_assembly_beside_gate_and_projection.py`, which joins the
     exclusion under `doc_health`, so the declaration holds 67 files. The triple
     is 885/881/4, and the four skips left are the aggregation-register suite's.
-  - **The margin is CI's reading, not three below it.** The floors sit on the
-    reading, with margin 0, which was the holder's direction for this leg
-    (2026-09-28), following 9.4 and this task's text. openDox-code's T037 took
-    the other form (see T037).
+  - **How "restore the margin" is read here.** What is restored is that no
+    skip carries the gap: the six skips assert for real, so `EXPECT_SKIPPED`
+    falls from 10 to 4, and none of the four left waits for `doc_health`. The
+    floors sit on CI's reading, so the margin the step prints stays 0. That is
+    the form openXdox-code's #25 set, and the holder chose it for this leg
+    (2026-09-28). openDox-code's T037 took the three-below form (see T037).
+    The task's falsifier is the triple, and it passes (openXdox-code#33).
 
 ### openxFactory: the host keeps working (US4)
 
@@ -1090,14 +1094,27 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
   - **Falsifier**: F11.1, as widened by T007 batch A, prints `requirement 1
     holds`.
   - **After**: T047.
-- [ ] T048 **The F4 re-measure (holder).** After phase 1 lands, re-measure
+- [x] T048 **The F4 re-measure (holder).** After phase 1 lands, re-measure
   openxFactory's direct `opendox` imports and bring Brett the direct-arrow
   question (F4, outside both releases; `5799494355`).
   - **After**: T049.
+  - **Done**: measured at openxFactory `main` `91e4685f`, after phase 1. There
+    are 107 direct `opendox` import statements in 43 files: 13 statements in 9
+    non-test modules, and 94 in 34 test files. The baseline at `9f357e95`
+    (design.md D13, `5800995035`) was 9 statements in 8 modules and 80 in 30
+    files. Phase 1 removed none: the 4 added non-test statements are T046's host
+    wiring (#1181) and the refresh lane (#1166).
+  - **Ruled**: F4's direct-arrow question, Brett Heap, 2026-09-30: *"Keep direct
+    arrow; close F4 (Recommended)"* (`#656`, `5901316180`). openxFactory keeps
+    pinning openDox directly (the `openDox` gitlink,
+    `contracts/opendox-pin.yaml` and `verify-opendox-pin.py`), and F4 closes as
+    answered. T064 and T094 move both pin pairs as planned. #1144's own F4 box
+    is not edited here.
 - [x] T049 **Phase 1 checkpoint.** Run and quote:
   - F2.1, and F3.1 with line 2 as amended (T007 batch A);
-  - F9.1 in each leg (openXdox-code's as amended by batches B and F,
-    openDox-code's with the database DSN exported), and F9.2;
+  - F9.1 in each leg (openXdox-code's as amended by batches B and F, with
+    batch J's one `--deselect`, openDox-code's with the database DSN
+    exported), and F9.2;
   - `opendox --help`;
   - F4.1's scan, which must list only `openxdox` targets;
   - every module or case T034 or T035 removed, found where its PR's list
@@ -1844,7 +1861,8 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     R1Q7 (a)'s allow-list.
   - **Realizes**: 4.3 (consumer half), 9.2 (the ratchet), 9.5 (step 3, part).
   - **Falsifier**: `tests/test_dependency_direction.py`; F9.1 (openXdox-code,
-    as amended by T007's batches B and F).
+    as amended by T007's batches B and F, and by batch J's `--deselect` unless
+    T008 has removed it).
   - **Ruled**: R1Q1 (a), R1Q7 (a), R1Q22 (a), `5817152735`; R1Q10 (a), R1Q25
     (b), `5850003126`.
   - **After**: T084, T087, T061 (the `pyproject.toml` pin's single-writer
@@ -2226,7 +2244,7 @@ before P3-I's T070, P3-E's T075 and P3-B's T080.
 | P3-N no model, everywhere | G3 | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole (T083) | Sonnet |
 | P3-P openDox root pin | G4 | T087 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-3 openDox-code slice landed | `make pins` | Sonnet |
 | P3-O the root README | G5 | T076 | oD | `README.md` | P3-P, P3-J, P3-E | review; AT-R1 step 4 follows it | Sonnet |
-| P3-X openXdox's columns | G5 | T086 | oXc | the gate and projection contributions; `pyproject.toml` (the `opendox @` pin); `tests/test_dependency_direction.py` (the ratchet at `(0, 0)`) | P3-P, P3-R; P2-C | `tests/test_dependency_direction.py`; F9.1 as batches B and F amend it | Opus |
+| P3-X openXdox's columns | G5 | T086 | oXc | the gate and projection contributions; `pyproject.toml` (the `opendox @` pin); `tests/test_dependency_direction.py` (the ratchet at `(0, 0)`) | P3-P, P3-R; P2-C | `tests/test_dependency_direction.py`; F9.1 as batches B and F amend it, and batch J's `--deselect` unless T008 has removed it | Opus |
 | P3-K pins and host wiring | G6 | T094 | oX, oxF | as P1-K's pin files; `tests/ideation-dashboard/test_extension_point_parity.py` and `tests/ideation-dashboard/test_serve_column_split.py` (named composition tests) | P3-X, P3-P | as T047's | Opus |
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F10.1, F13.1, F16.1 | Opus (verifier) |

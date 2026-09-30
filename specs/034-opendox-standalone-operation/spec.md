@@ -258,7 +258,8 @@ and 1,305 errors (research R2).
 
 **Independent Test**: at the phase-1 tip, F2.1, F3.1 (line 2 as amended, R1Q3
 (a)), F9.1 (in both legs; openXdox-code's as amended, R1Q6 (d), R1Q24 (a),
-R1Q25 (b)) and `opendox --help` all pass. So do 4.3's eight
+R1Q25 (b), and RULED `5870594693`'s one `--deselect`) and `opendox --help` all
+pass. So do 4.3's eight
 reaches into openxFactory, under F4.1's scan restricted to the publisher's
 packages. F9.2 is run and quoted red, not passed: RULED `5859927858` keeps it
 unchanged, so it stays red on the 31-entry help-tree test until T008, and
@@ -533,7 +534,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   - **openDox-code**: the whole suite, `tests_runtime/` included, run against
     the required job's database (R1Q8 (a)). No exclusion is declared.
   - **openXdox-code, for release 1**: the whole suite less the declared
-    exclusion (F9.1 as amended by T007's batches B and F). It holds the
+    exclusion (F9.1 as amended by T007's batches B and F, and by batch J's one
+    `--deselect` until T008 removes it). It holds the
     `doc_health` files (R1Q6 (d)), the files that reach openxFactory's
     contracts or its status-exemption rail (R1Q24 (a)), and
     `tests/test_snapshot.py` until 7.3 lands in phase 2 (R1Q25 (b)), each
