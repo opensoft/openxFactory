@@ -274,8 +274,8 @@ planned on answers.
       answer. One landing's several entries for one suite chain in the order
       listed. F5.2's call passes `--chains`, and 12.5's call does not.
 
-    It lands before T061 (openXdox-code#36), and before T080 (openDox-code#63)
-    and openDox-code#64.
+    It lands before T061 (openXdox-code#36), and so before T063, whose F5.2
+    run needs it, and before T080 (openDox-code#63) and openDox-code#64.
 
   A realization PR that lands before its batch still quotes the falsifier as
   the answer records it, citing the ruling.
@@ -1664,12 +1664,14 @@ unchanged.
     holds`.
   - **After**: T064.
 - [ ] T063 **Phase 2 checkpoint.** Run and quote F5.1, F5.2 (as amended by
-  T007's batches C, F and G), F5.3, F7.1 (T061, back in this phase by R1Q25
+  T007's batches C, F, G and K, its last step passing `--chains`), F5.3,
+  F7.1 (T061, back in this phase by R1Q25
   (b), and read as batch I records R1Q27 (a)) and F7.2. Then run a standalone
   `generate-and-open` serving the fixture, and quote T065's interim F11.1
   output.
-  - **Ruled**: R1Q23 (a), R1Q25 (b), `5850003126`; R1Q27 (a), `5851950767`.
-  - **After**: T064, T065, T007 (batches C, F, G and I).
+  - **Ruled**: R1Q23 (a), R1Q25 (b), `5850003126`; R1Q27 (a), `5851950767`;
+    `5916000030`, item 4.
+  - **After**: T064, T065, T007 (batches C, F, G, I and K).
 
 ---
 
@@ -2198,7 +2200,7 @@ Every release-1 box, with the task that closes it:
   both A and B before T049, C before T059, T061 and T043, D before T049, E
   before T047, F before T043 and T061, G before T053, H before T070, T075 and
   T080, I before T059, T060, T061 and T063, J before T049, whose F9.1
-  run needs J's `--deselect`, and K before T061 and T080 (and
+  run needs J's `--deselect`, and K before T061, T063 and T080 (and
   openDox-code#64, which is no task of this plan). T016 may land before batch A, T041 and T043
   before batch B, and T043 before batch J, each quoting its falsifier as the
   answer records it (T007).
@@ -2314,7 +2316,7 @@ Batch I lands before P2-X, P2-K and P2-C, and batch K before P2-C.
 | P2-H openxFactory at both pins (non-arc) | G8 | T066 | oxF | `tests/ideation-dashboard/test_dashboard_source_seal.py`; `scripts/profile_openxfactory.py` and `tests/test_engineering_profile_display_facet.py` (R1Q26 (a)); whatever the candidate pins' runs name | P2-C, P2-D | openxFactory's `pytest-suite`, and the consumer gate's suite at its floors, at the current pins and at T064's candidate pins | Opus |
 | P2-L consumer pins | G9 | T064 | oX, oxF | openXdox root: `code`, `contracts/code-pin.yaml`, `contracts/opendox-pin.yaml`. openxFactory: both pin pairs | P2-H, P2-K, P2-C, P2-X, P2-D | `make pins` in the openXdox root; `verify-opendox-pin.py`, `verify-openxdox-pin.py`; `pytest-suite`, and the consumer gate's suite at its floors (`MIN_PASSED` 1137, `EXPECT_SKIPPED` 0) | Sonnet |
 | P2-M read-only checks | G9, after P2-L | T065 | oxF | `evidence/` only | P2-L | interim F11.1 prints `requirement 1 holds` | Sonnet |
-| checkpoint | G9, last | T063 | — | none (a verifier) | P2-L, P2-M; T007 batches C, F, G and I | F5.1, F5.2, F5.3, F7.1, F7.2; a standalone `generate-and-open` | Opus (verifier) |
+| checkpoint | G9, last | T063 | — | none (a verifier) | P2-L, P2-M; T007 batches C, F, G, I and K | F5.1, F5.2, F5.3, F7.1, F7.2; a standalone `generate-and-open` | Opus (verifier) |
 
 ## Phase 3 writer slices (for the fan-out)
 
