@@ -470,8 +470,9 @@ mention in the package is prose.
   the assembled bindings carry a route it governs. Standalone, with no host
   contributing them, both read false, and a composed host that contributes
   them reads exactly as today. `notebook`, `edit` and `session` govern core
-  routes and keep their conditions. `intent`, which names a POST to another
-  plane's intent API and no route of this server, keeps its own. The
+  routes and keep their conditions. `intent` governs a POST to another
+  plane's intent API, a route that plane answers and this server does not
+  serve, so its condition, the served plane, stands. The
   workbench's session controls read `actions.gate`
   (`sessionActionsLive`, `web/views/staging-workbench-model.js:1068`), so a
   false `gate` standalone also hides session controls that no route
