@@ -97,9 +97,10 @@ R1Q6"*.
   it was ruled (a) (§ Session 2026-09-26).
 - Q: R1Q4. What does the default profile contribute, given that an empty
   default stays refused? → A: (a). openDox's own verbs and routes: the runtime
-  verbs now, and release 2's `submit`, `land` and `health` later. Its
-  `DISPLAY` is `NEUTRAL_DISPLAY`. A governed host's own start asserts that its
-  profile is the registered one.
+  verbs now, and release 2's `submit`, `land` and `health` later. Its display
+  words are `NEUTRAL_DISPLAY`'s: it declares no `DISPLAY` facet, so the absent
+  facet renders them (holder reading, `#656` `5851560764`). A governed host's
+  own start asserts that its profile is the registered one.
 - Q: R1Q5. Where do the runtime verbs register without breaking the 31-entry
   golden? → A: (a). Through the default profile's `SUBCOMMAND_EXTENSIONS`
   (`RuntimeSubcommand`), and `opendox-runtime` stays as an alias. A host that
@@ -258,7 +259,8 @@ and 1,305 errors (research R2).
 
 **Independent Test**: at the phase-1 tip, F2.1, F3.1 (line 2 as amended, R1Q3
 (a)), F9.1 (in both legs; openXdox-code's as amended, R1Q6 (d), R1Q24 (a),
-R1Q25 (b)) and `opendox --help` all pass. So do 4.3's eight
+R1Q25 (b), and RULED `5870594693`'s one `--deselect`) and `opendox --help` all
+pass. So do 4.3's eight
 reaches into openxFactory, under F4.1's scan restricted to the publisher's
 packages. F9.2 is run and quoted red, not passed: RULED `5859927858` keeps it
 unchanged, so it stays red on the 31-entry help-tree test until T008, and
@@ -533,7 +535,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   - **openDox-code**: the whole suite, `tests_runtime/` included, run against
     the required job's database (R1Q8 (a)). No exclusion is declared.
   - **openXdox-code, for release 1**: the whole suite less the declared
-    exclusion (F9.1 as amended by T007's batches B and F). It holds the
+    exclusion (F9.1 as amended by T007's batches B and F, and by batch J's one
+    `--deselect` until T008 removes it). It holds the
     `doc_health` files (R1Q6 (d)), the files that reach openxFactory's
     contracts or its status-exemption rail (R1Q24 (a)), and
     `tests/test_snapshot.py` until 7.3 lands in phase 2 (R1Q25 (b)), each
@@ -585,9 +588,10 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 
 ### Key Entities
 
-- **Default profile**: openDox's own domain profile (documents and ideas), with
-  `DISPLAY` as `NEUTRAL_DISPLAY`, registered by the entry points (R1Q3 (a)). It
-  contributes openDox's own verbs, the runtime verbs through
+- **Default profile**: openDox's own domain profile (documents and ideas), whose
+  display words are `NEUTRAL_DISPLAY`'s (it declares no `DISPLAY` facet, so the
+  absent facet renders them; `5851560764`), registered by the entry points (R1Q3
+  (a)). It contributes openDox's own verbs, the runtime verbs through
   `RuntimeSubcommand` now (R1Q4 (a), R1Q5 (a)).
 - **Handler contribution**: the facet R1Q1 (a) rules. A profile or extension
   declares the mixin classes whose methods its bindings name, and

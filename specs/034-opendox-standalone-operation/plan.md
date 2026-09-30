@@ -142,12 +142,16 @@ specs/034-opendox-standalone-operation/
     ├── arc-base.md         # T003: ARC_BASE for all seven repositories; PACKET_MERGE
     ├── remeasure-2026-09-25.md   # T005: R1–R15 again, and openXdox-code's whole suite
     ├── analyze-round-1a.md # T006: the prerequisites check and analyze's verdict
-    └── analyze-round-2.md  # T019, T009, T069: round 2's analyze, one run over the result
+    ├── analyze-round-2.md  # T019, T009, T069: round 2's analyze, one run over the result
+    ├── analyze-round-3.md  # T067: round 3's analyze
+    ├── f11.1-phase1.txt    # T017, T018: phase 1's interim F11.1
+    └── checkpoint-phase1.md # T049: phase 1's checkpoint, quoted
 ```
 
-Later tasks add their own records to `evidence/`: T018, T065 and T098 add the
-interim F11.1 runs, and T096 AT-R1. T009, T019 and T069 share one analyze
-record, `analyze-round-2.md`. Each is linked from this feature's README entry.
+T018 added phase 1's interim F11.1 run, and T049 its checkpoint. Later tasks add
+their own records to `evidence/`: T065 and T098 add the interim F11.1 runs for
+phases 2 and 3, and T096 AT-R1. T009, T019 and T069 share one analyze record,
+`analyze-round-2.md`. Each is linked from this feature's README entry.
 
 ### Source code: the six repositories release 1 lands in
 
@@ -225,7 +229,7 @@ it"*), `serve.py:629` is routed in phase 2 along with the snapshot source.
 ## Dependency graph
 
 ```text
-T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measure, analyze, #1144 amendments in batches A–I, the direction arc)
+T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measure, analyze, #1144 amendments in batches A–J, the direction arc)
                               │
  PHASE 1  [oDc]  A: T010→T011→T012 (serve.py)     B: T015→T016 (profile)
                  C: T020→T021→T022 (adapter)      D: T026→T025, T027 (seams; T025 also after T020)
@@ -237,7 +241,7 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
           [oXc]  T040 (pin, residue) → T041 (declared exclusion, four reasons) → T042 (9.3) → T043 → T044
                  T007 batches C and F before T043
           [oX]→[oxF]  T047 consumer pins (steps 5–6) after T039, T044, T007 batches A and E; carries T045 + T046
-          T047 → T017 (3.3) and T018 (interim F11.1) → checkpoint T049 (after T007 batches A, B, D and F);  holder T048
+          T047 → T017 (3.3) and T018 (interim F11.1) → checkpoint T049 (after T007 batches A, B, D, F and J);  holder T048
  PHASE 2  T053 [oDs][oD] first: the neutral schema, the spec pin, the dox-v1.x bundle (after T007 batch G)
           [oDc]  T050 → T051;  T053 → T052;  T053 → T057
                  T054 (projection) → T055 (sources, 4.3 part; also after T057) → T056 → T058 (validator)
@@ -273,11 +277,11 @@ lists.
 | openDox-code `tests/test_authoring_seam.py` | T020 (the seam tests) → T021 → T022 |
 | openDox-code `tests/test_consumer_reach.py` | T011 (`opendox.cli` and `opendox.serve` into `NEUTRAL_MODULES`) → T034 (the rest of `STILL_REACHING`) |
 | openDox-code `.github/workflows/validate.yml` | T036 → T037; no earlier phase-1 slice edits it (tasks.md § Phase 1), and T095 adds phase 3's `acceptance` job |
-| openDox-code `src/opendox/doxbench_binding.py` | T078 (the second dialect) → T079 (the `model` field) → T080 (the raw-key refusal and the auth kind `none`), all in P3-B |
+| openDox-code `src/opendox/doxbench_binding.py` | T078 (the second dialect) → T079 (the `model` field) → T080 (the raw-key refusal and the auth kind `none`), all in P3-B, then the broker-path follow-on, a draft of no task (openDox-code#64) |
 | openXdox-code `tests/test_dependency_direction.py` (the ratchet) | T040 (it moves the pin and leaves the ratchet unchanged) → T059 → T086 |
 | openXdox-code `tests/test_gate_loop_views.py` (one of 12.5's protected suites) | T060 (the facet-declaration test's entered edit) → T059 (the overlay test's entered edit), both under R1Q26 (a) |
 | openXdox-code `pyproject.toml` | T040 (the `opendox @` pin and `rfc3339-validator`) → T059 (the phase-2 pin) → T061 (the validator's package data) → T086 (the phase-3 pin) |
-| openXdox-code's declared exclusion file | T041 (the file, its four reasons and the `doc_health` entries) → T043 (the other reasons' entries) → T044 (any file whose skip joins it) → T061 (`tests/test_snapshot.py`'s entry leaves) |
+| openXdox-code's declared exclusion file | T041 (the file, its four reasons and every entry, on the holder's decision at T041's landing) → T043 (a re-run at T040's pin, which moved no entry) → T044 (any file whose skip joins it) → T061 (`tests/test_snapshot.py`'s entry leaves) |
 | openDox root `code` gitlink, `contracts/code-pin.yaml`, workflow `@sha` | one commit per phase (T039, T062, T087), each after that phase's last openDox-code landing. In phase 2, T053's spec pin and bundle come first in this root |
 | openxFactory pin pairs | one openxFactory PR per phase (T047, T064, T094), each also carrying that phase's host wiring |
 
@@ -410,9 +414,9 @@ the realization as the answer records it."*
 - T007 records each amendment in #1144's `tasks.md`, in bookkeeping batches:
   A, B and C for the answers of `5817152735`, D for RN-1 (a) (landed as
   #1170), E for the composition tests phase 1 finds, F, G and H for round
-  2's answers, which T019, T009 and T069 encode, and I for round 3's, which
+  2's answers, which T019, T009 and T069 encode, I for round 3's, which
   T067 encodes: 5.3a's `values` block, 12.5's two admitted edits and F7.1's
-  reading.
+  reading, and J for the help-tree deselect (`5870594693`).
 - Each batch lands under a Rule 6 window, with no `Arc:` trailer, before the
   checkpoint that runs the amended falsifier.
 - `tasks.md` § "Ruled amendments" lists every amended line, the text it takes,
