@@ -485,10 +485,13 @@ mention in the package is prose.
   above), or else with a structured refusal that names the seam. That is
   4.2's discipline: never a dropped connection, and never a
   `ModuleNotFoundError` raised from inside a function. The realization's
-  named test carries the check: for every `actions` key that reads true, a
-  route it governs does not answer `unknown_action`, over a standalone
-  server and over a composed host. This bookkeeping amendment does not
-  itself touch the Python below. Carried out by T084.
+  named test carries the check both ways, over a standalone server and over
+  a composed host whose other conditions hold. It asserts that `gate` and
+  `refresh` read false standalone and true on the composed host. Then, on
+  each, it asserts that for every `actions` key that reads true, a route it
+  governs does not answer `unknown_action`. So a plane that switched every
+  flag off would fail it. This bookkeeping amendment does not itself touch
+  the Python below. Carried out by T084.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, no
   `corpus_adapter_openxfactory` importable):
 

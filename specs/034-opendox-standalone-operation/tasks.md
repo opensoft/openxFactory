@@ -1974,11 +1974,15 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - **Realizes**: 4.3.
   - **Falsifier**: F4.1 whole: `consumer_reach.py` is absent, and the scan
     prints `no deferred reach names the consumer or the publisher`. Also a
-    named test: for every `actions` key that reads true, a route it governs
-    does not answer `unknown_action`, over T056's standalone child
-    (`tests/standalone_child.py`) and over a composed host. Over the same
-    standalone child, a request to each of the three sites gets a
-    structured answer or refusal, never `RemoteDisconnected`. And a test
+    named test, run both ways: over T056's standalone child
+    (`tests/standalone_child.py`) and over a composed host whose other
+    conditions hold. It asserts `gate` and `refresh` false standalone and
+    true on the composed host. Then, on each, it asserts that for every
+    `actions` key that reads true, a route it governs does not answer
+    `unknown_action`, so a plane that switched every flag off fails it.
+    Over the same standalone child, a request to each of the three sites
+    gets a structured answer or refusal, never `RemoteDisconnected`. And a
+    test
     that a rejected snapshot breaking several rules prints each rule id
     once, with its count, in a module of its own
     (`tests/test_rejection_report.py`, new). That keeps it clear of
