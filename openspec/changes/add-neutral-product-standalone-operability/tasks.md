@@ -748,6 +748,60 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   the command above: the runs that use F5.2's environment (T059, T061 and
   T063) use this one and quote the commit. Carried out by T059, T061 and
   T063.
+
+  **AMENDED — T007 Batch K (`5916000030`, item 4; entries under R1Q7 (a),
+  `5817152735`):** The reviewed allow-list that R1Q7 (a) admits for this
+  falsifier (`5817152735`; T007 Batch C, extended by T007 Batch F) also
+  admits ten more edits, all of them T061's (openXdox-code#36). Each is
+  entered as its own reviewed entry with its reason, and none as a
+  respelling. Each keeps its test's real assertions and changes only the
+  premise that a validator is found by walking up from a start, which 7.3
+  removes: the test plants its stub as the distribution's own validator,
+  or, where it needs none, the distribution carries no validator of its
+  own. Nine are in
+  `tests/test_snapshot_validation_launch.py`:
+  `test_the_default_shaped_launch_validates_from_the_repo_root`,
+  `test_a_run_dir_beside_a_checkout_still_uses_that_one_first`,
+  `test_when_neither_root_reaches_a_validator_the_message_names_both`,
+  `test_missing_validator_dependencies_warn_and_the_server_still_starts`,
+  `test_the_dependency_warning_carries_the_pip_remedy_and_clears_the_corpus`,
+  `test_a_non_conformant_snapshot_still_blocks_and_blames_the_snapshot`,
+  `test_strict_makes_an_unrunnable_validator_fatal`,
+  `test_strict_is_fatal_when_no_validator_is_reachable_either` and
+  `test_the_classifier_reads_the_exit_code_not_the_dependency_sentence`. The
+  tenth is
+  `tests/test_snapshot.py::test_a_missing_validator_is_unavailable_not_a_verdict`,
+  whose call and `search_from` are unchanged. One of the ten changes its
+  expected answer: in
+  `test_a_run_dir_beside_a_checkout_still_uses_that_one_first`, the
+  validator of another tree beside the run dir is never adopted, and the
+  distribution's own validates, as 7.3 answers. Its name is kept, because
+  an entry admits an edit inside one named test, and a rename is not that.
+
+  T061 is ONE landing, which edits `tests/test_snapshot.py` twice (Batch
+  F's added test and the tenth case) and
+  `tests/test_snapshot_validation_launch.py` nine times. Batch C's check
+  requires that *"the landing's actual diff for that path contains ONLY the
+  entry's recorded text"*, which reads as one entry per suite per landing,
+  and T059's check (openXdox-code#35, `scripts/protected_suites.py`) holds
+  that rule in so many words. For this falsifier, this batch reads Batch
+  C's sentence as the recorded texts of several entries together. Several
+  entries, applied in the order they are listed, may together admit one
+  landing's edits to one suite. Each is still exactly one edit inside its
+  own named test, and they chain by git blob: the first entry's
+  `before_blob` is the suite before the landing, the last entry's
+  `after_blob` is the suite at the landing, and each blob between is the
+  blob id of the text the entries before it leave. The landing's diff for that suite must still be exactly those
+  entries' recorded texts and nothing else. Each entry still admits one
+  landing, and nothing wider is admitted. F5.2's check, as T059 wires it,
+  takes a chain only when asked to: its last step runs
+  `python3 scripts/protected_suites.py --chains --landings="$(cat "$W/x-arc.txt")" --suites="$(cat "$W/gen-suites.txt")"`.
+  12.5's falsifier is not amended. Its call passes no `--chains`, so it
+  keeps one entry per suite per landing and refuses a chain, and neither
+  file is one of its governed suites (its `git grep` selects the same 16
+  files at openXdox-code `main` `c41063d6` and at T059's head `4feb8009`).
+  This bookkeeping amendment does not itself touch the Python above.
+  Carried out by T061 (openXdox-code#36) and T063.
 - [ ] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
   projection replaces them; the import-time column stays at zero.
 - [x] 5.6 **Do NOT author the view-wiring slice here** — and it can no longer be
@@ -3066,6 +3120,27 @@ and redesigns none of them.
   so F16.1's `AUTH_KINDS[0]` is unchanged and still names a kind that takes
   a credential. The rest of the box stands: a reference is never a raw key,
   and a raw key is refused when it is declared. Carried out by T080.
+
+  **AMENDED — T007 Batch K (`5916000030`, item 1; the loopback rule
+  `5880893901`; the broker path `5890601202`):** A pointer. The amendment
+  itself is the dated note in requirement 17's body in this change's spec
+  delta, above its scenarios, and it narrows one thing: the route a
+  credential travels by. A credential the built-in resolver resolves (the
+  `env:` and `keyring:` references of batch H's addendum above) and a token
+  a broker mints are each sent only over `https://`, or over `http://` to
+  `127.0.0.1`, `[::1]` or `localhost`. A binding that would present either
+  over `http://` to any other host is refused when it is declared
+  (`ENDPOINT_NOT_PRIVATE`), before anything is resolved or minted. The
+  request that presents a credential follows no redirect, and over plain
+  `http://` it takes no proxy. The auth kind `none` presents nothing and
+  keeps whatever route it declares. This group's RULED paragraph
+  (`5800995035`, answer 3), which says "any OpenAI-compatible endpoint",
+  reads with that note.
+  The rest of the box stands, and so does F16.1: its control record names a
+  broker reference on a loopback endpoint, which the rule accepts, and its
+  three raw-key refusals are unchanged. This bookkeeping amendment does not
+  itself touch the Python below. Carried out by T080 (openDox-code#63) and
+  openDox-code#64, which is no task of plan 034.
 - [ ] 16.4 **"No model configured" is a STATE, shown before any turn.**
   Measured: with no binding, `declared_model_port_factory(...)()` resolves the
   harness declaration, and its catalog offers `omp-local`, "Local harness model",
