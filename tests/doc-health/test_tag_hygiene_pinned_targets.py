@@ -839,6 +839,30 @@ def test_a_loop_in_an_intermediate_directory_is_unresolvable(
     assert str(tmp_path) not in refusal[1]  # names no host path
 
 
+@pytest.mark.parametrize("shape", ("the-root-itself", "an-ancestor-of-it"))
+@pytest.mark.parametrize("model", ("native", "cpython-3.13+"))
+def test_a_looping_root_is_unresolvable_under_either_resolve(
+        tmp_path, monkeypatch, model, shape):
+    """`boundary_dir`'s resolve of the ROOT, under both resolves
+    (opensoft/openxFactory#1201, RULED by Brett Heap "#1201 3.14: 1(a)"): a
+    root that is a symlink loop, or one reached through a looping ancestor, is
+    UNRESOLVABLE on every version. Under 3.13's resolve it came back resolved,
+    and the root then read as one with no contracts/ directory."""
+    if model == "cpython-3.13+":
+        monkeypatch.setattr(Path, "resolve", _resolve_313)
+    if shape == "the-root-itself":
+        os.symlink("loop", tmp_path / "loop")
+        root = tmp_path / "loop"
+    else:
+        os.symlink("b", tmp_path / "a")
+        os.symlink("a", tmp_path / "b")
+        root = tmp_path / "a" / "repo"
+    boundary, refusal = pin_containment.boundary_dir(root)
+    assert boundary is None
+    assert refusal[0] == pin_containment.UNRESOLVABLE
+    assert str(tmp_path) not in refusal[1]  # names no host path
+
+
 # --------------------------------------------------------------------------
 # (n) — `verify_pin:` IS NEVER FOLLOWED
 # --------------------------------------------------------------------------

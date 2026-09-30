@@ -78,8 +78,9 @@ def _is_symlink_loop(path) -> bool:
 
     WHY IT IS ASKED HERE AND NOT LEFT TO `Path.resolve()`. Python 3.12's
     non-strict `resolve()` asked this itself: it stat-ed its own result and
-    turned ELOOP into `RuntimeError`, which `resolve_in_root` catches as
-    UNRESOLVABLE. Python 3.13 dropped that check (its `resolve()` is a bare
+    turned ELOOP into `RuntimeError`, which `resolve_in_root` and
+    `boundary_dir` catch as UNRESOLVABLE. Python 3.13 dropped that check (its
+    `resolve()` is a bare
     `os.path.realpath`), so from 3.13 on a looping path comes back resolved
     and nothing is refused (opensoft/openxFactory#1201; RULED by Brett Heap,
     "#1201 3.14: 1(a)"). This is the same question 3.12 asked, asked
@@ -178,11 +179,14 @@ def boundary_dir(root, name=CONTRACTS_DIRNAME):
     with.
     """
     try:
-        lexical = Path(root).resolve() / name
+        resolved_root = Path(root).resolve()
     except (OSError, RuntimeError, ValueError):
-        return None, (UNRESOLVABLE,
-                      "cannot be resolved — a symlink loop, an unreadable link "
-                      "or a malformed path; refused rather than read")
+        return None, (UNRESOLVABLE, _UNRESOLVABLE_REASON)
+    # A root that loops refuses on every Python version, not only where
+    # `resolve()` raises on one (3.12): see `_is_symlink_loop`.
+    if _is_symlink_loop(resolved_root):
+        return None, (UNRESOLVABLE, _UNRESOLVABLE_REASON)
+    lexical = resolved_root / name
     # THE SYMLINK TEST COMES FIRST: `exists()` FOLLOWS a link, so a DANGLING
     # `contracts` symlink would otherwise read as "missing" and send the operator
     # to `mkdir` a directory a link already occupies (PR #1040 round 6).
@@ -200,9 +204,7 @@ def boundary_dir(root, name=CONTRACTS_DIRNAME):
     try:
         redirected = lexical.resolve() != lexical
     except (OSError, RuntimeError, ValueError):
-        return None, (UNRESOLVABLE,
-                      "cannot be resolved — a symlink loop, an unreadable link "
-                      "or a malformed path; refused rather than read")
+        return None, (UNRESOLVABLE, _UNRESOLVABLE_REASON)
     if redirected:
         return None, (BOUNDARY_REDIRECTS,
                       f"has a {name} whose resolved path is not its lexical "
