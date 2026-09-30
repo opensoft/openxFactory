@@ -229,7 +229,7 @@ it"*), `serve.py:629` is routed in phase 2 along with the snapshot source.
 ## Dependency graph
 
 ```text
-T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measure, analyze, #1144 amendments in batches A–J, the direction arc)
+T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measure, analyze, #1144 amendments in batches A–K, the direction arc)
                               │
  PHASE 1  [oDc]  A: T010→T011→T012 (serve.py)     B: T015→T016 (profile)
                  C: T020→T021→T022 (adapter)      D: T026→T025, T027 (seams; T025 also after T020)
@@ -416,7 +416,10 @@ the realization as the answer records it."*
   #1170), E for the composition tests phase 1 finds, F, G and H for round
   2's answers, which T019, T009 and T069 encode, I for round 3's, which
   T067 encodes: 5.3a's `values` block, 12.5's two admitted edits and F7.1's
-  reading, and J for the help-tree deselect (`5870594693`).
+  reading, J for the help-tree deselect (`5870594693`), and K for Brett
+  Heap's word of 2026-09-30 (`5916000030`): a dated note to requirement 17
+  on the loopback and broker-path rulings (`5880893901`, `5890601202`), and
+  F5.2's admission of T061's ten walk-premise edits.
 - Each batch lands under a Rule 6 window, with no `Arc:` trailer, before the
   checkpoint that runs the amended falsifier.
 - `tasks.md` § "Ruled amendments" lists every amended line, the text it takes,

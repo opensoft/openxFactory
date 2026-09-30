@@ -567,7 +567,14 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   document server owns as its child and which stops with the entry point).
 - **FR-009** (requirement 17; 16.1–16.6; F16.1): chat SHALL reach any
   OpenAI-compatible endpoint by URL, model name and credential reference, and
-  SHALL refuse a raw key when it is declared. With no model configured, it
+  SHALL refuse a raw key when it is declared. A credential SHALL travel only
+  over `https://`, or over `http://` to `127.0.0.1`, `[::1]` or `localhost`,
+  whether the built-in resolver resolves it (`5880893901`) or a broker mints
+  it (`5890601202`). A binding that would send one over `http://` to any
+  other host SHALL be refused when it is declared (`ENDPOINT_NOT_PRIVATE`).
+  An endpoint that declares the auth kind `none` presents no credential and
+  keeps whatever route it declares. This is #1144's requirement 17 as its
+  batch-K note reads it (`5916000030`, item 1). With no model configured, it
   SHALL show a "no model configured" state before any turn, and every other
   surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);
   R1Q17 (b): a built-in `env:` and keyring resolver in that module; R1Q18 (a):
