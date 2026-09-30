@@ -38,12 +38,15 @@ carry. A caller whose output is committed — a doc-health finding rendered into
 `health/` — must therefore write its own sentence from the refusal CODE and name
 its root by repository name, never by interpolating the reason.
 
-Nothing here reads a file. `is_dir`, `is_symlink` and `resolve` interrogate the
-filesystem's metadata; no caller of this module opens anything through it.
+Nothing here reads a file. `is_dir`, `is_symlink`, `resolve` and the `os.stat`
+of the loop check interrogate the filesystem's metadata; no caller of this
+module opens anything through it.
 """
 
 from __future__ import annotations
 
+import errno
+import os
 from pathlib import Path
 
 #: The registry directory a pin record must be a file of. One spelling, so a
@@ -61,6 +64,37 @@ BOUNDARY_MISSING = "boundary-missing"
 BOUNDARY_NOT_A_DIRECTORY = "boundary-not-a-directory"
 BOUNDARY_REDIRECTS = "boundary-redirects"
 UNRESOLVABLE = "unresolvable"
+
+_UNRESOLVABLE_REASON = ("cannot be resolved — a symlink loop, an unreadable "
+                        "link or a malformed path; refused rather than read")
+
+#: Windows' ERROR_CANT_RESOLVE_FILENAME, its spelling of a symlink loop.
+_WINERROR_CANT_RESOLVE_FILENAME = 1921
+
+
+def _is_symlink_loop(path) -> bool:
+    """Whether `path` ends in a symlink loop, by the filesystem's own answer:
+    `os.stat` failing with ELOOP.
+
+    WHY IT IS ASKED HERE AND NOT LEFT TO `Path.resolve()`. Python 3.12's
+    non-strict `resolve()` asked this itself: it stat-ed its own result and
+    turned ELOOP into `RuntimeError`, which `resolve_in_root` catches as
+    UNRESOLVABLE. Python 3.13 dropped that check (its `resolve()` is a bare
+    `os.path.realpath`), so from 3.13 on a looping path comes back resolved
+    and nothing is refused (opensoft/openxFactory#1201; RULED by Brett Heap,
+    "#1201 3.14: 1(a)"). This is the same question 3.12 asked, asked
+    explicitly, so the refusal is identical on every version with no version
+    test. Any other `stat` failure is not this question's -- a record that is
+    not there is its caller's to report -- exactly as 3.12's check ignored
+    it."""
+    try:
+        os.stat(path)
+    except OSError as exc:
+        return (exc.errno == errno.ELOOP or getattr(exc, "winerror", None)
+                == _WINERROR_CANT_RESOLVE_FILENAME)
+    except ValueError:
+        return False
+    return False
 
 
 def resolve_in_root(claimed, root, *, boundary=None):
@@ -103,9 +137,11 @@ def resolve_in_root(claimed, root, *, boundary=None):
         resolved_root = Path(root).resolve()
         target = (resolved_root / candidate).resolve()
     except (OSError, RuntimeError, ValueError):
-        return None, (UNRESOLVABLE,
-                      "cannot be resolved — a symlink loop, an unreadable link "
-                      "or a malformed path; refused rather than read")
+        return None, (UNRESOLVABLE, _UNRESOLVABLE_REASON)
+    # A loop refuses on every Python version, not only where `resolve()`
+    # raises on one (3.12): see `_is_symlink_loop`.
+    if _is_symlink_loop(resolved_root) or _is_symlink_loop(target):
+        return None, (UNRESOLVABLE, _UNRESOLVABLE_REASON)
     if not target.is_relative_to(resolved_root):
         return None, (OUTSIDE_ROOT,
                       f"resolves to {target}, which is outside the repository; "
