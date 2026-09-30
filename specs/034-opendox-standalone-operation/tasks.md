@@ -1973,20 +1973,20 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     stays true.
   - **Realizes**: 4.3.
   - **Falsifier**: F4.1 whole: `consumer_reach.py` is absent, and the scan
-    prints `no deferred reach names the consumer or the publisher`. Also a
-    named test, run both ways: over T056's standalone child
-    (`tests/standalone_child.py`) and over a composed host whose other
-    conditions hold. It asserts `gate` and `refresh` false standalone and
-    true on the composed host. Then, on each, it asserts that for every
-    `actions` key that reads true, a route it governs does not answer
-    `unknown_action`, so a plane that switched every flag off fails it.
-    Over the same standalone child, a request to each of the three sites
-    gets a structured answer or refusal, never `RemoteDisconnected`. And a
-    test
-    that a rejected snapshot breaking several rules prints each rule id
-    once, with its count, in a module of its own
-    (`tests/test_rejection_report.py`, new). That keeps it clear of
-    `tests/test_post_render_validator.py`, which T085 edits.
+    prints `no deferred reach names the consumer or the publisher`. Also:
+    - `tests/test_capability_honesty.py` (new), run both ways, over T056's
+      standalone child (`tests/standalone_child.py`) and over a composed
+      host whose other conditions hold. It asserts `gate` and `refresh`
+      false standalone and true on the composed host. Then, on each, it
+      asserts that for every `actions` key that reads true, a route it
+      governs does not answer `unknown_action`, so a plane that switched
+      every flag off fails it. In the same module, over the same standalone
+      child, a request to each of the three sites gets a structured answer
+      or refusal, never `RemoteDisconnected`.
+    - `tests/test_rejection_report.py` (new): a rejected snapshot breaking
+      several rules prints each rule id once, with its count. It is a module
+      of its own, clear of `tests/test_post_render_validator.py`, which T085
+      edits.
   - **Ruled**: R1Q1 (a), R1Q22 (a), `5817152735`; R1Q10 (a), `5850003126`;
     items 1 and 3 of `5920216845`.
   - **After**: T055, T073 (`serve.py`'s single-writer order), T007 (batch L).
@@ -2424,7 +2424,7 @@ P3-B's T080, and batch L before P3-R's T084.
 | P3-D doxBench defaults and the no-model state | G1 (T085); T081 after it | T085, T081 | oDc | the default registrations for T027's seams; `src/opendox/doxbench_install.py`; `src/opendox/web/views/doxbench-chat.js`; `tests/test_chat_model_configuration.py` (new); `src/opendox/validator.py`, `src/opendox/default_projection.py` and `tests/test_post_render_validator.py` (T058's two workbench-manifest rules and their assertions, T085) | T063, T069 | the served catalog route answers with no available entry, and the two rules report as `pinned-keywords-are-checked` and `new-candidates-are-disjoint` (T085); F16.1's catalog block and the named test (T081) | Opus |
 | P3-L lens seed actions | G1 | T088 | oDc | `src/opendox/web/views/lens.js`, and the capability that says a binding answers | T063, T069 | AT-R1 step 6 | Sonnet |
 | P3-E the door | G2, after P3-I | T075, T077 | oDc | none, unless T075's run finds a gap in how the bundle is served. An edit to the server module then joins its single-writer order between T073 and T084 before the PR opens | P3-I (T072); T007 batch H | F10.1's fetch, as batch H amends it (T075); F10.1, as batch H amends it (T077) | Sonnet |
-| P3-R 4.3's last reaches | G2, after P3-I | T084 | oDc | `src/opendox/serve.py`, `src/opendox/cli.py`, `src/opendox/serve_workbench.py`, `src/opendox/serve_project.py` and `src/opendox/branch_session.py`; the defaults' modules; `src/opendox/consumer_reach.py` (deleted); `tests/test_rejection_report.py` (new, the grouped rejection output) | P3-I; T007 batch L | F4.1 whole; the capability-honesty test, over a standalone child and a composed host; the rejection-output test | Opus |
+| P3-R 4.3's last reaches | G2, after P3-I | T084 | oDc | `src/opendox/serve.py`, `src/opendox/cli.py`, `src/opendox/serve_workbench.py`, `src/opendox/serve_project.py` and `src/opendox/branch_session.py`; the defaults' modules; `src/opendox/consumer_reach.py` (deleted); `tests/test_capability_honesty.py` (new, the capability and crash-site assertions); `tests/test_rejection_report.py` (new, the grouped rejection output) | P3-I; T007 batch L | F4.1 whole; the capability-honesty test, over a standalone child and a composed host; the rejection-output test | Opus |
 | P3-N no model, everywhere | G3 | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole (T083) | Sonnet |
 | P3-P openDox root pin | G4 | T087 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-3 openDox-code slice landed | `make pins` | Sonnet |
 | P3-O the root README | G5 | T076 | oD | `README.md` | P3-P, P3-J, P3-E | review; AT-R1 step 4 follows it | Sonnet |
