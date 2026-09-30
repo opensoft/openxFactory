@@ -12,9 +12,13 @@ suite-wide conftest from collection (FR-043, PR #49 finding 17).
 
 from __future__ import annotations
 
+import os
 import sys
 from datetime import date
 from pathlib import Path
+from stat import S_ISDIR, S_ISREG
+
+import pytest
 
 HERE = Path(__file__).resolve().parent
 TESTS_ROOT = HERE.parent
@@ -199,6 +203,108 @@ class FakeGit:
             return None
         return {path: mode for (name, path), mode in self.modes.items()
                 if name == repo.name}
+
+
+# --------------------------------------------------------------------------
+# PYTHON 3.14's PATHLIB, ON EVERY INTERPRETER (opensoft/openxFactory#1201).
+#
+# Through 3.13, `Path.exists`/`is_dir`/`is_file`/`is_symlink` raise any
+# `OSError` that does not name the node's absence; 3.14 answers False for all
+# of them. CI's required suite runs 3.12, so a test that relies on the native
+# behaviour proves nothing about 3.14. `pathlib_314` runs a test twice: once
+# natively, and once with the four methods replaced by CPython 3.14's own
+# bodies (`Lib/pathlib/__init__.py` at python/cpython@c66df4e7, lines 663-707,
+# transcribed below). They delegate to `os.path`, whose `genericpath` bodies
+# are identical in 3.12, 3.13 and 3.14, so the swap reproduces 3.14 exactly.
+# A test under it proves the code under test refuses because it no longer
+# asks pathlib, not because this interpreter's pathlib happens to raise.
+# --------------------------------------------------------------------------
+
+def _exists_314(self, *, follow_symlinks=True):
+    if follow_symlinks:
+        return os.path.exists(self)
+    return os.path.lexists(self)
+
+
+def _is_dir_314(self, *, follow_symlinks=True):
+    if follow_symlinks:
+        return os.path.isdir(self)
+    try:
+        return S_ISDIR(self.stat(follow_symlinks=follow_symlinks).st_mode)
+    except (OSError, ValueError):
+        return False
+
+
+def _is_file_314(self, *, follow_symlinks=True):
+    if follow_symlinks:
+        return os.path.isfile(self)
+    try:
+        return S_ISREG(self.stat(follow_symlinks=follow_symlinks).st_mode)
+    except (OSError, ValueError):
+        return False
+
+
+def _is_symlink_314(self):
+    return os.path.islink(self)
+
+
+def emulate_pathlib_314(monkeypatch) -> None:
+    """Replace `Path`'s four query methods with CPython 3.14's bodies."""
+    monkeypatch.setattr(Path, "exists", _exists_314)
+    monkeypatch.setattr(Path, "is_dir", _is_dir_314)
+    monkeypatch.setattr(Path, "is_file", _is_file_314)
+    monkeypatch.setattr(Path, "is_symlink", _is_symlink_314)
+
+
+@pytest.fixture(params=("native", "cpython-3.14"))
+def pathlib_314(request, monkeypatch):
+    """Run the test under this interpreter's pathlib, then under 3.14's.
+    Yields the model's name."""
+    if request.param == "cpython-3.14":
+        emulate_pathlib_314(monkeypatch)
+    yield request.param
+
+
+class ProbeDenial:
+    """`os.stat` and `os.lstat` of exactly `nodes` raise
+    `OSError(err, os.strerror(err), <path>)` while `armed` -- both, because a
+    node whose parent denies search can be neither stat-ed nor lstat-ed, and
+    because pathlib reaches `os.stat` (`follow_symlinks=False` for its
+    `lstat` through 3.13) where the explicit probes reach `os.lstat`.
+    Monkeypatched rather than `chmod`-ed: `chmod` denies nothing to root, so
+    a mode-based repro would not hold under a root runner. `denied` records
+    every call that was refused, so a test can prove the denial was reached.
+    """
+
+    def __init__(self, monkeypatch, nodes, err, *, armed=True):
+        self.targets = {os.path.normpath(os.fspath(n)) for n in nodes}
+        self.err = err
+        self.armed = armed
+        self.denied = []
+        real_stat, real_lstat = os.stat, os.lstat
+
+        def hit(name, path):
+            if not (self.armed and isinstance(path, (str, os.PathLike))):
+                return False
+            path = os.fspath(path)
+            if not isinstance(path, str) or \
+                    os.path.normpath(path) not in self.targets:
+                return False
+            self.denied.append((name, path))
+            return True
+
+        def denying_stat(path, *args, **kwargs):
+            if hit("stat", path):
+                raise OSError(err, os.strerror(err), os.fspath(path))
+            return real_stat(path, *args, **kwargs)
+
+        def denying_lstat(path, *args, **kwargs):
+            if hit("lstat", path):
+                raise OSError(err, os.strerror(err), os.fspath(path))
+            return real_lstat(path, *args, **kwargs)
+
+        monkeypatch.setattr(os, "stat", denying_stat)
+        monkeypatch.setattr(os, "lstat", denying_lstat)
 
 
 def make_ctx(family: str, git=None, agg_root=None, notebook=lambda: None,
