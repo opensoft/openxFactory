@@ -22,7 +22,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import AS_OF, FIXTURES, FakeGit  # noqa: F401 (sys.path side effect)
+from conftest import AS_OF, FIXTURES, FakeGit, ProbeDenial  # noqa: F401 (sys.path side effect)
 
 from doc_health import catalog, inventory
 from doc_health.corpus import Doc, load_docs
@@ -607,7 +607,7 @@ def test_run_id_scheme_verifies_the_persisted_bytes(tmp_path):
     rid, _ = catalog.write_run(tmp_path, DAY, runs, TAXONOMY)
     run_dir = runs_root(tmp_path) / DAY_STR / rid
     docs = catalog.load_snapshot(tmp_path)["repos"]
-    persisted = catalog._load_run_bytes(run_dir)
+    persisted = catalog._load_run_bytes(tmp_path, run_dir)
     assert sorted(persisted) == sorted(docs)
     assert catalog.run_id_scheme(rid, docs, persisted) == \
         catalog.CONTENT_ADDRESSED
@@ -631,7 +631,7 @@ def test_run_id_scheme_verifies_the_persisted_bytes(tmp_path):
     assert (run_dir / "alpha.yaml").read_text(encoding="utf-8") == \
         original.decode("utf-8")
     assert catalog.run_id_scheme(
-        rid, docs, catalog._load_run_bytes(run_dir)) is None
+        rid, docs, catalog._load_run_bytes(tmp_path, run_dir)) is None
     # The bytes must cover exactly the documents' repositories.
     assert catalog.run_id_scheme(
         rid, docs, {"alpha": persisted["alpha"]}) is None
@@ -643,7 +643,7 @@ def test_run_id_scheme_verifies_the_persisted_bytes(tmp_path):
                                TAXONOMY)
     old_docs = catalog.load_snapshot(tmp_path / "old")["repos"]
     old_bytes = catalog._load_run_bytes(
-        runs_root(tmp_path / "old") / DAY_STR / legacy)
+        tmp_path / "old", runs_root(tmp_path / "old") / DAY_STR / legacy)
     assert catalog.run_id_scheme(legacy, old_docs, old_bytes) == \
         catalog.LEGACY_INPUT_KEY
 
@@ -847,8 +847,8 @@ def test_overlapping_identical_runs_both_complete(tmp_path, monkeypatch):
     latest = catalog.load_snapshot(tmp_path)
     assert (latest["run_id"], latest["sequence"]) == (rid, 2)
     assert catalog.run_id_scheme(rid, latest["repos"],
-                                 catalog._load_run_bytes(run_dir)) == \
-        catalog.CONTENT_ADDRESSED
+                                 catalog._load_run_bytes(tmp_path, run_dir)) \
+        == catalog.CONTENT_ADDRESSED
 
 
 def test_write_snapshot_never_adds_to_a_complete_run(tmp_path):
@@ -871,6 +871,7 @@ def test_write_snapshot_never_adds_to_a_complete_run(tmp_path):
     closed = catalog.load_snapshot(tmp_path / "closed")
     assert catalog.run_id_scheme(rid_one, closed["repos"],
                                  catalog._load_run_bytes(
+                                     tmp_path / "closed",
                                      runs_root(tmp_path / "closed") /
                                      DAY_STR / rid_one)) == \
         catalog.CONTENT_ADDRESSED
@@ -886,8 +887,8 @@ def test_write_snapshot_never_adds_to_a_complete_run(tmp_path):
     healed = catalog.load_snapshot(tmp_path / "partial")
     assert healed["repos"].keys() == {"alpha", "openxFactory"}
     assert catalog.run_id_scheme(rid, healed["repos"], catalog._load_run_bytes(
-        runs_root(tmp_path / "partial") / DAY_STR / rid)) == \
-        catalog.CONTENT_ADDRESSED
+        tmp_path / "partial", runs_root(tmp_path / "partial") / DAY_STR / rid)) \
+        == catalog.CONTENT_ADDRESSED
 
 
 def test_write_snapshot_never_heals_a_partial_run_around_a_link(tmp_path):
@@ -1202,7 +1203,7 @@ def test_refuse_links_inside_fails_closed_on_an_unenumerable_subdirectory(
 
     monkeypatch.setattr(os, "scandir", denying_scandir)
     with pytest.raises(catalog.CatalogError) as excinfo:
-        catalog._refuse_links_inside(run_dir)
+        catalog._refuse_links_inside(tmp_path, run_dir)
     message = str(excinfo.value)
     assert "could not be fully enumerated" in message
     # the node the walk could not enter, named relative to run_dir, never
@@ -1238,8 +1239,264 @@ def test_refuse_links_inside_fails_closed_on_an_unprobeable_entry(
 
     monkeypatch.setattr(os, "lstat", denying_lstat)
     with pytest.raises(catalog.CatalogError) as excinfo:
-        catalog._refuse_links_inside(run_dir)
-    assert "could not be checked for a symlink" in str(excinfo.value)
+        catalog._refuse_links_inside(tmp_path, run_dir)
+    message = str(excinfo.value)
+    assert "could not be checked for a symlink" in message
+    # opensoft/openxFactory#1201: named under the root, by its errno name,
+    # never by the host-absolute path or the strerror the OSError carries.
+    assert "(EACCES)" in message and message.endswith("run/MedxFactory.yaml")
+    assert str(tmp_path) not in message
+    assert os.strerror(errno.EACCES) not in message
+
+
+# --- opensoft/openxFactory#1201: every catalog probe fails closed -----------
+#
+# Python 3.14's pathlib answers False from `exists`, `is_dir`, `is_file` and
+# `is_symlink` for a node whose `stat` fails for ANY reason. Five writer
+# probes asked pathlib (`_refuse_foreign_node`, `_occupied`, `_read_claims`,
+# and the run-directory probes in `write_snapshot` and `write_run`), so on
+# 3.14 an unreadable node passed the writer's no-follow guard as absent, an
+# existing record read as "nothing there", and an unreadable claims directory
+# read as holding no claims. Every one now classifies the node by the one
+# explicit `lstat` the run scan already used (`_node_mode`), and a node it
+# cannot check is a controlled `CatalogError` naming the node under the
+# catalog root and the errno by name: never the host-absolute path or the
+# strerror text the OSError carries. Each case runs under this interpreter's
+# pathlib AND CPython 3.14's (`pathlib_314`), with EACCES and EIO, and the
+# tree is compared node for node (directories included) before and after.
+
+UNPROBEABLE_ERRNOS = (errno.EACCES, errno.EIO)
+
+
+def full_state(base):
+    """Every node under `base`, directories and links included, with each
+    file's sha256: what "nothing claimed, staged, made or replaced" is
+    measured against (`tree_state` sees files only)."""
+    state = {}
+    for dirpath, dirnames, filenames in os.walk(base):
+        for name in sorted(dirnames + filenames):
+            node = Path(dirpath) / name
+            rel = node.relative_to(base).as_posix()
+            mode = os.lstat(node).st_mode
+            if stat.S_ISLNK(mode):
+                state[rel] = "link:" + os.readlink(node)
+            elif stat.S_ISDIR(mode):
+                state[rel] = "dir"
+            else:
+                state[rel] = hashlib.sha256(node.read_bytes()).hexdigest()
+    return state
+
+
+def assert_redacted_refusal(exc, root, node, err, tmp_path):
+    """The controlled refusal for an unprobeable node: names the node under
+    the catalog root and the errno by name, and carries neither the
+    host-absolute path nor the strerror text of the OSError behind it."""
+    message = str(exc)
+    assert "could not be checked for a symlink" in message, message
+    assert f"({errno.errorcode[err]})" in message, message
+    rel = Path(node).relative_to(root).as_posix()
+    assert message.endswith(f": {rel}"), message
+    assert str(tmp_path) not in message, message
+    assert os.strerror(err) not in message, message
+
+
+def _unprobeable_run(tmp_path):
+    """(entries by repository, run id) for a one-repository run."""
+    runs = {"alpha": alpha_entries(extended_inventory())}
+    return runs, catalog.run_id(runs, TAXONOMY)
+
+
+# The nodes the writer's preflight classifies before anything is claimed:
+# every directory from the catalog root down (`_catalog_chain`), the claims
+# and staging directories, the day and run directories, `run.yaml` and the
+# snapshot (`_refuse_unsafe_run_paths` -> `_refuse_foreign_node`).
+PREFLIGHT_NODES = {
+    "catalog-root": lambda root, run: root,
+    "health": lambda root, run: root / "health",
+    "runs": lambda root, run: runs_root(root),
+    "claims-directory": lambda root, run: runs_root(root) / ".sequence",
+    "staging-directory": lambda root, run: runs_root(root) / ".staging",
+    "day-directory": lambda root, run: run.parent,
+    "run-directory": lambda root, run: run,
+    "run-yaml": lambda root, run: run / "run.yaml",
+    "snapshot": lambda root, run: run / "alpha.yaml",
+}
+
+
+@pytest.mark.parametrize("err", UNPROBEABLE_ERRNOS, ids=errno.errorcode.get)
+@pytest.mark.parametrize("case", sorted(PREFLIGHT_NODES))
+def test_the_writer_refuses_a_node_it_cannot_check_before_anything_lands(
+        tmp_path, monkeypatch, pathlib_314, case, err):
+    # `_refuse_foreign_node`, the writer's no-follow guard: with pathlib's
+    # probes, Python 3.14 passed a node it could not stat -- a symlink
+    # included -- as absent (the #1201 survey measured it with a real
+    # EACCES), and this interpreter raised a raw OSError carrying the
+    # host-absolute path.
+    runs, rid = _unprobeable_run(tmp_path)
+    root = tmp_path / "catalog"
+    root.mkdir()
+    node = PREFLIGHT_NODES[case](root, runs_root(root) / DAY_STR / rid)
+    before = full_state(root)
+    denial = ProbeDenial(monkeypatch, [node], err)
+    with pytest.raises(catalog.CatalogError) as caught:
+        catalog.write_run(root, DAY, runs, TAXONOMY)
+    denial.armed = False
+    assert denial.denied, case  # the denial was reached, not bypassed
+    assert_redacted_refusal(caught.value, root, node, err, tmp_path)
+    assert full_state(root) == before, case  # nothing claimed, staged, made
+
+
+def _partial_run(tmp_path, name):
+    """A copy of a recorded one-repository run whose run.yaml is gone: a
+    run that crashed between its snapshot and its record, which a retry
+    heals by claiming a sequence and writing run.yaml. So a refusal that
+    comes too late shows as a changed tree."""
+    runs, rid = _unprobeable_run(tmp_path)
+    catalog.write_run(tmp_path / "src", DAY, runs, TAXONOMY)
+    root = tmp_path / name
+    shutil.copytree(tmp_path / "src", root)
+    run_dir = runs_root(root) / DAY_STR / rid
+    (run_dir / "run.yaml").unlink()
+    return root, runs, rid, run_dir
+
+
+def _arm_after(monkeypatch, name, denial, *, on_entry=False):
+    """Arm `denial` when `catalog.<name>` returns (or is entered): the node
+    becomes unreadable after the checks before it vouched for it, so the
+    probe under test is the first to meet the denial."""
+    real = getattr(catalog, name)
+
+    def armed(*args, **kwargs):
+        if on_entry:
+            denial.armed = True
+        result = real(*args, **kwargs)
+        denial.armed = True
+        return result
+
+    monkeypatch.setattr(catalog, name, armed)
+
+
+# (call, node, the catalog function after which the node turns unreadable,
+#  whether it turns unreadable on ENTRY to that function instead)
+LATE_PROBES = {
+    # write_run's own run-directory probe (was `run_dir.exists()`): on 3.14
+    # it skipped the link walk and the foreign-descendant walk
+    "write_run-run-directory": (
+        "write_run", lambda run: run, "_refuse_unsafe_run_paths", False),
+    # write_snapshot's run-directory probe (was `run_dir.exists()`): on 3.14
+    # it skipped the link walk before a partial run was healed
+    "write_snapshot-run-directory": (
+        "write_snapshot", lambda run: run, "_refuse_unsafe_run_paths", False),
+    # `_occupied` behind `_holds_exactly` (was `exists() or is_symlink()`):
+    # on 3.14 an existing snapshot read as "nothing there"
+    "write_run-snapshot": (
+        "write_run", lambda run: run / "alpha.yaml",
+        "_refuse_foreign_descendants", False),
+    # `_occupied` behind `_recorded`: on 3.14 an existing run.yaml read as
+    # "never recorded"
+    "write_run-run-yaml": (
+        "write_run", lambda run: run / "run.yaml",
+        "_refuse_foreign_descendants", False),
+    # `_read_claims` (was `claims_dir.is_dir()`): on 3.14 an unreadable
+    # claims directory read as holding no claims
+    "write_snapshot-claims-directory": (
+        "write_snapshot", lambda run: run.parent.parent / ".sequence",
+        "_read_claims", True),
+}
+
+
+@pytest.mark.parametrize("err", UNPROBEABLE_ERRNOS, ids=errno.errorcode.get)
+@pytest.mark.parametrize("case", sorted(LATE_PROBES))
+def test_a_probe_after_the_preflight_refuses_a_node_it_cannot_check(
+        tmp_path, monkeypatch, pathlib_314, case, err):
+    call, node_of, after, on_entry = LATE_PROBES[case]
+    root, runs, rid, run_dir = _partial_run(tmp_path, "partial")
+    if case.endswith("run-yaml"):
+        # a recorded run, so run.yaml is there to be read as absent
+        catalog.write_run(root, DAY, runs, TAXONOMY)
+    node = node_of(run_dir)
+    before = full_state(root)
+    denial = ProbeDenial(monkeypatch, [node], err, armed=False)
+    _arm_after(monkeypatch, after, denial, on_entry=on_entry)
+    with pytest.raises(catalog.CatalogError) as caught:
+        if call == "write_run":
+            catalog.write_run(root, DAY, runs, TAXONOMY)
+        else:
+            catalog.write_snapshot(root, DAY, rid, "alpha", runs["alpha"],
+                                   TAXONOMY)
+    denial.armed = False
+    assert denial.denied, case  # the probe under test met the denial
+    assert_redacted_refusal(caught.value, root, node, err, tmp_path)
+    assert full_state(root) == before, case  # nothing claimed or written
+
+
+@pytest.mark.parametrize("err", (errno.ENOENT, errno.ENOTDIR),
+                         ids=errno.errorcode.get)
+def test_absence_still_reads_as_absent_at_every_writer_probe(
+        tmp_path, monkeypatch, pathlib_314, err):
+    # The other side of the same line: FileNotFoundError and
+    # NotADirectoryError are absence, so a fresh catalog root still works.
+    root = tmp_path / "catalog"
+    node = root / "health"
+    node.mkdir(parents=True)
+    denial = ProbeDenial(monkeypatch, [node], err)
+    assert catalog._occupied(root, node) is False
+    catalog._refuse_foreign_node(root, node, directory=True)  # passes
+    assert catalog._read_claims(root, node) == []
+    assert denial.denied
+    # and a real ENOTDIR: a path below a regular file
+    denial.armed = False
+    (root / "file").write_bytes(b"x")
+    assert catalog._occupied(root, root / "file" / "child") is False
+
+
+def test_a_catalog_probe_refuses_a_symlink_loop_that_fs_probe_reads_absent(
+        tmp_path, monkeypatch):
+    # The catalog's flavour is deliberately stricter than `fs_probe`'s:
+    # absence is FileNotFoundError and NotADirectoryError alone, so ELOOP
+    # (which pathlib through 3.13, and `fs_probe` on every version, read as
+    # absent) is refused here, as every other unexplained failure is.
+    root = tmp_path / "catalog"
+    node = root / "health"
+    node.mkdir(parents=True)
+    ProbeDenial(monkeypatch, [node], errno.ELOOP)
+    with pytest.raises(catalog.CatalogError) as caught:
+        catalog._occupied(root, node)
+    assert "(ELOOP)" in str(caught.value)
+
+
+def test_no_catalog_refusal_carries_the_oserrors_own_text(tmp_path,
+                                                          monkeypatch):
+    # The issue's second ask: `_own_mode`'s refusal interpolated `str(exc)`,
+    # whose filename is the host-absolute path CI's secret sweeper redacts.
+    # A sentinel that LOOKS like a runner's home path (assembled here, never
+    # written as a literal a sweeper would redact from this file) is put in
+    # both the OSError's filename and its strerror: no refusal may carry it.
+    sentinel = os.sep.join(["", "home", "runner", "work", "sentinel-1201"])
+    root = tmp_path / "catalog"
+    node = root / "health" / "document-catalog"
+    node.mkdir(parents=True)
+    real_lstat = os.lstat
+
+    def lstat(path, *args, **kwargs):
+        if isinstance(path, (str, os.PathLike)) and Path(path) == node:
+            raise OSError(errno.EACCES, f"denied under {sentinel}", sentinel)
+        return real_lstat(path, *args, **kwargs)
+
+    monkeypatch.setattr(os, "lstat", lstat)
+    _mode, refusal = catalog._own_mode(root, node)
+    refusals = [refusal]
+    for probe in (lambda: catalog._occupied(root, node),
+                  lambda: catalog._refuse_foreign_node(root, node, True),
+                  lambda: list(catalog._iter_runs(root))):
+        with pytest.raises(catalog.CatalogError) as caught:
+            probe()
+        refusals.append(caught.value)
+    for refusal in refusals:
+        message = str(refusal)
+        assert sentinel not in message and "denied under" not in message
+        assert message.endswith(": health/document-catalog"), message
+        assert "(EACCES)" in message, message
 
 
 def test_write_run_refuses_a_stranger_merely_shaped_like_a_writer_temp(
@@ -2533,8 +2790,8 @@ def test_the_writers_staged_temp_is_never_inside_the_scanned_tree(tmp_path):
     latest = catalog.load_snapshot(tmp_path)
     assert (latest["run_id"], latest["sequence"]) == (rid, 2)
     assert catalog.run_id_scheme(rid, latest["repos"],
-                                 catalog._load_run_bytes(run_dir)) == \
-        catalog.CONTENT_ADDRESSED
+                                 catalog._load_run_bytes(tmp_path, run_dir)) \
+        == catalog.CONTENT_ADDRESSED
 
 
 def test_stale_staging_content_is_ignored_and_never_admitted(tmp_path):
@@ -2587,7 +2844,7 @@ def test_stale_staging_content_is_ignored_and_never_admitted(tmp_path):
     latest = catalog.load_snapshot(root)
     assert latest["repos"] == catalog.load_snapshot(clean)["repos"]
     assert catalog.run_id_scheme(rid, latest["repos"],
-                                 catalog._load_run_bytes(run_dir)) == \
+                                 catalog._load_run_bytes(root, run_dir)) == \
         catalog.CONTENT_ADDRESSED
     before = tree_state(root)
     assert catalog.write_run(root, DAY, runs, TAXONOMY)[0] == rid  # a no-op
@@ -3016,6 +3273,7 @@ def test_a_writer_accepts_another_writers_publish_only_once_durable(tmp_path):
         assert (latest["run_id"], latest["sequence"]) == (name, sequence)
         assert catalog.run_id_scheme(name, latest["repos"],
                                      catalog._load_run_bytes(
+                                         root,
                                          runs_root(root) / DAY_STR / name)) \
             == catalog.CONTENT_ADDRESSED
 
@@ -3087,14 +3345,14 @@ def test_a_writer_accepts_another_writers_publish_only_once_durable(tmp_path):
     real_addresses_itself = catalog._addresses_itself
     events = []
 
-    def addresses_itself(run_dir, name):
+    def addresses_itself(root, run_dir, name):
         if ("another writer renames",) not in events:
             events.append(("another writer renames",))
             (run_dir / "xFactories").mkdir()
             landed = tmp_path / "landed.tmp"
             landed.write_bytes(landed_bytes)
             os.replace(landed, run_dir / "xFactories" / "MedxFactory.yaml")
-        return real_addresses_itself(run_dir, name)
+        return real_addresses_itself(root, run_dir, name)
 
     with pytest.MonkeyPatch.context() as patch:
         record_durability(patch, root, events)
