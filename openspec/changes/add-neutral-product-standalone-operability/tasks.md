@@ -487,7 +487,9 @@ mention in the package is prose.
   `ModuleNotFoundError` raised from inside a function. The realization's
   named test carries the check both ways, over a standalone server and over
   a composed host whose other conditions hold. It asserts that `gate` and
-  `refresh` read false standalone and true on the composed host. Then, on
+  `refresh` read false standalone and true on the composed host, and that
+  each follows its own routes: a host that contributes only one of the two
+  sets only its flag. Then, on
   each, it asserts that for every `actions` key that reads true, a route it
   governs does not answer `unknown_action`. So a plane that switched every
   flag off would fail it. This bookkeeping amendment does not itself touch
