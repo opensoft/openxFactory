@@ -88,9 +88,9 @@ planned on answers.
 
 - **The holder's own tasks**: T002 is a standing act, one claim per slice.
   T008 was raised as a staged topic (#1173), and the arc it raised is still
-  open. Eleven of T007's twelve batches have landed, from A (#1171) to K
-  (#1210). Batch L, on Brett Heap's second word of 2026-09-30
-  (`5920216845`), lands before T084, and T007 lists each.
+  open. All twelve of T007's batches have landed, from A (#1171) to L
+  (#1212, on Brett Heap's second word of 2026-09-30, `5920216845`), and T007
+  lists each.
 - **Each phase-1 task** starts once its slice has been claimed (T002).
   **T020** and **T030** never needed an answer. **T030** lands with T011,
   because it fails until 2.1 lands. **T043** also waits for T007's batches C
@@ -196,7 +196,7 @@ planned on answers.
   (`5916000030`, item 1), and rewrites no requirement or scenario text. The
   full list is in § "Ruled amendments" below. Each batch is its own
   bookkeeping PR. T007 was ticked when batch J landed, and was reopened for
-  batch K, which has landed. It is open for batch L.
+  batches K and L, both of which have landed.
   - Every PR touches `openspec/changes/`, so it lands under a Rule 6
     `LANDING`/`LANDED` window.
   - It carries no `Arc:` trailer (R1Q20 (a)), so 11.1's guard never reads it.
@@ -288,6 +288,7 @@ planned on answers.
     answer through their seams or refuse cleanly, as 4.2 requires. Items 2
     and 3 amend nothing in #1144:
     T085 and T084 carry them. It lands before T084.
+    LANDED as #1212 → `2140f5a7`.
 
   A realization PR that lands before its batch still quotes the falsifier as
   the answer records it, citing the ruling.
@@ -322,13 +323,12 @@ planned on answers.
     - **L**: nothing, since `5920216845` is given. L lands before the landing
       that routes 4.3's last reaches (P3-R's). This line names that landing
       by its slice, for the same reason as K's.
-  - **Landed**: batches A to K, each an openxFactory PR with no `Arc:` trailer.
+  - **Landed**: batches A to L, each an openxFactory PR with no `Arc:` trailer.
     A #1171 → `bca4a260`; B #1194 → `e369cb25`; C #1172 → `4663e9e8`; D #1170 →
     `79a720a2`; E #1183 → `b9742534`; F #1178 → `295abd8d`; G #1205 →
     `91e4685f`; H #1206 → `f99a2097`; I #1180 → `8421603a`; J #1193 →
-    `6b97c601`; K #1210 → `39f19145`. Batch L has not landed yet. The plan
-    bookkeeping that follows its landing records its PR and merge commit, and
-    ticks T007 again.
+    `6b97c601`; K #1210 → `39f19145`; L #1212 → `2140f5a7`. T063's checkpoint
+    PR records batch L's landing here, and does not tick T007.
   - #1144's `tasks.md` was also edited outside the batches. #1202 → `e81eed62`
     (T018's PR) added F11.1's `ADMITTED_ARC_EDITS` (RULED `5890601202`) and
     corrected batch E's held-case count from "6 to 7" to "5 to 6". #1204 →
@@ -1835,6 +1835,20 @@ unchanged.
   - **Ruled**: R1Q23 (a), R1Q25 (b), `5850003126`; R1Q27 (a), `5851950767`;
     `5916000030`, item 4.
   - **After**: T064, T065, T007 (batches C, F, G, I and K).
+  - **Run** (2026-10-02; `evidence/checkpoint-phase2.md`): at openDox-code
+    `047bb4fa`, openXdox-code `6a3b93b9` and, for F5.2's composition,
+    openxFactory at T064's landing `fcb45380`.
+    - F5.1, F5.3, F7.1 and F7.2 pass, and a standalone `generate-and-open`
+      serves the fixture.
+    - F5.2, as batches C, F, G and K amend it, exits 1 on
+      `tests/test_session_snapshot.py` alone (20 passed, 3 failed), the same
+      at openxFactory `2656e8c2`. The three are the pre-arc reds the holder
+      ruled (a) at T059 (openXdox-code#35's body, item 6), which T061 left to
+      this task. The six other suites pass whole, and the `--chains` step
+      admits all four protected suites the arc touched.
+    - How phase 2 closes with F5.2 red is the holder's decision. It is open,
+      so T063 is not ticked yet.
+    - T065's interim F11.1 output is quoted there once T065's own PR lands it.
 
 ---
 
@@ -2291,6 +2305,11 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   2026-09-28: six notes on five rows, for the ten reaches phase 1 closed. That
   PR carries no `Arc:` trailer, so F11.1's count of annotated notes never
   includes them. Their PR ran F11.1's content rule over them instead.
+  Phase 2's rode in T063's checkpoint PR in the same way, on the holder's
+  decision (b) recorded in T064's PR (openxFactory#1215): three notes on three
+  rows (two added, one extended), for the eight reaches into openXdox that
+  T055 closed (openDox-code#59 → `fa140875`). That PR ran the same content rule
+  over them.
   - **Realizes**: 11.1, which is ticked at ARC close.
   - **Falsifier**: F11.1's manifest check. With every `edits[].note` removed,
     the two documents must be equal, and a note that already existed may only
