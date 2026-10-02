@@ -1150,11 +1150,15 @@ SEALED_PRODUCT_MODULE = "snapshot.py"
 # bootstrap finds. The four seam modules (`corpus_adapter`, `doxbench_packet`,
 # `serve_wire`, `workbench`) joined with plan 034 T046/T047: the bootstrap's
 # `opendox_host.seams()` imports them to fill openDox's phase-1 seams.
+# `projection_contributions` joined with plan 034 T064: the bootstrap's
+# `register_openxfactory()` imports it to register openXdox's governed
+# projection at openDox's seams.
 RENDER_LEG_MODULES: dict[tuple[str, str], tuple[str, ...]] = {
     ("openDox", "code"): ("cli.py", "corpus_adapter.py", "domain_profile.py",
                           "doxbench_packet.py", "serve_wire.py",
                           "workbench.py"),
-    ("openXdox", "code"): ("cli_gate.py", "domain_profile.py", "serve_gate.py",
+    ("openXdox", "code"): ("cli_gate.py", "domain_profile.py",
+                           "projection_contributions.py", "serve_gate.py",
                            "serve_projection.py", SEALED_PRODUCT_MODULE,
                            "view_extensions.py"),
 }

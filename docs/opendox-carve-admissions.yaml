@@ -76,9 +76,36 @@ destinations:
       - path: src/opendox/consumer_reach.py
         reason: "added by openDox-code #9 (BUILD 3.5/3.6 late seam)"
         since: "da8aae969b4057bd46d2550c265e5bb363142458"
+      - path: src/opendox/contracts/__init__.py
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: src/opendox/contracts/copies.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: src/opendox/contracts/schemas/ideation-workbench.schema.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: src/opendox/contracts/schemas/opendox-snapshot.schema.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: src/opendox/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: src/opendox/contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: src/opendox/default_generator.py
+        reason: "added by openDox-code #54 (plan 034 T052: declare the generator seam (5.4) and register openDox's own generator)"
+        since: "fa8862ccc992dffbf60abba55591c9c450fcaabe"
       - path: src/opendox/default_profile.py
         reason: "added by openDox-code #38 (plan 034 T015: openDox's own default profile)"
         since: "a435aecfe04ba09c677e5c3d78fd7a47986d175a"
+      - path: src/opendox/default_projection.py
+        reason: "added by openDox-code #59 (plan 034 T055: serve and generate standalone (5.5, 4.3 part))"
+        since: "fa140875955a44b6b0a2ca6f206e2afbbfec8d53"
+      - path: src/opendox/default_registry.py
+        reason: "added by openDox-code #59 (plan 034 T055: serve and generate standalone (5.5, 4.3 part))"
+        since: "fa140875955a44b6b0a2ca6f206e2afbbfec8d53"
       - path: src/opendox/defaults.py
         reason: "added by openDox-code #10 (BUILD slice 2b, openDox-owned defaults)"
         since: "0f1f2e59e31b8304979f18d8af7108b0f82899fb"
@@ -88,9 +115,21 @@ destinations:
       - path: src/opendox/domain_profile.py
         reason: "added by openDox-code #11 (the 4.3 profile registry)"
         since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"
+      - path: src/opendox/generator_seam.py
+        reason: "added by openDox-code #54 (plan 034 T052: declare the generator seam (5.4) and register openDox's own generator)"
+        since: "fa8862ccc992dffbf60abba55591c9c450fcaabe"
+      - path: src/opendox/neutral_projection.py
+        reason: "added by openDox-code #57 (plan 034 T054: openDox's small neutral projection (5.1-5.3))"
+        since: "a691e4e4e606a959ff0248804e058faf10724285"
       - path: src/opendox/profile_proxy.py
         reason: "added by openDox-code #11 (the 4.3 lazy proxy)"
         since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"
+      - path: src/opendox/projection_seams.py
+        reason: "added by openDox-code #59 (plan 034 T055: serve and generate standalone (5.5, 4.3 part))"
+        since: "fa140875955a44b6b0a2ca6f206e2afbbfec8d53"
+      - path: src/opendox/rfc3339.py
+        reason: "added by openDox-code #59 (plan 034 T055: serve and generate standalone (5.5, 4.3 part))"
+        since: "fa140875955a44b6b0a2ca6f206e2afbbfec8d53"
       - path: src/opendox/runtime/__init__.py
         reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the subpackage's two closures — `API_V1` and the six `COLLECTIONS` RULING Q1 names — and the import-weight contract the rest of the package is held to"
         since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
@@ -121,6 +160,9 @@ destinations:
       - path: src/opendox/runtime/repository_act.py
         reason: "added by opensoft/openDox-code `build/3-6-repository-act` (split-opendox-two-layer-product § 3.6, RULED C3 `#656` comment `5544381563`) — the repository-creation act — the map row is written FIRST inside the caller's transaction and rolled back with it if the repository cannot be created, and a directory left by a process killed between `git init` and that commit is refused by name on the next attempt rather than adopted (no transaction spans a database and a filesystem, and the act does not claim one does) — plus `attach_remote` and `push_to_remote`, RULING C3's 'a remote can be attached later' and 'a push, not a migration'"
         since: "a34601a0dfcfef1d8124cbab472bb5e2d6bd114f"
+      - path: src/opendox/validator.py
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
       - path: src/opendox/view_extension.py
         reason: "added by opensoft/openDox-code build/s3-view-registry (PR #14, split-opendox § 3.4 slice S3, `#656` comment `5642758731`) — the server-side view registry, `ViewBinding` + `collectViewBindings`, mirroring `route_extension.collect_bindings` (openDox-spec `docs/front-end-package-boundary.md` § 4.1); this admission PR (openxFactory #1001) lands first per Q-L1"
         since: "e6c65ed757bfc3f9b6664e27c85111bfe5f0d465"
@@ -136,9 +178,180 @@ destinations:
       - path: src/opendox/web/views/view_extension.js
         reason: "added by opensoft/openDox-code build/s3-view-registry (PR #14, split-opendox § 3.4 slice S3, `#656` comment `5642758731`) — the client-side view registry, the § 2.4/§ 4.3 seam counterpart `app.js`'s row annotation names; this admission PR (openxFactory #1001) lands first per Q-L1"
         since: "e6c65ed757bfc3f9b6664e27c85111bfe5f0d465"
+      - path: tests/fixtures/malformed/EXPECTED_RULE
+        reason: "added by openDox-code #56 (plan 034 T051: the malformed fixture (title-and-summary-are-text))"
+        since: "866473209b6f2670bd3c3638d220f050ee37e375"
+      - path: tests/fixtures/malformed/notes-bee-boxes.md
+        reason: "added by openDox-code #56 (plan 034 T051: the malformed fixture (title-and-summary-are-text))"
+        since: "866473209b6f2670bd3c3638d220f050ee37e375"
+      - path: tests/fixtures/malformed/notes-empty-title.md
+        reason: "added by openDox-code #56 (plan 034 T051: the malformed fixture (title-and-summary-are-text))"
+        since: "866473209b6f2670bd3c3638d220f050ee37e375"
+      - path: tests/fixtures/plain-documents/candidate-toolshed-rebuild.md
+        reason: "added by openDox-code #53 (plan 034 T050: the plain-documents fixture, spread across the six stations)"
+        since: "dc3765dda9e4dd5dbc4270c96ecd49e48224ce32"
+      - path: tests/fixtures/plain-documents/completion-path-resurfacing.md
+        reason: "added by openDox-code #53 (plan 034 T050: the plain-documents fixture, spread across the six stations)"
+        since: "dc3765dda9e4dd5dbc4270c96ecd49e48224ce32"
+      - path: tests/fixtures/plain-documents/grouping-compost-corner.md
+        reason: "added by openDox-code #53 (plan 034 T050: the plain-documents fixture, spread across the six stations)"
+        since: "dc3765dda9e4dd5dbc4270c96ecd49e48224ce32"
+      - path: tests/fixtures/plain-documents/notes-rain-barrel-leak.md
+        reason: "added by openDox-code #53 (plan 034 T050: the plain-documents fixture, spread across the six stations)"
+        since: "dc3765dda9e4dd5dbc4270c96ecd49e48224ce32"
+      - path: tests/fixtures/plain-documents/notes-rain-barrel-overflow.md
+        reason: "added by openDox-code #53 (plan 034 T050: the plain-documents fixture, spread across the six stations)"
+        since: "dc3765dda9e4dd5dbc4270c96ecd49e48224ce32"
+      - path: tests/fixtures/plain-documents/notes-toolshed-inventory.md
+        reason: "added by openDox-code #53 (plan 034 T050: the plain-documents fixture, spread across the six stations)"
+        since: "dc3765dda9e4dd5dbc4270c96ecd49e48224ce32"
+      - path: tests/fixtures/plain-documents/selection-spring-planting-plan.md
+        reason: "added by openDox-code #53 (plan 034 T050: the plain-documents fixture, spread across the six stations)"
+        since: "dc3765dda9e4dd5dbc4270c96ecd49e48224ce32"
+      - path: tests/fixtures/plain-documents/submission-shed-door-repair.md
+        reason: "added by openDox-code #53 (plan 034 T050: the plain-documents fixture, spread across the six stations)"
+        since: "dc3765dda9e4dd5dbc4270c96ecd49e48224ce32"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-candidate-keys.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-candidate-names-a-group.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-candidate-state-is-known.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-closed-candidate-has-reason.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-document-keys.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-edge-keys.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-edge-names-a-document.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-envelope-keys.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-generated-at-is-rfc3339.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-generation-anchored.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-group-has-a-topic.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-group-keys.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-id-is-text.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-ids-are-unique.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-keyword-entry-keys.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-keyword-index-matches-topics.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-kind-is-opendox-snapshot.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-one-edge-per-document.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-path-is-repo-relative.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-pick-names-a-selection.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-repository-is-text.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-schema-version-is-1.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-section-is-a-list.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-selected-candidate-has-pick.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-selection-keys.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-stage-is-a-station-role.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-submission-keys.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-submission-status-is-known.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-target-names-a-submission.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-title-and-summary-are-text.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-topic-is-trimmed-text.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/negative/opendox-snapshot-topics-are-unique.negative.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/opendox-snapshot-no-front-matter.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/opendox-snapshot-six-stations.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/workbench-chat-turn-v2-full-context.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/workbench-chat-turn-v2-loaded-set.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/workbench-chat-turn-v2-provider-retry.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/workbench-chat-turn-v2-reduced-context.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/workbench-chat-turn-v2-success.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/workbench-model-catalog-empty.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/workbench-model-catalog-hosted-zero-retention.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/workbench-model-catalog-local.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/workbench-model-catalog-multimodal.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/workbench-model-catalog-routing-rule-wider-than-a-non-resolved-member.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/fixtures/spec-examples/workbench-model-catalog-routing-rule.example.yaml
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
       - path: tests/fixtures/web_boundary_census.yaml
         reason: "added by openDox-code #13 (§ 3.4 S1, the web-boundary census: 42 files classified for the S2-S7 defect measurements; no arrived file touched, so S1 needed no row-annotation PR of its own)"
         since: "e86deb2dbcec528a312784508ddbf63c376abc33"
+      - path: tests/standalone_child.py
+        reason: "added by openDox-code #66 (plan 034 T056: the standalone generate path, end to end (5.1 part))"
+        since: "a23e4224da658dac90b389ecd516928f6e884432"
       - path: tests/test_authoring_seam.py
         reason: "added by openDox-code #37 (plan 034 T020: the home-corpus seam)"
         since: "e295b1a9c1d979a3219499de61b67dce487c75f6"
@@ -166,9 +379,15 @@ destinations:
       - path: tests/test_doxbench_seams.py
         reason: "added by openDox-code #41 (plan 034 T027: the doxBench seams)"
         since: "8017cd52158d89abc1c4862eb2cf32ed2d52a1eb"
+      - path: tests/test_edit_action_one_entry.py
+        reason: "added by openDox-code #70 (plan 034 T055 follow-up: confine to the resolved entry, no second lookup)"
+        since: "75bd8703afc006144a6e7664077dd532aad7b445"
       - path: tests/test_gate_loop_contributed.py
         reason: "added by openDox-code #20 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg B) — the shell's half of the contract, node-driven against the real `views/view_extension.js`: the student install, RULED Q1's generic mount pass, RULED Q2's declared namespace, RULED Q4's `requires`, RULED Q10's refusal transport and RULED counterpart Q6's four supply sites"
         since: "fd7160d71813874033c21d6f2a8daa5ebf2350e4"
+      - path: tests/test_generator_seam.py
+        reason: "added by openDox-code #54 (plan 034 T052: declare the generator seam (5.4) and register openDox's own generator)"
+        since: "fa8862ccc992dffbf60abba55591c9c450fcaabe"
       - path: tests/test_health_check_seam.py
         reason: "added by openDox-code #39 (plan 034 T026: the health-check seam)"
         since: "582ed0739155622ab3fd5e9259a2c5c10aea3539"
@@ -181,9 +400,21 @@ destinations:
       - path: tests/test_intent_binding_shape.py
         reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731) — the shape assertion validate.yml runs"
         since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
+      - path: tests/test_neutral_projection.py
+        reason: "added by openDox-code #57 (plan 034 T054: openDox's small neutral projection (5.1-5.3))"
+        since: "a691e4e4e606a959ff0248804e058faf10724285"
+      - path: tests/test_plain_documents_fixture.py
+        reason: "added by openDox-code #53 (plan 034 T050: the plain-documents fixture, spread across the six stations)"
+        since: "dc3765dda9e4dd5dbc4270c96ecd49e48224ce32"
+      - path: tests/test_post_render_validator.py
+        reason: "added by openDox-code #68 (plan 034 T058: the post-render validator in the generate verbs (7.2 part))"
+        since: "047bb4fa394f3e1bf42466062a67ef18e99f8d6a"
       - path: tests/test_profile_registration.py
         reason: "added by openDox-code #11 (the 4.3 registration tests)"
         since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"
+      - path: tests/test_projection_seams.py
+        reason: "added by openDox-code #59 (plan 034 T055: serve and generate standalone (5.5, 4.3 part))"
+        since: "fa140875955a44b6b0a2ca6f206e2afbbfec8d53"
       - path: tests/test_reach_sweep.py
         reason: "added by openDox-code #49 (plan 034 T032: the 2.3 sweep)"
         since: "68be484ad8a3cb218b6cd217292c11736aa1c9b4"
@@ -199,9 +430,18 @@ destinations:
       - path: tests/test_split_route_tails.py
         reason: "added by opensoft/openDox-code build/s4-split-route-tails (PR #17, split-opendox § 3.4 slice S4, RULED Q3, `#656` comment `5642758731`) — 29 node-driven assertions over the three new class-B modules and the five route tails they receive (two to `gate-lens.js`, two to `gate-projects.js`, one to `projection-index.js`; the other eight of the thirteen counted route constants arrive at the existing SWB modules, are removed, or stay in place), named on validate.yml's explicit list in the same commit; this admission PR lands first per Q-L1"
         since: "2e842178b2bceaee9a45441b7d70d797fe1205cf"
+      - path: tests/test_standalone_generate_path.py
+        reason: "added by openDox-code #66 (plan 034 T056: the standalone generate path, end to end (5.1 part))"
+        since: "a23e4224da658dac90b389ecd516928f6e884432"
       - path: tests/test_triple_pin.py
         reason: "added by openDox-code #33 (split-opendox § 3.7 residue: the collection pin's test)"
         since: "1d4ac83c63246f0b96f8b7b61b2ef4cd6e6183f1"
+      - path: tests/test_validator.py
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: tests/test_validator_input_set.py
+        reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
+        since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
       - path: tests/test_view_registry.py
         reason: "added by opensoft/openDox-code build/s3-view-registry (PR #14, split-opendox § 3.4 slice S3, `#656` comment `5642758731`) — the registry's own tests; this admission PR (openxFactory #1001) lands first per Q-L1"
         since: "cb810d39737bf50bbe87e5700177c2e5ce2750da"
@@ -212,17 +452,146 @@ destinations:
     created: []
   opendox_spec:
     created:
+      - path: contracts/schemas/opendox-snapshot.schema.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: docs/front-end-package-boundary.md
+        reason: "added by openDox-spec #8 (split-opendox § 3.4 design note: the front-end package boundary); the spec walk already needed it at 8fe8c4c7, and no earlier bump admitted it"
+        since: "a44ac06d6fba12d8a22f3760f83e16bd5855fd04"
       - path: docs/stale-citations-erratum-2026-09-10.md
         reason: "added by openDox-spec #6 (the erratum four manifest rows name)"
         since: "1a216ea413cdcc14791aa3939712e2e459cfa6b6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-candidate-keys.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-candidate-names-a-group.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-candidate-state-is-known.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-closed-candidate-has-reason.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-document-keys.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-edge-keys.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-edge-names-a-document.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-envelope-keys.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-generated-at-is-rfc3339.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-generation-anchored.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-group-has-a-topic.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-group-keys.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-id-is-text.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-ids-are-unique.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-keyword-entry-keys.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-keyword-index-matches-topics.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-kind-is-opendox-snapshot.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-one-edge-per-document.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-path-is-repo-relative.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-pick-names-a-selection.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-repository-is-text.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-schema-version-is-1.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-section-is-a-list.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-selected-candidate-has-pick.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-selection-keys.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-stage-is-a-station-role.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-submission-keys.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-submission-status-is-known.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-target-names-a-submission.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-title-and-summary-are-text.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-topic-is-trimmed-text.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/negative/opendox-snapshot-topics-are-unique.negative.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/opendox-snapshot-no-front-matter.example.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
+      - path: examples/ideation-dashboard/opendox-snapshot-six-stations.example.yaml
+        reason: "added by openDox-spec #16 (plan 034 T053: openDox's own neutral snapshot contract)"
+        since: "f7ee3c763b3af4581daf1cd54406e5111e9358e6"
   openxdox_code:
     created:
+      - path: scripts/protected_suites.py
+        reason: "added by openXdox-code #35 (plan 034 T059: openXdox contributes its governed generator, registry and source through openDox's seams (5.4a))"
+        since: "839492d905f470903cc80421fd536826f78cbcde"
       - path: src/openxdox/conformance_corpus.py
         reason: "added by opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`, split-opendox-two-layer-product `design.md` § D4 machinery (1), RULED Q-X1..Q-X4 `#656` comment `5715212264`) — the DECLARED `--adapter` factory § 3.7's conformance runner resolves (`openxdox.conformance_corpus:reader`), carrying the neutral corpus's own terms as a value; the counterpart of openxFactory's `tests/carve_conformance/home_factory.py` and of openDox's `src/opendox/runtime/conformance_corpus.py`"
         since: "d4282454c10d2f8891eae94e77d1a7554ebd17ed"
       - path: src/openxdox/consumer_reach.py
         reason: "added by openXdox-code #7"
         since: "bfd95063b2a71be097a04bb6a3a99c4c131dd322"
+      - path: src/openxdox/contracts/__init__.py
+        reason: "added by openXdox-code #36 (plan 034 T061: the consumer's validator located through the installed distribution (7.3))"
+        since: "6a3b93b93cd647ea0c62aa7bb5cdff529a2c35e8"
+      - path: src/openxdox/contracts/copies.yaml
+        reason: "added by openXdox-code #36 (plan 034 T061: the consumer's validator located through the installed distribution (7.3))"
+        since: "6a3b93b93cd647ea0c62aa7bb5cdff529a2c35e8"
+      - path: src/openxdox/contracts/schemas/gate-action-record.schema.yaml
+        reason: "added by openXdox-code #36 (plan 034 T061: the consumer's validator located through the installed distribution (7.3))"
+        since: "6a3b93b93cd647ea0c62aa7bb5cdff529a2c35e8"
+      - path: src/openxdox/contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml
+        reason: "added by openXdox-code #36 (plan 034 T061: the consumer's validator located through the installed distribution (7.3))"
+        since: "6a3b93b93cd647ea0c62aa7bb5cdff529a2c35e8"
+      - path: src/openxdox/contracts/schemas/ideation-dashboard-snapshot.schema.yaml
+        reason: "added by openXdox-code #36 (plan 034 T061: the consumer's validator located through the installed distribution (7.3))"
+        since: "6a3b93b93cd647ea0c62aa7bb5cdff529a2c35e8"
+      - path: src/openxdox/contracts/validate-ideation-dashboard-contracts.py
+        reason: "added by openXdox-code #36 (plan 034 T061: the consumer's validator located through the installed distribution (7.3))"
+        since: "6a3b93b93cd647ea0c62aa7bb5cdff529a2c35e8"
       - path: src/openxdox/corpus_shape.py
         reason: "added by opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`, split-opendox-two-layer-product `design.md` § D4 machinery (1), RULED Q-X1..Q-X4 `#656` comment `5715212264`) — the per-corpus construction DATA a `DomainCorpusAdapter` is built from (`Scope`, `WriteProposal`, `WritePath`, `CorpusShape`) plus `from_profile()`, which derives `scan_roots` and one scope per artifact kind from a registered `DomainProfile`; RULED Q-X3 (a) keeps `kind_field` and `required_fields_by_kind` here as construction data rather than as a profile axis"
         since: "d4282454c10d2f8891eae94e77d1a7554ebd17ed"
@@ -238,6 +607,9 @@ destinations:
       - path: src/openxdox/model_scenario_workbench.py
         reason: "added by openXdox-code #12 (4.5 slice 3)"
         since: "5333b125dc0f2dd9ee6f6e558c758fbfe6c49b4d"
+      - path: src/openxdox/projection_contributions.py
+        reason: "added by openXdox-code #35 (plan 034 T059: openXdox contributes its governed generator, registry and source through openDox's seams (5.4a))"
+        since: "839492d905f470903cc80421fd536826f78cbcde"
       - path: src/openxdox/role_authority_projection.py
         reason: "added by openXdox-code #10 (4.5 slice 1)"
         since: "4f98e77c7985f786af2ec295c38b6b06a7f5fce6"
@@ -334,6 +706,9 @@ destinations:
       - path: tests/opendox_bundle.py
         reason: "added by openXdox-code #19 (§ 3.4 slice S8: the PINNED openDox bundle the 31 mis-pointed suites read, and the composed root RULED Q5 assembles)"
         since: "c8e4a59bd8eab231e5903e26b2a9b08e9e527fba"
+      - path: tests/protected_suite_respellings.yaml
+        reason: "added by openXdox-code #34 (plan 034 T060: openXdox's facet carries the governed snapshot values (5.3a))"
+        since: "c41063d6aaada96258331ef39c9978fdf10a154b"
       - path: tests/test_corpus_shape.py
         reason: "added by opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`, split-opendox-two-layer-product `design.md` § D4 machinery (1), RULED Q-X1..Q-X4 `#656` comment `5715212264`) — on `validate.yml`'s explicit `--noconftest` list: what a `CorpusShape` refuses to be, and what `from_profile` derives from the vendored engineering profile's six artifact kinds and eleven declared locations"
         since: "5494bb43350636cf7c3d5a3b6b2d6262ab74dd06"
@@ -361,6 +736,9 @@ destinations:
       - path: tests/test_gate_loop_views.py
         reason: "added by openXdox-code #18 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg A) — the column's contract EXECUTED rather than described: the six bindings, their declared exports and routes, RULED Q3's one mount signature, RULED Q4's `requires`, the assembly hook and the hosted fallback"
         since: "01b06c940fa9f62c9b10f369b0843c4088690d49"
+      - path: tests/test_governed_registry_and_writer.py
+        reason: "added by openXdox-code #35 (plan 034 T059: openXdox contributes its governed generator, registry and source through openDox's seams (5.4a))"
+        since: "839492d905f470903cc80421fd536826f78cbcde"
       - path: tests/test_hermeticity_gate_verbs.py
         reason: "added by openXdox-code #30 (plan 034 T041, 9.2)"
         since: "5fbd188ed4fe3681e189fafe49d7d0699d70a2ee"
@@ -376,6 +754,15 @@ destinations:
       - path: tests/test_no_hardcoded_status_words.py
         reason: "added by openXdox-code #14 (RULING C2's own guard)"
         since: "3840c1670771e2dc7bcd64eaafbc43169e0f383d"
+      - path: tests/test_packaged_validator.py
+        reason: "added by openXdox-code #36 (plan 034 T061: the consumer's validator located through the installed distribution (7.3))"
+        since: "6a3b93b93cd647ea0c62aa7bb5cdff529a2c35e8"
+      - path: tests/test_projection_contributions.py
+        reason: "added by openXdox-code #35 (plan 034 T059: openXdox contributes its governed generator, registry and source through openDox's seams (5.4a))"
+        since: "839492d905f470903cc80421fd536826f78cbcde"
+      - path: tests/test_protected_suite_check.py
+        reason: "added by openXdox-code #35 (plan 034 T059: openXdox contributes its governed generator, registry and source through openDox's seams (5.4a))"
+        since: "839492d905f470903cc80421fd536826f78cbcde"
       - path: tests/test_role_authority_projection.py
         reason: "added by openXdox-code #10 (4.5 slice 1)"
         since: "4f98e77c7985f786af2ec295c38b6b06a7f5fce6"

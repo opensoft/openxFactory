@@ -471,7 +471,10 @@ RENDER_UNIT_IMPORTS = {
     ("openDox", "code"): ("cli.py", "corpus_adapter.py", "domain_profile.py",
                           "doxbench_packet.py", "serve_wire.py",
                           "workbench.py"),
-    ("openXdox", "code"): ("cli_gate.py", "domain_profile.py", "serve_gate.py",
+    # `projection_contributions` joined with plan 034 T064: the host
+    # bootstrap's `register_openxfactory()` imports it.
+    ("openXdox", "code"): ("cli_gate.py", "domain_profile.py",
+                           "projection_contributions.py", "serve_gate.py",
                            "serve_projection.py", "snapshot.py",
                            "view_extensions.py"),
 }
