@@ -349,9 +349,10 @@ planned on answers.
     A #1171 → `bca4a260`; B #1194 → `e369cb25`; C #1172 → `4663e9e8`; D #1170 →
     `79a720a2`; E #1183 → `b9742534`; F #1178 → `295abd8d`; G #1205 →
     `91e4685f`; H #1206 → `f99a2097`; I #1180 → `8421603a`; J #1193 →
-    `6b97c601`; K #1210 → `39f19145`; L #1212 → `2140f5a7`. Batch M has not
-    landed yet. The plan bookkeeping that follows its landing records its PR
-    and merge commit, and ticks T007 again.
+    `6b97c601`; K #1210 → `39f19145`; L #1212 → `2140f5a7`, which T063's
+    checkpoint PR (#1218) recorded. Batch M has not landed yet. The plan
+    bookkeeping that follows its landing records its PR and merge commit,
+    and ticks T007 again.
   - #1144's `tasks.md` was also edited outside the batches. #1202 → `e81eed62`
     (T018's PR) added F11.1's `ADMITTED_ARC_EDITS` (RULED `5890601202`) and
     corrected batch E's held-case count from "6 to 7" to "5 to 6". #1204 →
@@ -1529,7 +1530,9 @@ unchanged.
     generator seam needs one explicit registration in openxFactory's
     process, and the seam does not read the profile. T059 makes it from
     openXdox's own profile-registration path, the hook openxFactory already
-    calls, so that T064 needs no host line (openDox-code#54).
+    calls, so that T064 would need no host line (openDox-code#54). That
+    reading was revised at T059's landing (below): T064 owed one host line,
+    and openxFactory#1215 → `fcb45380` carries it.
   - It moves `pyproject.toml`'s `opendox @` pin to the phase-2 openDox-code
     commit (step 3). The ratchet is lowered for T055's closed reaches in the
     same landing.
@@ -1803,7 +1806,7 @@ unchanged.
     - It also carried T064's plan-text correction, the one host line, as the
       holder decided (a plan edit in T064's own arc PR sits on no F11.1
       surface).
-- [ ] T064 [US4] [oX] [oxF] **Phase 2's consumer pins** (T090 steps 5–6). The
+- [x] T064 [US4] [oX] [oxF] **Phase 2's consumer pins** (T090 steps 5–6). The
   openXdox root moves to T061's commit, the phase's last openXdox-code
   landing, and to T062's root commit. Host wiring is needed only if
   openxFactory's composite has to register a generator contribution, and it
@@ -1842,22 +1845,71 @@ unchanged.
   - **Ruled**: R1Q26 (a), R1Q27 (a), `5851950767`.
   - **After**: T059, T060, T061, T062, T066, T047 (the pin pairs'
     single-writer order).
-- [ ] T065 [US4] [oxF] **Phase 2's interim F11.1**, by T093's procedure, with
+  - **Landed**: openXdox#21 → `f257e021` (the openXdox root: code
+    `6a3b93b9`, openDox pin `d5098297`), then openxFactory#1215 →
+    `fcb45380`, an arc landing whose squash carries the `Arc:` trailer.
+    - Both pin pairs move in ONE commit (#1215's `59866105`), departing from
+      T090 step 6 on the holder's decision of 2026-09-28: #21 moves the openDox
+      pin that `verify-opendox-pin.py` check 5 reads through the openXdox
+      gitlink. openDox is `d5098297` (`2815ca23…`, 28 records), and openXdox
+      is `f257e021` (`52f0598e…`, 29 records, recomputed three ways).
+    - The host line calls `openxdox.projection_contributions.register()` once
+      openDox answers the profile and before `register_seams()`, so a refused
+      profile writes no seam (Copilot's finding at `d6c47f4f`, answered in
+      `5663b4ed`). `tests/domain_profile/test_host_registers_openxdox_projection.py`
+      pins it in 9 cases.
+    - #1213's three no-both-pins-form reds are answered on admitted F11.1
+      surfaces (holder decision (c)): `RENDER_LEG_MODULES` and
+      `RENDER_UNIT_IMPORTS` gain `projection_contributions.py`, and the q7
+      literal moves to `d5098297`. 129 carve admissions are added and pinned in
+      `tests/carve_arrival`.
+    - CI at the PR head passes all 12 checks. `pytest-suite` reads
+      `selected=9345 passed=9339 skipped=6`, and the consumer gate reads
+      105/105/0 and 1481/1481/0.
+- [x] T065 [US4] [oxF] **Phase 2's interim F11.1**, by T093's procedure, with
   `ARC_TIP` at T064's landing. Record the output in
   `evidence/f11.1-phase2.txt`, with no `Arc:` trailer, and link it from
   this feature's README entry.
   - **Falsifier**: F11.1, as widened by T007 batch A, prints `requirement 1
     holds`.
   - **After**: T064.
-- [ ] T063 **Phase 2 checkpoint.** Run and quote F5.1, F5.2 (as amended by
+  - **Landed**: [`evidence/f11.1-phase2.txt`](evidence/f11.1-phase2.txt),
+    with `PACKET_MERGE=94b6f7f1` and `ARC_TIP=fcb45380` (#1215). It prints
+    `requirement 1 holds: 0 note(s) annotated, every other path a declared
+    surface (11.1)` (exit 0) over the arc's two landings, `f56c87c6` (T047)
+    and `fcb45380` (T064). A planted path on no surface is refused. The
+    admitted list did not grow.
+- [x] T063 **Phase 2 checkpoint.** Run and quote F5.1, F5.2 (as amended by
   T007's batches C, F, G and K, its last step passing `--chains`), F5.3,
   F7.1 (T061, back in this phase by R1Q25
   (b), and read as batch I records R1Q27 (a)) and F7.2. Then run a standalone
   `generate-and-open` serving the fixture, and quote T065's interim F11.1
   output.
   - **Ruled**: R1Q23 (a), R1Q25 (b), `5850003126`; R1Q27 (a), `5851950767`;
-    `5916000030`, item 4.
+    `5916000030`, item 4; F5.2's close, `5962785556`, item 1.
   - **After**: T064, T065, T007 (batches C, F, G, I and K).
+  - **Run** (2026-10-02; `evidence/checkpoint-phase2.md`): at openDox-code
+    `047bb4fa`, openXdox-code `6a3b93b9` and, for F5.2's composition,
+    openxFactory at T064's landing `fcb45380`.
+    - F5.1, F5.3, F7.1 and F7.2 pass, and a standalone `generate-and-open`
+      serves the fixture.
+    - F5.2, as batches C, F, G and K amend it, exits 1 on
+      `tests/test_session_snapshot.py` alone (20 passed, 3 failed), the same
+      at openxFactory `2656e8c2`. The three are the pre-arc reds the holder
+      ruled (a) at T059 (openXdox-code#35's body, item 6), which T061 left to
+      this task. The six other suites pass whole, and the `--chains` step
+      admits all four protected suites the arc touched.
+    - **F5.2 is quoted red, as ruled, and phase 2 closes.** RULED
+      `5962785556` (Brett Heap, 2026-10-02, item 1, *"Fix in T086, close at
+      phase 3 (Recommended)"*): T063 quotes F5.2 red, names the three tests
+      (`test_a_new_serve_process_re_registers_the_session_at_startup`,
+      `test_a_session_key_is_validated_against_the_roster_before_url_composition`
+      and `test_the_hosted_session_arrival_path_is_recorded_and_not_built`),
+      and is ticked. T086 repairs them under R1Q7 (a)'s allow-list, and
+      F5.2's box closes at T089, so the pins move only once more, at T094.
+      #1144's F5.2 text is unchanged.
+    - T065's interim F11.1 output (openxFactory#1217 → `1f670bc3`) is quoted
+      there, and it was re-run with the same line, `requirement 1 holds`.
 
 ---
 
@@ -2292,12 +2344,25 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - It contributes the columns through the handler-contribution facet (R1Q1
     (a)). A protected suite that names a moved seam is respelled only under
     R1Q7 (a)'s allow-list.
-  - **Realizes**: 4.3 (consumer half), 9.2 (the ratchet), 9.5 (step 3, part).
+  - **F5.2's three pre-arc reds (RULED `5962785556`, item 1, *"Fix in T086,
+    close at phase 3 (Recommended)"*).** This landing repairs three tests of
+    `tests/test_session_snapshot.py`: `test_a_new_serve_process_re_registers_the_session_at_startup`,
+    `test_a_session_key_is_validated_against_the_roster_before_url_composition`
+    and `test_the_hosted_session_arrival_path_is_recorded_and_not_built`.
+    They are red at both phase-2 pins, as pre-arc carve residue
+    (openXdox-code#35's body, item 6; T063 quotes them). The suite is one of
+    F5.2's protected suites, so each repair is its own entry in R1Q7 (a)'s
+    reviewed allow-list (`tests/protected_suite_respellings.yaml`), which
+    F5.2's `--chains` step reads. F5.2 whole then passes, and its box closes
+    at T089.
+  - **Realizes**: 4.3 (consumer half), 9.2 (the ratchet), 9.5 (step 3, part);
+    F5.2 (its three repairs, with T089).
   - **Falsifier**: `tests/test_dependency_direction.py`; F9.1 (openXdox-code,
     as amended by T007's batches B and F, and by batch J's `--deselect` unless
-    T008 has removed it).
+    T008 has removed it); and F5.2 whole, as T007's batches C, F, G and K
+    amend it, with `tests/test_session_snapshot.py` green.
   - **Ruled**: R1Q1 (a), R1Q7 (a), R1Q22 (a), `5817152735`; R1Q10 (a), R1Q25
-    (b), `5850003126`.
+    (b), `5850003126`; F5.2's three repairs, `5962785556`, item 1.
   - **After**: T084, T087, T061 (the `pyproject.toml` pin's single-writer
     order), T059 (the ratchet's).
 - [ ] T094 [US4] [oX] [oxF] **Phase 3's consumer pins and host wiring** (T090
@@ -2329,8 +2394,10 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     holds`.
   - **After**: T094.
 - [ ] T089 **Phase 3 checkpoint.** Run and quote F4.1, F10.1 and F13.1 (both
-  as batch H amends them), and F16.1 as batch M amends it (with T100's named
-  test), then T098's interim F11.1 output.
+  as batch H amends them), F16.1 as batch M amends it (with T100's named
+  test), and F5.2 whole (as T007's batches C, F, G and K amend it, after
+  T086's repair), then T098's interim F11.1 output.
+  - **Ruled**: F5.2's close here, `5962785556`, item 1.
   - **After**: T094, T098, T076 (so every phase-3 task is done).
 
 ---
@@ -2405,6 +2472,11 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   2026-09-28: six notes on five rows, for the ten reaches phase 1 closed. That
   PR carries no `Arc:` trailer, so F11.1's count of annotated notes never
   includes them. Their PR ran F11.1's content rule over them instead.
+  Phase 2's rode in T063's checkpoint PR in the same way, on the holder's
+  decision (b) recorded in T064's PR (openxFactory#1215): three notes on three
+  rows (two added, one extended), for the eight reaches into openXdox that
+  T055 closed (openDox-code#59 → `fa140875`). That PR ran the same content rule
+  over them.
   - **Realizes**: 11.1, which is ticked at ARC close.
   - **Falsifier**: F11.1's manifest check. With every `edits[].note` removed,
     the two documents must be equal, and a note that already existed may only
@@ -2539,7 +2611,7 @@ Every release-1 box, with the task that closes it:
 | 2 (8) | 2.1 → T011 · 2.1a → T011 · 2.2 → T010, T011, T045 · 2.3 → T032 · 2.4 → T030 · 2.5 → T036 · 2.6 → T031 · F2.1 → T049 |
 | 3 (5) | 3.0 → T001 · 3.1 → T015 · 3.2 → T016 · 3.3 → T017 · F3.1 → T049 |
 | 4 (5) | 4.1 → T020, T021, T046 · 4.1a → T022 · 4.2 → T020 · 4.3 → T012, T021, T025–T027, T046, T055, T084–T086 · F4.1 → T089 |
-| 5 (12) | 5.0 → T050 · 5.1 → T053, T054, T056 · 5.2 → T054 · 5.3 → T054 · 5.3a → T060 · F5.1 → T060 · 5.4 → T052 · 5.4a → T059 · F5.2 → T061, T063 · 5.5 → T055 · 5.6 `[x]` · F5.3 → T063 |
+| 5 (12) | 5.0 → T050 · 5.1 → T053, T054, T056 · 5.2 → T054 · 5.3 → T054 · 5.3a → T060 · F5.1 → T060 · 5.4 → T052 · 5.4a → T059 · F5.2 → T086, T089 (T063 quotes it red; RULED `5962785556` moves its close to phase 3) · 5.5 → T055 · 5.6 `[x]` · F5.3 → T063 |
 | 7 (8) | 7.0 → T051 · 7.1 → T053, T057 · 7.1b → T057 · 7.1a → T057 · 7.2 → T057, T058 · 7.3 → T061 · F7.1 → T061 · F7.2 → T058, T063 |
 | 9 (8) | 9.1 → T034–T036 · 9.2 → T040, T041, T043, T086 · 9.2a → T030, T036 · 9.3 → T035, T042 · 9.4 → T037, T044 · 9.5 → T039, T040, T047, T059, T062, T064, T086, T087, T094 (T090's steps; arc close) · F9.1 → T049 · F9.2 → after T008 (T049 quotes it red, as RULED `5859927858` keeps it) |
 | 10 (5) | 10.1 → T038 · 10.2 → T075 · 10.2a → T075 · 10.3 → T076 · F10.1 → T077 |
@@ -2677,7 +2749,7 @@ Batch I lands before P2-X, P2-K and P2-C, and batch K before P2-C.
 | P2-H openxFactory at both pins (non-arc) | G8 | T066 | oxF | `tests/ideation-dashboard/test_dashboard_source_seal.py`; `scripts/profile_openxfactory.py` and `tests/test_engineering_profile_display_facet.py` (R1Q26 (a)); whatever the candidate pins' runs name | P2-C, P2-D | openxFactory's `pytest-suite`, and the consumer gate's suite at its floors, at the current pins and at T064's candidate pins | Opus |
 | P2-L consumer pins | G9 | T064 | oX, oxF | openXdox root: `code`, `contracts/code-pin.yaml`, `contracts/opendox-pin.yaml`. openxFactory: both pin pairs | P2-H, P2-K, P2-C, P2-X, P2-D | `make pins` in the openXdox root; `verify-opendox-pin.py`, `verify-openxdox-pin.py`; `pytest-suite`, and the consumer gate's suite at its floors (`MIN_PASSED` 1137, `EXPECT_SKIPPED` 0) | Sonnet |
 | P2-M read-only checks | G9, after P2-L | T065 | oxF | `evidence/` only | P2-L | interim F11.1 prints `requirement 1 holds` | Sonnet |
-| checkpoint | G9, last | T063 | — | none (a verifier) | P2-L, P2-M; T007 batches C, F, G, I and K | F5.1, F5.2, F5.3, F7.1, F7.2; a standalone `generate-and-open` | Opus (verifier) |
+| checkpoint | G9, last | T063 | — | none (a verifier) | P2-L, P2-M; T007 batches C, F, G, I and K | F5.1, F5.2 (quoted red, as RULED `5962785556`), F5.3, F7.1, F7.2; a standalone `generate-and-open` | Opus (verifier) |
 
 ## Phase 3 writer slices (for the fan-out)
 
@@ -2698,10 +2770,10 @@ P3-B's T080, batch L before P3-R's T084, and batch M before P3-T's T100.
 | P3-N no model, everywhere | G3; T083 after P3-T | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B; P3-T for T083 | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole, as batch M amends it (T083) | Sonnet |
 | P3-P openDox root pin | G4 | T087 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-3 openDox-code slice landed | `make pins` | Sonnet |
 | P3-O the root README | G5 | T076 | oD | `README.md` | P3-P, P3-J, P3-E | review; AT-R1 step 4 follows it | Sonnet |
-| P3-X openXdox's columns | G5 | T086 | oXc | the gate and projection contributions; `pyproject.toml` (the `opendox @` pin); `tests/test_dependency_direction.py` (the ratchet at `(0, 0)`) | P3-P, P3-R; P2-C | `tests/test_dependency_direction.py`; F9.1 as batches B and F amend it, and batch J's `--deselect` unless T008 has removed it | Opus |
+| P3-X openXdox's columns | G5 | T086 | oXc | the gate and projection contributions; `pyproject.toml` (the `opendox @` pin); `tests/test_dependency_direction.py` (the ratchet at `(0, 0)`); `tests/test_session_snapshot.py` and `tests/protected_suite_respellings.yaml` (F5.2's three repairs, RULED `5962785556`) | P3-P, P3-R; P2-C | `tests/test_dependency_direction.py`; F9.1 as batches B and F amend it, and batch J's `--deselect` unless T008 has removed it; F5.2 whole | Opus |
 | P3-K pins and host wiring | G6 | T094 | oX, oxF | as P1-K's pin files; `tests/ideation-dashboard/test_extension_point_parity.py` and `tests/ideation-dashboard/test_serve_column_split.py` (named composition tests) | P3-X, P3-P | as T047's | Opus |
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
-| checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F10.1, F13.1, F16.1 (as batch M amends it) | Opus (verifier) |
+| checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F5.2, F10.1, F13.1, F16.1 (as batch M amends it) | Opus (verifier) |
 | acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O | the harness; the oracle's verdict | Opus |
 | bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance; T007 every batch | none (a record) | Sonnet |
 

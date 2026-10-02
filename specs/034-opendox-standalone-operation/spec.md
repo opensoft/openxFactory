@@ -316,8 +316,11 @@ governed corpus is projected exactly as it is today.
 **Why this priority**: a product that can only serve snapshots it cannot
 generate is not standalone (requirement 4, first scenario).
 
-**Independent Test**: at the phase-2 tip, F5.3, F7.2, F5.1 (5.3a re-run) and
-F5.2 (5.4a) all pass. F5.2 is run as T007's batches C, F, G and K amend it,
+**Independent Test**: at the phase-2 tip, F5.3, F7.2 and F5.1 (5.3a re-run)
+pass. F5.2 (5.4a) is run and quoted: it is red on three pre-arc carve-residue
+tests of `tests/test_session_snapshot.py` until T086 repairs them, and its box
+closes at phase 3's checkpoint, T089 (RULED `5962785556`, item 1; T063). F5.2
+is run as T007's batches C, F, G and K amend it,
 with openxFactory's `scripts/` composed at a named commit (R1Q23 (a)) and its
 last step passing `--chains` (`5916000030`, item 4). F7.1 (7.3)
 passes too, since R1Q25 (b) keeps 7.3 in this phase, and its second test
@@ -418,8 +421,9 @@ regression, not a release.
 **Independent Test**: openxFactory's required checks (among them
 `pytest-suite`) stay green at every pin advance. An interim F11.1 run after
 each phase's openxFactory landings exits 0: T018, T065 and T098, each by
-T093's procedure. F5.2, F7.1 (at the phase-2 tip, T061) and 9.3's integration
-suite pass.
+T093's procedure. F7.1 (at the phase-2 tip, T061) and 9.3's integration suite
+pass, and F5.2 passes at the phase-3 tip, once T086 repairs its three pre-arc
+reds (RULED `5962785556`).
 
 **Acceptance Scenarios**:
 
@@ -671,13 +675,15 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   - openXdox-code's goes from 57 collection errors to green over the whole
     suite less its declared exclusion (R1Q6 (d), R1Q24 (a), R1Q25 (b)). The
     exclusion is reported as an open extraction, as FR-006 says.
-- **SC-002** (phase 2 exit): F5.1, F5.2, F5.3, F7.1 and F7.2 exit 0. F5.2 runs
+- **SC-002** (phase 2 exit): F5.1, F5.3, F7.1 and F7.2 exit 0. F5.2 is run and
+  quoted red on three pre-arc tests until T086, and exits 0 at phase 3's exit
+  (SC-003; RULED `5962785556`, item 1). F5.2 runs
   as T007's batches C, F, G and K amend it (R1Q23 (a); `5916000030`, item 4:
   its last step passes `--chains`), and F7.1 runs here
   because R1Q25 (b) keeps 7.3 in phase 2, read as batch I records R1Q27
   (a).
-- **SC-003** (phase 3 exit): F4.1, F10.1, F13.1 and F16.1 (with T007's batch M
-  line) exit 0, and the F4.1 scan prints
+- **SC-003** (phase 3 exit): F4.1, F5.2, F10.1, F13.1 and F16.1 (with T007's
+  batch M line) exit 0, and the F4.1 scan prints
   `no deferred reach names the consumer or the publisher`.
 - **SC-004**: AT-R1 passes, and its evidence is recorded in this feature's
   `evidence/` directory.
