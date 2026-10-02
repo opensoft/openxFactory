@@ -11,10 +11,14 @@ call, every openDox entry point projects through openDox's neutral defaults.
 
   1. The one call registers the contributions, and a fresh process holds none
      of them before it.
-  2. It registers them BEFORE the profile, as openXdox's own registration does.
+  2. It registers them AFTER openDox answers the profile and BEFORE the host's
+     own seams.
   3. A second call is a no-op: the same objects stay registered.
-  4. If openDox refuses the profile, the contributions this call wrote are
-     taken back, and contributions the process already held stay.
+  4. If openDox refuses the profile, no projection seam is written, and
+     openDox's unread defaults stay where they were (Copilot, #1215).
+     Contributions the process already held stay too. If the contribution
+     is refused, the profile stays registered and no seam of the host's is
+     written.
   5. MUTATION: with the contribution call made a no-op, the property in 1
      fails, so 1 is what the line keeps.
 
@@ -87,20 +91,24 @@ def test_a_fresh_process_holds_it_only_after_the_call():
 
 
 # --------------------------------------------------------------------------
-# 2. before the profile
+# 2. after the profile, before the host's seams
 # --------------------------------------------------------------------------
 
-def test_the_contributions_are_registered_before_the_profile():
-    """openDox's `register()` is reached with the contributions already in
-    place, the order `openxdox.domain_profile.register()` keeps."""
+def test_the_contributions_follow_the_profile_and_precede_the_seams():
+    """openDox's `register()` is reached with no contribution written, and
+    `register_seams()` with every one in place."""
     assert _words("""
-        real = odp.register
-        def spy(profile):
-            print("CONTRIBUTED_FIRST", pc.is_registered())
-            return real(profile)
-        odp.register = spy
+        real_register, real_seams = odp.register, opendox_host.register_seams
+        def spy_register(profile):
+            print("AT_PROFILE", pc.is_registered())
+            return real_register(profile)
+        def spy_seams():
+            print("AT_SEAMS", pc.is_registered())
+            return real_seams()
+        odp.register = spy_register
+        opendox_host.register_seams = spy_seams
         opendox_host.register_openxfactory()
-    """) == ["CONTRIBUTED_FIRST", "True"]
+    """) == ["AT_PROFILE", "False", "AT_SEAMS", "True"]
 
 
 # --------------------------------------------------------------------------
@@ -120,13 +128,13 @@ def test_a_second_call_is_a_no_op():
 
 
 # --------------------------------------------------------------------------
-# 4. a refused profile leaves no contribution this call wrote
+# 4. a refusal leaves no seam half written
 # --------------------------------------------------------------------------
 
-def test_a_refused_profile_takes_back_what_the_call_contributed():
+def test_a_refused_profile_writes_no_projection_seam():
     """openDox refuses the profile. The refusal reaches the caller unchanged,
-    and no contribution is left at a seam, so the process is neither half
-    registered nor half governed."""
+    and no seam has been written, so the process is neither half registered
+    nor half governed."""
     assert _words("""
         def refuse(profile):
             raise odp.AlreadyRegistered("refused for the test")
@@ -139,6 +147,33 @@ def test_a_refused_profile_takes_back_what_the_call_contributed():
             print("NO REFUSAL")
         print(pc.is_registered(), generator_seam.is_registered())
     """) == ["REFUSED", "True", "False", "False"]
+
+
+def test_a_refused_profile_leaves_openDoxs_unread_defaults_in_place():
+    """Copilot's case on #1215. openDox's entry-point defaults are installed
+    and unread when openDox refuses the profile. Each default is still the
+    one its seam answers afterwards, because nothing was written over it."""
+    assert _words("""
+        from opendox import default_generator, default_projection
+        from opendox import default_registry, projection_seams
+        generator_seam.register_default(default_generator.GENERATOR)
+        projection_seams.register_defaults()
+        def refuse(profile):
+            raise odp.AlreadyRegistered("refused for the test")
+        odp.register = refuse
+        try:
+            opendox_host.register_openxfactory()
+        except odp.AlreadyRegistered:
+            print("REFUSED")
+        kind = default_projection.OWN_KINDS[0]
+        print(generator_seam.current() is default_generator.GENERATOR,
+              projection_seams.registry.current() is default_registry,
+              projection_seams.corpus_root.current()
+              is default_projection.CORPUS_ROOT,
+              projection_seams.writer.current() is default_projection.WRITER,
+              projection_seams.validators.for_kind(kind)
+              is default_projection.VALIDATORS[kind])
+    """) == ["REFUSED", "True", "True", "True", "True", "True"]
 
 
 def test_a_refused_profile_leaves_contributions_the_process_already_held():
@@ -155,6 +190,30 @@ def test_a_refused_profile_leaves_contributions_the_process_already_held():
             print("REFUSED")
         print(pc.is_registered())
     """) == ["REFUSED", "True"]
+
+
+def test_a_refused_contribution_leaves_the_profile_and_writes_no_host_seam():
+    """The contribution is refused once the profile is registered. The refusal
+    reaches the caller unchanged, the profile stays registered, as a refusal
+    inside `register_seams()` leaves it, and the host's seams are not
+    reached, so the home corpus is still unregistered."""
+    assert _words("""
+        def refuse():
+            raise RuntimeError("contribution refused for the test")
+        pc.register = refuse
+        try:
+            opendox_host.register_openxfactory()
+        except RuntimeError as exc:
+            print("REFUSED", "refused for the test" in str(exc))
+        print(odp.current() is opendox_host.profile())
+        from opendox import corpus_adapter
+        try:
+            corpus_adapter.home()
+        except corpus_adapter.CorpusRefused:
+            print("NO_HOST_SEAM")
+        else:
+            print("A_HOST_SEAM_WAS_WRITTEN")
+    """) == ["REFUSED", "True", "True", "NO_HOST_SEAM"]
 
 
 # --------------------------------------------------------------------------
