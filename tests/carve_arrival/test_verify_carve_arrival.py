@@ -5193,8 +5193,8 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     `created:` sets. The seeding commit (openxFactory PR #979, `972b484a`) is
     the seed and takes no ordinal. Measured that way the landed sequence is
     PR #984, #1002, #1001, #1009, #1010, #1023, #1030, #1025, #1067, #1068,
-    #1085, #1091, #1153 and #1181 — fourteen amendments, eleven of which bump
-    `opendox_code`.
+    #1085, #1091, #1153, #1181 and #1215 — fifteen amendments, twelve of which
+    bump `opendox_code`.
     AN ORDINAL IS NOT A POSITION IN THIS FILE and never was: the assertion
     blocks below run in the order the reading needs, so an ordinal is read off
     the document's history and never off a neighbouring block. Three
@@ -5354,6 +5354,17 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     bump admitted. The legs landed FIRST this time, so each `since` is the leg's
     own squash landing. Pinned by path AND `since`, and counted in the
     committed file, on the RULED Q7 block's reasoning.
+
+    AMENDED A FIFTEENTH TIME by openxFactory PR #1215, plan 034 T064 (the
+    phase-2 pin PR, which moves BOTH pins again): one hundred and twenty-nine
+    more — thirteen `openxdox_code` files from openXdox-code#34, #35 and #36
+    (T060, T059, T061), eighty `opendox_code` files from openDox-code#53-#70
+    (T050-T058), and thirty-six `opendox_spec` files: thirty-five from
+    openDox-spec#16 (T053, the leg `dox-v1.1` tags, which this pin is the first
+    to cross) and one from #8 that the spec walk already needed at
+    `8fe8c4c7` and no earlier bump admitted. The legs landed first, so each
+    `since` is the leg's own squash landing. Pinned by path AND `since`, and
+    counted in the committed file, as T047's are.
 
     What is durable is asserted in place of the frozen content: the two
     RULED openxdox_code seed entries (the measured defect this file repairs,
@@ -5954,6 +5965,215 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
                               for destination, wanted in T047_ADMITTED.items()
                               for path in wanted}, sorted(t047_committed)
     assert len(t047_committed) == 37, sorted(t047_committed)
+
+    # THE FIFTEENTH BUMP: plan 034 T064, the phase-2 pin PR (openxFactory
+    # #1215), which moves BOTH pins and so admits the created files of both
+    # `-code` legs and of openDox's `spec` leg, which moved to `f7ee3c76` with
+    # `dox-v1.1`. As at T047, the legs LANDED FIRST, so each `since` is the
+    # leg's own squash landing, where `git log --diff-filter=A` finds the file.
+    #
+    # DERIVED AS T047's WERE for the `-code` legs: at both new pins
+    # `verify-carve-arrival.py --phase B` still refuses
+    # `arrival-undeclared-edit` before the created-file walk. So the lists are
+    # the files each leg added between its last pin (openXdox-code `6158151e`,
+    # openDox-code `2d116415`) and its new one (`6a3b93b9`, `047bb4fa`) under
+    # the destination's declared roots, that no row places and no admission
+    # already declared, each checked present at the new pin.
+    #
+    # THE SPEC LEG RUNS GREEN, which no `-code` leg does yet: with these
+    # admissions, `--destination opendox_spec --phase B` at `f7ee3c76` prints
+    # OK. Without them it refuses `arrival-undeclared-file`, first on the
+    # older `docs/front-end-package-boundary.md` (openDox-spec#8), which it
+    # refused at the old pin `8fe8c4c7` too.
+    T064_ADMITTED = {
+        "openxdox_code": {
+            # openXdox-code#34, plan 034 T060
+            "tests/protected_suite_respellings.yaml":
+                "c41063d6aaada96258331ef39c9978fdf10a154b",
+            # openXdox-code#35, plan 034 T059
+            **{path: "839492d905f470903cc80421fd536826f78cbcde" for path in (
+                "scripts/protected_suites.py",
+                "src/openxdox/projection_contributions.py",
+                "tests/test_governed_registry_and_writer.py",
+                "tests/test_projection_contributions.py",
+                "tests/test_protected_suite_check.py")},
+            # openXdox-code#36, plan 034 T061
+            **{path: "6a3b93b93cd647ea0c62aa7bb5cdff529a2c35e8" for path in (
+                "src/openxdox/contracts/__init__.py",
+                "src/openxdox/contracts/copies.yaml",
+                "src/openxdox/contracts/schemas/gate-action-record.schema.yaml",
+                "src/openxdox/contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml",
+                "src/openxdox/contracts/schemas/ideation-dashboard-snapshot.schema.yaml",
+                "src/openxdox/contracts/validate-ideation-dashboard-contracts.py",
+                "tests/test_packaged_validator.py")},
+        },
+        "opendox_code": {
+            # openDox-code#53, plan 034 T050
+            **{path: "dc3765dda9e4dd5dbc4270c96ecd49e48224ce32" for path in (
+                "tests/fixtures/plain-documents/candidate-toolshed-rebuild.md",
+                "tests/fixtures/plain-documents/completion-path-resurfacing.md",
+                "tests/fixtures/plain-documents/grouping-compost-corner.md",
+                "tests/fixtures/plain-documents/notes-rain-barrel-leak.md",
+                "tests/fixtures/plain-documents/notes-rain-barrel-overflow.md",
+                "tests/fixtures/plain-documents/notes-toolshed-inventory.md",
+                "tests/fixtures/plain-documents/selection-spring-planting-plan.md",
+                "tests/fixtures/plain-documents/submission-shed-door-repair.md",
+                "tests/test_plain_documents_fixture.py")},
+            # openDox-code#54, plan 034 T052
+            **{path: "fa8862ccc992dffbf60abba55591c9c450fcaabe" for path in (
+                "src/opendox/default_generator.py",
+                "src/opendox/generator_seam.py",
+                "tests/test_generator_seam.py")},
+            # openDox-code#56, plan 034 T051
+            **{path: "866473209b6f2670bd3c3638d220f050ee37e375" for path in (
+                "tests/fixtures/malformed/EXPECTED_RULE",
+                "tests/fixtures/malformed/notes-bee-boxes.md",
+                "tests/fixtures/malformed/notes-empty-title.md")},
+            # openDox-code#57, plan 034 T054
+            **{path: "a691e4e4e606a959ff0248804e058faf10724285" for path in (
+                "src/opendox/neutral_projection.py",
+                "tests/test_neutral_projection.py")},
+            # openDox-code#58, plan 034 T057
+            **{path: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67" for path in (
+                "src/opendox/contracts/__init__.py",
+                "src/opendox/contracts/copies.yaml",
+                "src/opendox/contracts/schemas/ideation-workbench.schema.yaml",
+                "src/opendox/contracts/schemas/opendox-snapshot.schema.yaml",
+                "src/opendox/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml",
+                "src/opendox/contracts/schemas/xfactory-workbench-model-catalog.schema.yaml",
+                "src/opendox/validator.py",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-candidate-keys.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-candidate-names-a-group.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-candidate-state-is-known.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-closed-candidate-has-reason.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-document-keys.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-edge-keys.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-edge-names-a-document.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-envelope-keys.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-generated-at-is-rfc3339.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-generation-anchored.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-group-has-a-topic.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-group-keys.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-id-is-text.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-ids-are-unique.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-keyword-entry-keys.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-keyword-index-matches-topics.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-kind-is-opendox-snapshot.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-one-edge-per-document.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-path-is-repo-relative.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-pick-names-a-selection.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-repository-is-text.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-schema-version-is-1.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-section-is-a-list.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-selected-candidate-has-pick.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-selection-keys.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-stage-is-a-station-role.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-submission-keys.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-submission-status-is-known.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-target-names-a-submission.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-title-and-summary-are-text.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-topic-is-trimmed-text.negative.yaml",
+                "tests/fixtures/spec-examples/negative/opendox-snapshot-topics-are-unique.negative.yaml",
+                "tests/fixtures/spec-examples/opendox-snapshot-no-front-matter.example.yaml",
+                "tests/fixtures/spec-examples/opendox-snapshot-six-stations.example.yaml",
+                "tests/fixtures/spec-examples/workbench-chat-turn-v2-full-context.example.yaml",
+                "tests/fixtures/spec-examples/workbench-chat-turn-v2-loaded-set.example.yaml",
+                "tests/fixtures/spec-examples/workbench-chat-turn-v2-provider-retry.example.yaml",
+                "tests/fixtures/spec-examples/workbench-chat-turn-v2-reduced-context.example.yaml",
+                "tests/fixtures/spec-examples/workbench-chat-turn-v2-success.example.yaml",
+                "tests/fixtures/spec-examples/workbench-model-catalog-empty.example.yaml",
+                "tests/fixtures/spec-examples/workbench-model-catalog-hosted-zero-retention.example.yaml",
+                "tests/fixtures/spec-examples/workbench-model-catalog-local.example.yaml",
+                "tests/fixtures/spec-examples/workbench-model-catalog-multimodal.example.yaml",
+                "tests/fixtures/spec-examples/workbench-model-catalog-routing-rule-wider-than-a-non-resolved-member.example.yaml",
+                "tests/fixtures/spec-examples/workbench-model-catalog-routing-rule.example.yaml",
+                "tests/test_validator.py",
+                "tests/test_validator_input_set.py")},
+            # openDox-code#59, plan 034 T055
+            **{path: "fa140875955a44b6b0a2ca6f206e2afbbfec8d53" for path in (
+                "src/opendox/default_projection.py",
+                "src/opendox/default_registry.py",
+                "src/opendox/projection_seams.py",
+                "src/opendox/rfc3339.py",
+                "tests/test_projection_seams.py")},
+            # openDox-code#66, plan 034 T056
+            **{path: "a23e4224da658dac90b389ecd516928f6e884432" for path in (
+                "tests/standalone_child.py",
+                "tests/test_standalone_generate_path.py")},
+            # openDox-code#68, plan 034 T058
+            "tests/test_post_render_validator.py":
+                "047bb4fa394f3e1bf42466062a67ef18e99f8d6a",
+            # openDox-code#70, plan 034 T055 follow-up
+            "tests/test_edit_action_one_entry.py":
+                "75bd8703afc006144a6e7664077dd532aad7b445",
+        },
+        "opendox_spec": {
+            # openDox-spec#16, plan 034 T053
+            **{path: "f7ee3c763b3af4581daf1cd54406e5111e9358e6" for path in (
+                "contracts/schemas/opendox-snapshot.schema.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-candidate-keys.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-candidate-names-a-group.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-candidate-state-is-known.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-closed-candidate-has-reason.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-document-keys.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-edge-keys.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-edge-names-a-document.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-envelope-keys.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-generated-at-is-rfc3339.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-generation-anchored.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-group-has-a-topic.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-group-keys.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-id-is-text.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-ids-are-unique.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-keyword-entry-keys.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-keyword-index-matches-topics.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-kind-is-opendox-snapshot.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-one-edge-per-document.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-path-is-repo-relative.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-pick-names-a-selection.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-repository-is-text.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-schema-version-is-1.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-section-is-a-list.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-selected-candidate-has-pick.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-selection-keys.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-stage-is-a-station-role.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-submission-keys.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-submission-status-is-known.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-target-names-a-submission.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-title-and-summary-are-text.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-topic-is-trimmed-text.negative.yaml",
+                "examples/ideation-dashboard/negative/opendox-snapshot-topics-are-unique.negative.yaml",
+                "examples/ideation-dashboard/opendox-snapshot-no-front-matter.example.yaml",
+                "examples/ideation-dashboard/opendox-snapshot-six-stations.example.yaml")},
+            # openDox-spec#8, split-opendox § 3.4 (older: the walk needed it at 8fe8c4c7)
+            "docs/front-end-package-boundary.md":
+                "a44ac06d6fba12d8a22f3760f83e16bd5855fd04",
+        },
+    }
+    for destination, wanted in T064_ADMITTED.items():
+        declared = {entry["path"]: entry
+                    for entry in admissions.get(destination, [])}
+        for path, since in wanted.items():
+            assert path in declared, (
+                f"{path} is one of plan 034 T064's admissions at {destination} "
+                "and is no longer declared")
+            assert declared[path]["since"] == since, (
+                f"{path}'s `since` is {declared[path]['since']!r}; its leg "
+                f"introduced it at {since!r}, and an admission whose `since` is "
+                "not the introducing commit is not a falsifiable claim")
+    # ONE HUNDRED AND TWENTY-NINE, COUNTED IN THE COMMITTED FILE AT EVERY
+    # DESTINATION, as T047's thirty-seven are: an extra admission riding in on
+    # one of these commits, under any destination, fails.
+    t064_commits = {since for wanted in T064_ADMITTED.values()
+                    for since in wanted.values()}
+    t064_committed = {(destination, entry["path"])
+                      for destination, entries in admissions.items()
+                      for entry in (entries or [])
+                      if entry["since"] in t064_commits}
+    assert t064_committed == {(destination, path)
+                              for destination, wanted in T064_ADMITTED.items()
+                              for path in wanted}, sorted(t064_committed)
+    assert len(t064_committed) == 129, sorted(t064_committed)
 
     # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
     # replaces nothing: the frozen-content assertions these stand in for
