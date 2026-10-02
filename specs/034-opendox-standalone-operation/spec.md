@@ -360,9 +360,9 @@ configure one, before any turn is attempted, and everything else works.
 13 and 17). It depends on US1 and US2.
 
 **Independent Test**: at the phase-3 tip, F13.1 and F10.1 (both as amended per
-R1Q15 and R1Q16), F16.1 and F4.1 (the whole package: no deferred reach, and
-`consumer_reach.py` gone) pass. So does **AT-R1**, defined under Success
-Criteria.
+R1Q15 and R1Q16), F16.1 (as T007's batch M amends it) and F4.1 (the whole
+package: no deferred reach, and `consumer_reach.py` gone) pass. So does
+**AT-R1**, defined under Success Criteria.
 
 **Acceptance Scenarios**:
 
@@ -392,6 +392,15 @@ Criteria.
    any endpoint is contacted, and every other surface answers as it does with a
    model configured (requirement 17; R1Q10 (a): the other surfaces answer
    through openDox's own defaults).
+6. **Given** a served repository whose bindings document holds a binding this
+   machine has not trusted, such as one that arrived with a clone or was
+   edited by hand, **When** a turn names it, **Then** it is refused by name,
+   naming `opendox model-binding trust <id>`, before any broker runs, any
+   credential reference is resolved or any endpoint is contacted. A binding
+   declared through `opendox model-binding add` or `edit`, or trusted through
+   `opendox model-binding trust <id>`, is reached as scenario 3 says
+   (requirement 17 as T007's batch M note reads it; RULED `5962785556`, item
+   2: *"Trust per machine (Recommended)"*).
 
 ---
 
@@ -465,6 +474,11 @@ suite pass.
   the neutral snapshot (T054 in process and T056 through the verb; R1Q13 (a)
   with (c)).
 - A raw key appears inside an endpoint URL, not in a field (16.3).
+- A repository someone else wrote carries a committed bindings document whose
+  broker runs a command, or whose `env:` reference names one of the user's
+  secrets. Nothing runs and nothing is read until the user trusts that exact
+  binding on this machine, and an edit, a copy under another root or a clone
+  is untrusted again (16.3a, T100).
 - The plain repository yields no grouping, candidate or selection tile, so the
   chat pane cannot be opened at all. The fixture declares at least one group,
   and a repository with no front matter still yields one from shared topics
@@ -566,7 +580,7 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   issuer. The serving process SHALL report its own install shape (R1Q15 (b);
   R1Q16: the `opendox[local]` extra brings the bundled server, which the
   document server owns as its child and which stops with the entry point).
-- **FR-009** (requirement 17; 16.1–16.6; F16.1): chat SHALL reach any
+- **FR-009** (requirement 17; 16.1–16.6, 16.3a; F16.1): chat SHALL reach any
   OpenAI-compatible endpoint by URL, model name and credential reference, and
   SHALL refuse a raw key when it is declared. A credential SHALL travel only
   over `https://`, or over `http://` to `127.0.0.1`, `[::1]` or `localhost`,
@@ -577,9 +591,18 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   plain `http://` it SHALL take no proxy, so the credential keeps that route.
   An endpoint that declares the auth kind `none` presents no credential and
   keeps whatever route it declares. This is #1144's requirement 17 as its
-  batch-K note reads it (`5916000030`, item 1). With no model configured, it
-  SHALL show a "no model configured" state before any turn, and every other
-  surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);
+  batch-K note reads it (`5916000030`, item 1). A binding read from the
+  served repository SHALL run a broker, or resolve any credential reference,
+  only once the operator has trusted that exact binding on this machine. The
+  trust SHALL live in the operator's own state (`OPENDOX_STATE_DIR`), never in
+  the repository, keyed to the root's resolved path, the binding's id and a
+  digest of its full record. `add` and `edit` SHALL record it, `trust <id>`
+  SHALL record it after printing what will run and where the credential
+  goes, and an untrusted binding SHALL be refused by name before any spawn,
+  read or contact. Bindings stay committable. This is requirement 17 as its
+  batch-M note reads it (`5962785556`, item 2; 16.3a). With no model
+  configured, it SHALL show a "no model configured" state before any turn,
+  and every other surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);
   R1Q17 (b): a built-in `env:` and keyring resolver in that module; R1Q18 (a):
   an auth kind `none`).
 - **FR-010** (requirement 1; 11.0, 11.1; F11.1): release 1 SHALL move nothing
@@ -625,6 +648,10 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
 - **Model binding**: the doxBench record, which grows from nine fields to ten
   (`model`) and gains the `openai-chat-v1` dialect and the auth kind `none`
   (R1Q18 (a)).
+- **Binding trust**: the operator's record, under `OPENDOX_STATE_DIR` and never
+  in a repository, that this machine has accepted one exact binding: the
+  served root's resolved path, the binding's id and a digest of its full
+  record (16.3a; `5962785556`, item 2).
 - **Arc landing**: a commit on a repository's `main` first-parent line that
   carries the `Arc:` trailer. It is what 5.4a's, 12.5's and 11.1's guards read.
 - **Pin pair**: a gitlink plus its `contracts/*-pin.yaml`, moved in one commit.
@@ -649,16 +676,17 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   its last step passes `--chains`), and F7.1 runs here
   because R1Q25 (b) keeps 7.3 in phase 2, read as batch I records R1Q27
   (a).
-- **SC-003** (phase 3 exit): F4.1, F10.1, F13.1 and F16.1 exit 0, and the F4.1
-  scan prints `no deferred reach names the consumer or the publisher`.
+- **SC-003** (phase 3 exit): F4.1, F10.1, F13.1 and F16.1 (with T007's batch M
+  line) exit 0, and the F4.1 scan prints
+  `no deferred reach names the consumer or the publisher`.
 - **SC-004**: AT-R1 passes, and its evidence is recorded in this feature's
   `evidence/` directory.
 - **SC-005**: after each phase's openxFactory landings, an interim F11.1 run
   (`PACKET_MERGE=94b6f7f1`), with the guard as widened by T007's batch A,
   prints `requirement 1 holds`.
-- **SC-006**: at release-1 close, 64 of release 1's 69 boxes are ticked, each
+- **SC-006**: at release-1 close, 65 of release 1's 70 boxes are ticked, each
   with its evidence:
-  - 62 by T097;
+  - 63 by T097;
   - 3.0, by the ratification record (#1151);
   - 5.6, which was already `[x]`.
 

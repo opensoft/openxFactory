@@ -101,7 +101,7 @@ allow 30 seconds.
 - Nothing moves out of openxFactory (requirement 1).
 - Only `doxbench_provider.py` contacts a provider.
 - Local mode binds to loopback only.
-**Scale/Scope**: release 1 has 69 of #1144's 124 boxes (tasks.md § "Box
+**Scale/Scope**: release 1 has 70 of #1144's 125 boxes (tasks.md § "Box
 accounting"). About 12 carved openDox-code files are edited (research R12), and
 27 deferred reaches plus 65 `consumer_reach` uses are routed (research R5, R6).
 
@@ -135,7 +135,7 @@ specs/034-opendox-standalone-operation/
 ├── research.md             # every measurement, with its command
 ├── clarify-questions.md    # R1Q1–R1Q27, all answered (5817152735, 5850003126, 5851950767)
 ├── quickstart.md           # AT-R1's procedure
-├── tasks.md                # 90 tasks, T001–T098 (some ids unused), box accounting (69 of 124)
+├── tasks.md                # 91 tasks, T001–T100 (some ids unused), box accounting (70 of 125)
 ├── checklists/
 │   └── requirements.md     # the spec-quality checklist
 └── evidence/               # bookkeeping records, with no `Arc:` trailer (R1Q20 (a))
@@ -213,7 +213,7 @@ this worktree, which holds the plan only.
 | 0 | 3.0 (ratification) | answers applied; analyze clean |
 | 1 | 2.1, 2.1a, 2.2, 2.3, 2.4, 2.5, 2.6, F2.1; 3.1, 3.2, 3.3 (first run; T065 and T098 repeat it before T097 ticks it), F3.1; 4.1, 4.1a, 4.2; 9.1, 9.2a, 9.3, 9.4, F9.1; 10.1 | F2.1, F3.1, F9.1 (both legs), F9.2 (quoted red, as RULED `5859927858` keeps it), `opendox --help` |
 | 2 | 5.0, 5.1, 5.2, 5.3, 5.3a, F5.1, 5.4, 5.4a, F5.2, 5.5, F5.3; 7.0, 7.1, 7.1a, 7.1b, 7.2, 7.3, F7.1, F7.2 | F5.1, F5.2, F5.3, F7.1, F7.2; standalone `generate-and-open` serves |
-| 3 | 4.3, F4.1; 9.2 (its whole-suite check lands in phase 1, and its ratchet reaches `(0, 0)` at T086, as T007's batch F records beside the map, R1Q25 (b)); 10.2, 10.2a, 10.3, F10.1; 13.1–13.6, 13.4a, F13.1; 16.1–16.6, F16.1 | F4.1, F10.1, F13.1, F16.1; AT-R1 follows the checkpoint (T095, T096) |
+| 3 | 4.3, F4.1; 9.2 (its whole-suite check lands in phase 1, and its ratchet reaches `(0, 0)` at T086, as T007's batch F records beside the map, R1Q25 (b)); 10.2, 10.2a, 10.3, F10.1; 13.1–13.6, 13.4a, F13.1; 16.1–16.6, 16.3a (T007's batch M), F16.1 | F4.1, F10.1, F13.1, F16.1 (as batch M amends it); AT-R1 follows the checkpoint (T095, T096) |
 | every phase, ticked at ARC close | 9.5, 11.0, 11.1, F11.1 | interim F11.1 after each phase |
 | after T008, outside release 1's tasks | F9.2 (RULED `5859927858` keeps it unchanged and red on the 31-entry help-tree test until T008; holder decision, 2026-09-29, at T049) | F9.2, after the `doc_health` direction arc |
 | already `[x]` | 5.6 | — |
@@ -229,7 +229,7 @@ it"*), `serve.py:629` is routed in phase 2 along with the snapshot source.
 ## Dependency graph
 
 ```text
-T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measure, analyze, #1144 amendments in batches A–L, the direction arc)
+T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measure, analyze, #1144 amendments in batches A–M, the direction arc)
                               │
  PHASE 1  [oDc]  A: T010→T011→T012 (serve.py)     B: T015→T016 (profile)
                  C: T020→T021→T022 (adapter)      D: T026→T025, T027 (seams; T025 also after T020)
@@ -250,9 +250,10 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
                  T059 → T061 (7.3, after T007 batches C, F, I and K)
           [oxF]  T061 → T066 (a non-arc act: the seal test and the facet's values, at both pins)
           [oX]→[oxF]  T066 → T064 consumer pins → T065 (interim F11.1) → checkpoint T063 (after T007 batches C, F, G, I and K)
- PHASE 3  T069 is done; T007 batch H lands before T070, T075 and T080, and batch K before T080
+ PHASE 3  T069 is done; T007 batch H lands before T070, T075 and T080, batch K before T080, and batch M before T100
           [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080;  T085 → T081
                  4.3 end: T084 (after T073, T007 batch L)          T072 → T075 → T077 (F10.1 as batch H amends it);  T082, T083, T088
+                 16.3a: T100 (after T080, openDox-code#64, T081, T072, T084, T007 batch M) → T083 (F16.1 as batch M amends it)
           [oD]   T087 root pin → T076 (README: the opendox[local] install and the --local command)
           [oXc]  T086 (columns, ratchet (0,0)) at the pin T087 carries
           [oX]→[oxF]  T094 consumer pins + host wiring → T098 (interim F11.1) → checkpoint T089 (after T076)
@@ -277,7 +278,10 @@ lists.
 | openDox-code `tests/test_authoring_seam.py` | T020 (the seam tests) → T021 → T022 |
 | openDox-code `tests/test_consumer_reach.py` | T011 (`opendox.cli` and `opendox.serve` into `NEUTRAL_MODULES`) → T034 (the rest of `STILL_REACHING`) |
 | openDox-code `.github/workflows/validate.yml` | T036 → T037; no earlier phase-1 slice edits it (tasks.md § Phase 1), and T095 adds phase 3's `acceptance` job |
-| openDox-code `src/opendox/doxbench_binding.py` | T078 (the second dialect) → T079 (the `model` field) → T080 (the raw-key refusal and the auth kind `none`), all in P3-B, then the broker-path follow-on, a draft of no task (openDox-code#64) |
+| openDox-code `src/opendox/doxbench_binding.py` | T078 (the second dialect) → T079 (the `model` field) → T080 (the raw-key refusal and the auth kind `none`), all in P3-B, then the broker-path follow-on, a draft of no task (openDox-code#64), then T100 wherever it edits the record (16.3a) |
+| openDox-code `src/opendox/cli_model_binding.py` | T079 (`--model`) → T080 (the resolver's and `none`'s arguments) → T100 (`add` and `edit` record trust, the `trust` verb, `set-credential`'s gate and re-trust) |
+| openDox-code `src/opendox/doxbench_install.py` | T081 (16.4's catalog, in P3-D after T085) → T100 (16.3a's gate where the bindings are read) |
+| openDox-code `src/opendox/serve_workbench.py` (phase 3) | T084 (4.3's last reaches, openDox-code#77) → T100 (16.3a: the console intake's broker hand-off) |
 | openXdox-code `tests/test_dependency_direction.py` (the ratchet) | T040 (it moves the pin and leaves the ratchet unchanged) → T059 → T086 |
 | openXdox-code `tests/test_gate_loop_views.py` (one of 12.5's protected suites) | T060 (the facet-declaration test's entered edit) → T059 (the overlay test's entered edit), both under R1Q26 (a) |
 | openXdox-code `pyproject.toml` | T040 (the `opendox @` pin and `rfc3339-validator`) → T059 (the phase-2 pin) → T061 (the validator's package data) → T086 (the phase-3 pin) |
@@ -297,7 +301,9 @@ lists.
 - **Phase 3 parallel lanes**: Group 13 (T070–T074), the Group 16 binding
   (T078–T080), the doxBench defaults and then the no-model state (T085 →
   T081), the retirement of the late reaches (T084, after T073; then T086), and
-  entry-point serving (T075, after T072). tasks.md § "Phase 3 writer slices"
+  entry-point serving (T075, after T072). Per-machine binding trust (T100,
+  16.3a) follows the binding slice, the no-model state and T084, and comes
+  before F16.1's whole run (T083). tasks.md § "Phase 3 writer slices"
   gives the fan-out.
 
 ## Pins and landing order (9.5): one openDox-code commit per phase, everywhere
@@ -421,7 +427,10 @@ the realization as the answer records it."*
   on the loopback and broker-path rulings (`5880893901`, `5890601202`), and
   F5.2's admission of T061's ten walk-premise edits, and L for Brett Heap's
   second word of 2026-09-30 (`5920216845`): 4.3's addendum on what the
-  served `/capabilities` payload's `actions` map claims.
+  served `/capabilities` payload's `actions` map claims, and M for Brett
+  Heap's word of 2026-10-02 (`5962785556`, item 2): box 16.3a, a second
+  dated note to requirement 17 and F16.1's added line, for per-machine
+  trust of a served repository's model bindings.
 - Each batch lands under a Rule 6 window, with no `Arc:` trailer, before the
   checkpoint that runs the amended falsifier.
 - `tasks.md` § "Ruled amendments" lists every amended line, the text it takes,

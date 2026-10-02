@@ -3181,6 +3181,90 @@ and redesigns none of them.
   three raw-key refusals are unchanged. This bookkeeping amendment does not
   itself touch the Python below. Carried out by T080 (openDox-code#63) and
   openDox-code#64, which is no task of plan 034.
+- [ ] 16.3a **A served repository's bindings are TRUSTED PER MACHINE.**
+  **ADDED — T007 Batch M (`5962785556`, item 2):** Brett Heap's multi-choice
+  word of 2026-10-02, verbatim *"Trust per machine (Recommended)"*, which
+  asks for this amendment. The batch adds this box, a dated note in
+  requirement 17's body in this change's spec delta, and F16.1's batch M
+  block below. It rewrites no ratified line.
+
+  **Measured at openDox-code `main` `047bb4fa`.** Both entry points read the
+  bindings from the repository they SERVE. `cli.py:618` and `serve.py:2214`
+  call `declared_model_port_factory` with the served root (`--repo-root`,
+  `cli.py:567`), and the factory reads `bindings_path(checkout_root)`
+  (`doxbench_install.py:316`), the root's
+  `ideation/dashboard/model-provider-bindings.yaml` (`doxbench_binding.py:166`
+  and `:554`). A binding written into that file by hand, or arriving with a
+  clone, passes no approval, because the intake flow's pending list holds back
+  only the bindings its own wizard wrote (`doxbench_install.py:324`). A
+  hand-written binding whose `broker_argv` was `["/bin/sh", "-c", "id > …"]`
+  was offered as available, and the first dispatch ran it before refusing:
+  the file it named read `uid=1000(…)`. The adversarial review of 2026-10-02
+  found the same on `main`, and on the phase-3 drafts that add 16.3's
+  built-in resolver (T080, openDox-code#63, with #64 above it) it also sent a
+  `credential_ref` of `env:ADV_UNRELATED_CLOUD_SECRET` to a listener the file
+  named, as `Authorization: Bearer …`. `model-binding set-credential` runs a
+  declared binding's broker too (`cli_model_binding.py:135-139`). Release 1
+  publishes to PyPI (`5962754358`, item 1), so whoever serves a repository
+  someone else wrote would meet all three.
+
+  **The rule.** A binding read from the served repository runs a broker, or
+  resolves any credential reference (`env:`, `keyring:` or a broker's), ONLY
+  after the operator has trusted THAT EXACT binding on THIS machine. It works
+  like direnv. The rule holds on every path that runs such a broker: a chat
+  turn, `model-binding set-credential`, and the console intake's hand-off
+  (`serve_workbench.py:1127`), whose broker the served repository's intake
+  declarations name.
+  - **Where trust lives.** In the operator's own state, never in the
+    repository: a file under `OPENDOX_STATE_DIR`, the state directory that
+    13.1's bundled server uses (openDox-code#69, T072). Unset, that is
+    `$XDG_STATE_HOME/opendox` where that is absolute, and otherwise
+    `~/.local/state/opendox`. The file holds no credential. It is written
+    owner-only, and it is read only once it passes the checks #69's bundle
+    makes of its own tree: the file and the directories that hold it are real
+    (no symbolic link), owned by this user and writable by no one else, and
+    each directory above them is this user's or root's, and sticky where
+    another user can write it. A trust file that fails a check is refused by
+    name, and every binding then reads untrusted.
+  - **What a trust names.** The repository root's resolved path, the
+    binding's id, and a digest of the binding's full record, every field of
+    it. So any edit makes the binding untrusted again, and so does the same
+    file under another root: a clone, a copy or a moved checkout.
+  - **What records it.** `opendox model-binding add` and `edit` record trust
+    for the binding they write. `opendox model-binding trust <id>` records it
+    for a binding already declared. It first prints what will run (the broker
+    argv) and where the credential goes (the endpoint, the auth kind and the
+    credential REFERENCE), and never the credential itself. It resolves no
+    reference, runs no broker and contacts nothing, and it records trust for
+    exactly the record it printed. It takes no `--yes`: running it is the
+    consent, as `direnv allow` is, and the refusal below names it.
+    `opendox model-binding set-credential` on a TRUSTED binding re-records
+    trust for the record it rewrites with the broker's new reference, since
+    the operator made that change on this machine. It never makes an
+    untrusted binding trusted.
+  - **What an untrusted binding gets.** It is refused BY NAME before any
+    process is spawned, any credential is read or any endpoint is contacted.
+    The refusal names the binding's id and the command that trusts it, and
+    nothing secret. `set-credential` refuses it the same way, before its
+    broker runs, and leaves it untrusted. The catalog lists it with
+    `available: false`. The catalog's
+    entry is a closed shape (`xfactory-workbench-model-catalog`,
+    `additionalProperties: false`), so the reason is not a key in it: it is
+    carried by the refusal a turn that names the binding receives, by the
+    notice the factory writes where it already reports a pending binding,
+    and by `opendox model-binding list`.
+  - **Bindings stay committable.** The bindings document does not change,
+    and no trust is ever read from it.
+  - **Whose rule it is.** This is openDox's NEUTRAL default, and a strict
+    one. Its consumers, the code that reads a served repository's bindings,
+    register it lazily, the first time one asks and only where nothing is
+    registered yet. So no entry point registers it, and a bare process is
+    held to it too. A host's own registration wins: a host such as
+    openxFactory may register a policy of its own.
+
+  The rest of Group 16 stands, and so do 16.3's text and its batch H and K
+  addenda. F16.1's batch M block below falsifies this box. Carried out by
+  T100.
 - [ ] 16.4 **"No model configured" is a STATE, shown before any turn.**
   Measured: with no binding, `declared_model_port_factory(...)()` resolves the
   harness declaration, and its catalog offers `omp-local`, "Local harness model",
@@ -3275,6 +3359,59 @@ and redesigns none of them.
   `doxbench_bridge.HARNESS_COMMAND`, and the check on it is a precondition: a
   machine with the harness installed has a model, and would measure something
   else.
+
+  **AMENDED — T007 Batch M (`5962785556`, item 2):** F16.1 also falsifies
+  16.3a, the box this batch adds. The runs that use it (T083 and T089) also
+  run one more line after its last, and quote it:
+
+      # a served repository's bindings are trusted per machine (16.3a):
+      python -m pytest -q tests/test_model_binding_trust.py
+
+  The named file is the acceptance suite T100 adds. Each case serves its own
+  fresh `git init` with its own fresh `OPENDOX_STATE_DIR`, so no run reads or
+  writes the operator's own trust. Each runs over two bindings in turn: one
+  whose broker writes a marker file when it runs, and one whose `env:`
+  reference names a variable the test sets to a known value, at a loopback
+  listener that records every request. It asserts, one test per case:
+  - **An untrusted binding is refused by name, with nothing spawned or
+    read.** A binding written into the bindings document by hand, as a clone
+    delivers it, is listed by the catalog with `available: false`. A turn
+    that names it is refused, and the refusal names its id and `opendox
+    model-binding trust <id>`. No marker file exists, the variable is never
+    read, the listener records no request, and the known value appears in
+    no output. `set-credential` on it is refused the same way, no marker
+    file exists, and the binding is still untrusted after it.
+  - **`add` records trust.** The same binding declared through `opendox
+    model-binding add` is offered as available, and a turn runs its broker,
+    or reaches the listener with the known value.
+  - **An edit untrusts.** A hand edit of one field of a trusted binding, its
+    `broker_argv`, its `endpoint`, its `credential_ref` and its `label` each
+    in turn, makes it untrusted again, and it is refused as above. A binding
+    rewritten through `opendox model-binding edit` is trusted, and so is a
+    trusted binding whose reference `set-credential` rewrote from a stand-in
+    broker's answer.
+  - **`trust` records.** For the hand-written binding, `opendox
+    model-binding trust <id>` prints its broker argv, its endpoint, its auth
+    kind and its credential reference. The known value appears nowhere in
+    its output, no marker file exists and the listener records no request.
+    After it, the binding is offered as available.
+  - **A binding moved to another root is untrusted.** A trusted bindings
+    document, copied byte for byte into a second fresh repository, reads
+    untrusted there, and it is refused as above.
+  - **The trust file is checked.** With the trust file, or a directory that
+    holds it, replaced by a symbolic link or made writable by another user,
+    every binding reads untrusted, and the refusal names the file. Nothing
+    under the served root but the bindings document is written by `add`,
+    `edit` or `trust`.
+
+  The block's other lines are unchanged. Its 16.3 records are built in
+  process and never served, and its 16.4 block declares no binding, so no
+  trust is consulted there.
+  **Today the line fails**, because the named file does not exist. Its first
+  case fails at `047bb4fa` too: a hand-written binding is offered as
+  available, and its `broker_argv` runs on the first dispatch. This
+  bookkeeping amendment does not itself touch the command above. Carried
+  out by T100, and run with F16.1 whole by T083 and T089.
 
 ## Follow-ons named here and NOT authored here
 
