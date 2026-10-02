@@ -3206,7 +3206,7 @@ and redesigns none of them.
   named, as `Authorization: Bearer …`. `model-binding set-credential` runs a
   declared binding's broker too (`cli_model_binding.py:135-139`). Release 1
   publishes to PyPI (`5962754358`, item 1), so whoever serves a repository
-  someone else wrote would meet all three.
+  someone else wrote would meet each of these.
 
   **The rule.** A binding read from the served repository runs a broker, or
   resolves any credential reference (`env:`, `keyring:` or a broker's), ONLY
@@ -3247,12 +3247,11 @@ and redesigns none of them.
     The refusal names the binding's id and the command that trusts it, and
     nothing secret. `set-credential` refuses it the same way, before its
     broker runs, and leaves it untrusted. The catalog lists it with
-    `available: false`. The catalog's
-    entry is a closed shape (`xfactory-workbench-model-catalog`,
-    `additionalProperties: false`), so the reason is not a key in it: it is
-    carried by the refusal a turn that names the binding receives, by the
-    notice the factory writes where it already reports a pending binding,
-    and by `opendox model-binding list`.
+    `available: false`. The catalog's entry is a closed shape
+    (`xfactory-workbench-model-catalog`, `additionalProperties: false`), so
+    the reason is not a key in it: it is carried by the refusal a turn that
+    names the binding receives, by the notice the factory writes where it
+    already reports a pending binding, and by `opendox model-binding list`.
   - **Bindings stay committable.** The bindings document does not change,
     and no trust is ever read from it.
   - **Whose rule it is.** This is openDox's NEUTRAL default, and a strict
