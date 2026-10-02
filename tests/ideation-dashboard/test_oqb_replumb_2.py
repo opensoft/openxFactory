@@ -384,18 +384,33 @@ def test_serve_re_exports_the_predicate_from_its_new_home():
     promises is unchanged and is asserted directly: the name resolves, it is
     callable, and the object it resolves THROUGH is the projection column's
     one function — measured by calling both and by the stand-in's own repr,
-    not by a second copy's existence."""
+    not by a second copy's existence.
+
+    AND FROM openDox-code #59 (`fa140875`, plan 034 T055) IT IS openDox's OWN.
+    T055 made the `/snapshot.json` arm's handlers the core handler's again, so
+    `serve.hosted_ref_refused` is a function `serve.py` defines, which reads
+    "a ref a hosted plane may see" off the REGISTERED registry through its
+    seam. What holds at both pins (plan 034 T066) is the promise itself: the
+    name resolves, it is callable, and it answers every (plane, ref) pair as
+    the projection column's own predicate does. Before T055 it also resolves
+    THROUGH that column's name, as above."""
     late = serve_mod.hosted_ref_refused
     assert callable(late)
-    assert "serve_projection.hosted_ref_refused" in repr(late), (
-        "`serve.hosted_ref_refused` no longer resolves through the projection "
-        f"column's own name; it reprs as {late!r}")
+    import inspect
+    own = (inspect.isfunction(late)
+           and inspect.getsourcefile(late) == serve_mod.__file__)
+    if not own:
+        assert "serve_projection.hosted_ref_refused" in repr(late), (
+            "`serve.hosted_ref_refused` no longer resolves through the "
+            f"projection column's own name; it reprs as {late!r}")
     real = serve_projection.hosted_ref_refused
-    for ref, hosted in (("main", True), ("refs/heads/x", True),
-                        ("refs/heads/x", False)):
-        assert late(ref, hosted) == real(ref, hosted), (
-            "the late stand-in and the projection column's own predicate "
-            f"disagree about ({ref!r}, {hosted!r})")
+    for loopback, ref in ((False, "main"), (False, None), (False, ""),
+                          (False, "draft/some-topic"), (False, "cluster/cl-x"),
+                          (True, "draft/some-topic"), (True, "main")):
+        assert late(loopback, ref) == real(loopback, ref), (
+            f"`serve.hosted_ref_refused` ({'openDox own' if own else 'late'}) "
+            "and the projection column's own predicate disagree about "
+            f"(loopback={loopback!r}, ref={ref!r})")
 
 
 def test_the_relocated_predicate_still_answers_as_it_did():

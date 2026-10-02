@@ -113,6 +113,36 @@ MOVED_HANDLERS = {
     "_serve_committed_intents": serve_openxfactory_lanes.LaneRoutes,
 }
 
+#: THE `/snapshot.json` ARM'S FOUR HANDLERS, which openDox-code #59
+#: (`fa140875`, plan 034 T055) made `DashboardHandler`'s own again, so a
+#: standalone server answers the arm without openXdox's column. openXdox's
+#: column, `serve_projection.ProjectionRoutes`, still defines all four at both
+#: pins (openXdox-code `6158151e` and `6a3b93b9`), so `MOVED_HANDLERS` above
+#: and the test's `name in vars(owner)` stay exact at both. What T055 changed
+#: is openDox's side. From that leg `DashboardHandler` defines each itself,
+#: and openDox's stand-in base `consumer_reach.LateProjectionRoutes` forwards
+#: `_serve_index` alone, so the class `build_server` binds resolves the core's.
+#: Before it, the stand-in forwards all five and the core handler defines
+#: none. Which layout holds is read off the pinned leg
+#: (`_snapshot_arm_is_core`), so the test below keeps its exact claim at both
+#: pins (plan 034 T066).
+SNAPSHOT_ARM_HANDLERS = (
+    "_hosted_entry_refused", "_query_key", "_read_snapshot", "_serve_snapshot")
+
+
+def _snapshot_arm_is_core() -> bool:
+    """Whether the pinned openDox leg's core handler owns the four handlers
+    (from T055) or none of them (before it). A leg defining some and not the
+    others is neither layout, and is refused."""
+    core = [name for name in SNAPSHOT_ARM_HANDLERS
+            if name in vars(serve_mod.DashboardHandler)]
+    assert core in ([], list(SNAPSHOT_ARM_HANDLERS)), (
+        f"DashboardHandler defines {core} of the snapshot arm's four handlers "
+        f"{list(SNAPSHOT_ARM_HANDLERS)}: all four are the core's from T055, and "
+        "none before it")
+    return bool(core)
+
+
 #: The CONTRIBUTED table, in `collect_bindings`' consult order: every exact
 #: binding in declaration order, then every prefix binding in declaration order.
 #: Seven, not ten: `/snapshot.json` stayed a core arm (see the module docstring
@@ -215,6 +245,13 @@ def test_every_moved_handler_still_resolves_on_the_request_handler(
     assert name in vars(owner), (
         f"{name} is not defined on {owner.__module__}.{owner.__qualname__}; "
         "the move landed somewhere else than this file records")
+    if name in SNAPSHOT_ARM_HANDLERS and _snapshot_arm_is_core():
+        # From T055 the core handler's own answers the arm, and it is the one
+        # definition the bound class resolves: no column copy shadows it.
+        assert resolved is vars(serve_mod.DashboardHandler)[name], (
+            f"{name} resolves on the bound class to {resolved!r}, not to "
+            "DashboardHandler's own, which answers /snapshot.json from T055")
+        return
     assert name not in vars(serve_mod.DashboardHandler), (
         f"{name} is defined on DashboardHandler AS WELL as on "
         f"{owner.__qualname__} — a second copy that would shadow the column's, "

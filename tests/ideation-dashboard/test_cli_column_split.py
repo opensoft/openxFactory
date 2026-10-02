@@ -115,6 +115,20 @@ SPINE = (
 #: and the patch stops reaching the gate verbs, so the reader is what is pinned.
 SPINE_READ_THROUGH = {"generate_snapshot": "_gate_snapshot"}
 
+#: THE SAME READER AT A LEG FROM openDox-code #59 (`fa140875`, plan 034 T055),
+#: where `_gate_snapshot` generates through the generator seam and `cli` binds
+#: no `generate_snapshot`. The patch site is then `cli.generator_seam.generate`
+#: (`test_lens_gate_cli.py::_generation_site`), and `_gate_snapshot` is still
+#: its one reader in `cli.py`. Which table applies is read off the pinned leg,
+#: so the pin stays exact at both (plan 034 T066).
+SPINE_READ_THROUGH_SINCE_T055 = {"generator_seam.generate": "_gate_snapshot"}
+
+#: The spine names a leg from openDox-code #59 no longer defines, because
+#: T055 removed them with the reach they served: `_locate_validator` looked the
+#: consumer's validator up for a written snapshot, and #59 validates through the
+#: registered validators instead. At a leg before #59 each is still required.
+SPINE_BEFORE_T055 = ("_locate_validator",)
+
 #: The flags no verb on this command line may offer, from the five landed
 #: sweeps this file mirrors (`test_create_document_cli.py:178`,
 #: `test_session_verbs.py:775`, `test_session_verbs.py:1255`,
@@ -331,14 +345,24 @@ def test_the_spine_itself_did_not_move():
     written in `cli.py` — not re-exported from a column module, which would put
     the definition somewhere a `setattr` on `cli` cannot reach."""
     misplaced = []
+    before_t055 = hasattr(cli_mod, "generate_snapshot")
     for name in SPINE:
+        if name in SPINE_BEFORE_T055 and not before_t055:
+            assert getattr(cli_mod, name, None) is None, (
+                f"{name} is defined again at a leg from T055")
+            continue
         obj = getattr(cli_mod, name, None)
         if obj is None:
             misplaced.append(f"{name}: absent from cli.py")
         elif inspect.getsourcefile(obj) != cli_mod.__file__:
             misplaced.append(f"{name}: defined in {inspect.getsourcefile(obj)}")
-    for name, reader in SPINE_READ_THROUGH.items():
-        assert getattr(cli_mod, name, None) is not None, name
+    read_through = (SPINE_READ_THROUGH if before_t055
+                    else SPINE_READ_THROUGH_SINCE_T055)
+    for name, reader in read_through.items():
+        site = cli_mod
+        for part in name.split("."):
+            site = getattr(site, part, None)
+        assert site is not None, name
         fn = getattr(cli_mod, reader)
         if inspect.getsourcefile(fn) != cli_mod.__file__:
             misplaced.append(f"{name}: its only reader {reader} left cli.py")

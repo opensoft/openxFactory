@@ -417,6 +417,49 @@ def _product_head() -> str:
 PRODUCT_MODULE_TEXT = Path(snapshot_mod.__file__).read_text(encoding="utf-8")
 
 
+def _product_module_leg_imports() -> dict[str, tuple[tuple[str, Path], ...]]:
+    """The modules of the OTHER code legs' packages that the real product
+    module imports when it loads, by package: each `from <package> import
+    <module>` at its top level, for a package of `lane.RENDER_LEGS` other than
+    the validator leg's, where `<package>.<module>` is a module file of the
+    pinned leg, each with that file's path.
+
+    WHY THE STAND-IN LEGS CARRY THEM (plan 034 T066). From openXdox-code #35
+    (`839492d9`, T059) the product module imports openDox's `projection_seams`
+    at module level. The parent's harness imports the product module out of
+    the seal, with the other code leg on its path, so a stand-in openDox leg
+    holding stand-ins alone could not be imported beside it, and every seal
+    was refused. The stand-in legs carry each such module's REAL text, read
+    from the pinned leg. At a leg whose product module imports none, this is
+    empty, and the stand-ins are as they were."""
+    import importlib.util
+    validator_package = next(package for gitlink, leg, package in lane.RENDER_LEGS
+                             if (gitlink, leg) == lane.VALIDATOR_LEG)
+    others = {package for _gitlink, _leg, package in lane.RENDER_LEGS
+              if package != validator_package}
+    found: dict[str, dict[str, Path]] = {}
+    for node in ast.parse(PRODUCT_MODULE_TEXT).body:
+        if (isinstance(node, ast.ImportFrom) and node.level == 0
+                and node.module in others):
+            for alias in node.names:
+                spec = importlib.util.find_spec(f"{node.module}.{alias.name}")
+                if spec is not None and spec.origin and spec.origin.endswith(".py"):
+                    found.setdefault(node.module, {})[alias.name] = Path(spec.origin)
+    return {package: tuple(sorted(names.items())) for package, names in found.items()}
+
+
+def _carry_product_module_leg_imports(modules: Path, package: str) -> list[str]:
+    """Copy into `modules`, a stand-in leg's `src/<package>/`, the real module
+    of each `_product_module_leg_imports()` entry for `package`. Returns the
+    file names written, empty where the product module imports none."""
+    written = []
+    for name, real in _product_module_leg_imports().get(package, ()):
+        modules.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(real, modules / f"{name}.py")
+        written.append(f"{name}.py")
+    return written
+
+
 # The product modules the render unit's corpus side imports by name, per code
 # leg, under `src/<package>/`: the entry's `opendox.cli`, the host bootstrap's
 # imports, and the module the sealed validator's runs are classified with.
@@ -505,6 +548,11 @@ def _stub_leg_records(corpus_root, product_module: str | None,
                 text = f"# stand-in {package}.{module[:-3]}\n"
             (modules / module).write_text(text, encoding="utf-8")
             count += 1
+        # The other legs' real modules the real product module imports when it
+        # loads (plan 034 T066; see `_product_module_leg_imports`).
+        already = {path.name for path in modules.iterdir()}
+        count += len(set(_carry_product_module_leg_imports(modules, package))
+                     - already)
         records.append({
             "gitlink": gitlink, "gitlink_revision": str(index + 1) * 40,
             "leg": leg,
@@ -789,6 +837,14 @@ def test_a_genuinely_missing_validator_still_refuses_naming_where_it_looked(
         root = tmp_path / "openxdox-without-its-validator"
         root.mkdir()
     monkeypatch.setattr(nightly_lane.snapshot_mod, "product_root", lambda: root)
+    # AN INSTALL CARRIES ITS PACKAGED VALIDATOR from openXdox-code #36
+    # (`6a3b93b9`, plan 034 T061, R1Q14 (a)), so "not a source checkout" is a
+    # genuinely missing validator only where the install ships none: that is
+    # the case this test measures at both pins (plan 034 T066). A leg before
+    # #36 has no packaged validator to remove.
+    if hasattr(nightly_lane.snapshot_mod, "_packaged_validator"):
+        monkeypatch.setattr(nightly_lane.snapshot_mod, "_packaged_validator",
+                            lambda: None)
     head = _git(corpus, "rev-parse", "HEAD")
     with pytest.raises(lane.SealRefused) as refused:
         lane.seal_source(
@@ -853,10 +909,19 @@ def _unit_without(where: Path, *, drop: str | None, keep_schemas: bool) -> Path:
     return script
 
 
+#: The validator's own words for the missing snapshot schema, at a leg before
+#: openXdox-code #36 and at #36 on (plan 034 T066): T061 reads the consumer's
+#: three kinds from the tree's own `contracts/`, or else the installed
+#: distribution, and words the miss that way. Either way it names the schema.
+_SNAPSHOT_SCHEMA_MISSING = (
+    f"{lane.VALIDATOR_SNAPSHOT_SCHEMA} is not carried under",
+    f"{lane.VALIDATOR_SNAPSHOT_SCHEMA} is not supplied: it is one of this "
+    "validator's own three kinds")
+
+
 @pytest.mark.parametrize("drop, keep_schemas, said", [
-    (None, False, "carries none of the family's"),
-    (lane.VALIDATOR_SNAPSHOT_SCHEMA, True,
-     f"{lane.VALIDATOR_SNAPSHOT_SCHEMA} is not carried under"),
+    (None, False, ("carries none of the family's",)),
+    (lane.VALIDATOR_SNAPSHOT_SCHEMA, True, _SNAPSHOT_SCHEMA_MISSING),
 ], ids=["the-code-legs-own-copy-with-no-schemas", "every-schema-but-the-snapshots"])
 def test_a_sealed_validator_that_cannot_run_is_refused(corpus, tmp_path, drop,
                                                        keep_schemas, said):
@@ -874,7 +939,7 @@ def test_a_sealed_validator_that_cannot_run_is_refused(corpus, tmp_path, drop,
               resolve_validator=lambda: lane.PinnedValidator(runnable=script))
     reason = str(refused.value)
     assert reason.startswith("the sealed validator could NOT RUN")
-    assert said in reason
+    assert any(words in reason for words in said), reason
     assert not (tmp_path / "seal" / lane.SEAL_MANIFEST_NAME).exists()
 
 
@@ -1379,25 +1444,37 @@ def test_a_seal_without_the_product_module_cannot_classify_its_probe(
 def test_the_confined_locator_never_adopts_the_sealed_validator(corpus, tmp_path):
     """THE WALK THIS TEST ONCE PROVED IS GONE, ON PURPOSE. Since openXdox-code
     `e28930bf` (split-opendox-two-layer-product § 8.9 residue (iii)),
-    `snapshot.find_validator` answers only for the product's OWN validator. It
-    CONFINES instead of walking up: a start outside the product's tree answers
-    None. So the sealed copy is never adopted from where it sits, from the seal
-    root, from the directory the child hands `--repo-root`, or from its own
-    directory. A caller that means it passes it explicitly
-    (`validate_snapshot(..., validator=...)`), and that channel is proven here
-    too. As before, this runs the REAL locator over a REAL sealed tree rather
-    than restating a path. Since #1158 the sealed copy lives under the seal's
-    own `validator/` root, and the refresh lane's seal rationale says so.
+    `snapshot.find_validator` answers only for the product's OWN validator.
+    There it CONFINED instead of walking up: a start outside the product's tree
+    answered None. Since openXdox-code #36 (`6a3b93b9`, plan 034 T061, #1144
+    7.3, RULED R1Q14 (a)) it IGNORES its start: it answers the installed
+    distribution's own validator, which in a source checkout, the way
+    openxFactory composes the leg, is that tree's own
+    `scripts/validate-ideation-dashboard-contracts.py`. So the assertion is
+    what this test is for, and it holds at both pins (plan 034 T066): whatever
+    the locator answers for a start inside the seal, it is never the sealed
+    copy, from where it sits, from the seal root, from the directory the child
+    hands `--repo-root`, or from its own directory. A caller that means it
+    passes it explicitly (`validate_snapshot(..., validator=...)`), and that
+    channel is proven here too. As before, this runs the REAL locator over a
+    REAL sealed tree rather than restating a path. Since #1158 the sealed copy
+    lives under the seal's own `validator/` root, and the refresh lane's seal
+    rationale says so.
     """
     seal = tmp_path / "seal"
     _seal(corpus, seal)
     corpus_root = seal / lane.SEAL_CORPUS_RELPATH
     sealed = seal / lane.SEAL_VALIDATOR_RELPATH
     assert sealed.is_file()
-    for start in (seal, corpus_root, sealed.parent):
-        assert snapshot_mod.find_validator(start) is None, start
     own = snapshot_mod.find_validator()
     assert own is None or not own.resolve().is_relative_to(seal.resolve())
+    # Confined (None) at the older leg, the product's own at T061's: never an
+    # enclosing tree's validator, and so never the sealed copy.
+    for start in (seal, corpus_root, sealed.parent):
+        found = snapshot_mod.find_validator(start)
+        assert found is None or found == own, (start, found, own)
+        assert found is None or not found.resolve().is_relative_to(
+            seal.resolve()), (start, found)
     # Passed explicitly, the sealed copy is the one that runs. The stub unit's
     # script prints `ok` and exits 0, whatever it is handed.
     probe = tmp_path / "probe.json"
@@ -4246,6 +4323,9 @@ def _product(where: Path, name: str, code_leg: str, package: str, *,
                 if module not in ("cli.py", lane.SEALED_PRODUCT_MODULE):
                     (modules / module).write_text(
                         f'"""{package}.{module[:-3]}"""\n', encoding="utf-8")
+            # The real modules the real product module imports from this leg
+            # when it loads (plan 034 T066; see `_product_module_leg_imports`).
+            _carry_product_module_leg_imports(modules, package)
             if package == "openxdox":
                 # The product module the parent classifies with, out of the
                 # sealed leg, and a stand-in validator unit outside `src/`,
@@ -4312,7 +4392,9 @@ def _product_leg_src(package: str, gitlink: str, leg: str) -> list[str]:
     return sorted({"src/extension.py", f"src/{package}/__init__.py",
                    f"src/{package}/cli.py",
                    *(f"src/{package}/{module}"
-                     for module in _named_leg_modules(gitlink, leg))})
+                     for module in _named_leg_modules(gitlink, leg)),
+                   *(f"src/{package}/{name}.py" for name, _real
+                     in _product_module_leg_imports().get(package, ()))})
 
 
 def _leg_files(root: Path) -> list[str]:
@@ -5121,6 +5203,13 @@ def stand_in_seal(tmp_path) -> Path:
     module = lane.sealed_product_module(seal)
     module.parent.mkdir(parents=True)
     module.write_text(PRODUCT_MODULE_TEXT, encoding="utf-8")
+    # The other legs' real modules the real product module imports when it
+    # loads (plan 034 T066; see `_product_module_leg_imports`).
+    for gitlink, leg, package in lane.RENDER_LEGS:
+        if (gitlink, leg) != lane.VALIDATOR_LEG:
+            _carry_product_module_leg_imports(
+                seal / lane.SEAL_CORPUS_RELPATH / gitlink / leg / "src"
+                / package, package)
     _configure(tmp_path)
     return seal
 
@@ -5168,10 +5257,14 @@ def test_the_pre_dispatch_render_is_the_childs_own_invocation(
     assert judged["sha256"] == \
         (tmp_path / "entry.json.sha256").read_text(encoding="utf-8")
     module = lane.sealed_product_module(stand_in_seal).resolve()
-    assert validator[-4:] == [
+    # Then each other sealed code leg's `src/` (`lane.sealed_leg_sources`, plan
+    # 034 T066): none where the product module imports no other leg.
+    legs = ["/seal/" + src.relative_to(stand_in_seal.resolve()).as_posix()
+            for src in lane.sealed_leg_sources(stand_in_seal)]
+    assert validator[-(4 + len(legs)):] == [
         "/seal/" + module.relative_to(stand_in_seal.resolve()).as_posix(),
         f"{lane.SEALED_JUDGED}/snapshot.json",
-        f"/seal/{lane.SEAL_VALIDATOR_RELPATH}", "strict"]
+        f"/seal/{lane.SEAL_VALIDATOR_RELPATH}", "strict", *legs]
 
 
 # ---------------------------------------------------------------------------
@@ -5244,11 +5337,17 @@ def test_the_probe_runs_in_a_sealed_container_never_on_the_runner(
     probe = runs[0]
     shape = _the_childs_shape(seal, _LABEL_4242)
     assert probe[:len(shape)] == shape
-    assert probe[-4:] == [
+    # The harness's four arguments, then each other sealed code leg's `src/`
+    # (`lane.sealed_leg_sources`, plan 034 T066): the openDox leg, which the
+    # seal carries at both pins.
+    legs = ["/seal/" + src.relative_to(seal.resolve()).as_posix()
+            for src in lane.sealed_leg_sources(seal)]
+    assert legs, "the seal carries no code leg beside the validator's"
+    assert probe[-(4 + len(legs)):] == [
         "/seal/" + lane.sealed_product_module(seal).resolve().relative_to(
             seal.resolve()).as_posix(),
         f"{lane.SEALED_JUDGED}/validator-probe.json",
-        f"/seal/{lane.SEAL_VALIDATOR_RELPATH}", "lenient"]
+        f"/seal/{lane.SEAL_VALIDATOR_RELPATH}", "lenient", *legs]
     assert re.fullmatch(r"type=bind,source=/\S+/dfr-probe-\w+,target=/judged,"
                         r"readonly", probe[len(shape) + 1])
 
@@ -5884,6 +5983,17 @@ def test_the_fenced_call_answers_what_the_products_own_call_answers(
     package = seal / "src" / "openxdox"
     shutil.copytree(Path(snapshot_mod.__file__).parent, package,
                     ignore=shutil.ignore_patterns("__pycache__"))
+    # Each other code leg, where a real seal carries it: from openXdox-code #35
+    # the product module imports openDox's `projection_seams`, and the parent
+    # hands the harness that leg's `src/` (`lane.sealed_leg_sources`, plan 034
+    # T066). At a leg whose product module imports none, it is read by nothing.
+    import importlib
+    for gitlink, leg, name in lane.RENDER_LEGS:
+        if (gitlink, leg) != lane.VALIDATOR_LEG:
+            shutil.copytree(
+                Path(importlib.import_module(name).__file__).parent,
+                seal / lane.SEAL_CORPUS_RELPATH / gitlink / leg / "src" / name,
+                ignore=shutil.ignore_patterns("__pycache__"))
     validator = seal / "validator.py"
     if mode == "a-directory":
         validator.mkdir()

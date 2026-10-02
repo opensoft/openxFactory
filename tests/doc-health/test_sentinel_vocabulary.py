@@ -264,10 +264,19 @@ def test_unknown_is_not_folded_into_the_unreadable_repository_condition():
     registry = carved_source(
         "scripts/ideation_dashboard/snapshot_registry.py"
     ).read_text(encoding="utf-8")
-    assert "self.source_revision or pin_sentinels.UNKNOWN" in registry
-    assert 'self.source_revision or "unknown"' not in registry, (
-        "the projector retypes the spelling again; a generator writing a "
-        "declared member imports the name")
+    # From openXdox-code #35 (`839492d9`, plan 034 T059) the projector reads
+    # `doc_health` only for the sentinel, so it imports `pin_sentinels` where it
+    # falls back and assigns the declared constant there. The spelling moved;
+    # the rule, the declared constant and never a retyped word, did not. Either
+    # leg's spelling is held (plan 034 T066).
+    assert ("self.source_revision or pin_sentinels.UNKNOWN" in registry
+            or "source_revision = pin_sentinels.UNKNOWN" in registry), (
+        "the projector no longer reaches for the declared pin_sentinels.UNKNOWN")
+    for retyped in ('self.source_revision or "unknown"',
+                    'source_revision = "unknown"'):
+        assert retyped not in registry, (
+            "the projector retypes the spelling again; a generator writing a "
+            "declared member imports the name")
 
 
 # =========================================================================
