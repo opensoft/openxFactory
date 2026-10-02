@@ -74,7 +74,7 @@ artifacts read off the SAME registered profile through its own public accessors
 openXdox's own `DISPLAY` (`openxdox.view_extensions`) by `_openxdox_stages()`,
 because the xFactory host's overlay of openDox's `completion` stage is
 declared there (RULED `#656` comments `5784683830` and `5801057769`) and must
-have one source.
+have one source; `_openxdox_values()` copies its `values` block the same way.
 `_display_facet()`'s own docstring states which roles are deliberately left
 undeclared and why.
 
@@ -256,12 +256,15 @@ def _openxdox_stages() -> dict[str, dict[str, Any]]:
     when the value is dropped instead of letting the page fall back to
     openDox's neutral word unnoticed.
 
-    ONLY `stages` IS COMPOSED. openXdox's facet declares no other section, and
-    this facet already answers `statuses`, `areas`, `acts` and `artifacts` from
-    the registered profile. A section openXdox adds later is a composition
-    decision for this file, so the test suite asserts the section set and
-    surfaces the change at the pin bump that carries it. This function does not
-    merge it silently.
+    `stages` AND `values` ARE COMPOSED, AND NOTHING ELSE. This function copies
+    `stages`, and `_openxdox_values()` copies `values`, the governed snapshot's
+    values, which openXdox-code #34 (`c41063d6`, plan 034 T060) declares beside
+    the stage and this file composes in a non-arc act (plan 034 T066, R1Q26
+    (a), `#656` comment `5851950767`). This facet already answers `statuses`,
+    `areas`, `acts` and `artifacts` from the registered profile. A section
+    openXdox adds later is a composition decision for this file, so the test
+    suite asserts the section set and surfaces the change at the pin bump that
+    carries it. Neither function merges one silently.
 
     COPIED TWO LEVELS DEEP, because the facet is rebuilt on every access (see
     `__getattr__`). Handing out openXdox's own module-level mappings would let
@@ -321,6 +324,60 @@ def _openxdox_stages() -> dict[str, dict[str, Any]]:
     return {role: dict(entry) for role, entry in stages.items()}
 
 
+def _openxdox_values() -> dict[str, dict[str, Any]] | None:
+    """The `values` block of openXdox's own `DISPLAY`, COPIED, or None where
+    openXdox declares none (plan 034 T066; R1Q26 (a), `#656` comment
+    `5851950767`).
+
+    WHAT THE BLOCK IS. openDox's views resolve two snapshot enums to a ROLE
+    before they do anything with them: which column a document sits in
+    (`documents[].stage`) and which state a candidate is in
+    (`possibles[].state`), matched against `display_profile.SNAPSHOT_VALUES`.
+    Plan 034 T054 (openDox-code `2d116415` -> `047bb4fa`) moved those defaults
+    to openDox's own neutral snapshot's values (R1Q11 (a)), while openXdox's
+    governed generator goes on writing the governed domain's words. So openXdox
+    declares the governed words on this block (openXdox-code #34, `c41063d6`,
+    T060), and this facet serves them only if it composes them: openDox reads
+    the REGISTERED profile, whose `DISPLAY` is this module's facet, and never
+    openXdox's module, as `_openxdox_stages()`'s docstring says of the stage
+    words.
+
+    AT BOTH PINS. At an openXdox code leg before #34 the block is absent, this
+    answers None, the facet declares no `values`, and openDox serves its own
+    defaults, which at an openDox before T054 ARE the governed words, so
+    nothing a page shows changes. At a leg that declares it, the facet carries
+    it, so the served views go on placing every governed card where they place
+    it now, whichever defaults the pinned openDox ships.
+    `tests/test_engineering_profile_display_facet.py` holds both.
+
+    COPIED TWO LEVELS DEEP, for `_openxdox_stages()`'s reason: the facet is
+    rebuilt on every access, and handing out openXdox's own module-level
+    mappings would let a reader rewrite openXdox's declaration.
+
+    A block that is present but MALFORMED, meaning not a mapping whose every
+    entry is a mapping, REFUSES with `RuntimeError`, never `AttributeError`,
+    for the reason `_openxdox_stages()` gives: `host_display()`'s 3-argument
+    `getattr` would absorb an `AttributeError` as "no facet declared" and
+    serve the whole facet as absent. Which enums and roles a well-formed block
+    may name is `display_profile.normalize_display`'s to refuse, not this
+    composer's. A facet that is itself absent or not a mapping is
+    `_openxdox_stages()`'s refusal, and this answers None for it.
+    """
+    from openxdox import view_extensions
+
+    declared = getattr(view_extensions, "DISPLAY", None)
+    if not isinstance(declared, Mapping) or "values" not in declared:
+        return None
+    values = declared["values"]
+    if not isinstance(values, Mapping) or not all(
+            isinstance(entry, Mapping) for entry in values.values()):
+        raise RuntimeError(
+            f"openxdox.view_extensions.DISPLAY['values'] is {values!r}; "
+            "openxFactory composes it as a mapping of snapshot enum to a "
+            "mapping of role to value (opendox.display_profile's own shape).")
+    return {name: dict(entry) for name, entry in values.items()}
+
+
 def _display_facet(profile: Any) -> dict[str, Any]:
     """openxFactory's real `DISPLAY` facet — every word derived, none retyped.
 
@@ -356,13 +413,13 @@ def _display_facet(profile: Any) -> dict[str, Any]:
     merge (not this partial declaration alone) can see. openDox-code #21's own
     `90cf05a0` ("two roles may not share one snapshot enum value") enforces
     exactly this for `values.register_state` / `values.document_stage`
-    (neither of which this facet declares, so there is nothing here for that
-    check to merge against); this profile's own `statuses.document` /
-    `statuses.change` / `statuses.candidate` tables are each pairwise distinct
-    by construction (`profile.status()` returns one word per role and this
-    module asks for none of the roles that collide within a kind — see
-    `_DOCUMENT_STATUS_ROLES`), and the test suite asserts it directly rather
-    than trusting the construction.
+    (declared here only as copied from openXdox by `_openxdox_values()`, and
+    checked by `normalize_display` itself after its merge); this profile's own
+    `statuses.document` / `statuses.change` / `statuses.candidate` tables are
+    each pairwise distinct by construction (`profile.status()` returns one word
+    per role and this module asks for none of the roles that collide within a
+    kind — see `_DOCUMENT_STATUS_ROLES`), and the test suite asserts it
+    directly rather than trusting the construction.
 
     PARTIAL, DELIBERATELY. `display_profile.normalize_display`'s own stance is
     that partial is legal and is the point — a host declares the roles it has
@@ -387,11 +444,17 @@ def _display_facet(profile: Any) -> dict[str, Any]:
       preference: the exact regression `display_profile.py`'s own module
       docstring warns a NEUTRAL FALLBACK could cause, self-inflicted instead
       by a host override that has nothing real to say.
-    * `values`, `sections` — the snapshot's own enum spellings and the staging
-      template's heading order were spot-checked against this profile's real
-      words (`register-possible`'s four states; the headings in
-      `ideation/staging/*/*.md`) and already agree with openDox's neutral
-      defaults, so there is nothing to override.
+    * `sections` — the staging template's heading order was spot-checked
+      against the headings in `ideation/staging/*/*.md` and already agrees
+      with openDox's neutral default, so there is nothing to override.
+
+    `values` WAS ON THAT LIST TOO, beside `sections`, while openDox's
+    snapshot-value defaults were the governed words themselves
+    (`register-possible`'s four states were spot-checked against them). Plan
+    034 T054 moved those defaults to openDox's own neutral snapshot's values,
+    so the governed words now have to be declared, and openXdox declares them
+    (T060). This facet COPIES openXdox's block (`_openxdox_values()`, plan 034
+    T066) and declares no value of its own.
 
     `stages` WAS ON THAT LIST AND HAS LEFT IT, BY RULING RATHER THAN BY CHOICE
     HERE. The bullet it shared with `values` and `sections` gave the reason
@@ -411,7 +474,7 @@ def _display_facet(profile: Any) -> dict[str, Any]:
     def statuses_for(kind: str, roles: tuple[str, ...]) -> dict[str, str]:
         return {role: profile.status(role, kind=kind) for role in roles}
 
-    return {
+    facet = {
         # Copied from openXdox's own `DISPLAY`, never typed here; see
         # `_openxdox_stages()` and the "`stages` WAS ON THAT LIST" paragraph
         # above.
@@ -456,6 +519,12 @@ def _display_facet(profile: Any) -> dict[str, Any]:
             "supporting": {"prefix": "supporting-docs/", "label": "Supporting docs"},
         },
     }
+    # Copied from openXdox's own `DISPLAY` where it declares the block, and
+    # absent where it does not; see `_openxdox_values()`.
+    values = _openxdox_values()
+    if values is not None:
+        facet["values"] = values
+    return facet
 
 
 def __getattr__(name: str):
@@ -484,7 +553,8 @@ def __getattr__(name: str):
     dict builds, matches this function's existing stance on
     `SUBCOMMAND_EXTENSIONS`, and can never answer with a profile a host has
     since swapped. It also reads `openxdox.view_extensions.DISPLAY` for the
-    stage words (`_openxdox_stages()`). That module imports only the standard
+    stage words (`_openxdox_stages()`) and the governed snapshot's values
+    (`_openxdox_values()`). That module imports only the standard
     library and `openxdox.web_assets`, which imports only the standard library
     too, so the read adds no dependency to a hosted server's import chain.
     """

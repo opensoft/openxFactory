@@ -36,7 +36,6 @@ import functools
 import hashlib
 import os
 import shutil
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -1739,43 +1738,35 @@ def _type_gate_refuses(doc) -> bool:
 
 
 @functools.lru_cache(maxsize=None)
-def _composed_schemas_dir() -> Path:
-    """One directory holding every released schema, composed from the rows.
+def _farm_validator(validator: Path) -> Path:
+    """The moved validator as openxFactory's farm runs it: a copy of the script
+    in a scratch tree whose own `contracts/schemas/` carries the whole family
+    (`doxbench_contracts._composed_validator`, the path
+    `delegated_semantic_validation` takes).
 
-    THE DELEGATED VALIDATOR IS ITSELF A MOVED ROW, and where it landed is not
-    where its schemas landed: the script is at the openXdox-CODE leg and derives
-    `SCHEMAS_DIR` from its own `__file__`, while the schemas it co-loads are
-    split across openXdox-SPEC, openDox-SPEC and the rows that stayed here. No
-    single checkout carries all of them at one path any more, so this composes
-    the directory the script expects — a symlink per schema, each resolved from
-    its OWN row — exactly as the serve entrypoint composes the dashboard's web
-    root from the manifest. Nothing is copied and nothing is written into the
-    tree; the farm is a scratch directory of links to the pinned bytes.
-
-    Composing this is the openxFactory half of § 4.3, standing in until the
-    legs' own composition point is built — the same posture
-    `opendox_host.register_openxfactory()` takes for the profile.
-    """
-    farm = Path(tempfile.mkdtemp(prefix="doxbench-released-schemas-"))
-    for key, resolved in sources_under("contracts/schemas").items():
-        name = key.rsplit("/", 1)[-1]
-        if key == f"contracts/schemas/{name}":
-            (farm / name).symlink_to(resolved)
-    # Schemas the carve surface never covered stay where they always were.
-    for path in (contracts.REPO_ROOT / "contracts" / "schemas").glob("*.yaml"):
-        if not (farm / path.name).exists():
-            (farm / path.name).symlink_to(path)
-    return farm
+    WHY THE FARM AND NOT A PATCHED `SCHEMAS_DIR` (plan 034 T066). Until
+    openXdox-code #36 (`6a3b93b9`, T061) the script read every family schema
+    from `SCHEMAS_DIR`, so this file pointed that name at a scratch directory
+    of links, one per released schema, each resolved from its own carve row,
+    and so composed the family in process. From #36 each schema's source is
+    decided by `schema_source()`: the tree's own `contracts/schemas/` first,
+    and otherwise the installed distribution for the consumer's three and
+    `CONTRACTS_DIR` for the other seven (R1Q27 (a)). `SCHEMAS_DIR` no longer
+    decides it, so a leg-resident copy with that name patched found none of
+    openDox's kinds. The farm's tree carries the family under its own
+    `contracts/schemas/`, which both script generations read first, so the
+    FILE gate below reads the same schemas at both pins."""
+    return contracts._composed_validator(validator)
 
 
 def _file_gate_errors(root: Path, path: Path) -> list:
     import importlib.util
     validator = _released(root, "scripts/validate-ideation-dashboard-contracts.py")
+    if validator != root / "scripts/validate-ideation-dashboard-contracts.py":
+        validator = _farm_validator(validator)
     spec = importlib.util.spec_from_file_location("vidc_gate_parity", validator)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    if validator != root / "scripts/validate-ideation-dashboard-contracts.py":
-        module.SCHEMAS_DIR = _composed_schemas_dir()
     registry, docs = module.build_registry()
     findings = module.Findings()
     module.validate_instance(findings, path.name, module.load_yaml(path),
