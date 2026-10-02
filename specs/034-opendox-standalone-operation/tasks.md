@@ -1902,8 +1902,9 @@ for chat standalone. Every phase-3 task comes after T063 and T069.
 **Goal**: one documented command installs and starts the whole product, with
 its bundled datastore, the local mode, the served bundle, and chat with a clear
 no-model state. The install is `pip install "opendox[local]"`, and the command
-is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
-`consumer_reach.py` is gone.
+is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)). T099
+publishes the package to PyPI at the cut, so that the install line works as
+written (`5962754358`). `consumer_reach.py` is gone.
 
 **Independent test**: T089, then T095 and T096.
 
@@ -2013,6 +2014,47 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - **Ruled**: R1Q15 (b), R1Q16 (iii), `5850003126`.
   - **After**: T074, T075, T087 (the README documents the command the root
     pins).
+- [ ] T099 [US3] [oDc] **Publish to PyPI (10.3's install line).** openDox-code
+  publishes its sdist and wheel to PyPI as `opendox`, by trusted publishing
+  (OIDC), so 10.3's `pip install "opendox[local]"` works as written. No token
+  or secret is stored anywhere. Today `pypi.org/pypi/opendox/json` answers 404
+  (RULED `5962754358`, item 1, *"Publish to PyPI at the cut (Recommended)"*).
+  - **The release workflow** (openDox-code#78) is `.github/workflows/release.yml`.
+    It runs only when dispatched by hand, with a `version` input that must equal
+    `pyproject.toml`'s. Its build job verifies the files before any upload: the
+    `local` extra (T072), the `opendox` console script, every tracked file of
+    the web bundle (T075) and of `src/`, the migrations, and `opendox --help`
+    from the built wheel in a fresh venv. It publishes to TestPyPI first, in a
+    `testpypi` environment, and then to PyPI, in a `pypi` environment, and
+    Brett Heap approves each. Its artifact checks pass only once T072 and T075
+    have landed. The same PR adds `readme` to openDox-code's `pyproject.toml`,
+    so that file's single-writer order runs T072 → T075 → T099.
+  - **The release commit, and the order (RULED `5963162921`, *"0.1.0
+    (Recommended)"*).** Release 1's version is 0.1.0. Its bump, T099's release
+    step (openDox-code#79), is the LAST phase-3 openDox-code landing. The
+    openDox root then pins that commit (T087), and the workflow publishes only
+    the commit that the root's `contracts/code-pin.yaml` names, refusing any
+    other. So the publish is dispatched at the cut, after the checkpoint. It is
+    dispatched on `main` while `main`'s head is still the pinned commit, or on
+    a tag at that commit once `main` has moved on (T095 lands after T089).
+  - **Brett Heap's one-time setup**, before the first dispatch:
+    - on pypi.org, a pending trusted publisher for `opendox` (owner `opensoft`,
+      repository `openDox-code`, workflow `release.yml`, environment `pypi`);
+    - the same on test.pypi.org, with environment `testpypi`;
+    - in openDox-code's GitHub settings, the two environments, each with a
+      required reviewer. The build job refuses until both name one.
+  - **Realizes**: 10.3.
+  - **Falsifier**: the release workflow's verify job, then a TestPyPI dry run
+    installed with `pip install --index-url https://test.pypi.org/simple/
+    --extra-index-url https://pypi.org/simple/ "opendox[local]"` in a fresh
+    venv, then the PyPI publish at the cut.
+  - **Ruled**: `5962754358`, item 1; the version and the release commit,
+    `5963162921`.
+  - **After**: T075, T072, T089 (the publish happens at the cut, after phase
+    3's checkpoint).
+  - That line is the publish's. The workflow and the version bump are
+    openDox-code landings of phase 3, so T087 follows both, as its "every
+    phase-3 openDox-code landing" reads.
 - [ ] T077 [US3] [oDc] **Run F10.1**, as batch H amends it: it installs
   `".[local]"`, and it runs `opendox generate-and-open --local …`. The local
   mode starts the bundled server, so this run follows T072.
@@ -2232,6 +2274,10 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q19 (a), `5850003126`.
   - **After**: T063, T069.
 - [ ] T087 [US4] [oD] **Phase 3's openDox root pin** (T090 steps 1–2).
+  - It pins the commit that carries release 1's version bump to 0.1.0 (T099's
+    release step, openDox-code#79), the last phase-3 openDox-code landing,
+    because T099 publishes only the commit this root pins (RULED
+    `5963162921`).
   - **Realizes**: 9.5 (part).
   - **Falsifier**: `make pins` in the openDox root.
   - **After**: T074, T077, T083, T084, T085, T088 (every phase-3 openDox-code
@@ -2287,7 +2333,10 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   as batch H amends them), F16.1, and F5.2 whole (as T007's batches C, F, G and
   K amend it, after T086's repair), then T098's interim F11.1 output.
   - **Ruled**: F5.2's close here, `5962785556`, item 1.
-  - **After**: T094, T098, T076 (so every phase-3 task is done).
+  - **After**: T094, T098, T076 (so every phase-3 task but the PyPI publish is
+    done).
+  - The publish follows this checkpoint by design, at the cut
+    (`5962754358`, `5963162921`).
 
 ---
 
@@ -2461,7 +2510,7 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - Record the non-normative corrections from research R16 in the evidence
     notes.
   - **Ruled**: R1Q20 (a).
-  - **After**: T096, T007 (every batch).
+  - **After**: T096, T099 (10.3 closes on the publish), T007 (every batch).
 
 ---
 
@@ -2501,7 +2550,7 @@ Every release-1 box, with the task that closes it:
 | 5 (12) | 5.0 → T050 · 5.1 → T053, T054, T056 · 5.2 → T054 · 5.3 → T054 · 5.3a → T060 · F5.1 → T060 · 5.4 → T052 · 5.4a → T059 · F5.2 → T086, T089 (T063 quotes it red; RULED `5962785556` moves its close to phase 3) · 5.5 → T055 · 5.6 `[x]` · F5.3 → T063 |
 | 7 (8) | 7.0 → T051 · 7.1 → T053, T057 · 7.1b → T057 · 7.1a → T057 · 7.2 → T057, T058 · 7.3 → T061 · F7.1 → T061 · F7.2 → T058, T063 |
 | 9 (8) | 9.1 → T034–T036 · 9.2 → T040, T041, T043, T086 · 9.2a → T030, T036 · 9.3 → T035, T042 · 9.4 → T037, T044 · 9.5 → T039, T040, T047, T059, T062, T064, T086, T087, T094 (T090's steps; arc close) · F9.1 → T049 · F9.2 → after T008 (T049 quotes it red, as RULED `5859927858` keeps it) |
-| 10 (5) | 10.1 → T038 · 10.2 → T075 · 10.2a → T075 · 10.3 → T076 · F10.1 → T077 |
+| 10 (5) | 10.1 → T038 · 10.2 → T075 · 10.2a → T075 · 10.3 → T076, T099 · F10.1 → T077 |
 | 11 (3) | 11.0 → T091 · 11.1 → T045, T092 · F11.1 → T093 (all at arc close) |
 | 13 (8) | 13.1 → T072 · 13.2 → T071 · 13.3 → T071 · 13.4 → T070 · 13.4a → T073 · 13.5 → T070 · 13.6 → T070 · F13.1 → T074 |
 | 16 (7) | 16.1 → T078 · 16.2 → T079 · 16.3 → T080 · 16.4 → T081, T085 · 16.5 → T082 · 16.6 → T034, T083 · F16.1 → T083 |
@@ -2551,7 +2600,10 @@ Every release-1 box, with the task that closes it:
   batch H amends it, so both follow T072: T072 → T075 → T077. Then T082,
   which comes after T081, T084 and T085, and T083. Then T087 (the phase-3
   openDox root pin) → T086 → T094 → T098 → T089, and T087 → T076 → T089.
-- **Acceptance**: T095 (after T089 and T076) → T096 → T097.
+  The PyPI publish comes last. T099's release step, the bump to 0.1.0, is the
+  last phase-3 openDox-code landing, and T087 pins it. The publish follows the
+  checkpoint, at the cut: T089 → T099, after T075 and T072 as well.
+- **Acceptance**: T095 (after T089 and T076) → T096 → T097, and T099 → T097.
 
 ### Parallel slices, summarised
 
@@ -2559,7 +2611,7 @@ Every release-1 box, with the task that closes it:
 |---|---|---|
 | 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; `pyproject.toml` (T038 → T036); `tests/test_authoring_seam.py` (T020 → T021 → T022); openDox-code's `validate.yml` (T036 → T037); T020 → T025 and T026 → T025; T032 → T037; T039 (root pin) → openXdox (T040, then T041 → T042 → T043 → T044) → T047 → T017, T018 |
 | 2 | T053 ∥ T050, then T052 ∥ T057 ∥ T051 | T053 → T054 → T055 → T056 → T058; T062 → T059 → T061 → T066 → T064; openXdox-code `pyproject.toml` (T059 → T061); ratchet writers; T007 batch I before T059, T060 and T061; batch K before T061 |
-| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072 | `serve.py` and `cli.py` (T070, T072 and T073 before T084); openDox-code `pyproject.toml` (T072); `doxbench_binding.py` (T078 → T080); T085 → T081; T087 → T086 → T094 |
+| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072 | `serve.py` and `cli.py` (T070, T072 and T073 before T084); openDox-code `pyproject.toml` (T072 → T075 → T099); `doxbench_binding.py` (T078 → T080); T085 → T081; T087 → T086 → T094; T089 → T099 (the publish, at the cut) |
 
 ## Phase 1 writer slices (for the fan-out)
 
@@ -2658,7 +2710,8 @@ P3-B's T080, and batch L before P3-R's T084.
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F5.2, F10.1, F13.1, F16.1 | Opus (verifier) |
 | acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O | the harness; the oracle's verdict | Opus |
-| bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance; T007 every batch | none (a record) | Sonnet |
+| P3-W publish to PyPI | after the checkpoint; the publish at the cut | T099 | oDc | `.github/workflows/release.yml` and `.github/release-tools-cpython312-linux.txt` (new); `pyproject.toml` (`readme`, after T072 and T075; then the release step's version bump to 0.1.0, its own PR and the last phase-3 openDox-code landing) | P3-I (T072), P3-E (T075), the checkpoint | the release workflow's verify job; a TestPyPI dry run installed in a fresh venv; the PyPI publish at the cut | Opus |
+| bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance, P3-W; T007 every batch | none (a record) | Sonnet |
 
 ## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`)
 
