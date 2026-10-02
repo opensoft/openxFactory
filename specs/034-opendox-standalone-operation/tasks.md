@@ -1780,7 +1780,7 @@ unchanged.
     - It also carried T064's plan-text correction, the one host line, as the
       holder decided (a plan edit in T064's own arc PR sits on no F11.1
       surface).
-- [ ] T064 [US4] [oX] [oxF] **Phase 2's consumer pins** (T090 steps 5–6). The
+- [x] T064 [US4] [oX] [oxF] **Phase 2's consumer pins** (T090 steps 5–6). The
   openXdox root moves to T061's commit, the phase's last openXdox-code
   landing, and to T062's root commit. Host wiring is needed only if
   openxFactory's composite has to register a generator contribution, and it
@@ -1819,13 +1819,40 @@ unchanged.
   - **Ruled**: R1Q26 (a), R1Q27 (a), `5851950767`.
   - **After**: T059, T060, T061, T062, T066, T047 (the pin pairs'
     single-writer order).
-- [ ] T065 [US4] [oxF] **Phase 2's interim F11.1**, by T093's procedure, with
+  - **Landed**: openXdox#21 → `f257e021` (the openXdox root: code
+    `6a3b93b9`, openDox pin `d5098297`), then openxFactory#1215 →
+    `fcb45380`, an arc landing whose squash carries the `Arc:` trailer.
+    - Both pin pairs move in ONE commit (#1215's `59866105`), departing from
+      T090 step 6 on the holder's decision of 2026-09-28: #21 moves the openDox
+      pin that `verify-opendox-pin.py` check 5 reads through the openXdox
+      gitlink. openDox is `d5098297` (`2815ca23…`, 28 records), and openXdox
+      is `f257e021` (`52f0598e…`, 29 records, recomputed three ways).
+    - The host line calls `openxdox.projection_contributions.register()` once
+      openDox answers the profile and before `register_seams()`, so a refused
+      profile writes no seam (Copilot's finding at `d6c47f4f`, answered in
+      `5663b4ed`). `tests/domain_profile/test_host_registers_openxdox_projection.py`
+      pins it in 9 cases.
+    - #1213's three no-both-pins-form reds are answered on admitted F11.1
+      surfaces (holder decision (c)): `RENDER_LEG_MODULES` and
+      `RENDER_UNIT_IMPORTS` gain `projection_contributions.py`, and the q7
+      literal moves to `d5098297`. 129 carve admissions are added and pinned in
+      `tests/carve_arrival`.
+    - CI at the PR head passes all 12 checks. `pytest-suite` reads
+      `selected=9345 passed=9339 skipped=6`, and the consumer gate reads
+      105/105/0 and 1481/1481/0.
+- [x] T065 [US4] [oxF] **Phase 2's interim F11.1**, by T093's procedure, with
   `ARC_TIP` at T064's landing. Record the output in
   `evidence/f11.1-phase2.txt`, with no `Arc:` trailer, and link it from
   this feature's README entry.
   - **Falsifier**: F11.1, as widened by T007 batch A, prints `requirement 1
     holds`.
   - **After**: T064.
+  - **Landed**: [`evidence/f11.1-phase2.txt`](evidence/f11.1-phase2.txt),
+    with `PACKET_MERGE=94b6f7f1` and `ARC_TIP=fcb45380` (#1215). It prints
+    `requirement 1 holds: 0 note(s) annotated, every other path a declared
+    surface (11.1)` (exit 0) over the arc's two landings, `f56c87c6` (T047)
+    and `fcb45380` (T064). A planted path on no surface is refused. The
+    admitted list did not grow.
 - [ ] T063 **Phase 2 checkpoint.** Run and quote F5.1, F5.2 (as amended by
   T007's batches C, F, G and K, its last step passing `--chains`), F5.3,
   F7.1 (T061, back in this phase by R1Q25
