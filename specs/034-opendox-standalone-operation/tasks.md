@@ -1848,7 +1848,8 @@ unchanged.
       admits all four protected suites the arc touched.
     - How phase 2 closes with F5.2 red is the holder's decision. It is open,
       so T063 is not ticked yet.
-    - T065's interim F11.1 output is quoted there once T065's own PR lands it.
+    - T065's interim F11.1 output (openxFactory#1217) is quoted there, and it
+      was re-run with the same line, `requirement 1 holds`.
 
 ---
 

@@ -26,7 +26,7 @@ recorded in T064's PR (openxFactory#1215).
 | 4 | F7.1, its second named test read as batch I records R1Q27 (a) | openXdox-code `6a3b93b9` | **PASS**, exit 0: `2 passed` |
 | 5 | F7.2 | openDox-code `047bb4fa` | **PASS**, exit 0: the malformed corpus is refused for `[title-and-summary-are-text]` |
 | 6 | a standalone `generate-and-open` serving the fixture | openDox-code `047bb4fa`, a plain install | **PASS**, exit 0: it serves the eight documents, the core routes answer, and it stops on an interrupt with status 0 (§ 6) |
-| 7 | T065's interim F11.1 | openxFactory, `ARC_TIP` at T064's landing `fcb45380` | **PENDING**: T065's own PR records it in `evidence/f11.1-phase2.txt`, and § 7 quotes it once that lands |
+| 7 | T065's interim F11.1 | openxFactory, `ARC_TIP` at T064's landing `fcb45380` | **PASS**: quoted from T065's record (openxFactory#1217), and re-run with the same result, `requirement 1 holds: 0 note(s) annotated, every other path a declared surface (11.1)` |
 
 **F5.2, and the decision that is open.** F5.2's `set -e` stops at
 `tests/test_session_snapshot.py`, the second suite its glob lists, on three
@@ -951,12 +951,42 @@ item 1), which T084 fixes in phase 3. It is not one of phase 2's checks.
 
 ## 7. T065's interim F11.1
 
-<!-- T063 PLACEHOLDER: T065's interim F11.1 output, quoted from `evidence/f11.1-phase2.txt` once T065's PR lands it. -->
+<!-- T063: link evidence/f11.1-phase2.txt here once openxFactory#1217 (T065) lands on main. -->
 
-**PENDING.** T065 runs F11.1 by T093's procedure, with
-`PACKET_MERGE=94b6f7f1` and `ARC_TIP` at T064's landing `fcb45380`, and its own
-PR records the output in `evidence/f11.1-phase2.txt`. This section quotes that
-output, and links the file, once it lands.
+T065 ran F11.1 by T093's procedure, and its own PR records the run in
+`evidence/f11.1-phase2.txt` (opensoft/openxFactory#1217, quoted here at its
+head `69ab396d`). It runs the guard extracted byte for byte from #1144's
+`tasks.md` at `fcb45380` (`:1587-1666`, sha256 `60beede1244b6052…`), with
+`PACKET_MERGE=94b6f7f13b45c351b9142345738965c974b7dd37` and
+`ARC_TIP=fcb45380a4d9d4933038157411944c4fefa59d13`, T064's landing. The walk
+finds two arc landings on `main`, `fcb45380` (T064) and `f56c87c6` (T047),
+and every path the new one touches is on a declared surface. T065's record
+quotes, verbatim (exit code 0; stderr was empty):
+
+```
+requirement 1 holds: 0 note(s) annotated, every other path a declared surface (11.1)
+```
+
+Its negative control, a planted arc commit on top of `fcb45380` that adds one
+path on no declared surface, is refused (exit 1):
+
+```
+FAIL: the arc changed what requirement 1 keeps:
+  3bc44db21ce1: touched docs/a-path-on-no-f11.1-surface.md
+```
+
+**Re-run here.** The same extraction, at `fcb45380` (sha256 `60beede1244b6052…`,
+the same), ran in an openxFactory clone at `fcb45380` with an empty
+`git status`, with the same `PACKET_MERGE` and `ARC_TIP`. Exit 0, stderr
+empty, and the same line:
+
+```
+requirement 1 holds: 0 note(s) annotated, every other path a declared surface (11.1)
+```
+
+The guard's count of annotated notes is 0 because no arc landing touches the
+manifest. T092's phase-2 notes below are in this bookkeeping PR, which
+carries no `Arc:` trailer, so the guard never reads them.
 
 ## T092's phase-2 notes, carried in this PR
 
