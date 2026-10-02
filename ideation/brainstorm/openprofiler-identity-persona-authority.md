@@ -113,7 +113,7 @@ where that is required.
 - Existing [Keycloak identity brokering](keycloak-identity-brokering.md)
   defines one durable human persona per broker instance and organization
   membership without mirroring the tenancy graph.
-- The neutral [openXWallet contracts](../../contracts/openxwallet/README.md)
+- The neutral [openXWallet contracts pin](../../contracts/openxwallet-pin.yaml)
   define grants, custody, and holder attribution.
 - The neutral [trust-anchor contracts](../../contracts/trust-anchor/README.md)
   define certificate trust and its relationship to wallet custody.
