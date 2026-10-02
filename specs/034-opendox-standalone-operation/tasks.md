@@ -354,8 +354,8 @@ planned on answers.
     `ideation/staging/doc-health-direction-arc/doc-health-direction-arc.md`,
     with its row in `ideation/staging/INDEX.md`. It cites `5817152735` and names
     the deadline.
-  - **Record completed**: this PR, a bookkeeping PR with no `Arc:` trailer. It
-    edits the staged topic, its row and detail section in
+  - **Record completed**: openxFactory#1214, a bookkeeping PR with no `Arc:`
+    trailer. It edits the staged topic, its row and detail section in
     `ideation/staging/INDEX.md`, and this file. The record had been captured
     before round 2's answers, and now:
     - takes the rail class (3 files) and the contracts class (5 files) of the
@@ -382,7 +382,7 @@ planned on answers.
     whole-suite step by #32), the guard test beside it, and the same
     `--deselect` in F9.1's pytest line (T007 batch J) (RULED `5859927858`,
     `5870594693`). F9.2 is then re-run, and its box closes. The staged topic
-    now names F9.2 and these three removals (this PR).
+    now names F9.2 and these three removals (openxFactory#1214).
     - `5870594693` itself says *"T008 removes it together with the workflow
       deselect"*, which names F9.1's `--deselect` and the workflow's. The
       guard test beside the workflow's is openXdox-code#32's own
