@@ -599,6 +599,24 @@ def register_openxfactory() -> Any:
     registry is touched, so a refused process is left with NEITHER registry
     mutated rather than half-registered.
 
+    AND IT REGISTERS openXdox's GOVERNED PROJECTION (plan 034 T064, the holder's
+    decision of 2026-09-29 at T059). From openXdox-code `839492d9` (#35), openXdox
+    contributes its generator, snapshot registry, corpus-root predicate, writer
+    and validators at openDox's seams through
+    `openxdox.projection_contributions.register()`.
+    `openxdox.domain_profile.register()` makes that call, but this host registers
+    with openDox alone, so it makes the call itself. It is idempotent and all
+    or none. It is made once openDox answers this host's profile, and before
+    the seams below are filled. So a profile openDox refuses leaves every
+    projection seam as it found it, including openDox's unread defaults, and
+    a refused contribution leaves the profile registered and no seam of this
+    host's written. openXdox's own `register()` orders the two the other way,
+    because once its check has passed its profile write cannot be refused,
+    and openDox's `register()` can be. Without the call, every openDox entry
+    point projects through openDox's neutral defaults. Measured at these pins, the
+    gate verbs then answer `action_unavailable` and a governed generation
+    refuses `document_keys_are_paths`: 187 tests, recorded in #1213.
+
     IT DOES NOT FIRE ON THIS MODULE'S OWN REGISTRATION, because this module
     never writes to openXdox's registry: after `register_openxfactory()` the
     openXdox registry is still empty and the composite is reached by delegation,
@@ -710,5 +728,18 @@ def register_openxfactory() -> Any:
     # routes, which looks exactly like a working server.
     _assert_this_hosts_profile()
 
+    # OPENXDOX'S GOVERNED PROJECTION (plan 034 T064). This host registers its
+    # profile with openDox alone, so it makes the call
+    # `openxdox.domain_profile.register()` would have made. It comes after the
+    # profile, so a profile openDox refuses leaves every projection seam as
+    # it found it: nothing is written that a refusal would have to take back,
+    # and taking contributions back would not restore the unread defaults
+    # they replaced (Copilot, #1215). It comes before the host's own seams,
+    # and it is all or none, so its refusal leaves the profile registered and
+    # no host seam written, as a refusal inside `register_seams()` leaves the
+    # profile.
+    from openxdox import projection_contributions
+
+    projection_contributions.register()
     register_seams()
     return registered
