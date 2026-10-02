@@ -333,7 +333,7 @@ planned on answers.
     (T018's PR) added F11.1's `ADMITTED_ARC_EDITS` (RULED `5890601202`) and
     corrected batch E's held-case count from "6 to 7" to "5 to 6". #1204 →
     `9d2e5bc3` (T049's PR) made two one-sentence record corrections in batch E.
-- [ ] T008 **Raise the `doc_health` direction arc (R1Q6 (d)).** R1Q6 (d)
+- [x] T008 **Raise the `doc_health` direction arc (R1Q6 (d)).** R1Q6 (d)
   makes the direction question its own arc: openXdox-code's modules import
   openxFactory's `doc_health`, and openxFactory packages nothing (research
   R10). The arc must be decided before 12.5 (release 2) needs the 16 governed
@@ -354,12 +354,27 @@ planned on answers.
     `ideation/staging/doc-health-direction-arc/doc-health-direction-arc.md`,
     with its row in `ideation/staging/INDEX.md`. It cites `5817152735` and names
     the deadline.
-  - **Not yet done, so T008 stays open**: the record was captured before round
-    2's answers and has not been revised since. It still reads R1Q24 and R1Q25
-    as open and outside its subject (its claim 6), so it does not yet take the
-    rail and contracts classes or cite `5850003126` for them, as the first
-    bullet above requires. T061's list joins it after T061, as the second bullet
-    says.
+  - **Record completed**: this PR, a bookkeeping PR with no `Arc:` trailer. It
+    edits the staged topic, its row and detail section in
+    `ideation/staging/INDEX.md`, and this file. The record had been captured
+    before round 2's answers, and now:
+    - takes the rail class (3 files) and the contracts class (5 files) of the
+      declared exclusion, each file listed as openXdox-code's
+      `tests/declared_exclusion.yaml` holds it at `6a3b93b9` (the same lists as
+      at T043's landing, openXdox-code#32 → `4610bca5`), and cites `5850003126`
+      for them (R1Q24 (a));
+    - reads R1Q23 as answered (a), and R1Q25's consumer-schemas class as
+      cleared by T061 (openXdox-code#36 → `6a3b93b9`), so neither is open in it
+      any more (its claim 6 and Q5);
+    - carries T061's list of the seven excluded files that validate a kind the
+      narrowed validator gives up (openXdox-code#36's body, § "For T008");
+    - names F9.2, and what the arc's landing removes (the bullet below).
+  - **What the tick means.** T008's box is the raise and the record. The arc
+    itself is not done: the topic's Q1 to Q4 and Q6 stay open (Q5 is answered
+    by R1Q23 (a)), so it still needs Brett Heap's ruling among its options,
+    and an owner or a task list for the realization (Q6). "After T008" and
+    "until T008", elsewhere in this file, mean that arc's LANDING, so F9.2's
+    box stays open until then.
   - **F9.2's re-run belongs to this arc.** Where this file says F9.2 closes
     "after T008" or stays red "until T008", it means that arc's landing. The
     landing removes, together, the help-tree test's `--deselect` in
@@ -367,7 +382,13 @@ planned on answers.
     whole-suite step by #32), the guard test beside it, and the same
     `--deselect` in F9.1's pytest line (T007 batch J) (RULED `5859927858`,
     `5870594693`). F9.2 is then re-run, and its box closes. The staged topic
-    does not yet name F9.2.
+    now names F9.2 and these three removals (this PR).
+    - `5870594693` itself says *"T008 removes it together with the workflow
+      deselect"*, which names F9.1's `--deselect` and the workflow's. The
+      guard test beside the workflow's is openXdox-code#32's own
+      (`tests/integration/test_assembled_surface.py::test_the_help_tree_is_left_out_only_while_its_stated_reason_holds`),
+      and its docstring says the pull request that clears the reason takes the
+      exclusion and the guard out together.
 - [x] T009 **Phase 2's round.** DONE in this revision, on `5850003126`. No
   task of phase 2 starts before it is done.
   - The answers to R1Q10, R1Q11, R1Q12, R1Q13 and R1Q23 are encoded in
@@ -1348,7 +1369,7 @@ unchanged.
   - **Landed**: openDox-code#58 → `8ec08e91`. Its `pyproject.toml` package-data
     key is its own line, on the holder's decision that openDox-code's phase-1
     work on `pyproject.toml` was finished.
-- [ ] T055 [US2] [oDc] **Serve and generate standalone; route 4.3's
+- [x] T055 [US2] [oDc] **Serve and generate standalone; route 4.3's
   generator-facing reaches.**
   - Give the snapshot source and registry, the corpus-root predicate, and the
     writer and validator lookup seams an openDox default each. The entry
@@ -1377,7 +1398,15 @@ unchanged.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q10 (a), `5850003126`.
   - **After**: T054, T057, T022 and T038 (`serve.py`'s and `cli.py`'s
     single-writer order).
-- [ ] T056 [US2] [oDc] **The standalone generate path, end to end.**
+  - **Landed**: openDox-code#59 → `fa140875`, then its follow-up
+    openDox-code#70 → `75bd8703`.
+    - #70 confines `serve_project._resolved_listed_edit_entry` to the one entry
+      it resolved, with no second lookup by `(repository, ref)`. It takes the
+      finding that Copilot's review of #59 at `0c946f4e` raised after the last
+      push that could take it, and it landed before T062 (openDox#16).
+    - The validator lookup's stand-in, above, is gone: T058
+      (openDox-code#68 → `047bb4fa`) wired `opendox.validator` in.
+- [x] T056 [US2] [oDc] **The standalone generate path, end to end.**
   `python -m opendox.cli generate` and `generate-and-open --no-open` run on
   the fixture with neither sibling importable, and the server STARTS (the limit
   measured in research R7 is lifted).
@@ -1392,7 +1421,21 @@ unchanged.
     projection's half in process. F10.1 as batch H amends it is T077's.
   - **Ruled**: R1Q22 (a), `5817152735`.
   - **After**: T055.
-- [ ] T058 [US2] [oDc] **The post-render validator in the generate verbs.** It
+  - **Landed**: openDox-code#66 → `a23e4224`.
+    - The verbs already ran standalone at T055's head, and the server started.
+      T056 found one defect: the URL line of `generate-and-open` and of `serve`
+      was block-buffered on a pipe, so a wrapper never saw where the server had
+      started. It is fixed with `flush=True` on those lines in `cli.py` and
+      `serve.py`.
+    - `tests/test_standalone_generate_path.py` (new) runs real child processes
+      with `openxdox`, `ideation_dashboard`, `doc_health` and
+      `corpus_adapter_openxfactory` refused, and each case asserts that no
+      refused import was swallowed.
+    - F5.3 exits 1 at openDox-code `fa8862cc` and 0 at the PR's head. F10.1's
+      plain-install run stays T077's.
+    - The squash message cites three shas with a wrong 8th character; the
+      record correction is openDox-code#66's comment `5917853351`.
+- [x] T058 [US2] [oDc] **The post-render validator in the generate verbs.** It
   validates the neutral snapshot against T053's schema, read from T057's
   packaged copy. `--strict` makes a validator that cannot run fatal, and
   `--no-validate` skips validation.
@@ -1401,6 +1444,16 @@ unchanged.
     non-zero, naming `EXPECTED_RULE`, with no `No such file or directory`.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q11 (a), R1Q12 (a), `5850003126`.
   - **After**: T051, T056, T057.
+  - **Landed**: openDox-code#68 → `047bb4fa`.
+    - `opendox.validator` takes the stand-in's place as openDox's default
+      validator, one adapter per own kind (`opendox-snapshot` and
+      `ideation-workbench`), over the packaged copies T057 shipped. A validator
+      that cannot run reports `validator-unavailable`, which `--strict` makes
+      fatal.
+    - F7.2 exits 1 at the branch's base (with the stand-in) and 0 after, and
+      the malformed fixture's report names `title-and-summary-are-text`, with
+      no `No such file or directory`.
+    - T062 pins this commit as phase 2's openDox code leg.
 - [x] T060 [US4] [oXc] **5.3a: openXdox's facet carries the governed snapshot
   values, and F5.1 is re-run against the realized openDox.** R1Q11 (a) moves
   `SNAPSHOT_VALUES`' defaults to the neutral snapshot's values (T054). So the
@@ -1431,13 +1484,21 @@ unchanged.
   - For T064: the allow-list needs a `created:` admission under `openxdox_code`
     in `docs/opendox-carve-admissions.yaml`, with `since:` set to this landing
     commit (openXdox-code#34).
-- [ ] T062 [US4] [oD] **Phase 2's openDox root pin** (T090 steps 1–2). T053's
+- [x] T062 [US4] [oD] **Phase 2's openDox root pin** (T090 steps 1–2). T053's
   spec pin and bundle come first in this root, so this commit follows them.
   - **Realizes**: 9.5 (part).
   - **Falsifier**: `make pins` in the openDox root.
   - **After**: T054–T058 (every phase-2 openDox-code landing), T039 (the root
     pin's single-writer order).
-- [ ] T059 [US4] [oXc] **5.4a: openXdox contributes its governed generator,
+  - **Landed**: openDox#16 → `d5098297`.
+    - One commit moves the root's code gitlink, and `contracts/code-pin.yaml`'s
+      `commit:` and `digests.tree_sha256`, from `2d116415` to `047bb4fa`
+      (`047bb4fa394f3e1bf42466062a67ef18e99f8d6a`, T058's landing). No
+      workflow file moves.
+    - The falsifier, `make pins` in the openDox root at the PR's head, reads
+      `pins ok`: both gitlinks equal their pin files, and both tree digests
+      recompute (the code leg's is `97536dbe7454…`).
+- [x] T059 [US4] [oXc] **5.4a: openXdox contributes its governed generator,
   registry and source through the seams**, the governed half of R1Q10 (a).
   - It keeps `generator.py`, `snapshot.py`, `snapshot_registry.py`,
     `completeness.py` and `corpus_root.py`.
@@ -1477,7 +1538,33 @@ unchanged.
     `5850003126`; R1Q26 (a), `5851950767`.
   - **After**: T052, T055, T060, T062, T067, T007 (batches C and I), T040 (the
     ratchet's single-writer order).
-- [ ] T061 [US4] [oXc] **7.3: the consumer's validator lookup through the
+  - **Landed**: openXdox-code#35 → `839492d9`. It pins openDox-code `047bb4fa`,
+    T062's commit. Its body records these holder rulings:
+    - **The registration path is REVISED** (holder, 2026-09-29), and the
+      decision of 2026-09-27 above rested on a misread. openxFactory's
+      `register_openxfactory()` calls `openxdox.domain_profile.load()` and
+      registers the composite with openDox alone, and never calls
+      `openxdox.domain_profile.register()`. So the contributions register
+      through an explicit `openxdox.projection_contributions.register()`
+      (idempotent, all or none), which `openxdox.domain_profile.register()`
+      also calls, and `load()` stays free of side effects. **T064 therefore
+      owes one host line**, that call in `register_openxfactory()`, on
+      F11.1's `HOST` surface. T064's own text is corrected in
+      openxFactory#1213 (T066's non-arc PR, open when this was written).
+    - `tests/conftest.py` registers openxFactory's
+      `corpus_adapter_openxfactory.home_corpus` where F5.2's environment puts
+      `scripts/` on `PYTHONPATH`, and registers nothing in a lone checkout, so
+      4.1a's refusal stands there.
+    - The respelled call in `tests/test_session_snapshot.py` is an R1Q7 (a)
+      allow-list entry. Seven consumer-schema reds that fail at both pins are
+      deselected in T059's F5.2 run with R1Q25 (b)'s reason. Three pre-arc reds
+      in `tests/test_session_snapshot.py` are deselected with the reason "red at
+      both pins; pre-arc carve residue; not the arc's", and stay open for F5.2
+      whole (T061, T063).
+    - `tests/test_seam_assembly_beside_gate_and_projection.py` left the
+      declared exclusion (67 → 66), and T059 joined that file's single-writer
+      chain, T044 → T059 → T061.
+- [x] T061 [US4] [oXc] **7.3: the consumer's validator lookup through the
   installed distribution**, with no parent walk (R1Q14 (a)). The lookup
   ignores its start and resolves the installed distribution's own validator.
   C3's `test_a_start_outside_the_product_is_refused_not_walked` is revised in
@@ -1602,6 +1689,25 @@ unchanged.
     item 4.
   - **After**: T059, T067, T007 (batches C, F, I and K), and C3's
     openXdox-code PR 2 (openXdox-code#28, landed as `e28930bf`).
+  - **Landed**: openXdox-code#36 → `6a3b93b9`.
+    - The validator and its own three schemas ship as package data
+      (`openxdox.contracts`, each copy checked against a recorded digest before
+      it is read), and `find_validator` ignores its start.
+      `referencing>=0.28.4` and `rfc3339-validator>=0.1.4` are runtime
+      dependencies (Brett Heap, `5916000030`, *"Keep as runtime deps"*).
+    - `tests/test_snapshot.py` and its `consumer-schemas` reason left the
+      declared exclusion (66 → 65). Twelve allow-list entries were made
+      (R1Q7 (a)): batch F's two (`tests/test_snapshot.py` and
+      `tests/test_snapshot_validator_home.py`), and batch K's ten, one more
+      for `tests/test_snapshot.py`, chained with batch F's, and nine for
+      `tests/test_snapshot_validation_launch.py`, chained.
+    - F7.1, as #1144 writes it, exits 1 at #35's head and 0 after (`2 passed`).
+      F5.2 whole, in batch G's environment, passes every suite but
+      `tests/test_session_snapshot.py` (20 passed, 3 failed): the three failures
+      are T059's ruled pre-arc reds, which T063 still owns.
+    - The list this task owes the direction arc's record, of the excluded
+      files that validate a kind the narrowed validator gives up, is in the
+      PR's body and, as bookkeeping, in that record (T008 above).
 - [ ] T066 [US4] [oxF] **openxFactory at both pins, ahead of T064 (a non-arc
   act).** T064 composes T060's facet and T061's lookup into openxFactory.
   Before T064, this act makes openxFactory hold at both pins. It carries no
