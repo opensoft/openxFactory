@@ -779,9 +779,9 @@ def test_the_block_is_what_keeps_the_governed_values_beside_other_defaults(
     not the governed words, which is what T054's neutral defaults are, and
     openXdox's facet is given the governed block, which is what #34 declares.
     Composed, the served page still carries the governed words. With the
-    composition dropped, it serves the other defaults, and the predicate
-    `test_the_served_page_places_every_governed_card_at_this_pin` uses refuses
-    that state."""
+    composition dropped, it serves the other defaults, which fail the equality
+    that `test_the_served_page_places_every_governed_card_at_this_pin`
+    asserts."""
     governed = _governed_values()
     monkeypatch.setattr(display_profile, "SNAPSHOT_VALUES", _not_governed_defaults())
     monkeypatch.setattr(view_extensions, "DISPLAY",

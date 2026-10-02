@@ -115,12 +115,17 @@ MOVED_HANDLERS = {
 
 #: THE `/snapshot.json` ARM'S FOUR HANDLERS, which openDox-code #59
 #: (`fa140875`, plan 034 T055) made `DashboardHandler`'s own again, so a
-#: standalone server answers the arm without openXdox's column. From that leg
-#: the core handler defines each and answers it on the class `build_server`
-#: binds, and the projection stand-in forwards `_serve_index` alone; before it,
-#: each is the projection column's and the core handler defines none. Which
-#: layout holds is read off the pinned leg (`_snapshot_arm_is_core`), so the
-#: test below keeps its exact claim at both pins (plan 034 T066).
+#: standalone server answers the arm without openXdox's column. openXdox's
+#: column, `serve_projection.ProjectionRoutes`, still defines all four at both
+#: pins (openXdox-code `6158151e` and `6a3b93b9`), so `MOVED_HANDLERS` above
+#: and the test's `name in vars(owner)` stay exact at both. What T055 changed
+#: is openDox's side. From that leg `DashboardHandler` defines each itself,
+#: and openDox's stand-in base `consumer_reach.LateProjectionRoutes` forwards
+#: `_serve_index` alone, so the class `build_server` binds resolves the core's.
+#: Before it, the stand-in forwards all five and the core handler defines
+#: none. Which layout holds is read off the pinned leg
+#: (`_snapshot_arm_is_core`), so the test below keeps its exact claim at both
+#: pins (plan 034 T066).
 SNAPSHOT_ARM_HANDLERS = (
     "_hosted_entry_refused", "_query_key", "_read_snapshot", "_serve_snapshot")
 
