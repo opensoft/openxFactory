@@ -28,7 +28,7 @@ recorded in T064's PR (openxFactory#1215).
 | 4 | F7.1, its second named test read as batch I records R1Q27 (a) | openXdox-code `6a3b93b9` | **PASS**, exit 0: `2 passed` |
 | 5 | F7.2 | openDox-code `047bb4fa` | **PASS**, exit 0: the malformed corpus is refused for `[title-and-summary-are-text]` |
 | 6 | a standalone `generate-and-open` serving the fixture | openDox-code `047bb4fa`, a plain install | **PASS**, exit 0: it serves the eight documents, the core routes answer, and it stops on an interrupt with status 0 (§ 6) |
-| 7 | T065's interim F11.1 | openxFactory, `ARC_TIP` at T064's landing `fcb45380` | **PASS**: quoted from T065's record (openxFactory#1217), and re-run with the same result, `requirement 1 holds: 0 note(s) annotated, every other path a declared surface (11.1)` |
+| 7 | T065's interim F11.1 | openxFactory, `ARC_TIP` at T064's landing `fcb45380` | **PASS**: quoted from T065's record (openxFactory#1217 → `1f670bc3`), and re-run with the same result, `requirement 1 holds: 0 note(s) annotated, every other path a declared surface (11.1)` |
 
 **F5.2, red as ruled.** F5.2's `set -e` stops at
 `tests/test_session_snapshot.py`, the second suite its glob lists, on three
@@ -957,12 +957,12 @@ item 1), which T084 fixes in phase 3. It is not one of phase 2's checks.
 
 ## 7. T065's interim F11.1
 
-<!-- T063: link evidence/f11.1-phase2.txt here once openxFactory#1217 (T065) lands on main. -->
-
-T065 ran F11.1 by T093's procedure, and its own PR records the run in
-`evidence/f11.1-phase2.txt` (opensoft/openxFactory#1217, quoted here at its
-head `69ab396d`). It runs the guard extracted byte for byte from #1144's
-`tasks.md` at `fcb45380` (`:1587-1666`, sha256 `60beede1244b6052…`), with
+T065 ran F11.1 by T093's procedure, and its own PR recorded the run in
+[`f11.1-phase2.txt`](f11.1-phase2.txt) (opensoft/openxFactory#1217 →
+`1f670bc3`). The file at `main` is byte-identical to the one at that PR's
+head, `69ab396d` (sha256 `29e8ae1b296b640d…`). It runs the guard extracted
+byte for byte from #1144's `tasks.md` at `fcb45380` (`:1587-1666`, sha256
+`60beede1244b6052…`), with
 `PACKET_MERGE=94b6f7f13b45c351b9142345738965c974b7dd37` and
 `ARC_TIP=fcb45380a4d9d4933038157411944c4fefa59d13`, T064's landing. The walk
 finds two arc landings on `main`, `fcb45380` (T064) and `f56c87c6` (T047),

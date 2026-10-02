@@ -145,12 +145,14 @@ specs/034-opendox-standalone-operation/
     ├── analyze-round-2.md  # T019, T009, T069: round 2's analyze, one run over the result
     ├── analyze-round-3.md  # T067: round 3's analyze
     ├── f11.1-phase1.txt    # T017, T018: phase 1's interim F11.1
-    └── checkpoint-phase1.md # T049: phase 1's checkpoint, quoted
+    ├── checkpoint-phase1.md # T049: phase 1's checkpoint, quoted
+    ├── f11.1-phase2.txt    # T065: phase 2's interim F11.1
+    └── checkpoint-phase2.md # T063: phase 2's checkpoint, quoted
 ```
 
-T018 added phase 1's interim F11.1 run, and T049 its checkpoint. Later tasks add
-their own records to `evidence/`: T065 and T098 add the interim F11.1 runs for
-phases 2 and 3, and T096 AT-R1. T009, T019 and T069 share one analyze record,
+T018 added phase 1's interim F11.1 run, and T049 its checkpoint. T065 added
+phase 2's interim F11.1 run, and T063 its checkpoint. Later tasks add their own records to `evidence/`:
+T098 adds the interim F11.1 run for phase 3, and T096 AT-R1. T009, T019 and T069 share one analyze record,
 `analyze-round-2.md`. Each is linked from this feature's README entry.
 
 ### Source code: the six repositories release 1 lands in
