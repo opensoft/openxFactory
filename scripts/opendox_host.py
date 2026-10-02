@@ -599,6 +599,20 @@ def register_openxfactory() -> Any:
     registry is touched, so a refused process is left with NEITHER registry
     mutated rather than half-registered.
 
+    AND IT REGISTERS openXdox's GOVERNED PROJECTION (plan 034 T064, the holder's
+    decision of 2026-09-29 at T059). From openXdox-code `839492d9` (#35), openXdox
+    contributes its generator, snapshot registry, corpus-root predicate, writer
+    and validators at openDox's seams through
+    `openxdox.projection_contributions.register()`.
+    `openxdox.domain_profile.register()` makes that call, but this host registers
+    with openDox alone, so it makes the call itself. It is idempotent, all or
+    none, and made before the profile is registered, as openXdox's own
+    registration makes it. A refusal by openDox's `register()` takes back the
+    contributions this call wrote. Without the call, every openDox entry point
+    projects through openDox's neutral defaults. Measured at these pins, the
+    gate verbs then answer `action_unavailable` and a governed generation
+    refuses `document_keys_are_paths`: 187 tests, recorded in #1213.
+
     IT DOES NOT FIRE ON THIS MODULE'S OWN REGISTRATION, because this module
     never writes to openXdox's registry: after `register_openxfactory()` the
     openXdox registry is still empty and the composite is reached by delegation,
@@ -699,7 +713,24 @@ def register_openxfactory() -> Any:
             "openxdox.domain_profile.unregister() first if the swap is "
             "deliberate.")
 
-    registered = registry.register(composite)
+    # OPENXDOX'S GOVERNED PROJECTION, BEFORE THE PROFILE (plan 034 T064). This
+    # host registers its profile with openDox alone, so it makes the call
+    # `openxdox.domain_profile.register()` would have made, in the same place:
+    # after the refusal above and before the profile is written. A seam's
+    # refusal then leaves no seam written and no profile registered. If
+    # openDox refuses the profile, the contributions this call wrote are taken
+    # back, so neither is left half-registered; contributions the process
+    # already held stay.
+    from openxdox import projection_contributions
+
+    contributed = projection_contributions.is_registered()
+    projection_contributions.register()
+    try:
+        registered = registry.register(composite)
+    except BaseException:
+        if not contributed:
+            projection_contributions.unregister()
+        raise
 
     # THE HOST ASSERTS ITS OWN REGISTRATION (R1Q4 (a), `#656` comment
     # `5817152735`). `register()` replaces openDox's default while nothing has
