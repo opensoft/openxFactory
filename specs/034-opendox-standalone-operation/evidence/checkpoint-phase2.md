@@ -1212,5 +1212,5 @@ F11.1's manifest content rule holds: 3 note(s) annotated, nothing else in the ma
 `scripts/validate-carve-manifest.py` accepts the manifest:
 
 ```
-OK docs/opendox-carve-manifest.yaml: phase post-shed, 456 row(s) at opensoft/openxFactory@b075fd91dc8f (opendox-carve-0), verified at 9093fdee12f1 — 142 moved_verbatim, 176 moved_with_declared_edit, 138 not_moved; 318 digest(s) recomputed; 456 file(s) in the declared surface with none undeclared; 319 shed row(s) absent at source as declared; 4 row(s) RE-DESTINED by ruling (RULED Q6); 2 row(s) RETIRED by ruling (RULED 5656343213)
+OK docs/opendox-carve-manifest.yaml: phase post-shed, 456 row(s) at opensoft/openxFactory@b075fd91dc8f (opendox-carve-0), verified at 5541001609c9 — 142 moved_verbatim, 176 moved_with_declared_edit, 138 not_moved; 318 digest(s) recomputed; 456 file(s) in the declared surface with none undeclared; 319 shed row(s) absent at source as declared; 4 row(s) RE-DESTINED by ruling (RULED Q6); 2 row(s) RETIRED by ruling (RULED 5656343213)
 ```
