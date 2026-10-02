@@ -146,11 +146,12 @@ specs/034-opendox-standalone-operation/
     ├── analyze-round-3.md  # T067: round 3's analyze
     ├── f11.1-phase1.txt    # T017, T018: phase 1's interim F11.1
     ├── checkpoint-phase1.md # T049: phase 1's checkpoint, quoted
-    └── f11.1-phase2.txt    # T065: phase 2's interim F11.1
+    ├── f11.1-phase2.txt    # T065: phase 2's interim F11.1
+    └── checkpoint-phase2.md # T063: phase 2's checkpoint, quoted
 ```
 
 T018 added phase 1's interim F11.1 run, and T049 its checkpoint. T065 added
-phase 2's interim F11.1 run. Later tasks add their own records to `evidence/`:
+phase 2's interim F11.1 run, and T063 its checkpoint. Later tasks add their own records to `evidence/`:
 T098 adds the interim F11.1 run for phase 3, and T096 AT-R1. T009, T019 and T069 share one analyze record,
 `analyze-round-2.md`. Each is linked from this feature's README entry.
 
@@ -213,8 +214,8 @@ this worktree, which holds the plan only.
 |---|---|---|
 | 0 | 3.0 (ratification) | answers applied; analyze clean |
 | 1 | 2.1, 2.1a, 2.2, 2.3, 2.4, 2.5, 2.6, F2.1; 3.1, 3.2, 3.3 (first run; T065 and T098 repeat it before T097 ticks it), F3.1; 4.1, 4.1a, 4.2; 9.1, 9.2a, 9.3, 9.4, F9.1; 10.1 | F2.1, F3.1, F9.1 (both legs), F9.2 (quoted red, as RULED `5859927858` keeps it), `opendox --help` |
-| 2 | 5.0, 5.1, 5.2, 5.3, 5.3a, F5.1, 5.4, 5.4a, F5.2, 5.5, F5.3; 7.0, 7.1, 7.1a, 7.1b, 7.2, 7.3, F7.1, F7.2 | F5.1, F5.2, F5.3, F7.1, F7.2; standalone `generate-and-open` serves |
-| 3 | 4.3, F4.1; 9.2 (its whole-suite check lands in phase 1, and its ratchet reaches `(0, 0)` at T086, as T007's batch F records beside the map, R1Q25 (b)); 10.2, 10.2a, 10.3, F10.1; 13.1–13.6, 13.4a, F13.1; 16.1–16.6, F16.1 | F4.1, F10.1, F13.1, F16.1; AT-R1 follows the checkpoint (T095, T096) |
+| 2 | 5.0, 5.1, 5.2, 5.3, 5.3a, F5.1, 5.4, 5.4a, 5.5, F5.3; 7.0, 7.1, 7.1a, 7.1b, 7.2, 7.3, F7.1, F7.2 | F5.1, F5.2 (quoted red on three pre-arc tests; RULED `5962785556` closes it in phase 3), F5.3, F7.1, F7.2; standalone `generate-and-open` serves |
+| 3 | 4.3, F4.1; F5.2 (T086 repairs its three pre-arc reds; RULED `5962785556`, at T063); 9.2 (its whole-suite check lands in phase 1, and its ratchet reaches `(0, 0)` at T086, as T007's batch F records beside the map, R1Q25 (b)); 10.2, 10.2a, 10.3, F10.1; 13.1–13.6, 13.4a, F13.1; 16.1–16.6, F16.1 | F4.1, F5.2, F10.1, F13.1, F16.1; AT-R1 follows the checkpoint (T095, T096) |
 | every phase, ticked at ARC close | 9.5, 11.0, 11.1, F11.1 | interim F11.1 after each phase |
 | after T008, outside release 1's tasks | F9.2 (RULED `5859927858` keeps it unchanged and red on the 31-entry help-tree test until T008; holder decision, 2026-09-29, at T049) | F9.2, after the `doc_health` direction arc |
 | already `[x]` | 5.6 | — |
@@ -526,7 +527,8 @@ direction arc lands. The archive act must report it as open, and must not
 read it as closed.
 
 **Raised by an answer: R1Q23.** R1Q6 (d) leaves four of 5.4a's generator
-suites needing `doc_health`. F5.2 closes in phase 2, and it installs nothing
+suites needing `doc_health`. F5.2 runs in phase 2 (its box closes in phase 3,
+at T089, RULED `5962785556`), and it installs nothing
 that provides `doc_health`. R1Q23 asked how F5.2 runs, and Brett answered (a):
 F5.2's environment composes openxFactory's `scripts/` at a named commit (batch
 G). At openXdox-code `e28930bf` the glob selects seven suites, and the seventh
