@@ -11,8 +11,10 @@ This note is bookkeeping, so it carries no `Arc:` trailer (R1Q20 (a),
 `5817152735`; T091). It runs and quotes every check T063 names, at the
 commits phase 2 pinned. Every check passes except F5.2, which is red on three
 cases of one suite. Those three are the pre-arc reds that the holder ruled
-(a) at T059, and that T061 left open for T063. How phase 2 closes with them
-is the holder's decision, and it is open (below). The last section records
+(a) at T059, and that T061 left open for T063. Brett Heap ruled on them at
+this checkpoint (`5962785556`, item 1): F5.2 is quoted red, T063 is ticked
+and phase 2 closes, T086 repairs the three, and F5.2's box closes at phase
+3's checkpoint, T089 (below). The last section records
 T092's phase-2 notes, which ride in this PR on the holder's decision (b),
 recorded in T064's PR (openxFactory#1215).
 
@@ -21,14 +23,14 @@ recorded in T064's PR (openxFactory#1215).
 | # | T063's check | where it ran | result |
 |---|---|---|---|
 | 1 | F5.1 | openXdox-code `6a3b93b9`, with openDox-code `047bb4fa` installed over it | **PASS**, exit 0 |
-| 2 | F5.2, as T007's batches C, F, G and K amend it, its last step passing `--chains` | openXdox-code `6a3b93b9`, openDox-code `047bb4fa`, and `OPENXFACTORY` at `fcb45380` (and, before T064 landed, at `2656e8c2`) | **RED**, exit 1, on three cases of `tests/test_session_snapshot.py` alone: 20 passed, 3 failed. Every other suite passes whole, and the `--chains` step prints `ok: 4 protected edit(s), each entered and holding` (§ 2) |
+| 2 | F5.2, as T007's batches C, F, G and K amend it, its last step passing `--chains` | openXdox-code `6a3b93b9`, openDox-code `047bb4fa`, and `OPENXFACTORY` at `fcb45380` (and, before T064 landed, at `2656e8c2`) | **RED, AS RULED** (`5962785556`), exit 1, on three cases of `tests/test_session_snapshot.py` alone: 20 passed, 3 failed. Every other suite passes whole, and the `--chains` step prints `ok: 4 protected edit(s), each entered and holding` (§ 2) |
 | 3 | F5.3 | openDox-code `047bb4fa` | **PASS**, exit 0: `documents: 8` |
 | 4 | F7.1, its second named test read as batch I records R1Q27 (a) | openXdox-code `6a3b93b9` | **PASS**, exit 0: `2 passed` |
 | 5 | F7.2 | openDox-code `047bb4fa` | **PASS**, exit 0: the malformed corpus is refused for `[title-and-summary-are-text]` |
 | 6 | a standalone `generate-and-open` serving the fixture | openDox-code `047bb4fa`, a plain install | **PASS**, exit 0: it serves the eight documents, the core routes answer, and it stops on an interrupt with status 0 (§ 6) |
 | 7 | T065's interim F11.1 | openxFactory, `ARC_TIP` at T064's landing `fcb45380` | **PASS**: quoted from T065's record (openxFactory#1217), and re-run with the same result, `requirement 1 holds: 0 note(s) annotated, every other path a declared surface (11.1)` |
 
-**F5.2, and the decision that is open.** F5.2's `set -e` stops at
+**F5.2, red as ruled.** F5.2's `set -e` stops at
 `tests/test_session_snapshot.py`, the second suite its glob lists, on three
 cases:
 
@@ -50,16 +52,20 @@ failures are T059's ruled pre-arc reds, which T063 still owns."* The red does
 not depend on openxFactory's pins: it is the same at `2656e8c2` and at
 `fcb45380` (§ 2c).
 
-No ruling yet says how phase 2 closes with F5.2 red. The question went to the
-holder during this run. T063 is not ticked in plan 034 until it is
-answered. The choices put were:
+**The ruling.** RULED `5962785556` (Brett Heap, 2026-10-02, item 1, *"Fix in
+T086, close at phase 3 (Recommended)"*), verbatim: *"F5.2 is red on three
+pre-arc carve-residue tests in openXdox-code's tests/test_session_snapshot.py,
+the same at both pins (openXdox-code#35's body, item 6). T063 quotes F5.2 red,
+names the three tests, and is ticked, so phase 2 closes. T086, openXdox-code's
+phase-3 landing, repairs the three tests under R1Q7 (a)'s allow-list. F5.2's
+box closes at phase 3's checkpoint (T089), so the pins move only once more, at
+T094. Plan 034 records the move. #1144's text is unchanged."*
 
-- **(a)** quote F5.2 red as ruled and close phase 2, moving its box to a named
-  later owner in plan 034 only, as T049 did with F9.2;
-- **(b)** fix the three cases first, in an openXdox-code arc landing. It edits
-  a protected suite, so each fix is an R1Q7 (a) allow-list entry, and phase
-  2's pins move again;
-- **(c)** another course.
+So T063 is ticked in plan 034 on this record. As T049 did for F9.2, the move is
+recorded in plan 034 only: T086 gains the three repairs and F5.2 whole as a
+falsifier, T089 runs and quotes F5.2 whole, and the box table reads
+`F5.2 → T086, T089`. F5.2 still closes inside release 1, so the box classes
+keep their counts. #1144's F5.2 text is not touched.
 
 ## The pins
 
