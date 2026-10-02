@@ -3213,8 +3213,9 @@ and redesigns none of them.
   after the operator has trusted THAT EXACT binding on THIS machine. It works
   like direnv. The rule holds on every path that runs such a broker: a chat
   turn, `model-binding set-credential`, and the console intake's hand-off
-  (`serve_workbench.py:1127`), whose broker the served repository's intake
-  declarations name.
+  (`serve_workbench.py:1127`), whose broker the served repository's
+  `ideation/dashboard/model-declarations.yaml` declares
+  (`doxbench_intake.py:154`).
   - **Where trust lives.** In the operator's own state, never in the
     repository: a file under `OPENDOX_STATE_DIR`, the state directory that
     13.1's bundled server uses (openDox-code#69, T072). Unset, that is
@@ -3225,7 +3226,12 @@ and redesigns none of them.
     (no symbolic link), owned by this user and writable by no one else, and
     each directory above them is this user's or root's, and sticky where
     another user can write it. A trust file that fails a check is refused by
-    name, and every binding then reads untrusted.
+    name, and every binding then reads untrusted. `config.state_dir()`
+    accepts any absolute path free of `..`, so the trust file's resolved
+    path is also checked against the served root: an `OPENDOX_STATE_DIR`
+    equal to the served root, or nested under it, is refused by name before
+    anything is written, and every binding then reads untrusted. No trust is
+    ever written into, or read from, a tree a clone could carry.
   - **What a trust names.** The repository root's resolved path, the
     binding's id, and a digest of the binding's full record, every field of
     it. So any edit makes the binding untrusted again, and so does the same
@@ -3368,40 +3374,56 @@ and redesigns none of them.
 
   The named file is the acceptance suite T100 adds. Each case serves its own
   fresh `git init` with its own fresh `OPENDOX_STATE_DIR`, so no run reads or
-  writes the operator's own trust. Each runs over two bindings in turn: one
-  whose broker writes a marker file when it runs, and one whose `env:`
-  reference names a variable the test sets to a known value, at a loopback
-  listener that records every request. It asserts, one test per case:
+  writes the operator's own trust. Each runs over three bindings in turn: one
+  whose broker writes a marker file when it runs; one whose `env:` reference
+  names a variable the test sets to a known value; and one whose `keyring:`
+  reference names an entry in a stand-in keyring backend that records every
+  lookup. The second and third point at a loopback listener that records
+  every request. It asserts, one test per case:
   - **An untrusted binding is refused by name, with nothing spawned or
     read.** A binding written into the bindings document by hand, as a clone
     delivers it, is listed by the catalog with `available: false`. A turn
     that names it is refused, and the refusal names its id and `opendox
-    model-binding trust <id>`. No marker file exists, the variable is never
-    read, the listener records no request, and the known value appears in
-    no output. `set-credential` on it is refused the same way, no marker
-    file exists, and the binding is still untrusted after it.
+    model-binding trust <id>`. The factory's notice and `opendox
+    model-binding list` name the same id and command. No marker file
+    exists, the variable is never read, the keyring records no lookup, the
+    listener records no request, and the known value appears in no output.
+    `set-credential` on it is refused the same way, no marker file exists,
+    and the binding is still untrusted after it. Where the console intake
+    is offered, its hand-off does not run a broker that the served
+    repository's `ideation/dashboard/model-declarations.yaml` names until
+    that broker is trusted, and no marker file exists.
   - **`add` records trust.** The same binding declared through `opendox
     model-binding add` is offered as available, and a turn runs its broker,
-    or reaches the listener with the known value.
-  - **An edit untrusts.** A hand edit of one field of a trusted binding, its
-    `broker_argv`, its `endpoint`, its `credential_ref` and its `label` each
-    in turn, makes it untrusted again, and it is refused as above. A binding
+    or reaches the listener with the known value, the `env:` one and the
+    `keyring:` one alike.
+  - **An edit untrusts.** A hand edit of any one field of a trusted binding,
+    every field of the record in turn, each given a valid replacement value,
+    makes it untrusted again, and it is refused as above. A binding
     rewritten through `opendox model-binding edit` is trusted, and so is a
     trusted binding whose reference `set-credential` rewrote from a stand-in
     broker's answer.
   - **`trust` records.** For the hand-written binding, `opendox
     model-binding trust <id>` prints its broker argv, its endpoint, its auth
     kind and its credential reference. The known value appears nowhere in
-    its output, no marker file exists and the listener records no request.
-    After it, the binding is offered as available.
+    its output, no marker file exists, the keyring records no lookup and
+    the listener records no request. After it, the binding is offered as
+    available.
   - **A binding moved to another root is untrusted.** A trusted bindings
     document, copied byte for byte into a second fresh repository, reads
     untrusted there, and it is refused as above.
   - **The trust file is checked.** With the trust file, or a directory that
     holds it, replaced by a symbolic link or made writable by another user,
-    every binding reads untrusted, and the refusal names the file. Nothing
-    under the served root but the bindings document is written by `add`,
-    `edit` or `trust`.
+    every binding reads untrusted, and the refusal names the file. With
+    `OPENDOX_STATE_DIR` equal to the served root, and again nested under
+    it, `add`, `edit` and `trust` are refused naming the setting before
+    anything is written, and every binding reads untrusted. Nothing under
+    the served root but the bindings document is written by `add`, `edit`
+    or `trust`.
+  - **The policy seam.** In a bare process that registers nothing, the
+    first consumer to ask registers the strict default, and a hand-written
+    binding is refused as above. A host policy registered before that first
+    use is the one consulted, and the default does not replace it.
 
   The block's other lines are unchanged. Its 16.3 records are built in
   process and never served, and its 16.4 block declares no binding, so no
