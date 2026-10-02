@@ -1549,8 +1549,8 @@ unchanged.
       (idempotent, all or none), which `openxdox.domain_profile.register()`
       also calls, and `load()` stays free of side effects. **T064 therefore
       owes one host line**, that call in `register_openxfactory()`, on
-      F11.1's `HOST` surface. T064's own text is corrected in
-      openxFactory#1213 (T066's non-arc PR, open when this was written).
+      F11.1's `HOST` surface. T064's own text was corrected in
+      openxFactory#1213 → `80217a92` (T066's non-arc PR).
     - `tests/conftest.py` registers openxFactory's
       `corpus_adapter_openxfactory.home_corpus` where F5.2's environment puts
       `scripts/` on `PYTHONPATH`, and registers nothing in a lone checkout, so
@@ -1708,7 +1708,7 @@ unchanged.
     - The list this task owes the direction arc's record, of the excluded
       files that validate a kind the narrowed validator gives up, is in the
       PR's body and, as bookkeeping, in that record (T008 above).
-- [ ] T066 [US4] [oxF] **openxFactory at both pins, ahead of T064 (a non-arc
+- [x] T066 [US4] [oxF] **openxFactory at both pins, ahead of T064 (a non-arc
   act).** T064 composes T060's facet and T061's lookup into openxFactory.
   Before T064, this act makes openxFactory hold at both pins. It carries no
   `Arc:` trailer, because it is openxFactory's own change and correct with or
@@ -1757,6 +1757,29 @@ unchanged.
   - **Ruled**: R1Q14 (a), R1Q25 (b), `5850003126`; R1Q26 (a), R1Q27 (a),
     `5851950767`.
   - **After**: T061, T062, T067.
+  - **Landed**: openxFactory#1213 → `80217a92`, a squash whose tree equals the
+    PR head `2cc8e926`'s.
+    - **A non-arc landing**, as T091 and plan.md § "The trailer, the guard and
+      Rule 6" have it: the squash message carries no `Arc:` trailer, and the
+      PR touches nothing under `openspec/`.
+    - openxFactory holds at both pin sets. The current pins are openDox
+      `663ac683` and openXdox `57e2b8f2`. T064's candidates are the openDox
+      root at T062's `d5098297` and the openXdox root with its code at T061's
+      `6a3b93b9`.
+    - CI at the PR head passes all 12 checks. `pytest-suite` reads
+      `selected=9335 passed=9329 skipped=6`, and the consumer gate reads
+      105/105/0 for the pin suites and 1480/1480/0 for
+      `tests/ideation-dashboard`.
+    - At the candidate pins, 187 reds need T064's host line and cannot be
+      answered in openxFactory. With the host line, three remain, none with a
+      both-pins form: the pin verifier's snapshot literal, and
+      `RENDER_LEG_MODULES` and `RENDER_UNIT_IMPORTS` gaining
+      `projection_contributions.py`. All three go into T064's arc commit, on
+      declared F11.1 surfaces (the holder's decision, recorded in #1213's
+      body).
+    - It also carried T064's plan-text correction, the one host line, as the
+      holder decided (a plan edit in T064's own arc PR sits on no F11.1
+      surface).
 - [ ] T064 [US4] [oX] [oxF] **Phase 2's consumer pins** (T090 steps 5–6). The
   openXdox root moves to T061's commit, the phase's last openXdox-code
   landing, and to T062's root commit. Host wiring is needed only if
