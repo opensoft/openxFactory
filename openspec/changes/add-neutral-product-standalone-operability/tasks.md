@@ -3212,10 +3212,14 @@ and redesigns none of them.
   resolves any credential reference (`env:`, `keyring:` or a broker's), ONLY
   after the operator has trusted THAT EXACT binding on THIS machine. It works
   like direnv. The rule holds on every path that runs such a broker: a chat
-  turn, `model-binding set-credential`, and the console intake's hand-off
-  (`serve_workbench.py:1127`), whose broker the served repository's
-  `ideation/dashboard/model-declarations.yaml` declares
-  (`doxbench_intake.py:154`).
+  turn and `model-binding set-credential`. The console intake's hand-off
+  (`serve_workbench.py:1127`) also runs a broker the served repository
+  declares, in `ideation/dashboard/model-declarations.yaml`
+  (`doxbench_intake.py:154`), which is no binding, so no binding's trust
+  admits it. Under the neutral default below it is refused by name. No
+  command that trusts an intake declaration's broker is ruled, and
+  standalone the intake surface already answers `offered: false`
+  (`5961364221`, item 1). A host's own policy may admit it.
   - **Where trust lives.** In the operator's own state, never in the
     repository: a file under `OPENDOX_STATE_DIR`, the state directory that
     13.1's bundled server uses (openDox-code#69, T072). Unset, that is
@@ -3240,9 +3244,13 @@ and redesigns none of them.
     for the binding they write. `opendox model-binding trust <id>` records it
     for a binding already declared. It first prints what will run (the broker
     argv) and where the credential goes (the endpoint, the auth kind and the
-    credential REFERENCE), and never the credential itself. It resolves no
-    reference, runs no broker and contacts nothing, and it records trust for
-    exactly the record it printed. It takes no `--yes`: running it is the
+    credential REFERENCE), and never the credential itself. Each value it
+    prints is escaped, in a JSON string's form, because each comes from a
+    repository someone else may have written: a newline or a terminal
+    control character in a field cannot forge or hide what is shown. The
+    refusals, the factory's notice and `model-binding list` print the id the
+    same way. It resolves no reference, runs no broker and contacts nothing,
+    and it records trust for exactly the record it printed. It takes no `--yes`: running it is the
     consent, as `direnv allow` is, and the refusal below names it.
     `opendox model-binding set-credential` on a TRUSTED binding re-records
     trust for the record it rewrites with the broker's new reference, since
@@ -3389,10 +3397,11 @@ and redesigns none of them.
     exists, the variable is never read, the keyring records no lookup, the
     listener records no request, and the known value appears in no output.
     `set-credential` on it is refused the same way, no marker file exists,
-    and the binding is still untrusted after it. Where the console intake
-    is offered, its hand-off does not run a broker that the served
-    repository's `ideation/dashboard/model-declarations.yaml` names until
-    that broker is trusted, and no marker file exists.
+    and the binding is still untrusted after it. With a stand-in host that
+    offers the console intake and registers no policy of its own, the
+    intake's hand-off refuses by name a broker that the served repository's
+    `ideation/dashboard/model-declarations.yaml` names, and no marker file
+    exists.
   - **`add` records trust.** The same binding declared through `opendox
     model-binding add` is offered as available, and a turn runs its broker,
     or reaches the listener with the known value, the `env:` one and the
@@ -3408,7 +3417,10 @@ and redesigns none of them.
     kind and its credential reference. The known value appears nowhere in
     its output, no marker file exists, the keyring records no lookup and
     the listener records no request. After it, the binding is offered as
-    available.
+    available. A hand-written binding whose id, label and one broker argv
+    member carry a newline and a terminal escape (`\x1b[2J`) is printed
+    with both escaped, by `trust`, by `list` and in the refusal, and no raw
+    control byte reaches the output.
   - **A binding moved to another root is untrusted.** A trusted bindings
     document, copied byte for byte into a second fresh repository, reads
     untrusted there, and it is refused as above.

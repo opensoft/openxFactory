@@ -2155,8 +2155,12 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - **The console intake.** Its broker hand-off
     (`serve_workbench.py:1127`, in `_handle_workbench_model_intake` at
     `:989`) runs a broker that the served repository's
-    `ideation/dashboard/model-declarations.yaml` declares, so T100 gates it
-    too. That edit overlaps T084's `serve_workbench.py`
+    `ideation/dashboard/model-declarations.yaml` declares. That broker is
+    no binding, and no command that trusts it is ruled, so under the
+    neutral default T100 makes the hand-off refuse it by name, the
+    fail-closed reading (Principle VII). Standalone, the intake already
+    answers `offered: false` (`5961364221`, item 1), and a host's own
+    policy may admit it. That edit overlaps T084's `serve_workbench.py`
     (openDox-code#77), which is why T084 is on the `After:` line.
   - **The record.** A trust file under `OPENDOX_STATE_DIR`, T072's state
     directory, with its default (`$XDG_STATE_HOME/opendox`, else
@@ -2173,6 +2177,9 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - **The verbs.** `opendox model-binding add` and `edit` record trust for
     the binding they write. `opendox model-binding trust <id>` prints the
     broker argv, the endpoint, the auth kind and the credential reference.
+    Each value is printed escaped, in a JSON string's form, and so is the
+    id in every refusal and in `list`, so a control character in an
+    untrusted field cannot forge the output (Copilot's note on #1219).
     It resolves, runs and contacts nothing, and it records trust for exactly
     the record it printed. It takes no `--yes`: running it is the consent,
     as `direnv allow` is, and the refusal names it. `set-credential` on a
