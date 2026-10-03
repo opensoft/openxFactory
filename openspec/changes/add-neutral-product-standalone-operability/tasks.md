@@ -2152,10 +2152,18 @@ that does not name a platform.
     the file is created without following a link, and the whole path is
     checked as openDox-code#69's bundle checks its own tree. A copy that is
     planted, linked, hard-linked or loosened is refused by name, and never
-    followed or replaced. So is a state directory that is, or lies inside,
-    a root the plane serves, because `/source` could then serve the copy.
-    That refusal is the holder's own ruling on #1220's review (Copilot
-    `r4171166321`, 2026-10-03), beside `5963851934`;
+    followed or replaced. The copy never sits where the plane serves files,
+    so the state directory and the roots the plane serves do not overlap in
+    either direction. A state directory that is, or lies inside, a served
+    root is refused by name, which is the holder's own ruling on #1220's
+    review (Copilot `r4171166321`, 2026-10-03), beside `5963851934`. So is a
+    served root that is, or lies inside, the state directory, such as
+    `<state_dir>/console` itself, on the holder's ruling on batch N's
+    review (Copilot `r4174345203`, 2026-10-03).
+    `/source` already refuses a path that leaves its root through a symbolic
+    link (`default_registry.resolve_within`, openDox-code `main`
+    `e49b17c3`), so a link inside a served root that points at the state
+    directory reaches nothing;
   - the copy forwards to the page with the token in the URL's FRAGMENT,
     `…/index.html#console_token=<token>`, and never in its query, so no
     request line, server log or `Referer` carries it;
