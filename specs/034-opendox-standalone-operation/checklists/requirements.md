@@ -46,7 +46,8 @@ before implementation starts.
 ## Feature readiness
 
 - [x] Every release-1 box maps to a task (tasks.md § "Box accounting":
-      70 = 64 + 1 + 1 + 4; batch M's 16.3a maps to T100).
+      70 = 63 + 1 + 1 + 1 + 4, where one box, F9.2, closes after T008;
+      batch M's 16.3a maps to T100).
 - [x] Every realization task names a repository, a falsifier, any question
       that blocks it, and the rulings it carries out. A task that runs a
       falsifier (T074, T077, T093) names that falsifier as its own. The
@@ -79,4 +80,24 @@ before implementation starts.
   persisted tools widened to batch M (brett-wip `712aedad`): 91 tasks, 104
   nodes and 233 edges, with no cycles, 0 chain gaps, 0 arrow mismatches, no
   phase gaps, the 4 known phase-1 NOT ORDERED pairs, and qcheck 27 of 27.
-  A fresh analyze over T100 is the holder's to call.
+  A fresh analyze over T100 is the holder's to call. (That analyze has since
+  run, as the next note records.)
+- A `/speckit-analyze` pass ran on 2026-10-03 over `main` `ec9308c8`, after
+  #1220 had added T099 and T101–T104, for lane openxfactory-4's holder. Its
+  report went to the holder and is not a file of this feature. It found no
+  CRITICAL finding, three HIGH, eight MEDIUM and nine LOW:
+  - H1, the private copy's contract, is settled by T007's batch N (#1222 →
+    `bdd0f586`);
+  - H2, the help tree at 32, by `5970917267`, with the plan side in T086,
+    T094, T100 and research R8, and #1144's side in a later batch, O;
+  - H3, AT-R1's commit against the published one, by the holder's
+    P-against-X step in T099 and T096 and quickstart.md's `RELEASE1_TIP`.
+
+  The MEDIUM on what "usable" means is settled by `5971834845`. At `ec9308c8`
+  the batch-M tools read 96 tasks, 109 nodes and 267 edges, with no cycles,
+  0 chain gaps, 0 arrow mismatches, no phase gaps, the same 4 NOT ORDERED
+  pairs, and qcheck 27 of 27. Once tasks.md's P3-E row names T075's
+  `pyproject.toml` edit (openDox-code#73, landed), `sharedfiles.py` reports
+  a fifth NOT ORDERED pair, P3-I against P3-E. It is benign in the same way:
+  T072 is the only P3-I task that writes that file, T075 is After T072, and
+  both have landed.
