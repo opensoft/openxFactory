@@ -101,7 +101,7 @@ allow 30 seconds.
 - Nothing moves out of openxFactory (requirement 1).
 - Only `doxbench_provider.py` contacts a provider.
 - Local mode binds to loopback only.
-**Scale/Scope**: release 1 has 69 of #1144's 124 boxes (tasks.md § "Box
+**Scale/Scope**: release 1 has 70 of #1144's 125 boxes (tasks.md § "Box
 accounting"). About 12 carved openDox-code files are edited (research R12), and
 27 deferred reaches plus 65 `consumer_reach` uses are routed (research R5, R6).
 
@@ -118,7 +118,7 @@ Round 1a was #1155, and #1167 carried T005's re-plan and T006's analyze
 | II. OpenSpec before implementation | PASS | Everything here realizes the RATIFIED #1144 (`5815412869`). An answer that amends a #1144 falsifier or task line is recorded there on Brett's word (T007). One that would change requirement or scenario text goes back to him first (RN-1, ruled (a) in `5850003126` and landed by T007's batch D as #1170). Speckit owns the tasks; #1144's `tasks.md` is ticked, and never duplicated (T097). |
 | III. Document lifecycle | PASS | Every feature file carries a controlled `Status:` header, in the form feature 029's files use: `draft` for the plan's documents, and `record` for `evidence/`. #1144 is `Status: ratified`, with its record landed as #1151 → `cd494e4c`. |
 | IV. Schema and artifact discipline | PASS | No committed file names a host path: every command resolves its scratch space with `W=$(mktemp -d)`. No credential is stored: 16.3 refuses raw keys. **The README document index** links all seven of this feature's documents, and its evidence records, in one entry in its Documentation section, beside the openDox carve documents. The entry sits outside the OpenSpec Records block, so it needs no Rule 6 window. None of the 31 earlier feature directories under `specs/` on `main` (`138a4722`) is indexed there, so this entry is the first of its kind. |
-| V. Validation gates | PASS for this PR, against `main`'s recorded baseline | This PR touches no `openspec/` path: `git diff --stat main -- openspec/` is empty. `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` gives `110 passed, 1 failed (111 items)` at this branch's head, run on 2026-09-27 over `main` at `b060d400` with this revision's files, and `main` gives the same, since this PR adds no `openspec/` path. #1155 measured `110 passed, 1 failed` on 2026-09-24. Since then `admit-code-leg-under-pinned-root` was filed on `main` as #1156 (`daca0b89`) and archived by #1174 (`b060d400`), so the count is where #1155 left it. research.md's `dd2466ad` is a different thing: the baseline the plan's measurements were taken at, not this PR's gate. The one failure is `add-chain-attestation`'s "omits scenario(s)" finding. It is an accepted disposition in `contracts/openspec-cli-pin.yaml` (`ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'`), and it retires when that change archives. This PR cannot move it. The gate the repository enforces, `scripts/validate-openspec-cli-pin.py --all` (the `openspec-cli-pin` check), exits 0 with `0 UNDISPOSITIONED failures`. No other `scripts/validate-*.py` reads `specs/`. The PR that lands this revision is green on every check before it lands, and its READY comment quotes them. Implementation evidence will be falsifier output, quoted. |
+| V. Validation gates | PASS for this PR, against `main`'s recorded baseline | T007's batch PRs (A to M) do touch #1144's files under `openspec/changes/`. Each records its own gates against the `main` it lands on. Batch M's (#1219) measured the pinned `--all` gate at rc 0, with `0 UNDISPOSITIONED failures` and the one accepted exception `add-chain-attestation`, byte-identical at `main` `a883bbf6` and at its head, both in clones whose `remote.origin.url` is opensoft/openxFactory. The pin reads its dispositions' scope from that URL. The rest of this row is the planning PR's record. That PR touches no `openspec/` path: `git diff --stat main -- openspec/` is empty. `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` gives `110 passed, 1 failed (111 items)` at this branch's head, run on 2026-09-27 over `main` at `b060d400` with this revision's files, and `main` gives the same, since this PR adds no `openspec/` path. #1155 measured `110 passed, 1 failed` on 2026-09-24. Since then `admit-code-leg-under-pinned-root` was filed on `main` as #1156 (`daca0b89`) and archived by #1174 (`b060d400`), so the count is where #1155 left it. research.md's `dd2466ad` is a different thing: the baseline the plan's measurements were taken at, not this PR's gate. The one failure is `add-chain-attestation`'s "omits scenario(s)" finding. It is an accepted disposition in `contracts/openspec-cli-pin.yaml` (`ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'`), and it retires when that change archives. This PR cannot move it. The gate the repository enforces, `scripts/validate-openspec-cli-pin.py --all` (the `openspec-cli-pin` check), exits 0 with `0 UNDISPOSITIONED failures`. No other `scripts/validate-*.py` reads `specs/`. The PR that lands this revision is green on every check before it lands, and its READY comment quotes them. Implementation evidence will be falsifier output, quoted. |
 | VI. Versioned releases | PASS | R1Q11 (a) adds an openDox-spec schema (T053), so phase 2 cuts a `dox-v1.x` minor bundle at the openDox root, under the root's own four-value rule. 9.5 says *"none cuts a contract bundle"*, so T007's batch G records 9.5's addendum before T053 lands. |
 | VII. Fail-closed authority | PASS | Every seam refuses naming itself when nothing is registered (4.2's discipline). The hosted mode refuses without an issuer. An unknown dialect is refused. |
 | Workflow: *"material ambiguities MUST be resolved before planning"* | **PASS** | Every material ambiguity is resolved. Round 1a (`5817152735`), round 2 (`5850003126`) and round 3 (`5851950767`) answer all 27 questions, and RN-1 is ruled (a) and landed (#1170). No task carries a `Blocked by:` line (FR-012), and no phase is provisional. Each round's analyze found nothing CRITICAL (`evidence/analyze-round-1a.md`, `evidence/analyze-round-2.md`, `evidence/analyze-round-3.md`). |
@@ -135,7 +135,7 @@ specs/034-opendox-standalone-operation/
 ├── research.md             # every measurement, with its command
 ├── clarify-questions.md    # R1Q1–R1Q27, all answered (5817152735, 5850003126, 5851950767)
 ├── quickstart.md           # AT-R1's procedure
-├── tasks.md                # 90 tasks, T001–T098 (some ids unused), box accounting (69 of 124)
+├── tasks.md                # 91 tasks, T001–T100 (some ids unused), box accounting (70 of 125)
 ├── checklists/
 │   └── requirements.md     # the spec-quality checklist
 └── evidence/               # bookkeeping records, with no `Arc:` trailer (R1Q20 (a))
@@ -146,11 +146,12 @@ specs/034-opendox-standalone-operation/
     ├── analyze-round-3.md  # T067: round 3's analyze
     ├── f11.1-phase1.txt    # T017, T018: phase 1's interim F11.1
     ├── checkpoint-phase1.md # T049: phase 1's checkpoint, quoted
-    └── f11.1-phase2.txt    # T065: phase 2's interim F11.1
+    ├── f11.1-phase2.txt    # T065: phase 2's interim F11.1
+    └── checkpoint-phase2.md # T063: phase 2's checkpoint, quoted
 ```
 
 T018 added phase 1's interim F11.1 run, and T049 its checkpoint. T065 added
-phase 2's interim F11.1 run. Later tasks add their own records to `evidence/`:
+phase 2's interim F11.1 run, and T063 its checkpoint. Later tasks add their own records to `evidence/`:
 T098 adds the interim F11.1 run for phase 3, and T096 AT-R1. T009, T019 and T069 share one analyze record,
 `analyze-round-2.md`. Each is linked from this feature's README entry.
 
@@ -213,8 +214,8 @@ this worktree, which holds the plan only.
 |---|---|---|
 | 0 | 3.0 (ratification) | answers applied; analyze clean |
 | 1 | 2.1, 2.1a, 2.2, 2.3, 2.4, 2.5, 2.6, F2.1; 3.1, 3.2, 3.3 (first run; T065 and T098 repeat it before T097 ticks it), F3.1; 4.1, 4.1a, 4.2; 9.1, 9.2a, 9.3, 9.4, F9.1; 10.1 | F2.1, F3.1, F9.1 (both legs), F9.2 (quoted red, as RULED `5859927858` keeps it), `opendox --help` |
-| 2 | 5.0, 5.1, 5.2, 5.3, 5.3a, F5.1, 5.4, 5.4a, F5.2, 5.5, F5.3; 7.0, 7.1, 7.1a, 7.1b, 7.2, 7.3, F7.1, F7.2 | F5.1, F5.2, F5.3, F7.1, F7.2; standalone `generate-and-open` serves |
-| 3 | 4.3, F4.1; 9.2 (its whole-suite check lands in phase 1, and its ratchet reaches `(0, 0)` at T086, as T007's batch F records beside the map, R1Q25 (b)); 10.2, 10.2a, 10.3, F10.1; 13.1–13.6, 13.4a, F13.1; 16.1–16.6, F16.1 | F4.1, F10.1, F13.1, F16.1; AT-R1 follows the checkpoint (T095, T096) |
+| 2 | 5.0, 5.1, 5.2, 5.3, 5.3a, F5.1, 5.4, 5.4a, 5.5, F5.3; 7.0, 7.1, 7.1a, 7.1b, 7.2, 7.3, F7.1, F7.2 | F5.1, F5.2 (quoted red on three pre-arc tests; RULED `5962785556` closes it in phase 3), F5.3, F7.1, F7.2; standalone `generate-and-open` serves |
+| 3 | 4.3, F4.1; F5.2 (T086 repairs its three pre-arc reds; RULED `5962785556`, at T063); 9.2 (its whole-suite check lands in phase 1, and its ratchet reaches `(0, 0)` at T086, as T007's batch F records beside the map, R1Q25 (b)); 10.2, 10.2a, 10.3, F10.1; 13.1–13.6, 13.4a, F13.1; 16.1–16.6, 16.3a (T007's batch M), F16.1 | F4.1, F5.2, F10.1, F13.1, F16.1 (as batch M amends it); AT-R1 follows the checkpoint (T095, T096) |
 | every phase, ticked at ARC close | 9.5, 11.0, 11.1, F11.1 | interim F11.1 after each phase |
 | after T008, outside release 1's tasks | F9.2 (RULED `5859927858` keeps it unchanged and red on the 31-entry help-tree test until T008; holder decision, 2026-09-29, at T049) | F9.2, after the `doc_health` direction arc |
 | already `[x]` | 5.6 | — |
@@ -230,7 +231,7 @@ it"*), `serve.py:629` is routed in phase 2 along with the snapshot source.
 ## Dependency graph
 
 ```text
-T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measure, analyze, #1144 amendments in batches A–L, the direction arc)
+T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measure, analyze, #1144 amendments in batches A–M, the direction arc)
                               │
  PHASE 1  [oDc]  A: T010→T011→T012 (serve.py)     B: T015→T016 (profile)
                  C: T020→T021→T022 (adapter)      D: T026→T025, T027 (seams; T025 also after T020)
@@ -251,9 +252,10 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
                  T059 → T061 (7.3, after T007 batches C, F, I and K)
           [oxF]  T061 → T066 (a non-arc act: the seal test and the facet's values, at both pins)
           [oX]→[oxF]  T066 → T064 consumer pins → T065 (interim F11.1) → checkpoint T063 (after T007 batches C, F, G, I and K)
- PHASE 3  T069 is done; T007 batch H lands before T070, T075 and T080, and batch K before T080
+ PHASE 3  T069 is done; T007 batch H lands before T070, T075 and T080, batch K before T080, and batch M before T100
           [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080;  T085 → T081
                  4.3 end: T084 (after T073, T007 batch L)          T072 → T075 → T077 (F10.1 as batch H amends it);  T082, T083, T088
+                 16.3a: T100 (after T080, openDox-code#64, T081, T072, T084, T007 batch M) → T083 (F16.1 as batch M amends it)
           [oD]   T087 root pin → T076 (README: the opendox[local] install and the --local command)
           [oXc]  T086 (columns, ratchet (0,0)) at the pin T087 carries
           [oX]→[oxF]  T094 consumer pins + host wiring → T098 (interim F11.1) → checkpoint T089 (after T076)
@@ -278,7 +280,10 @@ lists.
 | openDox-code `tests/test_authoring_seam.py` | T020 (the seam tests) → T021 → T022 |
 | openDox-code `tests/test_consumer_reach.py` | T011 (`opendox.cli` and `opendox.serve` into `NEUTRAL_MODULES`) → T034 (the rest of `STILL_REACHING`) |
 | openDox-code `.github/workflows/validate.yml` | T036 → T037; no earlier phase-1 slice edits it (tasks.md § Phase 1), and T095 adds phase 3's `acceptance` job |
-| openDox-code `src/opendox/doxbench_binding.py` | T078 (the second dialect) → T079 (the `model` field) → T080 (the raw-key refusal and the auth kind `none`), all in P3-B, then the broker-path follow-on, a draft of no task (openDox-code#64) |
+| openDox-code `src/opendox/doxbench_binding.py` | T078 (the second dialect) → T079 (the `model` field) → T080 (the raw-key refusal and the auth kind `none`), all in P3-B, then the broker-path follow-on, a draft of no task (openDox-code#64), then T100 wherever it edits the record (16.3a) |
+| openDox-code `src/opendox/cli_model_binding.py` | T079 (`--model`) → T080 (the resolver's and `none`'s arguments) → T100 (`add` and `edit` record trust, the `trust` verb, `set-credential`'s gate and re-trust) |
+| openDox-code `src/opendox/doxbench_install.py` | T081 (16.4's catalog, in P3-D after T085) → T100 (16.3a's gate where the bindings are read) |
+| openDox-code `src/opendox/serve_workbench.py` (phase 3) | T084 (4.3's last reaches, openDox-code#77) → T100 (16.3a: the console intake's broker hand-off) |
 | openXdox-code `tests/test_dependency_direction.py` (the ratchet) | T040 (it moves the pin and leaves the ratchet unchanged) → T059 → T086 |
 | openXdox-code `tests/test_gate_loop_views.py` (one of 12.5's protected suites) | T060 (the facet-declaration test's entered edit) → T059 (the overlay test's entered edit), both under R1Q26 (a) |
 | openXdox-code `pyproject.toml` | T040 (the `opendox @` pin and `rfc3339-validator`) → T059 (the phase-2 pin) → T061 (the validator's package data) → T086 (the phase-3 pin) |
@@ -298,7 +303,9 @@ lists.
 - **Phase 3 parallel lanes**: Group 13 (T070–T074), the Group 16 binding
   (T078–T080), the doxBench defaults and then the no-model state (T085 →
   T081), the retirement of the late reaches (T084, after T073; then T086), and
-  entry-point serving (T075, after T072). tasks.md § "Phase 3 writer slices"
+  entry-point serving (T075, after T072). Per-machine binding trust (T100,
+  16.3a) follows the binding slice, the no-model state and T084, and comes
+  before F16.1's whole run (T083). tasks.md § "Phase 3 writer slices"
   gives the fan-out.
 
 ## Pins and landing order (9.5): one openDox-code commit per phase, everywhere
@@ -422,7 +429,10 @@ the realization as the answer records it."*
   on the loopback and broker-path rulings (`5880893901`, `5890601202`), and
   F5.2's admission of T061's ten walk-premise edits, and L for Brett Heap's
   second word of 2026-09-30 (`5920216845`): 4.3's addendum on what the
-  served `/capabilities` payload's `actions` map claims.
+  served `/capabilities` payload's `actions` map claims, and M for Brett
+  Heap's word of 2026-10-02 (`5962785556`, item 2): box 16.3a, a second
+  dated note to requirement 17 and F16.1's added line, for per-machine
+  trust of a served repository's model bindings.
 - Each batch lands under a Rule 6 window, with no `Arc:` trailer, before the
   checkpoint that runs the amended falsifier.
 - `tasks.md` § "Ruled amendments" lists every amended line, the text it takes,
@@ -526,7 +536,8 @@ direction arc lands. The archive act must report it as open, and must not
 read it as closed.
 
 **Raised by an answer: R1Q23.** R1Q6 (d) leaves four of 5.4a's generator
-suites needing `doc_health`. F5.2 closes in phase 2, and it installs nothing
+suites needing `doc_health`. F5.2 runs in phase 2 (its box closes in phase 3,
+at T089, RULED `5962785556`), and it installs nothing
 that provides `doc_health`. R1Q23 asked how F5.2 runs, and Brett answered (a):
 F5.2's environment composes openxFactory's `scripts/` at a named commit (batch
 G). At openXdox-code `e28930bf` the glob selects seven suites, and the seventh
