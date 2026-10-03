@@ -2036,8 +2036,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
     pins).
 - [ ] T099 [US3] [oDc] **Publish to PyPI (10.3's install line).** openDox-code's
   sdist and wheel go to PyPI as `opendox`, by trusted publishing (OIDC), so
-  10.3's `pip install "opendox[local]"` works as written. No token or secret is
-  stored anywhere. Today `pypi.org/pypi/opendox/json` answers 404 (RULED
+  10.3's `pip install "opendox[local]"` works as written. No PyPI token and no
+  other publishing secret is stored anywhere: each upload uses a short-lived
+  OIDC identity token. Today `pypi.org/pypi/opendox/json` answers 404 (RULED
   `5962754358`, item 1, *"Publish to PyPI at the cut (Recommended)"*). This task
   is the publish alone. The workflow it dispatches and the version bump it
   publishes are T101's.
@@ -2064,7 +2065,8 @@ written (`5962754358`). `consumer_reach.py` is gone.
     - in openDox-code's GitHub settings, the two environments, each with a
       required reviewer. The build job refuses until both name one.
   - **Realizes**: 10.3.
-  - **Falsifier**: the release workflow's verify job, then a TestPyPI dry run
+  - **Falsifier**: the release workflow's `build` job (its artifact checks),
+    then a TestPyPI dry run
     installed with `pip install --index-url https://test.pypi.org/simple/
     --extra-index-url https://pypi.org/simple/ "opendox[local]"` in a fresh
     venv, then the PyPI publish at the cut.
@@ -2405,15 +2407,38 @@ written (`5962754358`). `consumer_reach.py` is gone.
     items 1 and 3 of `5920216845`.
   - **After**: T055, T073 (`serve.py`'s single-writer order), T007 (batch L).
 - [ ] T103 [US3] [oDc] **Every loopback route checks the Host.** On a loopback
-  plane, every route refuses a request whose `Host` is not a loopback name,
-  against DNS rebinding (adversarial review 2, M4). `/capabilities`' `install`
-  block sits behind the same check, even when no console token is minted (L2).
+  plane, every route refuses a request whose `Host` does not name the plane
+  itself, against DNS rebinding (adversarial review 2, M4). `/capabilities`'
+  `install` block sits behind the same check, even when no console token is
+  minted (L2).
+  - **Accepted, exactly.** The request carries exactly one `Host` line. Its
+    value, with the optional whitespace around it trimmed, is one of the
+    plane's own authorities, `<port>` being the port it is bound to:
+    - `127.0.0.1:<port>`;
+    - `localhost:<port>`, in any letter case;
+    - `[::1]:<port>`, only where the socket is bound to `::1`;
+    - on port 80 only, the same names with no port, since a browser omits
+      the default port.
+  - **Every other form fails closed**, before any route runs, with one fixed
+    refusal that never echoes the `Host`:
+    - a suffix or prefix match (`127.0.0.1.evil.example`, `evil.localhost`);
+    - another port, or no port on any port but 80;
+    - a trailing dot;
+    - any other spelling of a loopback address;
+    - another name or address;
+    - a missing or empty `Host`;
+    - a second `Host` line.
+
+    It holds for every route class and every method. A hosted (non-loopback)
+    plane is unchanged. openDox-code#80 is the realization.
   - **Realizes**: none of the 70 boxes. It hardens what 13.4 (local mode binds
     loopback only) and 13.4a (the `install` block) realize, on the holder's
     decision of 2026-10-03 after adversarial review 2.
-  - **Falsifier**: its PR's test. Each route of a loopback plane answers a
-    refusal for a non-loopback `Host` and serves a loopback one. The `install`
-    block is withheld from a non-loopback `Host` with no console token minted.
+  - **Falsifier**: its PR's test, as a table of the forms above.
+    - Every route class of a loopback plane serves each accepted form and
+      refuses each other one, with no console token minted and with one.
+    - The `install` block is withheld from every refused form.
+    - A hosted plane still serves a `Host` the loopback gate refuses.
   - **Ruled**: R1Q22 (a), `5817152735`.
   - **After**: T084 (`serve.py`'s single-writer order).
 - [ ] T104 [US3] [oDc] **The console token travels in the opened URL, not
@@ -2436,6 +2461,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
     text for every falsifier and AT-R1 step that reads `/capabilities`'
     `console_token`. This feature's `quickstart.md` moves with it: § 3 reads
     the token from `/capabilities`, and § 4 loads the page with no fragment.
+    T095 runs AT-R1's HTTP half, so it waits for batch N as well as for T104.
+    T007's batches have no line for N yet, so batch N's PR adds that line and
+    the edge to T095 together.
   - **Realizes**: none of the 70 boxes. It carries out `5963851934`.
   - **Falsifier**: its PR's test. `/capabilities` answers no `console_token`.
     The URL `generate-and-open` opens carries the token in its fragment. The
@@ -2945,7 +2973,7 @@ P3-B's T080, batch L before P3-R's T084, and batch M before P3-T's T100.
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F5.2, F10.1, F13.1, F16.1 (as batch M amends it) | Opus (verifier) |
 | acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O | the harness; the oracle's verdict | Opus |
-| P3-W publish to PyPI | T101 last among the package-changing openDox-code landings, before P3-P; T099 after the checkpoint, at the cut | T101, T099 | oDc | `.github/workflows/release.yml`, `.github/release-tools-cpython312-linux.txt` and `tests/test_release_workflow.py` (new); `pyproject.toml` (`readme`, after T072 and T075; then the version bump to 0.1.0, its own PR and the last of T101's landings) | every package-changing phase-3 openDox-code slice (T101); P3-P and the checkpoint (T099) | `tests/test_release_workflow.py` (T101); the release workflow's verify job, a TestPyPI dry run installed in a fresh venv, and the PyPI publish at the cut (T099) | Opus |
+| P3-W publish to PyPI | T101 last among the package-changing openDox-code landings, before P3-P; T099 after the checkpoint, at the cut | T101, T099 | oDc | `.github/workflows/release.yml`, `.github/release-tools-cpython312-linux.txt` and `tests/test_release_workflow.py` (new); `pyproject.toml` (`readme`, after T072 and T075; then the version bump to 0.1.0, its own PR and the last of T101's landings) | every package-changing phase-3 openDox-code slice (T101); P3-P and the checkpoint (T099) | `tests/test_release_workflow.py` (T101); the release workflow's `build` job (its artifact checks), a TestPyPI dry run installed in a fresh venv, and the PyPI publish at the cut (T099) | Opus |
 | bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance, P3-W; T007 every batch | none (a record) | Sonnet |
 
 ## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`, `5962785556`)
