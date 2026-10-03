@@ -456,7 +456,9 @@ the realization as the answer records it."*
   plane's console token reaches the page, through the opened URL and never
   `/capabilities`.
 - Each batch lands under a Rule 6 window, with no `Arc:` trailer, before the
-  checkpoint that runs the amended falsifier.
+  task that needs it. A batch that amends a falsifier lands before the
+  checkpoint that runs it. Batch N amends none, and lands before T095,
+  AT-R1's HTTP half, whose harness reads the private copy it records.
 - `tasks.md` § "Ruled amendments" lists every amended line, the text it takes,
   and the task that carries it out.
 

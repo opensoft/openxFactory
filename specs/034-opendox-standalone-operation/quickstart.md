@@ -140,7 +140,9 @@ assert token, "the opened URL carries no token in its fragment"
 print(token)
 PY
 )
-curl -sf -H "X-XF-Console-Token: $TOKEN" "http://127.0.0.1:$PORT/workbench/model-catalog" > "$W/catalog.json"
+# the header goes over stdin (`printf` is a shell builtin), never onto curl's command line, which every
+# user of the machine can read in /proc/<pid>/cmdline: the leak T104's file:// opener exists to avoid
+printf 'X-XF-Console-Token: %s\n' "$TOKEN" | curl -sf -H @- "http://127.0.0.1:$PORT/workbench/model-catalog" > "$W/catalog.json"
 python3 - "$W/snap.json" "$W/caps.json" "$W/catalog.json" <<'PY'
 import json, sys
 snap, caps, cat = (json.load(open(p)) for p in sys.argv[1:4])
