@@ -39,14 +39,14 @@ before implementation starts.
 - [x] The edge cases are listed, each tied to the question, box or in-flight
       act that governs it.
 - [x] The scope is bounded: release 2, Group 8 and F1–F4 are out, and the box
-      accounting sums to 124.
+      accounting sums to 125 (124 until T007's batch M added 16.3a).
 - [x] Dependencies and assumptions are named: the 1.8 ratification record
       (landed, #1151), lane 4's C1, C3 and C4, and the pin chain.
 
 ## Feature readiness
 
 - [x] Every release-1 box maps to a task (tasks.md § "Box accounting":
-      69 = 63 + 1 + 1 + 4).
+      70 = 64 + 1 + 1 + 4; batch M's 16.3a maps to T100).
 - [x] Every realization task names a repository, a falsifier, any question
       that blocks it, and the rulings it carries out. A task that runs a
       falsifier (T074, T077, T093) names that falsifier as its own. The
@@ -71,4 +71,12 @@ before implementation starts.
   question then open, none by assumption. Its analyze then found two more,
   R1Q26 and R1Q27, which went to Brett Heap in the same way, and he answered
   both on `5851950767`. T067 encoded them, so the item is ticked. The second
-  gate, analyze, is clean for this revision (round 3).
+  gate, analyze, is clean for round 3's revision.
+- T007's batch M (openxFactory#1219, RULED `5962785556`, item 2) added box
+  16.3a and task T100 after round 3. No `/speckit-analyze` ran over that
+  revision, and `evidence/analyze-round-3.md`, a record, still reads 90 tasks
+  and 124 boxes. What ran instead is the plan's consistency checks, the
+  persisted tools widened to batch M (brett-wip `712aedad`): 91 tasks, 104
+  nodes and 233 edges, with no cycles, 0 chain gaps, 0 arrow mismatches, no
+  phase gaps, the 4 known phase-1 NOT ORDERED pairs, and qcheck 27 of 27.
+  A fresh analyze over T100 is the holder's to call.

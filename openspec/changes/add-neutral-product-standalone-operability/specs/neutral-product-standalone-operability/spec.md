@@ -665,6 +665,35 @@ carries four scenarios. The two rules are carried out in openDox-code#63 (plan
 ruling, `#656` comment `5901112350` item 2, concerns the broker's own refusals
 and does not bear on the route.
 
+**AMENDED 2026-10-02 ON BRETT HEAP'S RULING, AFTER RATIFICATION, BY ITS OWN
+RATIFIER (T007 BATCH M).** `#656` comment `5962785556`, item 2, verbatim
+*"Trust per machine (Recommended)"*. As ratified, and as batch K's note above
+reads it, a configuration by URL, model name and credential reference is
+reached when a turn names it, whoever wrote it. The ruling narrows that in one
+respect only: whose machine has accepted it. A configuration the product reads
+from the repository it SERVES runs a credential broker, or resolves any
+credential reference, an `env:` or `keyring:` one included, only after the
+operator has trusted that exact configuration on that machine. The trust is
+recorded in the operator's own state, never in the repository. It names the
+repository root's resolved path, the configuration's id and a digest of its
+whole record, so a configuration that is edited, or that arrives under another
+root, is untrusted again. Declaring a configuration through the product's own
+command records trust for what it writes (in openDox, `model-binding add` and
+`edit`). A further command records trust for one already declared, after
+showing what will run and where the credential goes, and never the credential
+(`model-binding trust`). An untrusted configuration is refused by name before
+any process is spawned, any credential is read or any endpoint is contacted,
+and the refusal names the command that trusts it. So the first scenario's
+turns reach a configured endpoint once its configuration is trusted on the
+machine that serves it. A configuration also stays safe to read and to commit,
+as the second scenario says, and a committed one no longer runs on a machine
+that has not trusted it. This is the product's strict neutral default, which
+holds wherever no host has registered a policy of its own. Nothing else here
+moved: the requirement's title, the paragraph above with its SHALL sentences,
+batch K's note and all four scenarios stand as ratified, and the requirement
+still carries four scenarios. The rule is box 16.3a of this change's
+`tasks.md`, and it is carried out in plan 034's T100.
+
 #### Scenario: A hosted API or a local server is configured
 - **WHEN** a user configures an endpoint that speaks the OpenAI-compatible chat protocol by its URL, a model name and a credential reference, whether it is a hosted API or a server on their own machine
 - **THEN** chat turns go to that endpoint in that protocol's grammar, naming that model, and the credential is resolved from the reference for the call rather than read from the configuration

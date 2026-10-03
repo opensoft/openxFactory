@@ -43,7 +43,7 @@ An `After:` entry such as `T007 (batches C and F)` waits for those batches of
 T007 alone, and a bare `T007` waits for every batch. T007's `After, by batch`
 field gives each batch its own line. The plan-consistency tools read each
 batch as a node of its own, so the graph they check is
-the one this file states. There are twelve batches, `T007.A` to `T007.L`. A
+the one this file states. There are thirteen batches, `T007.A` to `T007.M`. A
 task that waits on some of T007's batches may still run beside a task that
 another batch waits for (T006).
 
@@ -88,10 +88,10 @@ planned on answers.
 
 - **The holder's own tasks**: T002 is a standing act, one claim per slice.
   T008 was raised as a staged topic (#1173), and the arc it raised is still
-  open. T007's batches A to L have landed, from A (#1171) to L (#1212, on
-  Brett Heap's second word of 2026-09-30, `5920216845`), and T007 lists each.
-  Brett Heap's `5962785556`, item 2, rules a batch M, which this plan does
-  not list yet.
+  open. Twelve of T007's thirteen batches have landed, from A (#1171) to L
+  (#1212, on Brett Heap's second word of 2026-09-30, `5920216845`). Batch M,
+  on Brett Heap's word of 2026-10-02 (`5962785556`, item 2), lands before
+  T100, and T007 lists each.
 - **Each phase-1 task** starts once its slice has been claimed (T002).
   **T020** and **T030** never needed an answer. **T030** lands with T011,
   because it fails until 2.1 lands. **T043** also waits for T007's batches C
@@ -194,17 +194,21 @@ planned on answers.
   amend falsifiers, task lines, addenda and one design note (§ D4). They amend
   no requirement and no scenario, except RN-1's, which batch D carries on its
   own ruling. Batch K adds a dated note to requirement 17 on its own ruling
-  (`5916000030`, item 1), and rewrites no requirement or scenario text. The
+  (`5916000030`, item 1), and rewrites no requirement or scenario text.
+  Batch M adds a second dated note there, and one box, 16.3a, with an
+  added block for F16.1, on its own ruling (`5962785556`, item 2), and
+  rewrites no ratified text either. The
   full list is in § "Ruled amendments" below. Each batch is its own
   bookkeeping PR. T007 was ticked when batch J landed, and was reopened for
-  batches K and L, both of which have landed.
+  batches K and L, both of which have landed. It is open for batch M.
   - Every PR touches `openspec/changes/`, so it lands under a Rule 6
     `LANDING`/`LANDED` window.
   - It carries no `Arc:` trailer (R1Q20 (a)), so 11.1's guard never reads it.
   - It carries no closing keyword. Each amended line cites the ruling it
     carries out: `5817152735` for batches A, B, C and E, and `5850003126` for
     batches D, F, G and H, `5851950767` for batch I, `5870594693` for
-    batch J, `5916000030` for batch K, and `5920216845` for batch L.
+    batch J, `5916000030` for batch K, `5920216845` for batch L, and
+    `5962785556` for batch M.
 
   - **Batch A** holds the F3.1, 2.2, 3.2, 4.3, 10.1, 11.0, 11.1 and F11.1
     amendments. It lands before T047, whose openxFactory landing edits the
@@ -290,18 +294,32 @@ planned on answers.
     and 3 amend nothing in #1144:
     T085 and T084 carry them. It lands before T084.
     LANDED as #1212 → `2140f5a7`.
+  - **Batch M** holds the one #1144 amendment that Brett Heap's multi-choice
+    word of 2026-10-02 (`5962785556`) implies. Item 2, *"Trust per machine
+    (Recommended)"*, adds box 16.3a after 16.3's addenda, a dated note in
+    requirement 17's body in #1144's spec delta, after batch K's, and an
+    added block for F16.1. A binding read from the served repository runs a
+    broker, or resolves any credential reference, only once the operator
+    has trusted that exact binding on this machine. The trust lives in
+    `OPENDOX_STATE_DIR`, outside the repository, and names the root's
+    resolved path, the binding's id and a digest of its full record, so an
+    edit or a move untrusts it. `add` and `edit` record trust, `trust <id>`
+    records it after printing what will run and where the credential goes,
+    and an untrusted binding is refused by name before any spawn, read or
+    contact. Item 1, F5.2's close at phase 3, amends nothing in #1144 (*"#1144's
+    text is unchanged"*). It lands before T100.
 
   A realization PR that lands before its batch still quotes the falsifier as
   the answer records it, citing the ruling.
-  - **Realizes**: none of the 69 boxes. It records the word the realization
-    carries out.
+  - **Realizes**: none of the 70 boxes. It records the word the realization
+    carries out. Batch M adds one box, 16.3a, which T100 realizes.
   - **Ruled**: R1Q1, R1Q2, R1Q3, R1Q5, R1Q6, R1Q7, R1Q9, R1Q20 and R1Q22,
     `5817152735`; R1Q10, R1Q11, R1Q12, R1Q14, R1Q15, R1Q16, R1Q17, R1Q18,
     R1Q23, R1Q24 and R1Q25, `5850003126`; R1Q26 and R1Q27, `5851950767`;
     the help-tree deselect (no question), `5870594693`, citing
     `5859927858`; items 1 and 4 of `5916000030`, with the loopback rule
     `5880893901` and the broker-path ruling `5890601202`; item 1 of
-    `5920216845`.
+    `5920216845`; item 2 of `5962785556`.
   - **After**, by batch:
     - **A**: nothing.
     - **B**: T041, which names the exclusion file.
@@ -324,15 +342,17 @@ planned on answers.
     - **L**: nothing, since `5920216845` is given. L lands before the landing
       that routes 4.3's last reaches (P3-R's). This line names that landing
       by its slice, for the same reason as K's.
+    - **M**: nothing, since `5962785556` is given. M lands before the landing
+      that trusts a served repository's bindings per machine (P3-T's). This
+      line names that landing by its slice, for the same reason as K's.
   - **Landed**: batches A to L, each an openxFactory PR with no `Arc:` trailer.
     A #1171 → `bca4a260`; B #1194 → `e369cb25`; C #1172 → `4663e9e8`; D #1170 →
     `79a720a2`; E #1183 → `b9742534`; F #1178 → `295abd8d`; G #1205 →
     `91e4685f`; H #1206 → `f99a2097`; I #1180 → `8421603a`; J #1193 →
-    `6b97c601`; K #1210 → `39f19145`; L #1212 → `2140f5a7`. T063's checkpoint
-    PR records batch L's landing here, and does not tick T007: Brett Heap's
-    `5962785556`, item 2 (*"Trust per machine (Recommended)"*), rules a
-    batch M, which T007 records, and a new phase-3 task, T100. This plan
-    lists neither yet.
+    `6b97c601`; K #1210 → `39f19145`; L #1212 → `2140f5a7`, which T063's
+    checkpoint PR (#1218) recorded. Batch M has not landed yet. The plan
+    bookkeeping that follows its landing records its PR and merge commit,
+    and ticks T007 again.
   - #1144's `tasks.md` was also edited outside the batches. #1202 → `e81eed62`
     (T018's PR) added F11.1's `ADMITTED_ARC_EDITS` (RULED `5890601202`) and
     corrected batch E's held-case count from "6 to 7" to "5 to 6". #1204 →
@@ -2110,11 +2130,101 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - **Falsifier**: `tests/test_chat_model_configuration.py`.
   - **Ruled**: R1Q10 (a), `5850003126`.
   - **After**: T081, T084, T085.
+- [ ] T100 [US3] [oDc] **16.3a: a served repository's bindings are trusted per
+  machine.** RULED `5962785556`, item 2, Brett Heap, 2026-10-02: *"Trust per
+  machine (Recommended)"*. It works like direnv. T007's batch M adds box
+  16.3a to #1144, with a dated note in requirement 17 and an added block for
+  F16.1.
+  - **The defect, measured.** At openDox-code `main` `047bb4fa`, both entry
+    points read the bindings from the SERVED `--repo-root`
+    (`doxbench_install.py:316` reads `bindings_path(checkout_root)`), and a
+    hand-written binding passes no approval. A hand-written `broker_argv`
+    was offered as available and ran on the first dispatch. On the drafts
+    that add the built-in resolver (openDox-code#63, with #64 above it), a
+    hand-written `env:` reference sent the variable's value, as a bearer, to
+    the endpoint the file named. Release 1 publishes to PyPI (`5962754358`,
+    item 1).
+  - **The gate.** A binding read from the served repository runs a broker,
+    or resolves an `env:`, `keyring:` or broker reference, only once the
+    operator has trusted that exact binding on this machine. The check
+    sits where the bindings are read (`declared_model_port_factory`), so an
+    untrusted binding never becomes a port, and in `model-binding
+    set-credential`, before its broker runs
+    (`cli_model_binding.py:135-139`). Where no binding is declared nothing
+    consults it, so F16.1's bare-process 16.4 block runs as before.
+  - **The console intake.** Its broker hand-off
+    (`serve_workbench.py:1127`, in `_handle_workbench_model_intake` at
+    `:989`) runs a broker that the served repository's
+    `ideation/dashboard/model-declarations.yaml` declares. That broker is
+    no binding, and no command that trusts it is ruled, so under the
+    neutral default T100 makes the hand-off refuse it by name, the
+    fail-closed reading (Principle VII). Standalone, the intake already
+    answers `offered: false` (`5961364221`, item 1), and a host's own
+    policy may admit it. That edit overlaps T084's `serve_workbench.py`
+    (openDox-code#77), which is why T084 is on the `After:` line.
+  - **The record.** A trust file under `OPENDOX_STATE_DIR`, T072's state
+    directory, with its default (`$XDG_STATE_HOME/opendox`, else
+    `~/.local/state/opendox`). It is owner-only and holds no credential.
+    It is read only once it passes the checks #69's bundle makes of its own
+    tree: no symbolic link, owned by this user, writable by no one else,
+    and every directory above it this user's or root's, sticky where
+    another user can write it. A file that fails is refused by name, and
+    every binding then reads untrusted. An `OPENDOX_STATE_DIR` equal to the
+    served root or nested under it is refused by name before anything is
+    written (Copilot's finding on #1219). Each entry names the
+    repository root's resolved path, the binding's id and a digest of its
+    full record.
+  - **The verbs.** `opendox model-binding add` and `edit` record trust for
+    the binding they write. `opendox model-binding trust <id>` prints the
+    broker argv, the endpoint, the auth kind and the credential reference.
+    Each value is printed escaped, in a JSON string's form, and so is the
+    id in every refusal and in `list`, so a control character in an
+    untrusted field cannot forge the output (Copilot's note on #1219).
+    It resolves, runs and contacts nothing, and it records trust for exactly
+    the record it printed. It takes no `--yes`: running it is the consent,
+    as `direnv allow` is, and the refusal names it. `set-credential` on a
+    TRUSTED binding re-records trust for the record it rewrites, since the
+    operator made that change on this machine, and it never makes an
+    untrusted binding trusted. Both are the holder's decisions of
+    2026-10-02, recorded in 16.3a.
+  - **The refusal.** It is by name, before any spawn, read or contact, and it
+    names the binding's id and `opendox model-binding trust <id>`, never a
+    secret. The catalog lists the binding with `available: false`. Its entry
+    is a closed shape, so the reason rides the turn's refusal, the factory's
+    notice beside its pending-binding one, and `model-binding list`.
+  - **The seam.** The rule is openDox's neutral default, and a strict one
+    (the holder's decision, 2026-10-02). Its consumers, the code that reads
+    a served repository's bindings, register it lazily, the first time one
+    asks and only where nothing is registered yet. No entry point registers it, so
+    T100 edits neither `cli.py` nor `serve.py`, and a bare process is held
+    to it too. A host's own registration wins.
+  - **The suite stays off the operator's state.** Every test that declares a
+    binding runs with a scratch `OPENDOX_STATE_DIR`. The existing cases that
+    serve a hand-written bindings document, such as
+    `tests/test_model_provider_broker.py`'s
+    `test_a_declared_binding_resolves_the_brokered_port_instead`, record
+    trust first or assert the refusal.
+  - **Downstream, not edited here.** The assembled `--help` tree gains
+    `model-binding trust`. openxFactory's
+    `tests/ideation-dashboard/fixtures/cli-help-tree.golden.txt`, which
+    gains T079's `--model` at T094's pin, then holds 32 sections, not 31
+    (research R8). T094 records what that needs. openXdox-code's 31-entry
+    assembled-tree test, deselected until T008, reads the same tree.
+  - **Realizes**: 16.3a.
+  - **Falsifier**: F16.1's batch M block, and
+    `tests/test_model_binding_trust.py`.
+  - **Ruled**: R1Q22 (a), `5817152735`; `5962785556`, item 2.
+  - **After**: T080 and openDox-code#64 (the broker-path hardening, which is
+    no task of this plan), T081 (`doxbench_install.py`'s single-writer
+    order), T072 (the state directory), T084 (`serve_workbench.py`'s
+    single-writer order: the console intake's hand-off), T007 (batch M).
 - [ ] T083 [US3] [oDc] **16.6, then F16.1.** `tests/test_provider_boundary.py`
-  stays green as 16.1 joins the one module. Then run F16.1 whole.
+  stays green as 16.1 joins the one module. Then run F16.1 whole, with the
+  line T007's batch M adds (`tests/test_model_binding_trust.py`, T100).
   - **Realizes**: 16.6, F16.1.
-  - **Falsifier**: `tests/test_provider_boundary.py` for 16.6, then F16.1 whole.
-  - **After**: T080, T081, T082.
+  - **Falsifier**: `tests/test_provider_boundary.py` for 16.6, then F16.1
+    whole, as batch M amends it.
+  - **After**: T080, T081, T082, T100.
 
 ### 4.3's last reaches, and the consumer's columns
 
@@ -2227,15 +2337,15 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   offered. `lens.js` stays the web census's one declared `?` row. Moving the
   two controls into a view extension that openxFactory contributes, which
   retires the row, is R1Q19's (b), for later and outside release 1.
-  - **Realizes**: none of the 69; this is the precondition for AT-R1 step 6.
+  - **Realizes**: none of the 70; this is the precondition for AT-R1 step 6.
   - **Falsifier**: AT-R1 step 6.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q19 (a), `5850003126`.
   - **After**: T063, T069.
 - [ ] T087 [US4] [oD] **Phase 3's openDox root pin** (T090 steps 1–2).
   - **Realizes**: 9.5 (part).
   - **Falsifier**: `make pins` in the openDox root.
-  - **After**: T074, T077, T083, T084, T085, T088 (every phase-3 openDox-code
-    landing), T062 (the root pin's single-writer order).
+  - **After**: T074, T077, T083, T084, T085, T088, T100 (every phase-3
+    openDox-code landing), T062 (the root pin's single-writer order).
 - [ ] T086 [US4] [oXc] **openXdox contributes its columns.** It contributes the
   gate and projection mixins, `doxbench_scope` and its gate primitives through
   the seams, as the governed half of R1Q10 (a). `OPENDOX_BACK_IMPORTS` becomes
@@ -2272,6 +2382,17 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   `test_serve_column_split.py`'s gate and projection rows, updated again once
   `consumer_reach.py` is gone. Both are named composition tests under R1Q2
   (a).
+  - **The CLI help golden.** At phase 3's pin the assembled `--help` tree
+    changes: T079 adds `--model` to `model-binding add|edit` (openDox-code#62's
+    body names it), and T100 adds `model-binding trust`, so
+    `tests/ideation-dashboard/fixtures/cli-help-tree.golden.txt` goes from 31
+    sections to 32 (research R8). Its reader,
+    `test_extension_point_parity.py`, is a named composition test, but the
+    golden itself is NOT one of 11.1's declared surfaces: F11.1's `HOST`,
+    `HOST_TESTS`, `PIN_PAIRS`, `COMPOSITION_TESTS` and `ADMITTED_ARC_EDITS`
+    do not name it. So this arc landing cannot regenerate it. It needs a
+    non-arc PR ahead of it, in T066's form, or a ruled admission, and that
+    is the holder's to choose before this task's PR opens.
   - **Realizes**: 9.5 (part).
   - **Falsifier**: as T047's.
   - **Ruled**: R1Q2 (a), `5817152735`.
@@ -2284,8 +2405,9 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     holds`.
   - **After**: T094.
 - [ ] T089 **Phase 3 checkpoint.** Run and quote F4.1, F10.1 and F13.1 (both
-  as batch H amends them), F16.1, and F5.2 whole (as T007's batches C, F, G and
-  K amend it, after T086's repair), then T098's interim F11.1 output.
+  as batch H amends them), F16.1 as batch M amends it (with T100's named
+  test), and F5.2 whole (as T007's batches C, F, G and K amend it, after
+  T086's repair), then T098's interim F11.1 output.
   - **Ruled**: F5.2's close here, `5962785556`, item 1.
   - **After**: T094, T098, T076 (so every phase-3 task is done).
 
@@ -2451,7 +2573,7 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     `5850003126`.
   - **After**: T095.
 - [ ] T097 [oxF] **Bookkeeping.**
-  - Tick #1144's release-1 boxes, each with its evidence note: the 62 in the
+  - Tick #1144's release-1 boxes, each with its evidence note: the 63 in the
     table below. 3.0 is already ticked (#1151).
   - Leave 9.5, 11.0, 11.1 and F11.1 open for the arc's close, and F9.2 open
     until T008 (RULED `5859927858`; holder decision, 2026-09-29, at T049).
@@ -2465,31 +2587,33 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
 
 ---
 
-## Box accounting (#1144 `tasks.md`: 124 boxes)
+## Box accounting (#1144 `tasks.md`: 125 boxes)
 
 `python3 "$W/tools/box_census.py" openspec/changes/add-neutral-product-standalone-operability/tasks.md`,
 run from an openxFactory checkout (research.md § Appendix writes the tool),
 printed `total 124`: 104 `[ ]`, 11 `[x]` and 9 `[~]`
 at `cd494e4c`. At `dd2466ad` the counts were 106, 9 and 9, before #1151 ticked
-1.8 and 3.0.
+1.8 and 3.0. T007's batch M adds one box, 16.3a, in Group 16, so on its branch
+the same command prints `total 125`: 105 `[ ]`, 11 `[x]` and 9 `[~]`. F16.1
+keeps its label, since it is still Group 16's first `FALSIFIED BY` box.
 
 | scope | groups | boxes |
 |---|---|---|
-| **release 1 (this feature)** | 2, 3, 4, 5, 7, 9, 10, 11, 13, 16 | **69** |
+| **release 1 (this feature)** | 2, 3, 4, 5, 7, 9, 10, 11, 13, 16 | **70** |
 | release 2 (its own Speckit feature, R1Q21 (a)) | 6 (4), 12 (11), 14 (10), 15 (12) | 37 |
 | outside both releases | 1 (9, all `[x]` since #1151), 8 (5 `[~]`), F1–F4 (4 `[~]`) | 18 |
-| **total** | | **124** |
+| **total** | | **125** |
 
-Release 1's 69 boxes, by class:
+Release 1's 70 boxes, by class:
 
 | class | count | boxes |
 |---|---|---|
-| closed by a realization task in release 1 | 62 | every other box below |
+| closed by a realization task in release 1 | 63 | every other box below |
 | closes after T008, outside release 1's tasks | 1 | F9.2: RULED `5859927858` keeps it unchanged and red on the 31-entry help-tree test until T008 (holder decision, 2026-09-29, at T049) |
 | discharged by the ratification | 1 | 3.0 (ticked by #1151, T001) |
 | already `[x]` | 1 | 5.6 (openDox-code#35 → `3c3a9e31`) |
 | performed in every phase, ticked at ARC close | 4 | 9.5 (T090), 11.0 (T091), 11.1 (T092), F11.1 (T093) |
-| **total** | **69** | |
+| **total** | **70** | |
 
 Every release-1 box, with the task that closes it:
 
@@ -2504,9 +2628,9 @@ Every release-1 box, with the task that closes it:
 | 10 (5) | 10.1 → T038 · 10.2 → T075 · 10.2a → T075 · 10.3 → T076 · F10.1 → T077 |
 | 11 (3) | 11.0 → T091 · 11.1 → T045, T092 · F11.1 → T093 (all at arc close) |
 | 13 (8) | 13.1 → T072 · 13.2 → T071 · 13.3 → T071 · 13.4 → T070 · 13.4a → T073 · 13.5 → T070 · 13.6 → T070 · F13.1 → T074 |
-| 16 (7) | 16.1 → T078 · 16.2 → T079 · 16.3 → T080 · 16.4 → T081, T085 · 16.5 → T082 · 16.6 → T034, T083 · F16.1 → T083 |
+| 16 (8) | 16.1 → T078 · 16.2 → T079 · 16.3 → T080 · 16.3a → T100 (added by T007's batch M) · 16.4 → T081, T085 · 16.5 → T082 · 16.6 → T034, T083 · F16.1 → T083 |
 
-8 + 5 + 5 + 12 + 8 + 8 + 5 + 3 + 8 + 7 = **69**.
+8 + 5 + 5 + 12 + 8 + 8 + 5 + 3 + 8 + 8 = **70**.
 
 ## Dependencies and execution order
 
@@ -2518,7 +2642,8 @@ Every release-1 box, with the task that closes it:
   before T047, F before T043 and T061, G before T053, H before T070, T075 and
   T080, I before T059, T060, T061 and T063, J before T049, whose F9.1
   run needs J's `--deselect`, K before T061, T063 and T080 (and
-  openDox-code#64, which is no task of this plan), and L before T084. T016 may land before batch A, T041 and T043
+  openDox-code#64, which is no task of this plan), L before T084, and M
+  before T100. T016 may land before batch A, T041 and T043
   before batch B, and T043 before batch J, each quoting its falsifier as the
   answer records it (T007).
 - **The round tasks.** T019 encoded phase 1's openXdox-code tail, T009 phase
@@ -2549,8 +2674,10 @@ Every release-1 box, with the task that closes it:
   with T084 after T073 for `serve.py`. In parallel: Group 16's binding slice
   (T078 → T079 → T080), T085 → T081, and T088. T075 and T077 run F10.1 as
   batch H amends it, so both follow T072: T072 → T075 → T077. Then T082,
-  which comes after T081, T084 and T085, and T083. Then T087 (the phase-3
-  openDox root pin) → T086 → T094 → T098 → T089, and T087 → T076 → T089.
+  which comes after T081, T084 and T085, and T100, which comes after T080,
+  openDox-code#64, T081, T072, T084 and T007's batch M. Then T083, after
+  T082 and T100. Then T087 (the phase-3 openDox root pin) → T086 → T094 →
+  T098 → T089, and T087 → T076 → T089.
 - **Acceptance**: T095 (after T089 and T076) → T096 → T097.
 
 ### Parallel slices, summarised
@@ -2559,7 +2686,7 @@ Every release-1 box, with the task that closes it:
 |---|---|---|
 | 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; `pyproject.toml` (T038 → T036); `tests/test_authoring_seam.py` (T020 → T021 → T022); openDox-code's `validate.yml` (T036 → T037); T020 → T025 and T026 → T025; T032 → T037; T039 (root pin) → openXdox (T040, then T041 → T042 → T043 → T044) → T047 → T017, T018 |
 | 2 | T053 ∥ T050, then T052 ∥ T057 ∥ T051 | T053 → T054 → T055 → T056 → T058; T062 → T059 → T061 → T066 → T064; openXdox-code `pyproject.toml` (T059 → T061); ratchet writers; T007 batch I before T059, T060 and T061; batch K before T061 |
-| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072 | `serve.py` and `cli.py` (T070, T072 and T073 before T084); openDox-code `pyproject.toml` (T072); `doxbench_binding.py` (T078 → T080); T085 → T081; T087 → T086 → T094 |
+| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072; T082 ∥ 16.3a (T100), then T083 | `serve.py` and `cli.py` (T070, T072 and T073 before T084); `serve_workbench.py` (T084 → T100); openDox-code `pyproject.toml` (T072); `doxbench_binding.py` (T078 → T080, then T100 after openDox-code#64); `cli_model_binding.py` (T079 → T080 → T100); `doxbench_install.py` (T081 → T100); T085 → T081; T087 → T086 → T094 |
 
 ## Phase 1 writer slices (for the fan-out)
 
@@ -2639,7 +2766,7 @@ Batch I lands before P2-X, P2-K and P2-C, and batch K before P2-C.
 
 Every phase-3 slice starts after T063 and T069, and T007's batch H lands
 before P3-I's T070, P3-E's T075 and P3-B's T080. Batch K also lands before
-P3-B's T080, and batch L before P3-R's T084.
+P3-B's T080, batch L before P3-R's T084, and batch M before P3-T's T100.
 
 | slice | group | tasks | repo | files | depends on | falsifier it must pass | size |
 |---|---|---|---|---|---|---|---|
@@ -2650,28 +2777,30 @@ P3-B's T080, and batch L before P3-R's T084.
 | P3-L lens seed actions | G1 | T088 | oDc | `src/opendox/web/views/lens.js`, and the capability that says a binding answers | T063, T069 | AT-R1 step 6 | Sonnet |
 | P3-E the door | G2, after P3-I | T075, T077 | oDc | none, unless T075's run finds a gap in how the bundle is served. An edit to the server module then joins its single-writer order between T073 and T084 before the PR opens | P3-I (T072); T007 batch H | F10.1's fetch, as batch H amends it (T075); F10.1, as batch H amends it (T077) | Sonnet |
 | P3-R 4.3's last reaches | G2, after P3-I | T084 | oDc | `src/opendox/serve.py`, `src/opendox/cli.py`, `src/opendox/serve_workbench.py`, `src/opendox/serve_project.py` and `src/opendox/branch_session.py`; the defaults' modules; `src/opendox/consumer_reach.py` (deleted); `tests/test_capability_honesty.py` (new, the capability and crash-site assertions); `tests/test_rejection_report.py` (new, the grouped rejection output) | P3-I; T007 batch L | F4.1 whole; the capability-honesty test, over a standalone child and a composed host; the rejection-output test | Opus |
-| P3-N no model, everywhere | G3 | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole (T083) | Sonnet |
+| P3-T per-machine binding trust | G3 | T100 | oDc | the trust record and its lazily registered policy seam (a new module); `src/opendox/doxbench_install.py` (the gate where the bindings are read, after T081); `src/opendox/cli_model_binding.py` (`add` and `edit` record trust, the `trust` verb, `set-credential`'s gate and re-trust); `src/opendox/serve_workbench.py` (the console intake's broker hand-off, single-writer after T084); `tests/test_model_binding_trust.py` (new); `tests/test_model_provider_broker.py` (its hand-written-binding cases) | P3-B, openDox-code#64, P3-D, P3-I (T072), P3-R; T007 batch M | F16.1's batch M block: `tests/test_model_binding_trust.py` | Opus |
+| P3-N no model, everywhere | G3; T083 after P3-T | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B; P3-T for T083 | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole, as batch M amends it (T083) | Sonnet |
 | P3-P openDox root pin | G4 | T087 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-3 openDox-code slice landed | `make pins` | Sonnet |
 | P3-O the root README | G5 | T076 | oD | `README.md` | P3-P, P3-J, P3-E | review; AT-R1 step 4 follows it | Sonnet |
 | P3-X openXdox's columns | G5 | T086 | oXc | the gate and projection contributions; `pyproject.toml` (the `opendox @` pin); `tests/test_dependency_direction.py` (the ratchet at `(0, 0)`); `tests/test_session_snapshot.py` and `tests/protected_suite_respellings.yaml` (F5.2's three repairs, RULED `5962785556`) | P3-P, P3-R; P2-C | `tests/test_dependency_direction.py`; F9.1 as batches B and F amend it, and batch J's `--deselect` unless T008 has removed it; F5.2 whole | Opus |
 | P3-K pins and host wiring | G6 | T094 | oX, oxF | as P1-K's pin files; `tests/ideation-dashboard/test_extension_point_parity.py` and `tests/ideation-dashboard/test_serve_column_split.py` (named composition tests) | P3-X, P3-P | as T047's | Opus |
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
-| checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F5.2, F10.1, F13.1, F16.1 | Opus (verifier) |
+| checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F5.2, F10.1, F13.1, F16.1 (as batch M amends it) | Opus (verifier) |
 | acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O | the harness; the oracle's verdict | Opus |
 | bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance; T007 every batch | none (a record) | Sonnet |
 
-## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`)
+## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`, `5962785556`)
 
 Brett Heap's answers amend #1144's falsifiers, task lines, addenda and one
 design note. Batches A, B and C carry `5817152735`'s answers, and batches F,
 G and H carry `5850003126`'s, batch I carries `5851950767`'s, batch J
-carries `5870594693`'s, batch K carries `5916000030`'s, and batch L
-carries `5920216845`'s. They amend
+carries `5870594693`'s, batch K carries `5916000030`'s, batch L
+carries `5920216845`'s, and batch M carries `5962785556`'s. They amend
 no requirement and no scenario, except that batch K's first row adds a
 dated note to requirement 17 on its own ruling and rewrites none of its
-text. T007 records each amendment in #1144's `tasks.md` (and the D4
-addendum in `design.md`, and batch K's note in the spec delta) as
-bookkeeping, and the realization tasks beside it carry it out.
+text, and batch M adds a second such note there, and one box, 16.3a, on
+its own ruling. T007 records each amendment in #1144's `tasks.md` (and the
+D4 addendum in `design.md`, and batch K's and batch M's notes in the spec
+delta) as bookkeeping, and the realization tasks beside it carry it out.
 The one scenario text an answer touches is not listed here. It is RN-1
 (plan.md § "Ruling needed"), ruled (a) in `5850003126`. T007's batch D
 landed it in #1144's spec delta, as #1170 → `79a720a2`.
@@ -2708,6 +2837,7 @@ landed it in #1144's spec delta, as #1170 → `79a720a2`.
 | K | requirement 17 and scenario 17.1 (spec delta); 16.3 | A dated note in requirement 17's body, after its SHALL paragraph and above its scenarios, in batch D's form, with a pointer after batch H's 16.3 addendum. No ratified text is rewritten. A credential the built-in resolver resolves (`5880893901`) and a token a broker mints (`5890601202`) are each sent only over `https://`, or over `http://` to `127.0.0.1`, `[::1]` or `localhost`. Any other `http://` endpoint that would receive one is refused when it is declared (`ENDPOINT_NOT_PRIVATE`), before anything is resolved or minted. The request follows no redirect, and over plain `http://` it takes no proxy. The auth kind `none` keeps its route. F16.1 is unchanged. | `5916000030`, item 1 | T080, and openDox-code#64 (no task of this plan) |
 | K | F5.2 | The reviewed allow-list, R1Q7 (a)'s, also admits T061's ten walk-premise edits, each entered with its reason and none as a respelling: nine in `tests/test_snapshot_validation_launch.py`, and `tests/test_snapshot.py::test_a_missing_validator_is_unavailable_not_a_verdict`. `test_a_run_dir_beside_a_checkout_still_uses_that_one_first` inverts its answer and keeps its name. For F5.2, batch C's "the entry's recorded text" reads as several entries' texts together: one landing's entries for one suite, applied in the order listed, chain by git blob, and the call passes `--chains`. 12.5's falsifier is not amended, and its call refuses a chain. | `5916000030`, item 4 | T061, T063 |
 | L | 4.3 | An addendum after batch G's. A flag in the served `/capabilities` payload's `actions` map whose affordance is a route this server serves is true only where such a route answers. `gate` and `refresh`, whose routes a host contributes through the route bindings, are true only when the assembled bindings carry a route they govern, so standalone both read false (and the workbench's session controls, which read `actions.gate`, are hidden), and a composed host reads as today. `notebook`, `edit` and `session` keep their conditions, and `intent` governs a POST to another plane's intent API, a route that plane answers, so its condition stands. The three reaches that drop a connection standalone (`serve_workbench.py:1219` and `:2611`, `serve_project.py:271` at `047bb4fa`) answer through their seams, from openDox's default where one serves the request, or else with a structured refusal, never a dropped connection, as 4.2 requires. | `5920216845`, item 1 | T084 |
+| M | requirement 17 and scenario 17.1 (spec delta); 16.3a (added); F16.1 | A dated note in requirement 17's body, after batch K's, in batch D's form, and a new box, 16.3a, after 16.3's addenda. No ratified text is rewritten. A binding read from the served repository runs a broker, or resolves any credential reference (`env:`, `keyring:` or a broker's), only once the operator has trusted that exact binding on this machine. The trust lives in the operator's own state, never in the repository: a private file under `OPENDOX_STATE_DIR` (T072), checked as #69's bundle checks its tree, and refused if the setting names the served root or a path under it. It names the root's resolved path, the binding's id and a digest of the binding's full record, so an edit or a move untrusts it. `model-binding add` and `edit` record trust, and `model-binding trust <id>` records it after printing what will run and where the credential goes, never the credential. An untrusted binding is refused by name, naming the command that trusts it, before any spawn, read or contact, `set-credential`'s broker included, and the catalog lists it `available: false`. `set-credential` on a trusted binding re-records trust for what it rewrites, and never trusts an untrusted one. Bindings stay committable. It is openDox's strict neutral default, registered lazily by its consumers, and a host's own registration wins. F16.1 gains `tests/test_model_binding_trust.py` after its last line. | `5962785556`, item 2 | T100, T083, T089 |
 
 R1Q4 (a) and R1Q8 (a) amend nothing in #1144. They shape T015, T038, T046 and
 T036 only. Nor do three of round 2's answers. R1Q13 (a) with (c) shapes T050,
@@ -2716,4 +2846,6 @@ answer, recorded in plan.md. Nor do items 2 and 3 of `5920216845`. T085
 moves T058's two workbench-manifest rules into openDox's validator, and T084
 prints every broken rule once, because no #1144 falsifier names those rule
 ids or fixes the CLI's rejection output: F7.2 asserts only that the
-fixture's rule id is printed.
+fixture's rule id is printed. Nor does item 1 of `5962785556`: F5.2 closes at
+phase 3's checkpoint (T089), and, in the ruling's words, *"#1144's text is
+unchanged"*.
