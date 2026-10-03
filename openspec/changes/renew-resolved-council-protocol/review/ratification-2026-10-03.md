@@ -1,6 +1,7 @@
 # Ratification record — 2026-10-03
 
-Status: record
+Status: ratified
+Ratified: 2026-10-03 by Brett Heap, in this Codex session, verbatim "ratify all three as disclosed"; exact reviewed scope is recorded below.
 Recorded: 2026-10-03
 Approver: Brett Heap
 Disposition: RATIFIED AS DISCLOSED
@@ -34,4 +35,3 @@ The proposal's original commission and origin declarations are retained exactly.
 Implementation preparation and realization may proceed through exactly one new Speckit feature for this packet. This session works outside a registered lane; no acceptance, transfer or claim on behalf of an existing lane is asserted. Existing ownership and holds remain respected.
 
 Publication, version allocation, provider or consumer pin advancement, managing-factory deployment, credential/broker provisioning, activation, merge and old-checkout retirement remain separate evidence-bearing acts. This ruling supplies no completed-act evidence for them. Owner-act boxes remain unchecked, with dated evidence beside the relevant item in [tasks.md](../tasks.md). Archive remains gated on the declared exit evidence.
-
