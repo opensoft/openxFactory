@@ -3024,10 +3024,17 @@ written (`5962754358`). `consumer_reach.py` is gone.
       the assembled `--help` tree has 32 sections, because T100 adds
       `model-binding trust`. The node
       `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_31_entry_tree_the_manifest_records`
-      moves to 32. `validate.yml`'s `LEFT_OUT`, which deselects that node
-      until T008, names it as well, so it moves in the same landing. The
-      #1144 side, F9.2 and batch J's F9.1 line, which also name the node, is
-      a later T007 batch's (O).
+      moves to 32. The #1144 side, F9.2 and batch J's F9.1 line, which also
+      name the node, is a later T007 batch's (O).
+      - **`LEFT_OUT` moves with it** (the holder's ruling of 2026-10-03, on
+        the plan analyze). openXdox-code's `.github/workflows/validate.yml`
+        names the node verbatim in `LEFT_OUT` (`:157` at `6a3b93b9`). That
+        is the variable the whole-suite step passes to `--deselect` (`:160`)
+        until T008, and it is also named in the step's comment (`:102`) and
+        printed in its notice (`:159`). This landing renames the node and
+        updates `LEFT_OUT` together. A rename alone would leave the
+        `--deselect` naming no test, so the 32-entry test would run in the
+        required check, where `5859927858` keeps it out until T008.
     - (b) **T104's harness step.** openXdox-code's route harnesses,
       `tests/doxbench_routes_harness.py:290` and
       `tests/gate_routes_harness.py:139-149` (at `6a3b93b9`), build the
