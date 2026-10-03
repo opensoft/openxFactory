@@ -2393,8 +2393,10 @@ written (`5962754358`). `consumer_reach.py` is gone.
     (every phase-3 openDox-code landing that changes the shipped package,
     with the T074, T077 and T083 runs).
   - That line also stands for openDox-code#64, the broker-path hardening,
-    which is no task of this plan. T095's `acceptance/` harness ships nothing,
-    so T101 does not wait for it.
+    which is no task of this plan, and for T102's follow-on (the chat rail
+    reads `/workbench/thread` only when a branch session exists, the
+    holder's F1 (i)), which is no task either. T095's `acceptance/` harness
+    ships nothing, so T101 does not wait for it.
 - [x] T077 [US3] [oDc] **Run F10.1**, as batch H amends it: it installs
   `".[local]"`, and it runs `opendox generate-and-open --local …`. The local
   mode starts the bundled server, so this run follows T072.
@@ -2795,6 +2797,11 @@ written (`5962754358`). `consumer_reach.py` is gone.
       symlink to a settings document (#77's fix round 5), so it offers such a
       document and the server's scope rule refuses it. A restored outline
       buffer is not reconciled.
+  - **Follow-on** (the holder's ruling F1 (i), from the T096 dry run,
+    2026-10-03): the chat rail reads `/workbench/thread` only when a branch
+    session exists. It is a separate openDox-code PR and no task of this
+    plan, and it lands before T087. It changes the shipped bundle, so by
+    T101's rule it also lands before T101's version bump.
 
 ### 4.3's last reaches, and the consumer's columns
 
@@ -3290,6 +3297,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Falsifier**: `make pins` in the openDox root.
   - **After**: T074, T077, T083, T084, T085, T088, T100, T101 (every phase-3
     openDox-code landing), T062 (the root pin's single-writer order).
+  - The chat rail's follow-on, recorded with the by-scope workbench's
+    entry above, also lands before this pin. It is no task of this plan
+    (the holder's F1 (i)).
 - [ ] T086 [US4] [oXc] **openXdox contributes its columns.** It contributes the
   gate and projection mixins, `doxbench_scope` and its gate primitives through
   the seams, as the governed half of R1Q10 (a). `OPENDOX_BACK_IMPORTS` becomes

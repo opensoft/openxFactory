@@ -86,7 +86,8 @@ before implementation starts.
   #1220 had added T099 and T101–T104, for lane openxfactory-4's holder. Its
   report went to the holder and is not a file of this feature. It found no
   CRITICAL finding, three HIGH, eight MEDIUM and nine LOW:
-  - H1, the private copy's contract, is settled by T007's batch N (#1222);
+  - H1, the private copy's contract, is settled by T007's batch N (#1222 →
+    `bdd0f586`);
   - H2, the help tree at 32, by `5970917267`, with the plan side in T086,
     T094, T100 and research R8, and #1144's side in a later batch, O;
   - H3, AT-R1's commit against the published one, by the holder's

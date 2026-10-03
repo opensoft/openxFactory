@@ -18,9 +18,8 @@ Until the cut, the README's PyPI line has `pip install "./code[local]"`
 stand in for it, and § 1 installs the checkout with the same extra (T076).
 
 Every question these steps depend on is answered, on `#656` comment
-`5850003126`. R1Q26 and R1Q27,
-answered on `5851950767`, bear on openXdox and openxFactory, and not on an
-openDox-only install. The steps follow `5850003126`'s answers: R1Q10 (a) and
+`5850003126`. R1Q26 and R1Q27, answered on `5851950767`, bear on openXdox
+and openxFactory, and not on an openDox-only install. The steps follow `5850003126`'s answers: R1Q10 (a) and
 R1Q12 (a) for the catalog's validators, R1Q13 (a) with (c) for the tiles,
 R1Q15 (b) for `--local`, R1Q16 (iii) and (iv) for the install and the
 datastore's stop, and R1Q19 (a) for the lens. No step is conditional. Use
