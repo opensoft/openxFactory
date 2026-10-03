@@ -43,7 +43,7 @@ An `After:` entry such as `T007 (batches C and F)` waits for those batches of
 T007 alone, and a bare `T007` waits for every batch. T007's `After, by batch`
 field gives each batch its own line. The plan-consistency tools read each
 batch as a node of its own, so the graph they check is
-the one this file states. There are thirteen batches, `T007.A` to `T007.M`. A
+the one this file states. There are fourteen batches, `T007.A` to `T007.N`. A
 task that waits on some of T007's batches may still run beside a task that
 another batch waits for (T006).
 
@@ -88,10 +88,10 @@ planned on answers.
 
 - **The holder's own tasks**: T002 is a standing act, one claim per slice.
   T008 was raised as a staged topic (#1173), and the arc it raised is still
-  open. Twelve of T007's thirteen batches have landed, from A (#1171) to L
-  (#1212, on Brett Heap's second word of 2026-09-30, `5920216845`). Batch M,
-  on Brett Heap's word of 2026-10-02 (`5962785556`, item 2), lands before
-  T100, and T007 lists each.
+  open. Thirteen of T007's fourteen batches have landed, from A (#1171) to M
+  (#1219, on Brett Heap's word of 2026-10-02, `5962785556`, item 2). Batch
+  N, on Brett Heap's word of 2026-10-03 (`5963851934`), lands before T095,
+  and T007 lists each.
 - **Each phase-1 task** starts once its slice has been claimed (T002).
   **T020** and **T030** never needed an answer. **T030** lands with T011,
   because it fails until 2.1 lands. **T043** also waits for T007's batches C
@@ -197,18 +197,19 @@ planned on answers.
   (`5916000030`, item 1), and rewrites no requirement or scenario text.
   Batch M adds a second dated note there, and one box, 16.3a, with an
   added block for F16.1, on its own ruling (`5962785556`, item 2), and
-  rewrites no ratified text either. The
+  rewrites no ratified text either. Batch N adds one addendum, at 12.4a, on
+  its own ruling (`5963851934`). The
   full list is in § "Ruled amendments" below. Each batch is its own
   bookkeeping PR. T007 was ticked when batch J landed, and was reopened for
-  batches K and L, both of which have landed. It is open for batch M.
+  batches K, L and M, all of which have landed. It is open for batch N.
   - Every PR touches `openspec/changes/`, so it lands under a Rule 6
     `LANDING`/`LANDED` window.
   - It carries no `Arc:` trailer (R1Q20 (a)), so 11.1's guard never reads it.
   - It carries no closing keyword. Each amended line cites the ruling it
     carries out: `5817152735` for batches A, B, C and E, and `5850003126` for
     batches D, F, G and H, `5851950767` for batch I, `5870594693` for
-    batch J, `5916000030` for batch K, `5920216845` for batch L, and
-    `5962785556` for batch M.
+    batch J, `5916000030` for batch K, `5920216845` for batch L,
+    `5962785556` for batch M, and `5963851934` for batch N.
 
   - **Batch A** holds the F3.1, 2.2, 3.2, 4.3, 10.1, 11.0, 11.1 and F11.1
     amendments. It lands before T047, whose openxFactory landing edits the
@@ -308,6 +309,33 @@ planned on answers.
     and an untrusted binding is refused by name before any spawn, read or
     contact. Item 1, F5.2's close at phase 3, amends nothing in #1144 (*"#1144's
     text is unchanged"*). It lands before T100.
+    LANDED as #1219 → `cc775fea`.
+  - **Batch N** holds the one #1144 amendment that Brett Heap's multi-choice
+    word of 2026-10-03 (`5963851934`) implies, *"Token via the opened URL
+    (Recommended)"*. It is an addendum at 12.4a, after its prose, on where
+    the human-console test's per-serve token comes from. On a standalone
+    plane, the one built from openDox's own default profile, `/capabilities`
+    carries no `console_token`. The entry point writes a private copy, a
+    0600 opener at `<state_dir>/console/<port>.html` in a 0700 directory,
+    which forwards to the page with the token in the URL's fragment, never
+    in its query. It prints the copy's location as a `file://` URL and never
+    the token, with or without `--no-open`, removes the copy when the server
+    stops, and refuses the start when no safe copy can be written. A file
+    at the copy's path other than this user's own 0600 earlier copy (a
+    link, a directory, another user's file, a hard-linked or loosened file)
+    is refused by name. So is a state directory that is, or lies inside, a
+    root the plane serves (the holder's ruling on #1220's review, Copilot
+    `r4171166321`), and a served root that is, or lies inside, the state
+    directory (the holder's ruling on batch N's review, Copilot
+    `r4174345203`). The static bundle's route answers 404 for anything
+    inside the copy's directory. A composed host keeps `/capabilities`'
+    delivery.
+    No #1144 falsifier reads the token from `/capabilities`, so none is
+    amended: F10.1, F13.1 and F12's named token test are unchanged. AT-R1 is
+    this feature's and not #1144's, so its step 4 (spec.md) and
+    `quickstart.md` §§ 3 and 4 move in the same PR, to read the token from
+    the private copy and open the page through it. It lands before T095,
+    whose harness reads the private copy.
 
   A realization PR that lands before its batch still quotes the falsifier as
   the answer records it, citing the ruling.
@@ -319,7 +347,9 @@ planned on answers.
     the help-tree deselect (no question), `5870594693`, citing
     `5859927858`; items 1 and 4 of `5916000030`, with the loopback rule
     `5880893901` and the broker-path ruling `5890601202`; item 1 of
-    `5920216845`; item 2 of `5962785556`.
+    `5920216845`; item 2 of `5962785556`; `5963851934`, with the holder's
+    served-root rulings on #1220's review (Copilot `r4171166321`) and on
+    batch N's (Copilot `r4174345203`).
   - **After**, by batch:
     - **A**: nothing.
     - **B**: T041, which names the exclusion file.
@@ -345,14 +375,18 @@ planned on answers.
     - **M**: nothing, since `5962785556` is given. M lands before the landing
       that trusts a served repository's bindings per machine (P3-T's). This
       line names that landing by its slice, for the same reason as K's.
-  - **Landed**: batches A to L, each an openxFactory PR with no `Arc:` trailer.
+    - **N**: nothing, since `5963851934` is given. N lands before the landing
+      of AT-R1's HTTP half (the acceptance slice's, openDox-code#75). This
+      line names that landing by its slice and pull request, for the same
+      reason as K's.
+  - **Landed**: batches A to M, each an openxFactory PR with no `Arc:` trailer.
     A #1171 → `bca4a260`; B #1194 → `e369cb25`; C #1172 → `4663e9e8`; D #1170 →
     `79a720a2`; E #1183 → `b9742534`; F #1178 → `295abd8d`; G #1205 →
     `91e4685f`; H #1206 → `f99a2097`; I #1180 → `8421603a`; J #1193 →
     `6b97c601`; K #1210 → `39f19145`; L #1212 → `2140f5a7`, which T063's
-    checkpoint PR (#1218) recorded. Batch M has not landed yet. The plan
-    bookkeeping that follows its landing records its PR and merge commit,
-    and ticks T007 again.
+    checkpoint PR (#1218) recorded; M #1219 → `cc775fea`, which batch N's PR
+    records. Batch N has not landed yet. The plan bookkeeping that follows
+    its landing records its PR and merge commit, and ticks T007 again.
   - #1144's `tasks.md` was also edited outside the batches. #1202 → `e81eed62`
     (T018's PR) added F11.1's `ADMITTED_ARC_EDITS` (RULED `5890601202`) and
     corrected batch E's held-case count from "6 to 7" to "5 to 6". #1204 →
@@ -2951,6 +2985,31 @@ written (`5962754358`). `consumer_reach.py` is gone.
     - the web bundle reads the token from the fragment where `/capabilities`
       carries none (its readers at `9a490405`: `web/app.js`,
       `web/views/edit.js` and `web/views/staging-workbench-model.js`).
+  - **The private copy, exactly** (the holder's approved design of
+    2026-10-03, as #1144's 12.4a addendum records it, T007's batch N):
+    - its path is `<state_dir>/console/<port>.html`, a file of mode 0600 in a
+      directory of mode 0700, under `OPENDOX_STATE_DIR`;
+    - it is an HTML page. It holds the machine-readable record in
+      `<script type="application/json" id="opendox-console">`, with the keys
+      `schema_version` (1), `kind` (`opendox-console-access`), `page_url`,
+      `opened_url`, `port`, `pid` and `console_token`. A meta-refresh
+      forwards to `…/index.html#console_token=<token>`, the token in the
+      fragment and never in the query;
+    - it is written, and its location printed, with or without `--no-open`.
+      The printed line gives the copy's location as a `file://` URL, and
+      never the token or a URL that carries it, so standard output and CI
+      logs stay clean. A browser is handed the same `file://` URL, never the
+      tokenized one, because a command line is readable by every user of
+      the machine;
+    - a file already at the copy's path is replaced only when it is this
+      user's own regular file of mode 0600 with one link, an earlier copy
+      for that port. Anything else there (a symbolic link, a directory,
+      another user's file, a hard-linked or a loosened file), or a state
+      directory that overlaps a served root in either direction, refuses the
+      START by name, before anything is written, so the server never serves.
+      A copy that fails the same checks is refused when it is read;
+    - the copy is removed when the server stops, whether by Ctrl-C or by a
+      plain `kill`.
   - **The private copy is written safely.** It is written only into a state
     directory that passes the checks T100's trust file passes, the ones #69's
     bundle makes of its own tree:
@@ -2962,12 +3021,29 @@ written (`5962754358`). `consumer_reach.py` is gone.
       `OPENDOX_STATE_DIR` equal to the served root or nested under it is
       refused by name before anything is written, as T100's is, since
       `/source` would otherwise serve the token file (r4171166321, accepted
-      by the holder, 2026-10-03).
+      by the holder, 2026-10-03);
+    - and no served root is the state directory or lies inside it, such as
+      `<state_dir>/console` itself, so the two never overlap in either
+      direction. Every root the plane serves is checked: the checkout, the
+      static bundle's directory, each declared source root, each registry
+      entry's root and the sessions container (the holder's ruling on batch
+      N's review, Copilot `r4174345203`, 2026-10-03);
+    - and a link inside a served root that points at the state directory
+      reaches nothing. `/source` already refuses a path that leaves its root
+      through a symbolic link (`default_registry.resolve_within`). The
+      static bundle's route follows links inside `--web-dir`, because a
+      composed host's web root is made of them, so it answers 404, for GET
+      and HEAD, files and listings alike, to any request whose resolved
+      target is the private copy's directory or lies inside it. The target
+      judged is the one the handler would finally serve, an automatic
+      `index.html` or `index.htm` included (Copilot at openDox-code#84,
+      `r4173889294`; this PR's review, `r4174424180` and `r4174700234`).
 
     The file is created new, owner-only (0600), without following a symbolic
     link, and only then renamed into place. So neither a symbolic link nor a
     file already at that path can redirect or expose the write. A directory
-    that fails is refused by name, and nothing is written.
+    that fails is refused by name, nothing is written, and the start is
+    refused.
   - **The composed hosts, verified unaffected.** T104's PR carries a composed
     run showing that these readers of `/capabilities`' `console_token` are
     unaffected:
@@ -2982,21 +3058,49 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Out of release 1's scope, for the record.** The governed host's own
     exposure of its token through `/capabilities` is a follow-up for the
     host, and no task of this plan.
-  - **Batch N, pending.** T007's batch N, a separate later PR, records #1144's
-    text for every falsifier and AT-R1 step that reads `/capabilities`'
-    `console_token`. This feature's `quickstart.md` moves with it: § 3 reads
-    the token from `/capabilities`, and § 4 loads the page with no fragment.
-    T095 runs AT-R1's HTTP half, so it waits for batch N as well as for T104.
-    T007's batches have no line for N yet, so batch N's PR adds that line and
-    the edge to T095 together.
+  - **Batch N.** T007's batch N records #1144's text at 12.4a, the one
+    #1144 line that names the per-serve token. No #1144 falsifier reads the
+    token from `/capabilities`, so none is amended. This feature's AT-R1
+    moves with it: spec.md's step 4, `quickstart.md`'s § 3, which reads the
+    token from the private copy, and its § 4, which opens the page through
+    the copy. T095 runs AT-R1's HTTP half, so it waits for batch N as well
+    as for T104, and T007's `After, by batch` line for N names that landing.
   - **Realizes**: none of the 70 boxes. It carries out `5963851934`.
-  - **Falsifier**: its PR's test, on the standalone serve.
+  - **Falsifier**: its PR's test, on the standalone serve. Each point of
+    #1144's 12.4a addendum (T007's batch N) has a case, the stale-tab limit
+    aside, since that is a limit and not a promise:
     - `/capabilities` answers no `console_token`.
-    - The URL `generate-and-open` opens carries the token in its fragment.
-    - The private copy is owner-only, under the state directory.
-    - Each of these refuses the write, by name: a symbolic link at the copy's
-      path, a state directory another user can write, one another user owns,
-      and one equal to the served root or under it.
+    - The URL `generate-and-open` opens carries the token in its fragment,
+      and never in its query.
+    - The private copy is owner-only (0600), in a 0700 directory, under the
+      state directory.
+    - At the START, through the writer and through each entry point, each of
+      these refuses by name before anything is written: a symbolic link at
+      the copy's path, a directory or a FIFO there, another user's regular
+      file there, a hard-linked file there, this user's own file there at a
+      mode other than 0600, a state directory another user can write, one
+      another user owns, one equal to the served root or under it, a served
+      root equal to `<state_dir>/console` (or any other at or under the state
+      directory), and a served root that is a symbolic link to
+      `<state_dir>/console` or to another directory under the state
+      directory, since the overlap is judged on resolved paths. This user's
+      own 0600 earlier copy for that port is replaced.
+    - On a READ, a loosened, linked or hard-linked copy, another user's, or
+      a non-regular file such as a FIFO with no writer, is refused by name at
+      once: the reader never blocks on what it opens.
+    - A symbolic link inside a served root that points at the state
+      directory gets 404 from `/source`, and never the copy.
+    - A link under `--web-dir` that points at the console directory: static
+      GET and HEAD requests for the copy, for the directory's listing and
+      for another port's copy each answer 404.
+    - A directory under `--web-dir` whose `index.html`, or whose
+      `index.htm`, links to the copy: static GET and HEAD requests for that
+      directory each answer 404. The guard judges the file the static
+      handler would finally serve, an automatic index file included.
+    - The start prints the copy's location as a `file://` URL, and never the
+      token or a URL that carries it, with and without `--no-open`. It is
+      refused when no safe copy can be written, and then nothing serves.
+    - The copy is gone once the server stops.
     - A guarded route refuses a request without the token and serves one with
       it.
 
@@ -3302,7 +3406,10 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - runs the documented command, `opendox generate-and-open --local …`
     (R1Q15 (b)), on loopback;
   - fetches `/` (it must be HTML), `/snapshot.json` (non-empty, neutral per
-    F5.3) and `/capabilities` (`install.mode == local`);
+    F5.3) and `/capabilities` (`install.mode == local`). As quickstart § 3
+    does, it asserts that the raw `/capabilities` payload carries the
+    console token neither by name, at any depth, nor by value (T104, T007's
+    batch N);
   - fetches the model-catalog route, presenting the console token in
     `X-XF-Console-Token`, read from the private copy `generate-and-open`
     keeps in the state directory (T104), and it must answer with no
@@ -3318,10 +3425,13 @@ written (`5962754358`). `consumer_reach.py` is gone.
     (b), R1Q16 (iii) and (iv), `5850003126`; the token's private copy,
     `5963851934`.
   - **After**: T089, T076 (the root README's one documented command, which the
-    harness runs), T104 (the harness reads the token's private copy).
+    harness runs), T104 (the harness reads the token's private copy), T007
+    (batch N).
 - [ ] T096 [US3] [oxF] **AT-R1, the browser half, on the host.** Drive the
   same install with Playwright (quickstart.md § 4, against the server § 3
-  starts). The verdict comes from
+  starts). It opens the page through the private copy's `file://` URL (§ 4
+  step 1; T104), so the chat rail's guarded routes carry the console token.
+  The verdict comes from
   openDox-code's `tests/smoke_signals.py` oracle:
   - the wheel renders the fixture's tiles;
   - the lens renders the radar with the documents as dots, and offers neither
@@ -3413,8 +3523,8 @@ Every release-1 box, with the task that closes it:
   before T047, F before T043 and T061, G before T053, H before T070, T075 and
   T080, I before T059, T060, T061 and T063, J before T049, whose F9.1
   run needs J's `--deselect`, K before T061, T063 and T080 (and
-  openDox-code#64, which is no task of this plan), L before T084, and M
-  before T100. T016 may land before batch A, T041 and T043
+  openDox-code#64, which is no task of this plan), L before T084, M before
+  T100, and N before T095. T016 may land before batch A, T041 and T043
   before batch B, and T043 before batch J, each quoting its falsifier as the
   answer records it (T007).
 - **The round tasks.** T019 encoded phase 1's openXdox-code tail, T009 phase
@@ -3457,8 +3567,8 @@ Every release-1 box, with the task that closes it:
   openDox-code landing that changes the shipped package, T100 and T102–T104
   included, and T087 pins it: T101 → T087. The publish follows the
   checkpoint and the acceptance, at the cut: T089 → T099 and T096 → T099.
-- **Acceptance**: T095 (after T089, T076 and T104) → T096 → T097, and T096 →
-  T099 → T097.
+- **Acceptance**: T095 (after T089, T076, T104 and T007's batch N) → T096 →
+  T097, and T096 → T099 → T097.
 
 ### Parallel slices, summarised
 
@@ -3546,7 +3656,8 @@ Batch I lands before P2-X, P2-K and P2-C, and batch K before P2-C.
 
 Every phase-3 slice starts after T063 and T069, and T007's batch H lands
 before P3-I's T070, P3-E's T075 and P3-B's T080. Batch K also lands before
-P3-B's T080, batch L before P3-R's T084, and batch M before P3-T's T100.
+P3-B's T080, batch L before P3-R's T084, batch M before P3-T's T100, and
+batch N before the acceptance's T095.
 
 | slice | group | tasks | repo | files | depends on | falsifier it must pass | size |
 |---|---|---|---|---|---|---|---|
@@ -3568,18 +3679,19 @@ P3-B's T080, batch L before P3-R's T084, and batch M before P3-T's T100.
 | P3-K pins and host wiring | G6 | T094 | oX, oxF | as P1-K's pin files; `tests/ideation-dashboard/test_extension_point_parity.py` and `tests/ideation-dashboard/test_serve_column_split.py` (named composition tests) | P3-X, P3-P | as T047's | Opus |
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F5.2, F10.1, F13.1, F16.1 (as batch M amends it) | Opus (verifier) |
-| acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O | the harness; the oracle's verdict | Opus |
+| acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O; T007 batch N for T095 | the harness; the oracle's verdict | Opus |
 | P3-W T099's release step | last among the package-changing openDox-code landings, before P3-P | T101 | oDc | `.github/workflows/release.yml`, `.github/release-tools-cpython312-linux.txt` and `tests/test_release_workflow.py` (new); `pyproject.toml` (`readme`, after T072 and T075; then the version bump to 0.1.0, its own PR and the last of T101's landings); `README.md` (its relative links made absolute, for the PyPI page) | every package-changing phase-3 openDox-code slice | `tests/test_release_workflow.py` | Opus |
 | P3-U publish to PyPI | after the checkpoint and the acceptance, at the cut | T099 | oD | the root's `README.md` ("Where `opendox` comes from" becomes the PyPI install line, after the publish verifies, in a small root PR); the dispatch of openDox-code's release workflow edits no file | P3-W, P3-P, P3-O, the checkpoint and the acceptance | the release workflow's `build` job (its artifact checks), a TestPyPI dry run installed in a fresh venv, the PyPI publish and its digest check; the README PR by review | Sonnet |
 | bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance, P3-U; T007 every batch | none (a record) | Sonnet |
 
-## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`, `5962785556`)
+## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`, `5962785556`, `5963851934`)
 
 Brett Heap's answers amend #1144's falsifiers, task lines, addenda and one
 design note. Batches A, B and C carry `5817152735`'s answers, and batches F,
 G and H carry `5850003126`'s, batch I carries `5851950767`'s, batch J
 carries `5870594693`'s, batch K carries `5916000030`'s, batch L
-carries `5920216845`'s, and batch M carries `5962785556`'s. They amend
+carries `5920216845`'s, batch M carries `5962785556`'s, and batch N
+carries `5963851934`'s. They amend
 no requirement and no scenario, except that batch K's first row adds a
 dated note to requirement 17 on its own ruling and rewrites none of its
 text, and batch M adds a second such note there, and one box, 16.3a, on
@@ -3623,6 +3735,7 @@ landed it in #1144's spec delta, as #1170 → `79a720a2`.
 | K | F5.2 | The reviewed allow-list, R1Q7 (a)'s, also admits T061's ten walk-premise edits, each entered with its reason and none as a respelling: nine in `tests/test_snapshot_validation_launch.py`, and `tests/test_snapshot.py::test_a_missing_validator_is_unavailable_not_a_verdict`. `test_a_run_dir_beside_a_checkout_still_uses_that_one_first` inverts its answer and keeps its name. For F5.2, batch C's "the entry's recorded text" reads as several entries' texts together: one landing's entries for one suite, applied in the order listed, chain by git blob, and the call passes `--chains`. 12.5's falsifier is not amended, and its call refuses a chain. | `5916000030`, item 4 | T061, T063 |
 | L | 4.3 | An addendum after batch G's. A flag in the served `/capabilities` payload's `actions` map whose affordance is a route this server serves is true only where such a route answers. `gate` and `refresh`, whose routes a host contributes through the route bindings, are true only when the assembled bindings carry a route they govern, so standalone both read false (and the workbench's session controls, which read `actions.gate`, are hidden), and a composed host reads as today. `notebook`, `edit` and `session` keep their conditions, and `intent` governs a POST to another plane's intent API, a route that plane answers, so its condition stands. The three reaches that drop a connection standalone (`serve_workbench.py:1219` and `:2611`, `serve_project.py:271` at `047bb4fa`) answer through their seams, from openDox's default where one serves the request, or else with a structured refusal, never a dropped connection, as 4.2 requires. | `5920216845`, item 1 | T084 |
 | M | requirement 17 and scenario 17.1 (spec delta); 16.3a (added); F16.1 | A dated note in requirement 17's body, after batch K's, in batch D's form, and a new box, 16.3a, after 16.3's addenda. No ratified text is rewritten. A binding read from the served repository runs a broker, or resolves any credential reference (`env:`, `keyring:` or a broker's), only once the operator has trusted that exact binding on this machine. The trust lives in the operator's own state, never in the repository: a private file under `OPENDOX_STATE_DIR` (T072), checked as #69's bundle checks its tree, and refused if the setting names the served root or a path under it. It names the root's resolved path, the binding's id and a digest of the binding's full record, so an edit or a move untrusts it. `model-binding add` and `edit` record trust, and `model-binding trust <id>` records it after printing what will run and where the credential goes, never the credential. An untrusted binding is refused by name, naming the command that trusts it, before any spawn, read or contact, `set-credential`'s broker included, and the catalog lists it `available: false`. `set-credential` on a trusted binding re-records trust for what it rewrites, and never trusts an untrusted one. Bindings stay committable. It is openDox's strict neutral default, registered lazily by its consumers, and a host's own registration wins. F16.1 gains `tests/test_model_binding_trust.py` after its last line. | `5962785556`, item 2 | T100, T083, T089 |
+| N | 12.4a | An addendum after 12.4a's prose, on where the human-console test's per-serve token comes from. On a standalone plane, the one built from openDox's own default profile, the token reaches the page only through the URL the page is opened with. `/capabilities` carries no `console_token`. The entry point that starts the serve writes a private copy, an opener file at `<state_dir>/console/<port>.html` under `OPENDOX_STATE_DIR` (T072), mode 0600 in a 0700 directory, made by descriptor without following a link and checked as openDox-code#69's bundle checks its tree. A file at the copy's path other than this user's own 0600 earlier copy for that port (a link, a directory, another user's file, a hard-linked or loosened file) refuses the start by name, never followed or replaced, and such a copy is refused when read. The static bundle's route, which follows links inside the bundle's directory, answers 404 for GET and HEAD to anything whose resolved target is the copy's directory or inside it. The state directory and the roots the plane serves may not overlap in either direction: a state directory that is, or lies inside, a served root (the holder's ruling on #1220's review, Copilot `r4171166321`) and a served root that is, or lies inside, the state directory (the holder's ruling on batch N's review, Copilot `r4174345203`) are each refused by name. The copy forwards to `…/index.html#console_token=<token>`, the fragment and never the query. The start prints the copy's location as a `file://` URL and never the token, with or without `--no-open`, the copy is removed when the server stops, and the start is refused when no safe copy can be written. A composed host keeps its delivery on `/capabilities`. The human-console test, the submit route's three refusals and F12's named token test are unchanged, and no falsifier is amended: F10.1 fetches only `/`, and F13.1 reads only the `install` block. A tab that kept an earlier serve's token is refused by the next serve until the page is opened again through the new copy, an accepted limit. | `5963851934`, with `r4171166321` and `r4174345203` (the served roots) | T104 |
 
 R1Q4 (a) and R1Q8 (a) amend nothing in #1144. They shape T015, T038, T046 and
 T036 only. Nor do three of round 2's answers. R1Q13 (a) with (c) shapes T050,
@@ -3633,4 +3746,7 @@ prints every broken rule once, because no #1144 falsifier names those rule
 ids or fixes the CLI's rejection output: F7.2 asserts only that the
 fixture's rule id is printed. Nor does item 1 of `5962785556`: F5.2 closes at
 phase 3's checkpoint (T089), and, in the ruling's words, *"#1144's text is
-unchanged"*.
+unchanged"*. `5963851934` also moves AT-R1, which is this feature's and not
+#1144's: spec.md's step 4 and `quickstart.md` §§ 3 and 4 read the console
+token from the private copy and open the page through it, in batch N's PR,
+and T095's harness reads it the same way.
