@@ -2852,8 +2852,10 @@ written (`5962754358`). `consumer_reach.py` is gone.
       static bundle's route follows links inside `--web-dir`, because a
       composed host's web root is made of them, so it answers 404, for GET
       and HEAD, files and listings alike, to any request whose resolved
-      target is the private copy's directory or lies inside it (Copilot at
-      openDox-code#84, `r4173889294`; this PR's review, `r4174424180`).
+      target is the private copy's directory or lies inside it. The target
+      judged is the one the handler would finally serve, an automatic
+      `index.html` or `index.htm` included (Copilot at openDox-code#84,
+      `r4173889294`; this PR's review, `r4174424180` and `r4174700234`).
 
     The file is created new, owner-only (0600), without following a symbolic
     link, and only then renamed into place. So neither a symbolic link nor a
@@ -2892,20 +2894,25 @@ written (`5962754358`). `consumer_reach.py` is gone.
       state directory.
     - At the START, through the writer and through each entry point, each of
       these refuses by name before anything is written: a symbolic link at
-      the copy's path, a directory there, another user's regular file
-      there, a hard-linked file there, this user's own file there at a mode
-      other than 0600, a state directory another user can write, one another
-      user owns, one equal to the served root or under it, and a served root
-      equal to `<state_dir>/console` (or any other at or under the state
-      directory). This user's own 0600 earlier copy for that port is
-      replaced.
-    - On a READ, a loosened, linked or hard-linked copy, or another user's,
-      is refused by name.
+      the copy's path, a directory or a FIFO there, another user's regular
+      file there, a hard-linked file there, this user's own file there at a
+      mode other than 0600, a state directory another user can write, one
+      another user owns, one equal to the served root or under it, and a
+      served root equal to `<state_dir>/console` (or any other at or under
+      the state directory). This user's own 0600 earlier copy for that port
+      is replaced.
+    - On a READ, a loosened, linked or hard-linked copy, another user's, or
+      a non-regular file such as a FIFO with no writer, is refused by name at
+      once: the reader never blocks on what it opens.
     - A symbolic link inside a served root that points at the state
       directory gets 404 from `/source`, and never the copy.
     - A link under `--web-dir` that points at the console directory: static
       GET and HEAD requests for the copy, for the directory's listing and
       for another port's copy each answer 404.
+    - A directory under `--web-dir` whose `index.html`, or whose
+      `index.htm`, links to the copy: static GET and HEAD requests for that
+      directory each answer 404. The guard judges the file the static
+      handler would finally serve, an automatic index file included.
     - The start prints the copy's location as a `file://` URL, and never the
       token or a URL that carries it, with and without `--no-open`. It is
       refused when no safe copy can be written, and then nothing serves.
