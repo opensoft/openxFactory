@@ -1,0 +1,14 @@
+schema: spec-driven
+created: 2026-08-25
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-25-harden-notebooklm-sync-tooling
+  approved_by: Brett Heap, accepted cleanup recovery plan; review/recovery-authorization-2026-10-03.md
+  approved_on: 2026-10-03
+  reason: >-
+    Historical implementation-quality recovery, not a promoted staged product
+    topic. The original draft and modular implementation remained unpublished on
+    fix/notebook-source-readiness-race. Brett Heap's 2026-10-03 instruction to
+    implement the accepted remaining-three cleanup plan authorizes recovery onto
+    current main, preservation of later fixes and exact-head review before old-ref
+    removal. See review/recovery-authorization-2026-10-03.md for the bounded scope.

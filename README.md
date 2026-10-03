@@ -72,6 +72,21 @@ OpsxFactory
 
 Core domain-neutral docs:
 
+- [NotebookLM hardening recovery evidence](openspec/changes/harden-notebooklm-sync-tooling/realization-evidence.md):
+  [proposal](openspec/changes/harden-notebooklm-sync-tooling/proposal.md) ·
+  [design](openspec/changes/harden-notebooklm-sync-tooling/design.md) ·
+  [quality requirements](openspec/changes/harden-notebooklm-sync-tooling/specs/notebooklm-sync-tooling-quality/spec.md) ·
+  [authorization](openspec/changes/harden-notebooklm-sync-tooling/review/recovery-authorization-2026-10-03.md) ·
+  [governance handoff](openspec/changes/harden-notebooklm-sync-tooling/tasks.md).
+  Implementation: [feature](specs/036-recover-notebooklm-hardening/spec.md) ·
+  [plan](specs/036-recover-notebooklm-hardening/plan.md) ·
+  [tasks](specs/036-recover-notebooklm-hardening/tasks.md) ·
+  [research](specs/036-recover-notebooklm-hardening/research.md) ·
+  [data model](specs/036-recover-notebooklm-hardening/data-model.md) ·
+  [compatibility boundary](specs/036-recover-notebooklm-hardening/contracts/compatibility.md) ·
+  [verification](specs/036-recover-notebooklm-hardening/quickstart.md) ·
+  [requirements checklist](specs/036-recover-notebooklm-hardening/checklists/requirements.md).
+
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
 - [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
