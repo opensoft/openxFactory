@@ -1,7 +1,9 @@
 # Provider implementation handoff
 
-Status: draft
+Status: record
 Prepared: 2026-10-03
+
+Feature allocation (2026-10-03): [`035-renew-resolved-council-protocol`](../../../specs/035-renew-resolved-council-protocol/spec.md), selected in its sibling linked worktree, is this packet's sole implementation feature. The current Codex session accepts feature preparation under Brett's commission and exact-head ratification, outside a registered lane. No transfer or acceptance on behalf of codeXfactory-2 or another lane is asserted. The pre-ratification pickup guidance below is retained; specification is initialized, while plan, executable task generation, analysis, implementation and operational evidence remain pending.
 Owner lane: pending acceptance and claim
 
 Read the decision packet and verify ratification before code. The session that prepared this packet is outside a lane; it does not seize the preserved `026` worktree or the provider's release lock. Check siblings and the current object register. Accept/claim this fresh provider scope, then allocate exactly one Speckit feature through the configured hook on current clean main. The executable plan/tasks live only in that feature.

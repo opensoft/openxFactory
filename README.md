@@ -535,6 +535,8 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [renew-resolved-council-protocol](openspec/changes/renew-resolved-council-protocol/proposal.md)
+
+Resolved council implementation feature: [`035-renew-resolved-council-protocol`](specs/035-renew-resolved-council-protocol/spec.md), with [specification quality evidence](specs/035-renew-resolved-council-protocol/checklists/requirements.md) and [exact-head ratification](openspec/changes/renew-resolved-council-protocol/review/ratification-2026-10-03.md). Specification initialized; planning, implementation and operational realization remain pending.
   — draft, 2026-10-03: fresh resolved-roster/provenance and isolated seat-authority proposal after unmerged #517; deprecation then removal release, linked producer/consumer handoffs, ratification pending.
 
 - [add-neutral-product-standalone-operability](openspec/changes/add-neutral-product-standalone-operability/proposal.md)

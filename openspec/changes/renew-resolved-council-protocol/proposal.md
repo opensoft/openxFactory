@@ -35,6 +35,8 @@ None. The contract family realizes existing neutral authority ownership.
 
 ## Impact
 
+Implementation handoff (2026-10-03): this packet's sole feature is [`035-renew-resolved-council-protocol`](../../../specs/035-renew-resolved-council-protocol/spec.md); its [handoff](implementation-handoff.md) records current readiness. The original proposal's future-tense preparation statements are retained as history.
+
 Provider contracts, canonical validators, release inventory, and the domain regression denominator change through this packet's one future Speckit feature. Two separate successor packets are `codeXfactory/codexFactory:realize-resolved-council-protocol` and `opensoft/xFactory-Hermes-Install:admit-resolved-council-protocol`; each hands off to exactly one feature in its own repository.
 
 No release, deployment, credential provisioning, lane assignment, or ratification is performed by this proposal. Decisions ready for Brett are in [decision-packet.md](decision-packet.md); the concrete boundary and activation design is in [design.md](design.md).
