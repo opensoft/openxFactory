@@ -2540,13 +2540,21 @@ written (`5962754358`). `consumer_reach.py` is gone.
     the copy. T095 runs AT-R1's HTTP half, so it waits for batch N as well
     as for T104, and T007's `After, by batch` line for N names that landing.
   - **Realizes**: none of the 70 boxes. It carries out `5963851934`.
-  - **Falsifier**: its PR's test, on the standalone serve.
+  - **Falsifier**: its PR's test, on the standalone serve. Each point of
+    #1144's 12.4a addendum (T007's batch N) has a case, the stale-tab limit
+    aside, since that is a limit and not a promise:
     - `/capabilities` answers no `console_token`.
-    - The URL `generate-and-open` opens carries the token in its fragment.
-    - The private copy is owner-only, under the state directory.
-    - Each of these refuses the write, by name: a symbolic link at the copy's
-      path, a state directory another user can write, one another user owns,
-      and one equal to the served root or under it.
+    - The URL `generate-and-open` opens carries the token in its fragment,
+      and never in its query.
+    - The private copy is owner-only (0600), in a 0700 directory, under the
+      state directory.
+    - Each of these is refused, by name: a symbolic link at the copy's path,
+      a regular file or a directory planted there, a hard-linked copy, a
+      loosened copy, a state directory another user can write, one another
+      user owns, and one equal to the served root or under it.
+    - The start prints the copy's path and never the token, with and without
+      `--no-open`, and it is refused when no safe copy can be written.
+    - The copy is gone once the server stops.
     - A guarded route refuses a request without the token and serves one with
       it.
 

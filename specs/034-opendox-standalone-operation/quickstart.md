@@ -119,17 +119,22 @@ curl -sf "http://127.0.0.1:$PORT/capabilities" > "$W/caps.json"
 # opens the page with the token in the URL's fragment, and the token is read from there.
 COPY="$OPENDOX_STATE_DIR/console/$PORT.html"
 TOKEN=$(python3 - "$COPY" <<'PY'
-import os, re, stat, sys
+import html, os, re, stat, sys, urllib.parse
 copy = sys.argv[1]
 for path, mode in ((os.path.dirname(copy), 0o700), (copy, 0o600)):
     info = os.lstat(path)
     assert info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == mode, f"{path} is not this user's own, mode {mode:o}"
 assert stat.S_ISREG(os.lstat(copy).st_mode), "the private copy is not a regular file"
 text = open(copy).read()
-assert "?console_token" not in text, "the private copy puts the token in a query"
-found = re.search(r"#console_token=([A-Za-z0-9_-]+)", text)
-assert found, "the private copy opens no URL with the token in its fragment"
-print(found.group(1))
+# every "console_token=" in the copy opens a fragment: none follows "?", "&" or "&amp;"
+assert all(text[m.start() - 1] == "#" for m in re.finditer("console_token=", text)), "the private copy puts the token outside a fragment"
+target = re.search(r"""(?i)http-equiv=["']?refresh["']?\s+content=["']\s*\d+\s*;\s*url=([^"']+)""", text)
+assert target, "the private copy forwards to no page"
+url = urllib.parse.urlsplit(html.unescape(target.group(1)))
+assert "console_token" not in urllib.parse.parse_qs(url.query), "the opened URL carries the token in its query"
+token = urllib.parse.parse_qs(url.fragment).get("console_token", [""])[0]
+assert token, "the opened URL carries no token in its fragment"
+print(token)
 PY
 )
 curl -sf -H "X-XF-Console-Token: $TOKEN" "http://127.0.0.1:$PORT/workbench/model-catalog" > "$W/catalog.json"

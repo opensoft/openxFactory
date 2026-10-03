@@ -2171,9 +2171,10 @@ that does not name a platform.
   it serves. A tab that kept an earlier serve's token is refused by the next
   serve until the page is opened again through the new copy, and the design
   accepts that limit. The realization's test asserts each point above on a
-  standalone serve, and a composed run shows that a host's `/capabilities`
-  still carries the token. This bookkeeping amendment does not itself touch
-  a falsifier. Carried out by T104.
+  standalone serve, the stale-tab limit aside, since that is a limit and not
+  a promise, and a composed run shows that a host's `/capabilities` still
+  carries the token. This bookkeeping amendment does not itself touch a
+  falsifier. Carried out by T104.
 - [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
   registered, openxFactory's GitHub pull-request flow behaves exactly as today.
   This is a generalization, not a replacement, and 12.5 is the box that proves it.
