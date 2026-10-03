@@ -11,7 +11,9 @@ openDox-code's `main`. Its `acceptance` job runs AT-R1's HTTP half at that
 commit, and T096 records it as X. T099 publishes P, the commit T087 pins,
 and T095 lands after T087, so X is a later commit than P. Before the
 publish, T099 checks that the package's build inputs are identical at P and
-X, or else re-runs the HTTP half at P (tasks.md T099, the P-against-X step).
+X (tasks.md T099, the P-against-X step). If they are, X's runs stand for P.
+If not, both halves run again at P: the HTTP half with T095's harness, and
+the browser half, § 4, with `RELEASE1_TIP` set to P.
 Until the cut, the README's PyPI line has `pip install "./code[local]"`
 stand in for it, and § 1 installs the checkout with the same extra (T076).
 
@@ -31,7 +33,7 @@ README, not this file, is the product's one documented command (requirement
 ```sh
 set -euo pipefail
 W=$(mktemp -d)                                        # scratch space, resolved at run time
-: "${RELEASE1_TIP:?set RELEASE1_TIP to T095's landing commit on openDox-code's main, the full sha T096 records (X in tasks.md T099)}"
+: "${RELEASE1_TIP:?set RELEASE1_TIP to T095's landing commit on openDox-code's main, the full sha T096 records (X in tasks.md T099), or to P for T099's re-run}"
 git clone -q https://github.com/opensoft/openDox-code "$W/openDox-code"
 git -C "$W/openDox-code" checkout -q "$RELEASE1_TIP"
 python3 -m venv --clear "$W/v"

@@ -2252,11 +2252,18 @@ written (`5962754358`). `consumer_reach.py` is gone.
     the web bundle among it), `pyproject.toml`, `migrations/` (its
     `data-files`), `README.md` (the `readme` T101 adds) and `LICENSE` (a
     license file setuptools adds by default). Any path a later
-    `pyproject.toml` maps into either file joins the list. If the command
-    exits non-zero, the holder re-runs AT-R1's HTTP half at P (T095's harness,
-    as it is at X, against P's checkout), and records that run's URL and
-    verdict in `evidence/at-r1/` beside T096's, before the publish. The
-    command's exit status, or that run, is recorded either way.
+    `pyproject.toml` maps into either file joins the list.
+    - If the command exits 0, X's runs stand for P, and its exit status is
+      recorded beside T096's evidence.
+    - If it exits non-zero, the holder re-runs BOTH halves of AT-R1 at P
+      before the publish (the holder's ruling of 2026-10-03 on Copilot's
+      `r4174344151`, openxFactory#1225, option (b)). `src/` holds the web
+      bundle, so the HTTP half alone could leave the browser half unverified
+      at the published commit. The HTTP half runs with T095's harness, as it
+      is at X, against P's checkout. The browser half runs with T096's drive
+      on the host (quickstart.md § 4), with `RELEASE1_TIP` set to P. Both
+      runs' verdicts, and the HTTP run's URL, are recorded in
+      `evidence/at-r1/` beside T096's, with the command's exit status.
   - **At the cut, once AT-R1 has passed (T095, T096), on Brett Heap's publish
     word**: the holder creates the tag
     `v0.1.0` at the pinned commit and dispatches the workflow with `version`
@@ -2282,9 +2289,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
       required reviewer. The build job refuses until both name one.
   - **Realizes**: 10.3.
   - **Falsifier**: first, the P-against-X check above, which exits 0, or
-    else AT-R1's HTTP half re-run at P, which passes. Then the release
-    workflow's `build` job (its artifact checks), then a TestPyPI dry run
-    installed with `pip install --index-url
+    else both halves of AT-R1 re-run at P, each of which passes. Then the
+    release workflow's `build` job (its artifact checks), then a TestPyPI dry
+    run installed with `pip install --index-url
     https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
     "opendox[local]"` in a fresh venv, then the PyPI publish at the cut and
     its check that PyPI serves exactly the verified files. Then the root
@@ -2292,8 +2299,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
     "opendox[local]"`, and no paragraph says that no release is published.
   - **Ruled**: `5962754358`, item 1; the version and the release commit,
     `5963162921`. The split into T101 and this task is the holder's decision
-    of 2026-10-03, after Copilot's review of openxFactory#1220, and so is the
-    P-against-X step, after the plan analyze of 2026-10-03.
+    of 2026-10-03, after Copilot's review of openxFactory#1220. So is the
+    P-against-X step, after the plan analyze of 2026-10-03, and its re-run of
+    both halves, after Copilot's `r4174344151` on openxFactory#1225.
   - **After**: T101, T087, T089 (the publish happens at the cut, after phase
     3's checkpoint), T096 (release 1's acceptance passes before the
     irreversible upload; the holder's ruling of 2026-10-03). The root README
@@ -3250,7 +3258,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
   evidence for both halves. That commit is `RELEASE1_TIP` (quickstart.md
   § 1): X, T095's landing commit on openDox-code's `main`. Record its full
   sha, and beside it P, the commit T087 pins, which T099 publishes. T099
-  compares the two before it publishes (the P-against-X step).
+  compares the two before it publishes (the P-against-X step). If their
+  build inputs differ, both halves run again at P, and both of those
+  verdicts are recorded here too.
   - **Realizes**: FR-011 (browser half).
   - **Falsifier**: the oracle's verdict, which must pass: zero `pageerror`, and
     nothing undeclared.
