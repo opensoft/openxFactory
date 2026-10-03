@@ -268,6 +268,7 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
           [oDc]  T103 → T104 (the console token in the opened URL, not /capabilities; also after T102)
           [oDc]  T101 → T087 (T099's release step: the release workflow, then the 0.1.0 bump, after every package-changing phase-3 openDox-code landing)
           [oDc]  T089 → T099 and T096 → T099 (the PyPI publish at the cut, of the commit T087 pins, after the acceptance)
+          [oD]   T099's last step: the root README's "Where opendox comes from" becomes the PyPI install line (after T076)
  ACCEPTANCE      T095 (HTTP, CI; after T089, T076 and T104)  →  T096 (browser)  →  T099 (the publish)  →  T097 (bookkeeping, Rule 6)
  EVERY PHASE     T090 pins · T091 trailer · T092 notes · T093 interim F11.1 (run as T018, T065, T098)
 ```

@@ -2034,7 +2034,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Ruled**: R1Q15 (b), R1Q16 (iii), `5850003126`.
   - **After**: T074, T075, T087 (the README documents the command the root
     pins).
-- [ ] T099 [US3] [oDc] **Publish to PyPI (10.3's install line).** openDox-code's
+- [ ] T099 [US3] [oDc] [oD] **Publish to PyPI (10.3's install line).** openDox-code's
   sdist and wheel go to PyPI as `opendox`, by trusted publishing (OIDC), so
   10.3's `pip install "opendox[local]"` works as written. No PyPI token and no
   other publishing secret is stored anywhere: each upload uses a short-lived
@@ -2059,6 +2059,14 @@ written (`5962754358`). `consumer_reach.py` is gone.
     dispatch on a tag must name `v<version>`. Brett Heap approves the
     `testpypi` environment's deployment, and, once the TestPyPI install has
     passed, the `pypi` environment's.
+  - **Then the root README** (the holder's ruling of 2026-10-03, which
+    follows from `5962754358`). T076's README (openDox#17) carries a dated
+    paragraph, "Where `opendox` comes from", saying that no release is
+    published to PyPI yet and that `pip install ./code` from a recursive clone
+    stands in for the first line. It is true until the cut. After the `pypi`
+    job's check that PyPI serves exactly the verified files, a small openDox
+    root PR, part of this task's landing, replaces that paragraph with the
+    PyPI install line, `pip install "opendox[local]"`.
   - **Brett Heap's one-time setup**, before the first dispatch:
     - on pypi.org, a pending trusted publisher for `opendox` (owner `opensoft`,
       repository `openDox-code`, workflow `release.yml`, environment `pypi`);
@@ -2067,16 +2075,20 @@ written (`5962754358`). `consumer_reach.py` is gone.
       required reviewer. The build job refuses until both name one.
   - **Realizes**: 10.3.
   - **Falsifier**: the release workflow's `build` job (its artifact checks),
-    then a TestPyPI dry run
-    installed with `pip install --index-url https://test.pypi.org/simple/
-    --extra-index-url https://pypi.org/simple/ "opendox[local]"` in a fresh
-    venv, then the PyPI publish at the cut.
+    then a TestPyPI dry run installed with `pip install --index-url
+    https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
+    "opendox[local]"` in a fresh venv, then the PyPI publish at the cut and
+    its check that PyPI serves exactly the verified files. Then the root
+    README PR, by review: the install section names `pip install
+    "opendox[local]"`, and no paragraph says that no release is published.
   - **Ruled**: `5962754358`, item 1; the version and the release commit,
     `5963162921`. The split into T101 and this task is the holder's decision
     of 2026-10-03, after Copilot's review of openxFactory#1220.
   - **After**: T101, T087, T089 (the publish happens at the cut, after phase
     3's checkpoint), T096 (release 1's acceptance passes before the
-    irreversible upload; the holder's ruling of 2026-10-03).
+    irreversible upload; the holder's ruling of 2026-10-03). The root README
+    PR follows T076, which writes the paragraph it replaces; T089 already
+    follows T076.
 - [ ] T101 [US3] [oDc] **T099's release step: the release workflow, and the
   version bump to 0.1.0.** Two openDox-code landings, which T087 pins and
   T099 publishes.
@@ -2470,7 +2482,12 @@ written (`5962754358`). `consumer_reach.py` is gone.
     - no symbolic link;
     - owned by this user, and writable by no one else;
     - every directory above it this user's or root's, sticky where another
-      user can write it.
+      user can write it;
+    - neither the served repository's root nor under it. An
+      `OPENDOX_STATE_DIR` equal to the served root or nested under it is
+      refused by name before anything is written, as T100's is, since
+      `/source` would otherwise serve the token file (r4171166321, accepted
+      by the holder, 2026-10-03).
 
     The file is created new, owner-only (0600), without following a symbolic
     link, and only then renamed into place. So neither a symbolic link nor a
@@ -2502,8 +2519,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
     - `/capabilities` answers no `console_token`.
     - The URL `generate-and-open` opens carries the token in its fragment.
     - The private copy is owner-only, under the state directory.
-    - A symbolic link at the copy's path, a state directory another user can
-      write, and one another user owns each refuse the write, by name.
+    - Each of these refuses the write, by name: a symbolic link at the copy's
+      path, a state directory another user can write, one another user owns,
+      and one equal to the served root or under it.
     - A guarded route refuses a request without the token and serves one with
       it.
 
@@ -3024,8 +3042,9 @@ P3-B's T080, batch L before P3-R's T084, and batch M before P3-T's T100.
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F5.2, F10.1, F13.1, F16.1 (as batch M amends it) | Opus (verifier) |
 | acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O | the harness; the oracle's verdict | Opus |
-| P3-W publish to PyPI | T101 last among the package-changing openDox-code landings, before P3-P; T099 after the checkpoint and the acceptance, at the cut | T101, T099 | oDc | `.github/workflows/release.yml`, `.github/release-tools-cpython312-linux.txt` and `tests/test_release_workflow.py` (new); `pyproject.toml` (`readme`, after T072 and T075; then the version bump to 0.1.0, its own PR and the last of T101's landings) | every package-changing phase-3 openDox-code slice (T101); P3-P and the checkpoint (T099) | `tests/test_release_workflow.py` (T101); the release workflow's `build` job (its artifact checks), a TestPyPI dry run installed in a fresh venv, and the PyPI publish at the cut (T099) | Opus |
-| bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance, P3-W; T007 every batch | none (a record) | Sonnet |
+| P3-W T099's release step | last among the package-changing openDox-code landings, before P3-P | T101 | oDc | `.github/workflows/release.yml`, `.github/release-tools-cpython312-linux.txt` and `tests/test_release_workflow.py` (new); `pyproject.toml` (`readme`, after T072 and T075; then the version bump to 0.1.0, its own PR and the last of T101's landings); `README.md` (its relative links made absolute, for the PyPI page) | every package-changing phase-3 openDox-code slice | `tests/test_release_workflow.py` | Opus |
+| P3-U publish to PyPI | after the checkpoint and the acceptance, at the cut | T099 | oD | the root's `README.md` ("Where `opendox` comes from" becomes the PyPI install line, after the publish verifies, in a small root PR); the dispatch of openDox-code's release workflow edits no file | P3-W, P3-P, P3-O, the checkpoint and the acceptance | the release workflow's `build` job (its artifact checks), a TestPyPI dry run installed in a fresh venv, the PyPI publish and its digest check; the README PR by review | Sonnet |
+| bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance, P3-U; T007 every batch | none (a record) | Sonnet |
 
 ## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`, `5962785556`)
 
