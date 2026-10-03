@@ -2822,9 +2822,16 @@ written (`5962754358`). `consumer_reach.py` is gone.
       finds the shared checkout's cross-reference validator (T094 prep,
       finding 2), and the test passes in the CI layout. The composed run at
       a head containing #80 is T094's, at phase 3's pin. T094 prep's local
-      simulation found that the ahead golden PR's both-pins form fixes T103's
-      `Host` case in openxFactory's suites (T094, holder E1 (a)).
-  - **Ruled**: R1Q22 (a), `5817152735`.
+      simulation found that the composed run has one T103 red:
+      `tests/ideation-dashboard/test_doxbench_routes.py::test_console_gate_refuses_host_not_naming_the_bound_port`.
+      That case sends `Host: rebound.example` and expects `console_required`,
+      but this task's check answers `invalid_host` first. The file is on no
+      F11.1 surface, so T094's arc landing cannot edit it. T094's non-arc
+      ahead PR carries its both-pins form, beside the golden: `console_required`
+      at the phase-2 pin, and `invalid_host` once the pin carries #80
+      (→ `390e2c28`). The holder ruled it in `5972924576` (T094).
+  - **Ruled**: R1Q22 (a), `5817152735`; the rebound-Host case's repair,
+    `5972924576`.
   - **After**: T084 (`serve.py`'s single-writer order).
 - [ ] T104 [US3] [oDc] **The console token travels in the opened URL, not
   `/capabilities`.** RULED `5963851934`, Brett Heap, 2026-10-03: *"Token via
@@ -3086,7 +3093,26 @@ written (`5962754358`). `consumer_reach.py` is gone.
       and covers T070's `--local`, T079's and T080's changes, T084's rename
       to `opendox` and T100's `model-binding trust`. It opens after T087,
       and its golden is regenerated from T087's commit.
-    - E3 (a): that PR is the golden reader only.
+    - E3 (a), verbatim: *"that ahead PR is the golden reader only"*. It
+      limits the PR's scope, which carries no host wiring. For the golden,
+      it means that the golden's own reader picks the golden from the
+      pinned parser (the both-pins form). It does not make the golden the
+      PR's only content (the holder's reading, `5972924576`).
+  - **The same ahead PR's two other both-pins repairs** (`5972924576`).
+    Neither file is one of 11.1's declared surfaces, so the golden's rule
+    applies to each (the next bullet's clause):
+    - E5 (a): `tests/ideation-dashboard/test_cli_column_split.py`'s usage
+      line, which T084's rename of the program to `opendox` changes;
+    - the rebound-Host case,
+      `tests/ideation-dashboard/test_doxbench_routes.py::test_console_gate_refuses_host_not_naming_the_bound_port`.
+      It sends `Host: rebound.example` and expects `console_required`.
+      Once the pinned openDox-code carries T103 (openDox-code#80 →
+      `390e2c28`), every loopback route checks the `Host` first, so the
+      answer is `invalid_host`. The case expects `console_required` at the
+      phase-2 pin and `invalid_host` from there on.
+
+    All three are this task's prerequisites. The ahead PR is regenerated
+    from T087's actual commit, opens after T087, and lands before this one.
   - **The binding trust policy (RULED `5970369724`, Brett Heap, 2026-10-03,
     *"Governance approval (Recommended)"*).** openxFactory hosts openDox
     under T100 by registering its own policy, `GovernedBindingTrust`, as a
@@ -3112,15 +3138,18 @@ written (`5962754358`). `consumer_reach.py` is gone.
     `/capabilities` delivery. T104's governed run (openDox-code#84's body,
     "The governed path") gave `239 passed` and the same one failure with and
     without T104, a failure the clone's name causes (T103's composed-run
-    line). Nothing in openxFactory changes, so this landing moves none of
-    them.
+    line). Nothing in openxFactory changes for T104, so this landing moves
+    none of them. One case in `test_doxbench_routes.py` moves for T103
+    instead, the rebound-Host case, and the ahead PR carries it (above).
   - **Realizes**: 9.5 (part).
   - **Falsifier**: as T047's.
   - **Ruled**: R1Q2 (a), `5817152735`; the golden's ahead PR, holder E1 (a)
     and E3 (a), and the trust policy, `5970369724`; the tree at 32,
-    `5970917267`.
+    `5970917267`; E3 (a)'s reading, E5 (a) and the rebound-Host case,
+    `5972924576`.
   - **After**: T086, T087, T064 (the pin pairs' single-writer order), and
-    the ahead golden PR (E1 (a), a non-arc PR with no task of its own).
+    the ahead PR (E1 (a), a non-arc PR with no task of its own: the golden,
+    the usage line and the rebound-Host case).
 - [ ] T098 [US4] [oxF] **Phase 3's interim F11.1**, by T093's procedure, with
   `ARC_TIP` at T094's landing. Record the output in
   `evidence/f11.1-phase3.txt`, with no `Arc:` trailer, and link it from
@@ -3530,7 +3559,7 @@ P3-B's T080, batch L before P3-R's T084, and batch M before P3-T's T100.
 | P3-P openDox root pin | G4 | T087 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-3 openDox-code slice landed | `make pins` | Sonnet |
 | P3-O the root README | G5 | T076 | oD | `README.md` | P3-P, P3-J, P3-E | review; AT-R1 step 4 follows it | Sonnet |
 | P3-X openXdox's columns | G5 | T086 | oXc | the gate and projection contributions; `pyproject.toml` (the `opendox @` pin); `tests/test_dependency_direction.py` (the ratchet at `(0, 0)`); `tests/test_session_snapshot.py` and `tests/protected_suite_respellings.yaml` (F5.2's three repairs, RULED `5962785556`); `tests/integration/test_assembled_surface.py` and `.github/workflows/validate.yml`'s `LEFT_OUT` (the tree at 32, RULED `5970917267`); `tests/doxbench_routes_harness.py` and `tests/gate_routes_harness.py` (T104's token) | P3-P, P3-R; P2-C | `tests/test_dependency_direction.py`; F9.1 as batches B and F amend it, and batch J's `--deselect` unless T008 has removed it; F5.2 whole | Opus |
-| P3-K pins and host wiring | G6 | T094 | oX, oxF | as P1-K's pin files; `tests/ideation-dashboard/test_extension_point_parity.py` and `tests/ideation-dashboard/test_serve_column_split.py` (named composition tests); `scripts/opendox_host.py` (`GovernedBindingTrust`, a sixth `seams()` entry, RULED `5970369724`) | P3-X, P3-P; the ahead golden PR (holder E1 (a)) | as T047's | Opus |
+| P3-K pins and host wiring | G6 | T094 | oX, oxF | as P1-K's pin files; `tests/ideation-dashboard/test_extension_point_parity.py` and `tests/ideation-dashboard/test_serve_column_split.py` (named composition tests); `scripts/opendox_host.py` (`GovernedBindingTrust`, a sixth `seams()` entry, RULED `5970369724`) | P3-X, P3-P; the non-arc ahead PR (holder E1 (a); the golden, `test_cli_column_split.py`'s usage line and `test_doxbench_routes.py`'s rebound-Host case, `5972924576`) | as T047's | Opus |
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F5.2, F10.1, F13.1, F16.1 (as batch M amends it) | Opus (verifier) |
 | acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O | the harness; the oracle's verdict | Opus |

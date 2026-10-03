@@ -290,6 +290,14 @@ encodes them, in T086, T094, T099–T104 and AT-R1's two halves.
   - E3 (a): that PR is the golden reader only.
   - E4 (a), verbatim: *"#76 merges main before it lands"*.
   - T086 registers no trust policy in openXdox.
+
+  The holder's later comment `5972924576` (2026-10-03T19:56:30Z) reads E3
+  (a). It limits the ahead PR's scope, which carries no host wiring, and
+  means that the golden's own reader picks the golden from the pinned
+  parser. It does not make the golden the PR's only content. The same
+  comment rules E5 (a): the PR also carries `test_cli_column_split`'s usage
+  line and the rebound-Host case of `test_doxbench_routes.py`, each in
+  both-pins form (T094, T103).
 - Q: #1144 and this plan fix the assembled `--help` tree at 31 sections, but
   T100 adds `model-binding trust`. Is the count amended? (`5970917267`,
   2026-10-03T16:09:32Z) → A: *"Amend to 32 (Recommended)"*. From phase 3's
