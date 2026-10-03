@@ -2156,10 +2156,12 @@ written (`5962754358`). `consumer_reach.py` is gone.
       with the bundle under the fresh state directory, and the bundled server
       holds no TCP listener in `/proc/net/tcp{,6}`. `runtime status` reads
       `reachable` with no pending migration.
-    - The refusals hold, each exit 1 and not 124: a non-loopback bind under
-      `local`, naming the loopback rule; a SQLite pair and a collapsed pair at
-      `load_settings`; and `hosted`, then the unset default, with no issuer,
-      each naming `OPENDOX_OIDC_ISSUER`.
+    - The three CLI refusals hold, each exit 1 and not 124: a non-loopback
+      bind under `local`, naming the loopback rule; and `hosted`, then the
+      unset default, with no issuer, each naming `OPENDOX_OIDC_ISSUER`.
+    - The two `load_settings` checks are `assert`s in the block's in-process
+      python step, not exit statuses: a SQLite pair is refused naming
+      postgres, and a collapsed pair naming `OPENDOX_MIGRATION_DATABASE_URL`.
 
 ### Group 10: the door
 
