@@ -2131,6 +2131,49 @@ that does not name a platform.
   personal credential is what `compute_capabilities`' own docstring says a hosted
   plane must never hold (FR-034, D22). The CLI verb runs as that user, in that
   user's checkout.
+
+  **AMENDED — T007 Batch N (`5963851934`):** An addendum, on where the
+  human-console test's per-serve token comes from. Brett Heap's multi-choice
+  word of 2026-10-03, verbatim *"Token via the opened URL (Recommended)"*,
+  answers adversarial review 2's finding M5. Measured at openDox-code `main`
+  `1130e996`, a serve that grants `session` mints the token
+  (`mint_console_token`, `serve.py:617`, called at `:1977`) and publishes it
+  on `/capabilities` (`:1980`), and the web bundle reads it from there
+  (`web/app.js:1459-1471`, `web/views/edit.js:10-26`). So any loopback
+  caller can ask for it, another OS user of the same machine included. On a
+  STANDALONE plane, the one built from openDox's own default profile, the
+  token IS TO reach the page only through the URL the page is opened with:
+  - `/capabilities` carries no `console_token`;
+  - the entry point that starts the serve writes a private copy, an opener
+    file at `<state_dir>/console/<port>.html` under `OPENDOX_STATE_DIR`, the
+    state directory 16.3a's trust file uses. The file is mode 0600, in a
+    directory of mode 0700. Each missing directory is made by descriptor,
+    the file is created without following a link, and the whole path is
+    checked as openDox-code#69's bundle checks its own tree. A copy that is
+    planted, linked, hard-linked or loosened is refused by name, and never
+    followed or replaced. So is a state directory that is, or lies inside,
+    a root the plane serves, because `/source` could then serve the copy;
+  - the copy forwards to the page with the token in the URL's FRAGMENT,
+    `…/index.html#console_token=<token>`, and never in its query, so no
+    request line, server log or `Referer` carries it;
+  - the start prints the copy's path, never the token, with or without
+    `--no-open`. The copy is removed when the server stops, and the start is
+    refused when no safe copy can be written.
+
+  A composed host's plane keeps its delivery on `/capabilities` unchanged.
+  Every route that requires the token still requires it. So the human-console
+  test above is unchanged, and so are the submit route's three refusals in
+  their order, and F12's named test of a submission without the token. A
+  test that needs a standalone plane's token reads it from the private copy,
+  never from `/capabilities`. No falsifier of this change reads the token
+  from `/capabilities`: F10.1 fetches only `/`, and F13.1 reads only the
+  payload's `install` block, each with its state directory outside the root
+  it serves. A tab that kept an earlier serve's token is refused by the next
+  serve until the page is opened again through the new copy, and the design
+  accepts that limit. The realization's test asserts each point above on a
+  standalone serve, and a composed run shows that a host's `/capabilities`
+  still carries the token. This bookkeeping amendment does not itself touch
+  a falsifier. Carried out by T104.
 - [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
   registered, openxFactory's GitHub pull-request flow behaves exactly as today.
   This is a generalization, not a replacement, and 12.5 is the box that proves it.

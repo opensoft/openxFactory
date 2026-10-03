@@ -726,7 +726,11 @@ chat's 'no model configured' state."* Each term is made checkable below.
    - (b) a directory of ordinary `.md` files with no front matter at all.
 4. **Opens.** The ONE command the openDox root README documents,
    `opendox generate-and-open --local …` (R1Q15 (b)), serves the bundle on
-   loopback.
+   loopback. The page is opened through the private copy the command writes
+   in the state directory, `console/<port>.html`, which forwards to the page
+   with the console token in the URL's fragment. `/capabilities` carries no
+   console token, so a request that needs one reads it from that copy
+   (`5963851934`; T104, as T007's batch N records it at #1144's 12.4a).
 5. **The wheel works.** `#tab-wheel` renders a tile for every document station
    the snapshot fills, and raises no `pageerror`.
 6. **The radar lens works.** `#tab-lens` renders the bullseye with the corpus's

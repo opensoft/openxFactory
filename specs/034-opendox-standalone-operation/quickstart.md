@@ -115,16 +115,33 @@ curl -sf "http://127.0.0.1:$PORT/" > "$W/index.html"
 grep -qi '<html' "$W/index.html"
 curl -sf "http://127.0.0.1:$PORT/snapshot.json" > "$W/snap.json"
 curl -sf "http://127.0.0.1:$PORT/capabilities" > "$W/caps.json"
-TOKEN=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["console_token"])' "$W/caps.json")
+# 5963851934 (T104): the token is not on /capabilities. The command keeps a private copy that
+# opens the page with the token in the URL's fragment, and the token is read from there.
+COPY="$OPENDOX_STATE_DIR/console/$PORT.html"
+TOKEN=$(python3 - "$COPY" <<'PY'
+import os, re, stat, sys
+copy = sys.argv[1]
+for path, mode in ((os.path.dirname(copy), 0o700), (copy, 0o600)):
+    info = os.lstat(path)
+    assert info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == mode, f"{path} is not this user's own, mode {mode:o}"
+assert stat.S_ISREG(os.lstat(copy).st_mode), "the private copy is not a regular file"
+text = open(copy).read()
+assert "?console_token" not in text, "the private copy puts the token in a query"
+found = re.search(r"#console_token=([A-Za-z0-9_-]+)", text)
+assert found, "the private copy opens no URL with the token in its fragment"
+print(found.group(1))
+PY
+)
 curl -sf -H "X-XF-Console-Token: $TOKEN" "http://127.0.0.1:$PORT/workbench/model-catalog" > "$W/catalog.json"
 python3 - "$W/snap.json" "$W/caps.json" "$W/catalog.json" <<'PY'
 import json, sys
 snap, caps, cat = (json.load(open(p)) for p in sys.argv[1:4])
 assert snap.get("documents"), "the snapshot is empty"
 assert (caps.get("install") or {}).get("mode") == "local", caps.get("install")
+assert "console_token" not in caps, "/capabilities still carries the console token"
 available = [m["model_id"] for m in cat["models"] if m["available"]]   # xfactory-workbench-model-catalog
 assert not available, f"no model is configured, yet the catalog offers {available}"
-print("HTTP half: bundle, neutral snapshot, local mode, and an empty catalog")
+print("HTTP half: bundle, neutral snapshot, local mode, no token on /capabilities, and an empty catalog")
 PY
 ```
 
@@ -142,8 +159,13 @@ openDox-code's `tests/smoke_signals.py`: every console error and every failed
 request must be DECLARED, and `pageerror` cannot be declared at all. With the
 server from § 3 running, in this order:
 
-1. Load `http://127.0.0.1:$PORT/`, and collect `console`, `pageerror` and
-   `requestfailed` from the first byte onwards.
+1. Load the private copy, `file://$OPENDOX_STATE_DIR/console/$PORT.html`,
+   the `file://` URL the command printed, and collect `console`, `pageerror`
+   and `requestfailed` from the first byte onwards. It forwards to
+   `http://127.0.0.1:$PORT/index.html` with the console token in the URL's
+   fragment, which the page takes and strips from the address bar. A bare
+   `http://127.0.0.1:$PORT/` would leave the page with no token, since
+   `/capabilities` carries none (`5963851934`; T104).
 2. **Wheel.** Click `#tab-wheel`. It must render a tile for every station
    that the snapshot fills.
 3. **Radar lens.** Click `#tab-lens`. The bullseye must render the documents
