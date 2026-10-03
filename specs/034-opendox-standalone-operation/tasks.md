@@ -1947,7 +1947,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
 
 ### Group 13: the install's shape (`runtime/`)
 
-- [ ] T071 [US3] [oDc] **13.2 and 13.3.** `load_settings` refuses a
+- [x] T071 [US3] [oDc] **13.2 and 13.3.** `load_settings` refuses a
   non-PostgreSQL DSN, naming the one dialect kept. It refuses the same
   credential in both settings, naming `OPENDOX_MIGRATION_DATABASE_URL`. The
   migration DSN is required on the migrate path only, which is `migrate` and
@@ -1959,7 +1959,22 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Realizes**: 13.2, 13.3.
   - **Falsifier**: F13.1's `load_settings` block.
   - **After**: T063, T069.
-- [ ] T070 [US3] [oDc] **13.4, 13.5 and 13.6: `OPENDOX_INSTALL_MODE`, and the
+  - **Landed**: openDox-code#60 → `7ff434d9`.
+    - `load_settings` refuses a DSN whose scheme is not `postgresql://` or
+      `postgres://`, naming the setting and the dialect found, and refuses the
+      same DSN in both settings, naming `OPENDOX_MIGRATION_DATABASE_URL`.
+      libpq's keyword/value form names no dialect and is unaffected.
+      `load_migration_settings`, which `migrate` and `reset` read, takes the
+      dialect refusal too, at configuration.
+    - The migration DSN stays optional for `serve` and `status` and is never
+      defaulted from `OPENDOX_DATABASE_URL`, as the ruling above reads. Both
+      refusals do nothing where it is absent.
+    - A PostgreSQL scheme spelled any way but libpq's two (`postgresql:foo`,
+      `PostgreSQL://`) is refused as well, naming the setting and never the
+      value, which libpq's own refusal repeats, password included.
+    - F13.1's `load_settings` block passes, both calls giving both DSNs. T074
+      runs F13.1 whole.
+- [x] T070 [US3] [oDc] **13.4, 13.5 and 13.6: `OPENDOX_INSTALL_MODE`, and the
   `--local` flag.**
   - `local` or `hosted`, defaulting to `hosted`, and read beside
     `OPENDOX_OIDC_ISSUER`.
@@ -1980,7 +1995,40 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Falsifier**: F13.1's refusals, and a test of the disagreeing pair.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q15 (b), `5850003126`.
   - **After**: T071, T007 (batch H).
-- [ ] T072 [US3] [oDc] **13.1: the bundled PostgreSQL server** (R1Q16).
+  - **Landed**: openDox-code#67 → `66ff7257`.
+    - `OPENDOX_INSTALL_MODE` (`local` or `hosted`, default `hosted`, a blank
+      value read as unset) is a `SETTINGS` entry beside `OPENDOX_OIDC_ISSUER`
+      in `runtime/config.py`, and `generate-and-open --local` selects local
+      exactly as it does. The flag and a setting that disagree are refused,
+      naming both.
+    - `local` needs no broker and binds loopback only, with no opt-in: a
+      non-loopback `--host`, or `OPENDOX_BIND_HOST`, is refused, naming the
+      rule. The set is `serve.py`'s `LOOPBACK_HOSTS`, which a test holds equal
+      to `config`'s copy. `hosted`, or unset, with no issuer refuses, naming
+      `OPENDOX_OIDC_ISSUER`, and is otherwise unchanged.
+    - The disagreeing pair is the plan's fail-closed reading (Principle VII),
+      which no answer rules and `evidence/analyze-round-2.md` records for
+      Brett. The PR also records four holder readings (coordinator,
+      2026-09-30), which Brett may overrule: `runtime serve` refuses under
+      `local` (`local-mode-has-no-broker`), `runtime status` reports
+      `broker_keys: "not configured (local mode)"` and builds no verifier, a
+      broker setting beside `local` is refused naming each one, and an
+      unrecognised value is refused naming `local` and `hosted`.
+    - T070 is the identity half and T072 the datastore half: under `local`,
+      `load_settings` still takes the DSNs from the environment, and T072
+      supplies both from the bundled server.
+    - An unflagged `generate-and-open` is now hosted, so the phase-2 cases that
+      relied on the old default (T055's, T056's, T058's, and T085's
+      served-catalog case) pass `--local`.
+    - F13.1's refusal probes (a local bind that is not loopback, hosted with no
+      issuer, the unset default) and T070's own disagreeing pair each fail at
+      the PR's base (T071's head) and pass at its head.
+    - Not fixed here, and for the holder: `serve.build_server` is IPv4-only
+      while `LOOPBACK_HOSTS` lists `::1`, so `--local --host ::1` passes the
+      loopback rule and then fails at the bind, as `--host ::1` already does
+      hosted (measured before the PR). The fix is a `serve.py` change, in
+      `serve.py`'s single-writer order.
+- [x] T072 [US3] [oDc] **13.1: the bundled PostgreSQL server** (R1Q16).
   - The document server starts it as its own child process and reports it
     (i). Starting and migrating the store is all release 1 asks of it, since
     the document surface reads nothing from it yet (ii). It stops with the
@@ -1998,13 +2046,96 @@ written (`5962754358`). `consumer_reach.py` is gone.
     table at run time, and its `runtime status` block.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q16 (i)–(iv), `5850003126`.
   - **After**: T070.
-- [ ] T073 [US3] [oDc] **13.4a: `/capabilities` gains an `install` block**,
+  - **Landed**: openDox-code#69 → `5e7ab003`.
+    - `opendox generate-and-open --local` (or `OPENDOX_INSTALL_MODE=local`)
+      starts `postgres` as a direct child of the process serving the document
+      surface, through `subprocess.Popen` and never `pg_ctl`, which would
+      re-parent it. It prints the socket, the pid and what it migrated, and
+      `runtime status` reports `database_bundle` (`data_dir`, `socket_dir`,
+      `pid`). It starts and migrates the store and does nothing more (R1Q16
+      (i), (ii)): `initdb` once per data directory, an idempotent bootstrap of
+      the database and the served role, then `MigrationRunner` as the owner,
+      which narrows the ledger to SELECT for the served role as a hosted
+      `runtime migrate` does. `runtime migrate` under `local` migrates the
+      bundle too.
+    - It stops with the entry point (iv): SIGTERM is read as the interrupt the
+      serve loop already stops on, then PostgreSQL's fast shutdown (then an
+      immediate one, then SIGKILL, each bounded). On Linux `PR_SET_PDEATHSIG`
+      is the backstop for a SIGKILLed entry point, and the server is not
+      started where that signal cannot be armed.
+    - 13.1's fixed identity: the data and socket directories are
+      `<state>/postgres/data` and `<state>/postgres/run`, under the new
+      `OPENDOX_STATE_DIR` (absolute; default `$XDG_STATE_HOME/opendox`, else
+      `~/.local/state/opendox`). `listen_addresses` is empty, so there is no
+      TCP listener, and the socket directory is 0700. Access is peer
+      authentication (RULED `5916000030`, item 3), so the two DSNs (owner
+      `opendox` for migrations, `opendox_runtime` for serving) carry no
+      password. A second entry point on the same state directory is refused,
+      naming the running pid.
+    - Under `local`, an operator DSN is refused by name, and so are
+      `OPENDOX_RUNTIME_PG_ROLE` and `OPENDOX_SERVED_DATABASE` unless they name
+      the bundle's own role and database. The PR records these as holder
+      readings that Brett may overrule.
+    - `opendox[local]` is `opendox[runtime]` plus
+      `pixeltable-pgserver>=0.6.0,<0.7` (RULED `5916000030`, item 2), and the
+      `test` extra joins it. Only that package's PostgreSQL 16.14 binaries are
+      used, never its manager. Its wheels need glibc 2.27 or later and are
+      about 24.7 MB each.
+    - The migrations were not package data, so a `pip install` outside a
+      checkout had nothing to apply (the gap the holder assigned to T072).
+      `pyproject.toml` now maps `migrations/*.sql` into the wheel's data
+      directory, and the root `migrations/` does not move.
+      `config.migrations_dir` takes the working directory's `migrations`
+      first, which is today's default, then the installed distribution's copy.
+    - F13.1's TCP-listener block and its `runtime status` block fail at T070's
+      head and pass here, run against a `generate-and-open --local` server
+      started in the background. `tests_runtime/test_bundled_postgres.py` runs
+      them in the suite, with the SIGTERM stop, the SIGKILL backstop and the
+      second-server refusal.
+    - For T073 and T074: T073 reads `database_bundle` from the server object
+      the entry point keeps (`args.database_bundle`), and F13.1's `caps.json`
+      block is T074's to run. A `--local` child built with
+      `tests/standalone_child.py` gets its own state directory automatically,
+      and any other `--local` caller sets `OPENDOX_STATE_DIR` itself.
+- [x] T073 [US3] [oDc] **13.4a: `/capabilities` gains an `install` block**,
   read from the serving process's own settings, which is the process that owns
   the bundled server (R1Q16 (i)). `serve.py` is a single-writer file.
   - **Realizes**: 13.4a.
   - **Falsifier**: F13.1's `caps.json` block.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q16 (i), `5850003126`.
   - **After**: T072, T055 (`serve.py`'s single-writer order).
+  - **Landed**: openDox-code#72 → `90ac7033`.
+    - `serve.build_server(install_report=)` takes a zero-argument callable that
+      the `/capabilities` arm asks on each request, and publishes its answer as
+      `install: {mode, database_bundle}`. Unset, as for a library caller or a
+      test, no `install` block is published, and none is invented. `serve.py`
+      reads no runtime setting itself (research R9).
+    - `cli._install_report(args)` builds it from the settings
+      `cmd_generate_and_open` resolved (`args.runtime_settings`, T070) and from
+      the bundled server it started as its own child (`args.database_bundle`,
+      T072's `BundledServer.report()`). `mode` is the settings' `install_mode`,
+      and `database_bundle` is `{data_dir, socket_dir, pid}` for a local install
+      and `null` for a hosted one, which bundles no server, as `runtime status`
+      reports it. It is asked per request, so a child that has gone is reported
+      as gone, and the claim is about the server the user reached on its port.
+    - Copilot's finding on the PR, that `report()` read `self.process` three
+      times while `stop()` could take it away, is fixed: it reads the process
+      once, and a deterministic race case holds it.
+    - F13.1's `caps.json` block fails at T072's code (`the served process is
+      not in local mode: {}`) and passes here. In
+      `tests_runtime/test_bundled_postgres.py` a real `generate-and-open
+      --local` runs in the background and `/capabilities` is held to
+      `install.mode == "local"`, with `data_dir` and `socket_dir` under the
+      fresh `OPENDOX_STATE_DIR`. The TCP-listener block then runs with the pid
+      read from `caps.json`, which is held equal to `runtime status`'s and a
+      child of the process that served `/capabilities`.
+      `tests/test_served_install_block.py` (7 cases, no database) holds the
+      hosted shape (`install: {"mode": "hosted", "database_bundle": null}`), the
+      per-request ask, and `_install_report`'s three cases.
+    - `tests/standalone_child.py` gains `Child(..., extra_env=)`, for the
+      settings a case gives its child on purpose, since #67's fix round strips
+      every runtime setting the runner exports.
+    - T074 runs F13.1 whole. T084 follows in `serve.py`'s single-writer order.
 - [ ] T074 [US3] [oDc] **Run F13.1**, as batch H amends it: it installs
   `.[local]`, and its local probe's `OPENDOX_INSTALL_MODE=local` is the same
   selection as `--local`.
@@ -2016,7 +2147,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
 
 ### Group 10: the door
 
-- [ ] T075 [US3] [oDc] **10.2 and 10.2a.** The entry point serves the 42-file
+- [x] T075 [US3] [oDc] **10.2 and 10.2a.** The entry point serves the 42-file
   bundle, reachable in a browser from an openDox-only install. `intent-feed.js`
   is not owed (10.2a is a declaration, recorded in the PR).
   - **Realizes**: 10.2, 10.2a.
@@ -2024,6 +2155,41 @@ written (`5962754358`). `consumer_reach.py` is gone.
     and `--local`, which start the bundled server, so it follows T072.
   - **Ruled**: R1Q22 (a), `5817152735`.
   - **After**: T056, T038, T063, T069, T072, T007 (batch H).
+  - **Landed**: openDox-code#73 → `9197ccdd`.
+    - The installed wheel carried 41 of the tree's 42 web files. setuptools
+      expands package data with `glob`, and `web/**` never matches a name that
+      starts with a dot, so `vendor/.gitkeep` was missing, and the installed
+      server answered it 404. `pyproject.toml` now reads
+      `opendox = ["web/**", "web/**/.*"]`, and the note above it counts 42
+      files across two subdirectories.
+    - `serve.py` and `cli.py` are NOT edited: the static route already serves
+      whatever the wheel carries. The PR changes four files, `pyproject.toml`,
+      the new `tests_runtime/test_served_bundle.py`, and the two tests that
+      pinned the old package-data line verbatim
+      (`tests/test_gate_loop_contributed.py` and
+      `tests/test_validator_input_set.py`).
+    - 10.2a is a declaration, recorded in the PR: `views/intent-feed.js` stays
+      at openxFactory (RULED OQ-F, `not_moved / stays_openxfactory_adapter`)
+      and is not owed. openDox's replacement, `views/intent-binding.js`, reaches
+      it only by a dynamic `import()`, so an absent file is an absent binding,
+      not a broken bundle. The 42 do not include it, and the installed server
+      answers it 404.
+    - `tests_runtime/test_served_bundle.py` (3 cases) is the in-suite
+      falsifier. It installs the wheel under a prefix of its own, runs the
+      `opendox` console script (`generate-and-open --local --no-open --port 0`)
+      from a directory that is not a checkout, with none of the four siblings
+      importable, and fetches `/` and each of the 42 files (200, the tree's
+      bytes, a type a browser accepts). It then walks the module graph from
+      `/`, over static imports and every dynamic `import()` target, and holds
+      it inside the bundle. With the `pyproject.toml` line reverted the first
+      two cases fail (`['vendor/.gitkeep']`, then 404).
+    - F10.1 as batch H amends it (`pip install ".[local]"` in a fresh venv,
+      `generate-and-open --local`), widened to every one of the 42 files,
+      stopped at `vendor/.gitkeep` before the change and passes after it.
+    - For T077: F10.1's fixed `--port 8080` can read another run's server on a
+      shared host, because the readiness loop cannot tell whose server answered.
+      The PR's re-runs added a guard line before the start, which is not F10.1
+      text. The in-suite case binds `--port 0`.
 - [ ] T076 [US3] [oD] **10.3: the openDox root's `README.md` documents the one
   command.** It is `pip install "opendox[local]"`, then
   `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii), as batch H's
@@ -2151,7 +2317,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
 
 ### Group 16: chat's model configuration (`doxbench_binding.py`, then `doxbench_provider.py`)
 
-- [ ] T078 [US3] [oDc] **16.1: `openai-chat-v1`.** A second `DIALECTS` member.
+- [x] T078 [US3] [oDc] **16.1: `openai-chat-v1`.** A second `DIALECTS` member.
   The chat-completions request (`model`, `messages`) and its answer
   (`choices[0].message.content`) are spoken by an arm in
   `doxbench_provider.py` alone. An unknown dialect is still refused.
@@ -2160,14 +2326,46 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Ruled**: R1Q22 (a), `5817152735`. `doxbench_binding.py` is a
     `moved_verbatim` row, and editing it needs no declared-edit act.
   - **After**: T063, T069.
-- [ ] T079 [US3] [oDc] **16.2: a `model` field**, sent as the request's model
+  - **Landed**: openDox-code#61 → `8a98e317`.
+    - `DIALECTS` gains `openai-chat-v1` after `xfactory-prompt-v1`, which stays
+      first, and an unknown dialect is still refused. `doxbench_provider.py`
+      alone speaks it, through one arm per dialect (`_DIALECT_ARMS`, which a
+      test holds equal to `DIALECTS`): the request is `{"model": …,
+      "messages": […]}`, and the answer is read at
+      `choices[0].message.content`, any other shape getting the fixed
+      `DIAG_PROVIDER_MALFORMED`. The prompt grammar's request bytes are pinned
+      unchanged, and the operator door's `--dialect` choices come from
+      `DIALECTS`, so `model-binding add --dialect openai-chat-v1` needs no CLI
+      edit.
+    - F16.1's dialect assertion passes, and the block stops at its next line,
+      the `BINDING_FIELDS` assertion, which is T079's.
+    - At T078 alone a chat request names the catalog handle, the binding's
+      `id`, as its `model`. T079 gives the binding a declared model.
+- [x] T079 [US3] [oDc] **16.2: a `model` field**, sent as the request's model
   and set by `model-binding add|edit --model`. The record grows from nine
   fields to ten, and none of them can hold a secret.
   - **Realizes**: 16.2.
   - **Falsifier**: F16.1's `BINDING_FIELDS` assertion.
   - **Ruled**: R1Q22 (a), `5817152735`.
   - **After**: T078.
-- [ ] T080 [US3] [oDc] **16.3: refuse a raw key when it is declared.**
+  - **Landed**: openDox-code#62 → `2fc714d2`.
+    - The binding record gains `model`, after `dialect`: `BINDING_FIELDS` grows
+      from nine fields to ten, and no field can hold a secret. The provider
+      sends it as the request's `model` in either dialect, `model-binding
+      add|edit --model` sets it, and `model-binding list` shows it. The catalog
+      handle stays the binding's `id`.
+    - `model` stays optional (Brett's word, relayed by the holder,
+      2026-09-28): keyword-only, defaulting to None, and listed in
+      `OPTIONAL_BINDING_FIELDS`. A binding that declares none keeps the handle
+      as the model, and every stored nine-field document still reads. So the
+      console's intake flow, whose closed `INTAKE_QUERY_FIELDS` has no `model`,
+      cannot set one yet; `model-binding add --model` is the door that does.
+    - F16.1's `BINDING_FIELDS` assertion passes (ten fields), and the block
+      stops at its first keyed URL, which is T080's.
+    - The PR also corrects `doxbench_intake.py`'s module docstring, which
+      called the binding a "closed nine-field record". That file is outside
+      P3-B's row and no plan task names it, and the PR flags it for the holder.
+- [x] T080 [US3] [oDc] **16.3: refuse a raw key when it is declared.**
   - Keys in the URL and in extra fields are refused, via `carries_a_credential`.
   - A reference is resolved by a built-in resolver for `env:NAME` and the OS
     keyring, at call time and inside `doxbench_provider.py` only (R1Q17 (b)).
@@ -2216,7 +2414,42 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q17 (b), R1Q18 (a), `5850003126`;
     the loopback rule, `5880893901`; batch K's note, `5916000030`, item 1.
   - **After**: T079, T007 (batches H and K).
-- [ ] T081 [US3] [oDc] **16.4: "no model configured" is a state.**
+  - **Landed**: openDox-code#63 → `1130e996`.
+    - A key in the endpoint URL is refused when the binding is declared, by
+      the product's `carries_a_credential` and by a raw key's shape anywhere in
+      the URL (`ENDPOINT_CARRIES_A_CREDENTIAL`). An endpoint longer than
+      `runtime/config.MAX_REMOTE_URL_CHARS` (2048) is refused first
+      (`ENDPOINT_TOO_LONG`), and a reference that is itself a raw key is
+      refused (`CREDENTIAL_REF_IS_A_RAW_KEY`). Every refusal is a fixed
+      sentence that repeats nothing of the value.
+    - Each record has one resolver. `env:NAME` and `keyring:SERVICE/USERNAME`
+      take the built-in one, `doxbench_provider.resolve_credential_reference`,
+      read at call time inside `doxbench_provider.py` alone (R1Q17 (b)), with
+      no broker, and a `broker_argv` beside such a reference is refused (the
+      plan's fail-closed reading, which Brett let stand). Any other reference
+      takes the broker it names, as before. The auth kind `none` (R1Q18 (a)),
+      appended after `api_key` and `oauth` so `AUTH_KINDS[0]` is unchanged,
+      forbids both `broker_argv` and `credential_ref`.
+    - The loopback rule (`5880893901`, with batch K's note) is carried out for
+      the built-in resolver: its credential travels only over `https://`, or
+      over `http://` to `127.0.0.1`, `::1` or `localhost`, and any other
+      endpoint is refused at declaration, before any resolution
+      (`ENDPOINT_NOT_PRIVATE`). That request follows no redirect, and over
+      plain `http://` it takes no proxy.
+    - The `keyring` package is imported at call time and is not declared as a
+      dependency (`pyproject.toml` is untouched), so without it a keyring
+      reference refuses with a fixed sentence. Declaring it, with T072's
+      `local` extra, is the holder's decision.
+    - F16.1's three raw-key refusals and its control record pass. The broker
+      path's hardening is openDox-code#64's, a separate draft that is no task
+      of this plan, so T080's scope did not grow.
+    - For T086: openXdox-code's `tests/test_doxchat_model_intake.py` asserts,
+      in two places, that the intake flow's served kinds equal
+      `list(doxbench_binding.AUTH_KINDS)`, which `none` now breaks at T086's
+      pin. The flow is right to offer only the two kinds a broker enrols, so
+      the assertions need to name them. openDox's own suite pins that relation
+      in `test_the_console_flow_offers_every_kind_a_broker_enrols`.
+- [x] T081 [US3] [oDc] **16.4: "no model configured" is a state.**
   - With no binding and no harness, the catalog offers no available entry.
   - The chat rail shows "no model configured" AND how to configure one, before
     any turn. Today's copy (research R15) does not name how.
@@ -2229,6 +2462,33 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Falsifier**: F16.1's catalog block; `tests/test_chat_model_configuration.py`.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q10 (a), R1Q12 (a), `5850003126`.
   - **After**: T063, T085.
+  - **Landed**: openDox-code#74 → `9a490405`.
+    - `NoModelConfigured` (one instance, `NO_MODEL_CONFIGURED`, in
+      `doxbench_model.py`) is the port whose catalog is empty and whose
+      `dispatch()` refuses without spawning or contacting anything.
+      `declared_model_port_factory` answers it where there is no approved
+      binding and no harness (`omp` not on the PATH), and answers the harness
+      bridge where `omp` is present, so the harness route stays.
+      `GET /workbench/model-catalog` then serves the editor-only posture
+      standalone, with no available entry.
+    - A turn that reaches its model step is refused
+      `model_capability_unavailable`, and step 7's no-port refusal is hoisted
+      above step 5's scope import (RULED option (a), holder, 2026-10-02), after
+      everything that authenticates the request, so a standalone turn with no
+      model is refused before anything is read or spawned. One ordering test
+      holds it (`test_the_turn_routes_order_with_and_without_a_port`, 10
+      defects by 3 postures).
+    - The chat rail shows a visible `doxchat-no-model` line, saying no model is
+      configured and how to configure one, once the catalog has answered empty
+      and no intake option is offered. The send button's own sentence is
+      unchanged byte for byte, as add-doxchat-model-intake §1 keeps it.
+    - F16.1's catalog block prints `no model configured: the catalog offers
+      nothing`, and `tests/test_chat_model_configuration.py` (49 cases) passes.
+    - For T084: with a binding configured, or `omp` on the PATH, a standalone
+      turn still reaches step 5's `openxdox` import and drops until T084 routes
+      it. The holder told T084's writer to cover the turn route in its test.
+    - This landing completes T085's falsifier, which is why T085 is ticked with
+      it.
 - [ ] T082 [US3] [oDc] **16.5: every other surface works with no model.** The
   named test covers documents, generation, the views, sessions and saving,
   which answer through R1Q10 (a)'s defaults (T084) exactly as they do with a
@@ -2544,7 +2804,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
     still carries `console_token`.
   - **Ruled**: R1Q22 (a), `5817152735`; `5963851934`.
   - **After**: T103 (`serve.py`'s single-writer order), T102 (the web bundle).
-- [ ] T085 [US3] [oDc] **The standalone doxBench defaults for T027's seams**
+- [x] T085 [US3] [oDc] **The standalone doxBench defaults for T027's seams**
   (R1Q10 (a)). openDox's own validators run over the packaged copies of
   openDox-spec's `xfactory-workbench-chat-turn` and
   `xfactory-workbench-model-catalog` (T057, R1Q12 (a)). There is no status
@@ -2570,7 +2830,32 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q10 (a), R1Q12 (a), `5850003126`;
     item 2 of `5920216845`.
   - **After**: T057, T063, T069.
-- [ ] T088 [US3] [oDc] **The lens's two seed actions** are offered only where a
+  - **Landed**: openDox-code#71 → `2680eb5e`, with T081's landing
+    (openDox-code#74 → `9a490405`) completing its falsifier.
+    - `doxbench_defaults.py` (new) holds openDox's two defaults and
+      `register_defaults()`: `opendox.validator.doxbench_validators()`, one
+      validator per doxBench wire kind over the packaged copies (T057), and
+      `NO_STATUS_EXEMPTION`, whose rail exempts nothing. `cli.build_parser()`,
+      `cli.main()`, `serve.build_server()` and `serve.main()` each call it
+      beside T055's `projection_seams.register_defaults()`, and in `cli.py`'s
+      and `serve.py`'s single-writer order T085's lines come before T084's
+      (holder, 2026-10-02).
+    - Each seam follows `projection_seams`' rules. A default registers only
+      where nothing is registered, a host registered first is kept, a host
+      replaces an unread default, and a host is refused once a request or an
+      assembly has read the default (R1Q3 (ii)). With nothing registered a seam
+      still refuses, naming itself (4.2).
+    - `WORKBENCH_RULES` left `default_projection.py`, and `opendox.validator`
+      owns the two rules as `pinned-keywords-are-checked` and
+      `new-candidates-are-disjoint` (item 2 of `5920216845`). Neither old id is
+      kept as an alias, and the old ids survive only in the tests, as
+      `RETIRED_RULE_IDS`, the before-state.
+    - **The tick follows the holder's rule** (2026-10-02): T085's falsifier
+      holds whole only at T081's landing. At `2680eb5e` the served catalog
+      route answered `200` standalone, but its catalog was still the harness
+      declaration `omp-local`, available (16.4's measured defect, T081's to
+      change). At `9a490405` it offers no available entry.
+- [x] T088 [US3] [oDc] **The lens's two seed actions** are offered only where a
   binding answers them (R1Q19 (a)). Standalone, no binding answers
   `/actions/dtn-seed` or `/actions/staging-seed`, so neither control is
   offered. `lens.js` stays the web census's one declared `?` row. Moving the
@@ -2580,6 +2865,33 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Falsifier**: AT-R1 step 6.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q19 (a), `5850003126`.
   - **After**: T063, T069.
+  - **Landed**: openDox-code#65 → `d0d3cee6`.
+    - `views/lens.js` offers each seed action only where a binding answers it.
+      `bindingAnswers(capabilities, method, path)` reads
+      `views.contributed_routes`, which `serve.build_server()` builds from the
+      same `route_bindings` table its POST dispatch consults, so there is no new
+      server field. It fails closed on anything it cannot read, and on a
+      manifest with one malformed entry. The register seed (`ctx.onSeed`) needs
+      `/actions/dtn-seed` answered. The staging seed needs
+      `/actions/staging-seed`, and its selection column, clickable dots and pick
+      bar (`ctx.pickDoc`) go with it. Both controls carry a `data-seed-action`
+      hook (`dtn-seed`, `staging-seed`) for T096 to assert absence by.
+    - `lens.js` stays the web census's one declared `?` row (`loc` 1495 to
+      1577), and its two `until` lines now name R1Q19 (b).
+    - The PR's falsifier is `tests/test_lens_seed_actions.py` (13 cases), which
+      drives the real `lens.js` under node, one case over a real standalone
+      serve of the `plain-documents` fixture: 12 failed and 1 passed against
+      `047bb4fa`'s `lens.js`, and all 13 pass after. AT-R1 step 6 itself, in a
+      browser, is T096's.
+    - **What the tick means.** T088's box is the landing of the gating, as
+      T056's was with F10.1's plain-install run left to T077. AT-R1 step 6 is
+      not run until T096, which keeps its own box and its own falsifier, the
+      oracle's verdict.
+    - For T084: the lens reads `views.contributed_routes`, not `actions.gate`,
+      so batch L's capability honesty does not move its answer. When T084
+      (openDox-code#77) merges main after this landing, it changes the
+      real-serve case's `actions.gate is actor` assertion to `is False`, which
+      the PR records as an expected follow-on, not a defect.
 - [ ] T087 [US4] [oD] **Phase 3's openDox root pin** (T090 steps 1–2).
   - It pins the commit that carries release 1's version bump to 0.1.0 (T101,
     T099's release step, openDox-code#79), the last phase-3 openDox-code
