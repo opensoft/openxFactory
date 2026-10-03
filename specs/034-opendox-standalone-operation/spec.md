@@ -822,7 +822,15 @@ chat's 'no model configured' state."* Each term is made checkable below.
    - (b) a directory of ordinary `.md` files with no front matter at all.
 4. **Opens.** The ONE command the openDox root README documents,
    `opendox generate-and-open --local …` (R1Q15 (b)), serves the bundle on
-   loopback.
+   loopback. Whether or not `--no-open` is given, the command writes a
+   private copy in the state directory, `console/<port>.html`, and prints
+   its location as a `file://` URL, never the token. Without `--no-open`
+   it hands that copy to the browser. With `--no-open`, as this test runs
+   it, the page is opened by loading the printed `file://` URL. Either way
+   the copy forwards to the page with the console token in the URL's
+   fragment. `/capabilities` carries no console token, so a request that
+   needs one reads it from that copy (`5963851934`; T104, as T007's batch N
+   records it at #1144's 12.4a).
 5. **The wheel works.** `#tab-wheel` renders a tile for every document station
    the snapshot fills, and raises no `pageerror`.
 6. **The radar lens works.** `#tab-lens` renders the bullseye with the corpus's
@@ -833,6 +841,8 @@ chat's 'no model configured' state."* Each term is made checkable below.
    staging workbench opens, and its chat rail shows the "no model configured"
    state, naming how to configure a model, BEFORE any turn is attempted. A turn
    is refused `model_capability_unavailable`, and both editors stay usable.
+   The rail's catalog and turn routes are guarded, so the page is the one
+   step 4 opened through the private copy, carrying the console token.
    "Usable" means that each editor opens and accepts edits. On standalone,
    creating a document and Save are refused by name, since both go through
    openxFactory's create gate, which a standalone install lacks (T102). That
