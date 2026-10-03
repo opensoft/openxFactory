@@ -2322,7 +2322,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - That line also stands for openDox-code#64, the broker-path hardening,
     which is no task of this plan. T095's `acceptance/` harness ships nothing,
     so T101 does not wait for it.
-- [ ] T077 [US3] [oDc] **Run F10.1**, as batch H amends it: it installs
+- [x] T077 [US3] [oDc] **Run F10.1**, as batch H amends it: it installs
   `".[local]"`, and it runs `opendox generate-and-open --local …`. The local
   mode starts the bundled server, so this run follows T072.
   - **Realizes**: F10.1.
@@ -2330,6 +2330,21 @@ written (`5962754358`). `consumer_reach.py` is gone.
     its PR.
   - **Ruled**: R1Q15 (b), R1Q16 (iii), `5850003126`.
   - **After**: T075, T072.
+  - **Landed**: [`evidence/f10.1-run.md`](evidence/f10.1-run.md), run on
+    2026-10-03 at openDox-code `main` `8e377823`, after T072 (#69 →
+    `5e7ab003`) and T075 (#73 → `9197ccdd`). It is quoted in openxFactory, in
+    the checkpoints' form, on the holder's ruling of 2026-10-03. It is not an
+    empty-diff openDox-code PR (openDox-code#83, closed).
+    - F10.1, extracted byte for byte from #1144 at `ec9308c8` with batch H's
+      two lines (`pip install ".[local]"`, `generate-and-open --local`), exits
+      0 from a fresh clone and a fresh venv, in an `env -i` environment. The
+      bundled PostgreSQL migrates `['0001', '0002']`, the snapshot validates
+      with 0 violations, and the page served at `/` is byte-identical to
+      `src/opendox/web/index.html` (7556 B). The bundled server is gone after
+      the run.
+    - Supplementary, T075's fetch over every bundle file exits 0 with all 42
+      served. Port 8080 was checked free before each run, since F10.1 fixes
+      its port and cannot tell whose server answers there.
 
 ### Group 16: chat's model configuration (`doxbench_binding.py`, then `doxbench_provider.py`)
 
