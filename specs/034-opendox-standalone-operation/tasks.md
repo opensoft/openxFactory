@@ -2028,7 +2028,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
       loopback rule and then fails at the bind, as `--host ::1` already does
       hosted (measured before the PR). The fix is a `serve.py` change, in
       `serve.py`'s single-writer order.
-- [ ] T072 [US3] [oDc] **13.1: the bundled PostgreSQL server** (R1Q16).
+- [x] T072 [US3] [oDc] **13.1: the bundled PostgreSQL server** (R1Q16).
   - The document server starts it as its own child process and reports it
     (i). Starting and migrating the store is all release 1 asks of it, since
     the document surface reads nothing from it yet (ii). It stops with the
@@ -2046,6 +2046,57 @@ written (`5962754358`). `consumer_reach.py` is gone.
     table at run time, and its `runtime status` block.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q16 (i)–(iv), `5850003126`.
   - **After**: T070.
+  - **Landed**: openDox-code#69 → `5e7ab003`.
+    - `opendox generate-and-open --local` (or `OPENDOX_INSTALL_MODE=local`)
+      starts `postgres` as a direct child of the process serving the document
+      surface, through `subprocess.Popen` and never `pg_ctl`, which would
+      re-parent it. It prints the socket, the pid and what it migrated, and
+      `runtime status` reports `database_bundle` (`data_dir`, `socket_dir`,
+      `pid`). It starts and migrates the store and does nothing more (R1Q16
+      (i), (ii)): `initdb` once per data directory, an idempotent bootstrap of
+      the database and the served role, then `MigrationRunner` as the owner,
+      which narrows the ledger to SELECT for the served role as a hosted
+      `runtime migrate` does. `runtime migrate` under `local` migrates the
+      bundle too.
+    - It stops with the entry point (iv): SIGTERM is read as the interrupt the
+      serve loop already stops on, then PostgreSQL's fast shutdown (then an
+      immediate one, then SIGKILL, each bounded). On Linux `PR_SET_PDEATHSIG`
+      is the backstop for a SIGKILLed entry point, and the server is not
+      started where that signal cannot be armed.
+    - 13.1's fixed identity: the data and socket directories are
+      `<state>/postgres/data` and `<state>/postgres/run`, under the new
+      `OPENDOX_STATE_DIR` (absolute; default `$XDG_STATE_HOME/opendox`, else
+      `~/.local/state/opendox`). `listen_addresses` is empty, so there is no
+      TCP listener, and the socket directory is 0700. Access is peer
+      authentication (RULED `5916000030`, item 3), so the two DSNs (owner
+      `opendox` for migrations, `opendox_runtime` for serving) carry no
+      password. A second entry point on the same state directory is refused,
+      naming the running pid.
+    - Under `local`, an operator DSN is refused by name, and so are
+      `OPENDOX_RUNTIME_PG_ROLE` and `OPENDOX_SERVED_DATABASE` unless they name
+      the bundle's own role and database. The PR records these as holder
+      readings that Brett may overrule.
+    - `opendox[local]` is `opendox[runtime]` plus
+      `pixeltable-pgserver>=0.6.0,<0.7` (RULED `5916000030`, item 2), and the
+      `test` extra joins it. Only that package's PostgreSQL 16.14 binaries are
+      used, never its manager. Its wheels need glibc 2.27 or later and are
+      about 24.7 MB each.
+    - The migrations were not package data, so a `pip install` outside a
+      checkout had nothing to apply (the gap the holder assigned to T072).
+      `pyproject.toml` now maps `migrations/*.sql` into the wheel's data
+      directory, and the root `migrations/` does not move.
+      `config.migrations_dir` takes the working directory's `migrations`
+      first, which is today's default, then the installed distribution's copy.
+    - F13.1's TCP-listener block and its `runtime status` block fail at T070's
+      head and pass here, run against a `generate-and-open --local` server
+      started in the background. `tests_runtime/test_bundled_postgres.py` runs
+      them in the suite, with the SIGTERM stop, the SIGKILL backstop and the
+      second-server refusal.
+    - For T073 and T074: T073 reads `database_bundle` from the server object
+      the entry point keeps (`args.database_bundle`), and F13.1's `caps.json`
+      block is T074's to run. A `--local` child built with
+      `tests/standalone_child.py` gets its own state directory automatically,
+      and any other `--local` caller sets `OPENDOX_STATE_DIR` itself.
 - [ ] T073 [US3] [oDc] **13.4a: `/capabilities` gains an `install` block**,
   read from the serving process's own settings, which is the process that owns
   the bundled server (R1Q16 (i)). `serve.py` is a single-writer file.
@@ -2064,7 +2115,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
 
 ### Group 10: the door
 
-- [ ] T075 [US3] [oDc] **10.2 and 10.2a.** The entry point serves the 42-file
+- [x] T075 [US3] [oDc] **10.2 and 10.2a.** The entry point serves the 42-file
   bundle, reachable in a browser from an openDox-only install. `intent-feed.js`
   is not owed (10.2a is a declaration, recorded in the PR).
   - **Realizes**: 10.2, 10.2a.
@@ -2072,6 +2123,41 @@ written (`5962754358`). `consumer_reach.py` is gone.
     and `--local`, which start the bundled server, so it follows T072.
   - **Ruled**: R1Q22 (a), `5817152735`.
   - **After**: T056, T038, T063, T069, T072, T007 (batch H).
+  - **Landed**: openDox-code#73 → `9197ccdd`.
+    - The installed wheel carried 41 of the tree's 42 web files. setuptools
+      expands package data with `glob`, and `web/**` never matches a name that
+      starts with a dot, so `vendor/.gitkeep` was missing, and the installed
+      server answered it 404. `pyproject.toml` now reads
+      `opendox = ["web/**", "web/**/.*"]`, and the note above it counts 42
+      files across two subdirectories.
+    - `serve.py` and `cli.py` are NOT edited: the static route already serves
+      whatever the wheel carries. The PR changes four files, `pyproject.toml`,
+      the new `tests_runtime/test_served_bundle.py`, and the two tests that
+      pinned the old package-data line verbatim
+      (`tests/test_gate_loop_contributed.py` and
+      `tests/test_validator_input_set.py`).
+    - 10.2a is a declaration, recorded in the PR: `views/intent-feed.js` stays
+      at openxFactory (RULED OQ-F, `not_moved / stays_openxfactory_adapter`)
+      and is not owed. openDox's replacement, `views/intent-binding.js`, reaches
+      it only by a dynamic `import()`, so an absent file is an absent binding,
+      not a broken bundle. The 42 do not include it, and the installed server
+      answers it 404.
+    - `tests_runtime/test_served_bundle.py` (3 cases) is the in-suite
+      falsifier. It installs the wheel under a prefix of its own, runs the
+      `opendox` console script (`generate-and-open --local --no-open --port 0`)
+      from a directory that is not a checkout, with none of the four siblings
+      importable, and fetches `/` and each of the 42 files (200, the tree's
+      bytes, a type a browser accepts). It then walks the module graph from
+      `/`, over static imports and every dynamic `import()` target, and holds
+      it inside the bundle. With the `pyproject.toml` line reverted the first
+      two cases fail (`['vendor/.gitkeep']`, then 404).
+    - F10.1 as batch H amends it (`pip install ".[local]"` in a fresh venv,
+      `generate-and-open --local`), widened to every one of the 42 files,
+      stopped at `vendor/.gitkeep` before the change and passes after it.
+    - For T077: F10.1's fixed `--port 8080` can read another run's server on a
+      shared host, because the readiness loop cannot tell whose server answered.
+      The PR's re-runs added a guard line before the start, which is not F10.1
+      text. The in-suite case binds `--port 0`.
 - [ ] T076 [US3] [oD] **10.3: the openDox root's `README.md` documents the one
   command.** It is `pip install "opendox[local]"`, then
   `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii), as batch H's
