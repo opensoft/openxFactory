@@ -320,13 +320,13 @@ planned on answers.
     which forwards to the page with the token in the URL's fragment, never
     in its query. It prints the copy's location as a `file://` URL and never
     the token, with or without `--no-open`, removes the copy when the server
-    stops, and refuses the start when no safe copy can be written. A planted, linked, hard-linked or loosened copy is
-    refused by name. So is a state directory that is, or lies inside, a root
-    the plane serves (the holder's ruling on #1220's review, Copilot
-    `r4171166321`), and a served root that is, or lies inside, the state
-    directory (the holder's ruling on batch N's review, Copilot
-    `r4174345203`). A composed host
-    keeps `/capabilities`' delivery.
+    stops, and refuses the start when no safe copy can be written. A
+    planted, linked, hard-linked or loosened copy is refused by name. So is
+    a state directory that is, or lies inside, a root the plane serves (the
+    holder's ruling on #1220's review, Copilot `r4171166321`), and a served
+    root that is, or lies inside, the state directory (the holder's ruling
+    on batch N's review, Copilot `r4174345203`). A composed host keeps
+    `/capabilities`' delivery.
     No #1144 falsifier reads the token from `/capabilities`, so none is
     amended: F10.1, F13.1 and F12's named token test are unchanged. AT-R1 is
     this feature's and not #1144's, so its step 4 (spec.md) and
