@@ -45,9 +45,12 @@ before implementation starts.
 
 ## Feature readiness
 
-- [x] Every release-1 box maps to a task (tasks.md § "Box accounting":
-      70 = 63 + 1 + 1 + 1 + 4, where one box, F9.2, closes after T008;
-      batch M's 16.3a maps to T100).
+- [x] Every realization box in release 1 maps to a task (tasks.md § "Box
+      accounting": 70 = 63 + 1 + 1 + 1 + 4). The other seven boxes are
+      accounted separately in that table: F9.2 closes after T008, 3.0 was
+      discharged by the ratification, 5.6 was already ticked, and the four
+      every-phase boxes are ticked at the arc's close. Batch M's 16.3a maps
+      to T100.
 - [x] Every realization task names a repository, a falsifier, any question
       that blocks it, and the rulings it carries out. A task that runs a
       falsifier (T074, T077, T093) names that falsifier as its own. The
@@ -89,7 +92,8 @@ before implementation starts.
   - H1, the private copy's contract, is settled by T007's batch N (#1222 →
     `bdd0f586`);
   - H2, the help tree at 32, by `5970917267`, with the plan side in T086,
-    T094, T100 and research R8, and #1144's side in a later batch, O;
+    T094, T100 and research R8, and #1144's side in T007's batch O
+    (#1228);
   - H3, AT-R1's commit against the published one, by the holder's
     P-against-X step in T099 and T096 and quickstart.md's `RELEASE1_TIP`.
 

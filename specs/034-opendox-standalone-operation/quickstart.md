@@ -19,13 +19,16 @@ stand in for it, and § 1 installs the checkout with the same extra (T076).
 
 Every question these steps depend on is answered, on `#656` comment
 `5850003126`. R1Q26 and R1Q27, answered on `5851950767`, bear on openXdox
-and openxFactory, and not on an openDox-only install. The steps follow `5850003126`'s answers: R1Q10 (a) and
-R1Q12 (a) for the catalog's validators, R1Q13 (a) with (c) for the tiles,
-R1Q15 (b) for `--local`, R1Q16 (iii) and (iv) for the install and the
-datastore's stop, and R1Q19 (a) for the lens. No step is conditional. Use
-whatever the openDox root's `README.md` documents once 10.3 has landed: that
-README, not this file, is the product's one documented command (requirement
-10).
+and openxFactory, and not on an openDox-only install. The steps follow
+`5850003126`'s answers: R1Q10 (a) and R1Q12 (a) for the catalog's
+validators, R1Q13 (a) with (c) for the tiles, R1Q15 (b) for `--local`,
+R1Q16 (iii) and (iv) for the install and the datastore's stop, and R1Q19 (a)
+for the lens. No step waits on an unanswered question. One step has a
+condition, and it is mandatory whenever the condition holds: when P and X
+differ in a build input T099 lists, both AT-R1 halves run again at P before
+the publish, as above. Use whatever the openDox root's `README.md` documents
+once 10.3 has landed: that README, not this file, is the product's one
+documented command (requirement 10).
 
 ## 1. A clean machine, with openDox and nothing else
 
