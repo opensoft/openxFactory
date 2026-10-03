@@ -1922,8 +1922,9 @@ for chat standalone. Every phase-3 task comes after T063 and T069.
 **Goal**: one documented command installs and starts the whole product, with
 its bundled datastore, the local mode, the served bundle, and chat with a clear
 no-model state. The install is `pip install "opendox[local]"`, and the command
-is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
-`consumer_reach.py` is gone.
+is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)). T099
+publishes the package to PyPI at the cut, so that the install line works as
+written (`5962754358`). `consumer_reach.py` is gone.
 
 **Independent test**: T089, then T095 and T096.
 
@@ -2081,6 +2082,97 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - **Ruled**: R1Q15 (b), R1Q16 (iii), `5850003126`.
   - **After**: T074, T075, T087 (the README documents the command the root
     pins).
+- [ ] T099 [US3] [oDc] [oD] **Publish to PyPI (10.3's install line).** openDox-code's
+  sdist and wheel go to PyPI as `opendox`, by trusted publishing (OIDC), so
+  10.3's `pip install "opendox[local]"` works as written. No PyPI token and no
+  other publishing secret is stored anywhere: each upload uses a short-lived
+  OIDC identity token. Today `pypi.org/pypi/opendox/json` answers 404 (RULED
+  `5962754358`, item 1, *"Publish to PyPI at the cut (Recommended)"*). This task
+  is the publish alone. The workflow it dispatches and the version bump it
+  publishes are T101's.
+  - **The release commit, and the order (RULED `5963162921`, *"0.1.0
+    (Recommended)"*).** Release 1's version is 0.1.0.
+    - T101 lands last among the phase-3 openDox-code landings that change the
+      shipped package, and its last landing is the version bump.
+    - T087 pins that commit in the openDox root.
+    - The workflow publishes only the commit that the root's
+      `contracts/code-pin.yaml` names, and that is on openDox-code's `main`,
+      never requiring `main`'s head. T095 lands after T089, so `main` may have
+      moved on by the cut.
+  - **At the cut, once AT-R1 has passed (T095, T096), on Brett Heap's publish
+    word**: the holder creates the tag
+    `v0.1.0` at the pinned commit and dispatches the workflow with `version`
+    0.1.0 on that tag. A dispatch runs at the head of the ref it names, so it
+    names `main` only while `main`'s head is still the pinned commit, and a
+    dispatch on a tag must name `v<version>`. Brett Heap approves the
+    `testpypi` environment's deployment, and, once the TestPyPI install has
+    passed, the `pypi` environment's.
+  - **Then the root README** (the holder's ruling of 2026-10-03, which
+    follows from `5962754358`). T076's README (openDox#17) carries a dated
+    paragraph, "Where `opendox` comes from", saying that no release is
+    published to PyPI yet and that `pip install ./code` from a recursive clone
+    stands in for the first line. It is true until the cut. After the `pypi`
+    job's check that PyPI serves exactly the verified files, a small openDox
+    root PR, part of this task's landing, replaces that paragraph with the
+    PyPI install line, `pip install "opendox[local]"`.
+  - **Brett Heap's one-time setup**, before the first dispatch:
+    - on pypi.org, a pending trusted publisher for `opendox` (owner `opensoft`,
+      repository `openDox-code`, workflow `release.yml`, environment `pypi`);
+    - the same on test.pypi.org, with environment `testpypi`;
+    - in openDox-code's GitHub settings, the two environments, each with a
+      required reviewer. The build job refuses until both name one.
+  - **Realizes**: 10.3.
+  - **Falsifier**: the release workflow's `build` job (its artifact checks),
+    then a TestPyPI dry run installed with `pip install --index-url
+    https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
+    "opendox[local]"` in a fresh venv, then the PyPI publish at the cut and
+    its check that PyPI serves exactly the verified files. Then the root
+    README PR, by review: the install section names `pip install
+    "opendox[local]"`, and no paragraph says that no release is published.
+  - **Ruled**: `5962754358`, item 1; the version and the release commit,
+    `5963162921`. The split into T101 and this task is the holder's decision
+    of 2026-10-03, after Copilot's review of openxFactory#1220.
+  - **After**: T101, T087, T089 (the publish happens at the cut, after phase
+    3's checkpoint), T096 (release 1's acceptance passes before the
+    irreversible upload; the holder's ruling of 2026-10-03). The root README
+    PR follows T076, which writes the paragraph it replaces; T089 already
+    follows T076.
+- [ ] T101 [US3] [oDc] **T099's release step: the release workflow, and the
+  version bump to 0.1.0.** Two openDox-code landings, which T087 pins and
+  T099 publishes.
+  - **The release workflow** (openDox-code#78) is `.github/workflows/release.yml`,
+    with its hash-locked tools and `tests/test_release_workflow.py`. It runs
+    only when dispatched by hand, with a `version` input that must equal
+    `pyproject.toml`'s. Its build job refuses a commit the openDox root does
+    not pin, and an environment with no reviewer. Then it verifies the files
+    before any upload:
+    - the requirements, against `pyproject.toml`'s, with the `local` extra
+      (T072);
+    - the `opendox` console script;
+    - every tracked file of the web bundle (T075) and of `src/`, and the
+      migrations;
+    - and, from the built wheel in a fresh venv, the whole requirement
+      closure of `opendox[local]`, the bundled server's binaries, and
+      `opendox --help`.
+
+    It publishes to TestPyPI first, in a `testpypi` environment, and then to
+    PyPI, in a `pypi` environment. Its artifact checks pass only once T072 and
+    T075 have landed. The same PR adds `readme` to openDox-code's
+    `pyproject.toml`, so that file's single-writer order runs T072 → T075 →
+    T101.
+  - **The version bump** (openDox-code#79) sets `version = "0.1.0"` (RULED
+    `5963162921`). It is the last of the landings below, right before T087.
+  - **Realizes**: 10.3 (part, with T099).
+  - **Falsifier**: `tests/test_release_workflow.py`, in the required check.
+    The workflow's build job, over the pinned commit, is T099's.
+  - **Ruled**: `5962754358`, item 1; `5963162921`. The split is the holder's
+    decision of 2026-10-03.
+  - **After**: T070–T075, T077, T078–T085, T088, T100, T102, T103, T104
+    (every phase-3 openDox-code landing that changes the shipped package,
+    with the T074, T077 and T083 runs).
+  - That line also stands for openDox-code#64, the broker-path hardening,
+    which is no task of this plan. T095's `acceptance/` harness ships nothing,
+    so T101 does not wait for it.
 - [ ] T077 [US3] [oDc] **Run F10.1**, as batch H amends it: it installs
   `".[local]"`, and it runs `opendox generate-and-open --local …`. The local
   mode starts the bundled server, so this run follows T072.
@@ -2367,6 +2459,29 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - **Falsifier**: `tests/test_provider_boundary.py` for 16.6, then F16.1
     whole, as batch M amends it.
   - **After**: T080, T081, T082, T100.
+- [ ] T102 [US3] [oDc] **The staging workbench offers the editors and the chat
+  rail by scope.** The editors and the chat rail appear wherever the scope
+  lets the document be edited. Only creating documents and Save stay behind
+  the gate, so a standalone Save is refused by name (RULED `5963618568`,
+  Brett Heap, 2026-10-03, *"Edit and chat by scope (Recommended)"*).
+  - **Why.** The T096 prep run, a local integration of the phase-3 drafts,
+    found that a standalone workbench opens read-only.
+    `staging-workbench.js:2729-2731` (`canvasOffered`) and
+    `staging-workbench-model.js:1499-1503` require
+    `createColumn.createGateLive(caps)`, which only openXdox's
+    `gate.workbench.create` binding answers. Standalone, openDox's own scope
+    default marks a tile's own documents editable (`5961651355`).
+  - **The display text.** The same landing neutralizes the openxFactory
+    wording at `lens.js:1537`, `lens.js:271` and `index.html:107`.
+  - **Realizes**: 16.4 (part: the chat rail is reachable standalone);
+    FR-011's browser half (AT-R1 step 7: the chat pane opens from a grouping
+    tile, and both editors stay usable).
+  - **Falsifier**: AT-R1 step 7, run by T096. Its PR adds a test that, with
+    openDox's own defaults alone, the workbench offers both editors and the
+    chat rail for a document the scope marks editable, and that create and
+    Save stay behind the gate, Save refused by name.
+  - **Ruled**: R1Q22 (a), `5817152735`; `5963618568`.
+  - **After**: T084, T081, T088 (`lens.js`'s earlier writer).
 
 ### 4.3's last reaches, and the consumer's columns
 
@@ -2447,6 +2562,115 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - **Ruled**: R1Q1 (a), R1Q22 (a), `5817152735`; R1Q10 (a), `5850003126`;
     items 1 and 3 of `5920216845`.
   - **After**: T055, T073 (`serve.py`'s single-writer order), T007 (batch L).
+- [ ] T103 [US3] [oDc] **Every loopback route checks the Host.** On a loopback
+  plane, every route refuses a request whose `Host` does not name the plane
+  itself, against DNS rebinding (adversarial review 2, M4). `/capabilities`'
+  `install` block sits behind the same check, even when no console token is
+  minted (L2).
+  - **Accepted, exactly.** The request carries exactly one `Host` line. Its
+    value, with the optional whitespace around it trimmed, is one of the
+    plane's own authorities, `<port>` being the port it is bound to:
+    - `127.0.0.1:<port>`;
+    - `localhost:<port>`, in any letter case;
+    - `[::1]:<port>`, only where the socket is bound to `::1`;
+    - on port 80 only, the same names with no port, since a browser omits
+      the default port.
+  - **Every other form fails closed**, before any route runs, with one fixed
+    refusal that never echoes the `Host`:
+    - a suffix or prefix match (`127.0.0.1.evil.example`, `evil.localhost`);
+    - another port, or no port on any port but 80;
+    - a trailing dot;
+    - any other spelling of a loopback address;
+    - another name or address;
+    - a missing or empty `Host`;
+    - a second `Host` line.
+
+    It holds for every route class and every method. A hosted (non-loopback)
+    plane is unchanged. openDox-code#80 is the realization.
+  - **Realizes**: none of the 70 boxes. It hardens what 13.4 (local mode binds
+    loopback only) and 13.4a (the `install` block) realize, on the holder's
+    decision of 2026-10-03 after adversarial review 2.
+  - **Falsifier**: its PR's test, as a table of the forms above.
+    - Every route class of a loopback plane serves each accepted form and
+      refuses each other one, with no console token minted and with one.
+    - The `install` block is withheld from every refused form.
+    - A hosted plane still serves a `Host` the loopback gate refuses.
+  - **Ruled**: R1Q22 (a), `5817152735`.
+  - **After**: T084 (`serve.py`'s single-writer order).
+- [ ] T104 [US3] [oDc] **The console token travels in the opened URL, not
+  `/capabilities`.** RULED `5963851934`, Brett Heap, 2026-10-03: *"Token via
+  the opened URL (Recommended)"*.
+  - **Why.** Adversarial review 2 (M5) found that a standalone openDox hands
+    its console token to any loopback caller through `/capabilities`
+    (`serve.py:1977-1980` at openDox-code `main` `9a490405`), so another OS
+    user on the same machine can ask the server for it. The defect predates
+    the arc.
+  - **The scope is the standalone serve**, the holder's approved design of
+    2026-10-03. Standalone is the serve built from `opendox.default_profile`,
+    the one Brett's question (`5963851934`) was framed on. A composed host
+    keeps `/capabilities`' delivery of the token unchanged: openxFactory's
+    governed dashboard, and any profile openXdox registers.
+  - **The change, in the standalone serve**, as Jupyter does it:
+    - `/capabilities` no longer carries `console_token`;
+    - `generate-and-open` opens the page with the token in the URL fragment,
+      and keeps a private copy in the state directory (`OPENDOX_STATE_DIR`,
+      T072's) for reopening;
+    - the web bundle reads the token from the fragment where `/capabilities`
+      carries none (its readers at `9a490405`: `web/app.js`,
+      `web/views/edit.js` and `web/views/staging-workbench-model.js`).
+  - **The private copy is written safely.** It is written only into a state
+    directory that passes the checks T100's trust file passes, the ones #69's
+    bundle makes of its own tree:
+    - no symbolic link;
+    - owned by this user, and writable by no one else;
+    - every directory above it this user's or root's, sticky where another
+      user can write it;
+    - neither the served repository's root nor under it. An
+      `OPENDOX_STATE_DIR` equal to the served root or nested under it is
+      refused by name before anything is written, as T100's is, since
+      `/source` would otherwise serve the token file (r4171166321, accepted
+      by the holder, 2026-10-03).
+
+    The file is created new, owner-only (0600), without following a symbolic
+    link, and only then renamed into place. So neither a symbolic link nor a
+    file already at that path can redirect or expose the write. A directory
+    that fails is refused by name, and nothing is written.
+  - **The composed hosts, verified unaffected.** T104's PR carries a composed
+    run showing that these readers of `/capabilities`' `console_token` are
+    unaffected:
+    - openXdox-code's `gate_console.py`, `serve_gate.py` and
+      `role_authority_projection.py`, and their tests;
+    - openxFactory's `tests/ideation-dashboard/test_doxbench_routes.py`,
+      `test_gate_routes.py`, `test_shared_identity.py` and
+      `test_staging_seed.py`.
+
+    Any reader the run finds affected is assigned: openXdox-code's to T086,
+    and openxFactory's to T094. Each of those tasks carries a line for it.
+  - **Out of release 1's scope, for the record.** The governed host's own
+    exposure of its token through `/capabilities` is a follow-up for the
+    host, and no task of this plan.
+  - **Batch N, pending.** T007's batch N, a separate later PR, records #1144's
+    text for every falsifier and AT-R1 step that reads `/capabilities`'
+    `console_token`. This feature's `quickstart.md` moves with it: § 3 reads
+    the token from `/capabilities`, and § 4 loads the page with no fragment.
+    T095 runs AT-R1's HTTP half, so it waits for batch N as well as for T104.
+    T007's batches have no line for N yet, so batch N's PR adds that line and
+    the edge to T095 together.
+  - **Realizes**: none of the 70 boxes. It carries out `5963851934`.
+  - **Falsifier**: its PR's test, on the standalone serve.
+    - `/capabilities` answers no `console_token`.
+    - The URL `generate-and-open` opens carries the token in its fragment.
+    - The private copy is owner-only, under the state directory.
+    - Each of these refuses the write, by name: a symbolic link at the copy's
+      path, a state directory another user can write, one another user owns,
+      and one equal to the served root or under it.
+    - A guarded route refuses a request without the token and serves one with
+      it.
+
+    The composed run above shows that a composed host's `/capabilities`
+    still carries `console_token`.
+  - **Ruled**: R1Q22 (a), `5817152735`; `5963851934`.
+  - **After**: T103 (`serve.py`'s single-writer order), T102 (the web bundle).
 - [x] T085 [US3] [oDc] **The standalone doxBench defaults for T027's seams**
   (R1Q10 (a)). openDox's own validators run over the packaged copies of
   openDox-spec's `xfactory-workbench-chat-turn` and
@@ -2532,9 +2756,13 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
       real-serve case's `actions.gate is actor` assertion to `is False`, which
       the PR records as an expected follow-on, not a defect.
 - [ ] T087 [US4] [oD] **Phase 3's openDox root pin** (T090 steps 1–2).
+  - It pins the commit that carries release 1's version bump to 0.1.0 (T101,
+    T099's release step, openDox-code#79), the last phase-3 openDox-code
+    landing that changes the shipped package, because T099 publishes only the
+    commit this root pins (RULED `5963162921`).
   - **Realizes**: 9.5 (part).
   - **Falsifier**: `make pins` in the openDox root.
-  - **After**: T074, T077, T083, T084, T085, T088, T100 (every phase-3
+  - **After**: T074, T077, T083, T084, T085, T088, T100, T101 (every phase-3
     openDox-code landing), T062 (the root pin's single-writer order).
 - [ ] T086 [US4] [oXc] **openXdox contributes its columns.** It contributes the
   gate and projection mixins, `doxbench_scope` and its gate primitives through
@@ -2556,6 +2784,10 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     reviewed allow-list (`tests/protected_suite_respellings.yaml`), which
     F5.2's `--chains` step reads. F5.2 whole then passes, and its box closes
     at T089.
+  - **T104's composed readers.** Suppose T104's composed run finds one of
+    openXdox-code's readers of `/capabilities`' `console_token` affected
+    (`gate_console.py`, `serve_gate.py`, `role_authority_projection.py` and
+    their tests). Then this landing moves it, at the same pin.
   - **Realizes**: 4.3 (consumer half), 9.2 (the ratchet), 9.5 (step 3, part);
     F5.2 (its three repairs, with T089).
   - **Falsifier**: `tests/test_dependency_direction.py`; F9.1 (openXdox-code,
@@ -2583,6 +2815,13 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     do not name it. So this arc landing cannot regenerate it. It needs a
     non-arc PR ahead of it, in T066's form, or a ruled admission, and that
     is the holder's to choose before this task's PR opens.
+  - **T104's composed readers.** Suppose T104's composed run finds one of
+    openxFactory's four readers of `/capabilities`' `console_token` affected
+    (`tests/ideation-dashboard/test_doxbench_routes.py`,
+    `test_gate_routes.py`, `test_shared_identity.py` and
+    `test_staging_seed.py`). Then this landing moves it. If that file is not
+    one of 11.1's declared surfaces, the golden's rule above applies to it
+    too.
   - **Realizes**: 9.5 (part).
   - **Falsifier**: as T047's.
   - **Ruled**: R1Q2 (a), `5817152735`.
@@ -2599,7 +2838,10 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   test), and F5.2 whole (as T007's batches C, F, G and K amend it, after
   T086's repair), then T098's interim F11.1 output.
   - **Ruled**: F5.2's close here, `5962785556`, item 1.
-  - **After**: T094, T098, T076 (so every phase-3 task is done).
+  - **After**: T094, T098, T076 (so every phase-3 task but the PyPI publish is
+    done).
+  - The publish follows this checkpoint by design, at the cut
+    (`5962754358`, `5963162921`).
 
 ---
 
@@ -2724,8 +2966,9 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
     (R1Q15 (b)), on loopback;
   - fetches `/` (it must be HTML), `/snapshot.json` (non-empty, neutral per
     F5.3) and `/capabilities` (`install.mode == local`);
-  - fetches the model-catalog route, presenting `/capabilities`'
-    `console_token` in `X-XF-Console-Token`, and it must answer with no
+  - fetches the model-catalog route, presenting the console token in
+    `X-XF-Console-Token`, read from the private copy `generate-and-open`
+    keeps in the state directory (T104), and it must answer with no
     available entry;
   - fetches every route the wheel, the lens and the chat rail request on load,
     none of which may answer 5xx;
@@ -2735,9 +2978,10 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - **Falsifier**: the harness itself, which exits non-zero on the first failed
     assertion.
   - **Ruled**: R1Q10 (a), R1Q12 (a) (the catalog's validators, T085), R1Q15
-    (b), R1Q16 (iii) and (iv), `5850003126`.
+    (b), R1Q16 (iii) and (iv), `5850003126`; the token's private copy,
+    `5963851934`.
   - **After**: T089, T076 (the root README's one documented command, which the
-    harness runs).
+    harness runs), T104 (the harness reads the token's private copy).
 - [ ] T096 [US3] [oxF] **AT-R1, the browser half, on the host.** Drive the
   same install with Playwright (quickstart.md § 4, against the server § 3
   starts). The verdict comes from
@@ -2773,7 +3017,7 @@ is `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
   - Record the non-normative corrections from research R16 in the evidence
     notes.
   - **Ruled**: R1Q20 (a).
-  - **After**: T096, T007 (every batch).
+  - **After**: T096, T099 (10.3 closes on the publish), T007 (every batch).
 
 ---
 
@@ -2815,10 +3059,10 @@ Every release-1 box, with the task that closes it:
 | 5 (12) | 5.0 → T050 · 5.1 → T053, T054, T056 · 5.2 → T054 · 5.3 → T054 · 5.3a → T060 · F5.1 → T060 · 5.4 → T052 · 5.4a → T059 · F5.2 → T086, T089 (T063 quotes it red; RULED `5962785556` moves its close to phase 3) · 5.5 → T055 · 5.6 `[x]` · F5.3 → T063 |
 | 7 (8) | 7.0 → T051 · 7.1 → T053, T057 · 7.1b → T057 · 7.1a → T057 · 7.2 → T057, T058 · 7.3 → T061 · F7.1 → T061 · F7.2 → T058, T063 |
 | 9 (8) | 9.1 → T034–T036 · 9.2 → T040, T041, T043, T086 · 9.2a → T030, T036 · 9.3 → T035, T042 · 9.4 → T037, T044 · 9.5 → T039, T040, T047, T059, T062, T064, T086, T087, T094 (T090's steps; arc close) · F9.1 → T049 · F9.2 → after T008 (T049 quotes it red, as RULED `5859927858` keeps it) |
-| 10 (5) | 10.1 → T038 · 10.2 → T075 · 10.2a → T075 · 10.3 → T076 · F10.1 → T077 |
+| 10 (5) | 10.1 → T038 · 10.2 → T075 · 10.2a → T075 · 10.3 → T076, T101, T099 · F10.1 → T077 |
 | 11 (3) | 11.0 → T091 · 11.1 → T045, T092 · F11.1 → T093 (all at arc close) |
 | 13 (8) | 13.1 → T072 · 13.2 → T071 · 13.3 → T071 · 13.4 → T070 · 13.4a → T073 · 13.5 → T070 · 13.6 → T070 · F13.1 → T074 |
-| 16 (8) | 16.1 → T078 · 16.2 → T079 · 16.3 → T080 · 16.3a → T100 (added by T007's batch M) · 16.4 → T081, T085 · 16.5 → T082 · 16.6 → T034, T083 · F16.1 → T083 |
+| 16 (8) | 16.1 → T078 · 16.2 → T079 · 16.3 → T080 · 16.3a → T100 (added by T007's batch M) · 16.4 → T081, T085, T102 · 16.5 → T082 · 16.6 → T034, T083 · F16.1 → T083 |
 
 8 + 5 + 5 + 12 + 8 + 8 + 5 + 3 + 8 + 8 = **70**.
 
@@ -2868,7 +3112,16 @@ Every release-1 box, with the task that closes it:
   openDox-code#64, T081, T072, T084 and T007's batch M. Then T083, after
   T082 and T100. Then T087 (the phase-3 openDox root pin) → T086 → T094 →
   T098 → T089, and T087 → T076 → T089.
-- **Acceptance**: T095 (after T089 and T076) → T096 → T097.
+  T084 → T102 (the workbench by scope, also after T081 and T088) and T084 →
+  T103 (the loopback Host check, in `serve.py`'s order). Then T103 → T104
+  (the console token in the opened URL, also after T102, the web bundle).
+  The PyPI publish comes last. T101, T099's release step (the release
+  workflow, and then the bump to 0.1.0), lands after every other phase-3
+  openDox-code landing that changes the shipped package, T100 and T102–T104
+  included, and T087 pins it: T101 → T087. The publish follows the
+  checkpoint and the acceptance, at the cut: T089 → T099 and T096 → T099.
+- **Acceptance**: T095 (after T089, T076 and T104) → T096 → T097, and T096 →
+  T099 → T097.
 
 ### Parallel slices, summarised
 
@@ -2876,7 +3129,7 @@ Every release-1 box, with the task that closes it:
 |---|---|---|
 | 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; `pyproject.toml` (T038 → T036); `tests/test_authoring_seam.py` (T020 → T021 → T022); openDox-code's `validate.yml` (T036 → T037); T020 → T025 and T026 → T025; T032 → T037; T039 (root pin) → openXdox (T040, then T041 → T042 → T043 → T044) → T047 → T017, T018 |
 | 2 | T053 ∥ T050, then T052 ∥ T057 ∥ T051 | T053 → T054 → T055 → T056 → T058; T062 → T059 → T061 → T066 → T064; openXdox-code `pyproject.toml` (T059 → T061); ratchet writers; T007 batch I before T059, T060 and T061; batch K before T061 |
-| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072; T082 ∥ 16.3a (T100), then T083 | `serve.py` and `cli.py` (T070, T072 and T073 before T084); `serve_workbench.py` (T084 → T100); openDox-code `pyproject.toml` (T072); `doxbench_binding.py` (T078 → T080, then T100 after openDox-code#64); `cli_model_binding.py` (T079 → T080 → T100); `doxbench_install.py` (T081 → T100); T085 → T081; T087 → T086 → T094 |
+| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072; T082 ∥ 16.3a (T100), then T083 | `serve.py` and `cli.py` (T070, T072 and T073 before T084, and T103, then T104, after it); T084 → T102 → T104; `serve_workbench.py` (T084 → T100); openDox-code `pyproject.toml` (T072 → T075 → T101); `doxbench_binding.py` (T078 → T080, then T100 after openDox-code#64); `cli_model_binding.py` (T079 → T080 → T100); `doxbench_install.py` (T081 → T100); T085 → T081; T087 → T086 → T094; T101 → T087; T089 → T099 and T096 → T099 (the publish, at the cut) |
 
 ## Phase 1 writer slices (for the fan-out)
 
@@ -2967,6 +3220,9 @@ P3-B's T080, batch L before P3-R's T084, and batch M before P3-T's T100.
 | P3-L lens seed actions | G1 | T088 | oDc | `src/opendox/web/views/lens.js`, and the capability that says a binding answers | T063, T069 | AT-R1 step 6 | Sonnet |
 | P3-E the door | G2, after P3-I | T075, T077 | oDc | none, unless T075's run finds a gap in how the bundle is served. An edit to the server module then joins its single-writer order between T073 and T084 before the PR opens | P3-I (T072); T007 batch H | F10.1's fetch, as batch H amends it (T075); F10.1, as batch H amends it (T077) | Sonnet |
 | P3-R 4.3's last reaches | G2, after P3-I | T084 | oDc | `src/opendox/serve.py`, `src/opendox/cli.py`, `src/opendox/serve_workbench.py`, `src/opendox/serve_project.py` and `src/opendox/branch_session.py`; the defaults' modules; `src/opendox/consumer_reach.py` (deleted); `tests/test_capability_honesty.py` (new, the capability and crash-site assertions); `tests/test_rejection_report.py` (new, the grouped rejection output) | P3-I; T007 batch L | F4.1 whole; the capability-honesty test, over a standalone child and a composed host; the rejection-output test | Opus |
+| P3-S edit and chat by scope | G2, after P3-R | T102 | oDc | `src/opendox/web/views/staging-workbench.js` and `staging-workbench-model.js` (the editors and the rail by scope; create and Save behind the gate); `src/opendox/web/views/lens.js` and `src/opendox/web/index.html` (the display text) | P3-R, P3-D (T081), P3-L | AT-R1 step 7; the workbench-by-scope test | Opus |
+| P3-V the loopback Host check | G2, after P3-R | T103 | oDc | `src/opendox/serve.py` (every loopback route checks `Host`; the `install` block behind it) | P3-R | the Host-check test | Opus |
+| P3-C the console token | G2, after P3-V and P3-S | T104 | oDc | `src/opendox/serve.py` (`/capabilities` stops carrying the token); `src/opendox/cli.py` (`generate-and-open`'s opened URL and the private copy); the web bundle's token readers (`src/opendox/web/app.js`, `src/opendox/web/views/edit.js` and `staging-workbench-model.js`) | P3-V, P3-S | the console-token test | Opus |
 | P3-T per-machine binding trust | G3 | T100 | oDc | the trust record and its lazily registered policy seam (a new module); `src/opendox/doxbench_install.py` (the gate where the bindings are read, after T081); `src/opendox/cli_model_binding.py` (`add` and `edit` record trust, the `trust` verb, `set-credential`'s gate and re-trust); `src/opendox/serve_workbench.py` (the console intake's broker hand-off, single-writer after T084); `tests/test_model_binding_trust.py` (new); `tests/test_model_provider_broker.py` (its hand-written-binding cases) | P3-B, openDox-code#64, P3-D, P3-I (T072), P3-R; T007 batch M | F16.1's batch M block: `tests/test_model_binding_trust.py` | Opus |
 | P3-N no model, everywhere | G3; T083 after P3-T | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B; P3-T for T083 | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole, as batch M amends it (T083) | Sonnet |
 | P3-P openDox root pin | G4 | T087 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-3 openDox-code slice landed | `make pins` | Sonnet |
@@ -2976,7 +3232,9 @@ P3-B's T080, batch L before P3-R's T084, and batch M before P3-T's T100.
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F5.2, F10.1, F13.1, F16.1 (as batch M amends it) | Opus (verifier) |
 | acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O | the harness; the oracle's verdict | Opus |
-| bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance; T007 every batch | none (a record) | Sonnet |
+| P3-W T099's release step | last among the package-changing openDox-code landings, before P3-P | T101 | oDc | `.github/workflows/release.yml`, `.github/release-tools-cpython312-linux.txt` and `tests/test_release_workflow.py` (new); `pyproject.toml` (`readme`, after T072 and T075; then the version bump to 0.1.0, its own PR and the last of T101's landings); `README.md` (its relative links made absolute, for the PyPI page) | every package-changing phase-3 openDox-code slice | `tests/test_release_workflow.py` | Opus |
+| P3-U publish to PyPI | after the checkpoint and the acceptance, at the cut | T099 | oD | the root's `README.md` ("Where `opendox` comes from" becomes the PyPI install line, after the publish verifies, in a small root PR); the dispatch of openDox-code's release workflow edits no file | P3-W, P3-P, P3-O, the checkpoint and the acceptance | the release workflow's `build` job (its artifact checks), a TestPyPI dry run installed in a fresh venv, the PyPI publish and its digest check; the README PR by review | Sonnet |
+| bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance, P3-U; T007 every batch | none (a record) | Sonnet |
 
 ## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`, `5962785556`)
 
