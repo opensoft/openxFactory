@@ -10,6 +10,7 @@ Executable implementation tasks belong only to the one Speckit feature allocated
 ## 2. Owner decision and feature handoff
 
 - [ ] 2.1 OWNER: Brett ratifies this exact reviewed packet or supplies amendments; retain the box and record verbatim words, reviewed head and date beside it.
+  - Recorded 2026-10-03: Brett Heap, verbatim **"ratify all three as disclosed"**, over reviewed head `b5cdf154208c1a5fd59e3936b483f37448ca85f9`; **RATIFIED AS DISCLOSED**, without amendments. See [ratification record](review/ratification-2026-10-03.md). Owner-act box intentionally retained.
 - [ ] 2.2 After ratification, accept/claim provider ownership and allocate exactly one Speckit feature; verify its explicit backlink and constitution gate where applicable.
 
 ## 3. Release and successor evidence

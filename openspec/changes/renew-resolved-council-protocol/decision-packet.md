@@ -1,8 +1,10 @@
 # Decision packet
 
-Status: draft
+Status: record
 Prepared: 2026-10-03
 Owner: Brett Heap
+
+Decision recorded 2026-10-03: Brett Heap selected choice 1, verbatim **"ratify all three as disclosed"**. **RATIFIED AS DISCLOSED** at the three exact reviewed heads in [the ratification record](review/ratification-2026-10-03.md). The choices and pre-decision qualifications below are retained as the presented history.
 
 ## Situation and evidence
 

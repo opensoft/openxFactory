@@ -4,9 +4,12 @@ target_release: implementation_pending — versions allocated at realization; ar
 ---
 # Renew the resolved council protocol
 
-Status: draft
+Status: ratified
+Ratified: 2026-10-03 by Brett Heap — "ratify all three as disclosed"; [exact reviewed heads and scope](review/ratification-2026-10-03.md).
 Proposed: 2026-10-03
 Commission: Brett Heap directed "implement this" after the seven-item comparison of codexFactory draft 017; this commissions preparation, not ratification of this newly authored packet.
+
+Decision update (2026-10-03): the header and [ratification record](review/ratification-2026-10-03.md) now record ratification as disclosed. The original commission and preparation statements are retained as history; implementation, publication, deployment and activation are not claimed complete.
 
 ## Why
 
