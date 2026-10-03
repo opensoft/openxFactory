@@ -119,9 +119,9 @@ curl -sf "http://127.0.0.1:$PORT/capabilities" > "$W/caps.json"
 # 5963851934 (T104): the token is not on /capabilities. The command keeps a private copy that
 # opens the page with the token in the URL's fragment, and the token is read from there.
 COPY="$OPENDOX_STATE_DIR/console/$PORT.html"
-TOKEN=$(python3 - "$COPY" <<'PY'
+TOKEN=$(python3 - "$COPY" "$PORT" <<'PY'
 import html, os, re, stat, sys, urllib.parse
-copy = sys.argv[1]
+copy, port = sys.argv[1], int(sys.argv[2])
 for path, mode in ((os.path.dirname(copy), 0o700), (copy, 0o600)):
     info = os.lstat(path)
     assert info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == mode, f"{path} is not this user's own, mode {mode:o}"
@@ -132,7 +132,9 @@ assert all(text[m.start() - 1] == "#" for m in re.finditer("console_token=", tex
 target = re.search(r"""(?i)http-equiv=["']?refresh["']?\s+content=["']\s*\d+\s*;\s*url=([^"']+)""", text)
 assert target, "the private copy forwards to no page"
 url = urllib.parse.urlsplit(html.unescape(target.group(1)))
-assert "console_token" not in urllib.parse.parse_qs(url.query), "the opened URL carries the token in its query"
+# the request a browser sends is this server's /index.html with no query at all, so no token
+# value can reach a request line, a server log or a Referer (the message never echoes the URL)
+assert (url.scheme, url.netloc, url.path, url.query) == ("http", f"127.0.0.1:{port}", "/index.html", ""), "the private copy does not forward to this server's /index.html with an empty query"
 token = urllib.parse.parse_qs(url.fragment).get("console_token", [""])[0]
 assert token, "the opened URL carries no token in its fragment"
 print(token)
