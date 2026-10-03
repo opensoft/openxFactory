@@ -2136,7 +2136,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
       settings a case gives its child on purpose, since #67's fix round strips
       every runtime setting the runner exports.
     - T074 runs F13.1 whole. T084 follows in `serve.py`'s single-writer order.
-- [ ] T074 [US3] [oDc] **Run F13.1**, as batch H amends it: it installs
+- [x] T074 [US3] [oDc] **Run F13.1**, as batch H amends it: it installs
   `.[local]`, and its local probe's `OPENDOX_INSTALL_MODE=local` is the same
   selection as `--local`.
   - **Realizes**: F13.1.
@@ -2144,6 +2144,24 @@ written (`5962754358`). `consumer_reach.py` is gone.
     its PR.
   - **Ruled**: R1Q15 (b), R1Q16 (iii), `5850003126`.
   - **After**: T073.
+  - **Landed**: [`evidence/f13.1-run.md`](evidence/f13.1-run.md), run on
+    2026-10-03 at openDox-code `main` `90ac7033`, T073's landing (#72). It is
+    quoted in openxFactory, in the checkpoints' form, on the holder's ruling
+    of 2026-10-03, as T077's run is.
+    - F13.1, extracted byte for byte from #1144 at `ec9308c8` with batch H's
+      install line (`pip install ".[local]"`), exits 0 from a fresh clone and
+      a fresh venv, in an `env -i` environment with no database and no broker
+      configured. The local probe starts the bundled PostgreSQL (migrated
+      `['0001', '0002']`). The served `install` block reads `mode` `local`
+      with the bundle under the fresh state directory, and the bundled server
+      holds no TCP listener in `/proc/net/tcp{,6}`. `runtime status` reads
+      `reachable` with no pending migration.
+    - The three CLI refusals hold, each exit 1 and not 124: a non-loopback
+      bind under `local`, naming the loopback rule; and `hosted`, then the
+      unset default, with no issuer, each naming `OPENDOX_OIDC_ISSUER`.
+    - The two `load_settings` checks are `assert`s in the block's in-process
+      python step, not exit statuses: a SQLite pair is refused naming
+      postgres, and a collapsed pair naming `OPENDOX_MIGRATION_DATABASE_URL`.
 
 ### Group 10: the door
 
