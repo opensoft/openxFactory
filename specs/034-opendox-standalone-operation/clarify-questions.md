@@ -825,7 +825,7 @@ Decision and `tasks.md`'s box accounting record it.
 
 ---
 
-## R1Q22 — Does the carve's declared-edit discipline govern the arc's edits to carved files? *(governs T007 and every task that edits a carved file: T010–T012, T016, T021, T022, T025–T027, T034, T035, T037, T038, T055–T058, T070, T072, T073, T075, T078–T081, T084, T085, T088, T100; in openXdox-code, T040, T043, T044, T061 and T086; and T092)* — **ANSWERED (a)**
+## R1Q22 — Does the carve's declared-edit discipline govern the arc's edits to carved files? *(governs T007 and every task that edits a carved file: T010–T012, T016, T021, T022, T025–T027, T034, T035, T037, T038, T055–T058, T070, T072, T073, T075, T078–T081, T084, T085, T088, T100, T102, T103, T104; in openXdox-code, T040, T043, T044, T061 and T086; and T092)* — **ANSWERED (a)**
 
 **Measured.** `src/opendox/runtime/cli.py:17-19`: *"`src/opendox/cli.py` is a
 CARVED file with a row in openxFactory's `docs/opendox-carve-manifest.yaml`, so a

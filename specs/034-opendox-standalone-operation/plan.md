@@ -27,7 +27,9 @@ It is built in three phases, following #1144's RULED release map:
 - **Phase 3** makes it install: Group 13, boxes 10.2, 10.3 and F10.1, Group 16,
   and the rest of 4.3, which retires `consumer_reach.py`. The one documented
   command is `pip install "opendox[local]"`, then
-  `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)).
+  `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii)). T099
+  publishes the package to PyPI at the cut, so that the install line works as
+  written (`5962754358`, `5963162921`).
 - **Every phase** includes Group 11 (the trailer and the guard) and 9.5 (the
   pins).
 
@@ -135,7 +137,7 @@ specs/034-opendox-standalone-operation/
 ├── research.md             # every measurement, with its command
 ├── clarify-questions.md    # R1Q1–R1Q27, all answered (5817152735, 5850003126, 5851950767)
 ├── quickstart.md           # AT-R1's procedure
-├── tasks.md                # 91 tasks, T001–T100 (some ids unused), box accounting (70 of 125)
+├── tasks.md                # 96 tasks, T001–T104 (some ids unused), box accounting (70 of 125)
 ├── checklists/
 │   └── requirements.md     # the spec-quality checklist
 └── evidence/               # bookkeeping records, with no `Arc:` trailer (R1Q20 (a))
@@ -172,10 +174,13 @@ opensoft/openDox-code            [oDc]   the product; most of the work
   src/opendox/runtime/config.py, runtime/cli.py, <bundle module>               Group 13
   src/opendox/doxbench_binding.py, doxbench_provider.py, doxbench_install.py   Group 16
   src/opendox/web/views/doxbench-chat.js, lens.js                              16.4, R1Q19 (a)
+  src/opendox/web/views/staging-workbench.js, staging-workbench-model.js       T102: the editors and the rail by scope
+  src/opendox/web/app.js, web/views/edit.js                                    T104: the console token from the opened URL
   tests/fixtures/plain-documents/, tests/fixtures/malformed/                   5.0, 7.0
   tests/test_imports_standalone.py, test_authoring_seam.py,
     test_profile_registration.py, test_chat_model_configuration.py             named by the falsifiers
   acceptance/at_r1_http.py                                                     T095: a harness in its own job, no database
+  .github/workflows/release.yml, .github/release-tools-cpython312-linux.txt    T101: the release workflow, by trusted publishing; T099 publishes with it at the cut
   conftest.py, pyproject.toml, .github/workflows/validate.yml, README.md       9.1, 10.1, 2.6
 opensoft/openXdox-code           [oXc]   the consumer
   pyproject.toml (opendox pin), tests/test_dependency_direction.py (ratchet)   9.5, 4.3
@@ -259,7 +264,12 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
           [oD]   T087 root pin → T076 (README: the opendox[local] install and the --local command)
           [oXc]  T086 (columns, ratchet (0,0)) at the pin T087 carries
           [oX]→[oxF]  T094 consumer pins + host wiring → T098 (interim F11.1) → checkpoint T089 (after T076)
- ACCEPTANCE      T095 (HTTP, CI; after T089 and T076)  →  T096 (browser)  →  T097 (bookkeeping, Rule 6)
+          [oDc]  T084 → T102 (the workbench by scope; also after T081, T088) and T084 → T103 (the loopback Host check)
+          [oDc]  T103 → T104 (the console token in the opened URL, not /capabilities; also after T102)
+          [oDc]  T101 → T087 (T099's release step: the release workflow, then the 0.1.0 bump, after every package-changing phase-3 openDox-code landing)
+          [oDc]  T089 → T099 and T096 → T099 (the PyPI publish at the cut, of the commit T087 pins, after the acceptance)
+          [oD]   T099's last step: the root README's "Where opendox comes from" becomes the PyPI install line (after T076)
+ ACCEPTANCE      T095 (HTTP, CI; after T089, T076, T104 and T007 batch N)  →  T096 (browser)  →  T099 (the publish)  →  T097 (bookkeeping, Rule 6)
  EVERY PHASE     T090 pins · T091 trailer · T092 notes · T093 interim F11.1 (run as T018, T065, T098)
 ```
 
@@ -273,10 +283,10 @@ lists.
 
 | single-writer file | slices, in order |
 |---|---|
-| `src/opendox/serve.py` | T010 (`build_server`'s bases) → T011 → T012 → (T016, T022 one-line entry-point calls) → T052 (the generator's registration call) → T055 → T072 (the bundled server, the document server's child) → T073 → T084 |
-| `src/opendox/cli.py` | T016/T022 entry-point registration → T038 → T052 (the generator's registration call) → T055 → T058 (the generate verbs' post-render validator) → T070 (`--local`) → T084 |
+| `src/opendox/serve.py` | T010 (`build_server`'s bases) → T011 → T012 → (T016, T022 one-line entry-point calls) → T052 (the generator's registration call) → T055 → T072 (the bundled server, the document server's child) → T073 → T084 → T103 (every loopback route checks `Host`) → T104 (`/capabilities` stops carrying the console token) |
+| `src/opendox/cli.py` | T016/T022 entry-point registration → T038 → T052 (the generator's registration call) → T055 → T058 (the generate verbs' post-render validator) → T070 (`--local`) → T084 → T104 (`generate-and-open` opens the page with the console token in the URL fragment, and keeps its private copy) |
 | `src/opendox/workbench.py` | T026 → T025 (both in P1-E) → T055 (the validator lookup's default) |
-| openDox-code `pyproject.toml` | T038 (`[project.scripts]`) → T036 (`testpaths`, and the `test` extra) → T057 (the validator's package data) → T072 (the `local` extra, which the `test` extra joins) |
+| openDox-code `pyproject.toml` | T038 (`[project.scripts]`) → T036 (`testpaths`, and the `test` extra) → T057 (the validator's package data) → T072 (the `local` extra, which the `test` extra joins) → T075 (the bundle's `web/**/.*`) → T101 (`readme`; then the version bump to 0.1.0, the last package-changing phase-3 openDox-code landing) |
 | openDox-code `tests/test_authoring_seam.py` | T020 (the seam tests) → T021 → T022 |
 | openDox-code `tests/test_consumer_reach.py` | T011 (`opendox.cli` and `opendox.serve` into `NEUTRAL_MODULES`) → T034 (the rest of `STILL_REACHING`) |
 | openDox-code `.github/workflows/validate.yml` | T036 → T037; no earlier phase-1 slice edits it (tasks.md § Phase 1), and T095 adds phase 3's `acceptance` job |
@@ -305,8 +315,12 @@ lists.
   T081), the retirement of the late reaches (T084, after T073; then T086), and
   entry-point serving (T075, after T072). Per-machine binding trust (T100,
   16.3a) follows the binding slice, the no-model state and T084, and comes
-  before F16.1's whole run (T083). tasks.md § "Phase 3 writer slices"
-  gives the fan-out.
+  before F16.1's whole run (T083). The workbench by scope (T102) and the
+  loopback Host check (T103) follow T084, and the console token's move to
+  the opened URL (T104) follows both. The release step (T101) lands last
+  among the package-changing openDox-code landings, before T087, and the
+  PyPI publish (T099) follows the checkpoint and the acceptance, at the
+  cut. tasks.md § "Phase 3 writer slices" gives the fan-out.
 
 ## Pins and landing order (9.5): one openDox-code commit per phase, everywhere
 
