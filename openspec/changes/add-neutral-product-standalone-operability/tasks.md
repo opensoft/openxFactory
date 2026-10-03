@@ -2150,9 +2150,13 @@ that does not name a platform.
     state directory 16.3a's trust file uses. The file is mode 0600, in a
     directory of mode 0700. Each missing directory is made by descriptor,
     the file is created without following a link, and the whole path is
-    checked as openDox-code#69's bundle checks its own tree. A copy that is
-    planted, linked, hard-linked or loosened is refused by name, and never
-    followed or replaced. The copy never sits where the plane serves files,
+    checked as openDox-code#69's bundle checks its own tree. A file already
+    at the copy's path is replaced only when it is this user's own regular
+    file of mode 0600 with one link, an earlier copy for that port. Anything
+    else there (a symbolic link, a directory, another user's file, a
+    hard-linked or a loosened file) refuses the start by name, and is never
+    followed or replaced, and a copy that fails the same checks is refused
+    when it is read. The copy never sits where the plane serves files,
     so the state directory and the roots the plane serves do not overlap in
     either direction. A state directory that is, or lies inside, a served
     root is refused by name, which is the holder's own ruling on #1220's
@@ -2160,10 +2164,14 @@ that does not name a platform.
     served root that is, or lies inside, the state directory, such as
     `<state_dir>/console` itself, on the holder's ruling on batch N's
     review (Copilot `r4174345203`, 2026-10-03).
-    `/source` already refuses a path that leaves its root through a symbolic
-    link (`default_registry.resolve_within`, openDox-code `main`
-    `e49b17c3`), so a link inside a served root that points at the state
-    directory reaches nothing;
+    A link inside a served root that points at the state directory reaches
+    nothing. `/source` already refuses a path that leaves its root through
+    a symbolic link (`default_registry.resolve_within`, openDox-code `main`
+    `e49b17c3`). The static bundle's route follows links inside the
+    bundle's directory, because a composed host's web root is made of them,
+    so it answers 404, for GET and HEAD, files and listings alike, to any
+    request whose resolved target is the private copy's directory or lies
+    inside it;
   - the copy forwards to the page with the token in the URL's FRAGMENT,
     `…/index.html#console_token=<token>`, and never in its query, so no
     request line, server log or `Referer` carries it;

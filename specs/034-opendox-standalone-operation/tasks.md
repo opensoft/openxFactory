@@ -320,13 +320,16 @@ planned on answers.
     which forwards to the page with the token in the URL's fragment, never
     in its query. It prints the copy's location as a `file://` URL and never
     the token, with or without `--no-open`, removes the copy when the server
-    stops, and refuses the start when no safe copy can be written. A
-    planted, linked, hard-linked or loosened copy is refused by name. So is
-    a state directory that is, or lies inside, a root the plane serves (the
-    holder's ruling on #1220's review, Copilot `r4171166321`), and a served
-    root that is, or lies inside, the state directory (the holder's ruling
-    on batch N's review, Copilot `r4174345203`). A composed host keeps
-    `/capabilities`' delivery.
+    stops, and refuses the start when no safe copy can be written. A file
+    at the copy's path other than this user's own 0600 earlier copy (a
+    link, a directory, another user's file, a hard-linked or loosened file)
+    is refused by name. So is a state directory that is, or lies inside, a
+    root the plane serves (the holder's ruling on #1220's review, Copilot
+    `r4171166321`), and a served root that is, or lies inside, the state
+    directory (the holder's ruling on batch N's review, Copilot
+    `r4174345203`). The static bundle's route answers 404 for anything
+    inside the copy's directory. A composed host keeps `/capabilities`'
+    delivery.
     No #1144 falsifier reads the token from `/capabilities`, so none is
     amended: F10.1, F13.1 and F12's named token test are unchanged. AT-R1 is
     this feature's and not #1144's, so its step 4 (spec.md) and
@@ -2798,10 +2801,13 @@ written (`5962754358`). `consumer_reach.py` is gone.
       logs stay clean. A browser is handed the same `file://` URL, never the
       tokenized one, because a command line is readable by every user of
       the machine;
-    - a copy or a state directory the checks below refuse (a planted, linked,
-      hard-linked or loosened copy, or a state directory that overlaps a
-      served root in either direction) refuses the START by name, before
-      anything is written, so the server never serves;
+    - a file already at the copy's path is replaced only when it is this
+      user's own regular file of mode 0600 with one link, an earlier copy
+      for that port. Anything else there (a symbolic link, a directory,
+      another user's file, a hard-linked or a loosened file), or a state
+      directory that overlaps a served root in either direction, refuses the
+      START by name, before anything is written, so the server never serves.
+      A copy that fails the same checks is refused when it is read;
     - the copy is removed when the server stops, whether by Ctrl-C or by a
       plain `kill`.
   - **The private copy is written safely.** It is written only into a state
@@ -2821,10 +2827,15 @@ written (`5962754358`). `consumer_reach.py` is gone.
       direction. Every root the plane serves is checked: the checkout, the
       static bundle's directory, each declared source root, each registry
       entry's root and the sessions container (the holder's ruling on batch
-      N's review, Copilot `r4174345203`, 2026-10-03). `/source` already
-      refuses a path that leaves its root through a symbolic link
-      (`default_registry.resolve_within`), so a link inside a served root
-      that points at the state directory reaches nothing.
+      N's review, Copilot `r4174345203`, 2026-10-03);
+    - and a link inside a served root that points at the state directory
+      reaches nothing. `/source` already refuses a path that leaves its root
+      through a symbolic link (`default_registry.resolve_within`). The
+      static bundle's route follows links inside `--web-dir`, because a
+      composed host's web root is made of them, so it answers 404, for GET
+      and HEAD, files and listings alike, to any request whose resolved
+      target is the private copy's directory or lies inside it (Copilot at
+      openDox-code#84, `r4173889294`; this PR's review, `r4174424180`).
 
     The file is created new, owner-only (0600), without following a symbolic
     link, and only then renamed into place. So neither a symbolic link nor a
@@ -2861,14 +2872,22 @@ written (`5962754358`). `consumer_reach.py` is gone.
       and never in its query.
     - The private copy is owner-only (0600), in a 0700 directory, under the
       state directory.
-    - Each of these is refused, by name: a symbolic link at the copy's path,
-      a regular file or a directory planted there, a hard-linked copy, a
-      loosened copy, a state directory another user can write, one another
+    - At the START, through the writer and through each entry point, each of
+      these refuses by name before anything is written: a symbolic link at
+      the copy's path, a directory there, another user's regular file
+      there, a hard-linked file there, this user's own file there at a mode
+      other than 0600, a state directory another user can write, one another
       user owns, one equal to the served root or under it, and a served root
       equal to `<state_dir>/console` (or any other at or under the state
-      directory).
+      directory). This user's own 0600 earlier copy for that port is
+      replaced.
+    - On a READ, a loosened, linked or hard-linked copy, or another user's,
+      is refused by name.
     - A symbolic link inside a served root that points at the state
       directory gets 404 from `/source`, and never the copy.
+    - A link under `--web-dir` that points at the console directory: static
+      GET and HEAD requests for the copy, for the directory's listing and
+      for another port's copy each answer 404.
     - The start prints the copy's location as a `file://` URL, and never the
       token or a URL that carries it, with and without `--no-open`. It is
       refused when no safe copy can be written, and then nothing serves.
@@ -3504,7 +3523,7 @@ landed it in #1144's spec delta, as #1170 → `79a720a2`.
 | K | F5.2 | The reviewed allow-list, R1Q7 (a)'s, also admits T061's ten walk-premise edits, each entered with its reason and none as a respelling: nine in `tests/test_snapshot_validation_launch.py`, and `tests/test_snapshot.py::test_a_missing_validator_is_unavailable_not_a_verdict`. `test_a_run_dir_beside_a_checkout_still_uses_that_one_first` inverts its answer and keeps its name. For F5.2, batch C's "the entry's recorded text" reads as several entries' texts together: one landing's entries for one suite, applied in the order listed, chain by git blob, and the call passes `--chains`. 12.5's falsifier is not amended, and its call refuses a chain. | `5916000030`, item 4 | T061, T063 |
 | L | 4.3 | An addendum after batch G's. A flag in the served `/capabilities` payload's `actions` map whose affordance is a route this server serves is true only where such a route answers. `gate` and `refresh`, whose routes a host contributes through the route bindings, are true only when the assembled bindings carry a route they govern, so standalone both read false (and the workbench's session controls, which read `actions.gate`, are hidden), and a composed host reads as today. `notebook`, `edit` and `session` keep their conditions, and `intent` governs a POST to another plane's intent API, a route that plane answers, so its condition stands. The three reaches that drop a connection standalone (`serve_workbench.py:1219` and `:2611`, `serve_project.py:271` at `047bb4fa`) answer through their seams, from openDox's default where one serves the request, or else with a structured refusal, never a dropped connection, as 4.2 requires. | `5920216845`, item 1 | T084 |
 | M | requirement 17 and scenario 17.1 (spec delta); 16.3a (added); F16.1 | A dated note in requirement 17's body, after batch K's, in batch D's form, and a new box, 16.3a, after 16.3's addenda. No ratified text is rewritten. A binding read from the served repository runs a broker, or resolves any credential reference (`env:`, `keyring:` or a broker's), only once the operator has trusted that exact binding on this machine. The trust lives in the operator's own state, never in the repository: a private file under `OPENDOX_STATE_DIR` (T072), checked as #69's bundle checks its tree, and refused if the setting names the served root or a path under it. It names the root's resolved path, the binding's id and a digest of the binding's full record, so an edit or a move untrusts it. `model-binding add` and `edit` record trust, and `model-binding trust <id>` records it after printing what will run and where the credential goes, never the credential. An untrusted binding is refused by name, naming the command that trusts it, before any spawn, read or contact, `set-credential`'s broker included, and the catalog lists it `available: false`. `set-credential` on a trusted binding re-records trust for what it rewrites, and never trusts an untrusted one. Bindings stay committable. It is openDox's strict neutral default, registered lazily by its consumers, and a host's own registration wins. F16.1 gains `tests/test_model_binding_trust.py` after its last line. | `5962785556`, item 2 | T100, T083, T089 |
-| N | 12.4a | An addendum after 12.4a's prose, on where the human-console test's per-serve token comes from. On a standalone plane, the one built from openDox's own default profile, the token reaches the page only through the URL the page is opened with. `/capabilities` carries no `console_token`. The entry point that starts the serve writes a private copy, an opener file at `<state_dir>/console/<port>.html` under `OPENDOX_STATE_DIR` (T072), mode 0600 in a 0700 directory, made by descriptor without following a link and checked as openDox-code#69's bundle checks its tree. A planted, linked, hard-linked or loosened copy is refused by name, never followed or replaced, and the state directory and the roots the plane serves may not overlap in either direction: a state directory that is, or lies inside, a served root (the holder's ruling on #1220's review, Copilot `r4171166321`) and a served root that is, or lies inside, the state directory (the holder's ruling on batch N's review, Copilot `r4174345203`) are each refused by name. The copy forwards to `…/index.html#console_token=<token>`, the fragment and never the query. The start prints the copy's location as a `file://` URL and never the token, with or without `--no-open`, the copy is removed when the server stops, and the start is refused when no safe copy can be written. A composed host keeps its delivery on `/capabilities`. The human-console test, the submit route's three refusals and F12's named token test are unchanged, and no falsifier is amended: F10.1 fetches only `/`, and F13.1 reads only the `install` block. A tab that kept an earlier serve's token is refused by the next serve until the page is opened again through the new copy, an accepted limit. | `5963851934`, with `r4171166321` and `r4174345203` (the served roots) | T104 |
+| N | 12.4a | An addendum after 12.4a's prose, on where the human-console test's per-serve token comes from. On a standalone plane, the one built from openDox's own default profile, the token reaches the page only through the URL the page is opened with. `/capabilities` carries no `console_token`. The entry point that starts the serve writes a private copy, an opener file at `<state_dir>/console/<port>.html` under `OPENDOX_STATE_DIR` (T072), mode 0600 in a 0700 directory, made by descriptor without following a link and checked as openDox-code#69's bundle checks its tree. A file at the copy's path other than this user's own 0600 earlier copy for that port (a link, a directory, another user's file, a hard-linked or loosened file) refuses the start by name, never followed or replaced, and such a copy is refused when read. The static bundle's route, which follows links inside the bundle's directory, answers 404 for GET and HEAD to anything whose resolved target is the copy's directory or inside it. The state directory and the roots the plane serves may not overlap in either direction: a state directory that is, or lies inside, a served root (the holder's ruling on #1220's review, Copilot `r4171166321`) and a served root that is, or lies inside, the state directory (the holder's ruling on batch N's review, Copilot `r4174345203`) are each refused by name. The copy forwards to `…/index.html#console_token=<token>`, the fragment and never the query. The start prints the copy's location as a `file://` URL and never the token, with or without `--no-open`, the copy is removed when the server stops, and the start is refused when no safe copy can be written. A composed host keeps its delivery on `/capabilities`. The human-console test, the submit route's three refusals and F12's named token test are unchanged, and no falsifier is amended: F10.1 fetches only `/`, and F13.1 reads only the `install` block. A tab that kept an earlier serve's token is refused by the next serve until the page is opened again through the new copy, an accepted limit. | `5963851934`, with `r4171166321` and `r4174345203` (the served roots) | T104 |
 
 R1Q4 (a) and R1Q8 (a) amend nothing in #1144. They shape T015, T038, T046 and
 T036 only. Nor do three of round 2's answers. R1Q13 (a) with (c) shapes T050,
