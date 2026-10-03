@@ -92,7 +92,8 @@ before implementation starts.
   - H1, the private copy's contract, is settled by T007's batch N (#1222 →
     `bdd0f586`);
   - H2, the help tree at 32, by `5970917267`, with the plan side in T086,
-    T094, T100 and research R8, and #1144's side in a later batch, O;
+    T094, T100 and research R8, and #1144's side in T007's batch O
+    (#1228);
   - H3, AT-R1's commit against the published one, by the holder's
     P-against-X step in T099 and T096 and quickstart.md's `RELEASE1_TIP`.
 
