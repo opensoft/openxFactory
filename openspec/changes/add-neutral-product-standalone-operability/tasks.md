@@ -2142,7 +2142,8 @@ that does not name a platform.
   (`web/app.js:1459-1471`, `web/views/edit.js:10-26`). So any loopback
   caller can ask for it, another OS user of the same machine included. On a
   STANDALONE plane, the one built from openDox's own default profile, the
-  token IS TO reach the page only through the URL the page is opened with:
+  token IS TO reach the page only through the URL the page is opened with.
+  The details are the holder's approved design of 2026-10-03:
   - `/capabilities` carries no `console_token`;
   - the entry point that starts the serve writes a private copy, an opener
     file at `<state_dir>/console/<port>.html` under `OPENDOX_STATE_DIR`, the
@@ -2152,7 +2153,9 @@ that does not name a platform.
     checked as openDox-code#69's bundle checks its own tree. A copy that is
     planted, linked, hard-linked or loosened is refused by name, and never
     followed or replaced. So is a state directory that is, or lies inside,
-    a root the plane serves, because `/source` could then serve the copy;
+    a root the plane serves, because `/source` could then serve the copy.
+    That refusal is the holder's own ruling on #1220's review (Copilot
+    `r4171166321`, 2026-10-03), beside `5963851934`;
   - the copy forwards to the page with the token in the URL's FRAGMENT,
     `…/index.html#console_token=<token>`, and never in its query, so no
     request line, server log or `Referer` carries it;
