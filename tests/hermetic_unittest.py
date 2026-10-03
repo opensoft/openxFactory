@@ -43,6 +43,10 @@ import unittest
 from pathlib import Path
 
 TESTS_ROOT = Path(__file__).resolve().parent
+# Shared test helpers are imported through the repository namespace package.
+REPO_ROOT = TESTS_ROOT.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 if str(TESTS_ROOT) not in sys.path:
     sys.path.insert(0, str(TESTS_ROOT))
 
@@ -66,7 +70,8 @@ SCRIPTS_DIR = TESTS_ROOT.parent / "scripts"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
-from carved_reach import install as install_carved_reach  # noqa: E402
+from carved_reach import CarveReachUnavailable, install as install_carved_reach  # noqa: E402
+from opendox_host import register_openxfactory  # noqa: E402
 
 
 def install_guard(where: Path | None = None) -> Path:
@@ -81,6 +86,11 @@ def install_guard(where: Path | None = None) -> Path:
     there or arranges the by-name refusal for a leg that is genuinely
     uninitialized — it never raises itself (scripts/carved_reach.py)."""
     install_carved_reach(tests=True)
+    try:
+        register_openxfactory()
+    except CarveReachUnavailable:
+        # Unrelated suites may run without the optional pinned legs, as in pytest.
+        pass
     root = Path(where) if where is not None \
         else Path(tempfile.mkdtemp(prefix="hermetic-unittest-"))
     shim, _restore = hermeticity.install_binary_shim(root / "bin")

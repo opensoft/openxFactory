@@ -40,10 +40,10 @@ import unittest
 from pathlib import Path
 
 TESTS_ROOT = Path(__file__).resolve().parent.parent
-if str(TESTS_ROOT) not in sys.path:                # `tests/`, where the guard lives
+if str(TESTS_ROOT) not in sys.path:  # `tests/`, where the guard lives
     sys.path.insert(0, str(TESTS_ROOT))
 
-import hermeticity  # noqa: E402  (after the path insert, by construction)
+import hermeticity
 
 
 class HermeticityGuardReachesThisDirectoryTests(unittest.TestCase):
@@ -55,27 +55,27 @@ class HermeticityGuardReachesThisDirectoryTests(unittest.TestCase):
     `doxbench_bridge._spawn_child` would buy nothing here and would cost the
     bridge's own live smoke."""
 
-    def test_the_guarded_binaries_resolve_to_the_guards_own_refusal(self):
+    def test_the_guarded_binaries_resolve_to_the_guards_own_refusal(self) -> None:
         for binary in hermeticity.GUARDED_BINARIES:
             resolved = shutil.which(binary)
             self.assertIsNotNone(
                 resolved,
-                f"{binary!r} resolves to nothing, so this run installed no shim: "
-                "the hermeticity guard is not active (see this module's docstring)")
+                f"{binary!r} resolves to nothing; this run installed no refusal shim",
+            )
+            if resolved is None:
+                self.fail(f"{binary!r} did not resolve")
             text = Path(resolved).read_text(encoding="utf-8", errors="replace")
             self.assertIn(
-                hermeticity.MARKER, text,
-                f"{binary!r} resolves to {resolved} — a real binary, not the "
-                "guard's refusal shim: this run is NOT hermetic")
-            # …and the shim that stands here refuses in THIS binary's name,
-            # citing the requirement IT would break. A shim written for one
-            # binary and copied to another's name would pass the marker check
-            # above and mislead every reader of its refusal.
+                hermeticity.MARKER,
+                text,
+                f"{binary!r} resolves to {resolved}, a real binary; this run is not hermetic",
+            )
+            # Each binary must name its own refusal requirement, even if the common marker matches.
             self.assertIn(
-                hermeticity.requirement_for(binary), text,
-                f"the {binary!r} shim does not cite {binary!r}'s own "
-                "requirement: a refusal naming the wrong requirement sends the "
-                "reader to the wrong document")
+                hermeticity.requirement_for(binary),
+                text,
+                f"the {binary!r} shim does not cite its own requirement",
+            )
 
     def test_the_in_process_runners_are_the_refusals(self):
         # WHERE THIS PROBE HAS TO LOOK NOW (§ 5.2 shed, RULED (a), `#656`
@@ -105,27 +105,32 @@ class HermeticityGuardReachesThisDirectoryTests(unittest.TestCase):
         # shape: probe both names it goes on to import, inside the same
         # try/except.
         from importlib.util import find_spec
+
         try:
             dashboard_ready = all(
                 find_spec(f"opendox.{name}") is not None
-                for name in ("session_pr", "workbench"))
+                for name in ("session_pr", "workbench")
+            )
         except ImportError:
             dashboard_ready = False
         if not dashboard_ready:
-            self.skipTest("opendox is not materialized: run `git submodule "
-                          "update --init --recursive openDox openXdox` from "
-                          "the repository root")
+            self.skipTest(
+                "opendox is not materialized: run git submodule update --init --recursive openDox openXdox from the repository root"
+            )
         from opendox import session_pr as session_pr_mod
         from opendox import workbench as workbench_mod
 
-        self.assertIs(workbench_mod._default_runner, hermeticity.refuse_nlm,
-                      "workbench._default_runner is the real `nlm` subprocess: a "
-                      "non-zero exit from layer 1 would be swallowed by the "
-                      "adapter's own degradation clause (FR-042)")
-        self.assertIs(session_pr_mod.SubprocessCommandRunner.run,
-                      hermeticity.refuse_command,
-                      "session_pr's command runner is the real `gh`/`git push`")
+        self.assertTrue(
+            workbench_mod.__dict__["_default_runner"]
+            is hermeticity.__dict__["refuse_nlm"],
+            "workbench._default_runner is the real nlm subprocess; the adapter would swallow its nonzero exit (FR-042)",
+        )
+        self.assertTrue(
+            session_pr_mod.SubprocessCommandRunner.__dict__["run"]
+            is hermeticity.__dict__["refuse_command"],
+            "session_pr's command runner is the real gh/git push",
+        )
 
 
-if __name__ == "__main__":                          # pragma: no cover - manual use
-    unittest.main()
+if __name__ == "__main__":  # pragma: no cover - manual use
+    _ = unittest.main()

@@ -1,0 +1,20 @@
+{
+  "typeCheckingMode": "recommended",
+  "failOnWarnings": true,
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": [
+        "scripts",
+        "tests",
+        "openDox/code/src",
+        "openXdox/code/src"
+      ]
+    }
+  ],
+  "include": [
+    "scripts/sync_notebooklm_books.py",
+    "scripts/notebooklm_sync",
+    "tests/notebooklm"
+  ]
+}

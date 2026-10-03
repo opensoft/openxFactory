@@ -575,5 +575,8 @@ def main(argv: list[str]) -> int:
     return 1 if errors else 0
 
 
+# Public predicate for the typed hosting test contract.
+is_example = _is_example
+
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
