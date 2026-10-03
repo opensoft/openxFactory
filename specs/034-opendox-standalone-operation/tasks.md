@@ -2097,13 +2097,45 @@ written (`5962754358`). `consumer_reach.py` is gone.
       block is T074's to run. A `--local` child built with
       `tests/standalone_child.py` gets its own state directory automatically,
       and any other `--local` caller sets `OPENDOX_STATE_DIR` itself.
-- [ ] T073 [US3] [oDc] **13.4a: `/capabilities` gains an `install` block**,
+- [x] T073 [US3] [oDc] **13.4a: `/capabilities` gains an `install` block**,
   read from the serving process's own settings, which is the process that owns
   the bundled server (R1Q16 (i)). `serve.py` is a single-writer file.
   - **Realizes**: 13.4a.
   - **Falsifier**: F13.1's `caps.json` block.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q16 (i), `5850003126`.
   - **After**: T072, T055 (`serve.py`'s single-writer order).
+  - **Landed**: openDox-code#72 → `90ac7033`.
+    - `serve.build_server(install_report=)` takes a zero-argument callable that
+      the `/capabilities` arm asks on each request, and publishes its answer as
+      `install: {mode, database_bundle}`. Unset, as for a library caller or a
+      test, no `install` block is published, and none is invented. `serve.py`
+      reads no runtime setting itself (research R9).
+    - `cli._install_report(args)` builds it from the settings
+      `cmd_generate_and_open` resolved (`args.runtime_settings`, T070) and from
+      the bundled server it started as its own child (`args.database_bundle`,
+      T072's `BundledServer.report()`). `mode` is the settings' `install_mode`,
+      and `database_bundle` is `{data_dir, socket_dir, pid}` for a local install
+      and `null` for a hosted one, which bundles no server, as `runtime status`
+      reports it. It is asked per request, so a child that has gone is reported
+      as gone, and the claim is about the server the user reached on its port.
+    - Copilot's finding on the PR, that `report()` read `self.process` three
+      times while `stop()` could take it away, is fixed: it reads the process
+      once, and a deterministic race case holds it.
+    - F13.1's `caps.json` block fails at T072's code (`the served process is
+      not in local mode: {}`) and passes here. In
+      `tests_runtime/test_bundled_postgres.py` a real `generate-and-open
+      --local` runs in the background and `/capabilities` is held to
+      `install.mode == "local"`, with `data_dir` and `socket_dir` under the
+      fresh `OPENDOX_STATE_DIR`. The TCP-listener block then runs with the pid
+      read from `caps.json`, which is held equal to `runtime status`'s and a
+      child of the process that served `/capabilities`.
+      `tests/test_served_install_block.py` (7 cases, no database) holds the
+      hosted shape (`install: {"mode": "hosted", "database_bundle": null}`), the
+      per-request ask, and `_install_report`'s three cases.
+    - `tests/standalone_child.py` gains `Child(..., extra_env=)`, for the
+      settings a case gives its child on purpose, since #67's fix round strips
+      every runtime setting the runner exports.
+    - T074 runs F13.1 whole. T084 follows in `serve.py`'s single-writer order.
 - [ ] T074 [US3] [oDc] **Run F13.1**, as batch H amends it: it installs
   `.[local]`, and its local probe's `OPENDOX_INSTALL_MODE=local` is the same
   selection as `--local`.
@@ -2836,6 +2868,10 @@ written (`5962754358`). `consumer_reach.py` is gone.
       serve of the `plain-documents` fixture: 12 failed and 1 passed against
       `047bb4fa`'s `lens.js`, and all 13 pass after. AT-R1 step 6 itself, in a
       browser, is T096's.
+    - **What the tick means.** T088's box is the landing of the gating, as
+      T056's was with F10.1's plain-install run left to T077. AT-R1 step 6 is
+      not run until T096, which keeps its own box and its own falsifier, the
+      oracle's verdict.
     - For T084: the lens reads `views.contributed_routes`, not `actions.gate`,
       so batch L's capability honesty does not move its answer. When T084
       (openDox-code#77) merges main after this landing, it changes the
