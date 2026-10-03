@@ -2032,9 +2032,11 @@ written (`5962754358`). `consumer_reach.py` is gone.
       moved on by the cut.
   - **At the cut, on Brett Heap's publish word**: the holder creates the tag
     `v0.1.0` at the pinned commit and dispatches the workflow with `version`
-    0.1.0, on that tag or on `main`. A dispatch on a tag must name
-    `v<version>`. Brett Heap approves the `testpypi` environment's deployment,
-    and, once the TestPyPI install has passed, the `pypi` environment's.
+    0.1.0 on that tag. A dispatch runs at the head of the ref it names, so it
+    names `main` only while `main`'s head is still the pinned commit, and a
+    dispatch on a tag must name `v<version>`. Brett Heap approves the
+    `testpypi` environment's deployment, and, once the TestPyPI install has
+    passed, the `pypi` environment's.
   - **Brett Heap's one-time setup**, before the first dispatch:
     - on pypi.org, a pending trusted publisher for `opendox` (owner `opensoft`,
       repository `openDox-code`, workflow `release.yml`, environment `pypi`);
@@ -2081,9 +2083,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
     The workflow's build job, over the pinned commit, is T099's.
   - **Ruled**: `5962754358`, item 1; `5963162921`. The split is the holder's
     decision of 2026-10-03.
-  - **After**: T070–T075, T077, T078–T085, T088, T100 (every phase-3
-    openDox-code landing that changes the shipped package, with the T074,
-    T077 and T083 runs).
+  - **After**: T070–T075, T077, T078–T085, T088, T100, T102, T103 (every
+    phase-3 openDox-code landing that changes the shipped package, with the
+    T074, T077 and T083 runs).
   - That line also stands for openDox-code#64, the broker-path hardening,
     which is no task of this plan. T095's `acceptance/` harness ships nothing,
     so T101 does not wait for it.
@@ -2189,6 +2191,29 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Realizes**: 16.6, F16.1.
   - **Falsifier**: `tests/test_provider_boundary.py` for 16.6, then F16.1 whole.
   - **After**: T080, T081, T082.
+- [ ] T102 [US3] [oDc] **The staging workbench offers the editors and the chat
+  rail by scope.** The editors and the chat rail appear wherever the scope
+  lets the document be edited. Only creating documents and Save stay behind
+  the gate, so a standalone Save is refused by name (RULED `5963618568`,
+  Brett Heap, 2026-10-03, *"Edit and chat by scope (Recommended)"*).
+  - **Why.** The T096 prep run, a local integration of the phase-3 drafts,
+    found that a standalone workbench opens read-only.
+    `staging-workbench.js:2729-2731` (`canvasOffered`) and
+    `staging-workbench-model.js:1499-1503` require
+    `createColumn.createGateLive(caps)`, which only openXdox's
+    `gate.workbench.create` binding answers. Standalone, openDox's own scope
+    default marks a tile's own documents editable (`5961651355`).
+  - **The display text.** The same landing neutralizes the openxFactory
+    wording at `lens.js:1537`, `lens.js:271` and `index.html:107`.
+  - **Realizes**: 16.4 (part: the chat rail is reachable standalone);
+    FR-011's browser half (AT-R1 step 7: the chat pane opens from a grouping
+    tile, and both editors stay usable).
+  - **Falsifier**: AT-R1 step 7, run by T096. Its PR adds a test that, with
+    openDox's own defaults alone, the workbench offers both editors and the
+    chat rail for a document the scope marks editable, and that create and
+    Save stay behind the gate, Save refused by name.
+  - **Ruled**: R1Q22 (a), `5817152735`; `5963618568`.
+  - **After**: T084, T081, T088 (`lens.js`'s earlier writer).
 
 ### 4.3's last reaches, and the consumer's columns
 
@@ -2269,6 +2294,18 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Ruled**: R1Q1 (a), R1Q22 (a), `5817152735`; R1Q10 (a), `5850003126`;
     items 1 and 3 of `5920216845`.
   - **After**: T055, T073 (`serve.py`'s single-writer order), T007 (batch L).
+- [ ] T103 [US3] [oDc] **Every loopback route checks the Host.** On a loopback
+  plane, every route refuses a request whose `Host` is not a loopback name,
+  against DNS rebinding (adversarial review 2, M4). `/capabilities`' `install`
+  block sits behind the same check, even when no console token is minted (L2).
+  - **Realizes**: none of the 69 boxes. It hardens what 13.4 (local mode binds
+    loopback only) and 13.4a (the `install` block) realize, on the holder's
+    decision of 2026-10-03 after adversarial review 2.
+  - **Falsifier**: its PR's test. Each route of a loopback plane answers a
+    refusal for a non-loopback `Host` and serves a loopback one. The `install`
+    block is withheld from a non-loopback `Host` with no console token minted.
+  - **Ruled**: R1Q22 (a), `5817152735`.
+  - **After**: T084 (`serve.py`'s single-writer order).
 - [ ] T085 [US3] [oDc] **The standalone doxBench defaults for T027's seams**
   (R1Q10 (a)). openDox's own validators run over the packaged copies of
   openDox-spec's `xfactory-workbench-chat-turn` and
@@ -2585,7 +2622,7 @@ Every release-1 box, with the task that closes it:
 | 10 (5) | 10.1 → T038 · 10.2 → T075 · 10.2a → T075 · 10.3 → T076, T101, T099 · F10.1 → T077 |
 | 11 (3) | 11.0 → T091 · 11.1 → T045, T092 · F11.1 → T093 (all at arc close) |
 | 13 (8) | 13.1 → T072 · 13.2 → T071 · 13.3 → T071 · 13.4 → T070 · 13.4a → T073 · 13.5 → T070 · 13.6 → T070 · F13.1 → T074 |
-| 16 (7) | 16.1 → T078 · 16.2 → T079 · 16.3 → T080 · 16.4 → T081, T085 · 16.5 → T082 · 16.6 → T034, T083 · F16.1 → T083 |
+| 16 (7) | 16.1 → T078 · 16.2 → T079 · 16.3 → T080 · 16.4 → T081, T085, T102 · 16.5 → T082 · 16.6 → T034, T083 · F16.1 → T083 |
 
 8 + 5 + 5 + 12 + 8 + 8 + 5 + 3 + 8 + 7 = **69**.
 
@@ -2632,9 +2669,11 @@ Every release-1 box, with the task that closes it:
   batch H amends it, so both follow T072: T072 → T075 → T077. Then T082,
   which comes after T081, T084 and T085, and T083. Then T087 (the phase-3
   openDox root pin) → T086 → T094 → T098 → T089, and T087 → T076 → T089.
-  The PyPI publish comes last. T101, T099's release step (the release
-  workflow, and then the bump to 0.1.0), lands after every other phase-3
-  openDox-code landing that changes the shipped package, and T087 pins it:
+  T084 → T102 (the workbench by scope, also after T081 and T088) and T084 →
+  T103 (the loopback Host check, in `serve.py`'s order). The PyPI publish
+  comes last. T101, T099's release step (the release workflow, and then the
+  bump to 0.1.0), lands after every other phase-3 openDox-code landing that
+  changes the shipped package, T102 and T103 included, and T087 pins it:
   T101 → T087. The publish follows the checkpoint, at the cut: T089 → T099.
 - **Acceptance**: T095 (after T089 and T076) → T096 → T097, and T099 → T097.
 
@@ -2644,7 +2683,7 @@ Every release-1 box, with the task that closes it:
 |---|---|---|
 | 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; `pyproject.toml` (T038 → T036); `tests/test_authoring_seam.py` (T020 → T021 → T022); openDox-code's `validate.yml` (T036 → T037); T020 → T025 and T026 → T025; T032 → T037; T039 (root pin) → openXdox (T040, then T041 → T042 → T043 → T044) → T047 → T017, T018 |
 | 2 | T053 ∥ T050, then T052 ∥ T057 ∥ T051 | T053 → T054 → T055 → T056 → T058; T062 → T059 → T061 → T066 → T064; openXdox-code `pyproject.toml` (T059 → T061); ratchet writers; T007 batch I before T059, T060 and T061; batch K before T061 |
-| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072 | `serve.py` and `cli.py` (T070, T072 and T073 before T084); openDox-code `pyproject.toml` (T072 → T075 → T101); `doxbench_binding.py` (T078 → T080); T085 → T081; T087 → T086 → T094; T101 → T087; T089 → T099 (the publish, at the cut) |
+| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072 | `serve.py` and `cli.py` (T070, T072 and T073 before T084, and T103 after it); T084 → T102; openDox-code `pyproject.toml` (T072 → T075 → T101); `doxbench_binding.py` (T078 → T080); T085 → T081; T087 → T086 → T094; T101 → T087; T089 → T099 (the publish, at the cut) |
 
 ## Phase 1 writer slices (for the fan-out)
 
@@ -2735,6 +2774,8 @@ P3-B's T080, and batch L before P3-R's T084.
 | P3-L lens seed actions | G1 | T088 | oDc | `src/opendox/web/views/lens.js`, and the capability that says a binding answers | T063, T069 | AT-R1 step 6 | Sonnet |
 | P3-E the door | G2, after P3-I | T075, T077 | oDc | none, unless T075's run finds a gap in how the bundle is served. An edit to the server module then joins its single-writer order between T073 and T084 before the PR opens | P3-I (T072); T007 batch H | F10.1's fetch, as batch H amends it (T075); F10.1, as batch H amends it (T077) | Sonnet |
 | P3-R 4.3's last reaches | G2, after P3-I | T084 | oDc | `src/opendox/serve.py`, `src/opendox/cli.py`, `src/opendox/serve_workbench.py`, `src/opendox/serve_project.py` and `src/opendox/branch_session.py`; the defaults' modules; `src/opendox/consumer_reach.py` (deleted); `tests/test_capability_honesty.py` (new, the capability and crash-site assertions); `tests/test_rejection_report.py` (new, the grouped rejection output) | P3-I; T007 batch L | F4.1 whole; the capability-honesty test, over a standalone child and a composed host; the rejection-output test | Opus |
+| P3-S edit and chat by scope | G2, after P3-R | T102 | oDc | `src/opendox/web/views/staging-workbench.js` and `staging-workbench-model.js` (the editors and the rail by scope; create and Save behind the gate); `src/opendox/web/views/lens.js` and `src/opendox/web/index.html` (the display text) | P3-R, P3-D (T081), P3-L | AT-R1 step 7; the workbench-by-scope test | Opus |
+| P3-V the loopback Host check | G2, after P3-R | T103 | oDc | `src/opendox/serve.py` (every loopback route checks `Host`; the `install` block behind it) | P3-R | the Host-check test | Opus |
 | P3-N no model, everywhere | G3 | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole (T083) | Sonnet |
 | P3-P openDox root pin | G4 | T087 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-3 openDox-code slice landed | `make pins` | Sonnet |
 | P3-O the root README | G5 | T076 | oD | `README.md` | P3-P, P3-J, P3-E | review; AT-R1 step 4 follows it | Sonnet |

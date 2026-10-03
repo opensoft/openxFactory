@@ -137,7 +137,7 @@ specs/034-opendox-standalone-operation/
 ├── research.md             # every measurement, with its command
 ├── clarify-questions.md    # R1Q1–R1Q27, all answered (5817152735, 5850003126, 5851950767)
 ├── quickstart.md           # AT-R1's procedure
-├── tasks.md                # 92 tasks, T001–T101 (some ids unused), box accounting (69 of 124)
+├── tasks.md                # 94 tasks, T001–T103 (some ids unused), box accounting (69 of 124)
 ├── checklists/
 │   └── requirements.md     # the spec-quality checklist
 └── evidence/               # bookkeeping records, with no `Arc:` trailer (R1Q20 (a))
@@ -174,6 +174,7 @@ opensoft/openDox-code            [oDc]   the product; most of the work
   src/opendox/runtime/config.py, runtime/cli.py, <bundle module>               Group 13
   src/opendox/doxbench_binding.py, doxbench_provider.py, doxbench_install.py   Group 16
   src/opendox/web/views/doxbench-chat.js, lens.js                              16.4, R1Q19 (a)
+  src/opendox/web/views/staging-workbench.js, staging-workbench-model.js       T102: the editors and the rail by scope
   tests/fixtures/plain-documents/, tests/fixtures/malformed/                   5.0, 7.0
   tests/test_imports_standalone.py, test_authoring_seam.py,
     test_profile_registration.py, test_chat_model_configuration.py             named by the falsifiers
@@ -261,6 +262,7 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
           [oD]   T087 root pin → T076 (README: the opendox[local] install and the --local command)
           [oXc]  T086 (columns, ratchet (0,0)) at the pin T087 carries
           [oX]→[oxF]  T094 consumer pins + host wiring → T098 (interim F11.1) → checkpoint T089 (after T076)
+          [oDc]  T084 → T102 (the workbench by scope; also after T081, T088) and T084 → T103 (the loopback Host check)
           [oDc]  T101 → T087 (T099's release step: the release workflow, then the 0.1.0 bump, after every package-changing phase-3 openDox-code landing)
           [oDc]  T089 → T099 (the PyPI publish at the cut, of the commit T087 pins)
  ACCEPTANCE      T095 (HTTP, CI; after T089 and T076)  →  T096 (browser)  →  T097 (bookkeeping, Rule 6; also after T099)
@@ -277,7 +279,7 @@ lists.
 
 | single-writer file | slices, in order |
 |---|---|
-| `src/opendox/serve.py` | T010 (`build_server`'s bases) → T011 → T012 → (T016, T022 one-line entry-point calls) → T052 (the generator's registration call) → T055 → T072 (the bundled server, the document server's child) → T073 → T084 |
+| `src/opendox/serve.py` | T010 (`build_server`'s bases) → T011 → T012 → (T016, T022 one-line entry-point calls) → T052 (the generator's registration call) → T055 → T072 (the bundled server, the document server's child) → T073 → T084 → T103 (every loopback route checks `Host`) |
 | `src/opendox/cli.py` | T016/T022 entry-point registration → T038 → T052 (the generator's registration call) → T055 → T058 (the generate verbs' post-render validator) → T070 (`--local`) → T084 |
 | `src/opendox/workbench.py` | T026 → T025 (both in P1-E) → T055 (the validator lookup's default) |
 | openDox-code `pyproject.toml` | T038 (`[project.scripts]`) → T036 (`testpaths`, and the `test` extra) → T057 (the validator's package data) → T072 (the `local` extra, which the `test` extra joins) → T075 (the bundle's `web/**/.*`) → T101 (`readme`; then the version bump to 0.1.0, the last package-changing phase-3 openDox-code landing) |
