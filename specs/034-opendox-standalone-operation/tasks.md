@@ -2897,10 +2897,12 @@ written (`5962754358`). `consumer_reach.py` is gone.
       the copy's path, a directory or a FIFO there, another user's regular
       file there, a hard-linked file there, this user's own file there at a
       mode other than 0600, a state directory another user can write, one
-      another user owns, one equal to the served root or under it, and a
-      served root equal to `<state_dir>/console` (or any other at or under
-      the state directory). This user's own 0600 earlier copy for that port
-      is replaced.
+      another user owns, one equal to the served root or under it, a served
+      root equal to `<state_dir>/console` (or any other at or under the state
+      directory), and a served root that is a symbolic link to
+      `<state_dir>/console` or to another directory under the state
+      directory, since the overlap is judged on resolved paths. This user's
+      own 0600 earlier copy for that port is replaced.
     - On a READ, a loosened, linked or hard-linked copy, another user's, or
       a non-regular file such as a FIFO with no writer, is refused by name at
       once: the reader never blocks on what it opens.
@@ -3222,7 +3224,10 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - runs the documented command, `opendox generate-and-open --local …`
     (R1Q15 (b)), on loopback;
   - fetches `/` (it must be HTML), `/snapshot.json` (non-empty, neutral per
-    F5.3) and `/capabilities` (`install.mode == local`);
+    F5.3) and `/capabilities` (`install.mode == local`). As quickstart § 3
+    does, it asserts that the raw `/capabilities` payload carries the
+    console token neither by name, at any depth, nor by value (T104, T007's
+    batch N);
   - fetches the model-catalog route, presenting the console token in
     `X-XF-Console-Token`, read from the private copy `generate-and-open`
     keeps in the state directory (T104), and it must answer with no
