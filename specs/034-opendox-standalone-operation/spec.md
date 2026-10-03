@@ -302,7 +302,7 @@ encodes them, in T086, T094, T099–T104 and AT-R1's two halves.
   T100 adds `model-binding trust`. Is the count amended? (`5970917267`,
   2026-10-03T16:09:32Z) → A: *"Amend to 32 (Recommended)"*. From phase 3's
   pin the tree has 32 sections.
-  - A later T007 batch, O, records it in #1144.
+  - T007's batch O (#1228) records it in #1144, at 10.1, F9.1 and F9.2.
   - openXdox-code's F9.2 test moves to 32 with T086, at the pin move past
     T100.
   - openxFactory's help golden moves with T094's ahead PR. That golden also
@@ -318,8 +318,10 @@ encodes them, in T086, T094, T099–T104 and AT-R1's two halves.
   declares that refusal, so it is expected and not an error. AT-R1 step 7
   and `quickstart.md` § 4 step 4 carry it.
 
-Of these, only `5963851934` (T007's batch N, at #1144's 12.4a) and
-`5970917267` (a later batch, O) amend a line of #1144.
+Of these, only three amend a line of #1144: `5963851934` (T007's batch N,
+at #1144's 12.4a); `5970917267` (batch O, at 10.1, F9.1 and F9.2); and item
+1 of `5962754358` with `5963162921` (batch O, at 9.5: the one release tag,
+`v0.1.0`, that the publish at the cut owes).
 
 **Nothing is open.** No task in [`tasks.md`](./tasks.md) carries a `Blocked
 by:` line, and the answers above settle the choices phase 3's additions
