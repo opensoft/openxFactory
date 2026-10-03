@@ -1293,6 +1293,25 @@ packet's interim arrangement ends.**
   openDox-spec joins the arc's repositories, a sixth beside the five 11.0
   names, and its landings carry 11.0's trailer. Carried out by T053, T062
   and T090.
+
+  **AMENDED — T007 Batch O (`5962754358`, item 1; `5963162921`):** A second
+  exception to *"cuts no bundle and owes no tag"*, beside batch G's. Brett
+  Heap's multi-choice words of 2026-10-02, verbatim *"Publish to PyPI at the
+  cut (Recommended)"* and *"0.1.0 (Recommended)"*, publish openDox's first
+  public release, version 0.1.0, to PyPI as `opendox` at release 1's cut, by
+  trusted publishing, so no token is stored. The install line 10.3 documents
+  (`pip install "opendox[local]"`, as batch H amends it) then works as
+  written. That release owes ONE tag. At the cut, once AT-R1 has passed and
+  on Brett Heap's publish word, the holder creates the tag `v0.1.0` in
+  openDox-code at the commit the openDox root's `contracts/code-pin.yaml`
+  names, and dispatches the release workflow on it. That commit is the
+  version bump to 0.1.0, the last phase-3 openDox-code landing that changes
+  the shipped package, which the root pins in phase 3. The workflow
+  publishes only that commit. Every pin move above other than batch G's
+  still owes no release tag, and this bookkeeping edits no line of the
+  proposal.
+  Carried out by T101 (the release workflow and the bump), T087 (the pin)
+  and T099 (the tag and the publish).
 - [ ] **FALSIFIED BY** (each leg's own checkout, no sibling installed):
 
       set -euo pipefail
@@ -1366,6 +1385,19 @@ packet's interim arrangement ends.**
   well. T008 removes this entry together with the workflow's own deselect,
   the same act that closes the other three. openDox-code's run is
   unchanged. Carried out by T043.
+
+  **AMENDED — T007 Batch O (`5970917267`):** Batch J's fourth entry names
+  the assembled-tree node by its 31-entry name, which the composition carries
+  through phase 2. From the pin move past T100 the node asserts 32 entries
+  (10.1 as this batch amends it) and is renamed
+  `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_32_entry_tree_the_manifest_records`.
+  The entry names it from then on. The landing that renames the node also
+  moves openXdox-code's `validate.yml` `LEFT_OUT` entry, which names the node
+  verbatim and which the whole-suite step passes to `--deselect`, so the
+  deselect never names a test that does not exist (the holder's ruling of
+  2026-10-03 on plan 034's analyze). The entry's reason, its report as an
+  open extraction, and its removal by T008 are unchanged. Carried out by
+  T086.
 - [ ] **FALSIFIED BY** (9.3, and requirement 9's third scenario: an openXdox-code
   checkout, the composition's declared home, with openDox arriving ONLY through
   the pin):
@@ -1396,6 +1428,18 @@ packet's interim arrangement ends.**
   carries the named proof of the one surface neither leg produces alone. `ls`
   exits non-zero when `tests/integration/` holds no test, so an absent suite
   FAILS the command rather than passing it vacuously.
+
+  **AMENDED — T007 Batch O (`5970917267`):** The command's last line names the
+  assembled-tree node by its 31-entry name, which the composition carries
+  through phase 2. From phase 3's pin, the pin move past T100, the tree has
+  32 entries (10.1 as this batch amends it), and the line reads:
+
+      python -m pytest -q "tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_32_entry_tree_the_manifest_records"
+
+  F9.2 stays red on that test until T008 (`5859927858`), as batch J records.
+  9.3's "31-entry" quotes the carve manifest's record of the tree at the
+  carve, and stands as written. This bookkeeping amendment does not itself
+  touch the command above. Carried out by T086.
 
 ## Group 10 — Requirement 10 / G9, G10: one entry point (openDox-code + openDox root)
 
@@ -1443,6 +1487,29 @@ packet's interim arrangement ends.**
   `SUBCOMMAND_EXTENSIONS` (`RuntimeSubcommand`). `opendox-runtime` stays as an
   alias, and a host's own profile keeps the 31-entry tree. Carried out by
   T038, T042.
+
+  **AMENDED — T007 Batch O (`5970917267`):** An addendum to batch A's. Brett
+  Heap's multi-choice word of 2026-10-03, verbatim *"Amend to 32
+  (Recommended)"*. The assembled `--help` tree has 31 sections through phase
+  2. From phase 3's pin it has 32, because T100 adds
+  `opendox model-binding trust` (16.3a, T007's batch M). So a host's own
+  profile keeps the assembled tree, at 31 entries through phase 2 and at 32
+  from phase 3's pin.
+  - openXdox-code's assembled-tree test, the node F9.2 runs and batch J's
+    F9.1 entry deselects, moves to 32 at the pin move past T100. It is
+    renamed
+    `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_32_entry_tree_the_manifest_records`
+    in that landing, with its `LEFT_OUT` entry.
+  - openxFactory's help golden reads the tree at 32 from phase 3's pin. It
+    is no surface 11.1 declares, so no arc landing regenerates it. A
+    non-arc openxFactory PR ahead of T094, in T066's both-pins form, adds
+    the phase-3 golden under `tests/domain_profile/fixtures/`, regenerated
+    from T087's commit. That golden also carries T070's `--local`, T079's
+    and T080's changes, and T084's program rename to `opendox` (the
+    holder's ruling E1 (a), recorded with `5970369724`).
+
+  This bookkeeping amendment does not itself touch a falsifier. Carried out
+  by T086, and by the non-arc PR ahead of T094.
 - [ ] 10.2 The web bundle is served by that entry point and is reachable in a
   browser from an openDox-only install. openDox-code carries **42** web files,
   self-contained by declaration (`src/opendox/web/index.html`: *"All assets are
