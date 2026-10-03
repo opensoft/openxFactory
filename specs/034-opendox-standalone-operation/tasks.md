@@ -2610,7 +2610,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Falsifier**: `tests/test_provider_boundary.py` for 16.6, then F16.1
     whole, as batch M amends it.
   - **After**: T080, T081, T082, T100.
-- [ ] T102 [US3] [oDc] **The staging workbench offers the editors and the chat
+- [x] T102 [US3] [oDc] **The staging workbench offers the editors and the chat
   rail by scope.** The editors and the chat rail appear wherever the scope
   lets the document be edited. Only creating documents and Save stay behind
   the gate, so a standalone Save is refused by name (RULED `5963618568`,
@@ -2633,6 +2633,72 @@ written (`5962754358`). `consumer_reach.py` is gone.
     Save stay behind the gate, Save refused by name.
   - **Ruled**: R1Q22 (a), `5817152735`; `5963618568`.
   - **After**: T084, T081, T088 (`lens.js`'s earlier writer).
+  - **Landed**: openDox-code#81 → `0116293a`.
+    - The gap, found by the T096 prep run: `canvasOffered()`
+      (`views/staging-workbench.js`) and `presentationPosture()`
+      (`views/staging-workbench-model.js`) both required
+      `createColumn.createGateLive(caps)`, which only openXdox's
+      `gate.workbench.create` binding answers. So a standalone workbench opened
+      read-only, though its `/capabilities` reads `edit: true` and its own scope
+      makes the tile's documents editable. With the gate forced true in the
+      browser, every T096 check passed: this was the one blocker.
+    - `editingPosture()` is the one new decision, pure, in the model: the facts
+      (`governed`, `gateLive`, `surfaceHidden`, `editLive`, `editablePaths`) go
+      in and a frozen answer comes out, which the shell reads through
+      `editingNow()`. With no host column, `edit` stated true and something
+      editable, the mode is `scope`: the editors and the chat rail appear for
+      the scope's own documents, creating a document is absent, and Save is
+      visible and refused by name. With nothing editable the note says why, and
+      with `edit` not true the workbench stays read-only.
+    - A governed host is unchanged, by construction: where a host registers
+      either gate column, create or session, the gate's answer stands, so a
+      governed host whose gate is off stays read-only even with `edit: true`.
+      That covers a composed openXdox host before T086 contributes its gate
+      routes. Creating a document and the document abstract's generation stay
+      behind the gate.
+    - `tileOwnEditablePaths()` mirrors `default_columns.resolve_scope` and
+      `editable_paths`, following #77's M1 (the settings documents are never
+      editable) and its id-and-path rounds. A node-and-Python parity test
+      compares the whole tile projection (`context_paths`, `editable_paths`,
+      `active_document_candidates` and `outline_path`) over 17 tiles. By scope
+      the canvas sends no outline, because the neutral scope projects none and
+      the turn guard requires the outline buffer's path to equal the scope's.
+      A restored buffer that is no longer the tile's own is unloaded when clean,
+      and kept and named in the note when dirty.
+    - Save is refused by name, from the canvas and from the docs tile, with the
+      model's `GATELESS_SAVE_REFUSAL`, which names only the missing session
+      transport and says the edits stay in the browser's buffers, unsaved. It no
+      longer tells the user to run a CLI verb in a pinned checkout, a remedy a
+      standalone install does not have.
+    - Gap G8, the display text: `lens.js`'s plan-only note and persist pane,
+      `index.html`'s about dialog, and `wheel.js`'s workbench verb title lose
+      the openxFactory wording. `lens-model.js`'s `PENDING_PROPOSAL_NOTE` stays,
+      pinned byte for byte to the Python side.
+    - `tests/test_workbench_edit_by_scope.py` (new, 44 cases) is the PR's own
+      falsifier: the posture matrix under node, parity with the server, and the
+      real shell mounted standalone and governed. The PR records twelve mutants,
+      all killed. Run against T103's landing (`390e2c28`), none of its cases
+      passes (2 failed, 42 errors), and all 44 pass at `0116293a`. Six
+      governed-host modules pass unchanged
+      (`tests/test_doxbench_view.py`, `tests/test_doxbench_composition.py`,
+      `tests/test_doxbench_abstract_pane.py`,
+      `tests/test_doxbench_context_panes.py`, `tests/test_outline_tab.py` and
+      `tests/test_gate_loop_contributed.py`), as the proof that a governed host
+      is untouched.
+    - **What the tick means.** T102's box is the landing of the by-scope
+      workbench. AT-R1 step 7 is the falsifier named above, "run by T096". The
+      PR ran the prep harness on a local integration, all 15 checks in each of
+      two passes with the create gate not forced and the pill reading `editing
+      by scope`, and that is the PR's run, not T096's. T096 keeps its own box
+      and its own falsifier, the oracle's verdict.
+    - For T104: the holder's note, "reopen the console file" in place of "reload
+      the page", is not taken here. It depends on T104's opener file, which was
+      not in the PR's base, and "reload the page" was still correct there.
+    - Limits the PR names: the browser cannot see whether a catalogued path
+      still resolves inside the checkout, or whether a path is an in-root
+      symlink to a settings document (#77's fix round 5), so it offers such a
+      document and the server's scope rule refuses it. A restored outline
+      buffer is not reconciled.
 
 ### 4.3's last reaches, and the consumer's columns
 
