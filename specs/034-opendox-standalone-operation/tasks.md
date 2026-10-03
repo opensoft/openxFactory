@@ -2014,29 +2014,27 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Ruled**: R1Q15 (b), R1Q16 (iii), `5850003126`.
   - **After**: T074, T075, T087 (the README documents the command the root
     pins).
-- [ ] T099 [US3] [oDc] **Publish to PyPI (10.3's install line).** openDox-code
-  publishes its sdist and wheel to PyPI as `opendox`, by trusted publishing
-  (OIDC), so 10.3's `pip install "opendox[local]"` works as written. No token
-  or secret is stored anywhere. Today `pypi.org/pypi/opendox/json` answers 404
-  (RULED `5962754358`, item 1, *"Publish to PyPI at the cut (Recommended)"*).
-  - **The release workflow** (openDox-code#78) is `.github/workflows/release.yml`.
-    It runs only when dispatched by hand, with a `version` input that must equal
-    `pyproject.toml`'s. Its build job verifies the files before any upload: the
-    `local` extra (T072), the `opendox` console script, every tracked file of
-    the web bundle (T075) and of `src/`, the migrations, and `opendox --help`
-    from the built wheel in a fresh venv. It publishes to TestPyPI first, in a
-    `testpypi` environment, and then to PyPI, in a `pypi` environment, and
-    Brett Heap approves each. Its artifact checks pass only once T072 and T075
-    have landed. The same PR adds `readme` to openDox-code's `pyproject.toml`,
-    so that file's single-writer order runs T072 → T075 → T099.
+- [ ] T099 [US3] [oDc] **Publish to PyPI (10.3's install line).** openDox-code's
+  sdist and wheel go to PyPI as `opendox`, by trusted publishing (OIDC), so
+  10.3's `pip install "opendox[local]"` works as written. No token or secret is
+  stored anywhere. Today `pypi.org/pypi/opendox/json` answers 404 (RULED
+  `5962754358`, item 1, *"Publish to PyPI at the cut (Recommended)"*). This task
+  is the publish alone. The workflow it dispatches and the version bump it
+  publishes are T101's.
   - **The release commit, and the order (RULED `5963162921`, *"0.1.0
-    (Recommended)"*).** Release 1's version is 0.1.0. Its bump, T099's release
-    step (openDox-code#79), is the LAST phase-3 openDox-code landing. The
-    openDox root then pins that commit (T087), and the workflow publishes only
-    the commit that the root's `contracts/code-pin.yaml` names, refusing any
-    other. So the publish is dispatched at the cut, after the checkpoint. It is
-    dispatched on `main` while `main`'s head is still the pinned commit, or on
-    a tag at that commit once `main` has moved on (T095 lands after T089).
+    (Recommended)"*).** Release 1's version is 0.1.0.
+    - T101 lands last among the phase-3 openDox-code landings that change the
+      shipped package, and its last landing is the version bump.
+    - T087 pins that commit in the openDox root.
+    - The workflow publishes only the commit that the root's
+      `contracts/code-pin.yaml` names, and that is on openDox-code's `main`,
+      never requiring `main`'s head. T095 lands after T089, so `main` may have
+      moved on by the cut.
+  - **At the cut, on Brett Heap's publish word**: the holder creates the tag
+    `v0.1.0` at the pinned commit and dispatches the workflow with `version`
+    0.1.0, on that tag or on `main`. A dispatch on a tag must name
+    `v<version>`. Brett Heap approves the `testpypi` environment's deployment,
+    and, once the TestPyPI install has passed, the `pypi` environment's.
   - **Brett Heap's one-time setup**, before the first dispatch:
     - on pypi.org, a pending trusted publisher for `opendox` (owner `opensoft`,
       repository `openDox-code`, workflow `release.yml`, environment `pypi`);
@@ -2049,12 +2047,46 @@ written (`5962754358`). `consumer_reach.py` is gone.
     --extra-index-url https://pypi.org/simple/ "opendox[local]"` in a fresh
     venv, then the PyPI publish at the cut.
   - **Ruled**: `5962754358`, item 1; the version and the release commit,
-    `5963162921`.
-  - **After**: T075, T072, T089 (the publish happens at the cut, after phase
+    `5963162921`. The split into T101 and this task is the holder's decision
+    of 2026-10-03, after Copilot's review of openxFactory#1220.
+  - **After**: T101, T087, T089 (the publish happens at the cut, after phase
     3's checkpoint).
-  - That line is the publish's. The workflow and the version bump are
-    openDox-code landings of phase 3, so T087 follows both, as its "every
-    phase-3 openDox-code landing" reads.
+- [ ] T101 [US3] [oDc] **T099's release step: the release workflow, and the
+  version bump to 0.1.0.** Two openDox-code landings, which T087 pins and
+  T099 publishes.
+  - **The release workflow** (openDox-code#78) is `.github/workflows/release.yml`,
+    with its hash-locked tools and `tests/test_release_workflow.py`. It runs
+    only when dispatched by hand, with a `version` input that must equal
+    `pyproject.toml`'s. Its build job refuses a commit the openDox root does
+    not pin, and an environment with no reviewer. Then it verifies the files
+    before any upload:
+    - the requirements, against `pyproject.toml`'s, with the `local` extra
+      (T072);
+    - the `opendox` console script;
+    - every tracked file of the web bundle (T075) and of `src/`, and the
+      migrations;
+    - and, from the built wheel in a fresh venv, the whole requirement
+      closure of `opendox[local]`, the bundled server's binaries, and
+      `opendox --help`.
+
+    It publishes to TestPyPI first, in a `testpypi` environment, and then to
+    PyPI, in a `pypi` environment. Its artifact checks pass only once T072 and
+    T075 have landed. The same PR adds `readme` to openDox-code's
+    `pyproject.toml`, so that file's single-writer order runs T072 → T075 →
+    T101.
+  - **The version bump** (openDox-code#79) sets `version = "0.1.0"` (RULED
+    `5963162921`). It is the last of the landings below, right before T087.
+  - **Realizes**: 10.3 (part, with T099).
+  - **Falsifier**: `tests/test_release_workflow.py`, in the required check.
+    The workflow's build job, over the pinned commit, is T099's.
+  - **Ruled**: `5962754358`, item 1; `5963162921`. The split is the holder's
+    decision of 2026-10-03.
+  - **After**: T070–T075, T077, T078–T085, T088, T100 (every phase-3
+    openDox-code landing that changes the shipped package, with the T074,
+    T077 and T083 runs).
+  - That line also stands for openDox-code#64, the broker-path hardening,
+    which is no task of this plan. T095's `acceptance/` harness ships nothing,
+    so T101 does not wait for it.
 - [ ] T077 [US3] [oDc] **Run F10.1**, as batch H amends it: it installs
   `".[local]"`, and it runs `opendox generate-and-open --local …`. The local
   mode starts the bundled server, so this run follows T072.
@@ -2274,14 +2306,14 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Ruled**: R1Q22 (a), `5817152735`; R1Q19 (a), `5850003126`.
   - **After**: T063, T069.
 - [ ] T087 [US4] [oD] **Phase 3's openDox root pin** (T090 steps 1–2).
-  - It pins the commit that carries release 1's version bump to 0.1.0 (T099's
-    release step, openDox-code#79), the last phase-3 openDox-code landing,
-    because T099 publishes only the commit this root pins (RULED
-    `5963162921`).
+  - It pins the commit that carries release 1's version bump to 0.1.0 (T101,
+    T099's release step, openDox-code#79), the last phase-3 openDox-code
+    landing that changes the shipped package, because T099 publishes only the
+    commit this root pins (RULED `5963162921`).
   - **Realizes**: 9.5 (part).
   - **Falsifier**: `make pins` in the openDox root.
-  - **After**: T074, T077, T083, T084, T085, T088 (every phase-3 openDox-code
-    landing), T062 (the root pin's single-writer order).
+  - **After**: T074, T077, T083, T084, T085, T088, T101 (every phase-3
+    openDox-code landing), T062 (the root pin's single-writer order).
 - [ ] T086 [US4] [oXc] **openXdox contributes its columns.** It contributes the
   gate and projection mixins, `doxbench_scope` and its gate primitives through
   the seams, as the governed half of R1Q10 (a). `OPENDOX_BACK_IMPORTS` becomes
@@ -2550,7 +2582,7 @@ Every release-1 box, with the task that closes it:
 | 5 (12) | 5.0 → T050 · 5.1 → T053, T054, T056 · 5.2 → T054 · 5.3 → T054 · 5.3a → T060 · F5.1 → T060 · 5.4 → T052 · 5.4a → T059 · F5.2 → T086, T089 (T063 quotes it red; RULED `5962785556` moves its close to phase 3) · 5.5 → T055 · 5.6 `[x]` · F5.3 → T063 |
 | 7 (8) | 7.0 → T051 · 7.1 → T053, T057 · 7.1b → T057 · 7.1a → T057 · 7.2 → T057, T058 · 7.3 → T061 · F7.1 → T061 · F7.2 → T058, T063 |
 | 9 (8) | 9.1 → T034–T036 · 9.2 → T040, T041, T043, T086 · 9.2a → T030, T036 · 9.3 → T035, T042 · 9.4 → T037, T044 · 9.5 → T039, T040, T047, T059, T062, T064, T086, T087, T094 (T090's steps; arc close) · F9.1 → T049 · F9.2 → after T008 (T049 quotes it red, as RULED `5859927858` keeps it) |
-| 10 (5) | 10.1 → T038 · 10.2 → T075 · 10.2a → T075 · 10.3 → T076, T099 · F10.1 → T077 |
+| 10 (5) | 10.1 → T038 · 10.2 → T075 · 10.2a → T075 · 10.3 → T076, T101, T099 · F10.1 → T077 |
 | 11 (3) | 11.0 → T091 · 11.1 → T045, T092 · F11.1 → T093 (all at arc close) |
 | 13 (8) | 13.1 → T072 · 13.2 → T071 · 13.3 → T071 · 13.4 → T070 · 13.4a → T073 · 13.5 → T070 · 13.6 → T070 · F13.1 → T074 |
 | 16 (7) | 16.1 → T078 · 16.2 → T079 · 16.3 → T080 · 16.4 → T081, T085 · 16.5 → T082 · 16.6 → T034, T083 · F16.1 → T083 |
@@ -2600,9 +2632,10 @@ Every release-1 box, with the task that closes it:
   batch H amends it, so both follow T072: T072 → T075 → T077. Then T082,
   which comes after T081, T084 and T085, and T083. Then T087 (the phase-3
   openDox root pin) → T086 → T094 → T098 → T089, and T087 → T076 → T089.
-  The PyPI publish comes last. T099's release step, the bump to 0.1.0, is the
-  last phase-3 openDox-code landing, and T087 pins it. The publish follows the
-  checkpoint, at the cut: T089 → T099, after T075 and T072 as well.
+  The PyPI publish comes last. T101, T099's release step (the release
+  workflow, and then the bump to 0.1.0), lands after every other phase-3
+  openDox-code landing that changes the shipped package, and T087 pins it:
+  T101 → T087. The publish follows the checkpoint, at the cut: T089 → T099.
 - **Acceptance**: T095 (after T089 and T076) → T096 → T097, and T099 → T097.
 
 ### Parallel slices, summarised
@@ -2611,7 +2644,7 @@ Every release-1 box, with the task that closes it:
 |---|---|---|
 | 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; `pyproject.toml` (T038 → T036); `tests/test_authoring_seam.py` (T020 → T021 → T022); openDox-code's `validate.yml` (T036 → T037); T020 → T025 and T026 → T025; T032 → T037; T039 (root pin) → openXdox (T040, then T041 → T042 → T043 → T044) → T047 → T017, T018 |
 | 2 | T053 ∥ T050, then T052 ∥ T057 ∥ T051 | T053 → T054 → T055 → T056 → T058; T062 → T059 → T061 → T066 → T064; openXdox-code `pyproject.toml` (T059 → T061); ratchet writers; T007 batch I before T059, T060 and T061; batch K before T061 |
-| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072 | `serve.py` and `cli.py` (T070, T072 and T073 before T084); openDox-code `pyproject.toml` (T072 → T075 → T099); `doxbench_binding.py` (T078 → T080); T085 → T081; T087 → T086 → T094; T089 → T099 (the publish, at the cut) |
+| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072 | `serve.py` and `cli.py` (T070, T072 and T073 before T084); openDox-code `pyproject.toml` (T072 → T075 → T101); `doxbench_binding.py` (T078 → T080); T085 → T081; T087 → T086 → T094; T101 → T087; T089 → T099 (the publish, at the cut) |
 
 ## Phase 1 writer slices (for the fan-out)
 
@@ -2710,7 +2743,7 @@ P3-B's T080, and batch L before P3-R's T084.
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F5.2, F10.1, F13.1, F16.1 | Opus (verifier) |
 | acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O | the harness; the oracle's verdict | Opus |
-| P3-W publish to PyPI | after the checkpoint; the publish at the cut | T099 | oDc | `.github/workflows/release.yml` and `.github/release-tools-cpython312-linux.txt` (new); `pyproject.toml` (`readme`, after T072 and T075; then the release step's version bump to 0.1.0, its own PR and the last phase-3 openDox-code landing) | P3-I (T072), P3-E (T075), the checkpoint | the release workflow's verify job; a TestPyPI dry run installed in a fresh venv; the PyPI publish at the cut | Opus |
+| P3-W publish to PyPI | T101 last among the package-changing openDox-code landings, before P3-P; T099 after the checkpoint, at the cut | T101, T099 | oDc | `.github/workflows/release.yml`, `.github/release-tools-cpython312-linux.txt` and `tests/test_release_workflow.py` (new); `pyproject.toml` (`readme`, after T072 and T075; then the version bump to 0.1.0, its own PR and the last of T101's landings) | every package-changing phase-3 openDox-code slice (T101); P3-P and the checkpoint (T099) | `tests/test_release_workflow.py` (T101); the release workflow's verify job, a TestPyPI dry run installed in a fresh venv, and the PyPI publish at the cut (T099) | Opus |
 | bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance, P3-W; T007 every batch | none (a record) | Sonnet |
 
 ## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`)

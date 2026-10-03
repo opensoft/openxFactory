@@ -137,7 +137,7 @@ specs/034-opendox-standalone-operation/
 ├── research.md             # every measurement, with its command
 ├── clarify-questions.md    # R1Q1–R1Q27, all answered (5817152735, 5850003126, 5851950767)
 ├── quickstart.md           # AT-R1's procedure
-├── tasks.md                # 91 tasks, T001–T099 (some ids unused), box accounting (69 of 124)
+├── tasks.md                # 92 tasks, T001–T101 (some ids unused), box accounting (69 of 124)
 ├── checklists/
 │   └── requirements.md     # the spec-quality checklist
 └── evidence/               # bookkeeping records, with no `Arc:` trailer (R1Q20 (a))
@@ -178,7 +178,7 @@ opensoft/openDox-code            [oDc]   the product; most of the work
   tests/test_imports_standalone.py, test_authoring_seam.py,
     test_profile_registration.py, test_chat_model_configuration.py             named by the falsifiers
   acceptance/at_r1_http.py                                                     T095: a harness in its own job, no database
-  .github/workflows/release.yml, .github/release-tools-cpython312-linux.txt    T099: the PyPI publish, by trusted publishing, at the cut
+  .github/workflows/release.yml, .github/release-tools-cpython312-linux.txt    T101: the release workflow, by trusted publishing; T099 publishes with it at the cut
   conftest.py, pyproject.toml, .github/workflows/validate.yml, README.md       9.1, 10.1, 2.6
 opensoft/openXdox-code           [oXc]   the consumer
   pyproject.toml (opendox pin), tests/test_dependency_direction.py (ratchet)   9.5, 4.3
@@ -261,7 +261,8 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
           [oD]   T087 root pin → T076 (README: the opendox[local] install and the --local command)
           [oXc]  T086 (columns, ratchet (0,0)) at the pin T087 carries
           [oX]→[oxF]  T094 consumer pins + host wiring → T098 (interim F11.1) → checkpoint T089 (after T076)
-          [oDc]  T089 → T099 (the PyPI publish at the cut, after T072 and T075; its release step, the 0.1.0 bump, is the last openDox-code landing, which T087 pins)
+          [oDc]  T101 → T087 (T099's release step: the release workflow, then the 0.1.0 bump, after every package-changing phase-3 openDox-code landing)
+          [oDc]  T089 → T099 (the PyPI publish at the cut, of the commit T087 pins)
  ACCEPTANCE      T095 (HTTP, CI; after T089 and T076)  →  T096 (browser)  →  T097 (bookkeeping, Rule 6; also after T099)
  EVERY PHASE     T090 pins · T091 trailer · T092 notes · T093 interim F11.1 (run as T018, T065, T098)
 ```
@@ -279,7 +280,7 @@ lists.
 | `src/opendox/serve.py` | T010 (`build_server`'s bases) → T011 → T012 → (T016, T022 one-line entry-point calls) → T052 (the generator's registration call) → T055 → T072 (the bundled server, the document server's child) → T073 → T084 |
 | `src/opendox/cli.py` | T016/T022 entry-point registration → T038 → T052 (the generator's registration call) → T055 → T058 (the generate verbs' post-render validator) → T070 (`--local`) → T084 |
 | `src/opendox/workbench.py` | T026 → T025 (both in P1-E) → T055 (the validator lookup's default) |
-| openDox-code `pyproject.toml` | T038 (`[project.scripts]`) → T036 (`testpaths`, and the `test` extra) → T057 (the validator's package data) → T072 (the `local` extra, which the `test` extra joins) → T075 (the bundle's `web/**/.*`) → T099 (`readme`; then its release step's version bump, the last phase-3 openDox-code landing) |
+| openDox-code `pyproject.toml` | T038 (`[project.scripts]`) → T036 (`testpaths`, and the `test` extra) → T057 (the validator's package data) → T072 (the `local` extra, which the `test` extra joins) → T075 (the bundle's `web/**/.*`) → T101 (`readme`; then the version bump to 0.1.0, the last package-changing phase-3 openDox-code landing) |
 | openDox-code `tests/test_authoring_seam.py` | T020 (the seam tests) → T021 → T022 |
 | openDox-code `tests/test_consumer_reach.py` | T011 (`opendox.cli` and `opendox.serve` into `NEUTRAL_MODULES`) → T034 (the rest of `STILL_REACHING`) |
 | openDox-code `.github/workflows/validate.yml` | T036 → T037; no earlier phase-1 slice edits it (tasks.md § Phase 1), and T095 adds phase 3's `acceptance` job |
@@ -303,9 +304,10 @@ lists.
 - **Phase 3 parallel lanes**: Group 13 (T070–T074), the Group 16 binding
   (T078–T080), the doxBench defaults and then the no-model state (T085 →
   T081), the retirement of the late reaches (T084, after T073; then T086), and
-  entry-point serving (T075, after T072). The PyPI publish (T099) follows the
-  checkpoint, at the cut. tasks.md § "Phase 3 writer slices" gives the
-  fan-out.
+  entry-point serving (T075, after T072). The release step (T101) lands last
+  among the package-changing openDox-code landings, before T087, and the PyPI
+  publish (T099) follows the checkpoint, at the cut. tasks.md § "Phase 3
+  writer slices" gives the fan-out.
 
 ## Pins and landing order (9.5): one openDox-code commit per phase, everywhere
 
