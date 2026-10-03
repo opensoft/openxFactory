@@ -119,16 +119,16 @@ curl -sf "http://127.0.0.1:$PORT/capabilities" > "$W/caps.json"
 # 5963851934 (T104): the token is not on /capabilities. The command keeps a private copy that
 # opens the page with the token in the URL's fragment, and the token is read from there.
 COPY="$OPENDOX_STATE_DIR/console/$PORT.html"
-TOKEN=$(python3 - "$COPY" "$PORT" <<'PY'
+TOKEN=$(python3 - "$COPY" "$PORT" "$W/caps.json" <<'PY'
 import html, os, re, stat, sys, urllib.parse
-copy, port = sys.argv[1], int(sys.argv[2])
+copy, port, caps_path = sys.argv[1], int(sys.argv[2]), sys.argv[3]
 for path, mode in ((os.path.dirname(copy), 0o700), (copy, 0o600)):
     info = os.lstat(path)
     assert info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == mode, f"{path} is not this user's own, mode {mode:o}"
 assert stat.S_ISREG(os.lstat(copy).st_mode), "the private copy is not a regular file"
 text = open(copy).read()
 # every "console_token=" in the copy opens a fragment: none follows "?", "&" or "&amp;"
-assert all(text[m.start() - 1] == "#" for m in re.finditer("console_token=", text)), "the private copy puts the token outside a fragment"
+assert all(m.start() > 0 and text[m.start() - 1] == "#" for m in re.finditer("console_token=", text)), "the private copy puts the token outside a fragment"
 target = re.search(r"""(?i)http-equiv=["']?refresh["']?\s+content=["']\s*\d+\s*;\s*url=([^"']+)""", text)
 assert target, "the private copy forwards to no page"
 url = urllib.parse.urlsplit(html.unescape(target.group(1)))
@@ -137,6 +137,8 @@ url = urllib.parse.urlsplit(html.unescape(target.group(1)))
 assert (url.scheme, url.netloc, url.path, url.query) == ("http", f"127.0.0.1:{port}", "/index.html", ""), "the private copy does not forward to this server's /index.html with an empty query"
 token = urllib.parse.parse_qs(url.fragment).get("console_token", [""])[0]
 assert token, "the opened URL carries no token in its fragment"
+caps_raw = open(caps_path).read()       # by name at any depth, or by value anywhere in the payload
+assert "console_token" not in caps_raw and token not in caps_raw, "/capabilities carries the console token"
 print(token)
 PY
 )
