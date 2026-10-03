@@ -2408,7 +2408,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
   plane, every route refuses a request whose `Host` is not a loopback name,
   against DNS rebinding (adversarial review 2, M4). `/capabilities`' `install`
   block sits behind the same check, even when no console token is minted (L2).
-  - **Realizes**: none of the 69 boxes. It hardens what 13.4 (local mode binds
+  - **Realizes**: none of the 70 boxes. It hardens what 13.4 (local mode binds
     loopback only) and 13.4a (the `install` block) realize, on the holder's
     decision of 2026-10-03 after adversarial review 2.
   - **Falsifier**: its PR's test. Each route of a loopback plane answers a
