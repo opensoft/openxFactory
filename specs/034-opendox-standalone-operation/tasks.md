@@ -2203,11 +2203,16 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Falsifier**: review, and AT-R1 step 4 follows it literally. Before the
     cut, the PyPI line cannot be followed literally: `opendox` is on no
     index until T099 publishes it. So openDox#17's dated paragraph, "Where
-    `opendox` comes from", has `pip install ./code`, from a recursive clone,
-    stand in for that first line, and AT-R1 installs the checkout at
-    `RELEASE1_TIP` (quickstart.md § 1). The `--local` command is followed
-    literally. T099 replaces that paragraph with the PyPI install line after
-    the publish, and from then on the whole README is followed literally.
+    `opendox` comes from", has an install from a recursive clone stand in
+    for that first line, and AT-R1 installs the checkout at `RELEASE1_TIP`
+    (quickstart.md § 1). The stand-in keeps the `local` extra,
+    `pip install "./code[local]"`, since the `--local` start needs the
+    runtime dependencies and the bundled PostgreSQL that the extra brings
+    (R1Q16 (iii)). A bare `pip install ./code`, which openDox#17's head
+    `0c4463e2` reads, cannot serve `--local`. The `--local` command is
+    followed literally. T099 replaces that paragraph with the PyPI install
+    line after the publish, and from then on the whole README is followed
+    literally.
   - **Ruled**: R1Q15 (b), R1Q16 (iii), `5850003126`; the stand-in until the
     cut, the holder's ruling of 2026-10-03, which follows from `5962754358`
     (T099).
@@ -2263,8 +2268,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Then the root README** (the holder's ruling of 2026-10-03, which
     follows from `5962754358`). T076's README (openDox#17) carries a dated
     paragraph, "Where `opendox` comes from", saying that no release is
-    published to PyPI yet and that `pip install ./code` from a recursive clone
-    stands in for the first line. It is true until the cut. After the `pypi`
+    published to PyPI yet and that `pip install "./code[local]"` from a
+    recursive clone stands in for the first line, keeping the `local` extra
+    (T076's falsifier). It is true until the cut. After the `pypi`
     job's check that PyPI serves exactly the verified files, a small openDox
     root PR, part of this task's landing, replaces that paragraph with the
     PyPI install line, `pip install "opendox[local]"`.

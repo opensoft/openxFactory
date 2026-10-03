@@ -12,8 +12,8 @@ commit, and T096 records it as X. T099 publishes P, the commit T087 pins,
 and T095 lands after T087, so X is a later commit than P. Before the
 publish, T099 checks that the package's build inputs are identical at P and
 X, or else re-runs the HTTP half at P (tasks.md T099, the P-against-X step).
-Until the cut, the README's PyPI line has `pip install ./code` stand in for
-it, and § 1 installs the checkout (T076).
+Until the cut, the README's PyPI line has `pip install "./code[local]"`
+stand in for it, and § 1 installs the checkout with the same extra (T076).
 
 Every question these steps depend on is answered, on `#656` comment
 `5850003126`. R1Q26 and R1Q27,
