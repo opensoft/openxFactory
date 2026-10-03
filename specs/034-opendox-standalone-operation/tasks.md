@@ -2610,7 +2610,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Falsifier**: `tests/test_provider_boundary.py` for 16.6, then F16.1
     whole, as batch M amends it.
   - **After**: T080, T081, T082, T100.
-- [ ] T102 [US3] [oDc] **The staging workbench offers the editors and the chat
+- [x] T102 [US3] [oDc] **The staging workbench offers the editors and the chat
   rail by scope.** The editors and the chat rail appear wherever the scope
   lets the document be edited. Only creating documents and Save stay behind
   the gate, so a standalone Save is refused by name (RULED `5963618568`,
@@ -2633,10 +2633,76 @@ written (`5962754358`). `consumer_reach.py` is gone.
     Save stay behind the gate, Save refused by name.
   - **Ruled**: R1Q22 (a), `5817152735`; `5963618568`.
   - **After**: T084, T081, T088 (`lens.js`'s earlier writer).
+  - **Landed**: openDox-code#81 → `0116293a`.
+    - The gap, found by the T096 prep run: `canvasOffered()`
+      (`views/staging-workbench.js`) and `presentationPosture()`
+      (`views/staging-workbench-model.js`) both required
+      `createColumn.createGateLive(caps)`, which only openXdox's
+      `gate.workbench.create` binding answers. So a standalone workbench opened
+      read-only, though its `/capabilities` reads `edit: true` and its own scope
+      makes the tile's documents editable. With the gate forced true in the
+      browser, every T096 check passed: this was the one blocker.
+    - `editingPosture()` is the one new decision, pure, in the model: the facts
+      (`governed`, `gateLive`, `surfaceHidden`, `editLive`, `editablePaths`) go
+      in and a frozen answer comes out, which the shell reads through
+      `editingNow()`. With no host column, `edit` stated true and something
+      editable, the mode is `scope`: the editors and the chat rail appear for
+      the scope's own documents, creating a document is absent, and Save is
+      visible and refused by name. With nothing editable the note says why, and
+      with `edit` not true the workbench stays read-only.
+    - A governed host is unchanged, by construction: where a host registers
+      either gate column, create or session, the gate's answer stands, so a
+      governed host whose gate is off stays read-only even with `edit: true`.
+      That covers a composed openXdox host before T086 contributes its gate
+      routes. Creating a document and the document abstract's generation stay
+      behind the gate.
+    - `tileOwnEditablePaths()` mirrors `default_columns.resolve_scope` and
+      `editable_paths`, following #77's M1 (the settings documents are never
+      editable) and its id-and-path rounds. A node-and-Python parity test
+      compares the whole tile projection (`context_paths`, `editable_paths`,
+      `active_document_candidates` and `outline_path`) over 17 tiles. By scope
+      the canvas sends no outline, because the neutral scope projects none and
+      the turn guard requires the outline buffer's path to equal the scope's.
+      A restored buffer that is no longer the tile's own is unloaded when clean,
+      and kept and named in the note when dirty.
+    - Save is refused by name, from the canvas and from the docs tile, with the
+      model's `GATELESS_SAVE_REFUSAL`, which names only the missing session
+      transport and says the edits stay in the browser's buffers, unsaved. It no
+      longer tells the user to run a CLI verb in a pinned checkout, a remedy a
+      standalone install does not have.
+    - Gap G8, the display text: `lens.js`'s plan-only note and persist pane,
+      `index.html`'s about dialog, and `wheel.js`'s workbench verb title lose
+      the openxFactory wording. `lens-model.js`'s `PENDING_PROPOSAL_NOTE` stays,
+      pinned byte for byte to the Python side.
+    - `tests/test_workbench_edit_by_scope.py` (new, 44 cases) is the PR's own
+      falsifier: the posture matrix under node, parity with the server, and the
+      real shell mounted standalone and governed. The PR records twelve mutants,
+      all killed. Run against T103's landing (`390e2c28`), none of its cases
+      passes (2 failed, 42 errors), and all 44 pass at `0116293a`. Six
+      governed-host modules pass unchanged
+      (`tests/test_doxbench_view.py`, `tests/test_doxbench_composition.py`,
+      `tests/test_doxbench_abstract_pane.py`,
+      `tests/test_doxbench_context_panes.py`, `tests/test_outline_tab.py` and
+      `tests/test_gate_loop_contributed.py`), as the proof that a governed host
+      is untouched.
+    - **What the tick means.** T102's box is the landing of the by-scope
+      workbench. AT-R1 step 7 is the falsifier named above, "run by T096". The
+      PR ran the prep harness on a local integration, all 15 checks in each of
+      two passes with the create gate not forced and the pill reading `editing
+      by scope`, and that is the PR's run, not T096's. T096 keeps its own box
+      and its own falsifier, the oracle's verdict.
+    - For T104: the holder's note, "reopen the console file" in place of "reload
+      the page", is not taken here. It depends on T104's opener file, which was
+      not in the PR's base, and "reload the page" was still correct there.
+    - Limits the PR names: the browser cannot see whether a catalogued path
+      still resolves inside the checkout, or whether a path is an in-root
+      symlink to a settings document (#77's fix round 5), so it offers such a
+      document and the server's scope rule refuses it. A restored outline
+      buffer is not reconciled.
 
 ### 4.3's last reaches, and the consumer's columns
 
-- [ ] T084 [US3] [oDc] **Route everything left, and retire `consumer_reach.py`.**
+- [x] T084 [US3] [oDc] **Route everything left, and retire `consumer_reach.py`.**
   - Route `serve_workbench.py`'s seven (`:347`, `:407`, `:408`, `:544`,
     `:1215`, `:1665`, `:2607`), `serve_project.py:246/:247`, and
     `branch_session.py:1587/:2005`.
@@ -2713,7 +2779,71 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Ruled**: R1Q1 (a), R1Q22 (a), `5817152735`; R1Q10 (a), `5850003126`;
     items 1 and 3 of `5920216845`.
   - **After**: T055, T073 (`serve.py`'s single-writer order), T007 (batch L).
-- [ ] T103 [US3] [oDc] **Every loopback route checks the Host.** On a loopback
+  - **Landed**: openDox-code#77 → `e49b17c3`.
+    - `opendox.column_seams` declares four seams, `gate`, `scope`, `kickoff`
+      and `register`, in `projection_seams`' discipline, and
+      `opendox.default_columns` holds openDox's own default for each (R1Q10
+      (a)). The four entry points register them where no host has. The gate
+      default carries the vocabulary-free primitives as real code, and its
+      governed record functions refuse BY NAME (`GateRecordsNotRegistered`,
+      naming `opendox.column_seams.gate` and its registration call): openDox
+      writes no governed shape it does not own (the holder's reading (B)).
+      `kickoff` and `register` answer nothing, so `/project-register.json`
+      keeps its 404. `hosted_ref_refused` stays `serve.py`'s own.
+    - Every reach the entry lists reads its seam: the chat turn's and the
+      document abstract's scope authority (the abstract's reach moves below its
+      step-1 check), the thread read's live-session question, the first-edit
+      Save gate, model approval, the project register's prefix and kickoff
+      readers, `branch_session`'s gate, register and kickoff, and `cli`'s
+      `gate_mod`.
+    - `LateGateRoutes` and `LateProjectionRoutes` leave `DashboardHandler`'s
+      bases. The gate and projection columns are a host's, composed through the
+      handler-contribution facet beside the bindings that name their methods
+      (R1Q1 (a)), and a host that contributes a binding without its column is
+      refused at wiring, before a socket. openXdox contributes both at T086.
+      `consumer_reach.py` is gone, and
+      `tests/test_projection_seams.py::test_the_stand_ins_module_is_retired`
+      holds the absence.
+    - Capability honesty (`5920216845`, item 1):
+      `compute_capabilities(route_bindings=)` sets `gate` true only where a
+      contributed binding answers `POST /actions/gate/<verb>`, and `refresh`
+      true only where one answers `POST /actions/refresh`. A standalone server
+      reads both false. Each site that dropped a connection answers a
+      structured refusal, and `tests/test_capability_honesty.py` adds a fourth
+      the entry did not list, the chat rail's thread read with the query the
+      rail sends on opening a document.
+    - Every broken rule, once (`5920216845`, item 3):
+      `cli._report_non_conformance` prints each broken rule id once, with its
+      count and up to five of the places it is broken
+      (`tests/test_rejection_report.py`, a module of its own).
+    - Model intake and approval refuse by name where no host's gate is
+      registered (Brett Heap, 2026-10-02; `5961364221`, item 1):
+      `GET /workbench/model-intake` answers `offered: false` with the gate
+      seam's refusal as its reason, and the intake act and the approval refuse
+      before a broker is spawned or a record is built.
+    - A tile's own documents are editable (`5961651355`): the neutral scope
+      marks each section a tile projects as owned, in one named function,
+      `default_columns.editable_paths`. Nothing outside the tile is editable.
+      Adversarial review 2's M1 is folded in: openDox's own settings documents
+      (the bindings and the model declarations) are never editable, however a
+      tile names them. Its L1 and G7 are folded in too: an unknown `tile_kind`
+      answers a fixed code instead of a dropped connection, and
+      `generate-and-open` removes the run directory it minted.
+    - Two additions are the holder's, and the PR records them for Brett:
+      `opendox --help` and `python -m opendox.serve --help` name the installed
+      command and openDox only (`cli.PROG = "opendox"`, found by T099's PyPI
+      writer), and `serve.STATIC_CONTENT_TYPES` pins the static bundle's
+      content types (T075's finding, for 10.2).
+    - F4.1 whole holds: `consumer_reach.py` is absent and the scan prints `no
+      deferred reach names the consumer or the publisher`. At T073's landing
+      (`90ac7033`) `consumer_reach.py` is present and the scan lists eleven
+      reaches.
+    - Left open, in the PR: `declared_model_port_factory` serves only the first
+      approved binding, an approval's `expires_at` is recorded and not
+      enforced, and a HOSTED run killed by SIGTERM leaves its `opendox-*` run
+      directory (the holder accepted it for release 1). M4 and L2 of adversarial
+      review 2 are T103's.
+- [x] T103 [US3] [oDc] **Every loopback route checks the Host.** On a loopback
   plane, every route refuses a request whose `Host` does not name the plane
   itself, against DNS rebinding (adversarial review 2, M4). `/capabilities`'
   `install` block sits behind the same check, even when no console token is
@@ -2748,6 +2878,58 @@ written (`5962754358`). `consumer_reach.py` is gone.
     - A hosted plane still serves a `Host` the loopback gate refuses.
   - **Ruled**: R1Q22 (a), `5817152735`.
   - **After**: T084 (`serve.py`'s single-writer order).
+  - **Landed**: openDox-code#80 → `390e2c28`.
+    - The check is one place, `DashboardHandler.parse_request`, which
+      `handle_one_request` runs on every request before it looks for a
+      `do_<METHOD>`. So it holds for every route class and every method: the
+      static bundle, `/source/*`, `/snapshot.json`, `/capabilities` whatever
+      the token state, `/workbench/*`, every `/actions/*` route, a route a host
+      contributes, and HEAD and OPTIONS. At `3387293e` `/source/*`,
+      `/snapshot.json` and the static bundle applied no check, and
+      `/capabilities` checked only when a token had been minted (L2).
+    - A loopback plane serves a request only if it carries exactly one `Host`
+      line, trimmed of its optional whitespace, that names one of the plane's
+      own authorities at the BOUND port: `127.0.0.1:<port>`, `localhost:<port>`
+      in any letter case, and `[::1]:<port>` only on a socket bound to `::1`.
+      On port 80 only, the same names with no port are accepted too, as a
+      browser omits the default port.
+      `serve.host_names_this_loopback_serve` is the predicate, reusing
+      `loopback_authorities`, which gains an optional `bound_host`.
+    - Every other form gets one fixed answer that never echoes the `Host`: `403`
+      with `{"ok": false, "error": "invalid_host", "message": ...}`
+      (`serve.FOREIGN_HOST_BODY`). Any declared body is drained first, bounded,
+      the connection closes, and the log gets one fixed line. A hosted plane is
+      unchanged, because `parse_request` reads `self.loopback` first.
+    - `_trusted_console_host` and the console's Origin test read the same
+      predicate, and the console test now refuses a duplicated `Host` too. The
+      `/capabilities` arm's token-conditional test is removed as dead.
+    - Which plane is gated (the holder's ruling on Copilot's `r4171161531`,
+      declined): exactly `LOOPBACK_HOSTS`, `127.0.0.1`, `::1` and `localhost`.
+      Any other bind, `0.0.0.0`, `127.0.0.2`, `127.1` or `LOCALHOST`, is the
+      hosted plane, whose `Host` boundary is its deployment's, and `--local`
+      refuses those spellings before it opens a socket.
+    - It fixes the `::1` bind finding that T070's bullet left for the holder:
+      `build_server` was IPv4-only, so `generate-and-open --local --host ::1`
+      ended in `socket.gaierror`. An IPv6 literal now binds `AF_INET6`,
+      `server_url` brackets it, and a `::` bind is announced at `[::1]`.
+    - `tests/test_loopback_host_gate.py` (new, 67 cases) is the falsifier.
+      Its table runs on the predicate, across every route class of an
+      in-process server and a host's contributed routes, and across every route
+      class of a real standalone `generate-and-open --local` child (also on
+      `--host ::1`). Each runs with no console token and with one. It holds that
+      the `install` block is withheld from every refused form, that a hosted
+      plane still serves a `Host` the gate refuses, and it keeps its mutants in
+      the suite (a route class exempted, the port ignored, a suffix or prefix
+      match, only the first `Host` read, a missing `Host` trusted). Run
+      against T084's landing (`e49b17c3`), 64 of its 67 cases fail, and all 67
+      pass at `390e2c28`.
+    - For the pin moves past T103, the PR records two readers of what changed:
+      openXdox-code's `tests/test_edit_action.py:170` expects `(403,
+      "agent_invocation")` for `Host: rebound.example`, which the gate now
+      answers `(403, "invalid_host")`, and openxFactory's
+      `tests/ideation-dashboard/test_extension_point_parity.py`'s `ROUTE_ARMS`
+      pins the `/capabilities` arm's calls, which have moved.
+    - T104 follows in `serve.py`'s single-writer order.
 - [ ] T104 [US3] [oDc] **The console token travels in the opened URL, not
   `/capabilities`.** RULED `5963851934`, Brett Heap, 2026-10-03: *"Token via
   the opened URL (Recommended)"*.
