@@ -267,8 +267,8 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
           [oDc]  T084 → T102 (the workbench by scope; also after T081, T088) and T084 → T103 (the loopback Host check)
           [oDc]  T103 → T104 (the console token in the opened URL, not /capabilities; also after T102)
           [oDc]  T101 → T087 (T099's release step: the release workflow, then the 0.1.0 bump, after every package-changing phase-3 openDox-code landing)
-          [oDc]  T089 → T099 (the PyPI publish at the cut, of the commit T087 pins)
- ACCEPTANCE      T095 (HTTP, CI; after T089, T076 and T104)  →  T096 (browser)  →  T097 (bookkeeping, Rule 6; also after T099)
+          [oDc]  T089 → T099 and T096 → T099 (the PyPI publish at the cut, of the commit T087 pins, after the acceptance)
+ ACCEPTANCE      T095 (HTTP, CI; after T089, T076 and T104)  →  T096 (browser)  →  T099 (the publish)  →  T097 (bookkeeping, Rule 6)
  EVERY PHASE     T090 pins · T091 trailer · T092 notes · T093 interim F11.1 (run as T018, T065, T098)
 ```
 
@@ -318,8 +318,8 @@ lists.
   loopback Host check (T103) follow T084, and the console token's move to
   the opened URL (T104) follows both. The release step (T101) lands last
   among the package-changing openDox-code landings, before T087, and the
-  PyPI publish (T099) follows the checkpoint, at the cut. tasks.md § "Phase
-  3 writer slices" gives the fan-out.
+  PyPI publish (T099) follows the checkpoint and the acceptance, at the
+  cut. tasks.md § "Phase 3 writer slices" gives the fan-out.
 
 ## Pins and landing order (9.5): one openDox-code commit per phase, everywhere
 

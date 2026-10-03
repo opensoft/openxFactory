@@ -2051,7 +2051,8 @@ written (`5962754358`). `consumer_reach.py` is gone.
       `contracts/code-pin.yaml` names, and that is on openDox-code's `main`,
       never requiring `main`'s head. T095 lands after T089, so `main` may have
       moved on by the cut.
-  - **At the cut, on Brett Heap's publish word**: the holder creates the tag
+  - **At the cut, once AT-R1 has passed (T095, T096), on Brett Heap's publish
+    word**: the holder creates the tag
     `v0.1.0` at the pinned commit and dispatches the workflow with `version`
     0.1.0 on that tag. A dispatch runs at the head of the ref it names, so it
     names `main` only while `main`'s head is still the pinned commit, and a
@@ -2074,7 +2075,8 @@ written (`5962754358`). `consumer_reach.py` is gone.
     `5963162921`. The split into T101 and this task is the holder's decision
     of 2026-10-03, after Copilot's review of openxFactory#1220.
   - **After**: T101, T087, T089 (the publish happens at the cut, after phase
-    3's checkpoint).
+    3's checkpoint), T096 (release 1's acceptance passes before the
+    irreversible upload; the holder's ruling of 2026-10-03).
 - [ ] T101 [US3] [oDc] **T099's release step: the release workflow, and the
   version bump to 0.1.0.** Two openDox-code landings, which T087 pins and
   T099 publishes.
@@ -2449,14 +2451,45 @@ written (`5962754358`). `consumer_reach.py` is gone.
     (`serve.py:1977-1980` at openDox-code `main` `9a490405`), so another OS
     user on the same machine can ask the server for it. The defect predates
     the arc.
-  - **The change**, as Jupyter does it:
+  - **The scope is the standalone serve**, the holder's approved design of
+    2026-10-03. Standalone is the serve built from `opendox.default_profile`,
+    the one Brett's question (`5963851934`) was framed on. A composed host
+    keeps `/capabilities`' delivery of the token unchanged: openxFactory's
+    governed dashboard, and any profile openXdox registers.
+  - **The change, in the standalone serve**, as Jupyter does it:
     - `/capabilities` no longer carries `console_token`;
     - `generate-and-open` opens the page with the token in the URL fragment,
-      and keeps a private copy, owner-only (0600), in the state directory
-      (`OPENDOX_STATE_DIR`, T072's) for reopening;
-    - the web bundle reads the token from the fragment, not from
-      `/capabilities` (its readers at `9a490405`: `web/app.js`,
+      and keeps a private copy in the state directory (`OPENDOX_STATE_DIR`,
+      T072's) for reopening;
+    - the web bundle reads the token from the fragment where `/capabilities`
+      carries none (its readers at `9a490405`: `web/app.js`,
       `web/views/edit.js` and `web/views/staging-workbench-model.js`).
+  - **The private copy is written safely.** It is written only into a state
+    directory that passes the checks T100's trust file passes, the ones #69's
+    bundle makes of its own tree:
+    - no symbolic link;
+    - owned by this user, and writable by no one else;
+    - every directory above it this user's or root's, sticky where another
+      user can write it.
+
+    The file is created new, owner-only (0600), without following a symbolic
+    link, and only then renamed into place. So neither a symbolic link nor a
+    file already at that path can redirect or expose the write. A directory
+    that fails is refused by name, and nothing is written.
+  - **The composed hosts, verified unaffected.** T104's PR carries a composed
+    run showing that these readers of `/capabilities`' `console_token` are
+    unaffected:
+    - openXdox-code's `gate_console.py`, `serve_gate.py` and
+      `role_authority_projection.py`, and their tests;
+    - openxFactory's `tests/ideation-dashboard/test_doxbench_routes.py`,
+      `test_gate_routes.py`, `test_shared_identity.py` and
+      `test_staging_seed.py`.
+
+    Any reader the run finds affected is assigned: openXdox-code's to T086,
+    and openxFactory's to T094. Each of those tasks carries a line for it.
+  - **Out of release 1's scope, for the record.** The governed host's own
+    exposure of its token through `/capabilities` is a follow-up for the
+    host, and no task of this plan.
   - **Batch N, pending.** T007's batch N, a separate later PR, records #1144's
     text for every falsifier and AT-R1 step that reads `/capabilities`'
     `console_token`. This feature's `quickstart.md` moves with it: § 3 reads
@@ -2465,10 +2498,17 @@ written (`5962754358`). `consumer_reach.py` is gone.
     T007's batches have no line for N yet, so batch N's PR adds that line and
     the edge to T095 together.
   - **Realizes**: none of the 70 boxes. It carries out `5963851934`.
-  - **Falsifier**: its PR's test. `/capabilities` answers no `console_token`.
-    The URL `generate-and-open` opens carries the token in its fragment. The
-    private copy is owner-only under the state directory. A guarded route
-    refuses a request without the token and serves one with it.
+  - **Falsifier**: its PR's test, on the standalone serve.
+    - `/capabilities` answers no `console_token`.
+    - The URL `generate-and-open` opens carries the token in its fragment.
+    - The private copy is owner-only, under the state directory.
+    - A symbolic link at the copy's path, a state directory another user can
+      write, and one another user owns each refuse the write, by name.
+    - A guarded route refuses a request without the token and serves one with
+      it.
+
+    The composed run above shows that a composed host's `/capabilities`
+    still carries `console_token`.
   - **Ruled**: R1Q22 (a), `5817152735`; `5963851934`.
   - **After**: T103 (`serve.py`'s single-writer order), T102 (the web bundle).
 - [ ] T085 [US3] [oDc] **The standalone doxBench defaults for T027's seams**
@@ -2536,6 +2576,10 @@ written (`5962754358`). `consumer_reach.py` is gone.
     reviewed allow-list (`tests/protected_suite_respellings.yaml`), which
     F5.2's `--chains` step reads. F5.2 whole then passes, and its box closes
     at T089.
+  - **T104's composed readers.** Suppose T104's composed run finds one of
+    openXdox-code's readers of `/capabilities`' `console_token` affected
+    (`gate_console.py`, `serve_gate.py`, `role_authority_projection.py` and
+    their tests). Then this landing moves it, at the same pin.
   - **Realizes**: 4.3 (consumer half), 9.2 (the ratchet), 9.5 (step 3, part);
     F5.2 (its three repairs, with T089).
   - **Falsifier**: `tests/test_dependency_direction.py`; F9.1 (openXdox-code,
@@ -2563,6 +2607,13 @@ written (`5962754358`). `consumer_reach.py` is gone.
     do not name it. So this arc landing cannot regenerate it. It needs a
     non-arc PR ahead of it, in T066's form, or a ruled admission, and that
     is the holder's to choose before this task's PR opens.
+  - **T104's composed readers.** Suppose T104's composed run finds one of
+    openxFactory's four readers of `/capabilities`' `console_token` affected
+    (`tests/ideation-dashboard/test_doxbench_routes.py`,
+    `test_gate_routes.py`, `test_shared_identity.py` and
+    `test_staging_seed.py`). Then this landing moves it. If that file is not
+    one of 11.1's declared surfaces, the golden's rule above applies to it
+    too.
   - **Realizes**: 9.5 (part).
   - **Falsifier**: as T047's.
   - **Ruled**: R1Q2 (a), `5817152735`.
@@ -2860,9 +2911,9 @@ Every release-1 box, with the task that closes it:
   workflow, and then the bump to 0.1.0), lands after every other phase-3
   openDox-code landing that changes the shipped package, T100 and T102–T104
   included, and T087 pins it: T101 → T087. The publish follows the
-  checkpoint, at the cut: T089 → T099.
-- **Acceptance**: T095 (after T089, T076 and T104) → T096 → T097, and T099 →
-  T097.
+  checkpoint and the acceptance, at the cut: T089 → T099 and T096 → T099.
+- **Acceptance**: T095 (after T089, T076 and T104) → T096 → T097, and T096 →
+  T099 → T097.
 
 ### Parallel slices, summarised
 
@@ -2870,7 +2921,7 @@ Every release-1 box, with the task that closes it:
 |---|---|---|
 | 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; `pyproject.toml` (T038 → T036); `tests/test_authoring_seam.py` (T020 → T021 → T022); openDox-code's `validate.yml` (T036 → T037); T020 → T025 and T026 → T025; T032 → T037; T039 (root pin) → openXdox (T040, then T041 → T042 → T043 → T044) → T047 → T017, T018 |
 | 2 | T053 ∥ T050, then T052 ∥ T057 ∥ T051 | T053 → T054 → T055 → T056 → T058; T062 → T059 → T061 → T066 → T064; openXdox-code `pyproject.toml` (T059 → T061); ratchet writers; T007 batch I before T059, T060 and T061; batch K before T061 |
-| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072; T082 ∥ 16.3a (T100), then T083 | `serve.py` and `cli.py` (T070, T072 and T073 before T084, and T103, then T104, after it); T084 → T102 → T104; `serve_workbench.py` (T084 → T100); openDox-code `pyproject.toml` (T072 → T075 → T101); `doxbench_binding.py` (T078 → T080, then T100 after openDox-code#64); `cli_model_binding.py` (T079 → T080 → T100); `doxbench_install.py` (T081 → T100); T085 → T081; T087 → T086 → T094; T101 → T087; T089 → T099 (the publish, at the cut) |
+| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072; T082 ∥ 16.3a (T100), then T083 | `serve.py` and `cli.py` (T070, T072 and T073 before T084, and T103, then T104, after it); T084 → T102 → T104; `serve_workbench.py` (T084 → T100); openDox-code `pyproject.toml` (T072 → T075 → T101); `doxbench_binding.py` (T078 → T080, then T100 after openDox-code#64); `cli_model_binding.py` (T079 → T080 → T100); `doxbench_install.py` (T081 → T100); T085 → T081; T087 → T086 → T094; T101 → T087; T089 → T099 and T096 → T099 (the publish, at the cut) |
 
 ## Phase 1 writer slices (for the fan-out)
 
@@ -2973,7 +3024,7 @@ P3-B's T080, batch L before P3-R's T084, and batch M before P3-T's T100.
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F5.2, F10.1, F13.1, F16.1 (as batch M amends it) | Opus (verifier) |
 | acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O | the harness; the oracle's verdict | Opus |
-| P3-W publish to PyPI | T101 last among the package-changing openDox-code landings, before P3-P; T099 after the checkpoint, at the cut | T101, T099 | oDc | `.github/workflows/release.yml`, `.github/release-tools-cpython312-linux.txt` and `tests/test_release_workflow.py` (new); `pyproject.toml` (`readme`, after T072 and T075; then the version bump to 0.1.0, its own PR and the last of T101's landings) | every package-changing phase-3 openDox-code slice (T101); P3-P and the checkpoint (T099) | `tests/test_release_workflow.py` (T101); the release workflow's `build` job (its artifact checks), a TestPyPI dry run installed in a fresh venv, and the PyPI publish at the cut (T099) | Opus |
+| P3-W publish to PyPI | T101 last among the package-changing openDox-code landings, before P3-P; T099 after the checkpoint and the acceptance, at the cut | T101, T099 | oDc | `.github/workflows/release.yml`, `.github/release-tools-cpython312-linux.txt` and `tests/test_release_workflow.py` (new); `pyproject.toml` (`readme`, after T072 and T075; then the version bump to 0.1.0, its own PR and the last of T101's landings) | every package-changing phase-3 openDox-code slice (T101); P3-P and the checkpoint (T099) | `tests/test_release_workflow.py` (T101); the release workflow's `build` job (its artifact checks), a TestPyPI dry run installed in a fresh venv, and the PyPI publish at the cut (T099) | Opus |
 | bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance, P3-W; T007 every batch | none (a record) | Sonnet |
 
 ## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`, `5962785556`)
