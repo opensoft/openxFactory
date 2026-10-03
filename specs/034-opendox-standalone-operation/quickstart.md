@@ -6,8 +6,17 @@ Status: draft
 T095 automates the HTTP half as a harness in openDox-code's own `acceptance`
 CI job, which has no database service. T096 runs the browser half on the host.
 
-The run installs openDox-code at its phase-3 tip. Every question these steps
-depend on is answered, on `#656` comment `5850003126`. R1Q26 and R1Q27,
+The run installs openDox-code at `RELEASE1_TIP`, T095's landing commit on
+openDox-code's `main`. Its `acceptance` job runs AT-R1's HTTP half at that
+commit, and T096 records it as X. T099 publishes P, the commit T087 pins,
+and T095 lands after T087, so X is a later commit than P. Before the
+publish, T099 checks that the package's build inputs are identical at P and
+X, or else re-runs the HTTP half at P (tasks.md T099, the P-against-X step).
+Until the cut, the README's PyPI line has `pip install ./code` stand in for
+it, and § 1 installs the checkout (T076).
+
+Every question these steps depend on is answered, on `#656` comment
+`5850003126`. R1Q26 and R1Q27,
 answered on `5851950767`, bear on openXdox and openxFactory, and not on an
 openDox-only install. The steps follow `5850003126`'s answers: R1Q10 (a) and
 R1Q12 (a) for the catalog's validators, R1Q13 (a) with (c) for the tiles,
@@ -22,7 +31,7 @@ README, not this file, is the product's one documented command (requirement
 ```sh
 set -euo pipefail
 W=$(mktemp -d)                                        # scratch space, resolved at run time
-: "${RELEASE1_TIP:?set RELEASE1_TIP to openDox-code's phase-3 tip}"
+: "${RELEASE1_TIP:?set RELEASE1_TIP to T095's landing commit on openDox-code's main, the full sha T096 records (X in tasks.md T099)}"
 git clone -q https://github.com/opensoft/openDox-code "$W/openDox-code"
 git -C "$W/openDox-code" checkout -q "$RELEASE1_TIP"
 python3 -m venv --clear "$W/v"
@@ -154,9 +163,12 @@ server from § 3 running, in this order:
    workbench must open, and BEFORE any turn its chat rail must show the "no
    model configured" state, naming how to configure a model. Attempting a turn
    must be refused with `model_capability_unavailable`. Both editors must stay
-   usable. Repository (b) must also yield a grouping tile, from the topics
-   its notes share (R1Q13 (a) with (c)); if it yields none, the run FAILS and
-   does not skip.
+   usable: each opens and accepts edits. Creating a document and Save are
+   refused by name on standalone (T102), and that refusal is declared to the
+   oracle, so it is expected and not an error (RULED `5971834845`, *"Usable
+   = edits; Save refused (Recommended)"*). Repository (b) must also yield a
+   grouping tile, from the topics its notes share (R1Q13 (a) with (c)); if it
+   yields none, the run FAILS and does not skip.
 5. The verdict comes from `smoke_signals`: zero `pageerror`, nothing
    undeclared, and no 5xx.
 

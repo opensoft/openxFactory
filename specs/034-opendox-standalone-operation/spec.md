@@ -105,6 +105,10 @@ R1Q6"*.
   golden? → A: (a). Through the default profile's `SUBCOMMAND_EXTENSIONS`
   (`RuntimeSubcommand`), and `opendox-runtime` stays as an alias. A host that
   registers its own profile keeps its 31-entry tree.
+  - The count moves at phase 3 (`5970917267`, § Session 2026-10-02 and
+    2026-10-03 below). T100 adds `model-binding trust`, so from phase 3's pin
+    the host's tree has 32 entries. The answer itself stands: the runtime
+    verbs still do not reach a host's tree.
 - Q: R1Q6. How does openXdox-code run its whole suite green alone while its
   modules import openxFactory's `doc_health`? → A: (d), for release 1.
   - The `doc_health`-dependent files are a DECLARED exclusion, with their
@@ -230,8 +234,88 @@ comment `5852513402`, verbatim *"Keep (a) as ruled (Recommended)"*.
 The #1144 lines these answers amend are T007's batch I ([`tasks.md`](./tasks.md)
 § "Ruled amendments").
 
+### Session 2026-10-02 and 2026-10-03
+
+Phase 3's own work raised seven more questions. Brett Heap answered each by
+multiple choice, and each answer is the option marked *(Recommended)*. Each is
+posted on `#656`, and the time below is the comment's. [`tasks.md`](./tasks.md)
+encodes them, in T086, T094, T099–T104 and AT-R1's two halves.
+
+- Q: How does release 1 install, and does the aggregation's pin-sync after
+  T064 land? (`5962754358`, 2026-10-02T22:55:22Z) → A: two answers.
+  - (1) *"Publish to PyPI at the cut (Recommended)"*. openDox-code publishes
+    the wheel to PyPI as `opendox` by trusted publishing (OIDC), so no token
+    is stored anywhere, and 10.3's `pip install "opendox[local]"` works as
+    written (T101, T099).
+  - (2) *"Yes, land when green (Recommended)"*. The opensoft/xFactory
+    pin-sync after T064 lands as a merge commit, once its tests pass with the
+    submodules initialized. It moves the openxFactory gitlink,
+    `.github/clearing/openxfactory/PIN.yaml` and the root openDox and
+    openXdox gitlinks in ONE commit.
+- Q: Which version does openDox's first PyPI release carry?
+  (`5963162921`, 2026-10-02T23:38:05Z) → A: *"0.1.0 (Recommended)"*. The
+  version bump is the last phase-3 openDox-code landing, T087 pins that
+  commit, and the release workflow publishes only the commit the openDox
+  root's `contracts/code-pin.yaml` names (T101, T087, T099).
+- Q: A standalone workbench opens read-only, because its editors and chat
+  rail wait on a create gate that only openXdox answers. Where should they
+  appear? (`5963618568`, 2026-10-03T00:28:27Z) → A: *"Edit and chat by scope
+  (Recommended)"*. The editors and the chat rail appear wherever the scope
+  lets the document be edited. Only creating documents and Save stay behind
+  the gate, so Save is refused by name (T102).
+- Q: A standalone openDox serves its console token from `/capabilities` to
+  any loopback caller, other OS users of the same machine included. How
+  does the page get the token? (`5963851934`, 2026-10-03T00:56:13Z) → A:
+  *"Token via the opened URL (Recommended)"*. The server stops handing the
+  token out from `/capabilities`. `generate-and-open` opens the page with
+  the token in the URL's fragment and keeps a private copy (0600) in the
+  state directory (T104). T007's batch N records #1144's side, and T095's
+  harness reads the private copy.
+- Q: Where does openxFactory stand under T100's per-machine binding trust
+  when it hosts openDox? (`5970369724`, 2026-10-03T15:02:16Z) → A:
+  *"Governance approval (Recommended)"*. The host's registered policy wins
+  over openDox's strict default. openxFactory registers `GovernedBindingTrust`
+  as a sixth `seams()` entry, with an undo (T094):
+  - a binding the governance flow approved is trusted;
+  - a declared binding still pending approval is refused
+    (`pending_binding_ids`);
+  - a binding with no declaration is trusted;
+  - an unreadable declarations document admits nothing;
+  - `record()` writes nothing.
+
+  The comment also records the holder's rulings on T094's preparation:
+  - E1 (a): the help golden's phase-3 copy lands in a non-arc PR ahead of
+    T094, in T066's form, under `tests/domain_profile/fixtures/`. That PR
+    opens after T087 and is regenerated from T087's commit.
+  - E3 (a): that PR is the golden reader only.
+  - E4 (a), verbatim: *"#76 merges main before it lands"*.
+  - T086 registers no trust policy in openXdox.
+- Q: #1144 and this plan fix the assembled `--help` tree at 31 sections, but
+  T100 adds `model-binding trust`. Is the count amended? (`5970917267`,
+  2026-10-03T16:09:32Z) → A: *"Amend to 32 (Recommended)"*. From phase 3's
+  pin the tree has 32 sections.
+  - A later T007 batch, O, records it in #1144.
+  - openXdox-code's F9.2 test moves to 32 with T086, at the pin move past
+    T100.
+  - openxFactory's help golden moves with T094's ahead PR. That golden also
+    covers T070's `--local`, T079's and T080's `--model` and auth-kind
+    changes, and T084's rename of the program to `opendox`.
+
+  The question came from the plan analyze of 2026-10-03 (finding H2).
+- Q: On standalone, T102 refuses Save by name, because Save goes through
+  openxFactory's create gate. What does AT-R1's "both editors usable" mean
+  then? (`5971834845`, 2026-10-03T17:50:13Z) → A: *"Usable = edits; Save
+  refused (Recommended)"*. "Usable" means each editor opens and accepts
+  edits. On standalone, create and Save are refused by name. The oracle
+  declares that refusal, so it is expected and not an error. AT-R1 step 7
+  and `quickstart.md` § 4 step 4 carry it.
+
+Of these, only `5963851934` (T007's batch N, at #1144's 12.4a) and
+`5970917267` (a later batch, O) amend a line of #1144.
+
 **Nothing is open.** No task in [`tasks.md`](./tasks.md) carries a `Blocked
-by:` line.
+by:` line, and the answers above settle the choices phase 3's additions
+raised, T094's help golden and trust policy among them.
 
 One box needs no question. **3.0** ("RATIFICATION READ FIRST") is discharged by
 the ratification word itself. `5815412869` ratified the change and struck no
@@ -265,6 +349,8 @@ reaches into openxFactory, under F4.1's scan restricted to the publisher's
 packages. F9.2 is run and quoted red, not passed: RULED `5859927858` keeps it
 unchanged, so it stays red on the 31-entry help-tree test until T008, and
 phase 1 closes with it quoted so (holder decision, 2026-09-29, at T049).
+From phase 3's pin that test reads 32 entries, because T100 adds
+`model-binding trust` (RULED `5970917267`; T086 moves it).
 
 **Acceptance Scenarios**:
 
@@ -291,8 +377,10 @@ phase 1 closes with it quoted so (holder decision, 2026-09-29, at T049).
      contracts or rail (R1Q24 (a)), and `tests/test_snapshot.py` until 7.3
      lands in phase 2 (R1Q25 (b)).
 5. **Given** openXdox-code with openDox at its pin, **When** the declared
-   integration suite runs, **Then** it passes, including the 31-entry assembled
-   `--help` tree (requirement 9, third scenario).
+   integration suite runs, **Then** it passes, including the assembled
+   `--help` tree (requirement 9, third scenario). The tree has 31 entries
+   through phase 2, and 32 from phase 3's pin, where T100 adds
+   `model-binding trust` (RULED `5970917267`).
 
 **Phase-1 limit, measured and not chosen**: in phase 1 a standalone
 `build_server` still needs an injected snapshot source. With nothing else
@@ -737,6 +825,12 @@ chat's 'no model configured' state."* Each term is made checkable below.
    staging workbench opens, and its chat rail shows the "no model configured"
    state, naming how to configure a model, BEFORE any turn is attempted. A turn
    is refused `model_capability_unavailable`, and both editors stay usable.
+   "Usable" means that each editor opens and accepts edits. On standalone,
+   creating a document and Save are refused by name, since both go through
+   openxFactory's create gate, which a standalone install lacks (T102). That
+   refusal is declared to `tests/smoke_signals.py`'s oracle, so it is
+   expected and not an error (RULED `5971834845`, *"Usable = edits; Save
+   refused (Recommended)"*).
 8. **No errors.** There are zero `pageerror` events. Every other console error
    or failed request is declared to `tests/smoke_signals.py`'s oracle, or the
    run fails. No route the three panes request answers 5xx.

@@ -870,7 +870,9 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
   - `opendox runtime …` works standalone, and `opendox-runtime` stays as an
     alias.
   - A host that registers its own profile keeps its 31-entry `--help` tree, so
-    neither golden is regenerated.
+    neither golden is regenerated. (From phase 3's pin that tree has 32
+    entries, because T100 adds `model-binding trust`, RULED `5970917267`;
+    T086 and T094's ahead golden PR move them.)
   - The same landing corrects two comments in `src/opendox/runtime/cli.py`.
     The `:17-19` claim, that a line added to `cli.py` needs a declared edit
     first, is retired by R1Q22 (a). The `:39-42` record of Q-R4 now says
@@ -1003,7 +1005,9 @@ fixture imports `opendox.cli` (`tests/session_fixtures.py:397`).
     exclusion (R1Q6 (d)).
   - Each test names the pin it composes at.
   - The tree stays at 31 entries because a host that registers its own
-    profile does not get the default's runtime verbs (R1Q5 (a)).
+    profile does not get the default's runtime verbs (R1Q5 (a)). From phase
+    3's pin it has 32, because T100 adds `model-binding trust` (RULED
+    `5970917267`), and T086 moves this node to 32 at that pin.
   - **Realizes**: 9.3.
   - **Falsifier**: F9.2, quoted red on the 31-entry help-tree test, and
     closing after T008, as T049's does. RULED `5859927858` leaves F9.2
@@ -1775,8 +1779,8 @@ unchanged.
     commits: the openDox root at T062's, and the openXdox root with its code
     at T061's. Every red test is named in the PR body. Each is fixed here, or
     raised with the holder if no both-pins form exists.
-  - **Realizes**: none of the 69 boxes. It keeps requirement 1 at T064's pins
-    (SC-007).
+  - **Realizes**: none of the 70 boxes (69 at its landing, before batch M
+    added 16.3a). It keeps requirement 1 at T064's pins (SC-007).
   - **Falsifier**: openxFactory's `pytest-suite` and the consumer gate's
     suite at its floors, green on this PR at the current pins and at T064's
     candidate pins, all quoted.
@@ -2196,8 +2200,17 @@ written (`5962754358`). `consumer_reach.py` is gone.
   10.3 addendum reads). No `Makefile` target is added, since it has a
   shape-pin row.
   - **Realizes**: 10.3.
-  - **Falsifier**: review, and AT-R1 step 4 follows it literally.
-  - **Ruled**: R1Q15 (b), R1Q16 (iii), `5850003126`.
+  - **Falsifier**: review, and AT-R1 step 4 follows it literally. Before the
+    cut, the PyPI line cannot be followed literally: `opendox` is on no
+    index until T099 publishes it. So openDox#17's dated paragraph, "Where
+    `opendox` comes from", has `pip install ./code`, from a recursive clone,
+    stand in for that first line, and AT-R1 installs the checkout at
+    `RELEASE1_TIP` (quickstart.md § 1). The `--local` command is followed
+    literally. T099 replaces that paragraph with the PyPI install line after
+    the publish, and from then on the whole README is followed literally.
+  - **Ruled**: R1Q15 (b), R1Q16 (iii), `5850003126`; the stand-in until the
+    cut, the holder's ruling of 2026-10-03, which follows from `5962754358`
+    (T099).
   - **After**: T074, T075, T087 (the README documents the command the root
     pins).
 - [ ] T099 [US3] [oDc] [oD] **Publish to PyPI (10.3's install line).** openDox-code's
@@ -2217,6 +2230,28 @@ written (`5962754358`). `consumer_reach.py` is gone.
       `contracts/code-pin.yaml` names, and that is on openDox-code's `main`,
       never requiring `main`'s head. T095 lands after T089, so `main` may have
       moved on by the cut.
+  - **AT-R1's commit against the published one, before anything irreversible
+    (the holder's ruling of 2026-10-03, on the plan analyze's finding H3).**
+    Two openDox-code commits are in play:
+    - P is the commit T087 pins, T101's version bump, and the only commit
+      the workflow publishes;
+    - X is the commit AT-R1 ran at, T095's landing commit on openDox-code's
+      `main`, which T096 records as `RELEASE1_TIP` (quickstart.md § 1).
+      T095 lands after T089, so X is a later commit than P.
+
+    Before the tag and the dispatch, the holder asserts that the package's
+    build inputs are identical between P and X, in an openDox-code clone:
+    `git diff --quiet P X -- src/ pyproject.toml migrations/ README.md
+    LICENSE`. Those are the paths the sdist and the wheel are built from:
+    `src/` (the packages, the two top-level modules and their package data,
+    the web bundle among it), `pyproject.toml`, `migrations/` (its
+    `data-files`), `README.md` (the `readme` T101 adds) and `LICENSE` (a
+    license file setuptools adds by default). Any path a later
+    `pyproject.toml` maps into either file joins the list. If the command
+    exits non-zero, the holder re-runs AT-R1's HTTP half at P (T095's harness,
+    as it is at X, against P's checkout), and records that run's URL and
+    verdict in `evidence/at-r1/` beside T096's, before the publish. The
+    command's exit status, or that run, is recorded either way.
   - **At the cut, once AT-R1 has passed (T095, T096), on Brett Heap's publish
     word**: the holder creates the tag
     `v0.1.0` at the pinned commit and dispatches the workflow with `version`
@@ -2240,8 +2275,10 @@ written (`5962754358`). `consumer_reach.py` is gone.
     - in openDox-code's GitHub settings, the two environments, each with a
       required reviewer. The build job refuses until both name one.
   - **Realizes**: 10.3.
-  - **Falsifier**: the release workflow's `build` job (its artifact checks),
-    then a TestPyPI dry run installed with `pip install --index-url
+  - **Falsifier**: first, the P-against-X check above, which exits 0, or
+    else AT-R1's HTTP half re-run at P, which passes. Then the release
+    workflow's `build` job (its artifact checks), then a TestPyPI dry run
+    installed with `pip install --index-url
     https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
     "opendox[local]"` in a fresh venv, then the PyPI publish at the cut and
     its check that PyPI serves exactly the verified files. Then the root
@@ -2249,7 +2286,8 @@ written (`5962754358`). `consumer_reach.py` is gone.
     "opendox[local]"`, and no paragraph says that no release is published.
   - **Ruled**: `5962754358`, item 1; the version and the release commit,
     `5963162921`. The split into T101 and this task is the holder's decision
-    of 2026-10-03, after Copilot's review of openxFactory#1220.
+    of 2026-10-03, after Copilot's review of openxFactory#1220, and so is the
+    P-against-X step, after the plan analyze of 2026-10-03.
   - **After**: T101, T087, T089 (the publish happens at the cut, after phase
     3's checkpoint), T096 (release 1's acceptance passes before the
     irreversible upload; the holder's ruling of 2026-10-03). The root README
@@ -2380,8 +2418,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
     17 and scenario 17.1 ("any endpoint"), and a pointer after 16.3's batch H
     addendum. It rewrites no ratified text, and `spec.md`'s FR-009 follows
     it. The broker path is unchanged in this task.
-  - **The broker path follows in a separate phase-3 draft**, openDox-code#64,
-    stacked after #63 (T080's PR). It is no task of this plan, and T080's
+  - **The broker path follows in a separate phase-3 PR**, openDox-code#64,
+    stacked after #63 (T080's PR), which has LANDED (→ `8e377823`,
+    2026-10-03). It is no task of this plan, and T080's
     scope does not grow. It gives a minted token the protections above:
     `https://` or loopback only, no redirect or environment proxy, no
     chained cause or context, and a printable-ASCII check (RULED
@@ -2426,8 +2465,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
       reference refuses with a fixed sentence. Declaring it, with T072's
       `local` extra, is the holder's decision.
     - F16.1's three raw-key refusals and its control record pass. The broker
-      path's hardening is openDox-code#64's, a separate draft that is no task
-      of this plan, so T080's scope did not grow.
+      path's hardening is openDox-code#64's, a separate PR that is no task
+      of this plan (a draft at T080's landing; LANDED since, → `8e377823`),
+      so T080's scope did not grow.
     - For T086: openXdox-code's `tests/test_doxchat_model_intake.py` asserts,
       in two places, that the intake flow's served kinds equal
       `list(doxbench_binding.AUTH_KINDS)`, which `none` now breaks at T086's
@@ -2557,11 +2597,13 @@ written (`5962754358`). `consumer_reach.py` is gone.
     `test_a_declared_binding_resolves_the_brokered_port_instead`, record
     trust first or assert the refusal.
   - **Downstream, not edited here.** The assembled `--help` tree gains
-    `model-binding trust`. openxFactory's
-    `tests/ideation-dashboard/fixtures/cli-help-tree.golden.txt`, which
-    gains T079's `--model` at T094's pin, then holds 32 sections, not 31
-    (research R8). T094 records what that needs. openXdox-code's 31-entry
-    assembled-tree test, deselected until T008, reads the same tree.
+    `model-binding trust`, so from phase 3's pin it has 32 sections, not 31
+    (research R8; RULED `5970917267`, Brett Heap, 2026-10-03, *"Amend to 32
+    (Recommended)"*). openxFactory's help golden, which also gains T079's
+    `--model` at T094's pin, moves to 32 in T094's non-arc ahead PR (holder
+    E1 (a)). openXdox-code's assembled-tree test, deselected until T008,
+    reads the same tree, and T086 moves its node from 31 to 32 at the pin
+    past this task. The #1144 side is a later T007 batch's (O).
   - **Realizes**: 16.3a.
   - **Falsifier**: F16.1's batch M block, and
     `tests/test_model_binding_trust.py`.
@@ -2597,8 +2639,14 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Falsifier**: AT-R1 step 7, run by T096. Its PR adds a test that, with
     openDox's own defaults alone, the workbench offers both editors and the
     chat rail for a document the scope marks editable, and that create and
-    Save stay behind the gate, Save refused by name.
-  - **Ruled**: R1Q22 (a), `5817152735`; `5963618568`.
+    Save stay behind the gate, Save refused by name. Step 7 reads "usable" as
+    RULED `5971834845` (Brett Heap, 2026-10-03, *"Usable = edits; Save
+    refused (Recommended)"*): each editor opens and accepts edits, while
+    create and Save are refused by name on standalone, and that refusal is
+    declared to `tests/smoke_signals.py`'s oracle, so it is expected and not
+    an error.
+  - **Ruled**: R1Q22 (a), `5817152735`; `5963618568`; what "usable" means,
+    `5971834845`.
   - **After**: T084, T081, T088 (`lens.js`'s earlier writer).
 
 ### 4.3's last reaches, and the consumer's columns
@@ -2713,6 +2761,22 @@ written (`5962754358`). `consumer_reach.py` is gone.
       refuses each other one, with no console token minted and with one.
     - The `install` block is withheld from every refused form.
     - A hosted plane still serves a `Host` the loopback gate refuses.
+    - A composed run. The check reaches every loopback plane, a composed
+      host's included, so openxFactory's suites run against it as well.
+      T104's governed run (openDox-code#84's body, "The governed path") ran
+      openxFactory's four token-reading suites,
+      `tests/ideation-dashboard/test_doxbench_routes.py`,
+      `test_gate_routes.py`, `test_shared_identity.py` and
+      `test_staging_seed.py`. It ran at the pinned openDox-code `047bb4fa`
+      and at `047bb4fa` with T104's two commits applied, with no #80 in
+      either. Both runs gave `239 passed` and the same one failure,
+      `test_lens_add_as_cluster_lands_manifest_pending_and_record` (409). The
+      clone's name causes that failure: a clone not named `openxFactory`
+      finds the shared checkout's cross-reference validator (T094 prep,
+      finding 2), and the test passes in the CI layout. The composed run at
+      a head containing #80 is T094's, at phase 3's pin. T094 prep's local
+      simulation found that the ahead golden PR's both-pins form fixes T103's
+      `Host` case in openxFactory's suites (T094, holder E1 (a)).
   - **Ruled**: R1Q22 (a), `5817152735`.
   - **After**: T084 (`serve.py`'s single-writer order).
 - [ ] T104 [US3] [oDc] **The console token travels in the opened URL, not
@@ -2906,18 +2970,43 @@ written (`5962754358`). `consumer_reach.py` is gone.
     reviewed allow-list (`tests/protected_suite_respellings.yaml`), which
     F5.2's `--chains` step reads. F5.2 whole then passes, and its box closes
     at T089.
-  - **T104's composed readers.** Suppose T104's composed run finds one of
-    openXdox-code's readers of `/capabilities`' `console_token` affected
-    (`gate_console.py`, `serve_gate.py`, `role_authority_projection.py` and
-    their tests). Then this landing moves it, at the same pin.
+  - **At the pin move past T100.** This landing moves the pin to T087's
+    commit, which carries T100 and T104, so it takes two more steps there:
+    - (a) **The F9.2 test goes from 31 to 32** (RULED `5970917267`, Brett
+      Heap, 2026-10-03, *"Amend to 32 (Recommended)"*). From phase 3's pin
+      the assembled `--help` tree has 32 sections, because T100 adds
+      `model-binding trust`. The node
+      `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_31_entry_tree_the_manifest_records`
+      moves to 32. `validate.yml`'s `LEFT_OUT`, which deselects that node
+      until T008, names it as well, so it moves in the same landing. The
+      #1144 side, F9.2 and batch J's F9.1 line, which also name the node, is
+      a later T007 batch's (O).
+    - (b) **T104's harness step.** openXdox-code's route harnesses,
+      `tests/doxbench_routes_harness.py:290` and
+      `tests/gate_routes_harness.py:139-149` (at `6a3b93b9`), build the
+      server with no host profile registered. By T104's rule their plane is
+      then standalone, so `/capabilities` carries no `console_token`, which
+      they read. Measured on openDox-code#84 (its body, "The governed path"),
+      90 cases fail `KeyError: 'console_token'` when composed with
+      openxFactory's `scripts/`. All 90 are in 6 files that
+      `tests/declared_exclusion.yaml` already excludes (`doc_health`), so CI
+      does not run them. This landing makes those harnesses read
+      `httpd.console_token`, or register openXdox's profile as a host.
+  - **No trust policy here.** This landing registers no binding trust
+    policy in openXdox. The host registers its own, in T094 (the holder's
+    ruling, recorded with `5970369724`).
   - **Realizes**: 4.3 (consumer half), 9.2 (the ratchet), 9.5 (step 3, part);
     F5.2 (its three repairs, with T089).
   - **Falsifier**: `tests/test_dependency_direction.py`; F9.1 (openXdox-code,
     as amended by T007's batches B and F, and by batch J's `--deselect` unless
     T008 has removed it); and F5.2 whole, as T007's batches C, F, G and K
-    amend it, with `tests/test_session_snapshot.py` green.
+    amend it, with `tests/test_session_snapshot.py` green. Also, at the pin:
+    by review, the assembled-tree test and `LEFT_OUT` name the 32-entry tree
+    (F9.2 itself stays as T008 leaves it); and the two harnesses' modules,
+    composed as #84 ran them, raise no `KeyError: 'console_token'`.
   - **Ruled**: R1Q1 (a), R1Q7 (a), R1Q22 (a), `5817152735`; R1Q10 (a), R1Q25
-    (b), `5850003126`; F5.2's three repairs, `5962785556`, item 1.
+    (b), `5850003126`; F5.2's three repairs, `5962785556`, item 1; the tree
+    at 32, `5970917267`.
   - **After**: T084, T087, T061 (the `pyproject.toml` pin's single-writer
     order), T059 (the ratchet's).
 - [ ] T094 [US4] [oX] [oxF] **Phase 3's consumer pins and host wiring** (T090
@@ -2926,28 +3015,58 @@ written (`5962754358`). `consumer_reach.py` is gone.
   `test_serve_column_split.py`'s gate and projection rows, updated again once
   `consumer_reach.py` is gone. Both are named composition tests under R1Q2
   (a).
-  - **The CLI help golden.** At phase 3's pin the assembled `--help` tree
-    changes: T079 adds `--model` to `model-binding add|edit` (openDox-code#62's
-    body names it), and T100 adds `model-binding trust`, so
-    `tests/ideation-dashboard/fixtures/cli-help-tree.golden.txt` goes from 31
-    sections to 32 (research R8). Its reader,
+  - **The CLI help golden: RULED, in a non-arc PR ahead of this one.** At
+    phase 3's pin the assembled `--help` tree changes in every section. T070
+    adds `--local`. T079 adds `--model` to `model-binding add|edit`
+    (openDox-code#62's body names it), and T080 changes the auth kinds. T084
+    renames the program to `opendox`. T100 adds `model-binding trust`, so
+    the tree goes from 31 sections to 32 (research R8; RULED `5970917267`,
+    *"Amend to 32 (Recommended)"*). Its reader,
     `test_extension_point_parity.py`, is a named composition test, but the
     golden itself is NOT one of 11.1's declared surfaces: F11.1's `HOST`,
     `HOST_TESTS`, `PIN_PAIRS`, `COMPOSITION_TESTS` and `ADMITTED_ARC_EDITS`
-    do not name it. So this arc landing cannot regenerate it. It needs a
-    non-arc PR ahead of it, in T066's form, or a ruled admission, and that
-    is the holder's to choose before this task's PR opens.
-  - **T104's composed readers.** Suppose T104's composed run finds one of
-    openxFactory's four readers of `/capabilities`' `console_token` affected
+    do not name it. So this arc landing cannot regenerate it. The holder
+    ruled the way it moves, on 2026-10-03, recorded with `5970369724`:
+    - E1 (a): a non-arc openxFactory PR, in T066's form, lands ahead of
+      this one. It adds the phase-3 golden under `tests/domain_profile/fixtures/`,
+      and covers T070's `--local`, T079's and T080's changes, T084's rename
+      to `opendox` and T100's `model-binding trust`. It opens after T087,
+      and its golden is regenerated from T087's commit.
+    - E3 (a): that PR is the golden reader only.
+  - **The binding trust policy (RULED `5970369724`, Brett Heap, 2026-10-03,
+    *"Governance approval (Recommended)"*).** openxFactory hosts openDox
+    under T100 by registering its own policy, `GovernedBindingTrust`, as a
+    sixth `seams()` entry, with its undo. A host's registration wins over
+    openDox's strict default:
+    - a binding the governance flow approved is trusted;
+    - a binding a repository declared that is still pending approval is
+      refused, the question the port factory already asks
+      (`pending_binding_ids`);
+    - a binding with no declaration is trusted: one the operator added on
+      this machine, or the console intake's new binding while its broker
+      runs. The governed flow, the console intake included, stays as it is;
+    - when the declarations document cannot be read, nothing is admitted;
+    - `record()` writes nothing.
+
+    T086 registers no trust policy in openXdox, since the host's
+    registration is this task's.
+  - **T104's composed readers: nothing to move.** openxFactory's four readers
+    of `/capabilities`' `console_token`
     (`tests/ideation-dashboard/test_doxbench_routes.py`,
     `test_gate_routes.py`, `test_shared_identity.py` and
-    `test_staging_seed.py`). Then this landing moves it. If that file is not
-    one of 11.1's declared surfaces, the golden's rule above applies to it
-    too.
+    `test_staging_seed.py`) read a host's plane, which keeps the
+    `/capabilities` delivery. T104's governed run (openDox-code#84's body,
+    "The governed path") gave `239 passed` and the same one failure with and
+    without T104, a failure the clone's name causes (T103's composed-run
+    line). Nothing in openxFactory changes, so this landing moves none of
+    them.
   - **Realizes**: 9.5 (part).
   - **Falsifier**: as T047's.
-  - **Ruled**: R1Q2 (a), `5817152735`.
-  - **After**: T086, T087, T064 (the pin pairs' single-writer order).
+  - **Ruled**: R1Q2 (a), `5817152735`; the golden's ahead PR, holder E1 (a)
+    and E3 (a), and the trust policy, `5970369724`; the tree at 32,
+    `5970917267`.
+  - **After**: T086, T087, T064 (the pin pairs' single-writer order), and
+    the ahead golden PR (E1 (a), a non-arc PR with no task of its own).
 - [ ] T098 [US4] [oxF] **Phase 3's interim F11.1**, by T093's procedure, with
   `ARC_TIP` at T094's landing. Record the output in
   `evidence/f11.1-phase3.txt`, with no `Arc:` trailer, and link it from
@@ -3114,19 +3233,23 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - opening the workbench from a grouping tile shows the chat rail's "no model
     configured" state, with how to configure one, before any turn;
   - a turn is refused `model_capability_unavailable`, and both editors stay
-    usable;
+    usable: each opens and accepts edits, while create and Save are refused
+    by name, a refusal declared to the oracle (RULED `5971834845`);
   - there is zero `pageerror`, and nothing undeclared.
 
   Record the evidence in openxFactory, in this feature's `evidence/at-r1/`, with
   no `Arc:` trailer, and link it from this feature's README entry: this run's oracle
   verdict, and the URL and verdict of T095's `acceptance` job at the same
   openDox-code commit. Together they are SC-004's
-  evidence for both halves.
+  evidence for both halves. That commit is `RELEASE1_TIP` (quickstart.md
+  § 1): X, T095's landing commit on openDox-code's `main`. Record its full
+  sha, and beside it P, the commit T087 pins, which T099 publishes. T099
+  compares the two before it publishes (the P-against-X step).
   - **Realizes**: FR-011 (browser half).
   - **Falsifier**: the oracle's verdict, which must pass: zero `pageerror`, and
     nothing undeclared.
   - **Ruled**: R1Q20 (a), `5817152735`; R1Q13 (a) with (c), R1Q19 (a),
-    `5850003126`.
+    `5850003126`; what "usable" means, `5971834845`.
   - **After**: T095.
 - [ ] T097 [oxF] **Bookkeeping.**
   - Tick #1144's release-1 boxes, each with its evidence note: the 63 in the
@@ -3149,9 +3272,10 @@ written (`5962754358`). `consumer_reach.py` is gone.
 run from an openxFactory checkout (research.md § Appendix writes the tool),
 printed `total 124`: 104 `[ ]`, 11 `[x]` and 9 `[~]`
 at `cd494e4c`. At `dd2466ad` the counts were 106, 9 and 9, before #1151 ticked
-1.8 and 3.0. T007's batch M adds one box, 16.3a, in Group 16, so on its branch
-the same command prints `total 125`: 105 `[ ]`, 11 `[x]` and 9 `[~]`. F16.1
-keeps its label, since it is still Group 16's first `FALSIFIED BY` box.
+1.8 and 3.0. T007's batch M added one box, 16.3a, in Group 16 (#1219 →
+`cc775fea`), and at `main` `dca40ca3` the same command prints `total 125`:
+105 `[ ]`, 11 `[x]` and 9 `[~]`. F16.1 keeps its label, since it is still
+Group 16's first `FALSIFIED BY` box.
 
 | scope | groups | boxes |
 |---|---|---|
@@ -3165,7 +3289,7 @@ Release 1's 70 boxes, by class:
 | class | count | boxes |
 |---|---|---|
 | closed by a realization task in release 1 | 63 | every other box below |
-| closes after T008, outside release 1's tasks | 1 | F9.2: RULED `5859927858` keeps it unchanged and red on the 31-entry help-tree test until T008 (holder decision, 2026-09-29, at T049) |
+| closes after T008, outside release 1's tasks | 1 | F9.2: RULED `5859927858` keeps it unchanged and red on the assembled help-tree test until T008 (holder decision, 2026-09-29, at T049). The test reads 31 entries through phase 2 and 32 from phase 3's pin (RULED `5970917267`; T086) |
 | discharged by the ratification | 1 | 3.0 (ticked by #1151, T001) |
 | already `[x]` | 1 | 5.6 (openDox-code#35 → `3c3a9e31`) |
 | performed in every phase, ticked at ARC close | 4 | 9.5 (T090), 11.0 (T091), 11.1 (T092), F11.1 (T093) |
@@ -3340,7 +3464,7 @@ P3-B's T080, batch L before P3-R's T084, and batch M before P3-T's T100.
 | P3-B binding and provider | G1 | T078, T079, T080 | oDc | `src/opendox/doxbench_binding.py`; `src/opendox/doxbench_provider.py` (the dialect arm, and the resolver); `src/opendox/cli_model_binding.py` (`--model`) | T063, T069; T007 batches H and K for T080 | F16.1's dialect, field and refusal assertions; the resolver's and `none`'s tests | Opus |
 | P3-D doxBench defaults and the no-model state | G1 (T085); T081 after it | T085, T081 | oDc | the default registrations for T027's seams; `src/opendox/doxbench_install.py`; `src/opendox/web/views/doxbench-chat.js`; `tests/test_chat_model_configuration.py` (new); `src/opendox/validator.py`, `src/opendox/default_projection.py` and `tests/test_post_render_validator.py` (T058's two workbench-manifest rules and their assertions, T085) | T063, T069 | the served catalog route answers with no available entry, and the two rules report as `pinned-keywords-are-checked` and `new-candidates-are-disjoint` (T085); F16.1's catalog block and the named test (T081) | Opus |
 | P3-L lens seed actions | G1 | T088 | oDc | `src/opendox/web/views/lens.js`, and the capability that says a binding answers | T063, T069 | AT-R1 step 6 | Sonnet |
-| P3-E the door | G2, after P3-I | T075, T077 | oDc | none, unless T075's run finds a gap in how the bundle is served. An edit to the server module then joins its single-writer order between T073 and T084 before the PR opens | P3-I (T072); T007 batch H | F10.1's fetch, as batch H amends it (T075); F10.1, as batch H amends it (T077) | Sonnet |
+| P3-E the door | G2, after P3-I | T075, T077 | oDc | T075's run found a gap in how the bundle is packaged, so T075 (openDox-code#73, landed) edited `pyproject.toml`'s package data (`web/**/.*`), after T072 and before T101, and its tests; no server module. T077 is a run | P3-I (T072); T007 batch H | F10.1's fetch, as batch H amends it (T075); F10.1, as batch H amends it (T077) | Sonnet |
 | P3-R 4.3's last reaches | G2, after P3-I | T084 | oDc | `src/opendox/serve.py`, `src/opendox/cli.py`, `src/opendox/serve_workbench.py`, `src/opendox/serve_project.py` and `src/opendox/branch_session.py`; the defaults' modules; `src/opendox/consumer_reach.py` (deleted); `tests/test_capability_honesty.py` (new, the capability and crash-site assertions); `tests/test_rejection_report.py` (new, the grouped rejection output) | P3-I; T007 batch L | F4.1 whole; the capability-honesty test, over a standalone child and a composed host; the rejection-output test | Opus |
 | P3-S edit and chat by scope | G2, after P3-R | T102 | oDc | `src/opendox/web/views/staging-workbench.js` and `staging-workbench-model.js` (the editors and the rail by scope; create and Save behind the gate); `src/opendox/web/views/lens.js` and `src/opendox/web/index.html` (the display text) | P3-R, P3-D (T081), P3-L | AT-R1 step 7; the workbench-by-scope test | Opus |
 | P3-V the loopback Host check | G2, after P3-R | T103 | oDc | `src/opendox/serve.py` (every loopback route checks `Host`; the `install` block behind it) | P3-R | the Host-check test | Opus |
@@ -3349,8 +3473,8 @@ P3-B's T080, batch L before P3-R's T084, and batch M before P3-T's T100.
 | P3-N no model, everywhere | G3; T083 after P3-T | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B; P3-T for T083 | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole, as batch M amends it (T083) | Sonnet |
 | P3-P openDox root pin | G4 | T087 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-3 openDox-code slice landed | `make pins` | Sonnet |
 | P3-O the root README | G5 | T076 | oD | `README.md` | P3-P, P3-J, P3-E | review; AT-R1 step 4 follows it | Sonnet |
-| P3-X openXdox's columns | G5 | T086 | oXc | the gate and projection contributions; `pyproject.toml` (the `opendox @` pin); `tests/test_dependency_direction.py` (the ratchet at `(0, 0)`); `tests/test_session_snapshot.py` and `tests/protected_suite_respellings.yaml` (F5.2's three repairs, RULED `5962785556`) | P3-P, P3-R; P2-C | `tests/test_dependency_direction.py`; F9.1 as batches B and F amend it, and batch J's `--deselect` unless T008 has removed it; F5.2 whole | Opus |
-| P3-K pins and host wiring | G6 | T094 | oX, oxF | as P1-K's pin files; `tests/ideation-dashboard/test_extension_point_parity.py` and `tests/ideation-dashboard/test_serve_column_split.py` (named composition tests) | P3-X, P3-P | as T047's | Opus |
+| P3-X openXdox's columns | G5 | T086 | oXc | the gate and projection contributions; `pyproject.toml` (the `opendox @` pin); `tests/test_dependency_direction.py` (the ratchet at `(0, 0)`); `tests/test_session_snapshot.py` and `tests/protected_suite_respellings.yaml` (F5.2's three repairs, RULED `5962785556`); `tests/integration/test_assembled_surface.py` and `.github/workflows/validate.yml`'s `LEFT_OUT` (the tree at 32, RULED `5970917267`); `tests/doxbench_routes_harness.py` and `tests/gate_routes_harness.py` (T104's token) | P3-P, P3-R; P2-C | `tests/test_dependency_direction.py`; F9.1 as batches B and F amend it, and batch J's `--deselect` unless T008 has removed it; F5.2 whole | Opus |
+| P3-K pins and host wiring | G6 | T094 | oX, oxF | as P1-K's pin files; `tests/ideation-dashboard/test_extension_point_parity.py` and `tests/ideation-dashboard/test_serve_column_split.py` (named composition tests); `scripts/opendox_host.py` (`GovernedBindingTrust`, a sixth `seams()` entry, RULED `5970369724`) | P3-X, P3-P; the ahead golden PR (holder E1 (a)) | as T047's | Opus |
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
 | checkpoint | G6, last | T089 | — | none (a verifier) | P3-K, P3-M, P3-O | F4.1, F5.2, F10.1, F13.1, F16.1 (as batch M amends it) | Opus (verifier) |
 | acceptance | after T089 | T095, T096 | oDc, oxF | `acceptance/at_r1_http.py` and its `acceptance` job; `evidence/at-r1/` | the checkpoint, P3-O | the harness; the oracle's verdict | Opus |
