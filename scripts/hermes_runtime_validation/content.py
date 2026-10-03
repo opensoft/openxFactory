@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import hashlib
 import os
-from pathlib import Path, PurePosixPath
 import re
 import subprocess
-
+from dataclasses import dataclass
+from pathlib import Path, PurePosixPath
 
 _OBJECT_ID = re.compile(r"[0-9a-fA-F]{40}|[0-9a-fA-F]{64}")
 _CLOSED_REPOSITORY_PATH = re.compile(r"[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*")
@@ -73,7 +72,7 @@ def normalize_repository_path(path: str | os.PathLike[str]) -> str:
     raw = os.fspath(path)
     if not isinstance(raw, str):
         raise ContentResolutionError("repository path must be text")
-    if not raw or raw.startswith("/") or raw.startswith(":") or "\\" in raw:
+    if not raw or raw.startswith(("/", ":")) or "\\" in raw:
         raise ContentResolutionError("repository path is not canonical")
     if any(ord(character) < 32 or ord(character) == 127 for character in raw):
         raise ContentResolutionError("repository path contains a control character")
@@ -126,10 +125,18 @@ def _repository(path: str | os.PathLike[str]) -> Path:
 
 
 def resolve_git_object(
-    repository: str | os.PathLike[str], revision: str, path: str | os.PathLike[str]
+    repository: str | os.PathLike[str],
+    revision: str,
+    path: str | os.PathLike[str],
+    *,
+    max_bytes: int | None = None,
 ) -> ResolvedGitContent:
     """Resolve one regular file from one exact commit without reading worktree bytes."""
 
+    if max_bytes is not None and (
+        isinstance(max_bytes, bool) or not isinstance(max_bytes, int) or max_bytes < 0
+    ):
+        raise ContentResolutionError("max_bytes must be a nonnegative integer")
     repo = _repository(repository)
     normalized_path = normalize_repository_path(path)
     if not isinstance(revision, str) or _OBJECT_ID.fullmatch(revision) is None:
@@ -178,6 +185,14 @@ def resolve_git_object(
     if _OBJECT_ID.fullmatch(blob_oid) is None:
         raise ContentResolutionError("Git returned an invalid blob object ID")
 
+    # An immutable blob's size can be checked without materializing its bytes.
+    # Authority callers use this ceiling to refuse hostile inputs before read.
+    if max_bytes is not None:
+        size_text = str(_git(repo, "cat-file", "-s", blob_oid)).strip()
+        if re.fullmatch(r"[0-9]+", size_text) is None:
+            raise ContentResolutionError("Git returned an invalid blob size")
+        if int(size_text) > max_bytes:
+            raise ContentResolutionError(f"Git blob exceeds {max_bytes} bytes")
     data = bytes(_git(repo, "cat-file", "blob", blob_oid, binary=True))
     return ResolvedGitContent(
         path=normalized_path,

@@ -70,6 +70,8 @@ OpsxFactory
 
 ## Documentation
 
+- [Repository recovery disposition, 2026-10-03](docs/repository-recovery-2026-10-03.md)
+
 Core domain-neutral docs:
 
 - [Architecture](docs/architecture.md)

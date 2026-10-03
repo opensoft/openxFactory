@@ -48,9 +48,18 @@ exact candidate commit and the public validator runs from a refreshed checkout.
 ## Phase 6: Verification and handoff
 
 - [x] T022 Run family, focused pytest, repository pytest, manifest, doc-health, OpenSpec, and release validators
-- [ ] T023 Update completion boxes and realization evidence in `openspec/changes/add-standing-policy-compliance-contract/`
+- [x] T023 Update completion boxes and realization evidence in `openspec/changes/add-standing-policy-compliance-contract/`
 - [ ] T024 Commit, push, open a PR, request Codex review, and resolve all correctness/security findings
-- [ ] T025 Merge the green release PR, publish/verify the annotated tag, and record exact remote evidence
+- [x] T025 Merge the green release PR, publish/verify the annotated tag, and record exact remote evidence
+
+Historical completion reconciled 2026-10-03: PR #514 merged at
+`ec8be5aa62179713f37ee12dab53a948d791e147`, its checks passed, and the remote
+annotated `contract-v2.3` tag and inventory verify. Exact evidence and the
+separate bounded-read recovery correction are recorded in
+`openspec/changes/add-standing-policy-compliance-contract/realization-evidence.md`.
+The original OpenSpec first-conformer/archive obligations remain open.
+T024 stays open because the historical PR has no verified Codex review; the
+recovery PR must receive an exact-head review before that obligation closes.
 
 ## Dependencies
 

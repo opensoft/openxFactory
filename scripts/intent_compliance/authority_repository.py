@@ -179,7 +179,7 @@ def read_trusted_family_blob(snapshot: TrustedSnapshot, path: str) -> bytes:
 def _resolve_bounded_git_object(
     repository: Path, revision: str, path: str
 ) -> ResolvedGitContent:
-    resolved = resolve_git_object(repository, revision, path)
+    resolved = resolve_git_object(repository, revision, path, max_bytes=MAX_INPUT_BYTES)
     if len(resolved.data) > MAX_INPUT_BYTES:
         raise ContentResolutionError(f"Git blob exceeds {MAX_INPUT_BYTES} bytes")
     return resolved

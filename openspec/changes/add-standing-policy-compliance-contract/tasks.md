@@ -14,11 +14,15 @@ features, per the repository constitution.
       Brett Heap's decision record.
 - [x] 1.2 Create the single openxFactory implementation handoff at
       `specs/015-intent-compliance-contract/`.
-- [ ] 1.3 Merge the green Speckit realization that publishes the five-record
+- [x] 1.3 Merge the green Speckit realization that publishes the five-record
       family, canonical validator, conformance corpus, registration and next
       additive contract bundle.
-- [ ] 1.4 Record exact release commit, bundle, tag and validation evidence in
+- [x] 1.4 Record exact release commit, bundle, tag and validation evidence in
       `realization-evidence.md`.
+
+Evidence: `realization-evidence.md` records PR #514, the immutable remote
+`contract-v2.3` tag and its verified inventory. The first-conformer obligations
+below remain outstanding.
 
 ## 2. First-conformer handoff
 
