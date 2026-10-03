@@ -2159,9 +2159,12 @@ that does not name a platform.
   - the copy forwards to the page with the token in the URL's FRAGMENT,
     `…/index.html#console_token=<token>`, and never in its query, so no
     request line, server log or `Referer` carries it;
-  - the start prints the copy's path, never the token, with or without
-    `--no-open`. The copy is removed when the server stops, and the start is
-    refused when no safe copy can be written.
+  - the start writes the copy, and prints its location as a `file://` URL,
+    with or without `--no-open`, and never prints the token or a URL that
+    carries it, so standard output and CI logs stay clean. The copy is
+    removed when the server stops, and a copy that cannot be written safely
+    refuses the start by name, before anything is written, so the server
+    never serves.
 
   A composed host's plane keeps its delivery on `/capabilities` unchanged.
   Every route that requires the token still requires it. So the human-console

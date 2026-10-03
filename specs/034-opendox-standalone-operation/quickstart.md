@@ -99,7 +99,8 @@ for host in ("127.0.0.1", "::1"):
     raise SystemExit(f"FAIL: something already listens on {host}:{port}, so a ready answer would not come from this run")
 print(f"port {port} is free")
 PY
-# R1Q15 (b): the documented command selects local mode explicitly.
+# R1Q15 (b): the documented command selects local mode explicitly. Under --no-open it still writes the
+# private copy, $OPENDOX_STATE_DIR/console/$PORT.html, and prints its file:// URL, never the token (T104).
 opendox generate-and-open --local --repo-root "$R" --repository fixture --no-open --port "$PORT" &
 SERVER=$!
 trap 'kill "$SERVER" 2>&- || true' EXIT
