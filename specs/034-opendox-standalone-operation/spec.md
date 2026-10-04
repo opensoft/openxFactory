@@ -323,6 +323,47 @@ at #1144's 12.4a); `5970917267` (batch O, at 10.1, F9.1 and F9.2); and item
 1 of `5962754358` with `5963162921` (batch O, at 9.5: the one release tag,
 `v0.1.0`, that the publish at the cut owes).
 
+### Session 2026-10-04
+
+The holder's adversarial reviews of T104 (openDox-code#84) and T100
+(openDox-code#82, landed as `38d3350e`) raised three more questions. Brett
+Heap answered each by multiple choice, and each answer is the option marked
+*(Recommended)*. All three are in one comment on `#656`, `5982436447`
+(2026-10-04T17:11:29Z), which also records three of the holder's rulings.
+
+- Q: Snap and Flatpak browsers, and a Windows browser opened from WSL,
+  cannot open the private copy's `file://` URL under the hidden default
+  state directory, and the token is never printed. What does release 1 do?
+  (item 1, finding B3) → A: *"Hint line, accepted limit (Recommended)"*. The
+  start prints one more line, with no token, saying that such a browser
+  should be used with `OPENDOX_STATE_DIR` set to a folder that is not
+  hidden. The openDox root's README documents it (T076), and release 1
+  ships with the limit (T104).
+- Q: A trust names a digest of the binding's record, so a trusted binding
+  whose broker runs a program inside the served repository stays trusted
+  after a pull changes that program. What is the rule? (item 2, finding A2)
+  → A: *"Refuse in-repo programs (Recommended)"*. A binding's command may
+  not name a file inside the served repository, and the broker lives
+  outside it. A T100 follow-on openDox-code PR carries it before T087 (claim
+  `5982447319`).
+- Q: A state directory inside the served repository is refused. What of one
+  inside some other git checkout? (item 3, finding A14) → A: *"Served repo
+  only, limit (Recommended)"*. The check stays as it is, and the wider case
+  is an accepted limit, with no code change. A check for any enclosing
+  checkout would refuse a home directory kept in git.
+
+The holder's rulings recorded with them:
+- B2: a platform without the POSIX primitives refuses the start by name, as
+  openDox-code#69's `bundle.unsupported_platform()` does (T104).
+- B7: a browser's persistent history keeps the fragment. It is the same
+  user's data as the 0600 copy, and the page's `replaceState` cleans only
+  session history, so it is an accepted limit (T104).
+- A8: the realization follows F16.1's ratified text. A state directory that
+  is itself a symbolic link trusts nothing (the T100 follow-on).
+
+T007's batch P records items 1 to 3, B7 and A8 in #1144, at 12.4a, 16.3a and
+F16.1. B2 needs no line there.
+
 **Nothing is open.** No task in [`tasks.md`](./tasks.md) carries a `Blocked
 by:` line, and the answers above settle the choices phase 3's additions
 raised, T094's help golden and trust policy among them.

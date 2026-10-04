@@ -2265,6 +2265,35 @@ that does not name a platform.
   a promise, and a composed run shows that a host's `/capabilities` still
   carries the token. This bookkeeping amendment does not itself touch a
   falsifier. Carried out by T104.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 1):** An accepted limit, and
+  one more printed line. Brett Heap's multi-choice word of 2026-10-04,
+  verbatim *"Hint line, accepted limit (Recommended)"*, answers finding B3
+  of the holder's adversarial review of T104 (openDox-code#84). Some
+  browsers cannot open the private copy's `file://` URL while the state
+  directory is the hidden default (`~/.local/state/opendox`): Ubuntu's
+  default snap browser, a Flatpak browser, and a Windows browser opened from
+  WSL. The token is never printed, so such a browser has no other way in.
+  So the start prints ONE more line, with no token and no URL that carries
+  one, saying that a browser which cannot open the file should be used with
+  `OPENDOX_STATE_DIR` set to a folder that is not hidden. The openDox root's
+  README documents it, and release 1 ships with the limit. Nothing above
+  moves: the copy's place, its modes and its checks, the printed `file://`
+  location, and the rule that standard output never carries the token. This
+  bookkeeping amendment does not itself touch a falsifier. Carried out by
+  T104 (the line) and T076 (the README).
+
+  **AMENDED — T007 Batch P (`5982436447`, the holder's ruling B7):** An
+  accepted limit within the design above, with no code change. Once the page
+  has read the token from the fragment, it drops the fragment from the
+  address bar with `history.replaceState`. That cleans only the tab's
+  session history. A browser's persistent history, Chromium's
+  `Default/History` among them, can still hold
+  `…/index.html#console_token=<token>`. That history is this same user's
+  data, as the 0600 private copy is, so it hands the token to no one the
+  copy does not, and release 1 accepts it. The fragment still never reaches
+  a request line, a server log or a `Referer`. This bookkeeping amendment
+  does not itself touch a falsifier. Carried out by T104.
 - [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
   registered, openxFactory's GitHub pull-request flow behaves exactly as today.
   This is a generalization, not a replacement, and 12.5 is the box that proves it.
@@ -3412,6 +3441,37 @@ and redesigns none of them.
   The rest of Group 16 stands, and so do 16.3's text and its batch H and K
   addenda. F16.1's batch M block below falsifies this box. Carried out by
   T100.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 2):** Brett Heap's
+  multi-choice word of 2026-10-04, verbatim *"Refuse in-repo programs
+  (Recommended)"*, answers finding A2 of the holder's adversarial review of
+  T100 (openDox-code#82, landed as `38d3350e`). A trust names a digest of
+  the binding's record, and the record names a broker's program only by its
+  path. So a trusted binding whose broker runs a program inside the served
+  repository stayed trusted after a pull changed that program. The rule: a
+  binding's command may not name a file inside the served repository, and
+  the broker lives outside it. Such a binding is refused by name, both where
+  trust is recorded (`add`, `edit`, `trust` and `set-credential`) and where
+  trust is checked, before any process is spawned. The refusal names the
+  remedy, a broker installed outside the repository, and never a secret, and
+  the binding reads untrusted. The rest of this box stands. This
+  bookkeeping amendment does not itself touch a falsifier. Carried out by a
+  T100 follow-on openDox-code PR (claim `5982447319`), which is no task of
+  plan 034 and lands before T087.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 3):** A clarification of
+  *"No trust is ever written into, or read from, a tree a clone could
+  carry"* above. Brett Heap's multi-choice word of 2026-10-04, verbatim
+  *"Served repo only, limit (Recommended)"*, answers finding A14 of the same
+  review. The tree that sentence means is the SERVED repository. An
+  `OPENDOX_STATE_DIR` equal to the served root, or nested under it, is
+  refused by name, as the bullet above says, and no trust is written into
+  or read from it. A state directory inside some OTHER git checkout is not
+  refused, and release 1 accepts that as a limit. A check for any enclosing
+  checkout would refuse a home directory kept in git (a dotfiles checkout),
+  which holds the default state directory. No code changes for it, and this
+  bookkeeping clarification edits no line of the box. Carried out by T100,
+  as landed.
 - [ ] 16.4 **"No model configured" is a STATE, shown before any turn.**
   Measured: with no binding, `declared_model_port_factory(...)()` resolves the
   harness declaration, and its catalog offers `omp-local`, "Local harness model",
@@ -3579,6 +3639,21 @@ and redesigns none of them.
   available, and its `broker_argv` runs on the first dispatch. This
   bookkeeping amendment does not itself touch the command above. Carried
   out by T100, and run with F16.1 whole by T083 and T089.
+
+  **AMENDED — T007 Batch P (`5982436447`, the holder's ruling A8):** A note,
+  and no line of the block changes. The block says that with the trust file,
+  or a directory that holds it, replaced by a symbolic link, every binding
+  reads untrusted. The state directory is such a directory. Finding A8 of
+  the holder's adversarial review of T100 found that T100 as landed
+  (`38d3350e`) read a state directory that is itself a symbolic link to this
+  user's own 0700 directory. Its suite's case passed only because that
+  case's target was writable by others. The holder ruled that the
+  realization follows this block's ratified text: a state directory that is
+  itself a symbolic link is refused by name, and it trusts nothing. The T100
+  follow-on openDox-code PR (claim `5982447319`) aligns the code and adds
+  that case, before T087, so T089's run of F16.1 at T087's pin holds the
+  realization to the block as written. This bookkeeping amendment does not
+  itself touch the command above.
 
 ## Follow-ons named here and NOT authored here
 
