@@ -3450,7 +3450,10 @@ and redesigns none of them.
   path. So a trusted binding whose broker runs a program inside the served
   repository stayed trusted after a pull changed that program. The rule: a
   binding's command may not name a file inside the served repository, and
-  the broker lives outside it. Such a binding is refused by name, both where
+  the broker lives outside it. Every member of the command is judged, the
+  program and each argument alike, so a script handed to an outside
+  interpreter is caught too, and a relative path is judged against the
+  served root. Such a binding is refused by name, both where
   trust is recorded (`add`, `edit`, `trust` and `set-credential`) and where
   trust is checked, before any process is spawned. The refusal names the
   remedy, a broker installed outside the repository, and never a secret, and
@@ -3685,8 +3688,12 @@ and redesigns none of them.
   batch M's line, `tests/test_model_binding_trust.py`, also asserts, one
   test per case, under the same fresh `git init` and `OPENDOX_STATE_DIR`:
   - **A binding whose command names a file inside the served repository is
-    refused.** Its broker argv names a program under the served root, such
-    as `tools/broker.py`, which writes a marker file when it runs. `opendox
+    refused.** Its broker argv names a file under the served root, either
+    as its program, such as `tools/broker.py`, or as an argument, such as
+    the script an outside interpreter runs (`["python3",
+    "tools/broker.py"]`, `["/bin/sh", "tools/broker.sh"]`). Each is tested
+    with the path absolute and with it relative to the served root, and the
+    script writes a marker file when it runs. `opendox
     model-binding add`, `edit`, `trust` and `set-credential` each refuse it
     by name, naming the remedy, a broker installed outside the repository,
     and record no trust. A trust recorded for it before the rule does not
