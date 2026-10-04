@@ -347,7 +347,7 @@ records three of the holder's rulings, and the fourth is `5983805990`.
   not name a file inside the served repository, and the broker lives
   outside it. A T100 follow-on openDox-code PR carries it before T087 (claim
   `5982447319`).
-- Q: A shell or interpreter wrapper, such as `["/bin/sh", "-c", "exec
+- Q: A shell or interpreter wrapper, such as `["sh", "-c", "exec
   ./tools/broker.py"]`, names no file as an argv member but still runs an
   in-repo program. How far does item 2 reach? (`5983805990`,
   2026-10-04T19:56:01Z, asked on #1230's Copilot thread `r4179024140`) →
@@ -783,7 +783,11 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   `PWD` or `OLDPWD`, no variable whose value is a path inside it, and no
   path-list entry inside it, each judged both as named and as it resolves.
   A launcher's own assignments (`env NAME=value`) SHALL be judged the same
-  way, and one that names a path inside the repository SHALL be refused. A program that runs code from its own
+  way, and one whose value is a path inside the repository, or a path list
+  with an entry inside it, SHALL be refused. A path embedded inside an
+  option string, in an argument or in a variable such as
+  `NODE_OPTIONS=--require=…`, is not judged and is part of the accepted
+  release-1 limit, as the batch-P note says. A program that runs code from its own
   arguments is an accepted release-1 limit. This is requirement 17 as its
   batch-P note reads it (`5982436447`, item 2, and `5983805990`; 16.3a). With no model
   configured, it SHALL show a "no model configured" state before any turn,

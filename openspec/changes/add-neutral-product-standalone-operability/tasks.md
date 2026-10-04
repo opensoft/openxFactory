@@ -3458,7 +3458,7 @@ and redesigns none of them.
   trust is checked, before any process is spawned. The refusal names the
   remedy, a broker installed outside the repository, and never a secret, and
   the binding reads untrusted. A shell or interpreter wrapper would carry
-  the same attack through an inline script, `["/bin/sh", "-c", "exec
+  the same attack through an inline script, `["sh", "-c", "exec
   ./tools/broker.py"]`, so Brett Heap's second word on it (`5983805990`,
   verbatim *"Refuse inline scripts (Recommended)"*) extends the rule:
   - a binding whose program is a shell or an interpreter given an inline
@@ -3714,7 +3714,7 @@ and redesigns none of them.
     refused.** Its broker argv names a file under the served root, either
     as its program, such as `tools/broker.py`, or as an argument, such as
     the script an outside interpreter runs (`["python3",
-    "tools/broker.py"]`, `["/bin/sh", "tools/broker.sh"]`). Each is tested
+    "tools/broker.py"]`, `["sh", "tools/broker.sh"]`). Each is tested
     with the path absolute and with it relative to the served root, and the
     script writes a marker file when it runs. `opendox
     model-binding add`, `edit`, `trust` and `set-credential` each refuse it
@@ -3725,14 +3725,14 @@ and redesigns none of them.
     of an untrusted binding, and a turn that names it is refused by name
     before any process is spawned, and no marker file exists.
   - **An inline script is refused.** A binding whose program is a shell or
-    an interpreter given an inline script (`["/bin/sh", "-c", "exec
+    an interpreter given an inline script (`["sh", "-c", "exec
     ./tools/broker.py"]`, and `python -c` in the same form) is refused by
     name by the same four commands and before any spawn, as above, with no
     marker file, whatever the script names, and so is one that reaches an
     inline script through a launcher, the holder's `5984069416`. The
     launcher case runs once for each launcher named in 16.3a's addendum, in
     an option-bearing form wherever the launcher takes options:
-    `["/usr/bin/env", "-i", "python3", "-c", "…"]`, `["nice", "-n", "5",
+    `["env", "-i", "python3", "-c", "…"]`, `["nice", "-n", "5",
     "python3", "-c", "…"]`, `["nohup", "python3", "-c", "…"]`,
     `["timeout", "-s", "KILL", "5", "python3", "-c", "…"]`, `["stdbuf",
     "-oL", "python3", "-c", "…"]` and `["setsid", "-w", "python3", "-c",
@@ -3772,7 +3772,12 @@ and redesigns none of them.
     `["env", "PYTHONPATH=tools", "python3", "<outside>/broker.py"]`, where
     `<outside>` is the case's own scratch directory outside the served root
     (made by `mktemp -d`), and `tools`, relative to the served root, holds a
-    `sitecustomize.py` that writes the marker.
+    `sitecustomize.py` that writes the marker. The same refusal holds for
+    an assignment through an alias: `["env",
+    "PYTHONPATH=<outside>/alias", "python3", "<outside>/broker.py"]` and
+    `["env", "OPENDOX_TEST_HOME=<outside>/alias", "python3",
+    "<outside>/broker.py"]`, where `<outside>/alias` is a symbolic link to
+    `tools` inside the served root.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
