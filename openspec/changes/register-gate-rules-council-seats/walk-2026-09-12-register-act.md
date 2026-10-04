@@ -1585,3 +1585,73 @@ and the five struck rows were already closed.
     (§ 13.5 selection note).
   * **task 6.26, the C2 record**: the lane's, on admission, committing the
     sealed bundle inside its 1-day artifact retention.
+
+**STATUS LINE APPENDED 2026-10-04 (bookkeeping)**, for the row *"the fill +
+the merge (T2)"*. The table already showed it DONE, but its `tasks.md` rows
+were never ticked. Tasks 6.9–6.14 are now ticked against T2. Tasks 6.15 and
+6.18 stay open, each with a dated note. The evidence is in the note below.
+
+#### 13.6 — BOOKKEEPING NOTE APPENDED 2026-10-04: TASKS 6.9–6.14 TICKED AGAINST T2; 6.15 AND 6.18 LEFT OPEN, EACH ON ONE NAMED CLAUSE
+
+Read 2026-10-04T20:4xZ–20:5xZ by lane `codeXfactory-2` (session
+`8d6bf418-cc06-45d9-9406-2374935c6c72`) and composed by an Opus agent the lane
+directed. Everything was read-only: `gh` calls; `git show` and `git diff` on
+openxFactory `main` at `0e01ca85`, on T2 (`765d8c6f`) and on its first parent
+`ee251d6c`; and `git show` reads of codexFactory `main` at `cb504bec`.
+Nothing is dispatched or posted, and nothing in `governance/review-authority/`
+moves.
+
+**Why this note exists.** The 2026-09-12 pre-stage block in `tasks.md` said
+6.9–6.15 *"tick at T2, in the merge commit or immediately after it"*, and the
+2026-09-13 block said 6.18 does too. T2 landed and §§ 13.1–13.5 were booked,
+but those eight rows were never ticked. This note checks each one against
+what landed and does not count anything as done because it was planned.
+
+**The rule applied.** A row is ticked only when a landed artifact shows every
+clause of it. `[OPERATOR]` rows follow this file's own convention: they are
+ticked with Brett Heap's recorded word and its date. For 6.9–6.14 that word
+is *"merge 1006"*, given in session at 2026-09-13T22:29Z (#1006 LANDING
+comment `5656603800` stamps 22:29:07Z; LANDED comment `5656613301`). The act
+is his. The bytes were composed by lane `hermes-wallet-exercise` and the
+merge keystroke was the lane's (§ 7.2, § 13.3 mismatch (2)). A row that
+misses any clause stays open, with a dated note naming that clause.
+
+| task | disposition | evidence |
+|---|---|---|
+| **6.9** REVOKE `grant-grc-0002` | **TICKED** | T2's diff changes one existing line (`state: active` → `revoked`) and appends the header and the `revocation` block. `revoked_at` is `2026-09-13T02:20:48Z`. The reason opens *"DRIFT: declared composition change — SEAT ADDITION."* and is 575 characters against a maximum of 600 (re-measured). § 5.1 |
+| **6.10** MINT `grant-grc-0003` | **TICKED** | new `grant_id`, `state: active`, `issued_at` equal to the revocation instant, `issued_by: Brett.Heap@opensoft.one`, `expires_at` `2027-06-30T00:00:00Z` (OQ-2 (a)), no `parent_grant_ref`. Its key paths are the same as `grant-grc-0002`'s (parsed). Each scope element is re-examined in the grant's header. § 5.2 |
+| **6.11** REPOINT `row-grc-0001` | **TICKED** | parsed at T2's first parent and at T2: one field changed, `grant_ref` → `grant-grc-0003`. Two rows of nine fields each; `row-mrc-0001` unchanged. § 5.3 |
+| **6.12** the ninth `seat_keys` entry | **TICKED** | placed directly after the gate-rules `company-policy-lead` entry, with seven fields and the values 6.12 names. `public_key` is character-for-character the one in the cxF #452 mint record. The fingerprint, recomputed here from that `public_key`, is `sha256:85a4f476…3310`. The first eight entries are unchanged. § 5.4 |
+| **6.13** the fifth wallet key | **TICKED** | seven fields matching the four above it. `key_fingerprint` is byte-identical to 6.12's, and `did` is `did:key:` plus the multibase. The block comment's append-only `2026-09-12 ADDENDUM` records the discharge and names `intent_owner_role_slot` as still deliberately absent. § 5.5 |
+| **6.14** the gate's literals | **TICKED** | `8 of 8` → `9 of 9` and grc `5` → `6 declared key(s)`, in pre-staged commit `764006df` together with the register and wallet writes. mrc stays at `5`, and the pinning test moved with them. "Four to five" is this body's key count (amendment record § 5), carried inside those two literals. § 5.6 |
+| **6.15** ONE walk record at `walk-<T2-date>-…` | **LEFT OPEN** | every clause is met except the path. T2 fell on 2026-09-13 and this file is `walk-2026-09-12-…`. § 6.8 records the *"ONE NAMING TENSION, DISCLOSED AND NOT RESOLVED"* and leaves it to the ratifying human. No re-date and no ruling is on record |
+| **6.18** T2 | **LEFT OPEN** | the merge, the single H2 pull request and the hold spanning T1 to T2 are all evidenced. The pair shape as written is not. The codexFactory half landed as cxF #439 (H1, 6.2–6.7) **and** cxF #452 (6.8's mint record), which merged after T2 on *"merge 452 when green"* (2026-09-13T02:15:52Z). That is the shape OQ-4 option (b) named. No word on record decides it |
+
+**Re-checked by this note itself, not taken from the earlier sections:**
+
+* The pinned reader, run on openxFactory `main` `0e01ca85` with openXwallet at
+  `f3eb929b` (`wallet-v1.5`), reports `intake register read: … (2 row(s))`,
+  `9 of 9 per-seat signing key(s) adjudicated and resolved`,
+  `wal-agent-grc-0001': 6 declared key(s) adjudicated`,
+  `wal-agent-mrc-0001': 5 declared key(s) adjudicated` and
+  `0 error(s), 0 warning(s)`, with no `[register-*]` line.
+  `verify-openxwallet-pin.py` is OK (8 digests recomputed), and
+  `pytest tests/openxwallet_consumer_gate` passes 18 of 18.
+* #1006 is MERGED at `765d8c6f` (2026-09-13T22:30:20Z), with
+  `wallet-validation` and `pytest-suite` SUCCESS among its checks.
+  cxF #452 is MERGED at `58f1e909` (2026-09-13T22:32:20Z) and cxF #439 at
+  `eff9ae19`.
+* The ninth entry's fingerprint and multibase were recomputed here from its
+  base64url public half alone, and they equal the register, wallet and
+  mint-record values. This was a check only: the values in the tree came from
+  the pinned decoder (§ 6.8).
+
+**What would close the two open rows.** Each needs a word from Brett Heap,
+not more bookkeeping. For 6.15: accept the walked-day filename, or rule a
+re-date (four governance files and `tasks.md` cite this path, § 6.8). For
+6.18: say whether cxF #439 + #452 meets OQ-4 (a), or re-scope the row.
+
+**Not touched by this note:** 6.25 and 6.26 (C2's dispatch and its record,
+which a separate record pull request books), and 6.27 / 6.28. Task 4.6 does
+not tick here (6.27). No hold is posted or lifted, and no convening is
+dispatched.
