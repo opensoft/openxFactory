@@ -3461,7 +3461,11 @@ and redesigns none of them.
   - a binding whose program is a shell or an interpreter given an inline
     script, such as `sh -c`, `bash -c`, `python -c` or `node -e`, is
     refused by name in the same places and the same way;
-  - the program must be a real file outside the served repository;
+  - the program must be a real file outside the served repository. It is
+    judged by the path it resolves to, links followed and a bare name looked
+    up on `PATH`, both when trust is recorded and again before any spawn, so
+    neither a link outside the repository nor a `PATH` entry inside it can
+    bring the program back in;
   - every broker also starts with its working directory outside the served
     repository, as defence in depth;
   - a broker such as `sh -c "pass show key"` is declared as
@@ -3693,11 +3697,20 @@ and redesigns none of them.
     ./tools/broker.py"]`, and `python -c` in the same form) is refused by
     name by the same four commands and before any spawn, as above, with no
     marker file, whatever the script names.
+  - **An alias is judged by what it resolves to.** A program named through a
+    symbolic link outside the served root whose target lies inside it, and
+    a bare program name that resolves through a `PATH` entry under the
+    served root, are each refused by the same four commands and before any
+    spawn, with no marker file. A trust recorded while the name resolved
+    outside the root does not admit it once the link or the `PATH` entry
+    leads inside, and the catalog lists it with `available: false`.
   - **A broker outside the repository is still reached.** The same binding
     with its program a real file outside the served root, once trusted,
-    runs as batch M's block says, and it runs with its working directory
-    outside the served root (the broker records the directory it starts
-    in).
+    runs as batch M's block says. It runs with its working directory
+    outside the served root: the test starts `opendox` with its own
+    working directory at the served root, so a broker that inherited it
+    would record a directory inside the root, and the broker records the
+    directory it starts in.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
