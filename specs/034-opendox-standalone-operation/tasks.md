@@ -2856,9 +2856,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
       its own options are judged with it, read by GNU `getopt_long`'s
       grammar (an ambiguous or unknown one refused by name), so `env
       --chdir` into the repository, in any unambiguous spelling, and an
-      `xargs -a` file inside it are refused, and a string `env -S` splits
-      is judged as the arguments it names, or refused as unreadable when it
-      holds a backslash or a `$` (the holder's rulings `5984069416`, on
+      `xargs -a` file inside it are refused, and a string that `env -S`
+      splits is judged as the arguments it names, or refused as unreadable
+      when it holds a backslash or a `$` (the holder's rulings `5984069416`, on
       Copilot `r4179187252` and `r4179386143`, and `5985046107`, C1 and
       C4); a path given to the program that finally runs as an option's
       value, after `=` or attached to a single-dash option

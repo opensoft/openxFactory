@@ -3765,8 +3765,10 @@ and redesigns none of them.
     `["env", "-i", "python3", "-c", "…"]`, `["nice", "-n", "5",
     "python3", "-c", "…"]`, `["nohup", "python3", "-c", "…"]`,
     `["timeout", "-s", "KILL", "5", "python3", "-c", "…"]`, `["stdbuf",
-    "-oL", "python3", "-c", "…"]` and `["setsid", "-w", "python3", "-c",
-    "…"]`, and once more for a nested chain, `["env", "nice", "-n", "5",
+    "-oL", "python3", "-c", "…"]`, `["setsid", "-w", "python3", "-c",
+    "…"]` and `["xargs", "-n", "1", "python3", "-c", "…"]` (`xargs` joins
+    the launchers by the holder's `5985046107`, C4), and once more for a
+    nested chain, `["env", "nice", "-n", "5",
     "timeout", "5", "python3", "-c", "…"]`, so every layer is unwrapped,
     and once through a string that `env -S` splits, `["env", "-S",
     "python3 -c '…'"]`. A trust recorded for it before the rule does not
