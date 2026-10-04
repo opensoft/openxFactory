@@ -3668,10 +3668,11 @@ and redesigns none of them.
     as `tools/broker.py`, which writes a marker file when it runs. `opendox
     model-binding add`, `edit`, `trust` and `set-credential` each refuse it
     by name, naming the remedy, a broker installed outside the repository,
-    and record no trust. A trust recorded for it before the rule, when the
-    program is then edited, does not admit it: a turn that names it is
-    refused by name before any process is spawned, and no marker file
-    exists.
+    and record no trust. A trust recorded for it before the rule does not
+    admit it, before or after its program is edited: it reads untrusted, so
+    the catalog lists it with `available: false`, as batch M's block asserts
+    of an untrusted binding, and a turn that names it is refused by name
+    before any process is spawned, and no marker file exists.
   - **A broker outside the repository is still reached.** The same binding
     with its program outside the served root, once trusted, runs as batch
     M's block says.
