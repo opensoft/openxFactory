@@ -1182,8 +1182,9 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 
   **Landed 2026-09-30** (T053, T057): openDox's validator validates its spec
   leg's four kinds (7.1's three and the neutral snapshot schema, batch G): the
-  schema (openDox-spec#16 → `f7ee3c76`, root bundle openDox#14 → `52005213`) and
-  the four digest-checked package-data copies (openDox-code#58 → `8ec08e91`).
+  schema (openDox-spec#16 → `f7ee3c76`; root bundle openDox#14 → `52005213`,
+  changelog openDox#15 → `66758438`) and the four digest-checked package-data
+  copies (openDox-code#58 → `8ec08e91`).
 - [x] 7.1b **AND TWO OF THOSE FOUR ARE NOT AVAILABLE BY THAT ROUTE AT ALL.**
   `gate-intent.schema.yaml` is an INTENT-PLANE schema — the carve manifest lists
   it among the validator's contract files (`docs/opendox-carve-manifest.yaml:459`)
@@ -1330,8 +1331,9 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   that is exactly how it fails, because `--strict` makes "the validator is
   unreachable" fatal and the validator is unreachable.
 
-  **Landed 2026-10-02** (T058, T063): F7.2 exits 0: the good fixture validates,
-  the malformed one exits non-zero naming `title-and-summary-are-text` with no
+  **Landed 2026-10-02** (T058, openDox-code#68 → `047bb4fa`; T063,
+  openxFactory#1218 → `a883bbf6`): F7.2 exits 0: the good fixture validates, the
+  malformed one exits non-zero naming `title-and-summary-are-text` with no
   `No such file or directory` (CP2 § 5; also openDox-code#68's body).
 
 ## Group 8 — Requirement 8 / G7: openDox-spec governs openDox (openDox-spec) — BLOCKED
