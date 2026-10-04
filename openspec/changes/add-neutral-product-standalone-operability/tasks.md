@@ -3475,15 +3475,28 @@ and redesigns none of them.
     repository, which a pull could retarget, is refused even when it points
     outside;
   - a common launcher (`env`, `nice`, `nohup`, `timeout`, `stdbuf`,
-    `setsid` and the like, with their flags) is unwrapped to the program it
-    starts, and the inline-script and path rules apply to THAT program (the
-    holder's ruling `5984069416`, implementing `5983805990`). A launcher's
-    own options are judged with it: one that names a path, such as the
-    directory `env --chdir` (`-C`) starts the program in, is judged as the
-    command's paths are, both as named and as it resolves, so a launcher
-    cannot start the broker inside the repository, and the string that
-    `env -S` (`--split-string`) carries is split into the arguments it
-    names before they are unwrapped and judged;
+    `setsid`, `xargs` and the like, with their flags) is unwrapped to the
+    program it starts, and the inline-script and path rules apply to THAT
+    program (the holder's ruling `5984069416`, implementing `5983805990`).
+    A launcher's own options are judged with it, read by GNU
+    `getopt_long`'s grammar (the holder's ruling `5985046107`, C1 and C4,
+    which applies those two and extends neither):
+    - a long option matches by its unambiguous prefix, in the
+      `--option=value` and the `--option value` forms, so `env --chd=…` is
+      `env --chdir`, and a short-option cluster parses the getopt way
+      (`-iS…`, `-vC/dir`, `-0u NAME`). An ambiguous or unknown option of an
+      unwrapped launcher is refused by name;
+    - an option that names a path, such as the directory `env --chdir`
+      (`-C`) starts the program in, or the file `xargs -a` (`--arg-file`)
+      reads its arguments from, in any spelling, is judged as the
+      command's paths are, both as named and as it resolves. So a launcher
+      cannot start the broker inside the repository, nor let the
+      repository decide the broker's arguments;
+    - the string `env -S` (`--split-string`) carries is split into the
+      arguments it names, which are then unwrapped and judged, ONLY when it
+      holds no backslash and no `$`. Otherwise it is refused as unreadable,
+      as an inline script is. GNU `env`'s own escape and `${VAR}` grammar
+      is not modelled: an accepted limit, refused rather than guessed;
   - every broker also starts with its working directory outside the served
     repository, as defence in depth, and with an environment that points
     away from it: `PWD` and `OLDPWD` are dropped, and so is every other
@@ -3495,15 +3508,24 @@ and redesigns none of them.
     assignment a launcher makes (`env NAME=value`): one whose value is a
     path inside the repository, or a path list with an entry inside it, is
     refused;
+  - a path given to the program that finally runs as an option's value is
+    judged as the command's paths are, both as named and as it resolves,
+    and refused when it lies inside the repository: the value after `=` in
+    one member (`--require=<repo>/x`), and the remainder after the option
+    letter of a single-dash option with its value attached
+    (`-I<repo>/lib`, `-a<repo>/args`; the holder's `5985046107`, C4). An
+    output path into the repository is refused too, an accepted
+    strictness;
   - an ACCEPTED release-1 limit: a general program outside the repository
     that runs code from its own arguments (`awk`, `find -exec`, …) is not
-    judged by the argv check, and neither is a path embedded inside an
-    option string given to the program that finally runs, in one of its
-    arguments or in a variable such as `NODE_OPTIONS=--require=…`. A known
-    launcher's own options are never part of this limit; the launcher
-    bullet above judges them. The trusted argv is digested, and the working
-    directory and the environment point away from the repository, so a
-    relative path in such a string does not reach it;
+    judged by the argv check, and any other path embedded inside an option
+    string given to the program that finally runs, such as one carried in
+    a variable (`NODE_OPTIONS=--require=…`), is one the argv check does
+    not promise to find. A known launcher's own options are never part of
+    this limit; the launcher bullet above judges them. The trusted argv is
+    digested, and the working directory and the environment point away
+    from the repository, so a relative path in such a string does not
+    reach it;
   - a broker such as `sh -c "pass show key"` is declared as
     `["pass", "show", "key"]` instead, or as a script kept outside the
     repository.
@@ -3798,6 +3820,25 @@ and redesigns none of them.
     "<root>"`; and the long form naming `<outside>/alias`, the link to
     `tools` inside the served root, and naming `tools/out`, the in-repo
     link to a directory outside it.
+  - **A path an option carries, and an unreadable split string, are
+    refused** (the holder's `5985046107`, C1 and C4). Each command below is
+    refused by name by the same four commands and before any spawn, and
+    leaves no marker file. `<outside>/broker` is an executable in the
+    case's scratch directory that writes one when it runs, and
+    `<outside>/broker.pl` a Perl script there that does the same:
+    - `["perl", "-I<root>/lib", "<outside>/broker.pl"]` is refused as a
+      command that names a file inside the served repository, since the
+      path attached to a single-dash option is judged;
+    - `["xargs", "-a", "<root>/args", "<outside>/broker"]` is refused as a
+      command that names a file inside the served repository, since the
+      repository would decide the arguments;
+    - `["env", "--chd=<root>", "<outside>/broker"]` is refused as a
+      command that names a file inside the served repository, since
+      `--chd` is the unambiguous prefix of `env`'s `--chdir`;
+    - `["env", "-S", "sh\\_-c\\_id"]` (escaped as JSON: the string is
+      `sh\_-c\_id`, which GNU `env` reads as `sh -c id`) is refused as an
+      inline script, since a split string that holds a backslash or a `$`
+      is unreadable.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`

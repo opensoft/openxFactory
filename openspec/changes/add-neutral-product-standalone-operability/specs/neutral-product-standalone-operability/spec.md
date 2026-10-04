@@ -711,30 +711,35 @@ inline script (such as `sh -c` or `python -c`), since such a script can run a
 program inside the repository without naming it as a file. The program must be
 a real file outside the served repository, and every path the command names,
 the program and each argument alike, is judged both as named and as it
-resolves, a common launcher such as `env` is judged by the program it starts
-and by its own options, so a launcher option that names a path inside the
-repository, such as the working directory `env --chdir` sets, is refused (the
-holder's ruling `#656` comment `5984069416`, which implements `5983805990`),
-and every broker starts with its working directory outside it and with an
-environment that points away from it: `PWD`, `OLDPWD` and any variable whose
-value is a path inside the repository are dropped, and a path list loses each
-entry inside it, each judged both as named and as it resolves. A launcher's
-own assignments are judged as the environment is. A general program outside
-the repository that runs code from its own arguments, and a path embedded
-inside an option string given to the program that finally runs (never a
-launcher's own option), are an accepted release-1 limit, since the trusted
-command is digested and the working directory and environment point away from
-the repository. Such a configuration is refused by name when trust would be
-recorded for it and again before any process is spawned, and the refusal names
-the remedy, a broker installed outside the repository. So a trusted
-configuration reaches its endpoint as the first scenario says only when its
-broker is a real file outside the served repository. Nothing else here moved:
-the requirement's title, the paragraph above with its SHALL sentences, batch
-K's note, batch M's note and all four scenarios stand as ratified, and the
-requirement still carries four scenarios. The rule is recorded at box 16.3a of
-this change's `tasks.md`, and it is carried out in a follow-on openDox-code PR
-to plan 034's T100 (`#656` comment `5982447319`), which is no task of that
-plan.
+resolves, a common launcher such as `env` or `xargs` is judged by the program
+it starts and by its own options, read by GNU `getopt_long`'s grammar, so a
+launcher option that names a path inside the repository, such as the working
+directory `env --chdir` sets or the file `xargs -a` reads its arguments from,
+is refused, and so are an ambiguous or unknown launcher option and an `env -S`
+string that holds a backslash or a `$`, which is unreadable (the holder's
+rulings `#656` comments `5984069416`, which implements `5983805990`, and
+`5985046107`, which applies both), and every broker starts with its working
+directory outside it and with an environment that points away from it: `PWD`,
+`OLDPWD` and any variable whose value is a path inside the repository are
+dropped, and a path list loses each entry inside it, each judged both as named
+and as it resolves. A launcher's own assignments are judged as the environment
+is. A path given to the program that finally runs as an option's value, after
+`=` or attached to a single-dash option (`-I<repo>/lib`), is judged as the
+command's paths are. A general program outside the repository that runs code
+from its own arguments, and any other path embedded inside an option string
+given to the program that finally runs (never a launcher's own option), are an
+accepted release-1 limit, since the trusted command is digested and the
+working directory and environment point away from the repository. Such a
+configuration is refused by name when trust would be recorded for it and again
+before any process is spawned, and the refusal names the remedy, a broker
+installed outside the repository. So a trusted configuration reaches its
+endpoint as the first scenario says only when its broker is a real file
+outside the served repository. Nothing else here moved: the requirement's
+title, the paragraph above with its SHALL sentences, batch K's note, batch M's
+note and all four scenarios stand as ratified, and the requirement still
+carries four scenarios. The rule is recorded at box 16.3a of this change's
+`tasks.md`, and it is carried out in a follow-on openDox-code PR to plan 034's
+T100 (`#656` comment `5982447319`), which is no task of that plan.
 
 #### Scenario: A hosted API or a local server is configured
 - **WHEN** a user configures an endpoint that speaks the OpenAI-compatible chat protocol by its URL, a model name and a credential reference, whether it is a hosted API or a server on their own machine

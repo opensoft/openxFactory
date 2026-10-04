@@ -361,7 +361,14 @@ records three of the holder's rulings, and the fourth is `5983805990`.
   `r4179187252`) implements it for launcher chains: a common launcher such
   as `env` is unwrapped to the program it starts, the broker's environment
   drops `PWD` and `OLDPWD`, and a general program that runs code from its
-  own arguments (`awk`, `find -exec`) is an accepted release-1 limit.
+  own arguments (`awk`, `find -exec`) is an accepted release-1 limit. The
+  holder's ruling `5985046107` (2026-10-04T22:16:59Z, after an adversarial
+  review of openDox-code#86) applies both, extending neither. A launcher's
+  options are read by GNU `getopt_long`'s grammar, an ambiguous or unknown
+  one is refused, `xargs -a` is judged as `env --chdir` is, and an `env -S`
+  string with a backslash or a `$` is refused as unreadable (C1). A path
+  given to the final program as an option's value, after `=` or attached
+  to a single-dash option (`-I<repo>/lib`), is judged (C4).
 - Q: A state directory inside the served repository is refused. What of one
   inside some other git checkout? (item 3, finding A14) → A: *"Served repo
   only, limit (Recommended)"*. The check stays as it is, and the wider case
@@ -377,9 +384,10 @@ The holder's rulings recorded with them:
 - A8: the realization follows F16.1's ratified text. A state directory that
   is itself a symbolic link trusts nothing (the T100 follow-on).
 
-T007's batch P records items 1 to 3, `5983805990`, B7 and A8 in #1144, at
-12.4a, 16.3a and F16.1, and item 2 with `5983805990` also in a third dated
-note to requirement 17, since they narrow batch M's note there. B2 needs no
+T007's batch P records items 1 to 3, `5983805990` (with the holder's
+`5984069416` and `5985046107`), B7 and A8 in #1144, at 12.4a, 16.3a and
+F16.1, and item 2 with `5983805990` also in a third dated note to
+requirement 17, since they narrow batch M's note there. B2 needs no
 line there.
 
 **Nothing is open.** No task in [`tasks.md`](./tasks.md) carries a `Blocked
@@ -773,8 +781,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   name even when it is trusted, naming the remedy, a broker installed
   outside the repository, and so SHALL one whose program is a shell or an
   interpreter given an inline script, directly or through a common
-  launcher such as `env` (`5984069416`). The program SHALL be a real file
-  outside the served repository, and every path the command names, the
+  launcher such as `env` or `xargs` (`5984069416`, `5985046107`). The
+  program SHALL be a real file outside the served repository, and every path the command names, the
   program and each argument alike, SHALL be judged both as named and as it
   resolves, when trust is recorded and before any spawn, so a link or a
   `PATH` entry that leads inside, or an in-repo link that points outside,
@@ -784,17 +792,27 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   path-list entry inside it, each judged both as named and as it resolves.
   A launcher's own assignments (`env NAME=value`) SHALL be judged the same
   way, and one whose value is a path inside the repository, or a path list
-  with an entry inside it, SHALL be refused. A launcher's own option that
-  names a path, such as the directory `env --chdir` (`-C`) starts the
-  program in, SHALL be judged the same way, and one that names a path
-  inside the repository SHALL be refused; a string that `env -S` splits
-  SHALL be judged as the arguments it names. A path embedded inside an
-  option string given to the program that finally runs, in one of its
-  arguments or in a variable such as `NODE_OPTIONS=--require=…`, is not
-  judged and is part of the accepted release-1 limit, as the batch-P note
-  says; a launcher's own options are never part of it. A program that runs
-  code from its own arguments is an accepted release-1 limit. This is requirement 17 as its
-  batch-P note reads it (`5982436447`, item 2, and `5983805990`; 16.3a). With no model
+  with an entry inside it, SHALL be refused. A launcher's own options
+  SHALL be read by GNU `getopt_long`'s grammar, a long option by its
+  unambiguous prefix, and an ambiguous or unknown one SHALL be refused by
+  name (`5985046107`, C1). A launcher's own option that names a path, such
+  as the directory `env --chdir` (`-C`) starts the program in or the file
+  `xargs -a` (`--arg-file`) reads its arguments from, SHALL be judged the
+  same way, and one that names a path inside the repository SHALL be
+  refused (C4). A string that `env -S` carries SHALL be judged as the
+  arguments it names when it holds no backslash and no `$`, and SHALL
+  otherwise be refused as unreadable, as an inline script is (C1). A path
+  given to the program that finally runs as an option's value, after `=`
+  (`--require=<repo>/x`) or attached to a single-dash option
+  (`-I<repo>/lib`), SHALL be judged as the command's paths are and SHALL
+  be refused when it lies inside the repository (C4). Any other path
+  embedded inside an option string given to the program that finally
+  runs, such as one carried in a variable like `NODE_OPTIONS=--require=…`,
+  is part of the accepted release-1 limit, as the batch-P note says; a
+  launcher's own options are never part of it. A program that runs code
+  from its own arguments is an accepted release-1 limit. This is
+  requirement 17 as its batch-P note reads it (`5982436447`, item 2,
+  `5983805990` and `5985046107`; 16.3a). With no model
   configured, it SHALL show a "no model configured" state before any turn,
   and every other surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);
   R1Q17 (b): a built-in `env:` and keyring resolver in that module; R1Q18 (a):
