@@ -2328,6 +2328,14 @@ written (`5962754358`). `consumer_reach.py` is gone.
   `opendox generate-and-open --local …` (R1Q15 (b), R1Q16 (iii), as batch H's
   10.3 addendum reads). No `Makefile` target is added, since it has a
   shape-pin row.
+  - **The browser limit** (RULED `5982436447`, item 1, *"Hint line, accepted
+    limit (Recommended)"*, T104's B3). The README says that some browsers
+    cannot open the private copy's `file://` URL under the hidden default
+    state directory: Ubuntu's default snap browser, a Flatpak browser, and a
+    Windows browser opened from WSL. With such a browser, the operator sets
+    `OPENDOX_STATE_DIR` to a folder that is not hidden. The README calls it
+    an accepted limit of release 1, and its wording matches the hint line
+    T104's start prints. openDox#17 carries it.
   - **Realizes**: 10.3.
   - **Falsifier**: review, and AT-R1 step 4 follows it literally. Before the
     cut, the PyPI line cannot be followed literally: `opendox` is on no
@@ -2341,10 +2349,12 @@ written (`5962754358`). `consumer_reach.py` is gone.
     `0c4463e2` reads, cannot serve `--local`. The `--local` command is
     followed literally. T099 replaces that paragraph with the PyPI install
     line after the publish, and from then on the whole README is followed
-    literally.
+    literally. Also by review: the README names the browser limit and the
+    `OPENDOX_STATE_DIR` remedy above, and never prints or asks for the
+    console token.
   - **Ruled**: R1Q15 (b), R1Q16 (iii), `5850003126`; the stand-in until the
     cut, the holder's ruling of 2026-10-03, which follows from `5962754358`
-    (T099).
+    (T099); the browser limit, `5982436447`, item 1.
   - **After**: T074, T075, T087 (the README documents the command the root
     pins).
 - [ ] T099 [US3] [oDc] [oD] **Publish to PyPI (10.3's install line).** openDox-code's
@@ -3990,7 +4000,7 @@ P3-U's T099, and batch P before P3-P's T087.
 | P3-T per-machine binding trust | G3 | T100 | oDc | the trust record and its lazily registered policy seam (a new module); `src/opendox/doxbench_install.py` (the gate where the bindings are read, after T081); `src/opendox/cli_model_binding.py` (`add` and `edit` record trust, the `trust` verb, `set-credential`'s gate and re-trust); `src/opendox/serve_workbench.py` (the console intake's broker hand-off, single-writer after T084); `tests/test_model_binding_trust.py` (new); `tests/test_model_provider_broker.py` (its hand-written-binding cases) | P3-B, openDox-code#64, P3-D, P3-I (T072), P3-R; T007 batch M | F16.1's batch M block: `tests/test_model_binding_trust.py` | Opus |
 | P3-N no model, everywhere | G3; T083 after P3-T and its follow-on | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B; P3-T and its follow-on for T083 | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole, as batch M amends it (T083) | Sonnet |
 | P3-P openDox root pin | G4 | T087 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-3 openDox-code slice landed; T007 batch P | `make pins` | Sonnet |
-| P3-O the root README | G5 | T076 | oD | `README.md` | P3-P, P3-J, P3-E | review; AT-R1 step 4 follows it | Sonnet |
+| P3-O the root README | G5 | T076 | oD | `README.md` (the install and the `--local` command; B3's browser limit and its `OPENDOX_STATE_DIR` remedy) | P3-P, P3-J, P3-E | review, including the browser limit; AT-R1 step 4 follows it | Sonnet |
 | P3-X openXdox's columns | G5 | T086 | oXc | the gate and projection contributions; `pyproject.toml` (the `opendox @` pin); `tests/test_dependency_direction.py` (the ratchet at `(0, 0)`); `tests/test_session_snapshot.py` and `tests/protected_suite_respellings.yaml` (F5.2's three repairs, RULED `5962785556`); `tests/integration/test_assembled_surface.py` and `.github/workflows/validate.yml`'s `LEFT_OUT` (the tree at 32, RULED `5970917267`); `tests/doxbench_routes_harness.py` and `tests/gate_routes_harness.py` (T104's token) | P3-P, P3-R; P2-C; T007 batch O | `tests/test_dependency_direction.py`; F9.1 as batches B and F amend it, and batch J's `--deselect` unless T008 has removed it; F5.2 whole | Opus |
 | P3-K pins and host wiring | G6 | T094 | oX, oxF | as P1-K's pin files; `tests/ideation-dashboard/test_extension_point_parity.py` and `tests/ideation-dashboard/test_serve_column_split.py` (named composition tests); `scripts/opendox_host.py` (`GovernedBindingTrust`, a sixth `seams()` entry, RULED `5970369724`) | P3-X, P3-P; the non-arc ahead PR (holder E1 (a); the golden, `test_cli_column_split.py`'s usage line and `test_doxbench_routes.py`'s rebound-Host case, `5972924576`) | as T047's | Opus |
 | P3-M read-only checks | G6, after P3-K | T098 | oxF | `evidence/` only | P3-K | interim F11.1 prints `requirement 1 holds` | Sonnet |
