@@ -648,6 +648,14 @@ same-day). **NOTHING ELSE MOVED:** 6.9-6.15 and 6.18 still tick at T2 and
 6.19-6.28 are still untouched, exactly as the block above says. The merge is
 still Brett Heap's, and the merge is T2.
 
+**2026-10-04 — BOOKKEEPING: WHAT T2 TICKED, AND THE TWO ROWS IT DID NOT.** The
+two blocks above stay in the tense they were written in. T2 landed
+2026-09-13T22:30:20Z (oxF PR #1006 → `765d8c6f`, Brett Heap's word *"merge
+1006"*), and §§ 13.1–13.5 have since been booked. **6.9–6.14 are now ticked**
+against T2. **6.15 and 6.18 are not**: each has a dated note naming the one
+clause the landed record does not meet. See the walk record's § 13.6
+bookkeeping note (appended 2026-10-04).
+
 ### 6.1 Governance
 
 - [x] 6.1 **[OPERATOR] [GOVERNANCE]** Ratify this amendment, or return it.
@@ -845,13 +853,29 @@ still Brett Heap's, and the merge is T2.
 
 ### 6.3 H2 — the openxFactory register act (OPERATOR walk; no agent writes these)
 
-- [ ] 6.9 **[OPERATOR]** REVOKE `governance/review-authority/grants/grant-grc-0002.yaml`
+- [x] 6.9 **[OPERATOR]** REVOKE `governance/review-authority/grants/grant-grc-0002.yaml`
       in place — `state: active` → `revoked`, plus `revocation.revoked_at` and a
       `revocation.reason` of class **DRIFT** whose free text names SEAT ADDITION
       (the 2026-09-11 precedent's named the prompt-corpus pin move). The
       revocation is unconditional and automatic: H1 landing is the composition
       event.
-- [ ] 6.10 **[OPERATOR]** MINT `grants/grant-grc-0003.yaml` in
+      **DONE 2026-09-13: LANDED AT T2. oxF PR #1006 →
+      `765d8c6fcd3fbfdb71540903858e8fca74f04929`, merged 2026-09-13T22:30:20Z,
+      on Brett Heap's word in session, verbatim *"merge 1006"*
+      (2026-09-13T22:29Z; #1006 LANDING comment `5656603800`). `grant-grc-0002`
+      is revoked IN PLACE: T2's diff appends a header block and the
+      `revocation` block and changes one existing line, `state: active` →
+      `state: revoked`. `revocation.revoked_at: "2026-09-13T02:20:48Z"` is the
+      act's effective instant (re-stamped at the fill from
+      2026-09-12T16:33:01Z). `revocation.reason` opens *"DRIFT: declared
+      composition change — SEAT ADDITION."* and is 575 characters against the
+      schema's 600 (re-measured 2026-10-04). The cause is T1 (`eff9ae19`,
+      2026-09-12T15:59:10Z), and the grant has been void since then by
+      declaration. The act is his. The bytes were composed by the lane and the
+      merge keystroke was the lane's (walk § 7.2, § 13.3 mismatch (2)). See
+      walk-2026-09-12-register-act.md § 5.1 and the § 13.6 bookkeeping note
+      (appended 2026-10-04).**
+- [x] 6.10 **[OPERATOR]** MINT `grants/grant-grc-0003.yaml` in
       `grant-grc-0002.yaml`'s shape — new `grant_id`, `state: active`,
       `issued_at` = the revocation instant, `issued_by` the ratifying human,
       `expires_at` **`2027-06-30T00:00:00Z`** — **OQ-2 RULED (a)**,
@@ -859,11 +883,37 @@ still Brett Heap's, and the merge is T2.
       `grant-mrc-0002` still carries, so the two bodies' grants cannot
       silently diverge — scope re-examined rather than copied, and
       **no `parent_grant_ref`**: a superseding grant is a ROOT grant.
-- [ ] 6.11 **[OPERATOR]** REPOINT `governance/review-authority/register.yaml`
+      **DONE 2026-09-13: LANDED AT T2. oxF PR #1006 →
+      `765d8c6fcd3fbfdb71540903858e8fca74f04929`, merged 2026-09-13T22:30:20Z,
+      on Brett Heap's word in session, verbatim *"merge 1006"*
+      (2026-09-13T22:29Z; #1006 LANDING comment `5656603800`). New file
+      `grant-grc-0003.yaml`: `grant_id: grant-grc-0003`, `state: active`,
+      `issued_at: "2026-09-13T02:20:48Z"` (equal to `grant-grc-0002`'s
+      `revocation.revoked_at`), `issued_by: Brett.Heap@opensoft.one`,
+      `expires_at: "2027-06-30T00:00:00Z"` (OQ-2 (a)), and no
+      `parent_grant_ref`, so it is a ROOT grant. Its key paths are the same as
+      `grant-grc-0002`'s (parsed and compared 2026-10-04). The scope was
+      re-examined rather than copied: each of its four elements carries its
+      own reason in the grant's header section *"THE SCOPE — CARRIED FORWARD
+      DELIBERATELY, EACH ELEMENT RE-EXAMINED"*. The act is his; the bytes and
+      the keystroke were the lane's. See walk-2026-09-12-register-act.md § 5.2
+      and the § 13.6 bookkeeping note (appended 2026-10-04).**
+- [x] 6.11 **[OPERATOR]** REPOINT `governance/review-authority/register.yaml`
       `row-grc-0001` (`:182-190`): `grant_ref` → `grant-grc-0003` and nothing
       else. **NO second row** — D2's one-body-one-row shape is unchanged and a
       seat is not a holder.
-- [ ] 6.12 **[OPERATOR]** ADD the fifth `seat_keys` entry to `register.yaml`
+      **DONE 2026-09-13: LANDED AT T2. oxF PR #1006 →
+      `765d8c6fcd3fbfdb71540903858e8fca74f04929`, merged 2026-09-13T22:30:20Z,
+      on Brett Heap's word in session, verbatim *"merge 1006"*
+      (2026-09-13T22:29Z; #1006 LANDING comment `5656603800`). Parsing
+      `register.yaml` at T2's first parent (`ee251d6c`) and at T2 shows
+      `row-grc-0001` with one field changed: `grant_ref` `grant-grc-0002` →
+      `grant-grc-0003`. `rows` still holds two entries of nine fields each,
+      so no second row was added, and `row-mrc-0001` is unchanged. The act is
+      his; the bytes and the keystroke were the lane's. See
+      walk-2026-09-12-register-act.md § 5.3 and the § 13.6 bookkeeping note
+      (appended 2026-10-04).**
+- [x] 6.12 **[OPERATOR]** ADD the fifth `seat_keys` entry to `register.yaml`
       after `company-policy-lead` (`:358-364`), in the seven-field shape at
       `:333-339`: `seat_id: client-security-compliance-officer`,
       `council_ref: agent:gate-rules-council`,
@@ -871,7 +921,27 @@ still Brett Heap's, and the merge is T2.
       `key_id: key-grc-seat-client-security-compliance-officer-0001`,
       `public_key` VERBATIM from 6.8's mint record, `key_fingerprint`
       recomputed by the reader, `authorizing_row: row-grc-0001`.
-- [ ] 6.13 **[OPERATOR]** ADD the fifth key to
+      **DONE 2026-09-13: LANDED AT T2. oxF PR #1006 →
+      `765d8c6fcd3fbfdb71540903858e8fca74f04929`, merged 2026-09-13T22:30:20Z,
+      on Brett Heap's word in session, verbatim *"merge 1006"*
+      (2026-09-13T22:29Z; #1006 LANDING comment `5656603800`). `seat_keys`
+      goes from 8 to 9 entries and the first eight are unchanged. The ninth
+      sits directly after the gate-rules `company-policy-lead` entry and has
+      the seven fields: `seat_id: client-security-compliance-officer`,
+      `council_ref: agent:gate-rules-council`,
+      `council_id: gate_rules_council`,
+      `key_id: key-grc-seat-client-security-compliance-officer-0001`,
+      `public_key: cxm-qmZVKXb_B5aucwuNzeOrXbgLPMKqa6D6DX1DUiQ`,
+      `key_fingerprint: sha256:85a4f47606f68a65be7c40f4abb392321d8bc6604ed7c27bef7418ac18df3310`,
+      `authorizing_row: row-grc-0001`. The `public_key` is
+      character-for-character the one in 6.8's mint record (cxF PR #452 →
+      `58f1e909`). The pinned reader recomputes the fingerprint and resolves
+      the entry. Re-run 2026-10-04 on oxF `main` `0e01ca85` at openXwallet
+      `f3eb929b`, it reads `9 of 9 per-seat signing key(s) adjudicated and
+      resolved` and `0 error(s), 0 warning(s)`. The act is his; the bytes and
+      the keystroke were the lane's. See walk-2026-09-12-register-act.md § 5.4
+      and the § 13.6 bookkeeping note (appended 2026-10-04).**
+- [x] 6.13 **[OPERATOR]** ADD the fifth key to
       `governance/review-authority/wallets/wal-agent-grc-0001.yaml`'s `keys:`
       array in the entry shape at `:125-135` (`did`, `key_id`,
       `key_fingerprint` byte-identical to 6.12's, `public_key_multibase`,
@@ -882,15 +952,68 @@ still Brett Heap's, and the merge is T2.
       (r) refuses a presenting key no wallet declares. Edit the block comment at
       `:114-124` to record the discharge, leaving `intent_owner_role_slot` named
       as still absent.
-- [ ] 6.14 **[OPERATOR]** Move `.github/workflows/openxwallet-consumer-gate.yml`'s
+      **DONE 2026-09-13: LANDED AT T2. oxF PR #1006 →
+      `765d8c6fcd3fbfdb71540903858e8fca74f04929`, merged 2026-09-13T22:30:20Z,
+      on Brett Heap's word in session, verbatim *"merge 1006"*
+      (2026-09-13T22:29Z; #1006 LANDING comment `5656603800`).
+      `wal-agent-grc-0001.yaml` `keys:` goes from 4 to 5 entries, and the first
+      four and `key_reference` are unchanged. The fifth has the same seven
+      fields as the four above it: `did`
+      `"did:key:z6MknCZhXWq3KkPXubK4TTcKCSxXLfC3r2GBQ24Qcrwf9fp7"`, `key_id`,
+      a `key_fingerprint` byte-identical to 6.12's, `public_key_multibase`
+      `z6MknCZhXWq3KkPXubK4TTcKCSxXLfC3r2GBQ24Qcrwf9fp7`,
+      `signature_algorithm: ed25519`, `display_label`, and
+      `custody.model: holder_readable`. The `did` and multibase were derived
+      through `scripts/validate-factory-identity.py --derive` (walk § 6.8).
+      The block comment records the discharge in an append-only
+      `2026-09-12 ADDENDUM` inside the same comment block, citing cxF #439 →
+      `eff9ae19`, and names `intent_owner_role_slot` as still deliberately
+      absent; the original paragraph is left as written. Re-run 2026-10-04,
+      the pinned reader reads `wal-agent-grc-0001': 6 declared key(s)
+      adjudicated`. The act is his; the bytes and the keystroke were the
+      lane's. See walk-2026-09-12-register-act.md § 5.5 and the § 13.6
+      bookkeeping note (appended 2026-10-04).**
+- [x] 6.14 **[OPERATOR]** Move `.github/workflows/openxwallet-consumer-gate.yml`'s
       LITERAL per-seat key-count assertion for this body from four to five **in
       the same act** — `code_surface` already requires it, *"because a wildcard
       there would let a register that lost a body pass the positive proof."*
+      **DONE 2026-09-13: LANDED AT T2. oxF PR #1006 →
+      `765d8c6fcd3fbfdb71540903858e8fca74f04929`, merged 2026-09-13T22:30:20Z,
+      on Brett Heap's word in session, verbatim *"merge 1006"*
+      (2026-09-13T22:29Z; #1006 LANDING comment `5656603800`). The literals
+      moved in commit `764006df`, the same commit as the register and wallet
+      writes: `8 of 8` → `9 of 9 per-seat signing key(s) adjudicated and
+      resolved`, and `wal-agent-grc-0001': 5 declared key(s)` →
+      `6 declared key(s)`. Both stay literal, and `wal-agent-mrc-0001` stays
+      at `5`. `tests/openxwallet_consumer_gate/test_gate_invocation.py` moved
+      with them (`test_the_nine_per_seat_keys_…`), and it passes 18 of 18 on
+      re-run 2026-10-04. On "four to five": the gate has no per-body literal 4
+      or 5. This body's seat keys go from four to five inside the two literals
+      above, which is how the amendment record § 5 words it (*"This act takes
+      the gate-rules half from four keys to five; the assertion that names the
+      count moves with it, in H2's own commit."*). The act is his; the bytes
+      and the keystroke were the lane's. See walk-2026-09-12-register-act.md
+      § 5.6 and the § 13.6 bookkeeping note (appended 2026-10-04).**
 - [ ] 6.15 **[OPERATOR] / [lane]** Write ONE walk record at
       `walk-<T2-date>-register-act.md` (the holder's established home, task 3.9)
       carrying R8's five minimum fields, the runbook § 0.3 three-capacity
       disclosure, and — R6/R7 still PENDING — the composition recorded as
       declaring-commit plus digests by the 2026-09-11 walk's own method.
+      **OPEN — NOTED 2026-10-04, NOT TICKED: one clause is not evidenced.**
+      What landed at T2 (oxF PR #1006 → `765d8c6fcd3fbfdb71540903858e8fca74f04929`,
+      2026-09-13T22:30:20Z, *"merge 1006"*) is ONE walk record for this act,
+      `walk-2026-09-12-register-act.md`. It carries R8's five fields (§ 6),
+      the § 0.3 capacity disclosure (§ 7: three capacities plus two
+      machine-held), and the composition as declaring commit `eff9ae19` plus
+      the six digests, by the 2026-09-11 walk's method (§§ 3.3, 6.1).
+      MISSING: the path `walk-<T2-date>-register-act.md`. T2 fell on
+      2026-09-13 and the file is named for 2026-09-12, the day it was walked.
+      Walk § 6.8 calls this *"ONE NAMING TENSION, DISCLOSED AND NOT
+      RESOLVED"* and leaves it to the ratifying human (*"The ratifying human
+      may have Part C re-date it."*). Part C (§§ 13.1–13.5) did not re-date
+      it, and no ruling either way is on record. This row ticks on Brett
+      Heap's word accepting the walked-day name, or after a re-date he rules.
+      See the walk's § 13.6 bookkeeping note (appended 2026-10-04).
 
 ### 6.4 The ceremony
 
@@ -917,6 +1040,27 @@ still Brett Heap's, and the merge is T2.
       (H1, §§ 6.2-6.8) then one openxFactory pull request (H2, §§ 6.9-6.15).
       H1 is **not** split into separate mint / roster / composition pull
       requests; two remotes, ONE governed act, the hold spanning them.
+      **OPEN — NOTED 2026-10-04, NOT TICKED: the merge is evidenced; the
+      pair shape as written is not.** Evidenced: T2 is oxF PR #1006 →
+      `765d8c6fcd3fbfdb71540903858e8fca74f04929`, merged 2026-09-13T22:30:20Z on
+      Brett Heap's word *"merge 1006"* (2026-09-13T22:29Z). It is ONE
+      openxFactory pull request carrying 6.9–6.15. The hold spanned T1 to T2:
+      posted 2026-09-12T15:57:19Z, lifted 2026-09-14T09:10:05Z (walk § 13.3).
+      MISSING: *"one codexFactory pull request (H1, §§ 6.2-6.8)"* and *"H1
+      is not split into separate mint / roster / composition pull
+      requests"*. The codexFactory half landed as TWO pull requests. H1 is
+      cxF #439 → `eff9ae19` (6.2–6.7, T1). 6.8's mint record is cxF #452 →
+      `58f1e909`, merged 2026-09-13T22:32:20Z, two minutes AFTER T2, on Brett
+      Heap's word *"merge 452 when green"* (2026-09-13T02:15:52Z). The mint
+      itself came after T1 (provisioned 2026-09-13T02:12:15Z). That is the
+      shape OQ-4 option (b) named (*"mint record, roster act, composition
+      re-pin as separate codexFactory PRs"*), which the ruling did not take.
+      The packet does not agree with itself here: `proposal.md` lists the mint
+      under H2, and the mint record calls itself *"the mint half of the T2
+      register act"*. No word on record decides #439 + #452 against OQ-4
+      (a). This row ticks on Brett Heap's word that it meets OQ-4 (a), or on
+      a ruling that re-scopes the row. See the walk's § 13.6 bookkeeping note
+      (appended 2026-10-04).
 - [x] 6.19 **[lane]** The 3.8-equivalent window check: prove NO
       `gate_rules_council` convening ran between T1 and T2 —
       `gh run list --workflow gate-rules-convening-trigger.yml` cross-checked
