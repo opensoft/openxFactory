@@ -3769,9 +3769,10 @@ and redesigns none of them.
     variable that each name a symbolic link outside the served root whose
     target lies inside it. And a launcher's own assignment is refused by
     the four commands and before any spawn, with no marker file:
-    `["env", "PYTHONPATH=tools", "python3", "/outside/broker.py"]`, with
-    `tools` relative to the served root and holding a `sitecustomize.py`
-    that writes the marker.
+    `["env", "PYTHONPATH=tools", "python3", "<outside>/broker.py"]`, where
+    `<outside>` is the case's own scratch directory outside the served root
+    (made by `mktemp -d`), and `tools`, relative to the served root, holds a
+    `sitecustomize.py` that writes the marker.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`

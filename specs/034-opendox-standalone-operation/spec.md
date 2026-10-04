@@ -781,7 +781,9 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   is refused. Every broker SHALL start with its working directory outside
   the repository and with an environment that points away from it: no
   `PWD` or `OLDPWD`, no variable whose value is a path inside it, and no
-  path-list entry inside it. A program that runs code from its own
+  path-list entry inside it, each judged both as named and as it resolves.
+  A launcher's own assignments (`env NAME=value`) SHALL be judged the same
+  way, and one that names a path inside the repository SHALL be refused. A program that runs code from its own
   arguments is an accepted release-1 limit. This is requirement 17 as its
   batch-P note reads it (`5982436447`, item 2, and `5983805990`; 16.3a). With no model
   configured, it SHALL show a "no model configured" state before any turn,
