@@ -709,12 +709,13 @@ product SERVES, as its program or as an argument, is refused even when it is
 trusted, and so is one whose program is a shell or an interpreter given an
 inline script (such as `sh -c` or `python -c`), since such a script can run a
 program inside the repository without naming it as a file. The program must be
-a real file outside the served repository, both as named and as it resolves,
-and every broker starts with its working directory outside it. Such a
-configuration is refused by name when trust would be recorded for it and again
-before any process is spawned, and the refusal names the remedy, a broker
-installed outside the repository. So a trusted configuration reaches its
-endpoint as the first scenario says only when its broker is a real file
+a real file outside the served repository, and every path the command names,
+the program and each argument alike, is judged both as named and as it
+resolves, and every broker starts with its working directory outside it. Such
+a configuration is refused by name when trust would be recorded for it and
+again before any process is spawned, and the refusal names the remedy, a
+broker installed outside the repository. So a trusted configuration reaches
+its endpoint as the first scenario says only when its broker is a real file
 outside the served repository. Nothing else here moved: the requirement's
 title, the paragraph above with its SHALL sentences, batch K's note, batch M's
 note and all four scenarios stand as ratified, and the requirement still
