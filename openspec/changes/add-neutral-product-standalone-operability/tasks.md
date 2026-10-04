@@ -3474,8 +3474,17 @@ and redesigns none of them.
     bring the program or its script back in, and a link inside the
     repository, which a pull could retarget, is refused even when it points
     outside;
+  - a common launcher (`env`, `nice`, `nohup`, `timeout`, `stdbuf`,
+    `setsid` and the like, with their flags) is unwrapped to the program it
+    starts, and the inline-script and path rules apply to THAT program (the
+    holder's ruling `5984069416`, implementing `5983805990`);
   - every broker also starts with its working directory outside the served
-    repository, as defence in depth;
+    repository, and without `PWD` or `OLDPWD` in its environment, as defence
+    in depth;
+  - an ACCEPTED release-1 limit: a general program outside the repository
+    that runs code from its own arguments (`awk`, `find -exec`, …) is not
+    judged by the argv check. The trusted argv is digested, and the working
+    directory and the environment point away from the repository;
   - a broker such as `sh -c "pass show key"` is declared as
     `["pass", "show", "key"]` instead, or as a script kept outside the
     repository.
@@ -3708,8 +3717,10 @@ and redesigns none of them.
     an interpreter given an inline script (`["/bin/sh", "-c", "exec
     ./tools/broker.py"]`, and `python -c` in the same form) is refused by
     name by the same four commands and before any spawn, as above, with no
-    marker file, whatever the script names. A trust recorded for it before
-    the rule does not admit it: it reads untrusted, and the catalog lists it
+    marker file, whatever the script names, and so is one that reaches an
+    inline script through a launcher (`["/usr/bin/env", "python3", "-c",
+    "…"]`, the holder's `5984069416`). A trust recorded for it before the
+    rule does not admit it: it reads untrusted, and the catalog lists it
     with `available: false`.
   - **An alias is judged both as named and as it resolves.** Each of these
     is refused by the same four commands and before any spawn, with no
@@ -3730,7 +3741,8 @@ and redesigns none of them.
     outside the served root: the test starts `opendox` with its own
     working directory at the served root, so a broker that inherited it
     would record a directory inside the root, and the broker records the
-    directory it starts in.
+    directory it starts in and finds neither `PWD` nor `OLDPWD` in its
+    environment.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
