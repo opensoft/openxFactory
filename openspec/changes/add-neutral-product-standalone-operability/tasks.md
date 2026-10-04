@@ -3729,8 +3729,10 @@ and redesigns none of them.
     "python3", "-c", "…"]`, `["nohup", "python3", "-c", "…"]`,
     `["timeout", "-s", "KILL", "5", "python3", "-c", "…"]`, `["stdbuf",
     "-oL", "python3", "-c", "…"]` and `["setsid", "-w", "python3", "-c",
-    "…"]`. A trust recorded for it before the rule does not admit it: it
-    reads untrusted, and the catalog lists it with `available: false`.
+    "…"]`, and once more for a nested chain, `["env", "nice", "-n", "5",
+    "timeout", "5", "python3", "-c", "…"]`, so every layer is unwrapped. A
+    trust recorded for it before the rule does not admit it: it reads
+    untrusted, and the catalog lists it with `available: false`.
   - **An alias is judged both as named and as it resolves.** Each of these
     is refused by the same four commands and before any spawn, with no
     marker file, for the program and for an interpreter's script argument
@@ -3753,8 +3755,9 @@ and redesigns none of them.
     directory it starts in and its environment. It finds neither `PWD` nor
     `OLDPWD`, no variable whose value is a path inside the served root, and
     no entry inside the root in a path list. The test starts `opendox` with
-    `PYTHONPATH` and `PATH` each carrying an entry inside the served root,
-    so an inherited one would show.
+    `PATH`, `PYTHONPATH` and `NODE_PATH` each carrying an entry inside the
+    served root, and with a scalar variable, such as `OPENDOX_TEST_HOME`,
+    set to a directory inside it, so an inherited one would show.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
