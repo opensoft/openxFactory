@@ -3765,9 +3765,10 @@ and redesigns none of them.
     `PATH`, `PYTHONPATH` and `NODE_PATH` each carrying an entry inside the
     served root, and with a scalar variable, such as `OPENDOX_TEST_HOME`,
     set to a directory inside it, so an inherited one would show. It does
-    the same again through aliases: a `PYTHONPATH` entry and a scalar
-    variable that each name a symbolic link outside the served root whose
-    target lies inside it. And a launcher's own assignment is refused by
+    the same again through aliases, each for a `PYTHONPATH` entry and for a
+    scalar variable: one names a symbolic link outside the served root whose
+    target lies inside it, and one names a symbolic link inside the served
+    root whose target lies outside it, which a pull could retarget. And a launcher's own assignment is refused by
     the four commands and before any spawn, with no marker file:
     `["env", "PYTHONPATH=tools", "python3", "<outside>/broker.py"]`, where
     `<outside>` is the case's own scratch directory outside the served root
@@ -3777,7 +3778,9 @@ and redesigns none of them.
     "PYTHONPATH=<outside>/alias", "python3", "<outside>/broker.py"]` and
     `["env", "OPENDOX_TEST_HOME=<outside>/alias", "python3",
     "<outside>/broker.py"]`, where `<outside>/alias` is a symbolic link to
-    `tools` inside the served root.
+    `tools` inside the served root, and the same two assignments naming
+    `tools/out`, a symbolic link inside the served root to a directory
+    outside it.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
