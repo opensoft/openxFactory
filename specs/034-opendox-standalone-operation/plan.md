@@ -266,7 +266,7 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
  PHASE 3  T069 is done; T007 batch H lands before T070, T075 and T080, batch K before T080, batch M before T100, batch N before T095, batch O before T086 and T099, and batch P before T087
           [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080;  T085 → T081
                  4.3 end: T084 (after T073, T007 batch L)          T072 → T075 → T077 (F10.1 as batch H amends it);  T082, T083, T088
-                 16.3a: T100 (after T080, openDox-code#64, T081, T072, T084, T007 batch M) → T083 (F16.1 as batch M amends it)
+                 16.3a: T100 (after T080, openDox-code#64, T081, T072, T084, T007 batch M) → T083 (F16.1 as batch M amends it, also after the binding-trust follow-on, no task)
           [oD]   T087 root pin (after T007 batch P, and the T100 follow-on, no task) → T076 (README: the opendox[local] install and the --local command)
           [oXc]  T086 (columns, ratchet (0,0); the 32-entry node, after T007 batch O) at the pin T087 carries
           [oX]→[oxF]  T094 consumer pins + host wiring (after its non-arc ahead PR, the phase-3 help golden) → T098 (interim F11.1) → checkpoint T089 (after T076)
@@ -323,8 +323,10 @@ lists.
   (T078–T080), the doxBench defaults and then the no-model state (T085 →
   T081), the retirement of the late reaches (T084, after T073; then T086), and
   entry-point serving (T075, after T072). Per-machine binding trust (T100,
-  16.3a) follows the binding slice, the no-model state and T084, and comes
-  before F16.1's whole run (T083). The workbench by scope (T102) and the
+  16.3a) follows the binding slice, the no-model state and T084. Its
+  follow-on (no task, `5982436447`) follows it, and both come before
+  F16.1's whole run (T083), whose linked-state-directory case means
+  nothing at `38d3350e` (the holder's A8). The workbench by scope (T102) and the
   loopback Host check (T103) follow T084, and the console token's move to
   the opened URL (T104) follows both. The release step (T101) lands last
   among the package-changing openDox-code landings, before T087, and the
