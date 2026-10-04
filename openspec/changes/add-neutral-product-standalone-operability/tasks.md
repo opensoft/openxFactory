@@ -3708,7 +3708,9 @@ and redesigns none of them.
     an interpreter given an inline script (`["/bin/sh", "-c", "exec
     ./tools/broker.py"]`, and `python -c` in the same form) is refused by
     name by the same four commands and before any spawn, as above, with no
-    marker file, whatever the script names.
+    marker file, whatever the script names. A trust recorded for it before
+    the rule does not admit it: it reads untrusted, and the catalog lists it
+    with `available: false`.
   - **An alias is judged both as named and as it resolves.** Each of these
     is refused by the same four commands and before any spawn, with no
     marker file, for the program and for an interpreter's script argument
