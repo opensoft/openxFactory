@@ -373,7 +373,8 @@ records three of the holder's rulings, and the fourth is `5983805990`.
   `7b11ce8f`) reads *"a real file"* by what it forbids to run: a program
   that cannot be found runs nothing, is not refused at trust, and is
   refused as `broker_unreachable` when its start fails. A check at trust
-  that it exists stays open for Brett Heap.
+  that it exists is no open work of release 1: it is a possible follow-on
+  for Brett Heap that would move no release-1 box.
 - Q: A state directory inside the served repository is refused. What of one
   inside some other git checkout? (item 3, finding A14) → A: *"Served repo
   only, limit (Recommended)"*. The check stays as it is, and the wider case
@@ -390,10 +391,10 @@ The holder's rulings recorded with them:
   is itself a symbolic link trusts nothing (the T100 follow-on).
 
 T007's batch P records items 1 to 3, `5983805990` (with the holder's
-`5984069416` and `5985046107`), B7 and A8 in #1144, at 12.4a, 16.3a and
-F16.1, and item 2 with `5983805990` also in a third dated note to
-requirement 17, since they narrow batch M's note there. B2 needs no
-line there.
+`5984069416`, `5985046107` and `5985553609`), B7 and A8 in #1144, at 12.4a,
+16.3a and F16.1, and item 2 with `5983805990` also in a third dated note to
+requirement 17, since they narrow batch M's note there. B2 needs no line
+there.
 
 **Nothing is open.** No task in [`tasks.md`](./tasks.md) carries a `Blocked
 by:` line, and the answers above settle the choices phase 3's additions
