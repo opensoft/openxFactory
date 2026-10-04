@@ -3442,8 +3442,8 @@ and redesigns none of them.
   addenda. F16.1's batch M block below falsifies this box. Carried out by
   T100.
 
-  **AMENDED — T007 Batch P (`5982436447`, item 2):** Brett Heap's
-  multi-choice word of 2026-10-04, verbatim *"Refuse in-repo programs
+  **AMENDED — T007 Batch P (`5982436447`, item 2; `5983805990`):** Brett
+  Heap's multi-choice word of 2026-10-04, verbatim *"Refuse in-repo programs
   (Recommended)"*, answers finding A2 of the holder's adversarial review of
   T100 (openDox-code#82, landed as `38d3350e`). A trust names a digest of
   the binding's record, and the record names a broker's program only by its
@@ -3454,10 +3454,24 @@ and redesigns none of them.
   trust is recorded (`add`, `edit`, `trust` and `set-credential`) and where
   trust is checked, before any process is spawned. The refusal names the
   remedy, a broker installed outside the repository, and never a secret, and
-  the binding reads untrusted. The rest of this box stands. A dated note in
-  requirement 17's body in this change's spec delta, after batch M's,
-  records the same ruling, since it narrows batch M's note there, and
-  F16.1's batch P cases below falsify it. Carried out by a
+  the binding reads untrusted. A shell or interpreter wrapper would carry
+  the same attack through an inline script, `["/bin/sh", "-c", "exec
+  ./tools/broker.py"]`, so Brett Heap's second word on it (`5983805990`,
+  verbatim *"Refuse inline scripts (Recommended)"*) extends the rule:
+  - a binding whose program is a shell or an interpreter given an inline
+    script, such as `sh -c`, `bash -c`, `python -c` or `node -e`, is
+    refused by name in the same places and the same way;
+  - the program must be a real file outside the served repository;
+  - every broker also starts with its working directory outside the served
+    repository, as defence in depth;
+  - a broker such as `sh -c "pass show key"` is declared as
+    `["pass", "show", "key"]` instead, or as a script kept outside the
+    repository.
+
+  The rest of this box stands. A dated note in requirement 17's body in this
+  change's spec delta, after batch M's, records both rulings, since they
+  narrow batch M's note there, and F16.1's batch P cases below falsify
+  them. Carried out by a
   T100 follow-on openDox-code PR (claim `5982447319`), which is no task of
   plan 034 and lands before T087.
 
@@ -3659,8 +3673,9 @@ and redesigns none of them.
   it does not show this case. This bookkeeping amendment does not itself
   touch the command above.
 
-  **AMENDED — T007 Batch P (`5982436447`, item 2):** F16.1 also falsifies
-  16.3a's batch P addendum (A2). The command is unchanged: the named file of
+  **AMENDED — T007 Batch P (`5982436447`, item 2; `5983805990`):** F16.1
+  also falsifies 16.3a's batch P addendum (A2, and its reach to inline
+  scripts). The command is unchanged: the named file of
   batch M's line, `tests/test_model_binding_trust.py`, also asserts, one
   test per case, under the same fresh `git init` and `OPENDOX_STATE_DIR`:
   - **A binding whose command names a file inside the served repository is
@@ -3673,9 +3688,16 @@ and redesigns none of them.
     the catalog lists it with `available: false`, as batch M's block asserts
     of an untrusted binding, and a turn that names it is refused by name
     before any process is spawned, and no marker file exists.
+  - **An inline script is refused.** A binding whose program is a shell or
+    an interpreter given an inline script (`["/bin/sh", "-c", "exec
+    ./tools/broker.py"]`, and `python -c` in the same form) is refused by
+    name by the same four commands and before any spawn, as above, with no
+    marker file, whatever the script names.
   - **A broker outside the repository is still reached.** The same binding
-    with its program outside the served root, once trusted, runs as batch
-    M's block says.
+    with its program a real file outside the served root, once trusted,
+    runs as batch M's block says, and it runs with its working directory
+    outside the served root (the broker records the directory it starts
+    in).
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`

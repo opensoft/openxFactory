@@ -90,9 +90,9 @@ planned on answers.
   T008 was raised as a staged topic (#1173), and the arc it raised is still
   open. Fifteen of T007's sixteen batches have landed, from A (#1171) to O
   (#1228, on Brett Heap's words `5970917267`, `5962754358` (item 1) and
-  `5963162921`). Batch P, on Brett Heap's word of 2026-10-04
-  (`5982436447`) and the holder's rulings recorded with it, lands before
-  T087, and T007 lists each.
+  `5963162921`). Batch P, on Brett Heap's words of 2026-10-04
+  (`5982436447` and `5983805990`) and the holder's rulings recorded with
+  them, lands before T087, and T007 lists each.
 - **Each phase-1 task** starts once its slice has been claimed (T002).
   **T020** and **T030** never needed an answer. **T030** lands with T011,
   because it fails until 2.1 lands. **T043** also waits for T007's batches C
@@ -203,8 +203,8 @@ planned on answers.
   F9.2 and 10.1, on its own rulings (`5970917267`; `5962754358`, item 1,
   and `5963162921`). Batch P adds six, two at 12.4a, two at 16.3a, and two
   at F16.1 (A8's note and A2's cases), and a third dated note to
-  requirement 17, on its own ruling (`5982436447`) and the holder's rulings
-  B7 and A8 recorded with it, and rewrites no ratified text either. The
+  requirement 17, on its own rulings (`5982436447` and `5983805990`) and
+  the holder's rulings B7 and A8, and rewrites no ratified text either. The
   full list is in § "Ruled amendments" below. Each batch is its own
   bookkeeping PR. T007 was ticked when batch J landed, and was reopened for
   batches K, L, M, N and O, all of which have landed. It is open for batch
@@ -217,8 +217,8 @@ planned on answers.
     batches D, F, G and H, `5851950767` for batch I, `5870594693` for
     batch J, `5916000030` for batch K, `5920216845` for batch L,
     `5962785556` for batch M, `5963851934` for batch N, `5970917267`,
-    `5962754358` and `5963162921` for batch O, and `5982436447` for batch
-    P.
+    `5962754358` and `5963162921` for batch O, and `5982436447` and
+    `5983805990` for batch P.
 
   - **Batch A** holds the F3.1, 2.2, 3.2, 4.3, 10.1, 11.0, 11.1 and F11.1
     amendments. It lands before T047, whose openxFactory landing edits the
@@ -387,9 +387,15 @@ planned on answers.
       repository, and the broker lives outside it. A third dated note in
       requirement 17's body, after batch M's, in batch D's form, records
       it too, since it narrows batch M's note: a trusted configuration whose
-      command names an in-repo file is still refused. An addendum at F16.1
-      adds its cases to the named file, with no command changed. The T100
-      follow-on carries it (claim `5982447319`).
+      command names an in-repo file is still refused. Brett Heap's second
+      word, `5983805990`, *"Refuse inline scripts (Recommended)"*, asked on
+      this batch's Copilot thread `r4179024140`, extends it: a program that
+      is a shell or an interpreter given an inline script (`sh -c`,
+      `python -c`, `node -e`) is refused by name, the program must be a
+      real file outside the served repository, and every broker starts with
+      its working directory outside it. An addendum at F16.1 adds the cases
+      of both to the named file, with no command changed. The T100
+      follow-on carries them (claim `5982447319`).
     - Item 3, A14, *"Served repo only, limit (Recommended)"*. A second
       addendum at 16.3a clarifies *"a tree a clone could carry"*: the
       served repository. A state directory inside some other git checkout
@@ -422,7 +428,7 @@ planned on answers.
     served-root rulings on #1220's review (Copilot `r4171166321`) and on
     batch N's (Copilot `r4174345203`); `5970917267`; item 1 of `5962754358`,
     with `5963162921`; `5982436447`, with the holder's B7 and A8 recorded
-    with it.
+    with it, and `5983805990`.
   - **After**, by batch:
     - **A**: nothing.
     - **B**: T041, which names the exclusion file.
@@ -2833,11 +2839,20 @@ written (`5962754358`). `consumer_reach.py` is gone.
       (Recommended)"*: a binding's command may not name a file inside the
       served repository, and the broker lives outside it. Such a binding is
       refused by name where trust is recorded and where it is checked;
+    - A2's reach to wrappers, RULED `5983805990`, *"Refuse inline scripts
+      (Recommended)"*: a binding whose program is a shell or an interpreter
+      given an inline script (`sh -c`, `bash -c`, `python -c`, `node -e`)
+      is refused by name the same way, the program must be a real file
+      outside the served repository, and every broker starts with its
+      working directory outside it, as defence in depth. A broker such as
+      `sh -c "pass show key"` is declared as `["pass", "show", "key"]`, or as
+      a script kept outside the repository;
     - A8, the holder's ruling recorded with it: a state directory that is
       itself a symbolic link is refused and trusts nothing, as F16.1's
       batch M block says.
 
-    Its cases for A2 and A8 extend `tests/test_model_binding_trust.py`, the
+    Its cases for A2, its wrappers and A8 extend
+    `tests/test_model_binding_trust.py`, the
     file F16.1's batch M line runs, as #1144's F16.1 records them (T007's
     batch P). A14, RULED `5982436447`, item 3, *"Served repo only, limit
     (Recommended)"*, changes no code: a state directory inside some other
@@ -2850,7 +2865,8 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Falsifier**: F16.1's batch M block, and
     `tests/test_model_binding_trust.py`.
   - **Ruled**: R1Q22 (a), `5817152735`; `5962785556`, item 2; the
-    follow-on's rules, `5982436447`, items 2 and 3, with the holder's A8.
+    follow-on's rules, `5982436447`, items 2 and 3, with the holder's A8,
+    and `5983805990`.
   - **After**: T080 and openDox-code#64 (the broker-path hardening, which is
     no task of this plan), T081 (`doxbench_install.py`'s single-writer
     order), T072 (the state directory), T084 (`serve_workbench.py`'s
@@ -4146,7 +4162,7 @@ P3-U's T099, and batch P before P3-P's T087.
 | P3-U publish to PyPI | after the checkpoint and the acceptance, at the cut | T099 | oD | the root's `README.md` ("Where `opendox` comes from" becomes the PyPI install line, after the publish verifies, in a small root PR); the dispatch of openDox-code's release workflow edits no file | P3-W, P3-P, P3-O, the checkpoint and the acceptance; T007 batch O | the release workflow's `build` job (its artifact checks), a TestPyPI dry run installed in a fresh venv, the PyPI publish and its digest check; the README PR by review | Sonnet |
 | bookkeeping | last | T097 | oxF | #1144's `tasks.md` ticks, under a Rule 6 window | the acceptance, P3-U; T007 every batch | none (a record) | Sonnet |
 
-## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`, `5962785556`, `5963851934`, `5970917267`, `5962754358`, `5963162921`, `5982436447`)
+## Ruled amendments (`5817152735`, `5850003126`, `5851950767`, `5870594693`, `5916000030`, `5920216845`, `5962785556`, `5963851934`, `5970917267`, `5962754358`, `5963162921`, `5982436447`, `5983805990`)
 
 Brett Heap's answers amend #1144's falsifiers, task lines, addenda and one
 design note. Batches A, B and C carry `5817152735`'s answers, and batches F,
@@ -4155,7 +4171,7 @@ carries `5870594693`'s, batch K carries `5916000030`'s, batch L
 carries `5920216845`'s, batch M carries `5962785556`'s, batch N
 carries `5963851934`'s, batch O carries `5970917267`'s and item 1 of
 `5962754358`'s, with `5963162921`'s, and batch P carries `5982436447`'s,
-with the holder's B7 and A8 recorded with it. They amend
+with the holder's B7 and A8 recorded with it, and `5983805990`'s. They amend
 no requirement and no scenario, except that batch K's first row adds a
 dated note to requirement 17 on its own ruling and rewrites none of its
 text, and batch M adds a second such note there, and one box, 16.3a, on
@@ -4204,7 +4220,7 @@ landed it in #1144's spec delta, as #1170 → `79a720a2`.
 | O | 9.5 | An addendum after batch G's: a second exception to the proposal's *"cuts no bundle and owes no tag"*. openDox's first public release, version 0.1.0, is published to PyPI as `opendox` at release 1's cut, by trusted publishing, so 10.3's install line works as written. That release owes ONE tag, as T099 publishes it: at the cut, once AT-R1 has passed and on Brett Heap's publish word, the holder creates `v0.1.0` in openDox-code at the commit the openDox root's `contracts/code-pin.yaml` names (the version bump, the last phase-3 openDox-code landing that changes the shipped package), and the release workflow publishes only that commit. Every pin move other than batch G's still owes no release tag, and the proposal is not edited. | `5962754358`, item 1; `5963162921` | T101, T087, T099 |
 | O | 10.1; F9.1; F9.2 | Three addenda. At 10.1, after batch A's: the assembled `--help` tree has 31 sections through phase 2 and 32 from phase 3's pin, because T100 adds `model-binding trust`; openXdox-code's assembled-tree test moves to 32 at the pin move past T100, and openxFactory's phase-3 help golden, at 32, lands under `tests/domain_profile/fixtures/` in the non-arc PR ahead of T094, in T066's both-pins form (E1 (a), `5970369724`). At F9.1, after batch J's: the deselected node is renamed `test_the_assembled_help_tree_is_the_32_entry_tree_the_manifest_records` in that landing, with openXdox-code's `LEFT_OUT` entry, so the deselect never names a missing test; its reason and its removal by T008 are unchanged. At F9.2: the last line runs the 32-entry node from phase 3's pin, and F9.2 stays red on it until T008. 9.3's "31-entry" quotes the carve manifest and stands. | `5970917267` | T086; the non-arc PR ahead of T094 |
 | P | 12.4a | Two addenda after batch N's. Item 1, B3: snap and Flatpak browsers, and a Windows browser opened from WSL, cannot open the private copy's `file://` URL under the hidden default state directory, and the token is never printed. The start prints ONE more line, with no token and no URL that carries one, saying that such a browser should be used with `OPENDOX_STATE_DIR` set to a folder that is not hidden. The openDox root's README documents it, and release 1 ships with the limit. The holder's B7: the page's `history.replaceState` cleans only session history, so a browser's persistent history can keep `…/index.html#console_token=<token>`. That history is the same user's data as the 0600 copy, so release 1 accepts it, with no code change. | `5982436447`, item 1; the holder's B7, recorded with it | T104, T076 |
-| P | requirement 17 (spec delta); 16.3a; F16.1 | A dated note in requirement 17's body, after batch M's, in batch D's form; two addenda at 16.3a, after batch M's text; and a note at F16.1, after batch M's block. No ratified text is rewritten. Item 2, A2: a binding's command may not name a file inside the served repository, and the broker lives outside it. The dated note records that batch M's note is narrowed in that one respect: a configuration whose command names a file inside the served repository is refused even when trusted, and the title, the SHALL paragraph, batch K's and batch M's notes and all four scenarios stand. Such a binding is refused by name where trust is recorded and where it is checked, before any spawn, naming the remedy (a broker installed outside the repository), and it reads untrusted. Item 3, A14: 16.3a's *"a tree a clone could carry"* is the SERVED repository; a state directory inside some other git checkout is an accepted limit, since a check for any enclosing checkout would refuse a home directory kept in git, and no code changes. F16.1's A2 cases: the named file of batch M's line also asserts that a binding whose command names a program under the served root is refused by `add`, `edit`, `trust` and `set-credential`, naming the remedy, and that a trust recorded before the rule does not admit it, before or after its program is edited: the catalog lists it `available: false`, and a turn is refused before any spawn, with no marker file; a broker outside the repository is still reached. The holder's A8, a note with no line changed: a state directory that is itself a symbolic link trusts nothing, as F16.1's block already says, and the T100 follow-on aligns the code. T083's run at `38d3350e`, which predates the follow-on, passed that case only because the link's target was writable by others, so T089's run at T087's pin is the one that shows it and A2's cases. | `5982436447`, items 2 and 3; the holder's A8, recorded with it | the T100 follow-on (claim `5982447319`, no task); T100 (A14, as landed); T089 (F16.1's run at T087's pin) |
+| P | requirement 17 (spec delta); 16.3a; F16.1 | A dated note in requirement 17's body, after batch M's, in batch D's form; two addenda at 16.3a, after batch M's text; and a note at F16.1, after batch M's block. No ratified text is rewritten. Item 2, A2: a binding's command may not name a file inside the served repository, and the broker lives outside it. The dated note records that batch M's note is narrowed in that one respect: a configuration whose command names a file inside the served repository is refused even when trusted, and the title, the SHALL paragraph, batch K's and batch M's notes and all four scenarios stand. Such a binding is refused by name where trust is recorded and where it is checked, before any spawn, naming the remedy (a broker installed outside the repository), and it reads untrusted. `5983805990` extends it: a program that is a shell or an interpreter given an inline script (`sh -c`, `python -c`, `node -e`) is refused the same way, the program must be a real file outside the served repository, every broker starts with its working directory outside it, and F16.1's cases include an inline script and the broker's working directory. Item 3, A14: 16.3a's *"a tree a clone could carry"* is the SERVED repository; a state directory inside some other git checkout is an accepted limit, since a check for any enclosing checkout would refuse a home directory kept in git, and no code changes. F16.1's A2 cases: the named file of batch M's line also asserts that a binding whose command names a program under the served root is refused by `add`, `edit`, `trust` and `set-credential`, naming the remedy, and that a trust recorded before the rule does not admit it, before or after its program is edited: the catalog lists it `available: false`, and a turn is refused before any spawn, with no marker file; a broker outside the repository is still reached. The holder's A8, a note with no line changed: a state directory that is itself a symbolic link trusts nothing, as F16.1's block already says, and the T100 follow-on aligns the code. T083's run at `38d3350e`, which predates the follow-on, passed that case only because the link's target was writable by others, so T089's run at T087's pin is the one that shows it and A2's cases. | `5982436447`, items 2 and 3; `5983805990`; the holder's A8, recorded with `5982436447` | the T100 follow-on (claim `5982447319`, no task); T100 (A14, as landed); T089 (F16.1's run at T087's pin) |
 
 R1Q4 (a) and R1Q8 (a) amend nothing in #1144. They shape T015, T038, T046 and
 T036 only. Nor do three of round 2's answers. R1Q13 (a) with (c) shapes T050,

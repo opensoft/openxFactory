@@ -696,7 +696,8 @@ still carries four scenarios. The rule is box 16.3a of this change's
 
 **AMENDED 2026-10-04 ON BRETT HEAP'S RULING, AFTER RATIFICATION, BY ITS OWN
 RATIFIER (T007 BATCH P).** `#656` comment `5982436447`, item 2, verbatim
-*"Refuse in-repo programs (Recommended)"*. Batch M's note above says that the
+*"Refuse in-repo programs (Recommended)"*, and comment `5983805990`, verbatim
+*"Refuse inline scripts (Recommended)"*, which extends it. Batch M's note above says that the
 first scenario's turns reach a configured endpoint once its configuration is
 trusted on the machine that serves it. A trust names a digest of the
 configuration's record, and the record names a credential broker's program
@@ -704,11 +705,16 @@ only by its path, so a program inside the served repository could change
 under a trusted configuration with a pull. The ruling narrows batch M's note
 in one respect only: where the program a configuration runs may live. A
 configuration whose command names a file inside the repository the product
-SERVES is refused even when it is trusted. It is refused by name when trust
-would be recorded for it and again before any process is spawned, and the
-refusal names the remedy, a broker installed outside the repository. So a
-trusted configuration reaches its endpoint as the first scenario says only
-when its broker lives outside the served repository. Nothing else here
+SERVES is refused even when it is trusted, and so is one whose program is a
+shell or an interpreter given an inline script (such as `sh -c` or
+`python -c`), since such a script can run a program inside the repository
+without naming it as a file. The program must be a real file outside the
+served repository, and every broker starts with its working directory
+outside it. Such a configuration is refused by name when trust would be
+recorded for it and again before any process is spawned, and the refusal
+names the remedy, a broker installed outside the repository. So a trusted
+configuration reaches its endpoint as the first scenario says only when its
+broker is a real file outside the served repository. Nothing else here
 moved: the requirement's title, the paragraph above with its SHALL
 sentences, batch K's note, batch M's note and all four scenarios stand as
 ratified, and the requirement still carries four scenarios. The rule is

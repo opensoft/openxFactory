@@ -326,10 +326,11 @@ at #1144's 12.4a); `5970917267` (batch O, at 10.1, F9.1 and F9.2); and item
 ### Session 2026-10-04
 
 The holder's adversarial reviews of T104 (openDox-code#84) and T100
-(openDox-code#82, landed as `38d3350e`) raised three more questions. Brett
-Heap answered each by multiple choice, and each answer is the option marked
-*(Recommended)*. All three are in one comment on `#656`, `5982436447`
-(2026-10-04T17:11:29Z), which also records three of the holder's rulings.
+(openDox-code#82, landed as `38d3350e`) raised three more questions, and
+batch P's review a fourth. Brett Heap answered each by multiple choice, and
+each answer is the option marked *(Recommended)*. The first three are in
+one comment on `#656`, `5982436447` (2026-10-04T17:11:29Z), which also
+records three of the holder's rulings, and the fourth is `5983805990`.
 
 - Q: Snap and Flatpak browsers, and a Windows browser opened from WSL,
   cannot open the private copy's `file://` URL under the hidden default
@@ -346,6 +347,16 @@ Heap answered each by multiple choice, and each answer is the option marked
   not name a file inside the served repository, and the broker lives
   outside it. A T100 follow-on openDox-code PR carries it before T087 (claim
   `5982447319`).
+- Q: A shell or interpreter wrapper, such as `["/bin/sh", "-c", "exec
+  ./tools/broker.py"]`, names no file as an argv member but still runs an
+  in-repo program. How far does item 2 reach? (`5983805990`,
+  2026-10-04T19:56:01Z, asked on #1230's Copilot thread `r4179024140`) →
+  A: *"Refuse inline scripts (Recommended)"*. A binding whose program is a
+  shell or an interpreter given an inline script (`sh -c`, `bash -c`,
+  `python -c`, `node -e`) is refused by name. The program must be a real
+  file outside the served repository, and every broker also starts with its
+  working directory outside it. `sh -c "pass show key"` becomes
+  `["pass", "show", "key"]`, or a script kept outside the repository.
 - Q: A state directory inside the served repository is refused. What of one
   inside some other git checkout? (item 3, finding A14) → A: *"Served repo
   only, limit (Recommended)"*. The check stays as it is, and the wider case
@@ -361,9 +372,10 @@ The holder's rulings recorded with them:
 - A8: the realization follows F16.1's ratified text. A state directory that
   is itself a symbolic link trusts nothing (the T100 follow-on).
 
-T007's batch P records items 1 to 3, B7 and A8 in #1144, at 12.4a, 16.3a and
-F16.1, and item 2 also in a third dated note to requirement 17, since it
-narrows batch M's note there. B2 needs no line there.
+T007's batch P records items 1 to 3, `5983805990`, B7 and A8 in #1144, at
+12.4a, 16.3a and F16.1, and item 2 with `5983805990` also in a third dated
+note to requirement 17, since they narrow batch M's note there. B2 needs no
+line there.
 
 **Nothing is open.** No task in [`tasks.md`](./tasks.md) carries a `Blocked
 by:` line, and the answers above settle the choices phase 3's additions
@@ -547,8 +559,10 @@ package: no deferred reach, and `consumer_reach.py` gone) pass. So does
    inside the served repository. Such a binding is refused by name, naming
    the remedy, a broker installed outside the repository, both when trust
    would be recorded for it and before any process is spawned, even when it
-   is trusted (requirement 17 as T007's batch P note reads it; RULED
-   `5982436447`, item 2: *"Refuse in-repo programs (Recommended)"*).
+   is trusted, and so is one whose program is a shell or an interpreter
+   given an inline script (requirement 17 as T007's batch P note reads it;
+   RULED `5982436447`, item 2: *"Refuse in-repo programs (Recommended)"*,
+   and `5983805990`: *"Refuse inline scripts (Recommended)"*).
 
 ---
 
@@ -752,8 +766,11 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   batch-M note reads it (`5962785556`, item 2; 16.3a). A binding whose
   command names a file inside the served repository SHALL be refused by
   name even when it is trusted, naming the remedy, a broker installed
-  outside the repository. This is requirement 17 as its batch-P note reads
-  it (`5982436447`, item 2; 16.3a). With no model
+  outside the repository, and so SHALL one whose program is a shell or an
+  interpreter given an inline script. The program SHALL be a real file
+  outside the served repository, and every broker SHALL start with its
+  working directory outside it. This is requirement 17 as its batch-P note
+  reads it (`5982436447`, item 2, and `5983805990`; 16.3a). With no model
   configured, it SHALL show a "no model configured" state before any turn,
   and every other surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);
   R1Q17 (b): a built-in `env:` and keyring resolver in that module; R1Q18 (a):

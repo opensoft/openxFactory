@@ -467,7 +467,8 @@ the realization as the answer records it."*
   32-entry assembled `--help` tree that T100's `model-binding trust` makes,
   and 9.5's second exception to *"owes no tag"*, the `v0.1.0` tag and PyPI
   publish at the cut, and P for Brett Heap's word of 2026-10-04
-  (`5982436447`) and the holder's rulings recorded with it: two addenda at
+  (`5982436447`, with `5983805990`, which extends its item 2 to inline
+  scripts) and the holder's rulings recorded with it: two addenda at
   12.4a (B3's hint line and B7's history limit), two at 16.3a (A2's refusal
   of in-repo programs and A14's served-repository-only limit), a third
   dated note to requirement 17 (A2), and two at F16.1 (A8's note, and A2's
