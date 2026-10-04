@@ -3823,8 +3823,9 @@ and redesigns none of them.
     `tools` inside the served root, and naming `tools/out`, the in-repo
     link to a directory outside it.
   - **A path an option carries, an unreadable split string and a launcher
-    option that cannot be read are refused** (the holder's `5985046107`, C1
-    and C4). Each command below is
+    option that cannot be read are refused, and a launcher's options are
+    read as GNU reads them** (the holder's `5985046107`, C1 and C4). Each
+    command below is
     refused by name by the same four commands and before any spawn, and
     leaves no marker file. `<outside>/broker` is an executable in the
     case's scratch directory that writes one when it runs, and
@@ -3852,7 +3853,23 @@ and redesigns none of them.
       since `--i` is an ambiguous prefix (`--ignore-environment`,
       `--ignore-signal`);
     - `["env", "--no-such-option", "<outside>/broker"]` is refused by name,
-      fail-closed, since `env` has no such option.
+      fail-closed, since `env` has no such option;
+    - `["env", "--d", "<outside>/broker"]` is refused by name, fail-closed,
+      since `--d` is an ambiguous prefix (`--debug`, `--default-signal`);
+    - `["env", "-iS", "python3 -c '…'"]` is refused as an inline script,
+      since the bundled cluster parses the getopt way: `-i`, then `-S`
+      taking the next member as its string;
+    - `["timeout", "--sig", "KILL", "5", "python3", "-c", "…"]` and
+      `["stdbuf", "--out=L", "python3", "-c", "…"]` are each refused as an
+      inline script, not as an unknown option, since `--sig` is `timeout`'s
+      `--signal` and `--out` is `stdbuf`'s `--output`, so the program
+      behind them is found;
+    - `["env", "-S", "$BROKER"]` is refused as an inline script, since a
+      split string that holds a `$` is unreadable. It is written without
+      braces because a binding refuses, when it is declared, any `{name}`
+      in its argv outside its closed placeholder vocabulary, before any
+      broker rule is asked, so a `${VAR}` string would be refused by that
+      rule instead.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
