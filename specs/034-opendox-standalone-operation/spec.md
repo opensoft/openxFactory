@@ -784,11 +784,16 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   path-list entry inside it, each judged both as named and as it resolves.
   A launcher's own assignments (`env NAME=value`) SHALL be judged the same
   way, and one whose value is a path inside the repository, or a path list
-  with an entry inside it, SHALL be refused. A path embedded inside an
-  option string, in an argument or in a variable such as
-  `NODE_OPTIONS=--require=…`, is not judged and is part of the accepted
-  release-1 limit, as the batch-P note says. A program that runs code from its own
-  arguments is an accepted release-1 limit. This is requirement 17 as its
+  with an entry inside it, SHALL be refused. A launcher's own option that
+  names a path, such as the directory `env --chdir` (`-C`) starts the
+  program in, SHALL be judged the same way, and one that names a path
+  inside the repository SHALL be refused; a string that `env -S` splits
+  SHALL be judged as the arguments it names. A path embedded inside an
+  option string given to the program that finally runs, in one of its
+  arguments or in a variable such as `NODE_OPTIONS=--require=…`, is not
+  judged and is part of the accepted release-1 limit, as the batch-P note
+  says; a launcher's own options are never part of it. A program that runs
+  code from its own arguments is an accepted release-1 limit. This is requirement 17 as its
   batch-P note reads it (`5982436447`, item 2, and `5983805990`; 16.3a). With no model
   configured, it SHALL show a "no model configured" state before any turn,
   and every other surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);

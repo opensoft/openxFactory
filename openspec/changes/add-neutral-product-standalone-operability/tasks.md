@@ -3477,7 +3477,13 @@ and redesigns none of them.
   - a common launcher (`env`, `nice`, `nohup`, `timeout`, `stdbuf`,
     `setsid` and the like, with their flags) is unwrapped to the program it
     starts, and the inline-script and path rules apply to THAT program (the
-    holder's ruling `5984069416`, implementing `5983805990`);
+    holder's ruling `5984069416`, implementing `5983805990`). A launcher's
+    own options are judged with it: one that names a path, such as the
+    directory `env --chdir` (`-C`) starts the program in, is judged as the
+    command's paths are, both as named and as it resolves, so a launcher
+    cannot start the broker inside the repository, and the string that
+    `env -S` (`--split-string`) carries is split into the arguments it
+    names before they are unwrapped and judged;
   - every broker also starts with its working directory outside the served
     repository, as defence in depth, and with an environment that points
     away from it: `PWD` and `OLDPWD` are dropped, and so is every other
@@ -3492,10 +3498,12 @@ and redesigns none of them.
   - an ACCEPTED release-1 limit: a general program outside the repository
     that runs code from its own arguments (`awk`, `find -exec`, …) is not
     judged by the argv check, and neither is a path embedded inside an
-    option string, in an argument or in a variable such as
-    `NODE_OPTIONS=--require=…`. The trusted argv is digested, and the
-    working directory and the environment point away from the repository,
-    so a relative path in such a string does not reach it;
+    option string given to the program that finally runs, in one of its
+    arguments or in a variable such as `NODE_OPTIONS=--require=…`. A known
+    launcher's own options are never part of this limit; the launcher
+    bullet above judges them. The trusted argv is digested, and the working
+    directory and the environment point away from the repository, so a
+    relative path in such a string does not reach it;
   - a broker such as `sh -c "pass show key"` is declared as
     `["pass", "show", "key"]` instead, or as a script kept outside the
     repository.
@@ -3737,9 +3745,11 @@ and redesigns none of them.
     `["timeout", "-s", "KILL", "5", "python3", "-c", "…"]`, `["stdbuf",
     "-oL", "python3", "-c", "…"]` and `["setsid", "-w", "python3", "-c",
     "…"]`, and once more for a nested chain, `["env", "nice", "-n", "5",
-    "timeout", "5", "python3", "-c", "…"]`, so every layer is unwrapped. A
-    trust recorded for it before the rule does not admit it: it reads
-    untrusted, and the catalog lists it with `available: false`.
+    "timeout", "5", "python3", "-c", "…"]`, so every layer is unwrapped,
+    and once through a string that `env -S` splits, `["env", "-S",
+    "python3 -c '…'"]`. A trust recorded for it before the rule does not
+    admit it: it reads untrusted, and the catalog lists it with
+    `available: false`.
   - **An alias is judged both as named and as it resolves.** Each of these
     is refused by the same four commands and before any spawn, with no
     marker file, for the program and for an interpreter's script argument
@@ -3780,7 +3790,14 @@ and redesigns none of them.
     "<outside>/broker.py"]`, where `<outside>/alias` is a symbolic link to
     `tools` inside the served root, and the same two assignments naming
     `tools/out`, a symbolic link inside the served root to a directory
-    outside it.
+    outside it. A launcher's own working-directory option is refused the
+    same way, by the four commands and before any spawn, and the outside
+    broker, which writes a marker file when it runs, leaves none:
+    `["env", "--chdir=<root>", "python3", "<outside>/broker.py"]`, where
+    `<root>` is the served root's absolute path; the same with `"-C",
+    "<root>"`; and the long form naming `<outside>/alias`, the link to
+    `tools` inside the served root, and naming `tools/out`, the in-repo
+    link to a directory outside it.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
