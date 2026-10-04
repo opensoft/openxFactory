@@ -467,8 +467,9 @@ the realization as the answer records it."*
   publish at the cut, and P for Brett Heap's word of 2026-10-04
   (`5982436447`) and the holder's rulings recorded with it: two addenda at
   12.4a (B3's hint line and B7's history limit), two at 16.3a (A2's refusal
-  of in-repo programs and A14's served-repository-only limit), and a note at
-  F16.1 (A8, the symbolic-link state directory).
+  of in-repo programs and A14's served-repository-only limit), a third
+  dated note to requirement 17 (A2), and a note at F16.1 (A8, the
+  symbolic-link state directory).
 - Each batch lands under a Rule 6 window, with no `Arc:` trailer, before the
   task that needs it. A batch that amends a falsifier lands before the
   checkpoint that runs it. Batch N amends none, and lands before T095,

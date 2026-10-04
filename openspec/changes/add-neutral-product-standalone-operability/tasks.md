@@ -3454,7 +3454,9 @@ and redesigns none of them.
   trust is recorded (`add`, `edit`, `trust` and `set-credential`) and where
   trust is checked, before any process is spawned. The refusal names the
   remedy, a broker installed outside the repository, and never a secret, and
-  the binding reads untrusted. The rest of this box stands. This
+  the binding reads untrusted. The rest of this box stands. A dated note in
+  requirement 17's body in this change's spec delta, after batch M's,
+  records the same ruling, since it narrows batch M's note there. This
   bookkeeping amendment does not itself touch a falsifier. Carried out by a
   T100 follow-on openDox-code PR (claim `5982447319`), which is no task of
   plan 034 and lands before T087.

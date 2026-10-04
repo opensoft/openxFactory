@@ -362,7 +362,8 @@ The holder's rulings recorded with them:
   is itself a symbolic link trusts nothing (the T100 follow-on).
 
 T007's batch P records items 1 to 3, B7 and A8 in #1144, at 12.4a, 16.3a and
-F16.1. B2 needs no line there.
+F16.1, and item 2 also in a third dated note to requirement 17, since it
+narrows batch M's note there. B2 needs no line there.
 
 **Nothing is open.** No task in [`tasks.md`](./tasks.md) carries a `Blocked
 by:` line, and the answers above settle the choices phase 3's additions

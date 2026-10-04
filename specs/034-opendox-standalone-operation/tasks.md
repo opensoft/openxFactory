@@ -202,8 +202,9 @@ planned on answers.
   its own ruling (`5963851934`). Batch O adds four addenda, at 9.5, F9.1,
   F9.2 and 10.1, on its own rulings (`5970917267`; `5962754358`, item 1,
   and `5963162921`). Batch P adds five, two at 12.4a, two at 16.3a and a
-  note at F16.1, on its own ruling (`5982436447`) and the holder's rulings
-  B7 and A8 recorded with it. The
+  note at F16.1, and a third dated note to requirement 17, on its own ruling
+  (`5982436447`) and the holder's rulings B7 and A8 recorded with it, and
+  rewrites no ratified text either. The
   full list is in § "Ruled amendments" below. Each batch is its own
   bookkeeping PR. T007 was ticked when batch J landed, and was reopened for
   batches K, L, M, N and O, all of which have landed. It is open for batch
@@ -383,7 +384,10 @@ planned on answers.
       limit, with no code change (T104).
     - Item 2, A2, *"Refuse in-repo programs (Recommended)"*. An addendum at
       16.3a: a binding's command may not name a file inside the served
-      repository, and the broker lives outside it. The T100 follow-on
+      repository, and the broker lives outside it. A third dated note in
+      requirement 17's body, after batch M's, in batch D's form, records
+      it too, since it narrows batch M's note: a trusted configuration whose
+      command names an in-repo file is still refused. The T100 follow-on
       carries it (claim `5982447319`).
     - Item 3, A14, *"Served repo only, limit (Recommended)"*. A second
       addendum at 16.3a clarifies *"a tree a clone could carry"*: the
@@ -4023,8 +4027,9 @@ with the holder's B7 and A8 recorded with it. They amend
 no requirement and no scenario, except that batch K's first row adds a
 dated note to requirement 17 on its own ruling and rewrites none of its
 text, and batch M adds a second such note there, and one box, 16.3a, on
-its own ruling. T007 records each amendment in #1144's `tasks.md` (and the
-D4 addendum in `design.md`, and batch K's and batch M's notes in the spec
+its own ruling, and batch P adds a third note there, on its own ruling.
+T007 records each amendment in #1144's `tasks.md` (and the D4 addendum in
+`design.md`, and batch K's, batch M's and batch P's notes in the spec
 delta) as bookkeeping, and the realization tasks beside it carry it out.
 The one scenario text an answer touches is not listed here. It is RN-1
 (plan.md § "Ruling needed"), ruled (a) in `5850003126`. T007's batch D
@@ -4067,7 +4072,7 @@ landed it in #1144's spec delta, as #1170 → `79a720a2`.
 | O | 9.5 | An addendum after batch G's: a second exception to the proposal's *"cuts no bundle and owes no tag"*. openDox's first public release, version 0.1.0, is published to PyPI as `opendox` at release 1's cut, by trusted publishing, so 10.3's install line works as written. That release owes ONE tag, as T099 publishes it: at the cut, once AT-R1 has passed and on Brett Heap's publish word, the holder creates `v0.1.0` in openDox-code at the commit the openDox root's `contracts/code-pin.yaml` names (the version bump, the last phase-3 openDox-code landing that changes the shipped package), and the release workflow publishes only that commit. Every pin move other than batch G's still owes no release tag, and the proposal is not edited. | `5962754358`, item 1; `5963162921` | T101, T087, T099 |
 | O | 10.1; F9.1; F9.2 | Three addenda. At 10.1, after batch A's: the assembled `--help` tree has 31 sections through phase 2 and 32 from phase 3's pin, because T100 adds `model-binding trust`; openXdox-code's assembled-tree test moves to 32 at the pin move past T100, and openxFactory's phase-3 help golden, at 32, lands under `tests/domain_profile/fixtures/` in the non-arc PR ahead of T094, in T066's both-pins form (E1 (a), `5970369724`). At F9.1, after batch J's: the deselected node is renamed `test_the_assembled_help_tree_is_the_32_entry_tree_the_manifest_records` in that landing, with openXdox-code's `LEFT_OUT` entry, so the deselect never names a missing test; its reason and its removal by T008 are unchanged. At F9.2: the last line runs the 32-entry node from phase 3's pin, and F9.2 stays red on it until T008. 9.3's "31-entry" quotes the carve manifest and stands. | `5970917267` | T086; the non-arc PR ahead of T094 |
 | P | 12.4a | Two addenda after batch N's. Item 1, B3: snap and Flatpak browsers, and a Windows browser opened from WSL, cannot open the private copy's `file://` URL under the hidden default state directory, and the token is never printed. The start prints ONE more line, with no token and no URL that carries one, saying that such a browser should be used with `OPENDOX_STATE_DIR` set to a folder that is not hidden. The openDox root's README documents it, and release 1 ships with the limit. The holder's B7: the page's `history.replaceState` cleans only session history, so a browser's persistent history can keep `…/index.html#console_token=<token>`. That history is the same user's data as the 0600 copy, so release 1 accepts it, with no code change. | `5982436447`, item 1; the holder's B7, recorded with it | T104, T076 |
-| P | 16.3a; F16.1 | Two addenda at 16.3a, after batch M's text, and a note at F16.1, after batch M's block. Item 2, A2: a binding's command may not name a file inside the served repository, and the broker lives outside it. Such a binding is refused by name where trust is recorded and where it is checked, before any spawn, naming the remedy (a broker installed outside the repository), and it reads untrusted. Item 3, A14: 16.3a's *"a tree a clone could carry"* is the SERVED repository; a state directory inside some other git checkout is an accepted limit, since a check for any enclosing checkout would refuse a home directory kept in git, and no code changes. The holder's A8, a note with no line changed: a state directory that is itself a symbolic link trusts nothing, as F16.1's block already says, and the T100 follow-on aligns the code before T083's F16.1 run, since that run's case passes at `38d3350e` only because the link's target is writable by others. | `5982436447`, items 2 and 3; the holder's A8, recorded with it | the T100 follow-on (claim `5982447319`, no task); T100 (A14, as landed); T083 and T089 (F16.1's runs) |
+| P | requirement 17 (spec delta); 16.3a; F16.1 | A dated note in requirement 17's body, after batch M's, in batch D's form; two addenda at 16.3a, after batch M's text; and a note at F16.1, after batch M's block. No ratified text is rewritten. Item 2, A2: a binding's command may not name a file inside the served repository, and the broker lives outside it. The dated note records that batch M's note is narrowed in that one respect: a configuration whose command names a file inside the served repository is refused even when trusted, and the title, the SHALL paragraph, batch K's and batch M's notes and all four scenarios stand. Such a binding is refused by name where trust is recorded and where it is checked, before any spawn, naming the remedy (a broker installed outside the repository), and it reads untrusted. Item 3, A14: 16.3a's *"a tree a clone could carry"* is the SERVED repository; a state directory inside some other git checkout is an accepted limit, since a check for any enclosing checkout would refuse a home directory kept in git, and no code changes. The holder's A8, a note with no line changed: a state directory that is itself a symbolic link trusts nothing, as F16.1's block already says, and the T100 follow-on aligns the code before T083's F16.1 run, since that run's case passes at `38d3350e` only because the link's target is writable by others. | `5982436447`, items 2 and 3; the holder's A8, recorded with it | the T100 follow-on (claim `5982447319`, no task); T100 (A14, as landed); T083 and T089 (F16.1's runs) |
 
 R1Q4 (a) and R1Q8 (a) amend nothing in #1144. They shape T015, T038, T046 and
 T036 only. Nor do three of round 2's answers. R1Q13 (a) with (c) shapes T050,

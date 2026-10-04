@@ -694,6 +694,28 @@ batch K's note and all four scenarios stand as ratified, and the requirement
 still carries four scenarios. The rule is box 16.3a of this change's
 `tasks.md`, and it is carried out in plan 034's T100.
 
+**AMENDED 2026-10-04 ON BRETT HEAP'S RULING, AFTER RATIFICATION, BY ITS OWN
+RATIFIER (T007 BATCH P).** `#656` comment `5982436447`, item 2, verbatim
+*"Refuse in-repo programs (Recommended)"*. Batch M's note above says that the
+first scenario's turns reach a configured endpoint once its configuration is
+trusted on the machine that serves it. A trust names a digest of the
+configuration's record, and the record names a credential broker's program
+only by its path, so a program inside the served repository could change
+under a trusted configuration with a pull. The ruling narrows batch M's note
+in one respect only: where the program a configuration runs may live. A
+configuration whose command names a file inside the repository the product
+SERVES is refused even when it is trusted. It is refused by name when trust
+would be recorded for it and again before any process is spawned, and the
+refusal names the remedy, a broker installed outside the repository. So a
+trusted configuration reaches its endpoint as the first scenario says only
+when its broker lives outside the served repository. Nothing else here
+moved: the requirement's title, the paragraph above with its SHALL
+sentences, batch K's note, batch M's note and all four scenarios stand as
+ratified, and the requirement still carries four scenarios. The rule is
+recorded at box 16.3a of this change's `tasks.md`, and it is carried out in
+a follow-on openDox-code PR to plan 034's T100 (`#656` comment
+`5982447319`), which is no task of that plan.
+
 #### Scenario: A hosted API or a local server is configured
 - **WHEN** a user configures an endpoint that speaks the OpenAI-compatible chat protocol by its URL, a model name and a credential reference, whether it is a hosted API or a server on their own machine
 - **THEN** chat turns go to that endpoint in that protocol's grammar, naming that model, and the credential is resolved from the reference for the call rather than read from the configuration
