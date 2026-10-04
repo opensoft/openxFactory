@@ -722,19 +722,22 @@ rulings `#656` comments `5984069416`, which implements `5983805990`, and
 directory outside it and with an environment that points away from it: `PWD`,
 `OLDPWD` and any variable whose value is a path inside the repository are
 dropped, and a path list loses each entry inside it, each judged both as named
-and as it resolves. A launcher's own assignments are judged as the environment
-is. A path given to the program that finally runs as an option's value, after
-`=` or attached to a single-dash option (`-I<repo>/lib`), is judged as the
-command's paths are. A general program outside the repository that runs code
-from its own arguments, and any other path embedded inside an option string
-given to the program that finally runs (never a launcher's own option), are an
-accepted release-1 limit, since the trusted command is digested and the
-working directory and environment point away from the repository. Such a
-configuration is refused by name when trust would be recorded for it and again
-before any process is spawned, and the refusal names the remedy, a broker
-installed outside the repository. A program that cannot be found runs nothing:
-it is not refused when trust would be recorded, and when its broker is started
-the start fails and the configuration is refused by the existing named refusal
+and as it resolves. A launcher's own assignment (`env NAME=value`) is not
+dropped but refused by name, when trust would be recorded and again before any
+process is spawned, where its value is a path inside the repository or a path
+list with an entry inside it, each judged both as named and as it resolves. A
+path given to the program that finally runs as an option's value, after `=` or
+attached to a single-dash option (`-I<repo>/lib`), is judged as the command's
+paths are. A general program outside the repository that runs code from its
+own arguments, and any other path embedded inside an option string given to
+the program that finally runs (never a launcher's own option), are an accepted
+release-1 limit, since the trusted command is digested and the working
+directory and environment point away from the repository. Such a configuration
+is refused by name when trust would be recorded for it and again before any
+process is spawned, and the refusal names the remedy, a broker installed
+outside the repository. A program that cannot be found runs nothing: it is not
+refused when trust would be recorded, and when its broker is started the start
+fails and the configuration is refused by the existing named refusal
 `broker_unreachable` (the holder's ruling `#656` comment `5985553609`, which
 reads "a real file" by what it forbids to run). So a trusted configuration
 that runs a credential broker reaches its endpoint as the first scenario says

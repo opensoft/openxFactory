@@ -2871,9 +2871,15 @@ written (`5962754358`). `consumer_reach.py` is gone.
       starts with its working directory outside it and with an environment
       that points away from it (no `PWD`, `OLDPWD` or other variable naming
       a path inside it, and no path-list entry inside it, Copilot
-      `r4179236753`), as defence in depth. A general program
-      outside the repository that runs code from its own arguments (`awk`,
-      `find -exec`) is an accepted release-1 limit. A broker such as
+      `r4179236753`), as defence in depth. A launcher's own assignment
+      (`env NAME=value`) is not dropped but refused by name, at trust and
+      before any spawn, where its value is a path inside the repository or
+      a path list with an entry inside it, each judged as named and as
+      resolved (Copilot `r4179308849`). Any other path embedded inside an
+      option string given to the program that finally runs, such as one in
+      `NODE_OPTIONS=--require=…`, is an accepted release-1 limit, and so is
+      a general program outside the repository that runs code from its own
+      arguments (`awk`, `find -exec`). A broker such as
       `sh -c "pass show key"` is declared as `["pass", "show", "key"]`, or as
       a script kept outside the repository;
     - A8, the holder's ruling recorded with it: a state directory that is
