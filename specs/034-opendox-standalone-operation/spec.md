@@ -809,8 +809,10 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   embedded inside an option string given to the program that finally
   runs, such as one carried in a variable like `NODE_OPTIONS=--require=…`,
   is part of the accepted release-1 limit, as the batch-P note says; a
-  launcher's own options are never part of it. A program that runs code
-  from its own arguments is an accepted release-1 limit. This is
+  launcher's own options are never part of it. A general program outside
+  the repository that runs code from its own arguments (`awk`, `find
+  -exec`), other than a shell or an interpreter given an inline script, is
+  an accepted release-1 limit. This is
   requirement 17 as its batch-P note reads it (`5982436447`, item 2,
   `5983805990` and `5985046107`; 16.3a). With no model
   configured, it SHALL show a "no model configured" state before any turn,
