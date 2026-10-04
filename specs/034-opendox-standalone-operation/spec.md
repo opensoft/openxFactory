@@ -774,10 +774,16 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   outside the repository, and so SHALL one whose program is a shell or an
   interpreter given an inline script, directly or through a common
   launcher such as `env` (`5984069416`). The program SHALL be a real file
-  outside the served repository, and every broker SHALL start with its
-  working directory outside it and without `PWD` or `OLDPWD`. A program
-  that runs code from its own arguments is an accepted release-1 limit. This is requirement 17 as its batch-P note
-  reads it (`5982436447`, item 2, and `5983805990`; 16.3a). With no model
+  outside the served repository, and every path the command names, the
+  program and each argument alike, SHALL be judged both as named and as it
+  resolves, when trust is recorded and before any spawn, so a link or a
+  `PATH` entry that leads inside, or an in-repo link that points outside,
+  is refused. Every broker SHALL start with its working directory outside
+  the repository and with an environment that points away from it: no
+  `PWD` or `OLDPWD`, no variable whose value is a path inside it, and no
+  path-list entry inside it. A program that runs code from its own
+  arguments is an accepted release-1 limit. This is requirement 17 as its
+  batch-P note reads it (`5982436447`, item 2, and `5983805990`; 16.3a). With no model
   configured, it SHALL show a "no model configured" state before any turn,
   and every other surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);
   R1Q17 (b): a built-in `env:` and keyring resolver in that module; R1Q18 (a):

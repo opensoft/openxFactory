@@ -3479,8 +3479,12 @@ and redesigns none of them.
     starts, and the inline-script and path rules apply to THAT program (the
     holder's ruling `5984069416`, implementing `5983805990`);
   - every broker also starts with its working directory outside the served
-    repository, and without `PWD` or `OLDPWD` in its environment, as defence
-    in depth;
+    repository, as defence in depth, and with an environment that points
+    away from it: `PWD` and `OLDPWD` are dropped, and so is every other
+    variable whose value is a path inside the served repository, while a
+    path list (`PATH`, `PYTHONPATH`, `NODE_PATH` and the like) loses each
+    entry that lies inside it, so a runtime cannot load code from the
+    repository through its search path;
   - an ACCEPTED release-1 limit: a general program outside the repository
     that runs code from its own arguments (`awk`, `find -exec`, …) is not
     judged by the argv check. The trusted argv is digested, and the working
@@ -3718,10 +3722,15 @@ and redesigns none of them.
     ./tools/broker.py"]`, and `python -c` in the same form) is refused by
     name by the same four commands and before any spawn, as above, with no
     marker file, whatever the script names, and so is one that reaches an
-    inline script through a launcher (`["/usr/bin/env", "python3", "-c",
-    "…"]`, the holder's `5984069416`). A trust recorded for it before the
-    rule does not admit it: it reads untrusted, and the catalog lists it
-    with `available: false`.
+    inline script through a launcher, the holder's `5984069416`. The
+    launcher case runs once for each launcher named in 16.3a's addendum, in
+    an option-bearing form wherever the launcher takes options:
+    `["/usr/bin/env", "-i", "python3", "-c", "…"]`, `["nice", "-n", "5",
+    "python3", "-c", "…"]`, `["nohup", "python3", "-c", "…"]`,
+    `["timeout", "-s", "KILL", "5", "python3", "-c", "…"]`, `["stdbuf",
+    "-oL", "python3", "-c", "…"]` and `["setsid", "-w", "python3", "-c",
+    "…"]`. A trust recorded for it before the rule does not admit it: it
+    reads untrusted, and the catalog lists it with `available: false`.
   - **An alias is judged both as named and as it resolves.** Each of these
     is refused by the same four commands and before any spawn, with no
     marker file, for the program and for an interpreter's script argument
@@ -3741,8 +3750,11 @@ and redesigns none of them.
     outside the served root: the test starts `opendox` with its own
     working directory at the served root, so a broker that inherited it
     would record a directory inside the root, and the broker records the
-    directory it starts in and finds neither `PWD` nor `OLDPWD` in its
-    environment.
+    directory it starts in and its environment. It finds neither `PWD` nor
+    `OLDPWD`, no variable whose value is a path inside the served root, and
+    no entry inside the root in a path list. The test starts `opendox` with
+    `PYTHONPATH` and `PATH` each carrying an entry inside the served root,
+    so an inherited one would show.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
