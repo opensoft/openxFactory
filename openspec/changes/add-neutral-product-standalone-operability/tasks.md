@@ -3484,7 +3484,8 @@ and redesigns none of them.
     variable whose value is a path inside the served repository, while a
     path list (`PATH`, `PYTHONPATH`, `NODE_PATH` and the like) loses each
     entry that lies inside it, so a runtime cannot load code from the
-    repository through its search path;
+    repository through its search path. Each such path is judged, as the
+    command's paths are, both as named and as it resolves;
   - an ACCEPTED release-1 limit: a general program outside the repository
     that runs code from its own arguments (`awk`, `find -exec`, …) is not
     judged by the argv check. The trusted argv is digested, and the working
@@ -3757,7 +3758,10 @@ and redesigns none of them.
     no entry inside the root in a path list. The test starts `opendox` with
     `PATH`, `PYTHONPATH` and `NODE_PATH` each carrying an entry inside the
     served root, and with a scalar variable, such as `OPENDOX_TEST_HOME`,
-    set to a directory inside it, so an inherited one would show.
+    set to a directory inside it, so an inherited one would show. It does
+    the same again through aliases: a `PYTHONPATH` entry and a scalar
+    variable that each name a symbolic link outside the served root whose
+    target lies inside it.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
