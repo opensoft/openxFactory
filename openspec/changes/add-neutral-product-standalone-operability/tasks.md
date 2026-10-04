@@ -3820,8 +3820,9 @@ and redesigns none of them.
     "<root>"`; and the long form naming `<outside>/alias`, the link to
     `tools` inside the served root, and naming `tools/out`, the in-repo
     link to a directory outside it.
-  - **A path an option carries, and an unreadable split string, are
-    refused** (the holder's `5985046107`, C1 and C4). Each command below is
+  - **A path an option carries, an unreadable split string and a launcher
+    option that cannot be read are refused** (the holder's `5985046107`, C1
+    and C4). Each command below is
     refused by name by the same four commands and before any spawn, and
     leaves no marker file. `<outside>/broker` is an executable in the
     case's scratch directory that writes one when it runs, and
@@ -3838,7 +3839,18 @@ and redesigns none of them.
     - `["env", "-S", "sh\\_-c\\_id"]` (escaped as JSON: the string is
       `sh\_-c\_id`, which GNU `env` reads as `sh -c id`) is refused as an
       inline script, since a split string that holds a backslash or a `$`
-      is unreadable.
+      is unreadable;
+    - `["<outside>/broker", "--config=<root>/conf"]` is refused as a
+      command that names a file inside the served repository, since the
+      value after `=` of the final program's option is judged;
+    - `["<outside>/broker", "-o<root>/out"]` is refused the same way, since
+      an output path into the repository is refused too, an accepted
+      strictness;
+    - `["env", "--i", "<outside>/broker"]` is refused by name, fail-closed,
+      since `--i` is an ambiguous prefix (`--ignore-environment`,
+      `--ignore-signal`);
+    - `["env", "--no-such-option", "<outside>/broker"]` is refused by name,
+      fail-closed, since `env` has no such option.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
