@@ -3653,10 +3653,11 @@ and redesigns none of them.
   realization follows this block's ratified text: a state directory that is
   itself a symbolic link is refused by name, and it trusts nothing. The T100
   follow-on openDox-code PR (claim `5982447319`) aligns the code and adds
-  that case, before T087. So F16.1's runs by T083 and T089, each at an
-  openDox-code commit that carries the follow-on, hold the realization to
-  the block as written, and a run at `38d3350e` closes nothing. This
-  bookkeeping amendment does not itself touch the command above.
+  that case, before T087. So T089's run of F16.1, at T087's pin, which
+  carries the follow-on, holds the realization to the block as written.
+  T083's run at `38d3350e` predates the follow-on, and plan 034 records that
+  it does not show this case. This bookkeeping amendment does not itself
+  touch the command above.
 
   **AMENDED — T007 Batch P (`5982436447`, item 2):** F16.1 also falsifies
   16.3a's batch P addendum (A2). The command is unchanged: the named file of
@@ -3675,9 +3676,10 @@ and redesigns none of them.
     with its program outside the served root, once trusted, runs as batch
     M's block says.
 
-  Until the T100 follow-on (claim `5982447319`) lands, these cases fail. The
-  runs of F16.1 by T083 and T089 are at an openDox-code commit that carries
-  it. This bookkeeping amendment does not itself touch the command above.
+  Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
+  T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
+  predates both the follow-on and this addendum. This bookkeeping amendment
+  does not itself touch the command above.
 
 ## Follow-ons named here and NOT authored here
 

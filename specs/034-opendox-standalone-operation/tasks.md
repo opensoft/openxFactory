@@ -92,7 +92,7 @@ planned on answers.
   (#1228, on Brett Heap's words `5970917267`, `5962754358` (item 1) and
   `5963162921`). Batch P, on Brett Heap's word of 2026-10-04
   (`5982436447`) and the holder's rulings recorded with it, lands before
-  T083 and T087, and T007 lists each.
+  T087, and T007 lists each.
 - **Each phase-1 task** starts once its slice has been claimed (T002).
   **T020** and **T030** never needed an answer. **T030** lands with T011,
   because it fails until 2.1 lands. **T043** also waits for T007's batches C
@@ -398,13 +398,15 @@ planned on answers.
     - The holder's A8. A note at F16.1, after batch M's block, with no line
       changed: a state directory that is itself a symbolic link trusts
       nothing, as the block already says, and the T100 follow-on aligns the
-      code with it, before T083's F16.1 run.
+      code with it. T083's run at `38d3350e` predates it, so T089's run of
+      F16.1 at T087's pin is the one that shows it.
 
     The holder's B2 (a platform without the POSIX primitives refuses the
     start by name, as openDox-code#69's bundle does) needs no line: 12.4a
     already says that a copy which cannot be written safely refuses the
-    start by name. It lands before T083, which runs F16.1 with A2's cases,
-    and before T087, the pin that carries T104 and the T100 follow-on.
+    start by name. It lands before T087, the pin that carries T104 and the
+    T100 follow-on, and so before T089, whose run of F16.1 holds A2's
+    cases.
 
   A realization PR that lands before its batch still quotes the falsifier as
   the answer records it, citing the ruling.
@@ -454,12 +456,12 @@ planned on answers.
       given. O lands before the landing that renames the assembled-tree node
       (P3-X's, openXdox-code#37) and before the publish at the cut (P3-U's).
       This line names those landings by slice, for the same reason as K's.
-    - **P**: nothing, since `5982436447` is given. P lands before the run of
-      F16.1 with A2's cases (P3-N's), and before the openDox root's phase-3
-      pin (P3-P's), which carries the console token's landing (P3-C's,
-      openDox-code#84) and P3-T's binding-trust follow-on (claim
-      `5982447319`). This line names those landings by slice, for the same
-      reason as K's.
+    - **P**: nothing, since `5982436447` is given. P lands before the openDox
+      root's phase-3 pin (P3-P's), which carries the console token's landing
+      (P3-C's, openDox-code#84) and P3-T's binding-trust follow-on (claim
+      `5982447319`), and so before the checkpoint's run of F16.1 with A2's
+      cases. This line names those landings by slice, for the same reason as
+      K's.
   - **Landed**: batches A to O, each an openxFactory PR with no `Arc:` trailer.
     A #1171 → `bca4a260`; B #1194 → `e369cb25`; C #1172 → `4663e9e8`; D #1170 →
     `79a720a2`; E #1183 → `b9742534`; F #1178 → `295abd8d`; G #1205 →
@@ -2691,7 +2693,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
       it. The holder told T084's writer to cover the turn route in its test.
     - This landing completes T085's falsifier, which is why T085 is ticked with
       it.
-- [ ] T082 [US3] [oDc] **16.5: every other surface works with no model.** The
+- [x] T082 [US3] [oDc] **16.5: every other surface works with no model.** The
   named test covers documents, generation, the views, sessions and saving,
   which answer through R1Q10 (a)'s defaults (T084) exactly as they do with a
   model configured.
@@ -2699,7 +2701,49 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Falsifier**: `tests/test_chat_model_configuration.py`.
   - **Ruled**: R1Q10 (a), `5850003126`.
   - **After**: T081, T084, T085.
-- [ ] T100 [US3] [oDc] **16.3a: a served repository's bindings are trusted per
+  - **Landed**: openDox-code#76 → `ca9e1bd5`.
+    - Section 6 of `tests/test_chat_model_configuration.py` starts two
+      standalone `generate-and-open --local` children over the same commit:
+      "no model" (no binding, and no `omp` on the PATH) and "a binding" (a
+      byte copy of that checkout after `opendox model-binding add`). Each
+      request goes to both. Each answer must be an HTTP response, no sibling
+      import may be refused, and the two must be equal in status, content
+      type and body. Only `/capabilities` sets values aside, the per-process
+      `console_token` and `install.database_bundle` values, and its shape is
+      still compared.
+    - The surfaces are documents (`/snapshot.json`, `/source/…`,
+      select-to-edit), generation (`opendox.cli generate`, byte-equal), the
+      views (the bundle's files, and the wheel, lens and document-summary
+      models run under node), sessions (the gate verbs, refused alike with
+      nothing changed), the session reads and controls through T084's seams,
+      saving (refused alike, nothing written), and the model settings. There
+      the intake answers `offered: false` with
+      `column_seams.GATE_RECORDS_REFUSAL`, model approval answers
+      `approval_refused`, and the document abstract
+      `model_capability_unavailable` (`5961364221`, item 1).
+    - The fix the cases needed, on the holder's ruling (a) of 2026-10-02:
+      openDox's settings documents are not the user's documents. `model-binding
+      add` writes its bindings document into the checkout, so before the fix
+      it joined the working-tree corpus and moved `/snapshot.json`'s digest.
+      `doxbench_intake.SETTINGS_DOCUMENTS` declares the bindings and
+      declarations documents once, from their path constants, and
+      `WorkingTreeCorpus` leaves exactly those keys out of its listing and of
+      a whole-corpus check (`excluded`, which defaults to that tuple).
+      `default_columns.SETTINGS_DOCUMENTS` (T084) builds its set from the same
+      tuple.
+    - The five cases that waited for T084 as strict xfails pass since #77
+      landed, and the named file reads `83 passed` with no xfail. All 20
+      mutants were killed at the PR's head `9948dc2b`, among them the
+      holder's two: drop the exclusion, and widen it to the directory. CI's
+      floors were re-pinned to 3977 selected and 3966 passed, and
+      `EXPECT_SKIPPED` stays 11.
+    - What the cases do not assert: the gate verbs answer `404
+      unknown_action` in both postures, and the sessions and saving cases
+      assert only that each verb is refused alike and writes nothing. The
+      standalone answer is T084's to decide.
+    - T083 re-ran the named file inside F16.1 at `38d3350e`: `83 passed`
+      ([`evidence/f16.1-run.md`](evidence/f16.1-run.md)).
+- [x] T100 [US3] [oDc] **16.3a: a served repository's bindings are trusted per
   machine.** RULED `5962785556`, item 2, Brett Heap, 2026-10-02: *"Trust per
   machine (Recommended)"*. It works like direnv. T007's batch M adds box
   16.3a to #1144, with a dated note in requirement 17 and an added block for
@@ -2797,10 +2841,11 @@ written (`5962754358`). `consumer_reach.py` is gone.
     file F16.1's batch M line runs, as #1144's F16.1 records them (T007's
     batch P). A14, RULED `5982436447`, item 3, *"Served repo only, limit
     (Recommended)"*, changes no code: a state directory inside some other
-    git checkout is an accepted limit. The follow-on lands before T083's
-    F16.1 run, whose linked-state-directory case it makes meaningful (A8),
-    and before T087. It changes the shipped package, so by T101's rule it
-    also lands before T101's version bump. T007's batch P records A2, A14 and A8 in #1144.
+    git checkout is an accepted limit. The follow-on lands before T087, so
+    T089's run of F16.1 at T087's pin is the one that covers its cases and
+    A8's linked-state-directory case. T083's run at `38d3350e` predates it
+    (T083's entry records that). It changes the shipped package, so by
+    T101's rule it also lands before T101's version bump. T007's batch P records A2, A14 and A8 in #1144.
   - **Realizes**: 16.3a.
   - **Falsifier**: F16.1's batch M block, and
     `tests/test_model_binding_trust.py`.
@@ -2810,19 +2855,101 @@ written (`5962754358`). `consumer_reach.py` is gone.
     no task of this plan), T081 (`doxbench_install.py`'s single-writer
     order), T072 (the state directory), T084 (`serve_workbench.py`'s
     single-writer order: the console intake's hand-off), T007 (batch M).
-- [ ] T083 [US3] [oDc] **16.6, then F16.1.** `tests/test_provider_boundary.py`
+  - **Landed**: openDox-code#82 → `38d3350e`.
+    - `doxbench_trust.py` (new, standard library only) keys a trust on the
+      repository root's resolved path, the binding's id and the `sha256` of
+      the binding's canonical full record (`as_record()`). So any edit
+      untrusts it, and so does the same file under another root. The auth
+      kind `none` is held to the rule too, since it still sends chat content
+      to the endpoint the file chose.
+    - The store is one owner-only file, `model-binding-trust.json`, under
+      `OPENDOX_STATE_DIR` (#69's `config.state_dir`), with no credential in
+      it. It is read only once it passes #69's tree checks, and written
+      through an exclusive no-follow temporary file and a rename, under a
+      lock on `model-binding-trust.lock`, so two processes recording at once
+      keep both trusts. A store that fails a check trusts nothing, and the
+      refusal names it. A state directory equal to the served root, or under
+      it, is refused naming `OPENDOX_STATE_DIR` before anything is written.
+    - The factory asks the policy about the first approved binding. An
+      untrusted one becomes `UntrustedBindingPort`: listed `available:
+      false`, every dispatch refused by name, and a notice on stderr naming
+      the id and the command that trusts it. In depth, `doxbench_provider`
+      refuses the broker operations, the built-in resolver, `dispatch` and
+      `catalog` for a binding no verdict covers. A checkout with no bindings
+      never asks the policy and never touches the state directory.
+    - `add` and `edit` record trust first, so a refusal writes nothing.
+      `trust <id>` takes no `--yes`. It prints the broker argv, the endpoint,
+      the auth kind and the credential reference, each in a JSON string's
+      form, resolves and runs nothing, and records exactly that record.
+      `set-credential` refuses an untrusted binding before its broker runs,
+      and re-trusts a trusted one it rewrites. `list` reads the document once
+      and adds a trust line and a console line per binding.
+    - A binding the catalog cannot list is never trusted, under any policy,
+      and its refusals name the remedy (`edit`, or `remove` then `add`), not
+      `trust`. Every printed command carries only operands a POSIX shell
+      reads back exactly.
+    - The console intake asks the policy its own question,
+      `intake_verdict_for`. openDox's strict default always refuses it by
+      name (`INTAKE_BROKER_UNTRUSTED`), before reading the body, and a host
+      admits it only through its own `intake_verdict`.
+    - The seam (`register`, `register_default`, `current`, `policy`,
+      `unregister`) is registered lazily by its consumers. So `cli.py` and
+      `serve.py` are not edited, a bare process is held to the strict
+      default, and a host's registration wins.
+    - `tests/test_model_binding_trust.py` is batch M's suite, `135 passed` at
+      the PR's head `adb19f1e`. Its first two cases are the adversarial
+      review's two findings, and on `main` `8e377823` they fail for the
+      defect's own reasons. 94 of 94 mutants were killed. Every finding of
+      eight Copilot rounds and of an adversarial self-pass was fixed with a
+      case that failed first. The whole suite at the head reads `3945 passed,
+      177 skipped, 0 failed`. `EXPECT_SKIPPED` stays 11, and the floors are
+      not moved.
+    - For T094: openxFactory registers its own `GovernedBindingTrust` (RULED
+      `5970369724`), which must answer `intake_verdict` too.
+      `_GovernedHostPolicy` in the test file is its stand-in.
+    - Since the landing, Brett Heap ruled on two findings of the holder's
+      adversarial review (`5982436447`, items 2 and 3). A binding's command
+      may not name a program inside the served repository, which a T100
+      follow-on openDox-code PR carries before T087. A state folder inside
+      some other checkout is an accepted limit, recorded by a later T007
+      batch.
+    - T083 re-ran the named file inside F16.1 at `38d3350e`: `135 passed`
+      ([`evidence/f16.1-run.md`](evidence/f16.1-run.md)).
+- [x] T083 [US3] [oDc] **16.6, then F16.1.** `tests/test_provider_boundary.py`
   stays green as 16.1 joins the one module. Then run F16.1 whole, with the
   line T007's batch M adds (`tests/test_model_binding_trust.py`, T100).
   - **Realizes**: 16.6, F16.1.
   - **Falsifier**: `tests/test_provider_boundary.py` for 16.6, then F16.1
-    whole, as batches M and P amend it.
-  - **After**: T080, T081, T082, T100, T007 (batch P: F16.1's A2 cases).
-  - Its F16.1 run also follows T100's follow-on (claim `5982447319`, no task
-    of this plan). At `38d3350e`, F16.1's case of a state directory
-    replaced by a symbolic link passes only because the link's target is
-    writable by others (the holder's A8, recorded with `5982436447`). So
-    the run that closes F16.1 is one at an openDox-code commit that carries
-    the follow-on, and a run at `38d3350e` closes nothing.
+    whole, as batch M amends it.
+  - **After**: T080, T081, T082, T100.
+  - **Landed**: [`evidence/f16.1-run.md`](evidence/f16.1-run.md), run on
+    2026-10-04 at openDox-code `main` `38d3350e`, T100's landing (#82), after
+    T082 (#76 → `ca9e1bd5`). It is quoted in openxFactory, in the
+    checkpoints' form, as T077's and T074's runs are.
+    - 16.6: `tests/test_provider_boundary.py`, from a fresh clone, in a venv
+      installed by CI's own command, reads `24 passed`. The file is unchanged
+      since T034, and the boundary is still one module wide with 16.1's
+      `openai-chat-v1` arm and T100's `doxbench_trust.py` in the package.
+    - F16.1, extracted byte for byte from #1144 at `596a9a90` (the same bytes
+      at `d0af2574`) with batch M's line, exits 0 from a fresh clone and its
+      own fresh venv, in an `env -i` environment with no `omp` on the PATH:
+      `24 passed`, `dialect and model declared; a raw key is refused in a
+      field and in the URL`, `no model configured: the catalog offers
+      nothing`, `83 passed` and `135 passed`.
+    - Supplementary: two planted controls each turn the instrument red (a
+      provider endpoint and `urllib.request` in `doxbench_trust.py`; the
+      chat-completions route in `doxbench_binding.py`), so it is not
+      vacuous. 16.6's own measurement reproduces at `1e4a57fb` (`12 failed,
+      16 passed` under `--noconftest`).
+    - Not covered: openDox-code#84 (T104) and the T100 follow-on
+      (`5982436447`, item 2), which had not landed. T089 runs F16.1 again.
+    - **Batch P** (`5982436447`; T007's batch P): this run predates the T100
+      follow-on, so it shows neither F16.1's batch P cases (A2's in-repo
+      broker) nor A8's case as the holder ruled it. Its case of a state
+      directory replaced by a symbolic link passed at `38d3350e` only
+      because the link's target was writable by others. T089's run of F16.1
+      at T087's pin, which carries the follow-on, is the one that covers
+      both, as batches M and P amend it.
 - [x] T102 [US3] [oDc] **The staging workbench offers the editors and the chat
   rail by scope.** The editors and the chat rail appear wherever the scope
   lets the document be edited. Only creating documents and Save stay behind
@@ -3841,7 +3968,7 @@ Every release-1 box, with the task that closes it:
 | 10 (5) | 10.1 → T038 · 10.2 → T075 · 10.2a → T075 · 10.3 → T076, T101, T099 · F10.1 → T077 |
 | 11 (3) | 11.0 → T091 · 11.1 → T045, T092 · F11.1 → T093 (all at arc close) |
 | 13 (8) | 13.1 → T072 · 13.2 → T071 · 13.3 → T071 · 13.4 → T070 · 13.4a → T073 · 13.5 → T070 · 13.6 → T070 · F13.1 → T074 |
-| 16 (8) | 16.1 → T078 · 16.2 → T079 · 16.3 → T080 · 16.3a → T100 (added by T007's batch M) · 16.4 → T081, T085, T102 · 16.5 → T082 · 16.6 → T034, T083 · F16.1 → T083 |
+| 16 (8) | 16.1 → T078 · 16.2 → T079 · 16.3 → T080 · 16.3a → T100 (added by T007's batch M) · 16.4 → T081, T085, T102 · 16.5 → T082 · 16.6 → T034, T083 · F16.1 → T083 (at `38d3350e`), T089 (batch P's cases, at T087's pin) |
 
 8 + 5 + 5 + 12 + 8 + 8 + 5 + 3 + 8 + 8 = **70**.
 
@@ -3856,7 +3983,7 @@ Every release-1 box, with the task that closes it:
   T080, I before T059, T060, T061 and T063, J before T049, whose F9.1
   run needs J's `--deselect`, K before T061, T063 and T080 (and
   openDox-code#64, which is no task of this plan), L before T084, M before
-  T100, N before T095, O before T086 and T099, and P before T083 and T087.
+  T100, N before T095, O before T086 and T099, and P before T087.
   T016 may
   land before
   batch A, T041 and T043 before batch B, and T043 before batch J, each
@@ -3891,7 +4018,7 @@ Every release-1 box, with the task that closes it:
   batch H amends it, so both follow T072: T072 → T075 → T077. Then T082,
   which comes after T081, T084 and T085, and T100, which comes after T080,
   openDox-code#64, T081, T072, T084 and T007's batch M. Then T083, after
-  T082, T100 and T100's follow-on (no task; the holder's A8). Then T087 (the phase-3 openDox root pin) → T086 → T094 →
+  T082 and T100. Then T087 (the phase-3 openDox root pin) → T086 → T094 →
   T098 → T089, and T087 → T076 → T089.
   T084 → T102 (the workbench by scope, also after T081 and T088) and T084 →
   T103 (the loopback Host check, in `serve.py`'s order). Then T103 → T104
@@ -3910,7 +4037,7 @@ Every release-1 box, with the task that closes it:
 |---|---|---|
 | 1 | T010–T012 ∥ T015–T016 ∥ T020–T022 ∥ T025–T027 ∥ T030 | `serve.py` and `cli.py` writers; `pyproject.toml` (T038 → T036); `tests/test_authoring_seam.py` (T020 → T021 → T022); openDox-code's `validate.yml` (T036 → T037); T020 → T025 and T026 → T025; T032 → T037; T039 (root pin) → openXdox (T040, then T041 → T042 → T043 → T044) → T047 → T017, T018 |
 | 2 | T053 ∥ T050, then T052 ∥ T057 ∥ T051 | T053 → T054 → T055 → T056 → T058; T062 → T059 → T061 → T066 → T064; openXdox-code `pyproject.toml` (T059 → T061); ratchet writers; T007 batch I before T059, T060 and T061; batch K before T061 |
-| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072; T082 ∥ 16.3a (T100, then its follow-on, no task), then T083 | `serve.py` and `cli.py` (T070, T072 and T073 before T084, and T103, then T104, after it); T084 → T102 → T104; `serve_workbench.py` (T084 → T100); openDox-code `pyproject.toml` (T072 → T075 → T101); `doxbench_binding.py` (T078 → T080, then T100 after openDox-code#64); `cli_model_binding.py` (T079 → T080 → T100); `doxbench_install.py` (T081 → T100); T085 → T081; T087 → T086 → T094; T101 → T087; T089 → T099 and T096 → T099 (the publish, at the cut) |
+| 3 | Group 13 ∥ 16.1–16.3 ∥ T085 → 16.4 (T081) ∥ T088, then T075 → T077 after T072; T082 ∥ 16.3a (T100), then T083; T100's follow-on (no task) before T087 | `serve.py` and `cli.py` (T070, T072 and T073 before T084, and T103, then T104, after it); T084 → T102 → T104; `serve_workbench.py` (T084 → T100); openDox-code `pyproject.toml` (T072 → T075 → T101); `doxbench_binding.py` (T078 → T080, then T100 after openDox-code#64); `cli_model_binding.py` (T079 → T080 → T100); `doxbench_install.py` (T081 → T100); T085 → T081; T087 → T086 → T094; T101 → T087; T089 → T099 and T096 → T099 (the publish, at the cut) |
 
 ## Phase 1 writer slices (for the fan-out)
 
@@ -3992,7 +4119,7 @@ Every phase-3 slice starts after T063 and T069, and T007's batch H lands
 before P3-I's T070, P3-E's T075 and P3-B's T080. Batch K also lands before
 P3-B's T080, batch L before P3-R's T084, batch M before P3-T's T100,
 batch N before the acceptance's T095, batch O before P3-X's T086 and
-P3-U's T099, and batch P before P3-N's T083 and P3-P's T087.
+P3-U's T099, and batch P before P3-P's T087.
 
 | slice | group | tasks | repo | files | depends on | falsifier it must pass | size |
 |---|---|---|---|---|---|---|---|
@@ -4007,7 +4134,7 @@ P3-U's T099, and batch P before P3-N's T083 and P3-P's T087.
 | P3-V the loopback Host check | G2, after P3-R | T103 | oDc | `src/opendox/serve.py` (every loopback route checks `Host`; the `install` block behind it) | P3-R | the Host-check test | Opus |
 | P3-C the console token | G2, after P3-V and P3-S | T104 | oDc | `src/opendox/serve.py` (`/capabilities` stops carrying the token); `src/opendox/cli.py` (`generate-and-open`'s opened URL and the private copy); the web bundle's token readers (`src/opendox/web/app.js`, `src/opendox/web/views/edit.js` and `staging-workbench-model.js`) | P3-V, P3-S | the console-token test | Opus |
 | P3-T per-machine binding trust | G3 | T100 | oDc | the trust record and its lazily registered policy seam (a new module); `src/opendox/doxbench_install.py` (the gate where the bindings are read, after T081); `src/opendox/cli_model_binding.py` (`add` and `edit` record trust, the `trust` verb, `set-credential`'s gate and re-trust); `src/opendox/serve_workbench.py` (the console intake's broker hand-off, single-writer after T084); `tests/test_model_binding_trust.py` (new); `tests/test_model_provider_broker.py` (its hand-written-binding cases) | P3-B, openDox-code#64, P3-D, P3-I (T072), P3-R; T007 batch M | F16.1's batch M block: `tests/test_model_binding_trust.py` | Opus |
-| P3-N no model, everywhere | G3; T083 after P3-T and its follow-on, and T007 batch P | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B; P3-T and its follow-on for T083 | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole, as batches M and P amend it (T083) | Sonnet |
+| P3-N no model, everywhere | G3; T083 after P3-T | T082, T083 | oDc | `tests/test_chat_model_configuration.py`; `tests/test_provider_boundary.py` | P3-D, P3-R, P3-B; P3-T for T083 | the named test (T082); `tests/test_provider_boundary.py`, then F16.1 whole, as batch M amends it (T083) | Sonnet |
 | P3-P openDox root pin | G4 | T087 | oD | the `code` gitlink, `contracts/code-pin.yaml` and every workflow `@sha`, in ONE commit | every phase-3 openDox-code slice landed; T007 batch P | `make pins` | Sonnet |
 | P3-O the root README | G5 | T076 | oD | `README.md` (the install and the `--local` command; B3's browser limit and its `OPENDOX_STATE_DIR` remedy) | P3-P, P3-J, P3-E | review, including the browser limit; AT-R1 step 4 follows it | Sonnet |
 | P3-X openXdox's columns | G5 | T086 | oXc | the gate and projection contributions; `pyproject.toml` (the `opendox @` pin); `tests/test_dependency_direction.py` (the ratchet at `(0, 0)`); `tests/test_session_snapshot.py` and `tests/protected_suite_respellings.yaml` (F5.2's three repairs, RULED `5962785556`); `tests/integration/test_assembled_surface.py` and `.github/workflows/validate.yml`'s `LEFT_OUT` (the tree at 32, RULED `5970917267`); `tests/doxbench_routes_harness.py` and `tests/gate_routes_harness.py` (T104's token) | P3-P, P3-R; P2-C; T007 batch O | `tests/test_dependency_direction.py`; F9.1 as batches B and F amend it, and batch J's `--deselect` unless T008 has removed it; F5.2 whole | Opus |
@@ -4077,7 +4204,7 @@ landed it in #1144's spec delta, as #1170 → `79a720a2`.
 | O | 9.5 | An addendum after batch G's: a second exception to the proposal's *"cuts no bundle and owes no tag"*. openDox's first public release, version 0.1.0, is published to PyPI as `opendox` at release 1's cut, by trusted publishing, so 10.3's install line works as written. That release owes ONE tag, as T099 publishes it: at the cut, once AT-R1 has passed and on Brett Heap's publish word, the holder creates `v0.1.0` in openDox-code at the commit the openDox root's `contracts/code-pin.yaml` names (the version bump, the last phase-3 openDox-code landing that changes the shipped package), and the release workflow publishes only that commit. Every pin move other than batch G's still owes no release tag, and the proposal is not edited. | `5962754358`, item 1; `5963162921` | T101, T087, T099 |
 | O | 10.1; F9.1; F9.2 | Three addenda. At 10.1, after batch A's: the assembled `--help` tree has 31 sections through phase 2 and 32 from phase 3's pin, because T100 adds `model-binding trust`; openXdox-code's assembled-tree test moves to 32 at the pin move past T100, and openxFactory's phase-3 help golden, at 32, lands under `tests/domain_profile/fixtures/` in the non-arc PR ahead of T094, in T066's both-pins form (E1 (a), `5970369724`). At F9.1, after batch J's: the deselected node is renamed `test_the_assembled_help_tree_is_the_32_entry_tree_the_manifest_records` in that landing, with openXdox-code's `LEFT_OUT` entry, so the deselect never names a missing test; its reason and its removal by T008 are unchanged. At F9.2: the last line runs the 32-entry node from phase 3's pin, and F9.2 stays red on it until T008. 9.3's "31-entry" quotes the carve manifest and stands. | `5970917267` | T086; the non-arc PR ahead of T094 |
 | P | 12.4a | Two addenda after batch N's. Item 1, B3: snap and Flatpak browsers, and a Windows browser opened from WSL, cannot open the private copy's `file://` URL under the hidden default state directory, and the token is never printed. The start prints ONE more line, with no token and no URL that carries one, saying that such a browser should be used with `OPENDOX_STATE_DIR` set to a folder that is not hidden. The openDox root's README documents it, and release 1 ships with the limit. The holder's B7: the page's `history.replaceState` cleans only session history, so a browser's persistent history can keep `…/index.html#console_token=<token>`. That history is the same user's data as the 0600 copy, so release 1 accepts it, with no code change. | `5982436447`, item 1; the holder's B7, recorded with it | T104, T076 |
-| P | requirement 17 (spec delta); 16.3a; F16.1 | A dated note in requirement 17's body, after batch M's, in batch D's form; two addenda at 16.3a, after batch M's text; and a note at F16.1, after batch M's block. No ratified text is rewritten. Item 2, A2: a binding's command may not name a file inside the served repository, and the broker lives outside it. The dated note records that batch M's note is narrowed in that one respect: a configuration whose command names a file inside the served repository is refused even when trusted, and the title, the SHALL paragraph, batch K's and batch M's notes and all four scenarios stand. Such a binding is refused by name where trust is recorded and where it is checked, before any spawn, naming the remedy (a broker installed outside the repository), and it reads untrusted. Item 3, A14: 16.3a's *"a tree a clone could carry"* is the SERVED repository; a state directory inside some other git checkout is an accepted limit, since a check for any enclosing checkout would refuse a home directory kept in git, and no code changes. F16.1's A2 cases: the named file of batch M's line also asserts that a binding whose command names a program under the served root is refused by `add`, `edit`, `trust` and `set-credential`, naming the remedy, and that a trust recorded before the rule does not admit it once the program is edited, with no marker file; a broker outside the repository is still reached. The holder's A8, a note with no line changed: a state directory that is itself a symbolic link trusts nothing, as F16.1's block already says, and the T100 follow-on aligns the code before T083's F16.1 run, since that run's case passes at `38d3350e` only because the link's target is writable by others. | `5982436447`, items 2 and 3; the holder's A8, recorded with it | the T100 follow-on (claim `5982447319`, no task); T100 (A14, as landed); T083 and T089 (F16.1's runs) |
+| P | requirement 17 (spec delta); 16.3a; F16.1 | A dated note in requirement 17's body, after batch M's, in batch D's form; two addenda at 16.3a, after batch M's text; and a note at F16.1, after batch M's block. No ratified text is rewritten. Item 2, A2: a binding's command may not name a file inside the served repository, and the broker lives outside it. The dated note records that batch M's note is narrowed in that one respect: a configuration whose command names a file inside the served repository is refused even when trusted, and the title, the SHALL paragraph, batch K's and batch M's notes and all four scenarios stand. Such a binding is refused by name where trust is recorded and where it is checked, before any spawn, naming the remedy (a broker installed outside the repository), and it reads untrusted. Item 3, A14: 16.3a's *"a tree a clone could carry"* is the SERVED repository; a state directory inside some other git checkout is an accepted limit, since a check for any enclosing checkout would refuse a home directory kept in git, and no code changes. F16.1's A2 cases: the named file of batch M's line also asserts that a binding whose command names a program under the served root is refused by `add`, `edit`, `trust` and `set-credential`, naming the remedy, and that a trust recorded before the rule does not admit it once the program is edited, with no marker file; a broker outside the repository is still reached. The holder's A8, a note with no line changed: a state directory that is itself a symbolic link trusts nothing, as F16.1's block already says, and the T100 follow-on aligns the code. T083's run at `38d3350e`, which predates the follow-on, passed that case only because the link's target was writable by others, so T089's run at T087's pin is the one that shows it and A2's cases. | `5982436447`, items 2 and 3; the holder's A8, recorded with it | the T100 follow-on (claim `5982447319`, no task); T100 (A14, as landed); T089 (F16.1's run at T087's pin) |
 
 R1Q4 (a) and R1Q8 (a) amend nothing in #1144. They shape T015, T038, T046 and
 T036 only. Nor do three of round 2's answers. R1Q13 (a) with (c) shapes T050,

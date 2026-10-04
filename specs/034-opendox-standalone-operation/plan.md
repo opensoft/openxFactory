@@ -151,13 +151,15 @@ specs/034-opendox-standalone-operation/
     ├── f11.1-phase2.txt    # T065: phase 2's interim F11.1
     ├── checkpoint-phase2.md # T063: phase 2's checkpoint, quoted
     ├── f10.1-run.md        # T077: F10.1, run as batch H amends it, quoted
-    └── f13.1-run.md        # T074: F13.1, run as batch H amends it, quoted
+    ├── f13.1-run.md        # T074: F13.1, run as batch H amends it, quoted
+    └── f16.1-run.md        # T083: 16.6, then F16.1 as batch M amends it, quoted
 ```
 
 T018 added phase 1's interim F11.1 run, and T049 its checkpoint. T065 added
 phase 2's interim F11.1 run, and T063 its checkpoint. T077 added its F10.1
 run, quoted in the checkpoints' form on the holder's ruling of 2026-10-03,
-and T074 its F13.1 run in the same form.
+and T074 its F13.1 run in the same form. T083 added its 16.6 and F16.1 run,
+in the same form.
 Later tasks add their own records to `evidence/`:
 T098 adds the interim F11.1 run for phase 3, and T096 AT-R1. T009, T019 and T069 share one analyze record,
 `analyze-round-2.md`. Each is linked from this feature's README entry.
@@ -263,10 +265,10 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
                  T059 → T061 (7.3, after T007 batches C, F, I and K)
           [oxF]  T061 → T066 (a non-arc act: the seal test and the facet's values, at both pins)
           [oX]→[oxF]  T066 → T064 consumer pins → T065 (interim F11.1) → checkpoint T063 (after T007 batches C, F, G, I and K)
- PHASE 3  T069 is done; T007 batch H lands before T070, T075 and T080, batch K before T080, batch M before T100, batch N before T095, batch O before T086 and T099, and batch P before T083 and T087
+ PHASE 3  T069 is done; T007 batch H lands before T070, T075 and T080, batch K before T080, batch M before T100, batch N before T095, batch O before T086 and T099, and batch P before T087
           [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080;  T085 → T081
                  4.3 end: T084 (after T073, T007 batch L)          T072 → T075 → T077 (F10.1 as batch H amends it);  T082, T083, T088
-                 16.3a: T100 (after T080, openDox-code#64, T081, T072, T084, T007 batch M) → T083 (F16.1 as batches M and P amend it, also after the binding-trust follow-on, no task)
+                 16.3a: T100 (after T080, openDox-code#64, T081, T072, T084, T007 batch M) → T083 (F16.1 as batch M amends it, at `38d3350e`)
           [oD]   T087 root pin (after T007 batch P, and the T100 follow-on, no task) → T076 (README: the opendox[local] install and the --local command)
           [oXc]  T086 (columns, ratchet (0,0); the 32-entry node, after T007 batch O) at the pin T087 carries
           [oX]→[oxF]  T094 consumer pins + host wiring (after its non-arc ahead PR, the phase-3 help golden) → T098 (interim F11.1) → checkpoint T089 (after T076)
@@ -323,10 +325,10 @@ lists.
   (T078–T080), the doxBench defaults and then the no-model state (T085 →
   T081), the retirement of the late reaches (T084, after T073; then T086), and
   entry-point serving (T075, after T072). Per-machine binding trust (T100,
-  16.3a) follows the binding slice, the no-model state and T084. Its
-  follow-on (no task, `5982436447`) follows it, and both come before
-  F16.1's whole run (T083), whose linked-state-directory case means
-  nothing at `38d3350e` (the holder's A8). The workbench by scope (T102) and the
+  16.3a) follows the binding slice, the no-model state and T084, and comes
+  before F16.1's whole run (T083, at `38d3350e`). Its follow-on (no task,
+  `5982436447`) lands before T087, so the checkpoint's run of F16.1 (T089)
+  is the one that covers its cases and A8's linked-state-directory case. The workbench by scope (T102) and the
   loopback Host check (T103) follow T084, and the console token's move to
   the opened URL (T104) follows both. The release step (T101) lands last
   among the package-changing openDox-code landings, before T087, and the
@@ -477,9 +479,9 @@ the realization as the answer records it."*
   Batch O amends F9.2, which no phase-3 checkpoint runs. It lands before
   T086, which renames the node F9.1 deselects and F9.2 runs, and before
   T099, which creates the tag. Batch P adds A2's cases to F16.1's named
-  file and changes none of F16.1's commands. It lands before T083, which
-  runs F16.1, and before T087, the pin that carries T104 and the T100
-  follow-on, which carry its rules out.
+  file and changes none of F16.1's commands. It lands before T087, the pin
+  that carries T104 and the T100 follow-on, which carry its rules out, and
+  so before the checkpoint (T089), which runs F16.1 with those cases.
 - `tasks.md` § "Ruled amendments" lists every amended line, the text it takes,
   and the task that carries it out.
 
