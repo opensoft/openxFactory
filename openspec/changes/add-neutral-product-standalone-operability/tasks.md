@@ -834,9 +834,12 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   `generator.py`, `snapshot.py`, `snapshot_registry.py`, `completeness.py` and
   `corpus_root.py` and contributes them through
   `openxdox.projection_contributions.register()`; its generator suites run in
-  F5.2's environment (openxFactory composed at a named commit) with the
-  consumer-schema cases and three pre-arc reds deselected, F5.2 whole being
-  T086's and T089's, and the arc's protected-suite edits are entered in the
+  F5.2's environment (openxFactory composed at a named commit). As landed, that
+  run deselects the consumer-schema cases (the seven red at both pins, and
+  `tests/test_snapshot.py`'s two) and the three pre-arc reds of
+  `tests/test_session_snapshot.py`, as T059's record and that PR's body (its
+  rulings 4 and 6) state, so F5.2 whole is T086's and T089's (T063 quotes it red
+  on those three, CP2 § 2). The arc's protected-suite edits are entered in the
   reviewed allow-list. Host line: openxFactory#1215 → `fcb45380`.
 - [ ] **FALSIFIED BY** (5.4a; an openXdox-code checkout with the realized openDox
   installed and Group 9 landed): the governed projection's own suites pass, and the
