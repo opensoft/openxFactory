@@ -201,11 +201,10 @@ planned on answers.
   rewrites no ratified text either. Batch N adds one addendum, at 12.4a, on
   its own ruling (`5963851934`). Batch O adds four addenda, at 9.5, F9.1,
   F9.2 and 10.1, on its own rulings (`5970917267`; `5962754358`, item 1,
-  and `5963162921`). Batch P adds five, two at 12.4a, two at 16.3a and a
-  note and A2's cases at F16.1, and a third dated note to requirement 17,
-  on its own ruling
-  (`5982436447`) and the holder's rulings B7 and A8 recorded with it, and
-  rewrites no ratified text either. The
+  and `5963162921`). Batch P adds six, two at 12.4a, two at 16.3a, and two
+  at F16.1 (A8's note and A2's cases), and a third dated note to
+  requirement 17, on its own ruling (`5982436447`) and the holder's rulings
+  B7 and A8 recorded with it, and rewrites no ratified text either. The
   full list is in § "Ruled amendments" below. Each batch is its own
   bookkeeping PR. T007 was ticked when batch J landed, and was reopened for
   batches K, L, M, N and O, all of which have landed. It is open for batch
