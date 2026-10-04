@@ -3456,8 +3456,8 @@ and redesigns none of them.
   remedy, a broker installed outside the repository, and never a secret, and
   the binding reads untrusted. The rest of this box stands. A dated note in
   requirement 17's body in this change's spec delta, after batch M's,
-  records the same ruling, since it narrows batch M's note there. This
-  bookkeeping amendment does not itself touch a falsifier. Carried out by a
+  records the same ruling, since it narrows batch M's note there, and
+  F16.1's batch P cases below falsify it. Carried out by a
   T100 follow-on openDox-code PR (claim `5982447319`), which is no task of
   plan 034 and lands before T087.
 
@@ -3657,6 +3657,27 @@ and redesigns none of them.
   openDox-code commit that carries the follow-on, hold the realization to
   the block as written, and a run at `38d3350e` closes nothing. This
   bookkeeping amendment does not itself touch the command above.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 2):** F16.1 also falsifies
+  16.3a's batch P addendum (A2). The command is unchanged: the named file of
+  batch M's line, `tests/test_model_binding_trust.py`, also asserts, one
+  test per case, under the same fresh `git init` and `OPENDOX_STATE_DIR`:
+  - **A binding whose command names a file inside the served repository is
+    refused.** Its broker argv names a program under the served root, such
+    as `tools/broker.py`, which writes a marker file when it runs. `opendox
+    model-binding add`, `edit`, `trust` and `set-credential` each refuse it
+    by name, naming the remedy, a broker installed outside the repository,
+    and record no trust. A trust recorded for it before the rule, when the
+    program is then edited, does not admit it: a turn that names it is
+    refused by name before any process is spawned, and no marker file
+    exists.
+  - **A broker outside the repository is still reached.** The same binding
+    with its program outside the served root, once trusted, runs as batch
+    M's block says.
+
+  Until the T100 follow-on (claim `5982447319`) lands, these cases fail. The
+  runs of F16.1 by T083 and T089 are at an openDox-code commit that carries
+  it. This bookkeeping amendment does not itself touch the command above.
 
 ## Follow-ons named here and NOT authored here
 

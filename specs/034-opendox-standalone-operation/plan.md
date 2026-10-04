@@ -226,7 +226,7 @@ this worktree, which holds the plan only.
 | 0 | 3.0 (ratification) | answers applied; analyze clean |
 | 1 | 2.1, 2.1a, 2.2, 2.3, 2.4, 2.5, 2.6, F2.1; 3.1, 3.2, 3.3 (first run; T065 and T098 repeat it before T097 ticks it), F3.1; 4.1, 4.1a, 4.2; 9.1, 9.2a, 9.3, 9.4, F9.1; 10.1 | F2.1, F3.1, F9.1 (both legs), F9.2 (quoted red, as RULED `5859927858` keeps it), `opendox --help` |
 | 2 | 5.0, 5.1, 5.2, 5.3, 5.3a, F5.1, 5.4, 5.4a, 5.5, F5.3; 7.0, 7.1, 7.1a, 7.1b, 7.2, 7.3, F7.1, F7.2 | F5.1, F5.2 (quoted red on three pre-arc tests; RULED `5962785556` closes it in phase 3), F5.3, F7.1, F7.2; standalone `generate-and-open` serves |
-| 3 | 4.3, F4.1; F5.2 (T086 repairs its three pre-arc reds; RULED `5962785556`, at T063); 9.2 (its whole-suite check lands in phase 1, and its ratchet reaches `(0, 0)` at T086, as T007's batch F records beside the map, R1Q25 (b)); 10.2, 10.2a, 10.3 (at the cut, on T099's publish), F10.1; 13.1–13.6, 13.4a, F13.1; 16.1–16.6, 16.3a (T007's batch M), F16.1 | F4.1, F5.2, F10.1, F13.1, F16.1 (as batch M amends it); AT-R1 follows the checkpoint (T095, T096); 10.3 closes only at the cut, on T099's publish |
+| 3 | 4.3, F4.1; F5.2 (T086 repairs its three pre-arc reds; RULED `5962785556`, at T063); 9.2 (its whole-suite check lands in phase 1, and its ratchet reaches `(0, 0)` at T086, as T007's batch F records beside the map, R1Q25 (b)); 10.2, 10.2a, 10.3 (at the cut, on T099's publish), F10.1; 13.1–13.6, 13.4a, F13.1; 16.1–16.6, 16.3a (T007's batch M), F16.1 | F4.1, F5.2, F10.1, F13.1, F16.1 (as batches M and P amend it); AT-R1 follows the checkpoint (T095, T096); 10.3 closes only at the cut, on T099's publish |
 | every phase, ticked at ARC close | 9.5, 11.0, 11.1, F11.1 | interim F11.1 after each phase |
 | after T008, outside release 1's tasks | F9.2 (RULED `5859927858` keeps it unchanged and red on the assembled help-tree test until T008; holder decision, 2026-09-29, at T049. The test reads 31 entries through phase 2 and 32 from phase 3's pin, RULED `5970917267`; T086 moves it) | F9.2, after the `doc_health` direction arc |
 | already `[x]` | 5.6 | — |
@@ -263,10 +263,10 @@ T001–T009, T019, T067 (holder: claims, ARC_BASE, rounds 1a, 2 and 3, re-measur
                  T059 → T061 (7.3, after T007 batches C, F, I and K)
           [oxF]  T061 → T066 (a non-arc act: the seal test and the facet's values, at both pins)
           [oX]→[oxF]  T066 → T064 consumer pins → T065 (interim F11.1) → checkpoint T063 (after T007 batches C, F, G, I and K)
- PHASE 3  T069 is done; T007 batch H lands before T070, T075 and T080, batch K before T080, batch M before T100, batch N before T095, batch O before T086 and T099, and batch P before T087
+ PHASE 3  T069 is done; T007 batch H lands before T070, T075 and T080, batch K before T080, batch M before T100, batch N before T095, batch O before T086 and T099, and batch P before T083 and T087
           [oDc]  G13: T071→T070→T072→T073→T074      G16: T078→T079→T080;  T085 → T081
                  4.3 end: T084 (after T073, T007 batch L)          T072 → T075 → T077 (F10.1 as batch H amends it);  T082, T083, T088
-                 16.3a: T100 (after T080, openDox-code#64, T081, T072, T084, T007 batch M) → T083 (F16.1 as batch M amends it, also after the binding-trust follow-on, no task)
+                 16.3a: T100 (after T080, openDox-code#64, T081, T072, T084, T007 batch M) → T083 (F16.1 as batches M and P amend it, also after the binding-trust follow-on, no task)
           [oD]   T087 root pin (after T007 batch P, and the T100 follow-on, no task) → T076 (README: the opendox[local] install and the --local command)
           [oXc]  T086 (columns, ratchet (0,0); the 32-entry node, after T007 batch O) at the pin T087 carries
           [oX]→[oxF]  T094 consumer pins + host wiring (after its non-arc ahead PR, the phase-3 help golden) → T098 (interim F11.1) → checkpoint T089 (after T076)
@@ -468,17 +468,18 @@ the realization as the answer records it."*
   (`5982436447`) and the holder's rulings recorded with it: two addenda at
   12.4a (B3's hint line and B7's history limit), two at 16.3a (A2's refusal
   of in-repo programs and A14's served-repository-only limit), a third
-  dated note to requirement 17 (A2), and a note at F16.1 (A8, the
-  symbolic-link state directory).
+  dated note to requirement 17 (A2), and two at F16.1 (A8's note, and A2's
+  cases in the named file).
 - Each batch lands under a Rule 6 window, with no `Arc:` trailer, before the
   task that needs it. A batch that amends a falsifier lands before the
   checkpoint that runs it. Batch N amends none, and lands before T095,
   AT-R1's HTTP half, whose harness reads the private copy it records.
   Batch O amends F9.2, which no phase-3 checkpoint runs. It lands before
   T086, which renames the node F9.1 deselects and F9.2 runs, and before
-  T099, which creates the tag. Batch P amends no falsifier line: its F16.1
-  note changes none. It lands before T087, the pin that carries T104 and
-  the T100 follow-on, which carry its rules out.
+  T099, which creates the tag. Batch P adds A2's cases to F16.1's named
+  file and changes none of F16.1's commands. It lands before T083, which
+  runs F16.1, and before T087, the pin that carries T104 and the T100
+  follow-on, which carry its rules out.
 - `tasks.md` § "Ruled amendments" lists every amended line, the text it takes,
   and the task that carries it out.
 

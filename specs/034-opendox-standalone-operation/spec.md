@@ -503,7 +503,7 @@ configure one, before any turn is attempted, and everything else works.
 13 and 17). It depends on US1 and US2.
 
 **Independent Test**: at the phase-3 tip, F13.1 and F10.1 (both as amended per
-R1Q15 and R1Q16), F16.1 (as T007's batch M amends it) and F4.1 (the whole
+R1Q15 and R1Q16), F16.1 (as T007's batches M and P amend it) and F4.1 (the whole
 package: no deferred reach, and `consumer_reach.py` gone) pass. So does
 **AT-R1**, defined under Success Criteria.
 
@@ -543,7 +543,12 @@ package: no deferred reach, and `consumer_reach.py` gone) pass. So does
    declared through `opendox model-binding add` or `edit`, or trusted through
    `opendox model-binding trust <id>`, is reached as scenario 3 says
    (requirement 17 as T007's batch M note reads it; RULED `5962785556`, item
-   2: *"Trust per machine (Recommended)"*).
+   2: *"Trust per machine (Recommended)"*), unless its command names a file
+   inside the served repository. Such a binding is refused by name, naming
+   the remedy, a broker installed outside the repository, both when trust
+   would be recorded for it and before any process is spawned, even when it
+   is trusted (requirement 17 as T007's batch P note reads it; RULED
+   `5982436447`, item 2: *"Refuse in-repo programs (Recommended)"*).
 
 ---
 
