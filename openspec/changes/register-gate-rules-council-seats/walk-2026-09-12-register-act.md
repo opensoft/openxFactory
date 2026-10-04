@@ -1257,6 +1257,139 @@ had (latest 2026-09-11T09:56:58Z), so it is unspent by construction. **Nothing
 is dispatched by the lane**: step 9 is Brett Heap's act, and this section is
 appended before it so the candidate's basis is on record when he does.
 
+#### 13.4 — POST-NOTE APPENDED 2026-10-04: TASK 6.24 IS PERFORMED — THE PROOF CONVENING WAS ADMITTED AND SEALED UNDER `grant-grc-0003` (RUN `35358405192`), AFTER ONE REFUSED DISPATCH (RUN `35135959678`)
+
+Read 2026-10-04T17:4xZ by lane `codeXfactory-2` (session
+`8d6bf418-cc06-45d9-9406-2374935c6c72`), read-only: `gh` calls, and `git
+show` reads of codexFactory `main` at
+`cb504bece4fd4d9f093827e7a46999b00de1aa45` (2026-10-04T13:54:36Z). Spends no
+pin. **Nothing is dispatched.** The convening's own facts are those of the
+record that landed it, cited below and not re-derived here; what this note
+re-checked for itself is listed separately, so the two are not blurred.
+
+**Task 6.24 is performed, and it took two dispatches.** Both used the 2026-09-09
+packet the § 13.4 pre-note chose
+(`hermes/domain/review-councils/convening-packets/2026-09-09-openxfactory-substantive-candidate-class-re-put.md`).
+`gh run list --workflow gate-rules-convening-trigger.yml` now shows **nine**
+runs in the workflow's whole history. These two are the eighth and ninth, the
+only two since T1, and none has run since:
+
+| run | dispatched (UTC) | Brett Heap's word, verbatim | subject pin (PR) | outcome |
+|---|---|---|---|---|
+| `35135959678` | 2026-09-16T18:41:24Z | *"dispatch it"* (2026-09-16T18:41:17Z) | `4a92ee67c97e896bc906c1dde89ffe0d2ce471d1` (cxF #471, the § 13.4 pre-note's candidate) | `claim` **admitted** (`GRC-CONVENE-4a92ee67c97e-35135959678`); `convene` **REFUSED** with no verdict at step 13, "Resolve the run specification"; no artifact; **the pin is SPENT** |
+| `35358405192` | 2026-09-18T14:47:21Z | *"re-dispatch on 475"* (2026-09-18T14:4xZ) | `926212af191a3f138b1378c5bc4504461b193e83` (cxF #475) | **ADMITTED AND SEALED**, `completed/success` (14:47:21Z → 14:48:00Z) |
+
+Both words were given in session, with no comment URL; their UTCs are the
+lane log's RULED lines (`lanes/log/codeXfactory-2.md` in brett-wip, lines 37
+and 46). **Both runs carry Brett Heap's identity** (`actor` and
+`triggering_actor` `brettheap`) **and the lane's keystroke.** The record
+keeps those two apart on purpose, and this note follows it. The act is his:
+§ 7.2 defines "operator act" as naming whose act it is, not whose hands. A
+first word of 2026-09-15T23:27:58Z, *"dispatched the proof convening, do the
+admission"*, never reached GitHub. No run existed at 23:29:27Z, and the
+refused-run record § 1 has the sequence.
+
+**THE REFUSAL, AND THE FIX THAT PRECEDED THE RE-DISPATCH.** Run `35135959678`
+failed on this error, verbatim: *"the declared-model map carries
+['client-security-compliance-officer'], which the resolved bench does not seat.
+Two literals in one lane is how a triggered convening seats four and returns
+three"*. That is `scripts/execution_lane/sealed_request.py::build_run_spec`'s
+surplus guard. It was written 2026-09-05 (`09409415`), when the profile
+declared four seats. Since T1 the profile declares five, and this
+non-security packet resolves four, so every convening whose conjunction does
+not fire was refused. **The fix is codexFactory PR #482 →
+`cd3f8a7c3b8a06e6e6097541aaa45c07007f3e4c`**, merged 2026-09-18T14:21:45Z on
+Brett Heap's word *"merge 482"*. It made three changes and added a
+contradiction guard. `build_run_spec` now
+takes `unrequired_conjunction_seats`, the resolver's own answer, and
+subtracts only those seats from the surplus check. `bench.declared_models` is
+restricted to the seated bench. A new `bench.unseated_conjunction_seats` is
+recorded. `cd3f8a7c` is an ancestor of the admitted run's tooling head
+`c615c379`. Full record: cxF
+`hermes/domain/review-councils/records/2026-09-16-gate-rules-proof-convening-refused-run-35135959678.md`.
+
+**THE ADMISSION AND THE SEAL, as the record carries them**: cxF
+`hermes/domain/review-councils/records/2026-09-18-gate-rules-proof-convening-under-grant-grc-0003.md`
+§§ 1-4, and the sealed `run-spec.json` / `manifest.json` beside it.
+
+| field | value |
+|---|---|
+| convening id | **`GRC-CONVENE-926212af191a-35358405192`** (`manifest.json` `job.job_id` `…-35358405192.1`) |
+| `subject_pin` / `subject_pin_source` / `subject_pin_verified_at` | `926212af191a3f138b1378c5bc4504461b193e83` / `codeXfactory/codexFactory#475` / **`2026-09-18T14:47:28.779888+00:00`** |
+| council content digest | `sha256:19423e335f0beea3ed041f1ef38dad7ce88eaec6d840f5470825d82e89d93c25`, at overlay revision `8931ee2e18948d7e61418a3f84c94180f283eccf` |
+| bench | **four seats**: `lead-architect`, `lead-security`, `lead-quality`, `company-policy-lead`. `declared_models` has exactly those four keys; **`unseated_conjunction_seats: ["client-security-compliance-officer"]`**; `intent_owner_role_slot` is excluded as symbolic |
+| conjunction evidence | `rule_touches_security_posture`, **`required: false`**, `seat_identity: "declared"`, `unbound_why: null`. The packet reaches `openspec/changes/**` and `openspec/specs/**`, and neither is a declared security surface |
+| origin attestation | key `key-factory-codexfactory-0001`, register row `row-origin-codexfactory-0001`, public-half fingerprint `sha256:d88db98a5b77c1b7acb71551a91f21854571c1e163a444e91d37569b0062c0df` |
+| manifest digest | `xfc-jcs-sha256-1` over `sealed_bundle_manifest`, `sha256:d057bc693a1cfb2720ab3d84fc18f640d39c05f97dbb54891d1c7a7ba37fb7b5` |
+| `source_revisions` | `candidate_sha` `926212af191a3f138b1378c5bc4504461b193e83`, **`lane_tooling_sha` `c615c3794df6022073f5181e5fc79f4be9831cd7`** (cxF `main` at dispatch, carrying #482) |
+| sealed artifact | `sealed-gate-rules-convening-request`, id `10553680868`, 9960 bytes, expired 2026-09-19T14:47:52Z. **Its bytes were committed before it expired** |
+
+**LANDED.** The record, its sealed bundle at
+`hermes/domain/review-councils/records/2026-09-18-gate-rules-proof-convening-sealed-bundle/`,
+and the refused-run record went in together as codexFactory PR **#489 →
+`f000014c772df9dc83f6f0ebdec94ef36610dee5`**, merged 2026-09-18T18:19:37Z on
+Brett Heap's word *"merge 489"*. `PROOF CONVENING LANDED` was posted on cxF
+#279 as
+[comment `5734334758`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5734334758)
+(2026-09-18T18:20:29Z).
+
+**RE-CHECKED BY THIS NOTE, not taken from the record:**
+
+* The six sealed files on cxF `main` are byte-identical (`cmp`) to the
+  artifact copy preserved in brett-wip
+  (`handoffs/codeXfactory/attachments/codeXfactory-2/proof-convening/run-35358405192/sealed-artifact/`).
+  The five named members match the manifest's declared `size_bytes` and
+  `content_hash`.
+* The origin attestation re-verifies from the committed bytes. The test used
+  the shipped `scripts/execution_lane/sealed_request.py` and
+  `origin_signing.py` at `cb504bec`, in a members-only copy:
+  `digest equal: True`, fingerprint `sha256:d88db98a…` (the value
+  `hermes/domain/factory-identity/records/2026-09-03-factory-origin-key-minted.md`
+  registers), `origin signature verifies: True`, `members verify: OK`.
+* The run list shows nine runs, none after `35358405192`. `gh pr view`
+  confirms #482, #489 and #475 as MERGED at the shas and instants above.
+
+**THE CANDIDATE MOVED, AND THE MOVE IS NAMED.** The § 13.4 pre-note handed
+#471 to Brett Heap. The first dispatch spent it, so the admitted dispatch is
+on **#475**: the same packet on a new candidate, chosen only because the
+candidate is inert. It merged 2026-09-15T23:04:50Z → `933d2099`. It is
+single-parent (`642d669a`), and its head commit touches one file,
+`openspec/changes/repoint-browser-ui-repair-application-source/.openspec.yaml`
+(the PR's own diff has five files, all under that change). It descends from
+T1 and carries the packet. Before this run it had never been convened, and
+the admission itself measures that: a repeat claim refuses
+`council.convening_exists`. OQ-5 (a)'s *"on a re-verified clean candidate"*
+is met by that re-verification (record § 1), not by this section's pre-note.
+**The shape is the 2026-09-11 walk's § 15**: one refusal, then a re-dispatch
+on Brett Heap's explicit ruling, admitted.
+
+**WHAT IT PROVES, AND THE BOUNDS THE RECORD CARRIES**:
+
+* **It proves** that admission and origin-signed sealing run clean under
+  `grant-grc-0003` and the composition T1 landed, on a packet the conjunction
+  does not reach. It also proves that a five-seat profile can resolve to a
+  four-seat bench and be **recorded rather than refused**: the four-key
+  `declared_models` and the one-element `unseated_conjunction_seats` are
+  inside the signed bytes.
+* **It is NOT a second measurement of the register projection.** The
+  admission path does not read that projection (`walk-2026-09-11-register-act.md`
+  § 13.2), so this run could not fire `review_authority.grant_revoked` or
+  `review_authority.register_stale` whatever the register held. **§ 13.2's
+  cluster read stays the proof** that the projection carries T2.
+* **No seat was convened, no model was invoked and no seat return was
+  signed.** Only the origin key signed anything. Task 4.5 stays open.
+* **The conjunction did not fire.** LQ2-C4's deadline is C2's (§ 13.5) and is
+  **not reached** by this run.
+* **The domain-content projection is still not reseeded.** The overlay
+  revision and content digest above are byte-identical to the 2026-09-10 and
+  2026-09-11 runs, so the record names the reseed (R-4) as still owed.
+
+**Ticks task 6.24.** In `tasks.md`, each earlier `[OPERATOR]` row booked
+after Brett Heap acted is ticked, with his word and its date: 1.1-1.5, 4.1,
+6.1, 6.1a, 6.8, the operator-word row 6.20, and the rows of § 3, which is
+`[OPERATOR]` throughout. None is left unticked with a dated act beside it.
+This row follows that convention and cites the word *"re-dispatch on 475"*.
+
 ### 13.5 C2 unparks (tasks 6.23, 6.25, 6.26) — **APPENDED BY PART C**
 
 Re-select a clean candidate at that moment (heads and pins will have moved),
@@ -1342,6 +1475,76 @@ after the proof convening — this section is appended so the finding and the
 pre-selection are on record before Brett Heap's dispatch, as § 13.4's pre-note
 was.
 
+#### 13.5 — SELECTION NOTE APPENDED 2026-10-04: TASK 6.23 IS PERFORMED — THE C2 CANDIDATE IS cxF #470 HEAD `cd5ee340`, RE-CHECKED CLEAN AGAINST cxF MAIN `cb504bec`; C2 (TASK 6.25) AWAITS BRETT HEAP'S DISPATCH
+
+Read 2026-10-04T17:4xZ by lane `codeXfactory-2` (session
+`8d6bf418-cc06-45d9-9406-2374935c6c72`), read-only. The reads were `gh` calls
+and `git` reads of codexFactory `main` at
+`cb504bece4fd4d9f093827e7a46999b00de1aa45` (2026-10-04T13:54:36Z, PR #499).
+The resolver ran in a `git archive` extract of that tree, outside any
+checkout. Spends no pin. **Nothing is dispatched.**
+
+**The selection holds.** This section's 2026-09-15 pre-note pre-selected cxF
+#470. The refused-run record's § 6 and § 7.1 and the proof-convening record's
+§ 9 step 3 then reserved it for C2 and kept it unspent. The lane pre-screened
+it clean on cxF `main` `bdbbdb82` at #279
+[comment `5734187903`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5734187903)
+(2026-09-18T18:08:22Z). Task 6.24 was performed on 2026-09-18 (§ 13.4
+post-note), so this is the selection the pre-note deferred to, *"at the moment
+of selection, after the proof convening"*. Task 6.23's checks, re-run today:
+
+| 6.23 check | how it was read | read 2026-10-04 |
+|---|---|---|
+| PR state, head | `gh pr view 470 -R codeXfactory/codexFactory --json state,headRefOid,baseRefName,mergeStateStatus` (2026-10-04T17:44:38Z) | **MERGED** 2026-09-14T08:55:47Z (merge commit `046e9c51`), base `main`, head **`cd5ee34082a63b59b4037a6732138602996a4f1f`**. The head is unchanged, and a merged head cannot move |
+| parents | `git rev-list --parents -n1` | **1** (`5e49233f`), so the touched-object resolver reads this commit's own diff and never a merge's first-parent sweep |
+| files | `gh api repos/codeXfactory/codexFactory/commits/cd5ee340… --jq '.files[].filename'` | **one**: `openspec/changes/realize-provenance-gated-autonomous-merge/tasks.md`. It is neither `hermes/domain/agent-mixes.yaml` nor `hermes/domain/review-councils/gate-rules.yaml` |
+| T1 ancestry | `git merge-base --is-ancestor eff9ae19 cd5ee340` | **TRUE** |
+| never convened | `gh run list --workflow gate-rules-convening-trigger.yml`; `git grep cd5ee340` over `hermes/domain/review-councils/` | nine runs ever. The only post-T1 subject pins are `4a92ee67` (#471) and `926212af` (#475). `cd5ee340` appears in records only as *reserved for C2* |
+| C2 packet in its tree | `git cat-file -e cd5ee340:hermes/domain/review-councils/convening-packets/2026-09-11-routine-code-clearance-repository-respelling.md` | **present**, blob `1e320cde`, the same blob as cxF `main`'s. It is **not** the blob #407 → `76f2e771` landed (`7278e85c`): the packet was amended once since, by #446's LQ2-C4 re-route (`6e35eeb4`, 2026-09-12), the amendment LQ2-C4 requires C2's packet to carry. `76f2e771` is an ancestor of `cd5ee340` |
+| five seats | `deliberation_packet.py rule-facts` then `resolved-seats --council-id gate_rules_council`, at `cb504bec` | `rule_touched_paths` `["scripts/merge_master/codexfactory-routine-code-clearance.yaml"]`; `required_seats` **five**: `lead-architect`, `lead-security`, `lead-quality`, `company-policy-lead`, **`client-security-compliance-officer`**. The conjunction `rule_touches_security_posture` is **`required: true`**, `seat_identity: "declared"`, `unbound_why: null`; `unbound_conjunction_seats` **`[]`** |
+
+**Machinery drift since the proof convening, named for the dispatch-time
+re-check.** The diff ran from the proof run's tooling head `c615c379` to cxF
+`main` `cb504bec`. It covered both convening workflows,
+`deliberation_packet.py`, `gate-rules.yaml`, `agent-mixes.yaml`,
+`seat_resolution.py`, `scripts/execution_lane/` and `deliberation-bundle.py`.
+**Exactly one file moved:** `scripts/execution_lane/sealed_request.py`, +42/-13,
+landed through cxF #497 → `e4d1515f` (2026-10-04T13:05:56Z). Its three hunks
+are imports and `write_json`, whose member write is hardened against
+symlink, hardlink and special-file redirection. `build_run_spec` and seat
+resolution are untouched. **It is named because C2 will run a sealer that the
+proof convening did not exercise.**
+
+**The dispatch this selection is for — task 6.25, BRETT HEAP'S ACT.** His
+carried word is *"convene C2"* (2026-09-11T13:26:14Z). The command, as
+pre-filled in the lane's re-verification checklist
+(`handoffs/codeXfactory/attachments/codeXfactory-2/c2-dispatch-6-23-draft.md`
+§ 3 in brett-wip):
+
+```sh
+gh workflow run gate-rules-convening-trigger.yml -R codeXfactory/codexFactory --ref main \
+  -f rule_packet_ref=hermes/domain/review-councils/convening-packets/2026-09-11-routine-code-clearance-repository-respelling.md \
+  -f subject_pin=cd5ee34082a63b59b4037a6732138602996a4f1f \
+  -f candidate_pull_number=470
+```
+
+The expected result: **FIVE** resolved seats, the conjunction **fires**,
+`unseated_conjunction_seats` **`[]`**, and the convening is admitted and
+sealed. That makes it the first live run of the other half of #482, per the
+proof-convening record's § 9 step 4: a firing conjunction must produce an
+empty `unseated_conjunction_seats`, and a seat named both required and
+unseated is refused. It is also **LQ2-C4's deadline**.
+
+**RE-VERIFY AT DISPATCH.** The head cannot move, but `main` can, and C2 runs
+`main`'s tooling. Immediately before 6.25, re-run three checks: the trigger
+run list (no run may have pinned `cd5ee340`), the machinery diff against
+`cb504bec`, and `resolved-seats`. **A selection read on 2026-10-04 is not a
+selection at the dispatch instant.** The fallback the pre-note named, #474
+head `049455c0`, was **not** re-checked by this note.
+
+**Ticks task 6.23.** It is a `[lane]` row, ticked at selection. **No
+dispatch follows from this note.**
+
 ### 13.6 What is owed, and by whom
 
 | Owed | By | Gates what |
@@ -1355,3 +1558,30 @@ was.
 | § 13.5 C2 candidate re-selection (6.23) — **pre-selected 2026-09-15: cxF #470 head `cd5ee340`, fallback #474 head `049455c0`; c2-prep § 3's #407 head fails T1 `eff9ae19`** | the lane, after § 13.4 | § 13.5's C2 dispatch (6.25) |
 | LQ2-C2 corroboration | the lane, ruled to follow T1 | nothing here |
 | LQ2-C4 re-route | the lane | § 13.5's convening |
+
+**STATUS LINES APPENDED 2026-10-04**: one for each item the table still shows
+open, plus the two now owed. The rows above are left exactly as they stood,
+and the five struck rows were already closed.
+
+* **§ 13.4 proof convening (task 6.24)**: **DONE 2026-09-18.** Run
+  `35358405192` was admitted and sealed under `grant-grc-0003` on Brett
+  Heap's *"re-dispatch on 475"*, after run `35135959678` was refused at the
+  run specification and cxF #482 → `cd3f8a7c` fixed the cause. Recorded by cxF
+  #489 → `f000014c` (§ 13.4 post-note).
+* **§ 13.5 C2 candidate re-selection (task 6.23)**: **DONE 2026-10-04.** cxF
+  #470 head `cd5ee340` is SELECTED, re-checked clean against cxF `main`
+  `cb504bec` (§ 13.5 selection note). The fallback #474 was not re-checked.
+* **LQ2-C2 corroboration**: not re-assessed by this note. cxF
+  `records/2026-09-12-lq2-c2-corroboration.md` (the corroboration half, by
+  execution against T1) is on `main` and is among the records § 13.1 lists.
+  The proof-convening record's § 8 carries LQ2-C2 as undischarged by that run.
+* **LQ2-C4 re-route**: not re-assessed by this note.
+  `records/2026-09-12-lq2-c4-reroute.md` re-aims LQ-C4 to name
+  `client-security-compliance-officer` and, in its own words, *"discharges
+  nothing"*. Its deadline is C2, which has not run.
+* **NOW OWED, and not a row above:**
+  * **task 6.25, C2's dispatch**: Brett Heap's act, on #470 / `cd5ee340`
+    with the 2026-09-11 packet, after a dispatch-time re-verification
+    (§ 13.5 selection note).
+  * **task 6.26, the C2 record**: the lane's, on admission, committing the
+    sealed bundle inside its 1-day artifact retention.

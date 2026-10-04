@@ -2628,7 +2628,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
       it. The holder told T084's writer to cover the turn route in its test.
     - This landing completes T085's falsifier, which is why T085 is ticked with
       it.
-- [ ] T082 [US3] [oDc] **16.5: every other surface works with no model.** The
+- [x] T082 [US3] [oDc] **16.5: every other surface works with no model.** The
   named test covers documents, generation, the views, sessions and saving,
   which answer through R1Q10 (a)'s defaults (T084) exactly as they do with a
   model configured.
@@ -2636,7 +2636,49 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Falsifier**: `tests/test_chat_model_configuration.py`.
   - **Ruled**: R1Q10 (a), `5850003126`.
   - **After**: T081, T084, T085.
-- [ ] T100 [US3] [oDc] **16.3a: a served repository's bindings are trusted per
+  - **Landed**: openDox-code#76 → `ca9e1bd5`.
+    - Section 6 of `tests/test_chat_model_configuration.py` starts two
+      standalone `generate-and-open --local` children over the same commit:
+      "no model" (no binding, and no `omp` on the PATH) and "a binding" (a
+      byte copy of that checkout after `opendox model-binding add`). Each
+      request goes to both. Each answer must be an HTTP response, no sibling
+      import may be refused, and the two must be equal in status, content
+      type and body. Only `/capabilities` sets values aside, the per-process
+      `console_token` and `install.database_bundle` values, and its shape is
+      still compared.
+    - The surfaces are documents (`/snapshot.json`, `/source/…`,
+      select-to-edit), generation (`opendox.cli generate`, byte-equal), the
+      views (the bundle's files, and the wheel, lens and document-summary
+      models run under node), sessions (the gate verbs, refused alike with
+      nothing changed), the session reads and controls through T084's seams,
+      saving (refused alike, nothing written), and the model settings. There
+      the intake answers `offered: false` with
+      `column_seams.GATE_RECORDS_REFUSAL`, model approval answers
+      `approval_refused`, and the document abstract
+      `model_capability_unavailable` (`5961364221`, item 1).
+    - The fix the cases needed, on the holder's ruling (a) of 2026-10-02:
+      openDox's settings documents are not the user's documents. `model-binding
+      add` writes its bindings document into the checkout, so before the fix
+      it joined the working-tree corpus and moved `/snapshot.json`'s digest.
+      `doxbench_intake.SETTINGS_DOCUMENTS` declares the bindings and
+      declarations documents once, from their path constants, and
+      `WorkingTreeCorpus` leaves exactly those keys out of its listing and of
+      a whole-corpus check (`excluded`, which defaults to that tuple).
+      `default_columns.SETTINGS_DOCUMENTS` (T084) builds its set from the same
+      tuple.
+    - The five cases that waited for T084 as strict xfails pass since #77
+      landed, and the named file reads `83 passed` with no xfail. All 20
+      mutants were killed at the PR's head `9948dc2b`, among them the
+      holder's two: drop the exclusion, and widen it to the directory. CI's
+      floors were re-pinned to 3977 selected and 3966 passed, and
+      `EXPECT_SKIPPED` stays 11.
+    - What the cases do not assert: the gate verbs answer `404
+      unknown_action` in both postures, and the sessions and saving cases
+      assert only that each verb is refused alike and writes nothing. The
+      standalone answer is T084's to decide.
+    - T083 re-ran the named file inside F16.1 at `38d3350e`: `83 passed`
+      ([`evidence/f16.1-run.md`](evidence/f16.1-run.md)).
+- [x] T100 [US3] [oDc] **16.3a: a served repository's bindings are trusted per
   machine.** RULED `5962785556`, item 2, Brett Heap, 2026-10-02: *"Trust per
   machine (Recommended)"*. It works like direnv. T007's batch M adds box
   16.3a to #1144, with a dated note in requirement 17 and an added block for
@@ -2726,13 +2768,94 @@ written (`5962754358`). `consumer_reach.py` is gone.
     no task of this plan), T081 (`doxbench_install.py`'s single-writer
     order), T072 (the state directory), T084 (`serve_workbench.py`'s
     single-writer order: the console intake's hand-off), T007 (batch M).
-- [ ] T083 [US3] [oDc] **16.6, then F16.1.** `tests/test_provider_boundary.py`
+  - **Landed**: openDox-code#82 → `38d3350e`.
+    - `doxbench_trust.py` (new, standard library only) keys a trust on the
+      repository root's resolved path, the binding's id and the `sha256` of
+      the binding's canonical full record (`as_record()`). So any edit
+      untrusts it, and so does the same file under another root. The auth
+      kind `none` is held to the rule too, since it still sends chat content
+      to the endpoint the file chose.
+    - The store is one owner-only file, `model-binding-trust.json`, under
+      `OPENDOX_STATE_DIR` (#69's `config.state_dir`), with no credential in
+      it. It is read only once it passes #69's tree checks, and written
+      through an exclusive no-follow temporary file and a rename, under a
+      lock on `model-binding-trust.lock`, so two processes recording at once
+      keep both trusts. A store that fails a check trusts nothing, and the
+      refusal names it. A state directory equal to the served root, or under
+      it, is refused naming `OPENDOX_STATE_DIR` before anything is written.
+    - The factory asks the policy about the first approved binding. An
+      untrusted one becomes `UntrustedBindingPort`: listed `available:
+      false`, every dispatch refused by name, and a notice on stderr naming
+      the id and the command that trusts it. In depth, `doxbench_provider`
+      refuses the broker operations, the built-in resolver, `dispatch` and
+      `catalog` for a binding no verdict covers. A checkout with no bindings
+      never asks the policy and never touches the state directory.
+    - `add` and `edit` record trust first, so a refusal writes nothing.
+      `trust <id>` takes no `--yes`. It prints the broker argv, the endpoint,
+      the auth kind and the credential reference, each in a JSON string's
+      form, resolves and runs nothing, and records exactly that record.
+      `set-credential` refuses an untrusted binding before its broker runs,
+      and re-trusts a trusted one it rewrites. `list` reads the document once
+      and adds a trust line and a console line per binding.
+    - A binding the catalog cannot list is never trusted, under any policy,
+      and its refusals name the remedy (`edit`, or `remove` then `add`), not
+      `trust`. Every printed command carries only operands a POSIX shell
+      reads back exactly.
+    - The console intake asks the policy its own question,
+      `intake_verdict_for`. openDox's strict default always refuses it by
+      name (`INTAKE_BROKER_UNTRUSTED`), before reading the body, and a host
+      admits it only through its own `intake_verdict`.
+    - The seam (`register`, `register_default`, `current`, `policy`,
+      `unregister`) is registered lazily by its consumers. So `cli.py` and
+      `serve.py` are not edited, a bare process is held to the strict
+      default, and a host's registration wins.
+    - `tests/test_model_binding_trust.py` is batch M's suite, `135 passed` at
+      the PR's head `adb19f1e`. Its first two cases are the adversarial
+      review's two findings, and on `main` `8e377823` they fail for the
+      defect's own reasons. 94 of 94 mutants were killed. Every finding of
+      eight Copilot rounds and of an adversarial self-pass was fixed with a
+      case that failed first. The whole suite at the head reads `3945 passed,
+      177 skipped, 0 failed`. `EXPECT_SKIPPED` stays 11, and the floors are
+      not moved.
+    - For T094: openxFactory registers its own `GovernedBindingTrust` (RULED
+      `5970369724`), which must answer `intake_verdict` too.
+      `_GovernedHostPolicy` in the test file is its stand-in.
+    - Since the landing, Brett Heap ruled on two findings of the holder's
+      adversarial review (`5982436447`, items 2 and 3). A binding's command
+      may not name a program inside the served repository, which a T100
+      follow-on openDox-code PR carries before T087. A state folder inside
+      some other checkout is an accepted limit, recorded by a later T007
+      batch.
+    - T083 re-ran the named file inside F16.1 at `38d3350e`: `135 passed`
+      ([`evidence/f16.1-run.md`](evidence/f16.1-run.md)).
+- [x] T083 [US3] [oDc] **16.6, then F16.1.** `tests/test_provider_boundary.py`
   stays green as 16.1 joins the one module. Then run F16.1 whole, with the
   line T007's batch M adds (`tests/test_model_binding_trust.py`, T100).
   - **Realizes**: 16.6, F16.1.
   - **Falsifier**: `tests/test_provider_boundary.py` for 16.6, then F16.1
     whole, as batch M amends it.
   - **After**: T080, T081, T082, T100.
+  - **Landed**: [`evidence/f16.1-run.md`](evidence/f16.1-run.md), run on
+    2026-10-04 at openDox-code `main` `38d3350e`, T100's landing (#82), after
+    T082 (#76 → `ca9e1bd5`). It is quoted in openxFactory, in the
+    checkpoints' form, as T077's and T074's runs are.
+    - 16.6: `tests/test_provider_boundary.py`, from a fresh clone, in a venv
+      installed by CI's own command, reads `24 passed`. The file is unchanged
+      since T034, and the boundary is still one module wide with 16.1's
+      `openai-chat-v1` arm and T100's `doxbench_trust.py` in the package.
+    - F16.1, extracted byte for byte from #1144 at `596a9a90` (the same bytes
+      at `d0af2574`) with batch M's line, exits 0 from a fresh clone and its
+      own fresh venv, in an `env -i` environment with no `omp` on the PATH:
+      `24 passed`, `dialect and model declared; a raw key is refused in a
+      field and in the URL`, `no model configured: the catalog offers
+      nothing`, `83 passed` and `135 passed`.
+    - Supplementary: two planted controls each turn the instrument red (a
+      provider endpoint and `urllib.request` in `doxbench_trust.py`; the
+      chat-completions route in `doxbench_binding.py`), so it is not
+      vacuous. 16.6's own measurement reproduces at `1e4a57fb` (`12 failed,
+      16 passed` under `--noconftest`).
+    - Not covered: openDox-code#84 (T104) and the T100 follow-on
+      (`5982436447`, item 2), which had not landed. T089 runs F16.1 again.
 - [x] T102 [US3] [oDc] **The staging workbench offers the editors and the chat
   rail by scope.** The editors and the chat rail appear wherever the scope
   lets the document be edited. Only creating documents and Save stay behind
