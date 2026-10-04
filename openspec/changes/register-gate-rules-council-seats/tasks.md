@@ -948,20 +948,53 @@ still Brett Heap's, and the merge is T2.
 
 ### 6.5 C2 unparks
 
-- [ ] 6.23 **[lane]** Re-select a CLEAN C2 dispatch candidate at that moment
+- [x] 6.23 **[lane]** Re-select a CLEAN C2 dispatch candidate at that moment
       (heads and pins will have moved): `git merge-base --is-ancestor <T1> <head>`;
       `gh api .../commits/<head> --jq '.files[].filename'` (first-parent for
       merges) excluding `hermes/domain/agent-mixes.yaml` and
       `hermes/domain/review-councils/gate-rules.yaml`; confirm the pin was never
       previously convened; confirm the C2 packet (cxF PR #407 → `76f2e771`) is
       still in that candidate's tree.
-- [ ] 6.24 **[OPERATOR]** The proof convening — **OQ-5 RULED (a)**,
+      **DONE 2026-10-04T17:4xZ: SELECTED, NOT DISPATCHED. The candidate is cxF
+      #470 head `cd5ee34082a63b59b4037a6732138602996a4f1f` (MERGED
+      2026-09-14T08:55:47Z → `046e9c51`; `gh pr view` re-read
+      2026-10-04T17:44:38Z, head unmoved). It was pre-selected in § 13.5's
+      2026-09-15 pre-note and pre-screened clean on cxF main `bdbbdb82` (#279
+      5734187903). Re-checked against cxF main `cb504bec`: single-parent; one
+      file (`openspec/changes/realize-provenance-gated-autonomous-merge/tasks.md`),
+      neither excluded path; T1 `eff9ae19` is an ancestor; the pin was never
+      convened (the only post-T1 runs pinned `4a92ee67` and `926212af`); the
+      C2 packet is in its tree (#407's text as amended by #446's LQ2-C4
+      re-route, the same blob as main's); `resolved-seats` gives FIVE required
+      seats, conjunction `required: true`, CSC `declared`,
+      `unbound_conjunction_seats` `[]`. RE-VERIFY AT DISPATCH: 6.25 is Brett
+      Heap's act. See walk-2026-09-12-register-act.md § 13.5 selection note
+      (appended 2026-10-04).**
+- [x] 6.24 **[OPERATOR]** The proof convening — **OQ-5 RULED (a)**,
       2026-09-11T17:08:42Z: it is **SEPARATE, and it PRECEDES C2**, on a
       re-verified clean candidate, exactly as the 2026-09-11 walk did
       (§ 15, run `34586762846`, admitted). C2 does not double as it: C2 is the
       convening the conjunction FIRES on, and one dispatch cannot say which of
       two proofs failed. Brett dispatches: the workflow's federated credential is
       `ref:refs/heads/main`-scoped and reads the factory origin key.
+      **DONE 2026-09-18: ADMITTED AND SEALED. Run `35358405192`
+      (2026-09-18T14:47:21Z, `success`), convening
+      `GRC-CONVENE-926212af191a-35358405192`, on Brett Heap's word in session,
+      verbatim *"re-dispatch on 475"* (2026-09-18T14:4xZ, lane log RULED; no
+      comment URL). The identity was his (`actor`/`triggering_actor`
+      `brettheap`); the keystroke was the lane's. Subject: cxF #475 pin
+      `926212af191a3f138b1378c5bc4504461b193e83`, on the 2026-09-09 packet;
+      bench of four, `unseated_conjunction_seats:
+      ["client-security-compliance-officer"]`. This is NOT 6.22's #471. Its
+      pin `4a92ee67` was SPENT by the first dispatch, run `35135959678`
+      (2026-09-16, word *"dispatch it"*), which was admitted and then refused
+      with no verdict by `build_run_spec`'s surplus guard. cxF #482 →
+      `cd3f8a7c` (*"merge 482"*) fixed that before the re-dispatch. Record:
+      cxF `records/2026-09-18-gate-rules-proof-convening-under-grant-grc-0003.md`
+      plus its sealed bundle, landed by cxF #489 → `f000014c` (*"merge 489"*);
+      PROOF CONVENING LANDED on #279 as comment 5734334758. See
+      walk-2026-09-12-register-act.md § 13.4 post-note (appended
+      2026-10-04).**
 - [ ] 6.25 **[OPERATOR]** Dispatch **C2** — `gate-rules-convening-trigger.yml`
       with the C2 packet ref, the fresh candidate's head sha and its PR number.
       Expect **FIVE** resolved seats and an admitted, sealed convening.
