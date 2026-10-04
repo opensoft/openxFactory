@@ -3485,11 +3485,17 @@ and redesigns none of them.
     path list (`PATH`, `PYTHONPATH`, `NODE_PATH` and the like) loses each
     entry that lies inside it, so a runtime cannot load code from the
     repository through its search path. Each such path is judged, as the
-    command's paths are, both as named and as it resolves;
+    command's paths are, both as named and as it resolves, and so is each
+    assignment a launcher makes (`env NAME=value`): one whose value is a
+    path inside the repository, or a path list with an entry inside it, is
+    refused;
   - an ACCEPTED release-1 limit: a general program outside the repository
     that runs code from its own arguments (`awk`, `find -exec`, …) is not
-    judged by the argv check. The trusted argv is digested, and the working
-    directory and the environment point away from the repository;
+    judged by the argv check, and neither is a path embedded inside an
+    option string, in an argument or in a variable such as
+    `NODE_OPTIONS=--require=…`. The trusted argv is digested, and the
+    working directory and the environment point away from the repository,
+    so a relative path in such a string does not reach it;
   - a broker such as `sh -c "pass show key"` is declared as
     `["pass", "show", "key"]` instead, or as a script kept outside the
     repository.
@@ -3761,7 +3767,11 @@ and redesigns none of them.
     set to a directory inside it, so an inherited one would show. It does
     the same again through aliases: a `PYTHONPATH` entry and a scalar
     variable that each name a symbolic link outside the served root whose
-    target lies inside it.
+    target lies inside it. And a launcher's own assignment is refused by
+    the four commands and before any spawn, with no marker file:
+    `["env", "PYTHONPATH=tools", "python3", "/outside/broker.py"]`, with
+    `tools` relative to the served root and holding a `sitecustomize.py`
+    that writes the marker.
 
   Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
