@@ -3825,11 +3825,10 @@ and redesigns none of them.
   - **A path an option carries, an unreadable split string and a launcher
     option that cannot be read are refused, and a launcher's options are
     read as GNU reads them** (the holder's `5985046107`, C1 and C4). Each
-    command below is
-    refused by name by the same four commands and before any spawn, and
-    leaves no marker file. `<outside>/broker` is an executable in the
-    case's scratch directory that writes one when it runs, and
-    `<outside>/broker.pl` a Perl script there that does the same:
+    command below is refused by name by the same four commands and before
+    any spawn, and leaves no marker file. `<outside>/broker` is an
+    executable in the case's scratch directory that writes one when it
+    runs, and `<outside>/broker.pl` a Perl script there that does the same:
     - `["perl", "-I<root>/lib", "<outside>/broker.pl"]` is refused as a
       command that names a file inside the served repository, since the
       path attached to a single-dash option is judged;
