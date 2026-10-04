@@ -3461,11 +3461,13 @@ and redesigns none of them.
   - a binding whose program is a shell or an interpreter given an inline
     script, such as `sh -c`, `bash -c`, `python -c` or `node -e`, is
     refused by name in the same places and the same way;
-  - the program must be a real file outside the served repository. It is
-    judged by the path it resolves to, links followed and a bare name looked
-    up on `PATH`, both when trust is recorded and again before any spawn, so
-    neither a link outside the repository nor a `PATH` entry inside it can
-    bring the program back in;
+  - the program must be a real file outside the served repository. Both
+    the path as named and the path it resolves to, links followed and a
+    bare name looked up on `PATH`, must lie outside it, both when trust is
+    recorded and again before any spawn. So neither a link outside the
+    repository nor a `PATH` entry inside it can bring the program back in,
+    and a link inside the repository, which a pull could retarget, is
+    refused even when it points outside;
   - every broker also starts with its working directory outside the served
     repository, as defence in depth;
   - a broker such as `sh -c "pass show key"` is declared as
@@ -3703,7 +3705,10 @@ and redesigns none of them.
     served root, are each refused by the same four commands and before any
     spawn, with no marker file. A trust recorded while the name resolved
     outside the root does not admit it once the link or the `PATH` entry
-    leads inside, and the catalog lists it with `available: false`.
+    leads inside, and the catalog lists it with `available: false`. The
+    reverse is refused too: a program named through a symbolic link inside
+    the served root whose target is a real file outside it, since a pull
+    could retarget the link.
   - **A broker outside the repository is still reached.** The same binding
     with its program a real file outside the served root, once trusted,
     runs as batch M's block says. It runs with its working directory
