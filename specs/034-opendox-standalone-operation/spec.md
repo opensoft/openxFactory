@@ -356,7 +356,12 @@ records three of the holder's rulings, and the fourth is `5983805990`.
   `python -c`, `node -e`) is refused by name. The program must be a real
   file outside the served repository, and every broker also starts with its
   working directory outside it. `sh -c "pass show key"` becomes
-  `["pass", "show", "key"]`, or a script kept outside the repository.
+  `["pass", "show", "key"]`, or a script kept outside the repository. The
+  holder's ruling `5984069416` (2026-10-04T20:27:27Z, on Copilot
+  `r4179187252`) implements it for launcher chains: a common launcher such
+  as `env` is unwrapped to the program it starts, the broker's environment
+  drops `PWD` and `OLDPWD`, and a general program that runs code from its
+  own arguments (`awk`, `find -exec`) is an accepted release-1 limit.
 - Q: A state directory inside the served repository is refused. What of one
   inside some other git checkout? (item 3, finding A14) → A: *"Served repo
   only, limit (Recommended)"*. The check stays as it is, and the wider case
@@ -767,9 +772,11 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   command names a file inside the served repository SHALL be refused by
   name even when it is trusted, naming the remedy, a broker installed
   outside the repository, and so SHALL one whose program is a shell or an
-  interpreter given an inline script. The program SHALL be a real file
+  interpreter given an inline script, directly or through a common
+  launcher such as `env` (`5984069416`). The program SHALL be a real file
   outside the served repository, and every broker SHALL start with its
-  working directory outside it. This is requirement 17 as its batch-P note
+  working directory outside it and without `PWD` or `OLDPWD`. A program
+  that runs code from its own arguments is an accepted release-1 limit. This is requirement 17 as its batch-P note
   reads it (`5982436447`, item 2, and `5983805990`; 16.3a). With no model
   configured, it SHALL show a "no model configured" state before any turn,
   and every other surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);
