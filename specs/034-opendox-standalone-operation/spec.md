@@ -749,7 +749,11 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   SHALL record it after printing what will run and where the credential
   goes, and an untrusted binding SHALL be refused by name before any spawn,
   read or contact. Bindings stay committable. This is requirement 17 as its
-  batch-M note reads it (`5962785556`, item 2; 16.3a). With no model
+  batch-M note reads it (`5962785556`, item 2; 16.3a). A binding whose
+  command names a file inside the served repository SHALL be refused by
+  name even when it is trusted, naming the remedy, a broker installed
+  outside the repository. This is requirement 17 as its batch-P note reads
+  it (`5982436447`, item 2; 16.3a). With no model
   configured, it SHALL show a "no model configured" state before any turn,
   and every other surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);
   R1Q17 (b): a built-in `env:` and keyring resolver in that module; R1Q18 (a):
@@ -828,7 +832,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   because R1Q25 (b) keeps 7.3 in phase 2, read as batch I records R1Q27
   (a).
 - **SC-003** (phase 3 exit): F4.1, F5.2, F10.1, F13.1 and F16.1 (with T007's
-  batch M line) exit 0, and the F4.1 scan prints
+  batch M line, whose named file holds batch P's A2 cases too) exit 0, and
+  the F4.1 scan prints
   `no deferred reach names the consumer or the publisher`.
 - **SC-004**: AT-R1 passes, and its evidence is recorded in this feature's
   `evidence/` directory.
