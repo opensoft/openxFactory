@@ -368,7 +368,12 @@ records three of the holder's rulings, and the fourth is `5983805990`.
   one is refused, `xargs -a` is judged as `env --chdir` is, and an `env -S`
   string with a backslash or a `$` is refused as unreadable (C1). A path
   given to the final program as an option's value, after `=` or attached
-  to a single-dash option (`-I<repo>/lib`), is judged (C4).
+  to a single-dash option (`-I<repo>/lib`), is judged (C4). The holder's
+  ruling `5985553609` (2026-10-04T23:23:22Z, asked by Copilot at
+  `7b11ce8f`) reads *"a real file"* by what it forbids to run: a program
+  that cannot be found runs nothing, is not refused at trust, and is
+  refused as `broker_unreachable` when its start fails. A check at trust
+  that it exists stays open for Brett Heap.
 - Q: A state directory inside the served repository is refused. What of one
   inside some other git checkout? (item 3, finding A14) → A: *"Served repo
   only, limit (Recommended)"*. The check stays as it is, and the wider case
@@ -782,13 +787,17 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   outside the repository, and so SHALL one whose program is a shell or an
   interpreter given an inline script, directly or through a common
   launcher such as `env` or `xargs` (`5984069416`, `5985046107`). The
-  program SHALL be a real file outside the served repository, and every path the command names, the
-  program and each argument alike, SHALL be judged both as named and as it
-  resolves, when trust is recorded and before any spawn, so a link or a
-  `PATH` entry that leads inside, or an in-repo link that points outside,
-  is refused. Every broker SHALL start with its working directory outside
-  the repository and with an environment that points away from it: no
-  `PWD` or `OLDPWD`, no variable whose value is a path inside it, and no
+  program SHALL be a real file outside the served repository, and every
+  path the command names, the program and each argument alike, SHALL be
+  judged both as named and as it resolves, when trust is recorded and
+  before any spawn, so a link or a `PATH` entry that leads inside, or an
+  in-repo link that points outside, is refused. "A real file" is read by
+  what it forbids to run (`5985553609`): a program that cannot be found
+  runs nothing, is not refused when trust is recorded, and SHALL be
+  refused, when its start fails, by the existing named refusal
+  `broker_unreachable`. Every broker SHALL start with its working
+  directory outside the repository and with an environment that points
+  away from it: no `PWD` or `OLDPWD`, no variable whose value is a path inside it, and no
   path-list entry inside it, each judged both as named and as it resolves.
   A launcher's own assignments (`env NAME=value`) SHALL be judged the same
   way, and one whose value is a path inside the repository, or a path list

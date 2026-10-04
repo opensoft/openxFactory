@@ -3474,6 +3474,20 @@ and redesigns none of them.
     bring the program or its script back in, and a link inside the
     repository, which a pull could retarget, is refused even when it points
     outside;
+  - *"a real file"* is read by what it forbids to RUN (the holder's ruling
+    `5985553609`, which neither narrows nor extends `5983805990`): no
+    binding whose program is not a real file outside the served repository
+    ever runs. An inline script, or a file inside the repository (as named
+    and as resolved, through a launcher, a link, a `PATH` entry or an
+    option's value), is refused by name where trust is recorded and again
+    before any spawn, as this addendum says. A program that cannot be found
+    (not on `PATH`, no such file) runs nothing: it is not refused where
+    trust is recorded, and when its broker is started the start fails and
+    the binding is refused by the existing named refusal
+    `broker_unreachable` (the broker could not be started). A broker installed later is judged
+    before it is started, like any other. A check at trust that the program exists is
+    not ruled; it stays open for Brett Heap as a follow-on that would move
+    no box of release 1, and F16.1 carries no case for a missing program;
   - a common launcher (`env`, `nice`, `nohup`, `timeout`, `stdbuf`,
     `setsid`, `xargs` and the like, with their flags) is unwrapped to the
     program it starts, and the inline-script and path rules apply to THAT

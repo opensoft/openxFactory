@@ -732,9 +732,13 @@ accepted release-1 limit, since the trusted command is digested and the
 working directory and environment point away from the repository. Such a
 configuration is refused by name when trust would be recorded for it and again
 before any process is spawned, and the refusal names the remedy, a broker
-installed outside the repository. So a trusted configuration reaches its
-endpoint as the first scenario says only when its broker is a real file
-outside the served repository. Nothing else here moved: the requirement's
+installed outside the repository. A program that cannot be found runs nothing:
+it is not refused when trust would be recorded, and when its broker is started
+the start fails and the configuration is refused by the existing named refusal
+`broker_unreachable` (the holder's ruling `#656` comment `5985553609`, which
+reads "a real file" by what it forbids to run). So a trusted configuration
+reaches its endpoint as the first scenario says only when its broker is a real
+file outside the served repository. Nothing else here moved: the requirement's
 title, the paragraph above with its SHALL sentences, batch K's note, batch M's
 note and all four scenarios stand as ratified, and the requirement still
 carries four scenarios. The rule is recorded at box 16.3a of this change's
