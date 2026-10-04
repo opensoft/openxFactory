@@ -3651,9 +3651,10 @@ and redesigns none of them.
   realization follows this block's ratified text: a state directory that is
   itself a symbolic link is refused by name, and it trusts nothing. The T100
   follow-on openDox-code PR (claim `5982447319`) aligns the code and adds
-  that case, before T087, so T089's run of F16.1 at T087's pin holds the
-  realization to the block as written. This bookkeeping amendment does not
-  itself touch the command above.
+  that case, before T087. So F16.1's runs by T083 and T089, each at an
+  openDox-code commit that carries the follow-on, hold the realization to
+  the block as written, and a run at `38d3350e` closes nothing. This
+  bookkeeping amendment does not itself touch the command above.
 
 ## Follow-ons named here and NOT authored here
 
