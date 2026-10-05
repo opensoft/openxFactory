@@ -39,9 +39,10 @@ from pathlib import Path
 from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
                TAXONOMY, Finding, Skip, recorded_rel)
 from . import (client_identity_composition, corpus, document_catalog,
-               duplicate_packet, family_enumeration, ideation_routing,
-               modified_block_currency, pin_shapes, promotion_fidelity,
-               proposal_origin, release_inventory, release_tag_publication)
+               duplicate_packet, family_enumeration, fs_probe,
+               ideation_routing, modified_block_currency, pin_shapes,
+               promotion_fidelity, proposal_origin, release_inventory,
+               release_tag_publication)
 from .lines import split_keepends
 
 # The NEUTRAL containment helper at the top of `scripts/` — in neither package,
@@ -1630,7 +1631,9 @@ def _pinned_arm(ctx, doc, target, lineno, hit):
                     "root's contracts/ — no symlink loop, no unreadable "
                     "link, no malformed path (document-lifecycle grammar)")
             return
-        if not candidate.is_file():
+        # Must refuse (fs_probe, #1201): a record it cannot stat is not an
+        # absent one, and `continue` would judge the NEXT root's record.
+        if not fs_probe.is_file(candidate):
             continue          # this root carries no such record; try the next
         _judge_pinned_record(doc, hit, target=target, lineno=lineno,
                              pin_id=pin_id, capability=capability,

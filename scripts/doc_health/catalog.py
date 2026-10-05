@@ -61,6 +61,7 @@ provenance that never alters the digest.
 from __future__ import annotations
 
 import copy
+import errno
 import hashlib
 import json
 import os
@@ -797,7 +798,7 @@ def _write_rendered(root: Path, path: Path, text: str) -> None:
     ``write_run``) and the byte-exact run-id verification
     (``run_id_scheme``) compare raw bytes against ``render``'s output."""
     staging = Path(root) / STAGING_DIR
-    _refuse_foreign_node(staging, directory=True)  # never stage via a link
+    _refuse_foreign_node(root, staging, directory=True)  # never via a link
     staging.mkdir(exist_ok=True)
     if not _rename_compatible(staging, path.parent):
         raise _cross_mount_refusal(root, path.parent)
@@ -865,28 +866,93 @@ def _symlink_refusal(node: Path) -> CatalogError:
         f"catalog path is a symlink, which the writer never follows: {node}")
 
 
-def _own_mode(node: Path) -> tuple[int | None, CatalogError | None]:
+def _tree_path(root: Path, node: Path) -> str:
+    """``node`` named by its path under the catalog root ``root`` (``.`` for
+    the root itself), never by its host-absolute path: CI checks the tree
+    out under the runner's home directory, and the secret sweeper redacts
+    such a path from a log, taking a refusal's subject with it
+    (opensoft/openxFactory#1201). A node outside ``root``, which no caller
+    passes, is named by its own name alone rather than by a host path."""
+    try:
+        return Path(node).relative_to(Path(root)).as_posix()
+    except ValueError:
+        return Path(node).name or "."
+
+
+def _unchecked_refusal(root: Path, node: Path, exc: OSError) -> CatalogError:
+    """The refusal for a catalog node whose own ``lstat`` failed for a reason
+    other than its absence (opensoft/openxFactory#1201). What cannot be
+    checked could be a symlink, or could hold a record, so it is refused
+    rather than taken for absent or for link-free. It names the node
+    tree-relative (``_tree_path``) and the failure by its errno name alone:
+    never ``str(exc)``, whose filename is the host-absolute path and whose
+    strerror is platform text."""
+    code = getattr(exc, "errno", None)
+    reason = errno.errorcode.get(code, type(exc).__name__) \
+        if code is not None else type(exc).__name__
+    return CatalogError(
+        f"catalog path could not be checked for a symlink ({reason}), so it "
+        f"is refused rather than taken for absent: {_tree_path(root, node)}")
+
+
+def _lstat_mode(node: Path) -> tuple[int | None, OSError | None]:
+    """The catalog's one probe primitive: ``node``'s own mode, a symlink's
+    included, from one explicit ``os.lstat`` that never follows it.
+    ``(mode, None)`` for a node that is there, ``(None, None)`` when nothing
+    is there (``FileNotFoundError``, ``NotADirectoryError``), and
+    ``(None, exc)`` when the ``lstat`` fails for any other reason, which
+    every caller refuses rather than reads as absent. Each caller names the
+    node its own way: the run scan and the writer's probes under the catalog
+    root (``_own_mode``, ``_node_mode``; opensoft/openxFactory#1201), the
+    writer's walk under the run directory (``_walked_mode``, PR #1200).
+
+    ``Path.exists``, ``is_dir``, ``is_file`` and ``is_symlink`` cannot do
+    this job: Python 3.14 answers False from each of them for a node whose
+    ``stat`` fails for any reason at all, so an unreadable node would read
+    as absent, and as link-free."""
+    try:
+        return os.lstat(node).st_mode, None
+    except (FileNotFoundError, NotADirectoryError):
+        return None, None
+    except OSError as exc:
+        return None, exc
+
+
+def _node_mode(root: Path, node: Path) -> int | None:
+    """``node``'s own mode, a symlink's included (``_lstat_mode``), or None
+    when nothing is there; a node whose ``lstat`` fails for any other reason
+    RAISES the controlled refusal, naming it under the catalog root ``root``
+    (``_unchecked_refusal``; opensoft/openxFactory#1201). The writer's probe
+    for "is anything there, and what" (``_occupied``): it reads an
+    unreadable node as neither absent nor present, on every interpreter
+    version."""
+    mode, exc = _lstat_mode(node)
+    if exc is not None:
+        raise _unchecked_refusal(root, node, exc)
+    return mode
+
+
+def _own_mode(root: Path, node: Path
+              ) -> tuple[int | None, CatalogError | None]:
     """``node``'s own mode, from an ``lstat`` that never follows it:
     ``(mode, None)`` for a node that is not a link, ``(None, None)`` when
     nothing is there, and ``(None, refusal)`` for a node the run scan
     cannot take as link-free. A symlink is refused (``_symlink_refusal``),
     and so is a node whose own ``lstat`` fails for any reason but its
-    absence, because what cannot be checked could be a link. The check is
-    an explicit ``os.lstat`` with its own errno handling: through Python
-    3.13, ``Path.is_symlink`` documents this same propagate-vs-absent
-    contract, but Python 3.14 changes it -- there ``is_symlink`` calls
-    ``os.path.islink`` directly, which swallows every ``OSError`` -- so
-    this keeps the scan's fail-closed guarantee correct on a version CI
-    does not run today, not merely insulated against one that might exist
-    tomorrow."""
-    try:
-        mode = os.lstat(node).st_mode
-    except (FileNotFoundError, NotADirectoryError):
-        return None, None
-    except OSError as exc:
-        return None, CatalogError(
-            f"catalog path could not be checked for a symlink: {exc}")
-    if stat.S_ISLNK(mode):
+    absence (``_unchecked_refusal``, naming it under the catalog root
+    ``root``), because what cannot be checked could be a link. The check is
+    an explicit ``os.lstat`` with its own errno handling (``_lstat_mode``):
+    through Python 3.13, ``Path.is_symlink`` documents this same
+    propagate-vs-absent contract, but Python 3.14 changes it -- there
+    ``is_symlink`` calls ``os.path.islink`` directly, which swallows every
+    ``OSError`` -- so this keeps the scan's fail-closed guarantee correct on
+    a version CI does not run today, not merely insulated against one that
+    might exist tomorrow. The writer's own guard (``_refuse_foreign_node``)
+    classifies its nodes by it too since opensoft/openxFactory#1201."""
+    mode, exc = _lstat_mode(node)
+    if exc is not None:
+        return None, _unchecked_refusal(root, node, exc)
+    if mode is not None and stat.S_ISLNK(mode):
         return None, _symlink_refusal(node)
     return mode, None
 
@@ -909,12 +975,12 @@ def _listing(directory: Path) -> tuple[list[Path], CatalogError | None]:
         return [], _unlisted_refusal(exc)
 
 
-def _link_inside(run_dir: Path) -> CatalogError | None:
+def _link_inside(root: Path, run_dir: Path) -> CatalogError | None:
     """The refusal for a recorded run the scan cannot vouch for as
     link-free, or None. That is a symlink anywhere inside it, or an entry
-    inside it that cannot be checked (``_own_mode``), or a directory inside
-    it that cannot be listed (``_unlisted_refusal``), since a link could
-    hide there.
+    inside it that cannot be checked (``_own_mode``, which names it under
+    the catalog root ``root``), or a directory inside it that cannot be
+    listed (``_unlisted_refusal``), since a link could hide there.
 
     The walk is driven by each node's own ``lstat``: it identifies a link
     before anything else touches it, and it descends only into a real
@@ -933,7 +999,7 @@ def _link_inside(run_dir: Path) -> CatalogError | None:
             return refusal
         directories = []
         for node in nodes:
-            mode, refusal = _own_mode(node)
+            mode, refusal = _own_mode(root, node)
             if refusal is not None:
                 return refusal
             if mode is not None and stat.S_ISDIR(mode):
@@ -980,7 +1046,7 @@ def _iter_runs(root: Path):
     A regular ``run.yaml`` that cannot be parsed still raises
     ``CatalogError`` from the scan, unchanged."""
     for node in _catalog_chain(root):
-        mode, refusal = _own_mode(node)
+        mode, refusal = _own_mode(root, node)
         if refusal is not None:
             raise refusal
         if mode is None or not stat.S_ISDIR(mode):
@@ -991,7 +1057,7 @@ def _iter_runs(root: Path):
     for date_dir in date_dirs:
         if date_dir.name.startswith("."):
             continue
-        mode, refusal = _own_mode(date_dir)
+        mode, refusal = _own_mode(root, date_dir)
         if refusal is None:
             if mode is None or not stat.S_ISDIR(mode):
                 continue
@@ -1003,15 +1069,16 @@ def _iter_runs(root: Path):
             if run_dir.name.startswith("."):
                 continue
             meta_path = run_dir / RUN_META_NAME
-            mode, refusal = _own_mode(run_dir)
+            mode, refusal = _own_mode(root, run_dir)
             if refusal is None:
                 if mode is None or not stat.S_ISDIR(mode):
                     continue
-                mode, refusal = _own_mode(meta_path)  # a dangling one included
+                # a dangling one included
+                mode, refusal = _own_mode(root, meta_path)
             if refusal is None:
                 if mode is None or not stat.S_ISREG(mode):
                     continue  # unrecorded: crashed or still in flight
-                refusal = _link_inside(run_dir)
+                refusal = _link_inside(root, run_dir)
             if refusal is not None:
                 yield _RunEntry(date_dir.name, None, run_dir.name, run_dir,
                                 refusal)
@@ -1023,7 +1090,7 @@ def _iter_runs(root: Path):
 
 # --- sequence claims (concurrent-run protection) ------------------------------
 
-def _read_claims(claims_dir: Path) -> list[tuple]:
+def _read_claims(root: Path, claims_dir: Path) -> list[tuple]:
     """(sequence, as_of) for every claimed sequence number. A claim
     whose content has not landed yet still occupies its number (the
     filename is the claim); its date is simply unknown.
@@ -1034,15 +1101,26 @@ def _read_claims(claims_dir: Path) -> list[tuple]:
     such a node would loop ``_claim_sequence`` forever, because its
     ``O_EXCL`` open would keep colliding with a number the scan never
     counts. Following a link would import a sequence and a date from
-    outside the catalog tree."""
+    outside the catalog tree.
+
+    The claims directory itself is classified by its own ``lstat``
+    (``_own_mode``), so one that cannot be checked is refused rather than
+    read as holding no claims (opensoft/openxFactory#1201): uncounted
+    claims are exactly the hazard above, and Python 3.14's
+    ``Path.is_dir`` answers False for a directory it cannot stat. A link
+    there is refused too, as ``_claim_sequence`` already refuses it."""
     claims = []
-    if not claims_dir.is_dir():
+    # Must refuse: an unreadable claims directory is not an empty one.
+    mode, refusal = _own_mode(root, claims_dir)
+    if refusal is not None:
+        raise refusal
+    if mode is None or not stat.S_ISDIR(mode):
         return claims
     for path in sorted(claims_dir.iterdir()):
         stem, _, suffix = path.name.partition(".")
         if suffix != "yaml" or not stem.isdigit():
             continue
-        _refuse_foreign_node(path, directory=False)
+        _refuse_foreign_node(root, path, directory=False)
         as_of = None
         try:
             as_of = _load_yaml_json(path).get("as_of")
@@ -1108,8 +1186,8 @@ def _claim_sequence(root: Path, day: str, rid: str) -> int:
             highest = max(highest, seq)
             if newest is None or as_of > newest:
                 newest = as_of
-        _refuse_foreign_node(claims_dir, directory=True)  # no linked claims
-        for seq, as_of in _read_claims(claims_dir):
+        _refuse_foreign_node(root, claims_dir, directory=True)  # no links
+        for seq, as_of in _read_claims(root, claims_dir):
             highest = max(highest, seq)
             if as_of is not None and (newest is None or as_of > newest):
                 newest = as_of
@@ -1189,13 +1267,17 @@ def _run_meta_document(rid: str, day: str, sequence: int) -> dict:
     }
 
 
-def _occupied(path: Path) -> bool:
+def _occupied(root: Path, path: Path) -> bool:
     """Something — anything, a dangling symlink included — sits at
-    ``path``."""
-    return path.exists() or path.is_symlink()
+    ``path``. Answered by the node's own ``lstat`` (``_node_mode``), which
+    sees a link without following it, and a node that cannot be checked is
+    refused rather than read as absent (opensoft/openxFactory#1201): an
+    immutable record read as "nothing there" would be written over."""
+    # Must refuse: "not occupied" lets the writer replace what is there.
+    return _node_mode(root, path) is not None
 
 
-def _refuse_foreign_node(node: Path, directory: bool) -> None:
+def _refuse_foreign_node(root: Path, node: Path, directory: bool) -> None:
     """Refuse a node the writer did not make and would not make there. That
     means a symlink, to anything, or a node of the wrong type: a
     non-directory where the writer needs a directory, or a non-file where it
@@ -1203,12 +1285,21 @@ def _refuse_foreign_node(node: Path, directory: bool) -> None:
     Followed, a symlink would send the run's writes and claims out of the
     catalog tree, or accept an outside file as an immutable record that
     stays mutable from outside. So the writer never follows one, even a
-    symlink that points inside the tree."""
-    if node.is_symlink():
-        raise CatalogError(
-            f"catalog path is a symlink, which the writer never follows: "
-            f"{node}")
-    if node.exists() and not (node.is_dir() if directory else node.is_file()):
+    symlink that points inside the tree.
+
+    One explicit ``lstat`` classifies the node (``_own_mode``), so a node
+    whose ``lstat`` fails for any reason but its absence is refused too,
+    named under the catalog root ``root`` (opensoft/openxFactory#1201).
+    What cannot be checked could be a link, and Python 3.14's
+    ``Path.is_symlink`` and ``Path.exists`` answer False for it, which
+    would pass it as absent. One ``lstat`` also leaves no window between
+    three separate stats for the node to change in."""
+    # Must refuse: this guard is the writer's no-follow guarantee.
+    mode, refusal = _own_mode(root, node)
+    if refusal is not None:
+        raise refusal
+    if mode is not None and not (
+            stat.S_ISDIR(mode) if directory else stat.S_ISREG(mode)):
         wanted = "non-directory" if directory else "non-file"
         raise CatalogError(f"catalog path is occupied by a {wanted}: {node}")
 
@@ -1260,18 +1351,17 @@ def _walked_mode(run_dir: Path, node: Path) -> int | None:
     refuses it (``_symlink_refusal``). A node whose ``lstat`` fails for any
     reason but its absence is refused too, since what cannot be checked
     could be a link, but by its path relative to ``run_dir``, as
-    ``_unenumerable_refusal`` names a directory: ``_own_mode``'s refusal
-    interpolates the raw ``OSError``, which carries the host-absolute path
-    (PR #1200 review, Copilot)."""
-    try:
-        mode = os.lstat(node).st_mode
-    except (FileNotFoundError, NotADirectoryError):
-        return None
-    except OSError as exc:
+    ``_unenumerable_refusal`` names a directory, never by the raw
+    ``OSError``, which carries the host-absolute path (PR #1200 review,
+    Copilot). The ``lstat`` is the catalog's one probe primitive
+    (``_lstat_mode``), shared with ``_own_mode`` since
+    opensoft/openxFactory#1201."""
+    mode, exc = _lstat_mode(node)
+    if exc is not None:
         raise CatalogError(
             f"catalog path could not be checked for a symlink "
             f"({node.relative_to(run_dir).as_posix()}): {run_dir}") from exc
-    if stat.S_ISLNK(mode):
+    if mode is not None and stat.S_ISLNK(mode):
         raise _symlink_refusal(node)
     return mode
 
@@ -1442,9 +1532,9 @@ def _refuse_unsafe_run_paths(root: Path, run_dir: Path, targets) -> None:
               if run_dir in p.parents}
     directories += sorted(nested, key=lambda p: (len(p.parts), p))
     for node in directories:
-        _refuse_foreign_node(node, directory=True)
+        _refuse_foreign_node(root, node, directory=True)
     for node in [run_dir / RUN_META_NAME, *targets]:
-        _refuse_foreign_node(node, directory=False)
+        _refuse_foreign_node(root, node, directory=False)
     staging = Path(root) / STAGING_DIR
     for directory in sorted({run_dir, *(t.parent for t in targets)}):
         if not _rename_compatible(staging, directory):
@@ -1463,21 +1553,21 @@ def _refuse_foreign_run_tree(root: Path, run_dir: Path) -> None:
     The run-identity check calls this before it reads a run."""
     for node in [*_catalog_chain(root), Path(root) / SEQUENCE_DIR,
                  run_dir.parent, run_dir]:
-        _refuse_foreign_node(node, directory=True)
+        _refuse_foreign_node(root, node, directory=True)
     _refuse_links_inside(run_dir)
 
 
-def _read_record(path: Path) -> bytes:
+def _read_record(root: Path, path: Path) -> bytes:
     """Raw bytes of one existing regular-file catalog record (never through
     a symlink), with an unreadable file raised as ``CatalogError``."""
-    _refuse_foreign_node(path, directory=False)
+    _refuse_foreign_node(root, path, directory=False)
     try:
         return path.read_bytes()
     except OSError as exc:
         raise CatalogError(f"corrupt catalog artifact {path}: {exc}")
 
 
-def _holds_exactly(target: Path, expected: bytes) -> bool:
+def _holds_exactly(root: Path, target: Path, expected: bytes) -> bool:
     """False when ``target`` is absent, True when it is a regular file
     holding exactly ``expected``, and ``CatalogError`` when anything else
     occupies it — a file with other bytes (an immutable snapshot is never
@@ -1487,22 +1577,22 @@ def _holds_exactly(target: Path, expected: bytes) -> bool:
     mutable from outside it). Compared as RAW bytes: a universal-newline
     text read would translate a CRLF edit back to the writer's LF and wave
     an altered record through as a completed no-op."""
-    if not _occupied(target):
+    if not _occupied(root, target):
         return False
-    if _read_record(target) != expected:
+    if _read_record(root, target) != expected:
         raise CatalogError(
             f"immutable snapshot already exists with different content: "
             f"{target}")
     return True
 
 
-def _addresses_itself(run_dir: Path, rid: str) -> bool:
+def _addresses_itself(root: Path, run_dir: Path, rid: str) -> bool:
     """True when the snapshots already recorded in ``run_dir`` make up
     exactly the content ``rid`` addresses (``_persisted_digest`` over their
     raw bytes). That makes the run complete and closed. A partial run does
     not address itself yet, because it crashed between its first snapshot
     and its last. Neither does a run named by the legacy key."""
-    persisted = _load_run_bytes(run_dir)
+    persisted = _load_run_bytes(root, run_dir)
     return bool(persisted) and _persisted_digest(rid, persisted) == rid
 
 
@@ -1520,9 +1610,9 @@ def _recorded(root: Path, run_dir: Path, rid: str, day: str) -> bool:
     this run never claimed, and ``load_snapshot`` would order the run by
     that sequence, or fail on a non-integer one."""
     meta_path = run_dir / RUN_META_NAME
-    if not _occupied(meta_path):
+    if not _occupied(root, meta_path):
         return False
-    raw = _read_record(meta_path)
+    raw = _read_record(root, meta_path)
     try:
         sequence = json.loads(raw.decode("utf-8")).get("sequence")
     except (UnicodeDecodeError, ValueError, AttributeError):
@@ -1535,9 +1625,9 @@ def _recorded(root: Path, run_dir: Path, rid: str, day: str) -> bool:
             f"(run_id {rid}, as_of {day}, a positive integer sequence, byte "
             f"for byte): {meta_path}")
     claim_path = Path(root) / SEQUENCE_DIR / f"{sequence:06d}.yaml"
-    _refuse_foreign_node(claim_path.parent, directory=True)  # no linked claims
-    if not _occupied(claim_path) or _read_record(claim_path) != render(
-            _claim_document(sequence, day, rid)).encode("utf-8"):
+    _refuse_foreign_node(root, claim_path.parent, directory=True)  # no links
+    if not _occupied(root, claim_path) or _read_record(root, claim_path) \
+            != render(_claim_document(sequence, day, rid)).encode("utf-8"):
         raise CatalogError(
             f"catalog run metadata states sequence {sequence}, which this "
             f"run never claimed: {meta_path}")
@@ -1620,12 +1710,14 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
     target = _repo_file(run_dir, repo)
     meta_path = run_dir / RUN_META_NAME
     _refuse_unsafe_run_paths(root, run_dir, [target])
-    if run_dir.exists():  # a real directory, per the check above
+    # Must refuse: an unreadable run directory is not an absent one, and
+    # taking it for absent would skip the link walk below.
+    if _occupied(root, run_dir):  # a real directory, per the check above
         # A partial run is healed only if it holds no link anywhere, since
         # healing it would otherwise close a run around one.
         _refuse_links_inside(run_dir)
 
-    if _holds_exactly(target, expected):
+    if _holds_exactly(root, target, expected):
         if _recorded(root, run_dir, rid, day):
             # Completed no-op: already recorded. Its snapshot and run.yaml
             # may be another writer's renames that are not synced yet, and
@@ -1643,12 +1735,12 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
             run_dir.mkdir()
         except FileExistsError:
             pass  # raced an identical-content run — same rid, same bytes
-    elif _addresses_itself(run_dir, rid):
+    elif _addresses_itself(root, run_dir, rid):
         # Recorded, and the content its id addresses is already all there,
         # so this target (absent above) is no part of it. The exception is
         # a concurrent identical writer that has just landed it: that is
         # the completed no-op, once its rename is durable.
-        if _holds_exactly(target, expected):
+        if _holds_exactly(root, target, expected):
             _fsync_publish(root, target.parent)
             return target
         raise CatalogError(
@@ -1657,7 +1749,7 @@ def write_snapshot(root, as_of, run_id, repo, entries, taxonomy) -> Path:
             f"mix it: {target}")
 
     target.parent.mkdir(parents=True, exist_ok=True)
-    if _holds_exactly(target, expected):  # re-check: race lost mid-write
+    if _holds_exactly(root, target, expected):  # re-check: raced mid-write
         # Another writer published it: durable before run.yaml names it.
         _fsync_publish(root, target.parent)
     else:
@@ -1720,13 +1812,15 @@ def write_run(root, as_of, entries_by_repo: dict, taxonomy
     run_dir = Path(root) / RUNS_DIR / day / rid
     targets = {repo: _repo_file(run_dir, repo) for repo in entries_by_repo}
     _refuse_unsafe_run_paths(root, run_dir, targets.values())
-    if run_dir.exists():  # a real directory, per the check above
+    # Must refuse: an unreadable run directory is not an absent one, and
+    # taking it for absent would skip both preflight walks below.
+    if _occupied(root, run_dir):  # a real directory, per the check above
         _refuse_links_inside(run_dir)
         _refuse_foreign_descendants(
             run_dir, [run_dir / RUN_META_NAME, *targets.values()])
     _recorded(root, run_dir, rid, day)  # an existing run.yaml must be ours
     for repo in sorted(entries_by_repo):
-        _holds_exactly(targets[repo], render(_snapshot_document(
+        _holds_exactly(root, targets[repo], render(_snapshot_document(
             rid, repo, list(entries_by_repo[repo]), taxonomy_block))
             .encode("utf-8"))
     paths = {}
@@ -1754,7 +1848,7 @@ def _load_run(run_dir: Path, day: str, sequence: int, rid: str) -> dict:
             "repos": repos}
 
 
-def _load_run_bytes(run_dir: Path) -> dict:
+def _load_run_bytes(root: Path, run_dir: Path) -> dict:
     """{repository: raw persisted snapshot bytes} for one run directory —
     exactly what ``run_id_scheme`` verifies a recorded run against. Raw,
     never a decoded text read: universal-newline translation would turn a
@@ -1763,7 +1857,7 @@ def _load_run_bytes(run_dir: Path) -> dict:
     ``CatalogError`` rather than having its target's bytes hashed as if the
     run held them, and so does an unreadable file, as in
     ``_load_yaml_json``."""
-    return {repo: _read_record(path)
+    return {repo: _read_record(root, path)
             for repo, path in _snapshot_files(run_dir)}
 
 
