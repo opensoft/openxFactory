@@ -34,10 +34,12 @@ SCHEMA_SINGLE = ("items", "additionalItems", "contains", "additionalProperties",
 SCHEMA_LISTS = ("allOf", "anyOf", "oneOf", "prefixItems")
 # `$defs` and `definitions` hold schemas that apply only when referenced.
 STORAGE = ("$defs", "definitions")
-# Subschemas an outcome never lives in: a negation, and a condition that only
-# selects `then` or `else`. Reachability and coverage do not enter them; the
-# reference walk still does, so a remote reference under them is still refused.
-NOT_OUTCOMES = ("not", "if")
+# Subschemas an outcome never lives in: a negation, a condition that only
+# selects `then` or `else`, and keywords a 2020-12 evaluator never applies
+# (`contentSchema` is an annotation; `additionalItems` and `dependencies` are
+# older drafts'). Reachability and coverage do not enter them; the reference
+# walk still does, so a remote reference under them is still refused.
+NOT_OUTCOMES = ("not", "if", "contentSchema", "additionalItems", "dependencies")
 UNIONS = ("oneOf", "anyOf")
 # Constraints that may narrow a vocabulary; never infer exhaustiveness through them.
 NARROWING = ("allOf", "not", "if", "then", "else", "pattern", "minLength", "maxLength",
@@ -162,6 +164,12 @@ def references(declaration):
         yield f"/evidence/{i}/source", record["source"]
 
 
+def admits(kind, wanted, only):
+    """Whether a JSON Schema `type` admits `wanted`; with `only`, nothing else."""
+    kinds = kind if isinstance(kind, list) else [kind]
+    return wanted in kinds and (not only or set(kinds) == {wanted})
+
+
 def union_of(parts):
     """The union of finite vocabularies, or None when any one is unresolved."""
     parts = list(parts)
@@ -218,10 +226,14 @@ class Offline:
         if key not in self.documents:
             try:
                 document = json_loads(self.read(key))
+            except Invalid:
+                raise
             except (json.JSONDecodeError, UnicodeDecodeError):
                 raise Invalid("malformed_schema_json") from None
             except RecursionError:
                 raise Invalid("schema_depth_limit") from None
+            except ValueError:
+                raise Invalid("json_number_limit") from None
             try:
                 Draft202012Validator.check_schema(document)
             except RecursionError:
@@ -342,9 +354,16 @@ class Offline:
         token = (key, id(node), discriminator)
         if token in seen or any(k in node for k in NARROWING):
             return None
+        # A value vocabulary needs strings; a discriminated one, objects only.
+        if "type" in node and not admits(node["type"], "string" if discriminator is None else "object",
+                                         only=discriminator is not None):
+            return None
+        names = node.get("required", [])
+        if not isinstance(names, list) or not all(isinstance(name, str) for name in names):
+            return None
         seen = seen | {token}
-        required = required | set(node.get("required", []))
-        typed = typed or node.get("type") == "object"
+        required = required | set(names)
+        typed = typed or ("type" in node and admits(node["type"], "object", only=True))
         if "$ref" in node:
             if any(k in node for k in ("enum", "const", *UNIONS)) or (
                     discriminator is not None and "properties" in node):
@@ -358,13 +377,12 @@ class Offline:
     def finite_values(self, key, node, resource, seen):
         """A value vocabulary: `enum`, `const`, or a union of them. Under `oneOf`
         a value is valid only when exactly one branch accepts it."""
-        kind = node.get("type")
-        if kind is not None and kind != "string" and not (isinstance(kind, list) and "string" in kind):
-            return None
         unions = [u for u in UNIONS if u in node]
         if len(unions) > 1 or (unions and ("enum" in node or "const" in node)):
             return None
         if unions:
+            if not isinstance(node[unions[0]], list):
+                return None
             parts = [self.finite(key, item, resource, None, frozenset(), seen) for item in node[unions[0]]]
             if any(p is None for p in parts):
                 return None
@@ -373,6 +391,8 @@ class Offline:
             counts = Counter(value for part in parts for value in part)
             return {value for value, count in counts.items() if count == 1}
         values = node.get("enum")
+        if values is not None and not isinstance(values, list):
+            return None
         if "const" in node:
             if "enum" in node and node["const"] not in node["enum"]:
                 return None
@@ -390,7 +410,7 @@ class Offline:
         properties = node.get("properties")
         for union in UNIONS:
             if union in node:
-                if isinstance(properties, dict) and discriminator in properties:
+                if (isinstance(properties, dict) and discriminator in properties) or not isinstance(node[union], list):
                     return None
                 return union_of(self.finite(key, item, resource, discriminator, required, seen, typed)
                                 for item in node[union])
@@ -515,7 +535,8 @@ def check_input(declaration, found):
         except ValueError:
             found.add("structure", "non_json_number")
             return
-        if len(text.encode("utf-8", "surrogatepass")) > INPUT_LIMIT:
+        # A lone surrogate is written as a six-byte `\uXXXX` escape.
+        if len(text.encode("utf-8", "backslashreplace")) > INPUT_LIMIT:
             found.add("structure", "input_size_limit")
     except RecursionError:
         found.add("structure", "json_depth_limit")
@@ -688,13 +709,18 @@ def check_inventories(tool, offline, gap_index, bad):
         document = offline.document(key)
         try:
             node, resource = offline.locate(document, inventory["pointer"])
-            values = offline.finite(key, node, resource, inventory.get("discriminator"))
         except Invalid:
             bad("invalid_inventory_pointer", here + "/pointer")
             pointer_failed.add(key)
             continue
         if (key, id(node)) not in offline.reach(key, document, document):
             bad("unreachable_inventory", here + "/pointer")
+            continue
+        try:
+            values = offline.finite(key, node, resource, inventory.get("discriminator"))
+        except (TypeError, ValueError):
+            bad("invalid_inventory_pointer", here + "/pointer")
+            pointer_failed.add(key)
             continue
         gap = inventory["gap_id"]
         placed.append((role, key, (key, id(node)), gap is not None))
@@ -803,6 +829,9 @@ def read_declaration(path):
         return None, "malformed_json"
     except RecursionError:
         return None, "json_depth_limit"
+    except ValueError:
+        # Python 3.11+ refuses integers past its digit limit with a plain ValueError.
+        return None, "json_number_limit"
 
 
 def main(argv=None):
