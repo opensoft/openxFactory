@@ -1,0 +1,2 @@
+AT-R1 HTTP half    at 389e5a4a22e1778653dac9f17172de2c18f9f808: PASS (314 assertions held)
+AT-R1 browser half at 389e5a4a22e1778653dac9f17172de2c18f9f808: PASS ((a) PASS; (b) PASS)
