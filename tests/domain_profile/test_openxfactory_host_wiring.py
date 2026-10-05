@@ -24,7 +24,8 @@ TWO PINNED SHAPES, AND EVERY TEST HOLDS AT BOTH. Until plan 034's T047 moves
 `contracts/opendox-pin.yaml`, the pinned openDox leg predates the seams: its
 `DashboardHandler` still takes `LaneRoutes` as a base, and its reaches import
 this repository's packages by name. From T047's pin on, the leg carries T010's
-facet, T011's handler without the lanes base, and the five seams. A test whose
+facet, T011's handler without the lanes base, and phase 1's five seams; from
+T094's on, T100's binding-trust seam too, so six. A test whose
 subject exists only at the second shape asserts, at the first, the fact that
 makes it absent, so no test passes by skipping. `LEG_HAS_THE_SEAMS` is read
 off the leg's own classes, never off openxFactory's replica of
@@ -95,7 +96,8 @@ SEAM_CALLS = (
 
 #: Which of the two pinned shapes this run composes, read off the LEG: T011
 #: took `LaneRoutes` off `DashboardHandler`'s bases in the same phase-1 commit
-#: that carries the five seams.
+#: that carries phase 1's five seams (T100's sixth arrived later, and every
+#: pin from T094's carries all six).
 LEG_HAS_THE_SEAMS = LANE_ROUTES not in serve_mod.DashboardHandler.__mro__
 
 
@@ -115,10 +117,14 @@ def _run(program: str) -> subprocess.CompletedProcess:
 # --------------------------------------------------------------------------
 
 def test_the_pinned_leg_is_one_of_the_two_shapes():
-    """The seams and T011's handler arrive in one phase-1 commit, so a leg has
-    all of them or none. A leg with some of each is a pin between those
+    """Phase 1's five seams and T011's handler arrive in one phase-1 commit,
+    and T100's binding-trust seam at a later one, so a leg at T094's pin or
+    after has all six. A leg with some of them is a pin between those
     landings, which `register_seams()` refuses too, and every two-shape test
-    below would be asserting the wrong half."""
+    below would be asserting the wrong half. A leg from before T100 cannot be
+    pinned again (the pins only move forward), and `seams()` imports
+    `doxbench_trust`, so such a leg fails with an ImportError rather than
+    `HostSeamsIncomplete`: an accepted limit."""
     declared = [f"{module.__name__}.{call}" for module, call in SEAM_CALLS
                 if callable(getattr(module, call, None))]
     if LEG_HAS_THE_SEAMS:
@@ -590,17 +596,18 @@ def test_another_hosts_home_is_never_reached_by_the_overwrite():
 
 
 class _FakeSeams:
-    """Four seams in the shapes openDox's own take, plus a home seam with no
-    call that empties it: the same object again is a no-op, a different one
-    is refused, and each has the public query and emptying calls the host's
-    take-back reads."""
+    """Five seams in the shapes openDox's own take, the binding-trust seam
+    among them, plus a home seam with no call that empties it: the same
+    object again is a no-op, a different one is refused, and each has the
+    public query and emptying calls the host's take-back reads, and, where
+    openDox's own seam has one, the call that registers a default."""
 
     class Refused(Exception):
         pass
 
     def __init__(self, **held):
         self.state = {"scope": None, "check": None, "validators": None,
-                      "rail": None, "home": None, **held}
+                      "rail": None, "trust": None, "home": None, **held}
         self.workbench = types.SimpleNamespace(
             __name__="fake_workbench", DEFAULT_SESSION_NOTEBOOK_SCOPE="all",
             register_session_notebook_scope=self._register("scope"),
@@ -613,12 +620,20 @@ class _FakeSeams:
             __name__="fake_serve_wire",
             register_doxbench_validators=self._register("validators"),
             doxbench_validators_registered=lambda: self.state["validators"] is not None,
-            unregister_doxbench_validators=self._empty("validators"))
+            unregister_doxbench_validators=self._empty("validators"),
+            register_default_doxbench_validators=self._default("validators"))
         self.packet = types.SimpleNamespace(
             __name__="fake_packet",
             register_status_exemption=self._register("rail"),
             status_exemption_registered=lambda: self.state["rail"] is not None,
-            unregister_status_exemption=self._empty("rail"))
+            unregister_status_exemption=self._empty("rail"),
+            register_default_status_exemption=self._default("rail"))
+        self.trust = types.SimpleNamespace(
+            __name__="fake_trust",
+            register=self._register("trust"),
+            is_registered=lambda: self.state["trust"] is not None,
+            unregister=self._empty("trust"),
+            register_default=lambda: self._default("trust")("a default"))
         self.corpus = types.SimpleNamespace(
             __name__="fake_corpus_adapter",
             register_home=lambda factory: self.state.update(home=factory))
@@ -633,12 +648,19 @@ class _FakeSeams:
     def _empty(self, key):
         return lambda: self.state.update({key: None})
 
+    def _default(self, key):
+        def register_default(value):
+            if self.state[key] is None:
+                self.state[key] = value
+        return register_default
+
     def table(self, scope="documents"):
         return (
             (self.workbench, "register_session_notebook_scope", scope),
             (self.workbench, "register_health_check", "host check"),
             (self.serve_wire, "register_doxbench_validators", "host validators"),
             (self.packet, "register_status_exemption", "host rail"),
+            (self.trust, "register", "host policy"),
             (self.corpus, "register_home", "host home"),
         )
 
@@ -653,7 +675,39 @@ def test_a_refused_seam_leaves_none_of_this_calls_writes_behind(monkeypatch):
         opendox_host.register_seams()
     assert fake.state == {"scope": None, "check": None,
                           "validators": "another host's validators",
-                          "rail": None, "home": None}
+                          "rail": None, "trust": None, "home": None}
+
+
+def test_a_refusal_at_the_trust_seam_leaves_none_of_this_calls_writes_behind(
+        monkeypatch):
+    """The binding-trust seam (T100) is the fifth registration, so a refusal
+    there comes after four writes. Here it already holds another host's
+    policy, and the four seams written before it are emptied again."""
+    fake = _FakeSeams(trust="another host's policy")
+    monkeypatch.setattr(opendox_host, "seams", fake.table)
+    with pytest.raises(_FakeSeams.Refused):
+        opendox_host.register_seams()
+    assert fake.state == {"scope": None, "check": None, "validators": None,
+                          "rail": None, "trust": "another host's policy",
+                          "home": None}
+
+
+def test_a_leg_with_some_of_the_six_seams_is_refused_naming_the_two_landings(
+        monkeypatch):
+    """Phase 1's five seams arrive at one openDox-code commit and T100's
+    binding-trust seam at a later one, so a leg with some of the six is a
+    pin between those landings, and the refusal says which."""
+    fake = _FakeSeams()
+    delattr(fake.trust, "register")
+    monkeypatch.setattr(opendox_host, "seams", fake.table)
+    with pytest.raises(opendox_host.HostSeamsIncomplete) as excinfo:
+        opendox_host.register_seams()
+    message = str(excinfo.value)
+    assert "fake_trust.register" in message
+    assert "T100" in message and "all six" in message, message
+    assert "all five" not in message, message
+    assert fake.state == {"scope": None, "check": None, "validators": None,
+                          "rail": None, "trust": None, "home": None}
 
 
 @pytest.mark.parametrize("seam, dropped", [
@@ -661,6 +715,11 @@ def test_a_refused_seam_leaves_none_of_this_calls_writes_behind(monkeypatch):
     ("workbench", "health_check_registered"),
     ("serve_wire", "unregister_doxbench_validators"),
     ("packet", "status_exemption_registered"),
+    ("trust", "is_registered"),
+    ("trust", "unregister"),
+    ("serve_wire", "register_default_doxbench_validators"),
+    ("packet", "register_default_status_exemption"),
+    ("trust", "register_default"),
 ])
 def test_a_seam_without_its_take_back_calls_is_refused_before_any_write(
         monkeypatch, seam, dropped):
@@ -678,7 +737,7 @@ def test_a_seam_without_its_take_back_calls_is_refused_before_any_write(
         opendox_host.register_seams()
     assert f"{module.__name__}.{dropped}" in str(excinfo.value)
     assert fake.state == {"scope": None, "check": None, "validators": None,
-                          "rail": None, "home": None}
+                          "rail": None, "trust": None, "home": None}
 
 
 def test_a_refusal_keeps_what_this_host_had_already_registered(monkeypatch):
@@ -692,7 +751,7 @@ def test_a_refusal_keeps_what_this_host_had_already_registered(monkeypatch):
         opendox_host.register_seams()
     assert fake.state == {"scope": "documents", "check": "host check",
                           "validators": None, "rail": "another host's rail",
-                          "home": None}
+                          "trust": None, "home": None}
 
 
 def test_a_default_scope_registered_before_this_call_is_not_taken_back(
@@ -758,6 +817,186 @@ def test_a_refused_seam_on_the_pinned_leg_takes_the_others_back():
             "after opendox.corpus_adapter.register_home"], proc.stdout
     else:
         assert proc.stdout.splitlines() == ["LEG HAS NO SEAMS ()"], proc.stdout
+
+
+_TRUST_REFUSAL_PROBE = """
+    import sys
+    sys.path.insert(0, {scripts!r})
+    import carved_reach
+    carved_reach.install()
+    import opendox_host
+    from opendox import (corpus_adapter, doxbench_packet, doxbench_trust,
+                         serve_wire, workbench)
+    from opendox import domain_profile as odp
+
+    def state():
+        try:
+            corpus_adapter.home()
+            home = "set"
+        except corpus_adapter.CorpusRefused:
+            home = "empty"
+        return (workbench.session_notebook_scope(),
+                workbench.health_check_registered(),
+                serve_wire.doxbench_validators_registered(),
+                doxbench_packet.status_exemption_registered(),
+                doxbench_trust.is_registered(), home)
+
+    odp.register(opendox_host.profile())   # the profile alone, no seam
+    case = {case!r}
+    if case == "another-host":
+        other = doxbench_trust.MachineTrust()
+        doxbench_trust.register(other)
+    elif case == "read-default":
+        other = doxbench_trust.policy()    # a consumer reads the lazy default
+    else:
+        other = doxbench_trust.register_default()   # registered, never read
+    try:
+        opendox_host.register_seams()
+        print("REGISTERED")
+    except doxbench_trust.TrustPolicyAlreadyRegistered:
+        print("REFUSED")
+    print("after", state())
+    print("host policy", doxbench_trust._registered
+          is opendox_host.binding_trust_policy())
+    print("other kept", doxbench_trust._registered is other)
+"""
+
+
+@pytest.mark.parametrize("case, expected", [
+    ("another-host", ["REFUSED",
+                      "after ('all', False, False, False, True, 'empty')",
+                      "host policy False", "other kept True"]),
+    ("read-default", ["REFUSED",
+                      "after ('all', False, False, False, True, 'empty')",
+                      "host policy False", "other kept True"]),
+    ("unread-default", ["REGISTERED",
+                        "after ('documents', True, True, True, True, 'set')",
+                        "host policy True", "other kept False"]),
+])
+def test_the_trust_seam_on_the_pinned_leg_refuses_and_takes_the_others_back(
+        case, expected):
+    """The binding-trust seam on the leg's own seams, in a SUBPROCESS: over
+    another host's policy, or openDox's strict default once a consumer has
+    read it, `register()` refuses, the four seams this call wrote before it
+    are emptied again, and the policy that was there stays. Over the unread
+    default it replaces it, as 16.3a lets a host's own registration win
+    (R1Q3 (ii))."""
+    proc = _run(_TRUST_REFUSAL_PROBE.replace("{case!r}", repr(case)))
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.splitlines() == expected, proc.stdout
+
+
+def test_a_refusal_gives_back_the_unread_defaults_this_call_replaced():
+    """Copilot, PR #1236: openDox's entry points register openDox's own
+    defaults at the two doxBench seams where no host has (T085,
+    `doxbench_defaults.register_defaults()`), and a host replaces them while
+    they are unread. If a later seam then refuses, here the trust seam over
+    another host's policy, each seam this call wrote holds again what it held
+    before: the validators and the rail are openDox's defaults again, and
+    still unread, so the host's own start can still replace them once the
+    other policy is gone. In a SUBPROCESS, because the seams are
+    process-wide."""
+    proc = _run("""
+        import sys
+        sys.path.insert(0, {scripts!r})
+        import carved_reach
+        carved_reach.install()
+        import opendox_host
+        from opendox import (doxbench_defaults, doxbench_packet, doxbench_trust,
+                             serve_wire, validator)
+        from opendox import domain_profile as odp
+        from ideation_dashboard import doxbench_status_exemption
+        odp.register(opendox_host.profile())
+        doxbench_defaults.register_defaults()          # an entry point's two
+        doxbench_trust.register(doxbench_trust.MachineTrust())  # another host
+        try:
+            opendox_host.register_seams()
+        except doxbench_trust.TrustPolicyAlreadyRegistered:
+            print("REFUSED")
+        print("rail default",
+              doxbench_packet._status_exemption_rail
+              is doxbench_defaults.NO_STATUS_EXEMPTION,
+              doxbench_packet._status_exemption_is_default,
+              doxbench_packet._status_exemption_default_read)
+        print("validators default",
+              serve_wire._doxbench_validators_factory
+              is validator.doxbench_validators,
+              serve_wire._doxbench_validators_is_default,
+              serve_wire._doxbench_validators_default_read)
+        doxbench_trust.unregister()
+        opendox_host.register_seams()
+        print("then host rail", doxbench_packet._status_exemption_rail
+              is doxbench_status_exemption)
+        print("then host validators", serve_wire._doxbench_validators_factory
+              is opendox_host.doxbench_validators)
+    """)
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.splitlines() == [
+        "REFUSED", "rail default True True False",
+        "validators default True True False",
+        "then host rail True", "then host validators True"], proc.stdout
+
+
+def test_the_defaults_the_host_gives_back_are_read_where_the_leg_keeps_them():
+    """`opendox_host._DEFAULTS` reads two globals of each seam that holds a
+    default, because the seams' public readers close the default's window.
+    A leg that renamed them would make `register_seams()` miss a replaced
+    default silently, so the names are pinned here at the pinned leg, for
+    exactly the three seams that hold a default."""
+    if not LEG_HAS_THE_SEAMS:
+        assert not hasattr(serve_wire, "register_doxbench_validators")
+        return
+    modules = {call: module for module, call in SEAM_CALLS}
+    assert sorted(opendox_host._DEFAULTS) == [
+        "register", "register_doxbench_validators", "register_status_exemption"]
+    for call, (held, is_default, restore, _takes_it) in opendox_host._DEFAULTS.items():
+        module = modules[call]
+        assert hasattr(module, held), f"{module.__name__}.{held}"
+        assert isinstance(getattr(module, is_default), bool), (
+            f"{module.__name__}.{is_default}")
+        assert callable(getattr(module, restore)), f"{module.__name__}.{restore}"
+
+
+def test_a_column_call_that_registers_nothing_is_refused_before_any_host_seam():
+    """`openxdox.column_contributions.register()` registers nothing where
+    openXdox's `gate_console` does not import, and records why in `SKIPPED`.
+    In openxFactory's own process it always imports, so a call that registers
+    nothing is a broken assembly: `register_openxfactory()` refuses it with
+    `HostSeamsIncomplete`, naming that reason, before any seam of this host's
+    is written. In a SUBPROCESS, because the seams are process-wide."""
+    proc = _run("""
+        import sys
+        sys.path.insert(0, {scripts!r})
+        import carved_reach
+        carved_reach.install()
+        import opendox_host
+        from openxdox import column_contributions
+        from opendox import (corpus_adapter, doxbench_packet, doxbench_trust,
+                             serve_wire, workbench)
+        def register_nothing():
+            column_contributions.SKIPPED = "probe: gate_console did not import"
+            return ()
+        column_contributions.register = register_nothing
+        try:
+            opendox_host.register_openxfactory()
+        except opendox_host.HostSeamsIncomplete as exc:
+            print("REFUSED", "probe: gate_console did not import" in str(exc))
+        else:
+            print("NO REFUSAL")
+        try:
+            corpus_adapter.home()
+            home = "set"
+        except corpus_adapter.CorpusRefused:
+            home = "empty"
+        print("seams", workbench.session_notebook_scope(),
+              workbench.health_check_registered(),
+              serve_wire.doxbench_validators_registered(),
+              doxbench_packet.status_exemption_registered(),
+              doxbench_trust.is_registered(), home)
+    """)
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.splitlines() == [
+        "REFUSED True", "seams all False False False False empty"], proc.stdout
 
 
 def test_registering_imports_neither_factorys_package():

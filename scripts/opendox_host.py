@@ -81,11 +81,12 @@ import carved_reach
 
 __all__ = [
     "FACETS",
+    "GOVERNED_PENDING_REASON",
+    "GovernedBindingTrust",
     "HostProfileNotRegistered",
     "HostSeamsIncomplete",
     "PROFILE_PATH",
     "SESSION_NOTEBOOK_SCOPE",
-    "GovernedBindingTrust",
     "binding_trust_policy",
     "build_profile",
     "doxbench_validators",
@@ -381,7 +382,8 @@ class GovernedBindingTrust:
     operator recorded on this machine, and refuses the console intake's
     broker outright (`INTAKE_BROKER_UNTRUSTED`). This host's flow is governed
     instead, and 16.3a lets a host's own registration win. So the governed
-    flow stays what it was before T100 (requirement 1):
+    flow stays what it was before T100 (requirement 1), in every case but the
+    last below:
 
     * a binding whose model declaration is PENDING is refused, as the port
       factory already passes over it (`pending_binding_ids`, the one question
@@ -393,7 +395,9 @@ class GovernedBindingTrust:
       broker runs (the PENDING declaration is written after the hand-off), so
       the intake is admitted as it was, through `intake_verdict` below;
     * a declarations document that cannot be read admits nothing, naming the
-      store's own refusal.
+      store's own refusal. THIS ONE CASE CHANGED, deliberately: before T100
+      an unreadable document read as nothing pending, so every binding was
+      used; now the policy fails closed, as the ruling (`5970369724`) asks.
 
     `record()` writes nothing and returns nothing: the governed record is the
     gate's, so `add`, `edit`, `set-credential` and `trust` leave the
@@ -480,8 +484,10 @@ class HostProfileNotRegistered(RuntimeError):
 
 
 class HostSeamsIncomplete(RuntimeError):
-    """The pinned openDox leg declares some of phase 1's seams and not others,
-    or declares them without the public calls that take one back."""
+    """The pinned openDox leg declares some of the six seams this host fills
+    and not others (phase 1's five, and T100's binding-trust seam), or
+    declares them without the public calls that take one back, or openXdox's
+    governed columns registered nothing in this host's process."""
 
 
 def seams() -> tuple[tuple[Any, str, Any], ...]:
@@ -548,6 +554,56 @@ _TAKE_BACK: dict[str, tuple[str | None, str]] = {
 }
 
 
+#: THE SEAMS THAT HOLD A DEFAULT openDox registers where no host has: T085's
+#: doxBench pair, which an entry point registers through
+#: `doxbench_defaults.register_defaults()` (R1Q10 (a)), and T100's strict
+#: trust policy, which its consumers register lazily. For each, `(the global
+#: that holds the registration, the global that marks it openDox's default,
+#: the public call that registers the default, and whether that call takes
+#: the default to register)`. A host's registration REPLACES such a default
+#: while it is unread (R1Q3 (ii)), so a refusal later in `register_seams()`
+#: gives the default back, as the default it was (Copilot, PR #1236), as
+#: `openxdox.column_contributions` gives back the defaults it replaced. The
+#: two globals are read where the seam keeps them, because each seam's public
+#: reader closes the default's window; `tests/domain_profile/` pins the names
+#: at the pinned leg. The trust seam's call builds its own `MachineTrust()`,
+#: so the default it gives back is an equal one, unread.
+_DEFAULTS: dict[str, tuple[str, str, str, bool]] = {
+    "register_doxbench_validators": ("_doxbench_validators_factory",
+                                     "_doxbench_validators_is_default",
+                                     "register_default_doxbench_validators",
+                                     True),
+    "register_status_exemption": ("_status_exemption_rail",
+                                  "_status_exemption_is_default",
+                                  "register_default_status_exemption", True),
+    "register": ("_registered", "_is_default", "register_default", False),
+}
+
+
+def _unread_default(module: Any, call: str) -> Any:
+    """The default the seam behind `call` holds, or None. Only an UNREAD
+    default can be replaced: over a read one `call` refuses, and nothing is
+    written to give back."""
+    if call not in _DEFAULTS:
+        return None
+    held, is_default, _, _ = _DEFAULTS[call]
+    if not getattr(module, is_default, False):
+        return None
+    return getattr(module, held, None)
+
+
+def _give_back(module: Any, call: str, displaced: Any) -> None:
+    """Empty what `register_seams()` wrote at `call`, and register the
+    default it replaced there again, as openDox's default."""
+    getattr(module, _TAKE_BACK[call][1])()
+    if displaced is not None:
+        _, _, restore, takes_it = _DEFAULTS[call]
+        if takes_it:
+            getattr(module, restore)(displaced)
+        else:
+            getattr(module, restore)()
+
+
 def _seam_name(module: Any, call: str) -> str:
     return f"{module.__name__}.{call}"
 
@@ -610,15 +666,19 @@ def register_seams() -> tuple[str, ...]:
     """Fill every seam the pinned openDox leg declares. Returns the calls made.
 
     ALL OR NONE, AND NONE IS A LEG, NOT A GAP. A pinned leg that predates
-    plan 034's phase 1 declares none of the five calls: its reaches still
+    plan 034's phase 1 declares none of the six calls: its reaches still
     import this repository's packages by name, and `carved_reach.install()`
     has put them on the path, so there is nothing to register and nothing is.
     A leg that declares some and not the others is refused, naming the
-    missing calls: no pin names such a leg, since the phase-1 seams arrive at
-    the one openDox-code commit a phase pins (plan 034 § "Pins and landing
-    order"), and filling only some of them would leave a hosted request
-    reading this repository's code through some seams and meeting an empty
-    seam's refusal, or openDox's own default, at the rest.
+    missing calls: no pin names such a leg, since phase 1's five seams arrive
+    at the one openDox-code commit phase 1 pins and T100's binding-trust seam
+    at the one phase 3 pins (plan 034 § "Pins and landing order"), and
+    filling only some of them would leave a hosted request reading this
+    repository's code through some seams and meeting an empty seam's
+    refusal, or openDox's own default, at the rest. (An accepted limit: a leg
+    from before T100 now fails with an ImportError, because `seams()` imports
+    `doxbench_trust`, rather than with this refusal by name. The pins only
+    move forward, so no pin names one again.)
 
     NONE OF THIS CALL'S WRITES SURVIVE A REFUSAL (Copilot, PR #1181). Each seam
     but the home seam refuses this host's object when it already holds a
@@ -627,11 +687,14 @@ def register_seams() -> tuple[str, ...]:
     callable, and `seams()` says why no other host's home can meet its
     overwrite. Before a refusal reaches the caller, every seam this call wrote
     is emptied again through its own public call, in reverse order, so the
-    process is left as this call found it rather than half hosted. A seam that
-    already held this host's object was not written, because its registration
-    is a no-op, and it is not emptied. The profile registration that precedes
-    this call is `register_openxfactory()`'s and stays, and its caller's start
-    fails with the refusal.
+    process is left as this call found it rather than half hosted. Where the
+    write replaced openDox's unread default, that default is registered again
+    as the default (`_DEFAULTS`; Copilot, PR #1236), so the host's own start
+    can still replace it. A seam that already held this host's object was not
+    written, because its registration is a no-op, and it is not emptied. The
+    profile registration that precedes this call is
+    `register_openxfactory()`'s and stays, and its caller's start fails with
+    the refusal.
 
     SO THE CALLS THAT TAKE A SEAM BACK ARE CHECKED WITH THE REGISTRATIONS
     (Copilot, PR #1181). Before anything is written, every `_TAKE_BACK` call
@@ -655,38 +718,43 @@ def register_seams() -> tuple[str, ...]:
     if missing:
         raise HostSeamsIncomplete(
             f"the pinned openDox leg declares only some of the seams "
-            f"openxFactory fills: {missing} are missing. The five arrive "
-            "together, at the openDox-code commit plan 034's phase 1 pins "
-            "(T020, T025, T026, T027), so a leg with some of them is a pin "
-            "between those landings. Filling only the ones present would "
-            "leave hosted requests reaching openxFactory's code through "
-            "some seams and an empty seam, or openDox's own default, at the "
-            "others. Pin a leg that carries all five, or one that carries "
-            "none; see contracts/opendox-pin.yaml.")
+            f"openxFactory fills: {missing} are missing. They arrive at two "
+            "openDox-code commits: phase 1's five at the one plan 034's "
+            "phase 1 pins (T020, T025, T026, T027), and the binding-trust "
+            "seam at the one phase 3 pins (T100), so a leg with some of them "
+            "is a pin between those landings. Filling only the ones present "
+            "would leave hosted requests reaching openxFactory's code "
+            "through some seams and an empty seam, or openDox's own default, "
+            "at the others. Pin a leg that carries all six; see "
+            "contracts/opendox-pin.yaml.")
     unready = [_seam_name(module, name)
                for module, call, _ in declared if call in _TAKE_BACK
-               for name in _TAKE_BACK[call]
+               for name in (*_TAKE_BACK[call], *_DEFAULTS.get(call, ())[2:3])
                if name is not None and not callable(getattr(module, name, None))]
     if unready:
         raise HostSeamsIncomplete(
             "the pinned openDox leg declares every seam openxFactory fills, "
             f"but not {unready}, the public calls that take a registration "
-            "back. A refusal part-way through this call empties what the "
-            "call wrote through those calls, so without them an "
+            "back, or give back a default it replaced. A refusal part-way "
+            "through this call empties what the call wrote through those "
+            "calls, so without them an "
             "AttributeError would mask the refusal and leave the earlier "
             "seams written. They arrive with the seams (T020, T025, T026, "
-            "T027); pin a leg that carries them; see "
+            "T027, and T100's); pin a leg that carries them; see "
             "contracts/opendox-pin.yaml.")
-    written: list[tuple[Any, str]] = []
+    written: list[tuple[Any, str, Any]] = []
     try:
         for module, call, implementation in declared:
             held = _holds_a_registration(module, call, implementation)
+            displaced = _unread_default(module, call)
             getattr(module, call)(implementation)
             if held is False:
-                written.append((module, call))
+                written.append((module, call, None))
+            elif displaced is not None:
+                written.append((module, call, displaced))
     except Exception:
-        for module, call in reversed(written):
-            getattr(module, _TAKE_BACK[call][1])()
+        for module, call, displaced in reversed(written):
+            _give_back(module, call, displaced)
         raise
     return tuple(_seam_name(module, call) for module, call, _ in declared)
 

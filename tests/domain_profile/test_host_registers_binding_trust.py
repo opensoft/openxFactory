@@ -168,6 +168,8 @@ def test_a_failed_document_write_says_truthfully_that_nothing_changed(
     from opendox import cli as cli_mod
     from opendox import cli_model_binding
 
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        pytest.skip("root ignores directory permission bits")
     state = tmp_path / "state"
     monkeypatch.setenv("OPENDOX_STATE_DIR", str(state))
     root = _repository(tmp_path)
@@ -191,6 +193,16 @@ def test_a_failed_document_write_says_truthfully_that_nothing_changed(
     assert cli_model_binding.RECOVER_FAILED_UNDOING not in refusal, refusal
     assert document.read_bytes() == before
     assert not state.exists()
+
+
+def test_the_module_exports_its_policy_names_in_ascii_order():
+    """`__all__` names the policy class and the reason these cases read off
+    it, and keeps the module's ASCII order."""
+    assert opendox_host.__all__ == sorted(opendox_host.__all__)
+    for name in ("GOVERNED_PENDING_REASON", "GovernedBindingTrust",
+                 "binding_trust_policy"):
+        assert name in opendox_host.__all__, name
+        assert hasattr(opendox_host, name), name
 
 
 def test_the_port_factory_resolves_the_binding_and_the_default_would_not(
