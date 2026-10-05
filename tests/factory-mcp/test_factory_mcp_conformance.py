@@ -402,6 +402,40 @@ class ConformanceTests(unittest.TestCase):
                 self.assertDiagnostics(
                     [("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/0/gap_id")])
 
+    def test_type_is_checked_before_references_and_unions(self):
+        """Review r4187668945: a `type` beside a `$ref` or a union constrains it."""
+        self.schema["$defs"] = {"status": {"enum": ["positive", "negative"]}}
+        self.schema["properties"]["status"] = {"$ref": "#/$defs/status", "type": "integer"}
+        self.write_schema()
+        self.doc = self.declaration()
+        self.assertDiagnostics([("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/0/gap_id")])
+        self.schema = {"$schema": DRAFT, "type": "object", "properties": {
+            "status": {"enum": ["positive", "negative"]},
+            "code": {"oneOf": [{"const": "UNAVAILABLE"}, {"const": "INVALID"}]}}}
+        self.write_schema()
+        self.doc = self.declaration()
+        self.error_union()
+        error = json.loads((self.root / "domain-error.json").read_text())
+        error["$defs"]["error"]["type"] = "string"
+        ref = self.put("domain-error.json", error)
+        self.doc = self.declaration()
+        self.pin(ref)
+        self.tool()["error"] = dict(ref)
+        self.tool()["outcomes"]["inventories"][1].update(pointer="/$defs/error", discriminator="code")
+        self.assertDiagnostics([("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/1/gap_id")])
+
+    def test_inventory_target_is_checked_before_projection(self):
+        """Review r4187669106: malformed data where no evaluator looks never reaches projection."""
+        self.schema["properties"]["pair"] = {"type": "array", "additionalItems": {"required": [{}], "enum": ["x"]}}
+        self.schema["examples"] = [{"required": [{}]}]
+        self.write_schema()
+        for pointer, code in [("/properties/pair/additionalItems", "unreachable_inventory"),
+                              ("/examples/0", "invalid_inventory_pointer")]:
+            with self.subTest(pointer=pointer):
+                self.doc = self.declaration()
+                self.tool()["outcomes"]["inventories"][0]["pointer"] = pointer
+                self.assertDiagnostics([(code, "/tools/0/outcomes/inventories/0/pointer")])
+
     def test_integral_float_inventory_indexes(self):
         """Review r4187464393: JSON `0.0` and `0e0` are integers to the schema."""
         rows = self.tool()["outcomes"]["mapping"]
@@ -858,6 +892,12 @@ class ConformanceTests(unittest.TestCase):
         self.doc["gaps"][0]["description"] = "lone \ud800 surrogate"
         self.assertValidWithGaps()
 
+    def test_lone_surrogates_count_at_their_escaped_size(self):
+        """Review r4187669042: a lone surrogate is six bytes of JSON, not three."""
+        self.doc["gaps"] += [{"id": f"s{i}", "concerns": ["audit"], "description": "\ud800" * 2048}
+                             for i in range(24)]
+        self.assertDiagnostics([("input_size_limit", "/")])
+
     def test_diagnostics_are_deterministic_and_unique(self):
         t = self.tool()
         t["evidence_ids"] = ["nope1", "nope1", "nope2"]
@@ -891,6 +931,14 @@ class ConformanceTests(unittest.TestCase):
         run = self.cli(self.root / "absent.json", "--json")
         self.assertEqual(run.returncode, 2)
         self.assertEqual(diagnostics(json.loads(run.stdout)), [("input_unreadable", "/")])
+
+    def test_cli_oversized_integer_is_a_diagnostic(self):
+        """Review r4187669157: Python's integer-digit limit is a refusal, not a traceback."""
+        path = self.root / "declaration.json"
+        path.write_text('{"schema_version": 1' + "0" * 4300 + "}")
+        run = self.cli(path, "--json", "--snapshot", f"synthetic@{self.revision}={self.root}")
+        self.assertEqual(run.returncode, 1, run.stderr)
+        self.assertEqual(diagnostics(json.loads(run.stdout)), [("json_number_limit", "/")])
 
     def test_cli_usage_errors_exit_two(self):
         """L1: a malformed --snapshot is a usage error, never an invalid declaration."""
