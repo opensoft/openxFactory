@@ -1152,12 +1152,19 @@ SEALED_PRODUCT_MODULE = "snapshot.py"
 # `opendox_host.seams()` imports them to fill openDox's phase-1 seams.
 # `projection_contributions` joined with plan 034 T064: the bootstrap's
 # `register_openxfactory()` imports it to register openXdox's governed
-# projection at openDox's seams.
+# projection at openDox's seams. `doxbench_intake`, `doxbench_trust` and
+# `column_contributions` joined with plan 034 T094: `opendox_host.seams()`
+# imports `doxbench_trust` to register this host's binding-trust policy, whose
+# verdict reads the pending declarations through `doxbench_intake`, and
+# `register_openxfactory()` imports `column_contributions` to register
+# openXdox's governed columns at openDox's column seams.
 RENDER_LEG_MODULES: dict[tuple[str, str], tuple[str, ...]] = {
     ("openDox", "code"): ("cli.py", "corpus_adapter.py", "domain_profile.py",
-                          "doxbench_packet.py", "serve_wire.py",
+                          "doxbench_intake.py", "doxbench_packet.py",
+                          "doxbench_trust.py", "serve_wire.py",
                           "workbench.py"),
-    ("openXdox", "code"): ("cli_gate.py", "domain_profile.py",
+    ("openXdox", "code"): ("cli_gate.py", "column_contributions.py",
+                           "domain_profile.py",
                            "projection_contributions.py", "serve_gate.py",
                            "serve_projection.py", SEALED_PRODUCT_MODULE,
                            "view_extensions.py"),
