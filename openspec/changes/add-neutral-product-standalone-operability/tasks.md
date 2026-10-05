@@ -2265,6 +2265,35 @@ that does not name a platform.
   a promise, and a composed run shows that a host's `/capabilities` still
   carries the token. This bookkeeping amendment does not itself touch a
   falsifier. Carried out by T104.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 1):** An accepted limit, and
+  one more printed line. Brett Heap's multi-choice word of 2026-10-04,
+  verbatim *"Hint line, accepted limit (Recommended)"*, answers finding B3
+  of the holder's adversarial review of T104 (openDox-code#84). Some
+  browsers cannot open the private copy's `file://` URL while the state
+  directory is the hidden default (`~/.local/state/opendox`): Ubuntu's
+  default snap browser, a Flatpak browser, and a Windows browser opened from
+  WSL. The token is never printed, so such a browser has no other way in.
+  So the start prints ONE more line, with no token and no URL that carries
+  one, saying that a browser which cannot open the file should be used with
+  `OPENDOX_STATE_DIR` set to a folder that is not hidden. The openDox root's
+  README documents it, and release 1 ships with the limit. Nothing above
+  moves: the copy's place, its modes and its checks, the printed `file://`
+  location, and the rule that standard output never carries the token. This
+  bookkeeping amendment does not itself touch a falsifier. Carried out by
+  T104 (the line) and T076 (the README).
+
+  **AMENDED — T007 Batch P (`5982436447`, the holder's ruling B7):** An
+  accepted limit within the design above, with no code change. Once the page
+  has read the token from the fragment, it drops the fragment from the
+  address bar with `history.replaceState`. That cleans only the tab's
+  session history. A browser's persistent history, Chromium's
+  `Default/History` among them, can still hold
+  `…/index.html#console_token=<token>`. That history is this same user's
+  data, as the 0600 private copy is, so it hands the token to no one the
+  copy does not, and release 1 accepts it. The fragment still never reaches
+  a request line, a server log or a `Referer`. This bookkeeping amendment
+  does not itself touch a falsifier. Carried out by T104.
 - [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
   registered, openxFactory's GitHub pull-request flow behaves exactly as today.
   This is a generalization, not a replacement, and 12.5 is the box that proves it.
@@ -3412,6 +3441,129 @@ and redesigns none of them.
   The rest of Group 16 stands, and so do 16.3's text and its batch H and K
   addenda. F16.1's batch M block below falsifies this box. Carried out by
   T100.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 2; `5983805990`):** Brett
+  Heap's multi-choice word of 2026-10-04, verbatim *"Refuse in-repo programs
+  (Recommended)"*, answers finding A2 of the holder's adversarial review of
+  T100 (openDox-code#82, landed as `38d3350e`). A trust names a digest of
+  the binding's record, and the record names a broker's program only by its
+  path. So a trusted binding whose broker runs a program inside the served
+  repository stayed trusted after a pull changed that program. The rule: a
+  binding's command may not name a file inside the served repository, and
+  the broker lives outside it. Every member of the command is judged, the
+  program and each argument alike, so a script handed to an outside
+  interpreter is caught too, and a relative path is judged against the
+  served root. Such a binding is refused by name, both where
+  trust is recorded (`add`, `edit`, `trust` and `set-credential`) and where
+  trust is checked, before any process is spawned. The refusal names the
+  remedy, a broker installed outside the repository, and never a secret, and
+  the binding reads untrusted. A shell or interpreter wrapper would carry
+  the same attack through an inline script, `["sh", "-c", "exec
+  ./tools/broker.py"]`, so Brett Heap's second word on it (`5983805990`,
+  verbatim *"Refuse inline scripts (Recommended)"*) extends the rule:
+  - a binding whose program is a shell or an interpreter given an inline
+    script, such as `sh -c`, `bash -c`, `python -c` or `node -e`, is
+    refused by name in the same places and the same way;
+  - the program must be a real file outside the served repository. Every
+    member of the command that names a path, the program and each argument
+    alike, is judged both as named and as it resolves: links are followed,
+    the program, when it is a bare name, is looked up on `PATH`, and a
+    relative path is taken against the served root. Both must lie outside
+    the repository, when trust is recorded and again before any spawn. So
+    neither a link outside the repository nor a `PATH` entry inside it can
+    bring the program or its script back in, and a link inside the
+    repository, which a pull could retarget, is refused even when it points
+    outside;
+  - *"a real file"* is read by what it forbids to RUN (the holder's ruling
+    `5985553609`, which neither narrows nor extends `5983805990`): no
+    binding whose program is not a real file outside the served repository
+    ever runs. An inline script, or a file inside the repository (as named
+    and as resolved, through a launcher, a link, a `PATH` entry or an
+    option's value), is refused by name where trust is recorded and again
+    before any spawn, as this addendum says. A program that cannot be found
+    (not on `PATH`, no such file) runs nothing: it is not refused where
+    trust is recorded, and when its broker is started the start fails and
+    the binding is refused by the existing named refusal
+    `broker_unreachable` (the broker could not be started). A broker installed later is judged
+    before it is started, like any other. A check at trust that the program exists is
+    not ruled; it stays open for Brett Heap as a follow-on that would move
+    no box of release 1, and F16.1 carries no case for a missing program;
+  - a common launcher (`env`, `nice`, `nohup`, `timeout`, `stdbuf`,
+    `setsid`, `xargs` and the like, with their flags) is unwrapped to the
+    program it starts, and the inline-script and path rules apply to THAT
+    program (the holder's ruling `5984069416`, implementing `5983805990`).
+    A launcher's own options are judged with it, read by GNU
+    `getopt_long`'s grammar (the holder's ruling `5985046107`, C1 and C4,
+    which applies those two and extends neither):
+    - a long option matches by its unambiguous prefix, in the
+      `--option=value` and the `--option value` forms, so `env --chd=…` is
+      `env --chdir`, and a short-option cluster parses the getopt way
+      (`-iS…`, `-vC/dir`, `-0u NAME`). An ambiguous or unknown option of an
+      unwrapped launcher is refused by name;
+    - an option that names a path, such as the directory `env --chdir`
+      (`-C`) starts the program in, or the file `xargs -a` (`--arg-file`)
+      reads its arguments from, in any spelling, is judged as the
+      command's paths are, both as named and as it resolves. So a launcher
+      cannot start the broker inside the repository, nor let the
+      repository decide the broker's arguments;
+    - the string `env -S` (`--split-string`) carries is split into the
+      arguments it names, which are then unwrapped and judged, ONLY when it
+      holds no backslash and no `$`. Otherwise it is refused as unreadable,
+      as an inline script is. GNU `env`'s own escape and `${VAR}` grammar
+      is not modelled: an accepted limit, refused rather than guessed;
+  - every broker also starts with its working directory outside the served
+    repository, as defence in depth, and with an environment that points
+    away from it: `PWD` and `OLDPWD` are dropped, and so is every other
+    variable whose value is a path inside the served repository, while a
+    path list (`PATH`, `PYTHONPATH`, `NODE_PATH` and the like) loses each
+    entry that lies inside it, so a runtime cannot load code from the
+    repository through its search path. Each such path is judged, as the
+    command's paths are, both as named and as it resolves, and so is each
+    assignment a launcher makes (`env NAME=value`): one whose value is a
+    path inside the repository, or a path list with an entry inside it, is
+    refused;
+  - a path given to the program that finally runs as an option's value is
+    judged as the command's paths are, both as named and as it resolves,
+    and refused when it lies inside the repository: the value after `=` in
+    one member (`--require=<repo>/x`), and the remainder after the option
+    letter of a single-dash option with its value attached
+    (`-I<repo>/lib`, `-a<repo>/args`; the holder's `5985046107`, C4). An
+    output path into the repository is refused too, an accepted
+    strictness;
+  - an ACCEPTED release-1 limit: a general program outside the repository
+    that runs code from its own arguments (`awk`, `find -exec`, …) is not
+    judged by the argv check, and any other path embedded inside an option
+    string given to the program that finally runs, such as one carried in
+    a variable (`NODE_OPTIONS=--require=…`), is one the argv check does
+    not promise to find. A known launcher's own options are never part of
+    this limit; the launcher bullet above judges them. The trusted argv is
+    digested, and the working directory and the environment point away
+    from the repository, so a relative path in such a string does not
+    reach it;
+  - a broker such as `sh -c "pass show key"` is declared as
+    `["pass", "show", "key"]` instead, or as a script kept outside the
+    repository.
+
+  The rest of this box stands. A dated note in requirement 17's body in this
+  change's spec delta, after batch M's, records both rulings, since they
+  narrow batch M's note there, and F16.1's batch P cases below falsify
+  them. Carried out by a
+  T100 follow-on openDox-code PR (claim `5982447319`), which is no task of
+  plan 034 and lands before T087.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 3):** A clarification of
+  *"No trust is ever written into, or read from, a tree a clone could
+  carry"* above. Brett Heap's multi-choice word of 2026-10-04, verbatim
+  *"Served repo only, limit (Recommended)"*, answers finding A14 of the same
+  review. The tree that sentence means is the SERVED repository. An
+  `OPENDOX_STATE_DIR` equal to the served root, or nested under it, is
+  refused by name, as the bullet above says, and no trust is written into
+  or read from it. A state directory inside some OTHER git checkout is not
+  refused, and release 1 accepts that as a limit. A check for any enclosing
+  checkout would refuse a home directory kept in git (a dotfiles checkout),
+  which holds the default state directory. No code changes for it, and this
+  bookkeeping clarification edits no line of the box. Carried out by T100,
+  as landed.
 - [ ] 16.4 **"No model configured" is a STATE, shown before any turn.**
   Measured: with no binding, `declared_model_port_factory(...)()` resolves the
   harness declaration, and its catalog offers `omp-local`, "Local harness model",
@@ -3579,6 +3731,164 @@ and redesigns none of them.
   available, and its `broker_argv` runs on the first dispatch. This
   bookkeeping amendment does not itself touch the command above. Carried
   out by T100, and run with F16.1 whole by T083 and T089.
+
+  **AMENDED — T007 Batch P (`5982436447`, the holder's ruling A8):** A note,
+  and no line of the block changes. The block says that with the trust file,
+  or a directory that holds it, replaced by a symbolic link, every binding
+  reads untrusted. The state directory is such a directory. Finding A8 of
+  the holder's adversarial review of T100 found that T100 as landed
+  (`38d3350e`) read a state directory that is itself a symbolic link to this
+  user's own 0700 directory. Its suite's case passed only because that
+  case's target was writable by others. The holder ruled that the
+  realization follows this block's ratified text: a state directory that is
+  itself a symbolic link is refused by name, and it trusts nothing. The T100
+  follow-on openDox-code PR (claim `5982447319`) aligns the code and adds
+  that case, before T087. So T089's run of F16.1, at T087's pin, which
+  carries the follow-on, holds the realization to the block as written.
+  T083's run at `38d3350e` predates the follow-on, and plan 034 records that
+  it does not show this case. This bookkeeping amendment does not itself
+  touch the command above.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 2; `5983805990`):** F16.1
+  also falsifies 16.3a's batch P addendum (A2, and its reach to inline
+  scripts). The command is unchanged: the named file of
+  batch M's line, `tests/test_model_binding_trust.py`, also asserts, one
+  test per case, under the same fresh `git init` and `OPENDOX_STATE_DIR`:
+  - **A binding whose command names a file inside the served repository is
+    refused.** Its broker argv names a file under the served root, either
+    as its program, such as `tools/broker.py`, or as an argument, such as
+    the script an outside interpreter runs (`["python3",
+    "tools/broker.py"]`, `["sh", "tools/broker.sh"]`). Each is tested
+    with the path absolute and with it relative to the served root, and the
+    script writes a marker file when it runs. `opendox
+    model-binding add`, `edit`, `trust` and `set-credential` each refuse it
+    by name, naming the remedy, a broker installed outside the repository,
+    and record no trust. A trust recorded for it before the rule does not
+    admit it, before or after its program is edited: it reads untrusted, so
+    the catalog lists it with `available: false`, as batch M's block asserts
+    of an untrusted binding, and a turn that names it is refused by name
+    before any process is spawned, and no marker file exists.
+  - **An inline script is refused.** A binding whose program is a shell or
+    an interpreter given an inline script (`["sh", "-c", "exec
+    ./tools/broker.py"]`, and `python -c` in the same form) is refused by
+    name by the same four commands and before any spawn, as above, with no
+    marker file, whatever the script names, and so is one that reaches an
+    inline script through a launcher, the holder's `5984069416`. The
+    launcher case runs once for each launcher named in 16.3a's addendum, in
+    an option-bearing form wherever the launcher takes options:
+    `["env", "-i", "python3", "-c", "…"]`, `["nice", "-n", "5",
+    "python3", "-c", "…"]`, `["nohup", "python3", "-c", "…"]`,
+    `["timeout", "-s", "KILL", "5", "python3", "-c", "…"]`, `["stdbuf",
+    "-oL", "python3", "-c", "…"]`, `["setsid", "-w", "python3", "-c",
+    "…"]` and `["xargs", "-n", "1", "python3", "-c", "…"]` (`xargs` joins
+    the launchers by the holder's `5985046107`, C4), and once more for a
+    nested chain, `["env", "nice", "-n", "5",
+    "timeout", "5", "python3", "-c", "…"]`, so every layer is unwrapped,
+    and once through a string that `env -S` splits, `["env", "-S",
+    "python3 -c '…'"]`. A trust recorded for it before the rule does not
+    admit it: it reads untrusted, and the catalog lists it with
+    `available: false`.
+  - **An alias is judged both as named and as it resolves.** Each of these
+    is refused by the same four commands and before any spawn, with no
+    marker file, for the program and for an interpreter's script argument
+    alike (`["python3", "<link>"]`), except where noted:
+    - a symbolic link outside the served root whose target lies inside it;
+    - a bare program name that resolves through a `PATH` entry under the
+      served root, as the program only, since an interpreter does not look
+      its script argument up on `PATH`;
+    - a symbolic link inside the served root whose target is a real file
+      outside it, since a pull could retarget the link.
+
+    A trust recorded while the binding's paths resolved outside the root
+    does not admit it once a link or the `PATH` entry leads inside: it reads
+    untrusted and the catalog lists it with `available: false`.
+  - **A broker outside the repository is still reached.** The same binding
+    with its program a real file outside the served root, once trusted,
+    runs as batch M's block says. It runs with its working directory
+    outside the served root: the test starts `opendox` with its own
+    working directory at the served root, so a broker that inherited it
+    would record a directory inside the root, and the broker records the
+    directory it starts in and its environment. It finds neither `PWD` nor
+    `OLDPWD`, no variable whose value is a path inside the served root, and
+    no entry inside the root in a path list. The test starts `opendox` with
+    `PATH`, `PYTHONPATH` and `NODE_PATH` each carrying an entry inside the
+    served root, and with a scalar variable, such as `OPENDOX_TEST_HOME`,
+    set to a directory inside it, so an inherited one would show. It does
+    the same again through aliases, each for a `PYTHONPATH` entry and for a
+    scalar variable: one names a symbolic link outside the served root whose
+    target lies inside it, and one names a symbolic link inside the served
+    root whose target lies outside it, which a pull could retarget. And a launcher's own assignment is refused by
+    the four commands and before any spawn, with no marker file:
+    `["env", "PYTHONPATH=tools", "python3", "<outside>/broker.py"]`, where
+    `<outside>` is the case's own scratch directory outside the served root
+    (made by `mktemp -d`), and `tools`, relative to the served root, holds a
+    `sitecustomize.py` that writes the marker. The same refusal holds for
+    an assignment through an alias: `["env",
+    "PYTHONPATH=<outside>/alias", "python3", "<outside>/broker.py"]` and
+    `["env", "OPENDOX_TEST_HOME=<outside>/alias", "python3",
+    "<outside>/broker.py"]`, where `<outside>/alias` is a symbolic link to
+    `tools` inside the served root, and the same two assignments naming
+    `tools/out`, a symbolic link inside the served root to a directory
+    outside it. A launcher's own working-directory option is refused the
+    same way, by the four commands and before any spawn, and the outside
+    broker, which writes a marker file when it runs, leaves none:
+    `["env", "--chdir=<root>", "python3", "<outside>/broker.py"]`, where
+    `<root>` is the served root's absolute path; the same with `"-C",
+    "<root>"`; and the long form naming `<outside>/alias`, the link to
+    `tools` inside the served root, and naming `tools/out`, the in-repo
+    link to a directory outside it.
+  - **A path an option carries, an unreadable split string and a launcher
+    option that cannot be read are refused, and a launcher's options are
+    read as GNU reads them** (the holder's `5985046107`, C1 and C4). Each
+    command below is refused by name by the same four commands and before
+    any spawn, and leaves no marker file. `<outside>/broker` is an
+    executable in the case's scratch directory that writes one when it
+    runs, and `<outside>/broker.pl` a Perl script there that does the same:
+    - `["perl", "-I<root>/lib", "<outside>/broker.pl"]` is refused as a
+      command that names a file inside the served repository, since the
+      path attached to a single-dash option is judged;
+    - `["xargs", "-a", "<root>/args", "<outside>/broker"]` is refused as a
+      command that names a file inside the served repository, since the
+      repository would decide the arguments;
+    - `["env", "--chd=<root>", "<outside>/broker"]` is refused as a
+      command that names a file inside the served repository, since
+      `--chd` is the unambiguous prefix of `env`'s `--chdir`;
+    - `["env", "-S", "sh\\_-c\\_id"]` (escaped as JSON: the string is
+      `sh\_-c\_id`, which GNU `env` reads as `sh -c id`) is refused as an
+      inline script, since a split string that holds a backslash or a `$`
+      is unreadable;
+    - `["<outside>/broker", "--config=<root>/conf"]` is refused as a
+      command that names a file inside the served repository, since the
+      value after `=` of the final program's option is judged;
+    - `["<outside>/broker", "-o<root>/out"]` is refused the same way, since
+      an output path into the repository is refused too, an accepted
+      strictness;
+    - `["env", "--i", "<outside>/broker"]` is refused by name, fail-closed,
+      since `--i` is an ambiguous prefix (`--ignore-environment`,
+      `--ignore-signal`);
+    - `["env", "--no-such-option", "<outside>/broker"]` is refused by name,
+      fail-closed, since `env` has no such option;
+    - `["env", "--d", "<outside>/broker"]` is refused by name, fail-closed,
+      since `--d` is an ambiguous prefix (`--debug`, `--default-signal`);
+    - `["env", "-iS", "python3 -c '…'"]` is refused as an inline script,
+      since the bundled cluster parses the getopt way: `-i`, then `-S`
+      taking the next member as its string;
+    - `["timeout", "--sig", "KILL", "5", "python3", "-c", "…"]` and
+      `["stdbuf", "--out=L", "python3", "-c", "…"]` are each refused as an
+      inline script, not as an unknown option, since `--sig` is `timeout`'s
+      `--signal` and `--out` is `stdbuf`'s `--output`, so the program
+      behind them is found;
+    - `["env", "-S", "$BROKER"]` is refused as an inline script, since a
+      split string that holds a `$` is unreadable. It is written without
+      braces because a binding refuses, when it is declared, any `{name}`
+      in its argv outside its closed placeholder vocabulary, before any
+      broker rule is asked, so a `${VAR}` string would be refused by that
+      rule instead.
+
+  Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
+  T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
+  predates both the follow-on and this addendum. This bookkeeping amendment
+  does not itself touch the command above.
 
 ## Follow-ons named here and NOT authored here
 
