@@ -1,5 +1,9 @@
 # Agent Instructions
 
+<!-- SPECKIT START -->
+Current implementation plan: `specs/030-factory-mcp-conformance/plan.md`
+<!-- SPECKIT END -->
+
 Use the shared OpenSpec/Speckit workflow from:
 
 - `$HOME/.agents/AGENTS.md`

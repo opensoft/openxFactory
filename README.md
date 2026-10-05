@@ -72,6 +72,10 @@ OpsxFactory
 
 Core domain-neutral docs:
 
+- [Factory MCP Family — Brainstorm](ideation/brainstorm/factory-mcp-overview.md)
+  (shared conformance, domain ownership and a proposed DNS evaluation boundary)
+- [Factory MCP Conformance — Ratified Proposal](openspec/changes/add-factory-mcp-conformance/proposal.md)
+- [Factory MCP Conformance — Validator and Implementation Records](docs/factory-mcp-conformance.md)
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
 - [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
