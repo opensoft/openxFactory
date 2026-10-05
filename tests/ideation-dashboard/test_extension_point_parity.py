@@ -64,10 +64,36 @@ GOLDEN_COLUMNS = "100"
 #: Where the golden lives. Text, for a readable diff — see the module docstring.
 HELP_GOLDEN = FIXTURES / "cli-help-tree.golden.txt"
 
+#: THE SAME TREE AT plan 034's PHASE-3 openDox LEG, held beside the first so
+#: this file passes at BOTH pins (T066's form, ahead of T094; it is not an arc
+#: landing). At that leg the assembled command line changes in four places,
+#: each an openDox-code landing of phase 3 and none of them openxFactory's:
+#: T084 (openDox-code#77) names the installed command, so every usage line
+#: reads `opendox` and the root's description and epilog are openDox's own;
+#: T070 adds `generate-and-open --local`; T079 and T080 add `--model`, the
+#: `none` auth kind and the optional reference to `model-binding add|edit`;
+#: and T100 adds `model-binding trust`, the 32nd entry point (research R8).
+#: The golden is read off the pinned leg's own parser (`pinned_help_golden`),
+#: never off the text it is compared with.
+#:
+#: IT LIVES OUTSIDE `tests/ideation-dashboard/`, on purpose. That directory is
+#: a `moved_paths:` prefix of `docs/opendox-carve-manifest.yaml`, and a file
+#: that appears under it after the carve is in no row, which
+#: `scripts/validate-carve-manifest.py` refuses as `carve-file-undeclared`.
+#: `tests/domain_profile/` is this host's own test tree, and the help tree is
+#: this host's assembly. When the phase-3 pin has landed (T094), a later
+#: non-arc act moves this text into `HELP_GOLDEN` and retires this file.
+HELP_GOLDEN_PHASE3 = (REPO_ROOT / "tests" / "domain_profile" / "fixtures"
+                      / "cli-help-tree.phase3.golden.txt")
+
+#: The one entry point the phase-3 leg adds to the tree, and nothing else.
+PHASE3_ADDED_ENTRY_POINTS = ("ideation-dashboard model-binding trust",)
+
 #: Non-vacuity floor for the walk. Measured at 31 entry points (the root, six
-#: top-level subcommands, nineteen `gate` verbs and five `model-binding` verbs);
-#: the floor sits below that so an ordinary deletion does not fail the build,
-#: while a walk that lost the subcommand tree does.
+#: top-level subcommands, nineteen `gate` verbs and five `model-binding` verbs),
+#: and 32 at the phase-3 leg, where `model-binding` has six; the floor sits
+#: below both so an ordinary deletion does not fail the build, while a walk
+#: that lost the subcommand tree does.
 MIN_ENTRY_POINTS = 25
 
 # ---------------------------------------------------------------------------
@@ -172,6 +198,55 @@ def pinned_columns(monkeypatch):
     monkeypatch.setenv("COLUMNS", GOLDEN_COLUMNS)
 
 
+def _sections(text):
+    """A help tree, split into `{entry point: its help text}`."""
+    out, name = {}, None
+    for line in text.splitlines(keepends=True):
+        if line.startswith("===== ") and line.rstrip().endswith(" ====="):
+            name = line.strip().strip("= ").strip()
+            out[name] = []
+        elif name is not None:
+            out[name].append(line)
+    return {k: "".join(v) for k, v in out.items()}
+
+
+def _subcommands(parser, *path):
+    """The subcommand names `parser` offers at `path`, read off the parser."""
+    for name in path:
+        parser = next(
+            action.choices[name] for action in parser._actions
+            if isinstance(action, argparse._SubParsersAction)
+            and name in action.choices)
+    return {name for action in parser._actions
+            if isinstance(action, argparse._SubParsersAction)
+            for name in action.choices}
+
+
+def pinned_help_golden(parser):
+    """The golden for the layout the PINNED openDox leg has, read off its own
+    parser and never off the text compared below (T066's form, ahead of T094).
+
+    Two facts tell the layouts apart, each a property of the leg: the name the
+    parser calls itself (`ideation-dashboard` before T084, `opendox` from it),
+    and whether `model-binding` offers `trust` (T100). The leg the current pin
+    names has neither, and plan 034's phase-3 leg has both. A leg with one and
+    not the other is pinned by no phase, and is refused by name rather than
+    compared with either golden."""
+    prog = parser.prog
+    trust = "trust" in _subcommands(parser, "model-binding")
+    if prog == "ideation-dashboard" and not trust:
+        return HELP_GOLDEN
+    if prog == "opendox" and trust:
+        return HELP_GOLDEN_PHASE3
+    pytest.fail(
+        f"the pinned openDox leg's parser calls itself {prog!r}, and its "
+        f"model-binding {'offers' if trust else 'does not offer'} `trust`. "
+        "That is neither the leg the current pin names (`ideation-dashboard`, "
+        "no `trust`) nor plan 034's phase-3 leg (`opendox`, with `trust`; "
+        "T084 and T100), so neither golden describes it. No phase pins such "
+        "a leg: pin one that carries both changes or neither.")
+
+
 def test_the_help_text_of_every_entry_point_is_unchanged(pinned_columns):
     """The golden: the whole parser tree's help, byte for byte.
 
@@ -179,23 +254,20 @@ def test_the_help_text_of_every_entry_point_is_unchanged(pinned_columns):
     before the extension point existed. The keyword defaults to `()` and the
     registration call is a no-op over an empty tuple, so any diff here is a real
     change to the command line — which this PR promised not to make.
+
+    HELD AT BOTH PINS (plan 034, T066's form, ahead of T094). The golden is
+    the one for the pinned leg's layout (`pinned_help_golden`): the 31-entry
+    tree at the current pin, and the 32-entry tree at the phase-3 leg. Either
+    way the comparison is the same, byte for byte.
     """
-    got = help_tree(cli_mod.build_parser())
-    expected = HELP_GOLDEN.read_text(encoding="utf-8")
+    parser = cli_mod.build_parser()
+    golden = pinned_help_golden(parser)
+    got = help_tree(parser)
+    expected = golden.read_text(encoding="utf-8")
     if got != expected:
         # A pytest assertion over 50KB of text prints unusably; name the entry
         # points that differ, which is what a reader needs first.
-        def sections(text):
-            out, name = {}, None
-            for line in text.splitlines(keepends=True):
-                if line.startswith("===== ") and line.rstrip().endswith(" ====="):
-                    name = line.strip().strip("= ").strip()
-                    out[name] = []
-                elif name is not None:
-                    out[name].append(line)
-            return {k: "".join(v) for k, v in out.items()}
-
-        mine, theirs = sections(got), sections(expected)
+        mine, theirs = _sections(got), _sections(expected)
         added = sorted(set(mine) - set(theirs))
         removed = sorted(set(theirs) - set(mine))
         changed = sorted(k for k in set(mine) & set(theirs) if mine[k] != theirs[k])
@@ -203,7 +275,41 @@ def test_the_help_text_of_every_entry_point_is_unchanged(pinned_columns):
             "the command line changed, and this PR's whole claim is that it did "
             f"not. Entry points added: {added}; removed: {removed}; changed: "
             f"{changed}. Regenerate the golden ONLY with a ruling that the "
-            f"change is intended: {HELP_GOLDEN}")
+            f"change is intended: {golden}")
+
+
+def test_the_phase3_golden_adds_one_entry_point_and_removes_none():
+    """The two goldens describe one tree at two legs, so they hold the same
+    entry points, plus `model-binding trust` at the phase-3 leg. A phase-3
+    golden that lost an entry point, or gained one nobody declared, fails here
+    at EITHER pin, not only at the pin that reads it."""
+    before = _sections(HELP_GOLDEN.read_text(encoding="utf-8"))
+    after = _sections(HELP_GOLDEN_PHASE3.read_text(encoding="utf-8"))
+    assert len(before) == 31, sorted(before)
+    assert sorted(set(after) - set(before)) == list(PHASE3_ADDED_ENTRY_POINTS)
+    assert not set(before) - set(after), sorted(set(before) - set(after))
+
+
+def test_the_golden_selector_reads_the_leg_and_refuses_a_mixed_one():
+    """The negative control for `pinned_help_golden`: each layout selects its
+    own golden, and a leg with one of the two phase-3 changes is refused, so
+    the selector cannot quietly compare a mixed leg with either golden."""
+    def leg(prog, verbs):
+        parser = argparse.ArgumentParser(prog=prog)
+        sub = parser.add_subparsers().add_parser("model-binding")
+        nested = sub.add_subparsers()
+        for verb in verbs:
+            nested.add_parser(verb)
+        return parser
+
+    five = ("list", "add", "edit", "remove", "set-credential")
+    assert pinned_help_golden(leg("ideation-dashboard", five)) == HELP_GOLDEN
+    assert pinned_help_golden(
+        leg("opendox", five + ("trust",))) == HELP_GOLDEN_PHASE3
+    for mixed in (leg("opendox", five),
+                  leg("ideation-dashboard", five + ("trust",))):
+        with pytest.raises(pytest.fail.Exception, match="neither golden"):
+            pinned_help_golden(mixed)
 
 
 def test_the_parser_walk_actually_reaches_the_subcommand_tree(pinned_columns):
