@@ -742,16 +742,21 @@ gate is green: at the old reader every one of these writes is refused.
       change open on a convening nobody can yet run would park the register act
       indefinitely, and ticking them from here would tick another repository's
       boxes.
-- [x] 5.3 Before archive, re-read the seat list against codexFactory
+- [ ] 5.3 Before archive, re-read the seat list against codexFactory
       `hermes/domain/review-councils/gate-rules.yaml` at the then-current
       `origin/main`. A roster that moved between ratification and realization
       means the registered set is stale, and a stale seat set records authority
       that no convening presents.
-      **DONE 2026-10-05 AS A DATED READING, AND IT MUST BE RE-RUN AT ARCHIVE.**
-      Read against codexFactory `main`
-      `cc85a3cc29caabb6a2894d3e935d1e965e84d007` (`gh api
-      repos/codeXfactory/codexFactory/branches/main`; the local `origin/main` is
-      the same sha), `hermes/domain/review-councils/gate-rules.yaml`:
+      **OPEN — NOT TICKED. DATED READING 2026-10-05 recorded beside it; to be
+      re-run and ticked at archive.** The clause binds this row to "the
+      then-current `origin/main`" at archive, and archive is blocked on the
+      `sequenced_after` order, so a tick today would read as archive-time
+      verification that has not happened. **The reading (2026-10-05,
+      codexFactory `main` `cc85a3cc29caabb6a2894d3e935d1e965e84d007`; `gh api
+      repos/codeXfactory/codexFactory/branches/main`, and the local
+      `origin/main` is the same sha):** the five roster seats equal the
+      register's five `gate_rules_council` seats, and `intent_owner_role_slot`
+      is still deferred. In `hermes/domain/review-councils/gate-rules.yaml`,
       `council.members.domain` is `[lead-architect, lead-security,
       lead-quality]`; `members.client.seat` is `company-policy-lead`;
       `members.client.conjunction_pull_in.seat` is
@@ -766,13 +771,11 @@ gate is green: at the old reader every one of these writes is refused.
       unregistered (Q-GRC-4, task 4.6). `agent-mixes.yaml`'s
       `review_council_profiles.gate_rules_council` lists the same five in
       `all_possible_seats`, `model_assignments` and `prompt_contract.seats`. The
-      registered set is not stale at this reading. **The clause says "the
-      then-current `origin/main`", so this reading does not discharge a later
-      archive: re-run it against `origin/main` on the day of the archive, with
+      registered set is not stale at that reading. **Re-run it against
+      `origin/main` on the day of the archive and tick this row then, with
       `intent_owner_role_slot` the seat most likely to have moved.** See
       walk-2026-09-12-register-act.md § 13.6 bookkeeping note 2 (appended
       2026-10-05).**
-
 ---
 
 ## 6. Q-GRC-4 discharge (AMENDMENT 2026-09-11)

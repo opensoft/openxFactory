@@ -1656,7 +1656,7 @@ which a separate record pull request books), and 6.27 / 6.28. Task 4.6 does
 not tick here (6.27). No hold is posted or lifted, and no convening is
 dispatched.
 
-#### 13.6 — BOOKKEEPING NOTE 2 APPENDED 2026-10-05: TASKS 1.7, 2.1–2.6, 5.1 AND 5.3 TICKED AGAINST WHAT LANDED
+#### 13.6 — BOOKKEEPING NOTE 2 APPENDED 2026-10-05: TASKS 1.7, 2.1–2.6 AND 5.1 TICKED AGAINST WHAT LANDED; 5.3 LEFT OPEN, WITH A DATED READING
 
 Read by lane `codeXfactory-2` (session
 `8d6bf418-cc06-45d9-9406-2374935c6c72`), in reads completed by
@@ -1678,13 +1678,18 @@ what they ask for landed between 2026-09-06 and 2026-09-13: 1.7, 2.1–2.6, 5.1
 and 5.3. The first note in this section (2026-10-04) booked 6.9–6.14 and left
 6.15 and 6.18 open on one clause each. This one does the same for the rest of
 the rows an earlier survey found met, and checks every clause again rather than
-taking that survey's word.
+taking that survey's word. Eight of the nine are ticked. 5.3 is not (see the
+table and the last list below).
 
 **The rule applied.** The first note's: a row is ticked only when a landed
 artifact shows every clause of it, and a row that misses any clause stays open
-with a dated note naming it. None of the nine missed a clause, but four of them
+with a dated note naming it. None of the eight ticked rows missed a clause, but three of them
 carry a reading the reader should see, and each is stated under *"Where a row
-was read, not met word for word"* below. Rows 2.1–2.6 are tagged `[openXwallet]`: the work is another
+was read, not met word for word"* below. 5.3 is left open for a different
+reason: its clause binds it to the then-current `origin/main` at archive, and
+archive is blocked on the `sequenced_after` order (the coordinator's reading,
+2026-10-05), so a tick today would read as archive-time verification that has
+not happened. Rows 2.1–2.6 are tagged `[openXwallet]`: the work is another
 repository's, and they tick here as this change's own prerequisites against
 that repository's landed artifacts, the way task 3.1's DONE note ticks a
 `[codexFactory]` row (*"bookkeeping tick only; the work is another repository's
@@ -1701,7 +1706,7 @@ and no openxFactory byte moves for it"*). Nothing in openXwallet's own
 | **2.5** self-test probes | **TICKED** | Probes at `:2484-2557`, the validator reads `0 error(s), 0 warning(s)`, and reverting the pair key reds four findings |
 | **2.6** tag and digests | **TICKED** | Annotated `wallet-v1.5` (object `ff9ac797`) peels to `f3eb929b`; manifest reads `wallet-v1.5`; release inventory differs from v1.4's in one line; all eight digests recompute and agree. Reading in the third list |
 | **5.1** realization evidence | **TICKED** | #740 → `30eccf0ca` (one row, `4 of 4`); #798 → `eea40d175` (two rows, `8 of 8`); the 2026-09-08 walk in `eea40d175`'s tree; rows 1.2–1.5 ruled. **`8 of 8` is superseded by `9 of 9`** (T2); the first item's order was re-sequenced by the 2026-09-07 AMENDMENT |
-| **5.3** seat list vs. the roster | **TICKED, AS A DATED READING** | Five registered `gate_rules_council` seats equal the five declared in `gate-rules.yaml` at cxF `main` `cc85a3cc`; `intent_owner_role_slot` still deferred. **Must be re-run at archive** |
+| **5.3** seat list vs. the roster | **LEFT OPEN, DATED READING RECORDED** | DATED READING, 2026-10-05, cxF `main` `cc85a3cc`: the five roster seats equal the register's five `gate_rules_council` seats, and `intent_owner_role_slot` is still deferred. **To be re-run and ticked at archive**; not ticked now because the clause is archive-time |
 
 **Re-checked by this note itself, not taken from the earlier survey:**
 
@@ -1763,8 +1768,8 @@ and no openxFactory byte moves for it"*). Nothing in openXwallet's own
   roster's five. `agent-mixes.yaml`'s `gate_rules_council` profile lists the same
   five in `all_possible_seats`, `model_assignments` and `prompt_contract.seats`.
 
-**Where a row was read, not met word for word, stated so a reader can
-disagree:**
+**Where a ticked row was read, not met word for word, stated so a reader can
+disagree; and the one row left open:**
 
 * **1.7 says `--all --strict` "clean".** The pinned entrypoint exits 0 but
   prints that this is not a clean tree: one accepted exception that is another
@@ -1783,10 +1788,13 @@ disagree:**
   held as one state: 2.8's literal flip was deferred into the register act by the
   2026-09-07 AMENDMENT and performed in #798. 2.9, the gate that was kept, is
   already ticked. The task text is not edited.
-* **5.3 says "at the then-current `origin/main`".** This is a reading of
-  2026-10-05, at one cxF sha. It does not discharge a later archive. The
-  comparison must be run again against `origin/main` on the day of the archive,
-  and `intent_owner_role_slot` is the seat most likely to have moved.
+* **5.3 says "at the then-current `origin/main`", and is LEFT OPEN.** What is
+  recorded is a DATED READING (2026-10-05, codexFactory `main` `cc85a3cc`): the
+  five roster seats equal the register's five `gate_rules_council` seats, and
+  `intent_owner_role_slot` is still deferred. It is not a tick, because the
+  clause is archive-time and archive has not been reached. To be re-run and
+  ticked at archive, against `origin/main` on that day;
+  `intent_owner_role_slot` is the seat most likely to have moved.
 
 **An observation, not an act of this note.** openXwallet's own change
 `widen-register-reader-for-a-second-council` still shows its row 4.4 and its § 5
