@@ -486,7 +486,7 @@ mention in the package is prose.
   `ADAPTER_NOT_REGISTERED` (subject `opendox.corpus_adapter`, detail naming
   `register_home(...)`), never a `ModuleNotFoundError` (the seam tests; F4.1's
   first block).
-- [ ] 4.3 **Route EVERY deferred reach through a seam the product declares. None
+- [x] 4.3 **Route EVERY deferred reach through a seam the product declares. None
   stays late-bound by name.** Requirement 5 admits no exception for a reach
   "owed to the consumer": a reach that names a consumer or publisher package by
   module name is exactly what keeps the product from standing alone. Measured at
@@ -584,11 +584,24 @@ mention in the package is prose.
   flag off would fail it. This bookkeeping amendment does not itself touch
   the Python below. Carried out by T084.
 
-  **Recorded by T097, a non-normative correction** (research R16 item 3; the box
-  stays open until T086 lands): of `workbench.py`'s four reaches into
-  openxFactory, `run_scoped_doc_health` makes three (`:1407-1409`), and the
-  fourth is `session_documents` at `:746` (research R5, R1Q9 (a)). T007 batch A
-  (openxFactory#1171 → `bca4a260`) carries the amendment above.
+  **Landed 2026-10-05** (T012, T021, T025, T026, T027, T046, T055, T084, T085,
+  then T086): the eight reaches into openxFactory closed in phase 1
+  (openDox-code#47 → `27683028`, openDox-code#44 → `9d13bd16`, openDox-code#43 →
+  `c46430fb`, openDox-code#39 → `582ed073`, openDox-code#41 → `8017cd52`, with
+  the host half openxFactory#1181 → `f56c87c6`); the nineteen into openXdox
+  resolve through openDox's seams (openDox-code#59 → `fa140875` with its
+  follow-up openDox-code#70 → `75bd8703`, openDox-code#71 → `2680eb5e`, whose
+  falsifier T081's openDox-code#74 → `9a490405` completed, and openDox-code#77 →
+  `e49b17c3`, which retires `consumer_reach.py`); and T086 (openXdox-code#37 →
+  `56e1c238`), the consumer half, contributes openXdox's governed columns at
+  those seams and empties `OPENDOX_BACK_IMPORTS` to `(0, 0)` in the same landing
+  that moves its pin to openDox-code `dede32b4`, the commit T087 pins. At that
+  pin `tests/test_dependency_direction.py` reads `17 passed`, with an empty
+  census (openXdox-code#37's body). F4.1 whole is T089's run at phase 3's tip.
+  Correction (research R16 item 3, non-normative): of `workbench.py`'s four
+  reaches into openxFactory, `run_scoped_doc_health` makes three (`:1407-1409`),
+  and the fourth is `session_documents` at `:746` (research R5, R1Q9 (a)). T007
+  batch A (openxFactory#1171 → `bca4a260`) carries the amendment above.
   `session_documents` resolves through the registered adapter's `list_documents`
   (T025, openDox-code#43 → `c46430fb`), and the three through the health-check
   seam (T026, openDox-code#39 → `582ed073`).
@@ -1391,7 +1404,7 @@ packet's interim arrangement ends.**
   the nine files, openDox-code#51 → `80acead1` empties `collect_ignore`, and
   openDox-code#52 → `55194335` makes the required check run the whole suite.
   F9.1 exits 0 (CP1 § 3).
-- [ ] 9.2 openXdox-code the same, with `OPENDOX_BACK_IMPORTS` lowered as each
+- [x] 9.2 openXdox-code the same, with `OPENDOX_BACK_IMPORTS` lowered as each
   deferred reach closes. The import-time column is ALREADY zero and stays there.
 
   **AMENDED — T007 Batch B (`5817152735`; Ruled R1Q6 (d)):** An addendum
@@ -1409,6 +1422,23 @@ packet's interim arrangement ends.**
   and is reported as an open extraction. The whole-suite check lands in phase
   1, and the box closes in phase 3, as this batch's addendum to the release
   map records. Carried out by T041, T043, T061, T086 and T097.
+
+  **Landed 2026-10-05** (T040, T041, T043, then T086): openXdox-code's whole
+  suite runs less T041's declared exclusion, `tests/declared_exclusion.yaml`,
+  reported as an open extraction with its count and each entry's reason
+  (openXdox-code#29 → `d84b5048`, openXdox-code#30 → `5fbd188e`,
+  openXdox-code#32 → `4610bca5`). At T086's landing (openXdox-code#37 →
+  `56e1c238`, pin openDox-code `dede32b4`) `OPENDOX_BACK_IMPORTS` reads
+  `(0, 0)`, its import-time column still `0`. The declaration then holds 66
+  files, carrying 68 reasons (60 `doc_health`, 3 `status-exemption-rail`, 5
+  `openxfactory-contracts`), T086 having added
+  `tests/test_column_contributions_governed.py` under `doc_health`. CI's
+  `validate` at that PR's head, whose tree landed unchanged (run 37307785866),
+  prints `open extraction: the declared exclusion` with those 66 files and each
+  reason, reads `selected=1099 passed=1095 skipped=4`, and leaves out the
+  32-entry help-tree node as its own open extraction (batch O). Requirement 9
+  stays open for openXdox-code until the direction arc (T008) lands (batch B's
+  addendum).
 - [x] 9.2a **Add the missing instrument.** No gate watches the openDox →
   openxFactory direction — the ratchet measures openDox → openXdox only, which is
   how two import-time reaches into the publisher survived a completed inversion
@@ -1546,8 +1576,9 @@ packet's interim arrangement ends.**
   (`5c137a90`) was 11 commits behind openDox-code `main` (`1e4a57fb`) on
   2026-09-24 (research R13), where the box measured 9 on 2026-09-23. It has
   moved with each phase: to `2d116415` by T040 (openXdox-code#29 → `d84b5048`),
-  to `047bb4fa` by T059 (openXdox-code#35 → `839492d9`), and T086 moves it to
-  T087's commit in phase 3.
+  to `047bb4fa` by T059 (openXdox-code#35 → `839492d9`), and T086
+  (openXdox-code#37 → `56e1c238`) moved it to `dede32b4`, the openDox-code
+  commit T087 pins, in phase 3.
 - [x] **FALSIFIED BY** (each leg's own checkout, no sibling installed):
 
       set -euo pipefail
