@@ -6,10 +6,12 @@ Status: draft
 document tool and self-maintenance", phases 4–5) of the ratified OpenSpec
 change `add-neutral-product-standalone-operability` (#1144).
 **Lane**: `openxfactory-4`. **Raised**: 2026-10-05, at `/speckit.specify`,
-before any plan or code. **Answer state**: OPEN. All 25 round-1 questions
-await Brett Heap. Nothing here is decided by this feature. Each question puts
-its recommended option first, marked **(Recommended)**, and that is a
-recommendation only.
+before any plan or code. **Answer state**: ANSWERED. Brett Heap took option
+(a), the recommended option, on all 25 round-1 questions on 2026-10-05, by
+interactive multi-choice, verbatim *"Accept all 25 recommended
+(Recommended)"* (#656 `6003486656`). Each answer is written inline under its
+question and encoded in `spec.md`. The 34 questions deferred to the plan keep
+their proposed defaults, and Brett rules them with the plan.
 
 **Naming.** Round 1's questions are `R2Q1`…`R2Q25`. A bare `Q<n>` names one of
 #1144's own rulings (RULING Q1, RULING Q2, Q-R4, DIRECTION Q5), and `R1Q<n>`
@@ -108,7 +110,7 @@ this.
 - **(c)** Strike the phrase as an editorial slip. *Consequence:* a bookkeeping
   amendment to the map's cell and to § D13's line.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q2 — Does `pull_request_factory`'s unset default stay `GhPullRequests`? *(phase 4; FR-003)* — CONTRADICTION
 
@@ -151,7 +153,7 @@ F5.2 protects that suite (`tasks.md:896`). openxFactory's host injects no
   *Consequence:* the largest. It touches openXdox-code's `src/` and every
   governed suite that patches `cli._pull_request_port`.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q3 — Does any governed host carry `submit`, `land` or `health` in release 2? *(phases 4–5; FR-004, FR-007)*
 
@@ -189,7 +191,7 @@ host contributes the verbs now (OQ-12-2).
   neutral checks over openxFactory's corpus. *Consequence:* broadest. A composed
   host has no store today (R2Q15).
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q4 — What is the governed host's "instrument", and what does routing a landing to it do? *(phase 4; FR-007, US2 scenario 4)*
 
@@ -212,7 +214,7 @@ or the fix loop's land action DOES under `governed` (OQ-12-10). Ruling
 - **(c)** The host declares a separate instrument callable, a sixth facet beside
   `opendox_host.FACETS`. *Consequence:* a fourth seam to declare and test.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q5 — What may a standalone install submit and land? *(phase 4; FR-004, FR-007)*
 
@@ -243,7 +245,7 @@ So a standalone user today cannot make a session branch in openDox at all.
   landed. *Consequence:* F12.2's `sess-1` needs an amendment, and nothing on a
   standalone plane could be submitted until (b) exists.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q6 — Where does a standalone `land` merge, and how does a landed default branch reach a remote? *(phase 4; FR-007)* — CONTRADICTION
 
@@ -355,7 +357,7 @@ the opposite (OQ-12-6, OQ-12-7), and 12.6a says nothing about a remote.
   - It does not conflict with R2Q5 (a), which limits the branch handed to
     `land`, not what `land` publishes afterwards.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q7 — Which branch is "the default branch", and how does a standalone owner's first declaration reach it? *(phase 4; FR-007)*
 
@@ -394,7 +396,7 @@ first one (OQ-12-15).
   *Consequence:* a checked-out session branch would read as the default, so a
   branch could decide its own landing, which 12.6a forbids.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q8 — Where does 12.5 run, and who repairs the governed suites' reds? *(phase 4; FR-005, US3)* — CONTRADICTION
 
@@ -447,7 +449,7 @@ first, whatever is answered here.
   composed today. *Consequence:* requirement 11's tenth scenario rests on 6 of
   the 16 suites.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q9 — Approve the falsifier amendments that release 1's rules force? *(phase 5, and the verb shapes of phases 4–5; FR-004, FR-008, FR-011, FR-015, FR-017, FR-020)* — CONTRADICTION
 
@@ -506,7 +508,7 @@ Items 1 and 2 are conflicts with release-1 rulings (OQ-H-1, OQ-H-6), and items
   For item 2, the alternative is to amend R1Q16 instead, so that each `health`
   verb attaches to, or starts, a transient bundle of its own.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q10 — What is a finding's `id`? *(phase 5; FR-011, FR-015, US5, US6)* — CONTRADICTION
 
@@ -540,7 +542,7 @@ OQ-H15-17).
   falsifiers stand, but ids shift when an earlier finding disappears, so an
   exception can attach to the wrong finding.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q11 — What is a document's "location" for `stage-location-mismatch`, and which way does the repair go? *(phase 5; FR-010, FR-012)*
 
@@ -567,7 +569,7 @@ disagrees with the document's location among the six ruled words"*
   *Consequence:* the most flexible, and one more committed configuration file to
   define.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q12 — How does the baseline work in a disposable store? *(phase 5; FR-010, FR-019)*
 
@@ -631,7 +633,7 @@ run sees it.
   disappearances older than that commit are still lost, because the store held
   the only record of which commit was last measured.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q13 — Does the health table join RULING Q1's closed list? *(phase 5; FR-009, US4 scenario 2)*
 
@@ -656,7 +658,7 @@ half).
   But `verify_runtime_access` stays blind to the table unless `SERVED_TABLES`
   grows, and the ruling's "seventh table" reads as not joining the list.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q14 — How does 6.1a's "relocate the generic part" square with 11.1's guard and the unruled direction arc? *(phase 5; FR-008)*
 
@@ -677,7 +679,7 @@ and `fs_probe.py`.
 - **(c)** 6.1a is folded into the direction arc's Q4 and waits for it.
   *Consequence:* Group 6's close is gated on an unruled arc.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q15 — What does a HOSTED install do with the health engine and with packs? *(phase 5; FR-009, FR-017)*
 
@@ -711,7 +713,7 @@ OQ-H15-6).
   requirement 16's own `/proc` and whole-tree clauses, so this needs a ruling on
   what "kernel-enforced" admits.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q16 — What runs in the sandbox, and does macOS get packs? *(phase 5; FR-008, FR-017)*
 
@@ -769,7 +771,7 @@ and whole-tree clauses (`spec.md:550-553`).
   would have any health check, and openxFactory's scoped check would stop
   running.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q17 — Does openDox-code's required check run the sandbox suite? *(phase 5; FR-017, FR-020)*
 
@@ -806,7 +808,7 @@ its 24-test command at `:3627-3651`). 9.4 lets no skip carry a gap, and R1Q8
   capable host. *Consequence:* against 9.4, and `EXPECT_SKIPPED` moves from 11
   to 20 by your word.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q18 — What may a pack depend on? *(phase 5; FR-016, FR-017)*
 
@@ -830,7 +832,7 @@ changes what a corpus is judged against"*, 15.1a's own stated hazard
   *Consequence:* simple, but what a pack runs then depends on what the user
   installed, which is the very hazard 15.1a names.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q19 — Amend requirement 16 and 15.1b so that a pack may see git history? *(phase 5; FR-017)*
 
@@ -855,7 +857,7 @@ those families unchanged (OQ-H15-3).
   amendment.** *Consequence:* F1 can port those families unchanged, and the
   sandbox exposes the corpus's whole history, which is more of the user's data.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q20 — Amend requirement 16 and 15.1b so that a pack's check may be model-assisted? *(phase 5; FR-017)*
 
@@ -881,7 +883,7 @@ families dispatch to models (OQ-H15-4).
   *Consequence:* F1 can port those families, but a new boundary runs through
   the sandbox, with its own containment tests.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q21 — Is a domain's pack pinned in its `stack.yaml` or in the corpus's `health/packs.yaml`? *(phase 5; FR-016)*
 
@@ -899,7 +901,7 @@ but the interface fixes the shape F2 must fit.
   *Consequence:* two sources of truth for one corpus, inside the neutral
   product.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q22 — Does openDox-spec own the health contract's schemas, with a bundle cut? *(release 2; FR-016, FR-023)*
 
@@ -924,7 +926,7 @@ repository (`tasks.md:1594-1595`). This is this feature's own question.
   and no bundle. *Consequence:* fewer acts, but a pack author reads Python, not
   a schema.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q23 — Is release 2 published to PyPI? *(release 2's close; FR-023)*
 
@@ -944,7 +946,7 @@ tag"*. Nothing says what release 2 owes. **Measured:** `pyproject.toml` reads
 - **(c)** A publish per phase (0.2.0 and 0.3.0). *Consequence:* two cuts, two
   tags and two publish words.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q24 — Does release 2 carry an end-to-end acceptance, AT-R2? *(release 2's close; FR-024)*
 
@@ -967,7 +969,7 @@ this feature's own question.
 - **(b)** Close on #1144's falsifiers and the named tests alone. *Consequence:*
   faster, but the view's flows are proved only by parity.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ### R2Q25 — May a finding's `evidence` hold document excerpts? *(phase 5; FR-009, FR-018)*
 
@@ -999,7 +1001,7 @@ boundary either way.
   committed documents, so Q1's "no document" needs a stated bound, which is
   yours to rule.
 
-**ANSWER:** _awaiting Brett Heap_
+**ANSWER:** (a) — Brett Heap, 2026-10-05, by interactive multi-choice ("Accept all 25 recommended (Recommended)"); #656 6003486656
 
 ---
 
