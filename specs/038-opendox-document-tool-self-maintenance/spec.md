@@ -808,8 +808,10 @@ falsifier is #1144's own.
   `severity`, `evidence`, `pack_id` and `pack_version`. It is derived data, kept
   in the store. Its identity is R2Q10.
 - **Resolution class**: exactly `auto-fix`, `assisted` or `human-only`.
-- **Baseline**: what makes a finding new, persistent or disappeared. It is owned
-  by the engine, and no pack may vary it. Its anchor is R2Q12.
+- **Baseline**: the previous run at the default branch's tip, against which a
+  finding is new, persistent, or arrived with a pack upgrade (D12), and
+  between two such runs disappeared. It is owned by the engine, and no pack
+  may vary it. Its mechanism in a disposable store is R2Q12.
 - **Fix draft**: a repair written as a commit on a branch (`health-fix-<finding>`
   in F14.1). It is distinct from the runtime's `drafts` table, which RULING Q1
   keeps for unsaved document bodies.
@@ -902,12 +904,27 @@ falsifier is #1144's own.
   (FR-004, `:517-519`). It holds that checkout's branch and `HEAD` unchanged
   across every session operation (SC-002, `:811-816`). openDox-code's
   `session_git.py` realizes this:
-  - `merge`, `revert` and `update-ref` are absent from its allowlist
-    (`:93-99`), and `tests/test_session_git.py:563-564` pins `merge` and
-    `update-ref`;
+  - its guard is an allowlist of subcommand NAMES (`:99`), under the stated
+    rule that nothing on it touches the served working tree, its index or its
+    `HEAD` (`:93`);
+  - `merge`, `revert` and `update-ref` are absent from it (`:93-97`), and
+    `tests/test_session_git.py` pins `merge` twice, refusing
+    `("merge", "other-branch")` at `:523` and asserting its absence, with
+    `update-ref`'s, at `:563-564`;
   - `fetch` and `pull` are refused everywhere (`:125`).
 
   See R2Q6.
+- **openDox already ships one push, and it is not the served checkout's.**
+  - `project push` (RULING C3; `runtime/cli.py:114`, `:1213`) pushes the
+    branch that a project repository's HEAD names
+    (`runtime/repository_act.py:1266-1298`, `push_to_remote`).
+  - That repository is the BARE one `project create-repository` makes
+    (`:982`; Q-R1, `5701772032`).
+  - The document server serves the working tree of the checkout named by
+    `--repo-root` (`serve.py:2107`), and reads no project row.
+
+  So nothing in the product pushes a served checkout's default branch today.
+  How a landed one reaches a remote is R2Q6.
 - **A standalone install has no session opener of its own.** Every
   session-opening verb is a gate verb, and release 1 RULED Save refused by name
   on standalone (`5971834845`; R2Q5).

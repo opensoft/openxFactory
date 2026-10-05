@@ -32,7 +32,9 @@ all `main` on 2026-10-05.
 **Revision.** Lane openXfactory-3 checked round 1 read-only at `43ddf275` and
 found 14 questions to fix and two candidates missing. Every fix is folded in
 below, and each was verified against the trees before it was written in. The
-two candidates are now asked: OQ-H-3 within R2Q16, and OQ-H-19 as R2Q25.
+two candidates are now asked: OQ-H-3 within R2Q16, and OQ-H-19 as R2Q25. A
+second check, at `0513a3b1`, found eight points left on R2Q6, R2Q12, R2Q16 and
+R2Q25. They are verified and folded in too.
 
 **How the 61 candidates were sorted.**
 
@@ -247,8 +249,8 @@ So a standalone user today cannot make a session branch in openDox at all.
 
 **Open because** 12.6a makes a landing a `--no-ff` merge commit that `git
 revert -m 1` undoes (`tasks.md:2812-2814`). F12.2's third node expects *"the
-tree restored"* (`tasks.md:2910`). Feature 007's served-checkout rule pins the
-opposite (OQ-12-6, OQ-12-7), and 12.6a says nothing about a remote.
+tree restored"* (`tasks.md:2910-2911`). Feature 007's served-checkout rule pins
+the opposite (OQ-12-6, OQ-12-7), and 12.6a says nothing about a remote.
 
 **Measured:**
 - **Feature 007** is codexFactory's `specs/007-workbench-branch-sessions/spec.md`,
@@ -260,10 +262,14 @@ opposite (OQ-12-6, OQ-12-7), and 12.6a says nothing about a remote.
     inside the gate-records path.
 - **Feature 007's realization** is openDox-code's
   `src/opendox/session_git.py`.
-  - Every subcommand that moves a working tree, an index or `HEAD` is absent
-    from `SERVED_ALLOWED_SUBCOMMANDS` (`:99`). That includes `merge`, `revert`
-    and `update-ref`, which `:93-97` name.
-  - `tests/test_session_git.py:563-564` pins `merge` and `update-ref` by name.
+  - Its guard is an allowlist of subcommand NAMES, `SERVED_ALLOWED_SUBCOMMANDS`
+    (`:99`), a frozenset that never reads a command's arguments.
+  - Its stated rule is that nothing on the list touches *"the served working
+    tree, its index, or its HEAD"* (`:93`). `merge`, `revert` and `update-ref`
+    are named as absent (`:93-97`).
+  - `tests/test_session_git.py` pins this twice. `:523` refuses
+    `("merge", "other-branch")` at the served root, and `:563-564` asserts that
+    `merge` and `update-ref` are not on the list.
   - `fetch` and `pull` are refused at every cwd (`:125`).
 - **The promoted scenario** *"The served checkout is asked to move"* forbids
   only a switch, a reset or a stash.
@@ -273,6 +279,21 @@ opposite (OQ-12-6, OQ-12-7), and 12.6a says nothing about a remote.
     openDox-spec to re-promote (Group 8, outside both releases).
   - Its text now lives only in openxFactory's
     `openspec/changes/archive/2026-08-01-add-workbench-branch-sessions/specs/ideation-dashboard/spec.md:28-30`.
+- **openDox already ships a push, `project push` (RULING C3).**
+  - It is declared at `runtime/cli.py:114` and `:1213`, and realized by
+    `runtime/repository_act.py:1298`, `push_to_remote`.
+  - It pushes the branch that the PROJECT repository's HEAD names
+    (`:1266-1296`), usually `main`.
+  - That repository is the one `project create-repository` makes. It is BARE
+    (`:982`, *"`init --bare`"*; Q-R1 ruled it so, `5701772032`), and its header
+    says *"A human who wants a checkout clones it"* (`:962-967`).
+  - The document server serves a different thing: the working tree of the
+    checkout named by `generate-and-open --repo-root` (`serve.py:2107`,
+    `WorkingTreeCorpus`). Nothing in `serve.py` or `cli.py` reads a project
+    row.
+  - So a standalone served checkout is never the repository `project push`
+    pushes. At most it is a clone of that repository, whose `origin` is the
+    project repository.
 
 - **(a) (Recommended)** Land in a worktree, then fast-forward the served
   checkout.
@@ -282,27 +303,40 @@ opposite (OQ-12-6, OQ-12-7), and 12.6a says nothing about a remote.
     branch there, and nothing of feature 007 moves.
   - **Served checkout on the default branch** (the common standalone case,
     `main`): the lander then fast-forwards the served checkout to the merge
-    commit with `git merge --ff-only`, only when that checkout is clean. A
-    fast-forward that no longer applies refuses, which serves as the
+    commit with `git merge --ff-only <commit>`, only when that checkout is
+    clean. A fast-forward that no longer applies refuses, which serves as the
     compare-and-swap. It never switches, resets or stashes, so FR-004 and the
     promoted scenario hold.
-  - **Feature 007 gains THREE named exceptions**, each scoped to a confirmed
+  - **Feature 007 gains FOUR named exceptions**, each scoped to a confirmed
     landing onto the branch the served checkout holds:
-    1. `SERVED_ALLOWED_SUBCOMMANDS` admits `merge`, in its `--ff-only` form
-       alone, and `tests/test_session_git.py:563-564`'s pin of `merge` moves.
-    2. SC-002's "`HEAD` unchanged" admits that fast-forward.
-    3. SC-002's "working tree changes only inside the gate-records path" admits
-       the files the fast-forward brings.
+    1. **The guard gains an argument check.** It admits `merge --ff-only
+       <commit>` alone at the served root, a check the name-only guard lacks
+       today. `tests/test_session_git.py:523`'s `("merge", "other-branch")`
+       keeps refusing, and `:563-564`'s pin that `merge` is absent from the
+       list moves.
+    2. **`session_git.py:93`'s stated rule** admits that fast-forward for the
+       served working tree, its index and its `HEAD`.
+    3. **SC-002's "`HEAD` unchanged"** admits it.
+    4. **SC-002's "working tree changes only inside the gate-records path"**
+       admits the files it brings.
   - `land` pushes nothing. Before landing, where a remote is attached, it reads
     the remote's default-branch tip with `ls-remote` (already allowed). It
-    refuses if the local default branch does not contain that tip, and names the
-    remedy.
-  - A landed default branch reaches the remote only by the user's own
-    `git push`, which the openDox root's README documents. `submit` cannot carry
-    it, because R2Q5 (a) refuses the default branch.
+    refuses if the local default branch does not contain that tip, and names
+    the remedy.
+  - **A landed default branch leaves the served checkout only by the user's
+    own `git push`.** `submit` cannot carry it, because R2Q5 (a) refuses the
+    default branch. Where the checkout pushes depends on its kind:
+    - A plain repository with its own remote: the push reaches that remote
+      directly.
+    - A clone of a project's bare repository: the push reaches the project
+      repository, and `project push` then carries the project's `main` on to
+      the attached remote (RULING C3).
 
-  *Consequence:* the student lands from the view or the CLI. Feature 007's three
-  pins move by your word. Landing and publishing stay separate acts.
+    The openDox root's README documents both cases.
+
+  *Consequence:* the student lands from the view or the CLI. Feature 007's
+  four pins move by your word. Landing and publishing stay separate acts, and
+  `project push` is unchanged.
 - **(b)** Land only when the default branch is NOT checked out in the served
   checkout, and refuse otherwise. *Consequence:* feature 007 is unchanged, but
   the common standalone case (served checkout on `main`) cannot land from the
@@ -310,11 +344,16 @@ opposite (OQ-12-6, OQ-12-7), and 12.6a says nothing about a remote.
 - **(c)** Land only from the CLI, in the user's own checkout outside the served
   process, and drop the view's confirm issuer. *Consequence:* feature 007 is
   unchanged, but 12.6a's two-issuer text needs a ruling.
-- **(d)** As (a), and `land` then pushes the landed default branch to the
-  attached remote, with `submit`'s redaction. *Consequence:* one act lands and
-  publishes. But pushing the default branch is an act no box of #1144 names, and
-  ruling `5783934499` pushes only *"the session branch"*, so this needs a
-  ruling.
+- **(d)** As (a), and `land` then pushes the landed default branch from the
+  served checkout to that checkout's `origin`, with `submit`'s redaction.
+  *Consequence:* one act lands and publishes.
+  - Pushing a default branch is not new in itself, because `project push`
+    already does it. But that push runs only from a project's bare repository,
+    so a push from the served checkout is a new act.
+  - No box of #1144 names it, and ruling `5783934499` pushes only *"the session
+    branch"*, so this needs a ruling.
+  - It does not conflict with R2Q5 (a), which limits the branch handed to
+    `land`, not what `land` publishes afterwards.
 
 **ANSWER:** _awaiting Brett Heap_
 
@@ -538,18 +577,30 @@ re-raised"* (`spec.md:188-190`; ruling `5784155201`). Nothing says how, in a
 store that a reset may discard (OQ-H-12, OQ-H15-16). openxFactory's citations
 are governance acts that a neutral corpus lacks.
 
-**Already decided, so not asked:** across a pack upgrade, the baseline must
-*"tell a genuinely new finding from one that merely arrived with a new pack
-version"*, so that an upgrade does not look like a regression. D12 decides
-this (`design.md:688-690`), and requirement 16 says the same
-(`spec.md:584-586`). Both options below honour it: a finding whose id persists
-across a pack-version bump stays persistent.
+**Already decided, so not asked:** the baseline must *"tell a genuinely new
+finding from one that arrived with a new pack version"*, so that a pack upgrade
+does not look like a regression. D12 decides this (`design.md:688-690`), and
+requirement 16 says the same (`spec.md:584-585`). The common rules below encode
+it twice:
+- a finding that first appears with a new pack version is its own class,
+  apart from new;
+- a finding whose id persists across the upgrade stays persistent.
 
-**Common to both options:**
-- A finding is **new** when it is absent from the previous run at the default
-  branch's tip.
-- It is **persistent** when that run had it.
-- It has **disappeared** when that run had it and this run does not.
+**Common to both options.** The BASELINE is the previous run at the default
+branch's tip. Every run is classed against it, whether at the default tip, on
+a branch or over the working state. Each finding falls in one of three classes:
+- **new**: absent from the baseline, while its pack's stamped `pack_version`
+  (15.7) is the one the baseline recorded for that pack;
+- **arrived with a pack upgrade**: absent from the baseline, while its pack's
+  stamped `pack_version` differs from the baseline's for that pack. It is
+  reported apart from new;
+- **persistent**: present in the baseline.
+
+Disappearance has its own rules:
+- **disappeared** is measured ONLY between two default-tip runs: the previous
+  one had the finding, and this one does not. A branch or working-state run
+  never raises a disappearance, so the fix loop's own draft branch does not
+  re-raise every fix in progress.
 - A disappearance is **cited** by a landing of the fix loop's draft for it, or
   by a commit that names its id in a `Finding:` trailer. An uncited one is
   re-raised once, as a `human-only` finding naming the original.
@@ -559,17 +610,20 @@ run sees it.
 
 - **(a) (Recommended)** The previous default-tip run lives in the store, and a
   store reset forgets it.
-  - The first run after a reset, like the first run ever, has no previous run,
-    so it sees every finding once as new.
+  - The first run after a reset, like the first run ever, has no baseline, so
+    it sees every finding once as new.
   - Pending uncited disappearances are forgotten with the store.
 
-  *Consequence:* simple, and within RULING Q1: losing the store costs a
-  recomputation. Requirement 15's survival rule covers decisions the documents
-  do not contain (`spec.md:505-508`), which a pending disappearance is not. A
-  reset re-alerts once, and can drop a re-raise that was still pending.
+  *Consequence:* simple. But it NARROWS what 14.3 and ruling `5784155201` item
+  4 say, that health results are *"recomputable from git"*
+  (`tasks.md:3233-3235`). A reset can drop a re-raise that was still pending,
+  and no recomputation brings it back. Requirement 15 requires only decisions
+  the documents do not contain to survive a reset (`spec.md:505-508`), and a
+  pending disappearance is not one. So the narrowing is defensible, but it is
+  a reading for you to make, not something RULING Q1 already settles.
 - **(b)** Disappearances are derived from git.
-  - When the store holds no previous run, the engine recomputes one from git,
-    over the default tip's first parent.
+  - When the store holds no previous default-tip run, the engine recomputes one
+    from git, over the default tip's first parent.
   - Citations are found by walking the commits between the two.
 
   *Consequence:* a reset loses no disappearance that the latest default-branch
@@ -666,7 +720,7 @@ inside the sandbox. Two of its texts combine:
 - *"A pack SHALL RUN IN A SEPARATE PROCESS INSIDE AN OPERATING-SYSTEM-ENFORCED
   SANDBOX"* (`spec.md:544-545`);
 - the product's own checks are attributed *"as the one pack no manifest
-  lists"* (`spec.md:584-587`).
+  lists"* (`spec.md:585-587`).
 
 Where the platform *"offers no such sandbox, packs SHALL NOT RUN"*
 (`spec.md:557`). Yet requirement 6's second scenario calls a document product
@@ -690,15 +744,22 @@ enforces in this lane's container, cannot meet requirement 16's own-`/proc`
 and whole-tree clauses (`spec.md:550-553`).
 
 - **(a) (Recommended)** TRUSTED INSTALLED CODE runs IN PROCESS, on every
-  platform. That means the product's own checks (attributed `opendox`) and a
-  host's check registered through `register_health_check`. Only
-  manifest-listed packs run in the sandbox. Where a probe finds none (macOS, a
-  restricted Linux, a container), packs do not run, and one finding against
-  the install says why. There is no Seatbelt realization in release 2. The
-  sandbox clause is recorded as governing manifest-listed packs, and the
-  attribution clause as attribution only. *Consequence:* every install gets
-  health over its own documents, and openxFactory's scoped check keeps running
-  as release 1 left it. Packs run only on a capable Linux host.
+  platform. Only manifest-listed packs run in the sandbox. Where a probe finds
+  no sandbox (macOS, a restricted Linux, a container), packs do not run, and one
+  finding against the install says why. There is no Seatbelt realization in
+  release 2.
+  - **The product's own checks** run in process and are attributed `opendox`.
+  - **A host's check** registered through `register_health_check` runs in
+    process too, but ONLY at the scoped seam, as release 1 left it. Its results
+    are NEVER STORED, as OQ-H-3's plan default says of every scoped run.
+  - So every finding in the store stays attributable (`spec.md:588-589`), and
+    no host's finding claims the product's id (`:587-588`).
+  - The sandbox clause is recorded as governing manifest-listed packs, and the
+    attribution clause as attribution only.
+
+  *Consequence:* every install gets health over its own documents, and
+  openxFactory's scoped check keeps running as release 1 left it, unstored.
+  Packs run only on a capable Linux host.
 - **(b)** As (a), plus a Seatbelt realization on macOS that denies fork.
   *Consequence:* macOS users get packs. It also needs a ruling that deprecated
   `sandbox-exec` counts as kernel-enforced, with fork denied standing for the
@@ -913,21 +974,30 @@ this feature's own question.
 **Open because** 14.3 says the store holds *"NO DOCUMENT"* and stays
 disposable (`tasks.md:3233-3235`, RULING Q1's principle), but sets no bound on
 a finding's `evidence`. 14.5 and 15.2 put `evidence` on every finding
-(`tasks.md:3259-3262`, `:3459`). openxFactory's checker allows excerpts of up
-to 240 characters (`scripts/doc_health/families.py:367`,
-`_CITE_EXCERPT_CHARS`). So the answer is a reading of RULING Q1's boundary
-(OQ-H-19).
+(`tasks.md:3259-3262`, `:3459`). (OQ-H-19.)
+
+The nearest precedent is openxFactory's checker, and it is not a bound on
+document text in evidence. `_CITE_EXCERPT_CHARS = 240`
+(`scripts/doc_health/families.py:367`) bounds how much of a recorded
+disposition citation a downgraded finding quotes into its `action` text
+(`:359-366`, used at `:574` and `:677`). That citation comes from
+`health/dispositions.yaml`, so that the excerpt *"IDENTIFIES the ruling rather
+than reproducing it"*. Even so, the quote is text from a committed corpus
+document, and the neutral shape has no `action` field (14.5), so a port would
+put it in `evidence`. The answer is therefore a reading of RULING Q1's
+boundary either way.
 
 - **(a) (Recommended)** Locators only: a path, a line, a link-target string or a
   family-defined key, and no text of a document. *Consequence:* the store
-  provably holds no document (Q1, 14.3). The view shows the passage by reading
-  the document from git when it renders. openXdox's follow-on governance pack
-  (F1) must keep its 240-character excerpts out of `evidence`.
+  provably holds no document (Q1, 14.3), and the view shows the passage by
+  reading the document from git when it renders. openXdox's follow-on
+  governance pack (F1) maps its disposition-citation excerpts to the entry's
+  `(family, repo, path)` key.
 - **(b)** Bounded excerpts, up to a declared length such as openxFactory's 240
   characters. *Consequence:* findings read well without a second read, and F1
-  ports its evidence unchanged. But the store then holds fragments of
-  documents, so Q1's "no document" needs a stated bound, which is yours to
-  rule.
+  ports its citation quotes unchanged. But the store then holds fragments of
+  committed documents, so Q1's "no document" needs a stated bound, which is
+  yours to rule.
 
 **ANSWER:** _awaiting Brett Heap_
 
