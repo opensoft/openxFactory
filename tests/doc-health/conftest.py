@@ -259,10 +259,10 @@ def emulate_pathlib_314(monkeypatch) -> None:
 @pytest.fixture(params=("native", "cpython-3.14"))
 def pathlib_314(request, monkeypatch):
     """Run the test under this interpreter's pathlib, then under 3.14's.
-    Yields the model's name."""
+    Returns the model's name; `monkeypatch` undoes the swap afterwards."""
     if request.param == "cpython-3.14":
         emulate_pathlib_314(monkeypatch)
-    yield request.param
+    return request.param
 
 
 class ProbeDenial:

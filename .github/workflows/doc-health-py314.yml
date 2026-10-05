@@ -32,7 +32,10 @@
 # recursively: `tests/doc-health/conftest.py` installs `scripts/carved_reach.py`,
 # and the suite imports `openxdox` and reads moved files' source through the
 # two carve legs. The same hash-pinned lock (`requirements/
-# hermes-runtime-contracts.lock`), installed with `--require-hashes`. Not
+# hermes-runtime-contracts.lock`), installed with `--require-hashes` and, as
+# `former-id-arrival-gate.yml` and `openxdox-consumer-gate.yml` install it,
+# `--only-binary :all:`: every locked package ships a 3.14 wheel (measured on
+# this job's first runs), so no package's setup script ever runs here. Not
 # node, the openspec CLI or the pinned decision core: no test under
 # `tests/doc-health/` gates on node or openspec, and the decision core feeds
 # only `tests/review_lane_pin/`.
@@ -84,6 +87,10 @@ jobs:
 
       - run: python --version
 
-      - run: pip install --require-hashes -r requirements/hermes-runtime-contracts.lock
+      # A literal block: `:all: -r` carries a colon and a space, which a plain
+      # YAML scalar may not (the reason openxdox-consumer-gate.yml gives too).
+      - run: |
+          pip install --require-hashes --only-binary :all: \
+            -r requirements/hermes-runtime-contracts.lock
 
       - run: python -m pytest tests/doc-health -q -rs
