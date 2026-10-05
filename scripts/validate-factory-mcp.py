@@ -44,12 +44,13 @@ SCHEMA_SINGLE = ("items", "additionalItems", "contains", "additionalProperties",
 SCHEMA_LISTS = ("allOf", "anyOf", "oneOf", "prefixItems")
 # `$defs` and `definitions` hold schemas that apply only when referenced.
 STORAGE = ("$defs", "definitions")
-# Subschemas an outcome never lives in: a negation, a condition that only
-# selects `then` or `else`, and keywords a 2020-12 evaluator never applies
+# Subschemas an outcome never lives in: a negation; a condition and its
+# branches (`then` and `else` apply only beside an `if`, and conditional coverage
+# is not modeled); and keywords a 2020-12 evaluator never applies
 # (`contentSchema` is an annotation; `additionalItems` and `dependencies` are
 # older drafts'). Reachability and coverage do not enter them; the reference
 # walk still does, so a remote reference under them is still refused.
-NOT_OUTCOMES = ("not", "if", "contentSchema", "additionalItems", "dependencies")
+NOT_OUTCOMES = ("not", "if", "then", "else", "contentSchema", "additionalItems", "dependencies")
 UNIONS = ("oneOf", "anyOf")
 # Keywords that assert nothing about an instance: annotations, core metadata and
 # schema storage. A `$ref` beside only these is a pure reference.
@@ -204,6 +205,62 @@ def unsupported_dialect(node):
         raise Invalid("unsupported_schema_dialect")
 
 
+def json_types(value):
+    """The JSON Schema types a JSON value belongs to."""
+    if isinstance(value, bool):
+        return {"boolean"}
+    if isinstance(value, int):
+        return {"integer", "number"}
+    if isinstance(value, float):
+        return {"integer", "number"} if value.is_integer() else {"number"}
+    return {str: {"string"}, list: {"array"}, dict: {"object"}}.get(type(value), {"null"})
+
+
+def json_key(value):
+    """A key under which JSON-equal values meet: `1` equals `1.0`, never `true`."""
+    if isinstance(value, bool) or value is None or isinstance(value, str):
+        return (type(value).__name__, value)
+    if isinstance(value, (int, float)):
+        return ("number", value)
+    return ("json", json.dumps(value, sort_keys=True))
+
+
+def own_space(node):
+    """One schema's own top-level value space (see `Offline.value_space`)."""
+    if node is True:
+        return (None, None)
+    if not isinstance(node, dict) or any(keyword in node for keyword in UNANALYZED):
+        return None
+    types = None
+    if "type" in node:
+        types = set(node["type"]) if isinstance(node["type"], list) else {node["type"]}
+        if "number" in types:
+            types.add("integer")
+    values = None
+    if "enum" in node:
+        if not isinstance(node["enum"], list):
+            return None
+        values = {json_key(v): v for v in node["enum"]}
+    if "const" in node:
+        const = {json_key(node["const"]): node["const"]}
+        values = const if values is None else {k: v for k, v in const.items() if k in values}
+    return meet((types, values), (None, None))
+
+
+def meet(first, second):
+    """Both value spaces at once, or None when together they admit nothing."""
+    if first is None or second is None:
+        return None
+    types = first[0] if second[0] is None else (second[0] if first[0] is None else first[0] & second[0])
+    values = first[1] if second[1] is None else (
+        second[1] if first[1] is None else {k: v for k, v in first[1].items() if k in second[1]})
+    if values is not None and types is not None:
+        values = {k: v for k, v in values.items() if json_types(v) & types}
+    if (types is not None and not types) or (values is not None and not values):
+        return None
+    return (types, values)
+
+
 def ref_key(ref):
     return (ref["repository"], ref["revision"], ref["path"])
 
@@ -242,7 +299,7 @@ class Offline:
         self.documents = {}
         self.graphs = {}
         self.chains = {}
-        self.holding = {}
+        self.spaces = {}
         self.finite_cache = {}
         self.work = 0
         self.checked_targets = set()
@@ -524,32 +581,37 @@ class Offline:
 
     def holds_some(self, key, node, resource):
         """Whether a required property's schema may hold a value, judged at its top
-        level along its `$ref` chain: `false` holds none, a negation, condition or
-        conjunction (UNANALYZED) is not analyzed, and a cycle proves nothing.
-        Deeper constraints are outside this offline check. Memoized per link."""
+        level along its `$ref` chain (see `value_space`)."""
+        return self.value_space(key, node, resource) is not None
+
+    def value_space(self, key, node, resource):
+        """The values a schema allows at its top level along its `$ref` chain, as
+        `(types, values)` (None meaning unconstrained), or None when it holds no
+        value or is not analyzed: `false`; a negation, condition or conjunction
+        (UNANALYZED); a cycle; or `type`, `const` and `enum`, which apply together
+        across every link, admitting nothing. Deeper constraints are outside this
+        offline check. Memoized per link."""
         path, seen = [], set()
         while True:
             token = (key, id(node), id(resource))
-            if token in self.holding:
-                result = self.holding[token]
-                break
-            if node is False or (isinstance(node, dict) and any(k in node for k in UNANALYZED)):
-                result = False
+            if token in self.spaces:
+                space = self.spaces[token]
                 break
             if not (isinstance(node, dict) and "$ref" in node):
-                result = True
+                space = own_space(node)
                 break
             if token in seen:
-                result = False
+                space = None
                 break
             seen.add(token)
-            path.append(token)
+            path.append((token, node))
             if self.embedded(key, node):
                 resource = node
             key, node, resource, _ = self.resolve(key, node["$ref"], resource)
-        for token in path:
-            self.holding[token] = result
-        return result
+        for token, link in reversed(path):
+            space = meet(own_space(link), space)
+            self.spaces[token] = space
+        return space
 
     def graph(self, key):
         """The applying-subschema graph of one schema file, built once: every
@@ -844,6 +906,8 @@ def check_claims(tool, supported, gap_concerns, bad):
         bad("empty_scope_mapping", "/binding/scope_references")
     if binding["scope_status"] == "gap" and "scope" not in gap_concerns:
         bad("missing_scope_gap", "/binding/scope_status")
+    if binding["scope_status"] == "mapped" and "scope" in gap_concerns:
+        bad("mapped_scope_claims_gap", "/binding/scope_status")
     if binding["revocation"] == "unimplemented" and "revocation" not in gap_concerns:
         bad("missing_revocation_gap", "/binding/revocation")
     policy = tool["evidence_policy"]
