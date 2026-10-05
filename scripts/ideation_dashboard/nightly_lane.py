@@ -175,14 +175,36 @@ def _borrowed_toplevel(checkout: Path) -> Path | None:
     A checkout is POPULATED when it has a `.git` entry of its own (a work
     tree's `.git` directory, or the gitfile a submodule checkout carries) or
     git resolves its top level to the directory itself; it then answers None.
-    A directory in no work tree at all also answers None: its HEAD fails to
-    resolve, which is the lane's existing skip, and nothing is borrowed."""
+    A directory in no work tree answers None too, because nothing is
+    borrowed: if it is in no repository at all, its HEAD fails to resolve,
+    which is the lane's existing skip; if it is in a repository that has no
+    work tree there (a bare repository, or a path inside a `.git` directory),
+    `_without_work_tree` refuses it, because its HEAD DOES resolve."""
     if (checkout / ".git").exists():
         return None
     top = _git_toplevel(checkout)
     if top is None or top == checkout.resolve():
         return None
     return top
+
+
+def _without_work_tree(directory: Path) -> bool:
+    """True when `directory` sits in a git REPOSITORY that has no work tree
+    there: a bare repository, or a path inside a `.git` directory. git
+    resolves `HEAD` in such a place, yet there are no files to snapshot, so
+    it is never a populated checkout. A checkout is populated only when it
+    has a `.git` entry of its own, or git resolves its top level to the
+    directory itself, and a bare repository has neither (Copilot review,
+    PR #1209)."""
+    if (directory / ".git").exists():
+        return False
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(directory), "rev-parse", "--is-inside-work-tree"],
+            capture_output=True, text=True)
+    except OSError:
+        return False
+    return proc.returncode == 0 and proc.stdout.strip() == "false"
 
 
 def _enclosing_label(top: Path, agg_root: Path) -> str:
@@ -364,6 +386,12 @@ def run_lane(
                     f"{checkout!r} has no git checkout of its own, so its HEAD "
                     f"would be {_enclosing_label(borrowed, agg_root)}'s, not this "
                     "repository's revision")
+            if _without_work_tree(checkout_root):
+                return _skip(
+                    f"{SKIP_SUBMODULE_NOT_INITIALISED}: the pinned checkout "
+                    f"{checkout!r} is a git repository with no work tree (a bare "
+                    "repository or a git directory), so it has no files to "
+                    "snapshot")
 
         rev = source_revision or _head_sha(checkout_root)
         if not rev:
@@ -636,7 +664,8 @@ def locate_checkout(agg_root: Path, repository: str,
         directory = root / rel
         if not directory.is_dir():
             continue
-        if _borrowed_toplevel(directory) is not None:
+        if (_borrowed_toplevel(directory) is not None
+                or _without_work_tree(directory)):
             uninitialised.append(rel)
             continue
         return CheckoutLocation(rel, uninitialised)

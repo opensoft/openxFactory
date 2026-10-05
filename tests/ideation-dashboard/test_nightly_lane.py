@@ -924,3 +924,51 @@ def test_a_drive_prefixed_gitmodules_path_never_resolves(tmp_path):
     _commit_repo(agg / "C:" / "x")
     assert lane.resolve_checkout(agg, "x") is None
     assert lane.resolve_checkout(agg, "w") is None
+
+
+def _bare_clone(source: Path, destination: Path) -> Path:
+    """A bare repository with a resolvable HEAD (`git clone --bare`)."""
+    subprocess.run(["git", "clone", "-q", "--bare", str(source), str(destination)],
+                   check=True)
+    return destination
+
+
+def test_a_repository_without_a_work_tree_is_not_populated(tmp_path):
+    """Copilot review, PR #1209 ("previously missed"): a bare repository has
+    no `.git` child and `--show-toplevel` fails there, yet `rev-parse HEAD`
+    succeeds, so it read as a populated checkout and could publish an empty
+    snapshot under its own HEAD. The same holds inside a `.git` directory."""
+    agg = _commit_repo(tmp_path / "agg")
+    bare = _bare_clone(_commit_repo(tmp_path / "work"), agg / "bare")
+    (agg / "empty").mkdir()
+    populated = _commit_repo(agg / "populated")
+    plain = tmp_path / "plain"
+    plain.mkdir()
+    assert lane._head_sha(bare)  # the hazard: HEAD resolves in a bare repo
+
+    assert lane._without_work_tree(bare) is True
+    assert lane._without_work_tree(agg / ".git") is True
+    assert lane._without_work_tree(populated) is False
+    assert lane._without_work_tree(agg / "empty") is False  # borrowed, not bare
+    assert lane._without_work_tree(plain) is False          # no repository at all
+
+
+def test_a_bare_repository_is_skipped_never_published(tmp_path):
+    agg = _commit_repo(tmp_path / "agg", gitmodules=(
+        '[submodule "bare"]\n\tpath = bare\n\turl = git@example.invalid:bare.git\n'))
+    _bare_clone(_commit_repo(tmp_path / "work"), agg / "bare")
+
+    single = lane.run_lane(agg, checkout="bare", repository="bare",
+                           generate=_never_generate)
+    assert not single.ok
+    assert single.reason.startswith("submodule not initialised: "), single.reason
+    assert "no work tree" in single.reason, single.reason
+
+    out = lane.run_multi_lane(agg, repositories=["bare"], generate=_never_generate)
+    assert out.published == []
+    out_dir = agg / "health/ideation-dashboard"
+    assert not (out_dir / "bare-snapshot.json").exists()
+    status = json.loads((out_dir / "index-status.json").read_text())
+    assert status["skipped"] == [
+        {"repository": "bare", "reason": "submodule not initialised",
+         "paths": ["bare"]}]
