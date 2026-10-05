@@ -620,7 +620,7 @@ mention in the package is prose.
   `session_documents` resolves through the registered adapter's `list_documents`
   (T025, openDox-code#43 → `c46430fb`), and the three through the health-check
   seam (T026, openDox-code#39 → `582ed073`).
-- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, no
+- [x] **FALSIFIED BY** (openDox-code checkout, no sibling, no
   `corpus_adapter_openxfactory` importable):
 
       set -euo pipefail
@@ -691,6 +691,13 @@ mention in the package is prose.
   scan cannot read, a name held in a variable. Today `required_header_fields()`
   raises `ModuleNotFoundError: No module named 'corpus_adapter_openxfactory'`
   while `python -c "import opendox.authoring"` exits 0.
+
+  **Landed 2026-10-05** (T089): openxFactory#1238 → `fab575ad`. F4.1, extracted
+  byte for byte from #1144 and run unchanged in a fresh worktree of openDox-code
+  at `dede32b4`, T087's pin, exits 0: its two named tests read `1 passed` each,
+  `consumer_reach.py` is absent, and the scan prints
+  `no deferred reach names the consumer or the publisher`
+  (`evidence/checkpoint-phase3.md` § 1).
 
 ## Group 5 — Requirement 4 / G3: openDox's own neutral projection (RULED, openDox-code)
 
@@ -869,7 +876,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   rulings 4 and 6) state, so F5.2 whole is T086's and T089's (T063 quotes it red
   on those three, CP2 § 2). The arc's protected-suite edits are entered in the
   reviewed allow-list. Host line: openxFactory#1215 → `fcb45380`.
-- [ ] **FALSIFIED BY** (5.4a; an openXdox-code checkout with the realized openDox
+- [x] **FALSIFIED BY** (5.4a; an openXdox-code checkout with the realized openDox
   installed and Group 9 landed): the governed projection's own suites pass, and the
   arc did not edit them.
 
@@ -1020,6 +1027,19 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   files at openXdox-code `main` `c41063d6` and at T059's head `4feb8009`).
   This bookkeeping amendment does not itself touch the Python above.
   Carried out by T061 (openXdox-code#36) and T063.
+
+  **Landed 2026-10-05** (T086, then T089): T086 (openXdox-code#37 → `56e1c238`)
+  repairs, under R1Q7 (a)'s allow-list, the three pre-arc reds in
+  `tests/test_session_snapshot.py` that CP2 § 2 quotes. T089 (openxFactory#1238
+  → `fab575ad`) then runs F5.2 whole, as batches C, F, G and K amend it, at
+  openXdox-code `56e1c238` with openDox-code `dede32b4` installed over it and
+  `OPENXFACTORY` at openxFactory `36908480`. It exits 0: the seven suites pass
+  whole (`45 passed`, `23 passed`, `18 passed`, `6 passed`, `40 passed`,
+  `9 passed` and `12 passed`), `test -s` holds, and the `--chains` step prints
+  five `admitted:` lines, then
+  `ok: 5 protected edit(s), each entered and holding`
+  (`evidence/checkpoint-phase3.md` § 5). The box closes at phase 3's checkpoint
+  (RULED `5962785556`, item 1).
 - [x] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
   projection replaces them; the import-time column stays at zero.
 
@@ -4019,7 +4039,7 @@ and redesigns none of them.
   16.1's `openai-chat-v1` arm and T100's `doxbench_trust.py` in the package. The
   boundary is still one module wide, and two planted controls each turn the
   instrument red (`evidence/f16.1-run.md` §§ 1 and 3).
-- [ ] **FALSIFIED BY** (an openDox-code checkout alone, fresh venv, no sibling
+- [x] **FALSIFIED BY** (an openDox-code checkout alone, fresh venv, no sibling
   and no harness installed):
 
       set -euo pipefail
@@ -4310,6 +4330,19 @@ and redesigns none of them.
   T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
   predates both the follow-on and this addendum. This bookkeeping amendment
   does not itself touch the command above.
+
+  **Landed 2026-10-05** (T083, then T089): F16.1, extracted byte for byte from
+  #1144 with batch M's line, exits 0 in both runs. T083's run (openxFactory#1231
+  → `0e01ca85`), at openDox-code `38d3350e`, prints `24 passed`,
+  `dialect and model declared; a raw key is refused in a field and in the URL`,
+  `no model configured: the catalog offers nothing`, `83 passed` and
+  `135 passed` (`evidence/f16.1-run.md` § 2). T089's run (openxFactory#1238 →
+  `fab575ad`) is at T087's pin, openDox-code `dede32b4`, which carries the T100
+  follow-on (openDox-code#86 → `651c35fe`) and with it batch P's cases in
+  `tests/test_model_binding_trust.py`: the six `test_F16_1_batch_p_*` tests and
+  `test_A8_a_state_directory_that_is_a_link_trusts_nothing`. It prints
+  `24 passed`, the same two lines, `83 passed` and `532 passed`
+  (`evidence/checkpoint-phase3.md` § 4).
 
 ## Follow-ons named here and NOT authored here
 
