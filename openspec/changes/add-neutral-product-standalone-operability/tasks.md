@@ -1857,7 +1857,7 @@ packet's interim arrangement ends.**
   declaration: `views/intent-feed.js` stays at openxFactory (RULED OQ-F) and is
   not owed; `views/intent-binding.js` reaches it only by a dynamic `import()`,
   and the module graph walk stays inside the 42-file bundle.
-- [ ] 10.3 **The assembly root DOCUMENTS the entry point; it does not host it.**
+- [x] 10.3 **The assembly root DOCUMENTS the entry point; it does not host it.**
   `openDox/Makefile` carries a row in `contracts/shape-pin.yaml` (`:49-50`), and
   `AGENTS-shape.md` § "Never edit a file that has a row" is explicit: *"An edit
   in place is reported as DRIFT and refused."* A `run`/`serve` target added there
@@ -1878,6 +1878,24 @@ packet's interim arrangement ends.**
   scenario has a user run. The entry point is still the code leg's console
   script, and no `Makefile` target is added, for the reason above. Carried
   out by T070 and T076.
+
+  **Landed 2026-10-05** (T076, T101, then T099): the openDox root's `README.md`
+  documents the standalone install and its one start,
+  `pip install "opendox[local]"` then `opendox generate-and-open --local …`, and
+  adds no `make` target (T076, openDox#17 → `504324de`). T101 adds the release
+  workflow and the version bump to 0.1.0 (openDox-code#78 → `d59f3f26`,
+  openDox-code#79 → `dede32b4`), and T099 publishes that commit at the cut. The
+  annotated tag `v0.1.0` names openDox-code `dede32b4`, the commit the openDox
+  root pins, and openDox-code's `release` run 37339111713, dispatched on that
+  tag, succeeds in all four of its jobs: `build and verify`,
+  `publish to TestPyPI (the dry run)`, `install opendox[local] from TestPyPI`
+  and `publish to PyPI`, with its step
+  `PyPI serves the files the build job verified`. PyPI serves `opendox` 0.1.0 as
+  `opendox-0.1.0-py3-none-any.whl` (sha256 `8ecea00db6f9…`) and
+  `opendox-0.1.0.tar.gz` (sha256 `56869b6208a8…`). The root README PR,
+  openDox#19 → `d77f8cbf`, then replaces the stand-in paragraph: the install
+  line now resolves from PyPI as written, and no paragraph says that no release
+  is published.
 - [x] **FALSIFIED BY** (clean checkout of openDox-code ONLY, fresh venv, no
   sibling installed — the server is started in the BACKGROUND with a readiness
   wait so the sequence runs to completion unattended):
