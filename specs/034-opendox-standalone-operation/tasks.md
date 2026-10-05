@@ -2579,13 +2579,13 @@ written (`5962754358`). `consumer_reach.py` is gone.
       `refs/heads/main`'s `contracts/code-pin.yaml`, read anonymously over git.
       Both publish jobs run that check again right before their upload. A
       dispatch on a tag must name `v<version>`, and the release is dispatched on
-      the tag `v0.1.0`, which the holder creates at T087's commit at the cut. A
-      dispatch on `main` or a branch builds and verifies but cannot deploy: the
-      holder limited both environments to deployments from the tags `v*` on
-      2026-10-05 (verified through the API), and the jobs refuse an environment
-      with no required reviewer or no custom deployment limit. The workflow does
-      not re-read the pattern, since changing it is an admin act (an accepted
-      limit, RULED `5993462741`).
+      the tag `v0.1.0`, which the holder creates at the openDox-code commit T087
+      pins (`dede32b4`), at the cut. A dispatch on `main` or a branch builds and
+      verifies but cannot deploy: the holder limited both environments to
+      deployments from the tags `v*` on 2026-10-05 (verified through the API),
+      and the jobs refuse an environment with no required reviewer or no custom
+      deployment limit. The workflow does not re-read the pattern, since
+      changing it is an admin act (an accepted limit, RULED `5993462741`).
     - **Before any upload**, with tools from a hash lock
       (`.github/release-tools-cpython312-linux.txt`), the build job runs `twine
       check --strict` and these artifact checks: `dist/` holds exactly the sdist
@@ -2594,10 +2594,11 @@ written (`5962754358`). `consumer_reach.py` is gone.
       `opendox[runtime]` and `pixeltable-pgserver` (T072); the console script is
       declared; and every tracked file of the web bundle (T075) and of `src/`,
       and every `migrations/*.sql` (T072), is in the wheel. Their digests are
-      recorded before any third-party code runs. The wheel then runs from a
-      fresh venv (the closure of `opendox[local]`, the bundled server's
-      binaries, `opendox --help`), and `dist/` must still hold exactly those
-      bytes.
+      recorded right after those checks, before the wheel smoke test installs
+      and runs the dependency closure; until then only the hash-locked tools and
+      the package's own build have run. The wheel then runs from a fresh venv
+      (the closure of `opendox[local]`, the bundled server's binaries, `opendox
+      --help`), and `dist/` must still hold exactly those bytes.
     - **The publishing.** TestPyPI first. Then `testpypi-install`, T099's
       falsifier line, installs the unversioned `opendox[local]` from TestPyPI in
       a fresh venv and proves from pip's report that the wheel installed is the
