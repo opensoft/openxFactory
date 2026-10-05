@@ -23,8 +23,11 @@ DEPTH_LIMIT = 128
 # `[0-9]`, never `\d`: Python's `\d` also matches non-ASCII decimal digits.
 ARRAY_INDEX = re.compile(r"0|[1-9][0-9]*")
 BAD_ESCAPE = re.compile(r"~(?![01])")
-# RFC 3986: `%` only as the start of a two-hex-digit escape.
+# RFC 3986: `%` only as the start of a two-hex-digit escape, and only these
+# characters unescaped (`#` is refused separately; `[` and `]` only around an
+# IP-literal host). Explicit ASCII ranges, never `\w`.
 BAD_PERCENT = re.compile(r"%(?![0-9A-Fa-f]{2})")
+URI_CHARACTERS = re.compile(r"[A-Za-z0-9\-._~:/?\[\]@!$&'()*+,;=%]+")
 
 # Keywords whose values are subschemas. Data keywords (`examples`, `default`,
 # `const`, `enum`) are never interpreted as schemas.
@@ -43,6 +46,9 @@ STORAGE = ("$defs", "definitions")
 # walk still does, so a remote reference under them is still refused.
 NOT_OUTCOMES = ("not", "if", "contentSchema", "additionalItems", "dependencies")
 UNIONS = ("oneOf", "anyOf")
+# Keywords that assert nothing: a `$ref` beside only these is a pure reference.
+ANNOTATIONS = ("$comment", "title", "description", "examples", "default", "deprecated", "readOnly",
+               "writeOnly")
 # Constraints that may narrow a vocabulary; never infer exhaustiveness through them.
 NARROWING = ("allOf", "not", "if", "then", "else", "pattern", "minLength", "maxLength",
              "dependentSchemas", "dependencies", "patternProperties")
@@ -208,7 +214,7 @@ class Offline:
         self.roots = roots
         self.pins = pins
         self.documents = {}
-        self.reach_cache = {}
+        self.graphs = {}
         self.finite_cache = {}
         self.checked_targets = set()
 
@@ -441,63 +447,79 @@ class Offline:
             return None
         return self.finite(key, properties[discriminator], resource, None, frozenset(), seen)
 
-    def reach(self, key, node, resource):
-        """Identities `(file, place)` of every schema location that applies to an
-        instance of `node`, in place or to a part of it, following `$ref` and
-        never entering `$defs`. Boolean schemas count, by their place."""
-        cache_key = (key, id(node))
-        if cache_key not in self.reach_cache:
-            self.reach_cache[cache_key] = {(k, place) for k, _, _, place in self.walk(key, node, resource)}
-        return self.reach_cache[cache_key]
+    def graph(self, key):
+        """The applying-subschema graph of one schema file, built once: every
+        location `(file, place)` reachable from its root, following `$ref` and
+        never entering `$defs` or NOT_OUTCOMES, with its schema and resource, and
+        the reverse edges coverage walks. Boolean schemas count, by their place.
+        Its size is linear in the locations, however references are shared."""
+        if key not in self.graphs:
+            document = self.document(key)
+            nodes, predecessors = {}, {}
+            stack = [(key, document, document, place_of(document, ROOT_PLACE), None)]
+            while stack:
+                current_key, current, current_resource, place, parent = stack.pop()
+                if not isinstance(current, (dict, bool)):
+                    continue
+                location = (current_key, place)
+                if parent is not None:
+                    predecessors.setdefault(location, set()).add(parent)
+                if location in nodes:
+                    continue
+                if isinstance(current, dict) and self.embedded(current_key, current):
+                    current_resource = current
+                nodes[location] = (current, current_resource)
+                if not isinstance(current, dict):
+                    continue
+                if "$ref" in current:
+                    stack.append(self.resolve(current_key, current["$ref"], current_resource) + (location,))
+                for container, name, child in slots(current, skip=STORAGE + NOT_OUTCOMES):
+                    stack.append((current_key, child, current_resource,
+                                  place_of(child, (id(container), name)), location))
+            self.graphs[key] = (nodes, predecessors)
+        return self.graphs[key]
 
-    def walk(self, key, node, resource):
-        """(key, schema, resource, place) for every location `reach` describes."""
-        found, out = set(), []
-        stack = [(key, node, resource, place_of(node, ROOT_PLACE))]
+    def holders(self, key, targets):
+        """Every location of `key`'s graph that reaches one of `targets` (a location
+        reaches itself), found by one walk over the reverse edges."""
+        nodes, predecessors = self.graph(key)
+        found = {target for target in targets if target in nodes}
+        stack = list(found)
         while stack:
-            current_key, current, current_resource, place = stack.pop()
-            if isinstance(current, list):
-                stack.extend((current_key, child, current_resource, place_of(child, (id(current), str(index))))
-                             for index, child in enumerate(current))
-                continue
-            if not isinstance(current, (dict, bool)) or (current_key, place) in found:
-                continue
-            found.add((current_key, place))
-            if isinstance(current, dict) and self.embedded(current_key, current):
-                current_resource = current
-            out.append((current_key, current, current_resource, place))
-            if not isinstance(current, dict):
-                continue
-            if "$ref" in current:
-                stack.append(self.resolve(current_key, current["$ref"], current_resource))
-            for container, name, child in slots(current, skip=STORAGE + NOT_OUTCOMES):
-                stack.append((current_key, child, current_resource, place_of(child, (id(container), name))))
-        return out
+            for parent in predecessors.get(stack.pop(), ()):
+                if parent not in found:
+                    found.add(parent)
+                    stack.append(parent)
+        return found
 
-    def admits_nothing(self, key, node, resource):
-        """Whether `node` is `false` or reaches `false` through a `$ref` chain: a
-        `$ref` applies beside its siblings, so a `false` target empties the schema.
-        A reference cycle is not `false`."""
-        seen = set()
+    def chain_end(self, key, node, resource):
+        """Follow `node`'s `$ref` chain, with cycle protection. Returns its last
+        node, and whether every link asserted nothing beside its `$ref`. A `$ref`
+        applies beside its siblings, so a chain ending in `false` admits nothing
+        whatever the links say; one ending in `true` admits anything only when
+        every link is a pure reference. A cycle ends on neither."""
+        seen, pure = set(), True
         while isinstance(node, dict) and "$ref" in node and (key, id(node)) not in seen:
             seen.add((key, id(node)))
+            pure = pure and all(keyword == "$ref" or keyword in ANNOTATIONS for keyword in node)
             if self.embedded(key, node):
                 resource = node
             key, node, resource, _ = self.resolve(key, node["$ref"], resource)
-        return node is False
+        return node, pure
 
-    def member_hold(self, key, member, resource, own, every):
-        """How one union member stands: holding one of `own`, holding another
-        inventory on the file, bare, admitting nothing (`false`, directly or
-        through `$ref`), or admitting anything (`true`)."""
-        if self.admits_nothing(key, member, resource):
+    def member_hold(self, key, member, location, resource, holding_own, holding_any):
+        """How one union member stands: admitting nothing (`false`, directly or
+        through `$ref`); holding one of this role's inventories, or another
+        inventory on the file; admitting anything (`true`, directly or through
+        pure references); or bare."""
+        end, pure = self.chain_end(key, member, resource)
+        if end is False:
             return "empty"
-        if not isinstance(member, dict):
-            return "open"
-        reach = self.reach(key, member, resource)
-        if reach & own:
+        if location in holding_own:
             return "own"
-        return "held" if reach & every else "bare"
+        if location in holding_any:
+            return "held"
+        return "open" if end is True and pure else "bare"
 
     def uncovered_branches(self, key, own, every, gapped):
         """Members of a reachable union that hold no inventory while a sibling holds one of `own`.
@@ -508,21 +530,26 @@ class Offline:
         schema file (`every`), so one file carrying both the result and the error
         variants is covered by its result and error inventories together. A
         `false` member, or one reaching `false` through `$ref`, admits no
-        instance and needs none; a `true` member admits any instance and cannot
-        hold one, so only a declared outcomes gap on this schema file answers it.
+        instance and needs none; a `true` member, or a pure reference chain to
+        `true`, admits any instance and cannot hold one, so only a declared
+        outcomes gap on this schema file answers it. Holding is propagated from
+        the inventories once, never computed per member.
         """
-        document = self.document(key)
+        nodes, _ = self.graph(key)
+        holding_own, holding_any = self.holders(key, own), self.holders(key, every)
         uncovered = []
-        for union_key, node, resource, _ in self.walk(key, document, document):
+        for (union_key, place), (node, resource) in nodes.items():
             if not isinstance(node, dict):
                 continue
             for keyword in UNIONS:
                 members = node.get(keyword)
                 if not isinstance(members, list):
                     continue
-                holds = [self.member_hold(union_key, member, resource, own, every) for member in members]
+                holds = [self.member_hold(union_key, member, (union_key, place_of(member, (id(members), str(m)))),
+                                          resource, holding_own, holding_any)
+                         for m, member in enumerate(members)]
                 if "own" in holds:
-                    uncovered += [(union_key, id(node), keyword, m) for m, hold in enumerate(holds)
+                    uncovered += [(union_key, place, keyword, m) for m, hold in enumerate(holds)
                                   if hold == "bare" or (hold == "open" and not gapped)]
         return uncovered
 
@@ -544,11 +571,11 @@ def report(diagnostics, gaps):
 
 
 def resource_uri_ok(uri):
-    """An absolute https URI of printable ASCII (an internationalized host is
-    written in its ASCII form) with a host, well-formed percent escapes, and no
-    userinfo, fragment or backslash. `urlsplit` checks none of the escapes."""
-    if (any(not 0x21 <= ord(c) <= 0x7E for c in uri) or "#" in uri or "\\" in uri
-            or BAD_PERCENT.search(uri)):
+    """An absolute https URI made only of the characters RFC 3986 allows
+    unescaped (an internationalized host is written in its ASCII form), with a
+    host, well-formed percent escapes, brackets only around an IP-literal host,
+    and no userinfo or fragment. `urlsplit` checks none of the characters."""
+    if not URI_CHARACTERS.fullmatch(uri) or "#" in uri or BAD_PERCENT.search(uri):
         return False
     try:
         parsed = urlsplit(uri)
@@ -556,7 +583,8 @@ def resource_uri_ok(uri):
     except ValueError:
         return False
     return (parsed.scheme == "https" and bool(parsed.hostname)
-            and "@" not in parsed.netloc and not parsed.fragment)
+            and "@" not in parsed.netloc and not parsed.fragment
+            and not any(bracket in parsed.path + parsed.query for bracket in "[]"))
 
 
 class Diagnostics(list):
@@ -753,7 +781,7 @@ def check_inventories(tool, offline, gap_index, bad):
             pointer_failed.add(key)
             continue
         target = (key, place)
-        if target not in offline.reach(key, document, document):
+        if target not in offline.graph(key)[0]:
             bad("unreachable_inventory", here + "/pointer")
             continue
         try:
