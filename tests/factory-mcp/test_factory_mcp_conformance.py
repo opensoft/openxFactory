@@ -319,6 +319,19 @@ class ConformanceTests(unittest.TestCase):
         t["outcomes"]["inventories"][0]["pointer"] = "/$defs/classification"
         self.assertValidWithGaps()
 
+    def test_one_file_with_result_and_error_variants_is_covered_by_both(self):
+        """A single outcome file `oneOf: [result, error]` cited as output AND error."""
+        outcome = {"$schema": DRAFT, "oneOf": [
+            {"type": "object", "properties": {"status": {"enum": ["positive", "negative"]}}},
+            {"type": "object", "properties": {"code": {"enum": ["UNAVAILABLE", "INVALID"]}}}]}
+        ref = self.put("combined.json", outcome)
+        self.pin(ref)
+        t = self.tool()
+        t["output"], t["error"] = dict(ref), dict(ref)
+        t["outcomes"]["inventories"][0]["pointer"] = "/oneOf/0/properties/status"
+        t["outcomes"]["inventories"][1]["pointer"] = "/oneOf/1/properties/code"
+        self.assertValidWithGaps()
+
     # ---- H3: outcome inventories across union branches ---------------------
 
     def error_union(self, name="domain-error.json", *, required_code=True):
@@ -513,6 +526,15 @@ class ConformanceTests(unittest.TestCase):
         self.doc = self.declaration()
         self.assertDiagnostics(everywhere("schema_depth_limit", *TOOL_REFS))
 
+    def test_nul_bytes_are_refused_not_raised(self):
+        self.tool()["input"]["path"] = "outcome\x00.json"
+        self.assertDiagnostics([("unsafe_reference_path", "/tools/0/input")])
+        self.doc = self.declaration()
+        self.schema["properties"]["nested"] = {"$ref": "other\x00.json"}
+        self.write_schema()
+        self.doc = self.declaration()
+        self.assertDiagnostics(everywhere("remote_or_unsafe_schema_reference", *TOOL_REFS))
+
     def test_symlink_escape(self):
         with tempfile.TemporaryDirectory() as outside:
             target = Path(outside) / "outside.json"
@@ -677,6 +699,12 @@ class ConformanceTests(unittest.TestCase):
         self.doc = self.declaration()
         self.tool()["limits"]["request_bytes"] = float("nan")
         self.assertDiagnostics([("non_json_number", "/")])
+        self.doc = self.declaration()
+        self.doc["gaps"].append(self.doc)
+        self.assertDiagnostics([("invalid_json_value", "/")])
+        self.doc = self.declaration()
+        self.doc["gaps"][0]["description"] = "lone \ud800 surrogate"
+        self.assertValidWithGaps()
 
     def test_diagnostics_are_deterministic_and_unique(self):
         t = self.tool()
