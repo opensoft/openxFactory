@@ -13,9 +13,9 @@ will own executable implementation tasks; this file does not duplicate them.
 
 ## 2. Speckit realization
 
-- [x] 2.1 Created `specs/030-factory-mcp-conformance/` from the clean ratified design branch; spec and plan trace to this delta.
+- [x] 2.1 Created `specs/037-factory-mcp-conformance/` from the clean ratified design branch; spec and plan trace to this delta.
 - [x] 2.2 Completed clarify, plan, six domain checklists, tasks and cross-artifact analysis in that feature; no critical findings. See the feature spec, plan and tasks for coverage.
-- [x] 2.3 Local implementation and verification complete; see specs/030-factory-mcp-conformance/verification.md for deterministic evidence, required checks and existing baseline limitations. Review/merge/archive remain open.
+- [x] 2.3 Local implementation and verification complete; see specs/037-factory-mcp-conformance/verification.md for deterministic evidence, required checks and existing baseline limitations. Review/merge/archive remain open.
 
 ## 3. Review and closure
 

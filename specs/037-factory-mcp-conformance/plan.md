@@ -3,7 +3,7 @@
 Status: draft
 Kind: implementation
 
-Branch: 030-factory-mcp-conformance | Date: 2026-09-07 | [Spec](spec.md)
+Branch: 037-factory-mcp-conformance | Date: 2026-09-07 | [Spec](spec.md)
 
 ## Summary
 

@@ -4,7 +4,7 @@ Status: draft
 Kind: implementation
 Governed by: [add-factory-mcp-conformance](../../openspec/changes/add-factory-mcp-conformance/proposal.md), ratified 2026-09-07
 
-Feature Branch: `030-factory-mcp-conformance`
+Feature Branch: `037-factory-mcp-conformance`
 Created: 2026-09-07
 Input: Resume and finish the ratified MCP first slice.
 

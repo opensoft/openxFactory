@@ -50,7 +50,7 @@ The profile is unbundled and unreleased. Register manifest/changelog digests, al
 
 ## Implementation records
 
-- [Feature specification](../specs/030-factory-mcp-conformance/spec.md)
-- [Plan](../specs/030-factory-mcp-conformance/plan.md), [research](../specs/030-factory-mcp-conformance/research.md), [data model](../specs/030-factory-mcp-conformance/data-model.md), [interface](../specs/030-factory-mcp-conformance/contracts/interface.md), [quickstart](../specs/030-factory-mcp-conformance/quickstart.md), [tasks](../specs/030-factory-mcp-conformance/tasks.md)
-- Requirements checklists: [contract](../specs/030-factory-mcp-conformance/checklists/contract.md), [references](../specs/030-factory-mcp-conformance/checklists/references.md), [authority](../specs/030-factory-mcp-conformance/checklists/authority.md), [evidence](../specs/030-factory-mcp-conformance/checklists/evidence.md), [repetition](../specs/030-factory-mcp-conformance/checklists/repetition.md), [compatibility](../specs/030-factory-mcp-conformance/checklists/compatibility.md)
-- [Verification record](../specs/030-factory-mcp-conformance/verification.md)
+- [Feature specification](../specs/037-factory-mcp-conformance/spec.md)
+- [Plan](../specs/037-factory-mcp-conformance/plan.md), [research](../specs/037-factory-mcp-conformance/research.md), [data model](../specs/037-factory-mcp-conformance/data-model.md), [interface](../specs/037-factory-mcp-conformance/contracts/interface.md), [quickstart](../specs/037-factory-mcp-conformance/quickstart.md), [tasks](../specs/037-factory-mcp-conformance/tasks.md)
+- Requirements checklists: [contract](../specs/037-factory-mcp-conformance/checklists/contract.md), [references](../specs/037-factory-mcp-conformance/checklists/references.md), [authority](../specs/037-factory-mcp-conformance/checklists/authority.md), [evidence](../specs/037-factory-mcp-conformance/checklists/evidence.md), [repetition](../specs/037-factory-mcp-conformance/checklists/repetition.md), [compatibility](../specs/037-factory-mcp-conformance/checklists/compatibility.md)
+- [Verification record](../specs/037-factory-mcp-conformance/verification.md)

@@ -29,8 +29,8 @@ Independent test: public mappings preserve complete outcomes and schemas cover a
 
 ## Verification
 
-- [x] T007 Run focused tests and affected regressions; record specs/030-factory-mcp-conformance/verification.md.
-- [x] T008 Inspect final diff and repository/OpenSpec validators; record baseline findings in specs/030-factory-mcp-conformance/verification.md.
+- [x] T007 Run focused tests and affected regressions; record specs/037-factory-mcp-conformance/verification.md.
+- [x] T008 Inspect final diff and repository/OpenSpec validators; record baseline findings in specs/037-factory-mcp-conformance/verification.md.
 
 ## Dependencies
 

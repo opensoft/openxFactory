@@ -73,5 +73,5 @@ separately reviewed pins; no moving checkout becomes a production dependency.
 
 Brett Heap ratified the bounded schema/validator slice and its ad-hoc origin
 on 2026-09-07. See [the approval record](review/ratification-2026-09-07.md).
-The implementation handoff is `specs/030-factory-mcp-conformance/`; the task
+The implementation handoff is `specs/037-factory-mcp-conformance/`; the task
 list preserves the separate review, merge and archive checkpoints.
