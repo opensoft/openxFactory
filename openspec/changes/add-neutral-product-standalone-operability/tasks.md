@@ -228,10 +228,11 @@ mention in the package is prose.
 
   **Landed 2026-09-27** (T011): openDox-code#46 → `0e88454a` removes
   `serve.py:199` and the `:206` re-export block; F2.1's sweep and 2.4's named
-  test pass with no sibling installed (that PR's body; CP1 § 1, exit 0).
-  Correction (research R16 item 7, non-normative): Group 2's opening figures,
-  1,298 errors of which 1,232 name `ideation_dashboard` at `f8a1ece`, read 1,305
-  and 1,239 at `1e4a57fb` (research R2). The head moved, and the cause did not.
+  test pass with no sibling installed (that PR's body;
+  `evidence/checkpoint-phase1.md` § 1, exit 0). Correction (research R16 item 7,
+  non-normative): Group 2's opening figures, 1,298 errors of which 1,232 name
+  `ideation_dashboard` at `f8a1ece`, read 1,305 and 1,239 at `1e4a57fb`
+  (research R2). The head moved, and the cause did not.
 - [x] 2.1a **DO NOT VENDOR the module.**
   `scripts/ideation_dashboard/serve_openxfactory_lanes.py` itself imports
   `from openxdox import snapshot_registry` (`:70`) and
@@ -241,7 +242,8 @@ mention in the package is prose.
   **Landed 2026-09-27** (T011): openDox-code#46 → `0e88454a`. The lanes module
   is not vendored: its five route names left `serve.py`, and F2.1's sweep
   imports every module of the package with `openxdox`, `ideation_dashboard`,
-  `doc_health` and `corpus_adapter_openxfactory` all absent (CP1 § 1).
+  `doc_health` and `corpus_adapter_openxfactory` all absent
+  (`evidence/checkpoint-phase1.md` § 1).
 - [x] 2.2 Contribute those routes through the EXISTING seam —
   `serve.build_server(route_extensions=)` / `route_extension.RouteBinding` — from
   openxFactory's side, per the carve `design.md`'s own specification. No new
@@ -274,7 +276,7 @@ mention in the package is prose.
   **Landed 2026-09-27** (T032): openDox-code#49 → `68be484a`. The sweep leaves
   no import-time reach and 19 deferred reaches, all into `openxdox`, each
   recorded closed or deferred with its reason (F4.1's scan: that PR's body;
-  CP1 § 7).
+  `evidence/checkpoint-phase1.md` § 7).
 - [x] 2.4 Add a test in openDox-code's own suite that imports EVERY module of the
   package in a checkout with no sibling installed, failing with the name of the
   first module that still needs one.
@@ -282,7 +284,7 @@ mention in the package is prose.
   **Landed 2026-09-27** (T030, in T011's PR): openDox-code#46 → `0e88454a`.
   `tests/test_imports_standalone.py::test_every_module_imports_with_no_sibling`
   first asserts the four siblings absent, then imports every module, failing
-  with the first that still needs one (CP1 § 1).
+  with the first that still needs one (`evidence/checkpoint-phase1.md` § 1).
 - [x] 2.5 Remove `validate.yml`'s three `--noconftest` steps and their enumerated
   file lists; the suite collects whole. Measured at `f8a1eced` by extracting the
   `run:` blocks that invoke pytest: **four blocks name 37 distinct test modules of
@@ -296,12 +298,12 @@ mention in the package is prose.
   **Landed 2026-09-27** (T036): openDox-code#52 → `55194335`. The three
   `--noconftest` steps and their file lists are gone and the suite collects
   whole (`testpaths` = `tests` and `tests_runtime`); F9.1 exits 0,
-  `2468 passed, 11 skipped` (CP1 § 3). Correction (research R16 item 1,
-  non-normative): *"26 modules are named by no pytest step at all"* is right for
-  that claim, but the number no CI step reached was **22**, because the
-  `runtime` job ran `tests_runtime/` whole (research R4, measured at
-  openDox-code `1e4a57fb`, 2026-09-24). T036 removed the file lists, so the
-  whole suite now collects.
+  `2468 passed, 11 skipped` (`evidence/checkpoint-phase1.md` § 3). Correction
+  (research R16 item 1, non-normative): *"26 modules are named by no pytest step
+  at all"* is right for that claim, but the number no CI step reached was
+  **22**, because the `runtime` job ran `tests_runtime/` whole (research R4,
+  measured at openDox-code `1e4a57fb`, 2026-09-24). T036 removed the file lists,
+  so the whole suite now collects.
 - [x] 2.6 Correct openDox-code's `README.md:39-42`, which still gives the
   narrowing's reason as *"Until the BUILD arc … inverts the openDox → openXdox
   dependency"*. That dependency IS inverted at import time; the live cause is
@@ -349,7 +351,7 @@ mention in the package is prose.
   **Landed 2026-09-29** (T049, openxFactory#1204 → `9d2e5bc3`): F2.1 exits 0 at
   openDox-code `2d116415`; none of `openxdox`, `ideation_dashboard`,
   `doc_health` or `corpus_adapter_openxfactory` imports, and every module of
-  `opendox` does (CP1 § 1).
+  `opendox` does (`evidence/checkpoint-phase1.md` § 1).
 
 ## Group 3 — Requirement 3 / G2: a default domain profile (openDox-code)
 
@@ -395,8 +397,9 @@ mention in the package is prose.
   `main()` register the default where nothing is registered; a host registration
   before a build replaces it and one after a build is refused
   (`AlreadyRegistered`). F3.1 line 2 as amended and
-  `tests/test_profile_registration.py` pass (CP1 § 2). Correction (research R16
-  item 4, non-normative): the proxy's refusal was written for NOTHING REGISTERED
+  `tests/test_profile_registration.py` pass
+  (`evidence/checkpoint-phase1.md` § 2). Correction (research R16 item 4,
+  non-normative): the proxy's refusal was written for NOTHING REGISTERED
   (`profile_proxy.py:42-46`), not for "an ambiguous registration", which is
   `AlreadyRegistered` (R1Q3 (i)); batch A's amendment above carries it.
 - [x] 3.3 Leave the carve manifest's `deleted_at_carve` row for
@@ -451,7 +454,7 @@ mention in the package is prose.
   **Landed 2026-09-29** (T049, openxFactory#1204 → `9d2e5bc3`): F3.1, with line
   2 as amended by batch A, exits 0 at openDox-code `2d116415`: `build_parser()`
   builds on the default profile and `domain_profile.current()` names it
-  (CP1 § 2).
+  (`evidence/checkpoint-phase1.md` § 2).
 
 ## Group 4 — Requirement 5 / G4: the deferred reach resolves through the seam (openDox-code)
 
@@ -720,7 +723,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   **Landed 2026-09-29** (T050): openDox-code#53 → `dc3765dd`.
   `tests/fixtures/plain-documents` spreads documents across the six neutral
   stages and carries none of the declared vocabulary; the vocabulary test keeps
-  it so (F5.3 reads it: `documents: 8`, CP2 § 3).
+  it so (F5.3 reads it: `documents: 8`, `evidence/checkpoint-phase2.md` § 3).
 - [x] 5.1 Write openDox's SMALL NEUTRAL PROJECTION over the `CorpusAdapter`
   protocol already declared at `src/opendox/corpus_adapter.py` (a
   `@runtime_checkable` `Protocol`, six closed members: `resolve`,
@@ -733,14 +736,15 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   `52005213`, changelog openDox#15 → `66758438`), openDox's small projection
   (openDox-code#57 → `a691e4e4`) and the standalone generate path end to end
   (openDox-code#66 → `a23e4224`). F5.3 exits 0 with neither sibling importable
-  (CP2 § 3).
+  (`evidence/checkpoint-phase2.md` § 3).
 - [x] 5.2 Bind `src/opendox/runtime/local_git_adapter.py` (2,796 lines, RULING
   C3's plain local git repository) as the conformant implementation, so the
   projection has a real corpus to read with nothing else installed.
 
   **Landed 2026-09-30** (T054): openDox-code#57 → `a691e4e4`. The projection is
   bound to `LocalGitCorpus` and reads a fresh `git init` of the fixture with
-  neither `openxdox` nor `doc_health` importable (F5.3, CP2 § 3).
+  neither `openxdox` nor `doc_health` importable (F5.3,
+  `evidence/checkpoint-phase2.md` § 3).
 - [x] 5.3 Render `NEUTRAL_DISPLAY`'s SIX WORDS and no others — `sources`,
   `groups`, `candidates`, `selections`, `submissions`, `completed` (RULED
   *"keep those six words"*, same comment; the sixth is **`completed`** by RULING
@@ -764,7 +768,8 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   **Landed 2026-09-30** (T054): openDox-code#57 → `a691e4e4`. The projection
   renders the six words only; `display_profile.py` changes in the one place
   batch G names (`SNAPSHOT_VALUES`' defaults become the neutral snapshot's
-  values); F5.3's vocabulary assertion finds no leak (CP2 § 3).
+  values); F5.3's vocabulary assertion finds no leak
+  (`evidence/checkpoint-phase2.md` § 3).
 - [x] 5.3a **openXdox declares the estate's FIRST `DISPLAY` facet — partial, one
   stage** (openXdox-code; RULED `5784683830`, *"1, keep completed and overlay
   implemented"*): the `completion` stage labelled **"implemented"**, the
@@ -794,7 +799,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   beside its one stage (batch I); `tests/test_gate_loop_views.py` is green with
   the one reviewed edit T060 made, entered in the allow-list it created,
   `tests/protected_suite_respellings.yaml` (T059 made the second); F5.1 passes
-  (CP2 § 1).
+  (`evidence/checkpoint-phase2.md` § 1).
 - [x] **FALSIFIED BY** (openXdox-code checkout with openDox installed):
 
       set -euo pipefail
@@ -841,7 +846,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   openxFactory#1218 → `a883bbf6`): F5.1 exits 0 against the realized openDox:
   the facet words the completion stage `implemented` in both its names, the
   other five stages stay byte-identical to the neutral ones, and a host with no
-  facet reads `completed` (CP2 § 1).
+  facet reads `completed` (`evidence/checkpoint-phase2.md` § 1).
 - [x] 5.4 **DECLARE THE GENERATOR SEAM — it does not exist and `CorpusAdapter` is
   not it.** `src/opendox/corpus_adapter.py`'s Protocol is CLOSED at six members
   (`resolve`, `list_documents`, `read`, `classify`, `check`, `write_back`) and its
@@ -874,8 +879,9 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   `tests/test_snapshot.py`'s two) and the three pre-arc reds of
   `tests/test_session_snapshot.py`, as T059's record and that PR's body (its
   rulings 4 and 6) state, so F5.2 whole is T086's and T089's (T063 quotes it red
-  on those three, CP2 § 2). The arc's protected-suite edits are entered in the
-  reviewed allow-list. Host line: openxFactory#1215 → `fcb45380`.
+  on those three, `evidence/checkpoint-phase2.md` § 2). The arc's
+  protected-suite edits are entered in the reviewed allow-list. Host line:
+  openxFactory#1215 → `fcb45380`.
 - [x] **FALSIFIED BY** (5.4a; an openXdox-code checkout with the realized openDox
   installed and Group 9 landed): the governed projection's own suites pass, and the
   arc did not edit them.
@@ -1030,13 +1036,13 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 
   **Landed 2026-10-05** (T086, then T089): T086 (openXdox-code#37 → `56e1c238`)
   repairs, under R1Q7 (a)'s allow-list, the three pre-arc reds in
-  `tests/test_session_snapshot.py` that CP2 § 2 quotes. T089 (openxFactory#1238
-  → `fab575ad`) then runs F5.2 whole, as batches C, F, G and K amend it, at
-  openXdox-code `56e1c238` with openDox-code `dede32b4` installed over it and
-  `OPENXFACTORY` at openxFactory `36908480`. It exits 0: the seven suites pass
-  whole (`45 passed`, `23 passed`, `18 passed`, `6 passed`, `40 passed`,
-  `9 passed` and `12 passed`), `test -s` holds, and the `--chains` step prints
-  five `admitted:` lines, then
+  `tests/test_session_snapshot.py` that `evidence/checkpoint-phase2.md` § 2
+  quotes. T089 (openxFactory#1238 → `fab575ad`) then runs F5.2 whole, as batches
+  C, F, G and K amend it, at openXdox-code `56e1c238` with openDox-code
+  `dede32b4` installed over it and `OPENXFACTORY` at openxFactory `36908480`. It
+  exits 0: the seven suites pass whole (`45 passed`, `23 passed`, `18 passed`,
+  `6 passed`, `40 passed`, `9 passed` and `12 passed`), `test -s` holds, and the
+  `--chains` step prints five `admitted:` lines, then
   `ok: 5 protected edit(s), each entered and holding`
   (`evidence/checkpoint-phase3.md` § 5). The box closes at phase 3's checkpoint
   (RULED `5962785556`, item 1).
@@ -1111,7 +1117,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   **Landed 2026-10-02** (T063, openxFactory#1218 → `a883bbf6`): F5.3 exits 0 at
   openDox-code `047bb4fa` with neither `openxdox` nor `doc_health` importable:
   `documents: 8`, and no declared word leaks into the neutral snapshot
-  (CP2 § 3).
+  (`evidence/checkpoint-phase2.md` § 3).
 
 ## Group 6 — Requirement 6 / G5: a health check over openDox's own documents (openDox-code)
 
@@ -1177,7 +1183,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   **Landed 2026-09-29** (T051): openDox-code#56 → `86647320`.
   `tests/fixtures/malformed` holds exactly one violation, the neutral schema's
   rule `title-and-summary-are-text` (an empty title), and `EXPECTED_RULE` holds
-  that identifier (F7.2 names it, CP2 § 5).
+  that identifier (F7.2 names it, `evidence/checkpoint-phase2.md` § 5).
 - [x] 7.1 **NARROW THE INPUT SET FIRST, then acquire what remains.** The existing
   validator's `SCHEMA_FILENAMES` names **ten** schemas and they have three
   different owners, so "give openDox the whole set" is the wrong shape:
@@ -1267,7 +1273,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   **Landed 2026-09-30** (T057, T058): openDox-code#58 → `8ec08e91` adds the
   validator as new surface at the code leg and openDox-code#68 → `047bb4fa`
   wires it into the generate verbs (`--strict`, `--no-validate`). F7.2 passes
-  (CP2 § 5).
+  (`evidence/checkpoint-phase2.md` § 5).
 - [x] 7.3 **THE CONSUMER'S HALF, in openXdox-code — not openDox-code.** Three
   carve-broken defects sit in the validator lookup openXdox KEEPS with
   `snapshot.py` (design R-G3). They were registered by the archived packet's
@@ -1334,7 +1340,8 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 
   **Landed 2026-09-30** (T061, openXdox-code#36 → `6a3b93b9`; run again at T063,
   openxFactory#1218 → `a883bbf6`): F7.1 exits 0 from the planted pre-shed tree
-  and both named tests pass (`2 passed`, CP2 § 4); at #35's head it exits 1.
+  and both named tests pass (`2 passed`, `evidence/checkpoint-phase2.md` § 4);
+  at #35's head it exits 1.
 - [x] **FALSIFIED BY** (openDox-code checkout, no sibling, **INSTALLED into a
   fresh venv**, because 7.1 settles that the three schemas travel as PACKAGE
   DATA and a bare clone therefore cannot exercise the packaged set this box is
@@ -1385,7 +1392,8 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   **Landed 2026-10-02** (T058, openDox-code#68 → `047bb4fa`; T063,
   openxFactory#1218 → `a883bbf6`): F7.2 exits 0: the good fixture validates, the
   malformed one exits non-zero naming `title-and-summary-are-text` with no
-  `No such file or directory` (CP2 § 5; also openDox-code#68's body).
+  `No such file or directory` (`evidence/checkpoint-phase2.md` § 5; also
+  openDox-code#68's body).
 
 ## Group 8 — Requirement 8 / G7: openDox-spec governs openDox (openDox-spec) — BLOCKED
 
@@ -1438,7 +1446,7 @@ packet's interim arrangement ends.**
   **Landed 2026-09-27** (T034, T035, T036): openDox-code#50 → `71b631bc` repairs
   the nine files, openDox-code#51 → `80acead1` empties `collect_ignore`, and
   openDox-code#52 → `55194335` makes the required check run the whole suite.
-  F9.1 exits 0 (CP1 § 3).
+  F9.1 exits 0 (`evidence/checkpoint-phase1.md` § 3).
 - [x] 9.2 openXdox-code the same, with `OPENDOX_BACK_IMPORTS` lowered as each
   deferred reach closes. The import-time column is ALREADY zero and stays there.
 
@@ -1499,9 +1507,9 @@ packet's interim arrangement ends.**
   composes at: the 31-entry assembled `--help` tree test and T037's two
   both-legs cases; openDox-code#51 → `80acead1` lists each module it removed
   with its destination, and T049's arrival check finds all 19 where that list
-  sends them (CP1 § 8). The 31-entry test is left out of the required check
-  until T008 (RULED `5859927858`, `5870594693`) and F9.2 stays red on it alone
-  (CP1 § 5).
+  sends them (`evidence/checkpoint-phase1.md` § 8). The 31-entry test is left
+  out of the required check until T008 (RULED `5859927858`, `5870594693`) and
+  F9.2 stays red on it alone (`evidence/checkpoint-phase1.md` § 5).
 - [x] 9.4 **Restore the margin, and stop the skips carrying the gap.** Both legs
   pass their floors with ZERO margin (openDox `1114/1111/3`, openXdox
   `539/533/6`), and every one of openXdox's six skips carries the same reason —
@@ -1705,7 +1713,8 @@ packet's interim arrangement ends.**
   each leg: openDox-code `2d116415`, with the DSN exported, gives
   `2468 passed, 11 skipped`, and openXdox-code `6158151e`, as batches B and F
   amend it with batch J's one `--deselect`, gives
-  `881 passed, 4 skipped, 1 deselected` (CP1 §§ 3 and 4).
+  `881 passed, 4 skipped, 1 deselected`
+  (`evidence/checkpoint-phase1.md` §§ 3 and 4).
 - [ ] **FALSIFIED BY** (9.3, and requirement 9's third scenario: an openXdox-code
   checkout, the composition's declared home, with openDox arriving ONLY through
   the pin):
@@ -1823,9 +1832,10 @@ packet's interim arrangement ends.**
   `[project.scripts] opendox = "opendox.cli:main"`; the runtime verbs are
   reached through the default profile's `SUBCOMMAND_EXTENSIONS` (batch A's
   addendum) and `opendox-runtime` stays an alias; `opendox --help` exits 0
-  (CP1 § 6). Correction (research R16 item 5, non-normative): Q-R4 is recorded
-  at `runtime/cli.py:39-42`, where the box cites `:40-46`. The same landing
-  rewrote that record to say where the verbs were wired.
+  (`evidence/checkpoint-phase1.md` § 6). Correction (research R16 item 5,
+  non-normative): Q-R4 is recorded at `runtime/cli.py:39-42`, where the box
+  cites `:40-46`. The same landing rewrote that record to say where the verbs
+  were wired.
 - [x] 10.2 The web bundle is served by that entry point and is reachable in a
   browser from an openDox-only install. openDox-code carries **42** web files,
   self-contained by declaration (`src/opendox/web/index.html`: *"All assets are
