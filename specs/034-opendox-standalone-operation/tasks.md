@@ -4185,7 +4185,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
     `fcb45380` (T064) and `36908480` (T094). A planted path on no surface is
     refused, and 3.3's `deleted_at_carve` row is byte-identical (T017). The
     admitted list did not grow.
-- [ ] T089 **Phase 3 checkpoint.** Run and quote F4.1, F10.1 and F13.1 (both
+- [x] T089 **Phase 3 checkpoint.** Run and quote F4.1, F10.1 and F13.1 (both
   as batch H amends them), F16.1 as batches M and P amend it (with T100's
   named test, and the T100 follow-on's cases in it), and F5.2 whole (as T007's batches C, F, G and K amend it, after
   T086's repair), then T098's interim F11.1 output.
@@ -4194,6 +4194,17 @@ written (`5962754358`). `consumer_reach.py` is gone.
     done).
   - The publish follows this checkpoint by design, at the cut
     (`5962754358`, `5963162921`).
+  - **Run** (2026-10-05; `evidence/checkpoint-phase3.md`): at openDox-code
+    `dede32b4` (T087's pin), openXdox-code `56e1c238` (T086's landing) and, for
+    F5.2's composition and F11.1, openxFactory at T094's landing `36908480`.
+    - F4.1, F10.1 (as batch H amends it), F13.1 (as batch H amends it) and
+      F16.1 (with T100's named test, `532 passed`) pass.
+    - F5.2 whole passes, as batches C, F, G and K amend it: the seven suites
+      pass whole, and the `--chains` step prints `ok: 5 protected edit(s), each entered and holding`.
+      F5.2's box closes here (`5962785556`, item 1), and F4.1's too;
+      T097 ticks both in #1144.
+    - T098's interim F11.1 output (openxFactory#1237 → `20ce593e`) is quoted
+      there, and it was re-run with the same line, `requirement 1 holds`.
 
 ---
 
@@ -4272,6 +4283,12 @@ written (`5962754358`). `consumer_reach.py` is gone.
   rows (two added, one extended), for the eight reaches into openXdox that
   T055 closed (openDox-code#59 → `fa140875`). That PR ran the same content rule
   over them.
+  Phase 3's rode in T089's checkpoint PR in the same way, on the holder's
+  decision of 2026-10-05 (lane openxfactory-4's round-2 delegation, D5): three
+  notes on three rows (two added, one extended), for the eleven reaches into
+  openXdox that T084 closed (openDox-code#77 → `e49b17c3`); the stand-ins it
+  retired with `consumer_reach.py` take none, on the holder's ruling (A)
+  (`5994463071`). That PR ran the same content rule over them.
   - **Realizes**: 11.1, which is ticked at ARC close.
   - **Falsifier**: F11.1's manifest check. With every `edits[].note` removed,
     the two documents must be equal, and a note that already existed may only
