@@ -23,6 +23,8 @@ DEPTH_LIMIT = 128
 # `[0-9]`, never `\d`: Python's `\d` also matches non-ASCII decimal digits.
 ARRAY_INDEX = re.compile(r"0|[1-9][0-9]*")
 BAD_ESCAPE = re.compile(r"~(?![01])")
+# RFC 3986: `%` only as the start of a two-hex-digit escape.
+BAD_PERCENT = re.compile(r"%(?![0-9A-Fa-f]{2})")
 
 # Keywords whose values are subschemas. Data keywords (`examples`, `default`,
 # `const`, `enum`) are never interpreted as schemas.
@@ -170,31 +172,35 @@ def admits(kind, wanted, only):
     return wanted in kinds and (not only or set(kinds) == {wanted})
 
 
-def union_of(parts):
-    """The union of finite vocabularies, or None when any one is unresolved."""
-    parts = list(parts)
-    return set().union(*parts) if all(p is not None for p in parts) else None
-
-
 def ref_key(ref):
     return (ref["repository"], ref["revision"], ref["path"])
 
 
-def children(node, skip=()):
-    """The subschemas directly under a schema object, as (keyword, child) pairs."""
+ROOT_PLACE = (None, "")
+
+
+def place_of(node, place):
+    """A schema location's identity within one file. An object is itself; a
+    boolean schema is one Python object everywhere, so it is known by its place:
+    the container holding it and its key or index there."""
+    return id(node) if isinstance(node, dict) else place
+
+
+def slots(node, skip=()):
+    """The subschemas directly under a schema object, as (container, key, child)."""
     for keyword in SCHEMA_MAPS:
         values = node.get(keyword) if keyword not in skip else None
         if isinstance(values, dict):
-            for child in values.values():
-                yield keyword, child
+            for name, child in values.items():
+                yield values, name, child
     for keyword in SCHEMA_SINGLE:
         if keyword in node and keyword not in skip:
-            yield keyword, node[keyword]
+            yield node, keyword, node[keyword]
     for keyword in SCHEMA_LISTS:
         values = node.get(keyword) if keyword not in skip else None
         if isinstance(values, list):
-            for child in values:
-                yield keyword, child
+            for index, child in enumerate(values):
+                yield values, str(index), child
 
 
 class Offline:
@@ -254,16 +260,18 @@ class Offline:
         """Follow a JSON Pointer from the schema `base` to a schema location,
         tracking the nearest enclosing schema resource of the node it reaches.
         A pointer that ends in annotation data (`examples`, `enum`, `required`)
-        or on a map or list of subschemas does not name a schema."""
-        node, resource, state = base, base, "schema"
+        or on a map or list of subschemas does not name a schema. Returns the
+        node, its resource and its place identity (`place_of`)."""
+        node, resource, state, place = base, base, "schema", ROOT_PLACE
         for part in decode_pointer(fragment):
+            place = (id(node), part)
             node = step(node, part)
             state = pointer_state(state, part, node)
             if state == "schema" and isinstance(node, dict) and isinstance(node.get("$id"), str):
                 resource = node
         if state != "schema":
             raise Invalid("reference_to_non_schema")
-        return node, resource
+        return node, resource, place_of(node, place)
 
     def resolve(self, key, ref, resource):
         if not isinstance(ref, str) or any(c in ref for c in (":", "\\", "%", "?", "\x00")):
@@ -280,8 +288,8 @@ class Offline:
                 raise Invalid("unsafe_schema_reference")
             key = key[:2] + (str(PurePosixPath(key[2]).parent / path),)
             resource = self.document(key)
-        node, resource = self.locate(resource, fragment)
-        return key, node, resource
+        node, resource, place = self.locate(resource, fragment)
+        return key, node, resource, place
 
     def check_schema_graph(self, key):
         seen = set()
@@ -304,10 +312,10 @@ class Offline:
             if "$dynamicRef" in node or "$recursiveRef" in node:
                 raise Invalid("unsupported_dynamic_reference")
             if "$ref" in node:
-                dest, target, target_resource = self.resolve(current_key, node["$ref"], resource)
+                dest, target, target_resource, _ = self.resolve(current_key, node["$ref"], resource)
                 self.check_target(target)
                 visit(dest, target, target_resource, depth + 1)
-            for _, child in children(node):
+            for _, _, child in slots(node):
                 visit(current_key, child, resource, depth + 1)
 
         document = self.document(key)
@@ -354,6 +362,10 @@ class Offline:
         token = (key, id(node), discriminator)
         if token in seen or any(k in node for k in NARROWING):
             return None
+        # `seen` holds this resolution's path: a `$ref` chain in a shallow file
+        # can still run deeper than any honest schema, and than the call stack.
+        if len(seen) >= DEPTH_LIMIT:
+            raise Invalid("schema_depth_limit")
         # A value vocabulary needs strings; a discriminated one, objects only.
         if "type" in node and not admits(node["type"], "string" if discriminator is None else "object",
                                          only=discriminator is not None):
@@ -368,7 +380,7 @@ class Offline:
             if any(k in node for k in ("enum", "const", *UNIONS)) or (
                     discriminator is not None and "properties" in node):
                 return None
-            dest, target, target_resource = self.resolve(key, node["$ref"], resource)
+            dest, target, target_resource, _ = self.resolve(key, node["$ref"], resource)
             return self.finite(dest, target, target_resource, discriminator, required, seen, typed)
         if discriminator is None:
             return self.finite_values(key, node, resource, seen)
@@ -404,7 +416,10 @@ class Offline:
     def finite_branches(self, key, node, resource, discriminator, required, seen, typed):
         """A discriminated vocabulary: each object branch's required property value.
         A branch must be object-only (`type: object` on it or an ancestor): an
-        untyped branch also admits `null` and other values that carry no code."""
+        untyped branch also admits `null` and other values that carry no code.
+        Under `oneOf`, branches must not share a value: an object matching two
+        branches matches none, and object branches can share a code while
+        differing elsewhere, so a shared code cannot be proved an outcome."""
         if "enum" in node or "const" in node or all(u in node for u in UNIONS):
             return None
         properties = node.get("properties")
@@ -412,8 +427,14 @@ class Offline:
             if union in node:
                 if (isinstance(properties, dict) and discriminator in properties) or not isinstance(node[union], list):
                     return None
-                return union_of(self.finite(key, item, resource, discriminator, required, seen, typed)
-                                for item in node[union])
+                parts = [self.finite(key, item, resource, discriminator, required, seen, typed)
+                         for item in node[union]]
+                if any(part is None for part in parts):
+                    return None
+                values = set().union(*parts)
+                if union == "oneOf" and sum(len(part) for part in parts) != len(values):
+                    return None
+                return values
         if not typed or not isinstance(properties, dict):
             return None
         if discriminator not in properties or discriminator not in required:
@@ -421,41 +442,55 @@ class Offline:
         return self.finite(key, properties[discriminator], resource, None, frozenset(), seen)
 
     def reach(self, key, node, resource):
-        """Identities of every schema object that applies to an instance of `node`,
-        in place or to a part of it, following `$ref` and never entering `$defs`."""
+        """Identities `(file, place)` of every schema location that applies to an
+        instance of `node`, in place or to a part of it, following `$ref` and
+        never entering `$defs`. Boolean schemas count, by their place."""
         cache_key = (key, id(node))
         if cache_key not in self.reach_cache:
-            self.reach_cache[cache_key] = {(k, id(n)) for k, n, _ in self.walk(key, node, resource)}
+            self.reach_cache[cache_key] = {(k, place) for k, _, _, place in self.walk(key, node, resource)}
         return self.reach_cache[cache_key]
 
     def walk(self, key, node, resource):
-        """(key, schema object, resource) for every object `reach` describes."""
-        found, stack, out = set(), [(key, node, resource)], []
+        """(key, schema, resource, place) for every location `reach` describes."""
+        found, out = set(), []
+        stack = [(key, node, resource, place_of(node, ROOT_PLACE))]
         while stack:
-            current_key, current, current_resource = stack.pop()
+            current_key, current, current_resource, place = stack.pop()
             if isinstance(current, list):
-                stack.extend((current_key, child, current_resource) for child in current)
+                stack.extend((current_key, child, current_resource, place_of(child, (id(current), str(index))))
+                             for index, child in enumerate(current))
                 continue
+            if not isinstance(current, (dict, bool)) or (current_key, place) in found:
+                continue
+            found.add((current_key, place))
+            if isinstance(current, dict) and self.embedded(current_key, current):
+                current_resource = current
+            out.append((current_key, current, current_resource, place))
             if not isinstance(current, dict):
                 continue
-            if self.embedded(current_key, current):
-                current_resource = current
-            identity = (current_key, id(current))
-            if identity in found:
-                continue
-            found.add(identity)
-            out.append((current_key, current, current_resource))
             if "$ref" in current:
-                dest, target, target_resource = self.resolve(current_key, current["$ref"], current_resource)
-                stack.append((dest, target, target_resource))
-            for _, child in children(current, skip=STORAGE + NOT_OUTCOMES):
-                stack.append((current_key, child, current_resource))
+                stack.append(self.resolve(current_key, current["$ref"], current_resource))
+            for container, name, child in slots(current, skip=STORAGE + NOT_OUTCOMES):
+                stack.append((current_key, child, current_resource, place_of(child, (id(container), name))))
         return out
+
+    def admits_nothing(self, key, node, resource):
+        """Whether `node` is `false` or reaches `false` through a `$ref` chain: a
+        `$ref` applies beside its siblings, so a `false` target empties the schema.
+        A reference cycle is not `false`."""
+        seen = set()
+        while isinstance(node, dict) and "$ref" in node and (key, id(node)) not in seen:
+            seen.add((key, id(node)))
+            if self.embedded(key, node):
+                resource = node
+            key, node, resource, _ = self.resolve(key, node["$ref"], resource)
+        return node is False
 
     def member_hold(self, key, member, resource, own, every):
         """How one union member stands: holding one of `own`, holding another
-        inventory on the file, bare, or a boolean schema (`empty`/`open`)."""
-        if member is False:
+        inventory on the file, bare, admitting nothing (`false`, directly or
+        through `$ref`), or admitting anything (`true`)."""
+        if self.admits_nothing(key, member, resource):
             return "empty"
         if not isinstance(member, dict):
             return "open"
@@ -472,13 +507,15 @@ class Offline:
         other member must hold an inventory as well: any inventory on this
         schema file (`every`), so one file carrying both the result and the error
         variants is covered by its result and error inventories together. A
-        `false` member admits no instance and needs none; a `true` member admits
-        any instance and cannot hold one, so only a declared outcomes gap on
-        this schema file answers it.
+        `false` member, or one reaching `false` through `$ref`, admits no
+        instance and needs none; a `true` member admits any instance and cannot
+        hold one, so only a declared outcomes gap on this schema file answers it.
         """
         document = self.document(key)
         uncovered = []
-        for union_key, node, resource in self.walk(key, document, document):
+        for union_key, node, resource, _ in self.walk(key, document, document):
+            if not isinstance(node, dict):
+                continue
             for keyword in UNIONS:
                 members = node.get(keyword)
                 if not isinstance(members, list):
@@ -508,8 +545,10 @@ def report(diagnostics, gaps):
 
 def resource_uri_ok(uri):
     """An absolute https URI of printable ASCII (an internationalized host is
-    written in its ASCII form) with a host, and no userinfo, fragment or backslash."""
-    if any(not 0x21 <= ord(c) <= 0x7E for c in uri) or "#" in uri or "\\" in uri:
+    written in its ASCII form) with a host, well-formed percent escapes, and no
+    userinfo, fragment or backslash. `urlsplit` checks none of the escapes."""
+    if (any(not 0x21 <= ord(c) <= 0x7E for c in uri) or "#" in uri or "\\" in uri
+            or BAD_PERCENT.search(uri)):
         return False
     try:
         parsed = urlsplit(uri)
@@ -708,22 +747,31 @@ def check_inventories(tool, offline, gap_index, bad):
         key = ref_key(tool[role])
         document = offline.document(key)
         try:
-            node, resource = offline.locate(document, inventory["pointer"])
+            node, resource, place = offline.locate(document, inventory["pointer"])
         except Invalid:
             bad("invalid_inventory_pointer", here + "/pointer")
             pointer_failed.add(key)
             continue
-        if (key, id(node)) not in offline.reach(key, document, document):
+        target = (key, place)
+        if target not in offline.reach(key, document, document):
             bad("unreachable_inventory", here + "/pointer")
             continue
         try:
             values = offline.finite(key, node, resource, inventory.get("discriminator"))
+        except Invalid as error:
+            bad(str(error), here + "/pointer")
+            pointer_failed.add(key)
+            continue
+        except RecursionError:
+            bad("schema_depth_limit", here + "/pointer")
+            pointer_failed.add(key)
+            continue
         except (TypeError, ValueError):
             bad("invalid_inventory_pointer", here + "/pointer")
             pointer_failed.add(key)
             continue
         gap = inventory["gap_id"]
-        placed.append((role, key, (key, id(node)), gap is not None))
+        placed.append((role, key, target, gap is not None))
         if values is None:
             if gap not in tool["gap_ids"] or "outcomes" not in gap_index.get(gap, {}).get("concerns", []):
                 bad("unresolved_inventory_without_gap", here + "/gap_id")
