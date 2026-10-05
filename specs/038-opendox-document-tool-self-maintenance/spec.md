@@ -3,9 +3,9 @@
 **Feature Branch**: `038-opendox-document-tool-self-maintenance`
 **Created**: 2026-10-05
 Status: draft
-**Clarifications**: 24 questions are OPEN in
-[`clarify-questions.md`](./clarify-questions.md), `R2Q1`–`R2Q24`, and each
-awaits Brett Heap. The same file defers 35 design-level questions to the plan,
+**Clarifications**: 25 questions are OPEN in
+[`clarify-questions.md`](./clarify-questions.md), `R2Q1`–`R2Q25`, and each
+awaits Brett Heap. The same file defers 34 design-level questions to the plan,
 each with a proposed default. No phase is planned until round 1 is answered.
 **Realizes**: RELEASE 2, "the document tool and self-maintenance", phases 4–5,
 of the openxFactory OpenSpec change `add-neutral-product-standalone-operability`
@@ -84,14 +84,14 @@ releases). The IMPLEMENTATION lands by each repository's own pull request:
 - openxFactory, for its two pin pairs (9.5) and any host wiring within 11.1's
   declared surfaces.
 
-Whether openDox-spec joins them, as it did in release 1 through T053, is
-R2Q22.
+openDox-spec is already the arc's sixth repository: batch G at 9.5 made it one
+(`tasks.md:1594-1595`). Whether release 2 lands schemas there is R2Q22.
 
 ## Clarifications
 
 ### Session 2026-10-05 (round 1): OPEN
 
-Twenty-four questions in [`clarify-questions.md`](./clarify-questions.md)
+Twenty-five questions in [`clarify-questions.md`](./clarify-questions.md)
 await Brett Heap. They come from two readings:
 
 - this feature's reading of #1144's 37 release-2 boxes and its four rulings,
@@ -109,6 +109,12 @@ raised seven more. Each went to round 1, or to the file's "Deferred to the
 plan, with proposed defaults" section, or was merged into another. The file's
 last table maps every one, and nothing was dropped.
 
+Lane openXfactory-3 then checked round 1 read-only at `43ddf275`. It found 14
+questions to fix and two candidates missing. Every fix was verified against
+the trees and folded in, and the two candidates are now asked: OQ-H-3 within
+R2Q16, and OQ-H-19 as R2Q25. Two questions, R2Q19 and R2Q20, ask only whether
+to amend ratified text, and recommend keeping it.
+
 Six of round 1's questions are CONTRADICTIONS, not gaps. Two texts cannot both
 hold, or a falsifier cannot pass against the code release 1 built:
 
@@ -118,9 +124,10 @@ hold, or a falsifier cannot pass against the code release 1 built:
 - **R2Q2.** 12.4 both keeps the `PullRequestPort` bindings serving `gate
   open-pr` and says it "repoints its UNSET DEFAULT". A protected openXdox-code
   suite pins today's default, `GhPullRequests`.
-- **R2Q6.** 12.6a lands by a `--no-ff` merge commit. Release 1's served-checkout
-  rule (feature 007, FR-004 and SC-002) keeps `merge` and `update-ref` off the
-  served checkout and pins `HEAD unchanged`.
+- **R2Q6.** 12.6a lands by a `--no-ff` merge commit. Feature 007's SC-002 holds
+  the served checkout's branch and `HEAD` unchanged across every session
+  operation, and its realization keeps `merge`, `revert` and `update-ref` off
+  the served checkout.
 - **R2Q8.** 12.5's falsifier runs sixteen governed suites. Fifteen of them sit
   in openXdox-code's declared exclusion (`doc_health`), and composed with
   openxFactory's scripts the sixteen read 668 passed and 174 red.
@@ -211,8 +218,8 @@ governance's back (`design.md` § D9).
 
 **Independent Test**: F12.2's thirteen named
 `tests/test_landing_guardrails.py` nodes exit 0 in an openDox-code checkout
-alone [NEEDS CLARIFICATION: R2Q6 — where the merge is made, given release 1's
-served-checkout rule].
+alone [NEEDS CLARIFICATION: R2Q6 — where the merge is made, given feature
+007's served-checkout rule].
 
 **Acceptance Scenarios**:
 
@@ -599,10 +606,12 @@ falsifier is #1144's own.
   depend on BEFORE either side moves. The packet's measurement (6.1) found ONE
   of `scripts/doc_health/`'s 37 modules free of corpus identifiers, and
   R2-INV-HEALTH part A finds two of 38 today (`lines.py`, and `fs_probe.py`,
-  added since). So the check is new neutral code, not a relocated family. The plan's proposed default
-  makes it the engine's built-in families, attributed `opendox` (OQ-H-3).
+  added since). So the check is new neutral code, not a relocated family. The
+  plan's proposed default makes it the engine's built-in families, attributed
+  `opendox` (OQ-H-3's plan half).
   [NEEDS CLARIFICATION: R2Q9, item 1 — how F6.1 reaches it; R2Q14 — how 6.1a
-  squares with 11.1's guard]
+  squares with 11.1's guard; R2Q16 — whether a host's in-process check keeps
+  running beside sandboxed packs]
 - **FR-009** (requirement 6 as amended; 14.1, 14.2, 14.3): health results SHALL
   be DERIVED DATA kept in the product's disposable store and never committed
   into the corpus they describe. Their table SHALL arrive as an ADDITIVE
@@ -612,7 +621,7 @@ falsifier is #1144's own.
   move in the same change. The store SHALL hold no document and stay
   disposable, so its loss costs a recomputation.
   [NEEDS CLARIFICATION: R2Q13 — which of the two; R2Q15 — what a hosted install
-  does]
+  does; R2Q25 — whether a finding's evidence may hold excerpts]
 - **FR-010** (requirement 6; 14.4): the neutral families SHALL be the ruled
   six: broken internal links, documents nothing links to, near-duplicates,
   missing neutral front matter from the adapter's fields, a declared stage that
@@ -624,8 +633,8 @@ falsifier is #1144's own.
   filing into an external tracker, and they SHALL run any model-assisted check
   only where a model is configured. openxFactory's 23 governance families SHALL
   stay with openxFactory.
-  [NEEDS CLARIFICATION: R2Q11 — what "location" means; R2Q12 — the baseline, its
-  citations, and pack upgrades]
+  [NEEDS CLARIFICATION: R2Q11 — what "location" means; R2Q12 — the baseline's
+  mechanism in a disposable store, and its citations]
 - **FR-011** (requirement 14, first and seventh scenarios; 14.5): the Health
   view SHALL be served by the entry point, and every resolution action in the
   view SHALL have a CLI verb with the same action. The verbs are:
@@ -704,10 +713,10 @@ falsifier is #1144's own.
   - `bwrap` is the Linux reference.
 
   [NEEDS CLARIFICATION: R2Q9, items 3 and 5 — F15.1's platform precondition,
-  and the export's git attributes; R2Q15 — hosted pods; R2Q16 — whether the
-  product's own checks run where no sandbox exists; R2Q17 — whether CI runs the
-  sandbox suite; R2Q18 — the libraries a pack's runtime reads; R2Q19 — git
-  history in the sandbox; R2Q20 — model access for packs]
+  and the export's git attributes; R2Q15 — hosted pods; R2Q16 — what runs in
+  the sandbox, and what runs in process; R2Q17 — whether CI runs the sandbox
+  suite; R2Q18 — the libraries a pack's runtime reads; R2Q19 and R2Q20 —
+  whether to amend this requirement for git history or model access]
 - **FR-018** (requirement 16; 15.2, 15.2a): a pack SHALL declare its own version,
   equal to its manifest entry's, and its check families with an id, a version
   and the documents each applies to. It SHALL return findings in the neutral
@@ -724,14 +733,16 @@ falsifier is #1144's own.
 
   Each refusal SHALL be a finding against the pack, naming the refused finding
   and the failed check, and SHALL create no branch.
+  [NEEDS CLARIFICATION: R2Q25 — whether a finding's evidence may hold
+  excerpts]
 - **FR-019** (requirement 16; 15.3, 15.4): a pack's labels SHALL resolve through
   the display facet and never be spelled into the neutral surface. The ENGINE
   SHALL own, identically for every pack, the view and its CLI parity,
   scheduling, the baseline, storage (results in the store, exceptions in the
   corpus) and the fix loop with its landing rule. No pack SHALL redefine the
   resolution classes, the baseline rules or who may land work.
-  [NEEDS CLARIFICATION: R2Q12 — the baseline the engine owns, across a pack
-  upgrade]
+  [NEEDS CLARIFICATION: R2Q12 — the mechanism of the baseline the engine
+  owns]
 - **FR-020** (requirement 16; 15.5, 15.6, 15.6a): each refusal SHALL be a test,
   not prose.
   - A pack that crashes, overruns its per-pack time budget (`health run
@@ -882,13 +893,21 @@ falsifier is #1144's own.
   FakePullRequests -- 'tests/test_*.py'` selects 16 files. Fifteen are entries
   of openXdox-code's `tests/declared_exclusion.yaml`, each with the reason
   `doc_health`. `tests/test_gate_loop_views.py` is the one that runs alone.
-  Composed with openxFactory's `scripts/`, the 16 read 668 passed and 174 red,
-  the same 174 that plan 034's T086 recorded (R2-INV-12 M3; R2Q8).
-- **Release 1's served checkout does not move.** Feature 007's FR-004 and SC-002
-  leave `merge`, `update-ref` and `revert` out of the served checkout's
-  allowlist, and refuse `fetch` and `pull` everywhere (`session_git.py`;
-  `merge` and `update-ref` pinned by `tests/test_session_git.py:563-570`;
-  R2Q6).
+  Composed with openxFactory's `scripts/`, the 16 read 668 passed, 170 failed
+  and 4 errors: 174 red across 10 files, the same 174 that plan 034's T086
+  recorded (R2-INV-12 M3, re-measured by this feature on 2026-10-05; R2Q8).
+- **The served checkout does not move (feature 007).** codexFactory's
+  `specs/007-workbench-branch-sessions/spec.md`, at `main` `1a32f399`, refuses
+  any session operation that would switch, reset or stash the served checkout
+  (FR-004, `:517-519`). It holds that checkout's branch and `HEAD` unchanged
+  across every session operation (SC-002, `:811-816`). openDox-code's
+  `session_git.py` realizes this:
+  - `merge`, `revert` and `update-ref` are absent from its allowlist
+    (`:93-99`), and `tests/test_session_git.py:563-564` pins `merge` and
+    `update-ref`;
+  - `fetch` and `pull` are refused everywhere (`:125`).
+
+  See R2Q6.
 - **A standalone install has no session opener of its own.** Every
   session-opening verb is a gate verb, and release 1 RULED Save refused by name
   on standalone (`5971834845`; R2Q5).
@@ -938,13 +957,14 @@ falsifier is #1144's own.
 
   So 15.1b's "packs do not run" is the default outcome everywhere until a host
   is made capable. Developers cannot run the sandbox suite in the estate's own
-  containers. CI must change to run it (R2Q17), and `ubuntu-latest` moves to
-  26.04 between 2026-10-19 and 2026-11-19. Whether the product's own checks
+  containers. CI must change to run it (R2Q17): on `ubuntu-24.04` that needs an
+  AppArmor sysctl, and `ubuntu-latest` moves to 26.04 between 2026-10-19 and
+  2026-11-19. Whether the product's own checks, and a host's in-process check,
   depend on the sandbox decides whether any target has a health check at all
   (R2Q16).
 - **12.5 cannot pass in any environment measured** (R2-INV-12). Its repair is a
   slice of its own, whose size R2Q8 decides.
-- **Release 1's own invariants stand in the way of three boxes.** Feature 007's
-  served checkout blocks 12.6a's merge (R2Q6). Batch G's empty seam blocks F6.1,
-  and R1Q16's bundle ownership blocks F14.1 and F15.1 (R2Q9). None is
-  resolved here by assumption.
+- **Three standing invariants stand in the way of four boxes.** Feature 007's
+  served checkout blocks 12.6a's merge (R2Q6). Release 1's batch G, with its
+  empty seam, blocks F6.1. R1Q16's bundle ownership blocks F14.1 and F15.1
+  (R2Q9). None is resolved here by assumption.

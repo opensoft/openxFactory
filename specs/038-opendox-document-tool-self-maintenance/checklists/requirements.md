@@ -12,7 +12,7 @@ before `/speckit.clarify` and `/speckit.plan`.
 - [x] Every functional requirement names the #1144 requirement and the boxes it
       realizes (FR-001 to FR-025), so the packet stays the authority.
 - [x] Nothing in spec.md restates, narrows or widens a ratified requirement or
-      scenario. Contradictions go to Brett as R2Q1–R2Q24 instead, six of them
+      scenario. Contradictions go to Brett as R2Q1–R2Q25 instead, six of them
       marked as contradictions.
 - [x] The user stories follow the release map: phase 4 (US1 submit, US2 land),
       phase 5 (US4 health, US5 the fix loop and exceptions, US6 packs), plus the
@@ -26,10 +26,10 @@ before `/speckit.clarify` and `/speckit.plan`.
 
 ## Requirement completeness
 
-- [ ] No `[NEEDS CLARIFICATION]` remains. **Open:** 24 questions are recorded in
+- [ ] No `[NEEDS CLARIFICATION]` remains. **Open:** 25 questions are recorded in
       `clarify-questions.md`, and they await Brett Heap. The markers in spec.md
       each name the question that settles them, and every question is cited by
-      at least one functional requirement. The same file defers 35
+      at least one functional requirement. The same file defers 34
       design-level questions to the plan, each with a proposed default, and
       maps all 61 inventory candidates and this feature's own seven.
 - [x] Every requirement can be tested. Each FR cites #1144's own falsifier
@@ -68,4 +68,6 @@ before `/speckit.clarify` and `/speckit.plan`.
 - The stock template caps `[NEEDS CLARIFICATION]` at three markers. This
   feature follows the lane brief and the global clarify override (at most 25
   questions), because each marker stands for a point that #1144 or its rulings
-  genuinely leave open. Round 1 uses 24 of the 25, and round 2 is empty.
+  genuinely leave open. Round 1 uses all 25, and round 2 is empty. Lane
+  openXfactory-3's read-only check of round 1 (14 fixes, two missing
+  candidates) is folded in.
