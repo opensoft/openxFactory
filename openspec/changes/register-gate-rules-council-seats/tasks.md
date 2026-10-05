@@ -74,42 +74,191 @@ files.
       flipped it — and it carries the limit the runbook's own last bullet
       states: ratified is not enforced; no gate refuses a register act that
       skips this document.
-- [ ] 1.7 `OPENSPEC_TELEMETRY=0 openspec validate register-gate-rules-council-seats
+- [x] 1.7 `OPENSPEC_TELEMETRY=0 openspec validate register-gate-rules-council-seats
       --strict` and `--all --strict` clean from the repository root; the change
       is listed in `README.md`'s `## OpenSpec Records` block and the runbook in
       the README doc index; the `sequenced_after` corpus ledger carries this
       change's row.
+      **DONE 2026-10-05, every clause read on oxF `main` `20ce593e8`.**
+      **Validation** ran through the repository's PINNED entrypoint, never a
+      bare `openspec` (CLAUDE.md, "OpenSpec authoring notes"; the command above
+      is the unpinned spelling). `python3 scripts/validate-openspec-cli-pin.py
+      --change register-gate-rules-council-seats --strict` reports `Totals: 1
+      passed, 0 failed (1 items)` and `every target validated --strict clean`.
+      `--all --strict` exits 0 with `Totals: 110 passed, 1 failed (111 items)`
+      and `0 UNDISPOSITIONED failures`, **and the entrypoint itself prints "THIS
+      IS NOT A CLEAN TREE"**: the one failure is `add-chain-attestation`
+      (`signed-execution-chain`'s MODIFIED block), an ACCEPTED EXCEPTION (Brett
+      Heap, 2026-09-05, *"take exit 2"*) that is not this change's. "Clean" is
+      read here as no failure attributable to this change and none
+      undispositioned, not as a failure-free tree. **Listings:** the change is
+      the `## OpenSpec Records` entry at `README.md:1815`, and the runbook is
+      the doc-index entry at `README.md:129` (*"Council Seat Signing Keys — Mint
+      and Register Act"*, under `## Documentation`). **Ledger:**
+      `tests/sequenced_after/corpus-ledger.yaml:282` carries
+      `register-gate-rules-council-seats` (`state: active`, `class: sole`,
+      `declares: [add-wallet-carried-review-authority,
+      openXwallet:widen-register-reader-for-a-second-council]`, `moved_by:
+      "#717"`), and `python3 scripts/validate-sequenced-after.py .
+      --ledger-diff` reports `per-change sweep ledger consistent with the corpus
+      (229 rows)`. See walk-2026-09-12-register-act.md § 13.6 bookkeeping note 2
+      (appended 2026-10-05).**
 
 ## 2. The reader, and the pin — the hard prerequisite
 
-- [ ] 2.1 **[openXwallet] [GOVERNANCE]** Open the reader-widening change
+- [x] 2.1 **[openXwallet] [GOVERNANCE]** Open the reader-widening change
       (proposed id `widen-register-reader-for-a-second-council`, declared in this
       proposal's `sequenced_after:`). Two defects, both MEASURED at
       `b7b0fbb3e6d614f60a24737c247e45dada9408aa` / `wallet-v1.4` (design D5):
       `register-minimal-shape-exceeded` on a second AUTHORITY row, and
       `register-seat-duplicate` on `lead-security` — a seat name both councils
       seat.
-- [ ] 2.2 **[openXwallet]** RED FIRST. Two failing tests before either fix:
+      **DONE 2026-10-05, realized in `opensoft/openXwallet`; rows 2.1-2.6 all
+      rest on the same two landings, openXwallet PR #16 → `6ec84b1b` (merged
+      2026-09-06T23:42:00Z) and PR #18 → `f3eb929b` (merged
+      2026-09-07T00:49:00Z).** openXwallet's change
+      `widen-register-reader-for-a-second-council` (its `tasks.md` row 1.1,
+      ticked) carries exactly the id this proposal declares in
+      `sequenced_after:` (`proposal.md:4`). The `[GOVERNANCE]` bar is its row
+      1.2: ratified 2026-09-06T23:25:11Z by Brett Heap, operator authority,
+      verbatim *"ratify 16 and archive add-per-seat-register-entries"*
+      (Q-WRR-1..5 ruled with it, its rows 1.3-1.7). Both defects were
+      re-measured at the pinned reader (its `design.md` D0): the reader at
+      openXwallet `05007e26` is BYTE-IDENTICAL to `b7b0fbb3` / `wallet-v1.4`
+      (`git diff b7b0fbb3 05007e26 -- scripts/validate-openxwallet.py` is empty,
+      re-run 2026-10-05, and the same holds at `6ec84b1b`), and the probe draws
+      `register-minimal-shape-exceeded` on the second authority row plus
+      `register-seat-duplicate` on `lead-security` (and on `lead-quality` and
+      `company-policy-lead`), with the note reading `5 of 8`; this change's own
+      design D5 measured the same two codes at the same pin on a two-seat probe
+      (`4 of 6`). The lane that did that work, `hermes-wallet-exercise`, is this
+      lane's former register key (cut over to `codeXfactory-2` on 2026-09-14;
+      the § 13.3 lift sentence says *"same lane, same window"*). See
+      walk-2026-09-12-register-act.md § 13.6 bookkeeping note 2 (appended
+      2026-10-05).**
+- [x] 2.2 **[openXwallet]** RED FIRST. Two failing tests before either fix:
       (a) a fixture register with TWO authority rows, each resolving end to end
       to its own wallet, grant and attestation, asserted CLEAN; (b) a fixture
       register whose `seat_keys` carries the same `seat_id` under two different
       `council_id`s, asserted CLEAN, together with a third that carries the same
       `seat_id` TWICE under ONE `council_id`, asserted REFUSED with
       `register-seat-duplicate`. Both must fail against the reader as it stands.
-- [ ] 2.3 **[openXwallet]** Fix defect 2: key the seat-entry duplicate table on
+      **DONE 2026-10-05, in openXwallet (its rows 2.1-2.8, ticked), and the RED
+      state was MEASURED, not read.**
+      `tests/widen_register_reader/test_second_council.py` landed with the
+      proposal, before any fix (openXwallet PR #16 → `6ec84b1b`). Checked out at
+      `6ec84b1b`, whose reader is byte-identical to the pinned `b7b0fbb3` (2.1),
+      `pytest tests/widen_register_reader` gives `8 passed, 2 xfailed`, the two
+      being `xfail(strict=True)`: (a)
+      `test_a_second_commissioned_body_resolving_end_to_end_is_admitted`
+      (openXwallet row 2.2: two authority rows, the second resolving end to end
+      to its own wallet, root grant and custody attestation, asserted CLEAN;
+      XFAIL, naming `REGISTER_MVP_SINGLE_ROW`) and (b)
+      `test_two_councils_may_seat_the_same_role_name` (its row 2.3: one
+      `seat_id` under two `council_id`s, asserted CLEAN; XFAIL, naming the
+      `seat_id`-only duplicate table). The third fixture is
+      `test_one_council_naming_a_seat_twice_is_refused` (its row 2.4): the same
+      `seat_id` twice under ONE `council_id`, asserted REFUSED with
+      `register-seat-duplicate`. It PASSES at `6ec84b1b` and after, by design:
+      the fix narrows the trigger and keeps the refusal, so "must fail" binds
+      the two CLEAN assertions and not this one. Two further tests passing at
+      `6ec84b1b` pin, by exact code, the two refusals the pinned reader emits:
+      `register-minimal-shape-exceeded` on the second row and
+      `register-seat-duplicate` on the shared seat names. At `f3eb929b` the same
+      file reads `11 passed`, no xfail left. See walk-2026-09-12-register-act.md
+      § 13.6 bookkeeping note 2 (appended 2026-10-05).**
+- [x] 2.3 **[openXwallet]** Fix defect 2: key the seat-entry duplicate table on
       the PAIR `(council_id, seat_id)`. **Leave `key_id` and `key_fingerprint`
       uniqueness GLOBAL** — a key is one key, and two bodies presenting it are
       two claims on one identity.
-- [ ] 2.4 **[openXwallet] [GOVERNANCE]** Fix defect 1 per the Q-GRC-5 ruling:
+      **DONE 2026-10-05, in openXwallet (its row 3.1, commit `9ebc686`, PR #18 →
+      `f3eb929b`).** At `f3eb929b`, `scripts/validate-openxwallet.py:2958-2959`
+      keys the table by `(council_id, entry[field])` for `seat_id` and by the
+      bare value for `key_id` and `key_fingerprint` (`scoped = field ==
+      "seat_id"`). The refusal keeps the code `register-seat-duplicate` and its
+      message now names the council. Global uniqueness is asserted ACROSS
+      councils by `test_key_id_and_fingerprint_stay_globally_unique[key_id]` and
+      `[key_fingerprint]` (both pass) and by two self-test probes, and it BITES:
+      changing `scoped = field == "seat_id"` to `scoped = True` in a scratch
+      copy of the reader and running it on openXwallet itself reds exactly those
+      two probes (2 findings, re-run 2026-10-05, matching its
+      `realization-evidence-2026-09-06.md` § 3; nothing was committed). See
+      walk-2026-09-12-register-act.md § 13.6 bookkeeping note 2 (appended
+      2026-10-05).**
+- [x] 2.4 **[openXwallet] [GOVERNANCE]** Fix defect 1 per the Q-GRC-5 ruling:
       retire `REGISTER_MVP_SINGLE_ROW` in favour of the invariants it stood in
       for (every row resolves end to end; every seat entry attaches to a row
       that commissions its body; the pair is unique), rather than substituting
       the number 2 for the number 1.
-- [ ] 2.5 **[openXwallet]** Extend the reader's own S4 self-test block with the
+      **DONE 2026-10-05, in openXwallet (its row 3.2, commit `9ebc686`, PR #18 →
+      `f3eb929b`).** Read at `f3eb929b`: `REGISTER_MVP_SINGLE_ROW` has no
+      reference left in the reader's syntax tree, and the one string constant
+      that mentions `register-minimal-shape-exceeded` is `check_register`'s
+      docstring, so the code is not a literal anything can emit or assert (both
+      read with `ast`, 2026-10-05;
+      `test_the_retired_row_count_refusal_is_emitted_by_nothing` asserts the
+      second and passes). The comment block where the constant stood
+      (`:2578-2616`) names this row's three invariants, each on the code that
+      already enforced it and with NO new finding code: (i) every authority row
+      resolves end to end (`check_register`'s row loop,
+      `register-wallet-unresolved` through `register-row-malformed`); (ii) every
+      seat entry attaches to a row that commissions its body
+      (`_check_seat_keys`: `register-seat-row-unresolved` and
+      `register-seat-council-mismatch`); (iii) the pair is unique (2.3). No
+      number replaces the cap: it is not raised to two. The `[GOVERNANCE]` bar:
+      Q-GRC-5 was ruled in `review/ratification-2026-09-06.md` as this change's
+      recorded ask of openXwallet, and openXwallet decided it in its own change
+      — Q-WRR-1 (retire by name) and Q-WRR-2 (no numeric bound), its rows 1.3
+      and 1.4, ratified 2026-09-06T23:25:11Z. The removed refusal carries a
+      migration note in openXwallet's `contracts/CHANGELOG.md` (`##
+      wallet-v1.5`). See walk-2026-09-12-register-act.md § 13.6 bookkeeping note
+      2 (appended 2026-10-05).**
+- [x] 2.5 **[openXwallet]** Extend the reader's own S4 self-test block with the
       two-row and two-council probes, so a later edit cannot silence the
       invariant while the self-test stays green.
-- [ ] 2.6 **[openXwallet]** Cut the bundle tag (`wallet-v1.5` or as allocated)
+      **DONE 2026-10-05, in openXwallet (its row 3.4, commit `9ebc686`, PR #18 →
+      `f3eb929b`).** The self-test block runs in the validator's ordinary
+      invocation, so inside the REQUIRED check every consumer runs. At
+      `f3eb929b` it carries (`:2484-2557`):
+      `self-test/register-two-bodies-clean` (two rows; it asserts the notes
+      positively, `2 row(s)` and `6 of 6`),
+      `register-two-councils-one-seat-name`,
+      `register-seat-duplicate-within-one-council` and
+      `register-second-row-unresolved`, plus two probes this row did not name,
+      `register-seat-attached-to-another-bodys-row` and
+      `seat-duplicate-across-councils[key_id]` / `[key_fingerprint]`. The two
+      probes that asserted the retired code were removed in the same edit.
+      `validate-openxwallet.py .` on openXwallet itself reads `0 error(s), 0
+      warning(s)`, plain and `--strict`, and the probes BITE: replacing the pair
+      key with the bare `seat_id` in a scratch copy reds four findings
+      (`register-two-bodies-clean` twice, `register-two-councils-one-seat-name`,
+      `register-second-row-unresolved`), the four its
+      `realization-evidence-2026-09-06.md` § 3 records (re-run 2026-10-05;
+      nothing was committed). See walk-2026-09-12-register-act.md § 13.6
+      bookkeeping note 2 (appended 2026-10-05).**
+- [x] 2.6 **[openXwallet]** Cut the bundle tag (`wallet-v1.5` or as allocated)
       and publish the digests in `contracts/manifest.yaml`.
+      **DONE 2026-10-05, in openXwallet (its rows 4.1-4.3).** The tag
+      `wallet-v1.5` is ANNOTATED (`git cat-file -t` → `tag`, tag object
+      `ff9ac797`, dated 2026-09-07T00:51:35Z; its message says the lane
+      coordinator tagged on Brett Heap's word *"cut wallet-v1.5"*, openXwallet
+      row 4.1) and peels to `f3eb929b9ab6d78bf30e26bf1d7a99af86a7016e`, PR #18's
+      merge commit and an ancestor of openXwallet `main`; `git ls-remote --tags
+      https://github.com/opensoft/openXwallet` lists `refs/tags/wallet-v1.5^{}`
+      at that sha (read 2026-10-05). At `f3eb929b`, `contracts/manifest.yaml`
+      reads `contract_bundle_version: wallet-v1.5`, the only line that moved in
+      that file; `contracts/releases/wallet-v1.5.digests.yaml` (eight entries)
+      differs from `wallet-v1.4`'s in exactly one line, `bundle_tag`. All eight
+      digests, recomputed 2026-10-05 as sha256 over the raw git blobs at
+      `f3eb929b`, equal BOTH the release inventory's and the manifest's: 8 of 8.
+      **Read plainly, "publish the digests in `contracts/manifest.yaml`" was
+      realized as: the manifest carries `wallet-v1.5` and the eight digests,
+      none of which moved because no contract byte did, and the NEW published
+      artifact is the release inventory.** oxF's side is 2.7:
+      `contracts/openxwallet-pin.yaml` names `f3eb929b` / `wallet-v1.5` and the
+      `openXwallet` gitlink is the same commit (read at `20ce593e8`). See
+      walk-2026-09-12-register-act.md § 13.6 bookkeeping note 2 (appended
+      2026-10-05).**
 - [x] 2.7 Advance `contracts/openxwallet-pin.yaml`: `commit:` and
       `contract_bundle_tag:` ONLY. **No `files:` digest row moves** —
       `scripts/validate-openxwallet.py` sits under `pinned_by_commit_only:` and
@@ -549,7 +698,7 @@ gate is green: at the old reader every one of these writes is refused.
 
 ## 5. Archive gate
 
-- [ ] 5.1 `code_surface` is NOT `none`, so per `release-realization` this change
+- [x] 5.1 `code_surface` is NOT `none`, so per `release-realization` this change
       archives only on MERGED, GREEN REALIZATION EVIDENCE. The evidence set is
       exactly:
       - §2.7 + §2.8 merged and `wallet-validation` green at the advanced pin
@@ -559,16 +708,70 @@ gate is green: at the old reader every one of these writes is refused.
         resolved`;
       - the walk record (§3.9) committed;
       - §1.2–§1.5 ruled and recorded.
+      **DONE 2026-10-05, each of the four items read against what landed. Two
+      things to read with it, stated and not reworded.** (1) THE LITERAL `8 of
+      8` IS SUPERSEDED BY `9 of 9`. T2 (oxF PR #1006 → `765d8c6f`,
+      2026-09-13T22:30:20Z) added the fifth gate-rules seat key, so the log on
+      `main` now reads `2 row(s)` (unchanged: a seat is not a holder, walk §
+      5.3) and `9 of 9 per-seat signing key(s) adjudicated and resolved` (walk §
+      13.6 bookkeeping note). The bullet's text is not edited. (2) THE FIRST
+      ITEM'S ORDER WAS RE-SEQUENCED by `proposal.md`'s 2026-09-07 AMENDMENT
+      (newest, and governing, as § 2.8's own DONE note says): §2.8's literal
+      flip was deferred out of the pin-advance PR and performed in the register
+      act, so "§2.7 + §2.8 merged ... with the register still at one row" never
+      held as one state. §2.9, ticked above, is the gate that was kept: the pin
+      advance neutral at one row. **The evidence.** Each measurement was taken
+      on the landed commit, with the reader the gitlink names there (`f3eb929b`
+      at all three). **Item 1, §2.7:** oxF PR #740 → `30eccf0ca` (merged
+      2026-09-07T02:00:32Z), `wallet-validation` and `pytest-suite` SUCCESS; the
+      reader on `30eccf0ca` reads `1 row(s)`, `4 of 4`, `0 error(s), 0
+      warning(s)` (§2.9). §2.8 landed with the next item. **Item 2, §3:** oxF PR
+      #798 → `eea40d175` (merged 2026-09-08T14:17:18Z by the `brettheap` login,
+      on his word *"merge both"*, row 3.10), `wallet-validation` and
+      `pytest-suite` SUCCESS on its head `85ca4c9a`; the reader on `eea40d175`
+      reads `2 row(s)`, `8 of 8`, `0 error(s), 0 warning(s)`, no `[register-`
+      line. **Item 3, the walk record:** `walk-2026-09-08-register-act.md` is in
+      `eea40d175`'s tree (972 lines, the same merge). **Item 4, §1.2–§1.5:**
+      rows 1.2–1.5 above, each RULED 2026-09-06T14:13:46Z and recorded in
+      `review/ratification-2026-09-06.md`. For the current state, the reader at
+      T2 (`765d8c6f`) reads `2 row(s)`, `9 of 9`, `0 error(s), 0 warning(s)`.
+      See walk-2026-09-12-register-act.md § 13.6 bookkeeping note 2 (appended
+      2026-10-05).**
 - [ ] 5.2 §4 is EXPLICITLY OUT of the archive gate and must not be folded into
       it. Those acts belong to other repositories and other owners; holding this
       change open on a convening nobody can yet run would park the register act
       indefinitely, and ticking them from here would tick another repository's
       boxes.
-- [ ] 5.3 Before archive, re-read the seat list against codexFactory
+- [x] 5.3 Before archive, re-read the seat list against codexFactory
       `hermes/domain/review-councils/gate-rules.yaml` at the then-current
       `origin/main`. A roster that moved between ratification and realization
       means the registered set is stale, and a stale seat set records authority
       that no convening presents.
+      **DONE 2026-10-05 AS A DATED READING, AND IT MUST BE RE-RUN AT ARCHIVE.**
+      Read against codexFactory `main`
+      `cc85a3cc29caabb6a2894d3e935d1e965e84d007` (`gh api
+      repos/codeXfactory/codexFactory/branches/main`; the local `origin/main` is
+      the same sha), `hermes/domain/review-councils/gate-rules.yaml`:
+      `council.members.domain` is `[lead-architect, lead-security,
+      lead-quality]`; `members.client.seat` is `company-policy-lead`;
+      `members.client.conjunction_pull_in.seat` is
+      `client-security-compliance-officer` (`:203`; its former `deferred_seats`
+      entry now sits in `discharged_seats`); `members.project.seat` is
+      `intent_owner_role_slot` (`binding: symbolic_until_project_roster`), still
+      the one `deferred_seats` entry. The register's `gate_rules_council`
+      `seat_keys`, parsed from `register.yaml` at `20ce593e8`, are
+      `lead-architect`, `lead-security`, `lead-quality`, `company-policy-lead`
+      and `client-security-compliance-officer`: FIVE, set-equal to the roster's
+      five declared seats, with `intent_owner_role_slot` the deferred sixth and
+      unregistered (Q-GRC-4, task 4.6). `agent-mixes.yaml`'s
+      `review_council_profiles.gate_rules_council` lists the same five in
+      `all_possible_seats`, `model_assignments` and `prompt_contract.seats`. The
+      registered set is not stale at this reading. **The clause says "the
+      then-current `origin/main`", so this reading does not discharge a later
+      archive: re-run it against `origin/main` on the day of the archive, with
+      `intent_owner_role_slot` the seat most likely to have moved.** See
+      walk-2026-09-12-register-act.md § 13.6 bookkeeping note 2 (appended
+      2026-10-05).**
 
 ---
 
