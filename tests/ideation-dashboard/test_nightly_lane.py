@@ -838,3 +838,27 @@ def test_only_a_submodule_section_declares_a_checkout(tmp_path):
         "real": ["sub/real"], "legacy": ["sub/legacy"]}
     assert lane.resolve_checkout(agg, "repo") is None
     assert lane.resolve_checkout(agg, "stray") is None
+
+
+def test_a_submodule_header_must_be_the_whole_line(tmp_path):
+    """Copilot review, PR #1209, third round: the header pattern was not
+    anchored after `]`, so `[submodule "fake"] trailing-junk` opened a section.
+    The header must now be the whole line, with only a `#`/`;` comment after
+    `]` (git-config allows both there), and its interior must follow git's
+    grammar, which refuses whitespace after `[` or before `]`. The `fake`
+    target is a real populated checkout, so only the parser refuses it."""
+    agg = _commit_repo(tmp_path / "agg", gitmodules=(
+        '[submodule "fake"] trailing-junk\n\tpath = fake/x\n'
+        '\turl = git@example.invalid:fake.git\n'
+        '[submodule.legacy] junk\n\tpath = legacy/y\n'
+        '[submodule "spaced" ]\n\tpath = spaced/z\n'
+        '[ submodule "lead"]\n\tpath = lead/w\n'
+        '[submodule "ok"] # git allows a comment here\n\tpath = sub/ok\n'
+        '[submodule "ok2"] ; and this form of one\n\tpath = sub/ok2\n'
+        '[submodule "esc\\"aped"]\n\tpath = sub/esc\n'))
+    _commit_repo(agg / "fake" / "x")
+
+    assert lane.submodule_paths(agg) == {
+        "ok": "sub/ok", "ok2": "sub/ok2", "esc": "sub/esc"}
+    assert lane.resolve_checkout(agg, "fake") is None
+    assert lane.resolve_checkout(agg, "x") is None

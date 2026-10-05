@@ -434,10 +434,19 @@ class MultiLaneOutcome:
 
 
 # A `.gitmodules` section header that declares a submodule: git's canonical
-# `[submodule "name"]`, or its legacy `[submodule.name]` spelling. The section
-# name is case-insensitive in git config, so it is here too.
+# `[submodule "name"]`, or its legacy `[submodule.name]` spelling, matched
+# against the WHOLE (stripped) line. The interior follows git-config's own
+# grammar: no whitespace after `[` or before `]` (git refuses either as a bad
+# config line), whitespace between the section and the quoted name, `\"` and
+# `\\` escapes inside it, and a case-insensitive section name. After `]`, only
+# a `#` or `;` comment may follow. git itself would read any other trailing
+# text as a same-line variable (`[submodule "a"] path = x`); git never WRITES
+# that form, and this lane deliberately declares nothing for it, so such a
+# section can only SKIP (`checkout not found`), never resolve to a checkout
+# (Copilot review, PR #1209, third round).
 _SUBMODULE_HEADER = re.compile(
-    r'^\[\s*submodule(?:\s+"(?:[^"\\]|\\.)*"|\.[^\]\s]+)\s*\]', re.IGNORECASE)
+    r'^\[submodule(?:\s+"(?:[^"\\]|\\.)*"|\.[A-Za-z0-9.-]+)\]\s*(?:[#;].*)?$',
+    re.IGNORECASE)
 
 
 def _gitmodules_entries(gitmodules: Path) -> list[tuple[str, str | None]]:
