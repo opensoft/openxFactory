@@ -3677,7 +3677,7 @@ and redesigns none of them.
   `credential_ref`; a credential travels only over `https://` or loopback
   `http://` (`ENDPOINT_NOT_PRIVATE`, batch K). The broker path's hardening, no
   task of the plan, landed as openDox-code#64 → `8e377823`.
-- [ ] 16.3a **A served repository's bindings are TRUSTED PER MACHINE.**
+- [x] 16.3a **A served repository's bindings are TRUSTED PER MACHINE.**
   **ADDED — T007 Batch M (`5962785556`, item 2):** Brett Heap's multi-choice
   word of 2026-10-02, verbatim *"Trust per machine (Recommended)"*, which
   asks for this amendment. The batch adds this box, a dated note in
@@ -3897,6 +3897,17 @@ and redesigns none of them.
   which holds the default state directory. No code changes for it, and this
   bookkeeping clarification edits no line of the box. Carried out by T100,
   as landed.
+
+  **Landed 2026-10-05** (T100, openDox-code#82 → `38d3350e`; the T100 follow-on,
+  openDox-code#86 → `651c35fe`, before T087): the follow-on carries out Brett
+  Heap's `5982436447`, item 2, and `5983805990`, which batch P records, with the
+  holder's `5984069416`, `5985046107` (C1 to C5) and `5985553609`, and the
+  holder's A8; item 3 (A14) changes no code. Run by T089's runner against the
+  follow-on's head `aecac805`, whose tree landed unchanged, F16.1's block as
+  batch P amends it exits 0, with `532 passed` in
+  `tests/test_model_binding_trust.py`, batch P's section 9 among them, as
+  openDox-code#86's body records. T083's run at `38d3350e` read `135 passed`
+  there (`evidence/f16.1-run.md` § 2). F16.1 whole is T089's run at T087's pin.
 - [x] 16.4 **"No model configured" is a STATE, shown before any turn.**
   Measured: with no binding, `declared_model_port_factory(...)()` resolves the
   harness declaration, and its catalog offers `omp-local`, "Local harness model",
