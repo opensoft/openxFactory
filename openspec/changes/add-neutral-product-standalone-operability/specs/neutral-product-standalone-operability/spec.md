@@ -732,28 +732,28 @@ paths are. A general program outside the repository that runs code from its
 own arguments, and any other path embedded inside an option string given to
 the program that finally runs (never a launcher's own option), are an accepted
 release-1 limit, since the trusted command is digested and the working
-directory and environment point away from the repository. A configuration this
-note refuses, one whose command or launcher names a path inside the served
-repository or one whose program is given an inline script or an unreadable
-split string, is refused by name when trust would be recorded for it and again
-before any process is spawned, and the refusal names the remedy: a broker
-installed outside the repository, or, for an inline script, the broker program
-named itself. The accepted limits above are not part of that class. A program
-that cannot be found runs nothing: it is not refused when trust would be
-recorded, and when its broker is started the start fails and the configuration
-is refused by the existing named refusal `broker_unreachable` (the holder's
-ruling `#656` comment `5985553609`, which reads "a real file" by what it
-forbids to run). So a trusted configuration that runs a credential broker
-reaches its endpoint as the first scenario says only when that broker is a
-real file outside the served repository. A configuration that runs no broker,
-one whose reference the built-in resolver takes (`env:` or the OS keyring) or
-one whose auth kind is `none`, is outside this note. Nothing else here moved:
-the requirement's title, the paragraph above with its SHALL sentences, batch
-K's note, batch M's note and all four scenarios stand as ratified, and the
-requirement still carries four scenarios. The rule is recorded at box 16.3a of
-this change's `tasks.md`, and it is carried out in a follow-on openDox-code PR
-to plan 034's T100 (`#656` comment `5982447319`), which is no task of that
-plan.
+directory and environment point away from the repository. Each configuration
+this note refuses, whether its command or a launcher names a path inside the
+served repository, its program is given an inline script or an unreadable
+split string, or a launcher option is ambiguous or unknown, is refused by name
+when trust would be recorded for it and again before any process is spawned,
+and the refusal names its remedy, such as a broker installed outside the
+repository or, for an inline script, the broker program named itself. The
+accepted limits above are not refused by this note. A program that cannot be
+found runs nothing: it is not refused when trust would be recorded, and when
+its broker is started the start fails and the configuration is refused by the
+existing named refusal `broker_unreachable` (the holder's ruling `#656`
+comment `5985553609`, which reads "a real file" by what it forbids to run). So
+a trusted configuration that runs a credential broker reaches its endpoint as
+the first scenario says only when that broker is a real file outside the
+served repository. A configuration that runs no broker, one whose reference
+the built-in resolver takes (`env:` or the OS keyring) or one whose auth kind
+is `none`, is outside this note. Nothing else here moved: the requirement's
+title, the paragraph above with its SHALL sentences, batch K's note, batch M's
+note and all four scenarios stand as ratified, and the requirement still
+carries four scenarios. The rule is recorded at box 16.3a of this change's
+`tasks.md`, and it is carried out in a follow-on openDox-code PR to plan 034's
+T100 (`#656` comment `5982447319`), which is no task of that plan.
 
 #### Scenario: A hosted API or a local server is configured
 - **WHEN** a user configures an endpoint that speaks the OpenAI-compatible chat protocol by its URL, a model name and a credential reference, whether it is a hosted API or a server on their own machine

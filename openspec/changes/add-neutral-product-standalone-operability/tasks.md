@@ -3791,10 +3791,11 @@ and redesigns none of them.
   - **An alias is judged both as named and as it resolves.** Each of these
     is refused by the same four commands and before any spawn, with no
     marker file, for the program and for an interpreter's script argument
-    alike (`["python3", "<link>"]`):
+    alike (`["python3", "<link>"]`), except where noted:
     - a symbolic link outside the served root whose target lies inside it;
     - a bare program name that resolves through a `PATH` entry under the
-      served root;
+      served root, as the program only, since an interpreter does not look
+      its script argument up on `PATH`;
     - a symbolic link inside the served root whose target is a real file
       outside it, since a pull could retarget the link.
 
