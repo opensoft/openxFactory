@@ -775,11 +775,17 @@ def test_a_contributed_verb_is_reachable_in_both_documented_invocations(
     The suite quotes `python3 scripts/ideation_dashboard/cli.py ...` in refusal
     text and runbooks in five places and never once runs it, so an import shape
     that only breaks outside pytest — a half-initialised `cli_gate` under the
-    script invocation, say — would have been green everywhere."""
+    script invocation, say — would have been green everywhere.
+
+    The program name is the pinned leg's own (T066's both-pins form, ahead of
+    plan 034 T094): `ideation-dashboard` until openDox-code's T084 renamed the
+    parser `opendox` and named it `cli.PROG`. A leg without `PROG` is the
+    earlier one."""
     result = run_cli(mode, ["gate", "ratify", "--help"], tmp_path)
+    prog = getattr(cli_mod, "PROG", "ideation-dashboard")
 
     assert result.returncode == 0, result.stderr
-    assert "usage: ideation-dashboard gate ratify" in result.stdout
+    assert f"usage: {prog} gate ratify" in result.stdout
     assert "--change-id" in result.stdout
     assert result.stderr == ""
 
