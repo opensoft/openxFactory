@@ -183,6 +183,12 @@ def admits(kind, wanted, only):
     return wanted in kinds and (not only or set(kinds) == {wanted})
 
 
+def unsupported_dialect(node):
+    """Refuse a schema object that declares a dialect other than 2020-12."""
+    if isinstance(node, dict) and "$schema" in node and node["$schema"] not in DIALECTS:
+        raise Invalid("unsupported_schema_dialect")
+
+
 def ref_key(ref):
     return (ref["repository"], ref["revision"], ref["path"])
 
@@ -258,6 +264,9 @@ class Offline:
                 raise Invalid("schema_depth_limit") from None
             except Exception:
                 raise Invalid("invalid_json_schema") from None
+            # A fragment reference visits only its target subtree, so the
+            # file's own dialect is checked here, before anything reads it.
+            unsupported_dialect(document)
             self.documents[key] = document
         return self.documents[key]
 
@@ -275,10 +284,13 @@ class Offline:
         or on a map or list of subschemas does not name a schema. Returns the
         node, its resource and its place identity (`place_of`)."""
         node, resource, state, place = base, base, "schema", ROOT_PLACE
+        unsupported_dialect(base)
         for part in decode_pointer(fragment):
             place = (id(node), part)
             node = step(node, part)
             state = pointer_state(state, part, node)
+            if state == "schema":
+                unsupported_dialect(node)
             if state == "schema" and isinstance(node, dict) and isinstance(node.get("$id"), str):
                 resource = node
         if state != "schema":
@@ -321,8 +333,7 @@ class Offline:
             if token in seen:
                 return
             seen.add(token)
-            if "$schema" in node and node["$schema"] not in DIALECTS:
-                raise Invalid("unsupported_schema_dialect")
+            unsupported_dialect(node)
             if "$dynamicRef" in node or "$recursiveRef" in node:
                 raise Invalid("unsupported_dynamic_reference")
             if "$ref" in node:
@@ -352,23 +363,25 @@ class Offline:
         self.checked_targets.add(id(target))
 
     def finite(self, key, node, resource, discriminator=None, required=frozenset(), seen=frozenset(),
-               typed=False):
+               typed=False, closed=()):
         """The finite string vocabulary at `node`, or None when it cannot be proved.
 
         With a `discriminator`, `node` is an object schema, or a union of them
         (directly or through `$ref`), and the vocabulary is the union of each
         branch's required `properties.<discriminator>` constants or enums.
+        `closed` holds, for each enclosing `additionalProperties: false`, the
+        names its own `properties` declares: the only names an instance may carry.
         Completed resolutions are memoized, so shared references cost once.
         """
-        memo = (key, id(node), id(resource), discriminator, frozenset(required), typed)
+        memo = (key, id(node), id(resource), discriminator, frozenset(required), typed, closed)
         if memo in self.finite_cache:
             return self.finite_cache[memo]
-        result = self.resolve_finite(key, node, resource, discriminator, required, seen, typed)
+        result = self.resolve_finite(key, node, resource, discriminator, required, seen, typed, closed)
         if (key, id(node), discriminator) not in seen:
             self.finite_cache[memo] = result
         return result
 
-    def resolve_finite(self, key, node, resource, discriminator, required, seen, typed):
+    def resolve_finite(self, key, node, resource, discriminator, required, seen, typed, closed):
         if not isinstance(node, dict):
             return None
         if self.embedded(key, node):
@@ -390,15 +403,18 @@ class Offline:
         seen = seen | {token}
         required = required | set(names)
         typed = typed or ("type" in node and admits(node["type"], "object", only=True))
+        if discriminator is not None and node.get("additionalProperties") is False:
+            declared = node.get("properties")
+            closed = closed + (frozenset(declared) if isinstance(declared, dict) else frozenset(),)
         if "$ref" in node:
             if any(k in node for k in ("enum", "const", *UNIONS)) or (
                     discriminator is not None and "properties" in node):
                 return None
             dest, target, target_resource, _ = self.resolve(key, node["$ref"], resource)
-            return self.finite(dest, target, target_resource, discriminator, required, seen, typed)
+            return self.finite(dest, target, target_resource, discriminator, required, seen, typed, closed)
         if discriminator is None:
             return self.finite_values(key, node, resource, seen)
-        return self.finite_branches(key, node, resource, discriminator, required, seen, typed)
+        return self.finite_branches(key, node, resource, discriminator, required, seen, typed, closed)
 
     def finite_values(self, key, node, resource, seen):
         """A value vocabulary: `enum`, `const`, or a union of them. Under `oneOf`
@@ -427,13 +443,15 @@ class Offline:
             return set(values) if all(isinstance(v, str) for v in values) else None
         return None
 
-    def finite_branches(self, key, node, resource, discriminator, required, seen, typed):
+    def finite_branches(self, key, node, resource, discriminator, required, seen, typed, closed):
         """A discriminated vocabulary: each object branch's required property value.
         A branch must be object-only (`type: object` on it or an ancestor): an
         untyped branch also admits `null` and other values that carry no code.
         Under `oneOf`, branches must not share a value: an object matching two
         branches matches none, and object branches can share a code while
-        differing elsewhere, so a shared code cannot be proved an outcome."""
+        differing elsewhere, so a shared code cannot be proved an outcome. A
+        branch whose required names a closed schema forbids, or whose required
+        property's schema is `false`, admits no instance."""
         if "enum" in node or "const" in node or all(u in node for u in UNIONS):
             return None
         properties = node.get("properties")
@@ -441,7 +459,7 @@ class Offline:
             if union in node:
                 if (isinstance(properties, dict) and discriminator in properties) or not isinstance(node[union], list):
                     return None
-                parts = [self.finite(key, item, resource, discriminator, required, seen, typed)
+                parts = [self.finite(key, item, resource, discriminator, required, seen, typed, closed)
                          for item in node[union]]
                 if any(part is None for part in parts):
                     return None
@@ -452,6 +470,9 @@ class Offline:
         if not typed or not isinstance(properties, dict):
             return None
         if discriminator not in properties or discriminator not in required:
+            return None
+        if any(properties.get(name) is False for name in required) or any(
+                not required <= allowed for allowed in closed):
             return None
         return self.finite(key, properties[discriminator], resource, None, frozenset(), seen)
 
