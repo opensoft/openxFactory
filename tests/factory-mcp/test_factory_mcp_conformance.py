@@ -366,6 +366,8 @@ class ConformanceTests(unittest.TestCase):
         self.write_schema()
         self.doc = self.declaration()
         self.assertDiagnostics([("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/0/gap_id")])
+        self.schema["properties"]["status"] = {"enum": ["positive", "negative"]}
+        self.write_schema()
         self.doc = self.declaration()
         self.error_union()
         error = json.loads((self.root / "domain-error.json").read_text())

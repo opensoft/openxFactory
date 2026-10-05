@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Offline declaration validation, never a runtime conformance certificate."""
 import argparse
+from collections import Counter
+import errno
 import hashlib
 import json
 from pathlib import Path, PurePosixPath
@@ -31,6 +33,10 @@ SCHEMA_SINGLE = ("items", "additionalItems", "contains", "additionalProperties",
 SCHEMA_LISTS = ("allOf", "anyOf", "oneOf", "prefixItems")
 # `$defs` and `definitions` hold schemas that apply only when referenced.
 STORAGE = ("$defs", "definitions")
+# Subschemas an outcome never lives in: a negation, and a condition that only
+# selects `then` or `else`. Reachability and coverage do not enter them; the
+# reference walk still does, so a remote reference under them is still refused.
+NOT_OUTCOMES = ("not", "if")
 UNIONS = ("oneOf", "anyOf")
 # Constraints that may narrow a vocabulary; never infer exhaustiveness through them.
 NARROWING = ("allOf", "not", "if", "then", "else", "pattern", "minLength", "maxLength",
@@ -127,8 +133,16 @@ def safe_path(root, relative):
             or any(c in relative for c in (":", "\\", "%", "?", "#", "\x00"))
             or str(path) != relative):
         raise Invalid("unsafe_reference_path")
-    root = Path(root).resolve(strict=True)
-    target = (root / relative).resolve(strict=True)
+    try:
+        root = Path(root).resolve(strict=True)
+        target = (root / relative).resolve(strict=True)
+    except RuntimeError:
+        # Python 3.12 reports a symlink loop as RuntimeError, later versions as ELOOP.
+        raise Invalid("unsafe_reference_path") from None
+    except OSError as error:
+        if error.errno == errno.ELOOP:
+            raise Invalid("unsafe_reference_path") from None
+        raise
     if not target.is_relative_to(root):
         raise Invalid("escaping_reference_path")
     if not target.is_file():
@@ -180,6 +194,7 @@ class Offline:
         self.pins = pins
         self.documents = {}
         self.reach_cache = {}
+        self.checked_targets = set()
 
     def read(self, key):
         repository, revision, path = key
@@ -272,12 +287,29 @@ class Offline:
                 raise Invalid("unsupported_dynamic_reference")
             if "$ref" in node:
                 dest, target, target_resource = self.resolve(current_key, node["$ref"], resource)
+                self.check_target(target)
                 visit(dest, target, target_resource, depth + 1)
             for _, child in children(node):
                 visit(current_key, child, resource, depth + 1)
 
         document = self.document(key)
         visit(key, document, document, 0)
+
+    def check_target(self, target):
+        """A reference must land on a schema: a boolean, or an object the
+        metaschema accepts. Annotation data (`examples`, `required`, an `enum`
+        array) is not a schema even inside a valid document."""
+        if isinstance(target, bool) or id(target) in self.checked_targets:
+            return
+        if not isinstance(target, dict):
+            raise Invalid("reference_to_non_schema")
+        try:
+            Draft202012Validator.check_schema(target)
+        except RecursionError:
+            raise Invalid("schema_depth_limit") from None
+        except Exception:
+            raise Invalid("invalid_referenced_schema") from None
+        self.checked_targets.add(id(target))
 
     def finite(self, key, node, resource, discriminator=None, required=frozenset(), seen=frozenset()):
         """The finite string vocabulary at `node`, or None when it cannot be proved.
@@ -306,7 +338,22 @@ class Offline:
         return self.finite_branches(key, node, resource, discriminator, required, seen)
 
     def finite_values(self, key, node, resource, seen):
-        """A value vocabulary: `enum`, `const`, or a union of them."""
+        """A value vocabulary: `enum`, `const`, or a union of them. Under `oneOf`
+        a value is valid only when exactly one branch accepts it."""
+        kind = node.get("type")
+        if kind is not None and kind != "string" and not (isinstance(kind, list) and "string" in kind):
+            return None
+        unions = [u for u in UNIONS if u in node]
+        if len(unions) > 1 or (unions and ("enum" in node or "const" in node)):
+            return None
+        if unions:
+            parts = [self.finite(key, item, resource, None, frozenset(), seen) for item in node[unions[0]]]
+            if any(p is None for p in parts):
+                return None
+            if unions[0] == "anyOf":
+                return set().union(*parts)
+            counts = Counter(value for part in parts for value in part)
+            return {value for value, count in counts.items() if count == 1}
         values = node.get("enum")
         if "const" in node:
             if "enum" in node and node["const"] not in node["enum"]:
@@ -314,15 +361,11 @@ class Offline:
             values = [node["const"]]
         if values is not None:
             return set(values) if all(isinstance(v, str) for v in values) else None
-        for union in UNIONS:
-            if union in node:
-                return union_of(self.finite(key, item, resource, None, frozenset(), seen)
-                                for item in node[union])
         return None
 
     def finite_branches(self, key, node, resource, discriminator, required, seen):
         """A discriminated vocabulary: each object branch's required property value."""
-        if "enum" in node or "const" in node:
+        if "enum" in node or "const" in node or all(u in node for u in UNIONS):
             return None
         properties = node.get("properties")
         for union in UNIONS:
@@ -365,7 +408,7 @@ class Offline:
             if "$ref" in current:
                 dest, target, target_resource = self.resolve(current_key, current["$ref"], current_resource)
                 stack.append((dest, target, target_resource))
-            for _, child in children(current, skip=STORAGE):
+            for _, child in children(current, skip=STORAGE + NOT_OUTCOMES):
                 stack.append((current_key, child, current_resource))
         return out
 
@@ -425,7 +468,7 @@ def report(diagnostics, gaps):
 
 def resource_uri_ok(uri):
     """An absolute https URI with a host, no userinfo, no fragment, no controls."""
-    if any(ord(c) <= 0x20 or ord(c) == 0x7F for c in uri) or "#" in uri:
+    if any(ord(c) <= 0x20 or ord(c) == 0x7F for c in uri) or "#" in uri or "\\" in uri:
         return False
     try:
         parsed = urlsplit(uri)
@@ -595,14 +638,16 @@ def check_mapping(tool, bad):
         bad("incomplete_inventory_kinds", "/outcomes/inventories")
     seen_rows = set()
     for k, row in enumerate(tool["outcomes"]["mapping"]):
-        pair = (row["inventory"], row["value"])
+        # The schema's `integer` admits `0.0` and `0e0`, which JSON decodes as floats.
+        index = int(row["inventory"])
+        pair = (index, row["value"])
         if pair in seen_rows:
             bad("duplicate_outcome", f"/outcomes/mapping/{k}")
         seen_rows.add(pair)
-        if row["inventory"] >= len(inventories):
+        if index >= len(inventories):
             bad("unknown_inventory", f"/outcomes/mapping/{k}/inventory")
             continue
-        error = inventories[row["inventory"]]["kind"] == "error"
+        error = inventories[index]["kind"] == "error"
         expected = "execution_failure" if error else "completed_evaluation"
         if row["is_error"] != error or row["class"] != expected:
             bad("outcome_classification_mismatch", f"/outcomes/mapping/{k}")
@@ -619,12 +664,16 @@ def check_inventories(tool, offline, gap_index, bad):
         if role != ("error" if inventory["kind"] == "error" else "output"):
             bad("inventory_schema_kind_mismatch", here + "/schema")
         key = ref_key(tool[role])
+        document = offline.document(key)
         try:
-            node, resource = offline.locate(offline.document(key), inventory["pointer"])
+            node, resource = offline.locate(document, inventory["pointer"])
             values = offline.finite(key, node, resource, inventory.get("discriminator"))
         except Invalid:
             bad("invalid_inventory_pointer", here + "/pointer")
             pointer_failed.add(key)
+            continue
+        if (key, id(node)) not in offline.reach(key, document, document):
+            bad("unreachable_inventory", here + "/pointer")
             continue
         gap = inventory["gap_id"]
         placed.append((role, key, (key, id(node)), gap is not None))
@@ -632,7 +681,7 @@ def check_inventories(tool, offline, gap_index, bad):
             if gap not in tool["gap_ids"] or "outcomes" not in gap_index.get(gap, {}).get("concerns", []):
                 bad("unresolved_inventory_without_gap", here + "/gap_id")
             continue
-        if {r["value"] for r in rows if r["inventory"] == j} != values:
+        if {r["value"] for r in rows if int(r["inventory"]) == j} != values:
             bad("incomplete_outcome_mapping", here)
         if gap is not None:
             bad("resolved_inventory_claims_gap", here + "/gap_id")
