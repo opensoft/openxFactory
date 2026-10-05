@@ -268,6 +268,46 @@ class ConformanceTests(unittest.TestCase):
                 t["outcomes"]["inventories"][1]["gap_id"] = "vocab-gap"
                 self.assertValidWithGaps()
 
+    def test_closed_schemas_that_exclude_a_required_property_are_unresolved(self):
+        """Review 5421267903 (previously missed): `additionalProperties: false`
+        admits only the names its own `properties` declares, so a closed union
+        with no `properties`, or a closed branch requiring an undeclared name, or
+        a required property whose schema is `false`, admits no instance. Valid
+        closed branches still resolve."""
+        unresolved = [("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/1/gap_id")]
+
+        def closed_union(error):
+            error["$defs"]["error"]["additionalProperties"] = False
+
+        def undeclared_required(error):
+            error["$defs"]["invalidError"].update(
+                properties={"code": {"const": "INVALID"}}, required=["code", "extra"])
+
+        def false_property(error):
+            error["$defs"]["invalidError"]["properties"]["retryable"] = False
+
+        for case, change, expected in [("closed union", closed_union, unresolved),
+                                       ("undeclared required name", undeclared_required, unresolved),
+                                       ("required property is false", false_property, unresolved),
+                                       ("valid closed branches", lambda error: None, [])]:
+            with self.subTest(case=case):
+                self.doc = self.declaration()
+                self.error_union(parent_typed=True)
+                error = json.loads((self.root / "domain-error.json").read_text())
+                change(error)
+                ref = self.put("domain-error.json", error)
+                self.doc = self.declaration()
+                self.pin(ref)
+                t = self.tool()
+                t["error"] = dict(ref)
+                t["outcomes"]["inventories"][1].update(pointer="/$defs/error", discriminator="code")
+                self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
+                if expected:
+                    self.doc["gaps"].append({"id": "vocab-gap", "concerns": ["outcomes"], "description": "Closed."})
+                    t["gap_ids"].append("vocab-gap")
+                    t["outcomes"]["inventories"][1]["gap_id"] = "vocab-gap"
+                    self.assertValidWithGaps()
+
     def test_unsupported_constraints_do_not_claim_exhaustiveness(self):
         self.schema["properties"]["status"]["pattern"] = "^positive$"
         self.write_schema()
@@ -1000,6 +1040,33 @@ class ConformanceTests(unittest.TestCase):
                 change(self.schema)
                 self.write_schema()
                 self.doc = self.declaration()
+                if expected:
+                    self.assertDiagnostics(everywhere(expected, *TOOL_REFS))
+                else:
+                    self.assertValidWithGaps()
+
+    def test_referenced_document_dialects_are_refused(self):
+        """Review r4189416474: a fragment reference into another file visits only
+        the target subtree, so that file's root, and any resource the pointer
+        passes through, must declare 2020-12 (or nothing) as well."""
+        draft7 = "http://json-schema.org/draft-07/schema#"
+        target = {"type": "object", "properties": {"code": {"enum": ["INVALID"]}}}
+        for case, other, fragment, expected in [
+                ("draft-07 root", {"$schema": draft7, "definitions": {"outcome": target}},
+                 "#/definitions/outcome", "unsupported_schema_dialect"),
+                ("draft-07 resource on the path",
+                 {"$schema": DRAFT, "$defs": {"res": {"$id": "https://synthetic.invalid/r.json", "$schema": draft7,
+                                                       "$defs": {"outcome": target}}}},
+                 "#/$defs/res/$defs/outcome", "unsupported_schema_dialect"),
+                ("2020-12 root", {"$schema": DRAFT, "$defs": {"outcome": target}}, "#/$defs/outcome", None)]:
+            with self.subTest(case=case):
+                self.schema = {"$schema": DRAFT, "type": "object", "properties": {
+                    "status": {"enum": ["positive", "negative"]},
+                    "code": {"oneOf": [{"const": "UNAVAILABLE"}, {"const": "INVALID"}]},
+                    "nested": {"$ref": "legacy.json" + fragment}}}
+                self.write_schema()
+                self.doc = self.declaration()
+                self.pin(self.put("legacy.json", other))
                 if expected:
                     self.assertDiagnostics(everywhere(expected, *TOOL_REFS))
                 else:
