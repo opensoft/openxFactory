@@ -82,9 +82,18 @@ say() { printf '%s %s\n' "$(date -u +%H:%M:%SZ)" "$*"; }
 # ---- 0. the commit ----------------------------------------------------------
 say "scratch $W; record $OUT"
 git clone -q "$ODC_URL" "$W/openDox-code"
-git -C "$W/openDox-code" checkout -q "$COMMIT"
+# The argument is a commit-ish (a full or short sha, or a ref): it is resolved
+# to ONE commit first, and the checkout must land on exactly that commit. Only
+# an abbreviated sha is also held to be a prefix of what it resolved to
+# (Copilot r4185918186 on openxFactory#1241: a ref never prefixes a sha).
+WANT=$(git -C "$W/openDox-code" rev-parse --verify -q "$COMMIT^{commit}") \
+  || { say "FAIL: $COMMIT names no commit in $ODC_URL"; exit 2; }
+git -C "$W/openDox-code" checkout -q "$WANT"
 P=$(git -C "$W/openDox-code" rev-parse HEAD)
-case "$P" in "$COMMIT"*) ;; *) say "FAIL: $COMMIT resolved to $P"; exit 2;; esac
+[ "$P" = "$WANT" ] || { say "FAIL: $COMMIT resolved to $WANT, but the checkout is at $P"; exit 2; }
+if [[ "$COMMIT" =~ ^[0-9a-f]{4,40}$ ]]; then
+  case "$P" in "$COMMIT"*) ;; *) say "FAIL: the abbreviated sha $COMMIT resolved to $P"; exit 2;; esac
+fi
 test -z "$(git -C "$W/openDox-code" status --porcelain --ignored)"
 say "openDox-code $P (from $ODC_URL), a clean checkout"
 {

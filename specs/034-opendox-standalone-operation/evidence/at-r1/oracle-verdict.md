@@ -121,9 +121,15 @@ own run of T099's step, at 15:29:25Z, exited 0 as well.
 
 ## How it ran
 
-- **The runbook.** [`run-at-r1.sh`](run-at-r1.sh) (sha256
-  `702e2a4be2ce59ced647fafe23771fd22102cd9c29b0da3b8bafef19c2574148`),
-  beside this file, runs in the foreground:
+- **The runbook.** [`run-at-r1.sh`](run-at-r1.sh), beside this file, runs in
+  the foreground. The run used the bytes with sha256
+  `702e2a4be2ce59ced647fafe23771fd22102cd9c29b0da3b8bafef19c2574148`, which
+  this PR's first commit, `f632d70c`, holds. Review then changed one check:
+  the commit argument is resolved with `rev-parse --verify "<arg>^{commit}"`
+  before the checkout, so a ref such as `main` is accepted (Copilot
+  `r4185918186`). The run passed X's full sha, which both forms accept, so no
+  step it took changes. The file beside this record has sha256
+  `d4280ed2de251cb35f7614c2e2a8dfafd8da8ee29ecadb09d6a3a0c58dfa6374`. The runbook runs:
   - a fresh clone of openDox-code at the commit, with an empty
     `git status --porcelain --ignored`;
   - the HTTP half;
@@ -215,7 +221,8 @@ own run of T099's step, at 15:29:25Z, exited 0 as well.
 ## The run's files
 
 - [`run-at-r1.sh`](run-at-r1.sh) and [`at_r1_browser.py`](at_r1_browser.py):
-  the runbook and the driver, as run.
+  the runbook and the driver. The driver is as run, and the runbook is as run
+  but for the review fix to its commit-argument check (§ "How it ran").
 - `x/`, the run at X. It holds:
   - `verdict.txt`;
   - `commit.txt` (the commit, the P-against-X line, the harness, the
