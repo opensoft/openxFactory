@@ -347,6 +347,49 @@ class ConformanceTests(unittest.TestCase):
         t["outcomes"]["inventories"][0]["pointer"] = "/$defs/unused"
         self.assertDiagnostics([("unreachable_inventory", "/tools/0/outcomes/inventories/0/pointer")])
 
+    def test_boolean_inventories_are_located_by_place(self):
+        """Review r4187849211: `true` is one Python object everywhere, so a boolean
+        schema is known by where it sits; a reachable one needs only an outcomes gap."""
+        referenced = {"$ref": "#/$defs/used"}
+        for case, status, defs, pointer, expected in [
+                ("inline", True, {}, "/properties/status", []),
+                ("referenced", referenced, {"used": True, "unused": True}, "/$defs/used", []),
+                ("unused", referenced, {"used": True, "unused": True}, "/$defs/unused",
+                 [("unreachable_inventory", "/tools/0/outcomes/inventories/0/pointer")])]:
+            with self.subTest(case=case):
+                self.schema = {"$schema": DRAFT, "type": "object", "$defs": defs, "properties": {
+                    "status": status, "code": {"oneOf": [{"const": "UNAVAILABLE"}, {"const": "INVALID"}]}}}
+                self.write_schema()
+                self.doc = self.declaration()
+                t = self.tool()
+                t["outcomes"]["inventories"][0]["pointer"] = pointer
+                if not expected:
+                    self.assertDiagnostics(
+                        [("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/0/gap_id")])
+                self.doc["gaps"].append({"id": "vocab-gap", "concerns": ["outcomes"], "description": "Unbounded."})
+                t["gap_ids"].append("vocab-gap")
+                t["outcomes"]["inventories"][0]["gap_id"] = "vocab-gap"
+                self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
+
+    def test_a_reference_to_false_is_an_empty_member(self):
+        """Review r4187849259: a member reaching `false` through `$ref` admits no
+        instance, since a `$ref` applies beside its siblings; a cycle is not `false`."""
+        variant = {"type": "object", "properties": {"status": {"enum": ["positive", "negative"]}}}
+        for case, defs, member, expected in [
+                ("direct", {"disabled": False}, {"$ref": "#/$defs/disabled"}, []),
+                ("chained", {"disabled": False, "off": {"$ref": "#/$defs/disabled"}}, {"$ref": "#/$defs/off"}, []),
+                ("beside siblings", {"disabled": False}, {"$ref": "#/$defs/disabled", "type": "object"}, []),
+                ("cycle", {"loop": {"$ref": "#/$defs/loop"}}, {"$ref": "#/$defs/loop"},
+                 [("uncovered_outcome_branch", "/tools/0/output")])]:
+            with self.subTest(case=case):
+                self.doc = self.declaration()
+                ref = self.put("false-member.json", {"$schema": DRAFT, "$defs": defs, "oneOf": [variant, member]})
+                self.pin(ref)
+                t = self.tool()
+                t["output"] = dict(ref)
+                t["outcomes"]["inventories"][0]["pointer"] = "/oneOf/0/properties/status"
+                self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
+
     def test_negated_definitions_do_not_cover_a_variant(self):
         """Review r4187464328: a `$ref` under `not` is not where an outcome lives."""
         union = {"$schema": DRAFT,
@@ -527,6 +570,33 @@ class ConformanceTests(unittest.TestCase):
         self.assertValidWithGaps()
         del t["outcomes"]["inventories"][1]["discriminator"]
         self.assertDiagnostics([("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/1/gap_id")])
+
+    def test_one_of_branches_sharing_a_code_are_unresolved(self):
+        """Review r4187749559: an object matching two `oneOf` branches matches none,
+        and object branches can share a code while differing elsewhere, so a shared
+        code cannot be proved to be an outcome. Under `anyOf` it still can."""
+        unresolved = [("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/1/gap_id")]
+        for keyword, members, expected in [
+                ("oneOf", ["invalidError", "invalidError"], unresolved),
+                ("oneOf", ["unavailableError", "invalidError", "invalidTwin"], unresolved),
+                ("anyOf", ["unavailableError", "invalidError", "invalidTwin"], [])]:
+            with self.subTest(keyword=keyword, members=members):
+                self.doc = self.declaration()
+                self.error_union()
+                error = json.loads((self.root / "domain-error.json").read_text())
+                twin = copy.deepcopy(error["$defs"]["invalidError"])
+                twin["properties"]["retryable"] = {"const": True}
+                error["$defs"]["invalidTwin"] = twin
+                error["$defs"]["error"] = {keyword: [{"$ref": f"#/$defs/{name}"} for name in members]}
+                ref = self.put("domain-error.json", error)
+                self.doc = self.declaration()
+                self.pin(ref)
+                t = self.tool()
+                t["error"] = dict(ref)
+                t["outcomes"]["inventories"][1].update(pointer="/$defs/error", discriminator="code")
+                if "unavailableError" not in members:
+                    t["outcomes"]["mapping"] = [r for r in t["outcomes"]["mapping"] if r["value"] != "UNAVAILABLE"]
+                self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
 
     # ---- H2: embedded schema resources -------------------------------------
 
@@ -710,6 +780,27 @@ class ConformanceTests(unittest.TestCase):
             self.assertValidWithGaps()
         self.assertLess(len(calls), 500)
 
+    def test_a_long_reference_chain_is_a_located_depth_limit(self):
+        """Review r4187849153: a shallow file can chain `$ref`s past the depth bound;
+        projecting through it is a located diagnostic, never an uncaught error."""
+        for length, expected in [(100, []),
+                                 (600, [("schema_depth_limit", "/tools/0/outcomes/inventories/0/pointer")])]:
+            with self.subTest(length=length):
+                layers = {"l0": {"enum": ["positive", "negative"]}}
+                for i in range(1, length + 1):
+                    layers[f"l{i}"] = {"$ref": f"#/$defs/l{i - 1}"}
+                self.schema["$defs"] = layers
+                self.schema["properties"]["status"] = {"$ref": f"#/$defs/l{length}"}
+                self.write_schema()
+                self.doc = self.declaration()
+                self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
+        path = self.root / "declaration.json"
+        path.write_text(json.dumps(self.doc))
+        result = self.cli(path, "--json", "--snapshot", f"synthetic@{self.revision}={self.root}")
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(diagnostics(json.loads(result.stdout)),
+                         [("schema_depth_limit", "/tools/0/outcomes/inventories/0/pointer")])
+
     def test_nul_bytes_are_refused_not_raised(self):
         self.tool()["input"]["path"] = "outcome\x00.json"
         self.assertDiagnostics([("unsafe_reference_path", "/tools/0/input")])
@@ -857,6 +948,16 @@ class ConformanceTests(unittest.TestCase):
             self.assertDiagnostics([("invalid_resource_uri", "/service/canonical_resource_uri")])
             self.doc["service"]["canonical_resource_uri"] = "https://mcp.example.test/"
             self.assertValidWithGaps()
+            # Review r4187849299: `urlsplit` does not check percent escapes.
+            for uri, valid in [("https://mcp.example.test/a%2Fb%c3%A9", True),
+                               ("https://mcp.example.test/%ZZ", False), ("https://mcp.example.test/%4", False),
+                               ("https://mcp.example.test/mcp%", False), ("https://mcp.example.test/?q=%G1", False)]:
+                with self.subTest(uri=uri):
+                    self.doc["service"]["canonical_resource_uri"] = uri
+                    if valid:
+                        self.assertValidWithGaps()
+                    else:
+                        self.assertDiagnostics([("invalid_resource_uri", "/service/canonical_resource_uri")])
 
     def test_resource_uri_is_https_without_fragment_or_userinfo(self):
         """L2: a canonical resource URI is an absolute https URI with no fragment or userinfo."""
