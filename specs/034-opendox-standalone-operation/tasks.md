@@ -2604,9 +2604,9 @@ written (`5962754358`). `consumer_reach.py` is gone.
       a fresh venv and proves from pip's report that the wheel installed is the
       verified one before anything from it runs. Then PyPI. Each publish job
       re-checks its environment's reviewer rule and this run's approval at use
-      time, and runs a preflight that refuses an index holding any file of this
-      version except a verified one at its verified digest, or a yanked one.
-      Both uploads set `skip-existing: true`, and the JSON check after each
+      time, and runs a preflight that tolerates only a verified file at its
+      verified digest and refuses any other file of this version, and any yanked
+      one. Both uploads set `skip-existing: true`, and the JSON check after each
       requires exactly the two verified files.
     - **The files.** `pyproject.toml` gains `readme = "README.md"` (the holder's
       decision; without it `twine check --strict` refuses both files), and
