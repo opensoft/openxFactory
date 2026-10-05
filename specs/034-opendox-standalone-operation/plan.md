@@ -153,14 +153,15 @@ specs/034-opendox-standalone-operation/
     ├── f10.1-run.md        # T077: F10.1, run as batch H amends it, quoted
     ├── f13.1-run.md        # T074: F13.1, run as batch H amends it, quoted
     ├── f16.1-run.md        # T083: 16.6, then F16.1 as batch M amends it, quoted
-    └── f11.1-phase3.txt    # T098: phase 3's interim F11.1
+    ├── f11.1-phase3.txt    # T098: phase 3's interim F11.1
+    └── checkpoint-phase3.md # T089: phase 3's checkpoint, quoted
 ```
 
 T018 added phase 1's interim F11.1 run, and T049 its checkpoint. T065 added
 phase 2's interim F11.1 run, and T063 its checkpoint. T077 added its F10.1
 run, quoted in the checkpoints' form on the holder's ruling of 2026-10-03,
 and T074 its F13.1 run in the same form. T083 added its 16.6 and F16.1 run,
-in the same form. T098 added phase 3's interim F11.1 run.
+in the same form. T098 added phase 3's interim F11.1 run, and T089 its checkpoint.
 Later tasks add their own records to `evidence/`:
 T096 adds AT-R1. T009, T019 and T069 share one analyze record,
 `analyze-round-2.md`. Each is linked from this feature's README entry.
