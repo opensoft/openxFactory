@@ -16,7 +16,8 @@ INPUT_LIMIT = 262144
 ARTIFACT_LIMIT = 1048576
 DEPTH_LIMIT = 128
 
-# RFC 6901: an array index is `0` or a digit run without a leading zero.
+# RFC 6901: an array index is `0` or an ASCII digit run without a leading zero.
+# `[0-9]`, never `\d`: Python's `\d` also matches non-ASCII decimal digits.
 ARRAY_INDEX = re.compile(r"0|[1-9][0-9]*")
 BAD_ESCAPE = re.compile(r"~(?![01])")
 
@@ -37,6 +38,7 @@ NARROWING = ("allOf", "not", "if", "then", "else", "pattern", "minLength", "maxL
 
 REFERENCE_FIELDS = ("input", "output", "error")
 UNREADABLE = ("snapshot_unavailable", "input_unreadable", "reference_unreadable")
+CHECK_STATE = {None: "not run", True: "pass", False: "fail"}
 
 
 class Invalid(ValueError):
@@ -100,6 +102,25 @@ def step(node, part):
     raise Invalid("unresolved_pointer")
 
 
+def pointer_state(state, part, node):
+    """What a JSON Pointer step lands on: a schema object, a map or list of
+    schemas, or data that is not a schema at all."""
+    if state == "schema":
+        if part in SCHEMA_MAPS:
+            state = "map"
+        elif part in SCHEMA_LISTS:
+            state = "list"
+        elif part not in SCHEMA_SINGLE:
+            return "data"
+    elif state in ("map", "list"):
+        state = "schema"
+    else:
+        return "data"
+    if state == "schema" and not isinstance(node, dict):
+        return "list" if isinstance(node, list) else "data"
+    return state
+
+
 def safe_path(root, relative):
     path = PurePosixPath(relative)
     if (not relative or path.is_absolute() or ".." in path.parts
@@ -124,6 +145,12 @@ def references(declaration):
             yield f"/tools/{i}/{name}", tool[name]
     for i, record in enumerate(declaration["evidence"]):
         yield f"/evidence/{i}/source", record["source"]
+
+
+def union_of(parts):
+    """The union of finite vocabularies, or None when any one is unresolved."""
+    parts = list(parts)
+    return set().union(*parts) if all(p is not None for p in parts) else None
 
 
 def ref_key(ref):
@@ -193,20 +220,15 @@ class Offline:
         return (isinstance(node, dict) and isinstance(node.get("$id"), str)
                 and node is not self.document(key))
 
-    def locate(self, key, base, fragment):
+    @staticmethod
+    def locate(base, fragment):
         """Follow a JSON Pointer from the schema `base`, tracking the nearest
         enclosing schema resource of the node it reaches."""
         node, resource, state = base, base, "schema"
         for part in decode_pointer(fragment):
             node = step(node, part)
-            if state == "schema":
-                state = ("map" if part in SCHEMA_MAPS else "schema" if part in SCHEMA_SINGLE
-                         else "list" if part in SCHEMA_LISTS else "data")
-            elif state in ("map", "list"):
-                state = "schema"
-            if state == "schema" and isinstance(node, list):
-                state = "list"
-            if state == "schema" and isinstance(node, dict) and isinstance(node.get("$id"), str):
+            state = pointer_state(state, part, node)
+            if state == "schema" and isinstance(node.get("$id"), str):
                 resource = node
         return node, resource
 
@@ -225,7 +247,7 @@ class Offline:
                 raise Invalid("unsafe_schema_reference")
             key = key[:2] + (str(PurePosixPath(key[2]).parent / path),)
             resource = self.document(key)
-        node, resource = self.locate(key, resource, fragment)
+        node, resource = self.locate(resource, fragment)
         return key, node, resource
 
     def check_schema_graph(self, key):
@@ -269,11 +291,9 @@ class Offline:
         if self.embedded(key, node):
             resource = node
         token = (key, id(node), discriminator)
-        if token in seen:
+        if token in seen or any(k in node for k in NARROWING):
             return None
         seen = seen | {token}
-        if any(k in node for k in NARROWING):
-            return None
         required = required | set(node.get("required", []))
         if "$ref" in node:
             if any(k in node for k in ("enum", "const", *UNIONS)) or (
@@ -282,19 +302,26 @@ class Offline:
             dest, target, target_resource = self.resolve(key, node["$ref"], resource)
             return self.finite(dest, target, target_resource, discriminator, required, seen)
         if discriminator is None:
-            values = node.get("enum")
-            if "const" in node:
-                if "enum" in node and node["const"] not in node["enum"]:
-                    return None
-                values = [node["const"]]
-            if values is not None:
-                return set(values) if all(isinstance(v, str) for v in values) else None
-            for union in UNIONS:
-                if union in node:
-                    parts = [self.finite(key, item, resource, None, frozenset(), seen)
-                             for item in node[union]]
-                    return set().union(*parts) if all(p is not None for p in parts) else None
-            return None
+            return self.finite_values(key, node, resource, seen)
+        return self.finite_branches(key, node, resource, discriminator, required, seen)
+
+    def finite_values(self, key, node, resource, seen):
+        """A value vocabulary: `enum`, `const`, or a union of them."""
+        values = node.get("enum")
+        if "const" in node:
+            if "enum" in node and node["const"] not in node["enum"]:
+                return None
+            values = [node["const"]]
+        if values is not None:
+            return set(values) if all(isinstance(v, str) for v in values) else None
+        for union in UNIONS:
+            if union in node:
+                return union_of(self.finite(key, item, resource, None, frozenset(), seen)
+                                for item in node[union])
+        return None
+
+    def finite_branches(self, key, node, resource, discriminator, required, seen):
+        """A discriminated vocabulary: each object branch's required property value."""
         if "enum" in node or "const" in node:
             return None
         properties = node.get("properties")
@@ -302,9 +329,8 @@ class Offline:
             if union in node:
                 if isinstance(properties, dict) and discriminator in properties:
                     return None
-                parts = [self.finite(key, item, resource, discriminator, required, seen)
-                         for item in node[union]]
-                return set().union(*parts) if all(p is not None for p in parts) else None
+                return union_of(self.finite(key, item, resource, discriminator, required, seen)
+                                for item in node[union])
         if node.get("type", "object") != "object" or not isinstance(properties, dict):
             return None
         if discriminator not in properties or discriminator not in required:
@@ -343,6 +369,18 @@ class Offline:
                 stack.append((current_key, child, current_resource))
         return out
 
+    def member_hold(self, key, member, resource, own, every):
+        """How one union member stands: holding one of `own`, holding another
+        inventory on the file, bare, or a boolean schema (`empty`/`open`)."""
+        if member is False:
+            return "empty"
+        if not isinstance(member, dict):
+            return "open"
+        reach = self.reach(key, member, resource)
+        if reach & own:
+            return "own"
+        return "held" if reach & every else "bare"
+
     def uncovered_branches(self, key, own, every, gapped):
         """Members of a reachable union that hold no inventory while a sibling holds one of `own`.
 
@@ -362,15 +400,7 @@ class Offline:
                 members = node.get(keyword)
                 if not isinstance(members, list):
                     continue
-                holds = []
-                for member in members:
-                    if member is False:
-                        holds.append("empty")
-                    elif not isinstance(member, dict):
-                        holds.append("open")
-                    else:
-                        reach = self.reach(union_key, member, resource)
-                        holds.append("own" if reach & own else "held" if reach & every else "bare")
+                holds = [self.member_hold(union_key, member, resource, own, every) for member in members]
                 if "own" in holds:
                     uncovered += [(union_key, id(node), keyword, m) for m, hold in enumerate(holds)
                                   if hold == "bare" or (hold == "open" and not gapped)]
@@ -406,200 +436,253 @@ def resource_uri_ok(uri):
             and "@" not in parsed.netloc and not parsed.fragment)
 
 
-def validate(declaration, snapshots):
-    diagnostics = []
+class Diagnostics(list):
+    def add(self, dimension, code, path=""):
+        self.append({"dimension": dimension, "code": code, "location": path or "/"})
 
-    def issue(dimension, code, path=""):
-        diagnostics.append({"dimension": dimension, "code": code, "location": path or "/"})
 
+def check_input(declaration, found):
+    """The value must serialize as JSON, finitely, within the input bound."""
     try:
         # Compact UTF-8 is the smallest file any serialization of this value can be.
         text = json.dumps(declaration, ensure_ascii=False, separators=(",", ":"))
         try:
             json.dumps(declaration, allow_nan=False)
         except ValueError:
-            issue("structure", "non_json_number")
-        else:
-            if len(text.encode("utf-8", "surrogatepass")) > INPUT_LIMIT:
-                issue("structure", "input_size_limit")
+            found.add("structure", "non_json_number")
+            return
+        if len(text.encode("utf-8", "surrogatepass")) > INPUT_LIMIT:
+            found.add("structure", "input_size_limit")
     except RecursionError:
-        issue("structure", "json_depth_limit")
+        found.add("structure", "json_depth_limit")
     except (TypeError, ValueError):
-        issue("structure", "invalid_json_value")
-    if diagnostics:
-        return report(diagnostics, [])
+        found.add("structure", "invalid_json_value")
+
+
+def check_structure(declaration, found):
     schema = json_loads(SCHEMA.read_bytes())
     for error in Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(declaration):
-        issue("structure", "schema_" + str(error.validator), location(error.absolute_path))
-    if diagnostics:
-        return report(diagnostics, [])
-    gaps = declaration["gaps"]
+        found.add("structure", "schema_" + str(error.validator), location(error.absolute_path))
 
-    # References: pin every citation, then read each distinct artifact once and
-    # report its failure at every location that cites it.
+
+def read_failure(offline, key):
+    """The code an artifact read fails with, or None."""
+    try:
+        offline.read(key)
+    except Unavailable:
+        return "snapshot_unavailable"
+    except Invalid as error:
+        return str(error)
+    except OSError:
+        return "reference_unreadable"
+    except (ValueError, TypeError):
+        return "invalid_reference"
+    return None
+
+
+def graph_failure(offline, key):
+    """The code a tool schema's reference graph fails with, or None."""
+    try:
+        offline.check_schema_graph(key)
+    except Unavailable:
+        return "snapshot_unavailable"
+    except Invalid as error:
+        return str(error)
+    except OSError:
+        return "reference_unreadable"
+    except RecursionError:
+        return "schema_depth_limit"
+    except (ValueError, TypeError):
+        return "invalid_reference_graph"
+    return None
+
+
+def check_references(declaration, snapshots, found):
+    """Pin every citation, read each distinct artifact once and report a failure
+    at every location that cites it; then walk each tool schema's graph."""
     pins, conflicting = {}, set()
     for path, ref in references(declaration):
         key = ref_key(ref)
         if key in pins and pins[key] != ref["sha256"]:
-            issue("references", "conflicting_digest", path)
+            found.add("references", "conflicting_digest", path)
             conflicting.add(path)
         pins.setdefault(key, ref["sha256"])
     offline = Offline(snapshots, pins)
-    failures = {}
-    for key in sorted(pins):
-        try:
-            offline.read(key)
-        except Unavailable:
-            failures[key] = "snapshot_unavailable"
-        except Invalid as error:
-            failures[key] = str(error)
-        except OSError:
-            failures[key] = "reference_unreadable"
-        except (ValueError, TypeError):
-            failures[key] = "invalid_reference"
+    failures = {key: code for key in sorted(pins) if (code := read_failure(offline, key))}
     for path, ref in references(declaration):
         if path not in conflicting and ref_key(ref) in failures:
-            issue("references", failures[ref_key(ref)], path)
+            found.add("references", failures[ref_key(ref)], path)
     for i, tool in enumerate(declaration["tools"]):
         for name in REFERENCE_FIELDS:
             path = f"/tools/{i}/{name}"
             if path in conflicting or ref_key(tool[name]) in failures:
                 continue
-            try:
-                offline.check_schema_graph(ref_key(tool[name]))
-            except Unavailable:
-                issue("references", "snapshot_unavailable", path)
-            except Invalid as error:
-                issue("references", str(error), path)
-            except OSError:
-                issue("references", "reference_unreadable", path)
-            except RecursionError:
-                issue("references", "schema_depth_limit", path)
-            except (ValueError, TypeError):
-                issue("references", "invalid_reference_graph", path)
-    if diagnostics:
-        return report(diagnostics, gaps)
+            code = graph_failure(offline, ref_key(tool[name]))
+            if code:
+                found.add("references", code, path)
+    return offline
 
-    evidence = {r["id"]: r for r in declaration["evidence"]}
-    gap_index = {r["id"]: r for r in gaps}
+
+def check_catalog(declaration, found):
+    """Identities across the whole declaration, and the service identity."""
     support_ids = set()
     for name in ("evidence", "gaps"):
         for k, record in enumerate(declaration[name]):
             if record["id"] in support_ids:
-                issue("semantics", "duplicate_support_id", f"/{name}/{k}/id")
+                found.add("semantics", "duplicate_support_id", f"/{name}/{k}/id")
             support_ids.add(record["id"])
     tool_ids = set()
     for k, tool in enumerate(declaration["tools"]):
         if tool["id"] in tool_ids:
-            issue("semantics", "duplicate_tool_id", f"/tools/{k}/id")
+            found.add("semantics", "duplicate_tool_id", f"/tools/{k}/id")
         tool_ids.add(tool["id"])
     source = declaration["source"]
     for k, artifact in enumerate(source["artifacts"]):
         if artifact["repository"] != source["repository"] or artifact["revision"] != source["revision"]:
-            issue("semantics", "source_artifact_identity_mismatch", f"/source/artifacts/{k}")
+            found.add("semantics", "source_artifact_identity_mismatch", f"/source/artifacts/{k}")
     service = declaration["service"]
     if service["deployment"] == "deployed" and not resource_uri_ok(service["canonical_resource_uri"]):
-        issue("semantics", "invalid_resource_uri", "/service/canonical_resource_uri")
+        found.add("semantics", "invalid_resource_uri", "/service/canonical_resource_uri")
 
+
+def check_support(tool, evidence, gap_index, bad):
+    """Evidence and gap citations; returns the concerns supported and gapped."""
+    supported, gap_concerns = set(), set()
+    for name, index in (("evidence_ids", evidence), ("gap_ids", gap_index)):
+        if len(tool[name]) != len(set(tool[name])):
+            bad("duplicate_support_reference", "/" + name)
+        for k, identifier in enumerate(tool[name]):
+            if identifier not in index:
+                bad("missing_support_reference", f"/{name}/{k}")
+                continue
+            supported.update(index[identifier]["concerns"])
+            if name == "gap_ids":
+                gap_concerns.update(index[identifier]["concerns"])
+    for concern in ("binding", "effects", "outcomes", "evidence", "repetition", "limits"):
+        if concern not in supported:
+            bad("unsupported_" + concern, "/evidence_ids")
+    return supported, gap_concerns
+
+
+def check_claims(tool, supported, gap_concerns, bad):
+    """Binding, audit, effects and repetition claims against their support."""
+    binding = tool["binding"]
+    if binding["scope_status"] == "mapped" and not binding["scope_references"]:
+        bad("empty_scope_mapping", "/binding/scope_references")
+    if binding["scope_status"] == "gap" and "scope" not in gap_concerns:
+        bad("missing_scope_gap", "/binding/scope_status")
+    if binding["revocation"] == "unimplemented" and "revocation" not in gap_concerns:
+        bad("missing_revocation_gap", "/binding/revocation")
+    policy = tool["evidence_policy"]
+    if policy["audit"] == "not_implemented" and "audit" not in gap_concerns:
+        bad("missing_audit_gap", "/evidence_policy/audit")
+    if policy["audit"] == "implemented" and ("audit" not in supported or "audit" in gap_concerns):
+        bad("unsupported_audit_claim", "/evidence_policy/audit")
+    effects = tool["effects"]
+    if effects["execution"] and not (effects["execution_bounded"] and effects["execution_host_controlled"]):
+        bad("unbounded_execution", "/effects/execution")
+    mode = tool["repetition"]["mode"]
+    if mode == "lease_replay" and not effects["persistence"]:
+        bad("replay_without_persistence", "/repetition/mode")
+    if mode == "fresh_observation" and not (effects["external_reads"] and policy["observation_time"]):
+        bad("freshness_without_observation", "/repetition/mode")
+
+
+def check_mapping(tool, bad):
+    """Mapping rows: unique, pointing at a real inventory, correctly classified."""
+    inventories = tool["outcomes"]["inventories"]
+    if {inv["kind"] for inv in inventories} != {"result", "error"}:
+        bad("incomplete_inventory_kinds", "/outcomes/inventories")
+    seen_rows = set()
+    for k, row in enumerate(tool["outcomes"]["mapping"]):
+        pair = (row["inventory"], row["value"])
+        if pair in seen_rows:
+            bad("duplicate_outcome", f"/outcomes/mapping/{k}")
+        seen_rows.add(pair)
+        if row["inventory"] >= len(inventories):
+            bad("unknown_inventory", f"/outcomes/mapping/{k}/inventory")
+            continue
+        error = inventories[row["inventory"]]["kind"] == "error"
+        expected = "execution_failure" if error else "completed_evaluation"
+        if row["is_error"] != error or row["class"] != expected:
+            bad("outcome_classification_mismatch", f"/outcomes/mapping/{k}")
+
+
+def check_inventories(tool, offline, gap_index, bad):
+    """Each inventory resolves to a finite vocabulary the mapping exhausts, or
+    carries an outcomes gap; then every union member must be covered."""
+    rows = tool["outcomes"]["mapping"]
+    placed, pointer_failed = [], set()
+    for j, inventory in enumerate(tool["outcomes"]["inventories"]):
+        here = f"/outcomes/inventories/{j}"
+        role = inventory["schema"]
+        if role != ("error" if inventory["kind"] == "error" else "output"):
+            bad("inventory_schema_kind_mismatch", here + "/schema")
+        key = ref_key(tool[role])
+        try:
+            node, resource = offline.locate(offline.document(key), inventory["pointer"])
+            values = offline.finite(key, node, resource, inventory.get("discriminator"))
+        except Invalid:
+            bad("invalid_inventory_pointer", here + "/pointer")
+            pointer_failed.add(key)
+            continue
+        gap = inventory["gap_id"]
+        placed.append((role, key, (key, id(node)), gap is not None))
+        if values is None:
+            if gap not in tool["gap_ids"] or "outcomes" not in gap_index.get(gap, {}).get("concerns", []):
+                bad("unresolved_inventory_without_gap", here + "/gap_id")
+            continue
+        if {r["value"] for r in rows if r["inventory"] == j} != values:
+            bad("incomplete_outcome_mapping", here)
+        if gap is not None:
+            bad("resolved_inventory_claims_gap", here + "/gap_id")
+    for role in ("error", "output"):
+        key = ref_key(tool[role])
+        own = {target for placed_role, _, target, _ in placed if placed_role == role}
+        if not own or key in pointer_failed:
+            continue
+        every = {target for _, placed_key, target, _ in placed if placed_key == key}
+        gapped = any(has_gap for _, placed_key, _, has_gap in placed if placed_key == key)
+        if offline.uncovered_branches(key, own, every, gapped):
+            bad("uncovered_outcome_branch", "/" + role)
+
+
+def check_tool(i, tool, declaration, offline, found):
+    path = f"/tools/{i}"
+
+    def bad(code, suffix=""):
+        found.add("semantics", code, path + suffix)
+
+    source = declaration["source"]
+    if tool["owner"] != declaration["domain"]:
+        bad("owner_domain_mismatch", "/owner")
+    for name in REFERENCE_FIELDS:
+        if (tool[name]["repository"], tool[name]["revision"]) != (source["repository"], source["revision"]):
+            bad("tool_schema_outside_source", "/" + name)
+    evidence = {r["id"]: r for r in declaration["evidence"]}
+    gap_index = {r["id"]: r for r in declaration["gaps"]}
+    supported, gap_concerns = check_support(tool, evidence, gap_index, bad)
+    check_claims(tool, supported, gap_concerns, bad)
+    check_mapping(tool, bad)
+    check_inventories(tool, offline, gap_index, bad)
+
+
+def validate(declaration, snapshots):
+    found = Diagnostics()
+    check_input(declaration, found)
+    if found:
+        return report(found, [])
+    check_structure(declaration, found)
+    if found:
+        return report(found, [])
+    gaps = declaration["gaps"]
+    offline = check_references(declaration, snapshots, found)
+    if found:
+        return report(found, gaps)
+    check_catalog(declaration, found)
     for i, tool in enumerate(declaration["tools"]):
-        path = f"/tools/{i}"
-
-        def bad(code, suffix=""):
-            issue("semantics", code, path + suffix)
-
-        if tool["owner"] != declaration["domain"]:
-            bad("owner_domain_mismatch", "/owner")
-        for name in REFERENCE_FIELDS:
-            if (tool[name]["repository"], tool[name]["revision"]) != (source["repository"], source["revision"]):
-                bad("tool_schema_outside_source", "/" + name)
-        supported, gap_concerns = set(), set()
-        for name, index in (("evidence_ids", evidence), ("gap_ids", gap_index)):
-            if len(tool[name]) != len(set(tool[name])):
-                bad("duplicate_support_reference", "/" + name)
-            for k, identifier in enumerate(tool[name]):
-                if identifier not in index:
-                    bad("missing_support_reference", f"/{name}/{k}")
-                else:
-                    supported.update(index[identifier]["concerns"])
-                    if name == "gap_ids":
-                        gap_concerns.update(index[identifier]["concerns"])
-        for concern in ("binding", "effects", "outcomes", "evidence", "repetition", "limits"):
-            if concern not in supported:
-                bad("unsupported_" + concern, "/evidence_ids")
-        binding = tool["binding"]
-        if binding["scope_status"] == "mapped" and not binding["scope_references"]:
-            bad("empty_scope_mapping", "/binding/scope_references")
-        if binding["scope_status"] == "gap" and "scope" not in gap_concerns:
-            bad("missing_scope_gap", "/binding/scope_status")
-        if binding["revocation"] == "unimplemented" and "revocation" not in gap_concerns:
-            bad("missing_revocation_gap", "/binding/revocation")
-        policy = tool["evidence_policy"]
-        if policy["audit"] == "not_implemented" and "audit" not in gap_concerns:
-            bad("missing_audit_gap", "/evidence_policy/audit")
-        if policy["audit"] == "implemented" and ("audit" not in supported or "audit" in gap_concerns):
-            bad("unsupported_audit_claim", "/evidence_policy/audit")
-        effects = tool["effects"]
-        if effects["execution"] and not (effects["execution_bounded"] and effects["execution_host_controlled"]):
-            bad("unbounded_execution", "/effects/execution")
-        mode = tool["repetition"]["mode"]
-        if mode == "lease_replay" and not effects["persistence"]:
-            bad("replay_without_persistence", "/repetition/mode")
-        if mode == "fresh_observation" and not (effects["external_reads"] and policy["observation_time"]):
-            bad("freshness_without_observation", "/repetition/mode")
-
-        inventories = tool["outcomes"]["inventories"]
-        if {inv["kind"] for inv in inventories} != {"result", "error"}:
-            bad("incomplete_inventory_kinds", "/outcomes/inventories")
-        rows = tool["outcomes"]["mapping"]
-        seen_rows = set()
-        for k, row in enumerate(rows):
-            pair = (row["inventory"], row["value"])
-            if pair in seen_rows:
-                bad("duplicate_outcome", f"/outcomes/mapping/{k}")
-            seen_rows.add(pair)
-            if row["inventory"] >= len(inventories):
-                bad("unknown_inventory", f"/outcomes/mapping/{k}/inventory")
-                continue
-            error = inventories[row["inventory"]]["kind"] == "error"
-            if row["is_error"] != error or row["class"] != (
-                    "execution_failure" if error else "completed_evaluation"):
-                bad("outcome_classification_mismatch", f"/outcomes/mapping/{k}")
-        placed, pointer_failed = [], set()
-        for j, inventory in enumerate(inventories):
-            here = f"/outcomes/inventories/{j}"
-            role = inventory["schema"]
-            if role != ("error" if inventory["kind"] == "error" else "output"):
-                bad("inventory_schema_kind_mismatch", here + "/schema")
-            key = ref_key(tool[role])
-            document = offline.document(key)
-            try:
-                node, resource = offline.locate(key, document, inventory["pointer"])
-                values = offline.finite(key, node, resource, inventory.get("discriminator"))
-            except Invalid:
-                bad("invalid_inventory_pointer", here + "/pointer")
-                pointer_failed.add(key)
-                continue
-            gap = inventory["gap_id"]
-            placed.append((role, key, (key, id(node)), gap is not None))
-            if values is None:
-                if gap not in tool["gap_ids"] or "outcomes" not in gap_index.get(gap, {}).get("concerns", []):
-                    bad("unresolved_inventory_without_gap", here + "/gap_id")
-            else:
-                mapped = {r["value"] for r in rows if r["inventory"] == j}
-                if mapped != values:
-                    bad("incomplete_outcome_mapping", here)
-                if gap is not None:
-                    bad("resolved_inventory_claims_gap", here + "/gap_id")
-        for role in ("error", "output"):
-            key = ref_key(tool[role])
-            own = {target for placed_role, _, target, _ in placed if placed_role == role}
-            if not own or key in pointer_failed:
-                continue
-            every = {target for _, placed_key, target, _ in placed if placed_key == key}
-            gapped = any(has_gap for _, placed_key, _, has_gap in placed if placed_key == key)
-            if offline.uncovered_branches(key, own, every, gapped):
-                bad("uncovered_outcome_branch", "/" + role)
-    return report(diagnostics, gaps)
+        check_tool(i, tool, declaration, offline, found)
+    return report(found, gaps)
 
 
 def parse_snapshots(parser, values):
@@ -649,8 +732,7 @@ def main(argv=None):
     else:
         print(result["status"] + "; offline declaration checks only; verified conformance: false")
         for dimension, passed in result["checks"].items():
-            state = "not run" if passed is None else ("pass" if passed else "fail")
-            print(f"{dimension}: {state}")
+            print(f"{dimension}: {CHECK_STATE[passed]}")
         for diagnostic in result["diagnostics"]:
             print(f"{diagnostic['code']} {diagnostic['location']}")
         for gap in result["gaps"]:
