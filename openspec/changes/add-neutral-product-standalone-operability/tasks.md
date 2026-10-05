@@ -863,7 +863,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   `corpus_root.py` and contributes them through
   `openxdox.projection_contributions.register()`; its generator suites run in
   F5.2's environment (openxFactory composed at a named commit). As landed, that
-  run deselects the consumer-schema cases (the seven red at both pins, and
+  run deselects the consumer-schema cases (the seven reds at both pins, and
   `tests/test_snapshot.py`'s two) and the three pre-arc reds of
   `tests/test_session_snapshot.py`, as T059's record and that PR's body (its
   rulings 4 and 6) state, so F5.2 whole is T086's and T089's (T063 quotes it red
