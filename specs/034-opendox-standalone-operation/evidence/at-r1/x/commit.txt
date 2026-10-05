@@ -1,0 +1,11 @@
+commit 389e5a4a22e1778653dac9f17172de2c18f9f808
+from https://github.com/opensoft/openDox-code
+started 2026-10-05T15:30:31Z
+python3 3.12.3
+host Linux 6.18.33.2-microsoft-standard-WSL2 x86_64
+P-against-X: git diff --quiet 389e5a4a22e1778653dac9f17172de2c18f9f808 dede32b4b6f3d0f147d599776f83628c5af8ff3d -- src/ pyproject.toml migrations/ README.md LICENSE -> exit 0
+HTTP half harness: acceptance/at_r1_http.py as it is at 389e5a4a22e1778653dac9f17172de2c18f9f808, sha256 fb2a2ff0545c3d1d2a31c0f5f53a93871b29bd0260068ef7fd43397a11d1bb25
+browser half install: pip install -c $TMPDIR/tmp.vFYx135yL1/openDox-code/constraints-cpython312-linux.txt <checkout>[local]
+driver: playwright 1.61.0
+driver: PLAYWRIGHT_BROWSERS_PATH <the environment's browser cache>
+finished 2026-10-05T15:33:54Z

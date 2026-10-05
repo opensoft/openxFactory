@@ -1,0 +1,242 @@
+[
+ {
+  "tag": "BUTTON",
+  "cls": "swb-fullscreen",
+  "text": "\u26f6",
+  "title": "fill the window",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": "expand doxBench to fill the window"
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "swb-close",
+  "text": "\u2715 back to the wheel",
+  "title": "",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "swb-tab swb-tab-active",
+  "text": "sources",
+  "title": "",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "swb-tab",
+  "text": "lens",
+  "title": "",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "swb-tab",
+  "text": "outline",
+  "title": "",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "swb-abstracttoggle",
+  "text": "show the model-distilled abstract",
+  "title": "",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "swb-expand",
+  "text": "\u2922",
+  "title": "give this pane most of the width; the other two thin to a sliver. Press again for equal thirds.",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": "expand the sources and lens context"
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "doxbench-viewtab",
+  "text": "Editor",
+  "title": "",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "doxbench-viewtab",
+  "text": "Preview",
+  "title": "",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "doxbench-cancel",
+  "text": "Cancel",
+  "title": "restore the active buffer to its last loaded or saved text -- no other buffer changes, and nothing is persisted",
+  "disabled": true,
+  "visible": false,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "doxbench-save",
+  "text": "Save",
+  "title": "save this canvas's changed buffers through the existing governance actions",
+  "disabled": true,
+  "visible": false,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "doxbench-unload",
+  "text": "Unload",
+  "title": "the outline is a reserved buffer every turn carries, and is never unloaded",
+  "disabled": true,
+  "visible": true,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "TEXTAREA",
+  "cls": "doxbench-textarea",
+  "text": "",
+  "title": "",
+  "disabled": false,
+  "visible": false,
+  "ro": false,
+  "aria": "Outline buffer text"
+ },
+ {
+  "tag": "TEXTAREA",
+  "cls": "doxbench-textarea",
+  "text": "",
+  "title": "",
+  "disabled": false,
+  "visible": false,
+  "ro": false,
+  "aria": "Document buffer text"
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "doxbench-guard-save",
+  "text": "Save",
+  "title": "save the Document buffer, then continue the switch",
+  "disabled": false,
+  "visible": false,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "doxbench-guard-discard",
+  "text": "Discard",
+  "title": "",
+  "disabled": false,
+  "visible": false,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "doxbench-guard-cancel",
+  "text": "Cancel",
+  "title": "",
+  "disabled": false,
+  "visible": false,
+  "ro": false,
+  "aria": null
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "swb-expand",
+  "text": "\u2922",
+  "title": "give this pane most of the width; the other two thin to a sliver. Press again for equal thirds.",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": "expand the authoring canvas"
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "swb-expand",
+  "text": "\u2922",
+  "title": "give this pane most of the width; the other two thin to a sliver. Press again for equal thirds.",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": "expand the chat rail"
+ },
+ {
+  "tag": "SELECT",
+  "cls": "doxchat-loaded",
+  "text": "Outlinebudget.md",
+  "title": "",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": "loaded document"
+ },
+ {
+  "tag": "INPUT",
+  "cls": "doxchat-subject",
+  "text": "",
+  "title": "one line saying what this conversation is working on \u2014 it rides every turn as standing framing for the model, alongside the outline and the loaded documents. It",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": "working subject"
+ },
+ {
+  "tag": "TEXTAREA",
+  "cls": "doxchat-composer",
+  "text": "",
+  "title": "",
+  "disabled": false,
+  "visible": true,
+  "ro": false,
+  "aria": "chat message"
+ },
+ {
+  "tag": "SELECT",
+  "cls": "doxchat-model",
+  "text": "select an approved model",
+  "title": "",
+  "disabled": true,
+  "visible": true,
+  "ro": false,
+  "aria": "approved model"
+ },
+ {
+  "tag": "BUTTON",
+  "cls": "doxchat-send",
+  "text": "Send",
+  "title": "chat is unavailable \u2014 no approved model is configured; both editors remain fully usable.",
+  "disabled": true,
+  "visible": true,
+  "ro": false,
+  "aria": null
+ }
+]
