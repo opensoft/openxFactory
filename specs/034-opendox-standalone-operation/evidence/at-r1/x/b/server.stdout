@@ -1,0 +1,13 @@
+  database $TMPDIR/tmp.BxXoevAuVH/postgres/run (bundled, pid 964080, migrations applied now: none pending)
+wrote $TMPDIR/opendox-yw2chph6/snapshot.json
+  repository=fixture kind=opendox-snapshot
+  source_revision=1148745cc5049d65dc6a00556a66d6e1b366d949
+  generated_at=2026-10-05T15:32:24+00:00
+  documents=3 clusters=2 possibles=0 staged_topics=0 changes=0 keywords=4
+  validation: opendox-snapshot: 0 violations, by opendox.validator, over its packaged copy opendox-snapshot (sha256 f9e3e111af1d)
+  serving http://127.0.0.1:18636/index.html
+  snapshot http://127.0.0.1:18636/snapshot.json
+  console file://$TMPDIR/tmp.BxXoevAuVH/console/18636.html (this user's private copy, mode 0600: open it to open the console page again)
+  if your browser cannot open this file (a snap or Flatpak browser, or a Windows browser under WSL), set OPENDOX_STATE_DIR to a folder that is not hidden and start again
+http://127.0.0.1:18636/index.html
+  serving until interrupted (Ctrl-C to stop)

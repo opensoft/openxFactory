@@ -1,0 +1,16 @@
+T095's acceptance job at X: a workflow_dispatch of validate.yml on main while main was X
+(the holder's ruling on openxFactory#656, comment 5987619278, Q1)
+
+gate     gh api repos/opensoft/openDox-code/commits/main --jq .sha -> 389e5a4a22e1778653dac9f17172de2c18f9f808 (== X), at 15:30:06Z
+dispatch gh workflow run validate.yml -R opensoft/openDox-code --ref main, at 15:30:07Z
+run      37333323932, workflow_dispatch on main, created 2026-10-05T15:30:05Z
+         https://github.com/opensoft/openDox-code/actions/runs/37333323932
+         head_sha 389e5a4a22e1778653dac9f17172de2c18f9f808 (== X; gh api repos/opensoft/openDox-code/actions/runs/37333323932 --jq .head_sha)
+job      acceptance 111841708700: completed/success, 2026-10-05T15:30:09Z to 15:30:33Z
+         https://github.com/opensoft/openDox-code/actions/runs/37333323932/job/111841708700
+checkout git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +389e5a4a22e1778653dac9f17172de2c18f9f808:refs/remotes/origin/main
+         git checkout --progress --force -B main refs/remotes/origin/main
+last     AT-R1 HTTP half: PASS (314 assertions held)
+
+No run was dispatched at P: T099's P-against-X step exited 0 (commit.txt), so X's runs stand for P,
+and no temporary branch was made.

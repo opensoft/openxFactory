@@ -1,0 +1,869 @@
+{
+ "label": "a",
+ "base": "http://127.0.0.1:18636",
+ "browser_version": "149.0.7827.55",
+ "opened_through": "file://$TMPDIR/tmp.BxXoevAuVH/console/18636.html",
+ "filled": {
+  "source": 8,
+  "grouping": 2,
+  "candidate": 1,
+  "selection": 1,
+  "submission": 1,
+  "completion": 1
+ },
+ "checks": {
+  "load: the private copy opens the console page on loopback": {
+   "result": "PASS",
+   "url": "http://127.0.0.1:18636/index.html",
+   "opened_through": "file://$TMPDIR/tmp.BxXoevAuVH/console/18636.html",
+   "printed_url_used": true,
+   "title": "Opensoft openDox",
+   "screenshot": "a-1-load.png"
+  },
+  "load: the token is stripped from the address bar": {
+   "result": "PASS",
+   "url_has_fragment": false
+  },
+  "wheel: a tile for every station the snapshot fills": {
+   "result": "PASS",
+   "filled": {
+    "source": 8,
+    "grouping": 2,
+    "candidate": 1,
+    "selection": 1,
+    "submission": 1,
+    "completion": 1
+   },
+   "tiles_per_station": {
+    "source": 8,
+    "grouping": 2,
+    "candidate": 1,
+    "selection": 1,
+    "submission": 1,
+    "completion": 1
+   },
+   "missing": [],
+   "fewer_tiles_than_items": {},
+   "screenshot": "a-2-wheel.png"
+  },
+  "lens: the bullseye renders": {
+   "result": "PASS",
+   "dots_on_open": 0,
+   "on_open_says_check_a_keyword": true,
+   "screenshot": "a-3a-lens-on-open.png"
+  },
+  "lens: the documents render as dots": {
+   "result": "PASS",
+   "dots": 8,
+   "distinct": 8,
+   "documents": 8,
+   "missing_docs": [],
+   "extra_dots": [],
+   "solo_toggle": "show 24 more on a single source item only",
+   "screenshot": "a-3b-lens-all-checked.png"
+  },
+  "lens: the text 'nothing on the radar' is absent": {
+   "result": "PASS"
+  },
+  "lens: neither seed action is offered (R1Q19 (a))": {
+   "result": "PASS",
+   "seed_controls_on_open": [],
+   "seed_controls_all_checked": [],
+   "seed_words": [],
+   "selection_column": 0
+  },
+  "chat: the repository yields a grouping tile (fails, never skips)": {
+   "result": "PASS",
+   "grouping_tiles": 2
+  },
+  "chat: the grouping tile offers an enabled workbench verb": {
+   "result": "PASS",
+   "tile": "Compost corner ideas, gathered in one place",
+   "verbs": [
+    [
+     "\u25ce lens",
+     "open the keyword lens with this group's declared topics checked",
+     false
+    ],
+    [
+     "\u25a6 canvas",
+     "open the group canvas on this group",
+     false
+    ],
+    [
+     "\u25c7 notebook",
+     "open this cluster tile's document set in NotebookLM",
+     false
+    ],
+    [
+     "\u25a3 open workbench",
+     "open the staging workbench scoped to this group",
+     false
+    ]
+   ]
+  },
+  "chat: the staging workbench opens": {
+   "result": "PASS",
+   "screenshot": "a-4b-workbench-open.png"
+  },
+  "chat: before any turn, the rail shows 'no model configured', naming how to configure one": {
+   "result": "PASS",
+   "no_model_notes": [
+    {
+     "hidden": false,
+     "visible": true,
+     "text": "No model configured. To configure one, declare a model binding with \"opendox model-binding add\" (\"--help\" lists its fields), or put the local harness \"omp\" on PATH, then restart this console."
+    }
+   ],
+   "turns_before": 0,
+   "screenshot": "a-4c-chat-no-model.png"
+  },
+  "chat: a turn is refused model_capability_unavailable": {
+   "result": "PASS",
+   "http_status": 403,
+   "http_error": "model_capability_unavailable",
+   "ui_refused": false,
+   "ui_send_withheld": true,
+   "ui": {
+    "composer": 1,
+    "send": 1,
+    "composer_enabled": true,
+    "composer_visible": true,
+    "send_disabled": true,
+    "send_title": "chat is unavailable \u2014 no approved model is configured; both editors remain fully usable.",
+    "send_description": "chat is unavailable \u2014 no approved model is configured; both editors remain fully usable.",
+    "ui_turn_responses": [],
+    "after_text_tail": "t have, so Save is refused by name and nothing is written.\nsources\nlens\noutline\ngrouping-compost-corner.md\nshow the model-distilled abstract\nFrom the document's own headers\norganized\nThree separate notes about turning food scraps into usable soil, pulled into a single set.\nTOPICS\ncompost\ncorner\ngathered\nideas\nplace\ngrouping-compost-corner.md\ngroup source items \u00b7 organized\n\u00b7\n\u2922\nEditor\nPreview\nUnload\nOutline: no outline yet -- start typing to create one\nDocument: no unsaved changes\nthe outline is a reserved buffer every turn carries, and is never unloaded\n\n(no outline yet -- start typing in the Outline buffer to create one)\n\n\u2922\n\u2922\nOutline\ngrouping-compost-corner.md\nWorking on (not yet created)\nchat is unavailable \u2014 no approved model is configured; both editors remain fully usable.\nNo model configured. To configure one, declare a model binding with \"opendox model-binding add\" (\"--help\" lists its fields), or put the local harness \"omp\" on PATH, then restart this console.\nNo model configured. To configure one, declare a model binding with \"opendox model-binding add\" (\"--help\" lists its fields), or put the local harness \"omp\" on PATH, then restart this console.\nselect an approved model\nSend"
+   },
+   "screenshot": "a-4d-chat-after-turn.png"
+  },
+  "editors: each editor offered opens and accepts edits (5971834845)": {
+   "result": "PASS",
+   "offered": [
+    "Document buffer text",
+    "Outline buffer text"
+   ],
+   "typed": [
+    "Outline buffer text [active on open]",
+    "Document buffer text [grouping-compost-corner.md]"
+   ],
+   "outline_typed": true,
+   "not_typed": [],
+   "detail": {
+    "buffers": {
+     "Outline buffer text [active on open]": {
+      "present": 1,
+      "visible": true,
+      "enabled": true,
+      "readonly": false,
+      "typed": true
+     },
+     "Document buffer text [grouping-compost-corner.md]": {
+      "present": 1,
+      "visible": true,
+      "enabled": true,
+      "readonly": false,
+      "typed": true
+     }
+    },
+    "editor_tabs": 1,
+    "textareas_on_open": [
+     {
+      "aria": "Outline buffer text",
+      "visible": true,
+      "disabled": false,
+      "ro": false,
+      "len": 0
+     },
+     {
+      "aria": "Document buffer text",
+      "visible": false,
+      "disabled": false,
+      "ro": false,
+      "len": 599
+     }
+    ],
+    "doc_tiles": 1,
+    "documents_loaded_via_edit_verb": 0,
+    "textareas_after_load": [
+     {
+      "aria": "Outline buffer text",
+      "visible": true,
+      "disabled": false,
+      "ro": false,
+      "len": 0
+     },
+     {
+      "aria": "Document buffer text",
+      "visible": false,
+      "disabled": false,
+      "ro": false,
+      "len": 599
+     }
+    ],
+    "buffer_options": [
+     [
+      "outline",
+      "Outline"
+     ],
+     [
+      "document",
+      "grouping-compost-corner.md"
+     ]
+    ],
+    "rail_switches": 1,
+    "typed": [
+     "Outline buffer text [active on open]",
+     "Document buffer text [grouping-compost-corner.md]"
+    ]
+   },
+   "screenshot": "a-4f-editors.png"
+  },
+  "editors: creating a document is not offered, and the plane note names create and Save as refused (T102, by scope)": {
+   "result": "PASS",
+   "create_controls_visible": [],
+   "posture_note": [
+    {
+     "hidden": false,
+     "visible": true,
+     "text": "editing by scope: this tile's own source items are editable here, and creating one and Save need the create gate, which this install does not have, so Save is refused by name and nothing is written."
+    }
+   ],
+   "pills": [
+    {
+     "text": "editing by scope",
+     "title": "this tile's own source items are editable in this browser; creating one and Save need the create gate, which this install does not have, so Save is refused by name"
+    }
+   ],
+   "create_named": true,
+   "save_named_in_note": true,
+   "scope_pill": true,
+   "screenshot": "a-4f2-create-absent.png"
+  },
+  "editors: Save is refused by name, nothing is written": {
+   "result": "PASS",
+   "present": 1,
+   "visible": true,
+   "disabled": false,
+   "title": "save this canvas's changed buffers through the existing governance actions",
+   "refusal_named": true,
+   "notes": [
+    {
+     "cls": "doxbench-eventnote",
+     "hidden": false,
+     "text": "Outline: Save refused -- Save needs the first-edit transport, and no column on this install contributes it (`gate.workbench.session`), so a governed Save cannot be sent. Your edits stay in this browser's buffers, unsaved."
+    },
+    {
+     "cls": "doxbench-save-note",
+     "hidden": true,
+     "text": ""
+    }
+   ],
+   "requests_during_save": [],
+   "writes_during_save": [],
+   "signals_during_save": {
+    "console": 0,
+    "requestfailed": 0,
+    "pageerror": 0
+   },
+   "edits_kept": [
+    {
+     "aria": "Outline buffer text",
+     "visible": false,
+     "disabled": false,
+     "ro": false,
+     "len": 10
+    },
+    {
+     "aria": "Document buffer text",
+     "visible": true,
+     "disabled": false,
+     "ro": false,
+     "len": 609
+    }
+   ],
+   "create_controls_visible": [],
+   "screenshot": "a-4g-save-refused.png"
+  },
+  "oracle: zero pageerror": {
+   "result": "PASS",
+   "pageerrors": []
+  },
+  "oracle: nothing undeclared, every declaration satisfied": {
+   "result": "PASS",
+   "unexpected": {
+    "pageerror": [],
+    "console_error": [],
+    "requestfailed": []
+   },
+   "unsatisfied": []
+  },
+  "oracle: no 5xx from any route the panes request": {
+   "result": "PASS",
+   "five_xx": []
+  }
+ },
+ "rail_switches": 1,
+ "thread_reads": [],
+ "thread_403s": 0,
+ "verdicts": {
+  "raw": {
+   "clean": false,
+   "summary": "accounted-for server answers: 0 observed / 0 declared across 0 declaration(s)",
+   "report": {
+    "unexpected": {
+     "pageerror": [],
+     "console_error": [
+      "error: Failed to load resource: the server responded with a status of 404 (File not found) @ {'url': 'http://127.0.0.1:18636/views/intent-feed.js', 'line': 0, 'column': 0, 'lineNumber': 0, 'columnNumber': 0}",
+      "error: Failed to load resource: the server responded with a status of 404 (File not found) @ {'url': 'http://127.0.0.1:18636/snapshot-index.json', 'line': 0, 'column': 0, 'lineNumber': 0, 'columnNumber': 0}",
+      "error: Failed to load resource: the server responded with a status of 404 (no project register) @ {'url': 'http://127.0.0.1:18636/project-register.json', 'line': 0, 'column': 0, 'lineNumber': 0, 'columnNumber': 0}"
+     ],
+     "requestfailed": [
+      "GET http://127.0.0.1:18636/views/intent-feed.js \u2014 net::ERR_ABORTED"
+     ]
+    },
+    "unsatisfied_declarations": [],
+    "accounted_for": [],
+    "all_console_errors": [
+     "error: Failed to load resource: the server responded with a status of 404 (File not found) @ {'url': 'http://127.0.0.1:18636/views/intent-feed.js', 'line': 0, 'column': 0, 'lineNumber': 0, 'columnNumber': 0}",
+     "error: Failed to load resource: the server responded with a status of 404 (File not found) @ {'url': 'http://127.0.0.1:18636/snapshot-index.json', 'line': 0, 'column': 0, 'lineNumber': 0, 'columnNumber': 0}",
+     "error: Failed to load resource: the server responded with a status of 404 (no project register) @ {'url': 'http://127.0.0.1:18636/project-register.json', 'line': 0, 'column': 0, 'lineNumber': 0, 'columnNumber': 0}"
+    ],
+    "all_failed_requests": [
+     "GET http://127.0.0.1:18636/views/intent-feed.js \u2014 net::ERR_ABORTED"
+    ]
+   }
+  },
+  "declared": {
+   "clean": true,
+   "summary": "accounted-for server answers: 4 observed / 4 declared across 3 declaration(s)",
+   "report": {
+    "unexpected": {
+     "pageerror": [],
+     "console_error": [],
+     "requestfailed": []
+    },
+    "unsatisfied_declarations": [],
+    "accounted_for": [
+     {
+      "url_contains": "/views/intent-feed.js",
+      "why": "RULED OQ-F / Q5: intent-feed.js is not owed (10.2a, T075, openDox-code#73); views/intent-binding.js imports it optionally, so a standalone load answers 404 once",
+      "expects": {
+       "console_error": 1,
+       "requestfailed": 1
+      },
+      "observed": {
+       "console_error": 1,
+       "requestfailed": 1
+      }
+     },
+     {
+      "url_contains": "/snapshot-index.json",
+      "why": "openXdox's projection route (views/projection-index.js); no standalone binding answers it, and fetchSnapshotIndex degrades to the single snapshot",
+      "expects": {
+       "console_error": 1,
+       "requestfailed": 0
+      },
+      "observed": {
+       "console_error": 1,
+       "requestfailed": 0
+      }
+     },
+     {
+      "url_contains": "/project-register.json",
+      "why": "openDox's register projection (views/repo-selector.js); a plain repository has no project register and is answered 404 'no project register'",
+      "expects": {
+       "console_error": 1,
+       "requestfailed": 0
+      },
+      "observed": {
+       "console_error": 1,
+       "requestfailed": 0
+      }
+     }
+    ],
+    "all_console_errors": [
+     "error: Failed to load resource: the server responded with a status of 404 (File not found) @ {'url': 'http://127.0.0.1:18636/views/intent-feed.js', 'line': 0, 'column': 0, 'lineNumber': 0, 'columnNumber': 0}",
+     "error: Failed to load resource: the server responded with a status of 404 (File not found) @ {'url': 'http://127.0.0.1:18636/snapshot-index.json', 'line': 0, 'column': 0, 'lineNumber': 0, 'columnNumber': 0}",
+     "error: Failed to load resource: the server responded with a status of 404 (no project register) @ {'url': 'http://127.0.0.1:18636/project-register.json', 'line': 0, 'column': 0, 'lineNumber': 0, 'columnNumber': 0}"
+    ],
+    "all_failed_requests": [
+     "GET http://127.0.0.1:18636/views/intent-feed.js \u2014 net::ERR_ABORTED"
+    ]
+   }
+  }
+ },
+ "declarations": [
+  [
+   "/views/intent-feed.js",
+   "RULED OQ-F / Q5: intent-feed.js is not owed (10.2a, T075, openDox-code#73); views/intent-binding.js imports it optionally, so a standalone load answers 404 once",
+   {
+    "status": 404,
+    "console": 1,
+    "requestfailed": 1
+   }
+  ],
+  [
+   "/snapshot-index.json",
+   "openXdox's projection route (views/projection-index.js); no standalone binding answers it, and fetchSnapshotIndex degrades to the single snapshot",
+   {
+    "status": 404,
+    "console": 1,
+    "requestfailed": 0
+   }
+  ],
+  [
+   "/project-register.json",
+   "openDox's register projection (views/repo-selector.js); a plain repository has no project register and is answered 404 'no project register'",
+   {
+    "status": 404,
+    "console": 1,
+    "requestfailed": 0
+   }
+  ]
+ ],
+ "save_step_signals": {
+  "console": 0,
+  "requestfailed": 0,
+  "pageerror": 0
+ },
+ "events": [
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/intent-feed.js",
+   "kind": "http_404",
+   "step": "load",
+   "t": 1791214354.054
+  },
+  {
+   "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+   "location": {
+    "url": "http://127.0.0.1:18636/views/intent-feed.js",
+    "line": 0,
+    "column": 0,
+    "lineNumber": 0,
+    "columnNumber": 0
+   },
+   "kind": "console_error",
+   "step": "load",
+   "t": 1791214354.055
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/intent-feed.js",
+   "failure": "net::ERR_ABORTED",
+   "kind": "requestfailed",
+   "step": "load",
+   "t": 1791214354.055
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/snapshot-index.json",
+   "kind": "http_404",
+   "step": "load",
+   "t": 1791214354.076
+  },
+  {
+   "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+   "location": {
+    "url": "http://127.0.0.1:18636/snapshot-index.json",
+    "line": 0,
+    "column": 0,
+    "lineNumber": 0,
+    "columnNumber": 0
+   },
+   "kind": "console_error",
+   "step": "load",
+   "t": 1791214354.076
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/project-register.json",
+   "kind": "http_404",
+   "step": "load",
+   "t": 1791214354.081
+  },
+  {
+   "text": "Failed to load resource: the server responded with a status of 404 (no project register)",
+   "location": {
+    "url": "http://127.0.0.1:18636/project-register.json",
+    "line": 0,
+    "column": 0,
+    "lineNumber": 0,
+    "columnNumber": 0
+   },
+   "kind": "console_error",
+   "step": "load",
+   "t": 1791214354.081
+  }
+ ],
+ "requests": [
+  {
+   "method": "GET",
+   "url": "file://$TMPDIR/tmp.BxXoevAuVH/console/18636.html",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.618
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/index.html",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.641
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/styles.css",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.702
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/app.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.703
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/funnel.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.747
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/wheel.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.748
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/board.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.748
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/docs.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.748
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/lineage.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.748
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/explorer.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.749
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/viewer.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.749
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/edit.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.749
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/canvas.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.75
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/lens.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.751
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/view_extension.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.751
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/display.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.751
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/staging-workbench.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.751
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/swb-model-intake.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.752
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/staging-workbench-model.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.752
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/lens-model.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.752
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/doxbench-save.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.753
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/doxbench-state.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.753
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/settings.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.753
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/account-menu.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.753
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/notebook.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.753
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/repo-selector.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.754
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/composed-model.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.754
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/repo-selector-model.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.754
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/wheel-model.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.84
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/helpers.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.841
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/intent-binding.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.841
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/model.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.841
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/bullseye.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.863
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/vendor/markdown-it.min.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.868
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/canvas-model.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.869
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/doc-wheel.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.927
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/outline-model.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.927
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/doxbench-editor.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.927
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/doxbench-chat.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214353.927
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/doxbench-chat-model.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214354.031
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/intent-feed.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214354.049
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/projection-index.js",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214354.061
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/snapshot-index.json",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214354.069
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/project-register.json",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214354.076
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/snapshot.json",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214354.084
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/capabilities",
+   "kind": "request",
+   "step": "load",
+   "t": 1791214354.09
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/workbench/model-catalog",
+   "kind": "request",
+   "step": "chat",
+   "t": 1791214366.939
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/workbench/model-intake",
+   "kind": "request",
+   "step": "chat",
+   "t": 1791214366.939
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/source/fixture%40main/grouping-compost-corner.md",
+   "kind": "request",
+   "step": "chat",
+   "t": 1791214366.939
+  }
+ ],
+ "four_xx": [
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/views/intent-feed.js",
+   "kind": "http_404",
+   "step": "load",
+   "t": 1791214354.054
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/snapshot-index.json",
+   "kind": "http_404",
+   "step": "load",
+   "t": 1791214354.076
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:18636/project-register.json",
+   "kind": "http_404",
+   "step": "load",
+   "t": 1791214354.081
+  }
+ ],
+ "five_xx": []
+}

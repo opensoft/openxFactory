@@ -4355,7 +4355,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **After**: T089, T076 (the root README's one documented command, which the
     harness runs), T104 (the harness reads the token's private copy), T007
     (batch N).
-- [ ] T096 [US3] [oxF] **AT-R1, the browser half, on the host.** Drive the
+- [x] T096 [US3] [oxF] **AT-R1, the browser half, on the host.** Drive the
   same install with Playwright (quickstart.md § 4, against the server § 3
   starts). It opens the page through the private copy's `file://` URL (§ 4
   step 1; T104), so the chat rail's guarded routes carry the console token.
@@ -4387,6 +4387,23 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **Ruled**: R1Q20 (a), `5817152735`; R1Q13 (a) with (c), R1Q19 (a),
     `5850003126`; what "usable" means, `5971834845`.
   - **After**: T095.
+  - **Landed**: [`evidence/at-r1/oracle-verdict.md`](evidence/at-r1/oracle-verdict.md),
+    run on 2026-10-05 at openDox-code `main` `389e5a4a`, `RELEASE1_TIP`,
+    T095's landing (#75 → `389e5a4a`), with P, T087's pin, `dede32b4`,
+    beside it.
+    - The browser half was driven through the `file://` URL the start
+      printed, and judged by `tests/smoke_signals.py` at X. It PASSES in
+      both repositories, with zero `pageerror`, nothing undeclared (three
+      declarations, each satisfied exactly) and no 5xx. Create offers no
+      control and the plane note names it, and Save is refused by name.
+    - The HTTP half at X, T095's harness on the host, PASSES with `314
+      assertions held`. T095's `acceptance` job is a `workflow_dispatch`
+      of `validate.yml` on `main` while `main` was X (`head_sha` X; the
+      holder's ruling `5987619278`, Q1): run `37333323932`, job
+      `111841708700`, success, `314 assertions held`.
+    - P-against-X exits 0, so X's runs stand for P, and nothing ran at P.
+    - Non-normative (`5987619278`, Q2): the create and Save refusals are
+      refused by name, with no browser signal, so nothing is undeclared.
 - [ ] T097 [oxF] **Bookkeeping.**
   - Tick #1144's release-1 boxes, each with its evidence note: the 63 in the
     table below. 3.0 is already ticked (#1151).
