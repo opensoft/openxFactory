@@ -6,730 +6,784 @@ Status: draft
 document tool and self-maintenance", phases 4–5) of the ratified OpenSpec
 change `add-neutral-product-standalone-operability` (#1144).
 **Lane**: `openxfactory-4`. **Raised**: 2026-10-05, at `/speckit.specify`,
-before any plan or code. **Answer state**: OPEN. All 25 await Brett Heap.
-Nothing here is decided by this feature. Each question puts its recommended
-option first, marked **(Recommended)**, and that is a recommendation only.
+before any plan or code. **Answer state**: OPEN. All 24 round-1 questions
+await Brett Heap. Nothing here is decided by this feature. Each question puts
+its recommended option first, marked **(Recommended)**, and that is a
+recommendation only.
 
-**Naming.** These are `R2Q1`…`R2Q25`. A bare `Q<n>` names one of #1144's own
-rulings (RULING Q1, RULING Q2, Q-R4, DIRECTION Q5), and `R1Q<n>` names plan
-034's, so this round uses neither.
+**Naming.** Round 1's questions are `R2Q1`…`R2Q24`. A bare `Q<n>` names one of
+#1144's own rulings (RULING Q1, RULING Q2, Q-R4, DIRECTION Q5), and `R1Q<n>`
+names plan 034's, so this round uses neither. The inventory ids (`OQ-12-n`,
+`OQ-H-n`, `OQ-H15-n`) are kept beside each question, so that every candidate
+can be traced to where it went.
 
-**Measured at**: openDox-code `a9ac96f9`, openXdox-code `56e1c238`, the openDox
-root `d77f8cbf` and openxFactory `0f2a87f6`, all `main` on 2026-10-05. Box
-numbers (`12.6a`, `14.5`, …) are #1144 `tasks.md`'s. Falsifier labels are plan
-034's: `F<group>.<n>` is the n-th FALSIFIED BY box of that group, so F12.1 is
-12.5's governed-flow proof and F12.2 is the submission and landing acceptance.
+**Inputs.** Three read-only inventories by lane openXfactory-3, delegated by
+this lane (#656 `6001723339`, claimed on `6001723764`):
 
-**What is NOT asked.** Nothing that #1144 or a ruling already decides is asked
-here. That covers the rulings `5783934499`, `5784155201`, `5784247356` and
-`5784295745` as #1144 encodes them, the migration number (`0003_`), the three
-class spellings, the guardrails, the sandbox's shape, the patch rules, and the
-shapes of the `submit`, `land` and `health` verbs. R2Q6 asks only whether
-those verbs gain one option. Where a question touches one of these, it asks
-how two decided texts fit together, never whether to keep one.
+- R2-INV-12, for Group 12 (17 open questions, `OQ-12-1` to `OQ-12-17`);
+- R2-INV-HEALTH part A, for Groups 6 and 14 (22, `OQ-H-1` to `OQ-H-22`);
+- R2-INV-HEALTH part B, for Group 15 (22, `OQ-H15-1` to `OQ-H15-22`).
+
+These add to this feature's own reading of #1144 and its four release-2
+rulings. All three inventories pin the same trees this feature measured:
+openDox-code `a9ac96f9`, openXdox-code `56e1c238` and openxFactory `0f2a87f6`,
+all `main` on 2026-10-05.
+
+**How the 61 candidates were sorted.**
+
+- **Round 1 (this file's first section) holds only what Brett must decide.** A
+  candidate is here if its answer changes WHAT the spec requires, and neither
+  #1144 nor the four rulings (`5783934499`, `5784155201`, `5784247356`,
+  `5784295745`) already decide it. Pairs that one answer settles are merged.
+- **"Deferred to the plan, with proposed defaults"** holds the design-level
+  questions. The plan writer proposes each default, and Brett rules them when
+  he rules the plan.
+- **"Round 2"** is empty: 24 questions fit round 1's budget of 25.
+- **"Where every candidate went"** maps all 61 inventory ids and this feature's
+  own. Nothing is dropped silently.
+
+Box numbers (`12.6a`, `14.5`, …) are #1144 `tasks.md`'s, and `tasks.md:N`,
+`spec.md:N` and `design.md:N` are lines in #1144's change directory. Falsifier
+labels are plan 034's: `F<group>.<n>` is the n-th FALSIFIED BY box of that
+group, so F12.1 is 12.5's governed-flow proof and F12.2 is the submission and
+landing acceptance.
 
 **How to answer.** One line per question is enough, for example `R2Q1 a`.
 Each answer is written inline under its question, and encoded into `spec.md`
 in the same commit. An answer that changes a falsifier or a task line of
 #1144's `tasks.md` lands there as a bookkeeping amendment on your word, in plan
 034's T007 form, under a Rule 6 window. An answer that would change a
-requirement's text or a scenario is put to you as a ruling first, and is not
-applied here.
+requirement's text or a scenario is put to you as a ruling first.
+
+**Six are contradictions, not gaps**: R2Q1, R2Q2, R2Q6, R2Q8, R2Q9 and R2Q10.
 
 **What each phase waits on.**
 
 | phase | cannot be planned without |
 |---|---|
-| 4 (Group 12) | R2Q1, R2Q2, R2Q3, R2Q4, R2Q6, R2Q7, R2Q8, R2Q9 |
-| 5 (Groups 6, 14, 15) | R2Q5, R2Q6, R2Q10–R2Q21, R2Q25 |
-| release 2's close | R2Q22, R2Q23 |
-| process only | R2Q24 |
-
-**Five are contradictions, not gaps**: R2Q1, R2Q3, R2Q5, R2Q11 and R2Q14.
+| 4 (Group 12) | R2Q1–R2Q8 |
+| 5 (Groups 6, 14, 15) | R2Q9–R2Q21 |
+| release 2's close | R2Q22–R2Q24 |
 
 ---
 
-## R2Q1 — What does "one interface for both" bind? *(blocks FR-004; phase 4)* — CONTRADICTION
+## Round 1: questions for Brett Heap
 
-**What #1144 says, twice.** The release map's phase-4 row reads *"local merge
-and the governed pull-request path, the neutral submission step, one interface
-for both"*. The proposal and `design.md` § D13 say *"behind one interface"*.
-But 12.1 says *"SPLIT THE PROTOCOL; do not bend the platform's one"*. It makes
-`SubmissionPort` new and leaves `PullRequestPort` unchanged. 12.6a then makes
-landing *"a SEPARATE protocol, `session_pr.LandingPort`"*. That is three
-protocols, and `design.md` § D9 rejects folding them.
+### R2Q1 — What does "one interface for both" bind? *(phase 4; FR-004)* — CONTRADICTION
 
-**Options.**
-- **(a) (Recommended)** One USER-FACING interface. The `submit` and `land`
-  verbs and routes, and the Health view's land action, are the same in every
-  mode. Behind them, the three protocols stay split as 12.1 and 12.6a require,
-  and the governance query picks the binding. *Consequence:* no box text moves.
-  The map's phrase is recorded as a non-normative reading.
+**Open because** the release map's phase-4 cell (`tasks.md:108`, *"one
+interface for both"*; `design.md:800`, *"submission behind one interface"*)
+cannot be one protocol, given 12.1's *"SPLIT THE PROTOCOL"* (`tasks.md:2464-2475`)
+and 12.6a's *"a SEPARATE protocol, `session_pr.LandingPort`"*
+(`tasks.md:2767-2773`), and the phrase is elaborated nowhere (OQ-12-3).
+
+- **(a) (Recommended)** One USER-FACING interface. The `submit` and `land` verbs
+  and routes, and the Health view's land action, are the same in every mode.
+  Behind them, the three protocols stay split as 12.1 and 12.6a require, and the
+  governance query picks the binding. *Consequence:* no box text moves, and the
+  map's phrase is recorded as a non-normative reading.
 - **(b)** One PROTOCOL for submission and landing. *Consequence:* this reverses
-  12.1 and 12.6a, which § D9 argued against. It needs a bookkeeping amendment to
-  both boxes, and a ruling if their text moves.
-- **(c)** Strike the phrase from the map as an editorial slip. *Consequence:* a
-  bookkeeping amendment to the map's one cell and to § D13's line.
+  12.1 and 12.6a, which `design.md` § D9 argued against, and needs a ruling.
+- **(c)** Strike the phrase as an editorial slip. *Consequence:* a bookkeeping
+  amendment to the map's cell and to § D13's line.
 
 **ANSWER:** _awaiting Brett Heap_
 
----
+### R2Q2 — Does `pull_request_factory`'s unset default stay `GhPullRequests`? *(phase 4; FR-003)* — CONTRADICTION
 
-## R2Q2 — Under `governed`, what does routing the landing to the instrument do? *(blocks FR-007, US2 scenario 4; phase 4)*
+**Open because** 12.4 says both things (OQ-12-1). `tasks.md:2500-2511` declares
+a NEW pair of bindings and keeps the `PullRequestPort` ones *"serving the
+governed verb they serve today"*. `tasks.md:2513-2519` then says *"The unset
+default becomes the neutral implementation; `GhPullRequests` becomes ONE
+contributed implementation … this box repoints its UNSET DEFAULT"*, as do
+`design.md:475-478` and ruling `5783934499`'s third bullet, which predates the
+split. **Measured:** openXdox-code's `tests/test_session_snapshot.py:893-916`,
+an F5.2-protected suite, asserts that the server's unset port IS
+`GhPullRequests`. openxFactory's host injects no `pull_request_factory`, so the
+governed flow runs on that unset default today.
 
-**What is decided.** Requirement 11 says that the governed host *"RESERVES
-landing and routes it to that governance's own instrument, and the product
-itself lands nothing"*. 12.6a says that *"a registered host profile that
-declares an instrument makes the repository `governed`"*, and that under
-`governed` *"a land request … is routed to the host's own instrument"*, with
-NO `LandingPort` bound (F12.2's `test_a_governed_repository_binds_no_lander`).
-The fix-loop ruling `5784247356` adds: *"A governed repository gets a pull
-request instead."*
-
-**What is not.** What a host declares as its "instrument", and what `land`, or
-the fix loop's land action, DOES under `governed`.
-
-**Options.**
-- **(a) (Recommended)** The instrument is the host's contributed
-  `SubmissionPort` (12.4). Under `governed`, `land` binds no lander, and instead
-  submits through the host's port: for openXdox, push, then open or update the
-  pull request. It then reports where the work went, and the merge stays the
-  governance's act. *Consequence:* one host contribution serves both acts, and
-  the fix loop's "gets a pull request" holds with no second step. `gate open-pr`
-  is untouched.
-- **(b)** `land` refuses under `governed`, naming the host's declared
-  instrument. The human then runs `submit`, or the host's own verb.
-  *Consequence:* simplest. A governed user takes two acts, and the fix loop's
-  pull request needs the second.
-- **(c)** The host declares a separate instrument callable, distinct from its
-  `SubmissionPort`. *Consequence:* a fourth seam to declare and test.
+- **(a) (Recommended)** The NEW pair (`submission_factory`, `_submission_port`)
+  is the product's own binding, and its unset default is `LocalGitSubmissions`.
+  `pull_request_factory` and `_pull_request_port` keep `GhPullRequests` as their
+  unset default, serving `gate open-pr` unchanged. The repoint sentences are
+  read as the residue of the withdrawn draft that 12.4's own parenthesis
+  records, and a bookkeeping note says so. *Consequence:* the protected test
+  stands, and the governed flow is untouched (12.5).
+- **(b)** Repoint the `PullRequestPort` default away from `GhPullRequests`: a
+  push-only class cannot serve that protocol, so an unset port refuses, and
+  openxFactory's host injects `GhPullRequests` explicitly. *Consequence:* the
+  protected test needs an allow-list entry, and the host wiring changes in
+  phase 4.
+- **(c)** Move `GhPullRequests` into openXdox, contributed by the governed host.
+  *Consequence:* the largest. It touches openXdox-code's `src/` and every
+  governed suite that patches `cli._pull_request_port`.
 
 **ANSWER:** _awaiting Brett Heap_
 
----
+### R2Q3 — Does any governed host carry `submit`, `land` or `health` in release 2? *(phases 4–5; FR-004, FR-007)*
 
-## R2Q3 — How does F12.1 run, while 15 of its 16 suites sit in the declared exclusion? *(blocks FR-005, US3; phase 4)* — CONTRADICTION
+**Open because** R1Q4 (a) (`5817152735`) already rules that openDox's default
+profile contributes *"release 2's `submit`/`land`/`health"*, and a host's own
+profile replaces it. Yet 12.4 (`tasks.md:2504-2505`) lets a governed host
+contribute its own `SubmissionPort`, and 12.6a (`tasks.md:2784-2786`) lets it
+declare an instrument, both for verbs a host's tree does not carry unless it
+contributes them. This question does not reopen R1Q4 (a); it asks whether any
+host contributes them now (OQ-12-2). **Measured:** openxFactory's host tree is
+held by the help golden `tests/domain_profile/fixtures/cli-help-tree.phase3.golden.txt`,
+which is regenerated *"ONLY with a ruling"*, and openXdox-code's 32-entry test
+holds the assembled tree.
 
-**Measured** at openXdox-code `56e1c238`. F12.1's own selection, `git grep -l
--e open-pr -e open_pr -e FakePullRequests -- 'tests/test_*.py'`, selects 16
-files. Fifteen are entries of `tests/declared_exclusion.yaml`, each with the
-reason `doc_health`. Only `tests/test_gate_loop_views.py` runs in a lone
-checkout. F12.1 installs `".[test]"` and runs each file with plain `pytest`, so
-15 of the 16 fail to import `doc_health`. Plan 034's research R11 measured the
-same on 2026-09-24.
-
-**What is decided.** R1Q6 (d) (`5817152735`) made the `doc_health` direction
-its own arc, *"decided before 12.5 needs the 16 governed suites"* (plan 034
-T008). The arc's record is the staged topic
-`ideation/staging/doc-health-direction-arc/`, and its Q1–Q4 and Q6 await your
-ruling. That ruling is owed before 12.5 whatever is answered here. This
-question asks only how F12.1 runs. For F5.2, R1Q23 (a) (`5850003126`) composed
-openxFactory's `scripts/` at a named commit.
-
-**Options.**
-- **(a) (Recommended)** Rule the direction arc before phase 4's 12.5, as R1Q6
-  (d) requires. Then run F12.1 as R1Q23 (a) runs F5.2, with openxFactory's
-  `scripts/` composed at a named commit, until the arc's realization lands.
-  F12.1 gains that environment line by a bookkeeping amendment.
-  *Consequence:* phase 4 waits on the ruling but not on the arc's realization.
-  The exclusion stays an open extraction, reported as open.
-- **(b)** 12.5 waits for the arc's REALIZATION to land, so that F12.1 runs
-  standalone as written. *Consequence:* phase 4's close is gated on an arc that
-  has no owner yet (the topic's Q6).
-- **(c)** 12.5 closes on `test_gate_loop_views.py` alone, and reports the other
-  15 as open. *Consequence:* requirement 11's tenth scenario rests on 1 suite of
-  16.
-
-**ANSWER:** _awaiting Brett Heap_
-
----
-
-## R2Q4 — Does any governed host carry `submit`, `land` or `health` in release 2? *(blocks FR-004, FR-007; phases 4–5)*
-
-**What is decided.** R1Q4 (a) (`5817152735`): openDox's default profile
-contributes *"openDox's own verbs and routes: the runtime verbs now, and
-release 2's `submit`, `land` and `health` later"*. Under R1Q5 (a), a host that
-registers its own profile keeps its own tree, which has 32 entries since phase
-3 (`5970917267`). Measured at openDox-code `a9ac96f9`: `default_profile.py`'s
-`SUBCOMMAND_EXTENSIONS` is `(RuntimeSubcommand(),)`.
-
-**What is not.** 12.4 lets a governed host contribute its own
-`SubmissionPort`, and 12.6a lets it declare an instrument. Both act on verbs
-that a host's own profile does not carry unless it contributes them. So: do
-openXdox and openxFactory contribute any of the three in release 2?
-
-**Options.**
-- **(a) (Recommended)** Neither contributes in release 2. Their trees and
-  their help goldens do not move, and their governed flows (`gate open-pr`, and
-  openxFactory's own doc-health) are unchanged. F12.2 proves the host-side
-  behaviour against a registered test host. *Consequence:* the smallest
-  governed-side change, and 12.5 proves nothing moved. A host's opt-in is a
-  later act.
-- **(b)** openXdox contributes `submit` (with its `GhPullRequests`-backed
+- **(a) (Recommended)** No host contributes them in release 2. Both hosts'
+  trees, goldens and governed flows (`gate open-pr`, openxFactory's own
+  doc-health) are unchanged. F12.2 proves the host-side behaviour against a
+  registered test host. *Consequence:* the smallest governed-side change, and a
+  host opting in is a later act.
+- **(b)** openXdox contributes `submit` (with a `GhPullRequests`-backed
   `SubmissionPort`) and `land`, routed to its instrument. *Consequence:* the
-  32-entry tree and goldens move in openXdox-code and openxFactory, by a batch-O
-  style amendment, and the governed console gains the neutral verbs.
-- **(c)** Both hosts contribute all three, `health` included, running
-  openDox's neutral checks over openxFactory's corpus. *Consequence:* broadest.
-  It puts neutral findings beside openxFactory's governance findings, and it
-  needs a store in the composed host, which has none today.
+  32-entry tree and the goldens move by a batch-O style amendment.
+- **(c)** Both hosts contribute all three, `health` included, running openDox's
+  neutral checks over openxFactory's corpus. *Consequence:* broadest. A composed
+  host has no store today (R2Q15).
 
 **ANSWER:** _awaiting Brett Heap_
 
----
+### R2Q4 — What is the governed host's "instrument", and what does routing a landing to it do? *(phase 4; FR-007, US2 scenario 4)*
 
-## R2Q5 — Which process owns the bundled store while a `health` verb runs? *(blocks FR-011, FR-015, US4–US6; phase 5)* — CONTRADICTION
+**Open because** 12.6a says only *"a registered host profile that declares an
+instrument"* and *"routed to the host's own instrument"* (`tasks.md:2784-2796`).
+It names neither the instrument's form, nor who declares it, nor what `land`
+or the fix loop's land action DOES under `governed` (OQ-12-10). Ruling
+`5784247356` adds *"A governed repository gets a pull request instead"*.
 
-**Measured** at openDox-code `a9ac96f9`. R1Q16 (i) and (iv) made the bundled
-PostgreSQL the DOCUMENT SERVER's child, which stops with the entry point.
-`runtime status` reports the bundle and never starts it. A local `runtime
-migrate` or `reset` refuses unless a live server of this data directory runs,
-in `runtime/bundle.py`'s `refusal_before_connecting`, verbatim: *"no bundled
-server is running on … A local install's server is started by `opendox
-generate-and-open --local`, which owns it"*.
-
-**The collision.** F14.1 and F15.1 run `opendox health run|list|fix|accept` in
-local mode with no document server started. F14.1 also runs `opendox-runtime
-runtime reset --confirm …` and `runtime migrate`. As built, the runtime verbs
-refuse, and the `health` verbs have no store to reach.
-
-**Options.**
-- **(a) (Recommended)** A local verb that needs the store uses a live bundled
-  server of THIS data directory when one is running. Otherwise it starts one as
-  its own child for the verb's duration, and stops it on exit. That reads R1Q16
-  (i) and (iv) as *"the process that starts the server owns it, and it stops
-  with that process"*. `runtime migrate` and `reset` take the same rule.
-  *Consequence:* F14.1 and F15.1 run as written, a CLI-only install works (the
-  requirement 14 scenario that names an install without a browser), and each
-  cold verb pays a server start.
-- **(b)** The verbs refuse without a running document server, naming
-  `generate-and-open --local`. F14.1 and F15.1 are amended to start one first.
-  *Consequence:* the CLI-only use always needs a server running beside it.
-- **(c)** A long-lived background store, started once and shared.
-  *Consequence:* this reverses R1Q16 (i) and (iv), and needs your ruling on
-  that.
+- **(a) (Recommended)** The instrument is the host's contributed
+  `SubmissionPort` (12.4), declared in the host profile. Under `governed`, no
+  lander is bound, and `land` (and the fix loop's land action) SUBMITS through
+  the host's port, for openXdox a push followed by opening or updating the pull
+  request, and reports where the work went. The merge stays the governance's
+  act. *Consequence:* one contribution serves both acts, the fix loop's "pull
+  request instead" needs no second step, and `gate open-pr` is untouched.
+- **(b)** Under `governed`, `land` refuses, naming the host's declared
+  instrument (for openxFactory, `gate open-pr` and the Merge Master ritual).
+  *Consequence:* simplest. A governed user takes two acts.
+- **(c)** The host declares a separate instrument callable, a sixth facet beside
+  `opendox_host.FACETS`. *Consequence:* a fourth seam to declare and test.
 
 **ANSWER:** _awaiting Brett Heap_
 
----
+### R2Q5 — What may a standalone install submit and land? *(phase 4; FR-004, FR-007)*
 
-## R2Q6 — How do `submit`, `land` and `health` learn the install mode? *(blocks FR-004, FR-007, FR-011; phases 4–5)*
+**Open because** 12.4a and 12.6a write `--branch <session-branch>`
+(`tasks.md:2536-2537`, `:2814-2815`), while F12.2 submits a plain branch,
+`sess-1` (`tasks.md:2828-2834`). **Measured** (OQ-12-8): openDox has no session
+opener of its own on a standalone plane. Every session-opening verb is a gate
+verb, openDox's default `GATE` refuses governed records, and release 1 RULED
+Save refused by name on standalone (`5971834845`). A standalone user today
+cannot make a session branch in openDox at all.
 
-**What is decided.** `standalone` requires `OPENDOX_INSTALL_MODE=local` (12.6a),
-and the `health` store is the local bundle (Group 13). R1Q15 (b) gave
-`generate-and-open` a `--local` flag that selects local as the setting does,
-and plan 034's T070 refuses a flag and a setting that disagree. F14.1 and F15.1
-export the setting.
-
-**Options.**
-- **(a) (Recommended)** Each new verb takes the same `--local` flag, equivalent
-  to the setting, and a flag and a setting that disagree are refused, naming
-  both. *Consequence:* a student who started with `--local` uses the same word
-  everywhere, and an unset install stays hosted (13.5). The shapes that 12.4a,
-  12.6a and 14.5 declare each gain one option, by a bookkeeping amendment, as
-  T007 batch H gave `generate-and-open` its `--local`. F14.1 and F15.1, which
-  export the setting, stand as written.
-- **(b)** The setting alone. *Consequence:* the declared shapes stand
-  verbatim. But a `land` typed in a fresh shell reads `hosted`, governance
-  becomes `unknown`, and the landing is refused, a confusing first experience.
-- **(c)** The mode is persisted in the state directory by the first local
-  start. *Consequence:* the mode can be entered by state rather than by an
-  explicit choice, which edges toward the "by omission" that 13.5 forbids.
-
-**ANSWER:** _awaiting Brett Heap_
-
----
-
-## R2Q7 — How does a standalone owner's first governance declaration reach the default branch? *(blocks FR-007, US2; phase 4)*
-
-**What is decided.** 12.6a reads `governance: standalone` only from
-`.opendox/governance.yaml` at the DEFAULT branch's tip. A branch that adds it is
-`unknown`. *"Because the declaration is a committed file, changing it is a
-landing like any other."* Until it exists, no lander is bound, so the product
-cannot land the declaration itself.
-
-**Options.**
-- **(a) (Recommended)** The product never writes the default branch outside
-  `land`. With no declaration, `land` refuses as `unknown`, naming the exact
-  file and content, and that the owner commits it to the default branch
-  themselves. The openDox root's README documents it. *Consequence:* no new
-  writer of the default branch, and one documented git step for a new owner.
-- **(b)** As (a). In addition, a local install's `project create-repository`
-  seeds the declaration in a NEW repository's first commit, since its creator
-  is its owner. *Consequence:* new repositories need no manual step, and the
-  runtime's repository act gains a write.
-- **(c)** A `governance declare standalone` verb commits the declaration to the
-  default branch after a terminal confirmation. *Consequence:* a second path
-  onto the default branch, with its own guardrail tests.
+- **(a) (Recommended)** `submit` and `land` take any local branch except the
+  default branch, as F12.2's `sess-1` does. That covers branches the user made
+  with git and the fix loop's own `health-fix-*` drafts. A live session whose
+  branch is landed ends by the existing merge observation
+  (`reconcile_merged_session`). A standalone session opener and Save are a
+  follow-on outside release 2. *Consequence:* release 2 ships as specified, and
+  a standalone user edits with git or through the fix loop until the follow-on.
+- **(b)** Release 2 also gives standalone openDox a session opener and Save (a
+  neutral default behind the gate seam). *Consequence:* new scope that no box of
+  #1144 names, and it needs a ruling and an amendment.
+- **(c)** Only branches in openDox's session namespace may be submitted or
+  landed. *Consequence:* F12.2's `sess-1` needs an amendment, and nothing on a
+  standalone plane could be submitted until (b) exists.
 
 **ANSWER:** _awaiting Brett Heap_
 
----
+### R2Q6 — Where does a standalone `land` merge, and what does it do about a remote? *(phase 4; FR-007)* — CONTRADICTION
 
-## R2Q8 — Does a standalone landing ever reach the remote? *(blocks FR-007; phase 4)*
+**Open because** 12.6a makes a landing a `--no-ff` merge commit that `git
+revert -m 1` undoes (`tasks.md:2811-2814`), and F12.2's third node expects
+*"the tree restored"* (`tasks.md:2910-2911`). But release 1's served-checkout
+rule pins the opposite (OQ-12-6, OQ-12-7). **Measured:** feature 007's FR-004
+and SC-002 make `merge`, `update-ref` and `revert` absent from
+`SERVED_ALLOWED_SUBCOMMANDS`, as pinned by `tests/test_session_git.py:563-570`,
+with `HEAD unchanged`. `fetch` and `pull` are refused at every cwd. The
+promoted `ideation-dashboard` scenario *"The served checkout is asked to
+move"* forbids only a switch, a reset or a stash. 12.6a is silent on the remote.
 
-**What is decided.** `land` merges a session branch into the LOCAL default
-branch (12.6a). `submit` pushes a session branch to the attached remote (12.2).
-Neither box says whether the default branch is pushed after a landing.
-
-**Options.**
-- **(a) (Recommended)** `land` is local only. The default branch reaches a
-  remote only by an explicit `submit --branch <default-branch>`, or by the
-  user's own git. *Consequence:* landing and submission stay two acts, each with
-  its own report.
-- **(b)** After a successful landing, `land` pushes the default branch to the
-  attached remote and reports where. *Consequence:* one act, and a landing now
-  also spends the user's push credential.
-- **(c)** `land`'s prompt asks whether to push. *Consequence:* a second
-  interactive answer, which needs a guardrail test of its own.
-
-**ANSWER:** _awaiting Brett Heap_
-
----
-
-## R2Q9 — Once a conflict is shown, what remedy does the product name? *(blocks FR-007, US2 scenario 3; phase 4)*
-
-**What is decided.** Requirement 11: a conflict *"SHALL BE SHOWN to the human
-and never silently resolved"*. 12.6a: *"A conflict raises `MergeConflict`
-carrying the conflicting paths and leaves the default branch where it was."*
-
-**Options.**
-- **(a) (Recommended)** The refusal names the remedy: bring the default branch
-  into the session branch and resolve there, by git or by editing in openDox.
-  Release 2 adds no conflict editor. *Consequence:* the smallest surface. A
-  student without git experience gets instructions, not a tool.
-- **(b)** A product verb merges the default branch INTO the session branch, and
-  leaves the conflict markers in the session's checkout for the human to edit
-  and commit, never on the default branch. *Consequence:* a guided path, and
-  one more verb with tests.
-- **(c)** An in-view conflict editor. *Consequence:* the largest. It is a UI
-  feature that #1144 does not name.
+- **(a) (Recommended)** The landing port alone may advance the default branch
+  by its merge commit, under a valid confirmation, by compare-and-swap. It does
+  so only when the served checkout, if it is on that branch, is clean, and that
+  checkout's working tree then follows the new commit. It never switches,
+  resets or stashes, so the promoted scenario holds. Feature 007's allowlist
+  and its `HEAD unchanged` pin gain this one named exception. `land` is local
+  only and pushes nothing. Before it lands, where a remote is attached, it reads
+  the remote's default-branch tip with `ls-remote` (allowed) and refuses if the
+  local default branch does not contain it, naming the remedy. *Consequence:*
+  the student lands from the view or the CLI. Feature 007's realization pins
+  move by your word, and landing and submission stay two acts.
+- **(b)** Land by plumbing only when the default branch is NOT checked out in
+  the served checkout, and refuse otherwise. *Consequence:* feature 007 is
+  unchanged, but the common standalone case (served checkout on `main`) cannot
+  land from the view.
+- **(c)** Land only from the CLI, in the user's own checkout outside the served
+  process, and drop the view's confirm issuer. *Consequence:* feature 007 is
+  unchanged, but 12.6a's two-issuer text needs a ruling.
 
 **ANSWER:** _awaiting Brett Heap_
 
----
+### R2Q7 — Which branch is "the default branch", and how does a standalone owner's first declaration reach it? *(phase 4; FR-007)*
 
-## R2Q10 — Does the hosted multi-user plane run the health engine? *(blocks FR-009; phase 5)*
+**Open because** 12.6a reads `.opendox/governance.yaml` *"from the tip of the
+DEFAULT BRANCH"* (`tasks.md:2779`) and never defines that branch. It also
+refuses a branch that adds its own declaration, so the product cannot land the
+first one (OQ-12-15). **Measured:** openDox already fixes `DEFAULT_BASE =
+"main"` (`branch_session.py:149`, `session_pr.py:55`), and a plain repository
+with no remote has no `origin/HEAD`.
 
-**What is decided.** The hosted plane carries no `session` capability, so
-`submit` refuses there (12.4a), and the view's confirm control needs a
-loopback nonce (12.6a). The `0003_` migration applies to every install,
-because there is one migration set (requirement 12). F14.1 and F15.1 run local
-mode only. Health results are per corpus, and a hosted plane serves many users'
-projects.
-
-**Options.**
-- **(a) (Recommended)** Release 2 serves the health engine on the LOCAL plane
-  and from the CLI. On the hosted plane, the Health view and its routes refuse
-  by name, as `submit` does, while the schema still migrates. *Consequence:* no
-  per-tenant results design in release 2, and the hosted schema is ready for a
-  later act.
-- **(b)** The hosted plane runs and lists health per project, read-only, and
-  refuses `fix`, `accept` and `land`. *Consequence:* the results need a project
-  key and membership checks, which the plan must design.
-- **(c)** Full parity on the hosted plane. *Consequence:* the fix loop writes
-  branches in checkouts a hosted plane does not hold. That conflicts with 12.4a's
-  reasoning on personal credentials.
-
-**ANSWER:** _awaiting Brett Heap_
-
----
-
-## R2Q11 — F6.1 against release 1's seam: what makes it pass? *(blocks FR-008, US4 scenario 1; phase 5)* — CONTRADICTION
-
-**Measured** at openDox-code `a9ac96f9`, in a bare process with `PYTHONPATH=src`.
-`workbench.run_scoped_doc_health(".", ["README.md"])` answers `not-available`:
-*"no health check is registered at openDox's health-check seam"*.
-`DEFAULT_SCOPED_FAMILIES` is `("status-validity", "tag-hygiene")`, two of
-openxFactory's corpus-operations families. A registered check *"refuses a
-family it does not carry"*. Release 1's 4.3 made this a seam that a host
-registers (`register_health_check`), with *"REFUSAL, NOT A DEFAULT"*. R1Q3 (a)
-makes openDox's own defaults registrations that an ENTRY POINT makes, never a
-fallback inside a seam.
-
-**The collision.** F6.1 calls the action in a bare process, with the default
-families, and asserts `status == "completed"`. With nothing registered it
-cannot pass. If openDox's check were registered but carried only neutral
-families, it would refuse the two defaults. Requirement 6's sixth scenario
-keeps a `Status:`-taxonomy family with its corpus.
-
-**Options.**
-- **(a) (Recommended)** The entry points register openDox's own check (R1Q3 (a)
-  and R1Q10 (a)'s pattern), and the check answers its OWN family names. The
-  registered check declares its default scoped families, and the action asks
-  for those when a caller names none, so a host's registration keeps asking for
-  its own. F6.1 is amended by a bookkeeping batch to build an entry point
-  before the call, as F3.1 line 2 was. *Consequence:* no fallback inside the
-  seam, no publisher family names in openDox, and one line of F6.1 changes.
-- **(b)** The seam falls back to openDox's own check when nothing is
-  registered, and that check accepts the two host family names as aliases.
-  *Consequence:* F6.1 stands verbatim, but this reverses 4.3's "refusal, not a
-  default" and brings the publisher's family names into the neutral product
-  (RULING C2).
-- **(c)** `opendox.workbench` registers openDox's check when it is imported,
-  and the defaults change to neutral names. *Consequence:* an import side
-  effect, which R1Q3 (a) chose against, and F6.1 stands only with the changed
-  defaults.
+- **(a) (Recommended)** The default branch is openDox's existing base, `main`. A
+  repository with no `main` is `unknown`, and is refused naming it. The product
+  never writes the default branch outside `land`. With no declaration, `land`
+  refuses, naming the exact file and content, which the owner commits with git.
+  The openDox root's README documents this. *Consequence:* one rule the code
+  already uses, and one documented git step for a new owner.
+- **(b)** The default branch is `origin/HEAD` where a remote is attached, and
+  `main` otherwise. The first declaration is handled as in (a). *Consequence:*
+  repositories cloned from a `master` remote work, and the answer changes when a
+  remote is attached.
+- **(c)** The default branch is whatever HEAD names in the main worktree at
+  landing time, and `project create-repository` seeds the declaration.
+  *Consequence:* a checked-out session branch would read as the default, so a
+  branch could decide its own landing, which 12.6a forbids.
 
 **ANSWER:** _awaiting Brett Heap_
 
----
+### R2Q8 — Where does 12.5 run, and who repairs the governed suites' reds? *(phase 4; FR-005, US3)* — CONTRADICTION
 
-## R2Q12 — Is Group 6's check the engine's built-in families, or a second check? *(blocks FR-008, FR-010; phase 5)*
+**Open because** 12.5 (`tasks.md:2659-2669`) names Group 9 as its only
+prerequisite, and F12.1 (`tasks.md:2674-2699`) runs the 16 governed suites with
+plain `pytest` in an openXdox-code checkout. That cannot pass today (OQ-12-4,
+OQ-12-5).
 
-**What is decided.** Group 6 gives the scoped action (`run_scoped_doc_health`,
-per-document, over a set's documents) *"something to call"*. Group 14.4 runs the
-six neutral families from the view and the CLI, baseline-relative, with results
-in the store. Requirement 16 attributes the product's own checks to `opendox`,
-*"the one pack no manifest lists"*.
+**Measured at `56e1c238`:**
+- Fifteen of the 16 suites are entries of `tests/declared_exclusion.yaml`, each
+  with the reason `doc_health`, and fail to import alone.
+- Composed with openxFactory's `scripts/` (R1Q23 (a)'s form for F5.2), the 16
+  read 668 passed and 174 red across 10 files. Plan 034's T086 recorded the same
+  174.
+- The reds come in groups:
+  - 62 need a registered governed host;
+  - 50 are a `display.js` harness copy;
+  - 16 read names the carve moved, or old in-tree paths;
+  - 15 cannot find the gate-action record schema;
+  - 3 reach a moved `hosted_index`;
+  - 28 are singletons.
 
-**Options.**
-- **(a) (Recommended)** ONE neutral check. The engine's built-in families
-  (14.4), attributed to `opendox` (15.7), are what openDox registers at the
-  scoped seam (6.2), and the scoped action runs their per-document subset over
-  the named documents. *Consequence:* one implementation, and one set of family
-  names on every surface.
-- **(b)** Two checks: a scoped per-document check for Group 6, and the engine's
-  families for 14.4. *Consequence:* two neutral implementations to keep
-  aligned, and two answers to "what is wrong with this document".
+R1Q6 (d) already requires the `doc_health` direction arc to be DECIDED before
+12.5 needs these suites. That ruling (the staged topic's Q1–Q4 and Q6) is owed
+first, whatever is answered here.
 
-**ANSWER:** _awaiting Brett Heap_
+- **(a) (Recommended)** F12.1 runs composed, as F5.2 does under R1Q23 (a), until
+  the direction arc's realization lands. The amendment is a bookkeeping line.
+  The 174 reds are repaired in phase 4 without editing the proofs, by three
+  means:
+  - a host-registering conftest outside the 16 files, as T104's
+    `HOST_PLANE_SUITES` already does;
+  - the harness copy fixed, and the schema placed where the suites read it;
+  - an allow-list entry per pure respelling (batch C);
+  - each singleton traced and repaired by one of these means, or by an entry.
 
----
-
-## R2Q13 — Does the health table join RULING Q1's closed list? *(blocks FR-009, US4 scenario 2; phase 5)*
-
-**Two texts.** The ruling `5784155201`, item 4: *"health results become a
-seventh table … this lands as an ADDITIVE `0002` migration with the closure test
-moved in the SAME change"*. #1144 kept that, corrected the number to `0003_`,
-and then left the boundary claim to the realization (14.2; `design.md` §
-D10.4): the closure test reads `0001` alone, which is why `0002`'s ledger table
-never tripped it. So the realization *"DECLARES"* domain or install-owned, and
-says why.
-
-**Options.**
-- **(a) (Recommended)** DOMAIN. The results table joins Q1's list in
-  `identity.TABLES`, and `tests_runtime/test_schema_shape.py`'s closure text
-  moves in the same change, as the ruling's own words have it. Q1's principle
-  stands: no document, and a disposable store. *Consequence:* the boundary is
-  re-drawn in the open, and `0001`'s digest is untouched.
-- **(b)** INSTALL-OWNED, beside the ledger, on the `0002` precedent. No closure
-  text moves, and the change says why. *Consequence:* the ruling's "seventh
-  table" is read as not joining the list.
-
-**ANSWER:** _awaiting Brett Heap_
-
----
-
-## R2Q14 — What is a finding's `id`? *(blocks FR-011, FR-015, US5, US6; phase 5)* — CONTRADICTION
-
-**The texts.** F14.1 selects and repairs findings by literal ids:
-`broken-link`, `derivable-front-matter`, `stage-location-mismatch`,
-`near-duplicate`, `human-only-finding` and `accepted-finding`. It names branches
-`health-fix-<id>`, and it reads `{x["id"]: x["resolution_class"]}`. F15.1 uses
-`x['id'] == 'broken-link'` and `patch-ok`, `patch-traversal`, …. Requirement 15
-needs an exception that *"SHALL cite what it is accepting"*, so that removing it
-re-opens that finding, across store resets. A real corpus can carry two
-findings of one family. openxFactory's own uncited-resolution rule keys a
-finding on `(family, repository, path)` (`openspec/specs/doc-health/spec.md`).
-
-**Options.**
-- **(a) (Recommended)** A finding's `id` is a STABLE key that the engine
-  derives from the raising pack's id, the family, the document's path and a
-  family-supplied locator. It survives a reset, and no two findings share it.
-  F14.1 and F15.1 are amended by a bookkeeping batch to look up each planted
-  finding by its document, which the fixtures name after its label, instead of
-  by a literal id. *Consequence:* exceptions cite something durable. Two
-  falsifiers' selection lines change, and branch names are derived from the key.
-- **(b)** The `id` is the family's kind name. *Consequence:* the falsifiers
-  stand verbatim, but two findings of one family share an id, so neither
-  `--finding` nor an exception can tell them apart (requirement 15).
-- **(c)** The `id` is the kind name with a numeric suffix (`broken-link-2`).
-  *Consequence:* the falsifiers stand, but ids shift when an earlier finding
-  disappears, so an exception can attach to the wrong finding after an edit.
+  *Consequence:* phase 4 owns a sizeable repair slice, which can start the day
+  the plan is ruled. The exclusion stays an open extraction.
+- **(b)** 12.5 waits for the direction arc's REALIZATION, and runs standalone as
+  written. *Consequence:* phase 4's close is gated on an arc that has no owner
+  yet (its Q6).
+- **(c)** Re-scope 12.5's governed set to the suites that pass composed today, by
+  amendment. *Consequence:* requirement 11's tenth scenario rests on 6 of the 16
+  suites.
 
 **ANSWER:** _awaiting Brett Heap_
 
----
+### R2Q9 — Approve the falsifier amendments that release 1's rules force? *(phase 5, and the verb shapes of phases 4–5; FR-004, FR-008, FR-011, FR-015, FR-017, FR-020)* — CONTRADICTION
 
-## R2Q15 — Which class do the unplaced families take? *(blocks FR-012; phase 5)*
+**Open because** each item below changes #1144's falsifier or box text after
+ratification, which by the estate's practice goes to you (the T007 batches).
+Items 1 and 2 are conflicts with release-1 rulings (OQ-H-1, OQ-H-6), and items
+3 to 6 are part B's (OQ-H15-22 (a)–(d)).
 
-**What is decided** (requirement 14; `5784247356`):
-- `auto-fix`: a moved link target, front matter derivable from the adapter, a
-  stage/location mismatch;
-- `assisted`: a near-duplicate, an empty stub;
-- `human-only`: *"a decision the product cannot make"*.
+1. **F6.1** (`tasks.md:1143-1165`). It runs a bare `python3` and asserts
+   `completed`, but batch G (`tasks.md:560-562`) says *"a bare process still
+   refuses, naming the seam"*, and openDox-code's `test_health_check_seam.py`
+   pins that. **Measured:** at `a9ac96f9`, the call answers `not-available`. The
+   amendment: F6.1 builds an entry point, which registers openDox's own check,
+   before the call, as F3.1 line 2 was amended.
+2. **F14.1 and F15.1** (`tasks.md:3302-3366`, `:3548-3651`). They run `opendox
+   health …`, `runtime reset` and `runtime migrate` in local mode with no
+   document server running. But R1Q16 (i) and (iv) give the bundled server to the
+   document server, and the local runtime verbs refuse `local-bundle-unverified`
+   without it. The amendment: each block first starts `opendox generate-and-open
+   --local --no-open` in the background, as F13.1 does. The `health` verbs, like
+   the runtime verbs, then reach the running bundle and refuse by name without
+   one.
+3. **F15.1 asserts its platform precondition**, a working kernel sandbox, and
+   exits 1 naming it otherwise, as F12.2 does for `gh`.
+4. **15.6a's forking pack** gives its child its own pack id in argv, so that
+   F15.1's `ps` check cannot pass vacuously.
+5. **15.1b's corpus export** cannot be steered by `export-subst` or
+   `export-ignore`: either the export is not a plain `git archive`, or those
+   attributes are refused.
+6. **15.6a's escaping pack** counts a WRITE as its "restores write permission"
+   success, never a chmod.
+7. **The verb shapes** of 12.4a (`submit`), 12.6a (`land`) and 14.5 (`health`)
+   gain the same `--local` flag as `generate-and-open` (batch H). A flag and a
+   setting that disagree are refused, naming both. F14.1 and F15.1, which export
+   the setting, stand as written.
 
-**Not placed:** an orphan (a document nothing links to), a stale stub that is
-not empty, a broken link whose target did not move, and missing front matter
-that the adapter cannot derive.
-
-**Options.**
-- **(a) (Recommended)** All four are `human-only`: the product shows the
-  evidence and proposes nothing it cannot justify, so `auto-fix` and `assisted`
-  stay exactly the ruled lists. *Consequence:* the most conservative reading,
-  and the fixture's `human-only-finding` can be any of them.
-- **(b)** An orphan and a stale stub are `assisted` (the product proposes a link
-  from the nearest neighbour, or proposes deletion). The other two are
-  `human-only`. *Consequence:* more help, and two more proposal generators.
-- **(c)** The plan decides family by family. *Consequence:* no ruling now, and
-  the classes are settled in planning, in the open.
+- **(a) (Recommended)** Approve all seven as listed. They land as ONE bookkeeping
+  batch, in T007's form, under a Rule 6 window, before the first phase-5
+  checkpoint (item 7 before phase 4's). *Consequence:* the falsifiers can pass
+  against the release-1 code without reversing R1Q16 or batch G.
+- **(b)** Rule them one by one in round 2. *Consequence:* phase 5 waits a round.
+  For item 2 the alternative is to amend R1Q16 instead, so that each `health`
+  verb attaches to, or starts, a transient bundle of its own.
 
 **ANSWER:** _awaiting Brett Heap_
 
----
+### R2Q10 — What is a finding's `id`? *(phase 5; FR-011, FR-015, US5, US6)* — CONTRADICTION
 
-## R2Q16 — What is the baseline anchored to? *(blocks FR-010, US4 scenario 4; phase 5)*
+**Open because** F14.1 and F15.1 use `id` both as the per-finding handle
+(`--finding ID`, `refs/heads/health-fix-<id>`) and as a kind name.
+- **F14.1** names `broken-link` and the other kinds, plus two non-kinds,
+  `human-only-finding` and `accepted-finding` (`tasks.md:3295-3301`,
+  `:3326-3345`).
+- **F15.1** names `patch-ok` and similar labels.
 
-**What is decided.** Requirement 6: *"BASELINE-RELATIVE so that new findings get
+Requirement 15 needs an exception that *"SHALL cite what it is accepting"*
+(`spec.md:509`) across store resets. 14.5 declares the field but no identity
+rule (`tasks.md:3259-3262`), and two packs can return the same label (OQ-H-7,
+OQ-H15-17).
+
+- **(a) (Recommended)** A finding's `id` is a STABLE, pack-qualified key that the
+  engine derives from the pack's id, the family, the document's path and a
+  locator the family supplies. That is the shape openxFactory's
+  uncited-resolution rule keys on, `(family, repository, path)`. It survives a
+  reset, is unique, and is mapped into a valid ref name for `health-fix-*`.
+  `health list --json` also carries `kind`. F14.1 and F15.1 are amended, by
+  bookkeeping, to find each planted finding by its fixture document, not by a
+  literal id. *Consequence:* exceptions cite something durable, and two
+  falsifiers' selection lines change.
+- **(b)** The `id` is the kind name. *Consequence:* the falsifiers stand
+  verbatim, but two findings of one family, or of two packs, share an id, which
+  fails requirement 15.
+- **(c)** The `id` is the kind name with a numeric suffix. *Consequence:* the
+  falsifiers stand, but ids shift when an earlier finding disappears, so an
+  exception can attach to the wrong finding.
+
+**ANSWER:** _awaiting Brett Heap_
+
+### R2Q11 — What is a document's "location" for `stage-location-mismatch`, and which way does the repair go? *(phase 5; FR-010, FR-012)*
+
+**Open because** D10.5 and 14.4 name the family, *"a declared stage that
+disagrees with the document's location among the six ruled words"*
+(`tasks.md:3236-3241`; `spec.md:187`), but give no rule (OQ-H-9).
+**Measured:** openDox reads a station from the `stage:` header alone (R1Q13
+(a) with (c)), and nothing maps a path to a station. 15.2a refuses renames in
+pack patches, and F14.1's `git diff --name-only` check sees only a renamed
+file's new path.
+
+- **(a) (Recommended)** The location is a top-level directory whose name is one
+  of the six role keys or their declared words. A document outside such a
+  directory has no location, and is never flagged. The `auto-fix` repair edits
+  the `stage:` header to match the directory, and never moves the file.
+  *Consequence:* deterministic, it passes F14.1, and a corpus without stage
+  directories draws no finding of this kind.
+- **(b)** As (a), but the repair moves the file into the directory its header
+  names. *Consequence:* the header stays authoritative, the rename conflicts
+  with 15.2a's patch rule for packs, and F14.1's path check needs an amendment.
+- **(c)** A corpus-declared map from paths to stations, committed in the corpus.
+  *Consequence:* the most flexible, and one more committed configuration file to
+  define.
+
+**ANSWER:** _awaiting Brett Heap_
+
+### R2Q12 — What does "baseline-relative" mean in a disposable store, and across a pack upgrade? *(phase 5; FR-010, FR-019)*
+
+**Open because** requirement 6 keeps doc-health's pattern, *"new findings get
 attention while persistent ones stay quiet and an uncited disappearance is
-re-raised"*. Results live in a DISPOSABLE store, whose loss *"SHALL cost a
-recomputation rather than a document"*. The engine owns the baseline
-(requirement 16).
+re-raised"* (`spec.md:188-190`; ruling `5784155201`). openxFactory's citations
+are governance acts that a neutral corpus lacks. The store is disposable. D12
+gives no rule for a pack-version bump (`design.md:688-690`) (OQ-H-12,
+OQ-H15-16).
 
-**Options.**
-- **(a) (Recommended)** The baseline is DERIVED, relative to the default
-  branch. A finding is "persistent" when a run at the default branch's tip has
-  it, and "new" when the working state or a session branch has it and the tip
-  does not. After a reset, the next run recomputes it from git. *Consequence:* a
-  reset costs only recomputation, as requirement 6 says.
-- **(b)** The baseline is the previous stored run. *Consequence:* simple, but a
-  reset makes every finding "new" once, and loses the history of what had
-  disappeared.
-- **(c)** The baseline is committed to the corpus. *Consequence:* this
-  contradicts *"results are DERIVED DATA and SHALL NOT BE COMMITTED"*, and needs
-  a ruling.
+- **(a) (Recommended)** The baseline is DERIVED, relative to the default branch.
+  - A finding is persistent when a run at the default branch's tip has it, and
+    new when only the working state or a branch has it, so a reset costs only a
+    recomputation.
+  - A disappearance is cited by a landing of the fix loop's draft for it, or by
+    a commit naming its id in a `Finding:` trailer. An uncited one is re-raised
+    once, as a `human-only` finding naming the original.
+  - Across a pack upgrade, a finding with the same id stays persistent, and an
+    exception keeps holding.
 
-**ANSWER:** _awaiting Brett Heap_
-
----
-
-## R2Q17 — In a neutral corpus, what cites a disappearance? *(blocks FR-010; phase 5)*
-
-**What is decided.** An *"uncited disappearance is re-raised"* (requirement 6,
-from the doc-health pattern `5784155201` names). In openxFactory, a citation is
-a governance act: a cited change, or a disposition. A neutral corpus has no such
-acts, but it has the fix loop's landings and git history.
-
-**Options.**
-- **(a) (Recommended)** A disappearance is cited when the commits that removed
-  it, on the default branch, include a landing of the fix loop's draft for that
-  finding, or a commit whose message names the finding's id in a `Finding:`
-  trailer. An uncited one is re-raised once, as a `human-only` finding naming
-  the original, which the human can accept. *Consequence:* hand repairs can be
-  cited with one trailer, and nothing vanishes unseen.
-- **(b)** Only the fix loop's own landings cite, and every other disappearance
-  is re-raised. *Consequence:* strict. Every hand edit that fixes a finding
-  raises a follow-up.
-- **(c)** The neutral product does not track disappearances. *Consequence:*
-  this contradicts requirement 6's text, and needs a ruling.
+  *Consequence:* upgrades do not re-alert, and nothing vanishes unseen.
+- **(b)** The baseline is the previous stored run. Only fix-loop landings cite.
+  A pack upgrade makes its findings new. *Consequence:* a reset and every
+  upgrade re-alert everything once.
+- **(c)** The neutral product does not track disappearances. *Consequence:* this
+  contradicts requirement 6's text, and needs a ruling.
 
 **ANSWER:** _awaiting Brett Heap_
 
----
+### R2Q13 — Does the health table join RULING Q1's closed list? *(phase 5; FR-009, US4 scenario 2)*
 
-## R2Q18 — What does "optionally on commit" mean? *(blocks FR-010; phase 5)*
+**Open because** ruling `5784155201` item 4 reads *"health results become a
+seventh table … with the closure test moved in the SAME change"*, the DOMAIN
+reading. But 14.2 and D10.4 leave the declaration to the realization
+(`tasks.md:3225-3232`; `design.md:524-557`) (OQ-H-4, with OQ-H-22's ownership
+half). **Measured:** about twenty assertions move whichever way this is
+answered, because `["0001", "0002"]` is hard-coded ten times. The ledger
+precedent does not cover a table that the served role must write.
 
-**What is decided.** 14.4 and `5784155201`: the check runs *"on demand from the
-dashboard and the command line and optionally on commit"*. The engine owns
-scheduling (requirement 16). No falsifier exercises the on-commit run.
-
-**Options.**
-- **(a) (Recommended)** Release 2 runs on demand only. "Optionally on commit"
-  is met by a documented one-line hook, `opendox health run --repo-root .`,
-  which the user may add, and the product writes nothing under `.git/`.
-  *Consequence:* no hook management, and nothing in a user's repository metadata
-  that the user did not put there.
-- **(b)** An opt-in verb installs a `post-commit` hook. *Consequence:* the
-  convenience costs a writer into `.git/hooks`, with tests of its own.
-- **(c)** The engine runs after each commit the product itself makes: session
-  commits, fix drafts and landings. *Consequence:* automatic within openDox's
-  own acts, and blind to commits made outside it.
+- **(a) (Recommended)** DOMAIN. The results table joins Q1's list in
+  `identity.TABLES`, and the closure test reads `0001` together with `0003_`, in
+  the same change, as the ruling's words have it. Q1's principle stands: no
+  document, and a disposable store. *Consequence:* the boundary is re-drawn in
+  the open, `0001`'s digest is untouched, and the served role's access is
+  verified like the other six tables'.
+- **(b)** INSTALL-OWNED, beside the ledger. *Consequence:* no closure text moves,
+  but `verify_runtime_access` stays blind to the table unless `SERVED_TABLES`
+  grows, and the ruling's "seventh table" reads as not joining the list.
 
 **ANSWER:** _awaiting Brett Heap_
 
----
+### R2Q14 — How does 6.1a's "relocate the generic part" square with 11.1's guard and the unruled direction arc? *(phase 5; FR-008)*
 
-## R2Q19 — Do the product's own checks run in the sandbox? *(blocks FR-017, US6; phase 5)*
+**Open because** 6.1a (`tasks.md:1133-1135`) predates 11.1's narrowed surfaces
+(`tasks.md:1982-1994`) and the `doc_health` direction arc (plan 034 T008). 6.1
+says requirement 6 is met *"not by relocating families"* (OQ-H-17).
+**Measured:** two modules of `scripts/doc_health/`'s 38 are generic, `lines.py`
+and `fs_probe.py`.
 
-**What is decided.** Requirement 16: *"A PACK SHALL RUN IN A SEPARATE PROCESS
-INSIDE AN OPERATING-SYSTEM-ENFORCED SANDBOX … Where the platform offers no such
-sandbox, packs SHALL NOT RUN."* The product's own checks are attributed *"as the
-one pack no manifest lists"*. Requirement 6's second scenario says a document
-product that cannot report on its own documents is undelivered.
+- **(a) (Recommended)** 6.1a is satisfied vacuously in release 2. No family
+  moves, openDox writes its own check, and no module both sides depend on is
+  created. Any relocation inside `doc_health` belongs to the direction arc's own
+  answer (its Q4). *Consequence:* 11.1's guard is untouched, and the box closes
+  on a recorded finding.
+- **(b)** 6.1a is carried out as a non-arc openxFactory act, outside 11.1's
+  surfaces, in T066's form. *Consequence:* openxFactory edits `doc_health` in
+  release 2.
+- **(c)** 6.1a is folded into the direction arc's Q4 and waits for it.
+  *Consequence:* Group 6's close is gated on an unruled arc.
 
-**Options.**
+**ANSWER:** _awaiting Brett Heap_
+
+### R2Q15 — What does a HOSTED install do with the health engine and with packs? *(phase 5; FR-009, FR-017)*
+
+**Open because** 14.5 serves the view from the entry point, the local case
+(`tasks.md:3242-3269`), and 12.4a refuses `submit` on the hosted plane
+(`tasks.md:2557-2562`). Nothing says whether `run`, `fix` and `accept` exist
+there, which credential writes the store, or whether packs run in a pod (OQ-H-5,
+OQ-H15-6).
+
+**Measured:**
+- The document server imports no database driver.
+- The hosted runtime API serves six table routers and no health.
+- bwrap is refused in containers ("No permissions to create new namespace" in
+  this lane's container), and a pod's masked `/proc` defeats `--proc`
+  (inferred).
+
+- **(a) (Recommended)** Release 2 serves the health engine on the LOCAL plane and
+  from the CLI. On the hosted plane:
+  - the Health view and its routes refuse by name, as `submit` does;
+  - packs never run, and report one finding against the install;
+  - the schema still migrates, because there is one migration set.
+
+  *Consequence:* no per-tenant design in release 2. The governance pack (F1)
+  cannot run hosted until a later act.
+- **(b)** The hosted plane runs and lists the built-in checks per project,
+  read-only, and refuses `fix`, `accept`, `land` and packs. *Consequence:* the
+  plan must design a project key, membership checks and the served role's
+  writes.
+- **(c)** Release 2 owes a second sandbox realization for hosted pods (Landlock,
+  seccomp and rlimits, or a sidecar). *Consequence:* Landlock alone cannot meet
+  requirement 16's own `/proc` and whole-tree clauses, so this needs a ruling on
+  what "kernel-enforced" admits.
+
+**ANSWER:** _awaiting Brett Heap_
+
+### R2Q16 — Where no kernel sandbox is available, do the product's own checks still run, and does macOS get packs? *(phase 5; FR-017)*
+
+**Open because** requirement 16 says that where the platform *"offers no such
+sandbox, packs SHALL NOT RUN"* (`spec.md:557`), and attributes the product's
+own checks *"as the one pack no manifest lists"*. Requirement 6's second
+scenario calls a document product that cannot report on its own documents
+undelivered. 15.1b defers *"other platforms"* (`tasks.md:3453-3454`)
+(OQ-H15-7, and this feature's own reading). **Measured:** bwrap is unavailable
+by default on every target the estate runs today:
+- this lane's container;
+- GitHub's `ubuntu-24.04`, which restricts unprivileged user namespaces through
+  AppArmor;
+- the hosted pod (inferred).
+
+macOS Seatbelt cannot give an own `/proc` or a PID namespace.
+
 - **(a) (Recommended)** The product's own neutral checks run IN PROCESS, as
-  product code that is always on, on every platform the product supports. Only
-  manifest-listed packs run in the sandbox. "The one pack no manifest lists" is
-  read as an attribution rule. *Consequence:* without a sandbox, packs do not
-  run, but openDox still reports on its own documents.
-- **(b)** The built-in checks run in the sandbox too. *Consequence:* uniform,
-  but a machine without a sandbox has no health check at all, against
-  requirement 6's second scenario.
+  trusted product code, on every platform. Only manifest-listed packs need the
+  sandbox. Where a probe finds none (macOS, a restricted Linux, a container),
+  packs do not run, and one finding against the install says why. There is no
+  Seatbelt realization in release 2. *Consequence:* every install gets health
+  over its own documents. Packs run only on a capable Linux host.
+- **(b)** As (a), plus a Seatbelt realization on macOS that denies fork.
+  *Consequence:* macOS users get packs, and a ruling that deprecated
+  `sandbox-exec` counts as kernel-enforced, with fork denied standing for the
+  whole tree.
+- **(c)** The product's own checks also run in the sandbox. *Consequence:*
+  uniform, but no target the estate runs today would have any health check.
+
+**ANSWER:** _awaiting Brett Heap_
+
+### R2Q17 — Does openDox-code's required check run the sandbox suite? *(phase 5; FR-017, FR-020)*
+
+**Open because** F15.1 names nine sandbox tests (`tasks.md:3627-3651`), 9.4
+lets no skip carry a gap, and R1Q8 (a) shows that a change to the required
+check is a ruled act (OQ-H15-8). **Measured:** `validate.yml`'s `validate` and
+`acceptance` jobs run on `ubuntu-latest`, and no workflow installs `bubblewrap`.
+`ubuntu-latest` moves to 26.04 between 2026-10-19 and 2026-11-19, where a
+shipped bwrap AppArmor profile reportedly permits it.
+
+- **(a) (Recommended)** The required `validate` job pins its runner, installs
+  `bubblewrap` and enables unprivileged user namespaces (the AppArmor sysctl on
+  24.04). It proves the sandbox live before the suite. Under `CI`, the sandbox
+  tests FAIL rather than skip, mirroring `tests_runtime/conftest.py:131-148`.
+  There is no macOS job in release 2. *Consequence:* the guarantee is measured on
+  every PR, and the required check changes by your word.
+- **(b)** The sandbox tests run in their own declared job, reported by name and
+  never skipped silently, like AT-R1's `acceptance` job. *Consequence:* the main
+  job is unchanged, and the sandbox is still proved per PR.
+- **(c)** The sandbox tests skip in CI with a declared reason, and run on a
+  capable host. *Consequence:* against 9.4.
+
+**ANSWER:** _awaiting Brett Heap_
+
+### R2Q18 — What may a pack depend on? *(phase 5; FR-016, FR-017)*
+
+**Open because** the digest covers only the pack's own source tree, and
+requirement 16's *"the libraries its runtime reads"* (`spec.md:549`) names no
+owner and no pin. An unpinned library *"silently changes what a corpus is judged
+against"*, 15.1a's own stated hazard (OQ-H15-2). openXdox's governance pack
+(F1) would need PyYAML, and openxFactory's `doc_health`.
+
+- **(a) (Recommended)** In release 2, a pack is Python source using only the
+  standard library and the neutral contract module the engine's runner provides.
+  The install's own interpreter and standard library are mounted read-only.
+  *Consequence:* the digest pins everything that runs. F1 must vendor what it
+  needs, or wait for a later act.
+- **(b)** A pack declares third-party dependencies, which the engine installs
+  into a per-pack environment pinned by hash. *Consequence:* richer packs, and a
+  dependency installer in the engine.
+- **(c)** The install's own site-packages are mounted read-only.
+  *Consequence:* simple, but what a pack runs depends on what the user installed,
+  the very hazard 15.1a names.
+
+**ANSWER:** _awaiting Brett Heap_
+
+### R2Q19 — May a pack see git history, or only the exported tree? *(phase 5; FR-017)*
+
+**Open because** 15.1b exports `git archive <commit>` (`tasks.md:3428`), a tree
+without history. openxFactory's families read history (`RealGit` running `log`
+and `rev-list`), so F1's port could not run unchanged (OQ-H15-3). F1 is outside
+both releases, but this interface decides whether F1 is possible.
+
+- **(a) (Recommended)** Only the exported tree in release 2. A family that needs
+  history is a later act. *Consequence:* the smallest surface to contain, and F1
+  needs a history seam later.
+- **(b)** A read-only history bundle of the corpus is mounted beside the copy.
+  *Consequence:* F1 can run, and the sandbox exposes the whole history, which is
+  more of the user's data.
+
+**ANSWER:** _awaiting Brett Heap_
+
+### R2Q20 — May a pack's check be model-assisted? *(phase 5; FR-017)*
+
+**Open because** a pack has *"NO NETWORK"* (`spec.md:552`). 14.4 allows
+model-assisted checks *"only where a model is configured"* for the product's own
+families, and says nothing of packs. openxFactory's semantic and neutrality
+families dispatch to models (OQ-H15-4).
+
+- **(a) (Recommended)** Pack checks are model-free in release 2. *Consequence:*
+  the sandbox stays network-free, and openxFactory's model-dispatching families
+  cannot be ported unchanged.
+- **(b)** The engine brokers a model channel, through Group 16's single provider
+  module, to packs that declare the need. *Consequence:* a new boundary through
+  the sandbox, which needs its own containment tests.
+
+**ANSWER:** _awaiting Brett Heap_
+
+### R2Q21 — Is a domain's pack pinned in its `stack.yaml` or in the corpus's `health/packs.yaml`? *(phase 5; FR-016)*
+
+**Open because** ruling `5784295745` says each DomainxFactory's pack is *"pinned
+in its `stack.yaml`"*, while 15.1a says the engine loads ONLY from the corpus's
+`health/packs.yaml` (`tasks.md:3404`) (OQ-H15-13). F2 is outside both releases,
+but the interface fixes the shape F2 must fit.
+
+- **(a) (Recommended)** `health/packs.yaml` is authoritative for what the engine
+  runs. A domain's `stack.yaml` records the same pin for that domain's own
+  governance, and a lockstep check, like `scripts/verify-opendox-pin.py`, is
+  owed by F2, not by release 2. *Consequence:* release 2 builds one loader. F2
+  adds its check later.
+- **(b)** The engine also reads a domain's `stack.yaml` when present.
+  *Consequence:* two sources of truth for one corpus, inside the neutral
+  product.
+
+**ANSWER:** _awaiting Brett Heap_
+
+### R2Q22 — Does openDox-spec own the health contract's schemas, with a bundle cut? *(release 2; FR-016, FR-023)*
+
+**Open because** requirement 16's contract is one *"the product itself owns"*.
+Release 2 adds three serialized artifacts — the exceptions file,
+`health/packs.yaml`, and the finding's neutral shape — and 15.1 names only a
+protocol (`tasks.md:3398-3402`). Release 1's precedent (R1Q11 (a), R1Q12 (a);
+batch G at 9.5, `tasks.md:1578-1596`) put a contract in openDox-spec and cut a
+bundle. This is this feature's own question.
+
+- **(a) (Recommended)** openDox-spec owns a schema for each of the three, and the
+  code leg carries digest-checked copies. Release 2 cuts ONE `dox-v1.y` minor at
+  the openDox root, under a batch-G style addendum at 9.5. *Consequence:* the
+  same shape as release 1. A sixth repository joins, and the root owes the
+  bundle's tag.
+- **(b)** The contract is the code leg's protocol and constants alone: no schema,
+  and no bundle. *Consequence:* fewer acts, but a pack author reads Python, not
+  a schema.
+
+**ANSWER:** _awaiting Brett Heap_
+
+### R2Q23 — Is release 2 published to PyPI? *(release 2's close; FR-023)*
+
+**Open because** batch O at 9.5 (`tasks.md:1598-1615`; `5962754358`,
+`5963162921`) published 0.1.0 at release 1's cut, as an exception to *"owes no
+tag"*. Nothing says what release 2 owes. **Measured:** `pyproject.toml` reads
+`version = "0.1.0"` at `a9ac96f9`. This is this feature's own question.
+
+- **(a) (Recommended)** Publish `opendox` 0.2.0 at release 2's cut, by the
+  existing trusted-publishing workflow, with one tag `v0.2.0`, on your publish
+  word after release 2's acceptance passes, under a batch-O style addendum.
+  *Consequence:* `pip install "opendox[local]"` brings release 2.
+- **(b)** No publish. *Consequence:* PyPI users stay on 0.1.0.
+- **(c)** A publish per phase (0.2.0 and 0.3.0). *Consequence:* two cuts, two
+  tags and two publish words.
+
+**ANSWER:** _awaiting Brett Heap_
+
+### R2Q24 — Does release 2 carry an end-to-end acceptance, AT-R2? *(release 2's close; FR-024)*
+
+**Open because** #1144's release-2 falsifiers are command-line acceptances and
+named tests. 14.5's three parity tests (`tasks.md:3242-3269`) prove that the view
+is served and that its action list matches the CLI's, not that a human can
+complete a repair from the view. Release 1 closed on AT-R1. This is this
+feature's own question.
+
+- **(a) (Recommended)** Define AT-R2 in AT-R1's form: a clean machine with only
+  `opendox[local]`, and a plain repository.
+  - the Health view lists findings, new first;
+  - a mechanical repair is drafted from the view, and landed through the view's
+    confirm control as a revertible merge commit;
+  - an exception survives `runtime reset`;
+  - a branch is submitted to a bare remote with `gh` absent.
+
+  It runs as an HTTP half in CI and a browser half on the host. *Consequence:*
+  the release is proved as a user meets it, and the plan carries two more tasks.
+- **(b)** Close on #1144's falsifiers and the named tests alone. *Consequence:*
+  faster. The view's flows are proved only by parity.
 
 **ANSWER:** _awaiting Brett Heap_
 
 ---
 
-## R2Q20 — What may a pack depend on? *(blocks FR-016, US6; phase 5)*
+## Deferred to the plan, with proposed defaults
 
-**What is decided.** A pack is pinned by a source-tree digest (and by a commit
-when it is not in the corpus). It runs with *"read-only binds of only the
-interpreter paths the pack's runtime needs"*, `PYTHONNOUSERSITE=1`, and nothing
-of `$HOME` (15.1b). The fixture packs are Python packages. The contract follows
-the `corpus_adapter` protocol pattern (15.1).
+Design-level questions that #1144 and the rulings leave open, but whose answer
+does not change WHAT the spec requires. The plan writer proposes each default
+below. Brett rules them when he rules the plan, and any of them can be raised
+to a ruling question on request.
 
-**Options.**
-- **(a) (Recommended)** A pack is Python source implementing openDox's pack
-  protocol. An engine-provided runner runs it inside the sandbox, with the
-  install's own interpreter and standard library mounted read-only. It may
-  import only the standard library and the neutral contract module the runner
-  provides, and no third-party dependency in release 2. *Consequence:* the
-  digest pins everything that runs. F1's governance pack must vendor or drop
-  what it needs.
-- **(b)** A pack may declare third-party dependencies, installed into a
-  per-pack environment that the engine manages and pins by hash.
-  *Consequence:* richer packs, and a dependency installer and its pins in the
-  engine.
-- **(c)** A pack is any executable that speaks a JSON protocol on stdout.
-  *Consequence:* language-neutral, and the "protocol pattern" of 15.1 becomes a
-  wire format instead.
+| id | question | proposed default |
+|---|---|---|
+| OQ-12-9 | Is the CLI `submit` under the console-presence and `--actor` gate? | No. F12.2 runs it non-interactively with no actor and expects success, so #1144 already decides it. The route stays gated (12.4a). |
+| OQ-12-11 | Is a credential-bearing remote pushed or refused? | Refused by name, as `attach_remote` refuses one, and the refusal is redacted (12.1a). |
+| OQ-12-12 | `LocalGitSubmissions`' transport, and which remote counts | Reuse the runtime's hardened push (`repository_act.py`), factored to take a named branch. The remote is `origin`, as both existing pushes fix it. Several push URLs are refused. |
+| OQ-12-13 | `land`'s HTTP surface | Two routes, one that mints the per-branch nonce and one that lands. Both sit behind 12.4a's three-clause gate and the console token. |
+| OQ-12-14 | Capability flags, and where the view's controls live | `submit` reuses `session`. A new `actions.land` is true only where a lander is bound (T084's honesty rule). The controls go in a new view module, never in the `doxbench-*.js` files that FR-037's sentinels guard. |
+| OQ-12-16 | Where F12.2's evidence runs, given that it needs `gh` absent | In a container, or under a PATH that hides `gh`, recorded in the evidence. |
+| OQ-12-17 | Does `LandingPort` serve the fix loop's batches? | Yes. A batch is one draft branch, so `land(branch)` serves it unchanged. |
+| OQ-H-2 | Which families the scoped action asks for, once openDox's check exists | The registered check names its own default scoped families, and the action asks for those when a caller names none. openxFactory's host-wiring test adapts at the pin, under `tests/domain_profile/`. |
+| OQ-H-3 | The scoped seam (Group 6), the engine (14) and packs (15) | One neutral check. The engine's built-in families, attributed `opendox`, are what openDox registers at the scoped seam. A host's in-process registration stays as release 1 left it. A scoped run is not stored. |
+| OQ-H-8 | The class of orphans, stale stubs, an unmovable broken link and non-derivable front matter | `human-only` for all four, so that `auto-fix` and `assisted` stay exactly the ruled lists. |
+| OQ-H-10 | How a moved link target is detected | Structurally: a unique basename elsewhere in the tree is the target. An ambiguous or absent one makes the finding `human-only`. |
+| OQ-H-11 | An `assisted` proposal with no model, and a near-duplicate's `path` | A deterministic proposal, a front-matter note naming the other document, which the human edits. The finding's `path` is the later-committed document of the pair. |
+| OQ-H-13 | The exceptions file's schema, key, effect and path | `health/dispositions.yaml` carries `schema_version` and a product `kind`, and its entries are keyed by finding id (R2Q10) with a reason. An accepted finding is suppressed, not downgraded. A file of another kind at that path is refused by name. |
+| OQ-H-14 | `accept` on a bare repository openDox created | In a checkout, it writes the working tree, as F14.1 expects. With no working tree, it writes a draft on a branch that lands through the landing rule. |
+| OQ-H-15 | Whether the engine's own files are excluded from its families | Yes: `health/dispositions.yaml` and `health/packs.yaml` join the settings-document exclusion. |
+| OQ-H-16 | Which documents are exempt from "nothing links to it" | Root `README` and index documents. The plan measures the `plain-documents` fixture and declares the rule. |
+| OQ-H-18 | What "optionally on commit" means | On demand only, plus a documented hook line, `opendox health run --repo-root .`, which the user may add. The product writes nothing under `.git/`. |
+| OQ-H-19 | Whether `evidence` may hold document excerpts | Locators only: a path, a line, a link-target string. No excerpts, so the store holds no document (Q1, 14.3). |
+| OQ-H-20 | Which model-assisted checks exist, and through which configuration | No built-in family is model-assisted in release 2. An `assisted` proposal uses Group 16's trusted binding, through `doxbench_provider.py` alone. |
+| OQ-H-21 | Which "existing engine" finds near-duplicates | openDox's own `doxbench_knowledge` embedding with cosine. Its threshold is declared by the plan. |
+| OQ-H-22 | `0003_`'s table shape (its ownership half is R2Q13) | A runs table and a findings table, keyed by the corpus's resolved root, with no foreign key to `projects` (F14.1 creates no project). |
+| OQ-H15-1 | What a pack IS, and how it is invoked | A Python package that an engine-provided shim imports inside the sandbox, calling 15.1's protocol. Python is the only pack runtime in release 2. |
+| OQ-H15-5 | Memory, CPU, process, tmpfs and stdout bounds | rlimits always, cgroups only where delegated, and declared defaults. A bound hit is a finding against the pack, as a timeout is. |
+| OQ-H15-9 | Is the canary product behaviour, or a test hook? | A per-run self-check of the sandbox, which is product behaviour, so F15.1 stands. If Brett prefers a test hook, this becomes a ruling question, because F15.1's text changes. |
+| OQ-H15-10 | A pack's declaration: a static file, or runtime output? | A static file inside the pack, read before any pack code runs. Forbidden keys (baseline, landing, classes) are refused. |
+| OQ-H15-11 | stdout's wire format, and stderr | One JSON document on stdout. stderr is dropped, except a bounded tail in a failure finding. |
+| OQ-H15-12 | The subtree form of `sorted-ls-tree-r-v1` for a corpus-relative source | `<commit>:<source>` with relative paths, and gitlinks inside a pack refused. Fixed before any fixture digest is committed. |
+| OQ-H15-14 | Fetching a git-URL source | The engine fetches, never the pack, at `health run`, into a cache under `OPENDOX_STATE_DIR`. Offline, the entry gets a finding against it. |
+| OQ-H15-15 | How pack labels enter the display facet | A health role family keyed by pack and family id, under a schema-version bump. A host profile's labels win. |
+| OQ-H15-18 | The product's own `pack_version` | The installed version, as 15.7 fixes it. Each family's own version rides in the finding's evidence. |
+| OQ-H15-19 | The pack-id charset, and the install-level finding's fields | `[a-z0-9-]`, unique per manifest. An install-level or pre-run finding has `pack_id` `opendox` (or the entry's id), an empty `path`, and `human-only`. |
+| OQ-H15-20 | Is a pack's patch stored at `run`, or re-obtained at `fix`? | Stored with its finding at `run`, validated at `run` and again at `fix`. |
+| OQ-H15-21 | Which `bwrap` binary, and which minimum version | A fixed system path, verified by the probe. The minimum version has `--json-status-fd`, `--disable-userns` and `--size`. |
+| OQ-038-1 | What remedy a shown conflict names | The refusal names it: bring the default branch into the branch and resolve there. Release 2 adds no conflict verb or editor (#1144 declares none). |
+| OQ-038-2 | Who ticks the arc-close boxes (9.5, 11.0, 11.1, F11.1) | This feature performs them in phases 4–5 and ticks them at the arc's close. Plan 034's T090–T093 close by reference. The archive is the holder's, and is blocked until F9.2 closes on the direction arc's landing. |
 
-**ANSWER:** _awaiting Brett Heap_
+## Round 2 (after round 1's answers)
 
----
+None. Every question that needs Brett fits round 1's budget, with 24 of 25
+slots used.
 
-## R2Q21 — Does openDox-spec own the health contract's schemas, with a bundle cut? *(blocks FR-016, FR-023; phase 5)*
+## Where every candidate went
 
-**Precedent.** R1Q11 (a) and R1Q12 (a): openDox-spec owns the neutral snapshot
-schema, and the code leg carries digest-checked copies. Release 1 cut a
-`dox-v1.x` minor at the openDox root (T053; T007 batch G at 9.5), and
-openDox-spec joined the arc's repositories. Release 2 adds three serialized
-artifacts:
-- the exceptions file;
-- `health/packs.yaml`;
-- a finding's neutral shape, on a pack's stdout and in `health list --json`.
-
-Requirement 16 says the contract is one *"the product itself owns"*.
-
-**Options.**
-- **(a) (Recommended)** openDox-spec owns a schema for each of the three, and
-  the code leg carries digest-checked copies. Release 2 cuts ONE `dox-v1.y`
-  minor at the openDox root, under a batch-G style addendum at 9.5, and
-  openDox-spec's landings carry 11.0's trailer. *Consequence:* the same shape as
-  release 1. A sixth repository joins, and the root owes a tag for the bundle.
-- **(b)** The contract is the code leg's protocol and constants only: no
-  spec-leg schema, and no bundle. *Consequence:* fewer acts, but a pack author
-  reads Python, not a schema.
-- **(c)** The schemas live in the code leg, and the bundle is deferred.
-  *Consequence:* schemas exist, but outside the leg that owns contracts.
-
-**ANSWER:** _awaiting Brett Heap_
-
----
-
-## R2Q22 — Is release 2 published to PyPI? *(blocks FR-023; release 2's close)*
-
-**Precedent.** T007 batch O (`5962754358`, `5963162921`) published `opendox`
-0.1.0 to PyPI at release 1's cut, by trusted publishing, with one tag `v0.1.0`
-at the commit the openDox root's `contracts/code-pin.yaml` names, on your
-publish word after AT-R1. 9.5 otherwise owes no tag. Measured:
-openDox-code's `pyproject.toml` reads `version = "0.1.0"` at `a9ac96f9`.
-
-**Options.**
-- **(a) (Recommended)** Publish `opendox` 0.2.0 to PyPI at release 2's cut, by
-  the existing workflow, with one tag `v0.2.0`, on your publish word after
-  release 2's acceptance passes, and under a batch-O style addendum at 9.5.
-  *Consequence:* `pip install "opendox[local]"` brings the document tool's
-  release-2 surface.
-- **(b)** No publish. Release 2 is reachable only at the pinned commit.
-  *Consequence:* PyPI users stay on 0.1.0.
-- **(c)** A publish per phase (0.2.0 at phase 4, 0.3.0 at phase 5).
-  *Consequence:* two cuts, two tags and two publish words.
-
-**ANSWER:** _awaiting Brett Heap_
-
----
-
-## R2Q23 — Does release 2 carry its own end-to-end acceptance, AT-R2? *(blocks FR-024; release 2's close)*
-
-**Precedent.** Release 1 closed on AT-R1, which runs a clean machine and the
-browser surface, as an HTTP half in CI (T095) and a browser half on the host
-(T096). #1144's release-2 falsifiers are command-line acceptances and named
-tests. 14.5's three parity tests prove that the view is served and that its
-action list matches the CLI's. They do not prove that a human can complete a
-repair from the view.
-
-**Options.**
-- **(a) (Recommended)** Define AT-R2 in AT-R1's form, on a clean machine with
-  only `opendox[local]` and a plain repository. The Health view lists findings,
-  new first. A mechanical repair is drafted from the view, and landed through
-  the view's confirm control as a revertible merge commit. An exception accepted
-  from the CLI survives `runtime reset`. A session is submitted to a bare
-  remote with `gh` absent. It runs as an HTTP half in CI and a browser half on
-  the host. *Consequence:* the release is proved as a user meets it, and the
-  plan carries two more tasks.
-- **(b)** Release 2 closes on #1144's falsifiers (F6.1, F12.1, F12.2, F14.1 and
-  F15.1) and the named tests alone. *Consequence:* faster, and the view's own
-  flows are proved only by parity.
-
-**ANSWER:** _awaiting Brett Heap_
-
----
-
-## R2Q24 — Who closes the arc? *(process; no release-2 FR waits on it)*
-
-**Measured.** Plan 034 reads 92 of 96. Its open tasks are T090–T093:
-- 9.5, the pins;
-- 11.0, the trailer;
-- 11.1, the notes;
-- F11.1, the guard at the arc's close.
-
-They are performed in every phase and *"left open for the arc's close after
-release 2"* (034 SC-006). F9.2 stays open until the `doc_health` direction arc
-lands (RULED `5859927858`). The archive needs both releases' evidence
-(`5800995035`).
-
-**Options.**
-- **(a) (Recommended)** Feature 038 performs 9.5, 11.0, 11.1 and F11.1 in phases
-  4–5, and ticks the four boxes at the arc's close. Plan 034's T090–T093 are
-  then closed by reference to 038's evidence. The archive act follows as the
-  holder's, and is named as blocked until F9.2 closes on the direction arc's
-  landing. *Consequence:* one feature owns the close. 034's four tasks close
-  without new work there.
-- **(b)** Plan 034 keeps T090–T093 and ticks them at the arc's close, and 038
-  only runs the per-phase checks and references them. *Consequence:* the close
-  is split across two features' bookkeeping.
-- **(c)** A separate bookkeeping PR closes the arc after both features.
-  *Consequence:* a third record of the same boxes.
-
-**ANSWER:** _awaiting Brett Heap_
-
----
-
-## R2Q25 — How does openDox-code's required check run the sandbox tests? *(blocks FR-017, US6; phase 5)*
-
-**Measured** at openDox-code `a9ac96f9`. `validate.yml`'s `validate` and
-`acceptance` jobs run on `ubuntu-latest`, and no workflow under
-`.github/workflows/` installs `bubblewrap` or names `bwrap`. Release 1's FR-006
-keeps openDox-code's whole suite running, with no declared exclusion, and 9.4
-lets no skip carry a gap. F15.1 names nine sandbox tests, among them
-`test_a_pack_has_no_network` and `test_no_descendant_of_a_pack_outlives_its_budget`.
-They need a working sandbox. **Not measured:** whether the hosted runner image
-lets `bwrap` create the namespaces 15.1b requires.
-
-**Options.**
-- **(a) (Recommended)** The required job installs `bubblewrap` and enables what
-  the runner needs, so every sandbox test runs in CI, and a step proves that the
-  sandbox is live before the suite runs. *Consequence:* the guarantee is
-  measured on every PR. If the runner cannot be made to sandbox, the plan
-  returns here with that finding.
-- **(b)** The sandbox tests run in their own declared job, as AT-R1's
-  acceptance job does, reported by name and never skipped silently.
-  *Consequence:* the main suite stays as it is, and the sandbox is still proved
-  per PR.
-- **(c)** The sandbox tests skip in CI with a declared reason, and run on the
-  host. *Consequence:* against 9.4's rule, and needs your ruling.
-
-**ANSWER:** _awaiting Brett Heap_
+| candidate | went to |
+|---|---|
+| OQ-12-1 | R2Q2 |
+| OQ-12-2 | R2Q3 (R1Q4 (a) already rules the verbs' placement) |
+| OQ-12-3 | R2Q1 |
+| OQ-12-4, OQ-12-5 | R2Q8 |
+| OQ-12-6, OQ-12-7 | R2Q6 |
+| OQ-12-8 | R2Q5 |
+| OQ-12-9, -11, -12, -13, -14, -16, -17 | plan defaults |
+| OQ-12-10 | R2Q4 |
+| OQ-12-15 | R2Q7 |
+| OQ-H-1 | R2Q9, item 1 |
+| OQ-H-2, -3, -8, -10, -11, -13, -14, -15, -16, -18, -19, -20, -21 | plan defaults |
+| OQ-H-4 | R2Q13 (with OQ-H-22's ownership half) |
+| OQ-H-5 | R2Q15 |
+| OQ-H-6 | R2Q9, item 2 |
+| OQ-H-7 | R2Q10 |
+| OQ-H-9 | R2Q11 |
+| OQ-H-12 | R2Q12 |
+| OQ-H-17 | R2Q14 |
+| OQ-H-22 | plan default (shape); R2Q13 (ownership) |
+| OQ-H15-2 | R2Q18 |
+| OQ-H15-3 | R2Q19 |
+| OQ-H15-4 | R2Q20 |
+| OQ-H15-6 | R2Q15 |
+| OQ-H15-7 | R2Q16 |
+| OQ-H15-8 | R2Q17 |
+| OQ-H15-9 | plan default (a ruling only if a test hook is preferred) |
+| OQ-H15-13 | R2Q21 |
+| OQ-H15-16 | R2Q12 |
+| OQ-H15-17 | R2Q10 |
+| OQ-H15-22 (a)–(d) | R2Q9, items 3–6 |
+| OQ-H15-1, -5, -10, -11, -12, -14, -15, -18, -19, -20, -21 | plan defaults |
+| this feature's own: the verb shapes' `--local` | R2Q9, item 7 |
+| this feature's own: the product's checks without a sandbox | R2Q16 |
+| this feature's own: openDox-spec's schemas and bundle | R2Q22 |
+| this feature's own: PyPI | R2Q23 |
+| this feature's own: AT-R2 | R2Q24 |
+| this feature's own: the conflict remedy; the arc's close | plan defaults OQ-038-1, OQ-038-2 |
