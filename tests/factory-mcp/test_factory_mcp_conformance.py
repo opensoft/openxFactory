@@ -308,6 +308,77 @@ class ConformanceTests(unittest.TestCase):
                     t["outcomes"]["inventories"][1]["gap_id"] = "vocab-gap"
                     self.assertValidWithGaps()
 
+    def test_unanalyzable_branch_constraints_are_unresolved(self):
+        """Review 5421477111: a discriminated projection reads only the keywords it
+        understands. Closure reached through `$ref`, a required property that is
+        `false` through `$ref` or negated, `dependentRequired`, `unevaluatedProperties`,
+        an asserting `additionalProperties` schema, or `properties` on an enclosing
+        union leave the inventory unresolved, and an honest gap is accepted."""
+        unresolved = [("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/1/gap_id")]
+
+        def branch(error):
+            return error["$defs"]["invalidError"]
+
+        def referenced_closure(error):  # r4189572067
+            error["$defs"]["deny"] = False
+            branch(error).update(properties={"code": {"const": "INVALID"}}, required=["code", "extra"],
+                                 additionalProperties={"$ref": "#/$defs/deny"})
+
+        def referenced_false_property(error):  # r4189572117
+            error["$defs"]["deny"] = False
+            branch(error)["properties"]["retryable"] = {"$ref": "#/$defs/deny"}
+
+        def negated_property(error):  # r4189572117
+            branch(error)["properties"]["retryable"] = {"not": {}}
+
+        def dependent_required(error):  # review body
+            branch(error).update(properties={"code": {"const": "INVALID"}}, required=["code"],
+                                 dependentRequired={"code": ["extra"]})
+
+        def unevaluated(error):  # review body
+            del branch(error)["additionalProperties"]
+            branch(error).update(unevaluatedProperties=False, required=["code", "retryable", "details", "extra"])
+
+        def asserting_additional(error):
+            branch(error).update(required=["code", "retryable", "details", "extra"],
+                                 additionalProperties={"type": "integer"})
+
+        def parent_properties(error):  # review body; open branches, so only the parent forbids `extra`
+            error["$defs"]["error"].update(required=["extra"], properties={"extra": False})
+            for name in ("unavailableError", "invalidError"):
+                del error["$defs"][name]["additionalProperties"]
+
+        def open_additional(error):  # guard: a pure reference to `true` leaves extra names open
+            error["$defs"]["anything"] = True
+            branch(error).update(required=["code", "retryable", "details", "extra"],
+                                 additionalProperties={"$ref": "#/$defs/anything"})
+
+        for case, change, expected in [("referenced closure", referenced_closure, unresolved),
+                                       ("referenced false property", referenced_false_property, unresolved),
+                                       ("negated property", negated_property, unresolved),
+                                       ("dependentRequired", dependent_required, unresolved),
+                                       ("unevaluatedProperties", unevaluated, unresolved),
+                                       ("asserting additionalProperties", asserting_additional, unresolved),
+                                       ("parent properties", parent_properties, unresolved),
+                                       ("open additionalProperties", open_additional, [])]:
+            with self.subTest(case=case):
+                self.doc = self.declaration()
+                self.error_union(parent_typed=True)
+                error = json.loads((self.root / "domain-error.json").read_text())
+                change(error)
+                ref = self.put("domain-error.json", error)
+                self.doc = self.declaration()
+                self.pin(ref)
+                t = self.tool()
+                t["error"] = dict(ref)
+                t["outcomes"]["inventories"][1].update(pointer="/$defs/error", discriminator="code")
+                self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
+                if expected:
+                    self.doc["gaps"].append({"id": "vocab-gap", "concerns": ["outcomes"], "description": "Unanalyzed."})
+                    t["gap_ids"].append("vocab-gap")
+                    t["outcomes"]["inventories"][1]["gap_id"] = "vocab-gap"
+                    self.assertValidWithGaps()
+
     def test_unsupported_constraints_do_not_claim_exhaustiveness(self):
         self.schema["properties"]["status"]["pattern"] = "^positive$"
         self.write_schema()
@@ -469,6 +540,9 @@ class ConformanceTests(unittest.TestCase):
             ("reference", {"open": True}, {"$ref": "#/$defs/open"}, uncovered, []),
             ("chained with annotations", {"open": True, "alias": {"$ref": "#/$defs/open", "description": "any"}},
              {"$ref": "#/$defs/alias", "title": "anything"}, uncovered, []),
+            # Review 5421477111: core metadata and storage assert nothing either.
+            ("embedded resource", {}, {"$id": "https://synthetic.invalid/open-member.json",
+                                       "$defs": {"open": True}, "$ref": "#/$defs/open"}, uncovered, []),
             ("constraining sibling", {"open": True}, {"$ref": "#/$defs/open", "type": "object"}, uncovered, uncovered),
             ("constraining link", {"open": True, "alias": {"$ref": "#/$defs/open", "minProperties": 1}},
              {"$ref": "#/$defs/alias"}, uncovered, uncovered),
