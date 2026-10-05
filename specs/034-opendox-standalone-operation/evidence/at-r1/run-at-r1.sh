@@ -55,8 +55,15 @@
 # Exit 0 only when the harness exits 0 AND both browser passes pass.
 set -euo pipefail
 export LANG=C.UTF-8 LC_ALL=C.UTF-8
-# GNU grep where the host aliases another (ugrep reads some patterns differently)
-if [ -x /usr/bin/grep ]; then grep() { /usr/bin/grep "$@"; }; fi
+# GNU grep, resolved at run time: the first `grep` on the PATH that reports
+# itself as GNU grep, where a host puts another first (ugrep reads some
+# patterns differently). Without one, the PATH's own grep is used. No path is
+# named here (openxFactory's constitution, Principle IV; Copilot on #1241).
+GNU_GREP=
+while IFS= read -r candidate; do
+  case "$("$candidate" --version 2>/dev/null | head -1)" in *"GNU grep"*) GNU_GREP=$candidate; break;; esac
+done < <(type -aP grep)
+if [ -n "$GNU_GREP" ]; then grep() { "$GNU_GREP" "$@"; }; fi
 SERVER=
 stop_server() {
   if [ -n "$SERVER" ]; then kill "$SERVER" 2>/dev/null || true; wait "$SERVER" 2>/dev/null || true; SERVER=; fi
@@ -331,7 +338,7 @@ assert "console_token" not in caps_raw and token not in caps_raw, "/capabilities
 print(token)
 PY
 ) || { fail "the private copy"; return 1; }
-  # the header goes over stdin, never onto curl's command line (/proc/<pid>/cmdline), as quickstart § 3 sends it
+  # the header goes over stdin, never onto curl's command line, which every user of the machine can read, as quickstart § 3 sends it
   printf 'X-XF-Console-Token: %s\n' "$token" | curl -sf -H @- "http://127.0.0.1:$PORT/workbench/model-catalog" > "$out/catalog.json" \
     || { fail "the model catalog with the copy's token"; return 1; }
   python3 - "$out/snap.json" "$out/caps.json" "$out/catalog.json" > "$out/http-checks.txt" <<'PY' || { cat "$out/http-checks.txt"; fail "quickstart § 3's checks"; return 1; }
