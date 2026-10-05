@@ -1257,6 +1257,139 @@ had (latest 2026-09-11T09:56:58Z), so it is unspent by construction. **Nothing
 is dispatched by the lane**: step 9 is Brett Heap's act, and this section is
 appended before it so the candidate's basis is on record when he does.
 
+#### 13.4 — POST-NOTE APPENDED 2026-10-04: TASK 6.24 IS PERFORMED — THE PROOF CONVENING WAS ADMITTED AND SEALED UNDER `grant-grc-0003` (RUN `35358405192`), AFTER ONE REFUSED DISPATCH (RUN `35135959678`)
+
+Read 2026-10-04T17:4xZ by lane `codeXfactory-2` (session
+`8d6bf418-cc06-45d9-9406-2374935c6c72`), read-only: `gh` calls, and `git
+show` reads of codexFactory `main` at
+`cb504bece4fd4d9f093827e7a46999b00de1aa45` (2026-10-04T13:54:36Z). Spends no
+pin. **Nothing is dispatched.** The convening's own facts are those of the
+record that landed it, cited below and not re-derived here; what this note
+re-checked for itself is listed separately, so the two are not blurred.
+
+**Task 6.24 is performed, and it took two dispatches.** Both used the 2026-09-09
+packet the § 13.4 pre-note chose
+(`hermes/domain/review-councils/convening-packets/2026-09-09-openxfactory-substantive-candidate-class-re-put.md`).
+`gh run list --workflow gate-rules-convening-trigger.yml` now shows **nine**
+runs in the workflow's whole history. These two are the eighth and ninth, the
+only two since T1, and none has run since:
+
+| run | dispatched (UTC) | Brett Heap's word, verbatim | subject pin (PR) | outcome |
+|---|---|---|---|---|
+| `35135959678` | 2026-09-16T18:41:24Z | *"dispatch it"* (2026-09-16T18:41:17Z) | `4a92ee67c97e896bc906c1dde89ffe0d2ce471d1` (cxF #471, the § 13.4 pre-note's candidate) | `claim` **admitted** (`GRC-CONVENE-4a92ee67c97e-35135959678`); `convene` **REFUSED** with no verdict at step 13, "Resolve the run specification"; no artifact; **the pin is SPENT** |
+| `35358405192` | 2026-09-18T14:47:21Z | *"re-dispatch on 475"* (2026-09-18T14:4xZ) | `926212af191a3f138b1378c5bc4504461b193e83` (cxF #475) | **ADMITTED AND SEALED**, `completed/success` (14:47:21Z → 14:48:00Z) |
+
+Both words were given in session, with no comment URL; their UTCs are the
+lane log's RULED lines (`lanes/log/codeXfactory-2.md` in brett-wip, lines 37
+and 46). **Both runs carry Brett Heap's identity** (`actor` and
+`triggering_actor` `brettheap`) **and the lane's keystroke.** The record
+keeps those two apart on purpose, and this note follows it. The act is his:
+§ 7.2 defines "operator act" as naming whose act it is, not whose hands. A
+first word of 2026-09-15T23:27:58Z, *"dispatched the proof convening, do the
+admission"*, never reached GitHub. No run existed at 23:29:27Z, and the
+refused-run record § 1 has the sequence.
+
+**THE REFUSAL, AND THE FIX THAT PRECEDED THE RE-DISPATCH.** Run `35135959678`
+failed on this error, verbatim: *"the declared-model map carries
+['client-security-compliance-officer'], which the resolved bench does not seat.
+Two literals in one lane is how a triggered convening seats four and returns
+three"*. That is `scripts/execution_lane/sealed_request.py::build_run_spec`'s
+surplus guard. It was written 2026-09-05 (`09409415`), when the profile
+declared four seats. Since T1 the profile declares five, and this
+non-security packet resolves four, so every convening whose conjunction does
+not fire was refused. **The fix is codexFactory PR #482 →
+`cd3f8a7c3b8a06e6e6097541aaa45c07007f3e4c`**, merged 2026-09-18T14:21:45Z on
+Brett Heap's word *"merge 482"*. It made three changes and added a
+contradiction guard. `build_run_spec` now
+takes `unrequired_conjunction_seats`, the resolver's own answer, and
+subtracts only those seats from the surplus check. `bench.declared_models` is
+restricted to the seated bench. A new `bench.unseated_conjunction_seats` is
+recorded. `cd3f8a7c` is an ancestor of the admitted run's tooling head
+`c615c379`. Full record: cxF
+`hermes/domain/review-councils/records/2026-09-16-gate-rules-proof-convening-refused-run-35135959678.md`.
+
+**THE ADMISSION AND THE SEAL, as the record carries them**: cxF
+`hermes/domain/review-councils/records/2026-09-18-gate-rules-proof-convening-under-grant-grc-0003.md`
+§§ 1-4, and the sealed `run-spec.json` / `manifest.json` beside it.
+
+| field | value |
+|---|---|
+| convening id | **`GRC-CONVENE-926212af191a-35358405192`** (`manifest.json` `job.job_id` `…-35358405192.1`) |
+| `subject_pin` / `subject_pin_source` / `subject_pin_verified_at` | `926212af191a3f138b1378c5bc4504461b193e83` / `codeXfactory/codexFactory#475` / **`2026-09-18T14:47:28.779888+00:00`** |
+| council content digest | `sha256:19423e335f0beea3ed041f1ef38dad7ce88eaec6d840f5470825d82e89d93c25`, at overlay revision `8931ee2e18948d7e61418a3f84c94180f283eccf` |
+| bench | **four seats**: `lead-architect`, `lead-security`, `lead-quality`, `company-policy-lead`. `declared_models` has exactly those four keys; **`unseated_conjunction_seats: ["client-security-compliance-officer"]`**; `intent_owner_role_slot` is excluded as symbolic |
+| conjunction evidence | `rule_touches_security_posture`, **`required: false`**, `seat_identity: "declared"`, `unbound_why: null`. The packet reaches `openspec/changes/**` and `openspec/specs/**`, and neither is a declared security surface |
+| origin attestation | key `key-factory-codexfactory-0001`, register row `row-origin-codexfactory-0001`, public-half fingerprint `sha256:d88db98a5b77c1b7acb71551a91f21854571c1e163a444e91d37569b0062c0df` |
+| manifest digest | `xfc-jcs-sha256-1` over `sealed_bundle_manifest`, `sha256:d057bc693a1cfb2720ab3d84fc18f640d39c05f97dbb54891d1c7a7ba37fb7b5` |
+| `source_revisions` | `candidate_sha` `926212af191a3f138b1378c5bc4504461b193e83`, **`lane_tooling_sha` `c615c3794df6022073f5181e5fc79f4be9831cd7`** (cxF `main` at dispatch, carrying #482) |
+| sealed artifact | `sealed-gate-rules-convening-request`, id `10553680868`, 9960 bytes, expired 2026-09-19T14:47:52Z. **Its bytes were committed before it expired** |
+
+**LANDED.** The record, its sealed bundle at
+`hermes/domain/review-councils/records/2026-09-18-gate-rules-proof-convening-sealed-bundle/`,
+and the refused-run record went in together as codexFactory PR **#489 →
+`f000014c772df9dc83f6f0ebdec94ef36610dee5`**, merged 2026-09-18T18:19:37Z on
+Brett Heap's word *"merge 489"*. `PROOF CONVENING LANDED` was posted on cxF
+#279 as
+[comment `5734334758`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5734334758)
+(2026-09-18T18:20:29Z).
+
+**RE-CHECKED BY THIS NOTE, not taken from the record:**
+
+* The six sealed files on cxF `main` are byte-identical (`cmp`) to the
+  artifact copy preserved in brett-wip
+  (`handoffs/codeXfactory/attachments/codeXfactory-2/proof-convening/run-35358405192/sealed-artifact/`).
+  The five named members match the manifest's declared `size_bytes` and
+  `content_hash`.
+* The origin attestation re-verifies from the committed bytes. The test used
+  the shipped `scripts/execution_lane/sealed_request.py` and
+  `origin_signing.py` at `cb504bec`, in a members-only copy:
+  `digest equal: True`, fingerprint `sha256:d88db98a…` (the value
+  `hermes/domain/factory-identity/records/2026-09-03-factory-origin-key-minted.md`
+  registers), `origin signature verifies: True`, `members verify: OK`.
+* The run list shows nine runs, none after `35358405192`. `gh pr view`
+  confirms #482, #489 and #475 as MERGED at the shas and instants above.
+
+**THE CANDIDATE MOVED, AND THE MOVE IS NAMED.** The § 13.4 pre-note handed
+#471 to Brett Heap. The first dispatch spent it, so the admitted dispatch is
+on **#475**: the same packet on a new candidate, chosen only because the
+candidate is inert. It merged 2026-09-15T23:04:50Z → `933d2099`. It is
+single-parent (`642d669a`), and its head commit touches one file,
+`openspec/changes/repoint-browser-ui-repair-application-source/.openspec.yaml`
+(the PR's own diff has five files, all under that change). It descends from
+T1 and carries the packet. Before this run it had never been convened, and
+the admission itself measures that: a repeat claim refuses
+`council.convening_exists`. OQ-5 (a)'s *"on a re-verified clean candidate"*
+is met by that re-verification (record § 1), not by this section's pre-note.
+**The shape is the 2026-09-11 walk's § 15**: one refusal, then a re-dispatch
+on Brett Heap's explicit ruling, admitted.
+
+**WHAT IT PROVES, AND THE BOUNDS THE RECORD CARRIES**:
+
+* **It proves** that admission and origin-signed sealing run clean under
+  `grant-grc-0003` and the composition T1 landed, on a packet the conjunction
+  does not reach. It also proves that a five-seat profile can resolve to a
+  four-seat bench and be **recorded rather than refused**: the four-key
+  `declared_models` and the one-element `unseated_conjunction_seats` are
+  inside the signed bytes.
+* **It is NOT a second measurement of the register projection.** The
+  admission path does not read that projection (`walk-2026-09-11-register-act.md`
+  § 13.2), so this run could not fire `review_authority.grant_revoked` or
+  `review_authority.register_stale` whatever the register held. **§ 13.2's
+  cluster read stays the proof** that the projection carries T2.
+* **No seat was convened, no model was invoked and no seat return was
+  signed.** Only the origin key signed anything. Task 4.5 stays open.
+* **The conjunction did not fire.** LQ2-C4's deadline is C2's (§ 13.5) and is
+  **not reached** by this run.
+* **The domain-content projection is still not reseeded.** The overlay
+  revision and content digest above are byte-identical to the 2026-09-10 and
+  2026-09-11 runs, so the record names the reseed (R-4) as still owed.
+
+**Ticks task 6.24.** In `tasks.md`, each earlier `[OPERATOR]` row booked
+after Brett Heap acted is ticked, with his word and its date: 1.1-1.5, 4.1,
+6.1, 6.1a, 6.8, the operator-word row 6.20, and the rows of § 3, which is
+`[OPERATOR]` throughout. None is left unticked with a dated act beside it.
+This row follows that convention and cites the word *"re-dispatch on 475"*.
+
 ### 13.5 C2 unparks (tasks 6.23, 6.25, 6.26) — **APPENDED BY PART C**
 
 Re-select a clean candidate at that moment (heads and pins will have moved),
@@ -1342,6 +1475,206 @@ after the proof convening — this section is appended so the finding and the
 pre-selection are on record before Brett Heap's dispatch, as § 13.4's pre-note
 was.
 
+#### 13.5 — SELECTION NOTE APPENDED 2026-10-04: TASK 6.23 IS PERFORMED — THE C2 CANDIDATE IS cxF #470 HEAD `cd5ee340`, RE-CHECKED CLEAN AGAINST cxF MAIN `cb504bec`; C2 (TASK 6.25) AWAITS BRETT HEAP'S DISPATCH
+
+Read 2026-10-04T17:4xZ by lane `codeXfactory-2` (session
+`8d6bf418-cc06-45d9-9406-2374935c6c72`), read-only. The reads were `gh` calls
+and `git` reads of codexFactory `main` at
+`cb504bece4fd4d9f093827e7a46999b00de1aa45` (2026-10-04T13:54:36Z, PR #499).
+The resolver ran in a `git archive` extract of that tree, outside any
+checkout. Spends no pin. **Nothing is dispatched.**
+
+**The selection holds.** This section's 2026-09-15 pre-note pre-selected cxF
+#470. The refused-run record's § 6 and § 7.1 and the proof-convening record's
+§ 9 step 3 then reserved it for C2 and kept it unspent. The lane pre-screened
+it clean on cxF `main` `bdbbdb82` at #279
+[comment `5734187903`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5734187903)
+(2026-09-18T18:08:22Z). Task 6.24 was performed on 2026-09-18 (§ 13.4
+post-note), so this is the selection the pre-note deferred to, *"at the moment
+of selection, after the proof convening"*. Task 6.23's checks, re-run today:
+
+| 6.23 check | how it was read | read 2026-10-04 |
+|---|---|---|
+| PR state, head | `gh pr view 470 -R codeXfactory/codexFactory --json state,headRefOid,baseRefName,mergeStateStatus` (2026-10-04T17:44:38Z) | **MERGED** 2026-09-14T08:55:47Z (merge commit `046e9c51`), base `main`, head **`cd5ee34082a63b59b4037a6732138602996a4f1f`**. The head is unchanged, and a merged head cannot move |
+| parents | `git rev-list --parents -n1` | **1** (`5e49233f`), so the touched-object resolver reads this commit's own diff and never a merge's first-parent sweep |
+| files | `gh api repos/codeXfactory/codexFactory/commits/cd5ee340… --jq '.files[].filename'` | **one**: `openspec/changes/realize-provenance-gated-autonomous-merge/tasks.md`. It is neither `hermes/domain/agent-mixes.yaml` nor `hermes/domain/review-councils/gate-rules.yaml` |
+| T1 ancestry | `git merge-base --is-ancestor eff9ae19 cd5ee340` | **TRUE** |
+| never convened | `gh run list --workflow gate-rules-convening-trigger.yml`; `git grep cd5ee340` over `hermes/domain/review-councils/` | nine runs ever. The only post-T1 subject pins are `4a92ee67` (#471) and `926212af` (#475). `cd5ee340` appears in records only as *reserved for C2* |
+| C2 packet in its tree | `git cat-file -e cd5ee340:hermes/domain/review-councils/convening-packets/2026-09-11-routine-code-clearance-repository-respelling.md` | **present**, blob `1e320cde`, the same blob as cxF `main`'s. It is **not** the blob #407 → `76f2e771` landed (`7278e85c`): the packet was amended once since, by #446's LQ2-C4 re-route (`6e35eeb4`, 2026-09-12), the amendment LQ2-C4 requires C2's packet to carry. `76f2e771` is an ancestor of `cd5ee340` |
+| five seats | `deliberation_packet.py rule-facts` then `resolved-seats --council-id gate_rules_council`, at `cb504bec` | `rule_touched_paths` `["scripts/merge_master/codexfactory-routine-code-clearance.yaml"]`; `required_seats` **five**: `lead-architect`, `lead-security`, `lead-quality`, `company-policy-lead`, **`client-security-compliance-officer`**. The conjunction `rule_touches_security_posture` is **`required: true`**, `seat_identity: "declared"`, `unbound_why: null`; `unbound_conjunction_seats` **`[]`** |
+
+**Machinery drift since the proof convening, named for the dispatch-time
+re-check.** The diff ran from the proof run's tooling head `c615c379` to cxF
+`main` `cb504bec`. It covered both convening workflows,
+`deliberation_packet.py`, `gate-rules.yaml`, `agent-mixes.yaml`,
+`seat_resolution.py`, `scripts/execution_lane/` and `deliberation-bundle.py`.
+**Exactly one file moved:** `scripts/execution_lane/sealed_request.py`, +42/-13,
+landed through cxF #497 → `e4d1515f` (2026-10-04T13:05:56Z). Its three hunks
+are imports and `write_json`, whose member write is hardened against
+symlink, hardlink and special-file redirection. `build_run_spec` and seat
+resolution are untouched. **It is named because C2 will run a sealer that the
+proof convening did not exercise.**
+
+**The dispatch this selection is for — task 6.25, BRETT HEAP'S ACT.** His
+carried word is *"convene C2"* (2026-09-11T13:26:14Z). The command, as
+pre-filled in the lane's re-verification checklist
+(`handoffs/codeXfactory/attachments/codeXfactory-2/c2-dispatch-6-23-draft.md`
+§ 3 in brett-wip):
+
+```sh
+gh workflow run gate-rules-convening-trigger.yml -R codeXfactory/codexFactory --ref main \
+  -f rule_packet_ref=hermes/domain/review-councils/convening-packets/2026-09-11-routine-code-clearance-repository-respelling.md \
+  -f subject_pin=cd5ee34082a63b59b4037a6732138602996a4f1f \
+  -f candidate_pull_number=470
+```
+
+The expected result: **FIVE** resolved seats, the conjunction **fires**,
+`unseated_conjunction_seats` **`[]`**, and the convening is admitted and
+sealed. That makes it the first live run of the other half of #482, per the
+proof-convening record's § 9 step 4: a firing conjunction must produce an
+empty `unseated_conjunction_seats`, and a seat named both required and
+unseated is refused. It is also **LQ2-C4's deadline**.
+
+**RE-VERIFY AT DISPATCH.** The head cannot move, but `main` can, and C2 runs
+`main`'s tooling. Immediately before 6.25, re-run three checks: the trigger
+run list (no run may have pinned `cd5ee340`), the machinery diff against
+`cb504bec`, and `resolved-seats`. **A selection read on 2026-10-04 is not a
+selection at the dispatch instant.** The fallback the pre-note named, #474
+head `049455c0`, was **not** re-checked by this note.
+
+**Ticks task 6.23.** It is a `[lane]` row, ticked at selection. **No
+dispatch follows from this note.**
+
+#### 13.5 — POST-NOTE APPENDED 2026-10-05: C2 DISPATCHED, ADMITTED, RECORDED — TASKS 6.25 AND 6.26 ARE PERFORMED (RUN `37230435234`; cxF #500 → `cc85a3cc`)
+
+Read by lane `codeXfactory-2` (session
+`8d6bf418-cc06-45d9-9406-2374935c6c72`), in reads completed by
+2026-10-05T15:00Z, and composed by an Opus agent the lane directed.
+Everything was read-only. The reads were `gh` calls (the run object, both
+jobs' logs, PR #500, three #279 comments, codexFactory `main`'s branch
+rules), `git show` reads of codexFactory `main` at
+`cc85a3cc29caabb6a2894d3e935d1e965e84d007`, and `git show` reads of
+`opensoft/brett-wip` `main` at `c0a95d4f`. Spends no pin. **Nothing is
+dispatched, posted or merged by this note.** The convening's own facts are
+those of the record that landed it, cited below and not re-derived here.
+What this note re-checked for itself is listed separately, as the § 13.4
+post-note did.
+
+**Task 6.25 is performed: C2 was dispatched, admitted and sealed.**
+
+| field | value | read from |
+|---|---|---|
+| dispatched | **2026-10-04T20:00:34Z** (`created_at` and `run_started_at` the same instant) | the run object |
+| workflow, ref | `gate-rules-convening-trigger.yml`, `main` at `cb504bece4fd4d9f093827e7a46999b00de1aa45` | the run object |
+| identity | `actor` / `triggering_actor` **`brettheap`** / **`brettheap`** | the run object |
+| inputs | `rule_packet_ref` `hermes/domain/review-councils/convening-packets/2026-09-11-routine-code-clearance-repository-respelling.md`; `subject_pin` `cd5ee34082a63b59b4037a6732138602996a4f1f` (cxF #470 head, the 6.23 selection); `candidate_pull_number` `470` | the `claim` job's step environment |
+| run | `37230435234`, **`success`**; `claim` 20:00:41Z→20:00:48Z; `convene / convene` 20:00:52Z→20:01:12Z | `gh run view --json jobs` |
+| admission | **`GRC-CONVENE-cd5ee34082a6-37230435234`** (notice at 20:00:45Z); `subject_pin_source` `codeXfactory/codexFactory#470`; `subject_pin_verified_at` `2026-10-04T20:00:44.845479+00:00` | the `claim` job's log |
+| bench | `resolved bench (5 seats): lead-architect lead-security lead-quality company-policy-lead client-security-compliance-officer` (20:01:05Z); `run-spec: … 5 seat(s), 0 unseated conjunction seat(s)` | the `convene / convene` job's log |
+| seal | `verified: deliberation sha256:7fc5a8d7fa694726529cbe158bacda28eb6da1e6c803fe84bde1057ac3251253 (5 members, expires 2026-10-04T22:01:06Z)` | the `convene / convene` job's log |
+| sealed artifact | `sealed-gate-rules-convening-request`, id `11312419676`, 13955 bytes, retention to **2026-10-05T20:01:07Z** | the artifacts API |
+
+**The words, each with its source.**
+
+| word, verbatim | UTC | source | what it does here |
+|---|---|---|---|
+| *"merge the packet PR when green then convene C2"* | 2026-09-11T13:26:14Z | `c2-prep.md` (brett-wip `handoffs/xFactory/recovered-host-session-prompts/codexfactory-org-transfer/`), header lines 5-6 and its words table | clause 1 was discharged by #407 → `76f2e771`; **clause 2, `convene C2`, is the carried word task 6.25 discharges** |
+| *"dispatch C2"* | 2026-10-04, in session | lane log `lanes/log/codeXfactory-2.md` (brett-wip), NOTED line of 2026-10-04T20:01:50Z; cxF #279 [comment `5983851562`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5983851562) (2026-10-04T20:01:36Z) | the dispatch itself |
+| *"merge the C2 record PR when green"* | 2026-09-11T13:27:23Z | `c2-prep.md`, header lines 6-7 and its words table | the merge of cxF #500 (task 6.26) |
+
+*"dispatch C2"* has no comment URL of Brett Heap's own. Both artifacts that
+record it are the lane's: the lane log line, and the #279 comment the lane
+posted under his `gh` login. The C2 record's § 1 says so, on the precedent of
+the proof convening's *"re-dispatch on 475"*. **The act is his; the
+keystroke was the lane's**, under his `gh` login, as § 7.2 defines "operator
+act". `C2 ADMITTED AND SEALED` was posted on #279 as
+[comment `5983881686`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5983881686)
+(2026-10-04T20:05:04Z).
+
+**THE BENCH IS THE ONE 6.25 EXPECTED, AND NO EARLIER CONVENING HAD IT.**
+The sealed `run-spec.json` carries five `required_seats` and a five-key
+`declared_models`: `lead-architect` `claude-opus-5`, `lead-security`
+`claude-opus-5`, `lead-quality` `claude-sonnet-5`, `company-policy-lead`
+`claude-sonnet-5`, **`client-security-compliance-officer` `claude-opus-5`**.
+It also carries **`unseated_conjunction_seats: []`**. The sealed `facts.json`
+gives the packet's reach as
+`scripts/merge_master/codexfactory-routine-code-clearance.yaml`, inside a
+declared security surface, so the conjunction fires. **The conjunction seat
+is SEATED under the 2026-09-11 packet; the 2026-09-18 proof convening seated
+four and recorded it unseated** (§ 13.4 post-note). This is the firing branch
+of cxF #482 that the selection note named in advance, and the first use of
+cxF #497's hardened `write_json` in a sealed convening. The run log shows no
+`##[error]` line. **`cd5ee340` is now SPENT** (record § 1).
+
+**Task 6.26 is performed: the record, its sealed bundle, the merge, the
+post.**
+
+| 6.26 clause | evidence |
+|---|---|
+| hand-write the convening record | cxF `hermes/domain/review-councils/records/2026-10-04-gate-rules-c2-convening-under-grant-grc-0003.md`. Its header (*"Precedents matched"*) says it mirrors `records/2026-09-18-gate-rules-proof-convening-under-grant-grc-0003.md` section for section, which *"in turn mirrored"* `records/2026-09-10-gate-rules-first-signed-convening.md` |
+| commit the sealed bundle **before its 1-day artifact retention expires** | `…/2026-10-04-gate-rules-c2-convening-sealed-bundle/` holds a `README.md` plus the six sealed files: `manifest.json` and its five named members. It was first committed in `c1729b71` (2026-10-04T20:26:52Z) and reached cxF `main` at 21:34:43Z. The artifact expires 2026-10-05T20:01:07Z. The bytes were preserved first, at 2026-10-04T20:03:34Z, in brett-wip `f28360b2e` under `handoffs/codeXfactory/attachments/codeXfactory-2/c2-convening/run-37230435234/` |
+| open the C2 record PR and merge on green under the standing word | cxF PR **#500**, opened 2026-10-04T20:30:51Z → **`cc85a3cc29caabb6a2894d3e935d1e965e84d007`**, merged **2026-10-04T21:34:43Z** under the `brettheap` login, on the carried word *"merge the C2 record PR when green"* (lane log LANDED line of 21:34:49Z). cxF `main`'s required contexts are `validate` and `lane-line` (its branch rules). At head `b362ad57` they passed at 21:34:32Z and 21:28:30Z, before the merge. The four checks that completed after the merge all passed, the last at 21:53:03Z. The rules also require an approving review; it was an **admin merge over the review rule**, as the DISCHARGED post states. The PR's history carries `5661cd46` (*"three wording precisions"*) and `b362ad57` (`main` merged into the branch) before the merge |
+| post `C2 DISCHARGED` on cxF #279 | [comment `5984628943`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5984628943), 2026-10-04T21:34:50Z, seven seconds after the merge. It cites the record path, the merge commit and the word |
+
+**WHICH THREE WORDS: READ FROM THE AMENDMENT, NOT GUESSED.** Task 6.26, and
+this section's own stub above, say the post closes *"α and all three
+carried-forward C2 words"*. The amendment record
+(`review/amendment-2026-09-11-q-grc-4-discharge.md`) heads its § 7 *"The C2
+dependency, and the three words it discharges"*, and that section names
+them. The first is § 2.1's standing word α (*"α, park C2 until Q-GRC-4 is
+discharged"*, 2026-09-11T14:23:26Z). The other two are the *"Two words …
+carried forward"*: `convene C2` (2026-09-11T13:26:14Z) and `merge the C2
+record PR when green` (2026-09-11T13:27:23Z). `proposal.md` names the same
+two carried words. **All three are now closed.** α was lifted at task 6.22
+(§ 13.4 pre-note) and C2 has now run; `convene C2` was spent by run
+`37230435234` (6.25); the merge word was spent by #500 (6.26). **Two
+differences are named and not reworded.** The task's *"α and all three"*
+counts α once more than § 7 does; this note reads it as § 7's three. And the
+post names the merge word only: it does not name α or `convene C2`, which
+were spent earlier in the same chain.
+
+**THE RECORD'S OWN BOUNDS, QUOTED RATHER THAN PARAPHRASED.** Its `Status:`
+line opens *"record — **NOT A DISPOSITION, AND NOT A SITTING.**"* and says
+*"**NO SEAT WAS CONVENED, NO MODEL WAS INVOKED, AND NO SEAT RETURN WAS
+SIGNED.**"* The five decision items are *"**PUT, NOT ANSWERED**"*. The run
+sealed a request. The only signature on the act is the ORIGIN attestation
+over the request manifest (record § 6). The five `declared_models` are the
+roster's declaration, not a record of anything having run, and *seated in a
+sealed request* is not *sat*. The record cites the CSC pin under LQ2-C1 (b)
+only. It records LQ2-C4's deadline as **reached with the re-route already in
+place** and does not record LQ2-C4 as discharged, and LQ-C4 is not answered.
+Like the proof convening, it is not a measurement of the register
+projection: § 13.2's cluster read stays that proof. **Tasks 4.4 and 4.5 stay
+open: no seat return was signed.**
+
+**RE-CHECKED BY THIS NOTE, not taken from the record:**
+
+* The five named members match the sealed `manifest.json`'s `size_bytes` and
+  `content_hash`, and the manifest digest recomputes (`digest equal: True`,
+  `sha256:7fc5a8d7…`). The origin signature verifies (`origin signature
+  verifies: True`, `members verify (5 named): OK`) under the public half
+  `hermes/domain/factory-identity/records/2026-09-03-factory-origin-key-minted.md`
+  line 33 registers (fingerprint `sha256:d88db98a…`). The check used the
+  shipped `scripts/execution_lane/` modules, run from a `git archive` of
+  `cc85a3cc`, whose copy of that directory is identical to `cb504bec`'s. The
+  only file the manifest does not name is `README.md`.
+* The six sealed files on cxF `main` are byte-identical (`cmp`) to the
+  brett-wip `f28360b2e` copy.
+* The sealed `run-spec.json` carries `source_revisions.candidate_sha`
+  `cd5ee340…` and `lane_tooling_sha` `cb504bec…`, and the seats, models and
+  empty `unseated_conjunction_seats` tabled above.
+* PR #500 is MERGED at `cc85a3cc`, whose parents are `e452e727` and
+  `b362ad57`. Its check runs and `main`'s branch rules are as tabled above.
+
+**Ticks tasks 6.25 and 6.26.** 6.25 is an `[OPERATOR]` row and follows this
+file's convention, which the § 13.4 post-note lists. It is ticked with Brett
+Heap's recorded word and its date: *"dispatch C2"*, 2026-10-04, carrying
+*"merge the packet PR when green then convene C2"* (2026-09-11T13:26:14Z).
+6.26 is a `[lane]` row, ticked on its landed evidence with the two
+differences above named. **Nothing is dispatched, posted, merged or held by this note.**
+6.15 and 6.18 stay open on their named clauses (§ 13.6 bookkeeping note).
+6.27 and 6.28 are not touched, and task 4.6 does not tick (6.27).
+
 ### 13.6 What is owed, and by whom
 
 | Owed | By | Gates what |
@@ -1355,3 +1688,271 @@ was.
 | § 13.5 C2 candidate re-selection (6.23) — **pre-selected 2026-09-15: cxF #470 head `cd5ee340`, fallback #474 head `049455c0`; c2-prep § 3's #407 head fails T1 `eff9ae19`** | the lane, after § 13.4 | § 13.5's C2 dispatch (6.25) |
 | LQ2-C2 corroboration | the lane, ruled to follow T1 | nothing here |
 | LQ2-C4 re-route | the lane | § 13.5's convening |
+
+**STATUS LINES APPENDED 2026-10-04**: one for each item the table still shows
+open, plus the two now owed. The rows above are left exactly as they stood,
+and the five struck rows were already closed.
+
+* **§ 13.4 proof convening (task 6.24)**: **DONE 2026-09-18.** Run
+  `35358405192` was admitted and sealed under `grant-grc-0003` on Brett
+  Heap's *"re-dispatch on 475"*, after run `35135959678` was refused at the
+  run specification and cxF #482 → `cd3f8a7c` fixed the cause. Recorded by cxF
+  #489 → `f000014c` (§ 13.4 post-note).
+* **§ 13.5 C2 candidate re-selection (task 6.23)**: **DONE 2026-10-04.** cxF
+  #470 head `cd5ee340` is SELECTED, re-checked clean against cxF `main`
+  `cb504bec` (§ 13.5 selection note). The fallback #474 was not re-checked.
+* **LQ2-C2 corroboration**: not re-assessed by this note. cxF
+  `records/2026-09-12-lq2-c2-corroboration.md` (the corroboration half, by
+  execution against T1) is on `main` and is among the records § 13.1 lists.
+  The proof-convening record's § 8 carries LQ2-C2 as undischarged by that run.
+* **LQ2-C4 re-route**: not re-assessed by this note.
+  `records/2026-09-12-lq2-c4-reroute.md` re-aims LQ-C4 to name
+  `client-security-compliance-officer` and, in its own words, *"discharges
+  nothing"*. Its deadline is C2, which has not run.
+* **NOW OWED, and not a row above:**
+  * **task 6.25, C2's dispatch**: Brett Heap's act, on #470 / `cd5ee340`
+    with the 2026-09-11 packet, after a dispatch-time re-verification
+    (§ 13.5 selection note).
+  * **task 6.26, the C2 record**: the lane's, on admission, committing the
+    sealed bundle inside its 1-day artifact retention.
+
+**STATUS LINE APPENDED 2026-10-04 (bookkeeping)**, for the row *"the fill +
+the merge (T2)"*. The table already showed it DONE, but its `tasks.md` rows
+were never ticked. Tasks 6.9–6.14 are now ticked against T2. Tasks 6.15 and
+6.18 stay open, each with a dated note. The evidence is in the note below.
+
+**STATUS LINES APPENDED 2026-10-05 (C2)**, for the two items the 2026-10-04
+status lines listed as *"NOW OWED, and not a row above"*, and for the one
+row whose deadline C2 was. No row of the table is edited.
+
+* **task 6.25, C2's dispatch**: **DONE 2026-10-04T20:00:34Z.** Run
+  `37230435234` on #470 / `cd5ee340` with the 2026-09-11 packet, on Brett
+  Heap's word *"dispatch C2"*. It was admitted as
+  `GRC-CONVENE-cd5ee34082a6-37230435234` and sealed with FIVE seats and
+  `unseated_conjunction_seats: []` (§ 13.5 post-note).
+* **task 6.26, the C2 record**: **DONE 2026-10-04T21:34:43Z.** cxF #500 →
+  `cc85a3cc`, with the sealed bundle committed inside its retention, on the
+  carried word *"merge the C2 record PR when green"*. `C2 DISCHARGED` is on
+  #279 as comment `5984628943` (§ 13.5 post-note).
+* **LQ2-C4 re-route**: its deadline, C2, is now **reached**, with the
+  re-route in place. The C2 record does not discharge LQ2-C4, and LQ-C4 is
+  not answered.
+* **Still open, and not this note's**: tasks 4.4 and 4.5 (no seat return was
+  signed), and 6.15 and 6.18 (the bookkeeping note below).
+
+#### 13.6 — BOOKKEEPING NOTE APPENDED 2026-10-04: TASKS 6.9–6.14 TICKED AGAINST T2; 6.15 AND 6.18 LEFT OPEN, EACH ON ONE NAMED CLAUSE
+
+Read 2026-10-04T20:4xZ–20:5xZ by lane `codeXfactory-2` (session
+`8d6bf418-cc06-45d9-9406-2374935c6c72`) and composed by an Opus agent the lane
+directed. Everything was read-only: `gh` calls; `git show` and `git diff` on
+openxFactory `main` at `0e01ca85`, on T2 (`765d8c6f`) and on its first parent
+`ee251d6c`; and `git show` reads of codexFactory `main` at `cb504bec`.
+Nothing is dispatched or posted, and nothing in `governance/review-authority/`
+moves.
+
+**Why this note exists.** The 2026-09-12 pre-stage block in `tasks.md` said
+6.9–6.15 *"tick at T2, in the merge commit or immediately after it"*, and the
+2026-09-13 block said 6.18 does too. T2 landed and §§ 13.1–13.5 were booked,
+but those eight rows were never ticked. This note checks each one against
+what landed and does not count anything as done because it was planned.
+
+**The rule applied.** A row is ticked only when a landed artifact shows every
+clause of it. `[OPERATOR]` rows follow this file's own convention: they are
+ticked with Brett Heap's recorded word and its date. For 6.9–6.14 that word
+is *"merge 1006"*, given in session at 2026-09-13T22:29Z (#1006 LANDING
+comment `5656603800` stamps 22:29:07Z; LANDED comment `5656613301`). The act
+is his. The bytes were composed by lane `hermes-wallet-exercise` and the
+merge keystroke was the lane's (§ 7.2, § 13.3 mismatch (2)). A row that
+misses any clause stays open, with a dated note naming that clause.
+
+| task | disposition | evidence |
+|---|---|---|
+| **6.9** REVOKE `grant-grc-0002` | **TICKED** | T2's diff changes one existing line (`state: active` → `revoked`) and appends the header and the `revocation` block. `revoked_at` is `2026-09-13T02:20:48Z`. The reason opens *"DRIFT: declared composition change — SEAT ADDITION."* and is 575 characters against a maximum of 600 (re-measured). § 5.1 |
+| **6.10** MINT `grant-grc-0003` | **TICKED** | new `grant_id`, `state: active`, `issued_at` equal to the revocation instant, `issued_by: Brett.Heap@opensoft.one`, `expires_at` `2027-06-30T00:00:00Z` (OQ-2 (a)), no `parent_grant_ref`. Its key paths are the same as `grant-grc-0002`'s (parsed). Each scope element is re-examined in the grant's header. § 5.2 |
+| **6.11** REPOINT `row-grc-0001` | **TICKED** | parsed at T2's first parent and at T2: one field changed, `grant_ref` → `grant-grc-0003`. Two rows of nine fields each; `row-mrc-0001` unchanged. § 5.3 |
+| **6.12** the ninth `seat_keys` entry | **TICKED** | placed directly after the gate-rules `company-policy-lead` entry, with seven fields and the values 6.12 names. `public_key` is character-for-character the one in the cxF #452 mint record. The fingerprint, recomputed here from that `public_key`, is `sha256:85a4f476…3310`. The first eight entries are unchanged. § 5.4 |
+| **6.13** the fifth wallet key | **TICKED** | seven fields matching the four above it. `key_fingerprint` is byte-identical to 6.12's, and `did` is `did:key:` plus the multibase. The block comment's append-only `2026-09-12 ADDENDUM` records the discharge and names `intent_owner_role_slot` as still deliberately absent. § 5.5 |
+| **6.14** the gate's literals | **TICKED** | `8 of 8` → `9 of 9` and grc `5` → `6 declared key(s)`, in pre-staged commit `764006df` together with the register and wallet writes. mrc stays at `5`, and the pinning test moved with them. "Four to five" is this body's key count (amendment record § 5), carried inside those two literals. § 5.6 |
+| **6.15** ONE walk record at `walk-<T2-date>-…` | **LEFT OPEN** | every clause is met except the path. T2 fell on 2026-09-13 and this file is `walk-2026-09-12-…`. § 6.8 records the *"ONE NAMING TENSION, DISCLOSED AND NOT RESOLVED"* and leaves it to the ratifying human. No re-date and no ruling is on record |
+| **6.18** T2 | **LEFT OPEN** | the merge, the single H2 pull request and the hold spanning T1 to T2 are all evidenced. The pair shape as written is not. The codexFactory half landed as cxF #439 (H1, 6.2–6.7) **and** cxF #452 (6.8's mint record), which merged after T2 on *"merge 452 when green"* (2026-09-13T02:15:52Z). That is the shape OQ-4 option (b) named. No word on record decides it |
+
+**Re-checked by this note itself, not taken from the earlier sections:**
+
+* The pinned reader, run on openxFactory `main` `0e01ca85` with openXwallet at
+  `f3eb929b` (`wallet-v1.5`), reports `intake register read: … (2 row(s))`,
+  `9 of 9 per-seat signing key(s) adjudicated and resolved`,
+  `wal-agent-grc-0001': 6 declared key(s) adjudicated`,
+  `wal-agent-mrc-0001': 5 declared key(s) adjudicated` and
+  `0 error(s), 0 warning(s)`, with no `[register-*]` line.
+  `verify-openxwallet-pin.py` is OK (8 digests recomputed), and
+  `pytest tests/openxwallet_consumer_gate` passes 18 of 18.
+* #1006 is MERGED at `765d8c6f` (2026-09-13T22:30:20Z), with
+  `wallet-validation` and `pytest-suite` SUCCESS among its checks.
+  cxF #452 is MERGED at `58f1e909` (2026-09-13T22:32:20Z) and cxF #439 at
+  `eff9ae19`.
+* The ninth entry's fingerprint and multibase were recomputed here from its
+  base64url public half alone, and they equal the register, wallet and
+  mint-record values. This was a check only: the values in the tree came from
+  the pinned decoder (§ 6.8).
+
+**What would close the two open rows.** Each needs a word from Brett Heap,
+not more bookkeeping. For 6.15: accept the walked-day filename, or rule a
+re-date (four governance files and `tasks.md` cite this path, § 6.8). For
+6.18: say whether cxF #439 + #452 meets OQ-4 (a), or re-scope the row.
+
+**Not touched by this note:** 6.25 and 6.26 (C2's dispatch and its record,
+which a separate record pull request books), and 6.27 / 6.28. Task 4.6 does
+not tick here (6.27). No hold is posted or lifted, and no convening is
+dispatched.
+
+#### 13.6 — BOOKKEEPING NOTE 2 APPENDED 2026-10-05: TASKS 1.7, 2.1–2.6 AND 5.1 TICKED AGAINST WHAT LANDED; 5.3 LEFT OPEN, WITH A DATED READING
+
+Read by lane `codeXfactory-2` (session
+`8d6bf418-cc06-45d9-9406-2374935c6c72`), in reads completed by
+2026-10-05T15:2xZ, and composed by a Sonnet agent the lane directed.
+Everything was read-only: `gh` calls and `gh api` reads; `git show`, `git diff`
+and `git archive` reads of openxFactory `main` at `20ce593e8` and of three
+landed commits (below); `git` reads of a scratch clone of `opensoft/openXwallet`
+checked out at `6ec84b1b` and at `f3eb929b`, in the lane's scratch directory
+and not in any shared checkout (the two mutation runs were on scratch COPIES of
+the reader and nothing was committed); and `gh api` reads of codexFactory `main`
+at `cc85a3cc`. Nothing is dispatched, posted or merged by this note, and
+nothing under `governance/review-authority/` moves. This section is appended at
+the end of the file and edits no earlier section: a concurrent branch, the one
+that books tasks 6.25 and 6.26, appends inside §§ 13.5 and 13.6 at the same
+time, and the two are meant to merge without touching each other.
+
+**Why this note exists.** Nine rows of `tasks.md` were still unticked although
+what they ask for landed between 2026-09-06 and 2026-09-13: 1.7, 2.1–2.6, 5.1
+and 5.3. The first note in this section (2026-10-04) booked 6.9–6.14 and left
+6.15 and 6.18 open on one clause each. This one does the same for the rest of
+the rows an earlier survey found met, and checks every clause again rather than
+taking that survey's word. Eight of the nine are ticked. 5.3 is not (see the
+table and the last list below).
+
+**The rule applied.** The first note's: a row is ticked only when a landed
+artifact shows every clause of it, and a row that misses any clause stays open
+with a dated note naming it. None of the eight ticked rows missed a clause, but three of them
+carry a reading the reader should see, and each is stated under *"Where a row
+was read, not met word for word"* below. 5.3 is left open for a different
+reason: its clause binds it to the then-current `origin/main` at archive, and
+archive is blocked on the `sequenced_after` order (the coordinator's reading,
+2026-10-05), so a tick today would read as archive-time verification that has
+not happened. Rows 2.1–2.6 are tagged `[openXwallet]`: the work is another
+repository's, and they tick here as this change's own prerequisites against
+that repository's landed artifacts, the way task 3.1's DONE note ticks a
+`[codexFactory]` row (*"bookkeeping tick only; the work is another repository's
+and no openxFactory byte moves for it"*). Nothing in openXwallet's own
+`tasks.md` is touched or implied by that.
+
+| task | disposition | evidence |
+|---|---|---|
+| **1.7** validate clean; listings; ledger row | **TICKED** | The pinned entrypoint reports `--change register-gate-rules-council-seats --strict` `1 passed, 0 failed`. `--all --strict` exits 0 with `110 passed, 1 failed` and `0 UNDISPOSITIONED failures`, and itself prints "THIS IS NOT A CLEAN TREE": the one failure is `add-chain-attestation`, accepted by Brett Heap 2026-09-05 (*"take exit 2"*). `README.md:1815` (Records block) and `:129` (doc index). `corpus-ledger.yaml:282`; `--ledger-diff` says consistent, 229 rows |
+| **2.1** open the openXwallet change | **TICKED** | Its id is `proposal.md:4`'s; ratified 2026-09-06T23:25:11Z; PR #16 → `6ec84b1b`. The reader at openXwallet `05007e26` is byte-identical to the pinned `b7b0fbb3` (empty `git diff`, re-run), and its design D0 draws both codes there |
+| **2.2** RED first | **TICKED** | At `6ec84b1b`: `8 passed, 2 xfailed`, the two strict xfails being (a) the two-row admit test and (b) the same-role-name test. The twice-in-one-council refusal passes by design. At `f3eb929b`: `11 passed` |
+| **2.3** the pair key | **TICKED** | `validate-openxwallet.py:2958-2959` at `f3eb929b`; `key_id` and `key_fingerprint` stay global; narrowing them reds the two across-council probes |
+| **2.4** retire the cap | **TICKED** | No reference to `REGISTER_MVP_SINGLE_ROW`; the code `register-minimal-shape-exceeded` is in no string literal, only a docstring; the three invariants at `:2578-2616`; Q-GRC-5 and openXwallet's Q-WRR-1/2 |
+| **2.5** self-test probes | **TICKED** | Probes at `:2484-2557`, the validator reads `0 error(s), 0 warning(s)`, and reverting the pair key reds four findings |
+| **2.6** tag and digests | **TICKED** | Annotated `wallet-v1.5` (object `ff9ac797`) peels to `f3eb929b`; manifest reads `wallet-v1.5`; release inventory differs from v1.4's in one line; all eight digests recompute and agree. Reading in the third list |
+| **5.1** realization evidence | **TICKED** | #740 → `30eccf0ca` (one row, `4 of 4`); #798 → `eea40d175` (two rows, `8 of 8`); the 2026-09-08 walk in `eea40d175`'s tree; rows 1.2–1.5 ruled. **`8 of 8` is superseded by `9 of 9`** (T2); the first item's order was re-sequenced by the 2026-09-07 AMENDMENT |
+| **5.3** seat list vs. the roster | **LEFT OPEN, DATED READING RECORDED** | DATED READING, 2026-10-05, cxF `main` `cc85a3cc`: the five roster seats equal the register's five `gate_rules_council` seats, and `intent_owner_role_slot` is still deferred. **To be re-run and ticked at archive**; not ticked now because the clause is archive-time |
+
+**Re-checked by this note itself, not taken from the earlier survey:**
+
+* **The pinned validation**, from the repository root of a fresh worktree at
+  `20ce593e8`: `python3 scripts/validate-openspec-cli-pin.py --change
+  register-gate-rules-council-seats --strict` → `Totals: 1 passed, 0 failed (1
+  items)`; `--all --strict` → `Totals: 110 passed, 1 failed (111 items)`, `0
+  UNDISPOSITIONED failures`, exit 0. `python3 scripts/validate-sequenced-after.py
+  . --ledger-diff` → `per-change sweep ledger consistent with the corpus (229
+  rows)`.
+* **openXwallet**, by `git` and `gh` on a scratch clone. `gh pr view 16` and `18`
+  are MERGED at `6ec84b1b` (2026-09-06T23:42:00Z) and `f3eb929b`
+  (2026-09-07T00:49:00Z); #18's `lane-line`, `pytest-suite` and
+  `wallet-validation` are SUCCESS. `git for-each-ref refs/tags/wallet-v1.5` →
+  an object of type `tag`, `ff9ac797`, dated 2026-09-07T00:51:35Z; `git
+  rev-parse wallet-v1.5^{commit}` → `f3eb929b9ab6d78bf30e26bf1d7a99af86a7016e`,
+  an ancestor of `origin/main`; `git ls-remote --tags` agrees.
+  `git diff b7b0fbb3 6ec84b1b -- scripts/validate-openxwallet.py` and
+  `... b7b0fbb3 05007e26 ...` are both empty, so a test run at `6ec84b1b`
+  measures the pinned reader. `pytest tests/widen_register_reader` at
+  `6ec84b1b` → `8 passed, 2 xfailed`; at `f3eb929b` → `11 passed`.
+  `validate-openxwallet.py .` at `f3eb929b` → `0 error(s), 0 warning(s)`, plain
+  and `--strict`. The two mutations, each a one-line edit to a scratch copy: pair
+  key replaced by the bare value → four `register-assertion-failed` findings
+  (`register-two-bodies-clean` twice, `register-two-councils-one-seat-name`,
+  `register-second-row-unresolved`); `scoped = True` → two
+  (`seat-duplicate-across-councils[key_id]` and `[key_fingerprint]`). `ast`:
+  no `REGISTER_MVP_SINGLE_ROW` name; the one string constant mentioning
+  `register-minimal-shape-exceeded` is `check_register`'s docstring. The eight
+  contract digests, sha256 over raw git blobs at `f3eb929b`, equal both
+  `contracts/releases/wallet-v1.5.digests.yaml` and the `sha256:` rows in
+  `contracts/manifest.yaml`: 8 of 8.
+* **The reader on the three landed openxFactory commits.** Each tree was
+  extracted with `git archive` into a scratch directory outside any checkout
+  and read with the openXwallet reader at `f3eb929b`, which is the gitlink at
+  all three (`git ls-tree <commit> openXwallet`). `0 error(s), 0 warning(s)`
+  every time, and no `[register-` line:
+
+  | oxF commit | what landed | `intake register read` | `intake register:` | `wal-agent-grc-0001` |
+  |---|---|---|---|---|
+  | `30eccf0ca` | #740, the pin advance (2.7) | `1 row(s)` | `4 of 4` | not yet on `main` |
+  | `eea40d175` | #798, the register act | `2 row(s)` | `8 of 8` | `5 declared key(s)` |
+  | `765d8c6f` | #1006, T2 | `2 row(s)` | `9 of 9` | `6 declared key(s)` |
+
+* **The checks on the landed PRs**, by `gh pr view` and `gh api` on each head: #740 and #798 have
+  `wallet-validation` and `pytest-suite` SUCCESS (#798's head is `85ca4c9a`; its
+  rollup also lists a `lane-line` FAILURE and a `lane-line` SUCCESS 23 seconds
+  later on that same head, which this note did not investigate and which is not
+  one of the checks 5.1 names). #1006 → `765d8c6f` (2026-09-13T22:30:20Z) has
+  both SUCCESS.
+* **The roster**, `gh api repos/codeXfactory/codexFactory/branches/main` →
+  `cc85a3cc29caabb6a2894d3e935d1e965e84d007`, identical to the local
+  `origin/main`. `gate-rules.yaml` there: `members.domain` three seats,
+  `members.client.seat` `company-policy-lead`,
+  `members.client.conjunction_pull_in.seat` `client-security-compliance-officer`
+  (`:203`), `deferred_seats` holding only `intent_owner_role_slot`.
+  `register.yaml` at `20ce593e8`, parsed: two rows (`row-mrc-0001`,
+  `row-grc-0001`) and five `gate_rules_council` `seat_keys`, set-equal to the
+  roster's five. `agent-mixes.yaml`'s `gate_rules_council` profile lists the same
+  five in `all_possible_seats`, `model_assignments` and `prompt_contract.seats`.
+
+**Where a ticked row was read, not met word for word, stated so a reader can
+disagree; and the one row left open:**
+
+* **1.7 says `--all --strict` "clean".** The pinned entrypoint exits 0 but
+  prints that this is not a clean tree: one accepted exception that is another
+  change's. The row is ticked on "no failure attributable to this change, none
+  undispositioned". The row's own command is the unpinned `openspec`, which this
+  repository's CLAUDE.md says never to use; the pinned entrypoint is what ran.
+* **2.6 says "publish the digests in `contracts/manifest.yaml`".** The manifest's
+  digests did not move, because no contract byte did: it carries
+  `contract_bundle_version: wallet-v1.5` and the same eight `sha256:` rows. The
+  published artifact that is new is `contracts/releases/wallet-v1.5.digests.yaml`.
+  The row is ticked on the manifest carrying the release and the digests, and
+  the inventory agreeing with them.
+* **5.1 names `8 of 8` and an order.** `8 of 8` is superseded by `9 of 9`
+  (T2 added the fifth gate-rules seat key; the row count stays 2, § 5.3). The
+  first item, "§2.7 + §2.8 merged ... with the register still at one row", never
+  held as one state: 2.8's literal flip was deferred into the register act by the
+  2026-09-07 AMENDMENT and performed in #798. 2.9, the gate that was kept, is
+  already ticked. The task text is not edited.
+* **5.3 says "at the then-current `origin/main`", and is LEFT OPEN.** What is
+  recorded is a DATED READING (2026-10-05, codexFactory `main` `cc85a3cc`): the
+  five roster seats equal the register's five `gate_rules_council` seats, and
+  `intent_owner_role_slot` is still deferred. It is not a tick, because the
+  clause is archive-time and archive has not been reached. To be re-run and
+  ticked at archive, against `origin/main` on that day;
+  `intent_owner_role_slot` is the seat most likely to have moved.
+
+**An observation, not an act of this note.** openXwallet's own change
+`widen-register-reader-for-a-second-council` still shows its row 4.4 and its § 5
+(5.1–5.3, the oxF pin advance, the gate literals and the neutrality gate) open,
+although the oxF side of them has landed (#740, #798). That is openXwallet's
+bookkeeping. This note does not touch it.
+
+**Not touched by this note:** any row of § 4 (so 4.6 does not tick, 6.27), 5.2,
+6.15 and 6.18 (still open on the clauses the first note names), 6.25 and 6.26
+(the separate record pull request books them), 6.27 and 6.28. No hold is posted
+or lifted, no convening is dispatched, and no Rule 6 LANDING is posted by this
+note.

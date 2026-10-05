@@ -1,0 +1,187 @@
+T098 -- Phase 3's interim F11.1 (by T093's procedure)
+Feature: 034-opendox-standalone-operation. Lane: openxfactory-4
+(openXfactory-4-openDox_extraction); authored by lane openXfactory-3,
+delegated by lane openxfactory-4 (#656 comment 5984809456). Taken: 2026-10-05.
+
+PACKET_MERGE=94b6f7f13b45c351b9142345738965c974b7dd37
+  (#1144's own landing on openxFactory main; evidence/arc-base.md)
+ARC_TIP=36908480b40b32509c308087d9d54e6c9d81759d
+  (opensoft/openxFactory#1236, T094, phase 3's openxFactory arc landing --
+  squash-merged at 2026-10-05T14:06:42Z onto
+  70602a0aadf4c188ab87c22e0d53e3228c869ecd (#1235); first-parent line
+  confirmed; its commit message carries the trailer
+  "Arc: neutral-product-standalone-operability")
+
+Guard: 11.1's FALSIFIED BY block in
+openspec/changes/add-neutral-product-standalone-operability/tasks.md, lines
+1654-1733 at 36908480 (`set -euo pipefail` through the closing `PY`,
+dedented), extracted byte for byte from the committed file and executed as
+extracted (sha256 of the extracted script 60beede1244b6052...). It is the
+guard as T018 left it and T065 ran it: T007 batch A's COMPOSITION_TESTS
+(R1Q2 (a)) and the closed ADMITTED_ARC_EDITS list (RULED #656 comment
+5890601202). No path was added to either list for phase 3.
+
+The guard walks the arc's LANDINGS on main, first-parent, by trailer:
+
+== arc-commits.txt ==
+36908480b40b32509c308087d9d54e6c9d81759d
+fcb45380a4d9d4933038157411944c4fefa59d13
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b
+== arc-changes.tsv ==
+36908480b40b32509c308087d9d54e6c9d81759d	M	contracts/opendox-pin.yaml
+36908480b40b32509c308087d9d54e6c9d81759d	M	contracts/openxdox-pin.yaml
+36908480b40b32509c308087d9d54e6c9d81759d	M	docs/opendox-carve-admissions.yaml
+36908480b40b32509c308087d9d54e6c9d81759d	M	openDox
+36908480b40b32509c308087d9d54e6c9d81759d	M	openXdox
+36908480b40b32509c308087d9d54e6c9d81759d	M	scripts/ideation_dashboard/dashboard_refresh_lane.py
+36908480b40b32509c308087d9d54e6c9d81759d	M	scripts/opendox_host.py
+36908480b40b32509c308087d9d54e6c9d81759d	M	scripts/profile_openxfactory.py
+36908480b40b32509c308087d9d54e6c9d81759d	M	tests/carve_arrival/test_verify_carve_arrival.py
+36908480b40b32509c308087d9d54e6c9d81759d	A	tests/domain_profile/test_host_registers_binding_trust.py
+36908480b40b32509c308087d9d54e6c9d81759d	A	tests/domain_profile/test_lane_route_asks_the_hosted_ref_predicate.py
+36908480b40b32509c308087d9d54e6c9d81759d	M	tests/domain_profile/test_openxfactory_host_wiring.py
+36908480b40b32509c308087d9d54e6c9d81759d	M	tests/ideation-dashboard/test_dashboard_source_seal.py
+36908480b40b32509c308087d9d54e6c9d81759d	M	tests/ideation-dashboard/test_doxbench_status_exemption.py
+36908480b40b32509c308087d9d54e6c9d81759d	M	tests/ideation-dashboard/test_extension_point_parity.py
+36908480b40b32509c308087d9d54e6c9d81759d	M	tests/ideation-dashboard/test_serve_column_split.py
+36908480b40b32509c308087d9d54e6c9d81759d	M	tests/openxdox_pin/test_openxdox_pin_verifier.py
+fcb45380a4d9d4933038157411944c4fefa59d13	M	contracts/opendox-pin.yaml
+fcb45380a4d9d4933038157411944c4fefa59d13	M	contracts/openxdox-pin.yaml
+fcb45380a4d9d4933038157411944c4fefa59d13	M	docs/opendox-carve-admissions.yaml
+fcb45380a4d9d4933038157411944c4fefa59d13	M	openDox
+fcb45380a4d9d4933038157411944c4fefa59d13	M	openXdox
+fcb45380a4d9d4933038157411944c4fefa59d13	M	scripts/ideation_dashboard/dashboard_refresh_lane.py
+fcb45380a4d9d4933038157411944c4fefa59d13	M	scripts/opendox_host.py
+fcb45380a4d9d4933038157411944c4fefa59d13	M	tests/carve_arrival/test_verify_carve_arrival.py
+fcb45380a4d9d4933038157411944c4fefa59d13	A	tests/domain_profile/test_host_registers_openxdox_projection.py
+fcb45380a4d9d4933038157411944c4fefa59d13	M	tests/ideation-dashboard/test_dashboard_source_seal.py
+fcb45380a4d9d4933038157411944c4fefa59d13	M	tests/openxdox_pin/test_openxdox_pin_verifier.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	contracts/opendox-pin.yaml
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	contracts/openxdox-pin.yaml
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	docs/opendox-carve-admissions.yaml
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	openDox
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	openXdox
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	scripts/ideation_dashboard/dashboard_refresh_lane.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	scripts/opendox_host.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	scripts/profile_openxfactory.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	scripts/route_extension.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	scripts/sync-notebooklm-books.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/carve_arrival/test_verify_carve_arrival.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_doxbench_chat_ceiling.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_memory_gateway_roster.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_openxfactory_host_wiring.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_outline_template_agreement.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_session_resync_registers_host.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_session_worktree_book_scan.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_workbench_manifest_validation.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	A	tests/domain_profile/test_workbench_scoped_doc_health.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/ideation-dashboard/test_authoring_classify_derivation.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/ideation-dashboard/test_dashboard_source_seal.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/ideation-dashboard/test_doxbench_status_exemption.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/ideation-dashboard/test_extension_point_parity.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/ideation-dashboard/test_serve_column_split.py
+f56c87c6b8d7374d93facd7dfbbf02bd89a86a8b	M	tests/openxdox_pin/test_openxdox_pin_verifier.py
+
+Every path the T094 landing (36908480) touches sits on a declared surface
+(the guard's own sets, read out of the extracted script):
+  PIN_PAIRS           M contracts/opendox-pin.yaml
+                      M contracts/openxdox-pin.yaml
+                      M openDox
+                      M openXdox
+  HOST                M scripts/opendox_host.py
+                      M scripts/profile_openxfactory.py
+  HOST_TESTS          A tests/domain_profile/test_host_registers_binding_trust.py
+                      A tests/domain_profile/test_lane_route_asks_the_hosted_ref_predicate.py
+                      M tests/domain_profile/test_openxfactory_host_wiring.py
+  COMPOSITION_TESTS   M tests/ideation-dashboard/test_doxbench_status_exemption.py
+                      M tests/ideation-dashboard/test_extension_point_parity.py
+                      M tests/ideation-dashboard/test_serve_column_split.py
+  ADMITTED_ARC_EDITS  M docs/opendox-carve-admissions.yaml
+                      M scripts/ideation_dashboard/dashboard_refresh_lane.py
+                      M tests/carve_arrival/test_verify_carve_arrival.py
+                      M tests/ideation-dashboard/test_dashboard_source_seal.py
+                      M tests/openxdox_pin/test_openxdox_pin_verifier.py
+docs/opendox-carve-manifest.yaml is not touched by any of the 3 landings, so
+no note was annotated.
+
+Non-arc landings between fcb45380 and 36908480 are not walked, by design:
+the walk finds only these 3, so every other first-parent commit in the range
+carries no trailer (18 of them).
+
+VERBATIM OUTPUT (exit code 0; stderr was empty):
+
+    requirement 1 holds: 0 note(s) annotated, every other path a declared surface (11.1)
+
+---
+
+WALK TO MAIN'S HEAD (2026-10-05). The same extracted script with ARC_TIP set to
+main's head, 36908480b40b32509c308087d9d54e6c9d81759d, finds the same 3
+landings, so nothing after 36908480 on main's first-parent line carries the
+trailer, and prints the same line (exit code 0).
+
+---
+
+NEGATIVE CONTROL (2026-10-05, never pushed)
+
+To confirm the guard is still CLOSED at this ARC_TIP, a scratch detached
+worktree at 36908480 (`git worktree add --detach`, removed with
+`git worktree remove --force` right after) got one planted commit,
+12d724df557a36c1a496b36e271db8c66823d992, parent
+36908480b40b32509c308087d9d54e6c9d81759d, carrying the trailer
+`Arc: neutral-product-standalone-operability` and adding exactly one file,
+docs/a-path-on-no-f11.1-surface.md, which sits on no declared surface and is
+not the manifest. Same extracted script, same PACKET_MERGE, ARC_TIP set to
+the planted commit:
+
+VERBATIM OUTPUT (exit code 1):
+
+    FAIL: the arc changed what requirement 1 keeps:
+      12d724df557a: touched docs/a-path-on-no-f11.1-surface.md
+
+The guard refused the planted path and named it. The planted commit and its
+worktree exist on no branch, local or remote.
+
+---
+
+T017 -- 3.3, read-only, at this landing: the profile_openxfactory.py
+deleted_at_carve row (T017: "Phases 2 and 3 repeat the check through
+T065 and T098")
+
+The row's identifying line was added once, by the manifest's own introducing
+commit, and never added or removed since:
+17167481e9d69dec9347f1d26699b6218a697f53.
+The row compared at that commit and at ARC_TIP, raw text and parsed:
+
+    row text at 17167481e9d6 (4 lines) == at 36908480b40b: True
+    row parsed equal: True; disposition not_moved, reason deleted_at_carve, edits None
+
+The row at ARC_TIP:
+
+      - source_path: scripts/ideation_dashboard/profile_openxfactory.py
+        disposition: not_moved
+        reason: deleted_at_carve
+        evidence: "The module's own docstring (:6-8) names it \"the one file the § 3 carve deletes rather than moves\"; after the carve openXdox declares its own profile."
+
+---
+
+THE SAME RESULT BEFORE THE LANDING. Rehearsed 2026-10-04 (lane
+openXfactory-3, delegated) at phase 2's tip, ARC_TIP fcb45380, with the same
+extraction (sha256 60beede1244b6052...):
+`requirement 1 holds: 0 note(s) annotated, every other path a declared surface (11.1)`;
+the walk to main's head c8d80020 found the same two landings; a planted path
+on no surface (d14d04b4, never pushed) was refused by name; and 3.3's row
+was byte-identical. Lane openxfactory-4's dry run of 2026-10-03 had run the
+guard over a simulated T094 (its draft diff squashed onto main with the
+trailer), and it held. Prestaged 2026-10-05 against T094's open PR, #1236,
+at its head 16136990: the guard walked T094's seven branch commits, each
+carrying the trailer, then T064 and T047, and printed the same line. The
+branch's merge of main, 9cd1bf23, carries no trailer, so it is no landing to
+the guard, and the first-parent walk never enters its second parent, main's
+ca1c1486. Over a local squash of that head onto main ca1c1486 (never
+pushed), the walk was exactly three landings, the squash, T064 and T047,
+with the same line, a planted path refused by name, and 3.3's row
+byte-identical.
+
+VERDICT: F11.1 holds at ARC_TIP 36908480b40b32509c308087d9d54e6c9d81759d,
+phase 3's interim run. T098 is ticked in tasks.md on the strength of this
+record.

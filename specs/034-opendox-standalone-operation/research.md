@@ -264,7 +264,7 @@ standalone only with an injected snapshot source.** The server STARTING with
 nothing else installed is phase 2's surface (T055), not phase 1's, and phase 1's
 exit criteria in `plan.md` say so.
 
-## R8 — The core parser offers five verbs, and the 31-entry golden is 11 + 20
+## R8 — The core parser offers five verbs, and the 31-entry golden is 11 + 20 (32 = 12 + 20 from phase 3's pin)
 
 With the same stand-in profile registered, `cli.build_parser()` builds, and its
 subcommands are `create`, `edit`, `generate`, `generate-and-open` and
@@ -277,6 +277,16 @@ subcommands are `create`, `edit`, `generate`, `generate-and-open` and
 - 20 are contributed by the host profile: `gate` and its 19 verbs.
 
 Count the sections with `grep -c '^===== ' "$W/openxFactory/tests/ideation-dashboard/fixtures/cli-help-tree.golden.txt"`.
+
+**From phase 3's pin the tree has 32 sections, 12 + 20** (RULED `5970917267`,
+Brett Heap, 2026-10-03, *"Amend to 32 (Recommended)"*). T100 adds
+`model-binding trust`, a sixth `model-binding` subcommand, so the core
+contributes 12. The host's 20 are unchanged. Phase 3 also changes the text
+of every section: T070 adds `--local`, T079 adds `--model`, T080 changes the
+auth kinds, and T084 renames the program to `opendox`. So the phase-3 golden
+is regenerated from T087's commit, in T094's non-arc ahead PR (holder E1
+(a)), and T086 moves openXdox-code's assembled-tree test to 32 at the same
+pin. The 31 above stays the measurement at phase 1's pin.
 
 ## R9 — The document surface never imports the runtime
 

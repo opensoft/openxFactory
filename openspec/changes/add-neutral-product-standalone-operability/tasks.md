@@ -454,6 +454,46 @@ mention in the package is prose.
   because a default is a registration an entry point makes and never a
   fallback inside the seam. Carried out by T052, T055, T059, T084, T085 and
   T086.
+
+  **AMENDED — T007 Batch L (`5920216845`, item 1):** An addendum, on what the
+  served `/capabilities` payload claims. Measured at openDox-code `main`
+  `047bb4fa`, over a standalone serve of the plain fixture, the payload's
+  `actions` map answers `gate` and `refresh` true, while every
+  `POST /actions/gate/<verb>` and `POST /actions/refresh` answers
+  `404 unknown_action`. The gate flag follows the checkout's git identity
+  alone (`compute_capabilities`, `serve.py:464`, called at `:1957`), and the
+  route bindings the assembly collected (`:1900`) are never passed to it.
+  A flag in that `actions` map whose affordance is a route this server
+  serves IS TO be true only where such a route answers it. `gate` and
+  `refresh` govern routes a host contributes through the route bindings
+  (`/actions/gate/<verb>` and `/actions/refresh`), so each is true only when
+  the assembled bindings carry a route it governs. Standalone, with no host
+  contributing them, both read false, and a composed host that contributes
+  them reads exactly as today. `notebook`, `edit` and `session` govern core
+  routes and keep their conditions. `intent` governs a POST to another
+  plane's intent API, a route that plane answers and this server does not
+  serve, so its condition, the served plane, stands. The
+  workbench's session controls read `actions.gate`
+  (`sessionActionsLive`, `web/views/staging-workbench-model.js:1068`), so a
+  false `gate` standalone also hides session controls that no route
+  answers. That is the half of the fix a user sees. The same measurement
+  found three of this box's nineteen reaches into openXdox ending a request
+  with a dropped connection, because nothing contributes the names they
+  import: `serve_workbench.py:1219` and `:2611`, and `serve_project.py:271`,
+  at `047bb4fa`. Each of the three IS TO answer through its seam, from
+  openDox's default where one serves the request (batch G's addendum
+  above), or else with a structured refusal that names the seam. That is
+  4.2's discipline: never a dropped connection, and never a
+  `ModuleNotFoundError` raised from inside a function. The realization's
+  named test carries the check both ways, over a standalone server and over
+  a composed host whose other conditions hold. It asserts that `gate` and
+  `refresh` read false standalone and true on the composed host, and that
+  each follows its own routes: a host that contributes only one of the two
+  sets only its flag. Then, on
+  each, it asserts that for every `actions` key that reads true, a route it
+  governs does not answer `unknown_action`. So a plane that switched every
+  flag off would fail it. This bookkeeping amendment does not itself touch
+  the Python below. Carried out by T084.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, no
   `corpus_adapter_openxfactory` importable):
 
@@ -748,6 +788,60 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   the command above: the runs that use F5.2's environment (T059, T061 and
   T063) use this one and quote the commit. Carried out by T059, T061 and
   T063.
+
+  **AMENDED — T007 Batch K (`5916000030`, item 4; entries under R1Q7 (a),
+  `5817152735`):** The reviewed allow-list that R1Q7 (a) admits for this
+  falsifier (`5817152735`; T007 Batch C, extended by T007 Batch F) also
+  admits ten more edits, all of them T061's (openXdox-code#36). Each is
+  entered as its own reviewed entry with its reason, and none as a
+  respelling. Each keeps its test's real assertions and changes only the
+  premise that a validator is found by walking up from a start, which 7.3
+  removes: the test plants its stub as the distribution's own validator,
+  or, where it needs none, the distribution carries no validator of its
+  own. Nine are in
+  `tests/test_snapshot_validation_launch.py`:
+  `test_the_default_shaped_launch_validates_from_the_repo_root`,
+  `test_a_run_dir_beside_a_checkout_still_uses_that_one_first`,
+  `test_when_neither_root_reaches_a_validator_the_message_names_both`,
+  `test_missing_validator_dependencies_warn_and_the_server_still_starts`,
+  `test_the_dependency_warning_carries_the_pip_remedy_and_clears_the_corpus`,
+  `test_a_non_conformant_snapshot_still_blocks_and_blames_the_snapshot`,
+  `test_strict_makes_an_unrunnable_validator_fatal`,
+  `test_strict_is_fatal_when_no_validator_is_reachable_either` and
+  `test_the_classifier_reads_the_exit_code_not_the_dependency_sentence`. The
+  tenth is
+  `tests/test_snapshot.py::test_a_missing_validator_is_unavailable_not_a_verdict`,
+  whose call and `search_from` are unchanged. One of the ten changes its
+  expected answer: in
+  `test_a_run_dir_beside_a_checkout_still_uses_that_one_first`, the
+  validator of another tree beside the run dir is never adopted, and the
+  distribution's own validates, as 7.3 answers. Its name is kept, because
+  an entry admits an edit inside one named test, and a rename is not that.
+
+  T061 is ONE landing, which edits `tests/test_snapshot.py` twice (Batch
+  F's added test and the tenth case) and
+  `tests/test_snapshot_validation_launch.py` nine times. Batch C's check
+  requires that *"the landing's actual diff for that path contains ONLY the
+  entry's recorded text"*, which reads as one entry per suite per landing,
+  and T059's check (openXdox-code#35, `scripts/protected_suites.py`) holds
+  that rule in so many words. For this falsifier, this batch reads Batch
+  C's sentence as the recorded texts of several entries together. Several
+  entries, applied in the order they are listed, may together admit one
+  landing's edits to one suite. Each is still exactly one edit inside its
+  own named test, and they chain by git blob: the first entry's
+  `before_blob` is the suite before the landing, the last entry's
+  `after_blob` is the suite at the landing, and each blob between is the
+  blob id of the text the entries before it leave. The landing's diff for that suite must still be exactly those
+  entries' recorded texts and nothing else. Each entry still admits one
+  landing, and nothing wider is admitted. F5.2's check, as T059 wires it,
+  takes a chain only when asked to: its last step runs
+  `python3 scripts/protected_suites.py --chains --landings="$(cat "$W/x-arc.txt")" --suites="$(cat "$W/gen-suites.txt")"`.
+  12.5's falsifier is not amended. Its call passes no `--chains`, so it
+  keeps one entry per suite per landing and refuses a chain, and neither
+  file is one of its governed suites (its `git grep` selects the same 16
+  files at openXdox-code `main` `c41063d6` and at T059's head `4feb8009`).
+  This bookkeeping amendment does not itself touch the Python above.
+  Carried out by T061 (openXdox-code#36) and T063.
 - [ ] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
   projection replaces them; the import-time column stays at zero.
 - [x] 5.6 **Do NOT author the view-wiring slice here** — and it can no longer be
@@ -1199,6 +1293,25 @@ packet's interim arrangement ends.**
   openDox-spec joins the arc's repositories, a sixth beside the five 11.0
   names, and its landings carry 11.0's trailer. Carried out by T053, T062
   and T090.
+
+  **AMENDED — T007 Batch O (`5962754358`, item 1; `5963162921`):** A second
+  exception to *"cuts no bundle and owes no tag"*, beside batch G's. Brett
+  Heap's multi-choice words of 2026-10-02, verbatim *"Publish to PyPI at the
+  cut (Recommended)"* and *"0.1.0 (Recommended)"*, publish openDox's first
+  public release, version 0.1.0, to PyPI as `opendox` at release 1's cut, by
+  trusted publishing, so no token is stored. The install line 10.3 documents
+  (`pip install "opendox[local]"`, as batch H amends it) then works as
+  written. That release owes ONE tag, as plan 034's T099 publishes it. At
+  the cut, once AT-R1 has passed and on Brett Heap's publish word, the
+  holder creates the tag `v0.1.0` in openDox-code at the commit the openDox
+  root's `contracts/code-pin.yaml` names, and dispatches the release
+  workflow on it. That commit is the version bump to 0.1.0, the last
+  phase-3 openDox-code landing that changes the shipped package, which the
+  root pins in phase 3. The workflow publishes only that commit. Every pin
+  move above other than batch G's still owes no release tag, and this
+  bookkeeping edits no line of the proposal. Carried out by T101 (the
+  release workflow and the bump), T087 (the pin) and T099 (the tag and the
+  publish).
 - [ ] **FALSIFIED BY** (each leg's own checkout, no sibling installed):
 
       set -euo pipefail
@@ -1272,6 +1385,19 @@ packet's interim arrangement ends.**
   well. T008 removes this entry together with the workflow's own deselect,
   the same act that closes the other three. openDox-code's run is
   unchanged. Carried out by T043.
+
+  **AMENDED — T007 Batch O (`5970917267`):** Batch J's fourth entry names
+  the assembled-tree node by its 31-entry name, which the composition carries
+  through phase 2. From the pin move past T100 the node asserts 32 entries
+  (10.1 as this batch amends it) and is renamed
+  `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_32_entry_tree_the_manifest_records`.
+  The entry names it from then on. The landing that renames the node also
+  moves openXdox-code's `validate.yml` `LEFT_OUT` entry, which names the node
+  verbatim and which the whole-suite step passes to `--deselect`, so the
+  deselect never names a test that does not exist (the holder's ruling of
+  2026-10-03 on plan 034's analyze). The entry's reason, its report as an
+  open extraction, and its removal by T008 are unchanged. Carried out by
+  T086.
 - [ ] **FALSIFIED BY** (9.3, and requirement 9's third scenario: an openXdox-code
   checkout, the composition's declared home, with openDox arriving ONLY through
   the pin):
@@ -1302,6 +1428,18 @@ packet's interim arrangement ends.**
   carries the named proof of the one surface neither leg produces alone. `ls`
   exits non-zero when `tests/integration/` holds no test, so an absent suite
   FAILS the command rather than passing it vacuously.
+
+  **AMENDED — T007 Batch O (`5970917267`):** The command's last line names the
+  assembled-tree node by its 31-entry name, which the composition carries
+  through phase 2. From phase 3's pin, the pin move past T100, the tree has
+  32 entries (10.1 as this batch amends it), and the line reads:
+
+      python -m pytest -q "tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_32_entry_tree_the_manifest_records"
+
+  F9.2 stays red on that test until T008 (`5859927858`), as batch J records.
+  9.3's "31-entry" quotes the carve manifest's record of the tree at the
+  carve, and stands as written. This bookkeeping amendment does not itself
+  touch the command above. Carried out by T086.
 
 ## Group 10 — Requirement 10 / G9, G10: one entry point (openDox-code + openDox root)
 
@@ -1349,6 +1487,29 @@ packet's interim arrangement ends.**
   `SUBCOMMAND_EXTENSIONS` (`RuntimeSubcommand`). `opendox-runtime` stays as an
   alias, and a host's own profile keeps the 31-entry tree. Carried out by
   T038, T042.
+
+  **AMENDED — T007 Batch O (`5970917267`):** An addendum to batch A's. Brett
+  Heap's multi-choice word of 2026-10-03, verbatim *"Amend to 32
+  (Recommended)"*. The assembled `--help` tree has 31 sections through phase
+  2. From phase 3's pin it has 32, because T100 adds
+  `opendox model-binding trust` (16.3a, T007's batch M). So a host's own
+  profile keeps the assembled tree, at 31 entries through phase 2 and at 32
+  from phase 3's pin.
+  - openXdox-code's assembled-tree test, the node F9.2 runs and batch J's
+    F9.1 entry deselects, moves to 32 at the pin move past T100. It is
+    renamed
+    `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_32_entry_tree_the_manifest_records`
+    in that landing, with its `LEFT_OUT` entry.
+  - openxFactory's help golden reads the tree at 32 from phase 3's pin. It
+    is no surface 11.1 declares, so no arc landing regenerates it. A
+    non-arc openxFactory PR ahead of T094, in T066's both-pins form, adds
+    the phase-3 golden under `tests/domain_profile/fixtures/`, regenerated
+    from T087's commit. That golden also carries T070's `--local`, T079's
+    and T080's `--model` and auth-kind changes, and T084's program rename
+    to `opendox` (the holder's ruling E1 (a), recorded with `5970369724`).
+
+  This bookkeeping amendment does not itself touch a falsifier. Carried out
+  by T086, and by the non-arc PR ahead of T094.
 - [ ] 10.2 The web bundle is served by that entry point and is reachable in a
   browser from an openDox-only install. openDox-code carries **42** web files,
   self-contained by declaration (`src/opendox/web/index.html`: *"All assets are
@@ -2037,6 +2198,102 @@ that does not name a platform.
   personal credential is what `compute_capabilities`' own docstring says a hosted
   plane must never hold (FR-034, D22). The CLI verb runs as that user, in that
   user's checkout.
+
+  **AMENDED — T007 Batch N (`5963851934`):** An addendum, on where the
+  human-console test's per-serve token comes from. Brett Heap's multi-choice
+  word of 2026-10-03, verbatim *"Token via the opened URL (Recommended)"*,
+  answers adversarial review 2's finding M5. Measured at openDox-code `main`
+  `1130e996`, a serve that grants `session` mints the token
+  (`mint_console_token`, `serve.py:617`, called at `:1977`) and publishes it
+  on `/capabilities` (`:1980`), and the web bundle reads it from there
+  (`web/app.js:1459-1471`, `web/views/edit.js:10-26`). So any loopback
+  caller can ask for it, another OS user of the same machine included. On a
+  STANDALONE plane, the one built from openDox's own default profile, the
+  token IS TO reach the page only through the URL the page is opened with.
+  The details are the holder's approved design of 2026-10-03:
+  - `/capabilities` carries no `console_token`;
+  - the entry point that starts the serve writes a private copy, an opener
+    file at `<state_dir>/console/<port>.html` under `OPENDOX_STATE_DIR`, the
+    state directory 16.3a's trust file uses. The file is mode 0600, in a
+    directory of mode 0700. Each missing directory is made by descriptor, the
+    file is created without following a link, and the whole path is checked as
+    openDox-code#69's bundle checks its own tree. A file already at the copy's
+    path is replaced only when it is this user's own regular file of mode 0600
+    with one link, an earlier copy for that port. Anything else there (a
+    symbolic link, a directory, another user's file, a hard-linked or a
+    loosened file) refuses the start by name, and is never followed or
+    replaced, and a copy that fails the same checks is refused when it is
+    read, at once, since the reader never blocks on what it opens (a FIFO with
+    no writer included). The copy never sits where the plane serves files, so
+    the state directory and the roots the plane serves do not overlap in
+    either direction. A state directory that is, or lies inside, a served root
+    is refused by name, which is the holder's own ruling on #1220's review
+    (Copilot `r4171166321`, 2026-10-03), beside `5963851934`. So is a served
+    root that is, or lies inside, the state directory, such as
+    `<state_dir>/console` itself, on the holder's ruling on batch N's review
+    (Copilot `r4174345203`, 2026-10-03). A link inside a served root that
+    points at the state directory reaches nothing. `/source` already refuses a
+    path that leaves its root through a symbolic link
+    (`default_registry.resolve_within`, openDox-code `main` `e49b17c3`). The
+    static bundle's route follows links inside the bundle's directory, because
+    a composed host's web root is made of them, so it answers 404, for GET and
+    HEAD, files and listings alike, to any request whose resolved target, the
+    file it would finally serve (an automatic index file included), is the
+    private copy's directory or lies inside it;
+  - the copy forwards to the page with the token in the URL's FRAGMENT,
+    `…/index.html#console_token=<token>`, and never in its query, so no
+    request line, server log or `Referer` carries it;
+  - the start writes the copy, and prints its location as a `file://` URL,
+    with or without `--no-open`, and never prints the token or a URL that
+    carries it, so standard output and CI logs stay clean. The copy is
+    removed when the server stops, and a copy that cannot be written safely
+    refuses the start by name, before anything is written, so the server
+    never serves.
+
+  A composed host's plane keeps its delivery on `/capabilities` unchanged.
+  Every route that requires the token still requires it. So the human-console
+  test above is unchanged, and so are the submit route's three refusals in
+  their order, and F12's named test of a submission without the token. A
+  test that needs a standalone plane's token reads it from the private copy,
+  never from `/capabilities`. No falsifier of this change reads the token
+  from `/capabilities`: F10.1 fetches only `/`, and F13.1 reads only the
+  payload's `install` block, each with its state directory outside the root
+  it serves. A tab that kept an earlier serve's token is refused by the next
+  serve until the page is opened again through the new copy, and the design
+  accepts that limit. The realization's test asserts each point above on a
+  standalone serve, the stale-tab limit aside, since that is a limit and not
+  a promise, and a composed run shows that a host's `/capabilities` still
+  carries the token. This bookkeeping amendment does not itself touch a
+  falsifier. Carried out by T104.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 1):** An accepted limit, and
+  one more printed line. Brett Heap's multi-choice word of 2026-10-04,
+  verbatim *"Hint line, accepted limit (Recommended)"*, answers finding B3
+  of the holder's adversarial review of T104 (openDox-code#84). Some
+  browsers cannot open the private copy's `file://` URL while the state
+  directory is the hidden default (`~/.local/state/opendox`): Ubuntu's
+  default snap browser, a Flatpak browser, and a Windows browser opened from
+  WSL. The token is never printed, so such a browser has no other way in.
+  So the start prints ONE more line, with no token and no URL that carries
+  one, saying that a browser which cannot open the file should be used with
+  `OPENDOX_STATE_DIR` set to a folder that is not hidden. The openDox root's
+  README documents it, and release 1 ships with the limit. Nothing above
+  moves: the copy's place, its modes and its checks, the printed `file://`
+  location, and the rule that standard output never carries the token. This
+  bookkeeping amendment does not itself touch a falsifier. Carried out by
+  T104 (the line) and T076 (the README).
+
+  **AMENDED — T007 Batch P (`5982436447`, the holder's ruling B7):** An
+  accepted limit within the design above, with no code change. Once the page
+  has read the token from the fragment, it drops the fragment from the
+  address bar with `history.replaceState`. That cleans only the tab's
+  session history. A browser's persistent history, Chromium's
+  `Default/History` among them, can still hold
+  `…/index.html#console_token=<token>`. That history is this same user's
+  data, as the 0600 private copy is, so it hands the token to no one the
+  copy does not, and release 1 accepts it. The fragment still never reaches
+  a request line, a server log or a `Referer`. This bookkeeping amendment
+  does not itself touch a falsifier. Carried out by T104.
 - [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
   registered, openxFactory's GitHub pull-request flow behaves exactly as today.
   This is a generalization, not a replacement, and 12.5 is the box that proves it.
@@ -3066,6 +3323,247 @@ and redesigns none of them.
   so F16.1's `AUTH_KINDS[0]` is unchanged and still names a kind that takes
   a credential. The rest of the box stands: a reference is never a raw key,
   and a raw key is refused when it is declared. Carried out by T080.
+
+  **AMENDED — T007 Batch K (`5916000030`, item 1; the loopback rule
+  `5880893901`; the broker path `5890601202`):** A pointer. The amendment
+  itself is the dated note in requirement 17's body in this change's spec
+  delta, above its scenarios, and it narrows one thing: the route a
+  credential travels by. A credential the built-in resolver resolves (the
+  `env:` and `keyring:` references of batch H's addendum above) and a token
+  a broker mints are each sent only over `https://`, or over `http://` to
+  `127.0.0.1`, `[::1]` or `localhost`. A binding that would present either
+  over `http://` to any other host is refused when it is declared
+  (`ENDPOINT_NOT_PRIVATE`), before anything is resolved or minted. The
+  request that presents a credential follows no redirect, and over plain
+  `http://` it takes no proxy. The auth kind `none` presents nothing and
+  keeps whatever route it declares. This group's RULED paragraph
+  (`5800995035`, answer 3), which says "any OpenAI-compatible endpoint",
+  reads with that note.
+  The rest of the box stands, and so does F16.1: its control record names a
+  broker reference on a loopback endpoint, which the rule accepts, and its
+  three raw-key refusals are unchanged. This bookkeeping amendment does not
+  itself touch the Python below. Carried out by T080 (openDox-code#63) and
+  openDox-code#64, which is no task of plan 034.
+- [ ] 16.3a **A served repository's bindings are TRUSTED PER MACHINE.**
+  **ADDED — T007 Batch M (`5962785556`, item 2):** Brett Heap's multi-choice
+  word of 2026-10-02, verbatim *"Trust per machine (Recommended)"*, which
+  asks for this amendment. The batch adds this box, a dated note in
+  requirement 17's body in this change's spec delta, and F16.1's batch M
+  block below. It rewrites no ratified line.
+
+  **Measured at openDox-code `main` `047bb4fa`.** Both entry points read the
+  bindings from the repository they SERVE. `cli.py:618` and `serve.py:2214`
+  call `declared_model_port_factory` with the served root (`--repo-root`,
+  `cli.py:567`), and the factory reads `bindings_path(checkout_root)`
+  (`doxbench_install.py:316`), the root's
+  `ideation/dashboard/model-provider-bindings.yaml` (`doxbench_binding.py:166`
+  and `:554`). A binding written into that file by hand, or arriving with a
+  clone, passes no approval, because the intake flow's pending list holds back
+  only the bindings its own wizard wrote (`doxbench_install.py:324`). A
+  hand-written binding whose `broker_argv` was `["/bin/sh", "-c", "id > …"]`
+  was offered as available, and the first dispatch ran it before refusing:
+  the file it named read `uid=1000(…)`. The adversarial review of 2026-10-02
+  found the same on `main`, and on the phase-3 drafts that add 16.3's
+  built-in resolver (T080, openDox-code#63, with #64 above it) it also sent a
+  `credential_ref` of `env:ADV_UNRELATED_CLOUD_SECRET` to a listener the file
+  named, as `Authorization: Bearer …`. `model-binding set-credential` runs a
+  declared binding's broker too (`cli_model_binding.py:135-139`). Release 1
+  publishes to PyPI (`5962754358`, item 1), so whoever serves a repository
+  someone else wrote would meet each of these.
+
+  **The rule.** A binding read from the served repository runs a broker, or
+  resolves any credential reference (`env:`, `keyring:` or a broker's), ONLY
+  after the operator has trusted THAT EXACT binding on THIS machine. It works
+  like direnv. The rule holds on every path that runs such a broker: a chat
+  turn and `model-binding set-credential`. The console intake's hand-off
+  (`serve_workbench.py:1127`) also runs a broker the served repository
+  declares, in `ideation/dashboard/model-declarations.yaml`
+  (`doxbench_intake.py:154`), which is no binding, so no binding's trust
+  admits it. Under the neutral default below it is refused by name. No
+  command that trusts an intake declaration's broker is ruled, and
+  standalone the intake surface already answers `offered: false`
+  (`5961364221`, item 1). A host's own policy may admit it.
+  - **Where trust lives.** In the operator's own state, never in the
+    repository: a file under `OPENDOX_STATE_DIR`, the state directory that
+    13.1's bundled server uses (openDox-code#69, T072). Unset, that is
+    `$XDG_STATE_HOME/opendox` where that is absolute, and otherwise
+    `~/.local/state/opendox`. The file holds no credential. It is written
+    owner-only, and it is read only once it passes the checks #69's bundle
+    makes of its own tree: the file and the directories that hold it are real
+    (no symbolic link), owned by this user and writable by no one else, and
+    each directory above them is this user's or root's, and sticky where
+    another user can write it. A trust file that fails a check is refused by
+    name, and every binding then reads untrusted. `config.state_dir()`
+    accepts any absolute path free of `..`, so the trust file's resolved
+    path is also checked against the served root: an `OPENDOX_STATE_DIR`
+    equal to the served root, or nested under it, is refused by name before
+    anything is written, and every binding then reads untrusted. No trust is
+    ever written into, or read from, a tree a clone could carry.
+  - **What a trust names.** The repository root's resolved path, the
+    binding's id, and a digest of the binding's full record, every field of
+    it. So any edit makes the binding untrusted again, and so does the same
+    file under another root: a clone, a copy or a moved checkout.
+  - **What records it.** `opendox model-binding add` and `edit` record trust
+    for the binding they write. `opendox model-binding trust <id>` records it
+    for a binding already declared. It first prints what will run (the broker
+    argv) and where the credential goes (the endpoint, the auth kind and the
+    credential REFERENCE), and never the credential itself. Each value it
+    prints is escaped, in a JSON string's form, because each comes from a
+    repository someone else may have written: a newline or a terminal
+    control character in a field cannot forge or hide what is shown. The
+    refusals, the factory's notice and `model-binding list` print the id the
+    same way. It resolves no reference, runs no broker and contacts nothing,
+    and it records trust for exactly the record it printed. It takes no `--yes`: running it is the
+    consent, as `direnv allow` is, and the refusal below names it.
+    `opendox model-binding set-credential` on a TRUSTED binding re-records
+    trust for the record it rewrites with the broker's new reference, since
+    the operator made that change on this machine. It never makes an
+    untrusted binding trusted.
+  - **What an untrusted binding gets.** It is refused BY NAME before any
+    process is spawned, any credential is read or any endpoint is contacted.
+    The refusal names the binding's id and the command that trusts it, and
+    nothing secret. `set-credential` refuses it the same way, before its
+    broker runs, and leaves it untrusted. The catalog lists it with
+    `available: false`. The catalog's entry is a closed shape
+    (`xfactory-workbench-model-catalog`, `additionalProperties: false`), so
+    the reason is not a key in it: it is carried by the refusal a turn that
+    names the binding receives, by the notice the factory writes where it
+    already reports a pending binding, and by `opendox model-binding list`.
+  - **Bindings stay committable.** The bindings document does not change,
+    and no trust is ever read from it.
+  - **Whose rule it is.** This is openDox's NEUTRAL default, and a strict
+    one. Its consumers, the code that reads a served repository's bindings,
+    register it lazily, the first time one asks and only where nothing is
+    registered yet. So no entry point registers it, and a bare process is
+    held to it too. A host's own registration wins: a host such as
+    openxFactory may register a policy of its own.
+
+  The rest of Group 16 stands, and so do 16.3's text and its batch H and K
+  addenda. F16.1's batch M block below falsifies this box. Carried out by
+  T100.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 2; `5983805990`):** Brett
+  Heap's multi-choice word of 2026-10-04, verbatim *"Refuse in-repo programs
+  (Recommended)"*, answers finding A2 of the holder's adversarial review of
+  T100 (openDox-code#82, landed as `38d3350e`). A trust names a digest of
+  the binding's record, and the record names a broker's program only by its
+  path. So a trusted binding whose broker runs a program inside the served
+  repository stayed trusted after a pull changed that program. The rule: a
+  binding's command may not name a file inside the served repository, and
+  the broker lives outside it. Every member of the command is judged, the
+  program and each argument alike, so a script handed to an outside
+  interpreter is caught too, and a relative path is judged against the
+  served root. Such a binding is refused by name, both where
+  trust is recorded (`add`, `edit`, `trust` and `set-credential`) and where
+  trust is checked, before any process is spawned. The refusal names the
+  remedy, a broker installed outside the repository, and never a secret, and
+  the binding reads untrusted. A shell or interpreter wrapper would carry
+  the same attack through an inline script, `["sh", "-c", "exec
+  ./tools/broker.py"]`, so Brett Heap's second word on it (`5983805990`,
+  verbatim *"Refuse inline scripts (Recommended)"*) extends the rule:
+  - a binding whose program is a shell or an interpreter given an inline
+    script, such as `sh -c`, `bash -c`, `python -c` or `node -e`, is
+    refused by name in the same places and the same way;
+  - the program must be a real file outside the served repository. Every
+    member of the command that names a path, the program and each argument
+    alike, is judged both as named and as it resolves: links are followed,
+    the program, when it is a bare name, is looked up on `PATH`, and a
+    relative path is taken against the served root. Both must lie outside
+    the repository, when trust is recorded and again before any spawn. So
+    neither a link outside the repository nor a `PATH` entry inside it can
+    bring the program or its script back in, and a link inside the
+    repository, which a pull could retarget, is refused even when it points
+    outside;
+  - *"a real file"* is read by what it forbids to RUN (the holder's ruling
+    `5985553609`, which neither narrows nor extends `5983805990`): no
+    binding whose program is not a real file outside the served repository
+    ever runs. An inline script, or a file inside the repository (as named
+    and as resolved, through a launcher, a link, a `PATH` entry or an
+    option's value), is refused by name where trust is recorded and again
+    before any spawn, as this addendum says. A program that cannot be found
+    (not on `PATH`, no such file) runs nothing: it is not refused where
+    trust is recorded, and when its broker is started the start fails and
+    the binding is refused by the existing named refusal
+    `broker_unreachable` (the broker could not be started). A broker installed later is judged
+    before it is started, like any other. A check at trust that the program exists is
+    not ruled; it stays open for Brett Heap as a follow-on that would move
+    no box of release 1, and F16.1 carries no case for a missing program;
+  - a common launcher (`env`, `nice`, `nohup`, `timeout`, `stdbuf`,
+    `setsid`, `xargs` and the like, with their flags) is unwrapped to the
+    program it starts, and the inline-script and path rules apply to THAT
+    program (the holder's ruling `5984069416`, implementing `5983805990`).
+    A launcher's own options are judged with it, read by GNU
+    `getopt_long`'s grammar (the holder's ruling `5985046107`, C1 and C4,
+    which applies those two and extends neither):
+    - a long option matches by its unambiguous prefix, in the
+      `--option=value` and the `--option value` forms, so `env --chd=…` is
+      `env --chdir`, and a short-option cluster parses the getopt way
+      (`-iS…`, `-vC/dir`, `-0u NAME`). An ambiguous or unknown option of an
+      unwrapped launcher is refused by name;
+    - an option that names a path, such as the directory `env --chdir`
+      (`-C`) starts the program in, or the file `xargs -a` (`--arg-file`)
+      reads its arguments from, in any spelling, is judged as the
+      command's paths are, both as named and as it resolves. So a launcher
+      cannot start the broker inside the repository, nor let the
+      repository decide the broker's arguments;
+    - the string `env -S` (`--split-string`) carries is split into the
+      arguments it names, which are then unwrapped and judged, ONLY when it
+      holds no backslash and no `$`. Otherwise it is refused as unreadable,
+      as an inline script is. GNU `env`'s own escape and `${VAR}` grammar
+      is not modelled: an accepted limit, refused rather than guessed;
+  - every broker also starts with its working directory outside the served
+    repository, as defence in depth, and with an environment that points
+    away from it: `PWD` and `OLDPWD` are dropped, and so is every other
+    variable whose value is a path inside the served repository, while a
+    path list (`PATH`, `PYTHONPATH`, `NODE_PATH` and the like) loses each
+    entry that lies inside it, so a runtime cannot load code from the
+    repository through its search path. Each such path is judged, as the
+    command's paths are, both as named and as it resolves, and so is each
+    assignment a launcher makes (`env NAME=value`): one whose value is a
+    path inside the repository, or a path list with an entry inside it, is
+    refused;
+  - a path given to the program that finally runs as an option's value is
+    judged as the command's paths are, both as named and as it resolves,
+    and refused when it lies inside the repository: the value after `=` in
+    one member (`--require=<repo>/x`), and the remainder after the option
+    letter of a single-dash option with its value attached
+    (`-I<repo>/lib`, `-a<repo>/args`; the holder's `5985046107`, C4). An
+    output path into the repository is refused too, an accepted
+    strictness;
+  - an ACCEPTED release-1 limit: a general program outside the repository
+    that runs code from its own arguments (`awk`, `find -exec`, …) is not
+    judged by the argv check, and any other path embedded inside an option
+    string given to the program that finally runs, such as one carried in
+    a variable (`NODE_OPTIONS=--require=…`), is one the argv check does
+    not promise to find. A known launcher's own options are never part of
+    this limit; the launcher bullet above judges them. The trusted argv is
+    digested, and the working directory and the environment point away
+    from the repository, so a relative path in such a string does not
+    reach it;
+  - a broker such as `sh -c "pass show key"` is declared as
+    `["pass", "show", "key"]` instead, or as a script kept outside the
+    repository.
+
+  The rest of this box stands. A dated note in requirement 17's body in this
+  change's spec delta, after batch M's, records both rulings, since they
+  narrow batch M's note there, and F16.1's batch P cases below falsify
+  them. Carried out by a
+  T100 follow-on openDox-code PR (claim `5982447319`), which is no task of
+  plan 034 and lands before T087.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 3):** A clarification of
+  *"No trust is ever written into, or read from, a tree a clone could
+  carry"* above. Brett Heap's multi-choice word of 2026-10-04, verbatim
+  *"Served repo only, limit (Recommended)"*, answers finding A14 of the same
+  review. The tree that sentence means is the SERVED repository. An
+  `OPENDOX_STATE_DIR` equal to the served root, or nested under it, is
+  refused by name, as the bullet above says, and no trust is written into
+  or read from it. A state directory inside some OTHER git checkout is not
+  refused, and release 1 accepts that as a limit. A check for any enclosing
+  checkout would refuse a home directory kept in git (a dotfiles checkout),
+  which holds the default state directory. No code changes for it, and this
+  bookkeeping clarification edits no line of the box. Carried out by T100,
+  as landed.
 - [ ] 16.4 **"No model configured" is a STATE, shown before any turn.**
   Measured: with no binding, `declared_model_port_factory(...)()` resolves the
   harness declaration, and its catalog offers `omp-local`, "Local harness model",
@@ -3160,6 +3658,237 @@ and redesigns none of them.
   `doxbench_bridge.HARNESS_COMMAND`, and the check on it is a precondition: a
   machine with the harness installed has a model, and would measure something
   else.
+
+  **AMENDED — T007 Batch M (`5962785556`, item 2):** F16.1 also falsifies
+  16.3a, the box this batch adds. The runs that use it (T083 and T089) also
+  run one more line after its last, and quote it:
+
+      # a served repository's bindings are trusted per machine (16.3a):
+      python -m pytest -q tests/test_model_binding_trust.py
+
+  The named file is the acceptance suite T100 adds. Each case serves its own
+  fresh `git init` with its own fresh `OPENDOX_STATE_DIR`, so no run reads or
+  writes the operator's own trust. Each runs over three bindings in turn: one
+  whose broker writes a marker file when it runs; one whose `env:` reference
+  names a variable the test sets to a known value; and one whose `keyring:`
+  reference names an entry in a stand-in keyring backend that records every
+  lookup. The second and third point at a loopback listener that records
+  every request. It asserts, one test per case:
+  - **An untrusted binding is refused by name, with nothing spawned or
+    read.** A binding written into the bindings document by hand, as a clone
+    delivers it, is listed by the catalog with `available: false`. A turn
+    that names it is refused, and the refusal names its id and `opendox
+    model-binding trust <id>`. The factory's notice and `opendox
+    model-binding list` name the same id and command. No marker file
+    exists, the variable is never read, the keyring records no lookup, the
+    listener records no request, and the known value appears in no output.
+    `set-credential` on it is refused the same way, no marker file exists,
+    and the binding is still untrusted after it. With a stand-in host that
+    offers the console intake and registers no policy of its own, the
+    intake's hand-off refuses by name a broker that the served repository's
+    `ideation/dashboard/model-declarations.yaml` names, and no marker file
+    exists.
+  - **`add` records trust.** The same binding declared through `opendox
+    model-binding add` is offered as available, and a turn runs its broker,
+    or reaches the listener with the known value, the `env:` one and the
+    `keyring:` one alike.
+  - **An edit untrusts.** A hand edit of any one field of a trusted binding,
+    every field of the record in turn, each given a valid replacement value,
+    makes it untrusted again, and it is refused as above. A binding
+    rewritten through `opendox model-binding edit` is trusted, and so is a
+    trusted binding whose reference `set-credential` rewrote from a stand-in
+    broker's answer.
+  - **`trust` records.** For the hand-written binding, `opendox
+    model-binding trust <id>` prints its broker argv, its endpoint, its auth
+    kind and its credential reference. The known value appears nowhere in
+    its output, no marker file exists, the keyring records no lookup and
+    the listener records no request. After it, the binding is offered as
+    available. A hand-written binding whose id, label and one broker argv
+    member carry a newline and a terminal escape (`\x1b[2J`) is printed
+    with both escaped, by `trust`, by `list` and in the refusal, and no raw
+    control byte reaches the output.
+  - **A binding moved to another root is untrusted.** A trusted bindings
+    document, copied byte for byte into a second fresh repository, reads
+    untrusted there, and it is refused as above.
+  - **The trust file is checked.** With the trust file, or a directory that
+    holds it, replaced by a symbolic link or made writable by another user,
+    every binding reads untrusted, and the refusal names the file. With
+    `OPENDOX_STATE_DIR` equal to the served root, and again nested under
+    it, `add`, `edit` and `trust` are refused naming the setting before
+    anything is written, and every binding reads untrusted. Nothing under
+    the served root but the bindings document is written by `add`, `edit`
+    or `trust`.
+  - **The policy seam.** In a bare process that registers nothing, the
+    first consumer to ask registers the strict default, and a hand-written
+    binding is refused as above. A host policy registered before that first
+    use is the one consulted, and the default does not replace it.
+
+  The block's other lines are unchanged. Its 16.3 records are built in
+  process and never served, and its 16.4 block declares no binding, so no
+  trust is consulted there.
+  **Today the line fails**, because the named file does not exist. Its first
+  case fails at `047bb4fa` too: a hand-written binding is offered as
+  available, and its `broker_argv` runs on the first dispatch. This
+  bookkeeping amendment does not itself touch the command above. Carried
+  out by T100, and run with F16.1 whole by T083 and T089.
+
+  **AMENDED — T007 Batch P (`5982436447`, the holder's ruling A8):** A note,
+  and no line of the block changes. The block says that with the trust file,
+  or a directory that holds it, replaced by a symbolic link, every binding
+  reads untrusted. The state directory is such a directory. Finding A8 of
+  the holder's adversarial review of T100 found that T100 as landed
+  (`38d3350e`) read a state directory that is itself a symbolic link to this
+  user's own 0700 directory. Its suite's case passed only because that
+  case's target was writable by others. The holder ruled that the
+  realization follows this block's ratified text: a state directory that is
+  itself a symbolic link is refused by name, and it trusts nothing. The T100
+  follow-on openDox-code PR (claim `5982447319`) aligns the code and adds
+  that case, before T087. So T089's run of F16.1, at T087's pin, which
+  carries the follow-on, holds the realization to the block as written.
+  T083's run at `38d3350e` predates the follow-on, and plan 034 records that
+  it does not show this case. This bookkeeping amendment does not itself
+  touch the command above.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 2; `5983805990`):** F16.1
+  also falsifies 16.3a's batch P addendum (A2, and its reach to inline
+  scripts). The command is unchanged: the named file of
+  batch M's line, `tests/test_model_binding_trust.py`, also asserts, one
+  test per case, under the same fresh `git init` and `OPENDOX_STATE_DIR`:
+  - **A binding whose command names a file inside the served repository is
+    refused.** Its broker argv names a file under the served root, either
+    as its program, such as `tools/broker.py`, or as an argument, such as
+    the script an outside interpreter runs (`["python3",
+    "tools/broker.py"]`, `["sh", "tools/broker.sh"]`). Each is tested
+    with the path absolute and with it relative to the served root, and the
+    script writes a marker file when it runs. `opendox
+    model-binding add`, `edit`, `trust` and `set-credential` each refuse it
+    by name, naming the remedy, a broker installed outside the repository,
+    and record no trust. A trust recorded for it before the rule does not
+    admit it, before or after its program is edited: it reads untrusted, so
+    the catalog lists it with `available: false`, as batch M's block asserts
+    of an untrusted binding, and a turn that names it is refused by name
+    before any process is spawned, and no marker file exists.
+  - **An inline script is refused.** A binding whose program is a shell or
+    an interpreter given an inline script (`["sh", "-c", "exec
+    ./tools/broker.py"]`, and `python -c` in the same form) is refused by
+    name by the same four commands and before any spawn, as above, with no
+    marker file, whatever the script names, and so is one that reaches an
+    inline script through a launcher, the holder's `5984069416`. The
+    launcher case runs once for each launcher named in 16.3a's addendum, in
+    an option-bearing form wherever the launcher takes options:
+    `["env", "-i", "python3", "-c", "…"]`, `["nice", "-n", "5",
+    "python3", "-c", "…"]`, `["nohup", "python3", "-c", "…"]`,
+    `["timeout", "-s", "KILL", "5", "python3", "-c", "…"]`, `["stdbuf",
+    "-oL", "python3", "-c", "…"]`, `["setsid", "-w", "python3", "-c",
+    "…"]` and `["xargs", "-n", "1", "python3", "-c", "…"]` (`xargs` joins
+    the launchers by the holder's `5985046107`, C4), and once more for a
+    nested chain, `["env", "nice", "-n", "5",
+    "timeout", "5", "python3", "-c", "…"]`, so every layer is unwrapped,
+    and once through a string that `env -S` splits, `["env", "-S",
+    "python3 -c '…'"]`. A trust recorded for it before the rule does not
+    admit it: it reads untrusted, and the catalog lists it with
+    `available: false`.
+  - **An alias is judged both as named and as it resolves.** Each of these
+    is refused by the same four commands and before any spawn, with no
+    marker file, for the program and for an interpreter's script argument
+    alike (`["python3", "<link>"]`), except where noted:
+    - a symbolic link outside the served root whose target lies inside it;
+    - a bare program name that resolves through a `PATH` entry under the
+      served root, as the program only, since an interpreter does not look
+      its script argument up on `PATH`;
+    - a symbolic link inside the served root whose target is a real file
+      outside it, since a pull could retarget the link.
+
+    A trust recorded while the binding's paths resolved outside the root
+    does not admit it once a link or the `PATH` entry leads inside: it reads
+    untrusted and the catalog lists it with `available: false`.
+  - **A broker outside the repository is still reached.** The same binding
+    with its program a real file outside the served root, once trusted,
+    runs as batch M's block says. It runs with its working directory
+    outside the served root: the test starts `opendox` with its own
+    working directory at the served root, so a broker that inherited it
+    would record a directory inside the root, and the broker records the
+    directory it starts in and its environment. It finds neither `PWD` nor
+    `OLDPWD`, no variable whose value is a path inside the served root, and
+    no entry inside the root in a path list. The test starts `opendox` with
+    `PATH`, `PYTHONPATH` and `NODE_PATH` each carrying an entry inside the
+    served root, and with a scalar variable, such as `OPENDOX_TEST_HOME`,
+    set to a directory inside it, so an inherited one would show. It does
+    the same again through aliases, each for a `PYTHONPATH` entry and for a
+    scalar variable: one names a symbolic link outside the served root whose
+    target lies inside it, and one names a symbolic link inside the served
+    root whose target lies outside it, which a pull could retarget. And a launcher's own assignment is refused by
+    the four commands and before any spawn, with no marker file:
+    `["env", "PYTHONPATH=tools", "python3", "<outside>/broker.py"]`, where
+    `<outside>` is the case's own scratch directory outside the served root
+    (made by `mktemp -d`), and `tools`, relative to the served root, holds a
+    `sitecustomize.py` that writes the marker. The same refusal holds for
+    an assignment through an alias: `["env",
+    "PYTHONPATH=<outside>/alias", "python3", "<outside>/broker.py"]` and
+    `["env", "OPENDOX_TEST_HOME=<outside>/alias", "python3",
+    "<outside>/broker.py"]`, where `<outside>/alias` is a symbolic link to
+    `tools` inside the served root, and the same two assignments naming
+    `tools/out`, a symbolic link inside the served root to a directory
+    outside it. A launcher's own working-directory option is refused the
+    same way, by the four commands and before any spawn, and the outside
+    broker, which writes a marker file when it runs, leaves none:
+    `["env", "--chdir=<root>", "python3", "<outside>/broker.py"]`, where
+    `<root>` is the served root's absolute path; the same with `"-C",
+    "<root>"`; and the long form naming `<outside>/alias`, the link to
+    `tools` inside the served root, and naming `tools/out`, the in-repo
+    link to a directory outside it.
+  - **A path an option carries, an unreadable split string and a launcher
+    option that cannot be read are refused, and a launcher's options are
+    read as GNU reads them** (the holder's `5985046107`, C1 and C4). Each
+    command below is refused by name by the same four commands and before
+    any spawn, and leaves no marker file. `<outside>/broker` is an
+    executable in the case's scratch directory that writes one when it
+    runs, and `<outside>/broker.pl` a Perl script there that does the same:
+    - `["perl", "-I<root>/lib", "<outside>/broker.pl"]` is refused as a
+      command that names a file inside the served repository, since the
+      path attached to a single-dash option is judged;
+    - `["xargs", "-a", "<root>/args", "<outside>/broker"]` is refused as a
+      command that names a file inside the served repository, since the
+      repository would decide the arguments;
+    - `["env", "--chd=<root>", "<outside>/broker"]` is refused as a
+      command that names a file inside the served repository, since
+      `--chd` is the unambiguous prefix of `env`'s `--chdir`;
+    - `["env", "-S", "sh\\_-c\\_id"]` (escaped as JSON: the string is
+      `sh\_-c\_id`, which GNU `env` reads as `sh -c id`) is refused as an
+      inline script, since a split string that holds a backslash or a `$`
+      is unreadable;
+    - `["<outside>/broker", "--config=<root>/conf"]` is refused as a
+      command that names a file inside the served repository, since the
+      value after `=` of the final program's option is judged;
+    - `["<outside>/broker", "-o<root>/out"]` is refused the same way, since
+      an output path into the repository is refused too, an accepted
+      strictness;
+    - `["env", "--i", "<outside>/broker"]` is refused by name, fail-closed,
+      since `--i` is an ambiguous prefix (`--ignore-environment`,
+      `--ignore-signal`);
+    - `["env", "--no-such-option", "<outside>/broker"]` is refused by name,
+      fail-closed, since `env` has no such option;
+    - `["env", "--d", "<outside>/broker"]` is refused by name, fail-closed,
+      since `--d` is an ambiguous prefix (`--debug`, `--default-signal`);
+    - `["env", "-iS", "python3 -c '…'"]` is refused as an inline script,
+      since the bundled cluster parses the getopt way: `-i`, then `-S`
+      taking the next member as its string;
+    - `["timeout", "--sig", "KILL", "5", "python3", "-c", "…"]` and
+      `["stdbuf", "--out=L", "python3", "-c", "…"]` are each refused as an
+      inline script, not as an unknown option, since `--sig` is `timeout`'s
+      `--signal` and `--out` is `stdbuf`'s `--output`, so the program
+      behind them is found;
+    - `["env", "-S", "$BROKER"]` is refused as an inline script, since a
+      split string that holds a `$` is unreadable. It is written without
+      braces because a binding refuses, when it is declared, any `{name}`
+      in its argv outside its closed placeholder vocabulary, before any
+      broker rule is asked, so a `${VAR}` string would be refused by that
+      rule instead.
+
+  Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
+  T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
+  predates both the follow-on and this addendum. This bookkeeping amendment
+  does not itself touch the command above.
 
 ## Follow-ons named here and NOT authored here
 

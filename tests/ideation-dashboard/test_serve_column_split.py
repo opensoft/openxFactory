@@ -97,13 +97,16 @@ WEB = dashboard_web_root()
 #: consult, unshadowable) is proven at the repository that owns it —
 #: `opensoft/openDox-code`'s `tests/test_source_core_arm.py`, § 2's dispatch-
 #: order and unshadowability tests — not here.
+#:
+#: The snapshot arm's four handlers LEFT this dict at plan 034's phase-3 pin
+#: (T094): openXdox-code's T086 trimmed `ProjectionRoutes` to `_serve_index`,
+#: because the four have been `DashboardHandler`'s own since T055 and the
+#: handler-contribution facet refuses a mixin that shadows a core name. They
+#: are held as the core's own in `SNAPSHOT_ARM_HANDLERS` below, and the test
+#: that walks this dict walks them too, with `DashboardHandler` as the owner.
 MOVED_HANDLERS = {
     "_handle_gate_action": serve_gate.GateRoutes,
     "_log_gate_failure": serve_gate.GateRoutes,
-    "_query_key": serve_projection.ProjectionRoutes,
-    "_read_snapshot": serve_projection.ProjectionRoutes,
-    "_serve_snapshot": serve_projection.ProjectionRoutes,
-    "_hosted_entry_refused": serve_projection.ProjectionRoutes,
     "_serve_index": serve_projection.ProjectionRoutes,
     "_handle_dtn_seed": serve_openxfactory_lanes.LaneRoutes,
     "_handle_staging_seed": serve_openxfactory_lanes.LaneRoutes,
@@ -112,6 +115,43 @@ MOVED_HANDLERS = {
     "_run_refresh": serve_openxfactory_lanes.LaneRoutes,
     "_serve_committed_intents": serve_openxfactory_lanes.LaneRoutes,
 }
+
+#: THE `/snapshot.json` ARM'S FOUR HANDLERS, which openDox-code #59
+#: (`fa140875`, plan 034 T055) made `DashboardHandler`'s own again, so a
+#: standalone server answers the arm without openXdox's column. From plan
+#: 034's phase-3 pin (T094) openXdox's column no longer carries them: T086
+#: trimmed `serve_projection.ProjectionRoutes` to `_serve_index`, and T084
+#: retired openDox's Late stand-ins, so the column arrives through the facet
+#: and the core handler's own four are the only ones. They stay rows of
+#: `test_every_moved_handler_still_resolves_on_the_request_handler`, owned by
+#: `DashboardHandler` now, rather than a test of their own: the carve's test
+#: mapping counts this file's test functions by their definition marker, raw
+#: (`scripts/carve_test_mapping.py`, `count`), and pins the total
+#: (`tests/carve_test_mapping/`), so a ninth would move a figure that file
+#: pins. The marker is not spelled out here for the same reason: a comment
+#: carrying it counts.
+SNAPSHOT_ARM_HANDLERS = (
+    "_hosted_entry_refused", "_query_key", "_read_snapshot", "_serve_snapshot")
+
+#: The rows the moved-handler test walks: every moved handler with the column
+#: that owns it, and the snapshot arm's four with the core handler.
+RESOLVED_HANDLERS = sorted(
+    [*MOVED_HANDLERS.items(),
+     *((name, serve_mod.DashboardHandler) for name in SNAPSHOT_ARM_HANDLERS)])
+
+
+def _snapshot_arm_is_core() -> bool:
+    """Whether the pinned openDox leg's core handler owns the four handlers
+    (from T055) or none of them (before it). A leg defining some and not the
+    others is neither layout, and is refused."""
+    core = [name for name in SNAPSHOT_ARM_HANDLERS
+            if name in vars(serve_mod.DashboardHandler)]
+    assert core in ([], list(SNAPSHOT_ARM_HANDLERS)), (
+        f"DashboardHandler defines {core} of the snapshot arm's four handlers "
+        f"{list(SNAPSHOT_ARM_HANDLERS)}: all four are the core's from T055, and "
+        "none before it")
+    return bool(core)
+
 
 #: The CONTRIBUTED table, in `collect_bindings`' consult order: every exact
 #: binding in declaration order, then every prefix binding in declaration order.
@@ -189,7 +229,7 @@ def post(host, port, path, body):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("name,owner", sorted(MOVED_HANDLERS.items()))
+@pytest.mark.parametrize("name,owner", RESOLVED_HANDLERS)
 def test_every_moved_handler_still_resolves_on_the_request_handler(
         tmp_path, name, owner):
     """Through the MRO of the class a real `build_server` BINDS, from the
@@ -215,14 +255,26 @@ def test_every_moved_handler_still_resolves_on_the_request_handler(
     assert name in vars(owner), (
         f"{name} is not defined on {owner.__module__}.{owner.__qualname__}; "
         "the move landed somewhere else than this file records")
+    if owner is serve_mod.DashboardHandler:
+        # The `/snapshot.json` arm's four (T055): the core's own, no copy on
+        # openXdox's column (T086's trim), and the bound class resolves the
+        # core's definition.
+        assert _snapshot_arm_is_core()
+        assert name not in vars(serve_projection.ProjectionRoutes), (
+            f"openXdox's ProjectionRoutes carries a copy of the core's {name}")
+        assert resolved is vars(owner)[name], (
+            f"{name} does not resolve to DashboardHandler's own")
+        return
     assert name not in vars(serve_mod.DashboardHandler), (
         f"{name} is defined on DashboardHandler AS WELL as on "
         f"{owner.__qualname__} — a second copy that would shadow the column's, "
         "which is a fork of the route, not a move of it")
-    if owner is serve_openxfactory_lanes.LaneRoutes:
-        assert resolved is vars(owner)[name], (
-            f"{name} resolves on the bound class to {resolved!r}, not to "
-            "LaneRoutes' own function")
+    # EVERY COLUMN ARRIVES THROUGH THE FACET from plan 034's phase-3 pin
+    # (T094): openXdox's two as the lanes column does since T045, with no
+    # Late stand-in forwarding them, so each method IS the column's own.
+    assert resolved is vars(owner)[name], (
+        f"{name} resolves on the bound class to {resolved!r}, not to "
+        f"{owner.__qualname__}'s own function")
 
 
 # ---------------------------------------------------------------------------

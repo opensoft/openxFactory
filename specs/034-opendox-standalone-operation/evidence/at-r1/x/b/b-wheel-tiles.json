@@ -1,0 +1,37 @@
+[
+ [
+  "source",
+  "0",
+  "budget.md"
+ ],
+ [
+  "source",
+  "1",
+  "notes.md"
+ ],
+ [
+  "source",
+  "2",
+  "roadmap.md"
+ ],
+ [
+  "grouping",
+  "0",
+  "budget \u00b7 roadmap"
+ ],
+ [
+  "grouping",
+  "1",
+  "meeting \u00b7 notes"
+ ],
+ [
+  "candidate",
+  "0",
+  "Candidate: budget \u00b7 roadmap"
+ ],
+ [
+  "candidate",
+  "1",
+  "Candidate: meeting \u00b7 notes"
+ ]
+]
