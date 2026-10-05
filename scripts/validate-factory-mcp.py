@@ -18,6 +18,11 @@ SCHEMA = ROOT / "contracts/factory-mcp/declaration.schema.json"
 INPUT_LIMIT = 262144
 ARTIFACT_LIMIT = 1048576
 DEPTH_LIMIT = 128
+# Rendered CLI output (JSON or human), measured as UTF-8 before it is printed.
+OUTPUT_LIMIT = 262144
+# Uncached projection steps for one inventory. Paths that inherit different
+# `required` names cannot share memoized work, so the total is bounded.
+PROJECTION_BUDGET = 10000
 
 # RFC 6901: an array index is `0` or an ASCII digit run without a leading zero.
 # `[0-9]`, never `\d`: Python's `\d` also matches non-ASCII decimal digits.
@@ -68,6 +73,8 @@ DIALECTS = ("https://json-schema.org/draft/2020-12/schema", "https://json-schema
 
 REFERENCE_FIELDS = ("input", "output", "error")
 UNREADABLE = ("snapshot_unavailable", "input_unreadable", "reference_unreadable")
+# Operational failures exit 2: unreadable inputs, and output past its bound.
+OPERATIONAL = UNREADABLE + ("output_size_limit",)
 CHECK_STATE = {None: "not run", True: "pass", False: "fail"}
 
 
@@ -237,6 +244,7 @@ class Offline:
         self.chains = {}
         self.holding = {}
         self.finite_cache = {}
+        self.work = 0
         self.checked_targets = set()
 
     def read(self, key):
@@ -391,6 +399,9 @@ class Offline:
         return result
 
     def resolve_finite(self, key, node, resource, discriminator, required, seen, typed, closed):
+        self.work += 1
+        if self.work > PROJECTION_BUDGET:
+            raise Invalid("projection_work_limit")
         if not isinstance(node, dict):
             return None
         if self.embedded(key, node):
@@ -672,7 +683,7 @@ def report(diagnostics, gaps):
     elif not checks["references"]:
         checks["semantics"] = None
     status = "invalid" if diagnostics else ("valid-with-gaps" if gaps else "valid")
-    return {"status": status, "exit_code": 2 if any(d["code"] in UNREADABLE for d in diagnostics)
+    return {"status": status, "exit_code": 2 if any(d["code"] in OPERATIONAL for d in diagnostics)
             else (1 if diagnostics else 0),
             "checks": checks, "diagnostics": diagnostics, "gaps": gaps,
             "verified_conformance": False}
@@ -894,6 +905,7 @@ def check_inventories(tool, offline, gap_index, bad):
         if target not in offline.graph(key)[0]:
             bad("unreachable_inventory", here + "/pointer")
             continue
+        offline.work = 0
         try:
             values = offline.finite(key, node, resource, inventory.get("discriminator"))
         except Invalid as error:
@@ -1032,17 +1044,25 @@ def main(argv=None):
         result = report([{"dimension": "structure", "code": code, "location": "/"}], [])
     else:
         result = validate(declaration, roots)
-    if args.json:
-        print(json.dumps(result, sort_keys=True))
-    else:
-        print(result["status"] + "; offline declaration checks only; verified conformance: false")
-        for dimension, passed in result["checks"].items():
-            print(f"{dimension}: {CHECK_STATE[passed]}")
-        for diagnostic in result["diagnostics"]:
-            print(f"{diagnostic['code']} {printable(diagnostic['location'])}")
-        for gap in result["gaps"]:
-            print(f"gap {printable(gap['id'])}: {printable(gap['description'])}")
+    text = render(result, args.json)
+    if len(text.encode("utf-8")) > OUTPUT_LIMIT:
+        # Escaping can roughly double a permitted input; never print a truncated
+        # report or silently drop gaps, report the overflow itself instead.
+        result = report([{"dimension": "structure", "code": "output_size_limit", "location": "/"}], [])
+        text = render(result, args.json)
+    sys.stdout.write(text)
     return result["exit_code"]
+
+
+def render(result, as_json):
+    """The CLI's output for `result`, as one string."""
+    if as_json:
+        return json.dumps(result, sort_keys=True) + "\n"
+    lines = [result["status"] + "; offline declaration checks only; verified conformance: false"]
+    lines += [f"{dimension}: {CHECK_STATE[passed]}" for dimension, passed in result["checks"].items()]
+    lines += [f"{d['code']} {printable(d['location'])}" for d in result["diagnostics"]]
+    lines += [f"gap {printable(gap['id'])}: {printable(gap['description'])}" for gap in result["gaps"]]
+    return "\n".join(lines) + "\n"
 
 
 if __name__ == "__main__":
