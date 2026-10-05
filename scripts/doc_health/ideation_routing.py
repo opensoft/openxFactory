@@ -64,7 +64,8 @@ import re
 from datetime import date
 from pathlib import Path
 
-from . import (AUTO_FIXABLE, CONTESTED, ERROR, INFO, WARNING, Finding, Skip)
+from . import (AUTO_FIXABLE, CONTESTED, ERROR, INFO, WARNING, Finding, Skip,
+               fs_probe)
 from .corpus import ROOT_LEVEL_GOVERNED_PRODUCTS
 
 try:  # PyYAML is the suite's one optional dependency (runner/semantic do the same).
@@ -813,7 +814,9 @@ def _aggregation_backlog_findings(ctx) -> list[Finding]:
     if agg is None:
         return []
     ideation = Path(agg) / "ideation"
-    if ideation.is_dir():
+    # Must refuse (fs_probe, #1201): True is the finding, so an ideation area
+    # that cannot be stat-ed, taken for absent, would read as compliant.
+    if fs_probe.is_dir(ideation):
         return [_finding(
             "aggregation-backlog", ERROR, "xFactory", "ideation",
             "the xFactory aggregation repository hosts an ideation area; it "
