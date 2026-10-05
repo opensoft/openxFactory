@@ -75,6 +75,7 @@ the fix was written.
 | Copilot review 5419809508 (3 threads) | `66b610b6` | 11 failed; union coverage peaked at 64 MB on a 29 KB schema | `a12c7027` | 74 passed, 141 subtests passed; peak 1.2 MiB (4.7 MiB at four times the layers) |
 | Copilot review 5421098780 (2 threads and one finding in the review body) | `67558dbe` | 7 failed; 267,776 resolver calls for 512 shared aliases | `bc2e387e` | 77 passed, 149 subtests passed; 3,072 resolver calls (6,144 at twice the aliases) |
 | Copilot review 5421267903 (1 thread and one finding in the review body) | `d4177714` | 5 failed | `d3a9e05b` | 79 passed, 156 subtests passed |
+| Copilot review 5421477111 (2 threads and three findings in the review body) | `32f00de2` | 8 failed | `b247eda2` | 80 passed, 166 subtests passed |
 
 `5d0ea5de` split the validator into phase functions with no behaviour change.
 Copilot review 5420018661 at `a12c7027` reported no findings. Every review
@@ -93,8 +94,9 @@ Correction: the messages of `5d0ea5de`, `c9dbaa9b`, `c96d1894` and `6a1f6d1c`
 say these probes gave unchanged output. When they were written, the probe was
 loading the validator from a clone still at `b8c0d5e2`. It was then re-run
 against each of those commits' own validator and declaration schema, extracted
-with `git archive`, and against `754d94bc`, `a12c7027`, `bc2e387e` and
-`d3a9e05b`. Every report is byte-identical, so the statements hold. The review's adversarial probe, which
+with `git archive`, and against `754d94bc`, `a12c7027`, `bc2e387e`,
+`d3a9e05b` and `b247eda2`. Every report is byte-identical, so the statements
+hold. The review's adversarial probe, which
 always loaded the right tree, refuses P3, P3b, P4, P6, P7, P8, P9 and P17 with
 located codes.
 
@@ -121,7 +123,7 @@ same kind, with the CI lock's packages installed with hashes:
   its test module, the runbook and this feature's Markdown. At `1f9e3d7e`, the
   test files that read the corpus, plus the factory-mcp module, ran again:
   2974 passed, and the only failures were the two environment tests above.
-  At `d3a9e05b`, the factory-mcp module passes (79 tests, 156 subtests). CI's
+  At `b247eda2`, the factory-mcp module passes (80 tests, 166 subtests). CI's
   required `pytest-suite` runs the full command at the pull request's final
   head.
 
