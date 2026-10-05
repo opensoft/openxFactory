@@ -1804,3 +1804,155 @@ re-date (four governance files and `tasks.md` cite this path, § 6.8). For
 which a separate record pull request books), and 6.27 / 6.28. Task 4.6 does
 not tick here (6.27). No hold is posted or lifted, and no convening is
 dispatched.
+
+#### 13.6 — BOOKKEEPING NOTE 2 APPENDED 2026-10-05: TASKS 1.7, 2.1–2.6 AND 5.1 TICKED AGAINST WHAT LANDED; 5.3 LEFT OPEN, WITH A DATED READING
+
+Read by lane `codeXfactory-2` (session
+`8d6bf418-cc06-45d9-9406-2374935c6c72`), in reads completed by
+2026-10-05T15:2xZ, and composed by a Sonnet agent the lane directed.
+Everything was read-only: `gh` calls and `gh api` reads; `git show`, `git diff`
+and `git archive` reads of openxFactory `main` at `20ce593e8` and of three
+landed commits (below); `git` reads of a scratch clone of `opensoft/openXwallet`
+checked out at `6ec84b1b` and at `f3eb929b`, in the lane's scratch directory
+and not in any shared checkout (the two mutation runs were on scratch COPIES of
+the reader and nothing was committed); and `gh api` reads of codexFactory `main`
+at `cc85a3cc`. Nothing is dispatched, posted or merged by this note, and
+nothing under `governance/review-authority/` moves. This section is appended at
+the end of the file and edits no earlier section: a concurrent branch, the one
+that books tasks 6.25 and 6.26, appends inside §§ 13.5 and 13.6 at the same
+time, and the two are meant to merge without touching each other.
+
+**Why this note exists.** Nine rows of `tasks.md` were still unticked although
+what they ask for landed between 2026-09-06 and 2026-09-13: 1.7, 2.1–2.6, 5.1
+and 5.3. The first note in this section (2026-10-04) booked 6.9–6.14 and left
+6.15 and 6.18 open on one clause each. This one does the same for the rest of
+the rows an earlier survey found met, and checks every clause again rather than
+taking that survey's word. Eight of the nine are ticked. 5.3 is not (see the
+table and the last list below).
+
+**The rule applied.** The first note's: a row is ticked only when a landed
+artifact shows every clause of it, and a row that misses any clause stays open
+with a dated note naming it. None of the eight ticked rows missed a clause, but three of them
+carry a reading the reader should see, and each is stated under *"Where a row
+was read, not met word for word"* below. 5.3 is left open for a different
+reason: its clause binds it to the then-current `origin/main` at archive, and
+archive is blocked on the `sequenced_after` order (the coordinator's reading,
+2026-10-05), so a tick today would read as archive-time verification that has
+not happened. Rows 2.1–2.6 are tagged `[openXwallet]`: the work is another
+repository's, and they tick here as this change's own prerequisites against
+that repository's landed artifacts, the way task 3.1's DONE note ticks a
+`[codexFactory]` row (*"bookkeeping tick only; the work is another repository's
+and no openxFactory byte moves for it"*). Nothing in openXwallet's own
+`tasks.md` is touched or implied by that.
+
+| task | disposition | evidence |
+|---|---|---|
+| **1.7** validate clean; listings; ledger row | **TICKED** | The pinned entrypoint reports `--change register-gate-rules-council-seats --strict` `1 passed, 0 failed`. `--all --strict` exits 0 with `110 passed, 1 failed` and `0 UNDISPOSITIONED failures`, and itself prints "THIS IS NOT A CLEAN TREE": the one failure is `add-chain-attestation`, accepted by Brett Heap 2026-09-05 (*"take exit 2"*). `README.md:1815` (Records block) and `:129` (doc index). `corpus-ledger.yaml:282`; `--ledger-diff` says consistent, 229 rows |
+| **2.1** open the openXwallet change | **TICKED** | Its id is `proposal.md:4`'s; ratified 2026-09-06T23:25:11Z; PR #16 → `6ec84b1b`. The reader at openXwallet `05007e26` is byte-identical to the pinned `b7b0fbb3` (empty `git diff`, re-run), and its design D0 draws both codes there |
+| **2.2** RED first | **TICKED** | At `6ec84b1b`: `8 passed, 2 xfailed`, the two strict xfails being (a) the two-row admit test and (b) the same-role-name test. The twice-in-one-council refusal passes by design. At `f3eb929b`: `11 passed` |
+| **2.3** the pair key | **TICKED** | `validate-openxwallet.py:2958-2959` at `f3eb929b`; `key_id` and `key_fingerprint` stay global; narrowing them reds the two across-council probes |
+| **2.4** retire the cap | **TICKED** | No reference to `REGISTER_MVP_SINGLE_ROW`; the code `register-minimal-shape-exceeded` is in no string literal, only a docstring; the three invariants at `:2578-2616`; Q-GRC-5 and openXwallet's Q-WRR-1/2 |
+| **2.5** self-test probes | **TICKED** | Probes at `:2484-2557`, the validator reads `0 error(s), 0 warning(s)`, and reverting the pair key reds four findings |
+| **2.6** tag and digests | **TICKED** | Annotated `wallet-v1.5` (object `ff9ac797`) peels to `f3eb929b`; manifest reads `wallet-v1.5`; release inventory differs from v1.4's in one line; all eight digests recompute and agree. Reading in the third list |
+| **5.1** realization evidence | **TICKED** | #740 → `30eccf0ca` (one row, `4 of 4`); #798 → `eea40d175` (two rows, `8 of 8`); the 2026-09-08 walk in `eea40d175`'s tree; rows 1.2–1.5 ruled. **`8 of 8` is superseded by `9 of 9`** (T2); the first item's order was re-sequenced by the 2026-09-07 AMENDMENT |
+| **5.3** seat list vs. the roster | **LEFT OPEN, DATED READING RECORDED** | DATED READING, 2026-10-05, cxF `main` `cc85a3cc`: the five roster seats equal the register's five `gate_rules_council` seats, and `intent_owner_role_slot` is still deferred. **To be re-run and ticked at archive**; not ticked now because the clause is archive-time |
+
+**Re-checked by this note itself, not taken from the earlier survey:**
+
+* **The pinned validation**, from the repository root of a fresh worktree at
+  `20ce593e8`: `python3 scripts/validate-openspec-cli-pin.py --change
+  register-gate-rules-council-seats --strict` → `Totals: 1 passed, 0 failed (1
+  items)`; `--all --strict` → `Totals: 110 passed, 1 failed (111 items)`, `0
+  UNDISPOSITIONED failures`, exit 0. `python3 scripts/validate-sequenced-after.py
+  . --ledger-diff` → `per-change sweep ledger consistent with the corpus (229
+  rows)`.
+* **openXwallet**, by `git` and `gh` on a scratch clone. `gh pr view 16` and `18`
+  are MERGED at `6ec84b1b` (2026-09-06T23:42:00Z) and `f3eb929b`
+  (2026-09-07T00:49:00Z); #18's `lane-line`, `pytest-suite` and
+  `wallet-validation` are SUCCESS. `git for-each-ref refs/tags/wallet-v1.5` →
+  an object of type `tag`, `ff9ac797`, dated 2026-09-07T00:51:35Z; `git
+  rev-parse wallet-v1.5^{commit}` → `f3eb929b9ab6d78bf30e26bf1d7a99af86a7016e`,
+  an ancestor of `origin/main`; `git ls-remote --tags` agrees.
+  `git diff b7b0fbb3 6ec84b1b -- scripts/validate-openxwallet.py` and
+  `... b7b0fbb3 05007e26 ...` are both empty, so a test run at `6ec84b1b`
+  measures the pinned reader. `pytest tests/widen_register_reader` at
+  `6ec84b1b` → `8 passed, 2 xfailed`; at `f3eb929b` → `11 passed`.
+  `validate-openxwallet.py .` at `f3eb929b` → `0 error(s), 0 warning(s)`, plain
+  and `--strict`. The two mutations, each a one-line edit to a scratch copy: pair
+  key replaced by the bare value → four `register-assertion-failed` findings
+  (`register-two-bodies-clean` twice, `register-two-councils-one-seat-name`,
+  `register-second-row-unresolved`); `scoped = True` → two
+  (`seat-duplicate-across-councils[key_id]` and `[key_fingerprint]`). `ast`:
+  no `REGISTER_MVP_SINGLE_ROW` name; the one string constant mentioning
+  `register-minimal-shape-exceeded` is `check_register`'s docstring. The eight
+  contract digests, sha256 over raw git blobs at `f3eb929b`, equal both
+  `contracts/releases/wallet-v1.5.digests.yaml` and the `sha256:` rows in
+  `contracts/manifest.yaml`: 8 of 8.
+* **The reader on the three landed openxFactory commits.** Each tree was
+  extracted with `git archive` into a scratch directory outside any checkout
+  and read with the openXwallet reader at `f3eb929b`, which is the gitlink at
+  all three (`git ls-tree <commit> openXwallet`). `0 error(s), 0 warning(s)`
+  every time, and no `[register-` line:
+
+  | oxF commit | what landed | `intake register read` | `intake register:` | `wal-agent-grc-0001` |
+  |---|---|---|---|---|
+  | `30eccf0ca` | #740, the pin advance (2.7) | `1 row(s)` | `4 of 4` | not yet on `main` |
+  | `eea40d175` | #798, the register act | `2 row(s)` | `8 of 8` | `5 declared key(s)` |
+  | `765d8c6f` | #1006, T2 | `2 row(s)` | `9 of 9` | `6 declared key(s)` |
+
+* **The checks on the landed PRs**, by `gh pr view` and `gh api` on each head: #740 and #798 have
+  `wallet-validation` and `pytest-suite` SUCCESS (#798's head is `85ca4c9a`; its
+  rollup also lists a `lane-line` FAILURE and a `lane-line` SUCCESS 23 seconds
+  later on that same head, which this note did not investigate and which is not
+  one of the checks 5.1 names). #1006 → `765d8c6f` (2026-09-13T22:30:20Z) has
+  both SUCCESS.
+* **The roster**, `gh api repos/codeXfactory/codexFactory/branches/main` →
+  `cc85a3cc29caabb6a2894d3e935d1e965e84d007`, identical to the local
+  `origin/main`. `gate-rules.yaml` there: `members.domain` three seats,
+  `members.client.seat` `company-policy-lead`,
+  `members.client.conjunction_pull_in.seat` `client-security-compliance-officer`
+  (`:203`), `deferred_seats` holding only `intent_owner_role_slot`.
+  `register.yaml` at `20ce593e8`, parsed: two rows (`row-mrc-0001`,
+  `row-grc-0001`) and five `gate_rules_council` `seat_keys`, set-equal to the
+  roster's five. `agent-mixes.yaml`'s `gate_rules_council` profile lists the same
+  five in `all_possible_seats`, `model_assignments` and `prompt_contract.seats`.
+
+**Where a ticked row was read, not met word for word, stated so a reader can
+disagree; and the one row left open:**
+
+* **1.7 says `--all --strict` "clean".** The pinned entrypoint exits 0 but
+  prints that this is not a clean tree: one accepted exception that is another
+  change's. The row is ticked on "no failure attributable to this change, none
+  undispositioned". The row's own command is the unpinned `openspec`, which this
+  repository's CLAUDE.md says never to use; the pinned entrypoint is what ran.
+* **2.6 says "publish the digests in `contracts/manifest.yaml`".** The manifest's
+  digests did not move, because no contract byte did: it carries
+  `contract_bundle_version: wallet-v1.5` and the same eight `sha256:` rows. The
+  published artifact that is new is `contracts/releases/wallet-v1.5.digests.yaml`.
+  The row is ticked on the manifest carrying the release and the digests, and
+  the inventory agreeing with them.
+* **5.1 names `8 of 8` and an order.** `8 of 8` is superseded by `9 of 9`
+  (T2 added the fifth gate-rules seat key; the row count stays 2, § 5.3). The
+  first item, "§2.7 + §2.8 merged ... with the register still at one row", never
+  held as one state: 2.8's literal flip was deferred into the register act by the
+  2026-09-07 AMENDMENT and performed in #798. 2.9, the gate that was kept, is
+  already ticked. The task text is not edited.
+* **5.3 says "at the then-current `origin/main`", and is LEFT OPEN.** What is
+  recorded is a DATED READING (2026-10-05, codexFactory `main` `cc85a3cc`): the
+  five roster seats equal the register's five `gate_rules_council` seats, and
+  `intent_owner_role_slot` is still deferred. It is not a tick, because the
+  clause is archive-time and archive has not been reached. To be re-run and
+  ticked at archive, against `origin/main` on that day;
+  `intent_owner_role_slot` is the seat most likely to have moved.
+
+**An observation, not an act of this note.** openXwallet's own change
+`widen-register-reader-for-a-second-council` still shows its row 4.4 and its § 5
+(5.1–5.3, the oxF pin advance, the gate literals and the neutrality gate) open,
+although the oxF side of them has landed (#740, #798). That is openXwallet's
+bookkeeping. This note does not touch it.
+
+**Not touched by this note:** any row of § 4 (so 4.6 does not tick, 6.27), 5.2,
+6.15 and 6.18 (still open on the clauses the first note names), 6.25 and 6.26
+(the separate record pull request books them), 6.27 and 6.28. No hold is posted
+or lifted, no convening is dispatched, and no Rule 6 LANDING is posted by this
+note.
