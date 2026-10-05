@@ -14,6 +14,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -134,8 +135,9 @@ class ConformanceTests(unittest.TestCase):
         self.doc["source"]["artifacts"].append(dict(ref))
 
     def cli(self, *args):
+        env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
         return subprocess.run([sys.executable, str(SCRIPT), *map(str, args)],
-                              capture_output=True, text=True, cwd=ROOT)
+                              capture_output=True, text=True, encoding="utf-8", cwd=ROOT, env=env)
 
     # ---- the core report ---------------------------------------------------
 
@@ -409,11 +411,11 @@ class ConformanceTests(unittest.TestCase):
 
     # ---- H3: outcome inventories across union branches ---------------------
 
-    def error_union(self, name="domain-error.json", *, required_code=True):
+    def error_union(self, name="domain-error.json", *, required_code=True, typed=True, parent_typed=False):
         """Codex-shaped: a root object whose `error` is a `$ref` to a `oneOf` of `$ref`
         branches, each an object carrying its code in `properties.code.const`."""
         def branch(code, retryable):
-            return {"type": "object", "additionalProperties": False,
+            return {**({"type": "object"} if typed else {}), "additionalProperties": False,
                     "required": ["code", "retryable", "details"] if required_code else ["retryable", "details"],
                     "properties": {"code": {"const": code}, "retryable": {"const": retryable},
                                    "details": {"type": "object"}}}
@@ -424,7 +426,8 @@ class ConformanceTests(unittest.TestCase):
                   "$defs": {"identifier": {"type": "string"},
                             "unavailableError": branch("UNAVAILABLE", True),
                             "invalidError": branch("INVALID", False),
-                            "error": {"oneOf": [{"$ref": "#/$defs/unavailableError"},
+                            "error": {**({"type": "object"} if parent_typed else {}),
+                                      "oneOf": [{"$ref": "#/$defs/unavailableError"},
                                                 {"$ref": "#/$defs/invalidError"}]}}}
         ref = self.put(name, schema)
         self.pin(ref)
@@ -462,6 +465,17 @@ class ConformanceTests(unittest.TestCase):
                                               "absent_property": "missing"}.get(case, "code")
                 self.assertDiagnostics(
                     [("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/1/gap_id")])
+
+    def test_discriminated_branches_must_be_object_only(self):
+        """Review r4187574996: an untyped branch also admits `null`, which has no code."""
+        for typed, parent_typed, expected in [
+                (False, False, [("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/1/gap_id")]),
+                (False, True, [])]:
+            with self.subTest(typed=typed, parent_typed=parent_typed):
+                self.doc = self.declaration()
+                self.error_union(typed=typed, parent_typed=parent_typed)
+                self.tool()["outcomes"]["inventories"][1].update(pointer="/$defs/error", discriminator="code")
+                self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
 
     def test_ops_shaped_root_error_union_resolves_by_discriminator(self):
         """Ops-shaped: the root is a `oneOf` of inline objects with a constant `code`."""
@@ -610,7 +624,12 @@ class ConformanceTests(unittest.TestCase):
     def test_references_must_target_schemas(self):
         """Review r4187464184: a `$ref` into annotation data is not a schema."""
         for target, extra, code in [
-                ("#/examples/0", {"examples": [{"type": 7}]}, "invalid_referenced_schema"),
+                ("#/examples/0", {"examples": [{"type": 7}]}, "reference_to_non_schema"),
+                ("#/examples/0", {"examples": [{"enum": ["positive"]}]}, "reference_to_non_schema"),
+                ("#/properties", {}, "reference_to_non_schema"),
+                ("#/$defs/pair/additionalItems",
+                 {"$defs": {"pair": {"type": "array", "additionalItems": {"type": 7}}}},
+                 "invalid_referenced_schema"),
                 ("#/required", {"required": ["status"]}, "reference_to_non_schema"),
                 ("#/properties/status/enum", {}, "reference_to_non_schema")]:
             with self.subTest(target=target):
@@ -621,6 +640,41 @@ class ConformanceTests(unittest.TestCase):
                 self.write_schema()
                 self.doc = self.declaration()
                 self.assertDiagnostics(everywhere(code, *TOOL_REFS))
+
+    def test_boolean_schema_targets_are_schemas(self):
+        self.schema["$defs"] = {"anything": True}
+        self.schema["properties"]["nested"] = {"$ref": "#/$defs/anything"}
+        self.write_schema()
+        self.doc = self.declaration()
+        self.assertValidWithGaps()
+
+    def test_inventory_pointer_into_annotation_data_is_refused(self):
+        """Review r4187574917: an example is data, never the outcome vocabulary."""
+        self.schema["examples"] = [{"enum": ["positive", "negative"]}]
+        self.write_schema()
+        self.doc = self.declaration()
+        self.tool()["outcomes"]["inventories"][0]["pointer"] = "/examples/0"
+        self.assertDiagnostics([("invalid_inventory_pointer", "/tools/0/outcomes/inventories/0/pointer")])
+
+    def test_shared_references_resolve_in_linear_work(self):
+        """Review r4187575076: shared `anyOf` references must not multiply the work."""
+        layers = {"l0": {"enum": ["positive", "negative"]}}
+        for i in range(1, 17):
+            layers[f"l{i}"] = {"anyOf": [{"$ref": f"#/$defs/l{i - 1}"}, {"$ref": f"#/$defs/l{i - 1}"}]}
+        self.schema["$defs"] = layers
+        self.schema["properties"]["status"] = {"$ref": "#/$defs/l16"}
+        self.write_schema()
+        self.doc = self.declaration()
+        calls = []
+        original = self.module.Offline.finite
+
+        def counted(this, *args, **kwargs):
+            calls.append(1)
+            return original(this, *args, **kwargs)
+
+        with patch.object(self.module.Offline, "finite", counted):
+            self.assertValidWithGaps()
+        self.assertLess(len(calls), 500)
 
     def test_nul_bytes_are_refused_not_raised(self):
         self.tool()["input"]["path"] = "outcome\x00.json"
@@ -780,7 +834,8 @@ class ConformanceTests(unittest.TestCase):
                     "https://user@mcp.example.test/mcp", "https://user:pw@mcp.example.test/mcp",
                     "javascript:alert(1)", "urn:example:mcp", "https:///mcp", "https://mcp.example.test:99999/",
                     "https://mcp.example.test/m cp", "https://mcp.example.test/\x00",
-                    "https://mcp.example.test\\evil"]:
+                    "https://mcp.example.test\\evil", "https://example.test/\u0085",
+                    "https://b\u00fccher.example/mcp"]:
             with self.subTest(uri=uri):
                 self.doc["service"]["canonical_resource_uri"] = uri
                 with patch.dict(self.module.FormatChecker.checkers, {}, clear=True):
@@ -864,6 +919,18 @@ class ConformanceTests(unittest.TestCase):
             "structure: pass", "references: pass", "semantics: fail",
             "owner_domain_mismatch /tools/0/owner",
             "gap audit-gap: No resolving audit sink."])
+
+    def test_cli_human_output_escapes_control_characters(self):
+        """Review r4187575035: declaration text cannot inject lines or terminal codes."""
+        path = self.root / "declaration.json"
+        self.doc["gaps"].append({"id": "g\u001b[31m", "concerns": ["audit"],
+                                 "description": "line one\nfake: injected\u001b[2J\u202e \\ plain caf\u00e9"})
+        path.write_text(json.dumps(self.doc))
+        run = self.cli(path, "--snapshot", f"synthetic@{self.revision}={self.root}")
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(run.stdout.splitlines()[-1],
+                         "gap g\\x1b[31m: line one\\x0afake: injected\\x1b[2J\\u202e \\\\ plain caf\u00e9")
+        self.assertNotIn("\u001b", run.stdout)
 
     def test_packaged_example(self):
         """M7: the shipped example validates exactly as the runbook says."""
