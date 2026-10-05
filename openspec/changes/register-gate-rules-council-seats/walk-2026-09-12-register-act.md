@@ -1545,6 +1545,136 @@ head `049455c0`, was **not** re-checked by this note.
 **Ticks task 6.23.** It is a `[lane]` row, ticked at selection. **No
 dispatch follows from this note.**
 
+#### 13.5 — POST-NOTE APPENDED 2026-10-05: C2 DISPATCHED, ADMITTED, RECORDED — TASKS 6.25 AND 6.26 ARE PERFORMED (RUN `37230435234`; cxF #500 → `cc85a3cc`)
+
+Read by lane `codeXfactory-2` (session
+`8d6bf418-cc06-45d9-9406-2374935c6c72`), in reads completed by
+2026-10-05T15:00Z, and composed by an Opus agent the lane directed.
+Everything was read-only. The reads were `gh` calls (the run object, both
+jobs' logs, PR #500, three #279 comments, codexFactory `main`'s branch
+rules), `git show` reads of codexFactory `main` at
+`cc85a3cc29caabb6a2894d3e935d1e965e84d007`, and `git show` reads of
+`opensoft/brett-wip` `main` at `c0a95d4f`. Spends no pin. **Nothing is
+dispatched, posted or merged by this note.** The convening's own facts are
+those of the record that landed it, cited below and not re-derived here.
+What this note re-checked for itself is listed separately, as the § 13.4
+post-note did.
+
+**Task 6.25 is performed: C2 was dispatched, admitted and sealed.**
+
+| field | value | read from |
+|---|---|---|
+| dispatched | **2026-10-04T20:00:34Z** (`created_at` and `run_started_at` the same instant) | the run object |
+| workflow, ref | `gate-rules-convening-trigger.yml`, `main` at `cb504bece4fd4d9f093827e7a46999b00de1aa45` | the run object |
+| identity | `actor` / `triggering_actor` **`brettheap`** / **`brettheap`** | the run object |
+| inputs | `rule_packet_ref` `hermes/domain/review-councils/convening-packets/2026-09-11-routine-code-clearance-repository-respelling.md`; `subject_pin` `cd5ee34082a63b59b4037a6732138602996a4f1f` (cxF #470 head, the 6.23 selection); `candidate_pull_number` `470` | the `claim` job's step environment |
+| run | `37230435234`, **`success`**; `claim` 20:00:41Z→20:00:48Z; `convene / convene` 20:00:52Z→20:01:12Z | `gh run view --json jobs` |
+| admission | **`GRC-CONVENE-cd5ee34082a6-37230435234`** (notice at 20:00:45Z); `subject_pin_source` `codeXfactory/codexFactory#470`; `subject_pin_verified_at` `2026-10-04T20:00:44.845479+00:00` | the `claim` job's log |
+| bench | `resolved bench (5 seats): lead-architect lead-security lead-quality company-policy-lead client-security-compliance-officer` (20:01:05Z); `run-spec: … 5 seat(s), 0 unseated conjunction seat(s)` | the `convene / convene` job's log |
+| seal | `verified: deliberation sha256:7fc5a8d7fa694726529cbe158bacda28eb6da1e6c803fe84bde1057ac3251253 (5 members, expires 2026-10-04T22:01:06Z)` | the `convene / convene` job's log |
+| sealed artifact | `sealed-gate-rules-convening-request`, id `11312419676`, 13955 bytes, retention to **2026-10-05T20:01:07Z** | the artifacts API |
+
+**The words, each with its source.**
+
+| word, verbatim | UTC | source | what it does here |
+|---|---|---|---|
+| *"merge the packet PR when green then convene C2"* | 2026-09-11T13:26:14Z | `c2-prep.md` (brett-wip `handoffs/xFactory/recovered-host-session-prompts/codexfactory-org-transfer/`), header lines 5-6 and its words table | clause 1 was discharged by #407 → `76f2e771`; **clause 2, `convene C2`, is the carried word task 6.25 discharges** |
+| *"dispatch C2"* | 2026-10-04, in session | lane log `lanes/log/codeXfactory-2.md` (brett-wip), NOTED line of 2026-10-04T20:01:50Z; cxF #279 [comment `5983851562`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5983851562) (2026-10-04T20:01:36Z) | the dispatch itself |
+| *"merge the C2 record PR when green"* | 2026-09-11T13:27:23Z | `c2-prep.md`, header lines 6-7 and its words table | the merge of cxF #500 (task 6.26) |
+
+*"dispatch C2"* has no comment URL of Brett Heap's own. Both artifacts that
+record it are the lane's: the lane log line, and the #279 comment the lane
+posted under his `gh` login. The C2 record's § 1 says so, on the precedent of
+the proof convening's *"re-dispatch on 475"*. **The act is his; the
+keystroke was the lane's**, under his `gh` login, as § 7.2 defines "operator
+act". `C2 ADMITTED AND SEALED` was posted on #279 as
+[comment `5983881686`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5983881686)
+(2026-10-04T20:05:04Z).
+
+**THE BENCH IS THE ONE 6.25 EXPECTED, AND NO EARLIER CONVENING HAD IT.**
+The sealed `run-spec.json` carries five `required_seats` and a five-key
+`declared_models`: `lead-architect` `claude-opus-5`, `lead-security`
+`claude-opus-5`, `lead-quality` `claude-sonnet-5`, `company-policy-lead`
+`claude-sonnet-5`, **`client-security-compliance-officer` `claude-opus-5`**.
+It also carries **`unseated_conjunction_seats: []`**. The sealed `facts.json`
+gives the packet's reach as
+`scripts/merge_master/codexfactory-routine-code-clearance.yaml`, inside a
+declared security surface, so the conjunction fires. **The conjunction seat
+is SEATED under the 2026-09-11 packet; the 2026-09-18 proof convening seated
+four and recorded it unseated** (§ 13.4 post-note). This is the firing branch
+of cxF #482 that the selection note named in advance, and the first use of
+cxF #497's hardened `write_json` in a sealed convening. The run log shows no
+`##[error]` line. **`cd5ee340` is now SPENT** (record § 1).
+
+**Task 6.26 is performed: the record, its sealed bundle, the merge, the
+post.**
+
+| 6.26 clause | evidence |
+|---|---|
+| hand-write the convening record | cxF `hermes/domain/review-councils/records/2026-10-04-gate-rules-c2-convening-under-grant-grc-0003.md`. Its header (*"Precedents matched"*) says it mirrors `records/2026-09-18-gate-rules-proof-convening-under-grant-grc-0003.md` section for section, which *"in turn mirrored"* `records/2026-09-10-gate-rules-first-signed-convening.md` |
+| commit the sealed bundle **before its 1-day artifact retention expires** | `…/2026-10-04-gate-rules-c2-convening-sealed-bundle/` holds a `README.md` plus the six sealed files: `manifest.json` and its five named members. It was first committed in `c1729b71` (2026-10-04T20:26:52Z) and reached cxF `main` at 21:34:43Z. The artifact expires 2026-10-05T20:01:07Z. The bytes were preserved first, at 2026-10-04T20:03:34Z, in brett-wip `f28360b2e` under `handoffs/codeXfactory/attachments/codeXfactory-2/c2-convening/run-37230435234/` |
+| open the C2 record PR and merge on green under the standing word | cxF PR **#500**, opened 2026-10-04T20:30:51Z → **`cc85a3cc29caabb6a2894d3e935d1e965e84d007`**, merged **2026-10-04T21:34:43Z** under the `brettheap` login, on the carried word *"merge the C2 record PR when green"* (lane log LANDED line of 21:34:49Z). cxF `main`'s required contexts are `validate` and `lane-line` (its branch rules). At head `b362ad57` they passed at 21:34:32Z and 21:28:30Z, before the merge. The four checks that completed after the merge all passed, the last at 21:53:03Z. The rules also require an approving review; it was an **admin merge over the review rule**, as the DISCHARGED post states. The PR's history carries `5661cd46` (*"three wording precisions"*) and `b362ad57` (`main` merged into the branch) before the merge |
+| post `C2 DISCHARGED` on cxF #279 | [comment `5984628943`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5984628943), 2026-10-04T21:34:50Z, seven seconds after the merge. It cites the record path, the merge commit and the word |
+
+**WHICH THREE WORDS: READ FROM THE AMENDMENT, NOT GUESSED.** Task 6.26, and
+this section's own stub above, say the post closes *"α and all three
+carried-forward C2 words"*. The amendment record
+(`review/amendment-2026-09-11-q-grc-4-discharge.md`) heads its § 7 *"The C2
+dependency, and the three words it discharges"*, and that section names
+them. The first is § 2.1's standing word α (*"α, park C2 until Q-GRC-4 is
+discharged"*, 2026-09-11T14:23:26Z). The other two are the *"Two words …
+carried forward"*: `convene C2` (2026-09-11T13:26:14Z) and `merge the C2
+record PR when green` (2026-09-11T13:27:23Z). `proposal.md` names the same
+two carried words. **All three are now closed.** α was lifted at task 6.22
+(§ 13.4 pre-note) and C2 has now run; `convene C2` was spent by run
+`37230435234` (6.25); the merge word was spent by #500 (6.26). **Two
+differences are named and not reworded.** The task's *"α and all three"*
+counts α once more than § 7 does; this note reads it as § 7's three. And the
+post names the merge word only: it does not name α or `convene C2`, which
+were spent earlier in the same chain.
+
+**THE RECORD'S OWN BOUNDS, QUOTED RATHER THAN PARAPHRASED.** Its `Status:`
+line opens *"record — **NOT A DISPOSITION, AND NOT A SITTING.**"* and says
+*"**NO SEAT WAS CONVENED, NO MODEL WAS INVOKED, AND NO SEAT RETURN WAS
+SIGNED.**"* The five decision items are *"**PUT, NOT ANSWERED**"*. The run
+sealed a request. The only signature on the act is the ORIGIN attestation
+over the request manifest (record § 6). The five `declared_models` are the
+roster's declaration, not a record of anything having run, and *seated in a
+sealed request* is not *sat*. The record cites the CSC pin under LQ2-C1 (b)
+only. It records LQ2-C4's deadline as **reached with the re-route already in
+place** and does not record LQ2-C4 as discharged, and LQ-C4 is not answered.
+Like the proof convening, it is not a measurement of the register
+projection: § 13.2's cluster read stays that proof. **Tasks 4.4 and 4.5 stay
+open: no seat return was signed.**
+
+**RE-CHECKED BY THIS NOTE, not taken from the record:**
+
+* The five named members match the sealed `manifest.json`'s `size_bytes` and
+  `content_hash`, and the manifest digest recomputes (`digest equal: True`,
+  `sha256:7fc5a8d7…`). The origin signature verifies (`origin signature
+  verifies: True`, `members verify (5 named): OK`) under the public half
+  `hermes/domain/factory-identity/records/2026-09-03-factory-origin-key-minted.md`
+  line 33 registers (fingerprint `sha256:d88db98a…`). The check used the
+  shipped `scripts/execution_lane/` modules, run from a `git archive` of
+  `cc85a3cc`, whose copy of that directory is identical to `cb504bec`'s. The
+  only file the manifest does not name is `README.md`.
+* The six sealed files on cxF `main` are byte-identical (`cmp`) to the
+  brett-wip `f28360b2e` copy.
+* The sealed `run-spec.json` carries `source_revisions.candidate_sha`
+  `cd5ee340…` and `lane_tooling_sha` `cb504bec…`, and the seats, models and
+  empty `unseated_conjunction_seats` tabled above.
+* PR #500 is MERGED at `cc85a3cc`, whose parents are `e452e727` and
+  `b362ad57`. Its check runs and `main`'s branch rules are as tabled above.
+
+**Ticks tasks 6.25 and 6.26.** 6.25 is an `[OPERATOR]` row and follows this
+file's convention, which the § 13.4 post-note lists. It is ticked with Brett
+Heap's recorded word and its date: *"dispatch C2"*, 2026-10-04, carrying
+*"merge the packet PR when green then convene C2"* (2026-09-11T13:26:14Z).
+6.26 is a `[lane]` row, ticked on its landed evidence with the two
+differences above named. **Nothing is dispatched, posted, merged or held by this note.**
+6.15 and 6.18 stay open on their named clauses (§ 13.6 bookkeeping note).
+6.27 and 6.28 are not touched, and task 4.6 does not tick (6.27).
+
 ### 13.6 What is owed, and by whom
 
 | Owed | By | Gates what |
@@ -1590,6 +1720,25 @@ and the five struck rows were already closed.
 the merge (T2)"*. The table already showed it DONE, but its `tasks.md` rows
 were never ticked. Tasks 6.9–6.14 are now ticked against T2. Tasks 6.15 and
 6.18 stay open, each with a dated note. The evidence is in the note below.
+
+**STATUS LINES APPENDED 2026-10-05 (C2)**, for the two items the 2026-10-04
+status lines listed as *"NOW OWED, and not a row above"*, and for the one
+row whose deadline C2 was. No row of the table is edited.
+
+* **task 6.25, C2's dispatch**: **DONE 2026-10-04T20:00:34Z.** Run
+  `37230435234` on #470 / `cd5ee340` with the 2026-09-11 packet, on Brett
+  Heap's word *"dispatch C2"*. It was admitted as
+  `GRC-CONVENE-cd5ee34082a6-37230435234` and sealed with FIVE seats and
+  `unseated_conjunction_seats: []` (§ 13.5 post-note).
+* **task 6.26, the C2 record**: **DONE 2026-10-04T21:34:43Z.** cxF #500 →
+  `cc85a3cc`, with the sealed bundle committed inside its retention, on the
+  carried word *"merge the C2 record PR when green"*. `C2 DISCHARGED` is on
+  #279 as comment `5984628943` (§ 13.5 post-note).
+* **LQ2-C4 re-route**: its deadline, C2, is now **reached**, with the
+  re-route in place. The C2 record does not discharge LQ2-C4, and LQ-C4 is
+  not answered.
+* **Still open, and not this note's**: tasks 4.4 and 4.5 (no seat return was
+  signed), and 6.15 and 6.18 (the bookkeeping note below).
 
 #### 13.6 — BOOKKEEPING NOTE APPENDED 2026-10-04: TASKS 6.9–6.14 TICKED AGAINST T2; 6.15 AND 6.18 LEFT OPEN, EACH ON ONE NAMED CLAUSE
 

@@ -1139,18 +1139,64 @@ bookkeeping note (appended 2026-10-04).
       PROOF CONVENING LANDED on #279 as comment 5734334758. See
       walk-2026-09-12-register-act.md § 13.4 post-note (appended
       2026-10-04).**
-- [ ] 6.25 **[OPERATOR]** Dispatch **C2** — `gate-rules-convening-trigger.yml`
+- [x] 6.25 **[OPERATOR]** Dispatch **C2** — `gate-rules-convening-trigger.yml`
       with the C2 packet ref, the fresh candidate's head sha and its PR number.
       Expect **FIVE** resolved seats and an admitted, sealed convening.
       Discharges Brett's carried-forward word `convene C2`
       (2026-09-11T13:26:14Z).
-- [ ] 6.26 **[lane]** On admission: hand-write the convening record (mirroring
+      **DONE 2026-10-04: DISPATCHED, ADMITTED AND SEALED. Run `37230435234`
+      (dispatched 2026-10-04T20:00:34Z, `success`; `claim`
+      20:00:41Z→20:00:48Z, `convene / convene` 20:00:52Z→20:01:12Z), convening
+      `GRC-CONVENE-cd5ee34082a6-37230435234`, on Brett Heap's word in session,
+      verbatim *"dispatch C2"* (2026-10-04; lane log NOTED line
+      2026-10-04T20:01:50Z; no comment URL of his own), carrying his
+      *"merge the packet PR when green then convene C2"*
+      (2026-09-11T13:26:14Z), whose second clause is the word this row
+      discharges. The identity was his (`actor`/`triggering_actor`
+      `brettheap`); the keystroke was the lane's. Inputs, read from the
+      `claim` job's own log: the 2026-09-11 packet
+      (`2026-09-11-routine-code-clearance-repository-respelling.md`),
+      `subject_pin` `cd5ee34082a63b59b4037a6732138602996a4f1f` (cxF #470 head,
+      selected at 6.23) and `candidate_pull_number` `470`, from cxF `main`
+      `cb504bec`. **FIVE seats** resolved and sealed:
+      `resolved bench (5 seats)`, with `client-security-compliance-officer`
+      declared on `claude-opus-5` and `unseated_conjunction_seats: []` in the
+      sealed `run-spec.json`. The 2026-09-18 proof convening seated four.
+      Posted on #279 as comments 5983851562 (DISPATCHED, 20:01:36Z) and
+      5983881686 (ADMITTED AND SEALED, 20:05:04Z). See
+      walk-2026-09-12-register-act.md § 13.5 post-note (appended
+      2026-10-05).**
+- [x] 6.26 **[lane]** On admission: hand-write the convening record (mirroring
       `records/2026-09-10-gate-rules-first-signed-convening.md`), commit the
       sealed bundle **before its 1-day artifact retention expires**, open the C2
       record PR and merge on green under Brett's standing word
       *"merge the C2 record PR when green"* (2026-09-11T13:27:23Z), and post
       `C2 DISCHARGED` on cxF #279 — closing α and all three carried-forward C2
       words in one motion.
+      **DONE 2026-10-04: RECORDED, LANDED, DISCHARGED. The record is cxF
+      `hermes/domain/review-councils/records/2026-10-04-gate-rules-c2-convening-under-grant-grc-0003.md`.
+      It mirrors the 2026-09-18 proof convening record section for section,
+      which in turn mirrored `records/2026-09-10-gate-rules-first-signed-convening.md`.
+      Its sealed bundle `…/2026-10-04-gate-rules-c2-convening-sealed-bundle/`
+      holds a README plus the six sealed files (the manifest and its five
+      named members). It was first committed in `c1729b71`
+      (2026-10-04T20:26:52Z), after the bytes were preserved in brett-wip
+      `f28360b2e` (20:03:34Z), against an artifact expiry of
+      2026-10-05T20:01:07Z. cxF PR #500 →
+      `cc85a3cc29caabb6a2894d3e935d1e965e84d007`, merged 2026-10-04T21:34:43Z
+      on Brett Heap's carried word *"merge the C2 record PR when green"*
+      (2026-09-11T13:27:23Z). Main's two required contexts, `validate` and
+      `lane-line`, were green at the merge, and it was an admin merge over
+      the review rule. `C2 DISCHARGED` was posted on #279 as comment
+      5984628943 (21:34:50Z). THE THREE WORDS are the amendment record
+      § 7's, and all three are closed: α, lifted at 6.22; `convene C2`,
+      spent by 6.25; and the merge word, spent by #500. This row's *"α and
+      all three"* counts α once more than § 7 does, and the post names the
+      merge word only. Both differences are named, not reworded. The record
+      is *"NOT A DISPOSITION, AND NOT A SITTING"*, and *"NO SEAT WAS
+      CONVENED, NO MODEL WAS INVOKED, AND NO SEAT RETURN WAS SIGNED"*, so 4.4
+      and 4.5 stay open. See walk-2026-09-12-register-act.md § 13.5
+      post-note (appended 2026-10-05).**
 
 ### 6.6 Bookkeeping this group does NOT do
 
