@@ -1011,9 +1011,9 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   **Landed 2026-09-30** (T055): openDox-code#59 → `fa140875`, then its follow-up
   openDox-code#70 → `75bd8703`. The snapshot source and registry, the
   corpus-root predicate and the writer and validator lookups have openDox
-  defaults the entry points register; the `consumer_reach` names the task lists
-  (the snapshot registry and its helpers, the writer and validator lookups) are
-  retired, and the import-time column stays zero.
+  defaults the entry points register; the seven `consumer_reach` names that T055
+  lists, `snapshot_registry` and `find_validator` among them, are retired, and
+  the import-time column stays zero.
 - [x] 5.6 **Do NOT author the view-wiring slice here** — and it can no longer be
   duplicated: it was CLAIMED on openDox-code under actor `viewwire` (RULED *"wire
   the views and land it"*, same comment) and LANDED as **openDox-code#35 →
