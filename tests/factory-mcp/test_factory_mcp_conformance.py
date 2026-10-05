@@ -394,7 +394,14 @@ class ConformanceTests(unittest.TestCase):
                 ("boolean is not an integer", {"type": "integer", "const": True}, unresolved),
                 ("integral number", {"type": "integer", "const": 1.0}, []),
                 ("integer is a number", {"$ref": "#/$defs/number", "type": "integer"}, []),
-                ("const inside enum", {"const": "a", "enum": ["a", "b"], "type": ["string", "null"]}, [])]:
+                ("const inside enum", {"const": "a", "enum": ["a", "b"], "type": ["string", "null"]}, []),
+                # Review r4189908933: top-level unions are not analyzed.
+                ("top-level oneOf", {"oneOf": [{}, {}]}, unresolved),
+                ("top-level anyOf", {"anyOf": [False, False]}, unresolved),
+                # Review r4189908956: compound values compare recursively, numbers by value.
+                ("nested numbers in an array", {"const": [1], "enum": [[1.0]]}, []),
+                ("nested numbers in an object", {"const": {"n": 1}, "enum": [{"n": 1.0}]}, []),
+                ("nested boolean is not a number", {"const": [True], "enum": [[1]]}, unresolved)]:
             with self.subTest(case=case):
                 self.doc = self.declaration()
                 self.error_union(parent_typed=True)
@@ -893,6 +900,29 @@ class ConformanceTests(unittest.TestCase):
         self.tool()["input"] = dict(ref)
         self.assertDiagnostics([("unsupported_schema_base_uri", "/tools/0/input")])
 
+    def test_local_fragments_may_carry_uri_characters(self):
+        """Review 5421899020 (previously missed): `:`, `?` and percent escapes in a
+        `$ref` FRAGMENT select keys in a loaded schema; the fragment is strictly
+        percent-decoded, while the path keeps its restrictions."""
+        self.schema["$defs"] = {"status:legacy": {"enum": ["a"]}, "status?legacy": {"enum": ["b"]},
+                                "status legacy": {"enum": ["c"]}}
+        for ref, expected in [("#/$defs/status:legacy", None), ("#/$defs/status?legacy", None),
+                              ("#/$defs/status%20legacy", None),
+                              ("#/$defs/status%2", "invalid_pointer"), ("#/$defs/status%ZZlegacy", "invalid_pointer"),
+                              ("#/$defs/status%FFlegacy", "invalid_pointer"),
+                              ("other:file.json#/$defs/x", "remote_or_unsafe_schema_reference"),
+                              ("a%2E%2E.json#/x", "remote_or_unsafe_schema_reference"),
+                              ("x?y.json#/x", "remote_or_unsafe_schema_reference"),
+                              ("#/$defs/a#b", "remote_or_unsafe_schema_reference")]:
+            with self.subTest(ref=ref):
+                self.schema["properties"]["nested"] = {"$ref": ref}
+                self.write_schema()
+                self.doc = self.declaration()
+                if expected:
+                    self.assertDiagnostics(everywhere(expected, *TOOL_REFS))
+                else:
+                    self.assertValidWithGaps()
+
     def test_dynamic_references_and_named_anchors_are_refused(self):
         for node, code in [({"$dynamicRef": "#meta"}, "unsupported_dynamic_reference"),
                            ({"$ref": "#named"}, "unsupported_schema_anchor")]:
@@ -960,6 +990,32 @@ class ConformanceTests(unittest.TestCase):
         self.write_schema()
         self.doc = self.declaration()
         self.assertDiagnostics(everywhere("schema_depth_limit", *TOOL_REFS))
+
+    def test_cumulative_schema_bytes_are_bounded(self):
+        """Review r4189908880: each artifact is within its own bound, but together
+        the parsed schemas would be retained for the whole run, so the total
+        loaded is bounded too, before another document is parsed."""
+        filler = "x" * (self.module.ARTIFACT_LIMIT - 4096)
+        names = []
+        for i in range(6):
+            ref = self.put(f"big{i}.json", {"$schema": DRAFT, "description": filler})
+            self.pin(ref)
+            names.append(ref["path"])
+        self.schema["properties"]["big"] = {"allOf": [{"$ref": name} for name in names]}
+        self.write_schema()
+        self.doc["source"]["artifacts"][0] = self.ref.copy()
+        for name in ("input", "output", "error"):
+            self.tool()[name] = self.ref.copy()
+        self.doc["evidence"][0]["source"] = self.ref.copy()
+        self.assertDiagnostics(everywhere("schema_total_size_limit", *TOOL_REFS))
+        del self.schema["properties"]["big"]
+        self.schema["properties"]["two"] = {"allOf": [{"$ref": name} for name in names[:2]]}
+        self.write_schema()
+        self.doc["source"]["artifacts"][0] = self.ref.copy()
+        for name in ("input", "output", "error"):
+            self.tool()[name] = self.ref.copy()
+        self.doc["evidence"][0]["source"] = self.ref.copy()
+        self.assertValidWithGaps()
 
     def test_symlink_loop_is_refused_not_raised(self):
         """Review r4187464151: a symlink loop is a refusal, never a crash."""
