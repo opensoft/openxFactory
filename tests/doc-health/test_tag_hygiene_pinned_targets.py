@@ -26,6 +26,7 @@ the thing under test is the arm's behaviour rather than the bytes' address.
 
 from __future__ import annotations
 
+import errno
 import os
 import subprocess
 from pathlib import Path
@@ -40,6 +41,8 @@ from doc_health import corpus
 from doc_health import families
 from doc_health.families import FAMILIES
 from doc_health.runner import Context
+
+import pin_containment
 
 FIXTURE_CONTRACTS = (Path(__file__).resolve().parent / "fixtures"
                      / "tag-hygiene-pinned" / "alpha" / "contracts")
@@ -776,6 +779,88 @@ def test_a_self_looping_symlink_record_cannot_be_resolved_and_reads_nothing(
         "contracts/ — no symlink loop, no unreadable link, no malformed "
         "path (document-lifecycle grammar)")
     assert seams["_pin_record_text"].calls == [], "nothing was read"
+
+
+def _resolve_313(self, strict=False):
+    """CPython 3.13's and 3.14's own `Path.resolve` body (3.13
+    `Lib/pathlib/_local.py`, `def resolve`): a bare `os.path.realpath`, which
+    in non-strict mode returns a looping path instead of raising. 3.12's
+    `resolve` stat-ed its result and raised `RuntimeError` on ELOOP; 3.13
+    dropped that, which is why the loop case above failed on 3.14."""
+    return self.with_segments(os.path.realpath(self, strict=strict))
+
+
+@pytest.mark.parametrize("cycle", (
+    ("loop-pin.yaml",),                       # a record linking to itself
+    ("other-pin.yaml", "loop-pin.yaml")),     # a two-link cycle
+    ids=("self-loop", "two-link-cycle"))
+def test_a_looping_record_refuses_the_same_under_the_313_resolve(
+        tmp_path, seams, monkeypatch, cycle):
+    """(m) under the `Path.resolve` of CPython 3.13 and later, on any
+    interpreter (opensoft/openxFactory#1201, RULED by Brett Heap "#1201 3.14:
+    1(a)"). `resolve_in_root` asks the filesystem whether the resolved path
+    loops (`os.stat` failing with ELOOP) instead of relying on `resolve()` to
+    raise, so the refusal above is the same finding, byte for byte, and still
+    nothing is read."""
+    monkeypatch.setattr(Path, "resolve", _resolve_313)
+    root = _repo(tmp_path / "alpha",
+                 docs={"case.md": _doc("pinned:loop/wallet-carve")})
+    links = [root / "contracts" / "loop-pin.yaml"] + \
+        [root / "contracts" / name for name in cycle[:-1]]
+    for link, target in zip(links, cycle):
+        os.symlink(target, link)
+    # The premise: this resolve RETURNS a looping path rather than raising.
+    looping = (root / "contracts" / "loop-pin.yaml").resolve()
+    with pytest.raises(OSError) as caught:
+        os.stat(looping)
+    assert caught.value.errno == errno.ELOOP
+
+    findings = _run(_context({"alpha": root}))
+    assert [f.rule for f in findings] == [
+        "pinned target=pinned:loop/wallet-carve at line 5: "
+        "contracts/loop-pin.yaml in root alpha cannot be resolved "
+        "(unresolvable)"]
+    assert seams["_pin_record_text"].calls == [], "nothing was read"
+
+
+@pytest.mark.parametrize("model", ("native", "cpython-3.13+"))
+def test_a_loop_in_an_intermediate_directory_is_unresolvable(
+        tmp_path, monkeypatch, model):
+    """The same refusal for a loop BEFORE the last component, called
+    directly: `a -> b`, `b -> a`, and a claim through `a/`."""
+    if model == "cpython-3.13+":
+        monkeypatch.setattr(Path, "resolve", _resolve_313)
+    os.symlink("b", tmp_path / "a")
+    os.symlink("a", tmp_path / "b")
+    candidate, refusal = pin_containment.resolve_in_root("a/record.yaml",
+                                                         tmp_path)
+    assert candidate is None
+    assert refusal[0] == pin_containment.UNRESOLVABLE
+    assert str(tmp_path) not in refusal[1]  # names no host path
+
+
+@pytest.mark.parametrize("shape", ("the-root-itself", "an-ancestor-of-it"))
+@pytest.mark.parametrize("model", ("native", "cpython-3.13+"))
+def test_a_looping_root_is_unresolvable_under_either_resolve(
+        tmp_path, monkeypatch, model, shape):
+    """`boundary_dir`'s resolve of the ROOT, under both resolves
+    (opensoft/openxFactory#1201, RULED by Brett Heap "#1201 3.14: 1(a)"): a
+    root that is a symlink loop, or one reached through a looping ancestor, is
+    UNRESOLVABLE on every version. Under 3.13's resolve it came back resolved,
+    and the root then read as one with no contracts/ directory."""
+    if model == "cpython-3.13+":
+        monkeypatch.setattr(Path, "resolve", _resolve_313)
+    if shape == "the-root-itself":
+        os.symlink("loop", tmp_path / "loop")
+        root = tmp_path / "loop"
+    else:
+        os.symlink("b", tmp_path / "a")
+        os.symlink("a", tmp_path / "b")
+        root = tmp_path / "a" / "repo"
+    boundary, refusal = pin_containment.boundary_dir(root)
+    assert boundary is None
+    assert refusal[0] == pin_containment.UNRESOLVABLE
+    assert str(tmp_path) not in refusal[1]  # names no host path
 
 
 # --------------------------------------------------------------------------

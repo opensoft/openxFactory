@@ -13,7 +13,7 @@ import signal
 import subprocess
 from pathlib import Path
 
-from . import ERROR, Finding
+from . import ERROR, Finding, fs_probe
 
 # openxFactory's validators that run without arguments; the pin validator
 # needs domain paths, so the suite invokes it separately with every domain.
@@ -172,18 +172,22 @@ def _run_entrypoint(cmd: list[str], cwd: Path,
 
 def _entrypoints(repo: str, repo_path: Path,
                  domain_paths: list[Path]) -> list[list[str]]:
+    # Every probe here must refuse (`fs_probe`, opensoft/openxFactory#1201): a
+    # validator it cannot stat, taken for absent, is never run, and
+    # `run_preflight` logs a repo with no entrypoint as a PASS.
     cmds: list[list[str]] = []
     if repo == "openxFactory":
         for rel in _OPENX_NOARG:
-            if (repo_path / rel).is_file():
+            if fs_probe.is_file(repo_path / rel):
                 cmds.append(["python3", rel])
-        if (repo_path / "scripts/validate-domain-openxfactory-pins.py").is_file() and domain_paths:
+        pins = repo_path / "scripts/validate-domain-openxfactory-pins.py"
+        if fs_probe.is_file(pins) and domain_paths:
             cmds.append(["python3", "scripts/validate-domain-openxfactory-pins.py",
                          *[str(p) for p in domain_paths]])
         return cmds
-    if (repo_path / "scripts/validate-docs.sh").is_file():
+    if fs_probe.is_file(repo_path / "scripts/validate-docs.sh"):
         cmds.append(["bash", "scripts/validate-docs.sh"])
-    elif (repo_path / "Makefile").is_file() and \
+    elif fs_probe.is_file(repo_path / "Makefile") and \
             "validate:" in (repo_path / "Makefile").read_text(encoding="utf-8"):
         cmds.append(["make", "validate"])
     return cmds
@@ -192,8 +196,11 @@ def _entrypoints(repo: str, repo_path: Path,
 def run_preflight(repo_paths: dict[str, Path]):
     """Returns (findings, log) where log is (repo, cmd, ok, tail)."""
     findings, log = [], []
+    # Must refuse (fs_probe, #1201): a domain whose stack.yaml cannot be
+    # stat-ed would silently drop out of the pin validator's arguments.
     domain_paths = [p for n, p in sorted(repo_paths.items())
-                    if n != "openxFactory" and (p / "stack.yaml").is_file()]
+                    if n != "openxFactory"
+                    and fs_probe.is_file(p / "stack.yaml")]
     for repo in sorted(repo_paths):
         repo_path = repo_paths[repo]
         cmds = _entrypoints(repo, repo_path, domain_paths)
