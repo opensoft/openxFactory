@@ -46,9 +46,17 @@ STORAGE = ("$defs", "definitions")
 # walk still does, so a remote reference under them is still refused.
 NOT_OUTCOMES = ("not", "if", "contentSchema", "additionalItems", "dependencies")
 UNIONS = ("oneOf", "anyOf")
-# Keywords that assert nothing: a `$ref` beside only these is a pure reference.
+# Keywords that assert nothing about an instance: annotations, core metadata and
+# schema storage. A `$ref` beside only these is a pure reference.
 ANNOTATIONS = ("$comment", "title", "description", "examples", "default", "deprecated", "readOnly",
-               "writeOnly")
+               "writeOnly", "$id", "$schema", "$anchor", "$defs", "definitions")
+# The only keywords a discriminated projection reads on a union, a `$ref` link or
+# a branch. Anything else there (dependentRequired, unevaluatedProperties, ...)
+# could leave a branch no instance, so the inventory stays unresolved.
+PROJECTION = ("type", "required", "properties", "additionalProperties", "$ref", "oneOf", "anyOf") + ANNOTATIONS
+# A required property's own schema is judged only at its top level, after its
+# `$ref` chain: `false` holds no value, and these are not analyzed.
+UNANALYZED = ("not", "if", "then", "else", "allOf")
 # Constraints that may narrow a vocabulary; never infer exhaustiveness through them.
 # Object cardinality and property-name constraints can leave a branch no instance.
 NARROWING = ("allOf", "not", "if", "then", "else", "pattern", "minLength", "maxLength",
@@ -227,6 +235,7 @@ class Offline:
         self.documents = {}
         self.graphs = {}
         self.chains = {}
+        self.holding = {}
         self.finite_cache = {}
         self.checked_targets = set()
 
@@ -403,9 +412,15 @@ class Offline:
         seen = seen | {token}
         required = required | set(names)
         typed = typed or ("type" in node and admits(node["type"], "object", only=True))
-        if discriminator is not None and node.get("additionalProperties") is False:
-            declared = node.get("properties")
-            closed = closed + (frozenset(declared) if isinstance(declared, dict) else frozenset(),)
+        if discriminator is not None:
+            if any(keyword not in PROJECTION for keyword in node):
+                return None
+            extra = self.extra_names(key, node, resource)
+            if extra is None:
+                return None
+            if extra is False:
+                declared = node.get("properties")
+                closed = closed + (frozenset(declared) if isinstance(declared, dict) else frozenset(),)
         if "$ref" in node:
             if any(k in node for k in ("enum", "const", *UNIONS)) or (
                     discriminator is not None and "properties" in node):
@@ -457,7 +472,8 @@ class Offline:
         properties = node.get("properties")
         for union in UNIONS:
             if union in node:
-                if (isinstance(properties, dict) and discriminator in properties) or not isinstance(node[union], list):
+                # Properties on an enclosing union constrain every branch; not analyzed.
+                if properties is not None or not isinstance(node[union], list):
                     return None
                 parts = [self.finite(key, item, resource, discriminator, required, seen, typed, closed)
                          for item in node[union]]
@@ -471,10 +487,58 @@ class Offline:
             return None
         if discriminator not in properties or discriminator not in required:
             return None
-        if any(properties.get(name) is False for name in required) or any(
-                not required <= allowed for allowed in closed):
+        if any(not required <= allowed for allowed in closed) or not all(
+                self.holds_some(key, properties[name], resource) for name in required if name in properties):
             return None
         return self.finite(key, properties[discriminator], resource, None, frozenset(), seen)
+
+    def extra_names(self, key, node, resource):
+        """What `additionalProperties` leaves for undeclared names: True (open:
+        absent, `true`, an annotation-only schema, or a pure reference chain to
+        `true`), False (closed: `false`, directly or through `$ref`), or None (an
+        asserting schema, not analyzed)."""
+        if "additionalProperties" not in node:
+            return True
+        extra = node["additionalProperties"]
+        if isinstance(extra, bool):
+            return extra
+        if not isinstance(extra, dict):
+            return None
+        end, pure = self.chain_end(key, extra, resource)
+        if end is False:
+            return False
+        if "$ref" not in extra:
+            return True if all(keyword in ANNOTATIONS for keyword in extra) else None
+        return True if end is True and pure else None
+
+    def holds_some(self, key, node, resource):
+        """Whether a required property's schema may hold a value, judged at its top
+        level along its `$ref` chain: `false` holds none, a negation, condition or
+        conjunction (UNANALYZED) is not analyzed, and a cycle proves nothing.
+        Deeper constraints are outside this offline check. Memoized per link."""
+        path, seen = [], set()
+        while True:
+            token = (key, id(node), id(resource))
+            if token in self.holding:
+                result = self.holding[token]
+                break
+            if node is False or (isinstance(node, dict) and any(k in node for k in UNANALYZED)):
+                result = False
+                break
+            if not (isinstance(node, dict) and "$ref" in node):
+                result = True
+                break
+            if token in seen:
+                result = False
+                break
+            seen.add(token)
+            path.append(token)
+            if self.embedded(key, node):
+                resource = node
+            key, node, resource, _ = self.resolve(key, node["$ref"], resource)
+        for token in path:
+            self.holding[token] = result
+        return result
 
     def graph(self, key):
         """The applying-subschema graph of one schema file, built once: every
