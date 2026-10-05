@@ -1,6 +1,7 @@
 # Ratification of add-factory-mcp-conformance
 
-Status: record
+Status: ratified
+Ratified: 2026-09-07 by Brett Heap, verbatim "yes"; record: this file
 Kind: report
 Lane: mcp-family-contract
 Date: 2026-09-07
@@ -20,3 +21,8 @@ The earlier validation record remains historical. The proposal's earlier
 draft-state statements describe the requested boundary before this decision;
 this dated decision and lifecycle header establish current ratification.
 
+Header corrected 2026-10-05 by lane openxfactory-5 (openXfactory-5),
+opensoft/openxFactory#1242: `Status: record` became `Status: ratified` with a
+`Ratified:` citation, as `document-lifecycle` requires of a review record that
+records a ratification (doc-health `ratified-provenance`, since #878). The
+decision recorded above is unchanged.

@@ -42,9 +42,9 @@ Input is bounded to 256 KiB, each artifact to 1 MiB, declaration lists to 256 it
 
 ## Compatibility, release and ownership
 
-[Codex baseline observations](../openspec/changes/add-factory-mcp-conformance/review/codex-baseline-2026-09-07.md) pin repository revision `4b12ba83add713666a94129fc45552d8989f8488` and all three published schema digests. Existing `codex_qa_inspect_patch` reevaluates fixed input/context without ports; `codex_qa_verify_candidate` executes trusted checks and persists principal-scoped lease/replay state. The wire mapping preserves the domain object and maps DomainError to isError true. Their schema shapes and output digests remain unchanged.
+[Codex baseline observations](../openspec/changes/add-factory-mcp-conformance/review/codex-baseline-2026-09-07.md) pin revision `4b12ba83add713666a94129fc45552d8989f8488` of `codeXfactory/codexFactory` and the digests of its three published schemas (tool request, tool result, domain error). This profile leaves those schemas, their outputs and client compatibility unchanged. The observation is a compatibility review input, not an executable codex declaration or adoption certificate. codexFactory is private, so this repository carries no codex schema bytes: a reviewer with access validates a codex declaration out of tree, supplying the codex snapshot with `--snapshot`.
 
-Those observations do not resolve the neutral scope tuple, revocation freshness, protected deployment provenance or audit sink. They are a compatibility review input, not an executable codex declaration or adoption certificate. DNS behavior remains in OpsxFactory. This repository ships synthetic domain fixtures only.
+DNS behavior remains in OpsxFactory. This repository ships synthetic domain fixtures only.
 
 The profile is unbundled and unreleased. Register manifest/changelog digests, allocate the additive contract version and accept consumer pins only in the later governed realization. This work creates no listener, shared transport, release tag, accepted deployment or production endpoint.
 
