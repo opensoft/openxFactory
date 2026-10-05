@@ -84,7 +84,8 @@ import sys
 from collections import deque
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
+from typing import TypedDict
 
 _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
@@ -507,9 +508,18 @@ def _repository_name(url: str | None) -> str | None:
 def _declared_rel(base: str, path: str) -> str | None:
     """`path` declared by the `.gitmodules` at `base`, as a path relative to
     the aggregation root. None for a declaration that is absolute or climbs out
-    of the repository declaring it: that is not a checkout this lane scans."""
-    declared = PurePosixPath(path.strip())
-    if not path.strip() or declared.is_absolute() or ".." in declared.parts:
+    of the repository declaring it: that is not a checkout this lane scans.
+
+    Absolute means absolute on EITHER platform: a backslash, or a Windows
+    drive or UNC anchor (`C:\\x`, `C:/x`, `\\\\srv\\share`), is refused too, because
+    `PurePosixPath` does not see those as absolute and `root / rel` on Windows
+    would then leave the aggregation root (Copilot review, PR #1209). git
+    writes `.gitmodules` paths with forward slashes only, so nothing it
+    declares is lost."""
+    raw = path.strip()
+    declared = PurePosixPath(raw)
+    if (not raw or declared.is_absolute() or ".." in declared.parts
+            or "\\" in raw or PureWindowsPath(raw).drive):
         return None
     joined = PurePosixPath(base) / declared if base else declared
     rel = joined.as_posix()
@@ -572,6 +582,19 @@ def declared_checkouts(agg_root: Path) -> dict[str, list[str]]:
                     and _borrowed_toplevel(child) is None):
                 queue.append(rel)
     return out
+
+
+class _SkippedRepositoryBase(TypedDict):
+    repository: str
+    reason: str
+
+
+class SkippedRepository(_SkippedRepositoryBase, total=False):
+    """One `index-status.json` `skipped` entry. `repository` and `reason` are
+    always present; `paths` (the declared directories that were found
+    uninitialised) only when `reason` is `submodule not initialised`
+    (Copilot review, PR #1209)."""
+    paths: list[str]
 
 
 @dataclass
@@ -676,7 +699,7 @@ def run_multi_lane(
 
     outcomes: list[LaneOutcome] = []
     entries: list[registry_mod.SnapshotEntry] = []
-    skipped: list[dict] = []
+    skipped: list[SkippedRepository] = []
     for repository in repos:
         located = locate_checkout(agg_root, repository, subs, declared)
         checkout = located.path

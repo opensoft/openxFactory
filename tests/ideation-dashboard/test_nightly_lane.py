@@ -882,3 +882,45 @@ def test_a_gitmodules_git_refuses_declares_nothing(tmp_path):
     assert lane.submodule_paths(agg) == {}
     assert lane.declared_checkouts(agg) == {}
     assert lane.resolve_checkout(agg, "ok") is None
+
+
+def test_git_config_null_output_is_key_newline_value(tmp_path):
+    """The exact shape `_gitmodules_entries` reads, pinned against the real
+    git (Copilot review, PR #1209, which twice claimed `key\\0value\\0`). With
+    `--null`, git separates the key from its value with a NEWLINE and ends each
+    value with NUL (git-config `-z`/`--null`), and a valueless boolean key
+    arrives as `key\\0`. If git ever changed this, this test would fail rather
+    than the roster silently emptying."""
+    gitmodules = tmp_path / ".gitmodules"
+    gitmodules.write_text(
+        '[submodule "a"]\n\tpath = sub/a\n'
+        '\turl = https://example.invalid/x/A.git\n\tflag\n', encoding="utf-8")
+    raw = subprocess.run(
+        ["git", "config", "--file", str(gitmodules), "--no-includes", "--null",
+         "--get-regexp", r"^submodule\."],
+        capture_output=True, check=True).stdout
+    assert raw == (b"submodule.a.path\nsub/a\0"
+                   b"submodule.a.url\nhttps://example.invalid/x/A.git\0"
+                   b"submodule.a.flag\0")
+    assert lane._gitmodules_entries(gitmodules) == [
+        ("sub/a", "https://example.invalid/x/A.git")]
+
+
+@pytest.mark.parametrize("value", ["C:\\x", "C:/x", "sub\\x", "\\\\srv\\share"])
+def test_a_windows_absolute_or_backslash_path_is_never_a_candidate(value):
+    """Copilot review, PR #1209: `PurePosixPath` does not see a drive or UNC
+    anchor as absolute, so on Windows `root / rel` could leave the
+    aggregation root. Any backslash, or a drive or UNC anchor, is refused."""
+    assert lane._declared_rel("", value) is None
+
+
+def test_a_drive_prefixed_gitmodules_path_never_resolves(tmp_path):
+    """The same refusal through a real `.gitmodules`: git reads `C:/x` as a
+    legal path, and on Linux `C:` is an ordinary directory name, so the
+    target here is a real populated checkout and only containment refuses
+    it."""
+    agg = _commit_repo(tmp_path / "agg", gitmodules=(
+        '[submodule "w"]\n\tpath = C:/x\n\turl = git@example.invalid:w.git\n'))
+    _commit_repo(agg / "C:" / "x")
+    assert lane.resolve_checkout(agg, "x") is None
+    assert lane.resolve_checkout(agg, "w") is None
