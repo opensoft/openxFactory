@@ -332,6 +332,79 @@ class ConformanceTests(unittest.TestCase):
         t["outcomes"]["inventories"][1]["pointer"] = "/oneOf/1/properties/code"
         self.assertValidWithGaps()
 
+    def test_an_inventory_must_be_reachable_from_its_schema(self):
+        """Review r4187464441: an unused definition cannot stand in for the outcome."""
+        union = {"$schema": DRAFT,
+                 "$defs": {"unused": {"enum": ["positive", "negative"]}},
+                 "oneOf": [{"type": "object", "properties": {"status": {"const": "stale"}}},
+                           {"type": "object", "properties": {"status": {"const": "unreadable"}}}]}
+        ref = self.put("unused-def.json", union)
+        self.pin(ref)
+        t = self.tool()
+        t["output"] = dict(ref)
+        t["outcomes"]["inventories"][0]["pointer"] = "/$defs/unused"
+        self.assertDiagnostics([("unreachable_inventory", "/tools/0/outcomes/inventories/0/pointer")])
+
+    def test_negated_definitions_do_not_cover_a_variant(self):
+        """Review r4187464328: a `$ref` under `not` is not where an outcome lives."""
+        union = {"$schema": DRAFT,
+                 "$defs": {"status": {"enum": ["positive", "negative"]}},
+                 "oneOf": [{"type": "object", "properties": {"status": {"$ref": "#/$defs/status"}}},
+                           {"type": "object", "properties": {"status": {
+                               "const": "stale", "not": {"$ref": "#/$defs/status"}}}}]}
+        ref = self.put("negated.json", union)
+        self.pin(ref)
+        t = self.tool()
+        t["output"] = dict(ref)
+        t["outcomes"]["inventories"][0]["pointer"] = "/$defs/status"
+        self.assertDiagnostics([("uncovered_outcome_branch", "/tools/0/output")])
+
+    def test_simultaneous_unions_are_unresolved(self):
+        """Review r4187464246: `oneOf` and `anyOf` on one node both constrain it."""
+        self.schema["properties"]["status"] = {
+            "oneOf": [{"const": "positive"}, {"const": "negative"}], "anyOf": [{"const": "positive"}]}
+        self.write_schema()
+        self.doc = self.declaration()
+        self.assertDiagnostics([("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/0/gap_id")])
+        self.doc = self.declaration()
+        self.error_union()
+        error = json.loads((self.root / "domain-error.json").read_text())
+        error["$defs"]["error"]["anyOf"] = [{"$ref": "#/$defs/invalidError"}]
+        ref = self.put("domain-error.json", error)
+        self.doc = self.declaration()
+        self.pin(ref)
+        self.tool()["error"] = dict(ref)
+        self.tool()["outcomes"]["inventories"][1].update(pointer="/$defs/error", discriminator="code")
+        self.assertDiagnostics([("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/1/gap_id")])
+
+    def test_one_of_values_count_only_once(self):
+        """Review r4187464294: under `oneOf` a value valid in two branches is invalid."""
+        self.schema["properties"]["status"] = {"oneOf": [{"const": "positive"},
+                                                         {"enum": ["positive", "negative"]}]}
+        self.write_schema()
+        self.doc = self.declaration()
+        self.assertDiagnostics([("incomplete_outcome_mapping", "/tools/0/outcomes/inventories/0")])
+        t = self.tool()
+        t["outcomes"]["mapping"] = [r for r in t["outcomes"]["mapping"] if r["value"] != "positive"]
+        self.assertValidWithGaps()
+
+    def test_value_vocabulary_respects_type_and_mixed_keywords(self):
+        for status in [{"type": "integer", "enum": ["positive", "negative"]},
+                       {"enum": ["positive", "negative"], "oneOf": [{"const": "positive"}]}]:
+            with self.subTest(status=status):
+                self.schema["properties"]["status"] = status
+                self.write_schema()
+                self.doc = self.declaration()
+                self.assertDiagnostics(
+                    [("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/0/gap_id")])
+
+    def test_integral_float_inventory_indexes(self):
+        """Review r4187464393: JSON `0.0` and `0e0` are integers to the schema."""
+        rows = self.tool()["outcomes"]["mapping"]
+        rows[0]["inventory"] = json.loads("0.0")
+        rows[2]["inventory"] = json.loads("1e0")
+        self.assertValidWithGaps()
+
     # ---- H3: outcome inventories across union branches ---------------------
 
     def error_union(self, name="domain-error.json", *, required_code=True):
@@ -526,6 +599,27 @@ class ConformanceTests(unittest.TestCase):
         self.doc = self.declaration()
         self.assertDiagnostics(everywhere("schema_depth_limit", *TOOL_REFS))
 
+    def test_symlink_loop_is_refused_not_raised(self):
+        """Review r4187464151: a symlink loop is a refusal, never a crash."""
+        (self.root / "loop.json").symlink_to(self.root / "loop.json")
+        self.tool()["input"]["path"] = "loop.json"
+        self.assertDiagnostics([("unsafe_reference_path", "/tools/0/input")])
+
+    def test_references_must_target_schemas(self):
+        """Review r4187464184: a `$ref` into annotation data is not a schema."""
+        for target, extra, code in [
+                ("#/examples/0", {"examples": [{"type": 7}]}, "invalid_referenced_schema"),
+                ("#/required", {"required": ["status"]}, "reference_to_non_schema"),
+                ("#/properties/status/enum", {}, "reference_to_non_schema")]:
+            with self.subTest(target=target):
+                self.schema = {"$schema": DRAFT, "type": "object", "properties": {
+                    "status": {"enum": ["positive", "negative"]},
+                    "code": {"oneOf": [{"const": "UNAVAILABLE"}, {"const": "INVALID"}]},
+                    "nested": {"$ref": target}}, **extra}
+                self.write_schema()
+                self.doc = self.declaration()
+                self.assertDiagnostics(everywhere(code, *TOOL_REFS))
+
     def test_nul_bytes_are_refused_not_raised(self):
         self.tool()["input"]["path"] = "outcome\x00.json"
         self.assertDiagnostics([("unsafe_reference_path", "/tools/0/input")])
@@ -683,7 +777,8 @@ class ConformanceTests(unittest.TestCase):
         for uri in ["http://mcp.example.test/mcp", "https://mcp.example.test/mcp#frag",
                     "https://user@mcp.example.test/mcp", "https://user:pw@mcp.example.test/mcp",
                     "javascript:alert(1)", "urn:example:mcp", "https:///mcp", "https://mcp.example.test:99999/",
-                    "https://mcp.example.test/m cp", "https://mcp.example.test/\x00"]:
+                    "https://mcp.example.test/m cp", "https://mcp.example.test/\x00",
+                    "https://mcp.example.test\\evil"]:
             with self.subTest(uri=uri):
                 self.doc["service"]["canonical_resource_uri"] = uri
                 with patch.dict(self.module.FormatChecker.checkers, {}, clear=True):
