@@ -50,3 +50,87 @@ The repository realization-axis validator requires code_surface and target_relea
 ## Closure state
 
 The local implementation and deterministic verification are complete. Formal repository review, merged-green realization and OpenSpec archive remain open governance tasks. No PR was opened, branch pushed, release allocated, artifact accepted, credential obtained, endpoint deployed or consumer pin advanced by this implementation.
+
+## Addendum 2026-10-05: on main (opensoft/openxFactory#1242, pull request #1243)
+
+Lane openxfactory-5 (openXfactory-5) brought this feature onto main by merging
+`d2baf6fd`, renumbered it from 030 to 037, and realigned the validator with
+requirements already ratified. The change's tasks.md addendum lists every
+repair; none changed requirement or scenario text. The closure state above is
+the Codex lane's record of 2026-09-07; this addendum supersedes it for the
+pull request.
+
+### Red first
+
+Every row's tests were committed and run against the unfixed validator before
+the fix was written.
+
+| Round | Tests committed | Result against the unfixed validator | Fix | Result after |
+| --- | --- | --- | --- | --- |
+| Review findings H2, H3, M1, M7, L1-L5 | `d8b2e0cb` | 96 failed, 23 passed (tests and subtests) at `71013ba4` | `59fbab7b` | 51 passed, 85 subtests passed |
+| Copilot review 5419026094 (10 threads) | `94ca87e1` | 12 failed | `c9dbaa9b` | 59 passed, 91 subtests passed |
+| Copilot review 5419154777 (5 threads) | `91507eec` | 9 failed | `c96d1894` | 64 passed, 98 subtests passed |
+| Copilot review 5419262363 (4 threads) | `7fb10867` | 4 failed | `6a1f6d1c` | 68 passed, 100 subtests passed |
+| Copilot reviews 5419355635 and 5419477722 (5 threads) | `b080a3a8` | 13 failed (tests and subtests) | `754d94bc` | 72 passed, 117 subtests passed |
+| Copilot review 5419809508 (3 threads) | `66b610b6` | 11 failed; union coverage peaked at 64 MB on a 29 KB schema | `a12c7027` | 74 passed, 141 subtests passed; peak 1.2 MiB (4.7 MiB at four times the layers) |
+
+`5d0ea5de` split the validator into phase functions with no behaviour change.
+Copilot review 5420018661 at `a12c7027` reported no findings. Every review
+thread was answered and resolved.
+
+### Out of tree, against the real schemas
+
+These ran read-only, from existing snapshots, and copied nothing into this
+repository. A faithful codex declaration at `4b12ba83` and the Ops DNS proposed
+fit at `6b7cdaa6` both return `valid-with-gaps`, with only their scope and
+audit gaps, once the error inventory names `discriminator: code`. Without the
+discriminator, both return `unresolved_inventory_without_gap`. With one codex
+code unmapped, the result is `incomplete_outcome_mapping`.
+
+Correction: the messages of `5d0ea5de`, `c9dbaa9b`, `c96d1894` and `6a1f6d1c`
+say these probes gave unchanged output. When they were written, the probe was
+loading the validator from a clone still at `b8c0d5e2`. It was then re-run
+against each of those commits' own validator and declaration schema, extracted
+with `git archive`, and against `754d94bc` and `a12c7027`. Every report is
+byte-identical, so the statements hold. The review's adversarial probe, which
+always loaded the right tree, refuses P3, P3b, P4, P6, P7, P8, P9 and P17 with
+located codes.
+
+### Full CI command
+
+`python3 -m pytest tests/ -q -m "not postgres"`, run in two full clones of the
+same kind, with the CI lock's packages installed with hashes:
+
+- At `a12c7027` against main `0f2a87f6`: no test newly fails, none newly
+  passes, and the skips are the same (7 on both). There are 74 new testcases,
+  all in `tests/factory-mcp`. The same diff at `b8c0d5e2` against `12753f27`
+  was also clean.
+- Three tests fail on BOTH sides, and in isolation on both. None is caused by
+  this branch:
+  - `test_the_bare_unittest_route_is_detected_as_unguarded` needs pytest's
+    basetemp under `TMPDIR`; with it, the test passes on both sides.
+  - `test_a_lexically_malformed_value_builds_no_path_and_reads_nothing` reads
+    the clone root through a symlinked workspace path.
+  - `test_release_mode_field_is_preserved_on_the_real_repository` hit a
+    subprocess timeout on a loaded host.
+  The required `pytest-suite` check runs in CI, without any of these local
+  conditions.
+
+### Gates
+
+At `a12c7027` against main `0f2a87f6`, in clones of the same kind:
+
+- Pinned OpenSpec `--all --strict`: exit 0 on both. The branch passes 111 of
+  112 items and main 110 of 111. The single remaining item is the same
+  accepted exception on both (`add-chain-attestation`, Brett Heap 2026-09-05).
+  `--change add-factory-mcp-conformance --strict` passes clean.
+- doc-health `--single-repo`: 31 critical, 26 error, 69 warning and 20 info
+  findings on both, with no new regression. The only differing line is the
+  informational draft count (71 drafts against 70).
+- `validate-sequenced-after.py` and `--ledger-diff`: exit 0 on both.
+- These validators exit 0 on both: code-surface, target-release, scope-globs,
+  manifest-digests, pin-registrations, ideation-routing and document-catalog.
+  code-surface and target-release differ only in counting this change's
+  proposal.
+- ideation-cross-reference (exit 1) and contract-release (exit 2) give
+  byte-identical output on both sides; neither result comes from this branch.
