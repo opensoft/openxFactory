@@ -1009,6 +1009,40 @@ class ConformanceTests(unittest.TestCase):
         self.assertEqual(diagnostics(report), [])
         self.assertLess(peak, 8 * 1024 * 1024)
 
+    def test_projection_work_is_bounded_under_changing_inherited_requirements(self):
+        """Review 5421601208 (previously missed): two references per `anyOf` layer,
+        one adding a required name, give every path its own inherited context, so
+        memoization cannot help and the work doubles per layer. Projection stops at
+        a located `projection_work_limit`; a shallow stack still resolves."""
+        def layered(depth):
+            def branch(code):
+                return {"type": "object", "required": ["code"], "properties": {"code": {"const": code}}}
+            layers = {"l0": {"oneOf": [branch("UNAVAILABLE"), branch("INVALID")]}}
+            for i in range(1, depth + 1):
+                layers[f"l{i}"] = {"anyOf": [{"$ref": f"#/$defs/l{i - 1}"},
+                                             {"$ref": f"#/$defs/l{i - 1}", "required": [f"r{i}"]}]}
+            return {"$schema": DRAFT, "type": "object", "required": ["error"],
+                    "properties": {"error": {"$ref": f"#/$defs/l{depth}"}}, "$defs": layers}
+        for depth, expected in [(4, []),
+                                (16, [("projection_work_limit", "/tools/0/outcomes/inventories/1/pointer")])]:
+            with self.subTest(depth=depth):
+                self.doc = self.declaration()
+                ref = self.put("layered-error.json", layered(depth))
+                self.pin(ref)
+                t = self.tool()
+                t["error"] = dict(ref)
+                t["outcomes"]["inventories"][1].update(pointer=f"/$defs/l{depth}", discriminator="code")
+                calls = []
+                original = self.module.Offline.resolve_finite
+
+                def counted(this, *args, **kwargs):
+                    calls.append(1)
+                    return original(this, *args, **kwargs)
+
+                with patch.object(self.module.Offline, "resolve_finite", counted):
+                    self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
+                self.assertLess(len(calls), 20000)
+
     def test_a_long_reference_chain_is_a_located_depth_limit(self):
         """Review r4187849153: a shallow file can chain `$ref`s past the depth bound;
         projecting through it is a located diagnostic, never an uncaught error."""
@@ -1321,6 +1355,27 @@ class ConformanceTests(unittest.TestCase):
         run = self.cli(self.root / "absent.json", "--json")
         self.assertEqual(run.returncode, 2)
         self.assertEqual(diagnostics(json.loads(run.stdout)), [("input_unreadable", "/")])
+
+    def test_cli_output_is_bounded(self):
+        """Review 5421601208 (previously missed): escaping can roughly double a
+        permitted input in either output format. Output past 256 KiB is replaced
+        by a stable `output_size_limit` report (exit 2), never truncated."""
+        self.doc["gaps"] += [{"id": f"wide-{i}", "concerns": ["audit"], "description": "\ue000" * 1500}
+                             for i in range(40)]
+        path = self.root / "declaration.json"
+        path.write_text(json.dumps(self.doc, ensure_ascii=False), encoding="utf-8")
+        self.assertLess(path.stat().st_size, self.module.INPUT_LIMIT)
+        snapshot = f"synthetic@{self.revision}={self.root}"
+        self.assertEqual(self.validate()["status"], "valid-with-gaps")
+        for flags in (["--json"], []):
+            with self.subTest(flags=flags):
+                run = self.cli(path, *flags, "--snapshot", snapshot)
+                self.assertLessEqual(len(run.stdout.encode("utf-8")), 262144)
+                self.assertEqual(run.returncode, 2, run.stdout[:200])
+                if flags:
+                    self.assertEqual(diagnostics(json.loads(run.stdout)), [("output_size_limit", "/")])
+                else:
+                    self.assertIn("output_size_limit /", run.stdout)
 
     def test_cli_oversized_integer_is_a_diagnostic(self):
         """Review r4187669157: Python's integer-digit limit is a refusal, not a traceback."""
