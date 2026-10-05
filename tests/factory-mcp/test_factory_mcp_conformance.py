@@ -19,6 +19,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import tracemalloc
 import unittest
 from unittest.mock import patch
 
@@ -389,6 +390,52 @@ class ConformanceTests(unittest.TestCase):
                 t["output"] = dict(ref)
                 t["outcomes"]["inventories"][0]["pointer"] = "/oneOf/0/properties/status"
                 self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
+
+    def test_a_reference_only_chain_to_true_is_an_open_member(self):
+        """Review r4188149120: `{"$ref": "#/$defs/open"}` with `open: true`, through
+        annotation-only links, admits anything exactly as a literal `true` does, so
+        a declared outcomes gap on the file answers it. A constraining sibling or
+        a cycle leaves the member bare, and an inventory on the target holds it."""
+        variant = {"type": "object", "properties": {"status": {"enum": ["positive", "negative"]}}}
+        uncovered = [("uncovered_outcome_branch", "/tools/0/output")]
+        cases = [
+            ("literal true", {}, True, uncovered, []),
+            ("reference", {"open": True}, {"$ref": "#/$defs/open"}, uncovered, []),
+            ("chained with annotations", {"open": True, "alias": {"$ref": "#/$defs/open", "description": "any"}},
+             {"$ref": "#/$defs/alias", "title": "anything"}, uncovered, []),
+            ("constraining sibling", {"open": True}, {"$ref": "#/$defs/open", "type": "object"}, uncovered, uncovered),
+            ("constraining link", {"open": True, "alias": {"$ref": "#/$defs/open", "minProperties": 1}},
+             {"$ref": "#/$defs/alias"}, uncovered, uncovered),
+            ("cycle", {"loop": {"$ref": "#/$defs/loop"}}, {"$ref": "#/$defs/loop"}, uncovered, uncovered)]
+        for case, defs, member, without_gap, with_gap in cases:
+            for gapped, expected in ((False, without_gap), (True, with_gap)):
+                with self.subTest(case=case, gapped=gapped):
+                    self.doc = self.declaration()
+                    ref = self.put("open-member.json", {"$schema": DRAFT, "$defs": defs, "oneOf": [variant, member]})
+                    self.pin(ref)
+                    t = self.tool()
+                    t["output"] = dict(ref)
+                    t["outcomes"]["inventories"][0]["pointer"] = "/oneOf/0/properties/status"
+                    if gapped:
+                        self.doc["gaps"].append({"id": "vocab-gap", "concerns": ["outcomes"],
+                                                 "description": "The open member is unbounded."})
+                        t["gap_ids"].append("vocab-gap")
+                        t["outcomes"]["inventories"].append(
+                            {"kind": "result", "schema": "output", "pointer": "", "gap_id": "vocab-gap"})
+                    self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
+        # An inventory on the `true` target holds the member before it is judged open.
+        self.doc = self.declaration()
+        ref = self.put("open-member.json", {"$schema": DRAFT, "$defs": {"open": True},
+                                            "oneOf": [variant, {"$ref": "#/$defs/open"}]})
+        self.pin(ref)
+        t = self.tool()
+        t["output"] = dict(ref)
+        t["outcomes"]["inventories"][0]["pointer"] = "/oneOf/0/properties/status"
+        self.doc["gaps"].append({"id": "vocab-gap", "concerns": ["outcomes"], "description": "Unbounded."})
+        t["gap_ids"].append("vocab-gap")
+        t["outcomes"]["inventories"].append(
+            {"kind": "result", "schema": "output", "pointer": "/$defs/open", "gap_id": "vocab-gap"})
+        self.assertValidWithGaps()
 
     def test_negated_definitions_do_not_cover_a_variant(self):
         """Review r4187464328: a `$ref` under `not` is not where an outcome lives."""
@@ -780,6 +827,26 @@ class ConformanceTests(unittest.TestCase):
             self.assertValidWithGaps()
         self.assertLess(len(calls), 500)
 
+    def test_union_coverage_works_in_linear_memory(self):
+        """Review r4188149048: a shallow file of shared-reference union layers must
+        not make coverage retain a descendant set per member (quadratic memory)."""
+        layers = {"l0": {"type": "object"}}
+        for i in range(1, 401):
+            layers[f"l{i}"] = {"anyOf": [{"$ref": f"#/$defs/l{i - 1}"}, {"$ref": f"#/$defs/l{i - 1}"}]}
+        self.schema["$defs"] = layers
+        self.schema["properties"]["layered"] = {"$ref": "#/$defs/l400"}
+        self.write_schema()
+        self.assertLess((self.root / "outcome.json").stat().st_size, 65536)
+        self.doc = self.declaration()
+        tracemalloc.start()
+        try:
+            report = self.validate()
+            _, peak = tracemalloc.get_traced_memory()
+        finally:
+            tracemalloc.stop()
+        self.assertEqual(diagnostics(report), [])
+        self.assertLess(peak, 8 * 1024 * 1024)
+
     def test_a_long_reference_chain_is_a_located_depth_limit(self):
         """Review r4187849153: a shallow file can chain `$ref`s past the depth bound;
         projecting through it is a located diagnostic, never an uncaught error."""
@@ -949,9 +1016,16 @@ class ConformanceTests(unittest.TestCase):
             self.doc["service"]["canonical_resource_uri"] = "https://mcp.example.test/"
             self.assertValidWithGaps()
             # Review r4187849299: `urlsplit` does not check percent escapes.
+            # Review r4188149170: nor characters RFC 3986 forbids unescaped.
             for uri, valid in [("https://mcp.example.test/a%2Fb%c3%A9", True),
                                ("https://mcp.example.test/%ZZ", False), ("https://mcp.example.test/%4", False),
-                               ("https://mcp.example.test/mcp%", False), ("https://mcp.example.test/?q=%G1", False)]:
+                               ("https://mcp.example.test/mcp%", False), ("https://mcp.example.test/?q=%G1", False),
+                               ("https://mcp.example.test/%7Bscope%7D", True), ("https://mcp.example.test/a%7Cb", True),
+                               ("https://mcp.example.test/a;b=c,d+e!$&'()*@:~", True), ("https://[::1]/mcp", True),
+                               ("https://mcp.example.test/{scope}", False), ("https://bad|host.example/", False),
+                               ("https://mcp.example.test/a^b", False), ("https://mcp.example.test/a`b", False),
+                               ("https://mcp.example.test/<a>", False), ('https://mcp.example.test/"a"', False),
+                               ("https://mcp.example.test/a[0]", False), ("https://mcp.example.test/?q=[0]", False)]:
                 with self.subTest(uri=uri):
                     self.doc["service"]["canonical_resource_uri"] = uri
                     if valid:
