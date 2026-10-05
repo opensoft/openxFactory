@@ -115,7 +115,7 @@ submodule_path: openDox
 # `openDox-spec` are the assembly root's own job to pin, and openxFactory
 # never pins or mounts a leg, on `contracts/openxdox-pin.yaml`'s own
 # reasoning for openXdox.
-commit: "d5098297a5c262f9977193305210bccb4ec51e89"
+commit: "e1e3a3c3f8dd38214510412b71a2e858c6179532"
 revision_kind: commit
 
 digest_algorithm: sha256
@@ -133,7 +133,7 @@ digest_algorithm: sha256
 # without mounting the other two.
 digest_definition: sorted-ls-tree-r-v1
 digests:
-  tree_sha256: "2815ca2353d1cd4c220b5391e1c0bc45c2cabfec9aa196cee1e0a4bcc9e857cc"
+  tree_sha256: "55a110f49d268e22d382d47d778dfaf9298c93b555e3c4fcb621afc99f9d011b"
 
 # MIGRATION DECLARATION — MODIFIED `neutral-product-pin` requirement, "A pin
 # bump crosses a migration" scenario (`split-opendox-two-layer-product`
@@ -190,7 +190,7 @@ digests:
 migration:
   range: "0001..0002"
   reversible: false
-  runbook: "opensoft/openDox-code docs/runtime.md sections 5-6, at the pinned code leg 047bb4fa - the Kubernetes migration Job names it for the re-run; corrected from a false absence at Copilot review of openXdox#15, reported back to openxFactory#656 5767868616"
+  runbook: "opensoft/openDox-code docs/runtime.md sections 5-6, at the pinned code leg dede32b4 - the Kubernetes migration Job names it for the re-run; corrected from a false absence at Copilot review of openXdox#15, reported back to openxFactory#656 5767868616"
 
 # The BYTE-IDENTITY REFERENT, record 2 of the three RULED OQ-I requires
 # (Brett Heap, #656, 2026-09-09; `docs/opendox-cutover-runbook.md` § 1) — the

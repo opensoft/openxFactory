@@ -226,7 +226,14 @@ def test_the_dependence_on_the_carved_rail_sits_at_exactly_one_line():
     module reads the registration. So the pinned count moves from one import
     to none, and the ONE readable point is asserted where it now is:
     `_status_exemption()` is the only reader of the registered rail besides
-    the three registration calls themselves."""
+    the three registration calls themselves.
+
+    AMENDED by plan 034 T094 (the same composition test). openDox-code's T085
+    added the fourth registration call, `register_default_status_exemption`,
+    through which an entry point registers openDox's own default rail where no
+    host registered one (R1Q10 (a)). It reads the rail to leave a registered
+    one alone, so it joins the registration calls, and `_status_exemption()`
+    stays the one readable point beside them."""
     seam_lines = [line for module, line in imported_modules(PACKET_MODULE)
                   if module == SEAM_MODULE_NAME]
     assert seam_lines == [], (
@@ -241,11 +248,13 @@ def test_the_dependence_on_the_carved_rail_sits_at_exactly_one_line():
         and any(isinstance(inner, ast.Name)
                 and inner.id == "_status_exemption_rail"
                 for inner in ast.walk(node)))
-    assert readers == ["_status_exemption", "register_status_exemption",
+    assert readers == ["_status_exemption",
+                       "register_default_status_exemption",
+                       "register_status_exemption",
                        "status_exemption_registered",
                        "unregister_status_exemption"], (
         f"the registered rail is read in {readers}; `_status_exemption()` is "
-        "the one readable point, beside the three registration calls")
+        "the one readable point, beside the four registration calls")
 
 
 def test_the_carved_module_is_a_leaf_of_its_own_package():
