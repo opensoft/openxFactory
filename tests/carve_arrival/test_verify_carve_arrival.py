@@ -5193,8 +5193,8 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     `created:` sets. The seeding commit (openxFactory PR #979, `972b484a`) is
     the seed and takes no ordinal. Measured that way the landed sequence is
     PR #984, #1002, #1001, #1009, #1010, #1023, #1030, #1025, #1067, #1068,
-    #1085, #1091, #1153, #1181 and #1215 — fifteen amendments, twelve of which
-    bump `opendox_code`.
+    #1085, #1091, #1153, #1181, #1215 and #NNNN — sixteen amendments, thirteen
+    of which bump `opendox_code`.
     AN ORDINAL IS NOT A POSITION IN THIS FILE and never was: the assertion
     blocks below run in the order the reading needs, so an ordinal is read off
     the document's history and never off a neighbouring block. Three
@@ -5365,6 +5365,20 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     `8fe8c4c7` and no earlier bump admitted. The legs landed first, so each
     `since` is the leg's own squash landing. Pinned by path AND `since`, and
     counted in the committed file, as T047's are.
+
+    AMENDED A SIXTEENTH TIME by openxFactory PR #NNNN, plan 034 T094 (the
+    phase-3 pin PR, which moves BOTH pins a third time): twenty-nine more —
+    four `openxdox_code` files from openXdox-code#37 (T086) and twenty-five
+    `opendox_code` files from openDox-code#65, #67, #69, #71, #72, #74, #77,
+    #78, #80, #81, #82, #84 and #85 (T070, T072, T073, T081, T084, T085,
+    T088, T099, T100, T102, T103, T104) — and one LEAVES:
+    `src/opendox/consumer_reach.py`, which openDox-code#77 (T084) deleted
+    when it retired the reach module, so its admission is STALE at
+    `dede32b4` and is removed, as § 3.4 SLICE S5 removed its two re-homed
+    modules'. Neither spec leg moved, so neither admits anything. The legs
+    landed first, so each `since` is the leg's own squash landing. Pinned by
+    path AND `since`, and counted in the committed file, as T047's and
+    T064's are.
 
     What is durable is asserted in place of the frozen content: the two
     RULED openxdox_code seed entries (the measured defect this file repairs,
@@ -6174,6 +6188,116 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
                               for destination, wanted in T064_ADMITTED.items()
                               for path in wanted}, sorted(t064_committed)
     assert len(t064_committed) == 129, sorted(t064_committed)
+
+    # THE SIXTEENTH BUMP: plan 034 T094, the phase-3 pin PR (openxFactory
+    # #NNNN), which moves BOTH pins and so admits the created files of both
+    # `-code` legs. Neither spec leg moved (openDox's stays at `f7ee3c76`,
+    # openXdox's at `f088b097`), so neither admits anything. As at T047 and
+    # T064, the legs LANDED FIRST, so each `since` is the leg's own squash
+    # landing, where `git log --diff-filter=A` finds the file.
+    #
+    # DERIVED AS T064's WERE: the files each leg added between its last pin
+    # (openXdox-code `6a3b93b9`, openDox-code `047bb4fa`) and its new one
+    # (`56e1c238`, `dede32b4`) under the destination's declared roots,
+    # that no row places and no admission already declared, each checked
+    # present at the new pin.
+    T094_ADMITTED = {
+        "openxdox_code": {
+            # openXdox-code#37, plan 034 T086
+            **{path: "56e1c238681a7693a4d8d42a62c1523cf4d4ab91" for path in (
+                "src/openxdox/column_contributions.py",
+                "tests/test_column_contributions.py",
+                "tests/test_column_contributions_governed.py",
+                "tests/test_host_plane.py")},
+        },
+        "opendox_code": {
+            # openDox-code#65, plan 034 T088
+            "tests/test_lens_seed_actions.py":
+                "d0d3cee66a06fa4acb6e58a7ba1f61964dbfc678",
+            # openDox-code#67, plan 034 T070
+            "tests/test_install_mode_entrypoint.py":
+                "66ff7257fc220223518740a09c1287def08363f3",
+            # openDox-code#69, plan 034 T072
+            "src/opendox/runtime/bundle.py":
+                "5e7ab003d3f9a798370db361eddd313edf6b6274",
+            # openDox-code#71, plan 034 T085
+            **{path: "2680eb5e10ff0230ce9eb90e73c9e4344771e38e" for path in (
+                "src/opendox/doxbench_defaults.py",
+                "tests/test_doxbench_defaults.py")},
+            # openDox-code#72, plan 034 T073
+            "tests/test_served_install_block.py":
+                "90ac703355e5b06e7f6d4c63e1f7309bc5e53f1e",
+            # openDox-code#74, plan 034 T081
+            "tests/test_chat_model_configuration.py":
+                "9a490405891b9360fc67511227faaa349c86943c",
+            # openDox-code#77, plan 034 T084
+            **{path: "e49b17c3f2d2b7008be49651fed0735a5dbcd604" for path in (
+                "src/opendox/column_seams.py",
+                "src/opendox/default_columns.py",
+                "tests/test_capability_honesty.py",
+                "tests/test_column_seams.py",
+                "tests/test_installed_help.py",
+                "tests/test_neutral_turn_scope.py",
+                "tests/test_rejection_report.py",
+                "tests/test_run_dir_lifetime.py",
+                "tests/test_static_content_types.py")},
+            # openDox-code#78, plan 034 T099
+            "tests/test_release_workflow.py":
+                "d59f3f269a07453b11bbea46701f5e0b4ab07236",
+            # openDox-code#80, plan 034 T103
+            "tests/test_loopback_host_gate.py":
+                "390e2c2892af48e0136b4be88dfc4d8efba51415",
+            # openDox-code#81, plan 034 T102
+            "tests/test_workbench_edit_by_scope.py":
+                "0116293a64f7aab9da00d7c896de06bf6cb6e486",
+            # openDox-code#82, plan 034 T100
+            **{path: "38d3350ec3e3b0292b50dd2ad71994710ee247f4" for path in (
+                "src/opendox/doxbench_trust.py",
+                "tests/test_model_binding_trust.py")},
+            # openDox-code#84, plan 034 T104
+            **{path: "32943cbf2882291847838f9e224e657b78cb71ac" for path in (
+                "src/opendox/console_access.py",
+                "tests/test_console_token_delivery.py",
+                "tests/test_console_token_view.py")},
+            # openDox-code#85, plan 034 T102 follow-on
+            "tests/test_thread_read_by_session.py":
+                "c4b55cc4702d82c7480de49cbecf515e1d7c9fdf",
+        },
+    }
+    for destination, wanted in T094_ADMITTED.items():
+        declared = {entry["path"]: entry
+                    for entry in admissions.get(destination, [])}
+        for path, since in wanted.items():
+            assert path in declared, (
+                f"{path} is one of plan 034 T094's admissions at {destination} "
+                "and is no longer declared")
+            assert declared[path]["since"] == since, (
+                f"{path}'s `since` is {declared[path]['since']!r}; its leg "
+                f"introduced it at {since!r}, and an admission whose `since` is "
+                "not the introducing commit is not a falsifiable claim")
+    # TWENTY-NINE, COUNTED IN THE COMMITTED FILE AT EVERY DESTINATION, as
+    # T047's and T064's are: an extra admission riding in on one of these
+    # commits, under any destination, fails.
+    t094_commits = {since for wanted in T094_ADMITTED.values()
+                    for since in wanted.values()}
+    t094_committed = {(destination, entry["path"])
+                      for destination, entries in admissions.items()
+                      for entry in (entries or [])
+                      if entry["since"] in t094_commits}
+    assert t094_committed == {(destination, path)
+                              for destination, wanted in T094_ADMITTED.items()
+                              for path in wanted}, sorted(t094_committed)
+    assert len(t094_committed) == 29, sorted(t094_committed)
+    # ONE ADMISSION LEFT AT T094: openDox-code#77 (T084) deleted
+    # `src/opendox/consumer_reach.py` when it retired the reach module, so the
+    # walk at `dede32b4` never consumes its admission and the verifier would
+    # report it STALE. Asserted ABSENT, as § 3.4 SLICE S5's two re-homed
+    # modules are. openXdox-code's own `src/openxdox/consumer_reach.py` (the
+    # RULED seed above) is still there, and its entry stays.
+    assert "src/opendox/consumer_reach.py" not in {
+        entry["path"] for entry in admissions.get("opendox_code", [])}, (
+        "src/opendox/consumer_reach.py left openDox-code at openDox-code#77 "
+        "(plan 034 T084) and its admission there is STALE")
 
     # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
     # replaces nothing: the frozen-content assertions these stand in for
