@@ -76,9 +76,12 @@ stdin). `H` below stands for that header-on-stdin form.
 ```sh
 PORT=8080                                             # AT-R1 § 3's free-port check runs first
 opendox generate-and-open --local --repo-root "$R" --repository fixture --no-open --port "$PORT" &
+SERVER=$!                                             # § 5 stops it; set -u needs it set here
+trap 'kill "$SERVER" 2>&- || true' EXIT
 # … AT-R1 § 3: wait for ready, read TOKEN from the private copy …
 curl -sf "http://127.0.0.1:$PORT/capabilities" > "$W/caps.json"
-# health is available, packs live (CI) or none (a host with no sandbox), land offered (standalone)
+# health is available and land is offered (standalone). caps.health.packs is RECORDED, not asserted:
+# FR-024's four outcomes need no pack, and the acceptance job is not a provisioned sandbox host
 H POST /actions/health/run        > "$W/run1.json"     # the first default-tip run: every finding new
 H POST /actions/health/run        > "$W/run2.json"     # a second run: the baseline now exists
 H GET  /health/findings           > "$W/f.json"
@@ -86,12 +89,13 @@ H GET  /health/findings           > "$W/f.json"
 
 Assert, in one Python block reading the saved files:
 
-- **Outcome 1.** `caps["health"]["available"]` and `caps["actions"]["land"]` are
-  true. The findings list is ordered new first; after one new commit that plants
+- **Outcome 1.** `caps["health"]["available"]`, `caps["actions"]["submit"]` and
+  `caps["actions"]["land"]` are true, and `caps["health"]["actions"]` lists every
+  action the view offers (14.5). The findings list is ordered new first; after one new commit that plants
   a fresh broken link, a third run lists that finding `new` ahead of the
   `persistent` ones. No finding's `evidence` holds a string over 200 characters
   or an `excerpt`/`text`/`content`/`quote` key (R2Q25 (a)), and every finding has
-  `pack_id` and `pack_version`.
+  `pack_id` and `pack_version`. No `message` exceeds 200 characters (ADV-27).
 - **Outcome 2.** `POST /actions/health/fix` with the `broken-link` finding's id
   answers a draft branch `health-fix-<id>`; `main` has not moved. `POST
   /actions/session/land-nonce` for that branch answers a nonce bound to its head;
@@ -107,10 +111,11 @@ Assert, in one Python block reading the saved files:
   list still holds `broken-link`-class findings and the accepted one is still
   ABSENT (grep's exit status 1 exactly, as F14.1 asserts).
 - **Outcome 4.** `POST /actions/session/submit` for a branch made with git
-  answers a `Submission` naming `origin` with `outcome` `pushed`, and
+  answers a `Submission` whose `remote` is `origin`, whose `ref` ends with the
+  branch's name and whose `url` names `$B` (12.1a's fields), and
   `git -C "$B" rev-parse "refs/heads/<branch>"` equals the branch's tip. With
-  `origin` removed, the same call answers `NoSubmissionTarget`, naming the
-  missing remote.
+  `origin` removed, the same call answers the `NoSubmissionTarget` refusal,
+  naming the missing remote.
 
 Every listing is saved to a file first and read second, and an absence is
 asserted as an exit status, never as `! grep` (F14.1's rule). T080 also requests

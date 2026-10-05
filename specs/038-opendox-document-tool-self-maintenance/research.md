@@ -127,10 +127,30 @@ Source: R2-INV-12 §§ "Today", "Per box", "Open questions"; the answers R2Q1–
   and `_pull_request_port` keep `GhPullRequests` for `gate open-pr`.
   *Alternative considered:* repointing `pull_request_factory` (12.4's later
   sentences), which would break the protected pin.
-- **Decision: transport** (OQ-12-12, plan row 3). Factor the runtime's hardened
-  push (`repository_act.py:1335-1372`, `:1742` onward, as R2-INV-12 cites them)
-  into a helper that takes a named branch. *Alternatives:* the plain argv of
-  `GhPullRequests.push`. *Rationale:* the hardening already exists.
+- **Decision: transport** (OQ-12-12). Factor the runtime's push core,
+  `_push_to_remote_with` (`runtime/repository_act.py:1742`, with
+  `_bound_local_destination` `:1613` and `_receive_pack_for` `:1720`), into a
+  helper that takes a named branch; it keeps the repository-local command-config
+  refusal (`_EXECUTED_LOCAL_KEYS` `:1335`, `_refuse_repository_local_command_config`
+  `:1372`). Lane 3's T011 FIX corrected the cite: `:1335-1372` is that refusal,
+  not the push. The remote is the one named `origin`, else the sole remote
+  (ADV-26). *Alternatives:* the plain argv of `GhPullRequests.push`.
+  *Rationale:* the hardening already exists.
+- **Decision: a credential-bearing remote is pushed, and redacted** (12.1a;
+  ADV-09). 12.1a designs exactly that case (`https://user:<token>@host/…`), and
+  F12.2's `test_a_credential_in_the_remote_url_never_reaches_the_report`
+  asserts the report "still names the remote's host and path" (#1144
+  `tasks.md:2476-2484`, `:2880-2886`). The first plan refused such a remote,
+  which narrowed ratified text; review round 1 withdrew it. (`attach_remote`'s
+  own refusal, `refuse_credential_bearing_remote` at `repository_act.py:203`,
+  stays the runtime's: it guards what is STORED, and `submit` stores nothing.)
+- **Decision: the CLI `submit` does not read the install mode** (ADV-04).
+  `runtime/config.py`'s `install_mode` (`:1954`) says "THE DEFAULT IS HOSTED"
+  (`:1958`) and returns `raw or INSTALL_MODE_HOSTED` (`:1996`), and F12.2 runs
+  `opendox submit` with neither `--local` nor `OPENDOX_INSTALL_MODE`. A
+  CLI push of the user's own checkout with the user's own git is not a hosted
+  act, so only a disagreement between `--local` and the setting refuses (FR-004).
+  The ROUTE refuses on the hosted plane.
 - **Decision: the landing mechanics** (R2Q6 (a)). The lander merges `--no-ff` in a
   landing worktree of its own; a clean served checkout on `main` is then
   fast-forwarded with `git merge --ff-only <commit>`; `land` pushes nothing and
@@ -175,6 +195,53 @@ Source: R2-INV-P4F (all sections); R2-INV-12 § "12.5" and its errata; R2Q8 (a).
   composed run supplies openxFactory's `scripts/`. So the arc ruling changes
   none of U-1 to U-9.
 
+- **The gate console's schemas (U-2, T021), resolved without vendoring**
+  (ADV-10; lane 3's T021 FIX). `gate_console._validate_contract_document` reads
+  `Path(__file__).resolve().parents[2] / "contracts" / "schemas"`
+  (openXdox-code `gate_console.py:642-643`): in the code leg that is the
+  checkout root, which holds no `contracts/`. It asks for two schemas (`:665`,
+  `:711`):
+  - `gate-action-record.schema.yaml`, openXdox-spec's, ALREADY packaged in
+    openXdox-code's copy record (`src/openxdox/contracts/copies.yaml`, which
+    records ONE source, `spec_leg: opensoft/openXdox-spec`, `commit: f088b097`).
+    The fix reads it from the package. Nothing is added to the record.
+  - `demotion-execution-receipt.schema.yaml`, openxFactory's (openXdox-spec
+    carries only its examples). It cannot join the record:
+    `tests/test_packaged_validator.py:81-92` pins the copies to the validator's
+    own three kinds ("no fourth kind rides in as a copy"), and the promoted
+    `neutral-product-pin` admits ONE vendored openxFactory contract on terms the
+    record cannot meet (ADV-10). So the reader takes it from a schema source the
+    HOST registers: the composed run's conftest registers openxFactory's
+    `contracts/schemas/` from the composed tree (U-1's mechanism), and
+    openxFactory's host wiring registers the same at T030's pin (an 11.1
+    host-wiring surface). A lone checkout refuses by name, which is R1Q27 (a)'s
+    "validated only where the tree it runs from supplies their schemas".
+  - The spec's "gate-action record schema" named one of the two; spec.md now
+    names both (F8).
+- **The runbook (U-3, T022), placed from the composed tree** (ADV-10; lane 3's
+  T022 FIX). `test_session_runbook.py:54` and `test_session_notebook.py:1075`
+  read `REPO_ROOT / "docs" / "ideation-dashboard-session-runbook.md"`, with
+  `REPO_ROOT` from openXdox-code's non-protected `tests/conftest.py:25`
+  (`HERE.parent`). The carve sent the runbook to openDox-spec
+  (`f7ee3c76:docs/ideation-dashboard-session-runbook.md`, measured in a clone;
+  the `test_session_notebook.py:1075` reader is R2-INV-P4F's measurement).
+  An openDox-spec document cannot be a row in openXdox-spec's copy record. U-9's
+  composed workflow checks openxFactory out with recursive submodules, so
+  `openDox/spec/docs/ideation-dashboard-session-runbook.md` is in the composed
+  tree at the openDox root's pinned spec commit. T022's placement script links it
+  to `docs/` for the run (the path is git-ignored), and the composed workflow and
+  the documented local composed run both call the script.
+- **The composed checkout** (lane 3's T029 FIX). openxFactory's nested `openDox`
+  and `openXdox` (and `openXwallet`) must be initialized recursively, or
+  `corpus_adapter_openxfactory` refuses at import ("the pinned openDox
+  corpus-adapter interface is not at …"), as R2-INV-12's first composed run
+  measured.
+- **The shim's package** (H-1; ADV-39). openxFactory's `scripts/ideation_dashboard/`
+  has no `__init__.py` (measured: `ls` refuses it). The shim's directory must
+  not add one either, so the two directories merge as one namespace package in
+  the composed run instead of one shadowing the other (inferred from Python's
+  namespace-package rule).
+
 ## R3. Feature 007's four exceptions (R2Q6 (a))
 
 Feature 007 is codexFactory's `specs/007-workbench-branch-sessions/spec.md`
@@ -202,9 +269,14 @@ Source: R2-INV-HEALTH Part 3, Part 7 D; R2Q14 (a).
   openDox-code (ARC-Q1 (a)) relocates nothing out of openxFactory, so it does not
   reopen 6.1a.
 - **6.2's seam** is `run_scoped_doc_health`, which 6.2 cites at
-  `workbench.py:1389` and R2-INV-HEALTH § HA-4 places at `:1542-1557` at
-  `a9ac96f9` (line drift). **Decision:** the engine's built-in families are
-  what openDox registers there (OQ-H-3, plan row 9).
+  `workbench.py:1389`. At `a9ac96f9` it is at `:1666`, and
+  `register_health_check` is at `:1622`; `:1542-1557` is the
+  `DEFAULT_SCOPED_FAMILIES` block, which R2-INV-HEALTH Part 12's HA-4 row cited
+  by mistake (ADV-29; lane 3's T052 FIX). The seam holds ONE check and refuses a
+  different second one (`:1622-1651`, "a different one would replace it").
+  **Decision:** the engine's built-in families are what openDox registers
+  there, only when the seam is empty, and a host's check replaces it (OQ-H-3;
+  ADV-18).
 
 ## R5. Group 14's store (phase 5)
 
@@ -212,12 +284,24 @@ Source: R2-INV-HEALTH Part 4 (14.1–14.3), Part 6; R2Q13 (a), R2Q15 (a).
 
 - **Decision:** one migration, `0003_`, adds a runs table and a findings table
   (OQ-H-22), DOMAIN tables in `identity.TABLES` (R2Q13 (a)), with 15.7's
-  `pack_id`/`pack_version` columns and the patch column (OQ-H15-20) from its
-  first landing. *Rationale:* Part 6 C measured that `0003_` moves about twenty
-  assertions (`["0001","0002"]` hard-coded ten times; `DROP_ORDER`; the role-init
-  scripts), so the table is migrated once, by one owner (HA-1). *Alternative:*
-  separate migrations for Group 14 and Group 15's columns, which doubles those
-  moves.
+  `pack_id`/`pack_version` columns from its first landing. There is NO patch
+  column: a patch is document text, and 14.3 and R2Q25 (a) keep every document
+  out of the store, so a pack's patch is re-obtained at `fix` (lane 3's
+  MISLABEL row 31). *Rationale:* Part 6 C measured that `0003_` moves about
+  twenty assertions, so the table is migrated once, by one owner (HA-1).
+  *Alternative:* separate migrations for Group 14 and Group 15's columns, which
+  doubles those moves.
+- **The five `tests_runtime/` suites `0003_` moves, each with its reason** (lane
+  3's T042 FIX, re-checked here by grep at `a9ac96f9`):
+  `test_migrations_apply.py` (21 lines name `0002`), `test_runtime_cli.py`
+  (`:277`) and `test_bundled_postgres.py` (`:540`, `:924`) hard-code the
+  migration list; `test_schema_shape.py`'s closure reads `0001` only (`:32`,
+  `:36-59`) and must read `0001` with `0003_` (R2Q13 (a)); `test_deploy_shape.py`
+  derives its lists from `identity.TABLES` (`:1850`, `:2222`), so it moves with
+  T042's `TABLES` edit and is re-run, not edited. The role-init scripts are
+  `deploy/compose/init-runtime-role.sh` and
+  `deploy/kubernetes/base/init-runtime-role.sh` (and any third R2-INV-HEALTH
+  Part 6 C names).
 - **A hosted install** migrates the schema but refuses the health surface by
   name and records nothing (R2Q15 (a)).
 
@@ -225,20 +309,41 @@ Source: R2-INV-HEALTH Part 4 (14.1–14.3), Part 6; R2Q13 (a), R2Q15 (a).
 
 Source: R2-INV-HEALTH Part 4 (14.4–14.9), Part 9; R2Q10–R2Q12, R2Q25.
 
-- **The finding id** (R2Q10 (a)): `<pack_id>.<family>.<h16>`, where `<h16>` is
-  the first 16 hex digits of a SHA-256 over the pack id, family, document path
-  and the family-supplied locator. It is derived by the engine, survives a
-  reset, is unique within a run (a collision is refused, never truncated
-  further), and is itself a valid ref-name component, so the draft branch is
-  `health-fix-<id>` (data-model.md § Finding). A raw `path:locator` form was
-  rejected: `:` is not allowed in a git ref name.
+- **The finding id** (R2Q10 (a); ADV-07): `<pack_id>.<kind>.<h16>`, where
+  `<h16>` is the first 16 hex digits of a SHA-256 over the canonical JSON
+  (sorted keys) of the pack id, kind, document path and a POSITION-INDEPENDENT
+  identity key the family supplies (a link target as written, a pair of paths, a
+  heading key). Line ranges are display-only locators, outside the hash. The
+  first plan hashed a line-bearing locator, so any edit above a finding changed
+  its id, made the baseline see a new finding plus an uncited disappearance, and
+  silently ended an exception keyed by the old id (ADV-07). Reading R2Q10 (a)'s
+  "a locator the family supplies" as such a key is a conforming refinement.
+  It survives a reset, is unique within a run (a collision is refused, never
+  truncated further), and is a valid ref-name component, so the draft branch is
+  `health-fix-<id>`. A raw `path:locator` form was rejected: `:` is not allowed
+  in a git ref name.
 - **The baseline** (R2Q12 (a)): the previous default-tip run in the store; three
   classes (new, arrived with a pack upgrade, persistent); disappearance measured
   only between default-tip runs; a citation is a landing of the fix loop's draft
   or a commit with a `Finding:` trailer; an uncited disappearance re-raised once
-  as `human-only`. With no `main`, plan I-2 applies.
-- **What a run reads** (plan N-10): the committed tree of `HEAD`. F14.1 commits
-  before each run (#1144 `tasks.md:3302` onward), so it is compatible.
+  as `human-only`. With no `main`, tier 1's I-2 decides the baseline branch.
+- **What a run reads** (N-10, as review round 1 corrected it; ADV-16, F9): R2Q12
+  (a) names runs "at the tip, on a branch or over the working state"
+  (`clarify-questions.md:591-593`), so all three kinds are supported. The first
+  plan's "committed tree of HEAD only" narrowed the answer and was withdrawn.
+  A working-state run reads tracked and untracked, non-ignored files into the
+  engine's own directory; branch and working-state runs never raise a
+  disappearance. F14.1 commits before each run (#1144 `tasks.md:3302` onward),
+  so it reads commits.
+- **An uncommitted exception** (the spec's deferred edge case, `spec.md:534-536`;
+  C4): a run reads the dispositions file in what it reads, so an uncommitted
+  `accept` suppresses in a working-state run and in no commit run until it is
+  committed.
+- **Empty and stale stubs** (ADV-17, ADV-40): 14.6 and requirement 14's third
+  scenario put empty stubs in `assisted` (#1144 `tasks.md:3276-3277`;
+  `specs/…/spec.md:480-482`). The first plan's row classed stale stubs and was
+  silent on empty ones. Criteria and the deterministic proposal: data-model.md
+  § Families.
 - **Exceptions** (14.8, OQ-H-13): `health/dispositions.yaml` with its own `kind`;
   F14.1 commits it and asserts the finding absent before and after `runtime
   reset`.
@@ -279,6 +384,26 @@ Source: R2-INV-HEALTH Part 5, Part 8; R2Q16–R2Q22.
 - **The schemas** (R2Q22 (a)): openDox-spec owns the exceptions file,
   `health/packs.yaml` and the finding's neutral shape; openDox-code carries
   digest-checked copies; the openDox root cuts one more `dox-v1.y` minor.
+- **The copies follow the root's pin, never lead it** (ADV-05; lane 3's SHARED
+  and T047 FIXes). openDox-code's copy record
+  (`src/opendox/contracts/copies.yaml`) holds ONE `commit:`, the spec-leg commit
+  the openDox root pins (`f7ee3c76` today). `tests/test_validator_input_set.py`
+  asserts `record.commit == SPEC_COMMIT`, that each digest equals the root's
+  (`PINNED_BY_THE_ROOT`), and that the record, the validator's kinds and the
+  files on disk are the same set (`THE_FOUR`; measured in a clone at `a9ac96f9`,
+  `:97-121`, `:148-160`). Release 1 therefore moved the root's spec pin and cut
+  the bundle first (034 T053, `dox-v1.1`, cut by Brett, RULED `5894235642`) and
+  copied after (T057). Release 2 does the same: T040 (schemas), then T060 (the
+  root's spec pin, the manifest, and the `dox-v1.2` cut on Brett's cut word),
+  then the copies T041 → T047 → T054 in that fixed order.
+- **7.1's count moves from four to seven** (new in review round 1). 7.1, as batch
+  G amends it, says openDox's validator validates its spec leg's FOUR kinds. R2Q22
+  (a) adds three schemas to that spec leg. Two are file kinds the validator can
+  validate (`opendox-health-dispositions`, `opendox-health-packs`); the finding
+  shape is not (its `kind` field is the family, so no `kind` const can name the
+  schema), so it is a copy the engine reads, and the set test reads "the
+  validator's kinds plus the finding shape" (decision N-15). Batch Q carries 7.1's
+  addendum, on R2Q22 (a)'s word.
 
 ## R8. openDox-code's CI floors
 
@@ -349,7 +474,62 @@ None of these changes a requirement; each is recorded where its box ticks.
 | where | what #1144 says | what the trees say | recorded by |
 |---|---|---|---|
 | 6.1 (`tasks.md:1124-1132`) | 37 modules; `lines.py` alone generic | 38; `lines.py` and `fs_probe.py` | T052's tick |
-| 6.2 (`tasks.md:1136-1142`) | the seam at `workbench.py:1389` | `:1542-1557` (R2-INV-HEALTH § HA-4) | T052's tick |
+| 6.2 (`tasks.md:1136-1142`) | the seam at `workbench.py:1389`; the call fails on `No module named 'doc_health'` | `run_scoped_doc_health` at `:1666`, `register_health_check` at `:1622`; the detail is `HEALTH_CHECK_NOT_REGISTERED` (`:1594`) | batch Q item 1 (R2Q9 (a) item 1's superseded note); T052's tick |
+| 7.1 (batch G's "four") | openDox validates its spec leg's four kinds | seven copies once R2Q22 (a)'s three land | batch Q (7.1's addendum) |
 | 14.8 (`tasks.md:3289-3294`) | "openxFactory's `health/dispositions.yaml`", `families.py:370` | the aggregation's file; `:371-372` | T054's tick |
 | 12.4 (`tasks.md:2513-2519`), design § D9 | `GhPullRequests` repointed and contributed by the host | unrealized in release 2 (R2Q2 (a), R2Q3 (a)) | batch Q's note (T005) |
-| 12.5's falsifier | composition unnamed | runs composed until the arc lands (R2Q8 (a)) | batch Q's line (T005) |
+| 12.5's falsifier | composition unnamed | runs composed (R2Q8 (a)); ARC-Q2 (a) makes the composition its permanent home | batch Q's line (T005; tier 2) |
+
+## R13. Review round 1 (2026-10-05): what it found, and what was measured to check it
+
+Two independent read-only reviews of this plan at `6d6911e1`:
+- an Opus `speckit-analyze` and adversarial pass, ADV-01 to ADV-41 with the
+  analyze table (D1, F1–F10, C1–C6, E1–E4, A1–A2, B1–B2), verdict "READY after
+  the listed fixes": `evidence/analyze-round-1.md`, verbatim, with its
+  disposition table;
+- lane openXfactory-3's PLANCHECK, about 34 FIX lines and 4 MISLABEL, accepting
+  the lane split on three conditions: `evidence/plancheck-lane3-round-1.md`,
+  verbatim, with its disposition table.
+
+Lane openXfactory-3 is credited for the PLANCHECK, which also corrected its own
+inventory's copy-record proposal (R2-INV-P4F § schema).
+
+**Re-measured by the plan writer before applying** (clones of openDox-code
+`a9ac96f9`, openXdox-code `56e1c238`, openDox-spec `f7ee3c76`, openXdox-spec
+`f088b097`, openDox `d77f8cbf`, all still `main`; and this worktree):
+- #1144's ratified shapes: `submit --repo-root <repo> --branch
+  <session-branch>` (`tasks.md:2536-2537`), `land --repo-root <repo> --branch
+  <session-branch>` (`:2814-2815`), F12.2's `opendox submit --repo-root
+  "$W/plain" --branch sess-1` (`:2834`) and `r.ref`, `r.url` (`:2848`);
+  `health fix --repo-root <corpus> --finding ID [--batch]` (`:3253`); 15.6a's
+  eight packs by name (`:3503-3525`); 15.2a's refusal list and the 65,536-byte
+  bound (`:3461-3479`); 15.1a's `commit` rule (`:3414-3421`); every literal-id
+  use in F14.1 (`:3320`, `:3326-3329`, `:3336-3340`, `:3347-3351`, `:3357`,
+  `:3364-3365`) and F15.1 (`:3575`, `:3590`, `:3595-3602`, `:3608-3612`).
+- `runtime/config.py:1954` opens `install_mode`; its docstring reads "THE DEFAULT
+  IS HOSTED" at `:1958`, and `:1996` returns `raw or INSTALL_MODE_HOSTED` (the
+  review cited `:1954` for the words; the function opens there).
+- `serve.py:528-650` builds a fixed `actions` map; `gate` and `refresh` are
+  derived from route bindings (`answers_a_gate_verb`, `answers_the_refresh`,
+  `:509-526`). `default_profile.py` declares `ROUTE_EXTENSIONS` empty.
+- No openxFactory test pins the `actions` key set: `grep -rn` over `tests/` finds
+  only per-key reads (`tests/ideation-dashboard/test_intent_feed.py:533-589`,
+  `test_gate_routes.py:192-212`, `test_intent_plane_boundary.py:532-536`).
+- `workbench.py:1622-1651` refuses a second, different scoped check;
+  `run_scoped_doc_health` is at `:1666`.
+- `session_git.py:250-263`: session worktrees live in `<repo>-worktrees/`.
+- `tests/test_session_git.py:563` opens the loop over `("add", "commit",
+  "merge", …)` and `:564` holds its assertion (`sed -n 560,564p`). The review's
+  item 3 placed them at `:564` and `:565`; the plan's `:563-564` stands.
+- openXdox-code `scripts/protected_suites.py` (not `tests/`), with
+  `_inside_the_test` at `:294`.
+- codexFactory `main`'s rules (`gh api repos/codeXfactory/codexFactory/rules/branches/main`):
+  required status checks `validate` and `lane-line`; pull-request rules with one
+  approving review (one ruleset with last-push approval, one with code-owner
+  review); Copilot code review; merge commits only (`allow_squash_merge` and
+  `allow_rebase_merge` false).
+
+**One finding was not applied as worded, and one was found beside it.** Both are
+in the disposition tables: OQ-12-14's flags (ADV-14 asked for route-derived flags;
+that also needs a new `actions.submit` key, since `session` alone would offer a
+submit control where no submit route answers), and 7.1's count (above).

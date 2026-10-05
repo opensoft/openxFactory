@@ -6,8 +6,9 @@ Status: draft
 ("EXCEPTIONS LIVE IN GIT, NOT THE STORE"); answer R2Q10 (a) for the key.
 **A PROPOSAL until Brett rules the plan** (OQ-H-13, OQ-H-14, OQ-H-15).
 
-**Where it lands.** T040 authors the schema in openDox-spec; T054 copies it
-into openDox-code with its digest checked and implements `health accept`.
+**Where it lands.** T040 authors the schema in openDox-spec; T060 pins and cuts
+it; T054 copies it into openDox-code's copy record at the pinned commit (after
+T047), and implements `health accept`.
 
 ## Shape
 
@@ -29,6 +30,11 @@ exceptions:
   checkout it writes the working tree, and the user commits it (F14.1 asserts
   `git status --porcelain` shows the file). With no working tree, it writes a
   draft on a branch that lands through `land` (OQ-H-14).
+- **Which file a run reads** (the spec's deferred edge case, `spec.md:534-536`;
+  review round 1, C4): the one in what the run reads. A default-tip or branch
+  run reads the committed file; a working-state run reads the working tree's, so
+  an uncommitted `accept` suppresses in a working-state run, and in no commit run
+  until it is committed.
 - **Survives a reset.** `runtime reset` drops the store; the file is in git, so
   no exception is lost (SC-006; F14.1).
 - **Refusals by name.** A file at this path with another `kind` (for example

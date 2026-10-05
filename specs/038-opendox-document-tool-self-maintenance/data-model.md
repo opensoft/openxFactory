@@ -6,43 +6,56 @@ Status: draft
 · **Contracts**: [`contracts/`](./contracts/)
 
 Every entity below is a PROPOSAL until Brett rules the plan (T004). Field names
-are the plan's; the three shapes that become openDox-spec schemas (R2Q22 (a))
-are fixed in `contracts/`, and this file points there rather than repeating
-them. "Owner" names the task that lands the entity.
+are the plan's, except where #1144's ratified text or its falsifiers fix them
+(then the box is cited). The three shapes that become openDox-spec schemas
+(R2Q22 (a)) are fixed in `contracts/`, and this file points there rather than
+repeating them. "Owner" names the task that lands the entity. Review round 1
+(`evidence/analyze-round-1.md`, `evidence/plancheck-lane3-round-1.md`) corrected
+this file; each correction cites its finding.
 
 ## Phase 4: submission and landing
 
 ### Submission (12.1a; owner T011)
 
 The report requirement 11's third scenario needs, returned by
-`SubmissionPort.submit(branch)`.
+`SubmissionPort.submit(branch)` ONLY on success. F12.2 asserts
+`r.ref.endswith("sess-1")` and that the remote's path is in `r.url`
+(#1144 `tasks.md:2848`; ADV-02).
 
 | field | type | rule |
 |---|---|---|
+| `remote` | string | the remote pushed to: the one named `origin`, else the repository's sole remote (ADV-26) |
+| `ref` | string | the ref that received the work, `refs/heads/<branch>` |
+| `url` | string | the remote's URL as git resolves it, with ANY credential it carries REDACTED: userinfo and query-string tokens (12.1a). The host and path stay, so the report says where the work went |
 | `branch` | string | the local branch submitted; never `main` (R2Q5 (a)) |
-| `remote` | string | always `origin` (OQ-12-12) |
-| `destination` | string | the push URL with any userinfo REDACTED; a URL that carries a credential never gets here, because it is refused first (OQ-12-11) |
 | `commit` | 40-hex | the branch tip that was pushed |
-| `outcome` | `pushed` \| `refused` \| `failed` | |
-| `message` | string | redacted, even for a refused or failed push (12.1a) |
 
-`NoSubmissionTarget` (12.3) is the outcome when no `origin` is attached: an
-error naming what is missing ("no remote named `origin` is attached; attach
-one with …"), never an opaque failure. Several push URLs on `origin` are
-refused by name (OQ-12-12).
+**Failures raise; they never return.** A failure is told apart from a success
+by what `submit` does, not by its logs (12.1a):
+- `NoSubmissionTarget` (12.3; FR-002) is raised when no remote is attached, or
+  when several remotes are attached and none is named `origin`. Its message
+  names what is missing ("no remote is attached…", "several remotes and none
+  named `origin`…").
+- `SubmissionRefused` is raised when the remote rejects the push, when the
+  chosen remote has several push URLs, or when the transport fails.
+- Every message, of a success report and of each failure, is REDACTED by the
+  same rule as `url`. A credential-bearing remote is PUSHED, not refused
+  (12.1a designs exactly that case; ADV-09). The test that pins this is F12.2's
+  `test_a_credential_in_the_remote_url_never_reaches_the_report`.
 
 ### Governance (12.6a; R2Q4 (a), R2Q7 (a); owner T012)
 
-`repository_governance()` returns exactly one of three values, fail closed.
+`repository_governance(checkout_root)` is declared in `session_pr` (FR-007) and
+returns exactly one of three values, fail closed.
 
 | value | when |
 |---|---|
 | `governed` | a registered host profile declares an instrument (its contributed `SubmissionPort`); this outranks any declaration. Or the declaration at `main`'s tip says `governed` |
-| `standalone` | no instrument, and the declaration at `main`'s tip says `standalone` |
+| `standalone` | the explicit local install (`OPENDOX_INSTALL_MODE=local` or `--local`, 13.4), no instrument, and the declaration at `main`'s tip says `standalone` |
 | `unknown` | anything else: no `main`; no declaration; an unreadable file; another `kind`; an unknown key or value |
 
 **The declaration** (decision N-1), `.opendox/governance.yaml`, read from the
-blob at `main`'s tip (never the working tree):
+blob at `main`'s tip (never the working tree, never the branch being landed):
 
 ```yaml
 schema_version: 1
@@ -51,7 +64,9 @@ governance: standalone        # or: governed
 ```
 
 With no declaration, `land` refuses, naming the exact file and content, which
-the owner commits with git (R2Q7 (a)); the openDox root's README documents it
+the owner commits with git (R2Q7 (a)). A repository with no `main` is `unknown`,
+refused naming the absent branch (R2Q7 (a); both are T012 test nodes beside
+F12.2's thirteen, lane 3's R2Q7 FIX). The openDox root's README documents it
 (T018).
 
 ### Confirmation capability (12.6a; owner T012)
@@ -64,40 +79,49 @@ the owner commits with git (R2Q7 (a)); the openDox root's README documents it
 | `nonce` | for `view`: a server-minted single-use value; for `tty`: none |
 | `used` | single-use: a second `land` with the same capability is refused |
 
-No other issuer exists, and a static check proves it (one of F12.2's thirteen
-guardrail tests). With no `/dev/tty` and no view, `land` refuses (decision N-11).
+No other issuer exists, and a static check proves it (F12.2's
+`test_only_the_interactive_layers_call_an_issuer`). With no `/dev/tty` and no
+view, `land` refuses (12.6a, "refuses when there is none").
 
 ### Landed and MergeConflict (12.6a; owner T012)
 
-`LandingPort.land(branch, *, confirmation) -> Landed`.
+`LandingPort.land(branch, *, confirmation) -> Landed`, declared in `session_pr`.
 
 | `Landed` field | rule |
 |---|---|
 | `branch` | the landed branch |
-| `merge_commit` | the `--no-ff` merge commit made in the lander's own landing worktree |
+| `merge_commit` | the `--no-ff` merge commit, made in the lander's own landing worktree under `<repo>-worktrees/` (`session_git.py:250-263`) |
 | `previous_main` | `main` before the merge; `git revert -m 1 <merge_commit>` restores its tree |
-| `served_checkout` | `fast-forwarded` (the served checkout held `main` and was clean: `git merge --ff-only <merge_commit>`) or `left` (it did not; the user's `main` ref still moved) |
+| `served_checkout` | `fast-forwarded` (the served checkout held `main` and was clean: `git merge --ff-only <merge_commit>` there), or `left` (the served checkout holds ANOTHER branch, so only the `main` ref moved; ADV-08) |
 | `pushed` | always `false`: `land` pushes nothing (R2Q6 (a)) |
 
 `MergeConflict` lists the conflicting paths and names the remedy: bring `main`
 into the branch and resolve there (OQ-038-1). Nothing is merged.
 
+**The remote check** (R2Q6 (a); C6). Before merging, `land` runs `git ls-remote
+<remote> refs/heads/main` against the remote `submit` would choose. If the remote
+has a `main`, local `main` must contain that tip (`git merge-base --is-ancestor`);
+otherwise `land` refuses, naming `git pull`'s absence and the remedy. A remote with
+no `main`, or no remote at all, passes the check.
+
 ### The landing's states
 
 ```text
 requested
-  ├─ refused: governance unknown | governed-without-an-instrument | branch is main
-  │           | no or used or stale confirmation | local main lacks the remote's tip (ls-remote)
+  ├─ refused: governance unknown (no main | no declaration | unreadable) | governed-without-an-instrument
+  │           | branch is main | no, used or stale confirmation | local main lacks the remote's main tip
+  │           | the served checkout holds main and is NOT clean (ADV-08: named remedy, commit or stash first)
   ├─ governed with an instrument → submitted through the instrument (Submission), no merge (R2Q4 (a))
-  └─ standalone → merged in the landing worktree
+  └─ standalone → merged in the lander's landing worktree
         ├─ conflict → MergeConflict, nothing merged, the landing worktree discarded
-        └─ merged → served checkout fast-forwarded if clean on main → Landed
+        └─ merged → served checkout on main and clean: ff-only → Landed(fast-forwarded)
+                    served checkout on another branch: main ref moved only → Landed(left)
               └─ a live session on that branch ends by the existing merge observation (R2Q5 (a))
 ```
 
 ## Phase 5: health
 
-### Health run (14.4; owner T042, T046)
+### Health run (14.4; R2Q12 (a); owner T042, T046)
 
 Table `health_runs` in `0003_` (OQ-H-22; DOMAIN, R2Q13 (a)):
 
@@ -105,11 +129,27 @@ Table `health_runs` in `0003_` (OQ-H-22; DOMAIN, R2Q13 (a)):
 |---|---|---|
 | `run_id` | uuid | primary key |
 | `corpus_root` | text | the corpus's resolved root; no foreign key to `projects` |
-| `commit` | 40-hex | the commit read (decision N-10: the committed tree of `HEAD`) |
-| `default_tip` | bool | `commit` equals `main`'s tip at run time; only such runs form the baseline (R2Q12 (a)) |
-| `dirty_tree` | bool | the working tree had changes, which were not scanned |
+| `kind` | text | `default-tip`, `branch` or `working-state` (below) |
+| `commit` | 40-hex, nullable | the commit read; null for a working-state run |
+| `baseline_branch` | text, nullable | the branch whose tip runs form the baseline (tier 1 decision I-2) |
 | `started_at`, `finished_at` | timestamptz | |
 | `outcome` | `complete` \| `partial` \| `refused` | `partial` when a pack failed (its failure is a finding) |
+
+**What a run reads** (R2Q12 (a), which names runs "at the tip, on a branch or
+over the working state"; ADV-16 replaced the narrower reading):
+- **default-tip**: HEAD is the baseline branch's tip and the working tree is
+  clean. Reads that commit. Only these runs form the baseline and measure
+  disappearances.
+- **branch**: HEAD is another commit and the working tree is clean. Reads that
+  commit. Classed against the baseline; never raises a disappearance.
+- **working-state**: the working tree differs from HEAD. Reads the tracked and
+  untracked, non-ignored files (`git ls-files --cached --others
+  --exclude-standard`), which the engine copies into a directory of its own.
+  Classed against the baseline; never raises a disappearance. Nothing is written
+  under `.git/`.
+
+Packs see the same export for every kind (15.1b), built so that `export-subst`
+and `export-ignore` cannot steer it (R2Q9 (a) item 5).
 
 ### Finding (14.6, 15.2, 15.7, R2Q10 (a), R2Q25 (a); owner T041, T042)
 
@@ -119,17 +159,23 @@ The neutral shape is [`contracts/health-finding.md`](./contracts/health-finding.
 | column | rule |
 |---|---|
 | `run_id` | references `health_runs` |
-| `id` | `<pack_id>.<family>.<h16>`: `<h16>` is the first 16 hex digits of SHA-256 over the pack id, family, document path and family-supplied locator. Stable across a reset, unique per run, a valid ref-name component (decision N-13) |
-| `kind` | the family (`broken-link`, `orphan`, …); `health list --json` carries it (R2Q10 (a)) |
+| `id` | `<pack_id>.<kind>.<h16>` (decision N-13, refined by ADV-07): `<h16>` is the first 16 hex digits of SHA-256 over the canonical JSON (sorted keys, no whitespace) of `{"pack_id", "kind", "path", "identity"}`. `identity` is a POSITION-INDEPENDENT key the family supplies (a link target as written, a pair of paths, a heading key), never a line number. Stable across edits elsewhere in the document and across a reset; unique per run; a valid ref-name component |
+| `kind` | the family (`broken-link`, `orphan`, `empty-stub`, …); `health list --json` carries it (R2Q10 (a)) |
 | `pack_id` | NOT NULL; `opendox` for the product's own families (15.7, OQ-H15-19) |
 | `pack_version` | NOT NULL; the installed version for `opendox` (OQ-H15-18) |
 | `path` | corpus-relative; empty for an install-level or pre-run finding |
-| `locator` | a family-supplied position (line span, link target); never document text |
+| `locator` | DISPLAY ONLY, outside the hash: a line span, a link target as written; never document text |
 | `severity` | the neutral severities U-0 spells |
 | `resolution_class` | `auto-fix` \| `assisted` \| `human-only` (14.6) |
-| `baseline_class` | `new` \| `pack-upgrade` \| `persistent` \| `unclassed` (R2Q12 (a); `unclassed` only with no `main`, interplay I-2) |
-| `evidence` | locators only, never an excerpt (R2Q25 (a)); a family's own version rides here (OQ-H15-18) |
-| `patch` | nullable; a pack's patch stored at `run`, validated at `run` and again at `fix` (OQ-H15-20) |
+| `baseline_class` | `new` \| `pack-upgrade` \| `persistent` (R2Q12 (a)); `unclassed` exists only if tier 1's I-2 is ruled (b) |
+| `message` | one line, bounded like `evidence` (ADV-27): at most 200 characters, written by the family from its own words; never document text |
+| `evidence` | locators only, never an excerpt (R2Q25 (a)); a family's own version rides here (OQ-H15-18); a refused patch's `refused_patch` and `reason` (15.2a) |
+
+There is NO patch column (lane 3's MISLABEL row 31): a patch is document text,
+and the store holds no document (14.3; R2Q25 (a)). A pack's patch is validated
+at `run` (a refusal is stored as a finding naming `refused_patch` and `reason`,
+no text) and RE-OBTAINED at `fix` by re-running that one pack in the sandbox,
+then validated again before any branch exists (OQ-H15-20, refined).
 
 The store refuses a finding with no `pack_id` or `pack_version`
 (`test_the_store_refuses_a_finding_without_provenance`) and holds no document
@@ -138,30 +184,51 @@ The store refuses a finding with no `pack_id` or `pack_version`
 ### Baseline classes (R2Q12 (a); owner T046)
 
 ```text
-for a run R on main's tip, against B = the previous default-tip run in the store:
+for a run R, against B = the previous default-tip run in the store:
   id in R, not in B, pack_version unchanged        → new
   id in R, not in B, its pack's version changed     → pack-upgrade (D12)
   id in R and in B                                  → persistent
-  id in B, not in R:
-     cited (a landed health-fix draft, or a commit with a "Finding: <id>" trailer) → gone
-     uncited → re-raised ONCE as human-only
-for a run on any other commit: classes against B; no disappearance is measured
-no main: every finding unclassed, plus one install-level no-default-branch finding (I-2)
-after runtime reset: B is gone; the next default-tip run is the new baseline
+only when R is itself a default-tip run, for id in B, not in R:
+     cited (a landed health-fix draft for it, or a commit naming it in a "Finding: <id>" trailer) → gone
+     uncited → re-raised ONCE as human-only, naming the original
+the baseline branch: main, else the branch HEAD names (tier 1 I-2, recommended (a));
+  with none (a detached HEAD and no main) no run is default-tip, B is empty, every finding is new
+after runtime reset: B is gone; the next default-tip run sees every finding once as new
 ```
+
+### Families: the stub criteria (14.4, 14.6; ADV-17, ADV-40; owner T044)
+
+| kind | criterion (declared in `families.py` and here) | class |
+|---|---|---|
+| `empty-stub` | after front matter, the body holds no line that is neither blank nor a heading | `assisted` (14.6): the deterministic proposal is a front-matter note `health-note: empty stub; write it or remove it in this draft`, which the human edits |
+| `stale-stub` | after front matter, the body holds 1 to 3 such lines, and the last commit that touched the file is older than 180 days at the run's commit | `human-only` (OQ-H-8) |
+
+The 14.9 fixture plants one empty stub (T043) and T044 and T053 test it.
 
 ### Exception (14.8, OQ-H-13; owner T054)
 
 An entry of `health/dispositions.yaml` in git, never in the store:
 [`contracts/health-exceptions.md`](./contracts/health-exceptions.md) (openDox-spec
-schema 3). An accepted finding is suppressed; a run never stores it. Who and
-when are git's (author, commit). A reset loses none (SC-006).
+schema 3). An accepted finding is suppressed; a run never stores it.
+
+**Which file a run reads** (C4, the spec's edge case at `spec.md:534-536`): the
+one in what the run reads. A default-tip or branch run reads the committed file;
+a working-state run reads the working tree's, so an uncommitted `accept`
+suppresses in a working-state run and in no commit run until it is committed.
+F14.1 commits before each run, so it reads the committed file. A reset loses no
+exception (SC-006).
 
 ### Fix draft (14.7, OQ-12-17; owner T053)
 
-A fix writes a DRAFT ON A BRANCH, `health-fix-<id>` (one finding) or
-`health-fix-batch-<h16>` (several, `<h16>` over the sorted ids), never `main`;
-it lands only through `land` (12.6a). `human-only` findings get no branch.
+The shape is exactly 14.5's, `health fix --repo-root <corpus> --finding ID
+[--batch]` (ADV-11). Without `--batch`, the repair is its own draft,
+`health-fix-<id>`, branched at HEAD. With `--batch`, it is added as one more
+commit to the open batch draft, `health-fix-batch`, which is created at HEAD
+when none is open (or when the last one is already contained in `main`);
+several invocations put several repairs in ONE draft for ONE review (14.7).
+The applier writes each draft in a worktree of its own, so HEAD and the working
+tree never move (F14.1 asserts HEAD unmoved after every `fix`). Never `main`; a draft
+lands only through `land` (12.6a). A `human-only` finding gets no branch.
 
 ## Phase 5: check packs
 
@@ -169,42 +236,65 @@ it lands only through `land` (12.6a). `human-only` findings get no branch.
 
 [`contracts/health-packs-manifest.md`](./contracts/health-packs-manifest.md)
 (openDox-spec schema 2). `health/packs.yaml` is authoritative for what runs.
+An entry carries exactly 15.1a's fields: `id`, `version`, `source`, `digest`, and
+`commit` for a git-URL source only. A corpus-relative entry that carries a
+`commit` is refused (15.1a). Time budgets and bounds are the ENGINE's, never the
+corpus's (15.6; lane 3's bwrap-facts FIX).
 
 ### Pack declaration (15.2, OQ-H15-10; owner T045)
 
 A static `opendox-pack.yaml` inside the pack, read before any pack code runs:
-pack id, version (must equal the manifest entry's), the families it emits,
-label keys, and the protocol version. Forbidden keys (baseline, landing,
-classes) are refused by name.
+pack id, version (must equal the manifest entry's; none at all is refused, as
+`fixture-anonymous-pack` tests), the families it emits, label keys, and the
+protocol version. Forbidden keys (baseline, landing, classes) are refused by
+name.
 
-### Patch (15.2a; owner T049)
+### Patch (15.2, 15.2a; owner T049)
 
-| field | rule |
-|---|---|
-| `finding_id` | the finding it repairs |
-| `path` | must equal the finding's `path`: a patch touches only its finding's own document |
-| `base_blob` | the blob the patch was computed against; a mismatch at `fix` is refused |
-| `content` | the replacement document text, or a unified diff over `base_blob` |
-
-The engine validates every patch BEFORE any branch exists (15.2a); a pack's
-`auto-fix` class is honoured only for a patch that validates.
-
-### Sandbox probe and canary (15.1b, OQ-H15-9, OQ-H15-21; owner T048)
+A patch is a UNIFIED DIFF, and nothing else (15.2; FR-018; ADV-12).
 
 | field | rule |
 |---|---|
-| `bwrap` | the fixed system path, its version, and the three flags present |
+| `finding` | the finding it repairs (by the pack's own finding reference, before the engine stamps the id) |
+| `diff` | a unified diff against the export the pack saw |
+
+REFUSED, each as a finding against the pack naming `refused_patch` and `reason`,
+before any branch exists (15.2a, `tasks.md:3461-3479`):
+- it edits a path other than its own finding's `path` (a finding that names no
+  document carries no patch);
+- it names an absolute path, a path with a `..` component, or a path with a
+  `.git` component in any letter case;
+- its target is a symbolic link in the corpus, or lies below one;
+- it creates, deletes, renames, copies or re-modes a file, or is binary: the
+  headers `new file mode`, `deleted file mode`, `rename from`, `copy from`,
+  `old mode` and `GIT binary patch`;
+- it is larger than 65,536 bytes, the engine's bound, declared by 15.2a and
+  never read from the pack.
+
+Only a patch that passes reaches `git apply --check` against the draft branch's
+base.
+
+### Sandbox probe and canary (15.1b, 15.6a, OQ-H15-9, OQ-H15-21; owner T048)
+
+| field | rule |
+|---|---|
+| `bwrap` | the fixed system path, its version, and the flags present (`--json-status-fd`, `--disable-userns`, `--size`) |
 | `userns` | whether unprivileged user namespaces are permitted |
-| `canary` | per run: a self-check that a write, a network connect and a read outside the export all FAIL inside the sandbox |
+| `canary` | per run (product behaviour, so F15.1 stands): the engine sets a CANARY environment variable in its own environment and holds a CANARY descriptor open before spawning (15.6a), then proves inside the sandbox that a write (including after a permission restore), a planted symlink out of the copy, a network connect, a read of `$HOME`, the CANARY variable and the CANARY descriptor through `/proc/self/fd` are ALL unreachable |
 | `verdict` | `live` → packs run; otherwise packs do not run, and ONE install-level finding (`pack_id` `opendox`, empty `path`, `human-only`) says why (R2Q16 (a)) |
+
+**What the sandbox binds** (R2Q18 (a); lane 3's T048 FIX): read-only, the
+install's interpreter and its standard library, and `opendox.health_contract`
+alone; never `site-packages`, `$HOME` or the checkout. `--clearenv` with the
+allowlist `PATH`, `LANG`, `PYTHONNOUSERSITE=1` (15.1b).
 
 ## Relationships
 
 ```text
 health_runs 1 ── * health_findings          (run_id)
 health_findings * ── 0..1 exception          (by id, in git; suppresses)
-health_findings 1 ── 0..1 patch              (stored at run)
-health_findings * ── 0..1 fix draft branch   (health-fix-<id> / -batch-<h16>) ── land ──> Landed
+health_findings * ── 0..1 fix draft branch   (health-fix-<id>, or the open health-fix-batch) ── land ──> Landed
 manifest entry 1 ── 1 pack declaration       (version equal)
 manifest entry 1 ── * health_findings        (pack_id, pack_version)
+a pack's patch: never stored; re-obtained at fix from the pinned pack
 ```

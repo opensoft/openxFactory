@@ -637,8 +637,9 @@ bookkeeping records an answer.
     means:
     - a host-registering conftest outside them, as T104's `HOST_PLANE_SUITES`
       does;
-    - the `display.js` harness copy fixed, and the gate-action record schema
-      placed where the suites read it;
+    - the `display.js` harness copy fixed, and the gate console's two schemas
+      (openXdox-spec's gate-action record and openxFactory's demotion
+      execution receipt) placed where the suites read them;
     - an allow-list entry for each pure respelling (batch C);
     - each singleton traced, and repaired by one of these means or by an
       entry.
@@ -662,7 +663,8 @@ bookkeeping records an answer.
     repository with no `main` SHALL be `unknown`, refused naming it (R2Q7
     (a)).
   - **`standalone`** SHALL require BOTH the explicit local install
-    (`OPENDOX_INSTALL_MODE=local`, 13.4) AND a committed
+    (`OPENDOX_INSTALL_MODE=local`, or `--local`, which selects local exactly
+    as the setting does, 13.4; R2Q9 (a) item 7) AND a committed
     `.opendox/governance.yaml` reading `governance: standalone`. The
     declaration is read from the tip of `main` at the moment of landing, never
     from the branch being landed or from the working tree. With no declaration,
@@ -1190,11 +1192,15 @@ bookkeeping records an answer.
   of openXdox-code's `tests/declared_exclusion.yaml`, each with the reason
   `doc_health`. `tests/test_gate_loop_views.py` is the one that runs alone.
   Composed with openxFactory's `scripts/`, the 16 read 668 passed, 170 failed
-  and 4 errors: 174 red across 10 files, the same 174 that plan 034's T086
-  recorded (R2-INV-12 M3, re-measured by this feature on 2026-10-05).
+  and 4 errors: 174 red across 11 files, the same 174 that plan 034's T086
+  recorded (R2-INV-12 M3, re-measured by this feature on 2026-10-05). The
+  other 5 suites pass composed, 210 cases (R2-INV-P4F § "Passing composed
+  today"; corrected from "10 files" in plan 038's review round 1).
   - By first cause: 62 need a registered host, 55 are the `display.js` harness
-    copy, 16 read moved names or paths, 16 cannot load the gate-action record
-    schema, 3 reach a moved `hosted_index`, and 22 are singletons.
+    copy, 16 read moved names or paths, 16 cannot load the gate console's
+    schemas (`gate_console.py:642-643` reads a `contracts/schemas/` the code
+    leg does not have, for the gate-action record and the demotion execution
+    receipt), 3 reach a moved `hosted_index`, and 22 are singletons.
   - Lane openXfactory-3 confirmed this split, and appended an erratum to its
     inventory.
   - R2Q8 (a) puts their repair in phase 4.
