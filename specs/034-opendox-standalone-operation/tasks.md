@@ -88,11 +88,10 @@ planned on answers.
 
 - **The holder's own tasks**: T002 is a standing act, one claim per slice.
   T008 was raised as a staged topic (#1173), and the arc it raised is still
-  open. Fifteen of T007's sixteen batches have landed, from A (#1171) to O
-  (#1228, on Brett Heap's words `5970917267`, `5962754358` (item 1) and
-  `5963162921`). Batch P, on Brett Heap's words of 2026-10-04
-  (`5982436447` and `5983805990`) and the holder's rulings recorded with
-  them, lands before T087, and T007 lists each.
+  open. All sixteen of T007's batches have landed, from A (#1171) to P
+  (#1230, on Brett Heap's words of 2026-10-04, `5982436447` and
+  `5983805990`, and the holder's rulings recorded with them). Batch P
+  landed before T087. T007 lists each batch, and it is closed.
 - **Each phase-1 task** starts once its slice has been claimed (T002).
   **T020** and **T030** never needed an answer. **T030** lands with T011,
   because it fails until 2.1 lands. **T043** also waits for T007's batches C
@@ -117,7 +116,7 @@ planned on answers.
   and 3.0, citing `5815412869` (*"ratify #1144"*, which struck nothing) and
   `review/ratification-2026-09-24.md` § 2.
   - **Realizes**: 3.0.
-- [ ] T002 **Claims, per slice.** Post a `CLAIMED` on `#656` before each slice's
+- [x] T002 **Claims, per slice.** Post a `CLAIMED` on `#656` before each slice's
   PR (Rule 1), naming its task ids. Do the three sibling reads first:
   - the claims on `#656`;
   - `gh pr list -R <repo> --state all --search <slug>`;
@@ -125,6 +124,33 @@ planned on answers.
 
   Lane 4's C3 and C4 have landed, so a slice starts from them and duplicates
   neither (plan.md § "In-flight overlaps").
+  - **Done** (the holder's ruling `5999175092`): 45 of the 50 slices in the
+    three phases' writer tables were claimed on `#656`. The other five are named
+    below, as T091 names the two landings whose message lacks 11.0's line.
+    Nothing is back-filled, and no claim comment is edited after the fact.
+    - Phase 1: P1-A `5850112604`; P1-B `5850105728`; P1-E `5850107036`; P1-D
+      `5850371775`; P1-H `5852235792`; P1-F `5852380744`; P1-G `5856501803`;
+      P1-R `5857393332`; P1-I `5850112389`; P1-J `5857409686`, `5859626652`,
+      `5860269897` and `5871347075`, one per task; P1-K `5852803348`, and
+      `5873306432` for T047; and the checkpoint `5891522563`.
+    - Phase 2: P2-S `5857476998`; P2-F `5857512479`; P2-G `5857453864`; P2-V
+      `5873510118`; P2-P `5859496321`; P2-X `5873473056`; P2-R `5873583149` and
+      `5901343950`; P2-D `5917907106`; P2-K and P2-C `5901265730`; and the
+      checkpoint `5962431234`.
+    - Phase 3: P3-I `5876416600`, `5901575394` and `5960235138`, which also
+      claims P3-R; P3-J `5970853612`; P3-B `5875729625`; P3-D `5960438561`; P3-L
+      `5901192386`; P3-E `5960231968` and `5970626533`; P3-S `5963868498`; P3-V
+      `5963901937`; P3-C `5963979413`; P3-T `5962993535`; P3-N `5962404984` and
+      `5982463350`; P3-P and P3-K `5992552627`; P3-O `5961416935`; P3-X
+      `5961432662`; P3-M and the checkpoint `5984809456`; the acceptance
+      `5961416730` (T095) and `5987202449` (T096); P3-W and P3-U `5962830216`,
+      posted for T099 before the holder split T101 from it (#1220); and the
+      bookkeeping `5984809190`.
+    - Not claimed by a comment of its own: P1-C (T020), whose claim `5850230046`
+      was posted as a literal file path and never edited, and P1-L (T017, T018),
+      P2-H (T066), P2-L (T064) and P2-M (T065), which no CLAIMED comment claims.
+      All five are lane openxfactory-4's own slices, the holder's, and each
+      landed without a collision.
 - [x] T003 **ARC_BASE.** DONE: `evidence/arc-base.md` (2026-09-25). No
   repository holds an arc landing yet, so each base is that repository's `main`
   at the time. Record, per repository, a `main` commit before the
@@ -190,7 +216,7 @@ planned on answers.
     entry, which sits outside the OpenSpec Records block. So it needs no Rule
     6 window.
   - **After**: T003, T004, T005.
-- [ ] T007 [oxF] **Record the ruled amendments in #1144's `tasks.md`, and one
+- [x] T007 [oxF] **Record the ruled amendments in #1144's `tasks.md`, and one
   addendum in its `design.md`.** The answers of `5817152735` and `5850003126`
   amend falsifiers, task lines, addenda and one design note (§ D4). They amend
   no requirement and no scenario, except RN-1's, which batch D carries on its
@@ -207,8 +233,7 @@ planned on answers.
   the holder's rulings B7 and A8, and rewrites no ratified text either. The
   full list is in § "Ruled amendments" below. Each batch is its own
   bookkeeping PR. T007 was ticked when batch J landed, and was reopened for
-  batches K, L, M, N and O, all of which have landed. It is open for batch
-  P.
+  batches K, L, M, N, O and P, all of which have landed.
   - Every PR touches `openspec/changes/`, so it lands under a Rule 6
     `LANDING`/`LANDED` window.
   - It carries no `Arc:` trailer (R1Q20 (a)), so 11.1's guard never reads it.
@@ -468,16 +493,15 @@ planned on answers.
       `5982447319`), and so before the checkpoint's run of F16.1 with A2's
       cases. This line names those landings by slice, for the same reason as
       K's.
-  - **Landed**: batches A to O, each an openxFactory PR with no `Arc:` trailer.
+  - **Landed**: batches A to P, each an openxFactory PR with no `Arc:` trailer.
     A #1171 → `bca4a260`; B #1194 → `e369cb25`; C #1172 → `4663e9e8`; D #1170 →
     `79a720a2`; E #1183 → `b9742534`; F #1178 → `295abd8d`; G #1205 →
     `91e4685f`; H #1206 → `f99a2097`; I #1180 → `8421603a`; J #1193 →
     `6b97c601`; K #1210 → `39f19145`; L #1212 → `2140f5a7`, which T063's
     checkpoint PR (#1218) recorded; M #1219 → `cc775fea`, which batch N's PR
     records; N #1222 → `bdd0f586`, which batch O's PR records; O #1228 →
-    `596a9a90`, which batch P's PR records. Batch P has not landed yet. The
-    plan bookkeeping that follows its landing records its PR and merge
-    commit, and ticks T007 again.
+    `596a9a90`, which batch P's PR records; P #1230 → `ba6bb870`, which T097's
+    PR (#1233) records. No batch is pending.
   - #1144's `tasks.md` was also edited outside the batches. #1202 → `e81eed62`
     (T018's PR) added F11.1's `ADMITTED_ARC_EDITS` (RULED `5890601202`) and
     corrected batch E's held-case count from "6 to 7" to "5 to 6". #1204 →
@@ -2433,7 +2457,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
       --port "$PORT"`, reading the token from the private copy. The root's `make
       validate` and `make pins`, run with both legs initialized, pass at the
       PR's head.
-- [ ] T099 [US3] [oDc] [oD] **Publish to PyPI (10.3's install line).** openDox-code's
+- [x] T099 [US3] [oDc] [oD] **Publish to PyPI (10.3's install line).** openDox-code's
   sdist and wheel go to PyPI as `opendox`, by trusted publishing (OIDC), so
   10.3's `pip install "opendox[local]"` works as written. No PyPI token and no
   other publishing secret is stored anywhere: each upload uses a short-lived
@@ -2522,6 +2546,28 @@ written (`5962754358`). `consumer_reach.py` is gone.
     irreversible upload; the holder's ruling of 2026-10-03), T007 (batch O:
     the tag it creates). The root README PR follows T076, which writes the
     paragraph it replaces; T089 already follows T076.
+  - **Landed**: the publish at the cut, then openDox#19 → `d77f8cbf`.
+    - P against X: P `dede32b4` is an ancestor of X `389e5a4a`, and the four
+      files between them (`.github/workflows/validate.yml`,
+      `acceptance/at_r1_http.py`, `tests/test_at_r1_http_harness.py` and
+      `tests_runtime/test_deploy_shape.py`) are none of the build inputs, so the
+      ruled check, `git diff --quiet P X --` over `src/`, `pyproject.toml`,
+      `migrations/`, `README.md` and `LICENSE`, exits 0, and X's runs stand for
+      P (`evidence/at-r1/oracle-verdict.md`, § "At P").
+    - On Brett Heap's publish word (`5997633384`, *"Publish when T096 passes
+      (Recommended)"*), the holder created the annotated tag `v0.1.0`
+      (`9153c254`) at `dede32b4` and dispatched openDox-code's `release` on it:
+      run `37339111713`, `success`. Its four jobs pass: `build and verify`,
+      `publish to TestPyPI (the dry run)`,
+      `install opendox[local] from TestPyPI` and `publish to PyPI`, with its
+      step `PyPI serves the files the build job verified`.
+    - PyPI serves `opendox` 0.1.0 as two files, `opendox-0.1.0-py3-none-any.whl`
+      (sha256 `8ecea00db6f9…`) and `opendox-0.1.0.tar.gz` (sha256
+      `56869b6208a8…`), neither yanked.
+    - openDox#19 → `d77f8cbf` replaces the root README's "Where `opendox` comes
+      from" paragraph: the first line, `pip install "opendox[local]"`, installs
+      `opendox` from PyPI, and no paragraph says that no release is published.
+      The root's `contracts/code-pin.yaml` still names `dede32b4`.
 - [x] T101 [US3] [oDc] **T099's release step: the release workflow, and the
   version bump to 0.1.0.** Two openDox-code landings, which T087 pins and
   T099 publishes.
@@ -4309,7 +4355,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
 
 ## Acceptance: AT-R1
 
-- [ ] T095 [US3] [oDc] **AT-R1, the HTTP half, in CI.** An acceptance harness,
+- [x] T095 [US3] [oDc] **AT-R1, the HTTP half, in CI.** An acceptance harness,
   `acceptance/at_r1_http.py`, run by its own `acceptance` job in openDox-code's
   `validate.yml`.
   - That job has NO database service, because the harness asserts a clean
@@ -4355,6 +4401,19 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **After**: T089, T076 (the root README's one documented command, which the
     harness runs), T104 (the harness reads the token's private copy), T007
     (batch N).
+  - **Landed**: openDox-code#75 → `389e5a4a`, which is X, `RELEASE1_TIP`.
+    - `acceptance/at_r1_http.py` is the harness, standard library only and
+      outside `tests/` and `tests_runtime/`. `validate.yml` gains an
+      `acceptance` job with no service, which runs it in one step. The
+      `validate` job and its triple are untouched, and
+      `tests_runtime/test_deploy_shape.py` admits the second job.
+    - `tests/test_at_r1_http_harness.py` (new, 564 cases) tests the harness's
+      decisions in process, and the PR records 221 mutants of those decisions,
+      all killed.
+    - At X, the `acceptance` job is a `workflow_dispatch` of `validate.yml` on
+      `main` while `main` was X (the holder's ruling `5987619278`, Q1): run
+      `37333323932`, `head_sha` X, job `111841708700`, `success`. It prints
+      `AT-R1 HTTP half: PASS (314 assertions held)`.
 - [x] T096 [US3] [oxF] **AT-R1, the browser half, on the host.** Drive the
   same install with Playwright (quickstart.md § 4, against the server § 3
   starts). It opens the page through the private copy's `file://` URL (§ 4
@@ -4404,7 +4463,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
     - P-against-X exits 0, so X's runs stand for P, and nothing ran at P.
     - Non-normative (`5987619278`, Q2): the create and Save refusals are
       refused by name, with no browser signal, so nothing is undeclared.
-- [ ] T097 [oxF] **Bookkeeping.**
+- [x] T097 [oxF] **Bookkeeping.**
   - Tick #1144's release-1 boxes, each with its evidence note: the 63 in the
     table below. 3.0 is already ticked (#1151).
   - Leave 9.5, 11.0, 11.1 and F11.1 open for the arc's close, and F9.2 open
@@ -4416,6 +4475,33 @@ written (`5962754358`). `consumer_reach.py` is gone.
     notes.
   - **Ruled**: R1Q20 (a).
   - **After**: T096, T099 (10.3 closes on the publish), T007 (every batch).
+  - **Done**, in this task's PR (#1233): #1144's 63 release-1 boxes are ticked,
+    each with its evidence note in 1.8's and 3.0's form, and `box_census.py`
+    reads `total 125`, 42 `[ ]`, 74 `[x]` and 9 `[~]` (105, 11 and 9 before).
+    9.5, 11.0, 11.1 and F11.1 stay open for the arc's close, and F9.2 until
+    T008. With this PR, 92 of plan 034's 96 tasks are ticked, and T090 to T093
+    are ticked at the arc's close.
+    - Research R16's corrections are in the notes of the boxes they correct:
+      item 1 at 2.5, 2 at 9.4, 3 at 4.3, 4 at 3.2, 5 at 10.1, 6 at 9.5 (a note
+      on the open box) and 7 at 2.1, for Group 2's heading. Item 8 needs no
+      line, since 3.0's own note records it.
+    - **Recorded by T097, a non-normative correction** (the holder's ruling
+      `5987619278`, Q2, as corrected by lane openxfactory-4; T096's record,
+      #1241 → `8a37a087`): spec.md's AT-R1 step 7 and T096 say that the create
+      and Save refusal is declared to the oracle. As observed, both are refused
+      by name, with no browser signal, so nothing is declared, and the oracle's
+      "nothing undeclared" holds (`evidence/at-r1/oracle-verdict.md`).
+    - **Recorded by T097, a non-normative note** (the holder's rulings of
+      2026-10-05, `5999175092`): `oracle-verdict.md` names #1241's first commit,
+      `f632d70c`, as holding the bytes of the runbook and the drive that ran.
+      After the squash, that commit is not reachable from `main`:
+      `refs/pull/1241/head` (`5c663a7e`) reaches it, and so does #1241's branch,
+      `bookkeeping/034-t096-at-r1`, while it stands. On `main`,
+      `evidence/at-r1/SHA256SUMS` at `8a37a087` fixes every file of the run as
+      it stands there, and the record names the bytes that ran by their sha256:
+      `702e2a4b…` for `run-at-r1.sh` and `763b5919…` for `at_r1_browser.py`. The
+      lines of `SHA256SUMS` for those two scripts name the reviewed files,
+      `8ba962fd…` and `e5ce78d6…`.
 
 ---
 
