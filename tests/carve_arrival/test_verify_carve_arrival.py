@@ -5193,7 +5193,7 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     `created:` sets. The seeding commit (openxFactory PR #979, `972b484a`) is
     the seed and takes no ordinal. Measured that way the landed sequence is
     PR #984, #1002, #1001, #1009, #1010, #1023, #1030, #1025, #1067, #1068,
-    #1085, #1091, #1153, #1181, #1215 and #NNNN — sixteen amendments, thirteen
+    #1085, #1091, #1153, #1181, #1215 and #1236 — sixteen amendments, thirteen
     of which bump `opendox_code`.
     AN ORDINAL IS NOT A POSITION IN THIS FILE and never was: the assertion
     blocks below run in the order the reading needs, so an ordinal is read off
@@ -5366,7 +5366,7 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     `since` is the leg's own squash landing. Pinned by path AND `since`, and
     counted in the committed file, as T047's are.
 
-    AMENDED A SIXTEENTH TIME by openxFactory PR #NNNN, plan 034 T094 (the
+    AMENDED A SIXTEENTH TIME by openxFactory PR #1236, plan 034 T094 (the
     phase-3 pin PR, which moves BOTH pins a third time): twenty-nine more —
     four `openxdox_code` files from openXdox-code#37 (T086) and twenty-five
     `opendox_code` files from openDox-code#65, #67, #69, #71, #72, #74, #77,
@@ -6190,7 +6190,7 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     assert len(t064_committed) == 129, sorted(t064_committed)
 
     # THE SIXTEENTH BUMP: plan 034 T094, the phase-3 pin PR (openxFactory
-    # #NNNN), which moves BOTH pins and so admits the created files of both
+    # #1236), which moves BOTH pins and so admits the created files of both
     # `-code` legs. Neither spec leg moved (openDox's stays at `f7ee3c76`,
     # openXdox's at `f088b097`), so neither admits anything. As at T047 and
     # T064, the legs LANDED FIRST, so each `since` is the leg's own squash
