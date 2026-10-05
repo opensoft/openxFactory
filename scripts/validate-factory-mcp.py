@@ -8,6 +8,7 @@ import json
 from pathlib import Path, PurePosixPath
 import re
 import sys
+import unicodedata
 from urllib.parse import urlsplit
 
 from jsonschema import Draft202012Validator, FormatChecker
@@ -122,7 +123,7 @@ def pointer_state(state, part, node):
         state = "schema"
     else:
         return "data"
-    if state == "schema" and not isinstance(node, dict):
+    if state == "schema" and not isinstance(node, (dict, bool)):
         return "list" if isinstance(node, list) else "data"
     return state
 
@@ -194,6 +195,7 @@ class Offline:
         self.pins = pins
         self.documents = {}
         self.reach_cache = {}
+        self.finite_cache = {}
         self.checked_targets = set()
 
     def read(self, key):
@@ -237,14 +239,18 @@ class Offline:
 
     @staticmethod
     def locate(base, fragment):
-        """Follow a JSON Pointer from the schema `base`, tracking the nearest
-        enclosing schema resource of the node it reaches."""
+        """Follow a JSON Pointer from the schema `base` to a schema location,
+        tracking the nearest enclosing schema resource of the node it reaches.
+        A pointer that ends in annotation data (`examples`, `enum`, `required`)
+        or on a map or list of subschemas does not name a schema."""
         node, resource, state = base, base, "schema"
         for part in decode_pointer(fragment):
             node = step(node, part)
             state = pointer_state(state, part, node)
-            if state == "schema" and isinstance(node.get("$id"), str):
+            if state == "schema" and isinstance(node, dict) and isinstance(node.get("$id"), str):
                 resource = node
+        if state != "schema":
+            raise Invalid("reference_to_non_schema")
         return node, resource
 
     def resolve(self, key, ref, resource):
@@ -311,13 +317,24 @@ class Offline:
             raise Invalid("invalid_referenced_schema") from None
         self.checked_targets.add(id(target))
 
-    def finite(self, key, node, resource, discriminator=None, required=frozenset(), seen=frozenset()):
+    def finite(self, key, node, resource, discriminator=None, required=frozenset(), seen=frozenset(),
+               typed=False):
         """The finite string vocabulary at `node`, or None when it cannot be proved.
 
         With a `discriminator`, `node` is an object schema, or a union of them
         (directly or through `$ref`), and the vocabulary is the union of each
         branch's required `properties.<discriminator>` constants or enums.
+        Completed resolutions are memoized, so shared references cost once.
         """
+        memo = (key, id(node), id(resource), discriminator, frozenset(required), typed)
+        if memo in self.finite_cache:
+            return self.finite_cache[memo]
+        result = self.resolve_finite(key, node, resource, discriminator, required, seen, typed)
+        if (key, id(node), discriminator) not in seen:
+            self.finite_cache[memo] = result
+        return result
+
+    def resolve_finite(self, key, node, resource, discriminator, required, seen, typed):
         if not isinstance(node, dict):
             return None
         if self.embedded(key, node):
@@ -327,15 +344,16 @@ class Offline:
             return None
         seen = seen | {token}
         required = required | set(node.get("required", []))
+        typed = typed or node.get("type") == "object"
         if "$ref" in node:
             if any(k in node for k in ("enum", "const", *UNIONS)) or (
                     discriminator is not None and "properties" in node):
                 return None
             dest, target, target_resource = self.resolve(key, node["$ref"], resource)
-            return self.finite(dest, target, target_resource, discriminator, required, seen)
+            return self.finite(dest, target, target_resource, discriminator, required, seen, typed)
         if discriminator is None:
             return self.finite_values(key, node, resource, seen)
-        return self.finite_branches(key, node, resource, discriminator, required, seen)
+        return self.finite_branches(key, node, resource, discriminator, required, seen, typed)
 
     def finite_values(self, key, node, resource, seen):
         """A value vocabulary: `enum`, `const`, or a union of them. Under `oneOf`
@@ -363,8 +381,10 @@ class Offline:
             return set(values) if all(isinstance(v, str) for v in values) else None
         return None
 
-    def finite_branches(self, key, node, resource, discriminator, required, seen):
-        """A discriminated vocabulary: each object branch's required property value."""
+    def finite_branches(self, key, node, resource, discriminator, required, seen, typed):
+        """A discriminated vocabulary: each object branch's required property value.
+        A branch must be object-only (`type: object` on it or an ancestor): an
+        untyped branch also admits `null` and other values that carry no code."""
         if "enum" in node or "const" in node or all(u in node for u in UNIONS):
             return None
         properties = node.get("properties")
@@ -372,9 +392,9 @@ class Offline:
             if union in node:
                 if isinstance(properties, dict) and discriminator in properties:
                     return None
-                return union_of(self.finite(key, item, resource, discriminator, required, seen)
+                return union_of(self.finite(key, item, resource, discriminator, required, seen, typed)
                                 for item in node[union])
-        if node.get("type", "object") != "object" or not isinstance(properties, dict):
+        if not typed or not isinstance(properties, dict):
             return None
         if discriminator not in properties or discriminator not in required:
             return None
@@ -467,8 +487,9 @@ def report(diagnostics, gaps):
 
 
 def resource_uri_ok(uri):
-    """An absolute https URI with a host, no userinfo, no fragment, no controls."""
-    if any(ord(c) <= 0x20 or ord(c) == 0x7F for c in uri) or "#" in uri or "\\" in uri:
+    """An absolute https URI of printable ASCII (an internationalized host is
+    written in its ASCII form) with a host, and no userinfo, fragment or backslash."""
+    if any(not 0x21 <= ord(c) <= 0x7E for c in uri) or "#" in uri or "\\" in uri:
         return False
     try:
         parsed = urlsplit(uri)
@@ -734,6 +755,26 @@ def validate(declaration, snapshots):
     return report(found, gaps)
 
 
+def printable(text):
+    """Text safe for a terminal line: control, format, separator and unassigned
+    characters, and the backslash itself, are escaped; other text is unchanged."""
+    out = []
+    for char in str(text):
+        code = ord(char)
+        if char == "\\":
+            out.append("\\\\")
+        elif unicodedata.category(char) in ("Cc", "Cf", "Cs", "Co", "Cn", "Zl", "Zp"):
+            if code < 0x100:
+                out.append(f"\\x{code:02x}")
+            elif code < 0x10000:
+                out.append(f"\\u{code:04x}")
+            else:
+                out.append(f"\\U{code:08x}")
+        else:
+            out.append(char)
+    return "".join(out)
+
+
 def parse_snapshots(parser, values):
     roots = {}
     for item in values:
@@ -783,9 +824,9 @@ def main(argv=None):
         for dimension, passed in result["checks"].items():
             print(f"{dimension}: {CHECK_STATE[passed]}")
         for diagnostic in result["diagnostics"]:
-            print(f"{diagnostic['code']} {diagnostic['location']}")
+            print(f"{diagnostic['code']} {printable(diagnostic['location'])}")
         for gap in result["gaps"]:
-            print(f"gap {gap['id']}: {gap['description']}")
+            print(f"gap {printable(gap['id'])}: {printable(gap['description'])}")
     return result["exit_code"]
 
 
