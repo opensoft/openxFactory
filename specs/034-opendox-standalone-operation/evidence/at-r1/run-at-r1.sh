@@ -172,6 +172,11 @@ if [ "$RUN_HTTP" = 1 ]; then
     fi
     git -C "$W/openDox-code" status --porcelain --ignored > "$OUT/tree-after-harness-restored.txt"
     test ! -s "$OUT/tree-after-harness-restored.txt" || { say "FAIL: the checkout is not clean after the copied harness went"; exit 2; }
+  else
+    # the commit's own harness must leave its checkout exactly as it was, or
+    # the browser half would install a tree other than the commit's
+    # (Copilot r4186065384 on openxFactory#1241)
+    test ! -s "$OUT/tree-after-harness.txt" || { say "FAIL: the harness left the checkout modified (tree-after-harness.txt)"; exit 2; }
   fi
 fi
 case " $HALVES " in *" browser "*) ;; *)

@@ -124,8 +124,8 @@ own run of T099's step, at 15:29:25Z, exited 0 as well.
 - **The runbook.** [`run-at-r1.sh`](run-at-r1.sh), beside this file, runs in
   the foreground. The run used the bytes with sha256
   `702e2a4be2ce59ced647fafe23771fd22102cd9c29b0da3b8bafef19c2574148`, which
-  this PR's first commit, `f632d70c`, holds. Review then changed two
-  things, and neither changes a step the run took:
+  this PR's first commit, `f632d70c`, holds. Review then changed three
+  things, and none changes a step the run took:
   - the commit argument is resolved with `rev-parse --verify
     "<arg>^{commit}"` before the checkout, so a ref such as `main` is accepted
     (Copilot `r4185918186`). The run passed X's full sha, which both forms
@@ -133,11 +133,16 @@ own run of T099's step, at 15:29:25Z, exited 0 as well.
   - GNU grep is found at run time, as the first `grep` on the PATH that
     reports itself as GNU grep, and no path is named for it (Principle IV;
     Copilot's second review). On the run's host that is the same program.
-    The browser half run again at X with the file as it now stands gives the
-    same check results in both repositories.
+    The browser half run again at X with the file as it then stood gives the
+    same check results in both repositories;
+  - a commit's own harness must leave its checkout clean, or the run stops
+    before the browser half installs it (Copilot `r4186065384`). The run's
+    `x/tree-after-harness.txt` is empty, so this run passes it, and the HTTP
+    half run again at X with the file as it now stands passes too (`314
+    assertions held`).
 
   The file beside this record has sha256
-  `8ed850b84639e67e40bf512c0886627295be93e99fdf41c200fa6fe1487bd3d1`. The runbook runs:
+  `8ba962fd7586ad476a6a464b0be4c102b415d078469ce4ed53ded2c03426bbb9`. The runbook runs:
   - a fresh clone of openDox-code at the commit, with an empty
     `git status --porcelain --ignored`;
   - the HTTP half;
@@ -230,7 +235,7 @@ own run of T099's step, at 15:29:25Z, exited 0 as well.
 
 - [`run-at-r1.sh`](run-at-r1.sh) and [`at_r1_browser.py`](at_r1_browser.py):
   the runbook and the driver. The driver is as run, and the runbook is as run
-  but for two review fixes (§ "How it ran").
+  but for three review fixes (§ "How it ran").
 - `x/`, the run at X. It holds:
   - `verdict.txt`;
   - `commit.txt` (the commit, the P-against-X line, the harness, the
