@@ -816,3 +816,25 @@ def test_an_undecodable_nested_gitmodules_declares_nothing(tmp_path):
         (agg / "health/ideation-dashboard/index-status.json").read_text())
     assert status["skipped"] == [
         {"repository": "openDox-spec", "reason": "checkout not found"}]
+
+
+def test_only_a_submodule_section_declares_a_checkout(tmp_path):
+    """Copilot review, PR #1209, second round: every bracketed header used to
+    open a candidate section, so a `path =` under `[include]` (or any other
+    section) became a checkout declaration. Only `[submodule "..."]` (and
+    git's legacy `[submodule.name]`) declares one, and every header closes the
+    section before it. The `[include]` target here is a real populated
+    checkout, so only the parser refuses it."""
+    agg = _commit_repo(tmp_path / "agg", gitmodules=(
+        '[include]\n\tpath = nested/repo\n'
+        '[submodule "real"]\n\tpath = sub/real\n'
+        '[core]\n\turl = git@example.invalid:stray.git\n'
+        '[Submodule.legacy]\n\tpath = sub/legacy\n'))
+    _commit_repo(agg / "nested" / "repo")
+
+    assert lane.submodule_paths(agg) == {"real": "sub/real", "legacy": "sub/legacy"}
+    # the `[core]` url never attaches to the `real` section above it
+    assert lane.declared_checkouts(agg) == {
+        "real": ["sub/real"], "legacy": ["sub/legacy"]}
+    assert lane.resolve_checkout(agg, "repo") is None
+    assert lane.resolve_checkout(agg, "stray") is None

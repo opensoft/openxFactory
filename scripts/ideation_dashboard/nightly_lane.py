@@ -78,6 +78,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -432,29 +433,46 @@ class MultiLaneOutcome:
                 + (f", index {self.index_path}" if self.index_path else ", NO index"))
 
 
+# A `.gitmodules` section header that declares a submodule: git's canonical
+# `[submodule "name"]`, or its legacy `[submodule.name]` spelling. The section
+# name is case-insensitive in git config, so it is here too.
+_SUBMODULE_HEADER = re.compile(
+    r'^\[\s*submodule(?:\s+"(?:[^"\\]|\\.)*"|\.[^\]\s]+)\s*\]', re.IGNORECASE)
+
+
 def _gitmodules_entries(gitmodules: Path) -> list[tuple[str, str | None]]:
     """`(path, url)` per `[submodule]` section of one `.gitmodules`, in declared
     order. An unreadable or undecodable file declares nothing: one malformed
     `.gitmodules` in a pinned repository must not abort the whole run before
-    `index-status.json` is written (Copilot review, PR #1209)."""
+    `index-status.json` is written (Copilot review, PR #1209).
+
+    Only a SUBMODULE section declares a checkout. Every header closes the
+    section before it, and keys under any other header (`[include]`, `[core]`,
+    a malformed one) are dropped, so a `path =` there never becomes a checkout
+    candidate (Copilot review, PR #1209, second round)."""
     try:
         text = gitmodules.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         return []
     sections: list[dict[str, str]] = []
+    current: dict[str, str] | None = None
     for line in text.splitlines():
         stripped = line.strip()
         if not stripped or stripped[0] in "#;":
             continue
         if stripped.startswith("["):
-            sections.append({})
+            current = {} if _SUBMODULE_HEADER.match(stripped) else None
+            if current is not None:
+                sections.append(current)
+            continue
+        if current is None:
             continue
         key, sep, value = stripped.partition("=")
         value = value.strip()
         if len(value) >= 2 and value[0] == value[-1] == '"':
             value = value[1:-1]  # git config's quoted form
-        if sep and sections:
-            sections[-1].setdefault(key.strip().lower(), value)
+        if sep:
+            current.setdefault(key.strip().lower(), value)
     return [(s["path"], s.get("url") or None) for s in sections if s.get("path")]
 
 
