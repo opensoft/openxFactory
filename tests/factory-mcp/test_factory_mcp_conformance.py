@@ -242,6 +242,32 @@ class ConformanceTests(unittest.TestCase):
         self.tool()["outcomes"]["inventories"][0]["gap_id"] = "vocab-gap"
         self.assertDiagnostics([("resolved_inventory_claims_gap", "/tools/0/outcomes/inventories/0/gap_id")])
 
+    def test_object_cardinality_and_name_constraints_do_not_claim_exhaustiveness(self):
+        """Review r4189280764: `maxProperties: 0` beside required codes admits no
+        object, so the codes cannot be projected; object cardinality and property
+        name constraints narrow like any other, and an honest gap is accepted."""
+        unresolved = [("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/1/gap_id")]
+        for case, where, constraint in [
+                ("maxProperties on the union", "error", {"maxProperties": 0}),
+                ("minProperties on a branch", "invalidError", {"minProperties": 9}),
+                ("propertyNames on the union", "error", {"propertyNames": {"maxLength": 2}})]:
+            with self.subTest(case=case):
+                self.doc = self.declaration()
+                self.error_union(parent_typed=True)
+                error = json.loads((self.root / "domain-error.json").read_text())
+                error["$defs"][where].update(constraint)
+                ref = self.put("domain-error.json", error)
+                self.doc = self.declaration()
+                self.pin(ref)
+                t = self.tool()
+                t["error"] = dict(ref)
+                t["outcomes"]["inventories"][1].update(pointer="/$defs/error", discriminator="code")
+                self.assertDiagnostics(unresolved)
+                self.doc["gaps"].append({"id": "vocab-gap", "concerns": ["outcomes"], "description": "Narrowed."})
+                t["gap_ids"].append("vocab-gap")
+                t["outcomes"]["inventories"][1]["gap_id"] = "vocab-gap"
+                self.assertValidWithGaps()
+
     def test_unsupported_constraints_do_not_claim_exhaustiveness(self):
         self.schema["properties"]["status"]["pattern"] = "^positive$"
         self.write_schema()
@@ -827,6 +853,28 @@ class ConformanceTests(unittest.TestCase):
             self.assertValidWithGaps()
         self.assertLess(len(calls), 500)
 
+    def test_shared_reference_chains_resolve_in_linear_work(self):
+        """Review 5421098780 (previously missed): judging every union member must
+        not re-walk a shared `$ref` chain per member (quadratic resolver work)."""
+        aliases = {"a0": {"type": "object"}}
+        for i in range(1, 513):
+            aliases[f"a{i}"] = {"$ref": f"#/$defs/a{i - 1}"}
+        self.schema["$defs"] = aliases
+        self.schema["properties"]["aliased"] = {"anyOf": [{"$ref": f"#/$defs/a{i}"} for i in range(1, 513)]}
+        self.write_schema()
+        self.assertLess((self.root / "outcome.json").stat().st_size, 65536)
+        self.doc = self.declaration()
+        calls = []
+        original = self.module.Offline.resolve
+
+        def counted(this, *args, **kwargs):
+            calls.append(1)
+            return original(this, *args, **kwargs)
+
+        with patch.object(self.module.Offline, "resolve", counted):
+            self.assertValidWithGaps()
+        self.assertLess(len(calls), 8 * 512)
+
     def test_union_coverage_works_in_linear_memory(self):
         """Review r4188149048: a shallow file of shared-reference union layers must
         not make coverage retain a descendant set per member (quadratic memory)."""
@@ -930,6 +978,32 @@ class ConformanceTests(unittest.TestCase):
         self.assertDiagnostics(everywhere("unpinned_local_reference", *TOOL_REFS))
         self.pin({**self.ref, "path": "local.json", "sha256": hashlib.sha256(raw).hexdigest()})
         self.assertValidWithGaps()
+
+    def test_unsupported_schema_dialects_are_refused(self):
+        """Review r4189280837: the analysis applies 2020-12 semantics, so a schema
+        resource declaring another dialect, at the root or under a nested `$id`,
+        is refused rather than read with the wrong rules."""
+        draft7 = "http://json-schema.org/draft-07/schema#"
+        for case, change, expected in [
+                ("root", lambda s: s.update({"$schema": draft7}), "unsupported_schema_dialect"),
+                ("nested $id", lambda s: s.setdefault("$defs", {}).update(
+                    legacy={"$id": "https://synthetic.invalid/legacy.json", "$schema": draft7, "type": "object"}),
+                 "unsupported_schema_dialect"),
+                ("nested without $id", lambda s: s["properties"].update(
+                    nested={"$schema": draft7, "type": "object"}), "unsupported_schema_dialect"),
+                ("2020-12 with empty fragment", lambda s: s.update({"$schema": DRAFT + "#"}), None),
+                ("no $schema", lambda s: s.pop("$schema"), None)]:
+            with self.subTest(case=case):
+                self.schema = {"$schema": DRAFT, "type": "object", "properties": {
+                    "status": {"enum": ["positive", "negative"]},
+                    "code": {"oneOf": [{"const": "UNAVAILABLE"}, {"const": "INVALID"}]}}}
+                change(self.schema)
+                self.write_schema()
+                self.doc = self.declaration()
+                if expected:
+                    self.assertDiagnostics(everywhere(expected, *TOOL_REFS))
+                else:
+                    self.assertValidWithGaps()
 
     def test_data_keywords_do_not_execute_references(self):
         self.schema["examples"] = [{"$ref": "https://invalid.test/data-not-a-schema"}]
