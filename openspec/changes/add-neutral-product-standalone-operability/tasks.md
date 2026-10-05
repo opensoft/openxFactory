@@ -399,13 +399,28 @@ mention in the package is prose.
   item 4, non-normative): the proxy's refusal was written for NOTHING REGISTERED
   (`profile_proxy.py:42-46`), not for "an ambiguous registration", which is
   `AlreadyRegistered` (R1Q3 (i)); batch A's amendment above carries it.
-- [ ] 3.3 Leave the carve manifest's `deleted_at_carve` row for
+- [x] 3.3 Leave the carve manifest's `deleted_at_carve` row for
   `scripts/ideation_dashboard/profile_openxfactory.py` BYTE-IDENTICAL:
   openxFactory's profile stays deleted from the core and `scripts/opendox_host.py`
   remains openxFactory's host. The row is `not_moved` and carries no `edits[]`
   entry, so 11.1's guard admits no note on it; an earlier form of this box, which
   asked for the fact to be recorded in the manifest, would have failed that
   guard. The record is this box and requirement 3's own text.
+
+  **Landed 2026-10-05** (T017, read at T018, T065 and T098): the carve
+  manifest's `deleted_at_carve` row for
+  `scripts/ideation_dashboard/profile_openxfactory.py` stays byte-identical,
+  `not_moved` with no `edits[]`, and `scripts/opendox_host.py` remains
+  openxFactory's host. F11.1's content check refuses any row change, and each
+  phase's interim run prints `requirement 1 holds`, with 0 notes annotated and
+  every other path a declared surface: phase 1's amended run at T047's landing
+  (T018, openxFactory#1202 → `e81eed62`, `evidence/f11.1-phase1.txt`), phase 2's
+  at T064's (T065, openxFactory#1217 → `1f670bc3`, `evidence/f11.1-phase2.txt`)
+  and phase 3's at T094's, `36908480` (T098, openxFactory#1237 → `20ce593e`,
+  `evidence/f11.1-phase3.txt`). Phases 1 and 3 also record T017's check of the
+  row itself. Phase 3's compares it at the manifest's introducing commit
+  `17167481` and at that tip, raw text and parsed, equal both ways, and at
+  `main` `20ce593e` it reads the same.
 - [x] **FALSIFIED BY** (openDox-code checkout, no sibling):
 
       set -euo pipefail
