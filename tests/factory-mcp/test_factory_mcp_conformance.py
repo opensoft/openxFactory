@@ -379,6 +379,36 @@ class ConformanceTests(unittest.TestCase):
                     t["outcomes"]["inventories"][1]["gap_id"] = "vocab-gap"
                     self.assertValidWithGaps()
 
+    def test_required_property_top_level_contradictions_are_unresolved(self):
+        """Review r4189769282: `type`, `const` and `enum` along a required property's
+        `$ref` chain apply together; a top-level contradiction holds no value, so
+        the branch's code cannot be projected. Compatible combinations resolve."""
+        unresolved = [("unresolved_inventory_without_gap", "/tools/0/outcomes/inventories/1/gap_id")]
+        defs = {"text": {"type": "string"}, "number": {"type": "number"}}
+        for case, schema, expected in [
+                ("object const false", {"type": "object", "const": False}, unresolved),
+                ("string enum of integers", {"type": "string", "enum": [1, 2]}, unresolved),
+                ("const outside enum", {"const": "a", "enum": ["b"]}, unresolved),
+                ("empty enum", {"enum": []}, unresolved),
+                ("contradiction across a link", {"$ref": "#/$defs/text", "type": "integer"}, unresolved),
+                ("boolean is not an integer", {"type": "integer", "const": True}, unresolved),
+                ("integral number", {"type": "integer", "const": 1.0}, []),
+                ("integer is a number", {"$ref": "#/$defs/number", "type": "integer"}, []),
+                ("const inside enum", {"const": "a", "enum": ["a", "b"], "type": ["string", "null"]}, [])]:
+            with self.subTest(case=case):
+                self.doc = self.declaration()
+                self.error_union(parent_typed=True)
+                error = json.loads((self.root / "domain-error.json").read_text())
+                error["$defs"].update(defs)
+                error["$defs"]["invalidError"]["properties"]["retryable"] = schema
+                ref = self.put("domain-error.json", error)
+                self.doc = self.declaration()
+                self.pin(ref)
+                t = self.tool()
+                t["error"] = dict(ref)
+                t["outcomes"]["inventories"][1].update(pointer="/$defs/error", discriminator="code")
+                self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
+
     def test_unsupported_constraints_do_not_claim_exhaustiveness(self):
         self.schema["properties"]["status"]["pattern"] = "^positive$"
         self.write_schema()
@@ -576,6 +606,31 @@ class ConformanceTests(unittest.TestCase):
         t["outcomes"]["inventories"].append(
             {"kind": "result", "schema": "output", "pointer": "/$defs/open", "gap_id": "vocab-gap"})
         self.assertValidWithGaps()
+
+    def test_conditional_branches_are_not_outcome_locations(self):
+        """Review r4189769221: `then` and `else` apply only beside an `if`, and
+        conditional coverage is not modeled, so neither is an outcome location; the
+        reference walk still enters them."""
+        stale = {"const": "stale"}
+        listed = {"properties": {"status": {"enum": ["positive", "negative"]}}}
+        unreachable = [("unreachable_inventory", "/tools/0/outcomes/inventories/0/pointer")]
+        for case, extra in [("then without if", {"then": listed}),
+                            ("if, then and else", {"if": {"required": ["code"]}, "then": listed,
+                                                   "else": {"properties": {"status": stale}}})]:
+            with self.subTest(case=case):
+                self.schema = {"$schema": DRAFT, "type": "object", "properties": {
+                    "status": stale, "code": {"oneOf": [{"const": "UNAVAILABLE"}, {"const": "INVALID"}]}}, **extra}
+                self.write_schema()
+                self.doc = self.declaration()
+                self.tool()["outcomes"]["inventories"][0]["pointer"] = "/then/properties/status"
+                self.assertDiagnostics(unreachable)
+        self.schema = {"$schema": DRAFT, "type": "object", "properties": {
+            "status": {"enum": ["positive", "negative"]},
+            "code": {"oneOf": [{"const": "UNAVAILABLE"}, {"const": "INVALID"}]}},
+            "then": {"$ref": "https://invalid.test/hidden.json"}}
+        self.write_schema()
+        self.doc = self.declaration()
+        self.assertDiagnostics(everywhere("remote_or_unsafe_schema_reference", *TOOL_REFS))
 
     def test_negated_definitions_do_not_cover_a_variant(self):
         """Review r4187464328: a `$ref` under `not` is not where an outcome lives."""
@@ -1235,6 +1290,15 @@ class ConformanceTests(unittest.TestCase):
                 elif action == "scope_gap": t["binding"]["scope_status"] = "gap"
                 elif action == "revocation": t["binding"]["revocation"] = "unimplemented"
                 self.assertDiagnostics(expected)
+
+    def test_mapped_scope_cannot_cite_a_scope_gap(self):
+        """Review r4189769322: a mapped scope beside a cited gap that says the scope
+        mapping is unresolved is a contradiction, not an implemented claim."""
+        self.doc["gaps"].append({"id": "scope-gap", "concerns": ["scope"], "description": "Unresolved scope."})
+        self.tool()["gap_ids"].append("scope-gap")
+        self.assertDiagnostics([("mapped_scope_claims_gap", "/tools/0/binding/scope_status")])
+        self.tool()["binding"].update(scope_status="gap", scope_references=[])
+        self.assertValidWithGaps()
 
     def test_source_artifacts_share_the_source_identity(self):
         self.pin({**self.ref, "revision": "b" * 40})
