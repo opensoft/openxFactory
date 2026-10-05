@@ -307,12 +307,12 @@ lists.
 | openDox-code `src/opendox/doxbench_install.py` | T081 (16.4's catalog, in P3-D after T085) → T100 (16.3a's gate where the bindings are read) |
 | openDox-code `src/opendox/serve_workbench.py` (phase 3) | T084 (4.3's last reaches, openDox-code#77) → T100 (16.3a: the console intake's broker hand-off) |
 | openDox-code `src/opendox/web/views/lens.js` | T088 (the seed actions offered only where a binding answers) → T102 (the display text) |
-| openDox-code `src/opendox/web/views/staging-workbench-model.js` | T102 (the editors and the rail by scope) → T104 (the console token's reader) |
+| openDox-code `src/opendox/web/views/staging-workbench-model.js` | T102 (the editors and the rail by scope), the one phase-3 slice that edits it: T104's console-token reader landed in `web/views/notebook.js` instead (openDox-code#84), so no writer follows T102 here |
 | openDox root `README.md` | T076 (the one documented command, with the dated "Where `opendox` comes from" paragraph) → T099 (that paragraph becomes the PyPI install line, after the publish) |
 | openXdox-code `tests/test_dependency_direction.py` (the ratchet) | T040 (it moves the pin and leaves the ratchet unchanged) → T059 → T086 |
 | openXdox-code `tests/test_gate_loop_views.py` (one of 12.5's protected suites) | T060 (the facet-declaration test's entered edit) → T059 (the overlay test's entered edit), both under R1Q26 (a) |
 | openXdox-code `pyproject.toml` | T040 (the `opendox @` pin and `rfc3339-validator`) → T059 (the phase-2 pin) → T061 (the validator's package data) → T086 (the phase-3 pin) |
-| openXdox-code's declared exclusion file | T041 (the file, its four reasons and every entry, on the holder's decision at T041's landing) → T043 (a re-run at T040's pin, which moved no entry) → T044 (any file whose skip joins it) → T061 (`tests/test_snapshot.py`'s entry leaves) |
+| openXdox-code's declared exclusion file | T041 (the file, its four reasons and every entry, on the holder's decision at T041's landing) → T043 (a re-run at T040's pin, which moved no entry) → T044 (any file whose skip joins it) → T059 (`tests/test_seam_assembly_beside_gate_and_projection.py`'s entry leaves, 67 → 66) → T061 (`tests/test_snapshot.py`'s entry leaves) → T086 (`tests/test_column_contributions_governed.py` joins under `doc_health`, 65 → 66) |
 | openDox root `code` gitlink, `contracts/code-pin.yaml`, workflow `@sha` | one commit per phase (T039, T062, T087), each after that phase's last openDox-code landing. In phase 2, T053's spec pin and bundle come first in this root |
 | openxFactory pin pairs | one openxFactory PR per phase (T047, T064, T094), each also carrying that phase's host wiring |
 
