@@ -4058,7 +4058,7 @@ written (`5962754358`). `consumer_reach.py` is gone.
       `test_openxfactory_host_wiring.py`'s "second copy of the column" check and
       its contributed tuple, which now has three entries; the lane route's
       `hosted_ref_refused(` check (Q8 (a)); and the trust policy at T100's seam.
-- [ ] T094 [US4] [oX] [oxF] **Phase 3's consumer pins and host wiring** (T090
+- [x] T094 [US4] [oX] [oxF] **Phase 3's consumer pins and host wiring** (T090
   steps 5–6). openxFactory's PR carries whatever host wiring the retired
   columns need. That includes the parity test's MRO assertion and
   `test_serve_column_split.py`'s gate and projection rows, updated again once
@@ -4138,13 +4138,53 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **After**: T086, T087, T064 (the pin pairs' single-writer order), and
     the ahead PR (E1 (a), a non-arc PR with no task of its own: the golden,
     the usage line and the rebound-Host case).
-- [ ] T098 [US4] [oxF] **Phase 3's interim F11.1**, by T093's procedure, with
+  - **Landed**: openXdox#22 → `9564d5d9` (the openXdox root: code
+    `56e1c238`, openDox pin `e1e3a3c3`), then openxFactory#1236 →
+    `36908480`, an arc landing whose squash carries the `Arc:` trailer. The
+    ahead PR (E1 (a)) landed first, as openxFactory#1234 → `ca1c1486`.
+    - Both pin pairs move in ONE commit (openxFactory#1236's `caa8d377`), as
+      for T047 and T064, departing from T090 step 6 on the holder's ruling of
+      2026-10-05: openXdox#22 moves the openDox pin that
+      `verify-opendox-pin.py` check 5 reads through the openXdox gitlink, and
+      the verifier refuses either pair alone (`opendox-pin-lockstep-mismatch`).
+      openDox is `e1e3a3c3` (`55a110f4…`, 28 records), and openXdox is
+      `9564d5d9` (`11585ead…`, 29 records, recomputed three ways).
+    - `scripts/opendox_host.register_openxfactory()` calls
+      `openxdox.column_contributions.register()` (T086) after the projection
+      line, and refuses by name when it registers nothing.
+      `GovernedBindingTrust` (RULED `5970369724`) is a sixth `seams()` entry,
+      before the home seam, with its take-back row; its `record()` writes
+      nothing. `tests/domain_profile/test_host_registers_binding_trust.py`
+      covers it.
+    - The composition tests move with the retired columns: the parity test's
+      MRO takes T084's layout, `test_serve_column_split.py`'s snapshot arm
+      is the core's own after T086's trim, and every column method is the
+      column's own.
+    - 29 carve admissions are added (25 at `opendox_code`, 4 at
+      `openxdox_code`) and pinned in `tests/carve_arrival`. The stale
+      `src/opendox/consumer_reach.py` admission, whose file openDox-code#77
+      (T084) deleted, is removed and asserted absent.
+    - It annotates no manifest note: T092's phase-3 notes ride in T089's
+      checkpoint PR (the holder's decision of 2026-10-05). F11.1 holds over
+      it (T098, `evidence/f11.1-phase3.txt`).
+    - The holder's READY is `5996119122`, with Copilot's `r4184739661` an
+      accepted limit. CI at the PR's final head, `7e31eca1`, passes every
+      check, and `pytest-suite` reads `selected=9376 passed=9370 skipped=6
+      failures=0 errors=0`.
+- [x] T098 [US4] [oxF] **Phase 3's interim F11.1**, by T093's procedure, with
   `ARC_TIP` at T094's landing. Record the output in
   `evidence/f11.1-phase3.txt`, with no `Arc:` trailer, and link it from
   this feature's README entry.
   - **Falsifier**: F11.1, as widened by T007 batch A, prints `requirement 1
     holds`.
   - **After**: T094.
+  - **Landed**: [`evidence/f11.1-phase3.txt`](evidence/f11.1-phase3.txt),
+    with `PACKET_MERGE=94b6f7f1` and `ARC_TIP=36908480` (#1236). It prints
+    `requirement 1 holds: 0 note(s) annotated, every other path a declared
+    surface (11.1)` (exit 0) over the arc's three landings, `f56c87c6` (T047),
+    `fcb45380` (T064) and `36908480` (T094). A planted path on no surface is
+    refused, and 3.3's `deleted_at_carve` row is byte-identical (T017). The
+    admitted list did not grow.
 - [ ] T089 **Phase 3 checkpoint.** Run and quote F4.1, F10.1 and F13.1 (both
   as batch H amends them), F16.1 as batches M and P amend it (with T100's
   named test, and the T100 follow-on's cases in it), and F5.2 whole (as T007's batches C, F, G and K amend it, after
