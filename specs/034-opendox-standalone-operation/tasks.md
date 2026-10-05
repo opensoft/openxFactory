@@ -88,11 +88,10 @@ planned on answers.
 
 - **The holder's own tasks**: T002 is a standing act, one claim per slice.
   T008 was raised as a staged topic (#1173), and the arc it raised is still
-  open. Fifteen of T007's sixteen batches have landed, from A (#1171) to O
-  (#1228, on Brett Heap's words `5970917267`, `5962754358` (item 1) and
-  `5963162921`). Batch P, on Brett Heap's words of 2026-10-04
-  (`5982436447` and `5983805990`) and the holder's rulings recorded with
-  them, lands before T087, and T007 lists each.
+  open. All sixteen of T007's batches have landed, from A (#1171) to P
+  (#1230, on Brett Heap's words of 2026-10-04, `5982436447` and
+  `5983805990`, and the holder's rulings recorded with them). Batch P
+  landed before T087. T007 lists each batch, and it is closed.
 - **Each phase-1 task** starts once its slice has been claimed (T002).
   **T020** and **T030** never needed an answer. **T030** lands with T011,
   because it fails until 2.1 lands. **T043** also waits for T007's batches C
