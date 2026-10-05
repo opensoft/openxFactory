@@ -466,14 +466,19 @@ def _carry_product_module_leg_imports(modules: Path, package: str) -> list[str]:
 # Spelled here as the tests' expectation. The lane's `RENDER_LEG_MODULES`, and
 # an `ast` read of the entry and its bootstrap, are both held to it.
 RENDER_UNIT_IMPORTS = {
-    # The four seam modules joined with plan 034 T046/T047: the host
-    # bootstrap's `opendox_host.seams()` imports them.
+    # The four seam modules joined with plan 034 T046/T047, and
+    # `doxbench_intake` and `doxbench_trust` with T094: the host bootstrap's
+    # `opendox_host` imports them (the binding-trust policy's verdict reads the
+    # pending declarations through `doxbench_intake`).
     ("openDox", "code"): ("cli.py", "corpus_adapter.py", "domain_profile.py",
-                          "doxbench_packet.py", "serve_wire.py",
+                          "doxbench_intake.py", "doxbench_packet.py",
+                          "doxbench_trust.py", "serve_wire.py",
                           "workbench.py"),
-    # `projection_contributions` joined with plan 034 T064: the host
-    # bootstrap's `register_openxfactory()` imports it.
-    ("openXdox", "code"): ("cli_gate.py", "domain_profile.py",
+    # `projection_contributions` joined with plan 034 T064, and
+    # `column_contributions` with T094: the host bootstrap's
+    # `register_openxfactory()` imports them.
+    ("openXdox", "code"): ("cli_gate.py", "column_contributions.py",
+                           "domain_profile.py",
                            "projection_contributions.py", "serve_gate.py",
                            "serve_projection.py", "snapshot.py",
                            "view_extensions.py"),
