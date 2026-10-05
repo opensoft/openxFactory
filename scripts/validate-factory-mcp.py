@@ -50,8 +50,13 @@ UNIONS = ("oneOf", "anyOf")
 ANNOTATIONS = ("$comment", "title", "description", "examples", "default", "deprecated", "readOnly",
                "writeOnly")
 # Constraints that may narrow a vocabulary; never infer exhaustiveness through them.
+# Object cardinality and property-name constraints can leave a branch no instance.
 NARROWING = ("allOf", "not", "if", "then", "else", "pattern", "minLength", "maxLength",
-             "dependentSchemas", "dependencies", "patternProperties")
+             "dependentSchemas", "dependencies", "patternProperties", "minProperties", "maxProperties",
+             "propertyNames")
+# The analysis applies JSON Schema 2020-12 semantics; a schema object declaring
+# any other dialect is refused rather than read with the wrong rules.
+DIALECTS = ("https://json-schema.org/draft/2020-12/schema", "https://json-schema.org/draft/2020-12/schema#")
 
 REFERENCE_FIELDS = ("input", "output", "error")
 UNREADABLE = ("snapshot_unavailable", "input_unreadable", "reference_unreadable")
@@ -215,6 +220,7 @@ class Offline:
         self.pins = pins
         self.documents = {}
         self.graphs = {}
+        self.chains = {}
         self.finite_cache = {}
         self.checked_targets = set()
 
@@ -315,6 +321,8 @@ class Offline:
             if token in seen:
                 return
             seen.add(token)
+            if "$schema" in node and node["$schema"] not in DIALECTS:
+                raise Invalid("unsupported_schema_dialect")
             if "$dynamicRef" in node or "$recursiveRef" in node:
                 raise Invalid("unsupported_dynamic_reference")
             if "$ref" in node:
@@ -493,19 +501,34 @@ class Offline:
         return found
 
     def chain_end(self, key, node, resource):
-        """Follow `node`'s `$ref` chain, with cycle protection. Returns its last
-        node, and whether every link asserted nothing beside its `$ref`. A `$ref`
-        applies beside its siblings, so a chain ending in `false` admits nothing
-        whatever the links say; one ending in `true` admits anything only when
-        every link is a pure reference. A cycle ends on neither."""
-        seen, pure = set(), True
-        while isinstance(node, dict) and "$ref" in node and (key, id(node)) not in seen:
-            seen.add((key, id(node)))
-            pure = pure and all(keyword == "$ref" or keyword in ANNOTATIONS for keyword in node)
+        """Follow `node`'s `$ref` chain, with cycle protection. Returns its end,
+        `False`, `True` or None (an object, or a cycle), and whether every link
+        asserted nothing beside its `$ref`. A `$ref` applies beside its siblings,
+        so a chain ending in `false` admits nothing whatever the links say; one
+        ending in `true` admits anything only when every link is a pure
+        reference. Every link's answer is memoized on the way back, so chains
+        that share links are walked once in total, not once per member."""
+        path, seen = [], set()
+        while True:
+            token = (key, id(node), id(resource))
+            if token in self.chains:
+                end, pure = self.chains[token]
+                break
+            if not (isinstance(node, dict) and "$ref" in node):
+                end, pure = (node if isinstance(node, bool) else None), True
+                break
+            if token in seen:
+                end, pure = None, False
+                break
+            seen.add(token)
+            path.append((token, node))
             if self.embedded(key, node):
                 resource = node
             key, node, resource, _ = self.resolve(key, node["$ref"], resource)
-        return node, pure
+        for token, link in reversed(path):
+            pure = pure and all(keyword == "$ref" or keyword in ANNOTATIONS for keyword in link)
+            self.chains[token] = (end, pure)
+        return end, pure
 
     def member_hold(self, key, member, location, resource, holding_own, holding_any):
         """How one union member stands: admitting nothing (`false`, directly or
@@ -664,14 +687,16 @@ def check_references(declaration, snapshots, found):
     for path, ref in references(declaration):
         if path not in conflicting and ref_key(ref) in failures:
             found.add("references", failures[ref_key(ref)], path)
+    graphs = {}  # each distinct schema file's graph is walked once, then cited per field
     for i, tool in enumerate(declaration["tools"]):
         for name in REFERENCE_FIELDS:
-            path = f"/tools/{i}/{name}"
-            if path in conflicting or ref_key(tool[name]) in failures:
+            path, key = f"/tools/{i}/{name}", ref_key(tool[name])
+            if path in conflicting or key in failures:
                 continue
-            code = graph_failure(offline, ref_key(tool[name]))
-            if code:
-                found.add("references", code, path)
+            if key not in graphs:
+                graphs[key] = graph_failure(offline, key)
+            if graphs[key]:
+                found.add("references", graphs[key], path)
     return offline
 
 
