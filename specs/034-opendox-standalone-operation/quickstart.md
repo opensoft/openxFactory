@@ -6,23 +6,36 @@ Status: draft
 T095 automates the HTTP half as a harness in openDox-code's own `acceptance`
 CI job, which has no database service. T096 runs the browser half on the host.
 
-The run installs openDox-code at its phase-3 tip. Every question these steps
-depend on is answered, on `#656` comment `5850003126`. R1Q26 and R1Q27,
-answered on `5851950767`, bear on openXdox and openxFactory, and not on an
-openDox-only install. The steps follow `5850003126`'s answers: R1Q10 (a) and
-R1Q12 (a) for the catalog's validators, R1Q13 (a) with (c) for the tiles,
-R1Q15 (b) for `--local`, R1Q16 (iii) and (iv) for the install and the
-datastore's stop, and R1Q19 (a) for the lens. No step is conditional. Use
-whatever the openDox root's `README.md` documents once 10.3 has landed: that
-README, not this file, is the product's one documented command (requirement
-10).
+The run installs openDox-code at `RELEASE1_TIP`, T095's landing commit on
+openDox-code's `main`. Its `acceptance` job runs AT-R1's HTTP half at that
+commit, and T096 records it as X. T099 publishes P, the commit T087 pins,
+and T095 lands after T087, so X is a later commit than P. Before the
+publish, T099 checks that the package's build inputs are identical at P and
+X (tasks.md T099, the P-against-X step). If they are, X's runs stand for P.
+If not, both halves run again at P: the HTTP half with T095's harness, and
+the browser half, § 4, with `RELEASE1_TIP` set to P.
+Until the cut, the README's PyPI line has `pip install "./code[local]"`
+stand in for it, and § 1 installs the checkout with the same extra (T076).
+
+Every question these steps depend on is answered, on `#656` comment
+`5850003126`. R1Q26 and R1Q27, answered on `5851950767`, bear on openXdox
+and openxFactory, and not on an openDox-only install. The steps follow
+`5850003126`'s answers: R1Q10 (a) and R1Q12 (a) for the catalog's
+validators, R1Q13 (a) with (c) for the tiles, R1Q15 (b) for `--local`,
+R1Q16 (iii) and (iv) for the install and the datastore's stop, and R1Q19 (a)
+for the lens. No step waits on an unanswered question. One step has a
+condition, and it is mandatory whenever the condition holds: when P and X
+differ in a build input T099 lists, both AT-R1 halves run again at P before
+the publish, as above. Use whatever the openDox root's `README.md` documents
+once 10.3 has landed: that README, not this file, is the product's one
+documented command (requirement 10).
 
 ## 1. A clean machine, with openDox and nothing else
 
 ```sh
 set -euo pipefail
 W=$(mktemp -d)                                        # scratch space, resolved at run time
-: "${RELEASE1_TIP:?set RELEASE1_TIP to openDox-code's phase-3 tip}"
+: "${RELEASE1_TIP:?set RELEASE1_TIP to T095's landing commit on openDox-code's main, the full sha T096 records (X in tasks.md T099), or to P for T099's re-run}"
 git clone -q https://github.com/opensoft/openDox-code "$W/openDox-code"
 git -C "$W/openDox-code" checkout -q "$RELEASE1_TIP"
 python3 -m venv --clear "$W/v"
@@ -99,7 +112,8 @@ for host in ("127.0.0.1", "::1"):
     raise SystemExit(f"FAIL: something already listens on {host}:{port}, so a ready answer would not come from this run")
 print(f"port {port} is free")
 PY
-# R1Q15 (b): the documented command selects local mode explicitly.
+# R1Q15 (b): the documented command selects local mode explicitly. Under --no-open it still writes the
+# private copy, $OPENDOX_STATE_DIR/console/$PORT.html, and prints its file:// URL, never the token (T104).
 opendox generate-and-open --local --repo-root "$R" --repository fixture --no-open --port "$PORT" &
 SERVER=$!
 trap 'kill "$SERVER" 2>&- || true' EXIT
@@ -115,16 +129,44 @@ curl -sf "http://127.0.0.1:$PORT/" > "$W/index.html"
 grep -qi '<html' "$W/index.html"
 curl -sf "http://127.0.0.1:$PORT/snapshot.json" > "$W/snap.json"
 curl -sf "http://127.0.0.1:$PORT/capabilities" > "$W/caps.json"
-TOKEN=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["console_token"])' "$W/caps.json")
-curl -sf -H "X-XF-Console-Token: $TOKEN" "http://127.0.0.1:$PORT/workbench/model-catalog" > "$W/catalog.json"
+# 5963851934 (T104): the token is not on /capabilities. The command keeps a private copy that
+# opens the page with the token in the URL's fragment, and the token is read from there.
+COPY="$OPENDOX_STATE_DIR/console/$PORT.html"
+TOKEN=$(python3 - "$COPY" "$PORT" "$W/caps.json" <<'PY'
+import html, os, re, stat, sys, urllib.parse
+copy, port, caps_path = sys.argv[1], int(sys.argv[2]), sys.argv[3]
+for path, mode in ((os.path.dirname(copy), 0o700), (copy, 0o600)):
+    info = os.lstat(path)
+    assert info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == mode, f"{path} is not this user's own, mode {mode:o}"
+assert stat.S_ISREG(os.lstat(copy).st_mode), "the private copy is not a regular file"
+text = open(copy).read()
+# every "console_token=" in the copy opens a fragment: none follows "?", "&" or "&amp;"
+assert all(m.start() > 0 and text[m.start() - 1] == "#" for m in re.finditer("console_token=", text)), "the private copy puts the token outside a fragment"
+target = re.search(r"""(?i)http-equiv=["']?refresh["']?\s+content=["']\s*\d+\s*;\s*url=([^"']+)""", text)
+assert target, "the private copy forwards to no page"
+url = urllib.parse.urlsplit(html.unescape(target.group(1)))
+# the request a browser sends is this server's /index.html with no query at all, so no token
+# value can reach a request line, a server log or a Referer (the message never echoes the URL)
+assert (url.scheme, url.netloc, url.path, url.query) == ("http", f"127.0.0.1:{port}", "/index.html", ""), "the private copy does not forward to this server's /index.html with an empty query"
+token = urllib.parse.parse_qs(url.fragment).get("console_token", [""])[0]
+assert token, "the opened URL carries no token in its fragment"
+caps_raw = open(caps_path).read()       # by name at any depth, or by value anywhere in the payload
+assert "console_token" not in caps_raw and token not in caps_raw, "/capabilities carries the console token"
+print(token)
+PY
+)
+# the header goes over stdin (`printf` is a shell builtin), never onto curl's command line, which every
+# user of the machine can read in /proc/<pid>/cmdline: the leak T104's file:// opener exists to avoid
+printf 'X-XF-Console-Token: %s\n' "$TOKEN" | curl -sf -H @- "http://127.0.0.1:$PORT/workbench/model-catalog" > "$W/catalog.json"
 python3 - "$W/snap.json" "$W/caps.json" "$W/catalog.json" <<'PY'
 import json, sys
 snap, caps, cat = (json.load(open(p)) for p in sys.argv[1:4])
 assert snap.get("documents"), "the snapshot is empty"
 assert (caps.get("install") or {}).get("mode") == "local", caps.get("install")
+assert "console_token" not in caps, "/capabilities still carries the console token"
 available = [m["model_id"] for m in cat["models"] if m["available"]]   # xfactory-workbench-model-catalog
 assert not available, f"no model is configured, yet the catalog offers {available}"
-print("HTTP half: bundle, neutral snapshot, local mode, and an empty catalog")
+print("HTTP half: bundle, neutral snapshot, local mode, no token on /capabilities, and an empty catalog")
 PY
 ```
 
@@ -142,8 +184,13 @@ openDox-code's `tests/smoke_signals.py`: every console error and every failed
 request must be DECLARED, and `pageerror` cannot be declared at all. With the
 server from § 3 running, in this order:
 
-1. Load `http://127.0.0.1:$PORT/`, and collect `console`, `pageerror` and
-   `requestfailed` from the first byte onwards.
+1. Load the private copy, `file://$OPENDOX_STATE_DIR/console/$PORT.html`,
+   the `file://` URL the command printed, and collect `console`, `pageerror`
+   and `requestfailed` from the first byte onwards. It forwards to
+   `http://127.0.0.1:$PORT/index.html` with the console token in the URL's
+   fragment, which the page takes and strips from the address bar. A bare
+   `http://127.0.0.1:$PORT/` would leave the page with no token, since
+   `/capabilities` carries none (`5963851934`; T104).
 2. **Wheel.** Click `#tab-wheel`. It must render a tile for every station
    that the snapshot fills.
 3. **Radar lens.** Click `#tab-lens`. The bullseye must render the documents
@@ -154,9 +201,12 @@ server from § 3 running, in this order:
    workbench must open, and BEFORE any turn its chat rail must show the "no
    model configured" state, naming how to configure a model. Attempting a turn
    must be refused with `model_capability_unavailable`. Both editors must stay
-   usable. Repository (b) must also yield a grouping tile, from the topics
-   its notes share (R1Q13 (a) with (c)); if it yields none, the run FAILS and
-   does not skip.
+   usable: each opens and accepts edits. Creating a document and Save are
+   refused by name on standalone (T102), and that refusal is declared to the
+   oracle, so it is expected and not an error (RULED `5971834845`, *"Usable
+   = edits; Save refused (Recommended)"*). Repository (b) must also yield a
+   grouping tile, from the topics its notes share (R1Q13 (a) with (c)); if it
+   yields none, the run FAILS and does not skip.
 5. The verdict comes from `smoke_signals`: zero `pageerror`, nothing
    undeclared, and no 5xx.
 

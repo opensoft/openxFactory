@@ -635,6 +635,126 @@ MODULE SHALL contact a model provider, and it alone SHALL hold a provider
 endpoint, a provider SDK or a credential in flight; a new request grammar joins
 that module and widens no other.
 
+**AMENDED 2026-09-30 ON BRETT HEAP'S RULING, AFTER RATIFICATION, BY ITS OWN
+RATIFIER (T007 BATCH K).** `#656` comment `5916000030`, item 1, verbatim
+*"Yes, amendment batch K (Recommended)"*. As ratified (`#656` comment
+`5815412869`, over `19237b91`), this requirement and its first scenario, *A
+hosted API or a local server is configured*, reach ANY endpoint that speaks the
+protocol, by whatever route its URL names. Two later rulings narrow that in one
+respect only: the route a credential travels by. A credential that the built-in
+resolver resolves from an `env:` or `keyring:` reference is sent only over
+`https://`, or over `http://` to `127.0.0.1`, `[::1]` or `localhost` (`#656`
+comment `5880893901`, verbatim *"Refuse unless loopback (Recommended)"*). A
+token that a credential broker mints takes the same rule (`#656` comment
+`5890601202`, verbatim *"Yes, separate phase-3 draft (Recommended)"*, which
+gives the broker path the built-in resolver's protections). A binding that
+would present either over `http://` to any other host is refused when it is
+declared, with the fixed diagnostic `ENDPOINT_NOT_PRIVATE`, before any
+reference is resolved or any token is minted, and nothing is stored. The
+credential also keeps that route on the wire: the request that presents it
+follows no redirect, which refuses the turn, and over plain `http://` it takes
+no proxy. An endpoint that takes no credential, which declares the auth kind
+`none`, keeps whatever route it declares, since it presents nothing. So a
+hosted API over `https://` and a server on the user's own machine over loopback
+are reached as the first scenario says, and the one configuration it no longer
+reaches is a credential sent over plain `http://` beyond loopback. Nothing else
+here moved: the requirement's title, the paragraph above with its SHALL
+sentences, and all four scenarios stand as ratified, and the requirement still
+carries four scenarios. The two rules are carried out in openDox-code#63 (plan
+034's T080) and openDox-code#64, the broker path's own draft. #64's other
+ruling, `#656` comment `5901112350` item 2, concerns the broker's own refusals
+and does not bear on the route.
+
+**AMENDED 2026-10-02 ON BRETT HEAP'S RULING, AFTER RATIFICATION, BY ITS OWN
+RATIFIER (T007 BATCH M).** `#656` comment `5962785556`, item 2, verbatim
+*"Trust per machine (Recommended)"*. As ratified, and as batch K's note above
+reads it, a configuration by URL, model name and credential reference is
+reached when a turn names it, whoever wrote it. The ruling narrows that in one
+respect only: whose machine has accepted it. A configuration the product reads
+from the repository it SERVES runs a credential broker, or resolves any
+credential reference, an `env:` or `keyring:` one included, only after the
+operator has trusted that exact configuration on that machine. The trust is
+recorded in the operator's own state, never in the repository. It names the
+repository root's resolved path, the configuration's id and a digest of its
+whole record, so a configuration that is edited, or that arrives under another
+root, is untrusted again. Declaring a configuration through the product's own
+command records trust for what it writes (in openDox, `model-binding add` and
+`edit`). A further command records trust for one already declared, after
+showing what will run and where the credential goes, and never the credential
+(`model-binding trust`). An untrusted configuration is refused by name before
+any process is spawned, any credential is read or any endpoint is contacted,
+and the refusal names the command that trusts it. So the first scenario's
+turns reach a configured endpoint once its configuration is trusted on the
+machine that serves it. A configuration also stays safe to read and to commit,
+as the second scenario says, and a committed one no longer runs on a machine
+that has not trusted it. This is the product's strict neutral default, which
+holds wherever no host has registered a policy of its own. Nothing else here
+moved: the requirement's title, the paragraph above with its SHALL sentences,
+batch K's note and all four scenarios stand as ratified, and the requirement
+still carries four scenarios. The rule is box 16.3a of this change's
+`tasks.md`, and it is carried out in plan 034's T100.
+
+**AMENDED 2026-10-04 ON BRETT HEAP'S RULING, AFTER RATIFICATION, BY ITS OWN
+RATIFIER (T007 BATCH P).** `#656` comment `5982436447`, item 2, verbatim
+*"Refuse in-repo programs (Recommended)"*, and comment `5983805990`, verbatim
+*"Refuse inline scripts (Recommended)"*, which extends it. Batch M's note
+above says that the first scenario's turns reach a configured endpoint once
+its configuration is trusted on the machine that serves it. A trust names a
+digest of the configuration's record, and the record names a credential
+broker's program only by its path, so a program inside the served repository
+could change under a trusted configuration with a pull. The ruling narrows
+batch M's note in one respect only: where the program a configuration runs may
+live. A configuration whose command names a file inside the repository the
+product SERVES, as its program or as an argument, is refused even when it is
+trusted, and so is one whose program is a shell or an interpreter given an
+inline script (such as `sh -c` or `python -c`), since such a script can run a
+program inside the repository without naming it as a file. The program must be
+a real file outside the served repository, and every path the command names,
+the program and each argument alike, is judged both as named and as it
+resolves, a common launcher such as `env` or `xargs` is judged by the program
+it starts and by its own options, read by GNU `getopt_long`'s grammar, so a
+launcher option that names a path inside the repository, such as the working
+directory `env --chdir` sets or the file `xargs -a` reads its arguments from,
+is refused, and so are an ambiguous or unknown launcher option and an `env -S`
+string that holds a backslash or a `$`, which is unreadable (the holder's
+rulings `#656` comments `5984069416`, which implements `5983805990`, and
+`5985046107`, which applies both), and every broker starts with its working
+directory outside it and with an environment that points away from it: `PWD`,
+`OLDPWD` and any variable whose value is a path inside the repository are
+dropped, and a path list loses each entry inside it, each judged both as named
+and as it resolves. A launcher's own assignment (`env NAME=value`) is not
+dropped but refused by name, when trust would be recorded and again before any
+process is spawned, where its value is a path inside the repository or a path
+list with an entry inside it, each judged both as named and as it resolves. A
+path given to the program that finally runs as an option's value, after `=` or
+attached to a single-dash option (`-I<repo>/lib`), is judged as the command's
+paths are. A general program outside the repository that runs code from its
+own arguments, and any other path embedded inside an option string given to
+the program that finally runs (never a launcher's own option), are an accepted
+release-1 limit, since the trusted command is digested and the working
+directory and environment point away from the repository. Each configuration
+this note refuses, whether its command or a launcher names a path inside the
+served repository, its program is given an inline script or an unreadable
+split string, or a launcher option is ambiguous or unknown, is refused by name
+when trust would be recorded for it and again before any process is spawned,
+and the refusal names its remedy, such as a broker installed outside the
+repository or, for an inline script, the broker program named itself. The
+accepted limits above are not refused by this note. A program that cannot be
+found runs nothing: it is not refused when trust would be recorded, and when
+its broker is started the start fails and the configuration is refused by the
+existing named refusal `broker_unreachable` (the holder's ruling `#656`
+comment `5985553609`, which reads "a real file" by what it forbids to run). So
+a trusted configuration that runs a credential broker reaches its endpoint as
+the first scenario says only when that broker is a real file outside the
+served repository. A configuration that runs no broker, one whose reference
+the built-in resolver takes (`env:` or the OS keyring) or one whose auth kind
+is `none`, is outside this note. Nothing else here moved: the requirement's
+title, the paragraph above with its SHALL sentences, batch K's note, batch M's
+note and all four scenarios stand as ratified, and the requirement still
+carries four scenarios. The rule is recorded at box 16.3a of this change's
+`tasks.md`, and it is carried out in a follow-on openDox-code PR to plan 034's
+T100 (`#656` comment `5982447319`), which is no task of that plan.
+
 #### Scenario: A hosted API or a local server is configured
 - **WHEN** a user configures an endpoint that speaks the OpenAI-compatible chat protocol by its URL, a model name and a credential reference, whether it is a hosted API or a server on their own machine
 - **THEN** chat turns go to that endpoint in that protocol's grammar, naming that model, and the credential is resolved from the reference for the call rather than read from the configuration

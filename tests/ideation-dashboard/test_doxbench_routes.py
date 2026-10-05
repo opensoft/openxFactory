@@ -607,15 +607,31 @@ def test_console_gate_refuses_foreign_origin(tmp_path):
 
 
 def test_console_gate_refuses_host_not_naming_the_bound_port(tmp_path):
+    """A rebound `Host` is refused, and the model port is never asked.
+
+    HELD AT BOTH PINS (plan 034, T066's form, ahead of T094; not an arc
+    landing). From openDox-code's T103 (openDox-code#80), every loopback route
+    checks the `Host` before it dispatches, so the refusal comes from that
+    earlier gate, `403 invalid_host`, built from `serve.FOREIGN_HOST_BODY`'s
+    constants, and no longer from the console gate. The layout is read off
+    the pinned leg (`serve.FOREIGN_HOST_ERROR` exists from T103), never off
+    the answer compared below. Either way the request is refused and the
+    port is untouched, which is what this test is for."""
     port = FakeWorkbenchModelPort(_two_entry_catalog())
     with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, p):
         caps = _capabilities(host, p)
         headers = _console_headers(caps)
         headers["Host"] = "rebound.example"
         status, payload, _headers, _raw = _request(host, p, "GET", ROUTE, headers=headers)
-    assert status == serve_mod.doxbench_error_status(
-        serve_mod.DOXBENCH_ERR_CONSOLE_REQUIRED)
-    assert payload == serve_mod.doxbench_error_body(serve_mod.DOXBENCH_ERR_CONSOLE_REQUIRED)
+    if hasattr(serve_mod, "FOREIGN_HOST_ERROR"):
+        assert status == serve_mod.FOREIGN_HOST_STATUS
+        assert payload == {"ok": False, "error": serve_mod.FOREIGN_HOST_ERROR,
+                           "message": serve_mod.FOREIGN_HOST_MESSAGE}
+    else:
+        assert status == serve_mod.doxbench_error_status(
+            serve_mod.DOXBENCH_ERR_CONSOLE_REQUIRED)
+        assert payload == serve_mod.doxbench_error_body(
+            serve_mod.DOXBENCH_ERR_CONSOLE_REQUIRED)
     assert port.calls == []
 
 

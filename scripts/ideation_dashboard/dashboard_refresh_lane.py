@@ -1150,11 +1150,22 @@ SEALED_PRODUCT_MODULE = "snapshot.py"
 # bootstrap finds. The four seam modules (`corpus_adapter`, `doxbench_packet`,
 # `serve_wire`, `workbench`) joined with plan 034 T046/T047: the bootstrap's
 # `opendox_host.seams()` imports them to fill openDox's phase-1 seams.
+# `projection_contributions` joined with plan 034 T064: the bootstrap's
+# `register_openxfactory()` imports it to register openXdox's governed
+# projection at openDox's seams. `doxbench_intake`, `doxbench_trust` and
+# `column_contributions` joined with plan 034 T094: `opendox_host.seams()`
+# imports `doxbench_trust` to register this host's binding-trust policy, whose
+# verdict reads the pending declarations through `doxbench_intake`, and
+# `register_openxfactory()` imports `column_contributions` to register
+# openXdox's governed columns at openDox's column seams.
 RENDER_LEG_MODULES: dict[tuple[str, str], tuple[str, ...]] = {
     ("openDox", "code"): ("cli.py", "corpus_adapter.py", "domain_profile.py",
-                          "doxbench_packet.py", "serve_wire.py",
+                          "doxbench_intake.py", "doxbench_packet.py",
+                          "doxbench_trust.py", "serve_wire.py",
                           "workbench.py"),
-    ("openXdox", "code"): ("cli_gate.py", "domain_profile.py", "serve_gate.py",
+    ("openXdox", "code"): ("cli_gate.py", "column_contributions.py",
+                           "domain_profile.py",
+                           "projection_contributions.py", "serve_gate.py",
                            "serve_projection.py", SEALED_PRODUCT_MODULE,
                            "view_extensions.py"),
 }
@@ -3116,6 +3127,16 @@ def _last_line(data: bytes) -> str:
 # hands the product's result back as the last line of its stdout. The
 # validator's own output never reaches that stream, because the product
 # captures it.
+#
+# THE OTHER SEALED CODE LEG IS ON ITS PATH TOO, after the product module's own
+# (plan 034 T066). From openXdox-code #35 (`839492d9`, T059) the product module
+# imports openDox's `projection_seams` at module level, so a harness that put
+# the openXdox leg alone on its path could not import it, and every run ended
+# without a verdict. The parent hands it each other code leg's `src/` the seal
+# carries (`sealed_leg_sources`), which are the render's own legs, so the
+# product module is imported from the seal and from nothing else. At a leg
+# whose product module imports no openDox module the extra path is read by
+# nothing.
 _VALIDATE_HARNESS = """\
 import json, sys
 from pathlib import Path
@@ -3123,6 +3144,7 @@ module_file, target, validator, strictness = sys.argv[1:5]
 if sys.path and sys.path[0] == "":
     sys.path.pop(0)
 sys.path.insert(0, str(Path(module_file).parents[1]))
+sys.path[1:1] = sys.argv[5:]
 from openxdox import snapshot
 if Path(snapshot.__file__).resolve() != Path(module_file).resolve():
     sys.exit(f"openxdox.snapshot resolved to {snapshot.__file__}, not to "
@@ -3171,6 +3193,20 @@ def sealed_product_module(seal_root) -> Path:
             / "src" / package / SEALED_PRODUCT_MODULE)
 
 
+def sealed_leg_sources(seal_root) -> tuple[Path, ...]:
+    """The `src/` of each sealed code leg other than `VALIDATOR_LEG`, in
+    `RENDER_LEGS` order, where the seal carries it: what the validator's
+    harness puts on its path beside the product module's own leg (see
+    `_VALIDATE_HARNESS`). A leg the seal does not carry is left out, and the
+    harness then imports only what it always imported."""
+    corpus = Path(seal_root).resolve() / SEAL_CORPUS_RELPATH
+    return tuple(
+        corpus / gitlink / leg / "src"
+        for gitlink, leg, _package in RENDER_LEGS
+        if (gitlink, leg) != VALIDATOR_LEG
+        and (corpus / gitlink / leg / "src").is_dir())
+
+
 def validate_in_render_environment(product, target, *, validator, strict: bool,
                                    seal_root, module_file, container,
                                    timeout: int = PRECHECK_TIMEOUT_SECONDS):
@@ -3199,15 +3235,18 @@ def validate_in_render_environment(product, target, *, validator, strict: bool,
     try:
         inside = (_in_the_seal(module_file, seal_root),
                   _in_the_seal(validator, seal_root))
+        legs = tuple(_in_the_seal(src, seal_root)
+                     for src in sealed_leg_sources(seal_root))
     except ValueError:
         return unavailable(
-            "the validator or the product module it is read by is not inside "
-            "the seal, so no sealed container could run it")
+            "the validator, the product module it is read by, or a sealed "
+            "code leg that module imports is not inside the seal, so no "
+            "sealed container could run it")
     run = container.run(
         "validator", seal_root,
         [SEALED_PYTHON, "-c", _VALIDATE_HARNESS, inside[0],
          f"{SEALED_JUDGED}/{target.name}", inside[1],
-         "strict" if strict else "lenient"],
+         "strict" if strict else "lenient", *legs],
         mounts=((target.parent, SEALED_JUDGED),), workdir="/tmp",
         stdout_limit=SEALED_LOG_LIMIT, timeout=timeout)
     stderr = run.stderr.decode("utf-8", "replace")

@@ -1,0 +1,1 @@
+quickstart § 3: bundle, neutral snapshot, local mode, no token on /capabilities, and an empty catalog

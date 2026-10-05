@@ -1,0 +1,14 @@
+# every screenshot the driver took, its sha256, and the stored file
+# that holds those bytes (identical screenshots are stored once)
+a-1-load.png sha256 8e82104ffd92a5812247d748bab90195d93d0e849a7c17d6663db3697bb31b2b stored-as a-1-load.png
+a-2-wheel.png sha256 e99abfd982bccf5e93ec2ede15cfcbf8b9ef455e57d78defdf92aca4c1c8c328 stored-as a-2-wheel.png
+a-3a-lens-on-open.png sha256 1f83e00ebc11602b5c669647b151b2c2e7eb8c0053f4f47a8f6a6c0f8a76e5a3 stored-as a-3a-lens-on-open.png
+a-3b-lens-all-checked.png sha256 6a9225990a13de93b1aa5ab93461abec7789d7ac4770bd46d7143451f7f042cd stored-as a-3b-lens-all-checked.png
+a-4a-wheel-grouping-verbs.png sha256 a7d14d1e6a99bc36642ad2439803571875531ba9428e587f24edb26bab012e59 stored-as a-4a-wheel-grouping-verbs.png
+a-4b-workbench-open.png sha256 47da1a3eaa2243d7b2b116529c186148924fd13beac4c5bebca8b97041c80132 stored-as a-4b-workbench-open.png
+a-4c-chat-no-model.png sha256 47da1a3eaa2243d7b2b116529c186148924fd13beac4c5bebca8b97041c80132 stored-as a-4b-workbench-open.png
+a-4d-chat-after-turn.png sha256 b32ee95f515afa132d2151ee93c6a2b56e116520777c7aef6321feb2e64dccfa stored-as a-4d-chat-after-turn.png
+a-4e-editors-typed.png sha256 3fc9b6d451f3e0961e5fde4adf0ef1f4bb8717782f9cc706f451a2faa3893e54 stored-as a-4e-editors-typed.png
+a-4f-editors.png sha256 3fc9b6d451f3e0961e5fde4adf0ef1f4bb8717782f9cc706f451a2faa3893e54 stored-as a-4e-editors-typed.png
+a-4f2-create-absent.png sha256 3fc9b6d451f3e0961e5fde4adf0ef1f4bb8717782f9cc706f451a2faa3893e54 stored-as a-4e-editors-typed.png
+a-4g-save-refused.png sha256 c09b9a1a1d16d628e67c7355bbd4a9565afaf70737ed7997140427341f6714c9 stored-as a-4g-save-refused.png

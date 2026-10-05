@@ -484,10 +484,12 @@ def test_ruling_q7_two_direct_upstreams_in_lockstep() -> None:
     # at, so a pin advance that forgot to move one of the two sides cannot pass
     # by moving both to some third commit. It advanced c4c5014d -> dc7aa08f with
     # the nested leg advance (openxFactory#656 5768088437, STEP 2 of the forced
-    # order 5767733963), and dc7aa08f -> 663ac683 with plan 034 T047; it is
-    # expected to move on every future bump -- the same way codexFactory's
-    # review-lane `PIN` constant moves with its gitlink, and for the same reason.
-    assert opendox_pin["commit"] == "663ac683c04c67007eaef24006f0854a650069ea"
+    # order 5767733963), dc7aa08f -> 663ac683 with plan 034 T047,
+    # 663ac683 -> d5098297 with T064, and d5098297 -> e1e3a3c3 (T087's root
+    # commit, opensoft/openDox#18) with T094; it is expected to move on every
+    # future bump, as codexFactory's review-lane `PIN` constant moves with its
+    # gitlink.
+    assert opendox_pin["commit"] == "e1e3a3c3f8dd38214510412b71a2e858c6179532"
 
 
 def test_main_prints_one_success_line_and_returns_zero(capsys) -> None:
