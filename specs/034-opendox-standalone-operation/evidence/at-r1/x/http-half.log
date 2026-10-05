@@ -1,0 +1,393 @@
+AT-R1, the HTTP half (plan 034 T095), over $TMPDIR/tmp.vFYx135yL1/openDox-code
+      the documented install: pip install "opendox[local]"
+      the documented start:   opendox generate-and-open --local …
+      scratch $TMPDIR/at-r1-http-ryhb9223; OPENDOX_STATE_DIR $TMPDIR/odx-fg33pbph
+ok    [install.venv]
+      $ pip install --disable-pip-version-check --no-input -c $TMPDIR/at-r1-http-ryhb9223/openDox-code/constraints-cpython312-linux.txt $TMPDIR/at-r1-http-ryhb9223/openDox-code[local]
+ok    [install opendox[local]]
+ok    [install declares the local extra]
+ok    [clean.siblings]
+ok    [clean.omp]
+ok    [clean.identity-broker]
+ok    [clean.database tcp 127.0.0.1:5432]
+ok    [clean.database tcp ::1:5432]
+ok    [clean.database socket /run/postgresql/.s.PGSQL.5432]
+ok    [clean.database socket /var/run/postgresql/.s.PGSQL.5432]
+ok    [clean.database settings]
+ok    [clean.state-dir]
+ok    [clean.no-bundled-server-yet]
+ok    [repos.fixture]
+ok    [clean.binding a]
+ok    [repos.a git identity]
+ok    [clean.binding b]
+ok    [repos.b git identity]
+--- repository (a) plain-documents
+ok    [a.start.port-free 127.0.0.1:51701]
+ok    [a.start.port-free ::1:51701]
+ok    [a.start.documented-command]
+ok    [a.start.console-script]
+      $ opendox generate-and-open --local --repo-root $TMPDIR/at-r1-http-ryhb9223/repos/plain-documents --repository fixture --no-open --port 51701
+ok    [a.start.ready]
+ok    [a.start.serving-process]
+ok    [a.http / is UTF-8]
+ok    [a.http / is HTML]
+ok    [a.http /snapshot.json]
+ok    [a./snapshot.json is a JSON object]
+ok    [a.snapshot non-empty]
+ok    [a.snapshot documents each name a path]
+ok    [a.snapshot neutral (F5.3)]
+      the snapshot lists 8 documents
+ok    [a.http /capabilities]
+ok    [a./capabilities is a JSON object]
+ok    [a.capabilities install.mode == local]
+      the served install reports its bundled server as pid 937791
+ok    [a.capabilities carries no console token]
+ok    [a.snapshot fills the grouping station]
+ok    [a.console opener printed]
+ok    [a.console opener is OPENDOX_STATE_DIR/console/<port>.html]
+ok    [a.console opener is outside the served repository]
+ok    [a.console opener is private]
+ok    [a.console opener forwards with the token in its fragment]
+ok    [a.console opener record agrees with its forward]
+ok    [a.console page is HTML]
+ok    [a.console page is UTF-8]
+ok    [a.capabilities carries the opener's token nowhere]
+ok    [a.catalog refuses a caller without the console token]
+ok    [a.catalog answers]
+ok    [a.catalog is a catalog]
+ok    [a.catalog envelope is the one the chat rail adopts]
+ok    [a.catalog offers no available entry]
+ok    [a.bundle.entry]
+ok    [a.bundle.sheet /styles.css]
+ok    [a.bundle.sheet-type /styles.css]
+ok    [a.bundle.module /app.js]
+ok    [a.bundle.module-type /app.js]
+ok    [a.bundle.module /views/funnel.js]
+ok    [a.bundle.module-type /views/funnel.js]
+ok    [a.bundle.module /views/wheel.js]
+ok    [a.bundle.module-type /views/wheel.js]
+ok    [a.bundle.module /views/board.js]
+ok    [a.bundle.module-type /views/board.js]
+ok    [a.bundle.module /views/docs.js]
+ok    [a.bundle.module-type /views/docs.js]
+ok    [a.bundle.module /views/lineage.js]
+ok    [a.bundle.module-type /views/lineage.js]
+ok    [a.bundle.module /views/explorer.js]
+ok    [a.bundle.module-type /views/explorer.js]
+ok    [a.bundle.module /views/viewer.js]
+ok    [a.bundle.module-type /views/viewer.js]
+ok    [a.bundle.module /views/edit.js]
+ok    [a.bundle.module-type /views/edit.js]
+ok    [a.bundle.module /views/canvas.js]
+ok    [a.bundle.module-type /views/canvas.js]
+ok    [a.bundle.module /views/lens.js]
+ok    [a.bundle.module-type /views/lens.js]
+ok    [a.bundle.module /views/view_extension.js]
+ok    [a.bundle.module-type /views/view_extension.js]
+ok    [a.bundle.module /views/display.js]
+ok    [a.bundle.module-type /views/display.js]
+ok    [a.bundle.module /views/staging-workbench.js]
+ok    [a.bundle.module-type /views/staging-workbench.js]
+ok    [a.bundle.module /views/swb-model-intake.js]
+ok    [a.bundle.module-type /views/swb-model-intake.js]
+ok    [a.bundle.module /views/staging-workbench-model.js]
+ok    [a.bundle.module-type /views/staging-workbench-model.js]
+ok    [a.bundle.module /views/lens-model.js]
+ok    [a.bundle.module-type /views/lens-model.js]
+ok    [a.bundle.module /views/doxbench-save.js]
+ok    [a.bundle.module-type /views/doxbench-save.js]
+ok    [a.bundle.module /views/doxbench-state.js]
+ok    [a.bundle.module-type /views/doxbench-state.js]
+ok    [a.bundle.module /views/settings.js]
+ok    [a.bundle.module-type /views/settings.js]
+ok    [a.bundle.module /views/account-menu.js]
+ok    [a.bundle.module-type /views/account-menu.js]
+ok    [a.bundle.module /views/notebook.js]
+ok    [a.bundle.module-type /views/notebook.js]
+ok    [a.bundle.module /views/repo-selector.js]
+ok    [a.bundle.module-type /views/repo-selector.js]
+ok    [a.bundle.module /views/composed-model.js]
+ok    [a.bundle.module-type /views/composed-model.js]
+ok    [a.bundle.module /views/repo-selector-model.js]
+ok    [a.bundle.module-type /views/repo-selector-model.js]
+ok    [a.bundle.module /views/model.js]
+ok    [a.bundle.module-type /views/model.js]
+ok    [a.bundle.module /views/helpers.js]
+ok    [a.bundle.module-type /views/helpers.js]
+ok    [a.bundle.module /views/wheel-model.js]
+ok    [a.bundle.module-type /views/wheel-model.js]
+ok    [a.bundle.module /views/intent-binding.js]
+ok    [a.bundle.module-type /views/intent-binding.js]
+ok    [a.bundle.module /vendor/markdown-it.min.js]
+ok    [a.bundle.module-type /vendor/markdown-it.min.js]
+ok    [a.bundle.module /views/canvas-model.js]
+ok    [a.bundle.module-type /views/canvas-model.js]
+ok    [a.bundle.module /views/bullseye.js]
+ok    [a.bundle.module-type /views/bullseye.js]
+ok    [a.bundle.module /views/doc-wheel.js]
+ok    [a.bundle.module-type /views/doc-wheel.js]
+ok    [a.bundle.module /views/outline-model.js]
+ok    [a.bundle.module-type /views/outline-model.js]
+ok    [a.bundle.module /views/doxbench-editor.js]
+ok    [a.bundle.module-type /views/doxbench-editor.js]
+ok    [a.bundle.module /views/doxbench-chat.js]
+ok    [a.bundle.module-type /views/doxbench-chat.js]
+ok    [a.bundle.dynamic /views/projection-index.js]
+ok    [a.bundle.module-type /views/projection-index.js]
+ok    [a.bundle.dynamic /views/intent-feed.js]
+      /views/intent-feed.js (dynamic, from /views/intent-binding.js) answers HTTP 404: refused, and its importer degrades
+ok    [a.bundle.module /views/doxbench-chat-model.js]
+ok    [a.bundle.module-type /views/doxbench-chat-model.js]
+      derived from the served bundle: 38 modules, 18 routes: /actions/dtn-seed, /actions/edit, /actions/notebook, /actions/refresh, /actions/staging-seed, /actions/workbench/chat-turn, /actions/workbench/document-abstract, /actions/workbench/model-approval, /actions/workbench/model-intake, /capabilities, /logout, /project-register.json, /snapshot-index.json, /snapshot.json, /source/, /workbench/model-catalog, /workbench/model-intake, /workbench/thread
+ok    [a.bundle names the catalog route]
+ok    [a.bundle names the catalog kind]
+ok    [a.chat rail reads no thread (no branch session)]
+      GET /actions/dtn-seed -> HTTP 404
+ok    [a.route /actions/dtn-seed]
+      GET /actions/edit -> HTTP 404
+ok    [a.route /actions/edit]
+      GET /actions/notebook -> HTTP 404
+ok    [a.route /actions/notebook]
+      GET /actions/refresh -> HTTP 404
+ok    [a.route /actions/refresh]
+      GET /actions/staging-seed -> HTTP 404
+ok    [a.route /actions/staging-seed]
+      GET /actions/workbench/chat-turn -> HTTP 404
+ok    [a.route /actions/workbench/chat-turn]
+      GET /actions/workbench/document-abstract -> HTTP 404
+ok    [a.route /actions/workbench/document-abstract]
+      GET /actions/workbench/model-approval -> HTTP 404
+ok    [a.route /actions/workbench/model-approval]
+      GET /actions/workbench/model-intake -> HTTP 404
+ok    [a.route /actions/workbench/model-intake]
+      GET /capabilities -> HTTP 200
+ok    [a.route /capabilities]
+      GET /logout -> HTTP 404
+ok    [a.route /logout]
+      GET /project-register.json -> HTTP 404
+ok    [a.route /project-register.json]
+      GET /snapshot-index.json -> HTTP 404
+ok    [a.route /snapshot-index.json]
+      GET /snapshot.json -> HTTP 200
+ok    [a.route /snapshot.json]
+      GET /source/ -> HTTP 404
+ok    [a.route /source/]
+      GET /source/candidate-toolshed-rebuild.md -> HTTP 200
+ok    [a.route /source/candidate-toolshed-rebuild.md]
+      GET /source/completion-path-resurfacing.md -> HTTP 200
+ok    [a.route /source/completion-path-resurfacing.md]
+      GET /source/grouping-compost-corner.md -> HTTP 200
+ok    [a.route /source/grouping-compost-corner.md]
+      GET /source/notes-rain-barrel-leak.md -> HTTP 200
+ok    [a.route /source/notes-rain-barrel-leak.md]
+      GET /source/notes-rain-barrel-overflow.md -> HTTP 200
+ok    [a.route /source/notes-rain-barrel-overflow.md]
+      GET /source/notes-toolshed-inventory.md -> HTTP 200
+ok    [a.route /source/notes-toolshed-inventory.md]
+      GET /source/selection-spring-planting-plan.md -> HTTP 200
+ok    [a.route /source/selection-spring-planting-plan.md]
+      GET /source/submission-shed-door-repair.md -> HTTP 200
+ok    [a.route /source/submission-shed-door-repair.md]
+      GET /source/fixture%40main/candidate-toolshed-rebuild.md -> HTTP 200
+ok    [a.route /source/fixture%40main/candidate-toolshed-rebuild.md]
+      GET /source/fixture%40main/completion-path-resurfacing.md -> HTTP 200
+ok    [a.route /source/fixture%40main/completion-path-resurfacing.md]
+      GET /source/fixture%40main/grouping-compost-corner.md -> HTTP 200
+ok    [a.route /source/fixture%40main/grouping-compost-corner.md]
+      GET /source/fixture%40main/notes-rain-barrel-leak.md -> HTTP 200
+ok    [a.route /source/fixture%40main/notes-rain-barrel-leak.md]
+      GET /source/fixture%40main/notes-rain-barrel-overflow.md -> HTTP 200
+ok    [a.route /source/fixture%40main/notes-rain-barrel-overflow.md]
+      GET /source/fixture%40main/notes-toolshed-inventory.md -> HTTP 200
+ok    [a.route /source/fixture%40main/notes-toolshed-inventory.md]
+      GET /source/fixture%40main/selection-spring-planting-plan.md -> HTTP 200
+ok    [a.route /source/fixture%40main/selection-spring-planting-plan.md]
+      GET /source/fixture%40main/submission-shed-door-repair.md -> HTTP 200
+ok    [a.route /source/fixture%40main/submission-shed-door-repair.md]
+      GET /workbench/model-catalog -> HTTP 200
+ok    [a.route /workbench/model-catalog]
+      GET /workbench/model-intake -> HTTP 200
+ok    [a.route /workbench/model-intake]
+      GET /workbench/thread -> HTTP 400
+ok    [a.route /workbench/thread]
+ok    [a.stop exits 0]
+      the entry point exited rc=0
+ok    [a.stop leaves no bundled PostgreSQL process]
+ok    [a.stop removes the console opener]
+ok    [a.console token never printed]
+--- repository (b) plain-notes
+ok    [b.start.port-free 127.0.0.1:48359]
+ok    [b.start.port-free ::1:48359]
+ok    [b.start.documented-command]
+ok    [b.start.console-script]
+      $ opendox generate-and-open --local --repo-root $TMPDIR/at-r1-http-ryhb9223/repos/plain-notes --repository fixture --no-open --port 48359
+ok    [b.start.ready]
+ok    [b.start.serving-process]
+ok    [b.http / is UTF-8]
+ok    [b.http / is HTML]
+ok    [b.http /snapshot.json]
+ok    [b./snapshot.json is a JSON object]
+ok    [b.snapshot non-empty]
+ok    [b.snapshot documents each name a path]
+ok    [b.snapshot neutral (F5.3)]
+      the snapshot lists 3 documents
+ok    [b.http /capabilities]
+ok    [b./capabilities is a JSON object]
+ok    [b.capabilities install.mode == local]
+      the served install reports its bundled server as pid 938946
+ok    [b.capabilities carries no console token]
+ok    [b.snapshot fills the grouping station]
+ok    [b.console opener printed]
+ok    [b.console opener is OPENDOX_STATE_DIR/console/<port>.html]
+ok    [b.console opener is outside the served repository]
+ok    [b.console opener is private]
+ok    [b.console opener forwards with the token in its fragment]
+ok    [b.console opener record agrees with its forward]
+ok    [b.console page is HTML]
+ok    [b.console page is UTF-8]
+ok    [b.capabilities carries the opener's token nowhere]
+ok    [b.catalog refuses a caller without the console token]
+ok    [b.catalog answers]
+ok    [b.catalog is a catalog]
+ok    [b.catalog envelope is the one the chat rail adopts]
+ok    [b.catalog offers no available entry]
+ok    [b.bundle.entry]
+ok    [b.bundle.sheet /styles.css]
+ok    [b.bundle.sheet-type /styles.css]
+ok    [b.bundle.module /app.js]
+ok    [b.bundle.module-type /app.js]
+ok    [b.bundle.module /views/funnel.js]
+ok    [b.bundle.module-type /views/funnel.js]
+ok    [b.bundle.module /views/wheel.js]
+ok    [b.bundle.module-type /views/wheel.js]
+ok    [b.bundle.module /views/board.js]
+ok    [b.bundle.module-type /views/board.js]
+ok    [b.bundle.module /views/docs.js]
+ok    [b.bundle.module-type /views/docs.js]
+ok    [b.bundle.module /views/lineage.js]
+ok    [b.bundle.module-type /views/lineage.js]
+ok    [b.bundle.module /views/explorer.js]
+ok    [b.bundle.module-type /views/explorer.js]
+ok    [b.bundle.module /views/viewer.js]
+ok    [b.bundle.module-type /views/viewer.js]
+ok    [b.bundle.module /views/edit.js]
+ok    [b.bundle.module-type /views/edit.js]
+ok    [b.bundle.module /views/canvas.js]
+ok    [b.bundle.module-type /views/canvas.js]
+ok    [b.bundle.module /views/lens.js]
+ok    [b.bundle.module-type /views/lens.js]
+ok    [b.bundle.module /views/view_extension.js]
+ok    [b.bundle.module-type /views/view_extension.js]
+ok    [b.bundle.module /views/display.js]
+ok    [b.bundle.module-type /views/display.js]
+ok    [b.bundle.module /views/staging-workbench.js]
+ok    [b.bundle.module-type /views/staging-workbench.js]
+ok    [b.bundle.module /views/swb-model-intake.js]
+ok    [b.bundle.module-type /views/swb-model-intake.js]
+ok    [b.bundle.module /views/staging-workbench-model.js]
+ok    [b.bundle.module-type /views/staging-workbench-model.js]
+ok    [b.bundle.module /views/lens-model.js]
+ok    [b.bundle.module-type /views/lens-model.js]
+ok    [b.bundle.module /views/doxbench-save.js]
+ok    [b.bundle.module-type /views/doxbench-save.js]
+ok    [b.bundle.module /views/doxbench-state.js]
+ok    [b.bundle.module-type /views/doxbench-state.js]
+ok    [b.bundle.module /views/settings.js]
+ok    [b.bundle.module-type /views/settings.js]
+ok    [b.bundle.module /views/account-menu.js]
+ok    [b.bundle.module-type /views/account-menu.js]
+ok    [b.bundle.module /views/notebook.js]
+ok    [b.bundle.module-type /views/notebook.js]
+ok    [b.bundle.module /views/repo-selector.js]
+ok    [b.bundle.module-type /views/repo-selector.js]
+ok    [b.bundle.module /views/composed-model.js]
+ok    [b.bundle.module-type /views/composed-model.js]
+ok    [b.bundle.module /views/repo-selector-model.js]
+ok    [b.bundle.module-type /views/repo-selector-model.js]
+ok    [b.bundle.module /views/model.js]
+ok    [b.bundle.module-type /views/model.js]
+ok    [b.bundle.module /views/helpers.js]
+ok    [b.bundle.module-type /views/helpers.js]
+ok    [b.bundle.module /views/wheel-model.js]
+ok    [b.bundle.module-type /views/wheel-model.js]
+ok    [b.bundle.module /views/intent-binding.js]
+ok    [b.bundle.module-type /views/intent-binding.js]
+ok    [b.bundle.module /vendor/markdown-it.min.js]
+ok    [b.bundle.module-type /vendor/markdown-it.min.js]
+ok    [b.bundle.module /views/canvas-model.js]
+ok    [b.bundle.module-type /views/canvas-model.js]
+ok    [b.bundle.module /views/bullseye.js]
+ok    [b.bundle.module-type /views/bullseye.js]
+ok    [b.bundle.module /views/doc-wheel.js]
+ok    [b.bundle.module-type /views/doc-wheel.js]
+ok    [b.bundle.module /views/outline-model.js]
+ok    [b.bundle.module-type /views/outline-model.js]
+ok    [b.bundle.module /views/doxbench-editor.js]
+ok    [b.bundle.module-type /views/doxbench-editor.js]
+ok    [b.bundle.module /views/doxbench-chat.js]
+ok    [b.bundle.module-type /views/doxbench-chat.js]
+ok    [b.bundle.dynamic /views/projection-index.js]
+ok    [b.bundle.module-type /views/projection-index.js]
+ok    [b.bundle.dynamic /views/intent-feed.js]
+      /views/intent-feed.js (dynamic, from /views/intent-binding.js) answers HTTP 404: refused, and its importer degrades
+ok    [b.bundle.module /views/doxbench-chat-model.js]
+ok    [b.bundle.module-type /views/doxbench-chat-model.js]
+      derived from the served bundle: 38 modules, 18 routes: /actions/dtn-seed, /actions/edit, /actions/notebook, /actions/refresh, /actions/staging-seed, /actions/workbench/chat-turn, /actions/workbench/document-abstract, /actions/workbench/model-approval, /actions/workbench/model-intake, /capabilities, /logout, /project-register.json, /snapshot-index.json, /snapshot.json, /source/, /workbench/model-catalog, /workbench/model-intake, /workbench/thread
+ok    [b.bundle names the catalog route]
+ok    [b.bundle names the catalog kind]
+ok    [b.chat rail reads no thread (no branch session)]
+      GET /actions/dtn-seed -> HTTP 404
+ok    [b.route /actions/dtn-seed]
+      GET /actions/edit -> HTTP 404
+ok    [b.route /actions/edit]
+      GET /actions/notebook -> HTTP 404
+ok    [b.route /actions/notebook]
+      GET /actions/refresh -> HTTP 404
+ok    [b.route /actions/refresh]
+      GET /actions/staging-seed -> HTTP 404
+ok    [b.route /actions/staging-seed]
+      GET /actions/workbench/chat-turn -> HTTP 404
+ok    [b.route /actions/workbench/chat-turn]
+      GET /actions/workbench/document-abstract -> HTTP 404
+ok    [b.route /actions/workbench/document-abstract]
+      GET /actions/workbench/model-approval -> HTTP 404
+ok    [b.route /actions/workbench/model-approval]
+      GET /actions/workbench/model-intake -> HTTP 404
+ok    [b.route /actions/workbench/model-intake]
+      GET /capabilities -> HTTP 200
+ok    [b.route /capabilities]
+      GET /logout -> HTTP 404
+ok    [b.route /logout]
+      GET /project-register.json -> HTTP 404
+ok    [b.route /project-register.json]
+      GET /snapshot-index.json -> HTTP 404
+ok    [b.route /snapshot-index.json]
+      GET /snapshot.json -> HTTP 200
+ok    [b.route /snapshot.json]
+      GET /source/ -> HTTP 404
+ok    [b.route /source/]
+      GET /source/budget.md -> HTTP 200
+ok    [b.route /source/budget.md]
+      GET /source/notes.md -> HTTP 200
+ok    [b.route /source/notes.md]
+      GET /source/roadmap.md -> HTTP 200
+ok    [b.route /source/roadmap.md]
+      GET /source/fixture%40main/budget.md -> HTTP 200
+ok    [b.route /source/fixture%40main/budget.md]
+      GET /source/fixture%40main/notes.md -> HTTP 200
+ok    [b.route /source/fixture%40main/notes.md]
+      GET /source/fixture%40main/roadmap.md -> HTTP 200
+ok    [b.route /source/fixture%40main/roadmap.md]
+      GET /workbench/model-catalog -> HTTP 200
+ok    [b.route /workbench/model-catalog]
+      GET /workbench/model-intake -> HTTP 200
+ok    [b.route /workbench/model-intake]
+      GET /workbench/thread -> HTTP 400
+ok    [b.route /workbench/thread]
+ok    [b.stop exits 0]
+      the entry point exited rc=0
+ok    [b.stop leaves no bundled PostgreSQL process]
+ok    [b.stop removes the console opener]
+ok    [b.console token never printed]
+
+AT-R1 HTTP half: PASS (314 assertions held)
