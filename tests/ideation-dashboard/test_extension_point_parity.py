@@ -111,12 +111,19 @@ MIN_ENTRY_POINTS = 25
 # `opensoft/openDox-code`'s `tests/test_source_core_arm.py`, not pinned a
 # second time here — this tuple's job is only to say THIS method's fixed set
 # is these eight arms and no others.
+#
+# RETARGETED ONCE, AT ONE ARM, BY plan 034's PHASE-3 PIN (T094; a NAMED
+# composition test under R1Q2 (a)). The `/capabilities` arm's position and
+# test are unchanged; what it reaches moved inside openDox's own handler.
+# T073 (openDox-code#72) answers the serving process's `install` block
+# through `install_report`, and T103 (openDox-code#80) moved the loopback
+# Host check and the JSON send out of the arm, so it no longer reaches
+# `_send_json` or `_trusted_console_host` itself. T104 changes nothing here.
 ROUTE_ARMS = (
     ("path == self.snapshot_route", ("_serve_snapshot",)),
     ("path == PROJECT_REGISTER_ROUTE", ("_serve_project_register",)),
     ("path == CAPABILITIES_ROUTE",
-     ("_send_json", "_serve_bytes", "_session_repository",
-      "_trusted_console_host")),
+     ("_serve_bytes", "_session_repository", "install_report")),
     ("path == WORKBENCH_MODEL_CATALOG_ROUTE",
      ("_handle_workbench_model_catalog",)),
     ("path == WORKBENCH_MODEL_INTAKE_ROUTE",
@@ -419,12 +426,57 @@ def test_the_mixins_precede_simplehttprequesthandler_in_the_mro():
     """
     from opendox import serve as serve_mod
     from ideation_dashboard import serve_openxfactory_lanes
-    from opendox import consumer_reach, serve_project, serve_workbench
+    from opendox import serve_project, serve_workbench
     from opendox.profile_proxy import profile_openxfactory as proxy
     from openxdox import serve_gate, serve_projection
 
+    try:
+        from opendox import consumer_reach
+    except ImportError:
+        # RETIRED BY plan 034's T084 (#1144 4.3), with its last name.
+        consumer_reach = None
+
     lanes = serve_openxfactory_lanes.LaneRoutes
     mro = serve_mod.DashboardHandler.__mro__
+    if consumer_reach is None:
+        # THE LEG FROM T084 ON (plan 034 T094). `DashboardHandler` carries no
+        # Late stand-in, so its prefix is the two core mixins and then
+        # `SimpleHTTPRequestHandler`. openXdox's two columns arrive through
+        # the facet, declared by openXdox's own route extensions (T086, RULED
+        # Q2 (a) there), after the lanes column the profile declares. The
+        # bound class is the core handler's MRO with the three composed after
+        # it, and every method of each resolves to that column's own
+        # function. Decision 1's safety property holds by refusal, as for
+        # the lanes column alone: openDox refuses a contributed name the core
+        # handler's MRO already answers.
+        assert mro[:4] == (
+            serve_mod.DashboardHandler,
+            serve_workbench.WorkbenchRoutes,
+            serve_project.ProjectRoutes,
+            http.server.SimpleHTTPRequestHandler,
+        ), (
+            "DashboardHandler's MRO no longer starts (DashboardHandler, "
+            "WorkbenchRoutes, ProjectRoutes, SimpleHTTPRequestHandler). "
+            f"Got: {mro[:4]}")
+        seam = serve_mod.route_extension
+        columns = (lanes, serve_gate.GateRoutes,
+                   serve_projection.ProjectionRoutes)
+        contributed = seam.collect_handler_contributions(
+            (proxy, *proxy.ROUTE_EXTENSIONS), base=serve_mod.DashboardHandler)
+        assert contributed == columns, contributed
+        bound = seam.compose_handler(
+            "BoundDashboardHandler", serve_mod.DashboardHandler, contributed, {})
+        assert bound.__mro__ == (bound, *mro[:-1], *columns, object), (
+            "the class the server binds is not the core handler's MRO with "
+            f"the three columns composed after it. Got: {bound.__mro__}")
+        for column in columns:
+            names = _non_dunder(vars(column))
+            assert names, f"{column.__name__} carries no method"
+            for name in names:
+                assert name not in vars(serve_mod.DashboardHandler), name
+                assert getattr(bound, name) is vars(column)[name], (
+                    f"{name} does not resolve to {column.__name__}'s own")
+        return
     if lanes in mro:
         # THE LEG BEFORE plan 034's T011: the lanes column is a base.
         assert mro[:8] == (

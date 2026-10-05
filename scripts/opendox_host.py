@@ -85,6 +85,8 @@ __all__ = [
     "HostSeamsIncomplete",
     "PROFILE_PATH",
     "SESSION_NOTEBOOK_SCOPE",
+    "GovernedBindingTrust",
+    "binding_trust_policy",
     "build_profile",
     "doxbench_validators",
     "home_corpus",
@@ -359,6 +361,113 @@ def doxbench_validators() -> dict:
     return doxbench_contracts.validators()
 
 
+#: Why the governed policy refuses a binding, in the verdict's own words. It
+#: names no secret, because a verdict never holds one.
+GOVERNED_PENDING_REASON = (
+    "its model declaration is pending: the governed console approves it, and "
+    "until then it is not used")
+
+
+class GovernedBindingTrust:
+    """openxFactory's own trust policy at openDox's binding-trust seam (plan
+    034 T094; #1144 16.3a, T007 batch M; RULED `#656` comment `5962785556`,
+    item 2; the policy itself RULED by Brett Heap on `#656` comment
+    `5970369724`, *"Governance approval (Recommended)"*).
+
+    WHY THE HOST REGISTERS ONE. From T100, a binding read from the served
+    repository runs a broker, resolves a credential reference, or contacts
+    its endpoint only once the registered policy trusts that exact binding.
+    openDox's neutral default, `doxbench_trust.MachineTrust`, trusts what the
+    operator recorded on this machine, and refuses the console intake's
+    broker outright (`INTAKE_BROKER_UNTRUSTED`). This host's flow is governed
+    instead, and 16.3a lets a host's own registration win. So the governed
+    flow stays what it was before T100 (requirement 1):
+
+    * a binding whose model declaration is PENDING is refused, as the port
+      factory already passes over it (`pending_binding_ids`, the one question
+      `doxbench_install.declared_model_port_factory` asks);
+    * every other binding of the served checkout is trusted: one whose
+      declaration the console approved through the gate, and one that no
+      declaration names, which is the operator's own binding in the operator's
+      own governed checkout. A console intake's binding is undeclared when its
+      broker runs (the PENDING declaration is written after the hand-off), so
+      the intake is admitted as it was, through `intake_verdict` below;
+    * a declarations document that cannot be read admits nothing, naming the
+      store's own refusal.
+
+    `record()` writes nothing and returns nothing: the governed record is the
+    gate's, so `add`, `edit`, `set-credential` and `trust` leave the
+    operator's state directory untouched, openDox asks `verdict` for their
+    verdict, and a failed document write says truthfully that nothing
+    changed (see `record`).
+    """
+
+    def verdict(self, binding: Any, *, root: Any) -> Any:
+        from opendox import doxbench_intake, doxbench_trust
+
+        store = doxbench_intake.DeclarationStore(
+            doxbench_intake.declarations_path(root))
+        try:
+            pending = store.pending_binding_ids()
+        except doxbench_intake.IntakeRefused as refused:
+            return doxbench_trust.TrustVerdict.untrusted_for(
+                binding, root=root, basis=doxbench_trust.BASIS_HOST,
+                reason=f"its declarations document cannot be read ({refused})")
+        if binding.id in pending:
+            return doxbench_trust.TrustVerdict.untrusted_for(
+                binding, root=root, basis=doxbench_trust.BASIS_HOST,
+                reason=GOVERNED_PENDING_REASON)
+        return doxbench_trust.TrustVerdict.trusted_for(
+            binding, root=root, basis=doxbench_trust.BASIS_HOST)
+
+    def record(self, binding: Any, *, root: Any) -> None:
+        """RECORDS NOTHING, AND SAYS SO BY RETURNING NOTHING (the holder's
+        ruling, `#656` comment `5986391296`, applied to T094 by `5988088910`).
+
+        openDox asks `record()` when `add`, `edit`, `set-credential` and
+        `trust` declare a binding, and reads the answer as whether the policy
+        recorded anything (`doxbench_trust.recording_for`). A falsy answer is
+        no record, so openDox asks `verdict` for the verdict and, where the
+        document write that follows fails, takes nothing back: the refusal's
+        "nothing in it changed" is then true of trust as well. A verdict here
+        would read as a record that openDox cannot withdraw, and a failed
+        write would be refused with `REASON_NO_WITHDRAWAL`, about a trust
+        this policy never recorded. The governed record is the gate's, so
+        nothing is written to the operator's state either."""
+        return None
+
+    def intake_verdict(self, binding: Any, *, root: Any) -> Any:
+        """THE CONSOLE INTAKE'S OWN QUESTION (#1144 16.3a, T007 batch M): may
+        the intake hand a credential to the broker the served repository's
+        declarations document names, for the binding it is declaring?
+
+        openDox asks it apart from any binding's trust
+        (`doxbench_trust.intake_verdict_for`), and offers the intake only
+        where the registered policy answers it (`intake_admissible`,
+        openDox-code's T100 follow-on, A5). A policy without it admits no
+        intake, so the governed console would lose its intake. The ruling
+        keeps the governed flow, the console intake included, as it is, so it
+        is answered as `verdict` answers: the intake's new binding has no
+        declaration while its broker runs and is admitted, a binding whose
+        declaration is pending is refused, and a declarations document that
+        cannot be read admits nothing. openDox refuses a broker command inside
+        the served repository, or an inline script, before it asks."""
+        return self.verdict(binding, root=root)
+
+    def __repr__(self) -> str:
+        return "opendox_host.GovernedBindingTrust()"
+
+
+#: ONE object, so that a second `register_openxfactory()` re-registers the same
+#: policy, which the seam treats as a no-op.
+_BINDING_TRUST = GovernedBindingTrust()
+
+
+def binding_trust_policy() -> GovernedBindingTrust:
+    """The binding-trust policy this host registers (T094, 16.3a)."""
+    return _BINDING_TRUST
+
+
 class HostProfileNotRegistered(RuntimeError):
     """This host registered its profile, and the registry answers another.
 
@@ -401,13 +510,19 @@ def seams() -> tuple[tuple[Any, str, Any], ...]:
     (see "EACH IMPLEMENTATION IS RESOLVED WHEN IT IS CALLED" above).
     """
     from ideation_dashboard import doxbench_status_exemption
-    from opendox import corpus_adapter, doxbench_packet, serve_wire, workbench
+    from opendox import (corpus_adapter, doxbench_packet, doxbench_trust,
+                         serve_wire, workbench)
 
     return (
         (workbench, "register_session_notebook_scope", SESSION_NOTEBOOK_SCOPE),
         (workbench, "register_health_check", scoped_doc_health),
         (serve_wire, "register_doxbench_validators", doxbench_validators),
         (doxbench_packet, "register_status_exemption", doxbench_status_exemption),
+        # THE BINDING-TRUST POLICY (plan 034 T094; #1144 16.3a). Before the
+        # home seam, which stays last (above): `register()` refuses a
+        # different host's policy, and a refusal here takes back every seam
+        # this call wrote, through `unregister()`.
+        (doxbench_trust, "register", binding_trust_policy()),
         (corpus_adapter, "register_home", home_corpus),
     )
 
@@ -424,6 +539,12 @@ _TAKE_BACK: dict[str, tuple[str | None, str]] = {
                                      "unregister_doxbench_validators"),
     "register_status_exemption": ("status_exemption_registered",
                                   "unregister_status_exemption"),
+    # `doxbench_trust.is_registered()` also answers True for openDox's own
+    # strict default, which its consumers register lazily. That default is
+    # never left in place of this host's policy: `register()` replaces it
+    # while it is unread, and refuses once it has been read, which is a
+    # refusal this call reports.
+    "register": ("is_registered", "unregister"),
 }
 
 
@@ -741,5 +862,29 @@ def register_openxfactory() -> Any:
     from openxdox import projection_contributions
 
     projection_contributions.register()
+
+    # OPENXDOX'S GOVERNED COLUMNS (plan 034 T094; T086's
+    # `openxdox.column_contributions`, RULED Q6 (a) at T086). From T084
+    # (openDox-code#77), openDox declares four column seams, the gate
+    # primitives, the doxBench scope, kickoff and the cross-reference
+    # register, each with a neutral default its entry points register where
+    # no host has. openXdox contributes its governed four through
+    # `column_contributions.register()`, which `openxdox.domain_profile.
+    # register()` makes, and this host makes the call itself for the reason
+    # the projection line above gives. The four register as one group only
+    # where openXdox's `gate_console` imports, which needs this repository's
+    # `doc_health`. Here it always does, so a call that registers nothing is
+    # a broken assembly and is refused by name, rather than leaving this host
+    # serving openDox's neutral gate.
+    from openxdox import column_contributions
+
+    if not column_contributions.register():
+        raise HostSeamsIncomplete(
+            "openxdox.column_contributions.register() registered none of "
+            "openXdox's governed columns in openxFactory's own process, where "
+            "doc_health is importable: "
+            f"{column_contributions.SKIPPED or 'no reason recorded'}. Without "
+            "them openDox's entry points serve openDox's neutral gate, scope, "
+            "kickoff and register.")
     register_seams()
     return registered

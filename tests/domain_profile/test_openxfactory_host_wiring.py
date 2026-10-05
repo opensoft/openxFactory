@@ -63,22 +63,33 @@ from ideation_dashboard import doxbench_status_exemption     # noqa: E402
 from ideation_dashboard import serve_openxfactory_lanes      # noqa: E402
 from opendox import corpus_adapter                           # noqa: E402
 from opendox import doxbench_packet                          # noqa: E402
+from opendox import doxbench_trust                           # noqa: E402
 from opendox import domain_profile as opendox_registry      # noqa: E402
 from opendox import serve as serve_mod                       # noqa: E402
 from opendox import serve_wire                               # noqa: E402
 from opendox import workbench                                # noqa: E402
 from opendox.profile_proxy import profile_openxfactory as proxy  # noqa: E402
+from openxdox import serve_gate, serve_projection           # noqa: E402
 
 LANE_ROUTES = serve_openxfactory_lanes.LaneRoutes
 
-#: The five registration calls openDox-code's phase 1 declared, each on the
-#: module that declares it (T020, T025, T026, T027), in the order the host
-#: registers them: the home corpus last (`opendox_host.seams()` says why).
+#: The columns the bound handler composes after the core, in the order the
+#: facet collects them: the profile's own first, then each route extension's
+#: (plan 034 T094; openXdox's two arrive through its extensions from T086).
+CONTRIBUTED_COLUMNS = (LANE_ROUTES, serve_gate.GateRoutes,
+                       serve_projection.ProjectionRoutes)
+
+#: The six registration calls this host makes, each on the module that
+#: declares it, in the order the host registers them: the five openDox-code's
+#: phase 1 declared (T020, T025, T026, T027), and the binding-trust policy
+#: T100 declared (plan 034 T094, #1144 16.3a), with the home corpus last
+#: (`opendox_host.seams()` says why).
 SEAM_CALLS = (
     (workbench, "register_session_notebook_scope"),
     (workbench, "register_health_check"),
     (serve_wire, "register_doxbench_validators"),
     (doxbench_packet, "register_status_exemption"),
+    (doxbench_trust, "register"),
     (corpus_adapter, "register_home"),
 )
 
@@ -113,7 +124,7 @@ def test_the_pinned_leg_is_one_of_the_two_shapes():
     if LEG_HAS_THE_SEAMS:
         assert len(declared) == len(SEAM_CALLS), (
             f"LaneRoutes is off DashboardHandler's bases, so the leg carries "
-            f"plan 034 T011, yet it declares only {declared} of the five seams")
+            f"plan 034 T011, yet it declares only {declared} of the six seams")
     else:
         assert declared == [], (
             f"LaneRoutes is still a base of DashboardHandler, so the leg "
@@ -137,12 +148,23 @@ def test_the_profile_declares_the_lanes_column_under_the_handler_facet():
 
 
 def test_no_route_extension_declares_a_second_copy_of_the_column():
-    """openDox refuses a mixin declared twice, by the profile and by an
-    extension, so the declaration lives in ONE place: the profile."""
-    for extension in profile_openxfactory.ROUTE_EXTENSIONS:
-        assert getattr(extension, "HANDLER_CONTRIBUTIONS", None) is None, (
-            f"{type(extension).__name__} declares HANDLER_CONTRIBUTIONS as "
-            "well as the profile")
+    """openDox refuses a mixin declared twice, so each column is declared in
+    ONE place. The lanes column is this host's, declared by the profile and by
+    no extension. From plan 034's T086 openXdox's two columns are declared by
+    openXdox's own route extensions (RULED Q2 (a) at T086), and the profile
+    names neither of them."""
+    declared = [mixin for extension in profile_openxfactory.ROUTE_EXTENSIONS
+                for mixin in (getattr(extension, "HANDLER_CONTRIBUTIONS", None)
+                              or ())]
+    assert LANE_ROUTES not in declared, (
+        "a route extension declares LaneRoutes as well as the profile")
+    assert sorted(declared, key=lambda c: c.__name__) == sorted(
+        CONTRIBUTED_COLUMNS[1:], key=lambda c: c.__name__), declared
+    assert len(declared) == len(set(declared)), declared
+    for column in CONTRIBUTED_COLUMNS[1:]:
+        assert column not in profile_openxfactory.HANDLER_CONTRIBUTIONS, (
+            f"the profile declares openXdox's {column.__name__} as well as "
+            "its route extension")
 
 
 def test_the_lanes_column_arrives_where_the_pinned_leg_binds_it():
@@ -176,11 +198,11 @@ def test_the_lanes_column_arrives_where_the_pinned_leg_binds_it():
     contributed = seam.collect_handler_contributions(
         (proxy, *profile_openxfactory.ROUTE_EXTENSIONS),
         base=serve_mod.DashboardHandler)
-    assert contributed == (LANE_ROUTES,)
+    assert contributed == CONTRIBUTED_COLUMNS, contributed
     bound = seam.compose_handler("BoundDashboardHandler",
                                  serve_mod.DashboardHandler, contributed, {})
     assert bound.__mro__ == ((bound,) + serve_mod.DashboardHandler.__mro__[:-1]
-                             + (LANE_ROUTES, object))
+                             + CONTRIBUTED_COLUMNS + (object,))
     for name in methods:
         assert name not in vars(serve_mod.DashboardHandler)
         assert getattr(bound, name) is vars(LANE_ROUTES)[name], name
@@ -379,6 +401,7 @@ def test_every_seam_the_leg_declares_holds_this_hosts_implementation():
     assert workbench.health_check_registered()
     assert serve_wire.doxbench_validators_registered()
     assert doxbench_packet.status_exemption_registered()
+    assert doxbench_trust.current() is opendox_host.binding_trust_policy()
 
     with pytest.raises(workbench.WorkbenchError):
         workbench.register_session_notebook_scope(corpus_adapter.SCOPE_ALL)
@@ -390,6 +413,8 @@ def test_every_seam_the_leg_declares_holds_this_hosts_implementation():
                                        is_compression_exempt=lambda text: False)
     with pytest.raises(doxbench_packet.StatusExemptionAlreadyRegistered):
         doxbench_packet.register_status_exemption(other_rail)
+    with pytest.raises(doxbench_trust.TrustPolicyAlreadyRegistered):
+        doxbench_trust.register(doxbench_trust.MachineTrust())
 
     assert opendox_host.register_seams() == tuple(
         f"{module.__name__}.{call}" for module, call in SEAM_CALLS)
@@ -456,7 +481,7 @@ def test_a_leg_with_no_seams_registers_nothing(monkeypatch):
     assert opendox_host.register_seams() == ()
 
 
-def test_the_seam_table_is_the_five_calls_in_their_registration_order():
+def test_the_seam_table_is_the_six_calls_in_their_registration_order():
     table = opendox_host.seams()
     assert [(module, call) for module, call, _ in table] == list(SEAM_CALLS)
     assert [value for _, _, value in table] == [
@@ -464,6 +489,7 @@ def test_the_seam_table_is_the_five_calls_in_their_registration_order():
         opendox_host.scoped_doc_health,
         opendox_host.doxbench_validators,
         doxbench_status_exemption,
+        opendox_host.binding_trust_policy(),
         opendox_host.home_corpus,
     ]
 
