@@ -81,6 +81,7 @@ import os
 import re
 import subprocess
 import sys
+from collections import deque
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
@@ -545,10 +546,10 @@ def declared_checkouts(agg_root: Path) -> dict[str, list[str]]:
     read, so the walk stops there on its own."""
     root = Path(agg_root)
     out: dict[str, list[str]] = {}
-    queue: list[str] = [""]  # "" is the aggregation root itself
+    queue: deque[str] = deque([""])  # "" is the aggregation root itself
     seen: set[Path] = set()
     while queue:
-        base = queue.pop(0)
+        base = queue.popleft()
         base_dir = root / base if base else root
         try:
             real = base_dir.resolve()
