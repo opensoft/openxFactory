@@ -9,7 +9,7 @@ from pathlib import Path, PurePosixPath
 import re
 import sys
 import unicodedata
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
 
 from jsonschema import Draft202012Validator, FormatChecker
 
@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "contracts/factory-mcp/declaration.schema.json"
 INPUT_LIMIT = 262144
 ARTIFACT_LIMIT = 1048576
+# Parsed schema documents are kept for the whole run, so their total is bounded.
+SCHEMA_TOTAL_LIMIT = 4 * ARTIFACT_LIMIT
 DEPTH_LIMIT = 128
 # Rendered CLI output (JSON or human), measured as UTF-8 before it is printed.
 OUTPUT_LIMIT = 262144
@@ -62,7 +64,7 @@ ANNOTATIONS = ("$comment", "title", "description", "examples", "default", "depre
 PROJECTION = ("type", "required", "properties", "additionalProperties", "$ref", "oneOf", "anyOf") + ANNOTATIONS
 # A required property's own schema is judged only at its top level, after its
 # `$ref` chain: `false` holds no value, and these are not analyzed.
-UNANALYZED = ("not", "if", "then", "else", "allOf")
+UNANALYZED = ("not", "if", "then", "else", "allOf", "oneOf", "anyOf")
 # Constraints that may narrow a vocabulary; never infer exhaustiveness through them.
 # Object cardinality and property-name constraints can leave a branch no instance.
 NARROWING = ("allOf", "not", "if", "then", "else", "pattern", "minLength", "maxLength",
@@ -217,12 +219,26 @@ def json_types(value):
 
 
 def json_key(value):
-    """A key under which JSON-equal values meet: `1` equals `1.0`, never `true`."""
+    """A key under which JSON-equal values meet, recursively: `1` equals `1.0`
+    at any depth, and `true` never equals a number."""
     if isinstance(value, bool) or value is None or isinstance(value, str):
         return (type(value).__name__, value)
     if isinstance(value, (int, float)):
         return ("number", value)
-    return ("json", json.dumps(value, sort_keys=True))
+    if isinstance(value, list):
+        return ("array", tuple(json_key(item) for item in value))
+    return ("object", tuple(sorted((name, json_key(item)) for name, item in value.items())))
+
+
+def decode_fragment(fragment):
+    """A `$ref` fragment, strictly percent-decoded before JSON Pointer parsing
+    (RFC 6901 section 6): a malformed escape or non-UTF-8 bytes is a bad pointer."""
+    if BAD_PERCENT.search(fragment):
+        raise Invalid("invalid_pointer")
+    try:
+        return unquote(fragment, errors="strict")
+    except UnicodeDecodeError:
+        raise Invalid("invalid_pointer") from None
 
 
 def own_space(node):
@@ -302,6 +318,7 @@ class Offline:
         self.spaces = {}
         self.finite_cache = {}
         self.work = 0
+        self.loaded = 0
         self.checked_targets = set()
 
     def read(self, key):
@@ -322,8 +339,12 @@ class Offline:
 
     def document(self, key):
         if key not in self.documents:
+            raw = self.read(key)
+            if self.loaded + len(raw) > SCHEMA_TOTAL_LIMIT:
+                raise Invalid("schema_total_size_limit")
+            self.loaded += len(raw)
             try:
-                document = json_loads(self.read(key))
+                document = json_loads(raw)
             except Invalid:
                 raise
             except (json.JSONDecodeError, UnicodeDecodeError):
@@ -372,11 +393,16 @@ class Offline:
         return node, resource, place_of(node, place)
 
     def resolve(self, key, ref, resource):
-        if not isinstance(ref, str) or any(c in ref for c in (":", "\\", "%", "?", "\x00")):
+        if not isinstance(ref, str) or any(c in ref for c in ("\\", "\x00")):
             raise Invalid("remote_or_unsafe_schema_reference")
         path, sep, fragment = ref.partition("#")
+        # A scheme, an escape or a query belongs to the PATH only; a fragment
+        # selects keys in a loaded schema, so `:` and `?` are ordinary there.
+        if any(c in path for c in (":", "%", "?")) or "#" in fragment:
+            raise Invalid("remote_or_unsafe_schema_reference")
         if sep and fragment and not fragment.startswith("/"):
             raise Invalid("unsupported_schema_anchor")
+        fragment = decode_fragment(fragment)
         if path:
             if resource is not self.document(key):
                 raise Invalid("relative_reference_in_embedded_resource")
