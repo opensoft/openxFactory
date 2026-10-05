@@ -45,4 +45,4 @@ T001 → T002 → T003 → T004 → T005 → T007 → T008. T006 may run after T
 - [x] T013 [US2] Discriminated union inventories, strict JSON Pointer indices and union-member coverage (FR-005).
 - [x] T014 [US3] Located, de-duplicated diagnostics with distinct input codes and exit 2 for usage errors; an https resource URI, a tool id token, tool schemas tied to source, and `contentSchema` and `dependencies` walked (FR-001 to FR-003, FR-008).
 - [x] T015 Run the full CI command on the branch and on main in the same clone kind, plus the pinned OpenSpec validation, doc-health and the sequenced-after validators; record an addendum in verification.md.
-- [x] T016 Answer every Copilot review finding red first (ten rounds, `94ca87e1` to `d7a1f86b`; table in verification.md).
+- [x] T016 Answer every Copilot review finding red first (eleven rounds, `94ca87e1` to `dddb5007`; table in verification.md).
