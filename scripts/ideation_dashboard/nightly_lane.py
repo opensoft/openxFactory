@@ -433,56 +433,61 @@ class MultiLaneOutcome:
                 + (f", index {self.index_path}" if self.index_path else ", NO index"))
 
 
-# A `.gitmodules` section header that declares a submodule: git's canonical
-# `[submodule "name"]`, or its legacy `[submodule.name]` spelling, matched
-# against the WHOLE (stripped) line. The interior follows git-config's own
-# grammar: no whitespace after `[` or before `]` (git refuses either as a bad
-# config line), whitespace between the section and the quoted name, `\"` and
-# `\\` escapes inside it, and a case-insensitive section name. After `]`, only
-# a `#` or `;` comment may follow. git itself would read any other trailing
-# text as a same-line variable (`[submodule "a"] path = x`); git never WRITES
-# that form, and this lane deliberately declares nothing for it, so such a
-# section can only SKIP (`checkout not found`), never resolve to a checkout
-# (Copilot review, PR #1209, third round).
-_SUBMODULE_HEADER = re.compile(
-    r'^\[submodule(?:\s+"(?:[^"\\]|\\.)*"|\.[A-Za-z0-9.-]+)\]\s*(?:[#;].*)?$',
-    re.IGNORECASE)
+# A submodule key as git's own config parser prints it: the section and the
+# variable name lowercased, the submodule NAME (which may contain dots) as
+# declared.
+_SUBMODULE_KEY = re.compile(r"^submodule\.(.+)\.(path|url)$", re.DOTALL)
 
 
 def _gitmodules_entries(gitmodules: Path) -> list[tuple[str, str | None]]:
-    """`(path, url)` per `[submodule]` section of one `.gitmodules`, in declared
-    order. An unreadable or undecodable file declares nothing: one malformed
-    `.gitmodules` in a pinned repository must not abort the whole run before
-    `index-status.json` is written (Copilot review, PR #1209).
+    """`(path, url)` per submodule one `.gitmodules` declares, in declared
+    order, read by GIT'S OWN config parser (`git config --file <it>
+    --no-includes --null --get-regexp`), never by a hand parser.
 
-    Only a SUBMODULE section declares a checkout. Every header closes the
-    section before it, and keys under any other header (`[include]`, `[core]`,
-    a malformed one) are dropped, so a `path =` there never becomes a checkout
-    candidate (Copilot review, PR #1209, second round)."""
-    try:
-        text = gitmodules.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
+    Three review rounds on PR #1209 each found a way a hand parser drifted
+    from git-config's grammar: a non-submodule section declaring a checkout,
+    an unanchored header, and inline comments and quoting kept inside values,
+    which made an initialised leg declared as `path = spec # product leg`
+    resolve as missing. git's own reading settles every such question at
+    once: section headers, comments, quoting, escapes and case are exactly
+    git's, and `include.*` directives are not followed. A section git reads as
+    a submodule is read the same way here, and every path it yields still
+    passes the lane's containment and populated-checkout checks.
+
+    A file that is missing, that git refuses (a bad config line, rc 128), or
+    that declares no submodule (rc 1) declares nothing. That keeps one
+    malformed `.gitmodules` in a pinned repository from aborting the whole
+    run before `index-status.json` is written. Bytes that are not UTF-8 are
+    carried through `surrogateescape`, so a path still names the directory
+    git names."""
+    if not gitmodules.is_file():
         return []
-    sections: list[dict[str, str]] = []
-    current: dict[str, str] | None = None
-    for line in text.splitlines():
-        stripped = line.strip()
-        if not stripped or stripped[0] in "#;":
+    try:
+        proc = subprocess.run(
+            ["git", "config", "--file", str(gitmodules), "--no-includes",
+             "--null", "--get-regexp", r"^submodule\..*\.(path|url)$"],
+            capture_output=True)
+    except OSError:
+        return []
+    if proc.returncode != 0:
+        return []
+    order: list[str] = []
+    found: dict[str, dict[str, str]] = {}
+    for record in proc.stdout.split(b"\0"):
+        key, sep, value = record.partition(b"\n")
+        if not sep:
+            continue  # a valueless (boolean) key, or the trailing empty record
+        match = _SUBMODULE_KEY.match(key.decode("utf-8", "surrogateescape"))
+        if match is None:
             continue
-        if stripped.startswith("["):
-            current = {} if _SUBMODULE_HEADER.match(stripped) else None
-            if current is not None:
-                sections.append(current)
-            continue
-        if current is None:
-            continue
-        key, sep, value = stripped.partition("=")
-        value = value.strip()
-        if len(value) >= 2 and value[0] == value[-1] == '"':
-            value = value[1:-1]  # git config's quoted form
-        if sep:
-            current.setdefault(key.strip().lower(), value)
-    return [(s["path"], s.get("url") or None) for s in sections if s.get("path")]
+        name, var = match.groups()
+        if name not in found:
+            found[name] = {}
+            order.append(name)
+        # The last value wins, as git's own single-value read answers.
+        found[name][var] = value.decode("utf-8", "surrogateescape")
+    return [(found[n]["path"], found[n].get("url") or None)
+            for n in order if found[n].get("path")]
 
 
 def _repository_name(url: str | None) -> str | None:

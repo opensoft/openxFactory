@@ -840,25 +840,45 @@ def test_only_a_submodule_section_declares_a_checkout(tmp_path):
     assert lane.resolve_checkout(agg, "stray") is None
 
 
-def test_a_submodule_header_must_be_the_whole_line(tmp_path):
-    """Copilot review, PR #1209, third round: the header pattern was not
-    anchored after `]`, so `[submodule "fake"] trailing-junk` opened a section.
-    The header must now be the whole line, with only a `#`/`;` comment after
-    `]` (git-config allows both there), and its interior must follow git's
-    grammar, which refuses whitespace after `[` or before `]`. The `fake`
-    target is a real populated checkout, so only the parser refuses it."""
+def test_gitmodules_is_read_with_gits_own_grammar(tmp_path):
+    """Copilot review, PR #1209, third and fourth rounds: a hand parser kept
+    drifting from git-config's grammar (an unanchored header, then an inline
+    comment or quoting kept inside a value, which made an initialised leg
+    declared as `path = spec # product leg` resolve as missing).
+    `.gitmodules` is now read by git's OWN config parser with includes off, so
+    comments, quoting, escapes, dotted names and the one-line form are exactly
+    git's. The `[include]` target is a real populated checkout, so only the
+    parser refuses it."""
     agg = _commit_repo(tmp_path / "agg", gitmodules=(
-        '[submodule "fake"] trailing-junk\n\tpath = fake/x\n'
-        '\turl = git@example.invalid:fake.git\n'
-        '[submodule.legacy] junk\n\tpath = legacy/y\n'
-        '[submodule "spaced" ]\n\tpath = spaced/z\n'
-        '[ submodule "lead"]\n\tpath = lead/w\n'
-        '[submodule "ok"] # git allows a comment here\n\tpath = sub/ok\n'
-        '[submodule "ok2"] ; and this form of one\n\tpath = sub/ok2\n'
-        '[submodule "esc\\"aped"]\n\tpath = sub/esc\n'))
-    _commit_repo(agg / "fake" / "x")
+        '[include]\n\tpath = nested/repo\n'
+        '[submodule "leg"] # a comment after the header\n'
+        '\tpath = sub/spec # product leg\n'
+        '\turl = https://github.com/opensoft/openDox-spec.git ; inline comment\n'
+        '[submodule "quoted"]\n\tpath = "sub/q x" ; quoted, then a comment\n'
+        '[submodule "esc\\"aped"]\n\tpath = sub/esc\n'
+        '[submodule "a.b"]\n\tpath = sub/ab\n'
+        '[submodule "inline"] path = sub/inline\n'))
+    _commit_repo(agg / "nested" / "repo")
+    _commit_repo(agg / "sub" / "spec")
 
     assert lane.submodule_paths(agg) == {
-        "ok": "sub/ok", "ok2": "sub/ok2", "esc": "sub/esc"}
-    assert lane.resolve_checkout(agg, "fake") is None
-    assert lane.resolve_checkout(agg, "x") is None
+        "spec": "sub/spec", "q x": "sub/q x", "esc": "sub/esc",
+        "ab": "sub/ab", "inline": "sub/inline"}
+    assert lane.declared_checkouts(agg)["openDox-spec"] == ["sub/spec"]
+    # the initialised leg declared with an inline comment resolves
+    assert lane.resolve_checkout(agg, "openDox-spec") == "sub/spec"
+    # an `[include]` path is never a checkout, and the include is not followed
+    assert lane.resolve_checkout(agg, "repo") is None
+
+
+def test_a_gitmodules_git_refuses_declares_nothing(tmp_path):
+    """git refuses a whole file over one bad header line (`fatal: bad config
+    line`, rc 128), and so does the lane: an unreadable file declares nothing,
+    never a partial reading git would not make."""
+    agg = _commit_repo(tmp_path / "agg", gitmodules=(
+        '[submodule "ok"]\n\tpath = sub/ok\n'
+        '[submodule "spaced" ]\n\tpath = sub/spaced\n'))
+    _commit_repo(agg / "sub" / "ok")
+    assert lane.submodule_paths(agg) == {}
+    assert lane.declared_checkouts(agg) == {}
+    assert lane.resolve_checkout(agg, "ok") is None
