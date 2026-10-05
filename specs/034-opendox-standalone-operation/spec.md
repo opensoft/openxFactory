@@ -323,6 +323,79 @@ at #1144's 12.4a); `5970917267` (batch O, at 10.1, F9.1 and F9.2); and item
 1 of `5962754358` with `5963162921` (batch O, at 9.5: the one release tag,
 `v0.1.0`, that the publish at the cut owes).
 
+### Session 2026-10-04
+
+The holder's adversarial reviews of T104 (openDox-code#84) and T100
+(openDox-code#82, landed as `38d3350e`) raised three more questions, and
+batch P's review a fourth. Brett Heap answered each by multiple choice, and
+each answer is the option marked *(Recommended)*. The first three are in
+one comment on `#656`, `5982436447` (2026-10-04T17:11:29Z), which also
+records three of the holder's rulings, and the fourth is `5983805990`.
+
+- Q: Snap and Flatpak browsers, and a Windows browser opened from WSL,
+  cannot open the private copy's `file://` URL under the hidden default
+  state directory, and the token is never printed. What does release 1 do?
+  (item 1, finding B3) → A: *"Hint line, accepted limit (Recommended)"*. The
+  start prints one more line, with no token, saying that such a browser
+  should be used with `OPENDOX_STATE_DIR` set to a folder that is not
+  hidden. The openDox root's README documents it (T076), and release 1
+  ships with the limit (T104).
+- Q: A trust names a digest of the binding's record, so a trusted binding
+  whose broker runs a program inside the served repository stays trusted
+  after a pull changes that program. What is the rule? (item 2, finding A2)
+  → A: *"Refuse in-repo programs (Recommended)"*. A binding's command may
+  not name a file inside the served repository, and the broker lives
+  outside it. A T100 follow-on openDox-code PR carries it before T087 (claim
+  `5982447319`).
+- Q: A shell or interpreter wrapper, such as `["sh", "-c", "exec
+  ./tools/broker.py"]`, names no file as an argv member but still runs an
+  in-repo program. How far does item 2 reach? (`5983805990`,
+  2026-10-04T19:56:01Z, asked on #1230's Copilot thread `r4179024140`) →
+  A: *"Refuse inline scripts (Recommended)"*. A binding whose program is a
+  shell or an interpreter given an inline script (`sh -c`, `bash -c`,
+  `python -c`, `node -e`) is refused by name. The program must be a real
+  file outside the served repository, and every broker also starts with its
+  working directory outside it. `sh -c "pass show key"` becomes
+  `["pass", "show", "key"]`, or a script kept outside the repository. The
+  holder's ruling `5984069416` (2026-10-04T20:27:27Z, on Copilot
+  `r4179187252`) implements it for launcher chains: a common launcher such
+  as `env` is unwrapped to the program it starts, the broker's environment
+  drops `PWD` and `OLDPWD`, and a general program that runs code from its
+  own arguments (`awk`, `find -exec`) is an accepted release-1 limit. The
+  holder's ruling `5985046107` (2026-10-04T22:16:59Z, after an adversarial
+  review of openDox-code#86) applies both, extending neither. A launcher's
+  options are read by GNU `getopt_long`'s grammar, an ambiguous or unknown
+  one is refused, `xargs -a` is judged as `env --chdir` is, and an `env -S`
+  string with a backslash or a `$` is refused as unreadable (C1). A path
+  given to the final program as an option's value, after `=` or attached
+  to a single-dash option (`-I<repo>/lib`), is judged (C4). The holder's
+  ruling `5985553609` (2026-10-04T23:23:22Z, asked by Copilot at
+  `7b11ce8f`) reads *"a real file"* by what it forbids to run: a program
+  that cannot be found runs nothing, is not refused at trust, and is
+  refused as `broker_unreachable` when its start fails. A check at trust
+  that it exists is no open work of release 1: it is a possible follow-on
+  for Brett Heap that would move no release-1 box.
+- Q: A state directory inside the served repository is refused. What of one
+  inside some other git checkout? (item 3, finding A14) → A: *"Served repo
+  only, limit (Recommended)"*. The check stays as it is, and the wider case
+  is an accepted limit, with no code change. A check for any enclosing
+  checkout would refuse a home directory kept in git.
+
+The holder's rulings recorded with them:
+- B2: a platform without the POSIX primitives refuses the start by name, as
+  openDox-code#69's `bundle.unsupported_platform()` does (T104).
+- B7: a browser's persistent history keeps the fragment. It is the same
+  user's data as the 0600 copy, and the page's `replaceState` cleans only
+  session history, so it is an accepted limit (T104).
+- A8: the realization follows F16.1's ratified text. A state directory that
+  is itself a symbolic link trusts nothing (the T100 follow-on).
+
+T007's batch P records items 1 to 3, `5983805990` (with the holder's
+`5984069416`, `5985046107` and `5985553609`), B7 and A8 in #1144, at 12.4a,
+16.3a and F16.1, and item 2 with `5983805990` also in a third dated note to
+requirement 17, since they narrow batch M's note there. B2 needs no line
+there.
+
 **Nothing is open.** No task in [`tasks.md`](./tasks.md) carries a `Blocked
 by:` line, and the answers above settle the choices phase 3's additions
 raised, T094's help golden and trust policy among them.
@@ -461,7 +534,7 @@ configure one, before any turn is attempted, and everything else works.
 13 and 17). It depends on US1 and US2.
 
 **Independent Test**: at the phase-3 tip, F13.1 and F10.1 (both as amended per
-R1Q15 and R1Q16), F16.1 (as T007's batch M amends it) and F4.1 (the whole
+R1Q15 and R1Q16), F16.1 (as T007's batches M and P amend it) and F4.1 (the whole
 package: no deferred reach, and `consumer_reach.py` gone) pass. So does
 **AT-R1**, defined under Success Criteria.
 
@@ -501,7 +574,14 @@ package: no deferred reach, and `consumer_reach.py` gone) pass. So does
    declared through `opendox model-binding add` or `edit`, or trusted through
    `opendox model-binding trust <id>`, is reached as scenario 3 says
    (requirement 17 as T007's batch M note reads it; RULED `5962785556`, item
-   2: *"Trust per machine (Recommended)"*).
+   2: *"Trust per machine (Recommended)"*), unless its command names a file
+   inside the served repository. Such a binding is refused by name, naming
+   the remedy, a broker installed outside the repository, both when trust
+   would be recorded for it and before any process is spawned, even when it
+   is trusted, and so is one whose program is a shell or an interpreter
+   given an inline script (requirement 17 as T007's batch P note reads it;
+   RULED `5982436447`, item 2: *"Refuse in-repo programs (Recommended)"*,
+   and `5983805990`: *"Refuse inline scripts (Recommended)"*).
 
 ---
 
@@ -702,7 +782,49 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   SHALL record it after printing what will run and where the credential
   goes, and an untrusted binding SHALL be refused by name before any spawn,
   read or contact. Bindings stay committable. This is requirement 17 as its
-  batch-M note reads it (`5962785556`, item 2; 16.3a). With no model
+  batch-M note reads it (`5962785556`, item 2; 16.3a). A binding whose
+  command names a file inside the served repository SHALL be refused by
+  name even when it is trusted, naming the remedy, a broker installed
+  outside the repository, and so SHALL one whose program is a shell or an
+  interpreter given an inline script, directly or through a common
+  launcher such as `env` or `xargs` (`5984069416`, `5985046107`). The
+  program SHALL be a real file outside the served repository, and every
+  path the command names, the program and each argument alike, SHALL be
+  judged both as named and as it resolves, when trust is recorded and
+  before any spawn, so a link or a `PATH` entry that leads inside, or an
+  in-repo link that points outside, is refused. "A real file" is read by
+  what it forbids to run (`5985553609`): a program that cannot be found
+  runs nothing, is not refused when trust is recorded, and SHALL be
+  refused, when its start fails, by the existing named refusal
+  `broker_unreachable`. Every broker SHALL start with its working
+  directory outside the repository and with an environment that points
+  away from it: no `PWD` or `OLDPWD`, no variable whose value is a path inside it, and no
+  path-list entry inside it, each judged both as named and as it resolves.
+  A launcher's own assignments (`env NAME=value`) SHALL be judged the same
+  way, and one whose value is a path inside the repository, or a path list
+  with an entry inside it, SHALL be refused. A launcher's own options
+  SHALL be read by GNU `getopt_long`'s grammar, a long option by its
+  unambiguous prefix, and an ambiguous or unknown one SHALL be refused by
+  name (`5985046107`, C1). A launcher's own option that names a path, such
+  as the directory `env --chdir` (`-C`) starts the program in or the file
+  `xargs -a` (`--arg-file`) reads its arguments from, SHALL be judged the
+  same way, and one that names a path inside the repository SHALL be
+  refused (C4). A string that `env -S` carries SHALL be judged as the
+  arguments it names when it holds no backslash and no `$`, and SHALL
+  otherwise be refused as unreadable, as an inline script is (C1). A path
+  given to the program that finally runs as an option's value, after `=`
+  (`--require=<repo>/x`) or attached to a single-dash option
+  (`-I<repo>/lib`), SHALL be judged as the command's paths are and SHALL
+  be refused when it lies inside the repository (C4). Any other path
+  embedded inside an option string given to the program that finally
+  runs, such as one carried in a variable like `NODE_OPTIONS=--require=…`,
+  is part of the accepted release-1 limit, as the batch-P note says; a
+  launcher's own options are never part of it. A general program outside
+  the repository that runs code from its own arguments (`awk`, `find
+  -exec`), other than a shell or an interpreter given an inline script, is
+  an accepted release-1 limit. This is
+  requirement 17 as its batch-P note reads it (`5982436447`, item 2,
+  `5983805990` and `5985046107`; 16.3a). With no model
   configured, it SHALL show a "no model configured" state before any turn,
   and every other surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);
   R1Q17 (b): a built-in `env:` and keyring resolver in that module; R1Q18 (a):
@@ -781,7 +903,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   because R1Q25 (b) keeps 7.3 in phase 2, read as batch I records R1Q27
   (a).
 - **SC-003** (phase 3 exit): F4.1, F5.2, F10.1, F13.1 and F16.1 (with T007's
-  batch M line) exit 0, and the F4.1 scan prints
+  batch M line, whose named file holds batch P's A2 cases too) exit 0, and
+  the F4.1 scan prints
   `no deferred reach names the consumer or the publisher`.
 - **SC-004**: AT-R1 passes, and its evidence is recorded in this feature's
   `evidence/` directory.
