@@ -4138,13 +4138,20 @@ written (`5962754358`). `consumer_reach.py` is gone.
   - **After**: T086, T087, T064 (the pin pairs' single-writer order), and
     the ahead PR (E1 (a), a non-arc PR with no task of its own: the golden,
     the usage line and the rebound-Host case).
-- [ ] T098 [US4] [oxF] **Phase 3's interim F11.1**, by T093's procedure, with
+- [x] T098 [US4] [oxF] **Phase 3's interim F11.1**, by T093's procedure, with
   `ARC_TIP` at T094's landing. Record the output in
   `evidence/f11.1-phase3.txt`, with no `Arc:` trailer, and link it from
   this feature's README entry.
   - **Falsifier**: F11.1, as widened by T007 batch A, prints `requirement 1
     holds`.
   - **After**: T094.
+  - **Landed**: [`evidence/f11.1-phase3.txt`](evidence/f11.1-phase3.txt),
+    with `PACKET_MERGE=94b6f7f1` and `ARC_TIP=36908480` (#1236). It prints
+    `requirement 1 holds: 0 note(s) annotated, every other path a declared
+    surface (11.1)` (exit 0) over the arc's three landings, `f56c87c6` (T047),
+    `fcb45380` (T064) and `36908480` (T094). A planted path on no surface is
+    refused, and 3.3's `deleted_at_carve` row is byte-identical (T017). The
+    admitted list did not grow.
 - [ ] T089 **Phase 3 checkpoint.** Run and quote F4.1, F10.1 and F13.1 (both
   as batch H amends them), F16.1 as batches M and P amend it (with T100's
   named test, and the T100 follow-on's cases in it), and F5.2 whole (as T007's batches C, F, G and K amend it, after
