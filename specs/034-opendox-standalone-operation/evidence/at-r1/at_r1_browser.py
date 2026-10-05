@@ -486,8 +486,11 @@ with sync_playwright() as p:
         # "both editors": each editor the by-scope workbench offers opens and accepts edits
         offered = sorted({t["aria"] for t in ed["textareas_on_open"] + tas})
         not_typed = [o for o in offered if not any(k.startswith(o) for k in typed)]
+        # BOTH editors: the Outline buffer AND at least one document buffer,
+        # each typed into, and nothing offered left untyped (Copilot on
+        # openxFactory#1241: an absent Outline editor must fail this check)
         check("editors: each editor offered opens and accepts edits (5971834845)",
-              bool(typed) and not not_typed and len(documents) >= 1,
+              bool(typed) and not not_typed and outline and len(documents) >= 1,
               offered=offered, typed=typed, outline_typed=outline, not_typed=not_typed,
               detail=ed, screenshot=shot(page, "4f-editors"))
         # Create: on a standalone plane, T102's by-scope posture offers NO

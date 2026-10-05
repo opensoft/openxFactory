@@ -164,9 +164,16 @@ own run of T099's step, at 15:29:25Z, exited 0 as well.
     which includes checking that the raw `/capabilities` payload holds the
     token neither by name nor by value.
   - It sends the token to the catalog over stdin, never on a command line.
-- **The drive.** [`at_r1_browser.py`](at_r1_browser.py) (sha256
-  `763b59194df0a451935974808d1a1183d79593cb6e0133233542bb2f9fdddff8`) opens
-  exactly the printed `file://` URL.
+- **The drive.** [`at_r1_browser.py`](at_r1_browser.py) opens exactly the
+  printed `file://` URL. The run used the bytes with sha256
+  `763b59194df0a451935974808d1a1183d79593cb6e0133233542bb2f9fdddff8`, which
+  this PR's first commit holds. Review then made the editors check require
+  the Outline editor as well as a document editor, so a missing Outline
+  editor fails it (Copilot's fourth review). The run's recorded results meet
+  it (`outline_typed` is true in both repositories), and the browser half
+  run again at X with the file as it now stands passes 18 of 18 checks in
+  both. The file beside this record has sha256
+  `e5ce78d648f17c9e3357514625784eb0906cbc990ff1208528a402e13bd5fd36`.
   - It runs Playwright 1.61.0 with its Chromium 149.0.7827.55, from the
     environment's own browser cache, at a 1500 × 1000 viewport.
   - It collects `console`, `pageerror` and `requestfailed` from the first
@@ -234,8 +241,8 @@ own run of T099's step, at 15:29:25Z, exited 0 as well.
 ## The run's files
 
 - [`run-at-r1.sh`](run-at-r1.sh) and [`at_r1_browser.py`](at_r1_browser.py):
-  the runbook and the driver. The driver is as run, and the runbook is as run
-  but for three review fixes (§ "How it ran").
+  the runbook and the driver, each as run but for its review fixes, three in
+  the runbook and one in the driver (§ "How it ran").
 - `x/`, the run at X. It holds:
   - `verdict.txt`;
   - `commit.txt` (the commit, the P-against-X line, the harness, the
