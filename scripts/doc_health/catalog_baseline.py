@@ -64,7 +64,7 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import catalog
+from . import catalog, fs_probe
 from .catalog import CatalogError
 
 BASELINE_DIR = catalog.CATALOG_DIR / "baseline"
@@ -555,8 +555,13 @@ def merge_baseline(root, as_of, repos) -> Path | None:
 
 def is_baseline_complete(root) -> bool:
     """The complete-coverage enforcement gate: true only once the
-    deterministic merge has written the ``baseline_complete`` marker."""
-    return (Path(root) / BASELINE_DIR / MARKER_NAME).is_file()
+    deterministic merge has written the ``baseline_complete`` marker. A
+    marker whose ``stat`` fails for any reason but its absence raises that
+    ``OSError`` rather than reading as "not merged yet" (``fs_probe``;
+    opensoft/openxFactory#1201): ``Path.is_file`` raises it through Python
+    3.13 and swallows it from 3.14 on."""
+    # Must refuse: "not merged yet" switches complete-coverage enforcement off.
+    return fs_probe.is_file(Path(root) / BASELINE_DIR / MARKER_NAME)
 
 
 def load_baseline(root) -> dict | None:
@@ -566,7 +571,8 @@ def load_baseline(root) -> dict | None:
     root = Path(root)
     marker_path = root / BASELINE_DIR / MARKER_NAME
     merged_path = root / BASELINE_DIR / MERGED_NAME
-    if not marker_path.is_file():
+    # Must refuse (fs_probe, #1201): None reads as "no baseline recorded".
+    if not fs_probe.is_file(marker_path):
         return None
     try:
         marker = json.loads(marker_path.read_text(encoding="utf-8"))

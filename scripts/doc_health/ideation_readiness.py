@@ -63,6 +63,7 @@ except ImportError:  # pragma: no cover
 
 from . import CONTESTED, WARNING, Finding
 from . import corpus as corpus_mod
+from . import fs_probe
 from .lines import split_keepends
 
 # --- prompt contract ---------------------------------------------------------
@@ -366,13 +367,16 @@ def load_catalog_tags(agg_root) -> dict[str, list[str]] | None:
     if agg_root is None:
         return None
     catalog_dir = Path(agg_root) / CATALOG_DIR_REL
-    if not catalog_dir.is_dir():
+    # Must refuse (fs_probe, #1201): None is "no catalog", the guard OFF, so a
+    # catalog that cannot be stat-ed must not read as one that is not there.
+    if not fs_probe.is_dir(catalog_dir):
         return None
     # A snapshot exists iff the runs tree holds at least one dated run. The
     # facet -> tag projection is cataloging-owned and folded in when realized;
     # until a snapshot lands the guard yields None (inert).
     runs = catalog_dir / "runs"
-    if not runs.is_dir() or not any(runs.iterdir()):
+    # Must refuse, for the same reason (fs_probe, #1201).
+    if not fs_probe.is_dir(runs) or not any(runs.iterdir()):
         return None
     return {}  # snapshot dir present but facet projection deferred to realization
 

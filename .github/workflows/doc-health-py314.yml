@@ -1,0 +1,96 @@
+# The doc-health suite on Python 3.14 (opensoft/openxFactory#1201).
+#
+# WHY THIS EXISTS. CPython 3.14 changed `Path.exists`, `is_dir`, `is_file` and
+# `is_symlink`: through 3.13 they raise any `OSError` that does not name the
+# node's absence, and from 3.14 on they answer False for all of them. #1201
+# found the doc-health catalog and six of its gates relying on the 3.12
+# behaviour to fail closed, and Brett Heap's ruling on it ("#1201: 1(b), raw
+# OSError, add the 3.14 CI leg") moved that guarantee into the code
+# (`scripts/doc_health/fs_probe.py`, and the catalog's own `lstat` probes) and
+# asked for this leg. `tests/doc-health/`'s `pathlib_314` fixture emulates
+# 3.14's pathlib on the required suite's 3.12; this job runs the real
+# interpreter, so it also catches whatever else 3.14 changes.
+#
+# A SEPARATE WORKFLOW, NOT A MATRIX ON `pytest-suite`. `pytest-suite` is a
+# REQUIRED check, pinned by its literal job name. A matrix renames its
+# check-runs (`pytest-suite (3.12)`, ...), and the pinned context would then
+# never report, which blocks every pull request. So that job is untouched, and
+# this one reports under its own name.
+#
+# NOT REQUIRED. No ruleset names `doc-health-py314` (read from
+# `repos/opensoft/openxFactory/rules/branches/main` on 2026-09-30). Making it
+# required is a ruleset change, which is Brett Heap's to make, not this file's.
+#
+# The job carries no display name, so the check surfaces as exactly
+# `doc-health-py314`, the token a ruleset would pin (the same rule
+# `pytest-suite.yml` writes down for itself).
+#
+# THE SETUP MIRRORS `pytest-suite.yml`, less what `tests/doc-health/` does not
+# read. The same nested checkout under `openxFactory/` with `fetch-depth: 0`
+# (several doc-health tests read the real tree and its history), the same ssh
+# URL rewrite, and the same three gitlinks, `openXdox` and `openDox`
+# recursively: `tests/doc-health/conftest.py` installs `scripts/carved_reach.py`,
+# and the suite imports `openxdox` and reads moved files' source through the
+# two carve legs. The same hash-pinned lock (`requirements/
+# hermes-runtime-contracts.lock`), installed with `--require-hashes` and, as
+# `former-id-arrival-gate.yml` and `openxdox-consumer-gate.yml` install it,
+# `--only-binary :all:`: every locked package ships a 3.14 wheel (measured on
+# this job's first runs), so no package's setup script ever runs here. Not
+# node, the openspec CLI or the pinned decision core: no test under
+# `tests/doc-health/` gates on node or openspec, and the decision core feeds
+# only `tests/review_lane_pin/`.
+name: doc-health-py314
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: doc-health-py314-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  doc-health-py314:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: openxFactory
+    steps:
+      - name: Rewrite ssh submodule URLs for token auth
+        working-directory: .
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
+        env:
+          TOKEN: ${{ github.token }}
+
+      - uses: actions/checkout@v4
+        with:
+          path: openxFactory
+          fetch-depth: 0
+
+      - name: Init the openXwallet, openXdox and openDox gitlinks (openDox and openXdox RECURSIVELY, as pytest-suite does)
+        run: |
+          git submodule update --init openXwallet
+          git submodule update --init --recursive openXdox openDox
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - run: python --version
+
+      # A literal block: `:all: -r` carries a colon and a space, which a plain
+      # YAML scalar may not (the reason openxdox-consumer-gate.yml gives too).
+      - run: |
+          pip install --require-hashes --only-binary :all: \
+            -r requirements/hermes-runtime-contracts.lock
+
+      - run: python -m pytest tests/doc-health -q -rs
