@@ -1907,6 +1907,20 @@ packet's interim arrangement ends.**
   its expected result are unchanged, and the archive act stays the holder's.
   Carried out by plan 038's T076.
 
+  **How the archive gate admits it.** `archive_change()` refuses any `tasks.md`
+  line that matches `^- [ ]`, with `change has incomplete tasks`
+  (`scripts/proposal-support.py:4631-4633` at `main` `92010d3e`). It has no
+  per-box exception, and none is built or claimed for F9.2. So if #1144
+  archives before T076 runs, its archive pull request ticks this box `[x]` with
+  a disposition written beneath it: NOT PERFORMED at the archive, reported in
+  R1Q6 (d)'s form, and carried by the direction arc's own change, whose
+  evidence records F9.2's closure (T076). The open obligation is then not
+  written down only inside an archived packet. THE TICK IS A DISPOSITION, NOT A
+  PERFORMANCE. This is the form the gate leaves for a box that a ruling lets an
+  archive pass unperformed, as `add-declared-former-id`'s archive used it on
+  Brett Heap's ruling of 2026-09-15
+  (`openspec/changes/archive/2026-09-15-add-declared-former-id/tasks.md:568-581`).
+
 ## Group 10 — Requirement 10 / G9, G10: one entry point (openDox-code + openDox root)
 
 - [x] 10.1 A `[project.scripts]` entry point for the DOCUMENT surface. **The verbs
