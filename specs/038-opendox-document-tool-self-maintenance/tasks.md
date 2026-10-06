@@ -776,7 +776,8 @@ copies (research R7; ADV-05).
   - **Lane**: 4.
 - [ ] T042 [P] [US4] [oDc] **HA-1, the store (`0003_`), one owner.** New
   `migrations/0003_health.sql`: `health_runs` (with the run's kind, the
-  baseline branch, the run's pack inventory `pack_versions`, whether it was
+  baseline branch, the run's pack inventory `pack_versions`, each pack's exact
+  pin `pack_pins` and the `export_commit` its packs read, whether it was
   `full`, and the probe's `sandbox` record; Copilot review) and
   `health_findings` (data-model.md, with no `identity` column), with
   15.7's
@@ -1088,7 +1089,10 @@ copies (research R7; ADV-05).
   the manifest entry; validates each returned patch through T049 and stores only
   the finding (a refusal names `refused_patch` and `reason`; no patch text);
   re-obtains one finding's patch at `fix` by re-running that one pinned pack
-  (OQ-H15-20); turns a crash, timeout, bound hit, bad stdout or refused output
+  (OQ-H15-20) only at the run's recorded `pack_pins` entry and `export_commit`,
+  refusing by name, with no branch, when the current pin or HEAD differs or the
+  re-run does not reproduce the finding's id (data-model.md § Finding; Copilot's
+  review of `3f807204`); records each run's `pack_pins` and `export_commit`; turns a crash, timeout, bound hit, bad stdout or refused output
   into a finding against that pack, storing none of its output and no stderr
   (only the failure's category, exit status, and stderr's byte count and
   SHA-256; OQ-H15-11, refined), each such finding with its engine-owned identity
@@ -1100,8 +1104,10 @@ copies (research R7; ADV-05).
   cgroup is delegated, never `RLIMIT_NPROC`, which setrlimit(2) counts per real
   user (lane 3's bwrap-facts FIX). Owns nothing of Group 14's.
   - **Realizes**: 15.4, 15.5 (part), 15.6, 15.7 (part: stamping).
-  - **Falsifier**: new `tests/test_check_pack_engine.py`; the measurement quoted
-    in its PR.
+  - **Falsifier**: new `tests/test_check_pack_engine.py`, including a `fix`
+    refused with no branch after the manifest's digest changes under an
+    unchanged `version`, and after HEAD moves past the run's `export_commit`;
+    the measurement quoted in its PR.
   - **Ruled**: R2Q16, R2Q18, R2Q21, R2Q25. **Decisions**: OQ-H15-5, -11, -18, -19,
     -20.
   - **After**: T046, T042, T047, T048, T049, T055.

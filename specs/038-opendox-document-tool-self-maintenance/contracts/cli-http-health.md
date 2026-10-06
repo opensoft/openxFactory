@@ -54,7 +54,11 @@ Options follow the verb (10.1). `--class` is additive (a filter on `list`);
   (data-model.md § Fix draft). `auto-fix` applies the family's repair or the
   pack's re-obtained and re-validated patch; `assisted` writes the deterministic
   proposal; a `human-only` finding is refused with no branch made (14.6, 14.7;
-  F14.1). The draft lands only through `land`.
+  F14.1). `fix` also refuses, with no branch made and naming the remedy (run
+  again), when the producer's current pin or HEAD differs from the run's
+  recorded `pack_pins` entry or `export_commit`, or the re-run does not
+  reproduce the finding (data-model.md § Finding). The draft lands only through
+  `land`.
 - **`accept`** writes one entry to `health/dispositions.yaml`
   (`contracts/health-exceptions.md`).
 - F14.1 and F15.1 first start the document server, as F13.1 does, and the

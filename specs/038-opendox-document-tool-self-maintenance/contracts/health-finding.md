@@ -38,7 +38,7 @@ array of them, with at least the fields 14.5 declares (`id`, `resolution_class`,
 | `severity` | string | yes | `error` \| `warning` \| `info` |
 | `resolution_class` | string | yes | `auto-fix` \| `assisted` \| `human-only` (14.6, spelled exactly) |
 | `message` | string | yes | one line, at most 200 characters, written by the family from its own words; never document text (ADV-27) |
-| `evidence` | object | no | locators only (R2Q25 (a)): paths, line spans, link targets as written, digests, a family's own `family_version`, a refused patch's `refused_patch` and `reason` (15.2a). Any string longer than 200 characters, or any key named `excerpt`, `text`, `content` or `quote`, is refused |
+| `evidence` | object | yes; the engine sets `{}` when a family or pack supplies none, so every emitted finding carries it (14.5; FR-011; Copilot's review of `3f807204`) | locators only (R2Q25 (a)): paths, line spans, link targets as written, digests, a family's own `family_version`, a refused patch's `refused_patch` and `reason` (15.2a). Any string longer than 200 characters, or any key named `excerpt`, `text`, `content` or `quote`, is refused |
 | `baseline_class` | string | no | set by the engine: `new` \| `pack-upgrade` \| `persistent` (R2Q12 (a)); there is no fourth value (I-2 (a), ruled) |
 
 ## The id rule (ADV-07, a conforming refinement of R2Q10 (a))

@@ -146,6 +146,8 @@ Table `health_runs` in `0003_` (OQ-H-22; DOMAIN, R2Q13 (a)):
 | `started_at`, `finished_at` | timestamptz | |
 | `outcome` | `complete` \| `partial` \| `refused` | `partial` when a pack failed (its failure is a finding) |
 | `pack_versions` | jsonb, NOT NULL | the run's PACK INVENTORY: `{pack_id: pack_version}` for every pack it ran, zero-finding packs and `opendox` itself included. The baseline reads a pack's previous version here, never from findings (Copilot review of `6d6911e1`) |
+| `pack_pins` | jsonb, NOT NULL | each pack's EXACT pin as the run used it: `{pack_id: {"version", "digest", "commit"}}` (`commit` null for a corpus-relative source; `opendox`'s entry the installed version alone). `fix` re-runs a pack only at this pin (§ Finding, the patch; Copilot's review of `3f807204`) |
+| `export_commit` | 40-hex, NOT NULL | the commit whose committed export the packs read: `commit` for a default-tip or branch run, HEAD at run time for a working-state run (15.1b) |
 | `full` | boolean, NOT NULL | true when no `--pack` restricted the run. Only a `complete`, `full` default-tip run forms a baseline or measures disappearances (Copilot review of `2076f24b`) |
 | `sandbox` | jsonb, NOT NULL | what the per-run probe found: `{"live": bool, "pids_max": int or null}`; `pids_max` is null where no cgroup is delegated (an accepted limit, contracts/health-packs-manifest.md § Rules) |
 
@@ -191,7 +193,7 @@ The neutral shape is [`contracts/health-finding.md`](./contracts/health-finding.
 | `resolution_class` | `auto-fix` \| `assisted` \| `human-only` (14.6) |
 | `baseline_class` | `new` \| `pack-upgrade` \| `persistent` (R2Q12 (a)); no fourth value (I-2 (a), ruled) |
 | `message` | one line, bounded like `evidence` (ADV-27): at most 200 characters, written by the family from its own words; never document text |
-| `evidence` | locators only, never an excerpt (R2Q25 (a)); a family's own version rides here (OQ-H15-18); a refused patch's `refused_patch` and `reason` (15.2a) |
+| `evidence` | NOT NULL, `{}` when there is nothing to locate (14.5 lists it in every `list --json` finding); locators only, never an excerpt (R2Q25 (a)); a family's own version rides here (OQ-H15-18); a refused patch's `refused_patch` and `reason` (15.2a) |
 
 The finding's `identity` (contracts/health-finding.md) is ENGINE-INTERNAL: the
 engine hashes it into `id` at run time and neither stores nor emits it, since a
@@ -203,7 +205,16 @@ There is NO patch column (lane 3's MISLABEL row 31): a patch is document text,
 and the store holds no document (14.3; R2Q25 (a)). A pack's patch is validated
 at `run` (a refusal is stored as a finding naming `refused_patch` and `reason`,
 no text) and RE-OBTAINED at `fix` by re-running that one pack in the sandbox,
-then validated again before any branch exists (OQ-H15-20, refined).
+then validated again before any branch exists (OQ-H15-20, refined). **The re-run
+reproduces the run that found it, or `fix` refuses**: the pack's current
+manifest pin must equal the run's `pack_pins` entry, and HEAD the run's
+`export_commit`; and the re-run must report the same finding id. Otherwise
+`fix` refuses by name, with no branch made, naming the remedy (run `health run`
+again and fix the fresh finding), so a changed manifest source, commit or digest
+under an unchanged `version`, or a moved HEAD, never runs other code or reads
+another tree for an old finding (Copilot's review of `3f807204`). A built-in
+family's repair follows the same rule: the installed version equal to the run's
+`opendox` entry, and the finding reproduced at HEAD.
 
 The store refuses a finding with no `pack_id` or `pack_version`
 (`test_the_store_refuses_a_finding_without_provenance`) and holds no document
@@ -343,5 +354,5 @@ health_findings * ── 0..1 exception          (by id, in git; suppresses)
 health_findings * ── 0..1 fix draft branch   (health-fix-<id>, or the open health-fix-batch) ── land ──> Landed
 manifest entry 1 ── 1 pack declaration       (version equal)
 manifest entry 1 ── * health_findings        (pack_id, pack_version)
-a pack's patch: never stored; re-obtained at fix from the pinned pack
+a pack's patch: never stored; re-obtained at fix from the run's pack_pins entry at its export_commit
 ```
