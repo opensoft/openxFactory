@@ -52,7 +52,15 @@ PR body carries a closing keyword.
   with its tests. Nothing is relocated out of openxFactory.
   - **Falsifier:** the module's own tests, including the round trip
     `join_rows(split_keepends(t)) == t` over CR, LF, CRLF, no final newline,
-    mixed endings, form feed and U+2028; openDox-code's whole suite as its
+    mixed endings, form feed and U+2028, AND explicit boundary assertions that
+    ONLY CR, LF and CRLF split rows: `"a\rb"`, `"a\nb"` and `"a\r\nb"` each
+    give two rows, and the CRLF text's first row ends in ONE ending (never a
+    CR row and then an LF row); `"a\x0cb"` and `"a\u2028b"` each give ONE row,
+    and so does `"a<sep>b"` for every other separator `str.splitlines()` also
+    breaks on (VT, `\x1c` to `\x1e`, NEL, U+2029). The round trip alone cannot
+    tell the real-line rule from `str.splitlines(keepends=True)`, which
+    round-trips the same texts while splitting on those separators, so the
+    boundary assertions are what fail it. openDox-code's whole suite as its
     required `validate` job runs it, green.
 - [ ] 2.2 **Its pin (ARC-6).** If 2.1 lands before plan 038's T061, it rides
   T062's root pin and T063's `opendox @` pin, which are #1144's landings under
@@ -76,7 +84,10 @@ workflows).
   that empties it.
   - **Falsifier:** tests that a seam takes one registration, refuses a
     different second one, treats the same one again as a no-op, and that a
-    read from an EMPTY seam raises an error naming the seam (D3).
+    read from an EMPTY seam raises an error naming the seam AND what registers
+    it (D3; `design.md` § 4.2): each seam's test asserts that the message
+    carries the seam's name and the registration call that fills it, so an
+    error naming only the seam fails.
 - [ ] 3.2 **Retarget the eight modules.** `completeness.py`, `round_trip.py`
   and `generator.py`'s generic half import 2.1's module; every governed name
   is read through its seam at USE. The three module-level values computed
@@ -132,8 +143,12 @@ After group 3 and plan 038's T064.
   nothing or raises, the four governed seams are taken back, in reverse order,
   before the refusal reaches the caller (`design.md` § 4.3). A host-wiring
   test under `tests/domain_profile/` registers them, reads each through
-  openXdox, and shows both refusals, part-way through the seams and at the
-  column call, leaving no governed seam written.
+  openXdox, and shows three refusals, each leaving no governed seam written:
+  a pinned leg that declares only SOME of the four (refused by name, as their
+  own group, D7), a refusal part-way through the seams, and a refusal at the
+  column call. It also shows that a leg declaring openDox's six seams and NONE
+  of the four is accepted and registers its six, never refused as a partial
+  leg, so the four are not folded into the six's all-or-none group.
 - [ ] 4.2 **The pin pairs, in two repositories, in order** (`design.md` § 9,
   steps 5 and 6). Both are realization landings.
   1. **An opensoft/openXdox (root) PR, landed first:** its `code` gitlink and
@@ -218,10 +233,9 @@ After group 3 and plan 038's T064.
       W=$(mktemp -d)
       git log --first-parent --format=%H --grep='^Arc: realize-doc-health-direction-arc$' HEAD > "$W/x-arc.txt"
       test -s "$W/x-arc.txt"                              # group 3 lands here
-      printf 'tests/test_%s.py\n' branch_session doxbench_mutation_boundary doxbench_share gate_loop_views \
-        gateway_provenance hosted_actor session_commits session_confinement session_gates session_lifecycle \
-        session_notebook session_records session_runbook session_transaction session_verbs staging_workbench \
-        > "$W/governed.txt"                               # 12.5's 16 protected suites
+      # 12.5's protected set, COMPUTED AS 12.5 COMPUTES IT: every suite that drives open-pr or injects the fake
+      git grep -l -e 'open-pr' -e 'open_pr' -e 'FakePullRequests' -- 'tests/test_*.py' > "$W/governed.txt"
+      test "$(wc -l < "$W/governed.txt")" -ge 16          # 16 at ab04453d; fewer means a proof vanished
       ls tests/test_generator.py tests/test_snapshot*.py tests/test_session_snapshot.py > "$W/gen-suites.txt"
       python3 scripts/protected_suites.py --landings="$(cat "$W/x-arc.txt")" --suites="$(cat "$W/governed.txt")"
       python3 scripts/protected_suites.py --chains --landings="$(cat "$W/x-arc.txt")" --suites="$(cat "$W/gen-suites.txt")"
