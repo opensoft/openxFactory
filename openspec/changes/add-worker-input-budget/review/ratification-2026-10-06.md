@@ -127,14 +127,26 @@ correct it. It is reported to the lane with this record.
 
 ## 5. What was measured
 
-Each gate ran at the same time in two full clones of the same kind:
-- one at `main` `51456835`;
-- one at this pull request's merged head `9e67f838`, which is `main`
-  `51456835` plus this pull request.
-
-The only change made after that head is this section's own text. An earlier
-pair of runs, taken before the origin file existed, measured `main`
+Every run used full clones of the same kind, each named `openxFactory`.
+Before the origin file existed, a first pair of runs measured `main`
 `92010d3e` against the ratifying commit and found every result identical.
+After the origin file, the tree moved three times while this pull request
+was open, and each tree was measured against the `main` it was merged with:
+
+1. **The full set** ran at the same time at `main` `51456835` and at this
+   branch merged with it, `9e67f838`. The table below gives its results.
+2. **The gates and doc-health** (every row but `pytest`) ran again at `main`
+   `e6380965` and at this branch merged with it, `cc0fc853`. That merge
+   brought in another change's packet, `prefer-triad-project-shape`
+   (#1249), and no byte of this one. Every result matched the table, except
+   that `--all --strict` counted one more passing item on both trees: the
+   new packet.
+3. **The full set** ran a third time at `main` `e6380965` and at `cc0fc853`
+   plus this section's own commit. That commit changes two files: this
+   record's § 5, and the status clause that
+   `ideation/staging/doc-health-sweep-carry-over/` carried for this packet,
+   which said `Status: draft`. Every result matched the table, with the same
+   `--all --strict` count as run 2.
 
 | gate | `main` `51456835` | this pull request |
 | --- | --- | --- |

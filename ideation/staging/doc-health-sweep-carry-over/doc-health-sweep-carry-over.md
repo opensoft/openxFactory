@@ -267,14 +267,17 @@ snapshot both passes report against, does not change.
      topic, with a promoted spec, with itself. -->
 
 - **This topic modifies a requirement the budget packet is still
-  modifying.** `add-worker-input-budget` is `Status: draft`, its two deltas
-  unratified (its task 0.4), and it MODIFIES *Sweep sequencing and snapshot
-  consistency*, the requirement this topic has to modify again. Two changes
-  holding MODIFIED blocks over one requirement is the collision the
-  MODIFIED-block currency check exists to catch. The resolution is
-  sequencing, not drafting: this topic's change is proposed after that
-  packet archives, and it modifies the promoted text. — Added-by: Claude
-  Opus 5.5 (lane openxfactory-1) · 2026-09-26
+  modifying.** `add-worker-input-budget` is `Status: ratified` (its task
+  0.4, on Brett Heap's word of 2026-10-06) but is still ACTIVE, not
+  archived. It MODIFIES *Sweep sequencing and snapshot consistency*, the
+  requirement this topic has to modify again. Two changes holding MODIFIED
+  blocks over one requirement is the collision the MODIFIED-block currency
+  check exists to catch. The resolution is sequencing, not drafting: this
+  topic's change is proposed after that packet archives, and it modifies the
+  promoted text. (The status clause was updated on 2026-10-06, when the
+  packet was ratified. Before that it read `Status: draft`, with the two
+  deltas unratified.) — Added-by: Claude Opus 5.5 (lane openxfactory-1) ·
+  2026-09-26
 - **The Hermes-owned scope set names no carry-over.** *Hermes-layer sweep
   scope resolution* makes scope Hermes-owned policy chosen from
   `incremental | full-weekly | full-nightly`. The budget packet had to
