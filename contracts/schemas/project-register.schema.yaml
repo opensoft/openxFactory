@@ -44,6 +44,30 @@ description: >-
   that "Electing the schema changes no gate, no floor, no grant, and no
   clearance eligibility", and this register is bound by it.
 
+  THE TRIAD IS THE PREFERRED PROJECT SHAPE, AND THE POSTURE ABOVE HOLDS
+  UNCHANGED BESIDE IT (`prefer-triad-project-shape`, ratified 2026-10-06;
+  `docs/project-repo-schema.md` § The Triad is PREFERRED, and it still
+  confers NOTHING). "Triad" is the human-facing name for the
+  three-repository shape that `schema` elects, with "three-leg project" and
+  "three-repository project" kept as accepted synonyms, and it renames no
+  key here: `schema`, `reference`, `repository_roles` and `role` stay
+  exactly as above. Preferred is NOT required. The recommendation is made to
+  the person deciding and never in their place, electing stays the `PA`
+  decision taken per project by a human, and a project that declares no
+  `schema` is legal, renders identically, is reviewed identically and owes
+  no declaration. The preference therefore CONFERS NOTHING either: no
+  lifecycle state, authority, gate standing, clearance eligibility or review
+  difference. A reader that treats an absent `schema` as a finding, a
+  warning or a lesser standing is DEFECTIVE, because a project's shape is
+  never a review input. The advisory that states the preference is given
+  only where a person starts work, never in review, and it reads its
+  exemptions from the repository's own tree, the pinned naming policy or the
+  person's own configuration, never from this register. This register gains
+  NO field for the preference or for a project's decision to stay a single
+  repository: that optional record is the project's own
+  `single-repository.yaml`, whose schema openRepoShape owns and whose only
+  reader is the advisory.
+
   `repositories` STAYS THE SINGLE MEMBERSHIP ANSWER and is unchanged: it
   remains an array of repository-id STRINGS, because
   `scripts/ideation_dashboard/register.py` and every renderer downstream of
