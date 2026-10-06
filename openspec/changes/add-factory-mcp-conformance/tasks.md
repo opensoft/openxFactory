@@ -19,7 +19,52 @@ will own executable implementation tasks; this file does not duplicate them.
 
 ## 3. Review and closure
 
-- [ ] 3.1 Review and land realization through the authorized repository process; verify exact merged revision and green checks, respecting sibling and shared-substrate claims.
+- [x] 3.1 Review and land realization through the authorized repository process; verify exact merged revision and green checks, respecting sibling and shared-substrate claims.
+  **Landed and green.** Verified 2026-10-06 by lane openxfactory-5
+  (openXfactory-5) from the repository and its check runs, not from a handoff.
+  - **Landing.** Pull request
+    [#1243](https://github.com/opensoft/openxFactory/pull/1243) merged into
+    `main` at 2026-10-06T03:37:58Z as
+    `92010d3e67f2c556687e1c3583ed3ca1867f4b8b`, on Brett Heap's word *"land
+    #1243 when green"* (2026-10-05). It landed by squash: `92010d3e` has the
+    single parent `ba89e046`, and its tree `fd3b9f08` is the tree of the pull
+    request's final head `6ab7126724bf7d5771d3929934ed0b28d29ea0aa`. The checks
+    at that head therefore cover exactly the merged bytes.
+  - **Green at the head.** Every context `main`'s ruleset requires passed at
+    `6ab71267`: `signed-execution-chain-gate`, `lane-line`,
+    `former-id-arrival-gate`, `openspec-cli-pin`, `wallet-validation`,
+    `pytest-suite`, `release-tag-gate` and `openxdox-consumer-gate`. The
+    `pytest-suite` run
+    [37407361293](https://github.com/opensoft/openxFactory/actions/runs/37407361293)
+    reads `selected=9831 passed=9825 skipped=6 failures=0 errors=0`. SonarCloud
+    Code Analysis is not required; it failed on one S8707 finding (the CLI opens
+    the declaration path its operator passes), which was dispositioned before
+    the landing as accepted by design for an offline validator
+    ([#1243 comment 6008804840](https://github.com/opensoft/openxFactory/pull/1243#issuecomment-6008804840)).
+  - **Green on `main`.** `pytest-suite` ran on push at `92010d3e` itself, run
+    [37409899722](https://github.com/opensoft/openxFactory/actions/runs/37409899722),
+    success, with the same counts line. It passed again at `main` `51456835`,
+    run
+    [37480682619](https://github.com/opensoft/openxFactory/actions/runs/37480682619).
+  - **The realization is whole on `main`.** The declared code surface is
+    present: `contracts/factory-mcp/`, `scripts/validate-factory-mcp.py`,
+    `tests/factory-mcp/` and `docs/factory-mcp-conformance.md`. The Speckit
+    feature `specs/037-factory-mcp-conformance/tasks.md` has 16 of 16 boxes
+    ticked. No commit after `92010d3e` touches the code surface, the feature
+    or this packet.
+  - **Claims respected.** Lane openXfactory-5 claimed the governing issue
+    [#1242](https://github.com/opensoft/openxFactory/issues/1242) (comment
+    5999969334), posted `LANDING` and `LANDED` on #1243 under lane-collision
+    Rule 6 (comments 6008827123 and 6008830619), and released the claim
+    (#1242 comment 6008836688).
+  - **Correction to the addendum below.** The addendum was written before the
+    landing and says the original commits are ancestors of the landing. The
+    squash landing makes that true of the pull request's head and not of
+    `main`: `d2baf6fd` and the ratified revision `8acd2ec4` are ancestors of
+    `6ab71267`, which GitHub keeps at `refs/pull/1243/head`, and neither is an
+    ancestor of `main`. The ratified delta is unchanged on `main`: the blob of
+    `specs/factory-mcp-conformance/spec.md` is `a4865bd8` at both `8acd2ec4`
+    and `92010d3e`.
 - [ ] 3.2 Archive only after merged green realization; verify promoted requirements and preserved provenance under the archive gate. Release cuts, hosted acceptance and consumer adoption remain separately governed.
 
 ## Addendum 2026-10-05: brought onto main
