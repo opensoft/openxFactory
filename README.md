@@ -856,8 +856,16 @@ Active changes:
   it archives on merged **plus** green realization evidence. **NOT RATIFIED BY
   THE AUTHORING LANE.**
 - [add-worker-input-budget](openspec/changes/add-worker-input-budget/proposal.md)
-  — filed 2026-09-22, lane `openxfactory-1`, `Status: draft`, on Brett Heap's
-  word *"brief a writer to add the input-size guard"* (2026-09-22). **The
+  — filed 2026-09-22, lane `openxfactory-1`, **`Status: ratified`** (2026-10-06,
+  Brett Heap, in session, verbatim *"0.4: (a) ratify as they stand"* — both
+  spec deltas as they stand, no amendment; RULED on the lane register at
+  2026-10-06T13:55:03Z; record
+  [`review/ratification-2026-10-06.md`](openspec/changes/add-worker-input-budget/review/ratification-2026-10-06.md);
+  the origin declaration `.openspec.yaml` added on his second word, verbatim
+  *"#1250: (i) add the origin file"*, RULED 2026-10-06T17:24:57Z, as an
+  `ad_hoc` origin carrying the drafting pair and that approval pair),
+  on Brett Heap's word *"brief a writer to add the input-size guard"*
+  (2026-09-22). **The
   doc-health nightly's analysis child has failed EVERY night since 2026-08-30
   except the two 2026-09-02 runs, silently**: `semantic.build_analysis_input`
   assembled the whole selected corpus plus the whole promoted-spec grounding
@@ -900,8 +908,10 @@ Active changes:
   cursor as its own record beside the inventory. The third, the HTTP 403
   org-entitlement block no code here addresses, is RESOLVED 2026-09-23 by
   Brett Heap's administrative act, verified the same hour and by the
-  2026-09-24 nightly. `Status: draft` is unchanged: resolving the questions
-  ratifies neither spec delta (task 0.4).
+  2026-09-24 nightly. Resolving the questions ratified neither spec delta;
+  the 2026-10-06 word did (task 0.4). **RATIFICATION ONLY** — the archive is
+  a separate later act on Brett Heap's word, and the Group 4 sequencing
+  question on 4.1 stays open.
 
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
