@@ -81,9 +81,10 @@ them. `design.md` carries the measurements; `tasks.md` carries the steps.
 - **openxFactory: host wiring only (T075).** `scripts/opendox_host.py`
   registers openxFactory's governed implementations at the four seams at
   startup, in the pattern of `:518-533`, with a host-wiring test under
-  `tests/domain_profile/`. It lands in the PR that moves the openXdox pin
-  pair to T074's commit, so openxFactory's `main` never runs an openXdox that
-  declares seams it does not fill.
+  `tests/domain_profile/`. It lands in the openxFactory PR that moves the
+  openXdox pin pair to the openXdox root commit pinning T074's code (that root
+  commit lands first, in its own PR), so openxFactory's `main` never runs an
+  openXdox that declares seams it does not fill.
 - **F9.2 (T076).** F9.2 is re-run and quoted in this change's own evidence.
   If #1144 is still active, F9.1's `--deselect` (batch J's) leaves #1144's
   `tasks.md` and F9.2 is ticked there; if #1144 has archived, the closure

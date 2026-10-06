@@ -121,14 +121,21 @@ After group 3 and plan 038's T064.
   `column_contributions.register()` call. A host-wiring test under
   `tests/domain_profile/` registers them, reads each through openXdox, and
   shows a refusal part-way taking every written seam back.
-- [ ] 4.2 **The pin pairs, in the SAME PR.** The openXdox root first: its
-  `code` gitlink and `contracts/code-pin.yaml` to group 3's commit, and
-  `contracts/opendox-pin.yaml` to 2.2's commit. Then openxFactory's
-  `openXdox` gitlink with `contracts/openxdox-pin.yaml`, and the `openDox`
-  pair if 2.2 brought the arc's own, one commit each.
-  - **Falsifier:** `python3 scripts/verify-openxdox-pin.py`,
-    `python3 scripts/verify-opendox-pin.py`; the host-wiring test; every
-    required check of openxFactory green.
+- [ ] 4.2 **The pin pairs, in two repositories, in order** (`design.md` § 9,
+  steps 5 and 6). Both are realization landings.
+  1. **An opensoft/openXdox (root) PR, landed first:** its `code` gitlink and
+     `contracts/code-pin.yaml` to group 3's openXdox-code commit, and
+     `contracts/opendox-pin.yaml` to 2.2's openDox root commit.
+  2. **Then ONE openxFactory PR carrying 4.1:** openxFactory's `openXdox`
+     gitlink with `contracts/openxdox-pin.yaml`, naming the root commit of
+     step 1, and the `openDox` gitlink with `contracts/opendox-pin.yaml` if
+     2.2 brought the arc's own, one commit per pair. Host registration and pin
+     move land together, so openxFactory's `main` never runs an openXdox whose
+     seams it does not fill.
+  - **Falsifier:** `make pins` in the openXdox root;
+    `python3 scripts/verify-openxdox-pin.py` and
+    `python3 scripts/verify-opendox-pin.py` in openxFactory; the host-wiring
+    test; every required check of openxFactory green.
 - [ ] 4.3 **The surfaces check over this change's own landings** (ARC-4;
   ADV-37; `design.md` § 8). Quoted in 4.1's PR and again at 7.1.
   In an openxFactory checkout:
@@ -240,7 +247,10 @@ After group 3 and plan 038's T064.
   repository the arc landed in, `git log --first-parent --grep='^Arc:
   realize-doc-health-direction-arc$'` lists the landings, and the list is
   NON-EMPTY in openDox-code (2.1, unless it rode T061, which this records),
-  openXdox-code (group 3 and 4.4) and openxFactory (4.1). Recorded in
+  openXdox-code (group 3 and 4.4), the openXdox root (4.2 step 1) and
+  openxFactory (4.1 with 4.2 step 2). Where 2.2 brought the arc's own pins, it
+  is NON-EMPTY in the openDox root too, and openXdox-code's list also holds
+  2.2's `opendox @` pin commit. Recorded in
   `evidence/landings.md` (`Status: record`), per repository.
 
 ## 7. Archive, and the staged topic's exit (plan 038 T077)

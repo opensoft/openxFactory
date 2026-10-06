@@ -171,9 +171,11 @@ registers openxFactory's own `doc_health` implementations at them.
   (`column_contributions.py:49-51`). Under D4 (a), that call reads whether the
   governed seams are registered, so they must be filled first.
 
-**The pin pair travels with it.** T075 moves the openXdox pin pair to T074's
-commit in the SAME PR, so openxFactory's `main` never runs an openXdox that
-declares seams it does not fill.
+**The pin pair travels with it.** The openXdox root first moves its `code`
+pin to T074's openXdox-code commit, in its own PR (§ 9, step 5). Then ONE
+openxFactory PR carries the registration together with openxFactory's
+`openXdox` pin pair, naming that root commit (step 6), so openxFactory's
+`main` never runs an openXdox that declares seams it does not fill.
 
 ### 4.4 Between T074 and T075: the composed conftest
 
@@ -332,8 +334,8 @@ Plan 038 § "Pins and landing order" holds. For this change:
 | 2 | openDox root: `code` gitlink and `contracts/code-pin.yaml` | rides T062 if T072 landed before T061; otherwise the arc's own root commit |
 | 3 | openXdox-code `pyproject.toml` `opendox @` to step 2's commit | rides T063, or the arc's own |
 | 4 | openXdox-code lands T074 | after T071, step 3, T021 and T073 |
-| 5 | openXdox root: `code` gitlink and `code-pin.yaml` to T074; `opendox-pin.yaml` to step 2's commit | in T075 |
-| 6 | openxFactory: both pin pairs, one commit each, in ONE PR with the host registration | T075 |
+| 5 | openXdox root, in its own PR: `code` gitlink and `code-pin.yaml` to T074; `opendox-pin.yaml` to step 2's commit | T075, landed first |
+| 6 | openxFactory, in ONE PR with the host registration: the `openXdox` pin pair naming step 5's root commit, and the `openDox` pair if step 2 was the arc's own, one commit per pair | T075 |
 | 7 | the aggregation's routine pin-sync | after T075, with the three-way openDox/openXdox gitlink parity (`opensoft/xFactory` CLAUDE.md, working rule 2) |
 
 T061 never waits for T072, T071 or any later step (ARC-6; ARC-Q3 (a)).
