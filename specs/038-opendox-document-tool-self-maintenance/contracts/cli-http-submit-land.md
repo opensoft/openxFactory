@@ -81,7 +81,10 @@ opendox land --repo-root PATH --branch BRANCH [--local] [--json]
   (a)); `governed-without-an-instrument`; `BRANCH` is `main`; the served
   checkout holds `main` and is not clean (ADV-08), naming the remedy; local
   `main` lacks the remote's `main` tip, read at the remote's PUSH URL
-  (`git remote get-url --push`, then `ls-remote <that URL> refs/heads/main`; a
+  (`git remote get-url --push`, then `git ls-remote <transient>
+  refs/heads/main` with the URL passed as a transient remote in the child's
+  environment, `GIT_CONFIG_COUNT=1`, `GIT_CONFIG_KEY_0=remote.<transient>.url`,
+  `GIT_CONFIG_VALUE_0=<push URL>`, so a credential never reaches git's argv; a
   remote with no `main` passes), and the chosen remote has several push URLs
   (data-model.md § Landed); a stale or used confirmation; a conflict (`MergeConflict`,
   naming the paths and the remedy: bring `main` into the branch and resolve

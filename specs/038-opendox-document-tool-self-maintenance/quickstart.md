@@ -119,7 +119,8 @@ Assert, in one Python block reading the saved files:
 - **Outcome 3.** `POST /actions/health/accept` for the fixture's accepted finding
   writes `health/dispositions.yaml` (`git status --porcelain` shows it); commit
   it; re-run; the finding is ABSENT. `opendox-runtime runtime reset --confirm
-  yes-drop-the-coordination-database`, then `runtime migrate`, then a run: the
+  yes-drop-the-coordination-database`, then `opendox-runtime runtime migrate`
+  (F14.1's own spelling, #1144 `tasks.md:3361`), then a run: the
   list still holds `broken-link`-class findings and the accepted one is still
   ABSENT (grep's exit status 1 exactly, as F14.1 asserts).
 - **Outcome 4.** `POST /actions/session/submit` for a branch made with git

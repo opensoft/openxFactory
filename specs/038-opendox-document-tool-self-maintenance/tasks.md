@@ -323,7 +323,11 @@ hidden; F12.1 exits 0 composed (SC-001).
   a landing worktree of its own under `<repo>-worktrees/`; the `ls-remote
   refs/heads/main` check first, at the chosen remote's PUSH URL (`git remote
   get-url --push`), with several push URLs refused (a remote with no `main`
-  passes, N-16; Copilot's review of `cbe2adfb`); then
+  passes, N-16; Copilot's review of `cbe2adfb`), the URL passed to git only as
+  a transient remote in the child's environment (`GIT_CONFIG_COUNT=1`,
+  `GIT_CONFIG_KEY_0=remote.<transient>.url`, `GIT_CONFIG_VALUE_0=<push URL>`,
+  then `git ls-remote <transient> refs/heads/main`; git 2.31 or later), never in
+  its argv (data-model.md § Landed; Copilot's review of `74dfe79c`); then
   ff-only of the served checkout when it holds `main` and is clean, a REFUSAL
   naming the remedy when it holds `main` and is not clean (ADV-08), and `left`
   when it holds another branch; pushes nothing (R2Q6 (a)); `MergeConflict`
@@ -340,7 +344,9 @@ hidden; F12.1 exits 0 composed (SC-001).
     FIX), ADV-08's (`test_a_dirty_served_checkout_on_main_is_refused_before_merging`),
     and the push URL's (`test_the_remote_check_reads_the_push_url_not_the_fetch_url`,
     a remote whose `pushurl` names a repository ahead of local `main`, refused;
-    and a remote with two push URLs, refused).
+    and a remote with two push URLs, refused; and
+    `test_the_push_url_never_reaches_git_argv`, a credential-bearing push URL
+    absent from every recorded git argv).
   - **Ruled**: R2Q1, R2Q3, R2Q4, R2Q5, R2Q6, R2Q7. **Decisions**: CF-1, N-1,
     N-11, N-16, OQ-12-17, OQ-038-1.
   - **After**: T004; T011 (`session_pr.py`, and `repository_act.py` if the audit

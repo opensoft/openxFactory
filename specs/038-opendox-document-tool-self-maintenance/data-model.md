@@ -102,13 +102,20 @@ their fields (`merge_commit` is `Landed`'s alone; contracts/cli-http-submit-land
 `MergeConflict` lists the conflicting paths and names the remedy: bring `main`
 into the branch and resolve there (OQ-038-1). Nothing is merged.
 
-**The remote check** (R2Q6 (a); C6). Before merging, `land` runs `git ls-remote
-<push-url> refs/heads/main` against the PUSH URL of the remote `submit` would
-choose: the one URL `git remote get-url --push <remote>` returns (the fetch URL
-when no `pushurl` is set), since the owner's later `git push` of `main` goes
-there. `git ls-remote <remote>` would read the FETCH URL, another repository when
-a `pushurl` differs (Copilot's review of `cbe2adfb`). A remote with several push
-URLs is refused by name, as `submit` refuses it. If the push URL has a `main`,
+**The remote check** (R2Q6 (a); C6). Before merging, `land` reads the `main`
+tip at the PUSH URL of the remote `submit` would choose: the one URL `git
+remote get-url --push <remote>` returns (the fetch URL when no `pushurl` is
+set), since the owner's later `git push` of `main` goes there. `git ls-remote
+<remote>` would read the FETCH URL, another repository when a `pushurl` differs
+(Copilot's review of `cbe2adfb`). A remote with several push URLs is refused by
+name, as `submit` refuses it. **The push URL never reaches git's argv**, which
+any local user can read through `/proc/<pid>/cmdline`, and a push URL may carry
+a credential (12.1a). git probes it through a TRANSIENT remote passed in the
+environment of that one child: `GIT_CONFIG_COUNT=1`,
+`GIT_CONFIG_KEY_0=remote.<transient>.url`, `GIT_CONFIG_VALUE_0=<push URL>`, then
+`git ls-remote <transient> refs/heads/main`, where `<transient>` is a name no
+configured remote uses. This needs git 2.31 or later (CI's ubuntu-24.04 has
+2.43); an older git is refused by name (Copilot's review of `74dfe79c`). If the push URL has a `main`,
 local `main` must contain that tip (`git merge-base --is-ancestor`); otherwise
 `land` refuses, naming `git pull`'s absence and the remedy. A remote with no
 `main`, or no remote at all, passes the check. Every message is redacted by the
