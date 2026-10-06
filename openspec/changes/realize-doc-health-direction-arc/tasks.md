@@ -59,7 +59,9 @@ PR body carries a closing keyword.
   #1144's trailer, and this step is a note in the evidence. Otherwise the arc
   brings its own, under this change's trailer: the openDox root's `code`
   gitlink and `contracts/code-pin.yaml` in ONE commit, then openXdox-code's
-  `pyproject.toml` `opendox @` to the same commit. T061 never waits for 2.1.
+  `pyproject.toml` `opendox @ git+https://github.com/opensoft/openDox-code@<sha>`
+  to 2.1's openDox-code commit, the one that `code-pin.yaml` records (never the
+  root's own commit). T061 never waits for 2.1.
   - **Falsifier:** `make pins` in the openDox root; openXdox-code's install
     resolves the pinned commit (F9.2's `direct_url.json` check).
 

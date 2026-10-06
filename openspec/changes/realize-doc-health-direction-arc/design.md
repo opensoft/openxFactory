@@ -343,7 +343,7 @@ Plan 038 § "Pins and landing order" holds. For this change:
 |---|---|---|
 | 1 | openDox-code lands T072 | after T071 |
 | 2 | openDox root: `code` gitlink and `contracts/code-pin.yaml` | rides T062 if T072 landed before T061; otherwise the arc's own root commit |
-| 3 | openXdox-code `pyproject.toml` `opendox @` to step 2's commit | rides T063, or the arc's own |
+| 3 | openXdox-code `pyproject.toml` `opendox @ git+https://github.com/opensoft/openDox-code@<sha>` to step 1's openDox-code commit, the one step 2's `code-pin.yaml` records (never the root's own commit) | rides T063, or the arc's own |
 | 4 | openXdox-code lands T074 | after T071, step 3, T021 and T073 |
 | 5 | openXdox root, in its own PR: `code` gitlink and `code-pin.yaml` to T074; `opendox-pin.yaml` to step 2's commit only if step 2 was the arc's own (a step 2 that rode T062 is already pinned there by T064) | T075, landed first |
 | 6 | openxFactory, in ONE PR with the host registration: the `openXdox` pin pair naming step 5's root commit, and the `openDox` pair if step 2 was the arc's own, one commit per pair | T075 |
