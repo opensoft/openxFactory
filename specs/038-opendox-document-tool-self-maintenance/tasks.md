@@ -16,15 +16,16 @@ T004 encodes Brett's ruling of the plan.
 the plan was ruled are encoded as worded, each cited by comment id, with no new
 decision:
 - the Files of T022 (`6016356225`), T023 (`6016676145`), T026 (`6016648451`),
-  T029 (`6017860539`) and T073 (`6020698021`);
+  T029 (`6017860539`) and T073 (`6020698021`), and T026's three more in-test
+  respellings, 17 to 20 (`6020859092`);
 - R-1 (a)'s six spans and F12.1's `--chains` (`6016648451`);
 - T073's After set, T094, T095+ and its `open_until` wording (`6016982816`);
 - T076's F9.2 disposition (ARC-5 (a), `6013547504`);
 - T003's close on the re-check (`6017901451`);
 - T074's Files (the arc change's `design.md` § 10);
 - the finding's `identity`, stored and emitted (`6018624750`);
-- the ticks of T002, T003, T005, T008, T010, T040 and T070, each with its pull
-  request and merge commit.
+- the ticks of T002, T003, T005, T008, T010, T020, T024, T040 and T070, each with
+  its pull request and merge commit.
 
 **RULED.** Brett Heap ruled the plan at `6847e99e`, every item as recommended
 (`#656` `6013547504`, 2026-10-06; plan.md § "Ruled answers, the plan ruling").
@@ -536,7 +537,7 @@ record (`src/openxdox/contracts/copies.yaml`), which is single-source and pinned
 to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
 (ADV-10; lane 3's T021/T022 FIXes).
 
-- [ ] T020 [P] [US3] [oXc] **U-1, host registration (HR).** A governed-suite list
+- [x] T020 [P] [US3] [oXc] **U-1, host registration (HR).** A governed-suite list
   beside `HOST_PLANE_SUITES` with its own guard (`tests/conftest.py:533-578`'s
   pattern) registers the governed host for the suites that need it; openxFactory's
   composite is registered only in the composed run, guarded as `:413-421`'s
@@ -551,6 +552,7 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
     landing order → T073 → T074), `tests/test_host_plane.py` (first: T020 → T021
     and T026 → T073 → T074).
   - **Lane**: 3.
+  - **Landed**: DONE, openXdox-code#39 → `c6d15b27` (2026-10-06T16:10:45Z).
 - [ ] T021 [US3] [oXc] **U-2, the gate console's schemas (GA), resolved without
   vendoring.** `gate_console._validate_contract_document` reads
   `parents[2] / "contracts" / "schemas"` (`gate_console.py:642-643`), which in the
@@ -608,7 +610,7 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
     `6016676145`, following `6016356225`). Only T023 writes it, so it creates no
     single-writer conflict.
   - **Lane**: 3.
-- [ ] T024 [P] [US3] [oXc] **U-5, the shim (SF; H-1 confirmed as CF-3).** New
+- [x] T024 [P] [US3] [oXc] **U-5, the shim (SF; H-1 confirmed as CF-3).** New
   `scripts/ideation_dashboard/session_git.py` (`import sys; from opendox import
   session_git as _m; sys.modules[__name__] = _m`), with NO `__init__.py` in its
   directory, so it merges with openxFactory's `scripts/ideation_dashboard/` (which
@@ -623,6 +625,7 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   - **After**: T004.
   - **Files**: openXdox-code new `scripts/ideation_dashboard/session_git.py`.
   - **Lane**: 3.
+  - **Landed**: DONE, openXdox-code#38 → `8b64fae0` (2026-10-06T16:32:39Z).
 - [ ] T025 [P] [US3] [oDc] **U-6, openDox web (SF; DJ by W-1 (A), ruled).**
   S1's two nodes (plan 034's T102 follow-on in `staging-workbench.js` and the
   census); and, under W-1 (A) (`6013547504`, *"Model import-free again
@@ -643,7 +646,17 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
 - [ ] T026 [US3] [oXc] **U-7, the allow-list (AL; R-1's admitted part).** One
   entry per admitted test in `tests/protected_suite_respellings.yaml`, chained by
   blob, each in the same PR as its protected edit: `cmd_gate_*` 7, `hosted_index`
-  3, share paths 2, Group W 1, Group S2 4 (17, under H-2, tier 2's CF-4). Under
+  3, share paths 2, Group W 1, Group S2 4 (17, under H-2, tier 2's CF-4), and
+  three more in-test respellings the holder admitted under the same CF-4 scope
+  (`6020859092`; 20 in all): `test_gate_off_descriptor_is_the_real_cli_invocation`
+  (`cli.cmd_gate_create_document` → `cli_gate.cmd_gate_create_document`),
+  `test_gate_off_session_affordances_are_the_real_cli_invocations` (the three
+  `cmd_gate_*` names → `cli_gate.…`) and
+  `test_the_notebook_refresh_is_a_descriptor_in_BOTH_gate_postures` (the script
+  is read from its one home on the import path, and a run fails if it finds none
+  or more than one). Each is a carve-moved name or path, weakens no assertion,
+  and is entered as a `respelling` naming its history, under the oracle's
+  `--chains` form. Under
   R-1 (a), ruled (`6013547504`) and widened by Brett's *"Widen the spans, served
   display (Recommended)"* (`6016648451`): the admitted module-level edits reach
   SIX named spans of `tests/test_staging_workbench.py`, the harness constants
@@ -856,7 +869,8 @@ copies (research R7; ADV-05).
   `content` or `quote` key, no number, every string at most 200 characters; a
   pathless finding's identity is `{category, entry}` and a collision's is
   `{collided_id}`), under an engine cap on its serialized size, stricter than the
-  schema's, as for `pack_id` and `kind`; the bounds on `message` and
+  schema's, as for `pack_id` and `kind` (the cap's value is T041's and T042's to
+  set); the bounds on `message` and
   `evidence` (R2Q25 (a); ADV-27); a closure test that the module imports only the
   standard library. Copy T040's finding schema at the spec commit T060 pins into
   openDox-code's EXISTING copy record: `copies.yaml`'s `commit:` moves to that
@@ -1917,7 +1931,7 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 | — | F9.1's `--deselect` removed | F9.1 (batch J's line) | `5859927858`, at T076 while #1144 is active |
 
 **Task count:** 80: Phase 0 9 (T001–T009; eight done, T002–T009, and T001 is a
-standing act), Phase 4 24 (T010–T033; T010 done), Phase 5 29 (T040–T068, T059,
+standing act), Phase 4 24 (T010–T033; T010, T020 and T024 done), Phase 5 29 (T040–T068, T059,
 T067 and T068 among them; T040 done), requirement 9 2 (T073 and T094; the repair
 slices T095+ are cut from T094's map and are not counted until they are), the
 direction arc 7 (T070–T072, T074–T077; T070 done), Close 5 (T080–T084), Every
