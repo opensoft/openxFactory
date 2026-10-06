@@ -275,6 +275,7 @@ rows:
   qualify-avatar-brokered-call-feasibility: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   qualify-avatar-live-voice: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   ratify-doxbench-landed-context-surfaces: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  realize-doc-health-direction-arc: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1247", moved_on: "2026-10-06"}
   reconcile-domain-neutral-and-engineering-spec-ownership: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   reconcile-lifecycle-books-count: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   refine-demote-round-trip-mechanics: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}

@@ -282,8 +282,10 @@ T076 re-runs F9.2 after T074 and T075 and quotes it, exit 0, in this change's
 
 **The trailer.** Every realization landing, in every repository this change
 touches, carries `Arc: realize-doc-health-direction-arc`: T072 in openDox-code;
-T074 in openXdox-code; T075 in openxFactory and the openXdox root; and the
-arc's own root and pin commits if ARC-6 needs them. A squash landing carries
+T074 in openXdox-code, and the openXdox-code PR that advances the composed pin
+past T075 and removes § 4.4's interim registration (`tasks.md` 4.4); T075 in
+openxFactory and the openXdox root; and the arc's own root and pin commits if
+ARC-6 needs them. A squash landing carries
 it because the PR body does, and a merge landing because the lander writes it
 into the merge message. Bookkeeping, evidence, this filing, T071's record,
 T076's #1144 edit and T077's archive carry none.

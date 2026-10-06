@@ -7,7 +7,7 @@ Each group names the plan 038 task it mirrors (`specs/038-opendox-document-tool-
 The single-writer orders and `After:` lines there govern; this list adds the
 falsifiers this change answers to.
 
-**Trailers.** Every REALIZATION landing (groups 2, 3 and 4.1–4.2) carries
+**Trailers.** Every REALIZATION landing (groups 2 and 3, 4.1–4.2, and 4.4) carries
 `Arc: realize-doc-health-direction-arc` and its lane's `Lane:` line, in every
 repository it lands in (ARC-4). Bookkeeping carries no `Arc:` trailer: this
 filing (1.1), the ratification (1.2), evidence, #1144's edit (5.2), the
@@ -99,8 +99,8 @@ workflows).
 
         set -euo pipefail
         W=$(mktemp -d)                                    # scratch space, resolved at run time
-        git grep -nE '^\s*(from doc_health|import doc_health)' HEAD -- src/ > "$W/reach.txt" || true
-        test ! -s "$W/reach.txt"                          # no module under src/ imports doc_health
+        rc=0; git grep -nE '^\s*(from doc_health|import doc_health)' HEAD -- src/ > "$W/reach.txt" || rc=$?
+        test "$rc" -eq 1                                  # 1: no module under src/ imports doc_health; 0: a reach remains; >1: git failed
         python -m venv --clear "$W/lone" && . "$W/lone/bin/activate"
         pip install ".[test]"                             # openDox through the pin, no openxFactory anywhere
         python -c "import openxdox.cli_gate, openxdox.completeness, openxdox.corpus_root, openxdox.gate_console, openxdox.gate_routes, openxdox.generator, openxdox.round_trip, openxdox.snapshot_registry"
@@ -206,10 +206,12 @@ After group 3 and plan 038's T064.
 
   - **Falsifier:** the first prints `requirement 1 holds`; both oracle calls
     exit 0.
-- [ ] 4.4 **The composed pin advances** (an openXdox-code PR). After 4.2
-  lands, `tests/composed_host_pin.yaml` advances to openxFactory's new commit,
-  and 3.7's interim registration leaves in the same PR. Plan 038's T073
-  re-runs after it, as #1144's work.
+- [ ] 4.4 **The composed pin advances** (an openXdox-code PR, and a
+  REALIZATION landing: it removes 3.7's interim registration, so it carries
+  this change's `Arc:` trailer). After 4.2 lands,
+  `tests/composed_host_pin.yaml` advances to openxFactory's new commit, and
+  3.7's interim registration leaves in the same PR. Plan 038's T073 re-runs
+  after it, as #1144's work.
   - **Falsifier:** the composed workflow green at that PR's head, with no
     registration left in the composed conftest that the host now makes.
 - [ ] 4.5 **The aggregation's routine pin-sync** (bookkeeping, no `Arc:`).
@@ -238,7 +240,7 @@ After group 3 and plan 038's T064.
   repository the arc landed in, `git log --first-parent --grep='^Arc:
   realize-doc-health-direction-arc$'` lists the landings, and the list is
   NON-EMPTY in openDox-code (2.1, unless it rode T061, which this records),
-  openXdox-code (group 3) and openxFactory (4.1). Recorded in
+  openXdox-code (group 3 and 4.4) and openxFactory (4.1). Recorded in
   `evidence/landings.md` (`Status: record`), per repository.
 
 ## 7. Archive, and the staged topic's exit (plan 038 T077)
