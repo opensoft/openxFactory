@@ -826,8 +826,9 @@ bookkeeping records an answer.
   openxFactory.
 
   They SHALL be BASELINE-RELATIVE, as follows (R2Q12 (a)):
-  - **The baseline** is the previous run at the baseline branch's tip, held in
-    the store. The baseline branch is `main`, else the branch HEAD names (I-2
+  - **The baseline** is the previous run at the baseline branch's tip OF THE
+    SAME CORPUS (its resolved root), held in the store; a run of another
+    repository in the same store is never a baseline. The baseline branch is `main`, else the branch HEAD names (I-2
     (a), `6013547504`); R2Q7 (a)'s `main` still governs landing alone.
     Every run is classed against it, whether at the tip, on a branch or over
     the working state.
@@ -1159,7 +1160,9 @@ bookkeeping records an answer.
   (`PACKET_MERGE=94b6f7f1`) prints `requirement 1 holds`.
 - **SC-004**: at release 2's close, all 37 release-2 boxes are ticked, each with
   its evidence: Group 6's 4, Group 12's 11, Group 14's 10 and Group 15's 12.
-  The every-phase boxes 9.5, 11.0, 11.1 and F11.1 are ticked at the arc's close.
+  The every-phase boxes 11.0, 11.1 and F11.1 are ticked at the arc's close, and
+  9.5 last, after the cut's pin sync and the 0.2.0 publish that still realize
+  it.
 - **SC-005**: openxFactory's required checks are green at every pin advance
   release 2 makes. openDox-code's required check keeps running its whole suite,
   with no declared exclusion. Release 2's named tests run in it, the sandbox

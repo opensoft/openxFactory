@@ -26,7 +26,8 @@ lands.
 `- [ ] T### [P?] [US#] [repo] Title`, followed by up to ten lines:
 
 - **Realizes**: the #1144 boxes the task closes, or advances when marked
-  "(part)". A box is TICKED only by T082 (bookkeeping, after AT-R2, SC-008).
+  "(part)". A box is TICKED only by T082 (bookkeeping, after AT-R2, SC-008),
+  except 9.5, which T084 ticks last, after the cut's sync and the publish.
 - **Falsifier**: the #1144 falsifier or named test the task must pass, quoted
   in its PR (FR-025).
 - **Ruled**: the answers the task carries out. Round 1, R2Q1–R2Q25, all (a):
@@ -867,7 +868,10 @@ copies (research R7; ADV-05).
   - **Falsifier**: new `tests/test_health_cli.py`, `tests_runtime/test_health_engine.py`
     (including a repository on `main`, since #1144's falsifiers never exercise
     the baseline there, C-14; a repository on another branch, I-2 (a); a pack
-    with zero findings in the baseline, then upgraded; and a newly added pack).
+    with zero findings in the baseline, then upgraded; a newly added pack; and
+    interleaved runs of two corpora in one store, each classed against its own
+    baseline, with `list`, `fix` and `accept` reading only their own corpus's
+    runs).
   - **Ruled**: R2Q9 (items 2, 7), R2Q10, R2Q12, R2Q15. **Decisions**: I-2, CF-6,
     N-2, N-10, N-14, N-19, OQ-H15-5.
   - **After**: T042, T044.

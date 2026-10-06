@@ -324,11 +324,12 @@ Source: R2-INV-HEALTH Part 4 (14.4–14.9), Part 9; R2Q10–R2Q12, R2Q25.
   valid ref-name component, so the draft branch is
   `health-fix-<id>`. A raw `path:locator` form was rejected: `:` is not allowed
   in a git ref name.
-- **The baseline** (R2Q12 (a)): the previous default-tip run in the store; three
-  classes (new, arrived with a pack upgrade, persistent); disappearance measured
-  only between default-tip runs; a citation is a landing of the fix loop's draft
-  or a commit with a `Finding:` trailer; an uncited disappearance re-raised once
-  as `human-only`. With no `main`, tier 1's I-2 decides the baseline branch.
+- **The baseline** (R2Q12 (a)): the previous default-tip run in the store for
+  the same corpus root and baseline branch; three classes (new, arrived with a
+  pack upgrade, persistent); disappearance measured only between default-tip
+  runs; a citation is a landing of the fix loop's draft or a commit with a
+  `Finding:` trailer; an uncited disappearance re-raised once as `human-only`.
+  With no `main`, tier 1's I-2 decides the baseline branch.
 - **What a run reads** (N-10, as review round 1 corrected it; ADV-16, F9): R2Q12
   (a) names runs "at the tip, on a branch or over the working state"
   (`clarify-questions.md:591-593`), so all three kinds are supported. The first

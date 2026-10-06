@@ -192,7 +192,8 @@ The store refuses a finding with no `pack_id` or `pack_version`
 ### Baseline classes (R2Q12 (a); owner T046)
 
 ```text
-for a run R, against B = the previous default-tip run in the store,
+for a run R, against B = the latest earlier default-tip run in the store for the
+SAME resolved corpus_root and baseline_branch (never another corpus's run),
 with V(B) = B's pack inventory (health_runs.pack_versions):
   id in R, not in B, its pack in V(B) at the same version   → new
   id in R, not in B, its pack in V(B) at another version    → pack-upgrade (D12)

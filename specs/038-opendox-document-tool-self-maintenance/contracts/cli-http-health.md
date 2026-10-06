@@ -38,6 +38,11 @@ Options follow the verb (10.1). `--class` is additive (a filter on `list`);
   carries no budget of its own). `run` writes nothing
   to the working tree or under `.git/` (F15.1 asserts the checkout clean after
   it).
+- **Every lookup is scoped to the corpus.** `list`, `fix` and `accept` resolve
+  `--repo-root`, and read only runs whose `corpus_root` is that resolved root:
+  "the last run" is that corpus's latest run, and a finding id is looked up in
+  it alone, so a run of another repository in the same store is never read or
+  acted on (Copilot's review of `c93ae88b`).
 - **`list`** prints the last run's findings, new first; `--json` emits one object
   per finding with at least 14.5's fields (`id`, `resolution_class`, `path`,
   `severity`, `evidence`, `pack_id`, `pack_version`), plus `kind` (R2Q10 (a)) and
