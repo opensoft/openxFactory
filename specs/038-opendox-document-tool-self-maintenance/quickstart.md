@@ -27,9 +27,9 @@ pyproject.toml migrations/ README.md LICENSE`, plan 034 T099's check). If they
 differ, both halves run again at P.
 
 Every step depends only on answered questions (R2Q1–R2Q25, `6003486656`) and on
-this plan's decisions as Brett rules them (T004). Until the cut, the openDox
-root README's install line reads `pip install "./code[local]"`; after it, the
-PyPI line.
+this plan's decisions as Brett ruled them (`#656` `6013547504`). Until the cut,
+the openDox root README's install line reads `pip install "./code[local]"`;
+after it, the PyPI line.
 
 ## 1. A clean machine, with openDox and nothing else, and no `gh`
 
@@ -42,7 +42,7 @@ git -C "$W/openDox-code" checkout -q "$RELEASE2_TIP"
 python3 -m venv --clear "$W/v"
 . "$W/v/bin/activate"
 pip install -q "$W/openDox-code[local]"
-# gh absent, by PATH (OQ-12-16): a bin directory holding only what the run needs
+# gh absent, by PATH (CF-8): a bin directory holding only what the run needs
 mkdir "$W/bin"
 for t in git python3 curl opendox opendox-runtime; do ln -s "$(command -v "$t")" "$W/bin/$t"; done
 export PATH="$W/bin:/usr/bin:/bin"

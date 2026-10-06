@@ -2,10 +2,11 @@
 
 Status: draft
 
-**Feature**: 038 · **Authority**: boxes 12.1–12.4a, 12.6, 12.6a; answers R2Q1–R2Q7,
-R2Q9 (a) item 7 (`--local`). **A PROPOSAL until Brett rules the plan**
-(OQ-12-9, -11, -12, -13, -14, -17; OQ-038-1; decisions N-1, N-2, N-11, N-16,
-N-17; tier 2's CF-1). Review round 1 corrected the command shapes to the ratified ones (ADV-01).
+**Feature**: 038 · **Authority**: boxes 12.1–12.4a, 12.6, 12.6a; answers
+R2Q1–R2Q7, R2Q9 (a) item 7 (`--local`). **RULED with the plan** (`#656`
+`6013547504`, every decision as recommended: OQ-12-9, -11, -13, -14, -17;
+OQ-038-1; N-1, N-2, N-11, N-16, N-17; tier 2's CF-1 and CF-7). Review round 1
+corrected the command shapes to the ratified ones (ADV-01).
 
 Both verbs, their routes and their capability flags are contributions of
 openDox's DEFAULT profile (decision N-2; ADV-14): the verbs through
@@ -94,14 +95,20 @@ ROUTE's (ADV-04).
 
 ## `/capabilities`
 
-The two keys exist ONLY where openDox's default profile contributes their routes,
-derived from the route bindings as `gate` is (`serve.py:509-526`,
-`answers_a_gate_verb`; plan 034 T084's rule that a flag whose affordance is a
-route this server serves is true only where such a route answers). A host that
-replaces the default sees neither key, so its payload is byte-for-byte what it
-was (T019, T064). No openxFactory test pins the `actions` key set (measured by
-grep over `tests/`; research R13), so the derivation is what keeps "unchanged"
-true, not a test's tolerance.
+Two things are kept apart (re-check of review round 1):
+- **PRESENCE.** The two keys are present ONLY under openDox's own profile,
+  which contributes them with its routes. A host profile that replaces the
+  default carries neither key, so its payload is byte-for-byte what it was
+  (T019, T064). This is unlike `gate`, which core `_DEFAULT_CAPABILITIES`
+  (`serve.py:528`) ALWAYS carries.
+- **VALUE.** Where present, each key's value is derived from the route
+  bindings, as `gate`'s value is (`serve.py:509-526`, `answers_a_gate_verb`;
+  plan 034 T084's rule that a flag whose affordance is a route this server
+  serves is true only where such a route answers).
+
+No openxFactory test pins the `actions` key set (measured by grep over
+`tests/`; research R13), so the profile-bound presence is what keeps
+"unchanged" true, not a test's tolerance.
 
 | key | meaning |
 |---|---|
@@ -123,6 +130,6 @@ branch and head it is bound to, and posts it once.
 
 `tests/test_submission_default.py` (2), `tests/test_submit_route.py` (5),
 `tests/test_landing_guardrails.py` (13), all in openDox-code, run with `gh`
-hidden from PATH (OQ-12-16). T012 adds, beside the thirteen, nodes for R2Q7
-(a)'s two refusals (no `main`; no declaration) and ADV-08's dirty-checkout
-refusal.
+hidden from PATH (tier 2's CF-8, was OQ-12-16; ruled). T012 adds, beside the
+thirteen, nodes for R2Q7 (a)'s two refusals (no `main`; no declaration) and
+ADV-08's dirty-checkout refusal.

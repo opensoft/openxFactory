@@ -8,8 +8,9 @@ questions, `R2Q1`–`R2Q25`, on 2026-10-05, by interactive multi-choice,
 verbatim *"Accept all 25 recommended (Recommended)"* (`#656` `6003486656`). The
 answers are encoded below and inline in
 [`clarify-questions.md`](./clarify-questions.md). The same file defers 34
-design-level questions to the plan, each with a proposed default, and Brett
-rules them with the plan.
+design-level questions to the plan, each with a proposed default. Brett Heap
+ruled the plan at `6847e99e`, everything as recommended (`#656` `6013547504`);
+its one ruling that moves this specification's text, I-2, is encoded below.
 **Realizes**: RELEASE 2, "the document tool and self-maintenance", phases 4–5,
 of the openxFactory OpenSpec change `add-neutral-product-standalone-operability`
 (#1144, landed `94b6f7f1`). The phases follow that change's RULED release map
@@ -139,6 +140,14 @@ option (a).
 - Q: R2Q23. Is release 2 published to PyPI? → A: Yes. `opendox` 0.2.0 is published at release 2's cut, tagged `v0.2.0`, through the existing trusted-publishing workflow, under a batch-O style addendum. It is published on Brett's publish word after acceptance passes.
 - Q: R2Q24. Does release 2 carry an end-to-end acceptance, AT-R2? → A: Yes, in AT-R1's form, with an HTTP half in CI and a browser half on the host.
 - Q: R2Q25. May a finding's `evidence` hold document excerpts? → A: No. It holds locators only, and the view reads the passage from git when it renders.
+
+### Session 2026-10-06 (the plan ruling)
+
+Brett Heap ruled plan 038 at `6847e99e` by interactive multi-choice, every
+item as recommended (`#656` `6013547504`). One ruling moves this
+specification's text:
+
+- Q: I-2. In a repository with no `main`, which branch's tip holds the health baseline? → A: *"main, else HEAD's branch (Recommended)"*. The baseline branch is `main`, else the branch HEAD names; R2Q7 (a)'s `main` still governs landing alone. User Stories 4 and 5, the edge cases, FR-010, Key Entities and Risks now say "the baseline branch's tip".
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -316,11 +325,13 @@ documents: broken internal links, documents nothing links to, near-duplicates,
 missing neutral front matter, a declared stage that disagrees with the
 top-level stage directory the document sits in, and stale or empty stubs. Its
 results live in the product's disposable store, as a domain table. Against the
-previous run at `main`'s tip:
+previous run at the baseline branch's tip (`main`, else the branch HEAD names;
+I-2 (a)):
 - new findings come first;
 - findings that arrived with a pack upgrade are shown apart from them;
 - persistent ones stay quiet;
-- an uncited disappearance between two runs at `main`'s tip is re-raised.
+- an uncited disappearance between two runs at the baseline branch's tip is
+  re-raised.
 
 **Why this priority**: *"a document product that cannot report on its own
 documents has not shipped the thing it is named for"* (requirement 6, second
@@ -420,8 +431,8 @@ removing it re-opens its finding.
    `tests/test_health_parity.py` nodes).
 8. **Given** a fix-loop draft on its branch, **When** a run on that branch no
    longer finds the repaired finding, **Then** no disappearance is raised.
-   Disappearance is measured only between two runs at the default branch's tip,
-   and the draft's landing cites it (R2Q12 (a)).
+   Disappearance is measured only between two runs at the baseline branch's
+   tip, and the draft's landing cites it (R2Q12 (a); I-2 (a)).
 
 ---
 
@@ -501,7 +512,9 @@ bubblewrap and the AppArmor sysctl (R2Q9 (a), items 2–6; R2Q17 (a)).
   with git (R2Q7 (a)).
 - A repository with no `main` (one the product created on another branch, or
   one served on `master`). Governance is `unknown`, and `land` refuses, naming
-  the missing branch, until the owner creates or renames `main` (R2Q7 (a)).
+  the missing branch, until the owner creates or renames `main` (R2Q7 (a)). Its
+  health baseline is the branch HEAD names (I-2 (a)); with a detached HEAD there
+  is no baseline branch, so every finding reads as new.
 - A remote URL carries a credential. It is redacted from `Submission.url`, from
   the printed report and from every refusal (12.1a). Whether such a remote is
   pushed at all is a plan default (OQ-12-11: refused, as `attach_remote` refuses
@@ -532,21 +545,22 @@ bubblewrap and the AppArmor sysctl (R2Q9 (a), items 2–6; R2Q17 (a)).
 - The store is reset while an uncited disappearance is pending. The re-raise is
   forgotten, as Brett ruled (R2Q12 (a)).
 - `health accept` has written an exception that is not yet committed. F14.1
-  commits it before the next run. Whether an uncommitted entry already
-  suppresses is not ruled, and the plan states its reading.
+  commits it before the next run. An uncommitted entry suppresses only in a
+  working-state run; a run over a commit reads the committed file (the plan's
+  N-14, ruled `6013547504`).
 - A file already sits at `health/dispositions.yaml` or `health/packs.yaml` but
   is not of the product's own kind. The aggregation repository of this estate,
   for example, keeps its governance dispositions under that name. The plan's
-  proposed default is fail-closed (OQ-H-13): the file is refused by name and
-  never read as exceptions or packs.
+  ruled default is fail-closed (OQ-H-13; `6013547504`): the file is refused by
+  name and never read as exceptions or packs.
 - A run meets a pack whose output cannot be parsed as the neutral shape. None of
   that output is stored, and the finding says why (15.6).
 - Landing meets a conflict. The paths are shown, and the default branch does not
-  move. The plan's proposed default names the remedy in the refusal and adds no
+  move. The plan's ruled default names the remedy in the refusal and adds no
   conflict verb (OQ-038-1).
 - A corpus repository that openDox's runtime created is BARE (Q-R1), so there is
-  no working tree for `accept` to write into. The plan's proposed default writes
-  a draft on a branch there (OQ-H-14).
+  no working tree for `accept` to write into. The plan's ruled default writes a
+  draft on a branch there (OQ-H-14).
 
 ## Requirements *(mandatory)*
 
@@ -759,8 +773,8 @@ bookkeeping records an answer.
     `scripts/doc_health/`'s 37 modules free of corpus identifiers, and
     R2-INV-HEALTH part A finds two of 38 today (`lines.py`, and `fs_probe.py`,
     added since). So the check is new neutral code, not a relocated family. The
-    plan's proposed default makes it the engine's built-in families,
-    attributed `opendox` (OQ-H-3's plan half).
+    plan's ruled default makes it the engine's built-in families, attributed
+    `opendox` (OQ-H-3's plan half).
   - **A host's check.** A host's check registered through
     `register_health_check` (openxFactory's `scripts/opendox_host.py:524`)
     SHALL keep running in process at the scoped seam only, as release 1 left
@@ -803,7 +817,9 @@ bookkeeping records an answer.
   openxFactory.
 
   They SHALL be BASELINE-RELATIVE, as follows (R2Q12 (a)):
-  - **The baseline** is the previous run at `main`'s tip, held in the store.
+  - **The baseline** is the previous run at the baseline branch's tip, held in
+    the store. The baseline branch is `main`, else the branch HEAD names (I-2
+    (a), `6013547504`); R2Q7 (a)'s `main` still governs landing alone.
     Every run is classed against it, whether at the tip, on a branch or over
     the working state.
   - **New:** absent from the baseline, at the baseline's `pack_version` for its
@@ -812,8 +828,8 @@ bookkeeping records an answer.
     stamped `pack_version` (15.7). It is reported apart from new (D12).
   - **Persistent:** present in the baseline. A finding whose id persists across
     a pack upgrade stays persistent.
-  - **Disappeared:** measured ONLY between two runs at `main`'s tip. A branch or
-    working-state run never raises one.
+  - **Disappeared:** measured ONLY between two runs at the baseline branch's
+    tip. A branch or working-state run never raises one.
   - **Cited:** a disappearance is cited by a landing of the fix loop's draft for
     it, or by a commit that names its id in a `Finding:` trailer. An uncited one
     SHALL be re-raised once, as a `human-only` finding naming the original.
@@ -1059,7 +1075,7 @@ bookkeeping records an answer.
     - R2Q10 (a)'s selection lines in F14.1 and F15.1.
 
     Whether the last three ride in R2Q9 (a)'s batch is the plan's to state.
-  - **The arc's close.** The plan's proposed default is that this feature
+  - **The arc's close.** The plan's ruled default is that this feature
     performs and ticks 9.5, 11.0, 11.1 and F11.1, and plan 034's T090–T093
     close by reference (OQ-038-2).
 
@@ -1086,7 +1102,8 @@ bookkeeping records an answer.
   data, kept in the store. Its `id` is a stable, pack-qualified key (R2Q10
   (a)), and its `evidence` holds locators only (R2Q25 (a)).
 - **Resolution class**: exactly `auto-fix`, `assisted` or `human-only`.
-- **Baseline**: the previous run at `main`'s tip, held in the store. Against it,
+- **Baseline**: the previous run at the baseline branch's tip (`main`, else the
+  branch HEAD names; I-2 (a)), held in the store. Against it,
   a finding is new, persistent, or arrived with a pack upgrade (D12). Between
   two such runs, a finding can have disappeared. It is owned by the engine, no
   pack may vary it, and a store reset forgets it (R2Q12 (a)).
@@ -1301,9 +1318,9 @@ bookkeeping records an answer.
     estate's own containers.
 - **12.5 cannot pass in any environment measured** (R2-INV-12, re-measured).
   R2Q8 (a) puts a repair slice in phase 4: 174 reds, repaired without editing
-  the 16 suites. It can start the day the plan is ruled. R1Q6 (d)'s
-  direction-arc decision (plan 034 T008) is still owed before 12.5 needs the
-  suites, and the composed run ends only when that arc's realization lands.
+  the 16 suites. It starts on the plan ruling (`6013547504`). R1Q6 (d)'s
+  direction-arc decision was ruled on `6003918488`, and the composed run is
+  F12.1's permanent home (ARC-Q2 (a), read with R2Q8 (a) as the plan's CF-5).
 - **Three standing invariants stood in the way of four boxes, and the answers
   meet each by a named act, not by assumption:**
   - feature 007's served checkout, against 12.6a's merge: four exceptions, by
@@ -1320,7 +1337,7 @@ bookkeeping records an answer.
   that registers a host's `GhPullRequests` realizes them.
 - **A repository with no `main` cannot land** (R2Q7 (a)), until its owner
   creates or renames `main`. That includes a repository the product itself
-  created on another branch. Such a repository also has no run at `main`'s tip,
-  so R2Q12 (a)'s baseline is never set there: every finding reads as new, and
-  nothing ever disappears. This interplay of two answers is reported to the
-  holder, and is not resolved here.
+  created on another branch. Its health baseline still holds: the baseline
+  branch is the branch HEAD names (I-2 (a), ruled `6013547504`), so R2Q12 (a)'s
+  classes and disappearances apply there too. Only a detached HEAD has no
+  baseline branch, and there every finding reads as new.

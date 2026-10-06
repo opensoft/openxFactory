@@ -4,10 +4,11 @@ Status: draft
 
 **Feature**: 038 · **Authority**: R2Q22 (a) (`#656` `6003486656`): openDox-spec
 owns this shape as one of three schemas; openDox-code carries a digest-checked
-copy. Boxes 14.5, 14.6, 15.2, 15.7; answers R2Q10 (a), R2Q25 (a). **A PROPOSAL
-until Brett rules the plan** (decisions N-3, N-13, OQ-H15-18, OQ-H15-19). Review
-round 1 made the id position-independent (ADV-07) and bounded `message`
-(ADV-27).
+copy. Boxes 14.5, 14.6, 15.2, 15.7; answers R2Q10 (a), R2Q25 (a). **RULED with
+the plan** (`#656` `6013547504`, every decision as recommended: N-3, N-13,
+OQ-H15-18, OQ-H15-19). Review round 1 made the id position-independent (ADV-07)
+and bounded `message` (ADV-27); its re-check settled id collisions (§ The id
+rule).
 
 **Where it lands.** T040 authors it as a JSON Schema in openDox-spec, in that
 repository's existing schema layout. T060 moves the openDox root's spec pin to it
@@ -36,7 +37,7 @@ at least the fields 14.5 declares (`id`, `resolution_class`, `path`, `severity`,
 | `resolution_class` | string | yes | `auto-fix` \| `assisted` \| `human-only` (14.6, spelled exactly) |
 | `message` | string | yes | one line, at most 200 characters, written by the family from its own words; never document text (ADV-27) |
 | `evidence` | object | no | locators only (R2Q25 (a)): paths, line spans, link targets as written, digests, a family's own `family_version`, a refused patch's `refused_patch` and `reason` (15.2a). Any string longer than 200 characters, or any key named `excerpt`, `text`, `content` or `quote`, is refused |
-| `baseline_class` | string | no | set by the engine: `new` \| `pack-upgrade` \| `persistent` (R2Q12 (a)); `unclassed` only if tier 1's I-2 is ruled (b) |
+| `baseline_class` | string | no | set by the engine: `new` \| `pack-upgrade` \| `persistent` (R2Q12 (a)); there is no fourth value (I-2 (a), ruled) |
 
 ## The id rule (ADV-07, a conforming refinement of R2Q10 (a))
 
@@ -48,8 +49,18 @@ id   = pack_id + "." + kind + "." + h16
 ```
 
 An edit ABOVE a finding moves its `locator` and leaves its `id`; an exception keyed
-by that id keeps suppressing it (requirement 15). A collision within one run is
-refused, never truncated further.
+by that id keeps suppressing it (requirement 15).
+
+**A collision is a finding against its producer.** If two findings in one run
+have the same id (the same `pack_id`, `kind`, `path` and identity key, or a
+16-digit hash collision), NEITHER is stored, as itself or as a duplicate. The
+engine records ONE finding against the family or pack that produced them
+instead: `pack_id` that producer's (`opendox` for a built-in family, the
+manifest entry's id for a pack), `kind` `identity-collision`, `path` the
+colliding findings' path, `human-only`, with the colliding id and the count in
+`evidence`. A family or pack must supply an identity key that tells its findings
+apart; the engine never truncates the id further or disambiguates it by
+position.
 
 ## Rules
 
@@ -57,7 +68,8 @@ refused, never truncated further.
   (15.7). The engine refuses a pack finding whose `resolution_class` is outside
   the three, whose `message` or `evidence` breaks the bounds above, or that
   declares a baseline or landing rule; each refusal is itself a finding against
-  that pack (15.5, 15.6).
+  that pack (15.5, 15.6). Two findings with one id are such a finding too
+  (§ The id rule).
 - **Install-level findings** (`no-sandbox`, a manifest entry that cannot be
   fetched or whose digest differs, a pack that crashed or timed out) carry
   `pack_id` `opendox` or the entry's id, an empty `path`, and `human-only`.

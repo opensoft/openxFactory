@@ -3,8 +3,9 @@
 Status: draft
 
 **Feature**: 038 · **Authority**: R2Q22 (a) (openDox-spec schema 3); box 14.8
-("EXCEPTIONS LIVE IN GIT, NOT THE STORE"); answer R2Q10 (a) for the key.
-**A PROPOSAL until Brett rules the plan** (OQ-H-13, OQ-H-14, OQ-H-15).
+("EXCEPTIONS LIVE IN GIT, NOT THE STORE"); answer R2Q10 (a) for the key. **RULED
+with the plan** (`#656` `6013547504`, as recommended: OQ-H-13, OQ-H-14, OQ-H-15,
+N-14).
 
 **Where it lands.** T040 authors the schema in openDox-spec; T060 pins and cuts
 it; T054 copies it into openDox-code's copy record at the pinned commit (after

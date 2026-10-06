@@ -127,15 +127,16 @@ Source: R2-INV-12 §§ "Today", "Per box", "Open questions"; the answers R2Q1–
   and `_pull_request_port` keep `GhPullRequests` for `gate open-pr`.
   *Alternative considered:* repointing `pull_request_factory` (12.4's later
   sentences), which would break the protected pin.
-- **Decision: transport** (OQ-12-12). Factor the runtime's push core,
-  `_push_to_remote_with` (`runtime/repository_act.py:1742`, with
-  `_bound_local_destination` `:1613` and `_receive_pack_for` `:1720`), into a
-  helper that takes a named branch; it keeps the repository-local command-config
-  refusal (`_EXECUTED_LOCAL_KEYS` `:1335`, `_refuse_repository_local_command_config`
-  `:1372`). Lane 3's T011 FIX corrected the cite: `:1335-1372` is that refusal,
-  not the push. The remote is the one named `origin`, else the sole remote
-  (ADV-26). *Alternatives:* the plain argv of `GhPullRequests.push`.
-  *Rationale:* the hardening already exists.
+- **Decision: transport** (OQ-12-12, ruled as tier 2's CF-7). Factor the
+  runtime's push core, `_push_to_remote_with` (`runtime/repository_act.py:1742`,
+  with `_bound_local_destination` `:1613` and `_receive_pack_for` `:1720`), into
+  a helper that takes a named branch; it keeps the repository-local
+  command-config refusal (`_EXECUTED_LOCAL_KEYS` `:1335`,
+  `_refuse_repository_local_command_config` `:1372`). Lane 3's T011 FIX
+  corrected the cite: `:1335-1372` is that refusal, not the push. The remote is
+  the one named `origin`, else the sole remote (ADV-26). *Alternatives:* the
+  plain argv of `GhPullRequests.push`. *Rationale:* the hardening already
+  exists.
 - **Decision: a credential-bearing remote is pushed, and redacted** (12.1a;
   ADV-09). 12.1a designs exactly that case (`https://user:<token>@host/…`), and
   F12.2's `test_a_credential_in_the_remote_url_never_reaches_the_report`
@@ -318,8 +319,9 @@ Source: R2-INV-HEALTH Part 4 (14.4–14.9), Part 9; R2Q10–R2Q12, R2Q25.
   its id, made the baseline see a new finding plus an uncited disappearance, and
   silently ended an exception keyed by the old id (ADV-07). Reading R2Q10 (a)'s
   "a locator the family supplies" as such a key is a conforming refinement.
-  It survives a reset, is unique within a run (a collision is refused, never
-  truncated further), and is a valid ref-name component, so the draft branch is
+  It survives a reset, is unique within a run (a collision is a finding against
+  its producer, never truncated further; contracts/health-finding.md), and is a
+  valid ref-name component, so the draft branch is
   `health-fix-<id>`. A raw `path:locator` form was rejected: `:` is not allowed
   in a git ref name.
 - **The baseline** (R2Q12 (a)): the previous default-tip run in the store; three
@@ -331,9 +333,10 @@ Source: R2-INV-HEALTH Part 4 (14.4–14.9), Part 9; R2Q10–R2Q12, R2Q25.
   (a) names runs "at the tip, on a branch or over the working state"
   (`clarify-questions.md:591-593`), so all three kinds are supported. The first
   plan's "committed tree of HEAD only" narrowed the answer and was withdrawn.
-  A working-state run reads tracked and untracked, non-ignored files into the
-  engine's own directory; branch and working-state runs never raise a
-  disappearance. F14.1 commits before each run (#1144 `tasks.md:3302` onward),
+  In a working-state run only the built-in checks read the working copy;
+  packs always get the committed export of HEAD (`git archive`, 15.1b), and no
+  untracked file is copied to a pack. Branch and working-state runs never raise
+  a disappearance. F14.1 commits before each run (#1144 `tasks.md:3302` onward),
   so it reads commits.
 - **An uncommitted exception** (the spec's deferred edge case, `spec.md:534-536`;
   C4): a run reads the dispositions file in what it reads, so an uncommitted

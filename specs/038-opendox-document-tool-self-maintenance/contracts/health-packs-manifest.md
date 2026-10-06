@@ -4,9 +4,10 @@ Status: draft
 
 **Feature**: 038 · **Authority**: R2Q22 (a) (openDox-spec schema 2), R2Q21 (a)
 (this file is authoritative for what the engine runs), R2Q18 (a), R2Q16 (a);
-boxes 15.1a, 15.1b, 15.6, 15.6a. **A PROPOSAL until Brett rules the plan**
-(OQ-H15-5, -10, -11, -12, -14, -19, -21). Review round 1 removed the per-entry
-budget and bounds (lane 3's bwrap-facts FIX), added the `commit` refusal for a
+boxes 15.1a, 15.1b, 15.6, 15.6a. **RULED with the plan** (`#656`
+`6013547504`, as recommended: OQ-H15-5, -10, -11, -12, -14, -19, -21). Review
+round 1 removed the per-entry budget and bounds (lane 3's bwrap-facts FIX),
+added the `commit` refusal for a
 corpus-relative source (lane 3's T047 FIX), hardened the git transport (ADV-21)
 and completed the canary (lane 3's T055 FIX).
 

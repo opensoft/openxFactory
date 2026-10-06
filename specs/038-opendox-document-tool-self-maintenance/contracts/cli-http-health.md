@@ -4,9 +4,9 @@ Status: draft
 
 **Feature**: 038 · **Authority**: boxes 6.2, 14.4–14.8, 15.1a, 15.4–15.6;
 answers R2Q9 (a) items 2 and 7, R2Q10 (a), R2Q12 (a), R2Q15 (a), R2Q16 (a).
-**A PROPOSAL until Brett rules the plan** (OQ-H-2, -3, -14, -18; OQ-H15-14;
-decisions N-2, N-10; tier 2's OQ-H-18 reading). Review round 1 restored 14.5's
-exact shapes (ADV-11).
+**RULED with the plan** (`#656` `6013547504`, every decision as recommended:
+OQ-H-2, -3, -14, -18; OQ-H15-14; N-2, N-10; tier 2's CF-6). Review round 1
+restored 14.5's exact shapes (ADV-11).
 
 `health`, its routes and its capability block are contributions of openDox's
 DEFAULT profile (decision N-2; ADV-14). Every action the view offers has a CLI
@@ -28,12 +28,14 @@ Options follow the verb (10.1). `--class` is additive (a filter on `list`);
 
 - **`run`** reads what the run's kind reads (data-model.md § Health run:
   default-tip, branch or working-state; R2Q12 (a)), runs the built-in families
-  in process (attributed `opendox`) and every manifest-listed pack in the
-  sandbox (R2Q16 (a)), stores the run and its findings, and classes them
-  against the baseline. `--pack` restricts to listed packs. `--timeout` sets the
-  per-pack budget: default 60 seconds, applied per pack and enforced by the
-  engine, never by the pack, and capped at the engine's ceiling of 600 seconds
-  (15.6; ADV-40; the manifest carries no budget of its own). `run` writes nothing
+  in process (attributed `opendox`; in a working-state run they read the working
+  copy) and every manifest-listed pack in the sandbox over the committed export
+  (`git archive`, HEAD's in a working-state run; 15.1b; R2Q16 (a)), stores the
+  run and its findings, and classes them against the baseline. `--pack`
+  restricts to listed packs. `--timeout` sets the per-pack budget: default 60
+  seconds, applied per pack and enforced by the engine, never by the pack, and
+  capped at the engine's ceiling of 600 seconds (15.6; ADV-40; the manifest
+  carries no budget of its own). `run` writes nothing
   to the working tree or under `.git/` (F15.1 asserts the checkout clean after
   it).
 - **`list`** prints the last run's findings, new first; `--json` emits one object
@@ -52,7 +54,7 @@ Options follow the verb (10.1). `--class` is additive (a filter on `list`);
   `health` verbs reach the running bundle (R2Q9 (a) item 2).
 - **The hosted plane** refuses all four verbs by name and records nothing; the
   schema still migrates (R2Q15 (a)).
-- **On commit** (tier 2's OQ-H-18 reading): "optionally on commit" means a hook
+- **On commit** (tier 2's CF-6, ruled): "optionally on commit" means a hook
   line the user may add, `opendox health run --repo-root .`, which the root
   README documents; the product writes nothing under `.git/`.
 
@@ -68,9 +70,12 @@ Options follow the verb (10.1). `--class` is additive (a filter on `list`);
 
 ## `/capabilities`: the `health` block
 
-Present only where openDox's default profile contributes the health routes
-(derived from the route bindings, as `gate` is; ADV-14). It lists every
-resolution action the view offers, as data, so parity is a comparison (14.5):
+PRESENT only under openDox's own profile, which contributes it with the health
+routes, so a host profile that replaces the default carries no `health` block
+(core `_DEFAULT_CAPABILITIES`, `serve.py:528`, carries none; it always carries
+`gate`). Where present, its VALUES are derived from the route bindings, as
+`gate`'s value is (ADV-14). It lists every resolution action the view offers,
+as data, so parity is a comparison (14.5):
 
 ```json
 {"health": {"available": true, "plane": "local", "packs": "live",

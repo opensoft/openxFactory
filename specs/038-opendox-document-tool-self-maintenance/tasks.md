@@ -10,10 +10,12 @@ which holds the boxes and every falsifier.
 **Lane**: `openxfactory-4` (coordinator), with lane `openXfactory-3` (peer).
 **Revision**: review round 1 folded (`evidence/analyze-round-1.md`,
 `evidence/plancheck-lane3-round-1.md`); each changed task cites its finding.
+T004 encodes Brett's ruling of the plan.
 
-**NO CODE UNTIL BRETT RULES THIS PLAN.** No task below except T001–T004 and
-T006–T007 starts before T004 records his ruling of plan.md § "Design decisions
-for Brett to rule with this plan".
+**RULED.** Brett Heap ruled the plan at `6847e99e`, every item as recommended
+(`#656` `6013547504`, 2026-10-06; plan.md § "Ruled answers, the plan ruling").
+Implementation starts on this word. Still his word, at the act: the `dox-v1.2`
+cut (T060), the arc change's ratification (T071) and the 0.2.0 publish (T084).
 
 ## Format
 
@@ -27,9 +29,9 @@ for Brett to rule with this plan".
   `#656` `6003486656` (2026-10-05), verbatim *"Accept all 25 recommended
   (Recommended)"*. The direction arc, ARC-Q1–ARC-Q4, all (a): `#656`
   `6003918488` (2026-10-05T21:59:43Z).
-- **Decisions**: the plan.md items the task depends on (tier 1 rulings, tier 2
-  readings, tier 3 defaults). Until T004 records Brett's ruling of them, they are
-  proposals, and the task does not start.
+- **Decisions**: the plan.md items the task carries out (tier 1 rulings, tier 2
+  readings, tier 3 defaults), every one RULED as recommended (`#656`
+  `6013547504`).
 - **Blocked by**: none. Every behavioural question is answered (FR-025).
 - **After**: tasks that must land first. `T005` means batch Q. Every
   single-writer order of plan.md is encoded here (ADV-23).
@@ -39,7 +41,7 @@ for Brett to rule with this plan".
 - **README**: an evidence task links its evidence file in the feature's entry of
   openxFactory's `README.md` in the same PR (Principle IV; D1, ADV-34).
 - **Lane**: `4` (openxfactory-4) or `3` (openXfactory-3), as plan.md § "Two
-  lanes" proposes and lane 3 accepted; T009 confirms the split.
+  lanes" sets out, lane 3 accepted and Brett ruled (T009).
 
 A task with no `[P]` either shares a file with a neighbour or depends on one.
 
@@ -68,17 +70,17 @@ A task with no `[P]` either shares a file with a neighbour or depends on one.
 ## What can start
 
 Brett Heap answered all 25 round-1 questions (`6003486656`) and the four
-direction-arc questions (`6003918488`). This plan puts 67 items to him in three
-tiers (plan.md): six rulings, six readings to confirm, 55 proposed defaults.
-Once T004 records his ruling:
+direction-arc questions (`6003918488`), and ruled the plan's 67 items, every one
+as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
+52 defaults. On that word:
 
 - **Day one** (plan.md § "The critical path"): T005 (batch Q, the first act),
   T008, T009, T010, T011 (and T012 beside it, landing after it), T013 (after
-  T008), T020–T024 (T021 after T020, T022 after T021; T024 once H-1 is
-  confirmed), T025 (W-1 ruled), T040, then T060 as soon as T040 lands, and T070.
+  T008), T020–T024 (T021 after T020, T022 after T021; H-1 confirmed as CF-3 for
+  T024), T025 (W-1 (A) ruled), T040, then T060 as soon as T040 lands, and T070.
 - **The long pole** of phase 4 is P4-F: T020 → T026 → T029 (lane 3).
 - **Phase 5's openDox-code slices** start once T027 has pinned phase 4's
-  openDox-code commit, if tier 1's N-6 is ruled (a); otherwise after T033. The
+  openDox-code commit (tier 1's N-6 (a), ruled); they do not wait for T033. The
   copies (T041, T047, T054) also wait for T060's pinned spec commit.
 - **Requirement 9 for openXdox-code** (T073, lane 3) starts after T029; it is
   #1144's work, not the direction arc's, and is not gated on T071.
@@ -108,23 +110,29 @@ Once T004 records his ruling:
   `/speckit-analyze` over this revision (the plan writer does not). Round 1's
   findings are dispositioned in `evidence/analyze-round-1.md` and
   `evidence/plancheck-lane3-round-1.md`; round 2's are dispositioned at T004,
-  not ignored (constitution, Development Workflow).
+  not ignored (constitution, Development Workflow). Both reviewers re-checked
+  round 1 at `6847e99e` before Brett ruled: every CRITICAL, HIGH and FIX item
+  landed as worded (`#656` `6013547504`). The re-check's five remaining fixes
+  are applied at T004. Whether that re-check closes this task is the holder's
+  call.
   - **Lane**: 4 (holder dispatches).
-- [ ] T004 [oxF] **Brett's ruling of the plan, encoded.** Put plan.md's three
-  tiers to Brett as one block: tier 1's six RULINGS as multiple-choice
-  questions (R-1, W-1, ARC-5, I-2, N-6, ARC-1), tier 2's six readings to
-  CONFIRM, and tier 3's 55 defaults to rule together. Record his words on
-  `#656`, then encode them in this feature's documents in one bookkeeping PR on
-  this branch, including any `spec.md` wording a ruling moves (I-2 (a) moves
-  FR-010's "`main`'s tip" to "the baseline branch's tip"), and disposition
-  T003's findings. The README entry already links the planning documents and
-  round 1's evidence (this revision); T004 adds any new evidence file.
-  - **Files**: this feature's documents; `README.md` (the entry's links only).
-  - **After**: T003.
+- [x] T004 [oxF] **Brett's ruling of the plan, encoded.** DONE. Brett Heap ruled
+  plan.md's three tiers at `6847e99e` by interactive multi-choice, every item as
+  recommended (`#656` `6013547504`, 2026-10-06). This revision encodes it:
+  plan.md § "Ruled answers, the plan ruling" quotes his words; § "Design
+  decisions, RULED with the plan" marks every item with the option taken, with
+  N-7b moved to tier 1 and OQ-12-12 and OQ-12-16 to tier 2 as CF-7 and CF-8
+  (seven rulings, eight readings, 52 defaults); `spec.md` carries I-2 (a)
+  (FR-010's and the other "`main`'s tip" lines now read "the baseline branch's
+  tip"); and the re-check's five remaining fixes are applied (T003). No new
+  evidence file; the README entry's wording says the plan is ruled.
+  - **Files**: this feature's documents; `README.md` (the entry's wording only).
+  - **After**: T003's re-check of round 1.
   - **Lane**: 4.
 - [ ] T005 [oxF] **Batch Q: record the answers' amendments in #1144, in plan
   034's T007 form, ONE PR, under a Rule 6 window. THE FIRST ACT.** Its contents
-  are tier 2's CF-2, as Brett confirms them. Each amended line cites its ruling.
+  are tier 2's CF-2, as Brett confirmed them (`6013547504`). Each amended line
+  cites its ruling.
   It amends no requirement and no scenario. It holds:
   1. **R2Q9 (a)'s seven** (`6003486656`): F6.1 builds an entry point first, its
      stale "Today" text (`tasks.md:1163-1165`) is struck, and 6.2's matching
@@ -160,10 +168,10 @@ Once T004 records his ruling:
   6. **ARC-Q2 (a)'s F9.1 amendment**, in batch B's form (`6003918488`):
      openXdox-code's composed files are declared integration tests with count
      and reason, and requirement 9 closes for openXdox-code by declaration.
-  7. **F9.2's note**, as tier 1's ARC-5 rules it.
-  8. **12.5's falsifier notes**, as ruled: H-2's (tier 2's CF-4) batch-C scope
-     for pre-arc carve residue (`5962785556` item 1's precedent), and R-1 (a)'s
-     admitted module-level kind if tier 1 rules it.
+  7. **F9.2's note**, as tier 1's ARC-5 (a) ruled it (`6013547504`).
+  8. **12.5's falsifier notes**, as ruled (`6013547504`): H-2's (tier 2's CF-4)
+     batch-C scope for pre-arc carve residue (`5962785556` item 1's precedent),
+     and R-1 (a)'s admitted module-level kind.
   9. **R2Q16 (a)'s full reading** at requirement 16's sandbox and attribution
      clauses and at 15.1b (lane 3's R2Q16 FIX): the product's own checks run in
      process and are attributed `opendox`; a host's check registered through
@@ -177,8 +185,9 @@ Once T004 records his ruling:
   11. **7.1's addendum** (C-18; N-15): R2Q22 (a) adds three schemas to openDox's
       spec leg, so its packaged copies become seven; the two file kinds join the
       validator's kinds, and the finding shape is a copy the engine reads.
-  12. **The readings tier 1 rules**: I-2's baseline branch at 14.4, and N-6's
-      overlap beside the release map, each only as Brett rules it.
+  12. **The readings tier 1 ruled** (`6013547504`): I-2 (a)'s baseline branch
+      at 14.4 (`main`, else the branch HEAD names), and N-6 (a)'s overlap
+      beside the release map.
   - **Realizes**: none (bookkeeping; FR-025).
   - **Falsifier**: the PR's gates against the `main` it lands on, the pinned
     `scripts/validate-openspec-cli-pin.py --all` among them.
@@ -217,11 +226,13 @@ Once T004 records his ruling:
   - **After**: T004.
   - **Files**: codexFactory `specs/007-workbench-branch-sessions/spec.md`.
   - **Lane**: 4.
-- [ ] T009 **The lane split, confirmed.** Brett and the holder confirm plan.md
-  § "Two lanes", which lane openXfactory-3 accepted on three conditions, all
-  applied (T021 before T022; T054 After T047 with the copy record in the
-  single-writer table; T073 as #1144's work). Each lane records its slices in
-  its handoff and the workspace's `LANES.md`; lane 3 posts its claims (T001).
+- [x] T009 **The lane split, confirmed.** DONE: Brett confirmed plan.md § "Two
+  lanes" in the plan ruling, verbatim *"Accept all as recommended
+  (Recommended)"* (`#656` `6013547504`). Lane openXfactory-3 had accepted it on
+  three conditions, all applied (T021 before T022; T054 After T047 with the copy
+  record in the single-writer table; T073 as #1144's work). Each lane records
+  its slices in its handoff and the workspace's `LANES.md` as it claims them;
+  lane 3 posts its claims (T001).
   - **After**: T004.
   - **Lane**: 4 and 3.
 
@@ -279,7 +290,7 @@ hidden; F12.1 exits 0 composed (SC-001).
   - **Falsifier**: F12.2's two `tests/test_submission_default.py` nodes (the
     credential node here; the server node lands with T014); the new
     `tests/test_submission_port.py`.
-  - **Ruled**: R2Q1, R2Q2, R2Q5. **Decisions**: OQ-12-11, OQ-12-12.
+  - **Ruled**: R2Q1, R2Q2, R2Q5. **Decisions**: OQ-12-11, CF-7 (was OQ-12-12).
   - **After**: T004.
   - **Files**: `src/opendox/session_pr.py` (first: T011 → T012), new
     `src/opendox/submission_push.py`, `src/opendox/runtime/repository_act.py`
@@ -368,10 +379,12 @@ hidden; F12.1 exits 0 composed (SC-001).
   disagreeing with `OPENDOX_INSTALL_MODE=hosted` refuses, naming both (N-17;
   ADV-04). New `serve_branch_actions.py` holds `POST /actions/session/submit`
   behind 12.4a's three-clause gate and the console token, contributed through the
-  default profile's `ROUTE_EXTENSIONS` and `HANDLER_CONTRIBUTIONS`; `serve.py`
-  derives `actions.submit` from the route bindings as it derives `gate`
-  (`answers_a_gate_verb`, `:509-521`), so the key exists only where the route
-  answers (ADV-14; OQ-12-14). The hosted plane's refusal is the ROUTE's. New
+  default profile's `ROUTE_EXTENSIONS` and `HANDLER_CONTRIBUTIONS`. The
+  `actions.submit` key is PRESENT only under openDox's own profile, which
+  contributes it; its VALUE is derived from the route bindings as `gate`'s is
+  (`answers_a_gate_verb`, `:509-521`). Core `_DEFAULT_CAPABILITIES` (`:528`)
+  gains nothing (it always carries `gate`) (ADV-14; OQ-12-14). The hosted
+  plane's refusal is the ROUTE's. New
   `web/views/branch-actions.js` holds the submit control, keyed on
   `actions.submit`; `web/app.js` and `web/index.html` wire it; the census
   fixture gains its rows. Under `governed`, `submit` goes through the host's
@@ -400,8 +413,9 @@ hidden; F12.1 exits 0 composed (SC-001).
   `cli_branch_actions.py` (prompt over `/dev/tty`, no bypass, N-11), contributed
   through `default_profile.py`; `POST /actions/session/land-nonce` and `POST
   /actions/session/land` in `serve_branch_actions.py` (OQ-12-13), contributed
-  through the default profile's route facets; `actions.land` derived from those
-  bindings and true only where a lander is bound; the confirm control in
+  through the default profile's route facets; `actions.land` present only under
+  openDox's own profile, its value derived from those bindings and true only
+  where a lander is bound; the confirm control in
   `branch-actions.js`. Under `governed` no lander is bound and `land` submits
   through the instrument; with none it refuses "governed-without-an-instrument".
   A live session whose branch lands ends by the existing merge observation
@@ -529,7 +543,7 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   - **After**: T004.
   - **Files**: openXdox-code `src/openxdox/web/views/swb-session.js`.
   - **Lane**: 3.
-- [ ] T024 [P] [US3] [oXc] **U-5, the shim (SF), once H-1 is confirmed.** New
+- [ ] T024 [P] [US3] [oXc] **U-5, the shim (SF; H-1 confirmed as CF-3).** New
   `scripts/ideation_dashboard/session_git.py` (`import sys; from opendox import
   session_git as _m; sys.modules[__name__] = _m`), with NO `__init__.py` in its
   directory, so it merges with openxFactory's `scripts/ideation_dashboard/` (which
@@ -544,12 +558,13 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   - **After**: T004.
   - **Files**: openXdox-code new `scripts/ideation_dashboard/session_git.py`.
   - **Lane**: 3.
-- [ ] T025 [P] [US3] [oDc] **U-6, openDox web (SF; DJ (A) if W-1 rules it).**
+- [ ] T025 [P] [US3] [oDc] **U-6, openDox web (SF; DJ by W-1 (A), ruled).**
   S1's two nodes (plan 034's T102 follow-on in `staging-workbench.js` and the
-  census); and, under W-1 (A), `staging-workbench-model.js` made import-free again
-  by inlining what it takes from `./display.js`, which clears the 32 DJ nodes and
-  the import-free pins `:802` and `:1286`. Under W-1 (A′), the model is untouched
-  and T026 owns `tests/opendox_bundle.py` instead.
+  census); and, under W-1 (A) (`6013547504`, *"Model import-free again
+  (Recommended)"*), `staging-workbench-model.js` made import-free again by
+  inlining what it takes from `./display.js`, which clears the 32 DJ nodes and
+  the import-free pins `:802` and `:1286`. This word reverses carve slice S7's
+  model import; the PR says so.
   - **Realizes**: 12.5 (part).
   - **Falsifier**: openDox-code's whole suite; the 34 nodes, composed, quoted
     at T029.
@@ -563,19 +578,19 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
 - [ ] T026 [US3] [oXc] **U-7, the allow-list (AL; R-1's admitted part).** One
   entry per admitted test in `tests/protected_suite_respellings.yaml`, chained by
   blob, each in the same PR as its protected edit: `cmd_gate_*` 7, `hosted_index`
-  3, share paths 2, Group W 1, Group S2 4 (17, under H-2, tier 2's CF-4). If tier
-  1 rules R-1 (a): the admitted module-level edits to `_CREATE_HARNESS`
-  (`:492-553`), `_SESSION_HARNESS` (`:1008-1094`), `:1291` and `:1333`, with
-  `scripts/protected_suites.py`'s `_inside_the_test` rule (`:294`) amended to admit
-  the new kind (lane 3's T026 FIX: the path is `scripts/`); these close the 21
-  harness nodes only together with W-1's fix of the `./display.js` import at the
-  helper copy sites (`:98`, `:565`, `:1242`, `:2000`, `:2507`). The two non-harness
-  nodes of R-1's 26 (lane 3's row 38 FIX):
-  `test_staged_scope_adds_cluster_neighbourhood_section` takes an in-test entry
-  ('group' → S7's 'cluster'); `test_the_hostile_descriptors_still_parse_into_the_real_cli`
-  (`SystemExit: 2`) is traced first, and its repair is an entry or a singleton fix
-  as the trace shows, returning to Brett only if neither is admissible. Under W-1
-  (A′), `tests/opendox_bundle.py` flattens the `./display.js` import.
+  3, share paths 2, Group W 1, Group S2 4 (17, under H-2, tier 2's CF-4). Under
+  R-1 (a), ruled (`6013547504`): the admitted module-level edits to
+  `_CREATE_HARNESS` (`:492-553`), `_SESSION_HARNESS` (`:1008-1094`), `:1291` and
+  `:1333`, with `scripts/protected_suites.py`'s `_inside_the_test` rule (`:294`)
+  amended to admit the new kind (lane 3's T026 FIX: the path is `scripts/`);
+  these close the 21 harness nodes only together with W-1's fix of the
+  `./display.js` import at the helper copy sites (`:98`, `:565`, `:1242`,
+  `:2000`, `:2507`). The two non-harness nodes of R-1's 26 (lane 3's row 38
+  FIX): `test_staged_scope_adds_cluster_neighbourhood_section` takes an in-test
+  entry ('group' → S7's 'cluster');
+  `test_the_hostile_descriptors_still_parse_into_the_real_cli` (`SystemExit: 2`)
+  is traced first, and its repair is an entry or a singleton fix as the trace
+  shows, returning to Brett only if neither is admissible.
   - **Realizes**: 12.5 (part).
   - **Falsifier**: the oracle prints `ok: … each entered and holding`; the
     nodes, composed, quoted.
@@ -584,8 +599,7 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   - **Files**: openXdox-code `tests/protected_suite_respellings.yaml` (its only
     phase-4 writer), `tests/test_session_gates.py`, `tests/test_session_verbs.py`,
     `tests/test_session_confinement.py`, `tests/test_doxbench_share.py`,
-    `tests/test_staging_workbench.py`, `scripts/protected_suites.py` (R-1 (a)
-    only), `tests/opendox_bundle.py` (W-1 (A′) only).
+    `tests/test_staging_workbench.py`, `scripts/protected_suites.py` (R-1 (a)).
   - **Lane**: 3.
 
 ### Phase 4's pins (9.5) and the composed run
@@ -616,7 +630,8 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   12.5's 16 suites with `PYTHONPATH="$OPENXFACTORY/scripts"`, then the oracle.
   openXdox-code's help-tree goldens are asserted unchanged in the same run (R2Q3
   (a)). After its first green run on `main`, the holder makes `composed` a
-  REQUIRED check of openXdox-code, recorded in the evidence (N-7b).
+  REQUIRED check of openXdox-code, recorded in the evidence (N-7b (a), ruled
+  `6013547504`: *"Make it required (Recommended)"*, the word for that change).
   - **Realizes**: 12.5, F12.1 (both ticked at T082).
   - **Falsifier**: F12.1 (12.5's falsifier, as batch Q's line words it): 16
     suites, 0 red; the oracle's `ok: … each entered and holding`, quoted.
@@ -652,7 +667,7 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   twenty named nodes, plus T012's three added nodes. `evidence/f12.2-run.md`.
   - **Realizes**: F12.2 (ticked at T082).
   - **Falsifier**: F12.2, exit 0.
-  - **Decisions**: OQ-12-16, N-17.
+  - **Decisions**: CF-8 (was OQ-12-16), N-17.
   - **After**: T027.
   - **README**: links `evidence/f12.2-run.md`.
   - **Lane**: 4.
@@ -737,7 +752,7 @@ copies (research R7; ADV-05).
     green at the new commit.
   - **Ruled**: R2Q10, R2Q18, R2Q22, R2Q25. **Decisions**: N-3, N-13, N-15,
     OQ-H15-19.
-  - **After**: T060, T027 or T033 (N-6).
+  - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
     `src/opendox/contracts/copies.yaml`, `schemas/`, `__init__.py` and
     `tests/test_validator_input_set.py` (first: T041 → T047 → T054), new
@@ -766,7 +781,7 @@ copies (research R7; ADV-05).
     install-level finding (`pack_id` `opendox`, empty `path`) is admitted; the
     five suites above.
   - **Ruled**: R2Q13, R2Q15, R2Q25. **Decisions**: OQ-H-22, OQ-H15-18, -19, -20.
-  - **After**: T027 or T033 (N-6).
+  - **After**: T027 (N-6 (a), ruled).
   - **Files**: as listed (single owner of `0003_` and of the five suites).
   - **Lane**: 4.
 - [ ] T043 [P] [US4] [oDc] **HA-3, `tests/fixtures/health-corpus`.** 14.9's corpus:
@@ -780,7 +795,7 @@ copies (research R7; ADV-05).
   - **Realizes**: 14.9.
   - **Falsifier**: new `tests/test_health_corpus_fixture.py`.
   - **Decisions**: OQ-H-8, OQ-H-16.
-  - **After**: T027 or T033 (N-6).
+  - **After**: T027 (N-6 (a), ruled).
   - **Files**: `tests/fixtures/health-corpus/**` (single owner), the test.
   - **Lane**: 4.
 
@@ -822,18 +837,20 @@ copies (research R7; ADV-05).
 
 - [ ] T046 [US4] [oDc] **HA-5, the engine, the baseline and `health run|list`.**
   New `health/engine.py` and `health/baseline.py`: the three run kinds R2Q12 (a)
-  names (default-tip, branch, working-state; N-10, as ADV-16 corrected it), with
-  a working-state run exporting tracked and untracked, non-ignored files into the
-  engine's own directory; the built-in families in process, attributed
+  names (default-tip, branch, working-state; N-10, as ADV-16 corrected it); in a
+  working-state run only the built-in families read the working copy, while
+  every pack still gets the committed export of HEAD (`git archive`, 15.1b) and
+  no untracked file reaches a pack; the built-in families in process, attributed
   `opendox`; the baseline classes and disappearance rules of R2Q12 (a), with the
-  baseline branch as tier 1's I-2 rules it; each run reads the dispositions file in
-  what it reads (N-14); the engine hook G15-E calls; the per-pack budget,
-  `--timeout`, default 60 seconds, capped at 600 (OQ-H15-5). New `health/cli.py`:
-  the `health` group with 14.5's exact shapes (`run`, `list`, `fix --finding ID
-  [--batch]`, `accept`), plus `--local` and `list --class`, frozen, `fix` and
-  `accept` dispatching to T053's and T054's modules; contributed through
-  `default_profile.py` (N-2); `--json` carries `kind`. The hosted plane refuses by
-  name (R2Q15 (a)). Record the hook line for the root README (CF-6).
+  baseline branch `main`, else the branch HEAD names (I-2 (a), ruled); each run
+  reads the dispositions file in what it reads (N-14); the engine hook G15-E
+  calls; the per-pack budget, `--timeout`, default 60 seconds, capped at 600
+  (OQ-H15-5). New `health/cli.py`: the `health` group with 14.5's exact shapes
+  (`run`, `list`, `fix --finding ID [--batch]`, `accept`), plus `--local` and
+  `list --class`, frozen, `fix` and `accept` dispatching to T053's and T054's
+  modules; contributed through `default_profile.py` (N-2); `--json` carries
+  `kind`. The hosted plane refuses by name (R2Q15 (a)). Record the hook line for
+  the root README (CF-6).
   - **Realizes**: 14.4 (part: on demand, the baseline), 14.5 (part: CLI run/list).
   - **Falsifier**: new `tests/test_health_cli.py`, `tests_runtime/test_health_engine.py`
     (including a repository on `main`, since #1144's falsifiers never exercise
@@ -865,16 +882,18 @@ copies (research R7; ADV-05).
   - **Lane**: 3.
 - [ ] T048 [P] [US6] [oDc] **G15-C, the sandbox runner.** New
   `check_pack_sandbox.py` and `check_pack_shim.py`: `bwrap` at a fixed path with
-  the version floor; the probe; the per-run canary (product behaviour, OQ-H15-9),
-  planting a CANARY variable and a CANARY descriptor before spawning (15.6a); the
-  export (the run's kind's tree, unsteerable by `export-subst`/`export-ignore`,
-  R2Q9 (a) item 5); the read-only mount set R2Q18 (a) fixes: the install's
-  interpreter, its standard library and `opendox.health_contract` alone, never
-  `site-packages`, `$HOME` or the checkout (lane 3's T048 FIX); `--clearenv` with
-  15.1b's allowlist; no network; `--unshare-pid`, so ending the sandbox's init
-  ends the whole tree; with no live sandbox, no pack runs and one install-level
-  finding says why. F15.1's platform precondition is asserted (R2Q9 (a) item 3).
-  The fail-not-skip helper the tests use under `CI` lives in its own test module,
+  the version floor; the probe; the per-run canary (product behaviour,
+  OQ-H15-9), planting a CANARY variable and a CANARY descriptor before spawning
+  (15.6a); the export (`git archive <commit>` of the commit the run reads,
+  HEAD's in a working-state run, never the working copy; unsteerable by
+  `export-subst`/`export-ignore`, R2Q9 (a) item 5); the read-only mount set
+  R2Q18 (a) fixes: the install's interpreter, its standard library and
+  `opendox.health_contract` alone, never `site-packages`, `$HOME` or the
+  checkout (lane 3's T048 FIX); `--clearenv` with 15.1b's allowlist; no network;
+  `--unshare-pid`, so ending the sandbox's init ends the whole tree; with no
+  live sandbox, no pack runs and one install-level finding says why. F15.1's
+  platform precondition is asserted (R2Q9 (a) item 3). The fail-not-skip helper
+  the tests use under `CI` lives in its own test module,
   `tests/sandbox_required.py`, never a shared conftest.
   - **Realizes**: 15.1b, 15.6 (part: enforcement), 15.5 (part).
   - **Falsifier**: new `tests/test_check_pack_sandbox.py`, run in the required
@@ -908,13 +927,13 @@ copies (research R7; ADV-05).
 - [ ] T050 [US6] [oDc] **G15-H, the display facet's health roles.** A health
   role family keyed by pack and family id (the label keys T045's declaration
   defines), under a schema-version bump; a host profile's labels win; labels
-  render as text. If W-1 is ruled (A), a guard test that the tables T025 inlined
-  into `staging-workbench-model.js` equal `display.js`'s, so the two copies cannot
-  drift (lane 3's T050 FIX).
+  render as text. A guard test that the tables T025 inlined into
+  `staging-workbench-model.js` equal `display.js`'s, so the two copies cannot
+  drift (W-1 (A), ruled; lane 3's T050 FIX).
   - **Realizes**: 15.3.
   - **Falsifier**: the display-facet tests, extended; the inline-parity guard.
   - **Decisions**: OQ-H15-15, W-1.
-  - **After**: T045 (lane 3's T050 FIX), T027 or T033 (N-6).
+  - **After**: T045 (lane 3's T050 FIX), T027 (N-6 (a), ruled).
   - **Files**: `src/opendox/display_profile.py`, `src/opendox/web/views/display.js`,
     their facet tests (single owner), new `tests/test_display_tables_inline_parity.py`.
   - **Lane**: 4.
@@ -1053,10 +1072,11 @@ copies (research R7; ADV-05).
   `web/views/health.js` and `health-model.js`: findings new first, passages read
   from git at render time, labels and messages as text; every action the CLI has.
   New `health/routes.py` (`contracts/cli-http-health.md`), contributed through
-  the default profile's `ROUTE_EXTENSIONS` and `HANDLER_CONTRIBUTIONS`; `serve.py`
-  derives the `/capabilities` `health` block from those bindings, listing every
-  resolution action the view offers (14.5), so a host profile sees no `health`
-  key (ADV-14); the hosted plane refuses by name. Wiring in `web/app.js` and
+  the default profile's `ROUTE_EXTENSIONS` and `HANDLER_CONTRIBUTIONS`; the
+  `/capabilities` `health` block is present only under openDox's own profile,
+  with values derived from those bindings, listing every resolution action the
+  view offers (14.5), so a host profile sees no `health` key (ADV-14); the
+  hosted plane refuses by name. Wiring in `web/app.js` and
   `web/index.html`; census rows.
   - **Realizes**: 14.5.
   - **Falsifier**: `tests/test_health_parity.py`'s three named tests
@@ -1130,7 +1150,8 @@ copies (research R7; ADV-05).
   phase).
   - **Realizes**: 9.5 (part).
   - **Falsifier**: F12.1, composed, at P.
-  - **After**: T062.
+  - **After**: T062; T028 (phase 4's pin first; under N-6 (a) phase 5 no longer
+    waits for T033, so the pin order is named here).
   - **Files**: openXdox-code `pyproject.toml` (second).
   - **Lane**: 4.
 - [ ] T064 [US3] [oX] [oxF] **Steps 5–6: phase 5's consumer pins and host
@@ -1141,7 +1162,8 @@ copies (research R7; ADV-05).
   it (lane 3's composed_host_pin FIX).
   - **Realizes**: 9.5 (part), 11.1 (part).
   - **Falsifier**: the pin verifiers; openxFactory's required checks green (SC-005).
-  - **After**: T063, T059.
+  - **After**: T063, T059; T030 (phase 4's consumer pins and host wiring first;
+    N-6 (a)).
   - **Files**: openXdox root pins; openxFactory gitlinks, pin files and host wiring
     (second); openXdox-code `tests/composed_host_pin.yaml` (after).
   - **Lane**: 4.
@@ -1201,7 +1223,7 @@ surfaces check over them (ADV-37).
 
 - [ ] T070 [oxF] **Author the change.** `openspec/changes/<ARC-2>/`: `proposal.md`
   with `code_surface:` naming openXdox-code, openDox-code and openxFactory host
-  wiring, and `target_release:` as Brett names it (tier 1's ARC-1); `design.md`
+  wiring, and `target_release: implemented` (tier 1's ARC-1, ruled); `design.md`
   (the eight modules, fact 1 of R2-ARC-ASK; the seams; the re-authored `lines`
   slice; the 7 respelled tests; F9.2's three removals; the surfaces check over its
   own landings, ADV-37); `tasks.md`; `.openspec.yaml` (`skip_specs: true`; if the
@@ -1263,7 +1285,7 @@ surfaces check over them (ADV-37).
   - **After**: T074, T064.
   - **Lane**: 4.
 - [ ] T076 [oxF] **F9.2's re-run and its record.** Re-run F9.2 and quote it in
-  the arc change's own evidence. As tier 1's ARC-5 rules (recommended (a)): if
+  the arc change's own evidence. As tier 1's ARC-5 (a) ruled (`6013547504`): if
   #1144 is still active, remove the `--deselect` from F9.1's pytest line (batch
   J's) and tick F9.2 there, under a Rule 6 window; if #1144 has archived, its
   archived `tasks.md` is never edited, and the closure lives in the arc change's
@@ -1502,7 +1524,7 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 | U-4 | T023 | oXc | 3 | `swb-session.js` | T004 | Group J | Sonnet |
 | U-5 | T024 | oXc | 3 | the shim | T004 (CF-3) | Group L, T | Sonnet |
 | U-6 | T025 | oDc | 3 | `staging-workbench.js`, `staging-workbench-model.js`, census, `test_web_boundary.py` | T004 (W-1) | S1 + DJ | Opus |
-| U-7 | T026 | oXc | 3 | `protected_suite_respellings.yaml` and the five protected files; `scripts/protected_suites.py` (R-1 (a)); `opendox_bundle.py` (W-1 (A′)) | T020, T005 | the oracle | Opus |
+| U-7 | T026 | oXc | 3 | `protected_suite_respellings.yaml` and the five protected files; `scripts/protected_suites.py` (R-1 (a)) | T020, T005 | the oracle | Opus |
 | U-8 | T027, T028, T030 | oD, oXc, oX, oxF | 4 | the pins; the host's schema source | T017, T025; T029 | the pin verifiers | Sonnet |
 | U-9 | T029 | oXc | 3 | `composed.yml`, `composed_host_pin.yaml` | T020–T026, T028 | F12.1 | Opus |
 | P4-G | T031, T032, T033 | oxF | 4 | `evidence/`, the README entry | T027, T029, T030, T005 | F12.2, F12.1, F11.1 | Sonnet |
@@ -1577,25 +1599,25 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 - Every slice's PR names its task ids, the boxes it realizes and its falsifier's
   quoted output (FR-025).
 
-## Ruled amendments (`6003486656`, `6003918488`, and T004's ruling)
+## Ruled amendments (`6003486656`, `6003918488` and `6013547504`)
 
 | batch | item | #1144 location | ruling |
 |---|---|---|---|
 | Q | R2Q9's seven: F6.1's entry point, struck "Today" and 6.2's superseded description; F14.1/F15.1 start the server; F15.1's sandbox precondition; the forking child's pack id; the unsteerable export; the restore is a write; `--local` on three verb shapes | F6.1 (`:1143`), 6.2 (`:1136-1142`), F14.1 (`:3302`), F15.1 (`:3548`), 15.1b, 15.6a, 12.4a, 12.6a, 14.5 | `6003486656` |
 | Q | R2Q2's repoint-sentences note | 12.4 (`:2513-2519`); `design.md:476-478`, `:1059-1061` | `6003486656` |
-| Q | F12.1's composed line, permanent (CF-5) | 12.5's falsifier (`:2670`) | `6003486656`, `6003918488`, T004 |
+| Q | F12.1's composed line, permanent (CF-5) | 12.5's falsifier (`:2670`) | `6003486656`, `6003918488`, `6013547504` |
 | Q | R2Q10's selection lines, every literal-id use | F14.1, F15.1 | `6003486656` |
-| Q | R2Q1's non-normative reading (CF-1) | the release map (`:108`); `design.md:799-800` | `6003486656`, T004 |
+| Q | R2Q1's non-normative reading (CF-1) | the release map (`:108`); `design.md:799-800` | `6003486656`, `6013547504` |
 | Q | ARC-Q2's F9.1 declaration, batch B's form | F9.1 | `6003918488` |
-| Q | ARC-5's F9.2 note | F9.2 (`:1718`) | T004 (tier 1) |
-| Q | H-2's batch C scope (CF-4); R-1 (a)'s admitted kind | 12.5's falsifier | T004 |
+| Q | ARC-5's F9.2 note | F9.2 (`:1718`) | `6013547504` (tier 1) |
+| Q | H-2's batch C scope (CF-4); R-1 (a)'s admitted kind | 12.5's falsifier | `6013547504` |
 | Q | R2Q16's full reading | requirement 16; 15.1b (`:3426`) | `6003486656` |
 | Q | 9.5's two addenda (`dox-v1.2`; 0.2.0) | 9.5 (`:1553`) | `6003486656` |
 | Q | 7.1's addendum: four kinds become seven copies (C-18) | 7.1 | `6003486656` (R2Q22) |
-| Q | I-2's baseline branch at 14.4; N-6's overlap beside the map | 14.4; the release map | T004 (tier 1), as ruled |
+| Q | I-2 (a)'s baseline branch at 14.4; N-6 (a)'s overlap beside the map | 14.4; the release map | `6013547504` (tier 1) |
 | — | F9.1's `--deselect` removed | F9.1 (batch J's line) | `5859927858`, at T076 while #1144 is active |
 
-**Task count:** 79: Phase 0 9 (T001–T009, two done), Phase 4 24 (T010–T033),
-Phase 5 29 (T040–T068, T059, T067 and T068 among them), requirement 9 1 (T073),
-the direction arc 7 (T070–T072, T074–T077), Close 5 (T080–T084), Every phase 4
-(T090–T093).
+**Task count:** 79: Phase 0 9 (T001–T009, four done: T004, T006, T007, T009),
+Phase 4 24 (T010–T033), Phase 5 29 (T040–T068, T059, T067 and T068 among them),
+requirement 9 1 (T073), the direction arc 7 (T070–T072, T074–T077), Close 5
+(T080–T084), Every phase 4 (T090–T093).

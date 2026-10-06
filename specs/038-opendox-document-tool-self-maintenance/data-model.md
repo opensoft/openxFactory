@@ -5,7 +5,8 @@ Status: draft
 **Feature**: [`spec.md`](./spec.md) (§ Key Entities) · **Plan**: [`plan.md`](./plan.md)
 · **Contracts**: [`contracts/`](./contracts/)
 
-Every entity below is a PROPOSAL until Brett rules the plan (T004). Field names
+Every entity below was RULED with the plan (`#656` `6013547504`, every decision as
+recommended; T004). Field names
 are the plan's, except where #1144's ratified text or its falsifiers fix them
 (then the box is cited). The three shapes that become openDox-spec schemas
 (R2Q22 (a)) are fixed in `contracts/`, and this file points there rather than
@@ -142,14 +143,19 @@ over the working state"; ADV-16 replaced the narrower reading):
   disappearances.
 - **branch**: HEAD is another commit and the working tree is clean. Reads that
   commit. Classed against the baseline; never raises a disappearance.
-- **working-state**: the working tree differs from HEAD. Reads the tracked and
-  untracked, non-ignored files (`git ls-files --cached --others
-  --exclude-standard`), which the engine copies into a directory of its own.
-  Classed against the baseline; never raises a disappearance. Nothing is written
-  under `.git/`.
+- **working-state**: the working tree differs from HEAD. The product's
+  BUILT-IN checks read the working copy (tracked files, and untracked files
+  that are not ignored), in process, where they stand; nothing is copied for
+  them. Classed against the baseline; never raises a disappearance. Nothing is
+  written under `.git/`.
 
-Packs see the same export for every kind (15.1b), built so that `export-subst`
-and `export-ignore` cannot steer it (R2Q9 (a) item 5).
+**Packs ALWAYS see the committed export** (15.1b: the engine "exports the
+corpus commit into a directory it owns (`git archive <commit> | tar -x`)"):
+the commit a default-tip or branch run reads, and HEAD's commit in a
+working-state run. No working-copy edit and no untracked file is ever copied to
+a pack. The export is built so that `export-subst` and `export-ignore` cannot
+steer it (R2Q9 (a) item 5). (Re-check of review round 1: an earlier wording
+copied the working copy for every reader.)
 
 ### Finding (14.6, 15.2, 15.7, R2Q10 (a), R2Q25 (a); owner T041, T042)
 
@@ -167,7 +173,7 @@ The neutral shape is [`contracts/health-finding.md`](./contracts/health-finding.
 | `locator` | DISPLAY ONLY, outside the hash: a line span, a link target as written; never document text |
 | `severity` | the neutral severities U-0 spells |
 | `resolution_class` | `auto-fix` \| `assisted` \| `human-only` (14.6) |
-| `baseline_class` | `new` \| `pack-upgrade` \| `persistent` (R2Q12 (a)); `unclassed` exists only if tier 1's I-2 is ruled (b) |
+| `baseline_class` | `new` \| `pack-upgrade` \| `persistent` (R2Q12 (a)); no fourth value (I-2 (a), ruled) |
 | `message` | one line, bounded like `evidence` (ADV-27): at most 200 characters, written by the family from its own words; never document text |
 | `evidence` | locators only, never an excerpt (R2Q25 (a)); a family's own version rides here (OQ-H15-18); a refused patch's `refused_patch` and `reason` (15.2a) |
 
@@ -191,7 +197,7 @@ for a run R, against B = the previous default-tip run in the store:
 only when R is itself a default-tip run, for id in B, not in R:
      cited (a landed health-fix draft for it, or a commit naming it in a "Finding: <id>" trailer) → gone
      uncited → re-raised ONCE as human-only, naming the original
-the baseline branch: main, else the branch HEAD names (tier 1 I-2, recommended (a));
+the baseline branch: main, else the branch HEAD names (tier 1 I-2 (a), ruled);
   with none (a detached HEAD and no main) no run is default-tip, B is empty, every finding is new
 after runtime reset: B is gone; the next default-tip run sees every finding once as new
 ```
