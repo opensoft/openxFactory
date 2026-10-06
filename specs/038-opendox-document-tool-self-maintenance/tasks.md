@@ -924,13 +924,22 @@ copies (research R7; ADV-05).
   carries `commit` REFUSED (15.1a, `#1144 tasks.md:3414-3421`; lane 3's T047 FIX);
   `sorted-ls-tree-r-v1` over `<corpus-commit>:<source>` for a corpus-relative
   source and over the declared `commit`'s root tree for a git-URL source (the
-  contract's digest rule; fixed before any fixture digest is committed); git sources fetched by the engine into `OPENDOX_STATE_DIR` over
+  contract's digest rule; fixed before any fixture digest is committed); the
+  contract's CONTAINMENT rule: a symlinked `source` component or any symlink in
+  the pack's pinned tree refused, the tree materialized into a directory the
+  engine owns, and every host-resolved pack path checked beneath it after
+  `realpath` before it is read or bound; git sources fetched by the engine into `OPENDOX_STATE_DIR` over
   `https://` or `ssh://` only, with `file://`, `ext::`, local paths and credential
   URLs refused and the runtime's hardened transport rules reused (ADV-21); no
   budget or bound keys. Copy T040's manifest schema at T060's pinned commit into
   the copy record after T041 (the validator gains the `opendox-health-packs` kind).
   - **Realizes**: 15.1a, 15.7 (part: the reserved id).
-  - **Falsifier**: new `tests/test_check_pack_manifest.py`; `tests/test_validator_input_set.py`.
+  - **Falsifier**: new `tests/test_check_pack_manifest.py`, including hostile
+    sources: a `source` that is a symlink to a directory outside the pinned
+    tree, a pack whose `opendox-pack.yaml` is a symlink to a file outside it,
+    and a pack holding a symlinked module, each refused as a finding against
+    the entry with no file of the target read and no pack code run;
+    `tests/test_validator_input_set.py`.
   - **Ruled**: R2Q18, R2Q21, R2Q22. **Decisions**: OQ-H15-12, -14, -19; N-15.
   - **After**: T045, T041 (the copy record; lane 3's split condition 2).
   - **Files**: new `src/opendox/check_pack_manifest.py`, the test;

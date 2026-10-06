@@ -55,6 +55,18 @@ stated so):
   source MUST carry `commit`; a corpus-relative source that carries one is
   REFUSED (it would name a commit the corpus cannot check). A gitlink inside a
   pack is refused.
+- **Containment: no symlink, and nothing read from outside the pinned tree**
+  (Copilot's review of `83a347e4`). A digest covers a symlink as its target
+  STRING, not the bytes it points at, so a symlink would let the declaration
+  read or the `/pack` bind follow it out of what was pinned. The engine
+  therefore REFUSES, before reading any file of the pack: a corpus-relative
+  `source` any of whose path components is a symlink in `<corpus-commit>`'s
+  tree, and any symlink entry (mode `120000`) anywhere in the pack's pinned
+  tree. It materializes that tree into a directory it owns, and every path it
+  then resolves on the host (the `opendox-pack.yaml` it reads, the directory it
+  binds at `/pack`) must lie beneath that directory after `realpath`, or the
+  entry is refused. Each refusal is a finding against the entry, and the pack
+  does not run.
 - **Fetching** (OQ-H15-14; ADV-21). The ENGINE, never the pack, fetches a git-URL
   source at `health run`, into a cache under `OPENDOX_STATE_DIR`, over `https://`
   or `ssh://` (and scp-like `user@host:path`) only. A `file://`, `ext::` or local

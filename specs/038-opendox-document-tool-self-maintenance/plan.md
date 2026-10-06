@@ -39,7 +39,7 @@ phase-4 `src/` exceptions named (§ Project Structure), finding-id collisions
 for files only one task writes.
 
 **Revision: Copilot's reviews of the ruled revision folded** (2026-10-06).
-Copilot's reviews of `2a4a73d1` to `55cc1334` found gaps the ruled options left
+Copilot's reviews of `2a4a73d1` to `83a347e4` found gaps the ruled options left
 open. Each fix refines a ruled item without taking another option, and all are
 listed here so the holder can judge whether any needs Brett's word:
 - the run's pack inventory, holding each pack's exact pin; a finding new only
@@ -93,7 +93,10 @@ listed here so the holder can judge whether any needs Brett's word:
   an accepted limit, recorded in contracts/health-finding.md for the holder;
 - `pack_id` and `kind` are bounded at 40 characters; each pack family declares
   its `kind`, own `version` and `applies_to` (data-model.md § Pack declaration;
-  FR-018); and T048 carries 15.1b's complete `bwrap` invocation.
+  FR-018); T048 carries 15.1b's complete `bwrap` invocation; and a pack's
+  source and tree may hold no symlink, every host-resolved pack path checked
+  beneath the materialized pinned tree (contracts/health-packs-manifest.md §
+  Rules, T047).
 
 ## Summary
 
