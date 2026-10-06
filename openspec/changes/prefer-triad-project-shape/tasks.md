@@ -166,13 +166,30 @@ that repository's own governance and claims. The evidence each box owes is a
 merged pull request (or, for the private source, a merged commit cited by sha)
 with green checks.
 
-- [ ] 5.1 **openxFactory, the doctrine.** `docs/project-repo-schema.md`
+- [x] 5.1 **openxFactory, the doctrine.** `docs/project-repo-schema.md`
   restated: the Triad is preferred, the shape still confers nothing, and where
   the advisory is and is not given; plus an `Amended by:
   prefer-triad-project-shape (ratified <date>)` header line (`design.md` D8).
   `contracts/schemas/project-register.schema.yaml`: its `description` restates
   the preference beside the posture it already restates. The register gains no
   field.
+  **DONE 2026-10-06** in openxFactory PR
+  [#1254](https://github.com/opensoft/openxFactory/pull/1254) →
+  `31e0628a327b59341bf9d56136f3e0b534e1a9c6`, lane `codeXfactory-5`.
+  `docs/project-repo-schema.md` gains the header line `Amended by:
+  prefer-triad-project-shape (ratified 2026-10-06T16:02:16Z, openxFactory PR
+  #1249)` and a new § The Triad is PREFERRED, and it still confers NOTHING. That
+  section states the preference, the name and the posture beside it; where the
+  advisory is given (once, at work start, never blocking or converting); that
+  it is never a review input; the five silent cases; and the optional
+  `single-repository.yaml`. No existing sentence is edited.
+  `contracts/schemas/project-register.schema.yaml` gains one `description`
+  paragraph that restates the preference beside the posture. Every existing
+  paragraph and every other key is unchanged, and no field is added. Neither
+  file is a registered release member, so no digest, inventory member or
+  changelog entry moves. The tick holds on `main` only through that pull
+  request's merge, which waits on Brett Heap's merge word and its required
+  checks.
 - [ ] 5.2 **`opensoft/openRepoShape`, the mechanics.** The README posture box;
   AGENTS.md § "What you must not tell them", which must still forbid saying the
   shape confers anything and must gain what to tell them — the Triad is the
