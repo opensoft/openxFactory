@@ -275,9 +275,10 @@ After group 3 and plan 038's T064.
   each repository's landings merged through its required checks, and a green
   run of each runnable surface at THAT repository's last realization landing,
   cited by run and by commit: openXdox-code's composed workflow at its last
-  arc landing (4.4's), openDox-code's `validate` job at 2.1's landing (or at
-  2.2's root pin, if the arc brought its own), and openxFactory's
-  `pytest-suite` at `ARC_TIP`.
+  arc landing (4.4's), openDox-code's `validate` job at 2.1's landing, and
+  openxFactory's `pytest-suite` at `ARC_TIP`. Where 2.2 brought the arc's own
+  openDox root commit, that root's `make pins` result is recorded separately,
+  at that root commit.
 - [ ] 7.3 **Exit the staged topic through this change.** Move
   `ideation/staging/doc-health-direction-arc/` into this change's
   `supporting-docs/` with `scripts/proposal-support.py transition`, whose
