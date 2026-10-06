@@ -51,7 +51,8 @@ Options follow the verb (10.1). `--class` is additive (a filter on `list`);
   acted on (Copilot's review of `c93ae88b`).
 - **`list`** prints the last run's findings, new first; `--json` emits one object
   per finding with at least 14.5's fields (`id`, `resolution_class`, `path`,
-  `severity`, `evidence`, `pack_id`, `pack_version`), plus `kind` (R2Q10 (a)) and
+  `severity`, `evidence`, `pack_id`, `pack_version`), plus `kind` (R2Q10 (a)),
+  `identity` (stored and emitted, the holder's `6018624750`) and
   `baseline_class`, in `contracts/health-finding.md`'s shape.
 - **`fix`** writes a DRAFT ON A BRANCH and never `main`: `health-fix-<id>`, or,
   with `--batch`, one more commit on the open batch draft `health-fix-batch`
@@ -80,7 +81,7 @@ Options follow the verb (10.1). `--class` is additive (a filter on `list`);
 
 | method and path | answer |
 |---|---|
-| `GET /health/findings` | the last run's findings, new first (`?class=` filters) |
+| `GET /health/findings` | the last run's findings, new first (`?class=` filters), each as `health list --json` emits it, `identity` included |
 | `POST /actions/health/run` | starts a run; answers the run's id and outcome |
 | `POST /actions/health/fix` | `{"finding": "<id>", "batch": false}` → the draft branch's name |
 | `POST /actions/health/accept` | `{"finding": "<id>", "reason": "…"}` → the entry written |

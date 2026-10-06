@@ -12,14 +12,29 @@ which holds the boxes and every falsifier.
 `evidence/plancheck-lane3-round-1.md`); each changed task cites its finding.
 T004 encodes Brett's ruling of the plan.
 
+**Revision: T002's bookkeeping** (2026-10-06). The rulings posted on `#656` since
+the plan was ruled are encoded as worded, each cited by comment id, with no new
+decision:
+- the Files of T022 (`6016356225`), T023 (`6016676145`), T026 (`6016648451`),
+  T029 (`6017860539`) and T073 (`6020698021`), and T026's three more in-test
+  respellings, 17 to 20 (`6020859092`);
+- R-1 (a)'s six spans and F12.1's `--chains` (`6016648451`);
+- T073's After set, T094, T095+ and its `open_until` wording (`6016982816`);
+- T076's F9.2 disposition (ARC-5 (a), `6013547504`);
+- T003's close on the re-check (`6017901451`);
+- T074's Files (the arc change's `design.md` § 10);
+- the finding's `identity`, stored and emitted (`6018624750`);
+- the ticks of T002, T003, T005, T008, T010, T020, T024, T040 and T070, each with
+  its pull request and merge commit.
+
 **RULED.** Brett Heap ruled the plan at `6847e99e`, every item as recommended
 (`#656` `6013547504`, 2026-10-06; plan.md § "Ruled answers, the plan ruling").
 Implementation starts on this word. Still his word, at the act: the `dox-v1.2`
 cut (T060), the arc change's ratification (T071) and the 0.2.0 publish (T084).
 The constitution's analyze gate stands as plan.md § Constitution Check records
 it: round 1's CRITICALs are applied and re-checked, and a fresh analyze of the
-ruled revision (T003) is the holder's call before the first realization PR
-lands.
+ruled revision (T003) was the holder's call before the first realization PR
+lands, closed on the re-check (`6017901451`): no round-2 analyze is dispatched.
 
 ## Format
 
@@ -88,7 +103,9 @@ as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
   openDox-code commit (tier 1's N-6 (a), ruled); they do not wait for T033. The
   copies (T041, T047, T054) also wait for T060's pinned spec commit.
 - **Requirement 9 for openXdox-code** (T073, lane 3) starts after T029; it is
-  #1144's work, not the direction arc's, and is not gated on T071.
+  #1144's work, not the direction arc's, and is not gated on T071. Its PR stays a
+  DRAFT until the repair slices T095+ land, which T094's read-only map cuts
+  (`6016982816`).
 - **The direction arc** (T070–T072, T074–T077) runs beside phase 5 and gates
   neither release 2's close nor #1144's archive (ARC-Q3 (a)); T061 never waits
   for it.
@@ -103,7 +120,11 @@ as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
   owns (plan.md § "Parallel slices") and `lane X's PR #N` once it exists. Lane
   3 claims its own slices; lane 4 lands every PR. A standing act.
   - **Lane**: 4 and 3.
-- [ ] T002 **Release-2 base, and the re-measure at the ruling.** Record in
+- [x] T002 **Release-2 base, and the re-measure at the ruling.** DONE:
+  `evidence/r2-base.md` (2026-10-06). Every repository's `main` is recorded with
+  its date; the box census reads 125 boxes and 42 open, as at `ce64afc9` (delta
+  0); `PACKET_MERGE=94b6f7f1`; and lane openXfactory-3's composed re-run reads
+  174 red against R2-INV-P4F's 174, with no node moved. Record in
   `evidence/r2-base.md`: every repository's `main` (the R0 command of
   research.md), the box census, and `PACKET_MERGE=94b6f7f1` for F11.1. Lane 3
   re-runs 12.5's composed suites at the then-current tips and quotes the red
@@ -111,7 +132,12 @@ as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
   - **README**: links `evidence/r2-base.md`.
   - **After**: T004 (the base is recorded at the ruling).
   - **Lane**: 4 (lane 3 for the composed run).
-- [ ] T003 **The independent analyze, round 2.** An independent reviewer runs
+- [x] T003 **The independent analyze, round 2.** DONE, CLOSED ON THE RE-CHECK:
+  the holder's call, which this task's own text grants (`#656` `6017901451`).
+  Two reviewers re-checked round 1 at `6847e99e`, and every CRITICAL, HIGH and
+  FIX item landed as worded (`6013547504`). #1245 then converged through its
+  Copilot rounds. No round-2 analyze is dispatched. The task's text, as
+  written: an independent reviewer runs
   `/speckit-analyze` over this revision (the plan writer does not). Round 1's
   findings are dispositioned in `evidence/analyze-round-1.md` and
   `evidence/plancheck-lane3-round-1.md`. If the holder dispatches round 2, its
@@ -136,9 +162,10 @@ as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
   evidence file; the README entry's wording says the plan is ruled.
   - **Files**: this feature's documents; `README.md` (the entry's wording only).
   - **After**: the two reviewers' re-check of round 1 at `6847e99e` (recorded in
-    `6013547504`); T003's fresh analyze stays open as the holder's call.
+    `6013547504`); T003's fresh analyze was the holder's call, closed on the
+    re-check (`6017901451`).
   - **Lane**: 4.
-- [ ] T005 [oxF] **Batch Q: record the answers' amendments in #1144, in plan
+- [x] T005 [oxF] **Batch Q: record the answers' amendments in #1144, in plan
   034's T007 form, ONE PR, under a Rule 6 window. THE FIRST ACT.** Its contents
   are tier 2's CF-2, as Brett confirmed them (`6013547504`). Each amended line
   cites its ruling.
@@ -206,6 +233,10 @@ as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
   - **Files**: `openspec/changes/add-neutral-product-standalone-operability/tasks.md`
     (and `design.md` for item 5's addendum, if the reading needs one there).
   - **Lane**: 4.
+  - **Landed**: DONE, openxFactory#1248 → `91e961a0` (2026-10-06T14:33:54Z). It
+    also records Brett's `6016648451` under item 8 (F12.1 with `--chains`, and
+    R-1 (a)'s six spans), folded in at `2198edda`. Its two notes name T020,
+    T025 and T026 (the spans) and T026 and T029 (`--chains`) as their carriers.
 - [x] T006 **Ask Brett the `doc_health` direction arc (R1Q6 (d)).** DONE.
   Lane openXfactory-3 prepared the ask read-only (`lane-coord-034/r2/R2-ARC-ASK.md`,
   CLAIMED on `#656` `6003715712`); Brett answered ARC-Q1–ARC-Q4 all (a),
@@ -216,7 +247,7 @@ as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
 - [x] T007 **Encode the arc ruling in this plan.** DONE in this revision: plan.md
   § "Ruled answers, the `doc_health` direction arc", decisions ARC-1 to ARC-6,
   and tasks T070–T077.
-- [ ] T008 [cxF] **Feature 007's four exceptions (R2Q6 (a)).** Amend codexFactory's
+- [x] T008 [cxF] **Feature 007's four exceptions (R2Q6 (a)).** Amend codexFactory's
   `specs/007-workbench-branch-sessions/spec.md` with four named exceptions, citing
   `6003486656`: the guard's argument check (`tests/test_session_git.py:523` still
   refusing `("merge", "other-branch")`, `:563-564`'s pin moving);
@@ -235,6 +266,8 @@ as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
   - **After**: T004.
   - **Files**: codexFactory `specs/007-workbench-branch-sessions/spec.md`.
   - **Lane**: 4.
+  - **Landed**: DONE, codeXfactory/codexFactory#515 → `f1b019fe` (2026-10-06T11:14:26Z,
+    a merge commit).
 - [x] T009 **The lane split, confirmed.** DONE: Brett confirmed plan.md § "Two
   lanes" in the plan ruling, verbatim *"Accept all as recommended
   (Recommended)"* (`#656` `6013547504`). Lane openXfactory-3 had accepted it on
@@ -257,7 +290,7 @@ hidden; F12.1 exits 0 composed (SC-001).
 
 ### The CI owner, day one
 
-- [ ] T010 [oDc] **R2Q17 (a)'s required-check change.** In openDox-code's
+- [x] T010 [oDc] **R2Q17 (a)'s required-check change.** In openDox-code's
   `.github/workflows/validate.yml`, the required `validate` job: pins
   `runs-on: ubuntu-24.04` (`:47` reads `ubuntu-latest` today); installs
   bubblewrap; sets `kernel.apparmor_restrict_unprivileged_userns=0`; proves the
@@ -274,6 +307,7 @@ hidden; F12.1 exits 0 composed (SC-001).
   - **Files**: `.github/workflows/validate.yml` (first of five edits: T010 →
     T017 → T051 → T067 → T080).
   - **Lane**: 4.
+  - **Landed**: DONE, openDox-code#89 → `34c20641` (2026-10-06T14:34:29Z).
 
 ### P4-A: the submission protocol and its neutral default
 
@@ -504,7 +538,7 @@ record (`src/openxdox/contracts/copies.yaml`), which is single-source and pinned
 to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
 (ADV-10; lane 3's T021/T022 FIXes).
 
-- [ ] T020 [P] [US3] [oXc] **U-1, host registration (HR).** A governed-suite list
+- [x] T020 [P] [US3] [oXc] **U-1, host registration (HR).** A governed-suite list
   beside `HOST_PLANE_SUITES` with its own guard (`tests/conftest.py:533-578`'s
   pattern) registers the governed host for the suites that need it; openxFactory's
   composite is registered only in the composed run, guarded as `:413-421`'s
@@ -515,9 +549,11 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
     part-oneoffs § Group H), quoted.
   - **Ruled**: R2Q8. **Decisions**: P4F-5.
   - **After**: T004.
-  - **Files**: openXdox-code `tests/conftest.py` (first: T020 → T021 → T073 → T074),
-    `tests/test_host_plane.py`.
+  - **Files**: openXdox-code `tests/conftest.py` (first: T020 → T021 and T026, in
+    landing order → T073 → T074), `tests/test_host_plane.py` (first: T020 → T021
+    and T026 → T073 → T074).
   - **Lane**: 3.
+  - **Landed**: DONE, openXdox-code#39 → `c6d15b27` (2026-10-06T16:10:45Z).
 - [ ] T021 [US3] [oXc] **U-2, the gate console's schemas (GA), resolved without
   vendoring.** `gate_console._validate_contract_document` reads
   `parents[2] / "contracts" / "schemas"` (`gate_console.py:642-643`), which in the
@@ -538,8 +574,8 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   - **Ruled**: R2Q8. **Decisions**: P4F-4.
   - **After**: T020 (the conftest).
   - **Files**: openXdox-code `src/openxdox/gate_console.py` (first: T021 → T074),
-    `tests/conftest.py` (second: T020 → T021 → T073 → T074), a new
-    `tests/test_gate_console_schema_source.py`.
+    `tests/conftest.py` (after T020: T020 → T021 and T026, in landing order →
+    T073 → T074), a new `tests/test_gate_console_schema_source.py`.
   - **Lane**: 3.
 - [ ] T022 [US3] [oXc] **U-3, the runbook placed from the composed tree (RP).**
   `test_session_runbook.py:54` and `test_session_notebook.py:1075` read
@@ -555,7 +591,11 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   - **Falsifier**: the 10 nodes, composed, quoted.
   - **Ruled**: R2Q8. **Decisions**: P4F-3.
   - **After**: T021 (lane 3's split condition 1).
-  - **Files**: openXdox-code new `scripts/composed_placements.py`, `.gitignore`.
+  - **Files**: openXdox-code new `scripts/composed_placements.py`, new
+    `tests/test_composed_placements.py`, `.gitignore`. The ten-scenario harness
+    becomes that new test in openXdox-code#41, because the script mutates the
+    filesystem and CI should hold its guards; only T022 writes it, so it creates
+    no single-writer conflict (holder, `6016356225`, option (a)).
   - **Lane**: 3.
 - [ ] T023 [P] [US3] [oXc] **U-4, `swb-session.js` (SF).** Fix the two one-off
   Group J nodes (`test_session_confinement.py`) in the view module the carve's S5
@@ -564,9 +604,14 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   - **Falsifier**: the 2 nodes, composed, quoted.
   - **Ruled**: R2Q8.
   - **After**: T004.
-  - **Files**: openXdox-code `src/openxdox/web/views/swb-session.js`.
+  - **Files**: openXdox-code `src/openxdox/web/views/swb-session.js`, and a new
+    `tests/test_swb_session_transport.py`, the bound and unbound probes in one
+    committed test file, so that CI kills the two behaviour mutants (always the
+    module pair; a miswired wrapper) which the existing suites do not (holder,
+    `6016676145`, following `6016356225`). Only T023 writes it, so it creates no
+    single-writer conflict.
   - **Lane**: 3.
-- [ ] T024 [P] [US3] [oXc] **U-5, the shim (SF; H-1 confirmed as CF-3).** New
+- [x] T024 [P] [US3] [oXc] **U-5, the shim (SF; H-1 confirmed as CF-3).** New
   `scripts/ideation_dashboard/session_git.py` (`import sys; from opendox import
   session_git as _m; sys.modules[__name__] = _m`), with NO `__init__.py` in its
   directory, so it merges with openxFactory's `scripts/ideation_dashboard/` (which
@@ -581,6 +626,7 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   - **After**: T004.
   - **Files**: openXdox-code new `scripts/ideation_dashboard/session_git.py`.
   - **Lane**: 3.
+  - **Landed**: DONE, openXdox-code#38 → `8b64fae0` (2026-10-06T16:32:39Z).
 - [ ] T025 [P] [US3] [oDc] **U-6, openDox web (SF; DJ by W-1 (A), ruled).**
   S1's two nodes (plan 034's T102 follow-on in `staging-workbench.js` and the
   census); and, under W-1 (A) (`6013547504`, *"Model import-free again
@@ -601,28 +647,66 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
 - [ ] T026 [US3] [oXc] **U-7, the allow-list (AL; R-1's admitted part).** One
   entry per admitted test in `tests/protected_suite_respellings.yaml`, chained by
   blob, each in the same PR as its protected edit: `cmd_gate_*` 7, `hosted_index`
-  3, share paths 2, Group W 1, Group S2 4 (17, under H-2, tier 2's CF-4). Under
-  R-1 (a), ruled (`6013547504`): the admitted module-level edits to
-  `_CREATE_HARNESS` (`:492-553`), `_SESSION_HARNESS` (`:1008-1094`), `:1291` and
-  `:1333`, with `scripts/protected_suites.py`'s `_inside_the_test` rule (`:294`)
-  amended to admit the new kind (lane 3's T026 FIX: the path is `scripts/`);
-  these close the 21 harness nodes only together with W-1's fix of the
-  `./display.js` import at the helper copy sites (`:98`, `:565`, `:1242`,
-  `:2000`, `:2507`). The two non-harness nodes of R-1's 26 (lane 3's row 38
-  FIX): `test_staged_scope_adds_cluster_neighbourhood_section` takes an in-test
-  entry ('group' → S7's 'cluster');
+  3, share paths 2, Group W 1, Group S2 4 (17, under H-2, tier 2's CF-4), and
+  three more in-test respellings the holder admitted under the same CF-4 scope
+  (`6020859092`; 20 in all): `test_gate_off_descriptor_is_the_real_cli_invocation`
+  (`cli.cmd_gate_create_document` → `cli_gate.cmd_gate_create_document`),
+  `test_gate_off_session_affordances_are_the_real_cli_invocations` (the three
+  `cmd_gate_*` names → `cli_gate.…`) and
+  `test_the_notebook_refresh_is_a_descriptor_in_BOTH_gate_postures` (the script
+  is read from its one home on the import path, and a run fails if it finds none
+  or more than one). Each is a carve-moved name or path, weakens no assertion,
+  and is entered as a `respelling` naming its history, under the oracle's
+  `--chains` form. Under
+  R-1 (a), ruled (`6013547504`) and widened by Brett's *"Widen the spans, served
+  display (Recommended)"* (`6016648451`): the admitted module-level edits reach
+  SIX named spans of `tests/test_staging_workbench.py`, the harness constants
+  `_CREATE_HARNESS` (`:492-553`), `_SESSION_HARNESS` (`:1008-1094`) and
+  `_HOSTILE_HARNESS` (`:1950-1981`), and the three copy helpers `_run_create`
+  (`:562-574`), `_run_session` (`:1239-1257`) and `_hostile_descriptors`
+  (`:1997-2008`), with `scripts/protected_suites.py`'s `_inside_the_test` rule
+  (`:294`) amended to admit the new kind (lane 3's T026 FIX: the path is
+  `scripts/`). The helpers copy the model's siblings and hand each harness the
+  SERVED governed display. T020's host registration covers this suite, through
+  T020's `tests/conftest.py` and the scan in `tests/test_host_plane.py`, which
+  T026 edits after T020 lands (#39). That the served display is reachable in the
+  test process is INFERRED, and T026 measures it. The spans close the harness
+  nodes only together with W-1's fix of the `./display.js` import at the helper
+  copy sites (`:98`, `:565`, `:1242`, `:2000`, `:2507`); the widened spans close
+  the last nine of them and the traced `SystemExit: 2` node. The two route claims
+  (`:1291`, `:1333`) lie inside their own named tests (`:1262-1300`,
+  `:1305-1343`), so in-test entries reach them and they need no span. The line
+  numbers are as measured at openXdox-code `56e1c238`, where batch Q records them.
+  The two non-harness nodes of R-1's 26 (lane 3's row 38 FIX):
+  `test_staged_scope_adds_cluster_neighbourhood_section` takes an in-test entry
+  that respells its expected label to 'group neighbourhood', S7's neutral word,
+  as measured (the holder's ruling recorded with `6016648451`);
   `test_the_hostile_descriptors_still_parse_into_the_real_cli` (`SystemExit: 2`)
-  is traced first, and its repair is an entry or a singleton fix as the trace
-  shows, returning to Brett only if neither is admissible.
+  is closed by the widened spans, as ruled.
+  **F12.1 carries `--chains`** (Brett's *"Amend F12.1 with --chains
+  (Recommended)"*, `6016648451`; batch Q adds it to 12.5's falsifier in #1144,
+  T005): several entries for one suite land in ONE landing, applied in the order
+  they are listed and chained by git blob. Each entry is still exactly one edit
+  inside its own named test or, under R-1 (a), its named span; the landing's diff
+  for each suite is exactly the chain's recorded texts, and nothing wider is
+  admitted. T026 lands as ONE PR (openXdox-code#43).
   - **Realizes**: 12.5 (part).
-  - **Falsifier**: the oracle prints `ok: … each entered and holding`; the
-    nodes, composed, quoted.
-  - **Ruled**: R2Q8. **Decisions**: CF-4 (H-2), R-1, W-1.
-  - **After**: T020 (it unmasks 3), T005 (batch Q's 12.5 notes).
+  - **Falsifier**: the oracle, run with `--chains`, prints `ok: … each entered
+    and holding`; the nodes, composed, quoted; the new
+    `tests/test_protected_suite_check.py`.
+  - **Ruled**: R2Q8; Brett's `6016648451` (F12.1 with `--chains`; R-1 (a)'s six
+    spans). **Decisions**: CF-4 (H-2), R-1, W-1.
+  - **After**: T020 (it unmasks 3; and T020's `tests/conftest.py` and
+    `tests/test_host_plane.py`, which T026 edits only after #39 lands), T005
+    (batch Q's 12.5 notes, `--chains` among them).
   - **Files**: openXdox-code `tests/protected_suite_respellings.yaml` (its only
     phase-4 writer), `tests/test_session_gates.py`, `tests/test_session_verbs.py`,
     `tests/test_session_confinement.py`, `tests/test_doxbench_share.py`,
-    `tests/test_staging_workbench.py`, `scripts/protected_suites.py` (R-1 (a)).
+    `tests/test_staging_workbench.py`, `scripts/protected_suites.py` (R-1 (a));
+    a new `tests/test_protected_suite_check.py`, for the span kind's cases, as
+    T022's new test holds its script's (holder, `6016648451`); and, after T020
+    lands, T020's `tests/conftest.py` and `tests/test_host_plane.py` (T020 →
+    T021 and T026, in landing order → T073 → T074; Brett, `6016648451`).
   - **Lane**: 3.
 
 ### Phase 4's pins (9.5) and the composed run
@@ -650,19 +734,32 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   initializes its submodules RECURSIVELY, `openDox`, `openXdox` and `openXwallet`
   included, without which `corpus_adapter_openxfactory` refuses at import (lane 3's
   T029 FIX); runs T022's placement script; installs openDox at the pin; and runs
-  12.5's 16 suites with `PYTHONPATH="$OPENXFACTORY/scripts"`, then the oracle.
-  openXdox-code's help-tree goldens are asserted unchanged in the same run (R2Q3
-  (a)). After its first green run on `main`, the holder makes `composed` a
-  REQUIRED check of openXdox-code, recorded in the evidence (N-7b (a), ruled
+  12.5's 16 suites with `PYTHONPATH="$OPENXFACTORY/scripts"`, then the oracle,
+  with `--chains` (F12.1 as batch Q amends it; Brett's *"Amend F12.1 with
+  --chains (Recommended)"*, `6016648451`). openXdox-code's help-tree goldens are
+  asserted unchanged in the same run (R2Q3 (a)). After its first green run on
+  `main`, the holder makes `composed` a REQUIRED check of openXdox-code,
+  recorded in the evidence (N-7b (a), ruled
   `6013547504`: *"Make it required (Recommended)"*, the word for that change).
+  T029 also raises the two floor lines of openXdox-code's
+  `.github/workflows/validate.yml`, `MIN_SELECTED` and `MIN_PASSED`, ONCE: at its
+  final head, after merging `main`, to the selected and passed counts measured
+  there, with the CI-form run quoted in its body (holder, `6017860539`). No other
+  PR raises them: T020 to T026 leave them unchanged, and later test-adding PRs
+  (T073, T074 and T095 onward) leave them too, unless their own task names them.
   - **Realizes**: 12.5, F12.1 (both ticked at T082).
   - **Falsifier**: F12.1 (12.5's falsifier, as batch Q's line words it): 16
-    suites, 0 red; the oracle's `ok: … each entered and holding`, quoted.
-  - **Ruled**: R2Q8; ARC-Q2 (permanent). **Decisions**: CF-5, N-7a, N-7b, R-1.
+    suites, 0 red; the oracle, run with `--chains`, prints `ok: … each entered and
+    holding`, quoted.
+  - **Ruled**: R2Q8; ARC-Q2 (permanent); Brett's `6016648451` (F12.1 with
+    `--chains`) and the holder's `6017860539` (the floors). **Decisions**: CF-5,
+    N-7a, N-7b, R-1.
   - **After**: T020–T026, T028.
   - **Files**: openXdox-code new `.github/workflows/composed.yml` (first: T029 →
     T073 → T074), new `tests/composed_host_pin.yaml` (first; advances after T030,
-    T064 and T075).
+    T064 and T075), and `.github/workflows/validate.yml`, its two floor lines
+    `MIN_SELECTED` and `MIN_PASSED` only (T029 → T074's `LEFT_OUT`; the
+    single-writer table).
   - **Lane**: 3.
 - [ ] T030 [US3] [oX] [oxF] **U-8, steps 5–6: phase 4's consumer pins and host
   wiring.** The openXdox root moves its `code` gitlink and `code-pin.yaml` to
@@ -729,7 +826,7 @@ copies (research R7; ADV-05).
 
 ### W1: the schemas, the cut, and the first slices
 
-- [ ] T040 [P] [oDs] **The three health schemas (R2Q22 (a)).** Author in
+- [x] T040 [P] [oDs] **The three health schemas (R2Q22 (a)).** Author in
   openDox-spec, from this feature's `contracts/`: the finding's neutral shape
   (`health-finding.md`), `health/packs.yaml` (`health-packs-manifest.md`) and the
   exceptions file (`health-exceptions.md`), in that repository's schema layout.
@@ -739,6 +836,9 @@ copies (research R7; ADV-05).
     OQ-H15-5, -10, -12, -19.
   - **After**: T004.
   - **Lane**: 4.
+  - **Landed**: DONE, openDox-spec#17 → `7db9438b` (2026-10-06T14:37:29Z). Its
+    finding schema holds `identity`, which the plan now stores and emits (the
+    holder, `6018624750`: the plan moved, T040 did not).
 - [ ] T060 [oD] **The openDox root's spec pin and the `dox-v1.2` minor, on Brett's
   cut word (R2Q22 (a)).** Straight after T040 (moved here from W6 by review round
   1, ADV-05; release 1's order, plan 034's T053): ONE root commit moves the spec
@@ -763,9 +863,15 @@ copies (research R7; ADV-05).
   `pack_id` and `pack_version`; the id rule (position-independent identity key,
   canonical sorted-key JSON, N-13; ADV-07), `pack_id` and `kind` each 1 to 40
   characters so a fix branch's name stays bounded (a 40- and a 41-character
-  value tested at the boundary), the identity being engine-internal,
-  hashed into the id and never stored or emitted (Copilot's review of
-  `2076f24b`); the bounds on `message` and
+  value tested at the boundary), the identity being hashed into the id AND
+  stored and emitted with the finding (the holder, `6018624750`, which reverses
+  the engine-internal refinement of Copilot's review of `2076f24b`), bounded as
+  openDox-spec's finding schema (T040, landed) bounds it (no `excerpt`, `text`,
+  `content` or `quote` key, no number, every string at most 200 characters; a
+  pathless finding's identity is `{category, entry}` and a collision's is
+  `{collided_id}`), under an engine cap on its serialized size, stricter than the
+  schema's, as for `pack_id` and `kind` (the cap is T041's, since the contract module owns the
+  field bounds, and T041 tests it at its boundary, as it tests theirs); the bounds on `message` and
   `evidence` (R2Q25 (a); ADV-27); a closure test that the module imports only the
   standard library. Copy T040's finding schema at the spec commit T060 pins into
   openDox-code's EXISTING copy record: `copies.yaml`'s `commit:` moves to that
@@ -777,8 +883,8 @@ copies (research R7; ADV-05).
   - **Realizes**: 14.6 (part: spellings), 15.2 (part: shape), 7.1's addendum (part).
   - **Falsifier**: new `tests/test_health_contract.py`; `tests/test_validator_input_set.py`
     green at the new commit.
-  - **Ruled**: R2Q10, R2Q18, R2Q22, R2Q25. **Decisions**: N-3, N-13, N-15,
-    OQ-H15-19.
+  - **Ruled**: R2Q10, R2Q18, R2Q22, R2Q25; the holder's `6018624750`.
+    **Decisions**: N-3, N-13, N-15, OQ-H15-19.
   - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
     `src/opendox/contracts/copies.yaml`, `schemas/`, `__init__.py` and
@@ -790,8 +896,9 @@ copies (research R7; ADV-05).
   baseline branch, the run's pack inventory with each pack's exact pin,
   `pack_pins`, the `export_commit` its packs read, whether it was
   `full`, and the probe's `sandbox` record; Copilot review) and
-  `health_findings` (data-model.md, with no `identity` column), with
-  15.7's
+  `health_findings` (data-model.md, with an `identity` column: canonical
+  sorted-key JSON, its serialized size capped by the engine, stricter than the
+  schema's; the holder, `6018624750`; T042 stores what T041 bounds), with 15.7's
   `pack_id`/`pack_version` NOT NULL from the first landing, and NO patch column
   (14.3; R2Q25 (a); lane 3's MISLABEL row 31). DOMAIN tables in
   `runtime/identity.py`'s `TABLES` (R2Q13 (a)); `runtime/cli.py`'s `DROP_ORDER` and
@@ -811,7 +918,8 @@ copies (research R7; ADV-05).
     `test_the_store_refuses_a_finding_without_provenance` and a test that an
     install-level finding (`pack_id` `opendox`, empty `path`) is admitted; the
     five suites above.
-  - **Ruled**: R2Q13, R2Q15, R2Q25. **Decisions**: OQ-H-22, OQ-H15-18, -19, -20.
+  - **Ruled**: R2Q13, R2Q15, R2Q25; the holder's `6018624750`. **Decisions**:
+    OQ-H-22, OQ-H15-18, -19, -20.
   - **After**: T027 (N-6 (a), ruled).
   - **Files**: as listed (single owner of `0003_` and of the five suites).
   - **Lane**: 4.
@@ -893,7 +1001,7 @@ copies (research R7; ADV-05).
   (`run`, `list`, `fix --finding ID [--batch]`, `accept`), plus `--local` and
   `list --class`, frozen, `fix` and `accept` dispatching to T053's and T054's
   modules; contributed through `default_profile.py` (N-2); `--json` carries
-  `kind`. The hosted plane refuses by name (R2Q15 (a)). Record the hook line for
+  `kind` and `identity` (the holder, `6018624750`). The hosted plane refuses by name (R2Q15 (a)). Record the hook line for
   the root README (CF-6).
   - **Realizes**: 14.4 (part: on demand, the baseline), 14.5 (part: CLI run/list).
   - **Falsifier**: new `tests/test_health_cli.py`, `tests_runtime/test_health_engine.py`
@@ -1308,14 +1416,75 @@ value, stays lane 3's, and is NOT gated on the arc's ratify word (T071).
   F9.1 amendment. It re-runs after each `tests/composed_host_pin.yaml` advance
   (after T030, T064 and T075), because each moves the openxFactory commit its
   composed run checks out (lane 3's composed_host_pin FIX).
+  T073 lands what its own files can (the holder's option (a), `6016982816`,
+  answering lane openXfactory-3's question `6016925160`): the declaration, every
+  entry a declared integration test with its count and each reason unchanged; the
+  rail registration, as measured; and the `composed.yml` step that runs every
+  entry outside 12.5's set, composed and each file alone, so that none is dropped
+  from both suites. The step goes green only when the repair slices land (T094's
+  map, T095+), so T073's PR stays a DRAFT until they do. Options (b) and (c) of
+  that question are not taken.
+  **The `open_until` wording** (the holder, `6016982816`): `id`, `reason` and
+  `ruled` stay byte-identical, and no commit id appears outside the pin file.
+  - The `doc_health` reason's `open_until` keeps its words and gains lane 3's
+    clause, *"; run composed, as a declared integration test, by
+    .github/workflows/composed.yml at the openxFactory commit
+    tests/composed_host_pin.yaml names (ARC-Q2 (a), openxFactory#656 comment
+    6003918488)"*.
+  - The `status-exemption-rail` and `openxfactory-contracts` reasons drop "the
+    doc_health direction arc (plan 034 T008)", because under ARC-Q2 (a) the arc
+    does not clear them. Each reads instead: *"never in a lone checkout: a
+    declared integration test, run composed by .github/workflows/composed.yml at
+    the openxFactory commit tests/composed_host_pin.yaml names (ARC-Q2 (a),
+    openxFactory#656 comment 6003918488)"*.
   - **Realizes**: requirement 9 for openXdox-code, by declaration (F9.1 as
     amended; F9.1 is already `[x]`, so the re-run is quoted, not ticked).
-  - **Falsifier**: F9.1 as batch Q amends it; the composed workflow green.
-  - **Ruled**: ARC-Q2.
-  - **After**: T029, T005.
-  - **Files**: openXdox-code `tests/conftest.py` (third: T020 → T021 → T073 →
-    T074), `tests/declared_exclusion.yaml` (first), `.github/workflows/composed.yml`
-    (second).
+  - **Falsifier**: F9.1 as batch Q amends it; the composed workflow green. It
+    stands as written (`6016982816`).
+  - **Ruled**: ARC-Q2; the holder's `6016982816`.
+  - **After**: T029, T005, and T095+ (the repair slices cut from T094's map). Its
+    PR stays a DRAFT until they land.
+  - **Files**: openXdox-code `tests/conftest.py` (after T021 and T026: T020 →
+    T021 and T026, in landing order → T073 → T074), `tests/declared_exclusion.yaml`
+    (first), `.github/workflows/composed.yml` (second), and a new
+    `tests/test_declared_rail_registration.py`, the committed test of the
+    conftest rail block: 5 lone cases with stand-in rails, so that the committed
+    tests in CI kill all seven mutants of the block (C1 to C7; C5 to C7 died only
+    to uncommitted probes before it). Only T073 writes it, so it creates no
+    single-writer conflict (the holder's ruling `6020698021`, answering lane
+    openXfactory-3's question `6020683941`: fix-now, as T022 and T023 were ruled).
+  - **Lane**: 3.
+- [ ] T094 [oXc] **R2-INV-R9: the map of every composed red outside 12.5's set.**
+  READ-ONLY, in lane 3 (claimed on `#656`, `6017801219`; the holder's ruling
+  `6016982816`). It maps, as R2-INV-P4F mapped 12.5's 174 reds, every composed
+  red outside 12.5's set in openXdox-code's declared exclusion: the 5
+  `openxfactory-contracts` files, the 33 red `doc_health` files, and the rail node
+  `tests/test_doxbench_packet.py::test_the_status_read_agrees_with_the_repositorys_own_corpus_reader`.
+  For each file the map names:
+  - its cause class and the means that finish it;
+  - any overlap with T074's 7 respelled tests, and with the files of T023 to T028;
+  - whether it is a protected suite. If it is, F12.1's allow-list applies, with
+    `--chains`.
+
+  It ends with a slice outline for T095+, one owner per file. Output:
+  `lane-coord-034/r2/R2-INV-R9.md`, beside R2-INV-P4F, and one line in
+  `lane3-to-lane4.log`. No pull request, no edit to any repository, no push.
+  - **Ruled**: ARC-Q2; the holder's `6016982816`.
+  - **After**: none (read-only; T073's measurement, `6016925160`, is its
+    starting point).
+  - **Lane**: 3.
+- [ ] T095+ [oXc] **The repair slices cut from T094's map.** New tasks, numbered
+  from T095 as the map cuts them, in lane 3 (the holder, `6016982816`): one
+  repair slice per owner of the files the map names, each with its own Files
+  line, falsifier and After. They make T073's `composed.yml` step green, and
+  requirement 9 closes for openXdox-code when that step is green. A slice that
+  edits a protected suite adds its allow-list entry in its own PR, chained as
+  F12.1's `--chains` allows. T073's After set gains every slice, and T073's PR
+  stays a DRAFT until they land.
+  - **Ruled**: ARC-Q2; the holder's `6016982816`.
+  - **After**: T094.
+  - **Files**: as the map names them, one owner per file; a file another open
+    slice owns is never edited.
   - **Lane**: 3.
 
 ---
@@ -1330,7 +1499,7 @@ permanent (tier 2's CF-5). Its realization landings carry the change's own
 trailer value (decision ARC-4), not #1144's, and its change runs an equivalent
 surfaces check over them (ADV-37).
 
-- [ ] T070 [oxF] **Author the change.** `openspec/changes/<ARC-2>/`: `proposal.md`
+- [x] T070 [oxF] **Author the change.** `openspec/changes/<ARC-2>/`: `proposal.md`
   with `code_surface:` naming openXdox-code, openDox-code and openxFactory host
   wiring, and `target_release: implemented` (tier 1's ARC-1, ruled); `design.md`
   (the eight modules, fact 1 of R2-ARC-ASK; the seams; the re-authored `lines`
@@ -1343,6 +1512,8 @@ surfaces check over them (ADV-37).
   - **Ruled**: ARC-Q1, ARC-Q3. **Decisions**: ARC-1, ARC-2, ARC-3, ARC-4.
   - **After**: T004.
   - **Lane**: 4.
+  - **Landed**: DONE, openxFactory#1247 → `51456835` (2026-10-06T14:38:36Z), the
+    change `realize-doc-health-direction-arc`. T071's ratify word is still to come.
 - [ ] T071 [oxF] **Brett's ratify word, and its record.** Put the change to
   Brett; record his word on `#656` and the change's ratification record, under a
   Rule 6 window. No realization slice starts before it.
@@ -1378,8 +1549,17 @@ surfaces check over them (ADV-37).
   - **After**: T071, T072's pin (T063's, or the arc's own), T021, T073.
   - **Files**: openXdox-code `src/openxdox/{generator,corpus_root,gate_console,cli_gate,gate_routes,snapshot_registry,completeness,round_trip}.py`,
     the seam declarations, the 7 tests, `tests/test_dependency_direction.py`,
-    `tests/declared_exclusion.yaml` (second), `tests/conftest.py` (fourth),
-    `.github/workflows/composed.yml` (third), `pyproject.toml` (if ARC-6 needs it).
+    `tests/declared_exclusion.yaml` (second), `tests/conftest.py` (last: T020 →
+    T021 and T026 → T073 → T074), `.github/workflows/composed.yml` (third),
+    `pyproject.toml` (if ARC-6 needs it); and the six openXdox-code files that
+    the arc change's `design.md` § 10 lists, measured at `56e1c238`, which this
+    line did not name:
+    - `.github/workflows/validate.yml`, the `LEFT_OUT` help-tree `--deselect` and
+      its notes (after T029's two floor lines: T029 → T074);
+    - `tests/integration/test_assembled_surface.py`;
+    - `src/openxdox/column_contributions.py` and `tests/test_column_contributions.py`;
+    - `src/openxdox/projection_contributions.py`;
+    - `tests/test_declared_exclusion.py`.
   - **Lane**: 4.
 - [ ] T075 [oX] [oxF] **The host registers the seams, with its pin pairs.**
   openxFactory's `scripts/opendox_host.py` registers the governed implementations
@@ -1398,7 +1578,12 @@ surfaces check over them (ADV-37).
   #1144 is still active, remove the `--deselect` from F9.1's pytest line (batch
   J's) and tick F9.2 there, under a Rule 6 window; if #1144 has archived, its
   archived `tasks.md` is never edited, and the closure lives in the arc change's
-  evidence alone (ADV-20).
+  evidence alone (ADV-20). #1144's archive tool refuses unticked lines, so if
+  #1144 archives before T076 runs, its archive ticks F9.2 with a WRITTEN
+  DISPOSITION that names the arc change `realize-doc-health-direction-arc` as
+  F9.2's carrier (ARC-5 (a), "Archive with F9.2 open", `6013547504`; the
+  mechanism is batch Q's F9.2 note, T005), and T076 records the real closure in
+  the arc change's evidence. That tick is a disposition, not a performance.
   - **Falsifier**: F9.2, exit 0, quoted.
   - **Decisions**: ARC-5.
   - **After**: T074, T075.
@@ -1467,6 +1652,14 @@ surfaces check over them (ADV-37).
   style addendum). Then, as the very last act, tick 9.5 in #1144's `tasks.md`
   under its own Rule 6 window (bookkeeping, no `Arc:`), citing T083's sync and
   this publish as its last realizations.
+  **#1144's archive and F9.2.** No task of this feature archives #1144: the
+  archive act stays the holder's (ARC-5 (a)). After this tick F9.2 is the only
+  box of #1144 left unticked, unless T076 has already ticked it. #1144's archive
+  tool refuses unticked lines, so under ARC-5 (a) ("Archive with F9.2 open",
+  `6013547504`) #1144's archive ticks F9.2 with a WRITTEN DISPOSITION that names
+  the arc change `realize-doc-health-direction-arc` as F9.2's carrier, and T076
+  records the real closure in the arc change's evidence (batch Q's F9.2 note,
+  T005). That tick is a disposition, not a performance.
   - **Realizes**: 9.5 (the tick).
   - **Ruled**: R2Q23.
   - **After**: T081, T082, T083, and Brett's publish word.
@@ -1545,7 +1738,7 @@ surfaces check over them (ADV-37).
 | 11.0 | T091 | T082's landing set | T082 (arc close) |
 | 11.1 | T092 (T030, T064) | F11.1 | T082 (arc close) |
 | F11.1 | T093 (T032, T065, T082) | `evidence/f11.1-*` | T082 (arc close) |
-| F9.2 (outside the 37) | T073, T074, T075 | T076 | T076 while #1144 is active; else the arc's evidence (tier 1's ARC-5) |
+| F9.2 (outside the 37) | T073, T074, T075 | T076 | T076 while #1144 is active; else #1144's archive ticks it with a WRITTEN DISPOSITION naming `realize-doc-health-direction-arc` as the carrier, and T076 records the real closure in the arc change's evidence (tier 1's ARC-5 (a), `6013547504`; batch Q's F9.2 note) |
 
 **Count:** Group 12's 11, Group 6's 4, Group 14's 10 and Group 15's 12 make
 the 37; with the four arc-close boxes and F9.2, all 42 open boxes have a task.
@@ -1619,7 +1812,7 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 | R2Q10 | T041, T044, T046, T053, T005 (4) | | R2Q23 | T061, T084, T005 (10) |
 | R2Q11 | T044, T053 | | R2Q24 | T080, T081 |
 | R2Q12 | T046 | | R2Q25 | T041, T042, T056, T057 |
-| R2Q13 | T042 | | ARC-Q1–ARC-Q4 | T070–T072, T074–T077; ARC-Q2 also T029, T073, T005 (6); ARC-Q4 T006 |
+| R2Q13 | T042 | | ARC-Q1–ARC-Q4 | T070–T072, T074–T077; ARC-Q2 also T029, T073, T094, T095+, T005 (6); ARC-Q4 T006 |
 
 ## Phase 4 writer slices (for the fan-out)
 
@@ -1635,13 +1828,13 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 | P4-E | T019 | oxF | 4 | a new `tests/domain_profile/` test | lands with T030 | the test; parity test green | Sonnet |
 | U-1 | T020 | oXc | 3 | `tests/conftest.py`, `tests/test_host_plane.py` | T004 | host-reg nodes | Opus |
 | U-2 | T021 | oXc | 3 | `gate_console.py`, `tests/conftest.py` (one line), a new test | T020 | schema nodes | Opus |
-| U-3 | T022 | oXc | 3 | `scripts/composed_placements.py`, `.gitignore` | T021 | runbook nodes | Sonnet |
-| U-4 | T023 | oXc | 3 | `swb-session.js` | T004 | Group J | Sonnet |
+| U-3 | T022 | oXc | 3 | `scripts/composed_placements.py`, `tests/test_composed_placements.py` (new), `.gitignore` | T021 | runbook nodes | Sonnet |
+| U-4 | T023 | oXc | 3 | `swb-session.js`, `tests/test_swb_session_transport.py` (new) | T004 | Group J | Sonnet |
 | U-5 | T024 | oXc | 3 | the shim | T004 (CF-3) | Group L, T | Sonnet |
 | U-6 | T025 | oDc | 3 | `staging-workbench.js`, `staging-workbench-model.js`, census, `test_web_boundary.py` | T004 (W-1) | S1 + DJ | Opus |
-| U-7 | T026 | oXc | 3 | `protected_suite_respellings.yaml` and the five protected files; `scripts/protected_suites.py` (R-1 (a)) | T020, T005 | the oracle | Opus |
+| U-7 | T026 | oXc | 3 | `protected_suite_respellings.yaml` and the five protected files; `scripts/protected_suites.py` (R-1 (a)); `tests/test_protected_suite_check.py` (new); `tests/conftest.py` and `tests/test_host_plane.py` after T020 | T020, T005 | the oracle, with `--chains` | Opus |
 | U-8 | T027, T028, T030 | oD, oXc, oX, oxF | 4 | the pins; the host's schema source | T017, T025; T029 | the pin verifiers | Sonnet |
-| U-9 | T029 | oXc | 3 | `composed.yml`, `composed_host_pin.yaml` | T020–T026, T028 | F12.1 | Opus |
+| U-9 | T029 | oXc | 3 | `composed.yml`, `composed_host_pin.yaml`, `validate.yml`'s two floor lines (`MIN_SELECTED`, `MIN_PASSED`) | T020–T026, T028 | F12.1, with `--chains` | Opus |
 | P4-G | T031, T032, T033 | oxF | 4 | `evidence/`, the README entry | T027, T029, T030, T005 | F12.2, F12.1, F11.1 | Sonnet |
 
 **Parallel on day one:** CI (T010) ∥ P4-A (T011, with T012 beside it) ∥ U-1 ∥ U-4 ∥ U-5 ∥ U-6; U-2 and U-3 follow U-1 in lane 3.
@@ -1680,7 +1873,9 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 
 | slice | tasks | lane | depends on | size |
 |---|---|---|---|---|
-| requirement 9 declarations (#1144's) | T073 | 3 | T029, T005 | Sonnet |
+| requirement 9 declarations (#1144's) | T073 | 3 | T029, T005, T095+ (its PR stays a DRAFT until they land) | Sonnet |
+| the map of every composed red outside 12.5's set (read-only) | T094 | 3 | none | lane 3's call |
+| the repair slices cut from the map | T095+ | 3 | T094 | lane 3's call, as the map slices |
 | the change | T070, T071 | 4 | T004 | Opus |
 | lines | T072 | 4 | T071 | Sonnet |
 | seams and retargets | T074 | 4 | T071, T072's pin, T021, T073 | Opus |
@@ -1690,15 +1885,17 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 ## Dependencies and execution order
 
 1. **Phase 0**: T004 (DONE, after round 1's re-check) gates everything except
-   T001–T003, T006, T007; T003, if the holder dispatches it, lands its own
-   disposition before the first realization PR. T005 lands before T015, T026, T032, T033, T052, T058,
+   T001–T003, T006, T007; T003 closed on the re-check (`6017901451`), so no
+   round-2 analyze lands before the first realization PR. T005 lands before T015, T026, T032, T033, T052, T058,
    T060, T065, T067 and T073. T008 before T013.
 2. **Phase 4**: the product chain T011 → T014 → T015 → T016 (with T012 + T013)
    → T017 → T027 → T028; the repair chain T020 → T021 → T022 and T020 → T026; both
    join at T029 → T030 → T032 → T033.
 3. **Phase 5**: T040 → T060 → T041 → (W2 … W5) → T067 → T061 → T062 → T063 →
    T064 → T065 → T066; openDox-code slices from T027 (tier 1's N-6 (a)) or T033.
-4. **Requirement 9**: T073 after T029, re-run after each composed-pin advance.
+4. **Requirement 9**: T073 after T029, re-run after each composed-pin advance;
+   T094 (the read-only map) → T095+ (the repair slices), and T073's PR stays a
+   DRAFT until they land (`6016982816`).
 5. **Beside phase 5**: T070 → T071 → T072 → T074 → T075 → T076 → T077; T061 never
    waits for any of them.
 6. **Close**: T066 → T080 → T081 → T082 → T083 → T084 (LAST).
@@ -1715,7 +1912,7 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 - Every slice's PR names its task ids, the boxes it realizes and its falsifier's
   quoted output (FR-025).
 
-## Ruled amendments (`6003486656`, `6003918488` and `6013547504`)
+## Ruled amendments (`6003486656`, `6003918488`, `6013547504` and `6016648451`)
 
 | batch | item | #1144 location | ruling |
 |---|---|---|---|
@@ -1725,15 +1922,19 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 | Q | R2Q10's selection lines, every literal-id use | F14.1, F15.1 | `6003486656` |
 | Q | R2Q1's non-normative reading (CF-1) | the release map (`:108`); `design.md:799-800` | `6003486656`, `6013547504` |
 | Q | ARC-Q2's F9.1 declaration, batch B's form | F9.1 | `6003918488` |
+| Q | F12.1 with `--chains`: several entries per suite in one landing, chained by git blob (carried out by T026, T029) | 12.5's falsifier (`:3047`); a dated note beside batch K's sentence at F5.2 (`:1065`) | `6016648451` |
 | Q | ARC-5's F9.2 note | F9.2 (`:1718`) | `6013547504` (tier 1) |
-| Q | H-2's batch C scope (CF-4); R-1 (a)'s admitted kind | 12.5's falsifier | `6013547504` |
+| Q | H-2's batch C scope (CF-4); R-1 (a)'s admitted kind, widened to six spans (served display) | 12.5's falsifier | `6013547504`, `6016648451` |
 | Q | R2Q16's full reading | requirement 16; 15.1b (`:3426`) | `6003486656` |
 | Q | 9.5's two addenda (`dox-v1.2`; 0.2.0) | 9.5 (`:1553`) | `6003486656` |
 | Q | 7.1's addendum: four kinds become seven copies (C-18) | 7.1 | `6003486656` (R2Q22) |
 | Q | I-2 (a)'s baseline branch at 14.4; N-6 (a)'s overlap beside the map | 14.4; the release map | `6013547504` (tier 1) |
 | — | F9.1's `--deselect` removed | F9.1 (batch J's line) | `5859927858`, at T076 while #1144 is active |
 
-**Task count:** 79: Phase 0 9 (T001–T009, four done: T004, T006, T007, T009),
-Phase 4 24 (T010–T033), Phase 5 29 (T040–T068, T059, T067 and T068 among them),
-requirement 9 1 (T073), the direction arc 7 (T070–T072, T074–T077), Close 5
-(T080–T084), Every phase 4 (T090–T093).
+**Task count:** 81 rows: Phase 0 9 (T001–T009; eight done, T002–T009, and T001 is a
+standing act), Phase 4 24 (T010–T033; T010, T020 and T024 done), Phase 5 29 (T040–T068, T059,
+T067 and T068 among them; T040 done), requirement 9 3 (T073, T094 and the one
+placeholder row T095+, which T094's map replaces with the concrete repair-slice
+tasks, T095 onward), the
+direction arc 7 (T070–T072, T074–T077; T070 done), Close 5 (T080–T084), Every
+phase 4 (T090–T093).

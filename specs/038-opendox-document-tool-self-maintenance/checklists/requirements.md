@@ -89,8 +89,9 @@ notes updated 2026-10-06 for the plan ruling (#656 `6013547504`).
 - [ ] `/speckit-analyze` has reported no CRITICAL finding. **Pending:** round
       1's analyze (`evidence/analyze-round-1.md`) reported CRITICALs, all
       applied at `6847e99e`, and both reviewers' re-check found them landed as
-      worded (`#656` `6013547504`). A fresh analyze of the ruled revision is
-      T003, the holder's call; Brett's ruling started implementation.
+      worded (`#656` `6013547504`). A fresh analyze of the ruled revision was
+      T003, the holder's call, closed on the re-check (`6017901451`); Brett's
+      ruling started implementation.
 
 ## Notes
 
