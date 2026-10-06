@@ -80,6 +80,7 @@ the fix was written.
 | Copilot review 5421723966 (3 threads) | `c13e6bc4` | 9 failed | `d7a1f86b` | 85 passed, 181 subtests passed |
 | Copilot review 5421899020 (3 threads and one finding in the review body) | `9b021b60` | 12 failed | `dddb5007` | 87 passed, 196 subtests passed |
 | Copilot review 5423269766 (2 threads) | `b268e5c0` | 2 failed | `4e886747` | 88 passed, 197 subtests passed |
+| Copilot review 5423342885 (1 thread) | `758fe67f` | 3 failed | `8cd13650` | 88 passed, 203 subtests passed |
 
 `5d0ea5de` split the validator into phase functions with no behaviour change.
 Copilot review 5420018661 at `a12c7027` reported no findings. Every review
@@ -99,8 +100,8 @@ say these probes gave unchanged output. When they were written, the probe was
 loading the validator from a clone still at `b8c0d5e2`. It was then re-run
 against each of those commits' own validator and declaration schema, extracted
 with `git archive`, and against `754d94bc`, `a12c7027`, `bc2e387e`,
-`d3a9e05b`, `b247eda2`, `34d87981`, `d7a1f86b`, `dddb5007` and `4e886747`.
-Every report is byte-identical, so the statements hold. The review's adversarial probe, which
+`d3a9e05b`, `b247eda2`, `34d87981`, `d7a1f86b`, `dddb5007`, `4e886747` and
+`8cd13650`. Every report is byte-identical, so the statements hold. The review's adversarial probe, which
 always loaded the right tree, refuses P3, P3b, P4, P6, P7, P8, P9 and P17 with
 located codes.
 
@@ -131,7 +132,7 @@ same kind, with the CI lock's packages installed with hashes:
   At `56cb3d49`, after main `ba89e046` was merged in, the corpus-reading
   subset ran again: 2979 passed, and the only failures were the same two
   environment tests. CI's required `pytest-suite` passed in full at
-  `fcc52c39`. At `4e886747`, the factory-mcp module passes (88 tests, 197
+  `fcc52c39`. At `8cd13650`, the factory-mcp module passes (88 tests, 203
   subtests). CI's
   required `pytest-suite` runs the full command at the pull request's final
   head.
