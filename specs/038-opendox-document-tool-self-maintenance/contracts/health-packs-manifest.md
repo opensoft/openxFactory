@@ -21,7 +21,7 @@ T041), and implements the reader.
 schema_version: 1
 kind: opendox-health-packs
 packs:
-  - id: house-style                    # ^[a-z0-9-]+$, unique in this file; "opendox" is reserved (15.7)
+  - id: house-style                    # ^[a-z0-9-]{1,40}$, unique in this file; "opendox" is reserved (15.7)
     version: 1.4.0                     # MUST equal the pack's own declaration (15.2)
     source: tools/packs/house-style    # corpus-relative: NO commit (15.1a)
     digest:
@@ -70,7 +70,10 @@ stated so):
   system path, proved live by the per-run canary (OQ-H15-9, -21): no network, no
   write outside its tmpfs, no view outside the exported tree (R2Q19 (a)), its own
   `/proc`, `--clearenv` with the allowlist `PATH`, `LANG`, `PYTHONNOUSERSITE=1`,
-  and `close_fds`. The canary the engine plants before spawning is a CANARY
+  and `close_fds`, by 15.1b's complete invocation (`--unshare-all`,
+  `--die-with-parent`, `--new-session`, read-only `/corpus` and `/pack`, a
+  private `--tmpfs /tmp`, `--proc /proc`, `--dev /dev`; data-model.md § Sandbox
+  probe). The canary the engine plants before spawning is a CANARY
   environment variable and a CANARY descriptor (15.6a); `fixture-escaping-pack`
   hunts both, through its environment and `/proc/self/fd`, and follows a planted
   symlink, and every attempt must fail. With no live sandbox, no pack runs and ONE

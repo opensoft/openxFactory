@@ -39,7 +39,7 @@ phase-4 `src/` exceptions named (§ Project Structure), finding-id collisions
 for files only one task writes.
 
 **Revision: Copilot's reviews of the ruled revision folded** (2026-10-06).
-Copilot's reviews of `2a4a73d1` to `6f073ed2` found gaps the ruled options left
+Copilot's reviews of `2a4a73d1` to `55cc1334` found gaps the ruled options left
 open. Each fix refines a ruled item without taking another option, and all are
 listed here so the holder can judge whether any needs Brett's word:
 - the run's pack inventory, holding each pack's exact pin; a finding new only
@@ -87,7 +87,13 @@ listed here so the holder can judge whether any needs Brett's word:
 - the engine owns id-collision detection over the whole run, with a path rule
   for a collision across paths (contracts/health-finding.md; T046); and
   `--timeout` takes a whole number of seconds of at least 1, a value above 600
-  still capped as ruled (contracts/cli-http-health.md).
+  still capped as ruled (contracts/cli-http-health.md);
+- the baseline compares each pack's exact pin, so a pin moved under an
+  unchanged version is `pack-upgrade` (FR-010); a cross-run hash collision is
+  an accepted limit, recorded in contracts/health-finding.md for the holder;
+- `pack_id` and `kind` are bounded at 40 characters; each pack family declares
+  its `kind`, own `version` and `applies_to` (data-model.md § Pack declaration;
+  FR-018); and T048 carries 15.1b's complete `bwrap` invocation.
 
 ## Summary
 

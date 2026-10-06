@@ -755,7 +755,9 @@ copies (research R7; ADV-05).
   first copy.** New stdlib-only `src/opendox/health_contract.py`: the classes
   `auto-fix`, `assisted`, `human-only`; the severities; the finding shape with
   `pack_id` and `pack_version`; the id rule (position-independent identity key,
-  canonical sorted-key JSON, N-13; ADV-07), the identity being engine-internal,
+  canonical sorted-key JSON, N-13; ADV-07), `pack_id` and `kind` each 1 to 40
+  characters so a fix branch's name stays bounded (a 40- and a 41-character
+  value tested at the boundary), the identity being engine-internal,
   hashed into the id and never stored or emitted (Copilot's review of
   `2076f24b`); the bounds on `message` and
   `evidence` (R2Q25 (a); ADV-27); a closure test that the module imports only the
@@ -847,10 +849,15 @@ copies (research R7; ADV-05).
 - [ ] T045 [US6] [oDc] **G15-A, the pack contract.** Extend `health_contract.py`
   (handed over at T041's landing) with the pack protocol: the static declaration
   `opendox-pack.yaml` (read before any pack code runs; no version, or forbidden
-  keys, refused), the one-JSON-document stdout format, and the patch type, a
+  keys, refused; each family declaring its `kind`, its own `version` and its
+  `applies_to` globs, data-model.md § Pack declaration, with a finding of an
+  undeclared kind or outside its family's globs refused), the one-JSON-document stdout format, and the patch type, a
   unified diff and nothing else (15.2; ADV-12). Python is the only pack runtime.
   - **Realizes**: 15.1, 15.2.
-  - **Falsifier**: new `tests/test_check_pack_contract.py`.
+  - **Falsifier**: new `tests/test_check_pack_contract.py`, including a family
+    missing its version or its `applies_to`, refused; a finding of an
+    undeclared kind, and one outside its family's globs, each refused as a
+    finding against the pack.
   - **Ruled**: R2Q18, R2Q20. **Decisions**: N-3, OQ-H15-1, -10, -11.
   - **After**: T041.
   - **Files**: `src/opendox/health_contract.py` (second, appended), the test.
@@ -912,7 +919,8 @@ copies (research R7; ADV-05).
   - **Lane**: 4.
 - [ ] T047 [US6] [oDc] **G15-B, the manifest, the pin and the second copy.** New
   `check_pack_manifest.py` reads `health/packs.yaml` (`contracts/health-packs-manifest.md`):
-  exactly 15.1a's fields; the id `opendox` reserved; a corpus-relative entry that
+  exactly 15.1a's fields; the id `opendox` reserved, and every id 1 to 40
+  characters of `[a-z0-9-]` (a 41-character id refused); a corpus-relative entry that
   carries `commit` REFUSED (15.1a, `#1144 tasks.md:3414-3421`; lane 3's T047 FIX);
   `sorted-ls-tree-r-v1` over `<corpus-commit>:<source>` for a corpus-relative
   source and over the declared `commit`'s root tree for a git-URL source (the
@@ -938,8 +946,14 @@ copies (research R7; ADV-05).
   `export-subst`/`export-ignore`, R2Q9 (a) item 5); the read-only mount set
   R2Q18 (a) fixes: the install's interpreter, its standard library and
   `opendox.health_contract` alone, never `site-packages`, `$HOME` or the
-  checkout (lane 3's T048 FIX); `--clearenv` with 15.1b's allowlist; no network;
-  `--unshare-pid`, so ending the sandbox's init ends the whole tree; with no
+  checkout (lane 3's T048 FIX); 15.1b's COMPLETE invocation (Copilot's review
+  of `55cc1334`): `--unshare-all` (network, PID, IPC, UTS and user namespaces),
+  `--die-with-parent`, `--new-session`, `--ro-bind <copy> /corpus`, `--ro-bind
+  <pack> /pack`, the read-only interpreter binds above, a private `--tmpfs
+  /tmp`, its own `--proc /proc`, a minimal `--dev /dev`, and `--clearenv` then
+  `--setenv` of 15.1b's allowlist alone; spawned with `close_fds=True`, stdin
+  from `/dev/null` and the two output pipes only; the PID namespace means ending
+  the sandbox's init ends the whole tree; with no
   live sandbox, no pack runs and one install-level finding says why. The probe
   also records whether a delegated cgroup's `pids.max` bounds the process
   count; where none is delegated the count is unbounded, an accepted limit the
@@ -949,7 +963,11 @@ copies (research R7; ADV-05).
   `tests/sandbox_required.py`, never a shared conftest.
   - **Realizes**: 15.1b, 15.6 (part: enforcement), 15.5 (part).
   - **Falsifier**: new `tests/test_check_pack_sandbox.py`, run in the required
-    job with the sandbox live; `EXPECT_SKIPPED` still 11.
+    job with the sandbox live, including the engine's process killed mid-pack
+    with no pack process left alive (`--die-with-parent`), the pack in a new
+    session that cannot reach the engine's terminal (`--new-session`), writes
+    to `/corpus` and `/pack` refused, a private `/tmp`, and the sandbox's own
+    `/proc` showing only the pack's descriptors; `EXPECT_SKIPPED` still 11.
   - **Ruled**: R2Q9 (items 3, 5), R2Q16, R2Q17, R2Q18, R2Q19. **Decisions**:
     OQ-H15-5, -9, -21.
   - **After**: T045, T010.

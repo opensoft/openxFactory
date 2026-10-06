@@ -28,9 +28,9 @@ array of them, with at least the fields 14.5 declares (`id`, `resolution_class`,
 
 | field | type | required | rule |
 |---|---|---|---|
-| `id` | string | yes | `^[a-z0-9-]+\.[a-z0-9-]+\.[0-9a-f]{16}$`: `<pack_id>.<kind>.<h16>`. Set by the ENGINE; a pack's own value is ignored. A valid ref-name component (R2Q10 (a)) |
-| `kind` | string | yes | the family, `^[a-z0-9-]+$` |
-| `pack_id` | string | yes | `^[a-z0-9-]+$`; `opendox` for the product's own families (OQ-H15-19). Stamped by the engine from the manifest entry (15.7) |
+| `id` | string | yes | `^[a-z0-9-]{1,40}\.[a-z0-9-]{1,40}\.[0-9a-f]{16}$`: `<pack_id>.<kind>.<h16>`, at most 98 characters, so `health-fix-<id>` is at most 109, far below a ref path component's 255-byte limit (Copilot's review of `55cc1334`). Set by the ENGINE; a pack's own value is ignored. A valid ref-name component (R2Q10 (a)) |
+| `kind` | string | yes | the family, `^[a-z0-9-]{1,40}$` |
+| `pack_id` | string | yes | `^[a-z0-9-]{1,40}$`; `opendox` for the product's own families (OQ-H15-19). Stamped by the engine from the manifest entry (15.7) |
 | `pack_version` | string | yes | the manifest entry's version; for `opendox`, the installed version (OQ-H15-18). Stamped by the engine (15.7) |
 | `path` | string | yes | corpus-relative, `/`-separated, no `..`; empty string for an install-level or pre-run finding |
 | `identity` | object | yes, in a family's or pack's output | the POSITION-INDEPENDENT key the family supplies (R2Q10 (a)'s "locator the family supplies", read as a key that survives edits elsewhere): a link target as written, a pair of paths, a heading key. Never a line number, never document text beyond such a key. ENGINE-INTERNAL: the engine hashes it into `id` at run time and neither stores nor emits it, so `list --json`, the HTTP response and the store carry `id` alone (R2Q25 (a); Copilot's review of `2076f24b`; data-model.md § Finding) |

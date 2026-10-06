@@ -317,7 +317,21 @@ A static `opendox-pack.yaml` inside the pack, read before any pack code runs:
 pack id, version (must equal the manifest entry's; none at all is refused, as
 `fixture-anonymous-pack` tests), the families it emits, label keys, and the
 protocol version. Forbidden keys (baseline, landing, classes) are refused by
-name.
+name. **Each family declares 15.2's three parts** (FR-018; Copilot's review of
+`55cc1334`):
+
+```yaml
+families:
+  - kind: heading-case         # the family's id, ^[a-z0-9-]{1,40}$, unique in the pack
+    version: "3"               # the family's OWN version, a non-empty string
+    applies_to: ["notes/**/*.md", "*.md"]   # corpus-relative globs, at least one
+```
+
+A family without all three is refused, and so is the declaration. A finding of
+a kind the declaration does not list, or whose `path` matches none of its
+family's `applies_to` globs, is refused as a finding against that pack (15.5),
+and the engine stamps the declared family version into the finding's
+`evidence.family_version`.
 
 ### Patch (15.2, 15.2a; owner T049)
 
@@ -356,7 +370,11 @@ base.
 **What the sandbox binds** (R2Q18 (a); lane 3's T048 FIX): read-only, the
 install's interpreter and its standard library, and `opendox.health_contract`
 alone; never `site-packages`, `$HOME` or the checkout. `--clearenv` with the
-allowlist `PATH`, `LANG`, `PYTHONNOUSERSITE=1` (15.1b).
+allowlist `PATH`, `LANG`, `PYTHONNOUSERSITE=1` (15.1b). The invocation is
+15.1b's in full: `--unshare-all`, `--die-with-parent`, `--new-session`, the
+export at `/corpus` and the pack at `/pack`, both `--ro-bind`, a private
+`--tmpfs /tmp`, its own `--proc /proc`, a minimal `--dev /dev`; spawned with
+`close_fds=True`, stdin from `/dev/null` and two output pipes (T048).
 
 ## Relationships
 
