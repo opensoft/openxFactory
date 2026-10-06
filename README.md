@@ -831,7 +831,10 @@ Active changes:
   Brett Heap, in session, verbatim *"0.4: (a) ratify as they stand"* — both
   spec deltas as they stand, no amendment; RULED on the lane register at
   2026-10-06T13:55:03Z; record
-  [`review/ratification-2026-10-06.md`](openspec/changes/add-worker-input-budget/review/ratification-2026-10-06.md)),
+  [`review/ratification-2026-10-06.md`](openspec/changes/add-worker-input-budget/review/ratification-2026-10-06.md);
+  the origin declaration `.openspec.yaml` added on his second word, verbatim
+  *"#1250: (i) add the origin file"*, RULED 2026-10-06T17:24:57Z, as an
+  `ad_hoc` origin carrying the drafting pair and that approval pair),
   on Brett Heap's word *"brief a writer to add the input-size guard"*
   (2026-09-22). **The
   doc-health nightly's analysis child has failed EVERY night since 2026-08-30

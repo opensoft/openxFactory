@@ -66,7 +66,7 @@ register.
   `code_surface:` and `target_release:` stand as landed. The packet has no
   `design.md`.
 
-## 3. What this record's commit changes
+## 3. What this pull request changes
 
 None of these changes is requirement or scenario text.
 
@@ -76,21 +76,36 @@ None of these changes is requirement or scenario text.
 - **`README.md`:** the *Active changes* entry's status, and its closing
   sentence, which said the status was unchanged.
 - **This record.**
+- **`.openspec.yaml`, new, on a second ruling.** Brett Heap, 2026-10-06, in
+  session to lane `openxfactory-1`, verbatim *"#1250: (i) add the origin
+  file"*. It is recorded as a RULED line on the estate's lane register at
+  2026-10-06T17:24:57Z (`opensoft/brett-wip` commit `f739ab74`,
+  `lanes/log/openxfactory-1.md`).
+  - **Why it was needed.** Copilot's finding `r4196698454` on this pull
+    request was correct against canon. `document-lifecycle` § *Proposal
+    origin declaration* says that a proposal whose `Status:` declares
+    `ratified` SHALL carry approval provenance in its origin. This packet
+    had no `.openspec.yaml`, and it was the only active change without one.
+  - **What it declares.** It is hand-written in the form of the 2026-08-25
+    origin sweep `b7513733`. Every value is derived from this packet's own
+    record:
+    - `created: 2026-09-22`, from the packet's true first commit,
+      `ee2185d6` (2026-09-22T01:26:47Z);
+    - `kind: ad_hoc`, because no `Staging ID:` header and no staging topic's
+      exit names this change, checked in both directions;
+    - `id: openxFactory:adhoc:2026-09-22-add-worker-input-budget`;
+    - a folded `reason` that quotes this ruling;
+    - the drafting pair: lane `openxfactory-1`, on Brett Heap's word *"brief
+      a writer to add the input-size guard"*, 2026-09-22;
+    - the approval pair: the 0.4 word of § 1, dated 2026-10-06.
+  - **What it changes in the measurements.** `proposal-support.py verify`
+    now passes for this change, where `main` refuses it with *"no origin
+    declaration"*. The `proposal-origin` family's WARNING for the missing
+    declaration is gone. § 5 carries the figures.
 
-Three files do not move, and each has a reason:
+Two files do not move, and each has a reason:
 
 - **`specs/doc-health/spec.md`:** the word ratifies the deltas as they stand.
-- **`.openspec.yaml`:** the precedent ratifications ADD `approved_by` and
-  `approved_on` to the packet's origin declaration. This packet has no
-  `.openspec.yaml` at all; it is the only active change without one. Writing
-  one would declare an origin, which is not a status, record or tick line,
-  so this commit does not do it.
-  - The `proposal-origin` family's WARNING for the missing declaration stands
-    on `main` and is the same after this commit.
-  - `scripts/proposal-support.py verify` refuses the packet for the same
-    reason, before and after this commit.
-  - The archive's strict verification will need an origin declaration. That
-    is a separate act.
 - **`tests/sequenced_after/corpus-ledger.yaml`:** the row records the
   change's state (`active`), class and declaration. Ratification moves none
   of them.
