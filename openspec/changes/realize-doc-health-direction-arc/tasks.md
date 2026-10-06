@@ -7,9 +7,13 @@ Each group names the plan 038 task it mirrors (`specs/038-opendox-document-tool-
 The single-writer orders and `After:` lines there govern; this list adds the
 falsifiers this change answers to.
 
-**Trailers.** Every REALIZATION landing (groups 2 and 3, 4.1–4.2, and 4.4) carries
+**Trailers.** Every REALIZATION landing of this change carries
 `Arc: realize-doc-health-direction-arc` and its lane's `Lane:` line, in every
-repository it lands in (ARC-4). Bookkeeping carries no `Arc:` trailer: this
+repository it lands in (ARC-4): 2.1; 2.2 only where the arc brings its own pin
+commits; group 3; 4.1 and 4.2; and 4.4. A 2.2 that rides plan 038's T062 and
+T063 rides #1144's realization landings, which carry #1144's trailer and never
+this change's, so #1144's own guards still find them. Bookkeeping carries no
+`Arc:` trailer: this
 filing (1.1), the ratification (1.2), evidence, #1144's edit (5.2), the
 aggregation's pin-sync (4.5) and the archive (group 7). No commit message or
 PR body carries a closing keyword.
@@ -34,7 +38,7 @@ PR body carries a closing keyword.
   documents to `Status: ratified` with ONE citation line each, and ADD
   `approved_by` and `approved_on` to the origin beside the drafting provenance.
   `kind`, `id`, `path`, `proposed_by` and `proposed_on` do not move. The word
-  rules § 11's D1–D7 as recommended unless it says otherwise; a different
+  rules `design.md` § 11's D1–D7 as recommended unless it says otherwise; a different
   answer is encoded before 2.1 starts. Landed under a Rule 6 window.
   - **Falsifier:** as 1.1, plus the `proposal-origin` family reporting nothing
     for this change.
@@ -49,8 +53,9 @@ PR body carries a closing keyword.
     mixed endings, form feed and U+2028; openDox-code's whole suite as its
     required `validate` job runs it, green.
 - [ ] 2.2 **Its pin (ARC-6).** If 2.1 lands before plan 038's T061, it rides
-  T062's root pin and T063's `opendox @` pin, and this step is a note in the
-  evidence. Otherwise the arc brings its own: the openDox root's `code`
+  T062's root pin and T063's `opendox @` pin, which are #1144's landings under
+  #1144's trailer, and this step is a note in the evidence. Otherwise the arc
+  brings its own, under this change's trailer: the openDox root's `code`
   gitlink and `contracts/code-pin.yaml` in ONE commit, then openXdox-code's
   `pyproject.toml` `opendox @` to the same commit. T061 never waits for 2.1.
   - **Falsifier:** `make pins` in the openDox root; openXdox-code's install
@@ -124,8 +129,10 @@ After group 3 and plan 038's T064.
 - [ ] 4.2 **The pin pairs, in two repositories, in order** (`design.md` § 9,
   steps 5 and 6). Both are realization landings.
   1. **An opensoft/openXdox (root) PR, landed first:** its `code` gitlink and
-     `contracts/code-pin.yaml` to group 3's openXdox-code commit, and
-     `contracts/opendox-pin.yaml` to 2.2's openDox root commit.
+     `contracts/code-pin.yaml` to group 3's openXdox-code commit. Its
+     `contracts/opendox-pin.yaml` moves only if 2.2 brought the arc's own
+     openDox root commit; a 2.2 that rode T062 is already pinned there by
+     plan 038's T064.
   2. **Then ONE openxFactory PR carrying 4.1:** openxFactory's `openXdox`
      gitlink with `contracts/openxdox-pin.yaml`, naming the root commit of
      step 1, and the `openDox` gitlink with `contracts/opendox-pin.yaml` if
@@ -246,7 +253,7 @@ After group 3 and plan 038's T064.
 - [ ] 6.1 **Every realization landing names this change.** In each
   repository the arc landed in, `git log --first-parent --grep='^Arc:
   realize-doc-health-direction-arc$'` lists the landings, and the list is
-  NON-EMPTY in openDox-code (2.1, unless it rode T061, which this records),
+  NON-EMPTY in openDox-code (2.1, whichever pin it later rides),
   openXdox-code (group 3 and 4.4), the openXdox root (4.2 step 1) and
   openxFactory (4.1 with 4.2 step 2). Where 2.2 brought the arc's own pins, it
   is NON-EMPTY in the openDox root too, and openXdox-code's list also holds

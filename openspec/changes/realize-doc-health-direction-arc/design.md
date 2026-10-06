@@ -190,7 +190,8 @@ commit.
 ### 4.5 A lone openXdox-code checkout after T074
 
 Every module imports: `python -c "import openxdox.gate_console"` exits 0 with
-no openxFactory on the path. That is T074's first falsifier. Governed
+no openxFactory on the path, which T074's falsifier checks (`tasks.md` group
+3). Governed
 BEHAVIOUR refuses at the first empty seam, by name (D3). The four governed
 columns follow D4.
 
@@ -287,7 +288,9 @@ touches, carries `Arc: realize-doc-health-direction-arc`: T072 in openDox-code;
 T074 in openXdox-code, and the openXdox-code PR that advances the composed pin
 past T075 and removes § 4.4's interim registration (`tasks.md` 4.4); T075 in
 openxFactory and the openXdox root; and the arc's own root and pin commits if
-ARC-6 needs them. A squash landing carries
+ARC-6 needs them. When T072 rides T061's pin instead, the pin landings are
+plan 038's T062 and T063: #1144's realization, under #1144's trailer and never
+this change's, so #1144's own guards still see them. A squash landing carries
 it because the PR body does, and a merge landing because the lander writes it
 into the merge message. Bookkeeping, evidence, this filing, T071's record,
 T076's #1144 edit and T077's archive carry none.
@@ -334,7 +337,7 @@ Plan 038 § "Pins and landing order" holds. For this change:
 | 2 | openDox root: `code` gitlink and `contracts/code-pin.yaml` | rides T062 if T072 landed before T061; otherwise the arc's own root commit |
 | 3 | openXdox-code `pyproject.toml` `opendox @` to step 2's commit | rides T063, or the arc's own |
 | 4 | openXdox-code lands T074 | after T071, step 3, T021 and T073 |
-| 5 | openXdox root, in its own PR: `code` gitlink and `code-pin.yaml` to T074; `opendox-pin.yaml` to step 2's commit | T075, landed first |
+| 5 | openXdox root, in its own PR: `code` gitlink and `code-pin.yaml` to T074; `opendox-pin.yaml` to step 2's commit only if step 2 was the arc's own (a step 2 that rode T062 is already pinned there by T064) | T075, landed first |
 | 6 | openxFactory, in ONE PR with the host registration: the `openXdox` pin pair naming step 5's root commit, and the `openDox` pair if step 2 was the arc's own, one commit per pair | T075 |
 | 7 | the aggregation's routine pin-sync | after T075, with the three-way openDox/openXdox gitlink parity (`opensoft/xFactory` CLAUDE.md, working rule 2) |
 
@@ -351,7 +354,8 @@ This command lists them:
 
     git grep -lE "plan 034('s)? T008|direction arc" 56e1c238 -- src/ tests/ scripts/ .github/
 
-Four of them, and two tests, are outside that `Files` line:
+Six of the seven are outside that `Files` line (`tests/declared_exclusion.yaml`
+is the one inside it):
 
 - **`.github/workflows/validate.yml`.** The help-tree `--deselect` (`LEFT_OUT`,
   `:161-164`) and its notes (`:97`, `:111`) are here. `composed.yml` does not
