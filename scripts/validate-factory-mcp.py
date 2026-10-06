@@ -101,7 +101,15 @@ def json_loads(text):
     def bad_constant(_):
         raise Invalid("non_json_number")
 
-    return json.loads(text, object_pairs_hook=pairs, parse_constant=bad_constant)
+    def finite_float(literal):
+        # `1e9999` is valid JSON text but no finite number; refuse it where it is
+        # parsed, since referenced schemas never pass the declaration's checks.
+        value = float(literal)
+        if value in (float("inf"), float("-inf")):
+            raise Invalid("json_number_limit")
+        return value
+
+    return json.loads(text, object_pairs_hook=pairs, parse_constant=bad_constant, parse_float=finite_float)
 
 
 def bounded_read(path, limit, code):
@@ -400,9 +408,10 @@ class Offline:
         # selects keys in a loaded schema, so `:` and `?` are ordinary there.
         if any(c in path for c in (":", "%", "?")) or "#" in fragment:
             raise Invalid("remote_or_unsafe_schema_reference")
+        # Decode first: `#%2Fa` is the pointer `/a`, not a named anchor.
+        fragment = decode_fragment(fragment)
         if sep and fragment and not fragment.startswith("/"):
             raise Invalid("unsupported_schema_anchor")
-        fragment = decode_fragment(fragment)
         if path:
             if resource is not self.document(key):
                 raise Invalid("relative_reference_in_embedded_resource")
