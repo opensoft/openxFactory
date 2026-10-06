@@ -39,7 +39,17 @@ this change.
   1,899,789-byte prompt accepted, 4 findings), and by the 2026-09-24 nightly,
   run 35947804907, whose four model children all succeeded with model
   output. Evidence in full: `proposal.md` OQ-3.
-- [ ] 0.4 Ratify or amend the two spec deltas.
+- [x] 0.4 Ratify or amend the two spec deltas. **RATIFIED AS THEY STAND
+  2026-10-06** — Brett Heap's word in session to lane `openxfactory-1`,
+  verbatim *"0.4: (a) ratify as they stand"*, option (a) of the question put
+  to him as *"task 0.4: (a) ratify the two doc-health deltas as they stand, or
+  (b) amend first"*; RULED on the estate's lane register at
+  2026-10-06T13:55:03Z (`opensoft/brett-wip` commit `06709554`,
+  `lanes/log/openxfactory-1.md`). Both deltas stand without amendment: the
+  MODIFIED *Sweep sequencing and snapshot consistency* and the ADDED
+  *Bounded worker input budget*. The word does not answer Group 4's
+  sequencing question on 4.1, which stays open, and archives nothing.
+  Record: `review/ratification-2026-10-06.md`.
 
 ## Group 1 — authoring (done by this change)
 
