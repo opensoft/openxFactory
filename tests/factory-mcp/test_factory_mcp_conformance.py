@@ -908,6 +908,8 @@ class ConformanceTests(unittest.TestCase):
                                 "status legacy": {"enum": ["c"]}}
         for ref, expected in [("#/$defs/status:legacy", None), ("#/$defs/status?legacy", None),
                               ("#/$defs/status%20legacy", None),
+                              # Review r4191064701: decode before telling a pointer from an anchor.
+                              ("#%2F$defs%2Fstatus%20legacy", None),
                               ("#/$defs/status%2", "invalid_pointer"), ("#/$defs/status%ZZlegacy", "invalid_pointer"),
                               ("#/$defs/status%FFlegacy", "invalid_pointer"),
                               ("other:file.json#/$defs/x", "remote_or_unsafe_schema_reference"),
@@ -1496,6 +1498,28 @@ class ConformanceTests(unittest.TestCase):
                     self.assertEqual(diagnostics(json.loads(run.stdout)), [("output_size_limit", "/")])
                 else:
                     self.assertIn("output_size_limit /", run.stdout)
+
+    def test_overflowing_number_literals_are_refused(self):
+        """Review r4191064649: `1e9999` parses to infinity, and referenced schemas
+        never pass `check_input`, so an overflowing literal is refused where it is
+        parsed: in a referenced schema and in the declaration file."""
+        self.error_union(parent_typed=True)
+        error = json.loads((self.root / "domain-error.json").read_text())
+        error["$defs"]["invalidError"]["properties"]["retryable"] = {"const": "__C__", "enum": ["__E__"]}
+        raw = json.dumps(error).replace('"__C__"', "1e9999").replace('"__E__"', "2e9999").encode()
+        (self.root / "domain-error.json").write_bytes(raw)
+        ref = {"repository": "synthetic", "revision": self.revision, "path": "domain-error.json",
+               "sha256": hashlib.sha256(raw).hexdigest()}
+        self.doc = self.declaration()
+        self.pin(ref)
+        self.tool()["error"] = dict(ref)
+        self.tool()["outcomes"]["inventories"][1].update(pointer="/$defs/error", discriminator="code")
+        self.assertDiagnostics([("json_number_limit", "/tools/0/error")])
+        path = self.root / "declaration.json"
+        path.write_text(json.dumps(self.declaration()).replace('"schema_version": 1', '"schema_version": 1e9999'))
+        run = self.cli(path, "--json", "--snapshot", f"synthetic@{self.revision}={self.root}")
+        self.assertEqual(run.returncode, 1, run.stderr)
+        self.assertEqual(diagnostics(json.loads(run.stdout)), [("json_number_limit", "/")])
 
     def test_cli_oversized_integer_is_a_diagnostic(self):
         """Review r4187669157: Python's integer-digit limit is a refusal, not a traceback."""
