@@ -1,0 +1,73 @@
+schema: spec-driven
+created: 2026-10-06
+
+# NO SPEC DELTA, DECLARED RATHER THAN OMITTED (ARC-3, ruled with plan 038's
+# tier-3 defaults, `#656` `6013547504`: "Accept all as recommended
+# (Recommended)").
+#
+# NOT `corpus-adapter-seam`. ARC-Q1 (a) (`#656` `6003918488`, "Retarget all
+# eight (Recommended)") meets its Requirement 1 for all eight openXdox-code
+# modules, so the requirement is SATISFIED, not changed: the ruling's own words
+# are "with NO `corpus-adapter-seam` change".
+#
+# NOT openXdox-spec EITHER, and that was measured rather than assumed. ARC-3
+# asks for an openXdox-spec delta only "if the seams need contract text". They
+# do not (`design.md` section 5, decision D1). The four seams are in-process
+# registration points inside openXdox-code, filled by trusted installed code at
+# startup (R2Q16 (a)), and they cross no file, wire or schema boundary. Release
+# 1's seams of the same kind (the six openxFactory's host fills,
+# `scripts/opendox_host.py:518-533`, and openXdox's own column and projection
+# registrations) landed with no spec-leg text: openDox-spec promotes no
+# capability at `f7ee3c76`, and openXdox-spec's one capability,
+# `openxdox-projection-surfaces`, governs rendering, with its last commit
+# (`f088b097`, 2026-09-17) older than every one of those seams. If the
+# realization finds a seam that does need contract text, it stops and this
+# packet gains the delta for Brett Heap's word before the slice continues.
+skip_specs: true
+
+origin:
+  kind: staged
+  id: openxFactory:staging:doc-health-direction-arc
+  path: ideation/staging/doc-health-direction-arc
+  reason: >-
+    THE TOPIC'S OWN DECLARED EXIT PATH, taken on its ruling. `kind: staged` is
+    the honest spelling: an organized source exists, and the document-lifecycle
+    gate says ad hoc is "never a substitute when organized source material
+    exists" (`docs/document-lifecycle.md:436-438`). The fragment's Exit path
+    (`doc-health-direction-arc.md:472-553`) gives the shape for a ruling that
+    retargets the whole surface, "a realization change against openXdox-code
+    (and openDox-code, if the chosen seam borrows the registered-adapter
+    pattern ...) that RETARGETS all of `DOC_HEALTH_SURFACE`'s eight modules
+    away from importing `openxFactory`'s `doc_health` by name" (`:494-506`),
+    and requires a split to be carried through to every module (`:507-518`).
+    ARC-Q1 (a) is Q4's split completed by seams for all eight modules, so this
+    packet takes that shape. Its gate was Brett's ruling of Q1-Q3 (and
+    optionally Q4) with Q6's owner and task list. All are met: ARC-Q1-ARC-Q4,
+    all (a), `#656` comment `6003918488` (2026-10-05T21:59:43Z), where ARC-Q1
+    covers staging Q1 and Q4, ARC-Q2 Q2 and Q3, ARC-Q3 Q6 (the owner: lane
+    openxfactory-4 under plan 038; the task list: this packet's `tasks.md`),
+    and ARC-Q4 Q5.
+    THE FRAGMENT STAYS STAGED AND IS NOT MOVED INTO `supporting-docs/` AT
+    FILING, on the precedent `split-openxwallet-repo` and
+    `split-opendox-two-layer-product` set: each declared this origin and left
+    its topic folder in place. Plan 038 gives the topic's exit to its T077,
+    this packet's `tasks.md` 7.3, which moves the folder through this change
+    and updates its `ideation/staging/INDEX.md` row (decision D6).
+  proposed_by: >-
+    Lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), as
+    plan 038's T070 (feature `038-opendox-document-tool-self-maintenance`,
+    draft PR #1245), on the holder's brief of 2026-10-06. The writer authored
+    no code byte in any repository and landed nothing. NO APPROVAL PAIR IS
+    DECLARED AND NONE IS IMPLIED: the rulings this packet carries out
+    (`6003918488`, `6013547504`) decide the arc and plan 038; they are not
+    the ratification OF this packet, which is Brett Heap's word at plan 038's
+    T071 (this packet's `tasks.md` 1.2). Until then the three lifecycle
+    documents carry `Status: draft`. The decisions most worth a veto are
+    `design.md` section 11's D1-D7, each stated with its alternative and the
+    cost of the veto.
+  proposed_on: 2026-10-06
+
+related:
+  - openxFactory:issue:656                                         # THE RULINGS: ARC-Q1-ARC-Q4 (comment 6003918488) and plan 038 (comment 6013547504: ARC-1, ARC-5, and ARC-2/3/4/6 among the tier-3 defaults)
+  - openxFactory:change:add-neutral-product-standalone-operability # ACTIVE, RATIFIED. #1144. Its F9.2 closes through this change's realization and is ticked there only while #1144 is active (ARC-5 (a)); its T073 (requirement 9's composed declarations) is #1144's own work and the composed home of what this change leaves governed
+  - openxFactory:pr:1245                                           # plan 038, the Speckit feature whose T070-T077 schedule this change
