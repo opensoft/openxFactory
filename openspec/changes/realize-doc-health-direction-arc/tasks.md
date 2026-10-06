@@ -37,7 +37,9 @@ PR body carries a closing keyword.
   `review/ratification-<date>.md` (`Status: record`). Flip the three lifecycle
   documents to `Status: ratified` with ONE citation line each, and ADD
   `approved_by` and `approved_on` to the origin beside the drafting provenance.
-  `kind`, `id`, `path`, `proposed_by` and `proposed_on` do not move. The word
+  `kind`, `id`, `path`, `proposed_by` and `proposed_on` do not move. The
+  README *Active changes* bullet moves from `Status: draft` to `Status:
+  ratified` in the same PR, citing the word and the record. The word
   rules `design.md` § 11's D1–D7 as recommended unless it says otherwise; a different
   answer is encoded before 2.1 starts. Landed under a Rule 6 window.
   - **Falsifier:** as 1.1, plus the `proposal-origin` family reporting nothing
@@ -123,9 +125,13 @@ After group 3 and plan 038's T064.
 - [ ] 4.1 **Register the governed implementations.** `scripts/opendox_host.py`
   adds the four seams to `seams()` with their `_TAKE_BACK` rows, as their own
   all-or-none group (D7), filled before the host's
-  `column_contributions.register()` call. A host-wiring test under
-  `tests/domain_profile/` registers them, reads each through openXdox, and
-  shows a refusal part-way taking every written seam back.
+  `column_contributions.register()` call, which today runs before
+  `register_seams()` (`opendox_host.py:920-957`). If that column call returns
+  nothing or raises, the four governed seams are taken back, in reverse order,
+  before the refusal reaches the caller (`design.md` § 4.3). A host-wiring
+  test under `tests/domain_profile/` registers them, reads each through
+  openXdox, and shows both refusals, part-way through the seams and at the
+  column call, leaving no governed seam written.
 - [ ] 4.2 **The pin pairs, in two repositories, in order** (`design.md` § 9,
   steps 5 and 6). Both are realization landings.
   1. **An opensoft/openXdox (root) PR, landed first:** its `code` gitlink and
@@ -267,8 +273,11 @@ After group 3 and plan 038's T064.
   the archive PR.
 - [ ] 7.2 **Realization evidence** (`release-realization`'s archive gate):
   each repository's landings merged through its required checks, and a green
-  run at `ARC_TIP` of openXdox-code's composed workflow, openDox-code's
-  `validate` job and openxFactory's `pytest-suite`, cited by run.
+  run of each runnable surface at THAT repository's last realization landing,
+  cited by run and by commit: openXdox-code's composed workflow at its last
+  arc landing (4.4's), openDox-code's `validate` job at 2.1's landing (or at
+  2.2's root pin, if the arc brought its own), and openxFactory's
+  `pytest-suite` at `ARC_TIP`.
 - [ ] 7.3 **Exit the staged topic through this change.** Move
   `ideation/staging/doc-health-direction-arc/` into this change's
   `supporting-docs/` with `scripts/proposal-support.py transition`, whose
@@ -278,7 +287,8 @@ After group 3 and plan 038's T064.
 - [ ] 7.4 **Archive.** `scripts/proposal-support.py archive` (the UTC date
   rule), under a Rule 6 window, landed by MERGE COMMIT and never squash, so
   the archive directory's date holds. The ledger row flips to `archived` in
-  the same PR (`validate-sequenced-after.py . --seed-ledger`).
+  the same PR (`validate-sequenced-after.py . --seed-ledger`), and the README
+  bullet moves from *Active changes* to *Archived changes*.
   - **Falsifier:** `python3 scripts/validate-openspec-cli-pin.py --all --strict`
     exit 0; `python3 scripts/validate-sequenced-after.py .` exit 0; the
     archive gate's origin retention passes.

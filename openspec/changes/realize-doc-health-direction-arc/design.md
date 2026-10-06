@@ -166,10 +166,18 @@ registers openxFactory's own `doc_health` implementations at them.
   four arrive at ONE openXdox-code commit, T074's. A leg before T074 declares
   none of them, and that is "a leg, not a gap". A leg declaring some of the
   four is refused by name.
-- **The governed seams are filled before the host's column call.** The host
-  calls `column_contributions.register()` itself, after its projection call
-  (`column_contributions.py:49-51`). Under D4 (a), that call reads whether the
-  governed seams are registered, so they must be filled first.
+- **The governed seams are filled before the host's column call, and taken
+  back if it refuses.** The host calls `column_contributions.register()`
+  itself, after its projection call (`column_contributions.py:49-51`). Under
+  D4 (a), that call reads whether the governed seams are registered, so they
+  must be filled first. That REVERSES today's order: `register_openxfactory()`
+  makes its projection and column calls BEFORE `register_seams()`
+  (`opendox_host.py:920-957`), so that their refusal leaves no host seam
+  written. T075 keeps that property with a cross-call take-back: the four
+  governed seams are registered as their own step before the column call, and
+  if that call returns nothing or raises, they are emptied again, in reverse
+  order, before the refusal reaches the caller. The host-wiring test (T075)
+  covers both outcomes.
 
 **The pin pair travels with it.** The openXdox root first moves its `code`
 pin to T074's openXdox-code commit, in its own PR (§ 9, step 5). Then ONE
@@ -410,7 +418,8 @@ lie `corpus-adapter-seam`'s second requirement refuses.
   four governed columns only where the governed seams are registered.
   Elsewhere it writes nothing, `SKIPPED` names the empty seams, and openDox's
   defaults stand at the four column seams, as they do today. The host fills
-  the governed seams before its column call (§ 4.3). *Consequence:* a lone
+  the governed seams before its column call and takes them back if that call
+  refuses (§ 4.3). *Consequence:* a lone
   checkout behaves as it does today, and the ruled T086 Q1 (a) purpose (the
   four registered together, only where they can work) holds with its cause
   updated.
