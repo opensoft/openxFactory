@@ -114,8 +114,11 @@ as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
 - [ ] T003 **The independent analyze, round 2.** An independent reviewer runs
   `/speckit-analyze` over this revision (the plan writer does not). Round 1's
   findings are dispositioned in `evidence/analyze-round-1.md` and
-  `evidence/plancheck-lane3-round-1.md`; round 2's are dispositioned at T004,
-  not ignored (constitution, Development Workflow). Both reviewers re-checked
+  `evidence/plancheck-lane3-round-1.md`. If the holder dispatches round 2, its
+  findings are dispositioned in this task's own revision of the plan, committed
+  with its verbatim report under `evidence/`, before the first realization PR
+  lands, not ignored (constitution, Development Workflow); T004 is done and
+  encodes only the ruling and round 1's re-check. Both reviewers re-checked
   round 1 at `6847e99e` before Brett ruled: every CRITICAL, HIGH and FIX item
   landed as worded (`#656` `6013547504`). The re-check's five remaining fixes
   are applied at T004. Whether that re-check closes this task is the holder's
@@ -1039,14 +1042,17 @@ copies (research R7; ADV-05).
 - [ ] T054 [US5] [oDc] **HA-7, exceptions in git, and the third copy.** New
   `health/exceptions.py` reads and writes `health/dispositions.yaml`
   (`contracts/health-exceptions.md`); suppresses, never downgrades; refuses another
-  `kind` by name; `accept` writes the working tree in a checkout and a draft
+  `kind` by name, and a repeated `finding` id; `accept` refuses an id already
+  accepted (contracts/health-exceptions.md); `accept` writes the working tree in a checkout and a draft
   branch with none (OQ-H-14); a run reads the file in what it reads (N-14); the
   engine files join the settings-document exclusion (OQ-H-15). Copy T040's
   exceptions schema at T060's pinned commit into the copy record after T047 (the
   validator gains the `opendox-health-dispositions` kind). `accept`'s dispatch
   line in `health/cli.py`.
   - **Realizes**: 14.8.
-  - **Falsifier**: new `tests/test_health_accept.py`, including an id accepted
+  - **Falsifier**: new `tests/test_health_accept.py`, including a second
+    `accept` of one id, refused with the file unchanged; a hand-written file
+    with a repeated id, refused as a whole; an id accepted
     after a baseline run that held it, which the next tip run suppresses and
     never re-raises as an uncited disappearance; a reset-survival test in
     `tests_runtime/` (an exception survives `runtime reset`); `tests/test_validator_input_set.py`.
@@ -1641,8 +1647,9 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 
 ## Dependencies and execution order
 
-1. **Phase 0**: T004 (after T003) gates everything except T001–T003, T006,
-   T007. T005 lands before T015, T026, T032, T033, T052, T058,
+1. **Phase 0**: T004 (DONE, after round 1's re-check) gates everything except
+   T001–T003, T006, T007; T003, if the holder dispatches it, lands its own
+   disposition before the first realization PR. T005 lands before T015, T026, T032, T033, T052, T058,
    T060, T065, T067 and T073. T008 before T013.
 2. **Phase 4**: the product chain T011 → T014 → T015 → T016 (with T012 + T013)
    → T017 → T027 → T028; the repair chain T020 → T021 → T022 and T020 → T026; both

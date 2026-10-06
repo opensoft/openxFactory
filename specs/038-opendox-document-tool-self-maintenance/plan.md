@@ -39,7 +39,7 @@ phase-4 `src/` exceptions named (§ Project Structure), finding-id collisions
 for files only one task writes.
 
 **Revision: Copilot's reviews of the ruled revision folded** (2026-10-06).
-Copilot's reviews of `2a4a73d1` to `97e28b6c` found gaps the ruled options left
+Copilot's reviews of `2a4a73d1` to `abd28ba2` found gaps the ruled options left
 open. Each fix refines a ruled item without taking another option, and all are
 listed here so the holder can judge whether any needs Brett's word:
 - the run's pack inventory, a newly added pack's first findings as
@@ -76,7 +76,13 @@ listed here so the holder can judge whether any needs Brett's word:
   stderr is stored (OQ-H15-11, refined);
 - 9.5 is ticked at T084, after the cut's sync and the publish (ARC-5 (a)'s
   wording; SC-004, FR-025, § Phases); and the F12.1 composition is
-  permanent in User Story 3's independent test too, as FR-005 and CF-5 have it.
+  permanent in User Story 3's independent test too, as FR-005 and CF-5 have it;
+- stale text brought to the ruling: spec § Assumptions lets #1144 archive with
+  F9.2 open (ARC-5 (a)); the checklist records the direction arc as ruled; and
+  T003, if dispatched, dispositions its own round before the first realization
+  PR, since T004 is done;
+- one exceptions entry per finding id: a repeated `accept` and a hand-repeated
+  id are refused by name (contracts/health-exceptions.md).
 
 ## Summary
 

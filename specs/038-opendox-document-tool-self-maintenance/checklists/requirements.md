@@ -58,8 +58,10 @@ notes updated 2026-10-06 for the plan ruling (#656 `6013547504`).
       has 11, Group 14 has 10 and Group 15 has 12.
 - [x] Dependencies and assumptions are named:
       - release 1's completion;
-      - the `doc_health` direction arc (R1Q6 (d), T008), still to be DECIDED
-        before 12.5 needs its suites;
+      - the `doc_health` direction arc (R1Q6 (d)): asked and RULED before
+        planning, ARC-Q1 to ARC-Q4 all (a) (#656 `6003918488`; T006, T007);
+        its realization (T070 to T077) gates F9.2, not 12.5, which F12.1 runs
+        composed permanently (CF-5; Copilot's review of `c93ae88b`);
       - the bundled store's ownership (R1Q16);
       - feature 007's four named exceptions (R2Q6 (a));
       - the pins and the two owed cuts (9.5, R2Q22 (a), R2Q23 (a));

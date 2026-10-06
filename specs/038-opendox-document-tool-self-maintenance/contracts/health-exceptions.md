@@ -30,6 +30,12 @@ exceptions:
   since the finding is accepted, not gone (data-model.md § the baseline;
   Copilot's review of `2076f24b`).
 - **Who and when** are git's: the commit that added the entry.
+- **One entry per finding id.** `finding` ids are UNIQUE in the file, so
+  removing an entry always re-opens its finding (FR-014). `health accept` of an
+  id the file already holds refuses by name, writing nothing and naming the
+  existing entry's reason; to change a reason, the user edits the entry. A file
+  with a repeated id, written by hand, is refused like any malformed file
+  (below) (Copilot's review of `abd28ba2`).
 - **`health accept --finding <id> --reason <text>`** appends one entry. In a
   checkout it writes the working tree, and the user commits it (F14.1 asserts
   `git status --porcelain` shows the file). With no working tree, it writes a
@@ -43,7 +49,8 @@ exceptions:
   no exception is lost (SC-006; F14.1).
 - **Refusals by name.** A file at this path with another `kind` (for example
   the aggregation's own `health/dispositions.yaml`, plan.md Conflicts C-7); an
-  entry with no `reason`; a malformed `finding` id; an unknown key. A refused
+  entry with no `reason`; a malformed `finding` id; a `finding` id that appears
+  twice; an unknown key. A refused
   file suppresses nothing, and the refusal is an install-level finding.
 - **Not a document.** This file and `health/packs.yaml` join the
   settings-document exclusion, so no family reports on them (OQ-H-15).

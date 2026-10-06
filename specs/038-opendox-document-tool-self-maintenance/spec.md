@@ -1213,8 +1213,11 @@ bookkeeping records an answer.
   T090–T093, are the every-phase tasks for 9.5, 11.0, 11.1 and F11.1, which
   were left open for the arc's close after release 2. `opendox` 0.1.0 is on
   PyPI (T099). F9.2 stays open until the `doc_health` direction arc lands (plan
-  034 T008; RULED `5859927858`). Since the archive needs both releases'
-  evidence, the archive also waits on that arc.
+  034 T008; RULED `5859927858`). The arc gates neither release 2's close nor
+  #1144's archive (ARC-Q3 (a), `6003918488`): #1144 archives on both releases'
+  evidence with F9.2 open, as the plan ruling took (ARC-5 (a), `6013547504`),
+  and F9.2 is re-run once the arc's realization lands (T076; Copilot's review
+  of `b7137d5e`).
 - **The rulings stand as encoded.** `5783934499`, `5784155201`, `5784247356` and
   `5784295745` are sequenced, not reopened. Requirements 6, 11, 14, 15 and 16
   are #1144's as written, and no round-1 answer changes their text (R2Q19 (a),
