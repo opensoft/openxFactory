@@ -214,7 +214,12 @@ only when R is itself a complete, full default-tip run, for id in B, not in R,
 and not accepted in the exceptions file R reads (an accepted id is suppressed,
 not gone):
      cited (a landed health-fix draft for it, or a commit naming it in a "Finding: <id>" trailer) → gone
-     uncited → re-raised ONCE as human-only, naming the original
+     uncited → re-raised ONCE: R carries one engine-authored finding, kind
+               uncited-disappearance, identity {"disappeared_id": <id>}, human-only,
+               naming the original (contracts/health-finding.md); its id is its own
+the re-raise is never itself measured as a disappearance: a later run without it
+  raises nothing for it, and the original id is in neither R nor the next run's
+  baseline (R), so a third run raises nothing for either
 the baseline branch: main, else the branch HEAD names (tier 1 I-2 (a), ruled);
   with none (a detached HEAD and no main) no run is default-tip, so there is no B
 no B at all (a first run, or after runtime reset): every finding is new, once

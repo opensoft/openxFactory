@@ -879,9 +879,11 @@ copies (research R7; ADV-05).
     baseline, with `list`, `fix` and `accept` reading only their own corpus's
     runs; a `--pack` run and a run where a pack failed, each at the tip, after
     which the next full run is classed against the earlier complete baseline and
-    reports no disappearance from the partial run; and a finding accepted after
+    reports no disappearance from the partial run; a finding accepted after
     a baseline, which the next tip run neither lists nor reports as
-    disappeared).
+    disappeared; and three consecutive default-tip runs where a finding vanishes
+    uncited, the second carrying one `uncited-disappearance` re-raise and the
+    third raising nothing for either id).
   - **Ruled**: R2Q9 (items 2, 7), R2Q10, R2Q12, R2Q15. **Decisions**: I-2, CF-6,
     N-2, N-10, N-14, N-19, OQ-H15-5.
   - **After**: T042, T044.

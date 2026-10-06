@@ -39,7 +39,7 @@ phase-4 `src/` exceptions named (§ Project Structure), finding-id collisions
 for files only one task writes.
 
 **Revision: Copilot's reviews of the ruled revision folded** (2026-10-06).
-Copilot's reviews of `2a4a73d1` to `2076f24b` found gaps the ruled options left
+Copilot's reviews of `2a4a73d1` to `67d6f28b` found gaps the ruled options left
 open. Each fix refines a ruled item without taking another option, and all are
 listed here so the holder can judge whether any needs Brett's word:
 - the run's pack inventory, a newly added pack's first findings as
@@ -47,7 +47,10 @@ listed here so the holder can judge whether any needs Brett's word:
   data-model.md § the baseline);
 - only a complete, full default-tip run becomes a baseline or measures a
   disappearance, and an accepted id is never a disappearance (FR-010;
-  contracts/health-exceptions.md);
+  contracts/health-exceptions.md); the once-only re-raise of an uncited
+  disappearance is an engine-authored `uncited-disappearance` finding with its
+  own id, never itself measured as a disappearance (data-model.md § Baseline
+  classes);
 - a finding's `identity` is engine-internal, never stored or emitted
   (contracts/health-finding.md), and engine-authored findings carry
   engine-owned identity keys;
@@ -58,7 +61,8 @@ listed here so the holder can judge whether any needs Brett's word:
   bound is an accepted limit where no cgroup is delegated (OQ-H15-5); no pack
   stderr is stored (OQ-H15-11, refined);
 - 9.5 is ticked at T084, after the cut's sync and the publish (ARC-5 (a)'s
-  wording; SC-004).
+  wording; SC-004, FR-025, § Phases); and the F12.1 composition is
+  permanent in User Story 3's independent test too, as FR-005 and CF-5 have it.
 
 ## Summary
 
@@ -308,7 +312,8 @@ are the 37 release-2 boxes, the four arc-close boxes, and F9.2.
 | 4 | 12.1, 12.1a, 12.2, 12.3, 12.4, 12.4a, 12.5, F12.1, 12.6, 12.6a, F12.2 (11) | F12.2 exits 0 alone with `gh` absent (20 named nodes); F12.1 exits 0 composed with 174 reds repaired and the oracle printing `ok: … each entered and holding`; interim F11.1 `requirement 1 holds` (T033; SC-001, SC-003) |
 | 5 | 6.1, 6.1a, 6.2, F6.1 (4); 14.1–14.9, F14.1 (10); 15.1, 15.1a, 15.1b, 15.2, 15.2a, 15.3, 15.4, 15.5, 15.6, 15.6a, 15.7, F15.1 (12) | F6.1, F14.1 and F15.1 exit 0 as batch Q amends them; F15.1's shell block and its 24 nodes run in the required `validate` job with the sandbox proved live (T067, T058); 12.5 still green composed at phase 5's pin; interim F11.1 (T066; SC-002, SC-003) |
 | close | the ticks of all 37 (T082), after AT-R2 (T080, T081; SC-008) | AT-R2 both halves; bookkeeping under Rule 6; the cut's pin syncs (T083); then the 0.2.0 publish, LAST (T084) |
-| every phase, ticked at the ARC's close | 9.5, 11.0, 11.1, F11.1 | interim F11.1 after each phase (T032, T065); final F11.1 at T082 (tier 1's ARC-5); 9.5 ticked last, at T084, after the cut's sync (T083) and the publish |
+| every phase, ticked at the ARC's close (T082) | 11.0, 11.1, F11.1 | interim F11.1 after each phase (T032, T065); final F11.1 at T082 (tier 1's ARC-5) |
+| every phase, ticked LAST, after the cut's sync (T083) and the publish (T084) | 9.5 | ticked at T084, never at T082 (ARC-5 (a), as worded at T004) |
 | beside phase 5, the arc's own change | F9.2 (outside the 37) | F9.2 re-run after the arc's realization lands (T076), recorded as tier 1's ARC-5 (a) ruled |
 
 Phase 4's boxes tick at T082 with every other release-2 box, as release 1's

@@ -286,8 +286,9 @@ generalization rather than a replacement. A release that breaks its governed
 host is a regression, not a release.
 
 **Independent Test**:
-- F12.1, run composed, as F5.2 runs under R1Q23 (a), until the `doc_health`
-  direction arc's realization lands (R2Q8 (a)).
+- F12.1, run composed, as F5.2 runs under R1Q23 (a), PERMANENTLY: ARC-Q2 (a)
+  and the plan ruling's CF-5 (`6013547504`) supersede R2Q8 (a)'s "until the
+  `doc_health` direction arc's realization lands" (FR-005).
 - An interim F11.1 run after each phase's openxFactory landings.
 - openxFactory's required checks, green at every pin advance.
 
@@ -856,6 +857,10 @@ bookkeeping records an answer.
   - **Cited:** a disappearance is cited by a landing of the fix loop's draft for
     it, or by a commit that names its id in a `Finding:` trailer. An uncited one
     SHALL be re-raised once, as a `human-only` finding naming the original.
+    The re-raise is one engine-authored finding with its own id, in the run
+    that measured the disappearance; it is never itself measured as a
+    disappearance, so the next run raises nothing for either id
+    (contracts/health-finding.md; Copilot's review of `67d6f28b`).
   - **A reset** forgets the baseline. The first run after it sees every finding
     once as new, and pending uncited disappearances are forgotten. This narrows
     14.3's and ruling `5784155201` item 4's *"recomputable from git"* for
@@ -1103,7 +1108,9 @@ bookkeeping records an answer.
     Whether the last three ride in R2Q9 (a)'s batch is the plan's to state.
   - **The arc's close.** The plan's ruled default is that this feature
     performs and ticks 9.5, 11.0, 11.1 and F11.1, and plan 034's T090–T093
-    close by reference (OQ-038-2).
+    close by reference (OQ-038-2). 11.0, 11.1 and F11.1 tick at the arc's
+    close (T082); 9.5 ticks LAST, at T084, after the cut's pin syncs (T083) and
+    the 0.2.0 publish (ARC-5 (a)).
 
 ### Key Entities
 

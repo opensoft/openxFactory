@@ -81,7 +81,8 @@ total 125 Counter({'x': 74, ' ': 42, '~': 9})
 
 The 42 open boxes are: Group 6's four (6.1, 6.1a, 6.2, F6.1), Group 12's
 eleven, Group 14's ten and Group 15's twelve (37, release 2's); 9.5, 11.0,
-11.1 and F11.1 (the arc-close boxes); and F9.2 (the direction arc's). The
+11.1 and F11.1 (the every-phase boxes: 11.0, 11.1 and F11.1 tick at the arc's
+close, T082, and 9.5 last, at T084); and F9.2 (the direction arc's). The
 release-2 boxes sit at #1144 `tasks.md:1124-1165` (Group 6), `:2464` onward
 (Group 12, falsifier blocks at `:2670` and `:2816`), `:3220-3390` (Group 14,
 falsifier at `:3302`) and `:3398-3671` (Group 15, falsifier at `:3548`).

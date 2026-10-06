@@ -59,7 +59,13 @@ the schema and keep one id across runs:
   failure, a refused manifest entry, a pack that crashed, timed out, hit a bound
   or returned refused output): `{"category": <the failure's category>, "entry":
   <the manifest entry's id, or "" for none>}`;
-- the collision finding below: `{"collided_id": <the colliding id>}`.
+- the collision finding below: `{"collided_id": <the colliding id>}`;
+- the re-raise of an uncited disappearance (data-model.md § Baseline classes):
+  `{"disappeared_id": <the original's id>}`, with `pack_id` `opendox`, `kind`
+  `uncited-disappearance`, `path` the original's, `human-only`, and the
+  original's id and the baseline run in `evidence`. It has its own id, never
+  the original's, and it is never itself measured as a disappearance, so it is
+  raised in one run only (Copilot's review of `67d6f28b`).
 T041 fixes the categories with the id rule, and T056's tests hold each id
 stable across two runs (Copilot's review of `f9cc2d02`).
 
@@ -90,9 +96,10 @@ position.
 
 ## Example
 
-A family's output, as the engine receives it (`list --json` emits the same
-object without `identity`, with `id` and `baseline_class` as the engine set
-them):
+The engine's internal object for one finding, AFTER stamping: `id`,
+`pack_id`, `pack_version` and `baseline_class` are the engine's, and a family
+or pack supplies the rest, `identity` included (a pack's own `id`, if any, is
+ignored). `list --json` emits the same object without `identity`:
 
 ```json
 {"id": "opendox.broken-link.3c1f0e9a7b2d4c65", "kind": "broken-link",
