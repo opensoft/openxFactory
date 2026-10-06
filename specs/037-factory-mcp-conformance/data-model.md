@@ -12,4 +12,4 @@ Kind: implementation
 - FR-007: Enforce tagged reevaluate, lease_replay and fresh_observation requirements including persistence, scope, coordination and original timestamps.
 - FR-008: Report structural, reference and semantic checks and gaps separately with deterministic diagnostics and exit codes 0/1/2; never certify runtime conformance.
 
-Exact entities and variants follow [ratified design](../../openspec/changes/add-factory-mcp-conformance/design.md). Immutable source/context identities differ from trace IDs. Original observation timestamps survive reuse. Results confer no authority. Unknown fields/enums fail closed.
+Exact entities and variants follow [ratified design](../../openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/design.md). Immutable source/context identities differ from trace IDs. Original observation timestamps survive reuse. Results confer no authority. Unknown fields/enums fail closed.
