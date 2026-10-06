@@ -541,8 +541,24 @@ _LEDGER_SUBJECTS = {
     # does not claim to; the finding is INFO and it is the audit trail for the
     # rewording. RETIRES when the packet archives and its block is promoted
     # onto `openspec/specs/doc-health/spec.md` (its `tasks.md` Group 4).
-    ("add-worker-input-budget", "doc-health",
-     "Sweep sequencing and snapshot consistency"),
+    # RETIRED 2026-10-06: the ONE row `add-worker-input-budget` opened on
+    # 2026-09-22 (the block immediately above, over doc-health *Sweep
+    # sequencing and snapshot consistency*) retired ON ITS OWN STATED
+    # CONDITION — "RETIRES when the packet archives and its block is promoted
+    # onto `openspec/specs/doc-health/spec.md`". That packet ARCHIVED on Brett
+    # Heap's separate archive word, verbatim "archive add-worker-input-budget
+    # after it lands" (RULED in `opensoft/brett-wip`
+    # `lanes/log/openxfactory-1.md` at 2026-10-06T14:24:52Z), held behind the
+    # merged-plus-green realization evidence its non-empty `code_surface:`
+    # requires — PR #1137 → `9da52e318aa7662efa57b750bef3dc1992ff6332`, merged
+    # 2026-09-22T03:45:21Z, with `pytest-suite` green on `main` at that very
+    # commit (run 35684322745). Its `## MODIFIED` block was promoted
+    # BYTE-IDENTICAL into canon (1,773 bytes, sha256
+    # `8efe2d94bfa469d5…` on BOTH sides), which is exactly the condition the
+    # row's own comment named: canon now carries the rewritten bullet, so the
+    # deliberate rewording this row recorded is no longer a difference between
+    # an active block and canon. Re-measured over this tree: the family
+    # reports neither this subject nor any unnamed one.
     # ADDED 2026-09-01 BY `add-chain-attestation`, TRANCHE TWO of the
     # signed-execution-chain arc, whose proposal merged to `main` via PR #510
     # without this ledger moving with it — which is why every openxFactory pull
@@ -2263,6 +2279,18 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     THIRTEEN — 14 literal entries, 13 unique, the same pre-existing
     `add-chain-attestation` duplicate collapsing as it always has.
 
+    TWELVE AT THIS HEAD, 2026-10-06 — RE-MEASURED, NOT SUBTRACTED.
+    `add-worker-input-budget` ARCHIVED on Brett Heap's separate archive word,
+    held behind the merged-plus-green realization evidence its non-empty
+    `code_surface:` requires (PR #1137 → `9da52e31`, merged
+    2026-09-22T03:45:21Z, `main` green at that commit), and the one row it
+    opened on 2026-09-22 retired with it, its block promoted BYTE-IDENTICAL
+    into canon (1,773 bytes, sha256 `8efe2d94bfa469d5…` on both
+    sides). That is a DISCHARGE and not a departure. `len(_LEDGER_SUBJECTS)`
+    MEASURED AT THIS HEAD reads TWELVE — 13 literal entries,
+    12 unique, the same pre-existing `add-chain-attestation`
+    duplicate collapsing as it always has.
+
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
     which is the defect this family exists to catch. Asserted loosely in the one
@@ -2425,11 +2453,17 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "add-estate-repository-inventory itself archives and its block is "
         "promoted; 14 SINCE 2026-09-22, when add-worker-input-budget (PR "
         "#1137) opened ONE row over doc-health's Sweep sequencing and "
-        "snapshot consistency; AND 13 ON 2026-09-23, when "
+        "snapshot consistency; 13 ON 2026-09-23, when "
         "add-estate-repository-inventory ITSELF ARCHIVED on Brett Heap's "
         "separate archive word 'archive it when the draft is up', held behind "
         "the merged-plus-green realization evidence its non-empty "
         "code_surface requires (PR #1119 -> 5e122388, main green at that "
+        "commit), and its one row retired with it, its block promoted "
+        "byte-identical into canon; AND 12 ON 2026-10-06, when "
+        "add-worker-input-budget ITSELF ARCHIVED on Brett Heap's separate "
+        "archive word 'archive add-worker-input-budget after it lands', held "
+        "behind the merged-plus-green realization evidence its non-empty "
+        "code_surface requires (PR #1137 -> 9da52e31, main green at that "
         "commit), and its one row retired with it, its block promoted "
         "byte-identical into canon)",
         f"{len(gone)} named subject(s) NO LONGER reported "
