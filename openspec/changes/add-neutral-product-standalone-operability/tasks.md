@@ -1062,6 +1062,18 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   This bookkeeping amendment does not itself touch the Python above.
   Carried out by T061 (openXdox-code#36) and T063.
 
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6016648451`; Ruled "Amend
+  F12.1 with --chains"):** Brett Heap's multi-choice word of 2026-10-06,
+  verbatim *"Amend F12.1 with --chains (Recommended)"*. Batch K's sentences
+  above, *"12.5's falsifier is not amended. Its call passes no `--chains`, so
+  it keeps one entry per suite per landing and refuses a chain"*, no longer
+  hold: 12.5's falsifier now passes `--chains` too, the mechanism batch K gave
+  F5.2 here, under the same rule (batch Q's note at 12.5's falsifier). Batch K's
+  ratified text is not rewritten, and the rest of its paragraph stands: F5.2's
+  call is unchanged, and neither of T061's two files is one of 12.5's governed
+  suites. This bookkeeping amendment does not itself touch the Python above.
+  Carried out by plan 038's T026 and T029.
+
   **Landed 2026-10-05** (T086, then T089): T086 (openXdox-code#37 → `56e1c238`)
   repairs, under R1Q7 (a)'s allow-list, the three pre-arc reds in
   `tests/test_session_snapshot.py` that `evidence/checkpoint-phase2.md` § 2
@@ -2961,10 +2973,10 @@ that does not name a platform.
   openxFactory, the PERMANENT home of what stays composed, the
   governed-behaviour suites among them, so the line does not expire when the
   arc lands (CF-5). The 174 reds are repaired in phase 4 without editing the 16
-  suites, except through the reviewed allow-list (batch C, and the two notes
-  below). Nothing else in the block changes: the computed set, the floor of 16,
-  the loop and the arc-landing check stand as written and as batch C amends
-  it. R1Q6 (d)'s condition, the direction arc DECIDED before this falsifier
+  suites, except through the reviewed allow-list (batch C, and the CF-4 and
+  R-1 (a) notes below, chained as the `--chains` note below says). Nothing else
+  in the block changes under this note: the computed set, the floor of 16, the
+  loop and the arc-landing check stand as written and as batch C amends it. R1Q6 (d)'s condition, the direction arc DECIDED before this falsifier
   needs the suites, is met by `6003918488`. This bookkeeping amendment does not
   itself touch the command above. Carried out by plan 038's T020 to T029,
   whose composed workflow becomes a required check of openXdox-code after its
@@ -2985,34 +2997,78 @@ that does not name a platform.
   arc's moves, so this stretches batch C. Either way each entry is what batch
   C requires: it names the suite, the landing, the reference it respells, its
   review and the exact old and new text, it weakens no assertion, and the
-  landing's diff for that path is exactly the recorded text. This bookkeeping
-  amendment does not itself touch the command above. Carried out by plan
-  038's T026.
+  landing's diff for that path is exactly the entries' recorded texts (chained,
+  as the `--chains` note below says). This bookkeeping amendment does not
+  itself touch the command above. Carried out by plan 038's T026.
 
-  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6013547504`; Ruled R-1 (a),
-  with W-1 (A)):** Brett Heap's multi-choice word of 2026-10-06, verbatim
-  *"Admitted edit kind (Recommended)"*. For this falsifier, the reviewed
-  allow-list also admits a new kind of `edit: admitted` entry, of R1Q26 (a)'s
-  sort, that reaches a NAMED MODULE-LEVEL SPAN of a governed suite rather than
-  text inside one named test. It exists for `tests/test_staging_workbench.py`,
-  one of the 16, whose Node harness text sits in the module constants
-  `_CREATE_HARNESS` (`:492-553`) and `_SESSION_HARNESS` (`:1008-1094`), outside
-  any test, with two route claims at `:1291` and `:1333` (openXdox-code
-  `56e1c238`), so no in-test entry reaches them. The oracle's
-  `_inside_the_test` rule (openXdox-code `scripts/protected_suites.py:294`) is
-  amended to accept it, and each such edit is entered and reviewed in U-7's PR.
-  Batch C's other conditions hold for it: it names its span, the landing, its
-  reason and its review, it carries the exact old and new text, and it weakens
-  no assertion. With W-1 (A), *"Model import-free again (Recommended)"*, which
-  makes openDox's `staging-workbench-model.js` import-free again and so
-  reverses carve slice S7's model import by that word, all 26 of the suite's
-  `PROTECTED-CONFLICT` nodes close, and the suite stays in this falsifier's
-  governed set. The harness nodes and the two route claims close only together
-  with W-1, because they first fail on the `./display.js` import; the
-  'cluster' node takes an ordinary in-test entry; and the `SystemExit: 2` node
-  is traced first, returning to Brett Heap only if its trace finds no
-  admissible repair. This bookkeeping amendment does not itself touch the
-  command above. Carried out by plan 038's T025 and T026.
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6013547504`, with
+  `6016648451`; Ruled R-1 (a), with W-1 (A)):** Brett Heap's multi-choice
+  words of 2026-10-06, verbatim *"Admitted edit kind (Recommended)"* and, on its
+  scope, *"Widen the spans, served display (Recommended)"*. For this falsifier,
+  the reviewed allow-list also admits a new kind of `edit: admitted` entry, of
+  R1Q26 (a)'s sort, that reaches a NAMED MODULE-LEVEL SPAN of a governed suite
+  rather than text inside one named test. It exists for
+  `tests/test_staging_workbench.py`, one of the 16, whose Node harness text and
+  the helpers that copy it sit at module level, outside any test, so no in-test
+  entry reaches them. The admitted spans are SIX, at openXdox-code `56e1c238`:
+  - the harness constants `_CREATE_HARNESS` (`:492-553`), `_SESSION_HARNESS`
+    (`:1008-1094`) and `_HOSTILE_HARNESS` (`:1950-1981`);
+  - the three copy helpers `_run_create` (`:562-574`), `_run_session`
+    (`:1239-1257`) and `_hostile_descriptors` (`:1997-2008`).
+
+  The helpers copy the model's siblings and hand each harness the SERVED
+  governed display. That the served display is reachable in the test process
+  is INFERRED, and plan 038's T026 measures it. The governed host's
+  registration (plan 038's T020) covers this suite, through T020's
+  `tests/conftest.py` and the scan in `tests/test_host_plane.py`, edited in
+  T026 after T020 lands. The oracle's `_inside_the_test` rule (openXdox-code
+  `scripts/protected_suites.py:294`) is amended to accept such an entry, and
+  each such edit is entered and reviewed in U-7's PR. Batch C's other
+  conditions hold for it: it names its span, the landing, its reason and its
+  review, it carries the exact old and new text, and it weakens no assertion.
+  With W-1 (A), *"Model import-free again (Recommended)"*, which makes openDox's
+  `staging-workbench-model.js` import-free again and so reverses carve slice
+  S7's model import by that word, all 26 of the suite's `PROTECTED-CONFLICT`
+  nodes close, and the suite stays in this falsifier's governed set. The
+  harness nodes close through the spans only together with W-1, because they
+  first fail on the `./display.js` import. The widened spans close the last
+  nine of them and the traced `SystemExit: 2` node, as ruled
+  (`6016648451`, answering lane openXfactory-3's points 2 and 3 of
+  `6016415390`), and T026 measures it. The two route claims (`:1291`,
+  `:1333`) lie inside their own named tests (`:1262-1300`, `:1305-1343`), so
+  in-test entries reach them and they need no span. The
+  'cluster' node takes an ordinary in-test entry that respells its expected
+  label to `'group neighbourhood'`, S7's neutral word, as measured (the
+  holder's ruling recorded with `6016648451`). Several entries for this one
+  suite land together under the `--chains` note below. This bookkeeping
+  amendment does not itself touch the command above. Carried out by plan 038's
+  T020, T025 and T026.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6016648451`; Ruled "Amend
+  F12.1 with --chains"):** Brett Heap's multi-choice word of 2026-10-06,
+  verbatim *"Amend F12.1 with --chains (Recommended)"*. This falsifier's check
+  takes a CHAIN of entries, the mechanism batch K gave F5.2. Its last step, as
+  T059 wired it (openXdox-code `scripts/protected_suites.py:24-25` at
+  `56e1c238`, whose usage text at `:27` still calls `--chains` F5.2's alone),
+  runs with `--chains` added:
+
+      python3 scripts/protected_suites.py --chains --landings="$(cat "$W/x-arc.txt")" --suites="$(cat "$W/governed.txt")"
+
+  So several entries, applied in the order they are listed, may together admit
+  one landing's edits to one governed suite, under batch K's rule unchanged:
+  - each entry is still exactly one edit inside its own named test, or, under
+    R-1 (a) (the note above), inside its named span;
+  - the entries chain by git blob: the first entry's `before_blob` is the suite
+    before the landing, the last entry's `after_blob` is the suite at it, and
+    each blob between is the blob id of the text the entries before it leave;
+  - the landing's diff for each suite is exactly the chain's recorded texts.
+
+  Nothing wider is admitted, and each entry still admits one landing. So U-7's
+  entries, under batch C, CF-4 and R-1 (a) (the three notes above), land as
+  ONE pull request, plan 038's T026 (openXdox-code#43). Batch K's sentence at
+  F5.2 that this falsifier passes no `--chains` takes a dated note there. This
+  bookkeeping amendment does not itself touch the Python above. Carried out by
+  plan 038's T026 and T029.
 - [ ] 12.6 **MERGE AUTHORITY — RULED, HOLD RELEASED.** Brett Heap, `#656` comment
   `5784155201`, 2026-09-22T21:06:01Z: *"merge yes"* — landing authority follows
   whoever governs the repository. A GOVERNED host reserves landing and routes it
