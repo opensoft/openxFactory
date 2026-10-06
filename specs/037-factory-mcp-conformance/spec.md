@@ -2,7 +2,7 @@
 
 Status: draft
 Kind: implementation
-Governed by: [add-factory-mcp-conformance](../../openspec/changes/add-factory-mcp-conformance/proposal.md), ratified 2026-09-07
+Governed by: [add-factory-mcp-conformance](../../openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md), ratified 2026-09-07
 
 Feature Branch: `037-factory-mcp-conformance`
 Created: 2026-09-07
@@ -51,7 +51,7 @@ Independent Test: deterministic positive and adversarial fixtures for FR-007 thr
 - **FR-007**: Enforce tagged reevaluate, lease_replay and fresh_observation requirements including persistence, scope, coordination and original timestamps.
 - **FR-008**: Report structural, reference and semantic checks and gaps separately with deterministic diagnostics and exit codes 0/1/2; never certify runtime conformance.
 
-Exact scenario semantics and refusal boundaries are inherited from [the ratified specification](../../openspec/changes/add-factory-mcp-conformance/specs/factory-mcp-conformance/spec.md); these requirements index that authority rather than replace it.
+Exact scenario semantics and refusal boundaries are inherited from [the ratified specification](../../openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/specs/factory-mcp-conformance/spec.md); these requirements index that authority rather than replace it.
 
 ## Key Entities
 

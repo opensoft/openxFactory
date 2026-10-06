@@ -94,7 +94,7 @@ sink retention, deployment freshness limits, health probes and endpoint
 migration. These do not need invented answers to build the bounded first slice.
 
 The concrete proposals are
-[add-factory-mcp-conformance](../../openspec/changes/add-factory-mcp-conformance/proposal.md)
+[add-factory-mcp-conformance](../../openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md)
 and its separately owned Ops companion, add-dns-check-mcp. Ratification is a
 separate act before implementation; see the neutral proposal for the paired
 handoff.

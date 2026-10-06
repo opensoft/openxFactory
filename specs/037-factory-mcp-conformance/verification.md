@@ -7,7 +7,7 @@ Lane: mcp-family-contract
 
 ## Authority and planning
 
-Brett ratified both exact proposals and their ad-hoc origins with “yes”; [the approval record](../../openspec/changes/add-factory-mcp-conformance/review/ratification-2026-09-07.md) retains the reviewed revision and full approval question. This feature started from the clean locally committed ratified design branch. The canonical git extension allocated 030-factory-mcp-conformance; implementation ran in that generated worktree. (Renumbered to 037-factory-mcp-conformance on 2026-10-05 for opensoft/openxFactory#1242, because main had taken 030 on 2026-09-08; see the dated addendum in the change's tasks.md.) Relative Git plumbing allows host and container to use the same worktree. No agent-prefixed implementation branch or consumer pin was created.
+Brett ratified both exact proposals and their ad-hoc origins with “yes”; [the approval record](../../openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/review/ratification-2026-09-07.md) retains the reviewed revision and full approval question. This feature started from the clean locally committed ratified design branch. The canonical git extension allocated 030-factory-mcp-conformance; implementation ran in that generated worktree. (Renumbered to 037-factory-mcp-conformance on 2026-10-05 for opensoft/openxFactory#1242, because main had taken 030 on 2026-09-08; see the dated addendum in the change's tasks.md.) Relative Git plumbing allows host and container to use the same worktree. No agent-prefixed implementation branch or consumer pin was created.
 
 Clarify found no material unanswered decision within the ratified first slice. Spec, plan, research, data model, interface, six domain requirements checklists and tasks were analyzed before behavior implementation. All eight requirements have tasks; no orphan task, authority conflict or critical cross-artifact finding was identified. Operational reader/cancellation, hosting, adoption, release and audit infrastructure remain explicitly deferred by the ratified design. Optional auto-commit hooks were not enabled; scoped local commits preserve the result.
 
@@ -37,7 +37,7 @@ Runtime: py-bench, Python 3.12.3, jsonschema 4.25.1. Tests use synthetic data, t
 - Targeted doc-health: status-validity retains 3 existing errors; proposal-origin has zero findings. These match the proposal-stage baseline; no finding concerns this MCP change.
 - The 14-document brainstorm packet was validated at the proposal checkpoint; implementation leaves those documents unchanged.
 
-The earlier [proposal validation record](../../openspec/changes/add-factory-mcp-conformance/review/validation-2026-09-07.md) names the baseline findings. Whole-repository cleanliness is not inferred from a passing new capability test. No unrelated baseline document was edited to make checks green.
+The earlier [proposal validation record](../../openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/review/validation-2026-09-07.md) names the baseline findings. Whole-repository cleanliness is not inferred from a passing new capability test. No unrelated baseline document was edited to make checks green.
 
 ## Review and corrections
 

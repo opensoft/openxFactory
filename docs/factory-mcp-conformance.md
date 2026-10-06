@@ -2,7 +2,7 @@
 
 Status: draft
 Kind: runbook
-Governed by: [add-factory-mcp-conformance](../openspec/changes/add-factory-mcp-conformance/proposal.md), ratified 2026-09-07
+Governed by: [add-factory-mcp-conformance](../openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md), ratified 2026-09-07
 
 The unreleased [declaration schema](../contracts/factory-mcp/declaration.schema.json) and [validator](../scripts/validate-factory-mcp.py) check a domain's declared contract offline. They report structural validity, reference integrity, semantic consistency and unresolved gaps separately. Even a valid declaration returns `verified_conformance: false`: source citations still require behavioral review and deployment acceptance.
 
@@ -45,7 +45,7 @@ Input is bounded to 256 KiB (`input_size_limit`; the Python entry point measures
 
 ## Compatibility, release and ownership
 
-[Codex baseline observations](../openspec/changes/add-factory-mcp-conformance/review/codex-baseline-2026-09-07.md) pin revision `4b12ba83add713666a94129fc45552d8989f8488` of `codeXfactory/codexFactory` and the digests of its three published schemas (tool request, tool result, domain error). This profile leaves those schemas, their outputs and client compatibility unchanged. The observation is a compatibility review input, not an executable codex declaration or adoption certificate. codexFactory is private, so this repository carries no codex schema bytes: a reviewer with access validates a codex declaration out of tree, supplying the codex snapshot with `--snapshot`.
+[Codex baseline observations](../openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/review/codex-baseline-2026-09-07.md) pin revision `4b12ba83add713666a94129fc45552d8989f8488` of `codeXfactory/codexFactory` and the digests of its three published schemas (tool request, tool result, domain error). This profile leaves those schemas, their outputs and client compatibility unchanged. The observation is a compatibility review input, not an executable codex declaration or adoption certificate. codexFactory is private, so this repository carries no codex schema bytes: a reviewer with access validates a codex declaration out of tree, supplying the codex snapshot with `--snapshot`.
 
 DNS behavior remains in OpsxFactory. This repository ships synthetic domain fixtures only.
 
