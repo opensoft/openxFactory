@@ -76,6 +76,16 @@ will own executable implementation tasks; this file does not duplicate them.
   matching its adding commit. It lands only on Brett Heap's archive word,
   which had not been given when this box was ticked. The run and its
   measurements are recorded under this item in the commit after the move.
+  - **The word.** Brett Heap gave it on 2026-10-06, in session, verbatim
+    *"archive add-factory-mcp-conformance when green"*. It is RULED in
+    `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at
+    2026-10-06T17:25:24Z (commit `5f02a237`), against
+    `openspec/changes/add-factory-mcp-conformance`. The RULED entry reads it
+    as landing this archive's pull request, #1252, by merge commit under a
+    Rule 6 window once its gates, checks and Copilot review are green, with
+    the *Unavailable dependency* disclosure and the untouched relative link
+    below both known. No GitHub comment carries the word; the register entry
+    and this citation are its record.
   - **The run.** Performed in commit `7102cd48`, the commit that moves this
     directory:
     `TZ=UTC python3 scripts/proposal-support.py . archive add-factory-mcp-conformance --yes`,

@@ -3226,10 +3226,13 @@ Archived changes:
 - [add-factory-mcp-conformance](openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md)
   — **ARCHIVED 2026-10-06** by
   [PR #1252](https://github.com/opensoft/openxFactory/pull/1252),
-  prepared by lane `openxfactory-5` (display `openXfactory-5`) as a DRAFT
-  that lands by MERGE COMMIT, never squash, and only on Brett Heap's separate
-  archive word, which that pull request's `LANDING` and `LANDED` lines
-  record. Filed 2026-09-07 by the Codex lane `mcp-family-contract`;
+  by lane `openxfactory-5` (display `openXfactory-5`), landed by MERGE
+  COMMIT, never squash, on Brett Heap's separate archive word, verbatim
+  ***"archive add-factory-mcp-conformance when green"*** (2026-10-06, in
+  session; RULED in `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at
+  2026-10-06T17:25:24Z, commit `5f02a237`, against
+  `openspec/changes/add-factory-mcp-conformance`). Filed 2026-09-07 by the
+  Codex lane `mcp-family-contract`;
   **RATIFIED 2026-09-07 by Brett Heap**, verbatim *"yes"* (record
   [`review/ratification-2026-09-07.md`](openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/review/ratification-2026-09-07.md),
   reviewed revision `8acd2ec4`); ADOPTED by lane `openxfactory-5` on his word
