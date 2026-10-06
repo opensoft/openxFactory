@@ -195,6 +195,7 @@ The neutral shape is [`contracts/health-finding.md`](./contracts/health-finding.
 | `pack_id` | NOT NULL; `opendox` for the product's own families (15.7, OQ-H15-19) |
 | `pack_version` | NOT NULL; the installed version for `opendox` (OQ-H15-18) |
 | `path` | corpus-relative; empty for an install-level or pre-run finding |
+| `identity` | NOT NULL, as T040's finding schema requires it: the position-independent key the family supplies, or the engine's own for an engine-authored finding (`{category, entry}` for a pathless one, `{collided_id}` for a collision); STORED as canonical sorted-key JSON and emitted by `health list --json` and the HTTP response (the holder, `6018624750`); bounded as openDox-spec's finding schema bounds it, with an engine cap on its serialized size, stricter than the schema's, as for `pack_id` and `kind` (the cap is T041's, the contract module's; T042 stores what T041 bounds) |
 | `locator` | DISPLAY ONLY, outside the hash: a line span, a link target as written; never document text |
 | `severity` | the neutral severities U-0 spells |
 | `resolution_class` | `auto-fix` \| `assisted` \| `human-only` (14.6) |
@@ -202,11 +203,15 @@ The neutral shape is [`contracts/health-finding.md`](./contracts/health-finding.
 | `message` | one line, bounded like `evidence` (ADV-27): at most 200 characters, written by the family from its own words; never document text |
 | `evidence` | NOT NULL, `{}` when there is nothing to locate (14.5 lists it in every `list --json` finding); locators only, never an excerpt (R2Q25 (a)); a family's own version rides here (OQ-H15-18); a refused patch's `refused_patch` and `reason` (15.2a) |
 
-The finding's `identity` (contracts/health-finding.md) is ENGINE-INTERNAL: the
-engine hashes it into `id` at run time and neither stores nor emits it, since a
-key such as a heading can be document text (R2Q25 (a); Copilot review of
-`2076f24b`). Nothing later needs it: `list`, `fix` and `accept` address a
-finding by `id`, and `fix` re-runs the one pack that produced it.
+The finding's `identity` (contracts/health-finding.md) is STORED and EMITTED (the
+holder, `6018624750`, reversing the engine-internal refinement of Copilot's
+review of `2076f24b`): the engine hashes it into `id` at run time, stores it in
+the `identity` column above, and `list --json` and the HTTP response emit it. A
+key such as a heading can be document text, so it is bounded as T040's finding
+schema bounds it: no key named `excerpt`, `text`, `content` or `quote`, no
+number, every string at most 200 characters (R2Q25 (a)). `list`, `fix` and
+`accept` still address a finding by `id`, and `fix` re-runs the one pack that
+produced it.
 
 There is NO patch column (lane 3's MISLABEL row 31): a patch is document text,
 and the store holds no document (14.3; R2Q25 (a)). A pack's patch is validated

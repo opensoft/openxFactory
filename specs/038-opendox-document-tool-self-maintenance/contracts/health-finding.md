@@ -8,7 +8,8 @@ copy. Boxes 14.5, 14.6, 15.2, 15.7; answers R2Q10 (a), R2Q25 (a). **RULED with
 the plan** (`#656` `6013547504`, every decision as recommended: N-3, N-13,
 OQ-H15-18, OQ-H15-19). Review round 1 made the id position-independent (ADV-07)
 and bounded `message` (ADV-27); its re-check settled id collisions (§ The id
-rule).
+rule). The holder's ruling `6018624750` STORES and EMITS `identity`, as T040's
+schema has it (its row below).
 
 **Where it lands.** T040 authors it as a JSON Schema in openDox-spec, in that
 repository's existing schema layout. T060 moves the openDox root's spec pin to it
@@ -23,8 +24,8 @@ the validator validates (tier 3's N-15).
 One finding is a JSON object. A family or pack produces it with every field
 below that it supplies; the engine stamps the rest. `health list --json` emits an
 array of them, with at least the fields 14.5 declares (`id`, `resolution_class`,
-`path`, `severity`, `evidence`, `pack_id`, `pack_version`), and WITHOUT
-`identity`, which is engine-internal (its row below).
+`path`, `severity`, `evidence`, `pack_id`, `pack_version`) and `identity`, which
+is stored and emitted (its row below).
 
 | field | type | required | rule |
 |---|---|---|---|
@@ -33,7 +34,7 @@ array of them, with at least the fields 14.5 declares (`id`, `resolution_class`,
 | `pack_id` | string | yes | `^[a-z0-9-]{1,40}$`; `opendox` for the product's own families (OQ-H15-19). Stamped by the engine from the manifest entry (15.7) |
 | `pack_version` | string | yes | the manifest entry's version; for `opendox`, the installed version (OQ-H15-18). Stamped by the engine (15.7) |
 | `path` | string | yes | corpus-relative, `/`-separated, no `..`; empty string for an install-level or pre-run finding |
-| `identity` | object | yes, in a family's or pack's output | the POSITION-INDEPENDENT key the family supplies (R2Q10 (a)'s "locator the family supplies", read as a key that survives edits elsewhere): a link target as written, a pair of paths, a heading key. Never a line number, never document text beyond such a key. ENGINE-INTERNAL: the engine hashes it into `id` at run time and neither stores nor emits it, so `list --json`, the HTTP response and the store carry `id` alone (R2Q25 (a); Copilot's review of `2076f24b`; data-model.md § Finding) |
+| `identity` | object | yes, in a family's or pack's output | the POSITION-INDEPENDENT key the family supplies (R2Q10 (a)'s "locator the family supplies", read as a key that survives edits elsewhere): a link target as written, a pair of paths, a heading key. Never a line number, never document text beyond such a key. STORED AND EMITTED (the holder, `6018624750`, reversing the engine-internal refinement of Copilot's review of `2076f24b`): the engine hashes it into `id` AND stores it as a `health_findings` column, in canonical sorted-key JSON, and `list --json` and the HTTP response emit it. It is bounded as openDox-spec's finding schema (T040, landed) bounds it: no key named `excerpt`, `text`, `content` or `quote`, no number, every string at most 200 characters; a pathless finding's identity is `{category, entry}` and a collision's is `{collided_id}`. The engine caps its serialized size, stricter than the schema's, as it caps `pack_id` and `kind`; the cap is T041's, since the contract module owns the field bounds, and T042 stores what T041 bounds (R2Q25 (a); data-model.md § Finding) |
 | `locator` | object | no | DISPLAY ONLY, outside the id: `{"line_start": int, "line_end": int}` and/or `{"target": string}` |
 | `severity` | string | yes | `error` \| `warning` \| `info` |
 | `resolution_class` | string | yes | `auto-fix` \| `assisted` \| `human-only` (14.6, spelled exactly) |
@@ -83,12 +84,12 @@ further or disambiguates it by position. The ENGINE detects collisions, over
 the whole run, built-in families and packs alike, before anything is stored
 (T046 owns it and tests it; Copilot's review of `8cee8007`).
 
-**An accepted limit: a hash collision ACROSS runs is not detected.** Two
-different identities whose ids share the 16 hex digits in DIFFERENT runs read
-as one finding to the baseline and to an exception. The id's 16-digit form is
-the ruled one (R2Q10 (a), a ref-name component; N-13), and nothing outside the
-id is stored that could tell them apart (`identity` is engine-internal, R2Q25
-(a)). By chance the odds are about n²/2⁶⁵ per corpus, about 3 in a trillion
+**An accepted limit: a hash collision ACROSS runs.** Two different identities
+whose ids share the 16 hex digits in DIFFERENT runs read as one finding to the
+baseline and to an exception. The id's 16-digit form is the ruled one (R2Q10
+(a), a ref-name component; N-13), and the cross-run collision stays an accepted
+limit (the holder, `6018624750`). A stored `identity` makes it detectable, and
+whether the engine reports it is T046's concern. By chance the odds are about n²/2⁶⁵ per corpus, about 3 in a trillion
 for 10,000 findings; a deliberate collision needs about 2³² SHA-256
 evaluations over crafted document text, and it can only mislabel a class or
 suppress one finding, never land anything (every repair still lands through
@@ -99,7 +100,7 @@ raise with Brett (Copilot's review of `6f073ed2`).
 
 - **Refusals.** The store refuses a finding without `pack_id` or `pack_version`
   (15.7). The engine refuses a pack finding whose `resolution_class` is outside
-  the three, whose `message` or `evidence` breaks the bounds above, or that
+  the three, whose `message`, `evidence` or `identity` breaks the bounds above, or that
   declares a baseline or landing rule; each refusal is itself a finding against
   that pack (15.5, 15.6). Two findings with one id are such a finding too
   (§ The id rule).
@@ -114,7 +115,7 @@ raise with Brett (Copilot's review of `6f073ed2`).
 The engine's internal object for one finding, AFTER stamping: `id`,
 `pack_id`, `pack_version` and `baseline_class` are the engine's, and a family
 or pack supplies the rest, `identity` included (a pack's own `id`, if any, is
-ignored). `list --json` emits the same object without `identity`:
+ignored). `list --json` emits the same object, `identity` included:
 
 ```json
 {"id": "opendox.broken-link.3c1f0e9a7b2d4c65", "kind": "broken-link",
