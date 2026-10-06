@@ -74,7 +74,8 @@ Core domain-neutral docs:
 
 - [Factory MCP Family — Brainstorm](ideation/brainstorm/factory-mcp-overview.md)
   (shared conformance, domain ownership and a proposed DNS evaluation boundary)
-- [Factory MCP Conformance — Ratified Proposal](openspec/changes/add-factory-mcp-conformance/proposal.md)
+- [Factory MCP Conformance — Promoted Specification](openspec/specs/factory-mcp-conformance/spec.md)
+  ([archived proposal](openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md))
 - [Factory MCP Conformance — Validator and Implementation Records](docs/factory-mcp-conformance.md)
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
@@ -564,32 +565,6 @@ Active changes:
   (ARC-4). Origin `kind: staged`: `ideation/staging/doc-health-direction-arc/`,
   which stays staged until the archive step moves it through this change.
   `design.md` § 11 puts seven decisions (D1–D7) for the ratify read.
-
-- [add-factory-mcp-conformance](openspec/changes/add-factory-mcp-conformance/proposal.md)
-  — filed 2026-09-07 by the Codex lane `mcp-family-contract`, **`Status: ratified`**
-  (2026-09-07, Brett Heap, verbatim *"yes"*; record
-  [`review/ratification-2026-09-07.md`](openspec/changes/add-factory-mcp-conformance/review/ratification-2026-09-07.md)),
-  ADOPTED by lane `openxfactory-5` on Brett Heap's word of 2026-10-05, verbatim
-  *"confirm 1, close 018, adopt the work, re-anchor codexFactory"*, and brought
-  onto main under governing issue #1242 from the preserved review branch at
-  `d2baf6fd`. **ONE `## ADDED` block creating the capability
-  `factory-mcp-conformance` — eight requirements, twenty-two scenarios**: an
-  advisory, offline declaration profile (`advisory-v1`,
-  [`contracts/factory-mcp/declaration.schema.json`](contracts/factory-mcp/declaration.schema.json))
-  that a domain MCP service is described against, and a validator
-  (`scripts/validate-factory-mcp.py`) that reports structure, reference
-  integrity, semantics and gaps separately and never certifies conformance
-  (`verified_conformance` is always false). openxFactory hosts no MCP server,
-  transport or auth: each domain keeps its own service at its own address
-  (Brett Heap, 2026-10-05, verbatim *"keep one server per domain, no combined
-  endpoint"*). Realized by Speckit feature
-  [`specs/037-factory-mcp-conformance/`](specs/037-factory-mcp-conformance/spec.md)
-  (numbered 030 locally on 2026-09-07; renumbered because main took 030 on
-  2026-09-08). **`code_surface:` openxFactory; `target_release: implemented`**
-  — it archives only after merged, green realization (task 3.2). Out of scope
-  until Brett rules: an auth and transport block, the home of the family error
-  vocabulary, enforcement of the *Unavailable dependency* scenario, and shared
-  transport. Runbook: [`docs/factory-mcp-conformance.md`](docs/factory-mcp-conformance.md).
 
 - [add-neutral-product-standalone-operability](openspec/changes/add-neutral-product-standalone-operability/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-24,
@@ -3247,6 +3222,51 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-factory-mcp-conformance](openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md)
+  — **ARCHIVED 2026-10-06** by
+  [PR #ARCHIVE-PR-NUMBER-PENDING](https://github.com/opensoft/openxFactory/pull/ARCHIVE-PR-NUMBER-PENDING),
+  prepared by lane `openxfactory-5` (display `openXfactory-5`) as a DRAFT
+  that lands by MERGE COMMIT, never squash, and only on Brett Heap's separate
+  archive word, which that pull request's `LANDING` and `LANDED` lines
+  record. Filed 2026-09-07 by the Codex lane `mcp-family-contract`;
+  **RATIFIED 2026-09-07 by Brett Heap**, verbatim *"yes"* (record
+  [`review/ratification-2026-09-07.md`](openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/review/ratification-2026-09-07.md),
+  reviewed revision `8acd2ec4`); ADOPTED by lane `openxfactory-5` on his word
+  of 2026-10-05, verbatim *"confirm 1, close 018, adopt the work, re-anchor
+  codexFactory"*, under governing issue
+  [#1242](https://github.com/opensoft/openxFactory/issues/1242).
+  **`code_surface: openxFactory` is non-empty, so under
+  `release-realization` it archives on merged-plus-green realization
+  evidence**, which is cited rather than asserted: the realization, Speckit
+  feature
+  [`specs/037-factory-mcp-conformance/`](specs/037-factory-mcp-conformance/spec.md),
+  landed as PR [#1243](https://github.com/opensoft/openxFactory/pull/1243) →
+  `92010d3e67f2c556687e1c3583ed3ca1867f4b8b` (2026-10-06T03:37:58Z, by squash
+  from head `6ab71267`, whose tree it carries unchanged) on his word *"land
+  #1243 when green"*. Every required context passed at that head, and
+  `pytest-suite` decided success on `main` at `92010d3e` itself, run
+  [37409899722](https://github.com/opensoft/openxFactory/actions/runs/37409899722)
+  (`selected=9831 passed=9825 skipped=6 failures=0 errors=0`).
+  **Performed through the governed wrapper, never a bare `openspec
+  archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive add-factory-mcp-conformance --yes`,
+  exit 0: *"ORIGIN RETAINED add-factory-mcp-conformance (declaration
+  unchanged since the ratifying commit 92010d3e67f2)"*, *"Applying changes to
+  openspec/specs/factory-mcp-conformance/spec.md: + 8 added"*, *"Totals: + 8,
+  ~ 0, - 0, → 0"*, over the content-addressed `@fission-ai/openspec@1.12.0`
+  pin. **The promotion creates the capability `factory-mcp-conformance`** at
+  [`openspec/specs/factory-mcp-conformance/spec.md`](openspec/specs/factory-mcp-conformance/spec.md):
+  its Purpose and eight requirements with twenty-two scenarios, each
+  requirement block byte-identical between the archived delta and canon,
+  hashed one by one. Canon goes from 66 to 67 capability directories, and no
+  other promoted byte moves. The nine packet files move as pure renames.
+  **This archive settles none of the items still awaiting Brett Heap's
+  rulings**: an auth and transport block, the home of the family error
+  vocabulary, shared transport, and enforcement of the *Unavailable
+  dependency* scenario, which the validator does not yet enforce although
+  canon now states it. Runbook:
+  [`docs/factory-mcp-conformance.md`](docs/factory-mcp-conformance.md).
 
 - [admit-code-leg-under-pinned-root](openspec/changes/archive/2026-09-27-admit-code-leg-under-pinned-root/proposal.md)
   — **ARCHIVED 2026-09-27** by
