@@ -39,7 +39,7 @@ phase-4 `src/` exceptions named (§ Project Structure), finding-id collisions
 for files only one task writes.
 
 **Revision: Copilot's reviews of the ruled revision folded** (2026-10-06).
-Copilot's reviews of `2a4a73d1` to `3f807204` found gaps the ruled options left
+Copilot's reviews of `2a4a73d1` to `97e28b6c` found gaps the ruled options left
 open. Each fix refines a ruled item without taking another option, and all are
 listed here so the holder can judge whether any needs Brett's word:
 - the run's pack inventory, a newly added pack's first findings as
@@ -66,6 +66,11 @@ listed here so the holder can judge whether any needs Brett's word:
   read (`export_commit`), and `fix` re-runs a producer only there, refusing by
   name otherwise (OQ-H15-20's re-obtained patch, data-model.md § Finding); every
   emitted finding carries `evidence`, `{}` when empty;
+- a run is `partial` when any selected pack was not evaluated (failed, refused,
+  unfetchable, or no live sandbox), so such a run never becomes a baseline;
+  `fix` acts only on findings of runs over a commit, a working-state finding
+  refused with the commit-and-re-run remedy; and an open batch draft grows only
+  at its base (data-model.md § Fix draft);
 - a pack's digest tree is defined per source (OQ-H15-12's reading); the pids
   bound is an accepted limit where no cgroup is delegated (OQ-H15-5); no pack
   stderr is stored (OQ-H15-11, refined);

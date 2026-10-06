@@ -144,7 +144,7 @@ Table `health_runs` in `0003_` (OQ-H-22; DOMAIN, R2Q13 (a)):
 | `commit` | 40-hex, nullable | the commit read; null for a working-state run |
 | `baseline_branch` | text, nullable | the branch whose tip runs form the baseline (tier 1 decision I-2) |
 | `started_at`, `finished_at` | timestamptz | |
-| `outcome` | `complete` \| `partial` \| `refused` | `partial` when a pack failed (its failure is a finding) |
+| `outcome` | `complete` \| `partial` \| `refused` | `partial` when ANY selected pack was not evaluated: it failed, its manifest entry was refused or could not be fetched or digest-checked, or no live sandbox let it run (each such case is a finding). `complete` only when every selected pack ran to a result (Copilot's review of `97e28b6c`) |
 | `pack_versions` | jsonb, NOT NULL | the run's PACK INVENTORY: `{pack_id: pack_version}` for every pack it ran, zero-finding packs and `opendox` itself included. The baseline reads a pack's previous version here, never from findings (Copilot review of `6d6911e1`) |
 | `pack_pins` | jsonb, NOT NULL | each pack's EXACT pin as the run used it: `{pack_id: {"version", "digest", "commit"}}` (`commit` null for a corpus-relative source; `opendox`'s entry the installed version alone). `fix` re-runs a pack only at this pin (§ Finding, the patch; Copilot's review of `3f807204`) |
 | `export_commit` | 40-hex, NOT NULL | the commit whose committed export the packs read: `commit` for a default-tip or branch run, HEAD at run time for a working-state run (15.1b) |
@@ -156,7 +156,8 @@ over the working state"; ADV-16 replaced the narrower reading):
 - **default-tip**: HEAD is the baseline branch's tip and the working tree is
   clean. Reads that commit. Only these runs form the baseline and measure
   disappearances, and only when `complete` and `full`: a run restricted by
-  `--pack`, or `partial` because a pack failed, omits findings it did not look
+  `--pack`, or `partial` because a selected pack failed or never ran (no live
+  sandbox, a refused or unfetchable entry), omits findings it did not look
   for, so it is classed against the baseline but never becomes one and never
   raises a disappearance.
 - **branch**: HEAD is another commit and the working tree is clean. Reads that
@@ -214,7 +215,11 @@ again and fix the fresh finding), so a changed manifest source, commit or digest
 under an unchanged `version`, or a moved HEAD, never runs other code or reads
 another tree for an old finding (Copilot's review of `3f807204`). A built-in
 family's repair follows the same rule: the installed version equal to the run's
-`opendox` entry, and the finding reproduced at HEAD.
+`opendox` entry, and the finding reproduced at HEAD. **`fix` acts only on a
+finding of a run over a commit** (default-tip or branch). A working-state run's
+finding is refused by name, with no branch made, naming the remedy: commit the
+change, run `health run` again, and fix the fresh finding; a draft is never
+built from uncommitted content (Copilot's review of `97e28b6c`).
 
 The store refuses a finding with no `pack_id` or `pack_version`
 (`test_the_store_refuses_a_finding_without_provenance`) and holds no document
@@ -279,6 +284,13 @@ The shape is exactly 14.5's, `health fix --repo-root <corpus> --finding ID
 commit to the open batch draft, `health-fix-batch`, which is created at HEAD
 when none is open (or when the last one is already contained in `main`);
 several invocations put several repairs in ONE draft for ONE review (14.7).
+**An open batch grows only at its base.** An addition needs HEAD to be the
+batch's base: HEAD an ancestor of `health-fix-batch`, and every commit in
+`HEAD..health-fix-batch` one of the fix loop's repair commits (each carries its
+`Finding:` trailer). When HEAD has moved past the base, `fix --batch` refuses
+by name, with no commit made, naming the remedies: land the open batch, delete
+it, or fix without `--batch`. Git holds the base, so the store records nothing
+for it (Copilot's review of `97e28b6c`).
 The applier writes each draft in a worktree of its own, so HEAD and the working
 tree never move (F14.1 asserts HEAD unmoved after every `fix`). **Every repair
 commit carries a `Finding: <id>` trailer** for the finding it repairs, a batch

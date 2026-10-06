@@ -830,8 +830,9 @@ bookkeeping records an answer.
   - **The baseline** is the previous COMPLETE, FULL run at the baseline
     branch's tip OF THE SAME CORPUS (its resolved root), held in the store; a
     run of another repository in the same store is never a baseline, and
-    neither is a run restricted by `--pack` or one where a pack failed, so a
-    partial run never advances it. The baseline branch is `main`, else the
+    neither is a run restricted by `--pack` or one where a selected pack failed
+    or never ran (no live sandbox, a refused or unfetchable manifest entry), so
+    a partial run never advances it. The baseline branch is `main`, else the
     branch HEAD names (I-2 (a), `6013547504`); R2Q7 (a)'s `main` still governs
     landing alone.
     Every run is classed against it, whether at the tip, on a branch or over
@@ -916,7 +917,11 @@ bookkeeping records an answer.
   the default branch, and it SHALL reach the default branch only through
   FR-006's and FR-007's landing rule. NOTHING SHALL land automatically, not even
   a one-line mechanical repair. Several repairs MAY be batched into one draft
-  for one review, which lands under the same rule.
+  for one review, which lands under the same rule. A draft is built only from
+  a finding of a run over a commit, by the producer at the pin and commit that
+  run recorded, and an open batch grows only at its base; otherwise the repair
+  is refused by name, naming the remedy (data-model.md § Finding and § Fix
+  draft; Copilot's reviews of `3f807204` and `97e28b6c`).
 - **FR-014** (requirement 15; 14.8): an exception SHALL be recorded IN THE
   CORPUS as a committed artifact, on the pattern of `health/dispositions.yaml`,
   and never in the store. It SHALL survive a store reset, be reviewable as an

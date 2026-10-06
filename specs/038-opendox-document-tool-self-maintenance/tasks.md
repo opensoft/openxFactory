@@ -883,9 +883,10 @@ copies (research R7; ADV-05).
     with zero findings in the baseline, then upgraded; a newly added pack;
     interleaved runs of two corpora in one store, each classed against its own
     baseline, with `list`, `fix` and `accept` reading only their own corpus's
-    runs; a `--pack` run and a run where a pack failed, each at the tip, after
-    which the next full run is classed against the earlier complete baseline and
-    reports no disappearance from the partial run; a finding accepted after
+    runs; a `--pack` run, a run where a pack failed, a run with no live sandbox
+    and a run whose manifest entry is refused, each at the tip between two
+    complete runs, after which the restored full run is classed against the
+    earlier complete baseline and reports no disappearance from the partial run; a finding accepted after
     a baseline, which the next tip run neither lists nor reports as
     disappeared; and three consecutive default-tip runs where a finding vanishes
     uncited, the second carrying one `uncited-disappearance` re-raise and the
@@ -1014,7 +1015,10 @@ copies (research R7; ADV-05).
   `main`; `auto-fix` applies the family's repair or the pack's patch, which T056
   re-obtains and T049 re-validates before any branch exists; `assisted` writes
   the deterministic proposal (near-duplicates and empty stubs, OQ-H-11);
-  `human-only` is refused with no branch; every repair commit carries a
+  `human-only` is refused with no branch, and so is a working-state run's
+  finding (commit, run again, fix the fresh finding); `--batch` grows the open
+  batch only at its base, refusing by name when HEAD has moved past it
+  (data-model.md § Fix draft); every repair commit carries a
   `Finding: <id>` trailer for the finding it repairs, so a landing cites by git
   alone (data-model.md § Fix draft); the draft lands only through `land`
   (T016; OQ-12-17). `fix`'s dispatch line in `health/cli.py`.
@@ -1022,7 +1026,10 @@ copies (research R7; ADV-05).
   - **Falsifier**: new `tests/test_health_fix.py` (F14.1's fix loop, by fixture
     document, R2Q10 (a); the empty stub's proposal; a two-repair batch, each
     commit carrying its `Finding:` trailer, landed and its branch deleted, after
-    which the next tip run counts both disappearances cited).
+    which the next tip run counts both disappearances cited; a working-state
+    run's finding refused with no branch, naming commit and re-run; and a stale
+    batch, HEAD advanced after its first repair, whose second `--batch`
+    repair is refused with no commit made).
   - **Ruled**: R2Q5, R2Q10, R2Q11. **Decisions**: OQ-H-8, -10, -11, OQ-12-17,
     OQ-H15-20, N-19.
   - **After**: T046, T049, T016.

@@ -32,7 +32,8 @@ Options follow the verb (10.1). `--class` is additive (a filter on `list`);
   copy) and every manifest-listed pack in the sandbox over the committed export
   (`git archive`, HEAD's in a working-state run; 15.1b; R2Q16 (a)), stores the
   run and its findings, and classes them against the baseline. `--pack`
-  restricts to listed packs; a restricted run, like one where a pack failed, is
+  restricts to listed packs; a restricted run, like one where a selected pack
+  failed or never ran (no live sandbox, a refused or unfetchable entry), is
   classed but never becomes a baseline and never measures a disappearance
   (data-model.md § the baseline). `--timeout` sets the per-pack budget: default 60
   seconds, applied per pack and enforced by the engine, never by the pack, and
@@ -57,8 +58,11 @@ Options follow the verb (10.1). `--class` is additive (a filter on `list`);
   F14.1). `fix` also refuses, with no branch made and naming the remedy (run
   again), when the producer's current pin or HEAD differs from the run's
   recorded `pack_pins` entry or `export_commit`, or the re-run does not
-  reproduce the finding (data-model.md § Finding). The draft lands only through
-  `land`.
+  reproduce the finding (data-model.md § Finding); when the finding came from a
+  working-state run (commit, run again, fix the fresh finding); and, with
+  `--batch`, when HEAD has moved past the open batch's base (land or delete the
+  batch, or fix without `--batch`; data-model.md § Fix draft). The draft lands
+  only through `land`.
 - **`accept`** writes one entry to `health/dispositions.yaml`
   (`contracts/health-exceptions.md`).
 - F14.1 and F15.1 first start the document server, as F13.1 does, and the
