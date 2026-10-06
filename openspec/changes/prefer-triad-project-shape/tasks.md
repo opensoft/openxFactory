@@ -237,15 +237,18 @@ with green checks.
   record staying single — for its owner. It converts nothing and records nothing
   on any repository's behalf. If ratification drops it, this box becomes `[~]`
   with the ruling cited.
-  **DONE 2026-10-06** in the openxFactory pull request that adds the record, lane
+  **DONE 2026-10-06** in openxFactory PR
+  [#1255](https://github.com/opensoft/openxFactory/pull/1255), lane
   `codeXfactory-5`. The record is
   [`review/estate-inventory-2026-10-06.md`](review/estate-inventory-2026-10-06.md).
   All 37 rows were measured on their own `main`, and none went unmeasured.
   Classes: 3 Triads, 6 legs, 0 family holders, 0 workspace repositories and 28
-  single repositories, none of which records staying single. Recommendations to
-  the owners of those 28: migrate 12, record staying single 15, and none made
-  for the 1 `external` row. They are recommendations only; nothing was converted
-  or recorded on any repository's behalf. The tick holds on `main` only through
+  single repositories. Recommendations to the owners of those 28: migrate 12
+  and record staying single 15. For the 1 `external` row (`Fission-AI/OpenSpec`,
+  which the inventory defines as "NOT of this estate at all") none is made,
+  and the record states this as a departure from "for each single repository a
+  recommendation". They are recommendations only; nothing was converted or
+  recorded on any repository's behalf. The tick holds on `main` only through
   that pull request's merge, which waits on Brett Heap's merge word and its
   required checks.
 

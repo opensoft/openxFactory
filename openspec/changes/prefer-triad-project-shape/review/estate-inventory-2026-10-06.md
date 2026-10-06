@@ -59,8 +59,19 @@ wins.**
    repository or a fork, that is NOTED (§ 4, note A) to inform its
    recommendation, and the repository stays a single repository.
 
-A `single-repository.yaml` at a repository's root would be reported as
-"records staying single", beside its class.
+**The inventory's 37 rows are its whole scope.** None of them is a workspace
+repository or a family holder, and repositories outside the inventory are not
+measured. `opensoft/brett-wip`, a workspace repository, is not a row. Triads
+also exist outside it: `MedxSoft/MedxGlass`, for one, carries a root
+`project.yaml` with `kind: project-manifest` and `schema: project-repo-schema`
+at its `main` `582ce57c`, read on 2026-10-06.
+
+**This inventory is not a reader of `single-repository.yaml`.** The ratified
+requirement makes the advisory its only reader. So no row, count or
+recommendation here reports the file or depends on it. (The measurement pass
+did request that path, and `.gitmodules`, at each head, beside the files
+listed below. Neither result is used, and neither appears anywhere in this
+record.)
 
 **Every read was a GitHub REST GET made with `gh api`,** under an operator
 token that can read every row, private ones included.
@@ -71,22 +82,23 @@ token that can read every row, private ones included.
 - `repos/{repo}/commits/main` gave the head sha in the table's third column.
   **Every file below was read AT THAT SHA,** so each row stays fixed even after
   `main` moves.
-- `repos/{repo}/contents/{path}?ref={sha}` read `project.yaml`, `family.yaml`,
-  `single-repository.yaml` and `AGENTS.md`. An HTTP 404 means the file is
-  absent.
+- `repos/{repo}/contents/{path}?ref={sha}` read `project.yaml`, `family.yaml`
+  and `AGENTS.md`. An HTTP 404 means the file is absent.
 - `repos/{repo}/git/trees/{sha}` gave the root listing, which was used only to
-  inform a recommendation's reason. A private repository's reason draws on
-  nothing beyond the inventory's own `role:` text, its class, and public
-  sources.
+  inform a recommendation's reason. A private repository's reason names no
+  path from its tree. Only the public rows 2, 12, 16, 17, 28 and 29 cite
+  paths.
 - **Each name was classified by openRepoShape's own validator,** not by hand.
   The command was `python3 scripts/validate-repository-naming.py <the 37
   names>`, run in a read-only clone of `opensoft/openRepoShape` at
   `39d5c986`. Its verdict is the "name form" in the evidence column.
+  openxFactory itself pins openRepoShape at `e9c4827b`
+  (`contracts/openreposhape-pin.yaml`). The same command run at that commit
+  gives the same 37 verdicts.
 
-**openxFactory's own row is measured at `fc4fa0ff`, its `main` at that
-moment.** `main` has since moved to `a2dc658d` through #1253, #1252 and #1254.
-None of the three adds a root `project.yaml`, `family.yaml` or
-`single-repository.yaml`.
+**openxFactory's own row is measured at `fc4fa0ff`, #1253's merge and its
+`main` at that moment.** `main` has since moved to `a2dc658d` through #1252
+and #1254. Neither adds a root `project.yaml` or `family.yaml`.
 
 ## 2. The inventory
 
@@ -96,37 +108,37 @@ recommendation is a recommendation to the owner, never a decision (see above).
 
 | # | repository | `main` head (measured) | class | evidence (path) | recommendation, for the owner — and why |
 | ---: | --- | --- | --- | --- | --- |
-| 1 | `opensoft/xFactory` | `1047586df1885146437c4dd461bc3f0b016a0dd1` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **record staying single** (`single-repository.yaml`) — an aggregation (inventory role: aggregation root; owns workspace assembly and pins only): it assembles other repositories by gitlink, and the shape question belongs to the repositories it mounts |
-| 2 | `opensoft/openxFactory` | `fc4fa0ffc8726d7312e49aaa22316713c2ece641` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `neutral-product` | **migrate** (`adopt-project.py`) — a product with code and specs: its specification and contract corpus (`openspec/`, `specs/`, `contracts/`) beside its validators, its reference runtime helpers and their tests (`scripts/`, `xfactory/`, `tests/`) |
-| 3 | `codeXfactory/codexFactory` | `5ef09e3a0104acafc183c875a44429c47e13f510` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: DomainxFactory, engineering) |
-| 4 | `MedxSoft/MedxFactory` | `2dfde5b18a40280eaa8d815204f0e902e7743cb4` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: DomainxFactory, medical) |
-| 5 | `ledgerXfactory/LedgerxFactory` | `ba86f758b97f3a4fe0e38c86d10b152613e8c297` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: DomainxFactory, accounting) |
-| 6 | `opensoft/OpsxFactory` | `18623509c573ad2e297278e76a1d898510bb0bf5` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: DomainxFactory, IT operations) |
-| 7 | `opensoft/AdxFactory` | `e794dc2fc5094139f3eb2d3c78eff95d3bddaa99` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: DomainxFactory, marketing) |
-| 8 | `opensoft/MedxChart` | `9e05a88f3c944a2e9089c190a39ef2ba10632523` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **record staying single** (`single-repository.yaml`) — a composition boundary over `openChart`, which it mounts and pins (the inventory's header records both): the product it composes already has a repository of its own, where that product's shape question belongs |
-| 9 | `opensoft/MedxPractice` | `f7fd8364e033df4a6c5b0f84080b7bde5d156fb4` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **record staying single** (`single-repository.yaml`) — a practice-operations boundary over `openPractice`, which it mounts and pins (the inventory's header records both): the product it composes already has a repository of its own, where that product's shape question belongs |
+| 1 | `opensoft/xFactory` | `1047586df1885146437c4dd461bc3f0b016a0dd1` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **record staying single** (`single-repository.yaml`) — an aggregation (inventory role: aggregation root; owns workspace assembly and pins only): it assembles other repositories by gitlink, and the shape question belongs to the repositories it mounts |
+| 2 | `opensoft/openxFactory` | `fc4fa0ffc8726d7312e49aaa22316713c2ece641` | single repository | no `project.yaml` or `family.yaml` at the root; name form `neutral-product` | **migrate** (`adopt-project.py`) — a product with code and specs: its specification and contract corpus (`openspec/`, `specs/`, `contracts/`) beside its validators, its reference runtime helpers and their tests (`scripts/`, `xfactory/`, `tests/`) |
+| 3 | `codeXfactory/codexFactory` | `5ef09e3a0104acafc183c875a44429c47e13f510` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: DomainxFactory, engineering) |
+| 4 | `MedxSoft/MedxFactory` | `2dfde5b18a40280eaa8d815204f0e902e7743cb4` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: DomainxFactory, medical) |
+| 5 | `ledgerXfactory/LedgerxFactory` | `ba86f758b97f3a4fe0e38c86d10b152613e8c297` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: DomainxFactory, accounting) |
+| 6 | `opensoft/OpsxFactory` | `18623509c573ad2e297278e76a1d898510bb0bf5` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: DomainxFactory, IT operations) |
+| 7 | `opensoft/AdxFactory` | `e794dc2fc5094139f3eb2d3c78eff95d3bddaa99` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: DomainxFactory, marketing) |
+| 8 | `opensoft/MedxChart` | `9e05a88f3c944a2e9089c190a39ef2ba10632523` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **record staying single** (`single-repository.yaml`) — a composition boundary over `openChart`, which it mounts and pins (the inventory's header records both): the product it composes already has a repository of its own, where that product's shape question belongs |
+| 9 | `opensoft/MedxPractice` | `f7fd8364e033df4a6c5b0f84080b7bde5d156fb4` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **record staying single** (`single-repository.yaml`) — a practice-operations boundary over `openPractice`, which it mounts and pins (the inventory's header records both): the product it composes already has a repository of its own, where that product's shape question belongs |
 | 10 | `MedxSoft/MedxEHR` | `0e4a004438d0ce014904b6d047b769d877e06def` | Triad | `project.yaml`: `kind: project-manifest`, `schema: project-repo-schema`, `legs:` `spec` `MedxSoft/MedxEHR-spec` and `code` `MedxSoft/MedxEHR-code` | — elected; the advisory is silent here |
-| 11 | `opensoft/HealthLinc` | `ce844c14f78b1147b0bfd3f5573f959229177f02` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: Medx satellite); `MedxEHR`, the other Medx satellite, already elected the Triad |
-| 12 | `opensoft/openXwallet` | `95669e98e4d707ccb9433114269924880cf54569` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `neutral-product` | **migrate** (`adopt-project.py`) — a product with code and specs: the wallet standard's specification and contract corpus (`openspec/`, `specs/`, `contracts/`) beside its validators (`scripts/`, `tools/`, `tests/`); `openDox` and `openXdox`, neutral products pinned the same way, already elected |
+| 11 | `opensoft/HealthLinc` | `ce844c14f78b1147b0bfd3f5573f959229177f02` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: Medx satellite) |
+| 12 | `opensoft/openXwallet` | `95669e98e4d707ccb9433114269924880cf54569` | single repository | no `project.yaml` or `family.yaml` at the root; name form `neutral-product` | **migrate** (`adopt-project.py`) — a product with code and specs: the wallet standard's specification and contract corpus (`openspec/`, `specs/`, `contracts/`) beside its validators (`scripts/`, `tools/`, `tests/`) |
 | 13 | `opensoft/openDox` | `6a9f4902285029b4fb02753e2b79be0a137302c5` | Triad | `project.yaml`: `kind: project-manifest`, `schema: project-repo-schema`, `legs:` `spec` `opensoft/openDox-spec` and `code` `opensoft/openDox-code` | — elected; the advisory is silent here |
 | 14 | `opensoft/openXdox` | `9564d5d9462ffd1a3155d9177206368e5061efa8` | Triad | `project.yaml`: `kind: project-manifest`, `schema: project-repo-schema`, `legs:` `spec` `opensoft/openXdox-spec` and `code` `opensoft/openXdox-code` | — elected; the advisory is silent here |
-| 15 | `opensoft/openAvatar` | `31502eb26ad18e4cd5c861e6332f512a0da0387a` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `neutral-product` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: neutral product, avatar client) |
-| 16 | `opensoft/openRepoShape` | `39d5c986fcfac1a160474bfe91c5f1c37fccc72c` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `neutral-product` | **record staying single** (`single-repository.yaml`) — a tool: the shape's own scaffold, adopt and doctor tooling, which keeps no specification corpus at its root (no `openspec/`, no `specs/`) for a spec leg to carry, and which every elected project pins as one tree (`shape:` in its `project.yaml`, with `contracts/shape-pin.yaml`) |
-| 17 | `opensoft/AgentTower` | `8a27d21613fc127681d4c5aa2c5b063618276545` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs: `openspec/` and `specs/` beside `src/` and `tests/`; its name, unlike the `-Install` rows, is a valid assembly root |
-| 18 | `opensoft/xFactory-Hermes-Install` | `763b61e1c60cde3c8a55019590580d3241106e0e` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — its name is in the `install` form, which the naming policy admits into no role, so in-place adoption refuses it (note B) |
-| 19 | `opensoft/Omnigent-Install` | `30c9e08270225b6dc20ee8a6477f157650c4a149` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — its name is in the `install` form, which the naming policy admits into no role, so in-place adoption refuses it (note B) |
-| 20 | `opensoft/OmniWorker-Install` | `125d9636d6fed5589d628b4f32d812c0968d7979` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — its name is in the `install` form, which the naming policy admits into no role, so in-place adoption refuses it (note B) |
-| 21 | `opensoft/CloudPC-Install` | `7a2b57745441c3089946235311b0a6748e351e56` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — a configuration repository (inventory role: install, CloudPC); its name is in the `install` form, which the naming policy admits into no role, so in-place adoption refuses it (note B) |
-| 22 | `opensoft/xFactory-Installer` | `4b3a14b954429166c6bb4c8144a24a58e8294dfd` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `NO FAMILY` | **record staying single** (`single-repository.yaml`) — a tool (inventory role: install, workspace installer) whose hyphenated name matches no naming family (the naming policy lists it under `unclassified_examples`), so in-place adoption refuses it (note B) |
-| 23 | `opensoft/xFactory-MedxRootTruth-Install` | `62ffdd2a6a4bbe4138726c1d04621d9646f50ee1` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — its name is in the `install` form, which the naming policy admits into no role, so in-place adoption refuses it (note B) |
-| 24 | `opensoft/Keycloak-Install` | `0f7228f35a61f499ab3f717ad887aa80968f179f` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — a configuration repository (inventory role: install, Keycloak); its name is in the `install` form, which the naming policy admits into no role, so in-place adoption refuses it (note B) |
-| 25 | `opensoft/OpenXPKI-Install` | `2469ce3d17b40099ea4f2c7e2a96dde4ebe1ca17` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — a configuration repository (inventory role: install, OpenXPKI); its name is in the `install` form, which the naming policy admits into no role, so in-place adoption refuses it (note B) |
-| 26 | `Fission-AI/OpenSpec` | `9111a7654d7800391459431fff4eaf66e33a3d2e` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **none made** — `governance: external`, a third-party CLI that this estate pins and authors none of; this record addresses no recommendation to a third party's owner |
-| 27 | `opensoft/LedgerxWallet` | `0a0141cafc1fecd5d0e38b14e4f40a67a54a08d3` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **record staying single** (`single-repository.yaml`) — the Ledgerx overlay of `openXwallet` (inventory role; the naming policy's `example_chains` records `LedgerxWallet: [openXwallet, openWallet]`): the standard it overlays already has a repository of its own, where that standard's shape question belongs |
-| 28 | `opensoft/openChart` | `aff1829cab68547437e725839afe9f702c5bea43` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `neutral-product` | **migrate** (`adopt-project.py`) — a product with code and specs: `openspec/` and `specs/` beside `open_chart/` and `tests/` |
-| 29 | `opensoft/openPractice` | `0ec9fca72ecf493e2520e676387f0c3f327cc6e6` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `neutral-product` | **migrate** (`adopt-project.py`) — a product at specification only (`ideation/`, `openspec/`, no implementation yet): the doctrine makes the Triad the default for a new project, and adopting before any code lands moves the least (its empty code leg is seeded only on `--allow-empty-leg code`, a person's explicit act) |
-| 30 | `opensoft/MedxAvatar` | `4ae4a71ca739050b0d1b74ca03975a3531309467` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **record staying single** (`single-repository.yaml`) — a configuration repository (inventory role: nested submodule of MedxSoft/MedxFactory), with no product of its own to split |
-| 31 | `opensoft/LedgerxAvatar` | `c7bdd11b7748718630174a1d9bd844b5dea9d897` | single repository | no `project.yaml`, `family.yaml` or `single-repository.yaml` at the root; name form `project-leg/assembly` | **record staying single** (`single-repository.yaml`) — a configuration repository over `openAvatar`, which it mounts (the inventory's header records it), with no product of its own to split |
+| 15 | `opensoft/openAvatar` | `31502eb26ad18e4cd5c861e6332f512a0da0387a` | single repository | no `project.yaml` or `family.yaml` at the root; name form `neutral-product` | **migrate** (`adopt-project.py`) — a product with code and specs (inventory role: neutral product, avatar client) |
+| 16 | `opensoft/openRepoShape` | `39d5c986fcfac1a160474bfe91c5f1c37fccc72c` | single repository | no `project.yaml` or `family.yaml` at the root; name form `neutral-product` | **record staying single** (`single-repository.yaml`) — a tool: the shape's own scaffold, adopt and doctor tooling, which keeps no specification corpus at its root (no `openspec/`, no `specs/`) for a spec leg to carry, and which every elected project pins as one tree (`shape:` in its `project.yaml`, with `contracts/shape-pin.yaml`) |
+| 17 | `opensoft/AgentTower` | `8a27d21613fc127681d4c5aa2c5b063618276545` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **migrate** (`adopt-project.py`) — a product with code and specs: `openspec/` and `specs/` beside `src/` and `tests/`; its name, unlike the `-Install` rows, is a valid assembly root |
+| 18 | `opensoft/xFactory-Hermes-Install` | `763b61e1c60cde3c8a55019590580d3241106e0e` | single repository | no `project.yaml` or `family.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — a product with code and specs, which note D would otherwise recommend to migrate; but its name is in the `install` form, which the naming policy admits into no role, so under the in-place posture `adopt-project.py` documents, adopting it under its own name is refused (note B) |
+| 19 | `opensoft/Omnigent-Install` | `30c9e08270225b6dc20ee8a6477f157650c4a149` | single repository | no `project.yaml` or `family.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — a product with code and specs, which note D would otherwise recommend to migrate; but its name is in the `install` form, which the naming policy admits into no role, so under the in-place posture `adopt-project.py` documents, adopting it under its own name is refused (note B) |
+| 20 | `opensoft/OmniWorker-Install` | `125d9636d6fed5589d628b4f32d812c0968d7979` | single repository | no `project.yaml` or `family.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — a product with code and specs, which note D would otherwise recommend to migrate; but its name is in the `install` form, which the naming policy admits into no role, so under the in-place posture `adopt-project.py` documents, adopting it under its own name is refused (note B) |
+| 21 | `opensoft/CloudPC-Install` | `7a2b57745441c3089946235311b0a6748e351e56` | single repository | no `project.yaml` or `family.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — a configuration repository (inventory role: install, CloudPC); its name is in the `install` form, which the naming policy admits into no role, so under the in-place posture `adopt-project.py` documents, adopting it under its own name is refused (note B) |
+| 22 | `opensoft/xFactory-Installer` | `4b3a14b954429166c6bb4c8144a24a58e8294dfd` | single repository | no `project.yaml` or `family.yaml` at the root; name form `NO FAMILY` | **record staying single** (`single-repository.yaml`) — a tool (inventory role: install, workspace installer) whose hyphenated name matches no naming family (the naming policy lists it under `unclassified_examples`), so under the in-place posture `adopt-project.py` documents, adopting it under its own name is refused (note B) |
+| 23 | `opensoft/xFactory-MedxRootTruth-Install` | `62ffdd2a6a4bbe4138726c1d04621d9646f50ee1` | single repository | no `project.yaml` or `family.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — a product with code and specs, which note D would otherwise recommend to migrate; but its name is in the `install` form, which the naming policy admits into no role, so under the in-place posture `adopt-project.py` documents, adopting it under its own name is refused (note B) |
+| 24 | `opensoft/Keycloak-Install` | `0f7228f35a61f499ab3f717ad887aa80968f179f` | single repository | no `project.yaml` or `family.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — a configuration repository (inventory role: install, Keycloak); its name is in the `install` form, which the naming policy admits into no role, so under the in-place posture `adopt-project.py` documents, adopting it under its own name is refused (note B) |
+| 25 | `opensoft/OpenXPKI-Install` | `2469ce3d17b40099ea4f2c7e2a96dde4ebe1ca17` | single repository | no `project.yaml` or `family.yaml` at the root; name form `install` | **record staying single** (`single-repository.yaml`) — a configuration repository (inventory role: install, OpenXPKI); its name is in the `install` form, which the naming policy admits into no role, so under the in-place posture `adopt-project.py` documents, adopting it under its own name is refused (note B) |
+| 26 | `Fission-AI/OpenSpec` | `9111a7654d7800391459431fff4eaf66e33a3d2e` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **none made** — `governance: external`, which the inventory defines as pinned and "NOT of this estate at all": a third party's CLI. This record addresses no recommendation to a third party's owner, a stated departure from 5.7's "for each single repository a recommendation" (note D) |
+| 27 | `opensoft/LedgerxWallet` | `0a0141cafc1fecd5d0e38b14e4f40a67a54a08d3` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **record staying single** (`single-repository.yaml`) — the Ledgerx overlay of `openXwallet` (inventory role; the naming policy's `example_chains` records `LedgerxWallet: [openXwallet, openWallet]`): the standard it overlays already has a repository of its own, where that standard's shape question belongs |
+| 28 | `opensoft/openChart` | `aff1829cab68547437e725839afe9f702c5bea43` | single repository | no `project.yaml` or `family.yaml` at the root; name form `neutral-product` | **migrate** (`adopt-project.py`) — a product with code and specs: `openspec/` and `specs/` beside `open_chart/` and `tests/` |
+| 29 | `opensoft/openPractice` | `0ec9fca72ecf493e2520e676387f0c3f327cc6e6` | single repository | no `project.yaml` or `family.yaml` at the root; name form `neutral-product` | **migrate** (`adopt-project.py`) — a product at specification only (`ideation/`, `openspec/`, no implementation yet): the doctrine makes the Triad the default for a new project, and adopting before any code lands moves the least (its empty code leg is seeded only on `--allow-empty-leg code`, a person's explicit act) |
+| 30 | `opensoft/MedxAvatar` | `4ae4a71ca739050b0d1b74ca03975a3531309467` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **record staying single** (`single-repository.yaml`) — a configuration repository (inventory role: nested submodule of MedxSoft/MedxFactory), with no product of its own to split |
+| 31 | `opensoft/LedgerxAvatar` | `c7bdd11b7748718630174a1d9bd844b5dea9d897` | single repository | no `project.yaml` or `family.yaml` at the root; name form `project-leg/assembly` | **record staying single** (`single-repository.yaml`) — a configuration repository over `openAvatar`, which it mounts (the inventory's header records it), with no product of its own to split |
 | 32 | `MedxSoft/MedxEHR-spec` | `7ea2583b69e3c118e29d98c4d0e644c412ec68d2` | leg | name form `project-leg/spec`; `AGENTS.md` opens as the spec leg; no `project.yaml` | — a leg of a Triad; the advisory is silent here |
 | 33 | `MedxSoft/MedxEHR-code` | `2960743f3a138c800bb648da0ba04f3185ea1b05` | leg | name form `project-leg/code`; `AGENTS.md` opens as the code leg; no `project.yaml` | — a leg of a Triad; the advisory is silent here |
 | 34 | `opensoft/openDox-spec` | `7db9438b4cc4446ab4e6ab5b552c220312deccc9` | leg | name form `project-leg/spec`; `AGENTS.md` opens as the spec leg; no `project.yaml` | — a leg of a Triad; the advisory is silent here |
@@ -144,8 +156,6 @@ recommendation is a recommendation to the owner, never a decision (see above).
 | workspace repository | 0 | — |
 | single repository | 28 | rows 1-9, 11, 12, 15-31 |
 | **total** | **37** | |
-
-**Records staying single: 0.** No row carries a `single-repository.yaml`.
 
 **Recommendations, over the 28 single repositories:**
 
@@ -172,23 +182,37 @@ These notes are not classes.
   `OpenXPKI-Install`, `MedxAvatar`, `LedgerxAvatar`.
 - Fork: none. GitHub reports `fork: false` for all 37 rows.
 
-**B. Some names cannot be adopted in place.** `adopt-project.py` adopts a
-repository IN PLACE. Its docstring records the ruling (Brett Heap, 2026-09-02)
-that the adopted repository "KEEPS ITS NAME, ITS IDENTITY AND ITS FULL
-HISTORY". Its `--project` argument is "the source repository's own name". It
-checks that name against the naming policy, and two refusals apply here:
+**B. Some names cannot be adopted in place under their own name.**
+`adopt-project.py` documents an IN-PLACE posture:
+
+- its docstring records the ruling (Brett Heap, 2026-09-02) that the adopted
+  repository "KEEPS ITS NAME, ITS IDENTITY AND ITS FULL HISTORY";
+- its `--project` help says that, for an in-place adoption, the name "is the
+  source repository's own name".
+
+The tool checks the `--project` name against the naming policy, and two
+refusals apply here:
 
 - `naming-role-mismatch` for the `install` form. Its remediation text reads "an
   `<X>-Install` may be no leg at all".
 - `naming-unclassified` for a name that matches no family.
 
+**The tool does not itself check that `--project` equals the source
+repository's name.** `_checked_plan_inputs` checks the name against the policy
+and nothing more. So the barrier is the documented in-place posture applied to
+the repository's own name. It is not a hard check binding the two.
+
 openRepoShape's validator at `39d5c986`, run over the 37 names, classifies
 seven as `install`. They are rows 18-21 and 23-25. It classifies
-`xFactory-Installer` (row 22) as `NO FAMILY`. For those eight, migrating would
-first need a rename, which is a separate decision for the owner. Neither this
-record nor the tool makes that decision, so the recommendation is to record
-staying single. Nothing here stands against an owner who would rather rename
-and then adopt.
+`xFactory-Installer` (row 22) as `NO FAMILY`. For those eight, adopting under
+the documented posture would first need a rename, which is a separate decision
+for the owner. Neither this record nor the tool makes that decision, so the
+recommendation is to record staying single.
+
+Four of the eight are products with code and specs: rows 18, 19, 20 and 23.
+Note D's first rule would otherwise recommend that they migrate, and the naming
+barrier is the only reason it does not. Nothing here stands against an owner
+who would rather rename and then adopt.
 
 **C. Acting on "record staying single" waits on `tasks.md` § 5.2.** OQ-1 was
 ruled: the record is `single-repository.yaml` at the repository root, and its
@@ -207,9 +231,16 @@ three outcomes follow from that:
 - **Record staying single** is recommended in two cases. The first is where the
   repository is not such a product: an aggregation, a configuration repository,
   a tool, or a domain boundary or overlay whose product has a repository of its
-  own. The second is where its name bars adoption in place (note B).
-- **None** is made for the one `external` row, a third party's repository that
-  this estate pins and authors none of.
+  own. The second is where its name bars adoption in place under the
+  documented posture (note B). That holds even for the four products with code
+  and specs among the eight.
+- **None** is made for the one `external` row, `Fission-AI/OpenSpec`. The
+  inventory's header separates `external` from `pinned`. Of a `pinned`
+  repository it says "openxFactory consumes it at a commit and digest and
+  authors none of it". Of an `external` one it says "it is pinned and is NOT
+  of this estate at all". This record addresses no recommendation to a third party's owner.
+  **This is a stated departure** from 5.7's text, "for each single repository
+  a recommendation".
 
 ## 5. Not measured
 
@@ -226,7 +257,7 @@ No row was skipped, and no class was inferred for a row that could not be read.
 ```sh
 gh api repos/<owner>/<repo> --jq '.default_branch, .fork'
 gh api repos/<owner>/<repo>/commits/main --jq .sha
-gh api 'repos/<owner>/<repo>/contents/project.yaml?ref=<sha>'    # likewise family.yaml, single-repository.yaml, AGENTS.md
+gh api 'repos/<owner>/<repo>/contents/project.yaml?ref=<sha>'    # likewise family.yaml, AGENTS.md
 python3 scripts/validate-repository-naming.py <name> ...         # in an openRepoShape checkout at 39d5c986
 ```
 
