@@ -3206,7 +3206,7 @@ Archived changes:
 
 - [add-worker-input-budget](openspec/changes/archive/2026-10-06-add-worker-input-budget/proposal.md)
   — **ARCHIVED 2026-10-06** by
-  [PR #ARCHIVE-PR-NUMBER-PENDING](https://github.com/opensoft/openxFactory/pull/ARCHIVE-PR-NUMBER-PENDING),
+  [PR #1258](https://github.com/opensoft/openxFactory/pull/1258),
   by lane `openxfactory-1`, landed by MERGE COMMIT, never squash, on Brett
   Heap's separate archive word, verbatim ***"archive add-worker-input-budget
   after it lands"*** (2026-10-06, in session; RULED in `opensoft/brett-wip`
