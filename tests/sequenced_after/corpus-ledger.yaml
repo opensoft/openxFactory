@@ -107,6 +107,7 @@ rows:
   add-drafted-proposal-origin: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#644", moved_on: "2026-09-04"}
   add-duplicate-packet-check: {state: archived, class: co-modifier, declares: absent, prose: true, moved_by: "#623", moved_on: "2026-09-03"}
   add-estate-repository-inventory: {state: archived, class: co-modifier, declares: [amend-code-surface-grammar-comma-and], depth: 1, prose: false, moved_by: "#1149", moved_on: "2026-09-23"}
+  add-factory-mcp-conformance: {state: active, class: sole, declares: absent, prose: false, moved_by: "#1243", moved_on: "2026-10-05"}
   add-family-enumeration-check: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-github-app-identity-tiers: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-governed-derived-model: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
