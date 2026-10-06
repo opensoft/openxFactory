@@ -195,7 +195,7 @@ The neutral shape is [`contracts/health-finding.md`](./contracts/health-finding.
 | `pack_id` | NOT NULL; `opendox` for the product's own families (15.7, OQ-H15-19) |
 | `pack_version` | NOT NULL; the installed version for `opendox` (OQ-H15-18) |
 | `path` | corpus-relative; empty for an install-level or pre-run finding |
-| `identity` | the position-independent key the family supplies, or the engine's own for an engine-authored finding (`{category, entry}` for a pathless one, `{collided_id}` for a collision); STORED as canonical sorted-key JSON and emitted by `health list --json` and the HTTP response (the holder, `6018624750`); bounded as openDox-spec's finding schema bounds it, with an engine cap on its serialized size, stricter than the schema's, as for `pack_id` and `kind` (the cap's value is T041's and T042's to set) |
+| `identity` | the position-independent key the family supplies, or the engine's own for an engine-authored finding (`{category, entry}` for a pathless one, `{collided_id}` for a collision); STORED as canonical sorted-key JSON and emitted by `health list --json` and the HTTP response (the holder, `6018624750`); bounded as openDox-spec's finding schema bounds it, with an engine cap on its serialized size, stricter than the schema's, as for `pack_id` and `kind` (the cap is T041's, the contract module's; T042 stores what T041 bounds) |
 | `locator` | DISPLAY ONLY, outside the hash: a line span, a link target as written; never document text |
 | `severity` | the neutral severities U-0 spells |
 | `resolution_class` | `auto-fix` \| `assisted` \| `human-only` (14.6) |

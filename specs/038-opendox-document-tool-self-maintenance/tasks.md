@@ -870,8 +870,8 @@ copies (research R7; ADV-05).
   `content` or `quote` key, no number, every string at most 200 characters; a
   pathless finding's identity is `{category, entry}` and a collision's is
   `{collided_id}`), under an engine cap on its serialized size, stricter than the
-  schema's, as for `pack_id` and `kind` (the cap's value is T041's and T042's to
-  set, and T041 tests it at its boundary, as it tests theirs); the bounds on `message` and
+  schema's, as for `pack_id` and `kind` (the cap is T041's, since the contract module owns the
+  field bounds, and T041 tests it at its boundary, as it tests theirs); the bounds on `message` and
   `evidence` (R2Q25 (a); ADV-27); a closure test that the module imports only the
   standard library. Copy T040's finding schema at the spec commit T060 pins into
   openDox-code's EXISTING copy record: `copies.yaml`'s `commit:` moves to that
@@ -898,7 +898,7 @@ copies (research R7; ADV-05).
   `full`, and the probe's `sandbox` record; Copilot review) and
   `health_findings` (data-model.md, with an `identity` column: canonical
   sorted-key JSON, its serialized size capped by the engine, stricter than the
-  schema's; the holder, `6018624750`), with 15.7's
+  schema's; the holder, `6018624750`; T042 stores what T041 bounds), with 15.7's
   `pack_id`/`pack_version` NOT NULL from the first landing, and NO patch column
   (14.3; R2Q25 (a); lane 3's MISLABEL row 31). DOMAIN tables in
   `runtime/identity.py`'s `TABLES` (R2Q13 (a)); `runtime/cli.py`'s `DROP_ORDER` and
