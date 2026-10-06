@@ -7,7 +7,7 @@ Session: ed23f049-7e99-4601-8a6d-760b6aeb5f26
 Captured: 2026-10-06, measured in one pass from 2026-10-06T18:57:19Z to 2026-10-06T19:01:23Z
 Task: `tasks.md` § 5.7, *the estate inventory, a recommendation only* (`design.md` D7)
 Authority: the realization of this RATIFIED change, on Brett Heap's in-session word of 2026-10-06T17:41:18Z, verbatim *"usage is fine, launch all four"*. The ratifying word was 2026-10-06T16:02:16Z, verbatim *"ratify 1249 as recommended"*, recorded at `review/ratification-2026-10-06.md`.
-Inventory read: `scripts/estate-repository-inventory.yaml`, 37 rows, at openxFactory `main` `e63809650d39586134c4ec4fdb6e9effc87a7860`, blob `ce17309515898aec3b078ec2ea04492caef5e084`. The file was last changed by `1c6662e7862e2c1389d05a2bf78f3a4b54eb5157` (#1163), and the same blob stands at `c44c16105ef7f18202711ba75094754af8f0b58f`, this record's base.
+Inventory read: `scripts/estate-repository-inventory.yaml`, 37 rows, at openxFactory `main` `e63809650d39586134c4ec4fdb6e9effc87a7860`, blob `ce17309515898aec3b078ec2ea04492caef5e084`. The file was last changed by `1c6662e7862e2c1389d05a2bf78f3a4b54eb5157` (#1163), and the same blob stands at `a2dc658d90be2eaf700a41f60599c68905485e46`, this record's base.
 Naming policy read: `opensoft/openRepoShape` `contracts/repository-naming.yaml` at `39d5c986fcfac1a160474bfe91c5f1c37fccc72c`, that repository's `main` when measured.
 
 ## What this record is, and what it is not
@@ -84,8 +84,9 @@ token that can read every row, private ones included.
   `39d5c986`. Its verdict is the "name form" in the evidence column.
 
 **openxFactory's own row is measured at `fc4fa0ff`, its `main` at that
-moment.** `main` has since moved to `c44c1610` through #1253 and #1252. Neither
-adds a root `project.yaml`, `family.yaml` or `single-repository.yaml`.
+moment.** `main` has since moved to `a2dc658d` through #1253, #1252 and #1254.
+None of the three adds a root `project.yaml`, `family.yaml` or
+`single-repository.yaml`.
 
 ## 2. The inventory
 
