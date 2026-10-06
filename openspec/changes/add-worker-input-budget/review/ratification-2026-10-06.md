@@ -164,13 +164,23 @@ throwaway copy proved the scan. Damaging either citation, or giving this
 record a status other than `ratified`, raised a CRITICAL finding naming the
 damaged file.
 
+**This pull request lands by SQUASH, and only a squash landing conforms to
+the second word.** Option (i) was put as adding the origin file *in the
+ratifying commit*. On this branch the ratification is commit `a93865f0` and
+the origin file comes in the later commit `b3b7db42`, so only a squash puts
+the two into one commit on `main`.
+
 A second probe ran the archive gate's origin-retention walk
 (`proposal-support.py`'s `origin_retention_errors`) on throwaway copies of
-both possible landings of this pull request onto `main` `51456835`:
+two landings of this pull request onto `main` `51456835`:
 
-- **A squash landing:** the squash commit is the ratifying commit, so the
-  origin is part of it. The walk reports *"ORIGIN RETAINED … declaration
-  unchanged since the ratifying commit"*.
-- **A merge landing:** the walk takes `a93865f0` as the ratifying commit.
-  That commit declares no origin, so the walk reports *"ORIGIN RETENTION NOT
-  COMPARABLE"*, which the gate treats as lawful.
+- **Squash, the conforming landing:** the squash commit is the ratifying
+  commit and carries the origin. The walk reports *"ORIGIN RETAINED …
+  declaration unchanged since the ratifying commit"*.
+- **Merge, NOT conforming:** the walk takes `a93865f0` as the ratifying
+  commit. That commit declares no origin, so the walk reports *"ORIGIN
+  RETENTION NOT COMPARABLE"*. The gate does not refuse that, but it leaves
+  no retention baseline and splits what option (i) put into one commit.
+- **Rebase, NOT conforming, and not run:** a rebase would also land
+  `a93865f0` as a commit of its own, ahead of the origin file, so it splits
+  them the same way a merge does.
