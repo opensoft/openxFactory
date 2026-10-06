@@ -125,24 +125,40 @@ The word ratifies the deltas as they stand, which means the two requirements
 named above. The Impact line is proposal text, so this record does not
 correct it. It is reported to the lane with this record.
 
-## 5. What was measured at this record's commit
+## 5. What was measured
 
-Each gate ran twice in one full clone: once on `main` at `92010d3e`, and once
-on that tree plus this record's changes. Every result below is the same on
-both trees.
+Each gate ran at the same time in two full clones of the same kind:
+- one at `main` `51456835`;
+- one at this pull request's merged head `9e67f838`, which is `main`
+  `51456835` plus this pull request.
 
-| gate | result on both trees |
-| --- | --- |
-| `scripts/validate-openspec-cli-pin.py --all --strict` | exit 0; 111 passed and 1 failed of 112 items. The one is `add-chain-attestation`'s accepted exception; 0 UNDISPOSITIONED |
-| `scripts/validate-openspec-cli-pin.py --change add-worker-input-budget` | exit 0; 1 passed, 0 failed |
-| `scripts/validate-code-surface.py .`, `scripts/validate-target-release.py .`, `scripts/validate-scope-globs.py .` | exit 0, with identical output |
-| `scripts/validate-sequenced-after.py .`, and with `--ledger-diff` | exit 0; this packet's ledger row does not move |
-| `scripts/proposal-support.py . verify add-worker-input-budget` | exit 1, *"no origin declaration"* (§ 3) |
-| `scripts/doc-health.py --single-repo . --as-of 2026-10-06` | the same 284 finding lines. This packet is named in two of them: the `proposal-origin` WARNING (§ 3), and the `modified-block-currency` INFO that records the MODIFIED block's deliberate rewording of canon's *"is exactly"* bullet |
-| `pytest` over `tests/doc-health`, `sequenced_after`, `review_lane_pin`, `proposal-support`, `code_surface`, `target_release`, `packet_reference`, `citation_remainder`, `scope_globs`, `former_id_arrival` and `openspec_cli_pin` | 3581 passed, 7 failed and 3 skipped. The 7 failures are the same tests on both trees, and all 7 come from the clone, whose `openDox` and `openXdox` legs were not initialized |
+The only change made after that head is this section's own text. An earlier
+pair of runs, taken before the origin file existed, measured `main`
+`92010d3e` against the ratifying commit and found every result identical.
+
+| gate | `main` `51456835` | this pull request |
+| --- | --- | --- |
+| `scripts/validate-openspec-cli-pin.py --all --strict` | exit 0; 112 passed and 1 failed of 113 items. The one is `add-chain-attestation`'s accepted exception; 0 UNDISPOSITIONED | the same |
+| `scripts/validate-openspec-cli-pin.py --change add-worker-input-budget` | exit 0; 1 passed, 0 failed | the same |
+| `scripts/validate-code-surface.py .`, `scripts/validate-target-release.py .`, `scripts/validate-scope-globs.py .` | exit 0 | the same output |
+| `scripts/validate-sequenced-after.py .`, and with `--ledger-diff` | exit 0 | the same output; this packet's ledger row does not move |
+| `scripts/proposal-support.py . verify add-worker-input-budget` | exit 1, *"no origin declaration"* | **exit 0**, *"proposal support verification ok"* |
+| `scripts/doc-health.py --single-repo . --as-of 2026-10-06` | 284 finding lines. Two name this packet: the `proposal-origin` WARNING for the missing origin, and the `modified-block-currency` INFO that records the MODIFIED block's deliberate rewording of canon's *"is exactly"* bullet | 282 finding lines: the same set without the `proposal-origin` WARNING's two lines. **No new finding**; the INFO stays |
+| `pytest` over `tests/doc-health`, `sequenced_after`, `review_lane_pin`, `proposal-support`, `code_surface`, `target_release`, `packet_reference`, `citation_remainder`, `scope_globs`, `former_id_arrival` and `openspec_cli_pin` | 3581 passed, 7 failed and 3 skipped | the same; the same 7 tests fail. All 7 come from the clone, whose `openDox` and `openXdox` legs were not initialized |
 
 This record and the `Ratified:` line in `proposal.md` are each inside
 `ratified-provenance`'s scan set, and neither draws a finding. A probe on a
 throwaway copy proved the scan. Damaging either citation, or giving this
 record a status other than `ratified`, raised a CRITICAL finding naming the
 damaged file.
+
+A second probe ran the archive gate's origin-retention walk
+(`proposal-support.py`'s `origin_retention_errors`) on throwaway copies of
+both possible landings of this pull request onto `main` `51456835`:
+
+- **A squash landing:** the squash commit is the ratifying commit, so the
+  origin is part of it. The walk reports *"ORIGIN RETAINED … declaration
+  unchanged since the ratifying commit"*.
+- **A merge landing:** the walk takes `a93865f0` as the ratifying commit.
+  That commit declares no origin, so the walk reports *"ORIGIN RETENTION NOT
+  COMPARABLE"*, which the gate treats as lawful.
