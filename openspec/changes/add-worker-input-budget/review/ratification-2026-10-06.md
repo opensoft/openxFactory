@@ -130,23 +130,33 @@ correct it. It is reported to the lane with this record.
 Every run used full clones of the same kind, each named `openxFactory`.
 Before the origin file existed, a first pair of runs measured `main`
 `92010d3e` against the ratifying commit and found every result identical.
-After the origin file, the tree moved three times while this pull request
-was open, and each tree was measured against the `main` it was merged with:
+After the origin file, every tree this pull request reached was measured
+against the `main` it was merged with:
 
-1. **The full set** ran at the same time at `main` `51456835` and at this
-   branch merged with it, `9e67f838`. The table below gives its results.
-2. **The gates and doc-health** (every row but `pytest`) ran again at `main`
-   `e6380965` and at this branch merged with it, `cc0fc853`. That merge
-   brought in another change's packet, `prefer-triad-project-shape`
-   (#1249), and no byte of this one. Every result matched the table, except
-   that `--all --strict` counted one more passing item on both trees: the
-   new packet.
-3. **The full set** ran a third time at `main` `e6380965` and at `cc0fc853`
-   plus this section's own commit. That commit changes two files: this
-   record's § 5, and the status clause that
+1. **The full set**, at `main` `51456835` against `9e67f838`. The table below
+   gives its results.
+2. **The gates and doc-health** (every row but `pytest`), at `main`
+   `e6380965` against `cc0fc853`. That merge brought in another change's
+   packet, `prefer-triad-project-shape` (#1249), and no byte of this one.
+3. **The full set**, at `main` `e6380965` against `60c38a56`. That commit
+   changes this record's § 5, and the status clause that
    `ideation/staging/doc-health-sweep-carry-over/` carried for this packet,
-   which said `Status: draft`. Every result matched the table, with the same
-   `--all --strict` count as run 2.
+   which said `Status: draft`.
+4. **The gates and doc-health**, at `main` `e6380965` against `7229fde4`.
+   That commit rewrites this record's landing paragraph, below, to say this
+   pull request lands by squash.
+5. **The gates and doc-health**, at `main` `c44c1610` against `8dbb011e`.
+   That merge brought in the archive of `add-factory-mcp-conformance`
+   (#1252) and no byte of this packet.
+6. **The gates and doc-health**, at `main` `c44c1610` against `8dbb011e`
+   plus the commit that writes this list. That commit changes nothing but
+   this list.
+
+Every result matched the table in every run. The one difference is that
+`--all --strict` counted one more passing item on both trees from run 2
+onward, the packet #1249 brought in. A later merge of `main` that touches no
+byte of this packet is measured by the pull request's own checks rather
+than listed here.
 
 | gate | `main` `51456835` | this pull request |
 | --- | --- | --- |
