@@ -533,7 +533,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: codeXfactory/codexFactory
-          ref: "f28ea0b25fcec592a61bd695fb516ff3ae99d33c"
+          ref: "5ef09e3a0104acafc183c875a44429c47e13f510"
           path: .merge-master-core
           persist-credentials: false
           # The codeXfactory-scoped token, NOT `app-token`: see the mint above.

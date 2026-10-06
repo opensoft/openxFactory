@@ -99,9 +99,14 @@ pairs and the carve manifest's notes.
 
 **Its falsifier is behavioural.** T072's tests assert the round trip over a
 corpus of line endings (CR, LF, CRLF, none, mixed, and the exotic separators
-`str.splitlines()` would wrongly split on: form feed, U+2028). A test that
-compares the module with openxFactory's `lines.py` would need openxFactory and
-belongs in the composed run, not in openDox-code's own suite.
+`str.splitlines()` would wrongly split on: form feed, U+2028), and assert the
+BOUNDARIES themselves: only CR, LF and CRLF split rows, CRLF is one ending,
+and no exotic separator splits one. The round trip alone cannot prove the
+real-line rule, because `str.splitlines(keepends=True)` followed by
+`"".join(...)` round-trips the same texts while splitting on form feed and
+U+2028; the boundary assertions are what fail it. A test that compares the
+module with openxFactory's `lines.py` would need openxFactory and belongs in
+the composed run, not in openDox-code's own suite.
 
 **It is opportunistic (ARC-6).** It rides T061's 0.2.0 pin only if it has
 already landed. T061 never waits for it. A later T072 rides the arc's own pin
@@ -327,10 +332,19 @@ runs both guards over its OWN landings:
   `requirement 1 holds`. `tasks.md` 4.3 carries the full command.
 - **In openXdox-code: the protected-suite oracle over this change's
   landings.**
-  `python3 scripts/protected_suites.py --landings=<this change's openXdox-code landings> --suites=<12.5's 16>`,
-  and the same with `--chains --suites=<F5.2's 7>`. Both must exit 0. T074
-  touches no protected suite (§ 2), so both are expected to pass with no
-  allow-list entry. A failure stops the archive.
+  `python3 scripts/protected_suites.py --landings=<this change's openXdox-code landings> --suites=<12.5's governed set>`,
+  where that set is COMPUTED as 12.5's falsifier computes it,
+  `git grep -l -e 'open-pr' -e 'open_pr' -e 'FakePullRequests' -- 'tests/test_*.py'`,
+  with its floor of 16 (16 at `ab04453d`), and never typed out. A typed list
+  freezes the set at today's names, so a governed suite added or renamed
+  before T074 would be absent from this oracle and the arc could edit it
+  undetected. The set is computed from the tree BEFORE the arc's first landing
+  in that repository AND from the final tree, and the oracle takes their
+  UNION, with the floor held on each. From the final tree alone, a landing
+  could strip a suite's markers and so edit its own protection away. And the
+  same with `--chains --suites=<F5.2's 7>`. Both must exit 0. T074 touches no
+  protected suite (§ 2), so both are expected to pass with no allow-list
+  entry. A failure stops the archive.
 
 It is quoted in T075's PR, and again at the archive (T077) with `ARC_TIP` the
 last realization landing.
