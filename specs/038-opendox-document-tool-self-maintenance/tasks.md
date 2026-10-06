@@ -1056,18 +1056,21 @@ copies (research R7; ADV-05).
     package data is needed (second).
   - **Lane**: 3.
 - [ ] T056 [US6] [oDc] **G15-E, the engine integration, and the bounds measured.**
-  New `check_pack_engine.py`, called from T046's hook: runs each manifest entry in
-  the sandbox under the engine's budget; stamps `pack_id`/`pack_version` from the
-  manifest entry; validates each returned patch through T049 and stores only the
-  finding (a refusal names `refused_patch` and `reason`; no patch text); re-obtains
-  one finding's patch at `fix` by re-running that one pinned pack (OQ-H15-20);
-  turns a crash, timeout, bound hit, bad stdout or refused output into a finding
-  against that pack, and keeps the view, the classes, the baseline and the landing
-  rule the engine's (15.4). Measure the bounds' defaults against T055's
-  `pack-corpus` before fixing them (ADV-22): address space, CPU, file size, tmpfs
-  and stdout through rlimits and `bwrap`, the process count through `pids.max`
-  where a cgroup is delegated, never `RLIMIT_NPROC`, which setrlimit(2) counts
-  per real user (lane 3's bwrap-facts FIX). Owns nothing of Group 14's.
+  New `check_pack_engine.py`, called from T046's hook: runs each manifest entry
+  in the sandbox under the engine's budget; stamps `pack_id`/`pack_version` from
+  the manifest entry; validates each returned patch through T049 and stores only
+  the finding (a refusal names `refused_patch` and `reason`; no patch text);
+  re-obtains one finding's patch at `fix` by re-running that one pinned pack
+  (OQ-H15-20); turns a crash, timeout, bound hit, bad stdout or refused output
+  into a finding against that pack, storing none of its output and no stderr
+  (only the failure's category, exit status, and stderr's byte count and
+  SHA-256; OQ-H15-11, refined), and keeps the view, the classes, the baseline
+  and the landing rule the engine's (15.4). Measure the bounds' defaults against
+  T055's `pack-corpus` before fixing them (ADV-22): address space, CPU, file
+  size, tmpfs and stdout through rlimits and `bwrap`, the process count through
+  `pids.max` where a cgroup is delegated, never `RLIMIT_NPROC`, which
+  setrlimit(2) counts per real user (lane 3's bwrap-facts FIX). Owns nothing of
+  Group 14's.
   - **Realizes**: 15.4, 15.5 (part), 15.6, 15.7 (part: stamping).
   - **Falsifier**: new `tests/test_check_pack_engine.py`; the measurement quoted
     in its PR.

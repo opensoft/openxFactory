@@ -95,8 +95,12 @@ stated so):
   fixed (ADV-22).
 - **A pack's failure is a finding** (15.6). A timeout or bound hit, a crash, a
   non-JSON stdout or a stdout over the cap is a finding against THAT pack; the
-  run continues. stderr is dropped, except a bounded tail in that finding
-  (OQ-H15-11).
+  run continues. **stderr is never stored, in that finding or anywhere:** a
+  pack can read the exported corpus, so its stderr may carry document text
+  (R2Q25 (a); FR-009). The finding carries only engine-authored metadata: the
+  failure's category, the exit status or signal, and stderr's byte count and
+  SHA-256 (OQ-H15-11, refined by Copilot's review of `b7137d5e`). As 15.6 has
+  it for stdout, none of a failing pack's output is stored.
 - **The pack's output.** One JSON document on stdout: `{"findings": [ … ]}`, each
   a finding in `contracts/health-finding.md`'s shape without `id`, `pack_id`,
   `pack_version` or `baseline_class` (the engine stamps those), and optionally a
