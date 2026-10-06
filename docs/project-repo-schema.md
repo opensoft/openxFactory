@@ -3,6 +3,16 @@
 Status: ratified
 Kind: standard
 Ratified by: add-project-repo-schema
+Amended by: prefer-triad-project-shape (ratified 2026-10-06T16:02:16Z,
+  openxFactory PR #1249) — the Triad named the PREFERRED project shape, with
+  the posture restated beside it unchanged: still elective, still the `PA`
+  decision, still conferring NOTHING; advised once where a person starts work,
+  never blocking and never converting; never a review input; silent in an
+  elected Triad, a leg clone, a family holder, a `<user>-wip` workspace
+  repository and a repository carrying the optional `single-repository.yaml`.
+  Added as § The Triad is PREFERRED, and it still confers NOTHING. Realized per
+  `openspec/changes/prefer-triad-project-shape/tasks.md` task 5.1. This
+  document's own status line and ratifying citation are unchanged by it.
 
 GitHub has no folder that groups repositories, so a project spanning several of
 them is held together by convention or by nothing. This document is openxFactory's
@@ -48,6 +58,163 @@ stated once is a posture the second reader does not meet.
 **Every authority question is deferred**, by name, to the sibling work on
 wallet-carried work authority. This document declares no grant, no clearance and
 no gate standing.
+
+## The Triad is PREFERRED, and it still confers NOTHING
+
+Ratified 2026-10-06 by `prefer-triad-project-shape`, on Brett Heap's direction
+of that day: *"the triad should be the prefered structure and should prompt or
+warn the user if working on a non Triad repo."* That change keeps every sentence
+of the section above and adds this one beside it, so the preference is never
+stated without the posture.
+
+**The Triad is the PREFERRED project shape, and preferred is NOT required.**
+"Triad" is the human-facing name for the three-repository shape this document
+defines — an assembly root with a spec leg and a code leg, described in § The
+three legs below — and "three-leg project" and "three-repository project" remain
+accepted synonyms. The name is vocabulary only: no machine key, `kind`, field,
+file name or naming family is renamed by it, so `project-manifest`,
+`project-repo-schema`, `legs[].role` and every other key a reader parses stay
+exactly as they are.
+
+The Triad is the recommended default for a new project and the recommended
+migration target for an existing single-repository project. The recommendation
+is made TO the person deciding and never in their place. Electing is still the
+`PA` decision above, `CA`-constrained and `PM`-sequenced, taken per project by a
+human. Converting an existing repository is still openRepoShape's
+`adopt-project.py`, run by a person deciding for that project, and nothing
+converts a repository automatically.
+
+**The preference confers NOTHING, so every sentence of the section above holds
+unchanged.** It adds no gate, no floor, no grant, no clearance eligibility, no
+lifecycle state and no review difference. A project that keeps all of its work in
+one repository is reviewed identically to a Triad, is not less governed, is not
+reviewed more suspiciously, and owes no declaration. Wherever the preference is
+stated, this posture is stated with it — here, in the project register's schema
+description, and in openRepoShape's assembly-root manifest template — so that no
+reader meets "preferred" without also meeting "confers nothing".
+
+### Where it is said: once, where a person starts work
+
+The preference reaches a person as an ADVISORY, and only where that person
+starts work on a repository that has not elected the Triad:
+
+- **An agent session addressing a person** says it once per session and then
+  carries on with the work it was asked to do. A subagent, a delegated worker and
+  an unattended run address no person and say nothing.
+- **The workstation bootstrap** that installs a repository's agent-workflow
+  pointers prints it as a warning in a non-interactive run, with its exit status
+  unchanged. In an interactive terminal it asks before continuing, with
+  continuing as the default answer, so a person who takes the default gets
+  exactly the run they would have had without the advisory.
+- **openRepoShape's scaffold, adopt and doctor** may report it beside what they
+  already report, and change no exit status on its account.
+
+Where a person creates a new project, the creating tool or agent offers the
+Triad first, as the recommended default, and creates no repository the person
+has not confirmed. A single repository chosen instead is accepted without a
+reason being asked.
+
+The advisory names two exits and takes neither: how to convert (openRepoShape's
+`adopt-project.py`, run by a person deciding for that project) and how to stop
+meeting it (the optional record below). It converts nothing, creates nothing,
+writes no manifest and no record, and records nothing about having been given,
+so no later act can read "was advised" as a fact about a project. Its meaning,
+which each surface adapts to its own form, is:
+
+> This is a single repository. The Triad — an assembly root with a spec leg and a
+> code leg — is the preferred project shape: openRepoShape's `adopt-project.py`
+> converts a repository in place, and a project that stays single can say so in
+> `single-repository.yaml`. Nothing here changes; work continues.
+
+**It is never a blocking prompt.** A repository that is not a Triad is neither a
+decision a person must make before working nor a containment failure, so under
+the interrupt bar in [roles-and-authority](roles-and-authority.md) § Human
+Escalation Contract the default is always to continue.
+
+### Where it is never said: review
+
+**A project's shape is never a review input.** No review lane, required check,
+validator, floor, merge gate, clearance, council or other review surface reads
+whether a project elected the Triad, whether it recorded staying single, or
+whether the advisory was given, in order to pass, fail, warn in review output or
+change any eligibility. That is what keeps a one-repository project and a Triad
+reviewed IDENTICALLY now that one of them is preferred.
+
+An electing project's own conformance gate is not such a reading. The naming,
+lockstep-pin and manifest validators this document gives an assembly root, and
+the doctor run over that root, check the shape the project ELECTED against what
+it declared, and none of them reaches a repository that did not elect.
+openRepoShape's doctor answers a person's question about one repository, and its
+`NOT A SHAPE ROOT` verdict is an answer to that person. A required check, review
+lane or merge gate built on that verdict, or on any other reading of whether a
+repository is a Triad, is DEFECTIVE, exactly as a consumer deriving a permission
+from layout is.
+
+A shape warning placed inside review — a required check, a review comment, a
+council finding — is therefore not a realization of the preference. It would
+amend the one sentence above, and it must be proposed as such an amendment if it
+is ever wanted.
+
+### Where it is silent
+
+The advisory is not given where the shape question is already answered or does
+not arise. Each case is read from a declared fact — the repository's own tree,
+the pinned naming policy, or the person's own configuration — and never inferred:
+
+1. **An elected Triad assembly root**: `project.yaml` carrying
+   `kind: project-manifest`, `schema: project-repo-schema` and `legs:` naming a
+   `spec` and a `code` leg.
+2. **A leg clone**, where the existing instruction to move to the assembly root
+   applies instead.
+3. **A family holder**: `family.yaml` carrying `kind: family-manifest` and no
+   `project.yaml`, which pins member projects and is not itself a project that
+   could elect.
+4. **A `<user>-wip` workspace repository**, which holds no code and elects
+   nothing, identified by the naming family openRepoShape's naming policy
+   declares for it or because the person's own workspace configuration names it.
+5. **A repository that has recorded staying single**: `single-repository.yaml` at
+   its root, below.
+
+**That list is the whole list.** Every other repository — an aggregation, a
+configuration or dotfile repository, a vendored fork, or any class a tool might
+infer — receives the advisory until it migrates or records staying single. No
+surface exempts a repository by guessing its class. A class that should be
+exempt is first given a declared fact, as `<user>-wip` has a naming family, and
+then added to this list by a change to the `project-repo-schema` capability.
+
+### The optional staying-single record
+
+A project that has decided to stay a single repository MAY say so once, in
+`single-repository.yaml` at its repository root. The record is OPTIONAL and never
+owed. A project that declines the Triad and records nothing owes nothing, is
+reviewed identically, and meets only the advisory, once per session wherever a
+person starts work in it.
+
+The record carries `schema_version: 1`, `kind: single-repository-record`,
+`decided_by` (the person who decided for the project, as for an election),
+`decided_on` (an ISO date), `reason`, and an optional `revisit_on`. Its schema
+and template are openRepoShape's, as mechanics, like the rest of this schema's
+mechanics. Its ONLY reader is the advisory: a record whose `kind` is
+`single-repository-record` silences it. It confers nothing — no gate, no floor,
+no grant, no clearance eligibility, no lifecycle state and no review difference —
+and it restates that wherever it is recorded. A file that cannot be read, or
+that carries another `kind`, declares nothing and so silences nothing; a surface
+may report it, and reporting it fails nothing.
+
+It is deliberately NOT `project.yaml` or a field of it. `project.yaml` with
+`kind: project-manifest` and a spec and a code leg is how every surface detects
+a Triad, and the doctor's `NOT A SHAPE ROOT` verdict keys on that file's
+absence. The project register gains no field for it either: the register is
+navigation, and a staying-single marker there would be a second reader.
+
+### Who says it
+
+The advisory restates THIS document's preference where work starts. It is not
+codexFactory's act of RECOMMENDING the shape (§ Who owns what, below), which
+codexFactory keeps in full: that act is made to a project, and the election
+stays the project's human decision. Ruled on 2026-10-06 as that change's third
+open question (OQ-3), so the ownership split is unchanged and nothing is
+re-concentrated.
 
 ## The three legs
 
