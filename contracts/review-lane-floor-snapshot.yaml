@@ -157,12 +157,12 @@ floor:
     # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
     # prefix:             openspec/specs
     # source_repository:  opensoft/openxFactory
-    # generated_at:       e8fde27fa00a4b0f6d96fc29168498cb420fcbf9
-    # entry_count:        66
+    # generated_at:       a2dc658d90be2eaf700a41f60599c68905485e46
+    # entry_count:        67
     # regenerate with:
     #   python3 scripts/merge_master/generate_specs_floor_block.py \
     #     --repo <opensoft/openxFactory checkout> \
-    #     --ref e8fde27fa00a4b0f6d96fc29168498cb420fcbf9 --write
+    #     --ref a2dc658d90be2eaf700a41f60599c68905485e46 --write
     #
     # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
     # The eight entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
@@ -220,6 +220,7 @@ floor:
     - openspec/specs/domain-descendant-boundary/spec.md
     - openspec/specs/domain-mapping-declaration/spec.md
     - openspec/specs/domain-ontology-lifecycle/spec.md
+    - openspec/specs/factory-mcp-conformance/spec.md
     - openspec/specs/governed-derived-model/spec.md
     - openspec/specs/hermes-customer-subject-runtime/spec.md
     - openspec/specs/hermes-domain-overlay/spec.md
