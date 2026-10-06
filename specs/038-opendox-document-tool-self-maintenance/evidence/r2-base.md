@@ -231,5 +231,6 @@ nothing was run to confirm it.
 - It does not re-run the composed suites. Section 4 is lane 3's, quoted.
 - The nine `main`s are a reading at a moment (16:09–16:27Z). The repositories keep
   moving through release 2, and each task re-reads its own base.
-- It adds no decision. The figures are inputs to T004's ruling and to the
-  checkpoints (T033, T066), which record any node that moved since T002.
+- It adds no decision. T002 follows T004, so these figures are no input to T004's
+  ruling. They are the base the checkpoints (T033, T066) measure from, and those
+  record any node that moved since T002.
