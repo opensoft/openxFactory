@@ -3225,7 +3225,7 @@ Archived changes:
 
 - [add-factory-mcp-conformance](openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md)
   — **ARCHIVED 2026-10-06** by
-  [PR #ARCHIVE-PR-NUMBER-PENDING](https://github.com/opensoft/openxFactory/pull/ARCHIVE-PR-NUMBER-PENDING),
+  [PR #1252](https://github.com/opensoft/openxFactory/pull/1252),
   prepared by lane `openxfactory-5` (display `openXfactory-5`) as a DRAFT
   that lands by MERGE COMMIT, never squash, and only on Brett Heap's separate
   archive word, which that pull request's `LANDING` and `LANDED` lines
