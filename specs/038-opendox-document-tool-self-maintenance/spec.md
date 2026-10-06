@@ -826,10 +826,13 @@ bookkeeping records an answer.
   openxFactory.
 
   They SHALL be BASELINE-RELATIVE, as follows (R2Q12 (a)):
-  - **The baseline** is the previous run at the baseline branch's tip OF THE
-    SAME CORPUS (its resolved root), held in the store; a run of another
-    repository in the same store is never a baseline. The baseline branch is `main`, else the branch HEAD names (I-2
-    (a), `6013547504`); R2Q7 (a)'s `main` still governs landing alone.
+  - **The baseline** is the previous COMPLETE, FULL run at the baseline
+    branch's tip OF THE SAME CORPUS (its resolved root), held in the store; a
+    run of another repository in the same store is never a baseline, and
+    neither is a run restricted by `--pack` or one where a pack failed, so a
+    partial run never advances it. The baseline branch is `main`, else the
+    branch HEAD names (I-2 (a), `6013547504`); R2Q7 (a)'s `main` still governs
+    landing alone.
     Every run is classed against it, whether at the tip, on a branch or over
     the working state.
   - **The pack inventory.** Every run SHALL record the `pack_version` of every
@@ -845,8 +848,11 @@ bookkeeping records an answer.
     document change, which is D12's reason for the class.
   - **Persistent:** present in the baseline. A finding whose id persists across
     a pack upgrade stays persistent.
-  - **Disappeared:** measured ONLY between two runs at the baseline branch's
-    tip. A branch or working-state run never raises one.
+  - **Disappeared:** measured ONLY between two complete, full runs at the
+    baseline branch's tip. A branch, working-state, `--pack`-restricted or
+    incomplete run never raises one. An id the later run suppresses as
+    accepted is not a disappearance: it is accepted, not gone (Copilot's
+    review of `2076f24b`).
   - **Cited:** a disappearance is cited by a landing of the fix loop's draft for
     it, or by a commit that names its id in a `Finding:` trailer. An uncited one
     SHALL be re-raised once, as a `human-only` finding naming the original.
@@ -1122,8 +1128,9 @@ bookkeeping records an answer.
   data, kept in the store. Its `id` is a stable, pack-qualified key (R2Q10
   (a)), and its `evidence` holds locators only (R2Q25 (a)).
 - **Resolution class**: exactly `auto-fix`, `assisted` or `human-only`.
-- **Baseline**: the previous run at the baseline branch's tip (`main`, else the
-  branch HEAD names; I-2 (a)), held in the store. Against it,
+- **Baseline**: the previous complete, full run at the baseline branch's tip
+  (`main`, else the branch HEAD names; I-2 (a)) of the same corpus, held in the
+  store. Against it,
   a finding is new, persistent, or arrived with a pack upgrade (D12). Between
   two such runs, a finding can have disappeared. It is owned by the engine, no
   pack may vary it, and a store reset forgets it (R2Q12 (a)).

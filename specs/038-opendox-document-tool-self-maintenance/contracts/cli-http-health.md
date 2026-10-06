@@ -32,7 +32,9 @@ Options follow the verb (10.1). `--class` is additive (a filter on `list`);
   copy) and every manifest-listed pack in the sandbox over the committed export
   (`git archive`, HEAD's in a working-state run; 15.1b; R2Q16 (a)), stores the
   run and its findings, and classes them against the baseline. `--pack`
-  restricts to listed packs. `--timeout` sets the per-pack budget: default 60
+  restricts to listed packs; a restricted run, like one where a pack failed, is
+  classed but never becomes a baseline and never measures a disappearance
+  (data-model.md § the baseline). `--timeout` sets the per-pack budget: default 60
   seconds, applied per pack and enforced by the engine, never by the pack, and
   capped at the engine's ceiling of 600 seconds (15.6; ADV-40; the manifest
   carries no budget of its own). `run` writes nothing

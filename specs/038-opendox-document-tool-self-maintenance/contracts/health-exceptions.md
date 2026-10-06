@@ -25,7 +25,10 @@ exceptions:
 
 - **Effect.** An accepted finding is SUPPRESSED: a run neither stores nor lists
   it. It is not downgraded (OQ-H-13). Removing its entry re-opens it on the
-  next run.
+  next run. An accepted id is never a DISAPPEARANCE either: when a baseline run
+  had it and a later run suppresses it, the later run reports nothing for it,
+  since the finding is accepted, not gone (data-model.md § the baseline;
+  Copilot's review of `2076f24b`).
 - **Who and when** are git's: the commit that added the entry.
 - **`health accept --finding <id> --reason <text>`** appends one entry. In a
   checkout it writes the working tree, and the user commits it (F14.1 asserts

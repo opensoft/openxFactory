@@ -20,9 +20,11 @@ the validator validates (tier 3's N-15).
 
 ## Shape
 
-One finding is a JSON object. `health list --json` emits an array of them, with
-at least the fields 14.5 declares (`id`, `resolution_class`, `path`, `severity`,
-`evidence`, `pack_id`, `pack_version`).
+One finding is a JSON object. A family or pack produces it with every field
+below that it supplies; the engine stamps the rest. `health list --json` emits an
+array of them, with at least the fields 14.5 declares (`id`, `resolution_class`,
+`path`, `severity`, `evidence`, `pack_id`, `pack_version`), and WITHOUT
+`identity`, which is engine-internal (its row below).
 
 | field | type | required | rule |
 |---|---|---|---|
@@ -31,7 +33,7 @@ at least the fields 14.5 declares (`id`, `resolution_class`, `path`, `severity`,
 | `pack_id` | string | yes | `^[a-z0-9-]+$`; `opendox` for the product's own families (OQ-H15-19). Stamped by the engine from the manifest entry (15.7) |
 | `pack_version` | string | yes | the manifest entry's version; for `opendox`, the installed version (OQ-H15-18). Stamped by the engine (15.7) |
 | `path` | string | yes | corpus-relative, `/`-separated, no `..`; empty string for an install-level or pre-run finding |
-| `identity` | object | yes | the POSITION-INDEPENDENT key the family supplies (R2Q10 (a)'s "locator the family supplies", read as a key that survives edits elsewhere): a link target as written, a pair of paths, a heading key. Never a line number, never document text beyond such a key |
+| `identity` | object | yes, in a family's or pack's output | the POSITION-INDEPENDENT key the family supplies (R2Q10 (a)'s "locator the family supplies", read as a key that survives edits elsewhere): a link target as written, a pair of paths, a heading key. Never a line number, never document text beyond such a key. ENGINE-INTERNAL: the engine hashes it into `id` at run time and neither stores nor emits it, so `list --json`, the HTTP response and the store carry `id` alone (R2Q25 (a); Copilot's review of `2076f24b`; data-model.md § Finding) |
 | `locator` | object | no | DISPLAY ONLY, outside the id: `{"line_start": int, "line_end": int}` and/or `{"target": string}` |
 | `severity` | string | yes | `error` \| `warning` \| `info` |
 | `resolution_class` | string | yes | `auto-fix` \| `assisted` \| `human-only` (14.6, spelled exactly) |
@@ -87,6 +89,10 @@ position.
   passage it shows from git at render time (R2Q25 (a)).
 
 ## Example
+
+A family's output, as the engine receives it (`list --json` emits the same
+object without `identity`, with `id` and `baseline_class` as the engine set
+them):
 
 ```json
 {"id": "opendox.broken-link.3c1f0e9a7b2d4c65", "kind": "broken-link",

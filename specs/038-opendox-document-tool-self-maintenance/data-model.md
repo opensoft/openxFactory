@@ -136,13 +136,17 @@ Table `health_runs` in `0003_` (OQ-H-22; DOMAIN, R2Q13 (a)):
 | `started_at`, `finished_at` | timestamptz | |
 | `outcome` | `complete` \| `partial` \| `refused` | `partial` when a pack failed (its failure is a finding) |
 | `pack_versions` | jsonb, NOT NULL | the run's PACK INVENTORY: `{pack_id: pack_version}` for every pack it ran, zero-finding packs and `opendox` itself included. The baseline reads a pack's previous version here, never from findings (Copilot review of `6d6911e1`) |
+| `full` | boolean, NOT NULL | true when no `--pack` restricted the run. Only a `complete`, `full` default-tip run forms a baseline or measures disappearances (Copilot review of `2076f24b`) |
 | `sandbox` | jsonb, NOT NULL | what the per-run probe found: `{"live": bool, "pids_max": int or null}`; `pids_max` is null where no cgroup is delegated (an accepted limit, contracts/health-packs-manifest.md § Rules) |
 
 **What a run reads** (R2Q12 (a), which names runs "at the tip, on a branch or
 over the working state"; ADV-16 replaced the narrower reading):
 - **default-tip**: HEAD is the baseline branch's tip and the working tree is
   clean. Reads that commit. Only these runs form the baseline and measure
-  disappearances.
+  disappearances, and only when `complete` and `full`: a run restricted by
+  `--pack`, or `partial` because a pack failed, omits findings it did not look
+  for, so it is classed against the baseline but never becomes one and never
+  raises a disappearance.
 - **branch**: HEAD is another commit and the working tree is clean. Reads that
   commit. Classed against the baseline; never raises a disappearance.
 - **working-state**: the working tree differs from HEAD. The product's
@@ -179,6 +183,12 @@ The neutral shape is [`contracts/health-finding.md`](./contracts/health-finding.
 | `message` | one line, bounded like `evidence` (ADV-27): at most 200 characters, written by the family from its own words; never document text |
 | `evidence` | locators only, never an excerpt (R2Q25 (a)); a family's own version rides here (OQ-H15-18); a refused patch's `refused_patch` and `reason` (15.2a) |
 
+The finding's `identity` (contracts/health-finding.md) is ENGINE-INTERNAL: the
+engine hashes it into `id` at run time and neither stores nor emits it, since a
+key such as a heading can be document text (R2Q25 (a); Copilot review of
+`2076f24b`). Nothing later needs it: `list`, `fix` and `accept` address a
+finding by `id`, and `fix` re-runs the one pack that produced it.
+
 There is NO patch column (lane 3's MISLABEL row 31): a patch is document text,
 and the store holds no document (14.3; R2Q25 (a)). A pack's patch is validated
 at `run` (a refusal is stored as a finding naming `refused_patch` and `reason`,
@@ -193,13 +203,16 @@ The store refuses a finding with no `pack_id` or `pack_version`
 
 ```text
 for a run R, against B = the latest earlier default-tip run in the store for the
-SAME resolved corpus_root and baseline_branch (never another corpus's run),
+SAME resolved corpus_root and baseline_branch (never another corpus's run) whose
+outcome is complete and which is full (no --pack restriction),
 with V(B) = B's pack inventory (health_runs.pack_versions):
   id in R, not in B, its pack in V(B) at the same version   → new
   id in R, not in B, its pack in V(B) at another version    → pack-upgrade (D12)
   id in R, not in B, its pack NOT in V(B) (newly added)     → pack-upgrade (it came with a pack change)
   id in R and in B                                          → persistent
-only when R is itself a default-tip run, for id in B, not in R:
+only when R is itself a complete, full default-tip run, for id in B, not in R,
+and not accepted in the exceptions file R reads (an accepted id is suppressed,
+not gone):
      cited (a landed health-fix draft for it, or a commit naming it in a "Finding: <id>" trailer) → gone
      uncited → re-raised ONCE as human-only, naming the original
 the baseline branch: main, else the branch HEAD names (tier 1 I-2 (a), ruled);

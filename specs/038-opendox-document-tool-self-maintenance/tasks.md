@@ -747,7 +747,9 @@ copies (research R7; ADV-05).
   first copy.** New stdlib-only `src/opendox/health_contract.py`: the classes
   `auto-fix`, `assisted`, `human-only`; the severities; the finding shape with
   `pack_id` and `pack_version`; the id rule (position-independent identity key,
-  canonical sorted-key JSON, N-13; ADV-07); the bounds on `message` and
+  canonical sorted-key JSON, N-13; ADV-07), the identity being engine-internal,
+  hashed into the id and never stored or emitted (Copilot's review of
+  `2076f24b`); the bounds on `message` and
   `evidence` (R2Q25 (a); ADV-27); a closure test that the module imports only the
   standard library. Copy T040's finding schema at the spec commit T060 pins into
   openDox-code's EXISTING copy record: `copies.yaml`'s `commit:` moves to that
@@ -769,8 +771,9 @@ copies (research R7; ADV-05).
   - **Lane**: 4.
 - [ ] T042 [P] [US4] [oDc] **HA-1, the store (`0003_`), one owner.** New
   `migrations/0003_health.sql`: `health_runs` (with the run's kind, the
-  baseline branch, the run's pack inventory `pack_versions` and the probe's
-  `sandbox` record; Copilot review) and `health_findings` (data-model.md), with
+  baseline branch, the run's pack inventory `pack_versions`, whether it was
+  `full`, and the probe's `sandbox` record; Copilot review) and
+  `health_findings` (data-model.md, with no `identity` column), with
   15.7's
   `pack_id`/`pack_version` NOT NULL from the first landing, and NO patch column
   (14.3; R2Q25 (a); lane 3's MISLABEL row 31). DOMAIN tables in
@@ -855,7 +858,10 @@ copies (research R7; ADV-05).
   `opendox`; the baseline classes and disappearance rules of R2Q12 (a), with the
   baseline branch `main`, else the branch HEAD names (I-2 (a), ruled), each run's
   pack inventory recorded and read for a pack's previous version (a newly added
-  pack's findings are `pack-upgrade`; data-model.md § Baseline classes); each run
+  pack's findings are `pack-upgrade`; data-model.md § Baseline classes); only a
+  complete, full default-tip run becomes a baseline or measures a
+  disappearance, and an id it suppresses as accepted is never one (Copilot's
+  review of `2076f24b`); each run
   reads the dispositions file in what it reads (N-14); the engine hook G15-E
   calls; the per-pack budget, `--timeout`, default 60 seconds, capped at 600
   (OQ-H15-5). New `health/cli.py`: the `health` group with 14.5's exact shapes
@@ -868,10 +874,14 @@ copies (research R7; ADV-05).
   - **Falsifier**: new `tests/test_health_cli.py`, `tests_runtime/test_health_engine.py`
     (including a repository on `main`, since #1144's falsifiers never exercise
     the baseline there, C-14; a repository on another branch, I-2 (a); a pack
-    with zero findings in the baseline, then upgraded; a newly added pack; and
+    with zero findings in the baseline, then upgraded; a newly added pack;
     interleaved runs of two corpora in one store, each classed against its own
     baseline, with `list`, `fix` and `accept` reading only their own corpus's
-    runs).
+    runs; a `--pack` run and a run where a pack failed, each at the tip, after
+    which the next full run is classed against the earlier complete baseline and
+    reports no disappearance from the partial run; and a finding accepted after
+    a baseline, which the next tip run neither lists nor reports as
+    disappeared).
   - **Ruled**: R2Q9 (items 2, 7), R2Q10, R2Q12, R2Q15. **Decisions**: I-2, CF-6,
     N-2, N-10, N-14, N-19, OQ-H15-5.
   - **After**: T042, T044.
@@ -1017,7 +1027,9 @@ copies (research R7; ADV-05).
   validator gains the `opendox-health-dispositions` kind). `accept`'s dispatch
   line in `health/cli.py`.
   - **Realizes**: 14.8.
-  - **Falsifier**: new `tests/test_health_accept.py`; a reset-survival test in
+  - **Falsifier**: new `tests/test_health_accept.py`, including an id accepted
+    after a baseline run that held it, which the next tip run suppresses and
+    never re-raises as an uncited disappearance; a reset-survival test in
     `tests_runtime/` (an exception survives `runtime reset`); `tests/test_validator_input_set.py`.
   - **Ruled**: R2Q10, R2Q22. **Decisions**: OQ-H-13, -14, -15; N-14, N-15.
   - **After**: T046, T053 (`health/cli.py`), T047 (the copy record; lane 3's split
