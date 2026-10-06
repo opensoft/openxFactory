@@ -37,12 +37,16 @@ packs:
 ```
 
 `sorted-ls-tree-r-v1` is the source-tree digest `neutral-product-pin` defines over
-a commit (`contracts/opendox-pin.yaml:122-134` in openxFactory). Applied here to
-the tree-ish `<commit>:<source>` with relative paths, which is a reading of that
-definition for a subtree, stated so (OQ-H15-12). For a corpus-relative source,
-`<commit>` is the corpus commit the run reads; in a working-state run it is HEAD,
-and the pack is taken from HEAD's tree, so an uncommitted edit to a pack never
-runs (the manifest itself is read from HEAD in that run too).
+a commit (`contracts/opendox-pin.yaml:122-134` in openxFactory). Which tree it
+is taken over depends on the source (OQ-H15-12, a reading of that definition,
+stated so):
+- **A corpus-relative source**: the subtree `<corpus-commit>:<source>`, with
+  paths relative to it. `<corpus-commit>` is the commit the run reads; in a
+  working-state run it is HEAD, so an uncommitted edit to a pack never runs (the
+  manifest itself is read from HEAD in that run too).
+- **A git-URL source**: the fetched repository's ROOT tree at the entry's
+  declared `commit` (`<commit>^{tree}`), exactly as `neutral-product-pin`
+  defines it over a commit. The URL is never part of a tree-ish.
 
 ## Rules
 
@@ -79,10 +83,16 @@ runs (the manifest itself is read from HEAD in that run too).
   cap through rlimits and `bwrap`; and the process count through a cgroup's
   `pids.max` where a cgroup is delegated. `RLIMIT_NPROC` is NOT used as a
   per-pack bound: setrlimit(2) counts it per real user, not per sandbox, so it
-  would count the user's other processes (lane 3's bwrap-facts FIX). Where no
-  cgroup is delegated, the process count is bounded by the PID namespace and the
-  time budget, which ends the whole tree (15.1b). T056 measures the defaults
-  against `pack-corpus` before they are fixed (ADV-22).
+  would count the user's other processes (lane 3's bwrap-facts FIX). **Where no
+  cgroup is delegated, the process count is NOT bounded**: a PID namespace
+  isolates process ids but does not limit how many a pack creates, and only the
+  time budget ends the whole tree (15.1b). That is an ACCEPTED LIMIT of release
+  2: 15.1b's ratified sandbox names no process-count bound, and refusing packs
+  wherever no cgroup is delegated would narrow where #1144 says they run. The
+  per-run probe records whether `pids.max` is live (`health_runs.sandbox`,
+  data-model.md), so a run says which bound it had (Copilot review of
+  `6847e99e`). T056 measures the defaults against `pack-corpus` before they are
+  fixed (ADV-22).
 - **A pack's failure is a finding** (15.6). A timeout or bound hit, a crash, a
   non-JSON stdout or a stdout over the cap is a finding against THAT pack; the
   run continues. stderr is dropped, except a bounded tail in that finding

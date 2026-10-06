@@ -42,17 +42,29 @@ git -C "$W/openDox-code" checkout -q "$RELEASE2_TIP"
 python3 -m venv --clear "$W/v"
 . "$W/v/bin/activate"
 pip install -q "$W/openDox-code[local]"
-# gh absent, by PATH (CF-8): a bin directory holding only what the run needs
+# gh absent, by PATH (CF-8): a bin directory holding every system tool except gh
 mkdir "$W/bin"
-for t in git python3 curl opendox opendox-runtime; do ln -s "$(command -v "$t")" "$W/bin/$t"; done
-export PATH="$W/bin:/usr/bin:/bin"
+for d in /usr/local/bin /usr/bin /bin; do
+  for t in "$d"/*; do
+    [ -e "$t" ] || continue
+    n=${t##*/}
+    [ "$n" = gh ] || [ -e "$W/bin/$n" ] || ln -s "$t" "$W/bin/$n"
+  done
+done
+export PATH="$W/v/bin:$W/bin"                         # the venv first; no system directory at all
 rc=0; command -v gh >/dev/null || rc=$?
 test "$rc" -eq 1 || { echo "FAIL: gh is reachable"; exit 1; }
+# a fixture identity: every commit and revert below, and the server's merge, has an author
+export GIT_AUTHOR_NAME=AT-R2 GIT_AUTHOR_EMAIL=at-r2@example.invalid
+export GIT_COMMITTER_NAME=AT-R2 GIT_COMMITTER_EMAIL=at-r2@example.invalid
 export OPENDOX_INSTALL_MODE=local OPENDOX_STATE_DIR=$(mktemp -d)
 ```
 
-If `/usr/bin` holds `gh` on the machine, the bin directory is the WHOLE PATH
-instead, and the check above proves it either way.
+The PATH holds no system directory: only the venv and a bin directory of every
+system tool except `gh`, so the check proves `gh` absent wherever the machine
+keeps it (Copilot review of `6d6911e1`). The exported identity makes the run
+independent of the machine's git configuration, as AT-R1 sets fixture-local
+identities; the scratch clone's `git revert` in § 3 inherits it.
 
 ## 2. A plain repository on `main`, a bare remote, and the declaration
 

@@ -113,7 +113,7 @@ No openxFactory test pins the `actions` key set (measured by grep over
 | key | meaning |
 |---|---|
 | `actions.submit` | present under openDox's profile; `true` where the submit route answers and the plane is a local human's (loopback, a real checkout, a resolved actor) |
-| `actions.land` | present under openDox's profile; `true` only where a lander is bound for this repository; `false` under `unknown`, under `governed` with no instrument, and on the hosted plane |
+| `actions.land` | present under openDox's profile; `true` where `land` can act: a lander is bound (`standalone`), OR the repository is `governed` and a host instrument is contributed, through which `land` submits (R2Q4 (a)); `false` under `unknown`, under `governed` with no instrument, and on the hosted plane (Copilot review of `6d6911e1` and `2a4a73d1`) |
 
 `session` keeps its meaning (the core session routes); the submit control keys
 on `actions.submit`, never on `session`, so it cannot be offered where no submit

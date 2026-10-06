@@ -16,6 +16,10 @@ T004 encodes Brett's ruling of the plan.
 (`#656` `6013547504`, 2026-10-06; plan.md § "Ruled answers, the plan ruling").
 Implementation starts on this word. Still his word, at the act: the `dox-v1.2`
 cut (T060), the arc change's ratification (T071) and the 0.2.0 publish (T084).
+The constitution's analyze gate stands as plan.md § Constitution Check records
+it: round 1's CRITICALs are applied and re-checked, and a fresh analyze of the
+ruled revision (T003) is the holder's call before the first realization PR
+lands.
 
 ## Format
 
@@ -127,7 +131,8 @@ as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
   tip"); and the re-check's five remaining fixes are applied (T003). No new
   evidence file; the README entry's wording says the plan is ruled.
   - **Files**: this feature's documents; `README.md` (the entry's wording only).
-  - **After**: T003's re-check of round 1.
+  - **After**: the two reviewers' re-check of round 1 at `6847e99e` (recorded in
+    `6013547504`); T003's fresh analyze stays open as the holder's call.
   - **Lane**: 4.
 - [ ] T005 [oxF] **Batch Q: record the answers' amendments in #1144, in plan
   034's T007 form, ONE PR, under a Rule 6 window. THE FIRST ACT.** Its contents
@@ -414,15 +419,18 @@ hidden; F12.1 exits 0 composed (SC-001).
   through `default_profile.py`; `POST /actions/session/land-nonce` and `POST
   /actions/session/land` in `serve_branch_actions.py` (OQ-12-13), contributed
   through the default profile's route facets; `actions.land` present only under
-  openDox's own profile, its value derived from those bindings and true only
-  where a lander is bound; the confirm control in
+  openDox's own profile, its value derived from those bindings and true where
+  `land` can act: a lander is bound, or the repository is `governed` with a
+  contributed instrument (Copilot review); the confirm control in
   `branch-actions.js`. Under `governed` no lander is bound and `land` submits
   through the instrument; with none it refuses "governed-without-an-instrument".
   A live session whose branch lands ends by the existing merge observation
   (`branch_session.py`, R2Q5 (a)).
   - **Realizes**: 12.6a (part: the bindings and the surface), 12.6.
   - **Falsifier**: F12.2's guardrail nodes that drive the surface; T012's suite
-    re-run green; a test that a host profile sees no `actions.land` key.
+    re-run green; a test that a host profile sees no `actions.land` key; a
+    capability test that `actions.land` is true for `standalone` with a lander
+    and for `governed` with an instrument, and false otherwise.
   - **Ruled**: R2Q1, R2Q3, R2Q4, R2Q5, R2Q6, R2Q7, R2Q9 (item 7). **Decisions**:
     CF-1, N-2, N-11, OQ-12-13, OQ-12-14, OQ-12-17.
   - **After**: T015, T012, T013.
@@ -759,8 +767,10 @@ copies (research R7; ADV-05).
     `tests/test_health_contract.py`.
   - **Lane**: 4.
 - [ ] T042 [P] [US4] [oDc] **HA-1, the store (`0003_`), one owner.** New
-  `migrations/0003_health.sql`: `health_runs` (with the run's kind and the
-  baseline branch) and `health_findings` (data-model.md), with 15.7's
+  `migrations/0003_health.sql`: `health_runs` (with the run's kind, the
+  baseline branch, the run's pack inventory `pack_versions` and the probe's
+  `sandbox` record; Copilot review) and `health_findings` (data-model.md), with
+  15.7's
   `pack_id`/`pack_version` NOT NULL from the first landing, and NO patch column
   (14.3; R2Q25 (a); lane 3's MISLABEL row 31). DOMAIN tables in
   `runtime/identity.py`'s `TABLES` (R2Q13 (a)); `runtime/cli.py`'s `DROP_ORDER` and
@@ -842,7 +852,9 @@ copies (research R7; ADV-05).
   every pack still gets the committed export of HEAD (`git archive`, 15.1b) and
   no untracked file reaches a pack; the built-in families in process, attributed
   `opendox`; the baseline classes and disappearance rules of R2Q12 (a), with the
-  baseline branch `main`, else the branch HEAD names (I-2 (a), ruled); each run
+  baseline branch `main`, else the branch HEAD names (I-2 (a), ruled), each run's
+  pack inventory recorded and read for a pack's previous version (a newly added
+  pack's findings are `pack-upgrade`; data-model.md § Baseline classes); each run
   reads the dispositions file in what it reads (N-14); the engine hook G15-E
   calls; the per-pack budget, `--timeout`, default 60 seconds, capped at 600
   (OQ-H15-5). New `health/cli.py`: the `health` group with 14.5's exact shapes
@@ -854,7 +866,8 @@ copies (research R7; ADV-05).
   - **Realizes**: 14.4 (part: on demand, the baseline), 14.5 (part: CLI run/list).
   - **Falsifier**: new `tests/test_health_cli.py`, `tests_runtime/test_health_engine.py`
     (including a repository on `main`, since #1144's falsifiers never exercise
-    the baseline there, C-14).
+    the baseline there, C-14; a repository on another branch, I-2 (a); a pack
+    with zero findings in the baseline, then upgraded; and a newly added pack).
   - **Ruled**: R2Q9 (items 2, 7), R2Q10, R2Q12, R2Q15. **Decisions**: I-2, CF-6,
     N-2, N-10, N-14, N-19, OQ-H15-5.
   - **After**: T042, T044.
@@ -866,8 +879,9 @@ copies (research R7; ADV-05).
   `check_pack_manifest.py` reads `health/packs.yaml` (`contracts/health-packs-manifest.md`):
   exactly 15.1a's fields; the id `opendox` reserved; a corpus-relative entry that
   carries `commit` REFUSED (15.1a, `#1144 tasks.md:3414-3421`; lane 3's T047 FIX);
-  `sorted-ls-tree-r-v1` over `<commit>:<source>` (fixed before any fixture digest
-  is committed); git sources fetched by the engine into `OPENDOX_STATE_DIR` over
+  `sorted-ls-tree-r-v1` over `<corpus-commit>:<source>` for a corpus-relative
+  source and over the declared `commit`'s root tree for a git-URL source (the
+  contract's digest rule; fixed before any fixture digest is committed); git sources fetched by the engine into `OPENDOX_STATE_DIR` over
   `https://` or `ssh://` only, with `file://`, `ext::`, local paths and credential
   URLs refused and the runtime's hardened transport rules reused (ADV-21); no
   budget or bound keys. Copy T040's manifest schema at T060's pinned commit into
@@ -891,8 +905,11 @@ copies (research R7; ADV-05).
   `opendox.health_contract` alone, never `site-packages`, `$HOME` or the
   checkout (lane 3's T048 FIX); `--clearenv` with 15.1b's allowlist; no network;
   `--unshare-pid`, so ending the sandbox's init ends the whole tree; with no
-  live sandbox, no pack runs and one install-level finding says why. F15.1's
-  platform precondition is asserted (R2Q9 (a) item 3). The fail-not-skip helper
+  live sandbox, no pack runs and one install-level finding says why. The probe
+  also records whether a delegated cgroup's `pids.max` bounds the process
+  count; where none is delegated the count is unbounded, an accepted limit the
+  run records (`health_runs.sandbox`). F15.1's platform precondition is asserted
+  (R2Q9 (a) item 3). The fail-not-skip helper
   the tests use under `CI` lives in its own test module,
   `tests/sandbox_required.py`, never a shared conftest.
   - **Realizes**: 15.1b, 15.6 (part: enforcement), 15.5 (part).
@@ -1326,11 +1343,13 @@ surfaces check over them (ADV-37).
   - **Lane**: 4.
 - [ ] T082 [oxF] **Bookkeeping: the release-2 ticks and the arc's close.** Under a
   Rule 6 window, no `Arc:` trailer: tick the 37 release-2 boxes, each with its
-  evidence path (SC-004); run F11.1 at the arc's close (T093) and tick 9.5, 11.0,
+  evidence path (SC-004); run F11.1 at the arc's close (T093) and tick 11.0,
   11.1 and F11.1 (tier 1's ARC-5); close plan 034's T090–T093 by reference to this
   task; record 11.0's landing set per repository, lane 3's landings (T073 among
-  them) included.
-  - **Realizes**: the 37; 9.5, 11.0, 11.1, F11.1.
+  them) included. 9.5 is NOT ticked here: the cut's pin sync (T083) and the
+  0.2.0 publish (T084) still realize it, so T084 ticks it last (Copilot review
+  of `6847e99e`).
+  - **Realizes**: the 37; 11.0, 11.1, F11.1.
   - **Falsifier**: F11.1 prints `requirement 1 holds`; the box census reads every
     release-2 box `[x]`.
   - **After**: T081 (SC-008), T033, T066.
@@ -1343,21 +1362,24 @@ surfaces check over them (ADV-37).
   `commit:`, in ONE commit (the aggregation's `CLAUDE.md` working rule 2);
   `python3 -m pytest tests/ -q` with `openxFactory` initialized, quoted
   (`test_opendox_openxdox_gitlink_parity.py`, `test_clearing_contract_pin.py`).
-  - **Realizes**: 9.5 (part; recorded in T082's tick if it lands first, else in
-    an evidence note).
+  - **Realizes**: 9.5 (part; ticked by T084, after this sync and the publish).
   - **After**: T082.
   - **Lane**: 4.
-- [ ] T084 [US1] [US4] [oDc] [oD] **Publish `opendox` 0.2.0. LAST, on Brett's
-  publish word.** After AT-R2 passes and Brett gives the word: assert P (T062's
+- [ ] T084 [US1] [US4] [oDc] [oD] [oxF] **Publish `opendox` 0.2.0, and tick 9.5. LAST,
+  on Brett's publish word.** After AT-R2 passes and Brett gives the word: assert P (T062's
   pinned commit) and X (T080's) have identical build inputs (`git diff --quiet P
   X -- src/ pyproject.toml migrations/ README.md LICENSE`), else re-run both AT-R2
   halves at P; tag `v0.2.0` on P; dispatch the existing trusted-publishing
   workflow (OIDC, no stored token); confirm `pypi.org/pypi/opendox/0.2.0/json`;
   then the openDox root README's install line names 0.2.0 (batch Q's batch-O
-  style addendum).
+  style addendum). Then, as the very last act, tick 9.5 in #1144's `tasks.md`
+  under its own Rule 6 window (bookkeeping, no `Arc:`), citing T083's sync and
+  this publish as its last realizations.
+  - **Realizes**: 9.5 (the tick).
   - **Ruled**: R2Q23.
   - **After**: T081, T082, T083, and Brett's publish word.
-  - **Files**: the tag; openDox root `README.md` (third, last).
+  - **Files**: the tag; openDox root `README.md` (third, last); #1144's
+    `tasks.md` (9.5's tick only).
   - **Lane**: 4.
 
 ---
@@ -1426,7 +1448,7 @@ surfaces check over them (ADV-37).
 | 15.6a | T055 | T065 | T082 |
 | 15.7 | T042, T047, T056 | T065 | T082 |
 | F15.1 | T058 (its 24 nodes), T067 (its shell block, sandbox live) | T065 | T082 |
-| 9.5 | T027, T028, T030, T060, T062–T064, T083 (T090) | T090's runs | T082 (arc close) |
+| 9.5 | T027, T028, T030, T060, T062–T064, T083, T084 (T090) | T090's runs; T083; the publish | T084 (last, after the sync and the publish) |
 | 11.0 | T091 | T082's landing set | T082 (arc close) |
 | 11.1 | T092 (T030, T064) | F11.1 | T082 (arc close) |
 | F11.1 | T093 (T032, T065, T082) | `evidence/f11.1-*` | T082 (arc close) |

@@ -5,7 +5,8 @@ Status: draft
 **Purpose**: check that the specification is complete and of good quality
 before `/speckit.plan`.
 **Created**: 2026-10-05
-**Re-run**: 2026-10-05, after clarify round 1 was answered (#656 `6003486656`).
+**Re-run**: 2026-10-05, after clarify round 1 was answered (#656 `6003486656`);
+notes updated 2026-10-06 for the plan ruling (#656 `6013547504`).
 **Feature**: [`spec.md`](../spec.md)
 
 ## Content quality
@@ -83,20 +84,26 @@ before `/speckit.plan`.
       locators, and no sandbox with the product's checks still running.
 - [ ] The feature meets the measurable outcomes in Success Criteria.
       **Pending:** realization, after the plan is ruled.
-- [ ] `/speckit-analyze` has reported no CRITICAL finding. **Pending:** after
-      plan and tasks.
+- [ ] `/speckit-analyze` has reported no CRITICAL finding. **Pending:** round
+      1's analyze (`evidence/analyze-round-1.md`) reported CRITICALs, all
+      applied at `6847e99e`, and both reviewers' re-check found them landed as
+      worded (`#656` `6013547504`). A fresh analyze of the ruled revision is
+      T003, the holder's call; Brett's ruling started implementation.
 
 ## Notes
 
 - The two unchecked items are open on purpose. The constitution's last gate,
-  analyze clean before implementation, closes after plan and tasks, and the
+  analyze clean before implementation, stands as the second item says, and the
   outcomes are measured on realization.
 - The stock template caps `[NEEDS CLARIFICATION]` at three markers. This
   feature followed the lane brief and the global clarify override (at most 25
   questions): round 1 used all 25, round 2 was empty, and lane openXfactory-3
   checked the block twice before Brett answered it.
-- Interplay between answers, reported to the holder and not resolved here:
+- Interplay between answers, reported to the holder, and since ruled with the
+  plan (`#656` `6013547504`):
   - R2Q1 (a)'s "the same in every mode" against R2Q3 (a)'s "no host carries
-    the verbs" (FR-004);
-  - R2Q7 (a)'s `main` against R2Q12 (a)'s baseline, which needs a run at
-    `main`'s tip.
+    the verbs" (FR-004): CF-1, every governance mode under openDox's own
+    profile;
+  - R2Q7 (a)'s `main` against R2Q12 (a)'s baseline, which needed a run at
+    `main`'s tip: I-2 (a), the baseline branch is `main`, else the branch HEAD
+    names.

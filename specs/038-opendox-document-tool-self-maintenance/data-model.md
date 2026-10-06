@@ -135,6 +135,8 @@ Table `health_runs` in `0003_` (OQ-H-22; DOMAIN, R2Q13 (a)):
 | `baseline_branch` | text, nullable | the branch whose tip runs form the baseline (tier 1 decision I-2) |
 | `started_at`, `finished_at` | timestamptz | |
 | `outcome` | `complete` \| `partial` \| `refused` | `partial` when a pack failed (its failure is a finding) |
+| `pack_versions` | jsonb, NOT NULL | the run's PACK INVENTORY: `{pack_id: pack_version}` for every pack it ran, zero-finding packs and `opendox` itself included. The baseline reads a pack's previous version here, never from findings (Copilot review of `6d6911e1`) |
+| `sandbox` | jsonb, NOT NULL | what the per-run probe found: `{"live": bool, "pids_max": int or null}`; `pids_max` is null where no cgroup is delegated (an accepted limit, contracts/health-packs-manifest.md § Rules) |
 
 **What a run reads** (R2Q12 (a), which names runs "at the tip, on a branch or
 over the working state"; ADV-16 replaced the narrower reading):
@@ -190,16 +192,18 @@ The store refuses a finding with no `pack_id` or `pack_version`
 ### Baseline classes (R2Q12 (a); owner T046)
 
 ```text
-for a run R, against B = the previous default-tip run in the store:
-  id in R, not in B, pack_version unchanged        → new
-  id in R, not in B, its pack's version changed     → pack-upgrade (D12)
-  id in R and in B                                  → persistent
+for a run R, against B = the previous default-tip run in the store,
+with V(B) = B's pack inventory (health_runs.pack_versions):
+  id in R, not in B, its pack in V(B) at the same version   → new
+  id in R, not in B, its pack in V(B) at another version    → pack-upgrade (D12)
+  id in R, not in B, its pack NOT in V(B) (newly added)     → pack-upgrade (it came with a pack change)
+  id in R and in B                                          → persistent
 only when R is itself a default-tip run, for id in B, not in R:
      cited (a landed health-fix draft for it, or a commit naming it in a "Finding: <id>" trailer) → gone
      uncited → re-raised ONCE as human-only, naming the original
 the baseline branch: main, else the branch HEAD names (tier 1 I-2 (a), ruled);
-  with none (a detached HEAD and no main) no run is default-tip, B is empty, every finding is new
-after runtime reset: B is gone; the next default-tip run sees every finding once as new
+  with none (a detached HEAD and no main) no run is default-tip, so there is no B
+no B at all (a first run, or after runtime reset): every finding is new, once
 ```
 
 ### Families: the stub criteria (14.4, 14.6; ADV-17, ADV-40; owner T044)

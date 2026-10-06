@@ -612,8 +612,12 @@ bookkeeping records an answer.
     `POST /actions/session/submit`. Both live in openDox's own surface, not
     under `gate`.
   - **One user-facing interface.** The verbs and routes, and the Health view's
-    land action, SHALL be the same in every mode (R2Q1 (a)). No governed host's
-    profile SHALL carry `submit`, `land` or `health` in release 2 (R2Q3 (a)).
+    land action, SHALL be the same in every mode (R2Q1 (a)): every GOVERNANCE
+    mode (`standalone`, `governed`, `unknown`) under openDox's own profile, on
+    either install plane, so the hosted plane's refusals (R2Q15 (a)) are
+    reachable there (the plan's CF-1, confirmed `6013547504`). No governed host's
+    profile SHALL carry `submit`, `land` or `health` in release 2 (R2Q3 (a)): a
+    host profile that replaces openDox's own carries none of them.
   - **The engine.** It SHALL take its `SubmissionPort` from FR-003's bindings,
     and return and print the `Submission`.
   - **The branch.** It SHALL accept any local branch except the default branch
@@ -643,9 +647,13 @@ bookkeeping records an answer.
     drive `open-pr` or inject `FakePullRequests` SHALL pass, and no arc landing
     SHALL edit them except through the reviewed allow-list (T007 batches C and
     I; R1Q7 (a), R1Q26 (a)).
-  - **F12.1 runs composed.** It runs composed with openxFactory's `scripts/`, as
-    F5.2 does under R1Q23 (a), until the `doc_health` direction arc's
-    realization lands, by a bookkeeping line in #1144 (FR-025).
+  - **F12.1 runs composed, permanently.** It runs composed with openxFactory's
+    `scripts/`, as F5.2 does under R1Q23 (a), by a bookkeeping line in #1144
+    (FR-025). R2Q8 (a) said "until the `doc_health` direction arc's realization
+    lands"; ARC-Q2 (a), the later ruling, makes the composed workflow permanent,
+    and the plan ruling confirmed the reading that the composition is F12.1's
+    permanent home (CF-5, `6013547504`). The composition is never removed when
+    the arc lands.
   - **Phase 4 repairs the 174 reds.** It SHALL repair the 174 composed reds
     measured at `56e1c238` without editing any of the 16 suites, by four
     means:
@@ -822,10 +830,17 @@ bookkeeping records an answer.
     (a), `6013547504`); R2Q7 (a)'s `main` still governs landing alone.
     Every run is classed against it, whether at the tip, on a branch or over
     the working state.
+  - **The pack inventory.** Every run SHALL record the `pack_version` of every
+    pack it ran, zero-finding packs and openDox's own included. "The
+    baseline's `pack_version` for its pack" is read from the baseline run's
+    inventory, never from its findings.
   - **New:** absent from the baseline, at the baseline's `pack_version` for its
     pack.
   - **Arrived with a pack upgrade:** absent from the baseline, at a different
-    stamped `pack_version` (15.7). It is reported apart from new (D12).
+    stamped `pack_version` (15.7). It is reported apart from new (D12). A pack
+    the baseline run did not run (one newly added) has no baseline version, so
+    its first findings arrive this way: they came with a pack change, not a
+    document change, which is D12's reason for the class.
   - **Persistent:** present in the baseline. A finding whose id persists across
     a pack upgrade stays persistent.
   - **Disappeared:** measured ONLY between two runs at the baseline branch's
@@ -896,7 +911,10 @@ bookkeeping records an answer.
   neutral family would flag:
   - `auto-fix`: `broken-link`, `derivable-front-matter` and
     `stage-location-mismatch`;
-  - `assisted`: `near-duplicate`;
+  - `assisted`: `near-duplicate`, and ONE EMPTY STUB, which requirement 14's
+    third scenario and 14.6 class as `assisted` though 14.9's list omits it
+    (the plan's T043; ADV-17). F14.1 asserts 14.9's list and no more, so the
+    empty stub's class is proved by T044's and T053's tests;
   - `human-only`: one human-only finding;
   - one finding to be accepted.
 
