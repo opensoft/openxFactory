@@ -1,0 +1,50 @@
+schema: spec-driven
+created: 2026-10-06
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-10-06-prefer-triad-project-shape
+  reason: >-
+    BRETT HEAP'S DIRECTION OF 2026-10-06, IN SESSION, VERBATIM. At
+    2026-10-06T10:20:12Z: "the triad should be the prefered structure and
+    should prompt or warn the user if working on a non Triad repo." The lane
+    answered with a proposed reading (preferred is not required; advise where
+    a person starts work, never in review) and a plan to author this change.
+    At 2026-10-06T11:28:19Z: "usage is fine, launch both". THAT SECOND
+    SENTENCE AUTHORIZED AUTHORING AND OPENING THIS PROPOSAL AND NOTHING MORE.
+    It is not a ratification, and it is not a ruling on any design point: the
+    advisory-only form, the exemptions, the optional staying-single record and
+    every other decision in this packet are PROPOSED for Brett Heap's
+    ratification and are not his rulings.
+    WHY THE DIRECTION NEEDS A CHANGE AND CANNOT BE REALIZED DIRECTLY. The
+    promoted capability `project-repo-schema` says the shape is ELECTIVE and
+    CONFERS NOTHING, that a one-repository and a three-repository project are
+    reviewed IDENTICALLY, and that a project declining the shape "owes no
+    declaration"; `docs/project-repo-schema.md` (ratified by
+    `add-project-repo-schema`) and openRepoShape's README and AGENTS.md say the
+    same. A preference stated without a change would read, to the next
+    consumer, as the layout mattering after all. This packet states the
+    preference INSIDE that requirement and adds the three requirements that
+    say where the preference may be spoken and where it may not.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was searched on 2026-10-06 (main `92010d3e`) for
+    `triad`, `project-repo-schema`, `openreposhape`, `three-repository` and
+    `three-leg`. Three files match and none proposes a preference:
+    `ideation/staging/INDEX.md` is the topic inventory;
+    `ideation/staging/wallet-carried-work-authority/` is about where review
+    authority travels, and its claim 6 ("The three-repository schema stays
+    human-elected") is kept true by this packet rather than contradicted; and
+    `ideation/staging/opendox-two-layer-product/` names openRepoShape as a
+    public product. The organized source is the owner's direction above.
+  proposed_by: >-
+    Lane `codeXfactory-5`, session `ed23f049-7e99-4601-8a6d-760b6aeb5f26`, by
+    an authoring agent on the lane's brief, opened as ONE pull request held for
+    Brett Heap's ratification and merge words. NO APPROVAL PAIR IS DECLARED
+    AND NONE IS IMPLIED: `approved_by` and `approved_on` are absent, which is
+    the lawful unapproved shape `add-drafted-proposal-origin` admits, and the
+    three lifecycle documents carry `Status: draft` to match.
+  proposed_on: 2026-10-06
+related:
+  - openxFactory:change:add-project-repo-schema                 # ARCHIVED 2026-09-03. Promoted the requirement this packet modifies, "The project repository schema is elective and confers nothing"
+  - openxFactory:change:add-wallet-carried-review-authority     # The ratified doctrine that requirement restates: "Electing the schema changes no gate, no floor, no grant, and no clearance eligibility"
+  - workBenches:pr:135                                          # The sibling: lands the adopted Triad Feature Amendments change; its Copilot thread 4194811387 asks for the 2026-10-06 direction to be recorded as a deferred follow-up, and this change is where that direction is governed
+  - workBenches:issue:22                                      # The existing governing record for shape-aware setup-openspeckit, the bootstrap the advisory reaches
