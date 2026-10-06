@@ -1500,26 +1500,37 @@ class ConformanceTests(unittest.TestCase):
                     self.assertIn("output_size_limit /", run.stdout)
 
     def test_overflowing_number_literals_are_refused(self):
-        """Review r4191064649: `1e9999` parses to infinity, and referenced schemas
-        never pass `check_input`, so an overflowing literal is refused where it is
-        parsed: in a referenced schema and in the declaration file."""
-        self.error_union(parent_typed=True)
-        error = json.loads((self.root / "domain-error.json").read_text())
-        error["$defs"]["invalidError"]["properties"]["retryable"] = {"const": "__C__", "enum": ["__E__"]}
-        raw = json.dumps(error).replace('"__C__"', "1e9999").replace('"__E__"', "2e9999").encode()
-        (self.root / "domain-error.json").write_bytes(raw)
-        ref = {"repository": "synthetic", "revision": self.revision, "path": "domain-error.json",
-               "sha256": hashlib.sha256(raw).hexdigest()}
-        self.doc = self.declaration()
-        self.pin(ref)
-        self.tool()["error"] = dict(ref)
-        self.tool()["outcomes"]["inventories"][1].update(pointer="/$defs/error", discriminator="code")
-        self.assertDiagnostics([("json_number_limit", "/tools/0/error")])
+        """Reviews r4191064649 and r4191131248: `1e9999` parses to infinity and a
+        nonzero `1e-9999` to zero, and referenced schemas never pass `check_input`,
+        so such literals are refused where they are parsed, in a referenced schema
+        and in the declaration file. Real zero literals are kept."""
+        refused = [("json_number_limit", "/tools/0/error")]
+        for case, const, enum, expected in [("overflow", "1e9999", "2e9999", refused),
+                                            ("underflow", "1e-9999", "0", refused),
+                                            ("negative underflow", "-2.5e-400", "0", refused),
+                                            ("zero literals", "0e5", "-0.0", [])]:
+            with self.subTest(case=case):
+                self.doc = self.declaration()
+                self.error_union(parent_typed=True)
+                error = json.loads((self.root / "domain-error.json").read_text())
+                error["$defs"]["invalidError"]["properties"]["retryable"] = {"const": "__C__", "enum": ["__E__"]}
+                raw = json.dumps(error).replace('"__C__"', const).replace('"__E__"', enum).encode()
+                (self.root / "domain-error.json").write_bytes(raw)
+                ref = {"repository": "synthetic", "revision": self.revision, "path": "domain-error.json",
+                       "sha256": hashlib.sha256(raw).hexdigest()}
+                self.doc = self.declaration()
+                self.pin(ref)
+                self.tool()["error"] = dict(ref)
+                self.tool()["outcomes"]["inventories"][1].update(pointer="/$defs/error", discriminator="code")
+                self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
         path = self.root / "declaration.json"
-        path.write_text(json.dumps(self.declaration()).replace('"schema_version": 1', '"schema_version": 1e9999'))
-        run = self.cli(path, "--json", "--snapshot", f"synthetic@{self.revision}={self.root}")
-        self.assertEqual(run.returncode, 1, run.stderr)
-        self.assertEqual(diagnostics(json.loads(run.stdout)), [("json_number_limit", "/")])
+        for literal in ("1e9999", "1e-9999"):
+            with self.subTest(declaration=literal):
+                path.write_text(json.dumps(self.declaration()).replace(
+                    '"request_bytes": 262144', '"request_bytes": ' + literal))
+                run = self.cli(path, "--json", "--snapshot", f"synthetic@{self.revision}={self.root}")
+                self.assertEqual(run.returncode, 1, run.stderr)
+                self.assertEqual(diagnostics(json.loads(run.stdout)), [("json_number_limit", "/")])
 
     def test_cli_oversized_integer_is_a_diagnostic(self):
         """Review r4187669157: Python's integer-digit limit is a refusal, not a traceback."""
