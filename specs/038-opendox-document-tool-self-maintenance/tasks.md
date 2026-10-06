@@ -318,7 +318,9 @@ hidden; F12.1 exits 0 composed (SC-001).
   with exactly two issuers (the `/dev/tty` prompt; the server's per-branch nonce)
   and a static check that no other exists. The neutral lander: `--no-ff` merge in
   a landing worktree of its own under `<repo>-worktrees/`; the `ls-remote
-  refs/heads/main` check first (a remote with no `main` passes, N-16); then
+  refs/heads/main` check first, at the chosen remote's PUSH URL (`git remote
+  get-url --push`), with several push URLs refused (a remote with no `main`
+  passes, N-16; Copilot's review of `cbe2adfb`); then
   ff-only of the served checkout when it holds `main` and is clean, a REFUSAL
   naming the remedy when it holds `main` and is not clean (ADV-08), and `left`
   when it holds another branch; pushes nothing (R2Q6 (a)); `MergeConflict`
@@ -332,7 +334,10 @@ hidden; F12.1 exits 0 composed (SC-001).
     including the static issuer check; and named nodes beside them for R2Q7 (a)'s
     two refusals (`test_a_repository_with_no_main_is_unknown_and_refused_naming_it`,
     `test_no_declaration_refuses_naming_the_file_and_its_content`; lane 3's R2Q7
-    FIX) and ADV-08's (`test_a_dirty_served_checkout_on_main_is_refused_before_merging`).
+    FIX), ADV-08's (`test_a_dirty_served_checkout_on_main_is_refused_before_merging`),
+    and the push URL's (`test_the_remote_check_reads_the_push_url_not_the_fetch_url`,
+    a remote whose `pushurl` names a repository ahead of local `main`, refused;
+    and a remote with two push URLs, refused).
   - **Ruled**: R2Q1, R2Q3, R2Q4, R2Q5, R2Q6, R2Q7. **Decisions**: CF-1, N-1,
     N-11, N-16, OQ-12-17, OQ-038-1.
   - **After**: T004; T011 (`session_pr.py`, and `repository_act.py` if the audit
@@ -1008,11 +1013,15 @@ copies (research R7; ADV-05).
   `main`; `auto-fix` applies the family's repair or the pack's patch, which T056
   re-obtains and T049 re-validates before any branch exists; `assisted` writes
   the deterministic proposal (near-duplicates and empty stubs, OQ-H-11);
-  `human-only` is refused with no branch; the draft lands only through `land`
+  `human-only` is refused with no branch; every repair commit carries a
+  `Finding: <id>` trailer for the finding it repairs, so a landing cites by git
+  alone (data-model.md § Fix draft); the draft lands only through `land`
   (T016; OQ-12-17). `fix`'s dispatch line in `health/cli.py`.
   - **Realizes**: 14.6, 14.7.
   - **Falsifier**: new `tests/test_health_fix.py` (F14.1's fix loop, by fixture
-    document, R2Q10 (a); the empty stub's proposal; a two-repair batch).
+    document, R2Q10 (a); the empty stub's proposal; a two-repair batch, each
+    commit carrying its `Finding:` trailer, landed and its branch deleted, after
+    which the next tip run counts both disappearances cited).
   - **Ruled**: R2Q5, R2Q10, R2Q11. **Decisions**: OQ-H-8, -10, -11, OQ-12-17,
     OQ-H15-20, N-19.
   - **After**: T046, T049, T016.

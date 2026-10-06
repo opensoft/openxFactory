@@ -64,17 +64,26 @@ opendox land --repo-root PATH --branch BRANCH [--local] [--json]
 - `standalone` (which needs the explicit local install, `OPENDOX_INSTALL_MODE=local`
   or `--local`; FR-007): merges `--no-ff` in its own landing worktree, then
   fast-forwards the served checkout when it holds `main` and is clean (R2Q6 (a)).
-  Prints `Landed`, with the `git revert -m 1 <merge_commit>` that undoes it.
+  Prints `Landed`, with the `git revert -m 1 <merge_commit>` that undoes it;
+  `--json` prints the `Landed` object.
   Pushes nothing; a landed `main` leaves the checkout only by the user's own
   `git push`.
 - `governed` with an instrument: submits through it and reports where the work
-  went; the merge stays the governance's act (R2Q4 (a)).
+  went; the merge stays the governance's act (R2Q4 (a)). `--json` prints the
+  instrument's `Submission` object.
+- **Two success shapes.** The `land` act answers `Landed` (standalone) or the
+  instrument's `Submission` (governed), on the CLI and the route alike. A
+  client tells them apart by their fields: `merge_commit` is `Landed`'s alone,
+  `remote` and `ref` are the `Submission`'s alone (data-model.md; Copilot's
+  review of `cbe2adfb`).
 - **Refuses by name**: `unknown` (no `main`, naming it; no declaration, naming
   the exact file `.opendox/governance.yaml` and the content to commit, R2Q7
   (a)); `governed-without-an-instrument`; `BRANCH` is `main`; the served
   checkout holds `main` and is not clean (ADV-08), naming the remedy; local
-  `main` lacks the remote's `main` tip (`ls-remote refs/heads/main`; a remote with
-  no `main` passes); a stale or used confirmation; a conflict (`MergeConflict`,
+  `main` lacks the remote's `main` tip, read at the remote's PUSH URL
+  (`git remote get-url --push`, then `ls-remote <that URL> refs/heads/main`; a
+  remote with no `main` passes), and the chosen remote has several push URLs
+  (data-model.md § Landed); a stale or used confirmation; a conflict (`MergeConflict`,
   naming the paths and the remedy: bring `main` into the branch and resolve
   there, OQ-038-1).
 - Serves the fix loop's drafts unchanged, the batch draft included: a batch is
@@ -86,7 +95,7 @@ opendox land --repo-root PATH --branch BRANCH [--local] [--json]
 |---|---|---|
 | `POST /actions/session/submit` | `{"branch": "…"}` | the `Submission` object, or a named refusal |
 | `POST /actions/session/land-nonce` | `{"branch": "…"}` | `{"nonce": "…", "branch": "…", "head": "<40-hex>"}`: single-use, bound to that branch and head (OQ-12-13) |
-| `POST /actions/session/land` | `{"branch": "…", "nonce": "…"}` | the `Landed` object, or a named refusal (the same refusals as the CLI) |
+| `POST /actions/session/land` | `{"branch": "…", "nonce": "…"}` | the `Landed` object (standalone), the instrument's `Submission` object (governed; no merge, R2Q4 (a)), or a named refusal (the same refusals as the CLI) |
 
 The routes take no repository from the request (12.4a; F12.2's
 `test_submit_route_takes_no_repository_from_the_request`). The hosted plane

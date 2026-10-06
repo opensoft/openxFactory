@@ -87,6 +87,9 @@ view, `land` refuses (12.6a, "refuses when there is none").
 ### Landed and MergeConflict (12.6a; owner T012)
 
 `LandingPort.land(branch, *, confirmation) -> Landed`, declared in `session_pr`.
+The `land` ACT answers `Landed` when standalone, and the instrument's
+`Submission` when governed, with no merge (R2Q4 (a)); the two are told apart by
+their fields (`merge_commit` is `Landed`'s alone; contracts/cli-http-submit-land.md).
 
 | `Landed` field | rule |
 |---|---|
@@ -100,17 +103,24 @@ view, `land` refuses (12.6a, "refuses when there is none").
 into the branch and resolve there (OQ-038-1). Nothing is merged.
 
 **The remote check** (R2Q6 (a); C6). Before merging, `land` runs `git ls-remote
-<remote> refs/heads/main` against the remote `submit` would choose. If the remote
-has a `main`, local `main` must contain that tip (`git merge-base --is-ancestor`);
-otherwise `land` refuses, naming `git pull`'s absence and the remedy. A remote with
-no `main`, or no remote at all, passes the check.
+<push-url> refs/heads/main` against the PUSH URL of the remote `submit` would
+choose: the one URL `git remote get-url --push <remote>` returns (the fetch URL
+when no `pushurl` is set), since the owner's later `git push` of `main` goes
+there. `git ls-remote <remote>` would read the FETCH URL, another repository when
+a `pushurl` differs (Copilot's review of `cbe2adfb`). A remote with several push
+URLs is refused by name, as `submit` refuses it. If the push URL has a `main`,
+local `main` must contain that tip (`git merge-base --is-ancestor`); otherwise
+`land` refuses, naming `git pull`'s absence and the remedy. A remote with no
+`main`, or no remote at all, passes the check. Every message is redacted by the
+`Submission`'s `url` rule (12.1a).
 
 ### The landing's states
 
 ```text
 requested
   ├─ refused: governance unknown (no main | no declaration | unreadable) | governed-without-an-instrument
-  │           | branch is main | no, used or stale confirmation | local main lacks the remote's main tip
+  │           | branch is main | no, used or stale confirmation | local main lacks the push URL's main tip
+  │           | the chosen remote has several push URLs
   │           | the served checkout holds main and is NOT clean (ADV-08: named remedy, commit or stash first)
   ├─ governed with an instrument → submitted through the instrument (Submission), no merge (R2Q4 (a))
   └─ standalone → merged in the lander's landing worktree
@@ -213,7 +223,10 @@ with V(B) = B's pack inventory (health_runs.pack_versions):
 only when R is itself a complete, full default-tip run, for id in B, not in R,
 and not accepted in the exceptions file R reads (an accepted id is suppressed,
 not gone):
-     cited (a landed health-fix draft for it, or a commit naming it in a "Finding: <id>" trailer) → gone
+     cited → gone: a commit in git rev-list <B.commit>..<R.commit> (every ancestor of R's
+            commit not reachable from B's, merges' second parents included) carries a
+            "Finding: <id>" trailer naming it. A landed health-fix draft cites this way,
+            since the fix loop writes that trailer on every repair commit (§ Fix draft)
      uncited → re-raised ONCE: R carries one engine-authored finding, kind
                uncited-disappearance, identity {"disappeared_id": <id>}, human-only,
                naming the original (contracts/health-finding.md); its id is its own
@@ -256,7 +269,12 @@ commit to the open batch draft, `health-fix-batch`, which is created at HEAD
 when none is open (or when the last one is already contained in `main`);
 several invocations put several repairs in ONE draft for ONE review (14.7).
 The applier writes each draft in a worktree of its own, so HEAD and the working
-tree never move (F14.1 asserts HEAD unmoved after every `fix`). Never `main`; a draft
+tree never move (F14.1 asserts HEAD unmoved after every `fix`). **Every repair
+commit carries a `Finding: <id>` trailer** for the finding it repairs, a batch
+draft's one per commit, so the citation is durable in git: the baseline reads
+the trailers in the commits a landing brought in (§ Baseline classes), never a
+branch name, and a deleted draft branch loses nothing (Copilot's review of
+`cbe2adfb`). Never `main`; a draft
 lands only through `land` (12.6a). A `human-only` finding gets no branch.
 
 ## Phase 5: check packs

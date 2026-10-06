@@ -855,7 +855,11 @@ bookkeeping records an answer.
     accepted is not a disappearance: it is accepted, not gone (Copilot's
     review of `2076f24b`).
   - **Cited:** a disappearance is cited by a landing of the fix loop's draft for
-    it, or by a commit that names its id in a `Finding:` trailer. An uncited one
+    it, or by a commit that names its id in a `Finding:` trailer. The fix loop
+    writes that trailer on every repair commit, a batch draft's included, so
+    both are read the same way: from the trailers of the commits between the
+    baseline run's commit and the run's own (`git rev-list B..R`), never from a
+    branch name. An uncited one
     SHALL be re-raised once, as a `human-only` finding naming the original.
     The re-raise is one engine-authored finding with its own id, in the run
     that measured the disappearance; it is never itself measured as a
