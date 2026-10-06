@@ -102,10 +102,12 @@ def json_loads(text):
         raise Invalid("non_json_number")
 
     def finite_float(literal):
-        # `1e9999` is valid JSON text but no finite number; refuse it where it is
-        # parsed, since referenced schemas never pass the declaration's checks.
+        # `1e9999` is valid JSON text but no finite number, and a nonzero
+        # `1e-9999` silently becomes zero; refuse both where they are parsed,
+        # since referenced schemas never pass the declaration's checks.
         value = float(literal)
-        if value in (float("inf"), float("-inf")):
+        mantissa = literal.lstrip("+-").lower().partition("e")[0]
+        if value in (float("inf"), float("-inf")) or (value == 0 and mantissa.strip("0.")):
             raise Invalid("json_number_limit")
         return value
 
