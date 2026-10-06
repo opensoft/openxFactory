@@ -492,7 +492,7 @@ jobs:
       # the commit `actions/checkout` actually produced. The AUTHORITATIVE copy
       # is `contracts/review-lane-pin.yaml`; this is a second witness and the
       # test asserts the two agree. Keep it byte-identical to the `ref:` below.
-      PINNED_CORE_COMMIT: "445e8c3d032bead42d04f0f7e06bbbf7dafb99d1"
+      PINNED_CORE_COMMIT: "f28ea0b25fcec592a61bd695fb516ff3ae99d33c"
     steps:
       # ---- 1. Is there any way to read the decision core at all? ------------
       - name: Preflight — a decision-core read credential must exist
@@ -619,7 +619,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: codeXfactory/codexFactory
-          ref: "445e8c3d032bead42d04f0f7e06bbbf7dafb99d1"
+          ref: "f28ea0b25fcec592a61bd695fb516ff3ae99d33c"
           path: .merge-master-core
           persist-credentials: false
           token: ${{ steps.repo-token.outputs.token || steps.org-token.outputs.token || github.token }}
