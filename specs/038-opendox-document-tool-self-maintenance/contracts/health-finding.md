@@ -75,10 +75,13 @@ have the same id (the same `pack_id`, `kind`, `path` and identity key, or a
 engine records ONE finding against the family or pack that produced them
 instead: `pack_id` that producer's (`opendox` for a built-in family, the
 manifest entry's id for a pack), `kind` `identity-collision`, `path` the
-colliding findings' path, `human-only`, with the colliding id and the count in
-`evidence`. A family or pack must supply an identity key that tells its findings
-apart; the engine never truncates the id further or disambiguates it by
-position.
+colliding findings' path when they share one and the empty string when they do
+not (a hash collision across paths), `human-only`, with the colliding id, the
+count and every colliding path in `evidence`. A family or pack must supply an
+identity key that tells its findings apart; the engine never truncates the id
+further or disambiguates it by position. The ENGINE detects collisions, over
+the whole run, built-in families and packs alike, before anything is stored
+(T046 owns it and tests it; Copilot's review of `8cee8007`).
 
 ## Rules
 

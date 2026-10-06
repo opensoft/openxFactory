@@ -38,7 +38,10 @@ Options follow the verb (10.1). `--class` is additive (a filter on `list`);
   (data-model.md § the baseline). `--timeout` sets the per-pack budget: default 60
   seconds, applied per pack and enforced by the engine, never by the pack, and
   capped at the engine's ceiling of 600 seconds (15.6; ADV-40; the manifest
-  carries no budget of its own). `run` writes nothing
+  carries no budget of its own). It takes a WHOLE number of seconds, at least
+  1: zero, a negative value, a fraction or a non-number is refused by name
+  before any pack runs, and nothing is stored; a value above 600 runs at 600,
+  as ruled (OQ-H15-5; Copilot's review of `8cee8007`). `run` writes nothing
   to the working tree or under `.git/` (F15.1 asserts the checkout clean after
   it).
 - **Every lookup is scoped to the corpus.** `list`, `fix` and `accept` resolve

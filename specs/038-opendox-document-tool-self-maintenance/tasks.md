@@ -872,8 +872,10 @@ copies (research R7; ADV-05).
   disappearance, and an id it suppresses as accepted is never one (Copilot's
   review of `2076f24b`); each run
   reads the dispositions file in what it reads (N-14); the engine hook G15-E
-  calls; the per-pack budget, `--timeout`, default 60 seconds, capped at 600
-  (OQ-H15-5). New `health/cli.py`: the `health` group with 14.5's exact shapes
+  calls; the per-pack budget, `--timeout`, default 60 seconds, capped at 600,
+  a whole number of seconds of at least 1 (OQ-H15-5); id-collision detection
+  over the whole run, families and packs alike, before anything is stored
+  (contracts/health-finding.md § The id rule). New `health/cli.py`: the `health` group with 14.5's exact shapes
   (`run`, `list`, `fix --finding ID [--batch]`, `accept`), plus `--local` and
   `list --class`, frozen, `fix` and `accept` dispatching to T053's and T054's
   modules; contributed through `default_profile.py` (N-2); `--json` carries
@@ -891,9 +893,13 @@ copies (research R7; ADV-05).
     complete runs, after which the restored full run is classed against the
     earlier complete baseline and reports no disappearance from the partial run; a finding accepted after
     a baseline, which the next tip run neither lists nor reports as
-    disappeared; and three consecutive default-tip runs where a finding vanishes
+    disappeared; three consecutive default-tip runs where a finding vanishes
     uncited, the second carrying one `uncited-disappearance` re-raise and the
-    third raising nothing for either id).
+    third raising nothing for either id; two findings with one identity key from
+    one family, and a forced 16-digit hash collision at two paths through the id
+    function's test seam, each run storing ONE `identity-collision` finding,
+    path as the contract rules, and neither colliding finding; and `--timeout`
+    `0`, `-5`, `1.5` and `abc` refused before any pack runs, `900` run at 600).
   - **Ruled**: R2Q9 (items 2, 7), R2Q10, R2Q12, R2Q15. **Decisions**: I-2, CF-6,
     N-2, N-10, N-14, N-19, OQ-H15-5.
   - **After**: T042, T044.

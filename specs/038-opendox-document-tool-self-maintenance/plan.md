@@ -39,7 +39,7 @@ phase-4 `src/` exceptions named (§ Project Structure), finding-id collisions
 for files only one task writes.
 
 **Revision: Copilot's reviews of the ruled revision folded** (2026-10-06).
-Copilot's reviews of `2a4a73d1` to `abd28ba2` found gaps the ruled options left
+Copilot's reviews of `2a4a73d1` to `8cee8007` found gaps the ruled options left
 open. Each fix refines a ruled item without taking another option, and all are
 listed here so the holder can judge whether any needs Brett's word:
 - the run's pack inventory, a newly added pack's first findings as
@@ -82,7 +82,11 @@ listed here so the holder can judge whether any needs Brett's word:
   T003, if dispatched, dispositions its own round before the first realization
   PR, since T004 is done;
 - one exceptions entry per finding id: a repeated `accept` and a hand-repeated
-  id are refused by name (contracts/health-exceptions.md).
+  id are refused by name (contracts/health-exceptions.md);
+- the engine owns id-collision detection over the whole run, with a path rule
+  for a collision across paths (contracts/health-finding.md; T046); and
+  `--timeout` takes a whole number of seconds of at least 1, a value above 600
+  still capped as ruled (contracts/cli-http-health.md).
 
 ## Summary
 
