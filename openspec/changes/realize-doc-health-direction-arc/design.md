@@ -338,9 +338,13 @@ runs both guards over its OWN landings:
   with its floor of 16 (16 at `ab04453d`), and never typed out. A typed list
   freezes the set at today's names, so a governed suite added or renamed
   before T074 would be absent from this oracle and the arc could edit it
-  undetected. And the same with `--chains --suites=<F5.2's 7>`. Both must exit
-  0. T074 touches no protected suite (§ 2), so both are expected to pass with
-  no allow-list entry. A failure stops the archive.
+  undetected. The set is computed from the tree BEFORE the arc's first landing
+  in that repository AND from the final tree, and the oracle takes their
+  UNION, with the floor held on each. From the final tree alone, a landing
+  could strip a suite's markers and so edit its own protection away. And the
+  same with `--chains --suites=<F5.2's 7>`. Both must exit 0. T074 touches no
+  protected suite (§ 2), so both are expected to pass with no allow-list
+  entry. A failure stops the archive.
 
 It is quoted in T075's PR, and again at the archive (T077) with `ARC_TIP` the
 last realization landing.

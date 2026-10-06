@@ -233,9 +233,14 @@ After group 3 and plan 038's T064.
       W=$(mktemp -d)
       git log --first-parent --format=%H --grep='^Arc: realize-doc-health-direction-arc$' HEAD > "$W/x-arc.txt"
       test -s "$W/x-arc.txt"                              # group 3 lands here
-      # 12.5's protected set, COMPUTED AS 12.5 COMPUTES IT: every suite that drives open-pr or injects the fake
-      git grep -l -e 'open-pr' -e 'open_pr' -e 'FakePullRequests' -- 'tests/test_*.py' > "$W/governed.txt"
-      test "$(wc -l < "$W/governed.txt")" -ge 16          # 16 at ab04453d; fewer means a proof vanished
+      # 12.5's protected set, COMPUTED AS 12.5 COMPUTES IT (every suite that drives open-pr or injects the fake), from
+      # the tree BEFORE the arc and the tree AFTER it, and their UNION: a landing cannot edit its own protection away
+      BASE="$(tail -n 1 "$W/x-arc.txt")^1"                # newest first, so the last line is the arc's first landing here
+      git grep -l -e 'open-pr' -e 'open_pr' -e 'FakePullRequests' "$BASE" -- 'tests/test_*.py' | sed 's|^[^:]*:||' > "$W/pre.txt"
+      git grep -l -e 'open-pr' -e 'open_pr' -e 'FakePullRequests' -- 'tests/test_*.py' > "$W/post.txt"
+      test "$(wc -l < "$W/pre.txt")" -ge 16               # 16 at ab04453d; fewer means a proof vanished
+      test "$(wc -l < "$W/post.txt")" -ge 16              # the same floor after the arc
+      sort -u "$W/pre.txt" "$W/post.txt" > "$W/governed.txt"
       ls tests/test_generator.py tests/test_snapshot*.py tests/test_session_snapshot.py > "$W/gen-suites.txt"
       python3 scripts/protected_suites.py --landings="$(cat "$W/x-arc.txt")" --suites="$(cat "$W/governed.txt")"
       python3 scripts/protected_suites.py --chains --landings="$(cat "$W/x-arc.txt")" --suites="$(cat "$W/gen-suites.txt")"
