@@ -83,6 +83,18 @@ further or disambiguates it by position. The ENGINE detects collisions, over
 the whole run, built-in families and packs alike, before anything is stored
 (T046 owns it and tests it; Copilot's review of `8cee8007`).
 
+**An accepted limit: a hash collision ACROSS runs is not detected.** Two
+different identities whose ids share the 16 hex digits in DIFFERENT runs read
+as one finding to the baseline and to an exception. The id's 16-digit form is
+the ruled one (R2Q10 (a), a ref-name component; N-13), and nothing outside the
+id is stored that could tell them apart (`identity` is engine-internal, R2Q25
+(a)). By chance the odds are about n²/2⁶⁵ per corpus, about 3 in a trillion
+for 10,000 findings; a deliberate collision needs about 2³² SHA-256
+evaluations over crafted document text, and it can only mislabel a class or
+suppress one finding, never land anything (every repair still lands through
+`land`). Widening the id would change the ruled shape, so it is the holder's to
+raise with Brett (Copilot's review of `6f073ed2`).
+
 ## Rules
 
 - **Refusals.** The store refuses a finding without `pack_id` or `pack_version`

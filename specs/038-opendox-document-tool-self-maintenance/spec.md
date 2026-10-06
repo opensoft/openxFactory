@@ -837,14 +837,16 @@ bookkeeping records an answer.
     landing alone.
     Every run is classed against it, whether at the tip, on a branch or over
     the working state.
-  - **The pack inventory.** Every run SHALL record the `pack_version` of every
-    pack it ran, zero-finding packs and openDox's own included. "The
-    baseline's `pack_version` for its pack" is read from the baseline run's
-    inventory, never from its findings.
-  - **New:** absent from the baseline, at the baseline's `pack_version` for its
-    pack.
+  - **The pack inventory.** Every run SHALL record the exact pin of every pack
+    it ran: its `pack_version`, its digest and, for a git source, its commit;
+    zero-finding packs and openDox's own (its installed version) included. "The
+    baseline's pin for its pack" is read from the baseline run's inventory,
+    never from its findings.
+  - **New:** absent from the baseline, at the baseline's pin for its pack.
   - **Arrived with a pack upgrade:** absent from the baseline, at a different
-    stamped `pack_version` (15.7). It is reported apart from new (D12). A pack
+    pin: a different stamped `pack_version` (15.7), or the same version from
+    another digest or commit, since either is a pack change (Copilot's review
+    of `6f073ed2`). It is reported apart from new (D12). A pack
     the baseline run did not run (one newly added) has no baseline version, so
     its first findings arrive this way: they came with a pack change, not a
     document change, which is D12's reason for the class.

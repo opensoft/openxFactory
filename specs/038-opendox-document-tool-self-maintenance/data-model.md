@@ -145,8 +145,7 @@ Table `health_runs` in `0003_` (OQ-H-22; DOMAIN, R2Q13 (a)):
 | `baseline_branch` | text, nullable | the branch whose tip runs form the baseline (tier 1 decision I-2) |
 | `started_at`, `finished_at` | timestamptz | |
 | `outcome` | `complete` \| `partial` \| `refused` | `partial` when ANY selected pack was not evaluated: it failed, its manifest entry was refused or could not be fetched or digest-checked, or no live sandbox let it run (each such case is a finding). `complete` only when every selected pack ran to a result (Copilot's review of `97e28b6c`) |
-| `pack_versions` | jsonb, NOT NULL | the run's PACK INVENTORY: `{pack_id: pack_version}` for every pack it ran, zero-finding packs and `opendox` itself included. The baseline reads a pack's previous version here, never from findings (Copilot review of `6d6911e1`) |
-| `pack_pins` | jsonb, NOT NULL | each pack's EXACT pin as the run used it: `{pack_id: {"version", "digest", "commit"}}` (`commit` null for a corpus-relative source; `opendox`'s entry the installed version alone). `fix` re-runs a pack only at this pin (§ Finding, the patch; Copilot's review of `3f807204`) |
+| `pack_pins` | jsonb, NOT NULL | the run's PACK INVENTORY, with each pack's EXACT pin as the run used it: `{pack_id: {"version", "digest", "commit"}}` for every pack it ran, zero-finding packs and `opendox` itself included (`commit` null for a corpus-relative source; `opendox`'s entry the installed version alone). The baseline compares a pack's pins here, never findings (Copilot's reviews of `6d6911e1` and `6f073ed2`), and `fix` re-runs a pack only at its pin (§ Finding, the patch; Copilot's review of `3f807204`) |
 | `export_commit` | 40-hex, NOT NULL | the commit whose committed export the packs read: `commit` for a default-tip or branch run, HEAD at run time for a working-state run (15.1b) |
 | `full` | boolean, NOT NULL | true when no `--pack` restricted the run. Only a `complete`, `full` default-tip run forms a baseline or measures disappearances (Copilot review of `2076f24b`) |
 | `sandbox` | jsonb, NOT NULL | what the per-run probe found: `{"live": bool, "pids_max": int or null}`; `pids_max` is null where no cgroup is delegated (an accepted limit, contracts/health-packs-manifest.md § Rules) |
@@ -231,10 +230,11 @@ The store refuses a finding with no `pack_id` or `pack_version`
 for a run R, against B = the latest earlier default-tip run in the store for the
 SAME resolved corpus_root and baseline_branch (never another corpus's run) whose
 outcome is complete and which is full (no --pack restriction),
-with V(B) = B's pack inventory (health_runs.pack_versions):
-  id in R, not in B, its pack in V(B) at the same version   → new
-  id in R, not in B, its pack in V(B) at another version    → pack-upgrade (D12)
-  id in R, not in B, its pack NOT in V(B) (newly added)     → pack-upgrade (it came with a pack change)
+with P(B) = B's pack inventory (health_runs.pack_pins):
+  id in R, not in B, its pack in P(B) at the same pin       → new
+  id in R, not in B, its pack in P(B) at another pin        → pack-upgrade (D12): another version, or
+                                                              the same version from another digest or commit
+  id in R, not in B, its pack NOT in P(B) (newly added)     → pack-upgrade (it came with a pack change)
   id in R and in B                                          → persistent
 only when R is itself a complete, full default-tip run, for id in B, not in R,
 and not accepted in the exceptions file R reads (an accepted id is suppressed,

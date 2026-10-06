@@ -779,8 +779,8 @@ copies (research R7; ADV-05).
   - **Lane**: 4.
 - [ ] T042 [P] [US4] [oDc] **HA-1, the store (`0003_`), one owner.** New
   `migrations/0003_health.sql`: `health_runs` (with the run's kind, the
-  baseline branch, the run's pack inventory `pack_versions`, each pack's exact
-  pin `pack_pins` and the `export_commit` its packs read, whether it was
+  baseline branch, the run's pack inventory with each pack's exact pin,
+  `pack_pins`, the `export_commit` its packs read, whether it was
   `full`, and the probe's `sandbox` record; Copilot review) and
   `health_findings` (data-model.md, with no `identity` column), with
   15.7's
@@ -866,8 +866,9 @@ copies (research R7; ADV-05).
   no untracked file reaches a pack; the built-in families in process, attributed
   `opendox`; the baseline classes and disappearance rules of R2Q12 (a), with the
   baseline branch `main`, else the branch HEAD names (I-2 (a), ruled), each run's
-  pack inventory recorded and read for a pack's previous version (a newly added
-  pack's findings are `pack-upgrade`; data-model.md § Baseline classes); only a
+  pack inventory recorded and read for a pack's previous pin (a newly added
+  pack's findings, and those of a pack whose digest or commit moved under an
+  unchanged version, are `pack-upgrade`; data-model.md § Baseline classes); only a
   complete, full default-tip run becomes a baseline or measures a
   disappearance, and an id it suppresses as accepted is never one (Copilot's
   review of `2076f24b`); each run
@@ -885,7 +886,9 @@ copies (research R7; ADV-05).
   - **Falsifier**: new `tests/test_health_cli.py`, `tests_runtime/test_health_engine.py`
     (including a repository on `main`, since #1144's falsifiers never exercise
     the baseline there, C-14; a repository on another branch, I-2 (a); a pack
-    with zero findings in the baseline, then upgraded; a newly added pack;
+    with zero findings in the baseline, then upgraded; a newly added pack; a
+    pack whose digest changes under an unchanged `version`, its new findings
+    `pack-upgrade`;
     interleaved runs of two corpora in one store, each classed against its own
     baseline, with `list`, `fix` and `accept` reading only their own corpus's
     runs; a `--pack` run, a run where a pack failed, a run with no live sandbox

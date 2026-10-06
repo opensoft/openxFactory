@@ -39,12 +39,13 @@ phase-4 `src/` exceptions named (§ Project Structure), finding-id collisions
 for files only one task writes.
 
 **Revision: Copilot's reviews of the ruled revision folded** (2026-10-06).
-Copilot's reviews of `2a4a73d1` to `8cee8007` found gaps the ruled options left
+Copilot's reviews of `2a4a73d1` to `6f073ed2` found gaps the ruled options left
 open. Each fix refines a ruled item without taking another option, and all are
 listed here so the holder can judge whether any needs Brett's word:
-- the run's pack inventory, a newly added pack's first findings as
-  `pack-upgrade`, and the baseline scoped to the same corpus (spec FR-010;
-  data-model.md § the baseline);
+- the run's pack inventory, holding each pack's exact pin; a finding new only
+  at the same pin, so a newly added pack's first findings, and those of a pin
+  moved under an unchanged version, are `pack-upgrade`; and the baseline scoped
+  to the same corpus (spec FR-010; data-model.md § the baseline);
 - only a complete, full default-tip run becomes a baseline or measures a
   disappearance, and an accepted id is never a disappearance (FR-010;
   contracts/health-exceptions.md); the once-only re-raise of an uncited
