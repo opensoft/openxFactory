@@ -65,7 +65,17 @@ will own executable implementation tasks; this file does not duplicate them.
     ancestor of `main`. The ratified delta is unchanged on `main`: the blob of
     `specs/factory-mcp-conformance/spec.md` is `a4865bd8` at both `8acd2ec4`
     and `92010d3e`.
-- [ ] 3.2 Archive only after merged green realization; verify promoted requirements and preserved provenance under the archive gate. Release cuts, hosted acceptance and consumer adoption remain separately governed.
+- [x] 3.2 Archive only after merged green realization; verify promoted requirements and preserved provenance under the archive gate. Release cuts, hosted acceptance and consumer adoption remain separately governed.
+  **Ticked before the run, because the archive wrapper refuses an open box**
+  (`change has incomplete tasks` while any `- [ ]` line remains). The
+  condition this item names is met: 3.1 records the merged, green realization.
+  The archive is the governed wrapper's act,
+  `TZ=UTC python3 scripts/proposal-support.py . archive add-factory-mcp-conformance --yes`,
+  never a bare `openspec archive`. It is prepared on a DRAFT pull request that
+  lands by merge commit, never squash, so the archive directory's date keeps
+  matching its adding commit. It lands only on Brett Heap's archive word,
+  which had not been given when this box was ticked. The run and its
+  measurements are recorded under this item in the commit after the move.
 
 ## Addendum 2026-10-05: brought onto main
 
