@@ -515,10 +515,11 @@ bubblewrap and the AppArmor sysctl (R2Q9 (a), items 2–6; R2Q17 (a)).
   the missing branch, until the owner creates or renames `main` (R2Q7 (a)). Its
   health baseline is the branch HEAD names (I-2 (a)); with a detached HEAD there
   is no baseline branch, so every finding reads as new.
-- A remote URL carries a credential. It is redacted from `Submission.url`, from
-  the printed report and from every refusal (12.1a). Whether such a remote is
-  pushed at all is a plan default (OQ-12-11: refused, as `attach_remote` refuses
-  one).
+- A remote URL carries a credential. The remote is PUSHED, and the credential
+  is redacted from `Submission.url`, from the printed report and from every
+  message, a refusal's included (12.1a; the plan's OQ-12-11, ruled
+  `6013547504`). The first plan's refusal, as `attach_remote` refuses one,
+  narrowed 12.1a and was withdrawn (ADV-09).
 - A submit request reaches the hosted multi-user plane. It is refused before
   anything else, because that plane carries no `session` capability, and a push
   spends a personal git credential a hosted plane must never hold (12.4a). The
@@ -635,8 +636,8 @@ bookkeeping records an answer.
     records `5963851934`, with batch P's printed hint line and accepted
     limits).
   - **The CLI's actor.** The CLI verb runs as the invoking user, in that user's
-    checkout. F12.2 runs it non-interactively with no actor (plan default
-    OQ-12-9).
+    checkout. F12.2 runs it non-interactively with no actor (the plan's ruled
+    default OQ-12-9).
 - **FR-005** (requirement 11, tenth scenario; 12.5; F12.1; R2Q2 (a), R2Q8 (a)):
   openxFactory's GitHub pull-request flow SHALL behave exactly as today.
   - **It runs on `GhPullRequests`.** The flow runs on `pull_request_factory`'s
@@ -1290,8 +1291,8 @@ bookkeeping records an answer.
   round 13 and ruling B2). The product's own checks run in process on all of
   them. Packs run only where a kernel-enforced sandbox exists, so in practice
   on a capable Linux host (R2Q16 (a)).
-- **"Near-duplicates via the existing engine"** (`5784155201`) is read, as a
-  plan default, as openDox's own similarity backend, `doxbench_knowledge.py`'s
+- **"Near-duplicates via the existing engine"** (`5784155201`) is read, as the
+  plan's ruled default, as openDox's own similarity backend, `doxbench_knowledge.py`'s
   hashed n-gram projection (OQ-H-21).
 - **Out of scope:**
   - release 1's groups, and Group 8 (openDox-spec's re-promotion);

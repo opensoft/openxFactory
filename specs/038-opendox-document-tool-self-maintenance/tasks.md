@@ -1064,13 +1064,14 @@ copies (research R7; ADV-05).
   (OQ-H15-20); turns a crash, timeout, bound hit, bad stdout or refused output
   into a finding against that pack, storing none of its output and no stderr
   (only the failure's category, exit status, and stderr's byte count and
-  SHA-256; OQ-H15-11, refined), and keeps the view, the classes, the baseline
-  and the landing rule the engine's (15.4). Measure the bounds' defaults against
-  T055's `pack-corpus` before fixing them (ADV-22): address space, CPU, file
-  size, tmpfs and stdout through rlimits and `bwrap`, the process count through
-  `pids.max` where a cgroup is delegated, never `RLIMIT_NPROC`, which
-  setrlimit(2) counts per real user (lane 3's bwrap-facts FIX). Owns nothing of
-  Group 14's.
+  SHA-256; OQ-H15-11, refined), each such finding with its engine-owned identity
+  key (`category`, `entry`; contracts/health-finding.md) and one id across runs,
+  and keeps the view, the classes, the baseline and the landing rule the
+  engine's (15.4). Measure the bounds' defaults against T055's `pack-corpus`
+  before fixing them (ADV-22): address space, CPU, file size, tmpfs and stdout
+  through rlimits and `bwrap`, the process count through `pids.max` where a
+  cgroup is delegated, never `RLIMIT_NPROC`, which setrlimit(2) counts per real
+  user (lane 3's bwrap-facts FIX). Owns nothing of Group 14's.
   - **Realizes**: 15.4, 15.5 (part), 15.6, 15.7 (part: stamping).
   - **Falsifier**: new `tests/test_check_pack_engine.py`; the measurement quoted
     in its PR.
@@ -1394,7 +1395,8 @@ surfaces check over them (ADV-37).
   arc (ARC-6): the steps of plan.md § "Pins and landing order", C4's runbook
   (`docs/openxdox-pin-resync-runbook.md`), and step 7, the aggregation's routine
   pin-sync after each openxFactory landing.
-  - **Realizes**: 9.5 (ticked at T082).
+  - **Realizes**: 9.5 (ticked last, at T084, after the cut's sync and the
+    publish).
   - **Falsifier**: `make pins` (both roots); `verify-opendox-pin.py`,
     `verify-openxdox-pin.py`; the aggregation's parity tests, run locally.
 - [ ] T091 [oDc] [oXc] [oD] [oX] [oDs] [oxF] **The trailer (11.0).** Every

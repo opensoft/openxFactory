@@ -76,10 +76,10 @@ phases #1144's RULED release map gives it (`5799646419`, `5800995035`):
   word (T060), then the copies in openDox-code at the pinned commit (R2Q22 (a);
   release 1's order, research R7).
 - **The close.** AT-R2, HTTP half in CI and browser half on the host
-  (R2Q24 (a)); the ticks of the 37 release-2 boxes and the arc-close boxes
-  (9.5, 11.0, 11.1, F11.1); the pin syncs through openxFactory and the
-  aggregation; and LAST, `opendox` 0.2.0 on PyPI on Brett's publish word
-  (R2Q23 (a)).
+  (R2Q24 (a)); the ticks of the 37 release-2 boxes and of 11.0, 11.1 and F11.1
+  (T082); the cut's pin sync through the aggregation (T083); and LAST,
+  `opendox` 0.2.0 on PyPI on Brett's publish word (R2Q23 (a)), followed by 9.5's
+  tick (T084).
 
 **The first act** is T005: ONE bookkeeping batch (batch Q) in plan 034's T007
 form, under a Rule 6 window, whose contents are tier 2's confirmation CF-2. It
@@ -690,10 +690,11 @@ until F9.2 closes") predates the arc ruling.
   F9.2's later closure is recorded in the arc change's own evidence (T076); the
   archived `tasks.md` is never edited. If #1144 is still active when T076 runs,
   T076 ticks F9.2 there under Rule 6. Batch Q adds this note at F9.2. This
-  feature ticks 9.5, 11.0, 11.1 and F11.1 at T082, and plan 034's T090–T093 close
-  by reference; the archive act itself stays the holder's. (Sequencing note,
-  T004, from Copilot's review: 9.5's tick moves to T084, after the cut's sync
-  and the publish that still realize it; the other three stay at T082.)
+  feature ticks 11.0, 11.1 and F11.1 at T082, and 9.5 last, at T084, after the
+  cut's sync and the publish that still realize it; plan 034's T090–T093 close
+  by reference; the archive act itself stays the holder's. (Sequencing fix
+  after the ruling, from Copilot's review: the option as Brett was shown it
+  named T082 for all four boxes.)
   *Consequence:* the two rulings read together; the arc gates nothing.
 - **(b)** #1144's archive waits for T076 (F9.2's ruled notes read literally).
   *Consequence:* the arc gates #1144's archive, against ARC-Q3 (a)'s words.

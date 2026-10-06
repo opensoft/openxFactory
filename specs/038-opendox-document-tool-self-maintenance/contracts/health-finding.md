@@ -51,6 +51,16 @@ id   = pack_id + "." + kind + "." + h16
 An edit ABOVE a finding moves its `locator` and leaves its `id`; an exception keyed
 by that id keeps suppressing it (requirement 15).
 
+**Engine-authored findings have engine-owned identity keys**, so they too satisfy
+the schema and keep one id across runs:
+- an install-level or pre-run finding (no live sandbox, a fetch or digest
+  failure, a refused manifest entry, a pack that crashed, timed out, hit a bound
+  or returned refused output): `{"category": <the failure's category>, "entry":
+  <the manifest entry's id, or "" for none>}`;
+- the collision finding below: `{"collided_id": <the colliding id>}`.
+T041 fixes the categories with the id rule, and T056's tests hold each id
+stable across two runs (Copilot's review of `f9cc2d02`).
+
 **A collision is a finding against its producer.** If two findings in one run
 have the same id (the same `pack_id`, `kind`, `path` and identity key, or a
 16-digit hash collision), NEITHER is stored, as itself or as a duplicate. The
