@@ -1,6 +1,7 @@
 # Tasks: prefer-triad-project-shape
 
-Status: draft
+Status: ratified
+Ratified by: prefer-triad-project-shape — 2026-10-06, Brett Heap, "ratify 1249 as recommended" (PR #1249 comment 6020300563), over PR #1249's head `8f9c5855` (record `review/ratification-2026-10-06.md`)
 Kind: tasks
 
 OpenSpec records the governed decision and the handoff; Speckit owns the
@@ -21,26 +22,45 @@ never precedes it.
   work, once per session, and never stops anyone; and it is never a review
   input (`design.md` D1-D3). His sentences of 2026-10-06 are the direction and
   the authority to author and open this packet. They are not this word.
+  **NOTE 2026-10-06 — THE WORD WAS GIVEN:** Brett Heap, 2026-10-06T16:02:16Z,
+  in session, verbatim *"ratify 1249 as recommended"* (PR #1249 comment
+  6020300563; record `review/ratification-2026-10-06.md`). It ratifies the
+  reading as written. The box is left for its owner to tick, as this section's
+  heading says.
 - [ ] 1.2 OWNER BOX. OQ-1, the staying-single record's file name, location and
   schema (`design.md` D4). Recommendation: `single-repository.yaml` at the
   repository root, `schema_version: 1`, `kind: single-repository-record`,
   `decided_by`, `decided_on`, `reason`, optional `revisit_on`, schema owned by
   openRepoShape; never a field of `project.yaml`, which is the Triad detector.
+  **NOTE 2026-10-06 — RULED, as recommended**, by the same word:
+  `single-repository.yaml` at the repository root, schema owned by
+  openRepoShape. Box left for its owner.
 - [ ] 1.3 OWNER BOX. OQ-2, aggregation, configuration and dotfile repositories
   and vendored forks (`design.md` D4). Recommendation: no class-guessing; they
   receive the advisory until they migrate or record staying single.
+  **NOTE 2026-10-06 — RULED, as recommended**, by the same word: no
+  class-guessing. Box left for its owner.
 - [ ] 1.4 OWNER BOX. OQ-3, whether the advisory re-homes the act of
   recommending the shape that `project-repo-schema` gives codexFactory
   (`design.md` D6). Recommendation: it does not, and no block is written on that
   requirement.
+  **NOTE 2026-10-06 — RULED, as recommended**, by the same word: the advisory
+  is not codexFactory's act of recommending the shape, and no block is written
+  on the ownership requirement. Box left for its owner.
 - [ ] 1.5 OWNER BOX. Brett Heap's merge word on this pull request. It is held
   for that word and is not merged by the authoring lane.
-- [ ] 1.6 On the ratifying word, and only then: `Status: ratified` + `Ratified:`
+  **NOTE 2026-10-06 — NOT GIVEN.** The ratifying word is not a merge word;
+  this box waits for one.
+- [x] 1.6 On the ratifying word, and only then: `Status: ratified` + `Ratified:`
   in `proposal.md`, `Ratified by:` in `design.md` and this file, the
   `approved_by`/`approved_on` pair in `.openspec.yaml` ADDED BESIDE the drafting
   provenance and never substituted for it (`scripts/doc_health/proposal_origin.py`
   requires the pair the moment the status claims approval), a record under
   `review/`, and the README Records row moved with it.
+  **DONE 2026-10-06 in the ratifying commit**, on the word above: all of it,
+  with the record at `review/ratification-2026-10-06.md`. `kind`, `id`,
+  `reason`, `proposed_by` and `proposed_on` did not move, and the spec delta
+  did not move.
 
 ## 2. The packet
 
@@ -158,7 +178,8 @@ with green checks.
   shape confers anything and must gain what to tell them — the Triad is the
   preferred shape, and choosing a single repository is reviewed identically; the
   posture comment in `templates/assembly-root/project.yaml`; the optional
-  staying-single record's schema and template (as OQ-1 is ruled); and the
+  staying-single record's schema and template (as OQ-1 is ruled: RULED
+  2026-10-06, `single-repository.yaml` at the repository root); and the
   advisory in `scaffold-project.py`, `adopt-project.py` and `shape-doctor.py`,
   with no exit status changed on its account. Whoever takes this claims it in
   openRepoShape first.

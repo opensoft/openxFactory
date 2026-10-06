@@ -1,7 +1,13 @@
 # Design: prefer-triad-project-shape
 
-Status: draft
+Status: ratified
+Ratified by: prefer-triad-project-shape — 2026-10-06, Brett Heap, "ratify 1249 as recommended" (PR #1249 comment 6020300563), over PR #1249's head `8f9c5855` (record `review/ratification-2026-10-06.md`)
 Kind: design
+
+**RATIFIED 2026-10-06T16:02:16Z, as recommended.** Every decision below was
+ratified as written, and OQ-1, OQ-2 and OQ-3 were each RULED to their
+recommendation (marked where each is put). The paragraph that follows is kept
+as filed.
 
 Every decision below is PROPOSED for Brett Heap's ratification. His two
 sentences of 2026-10-06 are the direction and the authority to author and open
@@ -156,7 +162,12 @@ project that would rather not meet it can write the record. Its only reader is
 the advisory; it confers nothing and restates that where it is recorded; and
 its schema is openRepoShape's, as mechanics.
 
-### OPEN QUESTION OQ-1 — the record's file name, location and schema
+### OPEN QUESTION OQ-1 — the record's file name, location and schema — RULED 2026-10-06T16:02:16Z
+
+**RULED, as recommended.** Brett Heap, verbatim *"ratify 1249 as
+recommended"*: the optional staying-single record is `single-repository.yaml`
+at the repository root, and openRepoShape owns its schema. The recommendation
+and its reasoning below are kept as filed.
 
 **Recommendation:** a file of its own at the repository root,
 `single-repository.yaml`, carrying `schema_version: 1`,
@@ -192,7 +203,12 @@ there should be NO record at all would delete the fifth bullet and the
 record paragraph from that requirement, and every decliner would then meet the
 advisory for good.
 
-### OPEN QUESTION OQ-2 — aggregations, configuration repositories and vendored forks
+### OPEN QUESTION OQ-2 — aggregations, configuration repositories and vendored forks — RULED 2026-10-06T16:02:16Z
+
+**RULED, as recommended.** Brett Heap, verbatim *"ratify 1249 as
+recommended"*: no class-guessing. Aggregations, configuration and dotfile
+repositories, and vendored forks get the advisory until they migrate or record
+staying single. The recommendation and its reasoning below are kept as filed.
 
 **Recommendation: no class-guessing.** An aggregation repository such as
 `opensoft/xFactory`, a configuration or dotfile repository, and a vendored fork
@@ -241,7 +257,13 @@ This packet puts the PREFERENCE in the doctrine (openxFactory's plane) and the
 ADVISORY in openRepoShape's mechanics, in the workstation bootstrap and in the
 shared agent protocol. None of those is codexFactory.
 
-### OPEN QUESTION OQ-3 — does the advisory re-home codexFactory's recommending act?
+### OPEN QUESTION OQ-3 — does the advisory re-home codexFactory's recommending act? — RULED 2026-10-06T16:02:16Z
+
+**RULED, as recommended.** Brett Heap, verbatim *"ratify 1249 as
+recommended"*: the advisory restates the doctrine's preference and is not
+codexFactory's "act of RECOMMENDING the shape", so no `## MODIFIED` block is
+written on the ownership requirement. The recommendation and its reasoning
+below are kept as filed.
 
 **Recommendation: no, and no block is written on that requirement.** That
 requirement's own scenario describes the recommending act as codexFactory

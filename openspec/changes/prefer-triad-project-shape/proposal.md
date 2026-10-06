@@ -1,16 +1,24 @@
 ---
-code_surface: openxFactory, opensoft/openRepoShape — THIS PACKET AUTHORS NO CODE BYTE, AND IT DECLARES A REAL SURFACE. Landing it is corpus text only: its five files (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml` and one spec delta), one README *Active changes* bullet, and the machine-seeded row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes. The REALIZATION runs after ratification. In `opensoft/openRepoShape`: the advisory in `scaffold-project.py`, `adopt-project.py` and `shape-doctor.py`, the optional staying-single record's schema and template, and the posture text in `README.md`, `AGENTS.md` and `templates/assembly-root/project.yaml`. In openxFactory: `docs/project-repo-schema.md` and the description of `contracts/schemas/project-register.schema.yaml` restated, and `contracts/openreposhape-pin.yaml` advanced onto the realized standard. THREE FURTHER SURFACES ARE NOT IN THE HEAD BECAUSE THE ESTATE INVENTORY DOES NOT CARRY THEM, and they are named here so no reader takes them to be out of scope: `opensoft/workBenches` (the `setup-openspeckit` bootstrap, its tests, and its embedded fallback protocol), `opensoft/openRepoProject` (new-project creation, reached through workBenches' `project-command` change), and the shared agent protocol, whose source is a private repository named in `tasks.md` § 5.5. `scripts/estate-repository-inventory.yaml` carries none of the three, its own header says a row records an admission and performs none, and the membership arm of `scripts/validate-code-surface.py` fails an identifier the inventory does not carry, so each is a HANDOFF to its owner with a `tasks.md` box this packet's archive waits on (`design.md` D9).
+code_surface: openxFactory, opensoft/openRepoShape — THIS PACKET AUTHORS NO CODE BYTE, AND IT DECLARES A REAL SURFACE. Landing it is corpus text only: its five files (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml` and one spec delta) plus its ratification record under `review/`, one README *Active changes* bullet, and the machine-seeded row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes. The REALIZATION runs after ratification. In `opensoft/openRepoShape`: the advisory in `scaffold-project.py`, `adopt-project.py` and `shape-doctor.py`, the optional staying-single record's schema and template, and the posture text in `README.md`, `AGENTS.md` and `templates/assembly-root/project.yaml`. In openxFactory: `docs/project-repo-schema.md` and the description of `contracts/schemas/project-register.schema.yaml` restated, and `contracts/openreposhape-pin.yaml` advanced onto the realized standard. THREE FURTHER SURFACES ARE NOT IN THE HEAD BECAUSE THE ESTATE INVENTORY DOES NOT CARRY THEM, and they are named here so no reader takes them to be out of scope: `opensoft/workBenches` (the `setup-openspeckit` bootstrap, its tests, and its embedded fallback protocol), `opensoft/openRepoProject` (new-project creation, reached through workBenches' `project-command` change), and the shared agent protocol, whose source is a private repository named in `tasks.md` § 5.5. `scripts/estate-repository-inventory.yaml` carries none of the three, its own header says a row records an admission and performs none, and the membership arm of `scripts/validate-code-surface.py` fails an identifier the inventory does not carry, so each is a HANDOFF to its owner with a `tasks.md` box this packet's archive waits on (`design.md` D9).
 target_release: implemented — the affected repositories' main lines: openxFactory and opensoft/openRepoShape, plus the three handoff surfaces named under `code_surface:`. No contract bundle is cut and no release tag is owed. Neither openxFactory file the realization edits is a bundle member: `contracts/openreposhape-pin.yaml` is registered in no bundle (the manifest's openXwallet-pin note says that registration "covers one pin and not both"), and `contracts/schemas/project-register.schema.yaml` appears in neither `contracts/manifest.yaml` nor any `contracts/releases/` inventory. Because the code surface is NOT empty, under `release-realization` this packet archives only on merged plus green realization evidence on every surface `tasks.md` § 5 names, and not on landing (`tasks.md` § 6).
 ---
 
 # Proposal: prefer-triad-project-shape
 
-Status: draft
+Status: ratified
+Ratified: 2026-10-06T16:02:16Z by Brett Heap (openxFactory operator authority) — in session, verbatim "ratify 1249 as recommended" (PR #1249 comment 6020300563), over PR #1249's head `8f9c5855`; record at review/ratification-2026-10-06.md
 Kind: proposal
 Proposed: 2026-10-06, in lane `codeXfactory-5`, session
 `ed23f049-7e99-4601-8a6d-760b6aeb5f26`.
 Origin: Brett Heap's in-session direction of 2026-10-06, quoted verbatim below
 and recorded in `.openspec.yaml` (`kind: ad_hoc`, unapproved).
+
+**RATIFIED ON 2026-10-06. The next paragraph is kept verbatim as the filing's
+record.** It was true at filing and is superseded by the ratification cited
+above and recorded under § Ratification record. That ratification settles the
+design, and each open question as recommended. It is not a merge word and not a
+word to realize anything, so this pull request stays held for Brett Heap's merge
+word.
 
 **NOTHING HERE IS RATIFIED BY THE AUTHORING LANE, AND NOTHING HERE IS BRETT
 HEAP'S RULING BEYOND HIS TWO SENTENCES.** This packet proposes how to carry out
@@ -123,9 +131,15 @@ sentence and all three promoted scenarios are carried byte-identically (`tasks.m
 
 ## What ratification decides
 
+Each item below was RULED on 2026-10-06T16:02:16Z by Brett Heap's *"ratify 1249
+as recommended"*, which took every recommendation as written. The items are
+kept as filed, with the ruling marked on each.
+
 1. **The reading itself** (`tasks.md` 1.1): preferred, not required; advised at
-   work start, once; never in review.
-2. **OQ-1, the staying-single record** (`design.md` D4). Recommendation: its own
+   work start, once; never in review. **RULED: ratified as written.**
+2. **OQ-1, the staying-single record** (`design.md` D4). **RULED, as
+   recommended: `single-repository.yaml` at the repository root, schema owned by
+   openRepoShape.** Recommendation: its own
    file at the repository root, `single-repository.yaml`, with `schema_version`,
    `kind: single-repository-record`, who decided, when and why, and an optional
    revisit date; schema owned by openRepoShape. Overloading `project.yaml` is
@@ -133,13 +147,44 @@ sentence and all three promoted scenarios are carried byte-identically (`tasks.m
    code legs IS the Triad detector for the shared protocol, `setup-openspeckit`
    and openRepoShape's doctor.
 3. **OQ-2, aggregations, configuration repositories and vendored forks**
-   (`design.md` D4). Recommendation: no class-guessing. They receive the
-   advisory until they migrate or record staying single.
-4. **OQ-3, ownership** (`design.md` D6). The promoted ownership requirement
+   (`design.md` D4). **RULED, as recommended: no class-guessing.**
+   Recommendation: no class-guessing. They receive the advisory until they
+   migrate or record staying single.
+4. **OQ-3, ownership** (`design.md` D6). **RULED, as recommended: the advisory
+   is not codexFactory's act of recommending the shape, and no block is
+   written on the ownership requirement.** The promoted ownership requirement
    gives codexFactory "the act of RECOMMENDING the shape". Recommendation: the
    advisory restates the doctrine's preference at work start and is not that
    act, so no block is written on that requirement. If ratification reads it
    otherwise, the packet gains one `## MODIFIED` block there.
+
+## Ratification record
+
+**RATIFIED on 2026-10-06T16:02:16Z by Brett Heap**, in session, first-hand to
+lane `codeXfactory-5`, verbatim: *"ratify 1249 as recommended"*. It is recorded
+on PR #1249 (comment 6020300563) and in full at
+[`review/ratification-2026-10-06.md`](review/ratification-2026-10-06.md). The
+ratified text is the packet at PR #1249's head `8f9c5855`.
+
+| question | decision | ruled | considered, not adopted |
+| --- | --- | --- | --- |
+| the reading (`tasks.md` 1.1) | preferred, not required; advised at work start, once; never in review | 2026-10-06T16:02:16Z | a warning in review or CI (A1); a mandatory Triad (A2); per-person suppression (A3); a blocking prompt (A4) |
+| OQ-1 | `single-repository.yaml` at the repository root, schema owned by openRepoShape | 2026-10-06T16:02:16Z | a field or variant of `project.yaml`; a register field |
+| OQ-2 | no class-guessing; such repositories get the advisory until they migrate or record staying single | 2026-10-06T16:02:16Z | exempting a class by inference |
+| OQ-3 | the advisory restates doctrine and is not codexFactory's act of recommending; no block on the ownership requirement | 2026-10-06T16:02:16Z | a `## MODIFIED` block on the ownership requirement |
+
+**Every ruling is the recommended option, so no delta byte moves.**
+`specs/project-repo-schema/spec.md` is byte-identical to the text that was put
+to ratification. Its third ADDED requirement already describes the record
+without naming a file, which is what OQ-1 decides. It already refuses
+class-guessing, which is OQ-2. And it carries no block on the ownership
+requirement, which is OQ-3.
+
+**The word ratifies and authorizes nothing further.** It is not a merge word:
+this pull request stays held for Brett Heap's merge word. It is not a word to
+realize anything: each `tasks.md` § 5 handoff waits on its own owner's act.
+Nothing is promoted until the archive, which waits for merged, green realization
+evidence (`tasks.md` § 6).
 
 ## Realization routing — handoffs, not performed here
 

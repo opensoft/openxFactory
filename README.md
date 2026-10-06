@@ -540,11 +540,15 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [prefer-triad-project-shape](openspec/changes/prefer-triad-project-shape/proposal.md)
-  — filed 2026-10-06, lane `codeXfactory-5`, **`Status: draft`**, on Brett
-  Heap's in-session direction of 2026-10-06T10:20:12Z, verbatim *"the triad
-  should be the prefered structure and should prompt or warn the user if working
-  on a non Triad repo."*; his 11:28:19Z word *"usage is fine, launch both"*
-  authorized authoring and opening it and is not a ratification. **ONE
+  — filed 2026-10-06, lane `codeXfactory-5`, **`Status: ratified`**
+  (2026-10-06T16:02:16Z, Brett Heap, *"ratify 1249 as recommended"*, PR #1249
+  comment `6020300563`, over PR #1249's head `8f9c5855`; a ratification only,
+  not a merge word and not a word to realize anything; record
+  [`review/ratification-2026-10-06.md`](openspec/changes/prefer-triad-project-shape/review/ratification-2026-10-06.md)),
+  on Brett Heap's in-session direction of 2026-10-06T10:20:12Z, verbatim *"the
+  triad should be the prefered structure and should prompt or warn the user if
+  working on a non Triad repo."*; his 11:28:19Z word *"usage is fine, launch
+  both"* authorized authoring and opening it and was not a ratification. **ONE
   `## MODIFIED` requirement in `project-repo-schema` — *The project repository
   schema is elective and confers nothing*, title unchanged, both body paragraphs
   and all three promoted scenarios carried byte-identically, two scenarios added
@@ -554,10 +558,11 @@ Active changes:
   per session and never blocking; it is never a review input; and it is silent
   in an elected Triad, a leg clone, a family holder, a `<user>-wip` workspace
   repository and a project that has recorded staying single, that record being
-  optional so a decliner still owes no declaration. Three open questions are put
-  to ratification with recommendations: the record's file name and schema, how
-  aggregations and similar repositories are treated, and whether the advisory
-  re-homes codexFactory's recommending role. Realization is handed off to
+  optional so a decliner still owes no declaration. Its three open questions
+  were RULED as recommended: the record is `single-repository.yaml` at the
+  repository root, with openRepoShape owning its schema; repository classes are
+  not guessed; and the advisory does not re-home codexFactory's recommending
+  role. Realization is handed off to
   openxFactory's doctrine and pin, `opensoft/openRepoShape`,
   `opensoft/workBenches`, new-project creation and the shared agent protocol,
   and the packet archives only on merged plus green evidence across them.

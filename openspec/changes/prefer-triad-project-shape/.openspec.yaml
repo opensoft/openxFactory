@@ -43,6 +43,30 @@ origin:
     the lawful unapproved shape `add-drafted-proposal-origin` admits, and the
     three lifecycle documents carry `Status: draft` to match.
   proposed_on: 2026-10-06
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-10-06T16:02:16Z, in
+    session, first-hand to lane `codeXfactory-5`, verbatim: "ratify 1249 as
+    recommended", recorded on `opensoft/openxFactory` PR #1249 (comment
+    6020300563) and in full at `review/ratification-2026-10-06.md`. The
+    ratified text is the packet at PR #1249's head `8f9c5855`. "As
+    recommended" settles the packet's three open questions as `design.md`
+    recommends them: OQ-1, the optional staying-single record is
+    `single-repository.yaml` at the repository root, its schema owned by
+    openRepoShape; OQ-2, no class-guessing, so aggregations, configuration and
+    dotfile repositories and vendored forks get the advisory until they
+    migrate or record staying single; OQ-3, the advisory restates the
+    doctrine's preference and is not codexFactory's act of recommending the
+    shape, so no block is written on the ownership requirement. No delta byte
+    moves. THE APPROVAL IS ADDED BESIDE THE DRAFTING PROVENANCE AND NEVER
+    SUBSTITUTED FOR IT, the shape `add-drafted-proposal-origin` defined: `kind`,
+    `id`, `reason`, `proposed_by` and `proposed_on` are kept exactly as filed,
+    and their statements that no approval pair is declared and that the
+    lifecycle documents carry `Status: draft` were true at filing and are
+    superseded by this pair. The word is a ratification only. It is not a merge
+    word and not a word to realize anything: the pull request stays held for
+    Brett Heap's merge word, and each `tasks.md` § 5 handoff waits on its own
+    owner's act.
+  approved_on: 2026-10-06
 related:
   - openxFactory:change:add-project-repo-schema                 # ARCHIVED 2026-09-03. Promoted the requirement this packet modifies, "The project repository schema is elective and confers nothing"
   - openxFactory:change:add-wallet-carried-review-authority     # The ratified doctrine that requirement restates: "Electing the schema changes no gate, no floor, no grant, and no clearance eligibility"
