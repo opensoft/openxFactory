@@ -539,6 +539,32 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [realize-doc-health-direction-arc](openspec/changes/realize-doc-health-direction-arc/proposal.md)
+  — filed 2026-10-06, lane `openxfactory-4`, as plan 038's T070, **`Status:
+  draft`**; Brett Heap's ratify word is plan 038's T071, and no realization slice
+  starts before it. The `doc_health` direction arc's OWN change, as ARC-Q3 (a)
+  rules it (`#656` comment `6003918488`, *"Own change, beside phase 5
+  (Recommended)"*). It realizes ARC-Q1 (a), *"Retarget all eight
+  (Recommended)"*: openXdox-code's eight `DOC_HEALTH_SURFACE` modules stop
+  importing openxFactory's `doc_health` (13 statements at openXdox-code
+  `56e1c238`). The generic `lines` slice and the generator's one `RealGit` read
+  are re-authored in openDox-code. The governed names are reached through four
+  seams that openXdox-code declares and openxFactory's host wiring registers at
+  startup, in the pattern of `scripts/opendox_host.py:518-533`. The 7 test files
+  that import `doc_health` directly are respelled, none of them protected.
+  `corpus-adapter-seam` Requirement 1 is then MET for all eight modules, with no
+  spec change: `skip_specs: true`, and no openXdox-spec delta, because the seams
+  need no contract text (`design.md` § 5). **`code_surface:` opensoft/openXdox-code,
+  opensoft/openDox-code and openxFactory (host wiring); `target_release:
+  implemented`** (ARC-1, `#656` comment `6013547504`). It archives only on
+  merged, green realization evidence. It gates neither release 2's close nor
+  #1144's archive, and F9.2's closure goes into its own evidence (ARC-5 (a)). Its
+  realization landings carry `Arc: realize-doc-health-direction-arc`, and it runs
+  #1144's F11.1 guard and the protected-suite oracle over its own landings
+  (ARC-4). Origin `kind: staged`: `ideation/staging/doc-health-direction-arc/`,
+  which stays staged until the archive step moves it through this change.
+  `design.md` § 11 puts seven decisions (D1–D7) for the ratify read.
+
 - [add-factory-mcp-conformance](openspec/changes/add-factory-mcp-conformance/proposal.md)
   — filed 2026-09-07 by the Codex lane `mcp-family-contract`, **`Status: ratified`**
   (2026-09-07, Brett Heap, verbatim *"yes"*; record
