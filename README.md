@@ -72,6 +72,10 @@ OpsxFactory
 
 Core domain-neutral docs:
 
+- [Factory MCP Family — Brainstorm](ideation/brainstorm/factory-mcp-overview.md)
+  (shared conformance, domain ownership and a proposed DNS evaluation boundary)
+- [Factory MCP Conformance — Ratified Proposal](openspec/changes/add-factory-mcp-conformance/proposal.md)
+- [Factory MCP Conformance — Validator and Implementation Records](docs/factory-mcp-conformance.md)
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
 - [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
@@ -533,6 +537,32 @@ Every DomainxFactory must validate against the canonical contract:
 ## OpenSpec Records
 
 Active changes:
+
+- [add-factory-mcp-conformance](openspec/changes/add-factory-mcp-conformance/proposal.md)
+  — filed 2026-09-07 by the Codex lane `mcp-family-contract`, **`Status: ratified`**
+  (2026-09-07, Brett Heap, verbatim *"yes"*; record
+  [`review/ratification-2026-09-07.md`](openspec/changes/add-factory-mcp-conformance/review/ratification-2026-09-07.md)),
+  ADOPTED by lane `openxfactory-5` on Brett Heap's word of 2026-10-05, verbatim
+  *"confirm 1, close 018, adopt the work, re-anchor codexFactory"*, and brought
+  onto main under governing issue #1242 from the preserved review branch at
+  `d2baf6fd`. **ONE `## ADDED` block creating the capability
+  `factory-mcp-conformance` — eight requirements, twenty-two scenarios**: an
+  advisory, offline declaration profile (`advisory-v1`,
+  [`contracts/factory-mcp/declaration.schema.json`](contracts/factory-mcp/declaration.schema.json))
+  that a domain MCP service is described against, and a validator
+  (`scripts/validate-factory-mcp.py`) that reports structure, reference
+  integrity, semantics and gaps separately and never certifies conformance
+  (`verified_conformance` is always false). openxFactory hosts no MCP server,
+  transport or auth: each domain keeps its own service at its own address
+  (Brett Heap, 2026-10-05, verbatim *"keep one server per domain, no combined
+  endpoint"*). Realized by Speckit feature
+  [`specs/037-factory-mcp-conformance/`](specs/037-factory-mcp-conformance/spec.md)
+  (numbered 030 locally on 2026-09-07; renumbered because main took 030 on
+  2026-09-08). **`code_surface:` openxFactory; `target_release: implemented`**
+  — it archives only after merged, green realization (task 3.2). Out of scope
+  until Brett rules: an auth and transport block, the home of the family error
+  vocabulary, enforcement of the *Unavailable dependency* scenario, and shared
+  transport. Runbook: [`docs/factory-mcp-conformance.md`](docs/factory-mcp-conformance.md).
 
 - [add-neutral-product-standalone-operability](openspec/changes/add-neutral-product-standalone-operability/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-24,
