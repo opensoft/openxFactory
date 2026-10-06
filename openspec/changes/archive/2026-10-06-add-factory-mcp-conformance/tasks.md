@@ -76,6 +76,51 @@ will own executable implementation tasks; this file does not duplicate them.
   matching its adding commit. It lands only on Brett Heap's archive word,
   which had not been given when this box was ticked. The run and its
   measurements are recorded under this item in the commit after the move.
+  - **The run.** Performed in commit `7102cd48`, the commit that moves this
+    directory:
+    `TZ=UTC python3 scripts/proposal-support.py . archive add-factory-mcp-conformance --yes`,
+    exit 0, 2026-10-06T16:21:19Z to 16:21:30Z. Its decisive lines:
+    `ORIGIN RETAINED add-factory-mcp-conformance (declaration unchanged since
+    the ratifying commit 92010d3e67f2)`; `Totals: 1 passed, 0 failed (1
+    items)`; `Task status: ✓ Complete`; `factory-mcp-conformance: create`;
+    `Applying changes to openspec/specs/factory-mcp-conformance/spec.md: + 8
+    added`; `Totals: + 8, ~ 0, - 0, → 0`; `Change
+    'add-factory-mcp-conformance' archived as
+    '2026-10-06-add-factory-mcp-conformance'`; `NO SUPPORTING DOCS ...
+    (origin retained, nothing to package)`. The CLI was the content-addressed
+    `@fission-ai/openspec@1.12.0` pin, not the 1.13.1 on `PATH`. `--date` was
+    not passed, so the directory takes the UTC day of the run, which is also
+    the UTC day of its adding commit.
+  - **Promoted requirements, verified by content.** The delta is all
+    `## ADDED` over a new capability directory,
+    `openspec/specs/factory-mcp-conformance/spec.md`. Its Purpose is the
+    delta's own `## Purpose` text, and it holds eight requirements with
+    twenty-two scenarios. Each requirement block was extracted by its
+    `### Requirement:` heading from this archived delta and from canon, and
+    hashed: all eight are byte-identical, and canon holds no requirement the
+    delta lacks. Canon goes from 66 to 67 capability directories, and no other
+    file under `openspec/specs/` changes.
+  - **Provenance preserved.** The nine packet files move as pure renames
+    (R100): proposal, design, delta, tasks, `.openspec.yaml`, and the four
+    review records, including the ratification record that names the reviewed
+    revision `8acd2ec4`. The origin block is unchanged since ratification on
+    both histories: on `main` the ratifying commit is the squash `92010d3e`;
+    on the original lineage it is `54bce013`; and the `.openspec.yaml` blob is
+    `c1e5cd98` at `54bce013` and here. `8acd2ec4`, `54bce013` and `d2baf6fd`
+    remain reachable through `refs/pull/1243/head`, a pull-request ref that
+    deleting a branch does not remove.
+  - **One link inside the packet now resolves one level short.**
+    `proposal.md`'s relative link to
+    `ideation/brainstorm/factory-mcp-overview.md` was written for the active
+    path. Its bytes are kept as ratified, as two earlier archives kept the
+    same link shape in three files. Repairing it is a bookkeeping edit of an
+    archived record, which needs a ruling recorded first.
+  - **Not done here, and separately governed.** No release is cut, nothing
+    under `contracts/` changes, and no consumer pin advances. This archive
+    settles none of the items still awaiting Brett Heap's rulings: an auth
+    and transport block, the home of the family error vocabulary, shared
+    transport, and enforcement of the *Unavailable dependency* scenario. The
+    validator does not yet enforce that scenario, which canon now states.
 
 ## Addendum 2026-10-05: brought onto main
 
