@@ -39,9 +39,14 @@ comment id or merge commit, with no new decision:
 - the finding's `identity` as emitted, in FR-011 and T041's falsifier
   (`6018624750`);
 - T072's Files and its two scope rulings (`6023517122`);
-- the ticks of T011, T021, T023, T025 and T060 and T070's second landing, each with
-  its pull request and merge commit; T071's word given (`6023375303`) with its box
-  left open, because its record has not landed;
+- the ticks of T011, T014, T021, T023, T025, T026 and T060, T070's second landing
+  and T002's own landing (#1251 → `1837ea75`), each with its pull request and merge
+  commit; T071's word given (`6023375303`) with its box left open, because its
+  record has not landed;
+- the single-writer record's accuracy (Copilot's three items at #1251's head,
+  accepted by the holder at its landing, `4201056969`, `4201057311` and
+  `4201057577`): the T073 landing-order row, and `tests/conftest.py` and
+  `tests/test_host_plane.py` carried as separate chains;
 - the cross-run collision sentence of `contracts/health-finding.md`, qualified
   (`6018624750`; Copilot's review `5433292692`).
 
@@ -151,6 +156,8 @@ as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
   - **README**: links `evidence/r2-base.md`.
   - **After**: T004 (the base is recorded at the ruling).
   - **Lane**: 4 (lane 3 for the composed run).
+  - **Landed**: DONE, openxFactory#1251 → `1837ea75` (2026-10-06T22:31:42Z), items 1
+    to 15 of the first bookkeeping batch.
 - [x] T003 **The independent analyze, round 2.** DONE, CLOSED ON THE RE-CHECK:
   the holder's call, which this task's own text grants (`#656` `6017901451`).
   Two reviewers re-checked round 1 at `6847e99e`, and every CRITICAL, HIGH and
@@ -430,7 +437,7 @@ hidden; F12.1 exits 0 composed (SC-001).
 
 ### P4-B: the two bindings
 
-- [ ] T014 [US1] [oDc] **`submission_factory` and `_submission_port`.** In
+- [x] T014 [US1] [oDc] **`submission_factory` and `_submission_port`.** In
   `serve.py`, `submission_factory` (with its accessor and compose entry)
   defaulting to `LocalGitSubmissions`; in `cli.py`, `_submission_port`, the
   same. `pull_request_factory` and `_pull_request_port` keep `GhPullRequests`,
@@ -443,6 +450,7 @@ hidden; F12.1 exits 0 composed (SC-001).
   - **Files**: `src/opendox/serve.py` (first phase-4 edit), `src/opendox/cli.py`
     (first), `tests/test_submission_default.py` (the server node).
   - **Lane**: 4.
+  - **Landed**: DONE, openDox-code#93 → `a7a1c4d3` (2026-10-06T22:23:06Z).
 
 ### P4-C: openDox's own submit act
 
@@ -678,7 +686,7 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   - **Lane**: 3.
   - **Landed**: DONE, openDox-code#91 → `84f8ed83` (2026-10-06T17:33:31Z). The 34
     nodes, composed, are quoted at T029, as this entry's Falsifier says.
-- [ ] T026 [US3] [oXc] **U-7, the allow-list (AL; R-1's admitted part).** One
+- [x] T026 [US3] [oXc] **U-7, the allow-list (AL; R-1's admitted part).** One
   entry per admitted test in `tests/protected_suite_respellings.yaml`, chained by
   blob, each in the same PR as its protected edit: `cmd_gate_*` 7, `hosted_index`
   3, share paths 2, Group W 1, Group S2 4 (17, under H-2, tier 2's CF-4), and
@@ -743,6 +751,11 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
     T095 → T073 → T074) and `tests/test_host_plane.py` (T020 → T026 → T095; Brett,
     `6016648451`).
   - **Lane**: 3.
+  - **Landed**: DONE, openXdox-code#43 → `36bbef79` (2026-10-06T22:35:40Z), its
+    three extra CF-4 respellings admitted by the holder (`6020859092`; the count
+    moves from the plan's 17 to 20), as the holder's READY note records it
+    (openXdox-code#43, `6026700249`): the oracle run with `--chains` reads `ok: 8
+    protected edit(s), each entered and holding`.
 
 ### Phase 4's pins (9.5) and the composed run
 
@@ -1639,8 +1652,8 @@ DRAFT until its After set has landed, and T073's After set gains all ten.
     passed.
   - **Ruled**: ARC-Q2; the holder's `6016982816`, `6021830531` (W2, W7, OQ-R9-1, -2
     and -4) and `6022291206` (the two departures).
-  - **After**: T021 (landed) and T026, whose edits of the same two files land first
-    (`6021862323`).
+  - **After**: T021 and T026 (both landed: #40 → `f70bc9c3`, #43 → `36bbef79`), whose
+    edits of the same files come first (`6021862323`).
   - **Files**: openXdox-code `tests/conftest.py` (T020 → T021 and T026, in landing
     order → T095 → T073 → T074), `tests/test_host_plane.py` (T020 → T026 → T095).
   - **Lane**: 3 (openXfactory-3).
@@ -2313,8 +2326,8 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 | — | F9.1's `--deselect` removed | F9.1 (batch J's line) | `5859927858`, at T076 while #1144 is active |
 
 **Task count:** 90 rows: Phase 0 9 (T001–T009; eight done, T002–T009, and T001 is a
-standing act), Phase 4 24 (T010–T033; T010, T011, T020, T021, T023, T024 and T025
-done), Phase 5 29 (T040–T068, T059, T067 and T068 among them; T040 and T060 done),
+standing act), Phase 4 24 (T010–T033; T010, T011, T014, T020, T021, T023, T024, T025
+and T026 done), Phase 5 29 (T040–T068, T059, T067 and T068 among them; T040 and T060 done),
 requirement 9 12 (T073, T094 and the ten repair slices T095–T104, which replace
 the placeholder row T095+; T094 done), the direction arc 7 (T070–T072,
 T074–T077; T070 done), Close 5 (T080–T084), Every phase 4 (T090–T093).

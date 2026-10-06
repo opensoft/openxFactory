@@ -88,8 +88,9 @@ the whole run, built-in families and packs alike, before anything is stored
 whose ids share the 16 hex digits in DIFFERENT runs read as one finding to the
 baseline and to an exception. The id's 16-digit form is the ruled one (R2Q10
 (a), a ref-name component; N-13), and the cross-run collision stays an accepted
-limit (the holder, `6018624750`). A stored `identity` makes it detectable, and
-whether the engine reports it is T046's concern. By chance the odds are about n²/2⁶⁵ per corpus, about 3 in a trillion
+limit (the holder, `6018624750`). A stored `identity` makes a cross-run
+collision between STORED findings detectable; an exception-only finding is never
+stored, and whether the engine reports it remains T046's concern. By chance the odds are about n²/2⁶⁵ per corpus, about 3 in a trillion
 for 10,000 findings; a deliberate collision needs about 2³² SHA-256
 evaluations over crafted document text, and it can only mislabel a class or
 suppress one finding, never land anything (every repair still lands through

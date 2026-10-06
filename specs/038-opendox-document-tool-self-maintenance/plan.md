@@ -27,6 +27,16 @@ and the T020 file touches (`6016648451`; § R-1 and the single-writer table);
 and the arc change's `design.md` § 10); and T094 and T095+ (`6016982816`; § Two
 lanes and the critical path). tasks.md carries the task-level record.
 
+**Revision: T002's second bookkeeping batch** (2026-10-06). More rulings and
+landings, encoded as worded, with no new decision. In this file: the single-writer
+chains of T095 to T104 (`6021830531` W7; `6022291206`), with the table's rows split
+so that each path carries only the tasks whose Files name it (Copilot's three items
+at #1251's head, accepted by the holder at its landing: `4201056969`, `4201057311`,
+`4201057577`); T073's landing-order row, which now names T005 and T095 to T104;
+and T095+ read as T095 to T104 in the critical path and the lane table. spec.md's
+FR-011 and `contracts/health-finding.md` carry the `identity` response shape and
+the qualified collision sentence (`6018624750`).
+
 **Revision: review round 1 folded** (2026-10-05). Two independent read-only
 reviews of `6d6911e1`, an Opus analyze and adversarial pass and lane
 openXfactory-3's PLANCHECK, are committed verbatim with their disposition tables
@@ -397,8 +407,8 @@ DAY ONE (the plan ruled)  T010 [oDc] R2Q17's required-check change (CI owner)   
               (T063 also after T028, and T064 after T030: phase 4's pins land first, N-6 (a))
           T068 [oDc] the 26.04 runner measurement (R2Q17), non-gating
  REQUIREMENT 9 FOR openXdox-code (ARC-Q2 (a); #1144's work, lane openXfactory-3, NOT gated on T071)
-          T073 [oXc] composed declarations, after T029 and T005; re-runs after each composed_host_pin advance (T030, T064, T075); its PR stays a DRAFT until T095+ land
-          T094 [oXc] read-only map of every composed red outside 12.5's set → T095+ [oXc] the repair slices cut from it (lane 3; `6016982816`)
+          T073 [oXc] composed declarations, after T029, T005 and T095 to T104; re-runs after each composed_host_pin advance (T030, T064, T075); its PR stays a DRAFT until T095 to T104 land
+          T094 [oXc] read-only map of every composed red outside 12.5's set → T095 to T104 [oXc] the repair slices cut from it (lane 3; `6016982816`, `6021830531`)
  BESIDE PHASE 5: the arc's own change (ARC-Q3 (a); gates neither release 2's close nor #1144's archive)
           T070 [oxF] author → T071 ratify word → T072 [oDc] lines slice (opportunistic: rides T061 only if already landed; T061 never waits)
           T074 [oXc] seams, retargets, respellings (after T071, T072's pin, T021, T073)
@@ -440,7 +450,8 @@ openXfactory-3).
 | openDox-code `src/opendox/web/app.js`, `web/index.html` | T015 → T016 → T057 |
 | openDox-code `src/opendox/web/views/staging-workbench.js`, `staging-workbench-model.js` | T025 alone (U-6; the model too, W-1 (A), ruled) |
 | openDox-code `src/opendox/display_profile.py`, `web/views/display.js` | T050 alone (G15-H), with a guard that the model's inlined tables equal `display.js`'s (W-1 (A), ruled) |
-| openDox-code `tests/fixtures/web_boundary_census.yaml`, `tests/test_web_boundary.py` | T025 → T015 → T016 → T057 |
+| openDox-code `tests/fixtures/web_boundary_census.yaml` | T025 → T104 (the `loc` row for the two new `doxchat` rules, straight after T025; `6021830531`, W7) → T015 → T016 → T057 |
+| openDox-code `tests/test_web_boundary.py` | T025 → T015 → T016 → T057 |
 | openDox-code `migrations/0003_*.sql` and the five `tests_runtime/` suites it moves | T042 alone |
 | openDox-code `tests/fixtures/health-corpus/**` | T043 → (read-only copy by T055; a later change re-runs T055's digest test) |
 | openDox-code `tests/test_check_packs.py` | T058 alone (the 24 named nodes) |
@@ -448,14 +459,16 @@ openXfactory-3).
 | openDox root `README.md` | T018 (the declaration, `submit`, `land`, the two push routes) → T062 (the `health` section and its hook line) → T084 (the 0.2.0 install line) |
 | openDox root spec pin, `contracts/manifest.yaml`, `CHANGELOG.md`, the `dox-v1.2` tag | T060 alone (early in phase 5) |
 | openDox root `code` gitlink, `contracts/code-pin.yaml` | T027 (phase 4) → T062 (phase 5); then, only if the arc's `lines` module lands after the 0.2.0 bump, the arc's own root commit (ARC-6) |
-| openXdox-code `tests/conftest.py`, `tests/test_host_plane.py` | T020 (U-1) → T021 (the gate console's schema-source registration line) and T026 (U-7: the governed-suite list's coverage of `test_staging_workbench.py`, through T020's registration and the scan in `test_host_plane.py`, edited after T020 lands; Brett, `6016648451`), in the order they land, the second merging `main` first → T073 (the rail registration) → T074 (the arc's governed implementations, until T075) |
+| openXdox-code `tests/conftest.py` | T020 (U-1) → T021 (the gate console's schema-source registration line) and T026 (U-7: the governed-suite list's coverage of `test_staging_workbench.py`, through T020's registration, edited after T020 lands; Brett, `6016648451`), in the order they land, the second merging `main` first → T095 (the composed harness: the declared-host autouse registration, the seam registrations, the contract family's composed source, the local-install premise; lane 3, `6021830531` W7, `6022291206`) → T073 (the rail registration) → T074 (the arc's governed implementations, until T075) |
+| openXdox-code `tests/test_host_plane.py` | T020 (U-1) → T026 (the scan, edited after T020 lands; Brett, `6016648451`) → T095 (the structural guard of `DECLARED_HOST_SUITES`; `6021830531` W7, `6022291206`) |
 | openXdox-code `src/openxdox/gate_console.py` | T021 (U-2: the packaged read and the schema-source seam) → T074 (the arc's retarget) |
 | openXdox-code `src/openxdox/contracts/copies.yaml` | NO writer in release 2 (ADV-10; `test_packaged_validator.py:81-92`) |
 | openXdox-code `.gitignore`, `scripts/composed_placements.py` | T022 alone |
 | openXdox-code `scripts/ideation_dashboard/session_git.py` | T024 alone (no `__init__.py`; ADV-39) |
 | openXdox-code `src/openxdox/generator.py`, `corpus_root.py`, `cli_gate.py`, `gate_routes.py`, `snapshot_registry.py`, `completeness.py`, `round_trip.py` | T074 alone |
 | openXdox-code `tests/protected_suite_respellings.yaml`, `scripts/protected_suites.py` and the five protected files U-7 enters | T026 alone in phase 4 (several entries per suite in ONE landing, chained by blob: F12.1 passes `--chains`, Brett's `6016648451`); a later edit to a protected suite adds its entry in its own PR |
-| openXdox-code `tests/declared_exclusion.yaml` | T073 (entries become declared composed integration tests, with count and reason) → T074 (the `doc_health` reason empties) |
+| openXdox-code `tests/declared_exclusion.yaml` | T101 (W5 clears one entry's `openxfactory-contracts` reason, for that entry only; `6022291206`) → T073 (entries become declared composed integration tests, with count and reason; it merges `main` after T101 lands) → T074 (the `doc_health` reason empties) |
+| openXdox-code `tests/test_completeness.py`, `tests/test_doxbench_packet.py`, `tests/test_gate_console.py`, `tests/test_round_trip.py` | T103 (their pre-carve paths and moved names; it lands before T074) → T074 (the arc's retargets and respellings; `6021830531` W7) |
 | openXdox-code `tests/test_dependency_direction.py` | T074 alone |
 | openXdox-code `pyproject.toml` | T028 (phase 4's `opendox @` pin) → T063 (phase 5's) → T074 (only if T072 lands after T061: the arc's own pin, ARC-6) |
 | openXdox-code `.github/workflows/composed.yml` | T029 (U-9: the workflow, recursive submodules) → T073 (the rail, contracts and governed-behaviour files) → T074 (F9.2's code removals) |
@@ -484,14 +497,15 @@ value, staying lane 3's and not gated on T071.
 
 | lane | slices (tasks) | why this lane |
 |---|---|---|
-| **openXfactory-3 (peer)** | **Phase 4's repair, P4-F:** U-1 (T020), U-2 (T021), U-3 (T022), U-4 (T023), U-5 (T024), U-6 (T025), U-7 (T026), U-9 (T029). **Requirement 9 for openXdox-code:** T073 (ARC-Q2 (a)'s composed declarations), T094 (the read-only map of every composed red outside 12.5's set) and the repair slices T095+ cut from it (`6016982816`). **Phase 5's pack track:** G15-A (T045), G15-B (T047), G15-C (T048), G15-D (T049), G15-G (T055), G15-E (T056), G15-I2 (T058). **Re-measures on request** (T002's composed re-run). | Lane 3 wrote R2-INV-P4F (every red node mapped, its slice outline) and Part B of R2-INV-HEALTH (Group 15, the sandbox survey). Its slices are openXdox-code tests and workflows and the self-contained `check_pack_*` modules, which share no file with lane 4's open slices except in the fixed orders above. |
+| **openXfactory-3 (peer)** | **Phase 4's repair, P4-F:** U-1 (T020), U-2 (T021), U-3 (T022), U-4 (T023), U-5 (T024), U-6 (T025), U-7 (T026), U-9 (T029). **Requirement 9 for openXdox-code:** T073 (ARC-Q2 (a)'s composed declarations), T094 (the read-only map of every composed red outside 12.5's set) and the repair slices T095 to T104 cut from it (`6016982816`, `6021830531`). **Phase 5's pack track:** G15-A (T045), G15-B (T047), G15-C (T048), G15-D (T049), G15-G (T055), G15-E (T056), G15-I2 (T058). **Re-measures on request** (T002's composed re-run). | Lane 3 wrote R2-INV-P4F (every red node mapped, its slice outline) and Part B of R2-INV-HEALTH (Group 15, the sandbox survey). Its slices are openXdox-code tests and workflows and the self-contained `check_pack_*` modules, which share no file with lane 4's open slices except in the fixed orders above. |
 | **openxfactory-4 (coordinator)** | **Phase 0:** T001–T009. **Phase 4's product:** T010 (the CI owner, all five of its edits: T010, T017, T051, T067, T080), P4-A (T011), P4-D1 (T012, T013), P4-B (T014), P4-C (T015), P4-D2 (T016), README (T018), the host-unchanged proof (T019). **Pins and evidence:** T027, T028, T030, T031, T032, T033; T060–T066, T068. **Phase 5's health track:** T040, U-0 (T041), HA-1 (T042), HA-3 (T043), HA-2 (T044), HA-5 (T046), G15-H (T050), HA-4 (T052), HA-6 (T053), HA-7 (T054), HA-8 (T057), T059 if needed. **The arc's change (ARC-Q3 (a), owned here):** T070–T072, T074–T077. **The close:** T080–T084. **Every phase:** T090–T093. | The coordinator holds every surface that more than one phase touches (`serve.py`, `cli.py`, `default_profile.py`, `validate.yml`, the pins, the README entry, `openspec/changes/`), so no cross-lane hand-off happens on a single-writer file mid-phase. ARC-Q3 (a) names lane openxfactory-4 the arc's owner. |
 
 **Cross-lane hand-offs, each at a landing, never mid-slice:** the census
-fixture (T025, lane 3 → T015, lane 4); openXdox-code's `tests/conftest.py`
-(T020, T021 and T073, lane 3 → T074, lane 4); `gate_console.py` (T021, lane 3 →
-T074, lane 4); openXdox-code's `composed.yml` (T029 and T073, lane 3 → T074,
-lane 4); `health_contract.py` (T041, lane 4 → T045, lane 3); openDox-code's copy
+fixture (T025 and T104, lane 3 → T015, lane 4); openXdox-code's `tests/conftest.py`
+(T020, T021, T026, T095 and T073, lane 3 → T074, lane 4); `gate_console.py` (T021,
+lane 3 → T074, lane 4); openXdox-code's `composed.yml` (T029 and T073, lane 3 →
+T074, lane 4); its `tests/declared_exclusion.yaml` (T101 and T073, lane 3 → T074,
+lane 4) and the four test files T103 edits (lane 3 → T074, lane 4); `health_contract.py` (T041, lane 4 → T045, lane 3); openDox-code's copy
 record (T041, lane 4 → T047, lane 3 → T054, lane 4); openDox-code
 `pyproject.toml` (T048 and T055, lane 3 → T061, lane 4).
 
@@ -560,7 +574,7 @@ only after the step before it has landed.
 | 1. openDox-code lands | T010–T017, T025 | T041–T058, T067, T061 (the bump last) | T072 (rides T061 only if already landed) |
 | 2. openDox root: `code` gitlink, `contracts/code-pin.yaml`, workflow `@sha`s, ONE commit (`make pins`) | T027 | T062 | the arc's own root commit, only if T072 lands after T061 |
 | 3. openXdox-code `pyproject.toml` `opendox @` to the SAME commit | T028 | T063 | rides T063, or the arc's own |
-| 4. openXdox-code lands | T020–T024, T026, T029 | T073 (requirement 9; any time after T029) | T074 |
+| 4. openXdox-code lands | T020–T024, T026, T029 | T073 (requirement 9; after T029, T005 and T095 to T104, and its PR stays a DRAFT until they land) | T074 |
 | 5. openXdox root: `code` gitlink and `code-pin.yaml`; `opendox-pin.yaml` to step 2's commit | T030 | T064 | T075 |
 | 6. openxFactory: both pin pairs, one commit each, in ONE PR with the host wiring | T030 (+ T019; the receipt schema source) | T064 (+ HA-4's host-wiring test) | T075 (the seams' registration) |
 | 7. the aggregation: routine pin-sync after each openxFactory landing | after T030 | after T064 | after T075 |
