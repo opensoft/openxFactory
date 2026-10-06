@@ -892,7 +892,8 @@ bookkeeping records an answer.
   - **On a hosted install** they refuse by name (R2Q15 (a)).
   - **The JSON shape.** `health list --json` SHALL emit one object per finding
     with `id`, `kind`, `resolution_class`, `path`, `severity`, `evidence`,
-    `pack_id` and `pack_version`.
+    `pack_id`, `pack_version` and `identity` (stored and emitted, the holder's
+    `6018624750`).
   - **A finding's `id`** is a STABLE, pack-qualified key. The engine derives it
     from the pack id, the family, the document's path and a locator the family
     supplies. It survives a store reset, is unique, and is mapped into a valid

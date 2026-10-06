@@ -93,8 +93,8 @@ listed here so the holder can judge whether any needs Brett's word:
   permanent in User Story 3's independent test too, as FR-005 and CF-5 have it;
 - stale text brought to the ruling: spec § Assumptions lets #1144 archive with
   F9.2 open (ARC-5 (a)); the checklist records the direction arc as ruled; and
-  T003, if dispatched, dispositions its own round before the first realization
-  PR, since T004 is done;
+  T003 closed on the re-check (`6017901451`), so no round-2 analyze is
+  dispatched, since T004 is done;
 - one exceptions entry per finding id: a repeated `accept` and a hand-repeated
   id are refused by name (contracts/health-exceptions.md);
 - the engine owns id-collision detection over the whole run, with a path rule
@@ -249,7 +249,7 @@ revision that encodes Brett's ruling (`6013547504`): no row changes.*
 | VI. Versioned releases | PASS | R2Q22 (a) adds three openDox-spec schemas, so the openDox root moves its spec pin and cuts ONE more `dox-v1.y` minor bundle, `dox-v1.2`, on Brett's cut word (T060, straight after T040, as release 1's `dox-v1.1` was cut, RULED `5894235642`), under a batch-G style addendum at 9.5 (batch Q); the copies follow the pin (research R7). R2Q23 (a) publishes `opendox` 0.2.0, tagged `v0.2.0`, under a batch-O style addendum, on Brett's publish word (T084). The arc's change cuts no bundle unless its openXdox-spec delta needs one (ARC-3). |
 | VII. Fail-closed authority | PASS | No merge without a human act: `land` needs a confirmation capability bound to the branch and its head, single-use (12.6a). `governed` with no instrument refuses `land` by name; `unknown` refuses. Packs run only in a sandbox proved live by a per-run canary; with no sandbox, packs do not run and one finding says why (R2Q16 (a)). A hosted install refuses the health surface by name (R2Q15 (a)). A dirty served checkout holding `main` is never moved (ADV-08). A git-URL pack source is fetched over https or ssh only, never with a credential (OQ-H15-14). Evidence and messages carry locators only, and the store holds no patch text (R2Q25 (a)). |
 | Workflow: *"material ambiguities MUST be resolved before planning"* | **PASS** | Brett answered all 25 round-1 questions (`6003486656`) and the four arc questions (`6003918488`). Round 2 was empty (`clarify-questions.md` § "Round 2"). Brett ruled the plan's design decisions in three tiers, every item as recommended (`6013547504`), and T004 records the ruling (FR-025). |
-| Workflow: *"`/speckit.analyze` MUST report no critical findings before implementation"* | Round 1's CRITICALs applied and re-checked; a fresh analyze (T003) is the holder's call | Round 1's analyze (`evidence/analyze-round-1.md`) found one CRITICAL under the skill's rubric (D1, the README index) and three under its brief's (ADV-01 to ADV-03); all four were applied at `6847e99e`, as its disposition table shows. Both reviewers re-checked that revision before Brett ruled: every CRITICAL, HIGH and FIX item landed as worded (`6013547504`); their five small remaining fixes are applied at T004. That re-check is not a fresh `/speckit-analyze` run. Brett's ruling starts implementation on his word (`6013547504`); whether a fresh analyze of the ruled revision runs before the first realization PR lands is the holder's call, recorded at T003. |
+| Workflow: *"`/speckit.analyze` MUST report no critical findings before implementation"* | Round 1's CRITICALs applied and re-checked; T003's fresh analyze was the holder's call, closed on the re-check (`6017901451`) | Round 1's analyze (`evidence/analyze-round-1.md`) found one CRITICAL under the skill's rubric (D1, the README index) and three under its brief's (ADV-01 to ADV-03); all four were applied at `6847e99e`, as its disposition table shows. Both reviewers re-checked that revision before Brett ruled: every CRITICAL, HIGH and FIX item landed as worded (`6013547504`); their five small remaining fixes are applied at T004. That re-check is not a fresh `/speckit-analyze` run. Brett's ruling starts implementation on his word (`6013547504`); whether a fresh analyze of the ruled revision runs before the first realization PR lands is the holder's call, recorded at T003. |
 | Repository Constraints | PASS, with one deviation (Complexity Tracking) | **Shared tree**: every writer works in its own clone or worktree, stages explicit paths and commits with pathspecs. **Worktree mode**: this feature's planning runs from the lane's own worktree of its own openxFactory clone. **The aggregation pin**: each openxFactory landing is followed by the aggregation's ordinary pin-sync in `opensoft/xFactory`, a separate commit that is not an arc landing (034's practice). At the cut, T083 runs it with the openDox/openXdox three-way gitlink parity (the aggregation's `CLAUDE.md` working rule 2). |
 
 **Post-design re-check (after data-model.md, contracts/ and quickstart.md).**
@@ -678,7 +678,7 @@ item landed as worded). T004, this revision, encodes the ruling.
 |---|---|---|
 | R-1 | *"Admitted edit kind (Recommended)"* | (a): a new `edit: admitted` kind reaches named module-level spans; `scripts/protected_suites.py`'s `_inside_the_test` rule is amended to accept it; each such edit is reviewed in U-7's PR (T026). With W-1, all 26 nodes close. Widened to six spans after the ruling (`6016648451`; § R-1 below). |
 | W-1 | *"Model import-free again (Recommended)"* | (A): openDox-code inlines what `staging-workbench-model.js` takes from `./display.js` (T025); a guard keeps the inlined tables equal to `display.js` (T050). This word reverses carve slice S7's model import. |
-| ARC-5 | *"Archive with F9.2 open (Recommended)"* | (a): #1144 may archive with F9.2 open, reported in R1Q6 (d)'s form; F9.2's later closure goes into the arc change's own evidence (T076); the archived `tasks.md` is never edited. It reconciles F9.2's ruled notes (`5859927858`, `5870594693`) with ARC-Q3 (a). |
+| ARC-5 | *"Archive with F9.2 open (Recommended)"* | (a): #1144 may archive with F9.2 open, reported in R1Q6 (d)'s form; F9.2's later closure goes into the arc change's own evidence (T076); the archived `tasks.md` is never edited after the archive. Because #1144's archive tool refuses unticked lines, its archive ticks F9.2 with a written disposition that names the arc change as the carrier (batch Q's F9.2 note). It reconciles F9.2's ruled notes (`5859927858`, `5870594693`) with ARC-Q3 (a). |
 | I-2 | *"main, else HEAD's branch (Recommended)"* | (a): the baseline branch is `main`, else the branch HEAD names; R2Q7 (a)'s `main` still governs landing alone. `spec.md` FR-010 and its other "`main`'s tip" lines are amended in this revision; batch Q notes the reading at 14.4 (T005 item 12). |
 | N-6 | *"Allow the overlap (Recommended)"* | (a): phase 5's openDox-code slices may land once T027 pins phase 4's openDox-code commit, without waiting for T033; batch Q records the reading beside the release map (T005 item 12). |
 | ARC-1 | *"implemented (Recommended)"* | (a): the arc change's `target_release:` is `implemented` (T070). |
@@ -788,8 +788,12 @@ until F9.2 closes") predates the arc ruling.
 - **(a) (Recommended; RULED)** #1144 MAY archive with F9.2 open, reported as part of
   requirement 9's open extraction for openXdox-code in R1Q6 (d)'s reporting form.
   F9.2's later closure is recorded in the arc change's own evidence (T076); the
-  archived `tasks.md` is never edited. If #1144 is still active when T076 runs,
-  T076 ticks F9.2 there under Rule 6. Batch Q adds this note at F9.2. This
+  archived `tasks.md` is never edited after the archive. If #1144 is still
+  active when T076 runs, T076 ticks F9.2 there under Rule 6. If #1144 archives
+  first, its archive tool refuses unticked lines, so its archive ticks F9.2 with
+  a WRITTEN DISPOSITION that names the arc change as F9.2's carrier, which
+  records the real closure (batch Q's F9.2 note, "How the archive gate admits
+  it"; the tick is a disposition, not a performance). Batch Q adds this note at F9.2. This
   feature ticks 11.0, 11.1 and F11.1 at T082, and 9.5 last, at T084, after the
   cut's sync and the publish that still realize it; plan 034's T090–T093 close
   by reference; the archive act itself stays the holder's. (Sequencing fix

@@ -33,8 +33,8 @@ Implementation starts on this word. Still his word, at the act: the `dox-v1.2`
 cut (T060), the arc change's ratification (T071) and the 0.2.0 publish (T084).
 The constitution's analyze gate stands as plan.md § Constitution Check records
 it: round 1's CRITICALs are applied and re-checked, and a fresh analyze of the
-ruled revision (T003) is the holder's call before the first realization PR
-lands.
+ruled revision (T003) was the holder's call before the first realization PR
+lands, closed on the re-check (`6017901451`): no round-2 analyze is dispatched.
 
 ## Format
 
@@ -162,7 +162,8 @@ as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
   evidence file; the README entry's wording says the plan is ruled.
   - **Files**: this feature's documents; `README.md` (the entry's wording only).
   - **After**: the two reviewers' re-check of round 1 at `6847e99e` (recorded in
-    `6013547504`); T003's fresh analyze stays open as the holder's call.
+    `6013547504`); T003's fresh analyze was the holder's call, closed on the
+    re-check (`6017901451`).
   - **Lane**: 4.
 - [x] T005 [oxF] **Batch Q: record the answers' amendments in #1144, in plan
   034's T007 form, ONE PR, under a Rule 6 window. THE FIRST ACT.** Its contents
@@ -870,7 +871,7 @@ copies (research R7; ADV-05).
   pathless finding's identity is `{category, entry}` and a collision's is
   `{collided_id}`), under an engine cap on its serialized size, stricter than the
   schema's, as for `pack_id` and `kind` (the cap's value is T041's and T042's to
-  set); the bounds on `message` and
+  set, and T041 tests it at its boundary, as it tests theirs); the bounds on `message` and
   `evidence` (R2Q25 (a); ADV-27); a closure test that the module imports only the
   standard library. Copy T040's finding schema at the spec commit T060 pins into
   openDox-code's EXISTING copy record: `copies.yaml`'s `commit:` moves to that
@@ -1000,7 +1001,7 @@ copies (research R7; ADV-05).
   (`run`, `list`, `fix --finding ID [--batch]`, `accept`), plus `--local` and
   `list --class`, frozen, `fix` and `accept` dispatching to T053's and T054's
   modules; contributed through `default_profile.py` (N-2); `--json` carries
-  `kind`. The hosted plane refuses by name (R2Q15 (a)). Record the hook line for
+  `kind` and `identity` (the holder, `6018624750`). The hosted plane refuses by name (R2Q15 (a)). Record the hook line for
   the root README (CF-6).
   - **Realizes**: 14.4 (part: on demand, the baseline), 14.5 (part: CLI run/list).
   - **Falsifier**: new `tests/test_health_cli.py`, `tests_runtime/test_health_engine.py`
@@ -1884,8 +1885,8 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 ## Dependencies and execution order
 
 1. **Phase 0**: T004 (DONE, after round 1's re-check) gates everything except
-   T001–T003, T006, T007; T003, if the holder dispatches it, lands its own
-   disposition before the first realization PR. T005 lands before T015, T026, T032, T033, T052, T058,
+   T001–T003, T006, T007; T003 closed on the re-check (`6017901451`), so no
+   round-2 analyze lands before the first realization PR. T005 lands before T015, T026, T032, T033, T052, T058,
    T060, T065, T067 and T073. T008 before T013.
 2. **Phase 4**: the product chain T011 → T014 → T015 → T016 (with T012 + T013)
    → T017 → T027 → T028; the repair chain T020 → T021 → T022 and T020 → T026; both
@@ -1930,9 +1931,10 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 | Q | I-2 (a)'s baseline branch at 14.4; N-6 (a)'s overlap beside the map | 14.4; the release map | `6013547504` (tier 1) |
 | — | F9.1's `--deselect` removed | F9.1 (batch J's line) | `5859927858`, at T076 while #1144 is active |
 
-**Task count:** 80: Phase 0 9 (T001–T009; eight done, T002–T009, and T001 is a
+**Task count:** 81 rows: Phase 0 9 (T001–T009; eight done, T002–T009, and T001 is a
 standing act), Phase 4 24 (T010–T033; T010, T020 and T024 done), Phase 5 29 (T040–T068, T059,
-T067 and T068 among them; T040 done), requirement 9 2 (T073 and T094; the repair
-slices T095+ are cut from T094's map and are not counted until they are), the
+T067 and T068 among them; T040 done), requirement 9 3 (T073, T094 and the one
+placeholder row T095+, which T094's map replaces with the concrete repair-slice
+tasks, T095 onward), the
 direction arc 7 (T070–T072, T074–T077; T070 done), Close 5 (T080–T084), Every
 phase 4 (T090–T093).
