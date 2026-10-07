@@ -830,7 +830,7 @@ def _run_identity_findings(ctx) -> list[Finding]:
             catalog._refuse_foreign_run_tree(ctx.catalog_root, run_dir)
             catalog._recorded(ctx.catalog_root, run_dir, rid, day)
             documents = catalog._load_run(run_dir, day, sequence, rid)["repos"]
-            persisted = catalog._load_run_bytes(run_dir)
+            persisted = catalog._load_run_bytes(ctx.catalog_root, run_dir)
         except catalog.CatalogError as exc:
             findings.append(_finding(
                 "catalog-integrity", ERROR, "(catalog)", where,

@@ -70,12 +70,15 @@ kind: opendox-carve-admissions
 destinations:
   opendox_code:
     created:
+      - path: src/opendox/column_seams.py
+        reason: "added by openDox-code #77 (plan 034 T084, 4.3: the last deferred reaches through declared seams; consumer_reach retired)"
+        since: "e49b17c3f2d2b7008be49651fed0735a5dbcd604"
       - path: src/opendox/conformance_corpus.py
         reason: "added by openDox-code #31 (split-opendox § 3.7 FLOOR PART 3, openDox side: the declared conformance factory)"
         since: "93ccc3dd98312ae725fef02a801ee23a7ce736fc"
-      - path: src/opendox/consumer_reach.py
-        reason: "added by openDox-code #9 (BUILD 3.5/3.6 late seam)"
-        since: "da8aae969b4057bd46d2550c265e5bb363142458"
+      - path: src/opendox/console_access.py
+        reason: "added by openDox-code #84 (plan 034 T104: the console token travels in the opened URL, not /capabilities)"
+        since: "32943cbf2882291847838f9e224e657b78cb71ac"
       - path: src/opendox/contracts/__init__.py
         reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
         since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
@@ -94,6 +97,9 @@ destinations:
       - path: src/opendox/contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
         reason: "added by openDox-code #58 (plan 034 T057: openDox's own validator and its input set (7.1, 7.1a, 7.1b, 7.2))"
         since: "8ec08e91e5eb88660fa5d1d0c9cbaefc7775fd67"
+      - path: src/opendox/default_columns.py
+        reason: "added by openDox-code #77 (plan 034 T084, 4.3: the last deferred reaches through declared seams; consumer_reach retired)"
+        since: "e49b17c3f2d2b7008be49651fed0735a5dbcd604"
       - path: src/opendox/default_generator.py
         reason: "added by openDox-code #54 (plan 034 T052: declare the generator seam (5.4) and register openDox's own generator)"
         since: "fa8862ccc992dffbf60abba55591c9c450fcaabe"
@@ -115,6 +121,12 @@ destinations:
       - path: src/opendox/domain_profile.py
         reason: "added by openDox-code #11 (the 4.3 profile registry)"
         since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"
+      - path: src/opendox/doxbench_defaults.py
+        reason: "added by openDox-code #71 (plan 034 T085: the standalone doxBench defaults for T027's seams, and T058's two workbench rules move into opendox.validator)"
+        since: "2680eb5e10ff0230ce9eb90e73c9e4344771e38e"
+      - path: src/opendox/doxbench_trust.py
+        reason: "added by openDox-code #82 (plan 034 T100, 16.3a: a served repository's bindings are trusted per machine)"
+        since: "38d3350ec3e3b0292b50dd2ad71994710ee247f4"
       - path: src/opendox/generator_seam.py
         reason: "added by openDox-code #54 (plan 034 T052: declare the generator seam (5.4) and register openDox's own generator)"
         since: "fa8862ccc992dffbf60abba55591c9c450fcaabe"
@@ -136,6 +148,9 @@ destinations:
       - path: src/opendox/runtime/app.py
         reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the FastAPI application: the six coordination collections behind a bearer token verified against the Keycloak broker, `/livez` the only unauthenticated route, and no route that reads a document"
         since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/bundle.py
+        reason: "added by openDox-code #69 (plan 034 T072, 13.1: the bundled PostgreSQL server, the local install's own child)"
+        since: "5e7ab003d3f9a798370db361eddd313edf6b6274"
       - path: src/opendox/runtime/cli.py
         reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the one lifecycle CLI — `runtime init|migrate|serve|status|reset` — reached by `[project.scripts] opendox-runtime` and by `RuntimeSubcommand`, which conforms to `subcommand_extension.SubcommandExtension` structurally"
         since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
@@ -358,12 +373,27 @@ destinations:
       - path: tests/test_binding_stylesheets.py
         reason: "added by opensoft/openDox-code `build/q7-binding-stylesheets` (split-opendox § 3.4, RULED Q7, `#656` comment `5648049748`) — the CSS extraction's own running proof, on `validate.yml`'s explicit list: the `ViewBinding.styles` slot refused at BOTH halves of the seam, the absent case carried onto `/capabilities`, the `<link>` injector driven under `node` against the real `views/view_extension.js` (one link per resolved href, `document.head` and never `document.body` per RULED Q8, the failed sheet NAMED and non-fatal), and the extraction itself measured against `styles.css` — no gate-exclusive selector survives there, every `--st-*` token and every shared selector does, and where an assembly has placed openXdox's six modules the 54-class set is RE-DERIVED from them rather than trusted"
         since: "144a4a338f3e1017662fbde0f2e3e7916231baea"
+      - path: tests/test_capability_honesty.py
+        reason: "added by openDox-code #77 (plan 034 T084, 4.3: the last deferred reaches through declared seams; consumer_reach retired)"
+        since: "e49b17c3f2d2b7008be49651fed0735a5dbcd604"
+      - path: tests/test_chat_model_configuration.py
+        reason: "added by openDox-code #74 (plan 034 T081, 16.4: \"no model configured\" is a state, shown before any turn)"
+        since: "9a490405891b9360fc67511227faaa349c86943c"
       - path: tests/test_checkout_head.py
         reason: "added by openDox-code #47 (plan 034 T012: a checkout's HEAD read with openDox's own reader)"
         since: "276830289dd69c3ee284dd1f45188ebd85a59502"
+      - path: tests/test_column_seams.py
+        reason: "added by openDox-code #77 (plan 034 T084, 4.3: the last deferred reaches through declared seams; consumer_reach retired)"
+        since: "e49b17c3f2d2b7008be49651fed0735a5dbcd604"
       - path: tests/test_conformance_corpus.py
         reason: "added by openDox-code #31 (split-opendox § 3.7 FLOOR PART 3, openDox side: the declared conformance factory)"
         since: "93ccc3dd98312ae725fef02a801ee23a7ce736fc"
+      - path: tests/test_console_token_delivery.py
+        reason: "added by openDox-code #84 (plan 034 T104: the console token travels in the opened URL, not /capabilities)"
+        since: "32943cbf2882291847838f9e224e657b78cb71ac"
+      - path: tests/test_console_token_view.py
+        reason: "added by openDox-code #84 (plan 034 T104: the console token travels in the opened URL, not /capabilities)"
+        since: "32943cbf2882291847838f9e224e657b78cb71ac"
       - path: tests/test_consumer_reach.py
         reason: "added by openDox-code #9 (BUILD 3.5/3.6 late seam)"
         since: "da8aae969b4057bd46d2550c265e5bb363142458"
@@ -376,6 +406,9 @@ destinations:
       - path: tests/test_display_facet_leaves.py
         reason: "added by opensoft/openDox-code `build/s7-residue-leaf-facet` (split-opendox § 3.4, the SLICE S7 RESIDUE — the two threads Copilot opened on PR #21 at `c7a216c7` and the five it left SUPPRESSED in review `5192900474`'s body; S7 LANDED note `#656` comment `5688498049`; FORM RULED Q-L1, `#656` comment `5628560136`) — the proof for the SEVEN display-facet LEAVES inside modules slice S7 had already parameterized at their mounts: FIVE assertions run the real `views/display.js`, `views/explorer.js`, `views/outline-model.js` and `views/docs.js` under `node` and EIGHT read the source, and the file alone is 11 failed / 2 passed against a pristine worktree at `0b4e8bbf` (13 tests; the two that pass there are the return-value guard beside `applyTokens` and the behavioural probe that only bites once `runAddSection` forwards its argument, so every one of the seven leaves is failed by at least one of the eleven). MEASURED AT THE LEG'S LANDING HEAD AND NOT AT `since:`, which stays the INTRODUCING commit `338143a3` (12 tests, four of them node-gated) — a leg review round moves this count and never the pin: openDox-code#28's own Copilot round added the thirteenth, a behavioural probe of `docHaystack` proving the regex beside it could not tell a deleted array element from the guard above it. A CREATED file with no row (RULED OQ-C); this annotation lands FIRST per Q-L1 and the leg follows"
         since: "338143a30856f7d572a2473ae7a5d6ac81dfdb7a"
+      - path: tests/test_doxbench_defaults.py
+        reason: "added by openDox-code #71 (plan 034 T085: the standalone doxBench defaults for T027's seams, and T058's two workbench rules move into opendox.validator)"
+        since: "2680eb5e10ff0230ce9eb90e73c9e4344771e38e"
       - path: tests/test_doxbench_seams.py
         reason: "added by openDox-code #41 (plan 034 T027: the doxBench seams)"
         since: "8017cd52158d89abc1c4862eb2cf32ed2d52a1eb"
@@ -394,15 +427,33 @@ destinations:
       - path: tests/test_imports_standalone.py
         reason: "added by openDox-code #46 (plan 034 T011, with T030: serve.py's import-time reaches removed)"
         since: "0e88454a7c814f059a34ce8f77f109cf7eae3bed"
+      - path: tests/test_install_mode_entrypoint.py
+        reason: "added by openDox-code #67 (plan 034 T070, 13.4-13.6: OPENDOX_INSTALL_MODE and generate-and-open --local)"
+        since: "66ff7257fc220223518740a09c1287def08363f3"
+      - path: tests/test_installed_help.py
+        reason: "added by openDox-code #77 (plan 034 T084, 4.3: the last deferred reaches through declared seams; consumer_reach retired)"
+        since: "e49b17c3f2d2b7008be49651fed0735a5dbcd604"
       - path: tests/test_intent_binding_dom.py
         reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731) — node-driven DOM probe of the optional binding, narrowed out of validate.yml under RULED Q-L5 (b'). The two siblings this entry used to name as narrowed with it, test_intent_tray_dom.py and test_wheel_verbs_dom.py, are RETIRED: RULED 5656343213 retires both rows at this leg (#656 CLAIM 5656690570, openxFactory PR #1043), so the floor stops asking for their arrival and requires it ABSENT, and opensoft/openDox-code#24 carries the deletion that answers it — until that pull request merges, the arrival run at this leg refuses arrival-not-retired, which is the window cutover-runbook § 5.8 describes. THEIR NARROWING IS NOT WHAT CHANGES and is not undone by any of it: validate.yml's selection never named those two, does not name them now, and the leg's deletion deliberately leaves that allow-list alone — what ends are the files, not their exclusion from a list. This probe stays because its surface does: RULED Q5 gave openDox views/intent-binding.js, which arrived here, while theirs was views/intent-feed.js, RULED OQ-F not_moved"
         since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
       - path: tests/test_intent_binding_shape.py
         reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731) — the shape assertion validate.yml runs"
         since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
+      - path: tests/test_lens_seed_actions.py
+        reason: "added by openDox-code #65 (plan 034 T088: the lens's two seed actions are offered only where a binding answers them (R1Q19 (a)))"
+        since: "d0d3cee66a06fa4acb6e58a7ba1f61964dbfc678"
+      - path: tests/test_loopback_host_gate.py
+        reason: "added by openDox-code #80 (plan 034 T103: every loopback route checks the Host (DNS rebinding))"
+        since: "390e2c2892af48e0136b4be88dfc4d8efba51415"
+      - path: tests/test_model_binding_trust.py
+        reason: "added by openDox-code #82 (plan 034 T100, 16.3a: a served repository's bindings are trusted per machine)"
+        since: "38d3350ec3e3b0292b50dd2ad71994710ee247f4"
       - path: tests/test_neutral_projection.py
         reason: "added by openDox-code #57 (plan 034 T054: openDox's small neutral projection (5.1-5.3))"
         since: "a691e4e4e606a959ff0248804e058faf10724285"
+      - path: tests/test_neutral_turn_scope.py
+        reason: "added by openDox-code #77 (plan 034 T084, 4.3: the last deferred reaches through declared seams; consumer_reach retired)"
+        since: "e49b17c3f2d2b7008be49651fed0735a5dbcd604"
       - path: tests/test_plain_documents_fixture.py
         reason: "added by openDox-code #53 (plan 034 T050: the plain-documents fixture, spread across the six stations)"
         since: "dc3765dda9e4dd5dbc4270c96ecd49e48224ce32"
@@ -418,9 +469,21 @@ destinations:
       - path: tests/test_reach_sweep.py
         reason: "added by openDox-code #49 (plan 034 T032: the 2.3 sweep)"
         since: "68be484ad8a3cb218b6cd217292c11736aa1c9b4"
+      - path: tests/test_rejection_report.py
+        reason: "added by openDox-code #77 (plan 034 T084, 4.3: the last deferred reaches through declared seams; consumer_reach retired)"
+        since: "e49b17c3f2d2b7008be49651fed0735a5dbcd604"
+      - path: tests/test_release_workflow.py
+        reason: "added by openDox-code #78 (plan 034 T099: publish openDox to PyPI by trusted publishing (10.3's install line))"
+        since: "d59f3f269a07453b11bbea46701f5e0b4ab07236"
       - path: tests/test_route_handler_contribution.py
         reason: "added by openDox-code #40 (plan 034 T010: the handler-contribution facet)"
         since: "0f10b1f5b0650c58ac940d84ef45bd58a5f2df37"
+      - path: tests/test_run_dir_lifetime.py
+        reason: "added by openDox-code #77 (plan 034 T084, 4.3: the last deferred reaches through declared seams; consumer_reach retired)"
+        since: "e49b17c3f2d2b7008be49651fed0735a5dbcd604"
+      - path: tests/test_served_install_block.py
+        reason: "added by openDox-code #72 (plan 034 T073, 13.4a — /capabilities gains an install block, read from the serving process's own settings)"
+        since: "90ac703355e5b06e7f6d4c63e1f7309bc5e53f1e"
       - path: tests/test_session_notebook_membership.py
         reason: "added by openDox-code #43 (plan 034 T025: the session notebook's registered scope)"
         since: "c46430fb9aff39c7949a45c2956bba3ab696d605"
@@ -433,6 +496,12 @@ destinations:
       - path: tests/test_standalone_generate_path.py
         reason: "added by openDox-code #66 (plan 034 T056: the standalone generate path, end to end (5.1 part))"
         since: "a23e4224da658dac90b389ecd516928f6e884432"
+      - path: tests/test_static_content_types.py
+        reason: "added by openDox-code #77 (plan 034 T084, 4.3: the last deferred reaches through declared seams; consumer_reach retired)"
+        since: "e49b17c3f2d2b7008be49651fed0735a5dbcd604"
+      - path: tests/test_thread_read_by_session.py
+        reason: "added by openDox-code #85 (plan 034 T102 follow-on: the chat rail reads a thread only with a branch session)"
+        since: "c4b55cc4702d82c7480de49cbecf515e1d7c9fdf"
       - path: tests/test_triple_pin.py
         reason: "added by openDox-code #33 (split-opendox § 3.7 residue: the collection pin's test)"
         since: "1d4ac83c63246f0b96f8b7b61b2ef4cd6e6183f1"
@@ -448,6 +517,9 @@ destinations:
       - path: tests/test_web_boundary.py
         reason: "added by openDox-code #13 (§ 3.4 S1, the web census and the measured boundary defect — three strict xfails closing as S2-S7 land; no arrived file touched, so S1 needed no row-annotation PR of its own)"
         since: "e86deb2dbcec528a312784508ddbf63c376abc33"
+      - path: tests/test_workbench_edit_by_scope.py
+        reason: "added by openDox-code #81 (plan 034 T102: the staging workbench offers the editors and the chat rail by scope)"
+        since: "0116293a64f7aab9da00d7c896de06bf6cb6e486"
   opendox_root:
     created: []
   opendox_spec:
@@ -568,6 +640,9 @@ destinations:
       - path: scripts/protected_suites.py
         reason: "added by openXdox-code #35 (plan 034 T059: openXdox contributes its governed generator, registry and source through openDox's seams (5.4a))"
         since: "839492d905f470903cc80421fd536826f78cbcde"
+      - path: src/openxdox/column_contributions.py
+        reason: "added by openXdox-code #37 (plan 034 T086: openXdox contributes its columns: the governed gate, scope, kickoff and register at openDox's seams, the two route columns through the facet, the direction at (0, 0))"
+        since: "56e1c238681a7693a4d8d42a62c1523cf4d4ab91"
       - path: src/openxdox/conformance_corpus.py
         reason: "added by opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`, split-opendox-two-layer-product `design.md` § D4 machinery (1), RULED Q-X1..Q-X4 `#656` comment `5715212264`) — the DECLARED `--adapter` factory § 3.7's conformance runner resolves (`openxdox.conformance_corpus:reader`), carrying the neutral corpus's own terms as a value; the counterpart of openxFactory's `tests/carve_conformance/home_factory.py` and of openDox's `src/opendox/runtime/conformance_corpus.py`"
         since: "d4282454c10d2f8891eae94e77d1a7554ebd17ed"
@@ -709,6 +784,12 @@ destinations:
       - path: tests/protected_suite_respellings.yaml
         reason: "added by openXdox-code #34 (plan 034 T060: openXdox's facet carries the governed snapshot values (5.3a))"
         since: "c41063d6aaada96258331ef39c9978fdf10a154b"
+      - path: tests/test_column_contributions.py
+        reason: "added by openXdox-code #37 (plan 034 T086: openXdox contributes its columns: the governed gate, scope, kickoff and register at openDox's seams, the two route columns through the facet, the direction at (0, 0))"
+        since: "56e1c238681a7693a4d8d42a62c1523cf4d4ab91"
+      - path: tests/test_column_contributions_governed.py
+        reason: "added by openXdox-code #37 (plan 034 T086: openXdox contributes its columns: the governed gate, scope, kickoff and register at openDox's seams, the two route columns through the facet, the direction at (0, 0))"
+        since: "56e1c238681a7693a4d8d42a62c1523cf4d4ab91"
       - path: tests/test_corpus_shape.py
         reason: "added by opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`, split-opendox-two-layer-product `design.md` § D4 machinery (1), RULED Q-X1..Q-X4 `#656` comment `5715212264`) — on `validate.yml`'s explicit `--noconftest` list: what a `CorpusShape` refuses to be, and what `from_profile` derives from the vendored engineering profile's six artifact kinds and eleven declared locations"
         since: "5494bb43350636cf7c3d5a3b6b2d6262ab74dd06"
@@ -745,6 +826,9 @@ destinations:
       - path: tests/test_hermeticity_runner_seams.py
         reason: "added by openXdox-code #30 (plan 034 T041, 9.2)"
         since: "5fbd188ed4fe3681e189fafe49d7d0699d70a2ee"
+      - path: tests/test_host_plane.py
+        reason: "added by openXdox-code #37 (plan 034 T086: openXdox contributes its columns: the governed gate, scope, kickoff and register at openDox's seams, the two route columns through the facet, the direction at (0, 0))"
+        since: "56e1c238681a7693a4d8d42a62c1523cf4d4ab91"
       - path: tests/test_model_scenario_workbench.py
         reason: "added by openXdox-code #12 (4.5 slice 3)"
         since: "5333b125dc0f2dd9ee6f6e558c758fbfe6c49b4d"

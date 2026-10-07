@@ -136,12 +136,14 @@ ROUTE_EXTENSIONS: tuple = (
 #: its own mixin, and no core module names a contributor (`route_extension`'s
 #: own docstring, "WHERE A CONTRIBUTED ROUTE'S METHODS COME FROM").
 #:
-#: THE TWO openXdox COLUMNS ARE NOT HERE. openDox's `DashboardHandler` still
-#: carries them, as the `consumer_reach.LateGateRoutes` and
-#: `LateProjectionRoutes` stand-ins, until phase 3 hands them to the facet
-#: (plan 034 T084), where openXdox contributes them (T086). Declaring them here
-#: now would be refused: a contribution may only ADD, and the core handler
-#: already answers every one of their methods.
+#: THE TWO openXdox COLUMNS ARE NOT HERE, AND NEVER WERE. Until phase 3
+#: openDox's `DashboardHandler` carried them itself, as the
+#: `consumer_reach.LateGateRoutes` and `LateProjectionRoutes` stand-ins. Plan
+#: 034 T084 retired that module and handed both columns to the facet, and
+#: openXdox contributes them through its own route extensions (T086,
+#: `openxdox.column_contributions`), which `opendox_host.register_openxfactory`
+#: registers. Declaring them here as well would be refused: a column may be
+#: declared once, by the extension that owns it.
 #:
 #: INERT AT A LEG THAT PREDATES THE FACET. A pinned openDox leg before T010
 #: reads no `HANDLER_CONTRIBUTIONS` at all, and still composes `LaneRoutes` as a

@@ -57,7 +57,7 @@ repository: codeXfactory/codexFactory
 # UNCOVERED pin site. `core_commit` is a key the sweep vocabulary did not know,
 # and declaring the member in `scripts/doc_health/pin_class.py` is what teaches
 # it — the same move `carve_commit` made, for the same reason.
-core_commit: "b21f010013fa51960c77377a8582943435b6db32"
+core_commit: "fe9a6f5b91886e4f07296dc6a264deb345b1618f"
 revision_kind: commit
 
 # When this pin was declared, and against what observation. Recorded because a
@@ -627,8 +627,8 @@ pinned_members:
 floor_snapshot:
   path: contracts/review-lane-floor-snapshot.yaml
   of: floor/openxfactory-review-authority-floor.yaml
-  sha256: "b77b4e55fdd24a0ca00eb390f396a0ea8829880879b468e98960b86a0fdad763"
-  entry_count: 71
+  sha256: "f2bc7d92fafb99e6a7ec52ac50e4fd0e8fbe68e733a846cd337d9b2ecffaec96"
+  entry_count: 75
   taken_at: core_commit
   # THE SNAPSHOT CARRIES ONE COMMIT-SHAPED VALUE OF ITS OWN, AND IT IS DECLARED
   # IN `scripts/doc_health/pin_class.py` AS A NON-MEMBER, NOT AS A MEMBER.
@@ -711,7 +711,7 @@ floor_snapshot:
 # openxFactory's and codexFactory's — but the obligation below is why the state
 # is written down as diverged rather than left to be inferred.
 lockstep:
-  status: converged
+  status: diverged
   reason: >-
     Diverged FURTHER on 2026-09-04 by this advance — the FOURTH of the day —
     having first diverged on 2026-09-01 and diverged further on 2026-09-03 and
@@ -1015,6 +1015,35 @@ lockstep:
     leaves this file's truth depending on a lane remembering to write it.
     Both are OpenSpec-class acts on a realized capability, which is exactly
     why neither rides here.
+
+    RE-DIVERGED 2026-10-06, BY A ROUTINE ADVANCE — and written by hand, because
+    the lane that caused it writes no lockstep field. The hourly
+    review-lane-repin lane's PR #1138 (squash-merged as `9171d14a` on
+    2026-10-06, on Brett Heap's word "land #1138 when green") advanced
+    `core_commit` `b21f0100` -> `fe9a6f5b` (codeXfactory/codexFactory main
+    "Merge pull request #524 from codeXfactory/floor/bot-regeneration") while
+    `MIGRATION_PIN` stayed at `b21f0100` on all three `opensoft/xFactory`
+    surfaces, MEASURED at this edit on xFactory `main` `1047586d`; the pair
+    names different commits again. This is the falsification of the convergence
+    recorded above (xFactory #475 -> `c88d1fdd`, openxFactory #1136 ->
+    `7c49825e`) that the paragraph directly above predicted of this repository's
+    own automation. It is owed by Brett Heap's word "(a) on C1–C5" (2026-09-24,
+    openxFactory #656 comment `5815412869`), whose C2 item reads "owed the
+    moment #1138 (or whichever repin moves `core_commit` off `MIGRATION_PIN`)
+    lands" — so `status` moves here, in the same commit as its test literal, the
+    two-file act of every prior transition. It is also the hand act that the
+    paragraph directly above names as what both of its remedies would retire:
+    until form (b), openxFactory #1145's
+    `assert-review-lane-lockstep-against-aggregation` (merged 2026-09-23 as a
+    `Status: draft` packet), is ratified and realized, nothing reads xFactory's
+    three surfaces and compares them to this value, so this field's truth
+    depends on someone writing it. For the record only, PR #1138 also left the
+    snapshot witnesses at `entry_count` 71 -> 75 and `generated_at` `fc837dff`
+    -> `a2dc658d`; those are that pull request's numbers, dated and historical,
+    and later routine repins will move them again WITHOUT changing the relation
+    this field declares. THE LOAD-BEARING FACTS ARE `MIGRATION_PIN` AND THE
+    OBLIGATION BELOW, which this edit does not touch: convergence returns only
+    at a recorded re-point ceremony.
   converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml

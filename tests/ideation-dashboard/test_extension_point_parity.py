@@ -64,10 +64,36 @@ GOLDEN_COLUMNS = "100"
 #: Where the golden lives. Text, for a readable diff — see the module docstring.
 HELP_GOLDEN = FIXTURES / "cli-help-tree.golden.txt"
 
+#: THE SAME TREE AT plan 034's PHASE-3 openDox LEG, held beside the first so
+#: this file passes at BOTH pins (T066's form, ahead of T094; it is not an arc
+#: landing). At that leg the assembled command line changes in four places,
+#: each an openDox-code landing of phase 3 and none of them openxFactory's:
+#: T084 (openDox-code#77) names the installed command, so every usage line
+#: reads `opendox` and the root's description and epilog are openDox's own;
+#: T070 adds `generate-and-open --local`; T079 and T080 add `--model`, the
+#: `none` auth kind and the optional reference to `model-binding add|edit`;
+#: and T100 adds `model-binding trust`, the 32nd entry point (research R8).
+#: The golden is read off the pinned leg's own parser (`pinned_help_golden`),
+#: never off the text it is compared with.
+#:
+#: IT LIVES OUTSIDE `tests/ideation-dashboard/`, on purpose. That directory is
+#: a `moved_paths:` prefix of `docs/opendox-carve-manifest.yaml`, and a file
+#: that appears under it after the carve is in no row, which
+#: `scripts/validate-carve-manifest.py` refuses as `carve-file-undeclared`.
+#: `tests/domain_profile/` is this host's own test tree, and the help tree is
+#: this host's assembly. When the phase-3 pin has landed (T094), a later
+#: non-arc act moves this text into `HELP_GOLDEN` and retires this file.
+HELP_GOLDEN_PHASE3 = (REPO_ROOT / "tests" / "domain_profile" / "fixtures"
+                      / "cli-help-tree.phase3.golden.txt")
+
+#: The one entry point the phase-3 leg adds to the tree, and nothing else.
+PHASE3_ADDED_ENTRY_POINTS = ("ideation-dashboard model-binding trust",)
+
 #: Non-vacuity floor for the walk. Measured at 31 entry points (the root, six
-#: top-level subcommands, nineteen `gate` verbs and five `model-binding` verbs);
-#: the floor sits below that so an ordinary deletion does not fail the build,
-#: while a walk that lost the subcommand tree does.
+#: top-level subcommands, nineteen `gate` verbs and five `model-binding` verbs),
+#: and 32 at the phase-3 leg, where `model-binding` has six; the floor sits
+#: below both so an ordinary deletion does not fail the build, while a walk
+#: that lost the subcommand tree does.
 MIN_ENTRY_POINTS = 25
 
 # ---------------------------------------------------------------------------
@@ -111,12 +137,19 @@ MIN_ENTRY_POINTS = 25
 # `opensoft/openDox-code`'s `tests/test_source_core_arm.py`, not pinned a
 # second time here — this tuple's job is only to say THIS method's fixed set
 # is these eight arms and no others.
+#
+# RETARGETED ONCE, AT ONE ARM, BY plan 034's PHASE-3 PIN (T094; a NAMED
+# composition test under R1Q2 (a)). The `/capabilities` arm's position and
+# test are unchanged; what it reaches moved inside openDox's own handler.
+# T073 (openDox-code#72) answers the serving process's `install` block
+# through `install_report`, and T103 (openDox-code#80) moved the loopback
+# Host check and the JSON send out of the arm, so it no longer reaches
+# `_send_json` or `_trusted_console_host` itself. T104 changes nothing here.
 ROUTE_ARMS = (
     ("path == self.snapshot_route", ("_serve_snapshot",)),
     ("path == PROJECT_REGISTER_ROUTE", ("_serve_project_register",)),
     ("path == CAPABILITIES_ROUTE",
-     ("_send_json", "_serve_bytes", "_session_repository",
-      "_trusted_console_host")),
+     ("_serve_bytes", "_session_repository", "install_report")),
     ("path == WORKBENCH_MODEL_CATALOG_ROUTE",
      ("_handle_workbench_model_catalog",)),
     ("path == WORKBENCH_MODEL_INTAKE_ROUTE",
@@ -172,6 +205,55 @@ def pinned_columns(monkeypatch):
     monkeypatch.setenv("COLUMNS", GOLDEN_COLUMNS)
 
 
+def _sections(text):
+    """A help tree, split into `{entry point: its help text}`."""
+    out, name = {}, None
+    for line in text.splitlines(keepends=True):
+        if line.startswith("===== ") and line.rstrip().endswith(" ====="):
+            name = line.strip().strip("= ").strip()
+            out[name] = []
+        elif name is not None:
+            out[name].append(line)
+    return {k: "".join(v) for k, v in out.items()}
+
+
+def _subcommands(parser, *path):
+    """The subcommand names `parser` offers at `path`, read off the parser."""
+    for name in path:
+        parser = next(
+            action.choices[name] for action in parser._actions
+            if isinstance(action, argparse._SubParsersAction)
+            and name in action.choices)
+    return {name for action in parser._actions
+            if isinstance(action, argparse._SubParsersAction)
+            for name in action.choices}
+
+
+def pinned_help_golden(parser):
+    """The golden for the layout the PINNED openDox leg has, read off its own
+    parser and never off the text compared below (T066's form, ahead of T094).
+
+    Two facts tell the layouts apart, each a property of the leg: the name the
+    parser calls itself (`ideation-dashboard` before T084, `opendox` from it),
+    and whether `model-binding` offers `trust` (T100). The leg the current pin
+    names has neither, and plan 034's phase-3 leg has both. A leg with one and
+    not the other is pinned by no phase, and is refused by name rather than
+    compared with either golden."""
+    prog = parser.prog
+    trust = "trust" in _subcommands(parser, "model-binding")
+    if prog == "ideation-dashboard" and not trust:
+        return HELP_GOLDEN
+    if prog == "opendox" and trust:
+        return HELP_GOLDEN_PHASE3
+    pytest.fail(
+        f"the pinned openDox leg's parser calls itself {prog!r}, and its "
+        f"model-binding {'offers' if trust else 'does not offer'} `trust`. "
+        "That is neither the leg the current pin names (`ideation-dashboard`, "
+        "no `trust`) nor plan 034's phase-3 leg (`opendox`, with `trust`; "
+        "T084 and T100), so neither golden describes it. No phase pins such "
+        "a leg: pin one that carries both changes or neither.")
+
+
 def test_the_help_text_of_every_entry_point_is_unchanged(pinned_columns):
     """The golden: the whole parser tree's help, byte for byte.
 
@@ -179,23 +261,20 @@ def test_the_help_text_of_every_entry_point_is_unchanged(pinned_columns):
     before the extension point existed. The keyword defaults to `()` and the
     registration call is a no-op over an empty tuple, so any diff here is a real
     change to the command line — which this PR promised not to make.
+
+    HELD AT BOTH PINS (plan 034, T066's form, ahead of T094). The golden is
+    the one for the pinned leg's layout (`pinned_help_golden`): the 31-entry
+    tree at the current pin, and the 32-entry tree at the phase-3 leg. Either
+    way the comparison is the same, byte for byte.
     """
-    got = help_tree(cli_mod.build_parser())
-    expected = HELP_GOLDEN.read_text(encoding="utf-8")
+    parser = cli_mod.build_parser()
+    golden = pinned_help_golden(parser)
+    got = help_tree(parser)
+    expected = golden.read_text(encoding="utf-8")
     if got != expected:
         # A pytest assertion over 50KB of text prints unusably; name the entry
         # points that differ, which is what a reader needs first.
-        def sections(text):
-            out, name = {}, None
-            for line in text.splitlines(keepends=True):
-                if line.startswith("===== ") and line.rstrip().endswith(" ====="):
-                    name = line.strip().strip("= ").strip()
-                    out[name] = []
-                elif name is not None:
-                    out[name].append(line)
-            return {k: "".join(v) for k, v in out.items()}
-
-        mine, theirs = sections(got), sections(expected)
+        mine, theirs = _sections(got), _sections(expected)
         added = sorted(set(mine) - set(theirs))
         removed = sorted(set(theirs) - set(mine))
         changed = sorted(k for k in set(mine) & set(theirs) if mine[k] != theirs[k])
@@ -203,7 +282,41 @@ def test_the_help_text_of_every_entry_point_is_unchanged(pinned_columns):
             "the command line changed, and this PR's whole claim is that it did "
             f"not. Entry points added: {added}; removed: {removed}; changed: "
             f"{changed}. Regenerate the golden ONLY with a ruling that the "
-            f"change is intended: {HELP_GOLDEN}")
+            f"change is intended: {golden}")
+
+
+def test_the_phase3_golden_adds_one_entry_point_and_removes_none():
+    """The two goldens describe one tree at two legs, so they hold the same
+    entry points, plus `model-binding trust` at the phase-3 leg. A phase-3
+    golden that lost an entry point, or gained one nobody declared, fails here
+    at EITHER pin, not only at the pin that reads it."""
+    before = _sections(HELP_GOLDEN.read_text(encoding="utf-8"))
+    after = _sections(HELP_GOLDEN_PHASE3.read_text(encoding="utf-8"))
+    assert len(before) == 31, sorted(before)
+    assert sorted(set(after) - set(before)) == list(PHASE3_ADDED_ENTRY_POINTS)
+    assert not set(before) - set(after), sorted(set(before) - set(after))
+
+
+def test_the_golden_selector_reads_the_leg_and_refuses_a_mixed_one():
+    """The negative control for `pinned_help_golden`: each layout selects its
+    own golden, and a leg with one of the two phase-3 changes is refused, so
+    the selector cannot quietly compare a mixed leg with either golden."""
+    def leg(prog, verbs):
+        parser = argparse.ArgumentParser(prog=prog)
+        sub = parser.add_subparsers().add_parser("model-binding")
+        nested = sub.add_subparsers()
+        for verb in verbs:
+            nested.add_parser(verb)
+        return parser
+
+    five = ("list", "add", "edit", "remove", "set-credential")
+    assert pinned_help_golden(leg("ideation-dashboard", five)) == HELP_GOLDEN
+    assert pinned_help_golden(
+        leg("opendox", five + ("trust",))) == HELP_GOLDEN_PHASE3
+    for mixed in (leg("opendox", five),
+                  leg("ideation-dashboard", five + ("trust",))):
+        with pytest.raises(pytest.fail.Exception, match="neither golden"):
+            pinned_help_golden(mixed)
 
 
 def test_the_parser_walk_actually_reaches_the_subcommand_tree(pinned_columns):
@@ -419,12 +532,57 @@ def test_the_mixins_precede_simplehttprequesthandler_in_the_mro():
     """
     from opendox import serve as serve_mod
     from ideation_dashboard import serve_openxfactory_lanes
-    from opendox import consumer_reach, serve_project, serve_workbench
+    from opendox import serve_project, serve_workbench
     from opendox.profile_proxy import profile_openxfactory as proxy
     from openxdox import serve_gate, serve_projection
 
+    try:
+        from opendox import consumer_reach
+    except ImportError:
+        # RETIRED BY plan 034's T084 (#1144 4.3), with its last name.
+        consumer_reach = None
+
     lanes = serve_openxfactory_lanes.LaneRoutes
     mro = serve_mod.DashboardHandler.__mro__
+    if consumer_reach is None:
+        # THE LEG FROM T084 ON (plan 034 T094). `DashboardHandler` carries no
+        # Late stand-in, so its prefix is the two core mixins and then
+        # `SimpleHTTPRequestHandler`. openXdox's two columns arrive through
+        # the facet, declared by openXdox's own route extensions (T086, RULED
+        # Q2 (a) there), after the lanes column the profile declares. The
+        # bound class is the core handler's MRO with the three composed after
+        # it, and every method of each resolves to that column's own
+        # function. Decision 1's safety property holds by refusal, as for
+        # the lanes column alone: openDox refuses a contributed name the core
+        # handler's MRO already answers.
+        assert mro[:4] == (
+            serve_mod.DashboardHandler,
+            serve_workbench.WorkbenchRoutes,
+            serve_project.ProjectRoutes,
+            http.server.SimpleHTTPRequestHandler,
+        ), (
+            "DashboardHandler's MRO no longer starts (DashboardHandler, "
+            "WorkbenchRoutes, ProjectRoutes, SimpleHTTPRequestHandler). "
+            f"Got: {mro[:4]}")
+        seam = serve_mod.route_extension
+        columns = (lanes, serve_gate.GateRoutes,
+                   serve_projection.ProjectionRoutes)
+        contributed = seam.collect_handler_contributions(
+            (proxy, *proxy.ROUTE_EXTENSIONS), base=serve_mod.DashboardHandler)
+        assert contributed == columns, contributed
+        bound = seam.compose_handler(
+            "BoundDashboardHandler", serve_mod.DashboardHandler, contributed, {})
+        assert bound.__mro__ == (bound, *mro[:-1], *columns, object), (
+            "the class the server binds is not the core handler's MRO with "
+            f"the three columns composed after it. Got: {bound.__mro__}")
+        for column in columns:
+            names = _non_dunder(vars(column))
+            assert names, f"{column.__name__} carries no method"
+            for name in names:
+                assert name not in vars(serve_mod.DashboardHandler), name
+                assert getattr(bound, name) is vars(column)[name], (
+                    f"{name} does not resolve to {column.__name__}'s own")
+        return
     if lanes in mro:
         # THE LEG BEFORE plan 034's T011: the lanes column is a base.
         assert mro[:8] == (

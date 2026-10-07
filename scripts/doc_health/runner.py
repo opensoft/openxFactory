@@ -27,7 +27,7 @@ except ImportError:
     yaml = None
 
 from . import DEFAULT_THRESHOLDS, ERROR, CRITICAL, Finding, RunResult, Skip
-from . import corpus, promotion_fidelity, report
+from . import corpus, fs_probe, promotion_fidelity, report
 from .families import FAMILIES, FAMILY_NOTES
 from .preflight import run_preflight
 
@@ -714,7 +714,9 @@ def main(argv=None) -> int:
 
     previous_keys = previous_contested = None
     unavailable_repos: set[str] = set()
-    if args.previous_report and Path(args.previous_report).is_file():
+    # Must refuse (fs_probe, #1201): an unreadable --previous-report read as
+    # absent means "no baseline, no regressions", the regression gate OFF.
+    if args.previous_report and fs_probe.is_file(Path(args.previous_report)):
         previous_text = Path(args.previous_report).read_text(
             encoding="utf-8")
         previous_repo_slugs = report.parse_repo_identity(previous_text)
