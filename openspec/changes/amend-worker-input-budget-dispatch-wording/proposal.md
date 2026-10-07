@@ -1,5 +1,5 @@
 ---
-code_surface: none — MEASURED on `main` `16779816`, not assumed. The delta rewords ONE sentence of one promoted requirement, and the realization ALREADY BEHAVES THE WAY THE AMENDED TEXT READS — it never dispatches a unit it has measured over the budget (`tasks.md` 1.1 cites the gate, the dispatch list the worker reads, and the test, each by file and line). THIS PACKET'S WHOLE DIFF IS CORPUS TEXT AND BOOKKEEPING: its own four files (`.openspec.yaml`, `proposal.md`, `tasks.md`, and `specs/doc-health/spec.md`, the one `## MODIFIED` delta), one README *Active changes* bullet, the machine-seeded per-change row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes, and the one `_LEDGER_SUBJECTS` row `tests/doc-health/test_modified_block_currency_self_gate.py` requires for every packet its carriage ledger names (a data row; no check changes). NOT ONE CHARACTER OF RUNTIME CODE MOVES — no validator, no script under `scripts/`, no test logic, no contract, no workflow. Two non-normative echoes of the old clause sit in code, a comment at `scripts/doc_health/catalog_dispatch.py`:527-528 and a test docstring at `tests/doc-health/test_semantic_input_budget.py`:506-508; they are registered in `tasks.md` § 5 and left, because editing them would give a wording packet a code surface. Under `release-realization` an empty code surface archives ON LANDING plus this task list, rather than on merged-plus-green realization evidence; the archive is its own act, taken on its own word.
+code_surface: none — MEASURED on `main` `16779816`, not assumed. The delta rewords ONE sentence of one promoted requirement, and the realization ALREADY BEHAVES THE WAY THE AMENDED TEXT READS — it never dispatches a unit it has measured over the budget (`tasks.md` 1.1 cites the gate, the dispatch list the worker reads, and the test, each by file and line). THIS PACKET'S WHOLE DIFF IS CORPUS TEXT AND BOOKKEEPING: its own five files (`.openspec.yaml`, `proposal.md`, `tasks.md`, `review/ratification-2026-10-07.md`, the ratification record, and `specs/doc-health/spec.md`, the one `## MODIFIED` delta), one README *Active changes* bullet, the machine-seeded per-change row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes, and the one `_LEDGER_SUBJECTS` row `tests/doc-health/test_modified_block_currency_self_gate.py` requires for every packet its carriage ledger names (a data row; no check changes). NOT ONE CHARACTER OF RUNTIME CODE MOVES — no validator, no script under `scripts/`, no test logic, no contract, no workflow. Two non-normative echoes of the old clause sit in code, a comment at `scripts/doc_health/catalog_dispatch.py`:527-528 and a test docstring at `tests/doc-health/test_semantic_input_budget.py`:506-508; they are registered in `tasks.md` § 5 and left, because editing them would give a wording packet a code surface. Under `release-realization` an empty code surface archives ON LANDING plus this task list, rather than on merged-plus-green realization evidence; the archive is its own act, taken on its own word.
 target_release: implemented — the value `release-realization` names for a doc-only change. No contract bundle is cut, nothing under `contracts/` is edited, no `contracts/manifest.yaml` row moves and no consumer's pin has to advance to receive this. The realization of a wording amendment IS its promotion at archive.
 sequenced_after: [add-worker-input-budget]
 ---
@@ -19,11 +19,12 @@ on `opensoft/openxFactory`
 [#1262](https://github.com/opensoft/openxFactory/issues/1262).
 Governing issue: `opensoft/openxFactory#1262` (Refs #1262).
 
-**NOTHING HERE IS RATIFIED BY THE AUTHORING LANE.** The packet rewords
+**NOTHING HERE WAS RATIFIED BY THE AUTHORING LANE.** The packet rewords
 requirement text Brett Heap ratified on 2026-10-06, and requirement text is
-amended on his word, not folded in as an addendum. This packet is the
-instrument that word would use. Ratifying it and landing it each need their own
-word.
+amended on his word, not folded in as an addendum. The lane drafted this
+packet as the instrument for that word, and he gave it on 2026-10-07,
+verbatim *"ratify 1262 when ready"*, as the `Ratified:` line above records.
+Landing it and archiving it each take their own word.
 
 ## Why
 

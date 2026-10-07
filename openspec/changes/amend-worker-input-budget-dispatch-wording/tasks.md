@@ -122,12 +122,13 @@ Kind: tasks
   over-budget dispatch conformant, and the six scenarios are byte-identical to
   those on `main` `16779816`.
 
-**§§ 0, 3.5 and 4 KEEP A LITERAL `- [ ]` DELIBERATELY.**
+**3.5 AND 4.1 KEEP A LITERAL `- [ ]` DELIBERATELY.**
 `scripts/proposal-support.py`:4632-4633 refuses an archive while any
-`^- \[ \]` remains. Those boxes are for acts that have not happened yet (the
-ratifying word, a green head with every thread resolved, the archive itself),
-so the acts tick them and nothing ticks them in advance. Every box for work
-this packet will never do carries `[~]`, in § 5.
+`^- \[ \]` remains. Those two boxes are for acts that have not happened yet
+(a green head with every thread resolved at landing, and the archive
+itself), so the acts tick them and nothing ticks them in advance. § 0's boxes
+were ticked by the ratifying word. Every box for work this packet will never
+do carries `[~]`, in § 5.
 
 ## 5. Registered, not taken
 
