@@ -88,9 +88,10 @@ Kind: tasks
   `**Removed from canon by**` marker was NOT used, because the marker is
   promoted with the block and would carry the removed sentence into canon,
   which `#1262` acceptance 3 forbids.
-- [ ] 3.4 The sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml`,
-  seeded by the sanctioned seeder with `--moved-by` naming this packet's pull
-  request.
+- [x] 3.4 The sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml`,
+  seeded by the sanctioned seeder with `--moved-by '#1264'`: `active`,
+  `co-modifier`, `declares [add-worker-input-budget]`, `depth: 1`. One row
+  moved.
 - [ ] 3.5 Required checks green at the head, Copilot's review at the exact
   head read, every thread resolved.
 
