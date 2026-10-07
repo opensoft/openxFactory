@@ -140,6 +140,34 @@ and 4.3's nineteen reaches into openXdox close by then. 7.3 stays in phase 2,
 beside openDox's own validator, as the map has it. Nothing else in the map
 moves. Carried out by T043, T086 and T097.
 
+**AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q1 (a),
+read with CF-1, `6013547504`):** A non-normative reading of phase 4's cell,
+which changes no cell of the map. *"One interface for both"* (`:108`; and
+`design.md` § D13's *"submission behind one interface"*, `:799-800`) means one
+USER-FACING interface. The `submit` and `land` verbs and routes, and the Health
+view's land action, are the same in every mode. Behind them the protocols stay
+split, as 12.1 and 12.6a require, and each is bound as this change already
+says: `submit`'s port comes from 12.4's bindings, and is `LocalGitSubmissions`
+when nothing is injected; the governance query binds the lander alone,
+`landing_factory` under `standalone`, the host's own instrument under
+`governed`, and nothing under `unknown`. "Every mode" means every GOVERNANCE
+mode (`standalone`, `governed`, `unknown`) under openDox's own profile (CF-1).
+A host profile that replaces the default carries none of `submit`, `land` or
+`health` in release 2 (R2Q3 (a)), and a `governed` repository with no
+instrument refuses `land` by name ("governed-without-an-instrument", 12.6a).
+`design.md` § D13 carries a parallel addendum. Carried out by plan 038's T015
+and T016.
+
+**AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6013547504`; Ruled N-6 (a)):**
+A reading of *"The ORDER they are built in is the release map"* (`5799646419`)
+for release 2's two phases, which moves no cell of the map. Brett Heap's
+multi-choice word of 2026-10-06, verbatim *"Allow the overlap (Recommended)"*:
+phase 5's openDox-code slices may land once the openDox root has pinned phase
+4's openDox-code commit (plan 038's T027), and they do not wait for phase 4's
+checkpoint (its T033). A phase-4 repair that then needs a further openDox-code
+change rides phase 5's pin. Carried out by plan 038's phase-5 order, whose
+T041, T042, T043 and T050 follow T027.
+
 **Release 2's rulings are SEQUENCED, not deferred, reopened or weakened.** The
 rulings recorded for phases 4 and 5 — `5783934499` (the neutral submission step),
 `5784155201` (merge authority, and health in the store; its install half is phase
@@ -215,7 +243,7 @@ at `f8a1ece`, zero passed. An AST census of `src/` finds exactly two import-time
 reaches (`serve.py:199`, `serve.py:206`) and two deferred ones; every other
 mention in the package is prose.
 
-- [ ] 2.1 Remove the module-level `from ideation_dashboard import
+- [x] 2.1 Remove the module-level `from ideation_dashboard import
   serve_openxfactory_lanes` (`src/opendox/serve.py:199`) and the
   `from ideation_dashboard.serve_openxfactory_lanes import (…)` re-export block
   (`:206`). The five names (`ACTIONS_APPLY_REGISTER_EDITS_ROUTE`,
@@ -225,12 +253,26 @@ mention in the package is prose.
   plain route strings (`"/committed-intents.json"`, `"/actions/refresh"`,
   `"/actions/apply-register-edits"`, `"/actions/dtn-seed"`,
   `"/actions/staging-seed"`).
-- [ ] 2.1a **DO NOT VENDOR the module.**
+
+  **Landed 2026-09-27** (T011): openDox-code#46 → `0e88454a` removes
+  `serve.py:199` and the `:206` re-export block; F2.1's sweep and 2.4's named
+  test pass with no sibling installed (that PR's body;
+  `evidence/checkpoint-phase1.md` § 1, exit 0). Correction (research R16 item 7,
+  non-normative): Group 2's opening figures, 1,298 errors of which 1,232 name
+  `ideation_dashboard` at `f8a1ece`, read 1,305 and 1,239 at `1e4a57fb`
+  (research R2). The head moved, and the cause did not.
+- [x] 2.1a **DO NOT VENDOR the module.**
   `scripts/ideation_dashboard/serve_openxfactory_lanes.py` itself imports
   `from openxdox import snapshot_registry` (`:70`) and
   `from openxdox.serve_projection import hosted_ref_refused` (`:77`), so copying
   it into openDox re-creates the consumer dependency BUILD slice 2b removed.
-- [ ] 2.2 Contribute those routes through the EXISTING seam —
+
+  **Landed 2026-09-27** (T011): openDox-code#46 → `0e88454a`. The lanes module
+  is not vendored: its five route names left `serve.py`, and F2.1's sweep
+  imports every module of the package with `openxdox`, `ideation_dashboard`,
+  `doc_health` and `corpus_adapter_openxfactory` all absent
+  (`evidence/checkpoint-phase1.md` § 1).
+- [x] 2.2 Contribute those routes through the EXISTING seam —
   `serve.build_server(route_extensions=)` / `route_extension.RouteBinding` — from
   openxFactory's side, per the carve `design.md`'s own specification. No new
   mechanism is designed here. **Measured: openxFactory's half already exists.**
@@ -248,13 +290,30 @@ mention in the package is prose.
   D4's "no new mechanism" did not foresee. openxFactory's half gains the
   `LaneRoutes` declaration. A parallel addendum is recorded at `design.md`
   § D4. Carried out by T010, T011, T045.
-- [ ] 2.3 Sweep every remaining module-level reach: grep `src/` for
+
+  **Landed 2026-09-29** (T010, T011, T045): openDox-code#40 → `0f10b1f5`
+  declares the handler-contribution facet, openDox-code#46 → `0e88454a` drops
+  the reach, and openxFactory#1181 → `f56c87c6` declares `LaneRoutes` in
+  openxFactory's profile (T007 batch A's 2.2 addendum, R1Q1 (a)); the
+  route-handler tests and openxFactory's `pytest-suite` pass with the five lane
+  routes served.
+- [x] 2.3 Sweep every remaining module-level reach: grep `src/` for
   `ideation_dashboard`, `corpus_adapter_openxfactory`, `doc_health` and
   `openxdox` at import position, and close or defer each with a recorded reason.
-- [ ] 2.4 Add a test in openDox-code's own suite that imports EVERY module of the
+
+  **Landed 2026-09-27** (T032): openDox-code#49 → `68be484a`. The sweep leaves
+  no import-time reach and 19 deferred reaches, all into `openxdox`, each
+  recorded closed or deferred with its reason (F4.1's scan: that PR's body;
+  `evidence/checkpoint-phase1.md` § 7).
+- [x] 2.4 Add a test in openDox-code's own suite that imports EVERY module of the
   package in a checkout with no sibling installed, failing with the name of the
   first module that still needs one.
-- [ ] 2.5 Remove `validate.yml`'s three `--noconftest` steps and their enumerated
+
+  **Landed 2026-09-27** (T030, in T011's PR): openDox-code#46 → `0e88454a`.
+  `tests/test_imports_standalone.py::test_every_module_imports_with_no_sibling`
+  first asserts the four siblings absent, then imports every module, failing
+  with the first that still needs one (`evidence/checkpoint-phase1.md` § 1).
+- [x] 2.5 Remove `validate.yml`'s three `--noconftest` steps and their enumerated
   file lists; the suite collects whole. Measured at `f8a1eced` by extracting the
   `run:` blocks that invoke pytest: **four blocks name 37 distinct test modules of
   the 63 in the tree** (`tests/` 53 + `tests_runtime/` 10), three of them under
@@ -263,11 +322,25 @@ mention in the package is prose.
   `--noconftest` blocks over `tests/`. The autouse fixture that produces
   the 1,298 setup errors is `tests/session_fixtures.py:413`, whose body is
   `from opendox import cli as cli_mod`.
-- [ ] 2.6 Correct openDox-code's `README.md:39-42`, which still gives the
+
+  **Landed 2026-09-27** (T036): openDox-code#52 → `55194335`. The three
+  `--noconftest` steps and their file lists are gone and the suite collects
+  whole (`testpaths` = `tests` and `tests_runtime`); F9.1 exits 0,
+  `2468 passed, 11 skipped` (`evidence/checkpoint-phase1.md` § 3). Correction
+  (research R16 item 1, non-normative): *"26 modules are named by no pytest step
+  at all"* is right for that claim, but the number no CI step reached was
+  **22**, because the `runtime` job ran `tests_runtime/` whole (research R4,
+  measured at openDox-code `1e4a57fb`, 2026-09-24). T036 removed the file lists,
+  so the whole suite now collects.
+- [x] 2.6 Correct openDox-code's `README.md:39-42`, which still gives the
   narrowing's reason as *"Until the BUILD arc … inverts the openDox → openXdox
   dependency"*. That dependency IS inverted at import time; the live cause is
   `ideation_dashboard`.
-- [ ] **FALSIFIED BY** (a checkout of openDox-code alone, installed WITH every
+
+  **Landed 2026-09-27** (T031, in T036's PR): openDox-code#52 → `55194335`.
+  `README.md:39-42` now states the live cause of the narrowing,
+  `ideation_dashboard`, not the openDox → openXdox inversion.
+- [x] **FALSIFIED BY** (a checkout of openDox-code alone, installed WITH every
   extra it declares — `.[runtime,test]` — so that any `ImportError` left is a
   reach into a sibling and not a missing third-party package):
 
@@ -303,6 +376,11 @@ mention in the package is prose.
   `opendox.serve`, `opendox.cli` and `opendox.notebook_action` at least, each with
   `ModuleNotFoundError: No module named 'ideation_dashboard'`.
 
+  **Landed 2026-09-29** (T049, openxFactory#1204 → `9d2e5bc3`): F2.1 exits 0 at
+  openDox-code `2d116415`; none of `openxdox`, `ideation_dashboard`,
+  `doc_health` or `corpus_adapter_openxfactory` imports, and every module of
+  `opendox` does (`evidence/checkpoint-phase1.md` § 1).
+
 ## Group 3 — Requirement 3 / G2: a default domain profile (openDox-code)
 
 - [x] 3.0 **RATIFICATION READ FIRST.** Requirement 3 revisits the PREMISE of RULED
@@ -313,13 +391,19 @@ mention in the package is prose.
   `design.md` § D5. **Read at ratification, 2026-09-24** (`5815412869`): the word
   ratifies the packet whole and strikes nothing, so requirement 3 stands and the
   other sixteen with it (`review/ratification-2026-09-24.md` § 2).
-- [ ] 3.1 Ship a default profile for openDox's OWN domain — documents and ideas —
+- [x] 3.1 Ship a default profile for openDox's OWN domain — documents and ideas —
   carrying none of openxFactory's status taxonomy or change/spec/delta nouns
   (RULING C2, DIRECTION Q5). Note the standalone problem this closes: the only
   host that exists, openxFactory's `scripts/opendox_host.py`, builds a composite
   whose base class is `openxdox.domain_profile.DomainProfile`, so today's only
   real profile needs BOTH siblings present.
-- [ ] 3.2 `build_parser()` and `build_server()` fall back to it when no host has
+
+  **Landed 2026-09-27** (T015): openDox-code#38 → `a435aecf`. The default
+  profile carries none of openxFactory's `Status:` taxonomy or change/spec/delta
+  nouns (the vocabulary test) and declares `RuntimeSubcommand` in its
+  `SUBCOMMAND_EXTENSIONS` (the second test); it imports under a plain install
+  (openDox-code#48 → `796838e8`).
+- [x] 3.2 `build_parser()` and `build_server()` fall back to it when no host has
   called `domain_profile.register()`, and a registered profile still replaces it.
   `profile_proxy.py`'s refusal is kept for the case it was written for — an
   ambiguous registration — and is NOT weakened into an empty tuple.
@@ -334,14 +418,41 @@ mention in the package is prose.
   one made AFTER a build is refused instead (`AlreadyRegistered`), landed as
   spec.md's fifth scenario (#1170) — so 3.2 now covers both halves of (ii).
   Carried out by T016.
-- [ ] 3.3 Leave the carve manifest's `deleted_at_carve` row for
+
+  **Landed 2026-09-27** (T016): openDox-code#42 → `19370adc`, with batch A's
+  amendment (openxFactory#1171 → `bca4a260`) and RN-1 (a)'s after-build scenario
+  (openxFactory#1170 → `79a720a2`). `build_parser()`, `build_server()` and
+  `main()` register the default where nothing is registered; a host registration
+  before a build replaces it and one after a build is refused
+  (`AlreadyRegistered`). F3.1 line 2 as amended and
+  `tests/test_profile_registration.py` pass
+  (`evidence/checkpoint-phase1.md` § 2). Correction (research R16 item 4,
+  non-normative): the proxy's refusal was written for NOTHING REGISTERED
+  (`profile_proxy.py:42-46`), not for "an ambiguous registration", which is
+  `AlreadyRegistered` (R1Q3 (i)); batch A's amendment above carries it.
+- [x] 3.3 Leave the carve manifest's `deleted_at_carve` row for
   `scripts/ideation_dashboard/profile_openxfactory.py` BYTE-IDENTICAL:
   openxFactory's profile stays deleted from the core and `scripts/opendox_host.py`
   remains openxFactory's host. The row is `not_moved` and carries no `edits[]`
   entry, so 11.1's guard admits no note on it; an earlier form of this box, which
   asked for the fact to be recorded in the manifest, would have failed that
   guard. The record is this box and requirement 3's own text.
-- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling):
+
+  **Landed 2026-10-05** (T017, read at T018, T065 and T098): the carve
+  manifest's `deleted_at_carve` row for
+  `scripts/ideation_dashboard/profile_openxfactory.py` stays byte-identical,
+  `not_moved` with no `edits[]`, and `scripts/opendox_host.py` remains
+  openxFactory's host. F11.1's content check refuses any row change, and each
+  phase's interim run prints `requirement 1 holds`, with 0 notes annotated and
+  every other path a declared surface: phase 1's amended run at T047's landing
+  (T018, openxFactory#1202 → `e81eed62`, `evidence/f11.1-phase1.txt`), phase 2's
+  at T064's (T065, openxFactory#1217 → `1f670bc3`, `evidence/f11.1-phase2.txt`)
+  and phase 3's at T094's, `36908480` (T098, openxFactory#1237 → `20ce593e`,
+  `evidence/f11.1-phase3.txt`). Phases 1 and 3 also record T017's check of the
+  row itself. Phase 3's compares it at the manifest's introducing commit
+  `17167481` and at that tip, raw text and parsed, equal both ways, and at
+  `main` `20ce593e` it reads the same.
+- [x] **FALSIFIED BY** (openDox-code checkout, no sibling):
 
       set -euo pipefail
       W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
@@ -368,9 +479,14 @@ mention in the package is prose.
   `ProfileNotRegistered`, which `tests/test_profile_registration.py` asserts.
   Carried out by T016, T049.
 
+  **Landed 2026-09-29** (T049, openxFactory#1204 → `9d2e5bc3`): F3.1, with line
+  2 as amended by batch A, exits 0 at openDox-code `2d116415`: `build_parser()`
+  builds on the default profile and `domain_profile.current()` names it
+  (`evidence/checkpoint-phase1.md` § 2).
+
 ## Group 4 — Requirement 5 / G4: the deferred reach resolves through the seam (openDox-code)
 
-- [ ] 4.1 Replace `src/opendox/authoring.py:318`'s
+- [x] 4.1 Replace `src/opendox/authoring.py:318`'s
   `from corpus_adapter_openxfactory import home_corpus` with a resolution of the
   REGISTERED home corpus through openDox's own `corpus_adapter` seam. The
   registration point is declared here, beside `domain_profile.register()`:
@@ -379,7 +495,15 @@ mention in the package is prose.
   `corpus_adapter.home()` returns what was registered. openxFactory's host
   registers `corpus_adapter_openxfactory.home_corpus` at start, as it registers
   its profile.
-- [ ] 4.1a **openDox's OWN default corpus adapter, registered at startup**
+
+  **Landed 2026-09-29** (T020, T021, T046): openDox-code#37 → `e295b1a9`
+  declares `register_home(factory)` and `home()`, openDox-code#44 → `9d13bd16`
+  routes `authoring.py:318` through `corpus_adapter.home()`, and
+  openxFactory#1181 → `f56c87c6` registers
+  `corpus_adapter_openxfactory.home_corpus` in the host. F4.1's first block
+  (exactly one outcome, `CorpusRefused` of kind `ADAPTER_NOT_REGISTERED`) and
+  the named registered-adapter test pass.
+- [x] 4.1a **openDox's OWN default corpus adapter, registered at startup**
   (RULED `5800995035`, answer 1). Where no host has called `register_home`,
   `build_parser()` and `build_server()` register a factory of `home_corpus`'s
   shape over the conformant implementation openDox already ships,
@@ -390,14 +514,25 @@ mention in the package is prose.
   test, a library caller — still refuses with 4.2's `ADAPTER_NOT_REGISTERED`, so
   the default is a registration the entry point makes and never a fallback
   inside the seam.
-- [ ] 4.2 Where nothing is registered, `corpus_adapter.home()` raises the
+
+  **Landed 2026-09-27** (T022): openDox-code#45 → `255514df`. The entry points
+  register a `home_corpus`-shaped factory over `LocalGitCorpus` where no host
+  has; a bare process still refuses with `ADAPTER_NOT_REGISTERED`; the named
+  test passes.
+- [x] 4.2 Where nothing is registered, `corpus_adapter.home()` raises the
   interface's ONE exception, `CorpusRefused` (`corpus_adapter.py:164`), with a
   NEW refusal kind, `ADAPTER_NOT_REGISTERED`, added to `REFUSAL_KINDS` (`:135`).
   Its `subject` names the seam (`opendox.corpus_adapter`) and its `detail` names
   the remedy (`corpus_adapter.register_home(...)`). It is never a
   `ModuleNotFoundError` raised from inside a function, and never any other
   exception.
-- [ ] 4.3 **Route EVERY deferred reach through a seam the product declares. None
+
+  **Landed 2026-09-26** (T020): openDox-code#37 → `e295b1a9`. With nothing
+  registered `corpus_adapter.home()` raises `CorpusRefused` of the new kind
+  `ADAPTER_NOT_REGISTERED` (subject `opendox.corpus_adapter`, detail naming
+  `register_home(...)`), never a `ModuleNotFoundError` (the seam tests; F4.1's
+  first block).
+- [x] 4.3 **Route EVERY deferred reach through a seam the product declares. None
   stays late-bound by name.** Requirement 5 admits no exception for a reach
   "owed to the consumer": a reach that names a consumer or publisher package by
   module name is exactly what keeps the product from standing alone. Measured at
@@ -494,7 +629,29 @@ mention in the package is prose.
   governs does not answer `unknown_action`. So a plane that switched every
   flag off would fail it. This bookkeeping amendment does not itself touch
   the Python below. Carried out by T084.
-- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, no
+
+  **Landed 2026-10-05** (T012, T021, T025, T026, T027, T046, T055, T084, T085,
+  then T086): the eight reaches into openxFactory closed in phase 1
+  (openDox-code#47 → `27683028`, openDox-code#44 → `9d13bd16`, openDox-code#43 →
+  `c46430fb`, openDox-code#39 → `582ed073`, openDox-code#41 → `8017cd52`, with
+  the host half openxFactory#1181 → `f56c87c6`); the nineteen into openXdox
+  resolve through openDox's seams (openDox-code#59 → `fa140875` with its
+  follow-up openDox-code#70 → `75bd8703`, openDox-code#71 → `2680eb5e`, whose
+  falsifier T081's openDox-code#74 → `9a490405` completed, and openDox-code#77 →
+  `e49b17c3`, which retires `consumer_reach.py`); and T086 (openXdox-code#37 →
+  `56e1c238`), the consumer half, contributes openXdox's governed columns at
+  those seams and empties `OPENDOX_BACK_IMPORTS` to `(0, 0)` in the same landing
+  that moves its pin to openDox-code `dede32b4`, the commit T087 pins. At that
+  pin `tests/test_dependency_direction.py` reads `17 passed`, with an empty
+  census (openXdox-code#37's body). F4.1 whole is T089's run at phase 3's tip.
+  Correction (research R16 item 3, non-normative): of `workbench.py`'s four
+  reaches into openxFactory, `run_scoped_doc_health` makes three (`:1407-1409`),
+  and the fourth is `session_documents` at `:746` (research R5, R1Q9 (a)). T007
+  batch A (openxFactory#1171 → `bca4a260`) carries the amendment above.
+  `session_documents` resolves through the registered adapter's `list_documents`
+  (T025, openDox-code#43 → `c46430fb`), and the three through the health-check
+  seam (T026, openDox-code#39 → `582ed073`).
+- [x] **FALSIFIED BY** (openDox-code checkout, no sibling, no
   `corpus_adapter_openxfactory` importable):
 
       set -euo pipefail
@@ -566,6 +723,13 @@ mention in the package is prose.
   raises `ModuleNotFoundError: No module named 'corpus_adapter_openxfactory'`
   while `python -c "import opendox.authoring"` exits 0.
 
+  **Landed 2026-10-05** (T089): openxFactory#1238 → `fab575ad`. F4.1, extracted
+  byte for byte from #1144 and run unchanged in a fresh worktree of openDox-code
+  at `dede32b4`, T087's pin, exits 0: its two named tests read `1 passed` each,
+  `consumer_reach.py` is absent, and the scan prints
+  `no deferred reach names the consumer or the publisher`
+  (`evidence/checkpoint-phase3.md` § 1).
+
 ## Group 5 — Requirement 4 / G3: openDox's own neutral projection (RULED, openDox-code)
 
 **RULED: openDox gets its OWN neutral generator. `generator.py` does not move.**
@@ -574,7 +738,7 @@ nobody is doing — and its decisive finding is recorded instead: `generator.py`
 imports `doc_health` at `:66-68`, so relocating it was never lawful under
 `corpus-adapter-seam` whatever its literals said.
 
-- [ ] 5.0 **Ship `tests/fixtures/plain-documents`** — first needed here, and
+- [x] 5.0 **Ship `tests/fixtures/plain-documents`** — first needed here, and
   Groups 7 and 13 read it too: a handful of `.md` documents spread across the six
   neutral stages, carrying NONE of openxFactory's governance vocabulary, which is
   what lets the assertion below mean something. That vocabulary is DECLARED data,
@@ -583,16 +747,33 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   `retired`, `record`) and the change/spec/delta nouns (`openspec`,
   `proposal.md`, `tasks.md`, `design.md`, `ADDED Requirements`, `MODIFIED
   Requirements`). A test keeps the fixture free of all of them.
-- [ ] 5.1 Write openDox's SMALL NEUTRAL PROJECTION over the `CorpusAdapter`
+
+  **Landed 2026-09-29** (T050): openDox-code#53 → `dc3765dd`.
+  `tests/fixtures/plain-documents` spreads documents across the six neutral
+  stages and carries none of the declared vocabulary; the vocabulary test keeps
+  it so (F5.3 reads it: `documents: 8`, `evidence/checkpoint-phase2.md` § 3).
+- [x] 5.1 Write openDox's SMALL NEUTRAL PROJECTION over the `CorpusAdapter`
   protocol already declared at `src/opendox/corpus_adapter.py` (a
   `@runtime_checkable` `Protocol`, six closed members: `resolve`,
   `list_documents`, `read`, `classify`, `check`, `write_back`). New neutral code
   written to openDox's needs — NOT 3,164 lines re-expressed, and NOT a copy of
   openXdox's.
-- [ ] 5.2 Bind `src/opendox/runtime/local_git_adapter.py` (2,796 lines, RULING
+
+  **Landed 2026-09-30** (T053, T054, T056): the neutral snapshot contract
+  (openDox-spec#16 → `f7ee3c76`; root pin and `dox-v1.1` bundle openDox#14 →
+  `52005213`, changelog openDox#15 → `66758438`), openDox's small projection
+  (openDox-code#57 → `a691e4e4`) and the standalone generate path end to end
+  (openDox-code#66 → `a23e4224`). F5.3 exits 0 with neither sibling importable
+  (`evidence/checkpoint-phase2.md` § 3).
+- [x] 5.2 Bind `src/opendox/runtime/local_git_adapter.py` (2,796 lines, RULING
   C3's plain local git repository) as the conformant implementation, so the
   projection has a real corpus to read with nothing else installed.
-- [ ] 5.3 Render `NEUTRAL_DISPLAY`'s SIX WORDS and no others — `sources`,
+
+  **Landed 2026-09-30** (T054): openDox-code#57 → `a691e4e4`. The projection is
+  bound to `LocalGitCorpus` and reads a fresh `git init` of the fixture with
+  neither `openxdox` nor `doc_health` importable (F5.3,
+  `evidence/checkpoint-phase2.md` § 3).
+- [x] 5.3 Render `NEUTRAL_DISPLAY`'s SIX WORDS and no others — `sources`,
   `groups`, `candidates`, `selections`, `submissions`, `completed` (RULED
   *"keep those six words"*, same comment; the sixth is **`completed`** by RULING
   `5784654370`, *"2, keep completed"*, which corrected this packet's earlier
@@ -611,7 +792,13 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   words above stand. The governed values move to openXdox's facet, in the
   `values` block that 5.3a's addendum admits (T007 Batch I, `5851950767`;
   R1Q26 (a)), which R1Q11 (a) also implies. Carried out by T054.
-- [ ] 5.3a **openXdox declares the estate's FIRST `DISPLAY` facet — partial, one
+
+  **Landed 2026-09-30** (T054): openDox-code#57 → `a691e4e4`. The projection
+  renders the six words only; `display_profile.py` changes in the one place
+  batch G names (`SNAPSHOT_VALUES`' defaults become the neutral snapshot's
+  values); F5.3's vocabulary assertion finds no leak
+  (`evidence/checkpoint-phase2.md` § 3).
+- [x] 5.3a **openXdox declares the estate's FIRST `DISPLAY` facet — partial, one
   stage** (openXdox-code; RULED `5784683830`, *"1, keep completed and overlay
   implemented"*): the `completion` stage labelled **"implemented"**, the
   governed lifecycle's own word, in its `short` AND its `label` field (measured:
@@ -634,7 +821,14 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   ("implemented item", "implemented items"), served since openxFactory#1148 →
   `f1c690b8` (F3). The facet now words four fields of that one entry and still no
   other stage, which is what the falsifier below asserts.
-- [ ] **FALSIFIED BY** (openXdox-code checkout with openDox installed):
+
+  **Landed 2026-09-30** (T060): openXdox-code#34 → `c41063d6`. openXdox's
+  `DISPLAY` facet carries the governed snapshot values in its `values` block
+  beside its one stage (batch I); `tests/test_gate_loop_views.py` is green with
+  the one reviewed edit T060 made, entered in the allow-list it created,
+  `tests/protected_suite_respellings.yaml` (T059 made the second); F5.1 passes
+  (`evidence/checkpoint-phase2.md` § 1).
+- [x] **FALSIFIED BY** (openXdox-code checkout with openDox installed):
 
       set -euo pipefail
       W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
@@ -675,7 +869,13 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   under 12.5's falsifier as this batch amends it. openxFactory composes the
   block into its own profile, in a non-arc act that holds at both pins.
   Carried out by T060, T059 and T066.
-- [ ] 5.4 **DECLARE THE GENERATOR SEAM — it does not exist and `CorpusAdapter` is
+
+  **Landed 2026-09-30** (T060, openXdox-code#34 → `c41063d6`; run again at T063,
+  openxFactory#1218 → `a883bbf6`): F5.1 exits 0 against the realized openDox:
+  the facet words the completion stage `implemented` in both its names, the
+  other five stages stay byte-identical to the neutral ones, and a host with no
+  facet reads `completed` (`evidence/checkpoint-phase2.md` § 1).
+- [x] 5.4 **DECLARE THE GENERATOR SEAM — it does not exist and `CorpusAdapter` is
   not it.** `src/opendox/corpus_adapter.py`'s Protocol is CLOSED at six members
   (`resolve`, `list_documents`, `read`, `classify`, `check`, `write_back`) and its
   own docstring says *"Six methods. Nothing else, ever"* — none of them is a
@@ -686,12 +886,31 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   the conformance a contributed generator must satisfy. `consumer_reach.py` says
   the corresponding injection *"does not exist yet and is BUILD-arc work"* — this
   is that work.
-- [ ] 5.4a openXdox KEEPS `generator.py`, `snapshot.py`, `snapshot_registry.py`,
+
+  **Landed 2026-09-29** (T052): openDox-code#54 → `fa8862cc`. The generator seam
+  is declared (the operation handed over, the registration point beside
+  `domain_profile.register()`, the conformance a contribution must meet);
+  `CorpusAdapter` stays closed at six members; the entry points register
+  openDox's own generator where no host has.
+- [x] 5.4a openXdox KEEPS `generator.py`, `snapshot.py`, `snapshot_registry.py`,
   `completeness.py` and `corpus_root.py`, and contributes its governed generator
   through the seam 5.4 declares. The publisher's corpus is projected exactly as
   today and the consumer loses no capability — requirement 4's third scenario is
   the check.
-- [ ] **FALSIFIED BY** (5.4a; an openXdox-code checkout with the realized openDox
+
+  **Landed 2026-09-30** (T059): openXdox-code#35 → `839492d9`. openXdox keeps
+  `generator.py`, `snapshot.py`, `snapshot_registry.py`, `completeness.py` and
+  `corpus_root.py` and contributes them through
+  `openxdox.projection_contributions.register()`; its generator suites run in
+  F5.2's environment (openxFactory composed at a named commit). As landed, that
+  run deselects the consumer-schema cases (the seven reds at both pins, and
+  `tests/test_snapshot.py`'s two) and the three pre-arc reds of
+  `tests/test_session_snapshot.py`, as T059's record and that PR's body (its
+  rulings 4 and 6) state, so F5.2 whole is T086's and T089's (T063 quotes it red
+  on those three, `evidence/checkpoint-phase2.md` § 2). The arc's
+  protected-suite edits are entered in the reviewed allow-list. Host line:
+  openxFactory#1215 → `fcb45380`.
+- [x] **FALSIFIED BY** (5.4a; an openXdox-code checkout with the realized openDox
   installed and Group 9 landed): the governed projection's own suites pass, and the
   arc did not edit them.
 
@@ -842,8 +1061,40 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   files at openXdox-code `main` `c41063d6` and at T059's head `4feb8009`).
   This bookkeeping amendment does not itself touch the Python above.
   Carried out by T061 (openXdox-code#36) and T063.
-- [ ] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6016648451`; Ruled "Amend
+  F12.1 with --chains"):** Brett Heap's multi-choice word of 2026-10-06,
+  verbatim *"Amend F12.1 with --chains (Recommended)"*. Batch K's sentences
+  above, *"12.5's falsifier is not amended. Its call passes no `--chains`, so
+  it keeps one entry per suite per landing and refuses a chain"*, no longer
+  hold: 12.5's falsifier now passes `--chains` too, the mechanism batch K gave
+  F5.2 here, under the same rule (batch Q's note at 12.5's falsifier). Batch K's
+  ratified text is not rewritten, and the rest of its paragraph stands: F5.2's
+  call is unchanged, and neither of T061's two files is one of 12.5's governed
+  suites. This bookkeeping amendment does not itself touch the Python above.
+  Carried out by plan 038's T026 and T029.
+
+  **Landed 2026-10-05** (T086, then T089): T086 (openXdox-code#37 → `56e1c238`)
+  repairs, under R1Q7 (a)'s allow-list, the three pre-arc reds in
+  `tests/test_session_snapshot.py` that `evidence/checkpoint-phase2.md` § 2
+  quotes. T089 (openxFactory#1238 → `fab575ad`) then runs F5.2 whole, as batches
+  C, F, G and K amend it, at openXdox-code `56e1c238` with openDox-code
+  `dede32b4` installed over it and `OPENXFACTORY` at openxFactory `36908480`. It
+  exits 0: the seven suites pass whole (`45 passed`, `23 passed`, `18 passed`,
+  `6 passed`, `40 passed`, `9 passed` and `12 passed`), `test -s` holds, and the
+  `--chains` step prints five `admitted:` lines, then
+  `ok: 5 protected edit(s), each entered and holding`
+  (`evidence/checkpoint-phase3.md` § 5). The box closes at phase 3's checkpoint
+  (RULED `5962785556`, item 1).
+- [x] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
   projection replaces them; the import-time column stays at zero.
+
+  **Landed 2026-09-30** (T055): openDox-code#59 → `fa140875`, then its follow-up
+  openDox-code#70 → `75bd8703`. The snapshot source and registry, the
+  corpus-root predicate and the writer and validator lookups have openDox
+  defaults the entry points register; the seven `consumer_reach` names that T055
+  lists, `snapshot_registry` and `find_validator` among them, are retired, and
+  the import-time column stays zero.
 - [x] 5.6 **Do NOT author the view-wiring slice here** — and it can no longer be
   duplicated: it was CLAIMED on openDox-code under actor `viewwire` (RULED *"wire
   the views and land it"*, same comment) and LANDED as **openDox-code#35 →
@@ -852,7 +1103,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   `src/opendox/web/views/` to role lookups and joining `lens.js` to the display
   facet. Ticked on that landing, which is the evidence; nothing in this arc
   re-does it. The ruling is explicit that the generator is not in that claim.
-- [ ] **FALSIFIED BY** (openDox-code checkout, `pip uninstall -y openxdox` so that
+- [x] **FALSIFIED BY** (openDox-code checkout, `pip uninstall -y openxdox` so that
   `python -c "import openxdox"` raises, AND `python -c "import doc_health"` raises
   too — the neutral projection must reach neither the consumer nor the publisher
   — over a fixture directory of plain `.md` documents carrying none of
@@ -903,6 +1154,11 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   script does. Every option follows the verb, as 10.1's table records
   against the parser.
 
+  **Landed 2026-10-02** (T063, openxFactory#1218 → `a883bbf6`): F5.3 exits 0 at
+  openDox-code `047bb4fa` with neither `openxdox` nor `doc_health` importable:
+  `documents: 8`, and no declared word leaks into the neutral snapshot
+  (`evidence/checkpoint-phase2.md` § 3).
+
 ## Group 6 — Requirement 6 / G5: a health check over openDox's own documents (openDox-code)
 
 - [ ] 6.1 **Expect to find almost nothing generic, and plan for that.** A strict
@@ -924,6 +1180,22 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   `ImportError` and records `status = not-available`,
   `detail = doc-health machinery unavailable: No module named 'doc_health'`. Give
   it something to call.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q9 (a),
+  item 1):** The description of the seam above, from *"The seam already exists
+  and is DEAD"* to the `detail` it quotes (`:1138-1142` at `main` `92010d3e`),
+  is SUPERSEDED, as F6.1's "Today" sentence is struck below. Plan 034's T026
+  (openDox-code#39 → `582ed073`) routed the call's three reaches through
+  openDox's health-check seam, as 4.3's landing records. Measured at
+  openDox-code `a9ac96f9`: `run_scoped_doc_health` is at `workbench.py:1666`,
+  and the registration call, `register_health_check`, at `:1622`. With nothing
+  registered the call answers `not-available` with the seam's own detail,
+  `HEALTH_CHECK_NOT_REGISTERED` (`:1594`), which names the seam and the call
+  that fills it, and `tests/test_health_check_seam.py:143-144` asserts that
+  neither `doc_health` nor `No module named` appears in it. The box's rule
+  stands: openDox carries its own check over its own documents, no openxFactory
+  family moves, and the seam is given something to call, openDox's own check,
+  which an entry point registers. Carried out by plan 038's T052.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling):
 
       set -euo pipefail
@@ -948,9 +1220,31 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   assertion fails on `status='not-available'`, with
   `detail = doc-health machinery unavailable: No module named 'doc_health'`.
 
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q9 (a),
+  item 1):** F6.1 builds an ENTRY POINT before the call, as batch A amended
+  F3.1's line 2. A bare process still refuses, naming the seam, because a
+  default is a registration an entry point makes and never a fallback inside
+  the seam (4.3, batch G's addendum), and openDox-code's
+  `tests/test_health_check_seam.py` pins that. So the heredoc builds the parser
+  first, and the entry point registers openDox's own check at the seam. Its
+  first lines read:
+
+      from opendox import workbench
+      from opendox.cli import build_parser
+      build_parser()                                        # an ENTRY POINT registers openDox's own check (4.3, batch G)
+      r = workbench.run_scoped_doc_health(".", ["README.md"])
+
+  and its three assertions stand as written. The sentence above that begins
+  *"Today the assertion fails on `status='not-available'`"* (`:1163-1165` at
+  `main` `92010d3e`) is STRUCK. At openDox-code `a9ac96f9` a bare call answers
+  `not-available` with the seam's `HEALTH_CHECK_NOT_REGISTERED` detail, which
+  names neither `doc_health` nor `No module named` (6.2 as this batch notes
+  it). This bookkeeping amendment does not itself touch the command above.
+  Carried out by plan 038's T052, and run by its T065.
+
 ## Group 7 — Requirement 7 / G6: a validator openDox can run (openDox-code; 7.3 in openXdox-code)
 
-- [ ] 7.0 **Ship `tests/fixtures/malformed`**: 5.0's `plain-documents` with
+- [x] 7.0 **Ship `tests/fixtures/malformed`**: 5.0's `plain-documents` with
   EXACTLY ONE rule violation the validator must name, so the falsification below
   can tell "refused for that rule" from "refused for anything". The fixture
   carries a file `EXPECTED_RULE` holding the IDENTIFIER the validator reports for
@@ -963,7 +1257,12 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   rule's identifier. The generate verbs validate the snapshot they write
   against that schema, so the refusal F7.2 asserts is for a rule of
   openDox's own contract. Carried out by T051 and T053.
-- [ ] 7.1 **NARROW THE INPUT SET FIRST, then acquire what remains.** The existing
+
+  **Landed 2026-09-29** (T051): openDox-code#56 → `86647320`.
+  `tests/fixtures/malformed` holds exactly one violation, the neutral schema's
+  rule `title-and-summary-are-text` (an empty title), and `EXPECTED_RULE` holds
+  that identifier (F7.2 names it, `evidence/checkpoint-phase2.md` § 5).
+- [x] 7.1 **NARROW THE INPUT SET FIRST, then acquire what remains.** The existing
   validator's `SCHEMA_FILENAMES` names **ten** schemas and they have three
   different owners, so "give openDox the whole set" is the wrong shape:
 
@@ -1015,7 +1314,29 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   doxBench chat validators that this batch's 4.3 addendum names. F7.2's
   command is unchanged: it installs the product, so the packaged set it
   exercises is these four. Carried out by T053, T057 and T058.
-- [ ] 7.1b **AND TWO OF THOSE FOUR ARE NOT AVAILABLE BY THAT ROUTE AT ALL.**
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q22
+  (a); with N-15, `6013547504`):** An addendum to batch G's. R2Q22 (a) gives
+  openDox's spec leg THREE more schemas: the finding's neutral shape,
+  `health/packs.yaml` (15.1a) and the exceptions file,
+  `health/dispositions.yaml` (14.8). They travel as batch G's four do, so the
+  code leg's digest-checked package-data copies become SEVEN, each held by the
+  same test to the spec-leg commit the openDox root pins. The two FILE kinds,
+  the manifest and the exceptions file, join the validator's kinds, so
+  openDox's validator validates its spec leg's six kinds. The finding's neutral
+  shape is a copy the engine reads and NOT a validator kind: a finding's `kind`
+  field is its family, so no `kind` constant can name the schema (N-15).
+  openDox-code's `tests/test_validator_input_set.py` therefore reads "the
+  validator's kinds plus the finding shape". 7.1b stands, and F7.2's command is
+  unchanged. The bundle that carries the three is 9.5's (batch Q's addendum
+  there). Carried out by plan 038's T040, T041, T047 and T054.
+
+  **Landed 2026-09-30** (T053, T057): openDox's validator validates its spec
+  leg's four kinds (7.1's three and the neutral snapshot schema, batch G): the
+  schema (openDox-spec#16 → `f7ee3c76`; root bundle openDox#14 → `52005213`,
+  changelog openDox#15 → `66758438`) and the four digest-checked package-data
+  copies (openDox-code#58 → `8ec08e91`).
+- [x] 7.1b **AND TWO OF THOSE FOUR ARE NOT AVAILABLE BY THAT ROUTE AT ALL.**
   `gate-intent.schema.yaml` is an INTENT-PLANE schema — the carve manifest lists
   it among the validator's contract files (`docs/opendox-carve-manifest.yaml:459`)
   and requirement 1 keeps the intent-plane schemas with openxFactory. Vendoring
@@ -1026,15 +1347,28 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   narrowing in 7.1 is done properly, openDox needs neither**; if an openDox verb
   appears to need one, raise it as a finding about the boundary rather than
   copying the schema.
-- [ ] 7.1a Record why the existing script cannot simply be reused: it derives
+
+  **Landed 2026-09-30** (T057): openDox-code#58 → `8ec08e91`. A test asserts
+  `gate-intent` and `ideation-possibles-register` are not in the validator's
+  set, so requirement 1 is not breached.
+- [x] 7.1a Record why the existing script cannot simply be reused: it derives
   `SCHEMAS_DIR` from `__file__` (`validate-ideation-dashboard-contracts.py:114-115`)
   and so looks for a `contracts/schemas/` its own leg does not have — run from
   openXdox-code it exits 2 with `ERROR .../contracts/schemas not found`. That is
   the G6 defect in one line, and it is the consumer's to fix for its own set.
-- [ ] 7.2 openDox-code has **no `scripts/` directory at all** and one console
+
+  **Landed 2026-09-30** (T057): openDox-code#58 → `8ec08e91`. The reason the old
+  script cannot be reused (it derives `SCHEMAS_DIR` from `__file__`) is recorded
+  and the packaged validator replaces it.
+- [x] 7.2 openDox-code has **no `scripts/` directory at all** and one console
   script. Whatever validator it gains is new surface at the code leg, not a
   relocated one.
-- [ ] 7.3 **THE CONSUMER'S HALF, in openXdox-code — not openDox-code.** Three
+
+  **Landed 2026-09-30** (T057, T058): openDox-code#58 → `8ec08e91` adds the
+  validator as new surface at the code leg and openDox-code#68 → `047bb4fa`
+  wires it into the generate verbs (`--strict`, `--no-validate`). F7.2 passes
+  (`evidence/checkpoint-phase2.md` § 5).
+- [x] 7.3 **THE CONSUMER'S HALF, in openXdox-code — not openDox-code.** Three
   carve-broken defects sit in the validator lookup openXdox KEEPS with
   `snapshot.py` (design R-G3). They were registered by the archived packet's
   § 5.5 residue and owed to *"a follow-up act with its own claim"* that nobody
@@ -1054,7 +1388,12 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   INSTALLED openXdox distribution, and no parent walk remains. This box is
   claimed as its own openXdox-code act on `#656`, like every group here, so it is
   not left unowned again.
-- [ ] **FALSIFIED BY** (7.3; an openXdox-code checkout, installed into a fresh
+
+  **Landed 2026-09-30** (T061): openXdox-code#36 → `6a3b93b9`. The consumer's
+  validator and its own three schemas ship as package data and `find_validator`
+  ignores its start, so no parent walk remains; twelve allow-list entries were
+  made (R1Q7 (a), batches F and K).
+- [x] **FALSIFIED BY** (7.3; an openXdox-code checkout, installed into a fresh
   venv, running the lookup from inside a planted PRE-SHED tree):
 
       set -euo pipefail
@@ -1092,7 +1431,12 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   contract changes. The second named test reads accordingly: every schema
   THIS INSTALL validates is on disk, its own three always, and another kind's
   only where the running tree supplies it. Carried out by T061 and T063.
-- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, **INSTALLED into a
+
+  **Landed 2026-09-30** (T061, openXdox-code#36 → `6a3b93b9`; run again at T063,
+  openxFactory#1218 → `a883bbf6`): F7.1 exits 0 from the planted pre-shed tree
+  and both named tests pass (`2 passed`, `evidence/checkpoint-phase2.md` § 4);
+  at #35's head it exits 1.
+- [x] **FALSIFIED BY** (openDox-code checkout, no sibling, **INSTALLED into a
   fresh venv**, because 7.1 settles that the three schemas travel as PACKAGE
   DATA and a bare clone therefore cannot exercise the packaged set this box is
   about). Validation is the
@@ -1139,6 +1483,12 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   that is exactly how it fails, because `--strict` makes "the validator is
   unreachable" fatal and the validator is unreachable.
 
+  **Landed 2026-10-02** (T058, openDox-code#68 → `047bb4fa`; T063,
+  openxFactory#1218 → `a883bbf6`): F7.2 exits 0: the good fixture validates, the
+  malformed one exits non-zero naming `title-and-summary-are-text` with no
+  `No such file or directory` (`evidence/checkpoint-phase2.md` § 5; also
+  openDox-code#68's body).
+
 ## Group 8 — Requirement 8 / G7: openDox-spec governs openDox (openDox-spec) — BLOCKED
 
 **These boxes carry the reserved `[~]` marker, not `[ ]`, and that is deliberate.**
@@ -1184,9 +1534,14 @@ packet's interim arrangement ends.**
 
 ## Group 9 — Requirement 9 / G8: each leg's suite green alone (both legs)
 
-- [ ] 9.1 openDox-code's required check runs the whole suite, no `--noconftest`,
+- [x] 9.1 openDox-code's required check runs the whole suite, no `--noconftest`,
   no file list (follows group 2).
-- [ ] 9.2 openXdox-code the same, with `OPENDOX_BACK_IMPORTS` lowered as each
+
+  **Landed 2026-09-27** (T034, T035, T036): openDox-code#50 → `71b631bc` repairs
+  the nine files, openDox-code#51 → `80acead1` empties `collect_ignore`, and
+  openDox-code#52 → `55194335` makes the required check run the whole suite.
+  F9.1 exits 0 (`evidence/checkpoint-phase1.md` § 3).
+- [x] 9.2 openXdox-code the same, with `OPENDOX_BACK_IMPORTS` lowered as each
   deferred reach closes. The import-time column is ALREADY zero and stays there.
 
   **AMENDED — T007 Batch B (`5817152735`; Ruled R1Q6 (d)):** An addendum
@@ -1204,11 +1559,32 @@ packet's interim arrangement ends.**
   and is reported as an open extraction. The whole-suite check lands in phase
   1, and the box closes in phase 3, as this batch's addendum to the release
   map records. Carried out by T041, T043, T061, T086 and T097.
-- [ ] 9.2a **Add the missing instrument.** No gate watches the openDox →
+
+  **Landed 2026-10-05** (T040, T041, T043, then T086): openXdox-code's whole
+  suite runs less T041's declared exclusion, `tests/declared_exclusion.yaml`,
+  reported as an open extraction with its count and each entry's reason
+  (openXdox-code#29 → `d84b5048`, openXdox-code#30 → `5fbd188e`,
+  openXdox-code#32 → `4610bca5`). At T086's landing (openXdox-code#37 →
+  `56e1c238`, pin openDox-code `dede32b4`) `OPENDOX_BACK_IMPORTS` reads
+  `(0, 0)`, its import-time column still `0`. The declaration then holds 66
+  files, carrying 68 reasons (60 `doc_health`, 3 `status-exemption-rail`, 5
+  `openxfactory-contracts`), T086 having added
+  `tests/test_column_contributions_governed.py` under `doc_health`. CI's
+  `validate` at that PR's head, whose tree landed unchanged (run 37307785866),
+  prints `open extraction: the declared exclusion` with those 66 files and each
+  reason, reads `selected=1099 passed=1095 skipped=4`, and leaves out the
+  32-entry help-tree node as its own open extraction (batch O). Requirement 9
+  stays open for openXdox-code until the direction arc (T008) lands (batch B's
+  addendum).
+- [x] 9.2a **Add the missing instrument.** No gate watches the openDox →
   openxFactory direction — the ratchet measures openDox → openXdox only, which is
   how two import-time reaches into the publisher survived a completed inversion
   under a green check. Requirement 2's third scenario is that instrument.
-- [ ] 9.3 Behaviours needing both legs become declared INTEGRATION tests naming
+
+  **Landed 2026-09-27** (T030, T036): openDox-code#46 → `0e88454a` adds the
+  instrument and openDox-code#52 → `55194335` makes a required check run it, so
+  a reach into the publisher can no longer survive a green check.
+- [x] 9.3 Behaviours needing both legs become declared INTEGRATION tests naming
   the pin they compose at, rather than being dropped from both suites — including
   the 31-entry assembled `--help` tree the carve manifest records as one
   *"which after the carve neither leg produces alone"*
@@ -1219,7 +1595,16 @@ packet's interim arrangement ends.**
   git+https://github.com/opensoft/openDox-code@5c137a90…`, measured at
   `195276b7`). They sit inside the whole suite that 9.2's required check runs, so
   CI runs them without a file list.
-- [ ] 9.4 **Restore the margin, and stop the skips carrying the gap.** Both legs
+
+  **Landed 2026-09-27** (T035, T042): openXdox-code#31 → `4e16db95` creates
+  `tests/integration/` at the declared composition, each test naming the pin it
+  composes at: the 31-entry assembled `--help` tree test and T037's two
+  both-legs cases; openDox-code#51 → `80acead1` lists each module it removed
+  with its destination, and T049's arrival check finds all 19 where that list
+  sends them (`evidence/checkpoint-phase1.md` § 8). The 31-entry test is left
+  out of the required check until T008 (RULED `5859927858`, `5870594693`) and
+  F9.2 stays red on it alone (`evidence/checkpoint-phase1.md` § 5).
+- [x] 9.4 **Restore the margin, and stop the skips carrying the gap.** Both legs
   pass their floors with ZERO margin (openDox `1114/1111/3`, openXdox
   `539/533/6`), and every one of openXdox's six skips carries the same reason —
   *"doc_health reachability is BUILD-arc work (§ 3.5/3.6) … this test will assert
@@ -1249,6 +1634,16 @@ packet's interim arrangement ends.**
   (a)); its floors restore at `2476/2465/11`, THREE BELOW CI's reading — the
   holder's decision for that leg, where openXdox's sit ON it instead, as 9.4
   and T044's own text read. Carried out by T044.
+
+  **Landed 2026-09-28** (T037, T044): openDox-code#55 → `2d116415` restores
+  openDox-code's floors to `2476/2465/11` (three below CI's reading) and
+  openXdox-code#33 → `6158151e` makes openXdox-code's six `doc_health` skips
+  assert for real, re-pinning to `885/881/4` (CI's reading, margin 0).
+  Correction (research R16 item 2, non-normative): openXdox-code's floors read
+  `564/558/6` at `626f2c8d` (research R10, 2026-09-24), not the `539/533/6` the
+  box records, because openXdox-code#26 and #27 had raised them. They have since
+  been re-pinned to `890/880/10` by T043 (openXdox-code#32 → `4610bca5`) and to
+  `885/881/4` by T044, and openDox-code's to `2476/2465/11` by T037.
 - [ ] 9.5 **The pins that compose the legs advance with the arc, each by its
   owner's ordinary pin-sync act.** This packet moves none of them, and the
   realization cannot be exercised without moving them. Measured on 2026-09-23:
@@ -1293,7 +1688,66 @@ packet's interim arrangement ends.**
   openDox-spec joins the arc's repositories, a sixth beside the five 11.0
   names, and its landings carry 11.0's trailer. Carried out by T053, T062
   and T090.
-- [ ] **FALSIFIED BY** (each leg's own checkout, no sibling installed):
+
+  **AMENDED — T007 Batch O (`5962754358`, item 1; `5963162921`):** A second
+  exception to *"cuts no bundle and owes no tag"*, beside batch G's. Brett
+  Heap's multi-choice words of 2026-10-02, verbatim *"Publish to PyPI at the
+  cut (Recommended)"* and *"0.1.0 (Recommended)"*, publish openDox's first
+  public release, version 0.1.0, to PyPI as `opendox` at release 1's cut, by
+  trusted publishing, so no token is stored. The install line 10.3 documents
+  (`pip install "opendox[local]"`, as batch H amends it) then works as
+  written. That release owes ONE tag, as plan 034's T099 publishes it. At
+  the cut, once AT-R1 has passed and on Brett Heap's publish word, the
+  holder creates the tag `v0.1.0` in openDox-code at the commit the openDox
+  root's `contracts/code-pin.yaml` names, and dispatches the release
+  workflow on it. That commit is the version bump to 0.1.0, the last
+  phase-3 openDox-code landing that changes the shipped package, which the
+  root pins in phase 3. The workflow publishes only that commit. Every pin
+  move above other than batch G's still owes no release tag, and this
+  bookkeeping edits no line of the proposal. Carried out by T101 (the
+  release workflow and the bump), T087 (the pin) and T099 (the tag and the
+  publish).
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q22
+  (a)):** A third exception to *"None cuts a contract bundle or owes a release
+  tag"*, in batch G's form. Release 2 cuts ONE more contract bundle, a
+  `dox-v1.y` minor, `dox-v1.2`, at the openDox root, because R2Q22 (a) gives
+  openDox-spec three schemas (7.1 as batch Q amends it). The root's `spec`
+  gitlink and `contracts/spec-pin.yaml` move to the openDox-spec commit that
+  holds them, and the root cuts the bundle under its own four-value rule, as
+  batch G's cut did: the manifest's `contract_bundle_version`, the manifest's
+  entries, the matching CHANGELOG entry, and an annotated `dox-v1.2` tag over
+  the root commit that names both legs. The cut is made on Brett Heap's cut
+  word, as `dox-v1.1`'s was (RULED `5894235642`). No repository joins:
+  openDox-spec is already the arc's sixth (batch G). The proposal's *"cuts no
+  bundle and owes no tag"* is read with this exception too, and this
+  bookkeeping edits no line of the proposal. Carried out by plan 038's T040 and
+  T060.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q23
+  (a)):** A fourth exception, in batch O's form. R2Q23 (a) publishes `opendox`
+  0.2.0 to PyPI at release 2's cut, through the existing trusted-publishing
+  workflow, so no token is stored, and the install line 10.3 documents then
+  brings release 2. That release owes ONE tag. After AT-R2 has passed, and on
+  Brett Heap's publish word, the holder creates the tag `v0.2.0` in
+  openDox-code at the commit the openDox root's `contracts/code-pin.yaml` names
+  in phase 5, which is the version bump to 0.2.0, the last phase-5
+  openDox-code landing that changes the shipped package, and dispatches the
+  release workflow on it. The workflow publishes only that commit. Every pin
+  move above other than batch G's cut and the `dox-v1.2` cut still owes no
+  release tag, and this bookkeeping edits no line of the proposal. Carried out
+  by plan 038's T061 (the bump), T062 (the pin) and T084 (the tag and the
+  publish).
+
+  **Recorded by T097, a non-normative correction** (research R16 item 6; the box
+  stays open for the arc's close, T090): openXdox-code's openDox pin
+  (`5c137a90`) was 11 commits behind openDox-code `main` (`1e4a57fb`) on
+  2026-09-24 (research R13), where the box measured 9 on 2026-09-23. It has
+  moved with each phase: to `2d116415` by T040 (openXdox-code#29 → `d84b5048`),
+  to `047bb4fa` by T059 (openXdox-code#35 → `839492d9`), and T086
+  (openXdox-code#37 → `56e1c238`) moved it to `dede32b4`, the openDox-code
+  commit T087 pins, in phase 3.
+- [x] **FALSIFIED BY** (each leg's own checkout, no sibling installed):
 
       set -euo pipefail
       W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
@@ -1366,6 +1820,48 @@ packet's interim arrangement ends.**
   well. T008 removes this entry together with the workflow's own deselect,
   the same act that closes the other three. openDox-code's run is
   unchanged. Carried out by T043.
+
+  **AMENDED — T007 Batch O (`5970917267`):** Batch J's fourth entry names
+  the assembled-tree node by its 31-entry name, which the composition carries
+  through phase 2. From the pin move past T100 the node asserts 32 entries
+  (10.1 as this batch amends it) and is renamed
+  `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_32_entry_tree_the_manifest_records`.
+  The entry names it from then on. The landing that renames the node also
+  moves openXdox-code's `validate.yml` `LEFT_OUT` entry, which names the node
+  verbatim and which the whole-suite step passes to `--deselect`, so the
+  deselect never names a test that does not exist (the holder's ruling of
+  2026-10-03 on plan 034's analyze). The entry's reason, its report as an
+  open extraction, and its removal by T008 are unchanged. Carried out by
+  T086.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003918488`; Ruled ARC-Q2
+  (a)):** In batch B's form, for openXdox-code. Brett Heap's multi-choice word
+  of 2026-10-05, verbatim *"Composed CI in openXdox-code (Recommended)"*. What
+  stays composed runs in openXdox-code's own CI against a pinned openxFactory:
+  phase 4's composed workflow (U-9), made PERMANENT. The files of the declared
+  exclusion that a lone checkout cannot run, the governed-behaviour tests and
+  R1Q24's three status-exemption-rail files and five openxFactory-contracts
+  files among them, are DECLARED INTEGRATION TESTS. Each entry keeps its
+  reason and the declaration keeps its count. The declaration names the
+  openxFactory commit that the composed workflow pins, and that workflow runs
+  them, so they are not dropped from both suites. Requirement 9 CLOSES FOR
+  openXdox-code BY THAT DECLARATION. The three checks this falsifier makes of
+  the declaration stand as batches B, F, J and O wrote them, and the lone
+  checkout's run still reports the declaration under batch B's title line.
+  Batch B's addendum at 9.2, *"requirement 9 stays open for openXdox-code until
+  the direction arc (T008) lands"*, is read with this ruling: the arc is
+  decided (`6003918488`) and realized in its own change (ARC-Q3 (a)), and F9.2,
+  requirement 9's third scenario, is ARC-5's (batch Q's note there).
+  openDox-code's F9.1 is unchanged. This bookkeeping amendment does not itself
+  touch the command above. Carried out by plan 038's T029 and T073, which
+  re-runs F9.1.
+
+  **Landed 2026-09-29** (T049, openxFactory#1204 → `9d2e5bc3`): F9.1 exits 0 in
+  each leg: openDox-code `2d116415`, with the DSN exported, gives
+  `2468 passed, 11 skipped`, and openXdox-code `6158151e`, as batches B and F
+  amend it with batch J's one `--deselect`, gives
+  `881 passed, 4 skipped, 1 deselected`
+  (`evidence/checkpoint-phase1.md` §§ 3 and 4).
 - [ ] **FALSIFIED BY** (9.3, and requirement 9's third scenario: an openXdox-code
   checkout, the composition's declared home, with openDox arriving ONLY through
   the pin):
@@ -1397,9 +1893,49 @@ packet's interim arrangement ends.**
   exits non-zero when `tests/integration/` holds no test, so an absent suite
   FAILS the command rather than passing it vacuously.
 
+  **AMENDED — T007 Batch O (`5970917267`):** The command's last line names the
+  assembled-tree node by its 31-entry name, which the composition carries
+  through phase 2. From phase 3's pin, the pin move past T100, the tree has
+  32 entries (10.1 as this batch amends it), and the line reads:
+
+      python -m pytest -q "tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_32_entry_tree_the_manifest_records"
+
+  F9.2 stays red on that test until T008 (`5859927858`), as batch J records.
+  9.3's "31-entry" quotes the carve manifest's record of the tree at the
+  carve, and stands as written. This bookkeeping amendment does not itself
+  touch the command above. Carried out by T086.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6013547504`; Ruled ARC-5
+  (a)):** Brett Heap's multi-choice word of 2026-10-06, verbatim *"Archive with
+  F9.2 open (Recommended)"*. F9.2's ruled notes keep it open until the
+  `doc_health` direction arc lands (`5859927858`, *"It runs again once the
+  doc_health direction arc (T008) lands"*; `5870594693`), and ARC-Q3 (a)
+  (`6003918488`), the later ruling, says the arc gates neither release 2's
+  close nor #1144's archive. Read together, #1144 MAY ARCHIVE WITH F9.2 OPEN,
+  reported in R1Q6 (d)'s form. F9.2's later closure is recorded in the arc
+  change's own evidence (plan 038's T076), and #1144's archived `tasks.md` is
+  never edited. If #1144 is still active when T076 runs, T076 ticks F9.2 here,
+  under its own Rule 6 window. The command, its 32-entry node (batch O) and
+  its expected result are unchanged, and the archive act stays the holder's.
+  Carried out by plan 038's T076.
+
+  **How the archive gate admits it.** `archive_change()` refuses any `tasks.md`
+  line that matches `^- [ ]`, with `change has incomplete tasks`
+  (`scripts/proposal-support.py:4631-4633` at `main` `92010d3e`). It has no
+  per-box exception, and none is built or claimed for F9.2. So if #1144
+  archives before T076 runs, its archive pull request ticks this box `[x]` with
+  a disposition written beneath it: NOT PERFORMED at the archive, reported in
+  R1Q6 (d)'s form, and carried by the direction arc's own change, whose
+  evidence records F9.2's closure (T076). The open obligation is then not
+  written down only inside an archived packet. THE TICK IS A DISPOSITION, NOT A
+  PERFORMANCE. This is the form the gate leaves for a box that a ruling lets an
+  archive pass unperformed, as `add-declared-former-id`'s archive used it on
+  Brett Heap's ruling of 2026-09-15
+  (`openspec/changes/archive/2026-09-15-add-declared-former-id/tasks.md:568-581`).
+
 ## Group 10 — Requirement 10 / G9, G10: one entry point (openDox-code + openDox root)
 
-- [ ] 10.1 A `[project.scripts]` entry point for the DOCUMENT surface. **The verbs
+- [x] 10.1 A `[project.scripts]` entry point for the DOCUMENT surface. **The verbs
   are NOT invented here — `src/opendox/cli.py` already declares them** and group 2
   is what makes them reachable; the entry point is the missing packaging line:
 
@@ -1443,17 +1979,60 @@ packet's interim arrangement ends.**
   `SUBCOMMAND_EXTENSIONS` (`RuntimeSubcommand`). `opendox-runtime` stays as an
   alias, and a host's own profile keeps the 31-entry tree. Carried out by
   T038, T042.
-- [ ] 10.2 The web bundle is served by that entry point and is reachable in a
+
+  **AMENDED — T007 Batch O (`5970917267`):** An addendum to batch A's. Brett
+  Heap's multi-choice word of 2026-10-03, verbatim *"Amend to 32
+  (Recommended)"*. The assembled `--help` tree has 31 sections through phase
+  2. From phase 3's pin it has 32, because T100 adds
+  `opendox model-binding trust` (16.3a, T007's batch M). So a host's own
+  profile keeps the assembled tree, at 31 entries through phase 2 and at 32
+  from phase 3's pin.
+  - openXdox-code's assembled-tree test, the node F9.2 runs and batch J's
+    F9.1 entry deselects, moves to 32 at the pin move past T100. It is
+    renamed
+    `tests/integration/test_assembled_surface.py::test_the_assembled_help_tree_is_the_32_entry_tree_the_manifest_records`
+    in that landing, with its `LEFT_OUT` entry.
+  - openxFactory's help golden reads the tree at 32 from phase 3's pin. It
+    is no surface 11.1 declares, so no arc landing regenerates it. A
+    non-arc openxFactory PR ahead of T094, in T066's both-pins form, adds
+    the phase-3 golden under `tests/domain_profile/fixtures/`, regenerated
+    from T087's commit. That golden also carries T070's `--local`, T079's
+    and T080's `--model` and auth-kind changes, and T084's program rename
+    to `opendox` (the holder's ruling E1 (a), recorded with `5970369724`).
+
+  This bookkeeping amendment does not itself touch a falsifier. Carried out
+  by T086, and by the non-arc PR ahead of T094.
+
+  **Landed 2026-09-27** (T038): openDox-code#48 → `796838e8`.
+  `[project.scripts] opendox = "opendox.cli:main"`; the runtime verbs are
+  reached through the default profile's `SUBCOMMAND_EXTENSIONS` (batch A's
+  addendum) and `opendox-runtime` stays an alias; `opendox --help` exits 0
+  (`evidence/checkpoint-phase1.md` § 6). Correction (research R16 item 5,
+  non-normative): Q-R4 is recorded at `runtime/cli.py:39-42`, where the box
+  cites `:40-46`. The same landing rewrote that record to say where the verbs
+  were wired.
+- [x] 10.2 The web bundle is served by that entry point and is reachable in a
   browser from an openDox-only install. openDox-code carries **42** web files,
   self-contained by declaration (`src/opendox/web/index.html`: *"All assets are
   local/vendored: no CDN, no external fonts, no remote scripts"*), and **nothing
   serves them**: `serve.py` will not import, and `runtime/app.py` mounts no
   `StaticFiles` — its routes are `/livez`, `/readyz` and `/api/v1`. The bundle is
   not the gap; the door is.
-- [ ] 10.2a `intent-feed.js` stays at openxFactory under RULED OQ-F and is NOT
+
+  **Landed 2026-10-03** (T075): openDox-code#73 → `9197ccdd`. The installed
+  entry point serves all 42 bundle files, `vendor/.gitkeep` included
+  (`web/**/.*` added to the package data); an installed wheel run outside a
+  checkout fetches each file with the tree's bytes
+  (`evidence/f10.1-run.md` § 2).
+- [x] 10.2a `intent-feed.js` stays at openxFactory under RULED OQ-F and is NOT
   owed to openDox; openDox's replacement is `views/intent-binding.js`. Do not
   count it as a missing file.
-- [ ] 10.3 **The assembly root DOCUMENTS the entry point; it does not host it.**
+
+  **Landed 2026-10-03** (T075): openDox-code#73 → `9197ccdd`. 10.2a is a
+  declaration: `views/intent-feed.js` stays at openxFactory (RULED OQ-F) and is
+  not owed; `views/intent-binding.js` reaches it only by a dynamic `import()`,
+  and the module graph walk stays inside the 42-file bundle.
+- [x] 10.3 **The assembly root DOCUMENTS the entry point; it does not host it.**
   `openDox/Makefile` carries a row in `contracts/shape-pin.yaml` (`:49-50`), and
   `AGENTS-shape.md` § "Never edit a file that has a row" is explicit: *"An edit
   in place is reported as DRIFT and refused."* A `run`/`serve` target added there
@@ -1474,7 +2053,25 @@ packet's interim arrangement ends.**
   scenario has a user run. The entry point is still the code leg's console
   script, and no `Makefile` target is added, for the reason above. Carried
   out by T070 and T076.
-- [ ] **FALSIFIED BY** (clean checkout of openDox-code ONLY, fresh venv, no
+
+  **Landed 2026-10-05** (T076, T101, then T099): the openDox root's `README.md`
+  documents the standalone install and its one start,
+  `pip install "opendox[local]"` then `opendox generate-and-open --local …`, and
+  adds no `make` target (T076, openDox#17 → `504324de`). T101 adds the release
+  workflow and the version bump to 0.1.0 (openDox-code#78 → `d59f3f26`,
+  openDox-code#79 → `dede32b4`), and T099 publishes that commit at the cut. The
+  annotated tag `v0.1.0` names openDox-code `dede32b4`, the commit the openDox
+  root pins, and openDox-code's `release` run 37339111713, dispatched on that
+  tag, succeeds in all four of its jobs: `build and verify`,
+  `publish to TestPyPI (the dry run)`, `install opendox[local] from TestPyPI`
+  and `publish to PyPI`, with its step
+  `PyPI serves the files the build job verified`. PyPI serves `opendox` 0.1.0 as
+  `opendox-0.1.0-py3-none-any.whl` (sha256 `8ecea00db6f9…`) and
+  `opendox-0.1.0.tar.gz` (sha256 `56869b6208a8…`). The root README PR,
+  openDox#19 → `d77f8cbf`, then replaces the stand-in paragraph: the install
+  line now resolves from PyPI as written, and no paragraph says that no release
+  is published.
+- [x] **FALSIFIED BY** (clean checkout of openDox-code ONLY, fresh venv, no
   sibling installed — the server is started in the BACKGROUND with a readiness
   wait so the sequence runs to completion unattended):
 
@@ -1525,6 +2122,13 @@ packet's interim arrangement ends.**
   falsifiers no longer collide (R1Q15). This bookkeeping amendment does not
   itself touch the command above: T077 runs it as amended. Carried out by
   T070 and T077.
+
+  **Landed 2026-10-03** (T077, openxFactory#1223 → `f261fefa`): F10.1, extracted
+  byte for byte from #1144 with batch H's two lines (`pip install ".[local]"`,
+  `generate-and-open --local`), exits 0 from a fresh clone at openDox-code
+  `8e377823`: the bundled PostgreSQL migrates `['0001', '0002']`, the snapshot
+  validates with 0 violations, and `/` is byte-identical to
+  `src/opendox/web/index.html` (`evidence/f10.1-run.md`).
 
 ## Group 11 — Requirement 1: the guard holds (openxFactory)
 
@@ -2091,6 +2695,27 @@ that does not name a platform.
   generator seam that task 5.4 declares is a DIFFERENT interface that does not
   exist yet; the two are contributed through the same PATTERN, not through the
   same registration point, and conflating them would make neither implementable.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q2 (a),
+  with R2Q3 (a)):** A note on the box's two readings. The NEW pair,
+  `submission_factory` and `_submission_port`, is the product's own binding,
+  and its unset default is `LocalGitSubmissions`. `pull_request_factory` and
+  `_pull_request_port` KEEP `GhPullRequests` as their unset default, and serve
+  `gate open-pr` unchanged. The repoint sentences above, from *"The unset
+  default becomes the neutral implementation"* to *"this box repoints its
+  UNSET DEFAULT to the neutral implementation"* (`:2513-2519` at `main`
+  `92010d3e`), and their twins in `design.md` (§ D9's *"requirement 11
+  repoints its unset default"*, `:476-478`, and R-G3's *"requirement 11
+  repoints its unset DEFAULT"*, `:1059-1061`), are read as the residue of the
+  withdrawn draft that the box's own parenthesis records. They move no binding.
+  openXdox-code's protected `tests/test_session_snapshot.py:893-916`, which
+  asserts that the server's unset port IS `GhPullRequests`, stands. With R2Q3
+  (a), no governed host contributes `GhPullRequests` in release 2, so two texts
+  go unrealized in release 2, and Brett Heap accepted that by choosing (a) with
+  R2Q3 (a): ruling `5783934499`'s third bullet, *"contributed by the governed
+  host"*, and 12.5's *"With the host's implementation registered"*. This note
+  edits neither, and no line of `design.md`. Carried out by plan 038's T014 and
+  T019.
 - [ ] 12.4a **GIVE openDox ITS OWN SUBMIT ACT — today it has none, whatever port
   is bound.** Measured at openDox-code `3c3a9e31` and openXdox-code `ab04453d`:
   the ACT of submitting is openXdox's. The CLI verb is `gate open-pr`
@@ -2131,6 +2756,115 @@ that does not name a platform.
   personal credential is what `compute_capabilities`' own docstring says a hosted
   plane must never hold (FR-034, D22). The CLI verb runs as that user, in that
   user's checkout.
+
+  **AMENDED — T007 Batch N (`5963851934`):** An addendum, on where the
+  human-console test's per-serve token comes from. Brett Heap's multi-choice
+  word of 2026-10-03, verbatim *"Token via the opened URL (Recommended)"*,
+  answers adversarial review 2's finding M5. Measured at openDox-code `main`
+  `1130e996`, a serve that grants `session` mints the token
+  (`mint_console_token`, `serve.py:617`, called at `:1977`) and publishes it
+  on `/capabilities` (`:1980`), and the web bundle reads it from there
+  (`web/app.js:1459-1471`, `web/views/edit.js:10-26`). So any loopback
+  caller can ask for it, another OS user of the same machine included. On a
+  STANDALONE plane, the one built from openDox's own default profile, the
+  token IS TO reach the page only through the URL the page is opened with.
+  The details are the holder's approved design of 2026-10-03:
+  - `/capabilities` carries no `console_token`;
+  - the entry point that starts the serve writes a private copy, an opener
+    file at `<state_dir>/console/<port>.html` under `OPENDOX_STATE_DIR`, the
+    state directory 16.3a's trust file uses. The file is mode 0600, in a
+    directory of mode 0700. Each missing directory is made by descriptor, the
+    file is created without following a link, and the whole path is checked as
+    openDox-code#69's bundle checks its own tree. A file already at the copy's
+    path is replaced only when it is this user's own regular file of mode 0600
+    with one link, an earlier copy for that port. Anything else there (a
+    symbolic link, a directory, another user's file, a hard-linked or a
+    loosened file) refuses the start by name, and is never followed or
+    replaced, and a copy that fails the same checks is refused when it is
+    read, at once, since the reader never blocks on what it opens (a FIFO with
+    no writer included). The copy never sits where the plane serves files, so
+    the state directory and the roots the plane serves do not overlap in
+    either direction. A state directory that is, or lies inside, a served root
+    is refused by name, which is the holder's own ruling on #1220's review
+    (Copilot `r4171166321`, 2026-10-03), beside `5963851934`. So is a served
+    root that is, or lies inside, the state directory, such as
+    `<state_dir>/console` itself, on the holder's ruling on batch N's review
+    (Copilot `r4174345203`, 2026-10-03). A link inside a served root that
+    points at the state directory reaches nothing. `/source` already refuses a
+    path that leaves its root through a symbolic link
+    (`default_registry.resolve_within`, openDox-code `main` `e49b17c3`). The
+    static bundle's route follows links inside the bundle's directory, because
+    a composed host's web root is made of them, so it answers 404, for GET and
+    HEAD, files and listings alike, to any request whose resolved target, the
+    file it would finally serve (an automatic index file included), is the
+    private copy's directory or lies inside it;
+  - the copy forwards to the page with the token in the URL's FRAGMENT,
+    `…/index.html#console_token=<token>`, and never in its query, so no
+    request line, server log or `Referer` carries it;
+  - the start writes the copy, and prints its location as a `file://` URL,
+    with or without `--no-open`, and never prints the token or a URL that
+    carries it, so standard output and CI logs stay clean. The copy is
+    removed when the server stops, and a copy that cannot be written safely
+    refuses the start by name, before anything is written, so the server
+    never serves.
+
+  A composed host's plane keeps its delivery on `/capabilities` unchanged.
+  Every route that requires the token still requires it. So the human-console
+  test above is unchanged, and so are the submit route's three refusals in
+  their order, and F12's named test of a submission without the token. A
+  test that needs a standalone plane's token reads it from the private copy,
+  never from `/capabilities`. No falsifier of this change reads the token
+  from `/capabilities`: F10.1 fetches only `/`, and F13.1 reads only the
+  payload's `install` block, each with its state directory outside the root
+  it serves. A tab that kept an earlier serve's token is refused by the next
+  serve until the page is opened again through the new copy, and the design
+  accepts that limit. The realization's test asserts each point above on a
+  standalone serve, the stale-tab limit aside, since that is a limit and not
+  a promise, and a composed run shows that a host's `/capabilities` still
+  carries the token. This bookkeeping amendment does not itself touch a
+  falsifier. Carried out by T104.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 1):** An accepted limit, and
+  one more printed line. Brett Heap's multi-choice word of 2026-10-04,
+  verbatim *"Hint line, accepted limit (Recommended)"*, answers finding B3
+  of the holder's adversarial review of T104 (openDox-code#84). Some
+  browsers cannot open the private copy's `file://` URL while the state
+  directory is the hidden default (`~/.local/state/opendox`): Ubuntu's
+  default snap browser, a Flatpak browser, and a Windows browser opened from
+  WSL. The token is never printed, so such a browser has no other way in.
+  So the start prints ONE more line, with no token and no URL that carries
+  one, saying that a browser which cannot open the file should be used with
+  `OPENDOX_STATE_DIR` set to a folder that is not hidden. The openDox root's
+  README documents it, and release 1 ships with the limit. Nothing above
+  moves: the copy's place, its modes and its checks, the printed `file://`
+  location, and the rule that standard output never carries the token. This
+  bookkeeping amendment does not itself touch a falsifier. Carried out by
+  T104 (the line) and T076 (the README).
+
+  **AMENDED — T007 Batch P (`5982436447`, the holder's ruling B7):** An
+  accepted limit within the design above, with no code change. Once the page
+  has read the token from the fragment, it drops the fragment from the
+  address bar with `history.replaceState`. That cleans only the tab's
+  session history. A browser's persistent history, Chromium's
+  `Default/History` among them, can still hold
+  `…/index.html#console_token=<token>`. That history is this same user's
+  data, as the 0600 private copy is, so it hands the token to no one the
+  copy does not, and release 1 accepts it. The fragment still never reaches
+  a request line, a server log or a `Referer`. This bookkeeping amendment
+  does not itself touch a falsifier. Carried out by T104.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q9 (a),
+  item 7):** The CLI verb's shape gains `--local`, the same flag
+  `generate-and-open` takes (13.4 as batch H amends it): `submit --repo-root
+  <repo> --branch <session-branch> [--local]`. It follows the verb, as every
+  option does (10.1), and it selects the local install exactly as
+  `OPENDOX_INSTALL_MODE=local` does. A flag and a setting that disagree are
+  refused, naming both. The route and its three refusals are unchanged. F12.2
+  is NOT amended: its `submit` passes neither the flag nor the setting, and it
+  runs as ratified, since the CLI verb reads no install mode and only
+  `--local` set against `OPENDOX_INSTALL_MODE=hosted` refuses (plan 038's
+  N-17). This bookkeeping amendment does not itself touch a falsifier. Carried
+  out by plan 038's T015.
 - [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
   registered, openxFactory's GitHub pull-request flow behaves exactly as today.
   This is a generalization, not a replacement, and 12.5 is the box that proves it.
@@ -2223,6 +2957,118 @@ that does not name a platform.
   defaults are neutral. No other assertion of the suite changes. This
   bookkeeping amendment does not itself touch the command above. Carried out
   by T060 and T059.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q8 (a),
+  read with ARC-Q2 (a), `6003918488`, as CF-5, `6013547504`):** F12.1 runs
+  composed, as F5.2 does under R1Q23 (a); ARC-Q2 (a) (`6003918488`) makes the
+  composition its permanent home. Its environment line is amended as batch G
+  amended F5.2's: after the two installs, the block IS TO require
+  `OPENXFACTORY`, an openxFactory checkout with its submodules initialized, put
+  `"$OPENXFACTORY/scripts"` on `PYTHONPATH`, and quote that checkout's commit.
+  R2Q8 (a) measured why: fifteen of the 16 suites are entries of openXdox-code's
+  declared exclusion under `doc_health` (9.2) and fail to import alone, and
+  composed, at openXdox-code `56e1c238`, the 16 read 174 red. R2Q8 (a) said
+  *"until the direction arc's realization lands"*; ARC-Q2 (a), the later
+  ruling, makes openXdox-code's composed workflow, against a pinned
+  openxFactory, the PERMANENT home of what stays composed, the
+  governed-behaviour suites among them, so the line does not expire when the
+  arc lands (CF-5). The 174 reds are repaired in phase 4 without editing the 16
+  suites, except through the reviewed allow-list (batch C, and the CF-4 and
+  R-1 (a) notes below, chained as the `--chains` note below says). Nothing else
+  in the block changes under this note: the computed set, the floor of 16, the
+  loop and the arc-landing check stand as written and as batch C amends it. R1Q6 (d)'s condition, the direction arc DECIDED before this falsifier
+  needs the suites, is met by `6003918488`. This bookkeeping amendment does not
+  itself touch the command above. Carried out by plan 038's T020 to T029,
+  whose composed workflow becomes a required check of openXdox-code after its
+  first green run on `main` (N-7b, `6013547504`), and run by its T032 and T063.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6013547504`; Confirmed CF-4,
+  H-2):** The reviewed allow-list that R1Q7 (a) admits for this falsifier
+  (`5817152735`; batch C, extended by batch I) also admits SEVENTEEN entries
+  that respell names the split-opendox CARVE moved before the arc, in commits
+  that carry no `Arc:` trailer: `cmd_gate_*` 7, `hosted_index` 3, share paths
+  2, Group W 1 and Group S2 4. They are pre-arc carve residue, admitted under
+  batch C on the precedent of `5962785556` item 1, where three pre-arc
+  carve-residue tests of F5.2's set were repaired under the same allow-list.
+  Two readings of batch C were set out, and Brett Heap confirmed this record of
+  it (CF-4; *"Accept all as recommended (Recommended)"*): one reads batch C's
+  text as admitting any pure respelling, so nothing widens; the other reads
+  R1Q7 (a)'s *"a reference to a moved seam"* in its release-1 context as the
+  arc's moves, so this stretches batch C. Either way each entry is what batch
+  C requires: it names the suite, the landing, the reference it respells, its
+  review and the exact old and new text, it weakens no assertion, and the
+  landing's diff for that path is exactly the entries' recorded texts (chained,
+  as the `--chains` note below says). This bookkeeping amendment does not
+  itself touch the command above. Carried out by plan 038's T026.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6013547504`, with
+  `6016648451`; Ruled R-1 (a), with W-1 (A)):** Brett Heap's multi-choice
+  words of 2026-10-06, verbatim *"Admitted edit kind (Recommended)"* and, on its
+  scope, *"Widen the spans, served display (Recommended)"*. For this falsifier,
+  the reviewed allow-list also admits a new kind of `edit: admitted` entry, of
+  R1Q26 (a)'s sort, that reaches a NAMED MODULE-LEVEL SPAN of a governed suite
+  rather than text inside one named test. It exists for
+  `tests/test_staging_workbench.py`, one of the 16, whose Node harness text and
+  the helpers that copy it sit at module level, outside any test, so no in-test
+  entry reaches them. The admitted spans are SIX, at openXdox-code `56e1c238`:
+  - the harness constants `_CREATE_HARNESS` (`:492-553`), `_SESSION_HARNESS`
+    (`:1008-1094`) and `_HOSTILE_HARNESS` (`:1950-1981`);
+  - the three copy helpers `_run_create` (`:562-574`), `_run_session`
+    (`:1239-1257`) and `_hostile_descriptors` (`:1997-2008`).
+
+  The helpers copy the model's siblings and hand each harness the SERVED
+  governed display. That the served display is reachable in the test process
+  is INFERRED, and plan 038's T026 measures it. The governed host's
+  registration (plan 038's T020) covers this suite, through T020's
+  `tests/conftest.py` and the scan in `tests/test_host_plane.py`, edited in
+  T026 after T020 lands. The oracle's `_inside_the_test` rule (openXdox-code
+  `scripts/protected_suites.py:294`) is amended to accept such an entry, and
+  each such edit is entered and reviewed in U-7's PR. Batch C's other
+  conditions hold for it: it names its span, the landing, its reason and its
+  review, it carries the exact old and new text, and it weakens no assertion.
+  With W-1 (A), *"Model import-free again (Recommended)"*, which makes openDox's
+  `staging-workbench-model.js` import-free again and so reverses carve slice
+  S7's model import by that word, all 26 of the suite's `PROTECTED-CONFLICT`
+  nodes close, and the suite stays in this falsifier's governed set. The
+  harness nodes close through the spans only together with W-1, because they
+  first fail on the `./display.js` import. The widened spans close the last
+  nine of them and the traced `SystemExit: 2` node, as ruled
+  (`6016648451`, answering lane openXfactory-3's points 2 and 3 of
+  `6016415390`), and T026 measures it. The two route claims (`:1291`,
+  `:1333`) lie inside their own named tests (`:1262-1300`, `:1305-1343`), so
+  in-test entries reach them and they need no span. The
+  'cluster' node takes an ordinary in-test entry that respells its expected
+  label to `'group neighbourhood'`, S7's neutral word, as measured (the
+  holder's ruling recorded with `6016648451`). Several entries for this one
+  suite land together under the `--chains` note below. This bookkeeping
+  amendment does not itself touch the command above. Carried out by plan 038's
+  T020, T025 and T026.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6016648451`; Ruled "Amend
+  F12.1 with --chains"):** Brett Heap's multi-choice word of 2026-10-06,
+  verbatim *"Amend F12.1 with --chains (Recommended)"*. This falsifier's check
+  takes a CHAIN of entries, the mechanism batch K gave F5.2. Its last step, as
+  T059 wired it (openXdox-code `scripts/protected_suites.py:24-25` at
+  `56e1c238`, whose usage text at `:27` still calls `--chains` F5.2's alone),
+  runs with `--chains` added:
+
+      python3 scripts/protected_suites.py --chains --landings="$(cat "$W/x-arc.txt")" --suites="$(cat "$W/governed.txt")"
+
+  So several entries, applied in the order they are listed, may together admit
+  one landing's edits to one governed suite, under batch K's rule unchanged:
+  - each entry is still exactly one edit inside its own named test, or, under
+    R-1 (a) (the note above), inside its named span;
+  - the entries chain by git blob: the first entry's `before_blob` is the suite
+    before the landing, the last entry's `after_blob` is the suite at it, and
+    each blob between is the blob id of the text the entries before it leave;
+  - the landing's diff for each suite is exactly the chain's recorded texts.
+
+  Nothing wider is admitted, and each entry still admits one landing. So U-7's
+  entries, under batch C, CF-4 and R-1 (a) (the three notes above), land as
+  ONE pull request, plan 038's T026 (openXdox-code#43). Batch K's sentence at
+  F5.2 that this falsifier passes no `--chains` takes a dated note there. This
+  bookkeeping amendment does not itself touch the Python above. Carried out by
+  plan 038's T026 and T029.
 - [ ] 12.6 **MERGE AUTHORITY — RULED, HOLD RELEASED.** Brett Heap, `#656` comment
   `5784155201`, 2026-09-22T21:06:01Z: *"merge yes"* — landing authority follows
   whoever governs the repository. A GOVERNED host reserves landing and routes it
@@ -2288,6 +3134,17 @@ that does not name a platform.
   `--no-ff` MERGE COMMIT whose sha `Landed` returns, so `git revert -m 1 <sha>`
   undoes it. The CLI verb is `land --repo-root <repo> --branch
   <session-branch>`, interactive by construction.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q9 (a),
+  item 7):** The CLI verb's shape gains `--local`, as 12.4a's does: `land
+  --repo-root <repo> --branch <session-branch> [--local]`. It selects the local
+  install exactly as `OPENDOX_INSTALL_MODE=local` does, so it meets the first
+  of the two things `standalone` requires above, the explicit local install,
+  and the second, the default branch's committed declaration, is unchanged. A
+  flag and a setting that disagree are refused, naming both. The verb stays
+  interactive by construction, and the guardrails and the governance query are
+  unchanged. F12.2 is not amended. This bookkeeping amendment does not itself
+  touch a falsifier. Carried out by plan 038's T012 and T016.
 - [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, installed IN the block
   below, and `gh` NOT installed, which is the student's machine):
 
@@ -2411,7 +3268,7 @@ that does not name a platform.
 identity yes"*. `design.md` § D10 carries the measurements and the two
 amendments.
 
-- [ ] 13.1 **Bundle Postgres with the standalone install** so a user installs the
+- [x] 13.1 **Bundle Postgres with the standalone install** so a user installs the
   product and not a database. The pieces exist: `pyproject.toml:134` pins
   `psycopg[binary,pool]>=3.2` and `deploy/compose/docker-compose.yaml:25` is
   already `image: postgres:16`. But `psycopg` is a CLIENT and `pip install` starts
@@ -2445,11 +3302,23 @@ amendments.
   product, the data directory and the socket under `OPENDOX_STATE_DIR`, no
   TCP port, and the `database_bundle` report. F13.1 installs `".[local]"`,
   as this batch's addendum there records. Carried out by T072 and T073.
-- [ ] 13.2 **Add no SQLite dialect**, and record the refusal where a future reader
+
+  **Landed 2026-10-03** (T072): openDox-code#69 → `5e7ab003`.
+  `opendox generate-and-open --local` starts `postgres` as a direct child of the
+  serving process under `OPENDOX_STATE_DIR`, with no TCP listener, both DSNs
+  supplied, `runtime status` reporting `database_bundle`; it stops with the
+  entry point (R1Q16 (i)-(iv), `opendox[local]`). F13.1's blocks pass
+  (`evidence/f13.1-run.md`).
+- [x] 13.2 **Add no SQLite dialect**, and record the refusal where a future reader
   will look for it: a second dialect doubles every migration and every schema test
   forever, for a database that under RULING Q1 holds no document. **A non-PostgreSQL
   DSN is REFUSED by `load_settings`, and the refusal names the one dialect kept.**
-- [ ] 13.3 **Keep both DSNs.** `OPENDOX_MIGRATION_DATABASE_URL` for migrating and
+
+  **Landed 2026-10-02** (T071): openDox-code#60 → `7ff434d9`. `load_settings`
+  refuses a non-PostgreSQL DSN, naming the one dialect kept, and
+  `load_migration_settings` takes the same refusal at configuration (F13.1's
+  first `load_settings` assertion, `evidence/f13.1-run.md`).
+- [x] 13.3 **Keep both DSNs.** `OPENDOX_MIGRATION_DATABASE_URL` for migrating and
   `OPENDOX_DATABASE_URL` for serving, with neither defaulted from the other —
   `config.py` already names the silent fallback as the thing not to do, and a
   single-user install is not a reason to serve from the migrating credential.
@@ -2458,7 +3327,13 @@ amendments.
   that select different schemas (`_refuse_two_dsns_that_select_different_schemas`,
   `config.py:1291`, called at `:1411`), and it reads the migration DSN as
   OPTIONAL (`:1417`), so the collapse is not refused yet.
-- [ ] 13.4 **A NAMED local single-user mode (AMENDS RULING Q2).** `config.py:89-92`
+
+  **Landed 2026-10-02** (T071): openDox-code#60 → `7ff434d9`. One credential in
+  both settings is refused, naming `OPENDOX_MIGRATION_DATABASE_URL`; the
+  migration DSN is required only on the migrate path and never defaulted (RULED
+  `5880893901`); F13.1's second `load_settings` assertion holds
+  (`evidence/f13.1-run.md`).
+- [x] 13.4 **A NAMED local single-user mode (AMENDS RULING Q2).** `config.py:89-92`
   makes `OPENDOX_OIDC_ISSUER` required — *"the Keycloak broker's issuer, pinned
   … (RULING Q2)"*. Add an explicit local mode that needs no broker. **The selector
   is `OPENDOX_INSTALL_MODE`, values `local` and `hosted`, read in
@@ -2486,7 +3361,13 @@ amendments.
   13.5 requires. The flag is an option of the verb and follows it, as every
   option does (10.1), and it is the selection the one documented command
   makes (10.3 and F10.1 as this batch amends them). Carried out by T070.
-- [ ] 13.4a **The serving process reports its own install shape.** The entry
+
+  **Landed 2026-10-03** (T070): openDox-code#67 → `66ff7257`.
+  `OPENDOX_INSTALL_MODE` (`local` or `hosted`, default `hosted`) and
+  `generate-and-open --local` select the local mode; it needs no broker and
+  binds loopback only, refusing a non-loopback `--host` naming the rule (batch
+  H's 13.4 addendum); the probes exit 1, not 124 (`evidence/f13.1-run.md`).
+- [x] 13.4a **The serving process reports its own install shape.** The entry
   point's served `/capabilities` payload (the same crossing `display_manifest`
   already publishes, `display_profile.py:670`) gains an `install` block. It holds
   `mode` and `database_bundle` (`data_dir`, `socket_dir`, `pid`), read from the
@@ -2495,12 +3376,27 @@ amendments.
   the process a user reaches is the process whose configuration is reported. A
   status probe from a second process could be right about the settings while the
   server ignored them.
-- [ ] 13.5 **A hosted install SHALL NOT fall into local mode by omission.** An
+
+  **Landed 2026-10-03** (T073): openDox-code#72 → `90ac7033`. `/capabilities`
+  gains an `install` block (`mode`, `database_bundle`) read from the serving
+  process's own settings; F13.1's `caps.json` block passes against the server on
+  :8080 (`evidence/f13.1-run.md`).
+- [x] 13.5 **A hosted install SHALL NOT fall into local mode by omission.** An
   unset issuer in a hosted install stays a REFUSAL naming the setting. This box
   is the safety of 13.4 and must land with it, not after it.
-- [ ] 13.6 The hosted multi-user mode is UNCHANGED: same broker, same pinned
+
+  **Landed 2026-10-03** (T070): openDox-code#67 → `66ff7257`. A hosted install,
+  and the unset default, with no `OPENDOX_OIDC_ISSUER` refuse naming the
+  setting; neither is started nor killed by the 30 s bound
+  (`evidence/f13.1-run.md`).
+- [x] 13.6 The hosted multi-user mode is UNCHANGED: same broker, same pinned
   issuer, a token from any other issuer still refused.
-- [ ] **FALSIFIED BY** (a machine with no database and no identity broker):
+
+  **Landed 2026-10-03** (T070): openDox-code#67 → `66ff7257`. Hosted mode is
+  otherwise unchanged (same broker, same pinned issuer); F13.1's hosted probes
+  still refuse with no issuer, naming `OPENDOX_OIDC_ISSUER`
+  (`evidence/f13.1-run.md`).
+- [x] **FALSIFIED BY** (a machine with no database and no identity broker):
 
       set -euo pipefail
       W=$(mktemp -d)                                        # scratch space, resolved at run time (never a host path)
@@ -2640,6 +3536,14 @@ amendments.
   bookkeeping amendment does not itself touch the command above: T074 runs
   it as amended. Carried out by T074.
 
+  **Landed 2026-10-03** (T074, openxFactory#1224 → `de2ab703`): F13.1, extracted
+  byte for byte from #1144 with batch H's install line
+  (`pip install ".[local]"`), exits 0 at openDox-code `90ac7033` from a fresh
+  clone, in an `env -i` environment with no database and no broker: local probe
+  starts and migrates the bundle, the served `install` block reads `local`, no
+  TCP listener, `runtime status` `reachable`, and the three CLI refusals hold
+  (`evidence/f13.1-run.md`).
+
 ## Group 14 — Requirements 6, 14, 15: health in the store, and the fix loop (RULED, openDox-code)
 
 **RULED** `#656` `5784155201` (*"health in db"*) and `5784247356` (*"1, add the
@@ -2667,6 +3571,21 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   words, and stale or empty stubs. On demand from dashboard and CLI, optionally on
   commit. Baseline-relative. Model-assisted checks only where a model is
   configured. **openxFactory's 23 governance families stay put** (requirement 1).
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6013547504`; Ruled I-2 (a),
+  with R2Q12 (a) and R2Q7 (a), `6003486656`):** A reading of
+  *"Baseline-relative"*. Brett Heap's multi-choice word of 2026-10-06, verbatim
+  *"main, else HEAD's branch (Recommended)"*. R2Q12 (a) makes the baseline the
+  previous run at the default branch's tip, held in the store, and R2Q7 (a)
+  makes the default branch `main`. The BASELINE BRANCH is `main`, else the
+  branch HEAD names; a detached HEAD in a repository with no `main` has none.
+  R2Q7 (a)'s `main` still governs LANDING alone (12.6a). So the baseline holds
+  in every repository, F14.1's included: F14.1 and F15.1 create theirs with
+  `git init -q`, which names no branch, so on a runner whose
+  `init.defaultBranch` is unset they have no `main`. F14.1 asserts no class, so
+  it passes as written either way, and the baseline on `main` is exercised by
+  the engine's own tests. This bookkeeping reading edits no line of the box.
+  Carried out by plan 038's T046.
 - [ ] 14.5 **The Health view, with CLI PARITY.** Every resolution action available
   in the view is available from the command line — requirement 14's last scenario
   exists because a standalone install may have no browser. **The verbs this arc
@@ -2695,6 +3614,17 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   action the Health view offers. The view is served by the entry point (10.2).
   Three named tests compare the two surfaces: the view is served, every view
   action has a CLI verb, and every CLI verb is offered by the view.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q9 (a),
+  item 7):** Each of the four `health` shapes in the table above gains
+  `[--local]`, the same flag `generate-and-open` takes (13.4 as batch H amends
+  it), following the verb as every option does. It selects the local install
+  exactly as `OPENDOX_INSTALL_MODE=local` does, and a flag and a setting that
+  disagree are refused, naming both. F14.1 and F15.1 export the setting
+  (`export OPENDOX_INSTALL_MODE=local`, in each block), so their `health` lines
+  pass no `--local` and stand as written in this respect. The view, its actions
+  and the three parity tests are unchanged. This bookkeeping amendment does not
+  itself touch a falsifier. Carried out by plan 038's T046.
 - [ ] 14.6 **The three resolution classes, spelled `auto-fix`, `assisted` and
   `human-only` — exactly as RULED (`5784247356`) and exactly as requirement 14
   declares them, in the store, the CLI, the view and the pack contract (15.2)
@@ -2817,6 +3747,65 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   Today none of it exists: there is no health table, no health verb, and no
   applier anywhere in the estate.
 
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q9 (a),
+  item 2):** The block first STARTS THE DOCUMENT SERVER, as F13.1 does. R1Q16
+  (i) and (iv) give the bundled server to the document server (13.1 as batch H
+  amends it), and the local runtime verbs refuse `local-bundle-unverified`
+  without it, so a `health` verb, like `runtime reset` and `runtime migrate`,
+  reaches the running bundle and refuses by name without one. After the
+  fixture's commit and before the first `health run`, the block runs, with the
+  setting it already exports:
+
+      opendox generate-and-open --repo-root "$C" --repository fixture --no-open --port 8084 &
+      SERVER=$!; trap 'kill "$SERVER" 2>/dev/null || true' EXIT
+      ready=0; for _ in $(seq 1 30); do curl -sf http://127.0.0.1:8084/ >/dev/null && { ready=1; break; }; sleep 1; done
+      test "$ready" -eq 1                                   # a server that never started FAILS here
+
+  Port 8084 is one that no other falsifier of this change uses. The rest of the
+  block runs against that server, its `runtime reset` and `runtime migrate`
+  included, and stands as written, but for the selection lines the next note
+  amends. This bookkeeping amendment does not itself touch the command above.
+  Carried out by plan 038's T046, and run by its T065.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q10
+  (a)):** A finding's `id` is a STABLE, PACK-QUALIFIED KEY. The engine derives it
+  from the pack's id, the family, the document's path and a locator the family
+  supplies; it survives a reset, it is unique, and it maps to a valid ref name
+  for `health-fix-*`; and `health list --json` also carries `kind`. So a literal
+  id selects nothing, and every literal-id use in this block becomes a
+  SELECTION BY THE PLANTED FINDING'S FIXTURE DOCUMENT. 14.9's fixture names each
+  planted finding's document after its old literal id (`broken-link`,
+  `derivable-front-matter`, `stage-location-mismatch`, `near-duplicate`,
+  `human-only-finding`, `accepted-finding`). A selection reads `health list
+  --json`, captured to a file first, and takes the ONE finding whose `path` is
+  that document and, where the old id names a family, whose `kind` is that
+  family. The `id` it yields is then the handle `--finding` takes and
+  `health-fix-<id>` names. An absence is asserted as before, by a selection
+  that finds nothing. The uses, by line at `main` `92010d3e`:
+  - `grep -q 'broken-link'` over `"$W/h1.txt"` (`:3320`) and `"$W/h3.txt"`
+    (`:3364`): the listing holds the planted broken link, selected by its
+    document;
+  - the `want` map and `x["id"]` (`:3326-3329`): `want` maps each of the five
+    documents to its class, checked on its selected finding, with the
+    `paths.tsv` map (`:3332-3334`) and its lookup (`:3342`) keyed by document
+    and carrying the selected `id`;
+  - the `for f in broken-link derivable-front-matter stage-location-mismatch
+    near-duplicate` loop with `health-fix-$f` (`:3336-3340`): the loop runs over
+    the four documents, and `--finding` and the branch take each one's
+    selected `id`;
+  - `--finding human-only-finding` and `health-fix-human-only-finding`
+    (`:3347-3349`): the human-only document's selected `id`;
+  - `--finding accepted-finding` (`:3351`): the accepted document's selected
+    `id`, which `health/dispositions.yaml` then cites;
+  - `grep 'accepted-finding'` over `"$W/h2.txt"` (`:3357`) and `"$W/h3.txt"`
+    (`:3365`): the accepted document's selection finds nothing, before the
+    reset and after it.
+
+  Everything else in the block stands, the order of its four proofs included.
+  This bookkeeping amendment does not itself touch the command above. Carried
+  out by plan 038's T043 (the fixture documents), T053, T054 and T057, and run
+  by its T065.
+
 
 ## Group 15 — Requirement 16: the check-pack interface (RULED, openDox-code)
 
@@ -2880,6 +3869,40 @@ to #1144"*. `design.md` § D12.
   on the platform, packs do not run**, and `health run` reports that as a
   finding against the install rather than running packs unsandboxed. Other
   platforms need their own kernel-enforced equivalent before packs run there.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q9 (a),
+  item 5):** The corpus export CANNOT BE STEERED by the corpus's own
+  `export-subst` or `export-ignore` attributes. `git archive` honours both, so
+  the corpus being judged could rewrite or hide what a pack is given: either
+  the export is not a plain `git archive`, or those attributes are refused. The
+  tree exported is still the corpus commit's, and the rest of the box stands.
+  Carried out by plan 038's T048.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q16
+  (a)):** A reading of requirement 16's SANDBOX clause (from *"A pack SHALL RUN
+  IN A SEPARATE PROCESS INSIDE AN OPERATING-SYSTEM-ENFORCED SANDBOX"* to
+  *"packs SHALL NOT RUN, and the install says why"*, `spec.md:544-557` at
+  `main` `92010d3e`), of its ATTRIBUTION clause (*"THE PRODUCT'S OWN CHECKS ARE
+  ATTRIBUTED BY THE SAME RULE … as the one pack no manifest lists"*,
+  `:585-589`), and of this box's *"RUN EVERY PACK"*, which changes none of
+  them. TRUSTED INSTALLED CODE runs IN PROCESS, on every platform, and only the
+  packs 15.1a's manifest lists run in the sandbox:
+  - the PRODUCT'S OWN CHECKS, 14.4's neutral families, run in process and are
+    attributed `opendox`, as 15.7 says;
+  - a HOST'S CHECK registered through `register_health_check` runs in process
+    too, but ONLY at the scoped seam, as release 1 left it (openxFactory's
+    `scripts/opendox_host.py:524` registers one), and its results are NEVER
+    STORED, as no scoped run is;
+  - the SANDBOX clause, and this box, govern manifest-listed packs, and the
+    ATTRIBUTION clause is attribution only: it says how a built-in finding is
+    attributed, not where the product's checks run.
+
+  So every finding in the store stays attributable, and no host's finding
+  claims the product's id. Where a probe finds no sandbox (macOS, a restricted
+  Linux, a container), packs do not run, and one finding against the install
+  says why, as this box already says. Release 2 has no Seatbelt realization.
+  15.7 carries a pointer to this note. Carried out by plan 038's T048, T052 and
+  T056.
 - [ ] 15.2 A pack DECLARES its own version, which must equal its manifest entry's
   (15.1a), and its check families: id, version, and which documents each
   applies to. It RETURNS findings in the neutral shape — severity, resolution
@@ -2958,6 +3981,16 @@ to #1144"*. `design.md` § D12.
   than an in-process fake. A test keeps the fixture digests current. These are
   fixtures of the engine, not shipped packs, and they exist so 15.6 and 15.1a are
   falsifiable rather than asserted.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q9 (a),
+  items 4 and 6):** Two of the fixture packs are made exact.
+  `fixture-forking-pack` gives the child it forks ITS OWN PACK ID IN ARGV, so
+  F15.1's `ps` check, which counts processes whose arguments name
+  `fixture-forking-pack`, cannot pass vacuously on a child whose arguments name
+  nothing. And `fixture-escaping-pack` counts its "restores write permission"
+  attempt as a success only when a WRITE succeeds, never on the `chmod` alone.
+  The other six packs, and their registration by digest with no `commit`,
+  stand. Carried out by plan 038's T055.
 - [ ] 15.7 **PACK ID AND PACK VERSION ON EVERY FINDING, in the SAME additive
   migration as the results table** (group 14.1 — `0003_`, since `0002_` is the
   ledger), so the table is not migrated twice. **The ENGINE stamps both, and the
@@ -2973,6 +4006,14 @@ to #1144"*. `design.md` § D12.
   `pack_version` the installed version,
   `importlib.metadata.version("opendox")`. 15.1a refuses a manifest entry whose
   `id` is `opendox`, so no pack can pass as the product.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q16
+  (a)):** A pointer. 15.1b's batch Q note reads requirement 16's attribution
+  clause as attribution only. The product's own checks run in process and are
+  attributed `opendox`, as this box says, and a host's check registered at the
+  scoped seam runs in process and is never stored, so the store holds no
+  finding of it to stamp. Nothing in this box moves. Carried out by plan 038's
+  T042, T046 and T056.
 - [ ] **FALSIFIED BY** (openDox-code, installed, over 15.6a's `pack-corpus`, whose
   manifest registers its eight fixture packs beside the neutral checks):
 
@@ -3098,6 +4139,63 @@ to #1144"*. `design.md` § D12.
   Today none of this exists: there is no pack contract, no health run, and no
   findings store.
 
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q9 (a),
+  items 2 and 3):** Two steps join the block. First, it ASSERTS ITS PLATFORM
+  PRECONDITION, a working kernel sandbox, and exits 1 naming it otherwise, as
+  F12.2 asserts `gh` absent. Straight after the install:
+
+      if ! bwrap --unshare-all --die-with-parent --ro-bind / / --proc /proc --dev /dev true >/dev/null 2>&1; then
+        echo "FAIL: no working kernel sandbox (bwrap); packs cannot run here, so this acceptance cannot"; exit 1
+      fi
+
+  So a machine where packs do not run (15.1b) fails this falsifier rather than
+  passing it on a finding against the install. Second, it STARTS THE DOCUMENT
+  SERVER before the first `health run`, as F14.1 does under this batch and for
+  the same reason, which here concerns the `health` verbs alone. After
+  `FIXTURE_HEAD` is recorded, with the setting the block already exports:
+
+      opendox generate-and-open --repo-root "$C" --repository fixture --no-open --port 8085 &
+      SERVER=$!; trap 'kill "$SERVER" 2>/dev/null || true' EXIT
+      ready=0; for _ in $(seq 1 30); do curl -sf http://127.0.0.1:8085/ >/dev/null && { ready=1; break; }; sleep 1; done
+      test "$ready" -eq 1                                   # a server that never started FAILS here
+
+  `generate-and-open` mints its run directory outside the corpus
+  (openDox-code `a9ac96f9`, `cli.py:802-823`), so the writing pack's checks
+  still read the corpus alone. The rest of the block stands as written, but for
+  the selection lines the next note amends. This bookkeeping amendment does not
+  itself touch the command above. Carried out by plan 038's T048 (the
+  precondition), T046 (the server) and T058, and run by its T067 and T065.
+
+  **AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q10
+  (a)):** As F14.1's batch Q note says, a finding's `id` is a stable,
+  pack-qualified key, so every literal-id use in this block becomes a
+  SELECTION BY THE PLANTED FINDING'S FIXTURE DOCUMENT, read from `health list
+  --json` captured to a file first. The patching pack's six findings name six
+  documents of the corpus, each named after its old literal id (`patch-ok`,
+  `patch-other-document`, `patch-traversal`, `patch-git-metadata`,
+  `patch-rename`, `patch-oversized`), and the broken link's document is 14.9's.
+  The uses, by line at `main` `92010d3e`:
+  - `grep -q 'broken-link' "$W/p1.txt"` (`:3575`): the listing holds the
+    planted broken link, selected by its document and `kind`;
+  - `x['id'] == 'broken-link'` (`:3590`): `builtin` is taken over the findings
+    whose `path` is that document and whose `kind` is `broken-link`, and it is
+    still `{'opendox'}`;
+  - the `--finding "$f"` loop over the five refused `patch-*` ids, with
+    `health-fix-$f` (`:3595-3599`): the loop runs over the five documents, and
+    `--finding` and the branch take the `id` selected for each one's
+    `fixture-patching-pack` finding;
+  - `--finding patch-ok` and `refs/heads/health-fix-patch-ok` (`:3601-3602`):
+    the `patch-ok` document's selected `id`, and `refs/heads/health-fix-<id>`;
+  - the `refused_patch` values (`:3608-3612`): each refusal's
+    `evidence.refused_patch` names the refused finding by its `id`, so the
+    check reads that finding's `path` and compares the five refused documents
+    with `want`, and the `patch-ok` document is not among them.
+
+  The rest of the block stands, its assertions over `pack_id` included. This
+  bookkeeping amendment does not itself touch the command above. Carried out
+  by plan 038's T055 (the fixture documents) and T058, and run by its T067 and
+  T065.
+
 ## Group 16 — Requirement 17: chat's model configuration (RULED, openDox-code)
 
 **RULED** `#656` `5800995035`, 2026-09-23T18:56:33Z, answer 3: any
@@ -3116,7 +4214,7 @@ list|add|edit|remove|set-credential`, `src/opendox/cli_model_binding.py`), and
 so does the console's intake flow (`doxbench_intake`). This group builds on them
 and redesigns none of them.
 
-- [ ] 16.1 **The OpenAI-compatible grammar joins as a SECOND DIALECT.**
+- [x] 16.1 **The OpenAI-compatible grammar joins as a SECOND DIALECT.**
   `DIALECTS` is closed at one member today, `xfactory-prompt-v1`
   (`doxbench_binding.py:109-110`): a POST of `{"model", "prompt"}` answered by
   `{"assistant_prose"}` (`doxbench_provider.py:622-624`), which no
@@ -3127,13 +4225,23 @@ and redesigns none of them.
   `messages`) and its answer (`choices[0].message.content`), spoken by an arm in
   `doxbench_provider.py` alone. An unknown dialect is still refused when it is
   declared.
-- [ ] 16.2 **A MODEL NAME the provider receives.** The record has no model
+
+  **Landed 2026-10-02** (T078): openDox-code#61 → `8a98e317`. `DIALECTS` gains
+  `openai-chat-v1` after `xfactory-prompt-v1`, spoken by an arm in
+  `doxbench_provider.py` alone; an unknown dialect is still refused; F16.1's
+  dialect assertion passes.
+- [x] 16.2 **A MODEL NAME the provider receives.** The record has no model
   field. The catalog handle is the binding's `id`, and `_post_to_provider`
   (`doxbench_provider.py:633`) sends that handle as the request's `model`, so no
   provider model can be named today. The record gains `model`, sent as the
   request's model and set by `model-binding add|edit --model`. The field list
   grows from nine to ten, and still no field can hold a secret.
-- [ ] 16.3 **The credential stays a REFERENCE, and a raw key is refused when it
+
+  **Landed 2026-10-03** (T079): openDox-code#62 → `2fc714d2`. The binding record
+  gains `model` (nine fields to ten, none able to hold a secret), sent as the
+  request's `model` and set by `model-binding add|edit --model`; F16.1's
+  `BINDING_FIELDS` assertion passes.
+- [x] 16.3 **The credential stays a REFERENCE, and a raw key is refused when it
   is declared.** Measured: the record checks the endpoint's scheme and nothing
   else (`ENDPOINT_SCHEMES`, `:116`), so `https://user:<key>@…` and
   `…?api_key=<key>` are both ACCEPTED today, into a file the module calls safe to
@@ -3181,7 +4289,15 @@ and redesigns none of them.
   three raw-key refusals are unchanged. This bookkeeping amendment does not
   itself touch the Python below. Carried out by T080 (openDox-code#63) and
   openDox-code#64, which is no task of plan 034.
-- [ ] 16.3a **A served repository's bindings are TRUSTED PER MACHINE.**
+
+  **Landed 2026-10-03** (T080): openDox-code#63 → `1130e996`. A key in the
+  endpoint URL or in an extra field is refused when declared; `env:NAME` and
+  keyring references take the built-in resolver at call time inside
+  `doxbench_provider.py` alone; auth kind `none` forbids `broker_argv` and
+  `credential_ref`; a credential travels only over `https://` or loopback
+  `http://` (`ENDPOINT_NOT_PRIVATE`, batch K). The broker path's hardening, no
+  task of the plan, landed as openDox-code#64 → `8e377823`.
+- [x] 16.3a **A served repository's bindings are TRUSTED PER MACHINE.**
   **ADDED — T007 Batch M (`5962785556`, item 2):** Brett Heap's multi-choice
   word of 2026-10-02, verbatim *"Trust per machine (Recommended)"*, which
   asks for this amendment. The batch adds this box, a dated note in
@@ -3278,7 +4394,141 @@ and redesigns none of them.
   The rest of Group 16 stands, and so do 16.3's text and its batch H and K
   addenda. F16.1's batch M block below falsifies this box. Carried out by
   T100.
-- [ ] 16.4 **"No model configured" is a STATE, shown before any turn.**
+
+  **AMENDED — T007 Batch P (`5982436447`, item 2; `5983805990`):** Brett
+  Heap's multi-choice word of 2026-10-04, verbatim *"Refuse in-repo programs
+  (Recommended)"*, answers finding A2 of the holder's adversarial review of
+  T100 (openDox-code#82, landed as `38d3350e`). A trust names a digest of
+  the binding's record, and the record names a broker's program only by its
+  path. So a trusted binding whose broker runs a program inside the served
+  repository stayed trusted after a pull changed that program. The rule: a
+  binding's command may not name a file inside the served repository, and
+  the broker lives outside it. Every member of the command is judged, the
+  program and each argument alike, so a script handed to an outside
+  interpreter is caught too, and a relative path is judged against the
+  served root. Such a binding is refused by name, both where
+  trust is recorded (`add`, `edit`, `trust` and `set-credential`) and where
+  trust is checked, before any process is spawned. The refusal names the
+  remedy, a broker installed outside the repository, and never a secret, and
+  the binding reads untrusted. A shell or interpreter wrapper would carry
+  the same attack through an inline script, `["sh", "-c", "exec
+  ./tools/broker.py"]`, so Brett Heap's second word on it (`5983805990`,
+  verbatim *"Refuse inline scripts (Recommended)"*) extends the rule:
+  - a binding whose program is a shell or an interpreter given an inline
+    script, such as `sh -c`, `bash -c`, `python -c` or `node -e`, is
+    refused by name in the same places and the same way;
+  - the program must be a real file outside the served repository. Every
+    member of the command that names a path, the program and each argument
+    alike, is judged both as named and as it resolves: links are followed,
+    the program, when it is a bare name, is looked up on `PATH`, and a
+    relative path is taken against the served root. Both must lie outside
+    the repository, when trust is recorded and again before any spawn. So
+    neither a link outside the repository nor a `PATH` entry inside it can
+    bring the program or its script back in, and a link inside the
+    repository, which a pull could retarget, is refused even when it points
+    outside;
+  - *"a real file"* is read by what it forbids to RUN (the holder's ruling
+    `5985553609`, which neither narrows nor extends `5983805990`): no
+    binding whose program is not a real file outside the served repository
+    ever runs. An inline script, or a file inside the repository (as named
+    and as resolved, through a launcher, a link, a `PATH` entry or an
+    option's value), is refused by name where trust is recorded and again
+    before any spawn, as this addendum says. A program that cannot be found
+    (not on `PATH`, no such file) runs nothing: it is not refused where
+    trust is recorded, and when its broker is started the start fails and
+    the binding is refused by the existing named refusal
+    `broker_unreachable` (the broker could not be started). A broker installed later is judged
+    before it is started, like any other. A check at trust that the program exists is
+    not ruled; it stays open for Brett Heap as a follow-on that would move
+    no box of release 1, and F16.1 carries no case for a missing program;
+  - a common launcher (`env`, `nice`, `nohup`, `timeout`, `stdbuf`,
+    `setsid`, `xargs` and the like, with their flags) is unwrapped to the
+    program it starts, and the inline-script and path rules apply to THAT
+    program (the holder's ruling `5984069416`, implementing `5983805990`).
+    A launcher's own options are judged with it, read by GNU
+    `getopt_long`'s grammar (the holder's ruling `5985046107`, C1 and C4,
+    which applies those two and extends neither):
+    - a long option matches by its unambiguous prefix, in the
+      `--option=value` and the `--option value` forms, so `env --chd=…` is
+      `env --chdir`, and a short-option cluster parses the getopt way
+      (`-iS…`, `-vC/dir`, `-0u NAME`). An ambiguous or unknown option of an
+      unwrapped launcher is refused by name;
+    - an option that names a path, such as the directory `env --chdir`
+      (`-C`) starts the program in, or the file `xargs -a` (`--arg-file`)
+      reads its arguments from, in any spelling, is judged as the
+      command's paths are, both as named and as it resolves. So a launcher
+      cannot start the broker inside the repository, nor let the
+      repository decide the broker's arguments;
+    - the string `env -S` (`--split-string`) carries is split into the
+      arguments it names, which are then unwrapped and judged, ONLY when it
+      holds no backslash and no `$`. Otherwise it is refused as unreadable,
+      as an inline script is. GNU `env`'s own escape and `${VAR}` grammar
+      is not modelled: an accepted limit, refused rather than guessed;
+  - every broker also starts with its working directory outside the served
+    repository, as defence in depth, and with an environment that points
+    away from it: `PWD` and `OLDPWD` are dropped, and so is every other
+    variable whose value is a path inside the served repository, while a
+    path list (`PATH`, `PYTHONPATH`, `NODE_PATH` and the like) loses each
+    entry that lies inside it, so a runtime cannot load code from the
+    repository through its search path. Each such path is judged, as the
+    command's paths are, both as named and as it resolves, and so is each
+    assignment a launcher makes (`env NAME=value`): one whose value is a
+    path inside the repository, or a path list with an entry inside it, is
+    refused;
+  - a path given to the program that finally runs as an option's value is
+    judged as the command's paths are, both as named and as it resolves,
+    and refused when it lies inside the repository: the value after `=` in
+    one member (`--require=<repo>/x`), and the remainder after the option
+    letter of a single-dash option with its value attached
+    (`-I<repo>/lib`, `-a<repo>/args`; the holder's `5985046107`, C4). An
+    output path into the repository is refused too, an accepted
+    strictness;
+  - an ACCEPTED release-1 limit: a general program outside the repository
+    that runs code from its own arguments (`awk`, `find -exec`, …) is not
+    judged by the argv check, and any other path embedded inside an option
+    string given to the program that finally runs, such as one carried in
+    a variable (`NODE_OPTIONS=--require=…`), is one the argv check does
+    not promise to find. A known launcher's own options are never part of
+    this limit; the launcher bullet above judges them. The trusted argv is
+    digested, and the working directory and the environment point away
+    from the repository, so a relative path in such a string does not
+    reach it;
+  - a broker such as `sh -c "pass show key"` is declared as
+    `["pass", "show", "key"]` instead, or as a script kept outside the
+    repository.
+
+  The rest of this box stands. A dated note in requirement 17's body in this
+  change's spec delta, after batch M's, records both rulings, since they
+  narrow batch M's note there, and F16.1's batch P cases below falsify
+  them. Carried out by a
+  T100 follow-on openDox-code PR (claim `5982447319`), which is no task of
+  plan 034 and lands before T087.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 3):** A clarification of
+  *"No trust is ever written into, or read from, a tree a clone could
+  carry"* above. Brett Heap's multi-choice word of 2026-10-04, verbatim
+  *"Served repo only, limit (Recommended)"*, answers finding A14 of the same
+  review. The tree that sentence means is the SERVED repository. An
+  `OPENDOX_STATE_DIR` equal to the served root, or nested under it, is
+  refused by name, as the bullet above says, and no trust is written into
+  or read from it. A state directory inside some OTHER git checkout is not
+  refused, and release 1 accepts that as a limit. A check for any enclosing
+  checkout would refuse a home directory kept in git (a dotfiles checkout),
+  which holds the default state directory. No code changes for it, and this
+  bookkeeping clarification edits no line of the box. Carried out by T100,
+  as landed.
+
+  **Landed 2026-10-05** (T100, openDox-code#82 → `38d3350e`; the T100 follow-on,
+  openDox-code#86 → `651c35fe`, before T087): the follow-on carries out Brett
+  Heap's `5982436447`, item 2, and `5983805990`, which batch P records, with the
+  holder's `5984069416`, `5985046107` (C1 to C5) and `5985553609`, and the
+  holder's A8; item 3 (A14) changes no code. Run by T089's runner against the
+  follow-on's head `aecac805`, whose tree landed unchanged, F16.1's block as
+  batch P amends it exits 0, with `532 passed` in
+  `tests/test_model_binding_trust.py`, batch P's section 9 among them, as
+  openDox-code#86's body records. T083's run at `38d3350e` read `135 passed`
+  there (`evidence/f16.1-run.md` § 2). F16.1 whole is T089's run at T087's pin.
+- [x] 16.4 **"No model configured" is a STATE, shown before any turn.**
   Measured: with no binding, `declared_model_port_factory(...)()` resolves the
   harness declaration, and its catalog offers `omp-local`, "Local harness model",
   as AVAILABLE with no `omp` on the PATH (`doxbench_install.py:106`). The entry
@@ -3291,12 +4541,35 @@ and redesigns none of them.
   turn is refused `model_capability_unavailable` before any process is spawned or
   any endpoint is contacted. The harness route is not removed: an install whose
   harness is present still declares it.
-- [ ] 16.5 **Every other surface works with no model.** Documents, generation,
+
+  **Landed 2026-10-03** (T081, T085, T102): openDox-code#74 → `9a490405` makes
+  "no model configured" a state. With no binding and no harness the catalog
+  offers no available entry, a turn is refused `model_capability_unavailable`
+  before anything is spawned or contacted, and the chat rail shows a line saying
+  that no model is configured and how to configure one, while an install whose
+  harness is present still declares it. openDox-code#71 → `2680eb5e` gives the
+  served catalog route its standalone validators, and T102 (openDox-code#81 →
+  `0116293a`) offers the chat rail by scope on a standalone workbench. In T083's
+  run at openDox-code `38d3350e`, F16.1's catalog block prints
+  `no model configured: the catalog offers nothing` and
+  `tests/test_chat_model_configuration.py` reads `83 passed`
+  (`evidence/f16.1-run.md` § 2). AT-R1's browser half (T096) opens the chat rail
+  from a grouping tile in its own run.
+- [x] 16.5 **Every other surface works with no model.** Documents, generation,
   the views, sessions and saving answer exactly as they do with a model
   configured, and nothing waits on, retries or reports a model. Group 10's
   falsifier already runs the whole product from a fresh install with no model
   configured; this box's named test keeps the property named.
-- [ ] 16.6 **The boundary stays ONE module wide, and its instrument RUNS.** The
+
+  **Landed 2026-10-04** (T082): openDox-code#76 → `ca9e1bd5`. Section 6 of
+  `tests/test_chat_model_configuration.py` serves one commit twice, standalone,
+  once with no model and once with a binding, and requires every request about
+  documents, generation, the views, sessions and saving to answer alike, in
+  status, content type and body. openDox's own settings documents are kept out
+  of the corpus, so adding a binding moves no snapshot. The named file reads
+  `83 passed` at that landing, and again in T083's run at openDox-code
+  `38d3350e` (`evidence/f16.1-run.md` § 2).
+- [x] 16.6 **The boundary stays ONE module wide, and its instrument RUNS.** The
   property holds at `1e4a57fb`: an AST scan of `src/opendox/` finds three modules
   that touch a network client, and only `doxbench_provider.py` reaches a model
   provider (`runtime/oidc.py` fetches the identity broker's keys with `httpx`,
@@ -3312,7 +4585,15 @@ and redesigns none of them.
   and `runtime/config.py:282-285` names `access_token` among its secret
   parameter keys. Group 9 makes the whole suite green, so the file is repaired in
   phase 1, and this box keeps it green as 16.1's dialect joins the one module.
-- [ ] **FALSIFIED BY** (an openDox-code checkout alone, fresh venv, no sibling
+
+  **Landed 2026-10-04** (T034, T083): openDox-code#50 → `71b631bc` repaired
+  `tests/test_provider_boundary.py` for this box's three stale reasons, and
+  T083's run (openxFactory#1231 → `0e01ca85`) reads it `24 passed` at
+  openDox-code `38d3350e`, from a fresh clone and unchanged since T034, with
+  16.1's `openai-chat-v1` arm and T100's `doxbench_trust.py` in the package. The
+  boundary is still one module wide, and two planted controls each turn the
+  instrument red (`evidence/f16.1-run.md` §§ 1 and 3).
+- [x] **FALSIFIED BY** (an openDox-code checkout alone, fresh venv, no sibling
   and no harness installed):
 
       set -euo pipefail
@@ -3445,6 +4726,177 @@ and redesigns none of them.
   available, and its `broker_argv` runs on the first dispatch. This
   bookkeeping amendment does not itself touch the command above. Carried
   out by T100, and run with F16.1 whole by T083 and T089.
+
+  **AMENDED — T007 Batch P (`5982436447`, the holder's ruling A8):** A note,
+  and no line of the block changes. The block says that with the trust file,
+  or a directory that holds it, replaced by a symbolic link, every binding
+  reads untrusted. The state directory is such a directory. Finding A8 of
+  the holder's adversarial review of T100 found that T100 as landed
+  (`38d3350e`) read a state directory that is itself a symbolic link to this
+  user's own 0700 directory. Its suite's case passed only because that
+  case's target was writable by others. The holder ruled that the
+  realization follows this block's ratified text: a state directory that is
+  itself a symbolic link is refused by name, and it trusts nothing. The T100
+  follow-on openDox-code PR (claim `5982447319`) aligns the code and adds
+  that case, before T087. So T089's run of F16.1, at T087's pin, which
+  carries the follow-on, holds the realization to the block as written.
+  T083's run at `38d3350e` predates the follow-on, and plan 034 records that
+  it does not show this case. This bookkeeping amendment does not itself
+  touch the command above.
+
+  **AMENDED — T007 Batch P (`5982436447`, item 2; `5983805990`):** F16.1
+  also falsifies 16.3a's batch P addendum (A2, and its reach to inline
+  scripts). The command is unchanged: the named file of
+  batch M's line, `tests/test_model_binding_trust.py`, also asserts, one
+  test per case, under the same fresh `git init` and `OPENDOX_STATE_DIR`:
+  - **A binding whose command names a file inside the served repository is
+    refused.** Its broker argv names a file under the served root, either
+    as its program, such as `tools/broker.py`, or as an argument, such as
+    the script an outside interpreter runs (`["python3",
+    "tools/broker.py"]`, `["sh", "tools/broker.sh"]`). Each is tested
+    with the path absolute and with it relative to the served root, and the
+    script writes a marker file when it runs. `opendox
+    model-binding add`, `edit`, `trust` and `set-credential` each refuse it
+    by name, naming the remedy, a broker installed outside the repository,
+    and record no trust. A trust recorded for it before the rule does not
+    admit it, before or after its program is edited: it reads untrusted, so
+    the catalog lists it with `available: false`, as batch M's block asserts
+    of an untrusted binding, and a turn that names it is refused by name
+    before any process is spawned, and no marker file exists.
+  - **An inline script is refused.** A binding whose program is a shell or
+    an interpreter given an inline script (`["sh", "-c", "exec
+    ./tools/broker.py"]`, and `python -c` in the same form) is refused by
+    name by the same four commands and before any spawn, as above, with no
+    marker file, whatever the script names, and so is one that reaches an
+    inline script through a launcher, the holder's `5984069416`. The
+    launcher case runs once for each launcher named in 16.3a's addendum, in
+    an option-bearing form wherever the launcher takes options:
+    `["env", "-i", "python3", "-c", "…"]`, `["nice", "-n", "5",
+    "python3", "-c", "…"]`, `["nohup", "python3", "-c", "…"]`,
+    `["timeout", "-s", "KILL", "5", "python3", "-c", "…"]`, `["stdbuf",
+    "-oL", "python3", "-c", "…"]`, `["setsid", "-w", "python3", "-c",
+    "…"]` and `["xargs", "-n", "1", "python3", "-c", "…"]` (`xargs` joins
+    the launchers by the holder's `5985046107`, C4), and once more for a
+    nested chain, `["env", "nice", "-n", "5",
+    "timeout", "5", "python3", "-c", "…"]`, so every layer is unwrapped,
+    and once through a string that `env -S` splits, `["env", "-S",
+    "python3 -c '…'"]`. A trust recorded for it before the rule does not
+    admit it: it reads untrusted, and the catalog lists it with
+    `available: false`.
+  - **An alias is judged both as named and as it resolves.** Each of these
+    is refused by the same four commands and before any spawn, with no
+    marker file, for the program and for an interpreter's script argument
+    alike (`["python3", "<link>"]`), except where noted:
+    - a symbolic link outside the served root whose target lies inside it;
+    - a bare program name that resolves through a `PATH` entry under the
+      served root, as the program only, since an interpreter does not look
+      its script argument up on `PATH`;
+    - a symbolic link inside the served root whose target is a real file
+      outside it, since a pull could retarget the link.
+
+    A trust recorded while the binding's paths resolved outside the root
+    does not admit it once a link or the `PATH` entry leads inside: it reads
+    untrusted and the catalog lists it with `available: false`.
+  - **A broker outside the repository is still reached.** The same binding
+    with its program a real file outside the served root, once trusted,
+    runs as batch M's block says. It runs with its working directory
+    outside the served root: the test starts `opendox` with its own
+    working directory at the served root, so a broker that inherited it
+    would record a directory inside the root, and the broker records the
+    directory it starts in and its environment. It finds neither `PWD` nor
+    `OLDPWD`, no variable whose value is a path inside the served root, and
+    no entry inside the root in a path list. The test starts `opendox` with
+    `PATH`, `PYTHONPATH` and `NODE_PATH` each carrying an entry inside the
+    served root, and with a scalar variable, such as `OPENDOX_TEST_HOME`,
+    set to a directory inside it, so an inherited one would show. It does
+    the same again through aliases, each for a `PYTHONPATH` entry and for a
+    scalar variable: one names a symbolic link outside the served root whose
+    target lies inside it, and one names a symbolic link inside the served
+    root whose target lies outside it, which a pull could retarget. And a launcher's own assignment is refused by
+    the four commands and before any spawn, with no marker file:
+    `["env", "PYTHONPATH=tools", "python3", "<outside>/broker.py"]`, where
+    `<outside>` is the case's own scratch directory outside the served root
+    (made by `mktemp -d`), and `tools`, relative to the served root, holds a
+    `sitecustomize.py` that writes the marker. The same refusal holds for
+    an assignment through an alias: `["env",
+    "PYTHONPATH=<outside>/alias", "python3", "<outside>/broker.py"]` and
+    `["env", "OPENDOX_TEST_HOME=<outside>/alias", "python3",
+    "<outside>/broker.py"]`, where `<outside>/alias` is a symbolic link to
+    `tools` inside the served root, and the same two assignments naming
+    `tools/out`, a symbolic link inside the served root to a directory
+    outside it. A launcher's own working-directory option is refused the
+    same way, by the four commands and before any spawn, and the outside
+    broker, which writes a marker file when it runs, leaves none:
+    `["env", "--chdir=<root>", "python3", "<outside>/broker.py"]`, where
+    `<root>` is the served root's absolute path; the same with `"-C",
+    "<root>"`; and the long form naming `<outside>/alias`, the link to
+    `tools` inside the served root, and naming `tools/out`, the in-repo
+    link to a directory outside it.
+  - **A path an option carries, an unreadable split string and a launcher
+    option that cannot be read are refused, and a launcher's options are
+    read as GNU reads them** (the holder's `5985046107`, C1 and C4). Each
+    command below is refused by name by the same four commands and before
+    any spawn, and leaves no marker file. `<outside>/broker` is an
+    executable in the case's scratch directory that writes one when it
+    runs, and `<outside>/broker.pl` a Perl script there that does the same:
+    - `["perl", "-I<root>/lib", "<outside>/broker.pl"]` is refused as a
+      command that names a file inside the served repository, since the
+      path attached to a single-dash option is judged;
+    - `["xargs", "-a", "<root>/args", "<outside>/broker"]` is refused as a
+      command that names a file inside the served repository, since the
+      repository would decide the arguments;
+    - `["env", "--chd=<root>", "<outside>/broker"]` is refused as a
+      command that names a file inside the served repository, since
+      `--chd` is the unambiguous prefix of `env`'s `--chdir`;
+    - `["env", "-S", "sh\\_-c\\_id"]` (escaped as JSON: the string is
+      `sh\_-c\_id`, which GNU `env` reads as `sh -c id`) is refused as an
+      inline script, since a split string that holds a backslash or a `$`
+      is unreadable;
+    - `["<outside>/broker", "--config=<root>/conf"]` is refused as a
+      command that names a file inside the served repository, since the
+      value after `=` of the final program's option is judged;
+    - `["<outside>/broker", "-o<root>/out"]` is refused the same way, since
+      an output path into the repository is refused too, an accepted
+      strictness;
+    - `["env", "--i", "<outside>/broker"]` is refused by name, fail-closed,
+      since `--i` is an ambiguous prefix (`--ignore-environment`,
+      `--ignore-signal`);
+    - `["env", "--no-such-option", "<outside>/broker"]` is refused by name,
+      fail-closed, since `env` has no such option;
+    - `["env", "--d", "<outside>/broker"]` is refused by name, fail-closed,
+      since `--d` is an ambiguous prefix (`--debug`, `--default-signal`);
+    - `["env", "-iS", "python3 -c '…'"]` is refused as an inline script,
+      since the bundled cluster parses the getopt way: `-i`, then `-S`
+      taking the next member as its string;
+    - `["timeout", "--sig", "KILL", "5", "python3", "-c", "…"]` and
+      `["stdbuf", "--out=L", "python3", "-c", "…"]` are each refused as an
+      inline script, not as an unknown option, since `--sig` is `timeout`'s
+      `--signal` and `--out` is `stdbuf`'s `--output`, so the program
+      behind them is found;
+    - `["env", "-S", "$BROKER"]` is refused as an inline script, since a
+      split string that holds a `$` is unreadable. It is written without
+      braces because a binding refuses, when it is declared, any `{name}`
+      in its argv outside its closed placeholder vocabulary, before any
+      broker rule is asked, so a `${VAR}` string would be refused by that
+      rule instead.
+
+  Until the T100 follow-on (claim `5982447319`) lands, these cases fail.
+  T089 runs F16.1 at T087's pin, which carries it. T083's run at `38d3350e`
+  predates both the follow-on and this addendum. This bookkeeping amendment
+  does not itself touch the command above.
+
+  **Landed 2026-10-05** (T083, then T089): F16.1, extracted byte for byte from
+  #1144 with batch M's line, exits 0 in both runs. T083's run (openxFactory#1231
+  → `0e01ca85`), at openDox-code `38d3350e`, prints `24 passed`,
+  `dialect and model declared; a raw key is refused in a field and in the URL`,
+  `no model configured: the catalog offers nothing`, `83 passed` and
+  `135 passed` (`evidence/f16.1-run.md` § 2). T089's run (openxFactory#1238 →
+  `fab575ad`) is at T087's pin, openDox-code `dede32b4`, which carries the T100
+  follow-on (openDox-code#86 → `651c35fe`) and with it batch P's cases in
+  `tests/test_model_binding_trust.py`: the six `test_F16_1_batch_p_*` tests and
+  `test_A8_a_state_directory_that_is_a_link_trusts_nothing`. It prints
+  `24 passed`, the same two lines, `83 passed` and `532 passed`
+  (`evidence/checkpoint-phase3.md` § 4).
 
 ## Follow-ons named here and NOT authored here
 

@@ -1,0 +1,11 @@
+schema: spec-driven
+created: 2026-09-07
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-07-factory-mcp-conformance
+  reason: >-
+    Direct proposal from the 2026-09-07 user design discussion; no organized staging source exists. The brainstorm packet remains non-normative design history.
+  proposed_by: Codex, lane mcp-family-contract, at Brett Heap request
+  proposed_on: 2026-09-07
+  approved_by: Brett Heap
+  approved_on: 2026-09-07

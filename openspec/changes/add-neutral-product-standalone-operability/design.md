@@ -813,6 +813,16 @@ its install half is phase 3's), `5784247356` (the fix loop) and `5784295745`
 as written. The sequencing changes when they are built, never what they
 require.
 
+**AMENDED — T005 Batch Q (plan 038, 2026-10-06; `6003486656`; Ruled R2Q1 (a),
+read with CF-1, `6013547504`; read beside the release map in `tasks.md`):** A
+non-normative reading, which changes no line above. Phase 4's *"submission
+behind one interface"*, like the release map's *"one interface for both"*,
+means one USER-FACING interface: the `submit` and `land` verbs and routes, and
+the Health view's land action, are the same in every GOVERNANCE mode under
+openDox's own profile. Behind them the protocols stay split, as 12.1 and 12.6a
+require, and § D9's split stands. `tasks.md` carries the full reading beside
+the release map. Carried out by plan 038's T015 and T016.
+
 ### Every phase, and outside both
 
 - **Every phase:** Group 11, the guard, which walks every arc landing whatever

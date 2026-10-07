@@ -1,0 +1,44 @@
+Compost corner ideas, gathered in one place
+group · grouping-compost-corner · 1 document
+editing by scope
+⛶
+✕ back to the wheel
+no branch session · this view is main
+editing by scope: this tile's own source items are editable here, and creating one and Save need the create gate, which this install does not have, so Save is refused by name and nothing is written.
+sources
+lens
+outline
+grouping-compost-corner.md
+show the model-distilled abstract
+From the document's own headers
+organized
+Three separate notes about turning food scraps into usable soil, pulled into a single set.
+TOPICS
+compost
+corner
+gathered
+ideas
+place
+grouping-compost-corner.md
+group source items · organized
+·
+⤢
+Editor
+Preview
+Unload
+Outline: no outline yet -- start typing to create one
+Document: no unsaved changes
+the outline is a reserved buffer every turn carries, and is never unloaded
+
+(no outline yet -- start typing in the Outline buffer to create one)
+
+⤢
+⤢
+Outline
+grouping-compost-corner.md
+Working on (not yet created)
+chat is unavailable — no approved model is configured; both editors remain fully usable.
+No model configured. To configure one, declare a model binding with "opendox model-binding add" ("--help" lists its fields), or put the local harness "omp" on PATH, then restart this console.
+No model configured. To configure one, declare a model binding with "opendox model-binding add" ("--help" lists its fields), or put the local harness "omp" on PATH, then restart this console.
+select an approved model
+Send

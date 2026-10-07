@@ -1,0 +1,55 @@
+snapshot fills: {'source': 3, 'grouping': 2, 'candidate': 0, 'selection': 0, 'submission': 0, 'completion': 0}
+browser: chromium 149.0.7827.55
+[PASS] load: the private copy opens the console page on loopback: {"url": "http://127.0.0.1:18636/index.html", "opened_through": "file://$TMPDIR/tmp.BxXoevAuVH/console/18636.html", "printed_url_used": true, "title": "Opensoft openDox", "screenshot": "b-1-load.png"}
+[PASS] load: the token is stripped from the address bar: {"url_has_fragment": false}
+[PASS] wheel: a tile for every station the snapshot fills: {"filled": {"source": 3, "grouping": 2, "candidate": 0, "selection": 0, "submission": 0, "completion": 0}, "tiles_per_station": {"source": 3, "grouping": 2, "candidate": 2}, "missing": [], "fewer_tiles_than_items": {}, "screenshot": "b-2-wheel.png"}
+[PASS] lens: the bullseye renders: {"dots_on_open": 0, "on_open_says_check_a_keyword": true, "screenshot": "b-3a-lens-on-open.png"}
+[PASS] lens: the documents render as dots: {"dots": 3, "distinct": 3, "documents": 3, "missing_docs": [], "extra_dots": [], "solo_toggle": null, "screenshot": "b-3b-lens-all-checked.png"}
+[PASS] lens: the text 'nothing on the radar' is absent: {}
+[PASS] lens: neither seed action is offered (R1Q19 (a)): {"seed_controls_on_open": [], "seed_controls_all_checked": [], "seed_words": [], "selection_column": 0}
+[PASS] chat: the repository yields a grouping tile (fails, never skips): {"grouping_tiles": 2}
+[PASS] chat: the grouping tile offers an enabled workbench verb: {"tile": "budget \u00b7 roadmap", "verbs": [["\u25ce lens", "open the keyword lens with this group's declared topics checked", false], ["\u25a6 canvas", "open the group canvas on this group", false], ["\u25c7 notebook", "open this cluster tile's document set in NotebookLM", false], ["\u25a3 open workbench", "open the staging workbench scoped to this group", false]]}
+[PASS] chat: the staging workbench opens: {"screenshot": "b-4b-workbench-open.png"}
+[PASS] chat: before any turn, the rail shows 'no model configured', naming how to configure one: {"no_model_notes": [{"hidden": false, "visible": true, "text": "No model configured. To configure one, declare a model binding with \"opendox model-binding add\" (\"--help\" lists its fields), or put the local harness \"omp\" on PATH, then restart this console."}], "turns_before": 0, "screenshot": "b-4c-chat-no-model.png"}
+[PASS] chat: a turn is refused model_capability_unavailable: {"http_status": 403, "http_error": "model_capability_unavailable", "ui_refused": false, "ui_send_withheld": true, "ui": {"composer": 1, "send": 1, "composer_enabled": true, "composer_visible": true, "send_disabled": true, "send_title": "chat is unavailable \u2014 no approved model is configured; both editors remain fully usable.", "send_description": "chat is unavailable \u2014 no approved model is configured; both editors remain fully usable.", "ui_turn_responses": [], "after_text_tail": " here, and creating one and Save need the create gate, which this install does not have, so Save is refused by name and nothing is written.\nsources\nlens\noutline\nbudget.md\nshow the model-distilled abst
+[PASS] editors: each editor offered opens and accepts edits (5971834845): {"offered": ["Document buffer text", "Outline buffer text", "notes.md buffer text", "roadmap.md buffer text"], "typed": ["roadmap.md buffer text [active on open]", "Outline buffer text [Outline]", "Document buffer text [budget.md]", "notes.md buffer text [notes.md]", "roadmap.md buffer text [roadmap.md]"], "outline_typed": true, "not_typed": [], "detail": {"buffers": {"roadmap.md buffer text [active on open]": {"present": 1, "visible": true, "enabled": true, "readonly": false, "typed": true}, "Outline buffer text [Outline]": {"present": 1, "visible": true, "enabled": true, "readonly": false, "typed": true}, "Document buffer text [budget.md]": {"present": 1, "visible": true, "enabled": true, 
+[PASS] editors: creating a document is not offered, and the plane note names create and Save as refused (T102, by scope): {"create_controls_visible": [], "posture_note": [{"hidden": false, "visible": true, "text": "editing by scope: this tile's own source items are editable here, and creating one and Save need the create gate, which this install does not have, so Save is refused by name and nothing is written."}], "pills": [{"text": "editing by scope", "title": "this tile's own source items are editable in this browser; creating one and Save need the create gate, which this install does not have, so Save is refused by name"}], "create_named": true, "save_named_in_note": true, "scope_pill": true, "screenshot": "b-4f2-create-absent.png"}
+[PASS] editors: Save is refused by name, nothing is written: {"present": 1, "visible": true, "disabled": false, "title": "save this canvas's changed buffers through the existing governance actions", "refusal_named": true, "notes": [{"cls": "doxbench-eventnote", "hidden": false, "text": "Outline: Save refused -- Save needs the first-edit transport, and no column on this install contributes it (`gate.workbench.session`), so a governed Save cannot be sent. Your edits stay in this browser's buffers, unsaved."}, {"cls": "doxbench-save-note", "hidden": true, "text": ""}], "requests_during_save": [], "writes_during_save": [], "signals_during_save": {"console": 0, "requestfailed": 0, "pageerror": 0}, "edits_kept": [{"aria": "Outline buffer text", "visible": f
+ORACLE raw: clean=False accounted-for server answers: 0 observed / 0 declared across 0 declaration(s)
+{
+ "unexpected": {
+  "pageerror": [],
+  "console_error": [
+   "error: Failed to load resource: the server responded with a status of 404 (File not found) @ {'url': 'http://127.0.0.1:18636/views/intent-feed.js', 'line': 0, 'column': 0, 'lineNumber': 0, 'columnNumber': 0}",
+   "error: Failed to load resource: the server responded with a status of 404 (File not found) @ {'url': 'http://127.0.0.1:18636/snapshot-index.json', 'line': 0, 'column': 0, 'lineNumber': 0, 'columnNumber': 0}",
+   "error: Failed to load resource: the server responded with a status of 404 (no project register) @ {'url': 'http://127.0.0.1:18636/project-register.json', 'line': 0, 'column': 0, 'lineNumber': 0, 'columnNumber': 0}"
+  ],
+  "requestfailed": [
+   "GET http://127.0.0.1:18636/views/intent-feed.js \u2014 net::ERR_ABORTED"
+  ]
+ },
+ "unsatisfied": []
+}
+ORACLE declared: clean=True accounted-for server answers: 4 observed / 4 declared across 3 declaration(s)
+{
+ "unexpected": {
+  "pageerror": [],
+  "console_error": [],
+  "requestfailed": []
+ },
+ "unsatisfied": []
+}
+F1 measurement: rail switches 4, thread reads 0, thread 403s 0
+[PASS] oracle: zero pageerror: {"pageerrors": []}
+[PASS] oracle: nothing undeclared, every declaration satisfied: {"unexpected": {"pageerror": [], "console_error": [], "requestfailed": []}, "unsatisfied": []}
+[PASS] oracle: no 5xx from any route the panes request: {"five_xx": []}
+NON-REQUEST EVENTS:
+  {"method": "GET", "url": "http://127.0.0.1:18636/views/intent-feed.js", "kind": "http_404", "step": "load", "t": 1791214389.515}
+  {"text": "Failed to load resource: the server responded with a status of 404 (File not found)", "location": {"url": "http://127.0.0.1:18636/views/intent-feed.js", "line": 0, "column": 0, "lineNumber": 0, "columnNumber": 0}, "kind": "console_error", "step": "load", "t": 1791214389.515}
+  {"method": "GET", "url": "http://127.0.0.1:18636/views/intent-feed.js", "failure": "net::ERR_ABORTED", "kind": "requestfailed", "step": "load", "t": 1791214389.516}
+  {"method": "GET", "url": "http://127.0.0.1:18636/snapshot-index.json", "kind": "http_404", "step": "load", "t": 1791214389.532}
+  {"text": "Failed to load resource: the server responded with a status of 404 (File not found)", "location": {"url": "http://127.0.0.1:18636/snapshot-index.json", "line": 0, "column": 0, "lineNumber": 0, "columnNumber": 0}, "kind": "console_error", "step": "load", "t": 1791214389.533}
+  {"method": "GET", "url": "http://127.0.0.1:18636/project-register.json", "kind": "http_404", "step": "load", "t": 1791214389.537}
+  {"text": "Failed to load resource: the server responded with a status of 404 (no project register)", "location": {"url": "http://127.0.0.1:18636/project-register.json", "line": 0, "column": 0, "lineNumber": 0, "columnNumber": 0}, "kind": "console_error", "step": "load", "t": 1791214389.537}
+FAILED CHECKS: []
+AT-R1 browser half (b): PASS

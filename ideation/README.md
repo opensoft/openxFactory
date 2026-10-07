@@ -153,6 +153,10 @@ lifecycle are enforced by the delegated register validator
 
 ## Contents
 
+- [Factory MCP Family](brainstorm/factory-mcp-overview.md) — fourteen-document
+  brainstorm packet (ten atoms, three syntheses, one overview) covering shared
+  conformance, domain services, existing codex tools and a proposed Ops DNS check.
+
 Brainstorm (design history; fully organized into staging or an archived
 proposal):
 

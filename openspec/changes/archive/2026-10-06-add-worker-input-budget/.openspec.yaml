@@ -1,0 +1,52 @@
+schema: spec-driven
+created: 2026-09-22
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-22-add-worker-input-budget
+  reason: >-
+    DECLARED BY RULING 2026-10-06, verbatim: "#1250: (i) add the origin
+    file", given by Brett Heap in session to lane openxfactory-1 and
+    recorded as a RULED line on the estate's lane register at
+    2026-10-06T17:24:57Z (opensoft/brett-wip commit f739ab74,
+    lanes/log/openxfactory-1.md). It answers Copilot's finding r4196698454
+    on the ratifying pull request, opensoft/openxFactory#1250: a proposal
+    whose Status declares ratified carries approval provenance in its
+    origin, and this packet had no origin declaration at all. The form
+    follows the 2026-08-25 origin sweep b7513733. DERIVED FROM THIS
+    PACKET'S OWN RECORD, never invented. The origin act is Brett Heap's
+    word "brief a writer to add the input-size guard" (2026-09-22), which
+    this packet's proposal records under its Proposed header. The forcing
+    fact is stated under its Origin header: the doc-health nightly's
+    analysis child failed silently every night since 2026-08-30 except the
+    two 2026-09-02 runs (governing issue opensoft/xFactory#479). KIND IS
+    ad_hoc, not staged: this packet records no Staging ID header, and no
+    staging topic declares it as an exit in ideation/staging/INDEX.md,
+    checked in both directions. The one topic that names it,
+    doc-health-sweep-carry-over, was staged by this packet's own OQ-2
+    ruling, and its exit is a later change proposed after this one
+    archives. The created date 2026-09-22 is DERIVED from this packet's
+    true first commit ee2185d6 (2026-09-22T01:26:47Z) in git, not from a
+    file timestamp. This declaration supplies the origin, drafting pair
+    and approval pair the proposal-origin contract requires, and changes
+    nothing else about the packet.
+  proposed_by: >-
+    Lane openxfactory-1, on Brett Heap's word "brief a writer to add the
+    input-size guard" (2026-09-22), as this packet's proposal records
+    under its Proposed header. The packet was filed as a draft with three
+    open questions, and its realization landed separately on his
+    operational word "land the input-size guard when green" (tasks.md
+    4.1).
+  proposed_on: 2026-09-22
+  approved_by: >-
+    Brett Heap (openxFactory repository owner), 2026-10-06, in session to
+    lane openxfactory-1, verbatim "0.4: (a) ratify as they stand". This is
+    option (a) of the question put to him as "task 0.4: (a) ratify the two
+    doc-health deltas as they stand, or (b) amend first", and it is
+    recorded as a RULED line on the estate's lane register at
+    2026-10-06T13:55:03Z (opensoft/brett-wip commit 06709554,
+    lanes/log/openxfactory-1.md). It is the approval this packet's
+    proposal.md cites on its Ratified line. Both doc-health deltas stand
+    without amendment: the MODIFIED Sweep sequencing and snapshot
+    consistency and the ADDED Bounded worker input budget. Record:
+    review/ratification-2026-10-06.md.
+  approved_on: 2026-10-06

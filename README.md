@@ -72,6 +72,11 @@ OpsxFactory
 
 Core domain-neutral docs:
 
+- [Factory MCP Family — Brainstorm](ideation/brainstorm/factory-mcp-overview.md)
+  (shared conformance, domain ownership and a proposed DNS evaluation boundary)
+- [Factory MCP Conformance — Promoted Specification](openspec/specs/factory-mcp-conformance/spec.md)
+  ([archived proposal](openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md))
+- [Factory MCP Conformance — Validator and Implementation Records](docs/factory-mcp-conformance.md)
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
 - [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
@@ -83,7 +88,8 @@ Core domain-neutral docs:
 - [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, § 5.7's and § 5.8's two RULED corrections to a placement (a re-destination and a retirement), and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 2743 declared edit lines over 177 rows, and 20 replica rows of which one declares two lines, and its per-destination table below them is re-derived and asserted cell by cell)
 - [The carve conformance corpus](scripts/carve_conformance.py) (`split-opendox-two-layer-product` § 3.7 FLOOR PART 3, RULED OQ-1: the neutral conformance corpus — RULED OQ-3's documents at `tests/corpus-adapter/fixtures/`, which do not move because eleven manifest rows name those paths as `replicated_at_destination` — as a closed set of 17 checks over ANY corpus reader, 10 positives and 7 negative confirmations, standard library plus `corpus_adapter` only and no home vocabulary in its source text so that a destination holding nothing else of openxFactory's can run it; the operator's way in is `scripts/verify-carve-conformance.py` (`--destination <key> --dest-root <dir> --adapter <module>:<factory>`, exit 0 or 2, six refusal codes, a `--json` seat; RULED Q-F1 (a) 2026-09-17 also lets a destination whose corpus is git HISTORY hand in a TRANSPOSITION of the same documents with `--corpus`, which the runner proves faithful key by key and byte by byte — the identities it lists and reads under are held to the resolution it asked for, the bytes to the shipped table — refusing `conformance-corpus-unfaithful` before any check runs and naming the transposition, its revision and that table's digest in the verdict; where the reader cannot resolve or list the location at all there is nothing to compare, so the 17 checks report that instead and a run whose 17 all passed over a transposition never proven faithful refuses at the end rather than printing OK), driven by `tests/carve_conformance/` and documented at runbook § 2.2, which also carries the per-destination verdicts measured 2026-09-10 — openxFactory's own adapter passes 17 of 17 — and § 3.7 IS ticked, on `OK — 17 of 17` at a landed head in every named destination: openxFactory `eb1880cb`, openXdox-code `3ee8cd31`, openDox-code `93ccc3dd` (`tasks.md` amendment #8, PR #1124 → `3e3b4587`))
 - [The snapshot-equivalence runner](scripts/verify-snapshot-equivalence.py) (`split-opendox-two-layer-product` § 5.5 FLOOR PART 4, design § D6 (4), RULED OQ-1: renders ONE corpus through the PRE-split tree at the published annotated tag `opendox-carve-0` (`b075fd91dc8f`, FLOOR PART 1's own `carve_commit`, frozen by RULED (a), `#656` comment `5625573095`) in an isolated child interpreter, and through the POST-split stack — `openxdox.generator` + `openxdox.snapshot` at the pinned openXdox-code, reached through `scripts/carved_reach.py` (RULED Q7, `#656` comment `5626248666`) with the § 4.4 domain profile registered — in this process, and compares the two snapshots BYTE FOR BYTE at a pinned `source_revision`, because unpinned the two sides diverge on the anchor alone and the comparison means nothing; `--corpus` is repeatable and each one is a corpus state, of which the suite runs four in a single invocation and two MUST move the digest; seven named refusal codes and one blanket, exit 0 or 2 and never 1, a `--json` seat, and every pin verified before any digest exists — six mounts, each nested gitlink read out of the exact commit the level above it verified, the imported trees swept clean, and the SUPERPROJECT's own unpinned revision and dirt carried in the evidence; driven by `tests/snapshot_equivalence/` inside the required `pytest-suite` check and documented at runbook § 2.3, which carries the measured verdict — 14,849 bytes, `sha256 764b077b…0735` over the shipped corpus)
-- [openDox standalone operation, release 1: Speckit feature 034](specs/034-opendox-standalone-operation/spec.md) (the implementation plan for release 1, phases 1–3, of the ratified `add-neutral-product-standalone-operability` (#1144). All three phases are planned on Brett Heap's answers, `#656` comments `5817152735`, `5850003126` and `5851950767`: [plan](specs/034-opendox-standalone-operation/plan.md) · [tasks, with each phase's writer slices](specs/034-opendox-standalone-operation/tasks.md) · [research](specs/034-opendox-standalone-operation/research.md) · [clarify questions](specs/034-opendox-standalone-operation/clarify-questions.md) · [AT-R1 quickstart](specs/034-opendox-standalone-operation/quickstart.md) · [quality checklist](specs/034-opendox-standalone-operation/checklists/requirements.md) · evidence: [ARC_BASE](specs/034-opendox-standalone-operation/evidence/arc-base.md), [re-measure](specs/034-opendox-standalone-operation/evidence/remeasure-2026-09-25.md), [analyze round 1a](specs/034-opendox-standalone-operation/evidence/analyze-round-1a.md), [analyze round 2](specs/034-opendox-standalone-operation/evidence/analyze-round-2.md), [analyze round 3](specs/034-opendox-standalone-operation/evidence/analyze-round-3.md), [F11.1 phase 1 (T017, T018)](specs/034-opendox-standalone-operation/evidence/f11.1-phase1.txt), [phase 1 checkpoint (T049)](specs/034-opendox-standalone-operation/evidence/checkpoint-phase1.md), [F11.1 phase 2 (T065)](specs/034-opendox-standalone-operation/evidence/f11.1-phase2.txt), [phase 2 checkpoint (T063)](specs/034-opendox-standalone-operation/evidence/checkpoint-phase2.md))
+- [openDox standalone operation, release 1: Speckit feature 034](specs/034-opendox-standalone-operation/spec.md) (the implementation plan for release 1, phases 1–3, of the ratified `add-neutral-product-standalone-operability` (#1144). All three phases are planned on Brett Heap's answers, `#656` comments `5817152735`, `5850003126` and `5851950767`: [plan](specs/034-opendox-standalone-operation/plan.md) · [tasks, with each phase's writer slices](specs/034-opendox-standalone-operation/tasks.md) · [research](specs/034-opendox-standalone-operation/research.md) · [clarify questions](specs/034-opendox-standalone-operation/clarify-questions.md) · [AT-R1 quickstart](specs/034-opendox-standalone-operation/quickstart.md) · [quality checklist](specs/034-opendox-standalone-operation/checklists/requirements.md) · evidence: [ARC_BASE](specs/034-opendox-standalone-operation/evidence/arc-base.md), [re-measure](specs/034-opendox-standalone-operation/evidence/remeasure-2026-09-25.md), [analyze round 1a](specs/034-opendox-standalone-operation/evidence/analyze-round-1a.md), [analyze round 2](specs/034-opendox-standalone-operation/evidence/analyze-round-2.md), [analyze round 3](specs/034-opendox-standalone-operation/evidence/analyze-round-3.md), [F11.1 phase 1 (T017, T018)](specs/034-opendox-standalone-operation/evidence/f11.1-phase1.txt), [phase 1 checkpoint (T049)](specs/034-opendox-standalone-operation/evidence/checkpoint-phase1.md), [F11.1 phase 2 (T065)](specs/034-opendox-standalone-operation/evidence/f11.1-phase2.txt), [phase 2 checkpoint (T063)](specs/034-opendox-standalone-operation/evidence/checkpoint-phase2.md), [F10.1 run (T077)](specs/034-opendox-standalone-operation/evidence/f10.1-run.md), [F13.1 run (T074)](specs/034-opendox-standalone-operation/evidence/f13.1-run.md), [16.6 and F16.1 run (T083)](specs/034-opendox-standalone-operation/evidence/f16.1-run.md), [F11.1 phase 3 (T098)](specs/034-opendox-standalone-operation/evidence/f11.1-phase3.txt), [phase 3 checkpoint (T089)](specs/034-opendox-standalone-operation/evidence/checkpoint-phase3.md), [AT-R1 at RELEASE1_TIP, both halves (T096)](specs/034-opendox-standalone-operation/evidence/at-r1/oracle-verdict.md))
+- [openDox, the document tool and self-maintenance, release 2: Speckit feature 038](specs/038-opendox-document-tool-self-maintenance/spec.md) (the specification and implementation plan for release 2, phases 4–5, clarified, planned and ruled (`#656` `6013547504`), of the ratified `add-neutral-product-standalone-operability` (#1144), its own Speckit feature by R1Q21 (a), started on Brett Heap's word, `#656` comment `6001702967`: the neutral submission step and landing (Group 12), and the health engine, the fix loop, exceptions in git and check packs (Groups 6, 14 and 15). [Clarify questions, R2Q1–R2Q25, answered on #656 `6003486656`](specs/038-opendox-document-tool-self-maintenance/clarify-questions.md) · [quality checklist](specs/038-opendox-document-tool-self-maintenance/checklists/requirements.md) · [plan, with Brett's ruling of its decisions](specs/038-opendox-document-tool-self-maintenance/plan.md) · [tasks, with each phase's writer slices](specs/038-opendox-document-tool-self-maintenance/tasks.md) · [research](specs/038-opendox-document-tool-self-maintenance/research.md) · [data model](specs/038-opendox-document-tool-self-maintenance/data-model.md) · [contracts](specs/038-opendox-document-tool-self-maintenance/contracts/) · [AT-R2 quickstart](specs/038-opendox-document-tool-self-maintenance/quickstart.md) · evidence: [analyze, round 1](specs/038-opendox-document-tool-self-maintenance/evidence/analyze-round-1.md), [lane openXfactory-3's plan check, round 1](specs/038-opendox-document-tool-self-maintenance/evidence/plancheck-lane3-round-1.md), [release-2 base and re-measure (T002)](specs/038-opendox-document-tool-self-maintenance/evidence/r2-base.md))
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
 - [Governed Derived Model](docs/governed-derived-model.md)
@@ -537,6 +543,60 @@ Active changes:
 - [renew-resolved-council-protocol](openspec/changes/renew-resolved-council-protocol/proposal.md)
   — draft, 2026-10-03: fresh resolved-roster/provenance and isolated seat-authority proposal after unmerged #517; deprecation then removal release, linked producer/consumer handoffs, ratification pending.
 
+- [prefer-triad-project-shape](openspec/changes/prefer-triad-project-shape/proposal.md)
+  — filed 2026-10-06, lane `codeXfactory-5`, **`Status: ratified`**
+  (2026-10-06T16:02:16Z, Brett Heap, *"ratify 1249 as recommended"*, PR #1249
+  comment `6020300563`, over PR #1249's head `8f9c5855`; a ratification only,
+  not a merge word and not a word to realize anything; record
+  [`review/ratification-2026-10-06.md`](openspec/changes/prefer-triad-project-shape/review/ratification-2026-10-06.md)),
+  on Brett Heap's in-session direction of 2026-10-06T10:20:12Z, verbatim *"the
+  triad should be the prefered structure and should prompt or warn the user if
+  working on a non Triad repo."*; his 11:28:19Z word *"usage is fine, launch
+  both"* authorized authoring and opening it and was not a ratification. **ONE
+  `## MODIFIED` requirement in `project-repo-schema` — *The project repository
+  schema is elective and confers nothing*, title unchanged, both body paragraphs
+  and all three promoted scenarios carried byte-identically, two scenarios added
+  — and THREE `## ADDED` requirements, twenty scenarios in all.** The Triad (the
+  openRepoShape three-repository shape) becomes the PREFERRED project shape,
+  and preferred is not required: it is advised where a person starts work, once
+  per session and never blocking; it is never a review input; and it is silent
+  in an elected Triad, a leg clone, a family holder, a `<user>-wip` workspace
+  repository and a project that has recorded staying single, that record being
+  optional so a decliner still owes no declaration. Its three open questions
+  were RULED as recommended: the record is `single-repository.yaml` at the
+  repository root, with openRepoShape owning its schema; repository classes are
+  not guessed; and the advisory does not re-home codexFactory's recommending
+  role. Realization is handed off to
+  openxFactory's doctrine and pin, `opensoft/openRepoShape`,
+  `opensoft/workBenches`, new-project creation and the shared agent protocol,
+  and the packet archives only on merged plus green evidence across them.
+
+- [realize-doc-health-direction-arc](openspec/changes/realize-doc-health-direction-arc/proposal.md)
+  — filed 2026-10-06, lane `openxfactory-4`, as plan 038's T070, **`Status:
+  draft`**; Brett Heap's ratify word is plan 038's T071, and no realization slice
+  starts before it. The `doc_health` direction arc's OWN change, as ARC-Q3 (a)
+  rules it (`#656` comment `6003918488`, *"Own change, beside phase 5
+  (Recommended)"*). It realizes ARC-Q1 (a), *"Retarget all eight
+  (Recommended)"*: openXdox-code's eight `DOC_HEALTH_SURFACE` modules stop
+  importing openxFactory's `doc_health` (13 statements at openXdox-code
+  `56e1c238`). The generic `lines` slice and the generator's one `RealGit` read
+  are re-authored in openDox-code. The governed names are reached through four
+  seams that openXdox-code declares and openxFactory's host wiring registers at
+  startup, in the pattern of `scripts/opendox_host.py:518-533`. The 7 test files
+  that import `doc_health` directly are respelled, none of them protected.
+  `corpus-adapter-seam` Requirement 1 is then MET for all eight modules, with no
+  spec change: `skip_specs: true`, and no openXdox-spec delta, because the seams
+  need no contract text (`design.md` § 5). **`code_surface:` opensoft/openXdox-code,
+  opensoft/openDox-code and openxFactory (host wiring); `target_release:
+  implemented`** (ARC-1, `#656` comment `6013547504`). It archives only on
+  merged, green realization evidence. It gates neither release 2's close nor
+  #1144's archive, and F9.2's closure goes into its own evidence (ARC-5 (a)). Its
+  realization landings carry `Arc: realize-doc-health-direction-arc`, and it runs
+  #1144's F11.1 guard and the protected-suite oracle over its own landings
+  (ARC-4). Origin `kind: staged`: `ideation/staging/doc-health-direction-arc/`,
+  which stays staged until the archive step moves it through this change.
+  `design.md` § 11 puts seven decisions (D1–D7) for the ratify read.
+
 - [add-neutral-product-standalone-operability](openspec/changes/add-neutral-product-standalone-operability/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-24,
   Brett Heap, *"ratify #1144, land the follow-ons, (a) on C1–C5"*, `#656` comment
@@ -798,53 +858,6 @@ Active changes:
   and no act in `opensoft/xFactory` is proposed. `code_surface: openxFactory`, so
   it archives on merged **plus** green realization evidence. **NOT RATIFIED BY
   THE AUTHORING LANE.**
-- [add-worker-input-budget](openspec/changes/add-worker-input-budget/proposal.md)
-  — filed 2026-09-22, lane `openxfactory-1`, `Status: draft`, on Brett Heap's
-  word *"brief a writer to add the input-size guard"* (2026-09-22). **The
-  doc-health nightly's analysis child has failed EVERY night since 2026-08-30
-  except the two 2026-09-02 runs, silently**: `semantic.build_analysis_input`
-  assembled the whole selected corpus plus the whole promoted-spec grounding
-  into one prompt with no size bound, and when that prompt outgrew the model's
-  context window `claude -p --output-format json` wrote `"Prompt is too long"`
-  to STDOUT — which the child redirects into `worker-result.json` and the
-  cleanup step then deletes, leaving `Process completed with exit code 1`
-  against an empty stderr. Size separates the nights with no exception
-  (accepted at 2,524,427 bytes and below, refused at 2,913,875 and above), and
-  the CONTROL is the sibling cataloger child: on 2026-09-11/12/14/15 it ran
-  188–324 s on 82,712 bytes of input, same runner, same token, same flag set,
-  while the analysis child died in 2–4 s. Re-run on 2026-09-22T01:20Z after the
-  Cloud PC account's seat was assigned, the analysis child failed again in
-  three seconds on the same 7,940,307-byte input — the seat was not the
-  discriminator. **ONE `## MODIFIED` and ONE `## ADDED` requirement.** *Sweep
-  sequencing and snapshot consistency* gains the statement that the set SENT
-  may be a subset of the set SELECTED, plus a scenario obliging the report to
-  name every deferred document. *Bounded worker input budget* (ADDED, six
-  scenarios) fixes the budget as a byte cap over the WHOLE assembled prompt,
-  requires it to travel with the dispatched bundle so the worker enforces the
-  number the orchestrator recorded, separates the two assembly shapes (where
-  the ORCHESTRATOR assembles the prompt it packs within the budget; where the
-  WORKER assembles it, the orchestrator measures each dispatchable unit and
-  does not dispatch one it has measured over), requires deterministic packing of
-  WHOLE documents only, gives each population a reserved share so neither check
-  family is starved, obliges a worker handed an over-budget input to refuse
-  before invoking the model rather than emit an empty result, and protects a
-  deferred document's prior findings from reading as resolved. `code_surface:`
-  is non-empty (two packers and their record here; the two child workflows in
-  `opensoft/xFactory`), so the packet archives on merged-plus-green realization
-  evidence and not on landing. **ALL THREE QUESTIONS RESOLVED.** The
-  grounding share STAYS 0.5, as built (at the 2026-09-21 corpus that sends 93
-  of 311 documents; measured at five shares on 2026-09-24), and the packet
-  CAPS AND RECORDS rather than carrying deferrals over (no sweep cursor
-  exists, and the inventory baseline is emitted unconditionally) — both
-  RESOLVED 2026-09-26 by Brett Heap's ruling in session, option verbatim
-  *"Accept both, land #1160"* (recorded on opensoft/xFactory#480), which
-  accepted both measured recommendations and sent the carry-over to its own
-  staged topic, `ideation/staging/doc-health-sweep-carry-over/`, with the
-  cursor as its own record beside the inventory. The third, the HTTP 403
-  org-entitlement block no code here addresses, is RESOLVED 2026-09-23 by
-  Brett Heap's administrative act, verified the same hour and by the
-  2026-09-24 nightly. `Status: draft` is unchanged: resolving the questions
-  ratifies neither spec delta (task 0.4).
 
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
@@ -3193,6 +3206,108 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-worker-input-budget](openspec/changes/archive/2026-10-06-add-worker-input-budget/proposal.md)
+  — **ARCHIVED 2026-10-06** by
+  [PR #1258](https://github.com/opensoft/openxFactory/pull/1258),
+  by lane `openxfactory-1`, landed by MERGE COMMIT, never squash, on Brett
+  Heap's separate archive word, verbatim ***"archive add-worker-input-budget
+  after it lands"*** (2026-10-06, in session; RULED in `opensoft/brett-wip`
+  `lanes/log/openxfactory-1.md` at 2026-10-06T14:24:52Z, commit `f18c337b`,
+  against `openspec/changes/add-worker-input-budget`), given for after the
+  ratification pull request
+  [#1250](https://github.com/opensoft/openxFactory/pull/1250) landed, which
+  it did by squash as
+  `3cec62fd80618550a5e43454d88b51bb1fb5da9d`. Filed 2026-09-22 by lane
+  `openxfactory-1` on his word *"brief a writer to add the input-size
+  guard"*, governing issue opensoft/xFactory#479; **RATIFIED 2026-10-06 by
+  Brett Heap**, verbatim *"0.4: (a) ratify as they stand"* (record
+  [`review/ratification-2026-10-06.md`](openspec/changes/archive/2026-10-06-add-worker-input-budget/review/ratification-2026-10-06.md)).
+  **`code_surface:` is non-empty (the packers and their record here, the two
+  child workflows in `opensoft/xFactory`), so under `release-realization` it
+  archives on merged-plus-green realization evidence**, cited rather than
+  asserted and recorded in the packet's own `tasks.md` Group 4: PR
+  [#1137](https://github.com/opensoft/openxFactory/pull/1137) →
+  `9da52e318aa7662efa57b750bef3dc1992ff6332` (2026-09-22T03:45:21Z), with
+  `pytest-suite` success on `main` at `9da52e31` itself, run
+  [35684322745](https://github.com/opensoft/openxFactory/actions/runs/35684322745);
+  opensoft/xFactory#481 → `b2479b6e4d9a6bccb8cdf5e2b39417257dc3f5c5`
+  (2026-09-22T03:45:36Z; `validate` green at its head `90311333`, no failing
+  check on the merge commit); the pin-sync opensoft/xFactory#483 → `9ecdb551`
+  that put the packer under the nightly; and the first green nightly,
+  opensoft/xFactory run 35947804907 (2026-09-24), whose analysis child
+  35948587830 passed the input-size guard at 1,899,236 of 1,900,000 bytes and
+  returned findings, and whose cataloger child 35948591376 succeeded.
+  **Performed through the governed wrapper, never a bare `openspec
+  archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive add-worker-input-budget --yes`,
+  exit 0: *"ORIGIN RETAINED add-worker-input-budget (declaration unchanged
+  since the ratifying commit 3cec62fd8061)"*, *"Applying changes to
+  openspec/specs/doc-health/spec.md: + 1 added, ~ 1 modified"*, *"Totals: + 1,
+  ~ 1, - 0, → 0"*, over the content-addressed `@fission-ai/openspec@1.12.0`
+  pin. **The promotion, measured byte for byte on both sides** onto
+  [`openspec/specs/doc-health/spec.md`](openspec/specs/doc-health/spec.md):
+  the MODIFIED *Sweep sequencing and snapshot consistency* goes from
+  875 bytes and 2 scenarios to 1,773 bytes and
+  3 scenarios, sha256 `8efe2d94bfa469d5…` on the archived delta AND
+  canon; the ADDED *Bounded worker input budget* is 3,595 bytes and
+  6 scenarios, sha256 `3533488d999d93d5…` on both; requirements
+  43 → 44, scenarios 260 → 267; the preamble and the
+  other 42 requirement blocks byte-identical. The five packet
+  files move as pure renames, and the modified-block-currency self-gate's
+  one row for this block retires on its own stated condition. **This archive does not answer the Group 4
+  sequencing question on task 4.1**, which the archived `tasks.md` keeps as
+  it stood, and carrying deferred documents over stays the staged topic
+  [`doc-health-sweep-carry-over`](ideation/staging/doc-health-sweep-carry-over/doc-health-sweep-carry-over.md),
+  whose change modifies this promoted text.
+
+- [add-factory-mcp-conformance](openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md)
+  — **ARCHIVED 2026-10-06** by
+  [PR #1252](https://github.com/opensoft/openxFactory/pull/1252),
+  by lane `openxfactory-5` (display `openXfactory-5`), landed by MERGE
+  COMMIT, never squash, on Brett Heap's separate archive word, verbatim
+  ***"archive add-factory-mcp-conformance when green"*** (2026-10-06, in
+  session; RULED in `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at
+  2026-10-06T17:25:24Z, commit `5f02a237`, against
+  `openspec/changes/add-factory-mcp-conformance`). Filed 2026-09-07 by the
+  Codex lane `mcp-family-contract`;
+  **RATIFIED 2026-09-07 by Brett Heap**, verbatim *"yes"* (record
+  [`review/ratification-2026-09-07.md`](openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/review/ratification-2026-09-07.md),
+  reviewed revision `8acd2ec4`); ADOPTED by lane `openxfactory-5` on his word
+  of 2026-10-05, verbatim *"confirm 1, close 018, adopt the work, re-anchor
+  codexFactory"*, under governing issue
+  [#1242](https://github.com/opensoft/openxFactory/issues/1242).
+  **`code_surface: openxFactory` is non-empty, so under
+  `release-realization` it archives on merged-plus-green realization
+  evidence**, which is cited rather than asserted: the realization, Speckit
+  feature
+  [`specs/037-factory-mcp-conformance/`](specs/037-factory-mcp-conformance/spec.md),
+  landed as PR [#1243](https://github.com/opensoft/openxFactory/pull/1243) →
+  `92010d3e67f2c556687e1c3583ed3ca1867f4b8b` (2026-10-06T03:37:58Z, by squash
+  from head `6ab71267`, whose tree it carries unchanged) on his word *"land
+  #1243 when green"*. Every required context passed at that head, and
+  `pytest-suite` decided success on `main` at `92010d3e` itself, run
+  [37409899722](https://github.com/opensoft/openxFactory/actions/runs/37409899722)
+  (`selected=9831 passed=9825 skipped=6 failures=0 errors=0`).
+  **Performed through the governed wrapper, never a bare `openspec
+  archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive add-factory-mcp-conformance --yes`,
+  exit 0: *"ORIGIN RETAINED add-factory-mcp-conformance (declaration
+  unchanged since the ratifying commit 92010d3e67f2)"*, *"Applying changes to
+  openspec/specs/factory-mcp-conformance/spec.md: + 8 added"*, *"Totals: + 8,
+  ~ 0, - 0, → 0"*, over the content-addressed `@fission-ai/openspec@1.12.0`
+  pin. **The promotion creates the capability `factory-mcp-conformance`** at
+  [`openspec/specs/factory-mcp-conformance/spec.md`](openspec/specs/factory-mcp-conformance/spec.md):
+  its Purpose and eight requirements with twenty-two scenarios, each
+  requirement block byte-identical between the archived delta and canon,
+  hashed one by one. Canon goes from 66 to 67 capability directories, and no
+  other promoted byte moves. The nine packet files move as pure renames.
+  **This archive settles none of the items still awaiting Brett Heap's
+  rulings**: an auth and transport block, the home of the family error
+  vocabulary, shared transport, and enforcement of the *Unavailable
+  dependency* scenario, which the validator does not yet enforce although
+  canon now states it. Runbook:
+  [`docs/factory-mcp-conformance.md`](docs/factory-mcp-conformance.md).
 
 - [admit-code-leg-under-pinned-root](openspec/changes/archive/2026-09-27-admit-code-leg-under-pinned-root/proposal.md)
   — **ARCHIVED 2026-09-27** by

@@ -105,6 +105,10 @@ R1Q6"*.
   golden? → A: (a). Through the default profile's `SUBCOMMAND_EXTENSIONS`
   (`RuntimeSubcommand`), and `opendox-runtime` stays as an alias. A host that
   registers its own profile keeps its 31-entry tree.
+  - The count moves at phase 3 (`5970917267`, § Session 2026-10-02 and
+    2026-10-03 below). T100 adds `model-binding trust`, so from phase 3's pin
+    the host's tree has 32 entries. The answer itself stands: the runtime
+    verbs still do not reach a host's tree.
 - Q: R1Q6. How does openXdox-code run its whole suite green alone while its
   modules import openxFactory's `doc_health`? → A: (d), for release 1.
   - The `doc_health`-dependent files are a DECLARED exclusion, with their
@@ -230,8 +234,171 @@ comment `5852513402`, verbatim *"Keep (a) as ruled (Recommended)"*.
 The #1144 lines these answers amend are T007's batch I ([`tasks.md`](./tasks.md)
 § "Ruled amendments").
 
+### Session 2026-10-02 and 2026-10-03
+
+Phase 3's own work raised seven more questions. Brett Heap answered each by
+multiple choice, and each answer is the option marked *(Recommended)*. Each is
+posted on `#656`, and the time below is the comment's. [`tasks.md`](./tasks.md)
+encodes them, in T086, T094, T099–T104 and AT-R1's two halves.
+
+- Q: How does release 1 install, and does the aggregation's pin-sync after
+  T064 land? (`5962754358`, 2026-10-02T22:55:22Z) → A: two answers.
+  - (1) *"Publish to PyPI at the cut (Recommended)"*. openDox-code publishes
+    the wheel to PyPI as `opendox` by trusted publishing (OIDC), so no token
+    is stored anywhere, and 10.3's `pip install "opendox[local]"` works as
+    written (T101, T099).
+  - (2) *"Yes, land when green (Recommended)"*. The opensoft/xFactory
+    pin-sync after T064 lands as a merge commit, once its tests pass with the
+    submodules initialized. It moves the openxFactory gitlink,
+    `.github/clearing/openxfactory/PIN.yaml` and the root openDox and
+    openXdox gitlinks in ONE commit.
+- Q: Which version does openDox's first PyPI release carry?
+  (`5963162921`, 2026-10-02T23:38:05Z) → A: *"0.1.0 (Recommended)"*. The
+  version bump is the last phase-3 openDox-code landing, T087 pins that
+  commit, and the release workflow publishes only the commit the openDox
+  root's `contracts/code-pin.yaml` names (T101, T087, T099).
+- Q: A standalone workbench opens read-only, because its editors and chat
+  rail wait on a create gate that only openXdox answers. Where should they
+  appear? (`5963618568`, 2026-10-03T00:28:27Z) → A: *"Edit and chat by scope
+  (Recommended)"*. The editors and the chat rail appear wherever the scope
+  lets the document be edited. Only creating documents and Save stay behind
+  the gate, so Save is refused by name (T102).
+- Q: A standalone openDox serves its console token from `/capabilities` to
+  any loopback caller, other OS users of the same machine included. How
+  does the page get the token? (`5963851934`, 2026-10-03T00:56:13Z) → A:
+  *"Token via the opened URL (Recommended)"*. The server stops handing the
+  token out from `/capabilities`. `generate-and-open` opens the page with
+  the token in the URL's fragment and keeps a private copy (0600) in the
+  state directory (T104). T007's batch N records #1144's side, and T095's
+  harness reads the private copy.
+- Q: Where does openxFactory stand under T100's per-machine binding trust
+  when it hosts openDox? (`5970369724`, 2026-10-03T15:02:16Z) → A:
+  *"Governance approval (Recommended)"*. The host's registered policy wins
+  over openDox's strict default. openxFactory registers `GovernedBindingTrust`
+  as a sixth `seams()` entry, with an undo (T094):
+  - a binding the governance flow approved is trusted;
+  - a declared binding still pending approval is refused
+    (`pending_binding_ids`);
+  - a binding with no declaration is trusted;
+  - an unreadable declarations document admits nothing;
+  - `record()` writes nothing.
+
+  The comment also records the holder's rulings on T094's preparation:
+  - E1 (a): the help golden's phase-3 copy lands in a non-arc PR ahead of
+    T094, in T066's form, under `tests/domain_profile/fixtures/`. That PR
+    opens after T087 and is regenerated from T087's commit.
+  - E3 (a): that PR is the golden reader only.
+  - E4 (a), verbatim: *"#76 merges main before it lands"*.
+  - T086 registers no trust policy in openXdox.
+
+  The holder's later comment `5972924576` (2026-10-03T19:56:30Z) reads E3
+  (a). It limits the ahead PR's scope, which carries no host wiring, and
+  means that the golden's own reader picks the golden from the pinned
+  parser. It does not make the golden the PR's only content. The same
+  comment rules E5 (a): the PR also carries `test_cli_column_split`'s usage
+  line and the rebound-Host case of `test_doxbench_routes.py`, each in
+  both-pins form (T094, T103).
+- Q: #1144 and this plan fix the assembled `--help` tree at 31 sections, but
+  T100 adds `model-binding trust`. Is the count amended? (`5970917267`,
+  2026-10-03T16:09:32Z) → A: *"Amend to 32 (Recommended)"*. From phase 3's
+  pin the tree has 32 sections.
+  - T007's batch O (#1228) records it in #1144, at 10.1, F9.1 and F9.2.
+  - openXdox-code's F9.2 test moves to 32 with T086, at the pin move past
+    T100.
+  - openxFactory's help golden moves with T094's ahead PR. That golden also
+    covers T070's `--local`, T079's and T080's `--model` and auth-kind
+    changes, and T084's rename of the program to `opendox`.
+
+  The question came from the plan analyze of 2026-10-03 (finding H2).
+- Q: On standalone, T102 refuses Save by name, because Save goes through
+  openxFactory's create gate. What does AT-R1's "both editors usable" mean
+  then? (`5971834845`, 2026-10-03T17:50:13Z) → A: *"Usable = edits; Save
+  refused (Recommended)"*. "Usable" means each editor opens and accepts
+  edits. On standalone, create and Save are refused by name. The oracle
+  declares that refusal, so it is expected and not an error. AT-R1 step 7
+  and `quickstart.md` § 4 step 4 carry it.
+
+Of these, only three amend a line of #1144: `5963851934` (T007's batch N,
+at #1144's 12.4a); `5970917267` (batch O, at 10.1, F9.1 and F9.2); and item
+1 of `5962754358` with `5963162921` (batch O, at 9.5: the one release tag,
+`v0.1.0`, that the publish at the cut owes).
+
+### Session 2026-10-04
+
+The holder's adversarial reviews of T104 (openDox-code#84) and T100
+(openDox-code#82, landed as `38d3350e`) raised three more questions, and
+batch P's review a fourth. Brett Heap answered each by multiple choice, and
+each answer is the option marked *(Recommended)*. The first three are in
+one comment on `#656`, `5982436447` (2026-10-04T17:11:29Z), which also
+records three of the holder's rulings, and the fourth is `5983805990`.
+
+- Q: Snap and Flatpak browsers, and a Windows browser opened from WSL,
+  cannot open the private copy's `file://` URL under the hidden default
+  state directory, and the token is never printed. What does release 1 do?
+  (item 1, finding B3) → A: *"Hint line, accepted limit (Recommended)"*. The
+  start prints one more line, with no token, saying that such a browser
+  should be used with `OPENDOX_STATE_DIR` set to a folder that is not
+  hidden. The openDox root's README documents it (T076), and release 1
+  ships with the limit (T104).
+- Q: A trust names a digest of the binding's record, so a trusted binding
+  whose broker runs a program inside the served repository stays trusted
+  after a pull changes that program. What is the rule? (item 2, finding A2)
+  → A: *"Refuse in-repo programs (Recommended)"*. A binding's command may
+  not name a file inside the served repository, and the broker lives
+  outside it. A T100 follow-on openDox-code PR carries it before T087 (claim
+  `5982447319`).
+- Q: A shell or interpreter wrapper, such as `["sh", "-c", "exec
+  ./tools/broker.py"]`, names no file as an argv member but still runs an
+  in-repo program. How far does item 2 reach? (`5983805990`,
+  2026-10-04T19:56:01Z, asked on #1230's Copilot thread `r4179024140`) →
+  A: *"Refuse inline scripts (Recommended)"*. A binding whose program is a
+  shell or an interpreter given an inline script (`sh -c`, `bash -c`,
+  `python -c`, `node -e`) is refused by name. The program must be a real
+  file outside the served repository, and every broker also starts with its
+  working directory outside it. `sh -c "pass show key"` becomes
+  `["pass", "show", "key"]`, or a script kept outside the repository. The
+  holder's ruling `5984069416` (2026-10-04T20:27:27Z, on Copilot
+  `r4179187252`) implements it for launcher chains: a common launcher such
+  as `env` is unwrapped to the program it starts, the broker's environment
+  drops `PWD` and `OLDPWD`, and a general program that runs code from its
+  own arguments (`awk`, `find -exec`) is an accepted release-1 limit. The
+  holder's ruling `5985046107` (2026-10-04T22:16:59Z, after an adversarial
+  review of openDox-code#86) applies both, extending neither. A launcher's
+  options are read by GNU `getopt_long`'s grammar, an ambiguous or unknown
+  one is refused, `xargs -a` is judged as `env --chdir` is, and an `env -S`
+  string with a backslash or a `$` is refused as unreadable (C1). A path
+  given to the final program as an option's value, after `=` or attached
+  to a single-dash option (`-I<repo>/lib`), is judged (C4). The holder's
+  ruling `5985553609` (2026-10-04T23:23:22Z, asked by Copilot at
+  `7b11ce8f`) reads *"a real file"* by what it forbids to run: a program
+  that cannot be found runs nothing, is not refused at trust, and is
+  refused as `broker_unreachable` when its start fails. A check at trust
+  that it exists is no open work of release 1: it is a possible follow-on
+  for Brett Heap that would move no release-1 box.
+- Q: A state directory inside the served repository is refused. What of one
+  inside some other git checkout? (item 3, finding A14) → A: *"Served repo
+  only, limit (Recommended)"*. The check stays as it is, and the wider case
+  is an accepted limit, with no code change. A check for any enclosing
+  checkout would refuse a home directory kept in git.
+
+The holder's rulings recorded with them:
+- B2: a platform without the POSIX primitives refuses the start by name, as
+  openDox-code#69's `bundle.unsupported_platform()` does (T104).
+- B7: a browser's persistent history keeps the fragment. It is the same
+  user's data as the 0600 copy, and the page's `replaceState` cleans only
+  session history, so it is an accepted limit (T104).
+- A8: the realization follows F16.1's ratified text. A state directory that
+  is itself a symbolic link trusts nothing (the T100 follow-on).
+
+T007's batch P records items 1 to 3, `5983805990` (with the holder's
+`5984069416`, `5985046107` and `5985553609`), B7 and A8 in #1144, at 12.4a,
+16.3a and F16.1, and item 2 with `5983805990` also in a third dated note to
+requirement 17, since they narrow batch M's note there. B2 needs no line
+there.
+
 **Nothing is open.** No task in [`tasks.md`](./tasks.md) carries a `Blocked
-by:` line.
+by:` line, and the answers above settle the choices phase 3's additions
+raised, T094's help golden and trust policy among them.
 
 One box needs no question. **3.0** ("RATIFICATION READ FIRST") is discharged by
 the ratification word itself. `5815412869` ratified the change and struck no
@@ -265,6 +432,8 @@ reaches into openxFactory, under F4.1's scan restricted to the publisher's
 packages. F9.2 is run and quoted red, not passed: RULED `5859927858` keeps it
 unchanged, so it stays red on the 31-entry help-tree test until T008, and
 phase 1 closes with it quoted so (holder decision, 2026-09-29, at T049).
+From phase 3's pin that test reads 32 entries, because T100 adds
+`model-binding trust` (RULED `5970917267`; T086 moves it).
 
 **Acceptance Scenarios**:
 
@@ -291,8 +460,10 @@ phase 1 closes with it quoted so (holder decision, 2026-09-29, at T049).
      contracts or rail (R1Q24 (a)), and `tests/test_snapshot.py` until 7.3
      lands in phase 2 (R1Q25 (b)).
 5. **Given** openXdox-code with openDox at its pin, **When** the declared
-   integration suite runs, **Then** it passes, including the 31-entry assembled
-   `--help` tree (requirement 9, third scenario).
+   integration suite runs, **Then** it passes, including the assembled
+   `--help` tree (requirement 9, third scenario). The tree has 31 entries
+   through phase 2, and 32 from phase 3's pin, where T100 adds
+   `model-binding trust` (RULED `5970917267`).
 
 **Phase-1 limit, measured and not chosen**: in phase 1 a standalone
 `build_server` still needs an injected snapshot source. With nothing else
@@ -363,7 +534,7 @@ configure one, before any turn is attempted, and everything else works.
 13 and 17). It depends on US1 and US2.
 
 **Independent Test**: at the phase-3 tip, F13.1 and F10.1 (both as amended per
-R1Q15 and R1Q16), F16.1 (as T007's batch M amends it) and F4.1 (the whole
+R1Q15 and R1Q16), F16.1 (as T007's batches M and P amend it) and F4.1 (the whole
 package: no deferred reach, and `consumer_reach.py` gone) pass. So does
 **AT-R1**, defined under Success Criteria.
 
@@ -403,7 +574,14 @@ package: no deferred reach, and `consumer_reach.py` gone) pass. So does
    declared through `opendox model-binding add` or `edit`, or trusted through
    `opendox model-binding trust <id>`, is reached as scenario 3 says
    (requirement 17 as T007's batch M note reads it; RULED `5962785556`, item
-   2: *"Trust per machine (Recommended)"*).
+   2: *"Trust per machine (Recommended)"*), unless its command names a file
+   inside the served repository. Such a binding is refused by name, naming
+   the remedy, a broker installed outside the repository, both when trust
+   would be recorded for it and before any process is spawned, even when it
+   is trusted, and so is one whose program is a shell or an interpreter
+   given an inline script (requirement 17 as T007's batch P note reads it;
+   RULED `5982436447`, item 2: *"Refuse in-repo programs (Recommended)"*,
+   and `5983805990`: *"Refuse inline scripts (Recommended)"*).
 
 ---
 
@@ -604,7 +782,49 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   SHALL record it after printing what will run and where the credential
   goes, and an untrusted binding SHALL be refused by name before any spawn,
   read or contact. Bindings stay committable. This is requirement 17 as its
-  batch-M note reads it (`5962785556`, item 2; 16.3a). With no model
+  batch-M note reads it (`5962785556`, item 2; 16.3a). A binding whose
+  command names a file inside the served repository SHALL be refused by
+  name even when it is trusted, naming the remedy, a broker installed
+  outside the repository, and so SHALL one whose program is a shell or an
+  interpreter given an inline script, directly or through a common
+  launcher such as `env` or `xargs` (`5984069416`, `5985046107`). The
+  program SHALL be a real file outside the served repository, and every
+  path the command names, the program and each argument alike, SHALL be
+  judged both as named and as it resolves, when trust is recorded and
+  before any spawn, so a link or a `PATH` entry that leads inside, or an
+  in-repo link that points outside, is refused. "A real file" is read by
+  what it forbids to run (`5985553609`): a program that cannot be found
+  runs nothing, is not refused when trust is recorded, and SHALL be
+  refused, when its start fails, by the existing named refusal
+  `broker_unreachable`. Every broker SHALL start with its working
+  directory outside the repository and with an environment that points
+  away from it: no `PWD` or `OLDPWD`, no variable whose value is a path inside it, and no
+  path-list entry inside it, each judged both as named and as it resolves.
+  A launcher's own assignments (`env NAME=value`) SHALL be judged the same
+  way, and one whose value is a path inside the repository, or a path list
+  with an entry inside it, SHALL be refused. A launcher's own options
+  SHALL be read by GNU `getopt_long`'s grammar, a long option by its
+  unambiguous prefix, and an ambiguous or unknown one SHALL be refused by
+  name (`5985046107`, C1). A launcher's own option that names a path, such
+  as the directory `env --chdir` (`-C`) starts the program in or the file
+  `xargs -a` (`--arg-file`) reads its arguments from, SHALL be judged the
+  same way, and one that names a path inside the repository SHALL be
+  refused (C4). A string that `env -S` carries SHALL be judged as the
+  arguments it names when it holds no backslash and no `$`, and SHALL
+  otherwise be refused as unreadable, as an inline script is (C1). A path
+  given to the program that finally runs as an option's value, after `=`
+  (`--require=<repo>/x`) or attached to a single-dash option
+  (`-I<repo>/lib`), SHALL be judged as the command's paths are and SHALL
+  be refused when it lies inside the repository (C4). Any other path
+  embedded inside an option string given to the program that finally
+  runs, such as one carried in a variable like `NODE_OPTIONS=--require=…`,
+  is part of the accepted release-1 limit, as the batch-P note says; a
+  launcher's own options are never part of it. A general program outside
+  the repository that runs code from its own arguments (`awk`, `find
+  -exec`), other than a shell or an interpreter given an inline script, is
+  an accepted release-1 limit. This is
+  requirement 17 as its batch-P note reads it (`5982436447`, item 2,
+  `5983805990` and `5985046107`; 16.3a). With no model
   configured, it SHALL show a "no model configured" state before any turn,
   and every other surface SHALL work. Exactly one module SHALL contact a provider (R1Q10 (a);
   R1Q17 (b): a built-in `env:` and keyring resolver in that module; R1Q18 (a):
@@ -683,7 +903,8 @@ falsifier is #1144's own, cited by the label `tasks.md` defines
   because R1Q25 (b) keeps 7.3 in phase 2, read as batch I records R1Q27
   (a).
 - **SC-003** (phase 3 exit): F4.1, F5.2, F10.1, F13.1 and F16.1 (with T007's
-  batch M line) exit 0, and the F4.1 scan prints
+  batch M line, whose named file holds batch P's A2 cases too) exit 0, and
+  the F4.1 scan prints
   `no deferred reach names the consumer or the publisher`.
 - **SC-004**: AT-R1 passes, and its evidence is recorded in this feature's
   `evidence/` directory.
@@ -726,7 +947,15 @@ chat's 'no model configured' state."* Each term is made checkable below.
    - (b) a directory of ordinary `.md` files with no front matter at all.
 4. **Opens.** The ONE command the openDox root README documents,
    `opendox generate-and-open --local …` (R1Q15 (b)), serves the bundle on
-   loopback.
+   loopback. Whether or not `--no-open` is given, the command writes a
+   private copy in the state directory, `console/<port>.html`, and prints
+   its location as a `file://` URL, never the token. Without `--no-open`
+   it hands that copy to the browser. With `--no-open`, as this test runs
+   it, the page is opened by loading the printed `file://` URL. Either way
+   the copy forwards to the page with the console token in the URL's
+   fragment. `/capabilities` carries no console token, so a request that
+   needs one reads it from that copy (`5963851934`; T104, as T007's batch N
+   records it at #1144's 12.4a).
 5. **The wheel works.** `#tab-wheel` renders a tile for every document station
    the snapshot fills, and raises no `pageerror`.
 6. **The radar lens works.** `#tab-lens` renders the bullseye with the corpus's
@@ -737,6 +966,14 @@ chat's 'no model configured' state."* Each term is made checkable below.
    staging workbench opens, and its chat rail shows the "no model configured"
    state, naming how to configure a model, BEFORE any turn is attempted. A turn
    is refused `model_capability_unavailable`, and both editors stay usable.
+   The rail's catalog and turn routes are guarded, so the page is the one
+   step 4 opened through the private copy, carrying the console token.
+   "Usable" means that each editor opens and accepts edits. On standalone,
+   creating a document and Save are refused by name, since both go through
+   openxFactory's create gate, which a standalone install lacks (T102). That
+   refusal is declared to `tests/smoke_signals.py`'s oracle, so it is
+   expected and not an error (RULED `5971834845`, *"Usable = edits; Save
+   refused (Recommended)"*).
 8. **No errors.** There are zero `pageerror` events. Every other console error
    or failed request is declared to `tests/smoke_signals.py`'s oracle, or the
    run fails. No route the three panes request answers 5xx.

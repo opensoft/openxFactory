@@ -635,10 +635,22 @@ class TheRealFiles(unittest.TestCase):
         identical canonical decision hash as the pre-act baseline — so the
         literal below moves with `lockstep.status` in the same commit, as every
         prior transition did.
+
+        RE-DIVERGED 2026-10-06 by a ROUTINE ADVANCE: the `review-lane-repin`
+        lane's PR #1138 (merge `9171d14a`) moved `core_commit` `b21f0100` ->
+        `fe9a6f5b` while `MIGRATION_PIN` stayed at `b21f0100` on all three
+        xFactory surfaces, MEASURED at this edit on xFactory `main` `1047586d`.
+        That lane writes no lockstep field, so the literal below moves with
+        `lockstep.status` in the same commit, as every prior transition did —
+        owed by Brett Heap's word "(a) on C1–C5", openxFactory #656 comment
+        `5815412869`, item C2. THE CURRENT CONTRACT IS `diverged`; re-converging
+        is a recorded re-point ceremony in another repository and is not taken
+        here, and measuring rather than declaring the state is openxFactory
+        #1145's act (a `Status: draft` packet), not this one's.
         """
         pin = yaml.safe_load(self.pin_text)
         lockstep = pin.get("lockstep") or {}
-        self.assertEqual(lockstep.get("status"), "converged")
+        self.assertEqual(lockstep.get("status"), "diverged")
         self.assertTrue(str(lockstep.get("reason") or "").strip(),
                         "the lockstep state must state WHY")
         self.assertTrue(str(lockstep.get("obligation") or "").strip(),
