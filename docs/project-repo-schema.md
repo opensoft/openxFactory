@@ -517,6 +517,24 @@ proved rather than the one it broke.
 > ratification facts above are unchanged; only the present tense was, again,
 > wrong.
 
+> Amended 2026-10-06. The note above said the pin "now pins `e9c4827b85f5…` —
+> openRepoShape `main` of 2026-09-05 … thirty-one digested and forty-five
+> path-only members over a seventy-six-file surface". That was true after PR
+> #700 and is no longer:
+> [`contracts/openreposhape-pin.yaml`](../contracts/openreposhape-pin.yaml) now
+> pins `1a9fc537bcce…` — openRepoShape #164, the realization of
+> `prefer-triad-project-shape` task 5.2 (the advisory and the optional
+> `single-repository.yaml` named in § The Triad is PREFERRED above), fifty-seven
+> commits on, and covering with it the compliance command
+> `openRepoShape --doctor` (`shape-doctor.py`, openRepoShape #96), the native
+> Windows flow `setup-project.py` that `setup.sh` now hands over to (#53, #60),
+> and the `<user>-wip` workspace template (#154) — thirty-seven digested and
+> sixty-seven path-only members over a hundred-and-four-file surface. Nothing in
+> this doctrine moves with this bump either: the pin advances within its own
+> ratified grammar, and the PIN FILE rather than any of these sentences is where
+> the commit in force is read. The ratification facts above are unchanged; only
+> the present tense was, a third time, wrong.
+
 ## See also
 
 - [`contracts/openreposhape-pin.yaml`](../contracts/openreposhape-pin.yaml) — the pin
