@@ -1956,3 +1956,133 @@ bookkeeping. This note does not touch it.
 (the separate record pull request books them), 6.27 and 6.28. No hold is posted
 or lifted, no convening is dispatched, and no Rule 6 LANDING is posted by this
 note.
+
+#### 13.6 — BOOKKEEPING NOTE 3 APPENDED 2026-10-07: TASKS 6.15 AND 6.18 TICKED ON BRETT HEAP'S RULINGS; 4.3 OWNED BY THIS LANE AND NOT TICKED; ARCHIVE WAITS FOR THE DECLARED ORDER
+
+Four rulings given first-hand by Brett Heap on 2026-10-07 in lane
+`codeXfactory-2`'s session (`8d6bf418-cc06-45d9-9406-2374935c6c72`), recorded by
+that lane and composed by a Sonnet agent the lane directed. The reads were
+read-only: `git` reads of openxFactory `main` at
+`16779816119a829cc65512ea5f28ab93bd3a2c51` (fetched 2026-10-07), and the pinned
+validation below. Nothing is dispatched, posted or merged by this note, and
+nothing under `governance/review-authority/` moves. Like notes 1 and 2 it is
+appended at the end of the file and edits no earlier section.
+
+**Why this note exists.** Four decisions were open. Two are the ones note 1
+(2026-10-04) named, each needing *"a word from Brett Heap, not more
+bookkeeping"*: 6.15's path clause and 6.18's pair shape. One is the archive
+order: note 2 (2026-10-05) recorded, as the coordinator's reading, that archive
+is blocked on the `sequenced_after` order, which is why 5.3 stayed open. The
+fourth is the acting owner of 4.3, whose row names *"the arc owner of
+`add-wallet-carried-review-authority`"*. He asked to be put the decisions as
+multiple choice with recommendations (*"ask the decisions by me in multi choice
+with recomendations"*), was put each as a multiple-choice question with a
+recommendation, and **selected the recommended option each time.** Each is
+recorded in one form: **RULED 2026-10-07 by Brett Heap, first-hand in lane
+codeXfactory-2's session (multiple choice; he selected '<label>')**. No UTC
+instant for the four selections is recorded in this note.
+
+**The rule applied.** The first note's: an `[OPERATOR]` row ticks on Brett
+Heap's recorded word and its date, and a row ticks only when every clause of it
+is shown or accepted. For 6.15 and 6.18 the unmet clause is the one his word
+accepts. A ruling that does not close a row's ask does not tick it (4.3, and the
+archive order).
+
+| # | the question | label he selected | what it does | state now |
+|---|---|---|---|---|
+| 1 | 6.15's path clause | 'Accept walked-day name' | `walk-2026-09-12-register-act.md` is ACCEPTED as satisfying the row; no re-date | **6.15 `[x]`** |
+| 2 | 6.18's pair shape | 'Accept, note deviation' | the row ticks on his acceptance; the deviation is noted below | **6.18 `[x]`** |
+| 3 | 4.3's acting owner | 'This lane' | lane `codeXfactory-2` owns the gap; REPLACES "the arc owner of `add-wallet-carried-review-authority`" as the acting owner; the arc's design ownership is unchanged | **4.3 stays `[ ]`**; OWNER note appended |
+| 4 | when this change archives | 'Wait for declared order' | archive WAITS for the declared `sequenced_after` order | **no § 5 row ticks**; 5.2 and 5.3 stay `[ ]`; § 5 note appended |
+
+**Ruling 1, task 6.15.** The path clause is the one clause note 1 found not
+evidenced. The row says `walk-<T2-date>-register-act.md`; T2 fell on 2026-09-13
+and this file is named for 2026-09-12, the day it was walked. § 6.8 recorded
+that as *"ONE NAMING TENSION, DISCLOSED AND NOT RESOLVED"* and left it to the
+ratifying human. He has accepted the walked-day name. Every other clause of 6.15
+was evidenced in note 1 and is not re-checked here. The file is not renamed and
+no file that cites its path is edited.
+
+**Ruling 2, task 6.18, the deviation noted.** Note 1 found the merge, the single
+H2 pull request and the hold evidenced, and the pair shape as written not. The
+deviation, from the facts note 1 and § 13.3 record: (1) ONE hold spanned T1 to
+T2, posted 2026-09-12T15:57:19Z and lifted 2026-09-14T09:10:05Z. (2) ONE
+openxFactory H2, oxF #1006 → `765d8c6f`, carried 6.9 to 6.15. (3) The
+codexFactory half landed as H1, cxF #439 → `eff9ae19` (6.2 to 6.7), PLUS 6.8's
+mint RECORD as its own pull request, cxF #452 → `58f1e909`, merged
+2026-09-13T22:32:20Z, two minutes after T2. OQ-4 (a) says H1 *"is not split into
+separate mint / roster / composition pull requests"*; the mint record was its
+own pull request, and that is the deviation. **The governed act's shape held.
+Only the record of the mint landed separately.** The mint itself (secret
+provisioned 2026-09-13T02:12:15Z) came before T2. The row ticks on his
+acceptance: the OQ-4 (a) text and the row are not edited or re-scoped. With 6.15
+ticked in the same pass, every row of 6.9-6.15, the range 6.18 names, is `[x]`.
+
+**Ruling 3, task 4.3, owned and NOT ticked.** The row asks for the
+floor-reachability gap to be closed, as it states the gap (design D6). A ruling
+on who owns it closes nothing, so the row stays `[ ]`. Lane `codeXfactory-2` is
+now the acting owner, in place of the row's *"owner: the arc owner of
+`add-wallet-carried-review-authority`"*, whose words are not edited. The arc's
+design ownership is unchanged. This note does not re-measure the gap and no
+codexFactory file is touched. § 5.2 stands: § 4 is outside the archive gate.
+
+**Ruling 4, the archive order, nothing ticks.** `proposal.md:4` declares
+`sequenced_after: [add-wallet-carried-review-authority,
+openXwallet:widen-register-reader-for-a-second-council]`. Archive WAITS for that
+declared order, so this change archives only after
+`add-wallet-carried-review-authority`, which itself waits on
+`add-substantive-review-lane`. Where each hop is recorded: the first is
+`proposal.md:4`. The second is in `add-wallet-carried-review-authority`'s own
+`tasks.md`, "Archive-ordering note (2026-09-05)" (*"`add-substantive-review-lane`
+archives FIRST"*), which says a `sequenced_after:` declaration for it is OWED and
+was deliberately not added, and its ledger row reads `declares: absent`. So that
+hop is a prose archive order and not a declaration the validator reads. The other
+member `proposal.md:4` declares, openXwallet's
+`widen-register-reader-for-a-second-council`, is another repository's change and
+this note does not assess its state. 5.3 stays open: its archive-time re-read is
+to be re-run against the then-current `origin/main` on the day of the archive,
+and note 2's DATED READING of 2026-10-05 stands as that day's reading and not as
+a tick.
+
+**Re-checked by this note itself:**
+
+* **The two waited-on changes are still active.** At `16779816`,
+  `openspec/changes/add-wallet-carried-review-authority/` and
+  `openspec/changes/add-substantive-review-lane/` both exist, and neither id
+  appears under `openspec/changes/archive/`. The corpus ledger
+  (`tests/sequenced_after/corpus-ledger.yaml:178` and `:174`) reads `state:
+  active` for both.
+* **The facts ruling 2 cites**, re-read live on 2026-10-07 by `gh pr view` and
+  `gh api`: cxF #439 MERGED `eff9ae191d78c396800a72cdec9fffe0caf866d7` at
+  2026-09-12T15:59:10Z; cxF #452 MERGED `58f1e90924679c173697405db1f85a676d7dff27`
+  at 2026-09-13T22:32:20Z; oxF #1006 MERGED
+  `765d8c6fcd3fbfdb71540903858e8fca74f04929` at 2026-09-13T22:30:20Z, so #452
+  landed two minutes after T2. The hold comment on cxF #279 (`5646989264`) was
+  created 2026-09-12T15:57:19Z, and the lift comment (`5661634651`) was created
+  2026-09-14T09:10:05Z.
+* **The pinned validation**, from the repository root of a fresh worktree cut
+  from that base, on the tree carrying this note: `python3
+  scripts/validate-openspec-cli-pin.py --change register-gate-rules-council-seats
+  --strict` → `Totals: 1 passed, 0 failed (1 items)`. `--all --strict` →
+  `Totals: 112 passed, 1 failed (113 items)`, `0 UNDISPOSITIONED failures`, exit
+  0, and the entrypoint itself prints "THIS IS NOT A CLEAN TREE": the one
+  failure is `add-chain-attestation`, the accepted exception note 2 names. The
+  same command on the unedited base read the same totals. `python3
+  scripts/validate-sequenced-after.py .` → passed (46 active changes, 19
+  declaring the field), and `--ledger-diff` → `per-change sweep ledger
+  consistent with the corpus (232 rows)`.
+
+**What the earlier text still says, and why it is left.** Several dated passages
+state 6.15 and 6.18 as open: the 2026-10-04 BOOKKEEPING paragraph in `tasks.md`
+§ 6 (*"6.15 and 6.18 are not [ticked]"*); the two rows' own *"OPEN — NOTED
+2026-10-04"* notes; note 1's *LEFT OPEN* dispositions and its *"What would close
+the two open rows"*; the 2026-10-05 status line headed *"Still open, and not this
+note's"*, which lists 6.15 and 6.18; and note 2's *"Not touched by this note"*
+list, which names them. Each was true when written, and none is edited. Note 1
+said what would close the two rows, and this note records that word.
+
+**Not touched by this note:** 4.4, 4.5 and 4.6 (4.6 does not tick, 6.27), 5.2 and
+5.3, 6.27 and 6.28, and every row of § 1 to § 3. No hold is posted or lifted, no
+convening is dispatched, and no Rule 6 LANDING is posted by this note: the pull
+request that carries it touches `openspec/changes/`, so the landing lane posts
+LANDING and LANDED when it lands, and it lands only on Brett Heap's word.
