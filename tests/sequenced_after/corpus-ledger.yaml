@@ -284,6 +284,7 @@ rows:
   refresh-install-repository-enumerations: {state: archived, class: co-modifier, declares: [admit-install-repos-to-aggregation], depth: 1, prose: false, moved_by: "#825", moved_on: "2026-09-09"}
   register-gate-rules-council-seats: {state: active, class: sole, declares: [add-wallet-carried-review-authority, openXwallet:widen-register-reader-for-a-second-council], depth: 1, prose: false, moved_by: "#717", moved_on: "2026-09-06"}
   relocate-review-authority-floor-mirror: {state: archived, class: co-modifier, declares: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor], depth: 2, prose: false, moved_by: "#925", moved_on: "2026-09-10"}
+  renew-resolved-council-protocol: {state: active, class: sole, declares: absent, prose: false, moved_by: "#1267", moved_on: "2026-10-07"}
   repoint-chain-anchoring-medxchain-citation: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#998", moved_on: "2026-09-12"}
   report-stale-grandfather-dispositions: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1015", moved_on: "2026-09-12"}
   repromote-engineering-vocabulary: {state: archived, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1103", moved_on: "2026-09-18"}
