@@ -561,6 +561,32 @@ Active changes:
   (`scripts/doc_health/catalog_dispatch.py`:521-522 on `main`). The archived
   delta is history and is not edited. **RATIFICATION ONLY**: the archive is a
   separate later act on Brett Heap's word.
+- [correct-naming-families-count](openspec/changes/correct-naming-families-count/proposal.md)
+  — filed 2026-10-07, lane `codeXfactory-5`, **`Status: ratified`**
+  (2026-10-07, Brett Heap, *"ratify as recommended when the PR opens"*, logged
+  RULED on the lane register at 09:47:04Z, over PR #1266's opening head
+  `3bb38c20`; a ratification only, not a merge word and not a word to realize
+  anything; record
+  [`review/ratification-2026-10-07.md`](openspec/changes/correct-naming-families-count/review/ratification-2026-10-07.md)),
+  on Brett Heap's in-session word of 2026-10-07, verbatim *"open an OpenSpec
+  change for the four families heading"*, which authorized authoring and
+  opening it and was not a ratification. Canon `project-repo-schema` says *"The four live naming
+  families"* and the ratified doctrine heads its section *"Naming, and the four
+  families"*, while the openRepoShape naming policy openxFactory pins has
+  declared five families since 2026-09-04 and six since 2026-10-06 (`1a9fc537`,
+  the `family` holder and the `<user>-wip` workspace form added). **TWO
+  `## MODIFIED` requirements in `project-repo-schema`, titles unchanged**: the
+  naming families become COUNT-FREE (those the pinned policy declares, governed
+  there as data, their number and full list restated nowhere in canon), and two
+  more sentences that restated a property of the whole set are corrected. Three
+  canon units are replaced under `Removed from canon` markers; every other
+  sentence and all six promoted scenarios are carried byte-identically, and one
+  paragraph and one scenario are added. It put no open question, and its three
+  decisions were RULED as recommended. It writes no
+  requirement `prefer-triad-project-shape` writes, so neither is sequenced after
+  the other. `code_surface: none`, `target_release: implemented`; the doctrine
+  edit is its one realization handoff, after ratification.
+
 - [prefer-triad-project-shape](openspec/changes/prefer-triad-project-shape/proposal.md)
   — filed 2026-10-06, lane `codeXfactory-5`, **`Status: ratified`**
   (2026-10-06T16:02:16Z, Brett Heap, *"ratify 1249 as recommended"*, PR #1249
