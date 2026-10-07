@@ -892,7 +892,12 @@ bookkeeping records an answer.
   - **On a hosted install** they refuse by name (R2Q15 (a)).
   - **The JSON shape.** `health list --json` SHALL emit one object per finding
     with `id`, `kind`, `resolution_class`, `path`, `severity`, `evidence`,
-    `pack_id` and `pack_version`.
+    `pack_id`, `pack_version` and `identity`. The `identity` is EMITTED, as it is
+    stored with the finding (the holder, `6018624750`; the HTTP response emits it
+    too, contracts/cli-http-health.md), and SHALL be bounded as openDox-spec's
+    finding schema bounds it: no key named `excerpt`, `text`, `content` or `quote`,
+    no number, every string at most 200 characters, `{category, entry}` for a
+    pathless finding and `{collided_id}` for a collision.
   - **A finding's `id`** is a STABLE, pack-qualified key. The engine derives it
     from the pack id, the family, the document's path and a locator the family
     supplies. It survives a store reset, is unique, and is mapped into a valid
