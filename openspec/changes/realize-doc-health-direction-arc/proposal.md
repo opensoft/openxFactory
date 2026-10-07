@@ -6,17 +6,48 @@ sequenced_after: []
 
 # Proposal: realize-doc-health-direction-arc
 
-Status: draft
+Status: ratified
+Ratified: 2026-10-06 by Brett Heap (openxFactory operator authority) — by interactive multi-choice, verbatim *"Ratify it (Recommended)"*, `#656` comment `6023375303`, over the change as landed at `fc4fa0ff`; the word authorizes the realization in plan 038's order and performs none of it; record at review/ratification-2026-10-06.md
 Authored: 2026-10-06, lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), as plan 038's T070 (`specs/038-opendox-document-tool-self-maintenance/`, draft PR #1245).
 Directed by: Brett Heap's ruling of the `doc_health` direction arc, ARC-Q1–ARC-Q4 all (a) (`#656` comment `6003918488`, 2026-10-05T21:59:43Z), and his ruling of plan 038 (`#656` comment `6013547504`, 2026-10-06T09:39:55Z: ARC-1 `implemented`, ARC-5 (a), and the tier-3 defaults ARC-2, ARC-3, ARC-4 and ARC-6 "as recommended").
 Origin: the staged topic `ideation/staging/doc-health-direction-arc/` (`Staging ID: openxFactory:staging:doc-health-direction-arc`), through its own exit path (`doc-health-direction-arc.md:472-553`).
 Kind: architecture
+
+**RATIFIED ON 2026-10-06. The next paragraph is kept verbatim as the filing's
+record.** Its negations were true at filing and are superseded by the
+ratification cited above. The three lifecycle documents now carry
+`Status: ratified`, and `.openspec.yaml` carries the approval pair beside the
+drafting provenance, which does not move. The word authorizes the realization
+and performs none of it, and the change stays ACTIVE until that realization is
+merged and green.
 
 **DRAFT. FILING IS NOT RATIFYING.** The three lifecycle documents carry
 `Status: draft`, and `.openspec.yaml` declares drafting provenance and no
 approval pair. Brett Heap's ratify word is plan 038's T071. No realization
 slice starts before it (plan 038 `tasks.md` T071, "No realization slice
 starts before it").
+
+## Ratification record
+
+**RATIFIED** by Brett Heap, at about 18:59Z on 2026-10-06, by interactive
+multi-choice, verbatim *"Ratify it (Recommended)"*, recorded at
+`opensoft/openxFactory` [#656](https://github.com/opensoft/openxFactory/issues/656)
+comment [`6023375303`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-6023375303).
+The full record is
+[`review/ratification-2026-10-06.md`](review/ratification-2026-10-06.md).
+
+- **What is ratified.** The change's text as landed on `main` at `fc4fa0ff`
+  (#1253, T070b), whose change directory is byte-identical to that PR's final
+  head `e4f3f1db`. D1–D7 stand as recommended, by `tasks.md` 1.2's own rule
+  (below). `skip_specs: true` stands, so there is no spec delta to ratify.
+- **What it authorizes.** The realization this change describes, in plan 038's
+  order, as the ruling record states: T072 (opportunistic, ARC-6), then T074 and
+  T075. Nothing is realized by the word itself.
+- **What it does not do.** It archives nothing and promotes nothing. The change
+  stays ACTIVE until its realization is merged and green, and it gates neither
+  release 2's close nor #1144's archive (ARC-Q3 (a)). No code byte, pin,
+  gitlink, contract bundle or release tag moves, and `code_surface:`,
+  `target_release:` and `sequenced_after:` stand as landed.
 
 ## Why
 
@@ -185,6 +216,12 @@ Requirement 1 is met for every module. None is left on composition alone.
   `staged` origin.
 - **D7.** The host fills openXdox's four seams as their own all-or-none
   group.
+
+**Read at ratification, 2026-10-06:** `tasks.md` 1.2 provides that the word
+rules D1–D7 as recommended unless it says otherwise. The word, *"Ratify it
+(Recommended)"* (`6023375303`), does not say otherwise, so D1–D7 stand as
+recommended and nothing is encoded before 2.1 starts
+(`review/ratification-2026-10-06.md` § 2).
 
 ## Measured at filing, for the holder
 

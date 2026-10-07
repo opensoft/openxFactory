@@ -570,8 +570,11 @@ Active changes:
 
 - [realize-doc-health-direction-arc](openspec/changes/realize-doc-health-direction-arc/proposal.md)
   — filed 2026-10-06, lane `openxfactory-4`, as plan 038's T070, **`Status:
-  draft`**; Brett Heap's ratify word is plan 038's T071, and no realization slice
-  starts before it. The `doc_health` direction arc's OWN change, as ARC-Q3 (a)
+  ratified`** (2026-10-06, Brett Heap, *"Ratify it (Recommended)"*, `#656`
+  comment `6023375303`, over the change as landed at `fc4fa0ff`; the word
+  authorizes the realization in plan 038's order and performs none of it; record
+  [`review/ratification-2026-10-06.md`](openspec/changes/realize-doc-health-direction-arc/review/ratification-2026-10-06.md)).
+  The `doc_health` direction arc's OWN change, as ARC-Q3 (a)
   rules it (`#656` comment `6003918488`, *"Own change, beside phase 5
   (Recommended)"*). It realizes ARC-Q1 (a), *"Retarget all eight
   (Recommended)"*: openXdox-code's eight `DOC_HEALTH_SURFACE` modules stop
@@ -592,7 +595,8 @@ Active changes:
   #1144's F11.1 guard and the protected-suite oracle over its own landings
   (ARC-4). Origin `kind: staged`: `ideation/staging/doc-health-direction-arc/`,
   which stays staged until the archive step moves it through this change.
-  `design.md` § 11 puts seven decisions (D1–D7) for the ratify read.
+  `design.md` § 11 put seven decisions (D1–D7) for the ratify read, and the word
+  stands them as recommended (`tasks.md` 1.2).
 
 - [add-neutral-product-standalone-operability](openspec/changes/add-neutral-product-standalone-operability/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-24,

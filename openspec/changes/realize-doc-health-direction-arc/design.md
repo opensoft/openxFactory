@@ -1,6 +1,7 @@
 # Design: realize-doc-health-direction-arc
 
-Status: draft
+Status: ratified
+Ratified by: realize-doc-health-direction-arc — 2026-10-06, Brett Heap, "Ratify it (Recommended)" (`#656` comment `6023375303`), over the change as landed at `fc4fa0ff` (record `review/ratification-2026-10-06.md`)
 Authored: 2026-10-06, lane `openxfactory-4`, as plan 038's T070.
 Kind: architecture
 
@@ -407,6 +408,9 @@ holder's act. The realization edits them under this change's ratification.
 ## 11. Decisions put for the ratify read
 
 Each lists the recommendation first, then the alternative and its cost.
+**Read at ratification, 2026-10-06 (`6023375303`):** `tasks.md` 1.2 provides
+that the word rules D1–D7 as recommended unless it says otherwise, and the word
+does not, so D1–D7 stand as recommended (D4's (a) included).
 
 **D1. No openXdox-spec delta; `skip_specs: true`** (§ 5).
 *Alternative:* an ADDED requirement in openXdox-spec declaring the four
