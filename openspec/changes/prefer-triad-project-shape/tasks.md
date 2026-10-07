@@ -190,7 +190,7 @@ with green checks.
   changelog entry moves. The tick holds on `main` only through that pull
   request's merge, which waits on Brett Heap's merge word and its required
   checks.
-- [ ] 5.2 **`opensoft/openRepoShape`, the mechanics.** The README posture box;
+- [x] 5.2 **`opensoft/openRepoShape`, the mechanics.** The README posture box;
   AGENTS.md § "What you must not tell them", which must still forbid saying the
   shape confers anything and must gain what to tell them — the Triad is the
   preferred shape, and choosing a single repository is reviewed identically; the
@@ -200,14 +200,50 @@ with green checks.
   advisory in `scaffold-project.py`, `adopt-project.py` and `shape-doctor.py`,
   with no exit status changed on its account. Whoever takes this claims it in
   openRepoShape first.
-- [ ] 5.3 **openxFactory, the pin.** `contracts/openreposhape-pin.yaml`
+  **DONE 2026-10-06** in opensoft/openRepoShape PR
+  [#164](https://github.com/opensoft/openRepoShape/pull/164) →
+  `1a9fc537bcce37301c85fc108fabd8a599b02000` (squash, merged
+  2026-10-06T22:52:05Z), lane `codeXfactory-5`. It changes `README.md`,
+  `AGENTS.md`, `templates/assembly-root/AGENTS-shape.md` and the posture
+  comment in `templates/assembly-root/project.yaml`; adds the staying-single
+  record's schema `contracts/single-repository-record.yaml` and its template
+  `templates/single-repository/single-repository.yaml`; and gives the advisory
+  to `scaffold-project.py`, `adopt-project.py` and `shape-doctor.py` out of the
+  new `scripts/shape_advisory.py`. Checks green: tests, tests-macos,
+  tests-windows and SonarCloud. Full suite (`python3 -m pytest tests -q -rs`):
+  1159 passed, 33 skipped on clean `main` `39d5c986`; 1200 passed, 33 skipped
+  at the final head `ff739588`. This tick is recorded in openxFactory PR
+  [#1260](https://github.com/opensoft/openxFactory/pull/1260)
+  and holds on `main` only through that pull request's merge, which waits on
+  Brett Heap's merge word and its required checks.
+- [x] 5.3 **openxFactory, the pin.** `contracts/openreposhape-pin.yaml`
   advanced onto the openRepoShape commit that realizes 5.2, every new file
   classified by the pin's own digested-or-path-only rule, and
   `openreposhape-pin-gate` green. Measured on 2026-10-06: the pin names
   `e9c4827b`, openRepoShape `main` is 56 commits ahead of it, and
   `shape-doctor.py` does not exist at the pinned commit, so this advance also
   carries everything those 56 commits brought. After 5.2.
-- [ ] 5.4 **`opensoft/workBenches`, the bootstrap.** In
+  **DONE 2026-10-06** in openxFactory PR
+  [#1260](https://github.com/opensoft/openxFactory/pull/1260) →
+  `9af2207125d0cf4449ae68f600112b9b1d2b36bb`, lane `codeXfactory-5`.
+  `contracts/openreposhape-pin.yaml` advances from `e9c4827b` to
+  `1a9fc537bcce37301c85fc108fabd8a599b02000`, the commit that realizes 5.2,
+  and so carries the 56 openRepoShape commits before it. Of the 28 files new
+  since `e9c4827b`, each classified by the pin's own digested-or-path-only
+  rule, 6 are digested and 22 path-only, for 37 digested and 67 path-only
+  members over a 104-file surface; 21 of the 31 earlier digests moved, and
+  nothing was removed or renamed upstream.
+  `scripts/validate-openreposhape-pin.py --checkout` at `1a9fc537`: 37 digests
+  recomputed, 67 members present, 104 files declared with none undeclared;
+  `openreposhape-pin-gate` green on that commit, run
+  [37550154276](https://github.com/opensoft/openxFactory/actions/runs/37550154276),
+  with the same counts. `docs/project-repo-schema.md` gains a dated currency
+  note, and the verifier's tests move with the pin. The pin is neither a
+  registered manifest member nor a release-inventory member, so no digest,
+  inventory member or changelog entry moves. The tick holds on `main` only
+  through that pull request's merge, which waits on Brett Heap's merge word and
+  its required checks.
+- [x] 5.4 **`opensoft/workBenches`, the bootstrap.** In
   `devBenches/base-image/files/openspeckit/setup-openspeckit`,
   `resolve_project_shape()` — which today only logs `shape: single repository`
   — gains the advisory: a warning in a non-interactive run with the exit status
@@ -217,13 +253,41 @@ with green checks.
   existing governing record is workBenches issue #22. THEN, after 5.5 lands, the
   embedded fallback protocol `openspec_speckit_protocol()` — an f-string, so its
   braces are doubled — re-synced byte-identical to the shared protocol.
-- [ ] 5.5 **The shared agent protocol.** Its source is the PRIVATE repository
+  **DONE 2026-10-06** in opensoft/workBenches PRs
+  [#139](https://github.com/opensoft/workBenches/pull/139) →
+  `9fbe609c977573f3d077240c771f7cac7665fab0` (the advisory in
+  `setup-openspeckit` at bootstrap) and
+  [#140](https://github.com/opensoft/workBenches/pull/140) →
+  `d86ba59b1c81b777d05a7a5457553f3e9895432c` (after 5.5: the embedded protocol
+  fallbacks re-synced, D001-D003, plus D004: `n` or `no` at the Triad question
+  stops the run, as ratified design D2 says), lane `codeXfactory-5`.
+  `devBenches/devcontainer.test/test-openspeckit-bootstrap.sh`: 1042 PASS,
+  0 FAIL. Post-merge `main` CI green at `d86ba59b` (OpenSpeckit Bash on push,
+  and CodeQL). The governing issue, workBenches#138, is closed as completed.
+  This tick is recorded in openxFactory PR
+  [#1260](https://github.com/opensoft/openxFactory/pull/1260)
+  and holds on `main` only through that pull request's merge, which waits on
+  Brett Heap's merge word and its required checks.
+- [x] 5.5 **The shared agent protocol.** Its source is the PRIVATE repository
   `brettheap/new-workstation`, under `home/.agents/`, deployed per workstation.
   Surfaces: `AGENTS.md` (the shape bullet), `protocols/openspec-speckit-workflow.md`
   § "Repository Shape" / "Detecting the shape" (the once-per-session advisory,
   who says it, and the exemptions), and `protocols/project-agent-bootstrap.md`
   (what the bootstrap prints and asks). Its evidence is cited by commit sha and
   file name only; nothing from that repository is quoted here.
+  **DONE 2026-10-06** in the PRIVATE source `brettheap/new-workstation`, cited
+  by merged commit sha and file name only: #52 →
+  `e081c5ab1166f0bbfd252973f32f21fa4c979131` (`home/.agents/AGENTS.md`,
+  `home/.agents/protocols/openspec-speckit-workflow.md` and
+  `home/.agents/protocols/project-agent-bootstrap.md`) and #53 →
+  `cb4114602826efe0f4829d1cb4695b17d11beb2b`
+  (`home/.agents/protocols/project-agent-bootstrap.md`), lane
+  `codeXfactory-5`. That repository runs no CI. Both are deployed: the three
+  files in the live `~/.agents` are byte-identical to `cb411460`'s. This tick
+  is recorded in openxFactory PR
+  [#1260](https://github.com/opensoft/openxFactory/pull/1260)
+  and holds on `main` only through that pull request's merge, which waits on
+  Brett Heap's merge word and its required checks.
 - [ ] 5.6 **New-project creation offers the Triad first.** workBenches'
   `openspec/changes/project-command` (`scripts/new-project.sh`, `onp`) is held by
   lane `project-command` and forwards creation to `opensoft/openRepoProject`'s
