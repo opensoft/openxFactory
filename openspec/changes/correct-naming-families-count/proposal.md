@@ -1,16 +1,24 @@
 ---
-code_surface: none — MEASURED, not assumed, on `main` `16779816`. The delta is requirement prose, and the realization is sentences of ONE governance document, `docs/project-repo-schema.md`, which nothing mechanical reads by these sentences. Evidence: (1) `git grep -n "project-repo-schema.md" -- scripts tests .github contracts` finds path references only — the docstring of `scripts/validate-openreposhape-pin.py`, the pin file's `doctrine:` key (which the validator never reads) and header comment, the register schema's `description` and one comment, and three `contracts/CHANGELOG.md` entries — and none of them reads the heading, the count or any sentence this packet moves; (2) `git grep -n -i "naming-and-the"` finds nothing here, nor on `origin/main` of openRepoShape, codexFactory or the xFactory aggregation, so the heading can change without breaking a link; (3) no test pins this capability's requirement count, scenario count or titles — the files under `tests/` and `.github/` that name `project-repo-schema` cite `add-project-repo-schema` as history and read no requirement text; (4) `docs/project-repo-schema.md` is in neither `contracts/manifest.yaml` nor any `contracts/releases/` inventory. No pin, gitlink, contract, schema, script, test or workflow is edited. Landing this packet is corpus text only: its five files (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml` and one spec delta), one README *Active changes* bullet, and the machine-seeded row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes.
+code_surface: none — MEASURED, not assumed, on `main` `16779816`. The delta is requirement prose, and the realization is sentences of ONE governance document, `docs/project-repo-schema.md`, which nothing mechanical reads by these sentences. Evidence: (1) `git grep -n "project-repo-schema.md" -- scripts tests .github contracts` finds path references only — the docstring of `scripts/validate-openreposhape-pin.py`, the pin file's `doctrine:` key (which the validator never reads) and header comment, the register schema's `description` and one comment, and three `contracts/CHANGELOG.md` entries — and none of them reads the heading, the count or any sentence this packet moves; (2) `git grep -n -i "naming-and-the"` finds nothing here, nor on `origin/main` of openRepoShape, codexFactory or the xFactory aggregation, so the heading can change without breaking a link; (3) no test pins this capability's requirement count, scenario count or titles — the files under `tests/` and `.github/` that name `project-repo-schema` cite `add-project-repo-schema` as history and read no requirement text; (4) `docs/project-repo-schema.md` is in neither `contracts/manifest.yaml` nor any `contracts/releases/` inventory. No pin, gitlink, contract, schema, script, test or workflow is edited. Landing this packet is corpus text only: its five files (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml` and one spec delta) plus its ratification record under `review/`, one README *Active changes* bullet, and the machine-seeded row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes.
 target_release: implemented — the value `release-realization` names for a doc-only change: *"A proposal without the declarations is a doc-only change (`code_surface: none`, `target_release: implemented`) by default"*. No contract bundle is cut, nothing under `contracts/` is touched, no digest set moves and no release tag is owed. The realization of a requirement amendment is its promotion at archive, plus the doctrine sentences `tasks.md` § 5.1 names, so the archive waits on that edit being merged (`tasks.md` § 6).
 ---
 
 # Proposal: correct-naming-families-count
 
-Status: draft
+Status: ratified
+Ratified: 2026-10-07T10:43:48Z by Brett Heap (openxFactory operator authority) — in session, verbatim "ratify as recommended when the PR opens" (logged RULED on the lane register at 2026-10-07T09:47:04Z), effective when PR #1266 opened, over its opening head `3bb38c20`; record at review/ratification-2026-10-07.md
 Kind: proposal
 Proposed: 2026-10-07, in lane `codeXfactory-5`, session
 `ed23f049-7e99-4601-8a6d-760b6aeb5f26`.
 Origin: Brett Heap's in-session word of 2026-10-07, quoted verbatim below and
 recorded in `.openspec.yaml` (`kind: ad_hoc`, unapproved).
+
+**RATIFIED ON 2026-10-07. The next paragraph is kept verbatim as the filing's
+record.** It was true at filing and is superseded by the ratification cited
+above and recorded under § Ratification record. That ratification settles each
+of the three decisions as recommended. It is not a merge word and not a word to
+realize anything: the merge rests on Brett Heap's separate merge word
+(`tasks.md` 1.2).
 
 **NOTHING HERE IS RATIFIED BY THE AUTHORING LANE, AND NOTHING HERE IS BRETT
 HEAP'S RULING BEYOND HIS ONE SENTENCE.** This packet proposes how to correct the
@@ -111,15 +119,40 @@ scenarios are carried byte-identically (`tasks.md` § 3.1).
 
 ## What ratification decides
 
-1. **The count-free reading** (`design.md` D1).
+1. **The count-free reading** (`design.md` D1). **RULED: ratified as
+   recommended.**
 2. **The scope**: the two further sentences that restate a property of the whole
-   set (`design.md` D2).
+   set (`design.md` D2). **RULED: ratified as recommended.**
 3. **The doctrine wording** for the realization, including one informative note
-   dated to the pin (`design.md` D3).
+   dated to the pin (`design.md` D3). **RULED: ratified as recommended.**
 
 **No open question is put.** Each item above is a decision with a
 recommendation, and `design.md` says, under each, what a different ruling would
 change.
+
+## Ratification record
+
+**RATIFIED by Brett Heap**, in session, first-hand to lane `codeXfactory-5`,
+verbatim *"ratify as recommended when the PR opens"*. It was given at about
+09:46Z and logged RULED on the lane register at 2026-10-07T09:47:04Z, and it
+took effect when PR #1266 opened at 2026-10-07T10:43:48Z. It is recorded in
+full at [`review/ratification-2026-10-07.md`](review/ratification-2026-10-07.md).
+The ratified text is the packet at PR #1266's opening head `3bb38c20`.
+
+| decision | ruled | considered, not adopted |
+| --- | --- | --- |
+| D1, the naming families are count-free in canon | as recommended, 2026-10-07 | restating "six" (A1); a count tied to the data by a test (A2); a dated count in canon (A3) |
+| D2, the correction also reaches the CamelCase sentence and the "one family" sentence | as recommended, 2026-10-07 | confining the packet to the count |
+| D3, the doctrine wording, with one informative note dated to the pin | as recommended, 2026-10-07 | no informative note |
+
+**Every ruling is the recommended option, so no delta byte moves.**
+`specs/project-repo-schema/spec.md` is byte-identical to the text that was put
+to ratification.
+
+**The word ratifies and authorizes nothing further.** It is not a merge word:
+the merge rests on Brett Heap's separate merge word (`tasks.md` 1.2). It is
+not a word to realize anything: the `tasks.md` § 5.1 doctrine handoff waits on
+its own act. Nothing is promoted until the archive (`tasks.md` § 6).
 
 ## Ordering
 

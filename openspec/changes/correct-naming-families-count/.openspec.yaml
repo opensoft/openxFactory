@@ -50,6 +50,30 @@ origin:
     unapproved shape `add-drafted-proposal-origin` admits, and the three
     lifecycle documents carry `Status: draft` to match.
   proposed_on: 2026-10-07
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-10-07, in session,
+    first-hand to lane `codeXfactory-5`, verbatim: "ratify as recommended when
+    the PR opens". Given at about 09:46Z and logged RULED on the lane register
+    at 2026-10-07T09:47:04Z (opensoft/brett-wip `lanes/log/codeXfactory-5.md`).
+    It took effect when openxFactory PR #1266 opened, at 2026-10-07T10:43:48Z,
+    and the ratified text is the packet at that pull request's opening head
+    `3bb38c20` (`3bb38c2058b4e1d77a9b47b889ab915dff7f4590`), recorded in full
+    at `review/ratification-2026-10-07.md`. "As recommended" settles the three
+    decisions the packet put as `design.md` recommends them: D1, the naming
+    families are count-free in canon; D2, the correction also reaches the two
+    sentences that restated a property of the whole set of families; D3, the
+    doctrine is realized in the wording D3 proposes, with one informative note
+    dated to the pin. The packet put no open question. No delta byte moves.
+    THE APPROVAL IS ADDED BESIDE THE DRAFTING PROVENANCE AND NEVER SUBSTITUTED
+    FOR IT, the shape `add-drafted-proposal-origin` defined: `kind`, `id`,
+    `reason`, `proposed_by` and `proposed_on` are kept exactly as filed, and
+    their statements that no approval pair is declared and that the lifecycle
+    documents carry `Status: draft` were true at filing and are superseded by
+    this pair. The word is a ratification only. It is not a merge word, and it
+    is not a word to realize anything: the merge rests on Brett Heap's separate
+    merge word (`tasks.md` 1.2), and the `tasks.md` § 5.1 handoff waits on its
+    own act.
+  approved_on: 2026-10-07
 related:
   - openxFactory:change:add-project-repo-schema         # ARCHIVED 2026-09-03. Promoted both requirements this packet modifies, at the pin `deacbdc`, whose naming policy declared four families
   - openxFactory:change:prefer-triad-project-shape      # ACTIVE and ratified. Carries one MODIFIED and three ADDED requirements on `project-repo-schema`, none of them either requirement this packet modifies (design.md D5)

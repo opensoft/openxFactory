@@ -1,6 +1,7 @@
 # Tasks: correct-naming-families-count
 
-Status: draft
+Status: ratified
+Ratified by: correct-naming-families-count — 2026-10-07, Brett Heap, "ratify as recommended when the PR opens" (logged RULED on the lane register at 2026-10-07T09:47:04Z), over PR #1266's opening head `3bb38c20` (record `review/ratification-2026-10-07.md`)
 Kind: tasks
 
 `code_surface: none`, `target_release: implemented`. Under
@@ -24,14 +25,29 @@ never precedes it.
   informative note dated to the pin. His sentence of 2026-10-07, *"open an
   OpenSpec change for the four families heading"*, is the authority to author
   and open this packet. It is not this word.
+  **NOTE 2026-10-07 — THE WORD WAS GIVEN:** Brett Heap, in session, verbatim
+  *"ratify as recommended when the PR opens"*, logged RULED on the lane
+  register at 2026-10-07T09:47:04Z and effective when PR #1266 opened at
+  2026-10-07T10:43:48Z (record `review/ratification-2026-10-07.md`). It
+  ratifies D1, D2 and D3 as written. The box is left for its owner to tick, as
+  this section's heading says.
 - [ ] 1.2 OWNER BOX. Brett Heap's merge word on this pull request. It is held
   for that word and is not merged by the authoring lane.
-- [ ] 1.3 On the ratifying word, and only then: `Status: ratified` + `Ratified:`
+  **NOTE 2026-10-07 — THE WORD WAS GIVEN, SEPARATELY:** Brett Heap, in session,
+  verbatim *"merge the naming families PR when green"*, logged RULED on the
+  lane register at 2026-10-07T09:59:10Z. The merge is the coordinating lane's
+  act, once every required check on the final head is green; the authoring
+  lane does not merge. The box is left for its owner.
+- [x] 1.3 On the ratifying word, and only then: `Status: ratified` + `Ratified:`
   in `proposal.md`, `Ratified by:` in `design.md` and this file, the
   `approved_by`/`approved_on` pair in `.openspec.yaml` ADDED BESIDE the drafting
   provenance and never substituted for it (`scripts/doc_health/proposal_origin.py`
   requires the pair the moment the status claims approval), a record under
   `review/`, and the README Records row moved with it.
+  **DONE 2026-10-07 in the ratifying commit**, on the word above: all of it,
+  with the record at `review/ratification-2026-10-07.md`. `kind`, `id`,
+  `reason`, `proposed_by` and `proposed_on` did not move, and the spec delta
+  did not move.
 
 ## 2. The packet
 

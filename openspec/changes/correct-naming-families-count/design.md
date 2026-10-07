@@ -1,7 +1,12 @@
 # Design: correct-naming-families-count
 
-Status: draft
+Status: ratified
+Ratified by: correct-naming-families-count — 2026-10-07, Brett Heap, "ratify as recommended when the PR opens" (logged RULED on the lane register at 2026-10-07T09:47:04Z), over PR #1266's opening head `3bb38c20` (record `review/ratification-2026-10-07.md`)
 Kind: design
+
+**RATIFIED 2026-10-07, as recommended.** Every decision below was ratified as
+written, and D1, D2 and D3 were each RULED to their recommendation (marked where
+each is put). The paragraphs that follow are kept as filed.
 
 Every decision below is PROPOSED for Brett Heap's ratification. His word of
 2026-10-07, *"open an OpenSpec change for the four families heading"*, is the
@@ -14,6 +19,9 @@ a recommendation (D1-D3), so a ratification "as recommended" settles all of it,
 and a different ruling on any one changes the text named under that decision.
 
 ## D1 — The reading is count-free, so "four" is not corrected to "six"
+
+**RULED 2026-10-07, as recommended.** Brett Heap, verbatim *"ratify as
+recommended when the PR opens"*.
 
 **The measured history.** The naming policy is DATA in openRepoShape's
 `contracts/repository-naming.yaml`, and openxFactory reads it at a pin
@@ -91,6 +99,9 @@ exactly this for the pinned commit (D3).
 
 ## D2 — The correction reaches two more sentences that restate the whole set, and goes no further
 
+**RULED 2026-10-07, as recommended.** Brett Heap, verbatim *"ratify as
+recommended when the PR opens"*.
+
 Reading the whole naming section against the pin in force found two more
 sentences with the same defect: each states a property of the WHOLE set of
 families, and each was made false by a family the pinned policy added.
@@ -136,6 +147,9 @@ restores the second unit of the second block to canon's text, with its marker.
 It also drops the matching doctrine edit in `tasks.md` § 5.1.
 
 ## D3 — The doctrine wording, proposed for the § 5 realization
+
+**RULED 2026-10-07, as recommended.** Brett Heap, verbatim *"ratify as
+recommended when the PR opens"*.
 
 The doctrine document is not edited in this pull request (D6). Its edit is
 `tasks.md` § 5.1, and the wording proposed for it is fixed here so the
