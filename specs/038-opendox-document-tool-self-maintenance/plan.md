@@ -39,8 +39,8 @@ the qualified collision sentence (`6018624750`).
 
 **Revision: T002's third bookkeeping batch** (2026-10-07). More rulings and
 landings, encoded as worded, with no new decision. In this file: the single-writer
-table's three new rows, `tests/test_capability_honesty.py` and
-`tests/test_lens_seed_actions.py` (T015 → T016; `6027633398`) and
+table's two new rows, one for `tests/test_capability_honesty.py` and
+`tests/test_lens_seed_actions.py` (T015 → T016; `6027633398`) and one for
 `tests/test_default_profile.py` (T015 → T016, following `default_profile.py`'s
 chain; `6023619783`, `6026622117`), T073's place in the `tests/conftest.py` and
 `tests/test_host_plane.py` chains, for the fix to Copilot r4201411760, accepted at
