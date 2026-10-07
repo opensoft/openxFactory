@@ -32,6 +32,16 @@ origin:
     AUTHORING LANE. The replacement sentence is #1262's text verbatim;
     ratifying and landing each need their own word.
   proposed_on: 2026-10-07
+  approved_by: >-
+    Brett Heap (openxFactory repository owner), 2026-10-07, in session to
+    lane openxfactory-1, verbatim "ratify 1262 when ready". It is recorded
+    as a RULED line on the estate's lane register at 2026-10-07T09:58:32Z
+    (opensoft/brett-wip commit f6964352, lanes/log/openxfactory-1.md), and
+    it is the approval this packet's proposal.md cites on its Ratified line.
+    The MODIFIED requirement Bounded worker input budget stands as drafted,
+    its one reworded sentence being #1262's text verbatim. Record:
+    review/ratification-2026-10-07.md.
+  approved_on: 2026-10-07
 related:
   - openxFactory:change:add-worker-input-budget    # ARCHIVED 2026-10-06 (#1258 -> 16779816). Promoted the requirement this packet amends; its archived delta is history and is not edited
   - openxFactory:pr:1258                           # The archive whose Copilot review comment 4202036546 found the self-contradiction, dispositioned on Brett Heap's ruling "(a) land as ratified, amend later"

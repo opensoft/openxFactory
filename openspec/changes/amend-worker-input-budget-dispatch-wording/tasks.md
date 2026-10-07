@@ -1,18 +1,29 @@
 # Tasks: amend-worker-input-budget-dispatch-wording
 
-Status: draft
+Status: ratified
+Ratified by: amend-worker-input-budget-dispatch-wording — 2026-10-07, Brett Heap, "ratify 1262 when ready", RULED 2026-10-07T09:58:32Z (record `review/ratification-2026-10-07.md`)
 Kind: tasks
 
 ## 0. Ratification
 
-- [ ] 0.1 Brett Heap's word ratifying the amended sentence, which is
+- [x] 0.1 Brett Heap's word ratifying the amended sentence, which is
   `#1262`'s replacement text verbatim. A different normative wording is his
-  choice to make, not the authoring lane's.
-- [ ] 0.2 On the word: `Status: ratified` plus a `Ratified:` line in
+  choice to make, not the authoring lane's. **RATIFIED AS DRAFTED
+  2026-10-07** — Brett Heap's word in session to lane `openxfactory-1`,
+  verbatim *"ratify 1262 when ready"*; RULED on the estate's lane register
+  at 2026-10-07T09:58:32Z (`opensoft/brett-wip` commit `f6964352`,
+  `lanes/log/openxfactory-1.md`). The delta stands without amendment, in
+  blob `eead8960`. The word archives nothing. Record:
+  `review/ratification-2026-10-07.md`.
+- [x] 0.2 On the word: `Status: ratified` plus a `Ratified:` line in
   `proposal.md`; the `approved_by`/`approved_on` pair in `.openspec.yaml`
   (the `proposal-origin` family reports an ERROR the moment the status claims
   approval without it, `scripts/doc_health/proposal_origin.py`:352-363); a
   record under `review/`; and the README *Active changes* entry moved with it.
+  Done in one commit with the word, so the ratifying commit carries the
+  approval pair: `Status: ratified` and `Ratified:` in `proposal.md`,
+  `Status: ratified` and `Ratified by:` here, the pair in `.openspec.yaml`,
+  `review/ratification-2026-10-07.md`, and the README entry.
 
 ## 1. Verification before ratifying (`#1262` acceptance 1)
 

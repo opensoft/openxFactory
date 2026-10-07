@@ -6,7 +6,8 @@ sequenced_after: [add-worker-input-budget]
 
 # Proposal: amend-worker-input-budget-dispatch-wording
 
-Status: draft
+Status: ratified
+Ratified: 2026-10-07 by Brett Heap (openxFactory repository owner) — in session to lane `openxfactory-1`, verbatim *"ratify 1262 when ready"*; RULED on the estate's lane register at 2026-10-07T09:58:32Z (`opensoft/brett-wip` commit `f6964352bbd463815c4d2f66a732d40b01d1e83a`, `lanes/log/openxfactory-1.md`). RATIFIED AS DRAFTED, with no amendment: the MODIFIED requirement *Bounded worker input budget*, whose one reworded sentence is #1262's text verbatim, in the delta blob `eead8960` unmoved since this packet's first commit. The word archives nothing; record at review/ratification-2026-10-07.md
 Kind: proposal
 Proposed: 2026-10-07, in lane `openxfactory-1`, on Brett Heap's word, verbatim
 in session that day: *"draft the amendment change for 1262"*.
