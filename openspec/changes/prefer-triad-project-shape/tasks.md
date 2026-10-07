@@ -230,13 +230,27 @@ with green checks.
   `project new`, whose `--shape` mode is opt-in today. The Triad-first offer
   routes THROUGH that lane's claim and openRepoProject's own governance, never
   around them; no repository is created that the person has not confirmed.
-- [ ] 5.7 **The estate inventory, a recommendation only** (`design.md` D7). For
+- [x] 5.7 **The estate inventory, a recommendation only** (`design.md` D7). For
   each repository in `scripts/estate-repository-inventory.yaml`, measured on its
   own `origin/main`: Triad, leg, family holder, workspace repository or single
   repository, and for each single repository a recommendation — migrate, or
   record staying single — for its owner. It converts nothing and records nothing
   on any repository's behalf. If ratification drops it, this box becomes `[~]`
   with the ruling cited.
+  **DONE 2026-10-06** in openxFactory PR
+  [#1255](https://github.com/opensoft/openxFactory/pull/1255), lane
+  `codeXfactory-5`. The record is
+  [`review/estate-inventory-2026-10-06.md`](review/estate-inventory-2026-10-06.md).
+  All 37 rows were measured on their own `main`, and none went unmeasured.
+  Classes: 3 Triads, 6 legs, 0 family holders, 0 workspace repositories and 28
+  single repositories. Recommendations to the owners of those 28: migrate 12
+  and record staying single 15. For the 1 `external` row (`Fission-AI/OpenSpec`,
+  which the inventory defines as "NOT of this estate at all") none is made,
+  and the record states this as a departure from "for each single repository a
+  recommendation". They are recommendations only; nothing was converted or
+  recorded on any repository's behalf. The tick holds on `main` only through
+  that pull request's merge, which waits on Brett Heap's merge word and its
+  required checks.
 
 ORDER: 5.3 after 5.2; 5.4's fallback re-sync after 5.5. 5.1, 5.2, 5.4's
 advisory, 5.5 and 5.6 are independent of one another.
