@@ -106,11 +106,12 @@ word ratifies.
 `fc4fa0ff` merged at 18:56:42Z, and the word was given at about 18:59Z. The
 change directory's tree at `fc4fa0ff` is `02d362f6ebcaf49e18aa107f7ce2b3a409ca2275`.
 It is the same tree as at #1253's final head `e4f3f1db`, and as on `main`'s head
-`0992369a`, the base of this record's commits. The last commit on `main` that
+`16779816`, the base of this record's commits. The last commit on `main` that
 touches the directory is `fc4fa0ff`. The commits after it touched no byte of it:
 #1252 → `c44c1610` (the archive of `add-factory-mcp-conformance`, 18:58:06Z),
 #1254 → `a2dc658d`, #1138 → `9171d14a`, #1251 → `1837ea75`, #1250 → `3cec62fd`,
-#1256 → `8c1eeae1` and #1255 → `0992369a`.
+#1256 → `8c1eeae1`, #1255 → `0992369a`, #1257 → `c70bdbd9`, #1260 → `f335c077`
+and #1258 → `16779816` (the archive of `add-worker-input-budget`).
 
 The changes this record makes are the first after the landing, and **none of them
 is requirement or scenario text**: the change has no spec delta.
@@ -157,20 +158,20 @@ This record freezes only the state the word was given over.
 
 ## 6. What was measured at this record's commit
 
-The measurement was taken on the tree this record lands in: `main` at `0992369a`
+The measurement was taken on the tree this record lands in: `main` at `16779816`
 plus this record's changes.
 
 | gate | result |
 | --- | --- |
 | `OPENSPEC_TELEMETRY=0 openspec validate realize-doc-health-direction-arc --strict` (the pinned 1.12.0) | valid |
-| `scripts/validate-openspec-cli-pin.py --all --strict` | exit 0, 0 UNDISPOSITIONED failures; 113 passed, 1 failed (114 items), the one being the accepted exception that `main` alone also reports |
+| `scripts/validate-openspec-cli-pin.py --all --strict` | exit 0, 0 UNDISPOSITIONED failures; 112 passed, 1 failed (113 items), the one being the accepted exception that `main` alone also reports |
 | `scripts/validate-code-surface.py .` and `scripts/validate-target-release.py .` | passed |
 | `scripts/validate-sequenced-after.py .` and `--ledger-diff` | passed; ledger consistent with the corpus (232 rows), and this change's row does not move |
 | `scripts/proposal-support.py . verify realize-doc-health-direction-arc` | ok |
-| `scripts/doc-health.py --single-repo .` | 31 critical, 26 error, 69 warning, 20 info; the report is byte-identical to `main` alone, run in the same clone kind with the submodules initialised in both, and 0 findings name this change |
+| `scripts/doc-health.py --single-repo .` | 31 critical, 26 error, 69 warning, 19 info; the report is byte-identical to `main` alone, run in the same clone kind with the submodules initialised in both, and 0 findings name this change |
 | doc-health, the families `tasks.md` 1.2 names, on this tree | `proposal-origin` 0 findings and `status-validity` 0 findings; `record-immutability` (4 critical) and `ratified-provenance` (27 critical) name nothing of this change, and they are `main`'s own because the whole report is byte-identical to `main`'s. Negative control: dropping `proposal.md`'s `Ratified:` line takes `ratified-provenance` to 28 critical and names `proposal.md` |
 | `pytest tests/ -m "not postgres" -k "ledger or records or sequenced or openspec"` | 615 passed, 3 skipped |
-| `pytest` over `tests/sequenced_after`, `code_surface`, `target_release`, `proposal-support`, `scope_globs` and `packet_reference` | 866 passed, 308 subtests passed |
+| `pytest` over `tests/sequenced_after`, `code_surface`, `target_release`, `proposal-support`, `scope_globs` and `packet_reference` | 866 passed, 307 subtests passed |
 | `pytest tests/doc-health` | 2157 passed |
 
 The running measurement lives in the pull request that carries this record.
