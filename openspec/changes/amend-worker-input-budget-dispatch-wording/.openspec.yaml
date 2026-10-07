@@ -1,0 +1,39 @@
+schema: spec-driven
+created: 2026-10-07
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-10-07-amend-worker-input-budget-dispatch-wording
+  reason: >-
+    THE PROMOTED REQUIREMENT "Bounded worker input budget" CONTRADICTS
+    ITSELF IN ONE CLAUSE. Its second paragraph says the orchestrator SHALL
+    NOT dispatch a unit it has measured over the budget, then calls that
+    same dispatch "conformant but useless". Copilot found it on the archive
+    pull request opensoft/openxFactory#1258 (review comment 4202036546, at
+    openspec/specs/doc-health/spec.md:4087). Brett Heap ruled, verbatim in
+    session 2026-10-07, "(a) land as ratified, amend later", recorded as a
+    RULED line on the estate's lane register at 2026-10-07T09:42:21Z
+    (opensoft/brett-wip commit 98b8b3d4, lanes/log/openxfactory-1.md), and
+    #1258 landed as merge 16779816 with the text exactly as ratified. On his
+    next words, "log the issue to change this", the lane filed
+    opensoft/openxFactory#1262, which states the defect, the exact
+    replacement sentence, and the acceptance. On "draft the amendment change
+    for 1262" the lane drafts this packet. KIND IS ad_hoc, not staged,
+    checked rather than assumed: ideation/staging/ was grepped on 2026-10-07
+    for "input budget" and "worker-input-budget". Two files match and
+    NEITHER proposes this wording: ideation/staging/INDEX.md is the topic
+    inventory, and ideation/staging/doc-health-sweep-carry-over/ stages a
+    separate carry-over of deferred documents whose exit is its own later
+    change. The organized source is the review finding and the issue that
+    encodes it.
+  proposed_by: >-
+    Lane openxfactory-1, on Brett Heap's word "draft the amendment change
+    for 1262" (2026-10-07, in session), under the lane's CLAIMED comment on
+    opensoft/openxFactory#1262 (6035382776). NOTHING HERE IS RATIFIED BY THE
+    AUTHORING LANE. The replacement sentence is #1262's text verbatim;
+    ratifying and landing each need their own word.
+  proposed_on: 2026-10-07
+related:
+  - openxFactory:change:add-worker-input-budget    # ARCHIVED 2026-10-06 (#1258 -> 16779816). Promoted the requirement this packet amends; its archived delta is history and is not edited
+  - openxFactory:pr:1258                           # The archive whose Copilot review comment 4202036546 found the self-contradiction, dispositioned on Brett Heap's ruling "(a) land as ratified, amend later"
+  - openxFactory:issue:1262                        # The issue that states the defect, the exact replacement sentence, and the acceptance this packet discharges
+  - openxFactory:pr:1137                           # The realization (-> 9da52e31) whose dispatch path tasks.md 1.1 reads, read-only, to confirm it never dispatches a unit measured over the budget
