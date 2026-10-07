@@ -855,63 +855,6 @@ Active changes:
   and no act in `opensoft/xFactory` is proposed. `code_surface: openxFactory`, so
   it archives on merged **plus** green realization evidence. **NOT RATIFIED BY
   THE AUTHORING LANE.**
-- [add-worker-input-budget](openspec/changes/add-worker-input-budget/proposal.md)
-  — filed 2026-09-22, lane `openxfactory-1`, **`Status: ratified`** (2026-10-06,
-  Brett Heap, in session, verbatim *"0.4: (a) ratify as they stand"* — both
-  spec deltas as they stand, no amendment; RULED on the lane register at
-  2026-10-06T13:55:03Z; record
-  [`review/ratification-2026-10-06.md`](openspec/changes/add-worker-input-budget/review/ratification-2026-10-06.md);
-  the origin declaration `.openspec.yaml` added on his second word, verbatim
-  *"#1250: (i) add the origin file"*, RULED 2026-10-06T17:24:57Z, as an
-  `ad_hoc` origin carrying the drafting pair and that approval pair),
-  on Brett Heap's word *"brief a writer to add the input-size guard"*
-  (2026-09-22). **The
-  doc-health nightly's analysis child has failed EVERY night since 2026-08-30
-  except the two 2026-09-02 runs, silently**: `semantic.build_analysis_input`
-  assembled the whole selected corpus plus the whole promoted-spec grounding
-  into one prompt with no size bound, and when that prompt outgrew the model's
-  context window `claude -p --output-format json` wrote `"Prompt is too long"`
-  to STDOUT — which the child redirects into `worker-result.json` and the
-  cleanup step then deletes, leaving `Process completed with exit code 1`
-  against an empty stderr. Size separates the nights with no exception
-  (accepted at 2,524,427 bytes and below, refused at 2,913,875 and above), and
-  the CONTROL is the sibling cataloger child: on 2026-09-11/12/14/15 it ran
-  188–324 s on 82,712 bytes of input, same runner, same token, same flag set,
-  while the analysis child died in 2–4 s. Re-run on 2026-09-22T01:20Z after the
-  Cloud PC account's seat was assigned, the analysis child failed again in
-  three seconds on the same 7,940,307-byte input — the seat was not the
-  discriminator. **ONE `## MODIFIED` and ONE `## ADDED` requirement.** *Sweep
-  sequencing and snapshot consistency* gains the statement that the set SENT
-  may be a subset of the set SELECTED, plus a scenario obliging the report to
-  name every deferred document. *Bounded worker input budget* (ADDED, six
-  scenarios) fixes the budget as a byte cap over the WHOLE assembled prompt,
-  requires it to travel with the dispatched bundle so the worker enforces the
-  number the orchestrator recorded, separates the two assembly shapes (where
-  the ORCHESTRATOR assembles the prompt it packs within the budget; where the
-  WORKER assembles it, the orchestrator measures each dispatchable unit and
-  does not dispatch one it has measured over), requires deterministic packing of
-  WHOLE documents only, gives each population a reserved share so neither check
-  family is starved, obliges a worker handed an over-budget input to refuse
-  before invoking the model rather than emit an empty result, and protects a
-  deferred document's prior findings from reading as resolved. `code_surface:`
-  is non-empty (two packers and their record here; the two child workflows in
-  `opensoft/xFactory`), so the packet archives on merged-plus-green realization
-  evidence and not on landing. **ALL THREE QUESTIONS RESOLVED.** The
-  grounding share STAYS 0.5, as built (at the 2026-09-21 corpus that sends 93
-  of 311 documents; measured at five shares on 2026-09-24), and the packet
-  CAPS AND RECORDS rather than carrying deferrals over (no sweep cursor
-  exists, and the inventory baseline is emitted unconditionally) — both
-  RESOLVED 2026-09-26 by Brett Heap's ruling in session, option verbatim
-  *"Accept both, land #1160"* (recorded on opensoft/xFactory#480), which
-  accepted both measured recommendations and sent the carry-over to its own
-  staged topic, `ideation/staging/doc-health-sweep-carry-over/`, with the
-  cursor as its own record beside the inventory. The third, the HTTP 403
-  org-entitlement block no code here addresses, is RESOLVED 2026-09-23 by
-  Brett Heap's administrative act, verified the same hour and by the
-  2026-09-24 nightly. Resolving the questions ratified neither spec delta;
-  the 2026-10-06 word did (task 0.4). **RATIFICATION ONLY** — the archive is
-  a separate later act on Brett Heap's word, and the Group 4 sequencing
-  question on 4.1 stays open.
 
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
@@ -3260,6 +3203,60 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-worker-input-budget](openspec/changes/archive/2026-10-06-add-worker-input-budget/proposal.md)
+  — **ARCHIVED 2026-10-06** by
+  [PR #1258](https://github.com/opensoft/openxFactory/pull/1258),
+  by lane `openxfactory-1`, landed by MERGE COMMIT, never squash, on Brett
+  Heap's separate archive word, verbatim ***"archive add-worker-input-budget
+  after it lands"*** (2026-10-06, in session; RULED in `opensoft/brett-wip`
+  `lanes/log/openxfactory-1.md` at 2026-10-06T14:24:52Z, commit `f18c337b`,
+  against `openspec/changes/add-worker-input-budget`), given for after the
+  ratification pull request
+  [#1250](https://github.com/opensoft/openxFactory/pull/1250) landed, which
+  it did by squash as
+  `3cec62fd80618550a5e43454d88b51bb1fb5da9d`. Filed 2026-09-22 by lane
+  `openxfactory-1` on his word *"brief a writer to add the input-size
+  guard"*, governing issue opensoft/xFactory#479; **RATIFIED 2026-10-06 by
+  Brett Heap**, verbatim *"0.4: (a) ratify as they stand"* (record
+  [`review/ratification-2026-10-06.md`](openspec/changes/archive/2026-10-06-add-worker-input-budget/review/ratification-2026-10-06.md)).
+  **`code_surface:` is non-empty (the packers and their record here, the two
+  child workflows in `opensoft/xFactory`), so under `release-realization` it
+  archives on merged-plus-green realization evidence**, cited rather than
+  asserted and recorded in the packet's own `tasks.md` Group 4: PR
+  [#1137](https://github.com/opensoft/openxFactory/pull/1137) →
+  `9da52e318aa7662efa57b750bef3dc1992ff6332` (2026-09-22T03:45:21Z), with
+  `pytest-suite` success on `main` at `9da52e31` itself, run
+  [35684322745](https://github.com/opensoft/openxFactory/actions/runs/35684322745);
+  opensoft/xFactory#481 → `b2479b6e4d9a6bccb8cdf5e2b39417257dc3f5c5`
+  (2026-09-22T03:45:36Z; `validate` green at its head `90311333`, no failing
+  check on the merge commit); the pin-sync opensoft/xFactory#483 → `9ecdb551`
+  that put the packer under the nightly; and the first green nightly,
+  opensoft/xFactory run 35947804907 (2026-09-24), whose analysis child
+  35948587830 passed the input-size guard at 1,899,236 of 1,900,000 bytes and
+  returned findings, and whose cataloger child 35948591376 succeeded.
+  **Performed through the governed wrapper, never a bare `openspec
+  archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive add-worker-input-budget --yes`,
+  exit 0: *"ORIGIN RETAINED add-worker-input-budget (declaration unchanged
+  since the ratifying commit 3cec62fd8061)"*, *"Applying changes to
+  openspec/specs/doc-health/spec.md: + 1 added, ~ 1 modified"*, *"Totals: + 1,
+  ~ 1, - 0, → 0"*, over the content-addressed `@fission-ai/openspec@1.12.0`
+  pin. **The promotion, measured byte for byte on both sides** onto
+  [`openspec/specs/doc-health/spec.md`](openspec/specs/doc-health/spec.md):
+  the MODIFIED *Sweep sequencing and snapshot consistency* goes from
+  875 bytes and 2 scenarios to 1,773 bytes and
+  3 scenarios, sha256 `8efe2d94bfa469d5…` on the archived delta AND
+  canon; the ADDED *Bounded worker input budget* is 3,595 bytes and
+  6 scenarios, sha256 `3533488d999d93d5…` on both; requirements
+  43 → 44, scenarios 260 → 267; the preamble and the
+  other 42 requirement blocks byte-identical. The five packet
+  files move as pure renames, and the modified-block-currency self-gate's
+  one row for this block retires on its own stated condition. **This archive does not answer the Group 4
+  sequencing question on task 4.1**, which the archived `tasks.md` keeps as
+  it stood, and carrying deferred documents over stays the staged topic
+  [`doc-health-sweep-carry-over`](ideation/staging/doc-health-sweep-carry-over/doc-health-sweep-carry-over.md),
+  whose change modifies this promoted text.
 
 - [add-factory-mcp-conformance](openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md)
   — **ARCHIVED 2026-10-06** by
