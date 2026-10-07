@@ -20,17 +20,22 @@ Kind: tasks
   budget. **CONFIRMED, read-only, 2026-10-07.** If it did, that would be a
   code defect for its own issue and not part of this wording change; it does
   not.
-  - `opensoft/openxFactory#1137`, merged `9da52e31`,
-    `scripts/doc_health/catalog_dispatch.py`: :513-515 measures each shard's
-    assembled analysis input in bytes (`shard_analysis_input(...)`, the
-    child's own assembly reproduced so the parent can measure it); :516-517
-    appends the shard to the dispatch list ONLY when that measure is
-    `<= input_budget_bytes`; :518-526 is the comment *"A SHARD MEASURED OVER
-    THE BUDGET IS NEVER DISPATCHED"*; :527-528 writes `shards.json` from that
-    list and nothing else; :535-543 records the shards over the budget in
-    `meta.json` as `shards_over_budget`.
+  - `opensoft/openxFactory#1137`, merged `9da52e31`, in
+    `scripts/doc_health/catalog_dispatch.py`:
+    - `catalog_dispatch.py:513-515` measures each shard's assembled analysis
+      input in bytes (`shard_analysis_input(...)`, the child's own assembly
+      reproduced so the parent can measure it);
+    - `catalog_dispatch.py:516-517` appends the shard to the dispatch list
+      ONLY when that measure is `<= input_budget_bytes`;
+    - `catalog_dispatch.py:518-526` is the comment *"A SHARD MEASURED OVER
+      THE BUDGET IS NEVER DISPATCHED"*;
+    - `catalog_dispatch.py:527-528` writes `shards.json` from that list and
+      nothing else;
+    - `catalog_dispatch.py:535-543` records the shards over the budget in
+      `meta.json` as `shards_over_budget`.
   - The same file on `main` `16779816` is unchanged in substance: the gate is
-    at :521-522 and the `shards.json` write at :532-533.
+    at `catalog_dispatch.py:521-522` and the `shards.json` write at
+    `catalog_dispatch.py:532-533`.
   - The worker reads only that list. `opensoft/xFactory`
     `.github/workflows/doc-health-cataloger-worker.yml`:171-175 takes `ids[0]`
     of `shards.json` and exits 0 with *"no shards selected this run; nothing
