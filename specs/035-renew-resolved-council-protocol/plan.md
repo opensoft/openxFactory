@@ -7,8 +7,8 @@
 **Authority**:
 
 - The change is ratified (Brett Heap, 2026-10-03, "ratify all three as disclosed"). Its packet, #1267, landed in `main` as `80f47483` on 2026-10-08.
-- Lane codeXfactory-2 builds this feature on Brett Heap's 2026-10-08 word "This lane, 035 then 025".
-- Brett Heap ruled the plan's five open questions on 2026-10-08 ([Decisions ruled by Brett Heap](#decisions-ruled-by-brett-heap)).
+- Lane codeXfactory-2 builds this feature on Brett Heap's 2026-10-08 word "This lane, 035 then 025 (Recommended)".
+- Brett Heap ruled the plan's five open questions, and the three follow-ups that apply OPEN-3, on 2026-10-08 ([Decisions ruled by Brett Heap](#decisions-ruled-by-brett-heap)).
 - Every pull request this plan produces lands only on his word. This plan authorizes no release, tag, pin, credential, deployment or activation act.
 
 ## Summary
@@ -102,7 +102,7 @@ The one workflow deviation, planning before the questions were ruled, is recorde
 specs/035-renew-resolved-council-protocol/
 ├── spec.md                         # existing (ratified scope), with § Clarifications
 ├── checklists/requirements.md      # existing
-├── clarify-questions.md            # the five questions and Brett Heap's rulings
+├── clarify-questions.md            # the five questions, the three follow-ups, N10, and Brett Heap's rulings
 ├── plan.md                         # this file
 ├── research.md                     # Phase 0: decisions R1–R21
 ├── data-model.md                   # Phase 1: entities E1–E13, evaluation orders, refusal vocabulary
@@ -176,7 +176,7 @@ The reference implementation is a package, so each phase adds one module beside 
 
 ## Phase 0 — Research
 
-See [research.md](research.md). Twenty-one decisions are recorded, each traced to the spec, a design decision (D1–D5) and a consumer need. The five questions only Brett Heap could decide were put to him and ruled on 2026-10-08 (below). No `NEEDS CLARIFICATION` remains in the Technical Context.
+See [research.md](research.md). Twenty-one decisions are recorded, each traced to the spec, a design decision (D1–D5) and a consumer need. The five questions only Brett Heap could decide, and the three follow-ups that apply OPEN-3, were put to him and ruled on 2026-10-08 (below). No `NEEDS CLARIFICATION` remains in the Technical Context.
 
 ## Phase 1 — Design
 
@@ -195,7 +195,7 @@ The agent-context update step of the plan template has no script in this reposit
 | 1 Setup & foundational | Family skeleton and README, `shared-definitions`, protocol registry and classification, two digest subjects, corpus index and vector format, generator skeleton, validator skeleton, CI gate | T027 and T026→T030 (protocol identifier values to bind), T001's follow-up dated section | FR-001 (exact contract identity), FR-011 (protocol identifiers, classification) |
 | 2 US1: membership before work (MVP) | `council_convening`, predicate registry and input contracts, resolution reproduction in the normative order, US1 corpus | T003, T010, T011 (the gate-rules `subject_path`), T011b (POST body shape, with 025), T012 (head-race half), T013 | FR-001–FR-004 |
 | 3 US2a: frozen assignments | Snapshot, assignment and retry identity, with their vectors | T012 (retry identity), T015b, T016b (assignment shape) | FR-005–FR-007 |
-| 4 US2b: seat signing and completion (lands after Phase 5) | Challenge, registration, return, the two signing contexts, return digest, completion over the frozen identities, key and completion vectors | T020, T017/T019 (context mapping), T021/T022 (completion mapping), T025 (what consumer evidence must show) | FR-005 (completion), FR-008–FR-010 |
+| 4 US2b: seat signing and completion (lands after Phase 5) | Challenge, registration, return, the two signing contexts, return digest, completion over the frozen identities, key and completion vectors | T020, T017/T019 (context mapping), T021/T022 (completion mapping), T025 (what consumer evidence must show) | FR-007 (completion), FR-008–FR-010 |
 | 5 US2c: producer identity | Producer binding schema and template, repository-identity derivation, identity vectors | T023, T024, T031 (the shape the owner provisions) | FR-008 (principal inputs); H3 activation park |
 | 6 US3: matched migration | Protocol selection, activation evidence, historical mode, deprecation routing, migration vectors, activation runbook | T027 (selection shape), T028, T029, T032 | FR-011, FR-012 |
 | 7 Release A: additive and deprecating minor | Registration, release floor, CHANGELOG, policy deprecation entry, inventory, index rows. OWNER: tag | T030 (minor half), T003 (published pin) | FR-011, FR-012 (published compatible pin) |
@@ -271,8 +271,9 @@ Each act below is the owner's, and no task here performs it. Each is recorded wi
 **One workflow deviation, recorded and now closed.** The constitution says "material ambiguities MUST be resolved before planning". This plan was written with five questions open (OPEN-1 to OPEN-5) and recommendations beside each, because they surfaced only while planning against the two consumers, and the ratified spec had stated "The scope contains no new unresolved policy decision". The independent analysis (C2 in [analysis.md](analysis.md)) flagged it as critical. The resolution:
 
 - the lane coordinator put the questions to Brett Heap on 2026-10-08, and he ruled all five that day;
+- applying OPEN-3 raised three follow-ups (which sources, which repository, the seat's commit). Analysis rounds 2 to 4 planned each at its fail-closed default and flagged it for confirmation, rather than claiming it as ruled; he ruled all three that day too, choosing those defaults;
 - they are recorded in [clarify-questions.md](clarify-questions.md) and encoded in [spec.md § Clarifications](spec.md#clarifications), with a dated note on the Assumptions sentence;
-- this plan and its research now state each as decided, and no task is gated on an open question.
+- this plan and its research now state each as decided, and no task is gated on an open question or a confirmation.
 
 No implementation began before the rulings. No other deviation is requested.
 

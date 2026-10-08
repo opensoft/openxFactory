@@ -111,7 +111,7 @@ Empty/duplicate/reordered/same-count wrong membership; unsupported predicate/pat
 ## Assumptions
 
 - The disclosed design and handoff matrix govern this specification. The scope contains no new unresolved policy decision. *Amended 2026-10-08:* planning surfaced five decisions the ratified text left open, and applying one of them raised three follow-ups; Brett Heap ruled all eight on 2026-10-08 (§ Clarifications), so none remains unresolved.
-- This session works outside a registered lane and makes no assignment or claim on behalf of codeXfactory-2 or another live lane. *Amended 2026-10-08:* that sentence describes the 2026-10-03 specifying session. Lane codeXfactory-2 claimed this scope on 2026-10-07 and plans and builds the feature on Brett Heap's 2026-10-08 word "This lane, 035 then 025".
+- This session works outside a registered lane and makes no assignment or claim on behalf of codeXfactory-2 or another live lane. *Amended 2026-10-08:* that sentence describes the 2026-10-03 specifying session. Lane codeXfactory-2 claimed this scope on 2026-10-07 and plans and builds the feature on Brett Heap's 2026-10-08 word "This lane, 035 then 025 (Recommended)".
 - Canonical shape/corpus remains provider-owned; runtime implementations are independent and consume reviewed exact revisions.
 - Deterministic corpus, race, isolation, authorization and migration verification are required. Consumer persistence acceptance uses real database transactions; simulations do not prove deployment.
 - Versions are allocated at governed realization. Publication, pins, credentials, deployment and activation remain separate owner acts.

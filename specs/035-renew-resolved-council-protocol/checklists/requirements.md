@@ -31,4 +31,4 @@
 
 Reviewed against the ratified design and handoff on 2026-10-03. Checklist completion assesses the specification only. Plan, tasks, analysis, implementation and operational verification remain pending.
 
-*Note 2026-10-08:* planning surfaced five decisions that the "No unresolved clarification markers" item did not foresee. Brett Heap ruled all five on 2026-10-08, and they are encoded in [spec.md § Clarifications](../spec.md#clarifications). The plan, tasks and analysis now exist ([plan.md](../plan.md), [tasks.md](../tasks.md), [analysis.md](../analysis.md)); implementation and operational verification remain pending.
+*Note 2026-10-08:* planning surfaced five decisions that the "No unresolved clarification markers" item did not foresee, and applying one of them raised three follow-ups. Brett Heap ruled all eight on 2026-10-08, and they are encoded in [spec.md § Clarifications](../spec.md#clarifications). The plan, tasks and analysis now exist ([plan.md](../plan.md), [tasks.md](../tasks.md), [analysis.md](../analysis.md)); implementation and operational verification remain pending.

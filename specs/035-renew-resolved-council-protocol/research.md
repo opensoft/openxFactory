@@ -7,13 +7,16 @@ Each decision records what was chosen, the reason, and the alternatives consider
 - codexFactory feature 049, read at `origin/main` `3d5c2c38` on 2026-10-08, with its class binding and gate-rules candidate re-read at `2ce8544e` the same day;
 - Hermes packet `admit-resolved-council-protocol` (design H1–H4) and its feature 025 spec.
 
-**Five questions were Brett Heap's to decide, and all five are ruled.** He chose the recommended option of each, first-hand, on 2026-10-08. The record is brett-wip `lanes/log/codeXfactory-2.md`: RULED lines at 19:24:21Z (OPEN-1 to OPEN-4) and 19:24:59Z (OPEN-5). Each label below is quoted verbatim.
+**Five questions were Brett Heap's to decide, and all five are ruled; so are the three follow-ups that apply OPEN-3.** He chose the recommended option of each, first-hand, on 2026-10-08. The record is brett-wip `lanes/log/codeXfactory-2.md`: RULED lines at 19:24:21Z (OPEN-1 to OPEN-4), 19:24:59Z (OPEN-5) and 23:03:35Z (the three follow-ups, and N10). Each label below is quoted verbatim.
 
 | Question | Ruling | Encoded in |
 |---|---|---|
 | OPEN-1, lifetime ceilings | "600 s challenge, 6 h assignment (Recommended)" | [R12](#r12--lifetime-ceilings) |
 | OPEN-2, producer-binding home | "Consumer's runtime config (Recommended)" | [R13](#r13--producer-workflow-binding-and-its-placement) |
 | OPEN-3, revision currency | "History + unchanged rule file (Recommended)" | [R7](#r7--governed-sources-rule-authority-and-revision-currency) |
+| OPEN-3 follow-up 1, which sources | "Every governed source (Recommended)" | [R7](#r7--governed-sources-rule-authority-and-revision-currency) |
+| OPEN-3 follow-up 2, the producer repository | "job_workflow_ref's repo (Recommended)" | [R7](#r7--governed-sources-rule-authority-and-revision-currency), [R13](#r13--producer-workflow-binding-and-its-placement) |
+| OPEN-3 follow-up 3, the seat's workflow commit | "At or after the frozen rev (Recommended)" | [R7](#r7--governed-sources-rule-authority-and-revision-currency), [R13](#r13--producer-workflow-binding-and-its-placement) |
 | OPEN-4, release inventory | "Join behind a version floor (Recommended)" | [R15](#r15--release-surface-membership) |
 | OPEN-5, predicate identifiers | "Keep the existing names (Recommended)" | [R5](#r5--the-closed-predicate-registry-and-input-contracts) |
 
@@ -222,7 +225,7 @@ The producer's code is the workflow the verified `job_workflow_ref` names, and `
 
 That reading fits the estate's calling pattern. xFactory's `council-convening-lane.yml` calls codexFactory's `council-lane-reusable.yml`, so the token's `repository` (the binding's `caller_repository`) is the caller, while the workflow, its commit and the rules are codexFactory's. A permitted producer workflow whose repository is not the governed repository is refused (`workflow_revision_ungoverned`), which fails closed; follow-up 2 rules this too.
 
-**Each job checks out what was verified.** The verified `job_workflow_sha` vouches for the workflow file only. So the commission job checks out its trusted tooling at that commit, which equals the governed revision, and a seat job checks out its tooling at exactly its own verified `job_workflow_sha`. 049's seat worker today checks out the default-branch HEAD (W1), which this requirement changes; it is a recorded consumer requirement on 049 (T016b, T023).
+**Each job checks out what was verified.** The verified `job_workflow_sha` vouches for the workflow file only. So the commission job checks out its trusted tooling at that commit, which equals the governed revision, and a seat job checks out its tooling at exactly its own verified `job_workflow_sha`. 049's seat worker today checks out the default-branch HEAD (W1), which this requirement changes; it is a recorded producer requirement on 049 (T016b, T023).
 
 **Why the ruled option.**
 
@@ -251,6 +254,7 @@ That reading fits the estate's calling pattern. xFactory's `council-convening-la
 |---|---|
 | `governed_history` | For each `(repository, revision)`: whether the revision is on the governed branch's first-parent history, and which governed revisions it is at or after |
 | `governed` | For each `(repository, revision, path)`: whether it is available, whether it is an admitted governed source, its SHA-256 (a file) or its entries (a listing), and the same value at the governed tip |
+| `governed_repositories` | The allowlisted governed repositories, in current spelling, checked before any `governed_history` read |
 | `rules` | The neutral projection derived from the governed sources at a revision |
 | `facts` | The authoritative facts for each fact source |
 | `live_heads` | The head of each `(repository, pull_number)`, or `unavailable` |
@@ -258,7 +262,10 @@ That reading fits the estate's calling pattern. xFactory's `council-convening-la
 | `resolved_candidate` | The consumer's own resolution of the candidate, for admission |
 | `issued` | The issued challenges, registered keys, consumed challenges, accepted returns and live snapshots, as of `evaluation_time` |
 | `identity` | The verified claims, whether they were verified, and the principal. Broker capability is the binding's own `broker` member, not an oracle |
+| `repository_identity` | Absent, so the adapter reads the pinned `repository-identity.yaml`; or an override (`absent`, `unreadable`, or a `text` to read) that makes `repository_identity_unavailable` probeable |
 | `registry_status` | An override of E1 statuses, required on every vector whose outcome reads a status |
+
+No oracle models 025's council and mix guard or its touched-object and base-branch guards (E2 steps A2 and A5): they judge consumer-held state, keep 025's own codes, and run as passing seams during a corpus run ([data-model E2](data-model.md#e2-commission-record-council-conveningschemayaml-phase-2)).
 
 The trusted trigger's expected candidate is an input, `inputs.expected_candidate`, not an oracle, because the producer receives it from its trigger.
 
@@ -422,7 +429,7 @@ The rules for selection and history:
 - Under a legacy selection, a legacy record is routed to the legacy verifier. While the legacy status is `deprecated`, the route also carries the finding `legacy_protocol_deprecated`; `--strict` promotes it to an error. Once the status is `historical_only`, any legacy selection is itself refused, in either mode.
 - In `--historical` mode a record is classified by its recorded protocol and never reinterpreted. Legacy records are routed (exit 3). Replacement records stay verifiable under the replacement rules at every later release.
 
-`activation_evidence` records each owner act of the runbook (pause, drain, switch, rehearsal, activation, rollback and resume), with per-act required members ([data-model E12](data-model.md#e12-activation-evidence-activation-evidenceschemayaml-phase-6)). An activation or resume needs a passing matched rehearsal and verified broker capability. A rollback needs neither, because a broker failure may be what caused it. The validator refuses a record missing any member its act requires (`activation_evidence_incomplete`).
+`activation_evidence` records each owner act of the runbook (pause, drain, switch, rehearsal, activation, rollback and resume), with per-act required members ([data-model E12](data-model.md#e12-activation-evidence-activation-evidenceschemayaml-phase-6)). An activation or resume needs a passing matched rehearsal and verified broker capability. Broker capability has one source of truth, each binding's `broker` member: the record names the bindings it activates (`binding_refs`), and E12 reads their `broker` members, so an activation record cannot claim a capability its bindings lack. A rollback needs neither, because a broker failure may be what caused it. The validator refuses a record missing any member its act requires (`activation_evidence_incomplete`).
 
 **Rationale.**
 
@@ -570,10 +577,10 @@ Local tests are never reported as publication, deployment or activation (spec Us
 
 **Decision.** Every boundary has one normative evaluation order, and the first failing check names the outcome. The orders are in [data-model.md](data-model.md): commission and admission (E2), the snapshot half of admission (E4), registration (E7), return and completion (E8), binding (E10), selection (E11) and activation (E12). Every order over a protocol-carrying record begins with classification (E1). The binding, selection and activation orders are over records judged by kind, and completion is over frozen state. At admission the order is: classification and shape (E2 steps 1 and 2); binding (A1); 025's council and mix guard (A2); retry identity and once-per-pin (A3); the shared checks, with the workflow-revision step of binding (A4) only after E2 step 5 has checked the `governed` member it reads; the live head (step 13, 025's `verify_subject_pin`); and last 025's touched-object and base-branch guards (A5). That keeps 025's retained guards (025 FR-004) in the order Hermes runs them today (`council_orchestration.py`). Every vector names exactly one expected code, with no "or", and multi-defect vectors pin the order: one record with two defects must yield the earlier code.
 
-Three ordering rules matter most:
+Four ordering rules matter most:
 
 - **Classification first.** A legacy record is classified before any replacement shape check runs, so it is never called malformed.
-- **Secrets before any oracle read.** A secret-bearing record is refused before an oracle is queried with its values.
+- **Secrets before any oracle is queried with a free-text value.** A secret-bearing record is refused before any oracle is queried with a string the secret scan covers. The admission steps before it (A1 to A3) consult oracles only by grammar-checked identifiers: the verified claims, the council, and the convening key. An identical retry equals a record that already passed the scan, and a conflicting record is refused at A3 with nothing written.
 - **Retry identity before drift.** At admission, retry identity (E2 step A3) runs after classification, shape and binding, and before every check that reads something that can drift: governed sources, facts and the live head. A producer whose response was lost may resend after the tip or the head moved, and still gets the same snapshot back (US1 scenario 4; 025 FR-006). Once-per-pin runs in the same step and only after the identical-retry test, so it never pre-empts an identical retry.
 - **The live head last among reads of the candidate.** The producer's closing head read is the last read before submission (049 W0). The consumer's head check (E2 step 13) is its last read of the candidate's head. Only 025's touched-object and base-branch guards follow it (A5), and they read immutable objects at the verified head plus the base branch's rules.
 

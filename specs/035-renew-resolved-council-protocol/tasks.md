@@ -70,7 +70,7 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
 
 - [ ] T001 Create `specs/035-renew-resolved-council-protocol/evidence.md` and link it from this feature's entry in the `README.md` document index. Record:
   - the lane claim on `opensoft/openxFactory:openspec/changes/renew-resolved-council-protocol` (brett-wip `lanes/log/codeXfactory-2.md`);
-  - Brett Heap's 2026-10-08 words: "This lane, 035 then 025", the five RULED lines (19:24:21Z and 19:24:59Z), and the RULED line for the three OPEN-3 follow-ups and N10 (23:03:35Z);
+  - Brett Heap's 2026-10-08 words: "This lane, 035 then 025 (Recommended)", the five RULED lines (19:24:21Z and 19:24:59Z), and the four RULED lines at 23:03:35Z (log lines 209–212) for the three OPEN-3 follow-ups and N10;
   - #1267 landed as `80f47483`, and #1268's merge commit;
   - the base commit and `origin/main` at start.
 - [x] T002 Report change task 2.2's evidence to the change's owner lane, which is this same lane, codeXfactory-2: the Constitution Check in `specs/035-renew-resolved-council-protocol/plan.md`, the coverage tables in `specs/035-renew-resolved-council-protocol/tasks.md`, and `specs/035-renew-resolved-council-protocol/analysis.md`. **Done in #1268**, under Brett Heap's N10 ruling of 2026-10-08, "Dated correction + tick 2.2 (Recommended)": #1268 ticks 2.2 in `openspec/changes/renew-resolved-council-protocol/tasks.md` with these citations and the dated allocation record (I12; N10). T001 records #1268's merge commit as the tick's landing.
@@ -223,7 +223,7 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
   - governed sources under the OPEN-3 ruling and follow-up 1: a `governed.repository` that is not allowlisted, including a former spelling, refused as `rule_unauthorized` before any `governed_history` read (the oracle records no read); a revision off the first-parent history (`rule_revision_ungoverned`); at admission, a file changed at the tip, and a listing whose entry set changed at the tip (`rule_superseded`), including a source that is not the rule file (U2; N3); an unrelated, non-listed file changed at the tip, accepted; and no `rule_superseded` outcome at commission, where it is a non-normative producer pre-check;
   - roster composition: standing order; held seats appended; a conditional seat already standing appears once; an unbound held seat refuses; an empty roster; a duplicate seat; a reordered roster; a same-count substitution;
   - fact sources, including a gate-rules shape whose `rule_facts` come from `candidate.subject_path` at `candidate.head_sha` (I1);
-  - consumed, unused and absent facts; secrets via `$parts`, before any oracle read;
+  - consumed, unused and absent facts; secrets via `$parts`, before any oracle is queried with a free-text value of the record;
   - candidate identity against `inputs.expected_candidate` and `environment.resolved_candidate`;
   - head moved before the recheck, after the recheck, and at admission; head unavailable;
   - `convening_digest` known answers.
@@ -231,7 +231,7 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
   - Positives: standing only; a conditional seat held; a conditional seat not held; an unclassed gate-rules council with a `rule_facts` conjunction held; a conditional seat already standing; both rename paths; a class selected by glob.
   - At least one negative per Phase 2 refusal code, and the multi-defect order vectors.
   - Shared resolution checks use boundary `commission` and carry `applies_to: [producer, consumer]`. A consumer runs one through its admission resolution with no binding step: each shared commission vector carries both `inputs.expected_candidate` and an `environment.resolved_candidate` consistent with it, a single-entry `live_heads`, and no binding (contracts/conformance-corpus.md § How each side runs a shared vector). A vector whose `live_heads` gives more than one read, to model drift between the producer's reads, is producer-only. Shared commission vectors carry no `rule_superseded` case.
-  - Admission vectors are `applies_to: [consumer]`, because from Phase 5 admission also runs the consumer's binding checks. Pre-submit drift is producer-only. Admission drift is consumer-only.
+  - Admission vectors are `applies_to: [consumer]`, because from Phase 5 admission also runs the consumer's binding checks. Pre-submit drift is producer-only. Admission drift is consumer-only. No vector's `expected` depends on 025's guards at E2 steps A2 and A5, which run as passing seams in a corpus run (data-model E2), and no multi-defect vector pairs one of them with another defect.
   - Raise `coverage_floor` to add FR-002–FR-004 and SC-001, keeping Phase 1's FR-001 and FR-011, and regenerate `conformance/index.json`.
 - [ ] T027 [P] [US1] Extend `tests/council_convening/test_validator_cli.py`: `check` runs the offline E2 rules, reports each oracle-dependent rule as not offline-checkable, and the self-test prints the predicate-registry note.
 
@@ -255,7 +255,7 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
 
 ## Phase 3: User Story 2 (a) — Frozen assignments and retry identity (P1) (PR-3)
 
-**Goal**: one immutable assignment per required seat, in roster order, with retry identity and a frozen roster (spec US2 scenarios 3–4; FR-004, FR-005; D2). Completion over the frozen identities reads signed returns, whose schema is Phase 4's, so it lands there.
+**Goal**: one immutable assignment per required seat, in roster order, with retry identity and a frozen roster (the frozen-roster half of spec US2 scenario 4; US1 scenario 4's retry; FR-004, FR-005; D2). Completion over the frozen identities (US2 scenario 3, and the completion half of scenario 4) reads signed returns, whose schema is Phase 4's, so it lands there.
 
 **Independent test**: every `assignment` vector adjudicates. Extra, missing, reordered and same-count wrong assignments refuse; an identical retry returns the same snapshot even after the governed tip or the live head moved; a different record for the same key is `convening_conflict`.
 
@@ -275,8 +275,8 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
   - shared holder;
   - `convening_digest` recomputation (`digest_construction_mismatch`);
   - the ruled ceiling (OPEN-1): an assignment lifetime of exactly 21600 seconds accepted; 21601 seconds, zero and a negative lifetime refused as `assignment_malformed`;
-  - closed `permitted_operations`;
-  - retry, as E2 step A3 over `environment.issued.live_snapshots`: an identical E2 returns the same snapshot; a different one is `convening_conflict`; an identical E2 resent after a governed source changed at the tip, or after the live head moved, still returns the same snapshot, because retry identity runs before every drift check (US1 scenario 4; 025 FR-006); and once-per-pin never pre-empts an identical retry;
+  - `permitted_operations`: a non-empty, duplicate-free subset of `[seat_key_registration, seat_return]` in that order; an empty, repeated, reordered or unknown list refused as `assignment_malformed`;
+  - retry, as E2 step A3 over `environment.issued.live_snapshots`: an identical E2 returns the same snapshot; a different one is `convening_conflict`, keyed on `(protocol, council_id, subject_pin)` (025's once-per-pin key), including a record that differs only in `candidate.pull_number` or `candidate.subject_path`, while a record for the same council at another pin is not a conflict; an identical E2 resent after a governed source changed at the tip, or after the live head moved, still returns the same snapshot, because retry identity runs before every drift check (US1 scenario 4; 025 FR-006); and once-per-pin never pre-empts an identical retry;
   - `assignment_malformed` at its E4 position, before the digest and set checks.
 - [ ] T036 [US2] Author the `assignment` vectors, creating `contracts/council-convening/conformance/vectors/assignment/` with the first of them, with their expected outcomes first, including the four ceiling vectors. Raise `coverage_floor` to add FR-005, FR-006 and SC-002, and regenerate the index.
 - [ ] T037 [P] [US2] Extend `tests/council_convening/test_validator_cli.py`: `check` on a snapshot recomputes its digest and its assignment set.
@@ -284,15 +284,15 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
 ### Implementation
 
 - [ ] T038 [US2] Author `contracts/council-convening/convening-snapshot.schema.yaml` and `contracts/council-convening/seat-assignment.schema.yaml`, per data-model E4 and E5, with the assignment lifetime ceiling of 21600 seconds. Extend `refusal_code` in `contracts/council-convening/shared-definitions.schema.yaml` with the Phase 3 codes.
-- [ ] T039 [US2] Implement `scripts/council_convening/assignments.py`.
-- [ ] T040 [US2] Register the snapshot-at-`admission` handler in `scripts/council_convening/corpus.py`, and extend `check` in `scripts/validate-council-convening.py`. The `completion` handler is Phase 4's (T048).
+- [ ] T039 [US2] Implement `scripts/council_convening/assignments.py`, including retry identity and once-per-pin (E2 step A3).
+- [ ] T040 [US2] Register the snapshot-at-`admission` handler in `scripts/council_convening/corpus.py`, insert retry identity (E2 step A3) into the Phase 2 `admission` handler (T032) right after E2 step 2, and extend `check` in `scripts/validate-council-convening.py`. From Phase 5, T055 puts binding (A1) before it. The `completion` handler is Phase 4's (T048).
 - [ ] T041 [US2] Run quickstart steps 1–5, record them in `evidence.md` § Phase 3, and open PR-3 as a draft.
 
 ---
 
 ## Phase 4: User Story 2 (b) — Assignment-bound key registration and signed returns (P1) (PR-4)
 
-**Goal**: possession proofs and returns bind protocol, convening, council, candidate, assignment, seat and digest. Wrong principals, shared keys, replay, challenge misuse, root authorization and cross-protocol bytes all refuse (spec US2 scenarios 1–2; FR-006–FR-008; D3).
+**Goal**: possession proofs and returns bind protocol, convening, council, candidate, assignment, seat and digest. Wrong principals, shared keys, replay, challenge misuse, root authorization and cross-protocol bytes all refuse, and completion runs on exactly the frozen identities (spec US2 scenarios 1–3, and the completion half of scenario 4; FR-005–FR-008; D3).
 
 **Independent test**: every `signing` vector adjudicates, with `signed_bytes` known answers matching. `generate --check` reproduces every signature byte for byte.
 
@@ -317,7 +317,7 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
   - a return context whose `key_fingerprint` differs, refused as `return_key_mismatch` (N16);
   - a `payload` above 1 MiB of canonical bytes, refused as `return_malformed`;
   - the ruled ceiling (OPEN-1): a challenge lifetime of exactly 600 seconds accepted; 601 seconds, zero and a negative lifetime refused as `challenge_malformed`;
-  - assignment use: not yet valid, expired at the instant, operation not permitted;
+  - assignment use: not yet valid, expired at the instant, and operation not permitted, shown with a one-operation assignment (a registration against `[seat_return]`, a return against `[seat_key_registration]`);
   - return refusals: unregistered, key mismatch, digest mismatch, signature invalid, replay into another assignment, convening or protocol, and a float in the payload refused as `value_not_canonicalizable` while a `decimal_string` is accepted;
   - legacy v1 signed bytes never verify as replacement bytes, and the reverse;
   - completion, moved here from Phase 3 because it reads E8 returns: unlisted, duplicate, missing and same-count wrong identity, in the E8 completion order; and a changed rule oracle after freezing, where completion still follows the snapshot.
@@ -369,13 +369,13 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
   - decoded-only claims;
   - a binding whose `broker.capability_verified` is `false` is accepted at binding, which records it; it is refused only at `activation` and `resume` (Phase 6, E12);
   - the `.template.yaml` stub is never accepted as live.
-- [ ] T051 [US2] Author the `binding` vectors, creating `contracts/council-convening/conformance/vectors/binding/` with the first of them, with their expected outcomes first. Because binding now runs inside admission (data-model E2), re-author every admission vector at that commit, Phase 2's and Phase 3's, to carry a passing binding and verified claims, and add admission vectors that pin the interleaved order: a binding defect with a step-3 defect, and a workflow-revision defect with a step-5 defect (R3-M4; R4-M1; R4-H2). Raise `coverage_floor` to add FR-009, and regenerate the index.
+- [ ] T051 [US2] Author the `binding` vectors, creating `contracts/council-convening/conformance/vectors/binding/` with the first of them, with their expected outcomes first. Because binding now runs inside admission (data-model E2), re-author every admission vector at that commit, Phase 2's and Phase 3's, to carry a passing binding and verified claims, and add admission vectors that pin the interleaved order: a binding defect with a step-3 defect; a workflow-revision defect with a step-5 defect (R3-M4; R4-M1; R4-H2); and an identical retry whose commission token fails binding, which refuses with the binding code and does not return the snapshot (A1 before A3). Author the three `repository_identity_unavailable` vectors with the `repository_identity` oracle's overrides: `absent`, `unreadable`, and a `text` with a malformed row. Raise `coverage_floor` to add FR-009, and regenerate the index.
 - [ ] T052 [P] [US2] Extend `tests/council_convening/test_validator_cli.py`: `check` validates a binding instance offline against `repository-identity.yaml`, refuses the stub as live, and reports the claim-verification rules as not offline-checkable.
 
 ### Implementation
 
 - [ ] T053 [US2] Author `contracts/council-convening/producer-binding.schema.yaml` and `contracts/council-convening/producer-binding.template.yaml`. `workflow_revision_rule` is the closed enumeration `[equals_governed_revision, on_governed_history_since_revision]`, the first for `commission` and the second for `seat_execution`, any other pairing being `binding_malformed` (OPEN-3; follow-up 3). The closed set of subject claim keys is enumerated from GitHub's OIDC reference, which the schema's description cites. The template carries `instantiation_stub: true` and no live audience, subject template or repository id. Extend `refusal_code` in `contracts/council-convening/shared-definitions.schema.yaml` with the Phase 5 codes.
-- [ ] T054 [US2] Implement `scripts/council_convening/binding.py`, reusing `load_transfers`. No second transfer map. Add the fail-closed check `load_transfers` lacks: an absent or unreadable map, or any malformed row it reports, is `repository_identity_unavailable`.
+- [ ] T054 [US2] Implement `scripts/council_convening/binding.py`, reusing `load_transfers`. No second transfer map. Add the fail-closed check `load_transfers` lacks: before calling it, confirm the map exists and reads and parses under the same strict loader, so an absent or unreadable map is `repository_identity_unavailable` and is never taken for a valid empty one; and any malformed row it reports is `repository_identity_unavailable` too. A well-formed map with no transfer rows is valid. The corpus adapter honours the `repository_identity` oracle's overrides by materializing them under a temporary root.
 - [ ] T055 [US2] Register the `binding` handler in `scripts/council_convening/corpus.py`, and run binding inside the `admission` handler: E10 steps 1 to 13 as E2 step A1, after shape, and step 14 as E2 step A4, after E2 step 5 has checked `governed` (R3-M4; R4-M1). Add `check` support for the offline half. Document the binding in `contracts/council-convening/README.md`, including the OPEN-2 ruling: the concrete instance lives in the consumer's governed runtime configuration, written at the provisioning act and validated at the consumer's pin.
 - [ ] T056 [US2] Run quickstart steps 1–5, record them in `evidence.md` § Phase 5, citing follow-ups 2 and 3 for the workflow-revision vectors, and open PR-5 as a draft.
 
@@ -402,7 +402,7 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
   - `--historical` classifies and never reinterprets: a legacy record routes (exit 3), and a replacement record verifies;
   - E11: `mode`, a `null` bundle only in rehearsal, pair matching on all five members, `replacement_not_admission_eligible` before the major;
   - `rejected_without_fallback`, from `inputs.rejected_under` and a later `inputs.selection_attempt` that names another protocol;
-  - E12 per act, in the activation order: `activation_evidence_malformed`; each act's required members (`activation_evidence_incomplete`); then `broker_capability_insufficient` for an activation or resume whose broker capability is not verified, before the pair comparison; activation and resume need a passing matched rehearsal, found through `rehearsal_ref` in `inputs.rehearsal`; the two sides' selections compared on the five matched values; `rehearsal_ref` hashed over the exact text of `inputs.rehearsal`; a passing rehearsal whose provider or matched values differ from the activation's refused as `activation_evidence_incomplete` (R4-M5); a rollback without broker capability accepted; a rollback with `new_records_retained: false` refused as `activation_evidence_incomplete`, and one whose `new_records_protocol` is not the replacement refused as `historical_reinterpretation_refused` (N5; N19; R3-M2; R3-M6).
+  - E12 per act, in the activation order: `activation_evidence_malformed`; each act's required members (`activation_evidence_incomplete`); then, for an activation or resume, each entry of `binding_refs` resolved against `inputs.bindings` (`binding_unresolved`) and its binding's `broker` member read as the one source of broker capability (`broker_capability_insufficient` when `capability_verified` is not `true` or `evidence_ref` is `null`), before the pair comparison; an activation record carries no broker state of its own; activation and resume need a passing matched rehearsal, found through `rehearsal_ref` in `inputs.rehearsal`; the two sides' selections compared on the five matched values; `rehearsal_ref` hashed over the exact text of `inputs.rehearsal`; a passing rehearsal whose provider or matched values differ from the activation's refused as `activation_evidence_incomplete` (R4-M5); a rollback with no `binding_refs` accepted; a rollback with `new_records_retained: false` refused as `activation_evidence_incomplete`, and one whose `new_records_protocol` is not the replacement refused as `historical_reinterpretation_refused` (N5; N19; R3-M2; R3-M6).
 - [ ] T058 [US3] Author the `migration` vectors, creating `contracts/council-convening/conformance/vectors/migration/` with the first of them, with their expected outcomes first. Raise `coverage_floor` to the full FR-001–FR-012 and SC-001–SC-003, and regenerate the index.
 - [ ] T059 [P] [US3] Extend `tests/council_convening/test_validator_cli.py`: `select` exits and findings; `check --historical` exits 0 on a replacement record and 3 on a legacy one; and the full-coverage note.
 
