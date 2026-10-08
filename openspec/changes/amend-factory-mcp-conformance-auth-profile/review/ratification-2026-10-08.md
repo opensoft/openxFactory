@@ -78,12 +78,15 @@ as drafted, so neither needs a requirement sentence added, and none was.
 - **No downstream act.** The engineering domain's RS256 slice, the hosting
   plan's issuer correction and the operations gateway's intake alignment stay
   outside this change (`tasks.md` § 5).
-- **One act is complete, and one is still owed.** The amendment of the #630
+- **One act is complete, and one was waived.** The amendment of the #630
   claim, to say the seeder also flipped the partner ledger row and added the
   `_LEDGER_SUBJECTS` row (`tasks.md` 1.3), is DONE: #630 comment
-  `6068473680`, 2026-10-08T20:29Z, before the word at 20:33:25Z. A Codex
-  review is still missing, the connector having declined each trigger for
-  want of quota, and stays with the lane's coordinator.
+  `6068473680`, 2026-10-08T20:29Z. It was posted before the ratify word was
+  recorded on the lane register (20:33:25Z). The word itself was given at
+  20:2xZ, a minute this record does not carry, so the record claims no order
+  between the two. A Codex review was still missing at the ratify word, the
+  connector having declined each trigger for want of quota. The later landing
+  word WAIVED it (§ 6), so it is no longer owed.
 
 ## 4. What the ratifying commit changes
 
@@ -106,7 +109,7 @@ None of these changes is requirement or scenario text.
   sentences.
 - **This record.**
 
-Four files do not move, each for a reason:
+Three files do not move, each for a reason:
 
 - **`specs/factory-mcp-conformance/spec.md`:** the word ratifies the delta as
   drafted.
@@ -115,9 +118,11 @@ Four files do not move, each for a reason:
 - **`tests/doc-health/test_modified_block_currency_self_gate.py`:** the
   `_LEDGER_SUBJECTS` row names the MODIFIED block, which does not change. It
   retires at the archive.
-- **`tasks.md` 1.4:** the gates at the landing head stay open, because that
-  box names the required `pytest-suite` check, which is read at the exact
-  head being landed on the pull request and not in this file.
+
+One box in a file that did change stays open on purpose, `tasks.md` 1.4: the
+gates at the landing head stay open, because that box names the required
+`pytest-suite` check, which is read at the exact head being landed on the pull
+request and not in this file.
 
 ## 5. Corrections after the word, none of them requirement or scenario text
 
@@ -173,6 +178,25 @@ finding, again none in the delta:
   Copilot. The same pending-landing wording sat in § 3 above, in
   `proposal.md`'s Ratification section and in the README row, and each now
   records that the landing word is given.
+
+Copilot's review of `a9f5475a` raised one thread and two findings in its body,
+again none in the delta:
+
+- **§ 3, its last bullet, and the claim-amendment timing.** `20:33:25Z` is when
+  the lane recorded the ratify word, not when he gave it (20:2xZ), and the Codex
+  review is no longer owed once the landing word waived it. § 3 now says both.
+  The "before the ratify word" claims in `proposal.md` and `tasks.md` 1.3 now
+  say "before the ratify word was recorded on the lane register".
+- **`design.md` D7 and `tasks.md` 2.2.** A structural fault inside the block
+  cannot name its field: `auth` sits in the deployed arm of `service`'s
+  `oneOf`, and the structure pass reports a failed `oneOf` at its own path. The
+  D7 row for a repeated algorithm said `schema_uniqueItems` at
+  `/service/auth/algorithms`, which the current validator cannot produce. It now
+  reads `schema_oneOf` at `/service`, and the choice between flattening the
+  branch errors and a semantic check stays with the realization.
+- **§ 4 of this record.** It said four files do not move while listing
+  `tasks.md`, which did change. It now lists the three unmoved files and
+  records the open box 1.4 apart.
 
 ## 6. The landing word, given later the same day
 

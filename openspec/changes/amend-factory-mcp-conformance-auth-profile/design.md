@@ -100,7 +100,8 @@ is recorded in the Speckit feature):
 ```
 
 The block is closed. `algorithms` is a non-empty list of unique strings.
-`audience.binding` is the closed set `resource_uri | issuer_assigned`.
+`audience.binding` is the closed set `resource_uri | issuer_assigned`. A fault
+in that shape reads `schema_oneOf` at `/service` (D7).
 `evidence_ids` and `gap_ids` follow the tools' rules exactly. No field holds a
 key, a secret or a token: keys are found from the issuer's published metadata,
 which is public material.
@@ -219,7 +220,7 @@ They report in the existing dimensions and stable-ordering rules.
 | `auth_rs256_missing` | semantics | `/service/auth/algorithms` | RS256 is not listed |
 | `auth_algorithm_forbidden` | semantics | `/service/auth/algorithms/<k>` | `none`, `HS256`, `HS384` or `HS512`, in any letter case |
 | `auth_algorithm_unadmitted` | semantics | `/service/auth/algorithms/<k>` | any other value than `RS256` or `EdDSA` |
-| `schema_uniqueItems` (existing) | structure | `/service/auth/algorithms` | an algorithm is repeated |
+| `schema_oneOf` (existing) | structure | `/service` | a deployed service's block breaks its closed shape: an unknown field, a wrong type, a `binding` outside the closed set, or an empty or repeated `algorithms` list |
 | `auth_audience_unbound` | semantics | `/service/auth/audience/value` | a `resource_uri` binding names anything but `canonical_resource_uri`, or any audience contains `*` or equals the issuer |
 | `auth_metadata_path_mismatch` | semantics | `/service/auth/metadata_path` | not the RFC 9728 § 3.1 location for `canonical_resource_uri` |
 | `auth_resource_query` | semantics | `/service/canonical_resource_uri` | a deployed service's canonical resource URI carries a query component |
@@ -229,12 +230,12 @@ They report in the existing dimensions and stable-ordering rules.
 
 Every row that is new has a red-first test, written before the validator change
 and shown failing against the validator on `main` (`tasks.md` 2.2). So does an
-existing code at its new `/service/auth/...` location (`schema_uniqueItems`,
-`duplicate_support_reference`, `missing_support_reference`): `main` has no block
-to inspect, so a test expecting it there fails on `main`. Two cases cover what
+existing code at its new `/service/auth/...` location
+(`duplicate_support_reference`, `missing_support_reference`): `main` has no
+block to inspect, so a test expecting it there fails on `main`. Two cases cover what
 `main` already does and take characterization tests instead, which pass on
 `main` and pin behavior the change must not lose: a not-deployed service
-carrying `auth` (the `schema_oneOf` row, because the closed branch rejects the
+carrying `auth` (the first `schema_oneOf` row, because the closed branch rejects the
 property today) and a block-free stdio declaration (accepted today). Probed at `main`
 `80f47483`, the starting point is the expected one: the synthetic example with
 its service made `deployed` (synthetic host, no block) is `valid-with-gaps`
@@ -242,6 +243,19 @@ with no diagnostic, and the same declaration with an `auth` field is `invalid`,
 `schema_oneOf` at `/service`. The synthetic example stays `not_deployed`. A
 second, deployed synthetic example exercises the block over synthetic
 identifiers only: no real issuer, tenant or host.
+
+**A structural fault inside the block reads `schema_oneOf` at `/service`.**
+`auth` sits in the deployed arm of `service`'s `oneOf`, and `check_structure`
+reports a failed `oneOf` at its own path without descending into the branch
+errors. So an unknown field, a wrong type, a `binding` outside the closed set or
+a repeated algorithm cannot name its field, the same limit D1 notes for a
+structurally required block. `main` returns the same `schema_oneOf` for any block, valid or
+not, so the tests for these faults sit beside a valid-block test that is red on
+`main`. Naming the field would mean flattening the selected branch's child
+errors in `check_structure`, or moving the check into the semantic pass. Either
+is a validator change the realization may make, with its own red-first tests and
+its own record in the Speckit feature. This packet does not choose, and the
+semantic rows above are unaffected.
 
 ### D8. The M5 narrowing
 

@@ -59,7 +59,8 @@ Boxes for work this change will never do carry `[~]`, in § 5.
   its expected movement as one new ledger row, so the partner row was outside
   its wording. **The claim was amended, to both ledger-row movements and the
   `_LEDGER_SUBJECTS` row, in #630 comment `6068473680` (2026-10-08T20:29Z),
-  before the ratify word.** The authoring seat posted no issue comment; the
+  before the ratify word was recorded on the lane register, 2026-10-08T20:33:25Z.**
+  The authoring seat posted no issue comment; the
   lane's coordinator did.
 - [ ] 1.4 Gates at the LANDING head, the exact head the landing word names
   (it carries every commit made after the ratifying commit, so evidence from
@@ -90,6 +91,11 @@ Boxes for work this change will never do carry `[~]`, in § 5.
     not-deployed service carrying `auth` is refused with `schema_oneOf` at
     `/service` (the closed branch rejects it today), and a stdio-only
     declaration that needs no block validates;
+  - structure: a block that breaks its closed shape (an unknown field, a
+    repeated algorithm, a `binding` outside the closed set) is refused with
+    `schema_oneOf` at `/service`, the structure pass not descending into the
+    `oneOf` branches (`design.md` D7), beside a valid-block test that is red on
+    `main`;
   - the scenarios of the four ADDED requirements, including a hosted
     declaration without the block, an algorithm list without RS256, `none`
     and each HMAC name in more than one letter case, an audience bound to

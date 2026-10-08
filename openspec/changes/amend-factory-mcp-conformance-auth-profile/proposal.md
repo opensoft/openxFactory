@@ -22,7 +22,8 @@ expected movement; the seeder also flipped the partner row
 `add-factory-mcp-conformance` from `sole` to `co-modifier`. The claim was
 amended to say so, and to name the `_LEDGER_SUBJECTS` row, in
 [#630 comment `6068473680`](https://github.com/opensoft/openxFactory/issues/630#issuecomment-6068473680)
-(2026-10-08T20:29Z), before the ratify word (`tasks.md` 1.3).
+(2026-10-08T20:29Z), before the ratify word was recorded on the lane register
+(2026-10-08T20:33:25Z; `tasks.md` 1.3).
 
 **RATIFIED AS DRAFTED, 2026-10-08.** This packet was filed `Status: draft`.
 The three rulings below decided what it says. They were not its ratification:
