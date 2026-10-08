@@ -108,12 +108,16 @@ Kind: tasks
   seeded by the sanctioned seeder with `--moved-by '#1264'`: `active`,
   `co-modifier`, `declares [add-worker-input-budget]`, `depth: 1`. One row
   moved.
-- [ ] 3.5 Required checks green at the head, Copilot's review at the exact
-  head read, every thread resolved.
+- [x] 3.5 Required checks green at the head, Copilot's review at the exact
+  head read, every thread resolved. **RECORDED FOR THE ARCHIVE ACT,
+  2026-10-08.** Pull request #1264 landed by SQUASH as
+  `a936e5310400c3340096709a5127cde908180748` from head `a2761b1f`. At that head:
+  15 check names, every one concluded success, neutral or skipped; Copilot's review `5441620162`;
+  4 review thread(s), 0 unresolved.
 
 ## 4. Archive
 
-- [ ] 4.1 After the ratified packet lands, and on its own word: archive with
+- [x] 4.1 After the ratified packet lands, and on its own word: archive with
   `python3 scripts/proposal-support.py . archive
   amend-worker-input-budget-dispatch-wording` (never a bare `openspec
   archive`), landed as a merge commit and never a squash; retire this
@@ -121,6 +125,13 @@ Kind: tasks
   record. Then confirm `#1262` acceptance 3 on canon: no sentence calls an
   over-budget dispatch conformant, and the six scenarios are byte-identical to
   those on `main` `16779816`.
+  **PERFORMED IN THE ARCHIVE PULL REQUEST, 2026-10-08**, on Brett Heap's
+  word *"archive it after it lands"* (RULED on the lane register at
+  2026-10-07T11:04:36Z, `opensoft/brett-wip` commit `cd962505`), through
+  `TZ=UTC python3 scripts/proposal-support.py . archive
+  amend-worker-input-budget-dispatch-wording --yes`, never a bare `openspec archive`, on a
+  branch cut fresh from `main` after #1264's squash `a936e531`.
+  The archive commit carries the measurements; it lands as a MERGE commit.
 
 **3.5 AND 4.1 KEEP A LITERAL `- [ ]` DELIBERATELY.**
 `scripts/proposal-support.py`:4632-4633 refuses an archive while any
