@@ -405,3 +405,29 @@ closed as discharged by Brett Heap's words, on his selection of 2026-10-08;
   were taken on `main` `80f47483`. The archived tree's runs and the comparison
   are recorded under this item once the sweep-ledger row is seeded, because
   `--ledger-diff` reads that row.
+  - **Where.** Both sides ran in one scratch checkout named `openxFactory`,
+    with the submodules CI's `pytest-suite` initializes (`openXwallet`, then
+    `openXdox` and `openDox` recursively): `main` `80f47483` before, and
+    `a727715a` after, the archive pull request's head once the row was seeded
+    (`--seed-ledger --moved-by '#1275'`: 235 rows, 1 moved, active →
+    archived, `moved_on` 2026-10-08).
+  - **Pinned CLI, `--all --strict`.** Before: exit 0, 114 passed, 1 failed
+    (115 items). After: exit 0, 113 passed, 1 failed (114 items). With the
+    checkout path normalized, the two outputs differ in that totals line
+    alone: the item that left is this change, and every finding line is
+    identical. The one failure on both sides is `add-chain-attestation`, the
+    accepted exception `contracts/openspec-cli-pin.yaml` carries (Brett Heap,
+    2026-09-05, "take exit 2").
+  - **`validate-sequenced-after.py .`** Before: exit 0, 48 active changes, 19
+    declaring the field. After: exit 0, 47 and 19. `archive-date agreement`
+    and `archive-date-vs-commit agreement` pass on both sides.
+  - **`--ledger-diff`.** Before: exit 0, consistent with the corpus (235
+    rows). After: exit 0, consistent (235 rows). On the archived tree before
+    the row was seeded it exits 1 on exactly this row (`state: ledger
+    'active', live 'archived'`), which the seed repairs.
+  - **`doc-health.py --single-repo . --as-of 2026-10-08`.** Before and after:
+    31 critical, 26 error, 69 warning, 19 info, and 0 new regressions. The
+    two reports differ in two lines, both this archive's own effect: canon
+    words rise by 715 (382,979 to 383,694), which is the promoted text, and
+    the promoted-specs row moves with them. No finding names a file this
+    archive touches.
