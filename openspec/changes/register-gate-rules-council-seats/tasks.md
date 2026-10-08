@@ -681,6 +681,23 @@ gate is green: at the old reader every one of these writes is refused.
       lead-security's 2026-08-26 finding standing; **owner: the arc owner of
       `add-wallet-carried-review-authority`.** Not closed by this change and not
       inferable from the register's own floor entry.
+      **OWNER, RULED 2026-10-07 — NOT TICKED.** RULED 2026-10-07 by Brett Heap,
+      first-hand in lane codeXfactory-2's session (multiple choice; he selected
+      'This lane'). He was asked as a multiple-choice question with a
+      recommendation, at his own request (*"ask the decisions by me in multi
+      choice with recomendations"*), and selected the recommended option.
+      **Lane codeXfactory-2 owns this gap.** That REPLACES "the arc owner of
+      `add-wallet-carried-review-authority`" in the row above as the ACTING
+      owner; the arc's design ownership is unchanged. **The codexFactory fix is
+      draft PR codeXfactory/codexFactory#534** (read 2026-10-08: OPEN, DRAFT,
+      head `ac615fbc9bc5f68c7122f5b0f69d8bad832b6fc3`, authored by this lane),
+      which floors the register's own records by name. The row stays `[ ]`: it
+      asks for the gap to be CLOSED, a ruling on who owns it closes nothing, and
+      #534 is unmerged. This note records ownership and names the fix. It does
+      not re-measure the gap, edits no codexFactory file, and does not move this
+      row into or out of the archive gate (§ 5.2 stands as written). The row's
+      own "owner:" words above are not edited. See the walk's § 13.6
+      bookkeeping note 3 (appended 2026-10-07).
 - [ ] 4.4 **[codexFactory]** The CALLER (task 5.9a): a convening path that seats
       `gate_rules_council`, resolves its seats from the projection and returns
       SIGNED seat returns. The roster says in terms that the missing piece is a
@@ -776,6 +793,27 @@ gate is green: at the old reader every one of these writes is refused.
       `intent_owner_role_slot` the seat most likely to have moved.** See
       walk-2026-09-12-register-act.md § 13.6 bookkeeping note 2 (appended
       2026-10-05).**
+
+**2026-10-07 — ARCHIVE ORDER RULED: THIS CHANGE WAITS FOR THE DECLARED
+`sequenced_after` ORDER. NOTHING IN § 5 TICKS.** RULED 2026-10-07 by Brett
+Heap, first-hand in lane codeXfactory-2's session (multiple choice; he selected
+'Wait for declared order'). He was asked as a multiple-choice question with a
+recommendation, at his own request (*"ask the decisions by me in multi choice
+with recomendations"*), and selected the recommended option. Archive WAITS: this
+change archives only after `add-wallet-carried-review-authority`, the member
+`proposal.md:4` declares (`sequenced_after: [add-wallet-carried-review-authority,
+openXwallet:widen-register-reader-for-a-second-council]`), and that change
+itself waits on `add-substantive-review-lane` (its own "Archive-ordering note
+(2026-09-05)": *"`add-substantive-review-lane` archives FIRST"*). Both are
+still active at this note's base, `origin/main` `16779816`, and again at
+`c9dfd4f88` (2026-10-08). 5.1 was ticked 2026-10-05, and 5.2 and 5.3 stay
+`[ ]`. **5.3's archive-time re-read stays OPEN and is to be re-run against the
+then-current `origin/main` on the day of the archive**, as its 2026-10-05 note
+says; this ruling does not stand in for it and waives none of it. The ruling is
+about WHEN to archive: it edits no row of this section, changes no part of 5.1's
+evidence set, and moves no § 4 row into the gate (§ 5.2 stands). See the walk's
+§ 13.6 bookkeeping note 3 (appended 2026-10-07).
+
 ---
 
 ## 6. Q-GRC-4 discharge (AMENDMENT 2026-09-11)
@@ -1200,7 +1238,7 @@ bookkeeping note (appended 2026-10-04).
       count moves with it, in H2's own commit."*). The act is his; the bytes
       and the keystroke were the lane's. See walk-2026-09-12-register-act.md
       § 5.6 and the § 13.6 bookkeeping note (appended 2026-10-04).**
-- [ ] 6.15 **[OPERATOR] / [lane]** Write ONE walk record at
+- [x] 6.15 **[OPERATOR] / [lane]** Write ONE walk record at
       `walk-<T2-date>-register-act.md` (the holder's established home, task 3.9)
       carrying R8's five minimum fields, the runbook § 0.3 three-capacity
       disclosure, and — R6/R7 still PENDING — the composition recorded as
@@ -1220,6 +1258,23 @@ bookkeeping note (appended 2026-10-04).
       it, and no ruling either way is on record. This row ticks on Brett
       Heap's word accepting the walked-day name, or after a re-date he rules.
       See the walk's § 13.6 bookkeeping note (appended 2026-10-04).
+      **DONE 2026-10-07 — TICKED ON BRETT HEAP'S WORD, ACCEPTING THE WALKED-DAY
+      NAME.** RULED 2026-10-07 by Brett Heap, first-hand in lane
+      codeXfactory-2's session (multiple choice; he selected 'Accept walked-day
+      name'). He was asked as a multiple-choice question with a
+      recommendation, at his own request (*"ask the decisions by me in multi
+      choice with recomendations"*), and selected the recommended option. The
+      walked-day name `walk-2026-09-12-register-act.md` is ACCEPTED as
+      satisfying this row. That
+      was the one clause the 2026-10-04 note above found not evidenced, and it
+      is the naming tension walk § 6.8 left to the ratifying human. Every other
+      clause was already evidenced in that note (R8's five fields § 6, the
+      § 0.3 capacity disclosure § 7, the composition as declaring commit plus
+      digests §§ 3.3 and 6.1) and is not re-checked here. No re-date was ruled
+      or performed: the file is not renamed and the files that cite its path
+      are not edited. The 2026-10-04 note above stays as written, and this tick
+      supersedes its "NOT TICKED". See the walk's § 13.6 bookkeeping note 3
+      (appended 2026-10-07).
 
 ### 6.4 The ceremony
 
@@ -1241,7 +1296,7 @@ bookkeeping note (appended 2026-10-04).
       composition change itself and not by any later act. The body is parked
       under 6.16's hold. **The merge word: Brett Heap, 2026-09-12T03:14:35Z,
       verbatim *"merge H1 when green, post the hold first"*.**
-- [ ] 6.18 **T2** — H2 merges (6.9-6.15). **OQ-4 RULED (a)**,
+- [x] 6.18 **T2** — H2 merges (6.9-6.15). **OQ-4 RULED (a)**,
       2026-09-11T17:08:42Z: **ONE T1/T2 PAIR** — one codexFactory pull request
       (H1, §§ 6.2-6.8) then one openxFactory pull request (H2, §§ 6.9-6.15).
       H1 is **not** split into separate mint / roster / composition pull
@@ -1267,6 +1322,28 @@ bookkeeping note (appended 2026-10-04).
       (a). This row ticks on Brett Heap's word that it meets OQ-4 (a), or on
       a ruling that re-scopes the row. See the walk's § 13.6 bookkeeping note
       (appended 2026-10-04).
+      **DONE 2026-10-07 — TICKED ON BRETT HEAP'S WORD, ACCEPTING THE DEVIATION
+      AND NOTING IT.** RULED 2026-10-07 by Brett Heap, first-hand in lane
+      codeXfactory-2's session (multiple choice; he selected 'Accept, note
+      deviation'). He was asked as a multiple-choice question with a
+      recommendation, at his own request (*"ask the decisions by me in multi
+      choice with recomendations"*), and selected the recommended option. This
+      is the word the 2026-10-04 note above said would close the row. **The
+      deviation, noted, with every fact as the 2026-10-04 note read it:** (1) ONE
+      hold spanned T1 to T2, posted 2026-09-12T15:57:19Z (6.16) and lifted
+      2026-09-14T09:10:05Z (6.21; walk § 13.3). (2) ONE openxFactory H2, oxF PR
+      #1006 → `765d8c6fcd3fbfdb71540903858e8fca74f04929`, carried 6.9 to 6.15.
+      (3) The codexFactory half landed as H1, cxF PR #439 →
+      `eff9ae191d78c396800a72cdec9fffe0caf866d7` (6.2 to 6.7, T1), PLUS 6.8's
+      mint RECORD as its own pull request, cxF PR #452 → `58f1e909`, merged
+      2026-09-13T22:32:20Z, two minutes after T2. **The governed act's shape
+      held. Only the record of the mint landed separately.** The mint itself
+      (secret provisioned 2026-09-13T02:12:15Z) came before T2; what landed
+      after it is the record. The OQ-4 (a) text above is not edited and the row
+      is not re-scoped: it ticks on his acceptance, with this deviation noted.
+      With 6.15 ticked above, every row of 6.9-6.15, the range this row names,
+      is now `[x]`. See the walk's § 13.6 bookkeeping note 3 (appended
+      2026-10-07).
 - [x] 6.19 **[lane]** The 3.8-equivalent window check: prove NO
       `gate_rules_council` convening ran between T1 and T2 —
       `gh run list --workflow gate-rules-convening-trigger.yml` cross-checked

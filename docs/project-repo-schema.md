@@ -13,6 +13,16 @@ Amended by: prefer-triad-project-shape (ratified 2026-10-06T16:02:16Z,
   Added as § The Triad is PREFERRED, and it still confers NOTHING. Realized per
   `openspec/changes/prefer-triad-project-shape/tasks.md` task 5.1. This
   document's own status line and ratifying citation are unchanged by it.
+Amended by: correct-naming-families-count (ratified 2026-10-07,
+  openxFactory PR #1266) — the naming section made count-free: the families are
+  the ones the pinned standard's naming policy declares, governed there as DATA,
+  and this document states neither how many there are nor which. The section's
+  heading, the sentence placing the leg suffixes in a different visual class,
+  and the sentence naming where the families are governed are restated to say
+  so, and one INFORMATIVE note, dated to the pin, lists what that pin declares
+  and governs nothing. Realized per
+  `openspec/changes/correct-naming-families-count/tasks.md` task 5.1. This
+  document's own status line and ratifying citation are unchanged by it.
 
 GitHub has no folder that groups repositories, so a project spanning several of
 them is held together by convention or by nothing. This document is openxFactory's
@@ -233,22 +243,36 @@ way the xFactory aggregation already consumes its review lane at
 then both hold: the per-project root is the LEG, and the shared code is CONTENT
 that root may pin.
 
-## Naming, and the four families
+## Naming, and the naming families
 
 `<Project>` bare for the assembly root, `<Project>-spec` and `<Project>-code` for
 the legs. `<Project>` is one CamelCase token with no hyphen, underscore, dot or
 space; the suffixes are fixed lowercase and hyphenated, precisely so they sit in a
-different visual class from every other live family, all of which are CamelCase
-words. The assembly root is bare because the thing you clone has no suffix — the
-precedent the aggregation root already sets.
+different visual class from every family the pinned standard's naming policy spells
+as a CamelCase word. The assembly root is bare because the thing you clone has no
+suffix — the precedent the aggregation root already sets.
 
 Every repository of a project also carries the GitHub topic `xf-project-<id>`,
 where `<id>` is the project's lowercase id.
 
-The four families are governed as DATA in the pinned standard's
-`contracts/repository-naming.yaml`, not by this prose: `open<Product>` neutral
-products, `<X>-Install` installs, `<Domainx><Product>` domain descendants, and the
-project legs above.
+The naming families are the ones the pinned standard's
+`contracts/repository-naming.yaml` declares, and they are governed there as DATA,
+not by this prose, which therefore states neither how many there are nor which.
+Among them are `open<Product>` neutral products, `<X>-Install` installs,
+`<Domainx><Product>` domain descendants, and the project legs above, which are
+the families the rules in this section reach.
+
+> Informative, dated 2026-10-07 to the pin. At the commit
+> [`contracts/openreposhape-pin.yaml`](../contracts/openreposhape-pin.yaml)
+> names, `1a9fc537bcce…`, the naming policy declares six families:
+> `neutral-product` (`open<Product>`), `install` (`<X>-Install`),
+> `domain-descendant` (`<Domainx><Product>`, a claim answered by a declared
+> pin), `project-leg` (`<Project>`, `<Project>-spec`, `<Project>-code`),
+> `family` (a holder, reported only where its `family.yaml` declares it), and
+> `workspace` (`<user>-wip`, one person's private index of unfinished work).
+> This list is a reading of the data at that pin and governs nothing. The policy
+> at the pin in force is where the families are read, and a later pin may
+> declare more or fewer without this doctrine moving.
 
 ### A descendant form is a claim, and a claim needs a referent
 
