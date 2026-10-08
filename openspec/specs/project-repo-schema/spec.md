@@ -12,7 +12,9 @@ codexFactory's engineering overlay on it. Electing the shape CONFERS NOTHING —
 no gate, no floor, no grant, no clearance eligibility — and a project that
 declines it is reviewed identically to one that elects it; every authority
 question is deferred by name to `wallet-carried-work-authority`.
+
 ## Requirements
+
 ### Requirement: The project repository schema is elective and confers nothing
 A project's repository layout SHALL confer no gate, no floor, no grant, no
 clearance eligibility and no lifecycle state, and a one-repository project and a
@@ -83,13 +85,15 @@ of the project SHALL also carry the GitHub topic `xf-project-<id>`, where `<id>`
 is the project's lowercase id.
 
 The suffixes are lowercase and hyphenated precisely so they sit in a different
-visual class from every other live family, all of which are CamelCase words, and
-the assembly root is BARE because the thing you clone has no suffix — the
-precedent the aggregation root already sets. A name matching no family at all is
-REFUSED rather than accepted as a residual, which is the check that earns its
-keep: this is a FORWARD rule, and two live repositories (`xFactory-Installer`,
-`AgentTower`) fit no suffix rule, so the rule describes what may be created and
-never retroactively condemns what exists.
+visual class from every family the pinned standard's naming policy spells as a
+CamelCase word, and the assembly root is BARE because the thing you clone has no
+suffix — the precedent the aggregation root already sets. A name matching no
+family at all is REFUSED rather than accepted as a residual, which is the check
+that earns its keep: this is a FORWARD rule, and two live repositories
+(`xFactory-Installer`, `AgentTower`) fit no suffix rule, so the rule describes
+what may be created and never retroactively condemns what exists.
+
+**Removed from canon by correct-naming-families-count (2026-10-07):** ``The suffixes are lowercase and hyphenated precisely so they sit in a different visual class from every other live family, all of which are CamelCase words, and the assembly root is BARE because the thing you clone has no suffix — the precedent the aggregation root already sets.`` — REPLACED, not dropped: the paragraph above restates it with one clause changed. Its claim that every other family is a CamelCase word has been false at the pin in force since openxFactory's openRepoShape pin moved to `1a9fc537` (openxFactory PR #1260, 2026-10-06), because that commit's naming policy declares the `workspace` form `<user>-wip`, which is lowercase and hyphenated (openRepoShape PR #86). The replacement keeps what the sentence is for, that the leg suffixes are told apart from the CamelCase forms, and states no property of the whole set of families. The removed unit carries no SHALL, and its clause about the bare assembly root is carried word for word.
 
 #### Scenario: A project is scaffolded
 - **WHEN** a project named `Atlas` elects the schema
@@ -105,9 +109,10 @@ never retroactively condemns what exists.
 - **THEN** it is not thereby non-conformant, this being a forward rule over what may be created
 
 ### Requirement: The naming families are governed by the pinned standard, and a descendant form is a claim that needs a declared pin
-The four live naming families SHALL be governed as DATA by the naming policy of
-the pinned openRepoShape standard (`contracts/repository-naming.yaml`) rather
-than by prose — `open<Product>` neutral products, `<X>-Install` installs,
+The naming families SHALL be those the naming policy of the pinned openRepoShape
+standard (`contracts/repository-naming.yaml`) declares, governed there as DATA
+rather than by prose and restated here by neither their number nor their full
+list — among them `open<Product>` neutral products, `<X>-Install` installs,
 `<Domainx><Product>` domain descendants, and the project legs above — and a
 `<Domainx><Product>`-shaped name SHALL be classified as a domain descendant
 ONLY where the project DECLARES a pin on the matching `open<Product>`. Ruled by
@@ -117,15 +122,27 @@ ROLE wins, the name is a valid assembly root, and the project manifest SHALL
 RECORD that the name ALSO MATCHES the descendant form rather than discarding the
 overlap.
 
+A family the pinned policy adds or retires at a later pin owes this capability
+no amendment for its count or its listing: how many naming families there are,
+and which, is read from the policy at the pin in force and not from this
+specification. A count or a closed list restated here would be a second
+statement of a fact the pinned data owns, and it would go stale at the first pin
+that moved it — which is what this requirement's promoted text did twice, at
+openxFactory's openRepoShape pin advances of 2026-09-04 and 2026-10-06.
+
+**Removed from canon by correct-naming-families-count (2026-10-07):** ``The four live naming families SHALL be governed as DATA by the naming policy of the pinned openRepoShape standard (`contracts/repository-naming.yaml`) rather than by prose — `open<Product>` neutral products, `<X>-Install` installs, `<Domainx><Product>` domain descendants, and the project legs above — and a `<Domainx><Product>`-shaped name SHALL be classified as a domain descendant ONLY where the project DECLARES a pin on the matching `open<Product>`.`` — REPLACED, not dropped, and the replacement is this change's whole object. The promoted sentence was true at the pin in force when it was promoted on 2026-09-03, `deacbdc`, whose naming policy declared four families. openxFactory's pin moved to `122d729b` on 2026-09-04 (openxFactory PR #650), whose policy declares five, the `family` holder having been added by openRepoShape PR #16; and to `1a9fc537` on 2026-10-06 (openxFactory PR #1260), whose policy declares six, the `workspace` form `<user>-wip` having been added by openRepoShape PR #86. The paragraph above restates the sentence with its count and its closed list removed and with the four forms it named kept as named members, and carries its descendant clause word for word. Every SHALL the removed unit stated is carried: the families stay governed as DATA by the pinned policy, and a descendant-shaped name is still a descendant only on a declared pin.
+
 The classification SHALL be decided OFFLINE, from facts in the project's own
 tree, and SHALL NOT ask any host whether `open<Product>` exists — a rule needing
 the network is unrunnable in the fork-and-run case this capability exists for.
 `open<Product>` and `<X>-Install` are unambiguous in their own characters and
-keep their precedence unchanged; `<Domainx><Product>` is the one family whose
-membership is not decided by the characters alone, which is why it is the one
-family carrying a referent. This narrows NOTHING in
+keep their precedence unchanged; `<Domainx><Product>` is not, its form being a
+CLAIM of descent that the characters alone cannot settle, which is why it
+carries a referent. This narrows NOTHING in
 `domain-descendant-boundary`: a descendant is still a descendant because it pins
 the product, which is what that capability already requires.
+
+**Removed from canon by correct-naming-families-count (2026-10-07):** `` `open<Product>` and `<X>-Install` are unambiguous in their own characters and keep their precedence unchanged; `<Domainx><Product>` is the one family whose membership is not decided by the characters alone, which is why it is the one family carrying a referent. `` — REPLACED, not dropped: the paragraph above restates it with its second clause changed. `<Domainx><Product>` stopped being the ONLY family whose membership the characters alone do not decide when openxFactory's pin moved to `122d729b` (openxFactory PR #650, 2026-09-04), because that commit's naming policy declares the `family` holder form DECLARED-ONLY, the characters of a holder's name being those of an assembly root (openRepoShape PR #16). The replacement keeps the sentence's point, that the descendant form is a claim and carries a referent for that reason, and makes no claim about the rest of the set. Its first clause, on `open<Product>` and `<X>-Install`, is carried word for word.
 
 #### Scenario: A descendant-shaped name declares the matching pin
 - **WHEN** a repository named `MedxChart` declares a pin on `openChart`
@@ -140,6 +157,11 @@ the product, which is what that capability already requires.
 - **WHEN** classification would require asking a host whether a neutral product repository exists
 - **THEN** the classification MUST instead be decided from the project's declared pins
 - **AND** a rule that reached the network would be unrunnable in an organisation that forked the standard and never speaks upstream
+
+#### Scenario: The pinned policy declares a family no requirement here names
+- **WHEN** openxFactory's openRepoShape pin advances to a naming policy that declares a family no requirement of this capability names
+- **THEN** that family is a naming family from that pin on, governed as data by the pinned policy
+- **AND** no requirement of this capability is amended to restate how many families there are or which, the pinned policy being where both are read
 
 ### Requirement: Each leg is pinned twice, and the pins and every workflow reference move in one commit
 An assembly root SHALL pin each non-assembly leg TWICE — by the GITLINK git
@@ -360,4 +382,3 @@ what lets a later ratification reconcile drift instead of discovering it.
 - **WHEN** a project is scaffolded solely to test the standard end to end
 - **THEN** it is declared a TEMPORARY PILOT, is not represented as a product, and may be deleted once the standard is ratified
 - **AND** the evidence it produced is the recorded run, which survives the pilot's deletion
-

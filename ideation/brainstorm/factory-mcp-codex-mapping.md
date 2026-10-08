@@ -19,15 +19,15 @@ Which existing codex guarantees can inform a neutral profile without being mista
 
 ## Proposed model and evidence
 
-codex_qa_inspect_patch checks binding and patch containment without runner/store use. codex_qa_verify_candidate adds ordered host-owned checks and idempotent replay. Both retain authority_effect: none, eligible/blocked findings and sanitized evidence. The core is one in-process function; stdio and HTTP carry the same domain objects.
+The engineering domain's patch-inspection tool checks binding and patch containment without runner/store use. The engineering domain's candidate-verification tool adds ordered host-owned checks and idempotent replay. Both retain authority_effect: none, eligible/blocked findings and sanitized evidence. The domain core is a single shared implementation; stdio and HTTP carry the same domain objects.
 
 ## Interfaces and boundaries
 
-Repository/base digests, unified_diff, worker_result and check-profile details remain engineering vocabulary. No neutral profile adds fields to these tool requests or outcomes. Static documentation of a mapping is not domain adoption or certification of the deployed service.
+Repository/base digests, the patch, the worker result and check-profile details remain engineering vocabulary. No neutral profile adds fields to these tool requests or outcomes. Static documentation of a mapping is not domain adoption or certification of the deployed service.
 
 ## Alternatives and tensions
 
-The existing schema-derived descriptors and lossless output mapping are strong reuse candidates. The code-specific runner and raw-secret scan cannot be extracted unchanged and called domain-neutral merely because another tool needs validation.
+The existing schema-derived descriptors and lossless output mapping are strong reuse candidates. The code-specific runner and content-screening step cannot be extracted unchanged and called domain-neutral merely because another tool needs validation.
 
 ## Open questions
 

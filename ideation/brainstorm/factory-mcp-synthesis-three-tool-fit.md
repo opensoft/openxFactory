@@ -21,9 +21,9 @@ Atomic members: [codex mapping](factory-mcp-codex-mapping.md),
 
 ### Common semantics surround different payloads
 
-| Concern | Inspect patch (existing) | Verify candidate (existing) | DNS check (proposed) |
+| Concern | Patch inspection (existing) | Candidate verification (existing) | DNS check (proposed) |
 | --- | --- | --- | --- |
-| Caller payload | Patch, worker result, binding and trace IDs | Inspect payload plus idempotency key | Binding, zone, proposed record changes and trace IDs |
+| Caller payload | Patch, worker result, binding and trace IDs | Patch-inspection payload plus idempotency key | Binding, zone, proposed record changes and trace IDs |
 | Trusted subject | Repository and base | Repository, base and check profile | Registered zone, permitted records and observation reader |
 | Operational effects | Pure evaluation | Host checks and replay storage | Authorized observation |
 | Outcome | Eligible or blocked | Eligible or blocked | Eligible or blocked, or typed evaluation failure |
@@ -35,8 +35,8 @@ types or domain refusals into one generic job argument.
 
 ### The second domain reveals extraction limits
 
-Descriptors and lossless result mapping may become reusable. A CheckRunner is
-not a DNS observation port, and an idempotency store is not obligatory for a
+Descriptors and lossless result mapping may become reusable. The engineering domain's
+check-execution port is not a DNS observation port, and an idempotency store is not obligatory for a
 fresh read. Domain-independent synthetic fixtures belong in the neutral
 validator; executable DNS fixtures and policy adapters belong in OpsxFactory.
 
