@@ -68,8 +68,10 @@ stands. OQ-2 is the absence of a scenario, which is what the
 - `proposal.md`: `Status: ratified` with a `Ratified:` citation; a qualifier above
   the filing's "THIS PACKET IS A DRAFT" paragraph, which is kept verbatim as the
   filing's record; a RULED mark beside each of OQ-1 and OQ-2; the second word added
-  to *The words, verbatim*; and the `## Ratification (pending)` section replaced by
-  `## Ratification record` with the rulings table, the filed sentences quoted.
+  to *The words, verbatim*; the `## Ratification (pending)` section replaced by
+  `## Ratification record` with the rulings table, the filed sentences quoted; and the
+  `code_surface:` gloss's file list corrected to name this record (the head `none` is
+  unchanged).
 - `design.md` and `tasks.md`: `Status: ratified` with a `Ratified by:` citation.
   `design.md` gets a ratification qualifier above its opening paragraph, which is
   kept as filed, and a RULED mark on D3 and D4 with their reasoning kept.
@@ -146,10 +148,16 @@ initializes, so the repository identity and the skipped-family set match CI.
   - `validate-target-release.py .`;
   - `proposal-support.py . verify refresh-install-repository-enumerations-opsxfactory-gateway`:
     "proposal support verification ok".
-- **doc-health** (`scripts/doc-health.py --single-repo . --as-of 2026-10-08`): exit 0, and the
-  finding set, sorted, is identical line for line to clean `main`'s (145 findings: 31
-  critical, 26 error, 69 warning, 19 info). No finding names a file of this packet, this
-  record included, in any family.
+- **doc-health**, two runs of the same command, each against clean `main` in the same clone
+  kind:
+  - `scripts/doc-health.py --single-repo . --as-of 2026-10-08`: exit 0.
+  - `scripts/doc-health.py --single-repo . --as-of 2026-10-08 --fail-on error`, the gating
+    command `tasks.md` 2.6 names: exit 1 on `main` and on this branch alike, because the
+    standing findings include 31 critical and 26 error ones that `--fail-on error` refuses.
+  - In both runs the finding set, sorted, is identical line for line to clean `main`'s (145
+    findings: 31 critical, 26 error, 69 warning, 19 info), so the evidence is the
+    comparison and not an exit code. No finding names a file of this packet, this record
+    included, in any family.
 - **pytest, the full suite** (`python3 -m pytest tests/ -q -m "not postgres"`, CI's
   `pytest-suite` command): **38 failed, 9171 passed, 7 skipped**. The 38 failing test ids are
   IDENTICAL to the 38 measured on clean `main` in the same clone kind, and none names this

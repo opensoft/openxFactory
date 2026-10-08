@@ -130,6 +130,13 @@ separate word.
       `tests/proposal-support` suites and the full `tests/` run CI's `pytest-suite`
       runs; `git diff --check`; and a scan of every commit message and the pull request
       body for a closing keyword.
+      **As evidenced, stated so the command is not read as more:** the gating command
+      `python3 scripts/doc-health.py --single-repo . --as-of 2026-10-08 --fail-on error`
+      exits 1 on `main` and on this branch alike, on the same standing 31 critical and 26
+      error findings, so this box's evidence is the finding-for-finding comparison (the
+      sorted finding sets are identical, 145 lines) and not an exit code. The same run
+      without the gate exits 0 and gives the same finding set. The pull request body and
+      the ratification record report both.
 
 ## 3. What is NOT done by this packet, stated so no tick can claim it
 
