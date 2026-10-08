@@ -126,7 +126,8 @@ kind: estate-repository-inventory
 # states for its own placement and the reason this file takes the same one.
 #
 # THE POPULATION IS A FACT ABOUT THE ESTATE AND IS RE-MEASURED, never carried.
-# THIRTY-SEVEN rows. Rows 1-33 were built from the five naming sites at
+# THIRTY-EIGHT rows: THIRTY-SEVEN at 2026-09-24, and the one row added since
+# is the note below's. Rows 1-33 were built from the five naming sites at
 # `add-estate-repository-inventory`'s `design.md` D0.1; rows 34-37, the four
 # legs, are the SIXTH site's, which `admit-code-leg-under-pinned-root`
 # (openxFactory #1150) adds. ALL SIX were RE-MEASURED at that change's
