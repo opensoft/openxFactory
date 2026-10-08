@@ -198,26 +198,48 @@ The checks run in this order ([data-model E2](data-model.md#e2-commission-record
 | Condition | Refusal |
 |---|---|
 | The revision is not a full lowercase 40-hex commit id | `mutable_rule_reference` |
+| `governed.repository` is not an allowlisted governed repository, checked before any read of its history (a former spelling refuses here, because the allowlist names the current spelling) | `rule_unauthorized` |
 | The revision is not on the governed branch's first-parent history | `rule_revision_ungoverned` |
+| The listed paths are not exactly the set the projection is built from | `governed_sources_mismatch` |
 | A source path is not normalized and relative | `rule_path_malformed` |
 | A source is absent at the revision | `rule_unavailable` |
-| A source exists but is not an admitted governed source of an allowlisted governed repository | `rule_unauthorized` |
+| A source exists but is not an admitted governed source | `rule_unauthorized` |
 | A file's bytes, or a listing's entries, do not match the record | `rule_digest_mismatch` |
-| A source at the revision differs from the same source at the governed tip when the check runs; for a listing, the set of entries differs | `rule_superseded` |
+| At admission, a source at the revision differs from the same source at the governed tip; for a listing, the set of entries differs | `rule_superseded` |
 
-**Every governed source is held to the ruled test, not only the rule file.** Each source contributes to the projection: the class selector, the standing seats or the conditions. A changed council document at the tip would otherwise seat an outdated roster, which is what the ruling refuses. This goes beyond the ruling's words, which name "the rule file", so it is **flagged for Brett Heap's confirmation** before PR-2 lands ([analysis.md](analysis.md)). It is the fail-closed reading. If he confirms the narrower reading, Phase 2 checks currency on the governing rule file alone.
+**Every governed source is held to the ruled test, not only the rule file.** Each source contributes to the projection: the class selector, the standing seats or the conditions. A changed council document at the tip would otherwise seat an outdated roster, which is what the ruling refuses. The ruling's words name "the rule file", so the plan put the wider reading to Brett Heap, who ruled it on 2026-10-08 as follow-up 1, "Every governed source (Recommended)". No narrower fallback remains.
 
-**The workflow half** is encoded in the producer binding's closed `workflow_revision_rule`, whose only value is `equals_governed_revision` ([data-model E10](data-model.md#e10-producer-workflow-binding-producer-bindingschemayaml--templateyaml-phase-5)). The producer's code is the workflow the verified `job_workflow_ref` names, and `job_workflow_sha` is a commit of that workflow's repository. So "the rule repository is the producer repository" is read as: the repository in `job_workflow_ref` is `governed.repository`. When it is, the verified `job_workflow_sha` must equal `governed.revision`.
+**`rule_superseded` is normative at admission only**, as the ruling says ("equals the governed tip's at admission"). The producer may run the same comparison at commission as a pre-check, so that it does not submit a record it knows the consumer will refuse. That pre-check is producer-side and non-normative: the shared commission vectors carry no `rule_superseded` case, and its effect on 049 is recorded in [provider-interface](contracts/provider-interface.md#consumer-impacts-recorded-by-this-plan).
 
-That reading fits the estate's calling pattern. xFactory's `council-convening-lane.yml` calls codexFactory's `council-lane-reusable.yml`, so the token's `repository` is the caller while the workflow, its commit and the rules are codexFactory's. A permitted workflow whose repository is not the governed repository is refused (`workflow_revision_ungoverned`). The ruling does not address that case and no consumer uses it, so it is also flagged for confirmation.
+**Two codes for one ruled test, disclosed.** The ruling names one refusal, `rule_superseded`. The plan names a revision that is off the governed first-parent history `rule_revision_ungoverned`, and keeps `rule_superseded` for a source changed at the tip. The test is the ruled one; only its two failures are named apart, so a vector can say which half failed.
+
+**The workflow half** is encoded in the producer binding's closed `workflow_revision_rule`, which has two values, one per operation ([data-model E10](data-model.md#e10-producer-workflow-binding-producer-bindingschemayaml--templateyaml-phase-5)):
+
+- `equals_governed_revision`, for the commission job: the repository in the verified `job_workflow_ref` is `governed.repository`, and the verified `job_workflow_sha` equals `governed.revision`;
+- `on_governed_history_since_revision`, for a seat job: the repository in the verified `job_workflow_ref` is the snapshot's frozen `governed.repository`, and the verified `job_workflow_sha` is on its governed first-parent history at or after the frozen `governed.revision`. A seat runs after admission, when `main` may have moved, so equality would refuse every seat whose `main` moved. Brett Heap ruled this on 2026-10-08 as follow-up 3, "At or after the frozen rev (Recommended)".
+
+The producer's code is the workflow the verified `job_workflow_ref` names, and `job_workflow_sha` is a commit of that workflow's repository. So "the rule repository is the producer repository" is read as: the repository in `job_workflow_ref` is `governed.repository`. Brett Heap ruled that reading on 2026-10-08 as follow-up 2, "job_workflow_ref's repo (Recommended)".
+
+That reading fits the estate's calling pattern. xFactory's `council-convening-lane.yml` calls codexFactory's `council-lane-reusable.yml`, so the token's `repository` (the binding's `caller_repository`) is the caller, while the workflow, its commit and the rules are codexFactory's. A permitted producer workflow whose repository is not the governed repository is refused (`workflow_revision_ungoverned`), which fails closed; follow-up 2 rules this too.
+
+**Each job checks out what was verified.** The verified `job_workflow_sha` vouches for the workflow file only. So the commission job checks out its trusted tooling at that commit, which equals the governed revision, and a seat job checks out its tooling at exactly its own verified `job_workflow_sha`. 049's seat worker today checks out the default-branch HEAD (W1), which this requirement changes; it is a recorded consumer requirement on 049 (T016b, T023).
 
 **Why the ruled option.**
 
-- It never admits a roster under a rule that has since changed.
-- It never refuses on movement of main outside the governed sources. Under the every-source reading it does refuse when any governed source changed between commission and admission. Only first-parent movement of the governed branch can supersede a source. 34 first-parent codexFactory commits touched those YAML sources between 2026-09-01 and 2026-10-08, about 0.9 a day, against a commission-to-admission window of minutes. That count comes from `git log --first-parent --since=2026-09-01 --until=2026-10-08T00:00:00 2ce8544e -- hermes/domain/agent-mixes.yaml 'scripts/merge_master/*.yaml' 'scripts/merge_master/*.yml' .github/merge-approval-envelope.yml`; 57 commits touched them across all history. A refused convening is convened again.
+- It refuses a roster under a governed source that has changed by the time admission reads the tip. A source can still change in the interval between that read and the snapshot write. The check narrows that race to the admission transaction; it does not close it, and the frozen snapshot records the revision it was admitted under.
+- It never refuses on movement of main outside the governed sources. Under the every-source ruling it does refuse when any governed source changed between commission and admission. Only first-parent movement of the governed branch can supersede a source. 28 first-parent codexFactory commits touched the governed sources, council documents included, between 2026-09-01 and 2026-10-08: about 0.76 a day across those 37 days, all of them between 2026-09-02 and 2026-09-12, with at most 6 on one day. That is against a commission-to-admission window of minutes. The count comes from this command, run in codexFactory at `2ce8544e`:
+
+  ```text
+  git log --oneline --first-parent --since=2026-09-01 --until=2026-10-08T00:00:00 2ce8544e -- \
+    ':(glob)hermes/domain/agent-mixes.yaml' ':(glob)hermes/domain/review-councils/*.yaml' \
+    ':(glob)scripts/merge_master/*.yaml' ':(glob)scripts/merge_master/*.yml' \
+    ':(glob).github/merge-approval-envelope.yml' | wc -l
+  ```
+
+  It prints 28; without `--first-parent` it prints 48. The `:(glob)` magic matters: in a plain git pathspec `*` also matches `/`, so the same paths without it also count the YAML records, templates and vendored pins in subdirectories, which are not governed sources. That form prints 41 first-parent and 98 in all, an upper bound. A refused convening is convened again.
 - It closes the self-selection class the producer's adversarial review found (049 T008, F1: a candidate choosing the rule that decides its own membership).
 
-**Consumer impact.** 049 T010/T023 checks out its trusted tooling at exactly the verified workflow revision. 049 already requires the governed revision to be the run's own checkout HEAD (W0, `governed_revision_not_head`). The consumer reads the governed tip at admission. Both oracles model the ruled option ([R8](#r8--environment-oracles-make-authority-facts-and-heads-testable)), and the `rule_revision_ungoverned`, `rule_superseded` and `workflow_revision_ungoverned` vectors are authored in Phases 2 and 5.
+**Consumer impact.** 049 T010/T023 checks out its trusted tooling at exactly the verified workflow revision, for the commission job and, under follow-up 3, for each seat job. 049 already requires the governed revision to be the run's own checkout HEAD (W0, `governed_revision_not_head`). The consumer reads the governed tip at admission. Both oracles model the ruled option ([R8](#r8--environment-oracles-make-authority-facts-and-heads-testable)), and the `rule_revision_ungoverned`, `rule_superseded` and `workflow_revision_ungoverned` vectors are authored in Phases 2 and 5.
 
 **Trace.** FR-003; D1, D2, D4; 049 T010, T023; 025 FR-002.
 
@@ -331,7 +353,7 @@ The payload must be admissible under the construction: no non-integer number, no
 
 ## R12 — Lifetime ceilings
 
-**Decision (ruled).** Brett Heap ruled OPEN-1 on 2026-10-08: "600 s challenge, 6 h assignment (Recommended)". These are contract maximums, and the consumer configures any tighter value.
+**Decision (ruled).** Brett Heap ruled OPEN-1 on 2026-10-08: "600 s challenge, 6 h assignment (Recommended)". These are contract maximums. The consumer may configure a tighter value, and that value applies when it **issues** an assignment or a challenge. Verification and the corpus use the contract ceiling, so a consumer with a tighter value still accepts a vector at the ceiling and still refuses one second above it.
 
 - An assignment carries `not_before` and `expires_at`. Its lifetime must be greater than 0 and at most **21600 seconds**; otherwise `assignment_malformed`.
 - A challenge carries `issued_at` and `expires_at`. Its lifetime must be greater than 0 and at most **600 seconds**; otherwise `challenge_malformed`.
@@ -356,8 +378,8 @@ The payload must be admissible under the construction: no non-integer number, no
 **The schema** (`producer-binding.schema.yaml`, closed) holds:
 
 - **The issuer**, for principal kind `github_oidc_job`: exactly `https://token.actions.githubusercontent.com`, or that URL followed by `/<enterprise-slug>`. That is GitHub's documented issuer form for an enterprise with a unique issuer URL.
-- **The repository identity.** `producer_repository` is the repository the commission job runs in: the verified token's `repository` claim, which for a reusable workflow is the caller. A spelling that `contracts/policies/repository-identity.yaml` lists as `former`, or a case variant its `owner_case` names as non-canonical, is refused as `repository_identity_former`. A spelling the file does not list is taken as current; the file has one transfer row today. It is read through the existing `load_transfers` reader. `repository_id` is the immutable numeric identity. A verified `repository` or `repository_id` claim that differs from the binding is `repository_identity_mismatch`.
-- **The claims.** `audience` is a literal, never a pattern. `subject_claim_keys` and `subject_template` name the actual verified OIDC `sub` template, including a template customized through GitHub's documented subject claim keys. The closed key set is enumerated at T053 from GitHub's OIDC reference, which T053 cites. `permitted_workflows` lists `{operation, job_workflow_ref, workflow_revision_rule}`. The rule is `equals_governed_revision` for the commission job, under the OPEN-3 ruling ([R7](#r7--governed-sources-rule-authority-and-revision-currency)), and `on_governed_history_since_revision` for a seat job. A seat runs after admission, when `main` may have moved, so the seat value applies the ruling's "history" half and is flagged for confirmation (analysis.md, confirmation 3). The binding carries a `binding_id`, which an assignment's `holder.binding_ref` names, so registration checks a seat job's claims against its own binding (data-model E7 step 5).
+- **The repository identity.** `caller_repository` is the repository the commission or seat job runs in: the verified token's `repository` claim, which for a reusable workflow is the caller. It is named for the caller so it is not confused with the ruling's "producer repository", which is the repository in `job_workflow_ref` ([R7](#r7--governed-sources-rule-authority-and-revision-currency)). `contracts/policies/repository-identity.yaml` is read through the existing `load_transfers` reader (`scripts/estate_inventory.py`). That reader returns an empty map when the file is absent or unreadable, and lists malformed rows separately, so this family fails closed on all three: `repository_identity_unavailable`. A spelling the map lists as `former` is refused as `repository_identity_former`, and so is a non-canonical case variant, defined mechanically as a spelling equal to a listed spelling when ASCII case is ignored but not byte-equal to it (the map's `owner_case` is prose). Any other spelling is taken as current; the map has one transfer row today. `repository_id` is the immutable numeric identity. A verified `repository` or `repository_id` claim that differs from the binding is `repository_identity_mismatch`.
+- **The claims.** `audience` is a literal, never a pattern. `subject_claim_keys` and `subject_template` name the actual verified OIDC `sub` template, including a template customized through GitHub's documented subject claim keys. The closed key set is enumerated at T053 from GitHub's OIDC reference, which T053 cites. `permitted_workflows` lists `{operation, job_workflow_ref, workflow_revision_rule}`. The rule is `equals_governed_revision` for the commission job, under the OPEN-3 ruling ([R7](#r7--governed-sources-rule-authority-and-revision-currency)), and `on_governed_history_since_revision` for a seat job, under follow-up 3, "At or after the frozen rev (Recommended)". A seat runs after admission, when `main` may have moved, so the seat value applies the ruling's "history" half. The binding carries a `binding_id`, which an assignment's `holder.binding_ref` names, so registration checks a seat job's claims against its own binding (data-model E7 step 5).
 - **The broker**: its reference, whether its capability is verified, and the evidence.
 
 The rules:
@@ -372,8 +394,9 @@ The rules:
 | The verified token is outside its validity window at `evaluation_time` (`exp` at or before it, or `nbf` after it) | `claims_expired` |
 | The verified `iss` is not the binding's issuer | `issuer_mismatch` |
 | The verified `aud` is not exactly the binding's audience | `audience_mismatch` |
-| A former spelling of the repository in a permitted `job_workflow_ref` | `repository_identity_former` |
-| A broker whose capability is not verified | parks activation: `broker_capability_insufficient` |
+| The identity map is absent, unreadable, or has a malformed row | `repository_identity_unavailable` |
+| A former spelling, or a non-canonical case variant, of the caller repository or of the repository in a permitted `job_workflow_ref` | `repository_identity_former` |
+| A broker whose capability is not verified | recorded at binding; refused at `activation` and `resume` (data-model E12): `broker_capability_insufficient` |
 
 `principal_kind` is one closed enumeration in the shared definitions, `github_oidc_job` or `governed_broker_job`, used by both the binding and the assignment holder. The holder's `principal_ref` and `binding_ref` are issued by the trusted dispatcher or the owner-provisioned broker from verified execution evidence (D3). This family binds them and checks them at use; it does not derive them.
 
@@ -394,7 +417,7 @@ The template `producer-binding.template.yaml` carries an `instantiation_stub` ma
 
 The rules for selection and history:
 
-- A refusal under the selected protocol never selects another protocol (`rejected_without_fallback`).
+- A refusal under the selected protocol never selects another protocol (`rejected_without_fallback`). A vector shows it with two inputs: `inputs.rejected_under`, the `protocol_id` a refusal was recorded under, and `inputs.selection_attempt`, a later selection that names another protocol.
 - A legacy record under a replacement selection is always refused (`legacy_protocol_refused`), at every status. The active replacement binding never accepts both shapes.
 - Under a legacy selection, a legacy record is routed to the legacy verifier. While the legacy status is `deprecated`, the route also carries the finding `legacy_protocol_deprecated`; `--strict` promotes it to an error. Once the status is `historical_only`, any legacy selection is itself refused, in either mode.
 - In `--historical` mode a record is classified by its recorded protocol and never reinterpreted. Legacy records are routed (exit 3). Replacement records stay verifiable under the replacement rules at every later release.
@@ -545,13 +568,14 @@ Local tests are never reported as publication, deployment or activation (spec Us
 
 ## R21 — Normative evaluation order
 
-**Decision.** Every boundary has one normative evaluation order, and the first failing check names the outcome. The orders are in [data-model.md](data-model.md): commission and admission (E2), the snapshot half of admission (E4), registration (E7), return and completion (E8), binding (E10), selection (E11) and activation (E12). Every order over a protocol-carrying record begins with classification (E1). The binding, selection and activation orders are over records judged by kind, and completion is over frozen state. At admission, binding runs after the record's classification and shape check (E2 steps 1 and 2), and its workflow-revision step runs only after E2 step 5 has checked the `governed` member it reads. Every vector names exactly one expected code, with no "or", and multi-defect vectors pin the order: one record with two defects must yield the earlier code.
+**Decision.** Every boundary has one normative evaluation order, and the first failing check names the outcome. The orders are in [data-model.md](data-model.md): commission and admission (E2), the snapshot half of admission (E4), registration (E7), return and completion (E8), binding (E10), selection (E11) and activation (E12). Every order over a protocol-carrying record begins with classification (E1). The binding, selection and activation orders are over records judged by kind, and completion is over frozen state. At admission the order is: classification and shape (E2 steps 1 and 2); binding (A1); 025's council and mix guard (A2); retry identity and once-per-pin (A3); the shared checks, with the workflow-revision step of binding (A4) only after E2 step 5 has checked the `governed` member it reads; the live head (step 13, 025's `verify_subject_pin`); and last 025's touched-object and base-branch guards (A5). That keeps 025's retained guards (025 FR-004) in the order Hermes runs them today (`council_orchestration.py`). Every vector names exactly one expected code, with no "or", and multi-defect vectors pin the order: one record with two defects must yield the earlier code.
 
 Three ordering rules matter most:
 
 - **Classification first.** A legacy record is classified before any replacement shape check runs, so it is never called malformed.
 - **Secrets before any oracle read.** A secret-bearing record is refused before an oracle is queried with its values.
-- **The live head last among external reads.** The producer's closing head read is the last read before submission (049 W0), and the consumer's head check is its last external read before writing; only its own retry-identity lookup follows (E2 step 14).
+- **Retry identity before drift.** At admission, retry identity (E2 step A3) runs after classification, shape and binding, and before every check that reads something that can drift: governed sources, facts and the live head. A producer whose response was lost may resend after the tip or the head moved, and still gets the same snapshot back (US1 scenario 4; 025 FR-006). Once-per-pin runs in the same step and only after the identical-retry test, so it never pre-empts an identical retry.
+- **The live head last among reads of the candidate.** The producer's closing head read is the last read before submission (049 W0). The consumer's head check (E2 step 13) is its last read of the candidate's head. Only 025's touched-object and base-branch guards follow it (A5), and they read immutable objects at the verified head plus the base branch's rules.
 
 Schemas check types only where a named semantic refusal exists for the same condition, so a schema failure never shadows a semantic code.
 

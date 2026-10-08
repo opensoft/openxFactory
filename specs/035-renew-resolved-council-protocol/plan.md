@@ -150,7 +150,7 @@ scripts/council_convening/                          # NEW provider reference imp
 ├── classification.py  # protocol classification and selection effects (E1)
 ├── predicates.py      # predicate registry semantics
 ├── resolution.py      # roster composition and provenance reproduction (oracles injected)
-├── assignments.py     # snapshot, assignment, retry identity and completion
+├── assignments.py     # snapshot, assignment, retry identity; completion (Phase 4)
 ├── signing.py         # contexts, signed bytes, verification, fingerprints
 ├── binding.py         # producer binding against repository-identity.yaml
 ├── migration.py       # selection, activation evidence, deprecation, historical mode
@@ -194,8 +194,8 @@ The agent-context update step of the plan template has no script in this reposit
 |---|---|---|---|
 | 1 Setup & foundational | Family skeleton and README, `shared-definitions`, protocol registry and classification, two digest subjects, corpus index and vector format, generator skeleton, validator skeleton, CI gate | T027 and T026→T030 (protocol identifier values to bind), T001's follow-up dated section | FR-001 (exact contract identity), FR-011 (protocol identifiers, classification) |
 | 2 US1: membership before work (MVP) | `council_convening`, predicate registry and input contracts, resolution reproduction in the normative order, US1 corpus | T003, T010, T011 (the gate-rules `subject_path`), T011b (POST body shape, with 025), T012 (head-race half), T013 | FR-001–FR-004 |
-| 3 US2a: frozen assignments | Snapshot, assignment, retry identity and completion identity, with their vectors | T012 (retry identity), T015b, T016b (assignment shape), T021/T022 (completion mapping) | FR-005–FR-007 |
-| 4 US2b: seat signing (lands after Phase 5) | Challenge, registration, return, the two signing contexts, return digest, key vectors | T020, T017/T019 (context mapping), T025 (what consumer evidence must show) | FR-008–FR-010 |
+| 3 US2a: frozen assignments | Snapshot, assignment and retry identity, with their vectors | T012 (retry identity), T015b, T016b (assignment shape) | FR-005–FR-007 |
+| 4 US2b: seat signing and completion (lands after Phase 5) | Challenge, registration, return, the two signing contexts, return digest, completion over the frozen identities, key and completion vectors | T020, T017/T019 (context mapping), T021/T022 (completion mapping), T025 (what consumer evidence must show) | FR-005 (completion), FR-008–FR-010 |
 | 5 US2c: producer identity | Producer binding schema and template, repository-identity derivation, identity vectors | T023, T024, T031 (the shape the owner provisions) | FR-008 (principal inputs); H3 activation park |
 | 6 US3: matched migration | Protocol selection, activation evidence, historical mode, deprecation routing, migration vectors, activation runbook | T027 (selection shape), T028, T029, T032 | FR-011, FR-012 |
 | 7 Release A: additive and deprecating minor | Registration, release floor, CHANGELOG, policy deprecation entry, inventory, index rows. OWNER: tag | T030 (minor half), T003 (published pin) | FR-011, FR-012 (published compatible pin) |
@@ -227,7 +227,7 @@ Phase 9 follows Phase 8 and the successor evidence.
 
 ## Decisions ruled by Brett Heap
 
-Five questions were left for Brett Heap, each with a recommendation. He ruled all five on 2026-10-08, first-hand, choosing the recommended option of each. The record is brett-wip `lanes/log/codeXfactory-2.md`, RULED at 19:24:21Z (OPEN-1 to OPEN-4) and 19:24:59Z (OPEN-5). The labels are quoted verbatim. The questions and options are in [clarify-questions.md](clarify-questions.md), and the answers are encoded in [spec.md § Clarifications](spec.md#clarifications).
+Five questions were left for Brett Heap, each with a recommendation. He ruled all five on 2026-10-08, first-hand, choosing the recommended option of each. The record is brett-wip `lanes/log/codeXfactory-2.md`, RULED at 19:24:21Z (OPEN-1 to OPEN-4) and 19:24:59Z (OPEN-5). Applying OPEN-3 raised three follow-up questions and one packet question (N10); he ruled those on 2026-10-08 too, again choosing the recommended option of each, RULED at 23:03:35Z (lines 209–212 of the same log). The labels are quoted verbatim. The questions and options are in [clarify-questions.md](clarify-questions.md), and the answers are encoded in [spec.md § Clarifications](spec.md#clarifications).
 
 - **OPEN-1: lifetime ceilings.** Ruled "600 s challenge, 6 h assignment (Recommended)".
   - A challenge lives at most 600 seconds, and an assignment at most 21600 seconds. These are contract maximums; the consumer configures any tighter value.
@@ -237,16 +237,17 @@ Five questions were left for Brett Heap, each with a recommendation. He ruled al
   - The provider ships only the schema, a `.template.yaml` stub, the derivation from `repository-identity.yaml` and the corpus.
   - Encoded in [R13](research.md#r13--producer-workflow-binding-and-its-placement), data-model E10, and T052, T053 and T055.
 - **OPEN-3: revision currency.** Ruled "History + unchanged rule file (Recommended)".
-  - A cited revision must be on the governed branch's first-parent history, and the rule file at that revision must equal its counterpart at the governed tip when admission runs; otherwise `rule_superseded`. The plan holds every governed source to this test, pending confirmation (below).
-  - Where the rule repository is the producer repository, the producer's verified `job_workflow_sha` must equal the cited rule revision. The binding's closed `workflow_revision_rule` is `equals_governed_revision`.
+  - A cited revision must be on the governed branch's first-parent history, and the rule file at that revision must equal its counterpart at the governed tip when admission runs; otherwise `rule_superseded`. `rule_superseded` is normative at admission; a producer's commission-time comparison is a non-normative pre-check. The plan names the off-history failure `rule_revision_ungoverned`, a disclosed two-code refinement of the one ruled refusal.
+  - Where the rule repository is the producer repository, the producer's verified `job_workflow_sha` must equal the cited rule revision. The binding's closed `workflow_revision_rule` has two values: `equals_governed_revision` for the commission job, and `on_governed_history_since_revision` for a seat job (follow-up 3).
   - Encoded in [R7](research.md#r7--governed-sources-rule-authority-and-revision-currency), data-model E2 step 5 and E10, and T025, T026, T031, T050, T051 and T053.
-  - Three applications of this ruling are flagged for Brett Heap's confirmation, and each is the plan's default meanwhile ([analysis.md](analysis.md#confirmations-requested)):
-    1. the currency test covers every governed source, not only the rule file (before PR-2);
-    2. a permitted workflow whose repository is not the governed repository is refused (before PR-5);
-    3. a seat job's workflow commit must be on the governed history at or after the frozen revision, rather than equal to it (before PR-5 and PR-4).
+  - Its three follow-ups, ruled 2026-10-08 ([analysis.md § Ruled](analysis.md#ruled)):
+    1. "Every governed source (Recommended)": the currency test covers every governed source the convening cites, not only the rule file (Phase 2);
+    2. "job_workflow_ref's repo (Recommended)": the ruling's "producer repository" is the repository named in `job_workflow_ref`, and a permitted producer workflow outside the governed repository is refused, failing closed (Phase 5);
+    3. "At or after the frozen rev (Recommended)": a seat job's workflow commit must be on the governed history at or after the frozen revision, not equal to it; and a seat job checks out its tooling at its verified `job_workflow_sha` (Phases 4 and 5).
 - **OPEN-4: release-inventory membership.** Ruled "Join behind a version floor (Recommended)".
   - `COUNCIL_CONVENING_RELEASE_FLOOR` is set at the Phase 7 cut, following the clearing precedent (#722, ruled in #745).
   - Encoded in [R15](research.md#r15--release-surface-membership), T066 and T068.
+- **N10: the packet's stale allocation notes.** Ruled "Dated correction + tick 2.2 (Recommended)". #1268 replaces the 2026-10-03 allocation notes under `openspec/changes/renew-resolved-council-protocol/` with a dated allocation record, ticks packet task 2.2, and lands in a Rule 6 window.
 - **OPEN-5: predicate identifiers.** Ruled "Keep the existing names (Recommended)".
   - The neutral registry keeps `changed_paths_intersect` over `pr_facts` and `rule_touches_security_posture` over `rule_facts`, exactly as the governed rule files declare them, with no mapping layer.
   - "Domain predicates remain domain-owned" means the domain owns which seats a rule conditions on and with which parameters, while the evaluation mechanism is neutral. Adding or renaming a predicate is a governed contract change.

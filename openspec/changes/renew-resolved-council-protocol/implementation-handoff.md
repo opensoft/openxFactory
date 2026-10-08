@@ -1,10 +1,8 @@
 # Provider implementation handoff
 
-Status: record
+Status: draft
 Prepared: 2026-10-03
-
-Feature allocation (2026-10-03): [`035-renew-resolved-council-protocol`](../../../specs/035-renew-resolved-council-protocol/spec.md), selected in its sibling linked worktree, is this packet's sole implementation feature. The current Codex session accepts feature preparation under Brett's commission and exact-head ratification, outside a registered lane. No transfer or acceptance on behalf of codeXfactory-2 or another lane is asserted. The pre-ratification pickup guidance below is retained; specification is initialized, while plan, executable task generation, analysis, implementation and operational evidence remain pending.
-Owner lane: pending acceptance and claim
+Owner lane: codeXfactory-2 (*corrected 2026-10-08*: this line read "pending acceptance and claim" until the claim of 2026-10-07; see [Allocation record (2026-10-08)](#allocation-record-2026-10-08))
 
 Read the decision packet and verify ratification before code. The session that prepared this packet is outside a lane; it does not seize the preserved `026` worktree or the provider's release lock. Check siblings and the current object register. Accept/claim this fresh provider scope, then allocate exactly one Speckit feature through the configured hook on current clean main. The executable plan/tasks live only in that feature.
 
@@ -15,3 +13,12 @@ The corpus covers standing/conditional selection, rule/fact authority, immutable
 Allocate versions only under the normal release process: deprecation minor before breaking removal major. The family and protocol remain dormant until compatible successor code/pins and verified broker capability exist. Publication is not deployment or activation. Coordinate producer `realize-resolved-council-protocol` and Hermes `admit-resolved-council-protocol`, retaining their own one-feature handoffs and local gates.
 
 Capture exact reviewed commits, inventory/corpus digests, separately implemented results, native release-gate outcomes, successor merge and managing-factory deployment evidence, then the owner-recorded commissioning pause, old-job disposition, matched activation and paired rollback rehearsal. Owner-act boxes stay unticked with dated evidence notes. Ratification, version allocation/publication, deploy and activation words are distinct acts.
+
+## Allocation record (2026-10-08)
+
+Recorded under Brett Heap's ruling of 2026-10-08, verbatim "Dated correction + tick 2.2 (Recommended)" (brett-wip `lanes/log/codeXfactory-2.md`, RULED 2026-10-08T23:03:35Z). It replaces the 2026-10-03 allocation notes, which were written outside a lane before any claim and no longer describe the owner. The pickup guidance above is the 2026-10-03 preparation text, retained as written.
+
+- **Owner:** lane codeXfactory-2.
+- **Claimed:** 2026-10-07T10:39:11Z, CLAIMED in the same log after a sibling search that found no claim or PR.
+- **Builder:** ruled 2026-10-08T17:43:04Z, verbatim "This lane, 035 then 025 (Recommended)": codeXfactory-2 builds this packet's feature, then the consumer's.
+- **Feature:** [`035-renew-resolved-council-protocol`](../../../specs/035-renew-resolved-council-protocol/spec.md), this packet's sole implementation feature. Its plan, tasks and analysis land with opensoft/openxFactory#1268, which ticks task 2.2 in [tasks.md](tasks.md). Implementation, release and operational evidence remain ahead (tasks 3.1–3.5).

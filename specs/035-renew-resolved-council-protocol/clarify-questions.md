@@ -2,7 +2,7 @@
 
 **Feature**: [spec.md](spec.md) · **Plan**: [plan.md](plan.md) · **Research**: [research.md](research.md)
 
-**State: all five answered.** Brett Heap ruled each one first-hand on 2026-10-08, choosing the recommended option. The record is brett-wip `lanes/log/codeXfactory-2.md`: RULED at 2026-10-08T19:24:21Z for Q1 to Q4, and at 2026-10-08T19:24:59Z for Q5. The answers are encoded in [spec.md § Clarifications](spec.md#clarifications).
+**State: all answered.** Brett Heap ruled each question first-hand on 2026-10-08, choosing the recommended option. The record is brett-wip `lanes/log/codeXfactory-2.md`: RULED at 2026-10-08T19:24:21Z for Q1 to Q4, at 2026-10-08T19:24:59Z for Q5, and at 2026-10-08T23:03:35Z for the three follow-ups to Q3 and for N10. The answers are encoded in [spec.md § Clarifications](spec.md#clarifications); N10 is a packet question, encoded in the packet files and [tasks.md](tasks.md) T002.
 
 These questions surfaced while planning against the two consumers, codexFactory feature 049 and Hermes feature 025. The ratified text did not decide them. The lane coordinator put each to Brett Heap as multiple choice with a recommended option, as the RULED lines record. The options below are the ones this plan recorded, and each answer quotes the label he chose.
 
@@ -51,3 +51,31 @@ The design's Goals say "Domain predicates remain domain-owned", while D1 makes t
 - (b) Neutral identifiers, with each side's adapter mapping its domain's declared names.
 
 **Answer:** "Keep the existing names (Recommended)". Adding or renaming a predicate is a governed contract change. Encoded in [R5](research.md#r5--the-closed-predicate-registry-and-input-contracts).
+
+## Follow-ups to Q3 (OPEN-3)
+
+Applying the Q3 answer raised three questions the label alone did not settle. The lane coordinator put each to Brett Heap as multiple choice with a recommended option. The RULED lines record the label he chose and what it means, quoted below; they do not record the other options.
+
+### Follow-up 1: which sources the currency test covers
+
+The answer names "the rule file". The projection is also built from the council profile, the council document, the rule directory's listing and the envelope configuration, and a change to any of them changes the roster.
+
+**Answer:** "Every governed source (Recommended)": every governed source a convening cites must be unchanged at the governed tip at admission, not only the rule file. Encoded in [R7](research.md#r7--governed-sources-rule-authority-and-revision-currency) and data-model E2 step 5.
+
+### Follow-up 2: which repository is the "producer repository"
+
+In the estate's calling pattern the token's `repository` claim is the caller, while the workflow, its commit and the rules are another repository's.
+
+**Answer:** "job_workflow_ref's repo (Recommended)": "producer repository" is the repository named in `job_workflow_ref`, and a permitted producer workflow outside the governed repository is refused, failing closed. Encoded in R7, R13 and data-model E10; the binding names the calling repository `caller_repository` so the two are not confused.
+
+### Follow-up 3: the seat job's workflow commit
+
+A seat runs after admission, when `main` may have moved, so equality with the frozen revision would refuse every seat whose `main` moved.
+
+**Answer:** "At or after the frozen rev (Recommended)": a seat job's workflow commit must be on the governed history at or after the frozen revision, not equal to it. Encoded as `on_governed_history_since_revision` in data-model E10, with the seat's checkout held to its verified `job_workflow_sha`.
+
+## N10: the packet's stale allocation notes
+
+Not a specification question. #1268 carried 2026-10-03 allocation notes under `openspec/changes/renew-resolved-council-protocol/` that no longer described the owner, and the packet's task 2.2 was unticked.
+
+**Answer:** "Dated correction + tick 2.2 (Recommended)": #1268 replaces its stale 2026-10-03 allocation notes under the packet directory with a dated allocation record (owner codeXfactory-2, feature 035, claimed 2026-10-07, builder ruled 2026-10-08) and ticks the packet's task 2.2; #1268 lands in a Rule 6 window.

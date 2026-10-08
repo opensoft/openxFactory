@@ -20,6 +20,12 @@ Planning against the two consumers surfaced five decisions that the ratified tex
 - Q: Does the family join the release digest inventory (FR-012)? → A: "Join behind a version floor (Recommended)". `COUNCIL_CONVENING_RELEASE_FLOOR` is set at the first cut, following the clearing precedent (#722, ruled in #745).
 - Q: Which identifiers does the neutral predicate registry use (FR-002)? → A: "Keep the existing names (Recommended)". `changed_paths_intersect` over `pr_facts` and `rule_touches_security_posture` over `rule_facts`, exactly as the governed rule files declare them, with no mapping layer. The domain owns which seats a rule conditions on and with which parameters; the evaluation mechanism is neutral. Adding or renaming a predicate is a governed contract change.
 
+Applying the revision-currency answer raised three follow-up questions. They were put to Brett Heap the same way, and he ruled each first-hand on 2026-10-08, choosing the recommended option; RULED at 23:03:35Z in the same log. The questions are in [clarify-questions.md](clarify-questions.md#follow-ups-to-q3-open-3).
+
+- Q: Does the currency test cover only the rule file, or every governed source the convening cites (FR-003)? → A: "Every governed source (Recommended)". Every governed source a convening cites must be unchanged at the governed tip at admission, not only the rule file.
+- Q: Which repository is the "producer repository" in the revision-currency answer (FR-009)? → A: "job_workflow_ref's repo (Recommended)". It is the repository named in `job_workflow_ref`; a permitted producer workflow outside the governed repository is refused, failing closed.
+- Q: Must a seat job's workflow commit equal the frozen revision (FR-009)? → A: "At or after the frozen rev (Recommended)". A seat job's workflow commit must be on the governed history at or after the frozen revision, not equal to it.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Agree on membership before work (Priority: P1)
@@ -104,7 +110,7 @@ Empty/duplicate/reordered/same-count wrong membership; unsupported predicate/pat
 
 ## Assumptions
 
-- The disclosed design and handoff matrix govern this specification. The scope contains no new unresolved policy decision. *Amended 2026-10-08:* planning surfaced five decisions the ratified text left open; Brett Heap ruled all five on 2026-10-08 (§ Clarifications), so none remains unresolved.
+- The disclosed design and handoff matrix govern this specification. The scope contains no new unresolved policy decision. *Amended 2026-10-08:* planning surfaced five decisions the ratified text left open, and applying one of them raised three follow-ups; Brett Heap ruled all eight on 2026-10-08 (§ Clarifications), so none remains unresolved.
 - This session works outside a registered lane and makes no assignment or claim on behalf of codeXfactory-2 or another live lane. *Amended 2026-10-08:* that sentence describes the 2026-10-03 specifying session. Lane codeXfactory-2 claimed this scope on 2026-10-07 and plans and builds the feature on Brett Heap's 2026-10-08 word "This lane, 035 then 025".
 - Canonical shape/corpus remains provider-owned; runtime implementations are independent and consume reviewed exact revisions.
 - Deterministic corpus, race, isolation, authorization and migration verification are required. Consumer persistence acceptance uses real database transactions; simulations do not prove deployment.

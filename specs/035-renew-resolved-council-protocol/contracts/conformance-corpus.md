@@ -48,7 +48,7 @@ Coverage is checked against the vocabulary **as landed at the commit** (R16):
 | `applies_to` | A non-empty subset of `[producer, consumer]`. The provider reference implementation runs every vector. |
 | `requirement_ids` | The FR and SC identifiers the case probes. |
 | `evaluation_time` | A `utc_instant`. Every expiry and lifetime check uses it, never the wall clock. |
-| `inputs` | The record or records under test, keyed by role: for example `record`, `snapshot`, `registration`, `return`, `returns`, `binding`, `bindings` (the E10 instances an assignment's `holder.binding_ref` resolves against), `operation`, `selection_producer`, `selection_consumer`, and `rehearsal` (the exact UTF-8 text, as a JSON string, of the record an activation's `rehearsal_ref` names; the hash is over those bytes). Also `selected_protocol` (a registry `protocol_id`, or `null` for offline) on every boundary that classifies, and `expected_candidate` at commission, holding only the members the trusted trigger names. For `definition`: `{definition, value}`. Issued challenges are not inputs: they are `environment.issued.challenges`, because the consumer issued them. |
+| `inputs` | The record or records under test, keyed by role: for example `record`, `snapshot`, `registration`, `return`, `returns`, `binding`, `bindings` (the E10 instances an assignment's `holder.binding_ref` resolves against), `operation`, `selection_producer`, `selection_consumer`, and `rehearsal` (the exact UTF-8 text, as a JSON string, of the record an activation's `rehearsal_ref` names; the hash is over those bytes). Also `selected_protocol` (a registry `protocol_id`, or `null` for offline) on every boundary that classifies; `expected_candidate` at commission, holding only the members the trusted trigger names; and, at `selection`, `rejected_under` (the `protocol_id` a refusal was recorded under) with `selection_attempt` (a later selection), which together give `rejected_without_fallback` its input. For `definition`: `{definition, value}`. Issued challenges are not inputs: they are `environment.issued.challenges`, because the consumer issued them. |
 | `environment` | The oracle data (below). Members a boundary does not use are absent, not empty. |
 | `expected` | `{outcome: accept \| refuse \| route, refusal: <refusal_code> \| null, findings: [<finding_code>, ...], derived: {...}, derived_origin: hand \| generated}`. `findings` is ordered, and empty except on a route. |
 
@@ -60,6 +60,17 @@ Coverage is checked against the vocabulary **as landed at the commit** (R16):
 
 `derived_origin: hand` marks a known answer authored by hand rather than by the generator. The foundation known answers are hand-authored, and one of them is taken from RFC 8785 itself (R16), so a canonicalization bug shared by the generator and the adjudicator cannot pass unseen.
 
+### How each side runs a shared vector
+
+A shared vector carries `applies_to: [producer, consumer]`. Every shared resolution vector uses boundary `commission`, and a consumer runs it through the same resolution its admission uses, so it must be runnable by both sides without either side's private inputs:
+
+- it carries both `inputs.expected_candidate`, which the producer compares, and an `environment.resolved_candidate` consistent with it, which the consumer compares;
+- its `live_heads` entry is a single read, so the producer's recheck and the consumer's one read see the same head;
+- it carries no binding, so the consumer runs it without E2 steps A1 and A4, which need a verified commission token and so belong to `admission` vectors;
+- it carries no `rule_superseded` case and none of the consumer's admission-only steps (A1 to A5).
+
+A producer runs it at commission. A consumer runs E2 steps 1 to 13 over it, with the record as the submitted record. Both must reach the vector's `expected`. Vectors that need more than one head read, a binding, a retry against live snapshots, or the governed tip are `applies_to: [producer]` or `applies_to: [consumer]`.
+
 ## Environment oracles
 
 An adapter must inject these and must not consult a live system during a corpus run (R8):
@@ -67,10 +78,11 @@ An adapter must inject these and must not consult a live system during a corpus 
 | Oracle | Key | Value |
 |---|---|---|
 | `governed_history` | `<repository>@<revision>` | `{on_first_parent: bool, at_or_after: [<revision>, ...]}`: whether the revision is on the governed branch's first-parent history, and the governed revisions it is at or after (the seat rule, data-model E10). |
-| `governed` | `<repository>@<revision>:<path>` | `{available, governed, sha256 \| entries, tip_sha256 \| tip_entries}`: a file's SHA-256, or a listing's sorted entries, at the revision and at the governed tip when the check runs. A difference is `rule_superseded`, under the OPEN-3 ruling, which the plan applies to every source pending Brett Heap's confirmation. `governed` means an admitted governed source of an allowlisted governed repository. |
+| `governed` | `<repository>@<revision>:<path>` | `{available, governed, sha256 \| entries, tip_sha256 \| tip_entries}`: a file's SHA-256, or a listing's sorted entries, at the revision and at the governed tip when the check runs. At admission a difference is `rule_superseded`, under the OPEN-3 ruling and its follow-up 1, "Every governed source (Recommended)". At commission the comparison is a non-normative producer pre-check, so no shared commission vector carries a `rule_superseded` case. `governed` means an admitted governed source. |
+| `governed_repositories` | — | The allowlisted governed repositories, each in its current spelling. `governed.repository` outside it is `rule_unauthorized`, checked before any `governed_history` read (data-model E2 step 5). |
 | `rules` | `<repository>@<revision>` | `{councils: {<council_id>: {class_selector: [...], classes: {<class>: {standing_seats, conditions}}} \| {standing_seats, conditions}}, sources: [<path>, ...]}`: the neutral projection an adapter would derive from the governed sources, with each council classed or unclassed (data-model E3). |
 | `facts` | `pr_facts:<repository>#<pull_number>@<head_sha>`, `rule_facts:<repository>@<head_sha>:<subject_path>` (a `candidate_subject` source) or `rule_facts:<repository>@<revision>:<path>` (a governed source) | The authoritative fact object for that source. |
-| `live_heads` | `<repository>#<pull_number>` | A `full_sha` or `"unavailable"`. For commission vectors, a list read in order, so drift before and after the recheck is expressible. |
+| `live_heads` | `<repository>#<pull_number>` | A `full_sha` or `"unavailable"`. For commission vectors, a list read in order, so drift before and after the recheck is expressible. A shared commission vector has a single entry; a vector with more than one read is producer-only. |
 | `head_refs` | `<repository>#<pull_number>` | The candidate's head ref, as the trusted gather read it (commission) or the consumer read it (admission). `class_inputs.head_ref` must equal it. |
 | `resolved_candidate` | — | The consumer's own resolution of the candidate, compared at admission. |
 | `issued` | — | `{challenges: [...], consumed_challenges: [...], registered_keys: [{assignment_id, key_fingerprint}], accepted_returns: [...], live_snapshots: [...]}` as of `evaluation_time`. |
