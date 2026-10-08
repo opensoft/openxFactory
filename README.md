@@ -3229,7 +3229,8 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [correct-naming-families-count](openspec/changes/archive/2026-10-08-correct-naming-families-count/proposal.md)
-  — **ARCHIVED 2026-10-08** by ARCHIVE-PR-NUMBER-PENDING,
+  — **ARCHIVED 2026-10-08** by
+  [PR #1275](https://github.com/opensoft/openxFactory/pull/1275),
   by lane `codeXfactory-5`, landed by MERGE COMMIT, never squash, on Brett
   Heap's separate archive word, verbatim ***"archive the naming families
   change"*** (2026-10-08, in session; RULED on the lane register at
