@@ -18,7 +18,7 @@ Each is ticked only on Brett Heap's own recorded word, by whoever encodes that
 word, citing it. 1.3 is the bookkeeping that follows the ratifying word and
 never precedes it.
 
-- [ ] 1.1 OWNER BOX. Brett Heap's word on the reading this packet encodes: the
+- [x] 1.1 OWNER BOX. Brett Heap's word on the reading this packet encodes: the
   naming families are COUNT-FREE in canon (`design.md` D1); the correction also
   reaches the two further sentences that restate a property of the whole set
   (D2); and the doctrine is realized in the wording D3 proposes, with one
@@ -31,13 +31,29 @@ never precedes it.
   2026-10-07T10:43:48Z (record `review/ratification-2026-10-07.md`). It
   ratifies D1, D2 and D3 as written. The box is left for its owner to tick, as
   this section's heading says.
-- [ ] 1.2 OWNER BOX. Brett Heap's merge word on this pull request. It is held
+  **CLOSED AT THE ARCHIVE, 2026-10-08, AS DISCHARGED BY WORD.** The note above
+  is the disposition, and this tick carries it and asserts nothing beyond it.
+  The discharging act is Brett Heap's word *"ratify as recommended when the PR
+  opens"*, RULED on the lane register at 2026-10-07T09:47:04Z. The tick records
+  Brett Heap's act, not the agent's. It is made under his selection of
+  2026-10-08, verbatim *"Yes, here and prefer-triad (Recommended)"*, RULED on
+  the lane register at 2026-10-08T20:05:35Z, which chose to close this box and
+  1.2 as discharged by word, each citing its word and its time, as archive
+  #953 closed the owner boxes of `state-header-window-budget`.
+- [x] 1.2 OWNER BOX. Brett Heap's merge word on this pull request. It is held
   for that word and is not merged by the authoring lane.
   **NOTE 2026-10-07 — THE WORD WAS GIVEN, SEPARATELY:** Brett Heap, in session,
   verbatim *"merge the naming families PR when green"*, logged RULED on the
   lane register at 2026-10-07T09:59:10Z. The merge is the coordinating lane's
   act, once every required check on the final head is green; the authoring
   lane does not merge. The box is left for its owner.
+  **CLOSED AT THE ARCHIVE, 2026-10-08, AS DISCHARGED BY WORD.** The note above
+  is the disposition, and this tick carries it and asserts nothing beyond it.
+  The discharging act is Brett Heap's word *"merge the naming families PR when
+  green"*, RULED on the lane register at 2026-10-07T09:59:10Z, on which PR
+  #1266 landed as `a38585e979624c3210c63a41dc97c67de33e526d` at
+  2026-10-07T11:20:16Z. The tick records Brett Heap's act, not the agent's,
+  under his selection of 2026-10-08 (RULED 2026-10-08T20:05:35Z), as for 1.1.
 - [x] 1.3 On the ratifying word, and only then: `Status: ratified` + `Ratified:`
   in `proposal.md`, `Ratified by:` in `design.md` and this file, the
   `approved_by`/`approved_on` pair in `.openspec.yaml` ADDED BESIDE the drafting
@@ -247,10 +263,21 @@ never precedes it.
   three times, `test_readiness_dispatch`, `test_sentinel_vocabulary` twice,
   `test_status_reader_real_lines`), and all seven pass in the scratch
   checkout. The full suite is CI's `pytest-suite`.
-- [ ] 4.4 Required checks green at the pull request's head. No review is
+- [x] 4.4 Required checks green at the pull request's head. No review is
   requested by the authoring lane: no Copilot review by any route (Brett Heap,
   2026-10-06), and no other review request. Any thread a reviewer opens is
   answered.
+  **VERIFIED FOR THE ARCHIVE, 2026-10-08**, from the check runs and the review
+  record rather than from a handoff. At PR #1266's final head
+  `d296570b201275434867187a6aba833ea8407a49` there are 14 check runs, and
+  every one concluded success except `Sourcery review`, which was skipped.
+  All eight contexts `main`'s ruleset requires passed:
+  `signed-execution-chain-gate`, `lane-line`, `former-id-arrival-gate`,
+  `openspec-cli-pin`, `wallet-validation`, `pytest-suite`, `release-tag-gate`
+  and `openxdox-consumer-gate`. `merge-master-approval` passed too. No review
+  was requested and none was submitted, and the pull request has 0 review
+  threads, so no thread is left to answer. It landed by squash as
+  `a38585e9` at 2026-10-07T11:20:16Z on the merge word 1.2 cites.
 
 **§§ 1, 4.4, 5 and 6 KEEP A LITERAL `- [ ]` DELIBERATELY.** They are acts that
 have not happened, and each is ticked by the act that performs it, never by the
