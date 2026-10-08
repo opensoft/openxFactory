@@ -3232,7 +3232,7 @@ Archived changes:
 
 - [amend-worker-input-budget-dispatch-wording](openspec/changes/archive/2026-10-08-amend-worker-input-budget-dispatch-wording/proposal.md)
   — **ARCHIVED 2026-10-08** by
-  [PR #ARCHIVE-PR-NUMBER-PENDING](https://github.com/opensoft/openxFactory/pull/ARCHIVE-PR-NUMBER-PENDING),
+  [PR #1269](https://github.com/opensoft/openxFactory/pull/1269),
   by lane `openxfactory-1`, landed by MERGE COMMIT, never squash, on Brett
   Heap's separate archive word, verbatim ***"archive it after it lands"***
   (2026-10-07, in session; RULED in `opensoft/brett-wip`
