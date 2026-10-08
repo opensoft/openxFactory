@@ -8,6 +8,18 @@
 **Ratification**: [exact reviewed revisions and owner word](../../openspec/changes/renew-resolved-council-protocol/review/ratification-2026-10-03.md)
 **Owned behavior**: Canonical neutral contract, validation and shared conformance corpus. Domain interpretation and runtime admission remain owned by the successor repositories.
 
+## Clarifications
+
+### Session 2026-10-08
+
+Planning against the two consumers surfaced five decisions that the ratified text left open. They were put to Brett Heap, who ruled each first-hand on 2026-10-08, choosing the recommended option. The record is brett-wip `lanes/log/codeXfactory-2.md`, RULED at 19:24:21Z (Q1 to Q4) and 19:24:59Z (Q5). The questions and options are in [clarify-questions.md](clarify-questions.md). Each answer below quotes his label verbatim, followed by the option as the RULED line records it.
+
+- Q: What are the contract ceilings on assignment and challenge lifetimes (FR-007, "bounded")? → A: "600 s challenge, 6 h assignment (Recommended)". These are contract maximums; the consumer may configure tighter values.
+- Q: Where does the concrete producer-binding instance live (FR-009)? → A: "Consumer's runtime config (Recommended)". The operator writes it into the consumer's governed runtime configuration at the provisioning act, and it is validated at the consumer's pin. The provider ships only the schema, a `.template.yaml` stub, the derivation from `repository-identity.yaml`, and the corpus.
+- Q: How current must a cited governed rule revision be at admission (FR-003)? → A: "History + unchanged rule file (Recommended)". The revision must be on the governed first-parent history, and the rule file at that revision must equal the governed tip's at admission; otherwise `rule_superseded`. Where the rule repository is the producer repository, the producer's verified `job_workflow_sha` must equal the cited rule revision.
+- Q: Does the family join the release digest inventory (FR-012)? → A: "Join behind a version floor (Recommended)". `COUNCIL_CONVENING_RELEASE_FLOOR` is set at the first cut, following the clearing precedent (#722, ruled in #745).
+- Q: Which identifiers does the neutral predicate registry use (FR-002)? → A: "Keep the existing names (Recommended)". `changed_paths_intersect` over `pr_facts` and `rule_touches_security_posture` over `rule_facts`, exactly as the governed rule files declare them, with no mapping layer. The domain owns which seats a rule conditions on and with which parameters; the evaluation mechanism is neutral. Adding or renaming a predicate is a governed contract change.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Agree on membership before work (Priority: P1)
@@ -92,8 +104,8 @@ Empty/duplicate/reordered/same-count wrong membership; unsupported predicate/pat
 
 ## Assumptions
 
-- The disclosed design and handoff matrix govern this specification. The scope contains no new unresolved policy decision.
-- This session works outside a registered lane and makes no assignment or claim on behalf of codeXfactory-2 or another live lane.
+- The disclosed design and handoff matrix govern this specification. The scope contains no new unresolved policy decision. *Amended 2026-10-08:* planning surfaced five decisions the ratified text left open; Brett Heap ruled all five on 2026-10-08 (§ Clarifications), so none remains unresolved.
+- This session works outside a registered lane and makes no assignment or claim on behalf of codeXfactory-2 or another live lane. *Amended 2026-10-08:* that sentence describes the 2026-10-03 specifying session. Lane codeXfactory-2 claimed this scope on 2026-10-07 and plans and builds the feature on Brett Heap's 2026-10-08 word "This lane, 035 then 025".
 - Canonical shape/corpus remains provider-owned; runtime implementations are independent and consume reviewed exact revisions.
 - Deterministic corpus, race, isolation, authorization and migration verification are required. Consumer persistence acceptance uses real database transactions; simulations do not prove deployment.
 - Versions are allocated at governed realization. Publication, pins, credentials, deployment and activation remain separate owner acts.

@@ -1,22 +1,37 @@
 # Tasks: Neutral resolved council protocol
 
-**Input**: [plan.md](plan.md), [spec.md](spec.md), [research.md](research.md), [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md)
+**Input**: [plan.md](plan.md), [spec.md](spec.md), [research.md](research.md), [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md), [analysis.md](analysis.md)
 
 **Tests are required, and they come first.** The spec's Assumptions require "deterministic corpus, race, isolation, authorization and migration verification", and SC-001 to SC-003 are measured by executed vectors. In every implementation phase:
 
-1. The test and vector tasks are written first.
-2. They are run red, with the failure count recorded in `evidence.md`.
+1. The test, vector and CLI-test tasks are written first.
+2. They are run red locally, with the failure count recorded in `evidence.md`. A red run is never pushed: each phase's tests and implementation are pushed together, so every pushed commit passes the validators (Principle V).
 3. Only then do the implementation tasks begin.
 
 The phase is done when the quickstart's per-phase proof passes.
 
-**One phase is one reviewed pull request**, from this branch line, landing only on Brett Heap's word. Every PR carries:
+**Preconditions, both of them governance order (I5 in [analysis.md](analysis.md)):**
+
+- The governing packet, #1267, is in `main`. **Satisfied**: it landed as `80f47483` on 2026-10-08.
+- This planning PR, #1268, lands on Brett Heap's word before PR-1 opens. It touches `openspec/changes/renew-resolved-council-protocol/` (the 2026-10-03 allocation notes it carries), so it lands in its own Rule 6 window.
+
+**One phase is one reviewed pull request.** Each phase is a new branch from current `origin/main`, named `035-<phase>` (for example `035-p1-foundation`), and lands only on Brett Heap's word. Every PR carries:
 
 - `Lane: codexfactory-2 (codeXfactory-2)` in its body and commit trailers;
 - explicit-pathspec commits;
 - no Copilot review request by any route.
 
 Phase 1 joins the template's *Setup* and *Foundational* phases, so that the first PR is self-consistent. Owner-act tasks are marked **OWNER**, stay unticked, and record dated evidence beside them.
+
+**Brett Heap's five rulings of 2026-10-08 are encoded** ([spec.md § Clarifications](spec.md#clarifications)). No task waits on an open question.
+
+| Ruling | Verbatim label | Tasks it makes concrete |
+|---|---|---|
+| OPEN-1 | "600 s challenge, 6 h assignment (Recommended)" | T035, T036, T038 (21600 s); T042, T044, T046 (600 s) |
+| OPEN-2 | "Consumer's runtime config (Recommended)" | T052, T053, T055 |
+| OPEN-3 | "History + unchanged rule file (Recommended)" | T025, T026, T031 (sources); T050, T051, T053 (workflow revision) |
+| OPEN-4 | "Join behind a version floor (Recommended)" | T066, T068 |
+| OPEN-5 | "Keep the existing names (Recommended)" | T024, T026, T028 |
 
 **Format**: `- [ ] T### [P?] [US?] Description with file path`. `[P]` means different files with no dependency on an incomplete task. It never means permission to skip a dependency or a claim.
 
@@ -40,119 +55,133 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 
 ## Phase 1: Setup and foundational (PR-1)
 
-**Purpose**: the family skeleton, the shared grammar, the protocol identifiers, the two digest subjects, the corpus format and its adjudicator, the validator skeleton, and the CI gate. Nothing here selects or activates anything.
+**Purpose**: the family skeleton and README, the shared grammar, the protocol identifiers and classification, the two digest subjects, the corpus format and its adjudicator, the validator skeleton, and the CI gate. Nothing here selects or activates anything.
 
 **Unblocks**:
 
 - 049: T027 and the T026→T030 binding of selectors, through the protocol identifier values; T001's follow-up dated section in 049's `contracts/interfaces.md`.
-- 025: FR-001 and FR-011, the identifiers.
+- 025: FR-001 and FR-011, the identifiers and the classification rule.
 
 ### Setup
 
-- [ ] T001 Create `specs/035-renew-resolved-council-protocol/evidence.md`. Record:
+- [ ] T001 Create `specs/035-renew-resolved-council-protocol/evidence.md` and link it from this feature's entry in the `README.md` document index. Record:
   - the lane claim on `opensoft/openxFactory:openspec/changes/renew-resolved-council-protocol` (brett-wip `lanes/log/codeXfactory-2.md`);
-  - Brett Heap's 2026-10-08 word;
+  - Brett Heap's 2026-10-08 words: "This lane, 035 then 025", and the five RULED lines (19:24:21Z and 19:24:59Z);
+  - #1267 landed as `80f47483`, and #1268's merge commit;
   - the base commit and `origin/main` at start.
-- [ ] T002 [P] Create the skeleton:
-  - `contracts/council-convening/conformance/vectors/` with one subdirectory per area: `foundation`, `resolution`, `assignment`, `signing`, `binding`, `migration`;
-  - `scripts/council_convening/__init__.py`;
-  - `tests/council_convening/conftest.py`.
-- [ ] T003 [P] Write `contracts/council-convening/README.md`:
+- [ ] T002 Report change task 2.2's evidence to the change's owner lane, which is this same lane, codeXfactory-2: the Constitution Check in `specs/035-renew-resolved-council-protocol/plan.md`, the coverage tables in `specs/035-renew-resolved-council-protocol/tasks.md`, and `specs/035-renew-resolved-council-protocol/analysis.md`. Ticking 2.2 in `openspec/changes/renew-resolved-council-protocol/tasks.md` is a governance act of the lane outside this feature's tasks, as T086's is (I12; N10).
+- [ ] T003 [P] Create the package and test skeleton: `scripts/council_convening/__init__.py`, `tests/council_convening/__init__.py` and `tests/council_convening/conftest.py`. No empty corpus directory is created: each area directory under `contracts/council-convening/conformance/vectors/` is created together with its first vector (U11).
+- [ ] T004 [P] Write `contracts/council-convening/README.md` and link it, as dormant and pending realization, from the `README.md` document index and the `contracts/README.md` native contract index (Principle IV; C1). The README carries:
   - headers `Status: ratified`, `Ratified by: renew-resolved-council-protocol`, `Kind: reference`;
   - purpose and ownership boundary, from provider-interface § What stays the successors';
   - the dormancy statement;
   - the out-of-scope list (R20);
-  - the adapter residual risk (R6);
+  - the adapter residual risk and its fail-closed outcome (R6);
   - "wallet trust controls outside worker registration are unchanged" (FR-010);
+  - Brett Heap's five rulings, cited;
   - owner acts named, not performed.
 
 ### Tests first
 
-- [ ] T004 [P] Write failing `tests/council_convening/test_shared_definitions.py`, covering every grammar in data-model § Shared definitions:
+- [ ] T005 [P] Write failing `tests/council_convening/test_shared_definitions.py`, covering every grammar in data-model § Shared definitions:
   - whole-string matching, including a trailing-newline refusal;
   - `full_sha` refusing an abbreviated id, an uppercase id and a branch;
   - `pull_number` bounds, with a boolean refused;
-  - every `relative_path` refusal;
+  - every `relative_path` refusal, a 4097-byte path refused, and a path with `\` or a C1 character accepted;
+  - `head_ref` and `decimal_string`, including `-0`, an exponent and a trailing fractional zero refused;
   - `utc_instant` calendar validity;
   - base64url lengths;
-  - closed `candidate`;
-  - closed `refusal_code`.
-- [ ] T005 [P] Write failing `tests/council_convening/test_protocol_registry.py`:
+  - closed `candidate`, with and without `subject_path`;
+  - closed `principal_kind`, `refusal_code` and `finding_code`, each holding exactly the Phase 1 members.
+- [ ] T006 [P] Write failing `tests/council_convening/test_protocol_registry.py`:
   - exactly two entries;
   - identifiers, roles, signing contexts and recognition rules per data-model E1;
-  - statuses `available` and `in_use`;
+  - statuses `available` and `in_use`, and the schema's status enumeration holding all five statuses;
   - tag fields `null`;
-  - an added, removed or renamed entry is refused (`council-convening-registry-closure`).
-- [ ] T006 [P] Write failing `tests/council_convening/test_digest_subjects.py`:
+  - an added, removed or renamed entry is refused (`council-convening-registry-closure`);
+  - classification in its order: a replacement record carrying root-authorization members classifies as replacement (I3); a roster-less block, a legacy context string and a root-authorized registration with no `protocol` classify as legacy; an unknown `protocol` is `protocol_unknown`;
+  - the selection-dependent effects of the Phase 1 rows: a legacy record under a replacement selection is `legacy_protocol_refused`; a replacement record under a legacy selection is `protocol_not_selected`; a legacy record under a legacy selection or offline is routed (I4, C3).
+- [ ] T007 [P] Write failing `tests/council_convening/test_digest_subjects.py`:
   - `council_convening` and `council_seat_return_payload` are present in both `contracts/signed-execution-chain/digest-construction.schema.yaml` `$defs/digest_subject` and `scripts/signed_execution_chain/canonical.py` `SUBJECTS`;
-  - they are appended after `daily_batch_root`, with no member reordered;
+  - in the YAML enumeration they are appended after `daily_batch_root`, with no member reordered (`SUBJECTS` is a frozenset, so order is tested in the YAML only);
   - `construction_name` is unchanged;
-  - `canonical.serialize` refuses a float, an integer above 2^53 − 1 and a lone surrogate.
-- [ ] T007 [P] Write failing `tests/council_convening/test_corpus_index.py`:
+  - `canonical.serialize` refuses a float, an integer above 2^53 − 1 and a lone surrogate;
+  - one hand-authored known answer from RFC 8785: the RFC's example object with its `numbers` member removed, whose canonical bytes are copied from the RFC text (U12).
+- [ ] T008 [P] Write failing `tests/council_convening/test_corpus_index.py`:
   - index closure in both directions;
   - raw-byte `sha256` rows;
   - bytewise path order;
   - `case_id` equals the basename;
-  - `$parts` join, and an object leaf elsewhere is refused;
+  - `$parts` join, with an object leaf anywhere else refused;
   - `evaluation_time` required;
   - unknown members refused;
-  - JSON byte form: no byte-order mark, LF, one trailing newline.
-- [ ] T008 [P] Write failing `tests/council_convening/test_validator_cli.py`:
-  - exits 0, 1 and 2;
+  - JSON byte form: no byte-order mark, LF, one trailing newline;
+  - coverage at the commit: every `refusal_code` and `finding_code` member probed, and every `coverage_floor` requirement cited;
+  - a vector whose outcome reads a registry status without `registry_status` is refused (`council-convening-vector-registry-status-missing`; U4);
+  - `derived_origin` is `hand` or `generated`.
+- [ ] T009 [P] Author the `foundation` vectors, creating `contracts/council-convening/conformance/vectors/foundation/` with the first of them, before any implementation:
+  - boundary `definition`: each grammar's accept and refusal (`value_malformed`), the trailing newline, the 4097-byte path, `\` and C1 paths accepted, and non-canonicalizable values (`value_not_canonicalizable`);
+  - boundary `classification`: every row of the Phase 1 classification and effects rules, including the I3 case and the `route` outcome with finding `legacy_protocol_routed`;
+  - each vector carries `applies_to: [producer, consumer]`, and the known answers carry `derived_origin: hand`.
+- [ ] T010 [P] Write failing `tests/council_convening/test_validator_cli.py`:
+  - exits 0, 1, 2 and 3, where 3 is a routed record and never a pass;
   - the finding-line format;
-  - every Phase 1 proof-of-work note from contracts/validator-cli.md;
+  - every Phase 1 proof-of-work note in contracts/validator-cli.md;
   - `corpus --json` shape;
-  - `check` emitting `council-convening-not-offline-checkable` rather than a pass.
-- [ ] T009 [P] Write failing `tests/council_convening/test_gate_wiring.py` against `.github/workflows/council-convening-gate.yml`:
+  - `check` on a legacy record exits 3 with `council-convening-legacy-protocol-routed`, and on a replacement record of a kind not landed yet exits 1 with `council-convening-kind-unknown`;
+  - `check` judges the registry instances by their `kind` and never classifies them (N7);
+  - the self-test exits 0 when every route vector's route matches its `expected`.
+- [ ] T011 [P] Write failing `tests/council_convening/test_gate_wiring.py` against `.github/workflows/council-convening-gate.yml`:
   - job id `council-convening-gate` with no `name:` key;
-  - a `pull_request` trigger on `main`;
+  - `pull_request` and `push` triggers on `main`;
   - installs `requirements/hermes-runtime-contracts.lock` with `--require-hashes`;
   - runs the validator;
-  - a positive assertion step requiring every proof-of-work note;
-  - no `secrets` context and no `id-token`;
-  - plus a repository check that no path under `governance/review-authority/` or `openXwallet/` is changed by this feature's commits.
+  - a positive assertion step requiring every Phase 1 proof-of-work note;
+  - no `secrets` context and no `id-token`.
 
 ### Implementation
 
-- [ ] T010 Widen `$defs/digest_subject` in `contracts/signed-execution-chain/digest-construction.schema.yaml`:
+- [ ] T012 Widen `$defs/digest_subject` in `contracts/signed-execution-chain/digest-construction.schema.yaml`:
   - append exactly `council_convening` and `council_seat_return_payload`;
   - add a comment in the file's tranche style naming `renew-resolved-council-protocol` D1/D3 and what each subject is taken over;
   - subjects are added; no construction is added (R3).
-- [ ] T011 Mirror both subjects in `scripts/signed_execution_chain/canonical.py` `SUBJECTS`, with the same comment.
-- [ ] T012 Refresh the `signed-execution-chain-digest-construction` row `sha256` in `contracts/manifest.yaml` to the new bytes:
+- [ ] T013 Mirror both subjects in `scripts/signed_execution_chain/canonical.py` `SUBJECTS`, with the same comment.
+- [ ] T014 Refresh the `signed-execution-chain-digest-construction` row `sha256` in `contracts/manifest.yaml` to the new bytes:
   - add a row comment;
-  - make no version and no CHANGELOG change, because a row moves with its bytes and the version is the cutting session's act (the row's own precedent).
-  - Then run `tests/signed_execution_chain tests/clearing tests/code_surface tests/intent-compliance tests/manifest_digests` green.
-- [ ] T013 Author `contracts/council-convening/shared-definitions.schema.yaml`:
+  - make no version and no CHANGELOG change. A row moves with its bytes, and the version is the cutting session's act, as the row's own comment already records.
+  - Then run, green: `python3 -m pytest tests/signed_execution_chain tests/clearing tests/code_surface tests/intent-compliance tests/manifest_digests -q`, `python3 scripts/validate-signed-execution-chain.py` and `python3 scripts/validate-clearing-dispatch.py` (G5).
+- [ ] T015 Author `contracts/council-convening/shared-definitions.schema.yaml`:
   - house header: `schema_version`, `kind: openxfactory-council-convening-contract-schema`, `name`, `$schema`, and an `$id` under `https://xforge.us/schemas/openxfactory/council-convening/v1/`;
   - `contract_id`, `contract_schema_version: 1`, `title`, `description`;
-  - every definition in data-model § Shared definitions, with `digest` taken by `$ref` to the construction file.
-- [ ] T014 Author `contracts/council-convening/protocol-registry.schema.yaml` and the closed instance `contracts/council-convening/protocol.registry.yaml`, per data-model E1 and research R10. The legacy entry has status `in_use`; the replacement has status `available`; all tag fields are `null`.
-- [ ] T015 Implement `scripts/council_convening/records.py`:
+  - every definition in data-model § Shared definitions, with `digest` taken by `$ref` to the construction file;
+  - `refusal_code` holding the five Phase 1 codes, and `finding_code` holding `legacy_protocol_routed`.
+- [ ] T016 Author `contracts/council-convening/protocol-registry.schema.yaml` and the closed instance `contracts/council-convening/protocol.registry.yaml`, per data-model E1 and research R10. The legacy entry has status `in_use`, the replacement has status `available`, and every tag field is `null`.
+- [ ] T017 Implement `scripts/council_convening/records.py`:
   - the schema registry, using `Draft202012Validator`, `FormatChecker` and `referencing.Registry`;
   - whole-match identifier enforcement;
   - the canonicalizability pre-check through `canonical.serialize`;
   - a `Refused(code, member)` exception whose messages never echo values.
-- [ ] T016 Implement `scripts/council_convening/corpus.py`:
+- [ ] T018 Implement `scripts/council_convening/classification.py`: classification and the selection-dependent effects of data-model E1, from the written rules only.
+- [ ] T019 Implement `scripts/council_convening/corpus.py`:
   - index loading, closure and raw-byte digests;
   - `$parts` join;
-  - a dispatch table by `boundary`, with handlers registered by later modules;
-  - exact outcome, refusal and `derived` comparison;
-  - refusal-code and requirement coverage.
-- [ ] T017 Implement `scripts/council_convening/generate.py`:
+  - a dispatch table by `boundary`, with the `definition` and `classification` handlers registered here and later handlers registered by later modules;
+  - exact outcome, refusal, finding and `derived` comparison;
+  - coverage at the commit, and the `registry_status` rule.
+- [ ] T020 Implement `scripts/council_convening/generate.py`:
   - deterministic JSON writing: sorted keys, 2-space indent, LF, one trailing newline;
   - labelled test-key derivation, a SHA-256 of a fixed public phrase plus a label, used as the Ed25519 seed, with signing through `cryptography`;
   - no seed or private key is ever written;
+  - writing `contracts/council-convening/conformance/index.json` from the vectors, with `coverage_floor` set to FR-001 and FR-011;
   - `--check`, which regenerates into a temporary tree and byte-compares (R18).
-- [ ] T018 Author the `foundation` vectors in `contracts/council-convening/conformance/vectors/foundation/`: identifier grammars, the trailing newline, non-canonicalizable values and `protocol_unknown`. Each carries `applies_to: [producer, consumer]`. Then generate `contracts/council-convening/conformance/index.json`.
-- [ ] T019 Implement `scripts/validate-council-convening.py`:
+- [ ] T021 Implement `scripts/validate-council-convening.py`:
   - a thin CLI over the package, with the self-test, `check` and `corpus` modes;
-  - finding format, notes and exit codes per contracts/validator-cli.md;
+  - finding format, notes and exit codes per contracts/validator-cli.md, including exit 3 for a routed record;
   - `select` and `--historical` are added in Phase 6, and an unknown subcommand is argparse's exit 2.
-- [ ] T020 Add `.github/workflows/council-convening-gate.yml` per R17, with a header stating that the gate reports and does not gate until the owner requires it.
-- [ ] T021 Run quickstart steps 1–4. Record base and head runs in `evidence.md` § Phase 1: the red counts, the green counts, the validator notes, the OpenSpec totals, the doc-health diff, and pytest selected, passed and skipped. Open PR-1 as a draft, stating the unblocks above.
+- [ ] T022 Add `.github/workflows/council-convening-gate.yml` per R17, with a header stating that the gate reports and does not gate until the owner requires it.
+- [ ] T023 Run quickstart steps 1–5. Record base and head runs in `evidence.md` § Phase 1: the red counts, the green counts, the validator notes, the OpenSpec totals, the doc-health diff, the pytest selected, passed and skipped counts, and the empty PR-scope diff. Open PR-1 as a draft, stating the unblocks above.
 
-**Checkpoint**: The validator self-test passes on the foundation corpus. Successors can read the protocol identifiers at a reviewed commit.
+**Checkpoint**: The validator self-test passes on the foundation corpus. Successors can read the protocol identifiers and the classification rule at a reviewed commit.
 
 ---
 
@@ -160,48 +189,58 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 
 **Goal**: the commission record and its provenance reproduce identically in independent implementations, and every refusal happens before work or assignment (spec US1; FR-001–FR-004; D1, D2).
 
-**Independent test**: `python3 scripts/validate-council-convening.py` adjudicates every `resolution` vector. Every positive yields the expected `required_seats` and `convening_digest`, and every negative yields exactly its code.
+**Independent test**: `python3 scripts/validate-council-convening.py` adjudicates every `resolution` vector. Every positive yields the expected `required_seats` and `convening_digest`, and every negative yields exactly its code, in the normative order.
 
 **Unblocks**:
 
-- 049: T003 (a corpus to pin), T010 (payload shape), T011b (the POST body's provider half, with 025), T012 (the head-race half), T013.
+- 049: T003 (a corpus to pin), T010 (payload shape, refusal mapping and order), T011 (the gate-rules candidate as `subject_path`), T011b (the POST body's provider half, with 025), T012 (the head-race half), T013.
 - 025: FR-001–FR-004.
 
-**Depends on**: Phase 1. OPEN-3 (rule currency) governs the `rule_superseded` vectors. If it is unruled when the phase is otherwise ready, this phase lands without `rule_superseded` in the closed vocabulary, and a follow-up PR adds the code and its vectors after the ruling.
+**Depends on**: Phase 1.
 
 ### Tests first
 
-- [ ] T022 [P] [US1] Write failing `tests/council_convening/test_predicates.py`:
-  - both predicates hold and do not hold;
+- [ ] T024 [P] [US1] Write failing `tests/council_convening/test_predicates.py`:
+  - `changed_paths_intersect` and `rule_touches_security_posture`, by those identifiers (OPEN-5), each holding and not holding;
   - every pattern-grammar refusal;
   - the bare-directory evidence rule;
-  - the entry-count completeness rule, where one rename is one entry and two paths;
+  - the entry-count completeness rule, where one rename is one entry and two paths, and a declared total above 3000 is unevaluable;
   - unevaluable is never false;
   - the wrong input contract;
   - an unknown predicate.
-- [ ] T023 [P] [US1] Write failing `tests/council_convening/test_resolution.py`:
-  - the closed E2 shape;
+- [ ] T025 [P] [US1] Write failing `tests/council_convening/test_resolution.py`:
+  - the closed E2 shape, and classification before shape;
+  - the data-model E2 evaluation order, with multi-defect records that pin each adjacent pair of steps;
+  - class selection from `class_inputs`: exact and glob head refs, each glob rule, first match wins, and a declared but unselected class refused as `class_mismatch` (U1);
+  - `class_inputs.head_ref` that differs from `environment.head_refs` refused as `candidate_mismatch` (N1);
+  - an unclassed council (the gate-rules shape) with no class inputs accepted, and class inputs on an unclassed council, or none on a classed one, refused as `class_mismatch` (N4);
+  - governed sources under the OPEN-3 ruling: a revision off the first-parent history (`rule_revision_ungoverned`); a file changed at the tip, and a listing whose entry set changed at the tip (`rule_superseded`), including a source that is not the rule file (U2; N3); an unrelated, non-listed file changed at the tip, accepted;
   - roster composition: standing order; held seats appended; a conditional seat already standing appears once; an unbound held seat refuses; an empty roster; a duplicate seat; a reordered roster; a same-count substitution;
-  - provenance against injected oracles: rule availability, authority, digest, currency under the OPEN-3 ruling, class, projection, consumed facts, unused facts, fact source, secrets via `$parts`, candidate mismatch, head moved before the recheck, head moved after the recheck, head moved at admission, head unavailable;
+  - fact sources, including a gate-rules shape whose `rule_facts` come from `candidate.subject_path` at `candidate.head_sha` (I1);
+  - consumed, unused and absent facts; secrets via `$parts`, before any oracle read;
+  - candidate identity against `inputs.expected_candidate` and `environment.resolved_candidate`;
+  - head moved before the recheck, after the recheck, and at admission; head unavailable;
   - `convening_digest` known answers.
-- [ ] T024 [US1] Author the `resolution` vectors in `contracts/council-convening/conformance/vectors/resolution/` with their expected outcomes before any implementation.
-  - Positives: standing only; a conditional seat held; a conditional seat not held; a `rule_facts` conjunction held; a conditional seat already standing; both rename paths.
-  - At least one negative per Phase 2 refusal code.
+- [ ] T026 [US1] Author the `resolution` vectors, creating `contracts/council-convening/conformance/vectors/resolution/` with the first of them, with their expected outcomes before any implementation.
+  - Positives: standing only; a conditional seat held; a conditional seat not held; an unclassed gate-rules council with a `rule_facts` conjunction held; a conditional seat already standing; both rename paths; a class selected by glob.
+  - At least one negative per Phase 2 refusal code, and the multi-defect order vectors.
   - Shared checks carry `applies_to: [producer, consumer]`. Pre-submit drift is producer-only. Admission drift is consumer-only.
-  - Regenerate `conformance/index.json`.
+  - Raise `coverage_floor` to FR-001–FR-004 and SC-001, and regenerate `conformance/index.json`.
+- [ ] T027 [P] [US1] Extend `tests/council_convening/test_validator_cli.py`: `check` runs the offline E2 rules, reports each oracle-dependent rule as not offline-checkable, and the self-test prints the predicate-registry note.
 
 ### Implementation
 
-- [ ] T025 [US1] Author `contracts/council-convening/predicate-registry.schema.yaml` and the closed instance `contracts/council-convening/predicate.registry.yaml`, per data-model E3 and research R5.
-- [ ] T026 [US1] Author `contracts/council-convening/council-convening.schema.yaml`, per data-model E2.
-- [ ] T027 [US1] Implement `scripts/council_convening/predicates.py` from E3's written semantics only. No code is copied from codexFactory (R4).
-- [ ] T028 [US1] Implement `scripts/council_convening/resolution.py`:
-  - roster composition and every provenance check;
+- [ ] T028 [US1] Author `contracts/council-convening/predicate-registry.schema.yaml` and the closed instance `contracts/council-convening/predicate.registry.yaml`, per data-model E3 and research R5, with the ruled identifiers. Extend `refusal_code` in `contracts/council-convening/shared-definitions.schema.yaml` with the Phase 2 codes (G1).
+- [ ] T029 [US1] Author `contracts/council-convening/council-convening.schema.yaml`, per data-model E2.
+- [ ] T030 [US1] Implement `scripts/council_convening/predicates.py` from E3's written semantics only. No code is copied from codexFactory (R4).
+- [ ] T031 [US1] Implement `scripts/council_convening/resolution.py`:
+  - the E2 evaluation order, every provenance check and roster composition;
   - the injected oracle interface (R8);
   - the secret check through `importlib` of `SECRET_PATTERNS` in `scripts/validate-domain-factory.py` (R9);
   - `convening_digest`.
-- [ ] T029 [US1] Register the `commission` and `admission` handlers in `scripts/council_convening/corpus.py`. Add the offline E2 rules to `check` in `scripts/validate-council-convening.py`. Add the adapter and residual-risk section to `contracts/council-convening/README.md`.
-- [ ] T030 [US1] Run quickstart steps 1–4 and record them in `evidence.md` § Phase 2, including the agreement-set count. Open PR-2 as a draft.
+- [ ] T032 [US1] Register the `commission` and `admission` handlers in `scripts/council_convening/corpus.py`. Add the offline E2 rules to `check` in `scripts/validate-council-convening.py`. Add the predicate-registry note to the gate's assertion in `.github/workflows/council-convening-gate.yml` and its test.
+- [ ] T033 [US1] Measure the secret floor gap (I13). Run the four patterns 049 detects and the floor lacks over every tracked file, and record the hits in `evidence.md` § Phase 2. File the floor widening as its own follow-up issue on opensoft/openxFactory, citing R9. Do not widen `SECRET_PATTERNS` in this PR.
+- [ ] T034 [US1] Run quickstart steps 1–5 and record them in `evidence.md` § Phase 2, including the agreement-set count. Open PR-2 as a draft.
 
 **Checkpoint**: The MVP. Producer and consumer can each prove membership agreement against one reviewed commit, while staying dormant.
 
@@ -218,30 +257,31 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 - 049: T012 (retry identity), T015b (the provider half of the snapshot and assignment encodings), T016b (the public assignment shape), T021/T022 (completion mapping).
 - 025: FR-005–FR-007.
 
-**Depends on**: Phase 2. OPEN-1 governs the assignment ceiling vectors, under the same withhold-then-follow-up rule as Phase 2.
+**Depends on**: Phase 2.
 
 ### Tests first
 
-- [ ] T031 [P] [US2] Write failing `tests/council_convening/test_assignments.py`:
-  - E4 and E5 shapes;
-  - one assignment per seat, in roster order: extra, missing and reordered refused;
+- [ ] T035 [P] [US2] Write failing `tests/council_convening/test_assignments.py`:
+  - E4 and E5 shapes, and the E4 order;
+  - one assignment per seat, in roster order: extra, missing and reordered refused as `assignment_set_mismatch`, as is an assignment whose convening members differ from the snapshot's;
   - duplicate `assignment_id`;
   - shared holder;
-  - `convening_digest` recomputation;
-  - `cross_convening_context` fields;
-  - lifetime and ceiling at `evaluation_time`: not-yet-valid, and expired at the instant;
+  - `convening_digest` recomputation (`digest_construction_mismatch`);
+  - the ruled ceiling (OPEN-1): an assignment lifetime of exactly 21600 seconds accepted; 21601 seconds, zero and a negative lifetime refused as `assignment_malformed`;
   - closed `permitted_operations`;
-  - retry: identical returns the same snapshot; conflicting is `convening_conflict`;
-  - completion: unlisted, duplicate, missing and same-count wrong identity;
+  - retry, as E2 step 14 over `environment.issued.live_snapshots`: an identical E2 returns the same snapshot; a different one is `convening_conflict`;
+  - `assignment_malformed` at its E4 position, before the digest and set checks;
+  - completion: unlisted, duplicate, missing and same-count wrong identity, in the E8 completion order;
   - a changed rule oracle after freezing, where completion still follows the snapshot.
-- [ ] T032 [US2] Author the `assignment` vectors in `contracts/council-convening/conformance/vectors/assignment/` with their expected outcomes first. Regenerate the index.
+- [ ] T036 [US2] Author the `assignment` vectors, creating `contracts/council-convening/conformance/vectors/assignment/` with the first of them, with their expected outcomes first, including the four ceiling vectors. Raise `coverage_floor` to add FR-005, FR-006 and SC-002, and regenerate the index.
+- [ ] T037 [P] [US2] Extend `tests/council_convening/test_validator_cli.py`: `check` on a snapshot recomputes its digest and its assignment set.
 
 ### Implementation
 
-- [ ] T033 [US2] Author `contracts/council-convening/convening-snapshot.schema.yaml` and `contracts/council-convening/seat-assignment.schema.yaml`, per data-model E4 and E5.
-- [ ] T034 [US2] Implement `scripts/council_convening/assignments.py`.
-- [ ] T035 [US2] Register the snapshot-at-`admission` and `completion` handlers in `scripts/council_convening/corpus.py`, and extend `check` in `scripts/validate-council-convening.py`.
-- [ ] T036 [US2] Run quickstart steps 1–4, record them in `evidence.md` § Phase 3, and open PR-3 as a draft.
+- [ ] T038 [US2] Author `contracts/council-convening/convening-snapshot.schema.yaml` and `contracts/council-convening/seat-assignment.schema.yaml`, per data-model E4 and E5, with the assignment lifetime ceiling of 21600 seconds. Extend `refusal_code` in `contracts/council-convening/shared-definitions.schema.yaml` with the Phase 3 codes.
+- [ ] T039 [US2] Implement `scripts/council_convening/assignments.py`.
+- [ ] T040 [US2] Register the snapshot-at-`admission` and `completion` handlers in `scripts/council_convening/corpus.py`, and extend `check` in `scripts/validate-council-convening.py`.
+- [ ] T041 [US2] Run quickstart steps 1–5, record them in `evidence.md` § Phase 3, and open PR-3 as a draft.
 
 ---
 
@@ -253,37 +293,44 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 
 **Unblocks**:
 
-- 049: T020 (signing-context strings and shapes), T017/T019 (mapping the producer-internal contexts), T025 (what the consumer's evidence must show).
+- 049: T020 (signing-context strings and shapes, and the decimal-string payload), T017/T019 (mapping the producer-internal contexts), T025 (what the consumer's evidence must show).
 - 025: FR-008–FR-010.
 
-**Depends on**: Phase 3. OPEN-1 governs the challenge ceiling vectors, under the withhold-then-follow-up rule.
+**Depends on**: Phases 3 and 5. Phase 5 lands first, because registration checks a seat job's claims against its holder's binding (data-model E7 step 5).
 
 ### Tests first
 
-- [ ] T037 [P] [US2] Write failing `tests/council_convening/test_signing.py`:
-  - contexts built from the frozen assignment, challenge and key, never from caller labels;
-  - `signed_bytes` known answers;
-  - fingerprint recomputation;
+- [ ] T042 [P] [US2] Write failing `tests/council_convening/test_signing.py`:
+  - contexts rebuilt from the frozen assignment, challenge and key, compared member by member with the presented context, never trusting its labels;
+  - the E7 and E8 orders, with multi-defect records;
+  - `signed_bytes` known answers, including one registration and one return context whose signed bytes are hand-authored (`derived_origin: hand`), so the generator is not checked only against itself (N9);
+  - fingerprint recomputation, and the challenge's `key_fingerprint`;
   - stdlib `ed25519.verify`;
-  - registration refusals: `wrong_principal` with a valid proof, already registered, `shared_key`, cross seat, cross convening, cross protocol, proof invalid, and root-authorization members refused as `root_authorization_refused` before `registration_malformed`;
-  - challenge refusals: unknown, wrong assignment, consumed, expired at the instant, lifetime above the ceiling;
-  - return refusals: unregistered, key mismatch, digest mismatch, signature invalid, replay into another assignment, convening or protocol, a float payload refused as `value_not_canonicalizable`;
+  - registration refusals: `root_authorization_refused` before `registration_malformed`; the seat job's claims checked against its holder's binding at E7 step 5 (`claims_unverified`, `claims_expired`, `audience_mismatch` and the rest); `wrong_principal` with a valid proof; already registered; `shared_key`; cross seat, cross convening and cross protocol, each told apart by the presented context; proof invalid;
+  - challenge refusals, over `environment.issued.challenges` and in the E7 order: unknown, malformed, wrong assignment, consumed, expired at the instant;
+  - key transport (spec delta, "key transport MUST refuse"): a registration or a return carrying a member named `private_key`, `secret_key`, `seed`, `sk` or `d`, or a PEM private-key block, refused as `registration_malformed` or `return_malformed` (N18);
+  - a return context whose `key_fingerprint` differs, refused as `return_key_mismatch` (N16);
+  - a `payload` above 1 MiB of canonical bytes, refused as `return_malformed`;
+  - the ruled ceiling (OPEN-1): a challenge lifetime of exactly 600 seconds accepted; 601 seconds, zero and a negative lifetime refused as `challenge_malformed`;
+  - assignment use: not yet valid, expired at the instant, operation not permitted;
+  - return refusals: unregistered, key mismatch, digest mismatch, signature invalid, replay into another assignment, convening or protocol, and a float in the payload refused as `value_not_canonicalizable` while a `decimal_string` is accepted;
   - legacy v1 signed bytes never verify as replacement bytes, and the reverse.
-- [ ] T038 [P] [US2] Write failing `tests/council_convening/test_corpus_regeneration.py`:
+- [ ] T043 [P] [US2] Write failing `tests/council_convening/test_corpus_regeneration.py`:
   - `generate --check` is byte-identical;
-  - no corpus file carries a seed or private-key member (`seed`, `private`, `d`) or a 32-byte seed-shaped value outside `public_key` and `nonce`;
+  - no corpus member at any depth is named `seed`, `private_key`, `secret_key`, `sk` or `d` (U10: keyed by member name, because every SHA-256 is also 32 bytes);
   - every corpus file is clean under the provider's `SECRET_PATTERNS`.
-- [ ] T039 [US2] Generate the `signing` vectors in `contracts/council-convening/conformance/vectors/signing/` from labelled test keys, with their expected outcomes authored first. Regenerate the index.
+- [ ] T044 [US2] Generate the `signing` vectors with the T020 generator, which already derives the labelled test keys and signs, creating `contracts/council-convening/conformance/vectors/signing/` with the first of them, with their expected outcomes authored first. Include the four challenge-ceiling vectors, which carry `applies_to: [consumer]` because the consumer issues challenges (N23), and the hand-authored signed-bytes answers. Raise `coverage_floor` to add FR-007, FR-008 and SC-003, and regenerate the index.
+- [ ] T045 [P] [US2] Extend `tests/council_convening/test_validator_cli.py`: `check` verifies a record's signature where the record carries one, and reports registration-state rules as not offline-checkable.
 
 ### Implementation
 
-- [ ] T040 [US2] Author `contracts/council-convening/registration-challenge.schema.yaml`, `contracts/council-convening/seat-key-registration.schema.yaml`, `contracts/council-convening/seat-return.schema.yaml` and `contracts/council-convening/signing-context.schema.yaml`, per data-model E6–E9.
-- [ ] T041 [US2] Implement `scripts/council_convening/signing.py`:
+- [ ] T046 [US2] Author `contracts/council-convening/registration-challenge.schema.yaml` (challenge lifetime ceiling 600 seconds), `contracts/council-convening/seat-key-registration.schema.yaml`, `contracts/council-convening/seat-return.schema.yaml` and `contracts/council-convening/signing-context.schema.yaml`, per data-model E6–E9. Extend `refusal_code` in `contracts/council-convening/shared-definitions.schema.yaml` with the Phase 4 codes.
+- [ ] T047 [US2] Implement `scripts/council_convening/signing.py`:
   - reuse `canonical.serialize` and `ed25519.verify`;
   - the estate fingerprint spelling;
   - no second framing (R3).
-- [ ] T042 [US2] Register the `registration` and `return` handlers in `scripts/council_convening/corpus.py`. Add signing to `scripts/council_convening/generate.py`. Make `check` verify a record's signature where the record carries one.
-- [ ] T043 [US2] Run quickstart steps 1–4, record them in `evidence.md` § Phase 4, and open PR-4 as a draft.
+- [ ] T048 [US2] Register the `registration` and `return` handlers in `scripts/council_convening/corpus.py`. Make `check` in `scripts/validate-council-convening.py` verify a record's signature where the record carries one.
+- [ ] T049 [US2] Run quickstart steps 1–5, record them in `evidence.md` § Phase 4, and open PR-4 as a draft.
 
 ---
 
@@ -295,40 +342,43 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 
 **Unblocks**:
 
-- 049: T023, T024, T031 (the shape the owner provisions).
+- 049: T023, T024, T031 (the shape the owner provisions into the consumer's runtime configuration, under OPEN-2).
 - 025: FR-008 (principal-authentication inputs), and H3's activation park.
 
-**Depends on**: Phase 1. It may be authored in parallel with Phases 2–4, and it lands after Phase 2. OPEN-2 decides the instance's home; OPEN-3 decides the workflow-revision rule.
+**Depends on**: Phase 1. It may be authored in parallel with Phases 2–3, and it lands after Phase 2, because its workflow-revision rule reads the E2 `governed` member, and before Phase 4, which uses its claim checks.
 
 ### Tests first
 
-- [ ] T044 [P] [US2] Write failing `tests/council_convening/test_binding.py`:
-  - the E10 shape;
-  - repository derivation through the existing reader in `scripts/estate_inventory.py`: the former spelling and a non-canonical case variant refused as `repository_identity_former`, an unknown repository refused;
-  - the issuer constant;
+- [ ] T050 [P] [US2] Write failing `tests/council_convening/test_binding.py`:
+  - the E10 shape and the E10 binding order, with its offline half (steps 1–6) and its claim half (steps 7–15);
+  - the verified claims against the binding (R3-H2; D3 "signed issuer/audience/expiry"): another `iss` refused as `issuer_mismatch`, another `aud` as `audience_mismatch`, an `exp` at or before `evaluation_time` or an `nbf` after it as `claims_expired`, and another `sub` as `subject_template_mismatch`;
+  - a former spelling in a permitted `job_workflow_ref` refused as `repository_identity_former` (R3-L9);
+  - repository derivation through `load_transfers` in `scripts/estate_inventory.py`: the former spelling and a non-canonical case variant refused as `repository_identity_former`; a spelling the file does not list accepted as current; a verified `repository` or `repository_id` claim that differs from the binding refused as `repository_identity_mismatch` (N11);
+  - the issuer: the standard URL and an enterprise-slug URL accepted, anything else refused (I6);
   - audience and subject wildcards;
-  - `sub` versus `job_workflow_ref` conflation;
-  - an unlisted workflow;
-  - the workflow-revision rule;
+  - a subject template customized with the `job_workflow_ref` and `repository_id` claim keys accepted; a bare workflow reference as the template (the `<owner>/<repo>/.github/workflows/<file>@<ref>` shape with no `key:` element) refused as `subject_workflow_conflation`, which runs before the parse check; any other template that does not parse refused as `subject_template_mismatch` (I6; N15; R3-H1);
+  - an unlisted workflow, and a `sub` that contains a permitted workflow reference while the verified `job_workflow_ref` names an unlisted one, both refused as `workflow_not_permitted` (N15);
+  - the ruled workflow-revision rule (OPEN-3): the estate's calling pattern, a caller repository running the governed repository's reusable workflow at `governed.revision`, accepted; an unequal `job_workflow_sha`, and a permitted workflow whose repository is not the governed repository, refused as `workflow_revision_ungoverned` (N2);
   - decoded-only claims;
   - an unverified broker parks activation;
   - the `.template.yaml` stub is never accepted as live.
-- [ ] T045 [US2] Author the `binding` vectors in `contracts/council-convening/conformance/vectors/binding/` with their expected outcomes first. Regenerate the index.
+- [ ] T051 [US2] Author the `binding` vectors, creating `contracts/council-convening/conformance/vectors/binding/` with the first of them, with their expected outcomes first. Because binding now runs inside admission (data-model E2), re-author the Phase 2 admission vectors to carry a passing binding and verified claims, and add admission vectors that carry both a binding defect and a step-3 defect, to pin the order (R3-M4). Raise `coverage_floor` to add FR-009, and regenerate the index.
+- [ ] T052 [P] [US2] Extend `tests/council_convening/test_validator_cli.py`: `check` validates a binding instance offline against `repository-identity.yaml`, refuses the stub as live, and reports the claim-verification rules as not offline-checkable.
 
 ### Implementation
 
-- [ ] T046 [US2] Author `contracts/council-convening/producer-binding.schema.yaml` and `contracts/council-convening/producer-binding.template.yaml`. The template carries `instantiation_stub: true` and no live audience, subject template or repository id.
-- [ ] T047 [US2] Implement `scripts/council_convening/binding.py`, reusing the repository-identity reader. No second transfer map.
-- [ ] T048 [US2] Register the `binding` handlers in `scripts/council_convening/corpus.py`, and add `check` support. Document the binding and the OPEN-2 outcome in `contracts/council-convening/README.md`.
-- [ ] T049 [US2] Run quickstart steps 1–4, record them in `evidence.md` § Phase 5, and open PR-5 as a draft.
+- [ ] T053 [US2] Author `contracts/council-convening/producer-binding.schema.yaml` and `contracts/council-convening/producer-binding.template.yaml`. `workflow_revision_rule` is the closed enumeration `[equals_governed_revision]`. The closed set of subject claim keys is enumerated from GitHub's OIDC reference, which the schema's description cites. The template carries `instantiation_stub: true` and no live audience, subject template or repository id. Extend `refusal_code` in `contracts/council-convening/shared-definitions.schema.yaml` with the Phase 5 codes.
+- [ ] T054 [US2] Implement `scripts/council_convening/binding.py`, reusing `load_transfers`. No second transfer map.
+- [ ] T055 [US2] Register the `binding` handler in `scripts/council_convening/corpus.py`, and run binding inside the `admission` handler between E2 steps 2 and 3 (R3-M4). Add `check` support for the offline half. Document the binding in `contracts/council-convening/README.md`, including the OPEN-2 ruling: the concrete instance lives in the consumer's governed runtime configuration, written at the provisioning act and validated at the consumer's pin.
+- [ ] T056 [US2] Run quickstart steps 1–5, record them in `evidence.md` § Phase 5, and open PR-5 as a draft.
 
 ---
 
 ## Phase 6: User Story 3 — Activate and recover the matched pair (P2) (PR-6)
 
-**Goal**: one explicitly selected protocol per binding, with no fallback. Legacy is recognized for warning, refusal and historical routing. Pair matching, activation evidence and the paired-rollback runbook are defined (spec US3; FR-011, FR-012; D5).
+**Goal**: one explicitly selected protocol per binding, with no fallback. Legacy is recognized for refusal and routing. Pair matching, activation evidence and the paired-rollback runbook are defined (spec US3; FR-011, FR-012; D5).
 
-**Independent test**: every `migration` vector adjudicates. Every legacy vector carries an explicit `registry_status` override, so the corpus digest does not move when Phases 7 and 8 flip the registry.
+**Independent test**: every `migration` vector adjudicates. Every vector whose outcome reads a registry status carries a `registry_status` override, so the corpus digest does not move when Phases 7 and 8 flip the registry.
 
 **Unblocks**:
 
@@ -339,30 +389,30 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 
 ### Tests first
 
-- [ ] T050 [P] [US3] Write failing `tests/council_convening/test_migration.py`:
-  - legacy recognition: a roster-less block, legacy context strings, a root-authorized registration;
-  - status-driven behavior: `in_use` accepts, `deprecated` warns (an error under `--strict`), `historical_only` refuses;
-  - `--historical` classifies and never reinterprets;
-  - E11 pair matching on all four members;
+- [ ] T057 [P] [US3] Write failing `tests/council_convening/test_migration.py`:
+  - every row of the data-model E1 effects table, under each registry status, by override;
+  - `deprecated` routes with the findings `[legacy_protocol_routed, legacy_protocol_deprecated]`, an error under `--strict`; `historical_only` refuses any legacy selection, in either mode (N6; N17);
+  - `--historical` classifies and never reinterprets: a legacy record routes (exit 3), and a replacement record verifies;
+  - E11: `mode`, a `null` bundle only in rehearsal, pair matching on all five members, `replacement_not_admission_eligible` before the major;
   - `rejected_without_fallback`;
-  - `replacement_not_admission_eligible` before the major;
-  - E12 completeness per act: `owner_word` required for activation and rollback, new records retained on rollback, resume only after a passing rehearsal with both sides verified.
-- [ ] T051 [US3] Author the `migration` vectors in `contracts/council-convening/conformance/vectors/migration/` with their expected outcomes first. Regenerate the index.
+  - E12 per act, in the activation order: `activation_evidence_malformed`; each act's required members; activation and resume need a passing matched rehearsal, found through `rehearsal_ref` in `inputs.rehearsal`, and verified broker capability; the two sides' selections compared on the five matched values; `rehearsal_ref` hashed over the exact text of `inputs.rehearsal`; a rollback without broker capability accepted; a rollback with `new_records_retained: false` refused as `activation_evidence_incomplete`, and one whose `new_records_protocol` is not the replacement refused as `historical_reinterpretation_refused` (N5; N19; R3-M2; R3-M6).
+- [ ] T058 [US3] Author the `migration` vectors, creating `contracts/council-convening/conformance/vectors/migration/` with the first of them, with their expected outcomes first. Raise `coverage_floor` to the full FR-001–FR-012 and SC-001–SC-003, and regenerate the index.
+- [ ] T059 [P] [US3] Extend `tests/council_convening/test_validator_cli.py`: `select` exits and findings; `check --historical` exits 0 on a replacement record and 3 on a legacy one; and the full-coverage note.
 
 ### Implementation
 
-- [ ] T052 [US3] Author `contracts/council-convening/protocol-selection.schema.yaml` and `contracts/council-convening/activation-evidence.schema.yaml`, per data-model E11 and E12.
-- [ ] T053 [US3] Implement `scripts/council_convening/migration.py`. Add the `select` and `check --historical` modes to `scripts/validate-council-convening.py`.
-- [ ] T054 [US3] Write `docs/council-convening-activation-runbook.md` with headers `Status: ratified` and `Ratified by: renew-resolved-council-protocol`. It covers, in order:
+- [ ] T060 [US3] Author `contracts/council-convening/protocol-selection.schema.yaml` and `contracts/council-convening/activation-evidence.schema.yaml`, per data-model E11 and E12. Extend `refusal_code` with the Phase 6 codes and `finding_code` with `legacy_protocol_deprecated` in `contracts/council-convening/shared-definitions.schema.yaml`.
+- [ ] T061 [US3] Implement `scripts/council_convening/migration.py`. Add the `select` and `check --historical` modes to `scripts/validate-council-convening.py`.
+- [ ] T062 [US3] Write `docs/council-convening-activation-runbook.md` with headers `Status: ratified` and `Ratified by: renew-resolved-council-protocol`, and link it from the `README.md` document index. This is the runbook's one index link. It covers, in order:
   1. pause commissioning;
   2. drain or explicitly cancel in-flight convenings;
   3. switch both selections to one E11 value set;
-  4. both sides run the full corpus at the same index digest;
-  5. resume only on a matched, verified pair;
+  4. both sides run the full corpus at the same index digest, in a matched rehearsal;
+  5. activate or resume only on a matched, verified pair;
   6. paired rollback that keeps new records as audit evidence.
 
-  Each act is an owner act recorded as E12. Link the runbook from the README document index (`README.md`).
-- [ ] T055 [US3] Run quickstart steps 1–4, record them in `evidence.md` § Phase 6, and open PR-6 as a draft.
+  Each act is an owner act, recorded as an E12 record of its own `act`.
+- [ ] T063 [US3] Run quickstart steps 1–5, record them in `evidence.md` § Phase 6, and open PR-6 as a draft.
 
 **Checkpoint**: The family is complete on `main`, dormant and unregistered. Both successors can finish dormant implementations against one reviewed commit.
 
@@ -370,44 +420,51 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 
 ## Phase 7: Release A — the additive and deprecating minor (PR-7)
 
-**Purpose**: publish the family, with the replacement `available` and the legacy protocol `deprecated` (R19; § Change Classes).
+**Purpose**: publish the family, with the replacement `available`, the legacy protocol `deprecated`, and the family inside the release inventory behind its floor (R15, R19; § Change Classes).
 
 **Unblocks**:
 
 - 049: T030 (the minor half); T003 and the `stack.yaml` pin on a published bundle.
 - 025: FR-011 and FR-012 (a compatible published pin).
 
-**Depends on**: Phases 1–6 merged, and OPEN-4 ruled.
+**Depends on**: Phases 1–6 merged.
 
-- [ ] T056 Claim the contract-cut shared substrate on openxFactory's pinned "Shared substrates — claims" issue. Then fetch and merge `origin/main`. Then allocate the next available minor from `contracts/manifest.yaml` at that moment, re-checking tag availability (Bundle Realization Order step 1). Record the allocation in `evidence.md`.
-- [ ] T057 [P] Write failing `tests/council_convening/test_council_convening_manifest_rows.py`:
+- [ ] T064 Claim the contract-cut shared substrate on openxFactory's pinned "Shared substrates — claims" issue. Then fetch and merge `origin/main`. Then allocate the next available minor from `contracts/manifest.yaml` at that moment, re-checking tag availability (Bundle Realization Order step 1). Record the allocation in `evidence.md`.
+
+### Tests first
+
+- [ ] T065 [P] Write failing `tests/council_convening/test_council_convening_manifest_rows.py`:
   - every family schema, both registries and `conformance/index.json` carry a row;
   - the rows are closed in both directions;
   - each row's digest is recomputed.
-- [ ] T058 [P] If OPEN-4 rules "join", write failing release-membership tests in `tests/hermes_runtime_contracts/test_council_convening_release_floor.py`:
-  - below the floor, no family path is a member;
+- [ ] T066 [P] Write failing `tests/hermes_runtime_contracts/test_council_convening_release_floor.py`, under the OPEN-4 ruling:
+  - below `COUNCIL_CONVENING_RELEASE_FLOOR`, no family path is a member;
   - at or after the floor, the family, validator, package and tests are members;
   - every published inventory up to the previous tag still verifies.
-- [ ] T059 In `contracts/council-convening/protocol.registry.yaml`, flip legacy to `deprecated` and write the allocated tag into the `introduced_in` and `deprecated_in` fields. No corpus vector changes (Phase 6's override rule).
-- [ ] T060 Register the manifest rows in `contracts/manifest.yaml`: `canonical_openxfactory_contract`, `adapter_owner: openxFactory`, and a `consumption_rule` naming the pin recipe in contracts/provider-interface.md. Bump `contract_bundle_version` to the allocated tag.
-- [ ] T061 Write the `contracts/CHANGELOG.md` entry for the additive and deprecating minor:
+- [ ] T067 [P] Update `tests/council_convening/test_protocol_registry.py` to the minor, failing first: legacy `deprecated`; `introduced_in` and `deprecated_in` naming the allocated tag; `removed_in` still `null` (G2).
+
+### Implementation
+
+- [ ] T068 Add the `COUNCIL_CONVENING_RELEASE_FLOOR` block to `scripts/hermes_runtime_validation/release.py`, set to the allocated version, in the clearing block's form.
+- [ ] T069 In `contracts/council-convening/protocol.registry.yaml`, flip legacy to `deprecated` and write the allocated tag into the `introduced_in` and `deprecated_in` fields. No corpus vector changes, because of the `registry_status` rule.
+- [ ] T070 Register the manifest rows in `contracts/manifest.yaml`: `canonical_openxfactory_contract`, `adapter_owner: openxFactory`, and a `consumption_rule` naming the pin recipe in contracts/provider-interface.md. Bump `contract_bundle_version` to the allocated tag.
+- [ ] T071 Write the `contracts/CHANGELOG.md` entry for the additive and deprecating minor:
   - what is added;
   - what is deprecated;
   - the removal named as the next major, written concretely;
   - the migration path.
 
   Write the § *Deprecations Currently In Force* entry in `docs/contract-versioning-policy.md`, from the refusal list.
-- [ ] T062 [P] Add the family rows to the `contracts/README.md` native contract index, and the family README and runbook rows to the `README.md` document index.
-- [ ] T063 If OPEN-4 rules "join", add the `COUNCIL_CONVENING_RELEASE_FLOOR` block to `scripts/hermes_runtime_validation/release.py`, set to the allocated version, in the clearing block's form.
-- [ ] T064 Build `contracts/releases/<allocated>.digests.yaml` with `scripts/validate-contract-release.py build`. Then run, against the exact candidate:
+- [ ] T072 [P] Change the family's rows in the `contracts/README.md` native contract index and the family README's row in the `README.md` document index from "pending realization" to registered at the allocated tag. Add no second runbook link.
+- [ ] T073 Build `contracts/releases/<allocated>.digests.yaml` with `scripts/validate-contract-release.py build`. Then run, against the exact candidate:
   - `verify-commit` and `verify-promotion`;
   - the release-tag gate;
   - the supported-domain regression denominator;
-  - quickstart steps 1–5.
+  - quickstart steps 1–6.
 
   Record everything in `evidence.md` § Phase 7.
-- [ ] T065 Open PR-7 as a draft. It lands only on Brett Heap's word, on the plain gate, at the exact reviewed commit.
-- [ ] T066 **OWNER**: publish the annotated tag at the landed commit (Bundle Realization Order step 5). Record `verify-tag --remote origin --tag <allocated>` from an independently refreshed checkout in `evidence.md`. The box stays unticked.
+- [ ] T074 Open PR-7 as a draft into `main`. It carries exactly `scripts/hermes_runtime_validation/release.py`, `contracts/council-convening/protocol.registry.yaml`, `contracts/manifest.yaml`, `contracts/CHANGELOG.md`, `docs/contract-versioning-policy.md`, `contracts/README.md`, `README.md`, `contracts/releases/<allocated>.digests.yaml`, `tests/council_convening/test_council_convening_manifest_rows.py`, `tests/council_convening/test_protocol_registry.py`, `tests/hermes_runtime_contracts/test_council_convening_release_floor.py` and `specs/035-renew-resolved-council-protocol/evidence.md`. It lands only on Brett Heap's word, on the plain gate, at the exact reviewed commit.
+- [ ] T075 **OWNER**: publish the annotated tag at the landed commit (Bundle Realization Order step 5). Record `verify-tag --remote origin --tag <allocated>` from an independently refreshed checkout in `evidence.md`. The box stays unticked.
 
 ---
 
@@ -422,23 +479,31 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 
 **Depends on** all four of:
 
-- T066 done;
+- T075's dated evidence recorded;
 - at least one full minor served;
 - both successors' dormant implementations verified against the published minor (049 T013/T035 and 025 evidence, cited and not claimed);
 - the owner's release act.
 
-- [ ] T067 Record the four preconditions with citations in `evidence.md` § Phase 8. Stop if any is missing.
-- [ ] T068 Claim the contract-cut substrate, merge `origin/main`, and allocate the next major from `contracts/manifest.yaml` at that moment. Record it in `evidence.md`.
-- [ ] T069 [P] Write failing tests in `tests/council_convening/test_protocol_registry.py` and `tests/council_convening/test_migration.py`:
-  - legacy `historical_only` refuses active legacy records;
-  - `--historical` still classifies them;
+- [ ] T076 Record the four preconditions with citations in `evidence.md` § Phase 8. Stop if any is missing.
+- [ ] T077 Claim the contract-cut substrate, merge `origin/main`, and allocate the next major from `contracts/manifest.yaml` at that moment. Record it in `evidence.md`.
+
+### Tests first
+
+- [ ] T078 [P] Update `tests/council_convening/test_protocol_registry.py` and `tests/council_convening/test_migration.py`, failing first:
+  - legacy `historical_only`, and an active legacy selection refused;
+  - `--historical` still classifies legacy records and routes them;
   - the replacement is `admission_eligible`;
-  - `removed_in` is set.
-- [ ] T070 In `contracts/council-convening/protocol.registry.yaml`, flip the statuses and set `removed_in`.
-- [ ] T071 Write the BREAKING `contracts/CHANGELOG.md` entry with its migration note, citing the published minor as the served deprecation window. Write the § *Deprecations Executed* entry in `docs/contract-versioning-policy.md`. Process every other § *Deprecations Currently In Force* entry that targets this major, restating each or executing it under its own pre-authorized text. Phase 8 decides none of those acts.
-- [ ] T072 Re-baseline `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml` against the actual union of supported consumers, per the policy's § Supported-Domain Regression Denominator. Bump `contract_bundle_version`. Build `contracts/releases/<allocated>.digests.yaml`. Run quickstart steps 1–5 and record them in `evidence.md` § Phase 8.
-- [ ] T073 Open PR-8 as a draft. It lands only on Brett Heap's word.
-- [ ] T074 **OWNER**: publish the major's annotated tag at the landed commit. Record `verify-tag` in `evidence.md`. The box stays unticked.
+  - `removed_in` names the allocated major;
+  - every family file's `contract_schema_version` is still `1` (G3; R19).
+
+### Implementation
+
+- [ ] T079 In `contracts/council-convening/protocol.registry.yaml`, flip the statuses and set `removed_in`.
+- [ ] T080 Write the BREAKING `contracts/CHANGELOG.md` entry with its migration note, citing the published minor as the served deprecation window. Write the § *Deprecations Executed* entry in `docs/contract-versioning-policy.md`. Process every other § *Deprecations Currently In Force* entry that targets this major (three target `contract-v5.0` today: the flat `hermes` keys, the credential `consumer:` block, and the unresolvable `requirement_ref`), restating each or executing it under its own pre-authorized text. Phase 8 decides none of those acts.
+- [ ] T081 Re-baseline `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml` against the actual union of supported consumers, per the policy's § Supported-Domain Regression Denominator.
+- [ ] T082 Last, after every other Phase 8 edit: refresh the `sha256` of every `contracts/manifest.yaml` row whose file Phase 8 changed, at least `contracts/council-convening/protocol.registry.yaml` (G3). The regression inventory has no manifest row; its identity travels in the release inventory (N13). Bump `contract_bundle_version` to the allocated major. Build `contracts/releases/<allocated>.digests.yaml`. Run quickstart steps 1–6 and record them in `evidence.md` § Phase 8.
+- [ ] T083 Open PR-8 as a draft into `main`. It carries exactly `contracts/council-convening/protocol.registry.yaml`, `contracts/manifest.yaml`, `contracts/CHANGELOG.md`, `docs/contract-versioning-policy.md`, `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml`, `contracts/releases/<allocated>.digests.yaml`, `tests/council_convening/test_protocol_registry.py`, `tests/council_convening/test_migration.py` and `specs/035-renew-resolved-council-protocol/evidence.md`, plus any file a restated or executed deprecation entry names. It lands only on Brett Heap's word.
+- [ ] T084 **OWNER**: publish the major's annotated tag at the landed commit. Record `verify-tag` in `evidence.md`. The box stays unticked.
 
 ---
 
@@ -446,52 +511,42 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 
 **Purpose**: provider realization evidence handed to the governance packet. The archive stays gated on successor and activation evidence (change tasks 3.1–3.5).
 
-- [ ] T075 In `evidence.md`, record:
+- [ ] T085 In `specs/035-renew-resolved-council-protocol/evidence.md`, record:
   - each phase's merged commit;
   - both releases' corpus digests;
   - the validator outputs;
   - the 049 and 025 evidence references, cited and not claimed.
-- [ ] T076 Report the change's task 3.1 acceptance evidence to the change's owner lane. Leave 3.2–3.5 to their owner and archive acts. Edit nothing under `openspec/changes/renew-resolved-council-protocol/` from this feature.
-- [ ] T077 Re-run `speckit-analyze` over the final artifacts, and update `analysis.md`. Under the shared-substrate claim, update this feature's sentence in the README's OpenSpec Records block in `README.md`.
+- [ ] T086 Report the change's task 3.1 acceptance evidence to the change's owner lane. Leave 3.2–3.5 to their owner and archive acts. Edit nothing under `openspec/changes/renew-resolved-council-protocol/` from this feature.
+- [ ] T087 Re-run `speckit-analyze` over the final artifacts, and update `specs/035-renew-resolved-council-protocol/analysis.md`. In the README's OpenSpec Records block in `README.md`, update this feature's own sentence, inside a Rule 6 window.
 
 ---
 
 ## Dependencies and execution order
 
 ```text
-Phase 1 ──► Phase 2 ──► Phase 3 ──► Phase 4 ──┐
-   │                                          ├──► Phase 6 ──► Phase 7 ──► [OWNER tag] ──► Phase 8 ──► [OWNER tag] ──► Phase 9
-   └──────► Phase 5 (lands after Phase 2) ────┘
+#1267 landed (80f47483) ──► #1268 (this plan) lands ──► Phase 1 ──► Phase 2 ──► Phase 3 ──┐
+                                                                         │                ├──► Phase 4 ──► Phase 6 ──► Phase 7 ──► [OWNER tag] ──► Phase 8 ──► [OWNER tag] ──► Phase 9
+                                                                         └──► Phase 5 ────┘
+Landing order: 1, 2, 3, 5, 4, 6, 7, 8, 9. Phase 5 lands after Phase 2 and before Phase 4.
 ```
 
 The order within a phase:
 
-1. tests and vectors, run red and recorded;
-2. schemas;
+1. tests, vectors and CLI tests, run red and recorded;
+2. schemas, with the `refusal_code` extension;
 3. the package module;
 4. handlers and CLI;
 5. gates and evidence;
 6. the PR.
 
-**Gates on Brett Heap's rulings**:
-
-| Ruling | Governs |
-|---|---|
-| OPEN-1 | T031, T037 (the ceiling vectors) |
-| OPEN-2 | T046 and T048 (the instance's home) |
-| OPEN-3 | T023 and T044 (currency and the workflow revision) |
-| OPEN-4 | T058 and T063 |
-
-An unruled question withholds only its vectors and code. It never blocks the rest of its phase.
-
 ## Parallel opportunities
 
-- **Phase 1**: T002–T009 in parallel, then T010–T020 in order (T010→T011→T012 are one invariant).
-- **Phase 2**: T022 ∥ T023, then T024. T025 ∥ T026, then T027→T028→T029.
-- **Phase 3**: T031, then T032, then T033→T034→T035.
-- **Phase 4**: T037 ∥ T038, then T039, then T040→T041→T042.
-- **Phase 5**: authored beside Phases 2–4 (T044–T048). Its corpus index is regenerated when it merges after Phase 2.
-- **Phase 7**: T057 ∥ T058 ∥ T062 once T056 holds the claim.
+- **Phase 1**: T003–T011 in parallel, then T012–T022 in order (T012→T013→T014 are one invariant).
+- **Phase 2**: T024 ∥ T025 ∥ T027, then T026. T028 ∥ T029, then T030→T031→T032. T033 beside them.
+- **Phase 3**: T035 ∥ T037, then T036, then T038→T039→T040.
+- **Phase 4**: T042 ∥ T043 ∥ T045, then T044, then T046→T047→T048.
+- **Phase 5**: authored beside Phases 2–3 (T050–T055). Its corpus index is regenerated when it merges after Phase 2, and it lands before Phase 4.
+- **Phase 7**: T065 ∥ T066 ∥ T067 ∥ T072 once T064 holds the claim.
 
 ## Implementation strategy
 
@@ -503,22 +558,22 @@ An unruled question withholds only its vectors and code. It never blocks the res
 
 | Requirement | Tasks |
 |---|---|
-| FR-001 | T004, T005, T013, T014, T023, T026 |
-| FR-002 | T022, T023, T025, T026, T027, T028 |
-| FR-003 | T016, T023, T024, T028 |
-| FR-004 | T023, T031, T034 |
-| FR-005 | T031, T032, T034 |
-| FR-006 | T031 (public assignment, unique holder), T037 (shared key), T040 (no secret member) |
-| FR-007 | T037, T040, T041, T044 |
-| FR-008 | T006, T010, T011, T037–T042 |
-| FR-009 | T044–T048 |
-| FR-010 | T003, T007, T009, T016–T018, T024, T032, T039, T045, T051, T057 |
-| FR-011 | T005, T014, T050–T053, T059–T061, T069–T071 |
-| FR-012 | T050, T052, T054, T066, T074 |
-| SC-001 | T016, T024, T032, T039, T045, T051; the successors' evidence is external |
-| SC-002 | T031, T032; the consumer's database evidence is external (025) |
-| SC-003 | T037, T038, T039 |
-| SC-004 | T052, T054; the owner's rehearsal is external |
+| FR-001 | T005, T006, T009, T015, T016, T025, T029 |
+| FR-002 | T024, T025, T026, T028, T029, T030, T031 |
+| FR-003 | T019, T025, T026, T031, T033 |
+| FR-004 | T025, T035, T036, T039 |
+| FR-005 | T035, T036, T039 |
+| FR-006 | T035 (public assignment, unique holder), T042 (shared key), T046 (no secret member) |
+| FR-007 | T035, T038, T042, T046, T047, T050 |
+| FR-008 | T007, T012, T013, T042–T048 |
+| FR-009 | T050–T055 |
+| FR-010 | T004, T008, T009, T011, T019–T022, T026, T036, T044, T051, T058, T065 |
+| FR-011 | T006, T009, T016, T018, T057–T061, T066–T071, T078–T081 |
+| FR-012 | T057, T060, T062, T075, T084 |
+| SC-001 | T019, T026, T036, T044, T051, T058; the successors' evidence is external |
+| SC-002 | T035, T036; the consumer's database evidence is external (025) |
+| SC-003 | T042, T043, T044 |
+| SC-004 | T060, T062; the owner's rehearsal is external |
 
 The spec delta's seven requirements map as follows:
 
@@ -530,4 +585,4 @@ The spec delta's seven requirements map as follows:
 | Candidate across submission and admission | Phase 2 |
 | Independent signing authority | Phase 4 |
 | Verified workflow binding | Phase 5 |
-| Versioned coordinated migration | Phases 6–8 |
+| Versioned coordinated migration | Phases 1 and 6–8 |

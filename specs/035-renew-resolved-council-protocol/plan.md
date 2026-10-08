@@ -4,7 +4,12 @@
 
 **Input**: Feature specification [spec.md](spec.md); governing change [renew-resolved-council-protocol](../../openspec/changes/renew-resolved-council-protocol/proposal.md), design D1–D5 ([design.md](../../openspec/changes/renew-resolved-council-protocol/design.md)), seven ADDED `roles-authority-model` requirements ([spec delta](../../openspec/changes/renew-resolved-council-protocol/specs/roles-authority-model/spec.md)), [implementation handoff](../../openspec/changes/renew-resolved-council-protocol/implementation-handoff.md) and [ratification record](../../openspec/changes/renew-resolved-council-protocol/review/ratification-2026-10-03.md).
 
-**Authority**: the change is ratified (Brett Heap, 2026-10-03, "ratify all three as disclosed"). Lane codeXfactory-2 builds this feature on Brett Heap's 2026-10-08 word "This lane, 035 then 025". Every pull request this plan produces lands only on his word. This plan authorizes no release, tag, pin, credential, deployment or activation act.
+**Authority**:
+
+- The change is ratified (Brett Heap, 2026-10-03, "ratify all three as disclosed"). Its packet, #1267, landed in `main` as `80f47483` on 2026-10-08.
+- Lane codeXfactory-2 builds this feature on Brett Heap's 2026-10-08 word "This lane, 035 then 025".
+- Brett Heap ruled the plan's five open questions on 2026-10-08 ([Decisions ruled by Brett Heap](#decisions-ruled-by-brett-heap)).
+- Every pull request this plan produces lands only on his word. This plan authorizes no release, tag, pin, credential, deployment or activation act.
 
 ## Summary
 
@@ -12,11 +17,12 @@ Realize the provider half of the replacement council protocol as neutral contrac
 
 The family defines what both sides need and neither may invent:
 
-- the commission record `council_convening` with its resolved, ordered roster and reproducible provenance (D1);
+- the commission record `council_convening` with its resolved, ordered roster and reproducible provenance, including the governed sources and the class-selection inputs (D1);
 - the frozen snapshot and per-seat assignment identities (D2);
 - the challenge, key registration, signed return and two versioned signing contexts (D3);
 - the producer workflow binding derived from `contracts/policies/repository-identity.yaml` (D4);
-- the protocol registry, per-side protocol selection, activation evidence and historical classification (D5).
+- the protocol registry and classification, per-side protocol selection, activation evidence and historical classification (D5);
+- one normative evaluation order per boundary, so that two implementations agree on the refusal, not only on refusing ([R21](research.md#r21--normative-evaluation-order)).
 
 Every digest reuses the existing `xfc-jcs-sha256-1` construction by adding subjects to its closed enumeration. It never adds a second construction ([research R3](research.md#r3--digest-construction-subjects-and-signed-bytes)).
 
@@ -38,13 +44,13 @@ Version numbers are allocated only inside Phases 7 and 8, under the release lock
 - `jsonschema` and `PyYAML`.
 - `scripts/signed_execution_chain/canonical.py`, the one `xfc-jcs-sha256-1` implementation.
 - `scripts/signed_execution_chain/ed25519.py`, the stdlib Ed25519 verifier.
-- The existing repository-identity reader in `scripts/estate_inventory.py` (`TRANSFER_MAP`).
-- The provider's existing secret detector set, `SECRET_PATTERNS` in `scripts/validate-domain-factory.py`, loaded by `importlib`.
+- The existing repository-identity reader, `load_transfers` in `scripts/estate_inventory.py`.
+- The provider's existing secret detector floor, `SECRET_PATTERNS` in `scripts/validate-domain-factory.py`, loaded by `importlib`.
 - `cryptography==50.0.0`, already hash-locked in `requirements/hermes-runtime-contracts.lock`, used only by the corpus generator to sign fixtures.
 
 **Storage**: files in the repository. The contracts are data; there is no runtime store. Persistence, transactions and uniqueness belong to the consumer (025).
 
-**Testing**: pytest under `tests/council_convening/`, run as `python3 -m pytest tests/council_convening -q -m "not postgres"`. Each phase also runs the repository gates: the pinned OpenSpec CLI, doc-health in single-repo mode and `pytest-suite`. The canonical validator adjudicates every corpus vector on every run.
+**Testing**: pytest under `tests/council_convening/`, run as `python3 -m pytest tests/council_convening -q -m "not postgres"`. Each phase also runs the repository gates: the pinned OpenSpec CLI, doc-health in single-repo mode and `pytest-suite`. Phase 1 also runs the two validators that consume the widened digest-subject enumeration. The canonical validator adjudicates every corpus vector on every run.
 
 **Target Platform**: CI (GitHub Actions, `ubuntu-latest`) and the declared py-bench development container.
 
@@ -59,24 +65,25 @@ Version numbers are allocated only inside Phases 7 and 8, under the release lock
 - **No version is reserved.** Numbers are allocated at Phase 7 and Phase 8 from the manifest as it then stands (Principle VI; D5).
 - **No live values.** Nothing committed carries a live credential, live key material, a live audience or a live subject template. Fixture keys follow [R18](research.md#r18--fixture-keys-and-reproducible-signatures).
 - **Neutrality.** Family schemas name no domain, council, seat or workflow. Domain facts appear only as instance data in the corpus or a `.template.yaml` stub (Principle I).
+- **Fail closed on legacy bytes.** This family never passes a legacy record. It refuses one under a replacement selection and routes one to the legacy verifier otherwise, with exit 3, which is never a pass ([R10](research.md#r10--protocol-and-signing-context-identifiers-and-classification)).
 - **Dormancy.** The replacement protocol is `available` and selectable for rehearsal only. No record of this family can make it active before the removal major and the owner's activation (FR-011, FR-012).
 - **No new skip.** `pytest-suite` pins `EXPECT_SKIPPED` exactly. The new tests need no submodule and no network, and `cryptography` is installed from the lock in CI.
 
-**Scale/Scope**: 13 schemas and 2 closed registries, 1 template, 1 conformance index with roughly 140 vectors, 1 reference package, 1 validator and 1 generator, 1 test package, 1 CI gate, 1 runbook, and the registration surfaces of two release cuts. The vector count is re-baselined at each release against the actual union of cases, not against the old #517 counts (handoff).
+**Scale/Scope**: 13 schemas and 2 closed registries, 1 template, 1 conformance index with roughly 160 vectors, 1 reference package, 1 validator and 1 generator, 1 test package, 1 CI gate, 1 runbook, and the registration surfaces of two release cuts. The vector count is re-baselined at each release against the actual union of cases, not against the old #517 counts (handoff).
 
 ## Constitution Check
 
-*GATE: evaluated before Phase 0 research and re-evaluated after Phase 1 design. Both evaluations pass.*
+*GATE: evaluated before Phase 0 research and re-evaluated after Phase 1 design, then again after the analysis fixes and Brett Heap's rulings of 2026-10-08. All evaluations pass.*
 
 | Principle | Pre-design | Post-design evidence |
 |---|---|---|
-| I. Contract-First, Domain-Neutral Core | PASS | The family names no domain, council, seat or workflow in schema vocabulary. The two predicate kinds are mechanical path-set intersections over declared input contracts ([R5](research.md#r5--the-closed-predicate-registry-and-input-contracts)), adopted under the ratified D1 ("the closed predicate registry and input type contracts are shared specifications and vectors"). That ratified change is the governed path, so no domain-to-neutral candidate entry is needed. Domain rule files stay domain-owned: each side maps them through its own adapter (D1, H1). |
-| II. Governed Change Flow | PASS | The governing change is ratified, and this is its sole Speckit feature (proposal Impact; tasks 2.2). The feature adds no spec delta. Any rule found missing becomes a finding for a successor change, never an edit here. Because `code_surface` is not `none`, the change archives only on merged, green realization evidence plus the linked successor evidence (proposal front matter). |
+| I. Contract-First, Domain-Neutral Core | PASS | The family names no domain, council, seat or workflow in schema vocabulary. The two predicate kinds are mechanical path-set intersections over declared input contracts ([R5](research.md#r5--the-closed-predicate-registry-and-input-contracts)), adopted under the ratified D1 ("the closed predicate registry and input type contracts are shared specifications and vectors"). Their identifiers are the ones the governed rule files declare, on Brett Heap's ruling "Keep the existing names (Recommended)" (OPEN-5, 2026-10-08). That ruling reads the Goals' "Domain predicates remain domain-owned" as: the domain owns which seats a rule conditions on and with which parameters, while the mechanism is neutral. Domain rule files stay domain-owned: each side maps them through its own adapter (D1, H1). |
+| II. Governed Change Flow | PASS | The governing change is ratified, its packet is in `main` at `80f47483`, and this is its sole Speckit feature (proposal Impact; tasks 2.2). The feature adds no spec delta. Any rule found missing becomes a finding for a successor change, never an edit here. Because `code_surface` is not `none`, the change archives only on merged, green realization evidence plus the linked successor evidence (proposal front matter). |
 | III. Document Lifecycle and Status Discipline | PASS | The family README and the activation runbook carry `Status: ratified` and `Ratified by: renew-resolved-council-protocol`, because they realize ratified text. These feature planning files carry no `Status:` header, following the 028 and 037 precedent. |
-| IV. Schema and Artifact Discipline | PASS | Every YAML and every corpus JSON file carries `schema_version` and `kind`. The binding ships only as `producer-binding.template.yaml` ([OPEN-2](#open-questions-for-brett-heap)). New documents are linked in the README document index and the `contracts/README.md` native index (the runbook at T054; the family at the cut, T062). There are no credentials and no host-absolute paths. |
-| V. Validation Gates (NON-NEGOTIABLE) | PASS | Each phase runs: its tests first, failing; then the canonical validator self-test; the pinned OpenSpec CLI; a doc-health comparison of base against head; and `pytest-suite` floors with no new skip. Every closed refusal code needs a probing vector, or the validator fails (`council-convening-refusal-code-without-probe`). |
-| VI. Versioned, Content-Addressed Releases | PASS | Two cuts, each with the five coordinated values. Registration happens only at a cut. The release inventory is built by `scripts/validate-contract-release.py build`. Each tag is Bundle Realization Order step 5, an owner act at the landed commit. A deprecation minor precedes the removal major, as § Change Classes requires (D5). |
-| VII. Fail-Closed Authority Boundaries | PASS | All registries are closed: protocols, predicates, input contracts, refusal codes and principal kinds. The record has no fallback protocol, and an unevaluable condition refuses rather than reading as false. Possession of a key is not authority (D3). A broker that is not verified parks activation (D4). Model output is never authoritative here: the validator decides only shapes and reproductions. |
+| IV. Schema and Artifact Discipline | PASS | Every YAML and every corpus JSON file carries `schema_version` and `kind`. The binding ships only as `producer-binding.template.yaml`; the instance lives in the consumer's runtime configuration (OPEN-2). Every new document is linked in the `README.md` document index **in the PR that creates it**: this plan's documents now (C1), `evidence.md` at T001, the family README at T004 (also in the `contracts/README.md` native index, as pending), and the runbook at T062. The cut (T072) only changes the family's rows from pending to registered. There are no credentials and no host-absolute paths. |
+| V. Validation Gates (NON-NEGOTIABLE) | PASS | Each phase runs: its tests first, failing; then the canonical validator self-test; the pinned OpenSpec CLI; a doc-health comparison of base against head; and `pytest-suite` floors with no new skip. Phase 1 also runs `validate-signed-execution-chain.py` and `validate-clearing-dispatch.py`, because it widens the digest-subject enumeration they consume. Every refusal and finding code in the vocabulary at a commit needs a probing vector, or the validator fails (`council-convening-refusal-code-without-probe`). |
+| VI. Versioned, Content-Addressed Releases | PASS | Two cuts, each with the five coordinated values. Registration happens only at a cut. Phase 1's manifest-row refresh changes no version and no CHANGELOG entry, following the row's own recorded precedent that a row moves with its bytes and the version is the cutting session's act. The family joins the release inventory behind `COUNCIL_CONVENING_RELEASE_FLOOR` at the Phase 7 cut (OPEN-4). Each tag is Bundle Realization Order step 5, an owner act at the landed commit. A deprecation minor precedes the removal major, as § Change Classes requires (D5). At the major, per-file `contract_schema_version` stays `1`, because no schema's shape changes; the break is carried by the bundle major, the digests and the migration note, following the policy's ideation-dashboard precedent ([R19](research.md#r19--release-sequencing-and-the-two-cuts)). |
+| VII. Fail-Closed Authority Boundaries | PASS | Every enumeration is closed: protocols, predicates, input contracts, refusal codes, finding codes, principal kinds and the workflow-revision rule. Classification runs first at every boundary over a protocol-carrying record, a legacy record is refused or routed but never passed, and the record has no fallback protocol. An unevaluable condition refuses rather than reading as false. Possession of a key is not authority (D3). A broker that is not verified parks activation (D4). Model output is never authoritative here: the validator decides only shapes and reproductions. |
 
 Repository constraints honored:
 
@@ -85,7 +92,7 @@ Repository constraints honored:
 - the aggregation pin is a separate later sync;
 - no runtime code beyond the ratified canonical validator and reference implementation (constitution, Repository Constraints).
 
-No violation requires Complexity Tracking.
+The one workflow deviation, planning before the questions were ruled, is recorded and closed under [Complexity Tracking](#complexity-tracking).
 
 ## Project Structure
 
@@ -93,19 +100,20 @@ No violation requires Complexity Tracking.
 
 ```text
 specs/035-renew-resolved-council-protocol/
-├── spec.md                         # existing (ratified scope)
+├── spec.md                         # existing (ratified scope), with § Clarifications
 ├── checklists/requirements.md      # existing
+├── clarify-questions.md            # the five questions and Brett Heap's rulings
 ├── plan.md                         # this file
-├── research.md                     # Phase 0: decisions R1–R20
-├── data-model.md                   # Phase 1: entities E1–E13, refusal vocabulary
+├── research.md                     # Phase 0: decisions R1–R21
+├── data-model.md                   # Phase 1: entities E1–E13, evaluation orders, refusal vocabulary
 ├── quickstart.md                   # Phase 1: validation and pinning guide
 ├── contracts/
-│   ├── provider-interface.md       # what 049 and 025 consume, and when it exists
+│   ├── provider-interface.md       # what 049 and 025 consume, when it exists, and consumer impacts
 │   ├── conformance-corpus.md       # index/vector format, adapter contract, digest
 │   └── validator-cli.md            # canonical validator CLI, modes, exits, findings
 ├── tasks.md                        # Phase 2 (speckit-tasks)
-├── analysis.md                     # speckit-analyze record
-└── evidence.md                     # created by T007; one section per phase
+├── analysis.md                     # speckit-analyze record and dispositions
+└── evidence.md                     # created by T001; one section per phase
 ```
 
 ### Source Code (repository root)
@@ -113,7 +121,7 @@ specs/035-renew-resolved-council-protocol/
 ```text
 contracts/council-convening/                       # NEW family (dormant until Phase 7)
 ├── README.md                                      # Status: ratified / Ratified by:
-├── shared-definitions.schema.yaml                 # identifiers, candidate, digest refs, refusal codes
+├── shared-definitions.schema.yaml                 # identifiers, candidate, digest refs, refusal and finding codes
 ├── protocol-registry.schema.yaml
 ├── protocol.registry.yaml                         # CLOSED: replacement + legacy (identification)
 ├── predicate-registry.schema.yaml
@@ -138,15 +146,16 @@ scripts/signed_execution_chain/canonical.py                        # MODIFIED: S
 
 scripts/council_convening/                          # NEW provider reference implementation
 ├── __init__.py
-├── records.py        # schema registry, closed shapes, full-match identifiers
-├── predicates.py     # predicate registry semantics
-├── resolution.py     # roster composition and provenance reproduction (oracles injected)
-├── assignments.py    # snapshot, assignment, retry identity and completion
-├── signing.py        # contexts, signed bytes, verification, fingerprints
-├── binding.py        # producer binding against repository-identity.yaml
-├── migration.py      # classification, selection, activation evidence, deprecation
-├── corpus.py         # index closure, digests, vector adjudication
-└── generate.py       # deterministic corpus generator (fixture signing only)
+├── records.py         # schema registry, closed shapes, full-match identifiers
+├── classification.py  # protocol classification and selection effects (E1)
+├── predicates.py      # predicate registry semantics
+├── resolution.py      # roster composition and provenance reproduction (oracles injected)
+├── assignments.py     # snapshot, assignment, retry identity and completion
+├── signing.py         # contexts, signed bytes, verification, fingerprints
+├── binding.py         # producer binding against repository-identity.yaml
+├── migration.py       # selection, activation evidence, deprecation, historical mode
+├── corpus.py          # index closure, digests, coverage, vector adjudication
+└── generate.py        # deterministic corpus generator (fixture signing only)
 scripts/validate-council-convening.py               # NEW canonical validator CLI
 
 tests/council_convening/                            # NEW
@@ -154,9 +163,11 @@ tests/council_convening/                            # NEW
 docs/council-convening-activation-runbook.md        # NEW (Phase 6)
 
 # Registration surfaces, Phase 7 (minor) and Phase 8 (major) only:
-contracts/manifest.yaml, contracts/CHANGELOG.md, contracts/README.md,
+contracts/manifest.yaml, contracts/CHANGELOG.md, contracts/README.md, README.md,
 contracts/releases/contract-v<allocated>.digests.yaml, docs/contract-versioning-policy.md,
-scripts/hermes_runtime_validation/release.py (only if OPEN-4 rules "join")
+scripts/hermes_runtime_validation/release.py (Phase 7, COUNCIL_CONVENING_RELEASE_FLOOR),
+tests/hermes_runtime_contracts/test_council_convening_release_floor.py (Phase 7),
+contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml (Phase 8)
 ```
 
 **Structure Decision**: The family lives at `contracts/council-convening/`, the path the governing change's `code_surface` names. The corpus lives under `conformance/`, not `examples/`, because it is a cross-implementation corpus whose index carries the expectations. It follows the indexed-fixture precedent of `contracts/hermes-runtime/fixtures/index.yaml`. It does not use the per-file `# expected_failure:` header convention, which JSON cannot carry ([R1](research.md#r1--family-layout-and-corpus-placement)).
@@ -165,13 +176,13 @@ The reference implementation is a package, so each phase adds one module beside 
 
 ## Phase 0 — Research
 
-See [research.md](research.md). Twenty decisions are recorded, each traced to the spec, a design decision (D1–D5) and a consumer need. Four questions only Brett Heap can decide are left OPEN with a recommendation (below). No `NEEDS CLARIFICATION` remains in the Technical Context.
+See [research.md](research.md). Twenty-one decisions are recorded, each traced to the spec, a design decision (D1–D5) and a consumer need. The five questions only Brett Heap could decide were put to him and ruled on 2026-10-08 (below). No `NEEDS CLARIFICATION` remains in the Technical Context.
 
 ## Phase 1 — Design
 
-- [data-model.md](data-model.md) describes thirteen entities member by member, with the closed refusal vocabulary. A column maps each refusal to 049's current producer-internal name where one exists.
-- [contracts/provider-interface.md](contracts/provider-interface.md) lists everything 049 and 025 consume, including the identifiers, kinds, signing contexts, signed-bytes construction, digest subjects and pinning recipe. It also says in which phase each item first exists on `main` and when it is published.
-- [contracts/conformance-corpus.md](contracts/conformance-corpus.md) covers the corpus index and vector format, the oracle model each implementation's corpus adapter feeds, outcome semantics and the corpus digest.
+- [data-model.md](data-model.md) describes thirteen entities member by member, each boundary's normative evaluation order, and the closed refusal vocabulary. A column maps each refusal to 049's current producer-internal name; the mapping is many-to-one in places, and 049 refines its refusals to match.
+- [contracts/provider-interface.md](contracts/provider-interface.md) lists everything 049 and 025 consume, including the identifiers, kinds, signing contexts, signed-bytes construction, digest subjects and pinning recipe. It says in which phase each item first exists on `main` and when it is published, and it records every consumer impact this plan creates.
+- [contracts/conformance-corpus.md](contracts/conformance-corpus.md) covers the corpus index and vector format, the oracle model each implementation's corpus adapter feeds, outcome semantics, coverage and the corpus digest.
 - [contracts/validator-cli.md](contracts/validator-cli.md) covers the canonical validator's modes, exit codes and finding codes.
 - [quickstart.md](quickstart.md) gives the commands that prove each phase and the consumer pinning recipe.
 
@@ -181,19 +192,27 @@ The agent-context update step of the plan template has no script in this reposit
 
 | Phase | Lands | 049 tasks it unblocks (provider half) | 025 requirements it serves |
 |---|---|---|---|
-| 1 Setup & foundational | Family skeleton and README, `shared-definitions`, protocol registry with both identifiers, two digest subjects, corpus index and vector format, generator skeleton, validator skeleton, CI gate | T027 and T026→T030 (protocol identifier values to bind), T001's follow-up dated section | FR-001 (exact contract identity), FR-011 (protocol identifiers) |
-| 2 US1: membership before work (MVP) | `council_convening`, predicate registry and input contracts, resolution reproduction, US1 corpus | T003, T010, T011b (POST body shape, with 025), T012 (head-race half), T013 | FR-001–FR-004 |
+| 1 Setup & foundational | Family skeleton and README, `shared-definitions`, protocol registry and classification, two digest subjects, corpus index and vector format, generator skeleton, validator skeleton, CI gate | T027 and T026→T030 (protocol identifier values to bind), T001's follow-up dated section | FR-001 (exact contract identity), FR-011 (protocol identifiers, classification) |
+| 2 US1: membership before work (MVP) | `council_convening`, predicate registry and input contracts, resolution reproduction in the normative order, US1 corpus | T003, T010, T011 (the gate-rules `subject_path`), T011b (POST body shape, with 025), T012 (head-race half), T013 | FR-001–FR-004 |
 | 3 US2a: frozen assignments | Snapshot, assignment, retry identity and completion identity, with their vectors | T012 (retry identity), T015b, T016b (assignment shape), T021/T022 (completion mapping) | FR-005–FR-007 |
-| 4 US2b: seat signing | Challenge, registration, return, the two signing contexts, return digest, key vectors | T020, T017/T019 (context mapping), T025 (what consumer evidence must show) | FR-008–FR-010 |
+| 4 US2b: seat signing (lands after Phase 5) | Challenge, registration, return, the two signing contexts, return digest, key vectors | T020, T017/T019 (context mapping), T025 (what consumer evidence must show) | FR-008–FR-010 |
 | 5 US2c: producer identity | Producer binding schema and template, repository-identity derivation, identity vectors | T023, T024, T031 (the shape the owner provisions) | FR-008 (principal inputs); H3 activation park |
-| 6 US3: matched migration | Protocol selection, activation evidence, historical classification, deprecation warnings, migration vectors, activation runbook | T027 (selection shape), T028, T029, T032 | FR-011, FR-012 |
-| 7 Release A: additive and deprecating minor | Registration, CHANGELOG, policy deprecation entry, inventory, indexes. OWNER: tag | T030 (minor half), T003 (published pin) | FR-011, FR-012 (published compatible pin) |
-| 8 Release B: removal major | Legacy refusal for active selection, migration note, executed deprecation, inventory. OWNER: tag | T030 (major half); prerequisite of T032–T034 | FR-011 (old shapes refused), FR-012 |
+| 6 US3: matched migration | Protocol selection, activation evidence, historical mode, deprecation routing, migration vectors, activation runbook | T027 (selection shape), T028, T029, T032 | FR-011, FR-012 |
+| 7 Release A: additive and deprecating minor | Registration, release floor, CHANGELOG, policy deprecation entry, inventory, index rows. OWNER: tag | T030 (minor half), T003 (published pin) | FR-011, FR-012 (published compatible pin) |
+| 8 Release B: removal major | Legacy refusal for active selection, migration note, executed deprecation, row refresh, inventory. OWNER: tag | T030 (major half); a prerequisite of T033 and T034 | FR-011 (old shapes refused), FR-012 |
 | 9 Closeout | Evidence acceptance and handoff; archive stays gated | T036 (provider evidence) | 3.1 / 3.3 evidence |
 
-All 025 entries are requirement identifiers. Feature 025 has a specification and checklist only: no task list exists on `025-admit-resolved-council-protocol-spec`.
+The task ids in the 049 column are 049's own. All 025 entries are requirement identifiers: feature 025 has a specification and checklist only, and no task list exists on `025-admit-resolved-council-protocol-spec`.
 
-**Order and parallelism.** Phase 1 precedes everything. Phases 2→3→4 are sequential, because each record binds the one before it. Phase 5 depends only on Phase 1 and may be authored in parallel; it lands after Phase 2 so the corpus index merges once. Phase 6 needs Phases 2–5. Phase 7 needs Phases 1–6 merged plus a claim on the contract-cut shared substrate.
+**Order and parallelism.**
+
+- #1267 is in `main` (`80f47483`), so that precondition is satisfied. This planning PR, #1268, lands on Brett Heap's word before PR-1 opens (I5).
+- Phase 1 precedes everything.
+- Phases 2→3 are sequential, because the snapshot binds the commission record.
+- Phase 5 depends only on Phase 1 and may be authored in parallel. It lands after Phase 2, so the corpus index merges once and its workflow-revision rule can read the E2 `governed` member.
+- Phase 4 needs Phases 3 and 5: registration checks a seat job's claims against its holder's binding (data-model E7 step 5). So the landing order is 1, 2, 3, 5, 4, 6.
+- Phase 6 needs Phases 2–5.
+- Phase 7 needs Phases 1–6 merged plus a claim on the contract-cut shared substrate.
 
 Phase 8 needs four things:
 
@@ -206,44 +225,52 @@ Phase 9 follows Phase 8 and the successor evidence.
 
 **Dormancy.** No consumer may activate the replacement before Phase 8 and the owner's matched activation (T034 in 049; FR-012 in 025). The successors may pin a reviewed `main` commit after any of Phases 1–6 to build dormant code (D5: "Successors can implement the new protocol dormant against a reviewed provider commit").
 
-## Open questions for Brett Heap
+## Decisions ruled by Brett Heap
 
-Each question is left for Brett Heap to decide. The plan builds so that every option stays open until he rules. Details are in [research.md](research.md).
+Five questions were left for Brett Heap, each with a recommendation. He ruled all five on 2026-10-08, first-hand, choosing the recommended option of each. The record is brett-wip `lanes/log/codeXfactory-2.md`, RULED at 19:24:21Z (OPEN-1 to OPEN-4) and 19:24:59Z (OPEN-5). The labels are quoted verbatim. The questions and options are in [clarify-questions.md](clarify-questions.md), and the answers are encoded in [spec.md § Clarifications](spec.md#clarifications).
 
-- **OPEN-1: lifetime ceilings** ([R12](research.md#r12--lifetime-ceilings-open-1)).
-  - D3 requires a "short lifetime" for assignments and "bounded one-use challenges" (FR-007), but fixes no number.
-  - **Recommendation:** a challenge ceiling of 600 seconds and an assignment ceiling of 6 hours. These are contract maximums; the consumer configures any tighter value.
-  - Decide by Phase 3 (assignment) and Phase 4 (challenge).
-- **OPEN-2: where the concrete producer-binding instance lives** ([R13](research.md#r13--producer-workflow-binding-and-its-placement-open-2)).
-  - **Recommendation:** in the consumer's governed runtime configuration. The operator writes it at the provisioning act (049 T031; 025 H3), and it is validated by this family's validator at the consumer's pin.
+- **OPEN-1: lifetime ceilings.** Ruled "600 s challenge, 6 h assignment (Recommended)".
+  - A challenge lives at most 600 seconds, and an assignment at most 21600 seconds. These are contract maximums; the consumer configures any tighter value.
+  - Encoded in [R12](research.md#r12--lifetime-ceilings), data-model E5 and E6, and the ceiling tests, vectors and schemas in Phases 3 and 4 (T035, T036, T038; T042, T044, T046).
+- **OPEN-2: where the concrete producer-binding instance lives.** Ruled "Consumer's runtime config (Recommended)".
+  - The instance is written into the consumer's governed runtime configuration at the provisioning act (049 T031; 025 H3), and validated by this family's validator at the consumer's pin.
   - The provider ships only the schema, a `.template.yaml` stub, the derivation from `repository-identity.yaml` and the corpus.
-  - Decide by Phase 5.
-- **OPEN-3: revision currency** ([R7](research.md#r7--rule-authority-and-revision-currency-open-3)).
-  - The question is how current the cited governed rule revision must be at admission, and how the producer's verified workflow revision relates to it.
-  - **Recommendation:** accept a revision on the governed branch's first-parent history only when the rule file's blob at that revision equals its blob at the governed tip when admission runs. Refuse `rule_superseded` otherwise.
-  - Where the rule repository is the producer repository, also require the producer's verified `job_workflow_sha` to equal the cited rule revision.
-  - Decide by Phase 2 (rule) and Phase 5 (workflow).
-- **OPEN-4: release-inventory membership** ([R15](research.md#r15--release-surface-membership-open-4)).
-  - The question is whether the family joins the release digest inventory behind a version floor at its first cut, following the clearing precedent (#722, ruled for clearing in #745), or carries its identity by manifest row only, as `signed-execution-chain` does.
-  - **Recommendation:** join, with the floor set at the Phase 7 cut.
-  - Decide by Phase 7.
+  - Encoded in [R13](research.md#r13--producer-workflow-binding-and-its-placement), data-model E10, and T052, T053 and T055.
+- **OPEN-3: revision currency.** Ruled "History + unchanged rule file (Recommended)".
+  - A cited revision must be on the governed branch's first-parent history, and the rule file at that revision must equal its counterpart at the governed tip when admission runs; otherwise `rule_superseded`. The plan holds every governed source to this test, pending confirmation (below).
+  - Where the rule repository is the producer repository, the producer's verified `job_workflow_sha` must equal the cited rule revision. The binding's closed `workflow_revision_rule` is `equals_governed_revision`.
+  - Encoded in [R7](research.md#r7--governed-sources-rule-authority-and-revision-currency), data-model E2 step 5 and E10, and T025, T026, T031, T050, T051 and T053.
+  - Two applications of this ruling are flagged for Brett Heap's confirmation before PR-2 and PR-5 land, and both fail closed meanwhile: the currency test covers every governed source, not only the rule file; and a permitted workflow whose repository is not the governed repository is refused ([analysis.md](analysis.md#confirmations-requested)).
+- **OPEN-4: release-inventory membership.** Ruled "Join behind a version floor (Recommended)".
+  - `COUNCIL_CONVENING_RELEASE_FLOOR` is set at the Phase 7 cut, following the clearing precedent (#722, ruled in #745).
+  - Encoded in [R15](research.md#r15--release-surface-membership), T066 and T068.
+- **OPEN-5: predicate identifiers.** Ruled "Keep the existing names (Recommended)".
+  - The neutral registry keeps `changed_paths_intersect` over `pr_facts` and `rule_touches_security_posture` over `rule_facts`, exactly as the governed rule files declare them, with no mapping layer.
+  - "Domain predicates remain domain-owned" means the domain owns which seats a rule conditions on and with which parameters, while the evaluation mechanism is neutral. Adding or renaming a predicate is a governed contract change.
+  - Encoded in [R5](research.md#r5--the-closed-predicate-registry-and-input-contracts), data-model E3, and T024, T026 and T028.
 
 ## Owner gates this plan reaches and does not perform
 
 Each act below is the owner's, and no task here performs it. Each is recorded with dated evidence, and its box stays unticked:
 
-- landing each phase PR (Brett Heap's word);
+- landing each phase PR, and this planning PR (Brett Heap's word);
 - making `council-convening-gate` a required check (a ruleset act);
 - allocating and publishing each release, and the annotated tags (change task 3.2);
 - the successors' pin advances;
-- broker and credential provisioning;
+- broker and credential provisioning, including writing the binding instance into the consumer's runtime configuration;
 - managing-factory deployment;
 - the commissioning pause, matched activation and paired rollback (change tasks 3.3 and 3.4);
 - the archive (change task 3.5).
 
 ## Complexity Tracking
 
-No constitution deviation is requested.
+**One workflow deviation, recorded and now closed.** The constitution says "material ambiguities MUST be resolved before planning". This plan was written with five questions open (OPEN-1 to OPEN-5) and recommendations beside each, because they surfaced only while planning against the two consumers, and the ratified spec had stated "The scope contains no new unresolved policy decision". The independent analysis (C2 in [analysis.md](analysis.md)) flagged it as critical. The resolution:
+
+- the lane coordinator put the questions to Brett Heap on 2026-10-08, and he ruled all five that day;
+- they are recorded in [clarify-questions.md](clarify-questions.md) and encoded in [spec.md § Clarifications](spec.md#clarifications), with a dated note on the Assumptions sentence;
+- this plan and its research now state each as decided, and no task is gated on an open question.
+
+No implementation began before the rulings. No other deviation is requested.
 
 Several simpler options were considered and rejected in research:
 
@@ -251,7 +278,8 @@ Several simpler options were considered and rejected in research:
 - A YAML corpus was rejected because of resolver ambiguity across independent readers ([R2](research.md#r2--corpus-encoding-json-vectors-and-a-json-index)).
 - Reusing the producer's evaluator as the provider's check was rejected (handoff: "never copy the producer evaluator into the provider and call that independent validation").
 - A second signed-bytes framing beside `xfc-jcs-sha256-1` was rejected (D1).
+- Accepting legacy records with no finding was rejected as failing open ([R10](research.md#r10--protocol-and-signing-context-identifiers-and-classification)).
 
 ## Extension hooks
 
-`.specify/extensions.yml` registers one optional `before_plan` hook and one optional `after_plan` hook, both `speckit.git.commit`. `.specify/extensions/git/git-config.yml` disables auto-commit, so neither hook ran. The lane commits with explicit pathspecs instead.
+`.specify/extensions.yml` registers optional `before_plan`, `after_plan`, `before_analyze` and `after_analyze` hooks, all `speckit.git.commit`. `.specify/extensions/git/git-config.yml` disables auto-commit, so none of them ran. The lane commits with explicit pathspecs instead.
