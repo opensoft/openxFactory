@@ -128,8 +128,15 @@ Boxes for work this change will never do carry `[~]`, in § 5.
 ## 3. Landing
 
 - [ ] 3.1 This packet lands on Brett Heap's landing word, after 0.1, under the
-  Rule 6 landing window, with every required check green and Copilot's and
-  Codex's reviews read at the exact head.
+  Rule 6 landing window, with every required check green and Copilot's review
+  read at the exact head. **The landing word is given**: 2026-10-08T23:0xZ, in
+  session to lane `openXfactory-5`, verbatim *"Land all three, waive Codex
+  (Recommended)"*, RULED on the estate's lane register at 2026-10-08T23:00:44Z.
+  It WAIVES the Codex review, the connector having answered every trigger with
+  a usage-limit notice since about 19:49Z, so no Codex review is required of
+  the landing head. The packet stays ACTIVE after it lands: it is not archived
+  until it is implemented through Speckit (§ 2 and § 4). Record:
+  `review/ratification-2026-10-08.md` § 6.
 - [ ] 3.2 The realization lands on its own word, merged and green.
 
 ## 4. Archive

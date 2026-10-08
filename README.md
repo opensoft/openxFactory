@@ -570,11 +570,14 @@ Active changes:
   minor after `contract-v4.0`, claimed as row 4 on #630 at the cut. The
   realization follows through one Speckit feature, which the word allows and
   which is no part of this pull request. `design.md`'s six open questions are
-  each RULED as recommended. **RATIFICATION ONLY**: landing takes a separate
-  word (the pull request stays a draft), and the archive is a later act on
-  merged, green realization evidence and its own word. Claims: this change
-  path on the lane register (`55a63c0d`); this block on #630 (comment
-  `6066626855`, amended by comment `6068473680`).
+  each RULED as recommended. **RATIFIED, THEN A SEPARATE LAND WORD**: Brett
+  Heap's land word followed (2026-10-08T23:0xZ, verbatim *"Land all three,
+  waive Codex (Recommended)"*, RULED on the lane register at
+  2026-10-08T23:00:44Z, Codex review waived by it). It stays ACTIVE after it
+  lands, and the archive is a later act on merged, green realization evidence
+  and its own word. Claims: this change path on the lane register
+  (`55a63c0d`); this block on #630 (comment `6066626855`, amended by comment
+  `6068473680`).
 
 - [refresh-install-repository-enumerations-opsxfactory-gateway](openspec/changes/refresh-install-repository-enumerations-opsxfactory-gateway/proposal.md)
   — filed 2026-10-08, lane `openxfactory-5`, **`Status: ratified`**

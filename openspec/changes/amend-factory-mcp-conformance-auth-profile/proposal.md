@@ -84,10 +84,12 @@ beside it. All six are RULED as recommended:
 
 Every answer is the one the delta already encodes, so the ratification changes
 no requirement or scenario text; the record shows each answer against the
-delta line that carries it. Ratifying is not landing: this pull request stays
-a draft, its landing takes a separate word under the Rule 6 landing window,
-the realization follows through one Speckit feature, and the archive is a
-later act on merged, green realization evidence and its own word.
+delta line that carries it. Ratifying is not landing. The landing word was
+given separately, later the same day (2026-10-08T23:0xZ, verbatim *"Land all
+three, waive Codex (Recommended)"*, RULED on the estate's lane register at
+2026-10-08T23:00:44Z), and it waives the Codex review. This change stays ACTIVE
+after it lands: the realization follows through one Speckit feature, and the
+archive is a later act on merged, green realization evidence and its own word.
 
 ## Why
 

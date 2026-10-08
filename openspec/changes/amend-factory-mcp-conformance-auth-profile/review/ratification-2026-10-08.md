@@ -63,10 +63,10 @@ as drafted, so neither needs a requirement sentence added, and none was.
 
 ## 3. What the word does not decide
 
-- **No landing.** It is a ratify word. This pull request stays a draft, and
-  its landing takes a separate word under the Rule 6 landing window, with
-  every required check green and Copilot's and Codex's reviews read at the
-  exact head.
+- **No landing.** It is a ratify word. Landing takes a separate word, under
+  the Rule 6 landing window, with every required check green and Copilot's
+  review read at the exact head. That word came later the same day (§ 6), and
+  it waived the Codex review.
 - **No archive.** `code_surface` is not empty, so the archive follows merged,
   green realization evidence (`tasks.md` § 4) and its own word. Nothing under
   `openspec/specs/` is edited, and canon keeps its eight requirements until
@@ -163,3 +163,33 @@ body, all on one point, again none in the delta:
   pass on `main` and pin behavior the change must not lose. Every new refusal,
   and every existing code at its new `/service/auth/...` location, stays
   red-first, and the three places say the same.
+
+Copilot's review of `9f288c6b`, taken after the landing word (§ 6), raised one
+finding, again none in the delta:
+
+- **`tasks.md` 3.1.** The landing task still required a Codex review at the
+  exact head, although the landing word waives it. Task 3.1 now records the
+  landing word and the waiver and keeps the exact-head requirement for
+  Copilot. The same pending-landing wording sat in § 3 above, in
+  `proposal.md`'s Ratification section and in the README row, and each now
+  records that the landing word is given.
+
+## 6. The landing word, given later the same day
+
+Brett Heap gave the landing word on 2026-10-08, at 23:0xZ, in session to lane
+`openXfactory-5`, as a multiple-choice answer. Its verbatim option label is
+*"Land all three, waive Codex (Recommended)"*, and it is RULED on the estate's
+lane register at 2026-10-08T23:00:44Z. For this packet the lane read it as:
+
+- land after `main` is merged in, when every required check is green and
+  Copilot is clean at the exact head;
+- the Codex review is WAIVED by this word, the connector having answered every
+  trigger with a usage-limit notice since about 19:49Z, so no Codex review is
+  required of the landing head, and none exists;
+- the packet stays ACTIVE after it lands. It is NOT archived until it is
+  implemented through Speckit: the realization (`tasks.md` § 2) and its
+  merged, green evidence come first, and the archive (`tasks.md` § 4) is a
+  later act on its own word.
+
+The landing word is not a ratification, a realization or an archive word, and
+it moves no requirement or scenario text.
