@@ -55,10 +55,12 @@ Boxes for work this change will never do carry `[~]`, in § 5.
   packet's MODIFIED block, which retires at 4.1. The seeder moved TWO rows:
   this change's new row, and `add-factory-mcp-conformance` from `sole` to
   `co-modifier`, which the ledger's own rule requires of a MODIFIED block
-  over a partner's requirement. The #630 claim (comment `6066626855`) states
-  its expected movement as one new ledger row, so the partner row is outside
-  its wording. Amending that claim is a #630 comment and the lane's act
-  before landing; the authoring seat posts no issue comment.
+  over a partner's requirement. The #630 claim (comment `6066626855`) stated
+  its expected movement as one new ledger row, so the partner row was outside
+  its wording. **The claim was amended, to both ledger-row movements and the
+  `_LEDGER_SUBJECTS` row, in #630 comment `6068473680` (2026-10-08T20:29Z),
+  before the ratify word.** The authoring seat posted no issue comment; the
+  lane's coordinator did.
 - [ ] 1.4 Gates at the head Brett Heap ratifies, in a full clone named
   `openxFactory` with the three gitlinks initialized as CI initializes them:
   the pinned OpenSpec CLI (`scripts/validate-openspec-cli-pin.py --all
@@ -83,8 +85,9 @@ Boxes for work this change will never do carry `[~]`, in § 5.
     declaration without the block, an algorithm list without RS256, `none`
     and each HMAC name in more than one letter case, an audience bound to
     another resource, an issuer carrying userinfo, a hosted canonical
-    resource URI carrying a query, and a stdio-only declaration that needs no
-    block;
+    resource URI carrying a query, a dangling id and a repeated id in the
+    block's `evidence_ids` and in its `gap_ids`, and a stdio-only declaration
+    that needs no block;
   - M5: an error-inventory dependency code mapped as a completed evaluation is
     refused, and a result status mapped as an execution failure is refused.
     The enforcement exists already, so these are shown red against a mutant
@@ -126,8 +129,17 @@ Boxes for work this change will never do carry `[~]`, in § 5.
   not empty), and on its own word: archive with `python3
   scripts/proposal-support.py . archive amend-factory-mcp-conformance-auth-profile`
   (never a bare `openspec archive`), landed by merge commit and never by
-  squash. Retire this packet's `_LEDGER_SUBJECTS` row, and move the README
-  entry to the archive record. Canon then holds twelve requirements.
+  squash. Before the archive command, resolve this packet's
+  `target_release: deferred-allocation`: replace it in `proposal.md` with the
+  literal contract release the cut allocated (or `implemented` if no bundle
+  was cut), in a pull request that names the bundle version it observed and
+  the release surface carrying it. A change whose declaration is still
+  deferred MUST NOT archive (`release-realization`, scenarios *A change tries
+  to archive while its target release is deferred* and *The resolving pull
+  request swaps the token and cites nothing*, ratified by
+  `add-target-release-deferred-allocation`). Retire this packet's
+  `_LEDGER_SUBJECTS` row, and move the README entry to the archive record.
+  Canon then holds twelve requirements.
 
 ## 5. Downstream acts this change does NOT perform
 

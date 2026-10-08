@@ -78,10 +78,12 @@ as drafted, so neither needs a requirement sentence added, and none was.
 - **No downstream act.** The engineering domain's RS256 slice, the hosting
   plan's issuer correction and the operations gateway's intake alignment stay
   outside this change (`tasks.md` § 5).
-- **Two owed acts stay owed.** The amendment of the #630 claim to say the
-  seeder also flipped the partner ledger row (`tasks.md` 1.3), and a Codex
-  review, which the connector has declined twice for want of quota, remain
-  with the lane's coordinator.
+- **One act is complete, and one is still owed.** The amendment of the #630
+  claim, to say the seeder also flipped the partner ledger row and added the
+  `_LEDGER_SUBJECTS` row (`tasks.md` 1.3), is DONE: #630 comment
+  `6068473680`, 2026-10-08T20:29Z, before the word at 20:33:25Z. A Codex
+  review is still missing, the connector having declined each trigger for
+  want of quota, and stays with the lane's coordinator.
 
 ## 4. What the ratifying commit changes
 
@@ -116,3 +118,23 @@ Four files do not move, each for a reason:
 - **`tasks.md` 1.4:** the gates at the ratified head stay open, because that
   box names the required `pytest-suite` check, which is read at the exact
   head on the pull request and not in this file.
+
+## 5. Corrections after the word, none of them requirement or scenario text
+
+Copilot's review of the ratifying head `89506b51` raised five findings. All
+five are corrections to design, task and record text, and none touches the
+delta `specs/factory-mcp-conformance/spec.md` (blob `51fc770d`, unchanged):
+
+- **`design.md` D7 and `tasks.md` 2.2.** D5 already said the block's
+  `evidence_ids` and `gap_ids` resolve as a tool's do, with
+  `missing_support_reference` and `duplicate_support_reference`. D7 now lists
+  both codes with their `/service/auth/...` locations, and task 2.2 names a
+  dangling and a repeated id as red-first cases. The requirement already says
+  the block cites evidence or a gap, so no requirement sentence changes.
+- **`tasks.md` 4.1.** The archive step now names the deferred-allocation
+  transition `release-realization` requires before an archive: resolve the
+  declaration to the literal release the cut allocated, citing the bundle
+  version observed and the release surface carrying it.
+- **`proposal.md` Claims, `tasks.md` 1.3, this record's § 3 and the README
+  row.** The #630 claim amendment is recorded as done (comment `6068473680`,
+  2026-10-08T20:29Z), which the draft text still called owed.

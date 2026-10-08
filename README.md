@@ -574,7 +574,7 @@ Active changes:
   word (the pull request stays a draft), and the archive is a later act on
   merged, green realization evidence and its own word. Claims: this change
   path on the lane register (`55a63c0d`); this block on #630 (comment
-  `6066626855`).
+  `6066626855`, amended by comment `6068473680`).
 
 - [renew-resolved-council-protocol](openspec/changes/renew-resolved-council-protocol/proposal.md)
   — filed 2026-10-03 outside a lane; first published 2026-10-07 by lane

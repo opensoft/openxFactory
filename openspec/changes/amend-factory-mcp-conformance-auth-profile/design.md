@@ -186,7 +186,8 @@ service identity already argued.
 
 The evidence and gap concern vocabulary gains one key, `auth`. The block's
 `evidence_ids` and `gap_ids` resolve exactly as a tool's do
-(`missing_support_reference`, `duplicate_support_reference`), and the block
+(`missing_support_reference`, `duplicate_support_reference`, located as the D7
+table gives), and the block
 must cite at least one evidence or gap record carrying `auth`
 (`unsupported_auth` at `/service/auth/evidence_ids`). A block supported only
 by a gap is valid-with-gaps. This is the profile's existing rule that a claim
@@ -223,6 +224,8 @@ They report in the existing dimensions and stable-ordering rules.
 | `auth_metadata_path_mismatch` | semantics | `/service/auth/metadata_path` | not the RFC 9728 § 3.1 location for `canonical_resource_uri` |
 | `auth_resource_query` | semantics | `/service/canonical_resource_uri` | a deployed service's canonical resource URI carries a query component |
 | `unsupported_auth` | semantics | `/service/auth/evidence_ids` | no cited evidence or gap carries `auth` |
+| `duplicate_support_reference` (existing) | semantics | `/service/auth/evidence_ids` or `/service/auth/gap_ids` | an id is repeated within one of the block's two lists |
+| `missing_support_reference` (existing) | semantics | `/service/auth/evidence_ids/<k>` or `/service/auth/gap_ids/<k>` | a cited id matches no evidence or gap record |
 
 Every row has a red-first test, written before the validator change and shown
 failing against the validator on `main` (`tasks.md` 2.2). Probed at `main`
