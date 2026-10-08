@@ -198,6 +198,14 @@ Confirmed at the archive, each with the measurement that holds on the day.
       `.github/` is named. The archive pull request writes none either: it moves the packet,
       promotes the deltas into canon, widens the one `## Purpose`, moves the README record and
       re-seeds that one ledger row.
+      **Recorded after the move, 2026-10-08.** This pull request's diff against `b4b9d903`
+      (`git diff -M --name-status b4b9d903..HEAD`) names `README.md`, the eight packet files as
+      renames (seven pure renames, and this file, which carries the closing ticks of `44e91ac1`
+      and moves as a pure rename in the archive commit itself), the three canonical
+      specifications under `openspec/specs/`, and `tests/sequenced_after/corpus-ledger.yaml`.
+      No path under `scripts/`, `.github/`, `contracts/` or `docs/` is named, and the one test
+      file is that ledger data row. The same diff carries no gitlink and no `.gitmodules`
+      change, which is the measurement behind § 3.3 and § 3.4 for this pull request.
 - [x] 3.3 **No contract is added, changed or cut.** `contracts/manifest.yaml`,
       `contracts/README.md` and `contracts/CHANGELOG.md` are untouched, no digest
       inventory moves, no `contract_bundle_version` is allocated, and no annotated tag
@@ -241,6 +249,14 @@ Confirmed at the archive, each with the measurement that holds on the day.
       heading across `specs/*/spec.md` reads 0, 0 and 0). In the promoted files the archive
       rewrites, each of the three blocks is byte-identical on both sides of the promotion; that
       comparison is recorded under this item after the move.
+      **Recorded after the move, 2026-10-08.** Each of the three blocks was extracted by its
+      `### Requirement:` heading from canon at `b4b9d903` and from canon at this commit, and
+      compared: *Submodule sequencing* in `shared-contract-ownership`, 1,957 bytes before and
+      after (sha256 prefix `156572e2ebb66cf6`); *Install repo scope links* in
+      `repo-boundary-governance`, 701 bytes (`f3e4c666a67e7f79`); and *Install-repository
+      enumerations are an index with a named authority*, also in `repo-boundary-governance`,
+      4,354 bytes (`0594cf7ae53e39ab`). All three are byte-identical on both sides of the
+      promotion.
 
 ## 4. Owed at the archive (the archive act, on a separate word)
 
@@ -261,6 +277,16 @@ commit itself and the archive lands by merge commit.
       and the sentence is the one quoted above, as written. Applied by a refuse-on-mismatch
       script that requires canon's sentence to be present exactly once. The token-by-token
       measurement is recorded under this item after the move.
+      **Recorded after the move, 2026-10-08.** Taken in the archive commit `6c80c87c`, in a
+      hunk of its own. A whitespace-insensitive token diff of canon's `## Purpose` sentence
+      reads 24 tokens before and 25 after: one token inserted (`` `OmniWorker-Install`, ``, which
+      now carries the serial comma the longer list takes) and one replaced (the name after
+      canon's own `and`, `` `OmniWorker-Install` `` becoming `` `OpsxFactory-Gateway-Install` ``).
+      Every other token is canon's. In the file the hunk is the first one: the line beginning
+      `Defines how` is untouched bytes and the next three lines become four (−3 +4), re-wrapped
+      only where the longer list outgrew them. The script that applied it refused unless canon's
+      old sentence was present exactly once. No requirement text moved with it, and no
+      `Removed from canon` marker is owed, a Purpose carrying no `SHALL`.
 
       > Defines how `openxFactory`, `Hermes-Install`, `Omnigent-Install`,
       > `Keycloak-Install`, `OpenXPKI-Install`, `OmniWorker-Install`, and
@@ -307,6 +333,20 @@ commit itself and the archive lands by merge commit.
       `state: active` to `state: archived`, `class:` and `declares:` unmoved, `moved_on`
       2026-10-08), and `--ledger-diff` is re-run clean at the head the archive record cites,
       reporting the one row that moved. Both are recorded under this item after the move.
+      **Recorded after the move, 2026-10-08.** README: the Records entry moved from the Active
+      block to the head of the Archived block in `6c80c87c`, its two links (to `proposal.md` and
+      to `review/ratification-2026-10-08.md`) now naming the archive path, and `d6a2aea4`
+      replaced the pending marker with the link to PR #1278. Citation sweep: a search of the
+      whole repository for the pre-archive path `openspec/changes/` followed by this change's id
+      finds no citation outside the archive directory. The id itself appears outside it only in
+      the README entry, the ledger row, and the five `Removed from canon by …` markers promoted
+      into canon, which record what each marker replaced and are left as written. Ledger:
+      `d6a2aea4`, `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
+      '#1278'`, "236 rows, 1 moved": `state: archived`, `moved_by: "#1278"`, `moved_on:
+      "2026-10-08"`, `class:` and `declares:` unmoved, `--numstat` 1/1. `--ledger-diff` prints
+      "per-change sweep ledger consistent with the corpus (236 rows)", and the plain run passes
+      (47 active changes, 19 declaring the field) with the archive-date and archive-date-vs-commit
+      arms clean.
 - [x] 4.4 Re-run the collision measurement of `design.md` D2 against the active corpus on
       the day of the archive, because it is a statement about the active corpus and the
       corpus moves: no other active ratified change may write any of the five requirement
@@ -322,3 +362,34 @@ commit itself and the archive lands by merge commit.
       `amend-factory-mcp-conformance-auth-profile`, carries one delta, in
       `factory-mcp-conformance`. No other active ratified change writes any of the five keys,
       so no order needs ruling and nothing stops the archive.
+
+## Record of the archive act, 2026-10-08
+
+- **The wrapper's run.** Performed in the archive commit `6c80c87c`:
+  `TZ=UTC python3 scripts/proposal-support.py . archive refresh-install-repository-enumerations-opsxfactory-gateway --yes`,
+  exit 0, 2026-10-08T23:27:45Z to 23:27:54Z. Its decisive lines: *"ORIGIN RETAINED
+  refresh-install-repository-enumerations-opsxfactory-gateway (declaration unchanged since
+  the ratifying commit b4b9d903c4ba)"*; `Totals: 1 passed, 0 failed (1 items)`; `Task status:
+  ✓ Complete`; `canonical-contract-migration: update`, `repo-boundary-governance: update` and
+  `shared-contract-ownership: update`; `~ 1 modified`, `~ 3 modified` and `~ 1 modified`;
+  `Totals: + 0, ~ 5, - 0, → 0`; `Change … archived as
+  '2026-10-08-refresh-install-repository-enumerations-opsxfactory-gateway'`; and `NO SUPPORTING
+  DOCS … (origin retained, nothing to package)`. The CLI was the content-addressed
+  `@fission-ai/openspec@1.12.0` pin, installed from its lockfile closure.
+- **The date rule.** `--date` was not passed and the wrapper stamps the directory from the UTC
+  clock, so the directory is dated `2026-10-08`, and the commit that adds it, `6c80c87c`, carries
+  author and committer date `2026-10-08T23:29:08+00:00`. The branch of the midnight rule taken
+  was the 2026-10-08 archive, committed before 23:55:00Z.
+- **Promoted requirements, verified by content.** Each of the five blocks was extracted by its
+  `### Requirement:` heading from the archived delta and from canon and compared; every pair is
+  byte-identical (*Canonical workflow authority* 2,360 bytes, *Install repository scope* 3,620,
+  *Copy-first migration* 1,932, *Contract version pinning* 3,863, *Contract provenance and
+  compatibility* 1,269). The twenty-one blocks the deltas do not name (8 in
+  `repo-boundary-governance`, 11 in `shared-contract-ownership`, 2 in
+  `canonical-contract-migration`) are byte-identical before and after, and the title order is
+  unchanged in all three. Outside the requirement blocks the only change in canon is the
+  `## Purpose` sentence (§ 4.1). Canon `--numstat`: `repo-boundary-governance` +21 −9,
+  `shared-contract-ownership` +2 −2, `canonical-contract-migration` +2 −2; the pinned CLI added
+  no serializer hunk.
+- **Provenance preserved.** The eight packet files move as renames, all pure (R100) in `6c80c87c`.
+  The origin block is unchanged since the ratifying commit `b4b9d903`, which the wrapper checked.
