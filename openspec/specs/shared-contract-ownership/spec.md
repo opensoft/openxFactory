@@ -49,7 +49,7 @@ or digest drift. For this Gate G0 handoff, the consumer receipt SHALL require
 before resolving downstream objects.
 
 #### Scenario: Install repo consumes a contract
-- **WHEN** `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, or `OmniWorker-Install` consumes a shared contract
+- **WHEN** `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, `OmniWorker-Install`, or `OpsxFactory-Gateway-Install` consumes a shared contract
 - **THEN** it MUST document and verify the exact published `openxFactory` bundle tag and commit
 - **AND** it MUST pin the required contract paths, schema versions, and per-file digests
 
@@ -78,7 +78,7 @@ before resolving downstream objects.
 - **WHEN** a consumer remains on an older valid bundle pin during an additive release
 - **THEN** that consumer remains conformant to its pinned contract until it deliberately upgrades
 
-**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** ``**WHEN** `Hermes-Install` or `Omnigent-Install` consumes a shared contract`` — the bullet is REPLACED rather than deleted, by the widened trigger above it. **THE EDIT IS A LIST EXTENSION PLUS THE PUNCTUATION A LONGER LIST TAKES, AND NOTHING ELSE:** the two names become five, in canon's own order, keeping canon's own `or` and its surrounding grammar word for word, and a serial comma is added before that `or` because a five-item list takes one where canon's two-item list correctly did not. The style is MEASURED rather than preferred — `openspec/specs` carries 561 lines with a serial comma before a final `or` against 232 without, and this requirement's own body uses one before its final `and`. Every other clause of this requirement is word for word what canon states, the Gate G0 handoff sentence included: that sentence requires `opensoft/xFactory-Hermes-Install` and rejects `FarHeap/Hermes-Install` for ONE consumer receipt and is not an index of install repositories, so it is carried unchanged and deliberately not widened.
+**Removed from canon by refresh-install-repository-enumerations-opsxfactory-gateway (2026-10-08):** ``**WHEN** `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, or `OmniWorker-Install` consumes a shared contract`` — the bullet is REPLACED rather than deleted, by the widened trigger above it. The edit is a list extension and nothing else: `OpsxFactory-Gateway-Install` is appended in canon's own order and canon's own spelling, and canon's own `or` moves to stand before the last name, as it did when the fifth name was added, so the serial comma is preserved and every other word is canon's. Every other clause of this requirement is canon's words, the Gate G0 handoff sentence included: that sentence requires one remote for one consumer receipt and is not an index of install repositories, so it is carried unchanged and not widened.
 
 ### Requirement: Submodule sequencing
 `openxFactory` SHALL document submodule intent and update procedures before
