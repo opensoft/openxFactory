@@ -570,6 +570,30 @@ Active changes:
   amend-repo-boundary-governance-scope-first-line]`. `code_surface: none`,
   `target_release: implemented`; archives on landing.
 
+- [renew-resolved-council-protocol](openspec/changes/renew-resolved-council-protocol/proposal.md)
+  — filed 2026-10-03 outside a lane; first published 2026-10-07 by lane
+  `codexfactory-2` from the 2026-10-04 review snapshot
+  `review/20261004-review/branch-proposal-renew-resolved-council-protocol-26bc5c`
+  at `001a998f`. Its headers read **`Status: ratified`**: Brett Heap's word
+  *"ratify all three as disclosed"* (2026-10-03, in a Codex session) over the
+  then-unpublished reviewed head `b5cdf154`, recorded on `968de748` and
+  `001a998f` in
+  [`review/ratification-2026-10-03.md`](openspec/changes/renew-resolved-council-protocol/review/ratification-2026-10-03.md);
+  that word is not a merge, release, pin or activation word. A fresh
+  resolved-roster/provenance and isolated seat-authority protocol after the
+  unmerged #517: SEVEN `## ADDED` requirements in `roles-authority-model`, a
+  deprecation minor before a removal major with neither version allocated, and
+  linked producer (`codeXfactory/codexFactory:realize-resolved-council-protocol`,
+  its feature 049) and consumer
+  (`opensoft/xFactory-Hermes-Install:admit-resolved-council-protocol`) packets.
+  On 2026-10-08 Brett Heap confirmed that the 2026-10-03 word covers this
+  published text (*"Yes, it covers them (Recommended)"*; no re-ratification).
+  He also approved gate-conformance edits (*"Approve both (Recommended)"*):
+  the `code_surface:` head `openxFactory`, the `target_release:` token
+  `deferred-allocation`, and an `origin: ad_hoc` block. The record is the
+  ratification record's § ADDENDUM 2026-10-08.
+  It lands only on Brett Heap's word.
+
 - [correct-naming-families-count](openspec/changes/correct-naming-families-count/proposal.md)
   — filed 2026-10-07, lane `codeXfactory-5`, **`Status: ratified`**
   (2026-10-07, Brett Heap, *"ratify as recommended when the PR opens"*, logged
