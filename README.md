@@ -558,6 +558,32 @@ Active changes:
   (`opensoft/xFactory-Hermes-Install:admit-resolved-council-protocol`) packets.
   It lands only on Brett Heap's word.
 
+- [correct-naming-families-count](openspec/changes/correct-naming-families-count/proposal.md)
+  — filed 2026-10-07, lane `codeXfactory-5`, **`Status: ratified`**
+  (2026-10-07, Brett Heap, *"ratify as recommended when the PR opens"*, logged
+  RULED on the lane register at 09:47:04Z, over PR #1266's opening head
+  `3bb38c20`; a ratification only, not a merge word and not a word to realize
+  anything; record
+  [`review/ratification-2026-10-07.md`](openspec/changes/correct-naming-families-count/review/ratification-2026-10-07.md)),
+  on Brett Heap's in-session word of 2026-10-07, verbatim *"open an OpenSpec
+  change for the four families heading"*, which authorized authoring and
+  opening it and was not a ratification. Canon `project-repo-schema` says *"The four live naming
+  families"* and the ratified doctrine heads its section *"Naming, and the four
+  families"*, while the openRepoShape naming policy openxFactory pins has
+  declared five families since 2026-09-04 and six since 2026-10-06 (`1a9fc537`,
+  the `family` holder and the `<user>-wip` workspace form added). **TWO
+  `## MODIFIED` requirements in `project-repo-schema`, titles unchanged**: the
+  naming families become COUNT-FREE (those the pinned policy declares, governed
+  there as data, their number and full list restated nowhere in canon), and two
+  more sentences that restated a property of the whole set are corrected. Three
+  canon units are replaced under `Removed from canon` markers; every other
+  sentence and all six promoted scenarios are carried byte-identically, and one
+  paragraph and one scenario are added. It put no open question, and its three
+  decisions were RULED as recommended. It writes no
+  requirement `prefer-triad-project-shape` writes, so neither is sequenced after
+  the other. `code_surface: none`, `target_release: implemented`; the doctrine
+  edit is its one realization handoff, after ratification.
+
 - [prefer-triad-project-shape](openspec/changes/prefer-triad-project-shape/proposal.md)
   — filed 2026-10-06, lane `codeXfactory-5`, **`Status: ratified`**
   (2026-10-06T16:02:16Z, Brett Heap, *"ratify 1249 as recommended"*, PR #1249
@@ -3221,6 +3247,45 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [amend-worker-input-budget-dispatch-wording](openspec/changes/archive/2026-10-08-amend-worker-input-budget-dispatch-wording/proposal.md)
+  — **ARCHIVED 2026-10-08** by
+  [PR #1269](https://github.com/opensoft/openxFactory/pull/1269),
+  by lane `openxfactory-1`, landed by MERGE COMMIT, never squash, on Brett
+  Heap's separate archive word, verbatim ***"archive it after it lands"***
+  (2026-10-07, in session; RULED in `opensoft/brett-wip`
+  `lanes/log/openxfactory-1.md` at 2026-10-07T11:04:36Z, commit `cd962505`),
+  given for after the ratification pull request
+  [#1264](https://github.com/opensoft/openxFactory/pull/1264) landed,
+  which it did by squash as `a936e5310400c3340096709a5127cde908180748`. Filed 2026-10-07 by lane
+  `openxfactory-1` on his word *"draft the amendment change for 1262"*,
+  governing issue `#1262`, after his ruling *"(a) land as ratified, amend
+  later"* on Copilot's comment `4202036546` at `#1258`; **RATIFIED 2026-10-07
+  by Brett Heap**, verbatim *"ratify 1262 when ready"*, as drafted (record
+  [`review/ratification-2026-10-07.md`](openspec/changes/archive/2026-10-08-amend-worker-input-budget-dispatch-wording/review/ratification-2026-10-07.md)).
+  **`code_surface: none`**, so under `release-realization` it archives ON
+  LANDING PLUS ITS OWN TASK LIST: the realization already behaved as the
+  amended sentence reads (`#1137` → `9da52e31` never dispatches a unit it
+  measured over the budget, the packet's `tasks.md` 1.1). **Performed through
+  the governed wrapper, never a bare `openspec archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive amend-worker-input-budget-dispatch-wording --yes`,
+  exit 0: *"ORIGIN RETAINED amend-worker-input-budget-dispatch-wording
+  (declaration unchanged since the ratifying commit a936e5310400)"*,
+  *"Applying changes to openspec/specs/doc-health/spec.md: ~ 1 modified"*, *"Totals: + 0, ~ 1, - 0, → 0"*, over the
+  content-addressed `@fission-ai/openspec@1.12.0` pin. **The promotion,
+  measured byte for byte on both sides** onto
+  [`openspec/specs/doc-health/spec.md`](openspec/specs/doc-health/spec.md):
+  the MODIFIED *Bounded worker input budget* goes from 3,595
+  to 3,771 bytes, sha256 `83326fa0f49f6e7c…` on the archived delta
+  AND canon; only its second paragraph moves (2 lines out,
+  5 in); its title, first and third paragraphs and all
+  6 scenarios are byte-identical; the preamble and the other
+  43 requirement blocks are byte-identical; canon `--numstat`
+  +5 -2. `#1262` acceptance 3 holds: canon carries no sentence calling
+  an over-budget dispatch conformant. The five packet files move as pure
+  renames, and the modified-block-currency self-gate's one row for this
+  block retires on its own stated condition. The archived delta of
+  `add-worker-input-budget` is not edited.
 
 - [add-worker-input-budget](openspec/changes/archive/2026-10-06-add-worker-input-budget/proposal.md)
   — **ARCHIVED 2026-10-06** by
