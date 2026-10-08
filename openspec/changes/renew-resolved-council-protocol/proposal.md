@@ -1,6 +1,6 @@
 ---
-code_surface: contracts/council-convening, canonical validators and conformance fixtures; successor producer and consumer implementations have their own packets
-target_release: implementation_pending — versions allocated at realization; archive on merged, green provider realization and linked successor evidence
+code_surface: openxFactory (contracts/council-convening, canonical validators and conformance fixtures; successor producer and consumer implementations have their own packets)
+target_release: deferred-allocation — versions allocated at realization; archive on merged, green provider realization and linked successor evidence
 ---
 # Renew the resolved council protocol
 
@@ -8,6 +8,7 @@ Status: ratified
 Ratified: 2026-10-03 by Brett Heap — "ratify all three as disclosed"; [exact reviewed heads and scope](review/ratification-2026-10-03.md).
 Proposed: 2026-10-03
 Commission: Brett Heap directed "implement this" after the seven-item comparison of codexFactory draft 017; this commissions preparation, not ratification of this newly authored packet.
+Amended: 2026-10-08 — gate conformance only; no requirement, decision, scope, task or design text changes. On Brett Heap's ruling of 2026-10-08T17:43:04Z, first-hand to lane `codeXfactory-2` (a multiple-choice selection of the recommended option, label verbatim *"Approve both (Recommended)"*; opensoft/brett-wip `lanes/log/codeXfactory-2.md` line 181, commit `20d534cc`), three edits bring the ratified text into line with gates that landed on main after it was authored. (1) `code_surface:` gains the head `openxFactory`, and the ratified text becomes its parenthesized gloss, word for word. (2) `target_release:` changes its token from `implementation_pending` to `deferred-allocation`, the vocabulary's value for a bundle whose number is allocated at the cut; the gloss is unchanged. (3) `.openspec.yaml` gains an `origin: kind: ad_hoc` block, recorded on the same word in `openspec/origin-dispositions.yaml`. `design.md` and `specs/` stay byte-identical to the ratified head; the record is [`review/ratification-2026-10-03.md`](review/ratification-2026-10-03.md) § ADDENDUM 2026-10-08.
 
 Decision update (2026-10-03): the header and [ratification record](review/ratification-2026-10-03.md) now record ratification as disclosed. The original commission and preparation statements are retained as history; implementation, publication, deployment and activation are not claimed complete.
 
