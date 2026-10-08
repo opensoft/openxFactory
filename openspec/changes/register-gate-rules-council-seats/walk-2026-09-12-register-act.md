@@ -1962,9 +1962,10 @@ note.
 Four rulings given first-hand by Brett Heap on 2026-10-07 in lane
 `codeXfactory-2`'s session (`8d6bf418-cc06-45d9-9406-2374935c6c72`), recorded by
 that lane and composed by a Sonnet agent the lane directed. The reads were
-read-only: `git` reads of openxFactory `main` at
-`16779816119a829cc65512ea5f28ab93bd3a2c51` (fetched 2026-10-07), and the pinned
-validation below. Nothing is dispatched, posted or merged by this note, and
+read-only: `git` reads of openxFactory `main`, first at
+`16779816119a829cc65512ea5f28ab93bd3a2c51` (fetched 2026-10-07) and again at
+`c9dfd4f88d031012b1d53b08b2b52dbf84906eab` (fetched 2026-10-08, after this
+branch merged it), and the pinned validation below. Nothing is dispatched, posted or merged by this note, and
 nothing under `governance/review-authority/` moves. Like notes 1 and 2 it is
 appended at the end of the file and edits no earlier section.
 
@@ -1992,7 +1993,7 @@ archive order).
 |---|---|---|---|---|
 | 1 | 6.15's path clause | 'Accept walked-day name' | `walk-2026-09-12-register-act.md` is ACCEPTED as satisfying the row; no re-date | **6.15 `[x]`** |
 | 2 | 6.18's pair shape | 'Accept, note deviation' | the row ticks on his acceptance; the deviation is noted below | **6.18 `[x]`** |
-| 3 | 4.3's acting owner | 'This lane' | lane `codeXfactory-2` owns the gap; REPLACES "the arc owner of `add-wallet-carried-review-authority`" as the acting owner; the arc's design ownership is unchanged | **4.3 stays `[ ]`**; OWNER note appended |
+| 3 | 4.3's acting owner | 'This lane' | lane `codeXfactory-2` owns the gap; REPLACES "the arc owner of `add-wallet-carried-review-authority`" as the acting owner; the arc's design ownership is unchanged; the codexFactory fix is draft PR codeXfactory/codexFactory#534 | **4.3 stays `[ ]`**; OWNER note appended |
 | 4 | when this change archives | 'Wait for declared order' | archive WAITS for the declared `sequenced_after` order | **no § 5 row ticks**; 5.2 and 5.3 stay `[ ]`; § 5 note appended |
 
 **Ruling 1, task 6.15.** The path clause is the one clause note 1 found not
@@ -2023,8 +2024,12 @@ floor-reachability gap to be closed, as it states the gap (design D6). A ruling
 on who owns it closes nothing, so the row stays `[ ]`. Lane `codeXfactory-2` is
 now the acting owner, in place of the row's *"owner: the arc owner of
 `add-wallet-carried-review-authority`"*, whose words are not edited. The arc's
-design ownership is unchanged. This note does not re-measure the gap and no
-codexFactory file is touched. § 5.2 stands: § 4 is outside the archive gate.
+design ownership is unchanged. The codexFactory fix is draft PR
+codeXfactory/codexFactory#534 (read 2026-10-08: OPEN, DRAFT, head
+`ac615fbc9bc5f68c7122f5b0f69d8bad832b6fc3`, authored by this lane, its checks
+SUCCESS), unmerged, so the gap is not closed at that reading. This note does not
+re-measure the gap and no codexFactory file is touched. § 5.2 stands: § 4 is
+outside the archive gate.
 
 **Ruling 4, the archive order, nothing ticks.** `proposal.md:4` declares
 `sequenced_after: [add-wallet-carried-review-authority,
@@ -2046,7 +2051,8 @@ a tick.
 
 **Re-checked by this note itself:**
 
-* **The two waited-on changes are still active.** At `16779816`,
+* **The two waited-on changes are still active.** At `16779816` and again at
+  `c9dfd4f88`,
   `openspec/changes/add-wallet-carried-review-authority/` and
   `openspec/changes/add-substantive-review-lane/` both exist, and neither id
   appears under `openspec/changes/archive/`. The corpus ledger
@@ -2064,13 +2070,15 @@ a tick.
   from that base, on the tree carrying this note: `python3
   scripts/validate-openspec-cli-pin.py --change register-gate-rules-council-seats
   --strict` → `Totals: 1 passed, 0 failed (1 items)`. `--all --strict` →
-  `Totals: 112 passed, 1 failed (113 items)`, `0 UNDISPOSITIONED failures`, exit
+  `Totals: 113 passed, 1 failed (114 items)`, `0 UNDISPOSITIONED failures`, exit
   0, and the entrypoint itself prints "THIS IS NOT A CLEAN TREE": the one
   failure is `add-chain-attestation`, the accepted exception note 2 names. The
-  same command on the unedited base read the same totals. `python3
-  scripts/validate-sequenced-after.py .` → passed (46 active changes, 19
-  declaring the field), and `--ledger-diff` → `per-change sweep ledger
-  consistent with the corpus (232 rows)`.
+  numbers above are from the tree merged with `c9dfd4f88` (2026-10-08). On the
+  unedited `16779816` base the same command read `Totals: 112 passed, 1 failed
+  (113 items)`, the same single failure; the extra pass is a change `main` gained
+  between the two. `python3 scripts/validate-sequenced-after.py .` → passed (47
+  active changes, 19 declaring the field), and `--ledger-diff` → `per-change
+  sweep ledger consistent with the corpus (234 rows)`.
 
 **What the earlier text still says, and why it is left.** Several dated passages
 state 6.15 and 6.18 as open: the 2026-10-04 BOOKKEEPING paragraph in `tasks.md`

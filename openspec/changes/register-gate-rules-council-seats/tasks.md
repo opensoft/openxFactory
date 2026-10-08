@@ -688,14 +688,16 @@ gate is green: at the old reader every one of these writes is refused.
       choice with recomendations"*), and selected the recommended option.
       **Lane codeXfactory-2 owns this gap.** That REPLACES "the arc owner of
       `add-wallet-carried-review-authority`" in the row above as the ACTING
-      owner; the arc's design ownership is unchanged. The row stays `[ ]`: it
-      asks for the gap to be CLOSED, and a ruling on who owns it closes nothing.
-      This note records ownership only. It does not re-measure the gap, edits no
-      codexFactory file (including
-      `scripts/merge_master/openxfactory-review-authority-floor.yaml`), and does
-      not move this row into or out of the archive gate (§ 5.2 stands as
-      written). The row's own "owner:" words above are not edited. See the
-      walk's § 13.6 bookkeeping note 3 (appended 2026-10-07).
+      owner; the arc's design ownership is unchanged. **The codexFactory fix is
+      draft PR codeXfactory/codexFactory#534** (read 2026-10-08: OPEN, DRAFT,
+      head `ac615fbc9bc5f68c7122f5b0f69d8bad832b6fc3`, authored by this lane),
+      which floors the register's own records by name. The row stays `[ ]`: it
+      asks for the gap to be CLOSED, a ruling on who owns it closes nothing, and
+      #534 is unmerged. This note records ownership and names the fix. It does
+      not re-measure the gap, edits no codexFactory file, and does not move this
+      row into or out of the archive gate (§ 5.2 stands as written). The row's
+      own "owner:" words above are not edited. See the walk's § 13.6
+      bookkeeping note 3 (appended 2026-10-07).
 - [ ] 4.4 **[codexFactory]** The CALLER (task 5.9a): a convening path that seats
       `gate_rules_council`, resolves its seats from the projection and returns
       SIGNED seat returns. The roster says in terms that the missing piece is a
@@ -803,14 +805,14 @@ change archives only after `add-wallet-carried-review-authority`, the member
 openXwallet:widen-register-reader-for-a-second-council]`), and that change
 itself waits on `add-substantive-review-lane` (its own "Archive-ordering note
 (2026-09-05)": *"`add-substantive-review-lane` archives FIRST"*). Both are
-still active at this note's base, `origin/main` `16779816`. 5.1 was ticked
-2026-10-05, and 5.2 and 5.3 stay `[ ]`. **5.3's archive-time re-read stays
-OPEN and is to be re-run against the then-current `origin/main` on the day of
-the archive**, as its 2026-10-05 note says; this ruling does not stand in for it
-and waives none of it. The ruling is about WHEN to archive: it edits no row of
-this section, changes no part of 5.1's evidence set, and moves no § 4 row into
-the gate (§ 5.2 stands). See the walk's § 13.6 bookkeeping note 3 (appended
-2026-10-07).
+still active at this note's base, `origin/main` `16779816`, and again at
+`c9dfd4f88` (2026-10-08). 5.1 was ticked 2026-10-05, and 5.2 and 5.3 stay
+`[ ]`. **5.3's archive-time re-read stays OPEN and is to be re-run against the
+then-current `origin/main` on the day of the archive**, as its 2026-10-05 note
+says; this ruling does not stand in for it and waives none of it. The ruling is
+about WHEN to archive: it edits no row of this section, changes no part of 5.1's
+evidence set, and moves no § 4 row into the gate (§ 5.2 stands). See the walk's
+§ 13.6 bookkeeping note 3 (appended 2026-10-07).
 
 ---
 
