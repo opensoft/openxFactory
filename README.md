@@ -541,7 +541,8 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [amend-factory-mcp-conformance-auth-profile](openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md)
-  — filed 2026-10-08, lane `openxfactory-5` (display `openXfactory-5`),
+  — filed 2026-10-08, lane `openxfactory-5` (display `openXfactory-5`), as
+  DRAFT [PR #1274](https://github.com/opensoft/openxFactory/pull/1274),
   **`Status: draft`**, held for Brett Heap's ratify word. It carries his three
   rulings of 2026-10-08 on the items the archive of
   `add-factory-mcp-conformance` left open, each RULED on the lane register
