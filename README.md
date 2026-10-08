@@ -556,6 +556,12 @@ Active changes:
   linked producer (`codeXfactory/codexFactory:realize-resolved-council-protocol`,
   its feature 049) and consumer
   (`opensoft/xFactory-Hermes-Install:admit-resolved-council-protocol`) packets.
+  On 2026-10-08 Brett Heap confirmed that the 2026-10-03 word covers this
+  published text (*"Yes, it covers them (Recommended)"*; no re-ratification).
+  He also approved gate-conformance edits (*"Approve both (Recommended)"*):
+  the `code_surface:` head `openxFactory`, the `target_release:` token
+  `deferred-allocation`, and an `origin: ad_hoc` block. The record is the
+  ratification record's § ADDENDUM 2026-10-08.
   It lands only on Brett Heap's word.
 
 - [correct-naming-families-count](openspec/changes/correct-naming-families-count/proposal.md)
