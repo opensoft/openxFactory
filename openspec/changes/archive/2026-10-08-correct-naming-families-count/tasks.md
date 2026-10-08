@@ -353,6 +353,51 @@ closed as discharged by Brett Heap's words, on his selection of 2026-10-08;
   families change"* (RULED on the lane register at 2026-10-08T19:49:19Z). The
   run and its measurements are recorded under this item in the commit after
   the move.
+  - **The run.** Performed in commit `960e0d5b`, the commit that moves this
+    directory:
+    `TZ=UTC python3 scripts/proposal-support.py . archive correct-naming-families-count --yes`,
+    exit 0, 2026-10-08T20:07:29Z to 20:07:35Z. Its decisive lines:
+    `ORIGIN RETAINED correct-naming-families-count (declaration unchanged
+    since the ratifying commit a38585e97962)`; `Totals: 1 passed, 0 failed (1
+    items)`; `Task status: ✓ Complete`; `project-repo-schema: update`;
+    `Applying changes to openspec/specs/project-repo-schema/spec.md: ~ 2
+    modified`; `Totals: + 0, ~ 2, - 0, → 0`; `Change
+    'correct-naming-families-count' archived as
+    '2026-10-08-correct-naming-families-count'`; `NO SUPPORTING DOCS ...
+    (origin retained, nothing to package)`. The CLI was the content-addressed
+    `@fission-ai/openspec@1.12.0` pin. `--date` was not passed, so the
+    directory takes the UTC day of the run, which is also the UTC day of its
+    adding commit (2026-10-08T20:08:28Z).
+  - **Promoted requirements, verified by content.** Each requirement block was
+    extracted by its `### Requirement:` heading from this archived delta and
+    from canon, and hashed. *A project's repositories are named `<Project>`,
+    `<Project>-spec` and `<Project>-code`* goes from 1,821 to 2,871 bytes, and
+    *The naming families are governed by the pinned standard, and a
+    descendant form is a claim that needs a declared pin* from 2,593 to 6,148
+    bytes. Each is byte-identical between the delta and canon (sha256
+    prefixes `a3c3f024647edb15` and `f94f0100059dd4ec`), with the three
+    `Removed from canon` markers promoted in their blocks. The other nine
+    requirement blocks are byte-identical before and after the archive, and
+    the eleven titles keep their order. Canon `--numstat` is +35 -14. Beyond
+    the two blocks, the CLI adds a blank line on each side of `##
+    Requirements` and drops one trailing blank line at the end of the file.
+    No other file under `openspec/specs/` changes.
+  - **Provenance preserved.** The six packet files move as pure renames
+    (R100) in `960e0d5b`: proposal, design, delta, tasks, `.openspec.yaml`
+    and the ratification record naming the ratified head `3bb38c20`. The
+    origin block is unchanged since the ratifying commit `a38585e9`, which
+    the wrapper checked.
+  - **Links.** The README Records entry moves from Active to Archived, and
+    its two links, to `proposal.md` and to
+    `review/ratification-2026-10-07.md`, now name the archive path. Nothing
+    in `docs/`, `ideation/` or `specs/` links to the active path.
+    `docs/project-repo-schema.md`:24 names
+    `openspec/changes/correct-naming-families-count/tasks.md` in code type,
+    not as a link, inside the `Amended by:` header of a `Status: ratified`
+    document; it is left as written, as that header records how the
+    amendment was realized, and as the same document's links to
+    `add-project-repo-schema` (`:36`, `:508`) were left when that change
+    archived in #616.
 - [x] 6.2 Re-run the pinned CLI (`--all --strict`), `scripts/validate-sequenced-after.py .`
   with `--ledger-diff`, and `scripts/doc-health.py --single-repo .` on the
   archived tree, and compare each with the pre-archive run.
