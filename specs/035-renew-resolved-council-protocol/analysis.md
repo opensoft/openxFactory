@@ -140,14 +140,42 @@ Each finding's text describes the artifacts as that round saw them, including th
 | R3-L8 | LOW | A listing entry that is not also a `file` source had no code. | **FIXED:** `convening_malformed` at E2 step 2. |
 | R3-L9 | LOW | The former-spelling check missed the one transferred repository, which appears in `job_workflow_ref` and `governed.repository`. | **FIXED.** E10 step 4 checks every permitted `job_workflow_ref` repository. A former spelling of `governed.repository` is not allowlisted, so it refuses as `rule_unauthorized`. |
 
+## Round 4
+
+**Scope.** A verification pass over the round-3 fixes at the committed head `d330d4b5c`, with codexFactory read at `origin/main` `0fa88fb0` and `2ce8544e` and xFactory at `651dd5c9`.
+
+**Verdict.** 0 CRITICAL, 3 HIGH, 6 MEDIUM and 4 LOW new findings. The analyze gate holds. Of the 17 round-3 fixes, 13 were verified and 4 were partly fixed (R3-H2, R3-M4, R3-L6, R3-L9). Each partial is closed by the round-4 finding named beside it below. Every finding below is fixed in this revision.
+
+| ID | Sev | Finding | Disposition |
+|---|---|---|---|
+| R4-H1 | HIGH | E7 step 5 reused E10 steps 7 to 13 only, so the seat job's workflow commit was never checked at registration, though D3 requires "permitted reusable workflow/ref/sha". Applying the commission rule as written would refuse 049's seat worker whenever `main` moved. | **FIXED, and confirmation requested.** E7 step 5 now runs E10 steps 7 to 15 with operation `seat_execution`. The closed `workflow_revision_rule` gains a second value, `on_governed_history_since_revision`: the seat commit must be on the governed first-parent history, at or after the frozen revision. That applies the ruling's "history" half to seats, and is confirmation 3 below. |
+| R4-H2 | HIGH | Binding step 14 read the record's `governed` member before E2 step 5 had checked it, so a former spelling or a mutable revision refused under the wrong code. | **FIXED.** Admission interleaves the boundaries: E2 steps 1–2, E10 steps 1–13 and 15, E2 steps 3–5, E10 step 14, then E2 steps 6–14 (data-model E2; R21). |
+| R4-H3 | HIGH | Nothing checked the listed governed sources against the set the projection was built from, so an omitted source escaped the currency test. | **FIXED.** E2 step 5 adds `governed_sources_mismatch` (Phase 2). The `rules` oracle returns the source set, and each adapter reports the set it read. Vectors: T025, T026. |
+| R4-M1 | MED | Phase 3's admission vectors land before Phase 5 inserts binding into admission. | **FIXED.** Phase 5 lands after Phases 2 and 3, and T051 re-authors every admission vector at that commit. |
+| R4-M2 | MED | Shared admission vectors carrying a binding would force 049 to implement the consumer's OIDC checks. | **FIXED.** Shared resolution vectors use boundary `commission`; admission vectors are `applies_to: [consumer]` (T026). |
+| R4-M3 | MED | `holder.binding_ref` resolved against nothing, the holder's binding was never shape-checked, and a broker holder had no binding shape. | **FIXED.** E10 gains `binding_id`; `inputs.bindings` holds the instances; `binding_unresolved` is new (Phase 5); E7 step 5 runs E10 steps 1–6 on the resolved binding; a `governed_broker_job` holder is `broker_capability_insufficient` until a broker shape exists. |
+| R4-M4 | MED | Verified claims and broker capability each had two homes, and step 15 was misdescribed. | **FIXED.** Claims live only in `environment.identity`, and broker capability only in the binding's `broker` member. The binding's input roles are named, and steps 1–6 and 15 are its offline half. |
+| R4-M5 | MED | Nothing tied the passing rehearsal to the activation it backs. | **FIXED.** E12 step 2 requires the rehearsal's provider and five matched values to equal the activation's (T057). |
+| R4-M6 | MED | "No task waits on an open question", yet two confirmations gated PR-2 and PR-5 with no task. | **FIXED.** tasks.md names the three confirmations and the tasks that record them: T034, T049 and T056. |
+| R4-L1 | LOW | The list of binding codes reused in Phase 4 was incomplete, and the boundary column too narrow. | **FIXED** (data-model § Refusal vocabulary). |
+| R4-L2 | LOW | The schema-type convention left out several members, and E12 step 2 did not name `new_records_retained: false`. | **FIXED.** |
+| R4-L3 | LOW | Out-of-order or repeated sources, unsorted listing entries and a repeated `fact_sources` contract had no code. | **FIXED:** `convening_malformed` at E2 step 2. |
+| R4-L4 | LOW | The churn figure, 57 commits, counted all history, while only first-parent movement supersedes a source. | **FIXED.** The first-parent count is 34, about 0.9 a day, measured with `git log --first-parent --since=2026-09-01 --until=2026-10-08T00:00:00 2ce8544e -- hermes/domain/agent-mixes.yaml 'scripts/merge_master/*.yaml' 'scripts/merge_master/*.yml' .github/merge-approval-envelope.yml` in codexFactory. The round-3 row above keeps its original figure as history. |
+
 ### Confirmations requested
 
-Two applications of the OPEN-3 ruling go beyond its words. Both fail closed, and both are flagged for Brett Heap's one-line confirmation before the phases that implement them land.
+Three applications of the OPEN-3 ruling go beyond its words. Each is the plan's fail-closed default, and each is flagged for Brett Heap's one-line confirmation before the phases that implement it land. None is presented as his ruling.
 
-1. **The currency test covers every governed source, not only the rule file** (R7; data-model E2 step 5). For 049 the sources are the council profile `hermes/domain/agent-mixes.yaml`, the council document, the rule directory's YAML files and their listing, and the envelope configuration. Each contributes to the projection, so a changed council document or envelope configuration at the tip would otherwise seat an outdated roster.
-   - **The cost:** admission refuses whenever any of those sources changed between commission and admission. 57 codexFactory commits touched them between 2026-09-01 and 2026-10-08, about 1.5 a day, against a commission-to-admission window of minutes. A refused convening is convened again.
-   - **Affects** Phase 2: confirm before PR-2 lands. If he prefers the narrower reading, Phase 2 checks currency on the governing rule file alone.
+1. **The currency test covers every governed source, not only the rule file** (R7; data-model E2 step 5).
+   - **The sources.** For 049 they are the council profile `hermes/domain/agent-mixes.yaml`, the council document, the rule directory's YAML files and their listing, and the envelope configuration. Each contributes to the projection, so a changed council document or envelope configuration at the tip would otherwise seat an outdated roster.
+   - **The cost.** Admission refuses whenever any of those sources moved on the governed branch's first-parent line between commission and admission. 34 first-parent codexFactory commits touched them between 2026-09-01 and 2026-10-08, about 0.9 a day, against a window of minutes. A refused convening is convened again.
+   - **Affects** Phase 2: record the answer at T034, before PR-2 lands. If he prefers the narrower reading, Phase 2 checks currency on the governing rule file alone.
 2. **A permitted workflow whose repository is not the governed repository is refused** (data-model E10).
-   - **The reading it rests on:** the ruling's "producer repository" is the repository of the producer's code, which the verified `job_workflow_ref` names. E10's own `producer_repository` member is the calling repository. For the estate's pattern (xFactory's lane calling codexFactory's `council-lane-reusable.yml`), the plan's reading applies the ruled sha check to codexFactory's commit. The other reading would apply no check at all, because the caller is never the rule repository.
-   - **The refusal:** the ruling constrains only the case where the workflow's repository is the governed repository. No consumer uses the other case today, so the binding refuses it rather than inventing a rule.
-   - **Affects** Phase 5: confirm before PR-5 lands. Admitting the other case would be a governed contract change that adds a value.
+   - **The reading it rests on.** The ruling's "producer repository" is read as the repository of the producer's code, which the verified `job_workflow_ref` names. E10's own `producer_repository` member is the calling repository. For the estate's pattern (xFactory's lane calling codexFactory's `council-lane-reusable.yml`), this reading applies the ruled sha check to codexFactory's commit. The other reading would apply no check at all, because the caller is never the rule repository.
+   - **The refusal.** The ruling constrains only the case where the workflow's repository is the governed repository. No consumer uses the other case today, so the binding refuses it rather than inventing a rule.
+   - **Affects** Phase 5: record the answer at T056, before PR-5 lands.
+3. **A seat job's workflow commit must be on the governed history at or after the frozen revision, not equal to it** (data-model E10, `on_governed_history_since_revision`; E7 step 5).
+   - **Why not equality.** A seat job runs after admission, and 049's seat worker checks its tooling out from the default branch. So equality would refuse every seat job that ran after `main` moved.
+   - **Why the history test.** It still refuses a seat commit that is off the governed history or older than the commission's revision. It applies the ruling's "history" half.
+   - **The alternative** is strict equality, which would require every caller to pin the reusable workflow to the commission's commit.
+   - **Affects** Phases 5 and 4: record the answer at T056, before PR-5 and PR-4 land.

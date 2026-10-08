@@ -48,7 +48,7 @@ Coverage is checked against the vocabulary **as landed at the commit** (R16):
 | `applies_to` | A non-empty subset of `[producer, consumer]`. The provider reference implementation runs every vector. |
 | `requirement_ids` | The FR and SC identifiers the case probes. |
 | `evaluation_time` | A `utc_instant`. Every expiry and lifetime check uses it, never the wall clock. |
-| `inputs` | The record or records under test, keyed by role: for example `record`, `snapshot`, `registration`, `return`, `returns`, `binding`, `claims`, `selection_producer`, `selection_consumer`, and `rehearsal` (the exact UTF-8 text, as a JSON string, of the record an activation's `rehearsal_ref` names; the hash is over those bytes). Also `selected_protocol` (a registry `protocol_id`, or `null` for offline) on every boundary that classifies, and `expected_candidate` at commission, holding only the members the trusted trigger names. For `definition`: `{definition, value}`. Issued challenges are not inputs: they are `environment.issued.challenges`, because the consumer issued them. |
+| `inputs` | The record or records under test, keyed by role: for example `record`, `snapshot`, `registration`, `return`, `returns`, `binding`, `bindings` (the E10 instances an assignment's `holder.binding_ref` resolves against), `operation`, `selection_producer`, `selection_consumer`, and `rehearsal` (the exact UTF-8 text, as a JSON string, of the record an activation's `rehearsal_ref` names; the hash is over those bytes). Also `selected_protocol` (a registry `protocol_id`, or `null` for offline) on every boundary that classifies, and `expected_candidate` at commission, holding only the members the trusted trigger names. For `definition`: `{definition, value}`. Issued challenges are not inputs: they are `environment.issued.challenges`, because the consumer issued them. |
 | `environment` | The oracle data (below). Members a boundary does not use are absent, not empty. |
 | `expected` | `{outcome: accept \| refuse \| route, refusal: <refusal_code> \| null, findings: [<finding_code>, ...], derived: {...}, derived_origin: hand \| generated}`. `findings` is ordered, and empty except on a route. |
 
@@ -66,15 +66,15 @@ An adapter must inject these and must not consult a live system during a corpus 
 
 | Oracle | Key | Value |
 |---|---|---|
-| `governed_history` | `<repository>@<revision>` | `{on_first_parent: bool}`: whether the revision is on the governed branch's first-parent history. |
+| `governed_history` | `<repository>@<revision>` | `{on_first_parent: bool, at_or_after: [<revision>, ...]}`: whether the revision is on the governed branch's first-parent history, and the governed revisions it is at or after (the seat rule, data-model E10). |
 | `governed` | `<repository>@<revision>:<path>` | `{available, governed, sha256 \| entries, tip_sha256 \| tip_entries}`: a file's SHA-256, or a listing's sorted entries, at the revision and at the governed tip when the check runs. A difference is `rule_superseded`, under the OPEN-3 ruling, which the plan applies to every source pending Brett Heap's confirmation. `governed` means an admitted governed source of an allowlisted governed repository. |
-| `rules` | `<repository>@<revision>` | `{councils: {<council_id>: {class_selector: [...], classes: {<class>: {standing_seats, conditions}}} \| {standing_seats, conditions}}}`: the neutral projection an adapter would derive from the governed sources, with each council classed or unclassed (data-model E3). |
+| `rules` | `<repository>@<revision>` | `{councils: {<council_id>: {class_selector: [...], classes: {<class>: {standing_seats, conditions}}} \| {standing_seats, conditions}}, sources: [<path>, ...]}`: the neutral projection an adapter would derive from the governed sources, with each council classed or unclassed (data-model E3). |
 | `facts` | `pr_facts:<repository>#<pull_number>@<head_sha>`, `rule_facts:<repository>@<head_sha>:<subject_path>` (a `candidate_subject` source) or `rule_facts:<repository>@<revision>:<path>` (a governed source) | The authoritative fact object for that source. |
 | `live_heads` | `<repository>#<pull_number>` | A `full_sha` or `"unavailable"`. For commission vectors, a list read in order, so drift before and after the recheck is expressible. |
 | `head_refs` | `<repository>#<pull_number>` | The candidate's head ref, as the trusted gather read it (commission) or the consumer read it (admission). `class_inputs.head_ref` must equal it. |
 | `resolved_candidate` | — | The consumer's own resolution of the candidate, compared at admission. |
 | `issued` | — | `{challenges: [...], consumed_challenges: [...], registered_keys: [{assignment_id, key_fingerprint}], accepted_returns: [...], live_snapshots: [...]}` as of `evaluation_time`. |
-| `identity` | — | `{verified: bool, claims: {...}, principal: {principal_kind, principal_ref}, broker_capability_verified: bool}`. Decoded-only claims carry `verified: false`. |
+| `identity` | — | `{verified: bool, claims: {...}, principal: {principal_kind, principal_ref}}`: the one home of verified claims. Decoded-only claims carry `verified: false`. Broker capability is the binding's own `broker` member, not an oracle. |
 | `repository_identity` | — | Absent: the adapter reads `contracts/policies/repository-identity.yaml` at the pinned commit. |
 | `registry_status` | — | An override of E1 statuses. **Required** on every vector whose outcome reads a status, so minor-time and major-time behavior are both vectors at one commit, and the registry flips at Phases 7 and 8 move no vector. |
 

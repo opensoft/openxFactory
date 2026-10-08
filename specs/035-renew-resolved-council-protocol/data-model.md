@@ -15,7 +15,7 @@ Four conventions apply throughout:
 
 - Every record is a closed object, with `additionalProperties: false` at every depth, with one exception: E8's `payload`, whose members are the domain's and the consumer's. `parameters` is closed per predicate and `consumed_facts` per input contract (E3). Every record carries `schema_version: 1` and a `kind`.
 - **R** means required and **O** optional.
-- **One failing check names one code.** Where a named semantic refusal exists for a condition (an empty or duplicated roster, a reordered list, inequality with an oracle), the schema does not also check that condition. So the schema types `governed.revision` as a string (its grammar is `mutable_rule_reference`, E2 step 5), the binding's `issuer` as a string (`issuer_mismatch`), `changed_files_total` as a non-negative integer (above 3000 is `condition_unevaluable`), the snapshot's `assignments` as an array of objects (each is checked at E4 step 3), and E12's act-specific members as optional (E12 step 2). Each boundary has a normative evaluation order, and the first failing check names the outcome ([R21](research.md#r21--normative-evaluation-order)).
+- **One failing check names one code.** Where a named semantic refusal exists for a condition (an empty or duplicated roster, a reordered list, inequality with an oracle), the schema does not also check that condition. So the schema types `governed.revision` as a string (its grammar is `mutable_rule_reference`, E2 step 5), the binding's `issuer` as a string (`issuer_mismatch`), `changed_files_total` as a non-negative integer (above 3000 is `condition_unevaluable`), the snapshot's `assignments` as an array of objects (each is checked at E4 step 3), `conditions[].predicate` as a string (`predicate_unknown`, E2 step 8), the binding's `subject_template` and each `job_workflow_ref` as strings (E10 steps 5, 6 and 13), and E12's act-specific members, including `new_records_retained` and `new_records_protocol`, as optional (E12 steps 2 and 4). Each boundary has a normative evaluation order, and the first failing check names the outcome ([R21](research.md#r21--normative-evaluation-order)).
 - **Every boundary over a protocol-carrying record begins with classification** (E1). The protocol-carrying kinds are E2 and E4–E8. A record of one of them is judged under replacement rules only after it has classified as a replacement record under a replacement selection. The registries (E1, E3), the binding (E10), the selection (E11) and activation evidence (E12) are judged by their `kind` and never classified.
 
 ## Shared definitions (`shared-definitions.schema.yaml`, Phase 1)
@@ -101,7 +101,7 @@ Kind: `xfactory_council_convening`. The producer submits it, and the consumer ve
 | Member | R/O | Shape |
 |---|---|---|
 | `candidate` | R | `candidate` |
-| `governed` | R | `{repository R, revision R(full_sha), sources R}`. `sources` holds 1 to 64 entries in bytewise path order, unique by path, all at the one `revision`. Each entry is either `{kind: file, path, sha256(raw_sha256)}` or `{kind: listing, path, suffixes, entries}`. A listing names a directory, the file suffixes read from it (for example `[".yaml", ".yml"]`), and the sorted paths of the files directly inside it with those suffixes; each of those files is also a `file` entry. Every governed file and listing the projection was built from is listed ([R7](research.md#r7--governed-sources-rule-authority-and-revision-currency)). For 049 these are the council profile (`hermes/domain/agent-mixes.yaml`), the council document, the rule directory's YAML files and their listing, and the envelope configuration. |
+| `governed` | R | `{repository R, revision R(a string; its grammar is checked at step 5), sources R}`. `sources` holds 1 to 64 entries in bytewise path order, unique by path, all at the one `revision`. Each entry is either `{kind: file, path, sha256(raw_sha256)}` or `{kind: listing, path, suffixes, entries}`. A listing names a directory, the file suffixes read from it (for example `[".yaml", ".yml"]`), and the sorted paths of the files directly inside it with those suffixes; each of those files is also a `file` entry. Every governed file and listing the projection was built from is listed ([R7](research.md#r7--governed-sources-rule-authority-and-revision-currency)). For 049 these are the council profile (`hermes/domain/agent-mixes.yaml`), the council document, the rule directory's YAML files and their listing, and the envelope configuration. |
 | `class_inputs` | O | `{repository R, head_ref R(head_ref)}`: the candidate facts the class is selected from (E3 `class_selector`). Present exactly when the council is classed in the projection, together with `matched_class`. |
 | `matched_class` | O | `matched_class`. Present exactly when `class_inputs` is. An unclassed council, such as 049's gate-rules council, carries neither. |
 | `standing_seats` | R | An array of at most 64 `seat_id`. |
@@ -111,10 +111,10 @@ Kind: `xfactory_council_convening`. The producer submits it, and the consumer ve
 
 **Derived value.** `convening_digest` is `xfc-jcs-sha256-1`, subject `council_convening`, over the whole record.
 
-**Normative evaluation order at `commission` (producer) and `admission` (consumer).** The first failing check wins. At admission, the consumer runs steps 1 and 2, then the `binding` boundary (E10) on the commission job's verified claims, then steps 3 to 14. A binding refusal stops admission there.
+**Normative evaluation order at `commission` (producer) and `admission` (consumer).** The first failing check wins. At admission, the consumer interleaves the `binding` boundary (E10) on the commission job's verified claims: steps 1 and 2; then E10 steps 1 to 13 and 15; then steps 3 to 5; then E10 step 14, which reads `governed` only after step 5 has checked it; then steps 6 to 14. A binding refusal stops admission there.
 
 1. **Classification and selection** (E1). `protocol_unknown`, `legacy_protocol_refused`, `protocol_not_selected`, or a route.
-2. **Shape.** `convening_malformed`, which also covers a record carrying only one of `class_inputs` and `matched_class`, and a listing entry that is not also a `file` source; then `value_not_canonicalizable`.
+2. **Shape.** `convening_malformed`, which also covers a record carrying only one of `class_inputs` and `matched_class`; a listing entry that is not also a `file` source; sources out of bytewise path order or repeated by path; a listing whose `entries` are unsorted; and a repeated `fact_sources` contract. Then `value_not_canonicalizable`.
 3. **Secrets, before any oracle is queried with the record's values.** `secret_bearing_fact`, over every string in `packet_refs`, `class_inputs`, `parameters` and `consumed_facts` ([R9](research.md#r9--fact-authenticity-unused-facts-and-secrets)).
 4. **Candidate identity.** `candidate_mismatch` when any of these fails:
    - `subject_pin` equals `candidate.head_sha`;
@@ -122,6 +122,7 @@ Kind: `xfactory_council_convening`. The producer submits it, and the consumer ve
    - when the record carries `class_inputs`: `class_inputs.repository` equals `candidate.repository`, and `class_inputs.head_ref` equals the candidate's authoritative head ref (`environment.head_refs`, read by the trusted gather at commission and by the consumer at admission). Whether the council should carry them is judged at step 6.
 5. **Governed sources**, under Brett Heap's OPEN-3 ruling ([R7](research.md#r7--governed-sources-rule-authority-and-revision-currency)):
    - the revision first: `mutable_rule_reference` (not a full lowercase commit id), then `rule_revision_ungoverned` (not on the governed branch's first-parent history);
+   - then the source set: `governed_sources_mismatch`, when the listed paths are not exactly the set the projection is built from. The `rules` oracle returns that set, and each side's adapter reports the set it read. An omitted source would otherwise escape the currency test;
    - then each source in path order: `rule_path_malformed`; `rule_unavailable`; `rule_unauthorized` (not an admitted governed source of an allowlisted governed repository; an allowlist names the current spelling, so a former spelling of `governed.repository` refuses here); `rule_digest_mismatch` (a file's bytes, or a listing's entries, differ from the record's); and last `rule_superseded`, when the source differs from the same source at the governed tip when the check runs. For a listing, "differs" means a different set of entries. Holding every source to this test, not only the rule file, is pending Brett Heap's confirmation ([analysis.md](analysis.md#confirmations-requested)).
 6. **Council and class.**
    - `council_unknown`: the projection does not declare the council.
@@ -174,6 +175,7 @@ The decision semantics:
   - **unclassed**: `{standing_seats, conditions}`, for a council no candidate class binds, such as 049's gate-rules council, whose governed rule is its own council document.
 - `class_selector`: an ordered list of `{class, repositories: [repository], head_ref: {exact: <head_ref>} | {glob: <pattern>}}`. The first entry whose `repositories` contains `class_inputs.repository` and whose `head_ref` matches `class_inputs.head_ref` selects the class. This mirrors the existing surface lookup, where both the repository and the head ref must match an entry.
 - `classes`: `{<class>: {standing_seats, conditions: [{seat (seat_id or null), predicate, input_contract, parameters}]}}`.
+- `sources`: the sorted paths of every governed file and listing the projection was built from (E2 step 5, `governed_sources_mismatch`).
 
 The `head_ref.glob` grammar is the governed envelope's matcher, restated here so that no implementation copies it. Vectors pin each rule.
 
@@ -223,7 +225,7 @@ Kind: `xfactory_council_seat_assignment`. This is the public assignment a seat j
 | `protocol`, `convening_id`, `convening_digest`, `council_id`, `candidate` | R | Equal to the snapshot's. |
 | `assignment_id` | R | `opaque_id` |
 | `seat_id` | R | `seat_id` |
-| `holder` | R | `{principal_kind R(principal_kind), principal_ref R(opaque_id), binding_ref R(opaque_id)}`. `principal_ref` and `binding_ref` are issued by the trusted dispatcher or the owner-provisioned broker from verified execution evidence (D3: "The trusted dispatcher binds the assignment to verified execution evidence"). This family does not derive them; it binds them and checks them at use. |
+| `holder` | R | `{principal_kind R(principal_kind), principal_ref R(opaque_id), binding_ref R(opaque_id)}`. `principal_ref` and `binding_ref` are issued by the trusted dispatcher or the owner-provisioned broker from verified execution evidence (D3: "The trusted dispatcher binds the assignment to verified execution evidence"). This family does not derive them; it binds them and checks them at use. `binding_ref` is the `binding_id` of the holder's E10 binding. |
 | `permitted_operations` | R | Exactly `[seat_key_registration, seat_return]`. |
 | `not_before`, `expires_at` | R | `utc_instant`. The lifetime `expires_at − not_before` must be greater than 0 and at most **21600 seconds (6 hours)**; otherwise `assignment_malformed`. This is the contract ceiling Brett Heap ruled for OPEN-1 on 2026-10-08, "600 s challenge, 6 h assignment (Recommended)"; the consumer may configure a tighter value ([R12](research.md#r12--lifetime-ceilings)). |
 
@@ -261,7 +263,12 @@ Kind: `xfactory_council_seat_key_registration`. The body carries **no principal*
 2. **Root authorization.** `root_authorization_refused`: any `root_key_fingerprint`, `root_signature` or `authorization` member on a replacement record.
 3. **Shape.** `registration_malformed`, including **key transport**: a member named `private_key`, `secret_key`, `seed`, `sk` or `d` at any depth, or a PEM private-key block in any string (the spec delta's "key transport MUST refuse").
 4. **Assignment.** `assignment_unknown`, `assignment_not_yet_valid`, `assignment_expired`, `operation_not_permitted`.
-5. **Principal.** The seat job's verified claims are checked against the holder's binding (`holder.binding_ref`) exactly as E10 steps 7 to 13 check a commission job's, with operation `seat_execution`: `claims_unverified`, `claims_expired`, `issuer_mismatch`, `audience_mismatch`, `subject_template_mismatch`, `repository_identity_mismatch`, `workflow_not_permitted`. Then `wrong_principal`: the verified principal is not the assignment's `holder`, even when the proof is valid.
+5. **Principal**, against the holder's binding:
+   - `binding_unresolved`: `holder.binding_ref` names no binding in `inputs.bindings`;
+   - `broker_capability_insufficient`: the holder is a `governed_broker_job`, for which no binding shape exists yet;
+   - E10 steps 1 to 6 on that binding;
+   - E10 steps 7 to 15 on the seat job's verified claims, with operation `seat_execution`, where step 14 applies the seat rule against the snapshot's frozen `governed.revision`;
+   - then `wrong_principal`: the verified principal is not the assignment's `holder`, even when the proof is valid.
 6. **Challenge**, read from `environment.issued.challenges`: `challenge_unknown` (no issued challenge has the `challenge_id`); `challenge_malformed` (the issued challenge fails E6, including a lifetime above 600 seconds); `challenge_wrong_assignment`; `challenge_consumed`; `challenge_expired`.
 7. **Key.**
    - `fingerprint_mismatch`: the fingerprint does not recompute from `public_key`, or differs from the challenge's `key_fingerprint`.
@@ -328,6 +335,7 @@ Kind: `xfactory_council_producer_binding`. **The concrete instance lives in the 
 | Member | R/O | Shape and rule |
 |---|---|---|
 | `protocol` | R | The replacement. |
+| `binding_id` | R | `opaque_id`: the identifier an assignment's `holder.binding_ref` names. |
 | `principal_kind` | R | `github_oidc_job` |
 | `issuer` | R | A literal: exactly `https://token.actions.githubusercontent.com`, or that URL followed by `/<enterprise-slug>` (GitHub's documented enterprise issuer form). Any other value is `issuer_mismatch`. |
 | `audience` | R | A literal string of 1 to 256 characters. A `*` is `binding_wildcard`. |
@@ -335,15 +343,18 @@ Kind: `xfactory_council_producer_binding`. **The concrete instance lives in the 
 | `repository_id` | R | An integer of at least 1: the immutable repository identity claim. |
 | `subject_claim_keys` | R | The ordered claim keys of the producer repository's subject template: GitHub's default (`repo` then the context) or the keys of its documented subject customization. The closed set of keys is enumerated at T053 from GitHub's OIDC reference, which T053 cites. |
 | `subject_template` | R | A literal OIDC `sub` that parses, under GitHub's documented `sub` grammar, into elements in `subject_claim_keys` order. Its `repo` or `repository_id` element must name `producer_repository` or `repository_id`. A template that does not parse, or that names another repository, is `subject_template_mismatch`. A `*` is `binding_wildcard`. |
-| `permitted_workflows` | R | 1 to 8 entries of `{operation: commission \| seat_execution, job_workflow_ref: <owner>/<repo>/.github/workflows/<file>@<ref>, workflow_revision_rule: equals_governed_revision}`. A workflow not listed is `workflow_not_permitted`. |
+| `permitted_workflows` | R | 1 to 8 entries of `{operation: commission \| seat_execution, job_workflow_ref: <owner>/<repo>/.github/workflows/<file>@<ref>, workflow_revision_rule}`. `workflow_revision_rule` is `equals_governed_revision` for `commission` and `on_governed_history_since_revision` for `seat_execution`; any other pairing is `binding_malformed`. A workflow not listed for the operation is `workflow_not_permitted`. |
 | `broker` | R | `{broker_ref R(opaque_id), capability_verified R(boolean), evidence_ref R(opaque_id or null)}`. A value of `false` or `null` parks activation: `broker_capability_insufficient`. |
 | `instantiation_stub` | O | `const: true`, in the `.template.yaml` only. A stub is never accepted as a live binding (`binding_malformed`). |
 
-**The workflow-revision rule** encodes the second half of the OPEN-3 ruling ("where the rule repository is the producer repository, the producer's verified `job_workflow_sha` equals the cited rule revision"). The producer's code is the workflow named by the verified `job_workflow_ref` claim, and `job_workflow_sha` is a commit of that workflow's repository. So the comparison is with that repository, not with the caller. `equals_governed_revision`, the closed enumeration's only value, holds when the repository named in the verified `job_workflow_ref` is `governed.repository` and the verified `job_workflow_sha` is `governed.revision`.
+**The workflow-revision rule** encodes the second half of the OPEN-3 ruling ("where the rule repository is the producer repository, the producer's verified `job_workflow_sha` equals the cited rule revision"). The producer's code is the workflow named by the verified `job_workflow_ref` claim, and `job_workflow_sha` is a commit of that workflow's repository. So the comparison is with that repository, not with the caller. The closed enumeration has two values:
+
+- `equals_governed_revision`, for a commission job: the repository named in the verified `job_workflow_ref` is `governed.repository`, and the verified `job_workflow_sha` is `governed.revision`.
+- `on_governed_history_since_revision`, for a seat job: the repository named in the verified `job_workflow_ref` is the snapshot's frozen `governed.repository`, and the verified `job_workflow_sha` is on that repository's governed first-parent history, at or after the frozen `governed.revision`. A seat job runs after admission, often after `main` has moved, and 049's seat worker checks its tooling out from the default branch (049 `contracts/interfaces.md`, W1), so equality would refuse every seat whose `main` moved. This value applies the ruling's "history" half to seats. It is **flagged for Brett Heap's confirmation** before PR-5 and PR-4 land ([analysis.md](analysis.md#confirmations-requested), confirmation 3).
 
 This covers the estate's own calling pattern: xFactory's `council-convening-lane.yml` calls codexFactory's `council-lane-reusable.yml`, so the caller is `opensoft/xFactory` while the workflow, its commit and the rules are codexFactory's. A permitted workflow in a repository that is not the governed repository is refused (`workflow_revision_ungoverned`). The ruling does not address that case, and no consumer uses it today. It is flagged for Brett Heap's confirmation in [analysis.md](analysis.md#confirmations-requested), together with the reading it rests on: that the ruling's "producer repository" is the repository of the producer's code, named in `job_workflow_ref`, while this entity's `producer_repository` is the calling repository. Admitting it would be a governed contract change that adds a value.
 
-**Order at `binding`.** The consumer runs this on the commission job's verified claims between E2 steps 2 and 3, once the record has classified and passed its shape check, with the record's `governed` member as input. Steps 1 to 6 judge the binding instance alone, so offline `check` runs them; steps 7 to 15 need the verified claims (D3: "the consumer verifies signed issuer/audience/expiry").
+**Order at `binding`.** The consumer runs this on the commission job's verified claims between E2 steps 2 and 3, once the record has classified and passed its shape check, with the record's `governed` member as input. Its inputs are `inputs.binding` (the E10 instance), `inputs.operation` and the record's `governed` member; the verified claims come only from `environment.identity`, and broker capability only from the binding's `broker` member. Steps 1 to 6 and 15 judge the binding instance alone, so offline `check` runs them; steps 7 to 14 need the verified claims (D3: "the consumer verifies signed issuer/audience/expiry").
 
 1. `binding_malformed`, including a `.template.yaml` stub presented as live.
 2. `binding_wildcard`.
@@ -358,7 +369,7 @@ This covers the estate's own calling pattern: xFactory's `council-convening-lane
 11. `subject_template_mismatch`: the verified `sub` is not the binding's `subject_template`.
 12. `repository_identity_mismatch`: the verified `repository` or `repository_id` claim differs from `producer_repository` or `repository_id`.
 13. `workflow_not_permitted`: the verified `job_workflow_ref` is not listed for the operation.
-14. `workflow_revision_ungoverned`.
+14. `workflow_revision_ungoverned`: the verified `job_workflow_sha` breaks the operation's `workflow_revision_rule`.
 15. `broker_capability_insufficient`.
 
 **Conflation is judged by meaning, not by substring.** Step 5 refuses a template that is a bare workflow reference. A template that includes the `job_workflow_ref` claim key, through GitHub's documented subject customization, is legal.
@@ -405,7 +416,7 @@ Kind: `xfactory_council_activation_evidence`. One record per act. It records own
 **Order at `activation`.**
 
 1. `activation_evidence_malformed`: the record fails its schema.
-2. `activation_evidence_incomplete`: a member its act requires is missing, or an activation or resume has no passing matched rehearsal behind `rehearsal_ref`.
+2. `activation_evidence_incomplete`: a member its act requires is missing; `new_records_retained` is `false`; or an activation or resume has no passing matched rehearsal behind `rehearsal_ref`, or one whose `provider` or five matched selection values differ from the activation's.
 3. `pair_mismatched`: the two sides' selections differ on a matched value.
 4. `historical_reinterpretation_refused`: a rollback whose `new_records_protocol` is not the replacement's `protocol_id`, so that new-protocol records would be read under another protocol.
 
@@ -428,7 +439,7 @@ The vocabulary is closed. Each phase adds its codes to `refusal_code` in the tas
 |---|---|---|---|
 | `value_malformed`, `value_not_canonicalizable`, `protocol_unknown`, `protocol_not_selected`, `legacy_protocol_refused` | `definition`, `classification`, and step 1 of every later boundary | 1 | `facts_malformed` / `resolution_malformed` for a bad value (split); T026 `selector_unknown` |
 | `convening_malformed`, `council_unknown`, `class_unresolved`, `class_mismatch`, `rule_projection_mismatch` | commission, admission | 2 | `resolution_malformed`, `council_unknown`, `class_unresolved`, `opaque_conclusion` (split) |
-| `mutable_rule_reference`, `rule_revision_ungoverned`, `rule_path_malformed`, `rule_unavailable`, `rule_unauthorized`, `rule_digest_mismatch`, `rule_superseded` | commission, admission | 2 | `mutable_rule_reference`, `rule_revision_ungoverned`, `rule_unavailable`, `rule_unauthorized` |
+| `mutable_rule_reference`, `rule_revision_ungoverned`, `governed_sources_mismatch`, `rule_path_malformed`, `rule_unavailable`, `rule_unauthorized`, `rule_digest_mismatch`, `rule_superseded` | commission, admission | 2 | `mutable_rule_reference`, `rule_revision_ungoverned`, `rule_unavailable`, `rule_unauthorized` |
 | `predicate_unknown`, `predicate_parameters_malformed`, `condition_unevaluable`, `condition_result_mismatch`, `condition_seat_unbound` | commission, admission | 2 | `condition_refused` (split), `condition_unevaluable`, `opaque_conclusion`, `conjunction_seat_unbound` |
 | `opaque_conclusion`, `facts_unused`, `consumed_facts_mismatch`, `fact_source_mismatch`, `secret_bearing_fact` | commission, admission | 2 | `opaque_conclusion`, `unused_facts`, `consumed_facts_mismatch`, `secret_bearing_fact` |
 | `candidate_mismatch`, `candidate_head_moved`, `candidate_head_unavailable` | commission, admission | 2 | `candidate_identity_mismatch`, `final_head_moved`, `final_head_unavailable` |
@@ -439,7 +450,7 @@ The vocabulary is closed. Each phase adds its codes to `refusal_code` in the tas
 | `challenge_malformed`, `challenge_unknown`, `challenge_wrong_assignment`, `challenge_consumed`, `challenge_expired` | registration | 4 | the same names |
 | `registration_malformed`, `root_authorization_refused`, `wrong_principal`, `fingerprint_mismatch`, `assignment_already_registered`, `shared_key`, `cross_protocol_context`, `cross_convening_context`, `cross_seat_context`, `proof_invalid` | registration | 4 | the same names |
 | `return_malformed`, `return_unregistered`, `return_key_mismatch`, `return_digest_mismatch`, `return_signature_invalid`, `return_replayed` | return | 4 | the same names |
-| `binding_malformed`, `claims_unverified`, `claims_expired`, `issuer_mismatch`, `audience_mismatch`, `binding_wildcard`, `repository_identity_former`, `repository_identity_mismatch`, `subject_template_mismatch`, `subject_workflow_conflation`, `workflow_not_permitted`, `workflow_revision_ungoverned`, `broker_capability_insufficient` | binding | 5 | — |
+| `binding_malformed`, `binding_unresolved`, `claims_unverified`, `claims_expired`, `issuer_mismatch`, `audience_mismatch`, `binding_wildcard`, `repository_identity_former`, `repository_identity_mismatch`, `subject_template_mismatch`, `subject_workflow_conflation`, `workflow_not_permitted`, `workflow_revision_ungoverned`, `broker_capability_insufficient` | binding, admission, registration | 5 | — |
 | `selection_malformed`, `pair_mismatched`, `rejected_without_fallback`, `replacement_not_admission_eligible`, `activation_evidence_malformed`, `activation_evidence_incomplete`, `historical_reinterpretation_refused` | selection, activation, historical | 6 | `pair_mismatched`, `rejected_without_fallback`, `replacement_not_admitted` |
 
-Phase 5 lands before Phase 4, because registration checks a seat job's claims against its holder's binding (E7 step 5). So the claim codes `claims_unverified`, `claims_expired`, `issuer_mismatch`, `audience_mismatch` and `repository_identity_mismatch` are introduced in Phase 5 and reused in Phase 4.
+Phase 5 lands before Phase 4, because registration checks a seat job's claims against its holder's binding (E7 step 5). So every binding code, including the claim codes `claims_unverified`, `claims_expired`, `issuer_mismatch`, `audience_mismatch`, `subject_template_mismatch`, `repository_identity_mismatch`, `workflow_not_permitted` and `workflow_revision_ungoverned`, and `binding_unresolved`, is introduced in Phase 5 and reused in Phase 4.

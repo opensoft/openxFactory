@@ -46,7 +46,8 @@ Each item is a change a successor makes to conform. None is hidden behind a clai
 | The seat's whole checked entry is the signed payload, and `model_usage.costUSD` and every other non-integer quantity is written as a `decimal_string`; the cost floor reads the string. | 049 T020; 025 | R11 |
 | The commission job's verified `job_workflow_ref` names a workflow in the governed repository, and its verified `job_workflow_sha` equals the record's `governed.revision`. The caller may be another repository, as xFactory's lane calling codexFactory's reusable workflow is. | 049 T023 | R7, R13 |
 | The consumer runs `binding` inside admission, between E2 steps 2 and 3, verifying the token's issuer, audience, validity window and subject against the binding; it routes or refuses legacy records by its selection. | 025 FR-008, FR-011 | data-model E1, E2, E10 |
-| Registration checks the seat job's claims against its holder's binding the same way. | 025 FR-008; 049 T020 | data-model E7 step 5 |
+| Registration checks the seat job's claims against its holder's binding (resolved through `holder.binding_ref` to the binding's `binding_id`) the same way. The seat job's workflow commit must be on the governed history at or after the frozen revision, pending confirmation 3. | 025 FR-008; 049 T020 | data-model E7 step 5, E10 |
+| The listed governed sources must be exactly the set the projection reads (`governed_sources_mismatch`), so each adapter reports the set it read. | 049 T010; 025 FR-002 | data-model E2 step 5 |
 
 ## How a successor pins the provider
 

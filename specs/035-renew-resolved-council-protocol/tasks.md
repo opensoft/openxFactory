@@ -23,7 +23,7 @@ The phase is done when the quickstart's per-phase proof passes.
 
 Phase 1 joins the template's *Setup* and *Foundational* phases, so that the first PR is self-consistent. Owner-act tasks are marked **OWNER**, stay unticked, and record dated evidence beside them.
 
-**Brett Heap's five rulings of 2026-10-08 are encoded** ([spec.md § Clarifications](spec.md#clarifications)). No task waits on an open question.
+**Brett Heap's five rulings of 2026-10-08 are encoded** ([spec.md § Clarifications](spec.md#clarifications)). No task waits on an open question. Three confirmations that apply the OPEN-3 ruling are requested ([analysis.md § Confirmations requested](analysis.md#confirmations-requested)); each is recorded in `evidence.md` before the PR it gates lands: confirmation 1 at T034 (PR-2), confirmation 2 at T056 (PR-5), and confirmation 3 at T056 and T049 (PR-5 and PR-4).
 
 | Ruling | Verbatim label | Tasks it makes concrete |
 |---|---|---|
@@ -214,6 +214,7 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
   - class selection from `class_inputs`: exact and glob head refs, each glob rule, first match wins, and a declared but unselected class refused as `class_mismatch` (U1);
   - `class_inputs.head_ref` that differs from `environment.head_refs` refused as `candidate_mismatch` (N1);
   - an unclassed council (the gate-rules shape) with no class inputs accepted, and class inputs on an unclassed council, or none on a classed one, refused as `class_mismatch` (N4);
+  - the source set: an omitted source and an extra source, each refused as `governed_sources_mismatch` (R4-H3);
   - governed sources under the OPEN-3 ruling: a revision off the first-parent history (`rule_revision_ungoverned`); a file changed at the tip, and a listing whose entry set changed at the tip (`rule_superseded`), including a source that is not the rule file (U2; N3); an unrelated, non-listed file changed at the tip, accepted;
   - roster composition: standing order; held seats appended; a conditional seat already standing appears once; an unbound held seat refuses; an empty roster; a duplicate seat; a reordered roster; a same-count substitution;
   - fact sources, including a gate-rules shape whose `rule_facts` come from `candidate.subject_path` at `candidate.head_sha` (I1);
@@ -224,7 +225,7 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 - [ ] T026 [US1] Author the `resolution` vectors, creating `contracts/council-convening/conformance/vectors/resolution/` with the first of them, with their expected outcomes before any implementation.
   - Positives: standing only; a conditional seat held; a conditional seat not held; an unclassed gate-rules council with a `rule_facts` conjunction held; a conditional seat already standing; both rename paths; a class selected by glob.
   - At least one negative per Phase 2 refusal code, and the multi-defect order vectors.
-  - Shared checks carry `applies_to: [producer, consumer]`. Pre-submit drift is producer-only. Admission drift is consumer-only.
+  - Shared resolution checks use boundary `commission` and carry `applies_to: [producer, consumer]`. Admission vectors are `applies_to: [consumer]`, because from Phase 5 admission also runs the consumer's binding checks. Pre-submit drift is producer-only. Admission drift is consumer-only.
   - Raise `coverage_floor` to FR-001–FR-004 and SC-001, and regenerate `conformance/index.json`.
 - [ ] T027 [P] [US1] Extend `tests/council_convening/test_validator_cli.py`: `check` runs the offline E2 rules, reports each oracle-dependent rule as not offline-checkable, and the self-test prints the predicate-registry note.
 
@@ -240,7 +241,7 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
   - `convening_digest`.
 - [ ] T032 [US1] Register the `commission` and `admission` handlers in `scripts/council_convening/corpus.py`. Add the offline E2 rules to `check` in `scripts/validate-council-convening.py`. Add the predicate-registry note to the gate's assertion in `.github/workflows/council-convening-gate.yml` and its test.
 - [ ] T033 [US1] Measure the secret floor gap (I13). Run the four patterns 049 detects and the floor lacks over every tracked file, and record the hits in `evidence.md` § Phase 2. File the floor widening as its own follow-up issue on opensoft/openxFactory, citing R9. Do not widen `SECRET_PATTERNS` in this PR.
-- [ ] T034 [US1] Run quickstart steps 1–5 and record them in `evidence.md` § Phase 2, including the agreement-set count. Open PR-2 as a draft.
+- [ ] T034 [US1] Run quickstart steps 1–5 and record them in `evidence.md` § Phase 2, including the agreement-set count. Record Brett Heap's answer to confirmation 1 before PR-2 lands; if he chooses the narrower reading, narrow E2 step 5 and its vectors in this PR first. Open PR-2 as a draft.
 
 **Checkpoint**: The MVP. Producer and consumer can each prove membership agreement against one reviewed commit, while staying dormant.
 
@@ -306,7 +307,7 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
   - `signed_bytes` known answers, including one registration and one return context whose signed bytes are hand-authored (`derived_origin: hand`), so the generator is not checked only against itself (N9);
   - fingerprint recomputation, and the challenge's `key_fingerprint`;
   - stdlib `ed25519.verify`;
-  - registration refusals: `root_authorization_refused` before `registration_malformed`; the seat job's claims checked against its holder's binding at E7 step 5 (`claims_unverified`, `claims_expired`, `audience_mismatch` and the rest); `wrong_principal` with a valid proof; already registered; `shared_key`; cross seat, cross convening and cross protocol, each told apart by the presented context; proof invalid;
+  - registration refusals: `root_authorization_refused` before `registration_malformed`; the seat job's claims checked against its holder's binding at E7 step 5: a `binding_ref` that resolves to nothing (`binding_unresolved`), a `governed_broker_job` holder (`broker_capability_insufficient`), a stub binding (`binding_malformed`), `claims_unverified`, `claims_expired`, `audience_mismatch`, and a seat workflow commit before the frozen revision (`workflow_revision_ungoverned`) (R4-H1; R4-M3); `wrong_principal` with a valid proof; already registered; `shared_key`; cross seat, cross convening and cross protocol, each told apart by the presented context; proof invalid;
   - challenge refusals, over `environment.issued.challenges` and in the E7 order: unknown, malformed, wrong assignment, consumed, expired at the instant;
   - key transport (spec delta, "key transport MUST refuse"): a registration or a return carrying a member named `private_key`, `secret_key`, `seed`, `sk` or `d`, or a PEM private-key block, refused as `registration_malformed` or `return_malformed` (N18);
   - a return context whose `key_fingerprint` differs, refused as `return_key_mismatch` (N16);
@@ -330,7 +331,7 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
   - the estate fingerprint spelling;
   - no second framing (R3).
 - [ ] T048 [US2] Register the `registration` and `return` handlers in `scripts/council_convening/corpus.py`. Make `check` in `scripts/validate-council-convening.py` verify a record's signature where the record carries one.
-- [ ] T049 [US2] Run quickstart steps 1–5, record them in `evidence.md` § Phase 4, and open PR-4 as a draft.
+- [ ] T049 [US2] Run quickstart steps 1–5, record them in `evidence.md` § Phase 4, and open PR-4 as a draft. Confirmation 3 is recorded (T056) before PR-4 lands.
 
 ---
 
@@ -345,7 +346,7 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 - 049: T023, T024, T031 (the shape the owner provisions into the consumer's runtime configuration, under OPEN-2).
 - 025: FR-008 (principal-authentication inputs), and H3's activation park.
 
-**Depends on**: Phase 1. It may be authored in parallel with Phases 2–3, and it lands after Phase 2, because its workflow-revision rule reads the E2 `governed` member, and before Phase 4, which uses its claim checks.
+**Depends on**: Phases 2 and 3 for landing; it may be authored in parallel from Phase 1. It lands after Phase 3, because binding runs inside admission and T051 re-authors every admission vector at that commit, and before Phase 4, which uses its claim checks.
 
 ### Tests first
 
@@ -358,11 +359,12 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
   - audience and subject wildcards;
   - a subject template customized with the `job_workflow_ref` and `repository_id` claim keys accepted; a bare workflow reference as the template (the `<owner>/<repo>/.github/workflows/<file>@<ref>` shape with no `key:` element) refused as `subject_workflow_conflation`, which runs before the parse check; any other template that does not parse refused as `subject_template_mismatch` (I6; N15; R3-H1);
   - an unlisted workflow, and a `sub` that contains a permitted workflow reference while the verified `job_workflow_ref` names an unlisted one, both refused as `workflow_not_permitted` (N15);
+  - the seat rule (confirmation 3): a seat job's `job_workflow_sha` at or after the frozen revision on the governed history accepted, one before it or off that history refused as `workflow_revision_ungoverned`, and a commission entry paired with the seat rule refused as `binding_malformed` (R4-H1);
   - the ruled workflow-revision rule (OPEN-3): the estate's calling pattern, a caller repository running the governed repository's reusable workflow at `governed.revision`, accepted; an unequal `job_workflow_sha`, and a permitted workflow whose repository is not the governed repository, refused as `workflow_revision_ungoverned` (N2);
   - decoded-only claims;
   - an unverified broker parks activation;
   - the `.template.yaml` stub is never accepted as live.
-- [ ] T051 [US2] Author the `binding` vectors, creating `contracts/council-convening/conformance/vectors/binding/` with the first of them, with their expected outcomes first. Because binding now runs inside admission (data-model E2), re-author the Phase 2 admission vectors to carry a passing binding and verified claims, and add admission vectors that carry both a binding defect and a step-3 defect, to pin the order (R3-M4). Raise `coverage_floor` to add FR-009, and regenerate the index.
+- [ ] T051 [US2] Author the `binding` vectors, creating `contracts/council-convening/conformance/vectors/binding/` with the first of them, with their expected outcomes first. Because binding now runs inside admission (data-model E2), re-author every admission vector at that commit, Phase 2's and Phase 3's, to carry a passing binding and verified claims, and add admission vectors that pin the interleaved order: a binding defect with a step-3 defect, and a workflow-revision defect with a step-5 defect (R3-M4; R4-M1; R4-H2). Raise `coverage_floor` to add FR-009, and regenerate the index.
 - [ ] T052 [P] [US2] Extend `tests/council_convening/test_validator_cli.py`: `check` validates a binding instance offline against `repository-identity.yaml`, refuses the stub as live, and reports the claim-verification rules as not offline-checkable.
 
 ### Implementation
@@ -370,7 +372,7 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 - [ ] T053 [US2] Author `contracts/council-convening/producer-binding.schema.yaml` and `contracts/council-convening/producer-binding.template.yaml`. `workflow_revision_rule` is the closed enumeration `[equals_governed_revision]`. The closed set of subject claim keys is enumerated from GitHub's OIDC reference, which the schema's description cites. The template carries `instantiation_stub: true` and no live audience, subject template or repository id. Extend `refusal_code` in `contracts/council-convening/shared-definitions.schema.yaml` with the Phase 5 codes.
 - [ ] T054 [US2] Implement `scripts/council_convening/binding.py`, reusing `load_transfers`. No second transfer map.
 - [ ] T055 [US2] Register the `binding` handler in `scripts/council_convening/corpus.py`, and run binding inside the `admission` handler between E2 steps 2 and 3 (R3-M4). Add `check` support for the offline half. Document the binding in `contracts/council-convening/README.md`, including the OPEN-2 ruling: the concrete instance lives in the consumer's governed runtime configuration, written at the provisioning act and validated at the consumer's pin.
-- [ ] T056 [US2] Run quickstart steps 1–5, record them in `evidence.md` § Phase 5, and open PR-5 as a draft.
+- [ ] T056 [US2] Run quickstart steps 1–5, record them in `evidence.md` § Phase 5, and open PR-5 as a draft. Record Brett Heap's answers to confirmations 2 and 3 before PR-5 lands, and adjust E10 and its vectors in this PR first if either answer differs from the plan's default.
 
 ---
 
@@ -395,7 +397,7 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
   - `--historical` classifies and never reinterprets: a legacy record routes (exit 3), and a replacement record verifies;
   - E11: `mode`, a `null` bundle only in rehearsal, pair matching on all five members, `replacement_not_admission_eligible` before the major;
   - `rejected_without_fallback`;
-  - E12 per act, in the activation order: `activation_evidence_malformed`; each act's required members; activation and resume need a passing matched rehearsal, found through `rehearsal_ref` in `inputs.rehearsal`, and verified broker capability; the two sides' selections compared on the five matched values; `rehearsal_ref` hashed over the exact text of `inputs.rehearsal`; a rollback without broker capability accepted; a rollback with `new_records_retained: false` refused as `activation_evidence_incomplete`, and one whose `new_records_protocol` is not the replacement refused as `historical_reinterpretation_refused` (N5; N19; R3-M2; R3-M6).
+  - E12 per act, in the activation order: `activation_evidence_malformed`; each act's required members; activation and resume need a passing matched rehearsal, found through `rehearsal_ref` in `inputs.rehearsal`, and verified broker capability; the two sides' selections compared on the five matched values; `rehearsal_ref` hashed over the exact text of `inputs.rehearsal`; a passing rehearsal whose provider or matched values differ from the activation's refused as `activation_evidence_incomplete` (R4-M5); a rollback without broker capability accepted; a rollback with `new_records_retained: false` refused as `activation_evidence_incomplete`, and one whose `new_records_protocol` is not the replacement refused as `historical_reinterpretation_refused` (N5; N19; R3-M2; R3-M6).
 - [ ] T058 [US3] Author the `migration` vectors, creating `contracts/council-convening/conformance/vectors/migration/` with the first of them, with their expected outcomes first. Raise `coverage_floor` to the full FR-001–FR-012 and SC-001–SC-003, and regenerate the index.
 - [ ] T059 [P] [US3] Extend `tests/council_convening/test_validator_cli.py`: `select` exits and findings; `check --historical` exits 0 on a replacement record and 3 on a legacy one; and the full-coverage note.
 
@@ -527,7 +529,7 @@ No task edits `openspec/changes/renew-resolved-council-protocol/`, `governance/r
 #1267 landed (80f47483) ──► #1268 (this plan) lands ──► Phase 1 ──► Phase 2 ──► Phase 3 ──┐
                                                                          │                ├──► Phase 4 ──► Phase 6 ──► Phase 7 ──► [OWNER tag] ──► Phase 8 ──► [OWNER tag] ──► Phase 9
                                                                          └──► Phase 5 ────┘
-Landing order: 1, 2, 3, 5, 4, 6, 7, 8, 9. Phase 5 lands after Phase 2 and before Phase 4.
+Landing order: 1, 2, 3, 5, 4, 6, 7, 8, 9. Phase 5 is authored beside Phases 2–3, lands after Phase 3, and lands before Phase 4.
 ```
 
 The order within a phase:
@@ -545,7 +547,7 @@ The order within a phase:
 - **Phase 2**: T024 ∥ T025 ∥ T027, then T026. T028 ∥ T029, then T030→T031→T032. T033 beside them.
 - **Phase 3**: T035 ∥ T037, then T036, then T038→T039→T040.
 - **Phase 4**: T042 ∥ T043 ∥ T045, then T044, then T046→T047→T048.
-- **Phase 5**: authored beside Phases 2–3 (T050–T055). Its corpus index is regenerated when it merges after Phase 2, and it lands before Phase 4.
+- **Phase 5**: authored beside Phases 2–3 (T050–T055). Its corpus index is regenerated when it merges after Phase 3, and it lands before Phase 4.
 - **Phase 7**: T065 ∥ T066 ∥ T067 ∥ T072 once T064 holds the claim.
 
 ## Implementation strategy

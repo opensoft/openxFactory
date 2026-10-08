@@ -209,7 +209,7 @@ The task ids in the 049 column are 049's own. All 025 entries are requirement id
 - #1267 is in `main` (`80f47483`), so that precondition is satisfied. This planning PR, #1268, lands on Brett Heap's word before PR-1 opens (I5).
 - Phase 1 precedes everything.
 - Phases 2→3 are sequential, because the snapshot binds the commission record.
-- Phase 5 depends only on Phase 1 and may be authored in parallel. It lands after Phase 2, so the corpus index merges once and its workflow-revision rule can read the E2 `governed` member.
+- Phase 5 may be authored in parallel from Phase 1. It lands after Phases 2 and 3, because binding runs inside admission and PR-5 re-authors every admission vector at that commit, and because its workflow-revision rule reads the E2 `governed` member.
 - Phase 4 needs Phases 3 and 5: registration checks a seat job's claims against its holder's binding (data-model E7 step 5). So the landing order is 1, 2, 3, 5, 4, 6.
 - Phase 6 needs Phases 2–5.
 - Phase 7 needs Phases 1–6 merged plus a claim on the contract-cut shared substrate.
@@ -240,7 +240,10 @@ Five questions were left for Brett Heap, each with a recommendation. He ruled al
   - A cited revision must be on the governed branch's first-parent history, and the rule file at that revision must equal its counterpart at the governed tip when admission runs; otherwise `rule_superseded`. The plan holds every governed source to this test, pending confirmation (below).
   - Where the rule repository is the producer repository, the producer's verified `job_workflow_sha` must equal the cited rule revision. The binding's closed `workflow_revision_rule` is `equals_governed_revision`.
   - Encoded in [R7](research.md#r7--governed-sources-rule-authority-and-revision-currency), data-model E2 step 5 and E10, and T025, T026, T031, T050, T051 and T053.
-  - Two applications of this ruling are flagged for Brett Heap's confirmation before PR-2 and PR-5 land, and both fail closed meanwhile: the currency test covers every governed source, not only the rule file; and a permitted workflow whose repository is not the governed repository is refused ([analysis.md](analysis.md#confirmations-requested)).
+  - Three applications of this ruling are flagged for Brett Heap's confirmation, and each is the plan's default meanwhile ([analysis.md](analysis.md#confirmations-requested)):
+    1. the currency test covers every governed source, not only the rule file (before PR-2);
+    2. a permitted workflow whose repository is not the governed repository is refused (before PR-5);
+    3. a seat job's workflow commit must be on the governed history at or after the frozen revision, rather than equal to it (before PR-5 and PR-4).
 - **OPEN-4: release-inventory membership.** Ruled "Join behind a version floor (Recommended)".
   - `COUNCIL_CONVENING_RELEASE_FLOOR` is set at the Phase 7 cut, following the clearing precedent (#722, ruled in #745).
   - Encoded in [R15](research.md#r15--release-surface-membership), T066 and T068.

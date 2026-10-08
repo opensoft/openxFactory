@@ -214,7 +214,7 @@ That reading fits the estate's calling pattern. xFactory's `council-convening-la
 **Why the ruled option.**
 
 - It never admits a roster under a rule that has since changed.
-- It never refuses on movement of main outside the governed sources. Under the every-source reading it does refuse when any governed source changed between commission and admission. Those sources are YAML documents that 57 codexFactory commits touched between 2026-09-01 and 2026-10-08, about 1.5 a day, against a commission-to-admission window of minutes. A refused convening is convened again.
+- It never refuses on movement of main outside the governed sources. Under the every-source reading it does refuse when any governed source changed between commission and admission. Only first-parent movement of the governed branch can supersede a source. 34 first-parent codexFactory commits touched those YAML sources between 2026-09-01 and 2026-10-08, about 0.9 a day, against a commission-to-admission window of minutes. That count comes from `git log --first-parent --since=2026-09-01 --until=2026-10-08T00:00:00 2ce8544e -- hermes/domain/agent-mixes.yaml 'scripts/merge_master/*.yaml' 'scripts/merge_master/*.yml' .github/merge-approval-envelope.yml`; 57 commits touched them across all history. A refused convening is convened again.
 - It closes the self-selection class the producer's adversarial review found (049 T008, F1: a candidate choosing the rule that decides its own membership).
 
 **Consumer impact.** 049 T010/T023 checks out its trusted tooling at exactly the verified workflow revision. 049 already requires the governed revision to be the run's own checkout HEAD (W0, `governed_revision_not_head`). The consumer reads the governed tip at admission. Both oracles model the ruled option ([R8](#r8--environment-oracles-make-authority-facts-and-heads-testable)), and the `rule_revision_ungoverned`, `rule_superseded` and `workflow_revision_ungoverned` vectors are authored in Phases 2 and 5.
@@ -227,7 +227,7 @@ That reading fits the estate's calling pattern. xFactory's `council-convening-la
 
 | Oracle | Answers |
 |---|---|
-| `governed_history` | For each `(repository, revision)`: whether the revision is on the governed branch's first-parent history |
+| `governed_history` | For each `(repository, revision)`: whether the revision is on the governed branch's first-parent history, and which governed revisions it is at or after |
 | `governed` | For each `(repository, revision, path)`: whether it is available, whether it is an admitted governed source, its SHA-256 (a file) or its entries (a listing), and the same value at the governed tip |
 | `rules` | The neutral projection derived from the governed sources at a revision |
 | `facts` | The authoritative facts for each fact source |
@@ -235,7 +235,7 @@ That reading fits the estate's calling pattern. xFactory's `council-convening-la
 | `head_refs` | The head ref of each `(repository, pull_number)`, as the trusted gather or the consumer read it |
 | `resolved_candidate` | The consumer's own resolution of the candidate, for admission |
 | `issued` | The issued challenges, registered keys, consumed challenges, accepted returns and live snapshots, as of `evaluation_time` |
-| `identity` | The verified claims, whether they were verified, the principal, and the broker's capability |
+| `identity` | The verified claims, whether they were verified, and the principal. Broker capability is the binding's own `broker` member, not an oracle |
 | `registry_status` | An override of E1 statuses, required on every vector whose outcome reads a status |
 
 The trusted trigger's expected candidate is an input, `inputs.expected_candidate`, not an oracle, because the producer receives it from its trigger.
@@ -357,7 +357,7 @@ The payload must be admissible under the construction: no non-integer number, no
 
 - **The issuer**, for principal kind `github_oidc_job`: exactly `https://token.actions.githubusercontent.com`, or that URL followed by `/<enterprise-slug>`. That is GitHub's documented issuer form for an enterprise with a unique issuer URL.
 - **The repository identity.** `producer_repository` is the repository the commission job runs in: the verified token's `repository` claim, which for a reusable workflow is the caller. A spelling that `contracts/policies/repository-identity.yaml` lists as `former`, or a case variant its `owner_case` names as non-canonical, is refused as `repository_identity_former`. A spelling the file does not list is taken as current; the file has one transfer row today. It is read through the existing `load_transfers` reader. `repository_id` is the immutable numeric identity. A verified `repository` or `repository_id` claim that differs from the binding is `repository_identity_mismatch`.
-- **The claims.** `audience` is a literal, never a pattern. `subject_claim_keys` and `subject_template` name the actual verified OIDC `sub` template, including a template customized through GitHub's documented subject claim keys. The closed key set is enumerated at T053 from GitHub's OIDC reference, which T053 cites. `permitted_workflows` lists `{operation, job_workflow_ref, workflow_revision_rule}`, and `workflow_revision_rule` is `equals_governed_revision` under the OPEN-3 ruling ([R7](#r7--governed-sources-rule-authority-and-revision-currency)).
+- **The claims.** `audience` is a literal, never a pattern. `subject_claim_keys` and `subject_template` name the actual verified OIDC `sub` template, including a template customized through GitHub's documented subject claim keys. The closed key set is enumerated at T053 from GitHub's OIDC reference, which T053 cites. `permitted_workflows` lists `{operation, job_workflow_ref, workflow_revision_rule}`. The rule is `equals_governed_revision` for the commission job, under the OPEN-3 ruling ([R7](#r7--governed-sources-rule-authority-and-revision-currency)), and `on_governed_history_since_revision` for a seat job. A seat runs after admission, when `main` may have moved, so the seat value applies the ruling's "history" half and is flagged for confirmation (analysis.md, confirmation 3). The binding carries a `binding_id`, which an assignment's `holder.binding_ref` names, so registration checks a seat job's claims against its own binding (data-model E7 step 5).
 - **The broker**: its reference, whether its capability is verified, and the evidence.
 
 The rules:
@@ -545,7 +545,7 @@ Local tests are never reported as publication, deployment or activation (spec Us
 
 ## R21 — Normative evaluation order
 
-**Decision.** Every boundary has one normative evaluation order, and the first failing check names the outcome. The orders are in [data-model.md](data-model.md): commission and admission (E2), the snapshot half of admission (E4), registration (E7), return and completion (E8), binding (E10), selection (E11) and activation (E12). Every order over a protocol-carrying record begins with classification (E1). The binding, selection and activation orders are over records judged by kind, and completion is over frozen state. At admission, binding runs after the record's classification and shape check (E2 steps 1 and 2), because it reads the record's `governed` member. Every vector names exactly one expected code, with no "or", and multi-defect vectors pin the order: one record with two defects must yield the earlier code.
+**Decision.** Every boundary has one normative evaluation order, and the first failing check names the outcome. The orders are in [data-model.md](data-model.md): commission and admission (E2), the snapshot half of admission (E4), registration (E7), return and completion (E8), binding (E10), selection (E11) and activation (E12). Every order over a protocol-carrying record begins with classification (E1). The binding, selection and activation orders are over records judged by kind, and completion is over frozen state. At admission, binding runs after the record's classification and shape check (E2 steps 1 and 2), and its workflow-revision step runs only after E2 step 5 has checked the `governed` member it reads. Every vector names exactly one expected code, with no "or", and multi-defect vectors pin the order: one record with two defects must yield the earlier code.
 
 Three ordering rules matter most:
 
