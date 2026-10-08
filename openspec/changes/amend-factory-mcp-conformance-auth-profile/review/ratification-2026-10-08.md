@@ -152,3 +152,14 @@ Copilot's review of `077e0f78` raised three more, again none in the delta:
   today, so a hosted declaration made before this profile has no block to
   inspect. `auth_rs256_missing` is the signal of a block that lists EdDSA
   alone. The three places now say both.
+
+Copilot's review of `0fde3df9` left no open thread and three findings in its
+body, all on one point, again none in the delta:
+
+- **`design.md` D7, `tasks.md` 2.2 and `proposal.md` front matter.** Not every
+  case can be red-first against `main`. A not-deployed service carrying `auth`
+  is already refused (`schema_oneOf`, the closed branch), and a block-free stdio
+  declaration is already accepted. Both now take characterization tests, which
+  pass on `main` and pin behavior the change must not lose. Every new refusal,
+  and every existing code at its new `/service/auth/...` location, stays
+  red-first, and the three places say the same.

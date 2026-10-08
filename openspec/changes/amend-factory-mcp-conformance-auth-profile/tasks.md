@@ -80,16 +80,22 @@ Boxes for work this change will never do carry `[~]`, in § 5.
 - [ ] 2.1 Create the Speckit feature from the ratified packet. Its spec and
   plan trace to this delta, and it runs clarify, plan, checklists, tasks and
   analyze.
-- [ ] 2.2 Red-first tests in `tests/factory-mcp/`, committed before any schema
-  or validator change and shown failing against the validator on `main`:
-  - one test per code in `design.md` D7;
+- [ ] 2.2 Tests in `tests/factory-mcp/`. Red-first for every NEW refusal,
+  committed before any schema or validator change and shown failing against the
+  validator on `main`; characterization for what `main` already does:
+  - one red-first test per new code in `design.md` D7, and per existing code at
+    its new `/service/auth/...` location (`main` has no block to inspect, so
+    each fails there);
+  - characterization tests, which pass on `main` and must keep passing: a
+    not-deployed service carrying `auth` is refused with `schema_oneOf` at
+    `/service` (the closed branch rejects it today), and a stdio-only
+    declaration that needs no block validates;
   - the scenarios of the four ADDED requirements, including a hosted
     declaration without the block, an algorithm list without RS256, `none`
     and each HMAC name in more than one letter case, an audience bound to
     another resource, an issuer carrying userinfo, a hosted canonical
-    resource URI carrying a query, a dangling id and a repeated id in the
-    block's `evidence_ids` and in its `gap_ids`, and a stdio-only declaration
-    that needs no block;
+    resource URI carrying a query, and a dangling id and a repeated id in the
+    block's `evidence_ids` and in its `gap_ids`;
   - M5: an error-inventory dependency code mapped as a completed evaluation is
     refused, and a result status mapped as an execution failure is refused.
     The enforcement exists already, so these are shown red against a mutant

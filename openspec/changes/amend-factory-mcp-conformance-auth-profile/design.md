@@ -227,8 +227,15 @@ They report in the existing dimensions and stable-ordering rules.
 | `duplicate_support_reference` (existing) | semantics | `/service/auth/evidence_ids` or `/service/auth/gap_ids` | an id is repeated within one of the block's two lists |
 | `missing_support_reference` (existing) | semantics | `/service/auth/evidence_ids/<k>` or `/service/auth/gap_ids/<k>` | a cited id matches no evidence or gap record |
 
-Every row has a red-first test, written before the validator change and shown
-failing against the validator on `main` (`tasks.md` 2.2). Probed at `main`
+Every row that is new has a red-first test, written before the validator change
+and shown failing against the validator on `main` (`tasks.md` 2.2). So does an
+existing code at its new `/service/auth/...` location (`schema_uniqueItems`,
+`duplicate_support_reference`, `missing_support_reference`): `main` has no block
+to inspect, so a test expecting it there fails on `main`. Two cases cover what
+`main` already does and take characterization tests instead, which pass on
+`main` and pin behavior the change must not lose: a not-deployed service
+carrying `auth` (the `schema_oneOf` row, because the closed branch rejects the
+property today) and a block-free stdio declaration (accepted today). Probed at `main`
 `80f47483`, the starting point is the expected one: the synthetic example with
 its service made `deployed` (synthetic host, no block) is `valid-with-gaps`
 with no diagnostic, and the same declaration with an `auth` field is `invalid`,
