@@ -1,2 +1,38 @@
 schema: spec-driven
 created: 2026-10-03
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-10-03-renew-resolved-council-protocol
+  reason: >-
+    BRETT HEAP'S IN-SESSION DIRECTION OF 2026-10-03, "implement this", given
+    after the seven-item comparison of codexFactory draft 017
+    (`resolve-council-seat-roster`); this is the Commission line of
+    `proposal.md`. It followed #517 (`add-resolved-council-seats`), closed
+    unmerged on his word with instructions to re-propose against the current
+    bundle. WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN
+    ASSUMED: `ideation/staging/` was searched on 2026-10-08 (main `c9dfd4f8`)
+    for `resolved council`, `resolved-council`, `required_seats`,
+    `renew-resolved`, `resolved-roster` and `add-resolved-council-seats`, and
+    no file matches; `ideation/staging/INDEX.md` lists no topic for this
+    capability. DECLARED AFTER RATIFICATION: the packet was ratified at
+    `968de748` with no origin block. This block was added on 2026-10-08 on
+    Brett Heap's ruling recorded at opensoft/brett-wip
+    `lanes/log/codeXfactory-2.md` line 181, and
+    `openspec/origin-dispositions.yaml` records it on that word.
+  approved_by: >-
+    Brett Heap (openxFactory repository owner) gave the word on 2026-10-03,
+    in a Codex session, verbatim "ratify all three as disclosed", over the
+    reviewed head `b5cdf154208c1a5fd59e3936b483f37448ca85f9`; the record is
+    `review/ratification-2026-10-03.md`. On 2026-10-08T17:43:04Z,
+    first-hand to lane `codeXfactory-2`, he confirmed that the word covers
+    the text published in opensoft/openxFactory#1267: a multiple-choice
+    selection of the recommended option, label verbatim "Yes, it covers
+    them (Recommended)", recorded at opensoft/brett-wip
+    `lanes/log/codeXfactory-2.md` line 180, commit `20d534cc`. The
+    confirmation is not a second ratification.
+  approved_on: 2026-10-03
+  proposed_by: >-
+    Brett Heap's Codex session of 2026-10-03, outside a registered lane
+    (commit `b5cdf154`). Lane `codeXfactory-2` first published the packet on
+    2026-10-07 as opensoft/openxFactory#1267.
+  proposed_on: 2026-10-03

@@ -559,6 +559,41 @@ _LEDGER_SUBJECTS = {
     # deliberate rewording this row recorded is no longer a difference between
     # an active block and canon. Re-measured over this tree: the family
     # reports neither this subject nor any unnamed one.
+    # ADDED 2026-10-07 BY `amend-worker-input-budget-dispatch-wording`
+    # (openxFactory #1262, lane `openxfactory-1`), the wording amendment that
+    # Brett Heap's ruling on Copilot's comment 4202036546 at PR #1258 deferred,
+    # verbatim "(a) land as ratified, amend later". ONE uncarried unit, and it
+    # is the packet's whole subject: the SECOND paragraph of doc-health's
+    # *Bounded worker input budget*, whose last sentence forbade an over-budget
+    # dispatch with a SHALL NOT and then called that same dispatch
+    # "conformant". The block replaces that one sentence with #1262's text,
+    # which keeps the SHALL NOT verbatim and names the worker's refusal as a
+    # backstop that does not make an over-budget dispatch conformant. The
+    # other 24 of the 25 units are carried byte-for-byte, all six scenarios
+    # included. Nothing canon obliged is released: the obligation is unchanged
+    # and only the rationale that contradicted it goes. A `**Removed from
+    # canon by**` marker was NOT used, because the marker is promoted with the
+    # block and would carry the removed sentence into canon at archive, which
+    # is the one thing #1262's acceptance 3 forbids. This arm cannot
+    # distinguish a deliberate rewording from drift and does not claim to; the
+    # finding is INFO and it is the audit trail for the rewording. RETIRES
+    # when the packet archives and its block is promoted onto
+    # `openspec/specs/doc-health/spec.md` (its `tasks.md` § 4).
+    # RETIRED 2026-10-08: the ONE row `amend-worker-input-budget-dispatch-wording`
+    # opened on 2026-10-07 (the block immediately above, over doc-health
+    # *Bounded worker input budget*) retired ON ITS OWN STATED CONDITION —
+    # "RETIRES when the packet archives and its block is promoted onto
+    # `openspec/specs/doc-health/spec.md`". The packet was ratified in place
+    # on Brett Heap's word "ratify 1262 when ready" and landed by squash as
+    # PR #1264 → `a936e531`; it ARCHIVED on his separate word "archive it
+    # after it lands" (RULED in `opensoft/brett-wip`
+    # `lanes/log/openxfactory-1.md` at 2026-10-07T11:04:36Z). `code_surface:
+    # none`, so it archives on landing plus its task list. Its `## MODIFIED`
+    # block was promoted BYTE-IDENTICAL into canon (3,771 bytes,
+    # sha256 `83326fa0f49f6e7c…` on BOTH sides), so canon now carries the
+    # reworded sentence and the one unit this row recorded as uncarried is no
+    # longer a difference between an active block and canon. Re-measured over
+    # this tree: the family reports neither this subject nor any unnamed one.
     # ADDED 2026-09-01 BY `add-chain-attestation`, TRANCHE TWO of the
     # signed-execution-chain arc, whose proposal merged to `main` via PR #510
     # without this ledger moving with it — which is why every openxFactory pull
@@ -2291,6 +2326,32 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     12 unique, the same pre-existing `add-chain-attestation`
     duplicate collapsing as it always has.
 
+    THIRTEEN SINCE 2026-10-07, WHEN `amend-worker-input-budget-dispatch-wording`
+    (openxFactory #1262) OPENED ONE ROW over doc-health's *Bounded worker
+    input budget*, the requirement `add-worker-input-budget` promoted the day
+    before. Its `## MODIFIED` block rewords ONE sentence of the requirement's
+    second paragraph, the rationale clause that called a forbidden
+    over-budget dispatch "conformant", on Brett Heap's ruling on Copilot's
+    comment 4202036546 at PR #1258, verbatim "(a) land as ratified, amend
+    later". The arm reports 1 of the block's 25 units as uncarried, and that
+    unit is the amendment. One row opens, not a regression, and it retires
+    when the packet archives and its block is promoted. `len(_LEDGER_SUBJECTS)`
+    MEASURED AT THIS HEAD reads THIRTEEN — 14 literal entries, 13 unique, the
+    same pre-existing `add-chain-attestation` duplicate collapsing as it
+    always has.
+
+    TWELVE AT THIS HEAD, 2026-10-08 — RE-MEASURED, NOT SUBTRACTED.
+    `amend-worker-input-budget-dispatch-wording` ARCHIVED on Brett Heap's
+    separate archive word "archive it after it lands", after its
+    ratification landed by squash as PR #1264 → `a936e531`. `code_surface:
+    none`, so it archives on landing plus its task list, and the one row it
+    opened on 2026-10-07 retired with it, its block promoted BYTE-IDENTICAL
+    into canon (3,771 bytes, sha256 `83326fa0f49f6e7c…` on both
+    sides). That is a DISCHARGE and not a departure. `len(_LEDGER_SUBJECTS)`
+    MEASURED AT THIS HEAD reads TWELVE — 13 literal entries,
+    12 unique, the same pre-existing `add-chain-attestation`
+    duplicate collapsing as it always has.
+
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
     which is the defect this family exists to catch. Asserted loosely in the one
@@ -2459,13 +2520,23 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "the merged-plus-green realization evidence its non-empty "
         "code_surface requires (PR #1119 -> 5e122388, main green at that "
         "commit), and its one row retired with it, its block promoted "
-        "byte-identical into canon; AND 12 ON 2026-10-06, when "
+        "byte-identical into canon; 12 ON 2026-10-06, when "
         "add-worker-input-budget ITSELF ARCHIVED on Brett Heap's separate "
         "archive word 'archive add-worker-input-budget after it lands', held "
         "behind the merged-plus-green realization evidence its non-empty "
         "code_surface requires (PR #1137 -> 9da52e31, main green at that "
         "commit), and its one row retired with it, its block promoted "
-        "byte-identical into canon)",
+        "byte-identical into canon; 13 SINCE 2026-10-07, when "
+        "amend-worker-input-budget-dispatch-wording (#1262) opened ONE row "
+        "over doc-health's Bounded worker input budget, rewording the one "
+        "rationale sentence that called a forbidden over-budget dispatch "
+        "conformant, on Brett Heap's ruling '(a) land as ratified, amend "
+        "later'; AND 12 ON 2026-10-08, when that packet ITSELF ARCHIVED on "
+        "Brett Heap's separate archive word 'archive it after it lands', its "
+        "ratification having landed by squash as PR #1264 -> a936e531 "
+        "(code_surface none: it archives on landing plus its task list), and "
+        "its one row retired with it, its block promoted byte-identical into "
+        "canon)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")

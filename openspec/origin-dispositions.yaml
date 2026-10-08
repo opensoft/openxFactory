@@ -79,3 +79,45 @@ dispositions:
       this file's first entry, whose accepted declaration is likewise the
       ratifier's own later word. RESTORING the ratified bytes instead would
       delete the only origin-block record of that word.
+  - change_id: renew-resolved-council-protocol
+    ratified_at: 968de7487c32d6f5f630b21e5be1dddecac2d819
+    mutation_at: c798f1a1e22847edd321e9ceae3937740f86884c
+    changed_keys: []
+    disposition: accept
+    disposed_by: Brett Heap (openxFactory repository owner)
+    disposed_on: "2026-10-08"
+    word: >-
+      "Approve both (Recommended)" — Brett Heap, 2026-10-08T17:43:04Z,
+      first-hand in session to lane `codeXfactory-2`, a MULTIPLE-CHOICE
+      selection taking the recommended option. It is recorded verbatim as the
+      RULED line "#1267 edits = 'Approve both (Recommended)': in
+      renew-resolved-council-protocol proposal.md, replace code_surface and
+      target_release with the proven lines, and add an origin: ad_hoc block;
+      a dated amendment note says they change no substance; a
+      health/dispositions.yaml entry citing this ruling covers the origin
+      addition at archive."
+    cited_to:
+      - opensoft/brett-wip lanes/log/codeXfactory-2.md line 181 — the RULED line for that word, 2026-10-08T17:43:04Z (brett-wip commit 20d534ccdd7610846a17badd3d02301e1e2b44d1); line 180 is the same sitting's confirmation that the 2026-10-03 ratification covers the published text
+      - https://github.com/opensoft/openxFactory/pull/1267 — the pull request that encodes the word, in commit c798f1a1e22847edd321e9ceae3937740f86884c
+      - openspec/changes/renew-resolved-council-protocol/review/ratification-2026-10-03.md § ADDENDUM 2026-10-08 — the full record of the word and of the three edits
+    fact: >-
+      The ratifying commit 968de748 is the first commit whose `proposal.md`
+      declares `Status: ratified`. Its `.openspec.yaml` carried NO origin
+      block, only `schema` and `created`, as at the reviewed head b5cdf154.
+      Commit c798f1a1 ADDS the whole block (`kind: ad_hoc`, `id`, `reason`,
+      `approved_by`, `approved_on`, `proposed_by`, `proposed_on`). Its
+      approval pair restates the 2026-10-03 ratification and the 2026-10-08
+      confirmation; it grants no new approval. As measured on 2026-10-08,
+      this gate reads a ratifying commit without an origin as ORIGIN
+      RETENTION NOT COMPARABLE and returns no finding, so it does not read
+      this entry today. `changed_keys` is `[]` because `_changed_keys`
+      measures nothing against an absent block. The entry is written anyway,
+      on the word, because this file is the one place that says on whose
+      word an origin was added after ratification. It also covers the
+      addition if the gate is ever made to compare an absent block. The
+      ruling's text names `health/dispositions.yaml`, but this gate reads
+      THIS file (`ORIGIN_DISPOSITIONS_REL`), which serves the ruling's stated
+      purpose of covering the origin addition at archive. If #1267 lands by
+      squash, `mutation_at` names a commit main does not reach, and the
+      archive act repoints it to the landing commit, as the
+      add-estate-repository-inventory entry above did.

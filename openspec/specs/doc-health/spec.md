@@ -4083,8 +4083,11 @@ the ORCHESTRATOR assembles the prompt, it SHALL pack within the budget and
 defer what does not fit. Where the WORKER assembles the prompt from a
 dispatchable unit the orchestrator prepared, the orchestrator SHALL measure
 each unit's assembled size, record it, and SHALL NOT dispatch a unit it has
-measured over the budget — dispatching one and letting the worker refuse is
-conformant but useless, because the same unit is selected again next run.
+measured over the budget. The worker's refusal of an over-budget input
+(scenario "A worker receives an input over the budget") is a backstop that
+keeps such an input from reaching the model. It does not make an
+over-budget dispatch conformant, and relying on it wastes the run, because
+the same unit is selected again next run.
 
 Packing SHALL be deterministic: the same corpus and the same budget always
 produce the same prompt and the same held-back set. Documents SHALL be
