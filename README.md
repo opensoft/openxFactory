@@ -540,6 +540,36 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [refresh-install-repository-enumerations-opsxfactory-gateway](openspec/changes/refresh-install-repository-enumerations-opsxfactory-gateway/proposal.md)
+  — filed 2026-10-08, lane `openxfactory-5`, **`Status: draft`**; held for Brett
+  Heap's ratify word, and a land word and an archive word are further, separate
+  acts. On his multiple-choice word of 2026-10-08, verbatim option label *"Lane 5
+  indexes it now (Recommended)"*, which commissioned the authoring and ratified
+  no text; the successor that `repo-boundary-governance`'s *"Install-repository
+  enumerations are an index with a named authority"* asks an admitting change to
+  name, openxFactory
+  [#1259](https://github.com/opensoft/openxFactory/issues/1259), named by
+  opensoft/xFactory#567 (merge `651dd5c9`, `installs/opsxfactory-gateway-install`
+  pinned at `26f53c96`). **FIVE `## MODIFIED` requirements across three
+  capabilities, titles unchanged**: the sixth install repository,
+  `OpsxFactory-Gateway-Install`, joins the install-repository enumerations in
+  `repo-boundary-governance` (three requirements, one paragraph added carrying
+  the gateway's admission record), `shared-contract-ownership` (one) and
+  `canonical-contract-migration` (one, **open question OQ-1**: the adapter family
+  `Ops-gateway`, recommended yes). Every widening is a list extension, each
+  replaced unit sits under a `Removed from canon` marker, and every other
+  sentence and scenario is carried byte-identically. *"Submodule is proposed"*
+  already ends *"or a later install repository"* and is not edited. **Open
+  question OQ-2**: no routing scenario for the gateway, recommended, because no
+  requirement fixes what its repository owns. No boundary requirement is
+  authored for it, and nothing is built. The `## Purpose` widening is owed at the
+  archive, not carried in a delta. No other active change writes any of these
+  requirement keys, measured; the ledger row reads `class: co-modifier` on
+  archived history and the packet declares `sequenced_after:
+  [refresh-install-repository-enumerations,
+  amend-repo-boundary-governance-scope-first-line]`. `code_surface: none`,
+  `target_release: implemented`; archives on landing.
+
 - [correct-naming-families-count](openspec/changes/correct-naming-families-count/proposal.md)
   — filed 2026-10-07, lane `codeXfactory-5`, **`Status: ratified`**
   (2026-10-07, Brett Heap, *"ratify as recommended when the PR opens"*, logged
