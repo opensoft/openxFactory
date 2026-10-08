@@ -58,7 +58,7 @@ across every promoted `spec.md`) and by reading the adapter bullet's neighbours:
 | — | `repo-boundary-governance:108-118` | *"Install repo scope links"*, per-repository README scenarios for Hermes and Omnigent | No: per-repository instances, not an index; the body is already general |
 | — | `shared-contract-ownership:47`, `:91` | Gate G0 remote sentence; *"Hermes-Install remote is unresolved"* | No: one consumer's remote identity and one repository's condition |
 | — | `canonical-contract-migration:5` | `## Purpose`, *"source repos (e.g. Omnigent-Install)"* | No: an `e.g.` list does not go stale |
-| — | `repo-boundary-governance:120-141`, `:220-306` | *"Neutral installer repository integration"*; *"OmniWorker install repository boundary"* | No: each is one repository's own boundary |
+| — | `repo-boundary-governance:120-141`, `:220-307` | *"Neutral installer repository integration"*; *"OmniWorker install repository boundary"* | No: each is one repository's own boundary |
 | — | `repo-boundary-governance:309-` | the ADDED index requirement | No edit, and why: D5 |
 | — | `contracts/README.md:18`, `docs/repo-boundary-pilot-plan.md:100` | an editorial release-inventory member; a dated pilot record | No: out of scope by class, as the refresh found |
 
