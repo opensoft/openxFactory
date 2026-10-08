@@ -41,15 +41,22 @@ floor:
   # digest and by the generator's byte-identity `--check`; a policy number
   # rendered into it would move those witnesses on a decision that has nothing
   # to do with the tree the block enumerates. It is hand-authored HERE, beside
-  # the eight hand-reasoned entries, in this CODEOWNERS-routed document.
+  # the hand-reasoned entries. (No CODEOWNERS rule routes this document:
+  # `relocate-review-authority-floor` D-1 moved it to `floor/`, a path no
+  # pattern matches, so the regeneration lane's pull request would stop routing
+  # to a named individual — `d1f8bf1b`.)
   pending_floor_extension_tolerance: 3
-  # THIS DOCUMENT IS 8 + 1, NOT 68 EQUALLY-REASONED CHOKEPOINTS.
+  # THIS DOCUMENT IS 17 + 1, NOT 84 EQUALLY-REASONED CHOKEPOINTS.
   #
-  # EIGHT hand-reasoned gate chokepoints, each with its own ground below: the
+  # SEVENTEEN hand-reasoned gate chokepoints, each with its own ground below: the
   # intake register, the two paths that determine WHICH READER opens it, a
   # fourth that determines WHICH DECISION CORE judges this repository at all,
-  # and FOUR more naming the SIBLING factory-identity register family added by
-  # openxFactory's ratified `add-cpc-clearing-boundary` (task 2.7).
+  # FOUR more naming the SIBLING factory-identity register family added by
+  # openxFactory's ratified `add-cpc-clearing-boundary` (task 2.7), and NINE more
+  # naming the intake register's OWN records — its wallets, grants and custody
+  # attestations — entered BY NAME as openxFactory's ratified
+  # `register-gate-rules-council-seats` requirement requires
+  # (`specs/review-authority-intake/spec.md:90-98`; its task 4.3).
   #
   # PLUS ONE machine-generated block carrying every tracked path under
   # `openspec/specs` — openxFactory's promoted OpenSpec canon — floored as one
@@ -93,10 +100,17 @@ floor:
   # file. `tests/merge-master/test_repository_gate_floor.py` asserts the absence
   # so it cannot later be mistaken for an oversight.
   #
-  # PRE-EXISTING and out of scope here (`split-openxwallet-repo` §8.3): this floor
-  # omits `governance/review-authority/{grants,wallets,attestations}/`, and
-  # lead-security's 2026-08-26 floor-reachability finding stands. Both belong to
-  # the arc owner of `add-wallet-carried-review-authority`.
+  # THE GAP `split-openxwallet-repo` §8.3 RECORDED IS CLOSED BY NAME BELOW. That
+  # change recorded, as PRE-EXISTING and the arc owner's, that this floor omitted
+  # `governance/review-authority/{grants,wallets,attestations}/` and that
+  # lead-security's 2026-08-26 floor-reachability finding stood. openxFactory
+  # `register-gate-rules-council-seats` requires the entries
+  # (`specs/review-authority-intake/spec.md:90-98`) and its task 4.3 (design D6)
+  # named the owed act; the nine records are entered at the end of the
+  # hand-reasoned list, with their ground. The finding's MECHANISM half — a floor path no tree carries — is
+  # what `parse_repository_floor`'s R24 tree check refuses, and lead-security
+  # recorded LS-F5 closed at the 2026-08-28 convening; all seventeen entries are
+  # tracked at the generated block's own `generated_at`.
   never_clearable_paths:
     - governance/review-authority/register.yaml
     # The product pin: which openXwallet commit and digests openxFactory consumes.
@@ -140,6 +154,7 @@ floor:
     # that confers the origin act — and the custody attestation that lifts its
     # unattested cap — council-clearable. Editing either one changes what a
     # verified origin signature MEANS without touching the register at all.
+    # (The intake trio's own gap is closed by the section after this family.)
     #
     # THE STANDING LIMIT, STATED RATHER THAN DISCOVERED LATER. This is an
     # ENUMERATION, so a record ADDED under `governance/factory-identity/` is not
@@ -154,6 +169,82 @@ floor:
     - governance/factory-identity/wallets/wal-origin-codexfactory-0001.yaml
     - governance/factory-identity/grants/grant-origin-codexfactory-0001.yaml
     - governance/factory-identity/attestations/custody-attest-wal-origin-codexfactory-0001.yaml
+    # ---------------------------------------------------------------------
+    # THE INTAKE REGISTER'S OWN RECORDS — wallets, grants and custody
+    # attestations — entered BY NAME.
+    #
+    # THE REQUIREMENT THESE ENTRIES REALIZE, and the reason any one of them may
+    # not later be deleted as untidiness: openxFactory's ratified
+    # `register-gate-rules-council-seats` (ratified 2026-09-06), ADDED
+    # requirement "The rule-setting body never clears a candidate that edits
+    # the register or the artifacts that confer its own authority",
+    # `specs/review-authority-intake/spec.md:90-98` — "where a gate enumerates
+    # never-clearable floor members by exact path, the artifacts conferring a
+    # registered body's authority SHALL be entered there BY NAME". This
+    # document is that gate. A requirement outlives the task that discharged
+    # it; an entry anchored only to a task could be removed after the task
+    # archives without violating canon.
+    #
+    # The owed act was named by that change's task 4.3 (design D6): "Not closed
+    # by this change and not inferable from the register's own floor entry" —
+    # and recorded as PRE-EXISTING by `split-openxwallet-repo` §8.3, for the arc
+    # owner of `add-wallet-carried-review-authority`, who closes it here.
+    #
+    # WHY THE REGISTER ENTRY WAS NOT ENOUGH. The register INDEXES authority;
+    # these records ARE it. Each register row names a `wallet_ref` and a
+    # `grant_ref`, and the pinned reader resolves both from these files; a
+    # wallet's custody attestation is what lifts its unattested cap. A pull
+    # request editing a grant's acts, objects, tier or expiry, a wallet's
+    # declared keys, or an attestation's custody posture changes WHO MAY REVIEW
+    # without touching `register.yaml` — and until this section it matched no
+    # floor path, so it was council-clearable by the very councils those grants
+    # commission: `merge_readiness_council`, and `gate_rules_council`, the body
+    # that SETS this list. `add-wallet-carried-review-authority` D6 exists to
+    # prevent exactly that outcome.
+    #
+    # ALL NINE, INCLUDING THE REVOKED GRANTS. Revocation is recorded IN the
+    # grant (`state: revoked` and its `revocation` block), so an edit to a
+    # revoked grant can un-revoke it. Measured at the generated block's own
+    # `generated_at` — the one openxFactory commit this document is measured at
+    # — where these nine and the register are every tracked path under
+    # `governance/review-authority/`.
+    #
+    # THE STANDING LIMIT, STATED RATHER THAN DISCOVERED LATER. This is an
+    # ENUMERATION, so a record ADDED under `governance/review-authority/` is not
+    # floored until it is named here. Every commit in openxFactory's history
+    # that ADDED a grant file also edited the floored register: `9374b16b`,
+    # `f1706a3a`, `4719f07f` (values filled by `74f75b6c`), `a30b8234` and
+    # `764006df` (filled by `98f78a8a`) — five grant-issuing acts. But nothing
+    # REQUIRES that of a new record, and a new ATTESTATION need not touch the
+    # register at all: the pinned reader globs `attestations/*.y*ml` in sorted
+    # order and keeps the LAST attestation it reads for a wallet (openXwallet
+    # `f3eb929b`, `scripts/validate-openxwallet.py:2728-2780`), so an added file
+    # can displace a wallet's existing attestation without touching any floored
+    # path. A register act that adds a record therefore owes a codexFactory pull
+    # request naming it here, then the openxFactory re-pin — the two-act
+    # discipline the factory-identity family above states.
+    # `repository_floor_drift.py` catches the REMOVAL direction; the ADDITION
+    # direction is caught only by the reviewer and by
+    # `tests/merge-master/test_repository_gate_floor.py`'s opt-in
+    # `test_task_4_3_the_enumeration_is_the_whole_family_at_the_blocks_pin`, run
+    # against a real openxFactory tree — and that alarm measures only at the
+    # block's `generated_at`, never at openxFactory's head.
+    #
+    # THE RESIDUAL HAS A NAMED OWNER: lane codeXfactory-2, as follow-ups (Brett
+    # Heap, 2026-10-08, "This lane, as follow-ups (Recommended)").
+    # opensoft/openXwallet#29 — the reader refuses a second attestation for the
+    # same wallet instead of keeping the last one it reads;
+    # codeXfactory/codexFactory#536 — the opt-in check measures at openxFactory's
+    # default-branch head instead of only at the block's pin.
+    - governance/review-authority/wallets/wal-agent-grc-0001.yaml
+    - governance/review-authority/wallets/wal-agent-mrc-0001.yaml
+    - governance/review-authority/grants/grant-grc-0001.yaml
+    - governance/review-authority/grants/grant-grc-0002.yaml
+    - governance/review-authority/grants/grant-grc-0003.yaml
+    - governance/review-authority/grants/grant-mrc-0001.yaml
+    - governance/review-authority/grants/grant-mrc-0002.yaml
+    - governance/review-authority/attestations/custody-attest-wal-agent-grc-0001.yaml
+    - governance/review-authority/attestations/custody-attest-wal-agent-mrc-0001.yaml
     # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
     # prefix:             openspec/specs
     # source_repository:  opensoft/openxFactory
@@ -165,7 +256,7 @@ floor:
     #     --ref a2dc658d90be2eaf700a41f60599c68905485e46 --write
     #
     # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
-    # The eight entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
+    # The seventeen entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
     # selects the reader, the judge, or a register or the records beside it. The
     # entries BELOW are
     # CONTENT — the promoted OpenSpec canon of `opensoft/openxFactory`, every
@@ -175,7 +266,7 @@ floor:
     # propose a subset because "a smaller enumeration has the identical failure
     # mode, merely less often").
     #
-    # SO THE READER IS NOT MISLED: this document is 8 + 1, not 68 equally-reasoned
+    # SO THE READER IS NOT MISLED: this document is 17 + 1, not 84 equally-reasoned
     # chokepoints (CSC-C9). Do not hand-edit the block. Do not add a member by
     # hand. Regenerate it with the command above, at a named openxFactory commit.
     #
