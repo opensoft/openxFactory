@@ -2094,3 +2094,88 @@ said what would close the two rows, and this note records that word.
 convening is dispatched, and no Rule 6 LANDING is posted by this note: the pull
 request that carries it touches `openspec/changes/`, so the landing lane posts
 LANDING and LANDED when it lands, and it lands only on Brett Heap's word.
+
+#### 13.6 — BOOKKEEPING NOTE 4 APPENDED 2026-10-08: TASK 4.3 TICKED — THE INTAKE REGISTER'S RECORDS ARE FLOORED BY NAME (cxF #534 → `ce923636`, oxF #1277 → `40d6e5c1`); THE RESIDUAL IS OWNED
+
+Read 2026-10-08 by lane `codeXfactory-2` (session
+`8d6bf418-cc06-45d9-9406-2374935c6c72`) and composed by a Sonnet agent the lane
+directed. The reads were read-only: `gh pr view` and `gh api` on the two merged
+pull requests and the two follow-ups, and `git` reads of openxFactory `main` at
+`40d6e5c1bbed6fb976e7933200236e353777ee47`, which is #1277's merge commit.
+Nothing is dispatched, posted or merged by this note, and nothing under
+`governance/review-authority/`, `.github/workflows/` or `contracts/` moves. Like
+notes 1 to 3 it is appended at the end of the file and edits no earlier section.
+
+**Why this note exists.** Note 3 (2026-10-07) recorded that lane `codeXfactory-2`
+owns task 4.3 and left the row open because its fix, cxF draft PR #534, was
+unmerged. Both prerequisites for the tick have since merged, and the tick was
+named in advance as the thing that follows them: Brett Heap's word *"Merge #1277
+when green"* carried the option text *"Then this lane ticks Q-GRC-4 task 4.3 in
+openxFactory, citing both merges"* (as relayed by the lane coordinator).
+
+| # | what merged | where | when (UTC) | what it did |
+|---|---|---|---|---|
+| 1 | cxF PR #534 → `ce9236363d044bc6d8cf9b9f7a5bd15ecaff9559` | codeXfactory/codexFactory | 2026-10-08T21:35:33Z | codexFactory's floor now names BY NAME the nine records under `governance/review-authority/`: two wallets, five grants, two custody attestations |
+| 2 | oxF PR #1277 → `40d6e5c1bbed6fb976e7933200236e353777ee47` | opensoft/openxFactory | 2026-10-08T23:15:55Z | the review-lane re-pin: `contracts/review-lane-pin.yaml` `core_commit` → `ce9236363d044bc6d8cf9b9f7a5bd15ecaff9559`; the vendored floor snapshot's `sha256` → `9a42e76f…` and `entry_count` 75 → 84 |
+
+**Brett Heap's words on this, as recorded.** *"Land when green after fixes
+(Recommended)"* for #534 (its description, *"Landing"*). *"No convening owed
+(Recommended)"*, first-hand on 2026-10-08, because the ratified requirement
+already mandates the act (cxF #279 comment `6066532414`, 2026-10-08T18:34:00Z).
+*"This lane, as follow-ups (Recommended)"* for the residual (the same comment).
+*"Merge #1277 when green"* is as relayed above. The requirement is this change's
+own, `specs/review-authority-intake/spec.md:90-98`: where a gate enumerates
+never-clearable floor members by exact path, the artifacts conferring a
+registered body's authority *"SHALL be entered there BY NAME"*, and a change that
+registers a body in directories the floor does not name *"SHALL record that gap
+with an owner rather than inherit it silently"*.
+
+**What task 4.3 asked, and what is now true.** The row said
+`governance/review-authority/{grants,wallets,attestations}/` were not named in
+codexFactory's floor and that this change's § 3 added three files there, one of
+them the grant conferring the rule-setting body's own authority. At `40d6e5c1b`
+the snapshot `contracts/review-lane-floor-snapshot.yaml` lists the register and
+all nine records by name (lines `:239-247` for the nine), including
+`grants/grant-grc-0003.yaml`, the live `grant_ref` of `row-grc-0001`. Those ten
+are every tracked path under `governance/review-authority/` (`git ls-files`).
+The snapshot's `sha256` begins `9a42e76f0cd26811` on recomputation, equal to the
+pin's. The row is ticked on that, as a bookkeeping tick for another repository's
+work, the way task 3.1's DONE note ticks a `[codexFactory]` row.
+
+**The residual, and its owner.** Ticking the row does not claim the floor is
+complete for all time. Lane `codeXfactory-2` owns the residual, as follow-ups, on
+*"This lane, as follow-ups"*:
+
+* **The floor is an enumeration.** A record ADDED later under those directories
+  is unfloored until it is named. #534's description says so and the floor's own
+  standing-limit paragraph holds it.
+* **opensoft/openXwallet#29**, OPEN when read: the pinned reader keeps only the
+  last attestation per wallet, so it should refuse a second one for the same
+  wallet.
+* **codeXfactory/codexFactory#536**, OPEN when read: the opt-in floor check
+  measures only at the floor block's own pin, so it should default to
+  openxFactory `origin/main`.
+
+**What this note does not do.** It edits no workflow and no contract. #534's
+description names two stale narrative spots in this repository that still say
+*"eight hand-reasoned chokepoints"* (`.github/workflows/merge-master-approval.yml`
+and the pin's `pinned_members` note); they are left as they are, out of scope
+here. Tasks 4.4, 4.5 and 4.6 do not tick (4.6 stays under 6.27), and 5.2, 5.3,
+6.27 and 6.28 are untouched. The archive order is unchanged: this change still
+waits for `add-wallet-carried-review-authority`, and § 5.2 keeps § 4 outside the
+archive gate. A parallel dated note in `add-wallet-carried-review-authority`'s
+`tasks.md` Addendum records the same closure there and edits no row.
+
+**Re-checked by this note itself:** `gh pr view` reads of cxF #534 (MERGED,
+`ce9236363d044bc6d8cf9b9f7a5bd15ecaff9559`, 2026-10-08T21:35:33Z), oxF #1277
+(MERGED, `40d6e5c1bbed6fb976e7933200236e353777ee47`, 2026-10-08T23:15:55Z) and
+oxF #1271 (MERGED `4e23c38be7cbccc18304624cdd8a6bd406db7069`, the carrier of note
+3 and of the 2026-10-07 OWNER note); `gh issue view` reads of openXwallet#29 and
+codexFactory #536, both OPEN. The pin's `core_commit` and the snapshot's `sha256` and
+`entry_count` were read from `contracts/review-lane-pin.yaml` at `40d6e5c1b`.
+Validation of this tree is in the pull request body.
+
+**Not touched by this note:** no hold is posted or lifted, no convening is
+dispatched, and no Rule 6 LANDING is posted by this note: the pull request that
+carries it touches `openspec/changes/`, so the landing lane posts LANDING and
+LANDED when it lands.
