@@ -50,6 +50,19 @@ line on T042's SQL column `full_run` (`6064169640`), and spec.md and
 clarify-questions.md the qualifier "plan 034's" on three bare task numbers
 (`6027706377` item 2).
 
+**Revision: T002's fourth bookkeeping batch** (2026-10-08). More rulings,
+encoded as worded, with no new decision. In this file: the single-writer rule
+reads "merges `main`" where it read "rebases", per the writer rules (the holder,
+`6069507373`); and the single-writer table gains three chains, for
+`src/opendox/web/views/account-menu.js` and `pyproject.toml`'s line `:312`
+(T015 → T016 → any later verb; `6069024568` item 2) and for
+`src/opendox/health/engine.py` (T046 → T056, one line; `6069507373` T046 item 4,
+and lane 3's ACK, `6069516931`). tasks.md carries the rest; data-model.md carries
+`run_seq`, `baseline_class` NOT NULL and the pathless original's re-raise
+(`6069024023` items 2 and 3); and `contracts/health-finding.md` carries the engine
+categories, the pathless re-raise and `baseline_class` NOT NULL (`6069024023`
+items 1 and 2, `6069507373`).
+
 **Revision: review round 1 folded** (2026-10-05). Two independent read-only
 reviews of `6d6911e1`, an Opus analyze and adversarial pass and lane
 openXfactory-3's PLANCHECK, are committed verbatim with their disposition tables
@@ -435,7 +448,7 @@ DAY ONE (the plan ruled)  T010 [oDc] R2Q17's required-check change (CI owner)   
 
 Writers run in parallel when they share no file. The surfaces below are
 SINGLE-WRITER: at most one open slice edits each, and a slice that needs one
-rebases onto the previous slice's landing before it opens. Every order below is
+merges `main` after the previous slice's landing, before it opens. Every order below is
 also encoded in the later task's `After:` line (ADV-23). A change to an order is
 the holder's act, recorded in the PR that changes it.
 
@@ -458,9 +471,11 @@ openXfactory-3).
 | openDox-code `src/opendox/health_contract.py` (THE contract module, N-3) | T041 (U-0, lane 4) → T045 (G15-A, lane 3: the pack protocol, appended). A cross-lane hand-off at T041's landing |
 | openDox-code `src/opendox/contracts/copies.yaml`, `src/opendox/contracts/schemas/`, `src/opendox/contracts/__init__.py`, `tests/test_validator_input_set.py` | T041 (the finding shape; the record's `commit` moves to the spec commit T060 pins) → T047 (the packs manifest, lane 3) → T054 (the exceptions file). All three copy at T060's pinned commit, in this FIXED order (lane 3's split condition 2) |
 | openDox-code `src/opendox/health/cli.py` | T046 (the parser, frozen to 14.5's shapes plus `--local` and `--class`) → T053 (`fix`'s dispatch) → T054 (`accept`'s dispatch) |
+| openDox-code `src/opendox/health/engine.py` | T046 (new; it exposes the pack hook's binding point) → T056 (ONE line binding that hook, written after T046 lands, and no other `engine.py` change; the holder, `6069507373` T046 item 4, and lane 3's ACK, `6069516931`) |
 | openDox-code `src/opendox/workbench.py` | T052 alone |
 | openDox-code `src/opendox/branch_session.py` | T016 alone (R2Q5 (a)) |
 | openDox-code `src/opendox/web/app.js`, `web/index.html` | T015 → T016 → T057 |
+| openDox-code `src/opendox/web/views/account-menu.js` | T015 (one word: `"submit"` in `WRITE_ACTIONS`; the holder, `6069024568` item 2) → T016 → any later verb, as `6023619783` set for `tests/test_default_profile.py` |
 | openDox-code `tests/test_default_profile.py` | T015 (the two assertions its first new verb and first `HANDLER_CONTRIBUTIONS` turn red, and the second one's stale docstring; `6023619783`, `6026622117`) → T016 → any later task that contributes a default-profile facet, following `default_profile.py`'s chain |
 | openDox-code `tests/test_capability_honesty.py` (the `GOVERNED` map), `tests/test_lens_seed_actions.py` (the contributed-route manifest) | T015 (`submit`) → T016 (`land`, `land-nonce`, `actions.land`, amended the same way; the holder, `6027633398`, which pre-authorizes same-kind enumeration collateral in the minimal way, listed in each PR body) |
 | openDox-code `src/opendox/web/views/staging-workbench.js`, `staging-workbench-model.js` | T025 alone (U-6; the model too, W-1 (A), ruled) |
@@ -470,7 +485,7 @@ openXfactory-3).
 | openDox-code `migrations/0003_*.sql` and the five `tests_runtime/` suites it moves | T042 alone |
 | openDox-code `tests/fixtures/health-corpus/**` | T043 → (read-only copy by T055; a later change re-runs T055's digest test) |
 | openDox-code `tests/test_check_packs.py` | T058 alone (the 24 named nodes) |
-| openDox-code `pyproject.toml` | T048 (if the sandbox needs package data) → T055 (fixture package data, if any; After T048) → T061 (the 0.2.0 bump, the LAST package-changing landing before T062) |
+| openDox-code `pyproject.toml` | T015 (one line, `:312`'s web-bundle file count, 42 → 43; the holder, `6069024568` item 2) → T016 → any later verb, for that line, as `6023619783` set for `tests/test_default_profile.py`; T048 (if the sandbox needs package data) → T055 (fixture package data, if any; After T048) → T061 (the 0.2.0 bump, the LAST package-changing landing before T062) |
 | openDox root `README.md` | T018 (the declaration, `submit`, `land`, the two push routes) → T062 (the `health` section and its hook line) → T084 (the 0.2.0 install line) |
 | openDox root spec pin, `contracts/manifest.yaml`, `CHANGELOG.md`, the `dox-v1.2` tag | T060 alone (early in phase 5) |
 | openDox root `code` gitlink, `contracts/code-pin.yaml` | T027 (phase 4) → T062 (phase 5); then, only if the arc's `lines` module lands after the 0.2.0 bump, the arc's own root commit (ARC-6) |

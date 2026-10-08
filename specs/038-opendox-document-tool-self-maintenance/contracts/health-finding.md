@@ -40,7 +40,7 @@ is stored and emitted (its row below).
 | `resolution_class` | string | yes | `auto-fix` \| `assisted` \| `human-only` (14.6, spelled exactly) |
 | `message` | string | yes | one line, at most 200 characters, written by the family from its own words; never document text (ADV-27) |
 | `evidence` | object | yes; the engine sets `{}` when a family or pack supplies none, so every emitted finding carries it (14.5; FR-011; Copilot's review of `3f807204`) | locators only (R2Q25 (a)): paths, line spans, link targets as written, digests, a family's own `family_version`, a refused patch's `refused_patch` and `reason` (15.2a). Any string longer than 200 characters, or any key named `excerpt`, `text`, `content` or `quote`, is refused |
-| `baseline_class` | string | no | set by the engine: `new` \| `pack-upgrade` \| `persistent` (R2Q12 (a)); there is no fourth value (I-2 (a), ruled) |
+| `baseline_class` | string | yes in the store, where `0003_` makes it NOT NULL (the holder, `6069507373`); the finding schema's `finding-keys` rule lists it as optional | set by the engine: `new` \| `pack-upgrade` \| `persistent` (R2Q12 (a)); there is no fourth value (I-2 (a), ruled) |
 
 ## The id rule (ADV-07, a conforming refinement of R2Q10 (a))
 
@@ -59,14 +59,34 @@ the schema and keep one id across runs:
 - an install-level or pre-run finding (no live sandbox, a fetch or digest
   failure, a refused manifest entry, a pack that crashed, timed out, hit a bound
   or returned refused output): `{"category": <the failure's category>, "entry":
-  <the manifest entry's id, or "" for none>}`;
+  <the manifest entry's id, or "" for none>}`. The categories (the holder,
+  `6069024023` item 1) are the nine T041 drafted, `no-sandbox`, `entry-refused`,
+  `fetch-failed`, `digest-mismatch`, `declaration-refused`, `pack-crashed`,
+  `pack-timed-out`, `pack-bound-hit` and `pack-output-refused`, and two more:
+  `dispositions-refused`, a refused dispositions file, an install-level, pathless
+  finding (contracts/health-exceptions.md § Rules) that T054 raises; and
+  `manifest-refused`, a whole-file refusal of `health/packs.yaml`, with `entry`
+  `""`. A category is also the finding's `kind`. The mappings:
+  - stdout over the cap is `pack-bound-hit`;
+  - non-JSON or contract-breaking pack output is `pack-output-refused`;
+  - one finding per (category, entry) per run, with the reasons in `evidence`;
+  - one `pack_id` per category;
 - the collision finding below: `{"collided_id": <the colliding id>}`;
-- the re-raise of an uncited disappearance (data-model.md § Baseline classes):
-  `{"disappeared_id": <the original's id>}`, with `pack_id` `opendox`, `kind`
-  `uncited-disappearance`, `path` the original's, `human-only`, and the
-  original's id and the baseline run in `evidence`. It has its own id, never
-  the original's, and it is never itself measured as a disappearance, so it is
-  raised in one run only (Copilot's review of `67d6f28b`).
+- the re-raise of an uncited disappearance (data-model.md § Baseline classes),
+  with `pack_id` `opendox`, `kind` `uncited-disappearance` and `human-only`, in
+  one of two forms (option (D), the holder, `6069024023` item 2):
+  - when the original has a path: `{"disappeared_id": <the original's id>}`,
+    `path` the original's, and the original's id and the baseline run in
+    `evidence`;
+  - when the original's path is empty: the pathless form the schema requires
+    (`pathless-identity-is-category-and-entry`) and FR-011 states, `path` `""`
+    and `{"category": <the original's kind>, "entry": <its entry, or "">}`, with
+    `disappeared_id` and the baseline run in `evidence`. The schema does not
+    change.
+
+  Either way it has its own id, never the original's, and it is never itself
+  measured as a disappearance, so it is raised in one run only (Copilot's review
+  of `67d6f28b`).
 T041 fixes the categories with the id rule, and T056's tests hold each id
 stable across two runs (Copilot's review of `f9cc2d02`).
 
