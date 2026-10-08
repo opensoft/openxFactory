@@ -18,7 +18,7 @@ Each is ticked only on Brett Heap's own recorded word, by whoever encodes that
 word, citing it. 1.3 is the bookkeeping that follows the ratifying word and
 never precedes it.
 
-- [ ] 1.1 OWNER BOX. Brett Heap's word on the reading this packet encodes: the
+- [x] 1.1 OWNER BOX. Brett Heap's word on the reading this packet encodes: the
   naming families are COUNT-FREE in canon (`design.md` D1); the correction also
   reaches the two further sentences that restate a property of the whole set
   (D2); and the doctrine is realized in the wording D3 proposes, with one
@@ -31,13 +31,29 @@ never precedes it.
   2026-10-07T10:43:48Z (record `review/ratification-2026-10-07.md`). It
   ratifies D1, D2 and D3 as written. The box is left for its owner to tick, as
   this section's heading says.
-- [ ] 1.2 OWNER BOX. Brett Heap's merge word on this pull request. It is held
+  **CLOSED AT THE ARCHIVE, 2026-10-08, AS DISCHARGED BY WORD.** The note above
+  is the disposition, and this tick carries it and asserts nothing beyond it.
+  The discharging act is Brett Heap's word *"ratify as recommended when the PR
+  opens"*, RULED on the lane register at 2026-10-07T09:47:04Z. The tick records
+  Brett Heap's act, not the agent's. It is made under his selection of
+  2026-10-08, verbatim *"Yes, here and prefer-triad (Recommended)"*, RULED on
+  the lane register at 2026-10-08T20:05:35Z, which chose to close this box and
+  1.2 as discharged by word, each citing its word and its time, as archive
+  #953 closed the owner boxes of `state-header-window-budget`.
+- [x] 1.2 OWNER BOX. Brett Heap's merge word on this pull request. It is held
   for that word and is not merged by the authoring lane.
   **NOTE 2026-10-07 — THE WORD WAS GIVEN, SEPARATELY:** Brett Heap, in session,
   verbatim *"merge the naming families PR when green"*, logged RULED on the
   lane register at 2026-10-07T09:59:10Z. The merge is the coordinating lane's
   act, once every required check on the final head is green; the authoring
   lane does not merge. The box is left for its owner.
+  **CLOSED AT THE ARCHIVE, 2026-10-08, AS DISCHARGED BY WORD.** The note above
+  is the disposition, and this tick carries it and asserts nothing beyond it.
+  The discharging act is Brett Heap's word *"merge the naming families PR when
+  green"*, RULED on the lane register at 2026-10-07T09:59:10Z, on which PR
+  #1266 landed as `a38585e979624c3210c63a41dc97c67de33e526d` at
+  2026-10-07T11:20:16Z. The tick records Brett Heap's act, not the agent's,
+  under his selection of 2026-10-08 (RULED 2026-10-08T20:05:35Z), as for 1.1.
 - [x] 1.3 On the ratifying word, and only then: `Status: ratified` + `Ratified:`
   in `proposal.md`, `Ratified by:` in `design.md` and this file, the
   `approved_by`/`approved_on` pair in `.openspec.yaml` ADDED BESIDE the drafting
@@ -247,14 +263,33 @@ never precedes it.
   three times, `test_readiness_dispatch`, `test_sentinel_vocabulary` twice,
   `test_status_reader_real_lines`), and all seven pass in the scratch
   checkout. The full suite is CI's `pytest-suite`.
-- [ ] 4.4 Required checks green at the pull request's head. No review is
+- [x] 4.4 Required checks green at the pull request's head. No review is
   requested by the authoring lane: no Copilot review by any route (Brett Heap,
   2026-10-06), and no other review request. Any thread a reviewer opens is
   answered.
+  **VERIFIED FOR THE ARCHIVE, 2026-10-08**, from the check runs and the review
+  record rather than from a handoff. At PR #1266's final head
+  `d296570b201275434867187a6aba833ea8407a49` there are 14 check runs, and
+  every one concluded success except `Sourcery review`, which was skipped.
+  All eight contexts `main`'s ruleset requires passed:
+  `signed-execution-chain-gate`, `lane-line`, `former-id-arrival-gate`,
+  `openspec-cli-pin`, `wallet-validation`, `pytest-suite`, `release-tag-gate`
+  and `openxdox-consumer-gate`. `merge-master-approval` passed too. No review
+  was requested and none was submitted, and the pull request has 0 review
+  threads, so no thread is left to answer. It landed by squash as
+  `a38585e9` at 2026-10-07T11:20:16Z on the merge word 1.2 cites.
 
 **§§ 1, 4.4, 5 and 6 KEEP A LITERAL `- [ ]` DELIBERATELY.** They are acts that
 have not happened, and each is ticked by the act that performs it, never by the
 authoring lane.
+
+**AT THE ARCHIVE, 2026-10-08, EVERY ONE OF THEM IS TICKED, AND THE PARAGRAPH
+ABOVE IS KEPT AS IT WAS WRITTEN.** It was true when the packet was ratified.
+`scripts/proposal-support.py` refuses an archive while any `^- \[ \]` line
+remains, so the archive closes each box or does not happen. 1.1 and 1.2 are
+closed as discharged by Brett Heap's words, on his selection of 2026-10-08;
+4.4 is ticked on its verified evidence; 5.1 was ticked by #1270; and 6.1 and
+6.2 are ticked for the archive act itself.
 
 ## 5. Realization handoff — NOT performed by this packet
 
@@ -295,7 +330,7 @@ authoring lane.
 
 ## 6. Archive
 
-- [ ] 6.1 Archive only after § 5.1 is merged, through the pinned CLI
+- [x] 6.1 Archive only after § 5.1 is merged, through the pinned CLI
   entrypoint, promoting both MODIFIED requirements into
   `openspec/specs/project-repo-schema/spec.md`, with the README OpenSpec
   Records row moved from Active to Archived. The order against
@@ -303,6 +338,96 @@ authoring lane.
   re-read canon for both titles: if canon moved under either block, the block
   is brought forward first, as `document-lifecycle`'s currency requirement
   requires.
-- [ ] 6.2 Re-run the pinned CLI (`--all --strict`), `scripts/validate-sequenced-after.py .`
+  **Ticked before the run, because the archive wrapper refuses an open box**
+  (`change has incomplete tasks` while any `- [ ]` line remains). The
+  conditions this item names are met. § 5.1 is merged: #1270 landed by squash
+  as `e83259b4163127e9c0c9cbcfc8dcc087ab0d68be` at 2026-10-08T18:27:26Z, on
+  Brett Heap's word *"merge the 5.1 PR when green"*. Canon has not moved under
+  either block: the last commit to touch
+  `openspec/specs/project-repo-schema/spec.md` is `19d008723` (#616,
+  2026-09-03), and `git diff 16779816 80f47483` of that file, from the tree
+  this packet was authored on to `main` at this archive's cut, is empty. So no
+  block is brought forward. The archive is the governed wrapper's act,
+  `TZ=UTC python3 scripts/proposal-support.py . archive correct-naming-families-count --yes`,
+  never a bare `openspec archive`, on Brett Heap's word *"archive the naming
+  families change"* (RULED on the lane register at 2026-10-08T19:49:19Z). The
+  run and its measurements are recorded under this item in the commit after
+  the move.
+  - **The run.** Performed in commit `960e0d5b`, the commit that moves this
+    directory:
+    `TZ=UTC python3 scripts/proposal-support.py . archive correct-naming-families-count --yes`,
+    exit 0, 2026-10-08T20:07:29Z to 20:07:35Z. Its decisive lines:
+    `ORIGIN RETAINED correct-naming-families-count (declaration unchanged
+    since the ratifying commit a38585e97962)`; `Totals: 1 passed, 0 failed (1
+    items)`; `Task status: ✓ Complete`; `project-repo-schema: update`;
+    `Applying changes to openspec/specs/project-repo-schema/spec.md: ~ 2
+    modified`; `Totals: + 0, ~ 2, - 0, → 0`; `Change
+    'correct-naming-families-count' archived as
+    '2026-10-08-correct-naming-families-count'`; `NO SUPPORTING DOCS ...
+    (origin retained, nothing to package)`. The CLI was the content-addressed
+    `@fission-ai/openspec@1.12.0` pin. `--date` was not passed, so the
+    directory takes the UTC day of the run, which is also the UTC day of its
+    adding commit (2026-10-08T20:08:28Z).
+  - **Promoted requirements, verified by content.** Each requirement block was
+    extracted by its `### Requirement:` heading from this archived delta and
+    from canon, and hashed. *A project's repositories are named `<Project>`,
+    `<Project>-spec` and `<Project>-code`* goes from 1,821 to 2,871 bytes, and
+    *The naming families are governed by the pinned standard, and a
+    descendant form is a claim that needs a declared pin* from 2,593 to 6,148
+    bytes. Each is byte-identical between the delta and canon (sha256
+    prefixes `a3c3f024647edb15` and `f94f0100059dd4ec`), with the three
+    `Removed from canon` markers promoted in their blocks. The other nine
+    requirement blocks are byte-identical before and after the archive, and
+    the eleven titles keep their order. Canon `--numstat` is +35 -14. Beyond
+    the two blocks, the CLI adds a blank line on each side of `##
+    Requirements` and drops one trailing blank line at the end of the file.
+    No other file under `openspec/specs/` changes.
+  - **Provenance preserved.** The six packet files move as pure renames
+    (R100) in `960e0d5b`: proposal, design, delta, tasks, `.openspec.yaml`
+    and the ratification record naming the ratified head `3bb38c20`. The
+    origin block is unchanged since the ratifying commit `a38585e9`, which
+    the wrapper checked.
+  - **Links.** The README Records entry moves from Active to Archived, and
+    its two links, to `proposal.md` and to
+    `review/ratification-2026-10-07.md`, now name the archive path. Nothing
+    in `docs/`, `ideation/` or `specs/` links to the active path.
+    `docs/project-repo-schema.md`:24 names
+    `openspec/changes/correct-naming-families-count/tasks.md` in code type,
+    not as a link, inside the `Amended by:` header of a `Status: ratified`
+    document; it is left as written, as that header records how the
+    amendment was realized, and as the same document's links to
+    `add-project-repo-schema` (`:36`, `:508`) were left when that change
+    archived in #616.
+- [x] 6.2 Re-run the pinned CLI (`--all --strict`), `scripts/validate-sequenced-after.py .`
   with `--ledger-diff`, and `scripts/doc-health.py --single-repo .` on the
   archived tree, and compare each with the pre-archive run.
+  **Ticked before the run, for the same reason as 6.1.** The pre-archive runs
+  were taken on `main` `80f47483`. The archived tree's runs and the comparison
+  are recorded under this item once the sweep-ledger row is seeded, because
+  `--ledger-diff` reads that row.
+  - **Where.** Both sides ran in one scratch checkout named `openxFactory`,
+    with the submodules CI's `pytest-suite` initializes (`openXwallet`, then
+    `openXdox` and `openDox` recursively): `main` `80f47483` before, and
+    `a727715a` after, the archive pull request's head once the row was seeded
+    (`--seed-ledger --moved-by '#1275'`: 235 rows, 1 moved, active →
+    archived, `moved_on` 2026-10-08).
+  - **Pinned CLI, `--all --strict`.** Before: exit 0, 114 passed, 1 failed
+    (115 items). After: exit 0, 113 passed, 1 failed (114 items). With the
+    checkout path normalized, the two outputs differ in that totals line
+    alone: the item that left is this change, and every finding line is
+    identical. The one failure on both sides is `add-chain-attestation`, the
+    accepted exception `contracts/openspec-cli-pin.yaml` carries (Brett Heap,
+    2026-09-05, "take exit 2").
+  - **`validate-sequenced-after.py .`** Before: exit 0, 48 active changes, 19
+    declaring the field. After: exit 0, 47 and 19. `archive-date agreement`
+    and `archive-date-vs-commit agreement` pass on both sides.
+  - **`--ledger-diff`.** Before: exit 0, consistent with the corpus (235
+    rows). After: exit 0, consistent (235 rows). On the archived tree before
+    the row was seeded it exits 1 on exactly this row (`state: ledger
+    'active', live 'archived'`), which the seed repairs.
+  - **`doc-health.py --single-repo . --as-of 2026-10-08`.** Before and after:
+    31 critical, 26 error, 69 warning, 19 info, and 0 new regressions. The
+    two reports differ in two lines, both this archive's own effect: canon
+    words rise by 715 (382,979 to 383,694), which is the promoted text, and
+    the promoted-specs row moves with them. No finding names a file this
+    archive touches.
