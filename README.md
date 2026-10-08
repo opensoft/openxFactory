@@ -543,13 +543,18 @@ Active changes:
 - [amend-factory-mcp-conformance-auth-profile](openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md)
   — filed 2026-10-08, lane `openxfactory-5` (display `openXfactory-5`), as
   DRAFT [PR #1274](https://github.com/opensoft/openxFactory/pull/1274),
-  **`Status: draft`**, held for Brett Heap's ratify word. It carries his three
-  rulings of 2026-10-08 on the items the archive of
+  **`Status: ratified`** (2026-10-08T20:2xZ, Brett Heap, in session, verbatim
+  *"Ratify, OQs as recommended (Recommended)"*: the packet as drafted and all
+  six open questions as recommended, so no requirement or scenario text moved;
+  RULED on the lane register at 2026-10-08T20:33:25Z; record
+  [`review/ratification-2026-10-08.md`](openspec/changes/amend-factory-mcp-conformance-auth-profile/review/ratification-2026-10-08.md)).
+  It carries his three rulings of 2026-10-08 on the items the archive of
   `add-factory-mcp-conformance` left open, each RULED on the lane register
   (`opensoft/brett-wip` `lanes/log/openXfactory-5.md`, commits `eed43d23`,
   `ceaa3c02`, `8534027e`): *"RS256 baseline (Recommended)"*, *"Narrow to error
   codes (Recommended)"* and *"Per domain, profile maps (Recommended)"*. The
-  rulings decide what it says and do not ratify it. One delta in
+  rulings decided what it says and did not ratify it; the ratify word above is
+  the separate one. One delta in
   `factory-mcp-conformance`: **FOUR `## ADDED` requirements** (a hosted
   declaration carries an authorization block, and a stdio-only one carries
   none; RS256 required of every hosted domain server, EdDSA optional, `none`
@@ -563,10 +568,13 @@ Active changes:
   cut, the release surfaces); **`target_release: deferred-allocation`**, since
   the realization first-bundles the unreleased declaration at the next additive
   minor after `contract-v4.0`, claimed as row 4 on #630 at the cut. The
-  realization follows through one Speckit feature after the ratify word. It
-  archives on merged, green realization evidence. `design.md` puts six open
-  questions, each with a recommended answer. Claims: this change path on the
-  lane register (`55a63c0d`); this block on #630 (comment `6066626855`).
+  realization follows through one Speckit feature, which the word allows and
+  which is no part of this pull request. `design.md`'s six open questions are
+  each RULED as recommended. **RATIFICATION ONLY**: landing takes a separate
+  word (the pull request stays a draft), and the archive is a later act on
+  merged, green realization evidence and its own word. Claims: this change
+  path on the lane register (`55a63c0d`); this block on #630 (comment
+  `6066626855`).
 
 - [renew-resolved-council-protocol](openspec/changes/renew-resolved-council-protocol/proposal.md)
   — filed 2026-10-03 outside a lane; first published 2026-10-07 by lane

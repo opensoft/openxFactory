@@ -1,6 +1,7 @@
 # Tasks: amend-factory-mcp-conformance-auth-profile
 
-Status: draft
+Status: ratified
+Ratified by: amend-factory-mcp-conformance-auth-profile - 2026-10-08T20:2xZ, Brett Heap, "Ratify, OQs as recommended (Recommended)", RULED 2026-10-08T20:33:25Z (record `review/ratification-2026-10-08.md`)
 Kind: tasks
 Authored: 2026-10-08, lane `openxfactory-5` (display `openXfactory-5`).
 
@@ -11,15 +12,26 @@ Boxes for work this change will never do carry `[~]`, in § 5.
 
 ## 0. Ratification
 
-- [ ] 0.1 Brett Heap's ratify word on this exact packet, including his answer
+- [x] 0.1 Brett Heap's ratify word on this exact packet, including his answer
   to OQ-1 to OQ-6 in `design.md` ("as recommended" adopts all six). The three
   rulings of 2026-10-08 decide what the packet must say. They do not ratify
-  it.
-- [ ] 0.2 On the word, in one commit: `Status: ratified` plus a `Ratified:`
+  it. **RATIFIED AS DRAFTED 2026-10-08** - Brett Heap's word at 2026-10-08T20:2xZ,
+  in session to lane `openXfactory-5`, verbatim *"Ratify, OQs as recommended
+  (Recommended)"*; RULED on the estate's lane register at
+  2026-10-08T20:33:25Z. It adopts all six open questions at the recommended
+  answer (OQ-1 admit the `issuer_assigned` binding, OQ-2 algorithms closed at
+  RS256 plus optional EdDSA, OQ-3 RFC 9728 path insertion with a query
+  refused, OQ-4 an `auth` evidence-or-gap concern, OQ-5 `schema_version: 1`
+  first-bundled at the next minor, OQ-6 exactly one issuer), and no
+  requirement or scenario text moved. It is a ratify word only: not a landing
+  word, and it archives nothing. Record: `review/ratification-2026-10-08.md`.
+- [x] 0.2 On the word, in one commit: `Status: ratified` plus a `Ratified:`
   line in `proposal.md`; `Status: ratified` plus `Ratified by:` here and in
   `design.md`; the `approved_by`/`approved_on` pair in `.openspec.yaml` (the
   `proposal-origin` family refuses a ratified status without it); a record
-  under `review/`; and the README *Active changes* entry updated.
+  under `review/`; and the README *Active changes* entry updated. Done in the
+  one ratifying commit, which also marks each OQ RULED beside it in
+  `design.md`'s table, with no requirement or scenario text touched.
 
 ## 1. This packet
 

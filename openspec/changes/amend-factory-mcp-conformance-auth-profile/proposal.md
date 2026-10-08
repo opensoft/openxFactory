@@ -6,7 +6,8 @@ sequenced_after: [add-factory-mcp-conformance]
 
 # Proposal: amend-factory-mcp-conformance-auth-profile
 
-Status: draft
+Status: ratified
+Ratified: 2026-10-08T20:2xZ by Brett Heap (openxFactory repository owner) - in session to lane `openXfactory-5`, verbatim *"Ratify, OQs as recommended (Recommended)"*; RULED on the estate's lane register at 2026-10-08T20:33:25Z. RATIFIED AS DRAFTED, with all six open questions of `design.md` (OQ-1 to OQ-6) adopted at the recommended answer, so no requirement or scenario text moved. The word is a ratify word only: it is not a landing word and it archives nothing; record at review/ratification-2026-10-08.md
 Kind: proposal
 Proposed: 2026-10-08, in lane `openxfactory-5` (display `openXfactory-5`), on
 Brett Heap's three rulings of that day, recorded verbatim below.
@@ -21,10 +22,16 @@ expected movement; the seeder also flipped the partner row
 `add-factory-mcp-conformance` from `sole` to `co-modifier`, and the claim's
 amendment to say so is owed before landing (`tasks.md` 1.3).
 
-**DRAFT. FILING IS NOT RATIFYING.** The rulings below decide what this change
-must say. They are not the ratification of this packet: that is Brett Heap's
-own word on this exact text. The schema, validator and test work follows
-through one Speckit feature after that word, never before it.
+**RATIFIED AS DRAFTED, 2026-10-08.** This packet was filed `Status: draft`.
+The three rulings below decided what it says. They were not its ratification:
+that is Brett Heap's own word on this exact text, and he gave it the same day,
+in session to lane `openXfactory-5`, as a multiple-choice answer whose verbatim
+option label is *"Ratify, OQs as recommended (Recommended)"* (see
+[§ Ratification](#ratification) below). The word ratifies the packet as it
+stood and adopts all six open questions of `design.md` at the recommended
+answer, so the delta moved not one byte. It is a ratify word and nothing else.
+The schema, validator and test work follows through one Speckit feature, which
+the word now allows and which is no part of this pull request.
 
 ## The rulings this change carries
 
@@ -49,6 +56,36 @@ Each option label is quoted verbatim, followed by the option text as it read.
    > Each domain keeps its codes and envelope; the profile's lossless mapping
    > is the only shared layer, stated in the same amendment as the auth
    > answer. No published schema changes.
+
+## Ratification
+
+**Brett Heap, 2026-10-08T20:2xZ, verbatim *"Ratify, OQs as recommended
+(Recommended)"*.** He gave it in session to lane `openXfactory-5` as a
+multiple-choice answer, and the lane recorded it as a RULED line on the
+estate's lane register at 2026-10-08T20:33:25Z. The instant of the word is
+written to the precision it was taken at and no finer, the form earlier
+ratifications in this repository use. The full record is
+[`review/ratification-2026-10-08.md`](review/ratification-2026-10-08.md).
+
+Each open question of `design.md` carries its own RULED marker in the table
+beside it. All six are RULED as recommended:
+
+- **OQ-1.** Admit the `issuer_assigned` audience binding beside `resource_uri`.
+- **OQ-2.** Keep the admitted algorithms closed at RS256 (required) and EdDSA
+  (optional).
+- **OQ-3.** Derive the metadata path by RFC 9728 § 3.1 insertion, and refuse a
+  query on a hosted resource URI.
+- **OQ-4.** The block cites evidence or a gap under a new `auth` concern.
+- **OQ-5.** Keep `schema_version: 1` and `profile: advisory-v1`, and
+  first-bundle the declaration at the next additive minor.
+- **OQ-6.** Exactly one issuer per hosted server.
+
+Every answer is the one the delta already encodes, so the ratification changes
+no requirement or scenario text; the record shows each answer against the
+delta line that carries it. Ratifying is not landing: this pull request stays
+a draft, its landing takes a separate word under the Rule 6 landing window,
+the realization follows through one Speckit feature, and the archive is a
+later act on merged, green realization evidence and its own word.
 
 ## Why
 

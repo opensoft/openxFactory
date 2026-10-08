@@ -1,6 +1,7 @@
 # Design: amend-factory-mcp-conformance-auth-profile
 
-Status: draft
+Status: ratified
+Ratified by: amend-factory-mcp-conformance-auth-profile - 2026-10-08T20:2xZ, Brett Heap, "Ratify, OQs as recommended (Recommended)", RULED 2026-10-08T20:33:25Z (record `review/ratification-2026-10-08.md`)
 Kind: design
 Authored: 2026-10-08, lane `openxfactory-5` (display `openXfactory-5`).
 
@@ -8,7 +9,9 @@ This design carries out three rulings. It does not reopen them. What it adds is
 HOW: the block's shape, the validator's stable codes, the contract version, and
 six choices the rulings do not settle, each put as an open question with a
 recommended answer for the ratify read. See [the proposal](proposal.md) for the
-rulings, quoted verbatim.
+rulings, quoted verbatim. Brett Heap ratified the packet on 2026-10-08 and
+adopted all six open questions as recommended (§ Open questions, each marked
+RULED beside it).
 
 ## Context
 
@@ -335,13 +338,18 @@ the annotated tag after landing. This packet claims nothing in row 4 (OQ-5).
 
 ## Open questions
 
-Each has a recommended answer. A ratify word "as recommended" adopts all six.
+Each had a recommended answer, and a ratify word "as recommended" adopts all
+six. **Brett Heap gave that word on 2026-10-08T20:2xZ, in session to lane
+`openXfactory-5`, verbatim *"Ratify, OQs as recommended (Recommended)"*, so all
+six are RULED as recommended** (record `review/ratification-2026-10-08.md`).
+The recommended answers are the ones the delta already encodes, so no
+requirement or scenario text moved.
 
-| # | Question | Recommended answer |
-| --- | --- | --- |
-| OQ-1 | Admit the `issuer_assigned` audience binding beside `resource_uri`? | **Yes.** The estate's only live issuer puts a client identifier in `aud`. A resource-URI-only profile would refuse its tokens on audience after admitting them on algorithm. The binding rests on cited support and is never certified. |
-| OQ-2 | Keep the admitted algorithms closed at RS256 (required) and EdDSA (optional)? | **Yes.** ES256, PS256 or any other algorithm is a governed change to this capability, matching the ruling's "EdDSA optional" and the engineering adapter's own allow-list discipline. |
-| OQ-3 | How is the metadata path derived for a canonical resource URI with a path, and is a query refused? | **RFC 9728 § 3.1 insertion** (`/.well-known/oauth-protected-resource` + the resource path), and **yes, refuse the query**: the requirement, D4 and D7 already carry `auth_resource_query`, because RFC 8707 § 2 says a resource indicator should not carry a query and a path field cannot represent one. The alternative is a metadata URL field in place of the path, which would admit a query. |
-| OQ-4 | Must the block cite evidence or a gap under a new `auth` concern? | **Yes**, exactly as tools do for their six concerns. A gap-only block is valid-with-gaps. |
-| OQ-5 | Keep `schema_version: 1` and `profile: advisory-v1`, and first-bundle the declaration at the next additive minor? | **Yes.** The declaration was never released, so no consumer pins the shape without the block. A version bump would describe a break no one can observe. |
-| OQ-6 | One issuer per hosted server, or a list? | **Exactly one.** Under one server per domain every server faces the same estate issuer. A second issuer is a governed addition when a real need appears. |
+| # | Question | Recommended answer | Ruling |
+| --- | --- | --- | --- |
+| OQ-1 | Admit the `issuer_assigned` audience binding beside `resource_uri`? | **Yes.** The estate's only live issuer puts a client identifier in `aud`. A resource-URI-only profile would refuse its tokens on audience after admitting them on algorithm. The binding rests on cited support and is never certified. | **RULED: as recommended** (Brett Heap, 2026-10-08, *"Ratify, OQs as recommended (Recommended)"*) |
+| OQ-2 | Keep the admitted algorithms closed at RS256 (required) and EdDSA (optional)? | **Yes.** ES256, PS256 or any other algorithm is a governed change to this capability, matching the ruling's "EdDSA optional" and the engineering adapter's own allow-list discipline. | **RULED: as recommended** (Brett Heap, 2026-10-08, *"Ratify, OQs as recommended (Recommended)"*) |
+| OQ-3 | How is the metadata path derived for a canonical resource URI with a path, and is a query refused? | **RFC 9728 § 3.1 insertion** (`/.well-known/oauth-protected-resource` + the resource path), and **yes, refuse the query**: the requirement, D4 and D7 already carry `auth_resource_query`, because RFC 8707 § 2 says a resource indicator should not carry a query and a path field cannot represent one. The alternative is a metadata URL field in place of the path, which would admit a query. | **RULED: as recommended** (Brett Heap, 2026-10-08, *"Ratify, OQs as recommended (Recommended)"*) |
+| OQ-4 | Must the block cite evidence or a gap under a new `auth` concern? | **Yes**, exactly as tools do for their six concerns. A gap-only block is valid-with-gaps. | **RULED: as recommended** (Brett Heap, 2026-10-08, *"Ratify, OQs as recommended (Recommended)"*) |
+| OQ-5 | Keep `schema_version: 1` and `profile: advisory-v1`, and first-bundle the declaration at the next additive minor? | **Yes.** The declaration was never released, so no consumer pins the shape without the block. A version bump would describe a break no one can observe. | **RULED: as recommended** (Brett Heap, 2026-10-08, *"Ratify, OQs as recommended (Recommended)"*) |
+| OQ-6 | One issuer per hosted server, or a list? | **Exactly one.** Under one server per domain every server faces the same estate issuer. A second issuer is a governed addition when a real need appears. | **RULED: as recommended** (Brett Heap, 2026-10-08, *"Ratify, OQs as recommended (Recommended)"*) |
