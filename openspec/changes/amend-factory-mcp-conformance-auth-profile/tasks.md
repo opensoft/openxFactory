@@ -61,7 +61,9 @@ Boxes for work this change will never do carry `[~]`, in § 5.
   `_LEDGER_SUBJECTS` row, in #630 comment `6068473680` (2026-10-08T20:29Z),
   before the ratify word.** The authoring seat posted no issue comment; the
   lane's coordinator did.
-- [ ] 1.4 Gates at the head Brett Heap ratifies, in a full clone named
+- [ ] 1.4 Gates at the LANDING head, the exact head the landing word names
+  (it carries every commit made after the ratifying commit, so evidence from
+  an earlier head is not enough), in a full clone named
   `openxFactory` with the three gitlinks initialized as CI initializes them:
   the pinned OpenSpec CLI (`scripts/validate-openspec-cli-pin.py --all
   --strict`, and `--change`), `scripts/proposal-support.py . verify`,
@@ -110,11 +112,12 @@ Boxes for work this change will never do carry `[~]`, in § 5.
   with its digest, the `contracts/CHANGELOG.md` entry and
   `contracts/releases/<version>.digests.yaml`. Run `release-tag-gate`, and
   publish the annotated tag after landing.
-- [ ] 2.7 Verification record in the feature: every gate, the full suite, and
-  an out-of-tree check by a reviewer with access to the engineering domain
-  (`--snapshot`, never vendoring its bytes). That check confirms that its
-  hosted declaration reports `auth_rs256_missing` until its own slice lands,
-  and that its stdio declaration validates as before.
+- [ ] 2.7 Verification record in the feature: every gate and the full suite at
+  the head that lands, and an out-of-tree check by a reviewer with access to
+  the engineering domain (`--snapshot`, never vendoring its bytes). That check
+  confirms that its hosted declaration reports `hosted_auth_missing` until its
+  own slice declares a block (and `auth_rs256_missing` if it declares one that
+  lists EdDSA alone), and that its stdio declaration validates as before.
 
 ## 3. Landing
 

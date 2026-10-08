@@ -309,8 +309,11 @@ the annotated tag after landing. This packet claims nothing in row 4 (OQ-5).
 
 ## Compatibility
 
-- **Engineering domain.** Its hosted declaration will fail `auth_rs256_missing`
-  until its own RS256 slice lands. That is the intended signal. RS256 alone may
+- **Engineering domain.** Its hosted declaration will fail this profile until
+  its own RS256 slice lands. The closed service schema rejects an `auth`
+  property today, so a declaration made before this profile has no block and
+  reports `hosted_auth_missing`; a block that lists EdDSA alone reports
+  `auth_rs256_missing`. That is the intended signal. RS256 alone may
   not be enough. Its audience check compares `aud` with its canonical resource
   URI, while the estate issuer's v2.0 tokens carry a client identifier. Either
   the slice adopts the `issuer_assigned` binding or the issuer is configured to

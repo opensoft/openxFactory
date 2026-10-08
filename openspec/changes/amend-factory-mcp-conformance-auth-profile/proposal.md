@@ -182,8 +182,10 @@ does not perform.
 - **It changes no domain's published schema and adds no neutral error code.**
 - **It does not amend codexFactory.** The engineering domain adds RS256 in its
   own governed slice (lane `openXfactory-5`). Until that slice lands, a hosted
-  engineering declaration fails this profile's RS256 rule. That is the
-  intended signal. Its stdio declaration is not deployed and is unaffected.
+  engineering declaration fails this profile: with no authorization block it
+  reports `hosted_auth_missing`, and a block that lists EdDSA alone reports
+  `auth_rs256_missing`. That is the intended signal. Its stdio declaration is
+  not deployed and is unaffected.
 - **It does not correct OpsxFactory's hosting plan.** The approved hosting
   plan names its token issuer by a runtime name rather than an issuer
   identifier. Correcting it is a material plan amendment in OpsxFactory, with

@@ -115,9 +115,9 @@ Four files do not move, each for a reason:
 - **`tests/doc-health/test_modified_block_currency_self_gate.py`:** the
   `_LEDGER_SUBJECTS` row names the MODIFIED block, which does not change. It
   retires at the archive.
-- **`tasks.md` 1.4:** the gates at the ratified head stay open, because that
+- **`tasks.md` 1.4:** the gates at the landing head stay open, because that
   box names the required `pytest-suite` check, which is read at the exact
-  head on the pull request and not in this file.
+  head being landed on the pull request and not in this file.
 
 ## 5. Corrections after the word, none of them requirement or scenario text
 
@@ -138,3 +138,17 @@ delta `specs/factory-mcp-conformance/spec.md` (blob `51fc770d`, unchanged):
 - **`proposal.md` Claims, `tasks.md` 1.3, this record's § 3 and the README
   row.** The #630 claim amendment is recorded as done (comment `6068473680`,
   2026-10-08T20:29Z), which the draft text still called owed.
+
+Copilot's review of `077e0f78` raised three more, again none in the delta:
+
+- **`tasks.md` 1.4 and 2.7.** Task 1.4 named "the head Brett Heap ratifies",
+  which would let evidence from the ratifying commit stand for a later head. It
+  now names the landing head, the exact head the landing word names, which
+  agrees with task 3.1. Task 2.7 now scopes its gates and full suite to the
+  head that lands.
+- **`design.md` Compatibility, `proposal.md` and `tasks.md` 2.7.** The
+  engineering domain's expected pre-slice signal is `hosted_auth_missing`, not
+  `auth_rs256_missing`: the closed service schema rejects an `auth` property
+  today, so a hosted declaration made before this profile has no block to
+  inspect. `auth_rs256_missing` is the signal of a block that lists EdDSA
+  alone. The three places now say both.
