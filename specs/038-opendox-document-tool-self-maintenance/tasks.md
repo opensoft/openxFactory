@@ -655,7 +655,7 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
   - **After**: T004.
   - **Files**: openXdox-code `tests/conftest.py` (first: T020 → T021 and T026, in
     landing order → T095 → T073 → T074), `tests/test_host_plane.py` (first: T020 →
-    T026 → T095).
+    T026 → T095 → T073).
   - **Lane**: 3.
   - **Landed**: DONE, openXdox-code#39 → `c6d15b27` (2026-10-06T16:10:45Z).
 - [x] T021 [US3] [oXc] **U-2, the gate console's schemas (GA), resolved without
@@ -832,7 +832,7 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
     a new `tests/test_protected_suite_check.py`, for the span kind's cases, as
     T022's new test holds its script's (holder, `6016648451`); and, after T020
     lands, T020's `tests/conftest.py` (T020 → T021 and T026, in landing order →
-    T095 → T073 → T074) and `tests/test_host_plane.py` (T020 → T026 → T095; Brett,
+    T095 → T073 → T074) and `tests/test_host_plane.py` (T020 → T026 → T095 → T073; Brett,
     `6016648451`).
   - **Lane**: 3.
   - **Landed**: DONE, openXdox-code#43 → `36bbef79` (2026-10-06T22:35:40Z), its
@@ -1833,7 +1833,7 @@ DRAFT until its After set has landed, and T073's After set gains all ten.
   - **After**: T021 and T026 (both landed: #40 → `f70bc9c3`, #43 → `36bbef79`), whose
     edits of the same files come first (`6021862323`).
   - **Files**: openXdox-code `tests/conftest.py` (T020 → T021 and T026, in landing
-    order → T095 → T073 → T074), `tests/test_host_plane.py` (T020 → T026 → T095).
+    order → T095 → T073 → T074), `tests/test_host_plane.py` (T020 → T026 → T095 → T073).
   - **Lane**: 3 (openXfactory-3).
   - **Landed**: DONE, openXdox-code#46 → `e2340bb6` (2026-10-06T23:33:08Z), with
     Copilot's review r4201411760 ("Changes recommended" at `bfcab6bd`, on
