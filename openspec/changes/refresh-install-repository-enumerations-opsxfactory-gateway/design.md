@@ -1,8 +1,15 @@
 # Design: refresh-install-repository-enumerations-opsxfactory-gateway
 
-Status: draft
+Status: ratified
+Ratified by: refresh-install-repository-enumerations-opsxfactory-gateway — 2026-10-08, Brett Heap, "Ratify, OQs as recommended (Recommended)" (logged RULED on the lane register at 2026-10-08T20:33:11Z), over PR #1273's head `114431d3` (record `review/ratification-2026-10-08.md`)
 Kind: design
 Lane: openxfactory-5 (openXfactory-5)
+
+**RATIFIED 2026-10-08, AS RECOMMENDED.** Every decision below was ratified as written,
+and D3 and D4, the two that put an open question, were each RULED to their
+recommendation (marked where each is put). The paragraph that follows is kept as filed;
+where it says the word ratifies none of the text below, it describes the FIRST word of
+2026-10-08, which commissioned the authoring, and not the second, which ratified.
 
 Seven decisions, **D1** through **D7**. Two of them put an open question to the
 owner with a recommended answer (**D3**, **D4**), and each says what a different
@@ -29,9 +36,10 @@ Eight lines, for the read that decides whether to ratify.
    any of the five requirement keys.
 5. **D3 (OQ-2)**: no routing scenario for the gateway, because no requirement fixes
    what its repository owns and a scenario would confer that boundary through an
-   index.
+   index. **RULED as recommended, 2026-10-08.**
 6. **D4 (OQ-1)**: the gateway joins `canonical-contract-migration`'s adapter trigger,
    recommended, as the family `Ops-gateway`; refusing it deletes one delta file.
+   **RULED as recommended, 2026-10-08.**
 7. **D5** leaves the index requirement's dated nine-against-five measurement alone and
    records today's, ten against six.
 8. **D6**: the `## Purpose` widening cannot travel in a delta and is owed at the
@@ -145,7 +153,12 @@ extends, and `amend-repo-boundary-governance-scope-first-line` wrote the form
 outcome, and saying so is a positive, resolvable claim. The diff is the check: any
 other row that moved would be a collision this design did not predict.
 
-## D3 — OQ-2: no routing scenario for the gateway (recommended)
+## D3 — OQ-2: no routing scenario for the gateway (recommended) — RULED as recommended, 2026-10-08
+
+**RULED: as recommended (Brett Heap, 2026-10-08, "Ratify, OQs as recommended (Recommended)") — NO routing scenario.**
+The *"Install repository scope"* block keeps the three scenarios it carries and the
+delta adds none. The reasoning below is kept as filed, and the scenario worded at the end
+of this decision is the alternative NOT adopted.
 
 *"Install repository scope"* carries three routing scenarios, each of the form
 *"WHEN a change installs, restores, backs up, upgrades, or verifies X runtime
@@ -189,7 +202,11 @@ carries, and nothing else in the packet moves:
 The recommendation is the answer that leaves the next, still-open question (what the
 gateway's repository owns) with the act that should answer it.
 
-## D4 — OQ-1: the gateway joins "Contract breaks an adapter" (recommended)
+## D4 — OQ-1: the gateway joins "Contract breaks an adapter" (recommended) — RULED as recommended, 2026-10-08
+
+**RULED: as recommended (Brett Heap, 2026-10-08, "Ratify, OQs as recommended (Recommended)") — YES.**
+The adapter family `Ops-gateway` joins *"Contract breaks an adapter"* and
+`specs/canonical-contract-migration/spec.md` stands. The reasoning below is kept as filed.
 
 The bullet reads *"WHEN a contract change would break Hermes, Omnigent, Keycloak,
 OpenXPKI, or worker-host runtime adapters"*. It lists adapter FAMILIES, not

@@ -1,6 +1,7 @@
 # Tasks: refresh-install-repository-enumerations-opsxfactory-gateway
 
-Status: draft
+Status: ratified
+Ratified by: refresh-install-repository-enumerations-opsxfactory-gateway — 2026-10-08, Brett Heap, "Ratify, OQs as recommended (Recommended)" (logged RULED on the lane register at 2026-10-08T20:33:11Z), over PR #1273's head `114431d3` (record `review/ratification-2026-10-08.md`)
 Kind: tasks
 Lane: openxfactory-5 (openXfactory-5)
 
@@ -12,30 +13,43 @@ authored and measured, § 3 is what it does NOT do, and § 4 is the archive.
 
 **WHAT IS TICKED AND WHAT IS NOT, STATED SO NO TICK IS READ AS MORE.** § 2 is ticked
 because it is the evidence the packet is reviewable at all, and each box names the
-command that produced it. § 1, § 3 and § 4 are UNTICKED by design. § 1 is Brett
-Heap's, § 3's boxes are statements of what this packet does not do and are confirmed
-at the archive, and § 4 is the archive act itself. No promoted specification byte
+command that produced it. § 1.1 to § 1.3 are ticked on Brett Heap's own recorded word
+of 2026-10-08, *"Ratify, OQs as recommended (Recommended)"*, each box citing it, by the
+lane that encoded that word. § 1.4, § 3 and § 4 are UNTICKED by design. § 1.4 is the
+land word and the archive word, neither of which has been given, § 3's boxes are
+statements of what this packet does not do and are confirmed at the archive, and § 4
+is the archive act itself. No promoted specification byte
 moves, no `## Purpose` is edited, no issue is closed and no repository is touched
 anywhere in the estate by this packet: canon is written by the archive act, on a
 separate word.
 
 ## 1. Ratification and landing (Brett Heap's acts, not this lane's)
 
-- [ ] 1.1 Ratify this packet. Brett Heap's word on the pull request or on
+- [x] 1.1 Ratify this packet. Brett Heap's word on the pull request or on
       openxFactory#1259; the packet is `Status: draft` until then. His word of
       2026-10-08, *"Lane 5 indexes it now (Recommended)"* (logged RULED in
       `lanes/log/openXfactory-5.md` at 2026-10-08T18:36:12Z), commissioned the
       authoring and ratifies no text: it names no wording, no scope, and no answer
       to either open question.
-- [ ] 1.2 The two open questions are put to him verbatim in the pull request body and
+      **RULED 2026-10-08, RATIFIED AS RECOMMENDED:** Brett Heap, in session on
+      team-01b, verbatim *"Ratify, OQs as recommended (Recommended)"*, logged RULED on
+      the lane register at 2026-10-08T20:33:11Z, over PR #1273's head `114431d3`
+      (record `review/ratification-2026-10-08.md`). The packet is `Status: ratified`.
+- [x] 1.2 The two open questions are put to him verbatim in the pull request body and
       stand or fall on their own:
       - **OQ-1** (`design.md` D4) — the gateway joins *"Contract breaks an adapter"*
         as the adapter family `Ops-gateway` (recommended: yes). Refusing it deletes
         `specs/canonical-contract-migration/spec.md` and nothing else moves.
+        **RULED: as recommended (Brett Heap, 2026-10-08, "Ratify, OQs as recommended
+        (Recommended)") — YES.** The delta file stands.
       - **OQ-2** (`design.md` D3) — a routing scenario for the gateway in
         *"Install repository scope"* (recommended: no). Taking it adds ONE scenario to
         that block, worded in D3, and nothing else moves.
-- [ ] 1.3 On ratification, flip `Status: draft` to `Status: ratified` in `proposal.md`,
+        **RULED: as recommended (Brett Heap, 2026-10-08, "Ratify, OQs as recommended
+        (Recommended)") — NO routing scenario.** The block keeps its three scenarios.
+      No requirement or scenario text moved as a result: both answers are the option the
+      delta already encodes.
+- [x] 1.3 On ratification, flip `Status: draft` to `Status: ratified` in `proposal.md`,
       `design.md` and this file, add the `Ratified:` / `Ratified by:` line naming the
       word and its date, add `approved_by` and `approved_on` to `.openspec.yaml`
       BESIDE the drafting provenance (`kind`, `id` and `reason` unmoved, the
@@ -43,9 +57,20 @@ separate word.
       `review/ratification-<date>.md` as `Status: record`, and move the README row's
       status wording. **Ratification performs no realization**: no delta is promoted,
       no Purpose is widened, no box in § 3 or § 4 ticks on it, and #1259 stays open.
+      **DONE 2026-10-08 in the ratifying commit**, on the word above: `Status: ratified`
+      with a `Ratified:` / `Ratified by:` citation on `proposal.md`, `design.md` and this
+      file; `approved_by` / `approved_on` ADDED BESIDE the drafting provenance in
+      `.openspec.yaml`, with `kind`, `id`, `reason`, `proposed_by` and `proposed_on`
+      unmoved; the README row's status wording moved; and the record written at
+      `review/ratification-2026-10-08.md`. That record carries `Status: ratified` and not
+      the `Status: record` this box planned, because `document-lifecycle`'s scenario *A
+      review record records a ratification* requires `Status: ratified` and one citation
+      of a `review/` document that records a ratification, and the packet's ratified
+      precedents' records do the same. The spec deltas did not move.
 - [ ] 1.4 A land word, then an archive word. Each is a separate act on a separate word
       and neither is implied by § 1.1. #1259 closes at the archive (§ 4.2), by a word,
-      and on no earlier pull request.
+      and on no earlier pull request. **NOT GIVEN.** The 2026-10-08 word of § 1.1 is a
+      ratify word and is neither of these, and the box is left for its owner.
 
 ## 2. Authoring and validation (this lane's act, done before the pull request)
 
@@ -79,7 +104,8 @@ separate word.
       (`proposed_by` and `proposed_on`, no `approved_by`, no `approved_on`), the lawful
       unapproved shape `add-drafted-proposal-origin` defined, plus a `related:` list.
       `python3 scripts/proposal-support.py . verify
-      refresh-install-repository-enumerations-opsxfactory-gateway` passes.
+      refresh-install-repository-enumerations-opsxfactory-gateway` passes. (As filed.
+      The approval pair was added at ratification, § 1.3.)
 - [x] 2.4 One row added at the head of README's *"OpenSpec Records"* active-changes block,
       in the block's own newest-first order. That block is substrate-claimed on
       openxFactory#630 (comment 6066626855) for this one row; nothing else in README is

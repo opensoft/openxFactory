@@ -6,11 +6,12 @@ sequenced_after: [refresh-install-repository-enumerations, amend-repo-boundary-g
 
 # Proposal: refresh-install-repository-enumerations-opsxfactory-gateway
 
-Status: draft
+Status: ratified
+Ratified: 2026-10-08T20:2xZ by Brett Heap (openxFactory operator authority) — in session on team-01b, a multiple-choice answer, verbatim option label "Ratify, OQs as recommended (Recommended)", logged RULED on the lane register at 2026-10-08T20:33:11Z, over PR #1273's head `114431d3`; a ratification only, not a land word and not an archive word; record at review/ratification-2026-10-08.md
 Kind: proposal
 Proposed: 2026-10-08, in lane `openxfactory-5` (display `openXfactory-5`), seat s1259,
 by an authoring agent on the lane's brief, opened as ONE draft pull request held
-for Brett Heap's ratify word.
+for Brett Heap's ratify word, which was given on 2026-10-08 (§ Ratification record).
 Lane: openxfactory-5 (openXfactory-5)
 Origin: openxFactory issue
 [#1259](https://github.com/opensoft/openxFactory/issues/1259), filed by this lane
@@ -22,7 +23,15 @@ authority"* asks an admitting change to name. Claimed on #1259 by this lane at
 the README "OpenSpec Records" substrate is claimed on
 [#630](https://github.com/opensoft/openxFactory/issues/630) (comment
 [6066626855](https://github.com/opensoft/openxFactory/issues/630#issuecomment-6066626855)).
-Recorded in `.openspec.yaml` (`kind: ad_hoc`, unapproved).
+Recorded in `.openspec.yaml` (`kind: ad_hoc`; drafting provenance as filed, and the
+approval pair `approved_by` / `approved_on` ADDED BESIDE it at ratification).
+
+**RATIFIED ON 2026-10-08, AS RECOMMENDED. The next paragraph is kept verbatim as the
+filing's record.** It was true at filing and is superseded by the ratification
+recorded under § Ratification record: Brett Heap's second word of 2026-10-08, verbatim
+*"Ratify, OQs as recommended (Recommended)"*, ratified the packet as put and took
+both open questions at their recommended answer, so no byte of any delta moved. That
+word is not a land word and not an archive word.
 
 **THIS PACKET IS A DRAFT, AND BRETT HEAP'S WORD OF 2026-10-08 ADMITTED THE WORK
 AND RATIFIES NO TEXT.** It selected "index it now" over two other courses and
@@ -49,9 +58,16 @@ archive act, which is a separate act on a separate word (`tasks.md` § 4).
   (three spec deltas, a records row and a ledger row). It still needs your
   ratify and land words, and archives on landing."* Logged RULED in
   opensoft/brett-wip `lanes/log/openXfactory-5.md` at 2026-10-08T18:36:12Z.
+- **2026-10-08T20:2xZ**, Brett Heap, in session on team-01b, a multiple-choice answer,
+  verbatim option label: *"Ratify, OQs as recommended (Recommended)"*, read by the lane
+  as: ratify this packet in DRAFT PR #1273 with OQ-1 yes and OQ-2 no routing scenario;
+  the lane encodes the ratification; landing, which archives it, waits for a separate
+  land word. Logged RULED on the lane register at 2026-10-08T20:33:11Z.
 
-The 2026-10-08 word commissions the authoring and picks the course. It is not a
-ratification, and it is neither a land word nor an archive word.
+The first 2026-10-08 word commissions the authoring and picks the course. It is not a
+ratification, and it is neither a land word nor an archive word. The second is the
+ratification (§ Ratification record) and is neither a land word nor an archive word
+either.
 
 ## Why
 
@@ -136,6 +152,8 @@ quoted there so the edit is reviewable before it is taken.
 
 **OQ-1 — does the gateway join `canonical-contract-migration`'s "Contract breaks an
 adapter" trigger?** *Recommended: yes*, as the adapter family `Ops-gateway`.
+**RULED: as recommended (Brett Heap, 2026-10-08, "Ratify, OQs as recommended (Recommended)") — YES:** the adapter family `Ops-gateway` joins
+*"Contract breaks an adapter"* and `specs/canonical-contract-migration/spec.md` stands.
 The trigger lists runtime adapter FAMILIES, not repositories, and the repository
 is seed-only, so the facts do not settle it on their own: for joining, it is an
 admitted install repository and the index requirement reads an omission from an
@@ -148,7 +166,10 @@ install repository's adapter. **Veto shape:** delete
 and the packet is coherent either way. `design.md` D4.
 
 **OQ-2 — does the gateway get a routing scenario in "Install repository scope"?**
-*Recommended: no.* The three scenarios there route a procedure to the repository
+*Recommended: no.*
+**RULED: as recommended (Brett Heap, 2026-10-08, "Ratify, OQs as recommended (Recommended)") — NO routing scenario:** no scenario is added to
+*"Install repository scope"*, and the delta carries none.
+The three scenarios there route a procedure to the repository
 that owns it. Hermes and Omnigent have them from the capability's creation
 (2026-06-26, `7c4dacb9`); the archived refresh added `OmniWorker-Install`'s (at its
 archive, `ca4a1558`) only after its own boundary requirement had been promoted and
@@ -215,9 +236,30 @@ block, worded in `design.md` D3. Nothing else moves.
   `release-realization`, discharging `tasks.md` § 4.1 (the `## Purpose` widening)
   and § 4.2 (closing #1259) in the archive act.
 
-## Ratification (pending)
+## Ratification record
 
-Nothing here is ratified. Held for Brett Heap's ratify word, with the two open
-questions above put to him verbatim in the pull request body so each stands or falls
-on its own. A land word and an archive word are further, separate acts. #1259
-closes at the archive, by a word, and on no earlier pull request.
+**RATIFIED 2026-10-08, AS RECOMMENDED.** Brett Heap, in session on team-01b, first-hand
+to lane `openxfactory-5`, a multiple-choice answer at about 20:2xZ, verbatim option label
+*"Ratify, OQs as recommended (Recommended)"*, logged RULED on the lane register at
+2026-10-08T20:33:11Z. The instant is recorded to the precision the word was taken at and
+no finer. The ratified text is the packet at PR #1273's head
+`114431d36189876ab679f34ddf3f81678619e392`, the head the pull request carried when the
+word was given, and the full record is `review/ratification-2026-10-08.md`.
+
+| OQ | Decision | Ruled | Considered, not adopted |
+| --- | --- | --- | --- |
+| **OQ-1** — does the gateway join *"Contract breaks an adapter"*? | `design.md` D4 | **RULED: as recommended (Brett Heap, 2026-10-08, "Ratify, OQs as recommended (Recommended)") — YES**: the adapter family `Ops-gateway` joins, and `specs/canonical-contract-migration/spec.md` stands | not joining: delete that delta file, leaving the enumeration known to be one family short and a later refresh owed when the first adapter exists |
+| **OQ-2** — a routing scenario for the gateway in *"Install repository scope"*? | `design.md` D3 | **RULED: as recommended (Brett Heap, 2026-10-08, "Ratify, OQs as recommended (Recommended)") — NO routing scenario**: the block keeps its three scenarios | adding the one scenario `design.md` D3 words, which would settle what the gateway's repository owns through an index |
+
+**EVERY RULING IS THE RECOMMENDED OPTION, so the delta's wording stands unchanged.** No
+requirement or scenario text was rewritten, no delta file was added, deleted or renamed,
+and no `sequenced_after:` entry moved. The word is a ratification only: it is not a land
+word and not an archive word, nothing is promoted by it, and `openspec/specs/` gains no
+byte until the archive act, on a separate word. #1259 stays open and closes at the
+archive (`tasks.md` § 4.2).
+
+As filed, this section read: *"Nothing here is ratified. Held for Brett Heap's ratify
+word, with the two open questions above put to him verbatim in the pull request body so
+each stands or falls on its own. A land word and an archive word are further, separate
+acts."* It was true at filing and is superseded by the record above, except for the last
+sentence, which still holds.
