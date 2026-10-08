@@ -171,6 +171,13 @@ service identity already argued.
   which agrees with § 3.1 only while that URI has no path (codexFactory,
   private, verified 2026-10-08). That is a note for its slice, not a finding
   here (OQ-3).
+- **No query on a hosted resource URI.** A deployed service's
+  `canonical_resource_uri` carries no query component (`auth_resource_query`
+  at `/service/canonical_resource_uri`). RFC 8707 § 2 says a resource
+  indicator should not carry one, and the metadata path above is a path field
+  that could not represent it. The existing `invalid_resource_uri` check
+  admits a query today, so this is a new refusal, and it applies only to a
+  deployed service (OQ-3).
 
 ### D5. The block cites its support
 
@@ -211,6 +218,7 @@ They report in the existing dimensions and stable-ordering rules.
 | `schema_uniqueItems` (existing) | structure | `/service/auth/algorithms` | an algorithm is repeated |
 | `auth_audience_unbound` | semantics | `/service/auth/audience/value` | a `resource_uri` binding names anything but `canonical_resource_uri`, or any audience contains `*` or equals the issuer |
 | `auth_metadata_path_mismatch` | semantics | `/service/auth/metadata_path` | not the RFC 9728 § 3.1 location for `canonical_resource_uri` |
+| `auth_resource_query` | semantics | `/service/canonical_resource_uri` | a deployed service's canonical resource URI carries a query component |
 | `unsupported_auth` | semantics | `/service/auth/evidence_ids` | no cited evidence or gap carries `auth` |
 
 Every row has a red-first test, written before the validator change and shown
@@ -218,9 +226,9 @@ failing against the validator on `main` (`tasks.md` 2.2). Probed at `main`
 `80f47483`, the starting point is the expected one: the synthetic example with
 its service made `deployed` (synthetic host, no block) is `valid-with-gaps`
 with no diagnostic, and the same declaration with an `auth` field is `invalid`,
-`schema_oneOf` at `/service`. The synthetic example
-stays `not_deployed`. A second, deployed synthetic example exercises the block
-over synthetic identifiers only: no real issuer, tenant or host.
+`schema_oneOf` at `/service`. The synthetic example stays `not_deployed`. A
+second, deployed synthetic example exercises the block over synthetic
+identifiers only: no real issuer, tenant or host.
 
 ### D8. The M5 narrowing
 
@@ -306,8 +314,12 @@ the annotated tag after landing. This packet claims nothing in row 4 (OQ-5).
   declaration, so nothing of it changes. The gateway's intake design consumes
   this profile at its own task (lane `opsXfactory-4`).
 - **Existing declarations.** A not-deployed declaration validates exactly as
-  before, except for the new `auth` concern key, which only adds an admitted
-  value.
+  before; the new `auth` concern key only adds an admitted value. A deployed
+  declaration without the block, which is valid today, becomes invalid
+  (`hosted_auth_missing`), and so does a deployed one whose canonical resource
+  URI carries a query (`auth_resource_query`). That is the point of the
+  change, and the declaration is unreleased, so no pinned consumer breaks
+  (D10).
 
 ## Risks and trade-offs
 
@@ -329,7 +341,7 @@ Each has a recommended answer. A ratify word "as recommended" adopts all six.
 | --- | --- | --- |
 | OQ-1 | Admit the `issuer_assigned` audience binding beside `resource_uri`? | **Yes.** The estate's only live issuer puts a client identifier in `aud`. A resource-URI-only profile would refuse its tokens on audience after admitting them on algorithm. The binding rests on cited support and is never certified. |
 | OQ-2 | Keep the admitted algorithms closed at RS256 (required) and EdDSA (optional)? | **Yes.** ES256, PS256 or any other algorithm is a governed change to this capability, matching the ruling's "EdDSA optional" and the engineering adapter's own allow-list discipline. |
-| OQ-3 | How is the metadata path derived for a canonical resource URI with a path or a query? | **RFC 9728 § 3.1 insertion** (`/.well-known/oauth-protected-resource` + the resource path). A hosted canonical resource URI carrying a query is refused (`auth_resource_query`), because RFC 8707 § 2 says a resource indicator should not carry one and a path field cannot. |
+| OQ-3 | How is the metadata path derived for a canonical resource URI with a path, and is a query refused? | **RFC 9728 § 3.1 insertion** (`/.well-known/oauth-protected-resource` + the resource path), and **yes, refuse the query**: the requirement, D4 and D7 already carry `auth_resource_query`, because RFC 8707 § 2 says a resource indicator should not carry a query and a path field cannot represent one. The alternative is a metadata URL field in place of the path, which would admit a query. |
 | OQ-4 | Must the block cite evidence or a gap under a new `auth` concern? | **Yes**, exactly as tools do for their six concerns. A gap-only block is valid-with-gaps. |
 | OQ-5 | Keep `schema_version: 1` and `profile: advisory-v1`, and first-bundle the declaration at the next additive minor? | **Yes.** The declaration was never released, so no consumer pins the shape without the block. A version bump would describe a break no one can observe. |
 | OQ-6 | One issuer per hosted server, or a list? | **Exactly one.** Under one server per domain every server faces the same estate issuer. A second issuer is a governed addition when a real need appears. |

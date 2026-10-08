@@ -25,7 +25,7 @@ Boxes for work this change will never do carry `[~]`, in § 5.
 
 - [x] 1.1 Authored: `proposal.md`, `design.md`, this file, `.openspec.yaml`,
   and one delta, `specs/factory-mcp-conformance/spec.md`, with four
-  `## ADDED` requirements (15 scenarios) and one `## MODIFIED` requirement
+  `## ADDED` requirements (16 scenarios) and one `## MODIFIED` requirement
   (3 scenarios). Every requirement has a scenario, and every body states its
   SHALL on its first line.
 - [x] 1.2 The MODIFIED block is canon's block (`main` `80f47483`,
@@ -38,19 +38,26 @@ Boxes for work this change will never do carry `[~]`, in § 5.
   byte-identical.
 - [x] 1.3 Bookkeeping: one README *Active changes* bullet; the sweep-ledger
   rows in `tests/sequenced_after/corpus-ledger.yaml`, seeded by the sanctioned
-  seeder with this packet's pull request number; one `_LEDGER_SUBJECTS` data
-  row in `tests/doc-health/test_modified_block_currency_self_gate.py` naming
-  this packet's MODIFIED block, which retires at 4.1.
-- [x] 1.4 Gates at the packet's head, in a full clone named `openxFactory`
-  with the three gitlinks initialized as CI initializes them: the pinned
-  OpenSpec CLI (`scripts/validate-openspec-cli-pin.py --all --strict`, and
-  `--change`), `scripts/proposal-support.py . verify`,
+  seeder with `--moved-by '#1274'`; one `_LEDGER_SUBJECTS` data row in
+  `tests/doc-health/test_modified_block_currency_self_gate.py` naming this
+  packet's MODIFIED block, which retires at 4.1. The seeder moved TWO rows:
+  this change's new row, and `add-factory-mcp-conformance` from `sole` to
+  `co-modifier`, which the ledger's own rule requires of a MODIFIED block
+  over a partner's requirement. The #630 claim (comment `6066626855`) states
+  its expected movement as one new ledger row, so the partner row is outside
+  its wording. Amending that claim is a #630 comment and the lane's act
+  before landing; the authoring seat posts no issue comment.
+- [ ] 1.4 Gates at the head Brett Heap ratifies, in a full clone named
+  `openxFactory` with the three gitlinks initialized as CI initializes them:
+  the pinned OpenSpec CLI (`scripts/validate-openspec-cli-pin.py --all
+  --strict`, and `--change`), `scripts/proposal-support.py . verify`,
   `scripts/validate-sequenced-after.py .` (plain and `--ledger-diff`),
   `scripts/validate-code-surface.py .`, `scripts/validate-target-release.py .`,
-  doc-health `--single-repo .`, the pytest modules CI runs for these surfaces,
-  `git diff --check`, and a closing-keyword scan of every commit and the pull
-  request body. The pull request body lists the results. Every red is
-  compared with `main` in the same clone kind.
+  doc-health `--single-repo .`, the pytest modules CI runs for these surfaces
+  and the required `pytest-suite` check, `git diff --check`, and a
+  closing-keyword scan of every commit and the pull request body. Until then
+  the pull request body records each run against the head it ran at. Every
+  red is compared with `main` in the same clone kind.
 
 ## 2. Realization (one Speckit feature, after 0.1 and never before it)
 
@@ -63,7 +70,9 @@ Boxes for work this change will never do carry `[~]`, in § 5.
   - the scenarios of the four ADDED requirements, including a hosted
     declaration without the block, an algorithm list without RS256, `none`
     and each HMAC name in more than one letter case, an audience bound to
-    another resource, and a stdio-only declaration that needs no block;
+    another resource, an issuer carrying userinfo, a hosted canonical
+    resource URI carrying a query, and a stdio-only declaration that needs no
+    block;
   - M5: an error-inventory dependency code mapped as a completed evaluation is
     refused, and a result status mapped as an execution failure is refused.
     The enforcement exists already, so these are shown red against a mutant

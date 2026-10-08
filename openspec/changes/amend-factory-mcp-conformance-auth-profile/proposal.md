@@ -16,7 +16,10 @@ still awaiting his rulings. `origin: ad_hoc`; see `.openspec.yaml`.
 Claims: this change path is CLAIMED on the lane register
 (`opensoft/brett-wip` commit `55a63c0d`); the README Records block is claimed
 on [#630](https://github.com/opensoft/openxFactory/issues/630)
-(comment `6066626855`).
+(comment `6066626855`). That claim names one new corpus-ledger row as its
+expected movement; the seeder also flipped the partner row
+`add-factory-mcp-conformance` from `sole` to `co-modifier`, and the claim's
+amendment to say so is owed before landing (`tasks.md` 1.3).
 
 **DRAFT. FILING IS NOT RATIFYING.** The rulings below decide what this change
 must say. They are not the ratification of this packet: that is Brett Heap's
@@ -78,9 +81,11 @@ classes each mapping row by its inventory alone: a value of an error
 inventory must be an execution failure, and a value of a result inventory a
 completed evaluation. It cannot tell what a result status means, so a result
 status named for a dependency failure passes as a completed evaluation. Both
-real domains report an unavailable dependency through an error code, never a
-result status (OpsxFactory, verified at its `main` on 2026-10-08; codexFactory,
-private, verified 2026-10-08). Narrowing the scenario to the error inventory
+real domains report an unavailable dependency through an error code: the
+operations domain's DNS check has only the result statuses `blocked` and
+`eligible` (OpsxFactory, verified at its `main` on 2026-10-08), and the
+engineering domain's published domain-error schema carries an
+unavailable-dependency code (codexFactory, private, verified 2026-10-08). Narrowing the scenario to the error inventory
 makes canon say what is enforced.
 
 **Nothing records where the error vocabulary lives.** Each domain publishes
@@ -99,8 +104,10 @@ requirements and ONE `## MODIFIED` requirement.
   algorithms, the audience and its binding, and the protected-resource
   metadata path (RFC 9728). A declaration that is not deployed carries none:
   a server reached only over stdio takes its credentials from its host
-  environment. The issuer is an absolute https issuer identifier, never a
-  runtime name. The block holds no key material and cites evidence or a gap.
+  environment. The issuer is an absolute https issuer identifier without
+  query, fragment or userinfo, never a runtime name. A hosted canonical
+  resource URI carries no query. The block holds no key material and cites
+  evidence or a gap.
 - **ADDED *RS256 token-signing baseline*.** Every hosted domain server accepts
   RS256. EdDSA is an optional addition. `none` and HMAC are refused by name,
   and any other algorithm is a governed change to this capability.

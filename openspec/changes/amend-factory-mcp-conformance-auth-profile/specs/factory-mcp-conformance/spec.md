@@ -2,7 +2,7 @@
 
 ### Requirement: Hosted declarations carry an authorization block
 
-A declaration whose service is deployed SHALL carry an authorization block, and a declaration whose service is not deployed SHALL NOT carry one. The block SHALL name the token issuer, the accepted token-signing algorithms, the token audience with its binding, and the path of the server's protected-resource metadata. The service's canonical resource URI is the protected resource the block describes. The issuer SHALL be an absolute https issuer identifier with no query or fragment, never a runtime or product name. The metadata path SHALL be the well-known location that RFC 9728 § 3.1 derives from the canonical resource URI. The block SHALL carry no key material, client secret or token, and SHALL cite evidence or an explicit gap for its claims. Like every other declaration field, the block is checked offline, and its validity SHALL NOT certify that a server enforces it.
+A declaration whose service is deployed SHALL carry an authorization block, and a declaration whose service is not deployed SHALL NOT carry one. The block SHALL name the token issuer, the accepted token-signing algorithms, the token audience with its binding, and the path of the server's protected-resource metadata. The service's canonical resource URI is the protected resource the block describes, and for a deployed service it SHALL carry no query component. The issuer SHALL be an absolute https issuer identifier with no query, fragment or userinfo, never a runtime or product name. The metadata path SHALL be the well-known location that RFC 9728 § 3.1 derives from the canonical resource URI. The block SHALL carry no key material, client secret or token, and SHALL cite evidence or an explicit gap for its claims. Like every other declaration field, the block is checked offline, and its validity SHALL NOT certify that a server enforces it.
 
 #### Scenario: Hosted declaration without the block
 - **WHEN** a declaration's service is deployed and the declaration carries no authorization block
@@ -13,12 +13,16 @@ A declaration whose service is deployed SHALL carry an authorization block, and 
 - **THEN** no authorization block is required, and a block that is present is refused
 
 #### Scenario: Issuer named rather than identified
-- **WHEN** the block's issuer is not an absolute https issuer identifier, for example a bare runtime name
+- **WHEN** the block's issuer is not an absolute https issuer identifier, for example a bare runtime name, or it carries a query, fragment or userinfo
 - **THEN** validation refuses the issuer
 
 #### Scenario: Metadata off the well-known path
 - **WHEN** the block's metadata path differs from the RFC 9728 well-known location for the canonical resource URI
 - **THEN** validation refuses the path
+
+#### Scenario: Hosted resource URI with a query
+- **WHEN** a deployed service's canonical resource URI carries a query component
+- **THEN** validation refuses the resource URI
 
 #### Scenario: Unsupported authorization claim
 - **WHEN** the block cites neither evidence nor a gap for its authorization claims
