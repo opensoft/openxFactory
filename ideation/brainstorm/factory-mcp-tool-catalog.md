@@ -23,7 +23,7 @@ Proposed: every declared tool identifies its owning domain, input/output schema 
 
 ## Interfaces and boundaries
 
-Existing codex descriptors advertise exactly codex_qa_inspect_patch and codex_qa_verify_candidate and load the package's published schemas. New tools require a domain contract change. No adapter accepts arbitrary tool plugins or a generic execute-anything argument.
+Existing codex descriptors advertise exactly the engineering domain's patch-inspection tool and candidate-verification tool, and load the published schemas of the engineering domain's MCP contract package. New tools require a domain contract change. No adapter accepts arbitrary tool plugins or a generic execute-anything argument.
 
 ## Alternatives and tensions
 
