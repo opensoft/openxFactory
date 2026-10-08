@@ -133,13 +133,14 @@ Kind: tasks
   branch cut fresh from `main` after #1264's squash `a936e531`.
   The archive commit carries the measurements; it lands as a MERGE commit.
 
-**3.5 AND 4.1 KEEP A LITERAL `- [ ]` DELIBERATELY.**
+**3.5 AND 4.1 KEPT A LITERAL `- [ ]` UNTIL THEIR ACTS.**
 `scripts/proposal-support.py`:4632-4633 refuses an archive while any
-`^- \[ \]` remains. Those two boxes are for acts that have not happened yet
-(a green head with every thread resolved at landing, and the archive
-itself), so the acts tick them and nothing ticks them in advance. § 0's boxes
-were ticked by the ratifying word. Every box for work this packet will never
-do carries `[~]`, in § 5.
+`^- \[ \]` remains. Those two boxes were for acts that had not happened when
+the packet was ratified (a green head with every thread resolved at landing,
+and the archive itself), so nothing ticked them in advance: both were ticked
+on 2026-10-08, in the commit right before the archive act. § 0's boxes were
+ticked by the ratifying word. Every box for work this packet will never do
+carries `[~]`, in § 5.
 
 ## 5. Registered, not taken
 
