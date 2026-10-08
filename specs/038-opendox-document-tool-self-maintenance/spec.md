@@ -659,7 +659,7 @@ bookkeeping records an answer.
   - **Phase 4 repairs the 174 reds.** It SHALL repair the 174 composed reds
     measured at `56e1c238` without editing any of the 16 suites, by four
     means:
-    - a host-registering conftest outside them, as T104's `HOST_PLANE_SUITES`
+    - a host-registering conftest outside them, as plan 034's T104's `HOST_PLANE_SUITES`
       does;
     - the `display.js` harness copy fixed, and the gate console's two schemas
       (openXdox-spec's gate-action record and openxFactory's demotion
@@ -1219,7 +1219,7 @@ bookkeeping records an answer.
 - **Release 1 is complete.** Plan 034 reads 92 of 96 tasks. The four open ones,
   T090–T093, are the every-phase tasks for 9.5, 11.0, 11.1 and F11.1, which
   were left open for the arc's close after release 2. `opendox` 0.1.0 is on
-  PyPI (T099). F9.2 stays open until the `doc_health` direction arc lands (plan
+  PyPI (plan 034's T099). F9.2 stays open until the `doc_health` direction arc lands (plan
   034 T008; RULED `5859927858`). The arc gates neither release 2's close nor
   #1144's archive (ARC-Q3 (a), `6003918488`): #1144 archives on both releases'
   evidence with F9.2 open, as the plan ruling took (ARC-5 (a), `6013547504`),

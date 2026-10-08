@@ -157,6 +157,8 @@ Table `health_runs` in `0003_` (OQ-H-22; DOMAIN, R2Q13 (a)):
 | `full` | boolean, NOT NULL | true when no `--pack` restricted the run. Only a `complete`, `full` default-tip run forms a baseline or measures disappearances (Copilot review of `2076f24b`) |
 | `sandbox` | jsonb, NOT NULL | what the per-run probe found: `{"live": bool, "pids_max": int or null}`; `pids_max` is null where no cgroup is delegated (an accepted limit, contracts/health-packs-manifest.md § Rules) |
 
+The SQL column of the `full` field is `full_run`, because PostgreSQL 16 reserves `full` (the holder, `#656` `6064169640`).
+
 **What a run reads** (R2Q12 (a), which names runs "at the tip, on a branch or
 over the working state"; ADV-16 replaced the narrower reading):
 - **default-tip**: HEAD is the baseline branch's tip and the working tree is

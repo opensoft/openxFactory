@@ -37,6 +37,19 @@ and T095+ read as T095 to T104 in the critical path and the lane table. spec.md'
 FR-011 and `contracts/health-finding.md` carry the `identity` response shape and
 the qualified collision sentence (`6018624750`).
 
+**Revision: T002's third bookkeeping batch** (2026-10-07). More rulings and
+landings, encoded as worded, with no new decision. In this file: the single-writer
+table's two new rows, one for `tests/test_capability_honesty.py` and
+`tests/test_lens_seed_actions.py` (T015 → T016; `6027633398`) and one for
+`tests/test_default_profile.py` (T015 → T016, following `default_profile.py`'s
+chain; `6023619783`, `6026622117`), T073's place in the `tests/conftest.py` and
+`tests/test_host_plane.py` chains, for the fix to Copilot r4201411760, accepted at
+#46's landing (`6027382308`), and the task count and range, 91 tasks and
+T001 to T105 (`6028364555` item 5). tasks.md carries the rest, data-model.md one
+line on T042's SQL column `full_run` (`6064169640`), and spec.md and
+clarify-questions.md the qualifier "plan 034's" on three bare task numbers
+(`6027706377` item 2).
+
 **Revision: review round 1 folded** (2026-10-05). Two independent read-only
 reviews of `6d6911e1`, an Opus analyze and adversarial pass and lane
 openXfactory-3's PLANCHECK, are committed verbatim with their disposition tables
@@ -237,7 +250,7 @@ arc edits stay on 11.1's surfaces; `EXPECT_SKIPPED` stays 11 (R2Q17 (a)).
 **Scale/Scope**: 37 release-2 boxes (Group 6: 4; Group 12: 11; Group 14: 10;
 Group 15: 12), the four arc-close boxes, and F9.2 through the direction arc.
 Seven product repositories, one codexFactory spec amendment (R2Q6 (a)), one
-new OpenSpec change (ARC-Q3 (a)), and the aggregation's pin syncs. 79 tasks.
+new OpenSpec change (ARC-Q3 (a)), and the aggregation's pin syncs. 91 tasks.
 
 No item of the Technical Context is NEEDS CLARIFICATION: every behavioural
 question is answered (R2Q1–R2Q25, ARC-Q1–ARC-Q4), and every design question
@@ -290,7 +303,7 @@ specs/038-opendox-document-tool-self-maintenance/
 │   ├── cli-http-submit-land.md      # submit, land: CLI verbs, routes, /capabilities
 │   └── cli-http-health.md           # health run|list|fix|accept: CLI verbs, routes
 ├── quickstart.md           # AT-R2: the HTTP half (CI) and the browser half (host)
-├── tasks.md                # 79 tasks, T001–T093
+├── tasks.md                # 91 tasks, T001–T105
 └── evidence/               # Status: record
     ├── analyze-round-1.md          # the Opus review of 6d6911e1, verbatim, with its dispositions
     └── plancheck-lane3-round-1.md  # lane openXfactory-3's PLANCHECK, verbatim, with its dispositions
@@ -448,6 +461,8 @@ openXfactory-3).
 | openDox-code `src/opendox/workbench.py` | T052 alone |
 | openDox-code `src/opendox/branch_session.py` | T016 alone (R2Q5 (a)) |
 | openDox-code `src/opendox/web/app.js`, `web/index.html` | T015 → T016 → T057 |
+| openDox-code `tests/test_default_profile.py` | T015 (the two assertions its first new verb and first `HANDLER_CONTRIBUTIONS` turn red, and the second one's stale docstring; `6023619783`, `6026622117`) → T016 → any later task that contributes a default-profile facet, following `default_profile.py`'s chain |
+| openDox-code `tests/test_capability_honesty.py` (the `GOVERNED` map), `tests/test_lens_seed_actions.py` (the contributed-route manifest) | T015 (`submit`) → T016 (`land`, `land-nonce`, `actions.land`, amended the same way; the holder, `6027633398`, which pre-authorizes same-kind enumeration collateral in the minimal way, listed in each PR body) |
 | openDox-code `src/opendox/web/views/staging-workbench.js`, `staging-workbench-model.js` | T025 alone (U-6; the model too, W-1 (A), ruled) |
 | openDox-code `src/opendox/display_profile.py`, `web/views/display.js` | T050 alone (G15-H), with a guard that the model's inlined tables equal `display.js`'s (W-1 (A), ruled) |
 | openDox-code `tests/fixtures/web_boundary_census.yaml` | T025 → T104 (the `loc` row for the two new `doxchat` rules, straight after T025; `6021830531`, W7) → T015 → T016 → T057 |
@@ -459,8 +474,8 @@ openXfactory-3).
 | openDox root `README.md` | T018 (the declaration, `submit`, `land`, the two push routes) → T062 (the `health` section and its hook line) → T084 (the 0.2.0 install line) |
 | openDox root spec pin, `contracts/manifest.yaml`, `CHANGELOG.md`, the `dox-v1.2` tag | T060 alone (early in phase 5) |
 | openDox root `code` gitlink, `contracts/code-pin.yaml` | T027 (phase 4) → T062 (phase 5); then, only if the arc's `lines` module lands after the 0.2.0 bump, the arc's own root commit (ARC-6) |
-| openXdox-code `tests/conftest.py` | T020 (U-1) → T021 (the gate console's schema-source registration line) and T026 (U-7: the governed-suite list's coverage of `test_staging_workbench.py`, through T020's registration, edited after T020 lands; Brett, `6016648451`), in the order they land, the second merging `main` first → T095 (the composed harness: the declared-host autouse registration, the seam registrations, the contract family's composed source, the local-install premise; lane 3, `6021830531` W7, `6022291206`) → T073 (the rail registration) → T074 (the arc's governed implementations, until T075) |
-| openXdox-code `tests/test_host_plane.py` | T020 (U-1) → T026 (the scan, edited after T020 lands; Brett, `6016648451`) → T095 (the structural guard of `DECLARED_HOST_SUITES`; `6021830531` W7, `6022291206`) |
+| openXdox-code `tests/conftest.py` | T020 (U-1) → T021 (the gate console's schema-source registration line) and T026 (U-7: the governed-suite list's coverage of `test_staging_workbench.py`, through T020's registration, edited after T020 lands; Brett, `6016648451`), in the order they land, the second merging `main` first → T095 (the composed harness: the declared-host autouse registration, the seam registrations, the contract family's composed source, the local-install premise; lane 3, `6021830531` W7, `6022291206`) → T073 (the rail registration, and the `opendox-snapshot-*` farm exclusion scoped to the `opendox_spec` owner; `6027382308`) → T074 (the arc's governed implementations, until T075) |
+| openXdox-code `tests/test_host_plane.py` | T020 (U-1) → T026 (the scan, edited after T020 lands; Brett, `6016648451`) → T095 (the structural guard of `DECLARED_HOST_SUITES`; `6021830531` W7, `6022291206`) → T073 (the farm case: an `opendox-snapshot-*` example from another owner is NOT excluded; Copilot r4201411760, accepted at #46's landing, `6027382308`) |
 | openXdox-code `src/openxdox/gate_console.py` | T021 (U-2: the packaged read and the schema-source seam) → T074 (the arc's retarget) |
 | openXdox-code `src/openxdox/contracts/copies.yaml` | NO writer in release 2 (ADV-10; `test_packaged_validator.py:81-92`) |
 | openXdox-code `.gitignore`, `scripts/composed_placements.py` | T022 alone |
