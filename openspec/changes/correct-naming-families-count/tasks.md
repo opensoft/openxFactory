@@ -283,6 +283,14 @@ never precedes it.
 have not happened, and each is ticked by the act that performs it, never by the
 authoring lane.
 
+**AT THE ARCHIVE, 2026-10-08, EVERY ONE OF THEM IS TICKED, AND THE PARAGRAPH
+ABOVE IS KEPT AS IT WAS WRITTEN.** It was true when the packet was ratified.
+`scripts/proposal-support.py` refuses an archive while any `^- \[ \]` line
+remains, so the archive closes each box or does not happen. 1.1 and 1.2 are
+closed as discharged by Brett Heap's words, on his selection of 2026-10-08;
+4.4 is ticked on its verified evidence; 5.1 was ticked by #1270; and 6.1 and
+6.2 are ticked for the archive act itself.
+
 ## 5. Realization handoff — NOT performed by this packet
 
 - [x] 5.1 **openxFactory, the doctrine.** After ratification, in its own pull
@@ -322,7 +330,7 @@ authoring lane.
 
 ## 6. Archive
 
-- [ ] 6.1 Archive only after § 5.1 is merged, through the pinned CLI
+- [x] 6.1 Archive only after § 5.1 is merged, through the pinned CLI
   entrypoint, promoting both MODIFIED requirements into
   `openspec/specs/project-repo-schema/spec.md`, with the README OpenSpec
   Records row moved from Active to Archived. The order against
@@ -330,6 +338,25 @@ authoring lane.
   re-read canon for both titles: if canon moved under either block, the block
   is brought forward first, as `document-lifecycle`'s currency requirement
   requires.
-- [ ] 6.2 Re-run the pinned CLI (`--all --strict`), `scripts/validate-sequenced-after.py .`
+  **Ticked before the run, because the archive wrapper refuses an open box**
+  (`change has incomplete tasks` while any `- [ ]` line remains). The
+  conditions this item names are met. § 5.1 is merged: #1270 landed by squash
+  as `e83259b4163127e9c0c9cbcfc8dcc087ab0d68be` at 2026-10-08T18:27:26Z, on
+  Brett Heap's word *"merge the 5.1 PR when green"*. Canon has not moved under
+  either block: the last commit to touch
+  `openspec/specs/project-repo-schema/spec.md` is `19d008723` (#616,
+  2026-09-03), and `git diff 16779816 80f47483` of that file, from the tree
+  this packet was authored on to `main` at this archive's cut, is empty. So no
+  block is brought forward. The archive is the governed wrapper's act,
+  `TZ=UTC python3 scripts/proposal-support.py . archive correct-naming-families-count --yes`,
+  never a bare `openspec archive`, on Brett Heap's word *"archive the naming
+  families change"* (RULED on the lane register at 2026-10-08T19:49:19Z). The
+  run and its measurements are recorded under this item in the commit after
+  the move.
+- [x] 6.2 Re-run the pinned CLI (`--all --strict`), `scripts/validate-sequenced-after.py .`
   with `--ledger-diff`, and `scripts/doc-health.py --single-repo .` on the
   archived tree, and compare each with the pre-archive run.
+  **Ticked before the run, for the same reason as 6.1.** The pre-archive runs
+  were taken on `main` `80f47483`. The archived tree's runs and the comparison
+  are recorded under this item once the sweep-ledger row is seeded, because
+  `--ledger-diff` reads that row.
