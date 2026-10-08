@@ -176,7 +176,7 @@ plus this record's changes.
 | `scripts/doc-health.py --single-repo .` | 31 critical, 26 error, 69 warning, 19 info; the report is byte-identical to `main` alone, run in the same clone kind with the submodules initialised in both, and 0 findings name this change |
 | doc-health, the families `tasks.md` 1.2 names, on this tree | `proposal-origin` 0 findings and `status-validity` 0 findings; `record-immutability` (4 critical) and `ratified-provenance` (27 critical) name nothing of this change, and they are `main`'s own because the whole report is byte-identical to `main`'s. Negative control: dropping `proposal.md`'s `Ratified:` line takes `ratified-provenance` to 28 critical and names `proposal.md` |
 | `pytest tests/ -m "not postgres" -k "ledger or records or sequenced or openspec"` | 615 passed, 3 skipped |
-| `pytest` over `tests/sequenced_after`, `code_surface`, `target_release`, `proposal-support`, `scope_globs` and `packet_reference` | 866 passed, 312 subtests passed |
+| `pytest` over `tests/sequenced_after`, `code_surface`, `target_release`, `proposal-support`, `scope_globs` and `packet_reference` | 866 passed, 311 subtests passed |
 | `pytest tests/doc-health` | 2157 passed |
 
 The running measurement lives in the pull request that carries this record.
