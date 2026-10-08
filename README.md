@@ -3232,7 +3232,7 @@ Archived changes:
   — **ARCHIVED 2026-10-08** by
   [PR #1278](https://github.com/opensoft/openxFactory/pull/1278),
   by lane `openxfactory-5`, landed by MERGE COMMIT, never squash, on Brett
-  Heap's separate archive word, verbatim option label ***"Land all three, waive
+  Heap's word, one multiple-choice answer that names both acts, verbatim option label ***"Land all three, waive
   Codex (Recommended)"*** (2026-10-08, in session on team-01c; RULED on the
   lane register at 2026-10-08T23:00:44Z), which orders #1273, then its
   same-day archive with the `## Purpose` widening. Filed 2026-10-08 by lane

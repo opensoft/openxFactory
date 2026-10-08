@@ -33,8 +33,9 @@ QUOTED IN PLACE RATHER THAN DELETED:**
 > anywhere in the estate by this packet: canon is written by the archive act, on a
 > separate word.
 
-**THE ARCHIVE WORD HAS BEEN GIVEN, AND THIS PULL REQUEST IS THAT ACT.** Every box in this
-file is now `[x]`. § 1.4 ticks on Brett Heap's word of 2026-10-08 (§ 1.4 records it). § 3
+**THE ARCHIVE HAS BEEN ORDERED BY HIS WORD, AND THIS PULL REQUEST IS THAT ACT.** Every box in this
+file is now `[x]`. § 1.4 ticks on his one multiple-choice answer of 2026-10-08, which names both acts (§ 1.4
+records it, and says what it does and does not settle). § 3
 is ticked as SIX CONFIRMED DISPOSITIONS, each re-measured at `b4b9d903`, and not as work
 performed. § 4 is ticked on the doing, or on the recording for § 4.2, and each clause names
 the act. At THIS commit the superseded sentences therefore read: promoted specification bytes
@@ -96,13 +97,23 @@ only a dated clause after it.
       and neither is implied by § 1.1. #1259 closes at the archive (§ 4.2), by a word,
       and on no earlier pull request. **NOT GIVEN.** The 2026-10-08 word of § 1.1 is a
       ratify word and is neither of these, and the box is left for its owner.
-      **GIVEN 2026-10-08, AND TICKED AT THE ARCHIVE.** Brett Heap, in session on team-01c, a multiple-choice answer given at about 23:0xZ on 2026-10-08 and logged RULED on the lane register at 2026-10-08T23:00:44Z, verbatim option label *"Land all three, waive Codex (Recommended)"*. The lane recorded its reading
-      of the option as: land openxFactory #1273, then its same-day archive with the Purpose
-      widening, then #1274 after merging main, then #1276, each when green with Copilot clean at
-      the exact head and the Codex review waived. That one word is the LAND word for #1273,
-      executed as the squash `b4b9d903c4bafed65347bbbdade942dc3bb720e7` (2026-10-08T23:21:42Z),
-      and it is the ARCHIVE word, which this pull request performs. It is a different word from
-      the ratify word of § 1.1, and the ratify word was not read as either.
+      **GIVEN 2026-10-08, AND TICKED AT THE ARCHIVE, AS ONE MULTIPLE-CHOICE ANSWER THAT NAMES
+      BOTH ACTS.** Brett Heap, in session on team-01c, a multiple-choice answer given at about
+      23:0xZ on 2026-10-08 and logged RULED on the lane register at 2026-10-08T23:00:44Z,
+      verbatim option label *"Land all three, waive Codex (Recommended)"*. The lane recorded
+      its reading of the option as: land openxFactory #1273, then its same-day archive with the
+      Purpose widening, then #1274 after merging main, then #1276, each when green with Copilot
+      clean at the exact head and the Codex review waived. The box asks for the land word and
+      the archive word as separate words. What was given is ONE selection whose option names
+      the archive as its own ordered step after the land, and it is recorded here as exactly
+      that and not as two answers. The box's stated safeguard holds: neither act was implied by
+      the ratify word of § 1.1, and the two acts were performed separately and in order, the
+      land as the squash `b4b9d903c4bafed65347bbbdade942dc3bb720e7` (2026-10-08T23:21:42Z) and
+      this archive from the wrapper's run at 2026-10-08T23:27:45Z. Whether one answer that names
+      both acts discharges *"a separate word"* is NOT assumed here: the archive proceeds on the
+      answer's explicit naming of it, this pull request stays DRAFT, and it lands only by the
+      coordinating lane's own act. If Brett Heap reads the clause as requiring a second answer,
+      this box is where that reading is recorded.
 
 ## 2. Authoring and validation (this lane's act, done before the pull request)
 
