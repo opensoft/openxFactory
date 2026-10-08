@@ -573,32 +573,6 @@ Active changes:
   and [analysis](specs/035-renew-resolved-council-protocol/analysis.md). Implementation and
   operational realization remain pending.
 
-- [correct-naming-families-count](openspec/changes/correct-naming-families-count/proposal.md)
-  — filed 2026-10-07, lane `codeXfactory-5`, **`Status: ratified`**
-  (2026-10-07, Brett Heap, *"ratify as recommended when the PR opens"*, logged
-  RULED on the lane register at 09:47:04Z, over PR #1266's opening head
-  `3bb38c20`; a ratification only, not a merge word and not a word to realize
-  anything; record
-  [`review/ratification-2026-10-07.md`](openspec/changes/correct-naming-families-count/review/ratification-2026-10-07.md)),
-  on Brett Heap's in-session word of 2026-10-07, verbatim *"open an OpenSpec
-  change for the four families heading"*, which authorized authoring and
-  opening it and was not a ratification. Canon `project-repo-schema` says *"The four live naming
-  families"* and the ratified doctrine heads its section *"Naming, and the four
-  families"*, while the openRepoShape naming policy openxFactory pins has
-  declared five families since 2026-09-04 and six since 2026-10-06 (`1a9fc537`,
-  the `family` holder and the `<user>-wip` workspace form added). **TWO
-  `## MODIFIED` requirements in `project-repo-schema`, titles unchanged**: the
-  naming families become COUNT-FREE (those the pinned policy declares, governed
-  there as data, their number and full list restated nowhere in canon), and two
-  more sentences that restated a property of the whole set are corrected. Three
-  canon units are replaced under `Removed from canon` markers; every other
-  sentence and all six promoted scenarios are carried byte-identically, and one
-  paragraph and one scenario are added. It put no open question, and its three
-  decisions were RULED as recommended. It writes no
-  requirement `prefer-triad-project-shape` writes, so neither is sequenced after
-  the other. `code_surface: none`, `target_release: implemented`; the doctrine
-  edit is its one realization handoff, after ratification.
-
 - [prefer-triad-project-shape](openspec/changes/prefer-triad-project-shape/proposal.md)
   — filed 2026-10-06, lane `codeXfactory-5`, **`Status: ratified`**
   (2026-10-06T16:02:16Z, Brett Heap, *"ratify 1249 as recommended"*, PR #1249
@@ -3262,6 +3236,52 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [correct-naming-families-count](openspec/changes/archive/2026-10-08-correct-naming-families-count/proposal.md)
+  — **ARCHIVED 2026-10-08** by
+  [PR #1275](https://github.com/opensoft/openxFactory/pull/1275),
+  by lane `codeXfactory-5`, landed by MERGE COMMIT, never squash, on Brett
+  Heap's separate archive word, verbatim ***"archive the naming families
+  change"*** (2026-10-08, in session; RULED on the lane register at
+  2026-10-08T19:49:19Z, `opensoft/brett-wip` `lanes/log/codeXfactory-5.md`).
+  Filed 2026-10-07 by lane `codeXfactory-5` on his word *"open an OpenSpec
+  change for the four families heading"*; **RATIFIED 2026-10-07 by Brett
+  Heap**, verbatim *"ratify as recommended when the PR opens"*, effective when
+  PR [#1266](https://github.com/opensoft/openxFactory/pull/1266) opened, over
+  its opening head `3bb38c20` (record
+  [`review/ratification-2026-10-07.md`](openspec/changes/archive/2026-10-08-correct-naming-families-count/review/ratification-2026-10-07.md));
+  landed on his word *"merge the naming families PR when green"* by squash as
+  `a38585e979624c3210c63a41dc97c67de33e526d` (2026-10-07T11:20:16Z).
+  **`code_surface: none`**, so under `release-realization` it archives ON
+  LANDING PLUS ITS OWN TASK LIST. Its one realization handoff, the § 5.1
+  doctrine edit to [`docs/project-repo-schema.md`](docs/project-repo-schema.md),
+  landed on his word *"merge the 5.1 PR when green"* as PR
+  [#1270](https://github.com/opensoft/openxFactory/pull/1270) →
+  `e83259b4163127e9c0c9cbcfc8dcc087ab0d68be` (2026-10-08T18:27:26Z). Owner
+  boxes 1.1 and 1.2 were closed at the archive as discharged by his ratify and
+  merge words, each citing its word and time, on his selection of 2026-10-08,
+  verbatim *"Yes, here and prefer-triad (Recommended)"* (RULED
+  2026-10-08T20:05:35Z), as archive #953 did. **Performed through the
+  governed wrapper, never a bare `openspec archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive correct-naming-families-count --yes`,
+  exit 0: *"ORIGIN RETAINED correct-naming-families-count (declaration
+  unchanged since the ratifying commit a38585e97962)"*, *"Applying changes to
+  openspec/specs/project-repo-schema/spec.md: ~ 2 modified"*, *"Totals: + 0,
+  ~ 2, - 0, → 0"*, over the content-addressed `@fission-ai/openspec@1.12.0`
+  pin. **The promotion, measured byte for byte** onto
+  [`openspec/specs/project-repo-schema/spec.md`](openspec/specs/project-repo-schema/spec.md):
+  the MODIFIED *A project's repositories are named `<Project>`,
+  `<Project>-spec` and `<Project>-code`* (1,821 to 2,871 bytes) and *The
+  naming families are governed by the pinned standard, and a descendant form
+  is a claim that needs a declared pin* (2,593 to 6,148 bytes) are each
+  byte-identical between the archived delta and canon. The other nine
+  requirement blocks are byte-identical before and after, the eleven titles
+  keep their order, and canon `--numstat` is +35 -14. Canon now states the
+  naming families count-free, with the three `Removed from canon` markers
+  promoted in their blocks. Canon had not moved under either block since
+  #616, so neither was brought forward. The six packet files move as renames,
+  `tasks.md` carrying its closing ticks. The historical records that say
+  "four" (`design.md` D7) are not edited.
 
 - [amend-worker-input-budget-dispatch-wording](openspec/changes/archive/2026-10-08-amend-worker-input-budget-dispatch-wording/proposal.md)
   — **ARCHIVED 2026-10-08** by
