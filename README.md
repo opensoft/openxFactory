@@ -540,6 +540,27 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-worker-input-budget-dispatch-wording](openspec/changes/amend-worker-input-budget-dispatch-wording/proposal.md)
+  — filed 2026-10-07, lane `openxfactory-1`, **`Status: ratified`**
+  (2026-10-07, Brett Heap, in session, verbatim *"ratify 1262 when ready"*,
+  as drafted and with no amendment; RULED on the lane register at
+  2026-10-07T09:58:32Z; record
+  [`review/ratification-2026-10-07.md`](openspec/changes/amend-worker-input-budget-dispatch-wording/review/ratification-2026-10-07.md)),
+  on Brett Heap's word *"draft the amendment change for 1262"* (2026-10-07), after his
+  ruling *"(a) land as ratified, amend later"* on Copilot's comment
+  `4202036546` at `#1258`, the archive of `add-worker-input-budget`. Governing
+  issue `#1262`. **ONE `## MODIFIED` requirement in `doc-health`, *Bounded
+  worker input budget*, with ONE sentence reworded; the title, the first and
+  third paragraphs and all six promoted scenarios are carried
+  byte-identically.** The promoted second paragraph forbids an over-budget
+  dispatch with a SHALL NOT and then calls that same dispatch "conformant".
+  The amendment keeps the SHALL NOT verbatim and names the worker's refusal as
+  a backstop that does not make an over-budget dispatch conformant.
+  `code_surface: none`, MEASURED: the realization (`#1137` → `9da52e31`) never
+  dispatches a unit it has measured over the budget
+  (`scripts/doc_health/catalog_dispatch.py`:521-522 on `main`). The archived
+  delta is history and is not edited. **RATIFICATION ONLY**: the archive is a
+  separate later act on Brett Heap's word.
 - [correct-naming-families-count](openspec/changes/correct-naming-families-count/proposal.md)
   — filed 2026-10-07, lane `codeXfactory-5`, **`Status: ratified`**
   (2026-10-07, Brett Heap, *"ratify as recommended when the PR opens"*, logged
