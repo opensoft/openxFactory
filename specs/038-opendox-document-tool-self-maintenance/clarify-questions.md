@@ -434,7 +434,7 @@ first, whatever is answered here.
 - **(a) (Recommended)** F12.1 runs composed, as F5.2 does under R1Q23 (a), until
   the direction arc's realization lands. The amendment is a bookkeeping line.
   The 174 reds are repaired in phase 4 without editing the proofs:
-  - a host-registering conftest outside the 16 files, as T104's
+  - a host-registering conftest outside the 16 files, as plan 034's T104's
     `HOST_PLANE_SUITES` already does;
   - the harness copy fixed, and the schema placed where the suites read it;
   - an allow-list entry for each pure respelling (batch C);

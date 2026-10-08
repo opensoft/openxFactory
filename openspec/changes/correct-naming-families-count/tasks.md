@@ -258,7 +258,7 @@ authoring lane.
 
 ## 5. Realization handoff — NOT performed by this packet
 
-- [ ] 5.1 **openxFactory, the doctrine.** After ratification, in its own pull
+- [x] 5.1 **openxFactory, the doctrine.** After ratification, in its own pull
   request: `docs/project-repo-schema.md` restated as `design.md` D3 proposes.
   The heading at `:236` becomes `## Naming, and the naming families`. The
   sentence at `:240-242` says the suffixes sit apart from *"every family the
@@ -273,6 +273,25 @@ authoring lane.
   so no digest, inventory member or changelog entry moves. The pull request
   touches `openspec/changes/` only to tick this box, under its own Rule 6
   window.
+  **DONE 2026-10-08** in openxFactory PR
+  [#1270](https://github.com/opensoft/openxFactory/pull/1270) →
+  `615c79c4c6c592e7a12bb8e68b639e9198ac545c`, lane `codeXfactory-5`, on Brett
+  Heap's in-session word of 2026-10-08, verbatim *"do the 5.1 doctrine edit for
+  naming families"*. `docs/project-repo-schema.md` gains the header line
+  `Amended by: correct-naming-families-count (ratified 2026-10-07, openxFactory
+  PR #1266)`; its heading becomes `## Naming, and the naming families`; the
+  leg-suffix sentence says the suffixes sit apart from every family the pinned
+  standard's naming policy spells as a CamelCase word; the sentence that said
+  the four families are governed as DATA is count-free and keeps the four forms
+  as members; and one INFORMATIVE note dated 2026-10-07 to the pin
+  `1a9fc537bcce…` lists the six families that pin declares and says it governs
+  nothing. The wording is `design.md` D3's, verbatim. `git diff` names those
+  five places, in four git hunks because the last two are adjacent, and no
+  other sentence moves: the one re-wrapped line pair keeps its words. The file
+  is not a registered release member, so no digest, inventory member or
+  changelog entry moves. The tick holds on `main` only through that pull
+  request's merge, which waits on Brett Heap's merge word and its required
+  checks.
 
 ## 6. Archive
 
