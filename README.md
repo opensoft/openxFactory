@@ -3229,7 +3229,8 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [refresh-install-repository-enumerations-opsxfactory-gateway](openspec/changes/archive/2026-10-08-refresh-install-repository-enumerations-opsxfactory-gateway/proposal.md)
-  — **ARCHIVED 2026-10-08** by ARCHIVE-PR-NUMBER-PENDING,
+  — **ARCHIVED 2026-10-08** by
+  [PR #1278](https://github.com/opensoft/openxFactory/pull/1278),
   by lane `openxfactory-5`, landed by MERGE COMMIT, never squash, on Brett
   Heap's separate archive word, verbatim option label ***"Land all three, waive
   Codex (Recommended)"*** (2026-10-08, in session on team-01c; RULED on the
