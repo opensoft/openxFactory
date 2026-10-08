@@ -106,7 +106,7 @@ word ratifies.
 `fc4fa0ff` merged at 18:56:42Z, and the word was given at about 18:59Z. The
 change directory's tree at `fc4fa0ff` is `02d362f6ebcaf49e18aa107f7ce2b3a409ca2275`.
 It is the same tree as at #1253's final head `e4f3f1db`, and as on `main`'s head
-`80f47483`, the base of this record's commits. The last commit on `main` that
+`40d6e5c1`, the base of this record's commits. The last commit on `main` that
 touches the directory is `fc4fa0ff`. The commits after it touched no byte of it:
 #1252 → `c44c1610` (the archive of `add-factory-mcp-conformance`, 18:58:06Z),
 #1254 → `a2dc658d`, #1138 → `9171d14a`, #1251 → `1837ea75`, #1250 → `3cec62fd`,
@@ -114,7 +114,9 @@ touches the directory is `fc4fa0ff`. The commits after it touched no byte of it:
 #1258 → `16779816` (the archive of `add-worker-input-budget`), #1266 →
 `a38585e9`, #1264 → `a936e531`, #1269 → `c9dfd4f8` (the archive of
 `amend-worker-input-budget-dispatch-wording`), #1263 → `3a2ab303`, #1270 →
-`e83259b4`, #1271 → `4e23c38b` and #1267 → `80f47483`.
+`e83259b4`, #1271 → `4e23c38b`, #1267 → `80f47483`, #1272 → `e140c57c`, #1275 →
+`c8dde131` (the archive of `correct-naming-families-count`) and #1277 →
+`40d6e5c1` (the bot review-lane repin).
 
 The changes this record makes are the first after the landing, and **none of them
 is requirement or scenario text**: the change has no spec delta.
@@ -161,13 +163,13 @@ This record freezes only the state the word was given over.
 
 ## 6. What was measured at this record's commit
 
-The measurement was taken on the tree this record lands in: `main` at `80f47483`
+The measurement was taken on the tree this record lands in: `main` at `40d6e5c1`
 plus this record's changes.
 
 | gate | result |
 | --- | --- |
 | `OPENSPEC_TELEMETRY=0 openspec validate realize-doc-health-direction-arc --strict` (the pinned 1.12.0) | valid |
-| `scripts/validate-openspec-cli-pin.py --all --strict` | exit 0, 0 UNDISPOSITIONED failures; 114 passed, 1 failed (115 items), the one being the accepted exception that `main` alone also reports |
+| `scripts/validate-openspec-cli-pin.py --all --strict` | exit 0, 0 UNDISPOSITIONED failures; 113 passed, 1 failed (114 items), the one being the accepted exception that `main` alone also reports |
 | `scripts/validate-code-surface.py .` and `scripts/validate-target-release.py .` | passed |
 | `scripts/validate-sequenced-after.py .` and `--ledger-diff` | passed; ledger consistent with the corpus (235 rows), and this change's row does not move |
 | `scripts/proposal-support.py . verify realize-doc-health-direction-arc` | ok |
