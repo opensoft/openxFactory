@@ -540,27 +540,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [amend-worker-input-budget-dispatch-wording](openspec/changes/amend-worker-input-budget-dispatch-wording/proposal.md)
-  — filed 2026-10-07, lane `openxfactory-1`, **`Status: ratified`**
-  (2026-10-07, Brett Heap, in session, verbatim *"ratify 1262 when ready"*,
-  as drafted and with no amendment; RULED on the lane register at
-  2026-10-07T09:58:32Z; record
-  [`review/ratification-2026-10-07.md`](openspec/changes/amend-worker-input-budget-dispatch-wording/review/ratification-2026-10-07.md)),
-  on Brett Heap's word *"draft the amendment change for 1262"* (2026-10-07), after his
-  ruling *"(a) land as ratified, amend later"* on Copilot's comment
-  `4202036546` at `#1258`, the archive of `add-worker-input-budget`. Governing
-  issue `#1262`. **ONE `## MODIFIED` requirement in `doc-health`, *Bounded
-  worker input budget*, with ONE sentence reworded; the title, the first and
-  third paragraphs and all six promoted scenarios are carried
-  byte-identically.** The promoted second paragraph forbids an over-budget
-  dispatch with a SHALL NOT and then calls that same dispatch "conformant".
-  The amendment keeps the SHALL NOT verbatim and names the worker's refusal as
-  a backstop that does not make an over-budget dispatch conformant.
-  `code_surface: none`, MEASURED: the realization (`#1137` → `9da52e31`) never
-  dispatches a unit it has measured over the budget
-  (`scripts/doc_health/catalog_dispatch.py`:521-522 on `main`). The archived
-  delta is history and is not edited. **RATIFICATION ONLY**: the archive is a
-  separate later act on Brett Heap's word.
 - [correct-naming-families-count](openspec/changes/correct-naming-families-count/proposal.md)
   — filed 2026-10-07, lane `codeXfactory-5`, **`Status: ratified`**
   (2026-10-07, Brett Heap, *"ratify as recommended when the PR opens"*, logged
@@ -3254,6 +3233,45 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [amend-worker-input-budget-dispatch-wording](openspec/changes/archive/2026-10-08-amend-worker-input-budget-dispatch-wording/proposal.md)
+  — **ARCHIVED 2026-10-08** by
+  [PR #1269](https://github.com/opensoft/openxFactory/pull/1269),
+  by lane `openxfactory-1`, landed by MERGE COMMIT, never squash, on Brett
+  Heap's separate archive word, verbatim ***"archive it after it lands"***
+  (2026-10-07, in session; RULED in `opensoft/brett-wip`
+  `lanes/log/openxfactory-1.md` at 2026-10-07T11:04:36Z, commit `cd962505`),
+  given for after the ratification pull request
+  [#1264](https://github.com/opensoft/openxFactory/pull/1264) landed,
+  which it did by squash as `a936e5310400c3340096709a5127cde908180748`. Filed 2026-10-07 by lane
+  `openxfactory-1` on his word *"draft the amendment change for 1262"*,
+  governing issue `#1262`, after his ruling *"(a) land as ratified, amend
+  later"* on Copilot's comment `4202036546` at `#1258`; **RATIFIED 2026-10-07
+  by Brett Heap**, verbatim *"ratify 1262 when ready"*, as drafted (record
+  [`review/ratification-2026-10-07.md`](openspec/changes/archive/2026-10-08-amend-worker-input-budget-dispatch-wording/review/ratification-2026-10-07.md)).
+  **`code_surface: none`**, so under `release-realization` it archives ON
+  LANDING PLUS ITS OWN TASK LIST: the realization already behaved as the
+  amended sentence reads (`#1137` → `9da52e31` never dispatches a unit it
+  measured over the budget, the packet's `tasks.md` 1.1). **Performed through
+  the governed wrapper, never a bare `openspec archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive amend-worker-input-budget-dispatch-wording --yes`,
+  exit 0: *"ORIGIN RETAINED amend-worker-input-budget-dispatch-wording
+  (declaration unchanged since the ratifying commit a936e5310400)"*,
+  *"Applying changes to openspec/specs/doc-health/spec.md: ~ 1 modified"*, *"Totals: + 0, ~ 1, - 0, → 0"*, over the
+  content-addressed `@fission-ai/openspec@1.12.0` pin. **The promotion,
+  measured byte for byte on both sides** onto
+  [`openspec/specs/doc-health/spec.md`](openspec/specs/doc-health/spec.md):
+  the MODIFIED *Bounded worker input budget* goes from 3,595
+  to 3,771 bytes, sha256 `83326fa0f49f6e7c…` on the archived delta
+  AND canon; only its second paragraph moves (2 lines out,
+  5 in); its title, first and third paragraphs and all
+  6 scenarios are byte-identical; the preamble and the other
+  43 requirement blocks are byte-identical; canon `--numstat`
+  +5 -2. `#1262` acceptance 3 holds: canon carries no sentence calling
+  an over-budget dispatch conformant. The five packet files move as pure
+  renames, and the modified-block-currency self-gate's one row for this
+  block retires on its own stated condition. The archived delta of
+  `add-worker-input-budget` is not edited.
 
 - [add-worker-input-budget](openspec/changes/archive/2026-10-06-add-worker-input-budget/proposal.md)
   — **ARCHIVED 2026-10-06** by
