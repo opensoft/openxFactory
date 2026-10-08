@@ -45,7 +45,8 @@ table's two new rows, one for `tests/test_capability_honesty.py` and
 chain; `6023619783`, `6026622117`), T073's place in the `tests/conftest.py` and
 `tests/test_host_plane.py` chains, for the fix to Copilot r4201411760, accepted at
 #46's landing (`6027382308`), and the task count and range, 91 tasks and
-T001 to T105 (`6028364555` item 5). tasks.md carries the rest, and spec.md and
+T001 to T105 (`6028364555` item 5). tasks.md carries the rest, data-model.md one
+line on T042's SQL column `full_run` (`6064169640`), and spec.md and
 clarify-questions.md the qualifier "plan 034's" on three bare task numbers
 (`6027706377` item 2).
 

@@ -55,9 +55,11 @@ landings, posted on `#656` or merged since #1257 (`c70bdbd9`), are encoded as
 worded, each cited by comment id or merge commit, with no new decision:
 - the ticks of T095 (openXdox-code#46 → `e2340bb6`), T101 (#48 → `8b0401a1`), T098
   (#51 → `fc1115d6`), T103 (#49 → `6f259156`), T096 (#53 → `34e1c1f2`), T100 (#54 →
-  `2a3d8c09`) and T099 (#47 → `4aa3070a`), T104 (openDox-code#94 → `d616da3e`) and
-  T072 (openDox-code#95 → `99220883`), and T021's follow-on (openXdox-code#55 →
-  `da736090`), each merge commit read through GraphQL;
+  `2a3d8c09`), T099 (#47 → `4aa3070a`), T102 (#52 → `e7815ac5`), T097 (#50 →
+  `4dab93fc`) and T022 (#41 → `aefd1091`), T104 (openDox-code#94 → `d616da3e`) and
+  T072 (openDox-code#95 → `99220883`), and the follow-ons of T021 (openXdox-code#55
+  → `da736090`) and T096 (#56 → `9720925e`), each merge commit read through
+  GraphQL;
 - the new task T105, R2-INV-P5, phase 5's wave-1 readiness re-measure, read-only in
   lane 3 (the holder, `6027341795`; claimed `6027346843`), ticked on lane 3's DONE
   line (00:28:59Z), its summary (`6028122920`) and the holder's ruling on it
@@ -79,7 +81,9 @@ worded, each cited by comment id or merge commit, with no new decision:
 - the qualifier "plan 034's" on three bare task numbers in spec.md and
   clarify-questions.md (`6027706377` item 2);
 - T012's Ruled line: `6026275158` item 1 and `6026622117` item 1;
-- T072's pull request, openDox-code#95;
+- T042's SQL column, `full_run` (the holder, `6064169640`, resolving Copilot
+  4205521074), with its one line in `data-model.md`;
+- T072's pull request, openDox-code#95, and T071's, openxFactory#1261;
 - plan.md's task count and range, 91 tasks and T001 to T105 (`6028364555` item 5).
 
 **RULED.** Brett Heap ruled the plan at `6847e99e`, every item as recommended
@@ -687,7 +691,7 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
     and blocks nothing (the same note). The follow-on landed: openXdox-code#55 →
     `da736090` (2026-10-07T01:06:10Z), the cyclic-schema test asserting only that
     `GateRefused` escapes (`jsonschema>=4.18`).
-- [ ] T022 [US3] [oXc] **U-3, the runbook placed from the composed tree (RP).**
+- [x] T022 [US3] [oXc] **U-3, the runbook placed from the composed tree (RP).**
   `test_session_runbook.py:54` and `test_session_notebook.py:1075` read
   `REPO_ROOT / "docs" / "ideation-dashboard-session-runbook.md"`, with `REPO_ROOT`
   the openXdox-code root (`tests/conftest.py:25`). A new
@@ -714,6 +718,7 @@ to the validator's three kinds by `tests/test_packaged_validator.py:81-92`
     filesystem and CI should hold its guards; only T022 writes it, so it creates
     no single-writer conflict (holder, `6016356225`, option (a)).
   - **Lane**: 3.
+  - **Landed**: DONE, openXdox-code#41 → `aefd1091` (2026-10-07T10:15:13Z).
 - [x] T023 [P] [US3] [oXc] **U-4, `swb-session.js` (SF).** Fix the two one-off
   Group J nodes (`test_session_confinement.py`) in the view module the carve's S5
   respelled; no protected edit.
@@ -1077,7 +1082,8 @@ copies (research R7; ADV-05).
   `migrations/0003_health.sql`: `health_runs` (with the run's kind, the
   baseline branch, the run's pack inventory with each pack's exact pin,
   `pack_pins`, the `export_commit` its packs read, whether it was
-  `full`, and the probe's `sandbox` record; Copilot review) and
+  `full` (SQL column `full_run`, the holder, `6064169640`), and the probe's
+  `sandbox` record; Copilot review) and
   `health_findings` (data-model.md, with an `identity` column: canonical
   sorted-key JSON, its serialized size capped by the engine, stricter than the
   schema's; the holder, `6018624750`; T042 stores what T041 bounds), with 15.7's
@@ -1110,7 +1116,10 @@ copies (research R7; ADV-05).
   - **Implementation note** (accepted by the holder, `6028138991`, from lane 3's
     T105 measurement, `6028122920`, and made precise by `6028364555`; no
     requirement or falsifier changes): `full` is a reserved word in PostgreSQL 16,
-    so `health_runs.full` is quoted or renamed. `docs/runtime.md`, which
+    so the SQL column of `health_runs.full` is `full_run` (the holder,
+    `6064169640`: the data model's `full` stays the field's name; a quoted `"full"`
+    would break `tests_runtime/test_schema_shape.py`'s `_columns_of`, which splits
+    on whitespace). `docs/runtime.md`, which
     `test_deploy_shape` checks, follows: its two table arrays move with
     `identity.TABLES` (see Files). The TOKEN `RESET_CONFIRMATION`
     (`runtime/cli.py:117`, `yes-drop-the-coordination-database`) stays
@@ -1847,8 +1856,10 @@ DRAFT until its After set has landed, and T073's After set gains all ten.
     `tests/test_validate_ideation_dashboard_contracts.py`,
     `tests/test_wheel_action_contracts.py`.
   - **Lane**: 3 (openXfactory-3).
-  - **Landed**: DONE, openXdox-code#53 → `34e1c1f2` (2026-10-07T00:40:39Z).
-- [ ] T097 [oXc] **The display harnesses, B (DJ, VR keys).** The Node harnesses of
+  - **Landed**: DONE, openXdox-code#53 → `34e1c1f2` (2026-10-07T00:40:39Z), and its
+    follow-on, openXdox-code#56 → `9720925e` (2026-10-07T10:30:53Z): the
+    validator-root comment names the openxdox package's `contracts/`.
+- [x] T097 [oXc] **The display harnesses, B (DJ, VR keys).** The Node harnesses of
   the three files copy `display.js` beside the module they copy, as #43 does (W1,
   (A″)), and their vocabulary assertions are respelled to S7's role keys. Where a pin
   asserts WORDS, the harness is handed the display `/capabilities` serves under the
@@ -1867,6 +1878,7 @@ DRAFT until its After set has landed, and T073's After set gains all ten.
   - **Files**: openXdox-code `tests/test_wheel_model.py`, `tests/test_grouping.py`,
     `tests/test_project_aggregates.py`.
   - **Lane**: 3 (openXfactory-3).
+  - **Landed**: DONE, openXdox-code#50 → `4dab93fc` (2026-10-07T10:24:36Z).
 - [x] T098 [oXc] **The display harnesses, A (DJ, VR, CP).** As T097, for the three
   files: DJ (A″), W1; VR; and CP, explorer's import pin and its `SOURCE` respelling.
   Under R9-R1 (a), ruled, `src/openxdox/doxbench_scope.py`'s labels and notes derive
@@ -1944,7 +1956,7 @@ DRAFT until its After set has landed, and T073's After set gains all ten.
     merges `main` after T101 lands).
   - **Lane**: 3 (openXfactory-3).
   - **Landed**: DONE, openXdox-code#48 → `8b0401a1` (2026-10-06T23:51:42Z).
-- [ ] T102 [oXc] **The small texts (HH, PP, MN, CP).** HH 13 (`test_source_dot_directories.py`);
+- [x] T102 [oXc] **The small texts (HH, PP, MN, CP).** HH 13 (`test_source_dot_directories.py`);
   PP 2 (session_document_ownership 1, authoring_agent 1); MN 4 (readiness_gate 1,
   gate_failure_diagnostics 1, wheel_verbs_cli 2, whose HR half is T095's); CP 2
   (notebook_action).
@@ -1965,6 +1977,7 @@ DRAFT until its After set has landed, and T073's After set gains all ten.
     `tests/test_wheel_verbs_cli.py`, `tests/test_notebook_action.py`,
     `tests/test_authoring_agent.py`, `tests/test_gate_failure_diagnostics.py`.
   - **Lane**: 3 (openXfactory-3).
+  - **Landed**: DONE, openXdox-code#52 → `e7815ac5` (2026-10-07T09:50:51Z).
 - [x] T103 [oXc] **The T074 files (PP, with MN, HR and CS for `gate_console`).** The
   pre-carve paths and moved names of the four test files that T074 also edits are
   respelled, and this slice LANDS BEFORE T074, which then retargets
@@ -2041,7 +2054,8 @@ surfaces check over them (ADV-37).
   - **Word given**: Brett Heap, by interactive multi-choice, *"Ratify it
     (Recommended)"* (`#656` `6023375303`, 2026-10-06T19:00:45Z): the `#656` half of
     this task. The change's ratification record, in ONE openxFactory PR under a Rule
-    6 window, has not landed at this writing, so the box stays open. T072 starts on
+    6 window (openxFactory#1261, a DRAFT), has not landed at this writing, so the
+    box stays open. T072 starts on
     the word (opportunistic, ARC-6); T074 and T075 follow in plan order.
 - [x] T072 [oDc] **Re-author the generic `lines` slice in openDox-code.** A small
   stdlib module carrying `split_keepends`, `join_rows` and the few git reads
@@ -2519,9 +2533,9 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 | — | F9.1's `--deselect` removed | F9.1 (batch J's line) | `5859927858`, at T076 while #1144 is active |
 
 **Task count:** 91 rows: Phase 0 9 (T001–T009; eight done, T002–T009, and T001 is a
-standing act), Phase 4 24 (T010–T033; T010, T011, T014, T020, T021, T023, T024, T025
-and T026 done), Phase 5 30 (T040–T068, T059, T067 and T068 among them, and T105, the
+standing act), Phase 4 24 (T010–T033; T010, T011, T014, T020, T021, T022, T023, T024,
+T025 and T026 done), Phase 5 30 (T040–T068, T059, T067 and T068 among them, and T105, the
 read-only wave-1 re-measure; T040, T060 and T105 done),
 requirement 9 12 (T073, T094 and the ten repair slices T095–T104, which replace
-the placeholder row T095+; T094, T095, T096, T098, T099, T100, T101, T103 and T104 done), the
+the placeholder row T095+; T094 and the ten repair slices T095–T104 done), the
 direction arc 7 (T070–T072, T074–T077; T070 and T072 done), Close 5 (T080–T084), Every phase 4 (T090–T093).
