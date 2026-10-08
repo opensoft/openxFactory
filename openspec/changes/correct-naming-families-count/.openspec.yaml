@@ -1,0 +1,85 @@
+schema: spec-driven
+created: 2026-10-07
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-10-07-correct-naming-families-count
+  reason: >-
+    BRETT HEAP'S WORD OF 2026-10-07, IN SESSION, VERBATIM: "open an OpenSpec
+    change for the four families heading". It was given first-hand to lane
+    `codeXfactory-5` and logged RULED on that lane's register at
+    2026-10-07T09:45:29Z (opensoft/brett-wip `lanes/log/codeXfactory-5.md`).
+    THAT SENTENCE AUTHORIZED AUTHORING AND OPENING THIS PROPOSAL AND NOTHING
+    MORE. It is not a ratification and it rules on no design point: the
+    count-free reading, the scope of the correction and the doctrine wording in
+    this packet are PROPOSED for Brett Heap's ratification and are not his
+    rulings.
+    THE DEFECT, MEASURED 2026-10-07 ON `main` `16779816`. The promoted
+    capability `project-repo-schema` says "The four live naming families SHALL
+    be governed as DATA by the naming policy of the pinned openRepoShape
+    standard" (`openspec/specs/project-repo-schema/spec.md:108`), and the
+    ratified doctrine `docs/project-repo-schema.md` heads its section "Naming,
+    and the four families" (:236) and says "The four families are governed as
+    DATA in the pinned standard's `contracts/repository-naming.yaml`" (:248).
+    That was true at the pin in force when canon was promoted on 2026-09-03,
+    openRepoShape `deacbdc`. It has been false since openxFactory's pin moved
+    to `122d729b` on 2026-09-04 (PR #650), whose naming policy declares five
+    families, and it is false at the pin in force today, `1a9fc537` (PR #1260,
+    landed 2026-10-07 as `f335c077`), whose policy declares six and calls them
+    "the six live naming families" in its own header.
+    WHY THE DEFECT NEEDS A CHANGE. Both sentences sit in canon and in a
+    `Status: ratified` document, so neither can be corrected by an edit: the
+    canon sentence moves only through a `## MODIFIED` block, and the doctrine
+    sentence follows its ratified amendment, as
+    `amend-register-act-5b-projection-proof` and `prefer-triad-project-shape`
+    did.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was searched on 2026-10-07 (main `16779816`) for
+    `naming famil`, `repository-naming`, `four famil` and `openreposhape`. Two
+    files match and neither proposes this correction:
+    `ideation/staging/INDEX.md` is the topic inventory, and
+    `ideation/staging/opendox-two-layer-product/` names openRepoShape as a
+    public product. The organized source is the owner's word above.
+  proposed_by: >-
+    Lane `codeXfactory-5`, session `ed23f049-7e99-4601-8a6d-760b6aeb5f26`, by
+    an authoring agent on the lane's brief, opened as ONE pull request held for
+    Brett Heap's ratification and merge words. The change path was CLAIMED on
+    the lane register at 2026-10-07T09:45:29Z after a sibling search found no
+    claim, no open pull request, no active change and no remote branch touching
+    the naming-families count. NO APPROVAL PAIR IS DECLARED AND NONE IS
+    IMPLIED: `approved_by` and `approved_on` are absent, which is the lawful
+    unapproved shape `add-drafted-proposal-origin` admits, and the three
+    lifecycle documents carry `Status: draft` to match.
+  proposed_on: 2026-10-07
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-10-07, in session,
+    first-hand to lane `codeXfactory-5`, verbatim: "ratify as recommended when
+    the PR opens". Given at about 09:46Z and logged RULED on the lane register
+    at 2026-10-07T09:47:04Z (opensoft/brett-wip `lanes/log/codeXfactory-5.md`).
+    It took effect when openxFactory PR #1266 opened, at 2026-10-07T10:43:48Z,
+    and the ratified text is the packet at that pull request's opening head
+    `3bb38c20` (`3bb38c2058b4e1d77a9b47b889ab915dff7f4590`), recorded in full
+    at `review/ratification-2026-10-07.md`. "As recommended" settles the three
+    decisions the packet put as `design.md` recommends them: D1, the naming
+    families are count-free in canon; D2, the correction also reaches the two
+    sentences that restated a property of the whole set of families; D3, the
+    doctrine is realized in the wording D3 proposes, with one informative note
+    dated to the pin. The packet put no open question. No delta byte moves.
+    THE APPROVAL IS ADDED BESIDE THE DRAFTING PROVENANCE AND NEVER SUBSTITUTED
+    FOR IT, the shape `add-drafted-proposal-origin` defined: `kind`, `id`,
+    `reason`, `proposed_by` and `proposed_on` are kept exactly as filed, and
+    their statements that no approval pair is declared and that the lifecycle
+    documents carry `Status: draft` were true at filing and are superseded by
+    this pair. The word is a ratification only. It is not a merge word, and it
+    is not a word to realize anything: the merge rests on Brett Heap's separate
+    merge word (`tasks.md` 1.2), and the `tasks.md` § 5.1 handoff waits on its
+    own act.
+  approved_on: 2026-10-07
+related:
+  - openxFactory:change:add-project-repo-schema         # ARCHIVED 2026-09-03. Promoted both requirements this packet modifies, at the pin `deacbdc`, whose naming policy declared four families
+  - openxFactory:change:prefer-triad-project-shape      # ACTIVE and ratified. Carries one MODIFIED and three ADDED requirements on `project-repo-schema`, none of them either requirement this packet modifies (design.md D5)
+  - openxFactory:change:amend-register-act-5b-projection-proof  # The precedent for amending ratified text by propose, ratify, then realize the document (design.md D6)
+  - openRepoShape:pr:16                                 # v0.4: the fifth form, `family`, a declared-only holder
+  - openRepoShape:pr:86                                 # The sixth form, `workspace` (`<user>-wip`)
+  - openRepoShape:pr:88                                 # The standard's own prose count drifted the same way (issue 87); it fixed every count and tied it to the data with a hygiene test (design.md A2)
+  - openxFactory:pr:650                                 # The pin advance to `122d729b` (five families), after which canon's count was false
+  - openxFactory:pr:1260                                # The pin advance to `1a9fc537` (six families), the pin in force
