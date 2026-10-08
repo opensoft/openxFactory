@@ -1,0 +1,37 @@
+schema: spec-driven
+created: 2026-10-08
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-10-08-amend-factory-mcp-conformance-auth-profile
+  reason: >-
+    THREE RULINGS LEFT OPEN BY THE ARCHIVE OF add-factory-mcp-conformance
+    (PR #1252, merge 2026-10-06), which recorded an auth and transport block,
+    the home of the family error vocabulary and enforcement of the
+    "Unavailable dependency" scenario as items still awaiting Brett Heap's
+    rulings. He gave them on 2026-10-08, in session to lane openXfactory-5,
+    as multiple-choice answers whose verbatim option labels are
+    "RS256 baseline (Recommended)", "Narrow to error codes (Recommended)" and
+    "Per domain, profile maps (Recommended)". Each is recorded as a RULED line
+    against this change path on the estate's lane register
+    (opensoft/brett-wip lanes/log/openXfactory-5.md, commits eed43d23,
+    ceaa3c02 and 8534027e, 2026-10-08T18:36:55Z to 18:37:19Z). KIND IS
+    ad_hoc, not staged, checked rather than assumed: ideation/staging/ was
+    grepped on 2026-10-08 for "factory-mcp", "factory mcp", "RS256" and
+    "EdDSA" and matched no file. The non-normative design history is the
+    factory-mcp brainstorm packet under ideation/brainstorm/, which this
+    change does not edit.
+  proposed_by: >-
+    Lane openxfactory-5 (display openXfactory-5), under its CLAIMED line on
+    the lane register for this change path (opensoft/brett-wip commit
+    55a63c0d, 2026-10-08T18:39:25Z) and its README Records claim on
+    opensoft/openxFactory#630 (comment 6066626855). NOTHING HERE IS RATIFIED
+    BY THE AUTHORING LANE. The three rulings decide what this change must
+    say; they are not the ratification of this packet, which is Brett
+    Heap's own word on this exact text. Until then the lifecycle documents
+    carry Status draft and no approval pair is declared.
+  proposed_on: 2026-10-08
+related:
+  - openxFactory:change:add-factory-mcp-conformance   # ARCHIVED 2026-10-06 (#1252). Promoted the capability this change amends; its archived delta is history and is not edited
+  - openxFactory:pr:1243                              # The realization of add-factory-mcp-conformance (squash 92010d3e). Its body lists the auth block (M6) as "Not done ... wait for rulings"
+  - openxFactory:pr:1252                              # The archive whose README record names the items still awaiting rulings
+  - openxFactory:issue:630                            # Shared substrates. Row 3 (README Records) is claimed in comment 6066626855; row 4 (contract cuts) needs its own claim before any cut this change's realization makes

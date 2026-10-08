@@ -540,6 +540,33 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-factory-mcp-conformance-auth-profile](openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md)
+  — filed 2026-10-08, lane `openxfactory-5` (display `openXfactory-5`),
+  **`Status: draft`**, held for Brett Heap's ratify word. It carries his three
+  rulings of 2026-10-08 on the items the archive of
+  `add-factory-mcp-conformance` left open, each RULED on the lane register
+  (`opensoft/brett-wip` `lanes/log/openXfactory-5.md`, commits `eed43d23`,
+  `ceaa3c02`, `8534027e`): *"RS256 baseline (Recommended)"*, *"Narrow to error
+  codes (Recommended)"* and *"Per domain, profile maps (Recommended)"*. The
+  rulings decide what it says and do not ratify it. One delta in
+  `factory-mcp-conformance`: **FOUR `## ADDED` requirements** (a hosted
+  declaration carries an authorization block, and a stdio-only one carries
+  none; RS256 required of every hosted domain server, EdDSA optional, `none`
+  and HMAC refused by name; the audience bound to the server's own resource;
+  per-domain error vocabularies with the lossless mapping as the only shared
+  layer) and **ONE `## MODIFIED`** requirement, *Lossless results and explicit
+  failures*, title unchanged, whose *Unavailable dependency* scenario is
+  narrowed to a dependency failure reported through the error inventory. That
+  is what the validator already enforces. **`code_surface: openxFactory`** (the
+  declaration schema, the validator, red-first tests, the runbook and, at the
+  cut, the release surfaces); **`target_release: deferred-allocation`**, since
+  the realization first-bundles the unreleased declaration at the next additive
+  minor after `contract-v4.0`, claimed as row 4 on #630 at the cut. The
+  realization follows through one Speckit feature after the ratify word. It
+  archives on merged, green realization evidence. `design.md` puts six open
+  questions, each with a recommended answer. Claims: this change path on the
+  lane register (`55a63c0d`); this block on #630 (comment `6066626855`).
+
 - [renew-resolved-council-protocol](openspec/changes/renew-resolved-council-protocol/proposal.md)
   — filed 2026-10-03 outside a lane; first published 2026-10-07 by lane
   `codexfactory-2` from the 2026-10-04 review snapshot

@@ -1348,6 +1348,26 @@ _LEDGER_SUBJECTS = {
     # uncarried against the ACTIVE block is discharged by canon moving to the
     # block, not the block to canon. Re-measured over this tree: the family
     # reports neither this subject nor any unnamed one.
+    # ADDED 2026-10-08 BY `amend-factory-mcp-conformance-auth-profile` (lane
+    # `openxfactory-5`), on Brett Heap's ruling of 2026-10-08 for M5, verbatim
+    # "Narrow to error codes (Recommended)". TWO uncarried units, and they are
+    # the packet's whole M5 subject: in `factory-mcp-conformance`'s *Lossless
+    # results and explicit failures*, the body sentence "The mapping SHALL NOT
+    # turn inability to evaluate into eligibility." and the *Unavailable
+    # dependency* WHEN bullet "the domain cannot evaluate because a dependency
+    # is unavailable". Both are NARROWED, not dropped: each now names the
+    # route the validator enforces, inability "that the domain reports through
+    # its error inventory", and the body gains one sentence stating that
+    # result-schema statuses are completed evaluations and error-inventory
+    # codes execution failures. The other 8 of the 10 units are carried
+    # byte-for-byte, with the title, the THEN bullet and the other two
+    # scenarios. This arm cannot distinguish a deliberate narrowing from drift
+    # and does not claim to; the finding is INFO and it is the audit trail for
+    # the narrowing. RETIRES when the packet archives and its block is
+    # promoted onto `openspec/specs/factory-mcp-conformance/spec.md` (its
+    # `tasks.md` § 4).
+    ("amend-factory-mcp-conformance-auth-profile", "factory-mcp-conformance",
+     "Lossless results and explicit failures"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
