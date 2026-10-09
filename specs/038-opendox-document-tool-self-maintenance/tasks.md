@@ -129,7 +129,14 @@ worded, each cited by comment id or merge commit, with no new decision:
   `identity.category` from a closed set, its `entry` bounded at 200 characters and
   fixed by its category (required for the seven per-entry categories, `""` for
   `no-sandbox`, `manifest-refused`, `dispositions-refused` and `identity-collision`,
-  either for `entry-refused`), with `contracts/health-finding.md`.
+  either for `entry-refused`), with `contracts/health-finding.md`;
+- the holder's rulings on the review of this batch's own PR, openxFactory#1283
+  (`6086098003`): the `path` bound, which the NUL seam's principle covers (item
+  3), with T042's refusal of U+0000 in every text parameter it binds; the form of
+  `entry-refused`'s `identity.entry` under the pinned schema, which replaces "the
+  refused entry as written" for an entry that does not conform (item 4); and
+  `refused-patch` joining the engine kinds (item 1). Item 2 (T015's limits) is
+  recorded nowhere in the plan.
 
 **RULED.** Brett Heap ruled the plan at `6847e99e`, every item as recommended
 (`#656` `6013547504`, 2026-10-06; plan.md § "Ruled answers, the plan ruling").
@@ -1158,8 +1165,8 @@ copies (research R7; ADV-05).
     `tests/test_validator_input_set.py` green at the new commit.
   - **Ruled**: R2Q10, R2Q18, R2Q22, R2Q25; the holder's `6018624750`,
     `6069024023` (items 1 and 2), `6069507373` (T046 item 2), `6072086385`
-    (items 1 and 4), `6072197564` (NAMES (b), (c) and (e)) and `6073087924` (the
-    entry rule, refining (e)).
+    (items 1 and 4), `6072197564` (NAMES (b), (c) and (e)), `6073087924` (the
+    entry rule, refining (e)) and `6086098003` (items 1, 3 and 4).
     **Decisions**: N-3, N-13, N-15, OQ-H15-19.
   - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
@@ -1167,8 +1174,8 @@ copies (research R7; ADV-05).
     `tests/test_validator_input_set.py` (first: T041 → T047 → T054), new
     `tests/test_health_contract.py`.
   - **Implementation note** (the holder, `6069024023` items 1 and 2,
-    `6069507373` T046 item 2, `6072086385` items 1 and 4, `6072197564` and
-    `6073087924`):
+    `6069507373` T046 item 2, `6072086385` items 1 and 4, `6072197564`,
+    `6073087924` and `6086098003` items 1, 3 and 4):
     - the engine categories are the nine T041 drafted and the two the holder
       added, `dispositions-refused` and `manifest-refused`, with their mappings,
       each category's `pack_id` among them: the entry's id for a finding against
@@ -1183,8 +1190,8 @@ copies (research R7; ADV-05).
     - U+0000 (the NUL seam, `6072086385` item 4): Postgres `jsonb` cannot store
       U+0000 in a string (SQLSTATE 22P05), so a finding that carries it can never
       be stored. T041 REFUSES U+0000 in every string a finding carries, keys and
-      values alike (`identity`, `evidence`, `locator`, `message`), with
-      `FindingRefused` and a bounded `where`. For a pack's output, that refusal is
+      values alike (`identity`, `evidence`, `locator` and `message`, and `path`
+      below), with `FindingRefused` and a bounded `where`. For a pack's output, that refusal is
       T045's whole-output `pack-output-refused` (`6069024023` item 1's mapping), so
       a broken or hostile pack loses its own output, never the run. The bound is in
       contracts/health-finding.md, and under the convergence rule (`5988818366`)
@@ -1198,8 +1205,9 @@ copies (research R7; ADV-05).
         pack finding (`6072086385` item 3);
       - (c) its `entry` is bounded at 200 characters, not 40. A per-entry
         category's entry is also its `pack_id`, so the 40-character name rule
-        already binds it; only `entry-refused` carries a raw, possibly malformed
-        entry, and 200 is its bound;
+        already binds it; only `entry-refused` carries an id that may be
+        malformed, and its form is fixed below (`6086098003` item 4), under the
+        same bound of 200;
       - (e) `no-sandbox`, `manifest-refused` and `dispositions-refused` take
         `entry ""`, and a non-empty entry is REFUSED (lane 3's MINOR at
         `health_contract.py:865`). A run raises ONE `no-sandbox` finding, never one
@@ -1216,12 +1224,47 @@ copies (research R7; ADV-05).
         - `no-sandbox`, `manifest-refused`, `dispositions-refused` and
           `identity-collision` REQUIRE `entry ""`: `disappearance_identity()`
           always gives a collision original the entry `""`;
-        - `entry-refused` takes either: the refused entry as written, bounded at
-          200 characters, or `""` when it has none;
+        - `entry-refused` takes either `""` or a non-empty entry, in the form
+          fixed below (`6086098003` item 4), which replaces "the refused entry as
+          written" for an entry that does not conform;
         - the contract's check refuses any other form, so it admits exactly what
           the engine builds, and T041 adds one test row per case;
     - (b) and (e) each carry a test row and, where they add a guard, a killed
-      mutant (`6072197564`).
+      mutant (`6072197564`);
+    - `path` (the holder, `6086098003` item 3, on Codex P1 `4230671177` at
+      openxFactory#1283): `6072086385` item 4's principle, "every string a
+      finding carries", covers `path`, and T041 already refuses it: `_path`
+      refuses C0 and C1 controls and lone surrogates, as the pinned finding schema
+      does (contracts/health-finding.md, the `path` row). T041 adds a test row for
+      U+0000 in `path` if it lacks one;
+    - `entry-refused`'s `identity.entry` (the holder, `6086098003` item 4, on
+      Copilot `4230698859` at openxFactory#1283): the pinned schema wins, so "the
+      refused entry as written" (`6072197564` (c), `6073087924`) holds only where
+      the entry conforms. The form is:
+      - `""` when the entry has no id;
+      - the id as written, when it is a string matching `[a-z0-9-]+` of at most
+        200 characters;
+      - otherwise `sha256-` followed by the SHA-256 hex of the id's canonical
+        text. This covers a malformed or over-long id, a non-string id, and one
+        carrying U+0000. It is never truncated and never a schema exception. It is
+        `6069507373` T044 item 7's rule (a string over the bound becomes its
+        SHA-256 hex) in the only form a closed `{category, entry}` identity
+        allows;
+      - T041 adds the helper that builds it: deterministic, total over anything
+        the manifest parser yields, distinct for distinct ids, and never raising.
+        T041 documents the canonical text in contracts/health-finding.md, with
+        test rows for an absent id, a conforming id, an uppercase or spaced id, an
+        id with U+0000, a non-string id and a 201-character id. The contract's
+        check already admits the form;
+    - `refused-patch` joins `ENGINE_KINDS` (the holder, `6086098003` item 1, on
+      lane 3's ask from T049's prep): a refused patch is a finding against the
+      pack naming `refused_patch` and `reason` (T049's entry; data-model.md
+      `:209`, `:223` and `:369`), and only the engine raises it. Outside
+      `ENGINE_KINDS`, T045 would let a pack declare the kind and forge
+      engine-style refusals. It is a PATHED engine kind, like
+      `uncited-disappearance`, not a category: it stays out of the categories and
+      the pathless set (`6072197564` (b)). T041 adds one test row; T045's refusal
+      of a declaration naming it is T045's own test.
   - **Lane**: 4.
 - [ ] T042 [P] [US4] [oDc] **HA-1, the store (`0003_`), one owner.** New
   `migrations/0003_health.sql`: `health_runs` (with the run's kind, the
@@ -1253,8 +1296,9 @@ copies (research R7; ADV-05).
     install-level finding (`pack_id` `opendox`, empty `path`) is admitted; the
     five suites above.
   - **Ruled**: R2Q13, R2Q15, R2Q25; the holder's `6018624750`, `6028364555`
-    (items 1 and 2), `6069024023` (item 3, `run_seq`), `6069024568` (item 3) and
-    `6072086385` (item 4, the NUL seam).
+    (items 1 and 2), `6069024023` (item 3, `run_seq`), `6069024568` (item 3),
+    `6072086385` (item 4, the NUL seam) and `6086098003` (item 3, the text
+    parameters).
     **Decisions**: OQ-H-22, OQ-H15-18, -19, -20.
   - **After**: T027 (N-6 (a), ruled).
   - **Files**: as listed (single owner of `0003_` and of the five suites), and
@@ -1269,7 +1313,11 @@ copies (research R7; ADV-05).
     Postgres `jsonb` cannot store U+0000 in a string (SQLSTATE 22P05). T041
     refuses it in every string a finding carries (T041's note), and T042's
     `_json_text` ALSO refuses it, as `RefusedError` and never a raw driver error,
-    with a test (defence in depth).
+    with a test (defence in depth). The store refuses U+0000 in EVERY text
+    parameter it binds too, `path` among them (the holder, `6086098003` item 3, on
+    Codex P1 `4230671177` at openxFactory#1283): as `RefusedError` naming the
+    column, before any statement, never a driver `DataError`, the same defence in
+    depth as `_json_text`. One test row (U+0000 in `path`) and its mutant.
   - **Implementation note** (accepted by the holder, `6028138991`, from lane 3's
     T105 measurement, `6028122920`, and made precise by `6028364555`; no
     requirement or falsifier changes): `full` is a reserved word in PostgreSQL 16,

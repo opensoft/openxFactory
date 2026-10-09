@@ -33,7 +33,7 @@ is stored and emitted (its row below).
 | `kind` | string | yes | the family, `^[a-z0-9-]{1,40}$` |
 | `pack_id` | string | yes | `^[a-z0-9-]{1,40}$`; `opendox` for the product's own families (OQ-H15-19). Stamped by the engine from the manifest entry (15.7) |
 | `pack_version` | string | yes | the manifest entry's version; for `opendox`, the installed version (OQ-H15-18). Stamped by the engine (15.7) |
-| `path` | string | yes | corpus-relative, `/`-separated, no `..`; empty string for an install-level or pre-run finding |
+| `path` | string | yes | corpus-relative, `/`-separated, no `..`; no C0 or C1 control character (U+0000 to U+001F, U+007F to U+009F) and no lone surrogate (U+D800 to U+DFFF), as the pinned finding schema's `path-is-corpus-relative` pattern has it (the holder, `6086098003` item 3); empty string for an install-level or pre-run finding |
 | `identity` | object | yes, in a family's or pack's output | the POSITION-INDEPENDENT key the family supplies (R2Q10 (a)'s "locator the family supplies", read as a key that survives edits elsewhere): a link target as written, a pair of paths, a heading key. Never a line number, never document text beyond such a key. STORED AND EMITTED (the holder, `6018624750`, reversing the engine-internal refinement of Copilot's review of `2076f24b`): the engine hashes it into `id` AND stores it as a `health_findings` column, in canonical sorted-key JSON, and `list --json` and the HTTP response emit it. It is bounded as openDox-spec's finding schema (T040, landed) bounds it: no key named `excerpt`, `text`, `content` or `quote`, no number, every string at most 200 characters; a pathless finding's identity is `{category, entry}` and a collision's is `{collided_id}`. T041 also refuses U+0000 in any key or string, and bounds a pathless finding's `category` and `entry` further (§ Rules). The engine caps its serialized size, stricter than the schema's, as it caps `pack_id` and `kind`; the cap is T041's, since the contract module owns the field bounds, and T042 stores what T041 bounds (R2Q25 (a); data-model.md § Finding) |
 | `locator` | object | no | DISPLAY ONLY, outside the id: `{"line_start": int, "line_end": int}` and/or `{"target": string}`; U+0000 in `target` is refused (§ Rules) |
 | `severity` | string | yes | `error` \| `warning` \| `info` |
@@ -155,8 +155,8 @@ raise with Brett (Copilot's review of `6f073ed2`).
     pack finding with an empty `path` (`6072086385` item 3);
   - its `entry` is at most 200 characters, not 40. A per-entry category's entry
     is also its `pack_id`, so the 40-character name rule already binds it; only
-    `entry-refused` carries a raw, possibly malformed entry, and 200 is its
-    bound;
+    `entry-refused` carries an id that may be malformed, and its form is fixed
+    below (`6086098003` item 4), under the same bound of 200;
   - `no-sandbox`, `manifest-refused` and `dispositions-refused` take `entry` `""`,
     and a non-empty entry is REFUSED. A run raises ONE `no-sandbox` finding, never
     one per entry, as data-model.md § Sandbox probe and canary says ("ONE
@@ -172,20 +172,39 @@ raise with Brett (Copilot's review of `6f073ed2`).
     - `no-sandbox`, `manifest-refused`, `dispositions-refused` and
       `identity-collision` REQUIRE `entry` `""`: the re-raise's original, when it is
       a collision, always takes the entry `""`;
-    - `entry-refused` takes either: the refused entry as written, bounded at 200
-      characters, or `""` when it has none;
+    - `entry-refused` takes either `""` or a non-empty entry, in the form fixed
+      below (`6086098003` item 4), which replaces "the refused entry as written"
+      for an entry that does not conform;
     - the contract's check refuses any other form, so it admits exactly what the
       engine builds.
+  - `entry-refused`'s `identity.entry` (the holder, `6086098003` item 4, on
+    Copilot `4230698859` at openxFactory#1283): the pinned schema wins, so "the
+    refused entry as written" (`6072197564` (c), `6073087924`) holds only where
+    the entry conforms. The form is:
+    - `""` when the entry has no id;
+    - the id as written, when it is a string matching `[a-z0-9-]+` of at most 200
+      characters;
+    - otherwise `sha256-` followed by the SHA-256 hex of the id's canonical text.
+      This covers a malformed or over-long id, a non-string id, and one carrying
+      U+0000. It is never truncated and never a schema exception. It is
+      `6069507373` T044 item 7's rule (a string over the bound becomes its SHA-256
+      hex) in the only form a closed `{category, entry}` identity allows.
+
+    T041 builds it with a helper that is deterministic, total over anything the
+    manifest parser yields, distinct for distinct ids, and never raising, and
+    documents the id's canonical text in this contract.
 - **U+0000 is refused** (the NUL seam, the holder, `6072086385` item 4). Postgres
   `jsonb` cannot store U+0000 in a string (SQLSTATE 22P05), so a finding that
   carries it can never be stored.
   - T041 refuses U+0000 in every string a finding carries, keys and values alike
-    (`identity`, `evidence`, `locator`, `message`), with `FindingRefused` and a
-    bounded `where`. For a pack's output, that refusal is T045's whole-output
-    `pack-output-refused` (§ The id rule's mapping), so a broken or hostile pack
-    loses its own output, never the run.
+    (`identity`, `evidence`, `locator` and `message`, and `path`, whose bound is its
+    row's above), with `FindingRefused` and a bounded `where`. For a pack's
+    output, that refusal is T045's whole-output `pack-output-refused` (§ The id
+    rule's mapping), so a broken or hostile pack loses its own output, never the
+    run.
   - T042's store refuses it too, as `RefusedError` and never a raw driver error
-    (defence in depth).
+    (defence in depth), in every text parameter it binds, `path` among them
+    (`6086098003` item 3), naming the column, before any statement.
   - T044's families never emit it: a document string that contains it takes the
     SHA-256 form under a distinct key (`6069507373` T044 item 7), never
     truncation or silent replacement.
