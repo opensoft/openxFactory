@@ -68,8 +68,8 @@ KIND = "pinned_contract_manifest"
 # is a verifier whose guard leg in `tests/doc-health/test_pin_shape_adapter.py`
 # moves, which is what makes the transcription checkable rather than trusted.
 # ---------------------------------------------------------------------------
-_COMMIT_RE = re.compile(r"^[0-9a-fA-F]{40}$")        # verify-openxwallet-pin.py:116
-_SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")        # verify-openxwallet-pin.py:117
+_COMMIT_RE = re.compile(r"^[0-9a-fA-F]{40}$")        # verify-openxwallet-pin.py:147
+_SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")        # verify-openxwallet-pin.py:148
 _VERSION_RE = re.compile(                            # validate-openspec-cli-pin.py:379
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
     r"(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
@@ -168,7 +168,7 @@ def _is_files_list(value) -> bool:
 
     Two refusals in one form, both reading the record alone: the LIST is refused
     when it is absent, not a list, or empty ("an empty claim is not a satisfied
-    claim" — `verify-openxwallet-pin.py:392-397`,
+    claim" — `verify-openxwallet-pin.py:500-505`,
     `validate-openreposhape-pin.py:438-443`), and an ENTRY is refused when it is
     not a mapping declaring a `path` (`:398-403`, `:446-450`) or when its
     recorded `sha256` is not 64 hex characters (`:406-417`), a digest that is
@@ -189,7 +189,7 @@ def _is_path_only_list(value) -> bool:
 
     EVERY FALSEY VALUE IS EMPTY AND ADMITTED, not only absence: both verifiers
     read `pin.get("pinned_by_commit_only") or []`
-    (`verify-openxwallet-pin.py:443-452`,
+    (`verify-openxwallet-pin.py:551-560`,
     `validate-openreposhape-pin.py:487-495`), so `None` and `""` are exactly as
     empty as an absent member or an explicit `[]` to the guard this adapter
     tracks — an adapter that refused them would be WIDER than the guard.
@@ -197,7 +197,7 @@ def _is_path_only_list(value) -> bool:
     A mapping entry is the wrong form and is refused; an entry carrying no
     `sha256` is NOT, the publisher having published no per-file digest for these
     members, so demanding one would demand an invented row
-    (`verify-openxwallet-pin.py:443-452`,
+    (`verify-openxwallet-pin.py:551-560`,
     `validate-openreposhape-pin.py:487-495`).
     """
     if not value:
@@ -425,7 +425,7 @@ _OPENSPEC_CLI = "scripts/validate-openspec-cli-pin.py"
 _FILES_REFUSAL = "the pin lists no `files:` members, so it pins no bytes"
 
 # SHAPE (a)'s PRODUCT-IDENTITY ENTRY, AND HOW IT RESOLVES AT THE RECORD GRAIN.
-# `verify-openxwallet-pin.py:194` refuses a record without `submodule_path`;
+# `verify-openxwallet-pin.py:225` refuses a record without `submodule_path`;
 # `validate-openreposhape-pin.py:258` refuses one without `source_repository`;
 # neither verifier reads the other's member. So the shape requires EXACTLY ONE
 # PRODUCT-IDENTITY MEMBER and, at the record grain, it is the one THAT RECORD's
@@ -444,7 +444,7 @@ _FILES_REFUSAL = "the pin lists no `files:` members, so it pins no bytes"
 #     member of that record. This is what keeps the adapter from being NARROWER
 #     than the guard it tracks: `contracts/openxwallet-pin.yaml` carries BOTH
 #     spellings, so an entry satisfied by either would ACCEPT that record with
-#     `submodule_path` deleted while `verify-openxwallet-pin.py:194` REFUSES it.
+#     `submodule_path` deleted while `verify-openxwallet-pin.py:225` REFUSES it.
 #     Task 3.3(p)'s measurement says the same thing from the other side, listing
 #     `source_repository` among that record's NINE non-table members.
 #   - an UNKNOWN pin id — a fixture, an added `contracts/<anything>-pin.yaml`,
@@ -458,7 +458,7 @@ _FILES_REFUSAL = "the pin lists no `files:` members, so it pins no bytes"
 _PRODUCT_IDENTITY = Member(
     spellings=("submodule_path", "source_repository"),
     form=_is_text,
-    citations=(Citation(_OPENXWALLET, 194, guard="_submodule_path"),
+    citations=(Citation(_OPENXWALLET, 225, guard="_submodule_path"),
                Citation(_OPENREPOSHAPE, 258, guard="_source_repository")),
     forms={"submodule_path": _is_text,
            "source_repository": _is_source_repository})
@@ -483,15 +483,15 @@ SHAPE_A = Shape(
     revision_kinds=(COMMIT_REVISION_KIND,),
     required=(
         Member(("revision_kind",), _exactly(COMMIT_REVISION_KIND),
-               (Citation(_OPENXWALLET, 219, guard="_pinned_commit"),
+               (Citation(_OPENXWALLET, 250, guard="_pinned_commit"),
                 Citation(_OPENREPOSHAPE, 239, guard="pinned_commit"))),
         Member(("commit",), _is_commit,
-               (Citation(_OPENXWALLET, 227, guard="_pinned_commit"),
+               (Citation(_OPENXWALLET, 258, guard="_pinned_commit"),
                 Citation(_OPENREPOSHAPE, 247, guard="pinned_commit"))),
         _PRODUCT_IDENTITY,
         Member(("files",), _is_files_list,
-               (Citation(_OPENXWALLET, 392, quote=_FILES_REFUSAL,
-                         quote_line=396),
+               (Citation(_OPENXWALLET, 500, quote=_FILES_REFUSAL,
+                         quote_line=504),
                 Citation(_OPENREPOSHAPE, 438, quote=_FILES_REFUSAL,
                          quote_line=442))),
     ),
@@ -505,7 +505,7 @@ SHAPE_A = Shape(
     # "the shape-guard-required set" names.
     optional=(
         Member(("pinned_by_commit_only",), _is_path_only_list,
-               (Citation(_OPENXWALLET, 443), Citation(_OPENREPOSHAPE, 487))),
+               (Citation(_OPENXWALLET, 551), Citation(_OPENREPOSHAPE, 487))),
     ))
 
 SHAPE_B = Shape(
@@ -618,7 +618,7 @@ TRACKED_VERIFIERS: dict[str, str] = {
 #: WHICH PRODUCT-IDENTITY SPELLING SHAPE (a) REQUIRES OF A KNOWN PIN — the
 #: record grain, held in code beside the verifier map and keyed by the same pin
 #: id, never read out of the record. `submodule_path` for a submodule-mounted
-#: product (`scripts/verify-openxwallet-pin.py:194`, `_submodule_path`) and
+#: product (`scripts/verify-openxwallet-pin.py:225`, `_submodule_path`) and
 #: `source_repository` for one resolved from its host
 #: (`scripts/validate-openreposhape-pin.py:258`, `_source_repository`); neither
 #: verifier reads the other's member. A pin id absent from this map gets the
