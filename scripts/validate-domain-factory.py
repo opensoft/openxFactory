@@ -74,7 +74,18 @@ SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv",
              # including redaction-test fixtures that deliberately
              # carry secret-shaped strings -- is not the domain's own
              # surface and must not fail its validation.
-             ".openxfactory-pin"}
+             ".openxfactory-pin",
+             # codexFactory's gitignored pinned-source cache: the browser
+             # UI repair loop materializes the pinned upstream union
+             # (openxFactory, openDox, openDox-code, openXdox,
+             # openXdox-code) INSIDE the repository, and scan_secrets
+             # walks the filesystem, not git, so it reaches the ignored
+             # copy. Same rationale as .openxfactory-pin: pinned upstream
+             # content, verified against git by its own resolver, is not
+             # the domain's own surface (first hit: a bearer-header parse
+             # in the pinned openDox-code runtime that the assignment
+             # heuristic reads as a secret).
+             ".browser-ui-repair-source"}
 # Profile document kinds that key their identifier on a flat top-level
 # `profile_id` field instead of nesting `id` under `profile:`. Domain-specific
 # profile kinds register here rather than widen the default `profile.id`
