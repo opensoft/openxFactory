@@ -361,7 +361,7 @@ def test_candidate_with_a_lone_surrogate_path_is_not_canonicalizable(schemas):
 
 
 # --------------------------------------------------------------------------
-# The closed enumerations, each holding exactly the Phase 1 members.
+# The closed enumerations, each holding exactly the members landed at this commit.
 # --------------------------------------------------------------------------
 
 PHASE_1_REFUSALS = ["value_malformed", "value_not_canonicalizable",
@@ -377,13 +377,28 @@ def test_principal_kind_is_closed(definitions_doc, schemas):
     assert malformed(schemas, "principal_kind", "github_oidc")
 
 
-def test_refusal_code_holds_exactly_the_phase_1_codes(definitions_doc, schemas):
-    assert definitions_doc["$defs"]["refusal_code"]["enum"] == PHASE_1_REFUSALS
-    assert schemas.enum("refusal_code") == PHASE_1_REFUSALS
-    for code in PHASE_1_REFUSALS:
+#: Phase 2's codes (T028), in data-model § Refusal vocabulary order.
+PHASE_2_REFUSALS = [
+    "convening_malformed", "council_unknown", "class_unresolved", "class_mismatch",
+    "rule_projection_mismatch", "mutable_rule_reference", "rule_revision_ungoverned",
+    "governed_sources_mismatch", "rule_path_malformed", "rule_unavailable",
+    "rule_unauthorized", "rule_digest_mismatch", "rule_superseded", "predicate_unknown",
+    "predicate_parameters_malformed", "condition_unevaluable",
+    "condition_result_mismatch", "condition_seat_unbound", "opaque_conclusion",
+    "facts_unused", "consumed_facts_mismatch", "fact_source_mismatch",
+    "secret_bearing_fact", "candidate_mismatch", "candidate_head_moved",
+    "candidate_head_unavailable", "roster_empty", "roster_duplicate_seat",
+    "roster_mismatch"]
+
+
+def test_refusal_code_holds_exactly_the_phase_1_and_phase_2_codes(definitions_doc, schemas):
+    landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS
+    assert definitions_doc["$defs"]["refusal_code"]["enum"] == landed
+    assert schemas.enum("refusal_code") == landed
+    for code in landed:
         assert accepts(schemas, "refusal_code", code)
-    # A Phase 2 code is not a member at this commit.
-    assert malformed(schemas, "refusal_code", "convening_malformed")
+    # A Phase 3 code is not a member at this commit.
+    assert malformed(schemas, "refusal_code", "snapshot_malformed")
 
 
 def test_finding_code_holds_exactly_the_phase_1_finding(definitions_doc, schemas):
