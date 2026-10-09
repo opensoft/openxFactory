@@ -55,8 +55,8 @@ PHASE_1_NOTES = [
     r"^note  vectors adjudicated: ([0-9]+)/\1$",
     rf"^note  refusal codes probed: {REFUSAL_CODES}/{REFUSAL_CODES}$",
     r"^note  finding codes probed: 1/1$",
-    r"^note  requirements probed: 9/9 \(FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, "
-    r"FR-011, SC-001, SC-002\)$",
+    r"^note  requirements probed: 10/10 \(FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, "
+    r"FR-009, FR-011, SC-001, SC-002\)$",
     r"^note  generator reproduced corpus byte-for-byte$",
 ]
 
@@ -883,3 +883,24 @@ def test_check_on_a_commission_record_reports_retry_identity_as_not_offline_chec
     assert re.search(r"^note  \[council-convening-not-offline-checkable\] .*: "
                      r"not checkable offline: .*retry identity and once-per-pin",
                      result.stdout, re.M), result.stdout
+
+
+@pytest.mark.parametrize("step", ["E2 step A1", "E2 step A4"])
+def test_check_on_a_commission_record_reports_the_binding_steps_as_not_offline_checkable(
+        checked_commission_record, step):
+    # The review's LOW 4: `check` names A1 and A4, as it names `rule_superseded`
+    # and retry identity, rather than omitting them.
+    notes = [line for line in checked_commission_record.stdout.splitlines()
+             if line.startswith("note  [council-convening-not-offline-checkable] ")]
+    assert any(step in line for line in notes), checked_commission_record.stdout
+
+
+def test_check_names_the_binding_steps_in_the_admission_order(checked_commission_record):
+    rules = [line.split(": not checkable offline: ", 1)[1]
+             for line in checked_commission_record.stdout.splitlines()
+             if ": not checkable offline: " in line]
+    a1 = next(i for i, r in enumerate(rules) if "E2 step A1" in r)
+    a3 = next(i for i, r in enumerate(rules) if "E2 step A3" in r)
+    a4 = next(i for i, r in enumerate(rules) if "E2 step A4" in r)
+    superseded = rules.index("rule_superseded")
+    assert a1 < a3 < superseded < a4

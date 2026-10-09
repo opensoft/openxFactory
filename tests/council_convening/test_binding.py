@@ -331,10 +331,9 @@ def test_the_template_is_a_stub_with_no_live_value(template_doc):
         assert value.startswith("<") and value.endswith(">"), member
     assert template_doc["broker"]["capability_verified"] is False
     assert template_doc["broker"]["evidence_ref"] is None
-    assert {(e["operation"], e["workflow_revision_rule"])
-            for e in template_doc["permitted_workflows"]} == {
-        ("commission", "equals_governed_revision"),
-        ("seat_execution", "on_governed_history_since_revision")}
+    assert [(e["operation"], e["workflow_revision_rule"])
+            for e in template_doc["permitted_workflows"]] == [
+        ("commission", "equals_governed_revision")]
 
 
 def test_the_stub_vector_is_the_shipped_template(template_doc):
@@ -1634,3 +1633,162 @@ def test_the_snapshot_half_reads_no_binding_and_no_map():
         assert not corpus.reads_identity_map(raw), case_id
     for _, raw in _all_admission_vectors():
         assert corpus.reads_identity_map(raw)
+
+
+# =========================================================================
+# The independent review of 52a80130, cff00ac5 and c46d981e (lane
+# codeXfactory-1): one MEDIUM and five LOW findings, each pinned here first.
+# =========================================================================
+
+
+def test_the_coverage_floor_carries_fr_009():
+    # MEDIUM: without FR-009 in the floor, deleting every binding vector's
+    # citation would not fail the gate.
+    from scripts.council_convening import generate
+
+    assert "FR-009" in generate.COVERAGE_FLOOR
+    index = json.loads((BINDING_VECTORS.parents[1] / "index.json").read_text(
+        encoding="utf-8"))
+    assert "FR-009" in index["coverage_floor"]
+
+
+def test_uncited_fr_009_fails_the_corpus(family_tree):
+    from scripts.council_convening import corpus, generate
+
+    vectors = family_tree / "contracts" / "council-convening" / "conformance" / "vectors"
+    stripped = 0
+    for path in sorted(vectors.glob("*/*.json")):
+        vector = json.loads(path.read_text(encoding="utf-8"))
+        if "FR-009" in vector["requirement_ids"]:
+            vector["requirement_ids"] = [r for r in vector["requirement_ids"]
+                                         if r != "FR-009"] or ["FR-001"]
+            path.write_bytes(corpus.dump_json(vector))
+            stripped += 1
+    assert stripped
+    generate.generate(family_tree)
+    codes = [f.code for f in corpus.check_corpus(family_tree).findings]
+    assert "council-convening-requirement-without-probe" in codes
+
+
+#: LOW 1: a branch name may carry `@` (git forbids only `@{` and a lone `@`).
+AT_BRANCH_REF = f"{GOVERNED}/.github/workflows/corpus-commission.yml@refs/heads/rel@2"
+FORMER_AT_BRANCH_REF = (
+    f"{GOVERNED_FORMER}/.github/workflows/council-lane-reusable.yml@refs/heads/rel@2")
+
+
+def test_a_ref_carrying_an_at_sign_parses():
+    parsed = binding.parse_workflow_ref(AT_BRANCH_REF)
+    assert parsed is not None
+    assert (parsed.repository, parsed.ref) == (GOVERNED, "refs/heads/rel@2")
+
+
+@pytest.mark.parametrize("ref", [
+    FORMER_AT_BRANCH_REF,
+    # Not a workflow reference at all: its first two segments still name the
+    # former spelling, and step 4 judges every permitted ref by them.
+    f"{GOVERNED_FORMER}/workflows/corpus-commission.yml",
+    f"{GOVERNED_FORMER_CASE_VARIANT}/.github/workflows/x.yml@refs/heads/a@b",
+])
+def test_step_4_judges_every_permitted_ref_by_its_first_two_segments(map_root, ref):
+    b = commission_binding(permitted_workflows=[{
+        "operation": "commission", "job_workflow_ref": ref,
+        "workflow_revision_rule": "equals_governed_revision"}])
+    assert code_of(b, map_root) == "repository_identity_former"
+
+
+def test_a_commission_workflow_on_an_at_branch_is_accepted(map_root):
+    b = commission_binding(permitted_workflows=[{
+        "operation": "commission", "job_workflow_ref": AT_BRANCH_REF,
+        "workflow_revision_rule": "equals_governed_revision"}])
+    entry = binding.check_binding(
+        b, operation="commission",
+        identity=identity(claims_for(b, job_workflow_ref=AT_BRANCH_REF)),
+        governed=governed(), evaluation_time=EVALUATION_TIME, identity_root=map_root)
+    assert entry["job_workflow_ref"] == AT_BRANCH_REF
+
+
+@pytest.mark.parametrize("spelling, former", [
+    # LOW 2, the literal E10 reading: a non-canonical case variant of ANY listed
+    # spelling, the pending row's included, is refused.
+    ("opensoft/examplefactory", True),
+    ("OpenSoft/ExampleFactory", True),
+    ("exampleorg/ExampleFactory", True),
+    ("ExampleOrg/examplefactory", True),
+    # The pending row's spellings themselves stay as they were: its `former` is
+    # still the only address (`pending_row_rule`).
+    (PENDING_FORMER, False),
+    (PENDING_CURRENT, False),
+])
+def test_a_case_variant_of_a_pending_spelling_is_former(map_root, spelling, former):
+    assert binding.load_identity_map(map_root).is_former(spelling) is former
+
+
+def test_a_caller_spelled_as_a_pending_case_variant_is_refused(map_root):
+    b = commission_binding(caller_repository="opensoft/examplefactory",
+                           subject_template="repo:opensoft/examplefactory:ref:refs/heads/main")
+    assert code_of(b, map_root) == "repository_identity_former"
+
+
+def _bind_vector(name):
+    return json.loads((BINDING_VECTORS / f"{name}.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("oracle", ["identity", "governed_history"])
+def test_a_binding_vector_missing_an_oracle_it_reads_is_a_harness_error(oracle):
+    # LOW 3: as at admission, a missing oracle is never a refusal.
+    from scripts.council_convening import classification, corpus, records
+
+    name = ("bind-commission-accept" if oracle == "identity"
+            else "bind-seat-per-seat-environment-accept")
+    vector = _bind_vector(name)
+    assert oracle in vector["environment"]
+    del vector["environment"][oracle]
+    with pytest.raises(ValueError):
+        binding.evaluate_vector(vector)
+    with pytest.raises(corpus.VectorInputError):
+        corpus.HANDLERS["binding"].handler(
+            vector, corpus.Context(records.load_schemas(), classification.load_registry()))
+
+
+def test_an_offline_refusal_needs_no_identity_oracle():
+    # The oracle is required where it is READ: a binding refused at steps 1 to 6
+    # never reaches the claims.
+    vector = _bind_vector("bind-subject-wildcard-refuse")
+    del vector["environment"]["identity"]
+    assert binding.evaluate_vector(vector) == ("refuse", "binding_wildcard")
+
+
+def test_the_template_permits_one_operation():
+    # Info: a stub permitting both operations would carry the seat entry into a
+    # commission binding, or the commission entry into a seat's (025 (A)).
+    doc = yaml.safe_load(BINDING_TEMPLATE.read_text(encoding="utf-8"))
+    assert [e["operation"] for e in doc["permitted_workflows"]] == ["commission"]
+    text = BINDING_TEMPLATE.read_text(encoding="utf-8")
+    assert "seat_execution" in text and "on_governed_history_since_revision" in text
+
+
+def test_the_claim_keys_description_names_the_claims_supported_only_members():
+    # Reading 2: `sha` and `ref_protected` are in GitHub's `claims_supported`
+    # but not in its claims table, so they are not members.
+    doc = yaml.safe_load(BINDING_SCHEMA.read_text(encoding="utf-8"))
+    prop = doc["properties"]["subject_claim_keys"]
+    assert "claims_supported" in prop["description"]
+    assert "`sha`" in prop["description"] and "`ref_protected`" in prop["description"]
+    assert "sha" not in prop["items"]["enum"]
+    assert "ref_protected" not in prop["items"]["enum"]
+
+
+def test_the_review_round_vectors_pin_their_codes():
+    expected = {
+        "bind-permitted-ref-at-branch-former-refuse": "repository_identity_former",
+        "bind-permitted-ref-unparsed-former-refuse": "repository_identity_former",
+        "bind-commission-at-branch-accept": None,
+        "bind-caller-pending-case-variant-refuse": "repository_identity_former",
+        "bind-workflow-pending-current-case-variant-refuse": "repository_identity_former",
+    }
+    for name, code in expected.items():
+        vector = _bind_vector(name)
+        assert "FR-009" in vector["requirement_ids"], name
+        want = ("accept", None) if code is None else ("refuse", code)
+        assert (vector["expected"]["outcome"], vector["expected"]["refusal"]) == want, name
+        assert binding.evaluate_vector(vector) == want, name

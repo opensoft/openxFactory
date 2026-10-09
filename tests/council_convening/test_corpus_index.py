@@ -98,7 +98,7 @@ def test_the_index_header():
     assert index["corpus_id"] == "council-convening-conformance"
     assert index["protocol"] == REPLACEMENT
     assert index["coverage_floor"] == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
-                                       "FR-006", "FR-011", "SC-001", "SC-002"]
+                                       "FR-006", "FR-009", "FR-011", "SC-001", "SC-002"]
 
 
 def test_every_row_digest_is_over_the_raw_bytes():
@@ -426,9 +426,9 @@ def test_the_landed_coverage_counts():
     assert landed >= 41
     assert report.refusals_probed == (landed, landed)
     assert report.findings_probed == (1, 1)
-    assert report.requirements_probed == (9, 9)
+    assert report.requirements_probed == (10, 10)
     assert report.coverage_floor == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
-                                     "FR-006", "FR-011", "SC-001", "SC-002"]
+                                     "FR-006", "FR-009", "FR-011", "SC-001", "SC-002"]
 
 
 # --------------------------------------------------------------------------
@@ -491,7 +491,7 @@ def test_generate_check_reports_a_stale_index(family_tree):
 
 def test_generate_writes_the_coverage_floor():
     assert generate.COVERAGE_FLOOR == ("FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
-                                       "FR-006", "FR-011", "SC-001", "SC-002")
+                                       "FR-006", "FR-009", "FR-011", "SC-001", "SC-002")
 
 
 def test_labelled_test_keys_are_deterministic_and_distinct():
