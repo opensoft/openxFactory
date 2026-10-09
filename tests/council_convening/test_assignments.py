@@ -485,3 +485,85 @@ def test_a_conflict_message_never_echoes_a_value():
     with pytest.raises(Refused) as caught:
         assignments.retry_identity(resent, [live(record)])
     assert "visible-marker" not in str(caught.value)
+
+
+# --- retry identity inside the admission order (E2 step A3; T040) ------------------
+#
+# Each drift vector is adjudicated twice through the corpus. Without its live
+# snapshot the same record and environment must REFUSE with the drift code, which
+# shows the drift is real; with it, the identical retry must return the live
+# snapshot, which shows retry identity runs before every drift check.
+
+DRIFT = [
+    pytest.param("asg-retry-identical-after-tip-moved-accept", "rule_superseded",
+                 id="governed-source-changed-at-the-tip"),
+    pytest.param("asg-retry-identical-after-head-moved-accept", "candidate_head_moved",
+                 id="live-head-moved"),
+]
+
+
+def _context():
+    from scripts.council_convening import classification, corpus, records
+
+    return corpus.Context(records.load_schemas(), classification.load_registry())
+
+
+def _vector(case_id: str) -> dict:
+    import json
+
+    from .conftest import VECTORS
+
+    return json.loads((VECTORS / "assignment" / f"{case_id}.json").read_text(encoding="utf-8"))
+
+
+def _without_live_snapshots(vector: dict) -> dict:
+    stripped = copy.deepcopy(vector)
+    del stripped["environment"]["issued"]
+    return stripped
+
+
+@pytest.mark.parametrize("case_id, drift_code", DRIFT)
+def test_an_identical_retry_returns_the_same_snapshot_even_after_drift(case_id, drift_code):
+    from scripts.council_convening import corpus
+
+    context = _context()
+    vector = _vector(case_id)
+    fresh = corpus.adjudicate(_without_live_snapshots(vector), context)
+    assert (fresh.outcome, fresh.refusal) == ("refuse", drift_code)
+    retried = corpus.adjudicate(vector, context)
+    assert retried.outcome == "accept"
+    assert retried.derived["convening_id"] == "convening-0001"
+    assert retried.derived["convening_digest"] == digest_of(vector["inputs"]["record"])
+
+
+def test_a_conflict_is_refused_before_the_head_is_read():
+    from scripts.council_convening import corpus
+
+    context = _context()
+    vector = _vector("asg-retry-order-conflict-before-head-moved-refuse")
+    fresh = corpus.adjudicate(_without_live_snapshots(vector), context)
+    assert (fresh.outcome, fresh.refusal) == ("refuse", "candidate_head_moved")
+    conflict = corpus.adjudicate(vector, context)
+    assert (conflict.outcome, conflict.refusal) == ("refuse", "convening_conflict")
+
+
+def test_a_fresh_admission_derives_no_convening_id():
+    # `convening_id` is the consumer's, issued when it writes the snapshot, so a
+    # record that admits fresh has none; only a returned snapshot names one.
+    from scripts.council_convening import corpus
+
+    outcome = corpus.adjudicate(
+        _vector("asg-retry-same-council-other-pin-not-conflict-accept"), _context())
+    assert outcome.outcome == "accept"
+    assert "convening_id" not in outcome.derived
+
+
+def test_an_admission_vector_without_issued_has_no_live_snapshot():
+    # Absent `environment.issued.live_snapshots` reads as "the consumer holds no
+    # live snapshot", so every Phase 2 admission vector keeps its outcome.
+    from scripts.council_convening import corpus
+
+    vector = _without_live_snapshots(_vector("asg-retry-identical-returns-snapshot-accept"))
+    outcome = corpus.adjudicate(vector, _context())
+    assert outcome.outcome == "accept"
+    assert "convening_id" not in outcome.derived

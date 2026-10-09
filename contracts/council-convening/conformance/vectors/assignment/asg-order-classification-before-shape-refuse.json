@@ -8,7 +8,7 @@
   "evaluation_time": "2026-10-09T01:00:00Z",
   "expected": {
     "derived": {},
-    "derived_origin": "generated",
+    "derived_origin": "hand",
     "findings": [],
     "outcome": "refuse",
     "refusal": "legacy_protocol_refused"
