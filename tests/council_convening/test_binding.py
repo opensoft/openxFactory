@@ -334,6 +334,13 @@ def test_the_template_is_a_stub_with_no_live_value(template_doc):
         ("seat_execution", "on_governed_history_since_revision")}
 
 
+def test_the_stub_vector_is_the_shipped_template(template_doc):
+    path = BINDING_VECTORS / "bind-stub-presented-as-live-refuse.json"
+    vector = json.loads(path.read_text(encoding="utf-8"))
+    assert vector["inputs"]["binding"] == template_doc
+    assert vector["expected"]["refusal"] == "binding_malformed"
+
+
 def test_the_template_has_the_stub_shape_and_is_never_accepted_as_live(
         template_doc, map_root):
     assert binding.schema_errors(template_doc) == []
