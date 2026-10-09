@@ -38,17 +38,19 @@ LINE = re.compile(
     r"|WARN  \[council-convening-[a-z0-9-]+\] \S.*"
     r"|note  \S.*)$")
 
-#: The Phase 1 notes, at the counts landed by Phase 2: four family schemas (the
-#: predicate registry's and the commission record's join), 34 refusal codes and
-#: the six-requirement floor (T026, T028, T029).
+#: The Phase 1 notes, at the counts landed by Phase 3: six family schemas (Phase 2
+#: added the predicate registry's and the commission record's, Phase 3 the
+#: snapshot's and the seat assignment's), 41 refusal codes and the
+#: nine-requirement floor (T026, T028, T029; T036, T038).
 PHASE_1_NOTES = [
-    r"^note  schemas loaded: 4 \(family\) \+ digest-construction$",
+    r"^note  schemas loaded: 6 \(family\) \+ digest-construction$",
     r"^note  protocol registry closed: 2 entries$",
     r"^note  corpus index: ([0-9]+) vectors, ([0-9]+) both-sides, sha256:[0-9a-f]{64}$",
     r"^note  vectors adjudicated: ([0-9]+)/\1$",
-    r"^note  refusal codes probed: 34/34$",
+    r"^note  refusal codes probed: 41/41$",
     r"^note  finding codes probed: 1/1$",
-    r"^note  requirements probed: 6/6 \(FR-001, FR-002, FR-003, FR-004, FR-011, SC-001\)$",
+    r"^note  requirements probed: 9/9 \(FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, "
+    r"FR-011, SC-001, SC-002\)$",
     r"^note  generator reproduced corpus byte-for-byte$",
 ]
 
@@ -176,11 +178,12 @@ def test_check_routes_a_roster_less_envelope_in_yaml(tmp_path):
 
 
 def test_check_refuses_a_replacement_record_of_a_kind_not_landed(tmp_path):
-    # The commission record lands in Phase 2, so the snapshot (Phase 3) is the
-    # protocol-carrying kind whose schema has not landed at this commit.
-    path = _write(tmp_path, "snapshot.json", {
-        "schema_version": 1, "kind": "xfactory_council_convening_snapshot",
-        "protocol": REPLACEMENT, "convening_id": "convening-1"})
+    # The snapshot and the seat assignment land in Phase 3, so the registration
+    # challenge (Phase 4) is the protocol-carrying kind whose schema has not
+    # landed at this commit.
+    path = _write(tmp_path, "challenge.json", {
+        "schema_version": 1, "kind": "xfactory_council_registration_challenge",
+        "protocol": REPLACEMENT, "challenge_id": "challenge-1"})
     result = run_validator("check", str(path))
     assert result.returncode == 1, result.stdout + result.stderr
     assert "ERROR [council-convening-kind-unknown]" in result.stdout

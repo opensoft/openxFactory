@@ -180,10 +180,11 @@ $defs:
       head_sha: {$ref: '#/$defs/full_sha'}
       subject_path: {$ref: '#/$defs/relative_path'}
   refusal_code:
-    # CLOSED AT THE PHASE 1 FIVE PLUS THE PHASE 2 TWENTY-NINE. Phase 2 (T028)
-    # added the commission and admission codes, in data-model § Refusal
-    # vocabulary order; each later phase adds its own, in the task that authors
-    # its schemas.
+    # CLOSED AT THE PHASE 1 FIVE, THE PHASE 2 TWENTY-NINE AND THE PHASE 3 SEVEN.
+    # Phase 2 (T028) added the commission and admission codes, and Phase 3
+    # (T038) the snapshot, assignment and retry-identity codes, each in
+    # data-model § Refusal vocabulary order; each later phase adds its own, in
+    # the task that authors its schemas.
     description: The closed refusal vocabulary as landed at this commit.
     type: string
     enum:
@@ -222,6 +223,15 @@ $defs:
       - roster_empty
       - roster_duplicate_seat
       - roster_mismatch
+      # Phase 3: the snapshot and its assignments (data-model E4, E5) and retry
+      # identity and once-per-pin (E2 step A3), at admission.
+      - snapshot_malformed
+      - digest_construction_mismatch
+      - assignment_malformed
+      - assignment_set_mismatch
+      - assignment_duplicate
+      - assignment_shared_holder
+      - convening_conflict
   finding_code:
     # KEPT APART FROM REFUSALS, with its own coverage rule. Phase 6 adds
     # `legacy_protocol_deprecated`.
