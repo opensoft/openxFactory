@@ -30,6 +30,22 @@ detached checkout at some other revision, inverts that. One comparison would
 pass in exactly the half of the world it is blind to. See `_recorded_gitlink`
 for the HEAD-then-index resolution and why the fallback exists.
 
+ONE CHAIN, TWO LEVELS DEEPER, AND PARITY THROUGH BOTH (openXwallet
+`split-openwallet-neutral-core`, design D6, RULED Q2 "Nested gitlink, one
+chain"). From `xwallet-v1.0` the bytes the pin names sit under
+`openXwallet/openWallet/code/`: openXwallet mounts the openWallet ASSEMBLY ROOT
+at `openWallet/`, and that root mounts its CODE leg at `code/`. The pin records
+NO openWallet commit, so checks 2 and 3 pin `openXwallet` alone, and the
+`pinned_by_commit_only:` members — which carry no digest — would be fixed by
+nothing below that level. Check 3b closes it: the checked-out
+`openXwallet/openWallet` must equal the `openWallet` gitlink the PINNED
+openXwallet commit records, and the checked-out `openXwallet/openWallet/code`
+the `code` gitlink THAT root commit records. Both expectations are read from git
+objects (`git ls-tree <commit> -- <path>`), never from a working tree, and both
+are checked BEFORE the digests, for check 3's reason one level down: a digest
+recomputed against a stale nested checkout would report drift when the defect is
+the checkout. The spec leg is never initialized and never read.
+
 WHY THE SIX CODES ARE A FIXED VOCABULARY. `REFUSAL_CODES` is the ratified list
 (FR-003) and other code — the consumer gate workflow, `validate-trust-anchor.py`
 — refuses BY CODE. A refusal that reports the right fact under a new name is a
@@ -52,8 +68,10 @@ they raise, and the caller decides. All printing and all exiting lives in
 `main()`. There is no import-time I/O beyond the path constants below.
 
 Exit codes:
-  0  the pin is satisfied: gitlink and checkout both equal `commit`, all eight
-     digests recompute, and every path-only member is present
+  0  the pin is satisfied: gitlink and checkout both equal `commit`, the nested
+     `openWallet` root and its `code` leg are checked out at the gitlinks the
+     level above records, all eight digests recompute, and every path-only
+     member is present
   2  ANY refusal, and any environment failure
 
   There is deliberately NO exit 1. The sibling tool
@@ -92,6 +110,14 @@ REMEDIATION = (
     "--recursive; this wave's init is deliberately scoped). If the pin itself "
     "is stale, follow `openXwallet/docs/pin-resync-runbook.md`."
 )
+
+# The NESTED CHAIN below `submodule_path`, outermost first. A constant and not a
+# pin field, because the pin's grammar records NO openWallet commit (ONE chain)
+# and a path list beside it would be a second statement of a layout openXwallet
+# already records in its own `contracts/openwallet-pin.yaml`. Each level's
+# expected revision is read from the level above it, at the commit that level
+# was verified at.
+NESTED_CHAIN: tuple[str, ...] = ("openWallet", "code")
 
 # The six ratified refusal codes, in the ratified order (spec FR-003).
 #
@@ -309,6 +335,78 @@ def _recorded_gitlink(repo_root: Path,
 
 
 # --------------------------------------------------------------------------
+# nested-checkout parity
+# --------------------------------------------------------------------------
+
+def _verify_nested_chain(sub_root: Path, submodule_path: str,
+                         commit: str) -> list[tuple[str, str]]:
+    """Each nested level checked out at the gitlink the level above records.
+
+    Returns `[(path, oid), ...]` outermost first, or raises `PinRefusal` at the
+    FIRST level that fails. Three facts per level, in this order:
+
+      1. the level above, AT THE COMMIT IT WAS VERIFIED AT, records a `160000`
+         gitlink for this level (`git ls-tree <commit> -- <level>`, read from
+         objects, so it needs nothing of this level on disk) — otherwise
+         `pin-gitlink-mismatch`, because the pinned tree does not carry the
+         chain this pin's paths assume;
+      2. the level is initialized (`<level>/.git` exists — a FILE in a real
+         nested submodule, which is why `.exists()` as in check 1) — otherwise
+         `pin-submodule-uninitialized`, naming the level;
+      3. its checked-out HEAD equals that gitlink — otherwise
+         `pin-checkout-mismatch`.
+
+    THE SIX CODES, AND NO SEVENTH. `REFUSAL_CODES` is a fixed vocabulary that
+    other code refuses by; a nested level that is uninitialized, recorded
+    nowhere or checked out stale is the same fact as at the top level, one level
+    down, so it takes the same code and the DETAIL names the level.
+    """
+    chain: list[tuple[str, str]] = []
+    parent_root, parent_commit, parent_shown = sub_root, commit, submodule_path
+    for level in NESTED_CHAIN:
+        shown = f"{parent_shown}/{level}"
+        level_root = parent_root / level
+        listed = _git(parent_root, "ls-tree", parent_commit, "--", level)
+        expected = (_gitlink_from(listed.stdout, level)
+                    if listed.returncode == 0 else None)
+        if expected is None:
+            raise PinRefusal(
+                "pin-gitlink-mismatch",
+                f"{parent_shown}@{parent_commit[:12]} records no "
+                f"{GITLINK_MODE} gitlink for {level}: the pinned tree does not "
+                f"carry the nested chain ({' -> '.join(NESTED_CHAIN)}) this "
+                f"pin's paths assume, so {shown} has no recorded revision to "
+                "be checked against")
+        if not (level_root / ".git").exists():
+            raise PinRefusal(
+                "pin-submodule-uninitialized",
+                f"{shown}/.git does not exist: the nested level {shown} is "
+                f"not initialized, so the openxWallet bytes this repository "
+                f"consumes through it are not present to be checked "
+                f"({parent_shown}@{parent_commit[:12]} records it at "
+                f"{expected})")
+        head = _git(level_root, "rev-parse", "HEAD")
+        if head.returncode != 0:
+            raise PinRefusal(
+                "pin-checkout-mismatch",
+                f"`git -C {level_root} rev-parse HEAD` failed, so the "
+                f"checked-out revision of {shown} cannot be compared against "
+                f"the {expected} that {parent_shown}@{parent_commit[:12]} "
+                f"records: {head.stderr.strip() or 'no error output'}")
+        checked_out = head.stdout.strip().lower()
+        if checked_out != expected:
+            raise PinRefusal(
+                "pin-checkout-mismatch",
+                f"{shown} is checked out at {checked_out}, but "
+                f"{parent_shown}@{parent_commit[:12]} records {expected}; the "
+                "level above is the pinned one, so the nested working checkout "
+                "is stale")
+        chain.append((shown, checked_out))
+        parent_root, parent_commit, parent_shown = level_root, expected, shown
+    return chain
+
+
+# --------------------------------------------------------------------------
 # the six checks
 # --------------------------------------------------------------------------
 
@@ -392,6 +490,11 @@ def verify(root: Path = ROOT, pin: dict | None = None) -> dict:
             f"{submodule_path} is checked out at {checked_out}, but the pin "
             f"records {commit}; the recorded gitlink agrees with the pin, so "
             "the tree is right and the working checkout is stale")
+
+    # ---- check 3b: NESTED-CHECKOUT PARITY, through both levels -------------
+    # Before the digests, for check 3's reason one level down. See
+    # `_verify_nested_chain`; it reuses this vocabulary and adds no code.
+    _verify_nested_chain(sub_root, submodule_path, commit)
 
     # ---- check 4: every digested member recomputes to its recorded sha256 ---
     entries = pin.get("files")
@@ -550,12 +653,20 @@ def main(argv: list[str] | None = None) -> int:
     # to return the pin and to print nothing: the source of the recorded gitlink
     # is a fact about the RUN and belongs in the run's output, and one extra
     # `ls-tree` is cheaper than widening a return type other code depends on.
-    _, source = _recorded_gitlink(ROOT, _submodule_path(pin))
+    submodule_path = _submodule_path(pin)
+    _, source = _recorded_gitlink(ROOT, submodule_path)
     commit = _pinned_commit(pin)
     digests = len(pin.get("files") or [])
+    # Re-walked rather than returned from `verify()`, for the reason the source
+    # is re-resolved: `verify()` returns the pin and nothing else. The walk is
+    # offline and already known to hold.
+    nested = ", ".join(
+        f"{path}@{oid[:12]}" for path, oid in
+        _verify_nested_chain(ROOT / submodule_path, submodule_path, commit))
     note = (f"OK openxwallet-pin verified: openXwallet@{commit} "
             f"(tag label {pin.get('contract_bundle_tag', '<unlabelled>')}), "
-            f"gitlink read from {source}, {digests} digest(s) recomputed")
+            f"gitlink read from {source}, nested parity {nested}, "
+            f"{digests} digest(s) recomputed")
     if args.aggregation_root is not None:
         note += f", aggregation root {args.aggregation_root} agrees"
     print(note)
