@@ -79,11 +79,16 @@ PIN_PATH = ROOT / "contracts" / "openxwallet-pin.yaml"
 
 # The ONE fixed remediation trailer for every fail-closed refusal in this wave
 # (FR-004). `--recursive` is deliberately absent and the parenthetical says so
-# out loud: this wave's init is scoped to the one submodule the gate needs, and
-# a remediation that recursed would pull the aggregation's whole submodule tree
-# into a job that has business with exactly one of them.
+# out loud: this wave's init is scoped to the submodules the gate needs, and a
+# remediation that recursed would pull the aggregation's whole submodule tree
+# into a job that has business with exactly one chain of them. Since
+# `xwallet-v1.0` that chain is THREE NAMED LEVELS — openXwallet, its nested
+# openWallet root, that root's code leg — and never the spec leg, which nothing
+# here reads (openXwallet `split-openwallet-neutral-core`, design D6).
 REMEDIATION = (
-    "Remediation: run `git submodule update --init openXwallet` (NOT "
+    "Remediation: run `git submodule update --init openXwallet`, then "
+    "`git -C openXwallet submodule update --init openWallet`, then "
+    "`git -C openXwallet/openWallet submodule update --init code` (NOT "
     "--recursive; this wave's init is deliberately scoped). If the pin itself "
     "is stale, follow `openXwallet/docs/pin-resync-runbook.md`."
 )

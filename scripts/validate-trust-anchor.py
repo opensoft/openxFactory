@@ -2603,7 +2603,9 @@ def report(f: Findings, strict: bool) -> int:
 # string by `tests/trust-anchor/test_openxwallet_pin_refusal.py`, which is what
 # keeps this from becoming the drifting third copy the design refused.
 OPENXWALLET_REMEDIATION_FALLBACK = (
-    "Remediation: run `git submodule update --init openXwallet` (NOT "
+    "Remediation: run `git submodule update --init openXwallet`, then "
+    "`git -C openXwallet submodule update --init openWallet`, then "
+    "`git -C openXwallet/openWallet submodule update --init code` (NOT "
     "--recursive; this wave's init is deliberately scoped). If the pin itself "
     "is stale, follow `openXwallet/docs/pin-resync-runbook.md`.")
 

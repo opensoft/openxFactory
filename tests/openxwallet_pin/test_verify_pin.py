@@ -295,9 +295,13 @@ def test_pin_unreadable_is_not_in_the_ratified_vocabulary() -> None:
 
 def test_the_remediation_trailer_is_the_ratified_string() -> None:
     assert MODULE.REMEDIATION == (
-        "Remediation: run `git submodule update --init openXwallet` (NOT "
+        "Remediation: run `git submodule update --init openXwallet`, then "
+        "`git -C openXwallet submodule update --init openWallet`, then "
+        "`git -C openXwallet/openWallet submodule update --init code` (NOT "
         "--recursive; this wave's init is deliberately scoped). If the pin "
         "itself is stale, follow `openXwallet/docs/pin-resync-runbook.md`.")
+    # Three named levels, and never the openWallet root's `spec` leg.
+    assert "--init spec" not in MODULE.REMEDIATION
     # `--recursive` must stay absent: this wave's init is scoped to one
     # submodule, and a remediation that recursed would pull the aggregation's
     # whole submodule tree into a job with business in exactly one of them.
