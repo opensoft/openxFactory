@@ -1,0 +1,123 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_signing_context
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/signing-context.schema.yaml"
+contract_id: council-convening-signing-context
+contract_schema_version: 1
+title: The two versioned signing contexts of the replacement council protocol
+description: >-
+  THE BYTES A SEAT SIGNS, AS TWO CLOSED OBJECTS (renew-resolved-council-protocol,
+  design D3; feature 035 data-model E9). This file declares NO RECORD KIND: it is
+  the definitions file the seat key registration (E7) and the seat return (E8)
+  take by `$ref`, so that both records carry one context shape each and neither
+  can grow a second.
+
+  THE SIGNED BYTES ARE THE UTF-8 OF `xfc-jcs-sha256-1`'s SERIALIZATION OF THE
+  CONTEXT, AND NOTHING ELSE (research R3). No prefix, no framing line and no
+  second canonicalization: the construction declared in
+  `signed-execution-chain/digest-construction.schema.yaml` is the only one in
+  force. A replacement message therefore always begins with `{`, while a legacy
+  v1 message begins with its protocol string and a newline, so neither
+  protocol's signature can verify as the other's (FR-008; D3, cross-protocol
+  replay).
+
+  A VERIFIER REBUILDS THE EXPECTED CONTEXT FROM FROZEN STATE AND COMPARES IT
+  MEMBER BY MEMBER WITH THE PRESENTED ONE. It never trusts the presented
+  context's labels. That comparison is what tells the refusals apart:
+  `cross_protocol_context` (`signing_context` or `protocol`),
+  `cross_convening_context` (`convening_id`, `convening_digest`, `council_id`,
+  `candidate`), `cross_seat_context` (`assignment_id`, `seat_id`), and, for a
+  differing key or challenge, `fingerprint_mismatch`, `return_key_mismatch` or
+  `challenge_wrong_assignment` (data-model E7 step 8, E8 step 5).
+
+  SO THE MEMBERS THOSE CODES JUDGE ARE TYPED BY GRAMMAR ONLY, NEVER BY `const`.
+  One failing check names one code (data-model conventions): if this file fixed
+  `signing_context` or `protocol` to the replacement's values, a legacy context
+  string would fail here as a malformed record and `cross_protocol_context`
+  could never fire. Equality with the frozen state is the semantic check, and it
+  runs after the shape.
+
+  `convening_digest` and `return_digest` carry the digest's `value` string only,
+  not the tagged digest object: the construction and the subject are fixed by
+  the context's own `signing_context`, and the record that carries the context
+  also carries the full digest object, whose subject its schema fixes.
+
+  A context is not a record and carries no `schema_version` or `kind`: it is a
+  nested object of the record that signs it, and `signing_context` is its
+  versioned identifier.
+$defs:
+  digest_value:
+    description: >-
+      The `value` member of an `xfc-jcs-sha256-1` digest: `sha256:` and 64
+      lowercase hexadecimal characters. Its subject is fixed by the context that
+      carries it: `council_convening` for `convening_digest`, and
+      `council_seat_return_payload` for `return_digest`. Taken by `$ref` from
+      the construction file, so the value grammar has one home.
+    $ref: 'https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest/properties/value'
+
+  registration_context:
+    description: >-
+      The REGISTRATION CONTEXT, signed by the seat job's ephemeral key as its
+      possession proof. Its expected value is rebuilt from the frozen
+      assignment, the issued challenge and the presented key, and its
+      `signing_context` is `xfc-resolved-council-1/seat-key-registration` for a
+      replacement registration.
+    type: object
+    additionalProperties: false
+    required:
+      - signing_context
+      - protocol
+      - convening_id
+      - convening_digest
+      - council_id
+      - candidate
+      - assignment_id
+      - seat_id
+      - key_fingerprint
+      - challenge_id
+      - challenge_nonce
+    properties:
+      signing_context: {$ref: 'shared-definitions.schema.yaml#/$defs/protocol_id'}
+      protocol: {$ref: 'shared-definitions.schema.yaml#/$defs/protocol_id'}
+      convening_id: {$ref: 'shared-definitions.schema.yaml#/$defs/opaque_id'}
+      convening_digest: {$ref: '#/$defs/digest_value'}
+      council_id: {$ref: 'shared-definitions.schema.yaml#/$defs/council_id'}
+      candidate: {$ref: 'shared-definitions.schema.yaml#/$defs/candidate'}
+      assignment_id: {$ref: 'shared-definitions.schema.yaml#/$defs/opaque_id'}
+      seat_id: {$ref: 'shared-definitions.schema.yaml#/$defs/seat_id'}
+      key_fingerprint: {$ref: 'shared-definitions.schema.yaml#/$defs/key_fingerprint'}
+      challenge_id: {$ref: 'shared-definitions.schema.yaml#/$defs/opaque_id'}
+      challenge_nonce: {$ref: 'shared-definitions.schema.yaml#/$defs/nonce'}
+
+  return_context:
+    description: >-
+      The RETURN CONTEXT, signed by the seat's registered key over its return.
+      Its expected value is rebuilt from the frozen assignment, the registered
+      key and the digest recomputed over the return's `payload`, and its
+      `signing_context` is `xfc-resolved-council-1/seat-return` for a
+      replacement return.
+    type: object
+    additionalProperties: false
+    required:
+      - signing_context
+      - protocol
+      - convening_id
+      - convening_digest
+      - council_id
+      - candidate
+      - assignment_id
+      - seat_id
+      - key_fingerprint
+      - return_digest
+    properties:
+      signing_context: {$ref: 'shared-definitions.schema.yaml#/$defs/protocol_id'}
+      protocol: {$ref: 'shared-definitions.schema.yaml#/$defs/protocol_id'}
+      convening_id: {$ref: 'shared-definitions.schema.yaml#/$defs/opaque_id'}
+      convening_digest: {$ref: '#/$defs/digest_value'}
+      council_id: {$ref: 'shared-definitions.schema.yaml#/$defs/council_id'}
+      candidate: {$ref: 'shared-definitions.schema.yaml#/$defs/candidate'}
+      assignment_id: {$ref: 'shared-definitions.schema.yaml#/$defs/opaque_id'}
+      seat_id: {$ref: 'shared-definitions.schema.yaml#/$defs/seat_id'}
+      key_fingerprint: {$ref: 'shared-definitions.schema.yaml#/$defs/key_fingerprint'}
+      return_digest: {$ref: '#/$defs/digest_value'}

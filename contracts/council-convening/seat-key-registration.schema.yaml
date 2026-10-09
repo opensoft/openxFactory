@@ -1,0 +1,77 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_seat_key_registration
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/seat-key-registration.schema.yaml"
+contract_id: council-convening-seat-key-registration
+contract_schema_version: 1
+title: A seat job's key registration, bound to its assignment by a possession proof
+description: >-
+  ONE SEAT JOB REGISTERS ONE EPHEMERAL PUBLIC KEY FOR ITS OWN ASSIGNMENT
+  (renew-resolved-council-protocol, design D3; feature 035 data-model E7). The
+  `proof` is a signature, by that key, over the JCS bytes of `context`, the
+  registration context of `signing-context.schema.yaml`.
+
+  THE BODY CARRIES NO PRINCIPAL, AND THAT IS THE CONTRACT. Possession of a key
+  is not authority (D3). The verified principal comes only from identity
+  evidence: the seat job's verified OIDC claims, checked against the binding
+  its assignment's `holder.binding_ref` names, and the principal the trusted
+  dispatcher resolved. A record that named its own principal would let a
+  caller's label stand in for authentication, which FR-007 refuses.
+
+  NO ROOT AUTHORIZATION. A replacement registration carrying
+  `root_key_fingerprint`, `root_signature` or `authorization` is refused as
+  `root_authorization_refused`, at E7 step 2, before this schema runs: the
+  spec delta's requirement 5 says root-authorization payloads MUST refuse under
+  the replacement protocol, and such a record is never reclassified as legacy
+  (data-model E1, I3).
+
+  NO KEY TRANSPORT. The spec delta says key transport MUST refuse. Every object
+  here is closed, so a member named `private_key`, `secret_key`, `seed`, `sk`
+  or `d` fails this schema at any depth, and the reference implementation also
+  refuses a PEM private-key block in any string. Both are
+  `registration_malformed` (E7 step 3).
+
+  THE ORDER AT `registration` (data-model E7), first failing check wins:
+  classification and selection; root authorization; this shape; the
+  assignment (`assignment_unknown`, `assignment_not_yet_valid`,
+  `assignment_expired`, `operation_not_permitted`); the principal against the
+  holder's binding (`binding_unresolved`, `broker_capability_insufficient`,
+  the binding's offline checks and its claim checks with operation
+  `seat_execution`, then `wrong_principal`); the issued challenge
+  (`challenge_unknown`, `challenge_malformed`, `challenge_wrong_assignment`,
+  `challenge_consumed`, `challenge_expired`); the key (`fingerprint_mismatch`,
+  `assignment_already_registered`, `shared_key`); the context, rebuilt and
+  compared member by member; and last the proof (`proof_invalid`).
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - protocol
+  - assignment_id
+  - challenge_id
+  - public_key
+  - key_fingerprint
+  - context
+  - proof
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_council_seat_key_registration}
+  protocol: {const: xfc-resolved-council-1}
+  assignment_id: {$ref: 'shared-definitions.schema.yaml#/$defs/opaque_id'}
+  challenge_id: {$ref: 'shared-definitions.schema.yaml#/$defs/opaque_id'}
+  public_key:
+    description: The seat job's ephemeral Ed25519 public key, unpadded base64url of 32 bytes.
+    $ref: 'shared-definitions.schema.yaml#/$defs/public_key'
+  key_fingerprint:
+    description: >-
+      `sha256:` and the hex SHA-256 of the raw 32 bytes of `public_key`. It is
+      recomputed, never trusted (`fingerprint_mismatch`).
+    $ref: 'shared-definitions.schema.yaml#/$defs/key_fingerprint'
+  context: {$ref: 'signing-context.schema.yaml#/$defs/registration_context'}
+  proof:
+    description: >-
+      An Ed25519 signature by `public_key` over the UTF-8 of the
+      `xfc-jcs-sha256-1` serialization of `context`.
+    $ref: 'shared-definitions.schema.yaml#/$defs/signature'
