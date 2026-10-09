@@ -17,7 +17,7 @@ Each is ticked only on Brett Heap's own recorded word, by whoever encodes that
 word, citing it. 1.6 is the bookkeeping that follows the ratifying word and
 never precedes it.
 
-- [ ] 1.1 OWNER BOX. Brett Heap's word on the reading this packet encodes: the
+- [x] 1.1 OWNER BOX. Brett Heap's word on the reading this packet encodes: the
   Triad is PREFERRED and not required; it is advised where a person starts
   work, once per session, and never stops anyone; and it is never a review
   input (`design.md` D1-D3). His sentences of 2026-10-06 are the direction and
@@ -27,7 +27,21 @@ never precedes it.
   6020300563; record `review/ratification-2026-10-06.md`). It ratifies the
   reading as written. The box is left for its owner to tick, as this section's
   heading says.
-- [ ] 1.2 OWNER BOX. OQ-1, the staying-single record's file name, location and
+  **CLOSED AT THE ARCHIVE, 2026-10-09, AS DISCHARGED BY WORD.** The note above
+  is the disposition, and this tick carries it and asserts nothing beyond it.
+  The discharging act is Brett Heap's word *"ratify 1249 as recommended"*,
+  given in session at 2026-10-06T16:02:16Z and recorded in three places: PR
+  #1249's RATIFIED comment 6020300563 (posted 2026-10-06T16:04:06Z), the
+  record `review/ratification-2026-10-06.md`, and a RULED entry on the lane
+  register at 2026-10-06T16:03:51Z. The tick records Brett Heap's act, not the
+  agent's. It is made under his selection of 2026-10-08T20:04:44Z, verbatim
+  *"Yes, here and prefer-triad (Recommended)"*, RULED on the lane register at
+  2026-10-08T20:05:35Z against this change. The option it selected reads: owner
+  boxes whose acts he recorded are ticked as discharged by word, each citing
+  his word and its time, as archive #953 closed the owner boxes of
+  `state-header-window-budget`, and any box without a recorded word stops this
+  archive. Every owner box in this section has a recorded word.
+- [x] 1.2 OWNER BOX. OQ-1, the staying-single record's file name, location and
   schema (`design.md` D4). Recommendation: `single-repository.yaml` at the
   repository root, `schema_version: 1`, `kind: single-repository-record`,
   `decided_by`, `decided_on`, `reason`, optional `revisit_on`, schema owned by
@@ -35,22 +49,59 @@ never precedes it.
   **NOTE 2026-10-06 — RULED, as recommended**, by the same word:
   `single-repository.yaml` at the repository root, schema owned by
   openRepoShape. Box left for its owner.
-- [ ] 1.3 OWNER BOX. OQ-2, aggregation, configuration and dotfile repositories
+  **CLOSED AT THE ARCHIVE, 2026-10-09, AS DISCHARGED BY WORD.** The note above
+  is the disposition, and this tick asserts nothing beyond it. The discharging
+  act is the word 1.1 cites, *"ratify 1249 as recommended"*
+  (2026-10-06T16:02:16Z). "As recommended" settled OQ-1 to its recommendation,
+  as the RATIFIED comment 6020300563 and `review/ratification-2026-10-06.md`
+  § 1 both record. The tick records Brett Heap's act, not the agent's, under
+  his selection of 2026-10-08T20:04:44Z (RULED 2026-10-08T20:05:35Z), as for
+  1.1.
+- [x] 1.3 OWNER BOX. OQ-2, aggregation, configuration and dotfile repositories
   and vendored forks (`design.md` D4). Recommendation: no class-guessing; they
   receive the advisory until they migrate or record staying single.
   **NOTE 2026-10-06 — RULED, as recommended**, by the same word: no
   class-guessing. Box left for its owner.
-- [ ] 1.4 OWNER BOX. OQ-3, whether the advisory re-homes the act of
+  **CLOSED AT THE ARCHIVE, 2026-10-09, AS DISCHARGED BY WORD.** The note above
+  is the disposition, and this tick asserts nothing beyond it. The discharging
+  act is the word 1.1 cites, *"ratify 1249 as recommended"*
+  (2026-10-06T16:02:16Z), which settled OQ-2 to its recommendation as comment
+  6020300563 and `review/ratification-2026-10-06.md` § 1 record. The tick
+  records Brett Heap's act, not the agent's, under his selection of
+  2026-10-08T20:04:44Z (RULED 2026-10-08T20:05:35Z), as for 1.1.
+- [x] 1.4 OWNER BOX. OQ-3, whether the advisory re-homes the act of
   recommending the shape that `project-repo-schema` gives codexFactory
   (`design.md` D6). Recommendation: it does not, and no block is written on that
   requirement.
   **NOTE 2026-10-06 — RULED, as recommended**, by the same word: the advisory
   is not codexFactory's act of recommending the shape, and no block is written
   on the ownership requirement. Box left for its owner.
-- [ ] 1.5 OWNER BOX. Brett Heap's merge word on this pull request. It is held
+  **CLOSED AT THE ARCHIVE, 2026-10-09, AS DISCHARGED BY WORD.** The note above
+  is the disposition, and this tick asserts nothing beyond it. The discharging
+  act is the word 1.1 cites, *"ratify 1249 as recommended"*
+  (2026-10-06T16:02:16Z), which settled OQ-3 to its recommendation as comment
+  6020300563 and `review/ratification-2026-10-06.md` § 1 record. The promoted
+  delta accordingly carries no block on the ownership requirement. The tick
+  records Brett Heap's act, not the agent's, under his selection of
+  2026-10-08T20:04:44Z (RULED 2026-10-08T20:05:35Z), as for 1.1.
+- [x] 1.5 OWNER BOX. Brett Heap's merge word on this pull request. It is held
   for that word and is not merged by the authoring lane.
   **NOTE 2026-10-06 — NOT GIVEN.** The ratifying word is not a merge word;
   this box waits for one.
+  **CLOSED AT THE ARCHIVE, 2026-10-09, AS DISCHARGED BY WORD.** The note above
+  was true when it was written, in the ratifying commit `020f2e4f`, and is kept
+  as written. The word was given later that day. The discharging act is Brett
+  Heap's word *"merge 1249"*, given in session at 2026-10-06T17:31:10Z. That
+  minute is the session transcript's timestamp of the word. The landing records
+  name the word but not its minute. They are lane `codeXfactory-5`'s Rule 6
+  posts on PR #1249: `LANDING` (comment 6021840005, stamped
+  2026-10-06T17:33:23Z, "On Brett Heap's word: \"merge 1249\"") and `LANDED`
+  (comment 6021851396, stamped 2026-10-06T17:34:04Z). The same pair is on the
+  lane register at 17:33:13Z and 17:33:58Z. On that word PR #1249 landed by
+  squash as `e63809650d39586134c4ec4fdb6e9effc87a7860` at
+  2026-10-06T17:33:34Z. The authoring lane did not merge on its own account.
+  The tick records Brett Heap's act, not the agent's, under his selection of
+  2026-10-08T20:04:44Z (RULED 2026-10-08T20:05:35Z), as for 1.1.
 - [x] 1.6 On the ratifying word, and only then: `Status: ratified` + `Ratified:`
   in `proposal.md`, `Ratified by:` in `design.md` and this file, the
   `approved_by`/`approved_on` pair in `.openspec.yaml` ADDED BESIDE the drafting
@@ -152,8 +203,33 @@ never precedes it.
   included). The only difference between the two reports is one `info`
   finding of `release-tag-publication` about `contract-v2.6`, a family the
   `main` run skipped because the network was down when it ran.
-- [ ] 4.3 Required checks green at the pull request's head, the Codex review
+- [x] 4.3 Required checks green at the pull request's head, the Codex review
   requested and read, every thread answered.
+  **VERIFIED FOR THE ARCHIVE, 2026-10-09**, from the check runs and the review
+  record rather than from a handoff.
+  - **Checks.** At PR #1249's final head
+    `020f2e4f4b20fa9d125419ace6f8901579ce93d1`, the ratifying commit, there are
+    16 check runs. Every one concluded success except `Sourcery review`, which
+    was skipped. All eight contexts `main`'s ruleset requires passed:
+    `signed-execution-chain-gate`, `lane-line`, `former-id-arrival-gate`,
+    `openspec-cli-pin`, `wallet-validation`, `pytest-suite`,
+    `release-tag-gate` and `openxdox-consumer-gate`. `merge-master-approval`
+    and `SonarCloud Code Analysis` passed too.
+  - **NO CODEX REVIEW WAS DELIVERED.** `@codex review` was posted at
+    2026-10-06T14:24:19Z (comment 6018384460), while the head was the opening
+    commit `2ee9ffd8`. The Codex connector replied at 14:24:31Z (comment
+    6018388372) with a usage-limit notice, *"You have reached your Codex usage
+    limits for code reviews"*. No Codex review followed. So the request was
+    made and its answer read, but the review this box names never existed.
+  - **Sourcery and the review record.** Sourcery posted a review-budget notice
+    at 14:25:57Z (comment 6018416234) and a reviewer's guide at 14:26:16Z
+    (comment 6018422124). It submitted no review, and neither comment carries
+    a finding. The pull request has 0 reviews, 0 review threads and 0 pending
+    review requests, so no thread is left to answer.
+  - **The basis for the tick.** It rests on the green checks at the final head
+    and on there being no unanswered thread, not on any review content. The
+    pull request landed by squash as `e6380965` at 2026-10-06T17:33:34Z, on
+    the merge word 1.5 cites.
 
 **§§ 1, 4.3, 5 and 6 KEEP A LITERAL `- [ ]` DELIBERATELY.** They are acts that
 have not happened, and each is ticked by the act that performs it, never by the
@@ -288,12 +364,70 @@ with green checks.
   [#1260](https://github.com/opensoft/openxFactory/pull/1260)
   and holds on `main` only through that pull request's merge, which waits on
   Brett Heap's merge word and its required checks.
-- [ ] 5.6 **New-project creation offers the Triad first.** workBenches'
+- [x] 5.6 **New-project creation offers the Triad first.** workBenches'
   `openspec/changes/project-command` (`scripts/new-project.sh`, `onp`) is held by
   lane `project-command` and forwards creation to `opensoft/openRepoProject`'s
   `project new`, whose `--shape` mode is opt-in today. The Triad-first offer
   routes THROUGH that lane's claim and openRepoProject's own governance, never
   around them; no repository is created that the person has not confirmed.
+  **DONE 2026-10-08, VERIFIED FOR THE ARCHIVE 2026-10-09**, in
+  opensoft/openRepoProject PR
+  [#8](https://github.com/opensoft/openRepoProject/pull/8) →
+  `d7f6b0eeebf3370be13de87193f397592ebd73a9`. It landed by squash at
+  2026-10-08T23:43:48Z and carries the tree of its final head
+  `f8dde9730b66cfcb2c8928ced98ea937c24b3451`. The owning lane is
+  `openRepoProject-1`, from the pull request body's `Lane:` line, which
+  Brett Heap assigned 5.6 to with *"openRepoProject lane takes 5.6"* (RULED on
+  the lane register at 2026-10-07T00:25:42Z). It closed openRepoProject#3 as
+  completed. This lane ticks the box. Lane `openRepoProject-1` did not.
+  - **What it realizes, read from the PR body and diff.** `project new` asks
+    a person at a terminal who has chosen nothing by flag one question. It
+    lists the Triad first as the default (Enter, `1`, `y` or `yes`) and a
+    single repository second (`2`, `n` or `no`), and it asks no reason for a
+    single repository. The question says *"Nothing is created until you
+    confirm"* and creates nothing itself. Each answer goes on to the path that
+    already existed, with that path's own confirmation kept. A Triad runs
+    openRepoShape without `--yes`, so its typed confirmation stands. A single
+    repository keeps the `Type yes` confirmation. No repository is created
+    that the person has not confirmed. Known Triad obstacles are read locally
+    and named before the question. A single repository created without the
+    question gets a two-line `warning:` advisory on stderr, and stdout, files
+    and the exit status are unchanged. The question is not asked when a
+    choosing flag is given, off a terminal, under CI, or for a `<user>-wip`
+    workspace name. A new `AGENTS.md` section tells agents to offer the Triad
+    first in conversation, then run `project new` with a choosing flag, and
+    never answer the prompts on a person's behalf. Only `new()` and new
+    helpers change in `project`, and the tests are in `tests/test_project.py`.
+  - **Checks.** At the head `f8dde973` there are 10 check runs. All eight
+    `test` runs succeeded: `ubuntu-latest` and `macos-latest`, Python 3.10
+    and 3.12, each on push and on pull request. `SonarCloud Code Analysis`
+    also succeeded, and `Sourcery review` was skipped. On `main` at
+    `d7f6b0ee` after the merge, all four `test` jobs succeeded and SonarCloud
+    was neutral.
+  - **How it relates to openRepoProject's own change.** The realization went
+    through openRepoProject's own governance, as this box requires. Its
+    OpenSpec change `prefer-triad-in-project-new` was ratified by Brett Heap's
+    *"ratify 5"* (2026-10-07, openRepoProject PR #5 comment 6035631740) and
+    landed as `ca4c6152`. The change is realized by its single Speckit feature,
+    `specs/002-triad-first-project-new/`, through #8. Its own task 3.4 says
+    this box is ticked by lane `codeXfactory-5` citing its 3.1 to 3.3. Those
+    are #8's merge and checks (3.1, above), the merge sha posted on
+    openRepoProject#3 (3.2, comment 6071275955, 2026-10-08T23:46:09Z), and
+    opensoft/workBenches#145, addressed to lane `project-command` (3.3). That
+    change is still ACTIVE in openRepoProject, with its § 3 boxes open at
+    `d7f6b0ee`. Its archive is openRepoProject's act, not this box's.
+  - **Not yet reachable through `onp` and `scripts/new-project.sh`.** Lane
+    `project-command`'s claim was not touched, and nothing in workBenches was
+    edited. Those two run the `project` artifact that workBenches pins in
+    `config/openrepoproject-pin.json`. At workBenches `main` `ffd55160` that
+    pin still names openRepoProject `a0407904`, which predates #8. Moving it
+    is lane `project-command`'s act, asked for in workBenches#145, which is
+    open. Brett Heap's standing word *"archive prefer-triad-project-shape when
+    5.6 lands"* (2026-10-07T10:20:48Z, RULED 2026-10-07T10:21:23Z) records its
+    trigger as this realization, through openRepoProject#3 and
+    `prefer-triad-in-project-new`, merged with green checks. The pin move is
+    therefore not a condition of this tick. It is stated here so that no
+    reader takes `onp` to offer the Triad today.
 - [x] 5.7 **The estate inventory, a recommendation only** (`design.md` D7). For
   each repository in `scripts/estate-repository-inventory.yaml`, measured on its
   own `origin/main`: Triad, leg, family holder, workspace repository or single
