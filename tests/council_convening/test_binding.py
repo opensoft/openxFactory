@@ -66,6 +66,8 @@ from .binding_fixtures import (
     LATER_REVISION,
     LIVE_IDENTITY_MAP,
     OFF_HISTORY,
+    COLLIDING_PENDING_CURRENT,
+    COLLIDING_PENDING_FORMER,
     PENDING_CURRENT,
     PENDING_FORMER,
     REPO_ROOT,
@@ -1062,15 +1064,33 @@ def test_a_malformed_oracle_is_a_harness_error(tmp_path, oracle):
         binding.materialize_identity(oracle, tmp_path / "r")
 
 
-def test_the_fixture_is_corpus_owned_and_carries_one_complete_and_one_pending_row():
+def test_the_fixture_is_corpus_owned_and_carries_one_complete_and_two_pending_rows():
+    # T051 asks for one complete and one pending row. The second pending row is
+    # the review round's precedence probe: its `former` collides, ignoring ASCII
+    # case, with the complete row's current spelling (dated amendment in
+    # contracts/conformance-corpus.md § The frozen identity fixture).
     doc = json.loads(IDENTITY_FIXTURE.read_text(encoding="utf-8"))
     assert set(doc) == {"schema_version", "kind", "name", "text"}
     assert doc["schema_version"] == 1
     assert doc["kind"] == "openxfactory-council-convening-conformance-fixture"
     assert doc["name"] == "repository-identity"
     rows = yaml.safe_load(doc["text"])["transfers"]
-    assert [row["transfer_state"] for row in rows] == ["complete", "pending"]
+    assert [row["transfer_state"] for row in rows] == ["complete", "pending", "pending"]
     assert (rows[0]["former"], rows[0]["current"]) == (GOVERNED_FORMER, GOVERNED)
+    assert (rows[1]["former"], rows[1]["current"]) == (PENDING_FORMER, PENDING_CURRENT)
+    assert (rows[2]["former"], rows[2]["current"]) == (
+        COLLIDING_PENDING_FORMER, COLLIDING_PENDING_CURRENT)
+    assert COLLIDING_PENDING_FORMER.lower() == GOVERNED.lower()
+    assert COLLIDING_PENDING_FORMER != GOVERNED
+
+
+def test_load_transfers_accepts_the_colliding_pending_row(tmp_path):
+    # The collision is no malformed row to the estate's reader, so the case-fold
+    # test, not `repository_identity_unavailable`, is what refuses it.
+    root = write_identity_map(tmp_path / "root")
+    transfers, malformed = estate_inventory.load_transfers(root)
+    assert malformed == ()
+    assert transfers == {GOVERNED_FORMER: GOVERNED}
 
 
 def test_the_fixtures_complete_row_is_codexfactorys_row_in_the_live_map():
@@ -1792,3 +1812,52 @@ def test_the_review_round_vectors_pin_their_codes():
         want = ("accept", None) if code is None else ("refuse", code)
         assert (vector["expected"]["outcome"], vector["expected"]["refusal"]) == want, name
         assert binding.evaluate_vector(vector) == want, name
+
+
+
+# =========================================================================
+# The delta review of c46d981e..d8c62dba (lane codeXfactory-1): one LOW
+# fail-open regression. A pending spelling that folds equal to a COMPLETE
+# row's spelling was exempted before the case-fold test ran (research.md
+# § R10, "a spelling equal to a listed spelling when ASCII case is ignored but
+# not byte-equal to it"; tasks.md T050).
+# =========================================================================
+
+
+@pytest.mark.parametrize("spelling, former", [
+    (COLLIDING_PENDING_FORMER, True),     # folds equal to the complete current
+    (GOVERNED, False),                    # the complete row's current stays current
+    (COLLIDING_PENDING_CURRENT, False),   # collides with nothing
+    ("exampleorg/CollidingFactory", True),
+])
+def test_a_case_fold_collision_with_a_complete_row_precedes_the_pending_exemption(
+        map_root, spelling, former):
+    assert binding.load_identity_map(map_root).is_former(spelling) is former
+
+
+def test_a_caller_spelled_as_a_colliding_pending_former_is_refused(map_root):
+    b = commission_binding(
+        caller_repository=COLLIDING_PENDING_FORMER,
+        subject_template=f"repo:{COLLIDING_PENDING_FORMER}:ref:refs/heads/main")
+    assert code_of(b, map_root, claims=claims_for(b)) == "repository_identity_former"
+
+
+def test_a_workflow_in_a_colliding_pending_former_is_refused(map_root):
+    ref = f"{COLLIDING_PENDING_FORMER}/.github/workflows/corpus-commission.yml@refs/heads/main"
+    b = commission_binding(permitted_workflows=[{
+        "operation": "commission", "job_workflow_ref": ref,
+        "workflow_revision_rule": "equals_governed_revision"}])
+    assert code_of(b, map_root, claims=claims_for(b, job_workflow_ref=ref)) == \
+        "repository_identity_former"
+
+
+@pytest.mark.parametrize("name", [
+    "bind-caller-pending-collides-with-complete-refuse",
+    "bind-workflow-pending-collides-with-complete-refuse",
+])
+def test_the_collision_vectors_refuse_as_former(name):
+    vector = _bind_vector(name)
+    assert vector["environment"]["repository_identity"] == identity_oracle()
+    assert (vector["expected"]["outcome"], vector["expected"]["refusal"]) == (
+        "refuse", "repository_identity_former")
+    assert binding.evaluate_vector(vector) == ("refuse", "repository_identity_former")

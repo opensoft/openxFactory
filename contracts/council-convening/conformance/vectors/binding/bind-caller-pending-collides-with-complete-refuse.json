@@ -4,7 +4,7 @@
   ],
   "area": "binding",
   "boundary": "binding",
-  "case_id": "bind-caller-former-spelling-refuse",
+  "case_id": "bind-caller-pending-collides-with-complete-refuse",
   "environment": {
     "identity": {
       "claims": {
@@ -15,9 +15,9 @@
         "job_workflow_ref": "codeXfactory/codexFactory/.github/workflows/corpus-commission.yml@refs/heads/main",
         "job_workflow_sha": "4444444444444444444444444444444444444444",
         "nbf": 1791503940,
-        "repository": "opensoft/codexFactory",
+        "repository": "codeXfactory/CodexFactory",
         "repository_id": "424242",
-        "sub": "repo:opensoft/codexFactory:ref:refs/heads/main"
+        "sub": "repo:codeXfactory/CodexFactory:ref:refs/heads/main"
       },
       "principal": {
         "principal_kind": "github_oidc_job",
@@ -47,7 +47,7 @@
         "capability_verified": true,
         "evidence_ref": "corpus-broker-evidence"
       },
-      "caller_repository": "opensoft/codexFactory",
+      "caller_repository": "codeXfactory/CodexFactory",
       "issuer": "https://token.actions.githubusercontent.com",
       "kind": "xfactory_council_producer_binding",
       "permitted_workflows": [
@@ -65,7 +65,7 @@
         "repo",
         "context"
       ],
-      "subject_template": "repo:opensoft/codexFactory:ref:refs/heads/main"
+      "subject_template": "repo:codeXfactory/CodexFactory:ref:refs/heads/main"
     },
     "governed": {
       "repository": "codeXfactory/codexFactory",

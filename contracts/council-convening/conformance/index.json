@@ -490,7 +490,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:84c9d73383bb3f29deab992dc55113ff45db49f02a7a670b4d12ee013019315d"
+      "sha256": "sha256:f665753edf056e215dd376241e75c419321f9bfd8dd19bc95326a0030fcc3db8"
     },
     {
       "applies_to": [
@@ -511,7 +511,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:e40c653e2de82b8d45db47af9026b4bcb840d8c3e1d13298fdad918ae64f13e6"
+      "sha256": "sha256:42ce9686559a5aad5f13a2a2ddec82d6f657a3d8611bbf092df9160ee73c8a6a"
     },
     {
       "applies_to": [
@@ -532,7 +532,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:b0a4ce12375c49b612ebea8963e6999ddf6fa4daa543e425c226c574fd539f59"
+      "sha256": "sha256:daa6b0ef5a3952d9b5d78515120345c28a560201cdffe44bdca67d8c4e8962e5"
     },
     {
       "applies_to": [
@@ -564,7 +564,7 @@
         "FR-004",
         "FR-005"
       ],
-      "sha256": "sha256:f997107310466299a38acea3a810400e118e2bc87784b205c2fc8e6fcadf4fbb"
+      "sha256": "sha256:91c926cda2eec2b208cc89b21903ebeee8f84cd8f4955d14af5ffad82c72624c"
     },
     {
       "applies_to": [
@@ -596,7 +596,7 @@
         "FR-004",
         "FR-005"
       ],
-      "sha256": "sha256:ea852703ac8acf05bc554e720c421b106f82e88db71bceeebeb84cf546b12ece"
+      "sha256": "sha256:0ae6fbee54f8abca372b5d70c39fd0c9f1d2d94342672435c7719744f5f44f26"
     },
     {
       "applies_to": [
@@ -628,7 +628,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:c4ff3df21828f244e1d234a904fc40b68f7a9abe07c8a171f35538fce3e033dc"
+      "sha256": "sha256:8df4b88008563e3c7c911e7d0915a9b35e9ab3369fb128aeb88bf55d74c11aa0"
     },
     {
       "applies_to": [
@@ -661,7 +661,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:ec4965e2385d08ac3da15bbe64a023dc20125b61eca3a3fa44dde236d84b2d4a"
+      "sha256": "sha256:ecd438622617ebc53813e75c22a382cb454882171debe930c4e2af4c37a309ff"
     },
     {
       "applies_to": [
@@ -683,7 +683,7 @@
         "FR-009",
         "SC-002"
       ],
-      "sha256": "sha256:25d1cf4408f8a5b40cc13c2ddaed15778b66a0028b509ce55a0fc8e2fd80eceb"
+      "sha256": "sha256:a81da5782afd73cf7e96b20ff5e79d00ccb9761519e67a7ccef087df78cfded2"
     },
     {
       "applies_to": [
@@ -706,7 +706,7 @@
         "FR-009",
         "SC-002"
       ],
-      "sha256": "sha256:ab5115a05fd88891851ad3bf59868c92b0a8df8fe16e79361ddbc566b9b054d4"
+      "sha256": "sha256:84a81fa78641e5b738039df52ff1a7e0ec13b4dc1f4140f266e8c9437981a8af"
     },
     {
       "applies_to": [
@@ -726,7 +726,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:2dd1544ee6e91d7d27acfe782d4c1bfd2bb382da6ab3a7cbb155c878ea8cb58b"
+      "sha256": "sha256:4b8b092a59a2145472efc572fec89e3f6b305c01bb1bbc0392d3866fd11b2bd9"
     },
     {
       "applies_to": [
@@ -747,7 +747,7 @@
         "FR-002",
         "FR-004"
       ],
-      "sha256": "sha256:63943e22af9f824a2db6e300c8e29e57544ceee0b6b45f9670dd6d695ba456cc"
+      "sha256": "sha256:2b79a79f0be1817aae875573f36707f4e5bcc73a65f8e16c84e48f795adb375d"
     },
     {
       "applies_to": [
@@ -767,7 +767,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:4e6b88756d69f2f3870110714e9268bda73da6e167765fc7c2f27804f5b6bdc2"
+      "sha256": "sha256:ee2173d0f6577d34a9fc68a64662e0dce83e358b115ba4a262c740128f2eb2fd"
     },
     {
       "applies_to": [
@@ -797,7 +797,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:f28d683097554f1cba69545a2deb6d721bee55eac95e08ffac3fc30b686181fb"
+      "sha256": "sha256:2dd56aba676e1f04a78cf5d55f3150657ffeeb435af123dd8d11762574c189a4"
     },
     {
       "applies_to": [
@@ -827,7 +827,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:b6e39fd9174485b9ff8f5b9ec6382a470ebe9f714c3ded57f17739d94ff20810"
+      "sha256": "sha256:6076d34b851845b784d0ee0732a3ed682e115d94d0d14d94b1602aa29e558185"
     },
     {
       "applies_to": [
@@ -1165,7 +1165,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:cdba1d70b14b231a6c84e3b437ebfe6c48f7e049c12b18cfba7e12fa45d8c15d"
+      "sha256": "sha256:f9bbb76b0146d7dace6930d93bcf37a2046e412ef25e5832b700976f93516a04"
     },
     {
       "applies_to": [
@@ -1185,7 +1185,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:116e4027b034c26874ff7aec7bccc923c30918b2962b59311d3f19e15c132250"
+      "sha256": "sha256:f0defd2b912fcb55909653555de3b77a8951edb06fa49c1a111b85640018bbed"
     },
     {
       "applies_to": [
@@ -1205,7 +1205,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:84e9fea4bd82ea669bc6ee8b3e46fc1728c81d4d4c73b91e2e436b9b20804b0e"
+      "sha256": "sha256:7749eb28754e1a73de09573996771f204ea51168a3b5cb01cb52311de1e4f841"
     },
     {
       "applies_to": [
@@ -1225,7 +1225,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:cf4ce6c3a15d8d3c0a961a04fedd45351e43727c6d493fd358b0d90ffd6efe3c"
+      "sha256": "sha256:3bdf3989f74093fe6f6c529c109a935094bd0b836968cf44e311ba904e25713f"
     },
     {
       "applies_to": [
@@ -1245,7 +1245,27 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:9f3a2144f166171b5eed5fa991d0d8a24b2231ddb64d6d6ed42b84f7ef2d3dce"
+      "sha256": "sha256:71835e6a7b1ee4d023679dbc0330445c5cb94b344b4b94b72a4764916495bf05"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-caller-pending-collides-with-complete-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-caller-pending-collides-with-complete-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:5c85f207c3188771e220f2c30d56227c257af28fc5e2f0c3ad64b2c423214a86"
     },
     {
       "applies_to": [
@@ -1265,7 +1285,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:a7979274a74a89622bf30f7e9b250f4cf994a70e061008a58d2cd2aa5032e2ba"
+      "sha256": "sha256:fb390c7b76385eec8404f3ce72b84a6be096e398a6b2b1bff48307e96abe05c4"
     },
     {
       "applies_to": [
@@ -1285,7 +1305,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:745242037a0e5f61aaade85bc329e79785869fdd20bfd68db542e88f807a1b15"
+      "sha256": "sha256:2b928ae8732a7685b850761cc21c074fa3eb8b49289a0c58e35aa4807fc9045a"
     },
     {
       "applies_to": [
@@ -1305,7 +1325,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:6e786054cdcf5e56623ea75ccfa3ffe61b6cb713d2fde6e0e3f264bdfd7138dd"
+      "sha256": "sha256:6e3e068ed0ca0adcfb66a64be3b0241ccd0002c0be34c5bdbe56476013adfca4"
     },
     {
       "applies_to": [
@@ -1325,7 +1345,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:c479eb471afeff828a9ba24085a3ceda428cbade052284b79b6965c19733d1d6"
+      "sha256": "sha256:267deff9b1b8c2e7b00182190004f7c60a4fee05b8d361b8e5319d1f4f812435"
     },
     {
       "applies_to": [
@@ -1345,7 +1365,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:3d8f7405e9138000a092806e23867894729282fa1d10a3df1c8cbae8df3aa9de"
+      "sha256": "sha256:43f1f231c21b2d201c0996aecc1e1594f9dacdc410925367b27d2dc16bc71168"
     },
     {
       "applies_to": [
@@ -1365,7 +1385,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:0e922ec3e6208cabec56d0dfc501babc841ae9435e96c3f6ae8573729cf98070"
+      "sha256": "sha256:683027e0f5e604a0c7d3182ccf9e5c47bec04efa9a1ff6eb1612f6f468b6e09b"
     },
     {
       "applies_to": [
@@ -1385,7 +1405,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:012b4bd917f3bd63b4e17ff1ed2889da0e0b9fb45db3b79a74b752d31c7b00fd"
+      "sha256": "sha256:b54affcb3ad2c4b8c63e912a4bdae04573b792cba885d93a070064a1b17f0a22"
     },
     {
       "applies_to": [
@@ -1405,7 +1425,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:6ebcb77e57495839ded5919af8eaef4d1a8d1dbc892106221a9a4260006b26aa"
+      "sha256": "sha256:1a5ae1c77840f72b9cf8734e335c23d84d5d0ec42c5296436a1996342ec2185f"
     },
     {
       "applies_to": [
@@ -1425,7 +1445,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:bea0f7c8391b2c1be3c3523e6172a8145669ac6b33d5f874871e15f09e028c71"
+      "sha256": "sha256:6261fd105a5d39723966463af8d499f505ffa7565580b272f7a1b9fcd8093eef"
     },
     {
       "applies_to": [
@@ -1445,7 +1465,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:655e9139047c949b5fb40bfc8aaafe4f281525fd1dec7343874f67d226b37423"
+      "sha256": "sha256:eb1d44c4175a9f2c61fb4088fd3ec6066b9be6c950beb3f390ef250d092cd2e5"
     },
     {
       "applies_to": [
@@ -1465,7 +1485,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:16a2b4a81d0429effd563610ac169e0d7298107ed031a11189e75476bcac48d7"
+      "sha256": "sha256:fd2b4e8a990fca5f0a3fc6cefce3f5b42386c77931456bf7dad1acac21b10261"
     },
     {
       "applies_to": [
@@ -1485,7 +1505,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:b861bea543cf01787a070c863606c8153112644ec47e93d1ad1f0bd83227f2a5"
+      "sha256": "sha256:a1c3d9917e7c85e8103caa750177e3c71f12cb30759e2901d1ce3f61d23425d6"
     },
     {
       "applies_to": [
@@ -1505,7 +1525,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:79b2f90fe34c47d7a59f748ad11627ce08c0727114e84e544d6c90a92f2c0aef"
+      "sha256": "sha256:5fd0c8fe6fc8c1ceea382fff324faa2e0dd020b3661e1e4a4b9a9ba4ef3b5eda"
     },
     {
       "applies_to": [
@@ -1525,7 +1545,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:17e23c6c4a90c68c8b5815db7b39b6576b2009384e86195a48e9de85e40c7e0d"
+      "sha256": "sha256:5a465366ca33b5a162a4640dd3f719b15362696dc4e137cc76599adb76e7031f"
     },
     {
       "applies_to": [
@@ -1545,7 +1565,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:d8c10ac5311c5989ccf247a90119578c76cd760db6747c15f59daa9fd63979ef"
+      "sha256": "sha256:b3602df6736455c947c05b3a6ec715e52e1b894895c095b41d6692855541f499"
     },
     {
       "applies_to": [
@@ -1565,7 +1585,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:e18fdc5abce481ce9441926f5a5fb90091cc78e1d8e35ecaf1ebadeec13a65e4"
+      "sha256": "sha256:6e4b35c1519d3ed37c732990998c485efb45de292cb45d2569624b795d5c42f5"
     },
     {
       "applies_to": [
@@ -1585,7 +1605,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:ee0f7e709d6d8ebed8a9d9715377be4acd8f84d93d4cc42a767f05267bf920b7"
+      "sha256": "sha256:cc63c8494eab943fac89b45b50dad708b3ca41fc327d005f5dc5c92910e649d0"
     },
     {
       "applies_to": [
@@ -1605,7 +1625,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:8371845a4d77449a31bfa6da14a620ad92b2f51c0d00133121e8e5771ef0a63c"
+      "sha256": "sha256:70f4f7a042002a1cca5655e753e568d6be573be0002750358e55d58d79e4b795"
     },
     {
       "applies_to": [
@@ -1625,7 +1645,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:581336fd4375f9ba44fbaf683c7538c01333d0019b6679d610815c31e94e43a0"
+      "sha256": "sha256:7cdc1c5ad609d114908cc9ca8e9f931e3684601fb320e74a1ad2e252b335ea0d"
     },
     {
       "applies_to": [
@@ -1665,7 +1685,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:cd14e4fada976e750749d1373dd5b7ba832601e103f729dba6822bb76d0bbfbc"
+      "sha256": "sha256:24cb735c9555ab2f52049359d75df77f66606a6e72ffa0b5f530fbee63d98451"
     },
     {
       "applies_to": [
@@ -1705,7 +1725,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:6c30a9763d654080216d03867b4b8a6aca96e9a8603d781a4c126808c52e64e9"
+      "sha256": "sha256:149074ab3268deafdee4ff46bf5041bc3e2d5ce0b2b413c1bd08bd5c12ef5a12"
     },
     {
       "applies_to": [
@@ -1725,7 +1745,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:4d6bdcc9b82f237beba70b746c88d8c0fbe5fda6a0ce3685bf385d7d2dff205f"
+      "sha256": "sha256:8e67cfba379d3cbd9343f69b5b08e8c01b1a3afb006716d370c9873c664b6d8e"
     },
     {
       "applies_to": [
@@ -1745,7 +1765,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:b39e37ebf791f05c4dc4dafb6cb9b401e60c4a29a04776e6a575e60975feeeb1"
+      "sha256": "sha256:790ab9a7f00293b8f731dcfab1e573dedcfccf439f7aa27c466c778970cdbb3e"
     },
     {
       "applies_to": [
@@ -1765,7 +1785,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:80ea5efa75bc2747d3ba95f906f7e43b03d208b35a44f639b1ae117b01c85fd6"
+      "sha256": "sha256:36846c50acfa13ea029f5253ce06417efb3d14cc4a1a339dd1c0479d1531bf39"
     },
     {
       "applies_to": [
@@ -1805,7 +1825,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:b7102f2b8b90991c8b1b4e596893960410c5058d64860587e0978f0f7ee8038e"
+      "sha256": "sha256:ce1a91cf9b504a2442a83c12bda336bce12e58bb39f1c5feb65fcb87aa2aaf18"
     },
     {
       "applies_to": [
@@ -1845,7 +1865,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:034339dd01819f0f928b5f0c9d9a3a2a5798d9bfaddfac29b2c408f391d7faa0"
+      "sha256": "sha256:5614dbc73094d718a5bac8076c87a692f1a4de7ea1b684efc371528e709a98b7"
     },
     {
       "applies_to": [
@@ -1865,7 +1885,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:cbd49b43b3e8be738abfd574b32d11713271793e285b95b13a20502dcc47c411"
+      "sha256": "sha256:0c8f391c348e3b8c4a51702322644a7c029b229ef9be5d85d635da72c21f1a80"
     },
     {
       "applies_to": [
@@ -1885,7 +1905,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:b499b26f00ae0a0da12da35a61a5d9547580e8108c333508f90e660ee1068301"
+      "sha256": "sha256:22511b3b81d91172b9d1dfaa464ce30ee5b24065b3a908efaf5c6543760031f1"
     },
     {
       "applies_to": [
@@ -1905,7 +1925,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:a32f718ae975f0c1837c1bfdeed4e8c529b47a4e28c16c4aafad3deefdec87ac"
+      "sha256": "sha256:8765577075b483d0b85d730906c0a7456e71c077d27671805944faa4cf8786ba"
     },
     {
       "applies_to": [
@@ -1925,7 +1945,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:f1b0bf0a6e5e41534d9430b49852bee3b0cc57ceb223e09ccd3e915c4bd231be"
+      "sha256": "sha256:72a695c424598f4beb29cdd17705f5fb4628c9bc51eb0aa9f725b2c89038154e"
     },
     {
       "applies_to": [
@@ -1945,7 +1965,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:06d18f9599789a6a59d3daff6e95d1f7600dc71ed357972765be3884677e0ab5"
+      "sha256": "sha256:88ce20b6761453e66cd61c5a1e3b64a22adf1a5fbb9c38619d604662e50d0773"
     },
     {
       "applies_to": [
@@ -1965,7 +1985,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:fdf0daa2af5200df802ed4851263ee2a0ce7a64f702598bec89a381da84f13ba"
+      "sha256": "sha256:2fb574566c692899d1cf4a5e8b290943474b510583f94ad3da053273a8ae6702"
     },
     {
       "applies_to": [
@@ -1985,7 +2005,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:2a2f16b666d3f6d70a563ad9a1020e472926e7f724983e82fdbb8a0872d7e63e"
+      "sha256": "sha256:5383e85f193fcc30a9c688ac5ef29cd77c5f0adbc4077db6c16733a6b412a156"
     },
     {
       "applies_to": [
@@ -2005,7 +2025,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:e432c6e2ec4331caa7ae6a56cce66c77ab546cc9c29a307c4b6645a151c8f3ee"
+      "sha256": "sha256:622d184d2ba2b99516c6cf143f113bb3736a2d6868e7a2df6615d766a060487f"
     },
     {
       "applies_to": [
@@ -2025,7 +2045,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:dd76e877a27e6a33c972201a954a7060cb9cf2ebbd547664987b0bed67760583"
+      "sha256": "sha256:cd747ddfa7483ff45e77ff27f90cd79649d66bf0d258ce6d8d07f073943e537b"
     },
     {
       "applies_to": [
@@ -2045,7 +2065,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:0080d41979f8b085992d641ceac4d4b5136b056615b3040bed648f7de756759a"
+      "sha256": "sha256:81a6a3d667dbaa091118173097ee3cc86d5ba752af52ea8a17549927049c3746"
     },
     {
       "applies_to": [
@@ -2065,7 +2085,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:2c83962402b0603d5cc8a389930ec223901426059c16a50f993a705f139f275c"
+      "sha256": "sha256:4f33bb6d9508431ea55bfbd2fe6408fbfca397b15cddc3f43eda6e76c2b40322"
     },
     {
       "applies_to": [
@@ -2085,7 +2105,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:a2176d523c3c6b1525b67b4ab8a3c54840be3685ba5ccef7342134d56d99c22b"
+      "sha256": "sha256:c5a03582a144de6a4432da2c45ec97aa48c173eb4107596475cfafefa14fc70c"
     },
     {
       "applies_to": [
@@ -2105,7 +2125,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:a0d996a4c98a9d62cca8fe43364e5a65082494c12f87fcc669fbfe37d19a724a"
+      "sha256": "sha256:dadcefcd4f0af913d6d3a02c2171d901b0b3d8aa7506dfda137f9531c79d14c4"
     },
     {
       "applies_to": [
@@ -2125,7 +2145,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:8b45d640872d61278a48a3f4c244fe23cceebbbe660d92ae8df77ae734138a41"
+      "sha256": "sha256:2c98bb0ece9387989b06052b01a64f8e87a6cecb78865f3a4a8ef9ff73bd2207"
     },
     {
       "applies_to": [
@@ -2145,7 +2165,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:76c0abed74a4fbd89094320884e3a2fad5f16c6563be176f8d73f4af66547573"
+      "sha256": "sha256:89064b4d0a69e3267f1f6d4427c1b7c8c4e28c410e8612e38186b3012dc08457"
     },
     {
       "applies_to": [
@@ -2165,7 +2185,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:339a6ebaf735e90d231266ade8806930e88a4ed746d76e4a0a256c0130a4c06c"
+      "sha256": "sha256:f68139ac39a18d9185b7b46fa4f5356e86a02763eb4a127b4c8ed846a9a16935"
     },
     {
       "applies_to": [
@@ -2185,7 +2205,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:f7331c4b67af849b48a2e42e9067c30c497a7f38eab39064ef9584c24e3cde47"
+      "sha256": "sha256:44604d79090de435b27c09fecb88193ce455332392f8bac96d355b8ffc2ec041"
     },
     {
       "applies_to": [
@@ -2205,7 +2225,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:cb17d9b2aa1e62af29b58ac5728a39dc63d89064679e50d0c9315059ba42bfc2"
+      "sha256": "sha256:cb39cb12eea832fb8ca2c8b5bfc6ec415405c944353ad91c39d9a73644dbb859"
     },
     {
       "applies_to": [
@@ -2225,7 +2245,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:96e47d84bfb91e07325c7ddaccdaaf5c2625cfb0d0ab1314149ee1b3dd779ee1"
+      "sha256": "sha256:bc2180b857b65e9abb196c6812756689f172b6cd6ace2b54828de68117aa7a1f"
     },
     {
       "applies_to": [
@@ -2245,7 +2265,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:e9791f1a8bc714623e2bba46f157c0932d25e466b0641379b97bc6e28f4760fe"
+      "sha256": "sha256:3fac298b6d66cd7c4726ae30e5fa7f79faacc222854e34292c815882d08ede38"
     },
     {
       "applies_to": [
@@ -2265,7 +2285,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:0e7a1bbec0d0192a310cc3b8bf55133d72265f213170c3be297a897961433b8d"
+      "sha256": "sha256:9cf8831d62aabbb8cb6971079a11b33dbdeba98070541f3fcbeb5208583cb047"
     },
     {
       "applies_to": [
@@ -2285,7 +2305,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:c9ec27f196951d78e9ebb47c77a29b9439e62cef8ec84f41f84d96031836d177"
+      "sha256": "sha256:878e42581d145d513c2bf14c875e32634692ad783076fa94eb696f0e511ed016"
     },
     {
       "applies_to": [
@@ -2305,7 +2325,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:bc2f51dd15b8439e315ff94e7c014814e7b3a05d4f10c0adbb5313467dbd9138"
+      "sha256": "sha256:7edbd3e94d86a65fd337cc8a6d8747f05c9a18d69195ae24e911bd73edbf1119"
     },
     {
       "applies_to": [
@@ -2325,7 +2345,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:388f2d68ae7bfd6fa050b31186ae3dfc8b43cb431269fa494420e0adc51d7255"
+      "sha256": "sha256:df2bf7c94d269b1371f6fbf0da5dd6a919fcf79ba5c021add8df0b3841a95a20"
     },
     {
       "applies_to": [
@@ -2345,7 +2365,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:eb9fac0d89b10f18bf2faac402918cad8de748658c351e96f798e8f262a9cb9e"
+      "sha256": "sha256:bdadf4af97c53a1e6749c393c32bbd2af1d50c515d7c3ddc24d5cf94f7436003"
     },
     {
       "applies_to": [
@@ -2365,7 +2385,27 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:f8105737b0efb069fadb1afeac9616f88bf67a02d9883b0516720879a7d5bc1c"
+      "sha256": "sha256:bf178285338547fa85c3d107172082636f135ebcece61e8f77ad95824257f1ef"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-workflow-pending-collides-with-complete-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-workflow-pending-collides-with-complete-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:8dec6d4d3c946a0df240ab9a92cd2b092bdc34abebe0bf70ec82624aa3029968"
     },
     {
       "applies_to": [
@@ -2385,7 +2425,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:51156a569d839429d652f286f8b18af861ca8f5b3dcfa3d4a2ee51600cf0f572"
+      "sha256": "sha256:e0bb08111ed211a1c6a55637a5bb098cded1c13733ca4c50f61ce3f6f5279334"
     },
     {
       "applies_to": [
@@ -2405,7 +2445,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:b436191d8169458151492ea8a6f9c7a30f487617323b8552a90bda4f478c99bd"
+      "sha256": "sha256:47c549a9bcb02bf94f84e43d911ad27007614c09e947c2fede16ed2a6c546f83"
     },
     {
       "applies_to": [
@@ -5309,7 +5349,7 @@
         "FR-003",
         "FR-004"
       ],
-      "sha256": "sha256:d622a593fa115dbe25dae7a7e2f81c1bef1ee974caefa02e82230097163e3a5b"
+      "sha256": "sha256:342d05887ef458c659b4cb9a12cb12b0c9b27b3560f086c796fe27dbe1378728"
     },
     {
       "applies_to": [
@@ -5339,7 +5379,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:8ddbefeb241f4f0a5f2d630613b1f4427bade8d7122176732956745e2a0e8f24"
+      "sha256": "sha256:5963c9abb9ec88a98b99b6b373e35dabfd385aa478e989c91317815889c22c73"
     },
     {
       "applies_to": [
@@ -5359,7 +5399,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:768df19077d75b841230ed188c68cdf61a3491c65e82f3c29cbebc3616320f01"
+      "sha256": "sha256:07bee74110ef9ee4f44f2c1f5e6c48fa2a8b701b2c9c2be0b80297e279d0050a"
     },
     {
       "applies_to": [
@@ -5399,7 +5439,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:64f6a77704fe8782d43a020af3757396475948a92a9bd429415a264bfe48d9b3"
+      "sha256": "sha256:793bd9f872e8b919358bb90d3405c70ad8d96c965e3941f8e2fe69e4b9b9227a"
     },
     {
       "applies_to": [
@@ -5419,7 +5459,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:68fb67485bd62c538e3f5c219b08df74ecd2524797a0cc1d1a3ceb6325059477"
+      "sha256": "sha256:ea7da19f627048a6a3b7aab5e3ae672615b84ad5333d4da74410e463fada41ad"
     },
     {
       "applies_to": [
@@ -5439,7 +5479,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:974c53f8963e079f9e31b575fc4dc6dd7a89477333f09fcd2f4395ecf9e5bce5"
+      "sha256": "sha256:49a243d6c35168e9f35efa0bcb751f0ab957006309722adeb677ec16f5010268"
     },
     {
       "applies_to": [
@@ -5459,7 +5499,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:341413dd72af85bdbc69a1ea3d715f2a1212e97db1302729d70b46b26ee882bc"
+      "sha256": "sha256:bd5a30bf50aac98273e0260e0f0eed9295d3aa9592f8a1f88ee0e86b9ec8ea2e"
     },
     {
       "applies_to": [
@@ -5479,7 +5519,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:53b5990f409f4758d66192d75094847bdff5fa508730250c9caff23d3766d3df"
+      "sha256": "sha256:9b630946e3b5cb0b1b570612a53a36f3c5f9c8b3f587890874a375c9d81eafdd"
     },
     {
       "applies_to": [
@@ -5500,7 +5540,7 @@
         "FR-004",
         "FR-009"
       ],
-      "sha256": "sha256:daeb06df3f1a53d8a09b87540318870afca403d43a7b261457b39df820212150"
+      "sha256": "sha256:bf732953367fd58b5f62cdce436cceb859e2d01349b5270e4745c3aacc87c846"
     },
     {
       "applies_to": [
@@ -5522,7 +5562,7 @@
         "FR-009",
         "SC-001"
       ],
-      "sha256": "sha256:920f2be05dfa5f580b7ed98fcac77468f305f4bfaf1ebaec4e9e6049bc567954"
+      "sha256": "sha256:94f6dc1c99da6efd27634330819808ed407a4e7846c5d06988214755768403bb"
     },
     {
       "applies_to": [
@@ -5543,7 +5583,7 @@
         "FR-004",
         "FR-009"
       ],
-      "sha256": "sha256:7287c2e62735f9b47315a3024341018e1ea50cf1c3129665bd88a3cfa187af8f"
+      "sha256": "sha256:2ccaf436816cc1680a10210680aabe0b52e913506ec9fb7b894c972db9ad8b72"
     },
     {
       "applies_to": [
@@ -5563,7 +5603,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:49c4041a160042cf515c2b9125a1333a0285ce3fc8e3283e9787165440e6d78c"
+      "sha256": "sha256:7fe89956e77ca291400e8e77a271339230282cf981ecc6b64477fe047b6a4012"
     },
     {
       "applies_to": [
@@ -5585,7 +5625,7 @@
         "FR-009",
         "SC-001"
       ],
-      "sha256": "sha256:ebeda5f4c4172fc28dd522ce38f31d4ff8bdbff22a2093224b09818ef14a39d0"
+      "sha256": "sha256:fbacfda7897107ff8152c17ad179204481ee2d653bcd46dc4cda7012dc2c9fbb"
     },
     {
       "applies_to": [
@@ -5608,7 +5648,7 @@
         "FR-009",
         "SC-001"
       ],
-      "sha256": "sha256:f06b06905c6841e603d4d618306747a90fea5a78787d425f1819ea4514889a95"
+      "sha256": "sha256:c5d45c9897aaeee4baf5219a2e861515f30ae876299282c247165462cf2ac7fd"
     },
     {
       "applies_to": [
@@ -5630,7 +5670,7 @@
         "FR-009",
         "SC-001"
       ],
-      "sha256": "sha256:e25de7d6dcdbbf283fbafe2dbc6538fb21e107a2a6807d6e45dc1546292b65d9"
+      "sha256": "sha256:0e563ca937e86b867ac9f1e40fccdcf417a11fcb1e3ffcaa5aa424d486747fef"
     },
     {
       "applies_to": [
@@ -5650,7 +5690,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:35dac96bfb01be94e38e02808699d353160785d44a015c5f97cce9949dd3de5f"
+      "sha256": "sha256:4426f15af29342c97a468a08959150d26c06339cff69b3ba95dab3dc6e804c09"
     },
     {
       "applies_to": [
@@ -5671,7 +5711,7 @@
         "FR-003",
         "FR-009"
       ],
-      "sha256": "sha256:94bdc099125d80af07f40c74c907ff2cf7712f7cabad26b5383e79f4e66e0517"
+      "sha256": "sha256:d924a9999b7936347d68d551b6aa5d1aecca5589a71c1eb99c046704d3382d06"
     },
     {
       "applies_to": [
@@ -5691,7 +5731,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:914c811515584130ff79b2b7634b1a7ad56a8dcf1b96ca6be82bb31cb5a59c77"
+      "sha256": "sha256:4cd8e1a30f454f263e7d23564571c7b51952a7128d506bc318d4b804a0145a8d"
     },
     {
       "applies_to": [
@@ -5714,7 +5754,7 @@
         "FR-009",
         "SC-001"
       ],
-      "sha256": "sha256:508b580029a22a07b60b35702495fbb8211a7c3bdd1dd2ef0ff043fec4a2997d"
+      "sha256": "sha256:9a97756af491b77cc61077ed4a6a0044fd1e6e4def60a851f3dcbde141121fd0"
     },
     {
       "applies_to": [
@@ -5734,7 +5774,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:545243204ee9e65f5468bb90a29161e3bc223a841c2a43db4adf63a86fb74f93"
+      "sha256": "sha256:c70db8fe801581e5699d30998e10d1463996361e8d4711205735e4cc12475e67"
     },
     {
       "applies_to": [
@@ -5754,7 +5794,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:4015178f146c4589174e2692c725220471e6d7585ecbf186e50cfc81489e0efe"
+      "sha256": "sha256:2f8a47301e76385ecd6eb45c4c245e5512c67efda328c0fa48a018d1bc6ee281"
     },
     {
       "applies_to": [
@@ -5774,7 +5814,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:75af27a640a761551e3a473c02bd5174e80a5b27a22251ca1434ca81de786560"
+      "sha256": "sha256:c5fd6b19d9acc3c0519b7316055e441af176f1851bdbd0de52601f7cd7bc4226"
     },
     {
       "applies_to": [
@@ -5794,7 +5834,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:ae73ed01012efc4449abe5dc5fc3e42e95830420e5daa674f234c5983ad0fa3c"
+      "sha256": "sha256:a43c87a82a23063890b80f8b2a4fdbf3e9c7b41a5d847fe361e4cbdf3118bbc7"
     },
     {
       "applies_to": [
@@ -5814,7 +5854,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:5728aaa5cda4cc145cccae0e1f51cff13c04e9369186db62f57eff75e464ad14"
+      "sha256": "sha256:3e79e1de6b962ba11dd398857b0987c08ea9d9de3038a3c680496f2dd72255e4"
     },
     {
       "applies_to": [
@@ -5834,7 +5874,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:763a30a8a779955c9cae64893cd5eca3433dc70e377c48beb3c1c28ce051d71a"
+      "sha256": "sha256:5f83b296ca630acb78a75a29593cf65022e635d7c5cd0ab979194182c3ab868c"
     },
     {
       "applies_to": [
@@ -8590,7 +8630,7 @@
     {
       "name": "repository-identity",
       "path": "fixtures/repository-identity.json",
-      "sha256": "sha256:9d8a43ed7042ca9b008dc5b110b6a6915088eed618b5f6867c654952ff92d885"
+      "sha256": "sha256:93bcc22a27f8b421af255afbb7baa39e1d5b4acb2c76e92ee64332dae5db300b"
     }
   ],
   "kind": "openxfactory-council-convening-conformance-index",
@@ -8600,15 +8640,15 @@
     "both_sides": 245,
     "by_area": {
       "assignment": 49,
-      "binding": 63,
+      "binding": 65,
       "foundation": 133,
       "resolution": 142
     },
     "by_outcome": {
       "accept": 79,
-      "refuse": 300,
+      "refuse": 302,
       "route": 8
     },
-    "vectors": 387
+    "vectors": 389
   }
 }
