@@ -1,0 +1,77 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_convening_snapshot
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/convening-snapshot.schema.yaml"
+contract_id: council-convening-snapshot
+contract_schema_version: 1
+title: Convening snapshot (the frozen roster and its assignments)
+description: >-
+  THE FROZEN CONVENING (renew-resolved-council-protocol D2; capability
+  `roles-authority-model`, requirement "Frozen assignments"; feature 035
+  data-model E4). The consumer issues it atomically at admission, after the
+  commission record has passed the admission order: the admitted record,
+  verbatim, its `convening_digest`, a consumer-issued `convening_id`, and one
+  seat assignment per required seat in roster order. A record is never
+  mutated: a later head or rule needs a new convening. The consumer's response
+  envelope, status codes and error body are 025's, not this family's.
+
+  THE ORDER AT `admission`, SNAPSHOT HALF. The first failing check names the
+  outcome (research R21):
+    1. classification and selection (data-model E1);
+    2. `snapshot_malformed`: this schema, including the embedded record against
+       `council-convening.schema.yaml`;
+    3. `assignment_malformed`: an assignment fails `seat-assignment.schema.yaml`,
+       including a lifetime above its 21600-second ceiling; then
+       `value_not_canonicalizable`, the canonicalizability pre-check over the
+       whole snapshot, after every shape check and before any digest is taken
+       (data-model § Shared definitions);
+    4. `digest_construction_mismatch`: `convening_digest` does not recompute,
+       under `xfc-jcs-sha256-1`, over `convening`;
+    5. `assignment_set_mismatch`: not exactly one assignment per
+       `required_seats` entry in roster order, or an assignment whose
+       `protocol`, `convening_id`, `convening_digest`, `council_id` or
+       `candidate` differs from the snapshot's;
+    6. `assignment_duplicate`: a repeated `assignment_id`;
+    7. `assignment_shared_holder`: one `holder.principal_ref` on two seats.
+
+  `assignments` IS TYPED AS AN ARRAY OF OBJECTS AND NOTHING MORE. Each element
+  is judged at step 3, and their count, order and membership at step 5, so this
+  schema neither bounds the array nor takes `seat-assignment.schema.yaml` by
+  reference: either would shadow a named refusal. One failing check names one
+  code.
+
+  RETRY IDENTITY READS THIS RECORD. At admission, before any check that reads
+  something that can drift, an incoming commission record whose
+  `xfc-jcs-sha256-1` canonical bytes equal a live snapshot's `convening` returns
+  that snapshot unchanged, the same `convening_id` and the same assignments; a
+  different record for the same convening key, `(protocol, council_id,
+  subject_pin)`, while a snapshot that has not failed exists, is
+  `convening_conflict`, and nothing is replaced (data-model E2 step A3; 025 FR-005,
+  FR-006). The consumer enforces both transactionally.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - protocol
+  - convening_id
+  - convening_digest
+  - convening
+  - assignments
+  - admitted_at
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_council_convening_snapshot}
+  protocol: {const: xfc-resolved-council-1}
+  convening_id:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/opaque_id"
+  convening_digest:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/seat-assignment.schema.yaml#/$defs/convening_digest"
+  convening:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/council-convening.schema.yaml"
+  assignments:
+    type: array
+    items: {type: object}
+  admitted_at:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/utc_instant"

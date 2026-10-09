@@ -1187,8 +1187,8 @@ def _migration_rows() -> list[dict]:
 def test_the_coverage_floor_holds_phase_6s_requirements():
     """R16: from Phase 6 the floor is the full FR-001 to FR-012 and SC-001 to
     SC-003. Phase 6 adds FR-012 at once and raises the floor to the full set when
-    Phases 3 to 5's vectors are merged, because only they cite the rest; until
-    then the floor is a subset of the full one, in its order."""
+    Phase 4's vectors are merged, because no vector cites FR-010 or SC-003 before
+    then; until then the floor is a subset of the full one, in its order."""
     floor = _index()["coverage_floor"]
     assert floor == list(generate.COVERAGE_FLOOR)
     assert {"FR-011", "FR-012"} <= set(floor)

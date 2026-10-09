@@ -115,7 +115,7 @@ jobs:
           grep -qE '^note  finding codes probed: ([1-9][0-9]*)/\1$' council-convening-gate.log \
             || fail "a finding code in the vocabulary at this commit has no probing vector."
 
-          grep -qE '^note  requirements probed: ([1-9][0-9]*)/\1 \(FR-001, FR-002, FR-003, FR-004, FR-011, FR-012, SC-001\)$' council-convening-gate.log \
+          grep -qE '^note  requirements probed: ([1-9][0-9]*)/\1 \(FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-011, FR-012, SC-001, SC-002\)$' council-convening-gate.log \
             || fail "a coverage-floor requirement is cited by no vector, or the floor moved without this assertion."
 
           grep -qE '^note  generator reproduced corpus byte-for-byte$' council-convening-gate.log \
