@@ -28,6 +28,7 @@ from .conftest import (
     LEGACY,
     PROTOCOL_REGISTRY,
     REPLACEMENT,
+    REPO_ROOT,
     load_validator,
     run_validator,
 )
@@ -37,16 +38,31 @@ LINE = re.compile(
     r"|WARN  \[council-convening-[a-z0-9-]+\] \S.*"
     r"|note  \S.*)$")
 
+#: The family's schemas and its refusal codes as landed at this commit; each
+#: phase grows both (Phase 5 adds `producer-binding.schema.yaml` and 13 codes).
+FAMILY_SCHEMAS = len(list((REPO_ROOT / FAMILY_REL).glob("*.schema.yaml")))
+REFUSAL_CODES = len(yaml.safe_load(
+    (REPO_ROOT / FAMILY_REL / "shared-definitions.schema.yaml").read_text(
+        encoding="utf-8"))["$defs"]["refusal_code"]["enum"])
+
 PHASE_1_NOTES = [
-    r"^note  schemas loaded: 2 \(family\) \+ digest-construction$",
+    rf"^note  schemas loaded: {FAMILY_SCHEMAS} \(family\) \+ digest-construction$",
     r"^note  protocol registry closed: 2 entries$",
     r"^note  corpus index: ([0-9]+) vectors, ([0-9]+) both-sides, sha256:[0-9a-f]{64}$",
     r"^note  vectors adjudicated: ([0-9]+)/\1$",
-    r"^note  refusal codes probed: 5/5$",
+    rf"^note  refusal codes probed: {REFUSAL_CODES}/{REFUSAL_CODES}$",
     r"^note  finding codes probed: 1/1$",
     r"^note  requirements probed: 2/2 \(FR-001, FR-011\)$",
     r"^note  generator reproduced corpus byte-for-byte$",
 ]
+
+from .binding_fixtures import (
+    BINDING_TEMPLATE,
+    GOVERNED_FORMER,
+    commission_binding,
+    seat_binding,
+    write_identity_map,
+)
 
 SHA = "0123456789abcdef0123456789abcdef01234567"
 FPR = "sha256:" + "ab" * 32
@@ -201,9 +217,11 @@ def test_check_refuses_a_registry_that_gained_an_entry(tmp_path):
 
 
 def test_check_refuses_a_judged_by_kind_record_whose_schema_has_not_landed(tmp_path):
-    path = _write(tmp_path, "binding.json", {
-        "schema_version": 1, "kind": "xfactory_council_producer_binding",
-        "binding_id": "commission"})
+    # The producer binding's schema lands in Phase 5 (T052); activation evidence
+    # is Phase 6's.
+    path = _write(tmp_path, "activation.json", {
+        "schema_version": 1, "kind": "xfactory_council_activation_evidence",
+        "act": "pause"})
     result = run_validator("check", str(path))
     assert result.returncode == 1
     assert "ERROR [council-convening-kind-unknown]" in result.stdout
@@ -243,6 +261,85 @@ def test_check_never_echoes_a_record_value(tmp_path):
     path = _write(tmp_path, "echo.json", {"protocol": value})
     result = run_validator("check", str(path))
     assert result.returncode == 1
+    assert value not in result.stdout + result.stderr
+
+
+# --------------------------------------------------------------------------
+# `check` on a producer binding (Phase 5, T052): the offline half of E10.
+# --------------------------------------------------------------------------
+
+#: E10 steps 7 to 14, which need the verified claims and the governed history.
+CLAIM_STEPS = {
+    7: "claims_unverified", 8: "claims_expired", 9: "issuer_mismatch",
+    10: "audience_mismatch", 11: "subject_template_mismatch",
+    12: "repository_identity_mismatch", 13: "workflow_not_permitted",
+    14: "workflow_revision_ungoverned",
+}
+
+
+def test_check_validates_a_binding_offline_against_the_identity_map(tmp_path):
+    # OPEN-2: the instance lives in the consumer's runtime configuration and is
+    # validated with `check` at the consumer's pin, against that pin's
+    # `contracts/policies/repository-identity.yaml`.
+    for name, document in (("commission.json", commission_binding()),
+                           ("seat.yaml", seat_binding("alpha"))):
+        path = _write(tmp_path, name, document)
+        result = run_validator("check", str(path))
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "ERROR [" not in result.stdout
+        assert f"note  {path}: producer binding passes E10 steps 1 to 6" in result.stdout
+        assert "protocol-unknown" not in result.stdout
+
+
+def test_check_reports_every_claim_rule_as_not_offline_checkable(tmp_path):
+    path = _write(tmp_path, "binding.json", commission_binding())
+    result = run_validator("check", str(path))
+    for step, code in CLAIM_STEPS.items():
+        assert (f"note  not checkable offline: {path}: E10 step {step} {code}"
+                in result.stdout), code
+    assert all(LINE.match(line) for line in result.stdout.splitlines())
+
+
+def test_check_refuses_the_template_stub_as_live():
+    result = run_validator("check", str(BINDING_TEMPLATE))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-binding-malformed]" in result.stdout
+    assert "stub" in result.stdout
+    assert "not checkable offline" not in result.stdout
+
+
+def test_check_refuses_a_former_spelling_against_the_live_map(tmp_path):
+    binding = commission_binding(
+        caller_repository=GOVERNED_FORMER,
+        subject_template=f"repo:{GOVERNED_FORMER}:ref:refs/heads/main")
+    path = _write(tmp_path, "former.json", binding)
+    result = run_validator("check", str(path))
+    assert result.returncode == 1
+    assert "ERROR [council-convening-repository-identity-former]" in result.stdout
+
+
+def test_check_refuses_a_malformed_binding(tmp_path):
+    path = _write(tmp_path, "malformed.json", commission_binding(audience=""))
+    result = run_validator("check", str(path))
+    assert result.returncode == 1
+    assert "ERROR [council-convening-binding-malformed]" in result.stdout
+
+
+def test_check_reads_the_identity_map_of_the_tree_it_runs_in(tmp_path, family_tree):
+    # A tree with no identity map is `repository_identity_unavailable`, never an
+    # empty map taken for a valid one.
+    path = _write(tmp_path, "binding.json", commission_binding())
+    assert load_validator().main(["check", str(path)], root=family_tree) == 1
+    write_identity_map(family_tree)
+    assert load_validator().main(["check", str(path)], root=family_tree) == 0
+
+
+def test_check_never_echoes_a_binding_value(tmp_path):
+    value = "council-" + "Q" * 60 + "-distinctive*"
+    path = _write(tmp_path, "echo.json", commission_binding(audience=value))
+    result = run_validator("check", str(path))
+    assert result.returncode == 1
+    assert "ERROR [council-convening-binding-wildcard]" in result.stdout
     assert value not in result.stdout + result.stderr
 
 

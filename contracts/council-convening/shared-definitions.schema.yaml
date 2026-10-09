@@ -175,8 +175,8 @@ $defs:
       head_sha: {$ref: '#/$defs/full_sha'}
       subject_path: {$ref: '#/$defs/relative_path'}
   refusal_code:
-    # CLOSED AT THE PHASE 1 FIVE. Phase 2 adds the commission and admission codes,
-    # and each later phase its own, in the task that authors its schemas.
+    # CLOSED AT THE CODES AS LANDED: the Phase 1 five, then each phase's own,
+    # added in the task that authors its schemas.
     description: The closed refusal vocabulary as landed at this commit.
     type: string
     enum:
@@ -185,6 +185,22 @@ $defs:
       - protocol_unknown
       - protocol_not_selected
       - legacy_protocol_refused
+      # Phase 5 (T053): the producer binding, data-model E10. Introduced here,
+      # where `binding` vectors and admission vectors probe them, and reused by
+      # registration in Phase 4 (E7 step 5).
+      - binding_malformed
+      - claims_unverified
+      - claims_expired
+      - issuer_mismatch
+      - audience_mismatch
+      - binding_wildcard
+      - repository_identity_unavailable
+      - repository_identity_former
+      - repository_identity_mismatch
+      - subject_template_mismatch
+      - subject_workflow_conflation
+      - workflow_not_permitted
+      - workflow_revision_ungoverned
   finding_code:
     # KEPT APART FROM REFUSALS, with its own coverage rule. Phase 6 adds
     # `legacy_protocol_deprecated`.

@@ -377,13 +377,18 @@ def test_principal_kind_is_closed(definitions_doc, schemas):
     assert malformed(schemas, "principal_kind", "github_oidc")
 
 
-def test_refusal_code_holds_exactly_the_phase_1_codes(definitions_doc, schemas):
-    assert definitions_doc["$defs"]["refusal_code"]["enum"] == PHASE_1_REFUSALS
-    assert schemas.enum("refusal_code") == PHASE_1_REFUSALS
-    for code in PHASE_1_REFUSALS:
+def test_refusal_code_opens_with_exactly_the_phase_1_codes(definitions_doc, schemas):
+    # The enumeration grows by phase, each in the task that authors its schemas
+    # (Phase 5: T053), so a later phase's codes FOLLOW the Phase 1 five, which
+    # keep their order. Each phase's own test pins its additions.
+    enum = definitions_doc["$defs"]["refusal_code"]["enum"]
+    assert enum[:len(PHASE_1_REFUSALS)] == PHASE_1_REFUSALS
+    assert len(set(enum)) == len(enum)
+    assert schemas.enum("refusal_code") == enum
+    for code in enum:
         assert accepts(schemas, "refusal_code", code)
-    # A Phase 2 code is not a member at this commit.
-    assert malformed(schemas, "refusal_code", "convening_malformed")
+    # A code no phase has landed is not a member.
+    assert malformed(schemas, "refusal_code", "no_such_refusal")
 
 
 def test_finding_code_holds_exactly_the_phase_1_finding(definitions_doc, schemas):

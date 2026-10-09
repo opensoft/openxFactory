@@ -42,7 +42,8 @@ anything.**
 |---|---|---|
 | [`shared-definitions.schema.yaml`](shared-definitions.schema.yaml) | definitions only | Every grammar the family's records share: identifiers, the candidate, digests by `$ref` to `xfc-jcs-sha256-1`, keys, signatures, decimal strings, and the closed `principal_kind`, `refusal_code` and `finding_code` enumerations. |
 | [`protocol-registry.schema.yaml`](protocol-registry.schema.yaml) + [`protocol.registry.yaml`](protocol.registry.yaml) | `xfactory_council_protocol_registry` | The CLOSED protocol registry, schema plus its one instance: the replacement `xfc-resolved-council-1` (`available`) and the legacy `xfactory-council-seat-return/v1` (`in_use`, identification only). Every tag field is `null` until a cut writes it. |
-| [`conformance/`](conformance/) | corpus | The shared conformance corpus: `index.json` and one JSON vector per case under `vectors/<area>/`. Phase 1 lands the `foundation` area: the `definition` and `classification` boundaries. |
+| [`conformance/`](conformance/) | corpus | The shared conformance corpus: `index.json` and one JSON vector per case under `vectors/<area>/`. Phase 1 lands the `foundation` area: the `definition` and `classification` boundaries. Phase 5 adds the `binding` area and the corpus-owned fixture `fixtures/repository-identity.json`. |
+| [`producer-binding.schema.yaml`](producer-binding.schema.yaml) + [`producer-binding.template.yaml`](producer-binding.template.yaml) | `xfactory_council_producer_binding` | Phase 5. The producer workflow binding (data-model E10), judged by kind, and its instantiation stub, which is never accepted as live. No instance is published here (see [The producer binding](#the-producer-binding-phase-5)). |
 
 The canonical validator is
 [`scripts/validate-council-convening.py`](../../scripts/validate-council-convening.py),
@@ -58,6 +59,95 @@ Later phases add the commission record and its predicate registry (Phase 2),
 the snapshot and assignments (Phase 3), the challenge, registration, return and
 signing contexts (Phase 4), the producer binding (Phase 5), and the protocol
 selection, activation evidence and runbook (Phase 6).
+
+## The producer binding (Phase 5)
+
+A producer binding binds one producer principal's authority to the current
+governed repository identity and to verified OIDC workflow claims (design D4;
+FR-009). It names the issuer and audience the principal's token must carry, the
+repository its job runs in (`caller_repository`, the token's `repository`
+claim), the exact subject template that token's `sub` must equal, and the
+reusable workflows it may run per operation, each with its revision rule. A
+workflow reference is never a subject: `job_workflow_ref` and `sub` are
+different claims, and permitted workflows are matched against the verified
+`job_workflow_ref` only.
+
+**Where an instance lives.** Brett Heap ruled OPEN-2 on 2026-10-08, "Consumer's
+runtime config (Recommended)": the concrete instance is written into the
+CONSUMER'S governed runtime configuration at the provisioning act (049 T031;
+025 H3), and validated at the consumer's pin of this repository with
+
+```sh
+python3 scripts/validate-council-convening.py check <binding instance>
+```
+
+which runs E10 steps 1 to 6 against that pin's
+`contracts/policies/repository-identity.yaml`, refuses the template stub as live,
+and reports steps 7 to 14 as not checkable offline. This family ships only the
+schema, the stub, the derivation from the identity map, and the corpus.
+
+**The order** (data-model E10). Steps 1 to 6 judge the instance alone:
+`binding_malformed`, `binding_wildcard`, `issuer_mismatch` (the standard issuer
+or GitHub's `/<enterprise-slug>` form), `repository_identity_unavailable` then
+`repository_identity_former`, `subject_workflow_conflation`, and
+`subject_template_mismatch`. Steps 7 to 14 judge the verified claims:
+`claims_unverified`, `claims_expired`, `issuer_mismatch`, `audience_mismatch`,
+`subject_template_mismatch`, `repository_identity_mismatch`,
+`workflow_not_permitted`, and `workflow_revision_ungoverned`. At admission the
+consumer runs steps 1 to 13 as E2 step A1, right after the record's shape check,
+and step 14 as E2 step A4, after E2 step 5 has checked the `governed` member it
+reads.
+
+**The revision rule** is closed and fixed per operation (OPEN-3, "History +
+unchanged rule file (Recommended)"): `equals_governed_revision` for
+`commission`, and `on_governed_history_since_revision` for `seat_execution`
+(follow-up 3, "At or after the frozen rev (Recommended)": a seat job's
+`job_workflow_sha` on the governed first-parent history at or after the frozen
+revision). Any other pairing is `binding_malformed`. The repository compared is
+the one `job_workflow_ref` names, never the caller (follow-up 2,
+"job_workflow_ref's repo (Recommended)"), so the estate's calling pattern, a
+caller repository running the governed repository's reusable workflow, is
+accepted, and a permitted workflow outside the governed repository fails closed.
+
+**The identity map** is read through `load_transfers` in
+`scripts/estate_inventory.py`, and through nothing else. That reader takes an
+absent or unreadable map for an empty one, so this family first confirms that
+the map exists, reads, parses under the same strict loader and is well formed,
+and refuses `repository_identity_unavailable` otherwise, and when
+`load_transfers` reports a malformed row. A former spelling, or a non-canonical
+case variant (equal to a listed spelling ignoring ASCII case, not byte-equal), is
+`repository_identity_former`; any spelling the map does not list, and a pending
+row's former spelling, is current.
+
+**The corpus never reads the live map** (round 7, R7-M1). Every vector whose
+boundary reads the map carries it in its `repository_identity` oracle: the text
+of the frozen fixture `conformance/fixtures/repository-identity.json` (one
+complete transfer row and one pending row), or an `absent` or `unreadable`
+state. The generator writes the fixture's text into those vectors and never
+reads `contracts/policies/repository-identity.yaml`, so an edit to the live map,
+which other changes make, moves no vector and fails no `generate --check`. A
+vector that reads the map without the oracle is malformed
+(`council-convening-vector-identity-map-missing`).
+
+**One binding per principal.** An assignment's `holder.binding_ref` names a
+binding by its `binding_id`. A per-seat principal is one binding per seat, told
+apart by its subject template: GitHub's `repo:<owner>/<repo>:environment:<name>`
+for a job that references a per-seat environment, or a documented subject
+customization that carries it. The corpus carries such vectors.
+
+**The subject grammar** is GitHub's ("OpenID Connect reference",
+https://docs.github.com/en/actions/reference/security/oidc): elements are joined
+by `:`, a `:` inside a value is written `%3A`, `context` is
+`environment:<name>`, `pull_request` or `ref:<ref>`, and `repo` is
+`<owner>/<repo>`, or `<owner>@<owner-id>/<repo>@<repo-id>` in GitHub's immutable
+subject format. The template must carry a repository element (`repo`,
+`repository` or `repository_id`) that names the binding's repository. The
+closed set of subject claim keys is in the schema, with its sources; GitHub's
+open `repo_property_*` family is not a member.
+
+**The broker** refuses nothing at binding. A binding whose broker capability is
+not verified parks activation, which E12 refuses as
+`broker_capability_insufficient` (Phase 6; D4).
 
 ## Classification comes first, and a legacy record is never passed
 

@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.council_convening import corpus, generate
+from scripts.council_convening import corpus, generate, records
 from scripts.signed_execution_chain import ed25519
 
 from .conftest import CONFORMANCE, FAMILY_REL, INDEX, LEGACY, REPLACEMENT
@@ -118,8 +118,10 @@ def test_the_totals_recount():
 
 
 def test_phase_1_vectors_are_foundation_vectors_for_both_sides():
-    for row in _index_doc()["cases"]:
-        assert row["area"] == "foundation"
+    # Scoped to the `foundation` area: later phases add their own areas.
+    rows = [row for row in _index_doc()["cases"] if row["area"] == "foundation"]
+    assert rows
+    for row in rows:
         assert row["boundary"] in ("definition", "classification")
         assert row["applies_to"] == ["producer", "consumer"]
         vector = _load(CONFORMANCE / row["path"])
@@ -366,7 +368,10 @@ def test_every_coverage_floor_requirement_needs_a_probe(family_tree):
 
 def test_the_landed_coverage_counts():
     report = corpus.check_corpus()
-    assert report.refusals_probed == (5, 5)
+    # Every refusal code as landed at this commit, which each phase grows.
+    landed = len(records.load_schemas().enum("refusal_code"))
+    assert landed >= 5
+    assert report.refusals_probed == (landed, landed)
     assert report.findings_probed == (1, 1)
     assert report.requirements_probed == (2, 2)
     assert report.coverage_floor == ["FR-001", "FR-011"]

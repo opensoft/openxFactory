@@ -63,13 +63,10 @@ if str(_SCRIPTS) not in sys.path:
 import estate_inventory  # noqa: E402
 import frontmatter_strict as fm  # noqa: E402
 
+from . import records  # noqa: E402
 from .records import Refused  # noqa: E402
 
-REPO_ROOT = _SCRIPTS.parent
-FAMILY = REPO_ROOT / "contracts" / "council-convening"
-SCHEMA_PATH = FAMILY / "producer-binding.schema.yaml"
-DIGEST_CONSTRUCTION = (
-    REPO_ROOT / "contracts" / "signed-execution-chain" / "digest-construction.schema.yaml")
+SCHEMA_PATH = records.REPO_ROOT / records.FAMILY_REL / "producer-binding.schema.yaml"
 
 #: The identity map's repository-relative path, as `load_transfers` reads it.
 IDENTITY_MAP = estate_inventory.TRANSFER_MAP
@@ -167,31 +164,23 @@ def _refuse(code: str, member: str) -> Refused:
 # --- the shape (step 1) --------------------------------------------------------
 
 
+#: The schema's `$id`, the reference `records.SchemaSet` resolves it by.
+SCHEMA_REF = records.ID_BASE + SCHEMA_PATH.name
+
+
 @functools.lru_cache(maxsize=1)
-def _validator():
-    import jsonschema
-    import referencing
-    import referencing.jsonschema
-    import yaml
-
-    resources = []
-    for path in [*sorted(FAMILY.glob("*.schema.yaml")), DIGEST_CONSTRUCTION]:
-        document = yaml.safe_load(path.read_text(encoding="utf-8"))
-        resources.append((document["$id"], referencing.Resource.from_contents(
-            document, default_specification=referencing.jsonschema.DRAFT202012)))
-    registry = referencing.Registry().with_resources(resources)
-    schema = yaml.safe_load(SCHEMA_PATH.read_text(encoding="utf-8"))
-    return jsonschema.Draft202012Validator(
-        schema, registry=registry, format_checker=jsonschema.FormatChecker())
+def _default_schemas() -> records.SchemaSet:
+    return records.load_schemas()
 
 
-def schema_errors(binding: object) -> list[str]:
-    """Every way `binding` fails `producer-binding.schema.yaml`, as messages
-    naming the failing path, never a value. Empty when the shape holds, which a
+def schema_errors(binding: object, schemas: records.SchemaSet | None = None) -> list[str]:
+    """Every way `binding` fails `producer-binding.schema.yaml`, through the
+    family's one schema registry (`records.load_schemas`, whole-match patterns),
+    as the failing paths, never a value. Empty when the shape holds, which a
     stub's shape does: refusing a stub as live is step 1's second half."""
-    errors = sorted(_validator().iter_errors(binding), key=lambda e: list(e.path))
+    schemas = schemas if schemas is not None else _default_schemas()
     return ["/".join(str(p) for p in error.absolute_path) or "<record>"
-            for error in errors]
+            for error in schemas.errors(SCHEMA_REF, binding)]
 
 
 # --- the identity map (step 4) -------------------------------------------------
@@ -414,11 +403,12 @@ def _names_the_binding_repository(elements: tuple, binding: Mapping) -> bool:
 # --- steps 1 to 6 ----------------------------------------------------------------
 
 
-def check_offline(binding: object, *, identity_root: Path) -> None:
+def check_offline(binding: object, *, identity_root: Path,
+                  schemas: records.SchemaSet | None = None) -> None:
     """E10 steps 1 to 6 on the instance alone, reading the identity map under
     `identity_root`. Raises `Refused` with the first failing step's code."""
     # 1. The shape, then a stub presented as live.
-    if schema_errors(binding):
+    if schema_errors(binding, schemas):
         raise _refuse("binding_malformed", "binding")
     if "instantiation_stub" in binding:
         raise _refuse("binding_malformed", "instantiation_stub")
@@ -571,10 +561,11 @@ def check_workflow_revision(entry: Mapping, *, identity: Mapping,
 
 def check_binding(binding: object, *, operation: str, identity: object,
                   governed: Mapping, governed_history: object = None,
-                  evaluation_time: str, identity_root: Path) -> dict:
+                  evaluation_time: str, identity_root: Path,
+                  schemas: records.SchemaSet | None = None) -> dict:
     """E10 steps 1 to 14, the `binding` boundary. Returns the matched
     permitted workflow; raises `Refused` with the first failing step's code."""
-    check_offline(binding, identity_root=identity_root)
+    check_offline(binding, identity_root=identity_root, schemas=schemas)
     entry = check_claims(binding, operation=operation, identity=identity,
                          evaluation_time=evaluation_time)
     check_workflow_revision(entry, identity=identity, governed=governed,
@@ -582,7 +573,8 @@ def check_binding(binding: object, *, operation: str, identity: object,
     return entry
 
 
-def evaluate_vector(vector: Mapping) -> tuple[str, str | None]:
+def evaluate_vector(vector: Mapping,
+                    schemas: records.SchemaSet | None = None) -> tuple[str, str | None]:
     """Adjudicate one `binding` vector: `("accept", None)` or
     `("refuse", <code>)`. The map is the vector's own `repository_identity`
     oracle, materialized under a temporary root, never the live file."""
@@ -600,6 +592,7 @@ def evaluate_vector(vector: Mapping) -> tuple[str, str | None]:
                 governed_history=environment.get("governed_history"),
                 evaluation_time=vector["evaluation_time"],
                 identity_root=root,
+                schemas=schemas,
             )
         except Refused as refused:
             return "refuse", refused.code
