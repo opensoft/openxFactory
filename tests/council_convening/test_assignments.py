@@ -24,109 +24,19 @@ import copy
 
 import pytest
 
-from scripts.signed_execution_chain import canonical
 from scripts.council_convening import assignments
 from scripts.council_convening.records import Refused
 
-REPLACEMENT = "xfc-resolved-council-1"
-LEGACY = "xfactory-council-seat-return/v1"
-
-SHA_HEAD = "1" * 40
-SHA_REVISION = "2" * 40
-SHA_FILE = "sha256:" + "3" * 64
-
-CEILING = 21600
-
-
-# --- builders ------------------------------------------------------------------
-
-
-def convening_record(**overrides) -> dict:
-    """A shape-valid E2 record of an unclassed council with two standing seats.
-
-    The snapshot half (E4) does not re-run the E2 order: it binds this record,
-    verbatim, by `convening_digest`. So the record only has to pass the E2
-    schema, which `convening-snapshot.schema.yaml` takes by `$ref`.
-    """
-    record = {
-        "schema_version": 1,
-        "kind": "xfactory_council_convening",
-        "protocol": REPLACEMENT,
-        "council_id": "council-alpha",
-        "subject_pin": SHA_HEAD,
-        "packet_refs": ["packet/alpha-1"],
-        "required_seats": ["seat-a", "seat-b"],
-        "required_seats_provenance": {
-            "candidate": {
-                "repository": "example-owner/example-candidate",
-                "pull_number": 7,
-                "head_sha": SHA_HEAD,
-            },
-            "governed": {
-                "repository": "example-owner/example-rules",
-                "revision": SHA_REVISION,
-                "sources": [
-                    {"kind": "file", "path": "rules/council-alpha.yaml",
-                     "sha256": SHA_FILE},
-                ],
-            },
-            "standing_seats": ["seat-a", "seat-b"],
-            "conditions": [],
-            "fact_sources": [],
-            "consumed_facts": {},
-        },
-    }
-    record.update(overrides)
-    return record
-
-
-def digest_of(record: dict) -> dict:
-    return {
-        "construction": "xfc-jcs-sha256-1",
-        "subject": "council_convening",
-        "value": canonical.digest(record),
-    }
-
-
-def assignment(convening: dict, convening_id: str, seat_id: str, **overrides) -> dict:
-    value = {
-        "schema_version": 1,
-        "kind": "xfactory_council_seat_assignment",
-        "protocol": REPLACEMENT,
-        "convening_id": convening_id,
-        "convening_digest": digest_of(convening),
-        "council_id": convening["council_id"],
-        "candidate": copy.deepcopy(
-            convening["required_seats_provenance"]["candidate"]),
-        "assignment_id": f"assignment-{seat_id}",
-        "seat_id": seat_id,
-        "holder": {
-            "principal_kind": "github_oidc_job",
-            "principal_ref": f"principal-{seat_id}",
-            "binding_ref": "binding-seat",
-        },
-        "permitted_operations": ["seat_key_registration", "seat_return"],
-        "not_before": "2026-10-09T00:00:00Z",
-        "expires_at": "2026-10-09T06:00:00Z",
-    }
-    value.update(overrides)
-    return value
-
-
-def snapshot(convening: dict | None = None, *, convening_id: str = "convening-0001",
-             seats: list[str] | None = None) -> dict:
-    convening = convening_record() if convening is None else convening
-    seats = list(convening["required_seats"]) if seats is None else seats
-    return {
-        "schema_version": 1,
-        "kind": "xfactory_council_convening_snapshot",
-        "protocol": REPLACEMENT,
-        "convening_id": convening_id,
-        "convening_digest": digest_of(convening),
-        "convening": convening,
-        "assignments": [assignment(convening, convening_id, seat) for seat in seats],
-        "admitted_at": "2026-10-09T00:00:00Z",
-    }
+from .assignment_fixtures import (
+    CEILING,
+    LEGACY,
+    REPLACEMENT,
+    SHA_HEAD,
+    assignment,
+    convening_record,
+    digest_of,
+    snapshot,
+)
 
 
 def refusal(callable_, *args, **kwargs) -> str:
