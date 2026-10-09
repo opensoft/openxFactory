@@ -86,9 +86,12 @@ def test_every_data_model_definition_is_declared(definitions_doc, schemas):
 
 
 def test_digest_is_taken_by_reference_to_the_one_construction(definitions_doc):
-    assert definitions_doc["$defs"]["digest"] == {
-        "$ref": ("https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/"
-                 "digest-construction.schema.yaml#/$defs/digest")}
+    digest = definitions_doc["$defs"]["digest"]
+    assert digest["$ref"] == (
+        "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/"
+        "digest-construction.schema.yaml#/$defs/digest")
+    # Nothing beside the reference restates the shape: an annotation only.
+    assert set(digest) <= {"$ref", "description"}
 
 
 def test_an_unknown_definition_name_is_a_harness_error_not_a_refusal(schemas):

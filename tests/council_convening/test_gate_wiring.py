@@ -120,12 +120,18 @@ def test_the_coverage_assertions_demand_all_of_them(assertion):
 
 
 def test_the_assertion_greps_match_the_validators_real_output(assertion):
-    patterns = re.findall(r"grep -qE '([^']+)' " + re.escape(LOG), assertion)
-    assert len(patterns) >= len(PHASE_1_NOTE_PREFIXES), patterns
+    greps = re.findall(r"(!\s+)?grep -qE '([^']+)' " + re.escape(LOG), assertion)
+    required = [pattern for negated, pattern in greps if not negated]
+    forbidden = [pattern for negated, pattern in greps if negated]
+    assert len(required) >= len(PHASE_1_NOTE_PREFIXES), required
+    assert forbidden == ["^ERROR \\["], forbidden
     output = run_validator().stdout
-    for pattern in patterns:
+    for pattern in required:
         assert re.search(pattern, output, re.M), (
             f"the gate's grep {pattern!r} does not match the validator's output")
+    for pattern in forbidden:
+        assert not re.search(pattern, output, re.M), (
+            f"the validator's output matches the gate's forbidden grep {pattern!r}")
 
 
 def test_the_pytest_suite_collects_this_family():
