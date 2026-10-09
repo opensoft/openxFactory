@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: retire-codexfactory-sibling-currency-dispositions
 
-Status: draft
+Status: ratified
+Ratified: 2026-10-09 by Brett Heap (openxFactory convener) — verbatim "Ratify + land when green (Recommended)", 2026-10-09T21:00:16.594Z, first-hand, in session to lane `codeXfactory-1`, a selection in a multiple-choice round, given over head `ed0c67adde1c35bd1b1c1b6472246957f9263a7f`; **BARE AS TO THIS TEXT** — it names no amendment and rules no open question, so the packet is **RATIFIED AS DRAFTED** and OQ-1 to OQ-4 land at their stated defaults, flagged rather than resolved (`design.md` § 7). Its "land when green" component is the separate landing word `tasks.md` 0.3 waits for; the landing itself is the coordinator's act under lane-collision Rule 6. Record `review/ratification-2026-10-09.md`; the word is recorded on PR [#1288](https://github.com/opensoft/openxFactory/pull/1288#issuecomment-6089181718) (comment 6089181718) and on the estate's lane register at `opensoft/brett-wip` commit `78488f6c0c944ba92ae3818f8ececd40236b6333`, `lanes/log/codeXfactory-1.md`
 Kind: proposal
 Proposed: 2026-10-09, in lane `codexfactory-1` (display `codeXfactory-1`).
 Origin: openxFactory
@@ -24,14 +25,59 @@ question of who authors openxFactory's new change deleting the two codexFactory
 sibling dispositions (gate G-1 of codeXfactory/codexFactory#549). Recorded on
 [codeXfactory/codexFactory#549, comment 6086047985](https://github.com/codeXfactory/codexFactory/issues/549#issuecomment-6086047985).
 That word authorizes THIS DRAFT. **It is not a ratification, not a landing word,
-and not a ruling on any open question** (`design.md` § 7). This packet carries
+and not a ruling on any open question** (`design.md` § 7). ~~This packet carries
 `Status: draft`, the pull request is DRAFT, and both stay so until Brett's
-own word.
+own word.~~ — **STRUCK 2026-10-09, not deleted**: it was this packet's position
+from its first commit until Brett's own word arrived, it was correct while it
+stood, and the word below is the one it named.
 
 In the same exchange he chose ***"Two-step: 93d13d6c now (Recommended)"***:
 codexFactory's NEXT pin advance targets openxFactory `93d13d6c` without the
 re-derivations, and the re-derivations ride a SECOND advance after this
 deletion has landed. That is the sequence below.
+
+**THE WORD THIS PACKET IS RATIFIED BY, AND WHAT IT DOES NOT COVER.** Brett
+Heap, first-hand in lane `codeXfactory-1`'s own session, at
+**2026-10-09T21:00:16.594Z** (the session transcript's timestamp on his answer),
+as a selection in a multiple-choice round. The question, verbatim: *"openxFactory
+#1288 (G-1) deletes the two codexFactory sibling dispositions, with its tests.
+It's safe to land first, and is the prerequisite for #549's second advance
+carrying 7.3. What should happen with it?"* The option chosen, verbatim:
+***"Ratify + land when green (Recommended)"***, offered as *"Ratify and land it
+in openxFactory under Rule 6 when green. That unblocks 7.3's second advance,
+which must then re-derive both siblings in one codexFactory PR."* The options
+NOT taken were *"Ratify only"* (*"Record the ratification, and land it later on
+its own word"*) and *"Hold"* (*"Leave it as a DRAFT"*). Recorded on
+[PR #1288, comment 6089181718](https://github.com/opensoft/openxFactory/pull/1288#issuecomment-6089181718),
+and on the estate's lane register at `opensoft/brett-wip` commit
+`78488f6c0c944ba92ae3818f8ececd40236b6333`, `lanes/log/codeXfactory-1.md`, the
+RULED line of 2026-10-09T21:01:42Z on
+[#1286](https://github.com/opensoft/openxFactory/issues/1286).
+
+* **THE HEAD IS NAMED, NOT INFERRED.** The word was given over
+  `ed0c67adde1c35bd1b1c1b6472246957f9263a7f`, the only head this pull request
+  had carried: committed 20:55:13Z, the pull request opened DRAFT at 20:55:30Z,
+  the question put at 20:56:43Z. This packet carries `Status: ratified` from the
+  commit that records the word, not from the commit that wrote the text, which
+  is why the ratification is a SECOND commit on this branch over `ed0c67ad` and
+  not a rewrite of it.
+* **RATIFIED AS DRAFTED.** The word is BARE as to this text: it names no
+  amendment and rules no open question. So every position this packet states is
+  ratified as it stands, and OQ-1 to OQ-4 land at the defaults `design.md` § 7
+  states, flagged rather than resolved: `CANON_MOVED` is kept (OQ-1); the
+  template's `tasks.md` 6.3 is left unedited (OQ-2); the packet lands on its own
+  landing word after ratification (OQ-3); `CITED_ACTIVE_PACKETS` is left as it
+  is (OQ-4).
+* **THE SAME ANSWER CARRIES THE LANDING WORD, AS ITS OWN COMPONENT.** *"land
+  when green"* is the separate landing word OQ-3's default and `tasks.md` 0.3
+  wait for, and *"Ratify only"* was the option that would have withheld it.
+  **IT IS NOT THE MERGE.** The pull request stays DRAFT at this encoding; it
+  leaves DRAFT and lands under lane-collision Rule 6 (`LANDING` / `LANDED` on
+  the pull request and in the register) on the coordinator's act, read green
+  on the head it lands, and not by the authoring seat. That merge commit is
+  **D** below.
+* **This word is also the deletion's AUTHORITY** (`design.md` § 1): no tool has
+  refused either entry on any tree codexFactory reads.
 
 ## Why
 

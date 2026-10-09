@@ -62,6 +62,36 @@ origin:
     6086219075); coordination notice to the siblings' authoring lane on
     openxFactory #745 (comment 6086181440).
   proposed_on: 2026-10-09
+  approved_by: >-
+    Brett Heap (openxFactory convener) — 2026-10-09T21:00:16.594Z (the
+    session transcript's own timestamp on his answer), first-hand in lane
+    `codeXfactory-1`'s own session, as a selection in a multiple-choice round.
+    The question put to him, verbatim: "openxFactory #1288 (G-1) deletes the
+    two codexFactory sibling dispositions, with its tests. It's safe to land
+    first, and is the prerequisite for #549's second advance carrying 7.3.
+    What should happen with it?" The option chosen, verbatim: "Ratify + land
+    when green (Recommended)", offered as "Ratify and land it in openxFactory
+    under Rule 6 when green. That unblocks 7.3's second advance, which must
+    then re-derive both siblings in one codexFactory PR." The two options NOT
+    taken: "Ratify only" ("Record the ratification, and land it later on its
+    own word") and "Hold" ("Leave it as a DRAFT"). GIVEN OVER HEAD
+    ed0c67adde1c35bd1b1c1b6472246957f9263a7f, the only head PR #1288 had
+    carried (committed 20:55:13Z, the PR opened DRAFT at 20:55:30Z, the
+    question put at 20:56:43Z). Recorded on PR #1288 (comment 6089181718) and
+    on the estate's lane register, opensoft/brett-wip commit
+    78488f6c0c944ba92ae3818f8ececd40236b6333, lanes/log/codeXfactory-1.md,
+    RULED line 2026-10-09T21:01:42Z on openxFactory #1286. BARE AS TO THIS
+    PACKET'S TEXT: it names no amendment and rules no open question, so the
+    packet is ratified AS DRAFTED and OQ-1 to OQ-4 (`design.md` § 7) land at
+    their stated defaults, flagged rather than resolved. THE SAME ANSWER
+    CARRIES THE LANDING WORD as its own component, "land when green", which
+    is the separate landing word OQ-3's default and `tasks.md` 0.3 wait for.
+    THIS APPROVAL IS NOT THE MERGE: the pull request stays DRAFT at this
+    encoding, and the landing under lane-collision Rule 6 is the
+    coordinator's act, read green on the head it lands. The drafting pair
+    above (`proposed_by` / `proposed_on`) is kept as authored: approval is
+    added to this origin, never a re-minting of it.
+  approved_on: 2026-10-09
 related:
   - openxFactory:change:disposition-codexfactory-regular-pr-council-clearance-archive  # ACTIVE. Added both entries this packet deletes (PR #1004); its tasks.md 6.3 records the obligation this packet discharges on the openxFactory side, and this packet does not edit it
   - openxFactory:change:disposition-codexfactory-floor-relocation-retitle              # ACTIVE. Owns the OTHER entry `relocate-review-authority-floor` carries (`repository-gate-floor/spec.md`), which this packet leaves byte-identical

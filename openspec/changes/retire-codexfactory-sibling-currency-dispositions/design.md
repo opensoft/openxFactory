@@ -1,6 +1,7 @@
 # Design: retire-codexfactory-sibling-currency-dispositions
 
-Status: draft
+Status: ratified
+Ratified by: retire-codexfactory-sibling-currency-dispositions — 2026-10-09, Brett Heap, "Ratify + land when green (Recommended)" (2026-10-09T21:00:16.594Z, first-hand, multiple choice, given over head ed0c67adde1c35bd1b1c1b6472246957f9263a7f; bare as to this text, so RATIFIED AS DRAFTED with OQ-1 to OQ-4 at their § 7 defaults, flagged; its "land when green" component is the landing word, and the merge is not covered by this header; record `review/ratification-2026-10-09.md`)
 Date: 2026-10-09
 Kind: design
 
@@ -191,3 +192,14 @@ leaves it flagged, not resolved.
 | OQ-2 | The template's `tasks.md` 6.3: give it a dated cross-reference to this packet now, or leave it? | **Leave it untouched here.** It is another ratified packet's row. Its substance (the re-derivations) is discharged by codexFactory #549's second advance, and ticking or annotating 6.3 is that packet's own act, at that time. |
 | OQ-3 | Land on ratification, or hold the landing until codexFactory's re-derived text (G-2) is drafted and put to Brett? | **Land on its own landing word, after ratification.** The coupling cost is that codexFactory cannot advance past D without the re-derivations (`proposal.md` § Impact). That advance is the next one #549 plans anyway, and holding D would only move the same coupling later. |
 | OQ-4 | `tests/packet_reference/test_packet_reference.py` still lists the template in `CITED_ACTIVE_PACKETS`, a tuple named for the packets the live pin cites. Narrow it here? | **No.** The test asserts only that each listed packet still exists in the corpus, which stays true, so it does not fire. Its module docstring is dated "on the tree this suite was written against". A later tidy-up may narrow it. |
+
+**2026-10-09: LANDED AT THEIR DEFAULTS, AND STILL FLAGGED.** Brett Heap's word
+of 2026-10-09T21:00:16.594Z, *"Ratify + land when green (Recommended)"*, is
+bare as to this text: it names no amendment and rules none of the four. So
+each lands at the default its row states and stays flagged, not resolved:
+OQ-1 keeps `CANON_MOVED`; OQ-2 leaves the template's 6.3 unedited; OQ-3 lands
+on its own landing word after ratification; OQ-4 leaves `CITED_ACTIVE_PACKETS`
+as it is. OQ-3's default waits for a landing word, and the same answer gives
+it as its own component, *"land when green"*. The landing itself is the
+coordinator's act under lane-collision Rule 6, read green on the head it
+lands. Record `review/ratification-2026-10-09.md`.

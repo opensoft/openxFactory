@@ -1,12 +1,15 @@
 # Tasks: retire-codexfactory-sibling-currency-dispositions
 
-Status: draft
+Status: ratified
+Ratified by: retire-codexfactory-sibling-currency-dispositions — 2026-10-09, Brett Heap, "Ratify + land when green (Recommended)" (2026-10-09T21:00:16.594Z, first-hand, multiple choice, given over head ed0c67adde1c35bd1b1c1b6472246957f9263a7f; bare as to this text, so RATIFIED AS DRAFTED with OQ-1 to OQ-4 at their § 7 defaults, flagged; its "land when green" component is the landing word, and the merge is not covered by this header; record `review/ratification-2026-10-09.md`)
 Kind: tasks
 
 **NOTHING IS TICKED THAT DID NOT LAND OR WAS NOT RUN.** Every ticked box below
 is a diff in this pull request, a recorded word, or a run recorded verbatim in
 `evidence/codexfactory-sibling-currency-retirement-2026-10-09.md`. Group 0
-holds the owner's gates. Group 5 is owed work belonging to OTHER repositories
+holds the owner's gates. **Its `[OWNER]` boxes stay `[ ]`** (2026-10-09): an
+agent does not tick an owner's-act box, so an owner's word or act is recorded
+as a dated note beneath its box instead. Group 5 is owed work belonging to OTHER repositories
 and OTHER packets, and is deliberately unticked, each box naming whose it is.
 
 ---
@@ -30,10 +33,34 @@ and OTHER packets, and is deliberately unticked, each box naming whose it is.
       record under `review/`; and the README entry updated. The ratification
       is also the AUTHORITY for the deletion (`design.md` § 1), because no tool
       has refused these entries on any tree codexFactory reads.
+      **2026-10-09T21:00:16.594Z: GIVEN, AND IT IS A RATIFICATION.** Brett
+      Heap, first-hand in lane `codeXfactory-1`'s own session, by multiple
+      choice; the option chosen, verbatim, ***"Ratify + land when green
+      (Recommended)"***, offered as *"Ratify and land it in openxFactory under
+      Rule 6 when green."* Not taken: *"Ratify only"* and *"Hold"*. Given over
+      head `ed0c67adde1c35bd1b1c1b6472246957f9263a7f`, the only head the pull
+      request had carried. Recorded on PR #1288 (comment 6089181718) and on
+      the lane register at `opensoft/brett-wip` commit `78488f6c`, RULED
+      2026-10-09T21:01:42Z on #1286. BARE as to this text, so OQ-1 to OQ-4
+      land at their defaults, flagged rather than resolved. Encoded in ONE
+      commit, as this box lists: the three headers, the origin approval pair,
+      `review/ratification-2026-10-09.md`, and the README entry. **Box kept
+      UNTICKED: an agent does not tick an owner's-act box, so the act is
+      recorded here as a dated note instead.**
 - [ ] 0.3 **[OWNER] The landing word**, separate from 0.2. The pull request
       leaves DRAFT and merges under lane-collision Rule 6 (`LANDING` /
       `LANDED` on the PR and in the register), on that word and not by the
       authoring seat. Its merge commit is **D** in `proposal.md` § Impact.
+      **2026-10-09T21:00:16.594Z: THE WORD IS GIVEN; THE ACT IS NOT YET
+      TAKEN.** The same answer as 0.2's carries the landing word as its own
+      component, *"land when green"* (*"Ratify only"*, the option that would
+      have withheld it, was not taken). Its condition is GREEN, read on the
+      head that lands, which is not `ed0c67ad`: the ratification commit and a
+      merge of `main` follow it. The pull request is still DRAFT at this
+      encoding. Leaving DRAFT, `LANDING` / `LANDED`, and the merge are the
+      coordinator's acts under Rule 6, never this authoring seat's. **Box kept
+      UNTICKED: an agent does not tick an owner's-act box, and the landing has
+      not happened.**
 
 ## 1. The deletion
 

@@ -543,12 +543,25 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [retire-codexfactory-sibling-currency-dispositions](openspec/changes/retire-codexfactory-sibling-currency-dispositions/proposal.md)
-  — authored 2026-10-09, lane `codexfactory-1` (display `codeXfactory-1`), as a
-  DRAFT pull request, **`Status: draft`**, parked at Brett Heap's ratification.
-  Drafted on his first-hand word *"This lane drafts it (Recommended)"*
+  — authored 2026-10-09, lane `codexfactory-1` (display `codeXfactory-1`), as
+  DRAFT [PR #1288](https://github.com/opensoft/openxFactory/pull/1288),
+  **`Status: ratified`** — Brett Heap, 2026-10-09T21:00:16.594Z, first-hand, in
+  lane `codeXfactory-1`'s own session, as a selection in a multiple-choice
+  round, verbatim ***"Ratify + land when green (Recommended)"***, offered as
+  *"Ratify and land it in openxFactory under Rule 6 when green"* (not taken:
+  *"Ratify only"*, *"Hold"*), given over head `ed0c67ad`. Recorded on
+  [PR #1288, comment 6089181718](https://github.com/opensoft/openxFactory/pull/1288#issuecomment-6089181718)
+  and on the lane register (`opensoft/brett-wip` commit `78488f6c`, RULED
+  2026-10-09T21:01:42Z on #1286). **RATIFIED AS DRAFTED**: the word is bare as
+  to this text, so OQ-1 to OQ-4 land at their defaults, flagged rather than
+  resolved. Its *"land when green"* component is the landing word; the landing
+  is the coordinator's act under Rule 6, read green on the head that lands.
+  **The word is not the merge**, and the record is
+  [`review/ratification-2026-10-09.md`](openspec/changes/retire-codexfactory-sibling-currency-dispositions/review/ratification-2026-10-09.md).
+  Drafted on his earlier first-hand word *"This lane drafts it (Recommended)"*
   (2026-10-09T17:35:29Z, gate G-1, recorded on
   [codeXfactory/codexFactory#549](https://github.com/codeXfactory/codexFactory/issues/549#issuecomment-6086047985)),
-  which authorizes the draft only. Governing issue
+  which authorized the draft only. Governing issue
   [#1286](https://github.com/opensoft/openxFactory/issues/1286), claimed by this
   lane; coordination notice on
   [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-6086181440).
@@ -577,7 +590,9 @@ Active changes:
   pin-registration referent floor 4 → 3). `CANON_MOVED` stays declared with no
   member (OQ-1). **NO SPEC DELTA, DECLARED** (`skip_specs: true`). The
   template's `tasks.md` 6.3 is not edited (OQ-2). `sequenced_after: []`.
-  Ratification, landing and archive each wait for Brett Heap's own word.
+  ~~Ratification, landing and archive each wait for Brett Heap's own word.~~ —
+  struck 2026-10-09: the ratification and the landing word are given (above);
+  the landing act and the archive, on its own word, are still owed.
 
 - [amend-factory-mcp-conformance-auth-profile](openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md)
   — filed 2026-10-08, lane `openxfactory-5` (display `openXfactory-5`), as
