@@ -126,7 +126,8 @@ kind: estate-repository-inventory
 # states for its own placement and the reason this file takes the same one.
 #
 # THE POPULATION IS A FACT ABOUT THE ESTATE AND IS RE-MEASURED, never carried.
-# THIRTY-SEVEN rows. Rows 1-33 were built from the five naming sites at
+# THIRTY-EIGHT rows: THIRTY-SEVEN at 2026-09-24, and the one row added since
+# is the note below's. Rows 1-33 were built from the five naming sites at
 # `add-estate-repository-inventory`'s `design.md` D0.1; rows 34-37, the four
 # legs, are the SIXTH site's, which `admit-code-leg-under-pinned-root`
 # (openxFactory #1150) adds. ALL SIX were RE-MEASURED at that change's
@@ -157,6 +158,20 @@ kind: estate-repository-inventory
 #      none of them a row before, and none of the four carries a submodule at
 #      the commit its root names, so the one-hop bound reaches nothing further.
 # FOUR ROWS ADDED; NO OTHER ROW MOVED.
+#
+# ONE ROW ADDED 2026-10-08, THE THIRTY-EIGHTH, BY A PLAIN PULL REQUEST AND NOT
+# BY A CHANGE. The row RECORDS an admission and performs none (above), and the
+# scenario *A repository is admitted to the estate by a gitlink* already has the
+# inventory carry a row for a repository a governed estate repository's
+# `.gitmodules` carries, so this row is owed and no requirement text moves. The
+# admission it records is the aggregation's own: `opensoft/xFactory` #567 (merge
+# `651dd5c9`) mounted `opensoft/OpsxFactory-Gateway-Install`. RE-MEASURED
+# 2026-10-08 at `opensoft/xFactory` main `651dd5c9`: its `.gitmodules` names 24
+# addresses, and the 24 `carrier: opensoft/xFactory` rows now carry the
+# identical set (the 23 of 2026-09-24 and this one). The row is APPENDED rather
+# than grouped with the installs, so that no other row's position moves and
+# every row number cited above still names the row it named: ROWS 1-37 ARE
+# UNMOVED.
 
 repositories:
 
@@ -516,3 +531,16 @@ repositories:
     admitted_by:
       - kind: gitlink
         carrier: opensoft/openXdox
+
+  # ── an install admitted after the realization ─────────────────────────────
+  # APPENDED, NOT GROUPED WITH THE INSTALLS ABOVE, so no other row's position
+  # moves (the header's note of 2026-10-08). Its naming site is the
+  # aggregation's `.gitmodules`, exactly as every install row above it, and the
+  # row records that gitlink and performs no admission.
+  - repository: opensoft/OpsxFactory-Gateway-Install
+    name: OpsxFactory-Gateway-Install
+    role: install, Ops task-bound agent authorization gateway
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory

@@ -86,6 +86,34 @@ worded, each cited by comment id or merge commit, with no new decision:
 - T072's pull request, openDox-code#95, and T071's, openxFactory#1261;
 - plan.md's task count and range, 91 tasks and T001 to T105 (`6028364555` item 5).
 
+**Revision: T002's fourth bookkeeping batch** (2026-10-08). More rulings and
+landings, posted on `#656` or merged since #1263 (`3a2ab303`), are encoded as
+worded, each cited by comment id or merge commit, with no new decision:
+- the ticks of T012 and T013, which landed together as openDox-code#90 →
+  `6827cafc` (the merge commit read through GraphQL), with the accepted limits the
+  holder ruled at its landing (`6067853207`, `6069024568` item 1);
+- Brett's words on phase 5's early waves, under "What can start": wave 1 written
+  now and landing after T027 (`6035546708`), and wave 2 written early, stacked
+  (`6067802993`);
+- the holder's wave-1 rulings (`6069024023`): the engine categories, with two
+  added and their mappings, and T045's refusal of an engine kind and of a
+  pathless pack finding (item 1); a pathless original's re-raise, option (D), in
+  T041 and T046 (item 2); and `run_seq`, with T046's per-corpus advisory
+  transaction lock (item 3);
+- the holder's admissions (`6069024568` items 2 and 3): `account-menu.js` and
+  `pyproject.toml` for T015, each with the chain T015 → T016 → any later verb, and
+  `tests_runtime/test_api_endpoints.py` for T042;
+- the holder's wave-2 rulings (`6069507373`): T044's stage directories aligned
+  with spec.md; T046's After line gaining T016, with its `default_profile.py` and
+  `cli.py` contributions and its admitted `tests/test_default_profile.py` line
+  joining after T016 lands; N-14 and OQ-H-15 with one owner each; T041's
+  module-level `finding_id()`; and T056's one `engine.py` line, on lane 3's
+  acknowledgement (`6069516931`);
+- the holder's rulings on this batch's review questions (`6072086385`): each
+  engine category's `pack_id`, which replaces `6069024023` item 1's "one
+  `pack_id` per category" (item 1), and T045's falsifier nodes for the two
+  refusals (item 3); item 2 changes nothing in the plan.
+
 **RULED.** Brett Heap ruled the plan at `6847e99e`, every item as recommended
 (`#656` `6013547504`, 2026-10-06; plan.md § "Ruled answers, the plan ruling").
 Implementation starts on this word. Still his word, at the act: the 0.2.0 publish
@@ -162,6 +190,22 @@ as recommended (`#656` `6013547504`): seven rulings, eight readings confirmed,
 - **Phase 5's openDox-code slices** start once T027 has pinned phase 4's
   openDox-code commit (tier 1's N-6 (a), ruled); they do not wait for T033. The
   copies (T041, T047, T054) also wait for T060's pinned spec commit.
+- **Phase 5's waves written early** (Brett's words, each by interactive
+  multi-choice):
+  - Wave 1 (T041, T042 and T043) is written now and lands after T027: *"Write
+    now, land after T027 (Recommended)"* (`#656` `6035546708`). N-6 (a) is
+    unchanged for landing: each PR stays a DRAFT, none lands before T027 pins
+    phase 4's openDox-code commit, and each merges `main` (phase 4's tip) and
+    re-runs its gates before it lands.
+  - Wave 2 (T044 and T046) is written early, stacked: *"Write now, stacked
+    (Recommended)"* (`#656` `6067802993`). T044 launches at T041's and T043's
+    DRAFT-CLEAN, after the holder's ruling on T041's engine category names
+    (`6069024023` item 1), and T046 at T042's and T044's DRAFT-CLEAN. Their PRs
+    stay DRAFT and land in plan order, after T027 (N-6 (a)) and after their
+    bases. This extends `6035546708` and follows the pattern of the pack track
+    (`6064244857`).
+  - Every After line keeps its landing meaning, and every later wave keeps its
+    own After line.
 - **Requirement 9 for openXdox-code** (T073, lane 3) starts after T029; it is
   #1144's work, not the direction arc's, and is not gated on T071. Its PR stays a
   DRAFT until the repair slices T095 to T104 land, which T094's read-only map cut
@@ -407,7 +451,7 @@ hidden; F12.1 exits 0 composed (SC-001).
 
 ### P4-D1: governance, confirmation and the lander (pure)
 
-- [ ] T012 [US2] [oDc] **The landing seam.** New `landing.py`: `LandingPort`,
+- [x] T012 [US2] [oDc] **The landing seam.** New `landing.py`: `LandingPort`,
   `Landed`, `MergeConflict` (data-model.md), `repository_governance(checkout_root)`
   returning `standalone`, `governed` or `unknown`, fail closed; `session_pr.py`
   re-exports `LandingPort` and `repository_governance`, as FR-007 declares them
@@ -463,7 +507,18 @@ hidden; F12.1 exits 0 composed (SC-001).
     `tests/test_landing_guardrails.py`; the repository-creation call sites the
     audit finds (named in the PR).
   - **Lane**: 4.
-- [ ] T013 [US2] [oDc] **Feature 007's guard, by R2Q6 (a)'s four exceptions.** The
+  - **Landed**: DONE, openDox-code#90 → `6827cafc` (2026-10-08T21:08:43Z), with
+    T013 in the one PR its "Lands with" names. #90's body states its accepted
+    limits as the holder ruled them: Copilot 4223441552 (the same defect as Codex
+    P2 4223462534), Copilot 4223441643 and Codex P1 4223462529, under the
+    convergence rule (`5988818366`; `6067853207` items 1 to 3, item 3 widening to
+    both paths the stated limit that neither fast-forward holds `main` across the
+    check and the move), and lane 3's R2-DELTA MINOR at `landing.py:836`, where a
+    git older than 2.31 with a remote attached is refused as `remote-unreadable`
+    rather than by the named 2.42 floor (`6069024568` item 1). The same section
+    carries `6026622117` item 1 (the Ruled line above) and `6035797819` (lane 3's
+    review R2, finding 6).
+- [x] T013 [US2] [oDc] **Feature 007's guard, by R2Q6 (a)'s four exceptions.** The
   lander's `merge --no-ff` runs in its landing worktree under `<repo>-worktrees/`,
   where `merge` is already allowed (`session_git.py:250-263`), so only `git merge
   --ff-only <commit>` AT THE SERVED ROOT needs the new argument check (ADV-36):
@@ -478,6 +533,8 @@ hidden; F12.1 exits 0 composed (SC-001).
   - **Lands with**: T012.
   - **Files**: `src/opendox/session_git.py`, `tests/test_session_git.py`.
   - **Lane**: 4.
+  - **Landed**: DONE, with T012, openDox-code#90 → `6827cafc`
+    (2026-10-08T21:08:43Z).
 
 ### P4-B: the two bindings
 
@@ -522,7 +579,8 @@ hidden; F12.1 exits 0 composed (SC-001).
     in `tests/test_cli_branch_actions.py`; a test that a host profile replacing
     the default sees no `actions.submit` key.
   - **Ruled**: R2Q1, R2Q3, R2Q4, R2Q5, R2Q9 (item 7); the holder's `6023619783`
-    (item 1), `6026622117` (item 2) and `6027633398` (the collateral Files).
+    (item 1), `6026622117` (item 2), `6027633398` (the collateral Files) and
+    `6069024568` (item 2, two more admissions).
     **Decisions**: CF-1, N-2, N-17, OQ-12-9, OQ-12-14.
   - **After**: T014, T025 (the census fixture), T104 (the census chain, T025 →
     T104 → T015; `6021830531`, W7), T005 (the `--local` line).
@@ -553,6 +611,14 @@ hidden; F12.1 exits 0 composed (SC-001).
     pre-authorized in the same minimal way, and each file and assertion is listed
     in the PR body for the holder's confirmation at READY; no other assertion is
     weakened, and collateral of any other kind is a QUESTION first.
+    Also admitted (the holder, `6069024568` item 2):
+    `src/opendox/web/views/account-menu.js`, for one word, `"submit"` in
+    `WRITE_ACTIONS` (Codex P2 on `serve.py:664`), so the menu's access line names
+    the verb it grants, with the census line count unchanged; and
+    `pyproject.toml`, for its one line `:312`, the web bundle's file count, 42 → 43
+    (lane 3's R1-T015 NIT), since the present-tense count would otherwise be
+    false. Each file's chain runs T015 → T016 → any later verb, as `6023619783`
+    set for `tests/test_default_profile.py`.
   - **Lane**: 4.
 
 ### P4-D2: the landing bindings and surface
@@ -577,8 +643,9 @@ hidden; F12.1 exits 0 composed (SC-001).
     capability test that `actions.land` is true for `standalone` with a lander
     and for `governed` with an instrument, and false otherwise.
   - **Ruled**: R2Q1, R2Q3, R2Q4, R2Q5, R2Q6, R2Q7, R2Q9 (item 7); the holder's
-    `6023619783` (item 1) and `6027633398` (the collateral Files). **Decisions**:
-    CF-1, N-2, N-11, OQ-12-13, OQ-12-14, OQ-12-17.
+    `6023619783` (item 1), `6027633398` (the collateral Files) and `6069024568`
+    (item 2, the chains). **Decisions**: CF-1, N-2, N-11, OQ-12-13, OQ-12-14,
+    OQ-12-17.
   - **After**: T015, T012, T013.
   - **Files**: `src/opendox/serve.py`, `src/opendox/cli.py`,
     `src/opendox/default_profile.py`, `src/opendox/cli_branch_actions.py`,
@@ -593,7 +660,9 @@ hidden; F12.1 exits 0 composed (SC-001).
     in the same minimal way as T015's, each file and assertion listed in the PR
     body for the holder's confirmation at READY. T016 also follows T015 in
     `tests/test_default_profile.py`, whose chain follows `default_profile.py`'s
-    (`6023619783` item 1).
+    (`6023619783` item 1), and in `src/opendox/web/views/account-menu.js` and
+    `pyproject.toml`'s line `:312`, whose chains run T015 → T016 → any later verb
+    (`6069024568` item 2).
   - **Lane**: 4.
 - [ ] T017 [oDc] **Phase 4's CI floors.** Re-pin `MIN_SELECTED` (`:272`) and
   `MIN_PASSED` (`:273`) to the counts the phase-4 tip measures; `EXPECT_SKIPPED`
@@ -1070,20 +1139,36 @@ copies (research R7; ADV-05).
     HTTP Health response by T057, because a contract-module test cannot see what
     the CLI or HTTP layer emits (the holder, `6027706377` item 1);
     `tests/test_validator_input_set.py` green at the new commit.
-  - **Ruled**: R2Q10, R2Q18, R2Q22, R2Q25; the holder's `6018624750`.
+  - **Ruled**: R2Q10, R2Q18, R2Q22, R2Q25; the holder's `6018624750`,
+    `6069024023` (items 1 and 2), `6069507373` (T046 item 2) and `6072086385`
+    (item 1).
     **Decisions**: N-3, N-13, N-15, OQ-H15-19.
   - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
     `src/opendox/contracts/copies.yaml`, `schemas/`, `__init__.py` and
     `tests/test_validator_input_set.py` (first: T041 → T047 → T054), new
     `tests/test_health_contract.py`.
+  - **Implementation note** (the holder, `6069024023` items 1 and 2,
+    `6069507373` T046 item 2, and `6072086385` item 1):
+    - the engine categories are the nine T041 drafted and the two the holder
+      added, `dispositions-refused` and `manifest-refused`, with their mappings,
+      each category's `pack_id` among them: the entry's id for a finding against
+      a valid manifest entry's pack, `opendox` for every other category
+      (contracts/health-finding.md § The id rule; `6072086385` item 1);
+    - `disappearance_identity()` returns either form of the re-raise's identity,
+      `{disappeared_id}` for an original with a path and `{category, entry}` for a
+      pathless one (option (D)), with its test;
+    - a module-level `finding_id()` is the single hash path `make_finding` calls,
+      patchable, so T046's test can patch it. `make_finding`'s interface is
+      unchanged (lane 3, `6069516931`).
   - **Lane**: 4.
 - [ ] T042 [P] [US4] [oDc] **HA-1, the store (`0003_`), one owner.** New
   `migrations/0003_health.sql`: `health_runs` (with the run's kind, the
   baseline branch, the run's pack inventory with each pack's exact pin,
   `pack_pins`, the `export_commit` its packs read, whether it was
   `full` (SQL column `full_run`, the holder, `6064169640`), and the probe's
-  `sandbox` record; Copilot review) and
+  `sandbox` record; Copilot review; and `run_seq`, which orders a corpus's runs,
+  the holder, `6069024023` item 3) and
   `health_findings` (data-model.md, with an `identity` column: canonical
   sorted-key JSON, its serialized size capped by the engine, stricter than the
   schema's; the holder, `6018624750`; T042 stores what T041 bounds), with 15.7's
@@ -1106,13 +1191,18 @@ copies (research R7; ADV-05).
     `test_the_store_refuses_a_finding_without_provenance` and a test that an
     install-level finding (`pack_id` `opendox`, empty `path`) is admitted; the
     five suites above.
-  - **Ruled**: R2Q13, R2Q15, R2Q25; the holder's `6018624750` and `6028364555`
-    (items 1 and 2). **Decisions**: OQ-H-22, OQ-H15-18, -19, -20.
+  - **Ruled**: R2Q13, R2Q15, R2Q25; the holder's `6018624750`, `6028364555`
+    (items 1 and 2), `6069024023` (item 3, `run_seq`) and `6069024568` (item 3).
+    **Decisions**: OQ-H-22, OQ-H15-18, -19, -20.
   - **After**: T027 (N-6 (a), ruled).
   - **Files**: as listed (single owner of `0003_` and of the five suites), and
     `docs/runtime.md` (R2-INV-P5 § T042: its two table arrays, `:438-441` and
     `:469-472`, which `test_deploy_shape.py` holds to `identity.TABLES | {ledger}`;
-    the holder, `6028364555` item 2).
+    the holder, `6028364555` item 2); and `tests_runtime/test_api_endpoints.py`,
+    admitted for one edit: `0003_health.sql` joins the migration copy in
+    `test_readiness_refuses_a_database_whose_migration_file_has_changed`, for the
+    same cause as at the three `test_migrations_apply` sites (the holder,
+    `6069024568` item 3).
   - **Implementation note** (accepted by the holder, `6028138991`, from lane 3's
     T105 measurement, `6028122920`, and made precise by `6028364555`; no
     requirement or falsifier changes): `full` is a reserved word in PostgreSQL 16,
@@ -1160,17 +1250,21 @@ copies (research R7; ADV-05).
   structurally, OQ-H-10), orphans (README and index exempt, OQ-H-16), empty stubs
   (`assisted`) and stale stubs (`human-only`) by the criteria data-model.md
   § Families declares (ADV-17, ADV-40), derivable front matter,
-  `stage-location-mismatch` by the six role keys' top-level directories (R2Q11
-  (a)), near-duplicates (OQ-H-21: measure whether `doxbench_knowledge` runs with
-  no binding; set and record the threshold); each family supplies a
-  position-independent identity key (N-13); the engine files excluded (OQ-H-15).
-  Model-free (OQ-H-20).
+  `stage-location-mismatch` by the top-level directories named by the six role
+  keys or their declared words (R2Q11 (a), as FR-010 words it at
+  `spec.md:819-821`; the holder, `6069507373` T044 item 3), near-duplicates (OQ-H-21:
+  measure whether `doxbench_knowledge` runs with no binding; set and record the
+  threshold); each family supplies a position-independent identity key (N-13);
+  the engine files excluded (OQ-H-15), in the families only, through the
+  adapter's `excluded=` argument, with no edit to `doxbench_intake.py` (T044 is
+  OQ-H-15's one owner; the holder, `6069507373` T044 item 8). Model-free
+  (OQ-H-20).
   - **Realizes**: 14.4 (part: detection), 6.2 (part: the check's body).
   - **Falsifier**: new `tests/test_health_families.py`, over T043's corpus,
     including the empty stub's class and an id that survives an edit above its
     finding.
-  - **Ruled**: R2Q10, R2Q11, R2Q14. **Decisions**: OQ-H-8, -10, -11, -15, -16,
-    -20, -21; N-13.
+  - **Ruled**: R2Q10, R2Q11, R2Q14; the holder's `6069507373` (T044 items 3 and
+    8). **Decisions**: OQ-H-8, -10, -11, -15, -16, -20, -21; N-13.
   - **After**: T041, T043.
   - **Files**: new `src/opendox/health/__init__.py`, `src/opendox/health/families.py`,
     the test.
@@ -1182,12 +1276,20 @@ copies (research R7; ADV-05).
   `applies_to` globs, data-model.md § Pack declaration, with a finding of an
   undeclared kind or outside its family's globs refused), the one-JSON-document stdout format, and the patch type, a
   unified diff and nothing else (15.2; ADV-12). Python is the only pack runtime.
+  An engine category is also a finding's `kind`, so, extending the holder's
+  `6065680005` item 3, T045 also refuses a pack family that declares an engine
+  kind (contracts/health-finding.md § The id rule), and a pack finding with an
+  empty `path` (the holder, `6069024023` item 1).
   - **Realizes**: 15.1, 15.2.
   - **Falsifier**: new `tests/test_check_pack_contract.py`, including a family
     missing its version or its `applies_to`, refused; a finding of an
     undeclared kind, and one outside its family's globs, each refused as a
-    finding against the pack.
-  - **Ruled**: R2Q18, R2Q20. **Decisions**: N-3, OQ-H15-1, -10, -11.
+    finding against the pack; and one node for each refusal `6069024023` item 1
+    extends from `6065680005` item 3: a family that declares an engine kind,
+    refused, and a pack finding with an empty `path`, refused (the holder,
+    `6072086385` item 3).
+  - **Ruled**: R2Q18, R2Q20; the holder's `6069024023` (item 1) and `6072086385`
+    (item 3). **Decisions**: N-3, OQ-H15-1, -10, -11.
   - **After**: T041.
   - **Files**: `src/opendox/health_contract.py` (second, appended), the test.
   - **Implementation note** (accepted by the holder, `6028138991`, from lane 3's
@@ -1211,11 +1313,17 @@ copies (research R7; ADV-05).
   complete, full default-tip run becomes a baseline or measures a
   disappearance, and an id it suppresses as accepted is never one (Copilot's
   review of `2076f24b`); each run
-  reads the dispositions file in what it reads (N-14); the engine hook G15-E
+  reads the dispositions file in what it reads (N-14, whose one owner is T046:
+  suppression built on an injected source of accepted ids, whose parser T054
+  supplies, a refused file being `dispositions-refused`; the holder, `6069507373`
+  T046 item 3); the engine hook G15-E
   calls; the per-pack budget, `--timeout`, default 60 seconds, capped at 600,
   a whole number of seconds of at least 1 (OQ-H15-5); id-collision detection
   over the whole run, families and packs alike, before anything is stored
-  (contracts/health-finding.md § The id rule). New `health/cli.py`: the `health` group with 14.5's exact shapes
+  (contracts/health-finding.md § The id rule); classing and recording serialized
+  per corpus by an advisory transaction lock, so a run's sequence position
+  (`run_seq`) is the order in which it was classed (the holder, `6069024023` item
+  3; data-model.md § Health run). New `health/cli.py`: the `health` group with 14.5's exact shapes
   (`run`, `list`, `fix --finding ID [--batch]`, `accept`), plus `--local` and
   `list --class`, frozen, `fix` and `accept` dispatching to T053's and T054's
   modules; contributed through `default_profile.py` (N-2); `--json` carries
@@ -1237,7 +1345,12 @@ copies (research R7; ADV-05).
     a baseline, which the next tip run neither lists nor reports as
     disappeared; three consecutive default-tip runs where a finding vanishes
     uncited, the second carrying one `uncited-disappearance` re-raise and the
-    third raising nothing for either id; two findings with one identity key from
+    third raising nothing for either id; the same for a pathless original (its
+    `path` empty): run 2 re-raises it once, in the pathless form (`path` `""`,
+    identity `{category, entry}`), and run 3 raises nothing (option (D), the
+    holder, `6069024023` item 2); two overlapping runs of one corpus, which
+    serialize (the per-corpus advisory transaction lock, `6069024023` item 3);
+    two findings with one identity key from
     one family, and a forced 16-digit hash collision at two paths through the id
     function's test seam, each run storing ONE `identity-collision` finding,
     path as the contract rules, and neither colliding finding; and `--timeout`
@@ -1247,11 +1360,20 @@ copies (research R7; ADV-05).
     characters, `{category, entry}` for a pathless finding and `{collided_id}` for
     a collision (the holder, `6027706377` item 1, refining `6018624750`; FR-011).
   - **Ruled**: R2Q9 (items 2, 7), R2Q10, R2Q12, R2Q15; the holder's `6027706377`
-    (item 1). **Decisions**: I-2, CF-6, N-2, N-10, N-14, N-19, OQ-H15-5.
-  - **After**: T042, T044.
-  - **Files**: new `src/opendox/health/engine.py`, `baseline.py`, `cli.py` (first:
+    (item 1), `6069024023` (items 2 and 3) and `6069507373` (T046 items 3, 4 and
+    8). **Decisions**: I-2, CF-6, N-2, N-10, N-14, N-19, OQ-H15-5.
+  - **After**: T042, T044; T016, whose `src/opendox/cli.py` and
+    `src/opendox/default_profile.py` edits come first (plan.md § "Parallel
+    slices", those two files' rows; the holder, `6069507373` T046 item 8).
+  - **Files**: new `src/opendox/health/engine.py` (first: T046 → T056, whose one
+    line binds the pack hook T046 exposes; the holder, `6069507373` T046 item 4,
+    and lane 3's ACK, `6069516931`), `baseline.py`, `cli.py` (first:
     T046 → T053 → T054); `src/opendox/cli.py` (third); `src/opendox/default_profile.py`
-    (third); the tests.
+    (third); `tests/test_default_profile.py`, its one line, admitted as
+    collateral as for T015 (`6069507373` T046 item 8); the tests. T046 writes
+    everything else now; its `src/opendox/default_profile.py` and
+    `src/opendox/cli.py` contributions and its `tests/test_default_profile.py`
+    line join its PR only after T016 lands, by a merge of `main` (the same item).
   - **Lane**: 4.
 - [ ] T047 [US6] [oDc] **G15-B, the manifest, the pin and the second copy.** New
   `check_pack_manifest.py` reads `health/packs.yaml` (`contracts/health-packs-manifest.md`):
@@ -1421,8 +1543,12 @@ copies (research R7; ADV-05).
   (`contracts/health-exceptions.md`); suppresses, never downgrades; refuses another
   `kind` by name, and a repeated `finding` id; `accept` refuses an id already
   accepted (contracts/health-exceptions.md); `accept` writes the working tree in a checkout and a draft
-  branch with none (OQ-H-14); a run reads the file in what it reads (N-14); the
-  engine files join the settings-document exclusion (OQ-H-15). Copy T040's
+  branch with none (OQ-H-14); it supplies the parser for T046's injected source of
+  accepted ids, and raises `dispositions-refused` for a refused file
+  (`6069024023` item 1). N-14 and OQ-H-15 each have one owner, not this task:
+  which file a run reads (N-14) is T046's, and the engine files' exclusion
+  (OQ-H-15) is T044's, in the families (the holder, `6069507373` T046 item 3 and
+  T044 item 8). Copy T040's
   exceptions schema at T060's pinned commit into the copy record after T047 (the
   validator gains the `opendox-health-dispositions` kind). `accept`'s dispatch
   line in `health/cli.py`.
@@ -1433,7 +1559,9 @@ copies (research R7; ADV-05).
     after a baseline run that held it, which the next tip run suppresses and
     never re-raises as an uncited disappearance; a reset-survival test in
     `tests_runtime/` (an exception survives `runtime reset`); `tests/test_validator_input_set.py`.
-  - **Ruled**: R2Q10, R2Q22. **Decisions**: OQ-H-13, -14, -15; N-14, N-15.
+  - **Ruled**: R2Q10, R2Q22; the holder's `6069024023` (item 1) and
+    `6069507373` (T046 item 3, T044 item 8). **Decisions**: OQ-H-13, -14; N-15
+    (N-14 is T046's and OQ-H-15 T044's, `6069507373`).
   - **After**: T046, T053 (`health/cli.py`), T047 (the copy record; lane 3's split
     condition 2).
   - **Files**: new `src/opendox/health/exceptions.py`, `src/opendox/health/cli.py`
@@ -1498,10 +1626,14 @@ copies (research R7; ADV-05).
     refused with no branch after the manifest's digest changes under an
     unchanged `version`, and after HEAD moves past the run's `export_commit`;
     the measurement quoted in its PR.
-  - **Ruled**: R2Q16, R2Q18, R2Q21, R2Q25. **Decisions**: OQ-H15-5, -11, -18, -19,
-    -20.
+  - **Ruled**: R2Q16, R2Q18, R2Q21, R2Q25; the holder's `6069507373` (T046 item
+    4), acknowledged by lane 3 (`6069516931`). **Decisions**: OQ-H15-5, -11, -18,
+    -19, -20.
   - **After**: T046, T042, T047, T048, T049, T055.
-  - **Files**: new `src/opendox/check_pack_engine.py`, the test.
+  - **Files**: new `src/opendox/check_pack_engine.py`, the test; and ONE line of
+    `src/opendox/health/engine.py`, binding the pack hook T046 exposes, written
+    after T046 lands, with no other `engine.py` change (the holder, `6069507373`
+    T046 item 4; lane 3's ACK, `6069516931`).
   - **Lane**: 3.
 - [ ] T059 [oxF] **A display-facet follow-on, only if measured.** If T050's
   schema-version bump moves an openxFactory facet test at T064's pin, land a
@@ -2533,8 +2665,8 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 | — | F9.1's `--deselect` removed | F9.1 (batch J's line) | `5859927858`, at T076 while #1144 is active |
 
 **Task count:** 91 rows: Phase 0 9 (T001–T009; eight done, T002–T009, and T001 is a
-standing act), Phase 4 24 (T010–T033; T010, T011, T014, T020, T021, T022, T023, T024,
-T025 and T026 done), Phase 5 30 (T040–T068, T059, T067 and T068 among them, and T105, the
+standing act), Phase 4 24 (T010–T033; T010, T011, T012, T013, T014, T020, T021,
+T022, T023, T024, T025 and T026 done), Phase 5 30 (T040–T068, T059, T067 and T068 among them, and T105, the
 read-only wave-1 re-measure; T040, T060 and T105 done),
 requirement 9 12 (T073, T094 and the ten repair slices T095–T104, which replace
 the placeholder row T095+; T094 and the ten repair slices T095–T104 done), the

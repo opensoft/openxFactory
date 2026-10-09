@@ -91,17 +91,18 @@ jobs:
             || fail "the corpus index was not read."
 
           # `N/N` via a backreference: a pattern matching any two numbers passes
-          # a run that adjudicated three vectors out of a hundred.
-          grep -qE '^note  vectors adjudicated: ([0-9]+)/\1$' council-convening-gate.log \
+          # a run that adjudicated three vectors out of a hundred. The first
+          # digit is 1-9, so `0/0`, a run that walked nothing, fails too.
+          grep -qE '^note  vectors adjudicated: ([1-9][0-9]*)/\1$' council-convening-gate.log \
             || fail "not every vector was adjudicated to its expected outcome."
 
-          grep -qE '^note  refusal codes probed: ([0-9]+)/\1$' council-convening-gate.log \
+          grep -qE '^note  refusal codes probed: ([1-9][0-9]*)/\1$' council-convening-gate.log \
             || fail "a refusal code in the vocabulary at this commit has no probing vector."
 
-          grep -qE '^note  finding codes probed: ([0-9]+)/\1$' council-convening-gate.log \
+          grep -qE '^note  finding codes probed: ([1-9][0-9]*)/\1$' council-convening-gate.log \
             || fail "a finding code in the vocabulary at this commit has no probing vector."
 
-          grep -qE '^note  requirements probed: ([0-9]+)/\1 \(FR-001, FR-002, FR-003, FR-004, FR-011, SC-001\)$' council-convening-gate.log \
+          grep -qE '^note  requirements probed: ([1-9][0-9]*)/\1 \(FR-001, FR-002, FR-003, FR-004, FR-011, SC-001\)$' council-convening-gate.log \
             || fail "a coverage-floor requirement is cited by no vector, or the floor moved without this assertion."
 
           grep -qE '^note  generator reproduced corpus byte-for-byte$' council-convening-gate.log \

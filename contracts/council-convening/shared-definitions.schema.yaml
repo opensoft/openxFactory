@@ -128,7 +128,11 @@ $defs:
   key_fingerprint:
     description: >-
       The estate's one key-fingerprint spelling: `sha256:` plus the lowercase hex
-      of the raw 32-byte public key.
+      SHA-256 of the raw 32-byte Ed25519 public key, as openXwallet
+      `fingerprint_of_public_key` and codexFactory `key_fingerprint` compute it
+      (ruled by Brett Heap 2026-10-09T02:36:50Z, "Estate spelling
+      (Recommended)"). The pattern checks the spelling only; recomputing it from
+      a carried public key is the registration boundary's check.
     type: string
     pattern: '^sha256:[0-9a-f]{64}$'
   public_key:
