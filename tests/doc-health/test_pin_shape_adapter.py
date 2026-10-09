@@ -199,7 +199,7 @@ def test_record_leg_removing_any_table_member_refuses_and_names_it(pin_id):
     ONE SPELLING THAT RECORD'S OWN VERIFIER READS, not an alternation of two:
     `contracts/openxwallet-pin.yaml` carries BOTH product-identity spellings, so
     an entry satisfied by either would accept it with `submodule_path` deleted
-    while `verify-openxwallet-pin.py:194` refuses it — the adapter NARROWER than
+    while `verify-openxwallet-pin.py:225` refuses it — the adapter NARROWER than
     the guard it tracks, which is the exact defect this leg exists to catch."""
     record = RECORDS[pin_id]
     _shape, rows = _tracked_table(pin_id, record)
@@ -498,7 +498,7 @@ def test_shape_a_judges_its_two_lists_by_two_rules_and_not_by_one():
 
 def test_pinned_by_commit_only_treats_every_falsey_value_as_empty():
     """(PR #1040 fix round 1, R4). Both shape-(a) verifiers read
-    `pin.get("pinned_by_commit_only") or []` (`verify-openxwallet-pin.py:443`,
+    `pin.get("pinned_by_commit_only") or []` (`verify-openxwallet-pin.py:551`,
     `validate-openreposhape-pin.py:487`): every FALSEY value — not only
     absence — is EMPTY and admitted, so an adapter refusing `None` or `""`
     would be WIDER than the guard it tracks. `None` and `[]` are ACCEPTED; a

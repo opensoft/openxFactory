@@ -44,7 +44,15 @@ VALIDATOR_RUN = f"{VALIDATOR_COMMAND} | tee wallet-gate.log"
 
 PIN_VERIFY_RUN = "python3 scripts/verify-openxwallet-pin.py"
 SYNTAX_GATE_RUN = "python3 openXwallet/scripts/wallet-yaml-syntax-gate.py ."
-SCOPED_INIT_RUN = "git submodule update --init openXwallet"
+#: The scoped init, THREE NAMED LEVELS in order (openXwallet
+#: `split-openwallet-neutral-core`, design D6): the gitlink, its nested
+#: openWallet root, and that root's code leg. Never `--recursive`, and never the
+#: root's `spec` leg, which nothing in the gate reads.
+SCOPED_INIT_RUNS = (
+    "git submodule update --init openXwallet",
+    "git -C openXwallet submodule update --init openWallet",
+    "git -C openXwallet/openWallet submodule update --init code",
+)
 
 
 @pytest.fixture(scope="module")
@@ -144,11 +152,29 @@ def test_the_syntax_gate_runs_from_the_pin_too(runs: list[str]) -> None:
 
 
 def test_the_submodule_init_is_scoped_and_not_recursive(runs: list[str]) -> None:
-    """`--recursive` would pull every nested submodule of every consumer."""
+    """`--recursive` would pull every nested submodule of every consumer.
+
+    Three named levels, in order, and nothing else: a path-scoped
+    `--init --recursive openXwallet` would also fetch the openWallet root's
+    `spec` leg, which no step here reads.
+    """
     inits = [r for r in runs if "submodule update" in r]
-    assert inits == [SCOPED_INIT_RUN], (
-        f"the gate must init exactly the openXwallet gitlink; found {inits}")
+    assert inits == list(SCOPED_INIT_RUNS), (
+        f"the gate must init exactly openXwallet, then openXwallet/openWallet, "
+        f"then its code leg; found {inits}")
     assert "--recursive" not in " ".join(inits)
+    assert not any(r.rstrip().endswith(" spec") for r in inits), (
+        "the openWallet spec leg is never initialized by this gate")
+
+
+def test_every_level_is_initialized_before_the_pin_is_verified(
+        runs: list[str]) -> None:
+    """The verifier checks nested-checkout parity at both levels, so every
+    level must be on disk first; otherwise it refuses for its environment
+    rather than for a finding."""
+    verify_at = runs.index(PIN_VERIFY_RUN)
+    for init in SCOPED_INIT_RUNS:
+        assert runs.index(init) < verify_at, init
 
 
 def test_the_checkout_does_not_use_a_blanket_submodule_init(

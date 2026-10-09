@@ -520,7 +520,7 @@ def test_the_reader_exits_zero_on_the_corpus_and_the_tree(capsys):
     try:
         sys.argv = ["validate-signed-execution-chain.py", str(REPO_ROOT),
                     "--require-pinned-wallet-vocabulary"] \
-            if (REPO_ROOT / "openXwallet" / "contracts" / "openxwallet").is_dir() \
+            if reader.PINNED_WALLET_DIR.is_dir() \
             else ["validate-signed-execution-chain.py", str(REPO_ROOT)]
         assert reader.main() == 0
     finally:
