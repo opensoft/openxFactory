@@ -303,11 +303,16 @@ The red run was taken over the tree of the merge `f3a94dcab` with `predicates.py
 These are readings, not rulings. Each is pinned so the producer and the consumer refine to one reading (R21). Readings 1–5 are stated in `tests/council_convening/test_resolution.py`'s module docstring and pinned by the vectors named. Readings 6–8 are pinned by the tests named:
 
 1. **Step 5 runs source by source.** All five per-source checks run on one source before the next (`commission-refuse-order-earlier-source-first`, `admission-refuse-order-superseded-source-before-later-source`). Analysis U2's "in path order" reads the same way.
-2. **Step 9's fact-source rule is total.** A contract a condition uses with no `fact_sources` entry, and an entry for a contract no condition uses, are `fact_source_mismatch` (`commission-refuse-fact-source-missing-for-contract-in-use`, `commission-refuse-fact-source-for-contract-not-in-use`). The data-model lists three causes of that code and is silent on these two.
-3. **Step 10 evaluates before it compares.** Each condition is evaluated over the authoritative facts in order, where an incomplete set is `condition_unevaluable` and the bare-directory evidence rule is `predicate_parameters_malformed`; only then are consumed facts compared (`consumed_facts_mismatch`; `commission-refuse-order-unevaluable-before-mismatch`). R5 names the bare-directory refusal's code but not its step.
+2. **Step 9's fact-source rule is total.** A contract a condition uses with no `fact_sources` entry, and an entry for a contract no condition uses, are `fact_source_mismatch` (`commission-refuse-fact-source-missing-for-contract-in-use`, `commission-refuse-fact-source-for-contract-not-in-use`). The data-model lists three causes of that code and is silent on these two. *Now a dated data-model note (E2 step 9, 2026-10-09).*
+3. **Step 10 evaluates before it compares.** Each condition is evaluated over the authoritative facts in order, where an incomplete set is `condition_unevaluable` and the bare-directory evidence rule is `predicate_parameters_malformed`; only then are consumed facts compared (`consumed_facts_mismatch`; `commission-refuse-order-unevaluable-before-mismatch`). R5 names the bare-directory refusal's code but not its step. *Corrected 2026-10-09 (Phase 2 pre-review, M2). That vector pins only `condition_unevaluable` before `consumed_facts_mismatch`; no vector pinned the bare-directory rule's place. The fix round adds three vectors that do:*
+   - *`commission-refuse-bare-directory-evidence-only-in-the-authoritative-facts`, `predicate_parameters_malformed`;*
+   - *`commission-refuse-bare-directory-evidence-only-in-the-consumed-facts`, `consumed_facts_mismatch`;*
+   - *`commission-refuse-order-bare-directory-before-a-later-unevaluable`, `predicate_parameters_malformed`.*
+
+   *The reading is now a dated data-model note too (E2 step 10).*
 4. **Step 11 checks every `held` before any seat** (`commission-refuse-order-result-before-seat-unbound`).
 5. **Step 13 names the first read that is not the head.** A head that moved and came back still refuses (`commission-refuse-head-moved-and-restored`).
-6. **Consumed facts compare exactly**, as canonical JSON values: a path list in another order is `consumed_facts_mismatch`. No normalization is specified, so none is applied (`test_resolution.py::test_consumed_facts_must_equal_the_authoritative_facts`).
+6. **Consumed facts compare exactly**, as canonical JSON values: a path list in another order is `consumed_facts_mismatch`. No normalization is specified, so none is applied (`test_resolution.py::test_consumed_facts_must_equal_the_authoritative_facts`). *Narrowed 2026-10-09 by Brett Heap's ruling of 2026-10-09T17:35:34Z, "Sorted and unique (Recommended)". `changed_paths` now has one order, bytewise sorted and duplicate-free, and step 2 refuses any other. The reading still stands for `rule_touched_paths`, whose order is not specified (`test_resolution.py::test_rule_touched_paths_compare_in_order`).*
 7. **A tree pattern `d/**` matches paths strictly inside `d/`**, not a file named `d` and not a sibling sharing the prefix (`test_predicates.py::test_a_tree_pattern_matches_strictly_inside_its_directory`).
 8. **Oracle data a vector does not carry is a harness error, never a pass or a refusal.** A shared vector that is inconsistent for the consumer is one too (`test_resolution.py::test_a_missing_oracle_is_a_harness_error`, `::test_a_shared_vector_inconsistent_for_the_consumer_is_a_harness_error`). The corpus reports it as a vector input error.
 
@@ -418,6 +423,68 @@ for name in PATTERNS:
             print(f"    {n:4d}  {path}")
 ```
 
+### The independent pre-review's fix round, and Brett Heap's two rulings (2026-10-09T17:35Z–18:20Z)
+
+The independent pre-review of `fdc0b0601` returned READY AFTER FIXES. It reproduced the gates, recomputed the 14 accept `convening_digest` values independently, and confirmed that no vector had been changed after implementation and that the `NON_MEMBERS` row cannot hide a real pin. It raised H1, M1–M3 and L1–L5. Brett Heap ruled the two that needed a word, first-hand, at 2026-10-09T17:35:34Z, choosing the recommended option each time (RULED, log lines 262–263):
+
+- **H1, "Bind it in PR-2 (Recommended)".** Nothing bound which fact source a condition reads. A producer could point the gate-rules shape at `rules/council-profile.yaml`, write both `held` false, and drop the security seat while every check passed. Now:
+  - each class and each unclassed council in the rule projection declares `fact_sources`;
+  - step 9 refuses a record whose `fact_sources` differ from that declaration, entry for entry and in order, as `fact_source_mismatch`, with no new code;
+  - offline `check` names that comparison as not checkable offline.
+- **M3, "Sorted and unique (Recommended)".** A consumed `pr_facts.changed_paths` must be bytewise sorted and duplicate-free, and step 2 refuses any other as `convening_malformed`.
+  - **Reading:** I read the ruling's gloss "a rename keeps its old-then-new pair" as: a rename contributes both its paths, and each takes its own sorted place. One sorted, flat list cannot also keep a pair adjacent and in old-then-new order. `commission-accept-rename-new-path-sorts-first` pins this reading, so the lane can confirm or overrule it.
+
+The other fixes:
+
+- **M1.** Offline `check` now names `predicate_parameters_malformed (bare-directory evidence)` as not checkable offline. The rule reads the authoritative facts, so the reviewer's record still exits 0, but the rule is named and never passed.
+- **M2.** The three vectors above pin reading 3. The claim this record made for it is corrected in place.
+- **Readings 2 and 3** are dated data-model notes now (E2 steps 9 and 10).
+- **L1.** A listing entry must be a file directly inside the listing's `path` whose name ends with one of its `suffixes`, checked at step 2.
+- **L2.** An object for an input contract no condition uses is `facts_unused` even when it is empty.
+- **L3.** Three `$parts` secret vectors now cover the floor's `sk-` and PEM detectors and the `class_inputs` member, so all five detectors and all four scanned members are probed.
+- **L4.** A source whose `kind` is not what is at its path is `rule_digest_mismatch`, no longer a harness error.
+- **L5.** Completeness ties the path list to the entry count: `entry count ≤ len(changed_paths) ≤ 2 × entry count`, or `condition_unevaluable`.
+
+Each fix carries a dated note in data-model E2/E3. H1 also carries a dated amendment of the corpus contract's `rules` oracle row.
+
+**PR-1 review follow-ups.** The final PR-1 review raised two LOW items, folded in test-first (`bb99d2502`):
+
+- `check`'s invocation-directory rule compared strings. Run from `/`, `base_dir + os.sep` was `//`, so every path was refused. It now compares with `os.path.commonpath([base_dir, resolved]) == base_dir`.
+- Regression tests cover a sibling sharing the prefix (`base` against `base-other`), which stays outside, and a run from `/`. Before the fix, the two `/` cases failed and the sibling case passed.
+
+**#1282** has the reviewer's addendum ([comment 6086583233](https://github.com/opensoft/openxFactory/issues/1282#issuecomment-6086583233), 2026-10-09T18:09:43Z). Three detectors both sides have are narrower in the floor (`\b` anchors, and case-sensitivity), measured on six synthetic shapes. `SECRET_PATTERNS` is still not widened in PR-2.
+
+**Vectors: what was re-derived, and what was added.** `author_resolution_vectors.py` (scratch, never committed) reproduced the 128 committed vectors byte for byte before it was changed. A JSON-path diff of its new output against the committed vectors shows exactly these changes:
+
+- **all 128:** the `rules` oracle's projection gains `fact_sources`, in 118 classed and 10 unclassed vectors. No `expected` moved;
+- **2 re-derived records,** `commission-refuse-secret-in-consumed-fact` and `commission-refuse-order-secret-before-candidate`. Each secret path is inserted at its sorted place, index 1 instead of 0, so the record still reaches step 3 under M3. Their expectation, `secret_bearing_fact`, is unchanged;
+- **21 new,** every expectation written by hand before the implementation:
+  - H1: 3 swapped-source vectors, among them the reviewer's probe, `commission-refuse-fact-source-swapped-to-a-governed-file`; a projection-order pair, one accept and one refuse;
+  - M3: unsorted, repeated, and a rename whose new path sorts first;
+  - M2: 3;
+  - L1: 2; L2: 1; L3: 3; L4: 2 (each direction); L5: 2.
+
+The area now holds **149** vectors:
+
+| Boundary | Applies to | Vectors |
+|---|---|---|
+| `commission` | producer and consumer | 133 |
+| `commission` | producer only | 4 |
+| `admission` | consumer only | 12 |
+
+16 accept and 133 refuse, 32 distinct refusal codes.
+
+**Tests first, then green.**
+
+- **Red** (`366b5c462`, 2026-10-09T17:50Z): `python3 -m pytest tests/council_convening -q -m "not postgres"` gave **261 failed, 692 passed**.
+  - 234 of the failures are the earlier code refusing the projection's new `fact_sources` member as a malformed projection (`HarnessError`).
+  - 5 are L4's former `HarnessError`.
+  - The rest are assertion failures on the new rules.
+- **Green** at `142e9007a` (2026-10-09T18:08Z–18:19Z): the same suite plus `tests/doc-health/test_pin_reachability.py` and `tests/doc-health/test_sentinel_vocabulary.py`, **1085 passed**.
+  - Self-test: 282/282 vectors, 34/34 refusal codes, 1/1 finding codes, 6/6 requirements, and the generator reproduced the corpus.
+  - `corpus`: 282 vectors, agreement set 266, index `sha256:baff57e60bf13a3faf1cebe651fe4e189ad1a912af7e41cba1fde8b64db55778`.
+- **The merge of Phase 1's `8f83b10ac`** (`6cd6a8bce`) moved `check` to read only inside its working directory. The five Phase 2 `check` call sites on temporary paths now run from that path's own directory (`2eb3ac09a`), as Phase 1's own cases do.
+
 ### Quickstart steps 1–5 (T034)
 
 All at `d0ad97e63` unless another commit is named. Py-bench container, Python 3.12.3, in this phase's worktree, with `openDox`, `openXdox` and `openXwallet` initialized recursively, as `pytest-suite` does.
@@ -449,6 +516,40 @@ All at `d0ad97e63` unless another commit is named. Py-bench container, Python 3.
 **The PR.** T034's text says to open PR-2 as a draft. The lane's coordinator instructed that it open **ready**, after PR-1 lands, on Brett Heap's word *"merge PR-2 when green"* (2026-10-09T01:28:37Z, log line 238). It is not open at this record's commit.
 
 **Follow-up 1 is what the source-currency vectors encode.** Brett Heap, 2026-10-08T23:03:35Z, *"Every governed source (Recommended)"* (RULED, log line 209). Every `admission-refuse-rule-superseded-*` vector, including those whose superseded source is not the rule file, applies the OPEN-3 test to every governed source.
+
+### Quickstart steps 1–5 at the PR-2 head (`57feb4aa7`, 2026-10-09T22:29Z–22:49Z)
+
+The branch took `main` twice after PR-1 landed, and never rebased:
+
+- `96e884318`, at `9a272c6db`, PR-1's landing, which brought nothing new;
+- `57feb4aa7`, at `a8ab30396`, which moved the `openXwallet` gitlink to `815b86ce` (#1290, group 6).
+
+`openXwallet` was initialized the way `pytest-suite` does it now, through `openWallet` and its `code` leg.
+
+1. **Red.** Recorded above: tests first, 10 failed, 234 passed, 2 errors; the fix round, 261 failed, 692 passed; the PR-1 follow-ups, the two `/` cases.
+2. **Green.**
+   - `python3 -m pytest tests/council_convening tests/doc-health -q -m "not postgres"`: **3113 passed**, made up of the 956 `tests/council_convening` cases and the 2157 `tests/doc-health` cases.
+   - `test_gate_wiring.py` alone: 13 passed. The gate's requirements grep names the raised floor, `(FR-001, FR-002, FR-003, FR-004, FR-011, SC-001)`, and the test builds that string from `generate.COVERAGE_FLOOR`.
+   - `python3 scripts/validate-council-convening.py`: exit 0.
+     - 4 family schemas loaded.
+     - Both registries closed.
+     - 282/282 vectors adjudicated.
+     - 34/34 refusal codes and 1/1 finding codes probed.
+     - 6/6 requirements probed.
+     - The generator reproduced the corpus.
+3. **Corpus.**
+   - `generate --check`: no drift.
+   - `corpus`: 282 vectors, foundation 133 and resolution 149, **agreement set 266**.
+   - Outcomes: 58 accept, 216 refuse, 8 route.
+   - Index `sha256:baff57e60bf13a3faf1cebe651fe4e189ad1a912af7e41cba1fde8b64db55778`, unpublished.
+4. **Repository gates.**
+   - OpenSpec: exit 0, `Totals: 113 passed, 1 failed (114 items)`, 0 undispositioned. The one failure is `add-chain-attestation`'s accepted exception.
+   - Doc-health in single-repo mode: exit 0, `31 critical, 26 error, 59 warning, 21 info`, 0 regressions, and no finding on a Phase 2 path.
+   - **Full suite: measured by CI's `pytest-suite` on PR-2, as it was for PR-1, on the lane's instruction.**
+     - The last local attempt, at `d0180cab3`, ran into its 3600-second timeout at about 77% (exit 124) under shared-host load. It had 6 failures by then, and no report was written.
+     - The 9 failures this record already traced to the environment (factory-mcp, hermes-runtime-contracts, ideation-dashboard) fail identically at Phase 1's base.
+     - The shared `submodule.*` registrations were wiped and restored during the day, which is the other recorded cause of local-only failures.
+5. **Scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty.
 
 ## Phase 3 — User Story 2 (a): frozen assignments and retry identity (PR-3)
 

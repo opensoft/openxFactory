@@ -24,6 +24,13 @@ their own lists in turn; step 10 evaluates condition by condition and compares
 consumed facts afterwards; step 11 checks every `held` before any seat; step 13
 names the first read that is not the candidate's head.
 
+BRETT HEAP'S RULINGS OF 2026-10-09T17:35:34Z are encoded here too. "Bind it in
+PR-2 (Recommended)": the rule projection declares each council's or class's
+fact sources, and step 9 refuses a record whose `fact_sources` differ from them,
+entry for entry and in order, as `fact_source_mismatch`. "Sorted and unique
+(Recommended)": a consumed `changed_paths` is bytewise sorted and duplicate-free,
+and step 2 refuses any other as `convening_malformed`.
+
 THE ORACLES ARE INJECTED (R8). `resolve` reads authority, facts and heads only
 through an `Oracles` object. `VectorOracles` answers from a corpus vector's
 `environment` and records every read, which is how the tests show that a
@@ -64,6 +71,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SECRET_FLOOR = REPO_ROOT / "scripts" / "validate-domain-factory.py"
 
 _FULL_SHA = re.compile(r"[0-9a-f]{40}")
+
+#: The members of an unclassed council, and of a class, in a rule projection
+#: (data-model E3; the fact sources under Brett Heap's H1 ruling of 2026-10-09).
+PROJECTED_MEMBERS = frozenset({"standing_seats", "conditions", "fact_sources"})
 
 
 class HarnessError(Exception):
@@ -247,7 +258,9 @@ def _same(left, right) -> bool:
 
 
 def _bytewise(path: str) -> bytes:
-    return path.encode("utf-8")
+    # `surrogatepass`: a lone surrogate still orders deterministically here, and
+    # is refused as `value_not_canonicalizable` at the end of step 2.
+    return path.encode("utf-8", "surrogatepass")
 
 
 def _strictly_ascending(paths) -> bool:
@@ -344,7 +357,7 @@ def _projection_council(council) -> tuple[bool, Mapping]:
                     or not set(entry["head_ref"]) <= {"exact", "glob"}):
                 raise HarnessError("a projection class-selector entry is malformed")
         return True, council
-    if set(council) == {"standing_seats", "conditions"}:
+    if set(council) == PROJECTED_MEMBERS:
         return False, council
     raise HarnessError("a projection council is neither classed nor unclassed")
 
@@ -405,13 +418,29 @@ def _shape(record, run: _Run) -> None:
                 raise Refused("convening_malformed", "entries")
             if not set(source["entries"]) <= files:
                 raise Refused("convening_malformed", "entries")
+            if not all(_listed(entry, source) for entry in source["entries"]):
+                raise Refused("convening_malformed", "entries")
     contracts = [fs["input_contract"] for fs in prov["fact_sources"]]
     if len(set(contracts)) != len(contracts):
         raise Refused("convening_malformed", "fact_sources")
+    pr_facts = prov["consumed_facts"].get(predicates.PR_FACTS, {})
+    if "changed_paths" in pr_facts and not _strictly_ascending(pr_facts["changed_paths"]):
+        raise Refused("convening_malformed", "changed_paths")
     try:
         canonical.serialize(record)
     except canonical.ConstructionError:
         raise Refused("value_not_canonicalizable", "record") from None
+
+
+def _listed(entry: str, listing) -> bool:
+    """A listing entry is a file directly inside the listing's path whose name
+    ends with one of its suffixes (data-model E2; pre-review L1, 2026-10-09)."""
+    inside = listing["path"] + "/"
+    if not entry.startswith(inside):
+        return False
+    name = entry[len(inside):]
+    return bool(name) and "/" not in name and any(
+        name.endswith(suffix) for suffix in listing["suffixes"])
 
 
 def _secrets(record) -> None:
@@ -496,9 +525,14 @@ def _governed(record, run: _Run):
             raise Refused("rule_unavailable", "path")
         if entry["governed"] is not True:
             raise Refused("rule_unauthorized", "path")
-        value_member, tip_member = (("sha256", "tip_sha256") if source["kind"] == "file"
-                                    else ("entries", "tip_entries"))
+        value_member, tip_member, other_member = (
+            ("sha256", "tip_sha256", "entries") if source["kind"] == "file"
+            else ("entries", "tip_entries", "sha256"))
         if value_member not in entry:
+            # Pre-review L4 (2026-10-09): a file where the path holds a listing,
+            # or a listing where it holds a file, differs from the record.
+            if other_member in entry:
+                raise Refused("rule_digest_mismatch", "kind")
             raise HarnessError("a `governed` entry lacks its value at the revision")
         if not _same(entry[value_member], source[value_member]):
             raise Refused("rule_digest_mismatch", "path")
@@ -513,10 +547,11 @@ def _governed(record, run: _Run):
 
 
 def _council_and_class(record, projection, run: _Run):
-    """Steps 6 and 7. Returns nothing; refuses or passes."""
+    """Steps 6 and 7. Returns the projection's entry for the convened council or
+    its selected class, or None offline."""
     if run.skip("council_unknown") | run.skip("class_mismatch") | \
             run.skip("class_unresolved") | run.skip("rule_projection_mismatch"):
-        return
+        return None
     prov = record["required_seats_provenance"]
     councils = projection.get("councils")
     if not isinstance(councils, Mapping):
@@ -537,7 +572,8 @@ def _council_and_class(record, projection, run: _Run):
         klass = council["classes"][selected]
     else:
         klass = council
-    if not isinstance(klass, Mapping) or set(klass) != {"standing_seats", "conditions"}:
+    if not isinstance(klass, Mapping) or set(klass) != PROJECTED_MEMBERS \
+            or not isinstance(klass["fact_sources"], list):
         raise HarnessError("a projection class is malformed")
     # Step 7.
     if not _same(prov["standing_seats"], klass["standing_seats"]):
@@ -545,10 +581,13 @@ def _council_and_class(record, projection, run: _Run):
     without_held = [{k: v for k, v in c.items() if k != "held"} for c in prov["conditions"]]
     if not _same(without_held, klass["conditions"]):
         raise Refused("rule_projection_mismatch", "conditions")
+    return klass
 
 
-def _record_facts(record):
-    """Step 9. Returns (contracts in use, in condition order; source by contract)."""
+def _record_facts(record, declared, run: _Run):
+    """Step 9. Returns (contracts in use, in condition order; source by contract).
+    `declared` is the projection's entry for the council or class, or None
+    offline."""
     prov = record["required_seats_provenance"]
     candidate, governed = prov["candidate"], prov["governed"]
     conditions = prov["conditions"]
@@ -570,6 +609,12 @@ def _record_facts(record):
         sources[contract] = source
     if any(contract not in sources for contract in in_use):
         raise Refused("fact_source_mismatch", "fact_sources")
+    # Brett Heap, 2026-10-09T17:35:34Z, "Bind it in PR-2 (Recommended)": the
+    # sources are the projection's, entry for entry and in order, so a record
+    # cannot read a condition's facts from another file than its rule names.
+    if not run.skip("fact_source_mismatch (projection)"):
+        if not _same(prov["fact_sources"], declared["fact_sources"]):
+            raise Refused("fact_source_mismatch", "fact_sources")
     consumed = prov["consumed_facts"]
     read: dict[str, set] = {}
     for condition in conditions:
@@ -579,14 +624,18 @@ def _record_facts(record):
         if any(fact not in have for fact in facts):
             raise Refused("opaque_conclusion", "consumed_facts")
     for contract, facts in consumed.items():
-        if any(fact not in read.get(contract, ()) for fact in facts):
+        # An object for a contract no condition reads is unused even when empty
+        # (pre-review L2, 2026-10-09): one resolution, one encoding.
+        if contract not in read or any(fact not in read[contract] for fact in facts):
             raise Refused("facts_unused", "consumed_facts")
     return in_use, sources
 
 
 def _authoritative(record, in_use, sources, run: _Run):
     """Step 10. Returns the reference evaluation of each condition, or None offline."""
-    if run.skip("condition_unevaluable") | run.skip("consumed_facts_mismatch"):
+    if run.skip("condition_unevaluable") | \
+            run.skip("predicate_parameters_malformed (bare-directory evidence)") | \
+            run.skip("consumed_facts_mismatch"):
         return None
     prov = record["required_seats_provenance"]
     authoritative = {
@@ -687,12 +736,12 @@ def _order(record, run: _Run, selected_protocol, statuses):
     _secrets(record)                                                  # 3
     _candidate(record, run)                                           # 4
     projection = _governed(record, run)                               # 5
-    _council_and_class(record, projection, run)                       # 6, 7
+    declared = _council_and_class(record, projection, run)            # 6, 7
     for condition in record["required_seats_provenance"]["conditions"]:
         predicates.check_condition(condition["predicate"],            # 8
                                    condition["input_contract"], condition["parameters"],
                                    run.schemas)
-    in_use, sources = _record_facts(record)                           # 9
+    in_use, sources = _record_facts(record, declared, run)            # 9
     reference = _authoritative(record, in_use, sources, run)          # 10
     _held_and_roster(record, reference, run)                          # 11, 12
     _live_head(record, run)                                           # 13

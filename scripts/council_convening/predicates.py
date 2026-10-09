@@ -243,8 +243,9 @@ def evaluate(predicate: str, parameters: Mapping[str, Any], facts: Any) -> bool:
     """E2 step 10's evaluation of one condition over the AUTHORITATIVE facts.
 
     The condition has already passed `check_condition`. Order: evaluability (a
-    read fact absent or outside the contract, then completeness), then the
-    bare-directory evidence rule, then the decision.
+    read fact absent or outside the contract, then completeness: the entry count
+    equals a total of at most 3000, and the path list holds one to two paths per
+    entry), then the bare-directory evidence rule, then the decision.
     """
     spec = PREDICATES[predicate]
     if not isinstance(facts, Mapping):
@@ -254,8 +255,13 @@ def evaluate(predicate: str, parameters: Mapping[str, Any], facts: Any) -> bool:
             raise Refused("condition_unevaluable", fact)
     if spec.input_contract == PR_FACTS:
         total = facts["changed_files_total"]
-        if facts["changed_paths_entry_count"] != total or total > MAX_LISTING_ENTRIES:
+        count = facts["changed_paths_entry_count"]
+        if count != total or total > MAX_LISTING_ENTRIES:
             raise Refused("condition_unevaluable", "changed_files_total")
+        # Pre-review L5 (2026-10-09): every entry contributes one path, or two for
+        # a rename, so a complete listing of n entries carries n to 2n paths.
+        if not count <= len(facts["changed_paths"]) <= 2 * count:
+            raise Refused("condition_unevaluable", "changed_paths")
     paths = facts[spec.path_fact]
     patterns = parameters[spec.parameter]
     for pattern in patterns:

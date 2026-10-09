@@ -17,6 +17,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
 
@@ -347,7 +348,13 @@ ORACLE_RULES = [
     "class_mismatch",
     "class_unresolved",
     "rule_projection_mismatch",
+    # Brett Heap, 2026-10-09T17:35:34Z, "Bind it in PR-2 (Recommended)": the
+    # comparison with the projection's declared sources needs the `rules` oracle.
+    "fact_source_mismatch (projection)",
     "condition_unevaluable",
+    # Pre-review M1 (2026-10-09): the rule reads the AUTHORITATIVE facts, so a
+    # record's own consumed facts can neither pass it nor name its code offline.
+    "predicate_parameters_malformed (bare-directory evidence)",
     "consumed_facts_mismatch",
     "condition_result_mismatch",
     "candidate_head_unavailable",
@@ -389,12 +396,32 @@ def test_check_names_each_oracle_dependent_rule_as_not_offline_checkable(
 
 
 def test_check_names_no_offline_rule_as_not_checkable(checked_commission_record):
-    """The offline-checkable rules run; they are never listed as skipped."""
+    """The offline-checkable rules run; they are never listed as skipped. Whole
+    rule names are compared, so `fact_source_mismatch (projection)`, which is
+    skipped, does not hide or stand for `fact_source_mismatch`, which is not."""
+    skipped = {line.split(": not checkable offline: ", 1)[1]
+               for line in checked_commission_record.stdout.splitlines()
+               if ": not checkable offline: " in line}
+    assert skipped == set(ORACLE_RULES)
     for rule in ("mutable_rule_reference", "rule_path_malformed", "predicate_unknown",
                  "fact_source_mismatch", "opaque_conclusion", "facts_unused",
                  "condition_seat_unbound", "roster_empty", "roster_mismatch",
-                 "secret_bearing_fact", "convening_malformed"):
-        assert f"not checkable offline: {rule}" not in checked_commission_record.stdout
+                 "secret_bearing_fact", "convening_malformed",
+                 "predicate_parameters_malformed"):
+        assert rule not in skipped
+
+
+def test_check_never_passes_the_bare_directory_rule_offline(tmp_path):
+    """Pre-review M1: the reviewer's record, whose condition `src/auth` meets
+    `src/auth/login.py` in the facts it consumed. Offline it reaches every rule
+    `check` can run and passes them, and the bare-directory rule is NAMED as not
+    checkable offline; it is never reported as passed."""
+    record = _commission_record("commission-refuse-predicate-parameters-bare-directory-evidence")
+    path = _write(tmp_path, "convening.json", record)
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.count(
+        ": not checkable offline: predicate_parameters_malformed (bare-directory evidence)") == 1
 
 
 @pytest.mark.parametrize("mutate, finding", [
@@ -413,6 +440,14 @@ def test_check_names_no_offline_rule_as_not_checkable(checked_commission_record)
                  "council-convening-candidate-mismatch", id="pin-not-head"),
     pytest.param(lambda r: r.update(notes="x"),
                  "council-convening-convening-malformed", id="unknown-member"),
+    pytest.param(lambda r: r["required_seats_provenance"]["consumed_facts"]["pr_facts"][
+        "changed_paths"].reverse(), "council-convening-convening-malformed",
+        id="changed-paths-unsorted"),
+    pytest.param(lambda r: next(s for s in r["required_seats_provenance"]["governed"]["sources"]
+                                if s["kind"] == "listing").update(suffixes=[".json"]),
+                 "council-convening-convening-malformed", id="listing-suffix"),
+    pytest.param(lambda r: r["required_seats_provenance"]["consumed_facts"].update(
+        rule_facts={}), "council-convening-facts-unused", id="empty-unused-contract"),
 ])
 def test_check_refuses_an_offline_checkable_defect(tmp_path, mutate, finding):
     record = _commission_record()
@@ -433,8 +468,9 @@ def test_a_malformed_commission_record_also_names_the_schema_finding(tmp_path):
 def test_check_refuses_a_secret_without_echoing_it(tmp_path):
     record = _commission_record()
     secret = "notes/gh" + "p_" + "A1b2C3d4E5f6G7h8I9j0K1l2"
-    record["required_seats_provenance"]["consumed_facts"]["pr_facts"]["changed_paths"].append(
-        secret)
+    paths = record["required_seats_provenance"]["consumed_facts"]["pr_facts"]["changed_paths"]
+    paths.append(secret)
+    paths.sort(key=lambda p: p.encode("utf-8"))   # M3: sorted, so step 3 is reached
     result = run_validator("check", str(_write(tmp_path, "convening.json", record)), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-secret-bearing-fact]" in result.stdout
@@ -681,6 +717,44 @@ def test_check_reads_a_relative_path_inside_the_invocation_directory(tmp_path):
     _write(tmp_path / "records", "record.json", {"protocol": LEGACY})
     result = run_validator("check", "records/record.json", cwd=tmp_path)
     assert result.returncode == 3, result.stdout + result.stderr
+
+
+# PR-1 review follow-ups (2026-10-09, both LOW): containment is a comparison of
+# canonical paths, not of strings. Run from `/`, `base_dir + os.sep` was `//`,
+# which no canonical path starts with, so every path was refused.
+
+def test_check_refuses_a_sibling_directory_that_shares_the_prefix(tmp_path):
+    base = tmp_path / "base"
+    base.mkdir()
+    other = tmp_path / "base-other"
+    other.mkdir()
+    _write(other, "record.json", {"protocol": LEGACY})
+    result = run_validator("check", str(other / "record.json"), cwd=base)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "outside the directory check was invoked from" in result.stderr
+
+
+def test_check_run_from_the_filesystem_root_reads_a_path_under_it(tmp_path):
+    record = _write(tmp_path, "record.json", {"protocol": LEGACY})
+    result = run_validator("check", str(record), cwd=Path("/"))
+    assert result.returncode == 3, result.stdout + result.stderr
+    assert "outside the directory" not in result.stderr
+
+
+def test_the_containment_rule_compares_paths_not_strings(tmp_path, monkeypatch):
+    validator = load_validator()
+    base = tmp_path / "base"
+    base.mkdir()
+    inside = base / "r.json"
+    monkeypatch.chdir(base)
+    assert validator._within_invocation_directory(str(inside)) == os.path.realpath(inside)
+    assert validator._within_invocation_directory(str(base)) == os.path.realpath(base)
+    for outside in (tmp_path / "base-other" / "r.json", tmp_path / "bas", tmp_path):
+        with pytest.raises(validator._Unreadable):
+            validator._within_invocation_directory(str(outside))
+    monkeypatch.chdir("/")
+    assert validator._within_invocation_directory(str(inside)) == os.path.realpath(inside)
+    assert validator._within_invocation_directory("/") == "/"
 
 
 # --------------------------------------------------------------------------
