@@ -178,3 +178,259 @@ adds no non-editorial mismatch to `verify-commit` before the cut.
 The contract cut (change task 2.6), the gates on the branch and on `main`, the
 full suite and the out-of-tree engineering check (change task 2.7) follow the
 version claim on #630 row 4. They are recorded in the next sections.
+
+## 6. The contract cut and its re-cut (change task 2.6)
+
+**The number.** Registering the declaration adds a contract and removes,
+narrows or reinterprets nothing, so the cut is ADDITIVE, a minor
+(`docs/contract-versioning-policy.md` § Change Classes). At the stop (T025),
+`main`'s manifest declared `contract-v4.0`, whose annotated tag is published.
+No later inventory existed under `contracts/releases/`, and no comment on #630
+named a later number. The one open pull request touching the release surface,
+#1284, refreshed one row's digest and moved no version. The next minor was
+`contract-v4.1`. The lane's coordinator claimed it as row 4 on #630 (comment
+`6086467830`, 2026-10-09T18:02:11Z) before the cut was made. The packet's
+`target_release: deferred-allocation` reserved nothing earlier.
+
+**The first candidate, `38c78817`**, cut from `main` `93d13d6c`, is one commit of
+seven files:
+
+- `contracts/manifest.yaml`: `contract_bundle_version: contract-v4.1`, and the
+  row `factory-mcp-declaration` with the schema's per-file `sha256`
+  (`5e3cf502cea37f18e5281ce6b344a621196e1fa77bfe40b57e17b4ddd2fa28ac`). It is a
+  registered row, not a release-inventory member;
+- `contracts/factory-mcp/declaration.schema.json`: the title no longer says
+  "Unreleased", and the row's digest is of these bytes;
+- `contracts/CHANGELOG.md`: the `contract-v4.1` entry;
+- `contracts/README.md`: two native-index rows, for the declaration and for its
+  validator;
+- `tests/intent-compliance/test_release_boundary.py`: the release-boundary
+  advance for this cut. No intent-compliance member moved since
+  `contract-v4.0`, measured by `git diff --name-status`;
+- `docs/factory-mcp-conformance.md`: the unreleased wording moves to
+  `contract-v4.1` (FR-019);
+- `contracts/releases/contract-v4.1.digests.yaml`, built last, from the
+  candidate's bytes, by `scripts/validate-contract-release.py build --tag
+  contract-v4.1`.
+
+Checks on `38c78817`:
+
+- `scripts/validate-contract-release.py verify-commit --commit 38c78817`: PASS,
+  against `contracts/releases/contract-v4.1.digests.yaml`.
+- `scripts/validate-manifest-digests.py .`: 185 per-file digests verify.
+- The modules coupled to a cut (release boundary, the clearing manifest rows,
+  manifest digests, the release inventory, the doc-health release families,
+  `tests/factory-mcp/` and the others the inventory touches): 585 passed, 300
+  subtests passed.
+- `scripts/validate-release-tag-gate.py .` on an emulated pull-request merge
+  tree (`93d13d6c` plus a `--no-ff` merge of `38c78817`): no error and no
+  warning, plus the expected notice that the `contract-v4.1` tag is owed.
+
+**The re-cut, forward-only.** Before the realization landed, #1284 merged into
+`main` as `9a272c6d` (2026-10-09T18:07Z). It moved two inventory members,
+`contracts/manifest.yaml` (the digest-construction schema's row) and
+`contracts/README.md` (the council-convening index rows). The first candidate
+was pushed unchanged. `main` was then merged in (`24699ca5`, never a rebase).
+The merge had one add/add conflict, in `contracts/README.md`, and both sides
+were kept, `main`'s rows first. The re-cut, `6300772b`, rebuilt the inventory
+with the same tool, from the merged bytes. Three members' digests changed
+against `38c78817`: `contracts/CHANGELOG.md`, `contracts/README.md` and
+`contracts/manifest.yaml`. The changelog entry is re-attributed by inventory
+diff and keeps the number, which stays claimed on #630.
+
+The inventory against `contract-v4.0`, as the changelog records it:
+
+- 283 entries become 342: 59 added, none removed, 8 digests moved.
+- The 59 added are the clearing family, joining at its release floor, and none
+  of them moved a byte since `contract-v4.0`.
+- Each of the 8 moved digests is attributed in the changelog to the commits and
+  pull requests that moved it.
+- Rows of `contracts/manifest.yaml`: 202 become 204.
+  - `factory-mcp-declaration` was added by this cut.
+  - `openxwallet-pin` was added by #1026.
+  - `signed-execution-chain-digest-construction` changed digest in #1284.
+  - #1284's `contracts/council-convening/` is dormant and unregistered, so this
+    bundle registers none of it.
+
+Checks on `6300772b`:
+
+- `verify-commit --commit 6300772b`: PASS.
+- `validate-manifest-digests`: 185 per-file digests verify.
+- `release-tag-gate` on an emulated merge tree, `7ee4e874` (`9a272c6d` plus a
+  `--no-ff` merge of `6300772b`, without submodules, as the workflow checks it
+  out): it reports both release-surface paths, `contracts/manifest.yaml` and
+  `contracts/releases/contract-v4.1.digests.yaml`, and the bundle moving from
+  `contract-v4.0` at the base to `contract-v4.1` at the head. It finds "no
+  error, no warning", plus the notice `TAG OWED: contract-v4.1 has no published
+  annotated tag`, which names publication as an act after the merge.
+
+**No tag is published.** Under § *Bundle Realization Order* step 5, the
+annotated tag follows the landing, and this realization lands only on its own
+word.
+
+## 7. Gates, on the branch and on `main` (change task 2.7)
+
+Both sides ran in the same clone kind. Each is a full clone, with `openXwallet`
+initialized and `openXdox` and `openDox` initialized recursively, as
+`pytest-suite` does; neither is shallow. They ran the same commands under the
+same CI-matched environment, at the branch head `6300772b` and at `main`
+`9a272c6d`. The OpenSpec gates ran through the repository's pinned CLI
+(`@fission-ai/openspec@1.12.0`, verified against its content address).
+
+| Gate | Command | Branch `6300772b` | `main` `9a272c6d` |
+| --- | --- | --- | --- |
+| OpenSpec strict | `scripts/validate-openspec-cli-pin.py --all --strict` | 0 | 0 |
+| OpenSpec, no cache | `scripts/validate-openspec-cli-pin.py --all --no-cache` | 0 | 0 |
+| openXwallet pin | `scripts/verify-openxwallet-pin.py` | 0 | 0 |
+| clearing dispatch | `scripts/validate-clearing-dispatch.py .` | 0 | 0 |
+| former-id arrival | `scripts/validate-former-id-arrival.py .` | 0 | 0 |
+| openRepoShape pin | `scripts/validate-openreposhape-pin.py --checkout <pinned checkout>` | 0 | 0 |
+| openXdox pin | `scripts/verify-openxdox-pin.py` | 0 | 0 |
+| openDox pin | `scripts/verify-opendox-pin.py` | 0 | 0 |
+| wallet YAML syntax | `openXwallet/scripts/wallet-yaml-syntax-gate.py .` | 0 | 0 |
+| openXwallet | `openXwallet/scripts/validate-openxwallet.py .` | 0 | 0 |
+| factory identity | `scripts/validate-factory-identity.py .` | 0 | 0 |
+| signed execution chain | `scripts/validate-signed-execution-chain.py . --require-pinned-wallet-vocabulary` | 0 | 0 |
+| release tag gate | `scripts/validate-release-tag-gate.py .` | 2 at the bare tip; **0 on the merge tree** (note a) | 0 |
+| proposal support | `scripts/proposal-support.py . verify` | 0 | 0 |
+| sequenced-after | `scripts/validate-sequenced-after.py .` | 0 | 0 |
+| sequenced-after ledger | `scripts/validate-sequenced-after.py . --ledger-diff` | 0 | 0 |
+| code surface | `scripts/validate-code-surface.py .` | 0 | 0 |
+| target release | `scripts/validate-target-release.py .` | 0 | 0 |
+| manifest digests | `scripts/validate-manifest-digests.py .` | 0 (185 verify) | 0 (184 verify) |
+| release verify-commit | `scripts/validate-contract-release.py verify-commit --commit HEAD` | **0** | 1 (note b) |
+| doc-health | `scripts/doc-health.py --single-repo .` | 0 | 0 (note c) |
+
+Every other gate's output is identical on the two sides once the checkout's
+own path is set aside, apart from counts that the branch's new files explain:
+
+- the manifest gate verifies the one new row;
+- the openXwallet and signed-execution-chain repository scans each skip one
+  more document as another kind, the added YAML file (the release inventory).
+
+**Note a, the release tag gate.** Run on the bare branch tip, the gate compares
+the tip with its first parent, the merge `24699ca5`. It reports "contract-v4.1
+is declared and has no published annotated tag, 2 first-parent landing(s)
+after the commit that declared it", because it counts the branch's own commits
+after the cut as landings. That is not the tree CI judges.
+`release-tag-gate.yml` runs on the pull request, whose checkout is the merge of
+the branch into `main`. On that tree, emulated as `7ee4e874` in § 6, the gate
+finds no error and no warning, only the owed-tag notice. On `main` itself, it
+judges #1284's merge and finds no error and no warning.
+
+**Note b, `verify-commit` on `main`.** `main` fails with
+`HGR-RELEASE-DIGEST-MISMATCH` on seven `contract-v4.0` members:
+`contracts/CHANGELOG.md`, `contracts/README.md`, `contracts/manifest.yaml`,
+`scripts/hermes_runtime_validation/catalog.py`,
+`scripts/hermes_runtime_validation/release.py`,
+`scripts/validate-hermes-runtime-contracts.py` and
+`scripts/validate-ideation-dashboard-contracts.py`. `main` has moved them
+since `contract-v4.0` without a cut, and they are exactly the moves the
+`contract-v4.1` changelog attributes to earlier pull requests. The branch
+passes against its own inventory. The cut resolves this condition; the branch
+does not cause it.
+
+**Note c, doc-health.** The two reports differ only where the cut acts:
+
+- **Release-inventory drift.** The branch has 4 fewer errors and 3 fewer
+  infos (`main`: 31 critical, 26 error, 69 warning, 20 info; branch: 31
+  critical, 22 error, 69 warning, 17 info). `main` reports seven
+  release-inventory-drift findings, "bytes differ from the digest
+  'contract-v4.0' records": four errors for the scripts above, and three infos
+  for the editorial members. At the branch head, that family reports "No
+  findings".
+- **Word counts.** The draft row of the lifecycle table gains 2,783 words,
+  this feature's documents. Canon words are equal, so the canon share reads
+  39.2% against 39.3%.
+- **No new finding.** The branch has no finding that `main` lacks, and neither
+  side reports a new regression.
+
+## 8. Tests (change task 2.7)
+
+**`tests/factory-mcp/` at the head:** 108 passed, 300 subtests passed. `main`
+has 88 tests and 203 subtests, so the feature adds 20 test methods and 97
+subtests. All of them pass.
+
+**The full suite, under `setsid` with its log polled.** The command was CI's
+`pytest-suite` command (`python -m pytest tests/ -q -m "not postgres"`), with
+JUnit output, `-rs` and a `--basetemp` outside the checkout. Both sides ran
+concurrently on the same host:
+
+| | Branch `6300772b` | `main` `9a272c6d` |
+| --- | --- | --- |
+| Result | 1 failed, **9546 passed**, 7 skipped, 338 deselected, 701 subtests passed | 1 failed, 9526 passed, 7 skipped, 338 deselected, 604 subtests passed |
+| Wall time | 52:38 | 52:37 |
+
+The two JUnit reports were compared test by test:
+
+- **The same single failure on both sides.** It is
+  `tests/doc-health/test_tag_hygiene_pinned_targets.py::test_a_lexically_malformed_value_builds_no_path_and_reads_nothing`.
+  The cause is the environment: the test asserts that no argument on the read
+  surface contains the substring `one`. The local checkout's absolute path
+  contains that substring in a parent directory's name, so a legitimate
+  fixture path (`…/fixtures/tag-hygiene-pinned/alpha`) matches. CI's checkout
+  path does not contain it. Nothing on the branch touches the test or the
+  module it exercises.
+- **The same 7 skips on both sides**:
+  - two wait on a later tranche (`ideation_dashboard`);
+  - two run only in domain repositories (`conformance-gate`);
+  - one needs a sibling domain checkout;
+  - two need the pinned decision core (`PINNED_CORE_CHECKOUT`), which CI's job
+    provides and a local run does not.
+- **20 more test cases on the branch,** all in
+  `tests.factory-mcp.test_factory_mcp_conformance.ConformanceTests`. None is
+  only on `main`, and no shared test changed state.
+
+**`doc-health-py314`'s command** (`python -m pytest tests/doc-health -q -rs`)
+ran under Python 3.14.7, in an environment built from the same lock with
+`--require-hashes --only-binary :all:`. Both sides gave 1 failed and 2156
+passed, and the failure is the same environmental one as above.
+
+## 9. Out-of-tree engineering check (change task 2.7; SC-008)
+
+The engineering domain's repository is private, so this repository carries
+none of its bytes. The check ran outside this tree, using only the validator's
+`--snapshot` option. The snapshot was a read-only checkout of
+`codeXfactory/codexFactory` at `33b916c12a1dcccf882557d6edcf396c98824f31`. Its
+three published schemas (tool request, tool result, domain error) have the
+digests the 2026-09-07 baseline records at `4b12ba83`. The schemas did not
+move, as the runbook says this profile leaves them unchanged.
+
+Four declarations were composed in scratch over those schemas:
+
+- The result inventory points at the schema's classification vocabulary.
+- The error inventory points at its error union, with `discriminator: code`,
+  which yields eleven codes.
+- Every value is mapped (two completed evaluations, eleven execution failures).
+- Domain `engineering`, synthetic service fields only.
+
+| Declaration | Validator at the branch head | `main`'s validator |
+| --- | --- | --- |
+| not deployed | `valid-with-gaps`, no diagnostic (gap `audit-gap`) | `valid-with-gaps`, no diagnostic |
+| deployed, no `auth` block | **`invalid`: `hosted_auth_missing` at `/service`** | `valid-with-gaps`, no diagnostic |
+| deployed, EdDSA-only block cited to an `auth` gap | **`invalid`: `auth_rs256_missing` at `/service/auth/algorithms`** | `invalid`: `schema_enum` at `/gaps/1/concerns/0`, `schema_oneOf` at `/service` |
+| deployed, RS256 and EdDSA block cited to an `auth` gap | `valid-with-gaps`, no diagnostic (gaps `audit-gap`, `auth-gap`) | `invalid`: the same two schema codes |
+
+Every run reported `verified_conformance: false`. These are the engineering
+domain's expected signals:
+
+- its schemas and outputs are unchanged;
+- a not-deployed declaration validates as before;
+- a hosted declaration without the block names the missing block;
+- an EdDSA-only block names the missing RS256 algorithm.
+
+No codex schema byte, private path or internal name entered this repository.
+
+## 10. Hygiene (change task 2.7)
+
+- `git diff --check origin/main...HEAD`: clean.
+- **Closing-keyword scan.** The scan covered every commit message on the branch
+  (`git log origin/main..HEAD`: nine commits and the merge) for a closing
+  keyword followed by an issue or pull-request reference. It found none.
+- **Public-repository scan.** The added lines were scanned for host-absolute
+  paths, private repository paths and internal names. It found none.
+- `specs/039-*` is absent from `main` (`git ls-tree origin/main specs/`).
+
+T028, the draft pull request, its reviews and its threads, follows this
+record. The realization lands only on Brett Heap's realization word (change
+task 3.2).
