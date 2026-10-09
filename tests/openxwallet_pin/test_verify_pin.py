@@ -315,7 +315,12 @@ def test_the_real_pin_is_satisfied() -> None:
     assert pin["revision_kind"] == "commit"
     assert len(pin["commit"]) == 40
     assert len(pin["files"]) == 8
-    assert len(pin["pinned_by_commit_only"]) == 6
+    # Six until `xwallet-v1.0`: the two openXwallet entrypoints stay, the
+    # corpora and READMEs moved under `openWallet/code/`, and the core's own
+    # validator and syntax gate joined (design D6).
+    assert len(pin["pinned_by_commit_only"]) == 8
+    assert all(entry["path"].startswith("openWallet/code/contracts/")
+               for entry in pin["files"])
 
 
 def test_the_real_submodule_dot_git_is_a_file_not_a_directory() -> None:
