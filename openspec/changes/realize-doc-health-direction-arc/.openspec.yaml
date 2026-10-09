@@ -66,6 +66,33 @@ origin:
     `design.md` section 11's D1-D7, each stated with its alternative and the
     cost of the veto.
   proposed_on: 2026-10-06
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-10-06, at about
+    18:59Z, by interactive multi-choice, verbatim: "Ratify it
+    (Recommended)", recorded at `opensoft/openxFactory` issue #656
+    comment 6023375303 (created 2026-10-06T19:00:45Z). Record:
+    review/ratification-2026-10-06.md.
+    THE RATIFIED TEXT IS THE CHANGE AS IT STOOD ON `main` AT `fc4fa0ff`
+    (#1253, T070b, merged 2026-10-06T18:56:42Z), whose change directory is
+    byte-identical to its final head `e4f3f1db`, at which Copilot's review
+    recommended approval with no findings. The directory did not move between
+    that landing and the word, and the word changes none of its text.
+    `tasks.md` 1.2 provides that the word rules `design.md` section 11's
+    D1-D7 as recommended unless it says otherwise. This word does not say
+    otherwise, so D1-D7 stand as recommended.
+    WHAT THE WORD AUTHORIZES, per the ruling record: the realization steps of
+    this change, in plan 038's order (T072 first and opportunistic, ARC-6;
+    T074 after T071, T072's pin, T021 and T073; T075 after T074 and T064), and
+    none of it happens by the word itself. The word authorizes no archive: the
+    change stays ACTIVE until its realization is merged and green
+    (`release-realization`), and it gates neither release 2's close nor
+    #1144's archive (ARC-Q3 (a)). `skip_specs: true` stands, so nothing
+    promotes.
+    THE APPROVAL IS ADDED BESIDE THE DRAFTING PROVENANCE, NEVER SUBSTITUTED
+    FOR IT (`tasks.md` 1.2). The statement above that no approval pair is
+    declared was true at filing and is superseded by this pair; `kind`, `id`,
+    `path`, `reason`, `proposed_by` and `proposed_on` do not move.
+  approved_on: 2026-10-06
 
 related:
   - openxFactory:issue:656                                         # THE RULINGS: ARC-Q1-ARC-Q4 (comment 6003918488) and plan 038 (comment 6013547504: ARC-1, ARC-5, and ARC-2/3/4/6 among the tier-3 defaults)

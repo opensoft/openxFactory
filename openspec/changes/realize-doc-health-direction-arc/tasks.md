@@ -1,6 +1,7 @@
 # Tasks: realize-doc-health-direction-arc
 
-Status: draft
+Status: ratified
+Ratified by: realize-doc-health-direction-arc — 2026-10-06, Brett Heap, "Ratify it (Recommended)" (`#656` comment `6023375303`), over the change as landed at `fc4fa0ff` (record `review/ratification-2026-10-06.md`)
 Authored: 2026-10-06, lane `openxfactory-4`, as plan 038's T070.
 
 Each group names the plan 038 task it mirrors (`specs/038-opendox-document-tool-self-maintenance/tasks.md`).
@@ -22,17 +23,19 @@ PR body carries a closing keyword.
 
 ## 1. Filing and ratification (plan 038 T070, T071)
 
-- [ ] 1.1 **File this packet.** `proposal.md`, `design.md`, `tasks.md` and
+- [x] 1.1 **File this packet.** `proposal.md`, `design.md`, `tasks.md` and
   `.openspec.yaml` (`skip_specs: true`; origin `kind: staged`, drafting
   provenance, no approval pair); the README *Active changes* bullet; the
   machine-seeded row in `tests/sequenced_after/corpus-ledger.yaml`. Landed
   under a Rule 6 window.
+  **Done:** filed by #1247 → `51456835` (T070), and amended before the word by
+  #1253 → `fc4fa0ff` (T070b, Copilot's four items).
   - **Falsifier:** `python3 scripts/validate-openspec-cli-pin.py --all --strict`
     exits 0 with no undispositioned finding;
     `python3 scripts/validate-sequenced-after.py . --ledger-diff` exits 0;
     `python3 scripts/proposal-support.py . verify realize-doc-health-direction-arc`
     exits 0.
-- [ ] 1.2 **Brett Heap's ratify word, and its record.** Put the change to
+- [x] 1.2 **Brett Heap's ratify word, and its record.** Put the change to
   Brett. Record his word verbatim on `#656` and in
   `review/ratification-<date>.md` (`Status: record`). Flip the three lifecycle
   documents to `Status: ratified` with ONE citation line each, and ADD
@@ -42,8 +45,25 @@ PR body carries a closing keyword.
   ratified` in the same PR, citing the word and the record. The word
   rules `design.md` § 11's D1–D7 as recommended unless it says otherwise; a different
   answer is encoded before 2.1 starts. Landed under a Rule 6 window.
+  *(As filed, this box named `Status: record` for the record. It carries
+  `Status: ratified` with one `Ratified:` citation instead, which
+  `document-lifecycle` sanctions beside `Ratified by:`, as #1144's own record
+  does (`cd494e4c`). The option put to Brett read "land the ratification record
+  (Status: ratified, Ratified by)", and the holder's word on `#656`
+  (`6023375303`) names #1144's record as the form. The citations split as
+  #1144's did: `Ratified:` on `proposal.md`, `Ratified by:` on `design.md` and
+  `tasks.md`.)*
   - **Falsifier:** as 1.1, plus the `proposal-origin` family reporting nothing
     for this change.
+
+  **Done on the word of 2026-10-06** (`#656` comment `6023375303`):
+  - `Status: ratified` and one citation on each of the three lifecycle
+    documents, split as the note above says.
+  - `## Ratification record` in `proposal.md`.
+  - The approval pair ADDED under `origin:` after `proposed_on`. `kind`, `id`,
+    `path`, `reason`, `proposed_by` and `proposed_on` do not move.
+  - D1–D7 read as recommended: the word does not say otherwise.
+  - The record, `review/ratification-2026-10-06.md`.
 
 ## 2. openDox-code: the generic slice (plan 038 T072)
 
