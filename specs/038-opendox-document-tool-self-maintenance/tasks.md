@@ -138,7 +138,9 @@ worded, each cited by comment id or merge commit, with no new decision:
   `refused-patch` joining the engine kinds (item 1). Item 2 (T015's limits) is
   recorded nowhere in the plan;
 - the holder's ruling on the same review (`6088484643` item 5): the exact canonical
-  text behind that digest form, in `contracts/health-finding.md` and T041's note.
+  text behind that digest form, in `contracts/health-finding.md` and T041's note;
+- the tick of T015, which landed as openDox-code#96 → `c94878be` (the merge commit
+  read through GraphQL).
 
 **RULED.** Brett Heap ruled the plan at `6847e99e`, every item as recommended
 (`#656` `6013547504`, 2026-10-06; plan.md § "Ruled answers, the plan ruling").
@@ -581,7 +583,7 @@ hidden; F12.1 exits 0 composed (SC-001).
 
 ### P4-C: openDox's own submit act
 
-- [ ] T015 [US1] [oDc] **The `submit` verb, route and control.** New
+- [x] T015 [US1] [oDc] **The `submit` verb, route and control.** New
   `cli_branch_actions.py` holds `submit --repo-root PATH --branch BRANCH [--local]
   [--json]` (12.4a's ratified shape; ADV-01), contributed through
   `default_profile.py`'s `SUBCOMMAND_EXTENSIONS` (decision N-2), with no actor gate
@@ -646,6 +648,7 @@ hidden; F12.1 exits 0 composed (SC-001).
     false. Each file's chain runs T015 → T016 → any later verb, as `6023619783`
     set for `tests/test_default_profile.py`.
   - **Lane**: 4.
+  - **Landed**: DONE, openDox-code#96 → `c94878be` (2026-10-09T20:20:05Z).
 
 ### P4-D2: the landing bindings and surface
 
@@ -2801,7 +2804,7 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 | — | F9.1's `--deselect` removed | F9.1 (batch J's line) | `5859927858`, at T076 while #1144 is active |
 
 **Task count:** 91 rows: Phase 0 9 (T001–T009; eight done, T002–T009, and T001 is a
-standing act), Phase 4 24 (T010–T033; T010, T011, T012, T013, T014, T020, T021,
+standing act), Phase 4 24 (T010–T033; T010, T011, T012, T013, T014, T015, T020, T021,
 T022, T023, T024, T025 and T026 done), Phase 5 30 (T040–T068, T059, T067 and T068 among them, and T105, the
 read-only wave-1 re-measure; T040, T060 and T105 done),
 requirement 9 12 (T073, T094 and the ten repair slices T095–T104, which replace

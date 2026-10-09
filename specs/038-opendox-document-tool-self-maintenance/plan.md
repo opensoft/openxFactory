@@ -66,8 +66,8 @@ categories with each category's `pack_id`, the pathless re-raise and
 
 **Revision: T002's fifth bookkeeping batch** (2026-10-09). More rulings and
 landings, encoded as worded, with no new decision. This file carries only this
-paragraph. tasks.md carries the tick of T071 (openxFactory#1261 → `a020b34a`) and
-the task-level record, and `contracts/health-finding.md` carries the U+0000 bound
+paragraph. tasks.md carries the ticks of T071 (openxFactory#1261 → `a020b34a`) and
+T015 (openDox-code#96 → `c94878be`) and the task-level record, and `contracts/health-finding.md` carries the U+0000 bound
 (the NUL seam, `6072086385` item 4) and a pathless finding's identity: its closed
 category set, its 200-character `entry`, and `entry` fixed by its category
 (`6072197564`, refined by `6073087924`), with the `path` bound and the form of
