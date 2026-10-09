@@ -1,0 +1,31 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "foundation",
+  "boundary": "classification",
+  "case_id": "cls-replacement-selection-legacy-protocol-id-refuse",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "legacy_protocol_refused"
+  },
+  "inputs": {
+    "record": {
+      "key_fingerprint": "sha256:abababababababababababababababababababababababababababababababab",
+      "protocol": "xfactory-council-seat-return/v1",
+      "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ"
+    },
+    "selected_protocol": "xfc-resolved-council-1"
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-001",
+    "FR-011"
+  ],
+  "schema_version": 1
+}
