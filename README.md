@@ -598,34 +598,6 @@ Active changes:
   ratification record's § ADDENDUM 2026-10-08.
   It lands only on Brett Heap's word.
 
-- [prefer-triad-project-shape](openspec/changes/prefer-triad-project-shape/proposal.md)
-  — filed 2026-10-06, lane `codeXfactory-5`, **`Status: ratified`**
-  (2026-10-06T16:02:16Z, Brett Heap, *"ratify 1249 as recommended"*, PR #1249
-  comment `6020300563`, over PR #1249's head `8f9c5855`; a ratification only,
-  not a merge word and not a word to realize anything; record
-  [`review/ratification-2026-10-06.md`](openspec/changes/prefer-triad-project-shape/review/ratification-2026-10-06.md)),
-  on Brett Heap's in-session direction of 2026-10-06T10:20:12Z, verbatim *"the
-  triad should be the prefered structure and should prompt or warn the user if
-  working on a non Triad repo."*; his 11:28:19Z word *"usage is fine, launch
-  both"* authorized authoring and opening it and was not a ratification. **ONE
-  `## MODIFIED` requirement in `project-repo-schema` — *The project repository
-  schema is elective and confers nothing*, title unchanged, both body paragraphs
-  and all three promoted scenarios carried byte-identically, two scenarios added
-  — and THREE `## ADDED` requirements, twenty scenarios in all.** The Triad (the
-  openRepoShape three-repository shape) becomes the PREFERRED project shape,
-  and preferred is not required: it is advised where a person starts work, once
-  per session and never blocking; it is never a review input; and it is silent
-  in an elected Triad, a leg clone, a family holder, a `<user>-wip` workspace
-  repository and a project that has recorded staying single, that record being
-  optional so a decliner still owes no declaration. Its three open questions
-  were RULED as recommended: the record is `single-repository.yaml` at the
-  repository root, with openRepoShape owning its schema; repository classes are
-  not guessed; and the advisory does not re-home codexFactory's recommending
-  role. Realization is handed off to
-  openxFactory's doctrine and pin, `opensoft/openRepoShape`,
-  `opensoft/workBenches`, new-project creation and the shared agent protocol,
-  and the packet archives only on merged plus green evidence across them.
-
 - [realize-doc-health-direction-arc](openspec/changes/realize-doc-health-direction-arc/proposal.md)
   — filed 2026-10-06, lane `openxfactory-4`, as plan 038's T070, **`Status:
   draft`**; Brett Heap's ratify word is plan 038's T071, and no realization slice
@@ -3261,6 +3233,61 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [prefer-triad-project-shape](openspec/changes/archive/2026-10-09-prefer-triad-project-shape/proposal.md)
+  — **ARCHIVED 2026-10-09** by this archive's pull request, by lane
+  `codeXfactory-5`, landed by MERGE COMMIT, never squash, on Brett Heap's
+  standing word, verbatim ***"archive prefer-triad-project-shape when 5.6
+  lands"*** (2026-10-07T10:20:48Z, in session; RULED on the lane register at
+  2026-10-07T10:21:23Z, `opensoft/brett-wip` `lanes/log/codeXfactory-5.md`).
+  Filed 2026-10-06 by lane `codeXfactory-5` on his direction *"the triad should
+  be the prefered structure and should prompt or warn the user if working on a
+  non Triad repo."*; **RATIFIED 2026-10-06T16:02:16Z by Brett Heap**, verbatim
+  *"ratify 1249 as recommended"* (PR
+  [#1249](https://github.com/opensoft/openxFactory/pull/1249) comment
+  `6020300563`, over its head `8f9c5855`; record
+  [`review/ratification-2026-10-06.md`](openspec/changes/archive/2026-10-09-prefer-triad-project-shape/review/ratification-2026-10-06.md));
+  landed on his word *"merge 1249"* (2026-10-06T17:31:10Z) by squash as
+  `e63809650d39586134c4ec4fdb6e9effc87a7860` (2026-10-06T17:33:34Z).
+  **`code_surface: openxFactory, opensoft/openRepoShape` is non-empty, so under
+  `release-realization` it archives on merged-plus-green realization
+  evidence** across every `tasks.md` § 5 surface. That evidence is cited in
+  `tasks.md` 6.1, the archive record `design.md` D9 asks for. In the head:
+  openxFactory #1254 → `a2dc658d` (the doctrine), #1260 → `f335c077` (the
+  pin) and #1255 → `0992369a` (the estate inventory), and openRepoShape #164 →
+  `1a9fc537`. Outside the head: workBenches #139 → `9fbe609c` and #140 →
+  `d86ba59b`; openRepoProject #8 → `d7f6b0ee` (task 5.6, lane
+  `openRepoProject-1`, the trigger of the standing word); and the private
+  protocol source `brettheap/new-workstation` #52 → `e081c5ab` and #53 →
+  `cb411460`. `onp` and `new-project.sh` reach #8's Triad-first offer only once
+  workBenches#145 moves lane `project-command`'s pin. Owner boxes 1.1 to 1.5
+  were closed at the archive as discharged by his ratify and merge words, each
+  citing its word and time, on his selection of 2026-10-08, verbatim *"Yes,
+  here and prefer-triad (Recommended)"* (RULED 2026-10-08T20:05:35Z), as
+  archive #953 did. 4.3 was verified from #1249's check runs and review record:
+  every required context passed at its final head `020f2e4f`, and no Codex
+  review was delivered, the connector having answered `@codex review` with a
+  usage-limit notice. **Performed through the governed wrapper, never a bare
+  `openspec archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive prefer-triad-project-shape --yes`,
+  exit 0: *"ORIGIN RETAINED prefer-triad-project-shape (declaration unchanged
+  since the ratifying commit e63809650d39)"*, *"Applying changes to
+  openspec/specs/project-repo-schema/spec.md: + 3 added, ~ 1 modified"*,
+  *"Totals: + 3, ~ 1, - 0, → 0"*, over the content-addressed
+  `@fission-ai/openspec@1.12.0` pin. **The promotion, measured byte for byte**
+  onto [`openspec/specs/project-repo-schema/spec.md`](openspec/specs/project-repo-schema/spec.md):
+  the MODIFIED *The project repository schema is elective and confers nothing*
+  (2,201 to 4,257 bytes) and the three ADDED *A person starting work outside a
+  Triad is advised once, and is never stopped for it*, *A project's shape is
+  never a review input* and *The advisory is silent where the shape question
+  is answered or does not arise* are each byte-identical between the archived
+  delta and canon. The other ten requirement blocks are byte-identical before
+  and after and keep their order, the three ADDED follow them, and canon
+  `--numstat` is +175 -0. Canon had not moved under the MODIFIED block since
+  the packet was authored, so no block was brought forward. The seven packet
+  files move as renames, `tasks.md` carrying its closing ticks.
+  `docs/project-repo-schema.md`'s `Amended by:` header still names the active
+  path in code type and is left as written, as #1275 left its sibling line.
 
 - [correct-naming-families-count](openspec/changes/archive/2026-10-08-correct-naming-families-count/proposal.md)
   — **ARCHIVED 2026-10-08** by
