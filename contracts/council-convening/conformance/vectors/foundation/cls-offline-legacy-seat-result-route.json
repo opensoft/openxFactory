@@ -1,0 +1,41 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "foundation",
+  "boundary": "classification",
+  "case_id": "cls-offline-legacy-seat-result-route",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {
+      "classification": "legacy"
+    },
+    "derived_origin": "hand",
+    "findings": [
+      "legacy_protocol_routed"
+    ],
+    "outcome": "route",
+    "refusal": null
+  },
+  "inputs": {
+    "record": {
+      "rationale": "no finding",
+      "result": "approve",
+      "seat": "security",
+      "signature": {
+        "key_fingerprint": "sha256:abababababababababababababababababababababababababababababababab",
+        "protocol": "xfactory-council-seat-return/v1",
+        "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ"
+      },
+      "undispositioned_conditions": 0
+    },
+    "selected_protocol": null
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-001",
+    "FR-011"
+  ],
+  "schema_version": 1
+}

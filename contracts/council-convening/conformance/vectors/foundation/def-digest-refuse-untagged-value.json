@@ -1,0 +1,31 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "foundation",
+  "boundary": "definition",
+  "case_id": "def-digest-refuse-untagged-value",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "value_malformed"
+  },
+  "inputs": {
+    "definition": "digest",
+    "value": {
+      "construction": "xfc-jcs-sha256-1",
+      "subject": "council_convening",
+      "value": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-001",
+    "FR-008"
+  ],
+  "schema_version": 1
+}

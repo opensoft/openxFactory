@@ -1,0 +1,26 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "foundation",
+  "boundary": "definition",
+  "case_id": "def-raw-sha256-refuse-uppercase",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "value_malformed"
+  },
+  "inputs": {
+    "definition": "raw_sha256",
+    "value": "sha256:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF"
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-001"
+  ],
+  "schema_version": 1
+}

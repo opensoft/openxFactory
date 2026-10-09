@@ -33,7 +33,7 @@ Four conventions apply throughout:
 | `utc_instant` | `YYYY-MM-DDTHH:MM:SSZ`, calendar-valid | Expiry is refused at the instant and after it. |
 | `raw_sha256` | `^sha256:[0-9a-f]{64}$` | SHA-256 over a file's raw bytes. |
 | `digest` | `$ref` to `signed-execution-chain/digest-construction.schema.yaml#/$defs/digest` | `{construction: xfc-jcs-sha256-1, subject, value}`. Each use fixes its `subject` with a `const`. |
-| `key_fingerprint` | `^sha256:[0-9a-f]{64}$` | `sha256:` + hex of the raw 32-byte public key. |
+| `key_fingerprint` | `^sha256:[0-9a-f]{64}$` | `sha256:` + the lowercase hex SHA-256 of the raw 32-byte public key: the estate spelling T047 names, as openXwallet `fingerprint_of_public_key` (`scripts/validate-openxwallet.py:536-541` at openXwallet `f3eb929b`, the commit openxFactory pins) and codexFactory `key_fingerprint` (`.github/workflows/scripts/council_seat_signing.py:199-205`, through its `sha256_digest` at `:168-170`, at codexFactory `48d0560e`) compute it. *Corrected 2026-10-09 on Brett Heap's ruling of 2026-10-09T02:36:50Z, "Estate spelling (Recommended)": this row read "`sha256:` + hex of the raw 32-byte public key", the raw key's own hex, which is not the estate spelling and which Phase 1's fixture keys first computed. The pattern is unchanged; it accepts both spellings, so only a recomputation from `public_key` (E7 `fingerprint_mismatch`) tells them apart.* |
 | `public_key`, `nonce` | Unpadded base64url of exactly 32 bytes | |
 | `signature` | Unpadded base64url of exactly 64 bytes | |
 | `decimal_string` | `^-?(0\|[1-9][0-9]*)(\.[0-9]*[1-9])?$`, whole, with `-0` refused | The one representation of a non-integer quantity inside a signed payload: no exponent, no `+`, and no trailing fractional zero ([R11](research.md#r11--return-payload-admissibility-and-decimal-quantities)). |
@@ -49,6 +49,8 @@ Every value must also be admissible under `xfc-jcs-sha256-1`:
 - no unpaired surrogate.
 
 A value that is not admissible is refused as `value_not_canonicalizable` before any digest is taken. A value probed alone against a grammar here (boundary `definition`) is refused as `value_malformed`. The same failure inside a record is that record's malformed code.
+
+*Added 2026-10-09 (Phase 1 review, reading 3): at boundary `definition` the grammar is checked first and admissibility second. A value that fails both is `value_malformed`, and a value is `value_not_canonicalizable` only where its grammar admits it, as a lone surrogate inside a `head_ref` or a `candidate` member is admitted.*
 
 ## E1. Protocol registry and classification (`protocol-registry.schema.yaml` + `protocol.registry.yaml`, Phase 1)
 
