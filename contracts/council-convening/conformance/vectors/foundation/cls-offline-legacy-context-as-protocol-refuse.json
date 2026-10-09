@@ -1,0 +1,30 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "foundation",
+  "boundary": "classification",
+  "case_id": "cls-offline-legacy-context-as-protocol-refuse",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "protocol_unknown"
+  },
+  "inputs": {
+    "record": {
+      "protocol": "xfactory-council-seat-key-authorization/v1",
+      "seat_id": "security"
+    },
+    "selected_protocol": null
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-001",
+    "FR-011"
+  ],
+  "schema_version": 1
+}

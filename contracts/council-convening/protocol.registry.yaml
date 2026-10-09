@@ -1,0 +1,73 @@
+# THE CLOSED COUNCIL PROTOCOL REGISTRY — the one instance.
+#
+# Realization of the ratified change `renew-resolved-council-protocol`
+# (ratified 2026-10-03 by Brett Heap; packet #1267, merged `80f47483`), design
+# D1 ("an explicit protocol identifier") and D5 (one selected protocol, with no
+# fallback and no guess from payload shape), by Speckit feature 035 Phase 1,
+# T016; data-model E1 and research R10.
+#
+# DORMANT AND UNREGISTERED. This instance has no row in contracts/manifest.yaml
+# and no release includes it. The replacement is `available`: selectable for
+# rehearsal only, never admission-eligible before the removal major and the
+# owner's matched activation (FR-011, FR-012). Every tag field is `null` until a
+# release cut writes the allocated tag; no version is reserved here.
+#
+# TWO ENTRIES, AND ADDING ONE IS A GOVERNED CONTRACT CHANGE, NOT AN EDIT TO
+# THIS FILE. `scripts/council_convening/classification.py` carries the entries
+# as landed (`LANDED_PROTOCOLS`) and refuses an added, removed or renamed entry,
+# or a rewritten signing context or recognition rule
+# (`council-convening-registry-closure`); `tests/council_convening/
+# test_protocol_registry.py` holds an independent frozen copy. Statuses and tags
+# are the lifecycle data the two cuts move, and closure does not pin them.
+#
+# THE LEGACY ENTRY IS IDENTIFICATION ONLY. This family never passes a legacy
+# record. Under a replacement selection a legacy record is refused
+# (`legacy_protocol_refused`); under a legacy selection, or offline, it is ROUTED
+# to the legacy verifier (Hermes 015 and its golden vectors), with no verdict
+# from this family. Its recognition rules apply only to a record that carries no
+# `protocol` member:
+#
+#   * a `council_convening` block with no `required_seats` — the roster-less
+#     envelope block the legacy protocol carries;
+#   * a legacy signing-context string, at `signing_context` or at
+#     `context.signing_context`;
+#   * a root-authorization member, `root_key_fingerprint`, `root_signature` or
+#     `authorization` — the legacy seat-key authorization's body.
+#
+# A record carrying the legacy seat-return block's own `protocol` member is
+# classified by that member (classification rule 2), not by these rules.
+schema_version: 1
+kind: xfactory_council_protocol_registry
+registry_id: council-convening-protocols
+registry_version: 1
+
+protocols:
+  - protocol_id: xfc-resolved-council-1
+    role: replacement
+    status: available
+    signing_contexts:
+      - xfc-resolved-council-1/seat-key-registration
+      - xfc-resolved-council-1/seat-return
+    introduced_in: null
+    deprecated_in: null
+    removed_in: null
+
+  - protocol_id: xfactory-council-seat-return/v1
+    role: legacy
+    status: in_use
+    signing_contexts:
+      - xfactory-council-seat-return/v1
+      - xfactory-council-seat-key-authorization/v1
+    recognition:
+      - rule: convening_block_without_roster
+        block_member: council_convening
+        roster_member: required_seats
+      - rule: legacy_signing_context
+        member_paths:
+          - [signing_context]
+          - [context, signing_context]
+      - rule: root_authorization_member
+        members: [root_key_fingerprint, root_signature, authorization]
+    introduced_in: null
+    deprecated_in: null
+    removed_in: null

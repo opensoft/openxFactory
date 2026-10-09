@@ -1,0 +1,2785 @@
+{
+  "cases": [
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-legacy-selection-legacy-protocol-id-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-legacy-selection-legacy-protocol-id-route.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:fd5b31e80c310a9092a0d86358f5c1ce8b6bd5a053ec4d206365795e4c3fec7b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-legacy-selection-replacement-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_not_selected"
+      },
+      "path": "vectors/foundation/cls-legacy-selection-replacement-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:c42fb71c3dbfa9eb01dac6ae0efe205542d6bd8ce9eccc4472bfe44d69980a4c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-legacy-selection-root-authorized-registration-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-legacy-selection-root-authorized-registration-route.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:f7fd2e76daead53c49b15abd435930350cdbb1bbb921a666d8d123033d79ae54"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-legacy-selection-root-members-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_not_selected"
+      },
+      "path": "vectors/foundation/cls-legacy-selection-root-members-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:fc3df053195e5890defb4cff81551312cccaca97ac80b74ae055b0de9851d5b4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-legacy-selection-roster-less-block-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-legacy-selection-roster-less-block-route.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:87c73f95c01f509749d93ad1ba59d6008e740fee448884f8add40b8e186f32ee"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-legacy-selection-unknown-protocol-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/foundation/cls-legacy-selection-unknown-protocol-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:2ef8e0f3517f05cb8e8003b4647cd0b21f9f4e39b4580c1129c24105c7bcaefb"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-convening-block-with-roster-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/foundation/cls-offline-convening-block-with-roster-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:232a9d8f0564f0465f172b97aaf4e95190e01d0072e0ab1df4006e4386592ff3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-legacy-context-as-protocol-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/foundation/cls-offline-legacy-context-as-protocol-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:7caa843cd9a3fea453173865fb34fc41e610222cbfc149c11cef393435c2cdb9"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-legacy-nested-signing-context-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-offline-legacy-nested-signing-context-route.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:810d6e4dd2603b7ecb6fd722e88714e73a6643834db926863650e409c1bb2549"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-legacy-protocol-id-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-offline-legacy-protocol-id-route.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:7c2af2f0431177828926f75c461f104aeb30606ce8f2ddcb97fe8648974fa44e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-legacy-root-authorized-registration-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-offline-legacy-root-authorized-registration-route.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:84a41904258b3d82a659e76a8471f7999c8875be0360d4d588cae93586cb358e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-legacy-roster-less-block-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-offline-legacy-roster-less-block-route.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:7befb54055323aee4b6c728c1c56e5ecfdc7d60c028263a59f1b714269dab75f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-legacy-signing-context-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-offline-legacy-signing-context-route.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:f68f3de7db7b3e3623a22b6f1e9a61de97169afba98261e0d102b580be77c668"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-no-protocol-no-recognition-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/foundation/cls-offline-no-protocol-no-recognition-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:cc764e43a715d0baf77ffbdff720ace4fbd26877475673cfd3554506c76a3ce1"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-null-protocol-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/foundation/cls-offline-null-protocol-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:25c7ebacdcf4241fb342575ecf6bd464dedbafeec947e2a10b383a1ab1acd71f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-replacement-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-offline-replacement-accept.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:5a84f6d1fd0243349a07f07270f84169aacd62ac30afd54d163de5edbfd39601"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-replacement-context-without-protocol-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/foundation/cls-offline-replacement-context-without-protocol-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:f5717719131152fc821ab37bdd1f5729d70a45173653fa64b34142e8d20bbd85"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-replacement-with-legacy-shapes-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-offline-replacement-with-legacy-shapes-accept.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:3d2f91301fb0b46db47e55fbd04c3cd9fba56c12a82923c7f0f52327318e57ed"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-replacement-with-root-members-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-offline-replacement-with-root-members-accept.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:b23dd54fed596ca7438d1611395c2cfaac8cf4f85eaefeea4d2dc83b73cdf7e6"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-unknown-protocol-value-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/foundation/cls-offline-unknown-protocol-value-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:4fa9b9d5a39acb75deaf72ba831d8fd694565f2469f829afe6d4ac0ed0d718e4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-replacement-selection-legacy-protocol-id-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/foundation/cls-replacement-selection-legacy-protocol-id-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:5a6d5cfeb2bbd3b4fa1895241b94a9dee115d604a601a4c11ef2a67ecb79140d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-replacement-selection-replacement-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-replacement-selection-replacement-accept.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:dc82a586377f6481d040363c8264c96b505b0a29b9cd99cd358c2e99e4ab0cde"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-replacement-selection-root-authorized-registration-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/foundation/cls-replacement-selection-root-authorized-registration-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:905452ba525647523b6c8f4b0f215d2e92ddfe2069fc1c4b326acfc4ba16881d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-replacement-selection-root-members-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-replacement-selection-root-members-accept.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:bc5e78ca47776502f6466b009c24b2f4bf73c9c02ebed3163a06c99abc4057cf"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-replacement-selection-roster-less-block-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/foundation/cls-replacement-selection-roster-less-block-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:07d822b6fce2174f19e0d1e7362f317994d29d83643e9c051ce0b24d58ee6a88"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-replacement-selection-unknown-protocol-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/foundation/cls-replacement-selection-unknown-protocol-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:ee037c6a42c4e7da632ad0778e331f898d3bc9b92d5f82a91d99d81853a75d85"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-candidate-accept-subject-path",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-candidate-accept-subject-path.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:115c3fdf21b19575580619a39844284d6bfd2913f134498a6e215515b93e5592"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-candidate-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-candidate-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:b640540d459877a4477248d470cdadb329b6ae276ed0e18857b4247ddc08d11b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-candidate-lone-surrogate-not-canonicalizable",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_not_canonicalizable"
+      },
+      "path": "vectors/foundation/def-candidate-lone-surrogate-not-canonicalizable.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:395fbcd626fff04cf88c350ac9844bf370e90adb6b65302271cf504a565ca6a2"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-candidate-refuse-missing-head-sha",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-candidate-refuse-missing-head-sha.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:4d4c57f78fea91676595dd90659d1da03e4f92105f2827227d3a1909ae3a0121"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-candidate-refuse-rooted-subject-path",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-candidate-refuse-rooted-subject-path.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:2b7456ed7f0eb8080055eba659b5e2482987106e132e6157e8db2af69386cb96"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-candidate-refuse-unknown-member",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-candidate-refuse-unknown-member.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:fe3e0eae8ddaa4268fb2cb8baf597161619031321b9d5b9721393d0ae769d6f8"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-candidate-refuse-uppercase-head-sha",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-candidate-refuse-uppercase-head-sha.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:722604da6a7239fb475c48034b74f3aae2327b215a4b5ab20aa709453be23358"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-council-id-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-council-id-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:3ab3cd5c0337962f45581b0275a28d02f1e34c7333df801e8381408e932d4af2"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-council-id-refuse-space",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-council-id-refuse-space.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:e80038ce48a07f93136a43dd784e856e89f1097f7e9a252dcb7cafcba8db0ace"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-decimal-string-accept-negative-fraction",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-decimal-string-accept-negative-fraction.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:f600b1774e7ec5c7fffc764fd6ede3e088de54c593662b80286bbd3dba7f23bc"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-decimal-string-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-decimal-string-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:feeb5a91da8fbee6016d3912db1ee1221dce858f7f62a105e4dbb1611f552d47"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-decimal-string-refuse-exponent",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-decimal-string-refuse-exponent.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:5b30b955bf856089d72769e793e1a731c3acf2936a94b10893cdfc251967837d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-decimal-string-refuse-leading-plus",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-decimal-string-refuse-leading-plus.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:f65099971b500592ea76529c21146326fa424fc27d081ecbf01ff2c1f8f3bc62"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-decimal-string-refuse-negative-zero",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-decimal-string-refuse-negative-zero.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:7ca5b5182cd2ddbf3cbce81c1c3c5885b7347c29f12634beba0fed7242c840d4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-decimal-string-refuse-number",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-decimal-string-refuse-number.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:65a42f4150756620c6dceba14960972a511a2cb232b69f6840fbfd5b250125ed"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-decimal-string-refuse-trailing-fractional-zero",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-decimal-string-refuse-trailing-fractional-zero.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:d1862a42c4c503da9322f7c8a770da2a3b54a2cf8df8f2ff8a276fdcb5a78c24"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-digest-accept-council-convening",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-digest-accept-council-convening.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-008"
+      ],
+      "sha256": "sha256:cb1431c7488e5c321ee0d63ede8a3829bbd160ae796d4afc3881d28bdc860fef"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-digest-accept-council-seat-return-payload",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-digest-accept-council-seat-return-payload.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-008"
+      ],
+      "sha256": "sha256:58e12553b35fd62d85a7eb66d3fe4506b8f4aa030f1762d4398670f2dac4344e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-digest-refuse-second-construction",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-digest-refuse-second-construction.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-008"
+      ],
+      "sha256": "sha256:0df77ccbcf0f0d27e92518f5564b356ef138aed141caad6efa0c8d9a7a3c52f4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-digest-refuse-unenumerated-subject",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-digest-refuse-unenumerated-subject.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-008"
+      ],
+      "sha256": "sha256:2f3d8408002dfe8696c5cf5b6ac64c5243ee5d1ad4b73ecfa2680b1cd99344c6"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-digest-refuse-untagged-value",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-digest-refuse-untagged-value.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-008"
+      ],
+      "sha256": "sha256:2415778ed0998fe323564077f60621331b4bd6947b61bb6769fe7a13bcd5db9f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-finding-code-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-finding-code-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:56c04539149870478625f26a2820be10e8d576baf0c3934989209776257568f0"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-finding-code-refuse-later-phase-code",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-finding-code-refuse-later-phase-code.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:20efb60a3b32d310016c62804eb4c6d5a2195de0479724756aecb5cb287bd2dc"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-full-sha-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-full-sha-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:9a86d300f3ca939b73624955d223821e502169810320fcf430579c0d4f554621"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-full-sha-refuse-abbreviated",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-full-sha-refuse-abbreviated.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:3c2c8f52ac2fd06658c4511101ff0d1a9d4d62f54a3c640059dd40a1ea88e74f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-full-sha-refuse-branch-name",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-full-sha-refuse-branch-name.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:3d18f5a9bfa4003fb0bd249f582b4873d2e792d2b0852eeaa327e52e7d47d724"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-full-sha-refuse-trailing-newline",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-full-sha-refuse-trailing-newline.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:aab43f8bcf825132e2038aa2fe74115f73494c445111fa9dc50fa8fe5146305d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-full-sha-refuse-uppercase",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-full-sha-refuse-uppercase.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:506a424c8235dbc927326e62a099d83bae4b48d1d02292b5d8ec60ad63d049db"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-head-ref-accept-c1-character",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-head-ref-accept-c1-character.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:37cce49c20fb02b7bff934dbd6dfcb568f1a598a1e1440b0f4d9344e850dcc82"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-head-ref-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-head-ref-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:ba846da5514152c5e8389809c4ef721ae8a79203513a8288365738161f76bdd4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-head-ref-lone-surrogate-not-canonicalizable",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_not_canonicalizable"
+      },
+      "path": "vectors/foundation/def-head-ref-lone-surrogate-not-canonicalizable.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:f68dcd6b0c135134303e6992fb35a87af1e4a260c126554a30780509f8d08523"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-head-ref-refuse-256-characters",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-head-ref-refuse-256-characters.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:758a431c7f9d23e46c65d1698d2b700eae371f0e8762c1b58f5eeb43bffce9e8"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-head-ref-refuse-tab",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-head-ref-refuse-tab.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:d3ccadc31c4b8525d065f9e5aa0f901543918a9703d7d8c1411f30aa2fcbef53"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-key-fingerprint-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-key-fingerprint-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:928ac8c75a9f693d8ac525ce8cbeb28757bdba6d75594ccb1278a4bbecc1b97d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-key-fingerprint-refuse-63-hex",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-key-fingerprint-refuse-63-hex.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:b796df7506d7f1193786b1f7dc0044e2460a38d718ac1f0caa4c0556ba5108cd"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-matched-class-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-matched-class-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:0dc4ec8ba9e9b920118bdca7121ac41754061bb9be88314b0aef08dbc6e88450"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-nonce-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-nonce-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:53768f9c92380544efda56acdfcf1d959494daa4ec5c71b569cfcc330f64b79f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-nonce-refuse-42-characters",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-nonce-refuse-42-characters.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:b90798e24c80db6e4f9ea71b50bfa718273bcf3e9754c6636839a8c565eac4fd"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-opaque-id-accept-256-characters",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-opaque-id-accept-256-characters.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:4519d8a07657b63416147b2b1f39f0dcbfb4f0db73bf2cb454da3a716bc44d7b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-opaque-id-accept-parts-joined",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-opaque-id-accept-parts-joined.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:611697c1faadcb02cf4ca8d83200d61f6d8a814cbc87721866400a555941792d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-opaque-id-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-opaque-id-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:198698b013b93619296963db419f2242892379ec94ccb1e79429b6f9d30ad265"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-opaque-id-refuse-257-characters",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-opaque-id-refuse-257-characters.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:dd42a24c07da00637b6fb3175519fafff20761294c1b80f141261dc27c5cd847"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-opaque-id-refuse-empty",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-opaque-id-refuse-empty.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:91ef2495360019182a26b6895a3ab4091b7a0695085d258a37fbef41fc84262a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-opaque-id-refuse-integer",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-opaque-id-refuse-integer.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:e3b10ce1c88b18a8da15558ec4c32fe5cb25ea8d3e1b1cfa594db4c22e3b44e3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-opaque-id-refuse-leading-dash",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-opaque-id-refuse-leading-dash.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:9d2f51ec55e075f2983765996502cb08ed6b5203a3466d73068eae2a966469e4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-opaque-id-refuse-trailing-newline",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-opaque-id-refuse-trailing-newline.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:0673acb25183c134499abe25157a90d3177c66a62a44e164af6e9dd7fe9a056f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-principal-kind-accept-broker-job",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-principal-kind-accept-broker-job.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:1add648dfbd30d683f6c5c6f86373bd494d6c031d835a56c8d72d3f21b716747"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-principal-kind-accept-oidc-job",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-principal-kind-accept-oidc-job.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:0ef7fd381983ebaa050634d3d374b4a3687f70f18d232323444bf763f0b41c3a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-principal-kind-refuse-unlisted",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-principal-kind-refuse-unlisted.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:40fe23b684affaec7329d31085317c7afc49d8004a87620662c6134b5493bf06"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-protocol-id-accept-128-characters",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-protocol-id-accept-128-characters.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:ed8910253b0fe712ca83248112e80fd9a59eb006b999929c8eb483d630aeec78"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-protocol-id-accept-unregistered-value",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-protocol-id-accept-unregistered-value.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:c40fd7fadcaf3e935b4f70a9f194be2fef25236f11dc1621234f14b919d095a9"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-protocol-id-lone-surrogate-not-canonicalizable",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_not_canonicalizable"
+      },
+      "path": "vectors/foundation/def-protocol-id-lone-surrogate-not-canonicalizable.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:985c38aaec31949669900a3b8c7c41cd83d8afdc5d32d8ae2ead90dd899263da"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-protocol-id-refuse-129-characters",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-protocol-id-refuse-129-characters.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:aa36d96c3ab313ef84b0f9aebdd2a9cdd156f1113c87823b2a46ff39567a6bfd"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-protocol-id-refuse-c0-control",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-protocol-id-refuse-c0-control.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:52a51045a2d6807306e02f4429ff69b019b198900f87e6d25f9db207a2393c67"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-protocol-id-refuse-c1-control",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-protocol-id-refuse-c1-control.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:f3510848fababf97e87524becabd62f0dafcfde69c05bf74a0147eb3bcfb86dd"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-protocol-id-refuse-empty",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-protocol-id-refuse-empty.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:dff96f62863698ab3d53f055224965fcbe351f777d97fa185ba64bddf0173937"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-public-key-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-public-key-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:b015fa5309d3536daf929933c684e35c8f4af7a614f77b3230f4c087ef7b0adc"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-public-key-refuse-nonzero-pad-bits",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-public-key-refuse-nonzero-pad-bits.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:584c3f42539c17b82d763f20e288b3c5deabd08b5833f5c253b270a47dffb282"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-public-key-refuse-padded",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-public-key-refuse-padded.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:5219880a1d9705f4896f0e39c8209ba7086d2885be4901bb4c62e15193992abb"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-public-key-refuse-standard-alphabet",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-public-key-refuse-standard-alphabet.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:97221e16501a4f8456754d469de4ffd8752717b274dc07faac944203c8c211ff"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-pull-number-accept-maximum",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-pull-number-accept-maximum.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:a75b9cb6ee0079d32a6abae1448edc835e888cf286a9e432992a056a12c58f97"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-pull-number-accept-one",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-pull-number-accept-one.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:429391e8a2e02f803e7e4797eab5bc4a81eff1a99d4b1601573603fb076fa8d6"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-pull-number-refuse-above-maximum",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-pull-number-refuse-above-maximum.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:e18b6fa7afe2391f54e831f634869731f720143772a18390e39b30e0bc4fc5a1"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-pull-number-refuse-boolean",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-pull-number-refuse-boolean.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:16569273f6b81a1ba8d0873e93450e75c7d45f71894a5606206147c556fe5cc8"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-pull-number-refuse-fraction",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-pull-number-refuse-fraction.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:99982e30e959cee6dc28f606e8192acd83b9b729f5df8d922dbd3d67ac267e4d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-pull-number-refuse-string",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-pull-number-refuse-string.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:8d073e43f844f99763414f6c934bed2ddec595f0c2ddae1737ddf60f9332efcd"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-pull-number-refuse-zero",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-pull-number-refuse-zero.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:0412b8edae9dd60ce634100f342eb542beb123357f6511e8bb457f6474cd33c1"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-raw-sha256-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-raw-sha256-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:bd0eb8d478af66133078de30d48dbbfc2e853063bf50b8c595674525b43cae4a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-raw-sha256-refuse-uppercase",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-raw-sha256-refuse-uppercase.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:985f0924637dbb5ba9f885d5c00446db9a813203ce3f057c6b6a099907e7ec27"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-refusal-code-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-refusal-code-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:078ed60d2c6af16deb39bb091a2f45a0ba7bc3cec6c6c76d93c3f8135fb08bed"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-refusal-code-refuse-later-phase-code",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-refusal-code-refuse-later-phase-code.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:babac339d7415f90c9f3f99d5cbb3f2fe4566fe4dc906aedc5b46dea0e82c904"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-accept-4096-bytes",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-relative-path-accept-4096-bytes.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:92e7d74209644df026c72c934e6680a1ea2d646adb2f54e726fb22edfcebdce1"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-accept-backslash",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-relative-path-accept-backslash.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:fc67c37302095d8ce5102df017ffcf8828e1d63b4a5f312c437153105acb4e42"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-accept-c1-character",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-relative-path-accept-c1-character.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:a43247c8e38b293c4b89d71539b36fa569d12b9abe5918ab46f8a14b49c6d48b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-accept-dot-prefixed-name",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-relative-path-accept-dot-prefixed-name.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:694e1d82289a96347e24adccef9dcbf12b48a8c726cc96833b2c1ddc1a30d7db"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-relative-path-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:b5443aa0ec9e6d74a51e7b50ec87d7204c0ce686899af209bdf853915913aecc"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-lone-surrogate-not-canonicalizable",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_not_canonicalizable"
+      },
+      "path": "vectors/foundation/def-relative-path-lone-surrogate-not-canonicalizable.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:7b7a8c76db511b727c67eee77bdceba36e588f15df2db3deb0f07cdd5ed1937b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-refuse-4097-bytes",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-relative-path-refuse-4097-bytes.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:ea6c2730adcf8cb861070e8c981aa11dddab9ecb905c75749c797d23afcb3d73"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-refuse-c0-control",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-relative-path-refuse-c0-control.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:7a81e9d71d9e8f74c960c534aae7298a2e9cf805c9507e37e91b4ff318b9b772"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-refuse-delete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-relative-path-refuse-delete.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:2774c15adf0ab61425cbd227b81eeae1da57da734058031c39c8a8591133899c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-refuse-dot-dot-segment",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-relative-path-refuse-dot-dot-segment.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:f40eed02d76c798ca3fd54a1e9cc734ef18428fe2967d00e754330da941752cf"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-refuse-dot-segment",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-relative-path-refuse-dot-segment.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:f10cb1b34c19da8e824b8127a2bbee49f83e87945b8ce9ecc8cc62c25dbafde8"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-refuse-empty-segment",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-relative-path-refuse-empty-segment.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:9664b36992c3d678a19f2917384bcc2f73d9131d3a2757c30e9375593dc6904f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-refuse-empty",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-relative-path-refuse-empty.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:ad0a6417be20463c1f8ea17b0d62f6c770ae4d9783a5da4faf747901ac6dd96d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-refuse-rooted",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-relative-path-refuse-rooted.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:1fb4b2c9854296055ba8fee39cdfcd0473f1c2dabdb7d1066d19024c0741dc69"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-refuse-trailing-newline",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-relative-path-refuse-trailing-newline.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:bd31dc80859b14a35fb24a5243e3d333036391bc99261f39e047723d68068fb3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-relative-path-refuse-trailing-slash",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-relative-path-refuse-trailing-slash.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:08fb12b1ac1dc6fe1ede7615e529b1e738da2c805aa0f118708540130f6610bd"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-repository-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-repository-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:f5ff9f16b714b525ca2d96ff757530efa8217d5f8d72e22dfef4336df1c6ecd3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-repository-refuse-no-owner",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-repository-refuse-no-owner.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:b7c910c4ba54866a43143a517f6af469e03b2b00277d02b77f460125ff1969e2"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-repository-refuse-three-segments",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-repository-refuse-three-segments.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:3266085d3e5bec71e1ca790b24c4289209cbdf218673496818f1f689a668de9b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-seat-id-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-seat-id-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:ea3e805a0bb7037211d2b5848c78e373df049572dc6bb840189a2f6a85c90545"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-seat-id-refuse-trailing-newline",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-seat-id-refuse-trailing-newline.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:81f776a931e50af0afbce24418dd514ed8e57bb17cd3352f0c01eedbba8733e2"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-signature-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-signature-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:b99fbf2cd66ca9ecde646c426fc36cc4eed9936201dcfa896b2af52b2aacca96"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-signature-refuse-85-characters",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-signature-refuse-85-characters.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:b627cf3399824b7c23b591f4be7e949fbed1dfa171a4ea094c5babfc27bf2d4c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-signature-refuse-padded",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-signature-refuse-padded.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:d8378873477d0fb1626bccf7a7cc915adc6a372ae54c7a24b1d71b3444e66612"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-utc-instant-accept-leap-day",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-utc-instant-accept-leap-day.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:ecc8fd11839d2084400233151b7839e063dee4bff03902f3aa9ab780d14f7706"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-utc-instant-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/def-utc-instant-accept.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:bcba7529f88ff80e51c2f4a7c1051de079b550d3160c9304028dd01cd4d196ff"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-utc-instant-refuse-april-31",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-utc-instant-refuse-april-31.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:666227f3e58b0c2fb6f4475ca20bcba0f9057e6d65914eb2f6cf03b71d8df986"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-utc-instant-refuse-fractional-seconds",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-utc-instant-refuse-fractional-seconds.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:3aceff05cc1c5ba52282c6cf2b04b4647847d1d23977cf9fb06f9420a9a7de5a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-utc-instant-refuse-leap-second",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-utc-instant-refuse-leap-second.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:9fafa8ee51fcb19986a02f2a1a25f1588331d123dd3ad5edba7ab5c81c126eb2"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-utc-instant-refuse-not-a-leap-year",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-utc-instant-refuse-not-a-leap-year.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:12cb8346545674ed21799d584ec88f861010d99969030cc0362b8c982926b6e5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-utc-instant-refuse-offset",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-utc-instant-refuse-offset.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:7cc84139286e6b9d054569ba394dc5bf1ab7a22e90586c45c521dad1b4a89aa6"
+    }
+  ],
+  "corpus_id": "council-convening-conformance",
+  "coverage_floor": [
+    "FR-001",
+    "FR-011"
+  ],
+  "kind": "openxfactory-council-convening-conformance-index",
+  "protocol": "xfc-resolved-council-1",
+  "schema_version": 1,
+  "totals": {
+    "both_sides": 128,
+    "by_area": {
+      "foundation": 128
+    },
+    "by_outcome": {
+      "accept": 41,
+      "refuse": 79,
+      "route": 8
+    },
+    "vectors": 128
+  }
+}

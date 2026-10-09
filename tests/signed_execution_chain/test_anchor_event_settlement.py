@@ -487,12 +487,16 @@ def test_the_anchoring_digest_subjects_are_enumerated_once():
         "verification_result", "anchor_event",
     ]
     assert subjects[27] == "sealed_bundle_manifest"
-    assert subjects[28:] == [
+    assert subjects[28:34] == [
         "confirmation_profile_terms", "durability_eligibility_terms",
         "daily_merkle_construction", "durability_event_leaf",
         "daily_batch_node", "daily_batch_root",
     ]
-    assert len(subjects) == len(set(subjects)) == 34
+    # `renew-resolved-council-protocol` (feature 035 Phase 1, T014): two
+    # subjects appended after `daily_batch_root`. The pin moves 34 -> 36 and
+    # `construction_name` does not move.
+    assert subjects[34:] == ["council_convening", "council_seat_return_payload"]
+    assert len(subjects) == len(set(subjects)) == 36
     assert doc["$defs"]["construction_name"]["const"] == "xfc-jcs-sha256-1"
 
 
