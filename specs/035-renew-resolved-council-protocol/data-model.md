@@ -222,11 +222,15 @@ Kind: `xfactory_council_convening_snapshot`. The consumer issues it atomically a
 | `assignments` | R | An array of E5. |
 | `admitted_at` | R | `utc_instant`. |
 
+*Added 2026-10-09 (Phase 3 pre-review, L7): `assignments` carries no `maxItems`, by the convention in this file's introduction. A count other than that of `required_seats`, which E2 bounds at 64, is `assignment_set_mismatch` at step 5; a schema bound would make it `snapshot_malformed` at step 2 instead. H1's bounded inputs are therefore a transport bound, not this array's: each side bounds the bytes it reads before it parses them. The reference implementation's cost is linear in the array; the pre-review measured 5000 assignments at 5.1 s before `assignment_set_mismatch`.*
+
 **Order at `admission`, snapshot half.**
 
 1. Classification and selection (E1).
 2. `snapshot_malformed`.
+   - *Added 2026-10-09 (Phase 3 pre-review, M3): `snapshot_malformed` also covers an embedded `convening` that fails an E2 rule needing no oracle and judging the record alone. These run after the record's E2 schema: first E2 step 2's structural rules (the `class_inputs` and `matched_class` pair, source order and uniqueness, the listing rules, a repeated `fact_sources` contract, and a sorted, duplicate-free `changed_paths`), then the offline roster rules, step 11's `condition_seat_unbound` and step 12's three roster checks. A record those rules refuse is never admitted, so a snapshot embedding one is malformed. That includes a zero-seat snapshot with no assignment, which "one assignment per required seat" would otherwise pass vacuously. The rest of E2's order is the admission that ran before the snapshot was written. The snapshot half re-runs none of it and reads no oracle.*
 3. `assignment_malformed`: an assignment fails E5, including a lifetime above the ceiling.
+   - *Added 2026-10-09 (Phase 3, reading 1): then `value_not_canonicalizable`, for any value in the snapshot, before step 4 takes a digest. This order names no step for it. § Shared definitions places it "before any digest is taken", and E2 step 2 places it after shape; this is that position. `asg-order-assignment-malformed-before-not-canonicalizable-refuse` and `asg-order-not-canonicalizable-before-digest-refuse` pin it from both sides. A lone assignment, which `check` reads outside its snapshot, takes the same pre-check after its own E5 shape.*
 4. `digest_construction_mismatch`: the digest does not recompute over `convening`.
 5. `assignment_set_mismatch`: not exactly one assignment per `required_seats` entry in roster order, or an assignment whose `protocol`, `convening_id`, `convening_digest`, `council_id` or `candidate` differs from the snapshot's.
 6. `assignment_duplicate`: a repeated `assignment_id`.

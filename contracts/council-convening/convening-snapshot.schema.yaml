@@ -20,7 +20,11 @@ description: >-
   outcome (research R21):
     1. classification and selection (data-model E1);
     2. `snapshot_malformed`: this schema, including the embedded record against
-       `council-convening.schema.yaml`;
+       `council-convening.schema.yaml`; then that record's E2 rules that need
+       no oracle and judge it alone, E2 step 2's structural rules and the
+       offline roster rules of E2 steps 11 and 12 (data-model E4, dated note of
+       2026-10-09). So no snapshot passes that embeds a record those rules
+       refuse, or that freezes zero seats;
     3. `assignment_malformed`: an assignment fails `seat-assignment.schema.yaml`,
        including a lifetime above its 21600-second ceiling; then
        `value_not_canonicalizable`, the canonicalizability pre-check over the
