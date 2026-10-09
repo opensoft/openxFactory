@@ -148,6 +148,17 @@ Core domain-neutral docs:
   merge-readiness seat-key mint; `Status: draft`, because a runbook authored by
   an unratified proposal that ratified itself would be the described-control
   defect this estate has already named twice)
+- [Council-Convening Activation Runbook](docs/council-convening-activation-runbook.md)
+  (the owner's procedure for moving the council protocol's producer and
+  consumer to `xfc-resolved-council-1` together, and back together: pause
+  commissioning, drain or explicitly cancel in-flight convenings, switch both
+  selections to one value set, a matched rehearsal of the full corpus at one
+  index digest, activation or resume only on a matched and verified pair, and a
+  paired rollback that keeps the new records as audit evidence. Each act is an
+  owner act, recorded as one activation-evidence record; nothing activates
+  before the removal major. Realizes `renew-resolved-council-protocol` D5, as
+  feature 035 task T062, and leaves one question open for Brett Heap: what a
+  rollback after the removal major restores)
 - [Factory Origin Key — Mint Runbook](docs/factory-origin-key-mint-runbook.md)
   (the operator ceremony for the ONE Ed25519 origin key an originating
   repository holds: generate the seed offline, derive `did` / fingerprint /
