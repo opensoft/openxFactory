@@ -21,6 +21,7 @@ spellings (contracts/conformance-corpus.md § The frozen identity fixture).
 from __future__ import annotations
 
 import copy
+import datetime
 import json
 from pathlib import Path
 
@@ -225,3 +226,61 @@ def write_identity_map(root: Path, text: str | None = None) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(fixture_text() if text is None else text, encoding="utf-8")
     return root
+
+
+# --- the binding inside admission (E2 steps A1 and A4; T051, T055) -----------
+
+#: The governed repository Phase 2's resolution vectors cite. Admission judges
+#: the COMMISSION job's token (data-model E2 step A1), so the workflow an
+#: admission vector's binding permits is a commission workflow in that
+#: repository, under `equals_governed_revision`.
+ADMISSION_GOVERNED = "example-org/governed-rules"
+
+
+def admission_workflow(repository: str = ADMISSION_GOVERNED) -> str:
+    return f"{repository}/.github/workflows/corpus-commission.yml@refs/heads/main"
+
+
+def admission_binding(repository: str = ADMISSION_GOVERNED, **overrides) -> dict:
+    """The commission job's binding, permitting the commission workflow of
+    `repository`."""
+    binding = commission_binding(permitted_workflows=[{
+        "operation": "commission",
+        "job_workflow_ref": admission_workflow(repository),
+        "workflow_revision_rule": "equals_governed_revision",
+    }])
+    binding.update(copy.deepcopy(overrides))
+    return binding
+
+
+def epoch_of(instant: str) -> int:
+    """A `utc_instant` in Unix seconds, the unit of the JWT `exp`/`nbf` claims."""
+    moment = datetime.datetime.strptime(instant, "%Y-%m-%dT%H:%M:%SZ")
+    return int(moment.replace(tzinfo=datetime.timezone.utc).timestamp())
+
+
+def with_passing_binding(vector: dict, *, repository: str | None = None) -> dict:
+    """`vector`, an admission vector, made to carry a binding that passes E2
+    steps A1 and A4 for its own record: the commission job's verified claims
+    name the record's governed repository (or `repository`) and its governed
+    revision, and the map is the frozen fixture's text. Mutates and returns
+    `vector`; members spelled with `$parts` are left as they are. The token's
+    window is open at the vector's own `evaluation_time`.
+
+    A record with no readable `governed` member (one refused at step 1 or 2,
+    before A1 runs) gets the corpus's governed repository and revision."""
+    record = vector["inputs"]["record"]
+    provenance = record.get("required_seats_provenance") if isinstance(record, dict) else None
+    member = provenance.get("governed") if isinstance(provenance, dict) else None
+    if not isinstance(member, dict):
+        member = {}
+    bound = admission_binding(repository or member.get("repository", ADMISSION_GOVERNED))
+    vector["inputs"]["binding"] = bound
+    vector["inputs"]["operation"] = "commission"
+    vector.setdefault("environment", {})
+    now = epoch_of(vector.get("evaluation_time", EVALUATION_TIME))
+    vector["environment"]["identity"] = identity(claims_for(
+        bound, workflow_sha=member.get("revision", REVISION),
+        iat=now - 60, nbf=now - 60, exp=now + 300))
+    vector["environment"]["repository_identity"] = identity_oracle()
+    return vector

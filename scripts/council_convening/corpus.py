@@ -39,10 +39,12 @@ would disagree on what a vector says. For the same reason a corpus file carries
 no integral number spelled as a float (`2.0`, `2e0`; `IntegralFloatToken`).
 
 THE DISPATCH TABLE. Phase 1 registers `definition` and `classification`,
-Phase 2 `commission` and `admission` (handled in `resolution`), Phase 5
-`binding` (data-model E10), and Phase 4 `registration`, `return` and
-`completion` (over `signing`). Each later phase registers its boundaries
-through `register_handler`, naming the oracles its vectors may carry.
+Phase 2 `commission` (handled in `resolution`), Phase 3 `admission`, once, for
+both its input roles (the commission record, through `resolution`, and the
+snapshot half), Phase 5 `binding` (data-model E10), and Phase 4
+`registration`, `return` and `completion` (over `signing`). Each later phase
+registers its boundaries through `register_handler`, naming the oracles its
+vectors may carry.
 
 THE FIXTURES (Phase 5). The index's `fixtures` lists every corpus-owned fixture
 with its raw SHA-256, in bytewise path order, under the same closure: a file
@@ -88,13 +90,22 @@ FIXTURE_MEMBERS = ("schema_version", "kind", "name", "text")
 FIXTURES = {"repository-identity": "fixtures/repository-identity.json"}
 IDENTITY_FIXTURE = FIXTURES["repository-identity"]
 
-#: The boundaries whose vectors read the repository identity map at this
-#: commit, and so must carry the `repository_identity` oracle
-#: (contracts/conformance-corpus.md): `binding` and `registration`, which runs
-#: E10 at E7 step 5. `admission` joins in the commit that runs binding inside the
-#: admission handler (E2 steps A1 and A4; T055), which re-authors every
-#: admission vector to carry the oracle (T051).
-IDENTITY_MAP_BOUNDARIES = ("binding", "registration")
+#: The boundaries whose vectors read the repository identity map, and so must
+#: carry the `repository_identity` oracle (contracts/conformance-corpus.md):
+#: `binding`; `registration`, which runs E10 at E7 step 5; and `admission`, which
+#: runs E10 as E2 steps A1 and A4 (T055). At `admission` only the commission
+#: record's role reads it: the snapshot half (`inputs.snapshot`, data-model E4)
+#: judges no binding, so it reads no map (`reads_identity_map`).
+IDENTITY_MAP_BOUNDARIES = ("binding", "registration", "admission")
+
+
+def reads_identity_map(vector: Mapping[str, Any]) -> bool:
+    """Whether `vector`'s adjudication reads the repository identity map."""
+    if vector.get("boundary") not in IDENTITY_MAP_BOUNDARIES:
+        return False
+    inputs = vector.get("inputs")
+    return not (vector["boundary"] == "admission" and isinstance(inputs, Mapping)
+                and "snapshot" in inputs)
 ROW_MEMBERS = ("case_id", "area", "boundary", "applies_to", "requirement_ids", "path",
                "sha256", "expected")
 ROW_FROM_VECTOR = ("case_id", "area", "boundary", "applies_to", "requirement_ids",
@@ -659,7 +670,7 @@ def adjudication_findings(label: str, vector: Mapping[str, Any],
     reference reproduced its expectation. Shared by the corpus check and by
     `check` on a single vector, so the two can never judge a vector differently.
     """
-    if (vector["boundary"] in IDENTITY_MAP_BOUNDARIES
+    if (reads_identity_map(vector)
             and "repository_identity" not in vector.get("environment", {})):
         # Phase 5: not adjudicated, because its outcome would depend on a map
         # no digest covers (R7-M1).
