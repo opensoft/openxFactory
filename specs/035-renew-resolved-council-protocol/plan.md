@@ -243,7 +243,7 @@ Five questions were left for Brett Heap, each with a recommendation. He ruled al
   - Its three follow-ups, ruled 2026-10-08 ([analysis.md § Ruled](analysis.md#ruled)):
     1. "Every governed source (Recommended)": the currency test covers every governed source the convening cites, not only the rule file (Phase 2);
     2. "job_workflow_ref's repo (Recommended)": the ruling's "producer repository" is the repository named in `job_workflow_ref`, and a permitted producer workflow outside the governed repository is refused, failing closed (Phase 5);
-    3. "At or after the frozen rev (Recommended)": a seat job's workflow commit must be on the governed history at or after the frozen revision, not equal to it; and a seat job checks out its tooling at its verified `job_workflow_sha` (Phases 4 and 5).
+    3. "At or after the frozen rev (Recommended)": a seat job's workflow commit must be on the governed history at or after the frozen revision, not equal to it (Phases 4 and 5). The plan adds, as its own requirement and not as part of the ruling, that a seat job checks out its tooling at its verified `job_workflow_sha` (R7).
 - **OPEN-4: release-inventory membership.** Ruled "Join behind a version floor (Recommended)".
   - `COUNCIL_CONVENING_RELEASE_FLOOR` is set at the Phase 7 cut, following the clearing precedent (#722, ruled in #745).
   - Encoded in [R15](research.md#r15--release-surface-membership), T066 and T068.

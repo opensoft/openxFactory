@@ -2,7 +2,9 @@
 
 Status: draft
 Prepared: 2026-10-03
-Owner lane: codeXfactory-2 (*corrected 2026-10-08*: this line read "pending acceptance and claim" until the claim of 2026-10-07; see [Allocation record (2026-10-08)](#allocation-record-2026-10-08))
+Owner lane: pending acceptance and claim
+
+*Corrected 2026-10-08:* the owner lane is codeXfactory-2, which claimed this scope on 2026-10-07; the line above is kept as ratified. See [Allocation record (2026-10-08)](#allocation-record-2026-10-08).
 
 Read the decision packet and verify ratification before code. The session that prepared this packet is outside a lane; it does not seize the preserved `026` worktree or the provider's release lock. Check siblings and the current object register. Accept/claim this fresh provider scope, then allocate exactly one Speckit feature through the configured hook on current clean main. The executable plan/tasks live only in that feature.
 

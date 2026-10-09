@@ -44,6 +44,7 @@ Each finding is one line, `ERROR [code] message` or `WARN  [code] message`; each
 | `council-convening-index-digest` | A row's `sha256` does not match the file's bytes. |
 | `council-convening-vector-outcome-mismatch` | The reference implementation's outcome, refusal, finding or `derived` value differs from `expected`. |
 | `council-convening-vector-registry-status-missing` | A vector whose outcome reads a registry status carries no `registry_status` override. |
+| `council-convening-vector-identity-map-missing` | A vector whose boundary reads the repository identity map carries no `repository_identity` oracle (from Phase 5). |
 | `council-convening-refusal-code-without-probe` | A refusal code in the enumeration at this commit has no vector. |
 | `council-convening-finding-code-without-probe` | A finding code in the enumeration at this commit has no vector. |
 | `council-convening-requirement-without-probe` | A requirement in the index's `coverage_floor` is cited by no vector. |

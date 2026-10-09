@@ -230,16 +230,16 @@ That reading fits the estate's calling pattern. xFactory's `council-convening-la
 **Why the ruled option.**
 
 - It refuses a roster under a governed source that has changed by the time admission reads the tip. A source can still change in the interval between that read and the snapshot write. The check narrows that race to the admission transaction; it does not close it, and the frozen snapshot records the revision it was admitted under.
-- It never refuses on movement of main outside the governed sources. Under the every-source ruling it does refuse when any governed source changed between commission and admission. Only first-parent movement of the governed branch can supersede a source. 28 first-parent codexFactory commits touched the governed sources, council documents included, between 2026-09-01 and 2026-10-08: about 0.76 a day across those 37 days, all of them between 2026-09-02 and 2026-09-12, with at most 6 on one day. That is against a commission-to-admission window of minutes. The count comes from this command, run in codexFactory at `2ce8544e`:
+- It never refuses on movement of main outside the governed sources. Under the every-source ruling it does refuse when any governed source changed between commission and admission. Only first-parent movement of the governed branch can supersede a source. 29 first-parent codexFactory commits touched the governed sources, council documents included, with committer dates from 2026-09-01T00:00:00Z up to 2026-10-08T00:00:00Z: about 0.78 a day across those 37 days. In UTC all of them fall between 2026-09-01T12:52:38Z and 2026-09-12T15:59:10Z, with at most 6 on one day (2026-09-03). That is against a commission-to-admission window of minutes. The count comes from this command, run in codexFactory at `2ce8544e`, with both bounds pinned in UTC:
 
   ```text
-  git log --oneline --first-parent --since=2026-09-01 --until=2026-10-08T00:00:00 2ce8544e -- \
+  git log --oneline --first-parent --since=2026-09-01T00:00:00Z --until=2026-10-08T00:00:00Z 2ce8544e -- \
     ':(glob)hermes/domain/agent-mixes.yaml' ':(glob)hermes/domain/review-councils/*.yaml' \
     ':(glob)scripts/merge_master/*.yaml' ':(glob)scripts/merge_master/*.yml' \
     ':(glob).github/merge-approval-envelope.yml' | wc -l
   ```
 
-  It prints 28; without `--first-parent` it prints 48. The `:(glob)` magic matters: in a plain git pathspec `*` also matches `/`, so the same paths without it also count the YAML records, templates and vendored pins in subdirectories, which are not governed sources. That form prints 41 first-parent and 98 in all, an upper bound. A refused convening is convened again.
+  It prints 29; without `--first-parent` it prints 50. The `:(glob)` magic matters: in a plain git pathspec `*` also matches `/`, so the same paths without it also count the YAML records, templates and vendored pins in subdirectories, which are not governed sources. That form prints 43 first-parent and 102 in all, an upper bound. The dates come from `TZ=UTC git log --date=format-local:...`. An earlier count, 28 and 48, left the bounds without a time or zone, so the shell's local zone shifted the window. A refused convening is convened again.
 - It closes the self-selection class the producer's adversarial review found (049 T008, F1: a candidate choosing the rule that decides its own membership).
 
 **Consumer impact.** 049 T010/T023 checks out its trusted tooling at exactly the verified workflow revision, for the commission job and, under follow-up 3, for each seat job. 049 already requires the governed revision to be the run's own checkout HEAD (W0, `governed_revision_not_head`). The consumer reads the governed tip at admission. Both oracles model the ruled option ([R8](#r8--environment-oracles-make-authority-facts-and-heads-testable)), and the `rule_revision_ungoverned`, `rule_superseded` and `workflow_revision_ungoverned` vectors are authored in Phases 2 and 5.
@@ -262,7 +262,7 @@ That reading fits the estate's calling pattern. xFactory's `council-convening-la
 | `resolved_candidate` | The consumer's own resolution of the candidate, for admission |
 | `issued` | The issued challenges, registered keys, consumed challenges, accepted returns and live snapshots, as of `evaluation_time` |
 | `identity` | The verified claims, whether they were verified, and the principal. Broker capability is the binding's own `broker` member, not an oracle |
-| `repository_identity` | Absent, so the adapter reads the pinned `repository-identity.yaml`; or an override (`absent`, `unreadable`, or a `text` to read) that makes `repository_identity_unavailable` probeable |
+| `repository_identity` | Required on every vector that reads the identity map: the map's exact text, copied by the generator so the vector's digest covers it, or an `absent` or `unreadable` state that makes `repository_identity_unavailable` probeable |
 | `registry_status` | An override of E1 statuses, required on every vector whose outcome reads a status |
 
 No oracle models 025's council and mix guard or its touched-object and base-branch guards (E2 steps A2 and A5): they judge consumer-held state, keep 025's own codes, and run as passing seams during a corpus run ([data-model E2](data-model.md#e2-commission-record-council-conveningschemayaml-phase-2)).
@@ -580,7 +580,7 @@ Local tests are never reported as publication, deployment or activation (spec Us
 Four ordering rules matter most:
 
 - **Classification first.** A legacy record is classified before any replacement shape check runs, so it is never called malformed.
-- **Secrets before any oracle is queried with a free-text value.** A secret-bearing record is refused before any oracle is queried with a string the secret scan covers. The admission steps before it (A1 to A3) consult oracles only by grammar-checked identifiers: the verified claims, the council, and the convening key. An identical retry equals a record that already passed the scan, and a conflicting record is refused at A3 with nothing written.
+- **Secrets before any oracle is queried with a free-text value.** A secret-bearing record is refused before any oracle is queried with a string the secret scan covers. The admission steps before it (A1 to A3) consult oracles only by grammar-checked identifiers: the verified claims, the council, and the convening key. An identical retry equals a record that already passed the scan. The precedence is stated, not hidden: a secret-bearing record that conflicts with a live key is refused `convening_conflict` at A3, not `secret_bearing_fact`, and either way nothing is written and no free-text value reaches an oracle.
 - **Retry identity before drift.** At admission, retry identity (E2 step A3) runs after classification, shape and binding, and before every check that reads something that can drift: governed sources, facts and the live head. A producer whose response was lost may resend after the tip or the head moved, and still gets the same snapshot back (US1 scenario 4; 025 FR-006). Once-per-pin runs in the same step and only after the identical-retry test, so it never pre-empts an identical retry.
 - **The live head last among reads of the candidate.** The producer's closing head read is the last read before submission (049 W0). The consumer's head check (E2 step 13) is its last read of the candidate's head. Only 025's touched-object and base-branch guards follow it (A5), and they read immutable objects at the verified head plus the base branch's rules.
 
