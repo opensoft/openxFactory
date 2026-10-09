@@ -17,6 +17,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
 
@@ -713,6 +714,44 @@ def test_check_reads_a_relative_path_inside_the_invocation_directory(tmp_path):
     _write(tmp_path / "records", "record.json", {"protocol": LEGACY})
     result = run_validator("check", "records/record.json", cwd=tmp_path)
     assert result.returncode == 3, result.stdout + result.stderr
+
+
+# PR-1 review follow-ups (2026-10-09, both LOW): containment is a comparison of
+# canonical paths, not of strings. Run from `/`, `base_dir + os.sep` was `//`,
+# which no canonical path starts with, so every path was refused.
+
+def test_check_refuses_a_sibling_directory_that_shares_the_prefix(tmp_path):
+    base = tmp_path / "base"
+    base.mkdir()
+    other = tmp_path / "base-other"
+    other.mkdir()
+    _write(other, "record.json", {"protocol": LEGACY})
+    result = run_validator("check", str(other / "record.json"), cwd=base)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "outside the directory check was invoked from" in result.stderr
+
+
+def test_check_run_from_the_filesystem_root_reads_a_path_under_it(tmp_path):
+    record = _write(tmp_path, "record.json", {"protocol": LEGACY})
+    result = run_validator("check", str(record), cwd=Path("/"))
+    assert result.returncode == 3, result.stdout + result.stderr
+    assert "outside the directory" not in result.stderr
+
+
+def test_the_containment_rule_compares_paths_not_strings(tmp_path, monkeypatch):
+    validator = load_validator()
+    base = tmp_path / "base"
+    base.mkdir()
+    inside = base / "r.json"
+    monkeypatch.chdir(base)
+    assert validator._within_invocation_directory(str(inside)) == os.path.realpath(inside)
+    assert validator._within_invocation_directory(str(base)) == os.path.realpath(base)
+    for outside in (tmp_path / "base-other" / "r.json", tmp_path / "bas", tmp_path):
+        with pytest.raises(validator._Unreadable):
+            validator._within_invocation_directory(str(outside))
+    monkeypatch.chdir("/")
+    assert validator._within_invocation_directory(str(inside)) == os.path.realpath(inside)
+    assert validator._within_invocation_directory("/") == "/"
 
 
 # --------------------------------------------------------------------------

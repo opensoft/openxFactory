@@ -200,13 +200,16 @@ def _within_invocation_directory(given: str) -> str:
     A validator an agent may drive reads only where it was started (Sonar
     `pythonsecurity:S8707`, after that rule's own compliant form): the path is
     canonicalized with `os.path.realpath`, which resolves `..` and symbolic
-    links, and only then compared with the canonical working directory plus a
-    separator, so `/base/dir-other` never passes for `/base/dir`. A successor
-    checks its own records by running `check` from its own checkout.
+    links, and only then compared with the canonical working directory as a
+    PATH, by `os.path.commonpath`, so `/base/dir-other` never passes for
+    `/base/dir`, and a run from `/` reads any path (a string prefix of
+    `base_dir + os.sep` was `//` there, and refused everything: the PR-1
+    review's follow-up of 2026-10-09). A successor checks its own records by
+    running `check` from its own checkout.
     """
     resolved = os.path.realpath(given)
     base_dir = os.path.realpath(os.getcwd())
-    if resolved != base_dir and not resolved.startswith(base_dir + os.sep):
+    if os.path.commonpath([base_dir, resolved]) != base_dir:
         raise _Unreadable(f"{given}: outside the directory check was invoked from "
                           f"({base_dir}); run check from a directory that holds it")
     return resolved
