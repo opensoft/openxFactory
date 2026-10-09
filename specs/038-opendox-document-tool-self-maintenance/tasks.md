@@ -108,7 +108,11 @@ worded, each cited by comment id or merge commit, with no new decision:
   `cli.py` contributions and its admitted `tests/test_default_profile.py` line
   joining after T016 lands; N-14 and OQ-H-15 with one owner each; T041's
   module-level `finding_id()`; and T056's one `engine.py` line, on lane 3's
-  acknowledgement (`6069516931`).
+  acknowledgement (`6069516931`);
+- the holder's rulings on this batch's review questions (`6072086385`): each
+  engine category's `pack_id`, which replaces `6069024023` item 1's "one
+  `pack_id` per category" (item 1), and T045's falsifier nodes for the two
+  refusals (item 3); item 2 changes nothing in the plan.
 
 **RULED.** Brett Heap ruled the plan at `6847e99e`, every item as recommended
 (`#656` `6013547504`, 2026-10-06; plan.md § "Ruled answers, the plan ruling").
@@ -1136,18 +1140,21 @@ copies (research R7; ADV-05).
     the CLI or HTTP layer emits (the holder, `6027706377` item 1);
     `tests/test_validator_input_set.py` green at the new commit.
   - **Ruled**: R2Q10, R2Q18, R2Q22, R2Q25; the holder's `6018624750`,
-    `6069024023` (items 1 and 2) and `6069507373` (T046 item 2).
+    `6069024023` (items 1 and 2), `6069507373` (T046 item 2) and `6072086385`
+    (item 1).
     **Decisions**: N-3, N-13, N-15, OQ-H15-19.
   - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
     `src/opendox/contracts/copies.yaml`, `schemas/`, `__init__.py` and
     `tests/test_validator_input_set.py` (first: T041 → T047 → T054), new
     `tests/test_health_contract.py`.
-  - **Implementation note** (the holder, `6069024023` items 1 and 2, and
-    `6069507373` T046 item 2):
+  - **Implementation note** (the holder, `6069024023` items 1 and 2,
+    `6069507373` T046 item 2, and `6072086385` item 1):
     - the engine categories are the nine T041 drafted and the two the holder
-      added, `dispositions-refused` and `manifest-refused`, with their mappings
-      (contracts/health-finding.md § The id rule);
+      added, `dispositions-refused` and `manifest-refused`, with their mappings,
+      each category's `pack_id` among them: the entry's id for a finding against
+      a valid manifest entry's pack, `opendox` for every other category
+      (contracts/health-finding.md § The id rule; `6072086385` item 1);
     - `disappearance_identity()` returns either form of the re-raise's identity,
       `{disappeared_id}` for an original with a path and `{category, entry}` for a
       pathless one (option (D)), with its test;
@@ -1277,9 +1284,12 @@ copies (research R7; ADV-05).
   - **Falsifier**: new `tests/test_check_pack_contract.py`, including a family
     missing its version or its `applies_to`, refused; a finding of an
     undeclared kind, and one outside its family's globs, each refused as a
-    finding against the pack.
-  - **Ruled**: R2Q18, R2Q20; the holder's `6069024023` (item 1). **Decisions**:
-    N-3, OQ-H15-1, -10, -11.
+    finding against the pack; and one node for each refusal `6069024023` item 1
+    extends from `6065680005` item 3: a family that declares an engine kind,
+    refused, and a pack finding with an empty `path`, refused (the holder,
+    `6072086385` item 3).
+  - **Ruled**: R2Q18, R2Q20; the holder's `6069024023` (item 1) and `6072086385`
+    (item 3). **Decisions**: N-3, OQ-H15-1, -10, -11.
   - **After**: T041.
   - **Files**: `src/opendox/health_contract.py` (second, appended), the test.
   - **Implementation note** (accepted by the holder, `6028138991`, from lane 3's

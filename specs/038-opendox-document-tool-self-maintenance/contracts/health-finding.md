@@ -70,7 +70,16 @@ the schema and keep one id across runs:
   - stdout over the cap is `pack-bound-hit`;
   - non-JSON or contract-breaking pack output is `pack-output-refused`;
   - one finding per (category, entry) per run, with the reasons in `evidence`;
-  - one `pack_id` per category;
+  - each category's `pack_id`, as dox-v1.2's schema text for `pack_id` has it
+    (the holder, `6072086385` item 1, which replaces `6069024023` item 1's "one
+    `pack_id` per category"):
+    - a finding against a VALID manifest entry's pack takes that entry's id:
+      `fetch-failed`, `digest-mismatch`, `declaration-refused`, `pack-crashed`,
+      `pack-timed-out`, `pack-bound-hit` and `pack-output-refused`;
+    - every other category is against the product and takes `opendox`:
+      `no-sandbox`, `manifest-refused`, `dispositions-refused` and
+      `entry-refused`. A refused entry's id may be malformed, reserved or
+      repeated, so it names no pack; the entry rides only in `identity.entry`;
 - the collision finding below: `{"collided_id": <the colliding id>}`;
 - the re-raise of an uncited disappearance (data-model.md § Baseline classes),
   with `pack_id` `opendox`, `kind` `uncited-disappearance` and `human-only`, in
@@ -126,8 +135,15 @@ raise with Brett (Copilot's review of `6f073ed2`).
   that pack (15.5, 15.6). Two findings with one id are such a finding too
   (§ The id rule).
 - **Install-level findings** (`no-sandbox`, a manifest entry that cannot be
-  fetched or whose digest differs, a pack that crashed or timed out) carry
-  `pack_id` `opendox` or the entry's id, an empty `path`, and `human-only`.
+  fetched or whose digest differs, a pack that crashed or timed out) carry an
+  empty `path` and `human-only`. Their `pack_id` splits by category (the holder,
+  `6072086385` item 1; § The id rule):
+  - the entry's id, for a finding against a valid manifest entry's pack
+    (`fetch-failed`, `digest-mismatch`, `declaration-refused`, `pack-crashed`,
+    `pack-timed-out`, `pack-bound-hit`, `pack-output-refused`);
+  - `opendox` for every other category (`no-sandbox`, `manifest-refused`,
+    `dispositions-refused`, `entry-refused`), with a refused entry riding only
+    in `identity.entry`.
 - **The view renders `message` and labels as TEXT**, never HTML, and reads any
   passage it shows from git at render time (R2Q25 (a)).
 

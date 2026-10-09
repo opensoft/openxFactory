@@ -60,8 +60,9 @@ reads "merges `main`" where it read "rebases", per the writer rules (the holder,
 and lane 3's ACK, `6069516931`). tasks.md carries the rest; data-model.md carries
 `run_seq`, `baseline_class` NOT NULL and the pathless original's re-raise
 (`6069024023` items 2 and 3); and `contracts/health-finding.md` carries the engine
-categories, the pathless re-raise and `baseline_class` NOT NULL (`6069024023`
-items 1 and 2, `6069507373`).
+categories with each category's `pack_id`, the pathless re-raise and
+`baseline_class` NOT NULL (`6069024023` items 1 and 2, `6069507373`, and
+`6072086385` item 1).
 
 **Revision: review round 1 folded** (2026-10-05). Two independent read-only
 reviews of `6d6911e1`, an Opus analyze and adversarial pass and lane
