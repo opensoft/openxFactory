@@ -391,28 +391,21 @@ PHASE_2_REFUSALS = [
     "roster_mismatch"]
 
 
-#: Phase 4's codes (T046), in data-model § Refusal vocabulary order.
-PHASE_4_REFUSALS = [
-    "assignment_unknown", "assignment_not_yet_valid", "assignment_expired",
-    "operation_not_permitted", "challenge_malformed", "challenge_unknown",
-    "challenge_wrong_assignment", "challenge_consumed", "challenge_expired",
-    "registration_malformed", "root_authorization_refused", "wrong_principal",
-    "fingerprint_mismatch", "assignment_already_registered", "shared_key",
-    "cross_protocol_context", "cross_convening_context", "cross_seat_context",
-    "proof_invalid", "return_malformed", "return_unregistered", "return_key_mismatch",
-    "return_digest_mismatch", "return_signature_invalid", "return_replayed",
-    "return_unlisted", "return_duplicate", "return_missing", "completion_set_mismatch",
-    "binding_unresolved", "broker_capability_insufficient"]
-
-
-def test_refusal_code_holds_exactly_the_landed_phases_codes(definitions_doc, schemas):
-    landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS + PHASE_4_REFUSALS
-    assert definitions_doc["$defs"]["refusal_code"]["enum"] == landed
-    assert schemas.enum("refusal_code") == landed
-    for code in landed:
+def test_refusal_code_opens_with_exactly_the_phase_1_and_phase_2_codes(
+        definitions_doc, schemas):
+    # The enumeration grows by phase, each in the task that authors its schemas,
+    # in landing order (1, 2, 3, 5, 4, 6): a later phase's codes FOLLOW these,
+    # which keep their order. Each later phase's own test pins its additions
+    # (Phase 5: T053, in test_binding.py).
+    enum = definitions_doc["$defs"]["refusal_code"]["enum"]
+    landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS
+    assert enum[:len(landed)] == landed
+    assert len(set(enum)) == len(enum)
+    assert schemas.enum("refusal_code") == enum
+    for code in enum:
         assert accepts(schemas, "refusal_code", code)
-    # A Phase 3 code is not a member at this commit.
-    assert malformed(schemas, "refusal_code", "snapshot_malformed")
+    # A code no phase has landed is not a member.
+    assert malformed(schemas, "refusal_code", "no_such_refusal")
 
 
 def test_finding_code_holds_exactly_the_phase_1_finding(definitions_doc, schemas):

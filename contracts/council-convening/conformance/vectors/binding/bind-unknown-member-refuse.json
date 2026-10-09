@@ -1,0 +1,82 @@
+{
+  "applies_to": [
+    "consumer"
+  ],
+  "area": "binding",
+  "boundary": "binding",
+  "case_id": "bind-unknown-member-refuse",
+  "environment": {
+    "identity": {
+      "claims": {
+        "aud": "council-convening-corpus-audience",
+        "exp": 1791504300,
+        "iat": 1791503940,
+        "iss": "https://token.actions.githubusercontent.com",
+        "job_workflow_ref": "codeXfactory/codexFactory/.github/workflows/corpus-commission.yml@refs/heads/main",
+        "job_workflow_sha": "4444444444444444444444444444444444444444",
+        "nbf": 1791503940,
+        "repository": "opensoft/xFactory",
+        "repository_id": "424242",
+        "sub": "repo:opensoft/xFactory:ref:refs/heads/main"
+      },
+      "principal": {
+        "principal_kind": "github_oidc_job",
+        "principal_ref": "corpus-commission-binding"
+      },
+      "verified": true
+    },
+    "repository_identity": {
+      "state": "text",
+      "text": "# The frozen identity fixture of the council-convening conformance corpus.\n# Corpus-owned and NOT the live contracts/policies/repository-identity.yaml:\n# one complete transfer row and one pending row, in the live map's shape.\nschema_version: 1\nkind: repository_identity\npolicy_id: repository-identity-v1\ntransfers:\n  - former: opensoft/codexFactory\n    current: codeXfactory/codexFactory\n    transferred_on: 2026-09-09\n    transfer_state: complete\n  - former: opensoft/ExampleFactory\n    current: ExampleOrg/ExampleFactory\n    transferred_on: null\n    transfer_state: pending\n"
+    }
+  },
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "binding_malformed"
+  },
+  "inputs": {
+    "binding": {
+      "audience": "council-convening-corpus-audience",
+      "binding_id": "corpus-commission-binding",
+      "broker": {
+        "broker_ref": "corpus-broker",
+        "capability_verified": true,
+        "evidence_ref": "corpus-broker-evidence"
+      },
+      "caller_repository": "opensoft/xFactory",
+      "issuer": "https://token.actions.githubusercontent.com",
+      "kind": "xfactory_council_producer_binding",
+      "permitted_workflows": [
+        {
+          "job_workflow_ref": "codeXfactory/codexFactory/.github/workflows/corpus-commission.yml@refs/heads/main",
+          "operation": "commission",
+          "workflow_revision_rule": "equals_governed_revision"
+        }
+      ],
+      "principal_kind": "github_oidc_job",
+      "protocol": "xfc-resolved-council-1",
+      "repository_id": 424242,
+      "schema_version": 1,
+      "subject_claim_keys": [
+        "repo",
+        "context"
+      ],
+      "subject_pattern": "repo:*",
+      "subject_template": "repo:opensoft/xFactory:ref:refs/heads/main"
+    },
+    "governed": {
+      "repository": "codeXfactory/codexFactory",
+      "revision": "4444444444444444444444444444444444444444"
+    },
+    "operation": "commission"
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-009"
+  ],
+  "schema_version": 1
+}

@@ -43,7 +43,7 @@ from scripts.council_convening.records import Refused
 from scripts.signed_execution_chain import canonical, ed25519
 
 from . import signing_fixtures as fx
-from .conftest import FAMILY, PROTOCOL_REGISTRY
+from .conftest import FAMILY, PROTOCOL_REGISTRY, SHARED_DEFINITIONS
 
 
 def refusal(callable_, *args, **kwargs) -> str:
@@ -106,6 +106,31 @@ def test_the_ruled_challenge_ceiling_is_600_seconds_and_is_read_from_the_contrac
         "const": fx.CHALLENGE_CEILING}
     assert signing.CHALLENGE_LIFETIME_CEILING_SECONDS == fx.CHALLENGE_CEILING
     assert signing.contract_challenge_ceiling() == fx.CHALLENGE_CEILING
+
+
+#: Phase 4's refusal codes (T046), in data-model § Refusal vocabulary order. The
+#: E10 codes registration also reaches at E7 step 5 are Phase 5's (T053).
+PHASE_4_CODES = [
+    "assignment_unknown", "assignment_not_yet_valid", "assignment_expired",
+    "operation_not_permitted", "challenge_malformed", "challenge_unknown",
+    "challenge_wrong_assignment", "challenge_consumed", "challenge_expired",
+    "registration_malformed", "root_authorization_refused", "wrong_principal",
+    "fingerprint_mismatch", "assignment_already_registered", "shared_key",
+    "cross_protocol_context", "cross_convening_context", "cross_seat_context",
+    "proof_invalid", "return_malformed", "return_unregistered", "return_key_mismatch",
+    "return_digest_mismatch", "return_signature_invalid", "return_replayed",
+    "return_unlisted", "return_duplicate", "return_missing", "completion_set_mismatch",
+    "binding_unresolved", "broker_capability_insufficient"]
+
+
+def test_the_phase_4_codes_extend_the_closed_refusal_vocabulary_in_one_run():
+    # The enumeration grows by phase in landing order (1, 2, 3, 5, 4, 6); Phase
+    # 4's codes are one contiguous run in their own order, wherever it begins.
+    enum = yaml.safe_load(SHARED_DEFINITIONS.read_text(encoding="utf-8"))[
+        "$defs"]["refusal_code"]["enum"]
+    start = enum.index(PHASE_4_CODES[0])
+    assert enum[start:start + len(PHASE_4_CODES)] == PHASE_4_CODES
+    assert len(set(enum)) == len(enum)
 
 
 def test_the_payload_bound_is_one_mebibyte_and_is_read_from_the_contract():

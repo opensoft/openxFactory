@@ -180,10 +180,11 @@ $defs:
       head_sha: {$ref: '#/$defs/full_sha'}
       subject_path: {$ref: '#/$defs/relative_path'}
   refusal_code:
-    # CLOSED AT THE CODES OF THE PHASES LANDED: the Phase 1 five, the Phase 2
-    # twenty-nine (T028) and the Phase 4 thirty-one (T046), in data-model §
-    # Refusal vocabulary order; each later phase adds its own, in the task that
-    # authors its schemas.
+    # CLOSED AT THE CODES AS LANDED: the Phase 1 five, the Phase 2
+    # twenty-nine (T028, in data-model § Refusal vocabulary order), then
+    # each later phase's own, added in the task that authors its schemas:
+    # Phase 5's thirteen (T053), then Phase 4's thirty-one (T046), in the
+    # order their PRs land (PR-5 before PR-4).
     description: The closed refusal vocabulary as landed at this commit.
     type: string
     enum:
@@ -222,6 +223,22 @@ $defs:
       - roster_empty
       - roster_duplicate_seat
       - roster_mismatch
+      # Phase 5 (T053): the producer binding, data-model E10. Introduced here,
+      # where `binding` vectors and admission vectors probe them, and reused by
+      # registration in Phase 4 (E7 step 5).
+      - binding_malformed
+      - claims_unverified
+      - claims_expired
+      - issuer_mismatch
+      - audience_mismatch
+      - binding_wildcard
+      - repository_identity_unavailable
+      - repository_identity_former
+      - repository_identity_mismatch
+      - subject_template_mismatch
+      - subject_workflow_conflation
+      - workflow_not_permitted
+      - workflow_revision_ungoverned
       # Phase 4 (T046): registration, return and completion (data-model E7, E8),
       # plus `binding_unresolved` and `broker_capability_insufficient`, whose first
       # triggers are E7 step 5 (data-model § Refusal vocabulary). The binding

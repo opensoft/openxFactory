@@ -1,0 +1,68 @@
+schema_version: 1
+kind: xfactory_council_producer_binding
+
+# ============================================================================
+# producer-binding.template.yaml — the producer workflow binding
+# (`producer-binding.schema.yaml`, data-model E10) as an INSTANTIATION STUB
+# carrying NO LIVE VALUE. It is never accepted as a live binding: a record
+# carrying `instantiation_stub: true` is `binding_malformed` at step 1.
+#
+# WHY A TEMPLATE AND NOT THE BINDING. Brett Heap ruled OPEN-2 on 2026-10-08,
+# "Consumer's runtime config (Recommended)": the concrete instance is written
+# into the CONSUMER'S governed runtime configuration at the provisioning act
+# (049 T031; 025 H3) and validated with
+# `python3 scripts/validate-council-convening.py check <instance>` at the
+# consumer's pin of this repository. This family ships the schema, this stub,
+# the derivation from `contracts/policies/repository-identity.yaml`, and the
+# corpus. Publishing an instance here would make the neutral repository the
+# holder of one domain's authority configuration, and every audience or
+# subject-template change a provider contract cut.
+#
+# WHAT THE PROVISIONING ACT FILLS IN, member by member:
+#
+#   binding_id           the identifier an assignment's `holder.binding_ref`
+#                        names; one binding per principal, so a per-seat
+#                        principal is one binding per seat.
+#   audience             the literal audience the consumer verifies.
+#   caller_repository    the repository the job runs in (the token's
+#   repository_id        `repository` and `repository_id` claims), in the
+#                        current spelling `repository-identity.yaml` gives.
+#   subject_claim_keys   the caller repository's OIDC subject keys, GitHub's
+#   subject_template     default `repo`, `context` or its documented
+#                        customization, and the exact `sub` the job's token
+#                        carries, for example a per-seat environment's
+#                        `repo:<owner>/<repo>:environment:<name>`.
+#   permitted_workflows  each reusable workflow the principal may run, as
+#                        `<owner>/<repo>/.github/workflows/<file>@<ref>` in the
+#                        GOVERNED repository, with the ruled revision rule
+#                        fixed per operation (OPEN-3; follow-ups 2 and 3).
+#   broker               the owner-provisioned broker, its verified capability
+#                        and the evidence. Until it is verified, activation
+#                        parks (D4; E12).
+#
+# NO CREDENTIAL, KEY OR TOKEN BELONGS IN A BINDING, here or in the instance.
+# ============================================================================
+
+instantiation_stub: true
+protocol: xfc-resolved-council-1
+binding_id: "<the binding id an assignment's holder.binding_ref names>"
+principal_kind: github_oidc_job
+issuer: "https://token.actions.githubusercontent.com"
+audience: "<the audience the consumer configures>"
+caller_repository: "<the owner/name of the repository the job runs in>"
+repository_id: null
+subject_claim_keys:
+  - repo
+  - context
+subject_template: "<the caller repository's verified OIDC sub>"
+permitted_workflows:
+  - operation: commission
+    job_workflow_ref: "<owner>/<repository>/.github/workflows/<file>@<ref>"
+    workflow_revision_rule: equals_governed_revision
+  - operation: seat_execution
+    job_workflow_ref: "<owner>/<repository>/.github/workflows/<file>@<ref>"
+    workflow_revision_rule: on_governed_history_since_revision
+broker:
+  broker_ref: "<the owner-provisioned broker's reference>"
+  capability_verified: false
+  evidence_ref: null
