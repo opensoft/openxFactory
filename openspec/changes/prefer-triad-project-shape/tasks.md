@@ -235,6 +235,16 @@ never precedes it.
 have not happened, and each is ticked by the act that performs it, never by the
 authoring lane.
 
+**AT THE ARCHIVE, 2026-10-09, EVERY ONE OF THEM IS TICKED, AND THE PARAGRAPH
+ABOVE IS KEPT AS IT WAS WRITTEN.** It was true when the packet was ratified.
+`scripts/proposal-support.py` refuses an archive while any `^- \[ \]` line
+remains, so the archive either closes each box or does not happen. 1.1 to 1.5
+are closed as discharged by Brett Heap's words, on his selection of 2026-10-08.
+§ 1's heading, *"an agent never ticks them"*, is kept as written, because each
+of those ticks records his act and not the agent's. 4.3 is ticked on its
+verified evidence. 5.1 to 5.5 and 5.7 were ticked by their realizations, 5.6
+is ticked on openRepoProject #8, and 6.1 is ticked for the archive act itself.
+
 ## 5. Realization handoffs — NOT performed by this packet
 
 Each is its owner's act, after ratification, in its own repository and through
@@ -455,9 +465,54 @@ advisory, 5.5 and 5.6 are independent of one another.
 
 ## 6. Archive
 
-- [ ] 6.1 Archive ONLY on merged plus green realization evidence across § 5 —
+- [x] 6.1 Archive ONLY on merged plus green realization evidence across § 5 —
   the code surface is not empty, so `release-realization` holds the archive
   until then, and not on landing. The boxes for the three surfaces outside the
   `code_surface:` head — workBenches, openRepoProject and the private protocol
   source — are checked by the archiving actor and each one's evidence is cited
   in the archive record (`design.md` D9).
+  **Ticked before the run, because the archive wrapper refuses an open box**
+  (`change has incomplete tasks` while any `- [ ]` line remains). The
+  condition this item names is met: every § 5 surface's realization is merged,
+  with green checks where the surface runs any. `design.md` D9 names no file
+  for "the archive record", so this note is that record, and the table below
+  cites each surface's evidence, the three outside the `code_surface:` head
+  included. The archive is the governed wrapper's act,
+  `TZ=UTC python3 scripts/proposal-support.py . archive prefer-triad-project-shape --yes`,
+  never a bare `openspec archive`. It runs on Brett Heap's standing word
+  *"archive prefer-triad-project-shape when 5.6 lands"*, given in session at
+  2026-10-07T10:20:48Z and RULED on the lane register at 2026-10-07T10:21:23Z.
+  The word's recorded reading makes this one archive pull request, landing by
+  merge commit under a Rule 6 window with no further word needed. The run and
+  its measurements are recorded under this item in the commit after the move.
+  - **The archive record: each § 5 surface's realization evidence.** Merge
+    shas and check runs were read from GitHub on 2026-10-09.
+
+    | box | surface | merged | checks |
+    | --- | --- | --- | --- |
+    | 5.1 | openxFactory, the doctrine (in the head) | PR #1254 → `a2dc658d90be2eaf700a41f60599c68905485e46`, squash, 2026-10-06T19:14:28Z | at head `38905056`: 14 success, `Sourcery review` skipped |
+    | 5.2 | `opensoft/openRepoShape`, the mechanics (in the head) | PR #164 → `1a9fc537bcce37301c85fc108fabd8a599b02000`, squash, 2026-10-06T22:52:05Z | at head `ff739588`: `tests`, `tests-macos`, `tests-windows` and SonarCloud success, Sourcery skipped |
+    | 5.3 | openxFactory, the pin (in the head) | PR #1260 → `f335c07716c636a994b76389f218a8d0151a3364`, squash, 2026-10-07T00:41:26Z | at head `60eedde5`: 14 success, Sourcery skipped |
+    | 5.4 | `opensoft/workBenches`, the bootstrap (OUTSIDE the head) | PR #139 → `9fbe609c977573f3d077240c771f7cac7665fab0` (2026-10-06T19:03:46Z) and PR #140 → `d86ba59b1c81b777d05a7a5457553f3e9895432c` (2026-10-06T22:00:06Z) | at heads `306acebf` and `d692274f`: CodeQL, three `Analyze` jobs, `bash-3-2`, `git-2-34-1` and `regression` success, Sourcery skipped; on `main` at both merge shas, every run success |
+    | 5.5 | the shared agent protocol, private source `brettheap/new-workstation` (OUTSIDE the head; cited by sha and file name only) | #52 → `e081c5ab1166f0bbfd252973f32f21fa4c979131` (2026-10-06T19:03:53Z; `home/.agents/AGENTS.md`, `home/.agents/protocols/openspec-speckit-workflow.md`, `home/.agents/protocols/project-agent-bootstrap.md`) and #53 → `cb4114602826efe0f4829d1cb4695b17d11beb2b` (2026-10-06T21:59:49Z; `home/.agents/protocols/project-agent-bootstrap.md`) | that repository runs no CI: 0 check runs and 0 statuses at either sha, and 0 workflows |
+    | 5.6 | `opensoft/openRepoProject`, new-project creation (OUTSIDE the head) | PR #8 → `d7f6b0eeebf3370be13de87193f397592ebd73a9`, squash, 2026-10-08T23:43:48Z | at head `f8dde973`: eight `test` runs and SonarCloud success, Sourcery skipped; on `main` at `d7f6b0ee`: four `test` jobs success, SonarCloud neutral |
+    | 5.7 | openxFactory, the estate inventory | PR #1255 → `0992369ab7f9b4d81ca3099b02961181388c1726`, squash, 2026-10-06T23:52:07Z | at head `e24ac4b7`: 16 success, Sourcery skipped |
+
+  - **Two § 5 notes name a branch commit, not the merge.** 5.1's `31e0628a`
+    and 5.3's `9af22071` are the realizing commits on the branches of #1254
+    and #1260. Neither is an ancestor of `main`. Both landed by squash, as the
+    `a2dc658d` and `f335c077` the table names. The two notes are kept as
+    written.
+  - **No block is brought forward.** Since this packet was authored on
+    `main` `92010d3e`, one commit has touched
+    `openspec/specs/project-repo-schema/spec.md`: `960e0d5b` (#1275,
+    correct-naming-families-count's archive). It modified two OTHER
+    requirements, added a blank line on each side of `## Requirements`, and
+    dropped the file's trailing blank line.
+    The block of *The project repository schema is elective and confers
+    nothing* is 2,201 bytes with sha256 prefix `9a3054ba7f7ccd09` both at
+    `92010d3e` and at `main` `b4b9d903`, this archive's cut. § 3.1's two
+    carriage diffs, re-run against that canon at its new lines 18-34 and
+    36-49, print nothing. Canon has not moved under the MODIFIED block, so
+    `document-lifecycle`'s currency requirement owes no bringing forward. No
+    other active change carries a delta on `project-repo-schema`.
