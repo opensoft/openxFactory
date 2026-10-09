@@ -136,7 +136,9 @@ worded, each cited by comment id or merge commit, with no new decision:
   `entry-refused`'s `identity.entry` under the pinned schema, which replaces "the
   refused entry as written" for an entry that does not conform (item 4); and
   `refused-patch` joining the engine kinds (item 1). Item 2 (T015's limits) is
-  recorded nowhere in the plan.
+  recorded nowhere in the plan;
+- the holder's ruling on the same review (`6088484643` item 5): the exact canonical
+  text behind that digest form, in `contracts/health-finding.md` and T041's note.
 
 **RULED.** Brett Heap ruled the plan at `6847e99e`, every item as recommended
 (`#656` `6013547504`, 2026-10-06; plan.md § "Ruled answers, the plan ruling").
@@ -1166,7 +1168,8 @@ copies (research R7; ADV-05).
   - **Ruled**: R2Q10, R2Q18, R2Q22, R2Q25; the holder's `6018624750`,
     `6069024023` (items 1 and 2), `6069507373` (T046 item 2), `6072086385`
     (items 1 and 4), `6072197564` (NAMES (b), (c) and (e)), `6073087924` (the
-    entry rule, refining (e)) and `6086098003` (items 1, 3 and 4).
+    entry rule, refining (e)), `6086098003` (items 1, 3 and 4) and `6088484643`
+    (item 5, the canonical text).
     **Decisions**: N-3, N-13, N-15, OQ-H15-19.
   - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
@@ -1175,7 +1178,7 @@ copies (research R7; ADV-05).
     `tests/test_health_contract.py`.
   - **Implementation note** (the holder, `6069024023` items 1 and 2,
     `6069507373` T046 item 2, `6072086385` items 1 and 4, `6072197564`,
-    `6073087924` and `6086098003` items 1, 3 and 4):
+    `6073087924`, `6086098003` items 1, 3 and 4, and `6088484643` item 5):
     - the engine categories are the nine T041 drafted and the two the holder
       added, `dispositions-refused` and `manifest-refused`, with their mappings,
       each category's `pack_id` among them: the entry's id for a finding against
@@ -1244,18 +1247,27 @@ copies (research R7; ADV-05).
       - `""` when the entry has no id;
       - the id as written, when it is a string matching `[a-z0-9-]+` of at most
         200 characters;
-      - otherwise `sha256-` followed by the SHA-256 hex of the id's canonical
-        text. This covers a malformed or over-long id, a non-string id, and one
-        carrying U+0000. It is never truncated and never a schema exception. It is
-        `6069507373` T044 item 7's rule (a string over the bound becomes its
-        SHA-256 hex) in the only form a closed `{category, entry}` identity
-        allows;
+      - otherwise `sha256-` followed by the lowercase hexadecimal SHA-256 of the
+        id's canonical text, over that text's ASCII bytes: 71 characters, inside
+        the schema's `[a-z0-9-]` pattern and the 200-character bound. This covers
+        a malformed or over-long id, a non-string id, and one carrying U+0000. It
+        is never truncated and never a schema exception. It is `6069507373` T044
+        item 7's rule (a string over the bound becomes its SHA-256 hex) in the
+        only form a closed `{category, entry}` identity allows;
+      - the canonical text of the id (the holder, `6088484643` item 5, on Copilot
+        `4232974858` at openxFactory#1283), recorded in
+        contracts/health-finding.md, is Python's `json.dumps(id, sort_keys=True,
+        separators=(",", ":"), ensure_ascii=True, allow_nan=True, default=str)`.
+        A value JSON cannot represent (a YAML date, timestamp or binary) is
+        spelled by its `str()`. If that call raises (a mapping whose keys JSON
+        cannot spell or cannot sort, or a self-referencing value), the canonical
+        text is the id's `repr()`, so the rule is total and never raises;
       - T041 adds the helper that builds it: deterministic, total over anything
-        the manifest parser yields, distinct for distinct ids, and never raising.
-        T041 documents the canonical text in contracts/health-finding.md, with
-        test rows for an absent id, a conforming id, an uppercase or spaced id, an
-        id with U+0000, a non-string id and a 201-character id. The contract's
-        check already admits the form;
+        the manifest parser yields, distinct for distinct ids, and never raising,
+        with test rows for an absent id, a conforming id, an uppercase or spaced
+        id, an id with U+0000, a non-string id, a 201-character id, and a mapping
+        id with mixed-type keys (the `repr()` fallback). The contract's check
+        already admits the form;
     - `refused-patch` joins `ENGINE_KINDS` (the holder, `6086098003` item 1, on
       lane 3's ask from T049's prep): a refused patch is a finding against the
       pack naming `refused_patch` and `reason` (T049's entry; data-model.md

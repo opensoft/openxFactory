@@ -71,7 +71,8 @@ the task-level record, and `contracts/health-finding.md` carries the U+0000 boun
 (the NUL seam, `6072086385` item 4) and a pathless finding's identity: its closed
 category set, its 200-character `entry`, and `entry` fixed by its category
 (`6072197564`, refined by `6073087924`), with the `path` bound and the form of
-`entry-refused`'s `identity.entry` (`6086098003` items 3 and 4).
+`entry-refused`'s `identity.entry` and its canonical text (`6086098003` items 3
+and 4, `6088484643` item 5).
 
 **Revision: review round 1 folded** (2026-10-05). Two independent read-only
 reviews of `6d6911e1`, an Opus analyze and adversarial pass and lane

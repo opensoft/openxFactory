@@ -184,15 +184,28 @@ raise with Brett (Copilot's review of `6f073ed2`).
     - `""` when the entry has no id;
     - the id as written, when it is a string matching `[a-z0-9-]+` of at most 200
       characters;
-    - otherwise `sha256-` followed by the SHA-256 hex of the id's canonical text.
-      This covers a malformed or over-long id, a non-string id, and one carrying
-      U+0000. It is never truncated and never a schema exception. It is
+    - otherwise `sha256-` followed by the lowercase hexadecimal SHA-256 of the
+      id's canonical text (below), taken over that text's ASCII bytes: 71
+      characters, inside the schema's `[a-z0-9-]` pattern and the 200-character
+      bound. This covers a malformed or over-long id, a non-string id, and one
+      carrying U+0000. It is never truncated and never a schema exception. It is
       `6069507373` T044 item 7's rule (a string over the bound becomes its SHA-256
       hex) in the only form a closed `{category, entry}` identity allows.
 
     T041 builds it with a helper that is deterministic, total over anything the
-    manifest parser yields, distinct for distinct ids, and never raising, and
-    documents the id's canonical text in this contract.
+    manifest parser yields, distinct for distinct ids, and never raising.
+
+    **The canonical text of a refused entry's id** (the holder, `6088484643` item
+    5, on Copilot `4232974858` at openxFactory#1283) is its JSON text with sorted
+    keys, no whitespace and ASCII-only escapes: Python's
+    `json.dumps(id, sort_keys=True, separators=(",", ":"), ensure_ascii=True,
+    allow_nan=True, default=str)`.
+    - So every value the manifest's YAML parser yields has one spelling.
+    - A value JSON cannot represent (a YAML date, timestamp or binary) is spelled
+      by its `str()`.
+    - If that call raises (a mapping whose keys JSON cannot spell or cannot sort,
+      or a self-referencing value), the canonical text is the id's `repr()`, so the
+      rule is total and never raises.
 - **U+0000 is refused** (the NUL seam, the holder, `6072086385` item 4). Postgres
   `jsonb` cannot store U+0000 in a string (SQLSTATE 22P05), so a finding that
   carries it can never be stored.
