@@ -73,8 +73,8 @@ T015 (openDox-code#96 → `c94878be`) and the task-level record, and
 its 200-character `entry`, and `entry` fixed by its category (`6072197564`,
 refined by `6073087924`), with the `path` bound, the form of `entry-refused`'s
 `identity.entry` and its canonical text, and the per-entry check on an entry's
-name (`6086098003` items 3 and 4, `6088484643` item 5, `6088732352` item 6 and
-`6082100803`).
+name (`6086098003` items 3 and 4, `6088484643` item 5, `6088732352` item 6,
+`6089449884` item 7 and `6082100803`).
 
 **Revision: review round 1 folded** (2026-10-05). Two independent read-only
 reviews of `6d6911e1`, an Opus analyze and adversarial pass and lane

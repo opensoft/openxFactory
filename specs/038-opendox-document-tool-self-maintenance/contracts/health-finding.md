@@ -218,13 +218,21 @@ raise with Brett (Copilot's review of `6f073ed2`).
       item 6 (b), on Copilot `4234200849`), so the canonical text is always ASCII
       and the digest never raises.
 
-    **An accepted limit** (the holder, `6088732352` item 6 (a), on Copilot
-    `4234200786`, under `5988818366`): with `default=str`, a YAML date or timestamp
-    id digests like a malformed string id that spells its `str()`. A conforming
-    string such as `2026-10-09` is kept as written, so it never collides. It needs
-    two refused entries in one manifest, one a crafted non-JSON YAML value and one
-    its spelling, which makes it operator-only, and it is never silent: two
-    findings with one identity raise `identity-collision`.
+    **An accepted limit** (the holder, `6088732352` item 6 (a) and `6089449884`
+    item 7, on Copilot `4234200786` and `4234624749`, under `5988818366`): the
+    canonical text is not injective across YAML value types.
+    - A date or timestamp and its `str()` can share a digest: with `default=str`,
+      a YAML date or timestamp id digests like a malformed string id that spells
+      its `str()`. A conforming string such as `2026-10-09` is kept as written, so
+      it never collides with a date.
+    - A non-string mapping key and its JSON spelling can share a digest, because
+      `json.dumps` spells such a key in its JSON form: `{1: "a"}` and `{"1": "a"}`
+      share one, and so do `True` and `"true"`, and `None` and `"null"`.
+    - Each needs two crafted refused entries in one manifest, which makes it
+      operator-only and exotic. It is never silent: two findings with one identity
+      raise `identity-collision`, which reports any such collision.
+    - Making the text injective would need a typed encoding of every value at
+      every depth, which is out of proportion to a refused entry's identity.
 - **U+0000 is refused** (the NUL seam, the holder, `6072086385` item 4). Postgres
   `jsonb` cannot store U+0000 in a string (SQLSTATE 22P05), so a finding that
   carries it can never be stored.

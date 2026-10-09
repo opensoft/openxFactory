@@ -140,7 +140,8 @@ worded, each cited by comment id or merge commit, with no new decision:
 - the holder's ruling on the same review (`6088484643` item 5): the exact canonical
   text behind that digest form, in `contracts/health-finding.md` and T041's note,
   and its three review items (`6088732352` item 6): the `str()` collision of a YAML
-  date with its spelling, an accepted limit stated in the contract; the fallback
+  date with its spelling, an accepted limit stated in the contract, which
+  `6089449884` item 7 widens to a non-string mapping key and its JSON spelling; the fallback
   `ascii(id)` in place of `repr(id)`; and ruling `6082100803`, which corrects (c)'s
   premise, so that for the per-entry categories `check_finding` refuses an empty
   entry, the reserved `opendox`, and a name outside 1 to 40 characters;
@@ -1177,7 +1178,8 @@ copies (research R7; ADV-05).
     `6069024023` (items 1 and 2), `6069507373` (T046 item 2), `6072086385`
     (items 1 and 4), `6072197564` (NAMES (b), (c) and (e)), `6073087924` (the
     entry rule, refining (e)), `6086098003` (items 1, 3 and 4), `6088484643`
-    (item 5, the canonical text) and `6088732352` (item 6, with `6082100803`).
+    (item 5, the canonical text), `6088732352` (item 6, with `6082100803`) and
+    `6089449884` (item 7, the widened limit).
     **Decisions**: N-3, N-13, N-15, OQ-H15-19.
   - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
@@ -1186,8 +1188,8 @@ copies (research R7; ADV-05).
     `tests/test_health_contract.py`.
   - **Implementation note** (the holder, `6069024023` items 1 and 2,
     `6069507373` T046 item 2, `6072086385` items 1 and 4, `6072197564`,
-    `6073087924`, `6086098003` items 1, 3 and 4, `6088484643` item 5 and
-    `6088732352` item 6):
+    `6073087924`, `6086098003` items 1, 3 and 4, `6088484643` item 5,
+    `6088732352` item 6 and `6089449884` item 7):
     - the engine categories are the nine T041 drafted and the two the holder
       added, `dispositions-refused` and `manifest-refused`, with their mappings,
       each category's `pack_id` among them: the entry's id for a finding against
@@ -1287,14 +1289,16 @@ copies (research R7; ADV-05).
         escaped (the holder, `6088732352` item 6 (b), on Copilot `4234200849`), so
         the canonical text is always ASCII and the digest never raises. An
         accepted limit, stated in the contract's `entry-refused` row (item 6 (a),
-        Copilot `4234200786`, under `5988818366`): with `default=str`, a YAML date
-        or timestamp id digests like a malformed string id that spells its
-        `str()`; it is operator-only, and never silent, since two findings with one
-        identity raise `identity-collision`;
+        Copilot `4234200786`, widened by `6089449884` item 7, under
+        `5988818366`): the canonical text is not injective across YAML value
+        types. A date or timestamp and its `str()`, and a non-string mapping key
+        and its JSON spelling, can share a digest; it is operator-only, and never
+        silent, since `identity-collision` reports any such collision;
       - T041 adds the helper that builds it: deterministic, total over anything
         the manifest parser yields, distinct for distinct ids but for the accepted
-        limit above (`6088732352` item 6 (a)), and never raising, with test rows for an absent id, a conforming id, an uppercase or spaced
-        id, an id with U+0000, a non-string id, a 201-character id, and a mapping
+        limit above (`6088732352` item 6 (a), `6089449884` item 7), and never
+        raising, with test rows for an absent id, a conforming id, an uppercase or
+        spaced id, an id with U+0000, a non-string id, a 201-character id, and a mapping
         id with mixed-type keys (the `ascii()` fallback), and one with a
         non-ASCII key in a mixed-type mapping. The contract's check already
         admits the form;
