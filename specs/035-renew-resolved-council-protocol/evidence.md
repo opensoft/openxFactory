@@ -516,3 +516,37 @@ All at `d0ad97e63` unless another commit is named. Py-bench container, Python 3.
 **The PR.** T034's text says to open PR-2 as a draft. The lane's coordinator instructed that it open **ready**, after PR-1 lands, on Brett Heap's word *"merge PR-2 when green"* (2026-10-09T01:28:37Z, log line 238). It is not open at this record's commit.
 
 **Follow-up 1 is what the source-currency vectors encode.** Brett Heap, 2026-10-08T23:03:35Z, *"Every governed source (Recommended)"* (RULED, log line 209). Every `admission-refuse-rule-superseded-*` vector, including those whose superseded source is not the rule file, applies the OPEN-3 test to every governed source.
+
+### Quickstart steps 1–5 at the PR-2 head (`57feb4aa7`, 2026-10-09T22:29Z–22:49Z)
+
+The branch took `main` twice after PR-1 landed, and never rebased:
+
+- `96e884318`, at `9a272c6db`, PR-1's landing, which brought nothing new;
+- `57feb4aa7`, at `a8ab30396`, which moved the `openXwallet` gitlink to `815b86ce` (#1290, group 6).
+
+`openXwallet` was initialized the way `pytest-suite` does it now, through `openWallet` and its `code` leg.
+
+1. **Red.** Recorded above: tests first, 10 failed, 234 passed, 2 errors; the fix round, 261 failed, 692 passed; the PR-1 follow-ups, the two `/` cases.
+2. **Green.**
+   - `python3 -m pytest tests/council_convening tests/doc-health -q -m "not postgres"`: **3113 passed**, made up of the 956 `tests/council_convening` cases and the 2157 `tests/doc-health` cases.
+   - `test_gate_wiring.py` alone: 13 passed. The gate's requirements grep names the raised floor, `(FR-001, FR-002, FR-003, FR-004, FR-011, SC-001)`, and the test builds that string from `generate.COVERAGE_FLOOR`.
+   - `python3 scripts/validate-council-convening.py`: exit 0.
+     - 4 family schemas loaded.
+     - Both registries closed.
+     - 282/282 vectors adjudicated.
+     - 34/34 refusal codes and 1/1 finding codes probed.
+     - 6/6 requirements probed.
+     - The generator reproduced the corpus.
+3. **Corpus.**
+   - `generate --check`: no drift.
+   - `corpus`: 282 vectors, foundation 133 and resolution 149, **agreement set 266**.
+   - Outcomes: 58 accept, 216 refuse, 8 route.
+   - Index `sha256:baff57e60bf13a3faf1cebe651fe4e189ad1a912af7e41cba1fde8b64db55778`, unpublished.
+4. **Repository gates.**
+   - OpenSpec: exit 0, `Totals: 113 passed, 1 failed (114 items)`, 0 undispositioned. The one failure is `add-chain-attestation`'s accepted exception.
+   - Doc-health in single-repo mode: exit 0, `31 critical, 26 error, 59 warning, 21 info`, 0 regressions, and no finding on a Phase 2 path.
+   - **Full suite: measured by CI's `pytest-suite` on PR-2, as it was for PR-1, on the lane's instruction.**
+     - The last local attempt, at `d0180cab3`, ran into its 3600-second timeout at about 77% (exit 124) under shared-host load. It had 6 failures by then, and no report was written.
+     - The 9 failures this record already traced to the environment (factory-mcp, hermes-runtime-contracts, ideation-dashboard) fail identically at Phase 1's base.
+     - The shared `submodule.*` registrations were wiped and restored during the day, which is the other recorded cause of local-only failures.
+5. **Scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty.
