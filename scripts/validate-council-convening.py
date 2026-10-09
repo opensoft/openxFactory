@@ -61,6 +61,7 @@ if str(_ENTRYPOINT_REPO) not in sys.path:
 import yaml  # noqa: E402
 
 from scripts.council_convening import (  # noqa: E402
+    assignments,
     classification,
     corpus,
     generate,
@@ -76,8 +77,12 @@ ROUTED_CODE = "council-convening-legacy-protocol-routed"
 
 #: Record kinds whose schema has landed at this commit, mapped to it. Phase 1
 #: lands none of the protocol-carrying or judged-by-kind record schemas other
-#: than the registry's; each later phase adds its own.
-LANDED_RECORD_SCHEMAS: dict[str, str] = {}
+#: than the registry's; each later phase adds its own. Phase 3 lands the
+#: snapshot (E4) and the seat assignment (E5).
+LANDED_RECORD_SCHEMAS: dict[str, str] = {
+    assignments.SNAPSHOT_KIND: assignments.SNAPSHOT_SCHEMA,
+    assignments.ASSIGNMENT_KIND: assignments.ASSIGNMENT_SCHEMA,
+}
 
 
 def _say(line: str) -> None:
@@ -232,7 +237,39 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
         return error("council-convening-kind-unknown",
                      f"a replacement record {what}, whose schema has not landed at "
                      f"this commit"), False
-    return [], False  # pragma: no cover - no record schema lands in Phase 1
+    if kind == assignments.SNAPSHOT_KIND:
+        return _check_snapshot(path, document, schemas), False
+    if kind == assignments.ASSIGNMENT_KIND:
+        return _check_assignment(path, document, schemas), False
+    return [], False  # pragma: no cover - every landed kind is dispatched above
+
+
+def _check_snapshot(path: Path, document: Any,
+                    schemas: records.SchemaSet) -> list[corpus.Finding]:
+    """A snapshot, offline: E4 steps 2 to 7. Every one of them is offline, so a
+    snapshot needs no oracle; whether it is a LIVE snapshot is the consumer's
+    state, and is not judged here."""
+    try:
+        derived = assignments.check_snapshot(document, schemas)
+    except records.Refused as refused:
+        return [corpus.Finding("ERROR", _refusal_code(refused.code),
+                               f"{path}: refused at {refused.member} (data-model E4)")]
+    _say(f"note  {path}: convening_digest recomputed; assignment set matches "
+         f"required_seats ({len(derived['required_seats'])} seats)")
+    return []
+
+
+def _check_assignment(path: Path, document: Any,
+                      schemas: records.SchemaSet) -> list[corpus.Finding]:
+    """A lone assignment, offline: E5's shape and the ruled lifetime ceiling."""
+    try:
+        assignments.check_assignment(document, schemas)
+    except records.Refused as refused:
+        return [corpus.Finding("ERROR", _refusal_code(refused.code),
+                               f"{path}: refused at {refused.member} (data-model E5)")]
+    _say(f"note  not checkable offline: {path}: the assignment set and the "
+         f"convening members it binds (data-model E4 steps 4 to 7) need its snapshot")
+    return []
 
 
 def check(paths: list[str], root: Path, strict: bool) -> int:

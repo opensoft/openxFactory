@@ -680,3 +680,49 @@ def _summary(expected: Mapping[str, Any]) -> str:
         if "classification" in derived:
             text += f" (classification {derived['classification']})"
     return text
+
+
+# --------------------------------------------------------------------------
+# Phase 3 (T040): the snapshot half of `admission`.
+# --------------------------------------------------------------------------
+
+from . import assignments  # noqa: E402  (registered below the dispatch table)
+
+
+def _selected_protocol(inputs: Mapping[str, Any], context: Context) -> str | None:
+    selected = inputs["selected_protocol"]
+    if selected is not None and selected not in context.registry.entries:
+        raise VectorInputError("inputs.selected_protocol names no registry entry")
+    return selected
+
+
+def _admission_snapshot(vector: Mapping[str, Any], context: Context) -> records.Outcome:
+    """A snapshot judged in the E4 order (data-model E4): classification, then
+    `snapshot_malformed`, `assignment_malformed`, `digest_construction_mismatch`,
+    `assignment_set_mismatch`, `assignment_duplicate`, `assignment_shared_holder`."""
+    inputs = _closed_inputs(vector["inputs"], ("snapshot", "selected_protocol"))
+    snapshot = join_parts(inputs["snapshot"])
+    if not isinstance(snapshot, dict):
+        raise VectorInputError("inputs.snapshot is not an object")
+    selected = _selected_protocol(inputs, context)
+    statuses = _statuses(vector.get("environment", {}), context)
+    try:
+        return assignments.snapshot_outcome(snapshot, selected_protocol=selected,
+                                            schemas=context.schemas,
+                                            registry=context.registry,
+                                            statuses=statuses)
+    except classification.EffectNotLanded as exc:
+        raise NotAdjudicable(str(exc)) from None
+
+
+def _admission(vector: Mapping[str, Any], context: Context) -> records.Outcome:
+    """`admission` takes one of two input roles: `snapshot`, the snapshot half
+    (E4), or `record`, the commission record in the E2 admission order, with
+    retry identity at step A3."""
+    inputs = vector["inputs"]
+    if isinstance(inputs, dict) and "snapshot" in inputs:
+        return _admission_snapshot(vector, context)
+    raise NotAdjudicable("the commission-record half of admission is Phase 2's")
+
+
+register_handler("admission", _admission, oracles=("registry_status", "issued"))
