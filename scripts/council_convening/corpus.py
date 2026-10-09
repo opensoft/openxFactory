@@ -34,9 +34,10 @@ refused rather than resolved, because two readers that resolved them differently
 would disagree on what a vector says. For the same reason a corpus file carries
 no integral number spelled as a float (`2.0`, `2e0`; `IntegralFloatToken`).
 
-THE DISPATCH TABLE. Phase 1 registers `definition` and `classification`. Each
-later phase registers its boundaries from its own module through
-`register_handler`, naming the oracles its vectors may carry.
+THE DISPATCH TABLE. Phase 1 registers `definition` and `classification`, and
+Phase 2 `commission` and `admission` (handled in `resolution`). Each later phase
+registers its boundaries through `register_handler`, naming the oracles its
+vectors may carry.
 """
 
 from __future__ import annotations
@@ -310,6 +311,14 @@ def _classification(vector: Mapping[str, Any], context: Context) -> records.Outc
 
 register_handler("definition", _definition)
 register_handler("classification", _classification, oracles=("registry_status",))
+
+# Phase 2 (T032): the commission record's two boundaries (data-model E2). The
+# handler lives in `resolution`, which imports this module only inside the
+# handler, so the registration here closes no import cycle.
+from . import resolution as _resolution  # noqa: E402
+
+register_handler("commission", _resolution.corpus_handler, oracles=_resolution.ORACLES_READ)
+register_handler("admission", _resolution.corpus_handler, oracles=_resolution.ORACLES_READ)
 
 
 # --------------------------------------------------------------------------

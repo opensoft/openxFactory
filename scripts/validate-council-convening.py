@@ -22,7 +22,9 @@ THE MODES.
   notes the CI gate asserts.
 * `check PATH...`: dispatches each record by `kind`. A protocol-carrying record,
   or one with no family kind, is CLASSIFIED FIRST, offline (no selected
-  protocol). A legacy record is ROUTED to the legacy verifier and given no
+  protocol). A commission record (Phase 2) is then judged on data-model E2's
+  offline rules, in its order, and every rule that needs an environment oracle
+  is named in a `not checkable offline` note. A legacy record is ROUTED to the legacy verifier and given no
   verdict. A registry, binding, selection or activation record is judged by its
   kind and never classified. A replacement record of a kind whose schema has not
   landed at this commit is an ERROR. The family's three NON-RECORD kinds are
@@ -69,7 +71,9 @@ from scripts.council_convening import (  # noqa: E402
     classification,
     corpus,
     generate,
+    predicates,
     records,
+    resolution,
 )
 
 EXIT_OK = 0
@@ -81,8 +85,14 @@ ROUTED_CODE = "council-convening-legacy-protocol-routed"
 
 #: Record kinds whose schema has landed at this commit, mapped to it. Phase 1
 #: lands none of the protocol-carrying or judged-by-kind record schemas other
-#: than the registry's; each later phase adds its own.
-LANDED_RECORD_SCHEMAS: dict[str, str] = {}
+#: than the registry's; each later phase adds its own. Phase 2 lands the
+#: commission record (data-model E2) and the predicate registry (E3), which
+#: `check` judges by kind.
+LANDED_RECORD_SCHEMAS: dict[str, str] = {
+    resolution.KIND: "council-convening.schema.yaml",
+}
+
+NOT_OFFLINE_CODE = "council-convening-not-offline-checkable"
 
 
 def _say(line: str) -> None:
@@ -119,6 +129,15 @@ def self_test(root: Path, strict: bool) -> int:
              "and nothing is classified against it")
         return EXIT_FINDINGS
     _say(f"note  protocol registry closed: {len(registry_doc['protocols'])} entries")
+    try:
+        predicate_doc = predicates.load_registry_doc(root)
+    except records.SchemaLoadError as exc:
+        return _harness(str(exc))
+    predicate_problems = predicates.registry_findings(schemas, predicate_doc)
+    errors.extend(corpus.Finding("ERROR", code, message)
+                  for code, message in predicate_problems)
+    if not predicate_problems:
+        _say(f"note  {predicates.REGISTRY_NOTE}")
     try:
         registry = classification.Registry(registry_doc)
     except ValueError as exc:
@@ -241,6 +260,13 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
         _say(f"note  {path}: protocol registry valid and closed "
              f"({len(document['protocols'])} entries)")
         return [], False
+    if kind == predicates.REGISTRY_KIND:
+        problems = predicates.registry_findings(schemas, document)
+        if problems:
+            return [corpus.Finding("ERROR", code, f"{path}: {message}")
+                    for code, message in problems], False
+        _say(f"note  {path}: {predicates.REGISTRY_NOTE}")
+        return [], False
     if kind in classification.JUDGED_BY_KIND_KINDS:
         return error("council-convening-kind-unknown",
                      f"a record of kind {kind}, whose schema has not landed at this "
@@ -293,7 +319,27 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
         return error("council-convening-kind-unknown",
                      f"a replacement record {what}, whose schema has not landed at "
                      f"this commit"), False
-    return [], False  # pragma: no cover - no record schema lands in Phase 1
+    return _check_commission_record(path, document, schemas, registry), False
+
+
+def _check_commission_record(path: Path, document: Any, schemas: records.SchemaSet,
+                             registry: classification.Registry) -> list[corpus.Finding]:
+    """The offline E2 rules (T032): data-model E2's order with every rule that
+    needs an environment oracle skipped and named, never passed."""
+    result = resolution.check_offline(document, schemas, registry)
+    for rule in result.not_checkable:
+        _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: {rule}")
+    if result.refusal is None:
+        _say(f"note  {path}: commission record passes every offline-checkable E2 rule")
+        return []
+    where = f" at {result.member}" if result.member else ""
+    found = [corpus.Finding("ERROR", _refusal_code(result.refusal),
+                            f"{path}: refused {result.refusal}{where} (data-model E2)")]
+    if result.refusal == "convening_malformed":
+        found.insert(0, corpus.Finding("ERROR", "council-convening-schema",
+                                       f"{path}: fails council-convening.schema.yaml or "
+                                       f"its structural rules"))
+    return found
 
 
 def _registry_not_closed(exc: "classification.RegistryNotClosed", what: str) -> int:
