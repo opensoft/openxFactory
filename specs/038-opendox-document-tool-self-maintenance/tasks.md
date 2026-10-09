@@ -138,7 +138,12 @@ worded, each cited by comment id or merge commit, with no new decision:
   `refused-patch` joining the engine kinds (item 1). Item 2 (T015's limits) is
   recorded nowhere in the plan;
 - the holder's ruling on the same review (`6088484643` item 5): the exact canonical
-  text behind that digest form, in `contracts/health-finding.md` and T041's note;
+  text behind that digest form, in `contracts/health-finding.md` and T041's note,
+  and its three review items (`6088732352` item 6): the `str()` collision of a YAML
+  date with its spelling, an accepted limit stated in the contract; the fallback
+  `ascii(id)` in place of `repr(id)`; and ruling `6082100803`, which corrects (c)'s
+  premise, so that for the per-entry categories `check_finding` refuses an empty
+  entry, the reserved `opendox`, and a name outside 1 to 40 characters;
 - the tick of T015, which landed as openDox-code#96 → `c94878be` (the merge commit
   read through GraphQL).
 
@@ -1171,8 +1176,8 @@ copies (research R7; ADV-05).
   - **Ruled**: R2Q10, R2Q18, R2Q22, R2Q25; the holder's `6018624750`,
     `6069024023` (items 1 and 2), `6069507373` (T046 item 2), `6072086385`
     (items 1 and 4), `6072197564` (NAMES (b), (c) and (e)), `6073087924` (the
-    entry rule, refining (e)), `6086098003` (items 1, 3 and 4) and `6088484643`
-    (item 5, the canonical text).
+    entry rule, refining (e)), `6086098003` (items 1, 3 and 4), `6088484643`
+    (item 5, the canonical text) and `6088732352` (item 6, with `6082100803`).
     **Decisions**: N-3, N-13, N-15, OQ-H15-19.
   - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
@@ -1181,7 +1186,8 @@ copies (research R7; ADV-05).
     `tests/test_health_contract.py`.
   - **Implementation note** (the holder, `6069024023` items 1 and 2,
     `6069507373` T046 item 2, `6072086385` items 1 and 4, `6072197564`,
-    `6073087924`, `6086098003` items 1, 3 and 4, and `6088484643` item 5):
+    `6073087924`, `6086098003` items 1, 3 and 4, `6088484643` item 5 and
+    `6088732352` item 6):
     - the engine categories are the nine T041 drafted and the two the holder
       added, `dispositions-refused` and `manifest-refused`, with their mappings,
       each category's `pack_id` among them: the entry's id for a finding against
@@ -1210,8 +1216,9 @@ copies (research R7; ADV-05).
         of those. Packs never raise pathless findings: T045 refuses an empty-path
         pack finding (`6072086385` item 3);
       - (c) its `entry` is bounded at 200 characters, not 40. A per-entry
-        category's entry is also its `pack_id`, so the 40-character name rule
-        already binds it; only `entry-refused` carries an id that may be
+        category's entry is also its `pack_id`, which is where the 40-character
+        name rule applies, and the check, not `make_finding`, is what binds it
+        (below, `6082100803`); only `entry-refused` carries an id that may be
         malformed, and its form is fixed below (`6086098003` item 4), under the
         same bound of 200;
       - (e) `no-sandbox`, `manifest-refused` and `dispositions-refused` take
@@ -1226,7 +1233,8 @@ copies (research R7; ADV-05).
         - the seven per-entry categories (`fetch-failed`, `digest-mismatch`,
           `declaration-refused`, `pack-crashed`, `pack-timed-out`, `pack-bound-hit`
           and `pack-output-refused`) REQUIRE a non-empty entry, the valid entry's
-          id (`6072086385` item 1);
+          id (`6072086385` item 1), as the per-entry check below enforces
+          (`6082100803`);
         - `no-sandbox`, `manifest-refused`, `dispositions-refused` and
           `identity-collision` REQUIRE `entry ""`: `disappearance_identity()`
           always gives a collision original the entry `""`;
@@ -1237,6 +1245,17 @@ copies (research R7; ADV-05).
           the engine builds, and T041 adds one test row per case;
     - (b) and (e) each carry a test row and, where they add a guard, a killed
       mutant (`6072197564`);
+    - the per-entry check (the holder, `6088732352` item 6 (c), encoding
+      `6082100803`, on lane 3's REVIEW-W1 T041 MINOR at
+      `health_contract.py:706-707`): for `ENTRY_CATEGORIES`, `check_finding`
+      refuses an entry that is empty, the reserved `opendox`
+      (contracts/health-packs-manifest.md, the `id` line of its example), or not a
+      1-to-40-character name, the pack-id name rule, with one test row each.
+      `6072197564` (c) assumed that the 40-character rule binds through
+      `make_finding`; it does not for a re-raise, whose `pack_id` is `opendox`, so
+      for a per-entry category's entry the rule binds through this check. Lane 3's
+      exactness probe found 21 mismatches; after the fix it must read 0, quoted,
+      with the mutant that drops each new refusal killed;
     - `path` (the holder, `6086098003` item 3, on Codex P1 `4230671177` at
       openxFactory#1283): `6072086385` item 4's principle, "every string a
       finding carries", covers `path`, and T041 already refuses it: `_path`
@@ -1264,13 +1283,21 @@ copies (research R7; ADV-05).
         A value JSON cannot represent (a YAML date, timestamp or binary) is
         spelled by its `str()`. If that call raises (a mapping whose keys JSON
         cannot spell or cannot sort, or a self-referencing value), the canonical
-        text is the id's `repr()`, so the rule is total and never raises;
+        text is `ascii(id)`, Python's `repr()` with every non-ASCII character
+        escaped (the holder, `6088732352` item 6 (b), on Copilot `4234200849`), so
+        the canonical text is always ASCII and the digest never raises. An
+        accepted limit, stated in the contract's `entry-refused` row (item 6 (a),
+        Copilot `4234200786`, under `5988818366`): with `default=str`, a YAML date
+        or timestamp id digests like a malformed string id that spells its
+        `str()`; it is operator-only, and never silent, since two findings with one
+        identity raise `identity-collision`;
       - T041 adds the helper that builds it: deterministic, total over anything
         the manifest parser yields, distinct for distinct ids, and never raising,
         with test rows for an absent id, a conforming id, an uppercase or spaced
         id, an id with U+0000, a non-string id, a 201-character id, and a mapping
-        id with mixed-type keys (the `repr()` fallback). The contract's check
-        already admits the form;
+        id with mixed-type keys (the `ascii()` fallback), and one with a
+        non-ASCII key in a mixed-type mapping. The contract's check already
+        admits the form;
     - `refused-patch` joins `ENGINE_KINDS` (the holder, `6086098003` item 1, on
       lane 3's ask from T049's prep): a refused patch is a finding against the
       pack naming `refused_patch` and `reason` (T049's entry; data-model.md

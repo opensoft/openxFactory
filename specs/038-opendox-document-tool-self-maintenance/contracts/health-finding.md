@@ -154,9 +154,10 @@ raise with Brett (Copilot's review of `6f073ed2`).
     is itself one of those. Packs never raise pathless findings: T045 refuses a
     pack finding with an empty `path` (`6072086385` item 3);
   - its `entry` is at most 200 characters, not 40. A per-entry category's entry
-    is also its `pack_id`, so the 40-character name rule already binds it; only
-    `entry-refused` carries an id that may be malformed, and its form is fixed
-    below (`6086098003` item 4), under the same bound of 200;
+    is also its `pack_id`, which is where the 40-character name rule applies,
+    and the check, not `make_finding`, is what binds it (below, `6082100803`);
+    only `entry-refused` carries an id that may be malformed, and its form is
+    fixed below (`6086098003` item 4), under the same bound of 200;
   - `no-sandbox`, `manifest-refused` and `dispositions-refused` take `entry` `""`,
     and a non-empty entry is REFUSED. A run raises ONE `no-sandbox` finding, never
     one per entry, as data-model.md § Sandbox probe and canary says ("ONE
@@ -168,7 +169,14 @@ raise with Brett (Copilot's review of `6f073ed2`).
     - the seven per-entry categories (`fetch-failed`, `digest-mismatch`,
       `declaration-refused`, `pack-crashed`, `pack-timed-out`, `pack-bound-hit` and
       `pack-output-refused`) REQUIRE a non-empty entry, the valid entry's id
-      (`6072086385` item 1);
+      (`6072086385` item 1). The check refuses an entry that is empty, the
+      reserved `opendox` (contracts/health-packs-manifest.md, the `id` line of
+      its example, "`opendox` is reserved (15.7)"), or not a 1-to-40-character
+      name, the pack-id name rule (the holder, `6088732352` item 6 (c), encoding
+      `6082100803`, on lane 3's REVIEW-W1 T041 MINOR at `health_contract.py:706-707`).
+      `6072197564` (c) assumed that the 40-character rule binds through
+      `make_finding`; it does not for a re-raise, whose `pack_id` is `opendox`, so
+      for a per-entry category's entry the rule binds through this check;
     - `no-sandbox`, `manifest-refused`, `dispositions-refused` and
       `identity-collision` REQUIRE `entry` `""`: the re-raise's original, when it is
       a collision, always takes the entry `""`;
@@ -204,8 +212,18 @@ raise with Brett (Copilot's review of `6f073ed2`).
     - A value JSON cannot represent (a YAML date, timestamp or binary) is spelled
       by its `str()`.
     - If that call raises (a mapping whose keys JSON cannot spell or cannot sort,
-      or a self-referencing value), the canonical text is the id's `repr()`, so the
-      rule is total and never raises.
+      or a self-referencing value), the canonical text is `ascii(id)`, Python's
+      `repr()` with every non-ASCII character escaped (the holder, `6088732352`
+      item 6 (b), on Copilot `4234200849`), so the canonical text is always ASCII
+      and the digest never raises.
+
+    **An accepted limit** (the holder, `6088732352` item 6 (a), on Copilot
+    `4234200786`, under `5988818366`): with `default=str`, a YAML date or timestamp
+    id digests like a malformed string id that spells its `str()`. A conforming
+    string such as `2026-10-09` is kept as written, so it never collides. It needs
+    two refused entries in one manifest, one a crafted non-JSON YAML value and one
+    its spelling, which makes it operator-only, and it is never silent: two
+    findings with one identity raise `identity-collision`.
 - **U+0000 is refused** (the NUL seam, the holder, `6072086385` item 4). Postgres
   `jsonb` cannot store U+0000 in a string (SQLSTATE 22P05), so a finding that
   carries it can never be stored.
