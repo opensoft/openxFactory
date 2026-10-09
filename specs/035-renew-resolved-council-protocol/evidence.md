@@ -558,3 +558,46 @@ All in the py-bench container, Python 3.12.3, in this phase's worktree. `eb6bf6b
 5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol` (at this record's commit): empty.
 
 **The PR.** T041's text says to open PR-3 as a draft. The lane's coordinator instructed that it open **ready**, after PR-2 lands, on Brett Heap's word *"merge PR-3 when green"* (2026-10-09T01:38:36Z, log line 240). It is not open at this record's commit.
+
+## Phase 5 — User Story 2 (c): producer identity bound to verified workflow claims (PR-5)
+
+This section is started during the review rounds and finished at T056, when PR-3 has landed and PR-5 opens. Counts below are as measured at the commit each item names.
+
+### Authority and base (2026-10-09)
+
+- **Start.** Brett Heap, 2026-10-09T01:41:54Z, *"start 035 phase 5 while PR-3 lands"* (WORD), under the lane's order *"This lane, 035 then 025 (Recommended)"*.
+- **Landing.** Brett Heap, 2026-10-09T01:47:20Z, *"merge PR-5 when green"* (WORD, relayed by the lane's coordinator). PR-5 opens ready after PR-3 lands.
+- **Rulings this phase encodes.**
+  - OPEN-2, *"Consumer's runtime config (Recommended)"* (RULED 2026-10-08T19:24:21Z): the family ships `producer-binding.schema.yaml`, the `producer-binding.template.yaml` stub, the derivation from `contracts/policies/repository-identity.yaml` and the corpus. The concrete binding lives in the consumer's governed runtime configuration. The stub is refused as live (`binding_malformed`).
+  - OPEN-3's second half, and its follow-ups 2, *"job_workflow_ref's repo (Recommended)"*, and 3, *"At or after the frozen rev (Recommended)"* (RULED 2026-10-08T23:03:35Z): `equals_governed_revision` for the commission job, `on_governed_history_since_revision` for a seat job, compared with the repository the verified `job_workflow_ref` names, never the caller.
+- **025 ruling (A)**, Brett Heap 2026-10-09T01:20:26Z, *"Per-seat environments (Recommended)"*, is the consumer's. CHECKED, and it holds: one binding per seat, with a per-seat environment in the `sub` (`bind-seat-per-seat-environment-accept`, `bind-seat-customized-*-accept`).
+- **Branch.** `035-phase5-binding`, cut from `main` at `f4dbe2f3f`. Phases 1, 2 and 3 and `main` were merged in, never rebased (`52a801306`, `355ba1d1d`, `cff00ac56`, `c46d981e2`, `526a856a0`).
+
+### Independent reviews, and what they changed
+
+- **Lane codeXfactory-1's review of `52a80130`, `cff00ac5` and `c46d981e`.** Verdict: the binding is sound, and every defect it found fails closed. Fixed at `d8c62dba4` (tests first, `1132df3cd`): the FR-009 coverage floor (MEDIUM), `@` in a workflow ref with step 4 judging every permitted ref by its first two segments (LOW 1), case variants of a pending row's spellings (LOW 2), a vector missing an oracle it reads is a harness error (LOW 3), offline A1 and A4 notes (LOW 4).
+- **Its delta review of `c46d981e..d8c62dba`.** All six earlier findings proved fixed by probes at head. One new LOW fail-open: `IdentityMap.is_former` exempted a byte-equal pending spelling before testing it against complete rows. Fixed at `d8d326ed7`, tests and data first at `96ec35f5e` (10 failed, 335 passed in `test_binding.py`):
+  - a complete row's `former` is refused and its `current` is current;
+  - any other spelling equal to a complete-row spelling ignoring ASCII case is refused;
+  - only then is a pending spelling, byte-equal, exempt;
+  - last, a case variant of a pending spelling is refused.
+
+  This is research.md R10 as written. The fixture gains a second pending row, `codeXfactory/CodexFactory`, whose `former` collides with the complete row's current, with a dated amendment in the corpus contract. Two vectors cover it: `bind-caller-pending-collides-with-complete-refuse` and `bind-workflow-pending-collides-with-complete-refuse`.
+
+### Readings this phase takes, not rulings
+
+- **2026-10-09, LOW 2 of the first review: "a listed spelling", read literally.** E10 step 4 refuses a non-canonical case variant of a listed spelling. A pending row's `former` and `current` are listed spellings, so a case variant of either is `repository_identity_former`. The pending spellings themselves, byte-equal, stay current, because `load_transfers` does not resolve a pending row (`pending_row_rule`). No ruling names this; it is the text's own reading.
+- **2026-10-09, LOW 5 of the first review: an empty final `sub` element.** A `sub` element value has at least one character. A customized template whose last element is empty, such as `head_ref:` on an event with no head ref, therefore does not parse, and is `subject_template_mismatch`. A job whose token carries such an element needs a template without that key. Recorded at `_VALUE` in `scripts/council_convening/binding.py`.
+- **2026-10-09, the identity map at admission.** The map is read in the commission record's role only, where E2 steps A1 and A4 run. The snapshot half (data-model E4) judges no binding, so its vectors read no map (`corpus.reads_identity_map`). This is a dated amendment on the corpus contract's `repository_identity` row.
+- **2026-10-09, admission judges the commission job's token.** `inputs.operation` is `commission` at admission, so a seat job's token presented there is `workflow_not_permitted`.
+- **2026-10-09, the earlier six, confirmed sound by the first review.**
+  1. GitHub's immutable `repo:<owner>@<owner-id>/<repo>@<repo-id>` segment is accepted, and its repository id must equal `repository_id`.
+  2. The closed subject keys come from GitHub's claims table. `repo_property_*` is an open family and not a member. `sha`, `ref_protected`, `environment_node_id` and `issuer_scope` are in the discovery document's `claims_supported` but not in the table, so they are not members either.
+  3. The enterprise issuer slug is lowercase letters, digits and inner hyphens.
+  4. The subject template must carry a repository element (`repo`, `repository` or `repository_id`) that names the binding's repository.
+  5. The identity map must be well formed beyond what `load_transfers` checks.
+  6. An absent or non-integer `exp` is `claims_expired`, and an absent `nbf` sets no bound. A list `aud` is `audience_mismatch`. `repository_id` is compared as GitHub's decimal string.
+
+### Still to record at T056
+
+The red runs of T050 to T055, the vectors by area and outcome, the gates at the PR head, quickstart steps 1 to 5, and the PR's scope.
