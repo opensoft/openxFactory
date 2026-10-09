@@ -325,9 +325,11 @@ def test_check_validates_a_binding_offline_against_the_identity_map(tmp_path):
 def test_check_reports_every_claim_rule_as_not_offline_checkable(tmp_path):
     path = _write(tmp_path, "binding.json", commission_binding())
     result = run_validator("check", str(path), cwd=tmp_path)
+    # The coded form every phase's `check` prints (Phases 2, 4 and 6).
     for step, code in CLAIM_STEPS.items():
-        assert (f"note  not checkable offline: {path}: E10 step {step} {code}"
-                in result.stdout), code
+        assert (f"note  [council-convening-not-offline-checkable] {path}: "
+                f"not checkable offline: E10 step {step} {code}" in result.stdout), code
+    assert "note  not checkable offline:" not in result.stdout
     assert all(LINE.match(line) for line in result.stdout.splitlines())
 
 

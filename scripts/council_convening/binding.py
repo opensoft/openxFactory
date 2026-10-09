@@ -206,24 +206,35 @@ class IdentityMap:
 
     def is_former(self, spelling: str) -> bool:
         """True for a former spelling, or for a non-canonical case variant: a
-        spelling equal to ANY listed spelling when ASCII case is ignored, but
-        not byte-equal to it (the map's `owner_case`, made mechanical). Listed
-        means a complete row's `former` or `current`, or a pending row's
-        `former` or `current` (E10 step 4, read literally: "a listed
-        spelling"). A complete row's current spelling is current. A pending
-        row's spellings, byte-equal, are not former: `load_transfers` does not
-        resolve the row, because its `former` is still the only address
-        (`pending_row_rule`). Any spelling the map does not list is current."""
+        spelling equal to a listed spelling when ASCII case is ignored, but not
+        byte-equal to it (research.md R10; the map's `owner_case`, made
+        mechanical). Listed means a complete row's `former` or `current`, or a
+        pending row's `former` or `current` (E10 step 4, read literally: "a
+        listed spelling").
+
+        THE ORDER IS THE RULE. A complete row's own spellings are tested
+        FIRST: its `former` is refused and its `current` is current. Then a
+        case-fold collision with any complete-row spelling is refused, BEFORE
+        the pending exemption, so a pending row cannot shadow a complete row's
+        case variant (the delta review's probe: a pending row spelled
+        `codeXfactory/CodexFactory` beside the complete current
+        `codeXfactory/codexFactory`). Only then is a pending row's spelling,
+        byte-equal, exempt: `load_transfers` does not resolve the row, because
+        its `former` is still the only address (`pending_row_rule`). Last, a
+        case variant of a pending spelling is refused. Any spelling the map
+        does not list is current."""
         formers = set(self.transfers)
         currents = set(self.transfers.values())
         if spelling in formers:
             return True
-        if spelling in currents or spelling in self.pending:
+        if spelling in currents:
             return False
         folded = _ascii_fold(spelling)
-        return any(_ascii_fold(listed) == folded
-                   for listed in formers | currents | set(self.pending))
-
+        if any(_ascii_fold(listed) == folded for listed in formers | currents):
+            return True
+        if spelling in self.pending:
+            return False
+        return any(_ascii_fold(listed) == folded for listed in self.pending)
 
 def load_identity_map(root: Path) -> IdentityMap:
     """The identity map under `root`, read through `load_transfers`, or
