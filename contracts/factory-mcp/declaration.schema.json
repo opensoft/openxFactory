@@ -114,6 +114,82 @@
               "minLength": 1,
               "maxLength": 2048,
               "format": "uri"
+            },
+            "auth": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "issuer": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2048
+                },
+                "algorithms": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "minItems": 1,
+                  "maxItems": 256,
+                  "uniqueItems": true
+                },
+                "audience": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "binding": {
+                      "enum": [
+                        "resource_uri",
+                        "issuer_assigned"
+                      ]
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2048
+                    }
+                  },
+                  "required": [
+                    "binding",
+                    "value"
+                  ]
+                },
+                "metadata_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2048
+                },
+                "evidence_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "minItems": 0,
+                  "maxItems": 256
+                },
+                "gap_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "minItems": 0,
+                  "maxItems": 256
+                }
+              },
+              "required": [
+                "issuer",
+                "algorithms",
+                "audience",
+                "metadata_path",
+                "evidence_ids",
+                "gap_ids"
+              ]
             }
           },
           "required": [
@@ -683,7 +759,8 @@
                 "limits",
                 "scope",
                 "audit",
-                "revocation"
+                "revocation",
+                "auth"
               ]
             },
             "minItems": 1,
@@ -758,7 +835,8 @@
                 "limits",
                 "scope",
                 "audit",
-                "revocation"
+                "revocation",
+                "auth"
               ]
             },
             "minItems": 1,
