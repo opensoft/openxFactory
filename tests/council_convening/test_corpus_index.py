@@ -13,6 +13,7 @@ deterministic JSON form, `--check`, and the labelled fixture keys.
 from __future__ import annotations
 
 import hashlib
+import importlib
 import json
 from pathlib import Path
 
@@ -141,9 +142,14 @@ def test_phase_1_vectors_are_foundation_vectors_for_both_sides():
 def test_the_areas_landed_at_this_commit_are_foundation_resolution_and_binding():
     """Phase 2 adds the `resolution` area, at boundaries `commission` and
     `admission`, and Phase 5 the `binding` area, at boundary `binding`; every
-    resolution and binding vector is hand-authored."""
+    resolution and binding vector is hand-authored. Phase 4 adds the `signing`
+    area, at boundaries `registration`, `return` and `completion`, which the
+    generator builds (T044); its hand-authored known answers are marked."""
     rows = _index_doc()["cases"]
-    assert {row["area"] for row in rows} == {"foundation", "resolution", "binding"}
+    assert {row["area"] for row in rows} == {"foundation", "resolution", "binding", "signing"}
+    signing_rows = [row for row in rows if row["area"] == "signing"]
+    assert {row["boundary"] for row in signing_rows} == {"registration", "return", "completion"}
+    assert {row["expected"]["derived_origin"] for row in signing_rows} == {"hand", "generated"}
     for row in rows:
         if row["area"] == "resolution":
             assert row["boundary"] in ("commission", "admission")
@@ -387,10 +393,29 @@ def test_a_parts_vector_adjudicates_on_the_joined_value():
 # --------------------------------------------------------------------------
 
 def _drop_rows(root: Path, predicate) -> None:
+    """Remove every vector `predicate` selects and regenerate the index. A built
+    area (`generate.BUILT_AREAS`) is rebuilt whole by the generator, so its
+    builders are filtered by the same predicate for the regeneration: the
+    probe is then gone from every area, hand-kept or built."""
     for row in _rows(root):
         if predicate(row):
             _vector_path(root, row).unlink()
-    generate.generate(root)
+    builders = [importlib.import_module(f"scripts.council_convening.{name}")
+                for name in generate.BUILT_AREAS.values()]
+    real = [module.build for module in builders]
+
+    def filtered(build):
+        return lambda build_root: {relative: vector
+                                   for relative, vector in build(build_root).items()
+                                   if not predicate(vector)}
+
+    try:
+        for module, build in zip(builders, real):
+            module.build = filtered(build)
+        generate.generate(root)
+    finally:
+        for module, build in zip(builders, real):
+            module.build = build
 
 
 def test_every_refusal_code_needs_a_probe(family_tree):

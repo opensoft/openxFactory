@@ -103,10 +103,12 @@ def test_the_signing_area_is_generated_and_not_hand_kept(tmp_path):
 def test_an_edited_signature_is_generator_drift(tmp_path):
     root = copy_family(tmp_path / "repo")
     signing_dir = root / FAMILY_REL / "conformance" / "vectors" / "signing"
+    # A return vector: its record carries a signature at `inputs.return`.
     path = next(p for p in sorted(signing_dir.glob("*.json"))
-                if '"signature"' in p.read_text(encoding="utf-8"))
+                if "return" in json.loads(p.read_text(encoding="utf-8"))["inputs"])
     vector = json.loads(path.read_text(encoding="utf-8"))
     record = vector["inputs"]["return"]
+    assert "signature" in record
     record["signature"] = "A" * 85 + "Q"
     path.write_bytes(corpus.dump_json(vector))
     drift = generate.check(root)
