@@ -573,3 +573,52 @@ advisory, 5.5 and 5.6 are independent of one another.
     (`:6`, `:74`, `:550`). Inside the packet, the relative links (to
     `review/ratification-2026-10-06.md` and
     `review/estate-inventory-2026-10-06.md`) move with it and still resolve.
+  - **The sweep-ledger row.** It was seeded with the sanctioned tool after
+    the pull request existed, because `moved_by` must name it:
+    `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#1281'`
+    reported *"wrote tests/sequenced_after/corpus-ledger.yaml (236 rows, 1
+    moved by #1281)"*. One row moves, and the diff is 1/1: `state` goes from
+    `active` to `archived`, `moved_by` from `"#1249"` to `"#1281"`, and
+    `moved_on` from `"2026-10-06"` to `"2026-10-09"`. `class: co-modifier` is
+    held, and no partner row moves. This change's partners on the requirement
+    key, `add-project-repo-schema` and `correct-naming-families-count`, are
+    already `archived` and `co-modifier`.
+  - **Validators, before and after.** Both sides ran in one scratch checkout
+    named `openxFactory`, with the submodules CI's `pytest-suite` initializes
+    (`openXwallet`, then `openXdox` and `openDox` recursively). Before was
+    `main` `b80a4790`. After was `a769b25c`, the pull request's head once the
+    row was seeded. The same before-run on the earlier cut `b4b9d903` gave
+    identical results. Every validator exited 0 on both sides, and every
+    difference below is this archive's own effect.
+    - **Pinned CLI, `--all --strict`.** Before: 114 passed, 1 failed (115
+      items). After: 113 passed, 1 failed (114 items). The item that left is
+      this change. The one failure on both sides is `add-chain-attestation`,
+      the accepted exception `contracts/openspec-cli-pin.yaml` carries (Brett
+      Heap, 2026-09-05, "take exit 2"). The only other difference is three
+      non-failing `[INFO]` lines on `spec/project-repo-schema`,
+      `requirements[11]` to `[13]`: *"Requirement text is very long (>500
+      characters)"*. These are the three promoted ADDED requirements, and the
+      CLI already gives the same note to that spec's requirements 0 to 3 and
+      10.
+    - **`validate-sequenced-after.py .`** Active changes go from 48 to 47,
+      and 20 declare the field on both sides. `archive-date agreement` and
+      `archive-date-vs-commit agreement` pass on both sides.
+    - **`--ledger-diff`.** Both sides report *"consistent with the corpus (236
+      rows)"*. The totals move from 48 active and 188 archived to 47 and 189,
+      and active co-modified goes from 27 to 26. On the archived tree before
+      the seed, it exited 1 on exactly this row (`state: ledger 'active', live
+      'archived'`) and the three derived totals it feeds, which the seed
+      repairs.
+    - **`validate-code-surface.py .`** Active proposals go from 48 to 47, and
+      repository-list heads from 32 to 31. The distinct identifiers named
+      drop from 11 to 10, because `opensoft/openRepoShape` was named by this
+      change alone. Archived proposals go from 188 to 189, and the declaring
+      ones from 142 to 143.
+    - **`validate-target-release.py .`** Active proposals go from 48 to 47,
+      and `implemented` from 26 to 25. Archived proposals go from 188 to 189.
+    - **`doc-health.py --single-repo . --as-of 2026-10-09`.** Both sides
+      report 31 critical, 26 error, 69 warning and 19 info, with 0 new
+      regressions. The reports differ in two lines: canon words rise by
+      1,986 (383,694 to 385,680), which is the promoted text, and the
+      promoted-specs row moves with them. No finding names a file this
+      archive touches.
