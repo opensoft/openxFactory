@@ -94,9 +94,12 @@ or GitHub's `/<enterprise-slug>` form), `repository_identity_unavailable` then
 `claims_unverified`, `claims_expired`, `issuer_mismatch`, `audience_mismatch`,
 `subject_template_mismatch`, `repository_identity_mismatch`,
 `workflow_not_permitted`, and `workflow_revision_ungoverned`. At admission the
-consumer runs steps 1 to 13 as E2 step A1, right after the record's shape check,
-and step 14 as E2 step A4, after E2 step 5 has checked the `governed` member it
-reads.
+consumer runs steps 1 to 13 as E2 step A1, right after the record's shape check
+and before retry identity (A3), so a token that fails binding never returns a
+live snapshot; and step 14 as E2 step A4, after E2 step 5 has checked the
+`governed` member it reads. The snapshot half of admission (E4) judges no
+binding. A shared commission vector carries none, so a consumer runs it without
+A1 and A4.
 
 **The revision rule** is closed and fixed per operation (OPEN-3, "History +
 unchanged rule file (Recommended)"): `equals_governed_revision` for
