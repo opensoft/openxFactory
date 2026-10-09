@@ -76,4 +76,10 @@ This note is printed from Phase 2, when the predicate registry lands. T032 adds 
 note  predicate registry closed: 2 predicates, 2 input contracts
 ```
 
+This note is printed from Phase 6, once the floor is the full FR-001 to FR-012 and SC-001 to SC-003 (T058). The gate asserts it beside `requirements probed`, whose list is then the full fifteen:
+
+```text
+note  coverage floor full: FR-001 to FR-012, SC-001 to SC-003
+```
+
 The gate step fails when any asserted note is absent, as well as on any ERROR (R17).

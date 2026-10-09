@@ -59,10 +59,11 @@ from . import classification, corpus, records
 #: The requirements the corpus must cite at this commit (T020). Each phase
 #: raises it; from Phase 6 it is the full FR-001 to FR-012 and SC-001 to SC-003.
 #: Phase 2 (T026) adds FR-002 to FR-004 and SC-001 to Phase 1's FR-001 and FR-011.
-#: Phase 3 (T036) adds FR-005, FR-006 and SC-002, Phase 4 (T044) FR-007, FR-008
-#: and SC-003, and Phase 6 (T058) FR-012.
-COVERAGE_FLOOR = ("FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007",
-                  "FR-008", "FR-011", "FR-012", "SC-001", "SC-002", "SC-003")
+#: Phase 3 (T036) adds FR-005, FR-006 and SC-002, and Phase 4 (T044) FR-007,
+#: FR-008 and SC-003. Phase 6 (T058) adds FR-012 and, with every phase's vectors
+#: merged, raises the floor to the full set: FR-009 is cited by the `binding`
+#: and `migration` vectors, and FR-010 by the `signing` vectors.
+COVERAGE_FLOOR = tuple([f"FR-{n:03d}" for n in range(1, 13)] + ["SC-001", "SC-002", "SC-003"])
 
 #: The areas whose vectors this generator BUILDS from labelled keys, rather than
 #: reads from the tree, each mapped to the module whose `build(root)` returns
