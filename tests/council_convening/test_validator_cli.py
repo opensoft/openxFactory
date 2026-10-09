@@ -344,7 +344,13 @@ ORACLE_RULES = [
     "class_mismatch",
     "class_unresolved",
     "rule_projection_mismatch",
+    # Brett Heap, 2026-10-09T17:35:34Z, "Bind it in PR-2 (Recommended)": the
+    # comparison with the projection's declared sources needs the `rules` oracle.
+    "fact_source_mismatch (projection)",
     "condition_unevaluable",
+    # Pre-review M1 (2026-10-09): the rule reads the AUTHORITATIVE facts, so a
+    # record's own consumed facts can neither pass it nor name its code offline.
+    "predicate_parameters_malformed (bare-directory evidence)",
     "consumed_facts_mismatch",
     "condition_result_mismatch",
     "candidate_head_unavailable",
@@ -386,12 +392,32 @@ def test_check_names_each_oracle_dependent_rule_as_not_offline_checkable(
 
 
 def test_check_names_no_offline_rule_as_not_checkable(checked_commission_record):
-    """The offline-checkable rules run; they are never listed as skipped."""
+    """The offline-checkable rules run; they are never listed as skipped. Whole
+    rule names are compared, so `fact_source_mismatch (projection)`, which is
+    skipped, does not hide or stand for `fact_source_mismatch`, which is not."""
+    skipped = {line.split(": not checkable offline: ", 1)[1]
+               for line in checked_commission_record.stdout.splitlines()
+               if ": not checkable offline: " in line}
+    assert skipped == set(ORACLE_RULES)
     for rule in ("mutable_rule_reference", "rule_path_malformed", "predicate_unknown",
                  "fact_source_mismatch", "opaque_conclusion", "facts_unused",
                  "condition_seat_unbound", "roster_empty", "roster_mismatch",
-                 "secret_bearing_fact", "convening_malformed"):
-        assert f"not checkable offline: {rule}" not in checked_commission_record.stdout
+                 "secret_bearing_fact", "convening_malformed",
+                 "predicate_parameters_malformed"):
+        assert rule not in skipped
+
+
+def test_check_never_passes_the_bare_directory_rule_offline(tmp_path):
+    """Pre-review M1: the reviewer's record, whose condition `src/auth` meets
+    `src/auth/login.py` in the facts it consumed. Offline it reaches every rule
+    `check` can run and passes them, and the bare-directory rule is NAMED as not
+    checkable offline; it is never reported as passed."""
+    record = _commission_record("commission-refuse-predicate-parameters-bare-directory-evidence")
+    path = _write(tmp_path, "convening.json", record)
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.count(
+        ": not checkable offline: predicate_parameters_malformed (bare-directory evidence)") == 1
 
 
 @pytest.mark.parametrize("mutate, finding", [
@@ -410,6 +436,14 @@ def test_check_names_no_offline_rule_as_not_checkable(checked_commission_record)
                  "council-convening-candidate-mismatch", id="pin-not-head"),
     pytest.param(lambda r: r.update(notes="x"),
                  "council-convening-convening-malformed", id="unknown-member"),
+    pytest.param(lambda r: r["required_seats_provenance"]["consumed_facts"]["pr_facts"][
+        "changed_paths"].reverse(), "council-convening-convening-malformed",
+        id="changed-paths-unsorted"),
+    pytest.param(lambda r: next(s for s in r["required_seats_provenance"]["governed"]["sources"]
+                                if s["kind"] == "listing").update(suffixes=[".json"]),
+                 "council-convening-convening-malformed", id="listing-suffix"),
+    pytest.param(lambda r: r["required_seats_provenance"]["consumed_facts"].update(
+        rule_facts={}), "council-convening-facts-unused", id="empty-unused-contract"),
 ])
 def test_check_refuses_an_offline_checkable_defect(tmp_path, mutate, finding):
     record = _commission_record()

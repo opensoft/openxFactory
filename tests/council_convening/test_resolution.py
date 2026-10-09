@@ -21,11 +21,23 @@ reading is a vector too:
 * step 10 evaluates each condition over the authoritative facts in order, where
   an incomplete fact set is `condition_unevaluable` and the bare-directory
   evidence rule is `predicate_parameters_malformed`, and only then compares
-  the consumed facts (`consumed_facts_mismatch`);
+  the consumed facts (`consumed_facts_mismatch`): pinned by
+  `commission-refuse-bare-directory-evidence-only-in-the-authoritative-facts`,
+  `...-only-in-the-consumed-facts` and
+  `commission-refuse-order-bare-directory-before-a-later-unevaluable`;
 * step 11 checks every condition's `held` before any condition's seat
   (`condition_result_mismatch` before `condition_seat_unbound`);
 * step 13 reads the live head in order, and the first read that is not the
   candidate's head names the outcome.
+
+Brett Heap's two rulings of 2026-10-09T17:35:34Z, both the recommended option,
+are pinned here as well: "Bind it in PR-2 (Recommended)", under which the rule
+projection declares the fact source of each input contract and step 9 refuses a
+record whose `fact_sources` differ from it, entry for entry and in order
+(`fact_source_mismatch`); and "Sorted and unique (Recommended)", under which a
+consumed `changed_paths` is bytewise sorted and duplicate-free, checked at
+step 2 (`convening_malformed`), a rename contributing both its paths, each at
+its own place in the sort.
 """
 
 from __future__ import annotations
@@ -303,6 +315,80 @@ def test_a_repeated_fact_source_contract_is_malformed():
     assert code(vector) == "convening_malformed"
 
 
+def _with_listed_file(vector, path):
+    """`path` carried as a governed file and a `rules/conditions` entry by the
+    record, the projection and the oracle alike."""
+    digest = "sha256:" + "1" * 64
+    sources = prov(vector)["governed"]["sources"]
+    sources.append({"kind": "file", "path": path, "sha256": digest})
+    sources.sort(key=lambda s: s["path"].encode("utf-8"))
+    for s in sources:
+        if s["kind"] == "listing":
+            s["entries"] = sorted(s["entries"] + [path], key=lambda p: p.encode("utf-8"))
+    for projection in env(vector)["rules"].values():
+        projection["sources"] = sorted(projection["sources"] + [path],
+                                       key=lambda p: p.encode("utf-8"))
+    env(vector)["governed"][gkey(vector, path)] = {
+        "available": True, "governed": True, "sha256": digest, "tip_sha256": digest}
+    listing = env(vector)["governed"][gkey(vector, "rules/conditions")]
+    listing["entries"] = sorted(listing["entries"] + [path], key=lambda p: p.encode("utf-8"))
+    listing["tip_entries"] = list(listing["entries"])
+    return vector
+
+
+def test_a_listed_file_carried_everywhere_is_accepted():
+    """The control for the two listing rules below: nothing else refuses."""
+    vector = _with_listed_file(load(BASE), "rules/conditions/zz.yaml")
+    assert outcome(vector)["outcome"] == "accept"
+
+
+@pytest.mark.parametrize("path", [
+    "rules/conditions/notes.txt",          # no suffix the listing reads
+    "rules/conditions/zz.yaml.bak",        # a suffix that is not the last one
+    "rules/conditions/nested/deep.yaml",   # not directly inside
+    "rules/conditionsx/zz.yaml",           # a sibling directory sharing a prefix
+])
+def test_a_listing_entry_must_be_directly_inside_with_a_listed_suffix(path):
+    """Pre-review L1 (2026-10-09): the entries are the files directly inside the
+    listing's path with one of its suffixes, as E2 states, checked at step 2."""
+    vector = _with_listed_file(load(BASE), path)
+    assert code(vector) == "convening_malformed"
+
+
+# Brett Heap, 2026-10-09T17:35:34Z, "Sorted and unique (Recommended)" (M3).
+
+def test_consumed_changed_paths_must_be_bytewise_sorted():
+    vector = load(BASE)
+    prov(vector)["consumed_facts"]["pr_facts"]["changed_paths"].reverse()
+    assert code(vector) == "convening_malformed"
+
+
+def test_consumed_changed_paths_must_be_unique():
+    vector = load(BASE)
+    paths = prov(vector)["consumed_facts"]["pr_facts"]["changed_paths"]
+    paths.insert(0, paths[0])
+    assert code(vector) == "convening_malformed"
+
+
+def test_the_sort_is_bytewise_not_case_folded():
+    """`README.md` (0x52) sorts before `docs/a.md` (0x64); the reverse refuses."""
+    for paths, expected in ((["README.md", "docs/a.md"], "accept"),
+                            (["docs/a.md", "README.md"], "refuse")):
+        vector = load(BASE)
+        for facts in (prov(vector)["consumed_facts"]["pr_facts"],
+                      *env(vector)["facts"].values()):
+            facts.update({"changed_paths": list(paths), "changed_files_total": 2,
+                          "changed_paths_entry_count": 2})
+        assert outcome(vector)["outcome"] == expected, paths
+
+
+def test_the_order_rule_runs_before_secrets():
+    vector = load(BASE)
+    paths = prov(vector)["consumed_facts"]["pr_facts"]["changed_paths"]
+    paths.append(SECRET_PATH)   # "notes/..." after "src/...": out of order
+    assert code(vector) == "convening_malformed"
+
+
 def test_the_schema_types_what_has_a_semantic_code_and_no_more():
     """data-model: one failing check names one code."""
     vector = load(BASE)
@@ -340,6 +426,13 @@ SECRET_REF = "tok" + "en=" + "abcdefghijklmnopqrstu"
 SECRET_KEY_ID = "AK" + "IA" + "ABCDEFGHIJKLMNOP"
 
 
+def insert_sorted(paths: list, path: str) -> None:
+    """Add a path where the bytewise sort puts it, so that a record mutated to
+    carry it still passes step 2's order rule for `changed_paths`."""
+    paths.append(path)
+    paths.sort(key=lambda p: p.encode("utf-8"))
+
+
 @pytest.mark.parametrize("place", ["packet_refs", "class_inputs", "parameters",
                                    "consumed_facts"])
 def test_a_secret_in_each_scanned_member_is_refused(place):
@@ -352,13 +445,13 @@ def test_a_secret_in_each_scanned_member_is_refused(place):
     elif place == "parameters":
         p["conditions"][0]["parameters"]["protected_paths"].append(SECRET_KEY_ID)
     else:
-        p["consumed_facts"]["pr_facts"]["changed_paths"].append(SECRET_PATH)
+        insert_sorted(p["consumed_facts"]["pr_facts"]["changed_paths"], SECRET_PATH)
     assert code(vector) == "secret_bearing_fact"
 
 
 def test_a_secret_is_refused_before_any_oracle_is_read():
     vector = load(BASE)
-    prov(vector)["consumed_facts"]["pr_facts"]["changed_paths"].append(SECRET_PATH)
+    insert_sorted(prov(vector)["consumed_facts"]["pr_facts"]["changed_paths"], SECRET_PATH)
     oracles = resolution.VectorOracles(vector["environment"])
     with pytest.raises(resolution.Refused) as caught:
         resolution.resolve(record(vector), boundary="commission",
@@ -383,7 +476,7 @@ def test_the_secret_floor_is_the_providers_own_patterns_loaded_by_import():
 
 def test_a_refusal_never_echoes_the_secret():
     vector = load(BASE)
-    prov(vector)["consumed_facts"]["pr_facts"]["changed_paths"].append(SECRET_PATH)
+    insert_sorted(prov(vector)["consumed_facts"]["pr_facts"]["changed_paths"], SECRET_PATH)
     oracles = resolution.VectorOracles(vector["environment"])
     with pytest.raises(resolution.Refused) as caught:
         resolution.resolve(record(vector), boundary="commission",
@@ -512,6 +605,30 @@ def test_each_per_source_refusal(change, expected):
     vector = load(BASE)
     env(vector)["governed"][gkey(vector, "rules/envelope.yml")].update(change)
     assert code(vector) == expected
+
+
+def test_a_source_of_the_wrong_kind_is_a_digest_mismatch():
+    """Pre-review L4 (2026-10-09): a `file` source where the path holds a listing,
+    or a `listing` where it holds a file, differs from the record as a wrong
+    digest does, `rule_digest_mismatch`, never a harness error."""
+    vector = load(BASE)
+    entry = env(vector)["governed"][gkey(vector, "rules/envelope.yml")]
+    del entry["sha256"], entry["tip_sha256"]
+    entry.update({"entries": [], "tip_entries": []})
+    assert code(vector) == "rule_digest_mismatch"
+    vector = load(BASE)
+    entry = env(vector)["governed"][gkey(vector, "rules/conditions")]
+    del entry["entries"], entry["tip_entries"]
+    entry.update({"sha256": "sha256:" + "2" * 64, "tip_sha256": "sha256:" + "2" * 64})
+    assert code(vector) == "rule_digest_mismatch"
+
+
+def test_a_governed_entry_holding_neither_kind_is_a_harness_error():
+    vector = load(BASE)
+    entry = env(vector)["governed"][gkey(vector, "rules/envelope.yml")]
+    del entry["sha256"], entry["tip_sha256"]
+    with pytest.raises(resolution.HarnessError):
+        outcome(vector)
 
 
 def test_a_listing_whose_entries_differ_at_the_revision_is_a_digest_mismatch():
@@ -763,16 +880,93 @@ def test_an_unused_consumed_fact_is_refused():
     assert code(vector) == "facts_unused"
 
 
-def test_an_empty_unused_contract_object_holds_no_unused_fact():
+def test_an_empty_object_for_an_unused_contract_is_unused():
+    """Pre-review L2 (2026-10-09): `{"rule_facts": {}}` beside no `rule_facts`
+    condition is `facts_unused`, so one resolution has one encoding and Phase 3's
+    retry identity never sees two."""
     vector = load("commission-accept-standing-only")
     prov(vector)["consumed_facts"] = {"rule_facts": {}}
-    assert outcome(vector)["outcome"] == "accept"
+    assert code(vector) == "facts_unused"
 
 
 def test_consumed_facts_must_equal_the_authoritative_facts():
     vector = load(BASE)
-    prov(vector)["consumed_facts"]["pr_facts"]["changed_paths"].reverse()
+    prov(vector)["consumed_facts"]["pr_facts"]["changed_paths"] = ["README.md"]
     assert code(vector) == "consumed_facts_mismatch"
+
+
+def test_rule_touched_paths_compare_in_order():
+    """Reading 6, which the M3 ruling leaves standing for `rule_facts`: no order is
+    specified for `rule_touched_paths`, so none is normalized."""
+    vector = load(UNCLASSED)
+    touched = prov(vector)["consumed_facts"]["rule_facts"]["rule_touched_paths"]
+    assert len(touched) == 2
+    touched.reverse()
+    assert code(vector) == "consumed_facts_mismatch"
+
+
+# Brett Heap, 2026-10-09T17:35:34Z, "Bind it in PR-2 (Recommended)" (H1).
+
+def _declared(vector):
+    """The projection's entry for the convened council or its selected class."""
+    for projection in env(vector)["rules"].values():
+        council = projection["councils"][record(vector)["council_id"]]
+        if "classes" in council:
+            return council["classes"][prov(vector)["matched_class"]]
+        return council
+    raise AssertionError("no projection")
+
+
+def test_the_projection_declares_each_contracts_fact_source():
+    for case_id in (BASE, UNCLASSED, "commission-accept-governed-source-rule-facts",
+                    "commission-accept-two-input-contracts-in-projection-order"):
+        vector = load(case_id)
+        assert _declared(vector)["fact_sources"] == prov(vector)["fact_sources"], case_id
+
+
+def test_fact_sources_that_differ_from_the_projection_are_refused():
+    vector = load(UNCLASSED)
+    _declared(vector)["fact_sources"] = [
+        {"input_contract": "rule_facts", "source": {"governed_path": "rules/envelope.yml"}}]
+    assert code(vector) == "fact_source_mismatch"
+
+
+def test_the_pre_reviews_probe_is_refused():
+    """The gate-rules shape pointed at the council profile, both `held` false: it
+    passed every check before the binding, and dropped seat-r2."""
+    vector = load("commission-refuse-fact-source-swapped-to-a-governed-file")
+    assert record(vector)["required_seats"] == ["seat-r1"]
+    assert all(c["held"] is False for c in prov(vector)["conditions"])
+    assert code(vector) == "fact_source_mismatch"
+    _declared(vector)["fact_sources"] = copy.deepcopy(prov(vector)["fact_sources"])
+    assert outcome(vector)["outcome"] == "accept"   # the binding is what refuses it
+
+
+def test_fact_sources_follow_the_projections_order():
+    vector = load("commission-refuse-fact-sources-out-of-projection-order")
+    assert code(vector) == "fact_source_mismatch"
+    prov(vector)["fact_sources"].reverse()
+    assert outcome(vector)["outcome"] == "accept"
+
+
+def test_the_structural_fact_source_rules_still_run_first():
+    """A source no contract allows is refused by the structural rule, before the
+    projection is compared; the code is the same."""
+    vector = load(BASE)
+    prov(vector)["fact_sources"][0]["source"] = "candidate_subject"
+    _declared(vector)["fact_sources"] = copy.deepcopy(prov(vector)["fact_sources"])
+    assert code(vector) == "fact_source_mismatch"
+
+
+@pytest.mark.parametrize("damage", ["absent", "not_a_list"])
+def test_a_projection_without_declared_fact_sources_is_a_harness_error(damage):
+    vector = load(BASE)
+    if damage == "absent":
+        del _declared(vector)["fact_sources"]
+    else:
+        _declared(vector)["fact_sources"] = {"pr_facts": "candidate_pull"}
+    with pytest.raises(resolution.HarnessError):
+        outcome(vector)
 
 
 def test_held_must_equal_the_reference_evaluation():
