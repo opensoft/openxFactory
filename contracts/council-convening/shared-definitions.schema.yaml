@@ -45,8 +45,12 @@ description: >-
 
 
   THE ENUMERATIONS ARE CLOSED AND GROW BY PHASE. `refusal_code` holds the five
-  Phase 1 codes and the twenty-nine Phase 2 codes of the commission record, and
-  `finding_code` holds one finding. Each later phase adds its
+  Phase 1 codes, the twenty-nine Phase 2 codes of the commission record, the two
+  Phase 4 codes the activation order also gives (`binding_unresolved`,
+  `broker_capability_insufficient`, added with Phase 6, whose vectors probe them
+  first on this branch) and the seven Phase 6 codes of selection and activation
+  evidence; `finding_code` holds the route's two findings, complete at Phase 6.
+  Each later phase adds its
   codes here, in the task that authors its schemas, and the validator requires
   every member at a commit to be probed by a corpus vector
   (`council-convening-refusal-code-without-probe`). A code is a snake_case
@@ -180,10 +184,10 @@ $defs:
       head_sha: {$ref: '#/$defs/full_sha'}
       subject_path: {$ref: '#/$defs/relative_path'}
   refusal_code:
-    # CLOSED AT THE PHASE 1 FIVE PLUS THE PHASE 2 TWENTY-NINE. Phase 2 (T028)
-    # added the commission and admission codes, in data-model § Refusal
-    # vocabulary order; each later phase adds its own, in the task that authors
-    # its schemas.
+    # CLOSED AT THE PHASE 1 FIVE, THE PHASE 2 TWENTY-NINE, PHASE 4'S TWO BINDING
+    # CODES AND THE PHASE 6 SEVEN. Phase 2 (T028) added the commission and
+    # admission codes, in data-model § Refusal vocabulary order; each later phase
+    # adds its own, in the task that authors its schemas.
     description: The closed refusal vocabulary as landed at this commit.
     type: string
     enum:
@@ -222,12 +226,29 @@ $defs:
       - roster_empty
       - roster_duplicate_seat
       - roster_mismatch
+      # Phase 4 (data-model § Refusal vocabulary): the holder's binding at
+      # registration (E7 step 5), and again at activation (E12 step 3). Added
+      # with Phase 6 (T060), whose activation vectors probe both; Phase 4's own
+      # extension keeps this one copy.
+      - binding_unresolved
+      - broker_capability_insufficient
+      # Phase 6 (T060): protocol selection (data-model E11) and activation
+      # evidence (E12).
+      - selection_malformed
+      - pair_mismatched
+      - rejected_without_fallback
+      - replacement_not_admission_eligible
+      - activation_evidence_malformed
+      - activation_evidence_incomplete
+      - historical_reinterpretation_refused
   finding_code:
-    # KEPT APART FROM REFUSALS, with its own coverage rule. Phase 6 adds
-    # `legacy_protocol_deprecated`.
+    # KEPT APART FROM REFUSALS, with its own coverage rule. COMPLETE AT PHASE 6:
+    # Phase 6 (T060) added `legacy_protocol_deprecated`, the route's second
+    # finding while the legacy status is `deprecated`.
     description: >-
       The closed finding vocabulary as landed at this commit. A route carries an
       ordered list of findings; no outcome accepts a record with a finding.
     type: string
     enum:
       - legacy_protocol_routed
+      - legacy_protocol_deprecated

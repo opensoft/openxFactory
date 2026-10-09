@@ -5,7 +5,7 @@
   ],
   "area": "foundation",
   "boundary": "definition",
-  "case_id": "def-finding-code-refuse-later-phase-code",
+  "case_id": "def-finding-code-refuse-unlisted-code",
   "evaluation_time": "2026-10-09T00:00:00Z",
   "expected": {
     "derived": {},
@@ -16,7 +16,7 @@
   },
   "inputs": {
     "definition": "finding_code",
-    "value": "legacy_protocol_deprecated"
+    "value": "legacy_protocol_removed"
   },
   "kind": "openxfactory-council-convening-conformance-vector",
   "requirement_ids": [

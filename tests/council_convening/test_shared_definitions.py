@@ -391,8 +391,19 @@ PHASE_2_REFUSALS = [
     "roster_mismatch"]
 
 
-def test_refusal_code_holds_exactly_the_phase_1_and_phase_2_codes(definitions_doc, schemas):
-    landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS
+#: Phase 4's two binding codes, which the activation order gives too, added with
+#: Phase 6 (T060), and the seven Phase 6 codes of selection and activation
+#: evidence (data-model § Refusal vocabulary).
+PHASE_4_BINDING_REFUSALS = ["binding_unresolved", "broker_capability_insufficient"]
+PHASE_6_REFUSALS = [
+    "selection_malformed", "pair_mismatched", "rejected_without_fallback",
+    "replacement_not_admission_eligible", "activation_evidence_malformed",
+    "activation_evidence_incomplete", "historical_reinterpretation_refused"]
+
+
+def test_refusal_code_holds_exactly_the_codes_landed_at_this_commit(definitions_doc, schemas):
+    landed = (PHASE_1_REFUSALS + PHASE_2_REFUSALS + PHASE_4_BINDING_REFUSALS
+              + PHASE_6_REFUSALS)
     assert definitions_doc["$defs"]["refusal_code"]["enum"] == landed
     assert schemas.enum("refusal_code") == landed
     for code in landed:
@@ -401,11 +412,15 @@ def test_refusal_code_holds_exactly_the_phase_1_and_phase_2_codes(definitions_do
     assert malformed(schemas, "refusal_code", "snapshot_malformed")
 
 
-def test_finding_code_holds_exactly_the_phase_1_finding(definitions_doc, schemas):
-    assert definitions_doc["$defs"]["finding_code"]["enum"] == ["legacy_protocol_routed"]
-    assert schemas.enum("finding_code") == ["legacy_protocol_routed"]
-    # The Phase 6 finding is not a member at this commit.
-    assert malformed(schemas, "finding_code", "legacy_protocol_deprecated")
+def test_finding_code_is_complete_at_phase_6(definitions_doc, schemas):
+    findings = ["legacy_protocol_routed", "legacy_protocol_deprecated"]
+    assert definitions_doc["$defs"]["finding_code"]["enum"] == findings
+    assert schemas.enum("finding_code") == findings
+    for code in findings:
+        assert accepts(schemas, "finding_code", code)
+    # No phase adds a finding for a removed protocol: past the removal major a
+    # legacy selection is refused, and nothing is routed with a finding.
+    assert malformed(schemas, "finding_code", "legacy_protocol_removed")
 
 
 def test_a_refusal_never_echoes_the_value(schemas):
