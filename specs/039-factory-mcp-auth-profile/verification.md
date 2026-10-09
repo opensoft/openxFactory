@@ -153,3 +153,28 @@ The repository's pytest scaffolding (`tests/conftest.py` and `pytest.ini`) was
 left out of both scratch trees, because it imports modules the two-directory
 archive does not carry. The test module is a plain `unittest` module, so the
 standard runner ran it unchanged.
+
+## 5. Implementation (change tasks 2.3 to 2.5)
+
+| Commit | Task | `tests/factory-mcp/` after it |
+| --- | --- | --- |
+| `bcdf2235` | 2.3: the schema's `auth` block and `auth` concern; the deployed example | 71 failed, 105 passed, 232 subtests passed: the 11 methods still failing all wait for the validator, and every characterization test passes |
+| `3245c0c3` | 2.4: the validator's authorization checks | **108 passed, 300 subtests passed** |
+| `3335da43` | 2.5: the runbook | 108 passed, 300 subtests passed |
+
+The starting-point probes of § 1, re-run against the validator at `3245c0c3`,
+now give: a deployed service with no block is `invalid`, `hosted_auth_missing`
+at `/service`. A not-deployed service with a block is `invalid`, `schema_oneOf`
+at `/service`, as on `main`. A deployed service with a query and no block is
+`invalid`, `hosted_auth_missing` at `/service` and `auth_resource_query` at
+`/service/canonical_resource_uri`. The shipped not-deployed example is
+`valid-with-gaps` with no diagnostic, as on `main`. Both classification probes
+are unchanged.
+
+None of the files this branch touches is a member of
+`contracts/releases/contract-v4.0.digests.yaml` (283 members), so the branch
+adds no non-editorial mismatch to `verify-commit` before the cut.
+
+The contract cut (change task 2.6), the gates on the branch and on `main`, the
+full suite and the out-of-tree engineering check (change task 2.7) follow the
+version claim on #630 row 4. They are recorded in the next sections.
