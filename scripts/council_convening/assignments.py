@@ -8,9 +8,13 @@ THREE THINGS LIVE HERE.
 
 * `snapshot_outcome` is the snapshot half of `admission`, the whole E4 order
   from classification on, answered as a `records.Outcome`. `check_snapshot` is
-  the same order after classification, steps 2 to 7, raising `Refused`.
+  the same order after classification, steps 2 to 7, raising `Refused`. Step 2
+  judges the embedded record by its E2 schema and by the E2 rules that need no
+  oracle and judge the record alone: step 2's structural rules and the offline
+  roster rules of steps 11 and 12 (pre-review M3; data-model E4, dated note).
 * `check_assignment` judges one assignment against E5 alone, including the
-  ruled lifetime ceiling.
+  ruled lifetime ceiling. `check_lone_assignment` adds the canonicalizability
+  pre-check, for `check` on an assignment outside its snapshot.
 * `retry_identity` is E2 step A3: retry identity, then once-per-pin, over the
   consumer's live snapshots. The Phase 2 admission order calls it right after E2
   step 2 (T040).
@@ -131,6 +135,33 @@ def check_assignment(value: Any, schemas: records.SchemaSet | None = None, *,
         raise Refused("assignment_malformed", member=member)
 
 
+def check_lone_assignment(value: Any, schemas: records.SchemaSet | None = None) -> None:
+    """A lone assignment, as `check` reads one: E5, then `value_not_canonicalizable`.
+
+    Inside a snapshot the canonicalizability pre-check runs after E4 step 3, so
+    alone it runs after the assignment's own E5 shape, and before any digest is
+    taken (Phase 3 pre-review L3, 2026-10-09).
+    """
+    check_assignment(value, schemas)
+    records.check_canonicalizable(value, member="assignment")
+
+
+def _embedded_record(convening: Mapping[str, Any]) -> None:
+    """E4 step 2 over the record a snapshot embeds, once it has passed the E2
+    schema: E2 step 2's structural rules, then the offline roster rules of E2
+    steps 11 and 12. A record they refuse is never admitted, so the snapshot
+    embedding it is `snapshot_malformed` (Phase 3 pre-review M3; data-model E4,
+    dated note of 2026-10-09). No oracle is read.
+    """
+    from . import resolution  # resolution imports this module, so not at the top
+
+    try:
+        resolution.structural_rules(convening)
+        resolution.roster_rules(convening)
+    except Refused as refused:
+        raise Refused("snapshot_malformed", member=f"convening.{refused.member}") from None
+
+
 def check_snapshot(snapshot: Any, schemas: records.SchemaSet | None = None) -> dict:
     """E4 steps 2 to 7, over a snapshot that has classified as a replacement
     record under its side's selection.
@@ -140,8 +171,11 @@ def check_snapshot(snapshot: Any, schemas: records.SchemaSet | None = None) -> d
     """
     schemas = schemas if schemas is not None else _default_schemas()
 
-    # 2. The snapshot's own shape, the embedded commission record included.
+    # 2. The snapshot's own shape, the embedded commission record included: its
+    #    E2 schema, which the snapshot schema takes by `$ref`, then the E2 rules
+    #    that need no oracle and judge the record alone.
     _shape(schemas, SNAPSHOT_SCHEMA_ID, snapshot, "snapshot_malformed", "snapshot")
+    _embedded_record(snapshot["convening"])
 
     # 3. Every assignment against E5, in array order.
     items = snapshot["assignments"]
