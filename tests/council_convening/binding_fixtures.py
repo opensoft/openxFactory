@@ -21,6 +21,7 @@ spellings (contracts/conformance-corpus.md § The frozen identity fixture).
 from __future__ import annotations
 
 import copy
+import datetime
 import json
 from pathlib import Path
 
@@ -252,12 +253,19 @@ def admission_binding(repository: str = ADMISSION_GOVERNED, **overrides) -> dict
     return binding
 
 
+def epoch_of(instant: str) -> int:
+    """A `utc_instant` in Unix seconds, the unit of the JWT `exp`/`nbf` claims."""
+    moment = datetime.datetime.strptime(instant, "%Y-%m-%dT%H:%M:%SZ")
+    return int(moment.replace(tzinfo=datetime.timezone.utc).timestamp())
+
+
 def with_passing_binding(vector: dict, *, repository: str | None = None) -> dict:
     """`vector`, an admission vector, made to carry a binding that passes E2
     steps A1 and A4 for its own record: the commission job's verified claims
     name the record's governed repository (or `repository`) and its governed
     revision, and the map is the frozen fixture's text. Mutates and returns
-    `vector`; members spelled with `$parts` are left as they are.
+    `vector`; members spelled with `$parts` are left as they are. The token's
+    window is open at the vector's own `evaluation_time`.
 
     A record with no readable `governed` member (one refused at step 1 or 2,
     before A1 runs) gets the corpus's governed repository and revision."""
@@ -270,7 +278,9 @@ def with_passing_binding(vector: dict, *, repository: str | None = None) -> dict
     vector["inputs"]["binding"] = bound
     vector["inputs"]["operation"] = "commission"
     vector.setdefault("environment", {})
-    vector["environment"]["identity"] = identity(
-        claims_for(bound, workflow_sha=member.get("revision", REVISION)))
+    now = epoch_of(vector.get("evaluation_time", EVALUATION_TIME))
+    vector["environment"]["identity"] = identity(claims_for(
+        bound, workflow_sha=member.get("revision", REVISION),
+        iat=now - 60, nbf=now - 60, exp=now + 300))
     vector["environment"]["repository_identity"] = identity_oracle()
     return vector

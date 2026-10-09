@@ -40,7 +40,9 @@ LINE = re.compile(
     r"|note  \S.*)$")
 
 #: The family's schemas and its refusal codes as landed at this commit; each
-#: phase grows both (Phase 5 adds `producer-binding.schema.yaml` and 13 codes).
+#: phase grows both (Phase 2 added the predicate registry's and the commission
+#: record's schemas and 29 codes, Phase 3 the snapshot's and the seat
+#: assignment's and 7 codes, Phase 5 `producer-binding.schema.yaml` and 13).
 FAMILY_SCHEMAS = len(list((REPO_ROOT / FAMILY_REL).glob("*.schema.yaml")))
 REFUSAL_CODES = len(yaml.safe_load(
     (REPO_ROOT / FAMILY_REL / "shared-definitions.schema.yaml").read_text(
@@ -53,7 +55,8 @@ PHASE_1_NOTES = [
     r"^note  vectors adjudicated: ([0-9]+)/\1$",
     rf"^note  refusal codes probed: {REFUSAL_CODES}/{REFUSAL_CODES}$",
     r"^note  finding codes probed: 1/1$",
-    r"^note  requirements probed: 6/6 \(FR-001, FR-002, FR-003, FR-004, FR-011, SC-001\)$",
+    r"^note  requirements probed: 9/9 \(FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, "
+    r"FR-011, SC-001, SC-002\)$",
     r"^note  generator reproduced corpus byte-for-byte$",
 ]
 
@@ -189,11 +192,12 @@ def test_check_routes_a_roster_less_envelope_in_yaml(tmp_path):
 
 
 def test_check_refuses_a_replacement_record_of_a_kind_not_landed(tmp_path):
-    # The commission record lands in Phase 2, so the snapshot (Phase 3) is the
-    # protocol-carrying kind whose schema has not landed at this commit.
-    path = _write(tmp_path, "snapshot.json", {
-        "schema_version": 1, "kind": "xfactory_council_convening_snapshot",
-        "protocol": REPLACEMENT, "convening_id": "convening-1"})
+    # The snapshot and the seat assignment land in Phase 3, so the registration
+    # challenge (Phase 4) is the protocol-carrying kind whose schema has not
+    # landed at this commit.
+    path = _write(tmp_path, "challenge.json", {
+        "schema_version": 1, "kind": "xfactory_council_registration_challenge",
+        "protocol": REPLACEMENT, "challenge_id": "challenge-1"})
     result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1, result.stdout + result.stderr
     assert "ERROR [council-convening-kind-unknown]" in result.stdout
@@ -455,9 +459,8 @@ def _commission_record(case_id: str = "commission-accept-conditional-seat-held")
 
 @pytest.fixture(scope="module")
 def checked_commission_record(tmp_path_factory):
-    directory = tmp_path_factory.mktemp("e2")
-    path = _write(directory, "convening.json", _commission_record())
-    return run_validator("check", str(path), cwd=directory)
+    path = _write(tmp_path_factory.mktemp("e2"), "convening.json", _commission_record())
+    return run_validator("check", str(path), cwd=path.parent)
 
 
 def test_the_self_test_prints_the_predicate_registry_note(self_test):
@@ -806,3 +809,77 @@ def test_check_accepts_a_family_schema_that_references_the_shared_definitions(tm
     path = _write(tmp_path, "probe.yaml", document)
     result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+# --------------------------------------------------------------------------
+# `check` on a snapshot and an assignment (T037, Phase 3).
+# --------------------------------------------------------------------------
+
+def _snapshot_file(tmp_path: Path, mutate=None) -> Path:
+    from .assignment_fixtures import snapshot
+
+    document = snapshot()
+    if mutate is not None:
+        mutate(document)
+    return _write(tmp_path, "snapshot.json", document)
+
+
+def test_check_on_a_snapshot_recomputes_its_digest_and_its_assignment_set(tmp_path):
+    result = run_validator("check", str(_snapshot_file(tmp_path)), cwd=tmp_path)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "ERROR [" not in result.stdout
+    assert re.search(
+        r"^note  .*snapshot\.json: convening_digest recomputed; "
+        r"assignment set matches required_seats \(2 seats\)$", result.stdout, re.M), (
+        result.stdout)
+
+
+def test_check_refuses_a_snapshot_whose_digest_does_not_recompute(tmp_path):
+    def mutate(document):
+        document["convening"]["packet_refs"] = ["packet/alpha-2"]
+
+    result = run_validator("check", str(_snapshot_file(tmp_path, mutate)), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-digest-construction-mismatch]" in result.stdout
+
+
+def test_check_refuses_a_snapshot_whose_assignment_set_is_reordered(tmp_path):
+    def mutate(document):
+        document["assignments"].reverse()
+
+    result = run_validator("check", str(_snapshot_file(tmp_path, mutate)), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-assignment-set-mismatch]" in result.stdout
+
+
+def test_check_refuses_a_snapshot_with_an_assignment_above_the_ceiling(tmp_path):
+    def mutate(document):
+        document["assignments"][0]["expires_at"] = "2026-10-09T06:00:01Z"
+
+    result = run_validator("check", str(_snapshot_file(tmp_path, mutate)), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-assignment-malformed]" in result.stdout
+
+
+def test_check_on_a_lone_assignment_checks_its_shape_and_says_what_needs_its_snapshot(
+        tmp_path):
+    from .assignment_fixtures import assignment, convening_record
+
+    path = _write(tmp_path, "assignment.json",
+                  assignment(convening_record(), "convening-0001", "seat-a"))
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert re.search(r"^note  \[council-convening-not-offline-checkable\] .*assignment\.json: "
+                     r"not checkable offline: the assignment set", result.stdout, re.M), (
+        result.stdout)
+
+
+def test_check_on_a_commission_record_reports_retry_identity_as_not_offline_checkable(
+        tmp_path):
+    from .assignment_fixtures import convening_record
+
+    path = _write(tmp_path, "convening.json", convening_record())
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert re.search(r"^note  \[council-convening-not-offline-checkable\] .*: "
+                     r"not checkable offline: .*retry identity and once-per-pin",
+                     result.stdout, re.M), result.stdout

@@ -58,7 +58,9 @@ from . import classification, corpus, records
 #: The requirements the corpus must cite at this commit (T020). Each phase
 #: raises it; from Phase 6 it is the full FR-001 to FR-012 and SC-001 to SC-003.
 #: Phase 2 (T026) adds FR-002 to FR-004 and SC-001 to Phase 1's FR-001 and FR-011.
-COVERAGE_FLOOR = ("FR-001", "FR-002", "FR-003", "FR-004", "FR-011", "SC-001")
+#: Phase 3 (T036) adds FR-005, FR-006 and SC-002.
+COVERAGE_FLOOR = ("FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-011",
+                  "SC-001", "SC-002")
 
 #: The public phrase every fixture key is derived from. It says what it is.
 KEY_PHRASE = (b"openxFactory council-convening conformance corpus: PUBLIC TEST KEY, "

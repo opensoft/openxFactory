@@ -59,7 +59,7 @@ from pathlib import Path
 from typing import Any, Iterator, Mapping
 
 from ..signed_execution_chain import canonical
-from . import binding, classification, predicates, records
+from . import assignments, binding, classification, predicates, records
 from .records import Refused
 
 REPLACEMENT = "xfc-resolved-council-1"
@@ -94,6 +94,10 @@ class Routed(Exception):
 class Resolution:
     required_seats: list
     convening_digest: dict
+    #: Set only when admission RETURNED a live snapshot (E2 step A3): that
+    #: snapshot's consumer-issued id. A fresh admission has none, because the
+    #: consumer issues the id when it writes the snapshot.
+    convening_id: str | None = None
 
 
 # --------------------------------------------------------------------------
@@ -125,6 +129,10 @@ class Oracles:
         raise NotImplementedError
 
     def resolved_candidate(self) -> Any:
+        raise NotImplementedError
+
+    def live_snapshots(self) -> list:
+        """The consumer's snapshots that have not failed, for E2 step A3."""
         raise NotImplementedError
 
     def identity(self) -> Any:
@@ -184,6 +192,22 @@ class VectorOracles(Oracles):
     def resolved_candidate(self):
         self.reads.append(("resolved_candidate", None))
         return self._oracle("resolved_candidate")
+
+    def live_snapshots(self) -> list:
+        """`environment.issued.live_snapshots`. An absent `issued`, or an
+        `issued` without `live_snapshots`, is a consumer holding no live
+        snapshot, so an admission vector authored before Phase 3 keeps its
+        outcome."""
+        self.reads.append(("issued", "live_snapshots"))
+        issued = self._environment.get("issued", {})
+        if not isinstance(issued, Mapping):
+            raise HarnessError("the `issued` oracle is not an object")
+        live = issued.get("live_snapshots", [])
+        if not isinstance(live, list) or not all(
+                isinstance(snapshot, Mapping) and isinstance(snapshot.get("convening"), Mapping)
+                and isinstance(snapshot.get("convening_id"), str) for snapshot in live):
+            raise HarnessError("`issued.live_snapshots` is not a list of snapshots")
+        return live
 
     def identity(self):
         self.reads.append(("identity", None))
@@ -690,10 +714,32 @@ def _workflow_revision(record, run: _Run) -> None:
         raise HarnessError(str(error)) from None
 
 
+def _retry_identity(record, run: _Run) -> Resolution | None:
+    """E2 step A3, admission only (Phase 3, T040): retry identity, then
+    once-per-pin, over the consumer's live snapshots. It runs after
+    classification and shape and before every check that reads something that
+    can drift, so a lost response followed by tip or head drift still returns
+    the same snapshot (US1 scenario 4; 025 FR-006). From Phase 5, binding (A1)
+    runs before it."""
+    if run.boundary != "admission":
+        run.skip("convening_conflict (retry identity and once-per-pin, E2 step A3: "
+                 "the consumer's live snapshots)")
+        return None
+    live = assignments.retry_identity(record, run.oracles.live_snapshots())
+    if live is None:
+        return None
+    return Resolution(required_seats=list(record["required_seats"]),
+                      convening_digest=convening_digest(record),
+                      convening_id=live["convening_id"])
+
+
 def _order(record, run: _Run, selected_protocol, statuses):
     _classify(record, run, selected_protocol, statuses)               # 1
     _shape(record, run)                                               # 2
     _bound_claims(run)                                                # A1
+    returned = _retry_identity(record, run)                           # A3
+    if returned is not None:
+        return returned
     _secrets(record)                                                  # 3
     _candidate(record, run)                                           # 4
     projection = _governed(record, run)                               # 5
@@ -785,9 +831,9 @@ ADMISSION_OPERATION = "commission"
 #: The oracles a commission vector may carry at this commit (R8).
 ORACLES_READ = ("governed_history", "governed", "governed_repositories", "rules", "facts",
                 "live_heads", "head_refs", "resolved_candidate", "registry_status")
-#: And an admission vector: Phase 5 adds the verified claims and the identity
-#: map, which A1 reads. Phase 3 adds `issued`.
-ADMISSION_ORACLES_READ = ORACLES_READ + ("identity", "repository_identity")
+#: And an admission vector: Phase 3 adds `issued`, which A3 reads, and Phase 5
+#: the verified claims and the identity map, which A1 reads.
+ADMISSION_ORACLES_READ = ORACLES_READ + ("issued", "identity", "repository_identity")
 
 
 def _outcome_at(vector, boundary, schemas, registry) -> records.Outcome:
@@ -837,9 +883,11 @@ def _run_order(inputs, environment, run: _Run) -> records.Outcome:
         return records.Outcome("refuse", refused.code, status_read=run.status_read)
     except Routed as routed:
         return routed.outcome
-    return records.Outcome("accept", derived={"required_seats": result.required_seats,
-                                              "convening_digest": result.convening_digest},
-                           status_read=run.status_read)
+    derived = {"required_seats": result.required_seats,
+               "convening_digest": result.convening_digest}
+    if result.convening_id is not None:
+        derived["convening_id"] = result.convening_id
+    return records.Outcome("accept", derived=derived, status_read=run.status_read)
 
 
 def _adjudicate(vector: Mapping, schemas, registry) -> records.Outcome:

@@ -39,9 +39,11 @@ would disagree on what a vector says. For the same reason a corpus file carries
 no integral number spelled as a float (`2.0`, `2e0`; `IntegralFloatToken`).
 
 THE DISPATCH TABLE. Phase 1 registers `definition` and `classification`,
-Phase 2 `commission` and `admission` (handled in `resolution`), and Phase 5
-`binding` (data-model E10). Each later phase registers its boundaries through
-`register_handler`, naming the oracles its vectors may carry.
+Phase 2 `commission` (handled in `resolution`), Phase 3 `admission`, once, for
+both its input roles (the commission record, through `resolution`, and the
+snapshot half), and Phase 5 `binding` (data-model E10). Each later phase
+registers its boundaries through `register_handler`, naming the oracles its
+vectors may carry.
 
 THE FIXTURES (Phase 5). The index's `fixtures` lists every corpus-owned fixture
 with its raw SHA-256, in bytewise path order, under the same closure: a file
@@ -90,8 +92,19 @@ IDENTITY_FIXTURE = FIXTURES["repository-identity"]
 #: The boundaries whose vectors read the repository identity map, and so must
 #: carry the `repository_identity` oracle (contracts/conformance-corpus.md):
 #: `binding`; `registration`, which runs E10 at E7 step 5; and `admission`, which
-#: runs E10 as E2 steps A1 and A4 (T055).
+#: runs E10 as E2 steps A1 and A4 (T055). At `admission` only the commission
+#: record's role reads it: the snapshot half (`inputs.snapshot`, data-model E4)
+#: judges no binding, so it reads no map (`reads_identity_map`).
 IDENTITY_MAP_BOUNDARIES = ("binding", "registration", "admission")
+
+
+def reads_identity_map(vector: Mapping[str, Any]) -> bool:
+    """Whether `vector`'s adjudication reads the repository identity map."""
+    if vector.get("boundary") not in IDENTITY_MAP_BOUNDARIES:
+        return False
+    inputs = vector.get("inputs")
+    return not (vector["boundary"] == "admission" and isinstance(inputs, Mapping)
+                and "snapshot" in inputs)
 ROW_MEMBERS = ("case_id", "area", "boundary", "applies_to", "requirement_ids", "path",
                "sha256", "expected")
 ROW_FROM_VECTOR = ("case_id", "area", "boundary", "applies_to", "requirement_ids",
@@ -362,8 +375,9 @@ register_handler("binding", _binding,
 from . import resolution as _resolution  # noqa: E402
 
 register_handler("commission", _resolution.corpus_handler, oracles=_resolution.ORACLES_READ)
-register_handler("admission", _resolution.corpus_handler,
-                 oracles=_resolution.ADMISSION_ORACLES_READ)
+# `admission` is registered once, below, by Phase 3 (T040): one handler for its
+# two input roles, the commission record (this handler, with retry identity at
+# E2 step A3) and the snapshot half (E4).
 
 
 # --------------------------------------------------------------------------
@@ -561,7 +575,7 @@ def adjudication_findings(label: str, vector: Mapping[str, Any],
     reference reproduced its expectation. Shared by the corpus check and by
     `check` on a single vector, so the two can never judge a vector differently.
     """
-    if (vector["boundary"] in IDENTITY_MAP_BOUNDARIES
+    if (reads_identity_map(vector)
             and "repository_identity" not in vector.get("environment", {})):
         # Phase 5: not adjudicated, because its outcome would depend on a map
         # no digest covers (R7-M1).
@@ -839,3 +853,49 @@ def _summary(expected: Mapping[str, Any]) -> str:
         if "classification" in derived:
             text += f" (classification {derived['classification']})"
     return text
+
+
+# --------------------------------------------------------------------------
+# Phase 3 (T040): the snapshot half of `admission`.
+# --------------------------------------------------------------------------
+
+from . import assignments  # noqa: E402  (registered below the dispatch table)
+
+
+def _selected_protocol(inputs: Mapping[str, Any], context: Context) -> str | None:
+    selected = inputs["selected_protocol"]
+    if selected is not None and selected not in context.registry.entries:
+        raise VectorInputError("inputs.selected_protocol names no registry entry")
+    return selected
+
+
+def _admission_snapshot(vector: Mapping[str, Any], context: Context) -> records.Outcome:
+    """A snapshot judged in the E4 order (data-model E4): classification, then
+    `snapshot_malformed`, `assignment_malformed`, `digest_construction_mismatch`,
+    `assignment_set_mismatch`, `assignment_duplicate`, `assignment_shared_holder`."""
+    inputs = _closed_inputs(vector["inputs"], ("snapshot", "selected_protocol"))
+    snapshot = join_parts(inputs["snapshot"])
+    if not isinstance(snapshot, dict):
+        raise VectorInputError("inputs.snapshot is not an object")
+    selected = _selected_protocol(inputs, context)
+    statuses = _statuses(vector.get("environment", {}), context)
+    try:
+        return assignments.snapshot_outcome(snapshot, selected_protocol=selected,
+                                            schemas=context.schemas,
+                                            registry=context.registry,
+                                            statuses=statuses)
+    except classification.EffectNotLanded as exc:
+        raise NotAdjudicable(str(exc)) from None
+
+
+def _admission(vector: Mapping[str, Any], context: Context) -> records.Outcome:
+    """`admission` takes one of two input roles: `snapshot`, the snapshot half
+    (E4), or `record`, the commission record in the E2 admission order, with
+    retry identity at step A3 (`resolution`)."""
+    inputs = vector["inputs"]
+    if isinstance(inputs, dict) and "snapshot" in inputs:
+        return _admission_snapshot(vector, context)
+    return _resolution.corpus_handler(vector, context)
+
+
+register_handler("admission", _admission, oracles=_resolution.ADMISSION_ORACLES_READ)

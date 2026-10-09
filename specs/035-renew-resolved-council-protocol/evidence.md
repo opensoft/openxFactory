@@ -449,3 +449,91 @@ All at `d0ad97e63` unless another commit is named. Py-bench container, Python 3.
 **The PR.** T034's text says to open PR-2 as a draft. The lane's coordinator instructed that it open **ready**, after PR-1 lands, on Brett Heap's word *"merge PR-2 when green"* (2026-10-09T01:28:37Z, log line 238). It is not open at this record's commit.
 
 **Follow-up 1 is what the source-currency vectors encode.** Brett Heap, 2026-10-08T23:03:35Z, *"Every governed source (Recommended)"* (RULED, log line 209). Every `admission-refuse-rule-superseded-*` vector, including those whose superseded source is not the rule file, applies the OPEN-3 test to every governed source.
+
+## Phase 3 — User Story 2 (a): frozen assignments and retry identity (PR-3)
+
+### Authority and base (2026-10-09)
+
+- **Start.** Brett Heap, 2026-10-09T01:31:48Z, *"start 035 phase 3 while PR-2 lands"* (WORD, log line 239, read at brett-wip `ca67ba4a4`).
+- **Landing.** Brett Heap, 2026-10-09T01:38:36Z, *"merge PR-3 when green"* (WORD, log line 240). PR-3 opens ready after PR-2 lands; the lane lands it once every check passes, with an independent review beside CI.
+- **Rulings this phase encodes.**
+  - OPEN-1, *"600 s challenge, 6 h assignment (Recommended)"* (RULED 2026-10-08T19:24:21Z). The 21600-second assignment ceiling is the contract maximum. `seat-assignment.schema.yaml` declares it as `$defs/lifetime_ceiling_seconds`, and the reference implementation reads it from there. A consumer's tighter value applies when it issues; verification and the four ceiling vectors use the ceiling (R12).
+  - The plan's retry-identity rule: retry identity runs after classification, shape and binding, and before every drift check, so an identical retry returns the same snapshot. Once-per-pin is `convening_conflict`, keyed on `(protocol, council_id, subject_pin)`. "Byte-identical" means equal `xfc-jcs-sha256-1` canonical bytes.
+- **Branch.** `035-phase3-assignments`, cut from the local `035-phase2-membership` ref at `de7091515`, the #1268 merge. The earlier phases were merged in, never rebased:
+  - `93c730d8a` (2026-10-09T02:35Z) took `origin/035-phase1-foundation` at `396ef5dd7`;
+  - `13a384f74` (2026-10-09T13:26Z) took `origin/035-phase2-membership` at `fdc0b0601`, which carries Phase 1's review fixes at `a1375ac96`;
+  - `7ddced926` (2026-10-09T17:24Z) took `origin/035-phase1-foundation` at `8f83b10ac`, Phase 1's last fix round.
+  The index was regenerated at each merge, never hand-merged. The conflicts in `scripts/validate-council-convening.py`, `tests/council_convening/test_validator_cli.py` and this file were resolved by keeping both sides.
+- **No producer or consumer code is copied (R4).** `assignments.py` is written from data-model E2, E4 and E5.
+
+### Tests and vectors first, run red
+
+**Stage A** (2026-10-09T02:36:40Z, at `93c730d8a` plus the T035 and T037 test edits, before any Phase 3 schema or module): `python3 -m pytest tests/council_convening -q -m "not postgres" --continue-on-collection-errors` gave **15 failed, 235 passed, 1 error**. Every failure is an absent Phase 3 name or file:
+
+- 1 collection error: `test_assignments.py` imports `scripts.council_convening.assignments`, which did not exist;
+- 6 failures: the T037 `check` cases. The snapshot and assignment kinds had not landed (`council-convening-kind-unknown`), and `check` on a commission record named no retry-identity rule;
+- 9 failures: the self-test, `corpus`, generator and gate-assertion cases. Each was caused only by the 35 snapshot-half vectors not yet being indexed: `corpus.check_corpus` reported 35 findings, every one `council-convening-index-closure` on `vectors/assignment/<case>`.
+
+**Stage B** (2026-10-09T13:27:16Z, at `13a384f74`, Phase 2 merged): the schemas (T038) were present without their `refusal_code` extension, with `assignments.py` (T039) and the snapshot half of `admission`. Retry identity was not yet inserted into the admission order, and the index was not regenerated. The same command gave **27 failed, 928 passed**, every failure an absent Phase 3 name or a pin this phase moves:
+
+- 5 in `test_assignments.py`: the two drift pairs, the conflict-before-head pair, the fresh-admission case and the no-`issued` case, because A3 was absent;
+- 1 T037 case: `check` on a commission record named no retry-identity rule, for the same reason;
+- 3 Phase 2 pins that name a Phase 3 member as not landed yet: the kind-not-landed `check` case, which used the snapshot kind, the `schemas loaded: 4` note, and the `refusal codes probed: 34/34` note;
+- 18 self-test, `corpus`, generator, gate-assertion and vector-format cases in `test_validator_cli.py` (9), `test_corpus_index.py` (8) and `test_gate_wiring.py` (1), each caused only by the 47 `assignment` vectors not yet indexed.
+
+### The assignment vectors (T036)
+
+47 vectors under `contracts/council-convening/conformance/vectors/assignment/`, all at boundary `admission` and all `applies_to: [consumer]`:
+
+| Input role | Vectors | Outcomes |
+|---|---|---|
+| `inputs.snapshot`, the snapshot half (E4) | 35 | 6 accept, 29 refuse |
+| `inputs.record` with `environment.issued.live_snapshots`, retry identity (E2 A3) | 12 | 6 accept, 6 refuse |
+
+- **The ceiling (OPEN-1).** 21600 seconds accepted; 21601 seconds, zero and a negative lifetime refused as `assignment_malformed`.
+- **The set.** Extra, missing, reordered and same-count wrong-seat assignments refuse as `assignment_set_mismatch`. So does an assignment whose `protocol`, `convening_id`, `council_id` or `candidate` differs from the snapshot's (I11).
+- **Other refusals.** Duplicate `assignment_id`, a shared holder, and a digest that does not recompute.
+- **Order.** Six two-defect vectors pin each adjacent pair of E4 steps.
+- **Retry identity.** The retry vectors are built on Phase 2's `admission-accept-conditional-seat-not-held` environment, byte for byte:
+  - an identical retry returns the live snapshot, also after a governed source changed at the tip and after the live head moved;
+  - once-per-pin never pre-empts an identical retry, even with a conflicting snapshot listed first;
+  - a different record for the same key is `convening_conflict`, including one that differs only in `candidate.pull_number` or `candidate.subject_path`;
+  - the same council at another pin, and another council at the same pin, admit fresh;
+  - `convening_malformed` precedes the conflict, and the conflict precedes `secret_bearing_fact` and the head read.
+- **Every drift vector is shown to drift.** `test_assignments.py` adjudicates each one again without its live snapshot. It then refuses with the drift code (`rule_superseded`, `candidate_head_moved`), and with the live snapshot it returns that snapshot.
+- **Known answers.** Expected refusals are authored by hand (`derived_origin: hand`). Every accept's `convening_digest` is computed by `canonical.digest` (`generated`).
+- The coverage floor adds FR-005, FR-006 and SC-002 to Phase 2's six (T036).
+
+### Implementation (T038–T040)
+
+- **T038** (`e6dc60682`, `9ce0e411a`). `convening-snapshot.schema.yaml` (kind `xfactory_council_convening_snapshot`, E4) and `seat-assignment.schema.yaml` (kind `xfactory_council_seat_assignment`, E5).
+  - `permitted_operations` is one of exactly three lists.
+  - Neither schema checks a condition that has its own named refusal: the snapshot's `assignments` is an array of objects, and an assignment's `protocol` is a `protocol_id`.
+  - `refusal_code` grows from 34 to 41 codes, the seven Phase 3 codes in data-model order.
+  - The pins that named a Phase 3 member as not yet landed move to Phase 4's, keeping their intent: the later-phase refusal-code vector and its corpus test (`assignment_unknown`), the kind-not-landed case (the registration challenge), and the unhandled-boundary case (`registration`).
+- **T039** (`e6dc60682`). `scripts/council_convening/assignments.py`:
+  - `snapshot_outcome`, the whole E4 order from classification;
+  - `check_snapshot`, E4 steps 2 to 7;
+  - `check_assignment`, E5 and the ceiling;
+  - `retry_identity`, E2 A3. The identical test runs over every live snapshot before once-per-pin runs over any.
+- **T040** (`f99d4975b`, `aba0d453d`).
+  - `resolution.py` runs A3 at admission, right after E2 step 2. It reads the oracle's `live_snapshots`, where an absent `issued` means none. A returned snapshot adds its `convening_id` to the derived values; a fresh admission has none. Offline, `check` names the rule as not checkable.
+  - `corpus.py` registers `admission` once, for its two input roles.
+  - `check` judges a snapshot through E4 steps 2 to 7, all offline, and a lone assignment through E5, naming the set checks as needing its snapshot.
+
+### Readings this phase takes, not rulings
+
+The data model leaves these implicit. Each is the reading the reference implementation and the vectors take, and none is presented as ruled:
+
+1. **`value_not_canonicalizable` in the E4 order.** E4 names no step for it, and § Shared definitions says such a value is refused "before any digest is taken". It runs after the shape checks (E4 steps 2 and 3) and before the digest (step 4), the position E2 step 2 gives it.
+2. **How a returned snapshot shows.** An accept at admission that returns a live snapshot also derives that snapshot's `convening_id`. A fresh admission derives none, because the consumer issues the id when it writes. That is the only way a vector can tell "returned the live snapshot" from "admitted fresh".
+3. **An absent `environment.issued.live_snapshots` at admission** reads as "the consumer holds no live snapshot", so every Phase 2 admission vector keeps its outcome.
+4. **Who runs the Phase 3 vectors.** All are consumer-only: they are `admission` vectors, the consumer issues snapshots and assignments, and the retry vectors read the consumer's live snapshots. So Phase 3 adds nothing to the agreement set.
+5. **Two schema choices, so that a named refusal is never shadowed.** The snapshot's `assignments` is unbounded, and an assignment's `protocol` is not a `const`.
+6. **The ceiling lives in the contract**, and the module's `ASSIGNMENT_LIFETIME_CEILING_SECONDS` is pinned to it by a test.
+
+### Found in Phase 1 during Phase 3
+
+Two T035 cases, a trailing newline in `convening_id` and in `assignment_id`, showed that `records.SchemaSet.validator()` dropped the whole-string `pattern` and `x-max-utf8-bytes` inside every record schema. When validation descended into a document carrying the house `$schema` header, jsonschema's `validator_for` swapped `FamilyValidator` for plain `Draft202012Validator`. It was reported to the lane coordinator on 2026-10-09 at about 02:40Z, and the Phase 1 writer fixed it in PR-1 (§ Phase 1, "The family keywords were dropped inside whole schema documents"). This branch took the fix with Phase 2's merge, and both cases pass from stage B on.
+
+### Quickstart steps 1–5 (T041)

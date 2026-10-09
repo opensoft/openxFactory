@@ -1364,11 +1364,14 @@ def _adjudicate(vector):
     return got["outcome"], got["refusal"]
 
 
-def _all_admission_vectors():
+def _all_admission_vectors(role="record"):
+    """Every admission vector in one input role: `record`, the commission record
+    in the E2 order, where A1 and A4 run; or `snapshot`, the E4 half, which
+    judges no binding."""
     out = []
     for path in sorted(BINDING_VECTORS.parent.glob("*/*.json")):
         raw = json.loads(path.read_text(encoding="utf-8"))
-        if raw["boundary"] == "admission":
+        if raw["boundary"] == "admission" and role in raw["inputs"]:
             out.append((raw["case_id"], raw))
     return out
 
@@ -1550,3 +1553,84 @@ def test_with_passing_binding_passes_a1_and_a4_on_the_base_record():
         raw["environment"].pop(member, None)
     vector = _joined(with_passing_binding(raw))
     assert _adjudicate(vector) == ("accept", None)
+
+
+ASSIGNMENT_VECTORS = BINDING_VECTORS.parent / "assignment"
+
+#: Phase 3's twelve retry-identity vectors (E2 step A3), re-authored to carry a
+#: passing binding. Their outcomes do not move.
+PHASE_3_RETRY = {
+    "asg-retry-conflict-packet-refs-refuse": "convening_conflict",
+    "asg-retry-conflict-pull-number-only-refuse": "convening_conflict",
+    "asg-retry-conflict-subject-path-only-refuse": "convening_conflict",
+    "asg-retry-identical-after-head-moved-accept": None,
+    "asg-retry-identical-after-tip-moved-accept": None,
+    "asg-retry-identical-not-pre-empted-by-once-per-pin-accept": None,
+    "asg-retry-identical-returns-snapshot-accept": None,
+    "asg-retry-order-conflict-before-head-moved-refuse": "convening_conflict",
+    "asg-retry-order-conflict-before-secret-refuse": "convening_conflict",
+    "asg-retry-order-shape-before-conflict-refuse": "convening_malformed",
+    "asg-retry-other-council-same-pin-not-conflict-accept": None,
+    "asg-retry-same-council-other-pin-not-conflict-accept": None,
+}
+
+#: A1 before A3: a token that fails binding never reaches retry identity, so an
+#: identical retry does not return the snapshot and a conflicting one is not
+#: `convening_conflict` (T051).
+PHASE_5_RETRY_ORDER = {
+    "asg-retry-order-binding-before-identical-retry-refuse": "claims_expired",
+    "asg-retry-order-binding-before-conflict-refuse": "audience_mismatch",
+}
+
+
+def _assignment_raw(case_id):
+    return json.loads((ASSIGNMENT_VECTORS / f"{case_id}.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("case_id", sorted(PHASE_3_RETRY))
+def test_the_re_authored_phase_3_retry_vectors_keep_their_outcomes(case_id):
+    raw = _assignment_raw(case_id)
+    assert "binding" in raw["inputs"] and raw["inputs"]["operation"] == "commission"
+    code = PHASE_3_RETRY[case_id]
+    expected = ("accept", None) if code is None else ("refuse", code)
+    assert (raw["expected"]["outcome"], raw["expected"]["refusal"]) == expected
+    assert _adjudicate(_joined(raw)) == expected
+
+
+@pytest.mark.parametrize("case_id", sorted(PHASE_5_RETRY_ORDER))
+def test_a1_runs_before_retry_identity(case_id):
+    raw = _assignment_raw(case_id)
+    assert raw["boundary"] == "admission" and raw["applies_to"] == ["consumer"]
+    assert raw["area"] == "assignment" and "FR-009" in raw["requirement_ids"]
+    assert raw["environment"]["issued"]["live_snapshots"], case_id
+    assert (raw["expected"]["outcome"], raw["expected"]["refusal"]) == (
+        "refuse", PHASE_5_RETRY_ORDER[case_id])
+    assert "convening_id" not in raw["expected"]["derived"]
+    assert _adjudicate(_joined(raw)) == ("refuse", PHASE_5_RETRY_ORDER[case_id])
+
+
+def test_the_identical_retry_with_a_passing_token_returns_the_snapshot():
+    # The control for A1 before A3: the same vector with the token restored
+    # returns the live snapshot's id.
+    from scripts.council_convening import resolution
+
+    vector = _joined(_assignment_raw("asg-retry-order-binding-before-identical-retry-refuse"))
+    accepted = _joined(_assignment_raw("asg-retry-identical-returns-snapshot-accept"))
+    vector["environment"]["identity"] = accepted["environment"]["identity"]
+    got = resolution.adjudicate(vector)
+    assert got["outcome"] == "accept"
+    assert got["derived"]["convening_id"] == accepted["expected"]["derived"]["convening_id"]
+
+
+def test_the_snapshot_half_reads_no_binding_and_no_map():
+    # Data-model E4's order judges a snapshot, never the commission job's token.
+    from scripts.council_convening import corpus
+
+    snapshots = _all_admission_vectors(role="snapshot")
+    assert snapshots
+    for case_id, raw in snapshots:
+        assert "binding" not in raw["inputs"], case_id
+        assert "repository_identity" not in raw.get("environment", {}), case_id
+        assert not corpus.reads_identity_map(raw), case_id
+    for _, raw in _all_admission_vectors():
+        assert corpus.reads_identity_map(raw)

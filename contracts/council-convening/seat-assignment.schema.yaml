@@ -1,0 +1,121 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_seat_assignment
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/seat-assignment.schema.yaml"
+contract_id: council-convening-seat-assignment
+contract_schema_version: 1
+title: Seat assignment (the public assignment one seat job receives)
+description: >-
+  ONE IMMUTABLE ASSIGNMENT PER REQUIRED SEAT (renew-resolved-council-protocol
+  D2 and D3; capability `roles-authority-model`, requirement "Frozen
+  assignments"; feature 035 data-model E5). The consumer issues one assignment
+  per entry of the admitted record's `required_seats`, in roster order, inside
+  the convening snapshot (`convening-snapshot.schema.yaml`), atomically at
+  admission. A seat job receives its own assignment and nothing else: the
+  record carries no other seat's identifiers and no secret.
+
+  BOUND TO THE CONVENING, CHECKED BY THE SNAPSHOT. `protocol`, `convening_id`,
+  `convening_digest`, `council_id` and `candidate` equal the snapshot's. This
+  schema types them and does not compare them, because a differing member has
+  its own named refusal, `assignment_set_mismatch`, at step 5 of the snapshot's
+  order; so `protocol` is a `protocol_id` here, not a `const`. One failing check
+  names one code.
+
+  THE HOLDER IS ISSUED, NOT DERIVED. `holder.principal_ref` and
+  `holder.binding_ref` are issued by the trusted dispatcher or the
+  owner-provisioned broker from verified execution evidence (D3, "The trusted
+  dispatcher binds the assignment to verified execution evidence"). This family
+  binds them here and checks them when the assignment is used. `binding_ref` is
+  the `binding_id` of the holder's producer binding.
+
+  `permitted_operations` IS ONE OF EXACTLY THREE LISTS: a non-empty,
+  duplicate-free subset of `[seat_key_registration, seat_return]`, in that
+  order. The consumer issues both today; a one-operation assignment is legal,
+  and using it for the other operation is `operation_not_permitted` at use.
+
+  THE LIFETIME CEILING IS 21600 SECONDS (6 HOURS), A CONTRACT MAXIMUM. Brett
+  Heap ruled it on 2026-10-08 as OPEN-1, "600 s challenge, 6 h assignment
+  (Recommended)". The lifetime `expires_at - not_before` must be greater than 0
+  and at most `$defs/lifetime_ceiling_seconds`; otherwise the assignment is
+  `assignment_malformed`. A JSON Schema cannot subtract two instants, so the
+  reference implementation reads the ceiling from that definition and checks
+  it beside this schema. A consumer may configure a tighter value, which
+  applies when it ISSUES an assignment; verification and the conformance
+  corpus use this ceiling, so a stricter consumer still accepts an assignment
+  of exactly 21600 seconds (research R12).
+
+  Validity at use, `assignment_not_yet_valid`, `assignment_expired` and
+  `operation_not_permitted`, is checked when an assignment is used, at
+  registration and return (data-model E7 and E8), not here.
+
+  Every failure of this shape is `assignment_malformed`, whether the
+  assignment is judged inside a snapshot (step 3 of its order) or alone.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - protocol
+  - convening_id
+  - convening_digest
+  - council_id
+  - candidate
+  - assignment_id
+  - seat_id
+  - holder
+  - permitted_operations
+  - not_before
+  - expires_at
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_council_seat_assignment}
+  protocol:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/protocol_id"
+  convening_id:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/opaque_id"
+  convening_digest: {$ref: '#/$defs/convening_digest'}
+  council_id:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/council_id"
+  candidate:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/candidate"
+  assignment_id:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/opaque_id"
+  seat_id:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/seat_id"
+  holder:
+    type: object
+    additionalProperties: false
+    required: [principal_kind, principal_ref, binding_ref]
+    properties:
+      principal_kind:
+        $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/principal_kind"
+      principal_ref:
+        $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/opaque_id"
+      binding_ref:
+        $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/opaque_id"
+  permitted_operations:
+    # The three legal lists, as values: non-empty, duplicate-free, in the
+    # order `seat_key_registration` then `seat_return`.
+    enum:
+      - [seat_key_registration]
+      - [seat_return]
+      - [seat_key_registration, seat_return]
+  not_before:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/utc_instant"
+  expires_at:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/utc_instant"
+$defs:
+  convening_digest:
+    # `xfc-jcs-sha256-1` over the admitted commission record, subject fixed
+    # here with a `const` as every use of the shared `digest` does.
+    allOf:
+      - $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/digest"
+      - properties:
+          subject: {const: council_convening}
+  lifetime_ceiling_seconds:
+    # OPEN-1, ruled by Brett Heap on 2026-10-08: "600 s challenge, 6 h
+    # assignment (Recommended)". The contract maximum, read by the reference
+    # implementation; never a consumer's configured value.
+    type: integer
+    const: 21600
