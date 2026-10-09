@@ -52,8 +52,6 @@ from datetime import datetime, timezone
 from functools import lru_cache
 from typing import Any, Mapping
 
-import yaml
-
 from . import classification, records
 from ..signed_execution_chain import canonical, ed25519
 
@@ -144,7 +142,7 @@ class InconsistentEnvironment(ValueError):
 
 def _schema_const(name: str, definition: str) -> int:
     path = records.REPO_ROOT / records.FAMILY_REL / name
-    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document = records.strict_yaml(path.read_bytes(), name)
     value = document["$defs"][definition]["const"]
     if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
         raise records.SchemaLoadError(f"{name}: $defs/{definition} is not a positive integer")
