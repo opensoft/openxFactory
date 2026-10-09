@@ -5,31 +5,37 @@
   ],
   "area": "foundation",
   "boundary": "classification",
-  "case_id": "cls-offline-replacement-with-legacy-shapes-accept",
+  "case_id": "cls-legacy-selection-legacy-seat-result-route",
+  "environment": {
+    "registry_status": {
+      "xfactory-council-seat-return/v1": "in_use"
+    }
+  },
   "evaluation_time": "2026-10-09T00:00:00Z",
   "expected": {
     "derived": {
-      "classification": "replacement"
+      "classification": "legacy"
     },
     "derived_origin": "hand",
-    "findings": [],
-    "outcome": "accept",
+    "findings": [
+      "legacy_protocol_routed"
+    ],
+    "outcome": "route",
     "refusal": null
   },
   "inputs": {
     "record": {
-      "council_convening": {
-        "council_id": "merge-readiness",
-        "subject_pin": "0123456789abcdef0123456789abcdef01234567"
-      },
-      "protocol": "xfc-resolved-council-1",
+      "rationale": "no finding",
+      "result": "approve",
+      "seat": "security",
       "signature": {
         "key_fingerprint": "sha256:abababababababababababababababababababababababababababababababab",
         "protocol": "xfactory-council-seat-return/v1",
         "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ"
-      }
+      },
+      "undispositioned_conditions": 0
     },
-    "selected_protocol": null
+    "selected_protocol": "xfactory-council-seat-return/v1"
   },
   "kind": "openxfactory-council-convening-conformance-vector",
   "requirement_ids": [

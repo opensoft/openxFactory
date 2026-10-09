@@ -540,3 +540,102 @@ def test_the_landed_family_references_only_loaded_documents(schemas):
     assert records.references_outside(schemas.family, schemas.digest_construction) == []
     assert records.DIGEST_CONSTRUCTION_ID + "#/$defs/digest" in list(
         records.reference_targets(schemas.shared))
+
+
+# --------------------------------------------------------------------------
+# M2: family YAML is read strictly; a repeated key is refused at load.
+# --------------------------------------------------------------------------
+
+def test_a_family_schema_with_a_repeated_key_is_refused_at_load(family_tree):
+    path = family_tree / FAMILY_REL / "shared-definitions.schema.yaml"
+    path.write_text(path.read_text(encoding="utf-8") + "kind: something-else\n",
+                    encoding="utf-8")
+    with pytest.raises(records.SchemaLoadError, match="strict YAML"):
+        records.load_schemas(family_tree)
+
+
+def test_a_registry_with_a_repeated_key_is_refused_at_load(family_tree):
+    from scripts.council_convening import classification
+
+    path = family_tree / FAMILY_REL / "protocol.registry.yaml"
+    path.write_text(path.read_text(encoding="utf-8") + "registry_version: 2\n",
+                    encoding="utf-8")
+    with pytest.raises(records.SchemaLoadError, match="strict YAML"):
+        classification.load_registry_doc(family_tree)
+
+
+# --------------------------------------------------------------------------
+# Formats: an explicit allowlist, and nothing the checker cannot assert.
+# --------------------------------------------------------------------------
+
+def test_the_format_checker_asserts_exactly_the_allowlist(schemas):
+    """`FormatChecker()` asserts whatever optional libraries happen to be
+    installed, so two machines could disagree; the family names its formats."""
+    assert records.ASSERTED_FORMATS == ("date-time",)
+    assert set(schemas.format_checker.checkers) == {"date-time"}
+
+
+@pytest.mark.parametrize("fmt", ["email", "uri", "hostname", "no-such-format"])
+def test_a_format_outside_the_allowlist_is_refused_at_load(family_tree, fmt):
+    path = family_tree / FAMILY_REL / "shared-definitions.schema.yaml"
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["$defs"]["probe"] = {"type": "string", "format": fmt}
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+    with pytest.raises(records.SchemaLoadError, match="format"):
+        records.load_schemas(family_tree)
+
+
+def test_loading_fails_closed_without_the_date_time_checker(monkeypatch):
+    """Without `rfc3339-validator`, jsonschema registers no `date-time`
+    checker, and calendar validity would silently go unchecked."""
+    from jsonschema import FormatChecker
+
+    monkeypatch.setattr(FormatChecker, "checkers",
+                        {k: v for k, v in FormatChecker.checkers.items() if k != "date-time"})
+    with pytest.raises(records.SchemaLoadError, match="rfc3339-validator"):
+        records.load_schemas()
+
+
+def _patterns(node):
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key == "pattern" and isinstance(value, str):
+                yield value
+            else:
+                yield from _patterns(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from _patterns(item)
+
+
+def _inner_dollars(pattern: str) -> int:
+    count = 0
+    for at, char in enumerate(pattern[:-1]):
+        if char == "$":
+            backslashes = len(pattern[:at]) - len(pattern[:at].rstrip("\\"))
+            count += backslashes % 2 == 0
+    return count
+
+
+def test_every_inner_dollar_in_a_family_pattern_is_a_reviewed_one(schemas):
+    """`whole_match` rewrites only a pattern's FINAL `$` (its known limit, L7).
+    Two patterns carry an inner `$`, each inside a NEGATIVE lookahead:
+    `relative_path`'s, refusing a `.` or `..` segment, and `decimal_string`'s,
+    refusing `-0`. Both are safe. Each pattern's characters exclude U+000A, and
+    Python's `$` only ADDS a match position (before a final newline), which
+    inside a negative lookahead can only add a refusal of a string the final
+    `\\Z` refuses anyway. Any other inner `$` fails here, for review, before it
+    can fail open."""
+    defs = schemas.shared["$defs"]
+    reviewed = {defs["relative_path"]["pattern"]: ("relative_path", ("..\n", "a/..\n", ".\n", "a/.\n", "a\n")),
+                defs["decimal_string"]["pattern"]: ("decimal_string", ("-0\n", "0\n", "1.5\n", "-0"))}
+    found = [p for doc in [*schemas.family.values(), schemas.digest_construction]
+             for p in _patterns(doc)]
+    assert found
+    inner = {pattern for pattern in found if _inner_dollars(pattern)}
+    assert inner == set(reviewed), inner - set(reviewed)
+    for pattern, (name, refused) in reviewed.items():
+        for value in refused:
+            assert malformed(schemas, name, value), (name, repr(value))
+    assert accepts(schemas, "decimal_string", "0")
+    assert accepts(schemas, "relative_path", "a/b")

@@ -50,6 +50,8 @@ Every value must also be admissible under `xfc-jcs-sha256-1`:
 
 A value that is not admissible is refused as `value_not_canonicalizable` before any digest is taken. A value probed alone against a grammar here (boundary `definition`) is refused as `value_malformed`. The same failure inside a record is that record's malformed code.
 
+*Added 2026-10-09 (Phase 1 review, reading 3): at boundary `definition` the grammar is checked first and admissibility second. A value that fails both is `value_malformed`, and a value is `value_not_canonicalizable` only where its grammar admits it, as a lone surrogate inside a `head_ref` or a `candidate` member is admitted.*
+
 ## E1. Protocol registry and classification (`protocol-registry.schema.yaml` + `protocol.registry.yaml`, Phase 1)
 
 Kind: `xfactory_council_protocol_registry`. A closed instance with exactly two entries. Adding an entry is a governed contract change. The status enumeration in the schema already holds every status either entry will ever take, so the releases change instance data only ([R19](research.md#r19--release-sequencing-and-the-two-cuts)).

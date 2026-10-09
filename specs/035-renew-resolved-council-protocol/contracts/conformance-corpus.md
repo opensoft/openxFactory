@@ -56,7 +56,7 @@ Coverage is checked against the vocabulary **as landed at the commit** (R16):
 
 `derived` holds known answers, so implementations compare more than a verdict:
 
-- for `classification`: the classification (`replacement` or `legacy`);
+- for `classification`: the classification (`replacement` or `legacy`), on an accept or a route. *Clarified 2026-10-09 (Phase 1 review, L2): a classification refusal carries `derived: {}`. Its refusal code already fixes the class wherever one exists, since `legacy_protocol_refused` is given only to a legacy record and `protocol_not_selected` only to a replacement record, and `protocol_unknown` has no class, so emitting it would add no agreement for any vector to check;*
 - for `accept` at commission or admission: `required_seats` and `convening_digest`;
 - for signing vectors: `signed_bytes` (unpadded base64url) and `key_fingerprint`.
 

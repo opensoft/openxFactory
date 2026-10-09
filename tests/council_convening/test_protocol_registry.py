@@ -57,7 +57,7 @@ LANDED_AT_PHASE_1 = [
              "block_member": "council_convening",
              "roster_member": "required_seats"},
             {"rule": "legacy_signing_context",
-             "member_paths": [["signing_context"], ["context", "signing_context"]]},
+             "member_paths": [["signature", "protocol"]]},
             {"rule": "root_authorization_member",
              "members": ["root_key_fingerprint", "root_signature", "authorization"]},
         ],
@@ -277,18 +277,64 @@ def test_rule_3a_a_convening_member_that_is_not_an_object_is_not_recognized(regi
     assert _classify(registry, {"council_convening": "merge-readiness"}) == "protocol_unknown"
 
 
+# The legacy seat result as it is really produced and read: codexFactory
+# `council_seat_signing.py` returns the three-key block, and Hermes
+# `review_authority.py` reads it under the seat result's `signature` member
+# (SIGNATURE_BLOCK_KEY, SIGNATURE_BLOCK_KEYS). The context string sits at
+# `signature.protocol`, and the seat result itself carries no `protocol`.
+SIG64 = "A" * 85 + "Q"
+HERMES_SEAT_RESULT = {
+    "seat": "security",
+    "result": "approve",
+    "rationale": "no finding",
+    "undispositioned_conditions": 0,
+    "signature": {"protocol": LEGACY, "key_fingerprint": FPR, "signature": SIG64},
+}
+
+
 @pytest.mark.parametrize("record", [
-    {"signing_context": "xfactory-council-seat-return/v1"},
-    {"signing_context": "xfactory-council-seat-key-authorization/v1"},
-    {"context": {"signing_context": "xfactory-council-seat-key-authorization/v1"}},
+    HERMES_SEAT_RESULT,
+    {"signature": {"protocol": "xfactory-council-seat-key-authorization/v1",
+                   "key_fingerprint": FPR, "signature": SIG64}},
 ])
-def test_rule_3b_a_legacy_signing_context_is_legacy(registry, record):
+def test_rule_3b_a_legacy_context_at_signature_protocol_is_legacy(registry, record):
     assert _classify(registry, record) == "legacy"
 
 
-def test_rule_3b_a_replacement_context_without_protocol_is_unknown(registry):
-    record = {"context": {"signing_context": "xfc-resolved-council-1/seat-return"}}
+@pytest.mark.parametrize("record", [
+    # No legacy artifact carries a `signing_context` member at either path the
+    # first reading guessed; neither is a recognition path.
+    {"signing_context": "xfactory-council-seat-return/v1"},
+    {"context": {"signing_context": "xfactory-council-seat-key-authorization/v1"}},
+    # A replacement context string is not in the legacy set.
+    {"signature": {"protocol": "xfc-resolved-council-1/seat-return",
+                   "key_fingerprint": FPR, "signature": SIG64}},
+    # A string-valued `signature`, as a replacement return carries, has no path.
+    {"seat": "security", "signature": SIG64},
+    {"signature": {"protocol": ["xfactory-council-seat-return/v1"]}},
+])
+def test_rule_3b_anything_else_is_unknown(registry, record):
     assert _classify(registry, record) == "protocol_unknown"
+
+
+def test_a_replacement_return_with_a_string_signature_is_replacement(registry):
+    record = {"protocol": REPLACEMENT, "kind": "xfactory_council_seat_return",
+              "signature": SIG64}
+    assert _classify(registry, record) == "replacement"
+
+
+def test_the_hermes_seat_result_routes_offline_and_under_a_legacy_selection(registry):
+    offline = classification.classify_and_select(HERMES_SEAT_RESULT, None, registry)
+    assert offline.as_expected()["outcome"] == "route"
+    assert offline.as_expected()["findings"] == ["legacy_protocol_routed"]
+    selected = classification.classify_and_select(
+        HERMES_SEAT_RESULT, LEGACY, registry, statuses={LEGACY: "in_use"})
+    assert selected.as_expected()["outcome"] == "route"
+
+
+def test_the_hermes_seat_result_is_refused_under_the_replacement_selection(registry):
+    outcome = classification.classify_and_select(HERMES_SEAT_RESULT, REPLACEMENT, registry)
+    assert (outcome.outcome, outcome.refusal) == ("refuse", "legacy_protocol_refused")
 
 
 @pytest.mark.parametrize("member", ["root_key_fingerprint", "root_signature",

@@ -18,10 +18,15 @@ T017. Four things live here, and every other module in the package uses them:
       `seat-alpha` plus a newline. A pattern's closing `$` is read as `\\Z`.
     - `x-max-utf8-bytes` bounds a string in UTF-8 BYTES, which `maxLength`, a
       count of code points, cannot say (`shared-definitions.schema.yaml`).
-  `format` is asserted, through a `FormatChecker` that must carry `date-time`:
-  jsonschema registers that checker only when `rfc3339-validator` is importable,
-  and a validator that silently skipped calendar validity would fail OPEN, so
-  loading fails instead.
+  `format` is asserted, through a `FormatChecker` built from the explicit
+  allowlist `ASSERTED_FORMATS` (only `date-time`), never from whatever optional
+  libraries are installed. jsonschema registers the `date-time` checker only
+  when `rfc3339-validator` is importable, and a validator that silently skipped
+  calendar validity would fail OPEN, so loading fails instead; a family schema
+  using any `format` outside the allowlist is refused at load for the same
+  reason.
+* Family YAML is read STRICTLY (`strict_yaml`): a repeated key is refused,
+  never resolved.
 * `check_canonicalizable` is the pre-check every digest is taken behind: a value
   `canonical.serialize` refuses is `value_not_canonicalizable`, before any digest
   exists.
@@ -42,13 +47,13 @@ from pathlib import Path
 from typing import Any, Iterator, Mapping
 from urllib.parse import urldefrag, urljoin
 
-import yaml
 from jsonschema import Draft202012Validator, FormatChecker, ValidationError
 from jsonschema import exceptions as jsonschema_exceptions
 from jsonschema import validators as jsonschema_validators
 from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT202012
 
+from ..hermes_runtime_validation.loader import YamlLoadError, load_yaml_bytes
 from ..signed_execution_chain import canonical
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -114,6 +119,15 @@ def whole_match(pattern: str) -> re.Pattern[str]:
 
     A `$` preceded by an odd number of backslashes is a literal dollar and is
     left alone.
+
+    KNOWN LIMIT: only the pattern's FINAL `$` is rewritten. A `$` inside an
+    alternation, a group or a lookahead keeps Python's meaning, which also
+    matches before a final newline. Two family patterns carry one, each inside a
+    NEGATIVE lookahead in a pattern whose characters exclude U+000A
+    (`relative_path`'s `.`/`..` segment refusal, `decimal_string`'s `-0`), where
+    the extra match can only add a refusal of a string already refused.
+    `tests/council_convening/test_shared_definitions.py` pins exactly those two;
+    any other would need this rewrite extended first.
     """
     if pattern.endswith("$"):
         backslashes = len(pattern[:-1]) - len(pattern[:-1].rstrip("\\"))
@@ -141,27 +155,63 @@ FamilyValidator = jsonschema_validators.extend(
 )
 
 
+#: The formats this family asserts, and the only ones its checker carries.
+#: `FormatChecker()` with no argument asserts whatever optional libraries happen
+#: to be installed (`rfc3986-validator`, `rfc3987-syntax`, `fqdn`, ...), so two
+#: machines could validate the same schema differently. A family schema that
+#: uses any other `format` is refused at load (`format_targets`).
+ASSERTED_FORMATS = ("date-time",)
+
+
 def _format_checker() -> FormatChecker:
-    checker = FormatChecker()
-    if "date-time" not in checker.checkers:
+    missing = [name for name in ASSERTED_FORMATS if name not in FormatChecker.checkers]
+    if missing:
         raise SchemaLoadError(
             "jsonschema has no date-time format checker: install rfc3339-validator "
             "(requirements/hermes-runtime-contracts.lock). Without it calendar "
             "validity would be skipped, which fails open")
-    return checker
+    return FormatChecker(formats=ASSERTED_FORMATS)
+
+
+def format_targets(node: Any) -> Iterator[str]:
+    """Every `format` keyword's value in a schema document, as written."""
+    if isinstance(node, Mapping):
+        for key, value in node.items():
+            if key == "format" and isinstance(value, str):
+                yield value
+            else:
+                yield from format_targets(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from format_targets(item)
 
 
 # --------------------------------------------------------------------------
 # Loading.
 # --------------------------------------------------------------------------
 
+def strict_yaml(raw: bytes, name: str) -> Any:
+    """`raw` parsed as JSON-compatible YAML, or `YamlLoadError` (a `ValueError`).
+
+    The Hermes runtime family's fail-closed loader, reused rather than copied: a
+    REPEATED KEY is refused, never resolved (a record carrying the legacy
+    `protocol` and then the replacement one would otherwise classify as
+    replacement), and so are aliases, anchors, merge keys, non-string keys and
+    implicit timestamps. The error names the file; callers report a
+    member-free message, since the loader's own text quotes the document.
+    """
+    return load_yaml_bytes(raw, name)
+
+
 def _load_yaml(path: Path) -> Any:
     try:
-        return yaml.safe_load(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeDecodeError) as exc:
+        raw = path.read_bytes()
+    except OSError as exc:
         raise SchemaLoadError(f"{path.name}: unreadable ({type(exc).__name__})") from exc
-    except yaml.YAMLError as exc:
-        raise SchemaLoadError(f"{path.name}: does not parse as YAML") from exc
+    try:
+        return strict_yaml(raw, path.name)
+    except YamlLoadError as exc:
+        raise SchemaLoadError(f"{path.name}: does not parse as strict YAML") from exc
 
 
 def _check_schema(name: str, document: Any) -> None:
@@ -312,11 +362,18 @@ def load_schemas(root: Path | None = None) -> SchemaSet:
     outside = references_outside(family, construction)
     if outside:
         raise SchemaLoadError(f"{outside[0]}, outside the loaded documents")
+    format_checker = _format_checker()
+    for name, document in [*family.items(), (construction_path.name, construction)]:
+        for fmt in format_targets(document):
+            if fmt not in format_checker.checkers:
+                raise SchemaLoadError(
+                    f"{name}: uses format {fmt!r}, which this family's checker does "
+                    f"not assert (ASSERTED_FORMATS); it would be skipped, which fails open")
     resources = [(doc["$id"], _registered_resource(name, doc))
                  for name, doc in [*family.items(), (construction_path.name, construction)]]
     registry = Registry().with_resources(resources)
     return SchemaSet(root=root, family=family, digest_construction=construction,
-                     registry=registry, format_checker=_format_checker())
+                     registry=registry, format_checker=format_checker)
 
 
 # --------------------------------------------------------------------------
