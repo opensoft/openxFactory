@@ -34,9 +34,13 @@ description: >-
   (`condition_unevaluable`, step 10). A record that fails this schema is
   `convening_malformed`, and so is one that carries only one of `class_inputs`
   and `matched_class`, a listing entry that is not also a file source, sources
-  out of bytewise path order or repeated, unsorted listing entries, or a
-  repeated `fact_sources` contract; those structural rules are the reference
-  implementation's, at step 2, because JSON Schema cannot state them.
+  out of bytewise path order or repeated, unsorted listing entries, a listing
+  entry that is not a file directly inside the listing with one of its
+  suffixes, a repeated `fact_sources` contract, or a consumed
+  `pr_facts.changed_paths` that is not bytewise sorted and duplicate-free
+  (Brett Heap, 2026-10-09T17:35:34Z, "Sorted and unique (Recommended)"); those
+  structural rules are the reference implementation's, at step 2, because
+  JSON Schema cannot state them.
 
   THE NORMATIVE EVALUATION ORDER is data-model E2's, steps 1 to 13 at both
   commission and admission, with admission-only steps between them. It begins
