@@ -65,6 +65,7 @@ from scripts.council_convening import (  # noqa: E402
     corpus,
     generate,
     records,
+    signing,
 )
 
 EXIT_OK = 0
@@ -77,7 +78,22 @@ ROUTED_CODE = "council-convening-legacy-protocol-routed"
 #: Record kinds whose schema has landed at this commit, mapped to it. Phase 1
 #: lands none of the protocol-carrying or judged-by-kind record schemas other
 #: than the registry's; each later phase adds its own.
-LANDED_RECORD_SCHEMAS: dict[str, str] = {}
+LANDED_RECORD_SCHEMAS: dict[str, str] = {
+    # Phase 4 (T048): the challenge, the key registration and the seat return.
+    signing.CHALLENGE_KIND: signing.CHALLENGE_SCHEMA_ID,
+    signing.REGISTRATION_KIND: signing.REGISTRATION_SCHEMA_ID,
+    signing.RETURN_KIND: signing.RETURN_SCHEMA_ID,
+}
+
+#: Per landed protocol-carrying kind: its offline check, and the rules it cannot
+#: run offline. A registration carries its own public key, so `check` verifies
+#: its proof; a return carries none, so its signature needs the registered key.
+OFFLINE_CHECKS = {
+    signing.CHALLENGE_KIND: (signing.check_challenge_offline, signing.CHALLENGE_STATE_RULES),
+    signing.REGISTRATION_KIND: (signing.check_registration_offline,
+                                signing.REGISTRATION_STATE_RULES),
+    signing.RETURN_KIND: (signing.check_return_offline, signing.RETURN_STATE_RULES),
+}
 
 
 def _say(line: str) -> None:
@@ -232,7 +248,19 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
         return error("council-convening-kind-unknown",
                      f"a replacement record {what}, whose schema has not landed at "
                      f"this commit"), False
-    return [], False  # pragma: no cover - no record schema lands in Phase 1
+    if kind in OFFLINE_CHECKS:
+        offline, state_rules = OFFLINE_CHECKS[kind]
+        try:
+            notes = offline(document, schemas)
+        except records.Refused as refused:
+            return error(_refusal_code(refused.code),
+                         f"refused at {refused.member} (offline rules of {kind})"), False
+        for note in notes:
+            _say(f"note  {path}: {note}")
+        for rule in state_rules:
+            _say(f"note  not checkable offline: {path}: {rule}")
+        return [], False
+    return [], False  # pragma: no cover - every landed kind has an offline check
 
 
 def check(paths: list[str], root: Path, strict: bool) -> int:

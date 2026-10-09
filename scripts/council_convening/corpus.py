@@ -34,8 +34,9 @@ refused rather than resolved, because two readers that resolved them differently
 would disagree on what a vector says.
 
 THE DISPATCH TABLE. Phase 1 registers `definition` and `classification`. Each
-later phase registers its boundaries from its own module through
-`register_handler`, naming the oracles its vectors may carry.
+later phase registers its boundaries through `register_handler`, naming the
+oracles its vectors may carry. Phase 4 registers `registration`, `return` and
+`completion` here, over `signing`.
 """
 
 from __future__ import annotations
@@ -284,6 +285,100 @@ def _classification(vector: Mapping[str, Any], context: Context) -> records.Outc
 
 register_handler("definition", _definition)
 register_handler("classification", _classification, oracles=("registry_status",))
+
+
+# --------------------------------------------------------------------------
+# Phase 4 (T048): `registration`, `return` and `completion` (data-model E7, E8).
+# --------------------------------------------------------------------------
+
+from . import signing  # noqa: E402  (signing imports records and classification only)
+
+
+def _selected(inputs: Mapping[str, Any], context: Context) -> str | None:
+    selected = inputs["selected_protocol"]
+    if selected is not None and selected not in context.registry.entries:
+        raise VectorInputError("inputs.selected_protocol names no registry entry")
+    return selected
+
+
+def _object(value: Any, name: str) -> Mapping[str, Any]:
+    if not isinstance(value, dict):
+        raise VectorInputError(f"{name} is not an object")
+    return value
+
+
+def _snapshot(value: Any) -> Mapping[str, Any]:
+    snapshot = _object(value, "inputs.snapshot")
+    if not isinstance(snapshot.get("assignments"), list):
+        raise VectorInputError("inputs.snapshot carries no list of assignments")
+    return snapshot
+
+
+def _signed(call, selected: str | None, context: Context) -> records.Outcome:
+    """Run one signing boundary and say its answer as an `Outcome`. A refusal
+    under a legacy selection is classification's, which read the legacy
+    status; nothing later can run under a legacy selection."""
+    status_read = selected is not None and selected == context.registry.legacy_id
+    try:
+        derived = call()
+    except signing.Routed as routed:
+        return routed.outcome
+    except records.Refused as refused:
+        return records.Outcome("refuse", refused.code, status_read=status_read)
+    except classification.EffectNotLanded as exc:
+        raise NotAdjudicable(str(exc)) from None
+    except (signing.InconsistentEnvironment, KeyError, TypeError) as exc:
+        raise VectorInputError(f"the vector's inputs or oracles are inconsistent "
+                               f"({type(exc).__name__})") from None
+    return records.Outcome("accept", derived=derived)
+
+
+def _registration(vector: Mapping[str, Any], context: Context) -> records.Outcome:
+    inputs = join_parts(_closed_inputs(vector["inputs"], (
+        "registration", "snapshot", "bindings", "selected_protocol")))
+    environment = join_parts(dict(vector.get("environment", {})))
+    _statuses(environment, context)
+    selected = _selected(inputs, context)
+    if not isinstance(inputs["bindings"], list):
+        raise VectorInputError("inputs.bindings is not a list")
+    snapshot = _snapshot(inputs["snapshot"])
+    return _signed(lambda: signing.check_registration(
+        inputs["registration"], snapshot=snapshot, bindings=inputs["bindings"],
+        environment=environment, evaluation_time=vector["evaluation_time"],
+        selected_protocol=selected, schemas=context.schemas, registry=context.registry),
+        selected, context)
+
+
+def _return(vector: Mapping[str, Any], context: Context) -> records.Outcome:
+    inputs = join_parts(_closed_inputs(vector["inputs"], (
+        "return", "snapshot", "selected_protocol")))
+    environment = join_parts(dict(vector.get("environment", {})))
+    _statuses(environment, context)
+    selected = _selected(inputs, context)
+    snapshot = _snapshot(inputs["snapshot"])
+    return _signed(lambda: signing.check_return(
+        inputs["return"], snapshot=snapshot, environment=environment,
+        evaluation_time=vector["evaluation_time"], selected_protocol=selected,
+        schemas=context.schemas, registry=context.registry), selected, context)
+
+
+def _completion(vector: Mapping[str, Any], context: Context) -> records.Outcome:
+    inputs = join_parts(_closed_inputs(vector["inputs"], ("snapshot", "returns")))
+    snapshot = _snapshot(inputs["snapshot"])
+    returns = inputs["returns"]
+    if not isinstance(returns, list) or not all(isinstance(r, dict) for r in returns):
+        raise VectorInputError("inputs.returns is not a list of records")
+    # The `rules` oracle a completion vector may carry is never read: completion
+    # follows the frozen snapshot, so a rule changed after freezing changes
+    # nothing (US2 scenario 4). The vector carries it to show exactly that.
+    return _signed(lambda: signing.check_completion(
+        snapshot, returns, environment=vector.get("environment")), None, context)
+
+
+register_handler("registration", _registration, oracles=(
+    "issued", "identity", "repository_identity", "governed_history", "registry_status"))
+register_handler("return", _return, oracles=("issued", "registry_status"))
+register_handler("completion", _completion, oracles=("rules",))
 
 
 # --------------------------------------------------------------------------
