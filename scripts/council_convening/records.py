@@ -7,8 +7,9 @@ T017. Four things live here, and every other module in the package uses them:
   one `referencing.Registry` keyed by `$id`, so no reference is resolved off the
   network or off a guessed path, and every `$ref` must name a loaded document
   (`references_outside`). The registry serves each document WITHOUT its
-  `$schema` header, so the family validator below holds at every depth of a
-  `$ref` into a whole document (`_registered_resource`).
+  `$schema` header (`_registered_resource`), and a document carrying `$schema`
+  or `$id` BELOW its root is refused (`headers_below_root`), so the family
+  validator below holds at every depth of every document.
 * The VALIDATOR CLASS extends `Draft202012Validator` in exactly two places, and
   both make the reference implementation read the contract the way the contract
   is written:
@@ -223,6 +224,32 @@ def _check_schema(name: str, document: Any) -> None:
         raise SchemaLoadError(f"{name}: is not a valid 2020-12 schema") from exc
 
 
+RESOURCE_HEADERS = ("$schema", "$id")
+
+
+def headers_below_root(document: Any) -> list[str]:
+    """Where `$schema` or `$id` appears BELOW `document`'s root, as `/`-joined
+    member paths. 2020-12 allows `$schema` only at a resource root, and the
+    metaschema check does not enforce it; jsonschema re-selects the validator
+    class at ANY subschema that carries one, so a nested `$schema` would hand
+    that subtree back to the plain dialect validator. An embedded `$id` opens a
+    resource `references_outside` does not track. Both are refused at load."""
+    found: list[str] = []
+
+    def walk(node: Any, at: tuple[str, ...]) -> None:
+        if isinstance(node, Mapping):
+            for key, value in node.items():
+                if at and key in RESOURCE_HEADERS:
+                    found.append("/".join((*at, str(key))))
+                walk(value, (*at, str(key)))
+        elif isinstance(node, list):
+            for index, item in enumerate(node):
+                walk(item, (*at, str(index)))
+
+    walk(document, ())
+    return found
+
+
 def reference_targets(node: Any) -> Iterator[str]:
     """Every `$ref` and `$dynamicRef` string in a schema document, as written."""
     if isinstance(node, Mapping):
@@ -268,6 +295,7 @@ def _registered_resource(name: str, document: dict) -> Resource:
     `Draft202012Validator` for that document and everything beneath it, and
     whole-string `pattern` and `x-max-utf8-bytes` silently stopped applying: a
     record validated FAIL OPEN. With no `$schema` in what the registry serves,
+    and none below any root (`headers_below_root`, refused at load),
     `validator_for` keeps the family validator at every depth.
 
     The header is dropped only because it names the one dialect
@@ -359,6 +387,12 @@ def load_schemas(root: Path | None = None) -> SchemaSet:
     if construction.get("$id") != DIGEST_CONSTRUCTION_ID:
         raise SchemaLoadError(f"{construction_path.name}: unexpected $id")
 
+    for name, document in [*family.items(), (construction_path.name, construction)]:
+        nested = headers_below_root(document)
+        if nested:
+            raise SchemaLoadError(
+                f"{name}: carries {nested[0].rsplit('/', 1)[-1]} below its root, at "
+                f"{nested[0]}; a resource header belongs only at a document's root")
     outside = references_outside(family, construction)
     if outside:
         raise SchemaLoadError(f"{outside[0]}, outside the loaded documents")

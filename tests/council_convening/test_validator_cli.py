@@ -162,7 +162,7 @@ def test_strict_is_accepted_and_changes_nothing_at_phase_1():
 def test_check_routes_a_legacy_record_with_exit_3(tmp_path):
     path = _write(tmp_path, "legacy.json",
                   {"protocol": LEGACY, "key_fingerprint": FPR, "signature": "sig"})
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 3, result.stdout + result.stderr
     assert "council-convening-legacy-protocol-routed" in result.stdout
     assert "ERROR [" not in result.stdout
@@ -176,7 +176,7 @@ def test_check_routes_the_real_legacy_seat_result_with_exit_3(tmp_path):
         "undispositioned_conditions": 0,
         "signature": {"protocol": LEGACY, "key_fingerprint": FPR,
                       "signature": "A" * 85 + "Q"}})
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 3, result.stdout + result.stderr
     assert "council-convening-legacy-protocol-routed" in result.stdout
 
@@ -185,7 +185,7 @@ def test_check_routes_a_roster_less_envelope_in_yaml(tmp_path):
     path = _write(tmp_path, "envelope.yaml", {"council_convening": {
         "council_id": "merge-readiness", "subject_pin": SHA,
         "packet_refs": ["opensoft/openxFactory#1268"]}})
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 3, result.stdout + result.stderr
 
 
@@ -195,21 +195,21 @@ def test_check_refuses_a_replacement_record_of_a_kind_not_landed(tmp_path):
     path = _write(tmp_path, "snapshot.json", {
         "schema_version": 1, "kind": "xfactory_council_convening_snapshot",
         "protocol": REPLACEMENT, "convening_id": "convening-1"})
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1, result.stdout + result.stderr
     assert "ERROR [council-convening-kind-unknown]" in result.stdout
 
 
 def test_check_refuses_a_kind_less_replacement_record(tmp_path):
     path = _write(tmp_path, "bare.json", {"protocol": REPLACEMENT})
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-kind-unknown]" in result.stdout
 
 
 def test_check_refuses_an_unknown_protocol(tmp_path):
     path = _write(tmp_path, "unknown.json", {"protocol": "xfc-resolved-council-2"})
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-protocol-unknown]" in result.stdout
 
@@ -229,7 +229,7 @@ def test_check_refuses_a_registry_that_gained_an_entry(tmp_path):
                  protocol_id="xfc-resolved-council-2")  # a deep copy: no YAML alias
     doc["protocols"].append(extra)
     path = _write(tmp_path, "registry.yaml", doc)
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-registry-closure]" in result.stdout
 
@@ -238,7 +238,7 @@ def test_check_refuses_a_registry_tag_with_a_trailing_newline(tmp_path):
     doc = yaml.safe_load(PROTOCOL_REGISTRY.read_text(encoding="utf-8"))
     doc["protocols"][1]["introduced_in"] = "contract-v4.0\n"
     path = _write(tmp_path, "registry.yaml", doc)
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1, result.stdout + result.stderr
     assert "ERROR [council-convening-schema]" in result.stdout
     assert "protocols/1/introduced_in" in result.stdout
@@ -248,7 +248,7 @@ def test_check_refuses_a_judged_by_kind_record_whose_schema_has_not_landed(tmp_p
     path = _write(tmp_path, "binding.json", {
         "schema_version": 1, "kind": "xfactory_council_producer_binding",
         "binding_id": "commission"})
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-kind-unknown]" in result.stdout
     assert "protocol-unknown" not in result.stdout
@@ -257,7 +257,7 @@ def test_check_refuses_a_judged_by_kind_record_whose_schema_has_not_landed(tmp_p
 def test_check_with_a_route_and_an_error_exits_1(tmp_path):
     legacy = _write(tmp_path, "legacy.json", {"protocol": LEGACY})
     unknown = _write(tmp_path, "unknown.json", {"protocol": "nope"})
-    result = run_validator("check", str(legacy), str(unknown))
+    result = run_validator("check", str(legacy), str(unknown), cwd=tmp_path)
     assert result.returncode == 1
     assert "council-convening-legacy-protocol-routed" in result.stdout
     assert "ERROR [council-convening-protocol-unknown]" in result.stdout
@@ -266,13 +266,13 @@ def test_check_with_a_route_and_an_error_exits_1(tmp_path):
 def test_check_on_an_unparseable_record_is_a_schema_finding(tmp_path):
     path = tmp_path / "broken.json"
     path.write_text("{not json\n", encoding="utf-8")
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-schema]" in result.stdout
 
 
 def test_check_on_an_unreadable_path_exits_2(tmp_path):
-    result = run_validator("check", str(tmp_path / "absent.json"))
+    result = run_validator("check", str(tmp_path / "absent.json"), cwd=tmp_path)
     assert result.returncode == 2
     assert "ERROR [" not in result.stdout
 
@@ -285,7 +285,7 @@ def test_check_says_exit_0_covers_the_offline_rules_only():
 def test_check_never_echoes_a_record_value(tmp_path):
     value = "xfc-" + "Q" * 60 + "-distinctive"
     path = _write(tmp_path, "echo.json", {"protocol": value})
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
     assert value not in result.stdout + result.stderr
 
@@ -374,7 +374,7 @@ def _commission_record(case_id: str = "commission-accept-conditional-seat-held")
 @pytest.fixture(scope="module")
 def checked_commission_record(tmp_path_factory):
     path = _write(tmp_path_factory.mktemp("e2"), "convening.json", _commission_record())
-    return run_validator("check", str(path))
+    return run_validator("check", str(path), cwd=path.parent)
 
 
 def test_the_self_test_prints_the_predicate_registry_note(self_test):
@@ -429,7 +429,7 @@ def test_check_refuses_an_offline_checkable_defect(tmp_path, mutate, finding):
     record = _commission_record()
     mutate(record)
     path = _write(tmp_path, "convening.json", record)
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1, result.stdout + result.stderr
     assert f"ERROR [{finding}]" in result.stdout
 
@@ -437,7 +437,7 @@ def test_check_refuses_an_offline_checkable_defect(tmp_path, mutate, finding):
 def test_a_malformed_commission_record_also_names_the_schema_finding(tmp_path):
     record = _commission_record()
     record["notes"] = "x"
-    result = run_validator("check", str(_write(tmp_path, "convening.json", record)))
+    result = run_validator("check", str(_write(tmp_path, "convening.json", record)), cwd=tmp_path)
     assert "ERROR [council-convening-schema]" in result.stdout
 
 
@@ -446,7 +446,7 @@ def test_check_refuses_a_secret_without_echoing_it(tmp_path):
     secret = "notes/gh" + "p_" + "A1b2C3d4E5f6G7h8I9j0K1l2"
     record["required_seats_provenance"]["consumed_facts"]["pr_facts"]["changed_paths"].append(
         secret)
-    result = run_validator("check", str(_write(tmp_path, "convening.json", record)))
+    result = run_validator("check", str(_write(tmp_path, "convening.json", record)), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-secret-bearing-fact]" in result.stdout
     assert secret not in result.stdout + result.stderr
@@ -465,7 +465,7 @@ def test_check_refuses_a_predicate_registry_that_gained_a_predicate(tmp_path):
     # A deep copy: a shared sub-object would be dumped as a YAML alias, which the
     # strict loader refuses before closure is ever judged (M2).
     doc["predicates"].append(dict(copy.deepcopy(doc["predicates"][0]), predicate="paths_touch_any"))
-    result = run_validator("check", str(_write(tmp_path, "predicates.yaml", doc)))
+    result = run_validator("check", str(_write(tmp_path, "predicates.yaml", doc)), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-registry-closure]" in result.stdout
 
@@ -499,7 +499,7 @@ ID_BASE = "https://xforge.us/schemas/openxfactory/council-convening/v1/"
 ])
 def test_check_judges_a_document_labelled_as_a_corpus_index(tmp_path, document):
     path = _write(tmp_path, "index.json", document)
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1, result.stdout + result.stderr
     assert "ERROR [council-convening-index-closure]" in result.stdout
 
@@ -518,7 +518,7 @@ def _route_vector() -> dict:
 
 def test_check_adjudicates_a_vector(tmp_path):
     path = _write(tmp_path, "vector.json", _route_vector())
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "vector adjudicated to its expected outcome" in result.stdout
     assert "the self-test adjudicates it" not in result.stdout
@@ -529,7 +529,7 @@ def test_check_refuses_a_vector_whose_expectation_the_reference_contradicts(tmp_
     vector["expected"] = {"outcome": "accept", "refusal": None, "findings": [],
                           "derived": {"classification": "legacy"}, "derived_origin": "hand"}
     path = _write(tmp_path, "vector.json", vector)
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1, result.stdout + result.stderr
     assert "ERROR [council-convening-vector-outcome-mismatch]" in result.stdout
 
@@ -542,7 +542,7 @@ def _schema_doc(**changes) -> dict:
 
 
 def test_check_accepts_a_family_schema_with_the_house_header(tmp_path):
-    result = run_validator("check", str(_write(tmp_path, "probe.yaml", _schema_doc())))
+    result = run_validator("check", str(_write(tmp_path, "probe.yaml", _schema_doc())), cwd=tmp_path)
     assert result.returncode == 0, result.stdout + result.stderr
 
 
@@ -558,7 +558,7 @@ def test_check_accepts_a_family_schema_with_the_house_header(tmp_path):
 ])
 def test_check_refuses_a_schema_kind_document_without_the_house_header(tmp_path, changes):
     path = _write(tmp_path, "probe.yaml", _schema_doc(**changes))
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1, result.stdout + result.stderr
     assert "ERROR [council-convening-schema]" in result.stdout
 
@@ -570,7 +570,7 @@ def test_check_refuses_a_schema_kind_document_without_the_house_header(tmp_path,
 @pytest.mark.parametrize("kind", [["xfactory_council_seat_return"], {"a": 1}, 7])
 def test_check_refuses_a_kind_that_is_not_a_string(tmp_path, kind):
     path = _write(tmp_path, "record.json", {"kind": kind, "protocol": LEGACY})
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1, result.stdout + result.stderr
     assert "Traceback" not in result.stderr
     assert "ERROR [council-convening-schema]" in result.stdout
@@ -589,8 +589,10 @@ def _unclose_the_registry(root: Path) -> None:
     path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
 
 
-def test_check_refuses_to_classify_against_an_unclosed_registry(family_tree, tmp_path, capsys):
+def test_check_refuses_to_classify_against_an_unclosed_registry(family_tree, tmp_path, capsys,
+                                                                monkeypatch):
     _unclose_the_registry(family_tree)
+    monkeypatch.chdir(tmp_path)
     record = _write(tmp_path, "record.json", {"protocol": LEGACY})
     assert load_validator().main(["check", str(record)], root=family_tree) == 1
     out = capsys.readouterr().out
@@ -653,10 +655,74 @@ def test_check_refuses_a_yaml_record_with_a_repeated_key(tmp_path):
     path = tmp_path / "record.yaml"
     path.write_text(f"protocol: {LEGACY}\nprotocol: {REPLACEMENT}\nkind: xfactory_council_convening\n",
                     encoding="utf-8")
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1, result.stdout + result.stderr
     assert "ERROR [council-convening-schema]" in result.stdout
     assert "strict YAML" in result.stdout
+
+
+# --------------------------------------------------------------------------
+# `check` reads only inside the directory it was invoked from (Sonar
+# pythonsecurity:S8707: a CLI an agent drives must not read where it is told).
+# --------------------------------------------------------------------------
+
+def test_check_refuses_a_path_outside_the_invocation_directory(tmp_path):
+    outside = _write(tmp_path, "record.json", {"protocol": LEGACY})
+    inner = tmp_path / "inner"
+    inner.mkdir()
+    for given in (str(outside), "../record.json", str(inner / ".." / "record.json")):
+        result = run_validator("check", given, cwd=inner)
+        assert result.returncode == 2, (given, result.stdout + result.stderr)
+        assert "outside the directory check was invoked from" in result.stderr
+        assert "ERROR [" not in result.stdout
+
+
+def test_check_refuses_a_symlink_that_leaves_the_invocation_directory(tmp_path):
+    outside = _write(tmp_path, "record.json", {"protocol": LEGACY})
+    inner = tmp_path / "inner"
+    inner.mkdir()
+    (inner / "link.json").symlink_to(outside)
+    result = run_validator("check", "link.json", cwd=inner)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "outside the directory check was invoked from" in result.stderr
+
+
+def test_check_reads_a_relative_path_inside_the_invocation_directory(tmp_path):
+    (tmp_path / "records").mkdir()
+    _write(tmp_path / "records", "record.json", {"protocol": LEGACY})
+    result = run_validator("check", "records/record.json", cwd=tmp_path)
+    assert result.returncode == 3, result.stdout + result.stderr
+
+
+# --------------------------------------------------------------------------
+# A family schema in `check`: no resource header below its root, and every
+# `$ref` naming a loaded document, as at load.
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("extra", [
+    {"$defs": {"x": {"$schema": DIALECT, "type": "string"}}},
+    {"$defs": {"x": {"$id": ID_BASE + "x.schema.yaml", "type": "string"}}},
+    {"properties": {"a": {"$ref": "https://example.invalid/other.schema.yaml"}}},
+    {"properties": {"a": {"$ref": DIALECT}}},
+])
+def test_check_refuses_a_family_schema_with_a_nested_header_or_an_outside_reference(
+        tmp_path, extra):
+    document = _schema_doc()
+    document.update(extra)
+    path = _write(tmp_path, "probe.yaml", document)
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-schema]" in result.stdout
+
+
+def test_check_accepts_a_family_schema_that_references_the_shared_definitions(tmp_path):
+    document = _schema_doc()
+    document["properties"] = {"a": {"$ref": ID_BASE + "shared-definitions.schema.yaml#/$defs/opaque_id"},
+                              "b": {"$ref": "#/$defs/local"}}
+    document["$defs"] = {"local": {"type": "string"}}
+    path = _write(tmp_path, "probe.yaml", document)
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 # --------------------------------------------------------------------------
@@ -702,7 +768,7 @@ def _seat_return(tmp_path: Path, mutate=None) -> Path:
 
 
 def test_check_verifies_a_registrations_proof_offline(tmp_path):
-    result = run_validator("check", str(_registration(tmp_path)))
+    result = run_validator("check", str(_registration(tmp_path)), cwd=tmp_path)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "ERROR [" not in result.stdout
     assert any(line.startswith("note  ") and "proof verified" in line
@@ -712,28 +778,28 @@ def test_check_verifies_a_registrations_proof_offline(tmp_path):
 def test_check_refuses_a_registration_whose_proof_does_not_verify(tmp_path):
     other = sfx.key("seat-a", 2)
     path = _registration(tmp_path, lambda r: sfx.sign_registration(r, other))
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1, result.stdout + result.stderr
     assert "ERROR [council-convening-proof-invalid]" in result.stdout
 
 
 def test_check_refuses_a_registration_whose_fingerprint_does_not_recompute(tmp_path):
     path = _registration(tmp_path, lambda r: r.update(key_fingerprint=FPR))
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-fingerprint-mismatch]" in result.stdout
 
 
 def test_check_refuses_a_registration_carrying_root_authorization(tmp_path):
     path = _registration(tmp_path, lambda r: r.update(root_signature="A" * 85 + "Q"))
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-root-authorization-refused]" in result.stdout
 
 
 def test_check_refuses_a_malformed_registration(tmp_path):
     path = _registration(tmp_path, lambda r: r.pop("proof"))
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-registration-malformed]" in result.stdout
 
@@ -742,42 +808,42 @@ def test_check_refuses_a_registration_context_of_another_seat(tmp_path):
     def mutate(record):
         record["context"]["assignment_id"] = sfx.assignment_id("seat-b")
         sfx.sign_registration(record, sfx.key("seat-a"))
-    result = run_validator("check", str(_registration(tmp_path, mutate)))
+    result = run_validator("check", str(_registration(tmp_path, mutate)), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-cross-seat-context]" in result.stdout
 
 
 @pytest.mark.parametrize("rule", REGISTRATION_STATE_RULES)
 def test_check_reports_the_registration_state_rules_as_not_offline_checkable(tmp_path, rule):
-    result = run_validator("check", str(_registration(tmp_path)))
+    result = run_validator("check", str(_registration(tmp_path)), cwd=tmp_path)
     assert (f"note  [council-convening-not-offline-checkable] "
             f"{tmp_path / 'registration.json'}: not checkable offline: {rule}") in (
         result.stdout.splitlines()), result.stdout
 
 
 def test_check_recomputes_a_returns_digest_offline(tmp_path):
-    result = run_validator("check", str(_seat_return(tmp_path)))
+    result = run_validator("check", str(_seat_return(tmp_path)), cwd=tmp_path)
     assert result.returncode == 0, result.stdout + result.stderr
     assert any("return digest recomputed" in line for line in result.stdout.splitlines())
 
 
 def test_check_refuses_a_return_whose_payload_moved(tmp_path):
     path = _seat_return(tmp_path, lambda r: r["payload"].update(seat="seat-b"))
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-return-digest-mismatch]" in result.stdout
 
 
 def test_check_refuses_a_return_with_a_float_in_its_payload(tmp_path):
     path = _seat_return(tmp_path, lambda r: r["payload"].update(cost=0.5))
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-value-not-canonicalizable]" in result.stdout
 
 
 @pytest.mark.parametrize("rule", RETURN_STATE_RULES)
 def test_check_reports_the_return_state_rules_as_not_offline_checkable(tmp_path, rule):
-    result = run_validator("check", str(_seat_return(tmp_path)))
+    result = run_validator("check", str(_seat_return(tmp_path)), cwd=tmp_path)
     assert (f"note  [council-convening-not-offline-checkable] "
             f"{tmp_path / 'return.json'}: not checkable offline: {rule}") in (
         result.stdout.splitlines()), result.stdout
@@ -785,10 +851,10 @@ def test_check_reports_the_return_state_rules_as_not_offline_checkable(tmp_path,
 
 def test_check_judges_an_issued_challenge_against_e6_and_its_ceiling(tmp_path):
     challenge = sfx.challenge("seat-a", sfx.key("seat-a").public_key)
-    ok = run_validator("check", str(_write(tmp_path, "challenge.json", challenge)))
+    ok = run_validator("check", str(_write(tmp_path, "challenge.json", challenge)), cwd=tmp_path)
     assert ok.returncode == 0, ok.stdout + ok.stderr
     challenge["expires_at"] = "2026-10-09T01:05:01Z"
-    over = run_validator("check", str(_write(tmp_path, "challenge-601.json", challenge)))
+    over = run_validator("check", str(_write(tmp_path, "challenge-601.json", challenge)), cwd=tmp_path)
     assert over.returncode == 1
     assert "ERROR [council-convening-challenge-malformed]" in over.stdout
 
@@ -797,6 +863,6 @@ def test_check_routes_a_legacy_root_authorized_registration(tmp_path):
     def mutate(record):
         del record["protocol"]
         record["root_signature"] = "A" * 85 + "Q"
-    result = run_validator("check", str(_registration(tmp_path, mutate)))
+    result = run_validator("check", str(_registration(tmp_path, mutate)), cwd=tmp_path)
     assert result.returncode == 3, result.stdout + result.stderr
     assert "council-convening-legacy-protocol-routed" in result.stdout

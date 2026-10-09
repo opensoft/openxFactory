@@ -46,7 +46,7 @@ The 17 passes are not implementation. 11 are pins on behaviour `canonical.serial
 ### The key-fingerprint spelling, corrected on Brett Heap's ruling (2026-10-09T02:40Z)
 
 - **The ruling.** Brett Heap, 2026-10-09T02:36:50Z, *"Estate spelling (Recommended)"*: `key_fingerprint` is `sha256:` + `sha256(raw 32-byte public key)`, as openXwallet `fingerprint_of_public_key` and codexFactory `key_fingerprint` compute it, and as T047 names it (RULED, log line 248, read at brett-wip `6e174ca8`, 2026-10-09T02:58:49Z).
-- **What Phase 1 had.** The labelled fixture keys' `fingerprint` returned `sha256:` + the raw key's own hex, following data-model E1's wording at line 36.
+- **What Phase 1 had.** The labelled fixture keys' `fingerprint` returned `sha256:` + the raw key's own hex, following data-model § Shared definitions' wording at line 36 (the `key_fingerprint` row).
 - **What the estate computes.** Both estate functions hash the key:
   - openXwallet `scripts/validate-openxwallet.py:536-541`, at openXwallet `f3eb929b` (the commit openxFactory pins), returns `"sha256:" + hashlib.sha256(raw).hexdigest()`;
   - codexFactory `.github/workflows/scripts/council_seat_signing.py:199-205`, at codexFactory `48d0560e`, returns `sha256_digest(public_key_raw)`, the same expression (`:168-170`).
@@ -60,7 +60,7 @@ The 17 passes are not implementation. 11 are pins on behaviour `canonical.serial
 - **Test first.** The assertion was corrected to `"sha256:" + hashlib.sha256(first.public_key).hexdigest()` and run red: 1 failed (`'sha256:026a9…' == 'sha256:5df2e…'`). Only then was the generator changed.
 - **Regenerated.** `python3 -m scripts.council_convening.generate`, then `--check`: no corpus byte moved (`7255303a7`).
 - **The documents.**
-  - data-model E1 line 36 carries a dated correction citing the ruling, T047 and both estate functions.
+  - data-model § Shared definitions, line 36 (the `key_fingerprint` row), carries a dated correction citing the ruling, T047 and both estate functions.
   - research.md:32 and plan.md:63 stated the same wrong spelling and carry the same dated correction, so the three documents agree.
 - **The known answer is pinned as literals, not recomputed** (`test_the_fixture_key_known_answer`, `a1375ac96`):
   - label `seat-alpha`;
@@ -218,6 +218,46 @@ The new tests ran red with 43 failed and 56 passed among those selected. That in
   - the digest `$ref` test allows a `description` annotation beside the `$ref`;
   - the gate-wiring test separates the negated `! grep` pattern from the required ones.
 - **Local runs.** Local pytest runs used `-p no:cacheprovider`, so that no `.pytest_cache` was written into the worktree.
+
+### The delta review of `a1375ac96`, and SonarCloud on #1284 (2026-10-09T13:25Z onward)
+
+The reviewer's delta review of `a1375ac96` returned READY AFTER FIXES. Every required check on #1284 at `3672b4e49` was green, but SonarCloud's quality gate failed on `new_security_rating` = 3 because of two new MAJOR issues. Each fix below was written test-first: the new tests ran red with 10 failed, alongside 168 that passed.
+
+- **MEDIUM: a `$schema` below a document's root still switched the dialect.**
+  - **Reproduced first.** In a copied tree, the reviewer's probe put `$schema: https://json-schema.org/draft/2020-12/schema` inside `$defs/opaque_id`. The schemas loaded, and `check_definition("opaque_id", "x\n")` ACCEPTED the value.
+  - **Why.** 2020-12 allows `$schema` only at a resource root, but the metaschema check does not enforce that, and jsonschema re-selects the validator class at any subschema carrying one. The "at every depth" in `_registered_resource`'s docstring was therefore untrue.
+  - **The fix.** `records.headers_below_root` walks each document. Loading refuses any `$schema` or `$id` below its root, and `check`'s family-schema judgement flags it too. An embedded `$id` is refused for the reason `references_outside` already assumed: such a resource is one it does not track.
+  - **Now.** The reviewer's probe is refused at load: `shared-definitions.schema.yaml: carries $schema below its root, at $defs/opaque_id/$schema`. A test injects the nested header three ways: `$schema` and `$id` in the shared definitions, and a draft-07 `$schema` in the registry schema.
+- **LOW: the pointers.** plan.md:63, research.md:32 and this record said "data-model E1 `key_fingerprint`", but that row lives in data-model § Shared definitions, and the pointers now say so.
+- **LOW: a vector's name.**
+  - `cls-offline-replacement-string-signature-accept` carries a `protocol` member, so it never reached the `signature.protocol` path its name suggests. It is renamed `cls-offline-replacement-protocol-with-string-signature-accept`, since rule 1 decides it.
+  - New: `cls-offline-string-signature-without-protocol-refuse`. A seat result with no `protocol` member and a string `signature` is `protocol_unknown`, because recognition rule (b)'s path cannot reach into a string.
+- **LOW: `check` on a family schema now runs the same `$ref` closure that load runs.** A `$ref` to a dialect metaschema or to an unloaded document is refused, and a `$ref` to the shared definitions or into the document itself is accepted.
+- **Vectors changed their expectation after implementation, because of B1.** The red run of 2026-10-09T01:41Z measured against vectors authored on the first reading of recognition rule (b), which was `signing_context` and `context.signing_context`.
+  - B1's evidence-based reading moves the rule to `signature.protocol`: the legacy seat result as codexFactory `council_seat_signing.py` writes it and Hermes `review_authority.py` reads it (§ The independent PR-1 review's fixes).
+  - **Removed:** the two `signing_context` route vectors, `cls-offline-legacy-signing-context-route` and `cls-offline-legacy-nested-signing-context-route`.
+  - **Expectation changed:** the record of the first of them now expects `refuse protocol_unknown`, not `route`, as `cls-offline-signing-context-member-refuse`.
+  - **Inputs re-shaped onto the real path, outcomes unchanged:** `cls-offline-replacement-context-without-protocol-refuse` and `cls-offline-replacement-with-legacy-shapes-accept`.
+  - No other vector moved.
+- **SonarCloud `pythonsecurity:S8707` at `scripts/validate-council-convening.py:178`: path injection through a CLI an agent may drive.**
+  - **The fix.** `check` now reads a PATH only after `_within_invocation_directory` canonicalizes it with `os.path.realpath`, which resolves `..` and symbolic links, and shows it equals, or lies below, the canonical working directory plus a separator. This is the rule's own compliant form. Any other PATH is refused as a harness failure, exit 2, and never read.
+  - **Why not the repository root.** The sibling validators (`validate-signed-execution-chain.py`, `validate-clearing-dispatch.py`) only `resolve()` the path and check that it exists, so they offered no confinement to mirror. Confinement to the repository root would also break the contract's cross-repository use, in which a successor checks its own records. The working directory keeps that use.
+  - **The contract changed, and says so.** [contracts/validator-cli.md](contracts/validator-cli.md) carries a dated "Tightened 2026-10-09" sentence, and its exit-2 row names a PATH outside the invoking directory.
+  - **Tests.**
+    - Refused: an absolute path, `../`, and a `..` inside an absolute path that leaves the directory, plus a symbolic link that does. Each exits 2 with no ERROR line.
+    - Accepted: a relative path inside the directory, which reads and routes with exit 3.
+    - The existing `check` tests now run from their own temporary directory.
+- **SonarCloud `githubactions:S8541` at `.github/workflows/council-convening-gate.yml:64`: setup scripts could run during install.**
+  - **The fix.** The install is now `pip install --require-hashes --only-binary :all: -r requirements/hermes-runtime-contracts.lock`, in a literal block, mirroring `former-id-arrival-gate.yml` and `openxdox-consumer-gate.yml`.
+  - **Measured first.** `pip install --require-hashes --only-binary :all: --ignore-installed --dry-run --report … -r requirements/hermes-runtime-contracts.lock` on Python 3.12.3: exit 0, 17 packages, 17 wheels, 0 sdists.
+  - **The wiring test.** `test_gate_wiring.py` pins the flag as the gate's only install, still ordered before the validator run. It holds `pytest-suite.yml` to the same lock and not to the same flags, since that workflow still carries the older form.
+- **Not marked in Sonar.** Neither issue was marked false positive or accepted. The code was fixed, and SonarCloud's next analysis of #1284 is the measure.
+- **Gates at this round's code (before the push):**
+  - `python3 -m pytest tests/council_convening -q -m "not postgres"`: **320 passed**, at a load average of 168.
+  - `python3 scripts/validate-council-convening.py`: exit 0, `133 vectors, 133 both-sides, sha256:b74c6dd509fca0a8a0b708820e38439a96259dc36777a2c11f6f6d70bd1ca745`, `vectors adjudicated: 133/133`, `refusal codes probed: 5/5`, `finding codes probed: 1/1`, `requirements probed: 2/2 (FR-001, FR-011)`, generator reproduced, 0 errors, 0 warnings.
+  - `python3 -m scripts.council_convening.generate --check`: exit 0.
+  - The corpus by outcome: accept 42, refuse 83, route 8.
+  - On the coordinator's word, no local full suite this round: CI's `pytest-suite` is the measure.
 
 ## Phase 2 — User Story 1: membership agreed before work (PR-2)
 
