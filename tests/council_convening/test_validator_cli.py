@@ -200,6 +200,16 @@ def test_check_refuses_a_registry_that_gained_an_entry(tmp_path):
     assert "ERROR [council-convening-registry-closure]" in result.stdout
 
 
+def test_check_refuses_a_registry_tag_with_a_trailing_newline(tmp_path):
+    doc = yaml.safe_load(PROTOCOL_REGISTRY.read_text(encoding="utf-8"))
+    doc["protocols"][1]["introduced_in"] = "contract-v4.0\n"
+    path = _write(tmp_path, "registry.yaml", doc)
+    result = run_validator("check", str(path))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-schema]" in result.stdout
+    assert "protocols/1/introduced_in" in result.stdout
+
+
 def test_check_refuses_a_judged_by_kind_record_whose_schema_has_not_landed(tmp_path):
     path = _write(tmp_path, "binding.json", {
         "schema_version": 1, "kind": "xfactory_council_producer_binding",

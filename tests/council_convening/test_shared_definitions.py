@@ -18,7 +18,7 @@ import yaml
 
 from scripts.council_convening import records
 
-from .conftest import SHARED_DEFINITIONS
+from .conftest import FAMILY_REL, SHARED_DEFINITIONS
 
 SHA = "0123456789abcdef0123456789abcdef01234567"
 HEX64 = "0123456789abcdef" * 4
@@ -399,3 +399,87 @@ def test_a_refusal_never_echoes_the_value(schemas):
         schemas.check_definition("opaque_id", secret_shaped)
     assert secret_shaped not in str(caught.value)
     assert caught.value.member == "opaque_id"
+
+
+# --------------------------------------------------------------------------
+# The family keywords hold at every depth, inside a whole family document.
+#
+# A record schema is a whole document carrying the house `$schema` header.
+# jsonschema re-selects the validator class from `$schema` whenever it descends
+# into such a document (`evolve` calls `validator_for`), which used to swap the
+# family validator for plain `Draft202012Validator`: whole-string `pattern` and
+# `x-max-utf8-bytes` silently stopped applying, and a record validated FAIL
+# OPEN. A `$ref` straight to a `$defs` member never enters a document, which is
+# why the definition-boundary tests above could not see it.
+# --------------------------------------------------------------------------
+
+PROBE_RECORD = "probe-record.schema.yaml"
+
+
+@pytest.fixture
+def probe_schemas(family_tree):
+    """The family plus one record-shaped schema with the house header, loaded
+    from a temporary tree."""
+    shared = records.SHARED_DEFINITIONS_ID + "#/$defs/"
+    document = {
+        "schema_version": 1,
+        "kind": records.SCHEMA_KIND,
+        "name": "xfactory_council_probe_record",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": records.ID_BASE + PROBE_RECORD,
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "convening_id": {"$ref": shared + "opaque_id"},
+            "path": {"$ref": shared + "relative_path"},
+        },
+    }
+    (family_tree / FAMILY_REL / PROBE_RECORD).write_text(
+        yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+    return records.load_schemas(family_tree)
+
+
+def _record_errors(probe_schemas, record):
+    return [(error.validator, error.message)
+            for error in probe_schemas.errors(records.ID_BASE + PROBE_RECORD, record)]
+
+
+def test_a_record_schema_refuses_an_opaque_id_with_a_trailing_newline(probe_schemas):
+    assert _record_errors(probe_schemas, {"convening_id": "convening-0001"}) == []
+    assert _record_errors(probe_schemas, {"convening_id": "convening-0001\n"}) == [
+        ("pattern", "does not match the pattern, matched whole")]
+
+
+def test_a_record_schema_refuses_a_utf8_byte_overrun(probe_schemas):
+    """2049 two-byte characters: inside `maxLength` 4096 and the pattern, so only
+    `x-max-utf8-bytes` can refuse it."""
+    assert _record_errors(probe_schemas, {"path": "a" * 4096}) == []
+    assert _record_errors(probe_schemas, {"path": chr(0xE9) * 2049}) == [
+        ("x-max-utf8-bytes", "is longer than 4096 UTF-8 bytes")]
+
+
+def test_every_registered_document_keeps_the_family_validator(schemas):
+    """Every family document and the digest construction resolve, as whole
+    documents, to the family validator, never to the dialect's plain one."""
+    from jsonschema import validators
+
+    ids = [records.ID_BASE + name for name in schemas.family] + [
+        records.DIGEST_CONSTRUCTION_ID]
+    for resource_id in ids:
+        contents = schemas.registry[resource_id].contents
+        assert validators.validator_for(
+            contents, default=records.FamilyValidator) is records.FamilyValidator, resource_id
+    # The family dict keeps each document exactly as written, header included.
+    assert all("$schema" in document for document in schemas.family.values())
+
+
+def test_a_family_document_in_another_dialect_is_refused_at_load(family_tree):
+    """The header is dropped from the registered copy only because it names the
+    one dialect the family validator implements; any other dialect is refused,
+    never silently re-read as 2020-12."""
+    path = family_tree / FAMILY_REL / "protocol-registry.schema.yaml"
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["$schema"] = "http://json-schema.org/draft-07/schema#"
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+    with pytest.raises(records.SchemaLoadError, match="dialect"):
+        records.load_schemas(family_tree)

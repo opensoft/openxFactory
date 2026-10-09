@@ -5,7 +5,9 @@ T017. Four things live here, and every other module in the package uses them:
 * `load_schemas` loads every family schema plus the one digest construction the
   family takes by `$ref`, checks each against the 2020-12 metaschema, and builds
   one `referencing.Registry` keyed by `$id`, so no reference is resolved off the
-  network or off a guessed path.
+  network or off a guessed path. The registry serves each document WITHOUT its
+  `$schema` header, so the family validator below holds at every depth of a
+  `$ref` into a whole document (`_registered_resource`).
 * The VALIDATOR CLASS extends `Draft202012Validator` in exactly two places, and
   both make the reference implementation read the contract the way the contract
   is written:
@@ -58,6 +60,7 @@ DIGEST_CONSTRUCTION_ID = (
     "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/"
     "digest-construction.schema.yaml")
 SCHEMA_KIND = "openxfactory-council-convening-contract-schema"
+DIALECT_2020_12 = "https://json-schema.org/draft/2020-12/schema"
 UTF8_BYTES_KEYWORD = "x-max-utf8-bytes"
 
 
@@ -168,6 +171,30 @@ def _check_schema(name: str, document: Any) -> None:
         raise SchemaLoadError(f"{name}: is not a valid 2020-12 schema") from exc
 
 
+def _registered_resource(name: str, document: dict) -> Resource:
+    """The copy of `document` the registry serves: its `$schema` header removed.
+
+    jsonschema re-selects the validator class from `$schema` every time it
+    descends into a document (`evolve` calls `validator_for(schema,
+    default=cls)`). A whole family document carries the house header, so a
+    `$ref` into one used to swap `FamilyValidator` for plain
+    `Draft202012Validator` for that document and everything beneath it, and
+    whole-string `pattern` and `x-max-utf8-bytes` silently stopped applying: a
+    record validated FAIL OPEN. With no `$schema` in what the registry serves,
+    `validator_for` keeps the family validator at every depth.
+
+    The header is dropped only because it names the one dialect
+    `FamilyValidator` implements; any other dialect is refused here rather than
+    re-read as 2020-12. The metaschema check has already run on the document as
+    written, and `SchemaSet.family` keeps it as written.
+    """
+    declared = document.get("$schema")
+    if declared is not None and declared != DIALECT_2020_12:
+        raise SchemaLoadError(f"{name}: declares a dialect other than 2020-12")
+    served = {key: value for key, value in document.items() if key != "$schema"}
+    return Resource.from_contents(served, default_specification=DRAFT202012)
+
+
 @dataclass
 class SchemaSet:
     """Every family schema and the digest construction, behind one registry."""
@@ -245,8 +272,8 @@ def load_schemas(root: Path | None = None) -> SchemaSet:
     if construction.get("$id") != DIGEST_CONSTRUCTION_ID:
         raise SchemaLoadError(f"{construction_path.name}: unexpected $id")
 
-    resources = [(doc["$id"], Resource.from_contents(doc, default_specification=DRAFT202012))
-                 for doc in [*family.values(), construction]]
+    resources = [(doc["$id"], _registered_resource(name, doc))
+                 for name, doc in [*family.items(), (construction_path.name, construction)]]
     registry = Registry().with_resources(resources)
     return SchemaSet(root=root, family=family, digest_construction=construction,
                      registry=registry, format_checker=_format_checker())

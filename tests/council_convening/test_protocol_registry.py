@@ -193,6 +193,20 @@ def test_a_malformed_tag_is_a_schema_finding(schemas, instance):
         classification.registry_findings(schemas, mutated))
 
 
+def test_a_tag_with_a_trailing_newline_is_a_schema_finding(schemas, instance):
+    """The registry schema is a whole document with the house `$schema` header,
+    so this holds only if the family's whole-string `pattern` survives the
+    descent into it (it once did not, and this tag passed)."""
+    accepted = copy.deepcopy(instance)
+    accepted["protocols"][1]["introduced_in"] = "contract-v4.0"
+    assert classification.registry_findings(schemas, accepted) == []
+    mutated = copy.deepcopy(instance)
+    mutated["protocols"][1]["introduced_in"] = "contract-v4.0\n"
+    assert classification.registry_findings(schemas, mutated) == [
+        ("council-convening-schema",
+         "protocol registry: fails `pattern` at protocols/1/introduced_in")]
+
+
 def test_a_status_move_is_not_a_closure_finding(schemas, instance):
     """Statuses and tags are instance data the cuts move (R19); closure pins the
     identity of each entry, not its lifecycle position."""
