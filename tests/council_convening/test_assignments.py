@@ -45,16 +45,25 @@ def refusal(callable_, *args, **kwargs) -> str:
     return caught.value.code
 
 
-def check(value: dict) -> dict:
-    return assignments.check_snapshot(value, selected_protocol=REPLACEMENT)
+def check(value: dict, selected: str | None = REPLACEMENT) -> dict:
+    """The snapshot half of `admission`, the whole E4 order from classification:
+    the derived values on an accept, `Refused` with the outcome's code on a
+    refusal."""
+    outcome = assignments.snapshot_outcome(value, selected_protocol=selected)
+    if outcome.outcome == "refuse":
+        raise Refused(outcome.refusal)
+    assert outcome.outcome == "accept", outcome
+    assert outcome.findings == ()
+    return dict(outcome.derived)
 
 
 # --- the ceiling and the closed operation set ------------------------------------
 
 
 def test_the_ruled_assignment_ceiling_is_21600_seconds_and_is_read_from_the_contract():
-    # OPEN-1. The module takes the ceiling from the landed schema, so the contract
-    # and the reference implementation cannot hold two values.
+    # OPEN-1. The module checks against the ceiling the landed schema declares,
+    # and its named constant must agree with it, so the contract and the
+    # reference implementation cannot hold two values.
     assert assignments.ASSIGNMENT_LIFETIME_CEILING_SECONDS == CEILING
     assert assignments.contract_lifetime_ceiling() == CEILING
 
@@ -284,6 +293,27 @@ def test_classification_runs_first_so_a_legacy_snapshot_is_never_called_malforme
     assert refusal(check, value) == "legacy_protocol_refused"
 
 
+def test_a_replacement_snapshot_under_a_legacy_selection_is_not_selected():
+    outcome = assignments.snapshot_outcome(snapshot(), selected_protocol=LEGACY,
+                                           statuses={LEGACY: "in_use"})
+    assert (outcome.outcome, outcome.refusal) == ("refuse", "protocol_not_selected")
+    assert outcome.status_read
+
+
+def test_offline_a_replacement_snapshot_is_judged_under_the_replacement_rules():
+    assert check(snapshot(), selected=None)["required_seats"] == ["seat-a", "seat-b"]
+    broken = snapshot()
+    broken["assignments"].reverse()
+    assert refusal(check, broken, None) == "assignment_set_mismatch"
+
+
+def test_offline_a_legacy_snapshot_is_routed_never_passed():
+    value = snapshot()
+    value["protocol"] = LEGACY
+    outcome = assignments.snapshot_outcome(value, selected_protocol=None)
+    assert (outcome.outcome, outcome.findings) == ("route", ("legacy_protocol_routed",))
+
+
 def test_an_unknown_protocol_is_protocol_unknown_before_shape():
     value = snapshot()
     value["protocol"] = "xfc-resolved-council-9"
@@ -310,9 +340,9 @@ def test_the_first_malformed_assignment_in_array_order_is_the_one_named():
     value["assignments"][0]["permitted_operations"] = []
     value["assignments"][1].pop("holder")
     with pytest.raises(Refused) as caught:
-        check(value)
+        assignments.check_snapshot(value)
     assert caught.value.code == "assignment_malformed"
-    assert "0" in str(caught.value.member)
+    assert caught.value.member == "assignments[0]"
 
 
 def test_a_value_that_is_not_canonicalizable_is_refused_before_the_digest():
@@ -349,7 +379,8 @@ def test_a_refusal_message_never_echoes_a_value():
     value["assignments"][0]["holder"]["principal_ref"] = "principal-visible-marker"
     value["assignments"][1]["holder"]["principal_ref"] = "principal-visible-marker"
     with pytest.raises(Refused) as caught:
-        check(value)
+        assignments.check_snapshot(value)
+    assert caught.value.code == "assignment_shared_holder"
     assert "principal-visible-marker" not in str(caught.value)
 
 
