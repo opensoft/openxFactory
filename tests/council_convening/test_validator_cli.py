@@ -754,6 +754,27 @@ def test_the_containment_rule_compares_paths_not_strings(tmp_path, monkeypatch):
     assert validator._within_invocation_directory("/") == "/"
 
 
+def test_the_containment_check_keeps_the_sonar_rules_compliant_form():
+    """SonarCloud's taint analysis recognizes `pythonsecurity:S8707`'s own
+    compliant form, `realpath` then a `startswith` on a separator-terminated
+    prefix, as the sanitizer between argv and the read; it does not recognize
+    `os.path.commonpath`. #1294's first head used `commonpath`, and the required
+    Security Rating on New Code failed on `_read`'s `read_bytes`. The behaviour
+    is pinned by the three tests above; this pins the form, so a refactor that
+    reopens the flow fails here first instead of only in Sonar."""
+    import ast
+    import inspect
+    import textwrap
+
+    source = textwrap.dedent(inspect.getsource(load_validator()._within_invocation_directory))
+    function = ast.parse(source).body[0]
+    statements = function.body[1:] if ast.get_docstring(function) else function.body
+    body = "\n".join(ast.unparse(statement) for statement in statements)
+    assert "os.path.realpath(given)" in body
+    assert ".startswith(prefix)" in body
+    assert "commonpath" not in body
+
+
 # --------------------------------------------------------------------------
 # A family schema in `check`: no resource header below its root, and every
 # `$ref` naming a loaded document, as at load.
