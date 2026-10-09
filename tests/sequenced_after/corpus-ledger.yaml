@@ -285,7 +285,7 @@ rows:
   refine-demote-round-trip-mechanics: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   refine-promotion-provenance: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   refresh-install-repository-enumerations: {state: archived, class: co-modifier, declares: [admit-install-repos-to-aggregation], depth: 1, prose: false, moved_by: "#825", moved_on: "2026-09-09"}
-  refresh-install-repository-enumerations-opsxfactory-gateway: {state: active, class: co-modifier, declares: [refresh-install-repository-enumerations, amend-repo-boundary-governance-scope-first-line], depth: 2, prose: false, moved_by: "#1273", moved_on: "2026-10-08"}
+  refresh-install-repository-enumerations-opsxfactory-gateway: {state: archived, class: co-modifier, declares: [refresh-install-repository-enumerations, amend-repo-boundary-governance-scope-first-line], depth: 2, prose: false, moved_by: "#1278", moved_on: "2026-10-08"}
   register-gate-rules-council-seats: {state: active, class: sole, declares: [add-wallet-carried-review-authority, openXwallet:widen-register-reader-for-a-second-council], depth: 1, prose: false, moved_by: "#717", moved_on: "2026-09-06"}
   relocate-review-authority-floor-mirror: {state: archived, class: co-modifier, declares: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor], depth: 2, prose: false, moved_by: "#925", moved_on: "2026-09-10"}
   renew-resolved-council-protocol: {state: active, class: sole, declares: absent, prose: false, moved_by: "#1267", moved_on: "2026-10-07"}

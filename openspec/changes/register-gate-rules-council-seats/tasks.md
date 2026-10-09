@@ -672,7 +672,7 @@ gate is green: at the old reader every one of these writes is refused.
       `CronJob/hermes-register-projection-refresher`, not a manual Job. The
       standing manual re-projection duty remains not retired by this change
       (unchanged).
-- [ ] 4.3 **[codexFactory]** Close the floor-reachability gap this change WIDENS
+- [x] 4.3 **[codexFactory]** Close the floor-reachability gap this change WIDENS
       (design D6): `governance/review-authority/{grants,wallets,attestations}/`
       are not named in
       `scripts/merge_master/openxfactory-review-authority-floor.yaml`, and §3
@@ -698,6 +698,44 @@ gate is green: at the old reader every one of these writes is refused.
       row into or out of the archive gate (§ 5.2 stands as written). The row's
       own "owner:" words above are not edited. See the walk's § 13.6
       bookkeeping note 3 (appended 2026-10-07).
+      **DONE 2026-10-08 — TICKED: THE GAP IS CLOSED BY TWO MERGES, AND A
+      NARROWER RESIDUAL IS OWNED.** Bookkeeping tick only: the work is another
+      repository's and no openxFactory byte moves for it beyond the re-pin
+      below. (1) **codeXfactory/codexFactory PR #534 →
+      `ce9236363d044bc6d8cf9b9f7a5bd15ecaff9559`**, merged 2026-10-08T21:35:33Z
+      on Brett Heap's word *"Land when green after fixes (Recommended)"*.
+      codexFactory's floor (`floor/openxfactory-review-authority-floor.yaml`)
+      now names BY NAME the nine records under `governance/review-authority/`
+      this row said it omitted: two wallets, five grants and two custody
+      attestations. It is anchored on the ratified requirement this change
+      carries, `specs/review-authority-intake/spec.md:90-98` (the records
+      *"SHALL be entered there BY NAME"*), with this row and design D6 as the
+      secondary cite. (2) **openxFactory PR #1277 →
+      `40d6e5c1bbed6fb976e7933200236e353777ee47`**, merged
+      2026-10-08T23:15:55Z, the review-lane re-pin that makes (1) effective
+      here: `contracts/review-lane-pin.yaml` `core_commit` →
+      `ce9236363d044bc6d8cf9b9f7a5bd15ecaff9559`, and the vendored floor
+      snapshot's `sha256` → `9a42e76f…` and `entry_count` 75 → 84. #534's own
+      description says the change is inert for openxFactory until that re-pin
+      lands. Read at `40d6e5c1b`, the pin and the snapshot carry those values
+      and the snapshot lists all nine paths. **No convening is owed**: Brett
+      Heap, 2026-10-08, first-hand, *"No convening owed (Recommended)"*,
+      because the ratified requirement already mandates the act (cxF #279
+      comment `6066532414`). The tick itself is the lane's on his word *"Merge
+      #1277 when green"*, whose option text said *"Then this lane ticks
+      Q-GRC-4 task 4.3 in openxFactory, citing both merges"* (as relayed by
+      the lane coordinator). **THE RESIDUAL, OWNED BY LANE codeXfactory-2 AS
+      FOLLOW-UPS** (*"This lane, as follow-ups (Recommended)"*, 2026-10-08,
+      noted on #279): the floor is an ENUMERATION, so a record ADDED later
+      under these directories is unfloored until it is named, and #534's
+      independent review left two latent gaps: the pinned reader keeps only the
+      last attestation per wallet (opensoft/openXwallet#29), and the opt-in
+      floor check measures only at the floor block's own pin
+      (codeXfactory/codexFactory#536). Both were OPEN when read 2026-10-08.
+      This tick does not close them. The 2026-10-07 OWNER note above stays as
+      written, and this tick supersedes its "NOT TICKED". § 5.2 stands: § 4
+      is outside the archive gate. See the walk's § 13.6 bookkeeping note 4
+      (appended 2026-10-08).
 - [ ] 4.4 **[codexFactory]** The CALLER (task 5.9a): a convening path that seats
       `gate_rules_council`, resolves its seats from the projection and returns
       SIGNED seat returns. The roster says in terms that the missing piece is a

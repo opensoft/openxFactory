@@ -1139,6 +1139,26 @@ is a job id and the renamed workflow retains it. The declined narrowed floor
 `governance/review-authority/{grants,wallets,attestations}/` is neither fixed nor
 depended on by P3, and remains this change's to own.
 
+**2026-10-08 — THAT GAP IS CLOSED BY TWO MERGES, AND ITS RESIDUAL HAS AN
+OWNER.** The sentence above stays as written; it was true on 2026-08-27. The
+omission it names is closed by two merges: codeXfactory/codexFactory PR #534 →
+`ce9236363d044bc6d8cf9b9f7a5bd15ecaff9559` (2026-10-08T21:35:33Z), which enters
+the nine records under `governance/review-authority/` in codexFactory's floor BY
+NAME, under the ratified requirement carried by `register-gate-rules-council-seats`
+(`specs/review-authority-intake/spec.md:90-98`); and openxFactory PR #1277 →
+`40d6e5c1bbed6fb976e7933200236e353777ee47` (2026-10-08T23:15:55Z), the review-lane
+re-pin that makes it effective here (`core_commit` → `ce923636`, floor snapshot
+`entry_count` 75 → 84). It is recorded at `register-gate-rules-council-seats`
+task 4.3, ticked 2026-10-08, whose acting owner is lane codeXfactory-2 on Brett
+Heap's ruling *"This lane, as follow-ups"*. The RESIDUAL is owned by that lane
+through two follow-ups: a floor that enumerates records leaves a record added
+later unfloored until it is named, and two latent gaps remain, namely
+opensoft/openXwallet#29 (the pinned reader keeps only the last attestation per
+wallet) and codeXfactory/codexFactory#536 (the opt-in floor check measures only
+at the floor block's own pin). **No archive gate moves:** this note edits no
+row of this change, this change's own archive order is untouched, and
+`register-gate-rules-council-seats` § 5.2 keeps its § 4 outside its archive gate.
+
 ## 9. Deltas carried in from `split-openxwallet-repo` P7 (2026-08-28)
 
 `split-openxwallet-repo` archived 2026-08-28 as

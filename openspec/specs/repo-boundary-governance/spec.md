@@ -2,9 +2,10 @@
 
 ## Purpose
 Defines how `openxFactory`, `Hermes-Install`, `Omnigent-Install`,
-`Keycloak-Install`, `OpenXPKI-Install`, and `OmniWorker-Install` assign
-canonical workflow policy ownership, install repository scope, copy-first
-migration rules, and guarded repo-boundary execution.
+`Keycloak-Install`, `OpenXPKI-Install`, `OmniWorker-Install`, and
+`OpsxFactory-Gateway-Install` assign canonical workflow policy ownership,
+install repository scope, copy-first migration rules, and guarded
+repo-boundary execution.
 
 ## Requirements
 
@@ -25,17 +26,17 @@ DomainxFactory.
 - **AND** `openxFactory` MUST reference it only as a specialization of neutral workflow gates
 
 #### Scenario: Install repo needs policy context
-- **WHEN** `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, or `OmniWorker-Install` needs to implement a factory policy
+- **WHEN** `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, `OmniWorker-Install`, or `OpsxFactory-Gateway-Install` needs to implement a factory policy
 - **THEN** the install repo MUST link to the canonical `openxFactory` policy for neutral workflow concerns
 - **AND** it MUST link to the owning DomainxFactory policy when implementing domain-specific execution behavior
 
-**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** ``**WHEN** `Hermes-Install` or `Omnigent-Install` needs to implement a factory policy`` — the bullet is REPLACED rather than deleted, by the widened trigger above it. **THE EDIT IS A LIST EXTENSION PLUS THE PUNCTUATION A LONGER LIST TAKES, AND NOTHING ELSE:** the two names become five, in canon's own order, keeping canon's own `or` and its surrounding grammar word for word, and a serial comma is added before that `or` because a five-item list takes one where canon's two-item list correctly did not. The style is MEASURED rather than preferred — `openspec/specs` carries 561 lines with a serial comma before a final `or` against 232 without, and this requirement's own body uses one before its final `and`. Nothing else in this requirement changes: its body, its two other scenarios and this scenario's own two `THEN`/`AND` bullets are word for word what canon states.
+**Removed from canon by refresh-install-repository-enumerations-opsxfactory-gateway (2026-10-08):** ``**WHEN** `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, or `OmniWorker-Install` needs to implement a factory policy`` — the bullet is REPLACED rather than deleted, by the widened trigger above it. The edit is a list extension and nothing else: `OpsxFactory-Gateway-Install` is appended in canon's own order and canon's own spelling, and canon's own `or` moves to stand before the last name, as it did when the fifth name was added, so the serial comma is preserved and every other word is canon's. Nothing else in this requirement changes: its body, its other two scenarios and this scenario's own THEN and AND bullets are canon's words.
 
 ### Requirement: Install repository scope
 The following install repositories SHALL be scoped to subsystem install,
 operations, backup, restore, upgrade, verification, and disaster recovery:
 `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`,
-and `OmniWorker-Install`.
+`OmniWorker-Install`, and `OpsxFactory-Gateway-Install`.
 
 `Keycloak-Install` (`opensoft/Keycloak-Install`, pinned at
 `installs/keycloak-install`) and `OpenXPKI-Install`
@@ -52,6 +53,17 @@ pinned at `installs/omniworker-install`) was admitted on the same terms on
 is an index of admitted install repositories; it neither widens nor narrows the
 scope each repository's own `repo-boundary-governance` requirement fixes.
 
+`OpsxFactory-Gateway-Install` (`opensoft/OpsxFactory-Gateway-Install`, pinned
+at `installs/opsxfactory-gateway-install`) was admitted to the top-level
+xFactory aggregation on 2026-10-06 by opensoft/xFactory#567 (merge commit
+`651dd5c9450646a1d6e4a55ef04ddc5d53823cb4`, pinned commit
+`26f53c96965336819ac3d852db935e89ea7ec143`), one reviewed change that recorded
+path, remote, visibility, exact validated commit, checkout, compatibility,
+update, and rollback behavior and is distinct from the repository's creation on
+the same day. That change named opensoft/openxFactory#1259 as the successor
+that refreshes this enumeration, as the sibling requirement on enumeration
+authority asks of an admitting change.
+
 #### Scenario: Hermes runtime procedure is changed
 - **WHEN** a change installs, restores, backs up, upgrades, or verifies Hermes runtime behavior
 - **THEN** the implementation detail MUST live in `Hermes-Install`
@@ -64,7 +76,7 @@ scope each repository's own `repo-boundary-governance` requirement fixes.
 - **WHEN** a change installs, restores, backs up, upgrades, or verifies worker-host runtime behavior
 - **THEN** the implementation detail MUST live in `OmniWorker-Install`
 
-**Removed from canon by amend-repo-boundary-governance-scope-first-line (2026-09-11):** `` `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, and `OmniWorker-Install` SHALL be scoped to subsystem install, operations, backup, restore, upgrade, verification, and disaster recovery. `` — the sentence is REPLACED IN PLACE by the one above it and is not dropped, and every one of the five repository names is carried into it in canon's own order, canon's own spelling and canon's own serial comma. What moves is WHERE THE OBLIGATION STANDS INSIDE ITS OWN SENTENCE: the subject and the modal now open the first body line, which is the shape the other ten requirements of this specification already have, so a reader who reads one line and a parser that reads one line both meet the obligation there instead of meeting a list of names whose verb has not arrived. Four words of subject are added at the front, the enumeration moves behind the modal under a colon, and nothing else in the sentence changes: the same five repositories are scoped to the same seven activities, in the same words and the same order. Nothing this requirement obliges, admits or refuses moves, and the enumeration remains the INDEX the sibling requirement on enumeration authority says it is rather than becoming a claim about which install repositories exist. This reason carries no code span, so the marker names exactly one unit under the grammar it is written in.
+**Removed from canon by refresh-install-repository-enumerations-opsxfactory-gateway (2026-10-08):** ``The following install repositories SHALL be scoped to subsystem install, operations, backup, restore, upgrade, verification, and disaster recovery: `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, and `OmniWorker-Install`.`` — the sentence is REPLACED IN PLACE by the one above it. The edit is a list extension and nothing else: the subject and the modal still open the first body line, the sixth name is appended in canon's own order, and canon's own `and` moves to stand before the last name, the serial comma preserved. The admission paragraph for the sixth repository is ADDED as a paragraph of its own after the admission paragraph canon carries unchanged, and the three routing scenarios are carried unchanged and no fourth is added: the enumeration indexes the repository and confers no boundary on it.
 
 ### Requirement: Copy-first migration
 Repo-boundary migration SHALL use copy-first migration until canonical
@@ -73,7 +85,7 @@ migration SHALL be dogfooded through OpenSpec, Hermes approval,
 Omnigent/Polly decomposition, PR admission, merge council, and GitHub PRs.
 
 #### Scenario: Canonical policy exists in an install repo
-- **WHEN** policy currently lives in `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, or `OmniWorker-Install`
+- **WHEN** policy currently lives in `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, `OmniWorker-Install`, or `OpsxFactory-Gateway-Install`
 - **THEN** the policy MUST be copied or summarized into `openxFactory` before the install repo copy is deleted or marked legacy
 
 #### Scenario: Existing proof harness depends on current files
@@ -84,7 +96,7 @@ Omnigent/Polly decomposition, PR admission, merge council, and GitHub PRs.
 - **WHEN** canonical policy or contract content is migrated after the repo-boundary pilot
 - **THEN** the work MUST be proposed, decomposed, reviewed, admitted to PR, and merged using the factory workflow itself
 
-**Removed from canon by refresh-install-repository-enumerations (2026-09-08):** `` **WHEN** policy currently lives in `Hermes-Install` or `Omnigent-Install` `` — the bullet is REPLACED rather than deleted, by the widened trigger above it. **THE EDIT IS A LIST EXTENSION PLUS THE PUNCTUATION A LONGER LIST TAKES, AND NOTHING ELSE:** the two names become five, in canon's own order, keeping canon's own `or` and its surrounding grammar word for word, and a serial comma is added before that `or` because a five-item list takes one where canon's two-item list correctly did not. The style is MEASURED rather than preferred — `openspec/specs` carries 561 lines with a serial comma before a final `or` against 232 without, and this requirement's own body uses one before its final `and`. The copy-first obligation itself, its dogfooding sentence and the two other scenarios are word for word what canon states — this requirement is the one `implement-omniworker-install-repo`'s own migration clause cites by name, and nothing in it is narrowed here.
+**Removed from canon by refresh-install-repository-enumerations-opsxfactory-gateway (2026-10-08):** `` **WHEN** policy currently lives in `Hermes-Install`, `Omnigent-Install`, `Keycloak-Install`, `OpenXPKI-Install`, or `OmniWorker-Install` `` — the bullet is REPLACED rather than deleted, by the widened trigger above it. The edit is a list extension and nothing else: `OpsxFactory-Gateway-Install` is appended in canon's own order and canon's own spelling, and canon's own `or` moves to stand before the last name, as it did when the fifth name was added, so the serial comma is preserved and every other word is canon's. The copy-first obligation, its dogfooding sentence and the two other scenarios are canon's words, and nothing in this requirement is narrowed.
 
 ### Requirement: Guarded pilot execution
 The initial repo-boundary pilot SHALL be doc-only, start in `openxFactory`,
