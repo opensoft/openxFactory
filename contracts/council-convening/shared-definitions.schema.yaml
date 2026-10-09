@@ -181,10 +181,10 @@ $defs:
       subject_path: {$ref: '#/$defs/relative_path'}
   refusal_code:
     # CLOSED AT THE CODES AS LANDED: the Phase 1 five, the Phase 2
-    # twenty-nine (T028, in data-model § Refusal vocabulary order), then
-    # each later phase's own, added in the task that authors its schemas:
-    # Phase 5's thirteen (T053), then Phase 4's thirty-one (T046), in the
-    # order their PRs land (PR-5 before PR-4).
+    # twenty-nine (T028) and the Phase 3 seven (T038), each in data-model §
+    # Refusal vocabulary order; then each later phase's own, added in the
+    # task that authors its schemas: Phase 5's thirteen (T053), then Phase
+    # 4's thirty-one (T046), in the order their PRs land (1, 2, 3, 5, 4, 6).
     description: The closed refusal vocabulary as landed at this commit.
     type: string
     enum:
@@ -223,6 +223,15 @@ $defs:
       - roster_empty
       - roster_duplicate_seat
       - roster_mismatch
+      # Phase 3: the snapshot and its assignments (data-model E4, E5) and retry
+      # identity and once-per-pin (E2 step A3), at admission.
+      - snapshot_malformed
+      - digest_construction_mismatch
+      - assignment_malformed
+      - assignment_set_mismatch
+      - assignment_duplicate
+      - assignment_shared_holder
+      - convening_conflict
       # Phase 5 (T053): the producer binding, data-model E10. Introduced here,
       # where `binding` vectors and admission vectors probe them, and reused by
       # registration in Phase 4 (E7 step 5).

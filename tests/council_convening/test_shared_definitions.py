@@ -391,21 +391,30 @@ PHASE_2_REFUSALS = [
     "roster_mismatch"]
 
 
-def test_refusal_code_opens_with_exactly_the_phase_1_and_phase_2_codes(
+#: Phase 3's codes (T038), in data-model § Refusal vocabulary order.
+PHASE_3_REFUSALS = [
+    "snapshot_malformed", "digest_construction_mismatch", "assignment_malformed",
+    "assignment_set_mismatch", "assignment_duplicate", "assignment_shared_holder",
+    "convening_conflict"]
+
+
+def test_refusal_code_opens_with_exactly_the_phase_1_to_phase_3_codes(
         definitions_doc, schemas):
     # The enumeration grows by phase, each in the task that authors its schemas,
     # in landing order (1, 2, 3, 5, 4, 6): a later phase's codes FOLLOW these,
     # which keep their order. Each later phase's own test pins its additions
-    # (Phase 5: T053, in test_binding.py).
+    # (Phase 5: T053, in test_binding.py; Phase 4: T046, in test_signing.py).
     enum = definitions_doc["$defs"]["refusal_code"]["enum"]
-    landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS
+    landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS + PHASE_3_REFUSALS
     assert enum[:len(landed)] == landed
     assert len(set(enum)) == len(enum)
     assert schemas.enum("refusal_code") == enum
     for code in enum:
         assert accepts(schemas, "refusal_code", code)
-    # A code no phase has landed is not a member.
+    # A code no phase has landed is not a member, and neither is a Phase 6 code
+    # (data-model § Refusal vocabulary), which lands after Phase 4.
     assert malformed(schemas, "refusal_code", "no_such_refusal")
+    assert malformed(schemas, "refusal_code", "selection_malformed")
 
 
 def test_finding_code_holds_exactly_the_phase_1_finding(definitions_doc, schemas):

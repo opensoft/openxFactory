@@ -16,7 +16,7 @@
   },
   "inputs": {
     "definition": "refusal_code",
-    "value": "snapshot_malformed"
+    "value": "selection_malformed"
   },
   "kind": "openxfactory-council-convening-conformance-vector",
   "requirement_ids": [

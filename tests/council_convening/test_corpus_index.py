@@ -98,8 +98,9 @@ def test_the_index_header():
     assert index["kind"] == "openxfactory-council-convening-conformance-index"
     assert index["corpus_id"] == "council-convening-conformance"
     assert index["protocol"] == REPLACEMENT
-    assert index["coverage_floor"] == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-007",
-                                       "FR-008", "FR-011", "SC-001", "SC-003"]
+    assert index["coverage_floor"] == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
+                                       "FR-006", "FR-007", "FR-008", "FR-011", "SC-001",
+                                       "SC-002", "SC-003"]
 
 
 def test_every_row_digest_is_over_the_raw_bytes():
@@ -139,14 +140,18 @@ def test_phase_1_vectors_are_foundation_vectors_for_both_sides():
         assert vector["expected"]["derived_origin"] == "hand"
 
 
-def test_the_areas_landed_at_this_commit_are_foundation_resolution_and_binding():
+def test_the_areas_landed_at_this_commit():
     """Phase 2 adds the `resolution` area, at boundaries `commission` and
     `admission`, and Phase 5 the `binding` area, at boundary `binding`; every
-    resolution and binding vector is hand-authored. Phase 4 adds the `signing`
-    area, at boundaries `registration`, `return` and `completion`, which the
-    generator builds (T044); its hand-authored known answers are marked."""
+    resolution and binding vector is hand-authored. Phase 3 adds the
+    `assignment` area, at boundary `admission` only and for the consumer only:
+    the consumer issues snapshots and assignments and holds the live snapshots
+    retry identity reads. Phase 4 adds the `signing` area, at boundaries
+    `registration`, `return` and `completion`, which the generator builds
+    (T044); its hand-authored known answers are marked."""
     rows = _index_doc()["cases"]
-    assert {row["area"] for row in rows} == {"foundation", "resolution", "binding", "signing"}
+    assert {row["area"] for row in rows} == {
+        "foundation", "resolution", "binding", "assignment", "signing"}
     signing_rows = [row for row in rows if row["area"] == "signing"]
     assert {row["boundary"] for row in signing_rows} == {"registration", "return", "completion"}
     assert {row["expected"]["derived_origin"] for row in signing_rows} == {"hand", "generated"}
@@ -157,6 +162,9 @@ def test_the_areas_landed_at_this_commit_are_foundation_resolution_and_binding()
         if row["area"] == "binding":
             assert row["boundary"] == "binding"
             assert _load(CONFORMANCE / row["path"])["expected"]["derived_origin"] == "hand"
+        if row["area"] == "assignment":
+            assert row["boundary"] == "admission"
+            assert row["applies_to"] == ["consumer"]
 
 
 # --------------------------------------------------------------------------
@@ -283,7 +291,7 @@ def test_applies_to_is_a_non_empty_ordered_subset(family_tree, applies_to):
 def test_an_expected_refusal_outside_the_vocabulary_is_refused(family_tree):
     row = _first_row(family_tree, outcome="refuse")
     vector = _load(_vector_path(family_tree, row))
-    vector["expected"]["refusal"] = "snapshot_malformed"      # a Phase 3 code
+    vector["expected"]["refusal"] = "selection_malformed"     # a Phase 6 code
     _rewrite_vector(family_tree, row, vector)
     assert "council-convening-schema" in _codes(family_tree)
 
@@ -441,11 +449,13 @@ def test_the_landed_coverage_counts():
     landed = len(records.load_schemas().enum("refusal_code"))
     assert landed >= 5
     assert report.refusals_probed == (landed, landed)
-    # Phase 4 (T044) adds FR-007, FR-008 and SC-003 to the floor.
+    # Phase 3 (T036) adds FR-005, FR-006 and SC-002 to the floor, and Phase 4
+    # (T044) FR-007, FR-008 and SC-003.
     assert report.findings_probed == (1, 1)
-    assert report.requirements_probed == (9, 9)
-    assert report.coverage_floor == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-007",
-                                     "FR-008", "FR-011", "SC-001", "SC-003"]
+    assert report.requirements_probed == (12, 12)
+    assert report.coverage_floor == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
+                                     "FR-006", "FR-007", "FR-008", "FR-011", "SC-001",
+                                     "SC-002", "SC-003"]
 
 
 # --------------------------------------------------------------------------
@@ -507,8 +517,9 @@ def test_generate_check_reports_a_stale_index(family_tree):
 
 
 def test_generate_writes_the_coverage_floor():
-    assert generate.COVERAGE_FLOOR == ("FR-001", "FR-002", "FR-003", "FR-004", "FR-007",
-                                       "FR-008", "FR-011", "SC-001", "SC-003")
+    assert generate.COVERAGE_FLOOR == ("FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
+                                       "FR-006", "FR-007", "FR-008", "FR-011", "SC-001",
+                                       "SC-002", "SC-003")
 
 
 def test_labelled_test_keys_are_deterministic_and_distinct():
