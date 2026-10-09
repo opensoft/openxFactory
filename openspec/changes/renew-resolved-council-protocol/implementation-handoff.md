@@ -18,7 +18,7 @@ Capture exact reviewed commits, inventory/corpus digests, separately implemented
 
 ## Allocation record (2026-10-08)
 
-Recorded under Brett Heap's ruling of 2026-10-08, verbatim "Dated correction + tick 2.2 (Recommended)" (brett-wip `lanes/log/codeXfactory-2.md`, RULED 2026-10-08T23:03:35Z). It replaces the 2026-10-03 allocation notes, which were written outside a lane before any claim and no longer describe the owner. The pickup guidance above is the 2026-10-03 preparation text, retained as written.
+Recorded under Brett Heap's ruling of 2026-10-08, verbatim "Dated correction + tick 2.2 (Recommended)" (brett-wip `lanes/log/codeXfactory-2.md`, RULED 2026-10-08T23:03:35Z). It stands in place of 2026-10-03 allocation notes that #1268 carried before that ruling and that never reached `main`; they were written outside a lane, before any claim. The pickup guidance above is the 2026-10-03 preparation text, retained as written.
 
 - **Owner:** lane codeXfactory-2.
 - **Claimed:** 2026-10-07T10:39:11Z, CLAIMED in the same log after a sibling search that found no claim or PR.

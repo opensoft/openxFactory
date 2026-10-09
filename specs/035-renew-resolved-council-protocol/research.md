@@ -262,12 +262,20 @@ That reading fits the estate's calling pattern. xFactory's `council-convening-la
 | `resolved_candidate` | The consumer's own resolution of the candidate, for admission |
 | `issued` | The issued challenges, registered keys, consumed challenges, accepted returns and live snapshots, as of `evaluation_time` |
 | `identity` | The verified claims, whether they were verified, and the principal. Broker capability is the binding's own `broker` member, not an oracle |
-| `repository_identity` | Required on every vector that reads the identity map: the map's exact text, copied by the generator so the vector's digest covers it, or an `absent` or `unreadable` state that makes `repository_identity_unavailable` probeable |
+| `repository_identity` | Required on every vector that reads the identity map: the text of the corpus's frozen identity fixture, or an `absent` or `unreadable` state that makes `repository_identity_unavailable` probeable |
 | `registry_status` | An override of E1 statuses, required on every vector whose outcome reads a status |
 
 No oracle models 025's council and mix guard or its touched-object and base-branch guards (E2 steps A2 and A5): they judge consumer-held state, keep 025's own codes, and run as passing seams during a corpus run ([data-model E2](data-model.md#e2-commission-record-council-conveningschemayaml-phase-2)).
 
 The trusted trigger's expected candidate is an input, `inputs.expected_candidate`, not an oracle, because the producer receives it from its trigger.
+
+**The identity map in vectors is a frozen corpus fixture, not the live file** (round 7, R7-M1). `conformance/fixtures/repository-identity.json` holds a fixed map text with the rows the vectors need. It is indexed with its digest, and carried verbatim in every map-reading vector. The generator, and so `generate --check`, never reads `contracts/policies/repository-identity.yaml`. The reasons:
+
+- The live map is a shared estate file that other changes edit; the open `adopt-medxsoft-repository-identity` change is one.
+- A corpus that tracked it would fail its own `generate --check`, in the required pytest suite, on another lane's PR. It would also move this family's corpus digest, and after Phase 7 its manifest row, from a PR that is not this family's.
+- The corpus tests the binding mechanism over a fixed map. The live map's form is checked by its own validator, and a real binding is checked against the live map at the consumer's pin by `check`.
+
+The cost is that the corpus does not show that the live map's rows match the fixture's. Nothing in the corpus depends on that, because a vector's outcome is fixed by the map it carries ([conformance-corpus § The frozen identity fixture](contracts/conformance-corpus.md#the-frozen-identity-fixture)).
 
 **Rationale.**
 

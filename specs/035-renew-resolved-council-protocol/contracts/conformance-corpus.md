@@ -24,10 +24,11 @@ Every file is JSON (RFC 8259): UTF-8 with no byte-order mark, LF line endings, a
 | `coverage_floor` | The requirement identifiers that must be cited at this commit. Each phase raises it; from Phase 6 it is the full FR-001–FR-012 and SC-001–SC-003. |
 | `cases` | Rows in bytewise UTF-8 order of `path`: `{case_id, area, boundary, applies_to, requirement_ids, path, sha256, expected}` |
 | `totals` | Counts by `area`, by `expected.outcome`, and of rows whose `applies_to` names both sides |
+| `fixtures` | From Phase 5: rows in bytewise UTF-8 order of `path`, `{name, path, sha256}`, one per corpus-owned fixture. The one fixture is `fixtures/repository-identity.json` (§ The frozen identity fixture). |
 
 Closure holds in both directions:
 
-- every file under `conformance/` except `index.json` is a row;
+- every file under `conformance/` except `index.json` is a `cases` row or a `fixtures` row;
 - every row's file exists;
 - every `sha256` (`sha256:` + 64 hex over raw bytes) matches;
 - every `case_id` is unique and equals its file's basename.
@@ -37,7 +38,8 @@ Coverage is checked against the vocabulary **as landed at the commit** (R16):
 - every `refusal_code` member is some row's `expected.refusal`;
 - every `finding_code` member appears in some row's `expected.findings`;
 - every `coverage_floor` requirement appears in some row's `requirement_ids`. SC-004 is an operational rehearsal: the corpus carries its rehearsal-record shape vectors under `migration`, but the rehearsal itself is not a corpus act;
-- every vector whose outcome reads a registry status carries `environment.registry_status`.
+- every vector whose outcome reads a registry status carries `environment.registry_status`;
+- from Phase 5, every vector whose boundary reads the identity map carries `environment.repository_identity` (`council-convening-vector-identity-map-missing` otherwise).
 
 ## Vector (`kind: openxfactory-council-convening-conformance-vector`)
 
@@ -70,9 +72,9 @@ A shared vector carries `applies_to: [producer, consumer]`. Every shared resolut
 - it carries no binding, so the consumer runs it without E2 steps A1 and A4, which need a verified commission token and so belong to `admission` vectors;
 - it carries no `rule_superseded` case and none of the consumer's admission-only steps (A1 to A5).
 
-A producer runs it at commission. A consumer runs E2 steps 1 to 13 over it, with the record as the submitted record.
+A producer runs it at commission. A consumer runs E2 steps 1 to 13 over it, with the record as the submitted record. Both must reach the vector's `expected`. Vectors that need more than one head read, a binding, or a retry against live snapshots are `applies_to: [producer]` or `applies_to: [consumer]`.
 
-**What no vector covers.** E2 steps A2 and A5 are 025's own guards over consumer-held state the corpus does not model (data-model E2). A consumer's adapter runs them as seams that pass during every corpus run, shared and consumer-only admission vectors alike, so no vector carries an input for them. The provider reference implementation has no such steps, and no vector's `expected` depends on them. Both must reach the vector's `expected`. Vectors that need more than one head read, a binding, a retry against live snapshots, or the governed tip are `applies_to: [producer]` or `applies_to: [consumer]`.
+**What no vector covers.** E2 steps A2 and A5 are 025's own guards over consumer-held state the corpus does not model (data-model E2). A consumer's adapter runs them as seams that pass during every corpus run, shared and consumer-only admission vectors alike, so no vector carries an input for them. The provider reference implementation has no such steps, and no vector's `expected` depends on them.
 
 ## Environment oracles
 
@@ -90,8 +92,14 @@ An adapter must inject these and must not consult a live system during a corpus 
 | `resolved_candidate` | — | The consumer's own resolution of the candidate, compared at admission. |
 | `issued` | — | `{challenges: [...], consumed_challenges: [...], registered_keys: [{assignment_id, key_fingerprint}], accepted_returns: [...], live_snapshots: [...]}` as of `evaluation_time`. |
 | `identity` | — | `{verified: bool, claims: {...}, principal: {principal_kind, principal_ref}}`: the one home of verified claims. Decoded-only claims carry `verified: false`. Broker capability is the binding's own `broker` member, not an oracle. |
-| `repository_identity` | — | **Required** on every vector whose boundary reads the identity map: `binding`, `registration`, and `admission` from Phase 5. One of three forms. `{"state": "text", "text": "<the map's exact UTF-8 text>"}`: the adapter writes it at `contracts/policies/repository-identity.yaml` under a temporary root and reads it with the same reader, so a text with a malformed row, or one that does not parse, is refused through the reader's own result, and a well-formed text with no transfer rows is a valid, empty map. `{"state": "absent"}`: no file. `{"state": "unreadable"}`: a file that cannot be read or decoded. The generator copies the `text` form from `contracts/policies/repository-identity.yaml` at generation, so the map a vector depends on is covered by that vector's own digest, and `generate --check` reports any drift between the two. A vector that reads the map without this oracle is malformed (`council-convening-vector-identity-map-missing`). |
+| `repository_identity` | — | **Required** on every vector whose boundary reads the identity map: `binding`, `registration`, and `admission` from Phase 5. One of three forms. `{"state": "text", "text": "<the map's exact UTF-8 text>"}`: the adapter writes it at `contracts/policies/repository-identity.yaml` under a temporary root and reads it with the same reader, so a text with a malformed row, or one that does not parse, is refused through the reader's own result, and a well-formed text with no transfer rows is a valid, empty map. `{"state": "absent"}`: no file. `{"state": "unreadable"}`: a file that cannot be read or decoded. The `text` form is the **frozen identity fixture's** text, never the live `contracts/policies/repository-identity.yaml` (§ The frozen identity fixture). So the map a vector depends on is covered by that vector's own digest and by the fixture's index row, and `generate --check` compares vectors with the fixture only. A vector that reads the map without this oracle is malformed (`council-convening-vector-identity-map-missing`). |
 | `registry_status` | — | An override of E1 statuses. **Required** on every vector whose outcome reads a status, so minor-time and major-time behavior are both vectors at one commit, and the registry flips at Phases 7 and 8 move no vector. |
+
+## The frozen identity fixture
+
+`conformance/fixtures/repository-identity.json` (`kind: openxfactory-council-convening-conformance-fixture`, `schema_version: 1`, `name: repository-identity`) holds one member, `text`: a frozen YAML text in the shape of `contracts/policies/repository-identity.yaml`, with exactly the rows the vectors need. Those are one complete transfer row (codexFactory's former and current spellings, as the live map records them when the fixture is authored) and one `pending` row. It is corpus-owned. It is listed in the index's `fixtures` with its raw SHA-256, and every map-reading vector carries its text verbatim in `environment.repository_identity`. The generator writes vectors from it and never reads the live map, so `generate --check` never reads it either.
+
+**Why frozen, not copied from the live map.** The live map is a shared estate file, owned by its own changes and checked by its own validator. If the corpus tracked it, any edit to it would break this family's `generate --check`, which runs in the required pytest suite: the open `adopt-medxsoft-repository-identity` change is one such edit. That would turn another lane's PR red until this family's vectors were regenerated, and it would move this family's corpus digest, and after Phase 7 its manifest row, from that lane's PR. The corpus tests the binding mechanism (the former spelling, a case variant, an unlisted spelling, a malformed or missing map) over a fixed map. Whether the live map is well formed is its own validator's job. A real binding instance is still checked against the live map at the consumer's pin, by `check` (contracts/validator-cli.md).
 
 ## The `$parts` sentinel
 
