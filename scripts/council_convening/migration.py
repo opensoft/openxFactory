@@ -66,7 +66,6 @@ SELECTION_KIND = "xfactory_council_protocol_selection"
 ACTIVATION_KIND = "xfactory_council_activation_evidence"
 SELECTION_SCHEMA_ID = records.ID_BASE + "protocol-selection.schema.yaml"
 ACTIVATION_SCHEMA_ID = records.ID_BASE + "activation-evidence.schema.yaml"
-BINDING_KIND = "xfactory_council_producer_binding"
 
 SIDES = ("producer", "consumer")
 
@@ -284,27 +283,17 @@ def activation(record: Any, registry: classification.Registry, schemas: records.
     return records.Outcome("accept")
 
 
-def _binding_problem(binding: Any, schemas: records.SchemaSet) -> bool:
-    """Whether `binding` is not a live producer binding as far as the activation
-    order reads one: its kind, its `binding_id` and its `broker` member, and no
-    `.template.yaml` stub marker. The binding's other members are judged at the
-    `binding`, `admission` and `registration` boundaries (E10)."""
-    if not isinstance(binding, dict) or binding.get("kind") != BINDING_KIND:
+def _binding_problem(candidate: Any, schemas: records.SchemaSet) -> bool:
+    """Whether `candidate` is not a live producer binding: it fails
+    `producer-binding.schema.yaml`, or it is the `.template.yaml` stub. That is
+    E10 step 1, both halves (Phase 5's `binding.schema_errors`). The binding's
+    other E10 steps are judged at the `binding`, `admission` and `registration`
+    boundaries; the activation order reads only its `binding_id` and `broker`."""
+    from . import binding
+
+    if binding.schema_errors(candidate, schemas):
         return True
-    if "instantiation_stub" in binding:
-        return True
-    opaque = records.SHARED_DEFINITIONS_ID + "#/$defs/opaque_id"
-    if schemas.errors(opaque, binding.get("binding_id")):
-        return True
-    broker = binding.get("broker")
-    if not isinstance(broker, dict) or set(broker) != {"broker_ref", "capability_verified",
-                                                        "evidence_ref"}:
-        return True
-    if schemas.errors(opaque, broker["broker_ref"]) or not isinstance(
-            broker["capability_verified"], bool):
-        return True
-    return broker["evidence_ref"] is not None and bool(schemas.errors(
-        opaque, broker["evidence_ref"]))
+    return "instantiation_stub" in candidate
 
 
 def activation_handler(vector: Mapping[str, Any], context: Any) -> records.Outcome:
