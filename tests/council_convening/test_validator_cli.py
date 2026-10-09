@@ -464,8 +464,9 @@ def test_a_malformed_commission_record_also_names_the_schema_finding(tmp_path):
 def test_check_refuses_a_secret_without_echoing_it(tmp_path):
     record = _commission_record()
     secret = "notes/gh" + "p_" + "A1b2C3d4E5f6G7h8I9j0K1l2"
-    record["required_seats_provenance"]["consumed_facts"]["pr_facts"]["changed_paths"].append(
-        secret)
+    paths = record["required_seats_provenance"]["consumed_facts"]["pr_facts"]["changed_paths"]
+    paths.append(secret)
+    paths.sort(key=lambda p: p.encode("utf-8"))   # M3: sorted, so step 3 is reached
     result = run_validator("check", str(_write(tmp_path, "convening.json", record)), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-secret-bearing-fact]" in result.stdout
