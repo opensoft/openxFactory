@@ -4,7 +4,7 @@ Status: draft
 Kind: runbook
 Governed by: [add-factory-mcp-conformance](../openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md), ratified 2026-09-07; amended by [amend-factory-mcp-conformance-auth-profile](../openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md), ratified 2026-10-08 (the hosted authorization block, the narrowed *Unavailable dependency* scenario and per-domain error vocabularies)
 
-The unreleased [declaration schema](../contracts/factory-mcp/declaration.schema.json) and [validator](../scripts/validate-factory-mcp.py) check a domain's declared contract offline. They report structural validity, reference integrity, semantic consistency and unresolved gaps separately. Even a valid declaration returns `verified_conformance: false`: source citations still require behavioral review and deployment acceptance.
+The [declaration schema](../contracts/factory-mcp/declaration.schema.json), registered in the contract bundle at `contract-v4.1`, and its [validator](../scripts/validate-factory-mcp.py) check a domain's declared contract offline. They report structural validity, reference integrity, semantic consistency and unresolved gaps separately. Even a valid declaration returns `verified_conformance: false`: source citations still require behavioral review and deployment acceptance.
 
 ## Run the synthetic example
 
@@ -95,7 +95,7 @@ A hosted engineering declaration made before the authorization block has none, s
 
 DNS behavior remains in OpsxFactory, whose DNS check is callable-only with no hosted declaration. This repository ships synthetic domain fixtures only.
 
-The profile is unbundled and unreleased. Register manifest/changelog digests, allocate the additive contract version and accept consumer pins only in the later governed realization. This work creates no listener, shared transport, release tag, accepted deployment or production endpoint.
+The declaration schema is registered in the contract bundle at `contract-v4.1`, its first bundle, with a per-file `sha256` in [`contracts/manifest.yaml`](../contracts/manifest.yaml) and an entry in [`contracts/CHANGELOG.md`](../contracts/CHANGELOG.md); the validator, the synthetic examples and the tests are pinned by the release commit. `schema_version` stays `1` and the profile stays `advisory-v1`: the declaration was never released before, so adding the authorization block broke no released shape. Consumer pins are each consumer's own act. This work creates no listener, shared transport, accepted deployment or production endpoint, and the bundle's annotated tag is published only after the release lands.
 
 ## Implementation records
 

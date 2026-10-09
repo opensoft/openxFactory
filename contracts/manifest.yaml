@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v4.0
+contract_bundle_version: contract-v4.1
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -3733,3 +3733,38 @@ contracts:
       aggregation instead of reading it live from the checkout would be a
       second pin that moves separately, which is the defect this pin grammar
       exists to end.
+  # REGISTERED AT contract-v4.1, THE DECLARATION'S FIRST BUNDLE
+  # (`amend-factory-mcp-conformance-auth-profile` task 2.6, Speckit feature 039).
+  # The declaration was promoted by `add-factory-mcp-conformance` (archived
+  # 2026-10-06) unbundled and unreleased; this change adds the authorization
+  # block a deployed service carries, and registers the schema here. It is a
+  # registered manifest row and NOT a release-inventory member: membership is
+  # closed over the surface `scripts/hermes_runtime_validation/release.py`
+  # enumerates, so the schema's identity travels by this row's per-file
+  # `sha256`, verified by `scripts/validate-manifest-digests.py`. The validator,
+  # the synthetic examples and the tests are pinned by the release commit.
+  - id: factory-mcp-declaration
+    path: contracts/factory-mcp/declaration.schema.json
+    source_path: openxFactory/contracts/factory-mcp/declaration.schema.json
+    type: schema
+    schema_version: 1
+    sha256: 5e3cf502cea37f18e5281ce6b344a621196e1fa77bfe40b57e17b4ddd2fa28ac
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    intended_consumers:
+      - domain repositories that publish a factory MCP declaration for their own domain server
+      - reviewers who validate a declaration offline with `scripts/validate-factory-mcp.py`
+    consumption_rule: >-
+      THE CLOSED, VERSIONED ADVISORY DECLARATION of a domain's MCP tool catalog
+      (`schema_version: 1`, `profile: advisory-v1`), checked OFFLINE by
+      `scripts/validate-factory-mcp.py` against explicit `--snapshot` roots and
+      never fetched. A valid declaration reports `verified_conformance: false`:
+      it is a checked declaration, never a certificate that a server enforces
+      it. A DEPLOYED service carries the authorization block (issuer, an RS256
+      baseline with EdDSA optional, one audience bound to the canonical resource
+      URI or issuer-assigned, the RFC 9728 metadata path, and cited `auth`
+      support); a service that is not deployed carries none. Each domain keeps
+      its own error codes and envelope, and the lossless outcome mapping is the
+      only shared layer. Pin the exact openxFactory commit with this row's
+      per-file sha256 verified before any copy is treated as current; the
+      runbook is `docs/factory-mcp-conformance.md`.

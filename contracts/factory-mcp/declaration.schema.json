@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Unreleased factory MCP advisory declaration",
+  "title": "Factory MCP advisory declaration",
   "type": "object",
   "additionalProperties": false,
   "properties": {
