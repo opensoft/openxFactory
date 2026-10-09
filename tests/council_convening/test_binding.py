@@ -77,12 +77,15 @@ from .binding_fixtures import (
     fixture_text,
     governed,
     identity,
+    admission_binding,
+    admission_workflow,
     identity_oracle,
     malformed_row_text,
     seat_binding,
     seat_environment,
     seat_history,
     seat_subject,
+    with_passing_binding,
     write_identity_map,
 )
 
@@ -1201,12 +1204,24 @@ def test_a_binding_vector_without_the_identity_oracle_is_refused(family_tree):
 
 
 def test_the_identity_map_rule_covers_every_boundary_that_reads_the_map():
-    # `admission` joins in the commit that wires binding into the admission
-    # handler as E2 steps A1 and A4 (T055) and re-authors its vectors (T051).
+    # conformance-corpus § Environment oracles: `binding`, `registration`, and
+    # `admission` from Phase 5, where binding runs as E2 steps A1 and A4.
     from scripts.council_convening import corpus
 
-    assert "binding" in corpus.IDENTITY_MAP_BOUNDARIES
-    assert "registration" in corpus.IDENTITY_MAP_BOUNDARIES
+    assert set(corpus.IDENTITY_MAP_BOUNDARIES) == {"binding", "registration", "admission"}
+
+
+def test_an_admission_vector_without_the_identity_oracle_is_refused(family_tree):
+    from scripts.council_convening import corpus, generate
+
+    conformance = family_tree / "contracts" / "council-convening" / "conformance"
+    path = conformance / "vectors" / "resolution" / f"{ADMISSION_BASE}.json"
+    vector = json.loads(path.read_text(encoding="utf-8"))
+    del vector["environment"]["repository_identity"]
+    path.write_bytes(corpus.dump_json(vector))
+    generate.generate(family_tree)
+    codes = [f.code for f in corpus.check_corpus(family_tree).findings]
+    assert "council-convening-vector-identity-map-missing" in codes
 
 
 def test_the_fixture_is_an_index_fixtures_row_with_a_matching_digest():
@@ -1270,3 +1285,260 @@ def test_generate_check_never_reads_the_live_map(family_tree, live_map):
         assert not target.exists()
     assert generate.check(family_tree) == []
     assert [f.code for f in corpus.check_corpus(family_tree).findings] == []
+
+
+# =========================================================================
+# The binding inside admission: E10 steps 1 to 13 as E2 step A1, after shape,
+# and step 14 as E2 step A4, after step 5 has checked `governed` (T055; T051;
+# R3-M4; R4-M1; R4-H2). Failing first.
+# =========================================================================
+
+RESOLUTION_VECTORS = BINDING_VECTORS.parent / "resolution"
+ADMISSION_BASE = "admission-accept-conditional-seat-not-held"
+
+#: Phase 2's twelve admission vectors, re-authored to carry a passing binding.
+#: Their outcomes do not move.
+PHASE_2_ADMISSION = {
+    "admission-accept-conditional-seat-not-held": None,
+    "admission-accept-unrelated-file-changed-at-tip": None,
+    "admission-refuse-candidate-not-resolved": "candidate_mismatch",
+    "admission-refuse-head-moved-after-submission": "candidate_head_moved",
+    "admission-refuse-head-unavailable": "candidate_head_unavailable",
+    "admission-refuse-order-digest-before-superseded": "rule_digest_mismatch",
+    "admission-refuse-order-superseded-before-council": "rule_superseded",
+    "admission-refuse-order-superseded-source-before-later-source": "rule_superseded",
+    "admission-refuse-rule-superseded-council-profile": "rule_superseded",
+    "admission-refuse-rule-superseded-listing": "rule_superseded",
+    "admission-refuse-rule-superseded-rule-file": "rule_superseded",
+    "admission-refuse-rule-superseded-source-deleted-at-tip": "rule_superseded",
+}
+
+#: The admission vectors this phase adds: the binding's own refusals at
+#: admission, and the interleaved order.
+PHASE_5_ADMISSION = {
+    "admission-refuse-binding-claims-unverified": "claims_unverified",
+    "admission-refuse-binding-identity-map-absent": "repository_identity_unavailable",
+    "admission-refuse-binding-seat-token-for-commission": "workflow_not_permitted",
+    "admission-refuse-binding-stub-presented-as-live": "binding_malformed",
+    "admission-refuse-workflow-revision-not-the-governed-revision":
+        "workflow_revision_ungoverned",
+    "admission-refuse-workflow-outside-the-governed-repository":
+        "workflow_revision_ungoverned",
+    # A1 runs after shape (step 2), and before secrets and the candidate.
+    "admission-refuse-order-shape-before-binding": "convening_malformed",
+    "admission-refuse-order-binding-before-secret": "audience_mismatch",
+    "admission-refuse-order-binding-before-candidate": "claims_expired",
+    # A4 runs after every step-5 check, and before step 6.
+    "admission-refuse-order-candidate-before-workflow-revision": "candidate_mismatch",
+    "admission-refuse-order-mutable-revision-before-workflow-revision":
+        "mutable_rule_reference",
+    "admission-refuse-order-former-governed-spelling-before-workflow-revision":
+        "rule_unauthorized",
+    "admission-refuse-order-superseded-before-workflow-revision": "rule_superseded",
+    "admission-refuse-order-workflow-revision-before-council":
+        "workflow_revision_ungoverned",
+}
+
+
+def _raw(case_id):
+    return json.loads((RESOLUTION_VECTORS / f"{case_id}.json").read_text(encoding="utf-8"))
+
+
+def _joined(vector):
+    from scripts.council_convening import corpus
+
+    vector = copy.deepcopy(vector)
+    vector["inputs"] = corpus.join_parts(vector["inputs"])
+    vector["environment"] = corpus.join_parts(vector.get("environment", {}))
+    return vector
+
+
+def _admission(case_id=ADMISSION_BASE):
+    return _joined(_raw(case_id))
+
+
+def _adjudicate(vector):
+    from scripts.council_convening import resolution
+
+    got = resolution.adjudicate(vector)
+    return got["outcome"], got["refusal"]
+
+
+def _all_admission_vectors():
+    out = []
+    for path in sorted(BINDING_VECTORS.parent.glob("*/*.json")):
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        if raw["boundary"] == "admission":
+            out.append((raw["case_id"], raw))
+    return out
+
+
+def test_every_admission_vector_carries_a_binding_and_the_commission_operation():
+    vectors = _all_admission_vectors()
+    assert len(vectors) >= len(PHASE_2_ADMISSION) + len(PHASE_5_ADMISSION)
+    for case_id, raw in vectors:
+        assert "binding" in raw["inputs"], case_id
+        assert raw["inputs"]["operation"] == "commission", case_id
+        assert "identity" in raw["environment"], case_id
+        if raw["expected"]["refusal"] != "repository_identity_unavailable":
+            assert raw["environment"]["repository_identity"] == identity_oracle(), case_id
+
+
+@pytest.mark.parametrize("case_id", sorted(PHASE_2_ADMISSION))
+def test_the_re_authored_phase_2_admission_vectors_keep_their_outcomes(case_id):
+    raw = _raw(case_id)
+    code = PHASE_2_ADMISSION[case_id]
+    expected = ("accept", None) if code is None else ("refuse", code)
+    assert (raw["expected"]["outcome"], raw["expected"]["refusal"]) == expected
+    assert _adjudicate(_joined(raw)) == expected
+
+
+@pytest.mark.parametrize("case_id", sorted(PHASE_5_ADMISSION))
+def test_each_phase_5_admission_vector_pins_its_code(case_id):
+    raw = _raw(case_id)
+    assert raw["boundary"] == "admission" and raw["applies_to"] == ["consumer"]
+    assert raw["area"] == "resolution"
+    assert "FR-009" in raw["requirement_ids"]
+    assert raw["expected"]["derived_origin"] == "hand"
+    assert (raw["expected"]["outcome"], raw["expected"]["refusal"]) == (
+        "refuse", PHASE_5_ADMISSION[case_id])
+    assert _adjudicate(_joined(raw)) == ("refuse", PHASE_5_ADMISSION[case_id])
+
+
+def test_admission_without_a_binding_is_a_harness_error():
+    from scripts.council_convening import resolution
+
+    vector = _admission()
+    del vector["inputs"]["binding"]
+    with pytest.raises(resolution.HarnessError):
+        resolution.adjudicate(vector)
+
+
+@pytest.mark.parametrize("operation", ["seat_execution", None, "Commission"])
+def test_admission_judges_only_the_commission_jobs_token(operation):
+    from scripts.council_convening import resolution
+
+    vector = _admission()
+    vector["inputs"]["operation"] = operation
+    with pytest.raises(resolution.HarnessError):
+        resolution.adjudicate(vector)
+
+
+def test_a_commission_vector_carrying_a_binding_is_a_harness_error():
+    from scripts.council_convening import resolution
+
+    vector = _joined(_raw("commission-accept-conditional-seat-not-held"))
+    vector["inputs"]["binding"] = admission_binding()
+    with pytest.raises(resolution.HarnessError):
+        resolution.adjudicate(vector)
+
+
+def test_a_shared_commission_vector_reaches_the_consumer_without_a_binding():
+    # conformance-corpus § How each side runs a shared vector: a shared vector
+    # carries no binding, so the consumer runs it without A1 and A4. It carries
+    # no `identity` oracle, so a consumer run that read one would be a harness
+    # error, not this pass.
+    shared = []
+    for path in sorted(RESOLUTION_VECTORS.glob("commission-*.json")):
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        if raw["applies_to"] == ["producer", "consumer"]:
+            assert "binding" not in raw["inputs"], raw["case_id"]
+            assert "identity" not in raw.get("environment", {}), raw["case_id"]
+            shared.append(raw)
+    assert shared
+    raw = next(r for r in shared if r["expected"]["outcome"] == "accept")
+    assert _adjudicate(_joined(raw)) == ("accept", None)
+
+
+def test_resolve_takes_the_binding_at_admission_and_refuses_it_at_commission(tmp_path):
+    from scripts.council_convening import resolution
+
+    vector = _admission()
+    record = vector["inputs"]["record"]
+    root = write_identity_map(tmp_path / "root")
+    with pytest.raises(resolution.HarnessError):
+        resolution.resolve(record, boundary="admission",
+                           selected_protocol=vector["inputs"]["selected_protocol"],
+                           oracles=resolution.VectorOracles(vector["environment"]))
+    result = resolution.resolve(
+        record, boundary="admission",
+        selected_protocol=vector["inputs"]["selected_protocol"],
+        oracles=resolution.VectorOracles(vector["environment"]),
+        binding=vector["inputs"]["binding"], identity_root=root,
+        evaluation_time=vector["evaluation_time"])
+    assert result.required_seats == vector["expected"]["derived"]["required_seats"]
+    commission = _joined(_raw("commission-accept-conditional-seat-not-held"))
+    with pytest.raises(resolution.HarnessError):
+        resolution.resolve(
+            commission["inputs"]["record"], boundary="commission",
+            selected_protocol=commission["inputs"]["selected_protocol"],
+            oracles=resolution.VectorOracles(commission["environment"]),
+            expected_candidate=commission["inputs"]["expected_candidate"],
+            binding=admission_binding(), identity_root=root,
+            evaluation_time=commission["evaluation_time"])
+
+
+def test_a1_reads_the_verified_claims_before_step_3_and_only_them(tmp_path):
+    # Data-model E2 step 3: the admission steps before it consult oracles only by
+    # grammar-checked identifiers, and A1 reads the verified claims.
+    from scripts.council_convening import resolution
+
+    vector = _admission("admission-refuse-order-binding-before-secret")
+    oracles = resolution.VectorOracles(vector["environment"])
+    with pytest.raises(Refused) as refused:
+        resolution.resolve(
+            vector["inputs"]["record"], boundary="admission",
+            selected_protocol=vector["inputs"]["selected_protocol"], oracles=oracles,
+            binding=vector["inputs"]["binding"],
+            identity_root=write_identity_map(tmp_path / "root"),
+            evaluation_time=vector["evaluation_time"])
+    assert refused.value.code == "audience_mismatch"
+    assert oracles.reads == [("identity", None)]
+
+
+def test_a4_reads_the_governed_member_only_after_step_5_checked_it():
+    # R4-H2: a mutable revision, and a governed repository the allowlist does not
+    # name, are refused by step 5 under their own codes, never by step 14.
+    for case_id, code in (
+            ("admission-refuse-order-mutable-revision-before-workflow-revision",
+             "mutable_rule_reference"),
+            ("admission-refuse-order-former-governed-spelling-before-workflow-revision",
+             "rule_unauthorized")):
+        vector = _admission(case_id)
+        assert _adjudicate(vector) == ("refuse", code)
+        # The same token against a clean record is the workflow-revision refusal.
+        clean = _admission(ADMISSION_BASE)
+        clean["environment"]["identity"] = vector["environment"]["identity"]
+        assert _adjudicate(clean) == ("refuse", "workflow_revision_ungoverned")
+
+
+def test_admission_reads_the_map_each_vector_carries_never_the_live_one(monkeypatch):
+    real = estate_inventory.load_transfers
+    seen = []
+
+    def spy(root):
+        seen.append(root.resolve())
+        return real(root)
+
+    monkeypatch.setattr(estate_inventory, "load_transfers", spy)
+    for _, raw in _all_admission_vectors():
+        expected = raw["expected"]
+        assert _adjudicate(_joined(raw)) == (expected["outcome"], expected["refusal"])
+    assert seen and REPO_ROOT.resolve() not in seen
+
+
+def test_the_seat_workflow_is_not_permitted_for_the_commission_token():
+    vector = _admission("admission-refuse-binding-seat-token-for-commission")
+    claims = vector["environment"]["identity"]["claims"]
+    assert claims["job_workflow_ref"] != admission_workflow()
+    assert _adjudicate(vector) == ("refuse", "workflow_not_permitted")
+
+
+def test_with_passing_binding_passes_a1_and_a4_on_the_base_record():
+    raw = _raw(ADMISSION_BASE)
+    for member in ("binding", "operation"):
+        raw["inputs"].pop(member, None)
+    for member in ("identity", "repository_identity"):
+        raw["environment"].pop(member, None)
+    vector = _joined(with_passing_binding(raw))
+    assert _adjudicate(vector) == ("accept", None)

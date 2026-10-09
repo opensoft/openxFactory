@@ -225,3 +225,45 @@ def write_identity_map(root: Path, text: str | None = None) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(fixture_text() if text is None else text, encoding="utf-8")
     return root
+
+
+# --- the binding inside admission (E2 steps A1 and A4; T051, T055) -----------
+
+#: The governed repository Phase 2's resolution vectors cite. Admission judges
+#: the COMMISSION job's token (data-model E2 step A1), so the workflow an
+#: admission vector's binding permits is a commission workflow in that
+#: repository, under `equals_governed_revision`.
+ADMISSION_GOVERNED = "example-org/governed-rules"
+
+
+def admission_workflow(repository: str = ADMISSION_GOVERNED) -> str:
+    return f"{repository}/.github/workflows/corpus-commission.yml@refs/heads/main"
+
+
+def admission_binding(repository: str = ADMISSION_GOVERNED, **overrides) -> dict:
+    """The commission job's binding, permitting the commission workflow of
+    `repository`."""
+    binding = commission_binding(permitted_workflows=[{
+        "operation": "commission",
+        "job_workflow_ref": admission_workflow(repository),
+        "workflow_revision_rule": "equals_governed_revision",
+    }])
+    binding.update(copy.deepcopy(overrides))
+    return binding
+
+
+def with_passing_binding(vector: dict, *, repository: str | None = None) -> dict:
+    """`vector`, an admission vector, made to carry a binding that passes E2
+    steps A1 and A4 for its own record: the commission job's verified claims
+    name the record's governed repository (or `repository`) and its governed
+    revision, and the map is the frozen fixture's text. Mutates and returns
+    `vector`; members spelled with `$parts` are left as they are."""
+    member = vector["inputs"]["record"]["required_seats_provenance"]["governed"]
+    bound = admission_binding(repository or member["repository"])
+    vector["inputs"]["binding"] = bound
+    vector["inputs"]["operation"] = "commission"
+    vector.setdefault("environment", {})
+    vector["environment"]["identity"] = identity(
+        claims_for(bound, workflow_sha=member["revision"]))
+    vector["environment"]["repository_identity"] = identity_oracle()
+    return vector
