@@ -114,6 +114,21 @@ worded, each cited by comment id or merge commit, with no new decision:
   `pack_id` per category" (item 1), and T045's falsifier nodes for the two
   refusals (item 3); item 2 changes nothing in the plan.
 
+**Revision: T002's fifth bookkeeping batch** (2026-10-09). More rulings and
+landings, posted on `#656` or merged since #1279 (`e514f9e0`), are encoded as
+worded, each cited by comment id or merge commit, with no new decision:
+- the tick of T071, whose ratification record landed as openxFactory#1261 →
+  `a020b34a` (the merge commit read through GraphQL), on Brett's ratify word
+  (`6023375303`);
+- the NUL seam (the holder, `6072086385` item 4): Postgres `jsonb` cannot store
+  U+0000, so T041 refuses it in every string a finding carries, T042's
+  `_json_text` refuses it too, and T044's families never emit it, with the bound
+  in `contracts/health-finding.md`;
+- the holder's rulings on lane 3's review of T041 (`6072197564`, NAMES points (b),
+  (c) and (e)): a pathless finding's `identity.category` from a closed set, its
+  `entry` bounded at 200 characters, and `no-sandbox`, `manifest-refused` and
+  `dispositions-refused` taking `entry ""`, with `contracts/health-finding.md`.
+
 **RULED.** Brett Heap ruled the plan at `6847e99e`, every item as recommended
 (`#656` `6013547504`, 2026-10-06; plan.md § "Ruled answers, the plan ruling").
 Implementation starts on this word. Still his word, at the act: the 0.2.0 publish
@@ -1140,8 +1155,8 @@ copies (research R7; ADV-05).
     the CLI or HTTP layer emits (the holder, `6027706377` item 1);
     `tests/test_validator_input_set.py` green at the new commit.
   - **Ruled**: R2Q10, R2Q18, R2Q22, R2Q25; the holder's `6018624750`,
-    `6069024023` (items 1 and 2), `6069507373` (T046 item 2) and `6072086385`
-    (item 1).
+    `6069024023` (items 1 and 2), `6069507373` (T046 item 2), `6072086385`
+    (items 1 and 4) and `6072197564` (NAMES (b), (c) and (e)).
     **Decisions**: N-3, N-13, N-15, OQ-H15-19.
   - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
@@ -1149,7 +1164,7 @@ copies (research R7; ADV-05).
     `tests/test_validator_input_set.py` (first: T041 → T047 → T054), new
     `tests/test_health_contract.py`.
   - **Implementation note** (the holder, `6069024023` items 1 and 2,
-    `6069507373` T046 item 2, and `6072086385` item 1):
+    `6069507373` T046 item 2, `6072086385` items 1 and 4, and `6072197564`):
     - the engine categories are the nine T041 drafted and the two the holder
       added, `dispositions-refused` and `manifest-refused`, with their mappings,
       each category's `pack_id` among them: the entry's id for a finding against
@@ -1160,7 +1175,35 @@ copies (research R7; ADV-05).
       pathless one (option (D)), with its test;
     - a module-level `finding_id()` is the single hash path `make_finding` calls,
       patchable, so T046's test can patch it. `make_finding`'s interface is
-      unchanged (lane 3, `6069516931`).
+      unchanged (lane 3, `6069516931`);
+    - U+0000 (the NUL seam, `6072086385` item 4): Postgres `jsonb` cannot store
+      U+0000 in a string (SQLSTATE 22P05), so a finding that carries it can never
+      be stored. T041 REFUSES U+0000 in every string a finding carries, keys and
+      values alike (`identity`, `evidence`, `locator`, `message`), with
+      `FindingRefused` and a bounded `where`. For a pack's output, that refusal is
+      T045's whole-output `pack-output-refused` (`6069024023` item 1's mapping), so
+      a broken or hostile pack loses its own output, never the run. The bound is in
+      contracts/health-finding.md, and under the convergence rule (`5988818366`)
+      the holder ruled this fix-now: a crash path reachable with a simple payload;
+    - a pathless finding's identity (lane 3's REVIEW-W1 T041 NAMES points, the
+      holder, `6072197564`; contracts/health-finding.md § Rules):
+      - (b) its `identity.category` is from a CLOSED set: an engine category or
+        `identity-collision`, and, for the re-raise of a pathless original under
+        option (D) (`6069024023` item 2), that original's kind, which is itself one
+        of those. Packs never raise pathless findings: T045 refuses an empty-path
+        pack finding (`6072086385` item 3);
+      - (c) its `entry` is bounded at 200 characters, not 40. A per-entry
+        category's entry is also its `pack_id`, so the 40-character name rule
+        already binds it; only `entry-refused` carries a raw, possibly malformed
+        entry, and 200 is its bound;
+      - (e) `no-sandbox`, `manifest-refused` and `dispositions-refused` take
+        `entry ""`, and a non-empty entry is REFUSED (lane 3's MINOR at
+        `health_contract.py:865`). A run raises ONE `no-sandbox` finding, never one
+        per entry (data-model.md § Sandbox probe and canary, the `verdict` row: "ONE
+        install-level finding", R2Q16 (a)); only the per-entry categories and
+        `entry-refused` take a non-empty entry;
+    - (b) and (e) each carry a test row and, where they add a guard, a killed
+      mutant (`6072197564`).
   - **Lane**: 4.
 - [ ] T042 [P] [US4] [oDc] **HA-1, the store (`0003_`), one owner.** New
   `migrations/0003_health.sql`: `health_runs` (with the run's kind, the
@@ -1192,7 +1235,8 @@ copies (research R7; ADV-05).
     install-level finding (`pack_id` `opendox`, empty `path`) is admitted; the
     five suites above.
   - **Ruled**: R2Q13, R2Q15, R2Q25; the holder's `6018624750`, `6028364555`
-    (items 1 and 2), `6069024023` (item 3, `run_seq`) and `6069024568` (item 3).
+    (items 1 and 2), `6069024023` (item 3, `run_seq`), `6069024568` (item 3) and
+    `6072086385` (item 4, the NUL seam).
     **Decisions**: OQ-H-22, OQ-H15-18, -19, -20.
   - **After**: T027 (N-6 (a), ruled).
   - **Files**: as listed (single owner of `0003_` and of the five suites), and
@@ -1203,6 +1247,11 @@ copies (research R7; ADV-05).
     `test_readiness_refuses_a_database_whose_migration_file_has_changed`, for the
     same cause as at the three `test_migrations_apply` sites (the holder,
     `6069024568` item 3).
+  - **Implementation note** (the holder, `6072086385` item 4, the NUL seam):
+    Postgres `jsonb` cannot store U+0000 in a string (SQLSTATE 22P05). T041
+    refuses it in every string a finding carries (T041's note), and T042's
+    `_json_text` ALSO refuses it, as `RefusedError` and never a raw driver error,
+    with a test (defence in depth).
   - **Implementation note** (accepted by the holder, `6028138991`, from lane 3's
     T105 measurement, `6028122920`, and made precise by `6028364555`; no
     requirement or falsifier changes): `full` is a reserved word in PostgreSQL 16,
@@ -1254,7 +1303,12 @@ copies (research R7; ADV-05).
   keys or their declared words (R2Q11 (a), as FR-010 words it at
   `spec.md:819-821`; the holder, `6069507373` T044 item 3), near-duplicates (OQ-H-21:
   measure whether `doxbench_knowledge` runs with no binding; set and record the
-  threshold); each family supplies a position-independent identity key (N-13);
+  threshold); each family supplies a position-independent identity key (N-13),
+  and no family emits U+0000: a document string that contains it takes the
+  SHA-256 form under a distinct key (`6069507373`, T044 item 7), never truncation
+  or silent replacement, because a built-in finding the contract refuses fails the
+  run closed (`6069507373`, T046 item 9), so a refusal there can only be a bug
+  (the holder, `6072086385` item 4, the NUL seam);
   the engine files excluded (OQ-H-15), in the families only, through the
   adapter's `excluded=` argument, with no edit to `doxbench_intake.py` (T044 is
   OQ-H-15's one owner; the holder, `6069507373` T044 item 8). Model-free
@@ -1264,7 +1318,8 @@ copies (research R7; ADV-05).
     including the empty stub's class and an id that survives an edit above its
     finding.
   - **Ruled**: R2Q10, R2Q11, R2Q14; the holder's `6069507373` (T044 items 3 and
-    8). **Decisions**: OQ-H-8, -10, -11, -15, -16, -20, -21; N-13.
+    8) and `6072086385` (item 4, whose SHA-256 form is `6069507373` T044 item 7's).
+    **Decisions**: OQ-H-8, -10, -11, -15, -16, -20, -21; N-13.
   - **After**: T041, T043.
   - **Files**: new `src/opendox/health/__init__.py`, `src/opendox/health/families.py`,
     the test.
@@ -2178,7 +2233,7 @@ surfaces check over them (ADV-37).
     `fc4fa0ff` (2026-10-06T18:56:42Z), which folded Copilot's four items (its
     review `5427373153` of #1247) into the change before the ratify word. Brett's
     ratify word is T071's.
-- [ ] T071 [oxF] **Brett's ratify word, and its record.** Put the change to
+- [x] T071 [oxF] **Brett's ratify word, and its record.** Put the change to
   Brett; record his word on `#656` and the change's ratification record, under a
   Rule 6 window. No realization slice starts before it.
   - **After**: T070.
@@ -2186,9 +2241,12 @@ surfaces check over them (ADV-37).
   - **Word given**: Brett Heap, by interactive multi-choice, *"Ratify it
     (Recommended)"* (`#656` `6023375303`, 2026-10-06T19:00:45Z): the `#656` half of
     this task. The change's ratification record, in ONE openxFactory PR under a Rule
-    6 window (openxFactory#1261, a DRAFT), has not landed at this writing, so the
-    box stays open. T072 starts on
+    6 window (openxFactory#1261), has landed (see Landed), so the box is ticked.
+    T072 starts on
     the word (opportunistic, ARC-6); T074 and T075 follow in plan order.
+  - **Landed**: DONE, openxFactory#1261 → `a020b34a` (2026-10-09T01:13:36Z), the
+    ratification record of the change `realize-doc-health-direction-arc`, on Brett's
+    ratify word (`6023375303`).
 - [x] T072 [oDc] **Re-author the generic `lines` slice in openDox-code.** A small
   stdlib module carrying `split_keepends`, `join_rows` and the few git reads
   `RealGit` gives the generator; nothing is relocated out of openxFactory
@@ -2670,4 +2728,4 @@ T022, T023, T024, T025 and T026 done), Phase 5 30 (T040–T068, T059, T067 and T
 read-only wave-1 re-measure; T040, T060 and T105 done),
 requirement 9 12 (T073, T094 and the ten repair slices T095–T104, which replace
 the placeholder row T095+; T094 and the ten repair slices T095–T104 done), the
-direction arc 7 (T070–T072, T074–T077; T070 and T072 done), Close 5 (T080–T084), Every phase 4 (T090–T093).
+direction arc 7 (T070–T072, T074–T077; T070, T071 and T072 done), Close 5 (T080–T084), Every phase 4 (T090–T093).
