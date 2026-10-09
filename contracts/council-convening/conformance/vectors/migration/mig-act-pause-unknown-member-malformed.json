@@ -25,7 +25,7 @@
         "verbatim": "an example owner word, for a conformance vector only"
       },
       "provider": {
-        "bundle": "contract-v4.1",
+        "bundle": "contract-v5.0",
         "commit": "0123456789abcdef0123456789abcdef01234567",
         "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
       },

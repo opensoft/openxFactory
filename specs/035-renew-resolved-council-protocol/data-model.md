@@ -413,6 +413,14 @@ Kind: `xfactory_council_protocol_selection`. This is the shape of each side's go
 4. Across two sides, `pair_mismatched` unless `mode`, `protocol`, `provider_commit`, `provider_bundle` and `corpus_index_sha256` are all equal.
 5. `rejected_without_fallback`: the vector names the protocol a refusal was recorded under (`inputs.rejected_under`) and a later selection attempt (`inputs.selection_attempt`) that names any other protocol.
 
+*Clarified 2026-10-09 (Phase 6, T057 and T061; readings disclosed in evidence.md § Phase 6, not rulings):*
+
+- *Steps 1 to 3 run over every selection in the vector, the producer's, then the consumer's, then the later attempt's, before the next step begins.*
+- *A record presented as one side's selection whose `side` names the other side is `selection_malformed`.*
+- *Step 3 reads the status of the entry the selection names, and only then. A replacement selection in `mode: rehearsal` reads none. A vector whose outcome reads one carries `registry_status` for that entry, the replacement's included.*
+
+*Clarified 2026-10-09, on Brett Heap's ruling of 2026-10-09T13:22:16Z, "Back to Release A pins (Recommended)" (opensoft/brett-wip `lanes/log/codeXfactory-2.md`, RULED line 259). Step 3's status is the registry's at the pin the selection names. A side judges its selection with the validator at that pin, and `select` judges it from a checkout of that commit. So a legacy selection pinned to the Release A commit is judged at `deprecated` and is selectable, which is what a paired rollback after activation restores (E12). A legacy selection pinned to the removal major or later is `legacy_protocol_refused`.*
+
 ## E12. Activation evidence (`activation-evidence.schema.yaml`, Phase 6)
 
 Kind: `xfactory_council_activation_evidence`. One record per act. It records owner acts; it does not perform them. `act` is one of `pause`, `drain`, `switch`, `rehearsal`, `activation`, `rollback` or `resume`.
@@ -436,6 +444,15 @@ Kind: `xfactory_council_activation_evidence`. One record per act. It records own
 3. **Broker capability**, for an activation or resume, for each entry of `binding_refs` in order: `binding_unresolved` when it names no binding in `inputs.bindings`; then `broker_capability_insufficient` when that binding's `broker.capability_verified` is `false`, or its `broker.evidence_ref` is `null`.
 4. `pair_mismatched`: the two sides' selections differ on a matched value.
 5. `historical_reinterpretation_refused`: a rollback whose `new_records_protocol` is not the replacement's `protocol_id`, so that new-protocol records would be read under another protocol.
+
+*Clarified 2026-10-09, on Brett Heap's ruling of 2026-10-09T13:22:16Z, "Back to Release A pins (Recommended)" (opensoft/brett-wip `lanes/log/codeXfactory-2.md`, RULED line 259).* D5's "restores both prior versions/configurations together" reads, for a rollback after activation, as both sides returning to their Release A pins, those of the deprecation minor cut at Phase 7. There the legacy protocol is still `deprecated` and so selectable, and the rollback reselects legacy there. The new records are kept as audit evidence, verifiable under the replacement (`new_records_retained`, `new_records_protocol`). This order reads no registry status. The restored selections are judged as selections (E11) at the Release A pin they name.
+
+*Clarified 2026-10-09 (Phase 6, T057, T060 and T061; readings disclosed in evidence.md § Phase 6, not rulings):*
+
+- *The backing rehearsal is compared with its activation on `provider` and on the matched values other than `mode`: `protocol`, `provider_commit`, `provider_bundle` and `corpus_index_sha256`, side by side. A rehearsal runs its selections in `mode: rehearsal` and an activation in `mode: active`, so a comparison that included `mode` would refuse every activation. The rehearsal must itself pass this order as a rehearsal act. One consequence: for an activation or resume, a side that differs from the other on one of those four values is refused at step 2, and only a `mode` split reaches step 4.*
+- *A rollback's `producer` and `consumer` are the pair it restores, matched at step 4. Each of `rollback.restored_producer` and `rollback.restored_consumer` is that side's restoration evidence, `{verified_at, evidence_ref}`. All four `rollback` members are required at step 2.*
+- *Each act is closed to its own members, so a member foreign to the act is `activation_evidence_malformed`. A rollback carrying `binding_refs` is one example. Every act-specific member, `recorded_at` and `provider` included, is optional in the schema, because its absence is step 2's.*
+- *`inputs.bindings`, the configured set, is a non-empty list of live producer bindings with distinct `binding_id`s. It and `inputs.rehearsal` are inputs of an activation or resume vector only. Step 2 compares `binding_refs` with the configured set as sets, and step 3 reads `binding_refs` in its own order. Under Brett Heap's 025 ruling (A), "Per-seat environments (Recommended)", the configured set is the commission binding plus one binding per seat.*
 
 ## E13. Conformance corpus (Phases 1–6; digest registered at Phase 7)
 

@@ -21,7 +21,7 @@
       "kind": "xfactory_council_protocol_selection",
       "mode": "rehearsal",
       "protocol": "xfc-resolved-council-1",
-      "provider_bundle": "contract-v4.1",
+      "provider_bundle": "contract-v5.0",
       "provider_commit": "0123456789abcdef0123456789abcdef01234567",
       "schema_version": 1,
       "side": "consumer"
@@ -31,7 +31,7 @@
       "kind": "xfactory_council_protocol_selection",
       "mode": "rehearsal",
       "protocol": "xfc-resolved-council-1",
-      "provider_bundle": "contract-v4.1",
+      "provider_bundle": "contract-v5.0",
       "provider_commit": "0123456789abcdef0123456789abcdef01234567",
       "schema_version": 1,
       "side": "consumer"
@@ -41,7 +41,7 @@
       "kind": "xfactory_council_protocol_selection",
       "mode": "rehearsal",
       "protocol": "xfc-resolved-council-1",
-      "provider_bundle": "contract-v4.1",
+      "provider_bundle": "contract-v5.0",
       "provider_commit": "0123456789abcdef0123456789abcdef01234567",
       "schema_version": 1,
       "side": "producer"

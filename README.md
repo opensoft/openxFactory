@@ -157,8 +157,9 @@ Core domain-neutral docs:
   paired rollback that keeps the new records as audit evidence. Each act is an
   owner act, recorded as one activation-evidence record; nothing activates
   before the removal major. Realizes `renew-resolved-council-protocol` D5, as
-  feature 035 task T062, and leaves one question open for Brett Heap: what a
-  rollback after the removal major restores)
+  feature 035 task T062. A rollback after activation returns both sides to their
+  Release A pins and reselects legacy there, on Brett Heap's ruling of
+  2026-10-09, "Back to Release A pins (Recommended)")
 - [Factory Origin Key — Mint Runbook](docs/factory-origin-key-mint-runbook.md)
   (the operator ceremony for the ONE Ed25519 origin key an originating
   repository holds: generate the seed offline, derive `did` / fingerprint /

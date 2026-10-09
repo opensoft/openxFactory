@@ -201,11 +201,31 @@ bound is a governed contract change.
 A rollback stops intake and restores both sides together. It never re-reads new
 records as old ones, and it never leaves one binding accepting both protocols.
 
+**After an activation, both sides go back to their Release A pins.** Brett Heap
+ruled this on 2026-10-09T13:22:16Z, *"Back to Release A pins (Recommended)"*
+(opensoft/brett-wip `lanes/log/codeXfactory-2.md`, RULED line 259): a paired
+rollback returns both sides to their pins at Release A, the deprecation minor,
+where the legacy protocol is still `deprecated` and so still selectable, and
+reselects legacy there. The new records are kept as audit evidence. That is
+how this runbook reads D5's *"restores both prior versions/configurations
+together"*. The consumer's own rollback returns its image to the same Release A
+pin. A legacy selection at the removal major's pin, or any later one, would be
+refused as `legacy_protocol_refused`, because the registry there holds the
+legacy protocol `historical_only`.
+
+1. Return each side's provider pin to the Release A commit and its bundle tag,
+   and write each side's selection as the legacy protocol, `mode: active`, with
+   that commit, that tag and the corpus digest at that commit.
+2. Run `select` over the two restored selections from a checkout of the Release
+   A commit, where the registry holds the legacy protocol `deprecated`; it must
+   exit 0. A `select` run from the removal major's commit refuses the same pair,
+   correctly, because there the legacy protocol is `historical_only`.
+
 Record a `rollback` record carrying the owner's word and `intake`, because
 intake stays paused until both sides' restorations are verified. Its `producer`
-and `consumer` are the configurations the rollback restores, the pair it leaves
-in force, and they must match like every other pair: a paired rollback restores
-a matched pair, never one side. Its `rollback` member carries:
+and `consumer` are the restored Release A configurations, the pair the rollback
+leaves in force, and they must match like every other pair: a paired rollback
+restores a matched pair, never one side. Its `rollback` member carries:
 
 - `restored_producer` and `restored_consumer`: when each side's restored
   configuration was verified (`verified_at`), and the evidence (`evidence_ref`).
@@ -227,24 +247,21 @@ A rollback records no `binding_refs` and needs no rehearsal, because a broker
 failure may be what caused it. Commissioning resumes only through step 5, as a
 `resume` record.
 
-## Open question for Brett Heap: a rollback after the removal major
+## Ruled: a rollback after the removal major
 
-This question is open, and this runbook does not decide it.
+Brett Heap ruled the rollback after activation on 2026-10-09T13:22:16Z, choosing
+the recommended option, *"Back to Release A pins (Recommended)"* (opensoft/brett-wip
+`lanes/log/codeXfactory-2.md`, RULED line 259). The question it answers came up
+while this runbook was being written. Activation happens only after the removal
+major, and at the removal major the legacy protocol becomes `historical_only`, so
+a rollback could not restore the legacy pair as an active selection there.
 
-Activation happens only after the removal major (step 5). At the removal major
-the protocol registry moves the legacy protocol to `historical_only`, and from
-then on a legacy selection is refused in either mode (`legacy_protocol_refused`,
-data-model E11). D5 says a rollback *"restores both prior versions/configurations
-together"*. So after an activation, a rollback cannot restore the legacy pair as
-an active selection: `select` refuses it.
-
-The `rollback` record checks that its restored pair matches and that the new
-records are retained under the replacement. It does not read the registry, so it
-does not show whether the restored selections can be selected at all. What a
-rollback after the removal major restores is for Brett Heap to rule. Until he
-rules, this runbook gives no procedure for it. The rest of the rollback act,
-stopping intake and retaining the new records under the replacement, is
-unaffected.
+Under the ruling, a paired rollback returns both sides to their Release A pins,
+where the legacy protocol is still selectable, and reselects legacy there (step
+6). The new records are kept as audit evidence, verifiable under the replacement.
+The `rollback` record reads no registry status. It records the restored Release A
+pair, matched, and the retained records. Whether the restored selections are
+selectable is judged by `select` at the pin they name.
 
 ## The acts reserved to the owner
 

@@ -56,7 +56,12 @@ SHA = "0123456789abcdef0123456789abcdef01234567"
 OTHER_SHA = "89abcdef0123456789abcdef0123456789abcdef"
 INDEX_SHA = "sha256:" + "cd" * 32
 OTHER_INDEX_SHA = "sha256:" + "ef" * 32
-BUNDLE = "contract-v4.1"
+#: Illustrative tags, never allocations: Release A is the deprecation minor
+#: (Phase 7), Release B the removal major (Phase 8).
+RELEASE_A = "contract-v4.1"
+BUNDLE = "contract-v5.0"
+RELEASE_A_SHA = "fedcba9876543210fedcba9876543210fedcba98"
+RELEASE_A_INDEX = "sha256:" + "1a" * 32
 FPR = "sha256:" + "ab" * 32
 NOW = "2026-10-09T00:00:00Z"
 
@@ -187,6 +192,9 @@ def per_seat_bindings(*seat_lists: list[str]) -> list[dict]:
 
 
 PROVIDER = {"commit": SHA, "bundle": BUNDLE, "corpus_index_sha256": INDEX_SHA}
+#: The pair a rollback after activation restores.
+RESTORED = {"mode": "active", "protocol": LEGACY, "commit": RELEASE_A_SHA,
+            "bundle": RELEASE_A, "index": RELEASE_A_INDEX}
 OWNER_WORD = {"author": "Example Owner", "date": "2026-10-09T00:00:00Z",
               "verbatim": "an example owner word, for a conformance vector only",
               "cite": "conformance-vector-example"}
@@ -246,9 +254,12 @@ def evidence(act: str, bindings: list[dict] | None = None, rehearsal: str | None
             rehearsal_text(rehearsal_record()))
         record["binding_refs"] = [b["binding_id"] for b in (bindings or [])]
     if act == "rollback":
-        legacy_active = {"mode": "active", "protocol": LEGACY, "bundle": BUNDLE}
-        record["producer"] = side("producer", **legacy_active)
-        record["consumer"] = side("consumer", **legacy_active)
+        # Brett Heap, 2026-10-09T13:22:16Z, "Back to Release A pins (Recommended)":
+        # both sides return to their Release A pins and reselect legacy there.
+        record["provider"] = {"commit": RELEASE_A_SHA, "bundle": RELEASE_A,
+                              "corpus_index_sha256": RELEASE_A_INDEX}
+        record["producer"] = side("producer", **RESTORED)
+        record["consumer"] = side("consumer", **RESTORED)
         record["rollback"] = {
             "restored_producer": {"verified_at": "2026-10-09T00:00:00Z",
                                   "evidence_ref": "restore-producer-0001"},
@@ -1058,6 +1069,30 @@ def test_an_activation_side_that_strays_from_its_rehearsal_is_incomplete(
     _stray(record, member)
     assert _verdict(activate(context, record, bindings, text)) == (
         "refuse", "activation_evidence_incomplete", ())
+
+
+# The ruled rollback: back to the Release A pins, legacy reselected there.
+
+def test_a_rollback_after_activation_restores_the_release_a_pins(context):
+    record = evidence("rollback")
+    for role in ("producer", "consumer"):
+        restored = record[role]["selection"]
+        assert (restored["protocol"], restored["mode"], restored["provider_commit"],
+                restored["provider_bundle"]) == (LEGACY, "active", RELEASE_A_SHA, RELEASE_A)
+    assert record["provider"]["commit"] == RELEASE_A_SHA
+    assert _verdict(activate(context, record)) == ("accept", None, ())
+
+
+@pytest.mark.parametrize("statuses, verdict", [
+    ({LEGACY: "deprecated", REPLACEMENT: "available"}, ("accept", None, ())),
+    ({LEGACY: "historical_only", REPLACEMENT: "admission_eligible"},
+     ("refuse", "legacy_protocol_refused", ())),
+], ids=["at-release-a", "past-the-major"])
+def test_the_restored_legacy_pair_is_selectable_only_at_release_a(context, statuses, verdict):
+    """The restored pair is judged as selections at the pin it names: at the
+    Release A pin legacy is `deprecated` and selectable; at the removal major's
+    pin or later it is `historical_only`, and the same pair is refused."""
+    assert _verdict(select(context, *pair(**RESTORED), statuses)) == verdict
 
 
 # Step 5: historical_reinterpretation_refused.

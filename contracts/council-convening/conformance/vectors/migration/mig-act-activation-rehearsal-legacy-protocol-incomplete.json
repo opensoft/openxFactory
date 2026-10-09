@@ -173,7 +173,7 @@
           "kind": "xfactory_council_protocol_selection",
           "mode": "active",
           "protocol": "xfc-resolved-council-1",
-          "provider_bundle": "contract-v4.1",
+          "provider_bundle": "contract-v5.0",
           "provider_commit": "0123456789abcdef0123456789abcdef01234567",
           "schema_version": 1,
           "side": "consumer"
@@ -197,22 +197,22 @@
           "kind": "xfactory_council_protocol_selection",
           "mode": "active",
           "protocol": "xfc-resolved-council-1",
-          "provider_bundle": "contract-v4.1",
+          "provider_bundle": "contract-v5.0",
           "provider_commit": "0123456789abcdef0123456789abcdef01234567",
           "schema_version": 1,
           "side": "producer"
         }
       },
       "provider": {
-        "bundle": "contract-v4.1",
+        "bundle": "contract-v5.0",
         "commit": "0123456789abcdef0123456789abcdef01234567",
         "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
       },
       "recorded_at": "2026-10-09T00:00:00Z",
-      "rehearsal_ref": "sha256:e511473d9d850dfeec63e8c80654566a12b8054003b66254ad5f00301b16d037",
+      "rehearsal_ref": "sha256:80c431d2cf61dbcf83cc9083745d2942bbd213eb75ced0a90053b33a85ab92b1",
       "schema_version": 1
     },
-    "rehearsal": "{\n  \"act\": \"rehearsal\",\n  \"consumer\": {\n    \"repository\": \"opensoft/xFactory-Hermes-Install\",\n    \"revision\": \"89abcdef0123456789abcdef0123456789abcdef\",\n    \"selection\": {\n      \"corpus_index_sha256\": \"sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\n      \"kind\": \"xfactory_council_protocol_selection\",\n      \"mode\": \"rehearsal\",\n      \"protocol\": \"xfactory-council-seat-return/v1\",\n      \"provider_bundle\": \"contract-v4.1\",\n      \"provider_commit\": \"0123456789abcdef0123456789abcdef01234567\",\n      \"schema_version\": 1,\n      \"side\": \"consumer\"\n    }\n  },\n  \"intake\": {\n    \"paused_at\": \"2026-10-08T23:00:00Z\"\n  },\n  \"kind\": \"xfactory_council_activation_evidence\",\n  \"producer\": {\n    \"repository\": \"opensoft/xFactory\",\n    \"revision\": \"89abcdef0123456789abcdef0123456789abcdef\",\n    \"selection\": {\n      \"corpus_index_sha256\": \"sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\n      \"kind\": \"xfactory_council_protocol_selection\",\n      \"mode\": \"rehearsal\",\n      \"protocol\": \"xfactory-council-seat-return/v1\",\n      \"provider_bundle\": \"contract-v4.1\",\n      \"provider_commit\": \"0123456789abcdef0123456789abcdef01234567\",\n      \"schema_version\": 1,\n      \"side\": \"producer\"\n    }\n  },\n  \"provider\": {\n    \"bundle\": \"contract-v4.1\",\n    \"commit\": \"0123456789abcdef0123456789abcdef01234567\",\n    \"corpus_index_sha256\": \"sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\"\n  },\n  \"recorded_at\": \"2026-10-08T23:30:00Z\",\n  \"rehearsal\": {\n    \"corpus_index_sha256\": \"sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\n    \"evidence_ref\": \"rehearsal-run-0001\",\n    \"mode\": \"matched\",\n    \"outcome\": \"pass\"\n  },\n  \"schema_version\": 1\n}\n"
+    "rehearsal": "{\n  \"act\": \"rehearsal\",\n  \"consumer\": {\n    \"repository\": \"opensoft/xFactory-Hermes-Install\",\n    \"revision\": \"89abcdef0123456789abcdef0123456789abcdef\",\n    \"selection\": {\n      \"corpus_index_sha256\": \"sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\n      \"kind\": \"xfactory_council_protocol_selection\",\n      \"mode\": \"rehearsal\",\n      \"protocol\": \"xfactory-council-seat-return/v1\",\n      \"provider_bundle\": \"contract-v5.0\",\n      \"provider_commit\": \"0123456789abcdef0123456789abcdef01234567\",\n      \"schema_version\": 1,\n      \"side\": \"consumer\"\n    }\n  },\n  \"intake\": {\n    \"paused_at\": \"2026-10-08T23:00:00Z\"\n  },\n  \"kind\": \"xfactory_council_activation_evidence\",\n  \"producer\": {\n    \"repository\": \"opensoft/xFactory\",\n    \"revision\": \"89abcdef0123456789abcdef0123456789abcdef\",\n    \"selection\": {\n      \"corpus_index_sha256\": \"sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\n      \"kind\": \"xfactory_council_protocol_selection\",\n      \"mode\": \"rehearsal\",\n      \"protocol\": \"xfactory-council-seat-return/v1\",\n      \"provider_bundle\": \"contract-v5.0\",\n      \"provider_commit\": \"0123456789abcdef0123456789abcdef01234567\",\n      \"schema_version\": 1,\n      \"side\": \"producer\"\n    }\n  },\n  \"provider\": {\n    \"bundle\": \"contract-v5.0\",\n    \"commit\": \"0123456789abcdef0123456789abcdef01234567\",\n    \"corpus_index_sha256\": \"sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\"\n  },\n  \"recorded_at\": \"2026-10-08T23:30:00Z\",\n  \"rehearsal\": {\n    \"corpus_index_sha256\": \"sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\n    \"evidence_ref\": \"rehearsal-run-0001\",\n    \"mode\": \"matched\",\n    \"outcome\": \"pass\"\n  },\n  \"schema_version\": 1\n}\n"
   },
   "kind": "openxfactory-council-convening-conformance-vector",
   "requirement_ids": [

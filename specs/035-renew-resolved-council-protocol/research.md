@@ -439,6 +439,8 @@ The rules for selection and history:
 
 `activation_evidence` records each owner act of the runbook (pause, drain, switch, rehearsal, activation, rollback and resume), with per-act required members ([data-model E12](data-model.md#e12-activation-evidence-activation-evidenceschemayaml-phase-6)). An activation or resume needs a passing matched rehearsal and verified broker capability. Broker capability has one source of truth, each binding's `broker` member: the record names the bindings it activates (`binding_refs`), and E12 reads their `broker` members, so an activation record cannot claim a capability its bindings lack. A rollback needs neither, because a broker failure may be what caused it. The validator refuses a record missing any member its act requires (`activation_evidence_incomplete`).
 
+*Clarified 2026-10-09, on Brett Heap's ruling of 2026-10-09T13:22:16Z, "Back to Release A pins (Recommended)" (opensoft/brett-wip `lanes/log/codeXfactory-2.md`, RULED line 259).* A paired rollback after activation returns both sides to their Release A (Phase 7) pins and reselects legacy there, where the legacy protocol is still `deprecated` and selectable. The new records are kept as audit evidence. That is D5's "restores both prior versions/configurations together". It matches the consumer's own rollback, which returns its image to the Phase 7 pin. A legacy selection at the removal major's pin stays refused, so a rollback never restores legacy there ([data-model E11, E12](data-model.md#e12-activation-evidence-activation-evidenceschemayaml-phase-6)).
+
 **Rationale.**
 
 - D5 requires that "The active binding selects exactly one protocol ... never guesses from payload shape or falls back".

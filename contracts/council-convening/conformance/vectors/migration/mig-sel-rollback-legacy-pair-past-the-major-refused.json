@@ -5,9 +5,10 @@
   ],
   "area": "migration",
   "boundary": "selection",
-  "case_id": "mig-sel-pair-mode-mismatched",
+  "case_id": "mig-sel-rollback-legacy-pair-past-the-major-refused",
   "environment": {
     "registry_status": {
+      "xfactory-council-seat-return/v1": "historical_only",
       "xfc-resolved-council-1": "admission_eligible"
     }
   },
@@ -17,26 +18,26 @@
     "derived_origin": "hand",
     "findings": [],
     "outcome": "refuse",
-    "refusal": "pair_mismatched"
+    "refusal": "legacy_protocol_refused"
   },
   "inputs": {
     "selection_consumer": {
-      "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+      "corpus_index_sha256": "sha256:1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
       "kind": "xfactory_council_protocol_selection",
       "mode": "active",
-      "protocol": "xfc-resolved-council-1",
-      "provider_bundle": "contract-v5.0",
-      "provider_commit": "0123456789abcdef0123456789abcdef01234567",
+      "protocol": "xfactory-council-seat-return/v1",
+      "provider_bundle": "contract-v4.1",
+      "provider_commit": "fedcba9876543210fedcba9876543210fedcba98",
       "schema_version": 1,
       "side": "consumer"
     },
     "selection_producer": {
-      "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+      "corpus_index_sha256": "sha256:1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
       "kind": "xfactory_council_protocol_selection",
-      "mode": "rehearsal",
-      "protocol": "xfc-resolved-council-1",
-      "provider_bundle": "contract-v5.0",
-      "provider_commit": "0123456789abcdef0123456789abcdef01234567",
+      "mode": "active",
+      "protocol": "xfactory-council-seat-return/v1",
+      "provider_bundle": "contract-v4.1",
+      "provider_commit": "fedcba9876543210fedcba9876543210fedcba98",
       "schema_version": 1,
       "side": "producer"
     }

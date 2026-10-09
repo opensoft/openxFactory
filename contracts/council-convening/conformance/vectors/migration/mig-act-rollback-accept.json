@@ -21,12 +21,12 @@
         "repository": "opensoft/xFactory-Hermes-Install",
         "revision": "89abcdef0123456789abcdef0123456789abcdef",
         "selection": {
-          "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "corpus_index_sha256": "sha256:1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
           "kind": "xfactory_council_protocol_selection",
           "mode": "active",
           "protocol": "xfactory-council-seat-return/v1",
           "provider_bundle": "contract-v4.1",
-          "provider_commit": "0123456789abcdef0123456789abcdef01234567",
+          "provider_commit": "fedcba9876543210fedcba9876543210fedcba98",
           "schema_version": 1,
           "side": "consumer"
         }
@@ -45,20 +45,20 @@
         "repository": "opensoft/xFactory",
         "revision": "89abcdef0123456789abcdef0123456789abcdef",
         "selection": {
-          "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "corpus_index_sha256": "sha256:1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
           "kind": "xfactory_council_protocol_selection",
           "mode": "active",
           "protocol": "xfactory-council-seat-return/v1",
           "provider_bundle": "contract-v4.1",
-          "provider_commit": "0123456789abcdef0123456789abcdef01234567",
+          "provider_commit": "fedcba9876543210fedcba9876543210fedcba98",
           "schema_version": 1,
           "side": "producer"
         }
       },
       "provider": {
         "bundle": "contract-v4.1",
-        "commit": "0123456789abcdef0123456789abcdef01234567",
-        "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+        "commit": "fedcba9876543210fedcba9876543210fedcba98",
+        "corpus_index_sha256": "sha256:1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a"
       },
       "recorded_at": "2026-10-09T00:00:00Z",
       "rollback": {
