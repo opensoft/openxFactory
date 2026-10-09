@@ -211,16 +211,25 @@ raise with Brett (Copilot's review of `6f073ed2`).
     allow_nan=True, default=str)`.
     - So every value the manifest's YAML parser yields has one spelling.
     - A value JSON cannot represent (a YAML date, timestamp or binary) is spelled
-      by its `str()`.
+      by its `str()`, except a `set` or `frozenset`: the `default` hook spells it
+      as the list of its members sorted by each member's `ascii()` text (the
+      holder, `6090537166` item 8 (b), on Copilot `4235176471`), so its digest
+      does not vary with `PYTHONHASHSEED`.
     - If that call raises (a mapping whose keys JSON cannot spell or cannot sort,
       or a self-referencing value), the canonical text is `ascii(id)`, Python's
       `repr()` with every non-ASCII character escaped (the holder, `6088732352`
-      item 6 (b), on Copilot `4234200849`), so the canonical text is always ASCII
-      and the digest never raises.
+      item 6 (b), on Copilot `4234200849`).
+    - If that raises too, with `ValueError` (an integer past Python's int-digit
+      limit, such as `0x` plus 4000 `f`s) or `RecursionError`, the id is one that
+      neither spelling can write, and it takes ONE fixed text, `<past the int-digit
+      or recursion limit>` (the holder, `6090537166` item 8 (a), on lane 3's
+      REVIEW-W1 T041 NO-GO at openDox-code#97). So the canonical text is always
+      ASCII and the digest never raises.
 
-    **An accepted limit** (the holder, `6088732352` item 6 (a) and `6089449884`
-    item 7, on Copilot `4234200786` and `4234624749`, under `5988818366`): the
-    canonical text is not injective across YAML value types.
+    **Accepted limits** (the holder, `6088732352` item 6 (a), `6089449884` item 7
+    and `6090537166` item 8, on Copilot `4234200786` and `4234624749` and lane 3's
+    REVIEW-W1 T041 NO-GO, under `5988818366`): the canonical text is not injective
+    across YAML value types.
     - A date or timestamp and its `str()` can share a digest: with `default=str`,
       a YAML date or timestamp id digests like a malformed string id that spells
       its `str()`. A conforming string such as `2026-10-09` is kept as written, so
@@ -228,9 +237,15 @@ raise with Brett (Copilot's review of `6f073ed2`).
     - A non-string mapping key and its JSON spelling can share a digest, because
       `json.dumps` spells such a key in its JSON form: `{1: "a"}` and `{"1": "a"}`
       share one, and so do `True` and `"true"`, and `None` and `"null"`.
-    - Each needs two crafted refused entries in one manifest, which makes it
-      operator-only and exotic. It is never silent: two findings with one identity
-      raise `identity-collision`, which reports any such collision.
+    - Two ids that neither spelling can write (item 8 (a)) share the one fixed
+      text, so they share a digest.
+    - Each of these collisions needs two crafted refused entries in one manifest,
+      which makes it operator-only and exotic. It is never silent: two findings
+      with one identity raise `identity-collision`, which reports any such
+      collision.
+    - A set reached only through the `ascii()` fallback (inside a mapping that JSON
+      cannot spell) keeps Python's order (item 8 (b)). At worst that refused
+      entry's finding is raised again each run.
     - Making the text injective would need a typed encoding of every value at
       every depth, which is out of proportion to a refused entry's identity.
 - **U+0000 is refused** (the NUL seam, the holder, `6072086385` item 4). Postgres

@@ -144,7 +144,11 @@ worded, each cited by comment id or merge commit, with no new decision:
   `6089449884` item 7 widens to a non-string mapping key and its JSON spelling; the fallback
   `ascii(id)` in place of `repr(id)`; and ruling `6082100803`, which corrects (c)'s
   premise, so that for the per-entry categories `check_finding` refuses an empty
-  entry, the reserved `opendox`, and a name outside 1 to 40 characters;
+  entry, the reserved `opendox`, and a name outside 1 to 40 characters; and
+  `6090537166` item 8, the canonical text's second fallback, which catches
+  `ValueError` as well as `RecursionError` and writes ONE fixed text for an id
+  neither spelling can write, and its sets, spelled sorted by each member's
+  `ascii()` text, with their accepted limits;
 - the tick of T015, which landed as openDox-code#96 → `c94878be` (the merge commit
   read through GraphQL).
 
@@ -1178,8 +1182,9 @@ copies (research R7; ADV-05).
     `6069024023` (items 1 and 2), `6069507373` (T046 item 2), `6072086385`
     (items 1 and 4), `6072197564` (NAMES (b), (c) and (e)), `6073087924` (the
     entry rule, refining (e)), `6086098003` (items 1, 3 and 4), `6088484643`
-    (item 5, the canonical text), `6088732352` (item 6, with `6082100803`) and
-    `6089449884` (item 7, the widened limit).
+    (item 5, the canonical text), `6088732352` (item 6, with `6082100803`),
+    `6089449884` (item 7, the widened limit) and `6090537166` (item 8, the second
+    fallback and sets).
     **Decisions**: N-3, N-13, N-15, OQ-H15-19.
   - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
@@ -1189,7 +1194,7 @@ copies (research R7; ADV-05).
   - **Implementation note** (the holder, `6069024023` items 1 and 2,
     `6069507373` T046 item 2, `6072086385` items 1 and 4, `6072197564`,
     `6073087924`, `6086098003` items 1, 3 and 4, `6088484643` item 5,
-    `6088732352` item 6 and `6089449884` item 7):
+    `6088732352` item 6, `6089449884` item 7 and `6090537166` item 8):
     - the engine categories are the nine T041 drafted and the two the holder
       added, `dispositions-refused` and `manifest-refused`, with their mappings,
       each category's `pack_id` among them: the entry's id for a finding against
@@ -1286,21 +1291,39 @@ copies (research R7; ADV-05).
         spelled by its `str()`. If that call raises (a mapping whose keys JSON
         cannot spell or cannot sort, or a self-referencing value), the canonical
         text is `ascii(id)`, Python's `repr()` with every non-ASCII character
-        escaped (the holder, `6088732352` item 6 (b), on Copilot `4234200849`), so
-        the canonical text is always ASCII and the digest never raises. An
-        accepted limit, stated in the contract's `entry-refused` row (item 6 (a),
-        Copilot `4234200786`, widened by `6089449884` item 7, under
-        `5988818366`): the canonical text is not injective across YAML value
-        types. A date or timestamp and its `str()`, and a non-string mapping key
-        and its JSON spelling, can share a digest; it is operator-only, and never
-        silent, since `identity-collision` reports any such collision;
+        escaped (the holder, `6088732352` item 6 (b), on Copilot `4234200849`). The
+        `default` hook spells a `set` or `frozenset` as the list of its members
+        sorted by each member's `ascii()` text, and everything else it meets by
+        `str()` (the holder, `6090537166` item 8 (b), on Copilot `4235176471`), so
+        a set's digest does not vary with `PYTHONHASHSEED`. If the `ascii()`
+        fallback raises too, with `ValueError` (an integer past Python's
+        int-digit limit, such as `0x` plus 4000 `f`s) or `RecursionError`, an id
+        that neither spelling can write takes ONE fixed text, `<past the
+        int-digit or recursion limit>`, which replaces the recursion-only text
+        (item 8 (a), on lane 3's REVIEW-W1 T041 NO-GO at openDox-code#97), so the
+        canonical text is always ASCII and the digest never raises. Accepted
+        limits, stated in the contract's `entry-refused` row (item 6 (a), Copilot
+        `4234200786`, widened by `6089449884` item 7 and `6090537166` item 8,
+        under `5988818366`): the canonical text is not injective across YAML
+        value types. A date or timestamp and its `str()`, a non-string mapping
+        key and its JSON spelling, and two ids that neither spelling can write,
+        can share a digest; `identity-collision` reports any such collision, so
+        it is operator-only and never silent. A set reached only through the
+        `ascii()` fallback keeps Python's order, so at worst that refused entry's
+        finding is raised again each run;
       - T041 adds the helper that builds it: deterministic, total over anything
         the manifest parser yields, distinct for distinct ids but for the accepted
         limit above (`6088732352` item 6 (a), `6089449884` item 7), and never
         raising, with test rows for an absent id, a conforming id, an uppercase or
-        spaced id, an id with U+0000, a non-string id, a 201-character id, and a mapping
-        id with mixed-type keys (the `ascii()` fallback), and one with a
-        non-ASCII key in a mixed-type mapping. The contract's check already
+        spaced id, an id with U+0000, a non-string id, a 201-character id, and a
+        mapping id with mixed-type keys (the `ascii()` fallback), and one with a
+        non-ASCII key in a mixed-type mapping. Item 8 adds, red first and with
+        their mutants (`6090537166`): one row each for the four ids lane 3
+        reproduced (an integer past the 4300-digit limit as `id: 0x` plus 4000
+        `f`s, a long `0b` literal, the same nested in a list, and inside a
+        mixed-key mapping), each returning a `sha256-` entry and never raising;
+        and one row that digests one set id under at least two `PYTHONHASHSEED`
+        values, in subprocesses, and gets one entry. The contract's check already
         admits the form;
     - `refused-patch` joins `ENGINE_KINDS` (the holder, `6086098003` item 1, on
       lane 3's ask from T049's prep): a refused patch is a finding against the
