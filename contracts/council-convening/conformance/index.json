@@ -33,6 +33,32 @@
       ],
       "area": "foundation",
       "boundary": "classification",
+      "case_id": "cls-legacy-selection-legacy-seat-result-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-legacy-selection-legacy-seat-result-route.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:271aa0f99f3db80af36ca0a62470859490c7871350ef0c0a1d81f30cb9c1e83c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
       "case_id": "cls-legacy-selection-replacement-refuse",
       "expected": {
         "derived": {},
@@ -195,32 +221,6 @@
       ],
       "area": "foundation",
       "boundary": "classification",
-      "case_id": "cls-offline-legacy-nested-signing-context-route",
-      "expected": {
-        "derived": {
-          "classification": "legacy"
-        },
-        "derived_origin": "hand",
-        "findings": [
-          "legacy_protocol_routed"
-        ],
-        "outcome": "route",
-        "refusal": null
-      },
-      "path": "vectors/foundation/cls-offline-legacy-nested-signing-context-route.json",
-      "requirement_ids": [
-        "FR-001",
-        "FR-011"
-      ],
-      "sha256": "sha256:810d6e4dd2603b7ecb6fd722e88714e73a6643834db926863650e409c1bb2549"
-    },
-    {
-      "applies_to": [
-        "producer",
-        "consumer"
-      ],
-      "area": "foundation",
-      "boundary": "classification",
       "case_id": "cls-offline-legacy-protocol-id-route",
       "expected": {
         "derived": {
@@ -299,7 +299,7 @@
       ],
       "area": "foundation",
       "boundary": "classification",
-      "case_id": "cls-offline-legacy-signing-context-route",
+      "case_id": "cls-offline-legacy-seat-result-route",
       "expected": {
         "derived": {
           "classification": "legacy"
@@ -311,12 +311,12 @@
         "outcome": "route",
         "refusal": null
       },
-      "path": "vectors/foundation/cls-offline-legacy-signing-context-route.json",
+      "path": "vectors/foundation/cls-offline-legacy-seat-result-route.json",
       "requirement_ids": [
         "FR-001",
         "FR-011"
       ],
-      "sha256": "sha256:f68f3de7db7b3e3623a22b6f1e9a61de97169afba98261e0d102b580be77c668"
+      "sha256": "sha256:3a5ceb93d42d8a07a916b7fbe6f17404448e2408abbeea4a89f2a5bc3160f2b7"
     },
     {
       "applies_to": [
@@ -406,7 +406,31 @@
         "FR-001",
         "FR-011"
       ],
-      "sha256": "sha256:f5717719131152fc821ab37bdd1f5729d70a45173653fa64b34142e8d20bbd85"
+      "sha256": "sha256:30191f3077b8f3e740615a6d13bd0da427cd2c13cab793eed7efaaa7ddf13974"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-replacement-string-signature-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/foundation/cls-offline-replacement-string-signature-accept.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:a5111577e839cee16645687bcd120b42e1ef3ec0bb2ff200040e14abfb48a150"
     },
     {
       "applies_to": [
@@ -430,7 +454,7 @@
         "FR-001",
         "FR-011"
       ],
-      "sha256": "sha256:3d2f91301fb0b46db47e55fbd04c3cd9fba56c12a82923c7f0f52327318e57ed"
+      "sha256": "sha256:2f9d65459f6d0c5074f1b65a1a4f095c558a2c00d6463c72f16078eb748bb9e6"
     },
     {
       "applies_to": [
@@ -455,6 +479,28 @@
         "FR-011"
       ],
       "sha256": "sha256:b23dd54fed596ca7438d1611395c2cfaac8cf4f85eaefeea4d2dc83b73cdf7e6"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-signing-context-member-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/foundation/cls-offline-signing-context-member-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:74fdb6ca1e2c8f6253826f1c877e973783944a8bc354e4d2f57996a6ecc567e4"
     },
     {
       "applies_to": [
@@ -499,6 +545,28 @@
         "FR-011"
       ],
       "sha256": "sha256:5a6d5cfeb2bbd3b4fa1895241b94a9dee115d604a601a4c11ef2a67ecb79140d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-replacement-selection-legacy-seat-result-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/foundation/cls-replacement-selection-legacy-seat-result-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:8deeabde7bdbacc26185f8bc7e465a76cee61e403e6ac49fd6e5f2e8db758649"
     },
     {
       "applies_to": [
@@ -1374,6 +1442,27 @@
         "FR-001"
       ],
       "sha256": "sha256:0dc4ec8ba9e9b920118bdca7121ac41754061bb9be88314b0aef08dbc6e88450"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "definition",
+      "case_id": "def-matched-class-refuse-trailing-newline",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_malformed"
+      },
+      "path": "vectors/foundation/def-matched-class-refuse-trailing-newline.json",
+      "requirement_ids": [
+        "FR-001"
+      ],
+      "sha256": "sha256:6b8ae27af3c9eccacbe3d36d751b3d77e89c44c3506470ffa14e12efe8a51f2e"
     },
     {
       "applies_to": [
@@ -2771,15 +2860,15 @@
   "protocol": "xfc-resolved-council-1",
   "schema_version": 1,
   "totals": {
-    "both_sides": 128,
+    "both_sides": 132,
     "by_area": {
-      "foundation": 128
+      "foundation": 132
     },
     "by_outcome": {
-      "accept": 41,
-      "refuse": 79,
+      "accept": 42,
+      "refuse": 82,
       "route": 8
     },
-    "vectors": 128
+    "vectors": 132
   }
 }

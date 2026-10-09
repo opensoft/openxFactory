@@ -31,7 +31,8 @@ WHAT IS CHECKED, AND UNDER WHICH CODE.
 
 JSON IS READ STRICTLY. A repeated member name, or `NaN` or `Infinity`, is
 refused rather than resolved, because two readers that resolved them differently
-would disagree on what a vector says.
+would disagree on what a vector says. For the same reason a corpus file carries
+no integral number spelled as a float (`2.0`, `2e0`; `IntegralFloatToken`).
 
 THE DISPATCH TABLE. Phase 1 registers `definition` and `classification`. Each
 later phase registers its boundaries from its own module through
@@ -141,10 +142,34 @@ def _refuse_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
-def loads_strict(text: str) -> Any:
-    """Parse JSON refusing repeated member names, `NaN` and `Infinity`."""
+class IntegralFloatToken(ValueError):
+    """A corpus number spelled with a fraction or an exponent whose value is an
+    integer (`2.0`, `2e0`). Readers split on it: jsonschema's `integer` accepts
+    `2.0`, `xfc-jcs-sha256-1` refuses it as a non-integer number, and a reader
+    whose numbers are all doubles cannot tell it from `2`. The corpus carries no
+    such token rather than pin one reading."""
+
+    MESSAGE = ("carries a number spelled with a fraction or an exponent whose value "
+               "is an integer; readers disagree whether it is one")
+
+    def __init__(self) -> None:
+        super().__init__(self.MESSAGE)
+
+
+def _corpus_float(token: str) -> float:
+    value = float(token)
+    if value.is_integer():
+        raise IntegralFloatToken()
+    return value
+
+
+def loads_strict(text: str, *, corpus_tokens: bool = False) -> Any:
+    """Parse JSON refusing repeated member names, `NaN` and `Infinity`. With
+    `corpus_tokens`, as for every corpus file, an integral number spelled as a
+    float is refused too (`IntegralFloatToken`)."""
     return json.loads(text, object_pairs_hook=_refuse_duplicates,
-                      parse_constant=_refuse_constant)
+                      parse_constant=_refuse_constant,
+                      parse_float=_corpus_float if corpus_tokens else float)
 
 
 def byte_form_problem(raw: bytes) -> str | None:
@@ -268,7 +293,8 @@ def _classification(vector: Mapping[str, Any], context: Context) -> records.Outc
     record = join_parts(inputs["record"])
     if not isinstance(record, dict):
         raise VectorInputError("inputs.record is not an object")
-    if record.get("kind") in classification.JUDGED_BY_KIND_KINDS:
+    kind = record.get("kind")
+    if isinstance(kind, str) and kind in classification.JUDGED_BY_KIND_KINDS:
         raise VectorInputError(
             "inputs.record is a kind judged by kind, which is never classified")
     selected = inputs["selected_protocol"]
@@ -471,7 +497,39 @@ class CorpusReport:
     coverage_floor: list[str] = field(default_factory=list)
 
 
-def _index_problems(index: Any, registry: classification.Registry) -> list[str]:
+def adjudication_findings(label: str, vector: Mapping[str, Any],
+                          context: Context) -> tuple[list[Finding], bool]:
+    """The findings for adjudicating one WELL-FORMED vector, and whether the
+    reference reproduced its expectation. Shared by the corpus check and by
+    `check` on a single vector, so the two can never judge a vector differently.
+    """
+    try:
+        outcome = adjudicate(vector, context)
+    except (VectorInputError, PartsError) as exc:
+        return [_error("council-convening-schema", f"{label}: {exc}")], False
+    except NotAdjudicable as exc:
+        return [_error("council-convening-vector-outcome-mismatch", f"{label}: {exc}")], False
+    findings: list[Finding] = []
+    want = {k: vector["expected"][k] for k in ("outcome", "refusal", "findings", "derived")}
+    got = outcome.as_expected()
+    matched = got == want
+    if not matched:
+        findings.append(_error(
+            "council-convening-vector-outcome-mismatch",
+            f"{label}: expected {_summary(want)}, the reference gives {_summary(got)}"))
+    if outcome.status_read:
+        overrides = vector.get("environment", {}).get("registry_status") or {}
+        if context.registry.legacy_id not in overrides:
+            findings.append(_error(
+                "council-convening-vector-registry-status-missing",
+                f"{label}: the outcome reads the legacy entry's status, and the "
+                f"vector carries no registry_status override for it"))
+    return findings, matched
+
+
+def index_problems(index: Any, registry: classification.Registry) -> list[str]:
+    """Every way `index` breaks the index FORMAT, as messages without values.
+    Its closure against a tree (rows, files, digests, totals) is `check_corpus`'s."""
     if not isinstance(index, dict):
         return ["the index is not a JSON object"]
     problems = []
@@ -533,11 +591,14 @@ def check_corpus(root: Path | None = None, schemas: records.SchemaSet | None = N
     if form:
         closure(f"{INDEX_NAME} {form}")
     try:
-        index = loads_strict(index_raw.decode("utf-8"))
+        index = loads_strict(index_raw.decode("utf-8"), corpus_tokens=True)
+    except IntegralFloatToken as exc:
+        closure(f"{INDEX_NAME} {exc}")
+        return report
     except (UnicodeDecodeError, ValueError):
         closure(f"{INDEX_NAME} does not parse as strict JSON")
         return report
-    for problem in _index_problems(index, registry):
+    for problem in index_problems(index, registry):
         closure(problem)
     if not isinstance(index, dict) or not isinstance(index.get("cases"), list):
         return report
@@ -588,7 +649,10 @@ def check_corpus(root: Path | None = None, schemas: records.SchemaSet | None = N
         if form:
             findings.append(_error("council-convening-schema", f"{path} {form}"))
         try:
-            vector = loads_strict(raw.decode("utf-8"))
+            vector = loads_strict(raw.decode("utf-8"), corpus_tokens=True)
+        except IntegralFloatToken as exc:
+            findings.append(_error("council-convening-schema", f"{path} {exc}"))
+            continue
         except (UnicodeDecodeError, ValueError):
             findings.append(_error("council-convening-schema",
                                    f"{path} does not parse as strict JSON"))
@@ -604,31 +668,9 @@ def check_corpus(root: Path | None = None, schemas: records.SchemaSet | None = N
         for member in ROW_FROM_VECTOR:
             if row.get(member) != vector.get(member):
                 closure(f"{path}: the row's {member} disagrees with the vector")
-        try:
-            outcome = adjudicate(vector, context)
-        except (VectorInputError, PartsError) as exc:
-            findings.append(_error("council-convening-schema", f"{path}: {exc}"))
-            continue
-        except NotAdjudicable as exc:
-            findings.append(_error("council-convening-vector-outcome-mismatch",
-                                   f"{path}: {exc}"))
-            continue
-        want = {k: vector["expected"][k] for k in ("outcome", "refusal", "findings",
-                                                   "derived")}
-        got = outcome.as_expected()
-        if got != want:
-            findings.append(_error(
-                "council-convening-vector-outcome-mismatch",
-                f"{path}: expected {_summary(want)}, the reference gives {_summary(got)}"))
-        else:
-            adjudicated_ok += 1
-        if outcome.status_read:
-            overrides = vector.get("environment", {}).get("registry_status") or {}
-            if registry.legacy_id not in overrides:
-                findings.append(_error(
-                    "council-convening-vector-registry-status-missing",
-                    f"{path}: the outcome reads the legacy entry's status, and the "
-                    f"vector carries no registry_status override for it"))
+        found, matched = adjudication_findings(path, vector, context)
+        findings.extend(found)
+        adjudicated_ok += matched
     report.adjudicated = (adjudicated_ok, len(rows))
 
     try:

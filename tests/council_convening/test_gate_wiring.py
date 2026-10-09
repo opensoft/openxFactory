@@ -113,10 +113,39 @@ def test_the_assertion_step_requires_every_phase_1_note(assertion):
 
 
 def test_the_coverage_assertions_demand_all_of_them(assertion):
-    """`N/N` via a backreference: `[0-9]+/[0-9]+` would pass 3/24."""
+    """`N/N` via a backreference: `[0-9]+/[0-9]+` would pass 3/24, and
+    `([0-9]+)/\\1` would pass `0/0`, a run that walked nothing."""
     for label in ("vectors adjudicated", "refusal codes probed",
                   "finding codes probed", "requirements probed"):
-        assert f"{label}: ([0-9]+)/\\1" in assertion, label
+        assert f"{label}: ([1-9][0-9]*)/\\1" in assertion, label
+    patterns = re.findall(r"grep -qE '([^']+/\\1[^']*)'", assertion)
+    assert len(patterns) == 4, patterns
+    for pattern in patterns:
+        label = pattern.split(":")[0].lstrip("^")
+        assert not re.search(pattern, f"{label}: 0/0"), pattern
+        assert not re.search(pattern, f"{label}: 3/24"), pattern
+        assert not re.search(pattern, f"{label}: 07/07"), pattern
+
+
+def test_every_required_grep_is_followed_by_fail(assertion):
+    """A grep whose miss is not turned into `fail` would let `set -e` decide,
+    and a negated one would not stop the step at all."""
+    joined = assertion.replace("\\\n", " ")
+    greps = re.findall(r"(?:!\s+)?grep -qE '[^']+' " + re.escape(LOG) + r"\s*(\S+)", joined)
+    assert len(greps) >= len(PHASE_1_NOTE_PREFIXES) + 1, greps
+    assert set(greps) == {"||"}, greps
+    tails = re.findall(re.escape(LOG) + r"\s*\|\|\s*(\S+)", joined)
+    assert set(tails) == {"fail"}, tails
+    assert "set -euo pipefail" in assertion
+    assert "fail() {" in assertion
+
+
+def test_the_run_steps_use_bash(job):
+    """`shell: bash` is what gives the tee pipeline `-o pipefail` on GitHub, so a
+    validator that exits non-zero fails its step instead of hiding behind tee."""
+    for step in job["steps"]:
+        if "run" in step and (VALIDATOR_RUN in step["run"] or LOG in step["run"]):
+            assert step.get("shell") == "bash", step.get("name")
 
 
 def test_the_assertion_greps_match_the_validators_real_output(assertion):
