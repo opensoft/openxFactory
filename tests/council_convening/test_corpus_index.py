@@ -87,7 +87,7 @@ def test_the_index_header():
     assert index["kind"] == "openxfactory-council-convening-conformance-index"
     assert index["corpus_id"] == "council-convening-conformance"
     assert index["protocol"] == REPLACEMENT
-    assert index["coverage_floor"] == ["FR-001", "FR-011"]
+    assert index["coverage_floor"] == ["FR-001", "FR-007", "FR-008", "FR-011", "SC-003"]   # Phase 4 (T044) raised it
 
 
 def test_every_row_digest_is_over_the_raw_bytes():
@@ -118,8 +118,9 @@ def test_the_totals_recount():
 
 
 def test_phase_1_vectors_are_foundation_vectors_for_both_sides():
-    for row in _index_doc()["cases"]:
-        assert row["area"] == "foundation"
+    rows = [row for row in _index_doc()["cases"] if row["area"] == "foundation"]
+    assert rows
+    for row in rows:
         assert row["boundary"] in ("definition", "classification")
         assert row["applies_to"] == ["producer", "consumer"]
         vector = _load(CONFORMANCE / row["path"])
@@ -366,10 +367,11 @@ def test_every_coverage_floor_requirement_needs_a_probe(family_tree):
 
 def test_the_landed_coverage_counts():
     report = corpus.check_corpus()
-    assert report.refusals_probed == (5, 5)
+    # Phase 4 (T046, T044): 5 + 31 refusal codes, and three more requirements.
+    assert report.refusals_probed == (36, 36)
     assert report.findings_probed == (1, 1)
-    assert report.requirements_probed == (2, 2)
-    assert report.coverage_floor == ["FR-001", "FR-011"]
+    assert report.requirements_probed == (5, 5)
+    assert report.coverage_floor == ["FR-001", "FR-007", "FR-008", "FR-011", "SC-003"]
 
 
 # --------------------------------------------------------------------------
@@ -431,7 +433,7 @@ def test_generate_check_reports_a_stale_index(family_tree):
 
 
 def test_generate_writes_the_coverage_floor():
-    assert generate.COVERAGE_FLOOR == ("FR-001", "FR-011")
+    assert generate.COVERAGE_FLOOR == ("FR-001", "FR-007", "FR-008", "FR-011", "SC-003")
 
 
 def test_labelled_test_keys_are_deterministic_and_distinct():

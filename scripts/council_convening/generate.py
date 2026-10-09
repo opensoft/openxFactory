@@ -17,7 +17,7 @@ WHERE THE VECTORS COME FROM AT PHASE 1. The `foundation` vectors are hand-author
 this code, so that the reference implementation is checked against answers it
 did not produce (U12). The generator's Phase 1 job is to hold them in one byte
 form and to derive the index from them. The signing vectors of Phase 4 are built
-here from labelled keys.
+here from labelled keys (`BUILT_AREAS`).
 
 `--check` regenerates into a temporary tree and compares bytes, file by file,
 with the committed corpus. A difference, a missing file or a file the generator
@@ -37,6 +37,7 @@ from __future__ import annotations
 import argparse
 import base64
 import hashlib
+import importlib
 import sys
 import tempfile
 from pathlib import Path
@@ -46,7 +47,15 @@ from . import classification, corpus, records
 
 #: The requirements the corpus must cite at this commit (T020). Each phase
 #: raises it; from Phase 6 it is the full FR-001 to FR-012 and SC-001 to SC-003.
-COVERAGE_FLOOR = ("FR-001", "FR-011")
+#: Phase 4 (T044) adds FR-007, FR-008 and SC-003.
+COVERAGE_FLOOR = ("FR-001", "FR-007", "FR-008", "FR-011", "SC-003")
+
+#: The areas whose vectors this generator BUILDS from labelled keys, rather than
+#: reads from the tree, each mapped to the module whose `build(root)` returns
+#: `{path relative to conformance/: vector}`. A committed file in a built area
+#: that the builder does not produce is drift, like any other. Phase 4 (T044)
+#: builds `signing`.
+BUILT_AREAS = {"signing": "signing_vectors"}
 
 #: The public phrase every fixture key is derived from. It says what it is.
 KEY_PHRASE = (b"openxFactory council-convening conformance corpus: PUBLIC TEST KEY, "
@@ -112,10 +121,20 @@ def render(root: Path | None = None) -> dict[str, bytes]:
     registry = classification.load_registry(root)
     out: dict[str, bytes] = {}
     entries = []
+    built: dict[str, dict] = {}
+    for module_name in BUILT_AREAS.values():
+        built.update(importlib.import_module(f"{__package__}.{module_name}").build(root))
+    built_prefixes = tuple(f"vectors/{area}/" for area in BUILT_AREAS)
+    for relative, vector in sorted(built.items(), key=lambda item: item[0].encode("utf-8")):
+        raw = corpus.dump_json(vector)
+        out[relative] = raw
+        entries.append((relative, raw, vector))
     vectors_dir = conformance / "vectors"
     sources = sorted(vectors_dir.rglob("*.json")) if vectors_dir.is_dir() else []
     for path in sources:
         relative = path.relative_to(conformance).as_posix()
+        if relative.startswith(built_prefixes):
+            continue
         try:
             vector = corpus.loads_strict(path.read_text(encoding="utf-8"))
         except (UnicodeDecodeError, ValueError) as exc:
