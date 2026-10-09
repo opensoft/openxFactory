@@ -541,6 +541,45 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-factory-mcp-conformance-auth-profile](openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md)
+  — filed 2026-10-08, lane `openxfactory-5` (display `openXfactory-5`), as
+  DRAFT [PR #1274](https://github.com/opensoft/openxFactory/pull/1274),
+  **`Status: ratified`** (2026-10-08T20:2xZ, Brett Heap, in session, verbatim
+  *"Ratify, OQs as recommended (Recommended)"*: the packet as drafted and all
+  six open questions as recommended, so no requirement or scenario text moved;
+  RULED on the lane register at 2026-10-08T20:33:25Z; record
+  [`review/ratification-2026-10-08.md`](openspec/changes/amend-factory-mcp-conformance-auth-profile/review/ratification-2026-10-08.md)).
+  It carries his three rulings of 2026-10-08 on the items the archive of
+  `add-factory-mcp-conformance` left open, each RULED on the lane register
+  (`opensoft/brett-wip` `lanes/log/openXfactory-5.md`, commits `eed43d23`,
+  `ceaa3c02`, `8534027e`): *"RS256 baseline (Recommended)"*, *"Narrow to error
+  codes (Recommended)"* and *"Per domain, profile maps (Recommended)"*. The
+  rulings decided what it says and did not ratify it; the ratify word above is
+  the separate one. One delta in
+  `factory-mcp-conformance`: **FOUR `## ADDED` requirements** (a hosted
+  declaration carries an authorization block, and a stdio-only one carries
+  none; RS256 required of every hosted domain server, EdDSA optional, `none`
+  and HMAC refused by name; the audience bound to the server's own resource;
+  per-domain error vocabularies with the lossless mapping as the only shared
+  layer) and **ONE `## MODIFIED`** requirement, *Lossless results and explicit
+  failures*, title unchanged, whose *Unavailable dependency* scenario is
+  narrowed to a dependency failure reported through the error inventory. That
+  is what the validator already enforces. **`code_surface: openxFactory`** (the
+  declaration schema, the validator, red-first tests, the runbook and, at the
+  cut, the release surfaces); **`target_release: deferred-allocation`**, since
+  the realization first-bundles the unreleased declaration at the next additive
+  minor after `contract-v4.0`, claimed as row 4 on #630 at the cut. The
+  realization follows through one Speckit feature, which the word allows and
+  which is no part of this pull request. `design.md`'s six open questions are
+  each RULED as recommended. **RATIFIED, THEN A SEPARATE LAND WORD**: Brett
+  Heap's land word followed (2026-10-08T23:0xZ, verbatim *"Land all three,
+  waive Codex (Recommended)"*, RULED on the lane register at
+  2026-10-08T23:00:44Z, Codex review waived by it). It stays ACTIVE after it
+  lands, and the archive is a later act on merged, green realization evidence
+  and its own word. Claims: this change path on the lane register
+  (`55a63c0d`); this block on #630 (comment `6066626855`, amended by comment
+  `6068473680`).
+
 - [renew-resolved-council-protocol](openspec/changes/renew-resolved-council-protocol/proposal.md)
   — filed 2026-10-03 outside a lane; first published 2026-10-07 by lane
   `codexfactory-2` from the 2026-10-04 review snapshot
