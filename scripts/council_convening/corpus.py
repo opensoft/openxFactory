@@ -38,10 +38,10 @@ refused rather than resolved, because two readers that resolved them differently
 would disagree on what a vector says. For the same reason a corpus file carries
 no integral number spelled as a float (`2.0`, `2e0`; `IntegralFloatToken`).
 
-THE DISPATCH TABLE. Phase 1 registers `definition` and `classification`. Each
-later phase registers its boundaries from its own module through
-`register_handler`, naming the oracles its vectors may carry. Phase 5 registers
-`binding` (data-model E10).
+THE DISPATCH TABLE. Phase 1 registers `definition` and `classification`,
+Phase 2 `commission` and `admission` (handled in `resolution`), and Phase 5
+`binding` (data-model E10). Each later phase registers its boundaries through
+`register_handler`, naming the oracles its vectors may carry.
 
 THE FIXTURES (Phase 5). The index's `fixtures` lists every corpus-owned fixture
 with its raw SHA-256, in bytewise path order, under the same closure: a file
@@ -87,9 +87,13 @@ FIXTURE_MEMBERS = ("schema_version", "kind", "name", "text")
 FIXTURES = {"repository-identity": "fixtures/repository-identity.json"}
 IDENTITY_FIXTURE = FIXTURES["repository-identity"]
 
-#: The boundaries whose vectors read the repository identity map, and so must
-#: carry the `repository_identity` oracle (contracts/conformance-corpus.md).
-IDENTITY_MAP_BOUNDARIES = ("binding", "registration", "admission")
+#: The boundaries whose vectors read the repository identity map at this
+#: commit, and so must carry the `repository_identity` oracle
+#: (contracts/conformance-corpus.md): `binding` and `registration`, which runs
+#: E10 at E7 step 5. `admission` joins in the commit that runs binding inside the
+#: admission handler (E2 steps A1 and A4; T055), which re-authors every
+#: admission vector to carry the oracle (T051).
+IDENTITY_MAP_BOUNDARIES = ("binding", "registration")
 ROW_MEMBERS = ("case_id", "area", "boundary", "applies_to", "requirement_ids", "path",
                "sha256", "expected")
 ROW_FROM_VECTOR = ("case_id", "area", "boundary", "applies_to", "requirement_ids",
@@ -353,6 +357,14 @@ register_handler("definition", _definition)
 register_handler("classification", _classification, oracles=("registry_status",))
 register_handler("binding", _binding,
                  oracles=("identity", "repository_identity", "governed_history"))
+
+# Phase 2 (T032): the commission record's two boundaries (data-model E2). The
+# handler lives in `resolution`, which imports this module only inside the
+# handler, so the registration here closes no import cycle.
+from . import resolution as _resolution  # noqa: E402
+
+register_handler("commission", _resolution.corpus_handler, oracles=_resolution.ORACLES_READ)
+register_handler("admission", _resolution.corpus_handler, oracles=_resolution.ORACLES_READ)
 
 
 # --------------------------------------------------------------------------

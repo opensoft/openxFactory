@@ -1200,12 +1200,13 @@ def test_a_binding_vector_without_the_identity_oracle_is_refused(family_tree):
     assert "council-convening-vector-identity-map-missing" in codes
 
 
-@pytest.mark.parametrize("boundary", ["registration", "admission"])
-def test_the_identity_map_rule_covers_registration_and_admission(boundary):
+def test_the_identity_map_rule_covers_every_boundary_that_reads_the_map():
+    # `admission` joins in the commit that wires binding into the admission
+    # handler as E2 steps A1 and A4 (T055) and re-authors its vectors (T051).
     from scripts.council_convening import corpus
 
-    assert boundary in corpus.IDENTITY_MAP_BOUNDARIES
     assert "binding" in corpus.IDENTITY_MAP_BOUNDARIES
+    assert "registration" in corpus.IDENTITY_MAP_BOUNDARIES
 
 
 def test_the_fixture_is_an_index_fixtures_row_with_a_matching_digest():

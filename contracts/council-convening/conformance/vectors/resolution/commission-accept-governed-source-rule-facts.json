@@ -1,0 +1,266 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "resolution",
+  "boundary": "commission",
+  "case_id": "commission-accept-governed-source-rule-facts",
+  "environment": {
+    "facts": {
+      "rule_facts:example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300:rules/conditions/posture.yml": {
+        "rule_touched_paths": [
+          "policy/identity.yaml"
+        ]
+      }
+    },
+    "governed": {
+      "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300:rules/conditions": {
+        "available": true,
+        "entries": [
+          "rules/conditions/paths.yaml",
+          "rules/conditions/posture.yml"
+        ],
+        "governed": true,
+        "tip_entries": [
+          "rules/conditions/paths.yaml",
+          "rules/conditions/posture.yml"
+        ]
+      },
+      "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300:rules/conditions/paths.yaml": {
+        "available": true,
+        "governed": true,
+        "sha256": "sha256:b2c3453e6deac82aa5d109dc335650c44399e440f207a7a2c16a185f24764a31",
+        "tip_sha256": "sha256:b2c3453e6deac82aa5d109dc335650c44399e440f207a7a2c16a185f24764a31"
+      },
+      "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300:rules/conditions/posture.yml": {
+        "available": true,
+        "governed": true,
+        "sha256": "sha256:abadef1725731a85a28f86feaecd43692ba816dca858361e0eff3dace14b2999",
+        "tip_sha256": "sha256:abadef1725731a85a28f86feaecd43692ba816dca858361e0eff3dace14b2999"
+      },
+      "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300:rules/council-profile.yaml": {
+        "available": true,
+        "governed": true,
+        "sha256": "sha256:5dc534f101267b3927fc42e2d4d77f3aceb65ad2e10a4b6b32bff142229b9b3e",
+        "tip_sha256": "sha256:5dc534f101267b3927fc42e2d4d77f3aceb65ad2e10a4b6b32bff142229b9b3e"
+      },
+      "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300:rules/councils/review-council.yaml": {
+        "available": true,
+        "governed": true,
+        "sha256": "sha256:f121b4fb6d22238667bdd8e68f9b2ceb5a144721d949a2bfedaeafc1ec393a91",
+        "tip_sha256": "sha256:f121b4fb6d22238667bdd8e68f9b2ceb5a144721d949a2bfedaeafc1ec393a91"
+      },
+      "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300:rules/envelope.yml": {
+        "available": true,
+        "governed": true,
+        "sha256": "sha256:dcffb174314244cf948877b48e313ecec9b48452520934f580c2d8388fce661f",
+        "tip_sha256": "sha256:dcffb174314244cf948877b48e313ecec9b48452520934f580c2d8388fce661f"
+      }
+    },
+    "governed_history": {
+      "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300": {
+        "at_or_after": [
+          "565baeb830bd8d861ee4bfc759b068498cb9a300"
+        ],
+        "on_first_parent": true
+      }
+    },
+    "governed_repositories": [
+      "example-org/governed-rules"
+    ],
+    "live_heads": {
+      "example-org/example-app#42": [
+        "5ea2baa390e53e741a718626e522b7cf3bd33523"
+      ]
+    },
+    "resolved_candidate": {
+      "head_sha": "5ea2baa390e53e741a718626e522b7cf3bd33523",
+      "pull_number": 42,
+      "repository": "example-org/example-app"
+    },
+    "rules": {
+      "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300": {
+        "councils": {
+          "rules-council": {
+            "conditions": [
+              {
+                "input_contract": "rule_facts",
+                "parameters": {
+                  "security_surfaces": [
+                    "policy/audit/**"
+                  ]
+                },
+                "predicate": "rule_touches_security_posture",
+                "seat": null
+              },
+              {
+                "input_contract": "rule_facts",
+                "parameters": {
+                  "security_surfaces": [
+                    "policy/authority/**",
+                    "policy/identity.yaml"
+                  ]
+                },
+                "predicate": "rule_touches_security_posture",
+                "seat": "seat-r2"
+              }
+            ],
+            "standing_seats": [
+              "seat-r1"
+            ]
+          }
+        },
+        "sources": [
+          "rules/conditions",
+          "rules/conditions/paths.yaml",
+          "rules/conditions/posture.yml",
+          "rules/council-profile.yaml",
+          "rules/councils/review-council.yaml",
+          "rules/envelope.yml"
+        ]
+      }
+    }
+  },
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {
+      "convening_digest": {
+        "construction": "xfc-jcs-sha256-1",
+        "subject": "council_convening",
+        "value": "sha256:77a46d4f5c0639f0f506e395059f31f1b12a269d80a89714d6491771b5cf1507"
+      },
+      "required_seats": [
+        "seat-r1",
+        "seat-r2"
+      ]
+    },
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "accept",
+    "refusal": null
+  },
+  "inputs": {
+    "expected_candidate": {
+      "pull_number": 42,
+      "repository": "example-org/example-app"
+    },
+    "record": {
+      "council_id": "rules-council",
+      "kind": "xfactory_council_convening",
+      "packet_refs": [
+        "example-org/example-app#42"
+      ],
+      "protocol": "xfc-resolved-council-1",
+      "required_seats": [
+        "seat-r1",
+        "seat-r2"
+      ],
+      "required_seats_provenance": {
+        "candidate": {
+          "head_sha": "5ea2baa390e53e741a718626e522b7cf3bd33523",
+          "pull_number": 42,
+          "repository": "example-org/example-app"
+        },
+        "conditions": [
+          {
+            "held": false,
+            "input_contract": "rule_facts",
+            "parameters": {
+              "security_surfaces": [
+                "policy/audit/**"
+              ]
+            },
+            "predicate": "rule_touches_security_posture",
+            "seat": null
+          },
+          {
+            "held": true,
+            "input_contract": "rule_facts",
+            "parameters": {
+              "security_surfaces": [
+                "policy/authority/**",
+                "policy/identity.yaml"
+              ]
+            },
+            "predicate": "rule_touches_security_posture",
+            "seat": "seat-r2"
+          }
+        ],
+        "consumed_facts": {
+          "rule_facts": {
+            "rule_touched_paths": [
+              "policy/identity.yaml"
+            ]
+          }
+        },
+        "fact_sources": [
+          {
+            "input_contract": "rule_facts",
+            "source": {
+              "governed_path": "rules/conditions/posture.yml"
+            }
+          }
+        ],
+        "governed": {
+          "repository": "example-org/governed-rules",
+          "revision": "565baeb830bd8d861ee4bfc759b068498cb9a300",
+          "sources": [
+            {
+              "entries": [
+                "rules/conditions/paths.yaml",
+                "rules/conditions/posture.yml"
+              ],
+              "kind": "listing",
+              "path": "rules/conditions",
+              "suffixes": [
+                ".yaml",
+                ".yml"
+              ]
+            },
+            {
+              "kind": "file",
+              "path": "rules/conditions/paths.yaml",
+              "sha256": "sha256:b2c3453e6deac82aa5d109dc335650c44399e440f207a7a2c16a185f24764a31"
+            },
+            {
+              "kind": "file",
+              "path": "rules/conditions/posture.yml",
+              "sha256": "sha256:abadef1725731a85a28f86feaecd43692ba816dca858361e0eff3dace14b2999"
+            },
+            {
+              "kind": "file",
+              "path": "rules/council-profile.yaml",
+              "sha256": "sha256:5dc534f101267b3927fc42e2d4d77f3aceb65ad2e10a4b6b32bff142229b9b3e"
+            },
+            {
+              "kind": "file",
+              "path": "rules/councils/review-council.yaml",
+              "sha256": "sha256:f121b4fb6d22238667bdd8e68f9b2ceb5a144721d949a2bfedaeafc1ec393a91"
+            },
+            {
+              "kind": "file",
+              "path": "rules/envelope.yml",
+              "sha256": "sha256:dcffb174314244cf948877b48e313ecec9b48452520934f580c2d8388fce661f"
+            }
+          ]
+        },
+        "standing_seats": [
+          "seat-r1"
+        ]
+      },
+      "schema_version": 1,
+      "subject_pin": "5ea2baa390e53e741a718626e522b7cf3bd33523"
+    },
+    "selected_protocol": "xfc-resolved-council-1"
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-001",
+    "FR-002",
+    "FR-003",
+    "FR-004",
+    "SC-001"
+  ],
+  "schema_version": 1
+}
