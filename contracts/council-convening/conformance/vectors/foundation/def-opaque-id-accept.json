@@ -1,0 +1,26 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "foundation",
+  "boundary": "definition",
+  "case_id": "def-opaque-id-accept",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "accept",
+    "refusal": null
+  },
+  "inputs": {
+    "definition": "opaque_id",
+    "value": "seat.alpha:1/x@y+z=w-v_"
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-001"
+  ],
+  "schema_version": 1
+}

@@ -189,6 +189,26 @@ description: >-
     share this value on purpose — which is precisely why the manifest's
     continuity link is over the previous item's `anchored_digest` and never over
     this.
+
+  AND TAKEN A FOURTH TIME, TWICE MORE, BY `renew-resolved-council-protocol`
+  (ratified 2026-10-03; its D1 says "Reuse the provider's existing digest
+  construction by reference; do not mint another canonicalization", and its D3
+  that a seat's return uses "the existing digest construction and a distinct
+  versioned signing context"). The neutral `contracts/council-convening/` family
+  computes two digests over things no prior subject names, and both are
+  `xfc-jcs-sha256-1` under this file, taken by `$ref`. NEITHER IS A SECOND
+  CONSTRUCTION, and the family's signatures cover the JCS bytes of their signing
+  contexts directly, so they add no digest subject either.
+
+  * `council_convening` — the WHOLE commission record a producer submits: the
+    council, the subject pin, the packet references and the resolved, ordered
+    roster with its full provenance. It is the value the consumer's frozen
+    snapshot and every seat assignment bind as `convening_digest`, so a roster
+    cannot be re-described after admission without changing it.
+  * `council_seat_return_payload` — ONE SEAT'S RETURN PAYLOAD, the whole checked
+    return entry the seat signs for, bound by the return signing context as
+    `return_digest`. Over the PAYLOAD and never over the return record that
+    carries it, whose signature and context are not part of what was returned.
 type: object
 $defs:
   identifier:
@@ -281,6 +301,16 @@ $defs:
       - durability_event_leaf
       - daily_batch_node
       - daily_batch_root
+      # ADDED BY `renew-resolved-council-protocol` (ratified 2026-10-03 by Brett
+      # Heap; packet #1267, merged `80f47483`), realized by Speckit feature 035
+      # Phase 1 — TWO SUBJECTS, NO SECOND CONSTRUCTION, the fourth tranche to
+      # take this file's invitation. D1 forces the first and D3 the second: the
+      # commission record and a seat's return payload are digested, and a
+      # digest whose subject this enumeration refuses is a digest no conforming
+      # record can carry. The description above says what each is taken over.
+      # APPENDED AFTER `daily_batch_root`, so no earlier member moves.
+      - council_convening
+      - council_seat_return_payload
   digest:
     type: object
     required: [construction, subject, value]
