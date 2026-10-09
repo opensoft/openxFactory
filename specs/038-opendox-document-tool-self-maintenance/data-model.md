@@ -146,6 +146,7 @@ Table `health_runs` in `0003_` (OQ-H-22; DOMAIN, R2Q13 (a)):
 | column | type | rule |
 |---|---|---|
 | `run_id` | uuid | primary key |
+| `run_seq` | bigint, an identity column generated always, unique | server-assigned; orders a corpus's runs, never the clock, which migration `0001` (`:45-51`) says "can step backwards". It is how T046 reads "the latest earlier default-tip run" (§ Baseline classes), and how `list`, `fix` and `accept` read "the last run". The sequence's cache stays 1 (the holder, `#656` `6069024023` item 3) |
 | `corpus_root` | text | the corpus's resolved root; no foreign key to `projects` |
 | `kind` | text | `default-tip`, `branch` or `working-state` (below) |
 | `commit` | 40-hex, nullable | the commit read; null for a working-state run |
@@ -158,6 +159,8 @@ Table `health_runs` in `0003_` (OQ-H-22; DOMAIN, R2Q13 (a)):
 | `sandbox` | jsonb, NOT NULL | what the per-run probe found: `{"live": bool, "pids_max": int or null}`; `pids_max` is null where no cgroup is delegated (an accepted limit, contracts/health-packs-manifest.md § Rules) |
 
 The SQL column of the `full` field is `full_run`, because PostgreSQL 16 reserves `full` (the holder, `#656` `6064169640`).
+
+A finding's `baseline_class` (§ Finding) is NOT NULL, with no fourth value (the holder, `#656` `6069024023` item 3).
 
 **What a run reads** (R2Q12 (a), which names runs "at the tip, on a branch or
 over the working state"; ADV-16 replaced the narrower reading):
@@ -201,7 +204,7 @@ The neutral shape is [`contracts/health-finding.md`](./contracts/health-finding.
 | `locator` | DISPLAY ONLY, outside the hash: a line span, a link target as written; never document text |
 | `severity` | the neutral severities U-0 spells |
 | `resolution_class` | `auto-fix` \| `assisted` \| `human-only` (14.6) |
-| `baseline_class` | `new` \| `pack-upgrade` \| `persistent` (R2Q12 (a)); no fourth value (I-2 (a), ruled) |
+| `baseline_class` | NOT NULL (the holder, `6069024023` item 3): `new` \| `pack-upgrade` \| `persistent` (R2Q12 (a)); no fourth value (I-2 (a), ruled) |
 | `message` | one line, bounded like `evidence` (ADV-27): at most 200 characters, written by the family from its own words; never document text |
 | `evidence` | NOT NULL, `{}` when there is nothing to locate (14.5 lists it in every `list --json` finding); locators only, never an excerpt (R2Q25 (a)); a family's own version rides here (OQ-H15-18); a refused patch's `refused_patch` and `reason` (15.2a) |
 
@@ -258,8 +261,15 @@ not gone):
             "Finding: <id>" trailer naming it. A landed health-fix draft cites this way,
             since the fix loop writes that trailer on every repair commit (§ Fix draft)
      uncited → re-raised ONCE: R carries one engine-authored finding, kind
-               uncited-disappearance, identity {"disappeared_id": <id>}, human-only,
-               naming the original (contracts/health-finding.md); its id is its own
+               uncited-disappearance, human-only, naming the original
+               (contracts/health-finding.md); its id is its own. Its form
+               (option (D), the holder, 6069024023 item 2):
+                 the original has a path → identity {"disappeared_id": <id>},
+                   path the original's
+                 the original's path is empty → the pathless form the schema
+                   requires: path "", identity {"category": <the original's kind>,
+                   "entry": <its entry, or "">}, with disappeared_id and the
+                   baseline run in evidence
 the re-raise is never itself measured as a disappearance: a later run without it
   raises nothing for it, and the original id is in neither R nor the next run's
   baseline (R), so a third run raises nothing for either
