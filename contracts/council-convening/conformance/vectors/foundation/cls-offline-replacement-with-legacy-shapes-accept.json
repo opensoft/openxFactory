@@ -23,7 +23,11 @@
         "subject_pin": "0123456789abcdef0123456789abcdef01234567"
       },
       "protocol": "xfc-resolved-council-1",
-      "signing_context": "xfactory-council-seat-return/v1"
+      "signature": {
+        "key_fingerprint": "sha256:abababababababababababababababababababababababababababababababab",
+        "protocol": "xfactory-council-seat-return/v1",
+        "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ"
+      }
     },
     "selected_protocol": null
   },

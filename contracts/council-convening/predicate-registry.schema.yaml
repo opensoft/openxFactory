@@ -1,0 +1,227 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_predicate_registry
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/predicate-registry.schema.yaml"
+contract_id: council-convening-predicate-registry
+contract_schema_version: 1
+title: The CLOSED predicate registry and its input contracts
+description: >-
+  THE PREDICATES A GOVERNED RULE MAY CONDITION A SEAT ON ARE CLOSED
+  (renew-resolved-council-protocol D1, "the closed predicate registry and input
+  type contracts are shared specifications and vectors"; feature 035 data-model
+  E3, research R5). A predicate EXISTS only as an entry of
+  `predicate.registry.yaml`, the one closed instance beside this file. A
+  commission record whose condition names any other predicate is refused
+  `predicate_unknown`, and one whose condition runs a predicate against another
+  input contract, or with parameters outside the entry, is refused
+  `predicate_parameters_malformed`.
+
+  THE IDENTIFIERS ARE THE ONES THE GOVERNED RULE FILES ALREADY DECLARE, with no
+  mapping layer between a governed rule and the record that cites it. Brett Heap
+  ruled this on 2026-10-08 for OPEN-5, "Keep the existing names (Recommended)":
+  `changed_paths_intersect` over `pr_facts`, and
+  `rule_touches_security_posture` over `rule_facts`. The ruling reads the
+  Goals' "Domain predicates remain domain-owned" as: the DOMAIN owns which seats
+  a rule conditions on and with which parameters, while the EVALUATION
+  MECHANISM is neutral. Both kinds are mechanical intersections of declared
+  paths with declared patterns, so nothing here names a domain, a council or a
+  seat (constitution Principle I).
+
+  SCHEMA PLUS INSTANCE, on the house convention the clearing family's
+  permitted-operations register uses: this file declares the SHAPE of a
+  registry, and CLOSURE, meaning that the instance holds exactly the ratified
+  members with exactly their bounds, is the canonical validator's rule.
+  `scripts/council_convening/predicates.py` carries the ratified registry as a
+  frozen value, and `scripts/validate-council-convening.py` refuses an instance
+  that gains, loses, renames, rebinds or widens anything
+  (`council-convening-registry-closure`). Adding or renaming a predicate, an
+  input contract or a fact is a governed contract change.
+
+  THE DECISION SEMANTICS, stated once and pinned by vectors:
+
+  * A predicate HOLDS when any path it reads matches any of its patterns.
+  * It is UNEVALUABLE when a fact it reads is absent from the authoritative
+    facts, or a fact lies outside its input contract, or the input contract's
+    completeness rule fails. Unevaluable is never false: the condition refuses
+    (`condition_unevaluable`), whatever the record claims for it.
+  * A pattern is an exact `relative_path`, or `<relative_path>/**`. An exact
+    pattern matches the one equal path. A tree pattern matches every path that
+    begins with the directory and a `/`, and does not match a file at the
+    directory's own path. Every other form is `predicate_parameters_malformed`:
+    a rooted, dot-relative or trailing-slash pattern, an empty segment, and any
+    `*`, `?` or `[` outside the trailing `/**`.
+  * THE BARE-DIRECTORY EVIDENCE RULE. An exact pattern for which a read path
+    lies inside `pattern/` named a directory as though it were a file, and is
+    `predicate_parameters_malformed`. It is judged when the predicate is
+    evaluated over the authoritative facts, after evaluability.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - registry_id
+  - registry_version
+  - input_contracts
+  - predicates
+  - pattern_grammar
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_council_predicate_registry}
+  registry_id: {const: council-convening-predicate-registry}
+  registry_version:
+    description: >-
+      The instance's own version. It advances with any governed change to the
+      closed set, so two different registries are never indistinguishable by
+      their own declaration.
+    type: integer
+    minimum: 1
+  input_contracts:
+    type: array
+    minItems: 1
+    maxItems: 16
+    items: {$ref: '#/$defs/input_contract'}
+  predicates:
+    type: array
+    minItems: 1
+    maxItems: 16
+    items: {$ref: '#/$defs/predicate'}
+  pattern_grammar: {$ref: '#/$defs/pattern_grammar'}
+
+$defs:
+  identifier:
+    description: A snake_case identifier, the house spelling of contract values.
+    type: string
+    pattern: '^[a-z][a-z0-9_]{0,63}$'
+
+  statement:
+    type: string
+    minLength: 1
+    maxLength: 2000
+
+  input_contract:
+    description: >-
+      A CLOSED set of facts a predicate may read, and the rule that says when
+      the set is complete. The commission record's `consumed_facts` is closed per
+      input contract by these facts (`council-convening.schema.yaml`), and a fact
+      value is a string, an integer within the construction's bound, or a list of
+      strings, never a non-integer number.
+    type: object
+    additionalProperties: false
+    required: [input_contract, description, facts, completeness]
+    properties:
+      input_contract: {$ref: '#/$defs/identifier'}
+      description: {$ref: '#/$defs/statement'}
+      facts:
+        type: array
+        minItems: 1
+        maxItems: 16
+        items: {$ref: '#/$defs/fact'}
+      completeness: {$ref: '#/$defs/completeness'}
+
+  fact:
+    oneOf:
+      - type: object
+        additionalProperties: false
+        required: [fact, value, max_items]
+        properties:
+          fact: {$ref: '#/$defs/identifier'}
+          value:
+            description: A list of `relative_path` strings.
+            const: path_list
+          max_items: {type: integer, minimum: 1}
+      - type: object
+        additionalProperties: false
+        required: [fact, value]
+        properties:
+          fact: {$ref: '#/$defs/identifier'}
+          value:
+            description: A non-negative integer.
+            const: count
+          maximum:
+            description: >-
+              A bound the commission record's schema enforces on the consumed
+              value. A count without one is bounded by its contract's
+              completeness rule instead, which refuses above it as
+              `condition_unevaluable`.
+            type: integer
+            minimum: 0
+
+  completeness:
+    oneOf:
+      - type: object
+        additionalProperties: false
+        required: [rule]
+        properties:
+          rule:
+            description: The fact set is complete whenever every read fact is present.
+            const: every_read_fact_present
+      - type: object
+        additionalProperties: false
+        required: [rule, count_fact, total_fact, total_maximum]
+        properties:
+          rule:
+            description: >-
+              The fact set is complete when the listing's entry count equals its
+              declared total, and the total does not exceed `total_maximum`. A
+              rename is ONE entry that contributes TWO paths, so the count is of
+              entries, not of paths. A total above the maximum is a listing the
+              gather cannot complete, so it is unevaluable rather than read short.
+            const: entry_count_equals_total
+          count_fact: {$ref: '#/$defs/identifier'}
+          total_fact: {$ref: '#/$defs/identifier'}
+          total_maximum: {type: integer, minimum: 0}
+
+  predicate:
+    type: object
+    additionalProperties: false
+    required: [predicate, description, input_contract, parameter, reads, matches,
+               patterns, holds_when]
+    properties:
+      predicate: {$ref: '#/$defs/identifier'}
+      description: {$ref: '#/$defs/statement'}
+      input_contract: {$ref: '#/$defs/identifier'}
+      parameter:
+        description: >-
+          The one parameter member. A condition's `parameters` is closed to
+          exactly this member.
+        $ref: '#/$defs/identifier'
+      reads:
+        description: >-
+          Every fact the predicate reads, in the input contract's order. Each must
+          be present in the record's `consumed_facts` (`opaque_conclusion`
+          otherwise), and a consumed fact no condition reads is `facts_unused`.
+        type: array
+        minItems: 1
+        maxItems: 16
+        uniqueItems: true
+        items: {$ref: '#/$defs/identifier'}
+      matches:
+        description: The read fact whose paths are matched against the patterns.
+        $ref: '#/$defs/identifier'
+      patterns:
+        type: object
+        additionalProperties: false
+        required: [min_items, max_items]
+        properties:
+          min_items: {type: integer, minimum: 1}
+          max_items: {type: integer, minimum: 1}
+      holds_when:
+        const: any_read_path_matches_any_pattern
+
+  pattern_grammar:
+    type: object
+    additionalProperties: false
+    required: [exact, tree, bare_directory_evidence]
+    properties:
+      exact:
+        description: An exact pattern is a `relative_path` (shared-definitions).
+        const: relative_path
+      tree:
+        description: A tree pattern is a `relative_path` followed by `/**`.
+        const: relative_path_then_slash_double_star
+      bare_directory_evidence:
+        description: >-
+          An exact pattern with a read path inside `pattern/` is refused
+          `predicate_parameters_malformed` when the predicate is evaluated.
+        const: refused

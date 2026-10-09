@@ -22,11 +22,19 @@ THE MODES.
   notes the CI gate asserts.
 * `check PATH...`: dispatches each record by `kind`. A protocol-carrying record,
   or one with no family kind, is CLASSIFIED FIRST, offline (no selected
-  protocol). A legacy record is ROUTED to the legacy verifier and given no
+  protocol). A commission record (Phase 2) is then judged on data-model E2's
+  offline rules, in its order, and every rule that needs an environment oracle
+  is named in a `not checkable offline` note. A legacy record is ROUTED to the legacy verifier and given no
   verdict. A registry, binding, selection or activation record is judged by its
   kind and never classified. A replacement record of a kind whose schema has not
-  landed at this commit is an ERROR. Exit 0 covers the offline-checkable rules
-  only, and is never evidence of admission.
+  landed at this commit is an ERROR. The family's three NON-RECORD kinds are
+  judged, never waved through: a family schema must carry the full house header
+  (`schema_version` 1, a `name`, the 2020-12 `$schema`, an `$id` under the
+  family base) and no protocol shape; a vector is ADJUDICATED against its own
+  expectation; an index's format is checked, its closure against a tree being
+  the self-test's. A `kind` that is not a string is malformed. Nothing is
+  classified against a registry that is not closed. Exit 0 covers the
+  offline-checkable rules only, and is never evidence of admission.
 * `corpus [--json]`: the index summary: totals, the agreement-set count and the
   index's raw SHA-256. `--json` prints it for successor tooling.
 
@@ -47,6 +55,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -58,14 +67,14 @@ _ENTRYPOINT_REPO = Path(__file__).resolve().parents[1]
 if str(_ENTRYPOINT_REPO) not in sys.path:
     sys.path.insert(0, str(_ENTRYPOINT_REPO))
 
-import yaml  # noqa: E402
-
 from scripts.council_convening import (  # noqa: E402
     assignments,
     classification,
     corpus,
     generate,
+    predicates,
     records,
+    resolution,
 )
 
 EXIT_OK = 0
@@ -77,12 +86,17 @@ ROUTED_CODE = "council-convening-legacy-protocol-routed"
 
 #: Record kinds whose schema has landed at this commit, mapped to it. Phase 1
 #: lands none of the protocol-carrying or judged-by-kind record schemas other
-#: than the registry's; each later phase adds its own. Phase 3 lands the
-#: snapshot (E4) and the seat assignment (E5).
+#: than the registry's; each later phase adds its own. Phase 2 lands the
+#: commission record (data-model E2) and the predicate registry (E3), which
+#: `check` judges by kind. Phase 3 lands the snapshot (E4) and the seat
+#: assignment (E5).
 LANDED_RECORD_SCHEMAS: dict[str, str] = {
+    resolution.KIND: "council-convening.schema.yaml",
     assignments.SNAPSHOT_KIND: assignments.SNAPSHOT_SCHEMA,
     assignments.ASSIGNMENT_KIND: assignments.ASSIGNMENT_SCHEMA,
 }
+
+NOT_OFFLINE_CODE = "council-convening-not-offline-checkable"
 
 
 def _say(line: str) -> None:
@@ -112,15 +126,25 @@ def self_test(root: Path, strict: bool) -> int:
     _say(f"note  schemas loaded: {len(schemas.family)} (family) + digest-construction")
 
     registry_problems = classification.registry_findings(schemas, registry_doc)
+    if registry_problems:
+        for code, message in registry_problems:
+            _say(corpus.Finding("ERROR", code, message).line())
+        _say("note  the corpus was not adjudicated: the protocol registry is not closed, "
+             "and nothing is classified against it")
+        return EXIT_FINDINGS
+    _say(f"note  protocol registry closed: {len(registry_doc['protocols'])} entries")
+    try:
+        predicate_doc = predicates.load_registry_doc(root)
+    except records.SchemaLoadError as exc:
+        return _harness(str(exc))
+    predicate_problems = predicates.registry_findings(schemas, predicate_doc)
     errors.extend(corpus.Finding("ERROR", code, message)
-                  for code, message in registry_problems)
-    if not registry_problems:
-        _say(f"note  protocol registry closed: {len(registry_doc['protocols'])} entries")
+                  for code, message in predicate_problems)
+    if not predicate_problems:
+        _say(f"note  {predicates.REGISTRY_NOTE}")
     try:
         registry = classification.Registry(registry_doc)
     except ValueError as exc:
-        for finding in errors:
-            _say(finding.line())
         _say(f"note  the corpus was not adjudicated: {exc}")
         return EXIT_FINDINGS
 
@@ -138,17 +162,22 @@ def self_test(root: Path, strict: bool) -> int:
     _say("note  requirements probed: %d/%d (%s)" % (*report.requirements_probed,
                                                     ", ".join(report.coverage_floor)))
 
+    # The findings collected so far are printed BEFORE the generator runs, so
+    # whatever the generator does, they are on the record.
+    for finding in errors:
+        _say(finding.line())
     try:
         drift = generate.check(root)
     except records.SchemaLoadError as exc:
         return _harness(str(exc))
-    errors.extend(corpus.Finding("ERROR", "council-convening-generator-drift", line)
-                  for line in drift)
+    drift_findings = [corpus.Finding("ERROR", "council-convening-generator-drift", line)
+                      for line in drift]
+    for finding in drift_findings:
+        _say(finding.line())
+    errors.extend(drift_findings)
     if not drift:
         _say("note  generator reproduced corpus byte-for-byte")
 
-    for finding in errors:
-        _say(finding.line())
     failing = [f for f in errors if f.severity == "ERROR" or strict]
     warnings = sum(1 for f in errors if f.severity != "ERROR")
     _say(f"note  self-test: {sum(1 for f in errors if f.severity == 'ERROR')} error(s), "
@@ -164,32 +193,68 @@ class _Unreadable(Exception):
     pass
 
 
-def _read(path: Path) -> tuple[Any, str | None]:
-    """`(document, None)`, or `(None, problem)` for a file that does not parse.
-    An unreadable file raises `_Unreadable`, the harness failure."""
+def _read(path: Path) -> tuple[Any, str | None, str]:
+    """`(document, None, text)`, or `(None, problem, text)` for a file that does
+    not parse. An unreadable file raises `_Unreadable`, the harness failure.
+    YAML is read STRICTLY: a repeated key is refused, never resolved."""
     try:
-        text = path.read_bytes().decode("utf-8")
+        raw = path.read_bytes()
+        text = raw.decode("utf-8")
     except (OSError, UnicodeDecodeError) as exc:
         raise _Unreadable(f"{path}: unreadable ({type(exc).__name__})") from exc
     if path.suffix in (".yaml", ".yml"):
         try:
-            return yaml.safe_load(text), None
-        except yaml.YAMLError:
-            return None, "does not parse as YAML"
+            return records.strict_yaml(raw, path.name), None, text
+        except ValueError:
+            return None, "does not parse as strict YAML (a repeated key, an alias, a merge key, a non-string key or an implicit timestamp)", text
     try:
-        return corpus.loads_strict(text), None
+        return corpus.loads_strict(text), None, text
     except ValueError:
-        return None, "does not parse as strict JSON"
+        return None, "does not parse as strict JSON", text
+
+
+_SCHEMA_ID = re.compile(re.escape(records.ID_BASE) + r"[a-z0-9][a-z0-9-]*\.schema\.yaml\Z")
+
+
+def _family_schema_problems(document: dict, registry: classification.Registry) -> list[str]:
+    """What keeps `document` from being a family schema: the full house header,
+    no protocol shape, the 2020-12 metaschema, and only asserted formats."""
+    problems = []
+    if not (isinstance(document.get("schema_version"), int)
+            and not isinstance(document.get("schema_version"), bool)
+            and document.get("schema_version") == 1):
+        problems.append("schema_version is not 1")
+    if not isinstance(document.get("name"), str) or not document.get("name"):
+        problems.append("carries no name")
+    if document.get("$schema") != records.DIALECT_2020_12:
+        problems.append("$schema is not the 2020-12 dialect")
+    schema_id = document.get("$id")
+    if not isinstance(schema_id, str) or not _SCHEMA_ID.match(schema_id):
+        problems.append(f"$id is not a .schema.yaml under {records.ID_BASE}")
+    if classification.carries_protocol_shape(document, registry):
+        problems.append("carries a protocol member or a legacy recognition shape, "
+                        "which no family schema carries")
+    try:
+        records._check_schema("document", document)
+    except records.SchemaLoadError:
+        problems.append("is not a valid 2020-12 schema")
+    unasserted = sorted(set(records.format_targets(document)) - set(records.ASSERTED_FORMATS))
+    if unasserted:
+        problems.append(f"uses a format this family does not assert: {', '.join(unasserted)}")
+    return problems
 
 
 def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
-               registry: classification.Registry) -> tuple[list[corpus.Finding], bool]:
+               registry: classification.Registry,
+               text: str) -> tuple[list[corpus.Finding], bool]:
     """Findings for one record, and whether it was routed."""
     def error(code: str, message: str) -> list[corpus.Finding]:
         return [corpus.Finding("ERROR", code, f"{path}: {message}")]
 
     if not isinstance(document, dict):
         return error("council-convening-schema", "is not a record object"), False
+    if "kind" in document and not isinstance(document["kind"], str):
+        return error("council-convening-schema", "kind is not a string"), False
     kind = document.get("kind")
     if kind == classification.REGISTRY_KIND:
         problems = classification.registry_findings(schemas, document)
@@ -199,28 +264,49 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
         _say(f"note  {path}: protocol registry valid and closed "
              f"({len(document['protocols'])} entries)")
         return [], False
+    if kind == predicates.REGISTRY_KIND:
+        problems = predicates.registry_findings(schemas, document)
+        if problems:
+            return [corpus.Finding("ERROR", code, f"{path}: {message}")
+                    for code, message in problems], False
+        _say(f"note  {path}: {predicates.REGISTRY_NOTE}")
+        return [], False
     if kind in classification.JUDGED_BY_KIND_KINDS:
         return error("council-convening-kind-unknown",
                      f"a record of kind {kind}, whose schema has not landed at this "
                      f"commit; judged by kind and never classified"), False
     if kind == records.SCHEMA_KIND:
-        try:
-            records._check_schema(path.name, document)
-        except records.SchemaLoadError:
-            return error("council-convening-schema",
-                         "is not a valid 2020-12 schema"), False
-        _say(f"note  {path}: family schema is a valid 2020-12 schema")
+        problems = _family_schema_problems(document, registry)
+        if problems:
+            return [corpus.Finding("ERROR", "council-convening-schema", f"{path}: {p}")
+                    for p in problems], False
+        _say(f"note  {path}: family schema carries the house header and is a valid "
+             f"2020-12 schema")
         return [], False
+    if kind in (corpus.VECTOR_KIND, corpus.INDEX_KIND):
+        try:
+            corpus.loads_strict(text, corpus_tokens=True)
+        except corpus.IntegralFloatToken as exc:
+            return error("council-convening-schema", str(exc)), False
+        except ValueError:
+            return error("council-convening-schema", "does not parse as strict JSON"), False
     if kind == corpus.VECTOR_KIND:
         problems = corpus.vector_format_problems(schemas, document)
         if problems:
             return [corpus.Finding("ERROR", "council-convening-schema", f"{path}: {p}")
                     for p in problems], False
-        _say(f"note  {path}: vector format valid; the self-test adjudicates it")
-        return [], False
+        found, matched = corpus.adjudication_findings(
+            str(path), document, corpus.Context(schemas, registry))
+        if not found and matched:
+            _say(f"note  {path}: vector adjudicated to its expected outcome")
+        return found, False
     if kind == corpus.INDEX_KIND:
-        _say(f"note  not checkable offline: {path}: a corpus index is closed against "
-             f"its tree; run the self-test")
+        problems = corpus.index_problems(document, registry)
+        if problems:
+            return [corpus.Finding("ERROR", "council-convening-index-closure", f"{path}: {p}")
+                    for p in problems], False
+        _say(f"note  {path}: corpus index format valid; closure against its tree is "
+             f"the self-test's")
         return [], False
 
     outcome = classification.classify_and_select(document, None, registry)
@@ -241,7 +327,7 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
         return _check_snapshot(path, document, schemas), False
     if kind == assignments.ASSIGNMENT_KIND:
         return _check_assignment(path, document, schemas), False
-    return [], False  # pragma: no cover - every landed kind is dispatched above
+    return _check_commission_record(path, document, schemas, registry), False
 
 
 def _check_snapshot(path: Path, document: Any,
@@ -267,15 +353,46 @@ def _check_assignment(path: Path, document: Any,
     except records.Refused as refused:
         return [corpus.Finding("ERROR", _refusal_code(refused.code),
                                f"{path}: refused at {refused.member} (data-model E5)")]
-    _say(f"note  not checkable offline: {path}: the assignment set and the "
-         f"convening members it binds (data-model E4 steps 4 to 7) need its snapshot")
+    _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: the assignment "
+         f"set and the convening members it binds (data-model E4 steps 4 to 7) need "
+         f"its snapshot")
     return []
+
+
+def _check_commission_record(path: Path, document: Any, schemas: records.SchemaSet,
+                             registry: classification.Registry) -> list[corpus.Finding]:
+    """The offline E2 rules (T032): data-model E2's order with every rule that
+    needs an environment oracle skipped and named, never passed."""
+    result = resolution.check_offline(document, schemas, registry)
+    for rule in result.not_checkable:
+        _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: {rule}")
+    if result.refusal is None:
+        _say(f"note  {path}: commission record passes every offline-checkable E2 rule")
+        return []
+    where = f" at {result.member}" if result.member else ""
+    found = [corpus.Finding("ERROR", _refusal_code(result.refusal),
+                            f"{path}: refused {result.refusal}{where} (data-model E2)")]
+    if result.refusal == "convening_malformed":
+        found.insert(0, corpus.Finding("ERROR", "council-convening-schema",
+                                       f"{path}: fails council-convening.schema.yaml or "
+                                       f"its structural rules"))
+    return found
+
+
+def _registry_not_closed(exc: "classification.RegistryNotClosed", what: str) -> int:
+    for code, message in exc.findings:
+        _say(corpus.Finding("ERROR", code, message).line())
+    _say(f"note  {what}: the protocol registry in this checkout is not closed, and "
+         f"nothing is classified against it")
+    return EXIT_FINDINGS
 
 
 def check(paths: list[str], root: Path, strict: bool) -> int:
     try:
         schemas = records.load_schemas(root)
-        registry = classification.Registry(classification.load_registry_doc(root))
+        registry = classification.load_closed_registry(root, schemas)
+    except classification.RegistryNotClosed as exc:
+        return _registry_not_closed(exc, "check: no record was classified")
     except (records.SchemaLoadError, ValueError) as exc:
         return _harness(str(exc))
     findings: list[corpus.Finding] = []
@@ -283,14 +400,14 @@ def check(paths: list[str], root: Path, strict: bool) -> int:
     for name in paths:
         path = Path(name)
         try:
-            document, problem = _read(path)
+            document, problem, text = _read(path)
         except _Unreadable as exc:
             return _harness(str(exc))
         if problem:
             findings.append(corpus.Finding("ERROR", "council-convening-schema",
                                            f"{path}: {problem}"))
             continue
-        found, was_routed = _check_one(path, document, schemas, registry)
+        found, was_routed = _check_one(path, document, schemas, registry, text)
         findings.extend(found)
         routed += was_routed
     for finding in findings:
@@ -312,8 +429,10 @@ def check(paths: list[str], root: Path, strict: bool) -> int:
 def corpus_summary(root: Path, as_json: bool) -> int:
     try:
         schemas = records.load_schemas(root)
-        registry = classification.Registry(classification.load_registry_doc(root))
+        registry = classification.load_closed_registry(root, schemas)
         report = corpus.check_corpus(root, schemas, registry)
+    except classification.RegistryNotClosed as exc:
+        return _registry_not_closed(exc, "corpus: the index was not summarized")
     except (records.SchemaLoadError, ValueError) as exc:
         return _harness(str(exc))
     if as_json:

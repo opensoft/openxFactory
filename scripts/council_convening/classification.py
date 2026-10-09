@@ -44,8 +44,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Mapping
 
-import yaml
-
 from . import records
 
 REGISTRY_REL = records.FAMILY_REL / "protocol.registry.yaml"
@@ -103,7 +101,7 @@ LANDED_PROTOCOLS: dict[str, dict[str, Any]] = {
              "block_member": "council_convening",
              "roster_member": "required_seats"},
             {"rule": "legacy_signing_context",
-             "member_paths": [["signing_context"], ["context", "signing_context"]]},
+             "member_paths": [["signature", "protocol"]]},
             {"rule": "root_authorization_member",
              "members": ["root_key_fingerprint", "root_signature", "authorization"]},
         ],
@@ -121,16 +119,41 @@ class EffectNotLanded(LookupError):
 # --------------------------------------------------------------------------
 
 def load_registry_doc(root: Path | None = None) -> Any:
-    """The registry instance under `root`, parsed and not yet judged."""
+    """The registry instance under `root`, parsed strictly and not yet judged."""
     root = Path(root) if root is not None else records.REPO_ROOT
     path = root / REGISTRY_REL
     try:
-        return yaml.safe_load(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeDecodeError) as exc:
+        raw = path.read_bytes()
+    except OSError as exc:
         raise records.SchemaLoadError(
             f"{REGISTRY_REL.as_posix()}: unreadable ({type(exc).__name__})") from exc
-    except yaml.YAMLError as exc:
-        raise records.SchemaLoadError(f"{REGISTRY_REL.as_posix()}: does not parse") from exc
+    try:
+        return records.strict_yaml(raw, REGISTRY_REL.as_posix())
+    except ValueError as exc:
+        raise records.SchemaLoadError(
+            f"{REGISTRY_REL.as_posix()}: does not parse as strict YAML") from exc
+
+
+class RegistryNotClosed(ValueError):
+    """The registry instance in this checkout fails its schema or its closure.
+    Nothing is classified against it; `findings` holds `(code, message)`."""
+
+    def __init__(self, findings: list[tuple[str, str]]):
+        self.findings = findings
+        super().__init__("the protocol registry is not closed: "
+                         + "; ".join(message for _code, message in findings))
+
+
+def load_closed_registry(root: Path | None, schemas: records.SchemaSet) -> "Registry":
+    """The registry under `root`, ONLY once its schema and closure findings are
+    empty. Every entry point that classifies (`check`, `corpus`, the generator,
+    the self-test) goes through this, so none classifies against an instance
+    that added, removed, renamed or rewrote an entry."""
+    document = load_registry_doc(root)
+    findings = registry_findings(schemas, document)
+    if findings:
+        raise RegistryNotClosed(findings)
+    return Registry(document)
 
 
 class Registry:
@@ -240,6 +263,14 @@ def _recognized(record: Mapping[str, Any], legacy: Mapping[str, Any]) -> bool:
         else:  # pragma: no cover - the schema and closure admit only the three
             raise ValueError(f"unknown recognition rule {kind!r}")
     return False
+
+
+def carries_protocol_shape(document: Any, registry: Registry) -> bool:
+    """Whether `document` carries a `protocol` member or matches a legacy
+    recognition rule: a shape that is classified, wherever it appears."""
+    if not isinstance(document, Mapping):
+        return False
+    return "protocol" in document or _recognized(document, registry.entry(registry.legacy_id))
 
 
 def classify(record: Any, registry: Registry) -> str:

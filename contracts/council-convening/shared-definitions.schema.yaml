@@ -45,7 +45,8 @@ description: >-
 
 
   THE ENUMERATIONS ARE CLOSED AND GROW BY PHASE. `refusal_code` holds the five
-  Phase 1 codes and `finding_code` holds one finding. Each later phase adds its
+  Phase 1 codes and the twenty-nine Phase 2 codes of the commission record, and
+  `finding_code` holds one finding. Each later phase adds its
   codes here, in the task that authors its schemas, and the validator requires
   every member at a commit to be probed by a corpus vector
   (`council-convening-refusal-code-without-probe`). A code is a snake_case
@@ -127,7 +128,11 @@ $defs:
   key_fingerprint:
     description: >-
       The estate's one key-fingerprint spelling: `sha256:` plus the lowercase hex
-      of the raw 32-byte public key.
+      SHA-256 of the raw 32-byte Ed25519 public key, as openXwallet
+      `fingerprint_of_public_key` and codexFactory `key_fingerprint` compute it
+      (ruled by Brett Heap 2026-10-09T02:36:50Z, "Estate spelling
+      (Recommended)"). The pattern checks the spelling only; recomputing it from
+      a carried public key is the registration boundary's check.
     type: string
     pattern: '^sha256:[0-9a-f]{64}$'
   public_key:
@@ -175,8 +180,10 @@ $defs:
       head_sha: {$ref: '#/$defs/full_sha'}
       subject_path: {$ref: '#/$defs/relative_path'}
   refusal_code:
-    # CLOSED AT THE PHASE 1 FIVE. Phase 2 adds the commission and admission codes,
-    # and each later phase its own, in the task that authors its schemas.
+    # CLOSED AT THE PHASE 1 FIVE PLUS THE PHASE 2 TWENTY-NINE. Phase 2 (T028)
+    # added the commission and admission codes, in data-model § Refusal
+    # vocabulary order; each later phase adds its own, in the task that authors
+    # its schemas.
     description: The closed refusal vocabulary as landed at this commit.
     type: string
     enum:
@@ -185,6 +192,36 @@ $defs:
       - protocol_unknown
       - protocol_not_selected
       - legacy_protocol_refused
+      # Phase 2: the commission record (data-model E2), at commission and admission.
+      - convening_malformed
+      - council_unknown
+      - class_unresolved
+      - class_mismatch
+      - rule_projection_mismatch
+      - mutable_rule_reference
+      - rule_revision_ungoverned
+      - governed_sources_mismatch
+      - rule_path_malformed
+      - rule_unavailable
+      - rule_unauthorized
+      - rule_digest_mismatch
+      - rule_superseded
+      - predicate_unknown
+      - predicate_parameters_malformed
+      - condition_unevaluable
+      - condition_result_mismatch
+      - condition_seat_unbound
+      - opaque_conclusion
+      - facts_unused
+      - consumed_facts_mismatch
+      - fact_source_mismatch
+      - secret_bearing_fact
+      - candidate_mismatch
+      - candidate_head_moved
+      - candidate_head_unavailable
+      - roster_empty
+      - roster_duplicate_seat
+      - roster_mismatch
   finding_code:
     # KEPT APART FROM REFUSALS, with its own coverage rule. Phase 6 adds
     # `legacy_protocol_deprecated`.

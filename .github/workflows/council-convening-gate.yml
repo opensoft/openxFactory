@@ -82,21 +82,27 @@ jobs:
           grep -qE '^note  protocol registry closed: 2 entries$' council-convening-gate.log \
             || fail "the protocol registry is not closed at its two landed entries."
 
+          # Phase 2 (T032): the predicate registry is CLOSED at two predicates over
+          # two input contracts; adding one is a governed contract change too.
+          grep -qE '^note  predicate registry closed: 2 predicates, 2 input contracts$' council-convening-gate.log \
+            || fail "the predicate registry is not closed at its two predicates and two input contracts."
+
           grep -qE '^note  corpus index: [0-9]+ vectors, [0-9]+ both-sides, sha256:[0-9a-f]{64}$' council-convening-gate.log \
             || fail "the corpus index was not read."
 
           # `N/N` via a backreference: a pattern matching any two numbers passes
-          # a run that adjudicated three vectors out of a hundred.
-          grep -qE '^note  vectors adjudicated: ([0-9]+)/\1$' council-convening-gate.log \
+          # a run that adjudicated three vectors out of a hundred. The first
+          # digit is 1-9, so `0/0`, a run that walked nothing, fails too.
+          grep -qE '^note  vectors adjudicated: ([1-9][0-9]*)/\1$' council-convening-gate.log \
             || fail "not every vector was adjudicated to its expected outcome."
 
-          grep -qE '^note  refusal codes probed: ([0-9]+)/\1$' council-convening-gate.log \
+          grep -qE '^note  refusal codes probed: ([1-9][0-9]*)/\1$' council-convening-gate.log \
             || fail "a refusal code in the vocabulary at this commit has no probing vector."
 
-          grep -qE '^note  finding codes probed: ([0-9]+)/\1$' council-convening-gate.log \
+          grep -qE '^note  finding codes probed: ([1-9][0-9]*)/\1$' council-convening-gate.log \
             || fail "a finding code in the vocabulary at this commit has no probing vector."
 
-          grep -qE '^note  requirements probed: ([0-9]+)/\1 \(FR-001, FR-011\)$' council-convening-gate.log \
+          grep -qE '^note  requirements probed: ([1-9][0-9]*)/\1 \(FR-001, FR-002, FR-003, FR-004, FR-011, SC-001\)$' council-convening-gate.log \
             || fail "a coverage-floor requirement is cited by no vector, or the floor moved without this assertion."
 
           grep -qE '^note  generator reproduced corpus byte-for-byte$' council-convening-gate.log \

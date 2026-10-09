@@ -46,7 +46,8 @@ from . import classification, corpus, records
 
 #: The requirements the corpus must cite at this commit (T020). Each phase
 #: raises it; from Phase 6 it is the full FR-001 to FR-012 and SC-001 to SC-003.
-COVERAGE_FLOOR = ("FR-001", "FR-011")
+#: Phase 2 (T026) adds FR-002 to FR-004 and SC-001 to Phase 1's FR-001 and FR-011.
+COVERAGE_FLOOR = ("FR-001", "FR-002", "FR-003", "FR-004", "FR-011", "SC-001")
 
 #: The public phrase every fixture key is derived from. It says what it is.
 KEY_PHRASE = (b"openxFactory council-convening conformance corpus: PUBLIC TEST KEY, "
@@ -74,8 +75,11 @@ class FixtureKey:
 
     @property
     def fingerprint(self) -> str:
-        """The estate's one spelling: `sha256:` plus hex of the raw public key."""
-        return "sha256:" + self.public_key.hex()
+        """The estate's one spelling: `sha256:` plus the lowercase hex SHA-256 OF
+        the raw 32-byte public key, as openXwallet `fingerprint_of_public_key`
+        and codexFactory `key_fingerprint` compute it (ruled by Brett Heap
+        2026-10-09T02:36:50Z, "Estate spelling (Recommended)"; T047)."""
+        return "sha256:" + hashlib.sha256(self.public_key).hexdigest()
 
     @property
     def public_key_b64url(self) -> str:
@@ -106,10 +110,18 @@ def _conformance(root: Path) -> Path:
 
 def render(root: Path | None = None) -> dict[str, bytes]:
     """Every corpus file the generator produces, keyed by its path relative to
-    `conformance/`. Raises `ValueError` on a vector that does not parse."""
+    `conformance/`.
+
+    Raises `ValueError`, naming the file, for a vector that does not parse,
+    carries an integral number spelled as a float, or breaks the vector format
+    (so one malformed vector is a finding and never a `KeyError` out of
+    `build_index`), and for a registry that is not closed: the index takes its
+    `protocol` from the registry, and nothing is derived from one that moved.
+    """
     root = Path(root) if root is not None else records.REPO_ROOT
     conformance = _conformance(root)
-    registry = classification.load_registry(root)
+    schemas = records.load_schemas(root)
+    registry = classification.load_closed_registry(root, schemas)
     out: dict[str, bytes] = {}
     entries = []
     vectors_dir = conformance / "vectors"
@@ -117,9 +129,15 @@ def render(root: Path | None = None) -> dict[str, bytes]:
     for path in sources:
         relative = path.relative_to(conformance).as_posix()
         try:
-            vector = corpus.loads_strict(path.read_text(encoding="utf-8"))
+            vector = corpus.loads_strict(path.read_text(encoding="utf-8"),
+                                         corpus_tokens=True)
+        except corpus.IntegralFloatToken as exc:
+            raise ValueError(f"{relative} {exc}") from exc
         except (UnicodeDecodeError, ValueError) as exc:
             raise ValueError(f"{relative} does not parse as strict JSON") from exc
+        problems = corpus.vector_format_problems(schemas, vector)
+        if problems:
+            raise ValueError(f"{relative} breaks the vector format: " + "; ".join(problems))
         raw = corpus.dump_json(vector)
         out[relative] = raw
         entries.append((relative, raw, vector))
@@ -190,6 +208,9 @@ def main(argv: list[str] | None = None) -> int:
     except records.SchemaLoadError as exc:
         print(f"generate: harness failure: {exc}", file=sys.stderr)
         return 2
+    except ValueError as exc:
+        print(f"ERROR [council-convening-schema] {exc}")
+        return 1
 
 
 if __name__ == "__main__":

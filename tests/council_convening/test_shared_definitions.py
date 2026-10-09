@@ -18,7 +18,7 @@ import yaml
 
 from scripts.council_convening import records
 
-from .conftest import SHARED_DEFINITIONS
+from .conftest import FAMILY_REL, SHARED_DEFINITIONS
 
 SHA = "0123456789abcdef0123456789abcdef01234567"
 HEX64 = "0123456789abcdef" * 4
@@ -361,7 +361,7 @@ def test_candidate_with_a_lone_surrogate_path_is_not_canonicalizable(schemas):
 
 
 # --------------------------------------------------------------------------
-# The closed enumerations, each holding exactly the Phase 1 members.
+# The closed enumerations, each holding exactly the members landed at this commit.
 # --------------------------------------------------------------------------
 
 PHASE_1_REFUSALS = ["value_malformed", "value_not_canonicalizable",
@@ -377,13 +377,28 @@ def test_principal_kind_is_closed(definitions_doc, schemas):
     assert malformed(schemas, "principal_kind", "github_oidc")
 
 
-def test_refusal_code_holds_exactly_the_phase_1_codes(definitions_doc, schemas):
-    assert definitions_doc["$defs"]["refusal_code"]["enum"] == PHASE_1_REFUSALS
-    assert schemas.enum("refusal_code") == PHASE_1_REFUSALS
-    for code in PHASE_1_REFUSALS:
+#: Phase 2's codes (T028), in data-model § Refusal vocabulary order.
+PHASE_2_REFUSALS = [
+    "convening_malformed", "council_unknown", "class_unresolved", "class_mismatch",
+    "rule_projection_mismatch", "mutable_rule_reference", "rule_revision_ungoverned",
+    "governed_sources_mismatch", "rule_path_malformed", "rule_unavailable",
+    "rule_unauthorized", "rule_digest_mismatch", "rule_superseded", "predicate_unknown",
+    "predicate_parameters_malformed", "condition_unevaluable",
+    "condition_result_mismatch", "condition_seat_unbound", "opaque_conclusion",
+    "facts_unused", "consumed_facts_mismatch", "fact_source_mismatch",
+    "secret_bearing_fact", "candidate_mismatch", "candidate_head_moved",
+    "candidate_head_unavailable", "roster_empty", "roster_duplicate_seat",
+    "roster_mismatch"]
+
+
+def test_refusal_code_holds_exactly_the_phase_1_and_phase_2_codes(definitions_doc, schemas):
+    landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS
+    assert definitions_doc["$defs"]["refusal_code"]["enum"] == landed
+    assert schemas.enum("refusal_code") == landed
+    for code in landed:
         assert accepts(schemas, "refusal_code", code)
-    # A Phase 2 code is not a member at this commit.
-    assert malformed(schemas, "refusal_code", "convening_malformed")
+    # A Phase 3 code is not a member at this commit.
+    assert malformed(schemas, "refusal_code", "snapshot_malformed")
 
 
 def test_finding_code_holds_exactly_the_phase_1_finding(definitions_doc, schemas):
@@ -399,3 +414,243 @@ def test_a_refusal_never_echoes_the_value(schemas):
         schemas.check_definition("opaque_id", secret_shaped)
     assert secret_shaped not in str(caught.value)
     assert caught.value.member == "opaque_id"
+
+
+# --------------------------------------------------------------------------
+# The family keywords hold at every depth, inside a whole family document.
+#
+# A record schema is a whole document carrying the house `$schema` header.
+# jsonschema re-selects the validator class from `$schema` whenever it descends
+# into such a document (`evolve` calls `validator_for`), which used to swap the
+# family validator for plain `Draft202012Validator`: whole-string `pattern` and
+# `x-max-utf8-bytes` silently stopped applying, and a record validated FAIL
+# OPEN. A `$ref` straight to a `$defs` member never enters a document, which is
+# why the definition-boundary tests above could not see it.
+# --------------------------------------------------------------------------
+
+PROBE_RECORD = "probe-record.schema.yaml"
+
+
+@pytest.fixture
+def probe_schemas(family_tree):
+    """The family plus one record-shaped schema with the house header, loaded
+    from a temporary tree."""
+    shared = records.SHARED_DEFINITIONS_ID + "#/$defs/"
+    document = {
+        "schema_version": 1,
+        "kind": records.SCHEMA_KIND,
+        "name": "xfactory_council_probe_record",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": records.ID_BASE + PROBE_RECORD,
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "convening_id": {"$ref": shared + "opaque_id"},
+            "path": {"$ref": shared + "relative_path"},
+        },
+    }
+    (family_tree / FAMILY_REL / PROBE_RECORD).write_text(
+        yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+    return records.load_schemas(family_tree)
+
+
+def _record_errors(probe_schemas, record):
+    return [(error.validator, error.message)
+            for error in probe_schemas.errors(records.ID_BASE + PROBE_RECORD, record)]
+
+
+def test_a_record_schema_refuses_an_opaque_id_with_a_trailing_newline(probe_schemas):
+    assert _record_errors(probe_schemas, {"convening_id": "convening-0001"}) == []
+    assert _record_errors(probe_schemas, {"convening_id": "convening-0001\n"}) == [
+        ("pattern", "does not match the pattern, matched whole")]
+
+
+def test_a_record_schema_refuses_a_utf8_byte_overrun(probe_schemas):
+    """2049 two-byte characters: inside `maxLength` 4096 and the pattern, so only
+    `x-max-utf8-bytes` can refuse it."""
+    assert _record_errors(probe_schemas, {"path": "a" * 4096}) == []
+    assert _record_errors(probe_schemas, {"path": chr(0xE9) * 2049}) == [
+        ("x-max-utf8-bytes", "is longer than 4096 UTF-8 bytes")]
+
+
+def test_every_registered_document_keeps_the_family_validator(schemas):
+    """Every family document and the digest construction resolve, as whole
+    documents, to the family validator, never to the dialect's plain one."""
+    from jsonschema import validators
+
+    ids = [records.ID_BASE + name for name in schemas.family] + [
+        records.DIGEST_CONSTRUCTION_ID]
+    for resource_id in ids:
+        contents = schemas.registry[resource_id].contents
+        assert validators.validator_for(
+            contents, default=records.FamilyValidator) is records.FamilyValidator, resource_id
+    # The family dict keeps each document exactly as written, header included.
+    assert all("$schema" in document for document in schemas.family.values())
+
+
+def test_a_family_document_in_another_dialect_is_refused_at_load(family_tree):
+    """The header is dropped from the registered copy only because it names the
+    one dialect the family validator implements; any other dialect is refused,
+    never silently re-read as 2020-12."""
+    path = family_tree / FAMILY_REL / "protocol-registry.schema.yaml"
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["$schema"] = "http://json-schema.org/draft-07/schema#"
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+    with pytest.raises(records.SchemaLoadError, match="dialect"):
+        records.load_schemas(family_tree)
+
+
+# Both entry points, side by side: validation at a whole document's root, and a
+# `$ref` into a fragment of a whole document that carries the header.
+
+@pytest.mark.parametrize("ref, instance", [
+    (records.ID_BASE + PROBE_RECORD, {"convening_id": "convening-0001\n"}),
+    (records.ID_BASE + PROBE_RECORD + "#/properties/convening_id", "convening-0001\n"),
+    (records.SHARED_DEFINITIONS_ID + "#/$defs/opaque_id", "convening-0001\n"),
+    (records.ID_BASE + PROBE_RECORD, {"path": chr(0xE9) * 2049}),
+    (records.ID_BASE + PROBE_RECORD + "#/properties/path", chr(0xE9) * 2049),
+    (records.SHARED_DEFINITIONS_ID + "#/$defs/relative_path", chr(0xE9) * 2049),
+])
+def test_the_family_keywords_hold_at_the_root_and_through_a_fragment(
+        probe_schemas, ref, instance):
+    found = [error.validator for error in probe_schemas.errors(ref, instance)]
+    assert found in (["pattern"], ["x-max-utf8-bytes"]), (ref, found)
+
+
+def test_descending_into_a_served_document_keeps_the_family_validator(probe_schemas):
+    """The path jsonschema itself takes: `evolve` onto a document the registry
+    serves. `SchemaSet.family` keeps each document AS WRITTEN, header included,
+    and is for reading, never for evolving a validator onto."""
+    root = probe_schemas.validator(records.SHARED_DEFINITIONS_ID + "#/$defs/opaque_id")
+    for resource_id in (records.ID_BASE + PROBE_RECORD,
+                        records.ID_BASE + "protocol-registry.schema.yaml",
+                        records.DIGEST_CONSTRUCTION_ID):
+        served = probe_schemas.registry[resource_id].contents
+        assert type(root.evolve(schema=served)) is records.FamilyValidator, resource_id
+
+
+@pytest.mark.parametrize("target", [
+    "https://json-schema.org/draft/2020-12/schema",
+    "https://xforge.us/schemas/openxfactory/council-convening/v1/absent.schema.yaml",
+])
+def test_a_reference_outside_the_loaded_documents_is_refused_at_load(family_tree, target):
+    """jsonschema resolves against the loaded documents COMBINED with the
+    bundled dialect metaschemas, which keep their `$schema` header. A `$ref` to
+    one would validate that member under the plain dialect validator; it cannot
+    strip a family keyword, since none sits beneath a metaschema, but it is a
+    reference outside the family all the same. An absent family document would
+    otherwise surface only at validation time. So every `$ref` must name a
+    document this load registered, and loading refuses one that does not."""
+    path = family_tree / FAMILY_REL / "protocol-registry.schema.yaml"
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["$defs"]["release_tag"] = {"$ref": target}
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+    with pytest.raises(records.SchemaLoadError, match="outside the loaded documents"):
+        records.load_schemas(family_tree)
+
+
+def test_the_landed_family_references_only_loaded_documents(schemas):
+    """Every `$ref` in the landed family names a registered document, and the
+    walk does reach them: the shared definitions' digest reference is seen."""
+    assert records.references_outside(schemas.family, schemas.digest_construction) == []
+    assert records.DIGEST_CONSTRUCTION_ID + "#/$defs/digest" in list(
+        records.reference_targets(schemas.shared))
+
+
+# --------------------------------------------------------------------------
+# M2: family YAML is read strictly; a repeated key is refused at load.
+# --------------------------------------------------------------------------
+
+def test_a_family_schema_with_a_repeated_key_is_refused_at_load(family_tree):
+    path = family_tree / FAMILY_REL / "shared-definitions.schema.yaml"
+    path.write_text(path.read_text(encoding="utf-8") + "kind: something-else\n",
+                    encoding="utf-8")
+    with pytest.raises(records.SchemaLoadError, match="strict YAML"):
+        records.load_schemas(family_tree)
+
+
+def test_a_registry_with_a_repeated_key_is_refused_at_load(family_tree):
+    from scripts.council_convening import classification
+
+    path = family_tree / FAMILY_REL / "protocol.registry.yaml"
+    path.write_text(path.read_text(encoding="utf-8") + "registry_version: 2\n",
+                    encoding="utf-8")
+    with pytest.raises(records.SchemaLoadError, match="strict YAML"):
+        classification.load_registry_doc(family_tree)
+
+
+# --------------------------------------------------------------------------
+# Formats: an explicit allowlist, and nothing the checker cannot assert.
+# --------------------------------------------------------------------------
+
+def test_the_format_checker_asserts_exactly_the_allowlist(schemas):
+    """`FormatChecker()` asserts whatever optional libraries happen to be
+    installed, so two machines could disagree; the family names its formats."""
+    assert records.ASSERTED_FORMATS == ("date-time",)
+    assert set(schemas.format_checker.checkers) == {"date-time"}
+
+
+@pytest.mark.parametrize("fmt", ["email", "uri", "hostname", "no-such-format"])
+def test_a_format_outside_the_allowlist_is_refused_at_load(family_tree, fmt):
+    path = family_tree / FAMILY_REL / "shared-definitions.schema.yaml"
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["$defs"]["probe"] = {"type": "string", "format": fmt}
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+    with pytest.raises(records.SchemaLoadError, match="format"):
+        records.load_schemas(family_tree)
+
+
+def test_loading_fails_closed_without_the_date_time_checker(monkeypatch):
+    """Without `rfc3339-validator`, jsonschema registers no `date-time`
+    checker, and calendar validity would silently go unchecked."""
+    from jsonschema import FormatChecker
+
+    monkeypatch.setattr(FormatChecker, "checkers",
+                        {k: v for k, v in FormatChecker.checkers.items() if k != "date-time"})
+    with pytest.raises(records.SchemaLoadError, match="rfc3339-validator"):
+        records.load_schemas()
+
+
+def _patterns(node):
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key == "pattern" and isinstance(value, str):
+                yield value
+            else:
+                yield from _patterns(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from _patterns(item)
+
+
+def _inner_dollars(pattern: str) -> int:
+    count = 0
+    for at, char in enumerate(pattern[:-1]):
+        if char == "$":
+            backslashes = len(pattern[:at]) - len(pattern[:at].rstrip("\\"))
+            count += backslashes % 2 == 0
+    return count
+
+
+def test_every_inner_dollar_in_a_family_pattern_is_a_reviewed_one(schemas):
+    """`whole_match` rewrites only a pattern's FINAL `$` (its known limit, L7).
+    Two patterns carry an inner `$`, each inside a NEGATIVE lookahead:
+    `relative_path`'s, refusing a `.` or `..` segment, and `decimal_string`'s,
+    refusing `-0`. Both are safe. Each pattern's characters exclude U+000A, and
+    Python's `$` only ADDS a match position (before a final newline), which
+    inside a negative lookahead can only add a refusal of a string the final
+    `\\Z` refuses anyway. Any other inner `$` fails here, for review, before it
+    can fail open."""
+    defs = schemas.shared["$defs"]
+    reviewed = {defs["relative_path"]["pattern"]: ("relative_path", ("..\n", "a/..\n", ".\n", "a/.\n", "a\n")),
+                defs["decimal_string"]["pattern"]: ("decimal_string", ("-0\n", "0\n", "1.5\n", "-0"))}
+    found = [p for doc in [*schemas.family.values(), schemas.digest_construction]
+             for p in _patterns(doc)]
+    assert found
+    inner = {pattern for pattern in found if _inner_dollars(pattern)}
+    assert inner == set(reviewed), inner - set(reviewed)
+    for pattern, (name, refused) in reviewed.items():
+        for value in refused:
+            assert malformed(schemas, name, value), (name, repr(value))
+    assert accepts(schemas, "decimal_string", "0")
+    assert accepts(schemas, "relative_path", "a/b")
