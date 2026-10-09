@@ -318,7 +318,9 @@ register_handler("classification", _classification, oracles=("registry_status",)
 from . import resolution as _resolution  # noqa: E402
 
 register_handler("commission", _resolution.corpus_handler, oracles=_resolution.ORACLES_READ)
-register_handler("admission", _resolution.corpus_handler, oracles=_resolution.ORACLES_READ)
+# `admission` is registered once, below, by Phase 3 (T040): one handler for its
+# two input roles, the commission record (this handler, with retry identity at
+# E2 step A3) and the snapshot half (E4).
 
 
 # --------------------------------------------------------------------------
@@ -769,11 +771,11 @@ def _admission_snapshot(vector: Mapping[str, Any], context: Context) -> records.
 def _admission(vector: Mapping[str, Any], context: Context) -> records.Outcome:
     """`admission` takes one of two input roles: `snapshot`, the snapshot half
     (E4), or `record`, the commission record in the E2 admission order, with
-    retry identity at step A3."""
+    retry identity at step A3 (`resolution`)."""
     inputs = vector["inputs"]
     if isinstance(inputs, dict) and "snapshot" in inputs:
         return _admission_snapshot(vector, context)
-    raise NotAdjudicable("the commission-record half of admission is Phase 2's")
+    return _resolution.corpus_handler(vector, context)
 
 
-register_handler("admission", _admission, oracles=("registry_status", "issued"))
+register_handler("admission", _admission, oracles=_resolution.ADMISSION_ORACLES_READ)
