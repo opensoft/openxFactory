@@ -516,3 +516,60 @@ advisory, 5.5 and 5.6 are independent of one another.
     36-49, print nothing. Canon has not moved under the MODIFIED block, so
     `document-lifecycle`'s currency requirement owes no bringing forward. No
     other active change carries a delta on `project-repo-schema`.
+  - **The run.** It was performed in commit `4e65bab5`, the commit that moves
+    this directory:
+    `TZ=UTC python3 scripts/proposal-support.py . archive prefer-triad-project-shape --yes`,
+    exit 0, 2026-10-09T00:06:10Z to 00:06:16Z. Its decisive lines:
+    `ORIGIN RETAINED prefer-triad-project-shape (declaration unchanged since
+    the ratifying commit e63809650d39)`; `Totals: 1 passed, 0 failed (1
+    items)`; `Task status: ✓ Complete`; `project-repo-schema: update`;
+    `Applying changes to openspec/specs/project-repo-schema/spec.md: + 3
+    added, ~ 1 modified`; `Totals: + 3, ~ 1, - 0, → 0`; `Change
+    'prefer-triad-project-shape' archived as
+    '2026-10-09-prefer-triad-project-shape'`; and `NO SUPPORTING DOCS ...
+    (origin retained, nothing to package)`. The CLI also printed one
+    non-blocking proposal warning: `proposal.md` has no `## Why` or `## What
+    Changes` header. It blocked nothing, and the ratified proposal is kept as
+    it is. The CLI was the content-addressed `@fission-ai/openspec@1.12.0`
+    pin. `--date` was not passed, so the directory takes the UTC day of the
+    run. That is also the UTC day of its adding commit, 2026-10-09T00:07:29Z.
+    `main` had moved to `b80a4790` (#1280) before the run, and it was taken by
+    merge in `4a04f51c`. That merge touches no file of this archive.
+  - **Promoted requirements, verified by content.** Each requirement block
+    was extracted by its `### Requirement:` heading from this archived delta
+    and from canon, and hashed:
+
+    | requirement | block | bytes | sha256 prefix |
+    | --- | --- | --- | --- |
+    | *The project repository schema is elective and confers nothing* | MODIFIED | 2,201 to 4,257 | `81571de263a6b28d` |
+    | *A person starting work outside a Triad is advised once, and is never stopped for it* | ADDED | 3,200 | `bb54ba3c3608eefc` |
+    | *A project's shape is never a review input* | ADDED | 2,987 | `24c33f03db299df4` |
+    | *The advisory is silent where the shape question is answered or does not arise* | ADDED | 3,723 | `1a59e8b5c7520dfa` |
+
+    Each is byte-identical between the delta and canon. The other ten
+    requirement blocks are byte-identical before and after the archive, and
+    keep their order, with the three ADDED blocks following them. Canon
+    `--numstat` is +175 -0, and `-w --numstat` is the same, so no line moved
+    by whitespace alone. No other file under `openspec/specs/` changes, and
+    the count of capability directories stays at 67.
+  - **Provenance preserved.** The seven packet files move as pure renames
+    (R100) in `4e65bab5`: the proposal, design, delta, tasks and
+    `.openspec.yaml`, the ratification record naming the ratified head
+    `8f9c5855`, and the estate-inventory record. The origin block is unchanged
+    since the ratifying commit `e6380965`, which is #1249's squash landing of
+    `020f2e4f`. The wrapper checked this.
+  - **Links.** The README Records entry moves from Active to Archived, and its
+    two links, to `proposal.md` and to `review/ratification-2026-10-06.md`,
+    now name the archive path. Nothing in `docs/`, `ideation/`, `specs/` or
+    `contracts/` links to the active path. `docs/project-repo-schema.md`:14
+    names `openspec/changes/prefer-triad-project-shape/tasks.md` in code type,
+    not as a link, inside the `Amended by:` header of a `Status: ratified`
+    document. It is left as written, because that header records how the
+    amendment was realized. #1275 left the same document's `:24` line for
+    correct-naming-families-count the same way. Several files name this change
+    by id and not by path, and none of them moves:
+    `contracts/openreposhape-pin.yaml` (`:86`, `:186`),
+    `contracts/schemas/project-register.schema.yaml` (`:48`) and the doctrine
+    (`:6`, `:74`, `:550`). Inside the packet, the relative links (to
+    `review/ratification-2026-10-06.md` and
+    `review/estate-inventory-2026-10-06.md`) move with it and still resolve.
