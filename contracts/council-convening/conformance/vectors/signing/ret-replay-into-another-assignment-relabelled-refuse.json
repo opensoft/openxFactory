@@ -1,0 +1,197 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "signing",
+  "boundary": "return",
+  "case_id": "ret-replay-into-another-assignment-relabelled-refuse",
+  "environment": {
+    "issued": {
+      "accepted_returns": [],
+      "registered_keys": [
+        {
+          "assignment_id": "assignment-seat-a",
+          "key_fingerprint": "sha256:024fe835c9ba38e0e9716d9d2a2a04db2dde00fbb3921a05bf4dfd9d093bb5e3",
+          "public_key": "kfDO7gcI4VJilXcNwo-nHQG-P0Fe_mPBoDTmKgKQ6bE"
+        },
+        {
+          "assignment_id": "assignment-seat-b",
+          "key_fingerprint": "sha256:ee2f72ee06d2d97f8681cdd6a685ef5eacada767f19091424f19cbef8b227046",
+          "public_key": "8Ip9NMZrLx5VNJQqkMJ_1F-8vVO1m9sK37wrRC5qLvY"
+        }
+      ]
+    }
+  },
+  "evaluation_time": "2026-10-09T01:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "generated",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "cross_seat_context"
+  },
+  "inputs": {
+    "return": {
+      "assignment_id": "assignment-seat-b",
+      "context": {
+        "assignment_id": "assignment-seat-a",
+        "candidate": {
+          "head_sha": "1111111111111111111111111111111111111111",
+          "pull_number": 7,
+          "repository": "example-owner/example-candidate"
+        },
+        "convening_digest": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af",
+        "convening_id": "convening-0001",
+        "council_id": "council-alpha",
+        "key_fingerprint": "sha256:024fe835c9ba38e0e9716d9d2a2a04db2dde00fbb3921a05bf4dfd9d093bb5e3",
+        "protocol": "xfc-resolved-council-1",
+        "return_digest": "sha256:0e21b903ad3ee13dfd86ebcc55b91ce2d7c22fc85e0b3b44d6dfbd4438353fa7",
+        "seat_id": "seat-a",
+        "signing_context": "xfc-resolved-council-1/seat-return"
+      },
+      "key_fingerprint": "sha256:ee2f72ee06d2d97f8681cdd6a685ef5eacada767f19091424f19cbef8b227046",
+      "kind": "xfactory_council_seat_return",
+      "payload": {
+        "entry": {
+          "findings": [],
+          "model_usage": {
+            "costUSD": "0.0125",
+            "turns": 3
+          },
+          "summary": "seat-a reviewed the candidate"
+        },
+        "seat": "seat-a"
+      },
+      "protocol": "xfc-resolved-council-1",
+      "return_digest": {
+        "construction": "xfc-jcs-sha256-1",
+        "subject": "council_seat_return_payload",
+        "value": "sha256:0e21b903ad3ee13dfd86ebcc55b91ce2d7c22fc85e0b3b44d6dfbd4438353fa7"
+      },
+      "schema_version": 1,
+      "signature": "T6jtml6Q9Dog9M6KZN4xLsXJ4WoSwkx6S-KgoTJF6eZWuMk3uOkz0dUtguW9VeH5E8RyyMAlnjVu0VLWBKVHCA"
+    },
+    "selected_protocol": "xfc-resolved-council-1",
+    "snapshot": {
+      "admitted_at": "2026-10-09T00:00:00Z",
+      "assignments": [
+        {
+          "assignment_id": "assignment-seat-a",
+          "candidate": {
+            "head_sha": "1111111111111111111111111111111111111111",
+            "pull_number": 7,
+            "repository": "example-owner/example-candidate"
+          },
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+          },
+          "convening_id": "convening-0001",
+          "council_id": "council-alpha",
+          "expires_at": "2026-10-09T06:00:00Z",
+          "holder": {
+            "binding_ref": "binding-seat-a",
+            "principal_kind": "github_oidc_job",
+            "principal_ref": "binding-seat-a"
+          },
+          "kind": "xfactory_council_seat_assignment",
+          "not_before": "2026-10-09T00:00:00Z",
+          "permitted_operations": [
+            "seat_key_registration",
+            "seat_return"
+          ],
+          "protocol": "xfc-resolved-council-1",
+          "schema_version": 1,
+          "seat_id": "seat-a"
+        },
+        {
+          "assignment_id": "assignment-seat-b",
+          "candidate": {
+            "head_sha": "1111111111111111111111111111111111111111",
+            "pull_number": 7,
+            "repository": "example-owner/example-candidate"
+          },
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+          },
+          "convening_id": "convening-0001",
+          "council_id": "council-alpha",
+          "expires_at": "2026-10-09T06:00:00Z",
+          "holder": {
+            "binding_ref": "binding-seat-b",
+            "principal_kind": "github_oidc_job",
+            "principal_ref": "binding-seat-b"
+          },
+          "kind": "xfactory_council_seat_assignment",
+          "not_before": "2026-10-09T00:00:00Z",
+          "permitted_operations": [
+            "seat_key_registration",
+            "seat_return"
+          ],
+          "protocol": "xfc-resolved-council-1",
+          "schema_version": 1,
+          "seat_id": "seat-b"
+        }
+      ],
+      "convening": {
+        "council_id": "council-alpha",
+        "kind": "xfactory_council_convening",
+        "packet_refs": [
+          "packet/alpha-1"
+        ],
+        "protocol": "xfc-resolved-council-1",
+        "required_seats": [
+          "seat-a",
+          "seat-b"
+        ],
+        "required_seats_provenance": {
+          "candidate": {
+            "head_sha": "1111111111111111111111111111111111111111",
+            "pull_number": 7,
+            "repository": "example-owner/example-candidate"
+          },
+          "conditions": [],
+          "consumed_facts": {},
+          "fact_sources": [],
+          "governed": {
+            "repository": "example-owner/example-rules",
+            "revision": "2222222222222222222222222222222222222222",
+            "sources": [
+              {
+                "kind": "file",
+                "path": "rules/council-alpha.yaml",
+                "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+              }
+            ]
+          },
+          "standing_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "schema_version": 1,
+        "subject_pin": "1111111111111111111111111111111111111111"
+      },
+      "convening_digest": {
+        "construction": "xfc-jcs-sha256-1",
+        "subject": "council_convening",
+        "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+      },
+      "convening_id": "convening-0001",
+      "kind": "xfactory_council_convening_snapshot",
+      "protocol": "xfc-resolved-council-1",
+      "schema_version": 1
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-008",
+    "FR-010",
+    "SC-003"
+  ],
+  "schema_version": 1
+}

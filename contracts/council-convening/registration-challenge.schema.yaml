@@ -1,0 +1,69 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_registration_challenge
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/registration-challenge.schema.yaml"
+contract_id: council-convening-registration-challenge
+contract_schema_version: 1
+title: The one-use registration challenge, bound to one assignment and one key
+description: >-
+  THE CHALLENGE A SEAT JOB SIGNS TO PROVE POSSESSION OF ITS KEY
+  (renew-resolved-council-protocol, design D3; Hermes H3, "challenge bound to
+  assignment and its public fingerprint"; feature 035 data-model E6). The
+  consumer issues it for one assignment and one public key, to be used once.
+
+  IT HAS NO BOUNDARY OF ITS OWN. An issued challenge is checked against this
+  schema when a registration uses it (data-model E7 step 6). A challenge that
+  fails here is `challenge_malformed`, and that includes a lifetime outside the
+  ruled ceiling below.
+
+  THE LIFETIME CEILING IS BRETT HEAP'S RULING, AND IT IS THE CONTRACT MAXIMUM.
+  OPEN-1, ruled 2026-10-08, "600 s challenge, 6 h assignment (Recommended)":
+  `expires_at` minus `issued_at` must be greater than 0 and at most 600
+  seconds. Exactly 600 seconds is accepted; 601 seconds, zero and a negative
+  lifetime are `challenge_malformed`. A consumer may configure a tighter value,
+  and that value applies only when it ISSUES a challenge; verification and the
+  conformance corpus use this ceiling, so a stricter consumer still accepts a
+  600-second vector (research R12). A JSON Schema cannot subtract two instants,
+  so the ceiling is declared once, as `$defs/lifetime_ceiling_seconds`, and the
+  reference implementation reads it from here rather than holding a second
+  copy.
+
+  Expiry is refused at the instant and after it (`challenge_expired`), measured
+  against the evaluation time, never the wall clock.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - protocol
+  - challenge_id
+  - assignment_id
+  - key_fingerprint
+  - nonce
+  - issued_at
+  - expires_at
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_council_registration_challenge}
+  protocol: {const: xfc-resolved-council-1}
+  challenge_id: {$ref: 'shared-definitions.schema.yaml#/$defs/opaque_id'}
+  assignment_id: {$ref: 'shared-definitions.schema.yaml#/$defs/opaque_id'}
+  key_fingerprint:
+    description: >-
+      The fingerprint the seat job presented when it asked for the challenge:
+      `sha256:` and the hex SHA-256 of the raw 32-byte public key, the estate's
+      one spelling. A registration whose key does not have this fingerprint is
+      `fingerprint_mismatch` (data-model E7 step 7).
+    $ref: 'shared-definitions.schema.yaml#/$defs/key_fingerprint'
+  nonce: {$ref: 'shared-definitions.schema.yaml#/$defs/nonce'}
+  issued_at: {$ref: 'shared-definitions.schema.yaml#/$defs/utc_instant'}
+  expires_at: {$ref: 'shared-definitions.schema.yaml#/$defs/utc_instant'}
+$defs:
+  lifetime_ceiling_seconds:
+    description: >-
+      The contract ceiling on `expires_at - issued_at`, in seconds: Brett
+      Heap's OPEN-1 ruling of 2026-10-08. Declared as a schema, `const: 600`,
+      so it is both a value a reader takes from this file and a check a
+      computed lifetime can be held to.
+    const: 600

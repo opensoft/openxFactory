@@ -99,6 +99,7 @@ from scripts.council_convening import (  # noqa: E402
     predicates,
     records,
     resolution,
+    signing,
 )
 
 EXIT_OK = 0
@@ -117,14 +118,28 @@ FULL_FLOOR = tuple([f"FR-{n:03d}" for n in range(1, 13)] + ["SC-001", "SC-002", 
 #: than the registry's; each later phase adds its own. Phase 2 lands the
 #: commission record (data-model E2) and the predicate registry (E3), which
 #: `check` judges by kind. Phase 3 lands the snapshot (E4) and the seat
-#: assignment (E5).
+#: assignment (E5), and Phase 4 (T048) the challenge, the key registration
+#: and the seat return (E6 to E8).
 LANDED_RECORD_SCHEMAS: dict[str, str] = {
     resolution.KIND: "council-convening.schema.yaml",
     assignments.SNAPSHOT_KIND: assignments.SNAPSHOT_SCHEMA,
     assignments.ASSIGNMENT_KIND: assignments.ASSIGNMENT_SCHEMA,
+    signing.CHALLENGE_KIND: signing.CHALLENGE_SCHEMA,
+    signing.REGISTRATION_KIND: signing.REGISTRATION_SCHEMA,
+    signing.RETURN_KIND: signing.RETURN_SCHEMA,
 }
 
 NOT_OFFLINE_CODE = "council-convening-not-offline-checkable"
+
+#: Phase 4: per landed signing kind, its offline check and the rules it cannot
+#: run offline. A registration carries its own public key, so `check` verifies
+#: its proof; a return carries none, so its signature needs the registered key.
+OFFLINE_CHECKS = {
+    signing.CHALLENGE_KIND: (signing.check_challenge_offline, signing.CHALLENGE_STATE_RULES),
+    signing.REGISTRATION_KIND: (signing.check_registration_offline,
+                                signing.REGISTRATION_STATE_RULES),
+    signing.RETURN_KIND: (signing.check_return_offline, signing.RETURN_STATE_RULES),
+}
 
 
 def _say(line: str) -> None:
@@ -475,6 +490,8 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
         return _check_snapshot(path, document, schemas), False
     if kind == assignments.ASSIGNMENT_KIND:
         return _check_assignment(path, document, schemas), False
+    if kind in OFFLINE_CHECKS:
+        return _check_signing_record(path, document, kind, schemas), False
     return _check_commission_record(path, document, schemas, registry), False
 
 
@@ -533,6 +550,25 @@ def _registry_not_closed(exc: "classification.RegistryNotClosed", what: str) -> 
     _say(f"note  {what}: the protocol registry in this checkout is not closed, and "
          f"nothing is classified against it")
     return EXIT_FINDINGS
+
+
+def _check_signing_record(path: Path, document: Any, kind: str,
+                          schemas: records.SchemaSet) -> list[corpus.Finding]:
+    """The offline E6, E7 and E8 rules (T048): each record's own checks in its
+    boundary's order, the signature verified where the record carries its key,
+    and every rule that needs frozen or issued state named, never passed."""
+    offline, state_rules = OFFLINE_CHECKS[kind]
+    for rule in state_rules:
+        _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: {rule}")
+    try:
+        notes = offline(document, schemas)
+    except records.Refused as refused:
+        where = f" at {refused.member}" if refused.member else ""
+        return [corpus.Finding("ERROR", _refusal_code(refused.code),
+                               f"{path}: refused {refused.code}{where} (offline rules of {kind})")]
+    for note in notes:
+        _say(f"note  {path}: {note}")
+    return []
 
 
 def check(paths: list[str], root: Path, strict: bool, historical: bool = False) -> int:

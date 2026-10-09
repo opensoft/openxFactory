@@ -403,7 +403,8 @@ def test_refusal_code_opens_with_exactly_the_phase_1_to_phase_3_codes(
     # The enumeration grows by phase, each in the task that authors its schemas,
     # in landing order (1, 2, 3, 5, 4, 6): a later phase's codes FOLLOW these,
     # which keep their order. Each later phase's own test pins its additions
-    # (Phase 5: T053, in test_binding.py; Phase 6: T060, below).
+    # (Phase 5: T053, in test_binding.py; Phase 4: T046, in test_signing.py;
+    # Phase 6: T060, below).
     enum = definitions_doc["$defs"]["refusal_code"]["enum"]
     landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS + PHASE_3_REFUSALS
     assert enum[:len(landed)] == landed
@@ -411,10 +412,9 @@ def test_refusal_code_opens_with_exactly_the_phase_1_to_phase_3_codes(
     assert schemas.enum("refusal_code") == enum
     for code in enum:
         assert accepts(schemas, "refusal_code", code)
-    # A code no phase has landed is not a member, nor is a Phase 4 code of its
-    # own at this commit.
+    # A code no phase lands is not a member. Every phase has landed by Phase 6
+    # (test_refusal_code_is_complete_at_phase_6).
     assert malformed(schemas, "refusal_code", "no_such_refusal")
-    assert malformed(schemas, "refusal_code", "assignment_unknown")
 
 
 #: Phase 4's two binding codes, which the activation order gives too, added with
@@ -427,11 +427,26 @@ PHASE_6_REFUSALS = [
     "activation_evidence_incomplete", "historical_reinterpretation_refused"]
 
 
+def test_refusal_code_is_complete_at_phase_6(definitions_doc, schemas):
+    """Phase 6 lands last, so nothing later remains: the vocabulary is every
+    phase's codes in landing order (1, 2, 3, 5, 4, 6), each phase's own in
+    data-model § Refusal vocabulary order, each code once."""
+    from scripts.council_convening import binding
+
+    from .test_signing import PHASE_4_CODES
+
+    complete = (PHASE_1_REFUSALS + PHASE_2_REFUSALS + PHASE_3_REFUSALS
+                + list(binding.PHASE_5_REFUSAL_CODES) + PHASE_4_CODES + PHASE_6_REFUSALS)
+    assert definitions_doc["$defs"]["refusal_code"]["enum"] == complete
+    assert schemas.enum("refusal_code") == complete
+    assert len(set(complete)) == len(complete) == 92
+
+
 def test_the_phase_6_codes_extend_the_closed_refusal_vocabulary(definitions_doc, schemas):
-    """T060's additions, pinned as Phase 5 pins its own (test_binding.py): the
-    seven Phase 6 codes together, last, and in data-model order, and Phase 4's
-    two binding codes once each, just before them, so Phase 4's own extension
-    goes above the two and keeps the one copy."""
+    """T060's additions, pinned as Phase 5 and Phase 4 pin their own
+    (test_binding.py, test_signing.py): the seven Phase 6 codes together, last,
+    and in data-model order, and Phase 4's two binding codes, which E12 also
+    gives, once each, at the close of Phase 4's run just before them."""
     enum = definitions_doc["$defs"]["refusal_code"]["enum"]
     assert enum[-len(PHASE_6_REFUSALS):] == PHASE_6_REFUSALS
     assert enum[-len(PHASE_6_REFUSALS) - 2:-len(PHASE_6_REFUSALS)] == PHASE_4_BINDING_REFUSALS

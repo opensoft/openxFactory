@@ -13,6 +13,7 @@ deterministic JSON form, `--check`, and the labelled fixture keys.
 from __future__ import annotations
 
 import hashlib
+import importlib
 import json
 from pathlib import Path
 
@@ -98,7 +99,8 @@ def test_the_index_header():
     assert index["corpus_id"] == "council-convening-conformance"
     assert index["protocol"] == REPLACEMENT
     assert index["coverage_floor"] == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
-                                       "FR-006", "FR-011", "FR-012", "SC-001", "SC-002"]
+                                       "FR-006", "FR-007", "FR-008", "FR-011", "FR-012",
+                                       "SC-001", "SC-002", "SC-003"]
 
 
 def test_every_row_digest_is_over_the_raw_bytes():
@@ -142,13 +144,20 @@ def test_the_areas_landed_at_this_commit():
     """Phase 2 adds the `resolution` area, at boundaries `commission` and
     `admission`. Phase 3 adds the `assignment` area, at boundary `admission`
     only and for the consumer only: the consumer issues snapshots and
-    assignments and holds the live snapshots retry identity reads. Phase 5 adds
-    the `binding` area, at boundary `binding`, and Phase 6 the `migration` area,
-    at boundaries `classification`, `historical`, `selection` and `activation`.
-    Every resolution, binding and migration vector is hand-authored."""
+    assignments and holds the live snapshots retry identity reads. Phase 4 adds
+    the `signing` area, at boundaries `registration`, `return` and
+    `completion`, which the generator builds (T044); its hand-authored known
+    answers are marked. Phase 5 adds the `binding` area, at boundary `binding`,
+    and Phase 6 the `migration` area, at boundaries `classification`,
+    `historical`, `selection` and `activation`. Every resolution, binding and
+    migration vector is hand-authored."""
     rows = _index_doc()["cases"]
-    assert {row["area"] for row in rows} == {"foundation", "resolution", "assignment",
-                                             "binding", "migration"}
+    assert {row["area"] for row in rows} == {
+        "foundation", "resolution", "assignment", "signing", "binding", "migration"}
+    assert {row["area"] for row in rows} == set(corpus.AREAS)
+    signing_rows = [row for row in rows if row["area"] == "signing"]
+    assert {row["boundary"] for row in signing_rows} == {"registration", "return", "completion"}
+    assert {row["expected"]["derived_origin"] for row in signing_rows} == {"hand", "generated"}
     boundaries = {"resolution": ("commission", "admission"),
                   "migration": ("classification", "historical", "selection",
                                 "activation")}
@@ -288,7 +297,10 @@ def test_applies_to_is_a_non_empty_ordered_subset(family_tree, applies_to):
 def test_an_expected_refusal_outside_the_vocabulary_is_refused(family_tree):
     row = _first_row(family_tree, outcome="refuse")
     vector = _load(_vector_path(family_tree, row))
-    vector["expected"]["refusal"] = "assignment_unknown"      # a Phase 4 code
+    # No phase adds it: past the removal major a legacy selection is
+    # `legacy_protocol_refused`. Every phase has landed by Phase 6, so a
+    # later phase's code (Phases 1 to 5 each named one here) no longer exists.
+    vector["expected"]["refusal"] = "legacy_protocol_removed"
     _rewrite_vector(family_tree, row, vector)
     assert "council-convening-schema" in _codes(family_tree)
 
@@ -322,14 +334,22 @@ def test_the_json_byte_form(family_tree, mutate):
     assert "council-convening-schema" in _codes(family_tree)
 
 
-def test_an_unhandled_boundary_at_this_commit_is_not_adjudicated(family_tree):
-    # A foundation vector, moved to a boundary no phase has landed a handler for
-    # yet. (`commission` was Phase 1's choice; Phase 2 now handles it, and the
-    # `binding` vectors, which sort first, carry oracles it does not take.)
+def test_every_boundary_has_its_handler_at_phase_6():
+    """Phase 6 lands the last three boundaries (`selection`, `activation`,
+    `historical`), so no corpus boundary is left without a handler."""
+    assert set(corpus.HANDLERS) == set(corpus.BOUNDARIES)
+
+
+def test_an_unhandled_boundary_is_not_adjudicated(family_tree, monkeypatch):
+    # A foundation vector, moved to a boundary whose handler is withdrawn. Every
+    # boundary has landed by Phase 6 (the test above), so the withdrawal stands
+    # in for the later phase Phase 1 to 4 each named here (`commission`, then
+    # `selection` and `registration`).
+    monkeypatch.delitem(corpus.HANDLERS, "historical")
     row = next(r for r in _rows(family_tree)
                if r["area"] == "foundation" and r["expected"]["outcome"] == "accept")
     vector = _load(_vector_path(family_tree, row))
-    vector["boundary"] = "registration"                # Phase 4's
+    vector["boundary"] = "historical"
     _rewrite_vector(family_tree, row, vector)
     assert "council-convening-vector-outcome-mismatch" in _codes(family_tree)
 
@@ -398,10 +418,29 @@ def test_a_parts_vector_adjudicates_on_the_joined_value():
 # --------------------------------------------------------------------------
 
 def _drop_rows(root: Path, predicate) -> None:
+    """Remove every vector `predicate` selects and regenerate the index. A built
+    area (`generate.BUILT_AREAS`) is rebuilt whole by the generator, so its
+    builders are filtered by the same predicate for the regeneration: the
+    probe is then gone from every area, hand-kept or built."""
     for row in _rows(root):
         if predicate(row):
             _vector_path(root, row).unlink()
-    generate.generate(root)
+    builders = [importlib.import_module(f"scripts.council_convening.{name}")
+                for name in generate.BUILT_AREAS.values()]
+    real = [module.build for module in builders]
+
+    def filtered(build):
+        return lambda build_root: {relative: vector
+                                   for relative, vector in build(build_root).items()
+                                   if not predicate(vector)}
+
+    try:
+        for module, build in zip(builders, real):
+            module.build = filtered(build)
+        generate.generate(root)
+    finally:
+        for module, build in zip(builders, real):
+            module.build = build
 
 
 def test_every_refusal_code_needs_a_probe(family_tree):
@@ -425,15 +464,17 @@ def test_every_coverage_floor_requirement_needs_a_probe(family_tree):
 def test_the_landed_coverage_counts():
     report = corpus.check_corpus()
     # Every refusal code as landed at this commit, which each phase grows; the
-    # route's two findings, complete at Phase 6 (T060); and the floor's ten
-    # (Phase 3's FR-005, FR-006 and SC-002; Phase 6's FR-012).
+    # route's two findings, complete at Phase 6 (T060); and the floor's
+    # thirteen: Phase 3 (T036) adds FR-005, FR-006 and SC-002, Phase 4 (T044)
+    # FR-007, FR-008 and SC-003, and Phase 6 (T058) FR-012.
     landed = len(records.load_schemas().enum("refusal_code"))
     assert landed >= 5
     assert report.refusals_probed == (landed, landed)
     assert report.findings_probed == (2, 2)
-    assert report.requirements_probed == (10, 10)
+    assert report.requirements_probed == (13, 13)
     assert report.coverage_floor == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
-                                     "FR-006", "FR-011", "FR-012", "SC-001", "SC-002"]
+                                     "FR-006", "FR-007", "FR-008", "FR-011", "FR-012",
+                                     "SC-001", "SC-002", "SC-003"]
 
 
 # --------------------------------------------------------------------------
@@ -496,7 +537,8 @@ def test_generate_check_reports_a_stale_index(family_tree):
 
 def test_generate_writes_the_coverage_floor():
     assert generate.COVERAGE_FLOOR == ("FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
-                                       "FR-006", "FR-011", "FR-012", "SC-001", "SC-002")
+                                       "FR-006", "FR-007", "FR-008", "FR-011", "FR-012",
+                                       "SC-001", "SC-002", "SC-003")
 
 
 def test_labelled_test_keys_are_deterministic_and_distinct():

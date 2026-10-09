@@ -1,0 +1,86 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_seat_return
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/seat-return.schema.yaml"
+contract_id: council-convening-seat-return
+contract_schema_version: 1
+title: A seat's signed return, bound to its assignment, its key and its payload digest
+description: >-
+  ONE SEAT RETURNS ITS WHOLE CHECKED ENTRY, SIGNED BY ITS REGISTERED KEY
+  (renew-resolved-council-protocol, design D3; feature 035 data-model E8).
+
+  THE PAYLOAD IS THE FAMILY'S ONE OPEN OBJECT. Its member set is the domain's
+  and the consumer's: the content the producer signs today, the posted block
+  plus the floor fields (research R11). Everything else here is closed. The
+  payload is still held to three rules, checked in this order at E8 step 2:
+
+  * NO KEY TRANSPORT, at any depth of the payload too: a member named
+    `private_key`, `secret_key`, `seed`, `sk` or `d`, or a PEM private-key
+    block in any string, is `return_malformed`;
+  * ADMISSIBLE UNDER `xfc-jcs-sha256-1`: no non-integer number, no integer
+    outside ±(2^53 - 1) and no unpaired surrogate, otherwise
+    `value_not_canonicalizable`. A non-integer quantity is written as a
+    `decimal_string`, which is a string and so admissible;
+  * BOUNDED at 1 MiB (1048576 bytes) of canonical bytes, otherwise
+    `return_malformed`. H1 requires bounded inputs. The bound is measured in
+    canonical bytes, which is why it runs after the admissibility check.
+
+  `return_digest` is `xfc-jcs-sha256-1`, subject `council_seat_return_payload`,
+  over `payload`, and the return context carries the same digest's `value`. A
+  digest that does not recompute, or that differs from the context's, is
+  `return_digest_mismatch`.
+
+  THE RETURN CARRIES NO PUBLIC KEY. It is verified with the key registered for
+  its assignment (data-model E7), which the consumer holds; `key_fingerprint`
+  names it, and a return under another key is `return_key_mismatch`.
+
+  THE ORDER AT `return` (data-model E8), first failing check wins:
+  classification and selection; this shape, then admissibility, then size; the
+  assignment (`assignment_unknown`, `assignment_not_yet_valid`,
+  `assignment_expired`, `operation_not_permitted`); the key
+  (`return_unregistered`, `return_key_mismatch`); the context, rebuilt and
+  compared member by member; the digest; the signature
+  (`return_signature_invalid`); and last replay (`return_replayed`).
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - protocol
+  - assignment_id
+  - key_fingerprint
+  - payload
+  - return_digest
+  - context
+  - signature
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_council_seat_return}
+  protocol: {const: xfc-resolved-council-1}
+  assignment_id: {$ref: 'shared-definitions.schema.yaml#/$defs/opaque_id'}
+  key_fingerprint: {$ref: 'shared-definitions.schema.yaml#/$defs/key_fingerprint'}
+  payload:
+    description: >-
+      The seat's whole checked return entry. An OPEN object: its members are
+      the domain's and the consumer's, and verdict semantics stay the
+      consumer's existing ones.
+    type: object
+  return_digest:
+    description: The `xfc-jcs-sha256-1` digest of `payload`, subject `council_seat_return_payload`.
+    allOf:
+      - {$ref: 'shared-definitions.schema.yaml#/$defs/digest'}
+      - properties: {subject: {const: council_seat_return_payload}}
+        required: [subject]
+  context: {$ref: 'signing-context.schema.yaml#/$defs/return_context'}
+  signature:
+    description: >-
+      An Ed25519 signature, by the key registered for `assignment_id`, over the
+      UTF-8 of the `xfc-jcs-sha256-1` serialization of `context`.
+    $ref: 'shared-definitions.schema.yaml#/$defs/signature'
+$defs:
+  payload_limit_bytes:
+    description: >-
+      The bound on the payload's canonical bytes: 1 MiB. Declared as a schema,
+      `const: 1048576`, so the reference implementation reads it from here.
+    const: 1048576

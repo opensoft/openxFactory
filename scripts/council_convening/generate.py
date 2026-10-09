@@ -17,7 +17,7 @@ WHERE THE VECTORS COME FROM AT PHASE 1. The `foundation` vectors are hand-author
 this code, so that the reference implementation is checked against answers it
 did not produce (U12). The generator's Phase 1 job is to hold them in one byte
 form and to derive the index from them. The signing vectors of Phase 4 are built
-here from labelled keys.
+here from labelled keys (`BUILT_AREAS`).
 
 THE IDENTITY MAP IS THE FROZEN FIXTURE, NEVER THE LIVE FILE (Phase 5, T055;
 round 7, R7-M1). The generator reads `conformance/fixtures/repository-identity.json`
@@ -48,6 +48,7 @@ from __future__ import annotations
 import argparse
 import base64
 import hashlib
+import importlib
 import sys
 import tempfile
 from pathlib import Path
@@ -58,11 +59,17 @@ from . import classification, corpus, records
 #: The requirements the corpus must cite at this commit (T020). Each phase
 #: raises it; from Phase 6 it is the full FR-001 to FR-012 and SC-001 to SC-003.
 #: Phase 2 (T026) adds FR-002 to FR-004 and SC-001 to Phase 1's FR-001 and FR-011.
-#: Phase 3 (T036) adds FR-005, FR-006 and SC-002, and Phase 6 (T058) FR-012.
-#: Phase 6 raises the floor to the full set once Phase 4's vectors are merged:
-#: at this commit no vector cites FR-010 or SC-003.
-COVERAGE_FLOOR = ("FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-011",
-                  "FR-012", "SC-001", "SC-002")
+#: Phase 3 (T036) adds FR-005, FR-006 and SC-002, Phase 4 (T044) FR-007, FR-008
+#: and SC-003, and Phase 6 (T058) FR-012.
+COVERAGE_FLOOR = ("FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007",
+                  "FR-008", "FR-011", "FR-012", "SC-001", "SC-002", "SC-003")
+
+#: The areas whose vectors this generator BUILDS from labelled keys, rather than
+#: reads from the tree, each mapped to the module whose `build(root)` returns
+#: `{path relative to conformance/: vector}`. A committed file in a built area
+#: that the builder does not produce is drift, like any other. Phase 4 (T044)
+#: builds `signing`.
+BUILT_AREAS = {"signing": "signing_vectors"}
 
 #: The public phrase every fixture key is derived from. It says what it is.
 KEY_PHRASE = (b"openxFactory council-convening conformance corpus: PUBLIC TEST KEY, "
@@ -188,10 +195,25 @@ def render(root: Path | None = None) -> dict[str, bytes]:
     fixture_text = identity[1].get("text") if identity else None
     if identity and not isinstance(fixture_text, str):
         raise ValueError(f"{corpus.IDENTITY_FIXTURE} carries no text")
+    built: dict[str, dict] = {}
+    for module_name in BUILT_AREAS.values():
+        built.update(importlib.import_module(f"{__package__}.{module_name}").build(root))
+    built_prefixes = tuple(f"vectors/{area}/" for area in BUILT_AREAS)
+    for relative, vector in sorted(built.items(), key=lambda item: item[0].encode("utf-8")):
+        problems = corpus.vector_format_problems(schemas, vector)
+        if problems:
+            raise ValueError(f"{relative} (built) breaks the vector format: "
+                             + "; ".join(problems))
+        vector = _with_fixture_text(vector, fixture_text, relative)
+        raw = corpus.dump_json(vector)
+        out[relative] = raw
+        entries.append((relative, raw, vector))
     vectors_dir = conformance / "vectors"
     sources = sorted(vectors_dir.rglob("*.json")) if vectors_dir.is_dir() else []
     for path in sources:
         relative = path.relative_to(conformance).as_posix()
+        if relative.startswith(built_prefixes):
+            continue
         try:
             vector = corpus.loads_strict(path.read_text(encoding="utf-8"),
                                          corpus_tokens=True)
