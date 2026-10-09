@@ -290,11 +290,6 @@
           "job_workflow_ref": "<owner>/<repository>/.github/workflows/<file>@<ref>",
           "operation": "commission",
           "workflow_revision_rule": "equals_governed_revision"
-        },
-        {
-          "job_workflow_ref": "<owner>/<repository>/.github/workflows/<file>@<ref>",
-          "operation": "seat_execution",
-          "workflow_revision_rule": "on_governed_history_since_revision"
         }
       ],
       "principal_kind": "github_oidc_job",

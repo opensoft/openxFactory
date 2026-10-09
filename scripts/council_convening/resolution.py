@@ -687,8 +687,11 @@ def _classify(record, run: _Run, selected_protocol, statuses) -> None:
 def _bound_claims(run: _Run) -> None:
     """E2 step A1: E10 steps 1 to 13, the binding instance and then the
     commission job's verified claims. It reads only the claims, never a
-    free-text value of the record, so it may run before step 3."""
+    free-text value of the record, so it may run before step 3. Offline it is
+    named as not checkable, never passed."""
     if run.binding is None:
+        run.skip("binding (E2 step A1: E10 steps 1 to 13 on the commission job's "
+                 "verified claims, against the consumer's binding and identity map)")
         return
     binding.check_offline(run.binding, identity_root=run.identity_root,
                           schemas=run.schemas)
@@ -704,6 +707,8 @@ def _bound_claims(run: _Run) -> None:
 def _workflow_revision(record, run: _Run) -> None:
     """E2 step A4: E10 step 14, now that step 5 has checked `governed`."""
     if run.binding is None:
+        run.skip("workflow_revision_ungoverned (E2 step A4: E10 step 14, the "
+                 "commission job's verified job_workflow_sha against `governed`)")
         return
     try:
         binding.check_workflow_revision(

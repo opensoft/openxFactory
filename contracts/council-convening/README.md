@@ -84,7 +84,10 @@ python3 scripts/validate-council-convening.py check <binding instance>
 which runs E10 steps 1 to 6 against that pin's
 `contracts/policies/repository-identity.yaml`, refuses the template stub as live,
 and reports steps 7 to 14 as not checkable offline. This family ships only the
-schema, the stub, the derivation from the identity map, and the corpus.
+schema, the stub, the derivation from the identity map, and the corpus. The stub
+is the commission job's binding and permits one operation. A seat's binding is
+its own instance per seat (025 ruling (A)), and permits `seat_execution` only;
+the stub's header spells out that entry.
 
 **The order** (data-model E10). Steps 1 to 6 judge the instance alone:
 `binding_malformed`, `binding_wildcard`, `issuer_mismatch` (the standard issuer

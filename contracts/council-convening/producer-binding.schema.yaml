@@ -230,7 +230,13 @@ properties:
       by `:`, and GitHub writes a `:` inside a value as `%3A`. The standard
       JWT claims are not subject elements. GitHub's `repo_property_*` custom
       property claims are an open family and are not members: a binding that
-      needs one is a governed change to this enumeration.
+      needs one is a governed change to this enumeration. Nor are `sha`,
+      `ref_protected`, `environment_node_id` and `issuer_scope`: GitHub's
+      discovery document
+      (https://token.actions.githubusercontent.com/.well-known/openid-configuration,
+      read 2026-10-09) lists them in `claims_supported`, but the reference's
+      claims table does not document them, so this enumeration, read from the
+      table, leaves them out.
     type: array
     minItems: 1
     uniqueItems: true

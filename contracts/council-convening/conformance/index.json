@@ -1233,6 +1233,26 @@
       ],
       "area": "binding",
       "boundary": "binding",
+      "case_id": "bind-caller-pending-case-variant-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-caller-pending-case-variant-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:9f3a2144f166171b5eed5fa991d0d8a24b2231ddb64d6d6ed42b84f7ef2d3dce"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
       "case_id": "bind-claim-audience-refuse",
       "expected": {
         "derived": {},
@@ -1426,6 +1446,26 @@
         "FR-009"
       ],
       "sha256": "sha256:655e9139047c949b5fb40bfc8aaafe4f281525fd1dec7343874f67d226b37423"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-commission-at-branch-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-commission-at-branch-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:16a2b4a81d0429effd563610ac169e0d7298107ed031a11189e75476bcac48d7"
     },
     {
       "applies_to": [
@@ -1933,6 +1973,46 @@
       ],
       "area": "binding",
       "boundary": "binding",
+      "case_id": "bind-permitted-ref-at-branch-former-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-permitted-ref-at-branch-former-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:2a2f16b666d3f6d70a563ad9a1020e472926e7f724983e82fdbb8a0872d7e63e"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-permitted-ref-unparsed-former-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-permitted-ref-unparsed-former-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:e432c6e2ec4331caa7ae6a56cce66c77ab546cc9c29a307c4b6645a151c8f3ee"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
       "case_id": "bind-seat-at-frozen-revision-accept",
       "expected": {
         "derived": {},
@@ -2165,7 +2245,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:a5bca029a551a937a18e5a6bb43eedc6518a7d847d9917355806e20053bb6ed3"
+      "sha256": "sha256:e9791f1a8bc714623e2bba46f157c0932d25e466b0641379b97bc6e28f4760fe"
     },
     {
       "applies_to": [
@@ -2286,6 +2366,26 @@
         "FR-009"
       ],
       "sha256": "sha256:f8105737b0efb069fadb1afeac9616f88bf67a02d9883b0516720879a7d5bc1c"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-workflow-pending-current-case-variant-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-workflow-pending-current-case-variant-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:51156a569d839429d652f286f8b18af861ca8f5b3dcfa3d4a2ee51600cf0f572"
     },
     {
       "applies_to": [
@@ -5319,7 +5419,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:0458b7a47baf9dcaac8a83cb62afb9bb14670f7a59408dc64a9c6123537f786f"
+      "sha256": "sha256:68fb67485bd62c538e3f5c219b08df74ecd2524797a0cc1d1a3ceb6325059477"
     },
     {
       "applies_to": [
@@ -8481,6 +8581,7 @@
     "FR-004",
     "FR-005",
     "FR-006",
+    "FR-009",
     "FR-011",
     "SC-001",
     "SC-002"
@@ -8499,15 +8600,15 @@
     "both_sides": 245,
     "by_area": {
       "assignment": 49,
-      "binding": 58,
+      "binding": 63,
       "foundation": 133,
       "resolution": 142
     },
     "by_outcome": {
-      "accept": 78,
-      "refuse": 296,
+      "accept": 79,
+      "refuse": 300,
       "route": 8
     },
-    "vectors": 382
+    "vectors": 387
   }
 }
