@@ -1,5 +1,11 @@
 """`scripts/verify-openxwallet-pin.py`: the positive, and all six refusals.
 
+Since `xwallet-v1.0` the six refusals are also observed at EACH NESTED LEVEL of
+the chain the pin reaches through openXwallet — the openWallet root and its code
+leg (`NESTED_CHAIN`): uninitialized, recorded nowhere by the pinned level above,
+a stale checkout, and a recorded gitlink that moved. The scratch wallet is a
+chain of three real repositories for that reason.
+
 Two things are proven here and they are different things.
 
 THE POSITIVE IS ADJUDICATED AGAINST THE REAL REPOSITORY ROOT. `test_the_real_pin
@@ -46,6 +52,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -174,6 +181,21 @@ class Scratch:
     def member(self, rel: str) -> Path:
         return self.sub / rel
 
+    def level(self, depth: int) -> Path:
+        """The repository `depth` nested levels below `openXwallet` (0 = it)."""
+        return self.sub.joinpath(*MODULE.NESTED_CHAIN[:depth])
+
+    def recommit_wallet(self, message: str) -> None:
+        """Commit the wallet's current index and re-pin the pin to it.
+
+        The pin and the superproject's gitlink move TOGETHER, so checks 2 and 3
+        still hold and whatever refuses is the nested level under test.
+        """
+        _git(self.sub, "commit", "-q", "--allow-empty", "-m", message)
+        self.commit = _git(self.sub, "rev-parse", "HEAD").stdout.strip()
+        self.pin["commit"] = self.commit
+        self.record_gitlink(self.commit)
+
 
 def _scratch(tmp_path: Path, *, record: str = "head") -> Scratch:
     """Build the positive fixture. `record` is "head", "index" or "none".
@@ -195,6 +217,13 @@ def _scratch(tmp_path: Path, *, record: str = "head") -> Scratch:
 
     sub = root / "openXwallet"
     sub.mkdir()
+    # THE NESTED CHAIN, each level its own real repository, made BEFORE any
+    # member is written so `-A` below files each member in the repository of
+    # the deepest level that holds it.
+    nested = [sub.joinpath(*MODULE.NESTED_CHAIN[:depth])
+              for depth in range(1, len(MODULE.NESTED_CHAIN) + 1)]
+    for level in nested:
+        level.mkdir(parents=True, exist_ok=True)
     for rel in digested:
         target = sub / rel
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -210,13 +239,24 @@ def _scratch(tmp_path: Path, *, record: str = "head") -> Scratch:
             target.mkdir(parents=True, exist_ok=True)
             (target / "keep.yaml").write_text("{}\n", encoding="utf-8")
 
+    # Innermost first: each nested level is committed before the level above
+    # records it as an embedded `160000` gitlink, so nested parity holds by
+    # construction and each nested negative is ONE mutation away from it.
+    for level in reversed(nested):
+        (level / "README.md").write_text(f"# scratch {level.name}\n",
+                                         encoding="utf-8")
+        _git(level.parent, "init", "-q", "-b", "main", str(level))
+        _identify(level)
+        _git(level, "-c", "advice.addEmbeddedRepo=false", "add", "-A")
+        _git(level, "commit", "-q", "-m", f"seed {level.name}")
+
     # The nested repository, with TWO commits. The second exists so
     # `pin-checkout-mismatch` is reproducible by pinning the FIRST while the
     # checkout sits at the second — a real advanced/stale checkout, with no
     # write through the `.git` pointer and no fabricated revision.
     _git(sub.parent, "init", "-q", "-b", "main", str(sub))
     _identify(sub)
-    _git(sub, "add", "-A")
+    _git(sub, "-c", "advice.addEmbeddedRepo=false", "add", "-A")
     _git(sub, "commit", "-q", "-m", "seed the wallet members")
     parent_commit = _git(sub, "rev-parse", "HEAD").stdout.strip()
     (sub / "docs").mkdir(exist_ok=True)
@@ -295,9 +335,13 @@ def test_pin_unreadable_is_not_in_the_ratified_vocabulary() -> None:
 
 def test_the_remediation_trailer_is_the_ratified_string() -> None:
     assert MODULE.REMEDIATION == (
-        "Remediation: run `git submodule update --init openXwallet` (NOT "
+        "Remediation: run `git submodule update --init openXwallet`, then "
+        "`git -C openXwallet submodule update --init openWallet`, then "
+        "`git -C openXwallet/openWallet submodule update --init code` (NOT "
         "--recursive; this wave's init is deliberately scoped). If the pin "
         "itself is stale, follow `openXwallet/docs/pin-resync-runbook.md`.")
+    # Three named levels, and never the openWallet root's `spec` leg.
+    assert "--init spec" not in MODULE.REMEDIATION
     # `--recursive` must stay absent: this wave's init is scoped to one
     # submodule, and a remediation that recursed would pull the aggregation's
     # whole submodule tree into a job with business in exactly one of them.
@@ -315,7 +359,22 @@ def test_the_real_pin_is_satisfied() -> None:
     assert pin["revision_kind"] == "commit"
     assert len(pin["commit"]) == 40
     assert len(pin["files"]) == 8
-    assert len(pin["pinned_by_commit_only"]) == 6
+    # Six until `xwallet-v1.0`: the two openXwallet entrypoints stay, the
+    # corpora and READMEs moved under `openWallet/code/`, and the core's own
+    # validator and syntax gate joined (design D6).
+    assert len(pin["pinned_by_commit_only"]) == 8
+    assert all(entry["path"].startswith("openWallet/code/contracts/")
+               for entry in pin["files"])
+
+
+def test_the_real_nested_chain_is_checked_out_as_recorded() -> None:
+    """Both nested levels of the shipped tree, against the shipped gitlinks."""
+    pin = MODULE.load_pin()
+    chain = MODULE._verify_nested_chain(
+        REPO_ROOT / pin["submodule_path"], pin["submodule_path"],
+        pin["commit"].lower())
+    assert [path for path, _ in chain] == [
+        "openXwallet/openWallet", "openXwallet/openWallet/code"]
 
 
 def test_the_real_submodule_dot_git_is_a_file_not_a_directory() -> None:
@@ -342,6 +401,8 @@ def test_main_prints_one_success_line_and_returns_zero(capsys) -> None:
     assert pin["commit"] in lines[0]
     assert str(pin["contract_bundle_tag"]) in lines[0]
     assert "8 digest(s)" in lines[0]
+    assert "nested parity openXwallet/openWallet@" in lines[0]
+    assert "openXwallet/openWallet/code@" in lines[0]
 
 
 # --------------------------------------------------------------------------
@@ -437,6 +498,52 @@ def _break_path_only_member_missing(scratch: Scratch) -> None:
     scratch.member(victim).unlink()
 
 
+def _break_nested_root_uninitialized(scratch: Scratch) -> None:
+    # The first scoped init ran and the second did not.
+    shutil.rmtree(scratch.level(1) / ".git")
+
+
+def _break_code_leg_uninitialized(scratch: Scratch) -> None:
+    # The first two scoped inits ran and the third did not.
+    shutil.rmtree(scratch.level(2) / ".git")
+
+
+def _break_nested_root_recorded_nowhere(scratch: Scratch) -> None:
+    # The pinned openXwallet commit carries no `openWallet` gitlink at all —
+    # the shape of a pin whose paths were re-pathed onto a wallet commit from
+    # before the nested chain existed.
+    _git(scratch.sub, "rm", "-q", "--cached", "openWallet")
+    scratch.recommit_wallet("drop the nested root")
+
+
+def _break_nested_root_checkout(scratch: Scratch) -> None:
+    # The CHECKOUT moved: the root advances past what the pinned wallet records.
+    _git(scratch.level(1), "commit", "-q", "--allow-empty", "-m", "advance")
+
+
+def _break_nested_root_gitlink(scratch: Scratch) -> None:
+    # The RECORD moved: the pinned wallet commit names another root revision
+    # while the checkout stays where it was.
+    _git(scratch.sub, "update-index", "--add", "--replace", "--cacheinfo",
+         f"160000,{'3' * 40},openWallet")
+    scratch.recommit_wallet("record another root")
+
+
+def _break_code_leg_checkout(scratch: Scratch) -> None:
+    _git(scratch.level(2), "commit", "-q", "--allow-empty", "-m", "advance")
+
+
+def _break_code_leg_gitlink(scratch: Scratch) -> None:
+    # The root's recorded `code` gitlink moves and the wallet records THAT root,
+    # so level 1 holds and only level 2 can refuse.
+    _git(scratch.level(1), "update-index", "--add", "--replace", "--cacheinfo",
+         f"160000,{'4' * 40},code")
+    _git(scratch.level(1), "commit", "-q", "-m", "record another code leg")
+    _git(scratch.sub, "-c", "advice.addEmbeddedRepo=false", "add",
+         "openWallet")
+    scratch.recommit_wallet("record the advanced root")
+
+
 def _break_revision_kind(scratch: Scratch) -> None:
     scratch.pin["revision_kind"] = "tag"
     scratch.pin["commit"] = "wallet-v1.1"
@@ -467,6 +574,22 @@ NEGATIVES = [
      "pin-tag-only", "not 'commit'"),
     ("commit-is-abbreviated", _break_abbreviated_commit, "head",
      "pin-tag-only", "not exactly 40 hex characters"),
+    # NESTED-CHECKOUT PARITY, each level observed refusing (design D6).
+    ("nested-root-uninitialized", _break_nested_root_uninitialized, "head",
+     "pin-submodule-uninitialized", "openXwallet/openWallet/.git does not exist"),
+    ("code-leg-uninitialized", _break_code_leg_uninitialized, "head",
+     "pin-submodule-uninitialized",
+     "openXwallet/openWallet/code/.git does not exist"),
+    ("nested-root-recorded-nowhere", _break_nested_root_recorded_nowhere,
+     "head", "pin-gitlink-mismatch", "records no 160000 gitlink for openWallet"),
+    ("nested-root-checkout-stale", _break_nested_root_checkout, "head",
+     "pin-checkout-mismatch", "openXwallet/openWallet is checked out at"),
+    ("nested-root-gitlink-differs", _break_nested_root_gitlink, "head",
+     "pin-checkout-mismatch", "records " + "3" * 40),
+    ("code-leg-checkout-stale", _break_code_leg_checkout, "head",
+     "pin-checkout-mismatch", "openXwallet/openWallet/code is checked out at"),
+    ("code-leg-gitlink-differs", _break_code_leg_gitlink, "head",
+     "pin-checkout-mismatch", "records " + "4" * 40),
 ]
 
 
