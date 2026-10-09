@@ -69,8 +69,8 @@ landings, encoded as worded, with no new decision. This file carries only this
 paragraph. tasks.md carries the tick of T071 (openxFactory#1261 → `a020b34a`) and
 the task-level record, and `contracts/health-finding.md` carries the U+0000 bound
 (the NUL seam, `6072086385` item 4) and a pathless finding's identity: its closed
-category set, its 200-character `entry`, and `entry` `""` for `no-sandbox`,
-`manifest-refused` and `dispositions-refused` (`6072197564`).
+category set, its 200-character `entry`, and `entry` fixed by its category
+(`6072197564`, refined by `6073087924`).
 
 **Revision: review round 1 folded** (2026-10-05). Two independent read-only
 reviews of `6d6911e1`, an Opus analyze and adversarial pass and lane

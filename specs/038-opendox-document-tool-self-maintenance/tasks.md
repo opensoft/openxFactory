@@ -125,9 +125,11 @@ worded, each cited by comment id or merge commit, with no new decision:
   `_json_text` refuses it too, and T044's families never emit it, with the bound
   in `contracts/health-finding.md`;
 - the holder's rulings on lane 3's review of T041 (`6072197564`, NAMES points (b),
-  (c) and (e)): a pathless finding's `identity.category` from a closed set, its
-  `entry` bounded at 200 characters, and `no-sandbox`, `manifest-refused` and
-  `dispositions-refused` taking `entry ""`, with `contracts/health-finding.md`.
+  (c) and (e), and `6073087924`, which refines (e)): a pathless finding's
+  `identity.category` from a closed set, its `entry` bounded at 200 characters and
+  fixed by its category (required for the seven per-entry categories, `""` for
+  `no-sandbox`, `manifest-refused`, `dispositions-refused` and `identity-collision`,
+  either for `entry-refused`), with `contracts/health-finding.md`.
 
 **RULED.** Brett Heap ruled the plan at `6847e99e`, every item as recommended
 (`#656` `6013547504`, 2026-10-06; plan.md § "Ruled answers, the plan ruling").
@@ -1156,7 +1158,8 @@ copies (research R7; ADV-05).
     `tests/test_validator_input_set.py` green at the new commit.
   - **Ruled**: R2Q10, R2Q18, R2Q22, R2Q25; the holder's `6018624750`,
     `6069024023` (items 1 and 2), `6069507373` (T046 item 2), `6072086385`
-    (items 1 and 4) and `6072197564` (NAMES (b), (c) and (e)).
+    (items 1 and 4), `6072197564` (NAMES (b), (c) and (e)) and `6073087924` (the
+    entry rule, refining (e)).
     **Decisions**: N-3, N-13, N-15, OQ-H15-19.
   - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
@@ -1164,7 +1167,8 @@ copies (research R7; ADV-05).
     `tests/test_validator_input_set.py` (first: T041 → T047 → T054), new
     `tests/test_health_contract.py`.
   - **Implementation note** (the holder, `6069024023` items 1 and 2,
-    `6069507373` T046 item 2, `6072086385` items 1 and 4, and `6072197564`):
+    `6069507373` T046 item 2, `6072086385` items 1 and 4, `6072197564` and
+    `6073087924`):
     - the engine categories are the nine T041 drafted and the two the holder
       added, `dispositions-refused` and `manifest-refused`, with their mappings,
       each category's `pack_id` among them: the entry's id for a finding against
@@ -1202,6 +1206,20 @@ copies (research R7; ADV-05).
         per entry (data-model.md § Sandbox probe and canary, the `verdict` row: "ONE
         install-level finding", R2Q16 (a)); only the per-entry categories and
         `entry-refused` take a non-empty entry;
+      - (e) refined (the holder, `6073087924`, on lane 3's REVIEW-W1 T041 MINOR at
+        `health_contract.py:693`): a pathless identity's `entry` is fixed by its
+        category, exactly as the engine builds it:
+        - the seven per-entry categories (`fetch-failed`, `digest-mismatch`,
+          `declaration-refused`, `pack-crashed`, `pack-timed-out`, `pack-bound-hit`
+          and `pack-output-refused`) REQUIRE a non-empty entry, the valid entry's
+          id (`6072086385` item 1);
+        - `no-sandbox`, `manifest-refused`, `dispositions-refused` and
+          `identity-collision` REQUIRE `entry ""`: `disappearance_identity()`
+          always gives a collision original the entry `""`;
+        - `entry-refused` takes either: the refused entry as written, bounded at
+          200 characters, or `""` when it has none;
+        - the contract's check refuses any other form, so it admits exactly what
+          the engine builds, and T041 adds one test row per case;
     - (b) and (e) each carry a test row and, where they add a guard, a killed
       mutant (`6072197564`).
   - **Lane**: 4.

@@ -70,8 +70,8 @@ the schema and keep one id across runs:
   - stdout over the cap is `pack-bound-hit`;
   - non-JSON or contract-breaking pack output is `pack-output-refused`;
   - one finding per (category, entry) per run, with the reasons in `evidence`;
-  - the identity's `category` and `entry` are bounded, and three categories take
-    `entry` `""` (§ Rules; the holder, `6072197564`);
+  - the identity's `category` and `entry` are bounded, and `entry` is fixed by the
+    category (§ Rules; the holder, `6072197564` and `6073087924`);
   - each category's `pack_id`, as dox-v1.2's schema text for `pack_id` has it
     (the holder, `6072086385` item 1, which replaces `6069024023` item 1's "one
     `pack_id` per category"):
@@ -161,7 +161,21 @@ raise with Brett (Copilot's review of `6f073ed2`).
     and a non-empty entry is REFUSED. A run raises ONE `no-sandbox` finding, never
     one per entry, as data-model.md § Sandbox probe and canary says ("ONE
     install-level finding", R2Q16 (a)). Only the per-entry categories and
-    `entry-refused` take a non-empty entry.
+    `entry-refused` take a non-empty entry;
+  - refined (the holder, `6073087924`, on lane 3's REVIEW-W1 T041 MINOR at
+    `health_contract.py:693`): a pathless identity's `entry` is fixed by its
+    category, exactly as the engine builds it:
+    - the seven per-entry categories (`fetch-failed`, `digest-mismatch`,
+      `declaration-refused`, `pack-crashed`, `pack-timed-out`, `pack-bound-hit` and
+      `pack-output-refused`) REQUIRE a non-empty entry, the valid entry's id
+      (`6072086385` item 1);
+    - `no-sandbox`, `manifest-refused`, `dispositions-refused` and
+      `identity-collision` REQUIRE `entry` `""`: the re-raise's original, when it is
+      a collision, always takes the entry `""`;
+    - `entry-refused` takes either: the refused entry as written, bounded at 200
+      characters, or `""` when it has none;
+    - the contract's check refuses any other form, so it admits exactly what the
+      engine builds.
 - **U+0000 is refused** (the NUL seam, the holder, `6072086385` item 4). Postgres
   `jsonb` cannot store U+0000 in a string (SQLSTATE 22P05), so a finding that
   carries it can never be stored.
