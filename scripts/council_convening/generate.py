@@ -85,8 +85,11 @@ class FixtureKey:
 
     @property
     def fingerprint(self) -> str:
-        """The estate's one spelling: `sha256:` plus hex of the raw public key."""
-        return "sha256:" + self.public_key.hex()
+        """The estate's one spelling: `sha256:` plus the lowercase hex SHA-256 OF
+        the raw 32-byte public key, as openXwallet `fingerprint_of_public_key`
+        and codexFactory `key_fingerprint` compute it (ruled by Brett Heap
+        2026-10-09T02:36:50Z, "Estate spelling (Recommended)"; T047)."""
+        return "sha256:" + hashlib.sha256(self.public_key).hexdigest()
 
     @property
     def public_key_b64url(self) -> str:
@@ -154,11 +157,20 @@ def _with_fixture_text(vector: dict, fixture_text: str | None, relative: str) ->
 
 def render(root: Path | None = None) -> dict[str, bytes]:
     """Every corpus file the generator produces, keyed by its path relative to
-    `conformance/`. Raises `ValueError` on a vector or fixture that does not
-    parse, or a map-reading vector with no identity fixture to carry."""
+    `conformance/`.
+
+    Raises `ValueError`, naming the file, for a vector that does not parse,
+    carries an integral number spelled as a float, or breaks the vector format
+    (so one malformed vector is a finding and never a `KeyError` out of
+    `build_index`), and for a registry that is not closed: the index takes its
+    `protocol` from the registry, and nothing is derived from one that moved.
+    Also for a fixture that does not parse, and for a map-reading vector when the
+    corpus has no identity fixture to carry (Phase 5).
+    """
     root = Path(root) if root is not None else records.REPO_ROOT
     conformance = _conformance(root)
-    registry = classification.load_registry(root)
+    schemas = records.load_schemas(root)
+    registry = classification.load_closed_registry(root, schemas)
     out: dict[str, bytes] = {}
     entries = []
     fixtures = _fixtures(conformance)
@@ -176,11 +188,16 @@ def render(root: Path | None = None) -> dict[str, bytes]:
     for path in sources:
         relative = path.relative_to(conformance).as_posix()
         try:
-            vector = corpus.loads_strict(path.read_text(encoding="utf-8"))
+            vector = corpus.loads_strict(path.read_text(encoding="utf-8"),
+                                         corpus_tokens=True)
+        except corpus.IntegralFloatToken as exc:
+            raise ValueError(f"{relative} {exc}") from exc
         except (UnicodeDecodeError, ValueError) as exc:
             raise ValueError(f"{relative} does not parse as strict JSON") from exc
-        if isinstance(vector, dict):
-            vector = _with_fixture_text(vector, fixture_text, relative)
+        problems = corpus.vector_format_problems(schemas, vector)
+        if problems:
+            raise ValueError(f"{relative} breaks the vector format: " + "; ".join(problems))
+        vector = _with_fixture_text(vector, fixture_text, relative)
         raw = corpus.dump_json(vector)
         out[relative] = raw
         entries.append((relative, raw, vector))
@@ -252,6 +269,9 @@ def main(argv: list[str] | None = None) -> int:
     except records.SchemaLoadError as exc:
         print(f"generate: harness failure: {exc}", file=sys.stderr)
         return 2
+    except ValueError as exc:
+        print(f"ERROR [council-convening-schema] {exc}")
+        return 1
 
 
 if __name__ == "__main__":

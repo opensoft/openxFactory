@@ -166,6 +166,19 @@ def test_check_routes_a_legacy_record_with_exit_3(tmp_path):
     assert "ERROR [" not in result.stdout
 
 
+def test_check_routes_the_real_legacy_seat_result_with_exit_3(tmp_path):
+    """The legacy seat result as codexFactory signs it and Hermes reads it: no
+    `protocol` member, the context string at `signature.protocol`."""
+    path = _write(tmp_path, "seat-result.json", {
+        "seat": "security", "result": "approve", "rationale": "no finding",
+        "undispositioned_conditions": 0,
+        "signature": {"protocol": LEGACY, "key_fingerprint": FPR,
+                      "signature": "A" * 85 + "Q"}})
+    result = run_validator("check", str(path))
+    assert result.returncode == 3, result.stdout + result.stderr
+    assert "council-convening-legacy-protocol-routed" in result.stdout
+
+
 def test_check_routes_a_roster_less_envelope_in_yaml(tmp_path):
     path = _write(tmp_path, "envelope.yaml", {"council_convening": {
         "council_id": "merge-readiness", "subject_pin": SHA,
@@ -208,12 +221,23 @@ def test_check_judges_the_registry_by_kind_and_never_classifies_it():
 
 def test_check_refuses_a_registry_that_gained_an_entry(tmp_path):
     doc = yaml.safe_load(PROTOCOL_REGISTRY.read_text(encoding="utf-8"))
-    extra = dict(doc["protocols"][0], protocol_id="xfc-resolved-council-2")
+    extra = dict(json.loads(json.dumps(doc["protocols"][0])),
+                 protocol_id="xfc-resolved-council-2")  # a deep copy: no YAML alias
     doc["protocols"].append(extra)
     path = _write(tmp_path, "registry.yaml", doc)
     result = run_validator("check", str(path))
     assert result.returncode == 1
     assert "ERROR [council-convening-registry-closure]" in result.stdout
+
+
+def test_check_refuses_a_registry_tag_with_a_trailing_newline(tmp_path):
+    doc = yaml.safe_load(PROTOCOL_REGISTRY.read_text(encoding="utf-8"))
+    doc["protocols"][1]["introduced_in"] = "contract-v4.0\n"
+    path = _write(tmp_path, "registry.yaml", doc)
+    result = run_validator("check", str(path))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-schema]" in result.stdout
+    assert "protocols/1/introduced_in" in result.stdout
 
 
 def test_check_refuses_a_judged_by_kind_record_whose_schema_has_not_landed(tmp_path):
@@ -382,3 +406,181 @@ def test_corpus_plain_prints_notes():
 ])
 def test_modes_that_have_not_landed_are_exit_2(argv):
     assert run_validator(*argv).returncode == 2
+
+
+# --------------------------------------------------------------------------
+# B2: the non-record family kinds are judged, never waved through.
+# --------------------------------------------------------------------------
+
+INDEX_KIND = "openxfactory-council-convening-conformance-index"
+VECTOR_KIND = "openxfactory-council-convening-conformance-vector"
+SCHEMA_KIND = "openxfactory-council-convening-contract-schema"
+DIALECT = "https://json-schema.org/draft/2020-12/schema"
+ID_BASE = "https://xforge.us/schemas/openxfactory/council-convening/v1/"
+
+
+@pytest.mark.parametrize("document", [
+    {"protocol": LEGACY, "kind": INDEX_KIND, "seat": "security",
+     "signature": {"protocol": LEGACY, "key_fingerprint": FPR, "signature": "A" * 85 + "Q"}},
+    {"kind": INDEX_KIND, "protocol": "nope"},
+])
+def test_check_judges_a_document_labelled_as_a_corpus_index(tmp_path, document):
+    path = _write(tmp_path, "index.json", document)
+    result = run_validator("check", str(path))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-index-closure]" in result.stdout
+
+
+def test_check_accepts_the_landed_index_structure_and_says_what_it_did_not_check():
+    result = run_validator("check", str(INDEX))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "closure against its tree is the self-test's" in result.stdout
+
+
+def _route_vector() -> dict:
+    index = json.loads(INDEX.read_text(encoding="utf-8"))
+    row = next(r for r in index["cases"] if r["expected"]["outcome"] == "route")
+    return json.loads((INDEX.parent / row["path"]).read_text(encoding="utf-8"))
+
+
+def test_check_adjudicates_a_vector(tmp_path):
+    path = _write(tmp_path, "vector.json", _route_vector())
+    result = run_validator("check", str(path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "vector adjudicated to its expected outcome" in result.stdout
+    assert "the self-test adjudicates it" not in result.stdout
+
+
+def test_check_refuses_a_vector_whose_expectation_the_reference_contradicts(tmp_path):
+    vector = _route_vector()
+    vector["expected"] = {"outcome": "accept", "refusal": None, "findings": [],
+                          "derived": {"classification": "legacy"}, "derived_origin": "hand"}
+    path = _write(tmp_path, "vector.json", vector)
+    result = run_validator("check", str(path))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-vector-outcome-mismatch]" in result.stdout
+
+
+def _schema_doc(**changes) -> dict:
+    document = {"schema_version": 1, "kind": SCHEMA_KIND, "name": "xfactory_probe",
+                "$schema": DIALECT, "$id": ID_BASE + "probe.schema.yaml", "type": "object"}
+    document.update(changes)
+    return {key: value for key, value in document.items() if value is not None}
+
+
+def test_check_accepts_a_family_schema_with_the_house_header(tmp_path):
+    result = run_validator("check", str(_write(tmp_path, "probe.yaml", _schema_doc())))
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+@pytest.mark.parametrize("changes", [
+    {"$id": None},
+    {"$id": "https://example.invalid/probe.schema.yaml"},
+    {"$id": ID_BASE + "probe.json"},
+    {"$schema": None},
+    {"$schema": "http://json-schema.org/draft-07/schema#"},
+    {"schema_version": 2},
+    {"protocol": LEGACY},
+    {"signature": {"protocol": LEGACY}},
+])
+def test_check_refuses_a_schema_kind_document_without_the_house_header(tmp_path, changes):
+    path = _write(tmp_path, "probe.yaml", _schema_doc(**changes))
+    result = run_validator("check", str(path))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-schema]" in result.stdout
+
+
+# --------------------------------------------------------------------------
+# L4: a `kind` that is not a string is malformed, never a crash.
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("kind", [["xfactory_council_seat_return"], {"a": 1}, 7])
+def test_check_refuses_a_kind_that_is_not_a_string(tmp_path, kind):
+    path = _write(tmp_path, "record.json", {"kind": kind, "protocol": LEGACY})
+    result = run_validator("check", str(path))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "Traceback" not in result.stderr
+    assert "ERROR [council-convening-schema]" in result.stdout
+
+
+# --------------------------------------------------------------------------
+# L9: nothing is classified against a registry that is not closed.
+# --------------------------------------------------------------------------
+
+def _unclose_the_registry(root: Path) -> None:
+    path = root / FAMILY_REL / "protocol.registry.yaml"
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    for rule in doc["protocols"][1]["recognition"]:
+        if rule["rule"] == "legacy_signing_context":
+            rule["member_paths"] = [["somewhere", "else"]]
+    path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+
+
+def test_check_refuses_to_classify_against_an_unclosed_registry(family_tree, tmp_path, capsys):
+    _unclose_the_registry(family_tree)
+    record = _write(tmp_path, "record.json", {"protocol": LEGACY})
+    assert load_validator().main(["check", str(record)], root=family_tree) == 1
+    out = capsys.readouterr().out
+    assert "ERROR [council-convening-registry-closure]" in out
+    assert "legacy-protocol-routed" not in out
+
+
+def test_corpus_refuses_to_summarize_against_an_unclosed_registry(family_tree, capsys):
+    _unclose_the_registry(family_tree)
+    assert load_validator().main(["corpus"], root=family_tree) == 1
+    assert "ERROR [council-convening-registry-closure]" in capsys.readouterr().out
+
+
+def test_the_generator_refuses_an_unclosed_registry(family_tree):
+    from scripts.council_convening import generate
+
+    _unclose_the_registry(family_tree)
+    with pytest.raises(ValueError, match="registry"):
+        generate.render(family_tree)
+    assert any("registry" in line for line in generate.check(family_tree))
+
+
+# --------------------------------------------------------------------------
+# M1: one malformed vector is a finding, and the findings are printed first.
+# --------------------------------------------------------------------------
+
+def test_a_vector_that_breaks_the_format_is_a_finding_not_a_traceback(family_tree, capsys):
+    """An INDEXED vector missing `requirement_ids` (its row digest moved, as a
+    hand edit would leave it) once crashed the generator's `build_index` with a
+    `KeyError`, after the self-test had collected its findings and before it
+    printed any."""
+    from scripts.council_convening import corpus, generate
+
+    conformance = family_tree / FAMILY_REL / "conformance"
+    index = json.loads((conformance / "index.json").read_text(encoding="utf-8"))
+    row = next(r for r in index["cases"] if r["expected"]["outcome"] == "route")
+    target = conformance / row["path"]
+    vector = json.loads(target.read_text(encoding="utf-8"))
+    del vector["requirement_ids"]
+    target.write_bytes(corpus.dump_json(vector))
+    row["sha256"] = corpus.raw_sha256(target.read_bytes())
+    (conformance / "index.json").write_bytes(corpus.dump_json(index))
+    with pytest.raises(ValueError, match="requirement_ids"):
+        generate.render(family_tree)
+    assert load_validator().main([], root=family_tree) == 1
+    lines = capsys.readouterr().out.splitlines()
+    schema = next(i for i, line in enumerate(lines)
+                  if line.startswith("ERROR [council-convening-schema]")
+                  and row["case_id"] in line and "requirement_ids" in line)
+    drift = next(i for i, line in enumerate(lines)
+                 if line.startswith("ERROR [council-convening-generator-drift]"))
+    assert schema < drift, "the collected findings print before the generator check"
+
+
+# --------------------------------------------------------------------------
+# M2: a repeated YAML key is refused, never resolved.
+# --------------------------------------------------------------------------
+
+def test_check_refuses_a_yaml_record_with_a_repeated_key(tmp_path):
+    path = tmp_path / "record.yaml"
+    path.write_text(f"protocol: {LEGACY}\nprotocol: {REPLACEMENT}\nkind: xfactory_council_convening\n",
+                    encoding="utf-8")
+    result = run_validator("check", str(path))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-schema]" in result.stdout
+    assert "strict YAML" in result.stdout

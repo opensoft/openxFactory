@@ -16,8 +16,10 @@
   },
   "inputs": {
     "record": {
-      "context": {
-        "signing_context": "xfc-resolved-council-1/seat-return"
+      "signature": {
+        "key_fingerprint": "sha256:abababababababababababababababababababababababababababababababab",
+        "protocol": "xfc-resolved-council-1/seat-return",
+        "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ"
       }
     },
     "selected_protocol": null
