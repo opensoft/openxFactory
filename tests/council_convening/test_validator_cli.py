@@ -360,7 +360,7 @@ def _commission_record(case_id: str = "commission-accept-conditional-seat-held")
 @pytest.fixture(scope="module")
 def checked_commission_record(tmp_path_factory):
     path = _write(tmp_path_factory.mktemp("e2"), "convening.json", _commission_record())
-    return run_validator("check", str(path))
+    return run_validator("check", str(path), cwd=path.parent)
 
 
 def test_the_self_test_prints_the_predicate_registry_note(self_test):
@@ -415,7 +415,7 @@ def test_check_refuses_an_offline_checkable_defect(tmp_path, mutate, finding):
     record = _commission_record()
     mutate(record)
     path = _write(tmp_path, "convening.json", record)
-    result = run_validator("check", str(path))
+    result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1, result.stdout + result.stderr
     assert f"ERROR [{finding}]" in result.stdout
 
@@ -423,7 +423,7 @@ def test_check_refuses_an_offline_checkable_defect(tmp_path, mutate, finding):
 def test_a_malformed_commission_record_also_names_the_schema_finding(tmp_path):
     record = _commission_record()
     record["notes"] = "x"
-    result = run_validator("check", str(_write(tmp_path, "convening.json", record)))
+    result = run_validator("check", str(_write(tmp_path, "convening.json", record)), cwd=tmp_path)
     assert "ERROR [council-convening-schema]" in result.stdout
 
 
@@ -432,7 +432,7 @@ def test_check_refuses_a_secret_without_echoing_it(tmp_path):
     secret = "notes/gh" + "p_" + "A1b2C3d4E5f6G7h8I9j0K1l2"
     record["required_seats_provenance"]["consumed_facts"]["pr_facts"]["changed_paths"].append(
         secret)
-    result = run_validator("check", str(_write(tmp_path, "convening.json", record)))
+    result = run_validator("check", str(_write(tmp_path, "convening.json", record)), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-secret-bearing-fact]" in result.stdout
     assert secret not in result.stdout + result.stderr
@@ -451,7 +451,7 @@ def test_check_refuses_a_predicate_registry_that_gained_a_predicate(tmp_path):
     # A deep copy: a shared sub-object would be dumped as a YAML alias, which the
     # strict loader refuses before closure is ever judged (M2).
     doc["predicates"].append(dict(copy.deepcopy(doc["predicates"][0]), predicate="paths_touch_any"))
-    result = run_validator("check", str(_write(tmp_path, "predicates.yaml", doc)))
+    result = run_validator("check", str(_write(tmp_path, "predicates.yaml", doc)), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-registry-closure]" in result.stdout
 
