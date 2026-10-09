@@ -10,12 +10,12 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:0a7e4c8eb854d8b1330b35b66ab6402bfe2b2e9533a8ad457b6a7ea84719cdcb
+  digest: sha256:022b36cb98cfc9ec6c6b9604bd0b9180a78e1fdf7dc8572ffb76dc9eb17bac1f
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:4c8afb4dc87ae2b35df7fe5b473ad288f05a5a35647e17e3d901b312b71d7094
+  digest: sha256:fa70ec46c5b9c3905ae2c883cd20e1da56294aad5220fb9950ebb84738990945
 - artifact_id: contracts-clearing-readme.md
   path: contracts/clearing/README.md
   type: documentation
@@ -1204,7 +1204,7 @@ entries:
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:fa831b059a9b93cc63cbd18fbe6283828e9f7acbdcf56edafb574ee17087ce48
+  digest: sha256:7ad5e870e3e11d69d45e3b3aeb1cb2dfa3b5bd5d432237e4f9f6ab3f8503128e
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema

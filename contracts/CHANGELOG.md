@@ -23,6 +23,14 @@ proposed change MUST NOT reserve a minor before merge order is known. **The
 annotated tag is NOT published by this candidate**: § *Bundle Realization Order*
 step 5 follows the landing, and the realization lands only on its own word.
 
+**RE-CUT, forward-only, on the same branch.** The first candidate was
+`38c78817`, cut from `main` `93d13d6c`. Before the realization landed, #1284
+landed on `main` (merge `9a272c6d`, 2026-10-09T18:07Z) and moved two inventory
+members, `contracts/manifest.yaml` and `contracts/README.md`. `main` was merged
+in (`24699ca5`, never a rebase), and this candidate rebuilds the inventory from
+the merged bytes and re-attributes it below, as `contract-v3.6`'s re-cut did.
+The number does not change: `contract-v4.1` stays claimed on #630.
+
 **Change class: ADDITIVE (minor)** under
 [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
 § Change Classes: a new contract is added, and nothing is removed, narrowed or
@@ -61,6 +69,22 @@ enumerates, and `contracts/factory-mcp/` is not in it. The schema's identity
 travels by the row's `sha256`, verified by `scripts/validate-manifest-digests.py`
 (185 rows, green at this candidate).
 
+### Registered rows that moved since `contract-v4.0`
+
+Measured by comparing every row of `contracts/manifest.yaml` at the
+`contract-v4.0` tag with this candidate's rows (202 become 204). Two rows were
+added, one row changed, and none was removed:
+
+| row | change | by |
+| --- | --- | --- |
+| `factory-mcp-declaration` | ADDED, with its per-file `sha256` | **THIS CUT** |
+| `openxwallet-pin` | ADDED: the sibling consumption pin, `type: pin`, with no `sha256` (a pin is read by commit) | `a80f0e3c` (#1026) |
+| `signed-execution-chain-digest-construction` | `sha256` `0dfc2e8e…` → `ef157d88…`: `$defs/digest_subject` gains `council_convening` and `council_seat_return_payload`, under the one construction `xfc-jcs-sha256-1`; `schema_version` stays `1` | `e318168d`, in #1284 (merge `9a272c6d`), which left the version number and this entry to the cutting session |
+
+#1284 also added `contracts/council-convening/`, a family it declares DORMANT AND
+UNREGISTERED: it has no manifest row and is not an inventory member, so this
+bundle registers none of it.
+
 ### What moved: the INVENTORY DIFF over all members
 
 **Counted from the DIGEST INVENTORY, not from `git diff -- contracts/`.**
@@ -75,8 +99,8 @@ against this candidate's own bytes:
 
 | member | moved by |
 | --- | --- |
-| `contracts/manifest.yaml` | `a1ef886f` (#984) and `a80f0e3c` (#1026), both on `main` since `contract-v4.0`; and **THIS CUT**: the `contract_bundle_version` line and the `factory-mcp-declaration` row |
-| `contracts/README.md` | `a80f0e3c` (#1026); and **THIS CUT**: the two factory MCP rows of the native contract index |
+| `contracts/manifest.yaml` | `a1ef886f` (#984), a dated citation in a comment; `a80f0e3c` (#1026), the `openxwallet-pin` row; `e318168d`, in #1284 (merge `9a272c6d`), the `signed-execution-chain-digest-construction` row's `sha256`; and **THIS CUT**: the `contract_bundle_version` line and the `factory-mcp-declaration` row |
+| `contracts/README.md` | `a80f0e3c` (#1026); `e085d04c`, in #1284 (merge `9a272c6d`), the two council-convening rows of the native contract index; and **THIS CUT**: the two factory MCP rows beside them |
 | `contracts/CHANGELOG.md` | `a1ef886f` (#984); and **THIS CUT**: this entry |
 | `scripts/hermes_runtime_validation/release.py` | `c30dc1b9` (#1000), the clearing floor; `d5dd1ca5` (#1032), the carve floor's `retired:` row form; `53769f9e` (#1051), the worktree reader fix; `0a5c1310` (#1117), an unreadable pinned leg refused as a dependency |
 | `scripts/hermes_runtime_validation/catalog.py` | `d5dd1ca5` (#1032); `0a5c1310` (#1117) |
@@ -128,6 +152,11 @@ ZERO paths before the edit. The inventory was BUILT AFTER the edit.
   profile stays `advisory-v1` (OQ-5; the change's `design.md` D10). A deployed
   declaration that omits the block is refused (`hosted_auth_missing`), the
   ratified intent, and no published shape is narrowed by it.
+- **The digest-construction widening (#1284) is additive.** Two values are
+  added to a closed set of digest subjects. Nothing is removed and nothing
+  becomes required, so every instance valid under `contract-v4.0` stays valid.
+- **The `openxwallet-pin` row (#1026) is a registration**, of a pin that was
+  already in the tree. It narrows no shape.
 - **The clearing family is ADDED to the inventory, not changed.** Its rows have
   been in [`manifest.yaml`](manifest.yaml) since `contract-v3.3`, with per-file
   `sha256`, and their bytes are unchanged.
@@ -150,8 +179,9 @@ ZERO paths before the edit. The inventory was BUILT AFTER the edit.
   exists, so no earlier bundle owes a tag and this number is not a reuse.
 - No #630 comment names `contract-v4.1` or later before the claim
   `6086467830`.
-- The one open pull request touching the release surface when the number was
-  counted, #1284, refreshes one existing row's `sha256` and takes no number.
+- #1284, the one open pull request touching the release surface when the
+  number was counted, refreshed one existing row's `sha256` and took no number.
+  It has since landed, and this re-cut carries it.
 
 ### What this bundle does NOT do
 
