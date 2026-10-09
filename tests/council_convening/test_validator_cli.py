@@ -14,6 +14,7 @@ flag.
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import re
@@ -447,7 +448,9 @@ def test_check_judges_the_predicate_registry_by_kind_and_never_classifies_it():
 
 def test_check_refuses_a_predicate_registry_that_gained_a_predicate(tmp_path):
     doc = yaml.safe_load(PREDICATE_REGISTRY.read_text(encoding="utf-8"))
-    doc["predicates"].append(dict(doc["predicates"][0], predicate="paths_touch_any"))
+    # A deep copy: a shared sub-object would be dumped as a YAML alias, which the
+    # strict loader refuses before closure is ever judged (M2).
+    doc["predicates"].append(dict(copy.deepcopy(doc["predicates"][0]), predicate="paths_touch_any"))
     result = run_validator("check", str(_write(tmp_path, "predicates.yaml", doc)))
     assert result.returncode == 1
     assert "ERROR [council-convening-registry-closure]" in result.stdout

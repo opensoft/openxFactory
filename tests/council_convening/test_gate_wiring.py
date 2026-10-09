@@ -129,7 +129,7 @@ def test_the_requirements_assertion_names_the_coverage_floor(assertion):
     from scripts.council_convening import generate
 
     floor = ", ".join(generate.COVERAGE_FLOOR)
-    assert f"requirements probed: ([0-9]+)/\\1 \\({floor}\\)$" in assertion
+    assert f"requirements probed: ([1-9][0-9]*)/\\1 \\({floor}\\)$" in assertion
 
 
 def test_the_coverage_assertions_demand_all_of_them(assertion):
