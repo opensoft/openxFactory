@@ -3228,6 +3228,54 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [refresh-install-repository-enumerations-opsxfactory-gateway](openspec/changes/archive/2026-10-08-refresh-install-repository-enumerations-opsxfactory-gateway/proposal.md)
+  — **ARCHIVED 2026-10-08** by
+  [PR #1278](https://github.com/opensoft/openxFactory/pull/1278),
+  by lane `openxfactory-5`, landed by MERGE COMMIT, never squash, on Brett
+  Heap's word, one multiple-choice answer that names both acts, verbatim option label ***"Land all three, waive
+  Codex (Recommended)"*** (2026-10-08, in session on team-01c; RULED on the
+  lane register at 2026-10-08T23:00:44Z), which orders #1273, then its
+  same-day archive with the `## Purpose` widening. Filed 2026-10-08 by lane
+  `openxfactory-5` on his word *"Lane 5 indexes it now (Recommended)"*, which
+  commissioned the authoring and ratified no text; **RATIFIED 2026-10-08 by
+  Brett Heap**, verbatim *"Ratify, OQs as recommended (Recommended)"* (OQ-1
+  yes, the adapter family `Ops-gateway` joins; OQ-2 no routing scenario;
+  logged RULED at 2026-10-08T20:33:11Z), over PR
+  [#1273](https://github.com/opensoft/openxFactory/pull/1273)'s head
+  `114431d3` (record
+  [`review/ratification-2026-10-08.md`](openspec/changes/archive/2026-10-08-refresh-install-repository-enumerations-opsxfactory-gateway/review/ratification-2026-10-08.md));
+  landed as PR #1273 by squash
+  `b4b9d903c4bafed65347bbbdade942dc3bb720e7` (2026-10-08T23:21:42Z). The
+  sixth install repository, `opensoft/OpsxFactory-Gateway-Install` (mounted by
+  opensoft/xFactory#567), joins the install-repository enumerations, the
+  successor openxFactory
+  [#1259](https://github.com/opensoft/openxFactory/issues/1259) named.
+  **`code_surface: none`**, so under `release-realization` it archives ON
+  LANDING PLUS ITS OWN TASK LIST, and the archive pull request carries the one
+  closing keyword for #1259 in its body only. **Performed through the governed
+  wrapper, never a bare `openspec archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive refresh-install-repository-enumerations-opsxfactory-gateway --yes`,
+  exit 0: *"ORIGIN RETAINED refresh-install-repository-enumerations-opsxfactory-gateway (declaration unchanged since the ratifying
+  commit b4b9d903c4ba)"*, *"Totals: + 0, ~ 5, - 0, → 0"*, over the
+  content-addressed `@fission-ai/openspec@1.12.0` pin. **The promotion,
+  measured byte for byte**: the five MODIFIED requirements, *Canonical
+  workflow authority* (2,360 bytes), *Install repository scope* (3,620),
+  *Copy-first migration* (1,932) in
+  [`repo-boundary-governance`](openspec/specs/repo-boundary-governance/spec.md),
+  *Contract version pinning* (3,863) in
+  [`shared-contract-ownership`](openspec/specs/shared-contract-ownership/spec.md)
+  and *Contract provenance and compatibility* (1,269) in
+  [`canonical-contract-migration`](openspec/specs/canonical-contract-migration/spec.md),
+  are each byte-identical between the archived delta and canon, the twenty-one
+  requirement blocks the deltas do not name are byte-identical before and
+  after, and the title order is unchanged in all three. **The `## Purpose`
+  widening** (`tasks.md` § 4.1) is taken in the archive commit in a hunk of
+  its own at the top of `repo-boundary-governance`'s canon: a sixth name
+  appended and canon's own `and` kept before the last name (24 whitespace
+  tokens to 25, the serial comma kept). *"Submodule is proposed"* needed no
+  edit, and no boundary requirement is authored for the gateway. The eight
+  packet files move as renames, `tasks.md` carrying its closing ticks.
+
 - [correct-naming-families-count](openspec/changes/archive/2026-10-08-correct-naming-families-count/proposal.md)
   — **ARCHIVED 2026-10-08** by
   [PR #1275](https://github.com/opensoft/openxFactory/pull/1275),
