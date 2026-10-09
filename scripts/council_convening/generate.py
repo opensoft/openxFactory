@@ -74,8 +74,11 @@ class FixtureKey:
 
     @property
     def fingerprint(self) -> str:
-        """The estate's one spelling: `sha256:` plus hex of the raw public key."""
-        return "sha256:" + self.public_key.hex()
+        """The estate's one spelling: `sha256:` plus the lowercase hex SHA-256 OF
+        the raw 32-byte public key, as openXwallet `fingerprint_of_public_key`
+        and codexFactory `key_fingerprint` compute it (ruled by Brett Heap
+        2026-10-09T02:36:50Z, "Estate spelling (Recommended)"; T047)."""
+        return "sha256:" + hashlib.sha256(self.public_key).hexdigest()
 
     @property
     def public_key_b64url(self) -> str:

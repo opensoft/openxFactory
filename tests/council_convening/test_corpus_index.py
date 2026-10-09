@@ -441,7 +441,12 @@ def test_labelled_test_keys_are_deterministic_and_distinct():
     assert first.public_key == again.public_key
     assert first.public_key != other.public_key
     assert len(first.public_key) == 32
-    assert first.fingerprint == "sha256:" + first.public_key.hex()
+    # The estate spelling, ruled by Brett Heap 2026-10-09T02:36:50Z ("Estate
+    # spelling (Recommended)"): the SHA-256 OF the raw public key, as openXwallet
+    # `fingerprint_of_public_key` and codexFactory `key_fingerprint` compute it,
+    # never the raw key's own hex.
+    assert first.fingerprint == "sha256:" + hashlib.sha256(first.public_key).hexdigest()
+    assert first.fingerprint != "sha256:" + first.public_key.hex()
     message = b'{"signing_context":"probe"}'
     signature = first.sign(message)
     assert len(signature) == 64
