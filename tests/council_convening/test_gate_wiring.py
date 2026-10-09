@@ -22,7 +22,8 @@ import yaml
 from .conftest import REPO_ROOT, WORKFLOW, run_validator
 
 CHECK_TOKEN = "council-convening-gate"
-LOCK_INSTALL = "pip install --require-hashes -r requirements/hermes-runtime-contracts.lock"
+LOCK_INSTALL = ("pip install --require-hashes --only-binary :all: "
+                "-r requirements/hermes-runtime-contracts.lock")
 VALIDATOR_RUN = "python3 scripts/validate-council-convening.py"
 LOG = "council-convening-gate.log"
 
@@ -88,12 +89,25 @@ def test_the_gate_holds_no_write_permission_and_no_identity(workflow, job, text)
         "the gate reads no secret")
 
 
-def test_the_gate_installs_the_hash_locked_inputs(runs):
-    assert any(LOCK_INSTALL in r for r in runs), (
-        "the gate must install the ratified validator inputs with --require-hashes")
-    install_at = next(i for i, r in enumerate(runs) if LOCK_INSTALL in r)
-    run_at = next(i for i, r in enumerate(runs) if VALIDATOR_RUN in r)
+def _joined(run: str) -> str:
+    """A run script with its backslash continuations joined, whitespace folded."""
+    return " ".join(run.replace("\\\n", " ").split())
+
+
+def test_the_gate_installs_the_hash_locked_inputs_as_wheels_only(runs):
+    """`--require-hashes` binds WHICH artifact may be installed; `--only-binary
+    :all:` binds WHAT KIND, so no sdist's setup script runs in a gate (Sonar
+    `githubactions:S8541`; `former-id-arrival-gate.yml`'s rule). Measured: the
+    lock resolves to 17 wheels and 0 sdists on Python 3.12."""
+    joined = [_joined(r) for r in runs]
+    assert any(LOCK_INSTALL in r for r in joined), (
+        "the gate must install the ratified validator inputs with --require-hashes "
+        "and --only-binary :all:")
+    install_at = next(i for i, r in enumerate(joined) if LOCK_INSTALL in r)
+    run_at = next(i for i, r in enumerate(joined) if VALIDATOR_RUN in r)
     assert install_at < run_at
+    installs = [r for r in joined if "pip install" in r]
+    assert installs == [LOCK_INSTALL], installs
 
 
 def test_the_gate_runs_the_self_test_and_keeps_its_log(runs):
@@ -169,4 +183,7 @@ def test_the_pytest_suite_collects_this_family():
     suite = (REPO_ROOT / ".github" / "workflows" / "pytest-suite.yml").read_text(
         encoding="utf-8")
     assert "python3 -m pytest tests/" in suite
-    assert LOCK_INSTALL in suite
+    # The SAME lock, whatever flags beside it: `pytest-suite.yml` still carries
+    # the older form without `--only-binary :all:`, and a divergence in a flag
+    # is not a divergence in the dependency set.
+    assert "pip install --require-hashes -r requirements/hermes-runtime-contracts.lock" in suite
