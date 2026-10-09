@@ -55,13 +55,18 @@ subject_claim_keys:
   - repo
   - context
 subject_template: "<the caller repository's verified OIDC sub>"
+# ONE OPERATION PER BINDING. This stub is the COMMISSION job's. A seat's binding
+# is a separate instance per seat (Brett Heap's 025 ruling (A), "Per-seat
+# environments (Recommended)": its own `binding_id` and its own per-seat
+# environment in `subject_template`), whose one entry is instead
+#   - operation: seat_execution
+#     job_workflow_ref: "<owner>/<repository>/.github/workflows/<file>@<ref>"
+#     workflow_revision_rule: on_governed_history_since_revision
+# Never copy an entry for the other operation into either binding.
 permitted_workflows:
   - operation: commission
     job_workflow_ref: "<owner>/<repository>/.github/workflows/<file>@<ref>"
     workflow_revision_rule: equals_governed_revision
-  - operation: seat_execution
-    job_workflow_ref: "<owner>/<repository>/.github/workflows/<file>@<ref>"
-    workflow_revision_rule: on_governed_history_since_revision
 broker:
   broker_ref: "<the owner-provisioned broker's reference>"
   capability_verified: false

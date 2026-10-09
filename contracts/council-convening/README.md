@@ -84,7 +84,10 @@ python3 scripts/validate-council-convening.py check <binding instance>
 which runs E10 steps 1 to 6 against that pin's
 `contracts/policies/repository-identity.yaml`, refuses the template stub as live,
 and reports steps 7 to 14 as not checkable offline. This family ships only the
-schema, the stub, the derivation from the identity map, and the corpus.
+schema, the stub, the derivation from the identity map, and the corpus. The stub
+is the commission job's binding and permits one operation. A seat's binding is
+its own instance per seat (025 ruling (A)), and permits `seat_execution` only;
+the stub's header spells out that entry.
 
 **The order** (data-model E10). Steps 1 to 6 judge the instance alone:
 `binding_malformed`, `binding_wildcard`, `issuer_mismatch` (the standard issuer
@@ -94,9 +97,12 @@ or GitHub's `/<enterprise-slug>` form), `repository_identity_unavailable` then
 `claims_unverified`, `claims_expired`, `issuer_mismatch`, `audience_mismatch`,
 `subject_template_mismatch`, `repository_identity_mismatch`,
 `workflow_not_permitted`, and `workflow_revision_ungoverned`. At admission the
-consumer runs steps 1 to 13 as E2 step A1, right after the record's shape check,
-and step 14 as E2 step A4, after E2 step 5 has checked the `governed` member it
-reads.
+consumer runs steps 1 to 13 as E2 step A1, right after the record's shape check
+and before retry identity (A3), so a token that fails binding never returns a
+live snapshot; and step 14 as E2 step A4, after E2 step 5 has checked the
+`governed` member it reads. The snapshot half of admission (E4) judges no
+binding. A shared commission vector carries none, so a consumer runs it without
+A1 and A4.
 
 **The revision rule** is closed and fixed per operation (OPEN-3, "History +
 unchanged rule file (Recommended)"): `equals_governed_revision` for

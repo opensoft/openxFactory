@@ -1275,3 +1275,24 @@ def test_check_routes_a_legacy_root_authorized_registration(tmp_path):
     result = run_validator("check", str(_registration(tmp_path, mutate)), cwd=tmp_path)
     assert result.returncode == 3, result.stdout + result.stderr
     assert "council-convening-legacy-protocol-routed" in result.stdout
+
+
+@pytest.mark.parametrize("step", ["E2 step A1", "E2 step A4"])
+def test_check_on_a_commission_record_reports_the_binding_steps_as_not_offline_checkable(
+        checked_commission_record, step):
+    # The review's LOW 4: `check` names A1 and A4, as it names `rule_superseded`
+    # and retry identity, rather than omitting them.
+    notes = [line for line in checked_commission_record.stdout.splitlines()
+             if line.startswith("note  [council-convening-not-offline-checkable] ")]
+    assert any(step in line for line in notes), checked_commission_record.stdout
+
+
+def test_check_names_the_binding_steps_in_the_admission_order(checked_commission_record):
+    rules = [line.split(": not checkable offline: ", 1)[1]
+             for line in checked_commission_record.stdout.splitlines()
+             if ": not checkable offline: " in line]
+    a1 = next(i for i, r in enumerate(rules) if "E2 step A1" in r)
+    a3 = next(i for i, r in enumerate(rules) if "E2 step A3" in r)
+    a4 = next(i for i, r in enumerate(rules) if "E2 step A4" in r)
+    superseded = rules.index("rule_superseded")
+    assert a1 < a3 < superseded < a4

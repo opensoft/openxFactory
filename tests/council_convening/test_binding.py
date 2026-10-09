@@ -77,12 +77,15 @@ from .binding_fixtures import (
     fixture_text,
     governed,
     identity,
+    admission_binding,
+    admission_workflow,
     identity_oracle,
     malformed_row_text,
     seat_binding,
     seat_environment,
     seat_history,
     seat_subject,
+    with_passing_binding,
     write_identity_map,
 )
 
@@ -328,10 +331,9 @@ def test_the_template_is_a_stub_with_no_live_value(template_doc):
         assert value.startswith("<") and value.endswith(">"), member
     assert template_doc["broker"]["capability_verified"] is False
     assert template_doc["broker"]["evidence_ref"] is None
-    assert {(e["operation"], e["workflow_revision_rule"])
-            for e in template_doc["permitted_workflows"]} == {
-        ("commission", "equals_governed_revision"),
-        ("seat_execution", "on_governed_history_since_revision")}
+    assert [(e["operation"], e["workflow_revision_rule"])
+            for e in template_doc["permitted_workflows"]] == [
+        ("commission", "equals_governed_revision")]
 
 
 def test_the_stub_vector_is_the_shipped_template(template_doc):
@@ -1201,12 +1203,24 @@ def test_a_binding_vector_without_the_identity_oracle_is_refused(family_tree):
 
 
 def test_the_identity_map_rule_covers_every_boundary_that_reads_the_map():
-    # `admission` joins in the commit that wires binding into the admission
-    # handler as E2 steps A1 and A4 (T055) and re-authors its vectors (T051).
+    # conformance-corpus § Environment oracles: `binding`, `registration`, and
+    # `admission` from Phase 5, where binding runs as E2 steps A1 and A4.
     from scripts.council_convening import corpus
 
-    assert "binding" in corpus.IDENTITY_MAP_BOUNDARIES
-    assert "registration" in corpus.IDENTITY_MAP_BOUNDARIES
+    assert set(corpus.IDENTITY_MAP_BOUNDARIES) == {"binding", "registration", "admission"}
+
+
+def test_an_admission_vector_without_the_identity_oracle_is_refused(family_tree):
+    from scripts.council_convening import corpus, generate
+
+    conformance = family_tree / "contracts" / "council-convening" / "conformance"
+    path = conformance / "vectors" / "resolution" / f"{ADMISSION_BASE}.json"
+    vector = json.loads(path.read_text(encoding="utf-8"))
+    del vector["environment"]["repository_identity"]
+    path.write_bytes(corpus.dump_json(vector))
+    generate.generate(family_tree)
+    codes = [f.code for f in corpus.check_corpus(family_tree).findings]
+    assert "council-convening-vector-identity-map-missing" in codes
 
 
 def test_the_fixture_is_an_index_fixtures_row_with_a_matching_digest():
@@ -1270,3 +1284,511 @@ def test_generate_check_never_reads_the_live_map(family_tree, live_map):
         assert not target.exists()
     assert generate.check(family_tree) == []
     assert [f.code for f in corpus.check_corpus(family_tree).findings] == []
+
+
+# =========================================================================
+# The binding inside admission: E10 steps 1 to 13 as E2 step A1, after shape,
+# and step 14 as E2 step A4, after step 5 has checked `governed` (T055; T051;
+# R3-M4; R4-M1; R4-H2). Failing first.
+# =========================================================================
+
+RESOLUTION_VECTORS = BINDING_VECTORS.parent / "resolution"
+ADMISSION_BASE = "admission-accept-conditional-seat-not-held"
+
+#: Phase 2's twelve admission vectors, re-authored to carry a passing binding.
+#: Their outcomes do not move.
+PHASE_2_ADMISSION = {
+    "admission-accept-conditional-seat-not-held": None,
+    "admission-accept-unrelated-file-changed-at-tip": None,
+    "admission-refuse-candidate-not-resolved": "candidate_mismatch",
+    "admission-refuse-head-moved-after-submission": "candidate_head_moved",
+    "admission-refuse-head-unavailable": "candidate_head_unavailable",
+    "admission-refuse-order-digest-before-superseded": "rule_digest_mismatch",
+    "admission-refuse-order-superseded-before-council": "rule_superseded",
+    "admission-refuse-order-superseded-source-before-later-source": "rule_superseded",
+    "admission-refuse-rule-superseded-council-profile": "rule_superseded",
+    "admission-refuse-rule-superseded-listing": "rule_superseded",
+    "admission-refuse-rule-superseded-rule-file": "rule_superseded",
+    "admission-refuse-rule-superseded-source-deleted-at-tip": "rule_superseded",
+}
+
+#: The admission vectors this phase adds: the binding's own refusals at
+#: admission, and the interleaved order.
+PHASE_5_ADMISSION = {
+    "admission-refuse-binding-claims-unverified": "claims_unverified",
+    "admission-refuse-binding-identity-map-absent": "repository_identity_unavailable",
+    "admission-refuse-binding-seat-token-for-commission": "workflow_not_permitted",
+    "admission-refuse-binding-stub-presented-as-live": "binding_malformed",
+    "admission-refuse-workflow-revision-not-the-governed-revision":
+        "workflow_revision_ungoverned",
+    "admission-refuse-workflow-outside-the-governed-repository":
+        "workflow_revision_ungoverned",
+    # A1 runs after shape (step 2), and before secrets and the candidate.
+    "admission-refuse-order-shape-before-binding": "convening_malformed",
+    "admission-refuse-order-binding-before-secret": "audience_mismatch",
+    "admission-refuse-order-binding-before-candidate": "claims_expired",
+    # A4 runs after every step-5 check, and before step 6.
+    "admission-refuse-order-candidate-before-workflow-revision": "candidate_mismatch",
+    "admission-refuse-order-mutable-revision-before-workflow-revision":
+        "mutable_rule_reference",
+    "admission-refuse-order-former-governed-spelling-before-workflow-revision":
+        "rule_unauthorized",
+    "admission-refuse-order-superseded-before-workflow-revision": "rule_superseded",
+    "admission-refuse-order-workflow-revision-before-council":
+        "workflow_revision_ungoverned",
+}
+
+
+def _raw(case_id):
+    return json.loads((RESOLUTION_VECTORS / f"{case_id}.json").read_text(encoding="utf-8"))
+
+
+def _joined(vector):
+    from scripts.council_convening import corpus
+
+    vector = copy.deepcopy(vector)
+    vector["inputs"] = corpus.join_parts(vector["inputs"])
+    vector["environment"] = corpus.join_parts(vector.get("environment", {}))
+    return vector
+
+
+def _admission(case_id=ADMISSION_BASE):
+    return _joined(_raw(case_id))
+
+
+def _adjudicate(vector):
+    from scripts.council_convening import resolution
+
+    got = resolution.adjudicate(vector)
+    return got["outcome"], got["refusal"]
+
+
+def _all_admission_vectors(role="record"):
+    """Every admission vector in one input role: `record`, the commission record
+    in the E2 order, where A1 and A4 run; or `snapshot`, the E4 half, which
+    judges no binding."""
+    out = []
+    for path in sorted(BINDING_VECTORS.parent.glob("*/*.json")):
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        if raw["boundary"] == "admission" and role in raw["inputs"]:
+            out.append((raw["case_id"], raw))
+    return out
+
+
+def test_every_admission_vector_carries_a_binding_and_the_commission_operation():
+    vectors = _all_admission_vectors()
+    assert len(vectors) >= len(PHASE_2_ADMISSION) + len(PHASE_5_ADMISSION)
+    for case_id, raw in vectors:
+        assert "binding" in raw["inputs"], case_id
+        assert raw["inputs"]["operation"] == "commission", case_id
+        assert "identity" in raw["environment"], case_id
+        if raw["expected"]["refusal"] != "repository_identity_unavailable":
+            assert raw["environment"]["repository_identity"] == identity_oracle(), case_id
+
+
+@pytest.mark.parametrize("case_id", sorted(PHASE_2_ADMISSION))
+def test_the_re_authored_phase_2_admission_vectors_keep_their_outcomes(case_id):
+    raw = _raw(case_id)
+    code = PHASE_2_ADMISSION[case_id]
+    expected = ("accept", None) if code is None else ("refuse", code)
+    assert (raw["expected"]["outcome"], raw["expected"]["refusal"]) == expected
+    assert _adjudicate(_joined(raw)) == expected
+
+
+@pytest.mark.parametrize("case_id", sorted(PHASE_5_ADMISSION))
+def test_each_phase_5_admission_vector_pins_its_code(case_id):
+    raw = _raw(case_id)
+    assert raw["boundary"] == "admission" and raw["applies_to"] == ["consumer"]
+    assert raw["area"] == "resolution"
+    assert "FR-009" in raw["requirement_ids"]
+    assert raw["expected"]["derived_origin"] == "hand"
+    assert (raw["expected"]["outcome"], raw["expected"]["refusal"]) == (
+        "refuse", PHASE_5_ADMISSION[case_id])
+    assert _adjudicate(_joined(raw)) == ("refuse", PHASE_5_ADMISSION[case_id])
+
+
+def test_admission_without_a_binding_is_a_harness_error():
+    from scripts.council_convening import resolution
+
+    vector = _admission()
+    del vector["inputs"]["binding"]
+    with pytest.raises(resolution.HarnessError):
+        resolution.adjudicate(vector)
+
+
+@pytest.mark.parametrize("operation", ["seat_execution", None, "Commission"])
+def test_admission_judges_only_the_commission_jobs_token(operation):
+    from scripts.council_convening import resolution
+
+    vector = _admission()
+    vector["inputs"]["operation"] = operation
+    with pytest.raises(resolution.HarnessError):
+        resolution.adjudicate(vector)
+
+
+def test_a_commission_vector_carrying_a_binding_is_a_harness_error():
+    from scripts.council_convening import resolution
+
+    vector = _joined(_raw("commission-accept-conditional-seat-not-held"))
+    vector["inputs"]["binding"] = admission_binding()
+    with pytest.raises(resolution.HarnessError):
+        resolution.adjudicate(vector)
+
+
+def test_a_shared_commission_vector_reaches_the_consumer_without_a_binding():
+    # conformance-corpus § How each side runs a shared vector: a shared vector
+    # carries no binding, so the consumer runs it without A1 and A4. It carries
+    # no `identity` oracle, so a consumer run that read one would be a harness
+    # error, not this pass.
+    shared = []
+    for path in sorted(RESOLUTION_VECTORS.glob("commission-*.json")):
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        if raw["applies_to"] == ["producer", "consumer"]:
+            assert "binding" not in raw["inputs"], raw["case_id"]
+            assert "identity" not in raw.get("environment", {}), raw["case_id"]
+            shared.append(raw)
+    assert shared
+    raw = next(r for r in shared if r["expected"]["outcome"] == "accept")
+    assert _adjudicate(_joined(raw)) == ("accept", None)
+
+
+def test_resolve_takes_the_binding_at_admission_and_refuses_it_at_commission(tmp_path):
+    from scripts.council_convening import resolution
+
+    vector = _admission()
+    record = vector["inputs"]["record"]
+    root = write_identity_map(tmp_path / "root")
+    with pytest.raises(resolution.HarnessError):
+        resolution.resolve(record, boundary="admission",
+                           selected_protocol=vector["inputs"]["selected_protocol"],
+                           oracles=resolution.VectorOracles(vector["environment"]))
+    result = resolution.resolve(
+        record, boundary="admission",
+        selected_protocol=vector["inputs"]["selected_protocol"],
+        oracles=resolution.VectorOracles(vector["environment"]),
+        binding=vector["inputs"]["binding"], identity_root=root,
+        evaluation_time=vector["evaluation_time"])
+    assert result.required_seats == vector["expected"]["derived"]["required_seats"]
+    commission = _joined(_raw("commission-accept-conditional-seat-not-held"))
+    with pytest.raises(resolution.HarnessError):
+        resolution.resolve(
+            commission["inputs"]["record"], boundary="commission",
+            selected_protocol=commission["inputs"]["selected_protocol"],
+            oracles=resolution.VectorOracles(commission["environment"]),
+            expected_candidate=commission["inputs"]["expected_candidate"],
+            binding=admission_binding(), identity_root=root,
+            evaluation_time=commission["evaluation_time"])
+
+
+def test_a1_reads_the_verified_claims_before_step_3_and_only_them(tmp_path):
+    # Data-model E2 step 3: the admission steps before it consult oracles only by
+    # grammar-checked identifiers, and A1 reads the verified claims.
+    from scripts.council_convening import resolution
+
+    vector = _admission("admission-refuse-order-binding-before-secret")
+    oracles = resolution.VectorOracles(vector["environment"])
+    with pytest.raises(Refused) as refused:
+        resolution.resolve(
+            vector["inputs"]["record"], boundary="admission",
+            selected_protocol=vector["inputs"]["selected_protocol"], oracles=oracles,
+            binding=vector["inputs"]["binding"],
+            identity_root=write_identity_map(tmp_path / "root"),
+            evaluation_time=vector["evaluation_time"])
+    assert refused.value.code == "audience_mismatch"
+    assert oracles.reads == [("identity", None)]
+
+
+@pytest.mark.parametrize("case_id, code", [
+    ("admission-refuse-order-candidate-before-workflow-revision", "candidate_mismatch"),
+    ("admission-refuse-order-mutable-revision-before-workflow-revision",
+     "mutable_rule_reference"),
+    ("admission-refuse-order-former-governed-spelling-before-workflow-revision",
+     "rule_unauthorized"),
+    ("admission-refuse-order-superseded-before-workflow-revision", "rule_superseded"),
+])
+def test_a4_reads_the_governed_member_only_after_step_5_checked_it(case_id, code):
+    # R4-H2: a mutable revision, and a governed repository the allowlist does not
+    # name, are refused by step 5 under their own codes, never by step 14. Each
+    # of these vectors carries BOTH defects: step 14 alone, on the vector's own
+    # token and record, refuses.
+    vector = _admission(case_id)
+    assert _adjudicate(vector) == ("refuse", code)
+    entry = vector["inputs"]["binding"]["permitted_workflows"][0]
+    with pytest.raises(Refused) as refused:
+        binding.check_workflow_revision(
+            entry, identity=vector["environment"]["identity"],
+            governed=vector["inputs"]["record"]["required_seats_provenance"]["governed"],
+            governed_history=None)
+    assert refused.value.code == "workflow_revision_ungoverned"
+
+
+def test_admission_reads_the_map_each_vector_carries_never_the_live_one(monkeypatch):
+    real = estate_inventory.load_transfers
+    seen = []
+
+    def spy(root):
+        seen.append(root.resolve())
+        return real(root)
+
+    monkeypatch.setattr(estate_inventory, "load_transfers", spy)
+    for _, raw in _all_admission_vectors():
+        expected = raw["expected"]
+        assert _adjudicate(_joined(raw)) == (expected["outcome"], expected["refusal"])
+    assert seen and REPO_ROOT.resolve() not in seen
+
+
+def test_the_seat_workflow_is_not_permitted_for_the_commission_token():
+    vector = _admission("admission-refuse-binding-seat-token-for-commission")
+    claims = vector["environment"]["identity"]["claims"]
+    assert claims["job_workflow_ref"] != admission_workflow()
+    assert _adjudicate(vector) == ("refuse", "workflow_not_permitted")
+
+
+def test_with_passing_binding_passes_a1_and_a4_on_the_base_record():
+    raw = _raw(ADMISSION_BASE)
+    for member in ("binding", "operation"):
+        raw["inputs"].pop(member, None)
+    for member in ("identity", "repository_identity"):
+        raw["environment"].pop(member, None)
+    vector = _joined(with_passing_binding(raw))
+    assert _adjudicate(vector) == ("accept", None)
+
+
+ASSIGNMENT_VECTORS = BINDING_VECTORS.parent / "assignment"
+
+#: Phase 3's twelve retry-identity vectors (E2 step A3), re-authored to carry a
+#: passing binding. Their outcomes do not move.
+PHASE_3_RETRY = {
+    "asg-retry-conflict-packet-refs-refuse": "convening_conflict",
+    "asg-retry-conflict-pull-number-only-refuse": "convening_conflict",
+    "asg-retry-conflict-subject-path-only-refuse": "convening_conflict",
+    "asg-retry-identical-after-head-moved-accept": None,
+    "asg-retry-identical-after-tip-moved-accept": None,
+    "asg-retry-identical-not-pre-empted-by-once-per-pin-accept": None,
+    "asg-retry-identical-returns-snapshot-accept": None,
+    "asg-retry-order-conflict-before-head-moved-refuse": "convening_conflict",
+    "asg-retry-order-conflict-before-secret-refuse": "convening_conflict",
+    "asg-retry-order-shape-before-conflict-refuse": "convening_malformed",
+    "asg-retry-other-council-same-pin-not-conflict-accept": None,
+    "asg-retry-same-council-other-pin-not-conflict-accept": None,
+}
+
+#: A1 before A3: a token that fails binding never reaches retry identity, so an
+#: identical retry does not return the snapshot and a conflicting one is not
+#: `convening_conflict` (T051).
+PHASE_5_RETRY_ORDER = {
+    "asg-retry-order-binding-before-identical-retry-refuse": "claims_expired",
+    "asg-retry-order-binding-before-conflict-refuse": "audience_mismatch",
+}
+
+
+def _assignment_raw(case_id):
+    return json.loads((ASSIGNMENT_VECTORS / f"{case_id}.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("case_id", sorted(PHASE_3_RETRY))
+def test_the_re_authored_phase_3_retry_vectors_keep_their_outcomes(case_id):
+    raw = _assignment_raw(case_id)
+    assert "binding" in raw["inputs"] and raw["inputs"]["operation"] == "commission"
+    code = PHASE_3_RETRY[case_id]
+    expected = ("accept", None) if code is None else ("refuse", code)
+    assert (raw["expected"]["outcome"], raw["expected"]["refusal"]) == expected
+    assert _adjudicate(_joined(raw)) == expected
+
+
+@pytest.mark.parametrize("case_id", sorted(PHASE_5_RETRY_ORDER))
+def test_a1_runs_before_retry_identity(case_id):
+    raw = _assignment_raw(case_id)
+    assert raw["boundary"] == "admission" and raw["applies_to"] == ["consumer"]
+    assert raw["area"] == "assignment" and "FR-009" in raw["requirement_ids"]
+    assert raw["environment"]["issued"]["live_snapshots"], case_id
+    assert (raw["expected"]["outcome"], raw["expected"]["refusal"]) == (
+        "refuse", PHASE_5_RETRY_ORDER[case_id])
+    assert "convening_id" not in raw["expected"]["derived"]
+    assert _adjudicate(_joined(raw)) == ("refuse", PHASE_5_RETRY_ORDER[case_id])
+
+
+def test_the_identical_retry_with_a_passing_token_returns_the_snapshot():
+    # The control for A1 before A3: the same vector with the token restored
+    # returns the live snapshot's id.
+    from scripts.council_convening import resolution
+
+    vector = _joined(_assignment_raw("asg-retry-order-binding-before-identical-retry-refuse"))
+    accepted = _joined(_assignment_raw("asg-retry-identical-returns-snapshot-accept"))
+    vector["environment"]["identity"] = accepted["environment"]["identity"]
+    got = resolution.adjudicate(vector)
+    assert got["outcome"] == "accept"
+    assert got["derived"]["convening_id"] == accepted["expected"]["derived"]["convening_id"]
+
+
+def test_the_snapshot_half_reads_no_binding_and_no_map():
+    # Data-model E4's order judges a snapshot, never the commission job's token.
+    from scripts.council_convening import corpus
+
+    snapshots = _all_admission_vectors(role="snapshot")
+    assert snapshots
+    for case_id, raw in snapshots:
+        assert "binding" not in raw["inputs"], case_id
+        assert "repository_identity" not in raw.get("environment", {}), case_id
+        assert not corpus.reads_identity_map(raw), case_id
+    for _, raw in _all_admission_vectors():
+        assert corpus.reads_identity_map(raw)
+
+
+# =========================================================================
+# The independent review of 52a80130, cff00ac5 and c46d981e (lane
+# codeXfactory-1): one MEDIUM and five LOW findings, each pinned here first.
+# =========================================================================
+
+
+def test_the_coverage_floor_carries_fr_009():
+    # MEDIUM: without FR-009 in the floor, deleting every binding vector's
+    # citation would not fail the gate.
+    from scripts.council_convening import generate
+
+    assert "FR-009" in generate.COVERAGE_FLOOR
+    index = json.loads((BINDING_VECTORS.parents[1] / "index.json").read_text(
+        encoding="utf-8"))
+    assert "FR-009" in index["coverage_floor"]
+
+
+def test_uncited_fr_009_fails_the_corpus(family_tree):
+    from scripts.council_convening import corpus, generate
+
+    vectors = family_tree / "contracts" / "council-convening" / "conformance" / "vectors"
+    stripped = 0
+    for path in sorted(vectors.glob("*/*.json")):
+        vector = json.loads(path.read_text(encoding="utf-8"))
+        if "FR-009" in vector["requirement_ids"]:
+            vector["requirement_ids"] = [r for r in vector["requirement_ids"]
+                                         if r != "FR-009"] or ["FR-001"]
+            path.write_bytes(corpus.dump_json(vector))
+            stripped += 1
+    assert stripped
+    generate.generate(family_tree)
+    codes = [f.code for f in corpus.check_corpus(family_tree).findings]
+    assert "council-convening-requirement-without-probe" in codes
+
+
+#: LOW 1: a branch name may carry `@` (git forbids only `@{` and a lone `@`).
+AT_BRANCH_REF = f"{GOVERNED}/.github/workflows/corpus-commission.yml@refs/heads/rel@2"
+FORMER_AT_BRANCH_REF = (
+    f"{GOVERNED_FORMER}/.github/workflows/council-lane-reusable.yml@refs/heads/rel@2")
+
+
+def test_a_ref_carrying_an_at_sign_parses():
+    parsed = binding.parse_workflow_ref(AT_BRANCH_REF)
+    assert parsed is not None
+    assert (parsed.repository, parsed.ref) == (GOVERNED, "refs/heads/rel@2")
+
+
+@pytest.mark.parametrize("ref", [
+    FORMER_AT_BRANCH_REF,
+    # Not a workflow reference at all: its first two segments still name the
+    # former spelling, and step 4 judges every permitted ref by them.
+    f"{GOVERNED_FORMER}/workflows/corpus-commission.yml",
+    f"{GOVERNED_FORMER_CASE_VARIANT}/.github/workflows/x.yml@refs/heads/a@b",
+])
+def test_step_4_judges_every_permitted_ref_by_its_first_two_segments(map_root, ref):
+    b = commission_binding(permitted_workflows=[{
+        "operation": "commission", "job_workflow_ref": ref,
+        "workflow_revision_rule": "equals_governed_revision"}])
+    assert code_of(b, map_root) == "repository_identity_former"
+
+
+def test_a_commission_workflow_on_an_at_branch_is_accepted(map_root):
+    b = commission_binding(permitted_workflows=[{
+        "operation": "commission", "job_workflow_ref": AT_BRANCH_REF,
+        "workflow_revision_rule": "equals_governed_revision"}])
+    entry = binding.check_binding(
+        b, operation="commission",
+        identity=identity(claims_for(b, job_workflow_ref=AT_BRANCH_REF)),
+        governed=governed(), evaluation_time=EVALUATION_TIME, identity_root=map_root)
+    assert entry["job_workflow_ref"] == AT_BRANCH_REF
+
+
+@pytest.mark.parametrize("spelling, former", [
+    # LOW 2, the literal E10 reading: a non-canonical case variant of ANY listed
+    # spelling, the pending row's included, is refused.
+    ("opensoft/examplefactory", True),
+    ("OpenSoft/ExampleFactory", True),
+    ("exampleorg/ExampleFactory", True),
+    ("ExampleOrg/examplefactory", True),
+    # The pending row's spellings themselves stay as they were: its `former` is
+    # still the only address (`pending_row_rule`).
+    (PENDING_FORMER, False),
+    (PENDING_CURRENT, False),
+])
+def test_a_case_variant_of_a_pending_spelling_is_former(map_root, spelling, former):
+    assert binding.load_identity_map(map_root).is_former(spelling) is former
+
+
+def test_a_caller_spelled_as_a_pending_case_variant_is_refused(map_root):
+    b = commission_binding(caller_repository="opensoft/examplefactory",
+                           subject_template="repo:opensoft/examplefactory:ref:refs/heads/main")
+    assert code_of(b, map_root) == "repository_identity_former"
+
+
+def _bind_vector(name):
+    return json.loads((BINDING_VECTORS / f"{name}.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("oracle", ["identity", "governed_history"])
+def test_a_binding_vector_missing_an_oracle_it_reads_is_a_harness_error(oracle):
+    # LOW 3: as at admission, a missing oracle is never a refusal.
+    from scripts.council_convening import classification, corpus, records
+
+    name = ("bind-commission-accept" if oracle == "identity"
+            else "bind-seat-per-seat-environment-accept")
+    vector = _bind_vector(name)
+    assert oracle in vector["environment"]
+    del vector["environment"][oracle]
+    with pytest.raises(ValueError):
+        binding.evaluate_vector(vector)
+    with pytest.raises(corpus.VectorInputError):
+        corpus.HANDLERS["binding"].handler(
+            vector, corpus.Context(records.load_schemas(), classification.load_registry()))
+
+
+def test_an_offline_refusal_needs_no_identity_oracle():
+    # The oracle is required where it is READ: a binding refused at steps 1 to 6
+    # never reaches the claims.
+    vector = _bind_vector("bind-subject-wildcard-refuse")
+    del vector["environment"]["identity"]
+    assert binding.evaluate_vector(vector) == ("refuse", "binding_wildcard")
+
+
+def test_the_template_permits_one_operation():
+    # Info: a stub permitting both operations would carry the seat entry into a
+    # commission binding, or the commission entry into a seat's (025 (A)).
+    doc = yaml.safe_load(BINDING_TEMPLATE.read_text(encoding="utf-8"))
+    assert [e["operation"] for e in doc["permitted_workflows"]] == ["commission"]
+    text = BINDING_TEMPLATE.read_text(encoding="utf-8")
+    assert "seat_execution" in text and "on_governed_history_since_revision" in text
+
+
+def test_the_claim_keys_description_names_the_claims_supported_only_members():
+    # Reading 2: `sha` and `ref_protected` are in GitHub's `claims_supported`
+    # but not in its claims table, so they are not members.
+    doc = yaml.safe_load(BINDING_SCHEMA.read_text(encoding="utf-8"))
+    prop = doc["properties"]["subject_claim_keys"]
+    assert "claims_supported" in prop["description"]
+    assert "`sha`" in prop["description"] and "`ref_protected`" in prop["description"]
+    assert "sha" not in prop["items"]["enum"]
+    assert "ref_protected" not in prop["items"]["enum"]
+
+
+def test_the_review_round_vectors_pin_their_codes():
+    expected = {
+        "bind-permitted-ref-at-branch-former-refuse": "repository_identity_former",
+        "bind-permitted-ref-unparsed-former-refuse": "repository_identity_former",
+        "bind-commission-at-branch-accept": None,
+        "bind-caller-pending-case-variant-refuse": "repository_identity_former",
+        "bind-workflow-pending-current-case-variant-refuse": "repository_identity_former",
+    }
+    for name, code in expected.items():
+        vector = _bind_vector(name)
+        assert "FR-009" in vector["requirement_ids"], name
+        want = ("accept", None) if code is None else ("refuse", code)
+        assert (vector["expected"]["outcome"], vector["expected"]["refusal"]) == want, name
+        assert binding.evaluate_vector(vector) == want, name

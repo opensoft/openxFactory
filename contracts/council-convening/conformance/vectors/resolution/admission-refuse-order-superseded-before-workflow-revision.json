@@ -2,9 +2,9 @@
   "applies_to": [
     "consumer"
   ],
-  "area": "assignment",
+  "area": "resolution",
   "boundary": "admission",
-  "case_id": "asg-retry-same-council-other-pin-not-conflict-accept",
+  "case_id": "admission-refuse-order-superseded-before-workflow-revision",
   "environment": {
     "facts": {
       "pr_facts:example-org/example-app#42@5ea2baa390e53e741a718626e522b7cf3bd33523": {
@@ -33,7 +33,7 @@
         "available": true,
         "governed": true,
         "sha256": "sha256:b2c3453e6deac82aa5d109dc335650c44399e440f207a7a2c16a185f24764a31",
-        "tip_sha256": "sha256:b2c3453e6deac82aa5d109dc335650c44399e440f207a7a2c16a185f24764a31"
+        "tip_sha256": "sha256:c3b5bd340f7453babe962147998dd3ca64f6eaa966d7047c8b7c6d3c2b072b36"
       },
       "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300:rules/conditions/posture.yml": {
         "available": true,
@@ -77,12 +77,12 @@
     "identity": {
       "claims": {
         "aud": "council-convening-corpus-audience",
-        "exp": 1791507900,
-        "iat": 1791507540,
+        "exp": 1791504300,
+        "iat": 1791503940,
         "iss": "https://token.actions.githubusercontent.com",
         "job_workflow_ref": "example-org/governed-rules/.github/workflows/corpus-commission.yml@refs/heads/main",
-        "job_workflow_sha": "565baeb830bd8d861ee4bfc759b068498cb9a300",
-        "nbf": 1791507540,
+        "job_workflow_sha": "6666666666666666666666666666666666666666",
+        "nbf": 1791503940,
         "repository": "opensoft/xFactory",
         "repository_id": "424242",
         "sub": "repo:opensoft/xFactory:ref:refs/heads/main"
@@ -92,187 +92,6 @@
         "principal_ref": "corpus-commission-binding"
       },
       "verified": true
-    },
-    "issued": {
-      "live_snapshots": [
-        {
-          "admitted_at": "2026-10-09T00:00:00Z",
-          "assignments": [
-            {
-              "assignment_id": "assignment-seat-a",
-              "candidate": {
-                "head_sha": "9999999999999999999999999999999999999999",
-                "pull_number": 42,
-                "repository": "example-org/example-app"
-              },
-              "convening_digest": {
-                "construction": "xfc-jcs-sha256-1",
-                "subject": "council_convening",
-                "value": "sha256:ee1ca7405f31017a5f2f980c0221c4c8059a4feba67f9b188b52abbb09b0a3cc"
-              },
-              "convening_id": "convening-0009",
-              "council_id": "review-council",
-              "expires_at": "2026-10-09T06:00:00Z",
-              "holder": {
-                "binding_ref": "binding-seat",
-                "principal_kind": "github_oidc_job",
-                "principal_ref": "principal-seat-a"
-              },
-              "kind": "xfactory_council_seat_assignment",
-              "not_before": "2026-10-09T00:00:00Z",
-              "permitted_operations": [
-                "seat_key_registration",
-                "seat_return"
-              ],
-              "protocol": "xfc-resolved-council-1",
-              "schema_version": 1,
-              "seat_id": "seat-a"
-            },
-            {
-              "assignment_id": "assignment-seat-b",
-              "candidate": {
-                "head_sha": "9999999999999999999999999999999999999999",
-                "pull_number": 42,
-                "repository": "example-org/example-app"
-              },
-              "convening_digest": {
-                "construction": "xfc-jcs-sha256-1",
-                "subject": "council_convening",
-                "value": "sha256:ee1ca7405f31017a5f2f980c0221c4c8059a4feba67f9b188b52abbb09b0a3cc"
-              },
-              "convening_id": "convening-0009",
-              "council_id": "review-council",
-              "expires_at": "2026-10-09T06:00:00Z",
-              "holder": {
-                "binding_ref": "binding-seat",
-                "principal_kind": "github_oidc_job",
-                "principal_ref": "principal-seat-b"
-              },
-              "kind": "xfactory_council_seat_assignment",
-              "not_before": "2026-10-09T00:00:00Z",
-              "permitted_operations": [
-                "seat_key_registration",
-                "seat_return"
-              ],
-              "protocol": "xfc-resolved-council-1",
-              "schema_version": 1,
-              "seat_id": "seat-b"
-            }
-          ],
-          "convening": {
-            "council_id": "review-council",
-            "kind": "xfactory_council_convening",
-            "packet_refs": [
-              "example-org/example-app#42"
-            ],
-            "protocol": "xfc-resolved-council-1",
-            "required_seats": [
-              "seat-a",
-              "seat-b"
-            ],
-            "required_seats_provenance": {
-              "candidate": {
-                "head_sha": "9999999999999999999999999999999999999999",
-                "pull_number": 42,
-                "repository": "example-org/example-app"
-              },
-              "class_inputs": {
-                "head_ref": "feature/login",
-                "repository": "example-org/example-app"
-              },
-              "conditions": [
-                {
-                  "held": false,
-                  "input_contract": "pr_facts",
-                  "parameters": {
-                    "protected_paths": [
-                      "deploy/config.yaml",
-                      "src/auth/**"
-                    ]
-                  },
-                  "predicate": "changed_paths_intersect",
-                  "seat": "seat-c"
-                }
-              ],
-              "consumed_facts": {
-                "pr_facts": {
-                  "changed_files_total": 2,
-                  "changed_paths": [
-                    "README.md",
-                    "src/app/main.py"
-                  ],
-                  "changed_paths_entry_count": 2
-                }
-              },
-              "fact_sources": [
-                {
-                  "input_contract": "pr_facts",
-                  "source": "candidate_pull"
-                }
-              ],
-              "governed": {
-                "repository": "example-org/governed-rules",
-                "revision": "565baeb830bd8d861ee4bfc759b068498cb9a300",
-                "sources": [
-                  {
-                    "entries": [
-                      "rules/conditions/paths.yaml",
-                      "rules/conditions/posture.yml"
-                    ],
-                    "kind": "listing",
-                    "path": "rules/conditions",
-                    "suffixes": [
-                      ".yaml",
-                      ".yml"
-                    ]
-                  },
-                  {
-                    "kind": "file",
-                    "path": "rules/conditions/paths.yaml",
-                    "sha256": "sha256:b2c3453e6deac82aa5d109dc335650c44399e440f207a7a2c16a185f24764a31"
-                  },
-                  {
-                    "kind": "file",
-                    "path": "rules/conditions/posture.yml",
-                    "sha256": "sha256:abadef1725731a85a28f86feaecd43692ba816dca858361e0eff3dace14b2999"
-                  },
-                  {
-                    "kind": "file",
-                    "path": "rules/council-profile.yaml",
-                    "sha256": "sha256:5dc534f101267b3927fc42e2d4d77f3aceb65ad2e10a4b6b32bff142229b9b3e"
-                  },
-                  {
-                    "kind": "file",
-                    "path": "rules/councils/review-council.yaml",
-                    "sha256": "sha256:f121b4fb6d22238667bdd8e68f9b2ceb5a144721d949a2bfedaeafc1ec393a91"
-                  },
-                  {
-                    "kind": "file",
-                    "path": "rules/envelope.yml",
-                    "sha256": "sha256:dcffb174314244cf948877b48e313ecec9b48452520934f580c2d8388fce661f"
-                  }
-                ]
-              },
-              "matched_class": "standard",
-              "standing_seats": [
-                "seat-a",
-                "seat-b"
-              ]
-            },
-            "schema_version": 1,
-            "subject_pin": "9999999999999999999999999999999999999999"
-          },
-          "convening_digest": {
-            "construction": "xfc-jcs-sha256-1",
-            "subject": "council_convening",
-            "value": "sha256:ee1ca7405f31017a5f2f980c0221c4c8059a4feba67f9b188b52abbb09b0a3cc"
-          },
-          "convening_id": "convening-0009",
-          "kind": "xfactory_council_convening_snapshot",
-          "protocol": "xfc-resolved-council-1",
-          "schema_version": 1
-        }
-      ]
     },
     "live_heads": {
       "example-org/example-app#42": "5ea2baa390e53e741a718626e522b7cf3bd33523"
@@ -445,23 +264,13 @@
       }
     }
   },
-  "evaluation_time": "2026-10-09T01:00:00Z",
+  "evaluation_time": "2026-10-09T00:00:00Z",
   "expected": {
-    "derived": {
-      "convening_digest": {
-        "construction": "xfc-jcs-sha256-1",
-        "subject": "council_convening",
-        "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
-      },
-      "required_seats": [
-        "seat-a",
-        "seat-b"
-      ]
-    },
-    "derived_origin": "generated",
+    "derived": {},
+    "derived_origin": "hand",
     "findings": [],
-    "outcome": "accept",
-    "refusal": null
+    "outcome": "refuse",
+    "refusal": "rule_superseded"
   },
   "inputs": {
     "binding": {
@@ -600,7 +409,8 @@
   },
   "kind": "openxfactory-council-convening-conformance-vector",
   "requirement_ids": [
-    "FR-004"
+    "FR-003",
+    "FR-009"
   ],
   "schema_version": 1
 }

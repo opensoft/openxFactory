@@ -140,13 +140,19 @@ _REPOSITORY = re.compile(rf"({_NAME})/({_NAME})")
 #: used by repositories created, renamed or transferred after 2026-07-15.
 _IMMUTABLE_REPOSITORY = re.compile(
     rf"({_NAME})@({_DECIMAL_ID})/({_NAME})@({_DECIMAL_ID})")
+#: The ref may carry `@`: git forbids only `@{` and a lone `@` in a ref name
+#: (git-check-ref-format), so `refs/heads/rel@2` is a branch. The file name
+#: carries none, so the first `@` after the path is the separator.
 _WORKFLOW_REF = re.compile(
     rf"(?P<owner>{_NAME})/(?P<name>{_NAME})/\.github/workflows/"
-    r"(?P<file>[^/@:\s\x00-\x1f\x7f]+)@(?P<ref>[^@:\s\x00-\x1f\x7f]+)")
+    r"(?P<file>[^/@:\s\x00-\x1f\x7f]+)@(?P<ref>[^:\s\x00-\x1f\x7f]+)")
 _FULL_SHA = re.compile(r"[0-9a-f]{40}")
 _DECIMAL = re.compile(_DECIMAL_ID)
 #: One `sub` element value: no `:` (GitHub writes one inside a value as `%3A`)
-#: and no control character.
+#: and no control character. READING: at least one character, so a customized
+#: template whose last element is empty (`head_ref:` on an event with no head
+#: ref) does not parse, and is `subject_template_mismatch`. A binding is per
+#: principal and per job, so such a job needs a template without that key.
 _VALUE = re.compile(r"[^:\x00-\x1f\x7f-\x9f]+")
 _UTC_INSTANT = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z")
 _FOLD = str.maketrans(string.ascii_uppercase, string.ascii_lowercase)
@@ -192,26 +198,31 @@ def _ascii_fold(value: str) -> str:
 
 @dataclass(frozen=True)
 class IdentityMap:
-    """The complete transfers `load_transfers` resolves, `{former: current}`."""
+    """The complete transfers `load_transfers` resolves, `{former: current}`,
+    and the spellings the map's PENDING rows list, which it does not resolve."""
 
     transfers: Mapping[str, str]
+    pending: frozenset = frozenset()
 
     def is_former(self, spelling: str) -> bool:
         """True for a former spelling, or for a non-canonical case variant: a
-        spelling equal to a listed `former` or `current` spelling when ASCII
-        case is ignored, but not byte-equal to it (the map's `owner_case`,
-        made mechanical). A listed current spelling is current. Any spelling the
-        map does not list is current, and so is a pending row's `former`, which
-        `load_transfers` does not resolve because it is still the only address
-        (`pending_row_rule`)."""
+        spelling equal to ANY listed spelling when ASCII case is ignored, but
+        not byte-equal to it (the map's `owner_case`, made mechanical). Listed
+        means a complete row's `former` or `current`, or a pending row's
+        `former` or `current` (E10 step 4, read literally: "a listed
+        spelling"). A complete row's current spelling is current. A pending
+        row's spellings, byte-equal, are not former: `load_transfers` does not
+        resolve the row, because its `former` is still the only address
+        (`pending_row_rule`). Any spelling the map does not list is current."""
         formers = set(self.transfers)
         currents = set(self.transfers.values())
         if spelling in formers:
             return True
-        if spelling in currents:
+        if spelling in currents or spelling in self.pending:
             return False
         folded = _ascii_fold(spelling)
-        return any(_ascii_fold(listed) == folded for listed in formers | currents)
+        return any(_ascii_fold(listed) == folded
+                   for listed in formers | currents | set(self.pending))
 
 
 def load_identity_map(root: Path) -> IdentityMap:
@@ -250,7 +261,12 @@ def load_identity_map(root: Path) -> IdentityMap:
     transfers, malformed = estate_inventory.load_transfers(root)
     if malformed:
         raise unavailable
-    return IdentityMap(dict(transfers))
+    # Every row `load_transfers` did not refuse and did not resolve is a lawful
+    # pending row (its `pending_row_rule`); its spellings are listed spellings.
+    pending = frozenset(
+        spelling for row in rows if row.get("transfer_state") == "pending"
+        for spelling in (row["former"], row["current"]))
+    return IdentityMap(dict(transfers), pending)
 
 
 def materialize_identity(oracle: object, root: Path) -> Path:
@@ -301,6 +317,15 @@ def parse_workflow_ref(value: object) -> WorkflowRef | None:
         return None
     return WorkflowRef(f"{match['owner']}/{match['name']}", match["file"],
                        match["ref"])
+
+
+def _ref_repository(ref: str) -> str | None:
+    """`<owner>/<repo>` from a permitted ref's first two `/` segments, or None
+    when it has fewer than two."""
+    segments = ref.split("/", 2)
+    if len(segments) < 2 or not segments[0] or not segments[1]:
+        return None
+    return f"{segments[0]}/{segments[1]}"
 
 
 def is_bare_workflow_reference(template: object) -> bool:
@@ -435,8 +460,11 @@ def check_offline(binding: object, *, identity_root: Path,
     if identity_map.is_former(binding["caller_repository"]):
         raise _refuse("repository_identity_former", "caller_repository")
     for ref in workflows:
-        parsed = parse_workflow_ref(ref)
-        if parsed is not None and identity_map.is_former(parsed.repository):
+        # The repository is judged from the ref's first two `/` segments, whether
+        # or not the whole ref parses: a ref this grammar does not read still
+        # names its repository there, and a former spelling there fails closed.
+        repository = _ref_repository(ref)
+        if repository is not None and identity_map.is_former(repository):
             raise _refuse("repository_identity_former", "permitted_workflows")
 
     # 5. Conflation, before the parse that would also refuse it (R3-H1).
@@ -577,23 +605,31 @@ def evaluate_vector(vector: Mapping,
                     schemas: records.SchemaSet | None = None) -> tuple[str, str | None]:
     """Adjudicate one `binding` vector: `("accept", None)` or
     `("refuse", <code>)`. The map is the vector's own `repository_identity`
-    oracle, materialized under a temporary root, never the live file."""
+    oracle, materialized under a temporary root, never the live file.
+
+    An oracle the order READS and the vector does not carry is a harness error
+    (`ValueError`), never a refusal, as at admission: `identity` once steps 1
+    to 6 pass, and `governed_history` for a seat job's step 14."""
     inputs = vector["inputs"]
     environment = vector.get("environment", {})
     with tempfile.TemporaryDirectory(prefix="council-convening-identity-") as tmp:
         root = materialize_identity(environment["repository_identity"],
                                     Path(tmp) / "root")
         try:
-            check_binding(
-                inputs["binding"],
-                operation=inputs["operation"],
-                identity=environment.get("identity"),
-                governed=inputs["governed"],
-                governed_history=environment.get("governed_history"),
-                evaluation_time=vector["evaluation_time"],
-                identity_root=root,
-                schemas=schemas,
-            )
+            check_offline(inputs["binding"], identity_root=root, schemas=schemas)
+            if "identity" not in environment:
+                raise ValueError("the vector carries no `identity` oracle, which "
+                                 "E10 step 7 reads")
+            entry = check_claims(inputs["binding"], operation=inputs["operation"],
+                                 identity=environment["identity"],
+                                 evaluation_time=vector["evaluation_time"])
+            if (entry["workflow_revision_rule"] == "on_governed_history_since_revision"
+                    and "governed_history" not in environment):
+                raise ValueError("the vector carries no `governed_history` oracle, "
+                                 "which E10 step 14 reads for a seat job")
+            check_workflow_revision(entry, identity=environment["identity"],
+                                    governed=inputs["governed"],
+                                    governed_history=environment.get("governed_history"))
         except Refused as refused:
             return "refuse", refused.code
     return "accept", None

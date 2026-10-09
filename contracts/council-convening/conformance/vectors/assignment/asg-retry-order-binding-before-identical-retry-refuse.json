@@ -4,7 +4,7 @@
   ],
   "area": "assignment",
   "boundary": "admission",
-  "case_id": "asg-retry-same-council-other-pin-not-conflict-accept",
+  "case_id": "asg-retry-order-binding-before-identical-retry-refuse",
   "environment": {
     "facts": {
       "pr_facts:example-org/example-app#42@5ea2baa390e53e741a718626e522b7cf3bd33523": {
@@ -77,7 +77,7 @@
     "identity": {
       "claims": {
         "aud": "council-convening-corpus-audience",
-        "exp": 1791507900,
+        "exp": 1791507600,
         "iat": 1791507540,
         "iss": "https://token.actions.githubusercontent.com",
         "job_workflow_ref": "example-org/governed-rules/.github/workflows/corpus-commission.yml@refs/heads/main",
@@ -101,16 +101,16 @@
             {
               "assignment_id": "assignment-seat-a",
               "candidate": {
-                "head_sha": "9999999999999999999999999999999999999999",
+                "head_sha": "5ea2baa390e53e741a718626e522b7cf3bd33523",
                 "pull_number": 42,
                 "repository": "example-org/example-app"
               },
               "convening_digest": {
                 "construction": "xfc-jcs-sha256-1",
                 "subject": "council_convening",
-                "value": "sha256:ee1ca7405f31017a5f2f980c0221c4c8059a4feba67f9b188b52abbb09b0a3cc"
+                "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
               },
-              "convening_id": "convening-0009",
+              "convening_id": "convening-0001",
               "council_id": "review-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
@@ -131,16 +131,16 @@
             {
               "assignment_id": "assignment-seat-b",
               "candidate": {
-                "head_sha": "9999999999999999999999999999999999999999",
+                "head_sha": "5ea2baa390e53e741a718626e522b7cf3bd33523",
                 "pull_number": 42,
                 "repository": "example-org/example-app"
               },
               "convening_digest": {
                 "construction": "xfc-jcs-sha256-1",
                 "subject": "council_convening",
-                "value": "sha256:ee1ca7405f31017a5f2f980c0221c4c8059a4feba67f9b188b52abbb09b0a3cc"
+                "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
               },
-              "convening_id": "convening-0009",
+              "convening_id": "convening-0001",
               "council_id": "review-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
@@ -172,7 +172,7 @@
             ],
             "required_seats_provenance": {
               "candidate": {
-                "head_sha": "9999999999999999999999999999999999999999",
+                "head_sha": "5ea2baa390e53e741a718626e522b7cf3bd33523",
                 "pull_number": 42,
                 "repository": "example-org/example-app"
               },
@@ -260,14 +260,14 @@
               ]
             },
             "schema_version": 1,
-            "subject_pin": "9999999999999999999999999999999999999999"
+            "subject_pin": "5ea2baa390e53e741a718626e522b7cf3bd33523"
           },
           "convening_digest": {
             "construction": "xfc-jcs-sha256-1",
             "subject": "council_convening",
-            "value": "sha256:ee1ca7405f31017a5f2f980c0221c4c8059a4feba67f9b188b52abbb09b0a3cc"
+            "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
           },
-          "convening_id": "convening-0009",
+          "convening_id": "convening-0001",
           "kind": "xfactory_council_convening_snapshot",
           "protocol": "xfc-resolved-council-1",
           "schema_version": 1
@@ -447,21 +447,11 @@
   },
   "evaluation_time": "2026-10-09T01:00:00Z",
   "expected": {
-    "derived": {
-      "convening_digest": {
-        "construction": "xfc-jcs-sha256-1",
-        "subject": "council_convening",
-        "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
-      },
-      "required_seats": [
-        "seat-a",
-        "seat-b"
-      ]
-    },
-    "derived_origin": "generated",
+    "derived": {},
+    "derived_origin": "hand",
     "findings": [],
-    "outcome": "accept",
-    "refusal": null
+    "outcome": "refuse",
+    "refusal": "claims_expired"
   },
   "inputs": {
     "binding": {
@@ -600,7 +590,10 @@
   },
   "kind": "openxfactory-council-convening-conformance-vector",
   "requirement_ids": [
-    "FR-004"
+    "FR-004",
+    "FR-005",
+    "FR-009",
+    "SC-002"
   ],
   "schema_version": 1
 }

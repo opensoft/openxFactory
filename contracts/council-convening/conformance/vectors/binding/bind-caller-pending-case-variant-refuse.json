@@ -4,7 +4,7 @@
   ],
   "area": "binding",
   "boundary": "binding",
-  "case_id": "bind-stub-presented-as-live-refuse",
+  "case_id": "bind-caller-pending-case-variant-refuse",
   "environment": {
     "identity": {
       "claims": {
@@ -15,13 +15,13 @@
         "job_workflow_ref": "codeXfactory/codexFactory/.github/workflows/corpus-commission.yml@refs/heads/main",
         "job_workflow_sha": "4444444444444444444444444444444444444444",
         "nbf": 1791503940,
-        "repository": "opensoft/xFactory",
+        "repository": "opensoft/examplefactory",
         "repository_id": "424242",
-        "sub": "repo:opensoft/xFactory:ref:refs/heads/main"
+        "sub": "repo:opensoft/examplefactory:ref:refs/heads/main"
       },
       "principal": {
         "principal_kind": "github_oidc_job",
-        "principal_ref": "<the binding id an assignment's holder.binding_ref names>"
+        "principal_ref": "corpus-commission-binding"
       },
       "verified": true
     },
@@ -36,37 +36,36 @@
     "derived_origin": "hand",
     "findings": [],
     "outcome": "refuse",
-    "refusal": "binding_malformed"
+    "refusal": "repository_identity_former"
   },
   "inputs": {
     "binding": {
-      "audience": "<the audience the consumer configures>",
-      "binding_id": "<the binding id an assignment's holder.binding_ref names>",
+      "audience": "council-convening-corpus-audience",
+      "binding_id": "corpus-commission-binding",
       "broker": {
-        "broker_ref": "<the owner-provisioned broker's reference>",
-        "capability_verified": false,
-        "evidence_ref": null
+        "broker_ref": "corpus-broker",
+        "capability_verified": true,
+        "evidence_ref": "corpus-broker-evidence"
       },
-      "caller_repository": "<the owner/name of the repository the job runs in>",
-      "instantiation_stub": true,
+      "caller_repository": "opensoft/examplefactory",
       "issuer": "https://token.actions.githubusercontent.com",
       "kind": "xfactory_council_producer_binding",
       "permitted_workflows": [
         {
-          "job_workflow_ref": "<owner>/<repository>/.github/workflows/<file>@<ref>",
+          "job_workflow_ref": "codeXfactory/codexFactory/.github/workflows/corpus-commission.yml@refs/heads/main",
           "operation": "commission",
           "workflow_revision_rule": "equals_governed_revision"
         }
       ],
       "principal_kind": "github_oidc_job",
       "protocol": "xfc-resolved-council-1",
-      "repository_id": null,
+      "repository_id": 424242,
       "schema_version": 1,
       "subject_claim_keys": [
         "repo",
         "context"
       ],
-      "subject_template": "<the caller repository's verified OIDC sub>"
+      "subject_template": "repo:opensoft/examplefactory:ref:refs/heads/main"
     },
     "governed": {
       "repository": "codeXfactory/codexFactory",
