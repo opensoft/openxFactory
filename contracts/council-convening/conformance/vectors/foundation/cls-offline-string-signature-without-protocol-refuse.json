@@ -5,22 +5,22 @@
   ],
   "area": "foundation",
   "boundary": "classification",
-  "case_id": "cls-offline-replacement-string-signature-accept",
+  "case_id": "cls-offline-string-signature-without-protocol-refuse",
   "evaluation_time": "2026-10-09T00:00:00Z",
   "expected": {
-    "derived": {
-      "classification": "replacement"
-    },
+    "derived": {},
     "derived_origin": "hand",
     "findings": [],
-    "outcome": "accept",
-    "refusal": null
+    "outcome": "refuse",
+    "refusal": "protocol_unknown"
   },
   "inputs": {
     "record": {
-      "kind": "xfactory_council_seat_return",
-      "protocol": "xfc-resolved-council-1",
-      "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ"
+      "rationale": "no finding",
+      "result": "approve",
+      "seat": "security",
+      "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ",
+      "undispositioned_conditions": 0
     },
     "selected_protocol": null
   },

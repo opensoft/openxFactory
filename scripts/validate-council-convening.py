@@ -33,14 +33,17 @@ THE MODES.
   family base) and no protocol shape; a vector is ADJUDICATED against its own
   expectation; an index's format is checked, its closure against a tree being
   the self-test's. A `kind` that is not a string is malformed. Nothing is
-  classified against a registry that is not closed. Exit 0 covers the
-  offline-checkable rules only, and is never evidence of admission. A PRODUCER
-  BINDING (Phase 5) is judged by data-model E10 steps 1 to 6, against the
-  identity map `contracts/policies/repository-identity.yaml` of the tree the
-  validator runs in, which at a consumer's pin is that pin's map (Brett Heap's
-  OPEN-2 ruling, "Consumer's runtime config (Recommended)"); the
-  `.template.yaml` stub is refused as live; and steps 7 to 14, which need the
-  verified claims, are each reported as not checkable offline.
+  classified against a registry that is not closed. Every PATH must resolve,
+  after `..` and symbolic links, inside the directory `check` is invoked
+  from; any other is refused as a harness failure (exit 2) and never read.
+  Exit 0 covers the offline-checkable rules only, and is never evidence of
+  admission. A PRODUCER BINDING (Phase 5) is judged by data-model E10 steps 1
+  to 6, against the identity map `contracts/policies/repository-identity.yaml`
+  of the tree the validator runs in, which at a consumer's pin is that pin's
+  map (Brett Heap's OPEN-2 ruling, "Consumer's runtime config
+  (Recommended)"); the `.template.yaml` stub is refused as live; and steps 7
+  to 14, which need the verified claims, are each reported as not checkable
+  offline.
 * `corpus [--json]`: the index summary: totals, the agreement-set count and the
   index's raw SHA-256. `--json` prints it for successor tooling.
 
@@ -61,6 +64,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -196,6 +200,25 @@ class _Unreadable(Exception):
     pass
 
 
+def _within_invocation_directory(given: str) -> str:
+    """`given`, canonicalized, once it is shown to lie inside the directory
+    `check` was invoked from; `_Unreadable` otherwise.
+
+    A validator an agent may drive reads only where it was started (Sonar
+    `pythonsecurity:S8707`, after that rule's own compliant form): the path is
+    canonicalized with `os.path.realpath`, which resolves `..` and symbolic
+    links, and only then compared with the canonical working directory plus a
+    separator, so `/base/dir-other` never passes for `/base/dir`. A successor
+    checks its own records by running `check` from its own checkout.
+    """
+    resolved = os.path.realpath(given)
+    base_dir = os.path.realpath(os.getcwd())
+    if resolved != base_dir and not resolved.startswith(base_dir + os.sep):
+        raise _Unreadable(f"{given}: outside the directory check was invoked from "
+                          f"({base_dir}); run check from a directory that holds it")
+    return resolved
+
+
 def _read(path: Path) -> tuple[Any, str | None, str]:
     """`(document, None, text)`, or `(None, problem, text)` for a file that does
     not parse. An unreadable file raises `_Unreadable`, the harness failure.
@@ -219,7 +242,8 @@ def _read(path: Path) -> tuple[Any, str | None, str]:
 _SCHEMA_ID = re.compile(re.escape(records.ID_BASE) + r"[a-z0-9][a-z0-9-]*\.schema\.yaml\Z")
 
 
-def _family_schema_problems(document: dict, registry: classification.Registry) -> list[str]:
+def _family_schema_problems(document: dict, schemas: records.SchemaSet,
+                            registry: classification.Registry) -> list[str]:
     """What keeps `document` from being a family schema: the full house header,
     no protocol shape, the 2020-12 metaschema, and only asserted formats."""
     problems = []
@@ -237,6 +261,15 @@ def _family_schema_problems(document: dict, registry: classification.Registry) -
     if classification.carries_protocol_shape(document, registry):
         problems.append("carries a protocol member or a legacy recognition shape, "
                         "which no family schema carries")
+    for nested in records.headers_below_root(document):
+        problems.append(f"carries {nested.rsplit('/', 1)[-1]} below its root, at {nested}; "
+                        f"a resource header belongs only at a document's root")
+    if isinstance(schema_id, str) and _SCHEMA_ID.match(schema_id):
+        family = {**schemas.family, schema_id: document}
+        for outside in records.references_outside(family, schemas.digest_construction):
+            if outside.startswith(f"{schema_id}: "):
+                problems.append(outside.split(": ", 1)[1]
+                                + ", outside the loaded documents")
     try:
         records._check_schema("document", document)
     except records.SchemaLoadError:
@@ -322,7 +355,7 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
                      f"a record of kind {kind}, whose schema has not landed at this "
                      f"commit; judged by kind and never classified"), False
     if kind == records.SCHEMA_KIND:
-        problems = _family_schema_problems(document, registry)
+        problems = _family_schema_problems(document, schemas, registry)
         if problems:
             return [corpus.Finding("ERROR", "council-convening-schema", f"{path}: {p}")
                     for p in problems], False
@@ -411,9 +444,9 @@ def check(paths: list[str], root: Path, strict: bool) -> int:
     findings: list[corpus.Finding] = []
     routed = 0
     for name in paths:
-        path = Path(name)
+        path = Path(name)  # as given, for messages; the read is the canonical one
         try:
-            document, problem, text = _read(path)
+            document, problem, text = _read(Path(_within_invocation_directory(name)))
         except _Unreadable as exc:
             return _harness(str(exc))
         if problem:

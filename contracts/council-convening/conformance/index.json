@@ -1575,7 +1575,7 @@
       ],
       "area": "foundation",
       "boundary": "classification",
-      "case_id": "cls-offline-replacement-string-signature-accept",
+      "case_id": "cls-offline-replacement-protocol-with-string-signature-accept",
       "expected": {
         "derived": {
           "classification": "replacement"
@@ -1585,12 +1585,12 @@
         "outcome": "accept",
         "refusal": null
       },
-      "path": "vectors/foundation/cls-offline-replacement-string-signature-accept.json",
+      "path": "vectors/foundation/cls-offline-replacement-protocol-with-string-signature-accept.json",
       "requirement_ids": [
         "FR-001",
         "FR-011"
       ],
-      "sha256": "sha256:a5111577e839cee16645687bcd120b42e1ef3ec0bb2ff200040e14abfb48a150"
+      "sha256": "sha256:ef45c4915000905b6d5e3c8f37d2a64e8d9467b03bfe83b084bfa129a10561c7"
     },
     {
       "applies_to": [
@@ -1661,6 +1661,28 @@
         "FR-011"
       ],
       "sha256": "sha256:74fdb6ca1e2c8f6253826f1c877e973783944a8bc354e4d2f57996a6ecc567e4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "foundation",
+      "boundary": "classification",
+      "case_id": "cls-offline-string-signature-without-protocol-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/foundation/cls-offline-string-signature-without-protocol-refuse.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011"
+      ],
+      "sha256": "sha256:529a7518b4dec3485fc15409554e6e697ece8ca5a6d05dccd3d26c9857c2a86f"
     },
     {
       "applies_to": [
@@ -7029,17 +7051,17 @@
   "protocol": "xfc-resolved-council-1",
   "schema_version": 1,
   "totals": {
-    "both_sides": 244,
+    "both_sides": 245,
     "by_area": {
       "binding": 58,
-      "foundation": 132,
+      "foundation": 133,
       "resolution": 128
     },
     "by_outcome": {
       "accept": 67,
-      "refuse": 243,
+      "refuse": 244,
       "route": 8
     },
-    "vectors": 318
+    "vectors": 319
   }
 }
