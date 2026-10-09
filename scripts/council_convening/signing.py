@@ -33,7 +33,8 @@ refused or routed and never judged by these rules.
 
 E7 STEP 5 READS THE HOLDER'S BINDING (E10). The binding's offline checks and its
 claim checks, with operation `seat_execution`, are the producer-binding module's
-(Phase 5, T054); `_check_holder_binding` is the one place this module calls it.
+(Phase 5, T054), `binding.check_binding`; `_check_holder_binding` is the one
+place this module calls it.
 Brett Heap's OPEN-3 follow-up 3 (2026-10-08), "At or after the frozen rev
 (Recommended)", is applied there: a seat job's workflow commit must be on the
 governed first-parent history at or after the snapshot's frozen revision.
@@ -48,10 +49,13 @@ import base64
 import binascii
 import hashlib
 import re
+import tempfile
 from datetime import datetime, timezone
 from functools import lru_cache
+from pathlib import Path
 from typing import Any, Mapping
 
+from . import binding as producer_binding
 from . import classification, records
 from ..signed_execution_chain import canonical, ed25519
 
@@ -361,16 +365,24 @@ def _check_holder_binding(binding: Mapping[str, Any], *, governed: Mapping[str, 
     E10 steps 7 to 14 on the seat job's verified claims with operation
     `seat_execution`, step 14 applying the seat rule against the snapshot's
     FROZEN `governed` member. The producer-binding module (Phase 5, T054) owns
-    every one of those steps; this is the one place they are called from."""
-    try:
-        from . import binding as producer_binding
-    except ImportError as exc:
-        raise records.SchemaLoadError(
-            "the producer-binding module (Phase 5, T054) has not landed at this commit, "
-            "and registration reads the holder's binding (data-model E7 step 5)") from exc
-    producer_binding.check_seat_job(
-        binding, governed=governed, environment=environment,
-        evaluation_time=evaluation_time, schemas=schemas)
+    every one of those steps (`binding.check_binding`); this is the one place
+    they are called from.
+
+    The identity map is the environment's `repository_identity` oracle,
+    materialized under a temporary root exactly as a `binding` vector's is
+    (`binding.materialize_identity`), never the live map (R7-M1). An oracle
+    that cannot be materialized is a harness error, never a refusal."""
+    with tempfile.TemporaryDirectory(prefix="council-convening-identity-") as scratch:
+        try:
+            root = producer_binding.materialize_identity(
+                environment.get("repository_identity"), Path(scratch) / "root")
+        except ValueError as exc:
+            raise InconsistentEnvironment(str(exc)) from None
+        producer_binding.check_binding(
+            binding, operation="seat_execution",
+            identity=environment.get("identity"), governed=governed,
+            governed_history=environment.get("governed_history"),
+            evaluation_time=evaluation_time, identity_root=root, schemas=schemas)
 
 
 def check_registration(registration: Any, *, snapshot: Mapping[str, Any],

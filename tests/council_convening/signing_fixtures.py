@@ -247,7 +247,9 @@ def identity(seat: str, **claims) -> dict:
             "aud": AUDIENCE,
             "sub": f"repo:{CALLER_REPOSITORY}:environment:{environment_name(seat)}",
             "nbf": EVALUATION_EPOCH - 60,
-            "exp": EVALUATION_EPOCH + 300,
+            # The token outlives the challenge (01:10:00 against 01:05:00), so E7
+            # step 5's window check never masks a step 6 challenge expiry.
+            "exp": EVALUATION_EPOCH + 600,
             "repository": CALLER_REPOSITORY,
             "repository_id": str(CALLER_REPOSITORY_ID),
             "environment": environment_name(seat),
