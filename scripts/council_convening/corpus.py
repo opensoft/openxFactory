@@ -23,6 +23,10 @@ WHAT IS CHECKED, AND UNDER WHICH CODE.
   exists for the vector's boundary at this commit.
 * `council-convening-vector-registry-status-missing`: the answer read a registry
   status and the vector carries no `registry_status` override for it.
+* `council-convening-vector-identity-map-missing`: from Phase 5, a vector whose
+  boundary reads the repository identity map (`binding`, `registration`,
+  `admission`) carries no `repository_identity` oracle. Such a vector is not
+  adjudicated: its outcome would depend on a map no digest covers.
 * `council-convening-refusal-code-without-probe`,
   `council-convening-finding-code-without-probe` and
   `council-convening-requirement-without-probe`: coverage AT THE COMMIT. Every
@@ -35,10 +39,17 @@ would disagree on what a vector says. For the same reason a corpus file carries
 no integral number spelled as a float (`2.0`, `2e0`; `IntegralFloatToken`).
 
 THE DISPATCH TABLE. Phase 1 registers `definition` and `classification`,
-Phase 2 `commission` and `admission` (handled in `resolution`), and Phase 6
-`selection`, `activation` and `historical` (handled in `migration`). Each later
-phase registers its boundaries through `register_handler`, naming the oracles its
-vectors may carry.
+Phase 2 `commission` and `admission` (handled in `resolution`), Phase 5
+`binding` (data-model E10), and Phase 6 `selection`, `activation` and
+`historical` (handled in `migration`). Each later phase registers its
+boundaries through `register_handler`, naming the oracles its vectors may carry.
+
+THE FIXTURES (Phase 5). The index's `fixtures` lists every corpus-owned fixture
+with its raw SHA-256, in bytewise path order, under the same closure: a file
+under `conformance/` is a `cases` row or a `fixtures` row. The one fixture is the
+frozen identity map, `fixtures/repository-identity.json` (round 7, R7-M1): the
+map text every map-reading vector carries, so no vector's outcome depends on the
+live `contracts/policies/repository-identity.yaml`.
 """
 
 from __future__ import annotations
@@ -50,7 +61,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
-from . import classification, records
+from . import binding, classification, records
 
 CONFORMANCE_REL = records.FAMILY_REL / "conformance"
 INDEX_NAME = "index.json"
@@ -69,7 +80,21 @@ ORACLES = ("governed_history", "governed", "governed_repositories", "rules", "fa
            "repository_identity", "registry_status")
 
 INDEX_MEMBERS = ("schema_version", "kind", "corpus_id", "protocol", "coverage_floor",
-                 "cases", "totals")
+                 "cases", "totals", "fixtures")
+FIXTURE_ROW_MEMBERS = ("name", "path", "sha256")
+FIXTURE_KIND = "openxfactory-council-convening-conformance-fixture"
+FIXTURE_MEMBERS = ("schema_version", "kind", "name", "text")
+#: The corpus-owned fixtures, closed: name to path relative to `conformance/`.
+FIXTURES = {"repository-identity": "fixtures/repository-identity.json"}
+IDENTITY_FIXTURE = FIXTURES["repository-identity"]
+
+#: The boundaries whose vectors read the repository identity map at this
+#: commit, and so must carry the `repository_identity` oracle
+#: (contracts/conformance-corpus.md): `binding` and `registration`, which runs
+#: E10 at E7 step 5. `admission` joins in the commit that runs binding inside the
+#: admission handler (E2 steps A1 and A4; T055), which re-authors every
+#: admission vector to carry the oracle (T051).
+IDENTITY_MAP_BOUNDARIES = ("binding", "registration")
 ROW_MEMBERS = ("case_id", "area", "boundary", "applies_to", "requirement_ids", "path",
                "sha256", "expected")
 ROW_FROM_VECTOR = ("case_id", "area", "boundary", "applies_to", "requirement_ids",
@@ -310,8 +335,29 @@ def _classification(vector: Mapping[str, Any], context: Context) -> records.Outc
         raise NotAdjudicable(str(exc)) from None
 
 
+def _binding(vector: Mapping[str, Any], context: Context) -> records.Outcome:
+    """The `binding` boundary, data-model E10 steps 1 to 14 (Phase 5). The map is
+    the vector's own `repository_identity` oracle, materialized under a
+    temporary root, never the live file (R7-M1)."""
+    inputs = _closed_inputs(vector["inputs"], ("binding", "operation", "governed"))
+    if inputs["operation"] not in binding.OPERATIONS:
+        raise VectorInputError("inputs.operation is not commission or seat_execution")
+    if not isinstance(inputs["governed"], dict):
+        raise VectorInputError("inputs.governed is not an object")
+    joined = dict(vector)
+    joined["inputs"] = join_parts(vector["inputs"])
+    joined["environment"] = join_parts(vector.get("environment", {}))
+    try:
+        outcome, code = binding.evaluate_vector(joined, schemas=context.schemas)
+    except ValueError as exc:
+        raise VectorInputError(f"the binding vector cannot be run: {exc}") from None
+    return records.Outcome(outcome, code)
+
+
 register_handler("definition", _definition)
 register_handler("classification", _classification, oracles=("registry_status",))
+register_handler("binding", _binding,
+                 oracles=("identity", "repository_identity", "governed_history"))
 
 # Phase 2 (T032): the commission record's two boundaries (data-model E2). The
 # handler lives in `resolution`, which imports this module only inside the
@@ -470,9 +516,10 @@ def totals_for(rows: list[Mapping[str, Any]]) -> dict[str, Any]:
 
 
 def build_index(entries: Iterable[tuple[str, bytes, Mapping[str, Any]]],
-                coverage_floor: Iterable[str], protocol: str) -> dict[str, Any]:
-    """The index for `(path, raw bytes, vector)` entries, paths relative to
-    `conformance/`."""
+                coverage_floor: Iterable[str], protocol: str,
+                fixtures: Iterable[tuple[str, str, bytes]] = ()) -> dict[str, Any]:
+    """The index for `(path, raw bytes, vector)` entries and `(name, path, raw
+    bytes)` fixtures, paths relative to `conformance/`."""
     rows = []
     for path, raw, vector in sorted(entries, key=lambda entry: _path_order(entry[0])):
         row = {member: vector[member] for member in ROW_FROM_VECTOR}
@@ -487,6 +534,9 @@ def build_index(entries: Iterable[tuple[str, bytes, Mapping[str, Any]]],
         "coverage_floor": list(coverage_floor),
         "cases": rows,
         "totals": totals_for(rows),
+        "fixtures": [{"name": name, "path": path, "sha256": raw_sha256(raw)}
+                     for name, path, raw in sorted(fixtures,
+                                                   key=lambda f: _path_order(f[1]))],
     }
 
 
@@ -525,6 +575,14 @@ def adjudication_findings(label: str, vector: Mapping[str, Any],
     reference reproduced its expectation. Shared by the corpus check and by
     `check` on a single vector, so the two can never judge a vector differently.
     """
+    if (vector["boundary"] in IDENTITY_MAP_BOUNDARIES
+            and "repository_identity" not in vector.get("environment", {})):
+        # Phase 5: not adjudicated, because its outcome would depend on a map
+        # no digest covers (R7-M1).
+        return [_error(
+            "council-convening-vector-identity-map-missing",
+            f"{label}: boundary {vector['boundary']} reads the repository identity "
+            f"map, and the vector carries no repository_identity oracle")], False
     try:
         outcome = adjudicate(vector, context)
     except (VectorInputError, PartsError) as exc:
@@ -584,6 +642,8 @@ def index_problems(index: Any, registry: classification.Registry) -> list[str]:
         problems.append("the index's coverage_floor is not a list of distinct FR/SC ids")
     if not isinstance(index.get("cases"), list):
         problems.append("the index's cases is not a list")
+    if not isinstance(index.get("fixtures"), list):
+        problems.append("the index's fixtures is not a list")
     totals = index.get("totals")
     if not isinstance(totals, dict) or set(totals) != set(TOTALS_MEMBERS):
         problems.append(f"the index's totals is not exactly {{{', '.join(TOTALS_MEMBERS)}}}")
@@ -649,9 +709,10 @@ def check_corpus(root: Path | None = None, schemas: records.SchemaSet | None = N
     case_ids = [row.get("case_id") for row in rows]
     if len(set(map(str, case_ids))) != len(case_ids):
         closure("a case_id is repeated")
+    fixture_paths = _check_fixtures(index, conformance, findings, closure)
     on_disk = corpus_files(conformance)
     for path in on_disk:
-        if path not in string_paths:
+        if path not in string_paths and path not in fixture_paths:
             closure(f"{path} is under conformance/ and not indexed")
 
     vectors: list[Mapping[str, Any]] = []
@@ -734,6 +795,54 @@ def check_corpus(root: Path | None = None, schemas: records.SchemaSet | None = N
     report.requirements_probed = (sum(r in cited for r in report.coverage_floor),
                                   len(report.coverage_floor))
     return report
+
+
+def _check_fixtures(index: Mapping[str, Any], conformance: Path,
+                    findings: list[Finding], closure: Callable[[str], None]) -> set[str]:
+    """Check the index's `fixtures` rows and the files they name. Returns the
+    paths the rows name, for the closure."""
+    rows = index.get("fixtures")
+    if not isinstance(rows, list):
+        return set()
+    paths: list[str] = []
+    for row in rows:
+        if not isinstance(row, dict) or set(row) != set(FIXTURE_ROW_MEMBERS):
+            closure("a fixtures row is not exactly {name, path, sha256}")
+            continue
+        name, path = row["name"], row["path"]
+        if not isinstance(path, str) or FIXTURES.get(name) != path:
+            closure("a fixtures row names no corpus fixture at its own path")
+            continue
+        paths.append(path)
+        file = conformance / path
+        if not file.is_file():
+            closure(f"{path} is indexed and absent")
+            continue
+        raw = file.read_bytes()
+        if row["sha256"] != raw_sha256(raw):
+            findings.append(_error("council-convening-index-digest",
+                                   f"{path}: the row's sha256 is not the file's raw bytes"))
+        form = byte_form_problem(raw)
+        if form:
+            findings.append(_error("council-convening-schema", f"{path} {form}"))
+        try:
+            fixture = loads_strict(raw.decode("utf-8"))
+        except (UnicodeDecodeError, ValueError):
+            findings.append(_error("council-convening-schema",
+                                   f"{path} does not parse as strict JSON"))
+            continue
+        if (not isinstance(fixture, dict) or set(fixture) != set(FIXTURE_MEMBERS)
+                or not (_is_int(fixture.get("schema_version"))
+                        and fixture["schema_version"] == 1)
+                or fixture.get("kind") != FIXTURE_KIND or fixture.get("name") != name
+                or not isinstance(fixture.get("text"), str)):
+            findings.append(_error(
+                "council-convening-schema",
+                f"{path}: is not a corpus fixture {{schema_version: 1, kind: "
+                f"{FIXTURE_KIND}, name, text}} named as its row"))
+    if paths != sorted(paths, key=_path_order) or len(set(paths)) != len(paths):
+        closure("fixtures rows are not in bytewise UTF-8 order of path, or repeat one")
+    return set(paths)
 
 
 def _summary(expected: Mapping[str, Any]) -> str:

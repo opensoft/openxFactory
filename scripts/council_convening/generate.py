@@ -19,6 +19,17 @@ did not produce (U12). The generator's Phase 1 job is to hold them in one byte
 form and to derive the index from them. The signing vectors of Phase 4 are built
 here from labelled keys.
 
+THE IDENTITY MAP IS THE FROZEN FIXTURE, NEVER THE LIVE FILE (Phase 5, T055;
+round 7, R7-M1). The generator reads `conformance/fixtures/repository-identity.json`
+and writes its `text` into every vector that carries the `repository_identity`
+oracle in its `text` state, so each such vector carries the fixture's text "as
+generated". The one exception is the malformed-row probe of
+`repository_identity_unavailable`, whose text is malformed on purpose. It never
+reads `contracts/policies/repository-identity.yaml`, so an edit to the live map,
+which other lanes' changes make, moves no vector and fails no `--check`. It also
+writes the fixture itself in the deterministic form, and its row in the index's
+`fixtures`.
+
 `--check` regenerates into a temporary tree and compares bytes, file by file,
 with the committed corpus. A difference, a missing file or a file the generator
 would not produce is drift (`council-convening-generator-drift`).
@@ -110,6 +121,43 @@ def _conformance(root: Path) -> Path:
     return root / corpus.CONFORMANCE_REL
 
 
+#: The refusal whose probe carries a malformed map text on purpose.
+UNAVAILABLE = "repository_identity_unavailable"
+
+
+def _fixtures(conformance: Path) -> dict[str, tuple[str, dict]]:
+    """The corpus-owned fixtures present under `conformance/`: name to `(path,
+    document)`. Raises `ValueError` on one that does not parse."""
+    found: dict[str, tuple[str, dict]] = {}
+    for name, relative in corpus.FIXTURES.items():
+        path = conformance / relative
+        if not path.is_file():
+            continue
+        try:
+            document = corpus.loads_strict(path.read_text(encoding="utf-8"))
+        except (UnicodeDecodeError, ValueError) as exc:
+            raise ValueError(f"{relative} does not parse as strict JSON") from exc
+        found[name] = (relative, document)
+    return found
+
+
+def _with_fixture_text(vector: dict, fixture_text: str | None, relative: str) -> dict:
+    """`vector` with the identity fixture's text in its `repository_identity`
+    oracle, where it carries one in its `text` state."""
+    oracle = (vector.get("environment") or {}).get("repository_identity")
+    if not isinstance(oracle, dict) or oracle.get("state") != "text":
+        return vector
+    if (vector.get("expected") or {}).get("refusal") == UNAVAILABLE:
+        return vector
+    if fixture_text is None:
+        raise ValueError(f"{relative} reads the identity map and the corpus has no "
+                         f"{corpus.IDENTITY_FIXTURE}")
+    vector = dict(vector)
+    vector["environment"] = dict(vector["environment"])
+    vector["environment"]["repository_identity"] = {"state": "text", "text": fixture_text}
+    return vector
+
+
 def render(root: Path | None = None) -> dict[str, bytes]:
     """Every corpus file the generator produces, keyed by its path relative to
     `conformance/`.
@@ -119,6 +167,8 @@ def render(root: Path | None = None) -> dict[str, bytes]:
     (so one malformed vector is a finding and never a `KeyError` out of
     `build_index`), and for a registry that is not closed: the index takes its
     `protocol` from the registry, and nothing is derived from one that moved.
+    Also for a fixture that does not parse, and for a map-reading vector when the
+    corpus has no identity fixture to carry (Phase 5).
     """
     root = Path(root) if root is not None else records.REPO_ROOT
     conformance = _conformance(root)
@@ -126,6 +176,16 @@ def render(root: Path | None = None) -> dict[str, bytes]:
     registry = classification.load_closed_registry(root, schemas)
     out: dict[str, bytes] = {}
     entries = []
+    fixtures = _fixtures(conformance)
+    fixture_rows = []
+    for name, (relative, document) in fixtures.items():
+        raw = corpus.dump_json(document)
+        out[relative] = raw
+        fixture_rows.append((name, relative, raw))
+    identity = fixtures.get("repository-identity")
+    fixture_text = identity[1].get("text") if identity else None
+    if identity and not isinstance(fixture_text, str):
+        raise ValueError(f"{corpus.IDENTITY_FIXTURE} carries no text")
     vectors_dir = conformance / "vectors"
     sources = sorted(vectors_dir.rglob("*.json")) if vectors_dir.is_dir() else []
     for path in sources:
@@ -140,10 +200,12 @@ def render(root: Path | None = None) -> dict[str, bytes]:
         problems = corpus.vector_format_problems(schemas, vector)
         if problems:
             raise ValueError(f"{relative} breaks the vector format: " + "; ".join(problems))
+        vector = _with_fixture_text(vector, fixture_text, relative)
         raw = corpus.dump_json(vector)
         out[relative] = raw
         entries.append((relative, raw, vector))
-    index = corpus.build_index(entries, COVERAGE_FLOOR, registry.replacement_id)
+    index = corpus.build_index(entries, COVERAGE_FLOOR, registry.replacement_id,
+                               fixture_rows)
     out[corpus.INDEX_NAME] = corpus.dump_json(index)
     return out
 

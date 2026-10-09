@@ -48,8 +48,9 @@ description: >-
   Phase 1 codes, the twenty-nine Phase 2 codes of the commission record, the two
   Phase 4 codes the activation order also gives (`binding_unresolved`,
   `broker_capability_insufficient`, added with Phase 6, whose vectors probe them
-  first on this branch) and the seven Phase 6 codes of selection and activation
-  evidence; `finding_code` holds the route's two findings, complete at Phase 6.
+  first on this branch), the thirteen Phase 5 codes of the producer binding and
+  the seven Phase 6 codes of selection and activation evidence; `finding_code`
+  holds the route's two findings, complete at Phase 6.
   Each later phase adds its
   codes here, in the task that authors its schemas, and the validator requires
   every member at a commit to be probed by a corpus vector
@@ -184,10 +185,11 @@ $defs:
       head_sha: {$ref: '#/$defs/full_sha'}
       subject_path: {$ref: '#/$defs/relative_path'}
   refusal_code:
-    # CLOSED AT THE PHASE 1 FIVE, THE PHASE 2 TWENTY-NINE, PHASE 4'S TWO BINDING
-    # CODES AND THE PHASE 6 SEVEN. Phase 2 (T028) added the commission and
-    # admission codes, in data-model § Refusal vocabulary order; each later phase
-    # adds its own, in the task that authors its schemas.
+    # CLOSED AT THE CODES AS LANDED: the Phase 1 five, the Phase 2
+    # twenty-nine (T028, in data-model § Refusal vocabulary order), Phase 4's
+    # two binding codes (added early, with Phase 6), the Phase 5 thirteen and
+    # the Phase 6 seven; each later phase adds its own, in the task that
+    # authors its schemas.
     description: The closed refusal vocabulary as landed at this commit.
     type: string
     enum:
@@ -232,6 +234,22 @@ $defs:
       # extension keeps this one copy.
       - binding_unresolved
       - broker_capability_insufficient
+      # Phase 5 (T053): the producer binding, data-model E10. Introduced here,
+      # where `binding` vectors and admission vectors probe them, and reused by
+      # registration in Phase 4 (E7 step 5).
+      - binding_malformed
+      - claims_unverified
+      - claims_expired
+      - issuer_mismatch
+      - audience_mismatch
+      - binding_wildcard
+      - repository_identity_unavailable
+      - repository_identity_former
+      - repository_identity_mismatch
+      - subject_template_mismatch
+      - subject_workflow_conflation
+      - workflow_not_permitted
+      - workflow_revision_ungoverned
       # Phase 6 (T060): protocol selection (data-model E11) and activation
       # evidence (E12).
       - selection_malformed

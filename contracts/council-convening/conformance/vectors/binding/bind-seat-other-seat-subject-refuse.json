@@ -1,0 +1,108 @@
+{
+  "applies_to": [
+    "consumer"
+  ],
+  "area": "binding",
+  "boundary": "binding",
+  "case_id": "bind-seat-other-seat-subject-refuse",
+  "environment": {
+    "governed_history": {
+      "codeXfactory/codexFactory@3333333333333333333333333333333333333333": {
+        "at_or_after": [
+          "3333333333333333333333333333333333333333"
+        ],
+        "on_first_parent": true
+      },
+      "codeXfactory/codexFactory@4444444444444444444444444444444444444444": {
+        "at_or_after": [
+          "3333333333333333333333333333333333333333",
+          "4444444444444444444444444444444444444444"
+        ],
+        "on_first_parent": true
+      },
+      "codeXfactory/codexFactory@6666666666666666666666666666666666666666": {
+        "at_or_after": [
+          "3333333333333333333333333333333333333333",
+          "4444444444444444444444444444444444444444",
+          "6666666666666666666666666666666666666666"
+        ],
+        "on_first_parent": true
+      },
+      "codeXfactory/codexFactory@9999999999999999999999999999999999999999": {
+        "at_or_after": [],
+        "on_first_parent": false
+      }
+    },
+    "identity": {
+      "claims": {
+        "aud": "council-convening-corpus-audience",
+        "exp": 1791504300,
+        "iat": 1791503940,
+        "iss": "https://token.actions.githubusercontent.com",
+        "job_workflow_ref": "codeXfactory/codexFactory/.github/workflows/corpus-seat.yml@refs/heads/main",
+        "job_workflow_sha": "6666666666666666666666666666666666666666",
+        "nbf": 1791503940,
+        "repository": "opensoft/xFactory",
+        "repository_id": "424242",
+        "sub": "repo:opensoft/xFactory:environment:corpus-seat-beta"
+      },
+      "principal": {
+        "principal_kind": "github_oidc_job",
+        "principal_ref": "corpus-seat-alpha-binding"
+      },
+      "verified": true
+    },
+    "repository_identity": {
+      "state": "text",
+      "text": "# The frozen identity fixture of the council-convening conformance corpus.\n# Corpus-owned and NOT the live contracts/policies/repository-identity.yaml:\n# one complete transfer row and one pending row, in the live map's shape.\nschema_version: 1\nkind: repository_identity\npolicy_id: repository-identity-v1\ntransfers:\n  - former: opensoft/codexFactory\n    current: codeXfactory/codexFactory\n    transferred_on: 2026-09-09\n    transfer_state: complete\n  - former: opensoft/ExampleFactory\n    current: ExampleOrg/ExampleFactory\n    transferred_on: null\n    transfer_state: pending\n"
+    }
+  },
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "subject_template_mismatch"
+  },
+  "inputs": {
+    "binding": {
+      "audience": "council-convening-corpus-audience",
+      "binding_id": "corpus-seat-alpha-binding",
+      "broker": {
+        "broker_ref": "corpus-broker",
+        "capability_verified": true,
+        "evidence_ref": "corpus-broker-evidence"
+      },
+      "caller_repository": "opensoft/xFactory",
+      "issuer": "https://token.actions.githubusercontent.com",
+      "kind": "xfactory_council_producer_binding",
+      "permitted_workflows": [
+        {
+          "job_workflow_ref": "codeXfactory/codexFactory/.github/workflows/corpus-seat.yml@refs/heads/main",
+          "operation": "seat_execution",
+          "workflow_revision_rule": "on_governed_history_since_revision"
+        }
+      ],
+      "principal_kind": "github_oidc_job",
+      "protocol": "xfc-resolved-council-1",
+      "repository_id": 424242,
+      "schema_version": 1,
+      "subject_claim_keys": [
+        "repo",
+        "context"
+      ],
+      "subject_template": "repo:opensoft/xFactory:environment:corpus-seat-alpha"
+    },
+    "governed": {
+      "repository": "codeXfactory/codexFactory",
+      "revision": "4444444444444444444444444444444444444444"
+    },
+    "operation": "seat_execution"
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-009"
+  ],
+  "schema_version": 1
+}

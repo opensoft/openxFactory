@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.council_convening import corpus, generate
+from scripts.council_convening import corpus, generate, records
 from scripts.signed_execution_chain import ed25519
 
 from .conftest import CONFORMANCE, FAMILY_REL, INDEX, LEGACY, REPLACEMENT
@@ -140,17 +140,21 @@ def test_phase_1_vectors_are_foundation_vectors_for_both_sides():
 
 def test_the_areas_landed_at_this_commit():
     """Phase 2 adds the `resolution` area, at boundaries `commission` and
-    `admission`, and Phase 6 the `migration` area, at boundaries `classification`,
-    `historical`, `selection` and `activation`; every vector of both is
-    hand-authored."""
+    `admission`; Phase 5 the `binding` area, at boundary `binding`; and Phase 6
+    the `migration` area, at boundaries `classification`, `historical`,
+    `selection` and `activation`. Every vector of the three is hand-authored."""
     rows = _index_doc()["cases"]
-    assert {row["area"] for row in rows} == {"foundation", "resolution", "migration"}
+    assert {row["area"] for row in rows} == {"foundation", "resolution", "binding",
+                                             "migration"}
     boundaries = {"resolution": ("commission", "admission"),
                   "migration": ("classification", "historical", "selection",
                                 "activation")}
     for row in rows:
         if row["area"] in boundaries:
             assert row["boundary"] in boundaries[row["area"]]
+            assert _load(CONFORMANCE / row["path"])["expected"]["derived_origin"] == "hand"
+        if row["area"] == "binding":
+            assert row["boundary"] == "binding"
             assert _load(CONFORMANCE / row["path"])["expected"]["derived_origin"] == "hand"
 
 
@@ -313,9 +317,13 @@ def test_the_json_byte_form(family_tree, mutate):
 
 
 def test_an_unhandled_boundary_at_this_commit_is_not_adjudicated(family_tree):
-    row = _first_row(family_tree, outcome="accept")
+    # A foundation vector, moved to a boundary no phase has landed a handler for
+    # yet. (`commission` was Phase 1's choice; Phase 2 now handles it, and the
+    # `binding` vectors, which sort first, carry oracles it does not take.)
+    row = next(r for r in _rows(family_tree)
+               if r["area"] == "foundation" and r["expected"]["outcome"] == "accept")
     vector = _load(_vector_path(family_tree, row))
-    vector["boundary"] = "commission"                  # Phase 2's
+    vector["boundary"] = "selection"                   # Phase 6's
     _rewrite_vector(family_tree, row, vector)
     assert "council-convening-vector-outcome-mismatch" in _codes(family_tree)
 
@@ -410,9 +418,11 @@ def test_every_coverage_floor_requirement_needs_a_probe(family_tree):
 
 def test_the_landed_coverage_counts():
     report = corpus.check_corpus()
-    # Phase 1's five refusal codes, Phase 2's twenty-nine (T028), Phase 4's two
-    # binding codes and Phase 6's seven (T060); Phase 6's finding (T060).
-    assert report.refusals_probed == (43, 43)
+    # Every refusal code as landed at this commit, which each phase grows; the
+    # route's two findings, complete at Phase 6 (T060); and the floor's seven.
+    landed = len(records.load_schemas().enum("refusal_code"))
+    assert landed >= 5
+    assert report.refusals_probed == (landed, landed)
     assert report.findings_probed == (2, 2)
     assert report.requirements_probed == (7, 7)
     assert report.coverage_floor == ["FR-001", "FR-002", "FR-003", "FR-004",
