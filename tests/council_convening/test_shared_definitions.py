@@ -417,9 +417,9 @@ def test_refusal_code_opens_with_exactly_the_phase_1_to_phase_3_codes(
     assert malformed(schemas, "refusal_code", "no_such_refusal")
 
 
-#: Phase 4's two binding codes, which the activation order gives too, added with
-#: Phase 6 (T060), and the seven Phase 6 codes of selection and activation
-#: evidence (data-model § Refusal vocabulary).
+#: Phase 4's two binding codes (T046), which the activation order gives too
+#: (E12 step 3), and the seven Phase 6 codes of selection and activation evidence
+#: (T060; data-model § Refusal vocabulary).
 PHASE_4_BINDING_REFUSALS = ["binding_unresolved", "broker_capability_insufficient"]
 PHASE_6_REFUSALS = [
     "selection_malformed", "pair_mismatched", "rejected_without_fallback",
