@@ -21,7 +21,8 @@ Two entry points carry the evaluation order's two predicate steps:
 THE REGISTRY INSTANCE IS CLOSED BY THIS MODULE. `RATIFIED_REGISTRY` is the
 ratified content of `contracts/council-convening/predicate.registry.yaml` with
 its prose removed, and `registry_findings` refuses an instance that differs
-from it in any member (`council-convening-registry-closure`). The semantics
+from it in any member (`council-convening-registry-closure`), beside the
+instance's schema findings, in the protocol registry's `(code, message)` form. The semantics
 below read the frozen constants, never the instance, so an edited instance can
 change nothing except the finding it raises.
 """
@@ -30,10 +31,17 @@ from __future__ import annotations
 
 import functools
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Mapping
+
+import yaml
 
 from . import records
 from .records import Refused
+
+REGISTRY_REL = records.FAMILY_REL / "predicate.registry.yaml"
+REGISTRY_SCHEMA_ID = records.ID_BASE + "predicate-registry.schema.yaml"
+REGISTRY_KIND = "xfactory_council_predicate_registry"
 
 PR_FACTS = "pr_facts"
 RULE_FACTS = "rule_facts"
@@ -134,13 +142,35 @@ def _without_prose(value: Any) -> Any:
     return value
 
 
-def registry_findings(instance: Any) -> list[str]:
-    """`council-convening-registry-closure` unless `instance` is the ratified
-    registry, member for member, prose aside. Its SHAPE is the schema's to
-    judge; this judges the SET."""
-    if _without_prose(instance) != RATIFIED_REGISTRY:
-        return ["council-convening-registry-closure"]
-    return []
+def load_registry_doc(root: Path | None = None) -> Any:
+    """The registry instance under `root`, parsed and not yet judged."""
+    root = Path(root) if root is not None else records.REPO_ROOT
+    path = root / REGISTRY_REL
+    try:
+        return yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError) as exc:
+        raise records.SchemaLoadError(
+            f"{REGISTRY_REL.as_posix()}: unreadable ({type(exc).__name__})") from exc
+    except yaml.YAMLError as exc:
+        raise records.SchemaLoadError(f"{REGISTRY_REL.as_posix()}: does not parse") from exc
+
+
+def registry_findings(schemas: records.SchemaSet, document: Any) -> list[tuple[str, str]]:
+    """Schema and closure findings for a predicate registry instance, as
+    `(code, message)`, in the protocol registry's form. Its SHAPE is the schema's
+    to judge; the SET is this module's: the instance must be the ratified
+    registry, member for member, prose aside."""
+    findings: list[tuple[str, str]] = []
+    for error in schemas.errors(REGISTRY_SCHEMA_ID, document):
+        where = "/".join(map(str, error.absolute_path)) or "(root)"
+        findings.append(("council-convening-schema",
+                         f"predicate registry: fails `{error.validator}` at {where}"))
+    if _without_prose(document) != RATIFIED_REGISTRY:
+        findings.append(("council-convening-registry-closure",
+                         "predicate registry: differs from the registry as landed at this "
+                         "commit; adding, renaming, rebinding or widening a predicate, an "
+                         "input contract or a fact is a governed contract change"))
+    return findings
 
 
 def reads(predicate: str) -> tuple[str, ...]:
@@ -149,19 +179,19 @@ def reads(predicate: str) -> tuple[str, ...]:
 
 
 @functools.lru_cache(maxsize=1)
-def _schemas():
+def _default_schemas() -> records.SchemaSet:
     return records.load_schemas()
 
 
-def _is_relative_path(value: str) -> bool:
+def _is_relative_path(value: str, schemas: records.SchemaSet | None) -> bool:
     try:
-        _schemas().check_definition("relative_path", value)
+        (schemas or _default_schemas()).check_definition("relative_path", value)
     except Refused:
         return False
     return True
 
 
-def pattern_is_valid(pattern: Any) -> bool:
+def pattern_is_valid(pattern: Any, schemas: records.SchemaSet | None = None) -> bool:
     """An exact `relative_path`, or a `relative_path` followed by `/**`, with no
     `*`, `?` or `[` anywhere else (R5)."""
     if not isinstance(pattern, str):
@@ -169,7 +199,7 @@ def pattern_is_valid(pattern: Any) -> bool:
     base = pattern[:-len(TREE_SUFFIX)] if pattern.endswith(TREE_SUFFIX) else pattern
     if any(mark in base for mark in _WILDCARDS):
         return False
-    return _is_relative_path(base)
+    return _is_relative_path(base, schemas)
 
 
 def matches(pattern: str, path: str) -> bool:
@@ -180,8 +210,10 @@ def matches(pattern: str, path: str) -> bool:
     return path == pattern
 
 
-def check_condition(predicate: Any, input_contract: Any, parameters: Any) -> None:
-    """E2 step 8 for one condition."""
+def check_condition(predicate: Any, input_contract: Any, parameters: Any,
+                    schemas: records.SchemaSet | None = None) -> None:
+    """E2 step 8 for one condition. `schemas` is the boundary's schema set (the
+    checkout's own when omitted), whose `relative_path` grammar the patterns use."""
     if not isinstance(predicate, str) or predicate not in PREDICATES:
         raise Refused("predicate_unknown", "predicate")
     spec = PREDICATES[predicate]
@@ -193,7 +225,7 @@ def check_condition(predicate: Any, input_contract: Any, parameters: Any) -> Non
     if not isinstance(patterns, list) or not MIN_PATTERNS <= len(patterns) <= MAX_PATTERNS:
         raise Refused("predicate_parameters_malformed", spec.parameter)
     for pattern in patterns:
-        if not pattern_is_valid(pattern):
+        if not pattern_is_valid(pattern, schemas):
             raise Refused("predicate_parameters_malformed", spec.parameter)
 
 

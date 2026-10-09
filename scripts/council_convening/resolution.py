@@ -54,6 +54,7 @@ from .records import Refused
 
 REPLACEMENT = "xfc-resolved-council-1"
 KIND = "xfactory_council_convening"
+SCHEMA_ID = records.ID_BASE + "council-convening.schema.yaml"
 DIGEST_SUBJECT = "council_convening"
 BOUNDARIES = ("commission", "admission")
 BOTH_SIDES = ["producer", "consumer"]
@@ -72,10 +73,11 @@ class HarnessError(Exception):
 class Routed(Exception):
     """A legacy record routed to the legacy verifier: no verdict from this family."""
 
-    def __init__(self, findings, derived):
+    def __init__(self, outcome: records.Outcome):
         super().__init__("routed to the legacy verifier")
-        self.findings = tuple(findings)
-        self.derived = dict(derived)
+        self.outcome = outcome
+        self.findings = tuple(outcome.findings)
+        self.derived = dict(outcome.derived)
 
 
 @dataclass(frozen=True)
@@ -199,12 +201,12 @@ def secret_patterns() -> tuple:
 
 
 @functools.lru_cache(maxsize=1)
-def _schemas():
+def _default_schemas() -> records.SchemaSet:
     return records.load_schemas()
 
 
 @functools.lru_cache(maxsize=1)
-def _registry():
+def _default_registry() -> classification.Registry:
     return classification.load_registry()
 
 
@@ -343,7 +345,10 @@ class _Run:
     boundary: str            # "commission", "admission" or "offline"
     oracles: Oracles | None
     expected_candidate: Mapping | None
+    schemas: records.SchemaSet
+    registry: classification.Registry
     skipped: list = field(default_factory=list)
+    status_read: bool = False
 
     @property
     def offline(self) -> bool:
@@ -358,10 +363,11 @@ class _Run:
         return False
 
 
-def _shape(record) -> None:
+def _shape(record, run: _Run) -> None:
     """Step 2: the schema, then the structural rules JSON Schema cannot state,
     then canonicalizability."""
-    _schemas().check_record(record, malformed="convening_malformed")
+    if run.schemas.errors(SCHEMA_ID, record):
+        raise Refused("convening_malformed", "record")
     prov = record["required_seats_provenance"]
     if ("class_inputs" in prov) != ("matched_class" in prov):
         raise Refused("convening_malformed", "class_inputs")
@@ -453,7 +459,7 @@ def _governed(record, run: _Run):
             raise Refused("governed_sources_mismatch", "sources")
     for source in governed["sources"]:
         try:
-            _schemas().check_definition("relative_path", source["path"])
+            run.schemas.check_definition("relative_path", source["path"])
         except Refused:
             raise Refused("rule_path_malformed", "path") from None
         if run.skip("rule_unavailable") | run.skip("rule_unauthorized (governed source)") | \
@@ -612,28 +618,34 @@ def _live_head(record, run: _Run) -> None:
             raise Refused("candidate_head_moved", "candidate")
 
 
-def _classify(record, selected_protocol, statuses) -> None:
-    """Step 1 (data-model E1), through the Phase 1 classification module."""
-    result = classification.classify_and_select(record, selected_protocol, _registry(),
-                                                statuses)
+def _classify(record, run: _Run, selected_protocol, statuses) -> None:
+    """Step 1 (data-model E1), through the Phase 1 classification module. A
+    selection that names no registry entry is a harness error."""
+    try:
+        result = classification.classify_and_select(record, selected_protocol,
+                                                    run.registry, statuses)
+    except KeyError:
+        raise HarnessError("the selected protocol names no registry entry") from None
+    run.status_read = run.status_read or result.status_read
     if result.outcome == "refuse":
         raise Refused(result.refusal, "protocol")
     if result.outcome == "route":
-        raise Routed(result.findings, result.derived)
+        raise Routed(result)
     # A replacement record of any other kind, or of none, is the schema's to
     # refuse at step 2 (`convening_malformed`), never a harness error.
 
 
 def _order(record, run: _Run, selected_protocol, statuses):
-    _classify(record, selected_protocol, statuses)                    # 1
-    _shape(record)                                                    # 2
+    _classify(record, run, selected_protocol, statuses)               # 1
+    _shape(record, run)                                               # 2
     _secrets(record)                                                  # 3
     _candidate(record, run)                                           # 4
     projection = _governed(record, run)                               # 5
     _council_and_class(record, projection, run)                       # 6, 7
     for condition in record["required_seats_provenance"]["conditions"]:
         predicates.check_condition(condition["predicate"],            # 8
-                                   condition["input_contract"], condition["parameters"])
+                                   condition["input_contract"], condition["parameters"],
+                                   run.schemas)
     in_use, sources = _record_facts(record)                           # 9
     reference = _authoritative(record, in_use, sources, run)          # 10
     _held_and_roster(record, reference, run)                          # 11, 12
@@ -643,7 +655,9 @@ def _order(record, run: _Run, selected_protocol, statuses):
 
 
 def resolve(record, *, boundary: str, selected_protocol, oracles: Oracles,
-            expected_candidate: Mapping | None = None, statuses=None) -> Resolution:
+            expected_candidate: Mapping | None = None, statuses=None,
+            schemas: records.SchemaSet | None = None,
+            registry: classification.Registry | None = None) -> Resolution:
     """E2 steps 1 to 13 at `commission` or `admission`.
 
     Returns the roster and digest, raises `Refused` with the first failing
@@ -652,7 +666,8 @@ def resolve(record, *, boundary: str, selected_protocol, oracles: Oracles,
     """
     if boundary not in BOUNDARIES:
         raise HarnessError("the commission record is judged at commission or admission")
-    run = _Run(boundary=boundary, oracles=oracles, expected_candidate=expected_candidate)
+    run = _Run(boundary=boundary, oracles=oracles, expected_candidate=expected_candidate,
+               schemas=schemas or _default_schemas(), registry=registry or _default_registry())
     return _order(record, run, selected_protocol, statuses)
 
 
@@ -663,12 +678,14 @@ class OfflineResult:
     not_checkable: tuple
 
 
-def check_offline(record) -> OfflineResult:
+def check_offline(record, schemas: records.SchemaSet | None = None,
+                  registry: classification.Registry | None = None) -> OfflineResult:
     """The E2 order with every oracle-dependent rule skipped and named, for
     `check`. Classification under an offline (null) selection has already routed
     a legacy record before this runs; a pass here is never evidence of
     admission."""
-    run = _Run(boundary="offline", oracles=None, expected_candidate=None)
+    run = _Run(boundary="offline", oracles=None, expected_candidate=None,
+               schemas=schemas or _default_schemas(), registry=registry or _default_registry())
     try:
         _order(record, run, None, None)
     except Refused as refused:
@@ -676,44 +693,85 @@ def check_offline(record) -> OfflineResult:
     return OfflineResult(None, None, tuple(run.skipped))
 
 
-def _outcome(vector, boundary) -> dict:
+#: The inputs each boundary takes at this commit. Phase 5 adds the binding and
+#: the operation to admission.
+INPUT_MEMBERS = {
+    "commission": frozenset({"record", "selected_protocol", "expected_candidate"}),
+    "admission": frozenset({"record", "selected_protocol"}),
+}
+
+#: The oracles a commission or admission vector may carry at this commit (R8).
+#: Phase 3 adds `issued` to admission, and Phase 5 `identity` and
+#: `repository_identity`.
+ORACLES_READ = ("governed_history", "governed", "governed_repositories", "rules", "facts",
+                "live_heads", "head_refs", "resolved_candidate", "registry_status")
+
+
+def _outcome_at(vector, boundary, schemas, registry) -> records.Outcome:
     inputs = vector.get("inputs")
-    environment = vector.get("environment")
+    environment = vector.get("environment", {})
     if not isinstance(inputs, Mapping) or "record" not in inputs or \
             "selected_protocol" not in inputs:
         raise HarnessError("a resolution vector lacks `inputs.record` or `selected_protocol`")
-    oracles = VectorOracles(environment if environment is not None else {})
-    expected = inputs.get("expected_candidate") if boundary == "commission" else None
-    statuses = environment.get("registry_status") if isinstance(environment, Mapping) else None
+    if not isinstance(environment, Mapping):
+        raise HarnessError("the vector's environment is not an object")
+    oracles = VectorOracles(environment)
+    run = _Run(boundary=boundary, oracles=oracles,
+               expected_candidate=inputs.get("expected_candidate") if boundary == "commission"
+               else None, schemas=schemas, registry=registry)
     try:
-        result = resolve(inputs["record"], boundary=boundary,
-                         selected_protocol=inputs["selected_protocol"], oracles=oracles,
-                         expected_candidate=expected, statuses=statuses)
+        result = _order(inputs["record"], run, inputs["selected_protocol"],
+                        environment.get("registry_status"))
     except Refused as refused:
-        return {"outcome": "refuse", "refusal": refused.code, "findings": [], "derived": {}}
+        return records.Outcome("refuse", refused.code, status_read=run.status_read)
     except Routed as routed:
-        return {"outcome": "route", "refusal": None, "findings": list(routed.findings),
-                "derived": routed.derived}
-    return {"outcome": "accept", "refusal": None, "findings": [],
-            "derived": {"required_seats": result.required_seats,
-                        "convening_digest": result.convening_digest}}
+        return routed.outcome
+    return records.Outcome("accept", derived={"required_seats": result.required_seats,
+                                              "convening_digest": result.convening_digest},
+                           status_read=run.status_read)
 
 
-def adjudicate(vector: Mapping) -> dict:
-    """The corpus handler for boundaries `commission` and `admission`.
+def _adjudicate(vector: Mapping, schemas, registry) -> records.Outcome:
+    boundary = vector.get("boundary")
+    if boundary not in BOUNDARIES:
+        raise HarnessError("not a commission or admission vector")
+    inputs = vector.get("inputs")
+    if isinstance(inputs, Mapping) and not set(inputs) <= INPUT_MEMBERS[boundary]:
+        raise HarnessError(f"inputs carry members boundary {boundary} does not take")
+    result = _outcome_at(vector, boundary, schemas, registry)
+    if boundary == "commission" and list(vector.get("applies_to", [])) == BOTH_SIDES:
+        consumer = _outcome_at(vector, "admission", schemas, registry)
+        if (consumer.outcome, consumer.refusal, consumer.findings) != (
+                result.outcome, result.refusal, result.findings):
+            raise HarnessError("a shared commission vector reaches another outcome through "
+                               "the consumer's admission resolution")
+    return result
+
+
+def adjudicate(vector: Mapping, schemas: records.SchemaSet | None = None,
+               registry: classification.Registry | None = None) -> dict:
+    """One commission or admission vector, already `$parts`-joined, as the
+    members a vector's `expected` compares.
 
     A SHARED commission vector is also run as the consumer runs it, through
     admission (conformance-corpus § How each side runs a shared vector). The two
     must agree; a vector they disagree on is malformed, a `HarnessError`.
     """
-    boundary = vector.get("boundary")
-    if boundary not in BOUNDARIES:
-        raise HarnessError("not a commission or admission vector")
-    result = _outcome(vector, boundary)
-    if boundary == "commission" and list(vector.get("applies_to", [])) == BOTH_SIDES:
-        consumer = _outcome(vector, "admission")
-        if (consumer["outcome"], consumer["refusal"], consumer["findings"]) != (
-                result["outcome"], result["refusal"], result["findings"]):
-            raise HarnessError("a shared commission vector reaches another outcome through "
-                               "the consumer's admission resolution")
-    return result
+    return _adjudicate(vector, schemas or _default_schemas(),
+                       registry or _default_registry()).as_expected()
+
+
+def corpus_handler(vector: Mapping, context) -> records.Outcome:
+    """The corpus dispatch table's handler for `commission` and `admission`
+    (T032). A vector this boundary cannot adjudicate is the corpus's
+    `VectorInputError`, reported as `council-convening-schema`."""
+    from . import corpus
+
+    try:
+        joined = {**vector, "inputs": corpus.join_parts(vector["inputs"]),
+                  "environment": corpus.join_parts(vector.get("environment", {}))}
+        return _adjudicate(joined, context.schemas, context.registry)
+    except HarnessError as error:
+        raise corpus.VectorInputError(str(error)) from None
+    except classification.EffectNotLanded as error:
+        raise corpus.NotAdjudicable(str(error)) from None

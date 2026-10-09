@@ -78,13 +78,24 @@ def registry_doc():
     return yaml.safe_load(REGISTRY.read_text(encoding="utf-8"))
 
 
-def test_the_registry_instance_is_closed_at_two_predicates_and_two_contracts(registry_doc):
+@pytest.fixture(scope="module")
+def schemas():
+    return records.load_schemas()
+
+
+def _closure_codes(schemas, document):
+    return [code for code, _ in predicates.registry_findings(schemas, document)]
+
+
+def test_the_registry_instance_is_closed_at_two_predicates_and_two_contracts(
+        registry_doc, schemas):
     assert registry_doc["schema_version"] == 1
     assert registry_doc["kind"] == "xfactory_council_predicate_registry"
     assert [p["predicate"] for p in registry_doc["predicates"]] == [CPI, RTSP]
     assert [c["input_contract"] for c in registry_doc["input_contracts"]] == [
         "pr_facts", "rule_facts"]
-    assert predicates.registry_findings(registry_doc) == []
+    assert predicates.registry_findings(schemas, registry_doc) == []
+    assert predicates.load_registry_doc() == registry_doc
 
 
 def test_the_registry_keeps_the_identifiers_the_governed_rules_declare(registry_doc):
@@ -123,15 +134,27 @@ def test_the_registry_instance_matches_the_module(registry_doc):
         {"fact": "rule_owner", "value": "path_list", "max_items": 1}), id="gained-fact"),
     pytest.param(lambda d: d["input_contracts"].pop(), id="lost-contract"),
 ])
-def test_a_registry_that_gained_lost_or_renamed_an_entry_is_refused(registry_doc, mutate):
+def test_a_registry_that_gained_lost_or_renamed_an_entry_is_refused(
+        registry_doc, schemas, mutate):
     mutated = copy.deepcopy(registry_doc)
     mutate(mutated)
-    assert "council-convening-registry-closure" in predicates.registry_findings(mutated)
+    assert "council-convening-registry-closure" in _closure_codes(schemas, mutated)
 
 
-def test_the_registry_conforms_to_its_schema(registry_doc):
-    schemas = records.load_schemas()
-    schemas.check_record(registry_doc, malformed="predicate_registry_malformed")
+def test_prose_may_change_without_breaking_closure(registry_doc, schemas):
+    mutated = copy.deepcopy(registry_doc)
+    mutated["predicates"][0]["description"] = "Reworded, with the same meaning."
+    assert predicates.registry_findings(schemas, mutated) == []
+
+
+def test_the_registry_conforms_to_its_schema(registry_doc, schemas):
+    assert schemas.errors(predicates.REGISTRY_SCHEMA_ID, registry_doc) == []
+
+
+def test_a_registry_that_breaks_its_schema_is_a_schema_finding(registry_doc, schemas):
+    mutated = copy.deepcopy(registry_doc)
+    mutated["unexpected_member"] = 1
+    assert "council-convening-schema" in _closure_codes(schemas, mutated)
 
 
 def test_the_registry_schema_carries_the_house_header():
