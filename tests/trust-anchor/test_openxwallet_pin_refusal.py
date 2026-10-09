@@ -3,7 +3,10 @@
 The trust-anchor family's chain-custody set does not restate openxWallet's
 custody model; it COMPOSES with it, reading
 `openXwallet/contracts/openxwallet/openxwallet-custody.registry.yaml` at run
-time. `split-openxwallet-repo` moved that parent set out of openxFactory and
+time — since `xwallet-v1.0` at
+`openXwallet/openWallet/code/contracts/openxwallet/openxwallet-custody.registry.yaml`,
+the openWallet code leg two nested levels below the gitlink.
+`split-openxwallet-repo` moved that parent set out of openxFactory and
 behind a nested submodule pinned by `contracts/openxwallet-pin.yaml`, which
 changes what the validator has to prove before it trusts the set. The old check
 was `is_file()` — a question about PRESENCE, adequate while the bytes were owned
@@ -22,7 +25,11 @@ NAMED CODES:
     revision both still agreeing. Digest is the only check that catches it.
 
 Both cases are built under `tmp_path` as a throwaway openxFactory-shaped tree
-with a FABRICATED pin and its own scratch wallet repository. Nothing here touches
+with a FABRICATED pin and its own scratch wallet repository — which since
+`xwallet-v1.0` is a CHAIN of three scratch repositories (openXwallet, its nested
+openWallet root, that root's code leg), each recording the next as a gitlink, so
+the verifier's nested-checkout parity holds before each single mutation. A third
+case, an uninitialized code leg, refuses by name too. Nothing here touches
 the real checkout: the conditions being tested are a broken submodule and
 corrupted pinned bytes, and inducing either in the working tree would leave the
 tree broken for whatever ran next — including the other suites in the same
@@ -52,7 +59,8 @@ VALIDATOR = REPO_ROOT / "scripts" / "validate-trust-anchor.py"
 VERIFIER = REPO_ROOT / "scripts" / "verify-openxwallet-pin.py"
 PIN_PATH = REPO_ROOT / "contracts" / "openxwallet-pin.yaml"
 
-REGISTRY_MEMBER = "contracts/openxwallet/openxwallet-custody.registry.yaml"
+REGISTRY_MEMBER = (
+    "openWallet/code/contracts/openxwallet/openxwallet-custody.registry.yaml")
 
 
 def _load(name: str, path: Path):
@@ -115,6 +123,19 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _level_of(relative: str, chain: tuple[str, ...]) -> int:
+    """How many nested levels below the wallet a pinned member lives.
+
+    The deepest prefix of the verifier's own `NESTED_CHAIN` wins, so
+    `openWallet/code/...` is the code leg's, `openWallet/...` the root's, and
+    anything else the wallet's."""
+    depth = 0
+    for index in range(1, len(chain) + 1):
+        if relative.startswith("/".join(chain[:index]) + "/"):
+            depth = index
+    return depth
+
+
 def _scratch_tree(tmp_path: Path) -> tuple[Path, Path, dict]:
     """An openxFactory-shaped tree whose pin HOLDS, ready to be broken one way.
 
@@ -123,6 +144,12 @@ def _scratch_tree(tmp_path: Path) -> tuple[Path, Path, dict]:
     digests are recomputed from the scratch copies, and `commit:` is the scratch
     wallet's own — a fabricated pin over fabricated bytes, self-consistent, which
     is what makes each test's single mutation the whole cause of the refusal.
+
+    THE WALLET IS A CHAIN OF THREE REPOSITORIES, mirroring the verifier's
+    `NESTED_CHAIN`: each member is committed in the repository of the deepest
+    level whose prefix it carries, the innermost repository first, and each
+    level above records the one below as an embedded gitlink — so nested
+    parity holds by construction.
     """
     pin = _real_pin()
     submodule = pin["submodule_path"]
@@ -149,9 +176,22 @@ def _scratch_tree(tmp_path: Path) -> tuple[Path, Path, dict]:
         else:
             shutil.copy2(source, target)
 
-    _git("init", "-q", "-b", "main", ".", cwd=wallet)
-    _git("add", "-A", cwd=wallet)
-    _git("commit", "-qm", "scratch openXwallet", cwd=wallet)
+    chain = tuple(_verifier().NESTED_CHAIN)
+    levels = [wallet]
+    for name in chain:
+        levels.append(levels[-1] / name)
+        levels[-1].mkdir(parents=True, exist_ok=True)
+    assert all(_level_of(rel, chain) < len(levels)
+               for rel in _pinned_paths(pin))
+    # Innermost first, so each level above can record the one below.
+    for depth in range(len(levels) - 1, -1, -1):
+        level = levels[depth]
+        if not any(level.iterdir()):
+            (level / "README.md").write_text("scratch level\n",
+                                              encoding="utf-8")
+        _git("init", "-q", "-b", "main", ".", cwd=level)
+        _git("-c", "advice.addEmbeddedRepo=false", "add", "-A", cwd=level)
+        _git("commit", "-qm", f"scratch level {depth}", cwd=level)
     revision = _git("rev-parse", "HEAD", cwd=wallet)
 
     scratch_pin = dict(pin)
@@ -196,8 +236,8 @@ def _assert_refused(result: subprocess.CompletedProcess[str],
     # The composition context the old presence check carried, which is WHY an
     # unavailable parent set is fatal rather than skippable, survives the move to
     # the verifier.
-    assert "openXwallet/contracts/openxwallet/openxwallet-custody.registry.yaml" \
-        in result.stderr, combined
+    assert ("openXwallet/openWallet/code/contracts/openxwallet/"
+            "openxwallet-custody.registry.yaml") in result.stderr, combined
     # And the run stopped: `report()`'s summary line is the proof that a
     # refusal short-circuited rather than merely warning on the way through.
     assert "validate-trust-anchor:" not in result.stdout, combined
@@ -214,6 +254,21 @@ def test_an_uninitialized_submodule_refuses_by_name(tmp_path: Path) -> None:
     assert not (wallet / ".git").exists()
 
     _assert_refused(_run(root), "pin-submodule-uninitialized")
+
+
+def test_an_uninitialized_code_leg_refuses_by_name(tmp_path: Path) -> None:
+    root, wallet, _ = _scratch_tree(tmp_path)
+    # The registry rule (f) reads now sits in the openWallet CODE leg, two
+    # nested levels below the gitlink. A clone that ran the first two scoped
+    # inits and not the third leaves the leg's directory with no `.git`; that
+    # must refuse by name, at that level, and never read as a missing file.
+    leg = wallet.joinpath(*_verifier().NESTED_CHAIN)
+    shutil.rmtree(leg / ".git")
+    assert not (leg / ".git").exists()
+
+    result = _run(root)
+    _assert_refused(result, "pin-submodule-uninitialized")
+    assert "openXwallet/openWallet/code/.git does not exist" in result.stderr
 
 
 def test_a_digest_disagreeing_with_the_pin_refuses_by_name(

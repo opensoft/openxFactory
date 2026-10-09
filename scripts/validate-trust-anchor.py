@@ -85,8 +85,9 @@ The rules the shapes cannot express:
       Refused, so the second axis cannot ride along invisibly (R3, OQ2).
 
   (f) THE openxWALLET MAPPING RESOLVES AND AGREES, READ AT RUN TIME from
-      `openXwallet/contracts/openxwallet/openxwallet-custody.registry.yaml`
-      rather than restated here. Each chain-custody member names its openxWallet
+      `openXwallet/openWallet/code/contracts/openxwallet/openxwallet-custody.registry.yaml`
+      (the openWallet code leg, two nested levels below the gitlink since
+      `xwallet-v1.0`) rather than restated here. Each chain-custody member names its openxWallet
       counterpart; a member whose declared booleans or derived evidences
       disagree with the member it claims to be is refused. Restating the parent
       set here would recreate the second custody model the ratified text
@@ -97,7 +98,8 @@ The rules the shapes cannot express:
       `contracts/openxwallet-pin.yaml`, so this rule now reads ACROSS A GITLINK,
       and `main()` refuses before any of it is trusted unless
       `scripts/verify-openxwallet-pin.py` agrees that the recorded gitlink, the
-      checked-out revision and the eight digests are the pinned ones. Composing
+      checked-out revision, the nested openWallet root and code leg, and the
+      eight digests are the pinned ones. Composing
       against whatever bytes happen to sit at that path was sufficient while the
       family was owned here; across a gitlink it is not, because a submodule
       moved off the pinned commit would move this set's answers without moving
@@ -346,7 +348,7 @@ CUSTODY_REGISTRY_PATH = FAMILY_DIR / "trust-anchor-chain-custody.registry.yaml"
 # with `submodule_path` is held by
 # `tests/trust-anchor/test_openxwallet_pin_refusal.py`.
 OPENXWALLET_REGISTRY_PATH = (
-    ROOT / "openXwallet" / "contracts" / "openxwallet"
+    ROOT / "openXwallet" / "openWallet" / "code" / "contracts" / "openxwallet"
     / "openxwallet-custody.registry.yaml")
 
 # Path only, for the same reason: constructing it is free, loading it is not.
