@@ -7029,6 +7029,2052 @@
         "SC-001"
       ],
       "sha256": "sha256:7f7783016eb1d26c89ff0540bdb642d8e62a675d9d344cce1c43ca40d3da3983"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "completion",
+      "case_id": "cmp-accept-after-the-rule-changed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/signing/cmp-accept-after-the-rule-changed.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:b3f9efa1e2c8dbf73fd2a7de715c63f331e1339f73c77f060955877d61db4dc5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "completion",
+      "case_id": "cmp-accept-in-any-arrival-order",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/signing/cmp-accept-in-any-arrival-order.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:672c22f18b418388377df920d24d3fa1ae9afc3f3ae781e38150b89768682a23"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "completion",
+      "case_id": "cmp-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/signing/cmp-accept.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:0b2a7f78d4cee9bf470b04169bc5fd17b45f7eb0f8e14d76c3120c96b3209aba"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "completion",
+      "case_id": "cmp-duplicate-before-identity-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_duplicate"
+      },
+      "path": "vectors/signing/cmp-duplicate-before-identity-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:7f378e4ce3f9f7d6cb0ab5252d4a37e189de51526e2ee47f599319b0c8863ece"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "completion",
+      "case_id": "cmp-identity-before-missing-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "completion_set_mismatch"
+      },
+      "path": "vectors/signing/cmp-identity-before-missing-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:5e6952081d421ae9d852ea755f5cbe67c49305ee07da4d11104c1a1445dfa830"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "completion",
+      "case_id": "cmp-no-returns-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_missing"
+      },
+      "path": "vectors/signing/cmp-no-returns-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:5d965bda4eeac12ce6ed03b7f184594d92b38cc7105381d08b2ed1f3b947121c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "completion",
+      "case_id": "cmp-return-duplicate-same-count-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_duplicate"
+      },
+      "path": "vectors/signing/cmp-return-duplicate-same-count-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:7549e6f8ed41fa25a6546ffeeef23f10229fa5f3a3d49c7914cdcf35909427ee"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "completion",
+      "case_id": "cmp-return-missing-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_missing"
+      },
+      "path": "vectors/signing/cmp-return-missing-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:a2176247aadb9a84b6c15199731a4da92e1d531970696c1836eb8a6d1f63a9da"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "completion",
+      "case_id": "cmp-return-unlisted-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_unlisted"
+      },
+      "path": "vectors/signing/cmp-return-unlisted-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:9bc91adbc41a0533370fd1d3d953f5f5db47c25a0c4aa4c3d1ab50ad2d9d8cda"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "completion",
+      "case_id": "cmp-unlisted-before-duplicate-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_unlisted"
+      },
+      "path": "vectors/signing/cmp-unlisted-before-duplicate-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:1ad3f6f763a20d0b25dd02cf27696e3810597e105a57b9155445baaf78522e14"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "completion",
+      "case_id": "cmp-wrong-identities-same-count-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "completion_set_mismatch"
+      },
+      "path": "vectors/signing/cmp-wrong-identities-same-count-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:da63f3b1ad77d925df26ba51221aed3557157813c57aa4eb573ba13a74867547"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-accept-hand-known-answer",
+      "expected": {
+        "derived": {
+          "key_fingerprint": "sha256:024fe835c9ba38e0e9716d9d2a2a04db2dde00fbb3921a05bf4dfd9d093bb5e3",
+          "signed_bytes": "eyJhc3NpZ25tZW50X2lkIjoiYXNzaWdubWVudC1zZWF0LWEiLCJjYW5kaWRhdGUiOnsiaGVhZF9zaGEiOiIxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExIiwicHVsbF9udW1iZXIiOjcsInJlcG9zaXRvcnkiOiJleGFtcGxlLW93bmVyL2V4YW1wbGUtY2FuZGlkYXRlIn0sImNoYWxsZW5nZV9pZCI6ImNoYWxsZW5nZS1zZWF0LWEiLCJjaGFsbGVuZ2Vfbm9uY2UiOiJkSGhxdFdJMmJWOFpPeGtYODI0clZVM1l4RmVMUTFDZXJpQkF6UGNQZDBrIiwiY29udmVuaW5nX2RpZ2VzdCI6InNoYTI1NjpkMWY0MjkzODk3MGFkNDY4MjE1ZmEwMDY5YWMxYjU3OGYyMjc3ZDRlOTIzYmVlZGVhYjExMmEwMGNjNDI4OWFmIiwiY29udmVuaW5nX2lkIjoiY29udmVuaW5nLTAwMDEiLCJjb3VuY2lsX2lkIjoiY291bmNpbC1hbHBoYSIsImtleV9maW5nZXJwcmludCI6InNoYTI1NjowMjRmZTgzNWM5YmEzOGUwZTk3MTZkOWQyYTJhMDRkYjJkZGUwMGZiYjM5MjFhMDViZjRkZmQ5ZDA5M2JiNWUzIiwicHJvdG9jb2wiOiJ4ZmMtcmVzb2x2ZWQtY291bmNpbC0xIiwic2VhdF9pZCI6InNlYXQtYSIsInNpZ25pbmdfY29udGV4dCI6InhmYy1yZXNvbHZlZC1jb3VuY2lsLTEvc2VhdC1rZXktcmVnaXN0cmF0aW9uIn0"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/signing/reg-accept-hand-known-answer.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:5983c62a18555373277eba3dd003cf31291e95c919fbbfabf8a889baf8d8db5b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-accept-seat-job-at-frozen-revision",
+      "expected": {
+        "derived": {
+          "key_fingerprint": "sha256:024fe835c9ba38e0e9716d9d2a2a04db2dde00fbb3921a05bf4dfd9d093bb5e3",
+          "signed_bytes": "eyJhc3NpZ25tZW50X2lkIjoiYXNzaWdubWVudC1zZWF0LWEiLCJjYW5kaWRhdGUiOnsiaGVhZF9zaGEiOiIxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExIiwicHVsbF9udW1iZXIiOjcsInJlcG9zaXRvcnkiOiJleGFtcGxlLW93bmVyL2V4YW1wbGUtY2FuZGlkYXRlIn0sImNoYWxsZW5nZV9pZCI6ImNoYWxsZW5nZS1zZWF0LWEiLCJjaGFsbGVuZ2Vfbm9uY2UiOiJkSGhxdFdJMmJWOFpPeGtYODI0clZVM1l4RmVMUTFDZXJpQkF6UGNQZDBrIiwiY29udmVuaW5nX2RpZ2VzdCI6InNoYTI1NjpkMWY0MjkzODk3MGFkNDY4MjE1ZmEwMDY5YWMxYjU3OGYyMjc3ZDRlOTIzYmVlZGVhYjExMmEwMGNjNDI4OWFmIiwiY29udmVuaW5nX2lkIjoiY29udmVuaW5nLTAwMDEiLCJjb3VuY2lsX2lkIjoiY291bmNpbC1hbHBoYSIsImtleV9maW5nZXJwcmludCI6InNoYTI1NjowMjRmZTgzNWM5YmEzOGUwZTk3MTZkOWQyYTJhMDRkYjJkZGUwMGZiYjM5MjFhMDViZjRkZmQ5ZDA5M2JiNWUzIiwicHJvdG9jb2wiOiJ4ZmMtcmVzb2x2ZWQtY291bmNpbC0xIiwic2VhdF9pZCI6InNlYXQtYSIsInNpZ25pbmdfY29udGV4dCI6InhmYy1yZXNvbHZlZC1jb3VuY2lsLTEvc2VhdC1rZXktcmVnaXN0cmF0aW9uIn0"
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/signing/reg-accept-seat-job-at-frozen-revision.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:c0c5335ae3ef952f190ae676f3e76f4c56f369a92658b775be4840781840304e"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-another-seats-job-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "subject_template_mismatch"
+      },
+      "path": "vectors/signing/reg-another-seats-job-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:5d0c2776635a084b38260b42bcce2c63119120725fd37997fe60a4b1f6b67f7d"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-assignment-already-registered-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_already_registered"
+      },
+      "path": "vectors/signing/reg-assignment-already-registered-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:028cb762b070b416eabd108074aba7d8be809c601a90fa2cab61e33809700f5b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-assignment-before-principal-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_expired"
+      },
+      "path": "vectors/signing/reg-assignment-before-principal-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:b7cee24d3937be223d0a9c2b7ac1e251ba5c522461ff464f4bef07963d2dadae"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-assignment-expired-at-the-instant-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_expired"
+      },
+      "path": "vectors/signing/reg-assignment-expired-at-the-instant-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:30bc0f110f229c7271611fe21821cf9b99531000f6e1882a6d168fbcd2993cb0"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-assignment-not-yet-valid-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_not_yet_valid"
+      },
+      "path": "vectors/signing/reg-assignment-not-yet-valid-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:05d7d26a1152bc08d75232e5422b5f24f55b82ebfb41b723aa3c1c9e98388422"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-assignment-unknown-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_unknown"
+      },
+      "path": "vectors/signing/reg-assignment-unknown-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:2645609bd22d982db3f4bbe8152d074f3326936c0039b1828145ba7f1830dbca"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-audience-mismatch-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "audience_mismatch"
+      },
+      "path": "vectors/signing/reg-audience-mismatch-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:547e51fcb7d8679dbede031cbeed59c2d027460962da6186d25821bf9bf9ddd7"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-binding-unresolved-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_unresolved"
+      },
+      "path": "vectors/signing/reg-binding-unresolved-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:d0eb6ad34b713fa1daa8455dec30357c567e333f23cb9045d2488a18a186eb90"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-broker-job-holder-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "broker_capability_insufficient"
+      },
+      "path": "vectors/signing/reg-broker-job-holder-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:1168bb5c3f57739903a8ee34092743161b88afb3ed73e34eb8360d37abaceb45"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-challenge-before-key-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "challenge_consumed"
+      },
+      "path": "vectors/signing/reg-challenge-before-key-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:e9bc1d63e5ca07be80c9d0406c5ae407fe5f1d5094112c4a9bc4055eba5381b7"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-challenge-ceiling-600-seconds-accept",
+      "expected": {
+        "derived": {
+          "key_fingerprint": "sha256:024fe835c9ba38e0e9716d9d2a2a04db2dde00fbb3921a05bf4dfd9d093bb5e3",
+          "signed_bytes": "eyJhc3NpZ25tZW50X2lkIjoiYXNzaWdubWVudC1zZWF0LWEiLCJjYW5kaWRhdGUiOnsiaGVhZF9zaGEiOiIxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExIiwicHVsbF9udW1iZXIiOjcsInJlcG9zaXRvcnkiOiJleGFtcGxlLW93bmVyL2V4YW1wbGUtY2FuZGlkYXRlIn0sImNoYWxsZW5nZV9pZCI6ImNoYWxsZW5nZS1zZWF0LWEiLCJjaGFsbGVuZ2Vfbm9uY2UiOiJkSGhxdFdJMmJWOFpPeGtYODI0clZVM1l4RmVMUTFDZXJpQkF6UGNQZDBrIiwiY29udmVuaW5nX2RpZ2VzdCI6InNoYTI1NjpkMWY0MjkzODk3MGFkNDY4MjE1ZmEwMDY5YWMxYjU3OGYyMjc3ZDRlOTIzYmVlZGVhYjExMmEwMGNjNDI4OWFmIiwiY29udmVuaW5nX2lkIjoiY29udmVuaW5nLTAwMDEiLCJjb3VuY2lsX2lkIjoiY291bmNpbC1hbHBoYSIsImtleV9maW5nZXJwcmludCI6InNoYTI1NjowMjRmZTgzNWM5YmEzOGUwZTk3MTZkOWQyYTJhMDRkYjJkZGUwMGZiYjM5MjFhMDViZjRkZmQ5ZDA5M2JiNWUzIiwicHJvdG9jb2wiOiJ4ZmMtcmVzb2x2ZWQtY291bmNpbC0xIiwic2VhdF9pZCI6InNlYXQtYSIsInNpZ25pbmdfY29udGV4dCI6InhmYy1yZXNvbHZlZC1jb3VuY2lsLTEvc2VhdC1rZXktcmVnaXN0cmF0aW9uIn0"
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/signing/reg-challenge-ceiling-600-seconds-accept.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:7b093867e6b784e318721a6e8139fbc1341987680db98420644844e484d12ffe"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-challenge-ceiling-601-seconds-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "challenge_malformed"
+      },
+      "path": "vectors/signing/reg-challenge-ceiling-601-seconds-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:3c9feac4d8924f4f9be49e190d3fc395514ed58b29e3ff1612e7b33f7963818b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-challenge-ceiling-negative-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "challenge_malformed"
+      },
+      "path": "vectors/signing/reg-challenge-ceiling-negative-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:5169af5d85f482de2ffcd997c3c5ba2d2b0eae9066c2e0cdd82d63e115915011"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-challenge-ceiling-zero-seconds-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "challenge_malformed"
+      },
+      "path": "vectors/signing/reg-challenge-ceiling-zero-seconds-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:dd7a7a9edb5d5d881554efa1638907896a8ee70a6520f7cc50ad9cf45ec0dd3b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-challenge-consumed-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "challenge_consumed"
+      },
+      "path": "vectors/signing/reg-challenge-consumed-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:24b35f3402c5c9b4a649bbe2adca40c713a4dc2c675f2542de4e4715994ad8b5"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-challenge-expired-at-the-instant-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "challenge_expired"
+      },
+      "path": "vectors/signing/reg-challenge-expired-at-the-instant-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:3848be92d5f54cf56e6cfbb8f9d21feec2ff3ae5a702bb000e409cbc08afdda0"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-challenge-unknown-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "challenge_unknown"
+      },
+      "path": "vectors/signing/reg-challenge-unknown-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:1d4141bc20c45572585c59e38261e334874fd4f46bd3dfd289bd15c7d4ccbac8"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-challenge-wrong-assignment-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "challenge_wrong_assignment"
+      },
+      "path": "vectors/signing/reg-challenge-wrong-assignment-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:b4f412e35fd79f5e5d0fdbbde2fe5a62aa1c16920e154bfb1f423970c56ba522"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-claims-expired-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_expired"
+      },
+      "path": "vectors/signing/reg-claims-expired-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:9a40956a0ca71b3d84727bcb54016e6f388d4b98932ac2e2952e09235bf9a7f6"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-claims-unverified-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_unverified"
+      },
+      "path": "vectors/signing/reg-claims-unverified-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:bcb522721dbe050e4e96ab1116a2641381be3f021b33f9d602a032181798de0b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-context-before-proof-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "cross_convening_context"
+      },
+      "path": "vectors/signing/reg-context-before-proof-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:78b13d11107ccbf088905244a4251c76f0053e3e5c26f3c875ef850e56eda59d"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-context-challenge-nonce-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "challenge_wrong_assignment"
+      },
+      "path": "vectors/signing/reg-context-challenge-nonce-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:49ad103c6078b1ca5754c7d7e490606beeb2b9929fc3173301f8343a69100792"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-cross-convening-candidate-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "cross_convening_context"
+      },
+      "path": "vectors/signing/reg-cross-convening-candidate-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:2dea6f0ae5cdd3e1572976f20875fd4b18c0986940ed6eccc6f7cc7268f281aa"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-cross-convening-convening-id-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "cross_convening_context"
+      },
+      "path": "vectors/signing/reg-cross-convening-convening-id-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:46861386e55cc0ed40701ae808420ceed16770de808ae1c858362708dd25c008"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-cross-protocol-legacy-context-string-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "cross_protocol_context"
+      },
+      "path": "vectors/signing/reg-cross-protocol-legacy-context-string-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:77ec4a4b050a073bfa7e1ef9307f07f54fa5f50704e79da3aa7007959b9d3964"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-cross-protocol-return-context-string-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "cross_protocol_context"
+      },
+      "path": "vectors/signing/reg-cross-protocol-return-context-string-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:dbe771457c1e93ff1d4ccf9863c8eb2a8e2d5e04ff40eaf98754f580fac212c1"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-cross-seat-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "cross_seat_context"
+      },
+      "path": "vectors/signing/reg-cross-seat-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:7408a8f242aef5211fa160441ac65ca0b7e9e9b2dfbdd11de3eff46dc2fd0221"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-fingerprint-does-not-recompute-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "fingerprint_mismatch"
+      },
+      "path": "vectors/signing/reg-fingerprint-does-not-recompute-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:ce45fda37475ac424224b09a34d471a397cda25275b26d4343502ee5dd93b63b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-fingerprint-not-the-challenges-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "fingerprint_mismatch"
+      },
+      "path": "vectors/signing/reg-fingerprint-not-the-challenges-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:3d346891b0590384eff0d32bb755ff01fa2238e4d526f3f07f0d4c87f16c69e9"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-key-before-context-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "shared_key"
+      },
+      "path": "vectors/signing/reg-key-before-context-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:e66fff6ed548b2ccd2126a0187f18ead571f243557de09e863380f91e1efe215"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-key-transport-pem-block-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "registration_malformed"
+      },
+      "path": "vectors/signing/reg-key-transport-pem-block-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:ce386d5bc901de53a50776d25c071a5b10ac4fa0db10f761c549c41484da4708"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-legacy-root-authorized-under-replacement-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/signing/reg-legacy-root-authorized-under-replacement-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:99437afb6a8f94d70042181c6148a3a341f1ed1eff93d33c8fced4751c168a25"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-legacy-under-legacy-selection-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "generated",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/signing/reg-legacy-under-legacy-selection-route.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:0e2ebe2cc5af3509c2f6f4fb65b8f5518a4fb451469cc1f876634dd4201a512a"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-operation-not-permitted-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "operation_not_permitted"
+      },
+      "path": "vectors/signing/reg-operation-not-permitted-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:87f949c1d180acf0a2c55b9bf9e7c81ad68cb03daa8673ee9a4090c3db25befc"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-principal-before-challenge-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_expired"
+      },
+      "path": "vectors/signing/reg-principal-before-challenge-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:c1fedf0694c2711b52bf132b719c80d90429a201850ffc370eb39e6eb10be55c"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-proof-invalid-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "proof_invalid"
+      },
+      "path": "vectors/signing/reg-proof-invalid-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:ca616c00bbe10e45e579566581032d2f62fcde6fe3d8478ae890dc6782e1fa3d"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-proof-missing-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "registration_malformed"
+      },
+      "path": "vectors/signing/reg-proof-missing-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:0f6dc3f33cf5e9c3711630a935b571ab4fd2ab7d5c7d0358da167bd75640334b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-replacement-under-legacy-selection-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_not_selected"
+      },
+      "path": "vectors/signing/reg-replacement-under-legacy-selection-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:a16fb982c9c39363bf2417c6a249a818bb1efe30e9140a9b8b666feba590a718"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-root-authorization-before-shape-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "root_authorization_refused"
+      },
+      "path": "vectors/signing/reg-root-authorization-before-shape-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:a3fce4728f4cb4ee01de57ec07f314ced0a23ad109c46cc10eadcab5fb4c522e"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-root-authorization-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "root_authorization_refused"
+      },
+      "path": "vectors/signing/reg-root-authorization-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:15c017e989bbc6c716393fcf574562feac31dad4bfb042f1a2c25ce98aa21410"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-seat-workflow-before-frozen-revision-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/signing/reg-seat-workflow-before-frozen-revision-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:488ac00fb3ac779d20f2ea6c0879f9fae1b256d75b1176c2195048160f378ba6"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-seat-workflow-off-governed-history-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/signing/reg-seat-workflow-off-governed-history-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:90e657beb7516a271ce0d4532d26a096858e7fd403ca526bb5e24826be5f3d1d"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-shape-before-assignment-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "registration_malformed"
+      },
+      "path": "vectors/signing/reg-shape-before-assignment-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:06d35cc0e0b447e5ed9a47ec298c554da435d1c618fce801c2fc775032906d22"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-shared-key-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "shared_key"
+      },
+      "path": "vectors/signing/reg-shared-key-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:ade8114abf986d0e31c666b916bc048e5cbf03eee7bb6964d84bb211ae85e05d"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-stub-binding-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/signing/reg-stub-binding-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:e869116d1a6411561f5c6d17442809e400f821b3637396146ce19b1d551b86c0"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "registration",
+      "case_id": "reg-wrong-principal-with-valid-proof-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "wrong_principal"
+      },
+      "path": "vectors/signing/reg-wrong-principal-with-valid-proof-refuse.json",
+      "requirement_ids": [
+        "FR-007",
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:c068dd5da08a2ea50ae80632eee90abf7f8f6805c3693d8192c1cfad0bef1f8e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-accept-decimal-string-quantity",
+      "expected": {
+        "derived": {
+          "key_fingerprint": "sha256:024fe835c9ba38e0e9716d9d2a2a04db2dde00fbb3921a05bf4dfd9d093bb5e3",
+          "signed_bytes": "eyJhc3NpZ25tZW50X2lkIjoiYXNzaWdubWVudC1zZWF0LWEiLCJjYW5kaWRhdGUiOnsiaGVhZF9zaGEiOiIxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExIiwicHVsbF9udW1iZXIiOjcsInJlcG9zaXRvcnkiOiJleGFtcGxlLW93bmVyL2V4YW1wbGUtY2FuZGlkYXRlIn0sImNvbnZlbmluZ19kaWdlc3QiOiJzaGEyNTY6ZDFmNDI5Mzg5NzBhZDQ2ODIxNWZhMDA2OWFjMWI1NzhmMjI3N2Q0ZTkyM2JlZWRlYWIxMTJhMDBjYzQyODlhZiIsImNvbnZlbmluZ19pZCI6ImNvbnZlbmluZy0wMDAxIiwiY291bmNpbF9pZCI6ImNvdW5jaWwtYWxwaGEiLCJrZXlfZmluZ2VycHJpbnQiOiJzaGEyNTY6MDI0ZmU4MzVjOWJhMzhlMGU5NzE2ZDlkMmEyYTA0ZGIyZGRlMDBmYmIzOTIxYTA1YmY0ZGZkOWQwOTNiYjVlMyIsInByb3RvY29sIjoieGZjLXJlc29sdmVkLWNvdW5jaWwtMSIsInJldHVybl9kaWdlc3QiOiJzaGEyNTY6NjM2MGEwZjY4ZDllNGQxNzRiOGY5YzkxZmQ0MGE1MjhiY2FhMmE1ZmRmNDk3MThkMmQxMzJkOTZjNTU5ZWEyMiIsInNlYXRfaWQiOiJzZWF0LWEiLCJzaWduaW5nX2NvbnRleHQiOiJ4ZmMtcmVzb2x2ZWQtY291bmNpbC0xL3NlYXQtcmV0dXJuIn0"
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/signing/ret-accept-decimal-string-quantity.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:4fff68c3d448fe9df8cad1eb9e47eee6e60a0c88f66a616f8b73e5e706d1fab5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-accept-hand-known-answer",
+      "expected": {
+        "derived": {
+          "key_fingerprint": "sha256:024fe835c9ba38e0e9716d9d2a2a04db2dde00fbb3921a05bf4dfd9d093bb5e3",
+          "signed_bytes": "eyJhc3NpZ25tZW50X2lkIjoiYXNzaWdubWVudC1zZWF0LWEiLCJjYW5kaWRhdGUiOnsiaGVhZF9zaGEiOiIxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExIiwicHVsbF9udW1iZXIiOjcsInJlcG9zaXRvcnkiOiJleGFtcGxlLW93bmVyL2V4YW1wbGUtY2FuZGlkYXRlIn0sImNvbnZlbmluZ19kaWdlc3QiOiJzaGEyNTY6ZDFmNDI5Mzg5NzBhZDQ2ODIxNWZhMDA2OWFjMWI1NzhmMjI3N2Q0ZTkyM2JlZWRlYWIxMTJhMDBjYzQyODlhZiIsImNvbnZlbmluZ19pZCI6ImNvbnZlbmluZy0wMDAxIiwiY291bmNpbF9pZCI6ImNvdW5jaWwtYWxwaGEiLCJrZXlfZmluZ2VycHJpbnQiOiJzaGEyNTY6MDI0ZmU4MzVjOWJhMzhlMGU5NzE2ZDlkMmEyYTA0ZGIyZGRlMDBmYmIzOTIxYTA1YmY0ZGZkOWQwOTNiYjVlMyIsInByb3RvY29sIjoieGZjLXJlc29sdmVkLWNvdW5jaWwtMSIsInJldHVybl9kaWdlc3QiOiJzaGEyNTY6MGUyMWI5MDNhZDNlZTEzZGZkODZlYmNjNTViOTFjZTJkN2MyMmZjODVlMGIzYjQ0ZDZkZmJkNDQzODM1M2ZhNyIsInNlYXRfaWQiOiJzZWF0LWEiLCJzaWduaW5nX2NvbnRleHQiOiJ4ZmMtcmVzb2x2ZWQtY291bmNpbC0xL3NlYXQtcmV0dXJuIn0"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/signing/ret-accept-hand-known-answer.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:9c3901e7ac2178083c13eaa1abd4141ca61c1710312ca54b94f8c2c0139706a3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-accept-second-seat",
+      "expected": {
+        "derived": {
+          "key_fingerprint": "sha256:ee2f72ee06d2d97f8681cdd6a685ef5eacada767f19091424f19cbef8b227046",
+          "signed_bytes": "eyJhc3NpZ25tZW50X2lkIjoiYXNzaWdubWVudC1zZWF0LWIiLCJjYW5kaWRhdGUiOnsiaGVhZF9zaGEiOiIxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExIiwicHVsbF9udW1iZXIiOjcsInJlcG9zaXRvcnkiOiJleGFtcGxlLW93bmVyL2V4YW1wbGUtY2FuZGlkYXRlIn0sImNvbnZlbmluZ19kaWdlc3QiOiJzaGEyNTY6ZDFmNDI5Mzg5NzBhZDQ2ODIxNWZhMDA2OWFjMWI1NzhmMjI3N2Q0ZTkyM2JlZWRlYWIxMTJhMDBjYzQyODlhZiIsImNvbnZlbmluZ19pZCI6ImNvbnZlbmluZy0wMDAxIiwiY291bmNpbF9pZCI6ImNvdW5jaWwtYWxwaGEiLCJrZXlfZmluZ2VycHJpbnQiOiJzaGEyNTY6ZWUyZjcyZWUwNmQyZDk3Zjg2ODFjZGQ2YTY4NWVmNWVhY2FkYTc2N2YxOTA5MTQyNGYxOWNiZWY4YjIyNzA0NiIsInByb3RvY29sIjoieGZjLXJlc29sdmVkLWNvdW5jaWwtMSIsInJldHVybl9kaWdlc3QiOiJzaGEyNTY6NzVhYTBjNzQxYWRlNjQxOWM4YjI5ZGIxODZiYjVmYTliZjJkYjcxYWU3NGExMDBkNTM5MWI3YTE0OGM0YmE5ZCIsInNlYXRfaWQiOiJzZWF0LWIiLCJzaWduaW5nX2NvbnRleHQiOiJ4ZmMtcmVzb2x2ZWQtY291bmNpbC0xL3NlYXQtcmV0dXJuIn0"
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/signing/ret-accept-second-seat.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:eeed80af4c59f95feb59cd6d74bc6e97e498818612702cadba6c3c8f65e0a20c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-assignment-expired-at-the-instant-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_expired"
+      },
+      "path": "vectors/signing/ret-assignment-expired-at-the-instant-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:299b9f5f6f171cb0c74229ff2afbd9910f87bd45f30801877130a2088609279a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-assignment-not-yet-valid-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_not_yet_valid"
+      },
+      "path": "vectors/signing/ret-assignment-not-yet-valid-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:bbed4fc6d1dea31ba6d896b64f9a127b1c0d936cff2713ec80ceccdecd2fe3f5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-assignment-unknown-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_unknown"
+      },
+      "path": "vectors/signing/ret-assignment-unknown-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:57ad247a28fb47ab6f5ff261e8aa2a8696e5af40155378e78c9989da111bd0a4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-context-before-digest-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "cross_convening_context"
+      },
+      "path": "vectors/signing/ret-context-before-digest-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:9db41bd5c571c0dff35119d38185df5d24f0b57fe753ef72791e2a62379e74b3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-context-key-mismatch-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_key_mismatch"
+      },
+      "path": "vectors/signing/ret-context-key-mismatch-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:0b028ad81ed9b905830172c09bb668e0297ee4e83a6794d386fc71ccbc09a97d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-cross-protocol-legacy-protocol-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "cross_protocol_context"
+      },
+      "path": "vectors/signing/ret-cross-protocol-legacy-protocol-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:b20757712a3541cac8dc98ad1594623ef97cc56c243e0ba4bb383aa0e197d29e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-cross-protocol-registration-context-string-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "cross_protocol_context"
+      },
+      "path": "vectors/signing/ret-cross-protocol-registration-context-string-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:2a65bd1d95c179e4e58c7467c4b71686271992a2677a30c47d8061e155c230bb"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-digest-before-signature-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_digest_mismatch"
+      },
+      "path": "vectors/signing/ret-digest-before-signature-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:036d1596b026401b417ba38e46ad65f26801e237d5ea5b2c0096816dd944372c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-digest-mismatch-context-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_digest_mismatch"
+      },
+      "path": "vectors/signing/ret-digest-mismatch-context-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:dd76c4922f274aae33ec234471d1a6f412b3bee8389b885aee61f62fe65be7f1"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-digest-mismatch-payload-moved-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_digest_mismatch"
+      },
+      "path": "vectors/signing/ret-digest-mismatch-payload-moved-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:53a5da8c41ce73bd909b46f407199d096a3c60000e516020101e8db855c16227"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-float-in-payload-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_not_canonicalizable"
+      },
+      "path": "vectors/signing/ret-float-in-payload-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:9c998c9f7fe9ddedacfedf12fb78b1c3846baaba672c3461a9d763600ba7d2f0"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-key-before-context-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_unregistered"
+      },
+      "path": "vectors/signing/ret-key-before-context-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:1b14e3c0a937fae7ead888492e29c315f339ea84875978a785ef17187e8e70f1"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-key-mismatch-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_key_mismatch"
+      },
+      "path": "vectors/signing/ret-key-mismatch-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:045b9cdc86e9c765139d70c460d950a663ba41d1c4d83be3f910ddcea8342b45"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-key-transport-pem-block-in-payload-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_malformed"
+      },
+      "path": "vectors/signing/ret-key-transport-pem-block-in-payload-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:3816a0330acb074eb0f6870e89b121a08ef59424f9dfc4fa9efc0633b0ed7c12"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-legacy-under-replacement-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/signing/ret-legacy-under-replacement-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:8cb19b4cc9f8e0dc78c1dd66d8908b4c17186ac5cd824544425327de6a6f7d7f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-legacy-v1-signed-bytes-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_signature_invalid"
+      },
+      "path": "vectors/signing/ret-legacy-v1-signed-bytes-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:6ef4d52f2b85cf350fc849d58c874fc7dacf21cad371fc145acef7590b82af8b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-operation-not-permitted-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "operation_not_permitted"
+      },
+      "path": "vectors/signing/ret-operation-not-permitted-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:e3e5a44d405d2213b79eb8bc770190d4797d2874c14cc8cee8e65852e50ded2c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-replay-into-another-assignment-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_key_mismatch"
+      },
+      "path": "vectors/signing/ret-replay-into-another-assignment-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:fbeb0ae2ace667cfb6b597c65e3aba0eae4a0eac4a25320deb1644735f57e039"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-replay-into-another-assignment-relabelled-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "cross_seat_context"
+      },
+      "path": "vectors/signing/ret-replay-into-another-assignment-relabelled-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:5a9e2270b689f6c83e252c5acac3c6cf940bc2b7251e448646199724a4f9bc19"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-replay-into-another-convening-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "cross_convening_context"
+      },
+      "path": "vectors/signing/ret-replay-into-another-convening-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:b97a2027fb3b04731b751a59818518197f63ca873a9896be3b0bd038c06734f8"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-replayed-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_replayed"
+      },
+      "path": "vectors/signing/ret-replayed-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:52fde9d1bb1add2af6dd2d5e7b29740aead9e1910ecc6ec4dc05741e7d199219"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-shape-before-assignment-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_not_canonicalizable"
+      },
+      "path": "vectors/signing/ret-shape-before-assignment-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:142c7051d503e980c490e0f5296a1a9fcd843a056d1edc3e43c8900720d0b254"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-signature-before-replay-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_signature_invalid"
+      },
+      "path": "vectors/signing/ret-signature-before-replay-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:580f4963ca5711832d5f2fde8cd9156f60c22f7ff750a970c0bed16ccc1bed23"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-signature-by-another-key-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_signature_invalid"
+      },
+      "path": "vectors/signing/ret-signature-by-another-key-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:bf7fc7adc5f8bc499e0030b6a22654065f4da940566d96b9ed82087d1f3c6837"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-signature-missing-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_malformed"
+      },
+      "path": "vectors/signing/ret-signature-missing-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:e2efa9eafada0249676a848fcb8825064aa5f9942bd5348226663f9d292ed853"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "signing",
+      "boundary": "return",
+      "case_id": "ret-unregistered-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "return_unregistered"
+      },
+      "path": "vectors/signing/ret-unregistered-refuse.json",
+      "requirement_ids": [
+        "FR-008",
+        "FR-010",
+        "SC-003"
+      ],
+      "sha256": "sha256:8356674b7541d9df970c8ac5c98fe1fc9900b6fef0ab19ba2d9bd7d399c933b0"
     }
   ],
   "corpus_id": "council-convening-conformance",
@@ -7054,17 +9100,18 @@
   "protocol": "xfc-resolved-council-1",
   "schema_version": 1,
   "totals": {
-    "both_sides": 245,
+    "both_sides": 285,
     "by_area": {
       "binding": 58,
       "foundation": 133,
-      "resolution": 128
+      "resolution": 128,
+      "signing": 88
     },
     "by_outcome": {
-      "accept": 67,
-      "refuse": 244,
-      "route": 8
+      "accept": 76,
+      "refuse": 322,
+      "route": 9
     },
-    "vectors": 319
+    "vectors": 407
   }
 }

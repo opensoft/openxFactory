@@ -225,7 +225,9 @@ def identity(seat: str) -> dict:
         "claims": {
             "iss": ISSUER, "aud": AUDIENCE,
             "sub": f"repo:{CALLER_REPOSITORY}:environment:{environment_name(seat)}",
-            "nbf": EVALUATION_EPOCH - 60, "exp": EVALUATION_EPOCH + 300,
+            # The token outlives the challenge (01:10:00 against 01:05:00), so E7
+            # step 5's window check never masks a step 6 challenge expiry.
+            "nbf": EVALUATION_EPOCH - 60, "exp": EVALUATION_EPOCH + 600,
             "repository": CALLER_REPOSITORY, "repository_id": str(CALLER_REPOSITORY_ID),
             "environment": environment_name(seat),
             "job_workflow_ref": SEAT_WORKFLOW, "job_workflow_sha": SHA_SEAT,
@@ -566,6 +568,27 @@ def _registration_cases() -> list[tuple]:
     def frozen_revision(w):
         w.identity["claims"]["job_workflow_sha"] = SHA_REVISION
 
+    # E7 step 5's E10 half (Phase 5's binding module, operation seat_execution).
+    def stub(w):
+        w.bindings[0]["instantiation_stub"] = True
+
+    def unverified(w):
+        w.identity["verified"] = False
+
+    def expired_token(w):
+        w.identity["claims"]["exp"] = EVALUATION_EPOCH
+
+    def other_audience(w):
+        w.identity["claims"]["aud"] = "another-consumer"
+
+    def other_seats_job(w):
+        w.identity = identity("seat-b")
+
+    def seat_commit(sha):
+        def mutate(w):
+            w.identity["claims"]["job_workflow_sha"] = sha
+        return mutate
+
     return [
         # accepts
         ("reg-accept-hand-known-answer", nothing, "accept", None, CONSUMER, "hand"),
@@ -608,6 +631,23 @@ def _registration_cases() -> list[tuple]:
          "generated"),
         ("reg-broker-job-holder-refuse", broker, "refuse", "broker_capability_insufficient",
          CONSUMER, "generated"),
+        ("reg-stub-binding-refuse", stub, "refuse", "binding_malformed", CONSUMER,
+         "generated"),
+        ("reg-claims-unverified-refuse", unverified, "refuse", "claims_unverified", CONSUMER,
+         "generated"),
+        ("reg-claims-expired-refuse", expired_token, "refuse", "claims_expired", CONSUMER,
+         "generated"),
+        ("reg-audience-mismatch-refuse", other_audience, "refuse", "audience_mismatch",
+         CONSUMER, "generated"),
+        ("reg-another-seats-job-refuse", other_seats_job, "refuse",
+         "subject_template_mismatch", CONSUMER, "generated"),
+        # follow-up 3, "At or after the frozen rev (Recommended)": the seat rule
+        ("reg-seat-workflow-before-frozen-revision-refuse", seat_commit(SHA_BEFORE), "refuse",
+         "workflow_revision_ungoverned", CONSUMER, "generated"),
+        ("reg-seat-workflow-off-governed-history-refuse", seat_commit(SHA_OFF), "refuse",
+         "workflow_revision_ungoverned", CONSUMER, "generated"),
+        ("reg-principal-before-challenge-refuse", claims_expired_and_no_challenge, "refuse",
+         "claims_expired", CONSUMER, "generated"),
         ("reg-wrong-principal-with-valid-proof-refuse", wrong_principal, "refuse",
          "wrong_principal", CONSUMER, "generated"),
         # step 6, the challenge
