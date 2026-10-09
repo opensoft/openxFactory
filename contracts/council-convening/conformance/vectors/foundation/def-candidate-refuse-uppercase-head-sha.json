@@ -1,0 +1,30 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "foundation",
+  "boundary": "definition",
+  "case_id": "def-candidate-refuse-uppercase-head-sha",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "value_malformed"
+  },
+  "inputs": {
+    "definition": "candidate",
+    "value": {
+      "head_sha": "0123456789ABCDEF0123456789ABCDEF01234567",
+      "pull_number": 1268,
+      "repository": "opensoft/openxFactory"
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-001"
+  ],
+  "schema_version": 1
+}

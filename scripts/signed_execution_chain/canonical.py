@@ -132,6 +132,14 @@ SUBJECTS = frozenset({
     "durability_event_leaf",
     "daily_batch_node",
     "daily_batch_root",
+    # Widened by `renew-resolved-council-protocol` (ratified 2026-10-03; D1 and
+    # D3), realized by Speckit feature 035 Phase 1: TWO subjects for the
+    # neutral `contracts/council-convening/` family, the whole commission
+    # record (`convening_digest`) and one seat's return payload
+    # (`return_digest`). Subjects to the ONE enumeration, never a construction
+    # beside it; this mirror moves with the contract for the reason given above.
+    "council_convening",
+    "council_seat_return_payload",
 })
 
 _ESCAPES = {

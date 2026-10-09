@@ -2574,7 +2574,16 @@ contracts:
     # landed on main while this branch carried its own eleven-subject widening,
     # so this row's digest reflects the UNION of both widenings, not either one
     # alone.
-    sha256: 0dfc2e8ebf47ca4e160173882abac98918ba772cff0fab626a3aab614a1ebf0a
+    # The digest it then carried, `0dfc2e8e…`, also already covered
+    # `amend-chain-anchoring-readiness-and-durability`'s SIX daily-batch subjects
+    # (`confirmation_profile_terms` … `daily_batch_root`), which this comment did
+    # not record when they landed.
+    # MOVED AGAIN by `renew-resolved-council-protocol` (feature 035 Phase 1, T014):
+    # TWO further subjects, `council_convening` and `council_seat_return_payload`,
+    # appended after `daily_batch_root`, with no second construction. The row
+    # moves with its bytes; as above, the VERSION NUMBER and its CHANGELOG entry
+    # are the cutting session's act and are not taken here.
+    sha256: ef157d88040c2ced8a11a1adec123dfbcef1e9f2f38552bbc2305e7b2ce97cef
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
