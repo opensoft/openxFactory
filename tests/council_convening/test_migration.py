@@ -436,7 +436,7 @@ def test_a_historical_vector_takes_exactly_one_record_that_classifies(context, i
 def test_check_historical_routes_a_legacy_record_with_exit_3(tmp_path):
     path = tmp_path / "legacy.json"
     path.write_text(json.dumps(LEGACY_RECORD) + "\n", encoding="utf-8")
-    result = run_validator("check", "--historical", str(path))
+    result = run_validator("check", "--historical", str(path), cwd=tmp_path)
     assert result.returncode == 3, result.stdout + result.stderr
     assert "council-convening-legacy-protocol-routed" in result.stdout
     assert "ERROR [" not in result.stdout
@@ -461,7 +461,9 @@ def _legacy_file(tmp_path: Path) -> Path:
     return path
 
 
-def test_check_warns_beside_the_route_while_legacy_is_deprecated(family_tree, tmp_path, capsys):
+def test_check_warns_beside_the_route_while_legacy_is_deprecated(family_tree, tmp_path, capsys,
+                                                                  monkeypatch):
+    monkeypatch.chdir(tmp_path)
     _flip_registry(family_tree, "deprecated")
     assert load_validator().main(["check", str(_legacy_file(tmp_path))],
                                  root=family_tree) == 3
@@ -472,7 +474,9 @@ def test_check_warns_beside_the_route_while_legacy_is_deprecated(family_tree, tm
 
 
 @pytest.mark.parametrize("argv", [["--strict", "check"], ["check", "--strict"]])
-def test_the_deprecated_warning_is_an_error_under_strict(family_tree, tmp_path, capsys, argv):
+def test_the_deprecated_warning_is_an_error_under_strict(family_tree, tmp_path, capsys, argv,
+                                                          monkeypatch):
+    monkeypatch.chdir(tmp_path)
     _flip_registry(family_tree, "deprecated")
     assert load_validator().main([*argv, str(_legacy_file(tmp_path))],
                                  root=family_tree) == 1
@@ -480,15 +484,17 @@ def test_the_deprecated_warning_is_an_error_under_strict(family_tree, tmp_path, 
 
 
 def test_no_deprecated_warning_while_legacy_is_in_use(tmp_path):
-    result = run_validator("--strict", "check", str(_legacy_file(tmp_path)))
+    result = run_validator("--strict", "check", str(_legacy_file(tmp_path)), cwd=tmp_path)
     assert result.returncode == 3, result.stdout + result.stderr
     assert "legacy-protocol-deprecated" not in result.stdout
 
 
 @pytest.mark.parametrize("status", ["deprecated", "historical_only"])
-def test_check_historical_is_status_invariant(family_tree, tmp_path, capsys, status):
+def test_check_historical_is_status_invariant(family_tree, tmp_path, capsys, status,
+                                              monkeypatch):
     """A historical audit classifies and never reinterprets: it routes a legacy
     record at every status, with no deprecation finding, even under --strict."""
+    monkeypatch.chdir(tmp_path)
     _flip_registry(family_tree, status, "admission_eligible"
                    if status == "historical_only" else "available")
     assert load_validator().main(["--strict", "check", "--historical",

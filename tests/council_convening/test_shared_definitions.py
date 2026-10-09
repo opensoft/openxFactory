@@ -669,3 +669,38 @@ def test_every_inner_dollar_in_a_family_pattern_is_a_reviewed_one(schemas):
             assert malformed(schemas, name, value), (name, repr(value))
     assert accepts(schemas, "decimal_string", "0")
     assert accepts(schemas, "relative_path", "a/b")
+
+
+# --------------------------------------------------------------------------
+# No resource header below a document's root. 2020-12 allows `$schema` only at
+# a resource root, the metaschema check does not enforce it, and jsonschema
+# re-selects the validator class at ANY subschema carrying one: a nested
+# `$schema` in `$defs/opaque_id` once made `opaque_id` accept "x\n". An
+# embedded `$id` would open a resource `references_outside` does not track.
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("document_name, at, member, value", [
+    ("shared-definitions.schema.yaml", ("$defs", "opaque_id"), "$schema",
+     records.DIALECT_2020_12),
+    ("shared-definitions.schema.yaml", ("$defs", "opaque_id"), "$id",
+     records.ID_BASE + "opaque-id.schema.yaml"),
+    ("protocol-registry.schema.yaml", ("$defs", "release_tag"), "$schema",
+     "http://json-schema.org/draft-07/schema#"),
+])
+def test_a_resource_header_below_a_documents_root_is_refused_at_load(
+        family_tree, document_name, at, member, value):
+    path = family_tree / FAMILY_REL / document_name
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    node = document
+    for key in at:
+        node = node[key]
+    node[member] = value
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+    with pytest.raises(records.SchemaLoadError, match="below its root"):
+        records.load_schemas(family_tree)
+
+
+def test_the_landed_family_carries_no_resource_header_below_a_root(schemas):
+    for name, document in [*schemas.family.items(),
+                           ("digest-construction", schemas.digest_construction)]:
+        assert records.headers_below_root(document) == [], name
