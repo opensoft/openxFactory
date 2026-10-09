@@ -1496,20 +1496,28 @@ def test_a1_reads_the_verified_claims_before_step_3_and_only_them(tmp_path):
     assert oracles.reads == [("identity", None)]
 
 
-def test_a4_reads_the_governed_member_only_after_step_5_checked_it():
+@pytest.mark.parametrize("case_id, code", [
+    ("admission-refuse-order-candidate-before-workflow-revision", "candidate_mismatch"),
+    ("admission-refuse-order-mutable-revision-before-workflow-revision",
+     "mutable_rule_reference"),
+    ("admission-refuse-order-former-governed-spelling-before-workflow-revision",
+     "rule_unauthorized"),
+    ("admission-refuse-order-superseded-before-workflow-revision", "rule_superseded"),
+])
+def test_a4_reads_the_governed_member_only_after_step_5_checked_it(case_id, code):
     # R4-H2: a mutable revision, and a governed repository the allowlist does not
-    # name, are refused by step 5 under their own codes, never by step 14.
-    for case_id, code in (
-            ("admission-refuse-order-mutable-revision-before-workflow-revision",
-             "mutable_rule_reference"),
-            ("admission-refuse-order-former-governed-spelling-before-workflow-revision",
-             "rule_unauthorized")):
-        vector = _admission(case_id)
-        assert _adjudicate(vector) == ("refuse", code)
-        # The same token against a clean record is the workflow-revision refusal.
-        clean = _admission(ADMISSION_BASE)
-        clean["environment"]["identity"] = vector["environment"]["identity"]
-        assert _adjudicate(clean) == ("refuse", "workflow_revision_ungoverned")
+    # name, are refused by step 5 under their own codes, never by step 14. Each
+    # of these vectors carries BOTH defects: step 14 alone, on the vector's own
+    # token and record, refuses.
+    vector = _admission(case_id)
+    assert _adjudicate(vector) == ("refuse", code)
+    entry = vector["inputs"]["binding"]["permitted_workflows"][0]
+    with pytest.raises(Refused) as refused:
+        binding.check_workflow_revision(
+            entry, identity=vector["environment"]["identity"],
+            governed=vector["inputs"]["record"]["required_seats_provenance"]["governed"],
+            governed_history=None)
+    assert refused.value.code == "workflow_revision_ungoverned"
 
 
 def test_admission_reads_the_map_each_vector_carries_never_the_live_one(monkeypatch):

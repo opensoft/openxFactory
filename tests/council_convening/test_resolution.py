@@ -39,6 +39,7 @@ import pytest
 
 from scripts.council_convening import corpus, resolution
 
+from .binding_fixtures import with_passing_binding
 from .conftest import CONFORMANCE, REPLACEMENT
 
 VECTORS = CONFORMANCE / "vectors" / "resolution"
@@ -87,14 +88,15 @@ def producer_only(vector: dict) -> dict:
 
 def as_admission(vector: dict) -> dict:
     """A shared commission vector, run as the consumer runs it (conformance-corpus
-    § How each side runs a shared vector)."""
+    § How each side runs a shared vector), as an admission vector: from Phase 5
+    it carries a binding that passes E2 steps A1 and A4 (T051)."""
     v = copy.deepcopy(vector)
     v["boundary"] = "admission"
     v["applies_to"] = ["consumer"]
     v["inputs"].pop("expected_candidate", None)
     for key, reads in v["environment"]["live_heads"].items():
         v["environment"]["live_heads"][key] = reads[0]
-    return v
+    return with_passing_binding(v)
 
 
 BASE = "commission-accept-conditional-seat-not-held"          # classed, standard

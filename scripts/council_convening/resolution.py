@@ -3,10 +3,19 @@
 Feature 035, Phase 2. Written from the family's own specification only (R4).
 The order is E2's steps 1 to 13, which commission (the producer) and admission
 (the consumer) share; the first failing check names the outcome (R21). The
-admission-only steps are later phases' or another repository's: A1 and A4 are
+admission-only steps are three phases' or another repository's: A1 and A4 are
 Phase 5's binding, A3 is Phase 3's retry identity, and A2 and A5 are 025's own
 guards, outside the corpus. So at this commit the two boundaries differ in
-three places only:
+these places only:
+
+* A1 and A4, at admission only (Phase 5, T055): E10 steps 1 to 13 on the
+  commission job's verified claims, after step 2, and E10 step 14, the
+  workflow revision, after step 5 has checked the `governed` member it reads.
+  An admission takes the binding (`inputs.binding`, with `inputs.operation`
+  `commission`), the `identity` oracle and the identity map; a commission
+  takes none of them. A SHARED commission vector carries no binding, so the
+  consumer runs it without A1 and A4 (conformance-corpus § How each side runs
+  a shared vector);
 
 * step 4 compares the candidate with the trusted trigger's `expected_candidate`
   at commission, and with the consumer's own `resolved_candidate` at admission;
@@ -44,12 +53,13 @@ import functools
 import importlib.util
 import re
 import sys
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterator, Mapping
 
 from ..signed_execution_chain import canonical
-from . import classification, predicates, records
+from . import binding, classification, predicates, records
 from .records import Refused
 
 REPLACEMENT = "xfc-resolved-council-1"
@@ -117,6 +127,10 @@ class Oracles:
     def resolved_candidate(self) -> Any:
         raise NotImplementedError
 
+    def identity(self) -> Any:
+        """The commission job's verified claims (E2 step A1), admission only."""
+        raise NotImplementedError
+
 
 class VectorOracles(Oracles):
     """Answers from a vector's `environment`, recording each read as
@@ -170,6 +184,10 @@ class VectorOracles(Oracles):
     def resolved_candidate(self):
         self.reads.append(("resolved_candidate", None))
         return self._oracle("resolved_candidate")
+
+    def identity(self):
+        self.reads.append(("identity", None))
+        return self._oracle("identity")
 
 
 def _mapping(value, name):
@@ -349,6 +367,13 @@ class _Run:
     registry: classification.Registry
     skipped: list = field(default_factory=list)
     status_read: bool = False
+    # E2 steps A1 and A4 (Phase 5): set at admission only, and never for a
+    # shared commission vector run through admission.
+    binding: Mapping | None = None
+    identity_root: Path | None = None
+    evaluation_time: str | None = None
+    identity: Any = None
+    permitted_workflow: Mapping | None = None
 
     @property
     def offline(self) -> bool:
@@ -635,12 +660,44 @@ def _classify(record, run: _Run, selected_protocol, statuses) -> None:
     # refuse at step 2 (`convening_malformed`), never a harness error.
 
 
+def _bound_claims(run: _Run) -> None:
+    """E2 step A1: E10 steps 1 to 13, the binding instance and then the
+    commission job's verified claims. It reads only the claims, never a
+    free-text value of the record, so it may run before step 3."""
+    if run.binding is None:
+        return
+    binding.check_offline(run.binding, identity_root=run.identity_root,
+                          schemas=run.schemas)
+    run.identity = run.oracles.identity()
+    try:
+        run.permitted_workflow = binding.check_claims(
+            run.binding, operation=ADMISSION_OPERATION, identity=run.identity,
+            evaluation_time=run.evaluation_time)
+    except ValueError as error:   # an instant that is not a `utc_instant`
+        raise HarnessError(str(error)) from None
+
+
+def _workflow_revision(record, run: _Run) -> None:
+    """E2 step A4: E10 step 14, now that step 5 has checked `governed`."""
+    if run.binding is None:
+        return
+    try:
+        binding.check_workflow_revision(
+            run.permitted_workflow, identity=run.identity,
+            governed=record["required_seats_provenance"]["governed"],
+            governed_history=None)
+    except ValueError as error:   # a rule the schema did not close, never a pass
+        raise HarnessError(str(error)) from None
+
+
 def _order(record, run: _Run, selected_protocol, statuses):
     _classify(record, run, selected_protocol, statuses)               # 1
     _shape(record, run)                                               # 2
+    _bound_claims(run)                                                # A1
     _secrets(record)                                                  # 3
     _candidate(record, run)                                           # 4
     projection = _governed(record, run)                               # 5
+    _workflow_revision(record, run)                                   # A4
     _council_and_class(record, projection, run)                       # 6, 7
     for condition in record["required_seats_provenance"]["conditions"]:
         predicates.check_condition(condition["predicate"],            # 8
@@ -657,8 +714,16 @@ def _order(record, run: _Run, selected_protocol, statuses):
 def resolve(record, *, boundary: str, selected_protocol, oracles: Oracles,
             expected_candidate: Mapping | None = None, statuses=None,
             schemas: records.SchemaSet | None = None,
-            registry: classification.Registry | None = None) -> Resolution:
-    """E2 steps 1 to 13 at `commission` or `admission`.
+            registry: classification.Registry | None = None,
+            binding: Mapping | None = None, identity_root: Path | None = None,
+            evaluation_time: str | None = None) -> Resolution:
+    """E2 steps 1 to 13 at `commission` or `admission`, and at admission steps
+    A1 and A4 too.
+
+    Admission REQUIRES the commission job's `binding`, the `identity_root`
+    whose `contracts/policies/repository-identity.yaml` is the identity map,
+    and the `evaluation_time` the claims' window is judged at; the verified
+    claims come from `oracles.identity()`. Commission takes none of them.
 
     Returns the roster and digest, raises `Refused` with the first failing
     check's code, raises `Routed` for a legacy record under a legacy selection,
@@ -668,7 +733,23 @@ def resolve(record, *, boundary: str, selected_protocol, oracles: Oracles,
         raise HarnessError("the commission record is judged at commission or admission")
     run = _Run(boundary=boundary, oracles=oracles, expected_candidate=expected_candidate,
                schemas=schemas or _default_schemas(), registry=registry or _default_registry())
+    _bind(run, binding, identity_root, evaluation_time)
     return _order(record, run, selected_protocol, statuses)
+
+
+def _bind(run: _Run, bound, identity_root, evaluation_time) -> None:
+    """Arm E2 steps A1 and A4 on an admission run; refuse a binding anywhere
+    else. A binding-less admission fails closed, as a harness error."""
+    if run.boundary != "admission":
+        if bound is not None:
+            raise HarnessError("a binding is judged at admission only (E2 steps A1, A4)")
+        return
+    if bound is None or identity_root is None or evaluation_time is None:
+        raise HarnessError("admission judges the commission job's binding (E2 step A1): "
+                           "it needs the binding, the identity map's root and the "
+                           "evaluation time")
+    run.binding, run.identity_root, run.evaluation_time = bound, Path(identity_root), \
+        evaluation_time
 
 
 @dataclass(frozen=True)
@@ -693,18 +774,20 @@ def check_offline(record, schemas: records.SchemaSet | None = None,
     return OfflineResult(None, None, tuple(run.skipped))
 
 
-#: The inputs each boundary takes at this commit. Phase 5 adds the binding and
-#: the operation to admission.
+#: The inputs each boundary takes at this commit. Phase 5 added the binding and
+#: the operation to admission; the operation is always the commission job's.
 INPUT_MEMBERS = {
     "commission": frozenset({"record", "selected_protocol", "expected_candidate"}),
-    "admission": frozenset({"record", "selected_protocol"}),
+    "admission": frozenset({"record", "selected_protocol", "binding", "operation"}),
 }
+ADMISSION_OPERATION = "commission"
 
-#: The oracles a commission or admission vector may carry at this commit (R8).
-#: Phase 3 adds `issued` to admission, and Phase 5 `identity` and
-#: `repository_identity`.
+#: The oracles a commission vector may carry at this commit (R8).
 ORACLES_READ = ("governed_history", "governed", "governed_repositories", "rules", "facts",
                 "live_heads", "head_refs", "resolved_candidate", "registry_status")
+#: And an admission vector: Phase 5 adds the verified claims and the identity
+#: map, which A1 reads. Phase 3 adds `issued`.
+ADMISSION_ORACLES_READ = ORACLES_READ + ("identity", "repository_identity")
 
 
 def _outcome_at(vector, boundary, schemas, registry) -> records.Outcome:
@@ -719,6 +802,34 @@ def _outcome_at(vector, boundary, schemas, registry) -> records.Outcome:
     run = _Run(boundary=boundary, oracles=oracles,
                expected_candidate=inputs.get("expected_candidate") if boundary == "commission"
                else None, schemas=schemas, registry=registry)
+    # A1 and A4 belong to admission VECTORS. A shared commission vector run
+    # through admission carries no binding and runs without them.
+    if boundary == "admission" and vector.get("boundary") == "admission":
+        with tempfile.TemporaryDirectory(prefix="council-convening-identity-") as tmp:
+            _bind(run, *_admission_binding(vector, inputs, environment, Path(tmp)))
+            return _run_order(inputs, environment, run)
+    return _run_order(inputs, environment, run)
+
+
+def _admission_binding(vector, inputs, environment, tmp: Path) -> tuple:
+    """An admission vector's binding, the root its `repository_identity` oracle
+    is materialized under (never the live map, R7-M1), and its instant."""
+    if "binding" not in inputs or "operation" not in inputs:
+        raise HarnessError("an admission vector lacks `inputs.binding` or `inputs.operation`")
+    if inputs["operation"] != ADMISSION_OPERATION:
+        raise HarnessError("admission judges the commission job's token: "
+                           "`inputs.operation` is not `commission`")
+    if "repository_identity" not in environment:
+        raise HarnessError("the vector carries no `repository_identity` oracle")
+    try:
+        root = binding.materialize_identity(environment["repository_identity"],
+                                            tmp / "root")
+    except ValueError as error:
+        raise HarnessError(str(error)) from None
+    return inputs["binding"], root, vector.get("evaluation_time")
+
+
+def _run_order(inputs, environment, run: _Run) -> records.Outcome:
     try:
         result = _order(inputs["record"], run, inputs["selected_protocol"],
                         environment.get("registry_status"))

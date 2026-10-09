@@ -257,13 +257,20 @@ def with_passing_binding(vector: dict, *, repository: str | None = None) -> dict
     steps A1 and A4 for its own record: the commission job's verified claims
     name the record's governed repository (or `repository`) and its governed
     revision, and the map is the frozen fixture's text. Mutates and returns
-    `vector`; members spelled with `$parts` are left as they are."""
-    member = vector["inputs"]["record"]["required_seats_provenance"]["governed"]
-    bound = admission_binding(repository or member["repository"])
+    `vector`; members spelled with `$parts` are left as they are.
+
+    A record with no readable `governed` member (one refused at step 1 or 2,
+    before A1 runs) gets the corpus's governed repository and revision."""
+    record = vector["inputs"]["record"]
+    provenance = record.get("required_seats_provenance") if isinstance(record, dict) else None
+    member = provenance.get("governed") if isinstance(provenance, dict) else None
+    if not isinstance(member, dict):
+        member = {}
+    bound = admission_binding(repository or member.get("repository", ADMISSION_GOVERNED))
     vector["inputs"]["binding"] = bound
     vector["inputs"]["operation"] = "commission"
     vector.setdefault("environment", {})
     vector["environment"]["identity"] = identity(
-        claims_for(bound, workflow_sha=member["revision"]))
+        claims_for(bound, workflow_sha=member.get("revision", REVISION)))
     vector["environment"]["repository_identity"] = identity_oracle()
     return vector

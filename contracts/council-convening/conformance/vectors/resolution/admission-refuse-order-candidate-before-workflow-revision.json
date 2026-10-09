@@ -4,7 +4,7 @@
   ],
   "area": "resolution",
   "boundary": "admission",
-  "case_id": "admission-accept-unrelated-file-changed-at-tip",
+  "case_id": "admission-refuse-order-candidate-before-workflow-revision",
   "environment": {
     "facts": {
       "pr_facts:example-org/example-app#42@5ea2baa390e53e741a718626e522b7cf3bd33523": {
@@ -17,12 +17,6 @@
       }
     },
     "governed": {
-      "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300:rules/README.md": {
-        "available": true,
-        "governed": false,
-        "sha256": "sha256:e9195f714c00a7bd9bc3f560aa2a3aa9989b1205fbb79125b9972e167079eafd",
-        "tip_sha256": "sha256:117b603f62abc160f6772450a96e04af928d840f987d2ad79a4db475a1b8754c"
-      },
       "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300:rules/conditions": {
         "available": true,
         "entries": [
@@ -87,7 +81,7 @@
         "iat": 1791503940,
         "iss": "https://token.actions.githubusercontent.com",
         "job_workflow_ref": "example-org/governed-rules/.github/workflows/corpus-commission.yml@refs/heads/main",
-        "job_workflow_sha": "565baeb830bd8d861ee4bfc759b068498cb9a300",
+        "job_workflow_sha": "6666666666666666666666666666666666666666",
         "nbf": 1791503940,
         "repository": "opensoft/xFactory",
         "repository_id": "424242",
@@ -108,7 +102,7 @@
     },
     "resolved_candidate": {
       "head_sha": "5ea2baa390e53e741a718626e522b7cf3bd33523",
-      "pull_number": 42,
+      "pull_number": 41,
       "repository": "example-org/example-app"
     },
     "rules": {
@@ -272,21 +266,11 @@
   },
   "evaluation_time": "2026-10-09T00:00:00Z",
   "expected": {
-    "derived": {
-      "convening_digest": {
-        "construction": "xfc-jcs-sha256-1",
-        "subject": "council_convening",
-        "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
-      },
-      "required_seats": [
-        "seat-a",
-        "seat-b"
-      ]
-    },
+    "derived": {},
     "derived_origin": "hand",
     "findings": [],
-    "outcome": "accept",
-    "refusal": null
+    "outcome": "refuse",
+    "refusal": "candidate_mismatch"
   },
   "inputs": {
     "binding": {
@@ -425,7 +409,8 @@
   },
   "kind": "openxfactory-council-convening-conformance-vector",
   "requirement_ids": [
-    "FR-003"
+    "FR-004",
+    "FR-009"
   ],
   "schema_version": 1
 }

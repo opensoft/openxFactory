@@ -4062,7 +4062,7 @@
         "FR-003",
         "FR-004"
       ],
-      "sha256": "sha256:e819b61240b231285aa169c76fcdcd6249bc0709b40fb10d30f1796fc0b9f6c5"
+      "sha256": "sha256:d622a593fa115dbe25dae7a7e2f81c1bef1ee974caefa02e82230097163e3a5b"
     },
     {
       "applies_to": [
@@ -4092,7 +4092,87 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:5b48bc9be64b6a51e598e8fbb49649bcc2ddd2da4fec607f11212872b1d32228"
+      "sha256": "sha256:8ddbefeb241f4f0a5f2d630613b1f4427bade8d7122176732956745e2a0e8f24"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-binding-claims-unverified",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_unverified"
+      },
+      "path": "vectors/resolution/admission-refuse-binding-claims-unverified.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:768df19077d75b841230ed188c68cdf61a3491c65e82f3c29cbebc3616320f01"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-binding-identity-map-absent",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_unavailable"
+      },
+      "path": "vectors/resolution/admission-refuse-binding-identity-map-absent.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:04446be041306bbe60a197acf02d43d408cb96c8abedb74563f9684be31b1714"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-binding-seat-token-for-commission",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_not_permitted"
+      },
+      "path": "vectors/resolution/admission-refuse-binding-seat-token-for-commission.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:64f6a77704fe8782d43a020af3757396475948a92a9bd429415a264bfe48d9b3"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-binding-stub-presented-as-live",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/resolution/admission-refuse-binding-stub-presented-as-live.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:0458b7a47baf9dcaac8a83cb62afb9bb14670f7a59408dc64a9c6123537f786f"
     },
     {
       "applies_to": [
@@ -4112,7 +4192,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:4f43a4e9687e7b900c152fb4c601a3e7c9aa5e82a12c172413a4c65a2078c27a"
+      "sha256": "sha256:974c53f8963e079f9e31b575fc4dc6dd7a89477333f09fcd2f4395ecf9e5bce5"
     },
     {
       "applies_to": [
@@ -4132,7 +4212,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:87be2181a64b60c7b4b74da968fa3961427cfaf5d02f754340138293ef5d337d"
+      "sha256": "sha256:341413dd72af85bdbc69a1ea3d715f2a1212e97db1302729d70b46b26ee882bc"
     },
     {
       "applies_to": [
@@ -4152,7 +4232,71 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:22ecb3c889fd5accc8361abaad6f106005f3f7c42450d632ac80252711fd1ba0"
+      "sha256": "sha256:53b5990f409f4758d66192d75094847bdff5fa508730250c9caff23d3766d3df"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-binding-before-candidate",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_expired"
+      },
+      "path": "vectors/resolution/admission-refuse-order-binding-before-candidate.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-009"
+      ],
+      "sha256": "sha256:daeb06df3f1a53d8a09b87540318870afca403d43a7b261457b39df820212150"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-binding-before-secret",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "audience_mismatch"
+      },
+      "path": "vectors/resolution/admission-refuse-order-binding-before-secret.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-009",
+        "SC-001"
+      ],
+      "sha256": "sha256:920f2be05dfa5f580b7ed98fcac77468f305f4bfaf1ebaec4e9e6049bc567954"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-candidate-before-workflow-revision",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_mismatch"
+      },
+      "path": "vectors/resolution/admission-refuse-order-candidate-before-workflow-revision.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-009"
+      ],
+      "sha256": "sha256:7287c2e62735f9b47315a3024341018e1ea50cf1c3129665bd88a3cfa187af8f"
     },
     {
       "applies_to": [
@@ -4172,7 +4316,74 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:cb5fd02bf261d5fe74be7b1ad4d19239296b145fafc1d6bec280cc181fbda721"
+      "sha256": "sha256:49c4041a160042cf515c2b9125a1333a0285ce3fc8e3283e9787165440e6d78c"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-former-governed-spelling-before-workflow-revision",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_unauthorized"
+      },
+      "path": "vectors/resolution/admission-refuse-order-former-governed-spelling-before-workflow-revision.json",
+      "requirement_ids": [
+        "FR-003",
+        "FR-009",
+        "SC-001"
+      ],
+      "sha256": "sha256:ebeda5f4c4172fc28dd522ce38f31d4ff8bdbff22a2093224b09818ef14a39d0"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-mutable-revision-before-workflow-revision",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "mutable_rule_reference"
+      },
+      "path": "vectors/resolution/admission-refuse-order-mutable-revision-before-workflow-revision.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "FR-009",
+        "SC-001"
+      ],
+      "sha256": "sha256:f06b06905c6841e603d4d618306747a90fea5a78787d425f1819ea4514889a95"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-shape-before-binding",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/admission-refuse-order-shape-before-binding.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-009",
+        "SC-001"
+      ],
+      "sha256": "sha256:e25de7d6dcdbbf283fbafe2dbc6538fb21e107a2a6807d6e45dc1546292b65d9"
     },
     {
       "applies_to": [
@@ -4192,7 +4403,28 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:ac44157ef7ca3ec6ccc03d98db3e8ce46f24c1d39ff5a8963f9f10ab5313edf4"
+      "sha256": "sha256:35dac96bfb01be94e38e02808699d353160785d44a015c5f97cce9949dd3de5f"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-superseded-before-workflow-revision",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_superseded"
+      },
+      "path": "vectors/resolution/admission-refuse-order-superseded-before-workflow-revision.json",
+      "requirement_ids": [
+        "FR-003",
+        "FR-009"
+      ],
+      "sha256": "sha256:94bdc099125d80af07f40c74c907ff2cf7712f7cabad26b5383e79f4e66e0517"
     },
     {
       "applies_to": [
@@ -4212,7 +4444,30 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:ed198b395424479daacf88b73f3d8fbc84c44ae9ecea10146bec3f28cdd6ea5c"
+      "sha256": "sha256:914c811515584130ff79b2b7634b1a7ad56a8dcf1b96ca6be82bb31cb5a59c77"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-workflow-revision-before-council",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/resolution/admission-refuse-order-workflow-revision-before-council.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "FR-009",
+        "SC-001"
+      ],
+      "sha256": "sha256:508b580029a22a07b60b35702495fbb8211a7c3bdd1dd2ef0ff043fec4a2997d"
     },
     {
       "applies_to": [
@@ -4232,7 +4487,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:b4589f5d543c228bfa23a23798948305743645d0bcd1fb4377fe1dc15c6c4fea"
+      "sha256": "sha256:545243204ee9e65f5468bb90a29161e3bc223a841c2a43db4adf63a86fb74f93"
     },
     {
       "applies_to": [
@@ -4252,7 +4507,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:57add590d64b9d34362cd99ef120f9229b63a47ecb9a9cbdc0e4d20537b1a85b"
+      "sha256": "sha256:4015178f146c4589174e2692c725220471e6d7585ecbf186e50cfc81489e0efe"
     },
     {
       "applies_to": [
@@ -4272,7 +4527,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:c0959966ee996bc6f18389eaa0eca66bab3f1db8f35225e3f64725aad01e3030"
+      "sha256": "sha256:75af27a640a761551e3a473c02bd5174e80a5b27a22251ca1434ca81de786560"
     },
     {
       "applies_to": [
@@ -4292,7 +4547,47 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:e93690bc4169cbbd92ae3144db9cdf323946e0b93878d9da6a72b68c1ea5256e"
+      "sha256": "sha256:ae73ed01012efc4449abe5dc5fc3e42e95830420e5daa674f234c5983ad0fa3c"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-workflow-outside-the-governed-repository",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/resolution/admission-refuse-workflow-outside-the-governed-repository.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:5728aaa5cda4cc145cccae0e1f51cff13c04e9369186db62f57eff75e464ad14"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-workflow-revision-not-the-governed-revision",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/resolution/admission-refuse-workflow-revision-not-the-governed-revision.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:763a30a8a779955c9cae64893cd5eca3433dc70e377c48beb3c1c28ce051d71a"
     },
     {
       "applies_to": [
@@ -7055,13 +7350,13 @@
     "by_area": {
       "binding": 58,
       "foundation": 133,
-      "resolution": 128
+      "resolution": 142
     },
     "by_outcome": {
       "accept": 67,
-      "refuse": 244,
+      "refuse": 258,
       "route": 8
     },
-    "vectors": 319
+    "vectors": 333
   }
 }

@@ -87,13 +87,11 @@ FIXTURE_MEMBERS = ("schema_version", "kind", "name", "text")
 FIXTURES = {"repository-identity": "fixtures/repository-identity.json"}
 IDENTITY_FIXTURE = FIXTURES["repository-identity"]
 
-#: The boundaries whose vectors read the repository identity map at this
-#: commit, and so must carry the `repository_identity` oracle
-#: (contracts/conformance-corpus.md): `binding` and `registration`, which runs
-#: E10 at E7 step 5. `admission` joins in the commit that runs binding inside the
-#: admission handler (E2 steps A1 and A4; T055), which re-authors every
-#: admission vector to carry the oracle (T051).
-IDENTITY_MAP_BOUNDARIES = ("binding", "registration")
+#: The boundaries whose vectors read the repository identity map, and so must
+#: carry the `repository_identity` oracle (contracts/conformance-corpus.md):
+#: `binding`; `registration`, which runs E10 at E7 step 5; and `admission`, which
+#: runs E10 as E2 steps A1 and A4 (T055).
+IDENTITY_MAP_BOUNDARIES = ("binding", "registration", "admission")
 ROW_MEMBERS = ("case_id", "area", "boundary", "applies_to", "requirement_ids", "path",
                "sha256", "expected")
 ROW_FROM_VECTOR = ("case_id", "area", "boundary", "applies_to", "requirement_ids",
@@ -364,7 +362,8 @@ register_handler("binding", _binding,
 from . import resolution as _resolution  # noqa: E402
 
 register_handler("commission", _resolution.corpus_handler, oracles=_resolution.ORACLES_READ)
-register_handler("admission", _resolution.corpus_handler, oracles=_resolution.ORACLES_READ)
+register_handler("admission", _resolution.corpus_handler,
+                 oracles=_resolution.ADMISSION_ORACLES_READ)
 
 
 # --------------------------------------------------------------------------

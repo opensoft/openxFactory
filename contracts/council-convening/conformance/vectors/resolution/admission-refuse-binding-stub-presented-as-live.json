@@ -4,7 +4,7 @@
   ],
   "area": "resolution",
   "boundary": "admission",
-  "case_id": "admission-accept-unrelated-file-changed-at-tip",
+  "case_id": "admission-refuse-binding-stub-presented-as-live",
   "environment": {
     "facts": {
       "pr_facts:example-org/example-app#42@5ea2baa390e53e741a718626e522b7cf3bd33523": {
@@ -17,12 +17,6 @@
       }
     },
     "governed": {
-      "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300:rules/README.md": {
-        "available": true,
-        "governed": false,
-        "sha256": "sha256:e9195f714c00a7bd9bc3f560aa2a3aa9989b1205fbb79125b9972e167079eafd",
-        "tip_sha256": "sha256:117b603f62abc160f6772450a96e04af928d840f987d2ad79a4db475a1b8754c"
-      },
       "example-org/governed-rules@565baeb830bd8d861ee4bfc759b068498cb9a300:rules/conditions": {
         "available": true,
         "entries": [
@@ -272,50 +266,46 @@
   },
   "evaluation_time": "2026-10-09T00:00:00Z",
   "expected": {
-    "derived": {
-      "convening_digest": {
-        "construction": "xfc-jcs-sha256-1",
-        "subject": "council_convening",
-        "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
-      },
-      "required_seats": [
-        "seat-a",
-        "seat-b"
-      ]
-    },
+    "derived": {},
     "derived_origin": "hand",
     "findings": [],
-    "outcome": "accept",
-    "refusal": null
+    "outcome": "refuse",
+    "refusal": "binding_malformed"
   },
   "inputs": {
     "binding": {
-      "audience": "council-convening-corpus-audience",
-      "binding_id": "corpus-commission-binding",
+      "audience": "<the audience the consumer configures>",
+      "binding_id": "<the binding id an assignment's holder.binding_ref names>",
       "broker": {
-        "broker_ref": "corpus-broker",
-        "capability_verified": true,
-        "evidence_ref": "corpus-broker-evidence"
+        "broker_ref": "<the owner-provisioned broker's reference>",
+        "capability_verified": false,
+        "evidence_ref": null
       },
-      "caller_repository": "opensoft/xFactory",
+      "caller_repository": "<the owner/name of the repository the job runs in>",
+      "instantiation_stub": true,
       "issuer": "https://token.actions.githubusercontent.com",
       "kind": "xfactory_council_producer_binding",
       "permitted_workflows": [
         {
-          "job_workflow_ref": "example-org/governed-rules/.github/workflows/corpus-commission.yml@refs/heads/main",
+          "job_workflow_ref": "<owner>/<repository>/.github/workflows/<file>@<ref>",
           "operation": "commission",
           "workflow_revision_rule": "equals_governed_revision"
+        },
+        {
+          "job_workflow_ref": "<owner>/<repository>/.github/workflows/<file>@<ref>",
+          "operation": "seat_execution",
+          "workflow_revision_rule": "on_governed_history_since_revision"
         }
       ],
       "principal_kind": "github_oidc_job",
       "protocol": "xfc-resolved-council-1",
-      "repository_id": 424242,
+      "repository_id": null,
       "schema_version": 1,
       "subject_claim_keys": [
         "repo",
         "context"
       ],
-      "subject_template": "repo:opensoft/xFactory:ref:refs/heads/main"
+      "subject_template": "<the caller repository's verified OIDC sub>"
     },
     "operation": "commission",
     "record": {
@@ -425,7 +415,7 @@
   },
   "kind": "openxfactory-council-convening-conformance-vector",
   "requirement_ids": [
-    "FR-003"
+    "FR-009"
   ],
   "schema_version": 1
 }
