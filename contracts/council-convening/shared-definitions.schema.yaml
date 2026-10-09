@@ -1,0 +1,196 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_convening_shared_definitions
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml"
+contract_id: council-convening-shared-definitions
+contract_schema_version: 1
+title: The grammars every council-convening record shares
+description: >-
+  DEFINITIONS ONLY, AND NO RECORD KIND (renew-resolved-council-protocol, realized
+  by Speckit feature 035; data-model § Shared definitions). Every record shape in
+  the family takes these by `$ref`, so that two records cannot spell one
+  identifier two ways. DORMANT AND UNREGISTERED: this file has no row in
+  `contracts/manifest.yaml` until the family's first release cut.
+
+
+  WHOLE-STRING MATCHING. Every `pattern` here is anchored with `^` and `$` and
+  matches the WHOLE string, which is what `$` means in the ECMA-262 dialect JSON
+  Schema uses. A reader whose regex engine lets `$` match before a final newline
+  (Python's `re` does) must match the whole string anyway, so `seat-alpha` plus a
+  trailing newline is refused. The corpus probes it.
+
+
+  BYTES, NOT CHARACTERS, FOR A PATH. `relative_path` is bounded at 4096 UTF-8
+  BYTES (Linux `PATH_MAX`), which JSON Schema cannot say: `maxLength` counts code
+  points. So the bound is carried twice, as `maxLength: 4096`, which every reader
+  enforces and which is necessary but not sufficient, and as the annotation
+  keyword `x-max-utf8-bytes: 4096`, which a conforming reader MUST enforce. A path
+  of 4096 code points and 4097 bytes is refused, and the corpus probes it.
+
+
+  CALENDAR VALIDITY IS ASSERTED. `utc_instant` carries both a `pattern`, for its
+  exact form, and `format: date-time`, for the calendar (no 29 February outside a
+  leap year, no 31 April). A conforming reader MUST treat `format` as an assertion
+  here, and the reference implementation fails closed rather than skip it.
+
+
+  THE ORDER AT EVERY BOUNDARY. A value is checked against its grammar first, and
+  a grammar failure is `value_malformed` when the value is probed alone (boundary
+  `definition`), or the containing record's malformed code. Only then is it
+  checked for admissibility under `xfc-jcs-sha256-1`: no non-integer number, no
+  integer outside ±(2**53 - 1), no unpaired surrogate. An inadmissible value is
+  `value_not_canonicalizable`. That is the order data-model E2 step 2 and E8 step
+  2 give every record.
+
+
+  THE ENUMERATIONS ARE CLOSED AND GROW BY PHASE. `refusal_code` holds the five
+  Phase 1 codes and `finding_code` holds one finding. Each later phase adds its
+  codes here, in the task that authors its schemas, and the validator requires
+  every member at a commit to be probed by a corpus vector
+  (`council-convening-refusal-code-without-probe`). A code is a snake_case
+  contract value; the validator reports it as `council-convening-<code>`, with
+  `_` replaced by `-`.
+
+
+  NEUTRAL. No domain value appears in this file: no council, seat, class or
+  workflow is named. Those are instance data, in the corpus or in a consumer's
+  configuration.
+$defs:
+  opaque_id:
+    description: >-
+      An opaque identifier, the bound the producer already uses for its identifiers
+      and assignment ids. Matched whole.
+    type: string
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/@+=-]{0,255}$'
+  council_id:
+    $ref: '#/$defs/opaque_id'
+  seat_id:
+    $ref: '#/$defs/opaque_id'
+  matched_class:
+    $ref: '#/$defs/opaque_id'
+  protocol_id:
+    description: >-
+      A protocol identifier: 1 to 128 characters with no control character (C0,
+      DEL or C1). Membership in the protocol registry is the CLASSIFICATION check
+      (data-model E1), not a grammar, so an unregistered value is well formed.
+    type: string
+    pattern: '^[^\x00-\x1f\x7f-\x9f]{1,128}$'
+  repository:
+    description: >-
+      An `owner/name` repository spelling. Where an entity says so, the spelling is
+      also checked against `contracts/policies/repository-identity.yaml`.
+    type: string
+    pattern: '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$'
+  full_sha:
+    description: A full, lowercase, 40-hex commit id. An abbreviation or a branch is refused.
+    type: string
+    pattern: '^[0-9a-f]{40}$'
+  pull_number:
+    description: A positive pull request number, never a boolean.
+    type: integer
+    minimum: 1
+    maximum: 2147483647
+  relative_path:
+    description: >-
+      A normalized repository-relative path: non-empty, at most 4096 UTF-8 bytes,
+      no leading `/`, no character below U+0020 and no U+007F, and no empty, `.` or
+      `..` segment. A backslash and a C1 character are LEGAL, as the producer's
+      path normalization already allows; the 4096-byte bound is the one tightening.
+    type: string
+    minLength: 1
+    maxLength: 4096
+    x-max-utf8-bytes: 4096
+    pattern: '^(?!\.{1,2}(?:/|$))[^/\x00-\x1f\x7f]+(?:/(?!\.{1,2}(?:/|$))[^/\x00-\x1f\x7f]+)*$'
+  head_ref:
+    description: >-
+      A candidate's head branch name, read for class selection only: 1 to 255
+      characters, no character below U+0020 and no U+007F.
+    type: string
+    pattern: '^[^\x00-\x1f\x7f]{1,255}$'
+  utc_instant:
+    description: >-
+      An instant, `YYYY-MM-DDTHH:MM:SSZ`, with seconds precision, in UTC, and
+      calendar-valid. Expiry is refused at the instant and after it.
+    type: string
+    format: date-time
+    pattern: '^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$'
+  raw_sha256:
+    description: SHA-256 over a file's raw bytes, algorithm-tagged.
+    type: string
+    pattern: '^sha256:[0-9a-f]{64}$'
+  digest:
+    description: >-
+      A digest under the ONE construction in force, `xfc-jcs-sha256-1`, taken by
+      reference. Each use fixes its `subject` with a `const`.
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  key_fingerprint:
+    description: >-
+      The estate's one key-fingerprint spelling: `sha256:` plus the lowercase hex
+      of the raw 32-byte public key.
+    type: string
+    pattern: '^sha256:[0-9a-f]{64}$'
+  public_key:
+    description: >-
+      Unpadded base64url of exactly 32 bytes: 43 characters, the last of which
+      leaves the two padding bits zero.
+    type: string
+    pattern: '^[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$'
+  nonce:
+    description: Unpadded base64url of exactly 32 bytes, as `public_key`.
+    type: string
+    pattern: '^[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$'
+  signature:
+    description: >-
+      Unpadded base64url of exactly 64 bytes: 86 characters, the last of which
+      leaves the four padding bits zero.
+    type: string
+    pattern: '^[A-Za-z0-9_-]{85}[AQgw]$'
+  decimal_string:
+    description: >-
+      The one representation of a non-integer quantity inside a signed payload: a
+      plain decimal with no exponent, no `+`, no leading zero, no trailing
+      fractional zero, and never `-0` (research R11).
+    type: string
+    pattern: '^(?!-0$)-?(0|[1-9][0-9]*)(\.[0-9]*[1-9])?$'
+  principal_kind:
+    description: >-
+      The closed set of principal kinds, used by a seat assignment's holder and by
+      a producer binding.
+    type: string
+    enum:
+      - github_oidc_job
+      - governed_broker_job
+  candidate:
+    description: >-
+      D1's candidate: its repository, positive pull number and lowercase full head.
+      `subject_path`, when present, names a path-shaped subject at `head_sha`,
+      such as the rule packet a gate-rules council judges.
+    type: object
+    additionalProperties: false
+    required: [repository, pull_number, head_sha]
+    properties:
+      repository: {$ref: '#/$defs/repository'}
+      pull_number: {$ref: '#/$defs/pull_number'}
+      head_sha: {$ref: '#/$defs/full_sha'}
+      subject_path: {$ref: '#/$defs/relative_path'}
+  refusal_code:
+    # CLOSED AT THE PHASE 1 FIVE. Phase 2 adds the commission and admission codes,
+    # and each later phase its own, in the task that authors its schemas.
+    description: The closed refusal vocabulary as landed at this commit.
+    type: string
+    enum:
+      - value_malformed
+      - value_not_canonicalizable
+      - protocol_unknown
+      - protocol_not_selected
+      - legacy_protocol_refused
+  finding_code:
+    # KEPT APART FROM REFUSALS, with its own coverage rule. Phase 6 adds
+    # `legacy_protocol_deprecated`.
+    description: >-
+      The closed finding vocabulary as landed at this commit. A route carries an
+      ordered list of findings; no outcome accepts a record with a finding.
+    type: string
+    enum:
+      - legacy_protocol_routed

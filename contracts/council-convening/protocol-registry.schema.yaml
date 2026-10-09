@@ -1,0 +1,177 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_protocol_registry
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/protocol-registry.schema.yaml"
+contract_id: council-convening-protocol-registry
+contract_schema_version: 1
+title: The CLOSED council protocol registry
+description: >-
+  THE SET OF COUNCIL PROTOCOLS IS CLOSED (renew-resolved-council-protocol D1 and
+  D5; data-model E1; research R10). A protocol exists only as an entry here, and
+  every boundary over a protocol-carrying record begins by classifying the record
+  against this registry. DORMANT AND UNREGISTERED: this schema and its instance
+  have no row in `contracts/manifest.yaml` until the family's first release cut.
+
+
+  SCHEMA PLUS INSTANCE, on the convention the clearing family's permitted
+  operations register uses: this file declares the SHAPE, and
+  `protocol.registry.yaml` beside it is the one CLOSED INSTANCE, so the members
+  are data a reviewer reads in one file and a successor reads in the same bytes.
+
+
+  WHAT A SCHEMA CANNOT SAY, AND WHO SAYS IT. A schema can require that an entry
+  be COMPLETE; it cannot require that the SET be the ratified one. CLOSURE is the
+  canonical validator's rule: it carries the entries as landed at its commit, and
+  refuses an added, removed or renamed entry, or a rewritten signing context or
+  recognition rule, as `council-convening-registry-closure`. Adding an entry is a
+  governed contract change, not an edit to this file.
+
+
+  THE STATUS ENUMERATION ALREADY HOLDS EVERY STATUS EITHER ENTRY WILL TAKE, so the
+  two release cuts change instance data only (R19). The replacement is
+  `available` until the removal major, then `admission_eligible`. The legacy entry
+  is `in_use` until the deprecation minor, `deprecated` at it, and
+  `historical_only` at the removal major. Each tag field is `null` until a cut
+  writes the allocated `contract-v<major>.<minor>` tag into it.
+
+
+  THE LEGACY ENTRY IS IDENTIFICATION ONLY. This family never owned the legacy
+  shapes and never passes a legacy record. Its `recognition` rules apply only to
+  a record that carries no `protocol` member; a record that does is classified by
+  that member alone. The three rule kinds are closed: a `council_convening` block
+  with no roster, a legacy signing-context string at a named member path, and a
+  root-authorization member.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - registry_id
+  - registry_version
+  - protocols
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_council_protocol_registry
+  registry_id:
+    const: council-convening-protocols
+  registry_version:
+    type: integer
+    minimum: 1
+  protocols:
+    type: array
+    minItems: 1
+    items:
+      $ref: '#/$defs/entry'
+$defs:
+  protocol_id:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/protocol_id"
+  status:
+    type: string
+    enum:
+      - available
+      - admission_eligible
+      - in_use
+      - deprecated
+      - historical_only
+  release_tag:
+    description: A `contract-v<major>.<minor>` tag, or `null` until a cut writes one.
+    type: [string, "null"]
+    pattern: '^contract-v[0-9]+\.[0-9]+$'
+  member_name:
+    type: string
+    pattern: '^[a-z][a-z0-9_]*$'
+  entry:
+    type: object
+    additionalProperties: false
+    required:
+      - protocol_id
+      - role
+      - status
+      - signing_contexts
+      - introduced_in
+      - deprecated_in
+      - removed_in
+    properties:
+      protocol_id:
+        $ref: '#/$defs/protocol_id'
+      role:
+        type: string
+        enum: [replacement, legacy]
+      status:
+        $ref: '#/$defs/status'
+      signing_contexts:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/protocol_id'
+      recognition:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/recognition_rule'
+      introduced_in:
+        $ref: '#/$defs/release_tag'
+      deprecated_in:
+        $ref: '#/$defs/release_tag'
+      removed_in:
+        $ref: '#/$defs/release_tag'
+    allOf:
+      - if:
+          properties:
+            role: {const: replacement}
+        then:
+          properties:
+            status:
+              enum: [available, admission_eligible]
+          not:
+            required: [recognition]
+      - if:
+          properties:
+            role: {const: legacy}
+        then:
+          required: [recognition]
+          properties:
+            status:
+              enum: [in_use, deprecated, historical_only]
+  recognition_rule:
+    oneOf:
+      - description: >-
+          A record carrying a `block_member` object that lacks `roster_member`:
+          the legacy roster-less convening block.
+        type: object
+        additionalProperties: false
+        required: [rule, block_member, roster_member]
+        properties:
+          rule: {const: convening_block_without_roster}
+          block_member: {$ref: '#/$defs/member_name'}
+          roster_member: {$ref: '#/$defs/member_name'}
+      - description: >-
+          A record whose value at any of `member_paths` is one of this entry's
+          `signing_contexts`.
+        type: object
+        additionalProperties: false
+        required: [rule, member_paths]
+        properties:
+          rule: {const: legacy_signing_context}
+          member_paths:
+            type: array
+            minItems: 1
+            items:
+              type: array
+              minItems: 1
+              items: {$ref: '#/$defs/member_name'}
+      - description: A record carrying any of `members`, the legacy root-authorization members.
+        type: object
+        additionalProperties: false
+        required: [rule, members]
+        properties:
+          rule: {const: root_authorization_member}
+          members:
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items: {$ref: '#/$defs/member_name'}

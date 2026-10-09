@@ -1,0 +1,34 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "foundation",
+  "boundary": "classification",
+  "case_id": "cls-offline-convening-block-with-roster-refuse",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "protocol_unknown"
+  },
+  "inputs": {
+    "record": {
+      "council_convening": {
+        "council_id": "merge-readiness",
+        "required_seats": [
+          "security"
+        ]
+      }
+    },
+    "selected_protocol": null
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-001",
+    "FR-011"
+  ],
+  "schema_version": 1
+}
