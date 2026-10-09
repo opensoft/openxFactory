@@ -391,8 +391,22 @@ PHASE_2_REFUSALS = [
     "roster_mismatch"]
 
 
-def test_refusal_code_holds_exactly_the_phase_1_and_phase_2_codes(definitions_doc, schemas):
-    landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS
+#: Phase 4's codes (T046), in data-model § Refusal vocabulary order.
+PHASE_4_REFUSALS = [
+    "assignment_unknown", "assignment_not_yet_valid", "assignment_expired",
+    "operation_not_permitted", "challenge_malformed", "challenge_unknown",
+    "challenge_wrong_assignment", "challenge_consumed", "challenge_expired",
+    "registration_malformed", "root_authorization_refused", "wrong_principal",
+    "fingerprint_mismatch", "assignment_already_registered", "shared_key",
+    "cross_protocol_context", "cross_convening_context", "cross_seat_context",
+    "proof_invalid", "return_malformed", "return_unregistered", "return_key_mismatch",
+    "return_digest_mismatch", "return_signature_invalid", "return_replayed",
+    "return_unlisted", "return_duplicate", "return_missing", "completion_set_mismatch",
+    "binding_unresolved", "broker_capability_insufficient"]
+
+
+def test_refusal_code_holds_exactly_the_landed_phases_codes(definitions_doc, schemas):
+    landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS + PHASE_4_REFUSALS
     assert definitions_doc["$defs"]["refusal_code"]["enum"] == landed
     assert schemas.enum("refusal_code") == landed
     for code in landed:
