@@ -2,7 +2,8 @@
 """The canonical validator for the `council-convening` contract family.
 
     python3 scripts/validate-council-convening.py [--strict]
-    python3 scripts/validate-council-convening.py check [--strict] PATH...
+    python3 scripts/validate-council-convening.py check [--historical] [--strict] PATH...
+    python3 scripts/validate-council-convening.py select --producer FILE --consumer FILE
     python3 scripts/validate-council-convening.py corpus [--json]
 
 T021, per specs/035-renew-resolved-council-protocol/contracts/validator-cli.md.
@@ -38,8 +39,19 @@ THE MODES.
 * `corpus [--json]`: the index summary: totals, the agreement-set count and the
   index's raw SHA-256. `--json` prints it for successor tooling.
 
-`select` and `check --historical` land in Phase 6; until then they are argparse's
-exit 2.
+* `check --historical PATH...` (Phase 6): classifies each record by its RECORDED
+  protocol and never reinterprets it, at any registry status: a legacy record is
+  routed, a replacement record is held to the replacement rules. It gives no
+  deprecation finding, because a historical audit selects nothing.
+* `select --producer FILE --consumer FILE` (Phase 6): the two sides' E11
+  selections, in the `selection` order (data-model E11), against the protocol
+  registry at this commit: each selection's shape and side, registry membership,
+  the replacement's admission eligibility and the legacy entry's
+  `historical_only` refusal, then the pair, matched on all five members.
+
+DEPRECATION (Phase 6). While the protocol registry at this commit holds the
+legacy entry `deprecated`, `check` prints `WARN [council-convening-legacy-protocol-
+deprecated]` beside every route; `--strict` makes it an ERROR.
 
 EXIT CODES. 0 is no ERROR and no routed record (WARNs allowed unless `--strict`).
 1 is findings. 2 is a harness or dependency failure, never reported as a finding.
@@ -71,6 +83,7 @@ from scripts.council_convening import (  # noqa: E402
     classification,
     corpus,
     generate,
+    migration,
     predicates,
     records,
     resolution,
@@ -82,6 +95,10 @@ EXIT_HARNESS = 2
 EXIT_ROUTED = 3
 
 ROUTED_CODE = "council-convening-legacy-protocol-routed"
+DEPRECATED_CODE = "council-convening-legacy-protocol-deprecated"
+
+#: The full coverage floor, from Phase 6 (R16).
+FULL_FLOOR = tuple([f"FR-{n:03d}" for n in range(1, 13)] + ["SC-001", "SC-002", "SC-003"])
 
 #: Record kinds whose schema has landed at this commit, mapped to it. Phase 1
 #: lands none of the protocol-carrying or judged-by-kind record schemas other
@@ -157,6 +174,8 @@ def self_test(root: Path, strict: bool) -> int:
     _say("note  finding codes probed: %d/%d" % report.findings_probed)
     _say("note  requirements probed: %d/%d (%s)" % (*report.requirements_probed,
                                                     ", ".join(report.coverage_floor)))
+    if tuple(report.coverage_floor) == FULL_FLOOR:
+        _say("note  coverage floor full: FR-001 to FR-012, SC-001 to SC-003")
 
     # The findings collected so far are printed BEFORE the generator runs, so
     # whatever the generator does, they are on the record.
@@ -240,9 +259,45 @@ def _family_schema_problems(document: dict, registry: classification.Registry) -
     return problems
 
 
+def _check_selection(path: Path, document: Any, schemas: records.SchemaSet,
+                     registry: classification.Registry) -> list[corpus.Finding]:
+    """One E11 record alone: steps 1 to 3 of the `selection` order, against the
+    registry at this commit. The pair needs both sides, so it is `select`'s."""
+    outcome = migration.select([(None, document)], registry, schemas)
+    if outcome.outcome == "refuse":
+        return [corpus.Finding("ERROR", _refusal_code(outcome.refusal),
+                               f"{path}: the selection fails the selection order "
+                               f"(data-model E11)")]
+    _say(f"note  {path}: protocol selection valid offline")
+    _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: the pair, matched "
+         f"on mode, protocol, provider_commit, provider_bundle and "
+         f"corpus_index_sha256; run select")
+    return []
+
+
+def _check_activation(path: Path, document: Any, schemas: records.SchemaSet,
+                      registry: classification.Registry) -> list[corpus.Finding]:
+    """One E12 record: the activation order with the rules that need the
+    consumer's configured binding set or the backing rehearsal's text skipped
+    and named."""
+    outcome = migration.activation(document, registry, schemas, offline=True)
+    if outcome.outcome == "refuse":
+        return [corpus.Finding("ERROR", _refusal_code(outcome.refusal),
+                               f"{path}: the record fails the activation order "
+                               f"(data-model E12)")]
+    _say(f"note  {path}: activation evidence valid offline ({document['act']})")
+    if document["act"] in migration.ACTIVATING_ACTS:
+        _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: the passing "
+             f"matched rehearsal behind rehearsal_ref")
+        _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: binding_refs "
+             f"against the consumer's configured binding set, and each binding's "
+             f"broker capability")
+    return []
+
+
 def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
                registry: classification.Registry,
-               text: str) -> tuple[list[corpus.Finding], bool]:
+               text: str, historical: bool = False) -> tuple[list[corpus.Finding], bool]:
     """Findings for one record, and whether it was routed."""
     def error(code: str, message: str) -> list[corpus.Finding]:
         return [corpus.Finding("ERROR", code, f"{path}: {message}")]
@@ -267,6 +322,10 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
                     for code, message in problems], False
         _say(f"note  {path}: {predicates.REGISTRY_NOTE}")
         return [], False
+    if kind == migration.SELECTION_KIND:
+        return _check_selection(path, document, schemas, registry), False
+    if kind == migration.ACTIVATION_KIND:
+        return _check_activation(path, document, schemas, registry), False
     if kind in classification.JUDGED_BY_KIND_KINDS:
         return error("council-convening-kind-unknown",
                      f"a record of kind {kind}, whose schema has not landed at this "
@@ -305,10 +364,15 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
              f"the self-test's")
         return [], False
 
-    outcome = classification.classify_and_select(document, None, registry)
+    outcome = (migration.historical(document, registry) if historical
+               else classification.classify_and_select(document, None, registry))
     if outcome.outcome == "route":
         _say(f"note  [{ROUTED_CODE}] {path}: a legacy record, routed to the legacy "
              f"verifier; this family gives it no verdict")
+        if not historical and registry.status(registry.legacy_id) == "deprecated":
+            return [corpus.Finding("WARN", DEPRECATED_CODE,
+                                   f"{path}: the legacy protocol is deprecated at this "
+                                   f"commit and is removed at the next major")], True
         return [], True
     if outcome.outcome == "refuse":
         return error(_refusal_code(outcome.refusal),
@@ -350,7 +414,7 @@ def _registry_not_closed(exc: "classification.RegistryNotClosed", what: str) -> 
     return EXIT_FINDINGS
 
 
-def check(paths: list[str], root: Path, strict: bool) -> int:
+def check(paths: list[str], root: Path, strict: bool, historical: bool = False) -> int:
     try:
         schemas = records.load_schemas(root)
         registry = classification.load_closed_registry(root, schemas)
@@ -370,7 +434,8 @@ def check(paths: list[str], root: Path, strict: bool) -> int:
             findings.append(corpus.Finding("ERROR", "council-convening-schema",
                                            f"{path}: {problem}"))
             continue
-        found, was_routed = _check_one(path, document, schemas, registry, text)
+        found, was_routed = _check_one(path, document, schemas, registry, text,
+                                       historical)
         findings.extend(found)
         routed += was_routed
     for finding in findings:
@@ -383,6 +448,39 @@ def check(paths: list[str], root: Path, strict: bool) -> int:
     if failing:
         return EXIT_FINDINGS
     return EXIT_ROUTED if routed else EXIT_OK
+
+
+# --------------------------------------------------------------------------
+# `select`.
+# --------------------------------------------------------------------------
+
+def select(producer_path: str, consumer_path: str, root: Path) -> int:
+    try:
+        schemas = records.load_schemas(root)
+        registry = classification.load_closed_registry(root, schemas)
+    except classification.RegistryNotClosed as exc:
+        return _registry_not_closed(exc, "select: no selection was judged")
+    except (records.SchemaLoadError, ValueError) as exc:
+        return _harness(str(exc))
+    documents = []
+    for name in (producer_path, consumer_path):
+        try:
+            document, problem, _text = _read(Path(name))
+        except _Unreadable as exc:
+            return _harness(str(exc))
+        if problem:
+            _say(f"ERROR [council-convening-schema] {name}: {problem}")
+            return EXIT_FINDINGS
+        documents.append(document)
+    outcome = migration.select_pair(documents[0], documents[1], registry, schemas)
+    if outcome.outcome == "refuse":
+        _say(f"ERROR [{_refusal_code(outcome.refusal)}] select: the producer's and the "
+             f"consumer's selections fail the selection order (data-model E11)")
+        return EXIT_FINDINGS
+    _say("note  select: pair matched on mode, protocol, provider_commit, "
+         "provider_bundle, corpus_index_sha256")
+    _say("note  select: a matched pair is a configuration check, never an activation")
+    return EXIT_OK
 
 
 # --------------------------------------------------------------------------
@@ -439,7 +537,12 @@ def _parser() -> argparse.ArgumentParser:
     check_mode = modes.add_parser("check", help="check records offline")
     check_mode.add_argument("--strict", action="store_true", dest="check_strict",
                             help="treat a WARN as an ERROR")
+    check_mode.add_argument("--historical", action="store_true",
+                            help="classify by the recorded protocol; never reinterpret")
     check_mode.add_argument("paths", nargs="+", metavar="PATH")
+    select_mode = modes.add_parser("select", help="check the two sides' selections as a pair")
+    select_mode.add_argument("--producer", required=True, metavar="FILE")
+    select_mode.add_argument("--consumer", required=True, metavar="FILE")
     corpus_mode = modes.add_parser("corpus", help="print the corpus index summary")
     corpus_mode.add_argument("--json", action="store_true", help="machine-readable output")
     return parser
@@ -451,7 +554,9 @@ def main(argv: list[str] | None = None, root: Path | None = None) -> int:
     args = _parser().parse_args(argv)
     root = Path(root) if root is not None else records.REPO_ROOT
     if args.mode == "check":
-        return check(args.paths, root, args.strict or args.check_strict)
+        return check(args.paths, root, args.strict or args.check_strict, args.historical)
+    if args.mode == "select":
+        return select(args.producer, args.consumer, root)
     if args.mode == "corpus":
         return corpus_summary(root, args.json)
     return self_test(root, args.strict)

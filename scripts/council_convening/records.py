@@ -94,7 +94,9 @@ class Outcome:
     """The reference implementation's answer at one boundary.
 
     `status_read` records whether the answer depended on a registry status, which
-    the corpus's `registry_status` rule needs. It takes no part in comparison.
+    the corpus's `registry_status` rule needs, and `statuses_read` which entries'
+    statuses it read, in the order read (Phase 6: a selection reads the
+    replacement's status too). Neither takes part in comparison.
     """
 
     outcome: str
@@ -102,6 +104,7 @@ class Outcome:
     findings: tuple[str, ...] = ()
     derived: Mapping[str, Any] = field(default_factory=dict)
     status_read: bool = field(default=False, compare=False)
+    statuses_read: tuple[str, ...] = field(default=(), compare=False)
 
     def as_expected(self) -> dict[str, Any]:
         """The members a vector's `expected` compares, in its own spelling."""

@@ -27,10 +27,20 @@ THE EFFECTS depend on the side's SELECTED protocol, never on payload shape alone
   record proceeds to the offline replacement rules.
 
 A ROUTE IS NEVER A PASS. It carries the finding `legacy_protocol_routed`, and the
-legacy verifier remains the only verifier of legacy bytes. The rows for the
-legacy statuses `deprecated` and `historical_only` land in Phase 6 with their
-finding code. Until then this module raises `EffectNotLanded` rather than guess
-them.
+legacy verifier remains the only verifier of legacy bytes.
+
+Phase 6 (T061) lands the rows for the other two legacy statuses:
+
+* under a legacy selection while the legacy status is `deprecated`: a legacy
+  record is ROUTED with the findings `[legacy_protocol_routed,
+  legacy_protocol_deprecated]`, and a replacement record is refused
+  `protocol_not_selected`;
+* under a legacy selection while the legacy status is `historical_only`: the
+  selection itself is refused, in either mode, so every record is refused
+  `legacy_protocol_refused`.
+
+The rows keyed by a replacement selection, or by none, read no status. The
+`--historical` row is `migration.historical`.
 
 THE REGISTRY IS CLOSED HERE, as landed. `LANDED_PROTOCOLS` is the set at this
 commit, and `registry_findings` refuses an instance that adds, removes, renames
@@ -72,6 +82,7 @@ JUDGED_BY_KIND_KINDS = frozenset({
 FAMILY_RECORD_KINDS = PROTOCOL_CARRYING_KINDS | JUDGED_BY_KIND_KINDS
 
 ROUTE_FINDING = "legacy_protocol_routed"
+DEPRECATED_FINDING = "legacy_protocol_deprecated"
 
 #: The statuses each role may hold, as the registry schema's `allOf` says.
 ROLE_STATUSES = {
@@ -314,11 +325,14 @@ def classify_and_select(record: Any, selected_protocol: str | None, registry: Re
         return records.Outcome("refuse", "legacy_protocol_refused") if legacy else accept
 
     status = registry.status(registry.legacy_id, statuses)
-    if status != "in_use":
-        raise EffectNotLanded(
-            f"the effects under a legacy selection with legacy status {status!r} "
-            f"land in Phase 6")
+    read = {"status_read": True, "statuses_read": (registry.legacy_id,)}
+    if status not in ROLE_STATUSES["legacy"]:
+        raise EffectNotLanded(f"no effects row for legacy status {status!r}")
+    if status == "historical_only":
+        return records.Outcome("refuse", "legacy_protocol_refused", **read)
     if legacy:
-        return records.Outcome("route", None, (ROUTE_FINDING,),
-                               {"classification": "legacy"}, status_read=True)
-    return records.Outcome("refuse", "protocol_not_selected", status_read=True)
+        findings = (ROUTE_FINDING,) + ((DEPRECATED_FINDING,) if status == "deprecated"
+                                       else ())
+        return records.Outcome("route", None, findings, {"classification": "legacy"},
+                               **read)
+    return records.Outcome("refuse", "protocol_not_selected", **read)

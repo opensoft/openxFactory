@@ -38,17 +38,18 @@ LINE = re.compile(
     r"|WARN  \[council-convening-[a-z0-9-]+\] \S.*"
     r"|note  \S.*)$")
 
-#: The Phase 1 notes, at the counts landed by Phase 2: four family schemas (the
-#: predicate registry's and the commission record's join), 34 refusal codes and
-#: the six-requirement floor (T026, T028, T029).
+#: The Phase 1 notes, at the counts landed by Phase 6: six family schemas (Phase
+#: 2's predicate registry and commission record, and Phase 6's protocol selection
+#: and activation evidence), 43 refusal codes, both findings and the
+#: seven-requirement floor (T026, T028, T029; T058, T060).
 PHASE_1_NOTES = [
-    r"^note  schemas loaded: 4 \(family\) \+ digest-construction$",
+    r"^note  schemas loaded: 6 \(family\) \+ digest-construction$",
     r"^note  protocol registry closed: 2 entries$",
     r"^note  corpus index: ([0-9]+) vectors, ([0-9]+) both-sides, sha256:[0-9a-f]{64}$",
     r"^note  vectors adjudicated: ([0-9]+)/\1$",
-    r"^note  refusal codes probed: 34/34$",
-    r"^note  finding codes probed: 1/1$",
-    r"^note  requirements probed: 6/6 \(FR-001, FR-002, FR-003, FR-004, FR-011, SC-001\)$",
+    r"^note  refusal codes probed: 43/43$",
+    r"^note  finding codes probed: 2/2$",
+    r"^note  requirements probed: 7/7 \(FR-001, FR-002, FR-003, FR-004, FR-011, FR-012, SC-001\)$",
     r"^note  generator reproduced corpus byte-for-byte$",
 ]
 
@@ -305,12 +306,10 @@ def test_corpus_plain_prints_notes():
 
 
 # --------------------------------------------------------------------------
-# Subcommands that land later are argparse's exit 2 now.
+# An unknown subcommand is argparse's exit 2. Every mode has landed by Phase 6.
 # --------------------------------------------------------------------------
 
 @pytest.mark.parametrize("argv", [
-    ["select", "--producer", "p.json", "--consumer", "c.json"],
-    ["check", "--historical", "x.json"],
     ["no-such-mode"],
 ])
 def test_modes_that_have_not_landed_are_exit_2(argv):
@@ -643,3 +642,191 @@ def test_check_refuses_a_yaml_record_with_a_repeated_key(tmp_path):
     assert result.returncode == 1, result.stdout + result.stderr
     assert "ERROR [council-convening-schema]" in result.stdout
     assert "strict YAML" in result.stdout
+
+
+# --------------------------------------------------------------------------
+# Phase 6 (T059): `select`, `check --historical`, E11/E12 records, full coverage.
+# --------------------------------------------------------------------------
+
+INDEX_SHA = "sha256:" + "cd" * 32
+BUNDLE = "contract-v5.0"
+
+
+def _selection(side, mode="rehearsal", protocol=REPLACEMENT, bundle=None, commit=SHA,
+               index=INDEX_SHA):
+    return {"schema_version": 1, "kind": "xfactory_council_protocol_selection",
+            "side": side, "mode": mode, "protocol": protocol, "provider_commit": commit,
+            "provider_bundle": bundle, "corpus_index_sha256": index}
+
+
+def _select(tmp_path, producer, consumer):
+    p = _write(tmp_path, "producer.json", producer)
+    c = _write(tmp_path, "consumer.json", consumer)
+    return run_validator("select", "--producer", str(p), "--consumer", str(c))
+
+
+def test_select_accepts_a_matched_rehearsal_pair(tmp_path):
+    result = _select(tmp_path, _selection("producer"), _selection("consumer"))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "note  select: pair matched on mode, protocol, provider_commit, " \
+           "provider_bundle, corpus_index_sha256" in result.stdout
+    assert "ERROR [" not in result.stdout
+
+
+def test_select_reads_yaml_selections_too(tmp_path):
+    p = _write(tmp_path, "producer.yaml", _selection("producer", bundle=BUNDLE))
+    c = _write(tmp_path, "consumer.yaml", _selection("consumer", bundle=BUNDLE))
+    result = run_validator("select", "--producer", str(p), "--consumer", str(c))
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+@pytest.mark.parametrize("member, value", [
+    ("mode", "active"), ("protocol", LEGACY), ("provider_commit", "f" * 40),
+    ("provider_bundle", "contract-v4.2"), ("corpus_index_sha256", "sha256:" + "ef" * 32)])
+def test_select_refuses_a_pair_that_differs_on_any_matched_value(tmp_path, member, value):
+    consumer = _selection("consumer", bundle=BUNDLE)
+    consumer[member] = value
+    result = _select(tmp_path, _selection("producer", bundle=BUNDLE), consumer)
+    assert result.returncode == 1, result.stdout + result.stderr
+    # An active replacement selection is refused for eligibility first at this
+    # commit, where the replacement is `available`.
+    code = ("replacement-not-admission-eligible" if member == "mode"
+            else "pair-mismatched")
+    assert f"ERROR [council-convening-{code}]" in result.stdout
+
+
+def test_select_refuses_an_active_replacement_before_the_major(tmp_path):
+    """The live registry holds the replacement `available` at this commit."""
+    result = _select(tmp_path, _selection("producer", mode="active", bundle=BUNDLE),
+                     _selection("consumer", mode="active", bundle=BUNDLE))
+    assert result.returncode == 1
+    assert "ERROR [council-convening-replacement-not-admission-eligible]" in result.stdout
+
+
+def test_select_accepts_an_active_legacy_pair_while_in_use(tmp_path):
+    result = _select(tmp_path,
+                     _selection("producer", mode="active", protocol=LEGACY, bundle=BUNDLE),
+                     _selection("consumer", mode="active", protocol=LEGACY, bundle=BUNDLE))
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+@pytest.mark.parametrize("producer, code", [
+    (_selection("producer", mode="active"), "selection-malformed"),
+    (_selection("consumer"), "selection-malformed"),
+    (_selection("producer", protocol="xfc-resolved-council-2"), "protocol-unknown"),
+])
+def test_select_names_the_first_failing_check(tmp_path, producer, code):
+    result = _select(tmp_path, producer, _selection("consumer"))
+    assert result.returncode == 1
+    assert f"ERROR [council-convening-{code}]" in result.stdout
+
+
+def test_select_refuses_a_legacy_selection_once_historical_only(family_tree, tmp_path, capsys):
+    path = family_tree / FAMILY_REL / "protocol.registry.yaml"
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    doc["protocols"][1]["status"] = "historical_only"
+    doc["protocols"][0]["status"] = "admission_eligible"
+    path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+    p = _write(tmp_path, "p.json", _selection("producer", protocol=LEGACY, bundle=BUNDLE))
+    c = _write(tmp_path, "c.json", _selection("consumer", protocol=LEGACY, bundle=BUNDLE))
+    assert load_validator().main(["select", "--producer", str(p), "--consumer", str(c)],
+                                 root=family_tree) == 1
+    assert "ERROR [council-convening-legacy-protocol-refused]" in capsys.readouterr().out
+
+
+def test_select_on_an_unreadable_file_exits_2(tmp_path):
+    c = _write(tmp_path, "c.json", _selection("consumer"))
+    result = run_validator("select", "--producer", str(tmp_path / "absent.json"),
+                           "--consumer", str(c))
+    assert result.returncode == 2
+    assert "ERROR [" not in result.stdout
+
+
+def test_select_needs_both_sides():
+    assert run_validator("select", "--producer", "p.json").returncode == 2
+
+
+def test_select_never_echoes_a_value(tmp_path):
+    value = "xfc-" + "Q" * 60 + "-distinctive"
+    result = _select(tmp_path, _selection("producer", protocol=value),
+                     _selection("consumer", protocol=value))
+    assert result.returncode == 1
+    assert value not in result.stdout + result.stderr
+
+
+# `check --historical`.
+
+def test_check_historical_exits_3_on_a_legacy_record(tmp_path):
+    path = _write(tmp_path, "legacy.json", {"protocol": LEGACY, "key_fingerprint": FPR})
+    result = run_validator("check", "--historical", str(path))
+    assert result.returncode == 3, result.stdout + result.stderr
+    assert "council-convening-legacy-protocol-routed" in result.stdout
+
+
+def test_check_historical_exits_0_on_a_valid_replacement_record(tmp_path):
+    path = _write(tmp_path, "replacement.json", VALID_REPLACEMENT_RECORD)
+    result = run_validator("check", "--historical", str(path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "ERROR [" not in result.stdout
+
+
+def test_check_historical_still_refuses_a_malformed_replacement_record(tmp_path):
+    broken = dict(VALID_REPLACEMENT_RECORD)
+    broken["unexpected"] = "member"
+    path = _write(tmp_path, "broken.json", broken)
+    result = run_validator("check", "--historical", str(path))
+    assert result.returncode == 1
+
+
+# `check` on the two Phase 6 kinds, judged by kind and never classified.
+
+def test_check_validates_a_selection_record(tmp_path):
+    path = _write(tmp_path, "selection.json", _selection("producer"))
+    result = run_validator("check", str(path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "protocol-unknown" not in result.stdout
+    assert "not checkable offline" in result.stdout  # the pair needs `select`
+
+
+def test_check_refuses_a_malformed_selection_record(tmp_path):
+    path = _write(tmp_path, "selection.json", _selection("producer", mode="active"))
+    result = run_validator("check", str(path))
+    assert result.returncode == 1
+    assert "ERROR [council-convening-selection-malformed]" in result.stdout
+
+
+def test_check_validates_an_activation_record_offline_and_says_what_it_could_not(tmp_path):
+    record = {"schema_version": 1, "kind": "xfactory_council_activation_evidence",
+              "act": "pause", "recorded_at": "2026-10-09T00:00:00Z",
+              "provider": {"commit": SHA, "bundle": BUNDLE, "corpus_index_sha256": INDEX_SHA},
+              "owner_word": {"author": "Example Owner", "date": "2026-10-09T00:00:00Z",
+                             "verbatim": "an example owner word", "cite": "example"}}
+    path = _write(tmp_path, "pause.json", record)
+    result = run_validator("check", str(path))
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_check_reports_the_activation_rules_it_cannot_run_offline(tmp_path):
+    record = json.loads(ACTIVATION_VECTOR.read_text(encoding="utf-8"))["inputs"]["record"]
+    path = _write(tmp_path, "activation.json", record)
+    result = run_validator("check", str(path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "not checkable offline" in result.stdout
+    assert "rehearsal_ref" in result.stdout and "binding_refs" in result.stdout
+
+
+def test_check_refuses_an_incomplete_activation_record(tmp_path):
+    record = json.loads(ACTIVATION_VECTOR.read_text(encoding="utf-8"))["inputs"]["record"]
+    del record["owner_word"]
+    path = _write(tmp_path, "activation.json", record)
+    result = run_validator("check", str(path))
+    assert result.returncode == 1
+    assert "ERROR [council-convening-activation-evidence-incomplete]" in result.stdout
+
+
+#: A landed replacement record: Phase 2's commission record, from a positive
+#: resolution vector.
+VALID_REPLACEMENT_RECORD = _commission_record()
+#: An activation record from the migration corpus, with its per-seat bindings.
+ACTIVATION_VECTOR = (INDEX.parent / "vectors" / "migration"
+                     / "mig-act-activation-per-seat-merge-readiness-accept.json")

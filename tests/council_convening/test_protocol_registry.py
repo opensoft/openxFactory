@@ -16,8 +16,8 @@ Classification is probed in its written order:
    `protocol_unknown` otherwise.
 
 The effects are the Phase 1 rows of the E1 effects table. The rows for the legacy
-statuses `deprecated` and `historical_only` land in Phase 6, so at this commit
-the reference implementation refuses to guess them.
+statuses `deprecated` and `historical_only` landed in Phase 6 (T061), and
+`test_migration.py` probes every row under each status.
 """
 
 from __future__ import annotations
@@ -410,10 +410,20 @@ def test_the_registry_instance_status_is_used_when_there_is_no_override(registry
     assert outcome.outcome == "route" and outcome.status_read is True
 
 
-@pytest.mark.parametrize("status", ["deprecated", "historical_only"])
-def test_the_phase_6_rows_are_not_guessed_at_this_commit(registry, status):
-    with pytest.raises(classification.EffectNotLanded):
-        _outcome(registry, LEGACY_RECORD, LEGACY, {LEGACY: status})
+@pytest.mark.parametrize("status, legacy_verdict, replacement_verdict", [
+    ("deprecated", ("route", None, ("legacy_protocol_routed", "legacy_protocol_deprecated")),
+     ("refuse", "protocol_not_selected", ())),
+    ("historical_only", ("refuse", "legacy_protocol_refused", ()),
+     ("refuse", "legacy_protocol_refused", ())),
+])
+def test_the_phase_6_rows_have_landed(registry, status, legacy_verdict, replacement_verdict):
+    """Phase 6 (T061) lands the two rows Phase 1 refused to guess; every row under
+    each status is `tests/council_convening/test_migration.py`'s."""
+    for record, verdict in ((LEGACY_RECORD, legacy_verdict),
+                            (REPLACEMENT_RECORD, replacement_verdict)):
+        outcome = _outcome(registry, record, LEGACY, {LEGACY: status})
+        assert (outcome.outcome, outcome.refusal, outcome.findings) == verdict
+        assert outcome.status_read is True
 
 
 def test_a_selection_that_names_no_registry_entry_is_a_harness_error(registry):

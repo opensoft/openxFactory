@@ -1156,7 +1156,7 @@
       ],
       "area": "foundation",
       "boundary": "definition",
-      "case_id": "def-finding-code-refuse-later-phase-code",
+      "case_id": "def-finding-code-refuse-unlisted-code",
       "expected": {
         "derived": {},
         "derived_origin": "hand",
@@ -1164,11 +1164,11 @@
         "outcome": "refuse",
         "refusal": "value_malformed"
       },
-      "path": "vectors/foundation/def-finding-code-refuse-later-phase-code.json",
+      "path": "vectors/foundation/def-finding-code-refuse-unlisted-code.json",
       "requirement_ids": [
         "FR-001"
       ],
-      "sha256": "sha256:20efb60a3b32d310016c62804eb4c6d5a2195de0479724756aecb5cb287bd2dc"
+      "sha256": "sha256:a65b4898dcbf224a5b3e1f05acf242872ba5b54f0847b5ab54d1b4d2a5c0b544"
     },
     {
       "applies_to": [
@@ -2849,6 +2849,2691 @@
         "FR-001"
       ],
       "sha256": "sha256:7cc84139286e6b9d054569ba394dc5bf1ab7a22e90586c45c521dad1b4a89aa6"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-binding-refs-any-order-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-activation-binding-refs-any-order-accept.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:2e2553e5a810cbe44f3a9e379fbfba8fffbfac0cd88fe5c0af40cef134168c77"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-foreign-member-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_malformed"
+      },
+      "path": "vectors/migration/mig-act-activation-foreign-member-malformed.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:13cb3f0d21cc40ce04671bcd4a413c829e9d974336432d54332aa9b7b749a3b0"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-no-binding-refs-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-no-binding-refs-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:6834ea20a34bbd91192ca0c3c6b081757c6f5102824e8c593cb319f9a61d1f3e"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-no-owner-word-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-no-owner-word-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:b9301629a851947d7453ddb71d2454558532cc568e5315e60bc352f8972c5ed0"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-no-rehearsal-ref-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-no-rehearsal-ref-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:c1291069e7168c746d9343b83604eb5319f786db9c8cb3bd4b011be551a1acf1"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-omits-council-1-commission-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-omits-council-1-commission-incomplete.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:f49b79d03876557f66cc61ffc0af3ef915b8ed22e7516cbd3e0753eea85a31a2"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-omits-council-1-seat-company-policy-lead-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-omits-council-1-seat-company-policy-lead-incomplete.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:d66656d607cf540147306a53a02ed1bf6497c2f49122673313c405f4e840a2f1"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-own-broker-state-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_malformed"
+      },
+      "path": "vectors/migration/mig-act-activation-own-broker-state-malformed.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:6b8295ab804a8c8ca9bde38b10ac4fa30fb28f9160023e6c03885838761df2f1"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-pair-mode-mismatched",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "pair_mismatched"
+      },
+      "path": "vectors/migration/mig-act-activation-pair-mode-mismatched.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:acb040c9913005dc853ee79c53de286c9bea4eec5da5d0841a1c01d5e6984a99"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-per-seat-both-councils-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-activation-per-seat-both-councils-accept.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:f3180c729b8092b5564f7890b1bd5f7a0df0cacced212da7c3d9d1c7fef1fd0b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-per-seat-gate-rules-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-activation-per-seat-gate-rules-accept.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:8924a42ec589c71d58c0f17141e9a4ab1b80e546c9baeb198701bc0af1c6b476"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-per-seat-merge-readiness-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-activation-per-seat-merge-readiness-accept.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:5733ffca2f97ab3ab0ba7b5ccc6decb4985937720c0b26393eb57812a705b4d6"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-rehearsal-dormant-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-rehearsal-dormant-incomplete.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:cfa55c210205f26f9e67795e5a2d3629b26fdfa87d018830c2000f0ff3cf0b35"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-rehearsal-failed-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-rehearsal-failed-incomplete.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:3ddc56c1e20abca13dbfae1a98620a843af5434805b3bbd36224eb5bbcac7390"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-rehearsal-legacy-protocol-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-rehearsal-legacy-protocol-incomplete.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:7a7bd10c40cbd6e74d6ece0f397beee9b71b1c82ddcdec8a6f2382e387a812c3"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-rehearsal-no-bundle-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-rehearsal-no-bundle-incomplete.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:a9a16032c8cd08880977135a1da1dc8a1f55548073ee1e96a289c270e5e3d450"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-rehearsal-other-provider-commit-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-rehearsal-other-provider-commit-incomplete.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:281e36aa9d14dbf3a50d31cdc0ffb29d07520671bd628c4ba655dc0e4b63633e"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-rehearsal-other-selection-commit-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-rehearsal-other-selection-commit-incomplete.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:9ca75fa738a711611225d6a26a819690de32012219595151abb1509df7430fc7"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-rehearsal-other-selection-corpus-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-rehearsal-other-selection-corpus-incomplete.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:7380b23d6d77941ccd2f58e0cd6c8dd8a9e6b6131cd5b67660a737a98d69cbc2"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-rehearsal-own-pair-mismatched-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-rehearsal-own-pair-mismatched-incomplete.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:e55be84ae40dada0ee4b82e325b01b309fc3c4ef7cf799d4b0b3b1273342c765"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-rehearsal-text-respaced-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-rehearsal-text-respaced-incomplete.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:0bd3c9cf8f8c18b226e071d4414ebd5acbb13592ef02a6f81d5c23a1fc30ce12"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-seat-broker-no-evidence-insufficient",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "broker_capability_insufficient"
+      },
+      "path": "vectors/migration/mig-act-activation-seat-broker-no-evidence-insufficient.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:463711fc720214b9e2546256fc71c0be995f2d61869aa1d80c238c57f36273e9"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-seat-broker-unverified-insufficient",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "broker_capability_insufficient"
+      },
+      "path": "vectors/migration/mig-act-activation-seat-broker-unverified-insufficient.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:d2fe0b4ce55db6fde1ab667c4180ef10f28d1759aa7159a7ea00c50e62075ded"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-seventeen-bindings-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_malformed"
+      },
+      "path": "vectors/migration/mig-act-activation-seventeen-bindings-malformed.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:3cf3e4e601a14c9a9edbc9b3ec4522fcb7a12487eea26ccba5f52a86417c2132"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-side-strays-from-rehearsal-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-activation-side-strays-from-rehearsal-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:bd4ae930a200241c3c516f09513cb67935560271e39e0280fa406108bda9db47"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-sixteen-bindings-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-activation-sixteen-bindings-accept.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:f2596b4ffdf807474f4a01303af530cd8c9717af341089822c9f475c9e69d4ea"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-activation-unconfigured-binding-unresolved",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_unresolved"
+      },
+      "path": "vectors/migration/mig-act-activation-unconfigured-binding-unresolved.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:acfe6f165fea591f694af6e269277b3026ab83d51176d866ba534deab384e61e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-drain-cancelled-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-drain-cancelled-accept.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:f4849a213ff2e04e096c07759c110c246e8fddebce73f2cc580ed5e12e8c218e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-drain-drained-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-drain-drained-accept.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:f6ea8c33b27d35cb2d5874bdc45cd2242f0fdb5fb3d015e094afd34d1640856d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-drain-no-in-flight-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-drain-no-in-flight-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:13ecbc08cfc63d53d45d677bcef4791a579eb8dd2d356adb01b8ba4f87d78f9f"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-order-broker-before-pair",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "broker_capability_insufficient"
+      },
+      "path": "vectors/migration/mig-act-order-broker-before-pair.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:bf4024f92e9bcee6566fa00fa1341b5046fb6ff3ebd99bd19f1c26707086e076"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-order-first-entry-broker-before-later-unresolved",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "broker_capability_insufficient"
+      },
+      "path": "vectors/migration/mig-act-order-first-entry-broker-before-later-unresolved.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:b3e9075778479d91329ab44edbcece15a16129aadefab05787860ea655bbe109"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-order-first-entry-unresolved-before-later-broker",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_unresolved"
+      },
+      "path": "vectors/migration/mig-act-order-first-entry-unresolved-before-later-broker.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:b6935569436df7a73209ef9c74ba7726c0f031520faa9cc6ed88a1bc6b239625"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-order-incomplete-before-unresolved",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-order-incomplete-before-unresolved.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:ae63f4a3666ddf215cfdb18bb9f2472c8ee27c4e9f1076ef8767906f1b93ecfd"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-order-rollback-dropped-before-reinterpretation",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-order-rollback-dropped-before-reinterpretation.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:8f0a8089bae6867f7d7340f1262b7167355c46d09affe8fca48bce9390191f02"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-order-rollback-pair-before-reinterpretation",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "pair_mismatched"
+      },
+      "path": "vectors/migration/mig-act-order-rollback-pair-before-reinterpretation.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:ebf5ad7094a4393587770f48991ffb1e9d9880b918a75da84812f1d5b928015b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-pause-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-pause-accept.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:431f0302d3b5a4e952d2638388259a5c86db0f5f140d316723b6d44bf8be1a96"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-pause-no-owner-word-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-pause-no-owner-word-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:ea4f2b76db1cd3b7f3df10206e90b3c7b0ab26ca63cbbb0a0c1c997941a311e4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-pause-no-recorded-at-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-pause-no-recorded-at-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:00832c5497fcb4976e34231f8d7bc543c4e1d9b80e6e12e8493ba7e44ab018f2"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-pause-unknown-member-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_malformed"
+      },
+      "path": "vectors/migration/mig-act-pause-unknown-member-malformed.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:72c5ea539fbf20a19d0a7f8f52de14583616c772b89a021610bcf4be26442a24"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-rehearsal-dormant-no-intake-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-rehearsal-dormant-no-intake-accept.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:b72b7fa3537517e73ab737f4db6f328ee19392b5a4fa334d9c56402d9b4ba26e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-rehearsal-matched-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-rehearsal-matched-accept.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:395e0ae2f321af6b8f4928396dfc70ef6ea430ad0999b5d0f8989b535b7b1d04"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-rehearsal-no-intake-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-rehearsal-no-intake-incomplete.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:1a4589ac8bc2bd0cbf42f2a2ab1552543a2fe3e2b31f143172a99e16d36fba9f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-rehearsal-pair-mismatched",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "pair_mismatched"
+      },
+      "path": "vectors/migration/mig-act-rehearsal-pair-mismatched.json",
+      "requirement_ids": [
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:cc1169159699bc65cb502d38b1c9d8f1e794813605aa1164e74310b56a70e8a6"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-resume-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-resume-accept.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:033c8bd61998f731b99d56ddc84075042726ee3a945c4af8ce9cd306cc200999"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-resume-commission-broker-unverified-insufficient",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "broker_capability_insufficient"
+      },
+      "path": "vectors/migration/mig-act-resume-commission-broker-unverified-insufficient.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:bf501b78cdf8ee2090f9787bbced7856e3832e961fc396faa9c16a4b29db96f9"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-resume-no-binding-refs-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-resume-no-binding-refs-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:ece9717fe0a0f69ead667cedde05985b8df7ac6676a1b67d39e3d2c739c1be87"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-resume-no-owner-word-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-resume-no-owner-word-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:df4ef118a22a497f35b5c5d9b8041fe616212699a5548c8cf6ddb52928a52bec"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-resume-no-rehearsal-ref-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-resume-no-rehearsal-ref-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:d6d380333c794732ce430fd7b7e93585a66708243afa4ca06de483f6ba889be1"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-rollback-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-rollback-accept.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012",
+        "SC-004"
+      ],
+      "sha256": "sha256:d7787058e3e74462e28cbb0bc84f588f4a41faccdf284dd46204e460d3ebb8ab"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-rollback-binding-refs-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_malformed"
+      },
+      "path": "vectors/migration/mig-act-rollback-binding-refs-malformed.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:307da50c1c4cf16b60fd0f7d3d8af523f460433665581e511105ddff6899871a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-rollback-consumer-not-restored-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-rollback-consumer-not-restored-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:71df58bf5d4978e8e7ad6cb70622bf022be33fe57f5025b13de3838f406b213f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-rollback-new-records-dropped-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-rollback-new-records-dropped-incomplete.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:9601214583d234cb800d5bf79e01884f61f55990fb13be0b7e992c3c2ee4666f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-rollback-new-records-under-legacy-refused",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "historical_reinterpretation_refused"
+      },
+      "path": "vectors/migration/mig-act-rollback-new-records-under-legacy-refused.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:a0d62e8c100173417ffc45528d6b65072e6b7c3a0d13c29581a4b938453582ba"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-rollback-no-new-records-protocol-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-rollback-no-new-records-protocol-incomplete.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:518aa9d010bb7a950b957c5f6a4f4e88410281671442b816519673e2bae6436f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-rollback-no-rollback-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-rollback-no-rollback-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:414b1ae0495505ac61770eeb1abd062d9f03e2a1b0b4ae335e5681953a9524ea"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-switch-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-act-switch-accept.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:f133de6891aa4aa589fa41ee6fb0155339e6605400497f73eedd7aa7b853af74"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-switch-no-intake-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-switch-no-intake-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:0b9f351fcf018f0aa9cb46d60add98667a03cc3673cac04adaf7711263db5f77"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-switch-no-provider-incomplete",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-switch-no-provider-incomplete.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:9762061e4a37889402536acca88cb0db9f58ef0344508973b70073831d148e3d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-switch-pair-mismatched",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "pair_mismatched"
+      },
+      "path": "vectors/migration/mig-act-switch-pair-mismatched.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:784d0d85c50fca624f08d0e3ccdb21a5c3ac6d39af28026178c06e7c3e6cf906"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-switch-selection-side-swapped-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_malformed"
+      },
+      "path": "vectors/migration/mig-act-switch-selection-side-swapped-malformed.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:604249349650751d37460dd006b3dc43cd044f18136911a879b42be8def92f08"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-unknown-act-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_malformed"
+      },
+      "path": "vectors/migration/mig-act-unknown-act-malformed.json",
+      "requirement_ids": [
+        "FR-012"
+      ],
+      "sha256": "sha256:5cbfd41ecb823943969d1a98fd65a43868861d30bd50689b1d4e4697eac39912"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-legacy-selection-deprecated-legacy-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed",
+          "legacy_protocol_deprecated"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-cls-legacy-selection-deprecated-legacy-route.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:5f1f52ae87076be81d2828f0650d66760ec619ea7a427bcc0104c72b7660033f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-legacy-selection-deprecated-replacement-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_not_selected"
+      },
+      "path": "vectors/migration/mig-cls-legacy-selection-deprecated-replacement-refuse.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:01077ed65f3918355fa2a569fa5742b05491e1fcfb9b8a16aa2420cc9ee45356"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-legacy-selection-historical-only-legacy-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/migration/mig-cls-legacy-selection-historical-only-legacy-refuse.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:f3a329a0be5350b1050d6283ab27c9d4d5dd699bf15c9b443d5a3fc27ac07366"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-legacy-selection-historical-only-replacement-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/migration/mig-cls-legacy-selection-historical-only-replacement-refuse.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:115d54aa74566c280cf17343508f7821c3ff4ecfb5378a492b9a2f28a0d25ef5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-legacy-selection-in-use-legacy-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-cls-legacy-selection-in-use-legacy-route.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:03f77713deaf997ffae0414c02adf3e09e77c321a50154f28efb4f7055f81b1b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-legacy-selection-in-use-replacement-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_not_selected"
+      },
+      "path": "vectors/migration/mig-cls-legacy-selection-in-use-replacement-refuse.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:5cc001c32e9cb5b0508ed7d11d5150b40de80e3aeb599cd00497cfecd8302759"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-offline-deprecated-legacy-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-cls-offline-deprecated-legacy-route.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:a7c49efe470c55e63ec901c9a796813189f78f49445a5e884843bf7ccdf38739"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-offline-deprecated-replacement-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-cls-offline-deprecated-replacement-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:51dce72fe005fd61047242c05f4c3edf9697d61ccf482a5c75d5d28e4aad78ee"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-offline-historical-only-legacy-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-cls-offline-historical-only-legacy-route.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:8e7dc2daaa9eafe9cd245a1647073f56f6c7bbf1ad208f452fc83b4b92f515dd"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-offline-historical-only-replacement-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-cls-offline-historical-only-replacement-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:28983a05a116fa18586db7ff0ce334b62795e0abf1a94f029d06f75a2cfd93c1"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-offline-in-use-legacy-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-cls-offline-in-use-legacy-route.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:e060eb135760ea0da928e32bc186001b7c835adb1b8d873482d1742809a02cce"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-offline-in-use-replacement-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-cls-offline-in-use-replacement-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:f06ee86725acb6095a063d341d50ff822c5a12e2623eebc1e60399e7c21e79de"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-replacement-selection-deprecated-legacy-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/migration/mig-cls-replacement-selection-deprecated-legacy-refuse.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:e3a058da6db3b368aeb9aceda85b05cc8938c659c17b52601f6bbbcdcc29709d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-replacement-selection-deprecated-replacement-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-cls-replacement-selection-deprecated-replacement-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:9c3502d8c1df1e48416ac30e85b62626940de745b25b0a2644d6c30aeaf6469a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-replacement-selection-historical-only-legacy-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/migration/mig-cls-replacement-selection-historical-only-legacy-refuse.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:1f3a8ca148cc9b7f49480134c100bcd21df47a7754c6f206be076ed299dc8081"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-replacement-selection-historical-only-replacement-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-cls-replacement-selection-historical-only-replacement-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:20ebfc29fa3446b5b58a30ba577290c79277a8259fa5a3256260959582e9d9d0"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-replacement-selection-in-use-legacy-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/migration/mig-cls-replacement-selection-in-use-legacy-refuse.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:5067c02596e5ffaee42ef8f268aa6e6685ffa2a5648d058a2f57c43434c64952"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "classification",
+      "case_id": "mig-cls-replacement-selection-in-use-replacement-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-cls-replacement-selection-in-use-replacement-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:31f2d7e8a81913f42c92c67f024ad22ae6a2791b298c5bc220abb55e43252b51"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "historical",
+      "case_id": "mig-hist-deprecated-legacy-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-hist-deprecated-legacy-route.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:fd0d5a58998a867b362945454313fb0b5c89c80fd36f7425021016ad26453679"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "historical",
+      "case_id": "mig-hist-deprecated-replacement-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-hist-deprecated-replacement-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:a2323d5c7896d2e52492c3e0f465d727d75581c2e1940228ed5cec2d50b49db4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "historical",
+      "case_id": "mig-hist-historical-only-legacy-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-hist-historical-only-legacy-route.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:2aac3392df3da28167e36a6636961792c473c80e757ba1137d677c7da3e3e350"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "historical",
+      "case_id": "mig-hist-historical-only-replacement-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-hist-historical-only-replacement-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:ac8a6d5c3aa082c223a324ba916e6093691a1aad2746137add6e4ff13584c9b6"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "historical",
+      "case_id": "mig-hist-in-use-legacy-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-hist-in-use-legacy-route.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:83e990c04467bc4dc7997f913fe552af2b65ba4d55806e734ca680dd44cb75db"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "historical",
+      "case_id": "mig-hist-in-use-replacement-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-hist-in-use-replacement-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:cb5e30cacffd3c603fe71c5c17702072cf203fe6c34f3fcfc84b10730275c197"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "historical",
+      "case_id": "mig-hist-legacy-protocol-with-roster-shape-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-hist-legacy-protocol-with-roster-shape-route.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:5217f44723733a3aa8492045c85bf40ce5730451f96410021a437e0b1eea08bc"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "historical",
+      "case_id": "mig-hist-legacy-seat-result-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-hist-legacy-seat-result-route.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:87ba5dcdb056f53273f5ca3aca4120cfdc90e068a9716a306daaffd521463723"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "historical",
+      "case_id": "mig-hist-replacement-with-legacy-shapes-accept",
+      "expected": {
+        "derived": {
+          "classification": "replacement"
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-hist-replacement-with-legacy-shapes-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:93d59af8fc31eb4e66c2e009d5369fe35822163e60fea12af7225dc665497d07"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "historical",
+      "case_id": "mig-hist-roster-less-block-route",
+      "expected": {
+        "derived": {
+          "classification": "legacy"
+        },
+        "derived_origin": "hand",
+        "findings": [
+          "legacy_protocol_routed"
+        ],
+        "outcome": "route",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-hist-roster-less-block-route.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:5c96f90d8f8d2536844d9461c19c30ca933a9b4ef68e8c1cee97a06362b432ef"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "historical",
+      "case_id": "mig-hist-unknown-protocol-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/migration/mig-hist-unknown-protocol-refuse.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:0f12d1e7bf3fdf550781afeb89a97d188f4f3a34b86d3dcebc9a4d6eb1d91606"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-abbreviated-commit-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "selection_malformed"
+      },
+      "path": "vectors/migration/mig-sel-abbreviated-commit-malformed.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:7be9e793ff880b27e1a2178b9e13a03032a5e6511c1b63d6671730746b786b9f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-active-no-bundle-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "selection_malformed"
+      },
+      "path": "vectors/migration/mig-sel-active-no-bundle-malformed.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:6ad4700433270da72a5a6b1a4c954c00f1263c05ee7b0ddea418b1399848558b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-active-replacement-admission-eligible-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-sel-active-replacement-admission-eligible-accept.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:64af8e383fc95026bb4e446bdae584ecc3647557567acfdbb0368fd31191f521"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-active-replacement-available-not-eligible",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "replacement_not_admission_eligible"
+      },
+      "path": "vectors/migration/mig-sel-active-replacement-available-not-eligible.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:df3775006dd495de75092c49bf2781bfe211c503a9427b5092077e287ad2f0a2"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-bare-corpus-digest-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "selection_malformed"
+      },
+      "path": "vectors/migration/mig-sel-bare-corpus-digest-malformed.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:14ac9e8351197bd542f351ed5979214785ac791ea701c34a4b5fe68c9eaf582c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-fallback-attempt-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "selection_malformed"
+      },
+      "path": "vectors/migration/mig-sel-fallback-attempt-malformed.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:526b79847b63fabadeadb63752618b257e5612ee8283dd9dbd332097ac753f2d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-fallback-legacy-to-replacement-refused",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rejected_without_fallback"
+      },
+      "path": "vectors/migration/mig-sel-fallback-legacy-to-replacement-refused.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:6fe0443b0deb5df10c6b60aebf8564947c5ce7260c1f4b232272a65837292a47"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-fallback-replacement-to-legacy-refused",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rejected_without_fallback"
+      },
+      "path": "vectors/migration/mig-sel-fallback-replacement-to-legacy-refused.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:5ec4c8a921d67a284a44b7699443a309d8f953f7c49f1a865bc4e87783c217ac"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-fallback-same-protocol-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-sel-fallback-same-protocol-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:18524a7ce7e1ec86ae4558d113085a905245f35a6a7bde717a86e5234bd25eaa"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-legacy-active-deprecated-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-sel-legacy-active-deprecated-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:330b68f8e1dd7a641c5a9b15a4a0d7713aecb377abc6d162fc740bba0996c764"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-legacy-active-historical-only-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/migration/mig-sel-legacy-active-historical-only-refuse.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:59fb21633e0e331e67cbe9d9ec6c221912baf5c9fb318cb74c9caeed02659538"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-legacy-active-in-use-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-sel-legacy-active-in-use-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:019fb42c3e5799e5245bf45d86e6c5bfa9ea58ea6c2de7f230d6d8dabfef69a7"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-legacy-rehearsal-deprecated-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-sel-legacy-rehearsal-deprecated-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:90b8c9cc88117cd5f8c4d38cebfcf5facde4033462e2415395aab7addb289957"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-legacy-rehearsal-historical-only-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/migration/mig-sel-legacy-rehearsal-historical-only-refuse.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:acf07f43c2160720c0eefa7b8015e4416ff3ec59bdf5a0fa4bd5360e049a7d99"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-legacy-rehearsal-in-use-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-sel-legacy-rehearsal-in-use-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:7d2925d7f7cfdaf7fc560cc57415cd6d79484a065af70192fbadd78ce0d5c196"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-order-eligibility-before-pair",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "replacement_not_admission_eligible"
+      },
+      "path": "vectors/migration/mig-sel-order-eligibility-before-pair.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:048f1f21fcf4cffe4ad364875dfb2ef0c7d333dddc68503356212e5ef0143a8f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-order-malformed-before-unknown",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "selection_malformed"
+      },
+      "path": "vectors/migration/mig-sel-order-malformed-before-unknown.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:decebb8745e411cc9bed00709b3bfbfbe971942f483d324aa36cdba3033b90a4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-order-pair-before-fallback",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "pair_mismatched"
+      },
+      "path": "vectors/migration/mig-sel-order-pair-before-fallback.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:c5f7df8154e4e89efe194b26b204e66b40a049922bbdc8cd2c3849e07b255cfc"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-order-unknown-before-eligibility",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/migration/mig-sel-order-unknown-before-eligibility.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:17a418a754567906c15ea5f6986684d1f24d95dbf880cd1daa1b6c6b7c63edc0"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-pair-corpus-index-sha256-mismatched",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "pair_mismatched"
+      },
+      "path": "vectors/migration/mig-sel-pair-corpus-index-sha256-mismatched.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:5f852cc7977f3ec7da143dcd4dd06ff1c2137890bb9e1b4b106e743c52a26c13"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-pair-mode-mismatched",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "pair_mismatched"
+      },
+      "path": "vectors/migration/mig-sel-pair-mode-mismatched.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:8ea0a53cb821368be27ac1c4618df09cae27c8a24415fcc608fd2ff2d17af6fb"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-pair-no-bundle-against-bundle-mismatched",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "pair_mismatched"
+      },
+      "path": "vectors/migration/mig-sel-pair-no-bundle-against-bundle-mismatched.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:66538ace23666b126a031a074129eadf53d57751a9ff40e91115dfc5d3a65dee"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-pair-protocol-mismatched",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "pair_mismatched"
+      },
+      "path": "vectors/migration/mig-sel-pair-protocol-mismatched.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:0bd890a37326b2df910771f525178e041617d6af3c6b3a4712c81cb25a383c3e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-pair-provider-bundle-mismatched",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "pair_mismatched"
+      },
+      "path": "vectors/migration/mig-sel-pair-provider-bundle-mismatched.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:53d820654a105e985609c8be2144822f62de9aac35cd5a1971cf672e0805bf18"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-pair-provider-commit-mismatched",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "pair_mismatched"
+      },
+      "path": "vectors/migration/mig-sel-pair-provider-commit-mismatched.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:466131cd95c15fbb2a6bdbff0971279c55e7e80327143fadfec0b50648de679d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-rehearsal-pair-bundle-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-sel-rehearsal-pair-bundle-accept.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:eb7fdd14673be598216ea526f40a3ab2bea7fe647b66277124da1af7f8236918"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-rehearsal-pair-no-bundle-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-sel-rehearsal-pair-no-bundle-accept.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:c28c241d13e6313a91bfac3376b78e3441eb218f4d7f660eefeb9c7ee70851f2"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-rehearsal-replacement-available-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-sel-rehearsal-replacement-available-accept.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:abdeaf86078042e2ad2020b35fa4a7b2a413e5947bcd5e0bbcfd1b1b00c58bb5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-rollback-legacy-pair-past-the-major-refused",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/migration/mig-sel-rollback-legacy-pair-past-the-major-refused.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:ec2a65f2ec4feebe4e1b8670b9dbd7f28ced1b16724986813ac7d5bd758df8c5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-rollback-release-a-legacy-pair-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/migration/mig-sel-rollback-release-a-legacy-pair-accept.json",
+      "requirement_ids": [
+        "FR-011",
+        "FR-012"
+      ],
+      "sha256": "sha256:1a20046f357d6ebd61165a1db95c5e49891e667a7ed84b7a8b2059ec680de535"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-side-swapped-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "selection_malformed"
+      },
+      "path": "vectors/migration/mig-sel-side-swapped-malformed.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:7b8be6b2cb9801f1be8a8906bafa8284976fadebd4a08e393f77e523ee87b5ea"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-unknown-member-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "selection_malformed"
+      },
+      "path": "vectors/migration/mig-sel-unknown-member-malformed.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:e277f42ae8cd8a493a3a2c6df1155f326facf976613814ad855a10af0a6afca3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "selection",
+      "case_id": "mig-sel-unknown-protocol-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/migration/mig-sel-unknown-protocol-refuse.json",
+      "requirement_ids": [
+        "FR-011"
+      ],
+      "sha256": "sha256:1f425d1f95b45b786d154e6e3d136c61e926ffde4ecc447b6f69ab4ae4c0ab12"
     },
     {
       "applies_to": [
@@ -5856,22 +8541,24 @@
     "FR-003",
     "FR-004",
     "FR-011",
+    "FR-012",
     "SC-001"
   ],
   "kind": "openxfactory-council-convening-conformance-index",
   "protocol": "xfc-resolved-council-1",
   "schema_version": 1,
   "totals": {
-    "both_sides": 244,
+    "both_sides": 332,
     "by_area": {
       "foundation": 132,
+      "migration": 124,
       "resolution": 128
     },
     "by_outcome": {
-      "accept": 56,
-      "refuse": 196,
-      "route": 8
+      "accept": 89,
+      "refuse": 276,
+      "route": 19
     },
-    "vectors": 260
+    "vectors": 384
   }
 }

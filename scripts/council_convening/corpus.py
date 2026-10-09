@@ -34,9 +34,10 @@ refused rather than resolved, because two readers that resolved them differently
 would disagree on what a vector says. For the same reason a corpus file carries
 no integral number spelled as a float (`2.0`, `2e0`; `IntegralFloatToken`).
 
-THE DISPATCH TABLE. Phase 1 registers `definition` and `classification`, and
-Phase 2 `commission` and `admission` (handled in `resolution`). Each later phase
-registers its boundaries through `register_handler`, naming the oracles its
+THE DISPATCH TABLE. Phase 1 registers `definition` and `classification`,
+Phase 2 `commission` and `admission` (handled in `resolution`), and Phase 6
+`selection`, `activation` and `historical` (handled in `migration`). Each later
+phase registers its boundaries through `register_handler`, naming the oracles its
 vectors may carry.
 """
 
@@ -320,6 +321,18 @@ from . import resolution as _resolution  # noqa: E402
 register_handler("commission", _resolution.corpus_handler, oracles=_resolution.ORACLES_READ)
 register_handler("admission", _resolution.corpus_handler, oracles=_resolution.ORACLES_READ)
 
+# Phase 6 (T061): selection (data-model E11), activation evidence (E12) and
+# historical classification. The handlers live in `migration`, which imports this
+# module only inside them, as `resolution` does.
+from . import migration as _migration  # noqa: E402
+
+register_handler("selection", _migration.selection_handler,
+                 oracles=_migration.SELECTION_ORACLES)
+register_handler("activation", _migration.activation_handler,
+                 oracles=_migration.ACTIVATION_ORACLES)
+register_handler("historical", _migration.historical_handler,
+                 oracles=_migration.HISTORICAL_ORACLES)
+
 
 # --------------------------------------------------------------------------
 # The vector format.
@@ -526,13 +539,18 @@ def adjudication_findings(label: str, vector: Mapping[str, Any],
         findings.append(_error(
             "council-convening-vector-outcome-mismatch",
             f"{label}: expected {_summary(want)}, the reference gives {_summary(got)}"))
-    if outcome.status_read:
+    read = tuple(outcome.statuses_read) or (
+        (context.registry.legacy_id,) if outcome.status_read else ())
+    if read:
         overrides = vector.get("environment", {}).get("registry_status") or {}
-        if context.registry.legacy_id not in overrides:
+        unread = [pid for pid in read if pid not in overrides]
+        if unread:
+            roles = ", ".join(f"the {context.registry.entry(pid)['role']} entry's"
+                              for pid in unread)
             findings.append(_error(
                 "council-convening-vector-registry-status-missing",
-                f"{label}: the outcome reads the legacy entry's status, and the "
-                f"vector carries no registry_status override for it"))
+                f"{label}: the outcome reads {roles} status, and the vector "
+                f"carries no registry_status override for it"))
     return findings, matched
 
 
