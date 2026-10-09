@@ -1150,10 +1150,20 @@ def test_another_act_carries_neither(context, act):
 
 
 @pytest.mark.parametrize("mutate", [
-    lambda bindings: bindings.append(copy.deepcopy(bindings[0])),
-    lambda bindings: bindings[0].pop("broker"),
-    lambda bindings: bindings[0].update(instantiation_stub=True),
-    lambda bindings: bindings.clear(),
+    pytest.param(lambda bindings: bindings.append(copy.deepcopy(bindings[0])),
+                 id="repeated-binding-id"),
+    pytest.param(lambda bindings: bindings[0].pop("broker"), id="no-broker"),
+    pytest.param(lambda bindings: bindings[0].update(instantiation_stub=True), id="stub"),
+    pytest.param(lambda bindings: bindings.clear(), id="empty"),
+    # From Phase 5 a configured binding is a whole E10 instance: each of these
+    # fails producer-binding.schema.yaml, so the input is not a live binding.
+    pytest.param(lambda bindings: bindings[0].pop("issuer"), id="no-issuer"),
+    pytest.param(lambda bindings: bindings[0]["permitted_workflows"].clear(),
+                 id="no-permitted-workflow"),
+    pytest.param(lambda bindings: bindings[1]["permitted_workflows"][0].update(
+        workflow_revision_rule="equals_governed_revision"), id="seat-paired-with-commission-rule"),
+    pytest.param(lambda bindings: bindings[0].update(repository_id=0), id="repository-id-zero"),
+    pytest.param(lambda bindings: bindings[0].update(notes="x"), id="unknown-member"),
 ])
 def test_the_configured_binding_set_is_a_set_of_live_bindings(context, mutate):
     record, bindings, text = activation_case()
@@ -1240,6 +1250,27 @@ def test_activation_and_resume_vectors_are_the_consumers():
             assert row["applies_to"] == ["consumer"], row["case_id"]
         else:
             assert row["applies_to"] == ["producer", "consumer"], row["case_id"]
+
+
+def test_every_configured_binding_passes_e10_offline(tmp_path):
+    """The bindings an activation vector configures are bindings the `binding`
+    boundary accepts offline: E10 steps 1 to 6 (Phase 5's `check_offline`),
+    against the corpus's frozen identity map, never the live one. So an
+    activation's refusal is always the activation order's, never a stray E10
+    defect in its inputs."""
+    from scripts.council_convening import binding as e10
+
+    fixture = json.loads((INDEX.parent / "fixtures" / "repository-identity.json")
+                         .read_text(encoding="utf-8"))
+    root = e10.materialize_identity({"state": "text", "text": fixture["text"]}, tmp_path)
+    checked = 0
+    for row in _migration_rows():
+        vector = json.loads((INDEX.parent / row["path"]).read_text(encoding="utf-8"))
+        for configured in corpus.join_parts(vector["inputs"].get("bindings", [])):
+            e10.check_offline(configured, identity_root=root)
+            checked += 1
+    # 36 activation and resume vectors carry a configured set: 212 bindings.
+    assert checked == 212
 
 
 def test_every_migration_vector_cites_fr_011_or_fr_012():
