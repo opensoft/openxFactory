@@ -1,0 +1,31 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "foundation",
+  "boundary": "definition",
+  "case_id": "def-candidate-lone-surrogate-not-canonicalizable",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "value_not_canonicalizable"
+  },
+  "inputs": {
+    "definition": "candidate",
+    "value": {
+      "head_sha": "0123456789abcdef0123456789abcdef01234567",
+      "pull_number": 1268,
+      "repository": "opensoft/openxFactory",
+      "subject_path": "rules/\ud800.yaml"
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-001"
+  ],
+  "schema_version": 1
+}
