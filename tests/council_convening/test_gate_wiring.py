@@ -112,6 +112,26 @@ def test_the_assertion_step_requires_every_phase_1_note(assertion):
     assert "! grep -qE '^ERROR \\['" in assertion
 
 
+#: The proof-of-work note Phase 2 adds (T032), asserted with its literal counts.
+PHASE_2_NOTES = [
+    "^note  predicate registry closed: 2 predicates, 2 input contracts$",
+]
+
+
+def test_the_assertion_step_requires_the_phase_2_note(assertion):
+    for pattern in PHASE_2_NOTES:
+        assert f"grep -qE '{pattern}' {LOG}" in assertion, (
+            f"the assertion never proves {pattern!r}")
+
+
+def test_the_requirements_assertion_names_the_coverage_floor(assertion):
+    """The floor is written into the grep, so raising it cannot pass silently."""
+    from scripts.council_convening import generate
+
+    floor = ", ".join(generate.COVERAGE_FLOOR)
+    assert f"requirements probed: ([0-9]+)/\\1 \\({floor}\\)$" in assertion
+
+
 def test_the_coverage_assertions_demand_all_of_them(assertion):
     """`N/N` via a backreference: `[0-9]+/[0-9]+` would pass 3/24."""
     for label in ("vectors adjudicated", "refusal codes probed",
