@@ -92,7 +92,9 @@ Boxes for work this change will never do carry `[~]`, in § 5.
     `/service` (the closed branch rejects it today), and a stdio-only
     declaration that needs no block validates;
   - structure: a block that breaks its closed shape (an unknown field, a
-    repeated algorithm, a `binding` outside the closed set) is refused with
+    repeated algorithm, a `binding` outside the closed set, and an `issuer`
+    given as a list or as more than one issuer, which pins OQ-6's exactly one
+    issuer) is refused with
     `schema_oneOf` at `/service`, the structure pass not descending into the
     `oneOf` branches (`design.md` D7), beside a valid-block test that is red on
     `main`;

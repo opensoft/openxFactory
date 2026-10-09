@@ -198,6 +198,17 @@ again none in the delta:
   `tasks.md`, which did change. It now lists the three unmoved files and
   records the open box 1.4 apart.
 
+Copilot's review of `9723844e` raised two threads, again none in the delta:
+
+- **`tasks.md` 2.2.** OQ-6 ratifies exactly one issuer, but the task list had no
+  case that pins it. The structure bullet now includes an `issuer` given as a
+  list or as more than one issuer, refused as `schema_oneOf` at `/service`, and
+  the `design.md` D7 closed-shape row names it. No scenario was added: that
+  would be requirement text, which the ratification does not reopen.
+- **`proposal.md` front matter.** The code-surface prose counted five files in
+  the packet directory, and the ratification record makes six. It now says six:
+  the five authored packet files and the record under `review/`.
+
 ## 6. The landing word, given later the same day
 
 Brett Heap gave the landing word on 2026-10-08, at 23:0xZ, in session to lane

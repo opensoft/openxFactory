@@ -220,7 +220,7 @@ They report in the existing dimensions and stable-ordering rules.
 | `auth_rs256_missing` | semantics | `/service/auth/algorithms` | RS256 is not listed |
 | `auth_algorithm_forbidden` | semantics | `/service/auth/algorithms/<k>` | `none`, `HS256`, `HS384` or `HS512`, in any letter case |
 | `auth_algorithm_unadmitted` | semantics | `/service/auth/algorithms/<k>` | any other value than `RS256` or `EdDSA` |
-| `schema_oneOf` (existing) | structure | `/service` | a deployed service's block breaks its closed shape: an unknown field, a wrong type, a `binding` outside the closed set, or an empty or repeated `algorithms` list |
+| `schema_oneOf` (existing) | structure | `/service` | a deployed service's block breaks its closed shape: an unknown field, a wrong type, a `binding` outside the closed set, an empty or repeated `algorithms` list, or an `issuer` given as a list (OQ-6, exactly one issuer) |
 | `auth_audience_unbound` | semantics | `/service/auth/audience/value` | a `resource_uri` binding names anything but `canonical_resource_uri`, or any audience contains `*` or equals the issuer |
 | `auth_metadata_path_mismatch` | semantics | `/service/auth/metadata_path` | not the RFC 9728 § 3.1 location for `canonical_resource_uri` |
 | `auth_resource_query` | semantics | `/service/canonical_resource_uri` | a deployed service's canonical resource URI carries a query component |
