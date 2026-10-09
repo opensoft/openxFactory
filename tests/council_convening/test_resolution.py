@@ -77,6 +77,14 @@ def gkey(vector, path):
     return f"{g['repository']}@{g['revision']}:{path}"
 
 
+def producer_only(vector: dict) -> dict:
+    """A shared commission vector narrowed to the producer, for a case that
+    changes an input only the producer reads."""
+    vector["applies_to"] = ["producer"]
+    vector["environment"].pop("resolved_candidate", None)
+    return vector
+
+
 def as_admission(vector: dict) -> dict:
     """A shared commission vector, run as the consumer runs it (conformance-corpus
     § How each side runs a shared vector)."""
@@ -405,7 +413,7 @@ def test_the_subject_pin_is_the_candidate_head():
 @pytest.mark.parametrize("member, value", [("repository", "example-org/other-app"),
                                            ("pull_number", 43)])
 def test_the_candidate_agrees_with_the_trusted_trigger_at_commission(member, value):
-    vector = load(BASE)
+    vector = producer_only(load(BASE))
     vector["inputs"]["expected_candidate"][member] = value
     assert code(vector) == "candidate_mismatch"
 
@@ -418,7 +426,7 @@ def test_only_the_members_the_trigger_names_are_compared_at_commission():
 
 
 def test_the_gate_rules_trigger_names_the_subject_path_and_head():
-    vector = load(UNCLASSED)
+    vector = producer_only(load(UNCLASSED))
     assert set(vector["inputs"]["expected_candidate"]) == {
         "repository", "pull_number", "subject_path", "head_sha"}
     vector["inputs"]["expected_candidate"]["head_sha"] = "f" * 40
