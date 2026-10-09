@@ -5,7 +5,8 @@ T017. Four things live here, and every other module in the package uses them:
 * `load_schemas` loads every family schema plus the one digest construction the
   family takes by `$ref`, checks each against the 2020-12 metaschema, and builds
   one `referencing.Registry` keyed by `$id`, so no reference is resolved off the
-  network or off a guessed path. The registry serves each document WITHOUT its
+  network or off a guessed path, and every `$ref` must name a loaded document
+  (`references_outside`). The registry serves each document WITHOUT its
   `$schema` header, so the family validator below holds at every depth of a
   `$ref` into a whole document (`_registered_resource`).
 * The VALIDATOR CLASS extends `Draft202012Validator` in exactly two places, and
@@ -39,6 +40,7 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Iterator, Mapping
+from urllib.parse import urldefrag, urljoin
 
 import yaml
 from jsonschema import Draft202012Validator, FormatChecker, ValidationError
@@ -171,6 +173,41 @@ def _check_schema(name: str, document: Any) -> None:
         raise SchemaLoadError(f"{name}: is not a valid 2020-12 schema") from exc
 
 
+def reference_targets(node: Any) -> Iterator[str]:
+    """Every `$ref` and `$dynamicRef` string in a schema document, as written."""
+    if isinstance(node, Mapping):
+        for key, value in node.items():
+            if key in ("$ref", "$dynamicRef") and isinstance(value, str):
+                yield value
+            else:
+                yield from reference_targets(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from reference_targets(item)
+
+
+def references_outside(family: Mapping[str, dict], construction: dict) -> list[str]:
+    """Every `$ref` (or `$dynamicRef`) in the loaded documents whose target is
+    not itself a loaded document, as `name: target` lines, sorted.
+
+    jsonschema resolves against these documents COMBINED with the bundled
+    dialect metaschemas, so without this a `$ref` to a metaschema would resolve
+    (and validate under the plain dialect), and one to an absent family document
+    would surface only at validation time. A reference is resolved against its
+    document's `$id`: no family document embeds a second `$id`, and one that did
+    would need this walk to track it.
+    """
+    documents = {**family, DIGEST_CONSTRUCTION_REL.name: construction}
+    loaded = {document["$id"] for document in documents.values()}
+    problems = []
+    for name, document in documents.items():
+        for reference in reference_targets(document):
+            target, _fragment = urldefrag(urljoin(document["$id"], reference))
+            if target not in loaded:
+                problems.append(f"{name}: a `$ref` names {target}")
+    return sorted(problems)
+
+
 def _registered_resource(name: str, document: dict) -> Resource:
     """The copy of `document` the registry serves: its `$schema` header removed.
 
@@ -272,6 +309,9 @@ def load_schemas(root: Path | None = None) -> SchemaSet:
     if construction.get("$id") != DIGEST_CONSTRUCTION_ID:
         raise SchemaLoadError(f"{construction_path.name}: unexpected $id")
 
+    outside = references_outside(family, construction)
+    if outside:
+        raise SchemaLoadError(f"{outside[0]}, outside the loaded documents")
     resources = [(doc["$id"], _registered_resource(name, doc))
                  for name, doc in [*family.items(), (construction_path.name, construction)]]
     registry = Registry().with_resources(resources)

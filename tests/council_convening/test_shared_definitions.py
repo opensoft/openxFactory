@@ -483,3 +483,60 @@ def test_a_family_document_in_another_dialect_is_refused_at_load(family_tree):
     path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
     with pytest.raises(records.SchemaLoadError, match="dialect"):
         records.load_schemas(family_tree)
+
+
+# Both entry points, side by side: validation at a whole document's root, and a
+# `$ref` into a fragment of a whole document that carries the header.
+
+@pytest.mark.parametrize("ref, instance", [
+    (records.ID_BASE + PROBE_RECORD, {"convening_id": "convening-0001\n"}),
+    (records.ID_BASE + PROBE_RECORD + "#/properties/convening_id", "convening-0001\n"),
+    (records.SHARED_DEFINITIONS_ID + "#/$defs/opaque_id", "convening-0001\n"),
+    (records.ID_BASE + PROBE_RECORD, {"path": chr(0xE9) * 2049}),
+    (records.ID_BASE + PROBE_RECORD + "#/properties/path", chr(0xE9) * 2049),
+    (records.SHARED_DEFINITIONS_ID + "#/$defs/relative_path", chr(0xE9) * 2049),
+])
+def test_the_family_keywords_hold_at_the_root_and_through_a_fragment(
+        probe_schemas, ref, instance):
+    found = [error.validator for error in probe_schemas.errors(ref, instance)]
+    assert found in (["pattern"], ["x-max-utf8-bytes"]), (ref, found)
+
+
+def test_descending_into_a_served_document_keeps_the_family_validator(probe_schemas):
+    """The path jsonschema itself takes: `evolve` onto a document the registry
+    serves. `SchemaSet.family` keeps each document AS WRITTEN, header included,
+    and is for reading, never for evolving a validator onto."""
+    root = probe_schemas.validator(records.SHARED_DEFINITIONS_ID + "#/$defs/opaque_id")
+    for resource_id in (records.ID_BASE + PROBE_RECORD,
+                        records.ID_BASE + "protocol-registry.schema.yaml",
+                        records.DIGEST_CONSTRUCTION_ID):
+        served = probe_schemas.registry[resource_id].contents
+        assert type(root.evolve(schema=served)) is records.FamilyValidator, resource_id
+
+
+@pytest.mark.parametrize("target", [
+    "https://json-schema.org/draft/2020-12/schema",
+    "https://xforge.us/schemas/openxfactory/council-convening/v1/absent.schema.yaml",
+])
+def test_a_reference_outside_the_loaded_documents_is_refused_at_load(family_tree, target):
+    """jsonschema resolves against the loaded documents COMBINED with the
+    bundled dialect metaschemas, which keep their `$schema` header. A `$ref` to
+    one would validate that member under the plain dialect validator; it cannot
+    strip a family keyword, since none sits beneath a metaschema, but it is a
+    reference outside the family all the same. An absent family document would
+    otherwise surface only at validation time. So every `$ref` must name a
+    document this load registered, and loading refuses one that does not."""
+    path = family_tree / FAMILY_REL / "protocol-registry.schema.yaml"
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["$defs"]["release_tag"] = {"$ref": target}
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+    with pytest.raises(records.SchemaLoadError, match="outside the loaded documents"):
+        records.load_schemas(family_tree)
+
+
+def test_the_landed_family_references_only_loaded_documents(schemas):
+    """Every `$ref` in the landed family names a registered document, and the
+    walk does reach them: the shared definitions' digest reference is seen."""
+    assert records.references_outside(schemas.family, schemas.digest_construction) == []
+    assert records.DIGEST_CONSTRUCTION_ID + "#/$defs/digest" in list(
+        records.reference_targets(schemas.shared))
