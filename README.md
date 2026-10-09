@@ -3235,7 +3235,8 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [prefer-triad-project-shape](openspec/changes/archive/2026-10-09-prefer-triad-project-shape/proposal.md)
-  — **ARCHIVED 2026-10-09** by this archive's pull request, by lane
+  — **ARCHIVED 2026-10-09** by
+  [PR #1281](https://github.com/opensoft/openxFactory/pull/1281), by lane
   `codeXfactory-5`, landed by MERGE COMMIT, never squash, on Brett Heap's
   standing word, verbatim ***"archive prefer-triad-project-shape when 5.6
   lands"*** (2026-10-07T10:20:48Z, in session; RULED on the lane register at
