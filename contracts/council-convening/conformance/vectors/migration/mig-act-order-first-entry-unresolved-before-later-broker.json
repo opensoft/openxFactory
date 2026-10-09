@@ -1,0 +1,224 @@
+{
+  "applies_to": [
+    "consumer"
+  ],
+  "area": "migration",
+  "boundary": "activation",
+  "case_id": "mig-act-order-first-entry-unresolved-before-later-broker",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "binding_unresolved"
+  },
+  "inputs": {
+    "bindings": [
+      {
+        "audience": "council-convening-conformance",
+        "binding_id": "council-1-commission",
+        "broker": {
+          "broker_ref": "broker-0001",
+          "capability_verified": true,
+          "evidence_ref": null
+        },
+        "caller_repository": "opensoft/xFactory",
+        "issuer": "https://token.actions.githubusercontent.com",
+        "kind": "xfactory_council_producer_binding",
+        "permitted_workflows": [
+          {
+            "job_workflow_ref": "codeXfactory/codexFactory/.github/workflows/council-lane-reusable.yml@refs/heads/main",
+            "operation": "commission",
+            "workflow_revision_rule": "equals_governed_revision"
+          }
+        ],
+        "principal_kind": "github_oidc_job",
+        "protocol": "xfc-resolved-council-1",
+        "repository_id": 700000001,
+        "schema_version": 1,
+        "subject_claim_keys": [
+          "repo",
+          "context"
+        ],
+        "subject_template": "repo:opensoft/xFactory:environment:council-1-commission"
+      },
+      {
+        "audience": "council-convening-conformance",
+        "binding_id": "council-1-seat-lead-quality",
+        "broker": {
+          "broker_ref": "broker-0001",
+          "capability_verified": true,
+          "evidence_ref": "broker-evidence-0001"
+        },
+        "caller_repository": "opensoft/xFactory",
+        "issuer": "https://token.actions.githubusercontent.com",
+        "kind": "xfactory_council_producer_binding",
+        "permitted_workflows": [
+          {
+            "job_workflow_ref": "codeXfactory/codexFactory/.github/workflows/council-seat-worker.yml@refs/heads/main",
+            "operation": "seat_execution",
+            "workflow_revision_rule": "on_governed_history_since_revision"
+          }
+        ],
+        "principal_kind": "github_oidc_job",
+        "protocol": "xfc-resolved-council-1",
+        "repository_id": 700000001,
+        "schema_version": 1,
+        "subject_claim_keys": [
+          "repo",
+          "context"
+        ],
+        "subject_template": "repo:opensoft/xFactory:environment:council-1-seat-lead-quality"
+      },
+      {
+        "audience": "council-convening-conformance",
+        "binding_id": "council-1-seat-lead-security",
+        "broker": {
+          "broker_ref": "broker-0001",
+          "capability_verified": true,
+          "evidence_ref": "broker-evidence-0001"
+        },
+        "caller_repository": "opensoft/xFactory",
+        "issuer": "https://token.actions.githubusercontent.com",
+        "kind": "xfactory_council_producer_binding",
+        "permitted_workflows": [
+          {
+            "job_workflow_ref": "codeXfactory/codexFactory/.github/workflows/council-seat-worker.yml@refs/heads/main",
+            "operation": "seat_execution",
+            "workflow_revision_rule": "on_governed_history_since_revision"
+          }
+        ],
+        "principal_kind": "github_oidc_job",
+        "protocol": "xfc-resolved-council-1",
+        "repository_id": 700000001,
+        "schema_version": 1,
+        "subject_claim_keys": [
+          "repo",
+          "context"
+        ],
+        "subject_template": "repo:opensoft/xFactory:environment:council-1-seat-lead-security"
+      },
+      {
+        "audience": "council-convening-conformance",
+        "binding_id": "council-1-seat-lead-integration",
+        "broker": {
+          "broker_ref": "broker-0001",
+          "capability_verified": true,
+          "evidence_ref": "broker-evidence-0001"
+        },
+        "caller_repository": "opensoft/xFactory",
+        "issuer": "https://token.actions.githubusercontent.com",
+        "kind": "xfactory_council_producer_binding",
+        "permitted_workflows": [
+          {
+            "job_workflow_ref": "codeXfactory/codexFactory/.github/workflows/council-seat-worker.yml@refs/heads/main",
+            "operation": "seat_execution",
+            "workflow_revision_rule": "on_governed_history_since_revision"
+          }
+        ],
+        "principal_kind": "github_oidc_job",
+        "protocol": "xfc-resolved-council-1",
+        "repository_id": 700000001,
+        "schema_version": 1,
+        "subject_claim_keys": [
+          "repo",
+          "context"
+        ],
+        "subject_template": "repo:opensoft/xFactory:environment:council-1-seat-lead-integration"
+      },
+      {
+        "audience": "council-convening-conformance",
+        "binding_id": "council-1-seat-company-policy-lead",
+        "broker": {
+          "broker_ref": "broker-0001",
+          "capability_verified": true,
+          "evidence_ref": "broker-evidence-0001"
+        },
+        "caller_repository": "opensoft/xFactory",
+        "issuer": "https://token.actions.githubusercontent.com",
+        "kind": "xfactory_council_producer_binding",
+        "permitted_workflows": [
+          {
+            "job_workflow_ref": "codeXfactory/codexFactory/.github/workflows/council-seat-worker.yml@refs/heads/main",
+            "operation": "seat_execution",
+            "workflow_revision_rule": "on_governed_history_since_revision"
+          }
+        ],
+        "principal_kind": "github_oidc_job",
+        "protocol": "xfc-resolved-council-1",
+        "repository_id": 700000001,
+        "schema_version": 1,
+        "subject_claim_keys": [
+          "repo",
+          "context"
+        ],
+        "subject_template": "repo:opensoft/xFactory:environment:council-1-seat-company-policy-lead"
+      }
+    ],
+    "record": {
+      "act": "activation",
+      "binding_refs": [
+        "council-9-seat-unknown",
+        "council-1-commission",
+        "council-1-seat-lead-quality",
+        "council-1-seat-lead-security",
+        "council-1-seat-lead-integration",
+        "council-1-seat-company-policy-lead"
+      ],
+      "consumer": {
+        "repository": "opensoft/xFactory-Hermes-Install",
+        "revision": "89abcdef0123456789abcdef0123456789abcdef",
+        "selection": {
+          "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "kind": "xfactory_council_protocol_selection",
+          "mode": "active",
+          "protocol": "xfc-resolved-council-1",
+          "provider_bundle": "contract-v4.1",
+          "provider_commit": "0123456789abcdef0123456789abcdef01234567",
+          "schema_version": 1,
+          "side": "consumer"
+        }
+      },
+      "intake": {
+        "paused_at": "2026-10-08T23:00:00Z"
+      },
+      "kind": "xfactory_council_activation_evidence",
+      "owner_word": {
+        "author": "Example Owner",
+        "cite": "conformance-vector-example",
+        "date": "2026-10-09T00:00:00Z",
+        "verbatim": "an example owner word, for a conformance vector only"
+      },
+      "producer": {
+        "repository": "opensoft/xFactory",
+        "revision": "89abcdef0123456789abcdef0123456789abcdef",
+        "selection": {
+          "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "kind": "xfactory_council_protocol_selection",
+          "mode": "active",
+          "protocol": "xfc-resolved-council-1",
+          "provider_bundle": "contract-v4.1",
+          "provider_commit": "0123456789abcdef0123456789abcdef01234567",
+          "schema_version": 1,
+          "side": "producer"
+        }
+      },
+      "provider": {
+        "bundle": "contract-v4.1",
+        "commit": "0123456789abcdef0123456789abcdef01234567",
+        "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+      },
+      "recorded_at": "2026-10-09T00:00:00Z",
+      "rehearsal_ref": "sha256:443067304051868966bfce66b65d8d94a335e9d9a9259218d9ff131cbd476d40",
+      "schema_version": 1
+    },
+    "rehearsal": "{\n  \"act\": \"rehearsal\",\n  \"consumer\": {\n    \"repository\": \"opensoft/xFactory-Hermes-Install\",\n    \"revision\": \"89abcdef0123456789abcdef0123456789abcdef\",\n    \"selection\": {\n      \"corpus_index_sha256\": \"sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\n      \"kind\": \"xfactory_council_protocol_selection\",\n      \"mode\": \"rehearsal\",\n      \"protocol\": \"xfc-resolved-council-1\",\n      \"provider_bundle\": \"contract-v4.1\",\n      \"provider_commit\": \"0123456789abcdef0123456789abcdef01234567\",\n      \"schema_version\": 1,\n      \"side\": \"consumer\"\n    }\n  },\n  \"intake\": {\n    \"paused_at\": \"2026-10-08T23:00:00Z\"\n  },\n  \"kind\": \"xfactory_council_activation_evidence\",\n  \"producer\": {\n    \"repository\": \"opensoft/xFactory\",\n    \"revision\": \"89abcdef0123456789abcdef0123456789abcdef\",\n    \"selection\": {\n      \"corpus_index_sha256\": \"sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\n      \"kind\": \"xfactory_council_protocol_selection\",\n      \"mode\": \"rehearsal\",\n      \"protocol\": \"xfc-resolved-council-1\",\n      \"provider_bundle\": \"contract-v4.1\",\n      \"provider_commit\": \"0123456789abcdef0123456789abcdef01234567\",\n      \"schema_version\": 1,\n      \"side\": \"producer\"\n    }\n  },\n  \"provider\": {\n    \"bundle\": \"contract-v4.1\",\n    \"commit\": \"0123456789abcdef0123456789abcdef01234567\",\n    \"corpus_index_sha256\": \"sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\"\n  },\n  \"recorded_at\": \"2026-10-08T23:30:00Z\",\n  \"rehearsal\": {\n    \"corpus_index_sha256\": \"sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\n    \"evidence_ref\": \"rehearsal-run-0001\",\n    \"mode\": \"matched\",\n    \"outcome\": \"pass\"\n  },\n  \"schema_version\": 1\n}\n"
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-009",
+    "FR-012"
+  ],
+  "schema_version": 1
+}

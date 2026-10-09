@@ -1,0 +1,37 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "migration",
+  "boundary": "historical",
+  "case_id": "mig-hist-roster-less-block-route",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {
+      "classification": "legacy"
+    },
+    "derived_origin": "hand",
+    "findings": [
+      "legacy_protocol_routed"
+    ],
+    "outcome": "route",
+    "refusal": null
+  },
+  "inputs": {
+    "record": {
+      "council_convening": {
+        "council_id": "merge-readiness",
+        "packet_refs": [
+          "opensoft/openxFactory#1268"
+        ],
+        "subject_pin": "0123456789abcdef0123456789abcdef01234567"
+      }
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-011"
+  ],
+  "schema_version": 1
+}

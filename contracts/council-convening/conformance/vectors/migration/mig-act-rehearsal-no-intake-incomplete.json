@@ -1,0 +1,70 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "migration",
+  "boundary": "activation",
+  "case_id": "mig-act-rehearsal-no-intake-incomplete",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "activation_evidence_incomplete"
+  },
+  "inputs": {
+    "record": {
+      "act": "rehearsal",
+      "consumer": {
+        "repository": "opensoft/xFactory-Hermes-Install",
+        "revision": "89abcdef0123456789abcdef0123456789abcdef",
+        "selection": {
+          "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "kind": "xfactory_council_protocol_selection",
+          "mode": "rehearsal",
+          "protocol": "xfc-resolved-council-1",
+          "provider_bundle": "contract-v4.1",
+          "provider_commit": "0123456789abcdef0123456789abcdef01234567",
+          "schema_version": 1,
+          "side": "consumer"
+        }
+      },
+      "kind": "xfactory_council_activation_evidence",
+      "producer": {
+        "repository": "opensoft/xFactory",
+        "revision": "89abcdef0123456789abcdef0123456789abcdef",
+        "selection": {
+          "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "kind": "xfactory_council_protocol_selection",
+          "mode": "rehearsal",
+          "protocol": "xfc-resolved-council-1",
+          "provider_bundle": "contract-v4.1",
+          "provider_commit": "0123456789abcdef0123456789abcdef01234567",
+          "schema_version": 1,
+          "side": "producer"
+        }
+      },
+      "provider": {
+        "bundle": "contract-v4.1",
+        "commit": "0123456789abcdef0123456789abcdef01234567",
+        "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+      },
+      "recorded_at": "2026-10-08T23:30:00Z",
+      "rehearsal": {
+        "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+        "evidence_ref": "rehearsal-run-0001",
+        "mode": "matched",
+        "outcome": "pass"
+      },
+      "schema_version": 1
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-012",
+    "SC-004"
+  ],
+  "schema_version": 1
+}

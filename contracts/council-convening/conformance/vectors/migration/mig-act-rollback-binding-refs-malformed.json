@@ -1,0 +1,87 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "migration",
+  "boundary": "activation",
+  "case_id": "mig-act-rollback-binding-refs-malformed",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "activation_evidence_malformed"
+  },
+  "inputs": {
+    "record": {
+      "act": "rollback",
+      "binding_refs": [
+        "council-1-commission"
+      ],
+      "consumer": {
+        "repository": "opensoft/xFactory-Hermes-Install",
+        "revision": "89abcdef0123456789abcdef0123456789abcdef",
+        "selection": {
+          "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "kind": "xfactory_council_protocol_selection",
+          "mode": "active",
+          "protocol": "xfactory-council-seat-return/v1",
+          "provider_bundle": "contract-v4.1",
+          "provider_commit": "0123456789abcdef0123456789abcdef01234567",
+          "schema_version": 1,
+          "side": "consumer"
+        }
+      },
+      "intake": {
+        "paused_at": "2026-10-08T23:00:00Z"
+      },
+      "kind": "xfactory_council_activation_evidence",
+      "owner_word": {
+        "author": "Example Owner",
+        "cite": "conformance-vector-example",
+        "date": "2026-10-09T00:00:00Z",
+        "verbatim": "an example owner word, for a conformance vector only"
+      },
+      "producer": {
+        "repository": "opensoft/xFactory",
+        "revision": "89abcdef0123456789abcdef0123456789abcdef",
+        "selection": {
+          "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+          "kind": "xfactory_council_protocol_selection",
+          "mode": "active",
+          "protocol": "xfactory-council-seat-return/v1",
+          "provider_bundle": "contract-v4.1",
+          "provider_commit": "0123456789abcdef0123456789abcdef01234567",
+          "schema_version": 1,
+          "side": "producer"
+        }
+      },
+      "provider": {
+        "bundle": "contract-v4.1",
+        "commit": "0123456789abcdef0123456789abcdef01234567",
+        "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+      },
+      "recorded_at": "2026-10-09T00:00:00Z",
+      "rollback": {
+        "new_records_protocol": "xfc-resolved-council-1",
+        "new_records_retained": true,
+        "restored_consumer": {
+          "evidence_ref": "restore-consumer-0001",
+          "verified_at": "2026-10-09T00:00:00Z"
+        },
+        "restored_producer": {
+          "evidence_ref": "restore-producer-0001",
+          "verified_at": "2026-10-09T00:00:00Z"
+        }
+      },
+      "schema_version": 1
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-012"
+  ],
+  "schema_version": 1
+}

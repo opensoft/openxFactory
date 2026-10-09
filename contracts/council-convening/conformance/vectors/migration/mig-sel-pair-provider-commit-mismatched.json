@@ -1,0 +1,45 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "migration",
+  "boundary": "selection",
+  "case_id": "mig-sel-pair-provider-commit-mismatched",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "pair_mismatched"
+  },
+  "inputs": {
+    "selection_consumer": {
+      "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+      "kind": "xfactory_council_protocol_selection",
+      "mode": "rehearsal",
+      "protocol": "xfc-resolved-council-1",
+      "provider_bundle": "contract-v4.1",
+      "provider_commit": "89abcdef0123456789abcdef0123456789abcdef",
+      "schema_version": 1,
+      "side": "consumer"
+    },
+    "selection_producer": {
+      "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+      "kind": "xfactory_council_protocol_selection",
+      "mode": "rehearsal",
+      "protocol": "xfc-resolved-council-1",
+      "provider_bundle": "contract-v4.1",
+      "provider_commit": "0123456789abcdef0123456789abcdef01234567",
+      "schema_version": 1,
+      "side": "producer"
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-011",
+    "FR-012"
+  ],
+  "schema_version": 1
+}

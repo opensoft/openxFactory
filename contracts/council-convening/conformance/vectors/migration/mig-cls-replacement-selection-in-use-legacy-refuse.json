@@ -1,0 +1,35 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "migration",
+  "boundary": "classification",
+  "case_id": "mig-cls-replacement-selection-in-use-legacy-refuse",
+  "environment": {
+    "registry_status": {
+      "xfactory-council-seat-return/v1": "in_use"
+    }
+  },
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "legacy_protocol_refused"
+  },
+  "inputs": {
+    "record": {
+      "key_fingerprint": "sha256:abababababababababababababababababababababababababababababababab",
+      "protocol": "xfactory-council-seat-return/v1",
+      "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ"
+    },
+    "selected_protocol": "xfc-resolved-council-1"
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-011"
+  ],
+  "schema_version": 1
+}

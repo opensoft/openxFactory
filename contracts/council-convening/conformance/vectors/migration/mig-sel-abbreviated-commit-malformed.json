@@ -1,0 +1,44 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "migration",
+  "boundary": "selection",
+  "case_id": "mig-sel-abbreviated-commit-malformed",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "selection_malformed"
+  },
+  "inputs": {
+    "selection_consumer": {
+      "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+      "kind": "xfactory_council_protocol_selection",
+      "mode": "rehearsal",
+      "protocol": "xfc-resolved-council-1",
+      "provider_bundle": null,
+      "provider_commit": "0123456789ab",
+      "schema_version": 1,
+      "side": "consumer"
+    },
+    "selection_producer": {
+      "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+      "kind": "xfactory_council_protocol_selection",
+      "mode": "rehearsal",
+      "protocol": "xfc-resolved-council-1",
+      "provider_bundle": null,
+      "provider_commit": "0123456789ab",
+      "schema_version": 1,
+      "side": "producer"
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-011"
+  ],
+  "schema_version": 1
+}

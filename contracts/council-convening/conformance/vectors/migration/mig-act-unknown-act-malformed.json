@@ -1,0 +1,41 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "migration",
+  "boundary": "activation",
+  "case_id": "mig-act-unknown-act-malformed",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "activation_evidence_malformed"
+  },
+  "inputs": {
+    "record": {
+      "act": "activate",
+      "kind": "xfactory_council_activation_evidence",
+      "owner_word": {
+        "author": "Example Owner",
+        "cite": "conformance-vector-example",
+        "date": "2026-10-09T00:00:00Z",
+        "verbatim": "an example owner word, for a conformance vector only"
+      },
+      "provider": {
+        "bundle": "contract-v4.1",
+        "commit": "0123456789abcdef0123456789abcdef01234567",
+        "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+      },
+      "recorded_at": "2026-10-09T00:00:00Z",
+      "schema_version": 1
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-012"
+  ],
+  "schema_version": 1
+}

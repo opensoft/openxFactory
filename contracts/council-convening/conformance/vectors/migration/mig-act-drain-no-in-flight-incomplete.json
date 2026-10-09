@@ -1,0 +1,38 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "migration",
+  "boundary": "activation",
+  "case_id": "mig-act-drain-no-in-flight-incomplete",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "activation_evidence_incomplete"
+  },
+  "inputs": {
+    "record": {
+      "act": "drain",
+      "intake": {
+        "paused_at": "2026-10-08T23:00:00Z"
+      },
+      "kind": "xfactory_council_activation_evidence",
+      "provider": {
+        "bundle": "contract-v4.1",
+        "commit": "0123456789abcdef0123456789abcdef01234567",
+        "corpus_index_sha256": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+      },
+      "recorded_at": "2026-10-09T00:00:00Z",
+      "schema_version": 1
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-012"
+  ],
+  "schema_version": 1
+}

@@ -1,0 +1,34 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "migration",
+  "boundary": "historical",
+  "case_id": "mig-hist-replacement-with-legacy-shapes-accept",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {
+      "classification": "replacement"
+    },
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "accept",
+    "refusal": null
+  },
+  "inputs": {
+    "record": {
+      "council_convening": {
+        "council_id": "merge-readiness"
+      },
+      "protocol": "xfc-resolved-council-1",
+      "root_key_fingerprint": "sha256:abababababababababababababababababababababababababababababababab",
+      "signing_context": "xfactory-council-seat-key-authorization/v1"
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-011"
+  ],
+  "schema_version": 1
+}

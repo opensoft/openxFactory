@@ -1,0 +1,35 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "migration",
+  "boundary": "historical",
+  "case_id": "mig-hist-legacy-protocol-with-roster-shape-route",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {
+      "classification": "legacy"
+    },
+    "derived_origin": "hand",
+    "findings": [
+      "legacy_protocol_routed"
+    ],
+    "outcome": "route",
+    "refusal": null
+  },
+  "inputs": {
+    "record": {
+      "council_id": "merge-readiness",
+      "protocol": "xfactory-council-seat-return/v1",
+      "required_seats": [
+        "lead-quality"
+      ]
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-011"
+  ],
+  "schema_version": 1
+}

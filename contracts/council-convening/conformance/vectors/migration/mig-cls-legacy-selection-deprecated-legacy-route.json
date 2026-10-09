@@ -1,0 +1,40 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "migration",
+  "boundary": "classification",
+  "case_id": "mig-cls-legacy-selection-deprecated-legacy-route",
+  "environment": {
+    "registry_status": {
+      "xfactory-council-seat-return/v1": "deprecated"
+    }
+  },
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {
+      "classification": "legacy"
+    },
+    "derived_origin": "hand",
+    "findings": [
+      "legacy_protocol_routed",
+      "legacy_protocol_deprecated"
+    ],
+    "outcome": "route",
+    "refusal": null
+  },
+  "inputs": {
+    "record": {
+      "key_fingerprint": "sha256:abababababababababababababababababababababababababababababababab",
+      "protocol": "xfactory-council-seat-return/v1",
+      "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ"
+    },
+    "selected_protocol": "xfactory-council-seat-return/v1"
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-011"
+  ],
+  "schema_version": 1
+}
