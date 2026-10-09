@@ -1,0 +1,329 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_producer_binding
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/producer-binding.schema.yaml"
+contract_id: council-convening-producer-binding
+contract_schema_version: 1
+title: Producer workflow binding (one per producer principal, judged by kind)
+description: >-
+  THE PRODUCER'S AUTHORITY, BOUND TO THE CURRENT GOVERNED REPOSITORY IDENTITY
+  AND TO VERIFIED WORKFLOW CLAIMS (renew-resolved-council-protocol, design D4;
+  the spec delta's "Verified workflow binding"; feature 035 FR-009, data-model
+  E10). A record of this kind names one producer principal: the OIDC issuer and
+  audience its token must carry, the repository its job runs in, the exact
+  subject template that token's `sub` must equal, the reusable workflows it may
+  run per operation with the revision rule each obeys, and the state of the
+  broker that provisions it. A workflow reference is never a subject: the two
+  are different claims, judged by meaning (E10 steps 5 and 13).
+
+
+  WHERE AN INSTANCE LIVES. Brett Heap ruled OPEN-2 on 2026-10-08, "Consumer's
+  runtime config (Recommended)": the concrete binding is written into the
+  CONSUMER'S governed runtime configuration at the provisioning act (049 T031;
+  025 H3) and validated with `scripts/validate-council-convening.py check` at
+  the consumer's pin. This family ships this schema, the
+  `producer-binding.template.yaml` stub (which carries `instantiation_stub:
+  true` and is never accepted as live), the derivation from
+  `contracts/policies/repository-identity.yaml`, and the corpus. No instance is
+  published here.
+
+
+  ONE BINDING PER PRINCIPAL. An assignment's `holder.binding_ref` names a
+  binding by its `binding_id` (E5), so a convening's commission job and each
+  seat job resolve their own binding. A per-seat principal is one binding per
+  seat, told apart by its subject template, for example a per-seat GitHub
+  environment in `repo:<owner>/<repo>:environment:<name>`.
+
+
+  THE ORDER AT `binding` IS NORMATIVE (data-model E10; research R21). Steps 1
+  to 6 judge the instance alone and run offline; steps 7 to 14 need the
+  verified claims of the `identity` oracle. At admission the consumer runs
+  steps 1 to 13 as E2 step A1, right after the record's shape check, and step
+  14 as E2 step A4, after E2 step 5 has checked the `governed` member it reads.
+
+  1. `binding_malformed`: the record fails this schema, which includes any
+     `permitted_workflows` entry pairing an operation with the other
+     operation's revision rule, and a stub (`instantiation_stub: true`)
+     presented as live.
+  2. `binding_wildcard`: a `*` in `issuer`, `audience`, `subject_template` or
+     a `job_workflow_ref`.
+  3. `issuer_mismatch`: `issuer` is neither
+     `https://token.actions.githubusercontent.com` nor that URL followed by
+     `/<enterprise-slug>`, GitHub's form for an enterprise's unique issuer URL.
+  4. `repository_identity_unavailable`: the identity map is absent,
+     unreadable, not well formed, or has a row `load_transfers` reports as
+     malformed. Then `repository_identity_former`: `caller_repository`, or the
+     repository a permitted `job_workflow_ref` names, is a former spelling or
+     a non-canonical case variant (equal to a listed spelling when ASCII case
+     is ignored, but not byte-equal).
+  5. `subject_workflow_conflation`: `subject_template` is a bare workflow
+     reference, `<owner>/<repo>/.github/workflows/<file>@<ref>` with no
+     `key:` element.
+  6. `subject_template_mismatch`: the template does not parse into elements
+     in `subject_claim_keys` order, or its repository element names another
+     repository.
+  7. `claims_unverified`; 8. `claims_expired` (`exp` at or before the
+     evaluation time, or `nbf` after it); 9. `issuer_mismatch` (the verified
+     `iss`); 10. `audience_mismatch` (the verified `aud`); 11.
+     `subject_template_mismatch` (the verified `sub`); 12.
+     `repository_identity_mismatch` (the verified `repository` or
+     `repository_id`); 13. `workflow_not_permitted` (the verified
+     `job_workflow_ref`, never `sub`, is not listed for the operation); 14.
+     `workflow_revision_ungoverned` (the verified `job_workflow_sha` breaks
+     the matched entry's `workflow_revision_rule`).
+
+
+  ONE FAILING CHECK NAMES ONE CODE. Where a named semantic refusal exists for
+  a condition, this schema does not also check it: `issuer`,
+  `subject_template` and each `job_workflow_ref` are typed as strings only, so
+  their refusals are steps 2, 3, 5, 6 and 13 and never `binding_malformed`.
+  The broker refuses nothing at binding: `capability_verified: false`, or a
+  null `evidence_ref`, parks ACTIVATION, which E12 refuses as
+  `broker_capability_insufficient` (Phase 6; D4).
+$defs:
+  placeholder:
+    description: >-
+      A per-install placeholder in the `<...>` idiom of this repository's
+      templates (contracts/review-lane-repin-binding.template.yaml). It names
+      what the provisioning act writes and carries no live value.
+    type: string
+    pattern: "^<[^<>]+>$"
+  permitted_workflow:
+    description: >-
+      One reusable workflow the principal may run for one operation, with the
+      revision rule that operation obeys. Brett Heap ruled the rule on
+      2026-10-08 (OPEN-3, "History + unchanged rule file (Recommended)", and
+      its follow-ups): `equals_governed_revision` for `commission`, where the
+      repository the verified `job_workflow_ref` names is `governed.repository`
+      and the verified `job_workflow_sha` is `governed.revision`; and
+      `on_governed_history_since_revision` for `seat_execution` (follow-up 3,
+      "At or after the frozen rev (Recommended)"), where that repository is
+      the snapshot's frozen `governed.repository` and the verified
+      `job_workflow_sha` is on its governed first-parent history at or after
+      the frozen `governed.revision`. The repository is the one
+      `job_workflow_ref` names, never the caller (follow-up 2,
+      "job_workflow_ref's repo (Recommended)"), so a permitted workflow
+      outside the governed repository fails closed as
+      `workflow_revision_ungoverned`. The enumeration is CLOSED and the
+      pairing fixed; any other pairing is `binding_malformed`.
+    oneOf:
+      - type: object
+        additionalProperties: false
+        required: [operation, job_workflow_ref, workflow_revision_rule]
+        properties:
+          operation:
+            const: commission
+          job_workflow_ref:
+            type: string
+          workflow_revision_rule:
+            const: equals_governed_revision
+      - type: object
+        additionalProperties: false
+        required: [operation, job_workflow_ref, workflow_revision_rule]
+        properties:
+          operation:
+            const: seat_execution
+          job_workflow_ref:
+            type: string
+          workflow_revision_rule:
+            const: on_governed_history_since_revision
+  broker:
+    description: >-
+      The owner-provisioned broker's state, and its ONE source of truth (D4).
+      It refuses nothing at binding. E12 reads it through an activation
+      record's `binding_refs` and refuses `broker_capability_insufficient` at
+      `activation` and `resume` unless `capability_verified` is true and
+      `evidence_ref` is not null.
+    type: object
+    additionalProperties: false
+    required: [broker_ref, capability_verified, evidence_ref]
+    properties:
+      broker_ref:
+        type: string
+      capability_verified:
+        type: boolean
+      evidence_ref:
+        type: [string, "null"]
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - protocol
+  - binding_id
+  - principal_kind
+  - issuer
+  - audience
+  - caller_repository
+  - repository_id
+  - subject_claim_keys
+  - subject_template
+  - permitted_workflows
+  - broker
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_council_producer_binding
+  instantiation_stub:
+    description: >-
+      Present only in `producer-binding.template.yaml`. A stub is never
+      accepted as a live binding (`binding_malformed`, step 1).
+    const: true
+  protocol:
+    const: xfc-resolved-council-1
+  binding_id:
+    description: The identifier an assignment's `holder.binding_ref` names (E5).
+    type: string
+  principal_kind:
+    description: >-
+      The closed `principal_kind` enumeration, narrowed to `github_oidc_job`:
+      no binding shape exists yet for `governed_broker_job`, which E7 step 5
+      refuses as `broker_capability_insufficient` (Phase 4).
+    allOf:
+      - $ref: "shared-definitions.schema.yaml#/$defs/principal_kind"
+      - const: github_oidc_job
+  issuer:
+    description: >-
+      Exactly `https://token.actions.githubusercontent.com`, or that URL
+      followed by `/<enterprise-slug>` (step 3). A string here, so the
+      refusal is `issuer_mismatch`.
+    type: string
+  audience:
+    description: >-
+      A literal string of 1 to 256 characters, never a pattern; a `*` is
+      `binding_wildcard` (step 2).
+    type: string
+    minLength: 1
+    maxLength: 256
+  caller_repository:
+    description: >-
+      The repository the commission or seat job runs in: the verified token's
+      `repository` claim, which for a reusable workflow is the CALLER. It is
+      not the ruling's "producer repository", which is the repository
+      `job_workflow_ref` names (follow-up 2). Its spelling is checked against
+      `contracts/policies/repository-identity.yaml` through `load_transfers`
+      in `scripts/estate_inventory.py` (step 4).
+    type: string
+  repository_id:
+    description: >-
+      The immutable numeric repository identity, compared with the verified
+      `repository_id` claim (step 12), which GitHub issues as a decimal string.
+    type: [integer, "null"]
+  subject_claim_keys:
+    description: >-
+      The ordered claim keys of the caller repository's OIDC subject template:
+      GitHub's default, `repo` then `context`, or the `include_claim_keys` of
+      its documented subject customization. The set is CLOSED and enumerated
+      from GitHub's OIDC reference, "OpenID Connect reference", § "OIDC token
+      claims" and § "Customizing the subject claims for an organization or
+      repository" (https://docs.github.com/en/actions/reference/security/oidc,
+      read 2026-10-09), together with its Enterprise Cloud edition for
+      `enterprise` and `enterprise_id`
+      (https://docs.github.com/en/enterprise-cloud@latest/actions/reference/security/oidc).
+      `repo` is the short `repo:<owner>/<repo>` form, which GitHub's immutable
+      subject format writes `repo:<owner>@<owner-id>/<repo>@<repo-id>`;
+      `context` is the default part after the repository:
+      `environment:<name>`, `pull_request`, or `ref:<ref>`. Every other key is
+      a custom claim's full name, rendered `<key>:<value>`. Elements are joined
+      by `:`, and GitHub writes a `:` inside a value as `%3A`. The standard
+      JWT claims are not subject elements. GitHub's `repo_property_*` custom
+      property claims are an open family and are not members: a binding that
+      needs one is a governed change to this enumeration.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      enum:
+        - repo
+        - context
+        - actor
+        - actor_id
+        - base_ref
+        - check_run_id
+        - enterprise
+        - enterprise_id
+        - environment
+        - event_name
+        - head_ref
+        - job_workflow_ref
+        - job_workflow_sha
+        - ref
+        - ref_type
+        - repository
+        - repository_id
+        - repository_owner
+        - repository_owner_id
+        - repository_visibility
+        - run_attempt
+        - run_id
+        - run_number
+        - runner_environment
+        - workflow
+        - workflow_ref
+        - workflow_sha
+  subject_template:
+    description: >-
+      A literal OIDC `sub` that parses into elements in `subject_claim_keys`
+      order, and whose repository element (`repo`, `repository` or
+      `repository_id`) names `caller_repository` or `repository_id` (step 6).
+      The verified `sub` must equal it exactly (step 11). A string here, so
+      its refusals are steps 2, 5 and 6.
+    type: string
+  permitted_workflows:
+    description: >-
+      1 to 8 entries. Matched against the verified `job_workflow_ref` claim,
+      never against `sub` (step 13).
+    type: array
+    minItems: 1
+    maxItems: 8
+    items:
+      $ref: "#/$defs/permitted_workflow"
+  broker:
+    $ref: "#/$defs/broker"
+if:
+  required: [instantiation_stub]
+then:
+  description: >-
+    The stub: every per-install member is a `<...>` placeholder, there is no
+    repository id, and the broker is unverified, so nothing in the template is
+    a live audience, subject template or repository id (T053).
+  properties:
+    binding_id:
+      $ref: "#/$defs/placeholder"
+    audience:
+      $ref: "#/$defs/placeholder"
+    caller_repository:
+      $ref: "#/$defs/placeholder"
+    subject_template:
+      $ref: "#/$defs/placeholder"
+    repository_id:
+      type: "null"
+    broker:
+      properties:
+        broker_ref:
+          $ref: "#/$defs/placeholder"
+        capability_verified:
+          const: false
+        evidence_ref:
+          type: "null"
+else:
+  description: A live binding.
+  properties:
+    binding_id:
+      $ref: "shared-definitions.schema.yaml#/$defs/opaque_id"
+    caller_repository:
+      $ref: "shared-definitions.schema.yaml#/$defs/repository"
+    repository_id:
+      type: integer
+      minimum: 1
+      maximum: 9007199254740991
+    broker:
+      properties:
+        broker_ref:
+          $ref: "shared-definitions.schema.yaml#/$defs/opaque_id"
+        evidence_ref:
+          oneOf:
+            - $ref: "shared-definitions.schema.yaml#/$defs/opaque_id"
+            - type: "null"
