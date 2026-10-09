@@ -23,7 +23,9 @@
       },
       "protocol": "xfc-resolved-council-1",
       "root_key_fingerprint": "sha256:abababababababababababababababababababababababababababababababab",
-      "signing_context": "xfactory-council-seat-key-authorization/v1"
+      "signature": {
+        "protocol": "xfactory-council-seat-return/v1"
+      }
     }
   },
   "kind": "openxfactory-council-convening-conformance-vector",

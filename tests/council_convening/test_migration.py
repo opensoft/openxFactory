@@ -392,8 +392,12 @@ def test_historically_no_status_is_read(context):
     # Recorded as replacement, carrying every legacy shape: still replacement.
     ({"protocol": REPLACEMENT, "root_key_fingerprint": FPR,
       "council_convening": {"council_id": "c"},
-      "signing_context": "xfactory-council-seat-key-authorization/v1"}, "replacement"),
-    # No protocol, a legacy recognition rule: legacy.
+      "signature": {"protocol": "xfactory-council-seat-return/v1"}}, "replacement"),
+    # No protocol: the legacy seat result's own shape, its context string under
+    # `signature.protocol` (codexFactory `council_seat_signing.py`): legacy.
+    ({"seat": "lead-security", "signature": {"protocol": LEGACY, "key_fingerprint": FPR,
+                                             "signature": "sig"}}, "legacy"),
+    # No protocol, the roster-less convening block: legacy.
     ({"council_convening": {"council_id": "merge-readiness", "subject_pin": SHA,
                             "packet_refs": ["opensoft/openxFactory#1268"]}}, "legacy"),
 ])
