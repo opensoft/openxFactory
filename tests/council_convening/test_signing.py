@@ -361,7 +361,7 @@ def test_root_authorization_is_refused_before_the_shape():
     pytest.param(lambda r: r.pop("proof"), id="proof-missing"),
     pytest.param(lambda r: r.update(principal="binding-seat-a"), id="a-principal-in-the-body"),
     pytest.param(lambda r: r.update(kind="xfactory_council_seat_return"), id="wrong-kind"),
-    pytest.param(lambda r: r.update(public_key="A" * 43), id="public_key-not-canonical-base64url"),
+    pytest.param(lambda r: r.update(public_key="A" * 42 + "B"), id="public_key-nonzero-pad-bits"),
     pytest.param(lambda r: r.update(proof="A" * 84), id="proof-not-64-bytes"),
     pytest.param(lambda r: r.update(assignment_id="assignment-seat-a\n"),
                  id="assignment_id-trailing-newline"),

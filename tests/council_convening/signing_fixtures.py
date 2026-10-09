@@ -342,6 +342,13 @@ def registration(snap: dict, seat: str, signer, issued: dict) -> dict:
     return sign_registration(value, signer)
 
 
+def registration_record(seat: str = "seat-a") -> dict:
+    """One seat's signed registration alone, with no environment: what `check`
+    reads offline."""
+    signer = key(seat)
+    return registration(snapshot(), seat, signer, challenge(seat, signer.public_key))
+
+
 def registration_case(seat: str = "seat-a") -> dict:
     """One seat's registration and everything its boundary reads. Each member
     is fresh; mutate it, then run it through the module under test."""
