@@ -1292,8 +1292,8 @@ copies (research R7; ADV-05).
         `str()`; it is operator-only, and never silent, since two findings with one
         identity raise `identity-collision`;
       - T041 adds the helper that builds it: deterministic, total over anything
-        the manifest parser yields, distinct for distinct ids, and never raising,
-        with test rows for an absent id, a conforming id, an uppercase or spaced
+        the manifest parser yields, distinct for distinct ids but for the accepted
+        limit above (`6088732352` item 6 (a)), and never raising, with test rows for an absent id, a conforming id, an uppercase or spaced
         id, an id with U+0000, a non-string id, a 201-character id, and a mapping
         id with mixed-type keys (the `ascii()` fallback), and one with a
         non-ASCII key in a mixed-type mapping. The contract's check already

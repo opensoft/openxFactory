@@ -201,7 +201,8 @@ raise with Brett (Copilot's review of `6f073ed2`).
       hex) in the only form a closed `{category, entry}` identity allows.
 
     T041 builds it with a helper that is deterministic, total over anything the
-    manifest parser yields, distinct for distinct ids, and never raising.
+    manifest parser yields, distinct for distinct ids but for the accepted limit
+    below, and never raising.
 
     **The canonical text of a refused entry's id** (the holder, `6088484643` item
     5, on Copilot `4232974858` at openxFactory#1283) is its JSON text with sorted
