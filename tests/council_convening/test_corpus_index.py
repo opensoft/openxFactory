@@ -50,9 +50,19 @@ def _load(path: Path) -> dict:
 
 def _rewrite_vector(root: Path, row: dict, vector: dict) -> None:
     """Write a vector in canonical form, then regenerate the index from the
-    vectors, so a row digest never moves alone."""
-    _vector_path(root, row).write_bytes(corpus.dump_json(vector))
-    generate.generate(root)
+    vectors, so a row digest never moves alone. A vector the generator refuses,
+    because it breaks the format, is indexed by hand instead (its row digest
+    moved), so the corpus check still meets it as a row and judges it."""
+    path = _vector_path(root, row)
+    path.write_bytes(corpus.dump_json(vector))
+    try:
+        generate.generate(root)
+    except ValueError:
+        index = _index(root)
+        for indexed in index["cases"]:
+            if indexed["path"] == row["path"]:
+                indexed["sha256"] = corpus.raw_sha256(path.read_bytes())
+        _write_index(root, index)
 
 
 def _rows(root: Path) -> list[dict]:
@@ -87,7 +97,8 @@ def test_the_index_header():
     assert index["kind"] == "openxfactory-council-convening-conformance-index"
     assert index["corpus_id"] == "council-convening-conformance"
     assert index["protocol"] == REPLACEMENT
-    assert index["coverage_floor"] == ["FR-001", "FR-007", "FR-008", "FR-011", "SC-003"]   # Phase 4 (T044) raised it
+    assert index["coverage_floor"] == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-007",
+                                       "FR-008", "FR-011", "SC-001", "SC-003"]
 
 
 def test_every_row_digest_is_over_the_raw_bytes():
@@ -118,13 +129,24 @@ def test_the_totals_recount():
 
 
 def test_phase_1_vectors_are_foundation_vectors_for_both_sides():
-    rows = [row for row in _index_doc()["cases"] if row["area"] == "foundation"]
-    assert rows
-    for row in rows:
+    for row in _index_doc()["cases"]:
+        if row["area"] != "foundation":
+            continue
         assert row["boundary"] in ("definition", "classification")
         assert row["applies_to"] == ["producer", "consumer"]
         vector = _load(CONFORMANCE / row["path"])
         assert vector["expected"]["derived_origin"] == "hand"
+
+
+def test_the_areas_landed_at_this_commit_are_foundation_and_resolution():
+    """Phase 2 adds the `resolution` area, at boundaries `commission` and
+    `admission`; every resolution vector is hand-authored."""
+    rows = _index_doc()["cases"]
+    assert {row["area"] for row in rows} == {"foundation", "resolution"}
+    for row in rows:
+        if row["area"] == "resolution":
+            assert row["boundary"] in ("commission", "admission")
+            assert _load(CONFORMANCE / row["path"])["expected"]["derived_origin"] == "hand"
 
 
 # --------------------------------------------------------------------------
@@ -251,7 +273,7 @@ def test_applies_to_is_a_non_empty_ordered_subset(family_tree, applies_to):
 def test_an_expected_refusal_outside_the_vocabulary_is_refused(family_tree):
     row = _first_row(family_tree, outcome="refuse")
     vector = _load(_vector_path(family_tree, row))
-    vector["expected"]["refusal"] = "convening_malformed"     # a Phase 2 code
+    vector["expected"]["refusal"] = "snapshot_malformed"      # a Phase 3 code
     _rewrite_vector(family_tree, row, vector)
     assert "council-convening-schema" in _codes(family_tree)
 
@@ -332,9 +354,24 @@ def test_a_malformed_parts_object_is_refused(value):
 
 
 def test_a_parts_vector_adjudicates_on_the_joined_value():
-    rows = [row for row in _index_doc()["cases"]
-            if "$parts" in json.dumps(_load(CONFORMANCE / row["path"])["inputs"])]
-    assert rows, "the foundation corpus carries at least one $parts vector"
+    """Every `$parts` vector adjudicates to its expectation, and at least one of
+    them ACCEPTS: an unjoined `{"$parts": [...]}` object satisfies no string
+    grammar, so an accept proves the join ran before the grammar."""
+    from scripts.council_convening import classification, records
+
+    context = corpus.Context(records.load_schemas(), classification.load_registry())
+    vectors = [_load(CONFORMANCE / row["path"]) for row in _index_doc()["cases"]]
+    parts = [v for v in vectors if "$parts" in json.dumps(v["inputs"])]
+    assert parts, "the foundation corpus carries at least one $parts vector"
+    for vector in parts:
+        want = {k: vector["expected"][k] for k in ("outcome", "refusal", "findings", "derived")}
+        assert corpus.adjudicate(vector, context).as_expected() == want, vector["case_id"]
+    accepted = [v for v in parts if v["expected"]["outcome"] == "accept"]
+    assert accepted
+    unjoined = dict(accepted[0], inputs=dict(accepted[0]["inputs"]))
+    with pytest.raises(records.Refused):
+        context.schemas.check_definition(unjoined["inputs"]["definition"],
+                                         unjoined["inputs"]["value"])
 
 
 # --------------------------------------------------------------------------
@@ -367,11 +404,13 @@ def test_every_coverage_floor_requirement_needs_a_probe(family_tree):
 
 def test_the_landed_coverage_counts():
     report = corpus.check_corpus()
-    # Phase 4 (T046, T044): 5 + 31 refusal codes, and three more requirements.
-    assert report.refusals_probed == (36, 36)
+    # Phase 1's five refusal codes, Phase 2's twenty-nine (T028) and Phase 4's
+    # thirty-one (T046); Phase 4 (T044) adds FR-007, FR-008 and SC-003.
+    assert report.refusals_probed == (65, 65)
     assert report.findings_probed == (1, 1)
-    assert report.requirements_probed == (5, 5)
-    assert report.coverage_floor == ["FR-001", "FR-007", "FR-008", "FR-011", "SC-003"]
+    assert report.requirements_probed == (9, 9)
+    assert report.coverage_floor == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-007",
+                                     "FR-008", "FR-011", "SC-001", "SC-003"]
 
 
 # --------------------------------------------------------------------------
@@ -433,7 +472,8 @@ def test_generate_check_reports_a_stale_index(family_tree):
 
 
 def test_generate_writes_the_coverage_floor():
-    assert generate.COVERAGE_FLOOR == ("FR-001", "FR-007", "FR-008", "FR-011", "SC-003")
+    assert generate.COVERAGE_FLOOR == ("FR-001", "FR-002", "FR-003", "FR-004", "FR-007",
+                                       "FR-008", "FR-011", "SC-001", "SC-003")
 
 
 def test_labelled_test_keys_are_deterministic_and_distinct():
@@ -443,12 +483,27 @@ def test_labelled_test_keys_are_deterministic_and_distinct():
     assert first.public_key == again.public_key
     assert first.public_key != other.public_key
     assert len(first.public_key) == 32
-    assert first.fingerprint == "sha256:" + first.public_key.hex()
+    # The estate spelling, ruled by Brett Heap 2026-10-09T02:36:50Z ("Estate
+    # spelling (Recommended)"): the SHA-256 OF the raw public key, as openXwallet
+    # `fingerprint_of_public_key` and codexFactory `key_fingerprint` compute it,
+    # never the raw key's own hex.
+    assert first.fingerprint == "sha256:" + hashlib.sha256(first.public_key).hexdigest()
+    assert first.fingerprint != "sha256:" + first.public_key.hex()
     message = b'{"signing_context":"probe"}'
     signature = first.sign(message)
     assert len(signature) == 64
     assert ed25519.verify(first.public_key, message, signature)
     assert not ed25519.verify(other.public_key, message, signature)
+
+
+def test_the_fixture_key_known_answer():
+    """Pinned as literals, not recomputed: `seat-alpha`'s public key, and its
+    estate fingerprint, as the PR-1 reviewer derived them independently."""
+    key = generate.test_key("seat-alpha")
+    assert key.public_key.hex() == (
+        "026a95888285641a4a68f38af4f24177db400f154f00c5d86d24fd0017a6ef03")
+    assert key.fingerprint == (
+        "sha256:5df2e785df8a21267679b0f4159bfff6040c4ef4bf0d0ae43820f649cae6083b")
 
 
 def test_a_test_key_never_shows_its_seed():
@@ -457,3 +512,50 @@ def test_a_test_key_never_shows_its_seed():
     assert seed.hex() not in repr(key)
     assert not any(isinstance(value, (bytes, bytearray)) and value == seed
                    for value in vars(key).values())
+
+
+# --------------------------------------------------------------------------
+# L4: a classification record whose `kind` is not a string is classified, not
+# a crash; `kind` only excludes the judged-by-kind kinds, which are strings.
+# --------------------------------------------------------------------------
+
+def test_a_record_kind_that_is_not_a_string_does_not_crash_the_classification_boundary():
+    from scripts.council_convening import classification, records
+
+    context = corpus.Context(records.load_schemas(), classification.load_registry())
+    vector = {"boundary": "classification",
+              "inputs": {"record": {"kind": ["xfactory_council_seat_return"],
+                                    "protocol": LEGACY},
+                         "selected_protocol": None}}
+    assert corpus.adjudicate(vector, context).outcome == "route"
+
+
+# --------------------------------------------------------------------------
+# L5: a number spelled with a fraction or an exponent whose value is an integer
+# is refused in the corpus. jsonschema calls `2.0` an integer and
+# `xfc-jcs-sha256-1` refuses it as a float, so two readers split on it; the
+# corpus carries no such token rather than pin either reading.
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("token", ["2.0", "2e0", "20E-1", "-0.0"])
+def test_an_integral_number_spelled_as_a_float_is_refused_in_the_corpus(token):
+    with pytest.raises(corpus.IntegralFloatToken):
+        corpus.loads_strict('{"value": %s}' % token, corpus_tokens=True)
+    assert corpus.loads_strict('{"value": %s}' % token) is not None
+
+
+def test_a_fractional_number_is_still_a_corpus_token():
+    assert corpus.loads_strict('{"value": 1.5}', corpus_tokens=True) == {"value": 1.5}
+
+
+def test_a_vector_carrying_an_integral_float_is_a_schema_finding(family_tree):
+    row = _first_row(family_tree, refusal="value_malformed")
+    path = _vector_path(family_tree, row)
+    vector = _load(path)
+    path.write_text(path.read_text(encoding="utf-8").replace(
+        '"schema_version": 1', '"schema_version": 1.0'), encoding="utf-8")
+    findings = corpus.check_corpus(family_tree).findings
+    assert any(f.code == "council-convening-schema" and "integer" in f.message
+               and vector["case_id"] in f.message for f in findings), findings
+    with pytest.raises(ValueError, match="integer"):
+        generate.render(family_tree)

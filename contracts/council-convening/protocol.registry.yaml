@@ -29,8 +29,14 @@
 #
 #   * a `council_convening` block with no `required_seats` — the roster-less
 #     envelope block the legacy protocol carries;
-#   * a legacy signing-context string, at `signing_context` or at
-#     `context.signing_context`;
+#   * a legacy signing-context string at `signature.protocol` — where the
+#     legacy seat result really carries it: codexFactory
+#     `council_seat_signing.py` returns the three-key block
+#     `{protocol, key_fingerprint, signature}`, and Hermes `review_authority.py`
+#     reads it under the seat result's `signature` member. (The first reading,
+#     `signing_context` and `context.signing_context`, matched no legacy
+#     artifact and is gone; a replacement return's `signature` is a string, so
+#     the path never reaches into it);
 #   * a root-authorization member, `root_key_fingerprint`, `root_signature` or
 #     `authorization` — the legacy seat-key authorization's body.
 #
@@ -64,8 +70,7 @@ protocols:
         roster_member: required_seats
       - rule: legacy_signing_context
         member_paths:
-          - [signing_context]
-          - [context, signing_context]
+          - [signature, protocol]
       - rule: root_authorization_member
         members: [root_key_fingerprint, root_signature, authorization]
     introduced_in: null

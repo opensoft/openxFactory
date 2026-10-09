@@ -5,26 +5,22 @@
   ],
   "area": "foundation",
   "boundary": "classification",
-  "case_id": "cls-offline-legacy-nested-signing-context-route",
+  "case_id": "cls-offline-replacement-string-signature-accept",
   "evaluation_time": "2026-10-09T00:00:00Z",
   "expected": {
     "derived": {
-      "classification": "legacy"
+      "classification": "replacement"
     },
     "derived_origin": "hand",
-    "findings": [
-      "legacy_protocol_routed"
-    ],
-    "outcome": "route",
+    "findings": [],
+    "outcome": "accept",
     "refusal": null
   },
   "inputs": {
     "record": {
-      "assignment_id": "asg-1",
-      "context": {
-        "signing_context": "xfactory-council-seat-return/v1"
-      },
-      "kind": "xfactory_council_seat_return"
+      "kind": "xfactory_council_seat_return",
+      "protocol": "xfc-resolved-council-1",
+      "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ"
     },
     "selected_protocol": null
   },

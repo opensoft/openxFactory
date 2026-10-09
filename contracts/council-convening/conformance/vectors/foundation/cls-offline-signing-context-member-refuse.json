@@ -5,18 +5,14 @@
   ],
   "area": "foundation",
   "boundary": "classification",
-  "case_id": "cls-offline-legacy-signing-context-route",
+  "case_id": "cls-offline-signing-context-member-refuse",
   "evaluation_time": "2026-10-09T00:00:00Z",
   "expected": {
-    "derived": {
-      "classification": "legacy"
-    },
+    "derived": {},
     "derived_origin": "hand",
-    "findings": [
-      "legacy_protocol_routed"
-    ],
-    "outcome": "route",
-    "refusal": null
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "protocol_unknown"
   },
   "inputs": {
     "record": {

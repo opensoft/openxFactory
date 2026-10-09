@@ -1421,6 +1421,35 @@ NON_MEMBERS: tuple[NonMember, ...] = (
                "record of a derivation.",
     ),
     NonMember(
+        paths=("contracts/council-convening/conformance/vectors/**",),
+        reason="THE COUNCIL-CONVENING CONFORMANCE CORPUS (feature 035, "
+               "`renew-resolved-council-protocol`): test inputs, on the "
+               "fixtures row's ground, at the path the corpus contract "
+               "publishes them under. Each vector is a record plus the "
+               "oracles it is judged against, and its `revision` is "
+               "synthetic: the governed history it must sit on is the "
+               "vector's own injected `environment.governed_history`, never "
+               "this repository's refs, so a value that resolved here would "
+               "be a coincidence and one that did not is the design. The "
+               "non-commit spellings are inputs too: `main` and a "
+               "twelve-character prefix under `revision` are what the "
+               "`mutable_rule_reference` refusal is tested on. Measured when "
+               "the row was declared (035 Phase 2): the resolution vectors "
+               "carried 123 commit-shaped `revision` sites, all one synthetic "
+               "value, and 3 non-commit ones, and the foundation vectors "
+               "none. A vector's claim is its expected outcome, not a "
+               "derivation; its bytes are pinned by the raw SHA-256 in "
+               "`conformance/index.json` and replayed by "
+               "`tests/council_convening` and the validator's self-test. "
+               "DECLARED rather than dodged: the corpus's `$parts` splitting "
+               "exists so a secret never appears contiguously in a committed "
+               "file, and using it to hide a pin from this sweep is the "
+               "undeclared gap these rows refuse. THE TRADE IS STATED: a "
+               "future file under this path that made a derivation claim "
+               "about itself would go unswept here, and a vector never "
+               "does.",
+    ),
+    NonMember(
         paths=("contracts/schemas/**",),
         reason="schemas DECLARE the keys; they carry no pins of their own. A "
                "schema whose required `source_revision` has no committed "

@@ -60,7 +60,7 @@ Version numbers are allocated only inside Phases 7 and 8, under the release lock
 
 **Constraints**:
 
-- **No second vocabulary or construction.** Digests are `xfc-jcs-sha256-1` subjects. Key fingerprints use the estate's one spelling, `sha256:` + hex of the raw 32-byte public key. Per-file hashes are plain SHA-256 over bytes. Repository identity is read from `repository-identity.yaml`.
+- **No second vocabulary or construction.** Digests are `xfc-jcs-sha256-1` subjects. Key fingerprints use the estate's one spelling, `sha256:` + the lowercase hex SHA-256 of the raw 32-byte public key (openXwallet `fingerprint_of_public_key`; codexFactory `key_fingerprint`). *Corrected 2026-10-09 on Brett Heap's ruling of 2026-10-09T02:36:50Z, "Estate spelling (Recommended)": this sentence read "`sha256:` + hex of the raw 32-byte public key"; see data-model E1 `key_fingerprint`.* Per-file hashes are plain SHA-256 over bytes. Repository identity is read from `repository-identity.yaml`.
 - **No producer code is copied into the provider.** The reference implementation is written from this family's own specification. It is a third implementation, and agreement between the producer and the consumer is proven by the shared corpus (FR-010, SC-001).
 - **No version is reserved.** Numbers are allocated at Phase 7 and Phase 8 from the manifest as it then stands (Principle VI; D5).
 - **No live values.** Nothing committed carries a live credential, live key material, a live audience or a live subject template. Fixture keys follow [R18](research.md#r18--fixture-keys-and-reproducible-signatures).
