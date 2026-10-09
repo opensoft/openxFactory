@@ -1,0 +1,91 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_protocol_selection
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/protocol-selection.schema.yaml"
+contract_id: council-convening-protocol-selection
+contract_schema_version: 1
+title: One side's protocol selection
+description: >-
+  THE SHAPE OF EACH SIDE'S GOVERNED PROTOCOL CONFIGURATION (renew-resolved-council-protocol
+  D5; data-model E11; research R14; Hermes H4, "one declared protocol and exact provider
+  compatibility pin from governed configuration"). The producer and the consumer each
+  hold one. It names exactly one protocol, never a list and never a fallback, and pins
+  the provider by commit, bundle and corpus index digest. DORMANT AND UNREGISTERED: this
+  schema has no row in `contracts/manifest.yaml` until the family's first release cut.
+
+
+  JUDGED BY KIND, NEVER CLASSIFIED. A selection names a protocol; it does not carry
+  one under a protocol's rules, so it is never classified (data-model E1; analysis N7).
+
+
+  WHAT THIS SCHEMA SAYS, AND WHAT THE ORDER SAYS. The schema is
+  `selection_malformed`: a closed object, the six members typed, and a `null`
+  `provider_bundle` only with `mode: rehearsal` (a dormant rehearsal may pin a reviewed
+  commit before any bundle is published; an active selection always names one). The
+  rest is the `selection` boundary's normative order, because each has a named code:
+  registry membership of `protocol` (`protocol_unknown`); for an `active` replacement
+  selection, the replacement's `admission_eligible` status
+  (`replacement_not_admission_eligible`); for a legacy selection in either mode, the
+  legacy entry's `historical_only` status (`legacy_protocol_refused`); across the two
+  sides, equality of `mode`, `protocol`, `provider_commit`, `provider_bundle` and
+  `corpus_index_sha256` (`pair_mismatched`); and a later selection naming any protocol
+  other than the one a refusal was recorded under (`rejected_without_fallback`). A
+  record presented as one side's selection whose `side` names the other side is also
+  `selection_malformed`: it is not that side's configuration.
+
+
+  NO LIVE VALUE. A selection carries a commit, a tag and a digest, all public.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - side
+  - mode
+  - protocol
+  - provider_commit
+  - provider_bundle
+  - corpus_index_sha256
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_council_protocol_selection
+  side:
+    type: string
+    enum: [producer, consumer]
+  mode:
+    description: >-
+      `rehearsal` runs the side dormant against the pinned provider; `active` is the
+      side's live selection. The replacement is selectable for rehearsal only until the
+      registry makes it `admission_eligible`.
+    type: string
+    enum: [rehearsal, active]
+  protocol:
+    description: >-
+      A registry `protocol_id`. Its grammar is checked here; its membership in the
+      registry is `protocol_unknown`, at the boundary.
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/protocol_id"
+  provider_commit:
+    description: The exact openxFactory commit the side pins (Principle VI).
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/full_sha"
+  provider_bundle:
+    description: >-
+      The published bundle tag beside the commit, as a label, or `null` before any
+      bundle is published, in rehearsal only.
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/protocol-registry.schema.yaml#/$defs/release_tag"
+  corpus_index_sha256:
+    description: >-
+      The raw SHA-256 of the conformance corpus's `conformance/index.json` at
+      `provider_commit`: the corpus digest the side ran.
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/raw_sha256"
+allOf:
+  - if:
+      required: [mode]
+      properties:
+        mode: {const: active}
+    then:
+      properties:
+        provider_bundle:
+          type: string

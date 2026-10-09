@@ -1,0 +1,256 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_activation_evidence
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/activation-evidence.schema.yaml"
+contract_id: council-convening-activation-evidence
+contract_schema_version: 1
+title: The record of one owner act in the matched migration
+description: >-
+  ONE RECORD PER OWNER ACT (renew-resolved-council-protocol D5; data-model E12; research
+  R14; the activation runbook, docs/council-convening-activation-runbook.md). `act` is one
+  of `pause`, `drain`, `switch`, `rehearsal`, `activation`, `rollback` or `resume`. The
+  record RECORDS an act; it performs nothing, and a record that passes this family's
+  checks is evidence for the owner, never the act itself. DORMANT AND UNREGISTERED: this
+  schema has no row in `contracts/manifest.yaml` until the family's first release cut.
+
+
+  JUDGED BY KIND, NEVER CLASSIFIED (data-model E1; analysis N7).
+
+
+  WHAT THIS SCHEMA SAYS. It is `activation_evidence_malformed`: a closed object at every
+  depth, each member typed, and each act CLOSED TO ITS OWN MEMBERS, so a member foreign
+  to the act is malformed rather than carried unchecked. In particular a rollback
+  carries no `binding_refs`, and NO RECORD CARRIES BROKER STATE OF ITS OWN: broker
+  capability has one source of truth, each producer binding's `broker` member, which
+  the activation order reads through `binding_refs`. Every act-specific member,
+  `recorded_at` and `provider` included, and each member of `rollback`, is OPTIONAL
+  here, because its absence has a named code, `activation_evidence_incomplete`, at the
+  activation order's step 2 (data-model conventions: one failing check names one code).
+  `binding_refs` is bounded at 16 entries.
+
+
+  THE ACTS AND THEIR MEMBERS. Every act: `recorded_at`, `provider`. `owner_word`: pause,
+  switch, activation, rollback, resume. `intake`: drain, switch, activation, rollback,
+  and a rehearsal whose `rehearsal.mode` is `matched` (a dormant rehearsal may carry
+  it). `in_flight`: drain. `producer` and `consumer`: switch, rehearsal, activation,
+  rollback, resume, each side's selection being that side's E11 record, whose `side`
+  must name it. `rehearsal`: rehearsal. `rehearsal_ref` and `binding_refs`: activation
+  and resume. `rollback`: rollback.
+
+
+  A ROLLBACK'S SIDES. In a rollback, `producer` and `consumer` are the configurations the
+  rollback RESTORES, the pair it leaves in force, and they must match like every other
+  act's pair: a paired rollback restores a matched pair. `rollback.restored_producer`
+  and `rollback.restored_consumer` are each side's restoration evidence: when the old
+  configuration was verified, and the evidence for it. Intake stays paused until both
+  are verified (spec User Story 3, scenario 3), so a rollback records `intake` too.
+  `new_records_retained` must be `true`, and `new_records_protocol` names the protocol
+  the retained new records stay verifiable under, which must be the replacement's.
+
+
+  NO LIVE VALUE. An owner word is cited, never a credential; every reference is an
+  opaque identifier.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - act
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_council_activation_evidence
+  act:
+    type: string
+    enum: [pause, drain, switch, rehearsal, activation, rollback, resume]
+  recorded_at:
+    $ref: '#/$defs/utc_instant'
+  provider:
+    description: The provider the act ran against.
+    type: object
+    additionalProperties: false
+    required: [commit, bundle, corpus_index_sha256]
+    properties:
+      commit:
+        $ref: '#/$defs/full_sha'
+      bundle:
+        $ref: '#/$defs/release_tag'
+      corpus_index_sha256:
+        $ref: '#/$defs/raw_sha256'
+  owner_word:
+    description: >-
+      The owner's first-hand word authorizing the act, quoted verbatim and cited where
+      it was recorded.
+    type: object
+    additionalProperties: false
+    required: [author, date, verbatim, cite]
+    properties:
+      author:
+        $ref: '#/$defs/line'
+      date:
+        $ref: '#/$defs/utc_instant'
+      verbatim:
+        type: string
+        minLength: 1
+        maxLength: 4096
+      cite:
+        type: string
+        pattern: '^[^\x00-\x1f\x7f-\x9f]{1,2048}$'
+  intake:
+    description: When commissioning intake was paused.
+    type: object
+    additionalProperties: false
+    required: [paused_at]
+    properties:
+      paused_at:
+        $ref: '#/$defs/utc_instant'
+  in_flight:
+    description: >-
+      How the convenings in flight at the pause were disposed of: every one drained to
+      completion, or every one explicitly cancelled, named by its `convening_id`.
+    type: object
+    additionalProperties: false
+    required: [disposition, convening_ids]
+    properties:
+      disposition:
+        type: string
+        enum: [drained, cancelled]
+      convening_ids:
+        type: array
+        maxItems: 4096
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/opaque_id'
+  producer:
+    allOf:
+      - $ref: '#/$defs/side_configuration'
+      - properties:
+          selection:
+            properties:
+              side: {const: producer}
+  consumer:
+    allOf:
+      - $ref: '#/$defs/side_configuration'
+      - properties:
+          selection:
+            properties:
+              side: {const: consumer}
+  rehearsal:
+    description: >-
+      What a rehearsal ran: `dormant` (one side alone, against the pinned provider) or
+      `matched` (both sides, the full corpus, at one index digest), and whether it passed.
+    type: object
+    additionalProperties: false
+    required: [mode, corpus_index_sha256, outcome, evidence_ref]
+    properties:
+      mode:
+        type: string
+        enum: [dormant, matched]
+      corpus_index_sha256:
+        $ref: '#/$defs/raw_sha256'
+      outcome:
+        type: string
+        enum: [pass, fail]
+      evidence_ref:
+        $ref: '#/$defs/opaque_id'
+  rehearsal_ref:
+    description: >-
+      The raw SHA-256 of the exact bytes of the passing matched rehearsal record this
+      activation or resume stands on.
+    $ref: '#/$defs/raw_sha256'
+  binding_refs:
+    description: >-
+      The `binding_id` of every producer binding the activated consumer will use: its
+      commission binding and each seat holder's, one per seat where seats run in
+      per-seat environments. It must equal the consumer's configured binding set.
+    type: array
+    minItems: 1
+    maxItems: 16
+    uniqueItems: true
+    items:
+      $ref: '#/$defs/opaque_id'
+  rollback:
+    type: object
+    additionalProperties: false
+    properties:
+      restored_producer:
+        $ref: '#/$defs/restoration'
+      restored_consumer:
+        $ref: '#/$defs/restoration'
+      new_records_retained:
+        type: boolean
+      new_records_protocol:
+        $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/protocol_id"
+allOf:
+  - if: {required: [act], properties: {act: {const: pause}}}
+    then:
+      propertyNames:
+        enum: [schema_version, kind, act, recorded_at, provider, owner_word]
+  - if: {required: [act], properties: {act: {const: drain}}}
+    then:
+      propertyNames:
+        enum: [schema_version, kind, act, recorded_at, provider, intake, in_flight]
+  - if: {required: [act], properties: {act: {const: switch}}}
+    then:
+      propertyNames:
+        enum: [schema_version, kind, act, recorded_at, provider, owner_word, intake,
+               producer, consumer]
+  - if: {required: [act], properties: {act: {const: rehearsal}}}
+    then:
+      propertyNames:
+        enum: [schema_version, kind, act, recorded_at, provider, intake, producer,
+               consumer, rehearsal]
+  - if: {required: [act], properties: {act: {const: activation}}}
+    then:
+      propertyNames:
+        enum: [schema_version, kind, act, recorded_at, provider, owner_word, intake,
+               producer, consumer, rehearsal_ref, binding_refs]
+  - if: {required: [act], properties: {act: {const: rollback}}}
+    then:
+      propertyNames:
+        enum: [schema_version, kind, act, recorded_at, provider, owner_word, intake,
+               producer, consumer, rollback]
+  - if: {required: [act], properties: {act: {const: resume}}}
+    then:
+      propertyNames:
+        enum: [schema_version, kind, act, recorded_at, provider, owner_word, producer,
+               consumer, rehearsal_ref, binding_refs]
+$defs:
+  opaque_id:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/opaque_id"
+  full_sha:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/full_sha"
+  raw_sha256:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/raw_sha256"
+  utc_instant:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/utc_instant"
+  release_tag:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/protocol-registry.schema.yaml#/$defs/release_tag"
+  line:
+    description: One line of 1 to 256 characters, with no control character.
+    type: string
+    pattern: '^[^\x00-\x1f\x7f-\x9f]{1,256}$'
+  side_configuration:
+    description: One side as the act leaves it, with that side's E11 selection.
+    type: object
+    additionalProperties: false
+    required: [repository, revision, selection]
+    properties:
+      repository:
+        $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/repository"
+      revision:
+        $ref: '#/$defs/full_sha'
+      selection:
+        $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/protocol-selection.schema.yaml"
+  restoration:
+    description: One side's restoration evidence after a rollback.
+    type: object
+    additionalProperties: false
+    required: [verified_at, evidence_ref]
+    properties:
+      verified_at:
+        $ref: '#/$defs/utc_instant'
+      evidence_ref:
+        $ref: '#/$defs/opaque_id'
