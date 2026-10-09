@@ -1,5 +1,6 @@
 {
   "applies_to": [
+    "producer",
     "consumer"
   ],
   "area": "assignment",

@@ -266,10 +266,10 @@
               "convening_digest": {
                 "construction": "xfc-jcs-sha256-1",
                 "subject": "council_convening",
-                "value": "sha256:128a567c963fb7605381c0265ffbe219118840b2fdaa1c936826178387fc762a"
+                "value": "sha256:743a38956d54a459d0b0f58933518eae36ae883caf2baa981b0d551f25f4a5f2"
               },
-              "convening_id": "convening-0000",
-              "council_id": "review-council",
+              "convening_id": "convening-0008",
+              "council_id": "other-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
                 "binding_ref": "binding-seat",
@@ -296,10 +296,10 @@
               "convening_digest": {
                 "construction": "xfc-jcs-sha256-1",
                 "subject": "council_convening",
-                "value": "sha256:128a567c963fb7605381c0265ffbe219118840b2fdaa1c936826178387fc762a"
+                "value": "sha256:743a38956d54a459d0b0f58933518eae36ae883caf2baa981b0d551f25f4a5f2"
               },
-              "convening_id": "convening-0000",
-              "council_id": "review-council",
+              "convening_id": "convening-0008",
+              "council_id": "other-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
                 "binding_ref": "binding-seat",
@@ -318,10 +318,10 @@
             }
           ],
           "convening": {
-            "council_id": "review-council",
+            "council_id": "other-council",
             "kind": "xfactory_council_convening",
             "packet_refs": [
-              "example-org/example-app#41"
+              "example-org/example-app#42"
             ],
             "protocol": "xfc-resolved-council-1",
             "required_seats": [
@@ -423,9 +423,9 @@
           "convening_digest": {
             "construction": "xfc-jcs-sha256-1",
             "subject": "council_convening",
-            "value": "sha256:128a567c963fb7605381c0265ffbe219118840b2fdaa1c936826178387fc762a"
+            "value": "sha256:743a38956d54a459d0b0f58933518eae36ae883caf2baa981b0d551f25f4a5f2"
           },
-          "convening_id": "convening-0000",
+          "convening_id": "convening-0008",
           "kind": "xfactory_council_convening_snapshot",
           "protocol": "xfc-resolved-council-1",
           "schema_version": 1
@@ -689,12 +689,14 @@
             "classes": {
               "docs": {
                 "conditions": [],
+                "fact_sources": [],
                 "standing_seats": [
                   "seat-a"
                 ]
               },
               "hotfix": {
                 "conditions": [],
+                "fact_sources": [],
                 "standing_seats": [
                   "seat-a"
                 ]
@@ -710,6 +712,12 @@
                     },
                     "predicate": "changed_paths_intersect",
                     "seat": "seat-c"
+                  }
+                ],
+                "fact_sources": [
+                  {
+                    "input_contract": "pr_facts",
+                    "source": "candidate_pull"
                   }
                 ],
                 "standing_seats": []
@@ -737,6 +745,12 @@
                     "seat": "seat-d"
                   }
                 ],
+                "fact_sources": [
+                  {
+                    "input_contract": "pr_facts",
+                    "source": "candidate_pull"
+                  }
+                ],
                 "standing_seats": [
                   "seat-a",
                   "seat-b",
@@ -755,6 +769,12 @@
                     },
                     "predicate": "changed_paths_intersect",
                     "seat": "seat-c"
+                  }
+                ],
+                "fact_sources": [
+                  {
+                    "input_contract": "pr_facts",
+                    "source": "candidate_pull"
                   }
                 ],
                 "standing_seats": [
@@ -788,7 +808,8 @@
       "required_seats": [
         "seat-a",
         "seat-b"
-      ]
+      ],
+      "snapshot_digest": "sha256:0876f48d7d8b4016fda139102beb1390ce6a34fb9298fd1d84119931f7d05ea4"
     },
     "derived_origin": "generated",
     "findings": [],

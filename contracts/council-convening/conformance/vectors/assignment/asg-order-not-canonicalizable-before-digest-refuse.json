@@ -5,14 +5,14 @@
   ],
   "area": "assignment",
   "boundary": "admission",
-  "case_id": "asg-set-member-convening-id-differs-refuse",
+  "case_id": "asg-order-not-canonicalizable-before-digest-refuse",
   "evaluation_time": "2026-10-09T01:00:00Z",
   "expected": {
     "derived": {},
     "derived_origin": "hand",
     "findings": [],
     "outcome": "refuse",
-    "refusal": "assignment_set_mismatch"
+    "refusal": "value_not_canonicalizable"
   },
   "inputs": {
     "selected_protocol": "xfc-resolved-council-1",
@@ -29,7 +29,7 @@
           "convening_digest": {
             "construction": "xfc-jcs-sha256-1",
             "subject": "council_convening",
-            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+            "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
           },
           "convening_id": "convening-0001",
           "council_id": "council-alpha",
@@ -59,9 +59,9 @@
           "convening_digest": {
             "construction": "xfc-jcs-sha256-1",
             "subject": "council_convening",
-            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+            "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
           },
-          "convening_id": "convening-0002",
+          "convening_id": "convening-0001",
           "council_id": "council-alpha",
           "expires_at": "2026-10-09T06:00:00Z",
           "holder": {
@@ -84,7 +84,7 @@
         "council_id": "council-alpha",
         "kind": "xfactory_council_convening",
         "packet_refs": [
-          "packet/alpha-1"
+          "packet/\ud800"
         ],
         "protocol": "xfc-resolved-council-1",
         "required_seats": [
@@ -122,7 +122,7 @@
       "convening_digest": {
         "construction": "xfc-jcs-sha256-1",
         "subject": "council_convening",
-        "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+        "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
       },
       "convening_id": "convening-0001",
       "kind": "xfactory_council_convening_snapshot",
@@ -132,8 +132,7 @@
   },
   "kind": "openxfactory-council-convening-conformance-vector",
   "requirement_ids": [
-    "FR-005",
-    "SC-002"
+    "FR-005"
   ],
   "schema_version": 1
 }

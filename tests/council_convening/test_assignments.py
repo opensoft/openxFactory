@@ -21,12 +21,15 @@ never under a bare name (see this package's `__init__.py`).
 from __future__ import annotations
 
 import copy
+import json
 
 import pytest
 
 from scripts.council_convening import assignments
 from scripts.council_convening.records import Refused
+from scripts.signed_execution_chain import canonical
 
+from .conftest import VECTORS as VECTORS_DIR
 from .assignment_fixtures import (
     CEILING,
     LEGACY,
@@ -128,6 +131,129 @@ def test_an_assignment_that_fails_E5_is_assignment_malformed(mutate):
     assert refusal(check, value) == "assignment_malformed"
 
 
+# --- the embedded record's offline rules (pre-review M3) -----------------------------
+#
+# E4 step 2, `snapshot_malformed`, judges the embedded `convening` by the E2 rules
+# that need no oracle and judge the record alone: its schema, E2 step 2's
+# structural rules, and the offline roster rules of steps 11 and 12. A record
+# those rules refuse is never admitted, so a snapshot embedding it is malformed
+# (data-model E4, dated note of 2026-10-09). Each case below is otherwise sound:
+# `rebuilt` recomputes the digest and issues one assignment per required seat.
+
+
+def rebuilt(convening: dict) -> dict:
+    value = snapshot(convening)
+    for index, item in enumerate(value["assignments"]):
+        item["assignment_id"] = f"assignment-{index}"
+        item["holder"]["principal_ref"] = f"principal-{index}"
+    return value
+
+
+def conditional(*, held=True, seat="seat-c") -> dict:
+    """Two standing seats and one held `pr_facts` condition adding `seat`."""
+    roster = ["seat-a", "seat-b"] + ([seat] if held and seat is not None else [])
+    record = convening_record(required_seats=roster)
+    prov = record["required_seats_provenance"]
+    prov["conditions"] = [{
+        "seat": seat, "predicate": "changed_paths_intersect", "input_contract": "pr_facts",
+        "parameters": {"protected_paths": ["src/**"]}, "held": held}]
+    prov["fact_sources"] = [{"input_contract": "pr_facts", "source": "candidate_pull"}]
+    prov["consumed_facts"] = {"pr_facts": {
+        "changed_paths": ["README.md", "src/app/main.py"],
+        "changed_files_total": 2, "changed_paths_entry_count": 2}}
+    return record
+
+
+def _sources(*paths):
+    return [{"kind": "file", "path": p, "sha256": "sha256:" + "3" * 64} for p in paths]
+
+
+def _set(record, member, value):
+    record["required_seats_provenance"][member] = value
+    return record
+
+
+INADMISSIBLE = [
+    # E2 step 2's structural rules.
+    pytest.param(lambda: _set(convening_record(), "governed", {
+        "repository": "example-owner/example-rules", "revision": "2" * 40,
+        "sources": _sources("rules/zeta.yaml", "rules/alpha.yaml")}),
+        "sources", id="sources-out-of-bytewise-order"),
+    pytest.param(lambda: _set(convening_record(), "governed", {
+        "repository": "example-owner/example-rules", "revision": "2" * 40,
+        "sources": _sources("rules/alpha.yaml", "rules/alpha.yaml")}),
+        "sources", id="sources-repeated"),
+    pytest.param(lambda: _set(convening_record(), "class_inputs", {
+        "repository": "example-owner/example-candidate", "head_ref": "feature/alpha"}),
+        "class_inputs", id="class_inputs-without-matched_class"),
+    pytest.param(lambda: _set(convening_record(), "matched_class", "standard"),
+                 "class_inputs", id="matched_class-without-class_inputs"),
+    pytest.param(lambda: _set(convening_record(), "governed", {
+        "repository": "example-owner/example-rules", "revision": "2" * 40,
+        "sources": [{"kind": "listing", "path": "rules", "suffixes": [".yaml"],
+                     "entries": ["rules/alpha.yaml"]}]}),
+        "entries", id="listing-entry-not-a-file-source"),
+    pytest.param(lambda: _set(conditional(), "fact_sources", [
+        {"input_contract": "pr_facts", "source": "candidate_pull"},
+        {"input_contract": "pr_facts", "source": "candidate_pull"}]),
+        "fact_sources", id="fact_sources-contract-repeated"),
+    pytest.param(lambda: _set(conditional(), "consumed_facts", {"pr_facts": {
+        "changed_paths": ["src/app/main.py", "README.md"],
+        "changed_files_total": 2, "changed_paths_entry_count": 2}}),
+        "changed_paths", id="changed_paths-unsorted"),
+    pytest.param(lambda: _set(conditional(), "consumed_facts", {"pr_facts": {
+        "changed_paths": ["README.md", "README.md"],
+        "changed_files_total": 2, "changed_paths_entry_count": 2}}),
+        "changed_paths", id="changed_paths-repeated"),
+    # E2 step 11's offline half and step 12.
+    pytest.param(lambda: conditional(seat=None), "seat", id="held-condition-seat-unbound"),
+    pytest.param(lambda: _set(convening_record(required_seats=[]), "standing_seats", []),
+                 "required_seats", id="zero-seats"),
+    pytest.param(lambda: _set(convening_record(required_seats=["seat-a", "seat-a"]),
+                              "standing_seats", ["seat-a"]),
+                 "required_seats", id="roster-repeated-seat"),
+    pytest.param(lambda: _set(convening_record(required_seats=["seat-a", "seat-b"]),
+                              "standing_seats", ["seat-a"]),
+                 "required_seats", id="roster-not-the-standing-and-held-seats"),
+    pytest.param(lambda: _set(convening_record(required_seats=["seat-b", "seat-a"]),
+                              "standing_seats", ["seat-a", "seat-b"]),
+                 "required_seats", id="roster-reordered"),
+    pytest.param(lambda: conditional(held=False) | {"required_seats": ["seat-a", "seat-b",
+                                                                      "seat-c"]},
+                 "required_seats", id="roster-carries-an-unheld-condition-seat"),
+]
+
+
+@pytest.mark.parametrize("build, member", INADMISSIBLE)
+def test_a_snapshot_embedding_a_record_an_offline_E2_rule_refuses_is_snapshot_malformed(
+        build, member):
+    value = rebuilt(build())
+    with pytest.raises(Refused) as caught:
+        assignments.check_snapshot(value)
+    assert caught.value.code == "snapshot_malformed"
+    assert caught.value.member == f"convening.{member}"
+
+
+def test_a_snapshot_embedding_a_held_conditional_seat_is_accepted():
+    value = rebuilt(conditional())
+    assert check(value)["required_seats"] == ["seat-a", "seat-b", "seat-c"]
+
+
+def test_the_embedded_record_s_rules_are_step_2_so_they_precede_assignment_malformed():
+    value = rebuilt(_set(convening_record(required_seats=["seat-a", "seat-b"]),
+                         "standing_seats", ["seat-a"]))
+    value["assignments"][0]["expires_at"] = "2026-10-09T06:00:01Z"
+    assert refusal(check, value) == "snapshot_malformed"
+
+
+def test_a_zero_seat_snapshot_never_passes():
+    # A snapshot with no required seat and no assignment matches "one assignment
+    # per required seat" vacuously; Phase 4 completion over it would pass too.
+    value = rebuilt(_set(convening_record(required_seats=[]), "standing_seats", []))
+    assert value["assignments"] == []
+    assert refusal(check, value) == "snapshot_malformed"
+
+
 def test_a_lone_assignment_is_checked_against_E5_alone():
     convening = convening_record()
     assignments.check_assignment(assignment(convening, "convening-0001", "seat-a"))
@@ -136,11 +262,29 @@ def test_a_lone_assignment_is_checked_against_E5_alone():
     assert refusal(assignments.check_assignment, broken) == "assignment_malformed"
 
 
+def test_a_lone_assignment_that_is_not_canonicalizable_is_refused_after_its_shape():
+    # Pre-review L3. Inside a snapshot the same bytes are refused
+    # `value_not_canonicalizable` after E4 step 3, so a lone assignment takes the
+    # pre-check after its own E5 shape, never before it.
+    convening = convening_record()
+    value = assignment(convening, "convening-0001", "seat-a")
+    value["candidate"]["subject_path"] = "rules/\ud800.yaml"
+    assignments.check_assignment(value)       # E5's grammars admit it
+    assert refusal(assignments.check_lone_assignment, value) == "value_not_canonicalizable"
+    value["expires_at"] = "2026-10-09T06:00:01Z"
+    assert refusal(assignments.check_lone_assignment, value) == "assignment_malformed"
+    assignments.check_lone_assignment(assignment(convening, "convening-0001", "seat-a"))
+
+
 # --- the ruled ceiling (OPEN-1) ---------------------------------------------------------
 
 
 @pytest.mark.parametrize("expires_at, outcome", [
     pytest.param("2026-10-09T06:00:00Z", None, id="exactly-21600-seconds-accepted"),
+    # Pre-review L1: lifetimes below the ceiling are accepted too, so a check of
+    # `lifetime == 21600` is wrong.
+    pytest.param("2026-10-09T00:00:01Z", None, id="one-second-accepted"),
+    pytest.param("2026-10-09T01:00:00Z", None, id="one-hour-accepted"),
     pytest.param("2026-10-09T06:00:01Z", "assignment_malformed", id="21601-seconds"),
     pytest.param("2026-10-09T00:00:00Z", "assignment_malformed", id="zero"),
     pytest.param("2026-10-08T23:59:59Z", "assignment_malformed", id="negative"),
@@ -454,16 +598,20 @@ def test_a_record_for_another_council_at_the_same_pin_is_not_a_conflict():
 
 
 def test_once_per_pin_never_pre_empts_an_identical_retry():
-    # The identical-retry test runs over every live snapshot before the
-    # once-per-pin test runs over any, so a conflicting live snapshot listed
-    # first cannot turn an identical retry into a conflict.
+    # The identical snapshot has the record's own key, so a once-per-pin test run
+    # first would refuse an identical retry as a conflict. The identical test runs
+    # over every live snapshot before the once-per-pin test runs over any. The
+    # snapshots for other keys are listed first. No two live snapshots share a
+    # key, because once-per-pin allows one (pre-review M2), so a conflicting
+    # snapshot beside the identical one is a state no consumer can hold.
     record = convening_record()
-    conflicting = copy.deepcopy(record)
-    conflicting["packet_refs"] = ["packet/alpha-0"]
-    first = live(conflicting, convening_id="convening-0000")
     identical = live(record, convening_id="convening-0001")
-    other_pin = live(convening_record(subject_pin="6" * 40), convening_id="convening-0009")
-    returned = assignments.retry_identity(copy.deepcopy(record), [other_pin, first, identical])
+    other_pin = convening_record(subject_pin="6" * 40)
+    other_pin["required_seats_provenance"]["candidate"]["head_sha"] = "6" * 40
+    other_council = convening_record(council_id="council-beta")
+    returned = assignments.retry_identity(
+        copy.deepcopy(record),
+        [live(other_pin, "convening-0009"), live(other_council, "convening-0008"), identical])
     assert returned["convening_id"] == "convening-0001"
 
 
@@ -534,6 +682,25 @@ def test_an_identical_retry_returns_the_same_snapshot_even_after_drift(case_id, 
     assert retried.outcome == "accept"
     assert retried.derived["convening_id"] == "convening-0001"
     assert retried.derived["convening_digest"] == digest_of(vector["inputs"]["record"])
+    returned, = vector["environment"]["issued"]["live_snapshots"]
+    assert retried.derived["snapshot_digest"] == canonical.digest(returned)
+
+
+def test_a_returned_snapshot_derives_the_digest_of_the_whole_snapshot():
+    # Pre-review M1. E4: an identical retry returns "the same `convening_id` and
+    # the same assignments". The id alone would let a consumer that re-issues
+    # assignments on retry agree with the corpus; the digest of the snapshot it
+    # returns does not.
+    from scripts.council_convening import corpus
+
+    vector = _vector("asg-retry-identical-returns-snapshot-accept")
+    returned, = vector["environment"]["issued"]["live_snapshots"]
+    derived = corpus.adjudicate(vector, _context()).derived
+    assert derived == vector["expected"]["derived"]
+    assert derived["snapshot_digest"] == canonical.digest(returned)
+    reissued = copy.deepcopy(returned)
+    reissued["assignments"][0]["assignment_id"] = "assignment-reissued"
+    assert canonical.digest(reissued) != derived["snapshot_digest"]
 
 
 def test_a_conflict_is_refused_before_the_head_is_read():
@@ -556,14 +723,151 @@ def test_a_fresh_admission_derives_no_convening_id():
         _vector("asg-retry-same-council-other-pin-not-conflict-accept"), _context())
     assert outcome.outcome == "accept"
     assert "convening_id" not in outcome.derived
+    assert "snapshot_digest" not in outcome.derived
 
 
-def test_an_admission_vector_without_issued_has_no_live_snapshot():
-    # Absent `environment.issued.live_snapshots` reads as "the consumer holds no
-    # live snapshot", so every Phase 2 admission vector keeps its outcome.
+@pytest.mark.parametrize("strip", [
+    pytest.param(lambda env: env.pop("issued"), id="no-issued"),
+    pytest.param(lambda env: env["issued"].pop("live_snapshots"), id="issued-without-live"),
+])
+def test_an_admission_vector_without_live_snapshots_has_no_live_snapshot(strip):
+    # Reading 3, now in conformance-corpus.md beside "absent, not empty": an
+    # absent `environment.issued.live_snapshots` reads as "the consumer holds no
+    # live snapshot". The consumer's run of the shared commission vectors and
+    # every Phase 2 admission vector rely on it.
     from scripts.council_convening import corpus
 
-    vector = _without_live_snapshots(_vector("asg-retry-identical-returns-snapshot-accept"))
+    vector = copy.deepcopy(_vector("asg-retry-identical-returns-snapshot-accept"))
+    strip(vector["environment"])
     outcome = corpus.adjudicate(vector, _context())
     assert outcome.outcome == "accept"
     assert "convening_id" not in outcome.derived
+    assert "snapshot_digest" not in outcome.derived
+
+
+# --- the live snapshots are oracle data, and must be sound (pre-review M2, L2) -------
+#
+# A vector whose live snapshots are no consumer's state cannot be adjudicated. It
+# is a harness error, which the corpus reports as a vector input error, exactly
+# as it reports every other oracle datum a vector cannot supply (Phase 2's
+# reading 8). It is never a refusal and never a traceback.
+
+
+def _live_snapshots_error(mutate) -> str:
+    from scripts.council_convening import resolution
+
+    vector = copy.deepcopy(_vector("asg-retry-identical-returns-snapshot-accept"))
+    mutate(vector["environment"]["issued"]["live_snapshots"])
+    oracles = resolution.VectorOracles(vector["environment"])
+    with pytest.raises(resolution.HarnessError) as caught:
+        oracles.live_snapshots()
+    return str(caught.value)
+
+
+def _second_with_the_same_key(live_list):
+    conflicting = copy.deepcopy(live_list[0])
+    conflicting["convening"]["packet_refs"] = ["example-org/example-app#41"]
+    conflicting["convening_id"] = "convening-0000"
+    conflicting["convening_digest"] = digest_of(conflicting["convening"])
+    for item in conflicting["assignments"]:
+        item["convening_id"] = "convening-0000"
+        item["convening_digest"] = digest_of(conflicting["convening"])
+    live_list.insert(0, conflicting)
+
+
+def test_two_live_snapshots_with_one_convening_key_are_a_harness_error():
+    message = _live_snapshots_error(_second_with_the_same_key)
+    assert "convening key" in message
+
+
+def _surrogate(live_list):
+    live_list[0]["convening"]["packet_refs"] = ["packet/\ud800"]
+
+
+@pytest.mark.parametrize("mutate", [
+    pytest.param(lambda live: live[0].update(convening_id="bad id\n"),
+                 id="convening_id-grammar"),
+    pytest.param(lambda live: live[0].pop("assignments"), id="assignments-missing"),
+    pytest.param(lambda live: live[0]["assignments"].pop(), id="assignment-set-short"),
+    pytest.param(lambda live: live[0]["convening_digest"].update(
+        value="sha256:" + "0" * 64), id="digest-does-not-recompute"),
+    pytest.param(_surrogate, id="not-canonicalizable"),
+    pytest.param(lambda live: live.append("not a snapshot"), id="not-an-object"),
+])
+def test_a_live_snapshot_that_is_not_a_sound_snapshot_is_a_harness_error(mutate):
+    message = _live_snapshots_error(mutate)
+    assert "live snapshot" in message
+    assert "bad id" not in message and "\ud800" not in message
+
+
+def test_the_corpus_reports_an_unsound_live_snapshot_as_a_vector_input_error():
+    from scripts.council_convening import corpus
+
+    vector = copy.deepcopy(_vector("asg-retry-identical-returns-snapshot-accept"))
+    _surrogate(vector["environment"]["issued"]["live_snapshots"])
+    with pytest.raises(corpus.VectorInputError):
+        corpus.adjudicate(vector, _context())
+
+
+# --- the area is its builder's output (pre-review L6) ---------------------------------
+
+
+def test_the_assignment_area_is_exactly_what_its_builder_writes():
+    # Rebuild with `python3 -m tests.council_convening.assignment_vectors`, then
+    # regenerate the index. This fails when Phase 2 edits the base vector the
+    # retry vectors copy, or when a fixture moves, until the area is rebuilt.
+    from . import assignment_vectors
+
+    assert assignment_vectors.drift() == []
+
+
+def _base():
+    from . import assignment_vectors
+
+    return assignment_vectors.base_vector()
+
+
+def test_every_retry_vector_copies_phase_2s_base_vector():
+    from . import assignment_vectors
+
+    base = _base()
+    record, environment = base["inputs"]["record"], base["environment"]
+    allowed = [environment, assignment_vectors.tip_moved(environment),
+               assignment_vectors.head_moved(environment)]
+    retry = sorted((VECTORS_DIR / "assignment").glob("asg-retry-*.json"))
+    assert len(retry) == 12
+    for path in retry:
+        vector = json.loads(path.read_text(encoding="utf-8"))
+        env = copy.deepcopy(vector["environment"])
+        live_list = env.pop("issued")["live_snapshots"]
+        assert env in allowed, path.name
+        for live_snapshot in live_list:
+            convening = live_snapshot["convening"]
+            same_key = (convening["council_id"], convening["subject_pin"]) == (
+                record["council_id"], record["subject_pin"])
+            if same_key:
+                # A live snapshot with the record's key embeds the base record.
+                assert convening == record, path.name
+            else:
+                # One for another key differs from it in the key alone.
+                other = copy.deepcopy(convening)
+                other["council_id"] = record["council_id"]
+                other["subject_pin"] = record["subject_pin"]
+                other["required_seats_provenance"]["candidate"]["head_sha"] = (
+                    record["required_seats_provenance"]["candidate"]["head_sha"])
+                assert other == record, path.name
+
+
+def test_the_snapshot_half_is_shared_and_the_retry_vectors_are_consumer_only():
+    # Reading 4, a reading the owner can overrule at PR review. The snapshot half
+    # reads no oracle, and 049 T015b implements the provider half of these
+    # encodings, so the producer runs it too. Only the consumer holds live
+    # snapshots.
+    for path in sorted((VECTORS_DIR / "assignment").glob("*.json")):
+        vector = json.loads(path.read_text(encoding="utf-8"))
+        if "snapshot" in vector["inputs"]:
+            assert vector["applies_to"] == ["producer", "consumer"], path.name
+            assert "environment" not in vector, path.name
+        else:
+            assert path.name.startswith("asg-retry-"), path.name
+            assert vector["applies_to"] == ["consumer"], path.name

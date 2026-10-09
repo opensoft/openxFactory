@@ -30,6 +30,7 @@ from .conftest import (
     LEGACY,
     PROTOCOL_REGISTRY,
     REPLACEMENT,
+    VECTORS,
     load_validator,
     run_validator,
 )
@@ -334,6 +335,10 @@ PREDICATE_REGISTRY = PROTOCOL_REGISTRY.parent / "predicate.registry.yaml"
 #: Every E2 rule a classed commission record reaches that needs an environment
 #: oracle, as `check` names it. None of them is ever reported as passed.
 ORACLE_RULES = [
+    # Phase 3 (T040): retry identity and once-per-pin read the consumer's live
+    # snapshots, so offline `check` names E2 step A3 and never passes it.
+    "convening_conflict (retry identity and once-per-pin, E2 step A3: "
+    "the consumer's live snapshots)",
     "candidate_mismatch (expected candidate)",
     "candidate_mismatch (resolved candidate)",
     "candidate_mismatch (authoritative head ref)",
@@ -860,3 +865,71 @@ def test_check_on_a_commission_record_reports_retry_identity_as_not_offline_chec
     assert re.search(r"^note  \[council-convening-not-offline-checkable\] .*: "
                      r"not checkable offline: .*retry identity and once-per-pin",
                      result.stdout, re.M), result.stdout
+
+
+# `check` after the Phase 3 pre-review (2026-10-09).
+
+def test_check_refuses_a_zero_seat_snapshot(tmp_path):
+    # Pre-review M3: the embedded record's offline roster rules run inside the
+    # snapshot's own check, so "0 seats" is never reported as a matching set.
+    from .assignment_fixtures import convening_record, snapshot
+
+    record = convening_record(required_seats=[])
+    record["required_seats_provenance"]["standing_seats"] = []
+    path = _write(tmp_path, "snapshot.json", snapshot(record))
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-snapshot-malformed]" in result.stdout
+    assert "(0 seats)" not in result.stdout
+
+
+def test_check_names_the_schema_finding_beside_a_snapshot_s_malformed_refusal(tmp_path):
+    # validator-cli.md: `council-convening-schema` is raised when "A record fails
+    # its schema. The record's malformed refusal is also named."
+    def mutate(document):
+        del document["admitted_at"]
+
+    result = run_validator("check", str(_snapshot_file(tmp_path, mutate)), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-schema]" in result.stdout
+    assert "ERROR [council-convening-snapshot-malformed]" in result.stdout
+
+
+def test_check_names_the_schema_finding_beside_an_assignment_s_malformed_refusal(tmp_path):
+    from .assignment_fixtures import assignment, convening_record
+
+    value = assignment(convening_record(), "convening-0001", "seat-a")
+    del value["holder"]
+    result = run_validator("check", str(_write(tmp_path, "assignment.json", value)),
+                           cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-schema]" in result.stdout
+    assert "ERROR [council-convening-assignment-malformed]" in result.stdout
+
+
+def test_check_refuses_a_lone_assignment_that_is_not_canonicalizable(tmp_path):
+    # Pre-review L3: inside a snapshot the same bytes are refused, so alone they
+    # are too.
+    from .assignment_fixtures import assignment, convening_record
+
+    value = assignment(convening_record(), "convening-0001", "seat-a")
+    value["candidate"]["subject_path"] = "rules/\ud800.yaml"
+    result = run_validator("check", str(_write(tmp_path, "assignment.json", value)),
+                           cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-value-not-canonicalizable]" in result.stdout
+
+
+def test_check_reports_an_unsound_live_snapshot_as_a_finding_never_a_traceback(tmp_path):
+    # Pre-review L2. A live snapshot is oracle data, so one that is not
+    # canonicalizable is a vector input error, `council-convening-schema` with exit
+    # 1, as non-canonicalizable oracle data already is (Phase 2's reading 8).
+    source = VECTORS / "assignment" / "asg-retry-identical-returns-snapshot-accept.json"
+    vector = json.loads(source.read_text(encoding="utf-8"))
+    vector["environment"]["issued"]["live_snapshots"][0]["convening"]["packet_refs"] = [
+        "packet/\ud800"]
+    path = _write(tmp_path, "vector.json", vector)
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-schema]" in result.stdout
+    assert "Traceback" not in result.stderr

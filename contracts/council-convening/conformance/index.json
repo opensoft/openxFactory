@@ -2,6 +2,7 @@
   "cases": [
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -19,10 +20,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:64c01018f1e48a5ae8b9c3647ddcf8689a2d53d57618a8a7e6f9e3cb520c8ddf"
+      "sha256": "sha256:556ccb18fa47fdc55ede482c61d8f33694a8589daf5ef490c590238d3c0e27b5"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -40,10 +42,11 @@
         "FR-005",
         "FR-006"
       ],
-      "sha256": "sha256:c24eb01bf375c1b7aa510ed5b55592e4c6b8403ee72817511be7ec2c541da842"
+      "sha256": "sha256:9b8d7b44f50528f649688fba971b0fbf96c526ad20e70436c718ac8367bfaa84"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -61,10 +64,11 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:1147144a4e02a477bf204e590b064b4e749ab5e627d66dabb2f49706b9bd4eaf"
+      "sha256": "sha256:1a0efa2d14954c4edc923443db29f7650fbbf9d49fb62beb56169159606c2f31"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -92,10 +96,11 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:c13e689c8a99a4fa7b6c327afe0e9b5f1edc07f393fe3d6762b784d632a91b2b"
+      "sha256": "sha256:cb53cfe1edf470326565d4e133a744864018affad68ad96c6f740cb944fffe62"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -113,10 +118,11 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:c44ca0073049a682ea4698340c73c3b4aaeba7833596321bb32399050a0334ff"
+      "sha256": "sha256:a4797b14b7b28345316ed1b72ebffb488685ad2f886386c82be4c240068d46e7"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -134,10 +140,11 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:39ca4b9c5f1cb38211db1f86cc573bf8c945a32bc2dd4ae8d6ec8b6c3fd7d4a5"
+      "sha256": "sha256:cb8d06d984b4daea5775682854b0625a4a57c440728709de9a75e90ba988ce41"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -155,10 +162,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:a6bb39decbbca424f6dce95ac6a6b9ac7e7d7f8dc7fbcc69e761061aec062c0b"
+      "sha256": "sha256:d84eca86201d75b0a09a78fa25987a0edeaf1e61280bffb38eb3d60dc646fc3d"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -176,10 +184,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:b84e4a031f81f9a54fb7c62e2f434fd9098ff95ec5d04e85be8664f8e3777bc5"
+      "sha256": "sha256:965d87ebd86e35b090dc9a52ac3783cb595a7d6ea5c53d6015185026a68bfc53"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -197,10 +206,75 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:687b597b9b3b011500b362d43cfb3458cbe907882927e86f9d3ae0e03262e531"
+      "sha256": "sha256:58a7854d13e1858eb01929cd9028a18de0f962bd1adeaae4ce1aa7201edd459e"
     },
     {
       "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-lifetime-one-hour-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-lifetime-one-hour-accept.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:d1cd316153dda1037b127c10a98ee9caf8e91e099894dd8d89ee62c529ddab43"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-lifetime-one-second-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-lifetime-one-second-accept.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:a8c49b24ced959dfa8193cf1518d03b7bc203a7ca645045b867a5587f854e3dd"
+    },
+    {
+      "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -218,10 +292,11 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:af4488de3efb560b20a430e2f90b9d2014084e476e98fac2611d784d0e04236d"
+      "sha256": "sha256:152615a5fb468b5cb520c5afc3284f9d651bffa6c6c52847e0daf1c3b215c6d9"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -249,10 +324,11 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:2e90409abfefce9ae5ca8a7408be0912e3097c7b8ed5d9a99aad42528d7231b0"
+      "sha256": "sha256:bb75a9cf44ac99175d7f9d1a5c426d6abe70763369502b4d4c8e827e3fe901c3"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -270,10 +346,11 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:637fa799b241aa9ac8f748808884563250c08952b16fbc28ad337eb760b9155e"
+      "sha256": "sha256:bfb415c79d033d44ced7df8cbd90a1f24a162dfc1ec25189bf70fc78c5135d9f"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -291,10 +368,11 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:cb705d8bc74db3196863abfda4ab4943e492dc6de1cd643828c16e03a1d29697"
+      "sha256": "sha256:c6444aeb6af14a2a9a813298eee3f24dba729fd558143e048cdd51590b65132f"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -322,10 +400,11 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:843a71f5b505e5ab0770bbbf34172139676b2b14d50fccd1f6946c3dea415345"
+      "sha256": "sha256:515b07e755ec989ec95a78d9a999f37ee6fd384d524dec0a54ae2422bd2a3e74"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -343,10 +422,11 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:0508cada2537757a59a287740fc1c70d3a746190fd9502eb975d1a93fb329776"
+      "sha256": "sha256:462a1405fb36705be395bde07be2ebf5238389f11113f4499c934d94cf70aaa9"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -364,10 +444,32 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:92688e39c57e1242627bb31d40f93d7479cb3474e1b902a3255cdc7a5e124d7b"
+      "sha256": "sha256:6e616ff8f57a0d8d96013ed8fe8351ac303b000d62913c44857f6c2fc0557b01"
     },
     {
       "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-assignment-malformed-before-not-canonicalizable-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_malformed"
+      },
+      "path": "vectors/assignment/asg-order-assignment-malformed-before-not-canonicalizable-refuse.json",
+      "requirement_ids": [
+        "FR-005"
+      ],
+      "sha256": "sha256:828d89e358c8cdadf7f7844d42f02a37431b9dd09ab22b0e6e380f3f166e42d3"
+    },
+    {
+      "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -385,10 +487,33 @@
         "FR-005",
         "FR-011"
       ],
-      "sha256": "sha256:144f54785c8b7ffbfde74bff7beb2f9c3716bc77723135e6233c091414db2343"
+      "sha256": "sha256:5ffb91d4536b97e734a6acda9ade74baa91765c3ad8cfbbdd6097cc7e9e19167"
     },
     {
       "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-convening-roster-before-assignment-malformed-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-order-convening-roster-before-assignment-malformed-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005"
+      ],
+      "sha256": "sha256:5725c8a0304bcb2af89978522ce2bf04f4c3704838d0ad41542029ddc8226822"
+    },
+    {
+      "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -406,10 +531,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:05cdb49cb1742967e04524ff3082921286710418e19695372a493a605b2404f5"
+      "sha256": "sha256:799b01f8030f0112c70614f480362b07d25815a676fbab56fe12133b17b2063b"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -427,10 +553,32 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:ee377883a71b493a9c12cb995e23bcb0a8834d35f77a506649a74944a528e45e"
+      "sha256": "sha256:2c07158d9c331688c1739eeb9f141244cba7b849f49a7b12e4dff13eedf9f4c4"
     },
     {
       "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-not-canonicalizable-before-digest-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_not_canonicalizable"
+      },
+      "path": "vectors/assignment/asg-order-not-canonicalizable-before-digest-refuse.json",
+      "requirement_ids": [
+        "FR-005"
+      ],
+      "sha256": "sha256:46350cfa07b4198c42fbc016f484514ec037442c158a683a7834f27028ffd4a4"
+    },
+    {
+      "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -448,10 +596,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:f9bcfbe8c3be8cfc4fd14861b26932d7258cce03fce8b7f34800b162ec4c0f6c"
+      "sha256": "sha256:7d9d6b867813b29cb249e5b895730fb36d22ff419a18f927554555681b3cd78a"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -469,7 +618,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:73a5398900310e87d9d7a427a2861d3060a68698682c423b0b87a83287cad947"
+      "sha256": "sha256:0cda1625ef3e4d7982a1e3aaa9ce8f518834c6c4bd32779a8b0fed749f9dfa02"
     },
     {
       "applies_to": [
@@ -490,7 +639,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:a805027e8d9ce1024fd70b9b521764e719fe0379f1b6648700743b5b693e2f02"
+      "sha256": "sha256:eeda9089b82a706a979e14a65a8c34b5625521340b3d4ad857c10b077d34e060"
     },
     {
       "applies_to": [
@@ -511,7 +660,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:989e2716afbd64f2c828927850c412718c382921a60325045786fa13e92c2dc6"
+      "sha256": "sha256:5eee7ecac8cea8d116a981a597fa71c5e3da4b751815826a058983fcac36a381"
     },
     {
       "applies_to": [
@@ -532,7 +681,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:1c2b045e3985fdd8a01f05345898c254de60007ba047c5a4b68bfc43b3a872b2"
+      "sha256": "sha256:cac3a4fe21f3f794cc746b493cb401968606501066291457914353027a6ba651"
     },
     {
       "applies_to": [
@@ -552,7 +701,8 @@
           "required_seats": [
             "seat-a",
             "seat-b"
-          ]
+          ],
+          "snapshot_digest": "sha256:0876f48d7d8b4016fda139102beb1390ce6a34fb9298fd1d84119931f7d05ea4"
         },
         "derived_origin": "generated",
         "findings": [],
@@ -564,7 +714,7 @@
         "FR-004",
         "FR-005"
       ],
-      "sha256": "sha256:52519496e0a48376ad821cb85ac22258ce55ce9376f76c16852c1beef660a44a"
+      "sha256": "sha256:12b99a55f53b3a85e2c6092ef6c162c06394cd4099bed390fa6e03b700617007"
     },
     {
       "applies_to": [
@@ -584,7 +734,8 @@
           "required_seats": [
             "seat-a",
             "seat-b"
-          ]
+          ],
+          "snapshot_digest": "sha256:0876f48d7d8b4016fda139102beb1390ce6a34fb9298fd1d84119931f7d05ea4"
         },
         "derived_origin": "generated",
         "findings": [],
@@ -596,7 +747,7 @@
         "FR-004",
         "FR-005"
       ],
-      "sha256": "sha256:e5525829ed9e5ea980b4d7213e524e8581e9b291957aee0c5a196eec079393de"
+      "sha256": "sha256:4eaf653a17b6f2688d4ba3ce994bdceff3a47722e7e1f8acf910c82a172efa58"
     },
     {
       "applies_to": [
@@ -616,7 +767,8 @@
           "required_seats": [
             "seat-a",
             "seat-b"
-          ]
+          ],
+          "snapshot_digest": "sha256:0876f48d7d8b4016fda139102beb1390ce6a34fb9298fd1d84119931f7d05ea4"
         },
         "derived_origin": "generated",
         "findings": [],
@@ -628,7 +780,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:a58b28fc22084c263a2d04a46380b412838057842c01ea2604d6ff2b38708794"
+      "sha256": "sha256:c309431345c09501f51e6219e263f5775a6fe15735247e23870640c0e5cd6aa1"
     },
     {
       "applies_to": [
@@ -648,7 +800,8 @@
           "required_seats": [
             "seat-a",
             "seat-b"
-          ]
+          ],
+          "snapshot_digest": "sha256:0876f48d7d8b4016fda139102beb1390ce6a34fb9298fd1d84119931f7d05ea4"
         },
         "derived_origin": "generated",
         "findings": [],
@@ -661,7 +814,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:3de44740772b8e00111a14ffd5044f1b3d205ee5fc813596b95fa6e92a023a21"
+      "sha256": "sha256:0c71a5956646c1ff2f3c2728a2acbf18a4a04b0509f108faa1252b04f3bd0ed5"
     },
     {
       "applies_to": [
@@ -681,7 +834,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:d1ed6b041494a08ccb0856aca8010d76905af28fc9be61aac610f43918c594a1"
+      "sha256": "sha256:5ec2fb761d97824030e0ff66eac13eacdc2a055f061a3534e128b10ade9522f6"
     },
     {
       "applies_to": [
@@ -702,7 +855,7 @@
         "FR-002",
         "FR-004"
       ],
-      "sha256": "sha256:b844520c5dabc47ba95a263f8e9d636c6e7606d0209581daafcd6a908ea26a94"
+      "sha256": "sha256:99f4d2fbd723a93ef0340961cc8b85a42a96d8cf8b32ba0513526675c95b8526"
     },
     {
       "applies_to": [
@@ -722,7 +875,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:58e9cd542dc4c53ab990b00ffd280e4214b8a1d0986c625ac25510942155a717"
+      "sha256": "sha256:38ac7f023941011e790f16967643548492f3b6abddd2f3f992c54b87c2fd7bea"
     },
     {
       "applies_to": [
@@ -752,7 +905,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:0fc016a57aa91de68a8157cf63735dfd701e11490c5dd0be20cbe2668c9ba9f4"
+      "sha256": "sha256:bb18e86c75458788a1529cb3c02324ff86e1360e0598e7e43988e6000ec02389"
     },
     {
       "applies_to": [
@@ -782,10 +935,11 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:8c4132b95848576a4484412b5fc950f3042aa4e7541e6744db7c12957df2fd6e"
+      "sha256": "sha256:3474a1af667a208194a8f090ddca7cd205ae8a21ac23792f58ce2295b6a77fd0"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -803,10 +957,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:23b34e8dbeef35c5e76424a1c7c65d56407b2a50b223a909d18f9541b81b8062"
+      "sha256": "sha256:8715637f190402b426e7facb8a8087bf609e7acab93a09504b5e482f15efe8a4"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -824,10 +979,33 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:a846051a48d6135301c337b6560ae679b3da77db8f99824f96c4f9316b152fd5"
+      "sha256": "sha256:2dc0d31e4902efda4296487354ef9fec29a19836db5e1873c2933620dd7d79ec"
     },
     {
       "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-set-member-convening-digest-differs-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_set_mismatch"
+      },
+      "path": "vectors/assignment/asg-set-member-convening-digest-differs-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:f545298108ca88d0faf6f120b05432fd5f98c18b5b74a72e2a8470d77b40184b"
+    },
+    {
+      "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -845,10 +1023,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:285a2ae336cfaf1e10789c7c262960db4608dfd0c6675fea6f310f332174fbf1"
+      "sha256": "sha256:5aebc1bdac26c1d4de73fd215cb466ef585f5ace8f64dc45bff621b5623134a8"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -866,10 +1045,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:739de49adb44db1c005813091c93d079f3b0be223a1e6408894e0d438e7fc4eb"
+      "sha256": "sha256:0241b45cf1436ae861cef4c616bdb3f33bd9a7814d831dc7381741ae3e7b4730"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -887,10 +1067,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:2a71002d27b589dd80909311d5ab031e8fb958efb18b97c33c0384f2002f5e83"
+      "sha256": "sha256:142196856f052a44c8e4605f055987cedc402b4fc2fede105248937cf049ecf0"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -908,10 +1089,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:c0d639adea5ba7947e467db56a5a65f785f5ae2e4ae33704ae758dbfc7ba088c"
+      "sha256": "sha256:b346b5677a69034d0397e4f7180e52643da0ab45fd2c7918b825ad36a33d5b7e"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -929,10 +1111,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:2ff9e04d1510c44e93e9d8f1ef1032ea68fd442bd1b496fa72bd57c11ec102b6"
+      "sha256": "sha256:45710a1767f07be2272d729b8b88719e0f90cc32bfdd0e4f113c852b22e9b0a6"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -950,10 +1133,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:afb976c4ac76890b3bbc59f3fa5532460328942a0beda2f0a9d2bd3298423caa"
+      "sha256": "sha256:f28fb7baed02416d81811da28cc8f9729a3f72440dc8e90baa4aa406c9d617fb"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -972,10 +1156,45 @@
         "FR-006",
         "SC-002"
       ],
-      "sha256": "sha256:a3721414ed7f93b581073e8be7ec2527bdcdf07e52bc1eae7da4115f06102326"
+      "sha256": "sha256:08a36e71e7ce16cde4a3a6b3a9b83b361ea889e4c60fdfd4e68d04f0f8635301"
     },
     {
       "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-accept-conditional-seat-held",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:3bcbf2b90be6353eae325056ffb7066301015d981427c371de6d48a469e5a172"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b",
+            "seat-c"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-snapshot-accept-conditional-seat-held.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:badbd31b62a717713f644faec06771be205ab557ce66fe447c92f19c4fe3b8ba"
+    },
+    {
+      "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -1004,10 +1223,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:44f29fde1bbaa0ec5a538ee99110b23ae98ae8f0f1bb3e8915c6078c32498560"
+      "sha256": "sha256:d4c840c22687f5496af413fa1a678216e707d3f74adcd4bbd96f88179163f25b"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -1037,10 +1257,57 @@
         "FR-006",
         "SC-002"
       ],
-      "sha256": "sha256:1ce9a98d2bc16abf0f2cf6d781f48fc656cf8f6b452731b4481eb81f19c61b86"
+      "sha256": "sha256:bb0787a7dc0e64ea611cb9fce968fb2258737073816c0e21e5c6d6d69408a1b3"
     },
     {
       "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-changed-paths-unsorted-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-changed-paths-unsorted-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:657e74efc57c68ed8f8d09e035a440a7201179f11e4dc7cb86501783fe4ac27d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-class-inputs-without-matched-class-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-class-inputs-without-matched-class-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:dffcb28eccb353ee7f1e705ae0d271ee8e86df7289561a6741a6e867dd9cbda4"
+    },
+    {
+      "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -1058,10 +1325,126 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:5fabae62d0dd80f71c38d6eb6df5974798e38bb597ec8d4dacb8d9c38325def9"
+      "sha256": "sha256:30dea495a8fdaca7a619f58f6cf3d7e41b5a1d1362ac7147039b816707fc122e"
     },
     {
       "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-held-seat-unbound-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-held-seat-unbound-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:d84af4ffb52811e4371dd2b82af1e9098c6007ee08e05d73a3a9299b1eaa9236"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-roster-duplicate-seat-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-roster-duplicate-seat-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:b60b198a204686901e9ac58b28fc4832b870e3a3e18d1d9de452e065c8d0bc14"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-roster-mismatch-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-roster-mismatch-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:6a7543aad09af806bca66575b2f2c35eca916d3b8f9125fecb67d29818a6901c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-sources-unsorted-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-sources-unsorted-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:e1e76dfc7dd1eecda9da2fad9d3ba772429a8fa665a8b83ecd3a4e398799490e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-zero-seats-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-zero-seats-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:a28a1bd8123fcf338a7f91fa84c280eaeb0e15a288b16692b4aa2a9d3a2b8bd3"
+    },
+    {
+      "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -1079,10 +1462,11 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:b3e592b622cbb404bdb26f5bfd268cdea371b4015a4e3dbc44ddc7bf3a8eee2c"
+      "sha256": "sha256:747647b4f6690a41a77b17b5d3324c86e950bad76252678cef50aa35c2125742"
     },
     {
       "applies_to": [
+        "producer",
         "consumer"
       ],
       "area": "assignment",
@@ -1100,7 +1484,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:02aa00a073ee01de618773f7bc2b87f240115b310578e8c0770714ee93123f35"
+      "sha256": "sha256:d89da2faf84f078c8888ea3db7a06f7ab7f2ea70183d105ffae37714d4788ac2"
     },
     {
       "applies_to": [
@@ -7490,17 +7874,17 @@
   "protocol": "xfc-resolved-council-1",
   "schema_version": 1,
   "totals": {
-    "both_sides": 266,
+    "both_sides": 315,
     "by_area": {
-      "assignment": 47,
+      "assignment": 61,
       "foundation": 133,
       "resolution": 149
     },
     "by_outcome": {
-      "accept": 69,
-      "refuse": 252,
+      "accept": 72,
+      "refuse": 263,
       "route": 8
     },
-    "vectors": 329
+    "vectors": 343
   }
 }

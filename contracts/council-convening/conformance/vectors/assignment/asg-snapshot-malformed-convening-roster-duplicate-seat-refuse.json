@@ -5,14 +5,14 @@
   ],
   "area": "assignment",
   "boundary": "admission",
-  "case_id": "asg-set-member-convening-id-differs-refuse",
+  "case_id": "asg-snapshot-malformed-convening-roster-duplicate-seat-refuse",
   "evaluation_time": "2026-10-09T01:00:00Z",
   "expected": {
     "derived": {},
     "derived_origin": "hand",
     "findings": [],
     "outcome": "refuse",
-    "refusal": "assignment_set_mismatch"
+    "refusal": "snapshot_malformed"
   },
   "inputs": {
     "selected_protocol": "xfc-resolved-council-1",
@@ -20,7 +20,7 @@
       "admitted_at": "2026-10-09T00:00:00Z",
       "assignments": [
         {
-          "assignment_id": "assignment-seat-a",
+          "assignment_id": "assignment-0",
           "candidate": {
             "head_sha": "1111111111111111111111111111111111111111",
             "pull_number": 7,
@@ -29,7 +29,7 @@
           "convening_digest": {
             "construction": "xfc-jcs-sha256-1",
             "subject": "council_convening",
-            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+            "value": "sha256:606962ce16a6fef64ce300b4600d53481cd859fb46adb8201fc6be2a20105824"
           },
           "convening_id": "convening-0001",
           "council_id": "council-alpha",
@@ -37,7 +37,7 @@
           "holder": {
             "binding_ref": "binding-seat",
             "principal_kind": "github_oidc_job",
-            "principal_ref": "principal-seat-a"
+            "principal_ref": "principal-0"
           },
           "kind": "xfactory_council_seat_assignment",
           "not_before": "2026-10-09T00:00:00Z",
@@ -50,7 +50,7 @@
           "seat_id": "seat-a"
         },
         {
-          "assignment_id": "assignment-seat-b",
+          "assignment_id": "assignment-1",
           "candidate": {
             "head_sha": "1111111111111111111111111111111111111111",
             "pull_number": 7,
@@ -59,15 +59,15 @@
           "convening_digest": {
             "construction": "xfc-jcs-sha256-1",
             "subject": "council_convening",
-            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+            "value": "sha256:606962ce16a6fef64ce300b4600d53481cd859fb46adb8201fc6be2a20105824"
           },
-          "convening_id": "convening-0002",
+          "convening_id": "convening-0001",
           "council_id": "council-alpha",
           "expires_at": "2026-10-09T06:00:00Z",
           "holder": {
             "binding_ref": "binding-seat",
             "principal_kind": "github_oidc_job",
-            "principal_ref": "principal-seat-b"
+            "principal_ref": "principal-1"
           },
           "kind": "xfactory_council_seat_assignment",
           "not_before": "2026-10-09T00:00:00Z",
@@ -77,7 +77,7 @@
           ],
           "protocol": "xfc-resolved-council-1",
           "schema_version": 1,
-          "seat_id": "seat-b"
+          "seat_id": "seat-a"
         }
       ],
       "convening": {
@@ -89,7 +89,7 @@
         "protocol": "xfc-resolved-council-1",
         "required_seats": [
           "seat-a",
-          "seat-b"
+          "seat-a"
         ],
         "required_seats_provenance": {
           "candidate": {
@@ -112,8 +112,7 @@
             ]
           },
           "standing_seats": [
-            "seat-a",
-            "seat-b"
+            "seat-a"
           ]
         },
         "schema_version": 1,
@@ -122,7 +121,7 @@
       "convening_digest": {
         "construction": "xfc-jcs-sha256-1",
         "subject": "council_convening",
-        "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+        "value": "sha256:606962ce16a6fef64ce300b4600d53481cd859fb46adb8201fc6be2a20105824"
       },
       "convening_id": "convening-0001",
       "kind": "xfactory_council_convening_snapshot",
@@ -132,6 +131,7 @@
   },
   "kind": "openxfactory-council-convening-conformance-vector",
   "requirement_ids": [
+    "FR-004",
     "FR-005",
     "SC-002"
   ],
