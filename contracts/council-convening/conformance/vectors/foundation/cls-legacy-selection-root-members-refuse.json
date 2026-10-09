@@ -1,0 +1,42 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "foundation",
+  "boundary": "classification",
+  "case_id": "cls-legacy-selection-root-members-refuse",
+  "environment": {
+    "registry_status": {
+      "xfactory-council-seat-return/v1": "in_use"
+    }
+  },
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "protocol_not_selected"
+  },
+  "inputs": {
+    "record": {
+      "assignment_id": "asg-1",
+      "authorization": {
+        "granted_by": "root"
+      },
+      "kind": "xfactory_council_seat_key_registration",
+      "protocol": "xfc-resolved-council-1",
+      "root_key_fingerprint": "sha256:abababababababababababababababababababababababababababababababab",
+      "root_signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ",
+      "schema_version": 1
+    },
+    "selected_protocol": "xfactory-council-seat-return/v1"
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-001",
+    "FR-011"
+  ],
+  "schema_version": 1
+}

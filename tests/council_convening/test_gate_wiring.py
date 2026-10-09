@@ -1,0 +1,137 @@
+"""T011: the `council-convening-gate` workflow's wiring, pinned as a test.
+
+A validator that nothing runs confers and refuses nothing, and a comment in a
+workflow protects none of the properties the wiring needs. This module is
+collected by the required `pytest-suite` job, so weakening the gate cannot land
+without a required check going red. It is the instrument
+`tests/clearing/test_clearing_gate_wiring.py` is for its gate.
+
+The strongest pin is the last one: the assertion step's own `grep -qE`
+patterns are read out of the workflow and applied to the validator's REAL
+output, so a note the validator stops printing, or a grep that stops matching
+what it prints, fails here first.
+"""
+
+from __future__ import annotations
+
+import re
+
+import pytest
+import yaml
+
+from .conftest import REPO_ROOT, WORKFLOW, run_validator
+
+CHECK_TOKEN = "council-convening-gate"
+LOCK_INSTALL = "pip install --require-hashes -r requirements/hermes-runtime-contracts.lock"
+VALIDATOR_RUN = "python3 scripts/validate-council-convening.py"
+LOG = "council-convening-gate.log"
+
+PHASE_1_NOTE_PREFIXES = [
+    "schemas loaded:",
+    "protocol registry closed:",
+    "corpus index:",
+    "vectors adjudicated:",
+    "refusal codes probed:",
+    "finding codes probed:",
+    "requirements probed:",
+    "generator reproduced corpus byte-for-byte",
+]
+
+
+@pytest.fixture(scope="module")
+def text() -> str:
+    assert WORKFLOW.is_file(), f"{WORKFLOW} is absent"
+    return WORKFLOW.read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="module")
+def workflow(text) -> dict:
+    return yaml.safe_load(text)
+
+
+@pytest.fixture(scope="module")
+def job(workflow) -> dict:
+    assert CHECK_TOKEN in workflow["jobs"], (
+        f"the job id must be exactly {CHECK_TOKEN!r}: it is the literal token a "
+        f"branch ruleset would pin")
+    return workflow["jobs"][CHECK_TOKEN]
+
+
+@pytest.fixture(scope="module")
+def runs(job) -> list[str]:
+    return [step["run"] for step in job["steps"] if "run" in step]
+
+
+@pytest.fixture(scope="module")
+def assertion(runs) -> str:
+    step = next((r for r in runs if LOG in r and "grep" in r), None)
+    assert step is not None, "no assertion step reads the gate log"
+    return step
+
+
+def test_the_job_carries_no_display_name(job):
+    assert "name" not in job, "a `name:` key renames the status check"
+
+
+def test_the_gate_runs_on_pull_requests_and_on_main(workflow):
+    # PyYAML reads a bare `on:` key as the boolean True.
+    triggers = workflow.get(True) or workflow.get("on")
+    assert triggers["pull_request"]["branches"] == ["main"]
+    assert triggers["push"]["branches"] == ["main"]
+
+
+def test_the_gate_holds_no_write_permission_and_no_identity(workflow, job, text):
+    assert workflow["permissions"] == {"contents": "read"}
+    assert "permissions" not in job
+    assert "id-token" not in text, "the gate needs no OIDC token"
+    assert "secrets." not in text and "secrets[" not in text, (
+        "the gate reads no secret")
+
+
+def test_the_gate_installs_the_hash_locked_inputs(runs):
+    assert any(LOCK_INSTALL in r for r in runs), (
+        "the gate must install the ratified validator inputs with --require-hashes")
+    install_at = next(i for i, r in enumerate(runs) if LOCK_INSTALL in r)
+    run_at = next(i for i, r in enumerate(runs) if VALIDATOR_RUN in r)
+    assert install_at < run_at
+
+
+def test_the_gate_runs_the_self_test_and_keeps_its_log(runs):
+    step = next((r for r in runs if VALIDATOR_RUN in r and f"tee {LOG}" in r), None)
+    assert step is not None, f"no step runs {VALIDATOR_RUN!r} teed to {LOG}"
+    invocation = step.split(VALIDATOR_RUN, 1)[1].split("|", 1)[0].strip()
+    assert invocation == "", (
+        "the gate runs the SELF-TEST, with no subcommand; a `check` or `corpus` "
+        "run would adjudicate nothing")
+
+
+def test_the_assertion_step_requires_every_phase_1_note(assertion):
+    for prefix in PHASE_1_NOTE_PREFIXES:
+        assert f"^note  {prefix}" in assertion.replace("\\(", "(").replace("\\)", ")"), (
+            f"the assertion never proves {prefix!r}")
+    assert "! grep -qE '^ERROR \\['" in assertion
+
+
+def test_the_coverage_assertions_demand_all_of_them(assertion):
+    """`N/N` via a backreference: `[0-9]+/[0-9]+` would pass 3/24."""
+    for label in ("vectors adjudicated", "refusal codes probed",
+                  "finding codes probed", "requirements probed"):
+        assert f"{label}: ([0-9]+)/\\1" in assertion, label
+
+
+def test_the_assertion_greps_match_the_validators_real_output(assertion):
+    patterns = re.findall(r"grep -qE '([^']+)' " + re.escape(LOG), assertion)
+    assert len(patterns) >= len(PHASE_1_NOTE_PREFIXES), patterns
+    output = run_validator().stdout
+    for pattern in patterns:
+        assert re.search(pattern, output, re.M), (
+            f"the gate's grep {pattern!r} does not match the validator's output")
+
+
+def test_the_pytest_suite_collects_this_family():
+    """The family's tests need no workflow of their own: the required
+    `pytest-suite` runs the whole `tests/` tree from the same lock."""
+    suite = (REPO_ROOT / ".github" / "workflows" / "pytest-suite.yml").read_text(
+        encoding="utf-8")
+    assert "python3 -m pytest tests/" in suite
+    assert LOCK_INSTALL in suite

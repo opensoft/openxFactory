@@ -1,0 +1,26 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "foundation",
+  "boundary": "definition",
+  "case_id": "def-utc-instant-accept",
+  "evaluation_time": "2026-10-09T00:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "accept",
+    "refusal": null
+  },
+  "inputs": {
+    "definition": "utc_instant",
+    "value": "2026-10-09T23:59:59Z"
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-001"
+  ],
+  "schema_version": 1
+}
