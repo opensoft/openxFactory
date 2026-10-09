@@ -1184,15 +1184,13 @@ def _migration_rows() -> list[dict]:
     return [row for row in _index()["cases"] if row["area"] == "migration"]
 
 
-def test_the_coverage_floor_holds_phase_6s_requirements():
-    """R16: from Phase 6 the floor is the full FR-001 to FR-012 and SC-001 to
-    SC-003. Phase 6 adds FR-012 at once and raises the floor to the full set when
-    Phase 4's vectors are merged, because no vector cites FR-010 or SC-003 before
-    then; until then the floor is a subset of the full one, in its order."""
+def test_the_coverage_floor_is_full_at_phase_6():
+    """R16 and T058: from Phase 6 the floor is the full FR-001 to FR-012 and
+    SC-001 to SC-003, in that order, and every member is cited by a vector."""
     floor = _index()["coverage_floor"]
-    assert floor == list(generate.COVERAGE_FLOOR)
-    assert {"FR-011", "FR-012"} <= set(floor)
-    assert floor == [r for r in FULL_FLOOR if r in floor]
+    assert floor == list(generate.COVERAGE_FLOOR) == FULL_FLOOR
+    cited = {r for row in _index()["cases"] for r in row["requirement_ids"]}
+    assert set(FULL_FLOOR) <= cited
 
 
 def test_the_vocabulary_holds_the_phase_6_codes(schemas):

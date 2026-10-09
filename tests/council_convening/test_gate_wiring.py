@@ -146,6 +146,14 @@ def test_the_requirements_assertion_names_the_coverage_floor(assertion):
     assert f"requirements probed: ([1-9][0-9]*)/\\1 \\({floor}\\)$" in assertion
 
 
+def test_the_assertion_step_requires_the_full_coverage_note(assertion):
+    """Phase 6 (T058, T059): the floor is the full FR-001 to FR-012 and SC-001 to
+    SC-003, and the gate proves the validator said so."""
+    pattern = "^note  coverage floor full: FR-001 to FR-012, SC-001 to SC-003$"
+    assert f"grep -qE '{pattern}' {LOG}" in assertion, (
+        "the assertion never proves the full coverage floor")
+
+
 def test_the_coverage_assertions_demand_all_of_them(assertion):
     """`N/N` via a backreference: `[0-9]+/[0-9]+` would pass 3/24, and
     `([0-9]+)/\\1` would pass `0/0`, a run that walked nothing."""

@@ -98,9 +98,9 @@ def test_the_index_header():
     assert index["kind"] == "openxfactory-council-convening-conformance-index"
     assert index["corpus_id"] == "council-convening-conformance"
     assert index["protocol"] == REPLACEMENT
-    assert index["coverage_floor"] == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
-                                       "FR-006", "FR-007", "FR-008", "FR-011", "FR-012",
-                                       "SC-001", "SC-002", "SC-003"]
+    # The full floor from Phase 6 (T058, R16).
+    assert index["coverage_floor"] == [f"FR-{n:03d}" for n in range(1, 13)] + [
+        "SC-001", "SC-002", "SC-003"]
 
 
 def test_every_row_digest_is_over_the_raw_bytes():
@@ -464,17 +464,15 @@ def test_every_coverage_floor_requirement_needs_a_probe(family_tree):
 def test_the_landed_coverage_counts():
     report = corpus.check_corpus()
     # Every refusal code as landed at this commit, which each phase grows; the
-    # route's two findings, complete at Phase 6 (T060); and the floor's
-    # thirteen: Phase 3 (T036) adds FR-005, FR-006 and SC-002, Phase 4 (T044)
-    # FR-007, FR-008 and SC-003, and Phase 6 (T058) FR-012.
+    # route's two findings, complete at Phase 6 (T060); and the full floor,
+    # fifteen, which Phase 6 raises once every phase's vectors are in (T058).
     landed = len(records.load_schemas().enum("refusal_code"))
-    assert landed >= 5
+    assert landed == 92
     assert report.refusals_probed == (landed, landed)
     assert report.findings_probed == (2, 2)
-    assert report.requirements_probed == (13, 13)
-    assert report.coverage_floor == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
-                                     "FR-006", "FR-007", "FR-008", "FR-011", "FR-012",
-                                     "SC-001", "SC-002", "SC-003"]
+    assert report.requirements_probed == (15, 15)
+    assert report.coverage_floor == [f"FR-{n:03d}" for n in range(1, 13)] + [
+        "SC-001", "SC-002", "SC-003"]
 
 
 # --------------------------------------------------------------------------
@@ -536,9 +534,8 @@ def test_generate_check_reports_a_stale_index(family_tree):
 
 
 def test_generate_writes_the_coverage_floor():
-    assert generate.COVERAGE_FLOOR == ("FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
-                                       "FR-006", "FR-007", "FR-008", "FR-011", "FR-012",
-                                       "SC-001", "SC-002", "SC-003")
+    assert generate.COVERAGE_FLOOR == tuple(
+        [f"FR-{n:03d}" for n in range(1, 13)] + ["SC-001", "SC-002", "SC-003"])
 
 
 def test_labelled_test_keys_are_deterministic_and_distinct():

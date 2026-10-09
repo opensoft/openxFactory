@@ -931,6 +931,17 @@ def test_check_historical_still_refuses_a_malformed_replacement_record(tmp_path)
     assert result.returncode == 1
 
 
+# The full coverage floor (T059).
+
+FULL_FLOOR = [f"FR-{n:03d}" for n in range(1, 13)] + ["SC-001", "SC-002", "SC-003"]
+
+
+def test_the_self_test_probes_the_full_coverage_floor(self_test):
+    lines = self_test.stdout.splitlines()
+    assert "note  requirements probed: 15/15 (" + ", ".join(FULL_FLOOR) + ")" in lines
+    assert "note  coverage floor full: FR-001 to FR-012, SC-001 to SC-003" in lines
+
+
 # `check` on the two Phase 6 kinds, judged by kind and never classified.
 
 def test_check_validates_a_selection_record(tmp_path):
