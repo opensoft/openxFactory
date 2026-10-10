@@ -168,6 +168,41 @@ def test_the_areas_landed_at_this_commit():
             assert _load(CONFORMANCE / row["path"])["expected"]["derived_origin"] == "hand"
 
 
+def _replace_signing_vector(root: Path, case_id: str, mutate) -> None:
+    """Edit one generated signing vector in place and re-digest its index row,
+    without regenerating, which would rebuild the area and undo the edit."""
+    row = next(r for r in _rows(root) if r["case_id"] == case_id)
+    path = _vector_path(root, row)
+    vector = _load(path)
+    mutate(vector)
+    path.write_bytes(corpus.dump_json(vector))
+    index = _index(root)
+    for indexed in index["cases"]:
+        if indexed["path"] == row["path"]:
+            indexed["sha256"] = corpus.raw_sha256(path.read_bytes())
+    _write_index(root, index)
+
+
+@pytest.mark.parametrize("case_id", ["reg-accept-hand-known-answer",
+                                     "ret-accept-hand-known-answer", "cmp-accept"])
+def test_a_signing_vector_whose_frozen_instant_is_malformed_is_a_schema_finding(
+        family_tree, case_id):
+    # Pre-review of 03cb77e29, L2: this raised an uncaught ValueError. The
+    # frozen snapshot must be one E4 accepts, or the vector cannot be run.
+    def mutate(vector):
+        vector["inputs"]["snapshot"]["assignments"][0]["not_before"] = "not-an-instant"
+    _replace_signing_vector(family_tree, case_id, mutate)
+    assert "council-convening-schema" in _codes(family_tree)
+
+
+def test_a_signing_vector_whose_snapshot_e4_refuses_is_a_schema_finding(family_tree):
+    def mutate(vector):
+        snapshot = vector["inputs"]["snapshot"]
+        snapshot["assignments"][1]["assignment_id"] = snapshot["assignments"][0]["assignment_id"]
+    _replace_signing_vector(family_tree, "cmp-accept", mutate)
+    assert "council-convening-schema" in _codes(family_tree)
+
+
 # --------------------------------------------------------------------------
 # Closure, in both directions.
 # --------------------------------------------------------------------------

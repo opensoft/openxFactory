@@ -401,10 +401,24 @@ def _object(value: Any, name: str) -> Mapping[str, Any]:
     return value
 
 
-def _snapshot(value: Any) -> Mapping[str, Any]:
+def _snapshot(value: Any, context: Context) -> Mapping[str, Any]:
+    """A signing vector's frozen snapshot, which must be one E4 accepts (Phase
+    3's `check_snapshot`, steps 2 to 7): the consumer froze it, so a snapshot E4
+    refuses, or one whose instants do not parse, cannot be run, and is a
+    schema finding rather than a refusal or a traceback."""
+    from . import assignments as _assignments
+
     snapshot = _object(value, "inputs.snapshot")
     if not isinstance(snapshot.get("assignments"), list):
         raise VectorInputError("inputs.snapshot carries no list of assignments")
+    try:
+        _assignments.check_snapshot(snapshot, context.schemas)
+    except records.Refused as refused:
+        raise VectorInputError(f"inputs.snapshot is not a frozen snapshot E4 accepts "
+                               f"({refused.code} at {refused.member})") from None
+    except (KeyError, TypeError, ValueError):
+        raise VectorInputError("inputs.snapshot is not a frozen snapshot E4 can "
+                               "judge") from None
     return snapshot
 
 
@@ -421,9 +435,9 @@ def _signed(call, selected: str | None, context: Context) -> records.Outcome:
         return records.Outcome("refuse", refused.code, status_read=status_read)
     except classification.EffectNotLanded as exc:
         raise NotAdjudicable(str(exc)) from None
-    except (signing.InconsistentEnvironment, KeyError, TypeError) as exc:
+    except (signing.InconsistentEnvironment, KeyError, TypeError, ValueError) as exc:
         raise VectorInputError(f"the vector's inputs or oracles are inconsistent "
-                               f"({type(exc).__name__})") from None
+                               f"({type(exc).__name__}: {exc})") from None
     return records.Outcome("accept", derived=derived)
 
 
@@ -435,7 +449,7 @@ def _registration(vector: Mapping[str, Any], context: Context) -> records.Outcom
     selected = _selected(inputs, context)
     if not isinstance(inputs["bindings"], list):
         raise VectorInputError("inputs.bindings is not a list")
-    snapshot = _snapshot(inputs["snapshot"])
+    snapshot = _snapshot(inputs["snapshot"], context)
     return _signed(lambda: signing.check_registration(
         inputs["registration"], snapshot=snapshot, bindings=inputs["bindings"],
         environment=environment, evaluation_time=vector["evaluation_time"],
@@ -449,7 +463,7 @@ def _return(vector: Mapping[str, Any], context: Context) -> records.Outcome:
     environment = join_parts(dict(vector.get("environment", {})))
     _statuses(environment, context)
     selected = _selected(inputs, context)
-    snapshot = _snapshot(inputs["snapshot"])
+    snapshot = _snapshot(inputs["snapshot"], context)
     return _signed(lambda: signing.check_return(
         inputs["return"], snapshot=snapshot, environment=environment,
         evaluation_time=vector["evaluation_time"], selected_protocol=selected,
@@ -458,7 +472,7 @@ def _return(vector: Mapping[str, Any], context: Context) -> records.Outcome:
 
 def _completion(vector: Mapping[str, Any], context: Context) -> records.Outcome:
     inputs = join_parts(_closed_inputs(vector["inputs"], ("snapshot", "returns")))
-    snapshot = _snapshot(inputs["snapshot"])
+    snapshot = _snapshot(inputs["snapshot"], context)
     returns = inputs["returns"]
     if not isinstance(returns, list) or not all(isinstance(r, dict) for r in returns):
         raise VectorInputError("inputs.returns is not a list of records")

@@ -1286,3 +1286,117 @@ def test_completion_follows_the_snapshot_after_the_rule_changed():
         "councils": {"council-alpha": {"standing_seats": ["seat-a", "seat-c"], "conditions": []}},
         "sources": ["rules/council-alpha.yaml"]}}
     assert complete(case, environment={"rules": changed}) == {}
+
+
+# =============================================================================
+# The oracles the orders read (pre-review of 03cb77e29, L1, L3 and L4). An
+# oracle a step reads and the environment does not carry, an entry of another
+# shape, or an id the oracle repeats is a harness error, never a refusal: a
+# vector author's omission must not pass for a plausible code. An oracle the
+# order never reaches is not required.
+# =============================================================================
+
+
+@pytest.mark.parametrize("oracle", ["identity", "governed_history", "issued"])
+def test_an_absent_oracle_the_registration_order_reads_is_a_harness_error(oracle):
+    case = fx.registration_case()
+    del case["environment"][oracle]
+    with pytest.raises(signing.InconsistentEnvironment):
+        register(case)
+
+
+@pytest.mark.parametrize("member", ["challenges", "consumed_challenges", "registered_keys"])
+def test_an_absent_issued_list_the_registration_order_reads_is_a_harness_error(member):
+    case = fx.registration_case()
+    del case["environment"]["issued"][member]
+    with pytest.raises(signing.InconsistentEnvironment):
+        register(case)
+
+
+def test_an_identity_without_its_principal_is_a_harness_error():
+    case = fx.registration_case()
+    del case["environment"]["identity"]["principal"]
+    with pytest.raises(signing.InconsistentEnvironment):
+        register(case)
+
+
+def test_an_oracle_the_order_never_reaches_is_not_required():
+    case = fx.registration_case()
+    del case["registration"]["protocol"]
+    case["registration"]["root_signature"] = "A" * 85 + "Q"
+    for oracle in ("identity", "governed_history", "issued"):
+        del case["environment"][oracle]
+    assert refusal(register, case) == "legacy_protocol_refused"
+
+
+@pytest.mark.parametrize("member", ["issued", "registered_keys", "accepted_returns"])
+def test_an_absent_oracle_the_return_order_reads_is_a_harness_error(member):
+    case = fx.return_case()
+    if member == "issued":
+        del case["environment"]["issued"]
+    else:
+        del case["environment"]["issued"][member]
+    with pytest.raises(signing.InconsistentEnvironment):
+        give_return(case)
+
+
+@pytest.mark.parametrize("member,entry", [
+    pytest.param("consumed_challenges", {"challenge_id": "challenge-seat-a"},
+                 id="consumed-challenge-as-an-object"),
+    pytest.param("challenges", "challenge-seat-a", id="challenge-as-a-string"),
+    pytest.param("registered_keys", {"assignment_id": "assignment-seat-b",
+                                     "key_fingerprint": "sha256:" + "ab" * 32},
+                 id="registered-key-without-its-public-key"),
+])
+def test_an_issued_entry_of_another_shape_is_a_harness_error_at_registration(member, entry):
+    case = fx.registration_case()
+    case["environment"]["issued"][member] = [
+        *case["environment"]["issued"][member], entry]
+    with pytest.raises(signing.InconsistentEnvironment):
+        register(case)
+
+
+@pytest.mark.parametrize("member,entry", [
+    pytest.param("accepted_returns", "assignment-seat-b", id="accepted-return-as-a-string"),
+    pytest.param("registered_keys", {"assignment_id": "assignment-seat-b",
+                                     "key_fingerprint": "sha256:" + "ab" * 32,
+                                     "public_key": "A" * 43, "seat_id": "seat-b"},
+                 id="registered-key-with-another-member"),
+])
+def test_an_issued_entry_of_another_shape_is_a_harness_error_at_return(member, entry):
+    case = fx.return_case()
+    case["environment"]["issued"][member] = [*case["environment"]["issued"][member], entry]
+    with pytest.raises(signing.InconsistentEnvironment):
+        give_return(case)
+
+
+def test_a_repeated_binding_id_is_a_harness_error():
+    case = fx.registration_case()
+    case["bindings"] = [*case["bindings"], copy.deepcopy(case["bindings"][0])]
+    with pytest.raises(signing.InconsistentEnvironment):
+        register(case)
+
+
+def test_a_repeated_challenge_id_is_a_harness_error():
+    # The probe: with two issued challenges sharing an id, the list's order
+    # decided the outcome (`challenge_malformed` or accept).
+    case = fx.registration_case()
+    bad = dict(issued_challenge(case), expires_at="2026-10-09T01:05:01Z")
+    case["environment"]["issued"]["challenges"] = [issued_challenge(case), bad]
+    with pytest.raises(signing.InconsistentEnvironment):
+        register(case)
+
+
+def test_a_repeated_registered_assignment_is_a_harness_error():
+    case = fx.return_case()
+    keys = case["environment"]["issued"]["registered_keys"]
+    case["environment"]["issued"]["registered_keys"] = [*keys, copy.deepcopy(keys[0])]
+    with pytest.raises(signing.InconsistentEnvironment):
+        give_return(case)
+
+
+def test_a_malformed_frozen_instant_is_a_harness_error():
+    case = fx.registration_case()
+    fx.frozen_assignment(case["snapshot"], "seat-a")["not_before"] = "not-an-instant"
+    with pytest.raises(signing.InconsistentEnvironment):
+        register(case)

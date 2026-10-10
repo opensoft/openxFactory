@@ -330,18 +330,85 @@ def _use_assignment(snapshot: Mapping[str, Any], assignment_id: str, operation: 
     """E7 step 4 and E8 step 3: the assignment, when it is used."""
     assignment = _frozen_assignment(snapshot, assignment_id)
     now = _instant(evaluation_time)
-    if now < _instant(assignment["not_before"]):
+    try:
+        not_before = _instant(assignment["not_before"])
+        expires_at = _instant(assignment["expires_at"])
+    except (KeyError, TypeError, ValueError):
+        # The snapshot is frozen state the consumer issued and E4 judged; an
+        # assignment without two utc_instants is not one E4 accepts.
+        raise InconsistentEnvironment(
+            "snapshot: a frozen assignment's not_before or expires_at is not a "
+            "utc_instant") from None
+    if now < not_before:
         raise records.Refused("assignment_not_yet_valid", member="assignment.not_before")
-    if now >= _instant(assignment["expires_at"]):
+    if now >= expires_at:
         raise records.Refused("assignment_expired", member="assignment.expires_at")
     if operation not in assignment.get("permitted_operations", ()):
         raise records.Refused("operation_not_permitted", member="assignment.permitted_operations")
     return assignment
 
 
-def _issued(environment: Mapping[str, Any]) -> Mapping[str, Any]:
-    issued = environment.get("issued", {})
-    return issued if isinstance(issued, Mapping) else {}
+#: The exact members of each `environment.issued` entry that is an object
+#: (contracts/conformance-corpus.md § Environment oracles, `issued`).
+ISSUED_ENTRY_MEMBERS = {
+    "registered_keys": ("assignment_id", "key_fingerprint", "public_key"),
+    "accepted_returns": ("assignment_id", "return_digest"),
+}
+
+
+def _oracle(environment: Mapping[str, Any], name: str, step: str) -> Any:
+    """The oracle `name`, which `step` reads. Absent, it is a harness error,
+    never a refusal: an omission must not pass for a plausible code (as
+    Phase 5's `binding` boundary treats `identity` and `governed_history`)."""
+    if not isinstance(environment, Mapping) or name not in environment:
+        raise InconsistentEnvironment(f"environment.{name} is absent, and {step} reads it")
+    return environment[name]
+
+
+def _unique(entries: list, key: str, where: str) -> None:
+    seen: set[str] = set()
+    for entry in entries:
+        if entry[key] in seen:
+            raise InconsistentEnvironment(f"{where}: a {key} repeats, so no one entry is "
+                                          f"the oracle's")
+        seen.add(entry[key])
+
+
+def _issued_list(environment: Mapping[str, Any], member: str, step: str) -> list:
+    """`environment.issued[member]`, which `step` reads, with every entry in
+    its documented shape: `challenges`, E6 records with unique `challenge_id`s;
+    `consumed_challenges`, `challenge_id` strings; `registered_keys`, exactly
+    `{assignment_id, key_fingerprint, public_key}`, and `accepted_returns`,
+    exactly `{assignment_id, return_digest}`, all strings, each `assignment_id`
+    once. Anything else is a harness error, never a refusal."""
+    issued = _oracle(environment, "issued", step)
+    where = f"environment.issued.{member}"
+    if not isinstance(issued, Mapping):
+        raise InconsistentEnvironment("environment.issued is not an object")
+    if member not in issued:
+        raise InconsistentEnvironment(f"{where} is absent, and {step} reads it")
+    entries = issued[member]
+    if not isinstance(entries, list):
+        raise InconsistentEnvironment(f"{where} is not a list")
+    if member == "consumed_challenges":
+        if not all(isinstance(entry, str) for entry in entries):
+            raise InconsistentEnvironment(f"{where}: an entry is not a challenge_id")
+        return entries
+    if member == "challenges":
+        if not all(isinstance(entry, Mapping) and isinstance(entry.get("challenge_id"), str)
+                   for entry in entries):
+            raise InconsistentEnvironment(f"{where}: an entry is not an issued challenge "
+                                          f"record")
+        _unique(entries, "challenge_id", where)
+        return entries
+    members = ISSUED_ENTRY_MEMBERS[member]
+    for entry in entries:
+        if not (isinstance(entry, Mapping) and set(entry) == set(members)
+                and all(isinstance(entry[name], str) for name in members)):
+            raise InconsistentEnvironment(f"{where}: an entry is not exactly "
+                                          f"{{{', '.join(members)}}}")
+    _unique(entries, "assignment_id", where)
+    return entries
 
 
 # --------------------------------------------------------------------------
@@ -371,24 +438,29 @@ def _check_holder_binding(binding: Mapping[str, Any], *, governed: Mapping[str, 
     E10 steps 7 to 14 on the seat job's verified claims with operation
     `seat_execution`, step 14 applying the seat rule against the snapshot's
     FROZEN `governed` member. The producer-binding module (Phase 5, T054) owns
-    every one of those steps (`binding.check_binding`); this is the one place
-    they are called from.
+    every one of those steps (`binding.check_offline`, `check_claims` and
+    `check_workflow_revision`, the three `binding.check_binding` runs); this is
+    the one place they are called from.
 
     The identity map is the environment's `repository_identity` oracle,
     materialized under a temporary root exactly as a `binding` vector's is
-    (`binding.materialize_identity`), never the live map (R7-M1). An oracle
-    that cannot be materialized is a harness error, never a refusal."""
+    (`binding.materialize_identity`), never the live map (R7-M1). That oracle,
+    `identity` once steps 1 to 6 pass, and `governed_history` for step 14 are
+    each a harness error when absent, never a refusal, as at Phase 5's own
+    boundary."""
     with tempfile.TemporaryDirectory(prefix="council-convening-identity-") as scratch:
         try:
             root = producer_binding.materialize_identity(
                 environment.get("repository_identity"), Path(scratch) / "root")
         except ValueError as exc:
             raise InconsistentEnvironment(str(exc)) from None
-        producer_binding.check_binding(
-            binding, operation="seat_execution",
-            identity=environment.get("identity"), governed=governed,
-            governed_history=environment.get("governed_history"),
-            evaluation_time=evaluation_time, identity_root=root, schemas=schemas)
+        producer_binding.check_offline(binding, identity_root=root, schemas=schemas)
+    identity = _oracle(environment, "identity", "E7 step 5 (E10 steps 7 to 13)")
+    entry = producer_binding.check_claims(binding, operation="seat_execution",
+                                          identity=identity, evaluation_time=evaluation_time)
+    producer_binding.check_workflow_revision(
+        entry, identity=identity, governed=governed,
+        governed_history=_oracle(environment, "governed_history", "E7 step 5 (E10 step 14)"))
 
 
 def check_registration(registration: Any, *, snapshot: Mapping[str, Any],
@@ -416,6 +488,11 @@ def check_registration(registration: Any, *, snapshot: Mapping[str, Any],
                                  PERMITTED_REGISTRATION, evaluation_time)
     # 5. The principal, against the holder's own binding.
     holder = assignment["holder"]
+    ids = [b["binding_id"] for b in bindings
+           if isinstance(b, Mapping) and isinstance(b.get("binding_id"), str)]
+    if len(ids) != len(set(ids)):
+        raise InconsistentEnvironment("bindings: a binding_id repeats, so a binding_ref "
+                                      "resolves to no one binding")
     binding = next((b for b in bindings if isinstance(b, Mapping)
                     and b.get("binding_id") == holder["binding_ref"]), None)
     if binding is None:
@@ -425,20 +502,23 @@ def check_registration(registration: Any, *, snapshot: Mapping[str, Any],
     governed = snapshot["convening"]["required_seats_provenance"]["governed"]
     _check_holder_binding(binding, governed=governed, environment=environment,
                           evaluation_time=evaluation_time, schemas=schemas)
-    principal = (environment.get("identity") or {}).get("principal") or {}
+    principal = environment["identity"].get("principal")
+    if not isinstance(principal, Mapping):
+        raise InconsistentEnvironment("environment.identity.principal is absent, and E7 "
+                                      "step 5 reads it (wrong_principal)")
     if (principal.get("principal_kind") != holder["principal_kind"]
             or principal.get("principal_ref") != holder["principal_ref"]):
         raise records.Refused("wrong_principal", member="identity.principal")
     # 6. The issued challenge.
-    issued = _issued(environment)
-    challenge = next((c for c in issued.get("challenges", []) if isinstance(c, Mapping)
-                      and c.get("challenge_id") == registration["challenge_id"]), None)
+    challenge = next((c for c in _issued_list(environment, "challenges", "E7 step 6")
+                      if c["challenge_id"] == registration["challenge_id"]), None)
     if challenge is None:
         raise records.Refused("challenge_unknown", member="challenge_id")
     check_challenge(challenge, schemas=schemas)
     if challenge["assignment_id"] != registration["assignment_id"]:
         raise records.Refused("challenge_wrong_assignment", member="challenge.assignment_id")
-    if registration["challenge_id"] in issued.get("consumed_challenges", []):
+    if registration["challenge_id"] in _issued_list(environment, "consumed_challenges",
+                                                    "E7 step 6"):
         raise records.Refused("challenge_consumed", member="challenge_id")
     if _instant(evaluation_time) >= _instant(challenge["expires_at"]):
         raise records.Refused("challenge_expired", member="challenge.expires_at")
@@ -449,7 +529,7 @@ def check_registration(registration: Any, *, snapshot: Mapping[str, Any],
         raise records.Refused("fingerprint_mismatch", member="key_fingerprint")
     if challenge["key_fingerprint"] != fingerprint:
         raise records.Refused("fingerprint_mismatch", member="challenge.key_fingerprint")
-    registered = [k for k in issued.get("registered_keys", []) if isinstance(k, Mapping)]
+    registered = _issued_list(environment, "registered_keys", "E7 step 7")
     if any(k.get("assignment_id") == registration["assignment_id"] for k in registered):
         raise records.Refused("assignment_already_registered", member="assignment_id")
     convening = {a.get("assignment_id") for a in snapshot.get("assignments", [])
@@ -515,9 +595,8 @@ def check_return(seat_return: Any, *, snapshot: Mapping[str, Any],
     assignment = _use_assignment(snapshot, seat_return["assignment_id"], PERMITTED_RETURN,
                                  evaluation_time)
     # 4. The registered key.
-    issued = _issued(environment)
-    registered = next((k for k in issued.get("registered_keys", []) if isinstance(k, Mapping)
-                       and k.get("assignment_id") == seat_return["assignment_id"]), None)
+    registered = next((k for k in _issued_list(environment, "registered_keys", "E8 step 4")
+                       if k["assignment_id"] == seat_return["assignment_id"]), None)
     if registered is None:
         raise records.Refused("return_unregistered", member="assignment_id")
     if registered.get("key_fingerprint") != seat_return["key_fingerprint"]:
@@ -548,8 +627,8 @@ def check_return(seat_return: Any, *, snapshot: Mapping[str, Any],
     if not ed25519.verify(public_key, message, b64url_decode(seat_return["signature"])):
         raise records.Refused("return_signature_invalid", member="signature")
     # 8. Replay.
-    if any(isinstance(r, Mapping) and r.get("assignment_id") == seat_return["assignment_id"]
-           for r in issued.get("accepted_returns", [])):
+    if any(r["assignment_id"] == seat_return["assignment_id"]
+           for r in _issued_list(environment, "accepted_returns", "E8 step 8")):
         raise records.Refused("return_replayed", member="assignment_id")
     return {"key_fingerprint": registered["key_fingerprint"], "signed_bytes": b64url(message)}
 
