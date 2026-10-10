@@ -1,0 +1,100 @@
+schema: spec-driven
+created: 2026-10-09
+
+# NO SPEC DELTA, DECLARED RATHER THAN OMITTED, on the reading the three
+# `disposition-codexfactory-*` packets recorded before it. Promoted
+# `neutral-product-pin` (`openspec/specs/neutral-product-pin/spec.md:639`,
+# "A dispositioned finding is cited, upgrade-coupled, and refused when stale")
+# already states every rule this packet relies on: a disposition is scoped to
+# one repository, an entry naming another repository is neither applied nor
+# stale on this tree, a finding no disposition covers FAILS the run, and the
+# remedy for an entry is an edit to the pin file. This packet DELETES two entries
+# and adds none. Deleting an entry while its finding still occurs on some tree
+# is not a new rule either: the scenario "A finding is reported that no
+# disposition covers" says what then happens on that tree, and the coordinated
+# sequence in `proposal.md` is what keeps that from happening on codexFactory
+# `main`. `design.md` § 3 sets out the criterion and the reading.
+skip_specs: true
+
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-10-09-retire-codexfactory-sibling-currency-dispositions
+  reason: >-
+    TWO ENTRIES IN THIS REPOSITORY'S PIN STAND BETWEEN codexFactory AND ITS OWN
+    RE-DERIVATIONS, AND ONLY THIS REPOSITORY CAN DELETE THEM.
+    `disposition-codexfactory-regular-pr-council-clearance-archive` (PR #1004,
+    landed at `5972c8f3`) added two `repo: codexFactory` entries on
+    `merge-master-approval/spec.md`, for `extend-merge-master-envelope-to-floor-bot-lanes`
+    and `relocate-review-authority-floor`. Each retires when its sibling
+    re-derives its `## MODIFIED "Bounded autonomous surface"` block against the
+    archived canon. codexFactory reads this pin at the openxFactory commit its
+    own `stack.yaml` declares, so the re-derivations can only be read against a
+    pin that already lacks the entries. Measured on 2026-10-09 through this
+    repository's pinned entrypoint over codexFactory `main` `33b916c1`: with
+    both blocks re-derived, the pin on `main` REFUSES `pin-disposition-stale`
+    (exit 2) and this packet's pin exits 0; with neither re-derived, the pin on
+    `main` exits 0 and this packet's pin exits 1 with both findings
+    UNDISPOSITIONED. So the deletion is published here first, and codexFactory's
+    pin advance and both re-derivations land together as one codexFactory pull
+    request (codeXfactory/codexFactory#549, its second advance). The
+    obligation is recorded, and not performed, in
+    `disposition-codexfactory-regular-pr-council-clearance-archive` `tasks.md`
+    6.3: "Neither is drafted or begun here."
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/INDEX.md` was read on 2026-10-09: no topic folder and no
+    INDEX row names the OpenSpec CLI pin, a consuming repository's findings, or
+    a disposition of a pinned tool's finding (the rows that say "dispositioned"
+    mean ruled open questions). `kind: staged` would claim a staging source that
+    does not resolve. The organized sources are openxFactory issue #1286 (the claim
+    and the plan), codeXfactory/codexFactory#549 (the word), and the lane's
+    pre-stage measurement.
+  proposed_by: >-
+    Lane `codexfactory-1` (display `codeXfactory-1`), drafting on Brett Heap's
+    word. Brett Heap (openxFactory convener), first-hand in that lane's own
+    session at 2026-10-09T17:35:29Z, answered the question "Who should author
+    openxFactory's new change that deletes the two codexFactory sibling
+    dispositions (gate G-1: contracts/openspec-cli-pin.yaml lines 640–761 plus
+    three test constants)?" with the option, verbatim, "This lane drafts it
+    (Recommended)". Recorded on codeXfactory/codexFactory#549 (comment
+    6086047985). THAT WORD AUTHORIZES THE DRAFT AND NOTHING ELSE: it is not a
+    ratification of this packet, not a landing word, and not a ruling on any
+    open question in `design.md` § 7. Claimed on openxFactory #1286 (comment
+    6086219075); coordination notice to the siblings' authoring lane on
+    openxFactory #745 (comment 6086181440).
+  proposed_on: 2026-10-09
+  approved_by: >-
+    Brett Heap (openxFactory convener) — 2026-10-09T21:00:16.594Z (the
+    session transcript's own timestamp on his answer), first-hand in lane
+    `codeXfactory-1`'s own session, as a selection in a multiple-choice round.
+    The question put to him, verbatim: "openxFactory #1288 (G-1) deletes the
+    two codexFactory sibling dispositions, with its tests. It's safe to land
+    first, and is the prerequisite for #549's second advance carrying 7.3.
+    What should happen with it?" The option chosen, verbatim: "Ratify + land
+    when green (Recommended)", offered as "Ratify and land it in openxFactory
+    under Rule 6 when green. That unblocks 7.3's second advance, which must
+    then re-derive both siblings in one codexFactory PR." The two options NOT
+    taken: "Ratify only" ("Record the ratification, and land it later on its
+    own word") and "Hold" ("Leave it as a DRAFT"). GIVEN OVER HEAD
+    ed0c67adde1c35bd1b1c1b6472246957f9263a7f, the only head PR #1288 had
+    carried (committed 20:55:13Z, the PR opened DRAFT at 20:55:30Z, the
+    question put at 20:56:43Z). Recorded on PR #1288 (comment 6089181718) and
+    on the estate's lane register, opensoft/brett-wip commit
+    78488f6c0c944ba92ae3818f8ececd40236b6333, lanes/log/codeXfactory-1.md,
+    RULED line 2026-10-09T21:01:42Z on openxFactory #1286. BARE AS TO THIS
+    PACKET'S TEXT: it names no amendment and rules no open question, so the
+    packet is ratified AS DRAFTED and OQ-1 to OQ-4 (`design.md` § 7) land at
+    their stated defaults, flagged rather than resolved. THE SAME ANSWER
+    CARRIES THE LANDING WORD as its own component, "land when green", which
+    is the separate landing word OQ-3's default and `tasks.md` 0.3 wait for.
+    THIS APPROVAL IS NOT THE MERGE: the pull request stays DRAFT at this
+    encoding, and the landing under lane-collision Rule 6 is the
+    coordinator's act, read green on the head it lands. The drafting pair
+    above (`proposed_by` / `proposed_on`) is kept as authored: approval is
+    added to this origin, never a re-minting of it.
+  approved_on: 2026-10-09
+related:
+  - openxFactory:change:disposition-codexfactory-regular-pr-council-clearance-archive  # ACTIVE. Added both entries this packet deletes (PR #1004); its tasks.md 6.3 records the obligation this packet discharges on the openxFactory side, and this packet does not edit it
+  - openxFactory:change:disposition-codexfactory-floor-relocation-retitle              # ACTIVE. Owns the OTHER entry `relocate-review-authority-floor` carries (`repository-gate-floor/spec.md`), which this packet leaves byte-identical
+  - openxFactory:change:disposition-codexfactory-declared-renames                      # ACTIVE. Owns the surviving `amend-composition-selector-labelling` entry, untouched here
+  - openxFactory:change:archive/2026-09-09-bump-openspec-cli-pin-to-1.12               # ARCHIVED. Added the disposition mechanism and its rule; this packet applies the rule and does not touch it
+  - openxFactory:issue:1286                                                            # governing issue, CLAIMED by lane codeXfactory-1
