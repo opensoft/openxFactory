@@ -276,9 +276,15 @@ def _compare_context(presented: Mapping[str, Any], expected: Mapping[str, Any],
 def refuse_key_transport(value: Any, code: str, where: str = "") -> None:
     """Refuse a member named like key material at any depth, or a PEM
     private-key block in any string, as `code`. Names the member, never the
-    value."""
+    value.
+
+    A member NAME is a string too, so a PEM private-key block used as a name is
+    refused as well. The refusal then names the object that carries it, never
+    the name, which is itself the key material."""
     if isinstance(value, Mapping):
         for name, item in value.items():
+            if isinstance(name, str) and PEM_PRIVATE_KEY.search(name):
+                raise records.Refused(code, member=where or "(root)")
             path = f"{where}.{name}" if where else str(name)
             if name in KEY_TRANSPORT_MEMBERS:
                 raise records.Refused(code, member=path)

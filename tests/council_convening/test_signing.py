@@ -896,6 +896,26 @@ def test_a_pem_private_key_block_inside_the_payload_is_return_malformed():
     assert refusal(give_return, case) == "return_malformed"
 
 
+def test_a_pem_private_key_block_as_a_payload_member_name_is_return_malformed():
+    # E8 step 2: "a PEM private-key block in any string", and a JSON member
+    # name is a string. Unit-only, like the member-name cases (U10).
+    case = fx.return_case()
+    case["return"]["payload"]["entry"]["extra"] = {fx.pem_private_key_block(): "x"}
+    assert refusal(give_return, case) == "return_malformed"
+
+
+def test_a_pem_private_key_block_as_a_member_name_is_refused_without_echoing_it():
+    block = fx.pem_private_key_block()
+    with pytest.raises(Refused) as caught:
+        signing.refuse_key_transport({"outer": [{"inner": {block: "x"}}]},
+                                     "return_malformed")
+    assert caught.value.code == "return_malformed"
+    # The member named is the object that carries the name, never the name.
+    assert caught.value.member == "outer[0].inner"
+    assert block not in str(caught.value)
+    assert "PRIVATE KEY" not in str(caught.value.member)
+
+
 def test_a_float_in_the_payload_is_value_not_canonicalizable():
     case = fx.return_case()
     case["return"]["payload"]["entry"]["model_usage"]["costUSD"] = 0.0125
