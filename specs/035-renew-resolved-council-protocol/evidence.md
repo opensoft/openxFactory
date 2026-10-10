@@ -701,7 +701,7 @@ T042 (`test_signing.py`), T043 (`test_corpus_regeneration.py`) and T045 (the `ch
   - the one foundation vector named above.
 - **Not edited:**
   - `records.py`;
-  - the family README, which is Phase 1's and does not list the Phase 4 schemas.
+  - the family README was not edited at first; it did not list the Phase 4 schemas. *Corrected 2026-10-10, on the independent pre-review of `03cb77e29` (L7): this bullet called the README "Phase 1's", but Phase 5 had already added its own rows. Following that precedent, the README now lists the four Phase 4 schemas and the `signing` area, and gains a § Key registration and signed returns (Phase 4).*
 
 ### The per-seat binding check (025 ruling (A))
 

@@ -42,8 +42,12 @@ anything.**
 |---|---|---|
 | [`shared-definitions.schema.yaml`](shared-definitions.schema.yaml) | definitions only | Every grammar the family's records share: identifiers, the candidate, digests by `$ref` to `xfc-jcs-sha256-1`, keys, signatures, decimal strings, and the closed `principal_kind`, `refusal_code` and `finding_code` enumerations. |
 | [`protocol-registry.schema.yaml`](protocol-registry.schema.yaml) + [`protocol.registry.yaml`](protocol.registry.yaml) | `xfactory_council_protocol_registry` | The CLOSED protocol registry, schema plus its one instance: the replacement `xfc-resolved-council-1` (`available`) and the legacy `xfactory-council-seat-return/v1` (`in_use`, identification only). Every tag field is `null` until a cut writes it. |
-| [`conformance/`](conformance/) | corpus | The shared conformance corpus: `index.json` and one JSON vector per case under `vectors/<area>/`. Phase 1 lands the `foundation` area: the `definition` and `classification` boundaries. Phase 5 adds the `binding` area and the corpus-owned fixture `fixtures/repository-identity.json`. |
+| [`conformance/`](conformance/) | corpus | The shared conformance corpus: `index.json` and one JSON vector per case under `vectors/<area>/`. Phase 1 lands the `foundation` area: the `definition` and `classification` boundaries. Phase 5 adds the `binding` area and the corpus-owned fixture `fixtures/repository-identity.json`. Phase 4 adds the `signing` area: the `registration`, `return` and `completion` boundaries, built by the generator from labelled public test keys, never hand-kept. |
 | [`producer-binding.schema.yaml`](producer-binding.schema.yaml) + [`producer-binding.template.yaml`](producer-binding.template.yaml) | `xfactory_council_producer_binding` | Phase 5. The producer workflow binding (data-model E10), judged by kind, and its instantiation stub, which is never accepted as live. No instance is published here (see [The producer binding](#the-producer-binding-phase-5)). |
+| [`registration-challenge.schema.yaml`](registration-challenge.schema.yaml) | `xfactory_council_registration_challenge` | Phase 4. The consumer-issued challenge (data-model E6): one assignment, one key fingerprint, a public nonce, and a lifetime greater than 0 and at most the 600-second contract ceiling (OPEN-1). |
+| [`seat-key-registration.schema.yaml`](seat-key-registration.schema.yaml) | `xfactory_council_seat_key_registration` | Phase 4. A seat job's key registration (data-model E7): the public key, its fingerprint, the registration context and the Ed25519 proof over that context's canonical bytes. It carries no root authorization and no private key material. |
+| [`seat-return.schema.yaml`](seat-return.schema.yaml) | `xfactory_council_seat_return` | Phase 4. A signed seat return (data-model E8): the open payload, at most 1 MiB of canonical bytes, its `council_seat_return_payload` digest, the return context and the signature. It carries no key; it is verified with the key registered for its assignment. |
+| [`signing-context.schema.yaml`](signing-context.schema.yaml) | definitions only | Phase 4. The two closed signing contexts (data-model E9), each signed as the UTF-8 of its `xfc-jcs-sha256-1` canonical bytes with no framing (R3). The contexts carry no `schema_version` or `kind`. |
 
 The canonical validator is
 [`scripts/validate-council-convening.py`](../../scripts/validate-council-convening.py),
@@ -154,6 +158,58 @@ open `repo_property_*` family is not a member.
 **The broker** refuses nothing at binding. A binding whose broker capability is
 not verified parks activation, which E12 refuses as
 `broker_capability_insufficient` (Phase 6; D4).
+
+## Key registration and signed returns (Phase 4)
+
+A seat job proves the key it signs with before it returns anything, against the
+assignment the consumer froze for its seat (design D3; FR-007, FR-008, FR-010).
+
+**Registration** (data-model E7) runs in this order:
+1. classification;
+2. root authorization (`root_authorization_refused`, never reclassified as
+   legacy);
+3. the shape, with key transport (`registration_malformed`);
+4. the assignment when it is used (`assignment_unknown`,
+   `assignment_not_yet_valid`, `assignment_expired`, `operation_not_permitted`);
+5. the principal, against the holder's own binding: `binding_unresolved`,
+   `broker_capability_insufficient`, E10 steps 1 to 14 with operation
+   `seat_execution`, then `wrong_principal`;
+6. the issued challenge;
+7. the key (`fingerprint_mismatch`, `assignment_already_registered`,
+   `shared_key`);
+8. the context, rebuilt from frozen state and compared member by member;
+9. the proof.
+
+**A return** (E8) runs classification, its shape and the 1 MiB payload bound,
+the assignment, the registered key, the context, the payload digest, the
+signature and replay. **Completion** runs over the frozen assignment
+identities, never a count: `return_unlisted`, `return_duplicate`,
+`completion_set_mismatch`, `return_missing`. A rule that changed after freezing
+changes nothing.
+
+**Key transport is refused at any depth**, in records and in the open payload:
+a member named `private_key`, `secret_key`, `seed`, `sk` or `d`, or a PEM
+private-key block in any string, member names included. The fingerprint is the
+estate's one spelling, `sha256:` + the hex SHA-256 of the raw 32-byte key.
+Verification uses the stdlib Ed25519 verifier, and the legacy v1 bytes never
+verify as replacement bytes, nor the reverse.
+
+**The corpus' signing area is generated.** `python3 -m
+scripts.council_convening.generate` builds every signing vector, signature
+bytes included, from three labelled public test keys derived from a published
+phrase, and `--check` reproduces it byte for byte. Two known answers are
+hand-authored, so the generator is never checked only against itself. No corpus
+member at any depth bears a key-material name. Registration vectors apply to the
+consumer only, because they carry a binding and verified claims; return and
+completion vectors apply to both sides. Key transport by member name and the
+1 MiB bound are proven in each successor's own tests, not in the corpus
+([provider-interface.md](../../specs/035-renew-resolved-council-protocol/contracts/provider-interface.md)
+§ Consumer impacts).
+
+**Per-seat holders.** Each seat's holder names its own binding, by
+`binding_ref`, as its `principal_ref` (025 ruling (A)). E4 refuses a
+`principal_ref` that two seats share, and does not refuse a shared
+`binding_ref` (see the feature's evidence, § Phase 4).
 
 ## Classification comes first, and a legacy record is never passed
 
