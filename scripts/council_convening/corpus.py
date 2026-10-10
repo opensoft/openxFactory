@@ -476,9 +476,10 @@ def _completion(vector: Mapping[str, Any], context: Context) -> records.Outcome:
     returns = inputs["returns"]
     if not isinstance(returns, list) or not all(isinstance(r, dict) for r in returns):
         raise VectorInputError("inputs.returns is not a list of records")
-    # The `rules` oracle a completion vector may carry is never read: completion
-    # follows the frozen snapshot, so a rule changed after freezing changes
-    # nothing (US2 scenario 4). The vector carries it to show exactly that.
+    # The `rules`, `governed` and `governed_history` oracles a completion vector
+    # may carry are never read: completion follows the frozen snapshot, so a
+    # rule changed after freezing changes nothing (US2 scenario 4). The vector
+    # carries them, the changed rule at the governed tip, to show exactly that.
     return _signed(lambda: signing.check_completion(
         snapshot, returns, environment=vector.get("environment")), None, context)
 
@@ -486,7 +487,7 @@ def _completion(vector: Mapping[str, Any], context: Context) -> records.Outcome:
 register_handler("registration", _registration, oracles=(
     "issued", "identity", "repository_identity", "governed_history", "registry_status"))
 register_handler("return", _return, oracles=("issued", "registry_status"))
-register_handler("completion", _completion, oracles=("rules",))
+register_handler("completion", _completion, oracles=("rules", "governed", "governed_history"))
 
 
 # --------------------------------------------------------------------------

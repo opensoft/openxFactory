@@ -896,10 +896,32 @@ def _completion_cases() -> list[tuple]:
         w.returns = [w.returns[0]]
 
     def rule_changed(w):
-        w.environment = {"rules": {f"{GOVERNED_REPOSITORY}@{SHA_SEAT}": {
-            "councils": {"council-alpha": {"standing_seats": ["seat-a", "seat-c"],
-                                           "conditions": []}},
-            "sources": ["rules/council-alpha.yaml"]}}}
+        # The frozen projection at the snapshot's revision, and a changed one
+        # (another seat set) at a later revision on the governed first-parent
+        # history, whose rule file's tip digest differs from the frozen one. An
+        # adapter that re-resolved CURRENT rules would see the change;
+        # completion follows the snapshot, and accepts.
+        frozen = f"{GOVERNED_REPOSITORY}@{SHA_REVISION}"
+        tip = f"{GOVERNED_REPOSITORY}@{SHA_SEAT}"
+        changed = {"councils": {"council-alpha": {"standing_seats": ["seat-a", "seat-c"],
+                                                  "conditions": []}},
+                   "sources": ["rules/council-alpha.yaml"]}
+        w.environment = {
+            "rules": {
+                frozen: {"councils": {"council-alpha": {"standing_seats": list(SEATS),
+                                                        "conditions": []}},
+                         "sources": ["rules/council-alpha.yaml"]},
+                tip: changed,
+            },
+            "governed": {f"{frozen}:rules/council-alpha.yaml": {
+                "available": True, "governed": True, "sha256": SHA_FILE,
+                "tip_sha256": "sha256:" + hashlib.sha256(
+                    canonical.serialize(changed).encode("utf-8")).hexdigest()}},
+            "governed_history": {
+                frozen: {"on_first_parent": True, "at_or_after": [SHA_REVISION]},
+                tip: {"on_first_parent": True, "at_or_after": [SHA_REVISION, SHA_SEAT]},
+            },
+        }
 
     return [
         ("cmp-accept", nothing, "accept", None, BOTH, "generated"),

@@ -7,7 +7,44 @@
   "boundary": "completion",
   "case_id": "cmp-accept-after-the-rule-changed",
   "environment": {
+    "governed": {
+      "example-owner/example-rules@2222222222222222222222222222222222222222:rules/council-alpha.yaml": {
+        "available": true,
+        "governed": true,
+        "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "tip_sha256": "sha256:5b86ae91a42bc6ad595a0bc9a20fa6e549ce5ce742fc44515a6e8101fa52f16e"
+      }
+    },
+    "governed_history": {
+      "example-owner/example-rules@2222222222222222222222222222222222222222": {
+        "at_or_after": [
+          "2222222222222222222222222222222222222222"
+        ],
+        "on_first_parent": true
+      },
+      "example-owner/example-rules@4444444444444444444444444444444444444444": {
+        "at_or_after": [
+          "2222222222222222222222222222222222222222",
+          "4444444444444444444444444444444444444444"
+        ],
+        "on_first_parent": true
+      }
+    },
     "rules": {
+      "example-owner/example-rules@2222222222222222222222222222222222222222": {
+        "councils": {
+          "council-alpha": {
+            "conditions": [],
+            "standing_seats": [
+              "seat-a",
+              "seat-b"
+            ]
+          }
+        },
+        "sources": [
+          "rules/council-alpha.yaml"
+        ]
+      },
       "example-owner/example-rules@4444444444444444444444444444444444444444": {
         "councils": {
           "council-alpha": {

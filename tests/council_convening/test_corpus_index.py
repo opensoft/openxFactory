@@ -203,6 +203,35 @@ def test_a_signing_vector_whose_snapshot_e4_refuses_is_a_schema_finding(family_t
     assert "council-convening-schema" in _codes(family_tree)
 
 
+def test_the_rule_changed_completion_vector_puts_the_changed_rule_at_the_governed_tip():
+    # Pre-review of 03cb77e29, L5. The vector must let an adapter that wrongly
+    # re-resolves CURRENT rules see a different answer. So:
+    # - the frozen projection sits at the snapshot's revision;
+    # - the changed one sits at a later revision on the governed first-parent
+    #   history;
+    # - each governed source's tip digest differs from its frozen digest.
+    vector = _load(CONFORMANCE / "vectors" / "signing" / "cmp-accept-after-the-rule-changed.json")
+    convening = vector["inputs"]["snapshot"]["convening"]
+    governed = convening["required_seats_provenance"]["governed"]
+    frozen = f"{governed['repository']}@{governed['revision']}"
+    environment = vector["environment"]
+    rules = environment["rules"]
+    later = [key for key in rules if key != frozen]
+    assert frozen in rules and len(later) == 1
+    tip = later[0]
+    assert environment["governed_history"][tip]["on_first_parent"] is True
+    assert governed["revision"] in environment["governed_history"][tip]["at_or_after"]
+    council = convening["council_id"]
+    frozen_seats = rules[frozen]["councils"][council]["standing_seats"]
+    assert frozen_seats == convening["required_seats_provenance"]["standing_seats"]
+    assert rules[tip]["councils"][council]["standing_seats"] != frozen_seats
+    for source in governed["sources"]:
+        entry = environment["governed"][f"{frozen}:{source['path']}"]
+        assert entry["sha256"] == source["sha256"]
+        assert entry["tip_sha256"] != entry["sha256"]
+    assert vector["expected"]["outcome"] == "accept"
+
+
 # --------------------------------------------------------------------------
 # Closure, in both directions.
 # --------------------------------------------------------------------------
