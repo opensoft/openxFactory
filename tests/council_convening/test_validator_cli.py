@@ -17,6 +17,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
 
@@ -31,6 +32,7 @@ from .conftest import (
     PROTOCOL_REGISTRY,
     REPLACEMENT,
     SHARED_DEFINITIONS,
+    VECTORS,
     load_validator,
     run_validator,
 )
@@ -444,6 +446,10 @@ PREDICATE_REGISTRY = PROTOCOL_REGISTRY.parent / "predicate.registry.yaml"
 #: Every E2 rule a classed commission record reaches that needs an environment
 #: oracle, as `check` names it. None of them is ever reported as passed.
 ORACLE_RULES = [
+    # Phase 3 (T040): retry identity and once-per-pin read the consumer's live
+    # snapshots, so offline `check` names E2 step A3 and never passes it.
+    "convening_conflict (retry identity and once-per-pin, E2 step A3: "
+    "the consumer's live snapshots)",
     "candidate_mismatch (expected candidate)",
     "candidate_mismatch (resolved candidate)",
     "candidate_mismatch (authoritative head ref)",
@@ -458,7 +464,13 @@ ORACLE_RULES = [
     "class_mismatch",
     "class_unresolved",
     "rule_projection_mismatch",
+    # Brett Heap, 2026-10-09T17:35:34Z, "Bind it in PR-2 (Recommended)": the
+    # comparison with the projection's declared sources needs the `rules` oracle.
+    "fact_source_mismatch (projection)",
     "condition_unevaluable",
+    # Pre-review M1 (2026-10-09): the rule reads the AUTHORITATIVE facts, so a
+    # record's own consumed facts can neither pass it nor name its code offline.
+    "predicate_parameters_malformed (bare-directory evidence)",
     "consumed_facts_mismatch",
     "condition_result_mismatch",
     "candidate_head_unavailable",
@@ -501,12 +513,32 @@ def test_check_names_each_oracle_dependent_rule_as_not_offline_checkable(
 
 
 def test_check_names_no_offline_rule_as_not_checkable(checked_commission_record):
-    """The offline-checkable rules run; they are never listed as skipped."""
+    """The offline-checkable rules run; they are never listed as skipped. Whole
+    rule names are compared, so `fact_source_mismatch (projection)`, which is
+    skipped, does not hide or stand for `fact_source_mismatch`, which is not."""
+    skipped = {line.split(": not checkable offline: ", 1)[1]
+               for line in checked_commission_record.stdout.splitlines()
+               if ": not checkable offline: " in line}
+    assert skipped == set(ORACLE_RULES)
     for rule in ("mutable_rule_reference", "rule_path_malformed", "predicate_unknown",
                  "fact_source_mismatch", "opaque_conclusion", "facts_unused",
                  "condition_seat_unbound", "roster_empty", "roster_mismatch",
-                 "secret_bearing_fact", "convening_malformed"):
-        assert f"not checkable offline: {rule}" not in checked_commission_record.stdout
+                 "secret_bearing_fact", "convening_malformed",
+                 "predicate_parameters_malformed"):
+        assert rule not in skipped
+
+
+def test_check_never_passes_the_bare_directory_rule_offline(tmp_path):
+    """Pre-review M1: the reviewer's record, whose condition `src/auth` meets
+    `src/auth/login.py` in the facts it consumed. Offline it reaches every rule
+    `check` can run and passes them, and the bare-directory rule is NAMED as not
+    checkable offline; it is never reported as passed."""
+    record = _commission_record("commission-refuse-predicate-parameters-bare-directory-evidence")
+    path = _write(tmp_path, "convening.json", record)
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.count(
+        ": not checkable offline: predicate_parameters_malformed (bare-directory evidence)") == 1
 
 
 @pytest.mark.parametrize("mutate, finding", [
@@ -525,6 +557,14 @@ def test_check_names_no_offline_rule_as_not_checkable(checked_commission_record)
                  "council-convening-candidate-mismatch", id="pin-not-head"),
     pytest.param(lambda r: r.update(notes="x"),
                  "council-convening-convening-malformed", id="unknown-member"),
+    pytest.param(lambda r: r["required_seats_provenance"]["consumed_facts"]["pr_facts"][
+        "changed_paths"].reverse(), "council-convening-convening-malformed",
+        id="changed-paths-unsorted"),
+    pytest.param(lambda r: next(s for s in r["required_seats_provenance"]["governed"]["sources"]
+                                if s["kind"] == "listing").update(suffixes=[".json"]),
+                 "council-convening-convening-malformed", id="listing-suffix"),
+    pytest.param(lambda r: r["required_seats_provenance"]["consumed_facts"].update(
+        rule_facts={}), "council-convening-facts-unused", id="empty-unused-contract"),
 ])
 def test_check_refuses_an_offline_checkable_defect(tmp_path, mutate, finding):
     record = _commission_record()
@@ -545,8 +585,9 @@ def test_a_malformed_commission_record_also_names_the_schema_finding(tmp_path):
 def test_check_refuses_a_secret_without_echoing_it(tmp_path):
     record = _commission_record()
     secret = "notes/gh" + "p_" + "A1b2C3d4E5f6G7h8I9j0K1l2"
-    record["required_seats_provenance"]["consumed_facts"]["pr_facts"]["changed_paths"].append(
-        secret)
+    paths = record["required_seats_provenance"]["consumed_facts"]["pr_facts"]["changed_paths"]
+    paths.append(secret)
+    paths.sort(key=lambda p: p.encode("utf-8"))   # M3: sorted, so step 3 is reached
     result = run_validator("check", str(_write(tmp_path, "convening.json", record)), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-secret-bearing-fact]" in result.stdout
@@ -793,6 +834,65 @@ def test_check_reads_a_relative_path_inside_the_invocation_directory(tmp_path):
     _write(tmp_path / "records", "record.json", {"protocol": LEGACY})
     result = run_validator("check", "records/record.json", cwd=tmp_path)
     assert result.returncode == 3, result.stdout + result.stderr
+
+
+# PR-1 review follow-ups (2026-10-09, both LOW): containment is a comparison of
+# canonical paths, not of strings. Run from `/`, `base_dir + os.sep` was `//`,
+# which no canonical path starts with, so every path was refused.
+
+def test_check_refuses_a_sibling_directory_that_shares_the_prefix(tmp_path):
+    base = tmp_path / "base"
+    base.mkdir()
+    other = tmp_path / "base-other"
+    other.mkdir()
+    _write(other, "record.json", {"protocol": LEGACY})
+    result = run_validator("check", str(other / "record.json"), cwd=base)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "outside the directory check was invoked from" in result.stderr
+
+
+def test_check_run_from_the_filesystem_root_reads_a_path_under_it(tmp_path):
+    record = _write(tmp_path, "record.json", {"protocol": LEGACY})
+    result = run_validator("check", str(record), cwd=Path("/"))
+    assert result.returncode == 3, result.stdout + result.stderr
+    assert "outside the directory" not in result.stderr
+
+
+def test_the_containment_rule_compares_paths_not_strings(tmp_path, monkeypatch):
+    validator = load_validator()
+    base = tmp_path / "base"
+    base.mkdir()
+    inside = base / "r.json"
+    monkeypatch.chdir(base)
+    assert validator._within_invocation_directory(str(inside)) == os.path.realpath(inside)
+    assert validator._within_invocation_directory(str(base)) == os.path.realpath(base)
+    for outside in (tmp_path / "base-other" / "r.json", tmp_path / "bas", tmp_path):
+        with pytest.raises(validator._Unreadable):
+            validator._within_invocation_directory(str(outside))
+    monkeypatch.chdir("/")
+    assert validator._within_invocation_directory(str(inside)) == os.path.realpath(inside)
+    assert validator._within_invocation_directory("/") == "/"
+
+
+def test_the_containment_check_keeps_the_sonar_rules_compliant_form():
+    """SonarCloud's taint analysis recognizes `pythonsecurity:S8707`'s own
+    compliant form, `realpath` then a `startswith` on a separator-terminated
+    prefix, as the sanitizer between argv and the read; it does not recognize
+    `os.path.commonpath`. #1294's first head used `commonpath`, and the required
+    Security Rating on New Code failed on `_read`'s `read_bytes`. The behaviour
+    is pinned by the three tests above; this pins the form, so a refactor that
+    reopens the flow fails here first instead of only in Sonar."""
+    import ast
+    import inspect
+    import textwrap
+
+    source = textwrap.dedent(inspect.getsource(load_validator()._within_invocation_directory))
+    function = ast.parse(source).body[0]
+    statements = function.body[1:] if ast.get_docstring(function) else function.body
+    body = "\n".join(ast.unparse(statement) for statement in statements)
+    assert "os.path.realpath(given)" in body
+    assert ".startswith(prefix)" in body
+    assert "commonpath" not in body
 
 
 # --------------------------------------------------------------------------
@@ -1062,3 +1162,71 @@ def test_check_routes_a_legacy_root_authorized_registration(tmp_path):
     result = run_validator("check", str(_registration(tmp_path, mutate)), cwd=tmp_path)
     assert result.returncode == 3, result.stdout + result.stderr
     assert "council-convening-legacy-protocol-routed" in result.stdout
+
+
+# `check` after the Phase 3 pre-review (2026-10-09).
+
+def test_check_refuses_a_zero_seat_snapshot(tmp_path):
+    # Pre-review M3: the embedded record's offline roster rules run inside the
+    # snapshot's own check, so "0 seats" is never reported as a matching set.
+    from .assignment_fixtures import convening_record, snapshot
+
+    record = convening_record(required_seats=[])
+    record["required_seats_provenance"]["standing_seats"] = []
+    path = _write(tmp_path, "snapshot.json", snapshot(record))
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-snapshot-malformed]" in result.stdout
+    assert "(0 seats)" not in result.stdout
+
+
+def test_check_names_the_schema_finding_beside_a_snapshot_s_malformed_refusal(tmp_path):
+    # validator-cli.md: `council-convening-schema` is raised when "A record fails
+    # its schema. The record's malformed refusal is also named."
+    def mutate(document):
+        del document["admitted_at"]
+
+    result = run_validator("check", str(_snapshot_file(tmp_path, mutate)), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-schema]" in result.stdout
+    assert "ERROR [council-convening-snapshot-malformed]" in result.stdout
+
+
+def test_check_names_the_schema_finding_beside_an_assignment_s_malformed_refusal(tmp_path):
+    from .assignment_fixtures import assignment, convening_record
+
+    value = assignment(convening_record(), "convening-0001", "seat-a")
+    del value["holder"]
+    result = run_validator("check", str(_write(tmp_path, "assignment.json", value)),
+                           cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-schema]" in result.stdout
+    assert "ERROR [council-convening-assignment-malformed]" in result.stdout
+
+
+def test_check_refuses_a_lone_assignment_that_is_not_canonicalizable(tmp_path):
+    # Pre-review L3: inside a snapshot the same bytes are refused, so alone they
+    # are too.
+    from .assignment_fixtures import assignment, convening_record
+
+    value = assignment(convening_record(), "convening-0001", "seat-a")
+    value["candidate"]["subject_path"] = "rules/\ud800.yaml"
+    result = run_validator("check", str(_write(tmp_path, "assignment.json", value)),
+                           cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-value-not-canonicalizable]" in result.stdout
+
+
+def test_check_reports_an_unsound_live_snapshot_as_a_finding_never_a_traceback(tmp_path):
+    # Pre-review L2. A live snapshot is oracle data, so one that is not
+    # canonicalizable is a vector input error, `council-convening-schema` with exit
+    # 1, as non-canonicalizable oracle data already is (Phase 2's reading 8).
+    source = VECTORS / "assignment" / "asg-retry-identical-returns-snapshot-accept.json"
+    vector = json.loads(source.read_text(encoding="utf-8"))
+    vector["environment"]["issued"]["live_snapshots"][0]["convening"]["packet_refs"] = [
+        "packet/\ud800"]
+    path = _write(tmp_path, "vector.json", vector)
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-schema]" in result.stdout
+    assert "Traceback" not in result.stderr

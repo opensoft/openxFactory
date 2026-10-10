@@ -224,15 +224,23 @@ def _within_invocation_directory(given: str) -> str:
     `check` was invoked from; `_Unreadable` otherwise.
 
     A validator an agent may drive reads only where it was started (Sonar
-    `pythonsecurity:S8707`, after that rule's own compliant form): the path is
-    canonicalized with `os.path.realpath`, which resolves `..` and symbolic
-    links, and only then compared with the canonical working directory plus a
-    separator, so `/base/dir-other` never passes for `/base/dir`. A successor
-    checks its own records by running `check` from its own checkout.
+    `pythonsecurity:S8707`). This is that rule's own compliant form, in its
+    order: canonicalize with `os.path.realpath`, which resolves `..` and
+    symbolic links; compare with the canonical working directory, either equal
+    or under it by a `startswith` on a separator-terminated prefix; and only
+    then use the path. The prefix strips any trailing separator before adding
+    one, so `/base/dir-other` never passes for `/base/dir`, and a run from `/`
+    reads any path. A plain `base_dir + os.sep` was `//` there and refused
+    everything (the PR-1 review's follow-up of 2026-10-09). That follow-up first
+    used `os.path.commonpath`, which is equivalent, but Sonar's taint analysis
+    does not recognize it as the sanitizer, so the argv-to-read flow reopened
+    on #1294. It is not kept. A successor checks its own records by running
+    `check` from its own checkout.
     """
     resolved = os.path.realpath(given)
     base_dir = os.path.realpath(os.getcwd())
-    if resolved != base_dir and not resolved.startswith(base_dir + os.sep):
+    prefix = base_dir.rstrip(os.sep) + os.sep
+    if resolved != base_dir and not resolved.startswith(prefix):
         raise _Unreadable(f"{given}: outside the directory check was invoked from "
                           f"({base_dir}); run check from a directory that holds it")
     return resolved
@@ -439,21 +447,44 @@ def _check_snapshot(path: Path, document: Any,
     try:
         derived = assignments.check_snapshot(document, schemas)
     except records.Refused as refused:
-        return [corpus.Finding("ERROR", _refusal_code(refused.code),
-                               f"{path}: refused at {refused.member} (data-model E4)")]
+        return _malformed_too(path, refused, "data-model E4")
     _say(f"note  {path}: convening_digest recomputed; assignment set matches "
          f"required_seats ({len(derived['required_seats'])} seats)")
     return []
 
 
+#: What the schema finding says beside each Phase 3 malformed refusal. Each
+#: malformed code covers its schema and rules beyond it, as `convening_malformed`
+#: does for the commission record.
+_MALFORMED = {
+    "snapshot_malformed": "fails convening-snapshot.schema.yaml, or its embedded record "
+                          "fails an offline E2 rule",
+    "assignment_malformed": "an assignment fails seat-assignment.schema.yaml or the "
+                            "lifetime ceiling",
+}
+
+
+def _malformed_too(path: Path, refused: "records.Refused",
+                   where: str) -> list[corpus.Finding]:
+    """The refusal's own finding, preceded by `council-convening-schema` when it is
+    a malformed refusal: "A record fails its schema. The record's malformed
+    refusal is also named" (validator-cli.md)."""
+    found = [corpus.Finding("ERROR", _refusal_code(refused.code),
+                            f"{path}: refused at {refused.member} ({where})")]
+    if refused.code in _MALFORMED:
+        found.insert(0, corpus.Finding("ERROR", "council-convening-schema",
+                                       f"{path}: {_MALFORMED[refused.code]}"))
+    return found
+
+
 def _check_assignment(path: Path, document: Any,
                       schemas: records.SchemaSet) -> list[corpus.Finding]:
-    """A lone assignment, offline: E5's shape and the ruled lifetime ceiling."""
+    """A lone assignment, offline: E5's shape and the ruled lifetime ceiling, then
+    the canonicalizability pre-check."""
     try:
-        assignments.check_assignment(document, schemas)
+        assignments.check_lone_assignment(document, schemas)
     except records.Refused as refused:
-        return [corpus.Finding("ERROR", _refusal_code(refused.code),
-                               f"{path}: refused at {refused.member} (data-model E5)")]
+        return _malformed_too(path, refused, "data-model E5")
     _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: the assignment "
          f"set and the convening members it binds (data-model E4 steps 4 to 7) need "
          f"its snapshot")

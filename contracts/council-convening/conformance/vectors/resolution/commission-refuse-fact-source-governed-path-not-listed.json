@@ -106,6 +106,14 @@
                 "seat": "seat-r2"
               }
             ],
+            "fact_sources": [
+              {
+                "input_contract": "rule_facts",
+                "source": {
+                  "governed_path": "rules/conditions/posture.yml"
+                }
+              }
+            ],
             "standing_seats": [
               "seat-r1"
             ]

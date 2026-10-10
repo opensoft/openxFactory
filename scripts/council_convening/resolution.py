@@ -33,6 +33,13 @@ their own lists in turn; step 10 evaluates condition by condition and compares
 consumed facts afterwards; step 11 checks every `held` before any seat; step 13
 names the first read that is not the candidate's head.
 
+BRETT HEAP'S RULINGS OF 2026-10-09T17:35:34Z are encoded here too. "Bind it in
+PR-2 (Recommended)": the rule projection declares each council's or class's
+fact sources, and step 9 refuses a record whose `fact_sources` differ from them,
+entry for entry and in order, as `fact_source_mismatch`. "Sorted and unique
+(Recommended)": a consumed `changed_paths` is bytewise sorted and duplicate-free,
+and step 2 refuses any other as `convening_malformed`.
+
 THE ORACLES ARE INJECTED (R8). `resolve` reads authority, facts and heads only
 through an `Oracles` object. `VectorOracles` answers from a corpus vector's
 `environment` and records every read, which is how the tests show that a
@@ -75,6 +82,10 @@ SECRET_FLOOR = REPO_ROOT / "scripts" / "validate-domain-factory.py"
 
 _FULL_SHA = re.compile(r"[0-9a-f]{40}")
 
+#: The members of an unclassed council, and of a class, in a rule projection
+#: (data-model E3; the fact sources under Brett Heap's H1 ruling of 2026-10-09).
+PROJECTED_MEMBERS = frozenset({"standing_seats", "conditions", "fact_sources"})
+
 
 class HarnessError(Exception):
     """The vector or the oracle data cannot be adjudicated. Never a refusal."""
@@ -98,6 +109,10 @@ class Resolution:
     #: snapshot's consumer-issued id. A fresh admission has none, because the
     #: consumer issues the id when it writes the snapshot.
     convening_id: str | None = None
+    #: Set with `convening_id`: the `xfc-jcs-sha256-1` digest value of the whole
+    #: returned snapshot, so "the same assignments" is compared as well as the
+    #: same id (Phase 3 pre-review M1, 2026-10-09).
+    snapshot_digest: str | None = None
 
 
 # --------------------------------------------------------------------------
@@ -144,10 +159,11 @@ class VectorOracles(Oracles):
     """Answers from a vector's `environment`, recording each read as
     `(oracle, key)`. Messages name the oracle, never a key or a value."""
 
-    def __init__(self, environment: Mapping):
+    def __init__(self, environment: Mapping, schemas: records.SchemaSet | None = None):
         if not isinstance(environment, Mapping):
             raise HarnessError("the vector's environment is not an object")
         self._environment = environment
+        self._schemas = schemas
         self.reads: list[tuple[str, Any]] = []
 
     def _oracle(self, name: str):
@@ -194,19 +210,41 @@ class VectorOracles(Oracles):
         return self._oracle("resolved_candidate")
 
     def live_snapshots(self) -> list:
-        """`environment.issued.live_snapshots`. An absent `issued`, or an
-        `issued` without `live_snapshots`, is a consumer holding no live
-        snapshot, so an admission vector authored before Phase 3 keeps its
-        outcome."""
+        """`environment.issued.live_snapshots`.
+
+        An absent `issued`, or an `issued` without `live_snapshots`, is a
+        consumer holding no live snapshot (reading 3, now a dated note in
+        conformance-corpus § Vector). So an admission vector authored before
+        Phase 3, and a shared commission vector a consumer runs through
+        admission, keep their outcomes.
+
+        Each entry is the consumer's own state, so it must be a sound snapshot,
+        passing E4 steps 2 to 7, and no two may share a convening key, which
+        once-per-pin forbids (Phase 3 pre-review M2 and L2, 2026-10-09).
+        Otherwise the vector cannot be adjudicated: a `HarnessError`, never a
+        refusal.
+        """
         self.reads.append(("issued", "live_snapshots"))
         issued = self._environment.get("issued", {})
         if not isinstance(issued, Mapping):
             raise HarnessError("the `issued` oracle is not an object")
         live = issued.get("live_snapshots", [])
-        if not isinstance(live, list) or not all(
-                isinstance(snapshot, Mapping) and isinstance(snapshot.get("convening"), Mapping)
-                and isinstance(snapshot.get("convening_id"), str) for snapshot in live):
-            raise HarnessError("`issued.live_snapshots` is not a list of snapshots")
+        if not isinstance(live, list):
+            raise HarnessError("`issued.live_snapshots` is not a list of live snapshots")
+        keys = set()
+        for snapshot in live:
+            if not isinstance(snapshot, Mapping):
+                raise HarnessError("a live snapshot in `issued.live_snapshots` is not an object")
+            try:
+                assignments.check_snapshot(snapshot, self._schemas)
+            except Refused:
+                raise HarnessError("a live snapshot in `issued.live_snapshots` is not a "
+                                   "sound snapshot (data-model E4)") from None
+            key = assignments.convening_key(snapshot["convening"])
+            if key in keys:
+                raise HarnessError("two live snapshots share one convening key, which "
+                                   "once-per-pin forbids (data-model E2 step A3)")
+            keys.add(key)
         return live
 
     def identity(self):
@@ -265,7 +303,9 @@ def _same(left, right) -> bool:
 
 
 def _bytewise(path: str) -> bytes:
-    return path.encode("utf-8")
+    # `surrogatepass`: a lone surrogate still orders deterministically here, and
+    # is refused as `value_not_canonicalizable` at the end of step 2.
+    return path.encode("utf-8", "surrogatepass")
 
 
 def _strictly_ascending(paths) -> bool:
@@ -362,7 +402,7 @@ def _projection_council(council) -> tuple[bool, Mapping]:
                     or not set(entry["head_ref"]) <= {"exact", "glob"}):
                 raise HarnessError("a projection class-selector entry is malformed")
         return True, council
-    if set(council) == {"standing_seats", "conditions"}:
+    if set(council) == PROJECTED_MEMBERS:
         return False, council
     raise HarnessError("a projection council is neither classed nor unclassed")
 
@@ -417,6 +457,19 @@ def _shape(record, run: _Run) -> None:
     then canonicalizability."""
     if run.schemas.errors(SCHEMA_ID, record):
         raise Refused("convening_malformed", "record")
+    structural_rules(record)
+    try:
+        canonical.serialize(record)
+    except canonical.ConstructionError:
+        raise Refused("value_not_canonicalizable", "record") from None
+
+
+def structural_rules(record) -> None:
+    """Step 2's rules that JSON Schema cannot state, over a record that has passed
+    the E2 schema: `convening_malformed`, naming the member.
+
+    The snapshot half runs them too, over the record a snapshot embeds (E4 step
+    2; Phase 3 pre-review M3, 2026-10-09)."""
     prov = record["required_seats_provenance"]
     if ("class_inputs" in prov) != ("matched_class" in prov):
         raise Refused("convening_malformed", "class_inputs")
@@ -430,13 +483,25 @@ def _shape(record, run: _Run) -> None:
                 raise Refused("convening_malformed", "entries")
             if not set(source["entries"]) <= files:
                 raise Refused("convening_malformed", "entries")
+            if not all(_listed(entry, source) for entry in source["entries"]):
+                raise Refused("convening_malformed", "entries")
     contracts = [fs["input_contract"] for fs in prov["fact_sources"]]
     if len(set(contracts)) != len(contracts):
         raise Refused("convening_malformed", "fact_sources")
-    try:
-        canonical.serialize(record)
-    except canonical.ConstructionError:
-        raise Refused("value_not_canonicalizable", "record") from None
+    pr_facts = prov["consumed_facts"].get(predicates.PR_FACTS, {})
+    if "changed_paths" in pr_facts and not _strictly_ascending(pr_facts["changed_paths"]):
+        raise Refused("convening_malformed", "changed_paths")
+
+
+def _listed(entry: str, listing) -> bool:
+    """A listing entry is a file directly inside the listing's path whose name
+    ends with one of its suffixes (data-model E2; pre-review L1, 2026-10-09)."""
+    inside = listing["path"] + "/"
+    if not entry.startswith(inside):
+        return False
+    name = entry[len(inside):]
+    return bool(name) and "/" not in name and any(
+        name.endswith(suffix) for suffix in listing["suffixes"])
 
 
 def _secrets(record) -> None:
@@ -521,9 +586,14 @@ def _governed(record, run: _Run):
             raise Refused("rule_unavailable", "path")
         if entry["governed"] is not True:
             raise Refused("rule_unauthorized", "path")
-        value_member, tip_member = (("sha256", "tip_sha256") if source["kind"] == "file"
-                                    else ("entries", "tip_entries"))
+        value_member, tip_member, other_member = (
+            ("sha256", "tip_sha256", "entries") if source["kind"] == "file"
+            else ("entries", "tip_entries", "sha256"))
         if value_member not in entry:
+            # Pre-review L4 (2026-10-09): a file where the path holds a listing,
+            # or a listing where it holds a file, differs from the record.
+            if other_member in entry:
+                raise Refused("rule_digest_mismatch", "kind")
             raise HarnessError("a `governed` entry lacks its value at the revision")
         if not _same(entry[value_member], source[value_member]):
             raise Refused("rule_digest_mismatch", "path")
@@ -538,10 +608,11 @@ def _governed(record, run: _Run):
 
 
 def _council_and_class(record, projection, run: _Run):
-    """Steps 6 and 7. Returns nothing; refuses or passes."""
+    """Steps 6 and 7. Returns the projection's entry for the convened council or
+    its selected class, or None offline."""
     if run.skip("council_unknown") | run.skip("class_mismatch") | \
             run.skip("class_unresolved") | run.skip("rule_projection_mismatch"):
-        return
+        return None
     prov = record["required_seats_provenance"]
     councils = projection.get("councils")
     if not isinstance(councils, Mapping):
@@ -562,7 +633,8 @@ def _council_and_class(record, projection, run: _Run):
         klass = council["classes"][selected]
     else:
         klass = council
-    if not isinstance(klass, Mapping) or set(klass) != {"standing_seats", "conditions"}:
+    if not isinstance(klass, Mapping) or set(klass) != PROJECTED_MEMBERS \
+            or not isinstance(klass["fact_sources"], list):
         raise HarnessError("a projection class is malformed")
     # Step 7.
     if not _same(prov["standing_seats"], klass["standing_seats"]):
@@ -570,10 +642,13 @@ def _council_and_class(record, projection, run: _Run):
     without_held = [{k: v for k, v in c.items() if k != "held"} for c in prov["conditions"]]
     if not _same(without_held, klass["conditions"]):
         raise Refused("rule_projection_mismatch", "conditions")
+    return klass
 
 
-def _record_facts(record):
-    """Step 9. Returns (contracts in use, in condition order; source by contract)."""
+def _record_facts(record, declared, run: _Run):
+    """Step 9. Returns (contracts in use, in condition order; source by contract).
+    `declared` is the projection's entry for the council or class, or None
+    offline."""
     prov = record["required_seats_provenance"]
     candidate, governed = prov["candidate"], prov["governed"]
     conditions = prov["conditions"]
@@ -595,6 +670,12 @@ def _record_facts(record):
         sources[contract] = source
     if any(contract not in sources for contract in in_use):
         raise Refused("fact_source_mismatch", "fact_sources")
+    # Brett Heap, 2026-10-09T17:35:34Z, "Bind it in PR-2 (Recommended)": the
+    # sources are the projection's, entry for entry and in order, so a record
+    # cannot read a condition's facts from another file than its rule names.
+    if not run.skip("fact_source_mismatch (projection)"):
+        if not _same(prov["fact_sources"], declared["fact_sources"]):
+            raise Refused("fact_source_mismatch", "fact_sources")
     consumed = prov["consumed_facts"]
     read: dict[str, set] = {}
     for condition in conditions:
@@ -604,14 +685,18 @@ def _record_facts(record):
         if any(fact not in have for fact in facts):
             raise Refused("opaque_conclusion", "consumed_facts")
     for contract, facts in consumed.items():
-        if any(fact not in read.get(contract, ()) for fact in facts):
+        # An object for a contract no condition reads is unused even when empty
+        # (pre-review L2, 2026-10-09): one resolution, one encoding.
+        if contract not in read or any(fact not in read[contract] for fact in facts):
             raise Refused("facts_unused", "consumed_facts")
     return in_use, sources
 
 
 def _authoritative(record, in_use, sources, run: _Run):
     """Step 10. Returns the reference evaluation of each condition, or None offline."""
-    if run.skip("condition_unevaluable") | run.skip("consumed_facts_mismatch"):
+    if run.skip("condition_unevaluable") | \
+            run.skip("predicate_parameters_malformed (bare-directory evidence)") | \
+            run.skip("consumed_facts_mismatch"):
         return None
     prov = record["required_seats_provenance"]
     authoritative = {
@@ -631,12 +716,23 @@ def _authoritative(record, in_use, sources, run: _Run):
 
 def _held_and_roster(record, reference, run: _Run) -> None:
     """Steps 11 and 12."""
-    prov = record["required_seats_provenance"]
-    conditions = prov["conditions"]
+    conditions = record["required_seats_provenance"]["conditions"]
     if not run.skip("condition_result_mismatch"):
         for condition, held in zip(conditions, reference):
             if condition["held"] is not held:
                 raise Refused("condition_result_mismatch", "held")
+    roster_rules(record)
+
+
+def roster_rules(record) -> None:
+    """Step 11's offline half and step 12: `condition_seat_unbound`, then the
+    roster the record's own standing seats and held conditions fix. No oracle is
+    read.
+
+    The snapshot half runs them too, over the record a snapshot embeds (E4 step
+    2; Phase 3 pre-review M3, 2026-10-09)."""
+    prov = record["required_seats_provenance"]
+    conditions = prov["conditions"]
     for condition in conditions:
         if condition["held"] and condition["seat"] is None:
             raise Refused("condition_seat_unbound", "seat")
@@ -735,7 +831,8 @@ def _retry_identity(record, run: _Run) -> Resolution | None:
         return None
     return Resolution(required_seats=list(record["required_seats"]),
                       convening_digest=convening_digest(record),
-                      convening_id=live["convening_id"])
+                      convening_id=live["convening_id"],
+                      snapshot_digest=canonical.digest(live))
 
 
 def _order(record, run: _Run, selected_protocol, statuses):
@@ -749,12 +846,12 @@ def _order(record, run: _Run, selected_protocol, statuses):
     _candidate(record, run)                                           # 4
     projection = _governed(record, run)                               # 5
     _workflow_revision(record, run)                                   # A4
-    _council_and_class(record, projection, run)                       # 6, 7
+    declared = _council_and_class(record, projection, run)            # 6, 7
     for condition in record["required_seats_provenance"]["conditions"]:
         predicates.check_condition(condition["predicate"],            # 8
                                    condition["input_contract"], condition["parameters"],
                                    run.schemas)
-    in_use, sources = _record_facts(record)                           # 9
+    in_use, sources = _record_facts(record, declared, run)            # 9
     reference = _authoritative(record, in_use, sources, run)          # 10
     _held_and_roster(record, reference, run)                          # 11, 12
     _live_head(record, run)                                           # 13
@@ -849,7 +946,7 @@ def _outcome_at(vector, boundary, schemas, registry) -> records.Outcome:
         raise HarnessError("a resolution vector lacks `inputs.record` or `selected_protocol`")
     if not isinstance(environment, Mapping):
         raise HarnessError("the vector's environment is not an object")
-    oracles = VectorOracles(environment)
+    oracles = VectorOracles(environment, schemas)
     run = _Run(boundary=boundary, oracles=oracles,
                expected_candidate=inputs.get("expected_candidate") if boundary == "commission"
                else None, schemas=schemas, registry=registry)
@@ -891,7 +988,10 @@ def _run_order(inputs, environment, run: _Run) -> records.Outcome:
     derived = {"required_seats": result.required_seats,
                "convening_digest": result.convening_digest}
     if result.convening_id is not None:
+        # A returned snapshot (E2 step A3). A fresh admission derives neither
+        # member (conformance-corpus § derived, dated note of 2026-10-09).
         derived["convening_id"] = result.convening_id
+        derived["snapshot_digest"] = result.snapshot_digest
     return records.Outcome("accept", derived=derived, status_read=run.status_read)
 
 

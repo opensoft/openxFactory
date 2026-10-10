@@ -183,12 +183,14 @@
             "classes": {
               "docs": {
                 "conditions": [],
+                "fact_sources": [],
                 "standing_seats": [
                   "seat-a"
                 ]
               },
               "hotfix": {
                 "conditions": [],
+                "fact_sources": [],
                 "standing_seats": [
                   "seat-a"
                 ]
@@ -204,6 +206,12 @@
                     },
                     "predicate": "changed_paths_intersect",
                     "seat": "seat-c"
+                  }
+                ],
+                "fact_sources": [
+                  {
+                    "input_contract": "pr_facts",
+                    "source": "candidate_pull"
                   }
                 ],
                 "standing_seats": []
@@ -231,6 +239,12 @@
                     "seat": "seat-d"
                   }
                 ],
+                "fact_sources": [
+                  {
+                    "input_contract": "pr_facts",
+                    "source": "candidate_pull"
+                  }
+                ],
                 "standing_seats": [
                   "seat-a",
                   "seat-b",
@@ -249,6 +263,12 @@
                     },
                     "predicate": "changed_paths_intersect",
                     "seat": "seat-c"
+                  }
+                ],
+                "fact_sources": [
+                  {
+                    "input_contract": "pr_facts",
+                    "source": "candidate_pull"
                   }
                 ],
                 "standing_seats": [

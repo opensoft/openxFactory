@@ -202,7 +202,7 @@ The new tests ran red with 43 failed and 56 passed among those selected. That in
     - **The answer is right.** Run directly, the command exits 2 with `mode: realization`, which is everything the test asserts, in 37.1 s at a load average of 13.8–17.2. The `--require-candidate` case takes 26.2 s.
     - **The time is git.** The profile puts it in `verify_inventory_against_commit`: 5,840 `git` subprocesses reading 1,132 members of the tagged release. This family is not a release member until Phase 7, and the branch adds no manifest row.
   - **`tests/ideation-dashboard/`.** Four tests in `test_gate_routes.py`, `test_human_seen.py`, `test_lens.py` and `test_lens_gate_cli.py`, all on `the pinned openxdox_spec leg is not materialized: openXdox/spec is empty`.
-    - **The cause.** `human_seen.find_cross_reference_validator` walks up from this worktree, `openxFactory-worktrees/035-phase1-foundation`, to `/workspace/projects/xFactory/openxFactory/scripts/validate-ideation-cross-reference.py`. That is the shared aggregation checkout, whose submodules are uninitialized.
+    - **The cause.** `human_seen.find_cross_reference_validator` walks up from this worktree, `openxFactory-worktrees/035-phase1-foundation`, to `openxFactory/scripts/validate-ideation-cross-reference.py` under the aggregation root, the same root the worktree path is relative to. That is the shared aggregation checkout, whose submodules are uninitialized.
     - **Why it is not this branch.** The code that failed is that checkout's validator, run against that checkout, with no file of this branch involved. In CI, the repository is itself checked out at `openxFactory`, and the walk finds it.
     - In this worktree's own `openXdox/spec`, `contracts/schemas/ideation-dashboard-snapshot.schema.yaml` is present.
 
@@ -303,11 +303,16 @@ The red run was taken over the tree of the merge `f3a94dcab` with `predicates.py
 These are readings, not rulings. Each is pinned so the producer and the consumer refine to one reading (R21). Readings 1–5 are stated in `tests/council_convening/test_resolution.py`'s module docstring and pinned by the vectors named. Readings 6–8 are pinned by the tests named:
 
 1. **Step 5 runs source by source.** All five per-source checks run on one source before the next (`commission-refuse-order-earlier-source-first`, `admission-refuse-order-superseded-source-before-later-source`). Analysis U2's "in path order" reads the same way.
-2. **Step 9's fact-source rule is total.** A contract a condition uses with no `fact_sources` entry, and an entry for a contract no condition uses, are `fact_source_mismatch` (`commission-refuse-fact-source-missing-for-contract-in-use`, `commission-refuse-fact-source-for-contract-not-in-use`). The data-model lists three causes of that code and is silent on these two.
-3. **Step 10 evaluates before it compares.** Each condition is evaluated over the authoritative facts in order, where an incomplete set is `condition_unevaluable` and the bare-directory evidence rule is `predicate_parameters_malformed`; only then are consumed facts compared (`consumed_facts_mismatch`; `commission-refuse-order-unevaluable-before-mismatch`). R5 names the bare-directory refusal's code but not its step.
+2. **Step 9's fact-source rule is total.** A contract a condition uses with no `fact_sources` entry, and an entry for a contract no condition uses, are `fact_source_mismatch` (`commission-refuse-fact-source-missing-for-contract-in-use`, `commission-refuse-fact-source-for-contract-not-in-use`). The data-model lists three causes of that code and is silent on these two. *Now a dated data-model note (E2 step 9, 2026-10-09).*
+3. **Step 10 evaluates before it compares.** Each condition is evaluated over the authoritative facts in order, where an incomplete set is `condition_unevaluable` and the bare-directory evidence rule is `predicate_parameters_malformed`; only then are consumed facts compared (`consumed_facts_mismatch`; `commission-refuse-order-unevaluable-before-mismatch`). R5 names the bare-directory refusal's code but not its step. *Corrected 2026-10-09 (Phase 2 pre-review, M2). That vector pins only `condition_unevaluable` before `consumed_facts_mismatch`; no vector pinned the bare-directory rule's place. The fix round adds three vectors that do:*
+   - *`commission-refuse-bare-directory-evidence-only-in-the-authoritative-facts`, `predicate_parameters_malformed`;*
+   - *`commission-refuse-bare-directory-evidence-only-in-the-consumed-facts`, `consumed_facts_mismatch`;*
+   - *`commission-refuse-order-bare-directory-before-a-later-unevaluable`, `predicate_parameters_malformed`.*
+
+   *The reading is now a dated data-model note too (E2 step 10).*
 4. **Step 11 checks every `held` before any seat** (`commission-refuse-order-result-before-seat-unbound`).
 5. **Step 13 names the first read that is not the head.** A head that moved and came back still refuses (`commission-refuse-head-moved-and-restored`).
-6. **Consumed facts compare exactly**, as canonical JSON values: a path list in another order is `consumed_facts_mismatch`. No normalization is specified, so none is applied (`test_resolution.py::test_consumed_facts_must_equal_the_authoritative_facts`).
+6. **Consumed facts compare exactly**, as canonical JSON values: a path list in another order is `consumed_facts_mismatch`. No normalization is specified, so none is applied (`test_resolution.py::test_consumed_facts_must_equal_the_authoritative_facts`). *Narrowed 2026-10-09 by Brett Heap's ruling of 2026-10-09T17:35:34Z, "Sorted and unique (Recommended)". `changed_paths` now has one order, bytewise sorted and duplicate-free, and step 2 refuses any other. The reading still stands for `rule_touched_paths`, whose order is not specified (`test_resolution.py::test_rule_touched_paths_compare_in_order`).*
 7. **A tree pattern `d/**` matches paths strictly inside `d/`**, not a file named `d` and not a sibling sharing the prefix (`test_predicates.py::test_a_tree_pattern_matches_strictly_inside_its_directory`).
 8. **Oracle data a vector does not carry is a harness error, never a pass or a refusal.** A shared vector that is inconsistent for the consumer is one too (`test_resolution.py::test_a_missing_oracle_is_a_harness_error`, `::test_a_shared_vector_inconsistent_for_the_consumer_is_a_harness_error`). The corpus reports it as a vector input error.
 
@@ -418,6 +423,68 @@ for name in PATTERNS:
             print(f"    {n:4d}  {path}")
 ```
 
+### The independent pre-review's fix round, and Brett Heap's two rulings (2026-10-09T17:35Z–18:20Z)
+
+The independent pre-review of `fdc0b0601` returned READY AFTER FIXES. It reproduced the gates, recomputed the 14 accept `convening_digest` values independently, and confirmed that no vector had been changed after implementation and that the `NON_MEMBERS` row cannot hide a real pin. It raised H1, M1–M3 and L1–L5. Brett Heap ruled the two that needed a word, first-hand, at 2026-10-09T17:35:34Z, choosing the recommended option each time (RULED, log lines 262–263):
+
+- **H1, "Bind it in PR-2 (Recommended)".** Nothing bound which fact source a condition reads. A producer could point the gate-rules shape at `rules/council-profile.yaml`, write both `held` false, and drop the security seat while every check passed. Now:
+  - each class and each unclassed council in the rule projection declares `fact_sources`;
+  - step 9 refuses a record whose `fact_sources` differ from that declaration, entry for entry and in order, as `fact_source_mismatch`, with no new code;
+  - offline `check` names that comparison as not checkable offline.
+- **M3, "Sorted and unique (Recommended)".** A consumed `pr_facts.changed_paths` must be bytewise sorted and duplicate-free, and step 2 refuses any other as `convening_malformed`.
+  - **Reading:** I read the ruling's gloss "a rename keeps its old-then-new pair" as: a rename contributes both its paths, and each takes its own sorted place. One sorted, flat list cannot also keep a pair adjacent and in old-then-new order. `commission-accept-rename-new-path-sorts-first` pins this reading, so the lane can confirm or overrule it.
+
+The other fixes:
+
+- **M1.** Offline `check` now names `predicate_parameters_malformed (bare-directory evidence)` as not checkable offline. The rule reads the authoritative facts, so the reviewer's record still exits 0, but the rule is named and never passed.
+- **M2.** The three vectors above pin reading 3. The claim this record made for it is corrected in place.
+- **Readings 2 and 3** are dated data-model notes now (E2 steps 9 and 10).
+- **L1.** A listing entry must be a file directly inside the listing's `path` whose name ends with one of its `suffixes`, checked at step 2.
+- **L2.** An object for an input contract no condition uses is `facts_unused` even when it is empty.
+- **L3.** Three `$parts` secret vectors now cover the floor's `sk-` and PEM detectors and the `class_inputs` member, so all five detectors and all four scanned members are probed.
+- **L4.** A source whose `kind` is not what is at its path is `rule_digest_mismatch`, no longer a harness error.
+- **L5.** Completeness ties the path list to the entry count: `entry count ≤ len(changed_paths) ≤ 2 × entry count`, or `condition_unevaluable`.
+
+Each fix carries a dated note in data-model E2/E3. H1 also carries a dated amendment of the corpus contract's `rules` oracle row.
+
+**PR-1 review follow-ups.** The final PR-1 review raised two LOW items, folded in test-first (`bb99d2502`):
+
+- `check`'s invocation-directory rule compared strings. Run from `/`, `base_dir + os.sep` was `//`, so every path was refused. It now compares with `os.path.commonpath([base_dir, resolved]) == base_dir`.
+- Regression tests cover a sibling sharing the prefix (`base` against `base-other`), which stays outside, and a run from `/`. Before the fix, the two `/` cases failed and the sibling case passed.
+
+**#1282** has the reviewer's addendum ([comment 6086583233](https://github.com/opensoft/openxFactory/issues/1282#issuecomment-6086583233), 2026-10-09T18:09:43Z). Three detectors both sides have are narrower in the floor (`\b` anchors, and case-sensitivity), measured on six synthetic shapes. `SECRET_PATTERNS` is still not widened in PR-2.
+
+**Vectors: what was re-derived, and what was added.** `author_resolution_vectors.py` (scratch, never committed) reproduced the 128 committed vectors byte for byte before it was changed. A JSON-path diff of its new output against the committed vectors shows exactly these changes:
+
+- **all 128:** the `rules` oracle's projection gains `fact_sources`, in 118 classed and 10 unclassed vectors. No `expected` moved;
+- **2 re-derived records,** `commission-refuse-secret-in-consumed-fact` and `commission-refuse-order-secret-before-candidate`. Each secret path is inserted at its sorted place, index 1 instead of 0, so the record still reaches step 3 under M3. Their expectation, `secret_bearing_fact`, is unchanged;
+- **21 new,** every expectation written by hand before the implementation:
+  - H1: 3 swapped-source vectors, among them the reviewer's probe, `commission-refuse-fact-source-swapped-to-a-governed-file`; a projection-order pair, one accept and one refuse;
+  - M3: unsorted, repeated, and a rename whose new path sorts first;
+  - M2: 3;
+  - L1: 2; L2: 1; L3: 3; L4: 2 (each direction); L5: 2.
+
+The area now holds **149** vectors:
+
+| Boundary | Applies to | Vectors |
+|---|---|---|
+| `commission` | producer and consumer | 133 |
+| `commission` | producer only | 4 |
+| `admission` | consumer only | 12 |
+
+16 accept and 133 refuse, 32 distinct refusal codes.
+
+**Tests first, then green.**
+
+- **Red** (`366b5c462`, 2026-10-09T17:50Z): `python3 -m pytest tests/council_convening -q -m "not postgres"` gave **261 failed, 692 passed**.
+  - 234 of the failures are the earlier code refusing the projection's new `fact_sources` member as a malformed projection (`HarnessError`).
+  - 5 are L4's former `HarnessError`.
+  - The rest are assertion failures on the new rules.
+- **Green** at `142e9007a` (2026-10-09T18:08Z–18:19Z): the same suite plus `tests/doc-health/test_pin_reachability.py` and `tests/doc-health/test_sentinel_vocabulary.py`, **1085 passed**.
+  - Self-test: 282/282 vectors, 34/34 refusal codes, 1/1 finding codes, 6/6 requirements, and the generator reproduced the corpus.
+  - `corpus`: 282 vectors, agreement set 266, index `sha256:baff57e60bf13a3faf1cebe651fe4e189ad1a912af7e41cba1fde8b64db55778`.
+- **The merge of Phase 1's `8f83b10ac`** (`6cd6a8bce`) moved `check` to read only inside its working directory. The five Phase 2 `check` call sites on temporary paths now run from that path's own directory (`2eb3ac09a`), as Phase 1's own cases do.
+
 ### Quickstart steps 1–5 (T034)
 
 All at `d0ad97e63` unless another commit is named. Py-bench container, Python 3.12.3, in this phase's worktree, with `openDox`, `openXdox` and `openXwallet` initialized recursively, as `pytest-suite` does.
@@ -449,6 +516,40 @@ All at `d0ad97e63` unless another commit is named. Py-bench container, Python 3.
 **The PR.** T034's text says to open PR-2 as a draft. The lane's coordinator instructed that it open **ready**, after PR-1 lands, on Brett Heap's word *"merge PR-2 when green"* (2026-10-09T01:28:37Z, log line 238). It is not open at this record's commit.
 
 **Follow-up 1 is what the source-currency vectors encode.** Brett Heap, 2026-10-08T23:03:35Z, *"Every governed source (Recommended)"* (RULED, log line 209). Every `admission-refuse-rule-superseded-*` vector, including those whose superseded source is not the rule file, applies the OPEN-3 test to every governed source.
+
+### Quickstart steps 1–5 at the PR-2 head (`57feb4aa7`, 2026-10-09T22:29Z–22:49Z)
+
+The branch took `main` twice after PR-1 landed, and never rebased:
+
+- `96e884318`, at `9a272c6db`, PR-1's landing, which brought nothing new;
+- `57feb4aa7`, at `a8ab30396`, which moved the `openXwallet` gitlink to `815b86ce` (#1290, group 6).
+
+`openXwallet` was initialized the way `pytest-suite` does it now, through `openWallet` and its `code` leg.
+
+1. **Red.** Recorded above: tests first, 10 failed, 234 passed, 2 errors; the fix round, 261 failed, 692 passed; the PR-1 follow-ups, the two `/` cases.
+2. **Green.**
+   - `python3 -m pytest tests/council_convening tests/doc-health -q -m "not postgres"`: **3113 passed**, made up of the 956 `tests/council_convening` cases and the 2157 `tests/doc-health` cases.
+   - `test_gate_wiring.py` alone: 13 passed. The gate's requirements grep names the raised floor, `(FR-001, FR-002, FR-003, FR-004, FR-011, SC-001)`, and the test builds that string from `generate.COVERAGE_FLOOR`.
+   - `python3 scripts/validate-council-convening.py`: exit 0.
+     - 4 family schemas loaded.
+     - Both registries closed.
+     - 282/282 vectors adjudicated.
+     - 34/34 refusal codes and 1/1 finding codes probed.
+     - 6/6 requirements probed.
+     - The generator reproduced the corpus.
+3. **Corpus.**
+   - `generate --check`: no drift.
+   - `corpus`: 282 vectors, foundation 133 and resolution 149, **agreement set 266**.
+   - Outcomes: 58 accept, 216 refuse, 8 route.
+   - Index `sha256:baff57e60bf13a3faf1cebe651fe4e189ad1a912af7e41cba1fde8b64db55778`, unpublished.
+4. **Repository gates.**
+   - OpenSpec: exit 0, `Totals: 113 passed, 1 failed (114 items)`, 0 undispositioned. The one failure is `add-chain-attestation`'s accepted exception.
+   - Doc-health in single-repo mode: exit 0, `31 critical, 26 error, 59 warning, 21 info`, 0 regressions, and no finding on a Phase 2 path.
+   - **Full suite: measured by CI's `pytest-suite` on PR-2, as it was for PR-1, on the lane's instruction.**
+     - The last local attempt, at `d0180cab3`, ran into its 3600-second timeout at about 77% (exit 124) under shared-host load. It had 6 failures by then, and no report was written.
+     - The 9 failures this record already traced to the environment (factory-mcp, hermes-runtime-contracts, ideation-dashboard) fail identically at Phase 1's base.
+     - The shared `submodule.*` registrations were wiped and restored during the day, which is the other recorded cause of local-only failures.
+5. **Scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty.
 
 ## Phase 3 — User Story 2 (a): frozen assignments and retry identity (PR-3)
 
@@ -483,12 +584,14 @@ All at `d0ad97e63` unless another commit is named. Py-bench container, Python 3.
 
 ### The assignment vectors (T036)
 
-47 vectors under `contracts/council-convening/conformance/vectors/assignment/`, all at boundary `admission` and all `applies_to: [consumer]`:
+47 vectors under `contracts/council-convening/conformance/vectors/assignment/`, all at boundary `admission` and all `applies_to: [consumer]`, as first authored. The fix round below adds 14, and makes the snapshot half shared:
 
 | Input role | Vectors | Outcomes |
 |---|---|---|
-| `inputs.snapshot`, the snapshot half (E4) | 35 | 6 accept, 29 refuse |
+| `inputs.snapshot`, the snapshot half (E4) | 35 | 5 accept, 30 refuse |
 | `inputs.record` with `environment.issued.live_snapshots`, retry identity (E2 A3) | 12 | 6 accept, 6 refuse |
+
+*Corrected 2026-10-09 (pre-review L4): the snapshot half's row read "6 accept, 29 refuse". The five accepts are `asg-snapshot-accept`, `-accept-three-seats`, `asg-ceiling-exactly-21600-seconds-accept` and the two one-operation accepts. That agrees with the corpus total of 67 accepts this record gave.*
 
 - **The ceiling (OPEN-1).** 21600 seconds accepted; 21601 seconds, zero and a negative lifetime refused as `assignment_malformed`.
 - **The set.** Extra, missing, reordered and same-count wrong-seat assignments refuse as `assignment_set_mismatch`. So does an assignment whose `protocol`, `convening_id`, `council_id` or `candidate` differs from the snapshot's (I11).
@@ -496,7 +599,7 @@ All at `d0ad97e63` unless another commit is named. Py-bench container, Python 3.
 - **Order.** Six two-defect vectors pin each adjacent pair of E4 steps.
 - **Retry identity.** The retry vectors are built on Phase 2's `admission-accept-conditional-seat-not-held` environment, byte for byte:
   - an identical retry returns the live snapshot, also after a governed source changed at the tip and after the live head moved;
-  - once-per-pin never pre-empts an identical retry, even with a conflicting snapshot listed first;
+  - once-per-pin never pre-empts an identical retry, even with a conflicting snapshot listed first. *Corrected by the fix round (pre-review M2): that conflicting snapshot shared the identical one's key, a state once-per-pin forbids. The vector now lists snapshots for two other keys first.*
   - a different record for the same key is `convening_conflict`, including one that differs only in `candidate.pull_number` or `candidate.subject_path`;
   - the same council at another pin, and another council at the same pin, admit fresh;
   - `convening_malformed` precedes the conflict, and the conflict precedes `secret_bearing_fact` and the head read.
@@ -525,16 +628,83 @@ All at `d0ad97e63` unless another commit is named. Py-bench container, Python 3.
 
 The data model leaves these implicit. Each is the reading the reference implementation and the vectors take, and none is presented as ruled:
 
-1. **`value_not_canonicalizable` in the E4 order.** E4 names no step for it, and § Shared definitions says such a value is refused "before any digest is taken". It runs after the shape checks (E4 steps 2 and 3) and before the digest (step 4), the position E2 step 2 gives it.
-2. **How a returned snapshot shows.** An accept at admission that returns a live snapshot also derives that snapshot's `convening_id`. A fresh admission derives none, because the consumer issues the id when it writes. That is the only way a vector can tell "returned the live snapshot" from "admitted fresh".
-3. **An absent `environment.issued.live_snapshots` at admission** reads as "the consumer holds no live snapshot", so every Phase 2 admission vector keeps its outcome.
-4. **Who runs the Phase 3 vectors.** All are consumer-only: they are `admission` vectors, the consumer issues snapshots and assignments, and the retry vectors read the consumer's live snapshots. So Phase 3 adds nothing to the agreement set.
-5. **Two schema choices, so that a named refusal is never shadowed.** The snapshot's `assignments` is unbounded, and an assignment's `protocol` is not a `const`.
+1. **`value_not_canonicalizable` in the E4 order.** E4 names no step for it, and § Shared definitions says such a value is refused "before any digest is taken". It runs after the shape checks (E4 steps 2 and 3) and before the digest (step 4), the position E2 step 2 gives it. *2026-10-09, fix round: now a dated note in data-model E4. Two vectors pin it from both sides. A lone assignment takes the same pre-check after its E5 shape (L3).*
+2. **How a returned snapshot shows.** An accept at admission that returns a live snapshot also derives that snapshot's `convening_id`. A fresh admission derives none, because the consumer issues the id when it writes. That is the only way a vector can tell "returned the live snapshot" from "admitted fresh". *2026-10-09, fix round (M1): the id alone does not show the same assignments, so a returned snapshot also derives `snapshot_digest`, the digest of the whole snapshot. Both members, and their absence on a fresh admission, are a dated note in conformance-corpus § derived.*
+3. **An absent `environment.issued.live_snapshots` at admission** reads as "the consumer holds no live snapshot", so every Phase 2 admission vector keeps its outcome. *2026-10-09, fix round: a dated note in conformance-corpus § Vector, beside "absent, not empty". It is the one oracle with a default, because the consumer's run of the shared commission vectors relies on it.*
+4. **Who runs the Phase 3 vectors.** All are consumer-only: they are `admission` vectors, the consumer issues snapshots and assignments, and the retry vectors read the consumer's live snapshots. So Phase 3 adds nothing to the agreement set. *Revised 2026-10-09 by the fix round, on the lane coordinator's direction, as a reading the owner can overrule at PR review. The snapshot-half vectors read no oracle, and 049 T015b implements the provider half of these encodings (tasks.md, Phase 3 "Unblocks"; provider-interface.md). So they are shared, `applies_to: [producer, consumer]`, and add 49 to the agreement set. The retry vectors stay consumer-only. The reading is a dated note in conformance-corpus § How each side runs a shared vector.*
+5. **Two schema choices, so that a named refusal is never shadowed.** The snapshot's `assignments` is unbounded, and an assignment's `protocol` is not a `const`. *2026-10-09, fix round (L7): data-model E4 now says why `assignments` carries no `maxItems`.*
 6. **The ceiling lives in the contract**, and the module's `ASSIGNMENT_LIFETIME_CEILING_SECONDS` is pinned to it by a test.
 
 ### Found in Phase 1 during Phase 3
 
 Two T035 cases, a trailing newline in `convening_id` and in `assignment_id`, showed that `records.SchemaSet.validator()` dropped the whole-string `pattern` and `x-max-utf8-bytes` inside every record schema. When validation descended into a document carrying the house `$schema` header, jsonschema's `validator_for` swapped `FamilyValidator` for plain `Draft202012Validator`. It was reported to the lane coordinator on 2026-10-09 at about 02:40Z, and the Phase 1 writer fixed it in PR-1 (§ Phase 1, "The family keywords were dropped inside whole schema documents"). This branch took the fix with Phase 2's merge, and both cases pass from stage B on.
+
+### The independent pre-review's fix round (2026-10-09T22:54Z–23:30Z)
+
+The independent pre-review of `c0e77e12b` returned **READY AFTER FIXES**, with nothing blocking and nothing HIGH. It reproduced the gates and confirmed that every vector predates the code it tests. It raised:
+
+- M1–M4, of which M2, a shared `binding_ref`, is an owner decision;
+- L1–L7;
+- an assessment of each of the six readings.
+
+The lane coordinator relayed it with a fix list. **M2 is held for Brett Heap and unchanged.** `test_a_shared_binding_is_not_a_shared_holder` still pins a shared binding as legal. If he rules that E4 step 7 refuses a repeated `binding_ref`, one line re-keys every holder (`holder_binding_ref` in `tests/council_convening/assignment_fixtures.py`), and a rebuild follows.
+
+**Merges, never rebased.**
+
+- `059637187` took `origin/035-phase2-membership` at `0cf5b874e`, Phase 2's fix round:
+  - each class and unclassed council in the `rules` oracle now declares `fact_sources`;
+  - `changed_paths` is sorted and unique;
+  - it also brought `main` at `a8ab30396`, which moves the `openXwallet` gitlink to `815b86ce`.
+
+  The conflicts in this file, `test_validator_cli.py` and `index.json` were resolved by keeping both sides, and the index was regenerated.
+- `e16030b6f` took `79e957e53`, Phase 2's return to S8707's compliant containment form. It merged cleanly.
+- **The merge's one semantic conflict.** Phase 2's fix round made `test_check_names_no_offline_rule_as_not_checkable` compare the skipped set exactly, and Phase 3 adds E2 step A3's skipped rule. `ORACLE_RULES` now names it.
+- `851731259` made the cross-reference validator's path in § Phase 1 repo-relative.
+
+**Red** (`70061296a`; run 2026-10-09T23:10:23Z–23:16:04Z, at `851731259` plus the uncommitted tests-first round): `python3 -m pytest tests/council_convening -q -m "not postgres"` gave **42 failed, 1043 passed**:
+
+- 28 in `test_assignments.py`:
+  - 16 for M3, the embedded record's rules;
+  - 1 for L3;
+  - 2 drift cases and 1 more case for M1's `snapshot_digest`;
+  - 1 for M2's one-key rule;
+  - 7 for L2's unsound live snapshots;
+- 1 in `test_corpus_index.py` and 1 in `test_gate_wiring.py`, from the corpus's 12 vector mismatches: the 8 M3 vectors and the 4 M1 accepts;
+- 12 in `test_validator_cli.py`:
+  - 6 self-test and `corpus` cases, from the same 12 mismatches;
+  - 5 new `check` cases;
+  - the merge's semantic conflict above, which the same commit fixes.
+
+The 6 other new vectors already passed, and are kept because they pin behaviour that holds: the two lifetime accepts, the convening-digest set member, the two reading-1 orders, and the held conditional seat.
+
+**Green** (`2cb4d13f2`; run 23:19:38Z–23:23:35Z): **1086 passed**. The self-test adjudicated 343/343 vectors.
+
+| Finding | What changed | Where |
+|---|---|---|
+| L6 | The area's builder is committed. Two tests pin the area: every vector under `vectors/assignment/` is its exact output, and the 12 retry vectors are copies of Phase 2's `admission-accept-conditional-seat-not-held`. The vectors were rebuilt against `0cf5b874e`; until then, the two retry vectors that admit fresh, and so read their stale copy of the `rules` oracle, were the self-test's 2 errors (`a projection class is malformed`). | `tests/council_convening/assignment_vectors.py`; `test_assignments.py` |
+| M1 | A returned snapshot also derives `snapshot_digest`, the digest of the whole snapshot. A fresh admission derives neither it nor `convening_id`. | `resolution.py`; conformance-corpus § derived |
+| M2 | `asg-retry-identical-not-pre-empted-by-once-per-pin-accept` drops `convening-0000`. Snapshots for another pin and another council are listed before the identical one. Two live snapshots with one convening key are a harness error. | the vector; `VectorOracles.live_snapshots`; conformance-corpus `issued` |
+| M3 | E4 step 2 runs E2 step 2's structural rules and the offline roster rules of steps 11 and 12 over the embedded record, as `snapshot_malformed` naming `convening.<member>`. That covers the sorted and unique `changed_paths` too. 7 refusal vectors, a held-conditional-seat accept and an order vector pin it. `check` no longer passes a zero-seat snapshot. | `resolution.structural_rules`, `roster_rules`; `assignments.check_snapshot`; data-model E4 |
+| M4 | `asg-set-member-convening-digest-differs-refuse`, the fifth convening member E4 step 5 names. | vector |
+| L1 | Lifetime accepts at 1 second and 3600 seconds. | 2 vectors, 2 test cases |
+| L2 | Each live snapshot must pass E4 steps 2 to 7, including `convening_id`'s grammar and canonicalizability. | `VectorOracles.live_snapshots` |
+| L3 | A lone assignment takes the canonicalizability pre-check after its E5 shape. | `assignments.check_lone_assignment`; `check` |
+| L4 | The count above is corrected. | this file |
+| L5 | The family README lists the two Phase 3 schemas, in the form of Phase 5's row. T035–T041 are ticked. | `contracts/council-convening/README.md`; `tasks.md` |
+| L7 | Why `assignments` carries no `maxItems`. | data-model E4 |
+| Readings 1, 3, 4 | Dated notes, with reading 4 revised (above). | data-model E4; conformance-corpus |
+
+**Where the round departs from its fix list.**
+
+- **L2's exit code.** The fix list asked for exit 2. An unsound live snapshot is a vector input error instead: `ERROR [council-convening-schema]`, exit 1, never a traceback.
+  - validator-cli.md keeps exit 2 for "Harness or dependency failure: a schema that does not load, a missing reused module, an unreadable path", and says "Exit 2 is never reported as a finding".
+  - Phase 2's reading 8 reports oracle data a vector cannot supply as a vector input error.
+  - Measured at `0cf5b874e`: `check` on Phase 2's `admission-accept-conditional-seat-not-held` with a lone surrogate in `environment.resolved_candidate` prints `ERROR [council-convening-schema] probe.json: oracle data is not canonicalizable` and exits 1.
+
+  The lane coordinator was told on 2026-10-09 before the change, and can overrule it.
+- **Not asked, from the contract's own text.** `check` names `council-convening-schema` beside `snapshot_malformed` and `assignment_malformed`. validator-cli.md raises that code when "A record fails its schema. The record's malformed refusal is also named"; `check` already did so for `convening_malformed`.
+- **M1 takes the stronger of the two forms offered.** It digests the whole returned snapshot rather than its `assignment_id` list, so re-issued holders or lifetimes disagree as well as re-issued ids.
+- **M3's scope is a reading.** The snapshot half re-runs only E2's structural and offline roster rules. The rest of E2's order is the admission that ran before the snapshot was written; that includes its other offline rules (secrets, the pin's equality with the head, predicates, step 9's own checks).
 
 ### Quickstart steps 1–5 (T041)
 
@@ -558,6 +728,43 @@ All in the py-bench container, Python 3.12.3, in this phase's worktree. `eb6bf6b
 5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol` (at this record's commit): empty.
 
 **The PR.** T041's text says to open PR-3 as a draft. The lane's coordinator instructed that it open **ready**, after PR-2 lands, on Brett Heap's word *"merge PR-3 when green"* (2026-10-09T01:38:36Z, log line 240). It is not open at this record's commit.
+
+### Quickstart steps 1–5 at the fix-round head (`e16030b6f`, 2026-10-09T23:24Z–23:30Z)
+
+All in the py-bench container, Python 3.12.3, in this phase's worktree. `openXwallet` was initialized the way `pytest-suite` does it now, through `openWallet` and its `code` leg, with `openXdox` and `openDox` initialized recursively. This record's own commit changes only this file, and no `tests/council_convening` module reads it.
+
+1. **Red.** The fix round's red run is recorded above (42 failed, 1043 passed).
+2. **Green.**
+   - `python3 -m pytest tests/council_convening -q -m "not postgres"`: **1087 passed** (23:24:28Z–23:29:22Z). That is one case more than the green run above: `test_the_containment_check_keeps_the_sonar_rules_compliant_form`, which `79e957e53` adds.
+   - `python3 scripts/validate-council-convening.py`: exit 0. It printed:
+     - `schemas loaded: 6 (family) + digest-construction`;
+     - `protocol registry closed: 2 entries`;
+     - `predicate registry closed: 2 predicates, 2 input contracts`;
+     - `vectors adjudicated: 343/343`;
+     - `refusal codes probed: 41/41`;
+     - `finding codes probed: 1/1`;
+     - `requirements probed: 9/9 (FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-011, SC-001, SC-002)`;
+     - `generator reproduced corpus byte-for-byte`;
+     - `self-test: 0 error(s), 0 warning(s)`.
+3. **Corpus reproducible.**
+   - `python3 -m scripts.council_convening.generate --check`: byte-for-byte, exit 0.
+   - `python3 -m tests.council_convening.assignment_vectors --check`: `61 vectors built, 0 differ`.
+   - `python3 scripts/validate-council-convening.py corpus`: exit 0. **343 vectors, agreement set 315**.
+     - By area: assignment 61, foundation 133, resolution 149.
+     - By outcome: 72 accept, 263 refuse, 8 route.
+   - The assignment area splits into two halves:
+     - the snapshot half, 49 vectors (8 accept, 41 refuse), all shared;
+     - the retry vectors, 12 (6 accept, 6 refuse), all consumer-only.
+   - Index `sha256:426fae7a712b7fcbd09ae28bc8225f0798e8c6443db061dd2d013f6716197c82`, unpublished until Phase 7.
+4. **Repository gates.**
+   - **OpenSpec.** `python3 scripts/validate-openspec-cli-pin.py --all --strict` (finished 23:25:09Z): exit 0, `Totals: 113 passed, 1 failed (114 items)`, 0 undispositioned. The one failure is `add-chain-attestation`'s accepted exception.
+   - **Doc-health.** `python3 scripts/doc-health.py --single-repo .`, with the submodules above, at `e16030b6f` (23:25:15Z–23:26:43Z): exit 0, `Findings: 31 critical, 26 error, 59 warning, 21 info`, 0 regressions, and no finding on a council-convening or feature-035 path.
+     - The same run at Phase 2's tip `79e957e53` (23:28:02Z–23:29:29Z), in a temporary detached worktree with the same submodules, which was then removed with `git worktree remove --force`: the same counts.
+     - Once the repository name is normalized, the two reports differ only in two word counts: the canon share line and the `ratified` row, 69 words more at head, from the README row added to a `Status: ratified` file. The finding sets are identical.
+   - **The full suite** was not run locally, on the coordinator's instruction. The required `pytest-suite` check on PR-3 is the gate of record.
+5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`, with the merge base at `a8ab30396`: empty.
+
+**The PR.** It is not open at this record's commit. It opens **ready** after PR-2 lands, on Brett Heap's word *"merge PR-3 when green"* (2026-10-09T01:38:36Z, log line 240).
 
 ## Phase 5 — User Story 2 (c): producer identity bound to verified workflow claims (PR-5)
 

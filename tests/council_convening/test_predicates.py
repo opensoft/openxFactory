@@ -16,7 +16,9 @@ What this module pins, beside the data-model text:
   inside its directory, and not a file at the directory's own path.
 * Unevaluable is never false: an absent read fact, an entry count that differs
   from the declared total, or a declared total above 3000 is
-  `condition_unevaluable`, whatever `held` the record claims.
+  `condition_unevaluable`, whatever `held` the record claims. So is a path list
+  the entry count cannot account for: fewer paths than entries, or more than
+  two per entry (a rename's two), dated amendment of 2026-10-09 (pre-review L5).
 * The bare-directory evidence rule is part of evaluation, after evaluability:
   an exact pattern with an observed path inside `pattern/` was a directory
   declared as a file, `predicate_parameters_malformed`.
@@ -354,8 +356,40 @@ def test_a_declared_total_above_3000_is_unevaluable():
 
 
 def test_a_declared_total_of_exactly_3000_is_evaluable():
+    paths = [f"src/f{i:04d}.py" for i in range(3000)]
     assert predicates.evaluate(CPI, cpi("zz/**"),
-                               pr(["src/a.py"], count=3000, total=3000)) is False
+                               pr(paths, count=3000, total=3000)) is False
+
+
+# Pre-review L5 (2026-10-09): completeness ties the path list to the entry count.
+# Each entry contributes one path, or two for a rename, so a complete listing of
+# n entries carries from n to 2n paths. Without the tie, a total and an entry
+# count of 2 over an empty list evaluated to "not held" and dropped a seat.
+
+@pytest.mark.parametrize("facts", [
+    pr([], count=2),
+    pr(["src/a.py"], count=2),
+    pr(["a.py", "b.py", "c.py"], count=1),
+    pr(["a.py", "b.py", "c.py", "d.py", "e.py"], count=2),
+])
+def test_a_path_list_the_entry_count_cannot_account_for_is_unevaluable(facts):
+    assert _refusal(predicates.evaluate, CPI, cpi("zz/**"), facts) == "condition_unevaluable"
+
+
+@pytest.mark.parametrize("facts", [
+    pr([], count=0),
+    pr(["a.py"], count=1),
+    pr(["a.py", "b.py"], count=1),
+    pr(["a.py", "b.py", "c.py"], count=2),
+    pr(["a.py", "b.py", "c.py", "d.py"], count=2),
+])
+def test_one_or_two_paths_per_entry_is_complete(facts):
+    assert predicates.evaluate(CPI, cpi("zz/**"), facts) is False
+
+
+def test_the_path_tie_is_unevaluable_before_the_bare_directory_evidence():
+    facts = pr(["src/auth/login.py"], count=2)
+    assert _refusal(predicates.evaluate, CPI, cpi("src/auth"), facts) == "condition_unevaluable"
 
 
 @pytest.mark.parametrize("fact", ["changed_paths", "changed_files_total",

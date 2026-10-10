@@ -462,6 +462,27 @@ jobs:
           if git -C openxFactory config --file .gitmodules \
                --get submodule.openXwallet.path >/dev/null 2>&1; then
             git -C openxFactory submodule update --init openXwallet
+            # TWO LEVELS FURTHER, by name, and only in THIS job (openXwallet
+            # `split-openwallet-neutral-core`, design D6). From `xwallet-v1.0`
+            # openXwallet nests the openWallet ROOT, which nests its `code` leg,
+            # and the parity step below runs `verify()` first, which now checks
+            # the checked-out root and code leg against the gitlinks the level
+            # above records. Not the root's `spec` leg, which nothing reads.
+            # GUARDED on each nested `.gitmodules` declaring the path, for the
+            # ordering reason the guard above gives: a pin from before the
+            # nested chain skips rather than failing the nightly.
+            if git -C openxFactory/openXwallet config --file .gitmodules \
+                 --get submodule.openWallet.path >/dev/null 2>&1; then
+              git -C openxFactory/openXwallet submodule update --init openWallet
+              if git -C openxFactory/openXwallet/openWallet config --file .gitmodules \
+                   --get submodule.code.path >/dev/null 2>&1; then
+                git -C openxFactory/openXwallet/openWallet submodule update --init code
+              else
+                echo "openxFactory/openXwallet/openWallet declares no code leg at this pin; skipping the nested init"
+              fi
+            else
+              echo "openxFactory/openXwallet declares no openWallet gitlink at this pin; skipping the nested init"
+            fi
           else
             echo "openxFactory declares no openXwallet gitlink at this pin; skipping the nested init"
           fi

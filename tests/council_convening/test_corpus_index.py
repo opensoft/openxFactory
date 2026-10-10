@@ -143,13 +143,15 @@ def test_phase_1_vectors_are_foundation_vectors_for_both_sides():
 def test_the_areas_landed_at_this_commit():
     """Phase 2 adds the `resolution` area, at boundaries `commission` and
     `admission`; every resolution vector is hand-authored. Phase 3 adds the
-    `assignment` area, at boundary `admission` only and for the consumer only:
-    the consumer issues snapshots and assignments and holds the live snapshots
-    retry identity reads. Phase 5 adds the `binding` area, at boundary
-    `binding`; every binding vector is hand-authored. Phase 4 adds the
-    `signing` area, at boundaries `registration`, `return` and `completion`,
-    which the generator builds (T044); its hand-authored known answers are
-    marked."""
+    `assignment` area, at boundary `admission` only. Its snapshot half reads no
+    oracle and is shared, because 049 T015b implements the provider half of the
+    snapshot and assignment encodings (reading 4, 2026-10-09, which the owner
+    can overrule). Its retry vectors are the consumer's alone: only the consumer
+    holds the live snapshots retry identity reads. Phase 5 adds the `binding`
+    area, at boundary `binding`; every binding vector is hand-authored. Phase 4
+    adds the `signing` area, at boundaries `registration`, `return` and
+    `completion`, which the generator builds (T044); its hand-authored known
+    answers are marked."""
     rows = _index_doc()["cases"]
     assert {row["area"] for row in rows} == {
         "foundation", "resolution", "binding", "assignment", "signing"}
@@ -162,7 +164,10 @@ def test_the_areas_landed_at_this_commit():
             assert _load(CONFORMANCE / row["path"])["expected"]["derived_origin"] == "hand"
         if row["area"] == "assignment":
             assert row["boundary"] == "admission"
-            assert row["applies_to"] == ["consumer"]
+            vector = _load(CONFORMANCE / row["path"])
+            expected_sides = (["consumer"] if "record" in vector["inputs"]
+                              else ["producer", "consumer"])
+            assert row["applies_to"] == expected_sides, row["case_id"]
         if row["area"] == "binding":
             assert row["boundary"] == "binding"
             assert _load(CONFORMANCE / row["path"])["expected"]["derived_origin"] == "hand"

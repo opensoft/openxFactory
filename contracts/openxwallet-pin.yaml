@@ -29,9 +29,24 @@ kind: pinned_contract_manifest
 # `contracts/manifest.yaml`; the live cross-check against the publisher's
 # manifest is a SYNC-TIME obligation
 # (`openXwallet/docs/pin-resync-runbook.md`), never a CI read.
+#
+# ONE CHAIN, TWO LEVELS DEEPER (openXwallet `split-openwallet-neutral-core`,
+# design D6, RULED Q2 "Nested gitlink, one chain"). From `xwallet-v1.0` the
+# neutral core, its two contract families and its corpus are openWallet's:
+# openXwallet mounts the openWallet ASSEMBLY ROOT at `openWallet/` and that root
+# mounts its CODE leg at `code/`, so every byte this pin digests now sits under
+# `openXwallet/openWallet/code/`. This pin keeps `submodule_path: openXwallet`
+# and records NO openWallet commit, root or leg: it reaches both through
+# openXwallet's own `contracts/openwallet-pin.yaml`, which holds the root commit
+# and the code leg in lockstep. The verifier closes the gap that leaves —
+# `pinned_by_commit_only:` members carry no digest — with NESTED-CHECKOUT
+# PARITY through both levels: the checked-out `openXwallet/openWallet` must equal
+# the `openWallet` gitlink the pinned openXwallet commit records, and the
+# checked-out `openXwallet/openWallet/code` the `code` gitlink THAT root commit
+# records, both read from git objects and never from a working tree.
 # ============================================================================
 
-contract_bundle_tag: wallet-v1.5
+contract_bundle_tag: xwallet-v1.0
 source_repository: opensoft/openXwallet
 
 # ADDED to the realized shape (D1): the gitlink this pin governs. Borrowed from
@@ -40,15 +55,21 @@ source_repository: opensoft/openXwallet
 # gitlink.
 submodule_path: openXwallet
 
-# openXwallet at `wallet-v1.5`. Exactly 40 hex characters.
-commit: "f3eb929b9ab6d78bf30e26bf1d7a99af86a7016e"
+# openXwallet at `xwallet-v1.0`, its first release as the ADAPTER: the merge of
+# opensoft/openXwallet#40, which mounts the openWallet root at `wallet-v1.6`
+# (`b0af7c2c`) and its code leg at `72313daa`. Exactly 40 hex characters.
+commit: "815b86cef18c6227f649d2cefedb05720069362b"
 revision_kind: commit
 
 digest_algorithm: sha256
 
-# openXwallet's OWN manifest is where these digests are published. Recorded so
-# a re-sync knows which document to reconcile against; never read at CI time.
-digest_source: contracts/manifest.yaml
+# Where these digests are PUBLISHED, relative to `submodule_path` like every
+# path below. Since `xwallet-v1.0` openXwallet registers nothing of openWallet's
+# as owned; the eight rows live in the openWallet ROOT's own manifest, at
+# `code/contracts/…`, the same strings `files:` holds below one prefix down.
+# Recorded so a re-sync knows which document to reconcile against; never read at
+# CI time.
+digest_source: openWallet/contracts/manifest.yaml
 
 # ADDED to the realized shape (D1): the byte-identity referent. In the FILE and
 # not only in the runbook, because the referent must survive into the tree the
@@ -77,21 +98,28 @@ files:
   # every previous one moved `commit:` and `contract_bundle_tag:` and nothing
   # else. The other seven values below are unchanged and were reverified by
   # recomputation at the new commit, not carried on trust.
-  - path: contracts/openxwallet/openxwallet-record.schema.yaml
+  #
+  # AT xwallet-v1.0 EVERY PATH MOVED AND NO VALUE DID. The carve into openWallet
+  # (openXwallet `split-openwallet-neutral-core`) kept each artifact's
+  # repository-relative path inside the CODE leg, so each row gains exactly the
+  # prefix `openWallet/code/` and all eight sha256 values are the wallet-v1.5
+  # values, reverified by recomputation over `openXwallet/openWallet/code/` at
+  # the new commit.
+  - path: openWallet/code/contracts/openxwallet/openxwallet-record.schema.yaml
     sha256: "20ba39c07564c93b8ffe47382126677a165771244d28fb0c4976ab950173c40a"
-  - path: contracts/openxwallet/openxwallet-custody-registry.schema.yaml
+  - path: openWallet/code/contracts/openxwallet/openxwallet-custody-registry.schema.yaml
     sha256: "df72638497a7f90c2a4dff47c429cb794bc4b6e270ce2dd2b17116478ae3b51a"
-  - path: contracts/openxwallet/openxwallet-custody.registry.yaml
+  - path: openWallet/code/contracts/openxwallet/openxwallet-custody.registry.yaml
     sha256: "94d631d6ee76dab015628a1856afd82582b98d6a3733622c9afe8b13b5278539"
-  - path: contracts/openxwallet/openxwallet-grant.schema.yaml
+  - path: openWallet/code/contracts/openxwallet/openxwallet-grant.schema.yaml
     sha256: "fde433c5821e2e6f62926a72c58a67a784961d2e9e27e9f2b3520fcc8e738e88"
-  - path: contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
+  - path: openWallet/code/contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
     sha256: "f16ad31246186cec36e142ae39bd831d98fbc5c0afd48685057bc39e113c8858"
-  - path: contracts/openxwallet/openxwallet-distinct-holder-constraint.schema.yaml
+  - path: openWallet/code/contracts/openxwallet/openxwallet-distinct-holder-constraint.schema.yaml
     sha256: "c2a6d2fd23fb3743fdaf0e165dabc4cb1dff24e52a8262a38c86ed1482374b25"
-  - path: contracts/openxwallet/openxwallet-subject-attestation.schema.yaml
+  - path: openWallet/code/contracts/openxwallet/openxwallet-subject-attestation.schema.yaml
     sha256: "d29eca519462aff7871de3786f19c820e9fc3b95115ce30e57d1f1cc2bc0c0b2"
-  - path: contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml
+  - path: openWallet/code/contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml
     sha256: "aed3978e8ae952f3ff5b3de1f672bba5da350d5aaeb442feafaa870b4de4be91"
 
 # PATH ONLY, with no invented per-file digests. The publisher declares these
@@ -100,11 +128,21 @@ files:
 # published. The gitlink commit fixes these bytes as strongly: the verifier
 # compares BOTH the recorded gitlink and the checked-out revision against
 # `commit:` above, so a swap of any of these files is a swap of the commit.
-# Presence is checked here; identity comes from the commit.
+# Presence is checked here; identity comes from the commit — at THREE levels
+# since `xwallet-v1.0`: the openXwallet commit above, then the `openWallet` root
+# commit it records, then the `code` leg commit that root records (the verifier's
+# nested-checkout parity).
+#
+# The two openXwallet ENTRYPOINTS stay where every consumer invokes them; the
+# corpora and READMEs moved with the core into the code leg; and the core's own
+# validator and syntax gate join the list, because those are now the bytes that
+# run (design D6).
 pinned_by_commit_only:
   - scripts/validate-openxwallet.py
   - scripts/wallet-yaml-syntax-gate.py
-  - contracts/openxwallet/examples
-  - contracts/openxwallet-agent-profile/examples
-  - contracts/openxwallet/README.md
-  - contracts/openxwallet-agent-profile/README.md
+  - openWallet/code/scripts/validate-openxwallet.py
+  - openWallet/code/scripts/wallet-yaml-syntax-gate.py
+  - openWallet/code/contracts/openxwallet/examples
+  - openWallet/code/contracts/openxwallet-agent-profile/examples
+  - openWallet/code/contracts/openxwallet/README.md
+  - openWallet/code/contracts/openxwallet-agent-profile/README.md

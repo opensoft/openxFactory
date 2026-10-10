@@ -108,8 +108,8 @@ Kind: `xfactory_council_convening`. The producer submits it, and the consumer ve
 | `matched_class` | O | `matched_class`. Present exactly when `class_inputs` is. An unclassed council, such as 049's gate-rules council, carries neither. |
 | `standing_seats` | R | An array of at most 64 `seat_id`. |
 | `conditions` | R | 0 to 64 entries of `{seat R(seat_id or null), predicate R, input_contract R, parameters R(object), held R(boolean)}`. |
-| `fact_sources` | R | One entry per input contract in use, each `{input_contract, source}`. `source` is one of three: `candidate_pull` (`pr_facts` read from the candidate pull request at `head_sha`); `candidate_subject` (`rule_facts` read from `candidate.subject_path` at `candidate.head_sha`); or `{governed_path: <a path in governed.sources>}` (`rule_facts` read from a governed source at `governed.revision`). |
-| `consumed_facts` | R | `{<input_contract>: {<fact>: value}}` |
+| `fact_sources` | R | One entry per input contract in use, each `{input_contract, source}`. `source` is one of three: `candidate_pull` (`pr_facts` read from the candidate pull request at `head_sha`); `candidate_subject` (`rule_facts` read from `candidate.subject_path` at `candidate.head_sha`); or `{governed_path: <a path in governed.sources>}` (`rule_facts` read from a governed source at `governed.revision`). *Amended 2026-10-09 on Brett Heap's ruling of 2026-10-09T17:35:34Z, "Bind it in PR-2 (Recommended)": the sources are not the record's to choose. The rule projection declares them for each class and each unclassed council (E3), and `fact_sources` must equal that declaration entry for entry and in order (step 9). The record had chosen them alone, so a producer could point a condition at another governed file whose facts hold nothing, and drop its seat while every check passed (the Phase 2 pre-review's H1).* |
+| `consumed_facts` | R | `{<input_contract>: {<fact>: value}}`. *Amended 2026-10-09 on Brett Heap's ruling of 2026-10-09T17:35:34Z, "Sorted and unique (Recommended)": `pr_facts.changed_paths` is bytewise sorted and duplicate-free. A rename contributes both its old and its new path, and each takes its own place in the sort (step 2).* |
 
 **Derived value.** `convening_digest` is `xfc-jcs-sha256-1`, subject `council_convening`, over the whole record.
 
@@ -119,6 +119,8 @@ Kind: `xfactory_council_convening`. The producer submits it, and the consumer ve
 
 1. **Classification and selection** (E1). `protocol_unknown`, `legacy_protocol_refused`, `protocol_not_selected`, or a route.
 2. **Shape.** `convening_malformed`, which also covers a record carrying only one of `class_inputs` and `matched_class`; a listing entry that is not also a `file` source; sources out of bytewise path order or repeated by path; a listing whose `entries` are unsorted; and a repeated `fact_sources` contract. Then `value_not_canonicalizable`.
+   - *Added 2026-10-09 (Phase 2 pre-review, L1): also `convening_malformed`, a listing entry that is not a file directly inside the listing's `path`, or whose name ends with none of the listing's `suffixes`. The `governed` row above already defines the entries so; until this note nothing checked it.*
+   - *Added 2026-10-09 on Brett Heap's ruling of 2026-10-09T17:35:34Z, "Sorted and unique (Recommended)": also `convening_malformed`, a consumed `pr_facts.changed_paths` that is not in strictly ascending bytewise order, which refuses both a permutation and a repeated path. Consumed facts compare by exact equality at step 10, so without one order a list's order was normative and unspecified, and one change had several encodings.*
    - **A1. Binding, admission only.** E10 steps 1 to 13 on the commission job's verified claims. Step 14 waits for step 5 (A4).
    - **A2. 025's retained council and mix guard, admission only.** The council is in the consumer's materialized council content, the subject pin is present, and a `mix_id`, when present, is in the consumer's mix content. Refused under 025's existing codes (`UnknownCouncilError`, `SubjectPinMissingError`, `UnknownMixError` and their kin), which are the consumer's and not this vocabulary.
    - **A3. Retry identity and once-per-pin, admission only** (E4). The convening key is `(protocol, council_id, subject_pin)`: 025's once-per-pin key, the council and the pin, with the protocol added. A consumer may scope it further by its own tenancy layer (Hermes's `layer_id`), which is not a record member. A record byte-identical to a live snapshot's `convening` returns that snapshot unchanged, and no later step runs. **Byte-identical** means equal canonical bytes: the record's `xfc-jcs-sha256-1` serialization, the bytes `convening_digest` is taken over, equals that of the snapshot's `convening`. So two parsed JSON records compare equal regardless of member order or whitespace in their transport. A different record for the same key, while a snapshot that has not failed exists (`environment.issued.live_snapshots`), is `convening_conflict`, including a record that differs only in `candidate.pull_number` or `candidate.subject_path`. This is 025's once-per-pin guard, and 025 maps its `ConveningExistsError` to `convening_conflict`. Retry identity runs before every drift check, so a lost response followed by source or head drift still returns the same snapshot (US1 scenario 4; 025 FR-006).
@@ -133,6 +135,7 @@ Kind: `xfactory_council_convening`. The producer submits it, and the consumer ve
    - `rule_revision_ungoverned`: the revision is not on the governed branch's first-parent history;
    - `governed_sources_mismatch`: the listed paths are not exactly the set the projection is built from. The `rules` oracle returns that set, and each side's adapter reports the set it read, so an omitted source cannot escape the currency test;
    - then each source in path order: `rule_path_malformed`; `rule_unavailable`; `rule_unauthorized` (not an admitted governed source); `rule_digest_mismatch` (a file's bytes, or a listing's entries, differ from the record's); and last `rule_superseded`.
+   - *Added 2026-10-09 (Phase 2 pre-review, L4): a source whose `kind` differs from what is at its path, a `file` where the governed repository holds a listing or a `listing` where it holds a file, is `rule_digest_mismatch`: the record's value cannot equal what is there. It was a harness error.*
    - **`rule_superseded` is normative at admission**, as the ruling says ("at admission"). It applies to **every governed source** the convening cites, not only the rule file (follow-up 1, "Every governed source (Recommended)"). A source superseded at the tip is a file whose bytes differ there, or a listing whose entry set differs there. At commission the producer may run the same comparison as a pre-check. That pre-check is producer-side and non-normative, and the shared commission vectors carry no `rule_superseded` case. A shared commission vector still carries tip values, equal to the values at the revision, so a consumer that runs it through its admission resolution applies this test and passes it ([conformance-corpus § How each side runs a shared vector](contracts/conformance-corpus.md#how-each-side-runs-a-shared-vector)).
    - **A4. Workflow revision, admission only.** E10 step 14, now that step 5 has checked the `governed` member it reads.
 6. **Council and class.**
@@ -144,11 +147,14 @@ Kind: `xfactory_council_convening`. The producer submits it, and the consumer ve
 8. **Predicates, per condition in order.** `predicate_unknown`, then `predicate_parameters_malformed` (bad parameters, or a predicate run against the wrong input contract).
 9. **The record's own facts.**
    - `fact_source_mismatch`: a source kind not allowed for its contract, a `candidate_subject` source without `candidate.subject_path`, or a `governed_path` not in `governed.sources`.
+     - *Added 2026-10-09 (Phase 2 pre-review, reading 2): also `fact_source_mismatch`, a `fact_sources` entry for a contract no condition uses, or no entry for a contract a condition uses. These run after step 8, over the conditions it has checked.*
+     - *Amended 2026-10-09 on Brett Heap's ruling of 2026-10-09T17:35:34Z, "Bind it in PR-2 (Recommended)": last, `fact_source_mismatch` when `fact_sources` differs from the fact sources the projection declares for the selected class, or for the unclassed council, entry for entry and in order (E3). It needs the `rules` oracle, so the validator's offline `check` names it as not checkable offline.*
    - `opaque_conclusion`: a fact a condition reads is absent from `consumed_facts`, so the record asserts `held` without the inputs.
-   - `facts_unused`: a consumed fact that no condition reads.
+   - `facts_unused`: a consumed fact that no condition reads. *Added 2026-10-09 (Phase 2 pre-review, L2): an object for an input contract no condition uses is `facts_unused` even when it is empty. Otherwise `{}` and an absent member would be two encodings of one resolution, and A3's retry identity would see them as different records.*
 10. **Authoritative facts.**
     - `condition_unevaluable`: the authoritative fact set lacks a fact a condition reads, or fails completeness (E3).
     - `consumed_facts_mismatch`: a consumed fact differs from the authoritative value.
+    - *Added 2026-10-09 (Phase 2 pre-review, reading 3): the bare-directory evidence rule ([R5](research.md#r5--the-closed-predicate-registry-and-input-contracts)) is checked during this step, over the authoritative facts, never the consumed ones. Each condition is evaluated in order: `condition_unevaluable`, then `predicate_parameters_malformed` for bare-directory evidence. Only then are consumed facts compared. So evidence only in the authoritative facts is `predicate_parameters_malformed`, evidence only in the consumed facts is `consumed_facts_mismatch`, and a first condition's evidence comes before a second condition's `condition_unevaluable`. The rule reads the authoritative facts, so the validator's offline `check` names it as not checkable offline and never passes it.*
 11. **Held.**
     - `condition_result_mismatch`: `held` differs from the reference evaluation.
     - `condition_seat_unbound`: a condition with `held: true` and `seat: null`.
@@ -171,7 +177,7 @@ Kind: `xfactory_council_predicate_registry`. A closed instance. **The identifier
 
 | Member | Content |
 |---|---|
-| `input_contracts.pr_facts` | `changed_paths`: at most 6000 `relative_path`. `changed_files_total`: an integer from 0 to 3000. `changed_paths_entry_count`: an integer from 0 to 3000. A rename is one entry contributing two paths. A declared total above 3000 is `condition_unevaluable`, matching 049's refusal of a total its listing cannot complete (`GATHER_MAX_LISTING_ENTRIES`). |
+| `input_contracts.pr_facts` | `changed_paths`: at most 6000 `relative_path`. `changed_files_total`: an integer from 0 to 3000. `changed_paths_entry_count`: an integer from 0 to 3000. A rename is one entry contributing two paths. A declared total above 3000 is `condition_unevaluable`, matching 049's refusal of a total its listing cannot complete (`GATHER_MAX_LISTING_ENTRIES`). *Amended 2026-10-09 on Brett Heap's ruling of 2026-10-09T17:35:34Z, "Sorted and unique (Recommended)": `changed_paths` is bytewise sorted and duplicate-free, a rename's two paths each in their own sorted place, so each side derives one list from one listing.* |
 | `input_contracts.rule_facts` | `rule_touched_paths`: at most 6000 `relative_path`. |
 | `predicates[0]` | `changed_paths_intersect`, over `pr_facts`, with parameter `protected_paths`: 1 to 256 patterns. |
 | `predicates[1]` | `rule_touches_security_posture`, over `rule_facts`, with parameter `security_surfaces`: 1 to 256 patterns. |
@@ -181,15 +187,17 @@ The decision semantics:
 
 - A predicate holds when any read path matches any pattern.
 - It is unevaluable when a fact it reads is absent, or, for `pr_facts`, when `changed_paths_entry_count ≠ changed_files_total`.
+  - *Added 2026-10-09 (Phase 2 pre-review, L5): it is also unevaluable, for `pr_facts`, when the path list is one the entry count cannot account for: `changed_paths_entry_count ≤ len(changed_paths) ≤ 2 × changed_paths_entry_count` must hold, since every entry contributes one path, or two for a rename. Without this, a total and an entry count of 2 over an empty list evaluated to "not held" and dropped a conditional seat.*
 - Unevaluable is never false.
 
 **The rule projection** is what the `rules` oracle answers, and what each side's adapter derives from the domain's files:
 
 - `councils`: a map from `council_id` to exactly one of two forms:
   - **classed**: `{class_selector, classes}`;
-  - **unclassed**: `{standing_seats, conditions}`, for a council no candidate class binds, such as 049's gate-rules council, whose governed rule is its own council document.
+  - **unclassed**: `{standing_seats, conditions, fact_sources}`, for a council no candidate class binds, such as 049's gate-rules council, whose governed rule is its own council document.
 - `class_selector`: an ordered list of `{class, repositories: [repository], head_ref: {exact: <head_ref>} | {glob: <pattern>}}`. The first entry whose `repositories` contains `class_inputs.repository` and whose `head_ref` matches `class_inputs.head_ref` selects the class. This mirrors the existing surface lookup, where both the repository and the head ref must match an entry.
-- `classes`: `{<class>: {standing_seats, conditions: [{seat (seat_id or null), predicate, input_contract, parameters}]}}`.
+- `classes`: `{<class>: {standing_seats, conditions: [{seat (seat_id or null), predicate, input_contract, parameters}], fact_sources}}`.
+- `fact_sources`, in each class and each unclassed council: `[{input_contract, source}]`, one entry per input contract its conditions use, in E2's `fact_sources` form. It names where each contract's facts are read, as the domain's rule declares it, and the record must carry it unchanged (E2 step 9). *Amended 2026-10-09 on Brett Heap's ruling of 2026-10-09T17:35:34Z, "Bind it in PR-2 (Recommended)". For 049's gate-rules council the declared source is `candidate_subject`; for a classed council whose conditions read `pr_facts`, it is `candidate_pull`.*
 - `sources`: the sorted paths of every governed file and listing the projection was built from (E2 step 5, `governed_sources_mismatch`).
 
 The `head_ref.glob` grammar is the governed envelope's matcher, restated here so that no implementation copies it. Vectors pin each rule.
@@ -214,11 +222,15 @@ Kind: `xfactory_council_convening_snapshot`. The consumer issues it atomically a
 | `assignments` | R | An array of E5. |
 | `admitted_at` | R | `utc_instant`. |
 
+*Added 2026-10-09 (Phase 3 pre-review, L7): `assignments` carries no `maxItems`, by the convention in this file's introduction. A count other than that of `required_seats`, which E2 bounds at 64, is `assignment_set_mismatch` at step 5; a schema bound would make it `snapshot_malformed` at step 2 instead. H1's bounded inputs are therefore a transport bound, not this array's: each side bounds the bytes it reads before it parses them. The reference implementation's cost is linear in the array; the pre-review measured 5000 assignments at 5.1 s before `assignment_set_mismatch`.*
+
 **Order at `admission`, snapshot half.**
 
 1. Classification and selection (E1).
 2. `snapshot_malformed`.
+   - *Added 2026-10-09 (Phase 3 pre-review, M3): `snapshot_malformed` also covers an embedded `convening` that fails an E2 rule needing no oracle and judging the record alone. These run after the record's E2 schema: first E2 step 2's structural rules (the `class_inputs` and `matched_class` pair, source order and uniqueness, the listing rules, a repeated `fact_sources` contract, and a sorted, duplicate-free `changed_paths`), then the offline roster rules, step 11's `condition_seat_unbound` and step 12's three roster checks. A record those rules refuse is never admitted, so a snapshot embedding one is malformed. That includes a zero-seat snapshot with no assignment, which "one assignment per required seat" would otherwise pass vacuously. The rest of E2's order is the admission that ran before the snapshot was written. The snapshot half re-runs none of it and reads no oracle.*
 3. `assignment_malformed`: an assignment fails E5, including a lifetime above the ceiling.
+   - *Added 2026-10-09 (Phase 3, reading 1): then `value_not_canonicalizable`, for any value in the snapshot, before step 4 takes a digest. This order names no step for it. § Shared definitions places it "before any digest is taken", and E2 step 2 places it after shape; this is that position. `asg-order-assignment-malformed-before-not-canonicalizable-refuse` and `asg-order-not-canonicalizable-before-digest-refuse` pin it from both sides. A lone assignment, which `check` reads outside its snapshot, takes the same pre-check after its own E5 shape.*
 4. `digest_construction_mismatch`: the digest does not recompute over `convening`.
 5. `assignment_set_mismatch`: not exactly one assignment per `required_seats` entry in roster order, or an assignment whose `protocol`, `convening_id`, `convening_digest`, `council_id` or `candidate` differs from the snapshot's.
 6. `assignment_duplicate`: a repeated `assignment_id`.

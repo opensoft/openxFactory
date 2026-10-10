@@ -30,9 +30,12 @@ CEILING = 21600
 def convening_record(**overrides) -> dict:
     """A shape-valid E2 record of an unclassed council with two standing seats.
 
-    The snapshot half (E4) does not re-run the E2 order: it binds this record,
-    verbatim, by `convening_digest`. So the record only has to pass the E2
-    schema, which `convening-snapshot.schema.yaml` takes by `$ref`.
+    The snapshot half (E4) binds this record, verbatim, by `convening_digest`,
+    and re-runs only the E2 rules that need no oracle and judge the record
+    alone: its schema (`convening-snapshot.schema.yaml` takes it by `$ref`),
+    E2 step 2's structural rules, and the offline roster rules of steps 11
+    and 12 (data-model E4, dated note of 2026-10-09). So the record must pass
+    those, and nothing here reaches an oracle.
     """
     record = {
         "schema_version": 1,
@@ -75,6 +78,19 @@ def digest_of(record: dict) -> dict:
     }
 
 
+def holder_binding_ref(seat_id: str) -> str:
+    """The `holder.binding_ref` of the assignment for `seat_id`.
+
+    Every holder in these tests, and so in every Phase 3 vector and every
+    retry vector's live snapshots (`assignment_vectors.py` builds both from
+    this module), takes its binding from here. One shared binding is legal
+    at this commit (`test_a_shared_binding_is_not_a_shared_holder`). If E4
+    step 7 comes to refuse a repeated `binding_ref` too, the one line below
+    becomes `return f"binding-{seat_id}"` and the vectors are rebuilt.
+    """
+    return "binding-seat"
+
+
 def assignment(convening: dict, convening_id: str, seat_id: str, **overrides) -> dict:
     """One E5 assignment for `seat_id`, bound to `convening`, living six hours."""
     value = {
@@ -91,7 +107,7 @@ def assignment(convening: dict, convening_id: str, seat_id: str, **overrides) ->
         "holder": {
             "principal_kind": "github_oidc_job",
             "principal_ref": f"principal-{seat_id}",
-            "binding_ref": "binding-seat",
+            "binding_ref": holder_binding_ref(seat_id),
         },
         "permitted_operations": ["seat_key_registration", "seat_return"],
         "not_before": "2026-10-09T00:00:00Z",
