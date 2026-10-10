@@ -335,7 +335,8 @@ def _check_binding(path: Path, document: dict, schemas: records.SchemaSet,
     _say(f"note  {path}: producer binding passes E10 steps 1 to 6 (offline), "
          f"against {binding.IDENTITY_MAP.as_posix()} at this tree")
     for step, code in enumerate(binding.CLAIM_RULES, start=7):
-        _say(f"note  not checkable offline: {path}: E10 step {step} {code}")
+        _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: "
+             f"E10 step {step} {code}")
     return []
 
 

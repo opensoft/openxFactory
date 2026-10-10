@@ -74,7 +74,7 @@
     },
     "repository_identity": {
       "state": "text",
-      "text": "# The frozen identity fixture of the council-convening conformance corpus.\n# Corpus-owned and NOT the live contracts/policies/repository-identity.yaml:\n# one complete transfer row and one pending row, in the live map's shape.\nschema_version: 1\nkind: repository_identity\npolicy_id: repository-identity-v1\ntransfers:\n  - former: opensoft/codexFactory\n    current: codeXfactory/codexFactory\n    transferred_on: 2026-09-09\n    transfer_state: complete\n  - former: opensoft/ExampleFactory\n    current: ExampleOrg/ExampleFactory\n    transferred_on: null\n    transfer_state: pending\n"
+      "text": "# The frozen identity fixture of the council-convening conformance corpus.\n# Corpus-owned and NOT the live contracts/policies/repository-identity.yaml:\n# one complete transfer row and two pending rows, in the live map's shape. The\n# second pending row's former equals the complete row's current spelling when\n# ASCII case is ignored, and is not byte-equal to it: the precedence probe.\nschema_version: 1\nkind: repository_identity\npolicy_id: repository-identity-v1\ntransfers:\n  - former: opensoft/codexFactory\n    current: codeXfactory/codexFactory\n    transferred_on: 2026-09-09\n    transfer_state: complete\n  - former: opensoft/ExampleFactory\n    current: ExampleOrg/ExampleFactory\n    transferred_on: null\n    transfer_state: pending\n  - former: codeXfactory/CodexFactory\n    current: ExampleOrg/CollidingFactory\n    transferred_on: null\n    transfer_state: pending\n"
     }
   },
   "evaluation_time": "2026-10-09T01:00:00Z",

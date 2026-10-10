@@ -62,6 +62,13 @@ GOVERNED_FORMER_CASE_VARIANT = "opensoft/CodexFactory"
 PENDING_FORMER = "opensoft/ExampleFactory"
 PENDING_CURRENT = "ExampleOrg/ExampleFactory"
 
+#: The fixture's second PENDING row, whose `former` equals the complete row's
+#: CURRENT spelling when ASCII case is ignored, and is not byte-equal to it: the
+#: precedence probe (a case-fold collision with a complete row is tested before
+#: the pending exemption).
+COLLIDING_PENDING_FORMER = "codeXfactory/CodexFactory"
+COLLIDING_PENDING_CURRENT = "ExampleOrg/CollidingFactory"
+
 #: The frozen governed revision, a later and an earlier first-parent commit,
 #: and a commit off the governed first-parent history.
 REVISION = "4" * 40
