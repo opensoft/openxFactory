@@ -707,10 +707,10 @@ T042 (`test_signing.py`), T043 (`test_corpus_regeneration.py`) and T045 (the `ch
 
 - **The holder.** E5's holder `{principal_kind, principal_ref, binding_ref}` names one seat's binding. E7 step 5 resolves `binding_ref` against the configured bindings, and refuses `binding_unresolved` otherwise.
 - **The environment.** The per-seat environment travels in the OIDC `sub`. E10 step 11 checks it against that seat's binding's `subject_template`, so another seat's job is `subject_template_mismatch` (`reg-another-seats-job-refuse`).
-- **A shared binding.** A binding shared by two seats is already E4's `assignment_shared_holder`.
+- **A shared binding.** E4 step 7 refuses only a repeated `holder.principal_ref` (`assignment_shared_holder`). Two seats whose holders share one `binding_ref` and name distinct `principal_ref`s therefore freeze, and E7 step 5 resolves both to that one binding. Seat isolation then rests on the trusted dispatcher's principal alone: with the binding shared, seat-a's job registers for seat-b once the identity oracle names seat-b's principal. `test_a_binding_shared_by_two_seats_with_distinct_principals_freezes_today` pins this behaviour. Whether to tighten it is an owner decision, put to Brett Heap and not ruled at this record's commit. The two options are for E4 step 7 to also refuse a repeated `binding_ref`, or for E7 step 5 to require `principal_ref` to equal `binding_ref`. *Corrected 2026-10-10, on the independent pre-review of `03cb77e29` (M2): this bullet read "A binding shared by two seats is already E4's `assignment_shared_holder`", which holds only when the two holders also share a `principal_ref`.*
 - **The fixtures.** The unit fixture and the vector builder bind each seat to its own environment (`repo:example-owner/example-caller:environment:council-<seat>`), and `test_each_seat_registers_against_its_own_binding` registers both seats.
 
-Per-seat environments need no change to this phase's model.
+Per-seat environments need no change to this phase's model. The isolation they rely on is complete only when each seat's holder names its own binding, which the shared-binding bullet above qualifies.
 
 ### Quickstart steps 1–5 (T049)
 

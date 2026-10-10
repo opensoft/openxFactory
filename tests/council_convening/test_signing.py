@@ -38,7 +38,7 @@ import inspect
 import pytest
 import yaml
 
-from scripts.council_convening import signing
+from scripts.council_convening import assignments, signing
 from scripts.council_convening.records import Refused
 from scripts.signed_execution_chain import canonical, ed25519
 
@@ -308,6 +308,34 @@ def test_each_seat_registers_against_its_own_binding():
     for seat in fx.SEATS:
         assert register(fx.registration_case(seat))["key_fingerprint"] == fx.fingerprint(
             fx.key(seat).public_key)
+
+
+def test_a_binding_shared_by_two_seats_with_distinct_principals_freezes_today():
+    # PINS CURRENT BEHAVIOUR, which an owner ruling may tighten (pre-review of
+    # 03cb77e29, M2). E4 step 7 refuses only a repeated `holder.principal_ref`,
+    # so two seats whose holders share one `binding_ref` and name distinct
+    # `principal_ref`s freeze, and E7 step 5 then resolves both to that one
+    # binding. Per-seat isolation then rests on the dispatcher's principal.
+    shared_binding = fx.snapshot()
+    for item in shared_binding["assignments"]:
+        item["holder"]["binding_ref"] = fx.binding_id("seat-a")
+    assignments.check_snapshot(shared_binding)
+
+    shared_principal = fx.snapshot()
+    for item in shared_principal["assignments"]:
+        item["holder"]["principal_ref"] = fx.binding_id("seat-a")
+    with pytest.raises(Refused) as caught:
+        assignments.check_snapshot(shared_principal)
+    assert caught.value.code == "assignment_shared_holder"
+
+    # So at registration, seat-a's job registers for seat-b once the dispatcher
+    # names seat-b's principal: the shared binding admits seat-a's subject.
+    case = fx.registration_case("seat-b")
+    for item in case["snapshot"]["assignments"]:
+        item["holder"]["binding_ref"] = fx.binding_id("seat-a")
+    case["environment"]["identity"] = fx.identity("seat-a")
+    case["environment"]["identity"]["principal"]["principal_ref"] = fx.binding_id("seat-b")
+    assert register(case)["key_fingerprint"] == fx.fingerprint(fx.key("seat-b").public_key)
 
 
 def test_registration_verifies_the_proof_with_the_stdlib_verifier(monkeypatch):
