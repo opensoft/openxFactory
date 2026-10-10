@@ -208,7 +208,9 @@ raise with Brett (Copilot's review of `6f073ed2`).
     5, on Copilot `4232974858` at openxFactory#1283) is its JSON text with sorted
     keys, no whitespace and ASCII-only escapes: Python's
     `json.dumps(id, sort_keys=True, separators=(",", ":"), ensure_ascii=True,
-    allow_nan=True, default=str)`.
+    allow_nan=True, default=<the default hook>)`, where the default hook is
+    `str` except that it spells a `set` or `frozenset` as the list of its members
+    sorted by each member's `ascii()` text (below; `6090537166` item 8 (b)).
     - So every value the manifest's YAML parser yields has one spelling.
     - A value JSON cannot represent (a YAML date, timestamp or binary) is spelled
       by its `str()`, except a `set` or `frozenset`: the `default` hook spells it
@@ -226,13 +228,13 @@ raise with Brett (Copilot's review of `6f073ed2`).
       REVIEW-W1 T041 NO-GO at openDox-code#97). So the canonical text is always
       ASCII and the digest never raises.
 
-    **Accepted limits** (the holder, `6088732352` item 6 (a), `6089449884` item 7
-    and `6090537166` item 8, on Copilot `4234200786` and `4234624749` and lane 3's
+    **Accepted limits** (the holder, `6088732352` item 6 (a), `6089449884` item 7,
+    `6090537166` item 8 and `6103336585` item 9, on Copilot `4234200786` and `4234624749` and lane 3's
     REVIEW-W1 T041 NO-GO, under `5988818366`): the canonical text is not injective
     across YAML value types.
-    - A date or timestamp and its `str()` can share a digest: with `default=str`,
-      a YAML date or timestamp id digests like a malformed string id that spells
-      its `str()`. A conforming string such as `2026-10-09` is kept as written, so
+    - A date or timestamp and its `str()` can share a digest: through the default
+      hook's `str()`, a YAML date or timestamp id digests like a malformed string
+      id that spells its `str()`. A conforming string such as `2026-10-09` is kept as written, so
       it never collides with a date.
     - A non-string mapping key and its JSON spelling can share a digest, because
       `json.dumps` spells such a key in its JSON form: `{1: "a"}` and `{"1": "a"}`
@@ -246,6 +248,14 @@ raise with Brett (Copilot's review of `6f073ed2`).
     - A set reached only through the `ascii()` fallback (inside a mapping that JSON
       cannot spell) keeps Python's order (item 8 (b)). At worst that refused
       entry's finding is raised again each run.
+    - The int-digit limit is an interpreter setting (`PYTHONINTMAXSTRDIGITS`,
+      4300 by default), not a constant, so the same huge-integer id can take the
+      fixed text `<past the int-digit or recursion limit>` under one setting and
+      be spelled out under another, giving a different entry digest (the holder,
+      `6103336585` item 9, NIT 2 of lane 3's REVIEW-W1 T041 GO at openDox-code#97).
+      It is operator-only, since it needs the same pack checked under two
+      interpreter settings, and at worst that refused entry's finding is raised
+      again under the other setting: the same class as item 8 (b)'s limit.
     - Making the text injective would need a typed encoding of every value at
       every depth, which is out of proportion to a refused entry's identity.
 - **U+0000 is refused** (the NUL seam, the holder, `6072086385` item 4). Postgres

@@ -148,7 +148,9 @@ worded, each cited by comment id or merge commit, with no new decision:
   `6090537166` item 8, the canonical text's second fallback, which catches
   `ValueError` as well as `RecursionError` and writes ONE fixed text for an id
   neither spelling can write, and its sets, spelled sorted by each member's
-  `ascii()` text, with their accepted limits;
+  `ascii()` text, with their accepted limits, and `6103336585` item 9, one more:
+  the int-digit limit is an interpreter setting, so a huge-integer id's digest can
+  differ between two settings;
 - the tick of T015, which landed as openDox-code#96 → `c94878be` (the merge commit
   read through GraphQL).
 
@@ -1183,8 +1185,8 @@ copies (research R7; ADV-05).
     (items 1 and 4), `6072197564` (NAMES (b), (c) and (e)), `6073087924` (the
     entry rule, refining (e)), `6086098003` (items 1, 3 and 4), `6088484643`
     (item 5, the canonical text), `6088732352` (item 6, with `6082100803`),
-    `6089449884` (item 7, the widened limit) and `6090537166` (item 8, the second
-    fallback and sets).
+    `6089449884` (item 7, the widened limit), `6090537166` (item 8, the second
+    fallback and sets) and `6103336585` (item 9, the int-digit setting).
     **Decisions**: N-3, N-13, N-15, OQ-H15-19.
   - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
@@ -1194,7 +1196,8 @@ copies (research R7; ADV-05).
   - **Implementation note** (the holder, `6069024023` items 1 and 2,
     `6069507373` T046 item 2, `6072086385` items 1 and 4, `6072197564`,
     `6073087924`, `6086098003` items 1, 3 and 4, `6088484643` item 5,
-    `6088732352` item 6, `6089449884` item 7 and `6090537166` item 8):
+    `6088732352` item 6, `6089449884` item 7, `6090537166` item 8 and
+    `6103336585` item 9):
     - the engine categories are the nine T041 drafted and the two the holder
       added, `dispositions-refused` and `manifest-refused`, with their mappings,
       each category's `pack_id` among them: the entry's id for a finding against
@@ -1286,9 +1289,11 @@ copies (research R7; ADV-05).
       - the canonical text of the id (the holder, `6088484643` item 5, on Copilot
         `4232974858` at openxFactory#1283), recorded in
         contracts/health-finding.md, is Python's `json.dumps(id, sort_keys=True,
-        separators=(",", ":"), ensure_ascii=True, allow_nan=True, default=str)`.
-        A value JSON cannot represent (a YAML date, timestamp or binary) is
-        spelled by its `str()`. If that call raises (a mapping whose keys JSON
+        separators=(",", ":"), ensure_ascii=True, allow_nan=True, default=<the
+        default hook>)`, where the default hook is `str` except for sets, below
+        (Copilot `4239576494` at openxFactory#1283). A value JSON cannot
+        represent (a YAML date, timestamp or binary) is spelled by its `str()`. If
+        that call raises (a mapping whose keys JSON
         cannot spell or cannot sort, or a self-referencing value), the canonical
         text is `ascii(id)`, Python's `repr()` with every non-ASCII character
         escaped (the holder, `6088732352` item 6 (b), on Copilot `4234200849`). The
@@ -1310,7 +1315,11 @@ copies (research R7; ADV-05).
         can share a digest; `identity-collision` reports any such collision, so
         it is operator-only and never silent. A set reached only through the
         `ascii()` fallback keeps Python's order, so at worst that refused entry's
-        finding is raised again each run;
+        finding is raised again each run. The int-digit limit is an interpreter
+        setting (`PYTHONINTMAXSTRDIGITS`), not a constant, so the same
+        huge-integer id can take the fixed text under one setting and be spelled
+        out under another, giving a different digest: operator-only, the same
+        class (the holder, `6103336585` item 9, NIT 2 of lane 3's GO at #97);
       - T041 adds the helper that builds it: deterministic, total over anything
         the manifest parser yields, distinct for distinct ids but for the accepted
         limit above (`6088732352` item 6 (a), `6089449884` item 7), and never
