@@ -712,3 +712,114 @@ All at `2564a1b1d` unless another commit is named. Py-bench container, Python 3.
 5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty.
 
 **The PR.** T049 says to open PR-4 as a draft. The lane's coordinator instructed that it opens as a **draft only after PR-5 has landed**, and that Phase 4's boxes in `tasks.md` stay unticked until then and until `origin/main` is merged. PR-4 is not open at this record's commit, and its landing needs Brett Heap's own word.
+
+## Phase 6 — User Story 3: activate and recover the matched pair (PR-6)
+
+### Authority and base (2026-10-09)
+
+- **The words.** Brett Heap, first-hand: *"start 035 phase 6 while PR-4 lands"*, 2026-10-09T02:42:14Z (WORD, log line 251), and *"merge PR-6 when green"*, 2026-10-09T02:46:33Z (WORD, log line 252). PR-6 opens ready after PR-4 lands and lands once every check passes, with an independent review alongside CI; a blocking finding, or a failed per-seat binding-set check, holds it for Brett Heap.
+- **The rulings Phase 6 encodes.**
+  - The 025 ruling (A), *"Per-seat environments (Recommended)"*, RULED 2026-10-09T01:20:43Z (log line 233): one GitHub environment per council seat, the OIDC subject naming the environment, and the consumer mapping environment to seat to binding.
+  - The rollback ruling, *"Back to Release A pins (Recommended)"*, Brett Heap first-hand, 2026-10-09T13:22:16Z: a paired rollback after activation returns both sides to their Release A (Phase 7) pins, where legacy is still `deprecated` and selectable, and reselects legacy there; the records made since are kept as audit evidence (`b24789199`).
+  - The fingerprint ruling, *"Estate spelling (Recommended)"*, 2026-10-09T02:36:50Z, is not touched: Phase 6 computes no key fingerprint.
+- **Branch.** `035-phase6-migration`, cut with no upstream from `origin/main` `93d13d6c8`, which is later than #1268's merge `de7091515`. Every earlier phase was taken from origin only, by merge, never from a local ref:
+
+  | Origin head | Merged as | At |
+  | --- | --- | --- |
+  | `origin/035-phase1-foundation` `396ef5dd7` | `990e3045e` | 2026-10-09T02:44:39Z |
+  | `origin/035-phase1-foundation` `a1375ac96` (the PR-1 review's fixes) | `86e3a01a9` | 2026-10-09T07:46:46Z |
+  | `origin/035-phase2-membership` `fdc0b0601` | `00a081289` | 2026-10-09T13:29:48Z |
+  | `origin/035-phase1-foundation` `8f83b10ac` (nested `$schema`/`$id` refused at load; S8707 containment) | `f98091dec` | 2026-10-09T17:34:47Z |
+  | `origin/main` `9a272c6db` (PR-1 landed; no file changed) | `8dafdc90f` | 2026-10-09T20:04:15Z |
+  | `origin/035-phase5-binding` `52a801306` | `0968c5f67` | 2026-10-09T20:10:53Z |
+  | `origin/035-phase3-assignments` `eb6bf6bff` | `bbe351238` | 2026-10-09T20:24:04Z |
+  | `origin/035-phase4-signing` `03cb77e29` (carries Phases 1 to 3 and 5) | `076e9ccd4` | 2026-10-09T20:52:00Z |
+  | `origin/main` `a8ab30396` (#1290, openXwallet group 6; no council-convening file) | `0f4c6f87b` | 2026-10-09T22:29:16Z |
+  | `origin/035-phase5-binding` `d8c62dba4` (its review round, carrying Phase 3's `c0e77e12b`) | `a574144c9` | 2026-10-09T22:31:17Z |
+
+### Tests and vectors first, run red
+
+T057 was written, and the T058 vectors authored with every expected outcome by hand, before any Phase 6 module existed.
+
+- `python3 -m pytest tests/council_convening -q -m "not postgres" --continue-on-collection-errors`, at `62435207a` (2026-10-09T03:01Z): **1 error, 244 passed**. The one error is `test_migration.py`'s collection: `scripts.council_convening` has no `migration` module. The 244 passes are Phase 1's own tests, unchanged.
+- After the PR-1 review's fixes were merged, at `86e3a01a9`: **15 failed, 293 passed, 1 error**, still Phase 6's red state. Every failure and the error is an absent Phase 6 name, schema or code.
+- After Phase 5's merge, five new cases of `test_the_configured_binding_set_is_a_set_of_live_bindings` (`7a83b8ae8`) failed against the interim structural binding check: **5 failed, 4 passed**.
+- Before the floor was raised, the full-floor tests (`4f7a0f8e2`): **6 failed, 1 passed** of the selected tests.
+- The `migration` vectors, all `derived_origin: hand`, number 124: 18 `classification` (every row of the E1 effects table under each legacy status, by override), 11 `historical`, 33 `selection` and 62 `activation`. The B1 follow-up (`cb7b8b958`) added the legacy shapes that carry `signature.protocol`. Every vector whose outcome reads a registry status carries a `registry_status` override for the entry it reads, so the corpus digest does not move when Phases 7 and 8 flip the registry.
+
+### The per-seat binding-set check (025 ruling A): expressible
+
+E12's `binding_refs` is "the `binding_id` of every E10 binding the activated consumer will use, its commission binding and each seat holder's", and must equal the consumer's configured binding set. Under ruling (A) each seat holder's binding is its own seat's, so the configured set is the commission binding plus one binding per seat, and an activation lists all of them. The T057 cases and the activation vectors are written that way, for both of the estate's councils as their governed documents stand at codexFactory `48d0560e`: merge-readiness's four seats (three standing, one conditional) and gate-rules's six.
+
+The cap is the one limit. `binding_refs` holds 1 to 16 entries. Under ruling (A) the estate needs 12 (two commission bindings and ten seat bindings), so it fits with four to spare; a vector accepts a 16-binding set and refuses a 17th as `activation_evidence_malformed`. A council roster is bounded at 64 seats, so a configured set that outgrows 16 needs a governed widening of the cap, never a split activation (two partial records are both refused, because each must name the whole set). **The check passes, so PR-6 opens ready.**
+
+Each configured binding is a whole E10 instance. With Phase 5 merged, a corpus input that fails `producer-binding.schema.yaml`, or is the `.template.yaml` stub, is not a live binding (`binding.schema_errors`, `21d8146c8`). A new test runs Phase 5's `check_offline`, E10 steps 1 to 6, over the 212 bindings that 36 activation and resume vectors configure, against the corpus's frozen identity fixture: every one passes, as authored, so no vector needed re-authoring.
+
+### Readings the data model leaves open, encoded and disclosed
+
+1. **The backing rehearsal is compared on the matched values other than `mode`.** E12 step 2 compares a passing rehearsal with its activation on the provider and "five matched selection values". A rehearsal runs its selections in `mode: rehearsal` and an activation in `mode: active`, so comparing `mode` would refuse every activation. The comparison is the provider plus `protocol`, `provider_commit`, `provider_bundle` and `corpus_index_sha256`. A consequence, pinned by vectors: for an activation or resume, a side that strays from the other on one of those four is refused at step 2, because the backing rehearsal is itself matched; only a `mode` split reaches step 4's `pair_mismatched`.
+2. **A rollback's sides.** The data model gives `restored_producer` and `restored_consumer` no shape. A rollback's `producer` and `consumer` are the pair it restores, matched at step 4, so a one-sided switch can still be rolled back and recorded; `restored_producer` and `restored_consumer` are each side's restoration evidence, `{verified_at, evidence_ref}`. Under the rollback ruling the restored pair is legacy at the Release A pins.
+3. **Each act is closed to its own members.** A member foreign to the act, such as `binding_refs` on a rollback, is `activation_evidence_malformed`, so nothing is carried unchecked. Every act-specific member, `recorded_at` and `provider` included, is optional in the schema, because its absence is `activation_evidence_incomplete`.
+4. **The selection order across records.** Steps 1 to 3 run over every selection in a vector (producer, consumer, then the later attempt) before the next step. A record presented as one side's selection whose `side` names the other is `selection_malformed`; within an activation record the same rule is the schema's.
+5. **Deprecation in the CLI.** `check` prints `WARN [council-convening-legacy-protocol-deprecated]` beside a route while the registry at the commit holds legacy `deprecated`, and `--strict` makes it an ERROR. `check --historical` gives no deprecation finding, because a historical audit classifies at any status and selects nothing. In the corpus the deprecated finding belongs to the legacy-selection row only; the offline and historical rows read no status.
+6. **The activation boundary reads no registry status**, and neither does the historical boundary; a selection reads the status of the entry it names. The corpus's `registry_status` rule now names each entry an outcome read (`Outcome.statuses_read`), the replacement's included.
+7. **`select` reads only inside its invocation directory**, through the containment Phase 1 added to `check` for Sonar S8707 (`_within_invocation_directory(name, "select")`), with a test.
+
+The rollback reading this section once held as an open question is ruled (above), and the runbook, data-model D5 and research R14 carry the ruling.
+
+### Gap noted, not filled
+
+E12 does not tie a record's `provider` to its selections' `provider_commit`, `provider_bundle` and `corpus_index_sha256`. No check is added.
+
+### Integration with the merged phases
+
+- **Phase 2's CLI tests under Phase 1's containment.** Phase 2's commission-record `check` tests wrote their records to a temporary directory and ran `check` from the repository root. Once Phase 1's containment was merged beside them, `check` refused each as outside its invocation directory (exit 2). They run from the record's directory, as Phase 1's own tests do; Phase 5 made the same fix, and its spelling is kept.
+- **The vocabulary.** `refusal_code` is in landing order (1, 2, 3, 5, 4, 6), each phase's codes in data-model § Refusal vocabulary order: 92 codes, each once. T060 had added `binding_unresolved` and `broker_capability_insufficient` early, because E12 gives them; the Phase 4 merge keeps Phase 4's copy, at the close of its run, and drops Phase 6's.
+- **The Phase 1 pins that named a later phase.** Phase 6 lands last, so each now asserts that everything has landed:
+  - the later-phase refusal-code vector is `def-refusal-code-refuse-unlisted-code`, probing `legacy_protocol_removed`, which no phase adds, as the finding vector does; the out-of-vocabulary refusal test uses the same code;
+  - every corpus boundary has its handler, and the unhandled-boundary case withdraws one by monkeypatch;
+  - `check` judges all five judged-by-kind kinds, and the kind-not-landed case adds a kind to that set by monkeypatch;
+  - the vocabulary test pins the complete enumeration.
+- **The full floor (T058).** With every phase's vectors in, each of FR-001 to FR-012 and SC-001 to SC-003 is cited by a vector (FR-009 by the `binding` and `migration` vectors, FR-010 by the `signing` vectors), so `coverage_floor` is the full fifteen (`c4a651290`). The gate's requirements grep names the fifteen, and a new grep asserts the validator's `note  coverage floor full: FR-001 to FR-012, SC-001 to SC-003`, which `contracts/validator-cli.md` now lists.
+
+### Quickstart steps 1–5 (T063)
+
+All at `a574144c9`, the merge of `origin/035-phase5-binding` at `d8c62dba4`, in a container (`/.dockerenv` present), Python 3.12.3, in this phase's worktree. `openXwallet` (with `openWallet` and its `code` leg), `openXdox` and `openDox` are initialized as `pytest-suite` initializes them.
+
+1. **Red.** The stages above.
+2. **Green.**
+   - `python3 -m pytest tests/council_convening -q`: **1860 passed** in 1157 s (finished 2026-10-09T22:50:37Z). At `a4b1a5641`, before main's and Phase 5's latest merges: 1759 passed.
+   - `python3 scripts/validate-council-convening.py` (finished 22:51:29Z): exit 0, `self-test: 0 error(s), 0 warning(s)`. It printed:
+     - `schemas loaded: 13 (family) + digest-construction`;
+     - `protocol registry closed: 2 entries`;
+     - `predicate registry closed: 2 predicates, 2 input contracts`;
+     - `corpus index: 599 vectors, 373 both-sides, sha256:bcec52f1f3f949ae2ead2aaf3c6dd6fa5e64d3d9432aee29deb5ba4fd0e8348f`;
+     - `vectors adjudicated: 599/599`;
+     - `refusal codes probed: 92/92`;
+     - `finding codes probed: 2/2`;
+     - `requirements probed: 15/15 (FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, SC-001, SC-002, SC-003)`;
+     - `coverage floor full: FR-001 to FR-012, SC-001 to SC-003`;
+     - `generator reproduced corpus byte-for-byte`.
+
+     Each of the gate's eleven log assertions, replayed against this log, passes.
+3. **Corpus reproducible.**
+   - `python3 -m scripts.council_convening.generate --check`: no drift, exit 0.
+   - `python3 scripts/validate-council-convening.py corpus`: exit 0, 599 vectors, with an agreement set of **373** (both sides); by area, assignment 49, binding 63, foundation 133, migration 124, resolution 142 and signing 88; by outcome, accept 121, refuse 458 and route 20.
+   - Index `sha256:bcec52f1f3f949ae2ead2aaf3c6dd6fa5e64d3d9432aee29deb5ba4fd0e8348f`, unpublished until Phase 7.
+4. **Repository gates.**
+   - **OpenSpec.** `python3 scripts/validate-openspec-cli-pin.py --all --strict` (22:51:00Z–22:51:03Z): exit 0, `Totals: 113 passed, 1 failed (114 items)`, 0 undispositioned. The one failure is `add-chain-attestation`'s accepted exception.
+   - **Doc-health.** `python3 scripts/doc-health.py --single-repo . --report-out <scratch>/…`, over exported trees (`git archive`) of this head and of three bases: Phase 4's tip `03cb77e29`, Phase 5's tip `d8c62dba4` and `origin/main` `a8ab30396`.
+     - Each reads `Findings: 27 critical, 22 error, 3 warning, 16 info`, with 0 regressions.
+     - With the root label normalized, the head report differs from each base in two lines only: the canon word count, and the census row for `ratified` documents, 34 to 35, which is the runbook.
+     - There are no new findings.
+
+     Exported trees carry no git metadata, so `release-inventory-drift` and `release-tag-publication` skip in all four alike. The counts are comparable with each other, not with an in-worktree run.
+   - **`tests/doc-health`.** `python3 -m pytest tests/doc-health -q` (finished 22:59:05Z): **2157 passed**. An earlier run at `f98091dec`, before the submodules were initialized in this worktree, failed 7 tests, each on an `openXdox` leg reported as not materialized; those 7 passed once the submodules were initialized.
+   - **Full suite.** Not run locally, on the coordinator's instruction ("No local full suite"). The required `pytest-suite` check on PR-6 is the gate of record.
+5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty.
+
+### The runbook (T062)
+
+`docs/council-convening-activation-runbook.md`, `Status: ratified`, `Ratified by: renew-resolved-council-protocol`, `Kind: runbook`, linked once from the `README.md` document index. Doc-health in single-repo mode, base `e1aab2af5` against head `29ee4a3d6`: `Findings: 31 critical, 22 error, 59 warning, 21 info` at both, `New regressions vs previous report: 0`; the only difference between the two reports is the census row for `ratified` documents, 34 to 35. The ruled rollback replaced the open question in `b24789199`.
+
+**The PR.** T063 says to open PR-6 as a draft. The lane's coordinator instructed that it open **ready**, after PR-4 lands, on Brett Heap's word *"merge PR-6 when green"*, and that Phase 6's boxes in `tasks.md` stay unticked until then and until `origin/main` is merged. It is not open at this record's commit.
