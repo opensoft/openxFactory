@@ -24,6 +24,13 @@ from pathlib import Path
 import pytest
 import yaml
 
+from .binding_fixtures import (
+    BINDING_TEMPLATE,
+    GOVERNED_FORMER,
+    commission_binding,
+    seat_binding,
+    write_identity_map,
+)
 from .conftest import (
     FAMILY_REL,
     INDEX,
@@ -61,14 +68,6 @@ PHASE_1_NOTES = [
     r"FR-009, FR-011, SC-001, SC-002\)$",
     r"^note  generator reproduced corpus byte-for-byte$",
 ]
-
-from .binding_fixtures import (
-    BINDING_TEMPLATE,
-    GOVERNED_FORMER,
-    commission_binding,
-    seat_binding,
-    write_identity_map,
-)
 
 SHA = "0123456789abcdef0123456789abcdef01234567"
 FPR = "sha256:" + "ab" * 32

@@ -236,6 +236,7 @@ class IdentityMap:
             return False
         return any(_ascii_fold(listed) == folded for listed in self.pending)
 
+
 def load_identity_map(root: Path) -> IdentityMap:
     """The identity map under `root`, read through `load_transfers`, or
     `repository_identity_unavailable`.

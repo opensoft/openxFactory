@@ -105,6 +105,8 @@ def reads_identity_map(vector: Mapping[str, Any]) -> bool:
     inputs = vector.get("inputs")
     return not (vector["boundary"] == "admission" and isinstance(inputs, Mapping)
                 and "snapshot" in inputs)
+
+
 ROW_MEMBERS = ("case_id", "area", "boundary", "applies_to", "requirement_ids", "path",
                "sha256", "expected")
 ROW_FROM_VECTOR = ("case_id", "area", "boundary", "applies_to", "requirement_ids",

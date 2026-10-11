@@ -2910,6 +2910,26 @@
       ],
       "area": "binding",
       "boundary": "binding",
+      "case_id": "bind-workflow-pending-collides-governed-names-it-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-workflow-pending-collides-governed-names-it-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:fd05e00e1a4e8fd33a6285e605360a9a8b526de8d28245be8653449eff4e0e53"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
       "case_id": "bind-workflow-pending-collides-with-complete-refuse",
       "expected": {
         "derived": {},
@@ -9702,15 +9722,15 @@
     "both_sides": 322,
     "by_area": {
       "assignment": 68,
-      "binding": 66,
+      "binding": 67,
       "foundation": 133,
       "resolution": 165
     },
     "by_outcome": {
       "accept": 84,
-      "refuse": 340,
+      "refuse": 341,
       "route": 8
     },
-    "vectors": 432
+    "vectors": 433
   }
 }
