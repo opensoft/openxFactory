@@ -6326,6 +6326,27 @@
       ],
       "area": "migration",
       "boundary": "activation",
+      "case_id": "mig-act-activation-twin-subject-template-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/migration/mig-act-activation-twin-subject-template-malformed.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:5b03959b23e845cadfdf1bf19cf341b6d53f5364362d3785b6008222004104a4"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
       "case_id": "mig-act-activation-unconfigured-binding-unresolved",
       "expected": {
         "derived": {},
@@ -6473,6 +6494,27 @@
       ],
       "area": "migration",
       "boundary": "activation",
+      "case_id": "mig-act-order-incomplete-before-twins",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "activation_evidence_incomplete"
+      },
+      "path": "vectors/migration/mig-act-order-incomplete-before-twins.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:4c0428447ce5ef79da1c57efc24fe9b1ac3fcea2d180d63216b4fd6ecc4f3182"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
       "case_id": "mig-act-order-incomplete-before-unresolved",
       "expected": {
         "derived": {},
@@ -6531,6 +6573,48 @@
         "FR-012"
       ],
       "sha256": "sha256:ebf5ad7094a4393587770f48991ffb1e9d9880b918a75da84812f1d5b928015b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-order-twins-before-broker",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/migration/mig-act-order-twins-before-broker.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:d76b9145ef15ce13d0a6bc68f92999d214fa8dabc0f6955691ae675b06d5d20c"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-order-twins-before-unresolved",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/migration/mig-act-order-twins-before-unresolved.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:4b013d0bca9360c98eea58a709174a19602e198816650610fa87fddf06e85c4f"
     },
     {
       "applies_to": [
@@ -6805,6 +6889,27 @@
         "FR-012"
       ],
       "sha256": "sha256:d6d380333c794732ce430fd7b7e93585a66708243afa4ca06de483f6ba889be1"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "migration",
+      "boundary": "activation",
+      "case_id": "mig-act-resume-twin-subject-template-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/migration/mig-act-resume-twin-subject-template-malformed.json",
+      "requirement_ids": [
+        "FR-009",
+        "FR-012"
+      ],
+      "sha256": "sha256:8c719f00ad0e00ba849b64e6c7bf966575878af0ffc789a2a2f42c6ad73452d8"
     },
     {
       "applies_to": [
@@ -14381,15 +14486,15 @@
       "assignment": 68,
       "binding": 63,
       "foundation": 133,
-      "migration": 124,
+      "migration": 129,
       "resolution": 165,
       "signing": 88
     },
     "by_outcome": {
       "accept": 126,
-      "refuse": 495,
+      "refuse": 500,
       "route": 20
     },
-    "vectors": 641
+    "vectors": 646
   }
 }
